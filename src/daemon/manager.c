@@ -569,6 +569,8 @@ handle_set_avatar_data_url (CockpitManager *object,
                             const gchar *arg_data)
 {
   GError *error = NULL;
+  gsize raw_size;
+  gs_free gchar *raw_data = NULL;
 
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_ADMIN))
     return TRUE;
@@ -579,8 +581,7 @@ handle_set_avatar_data_url (CockpitManager *object,
 
   base64_data += strlen ("base64,");
 
-  gsize raw_size;
-  gs_free gchar *raw_data = (gchar *)g_base64_decode (base64_data, &raw_size);
+  raw_data = (gchar *)g_base64_decode (base64_data, &raw_size);
 
   const gchar *file = PACKAGE_SYSCONF_DIR "/cockpit/avatar.png";
   if (!g_file_set_contents (file, raw_data, raw_size, &error))

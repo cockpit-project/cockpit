@@ -159,19 +159,23 @@ auth_check_uid_role (GDBusMethodInvocation *invocation,
                      const gchar *role)
 {
   int err = 0;
+  gs_free struct passwd *pw = NULL;
+  gs_free struct group *wheel_gr = NULL;
+  gs_free struct group *role_gr = NULL;
+  gs_free gid_t *gids = NULL;
 
   if (uid == 0)
     return TRUE;
 
-  gs_free struct passwd *pw = getpwuid_a (uid, &err);
+  pw = getpwuid_a (uid, &err);
   if (pw == NULL)
     goto error;
 
-  gs_free struct group *wheel_gr = getgrnam_a ("wheel", NULL);
-  gs_free struct group *role_gr = role ? getgrnam_a (role, NULL) : NULL;
+  wheel_gr = getgrnam_a ("wheel", NULL);
+  role_gr = role ? getgrnam_a (role, NULL) : NULL;
 
   int n_groups;
-  gs_free gid_t *gids = getgrouplist_a (pw->pw_name, pw->pw_gid, &n_groups, &err);
+  gids = getgrouplist_a (pw->pw_name, pw->pw_gid, &n_groups, &err);
   if (gids == NULL)
     goto error;
 

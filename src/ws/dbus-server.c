@@ -692,7 +692,7 @@ dbus_call_cb (GDBusProxy *proxy,
   CallData *data = user_data;
   GVariant *result;
   GError *error;
-  gs_unref_object JsonBuilder *builder;
+  gs_unref_object JsonBuilder *builder = NULL;
 
   error = NULL;
   result = g_dbus_proxy_call_finish (proxy, res, &error);

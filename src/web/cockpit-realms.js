@@ -1,0 +1,557 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2013 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+PageRealms.prototype = {
+    _init: function() {
+        this.id = "realms";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Domains");
+    },
+
+    show: function() {
+    },
+
+    enter: function(first_visit) {
+        var me = this;
+        if (first_visit) {
+            var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                           "com.redhat.Cockpit.Realms");
+            $(realm_manager).on("notify:Joined", function () { me.update(); });
+            $(realm_manager).on("notify:Busy", function () { me.update_busy(); });
+        }
+        $("#realms-leave-error").text("");
+        me.update();
+        me.update_busy();
+        me.enable_join();
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var me = this;
+        var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                       "com.redhat.Cockpit.Realms");
+
+        var joined = realm_manager.Joined;
+
+        $("#realms-list").empty();
+        if (joined.length === 0) {
+            $("#realms-empty-text").show();
+        } else {
+            $("#realms-empty-text").hide();
+        }
+        for (var i = 0; i < joined.length; i++) {
+            (function () {
+                var name = joined[i][0];
+                var details = joined[i][1];
+                var id = "" + i.toString();
+                $("#realms-list").append(('<li>' +
+                                          '<table style="width:100%"><tr>' +
+                                          '<td style="width:500px;font-weight:bold">' +
+                                          cockpit_esc(name) +
+                                          '</td>' +
+                                          '<td style="width:30px">' +
+                                          '<img class="realms-leave-spinner" id="realms-leave-spinner-' + id + '" src="images/spinner.gif"/>' +
+                                          '</td>' +
+                                          '<td><button class="realms-leave-button" data-theme="e" id="realms-leave-' + id + '">' +
+                                          _("Leave") + '</button></td></tr></table>' +
+                                          '</li>')).trigger('create');
+                $("#realms-leave-" + id).off("click");
+                $("#realms-leave-" + id).on("click", function (e) {
+                    if (!cockpit_check_role ('cockpit-realm-admin'))
+                        return;
+                    $("#realms-leave-spinner-" + id).show();
+                    me.leave_realm(name, details);
+                });
+            })();
+        }
+        $(".realms-leave-spinner").hide();
+
+        $("#realms-list").append('<li id="realms-join-item">' +
+                                 '<center style="font-size:24px">+</center>' +
+                                 '</li>').trigger('create');
+        $("#realms-join-item").click (function (e) {
+            if (!cockpit_check_role ('cockpit-realm-admin'))
+                return;
+            cockpit_realms_op_set_parameters ('join', '', { });
+            $("#realms-op").popup('open');
+        });
+        $("#realms-join-item").on('mouseover', function (e) {
+            if (me.join_enabled)
+                $("#realms-join-item").css('background', 'rgb(180, 180, 180)');
+        });
+        $("#realms-join-item").on('mouseout', function (e) {
+            if (me.join_enabled)
+                $("#realms-join-item").css('background', 'rgb(229, 229, 229)');
+        });
+        $("#realms-list").listview('refresh');
+    },
+
+    enable_join: function () {
+        this.join_enabled = 1;
+    },
+
+    disable_join: function () {
+        this.join_enabled = 0;
+        $("#realms-join-item").css('background', 'rgb(229, 229, 229)');
+    },
+
+    update_busy: function () {
+        var me = this;
+
+        var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                       "com.redhat.Cockpit.Realms");
+        var busy = realm_manager.Busy;
+
+        if (busy && busy[0]) {
+            $(".realms-leave-button").button('disable');
+            me.disable_join();
+        } else {
+            $(".realms-leave-button").button('enable');
+            $(".realms-leave-spinner").hide();
+            me.enable_join();
+        }
+    },
+
+    leave_realm: function (name, details) {
+        $("#realms-leave-error").text("");
+        var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                       "com.redhat.Cockpit.Realms");
+        var options = { 'server-software': details['server-software'],
+                        'client-software': details['client-software']
+                      };
+        realm_manager.call("Leave", name, [ 'none', '', '' ], options, function (error, result) {
+            $(".realms-leave-spinner").hide();
+            if (error) {
+                if (error.name == 'com.redhat.Cockpit.Error.AuthenticationFailed') {
+                    cockpit_realms_op_set_parameters ('leave', name, details);
+                    $("#realms-op").popup('open');
+                } else
+                    $("#realms-leave-error").text(error.message);
+            }
+        });
+    }
+};
+
+function PageRealms() {
+    this._init();
+}
+
+cockpit_pages.push(new PageRealms());
+
+function cockpit_realms_op_set_parameters (op, realm, details) {
+    PageRealmsOp.op = op;
+    PageRealmsOp.realm = realm;
+    PageRealmsOp.details = details;
+}
+
+PageRealmsOp.prototype = {
+    _init: function() {
+        this.id = "realms-op";
+    },
+
+    getTitle: function() {
+        return this.title;
+    },
+
+    show: function() {
+    },
+
+    enter: function(first_visit) {
+        var me = this;
+
+        me.op = PageRealmsOp.op;
+        me.realm = PageRealmsOp.realm;
+        me.given_details = PageRealmsOp.details;
+
+        if (me.op == 'join') {
+            me.never_show_software_choice = 1;
+            me.title = C_("page-title", "Join a Domain");
+            $("#realms-op-apply").empty().append(_("Join")).button('refresh');
+            $(".realms-op-join-only-row").show();
+        } else if (me.op == 'leave') {
+            me.never_show_software_choice = 1;
+            me.title = C_("page-title", "Leave Domain");
+            $("#realms-op-apply").empty().append(_("Leave")).button('refresh');
+            $(".realms-op-join-only-row").hide();
+        } else {
+            $("#realms-op").popup("close");
+            return;
+        }
+
+        $("#realms-op-title").empty().append(me.title);
+
+        if (first_visit) {
+            $("#realms-op-apply").on("click", function (e) {
+                me.apply();
+            });
+            $("#realms-op-cancel").on("click", function (e) {
+                me.cancel();
+            });
+            $("#realms-op-address").on("keyup", function (e) {
+                me.maybe_check_realm();
+            });
+            $("#realms-op-address").on("changed", function (e) {
+                me.maybe_check_realm();
+            });
+            $(".realms-op-field").on("keydown", function (e) {
+                if (e.which == 13)
+                    me.apply();
+            });
+
+            $("#realms-op-auth").on('change', function (e) {
+                me.update_cred_fields();
+            });
+
+            $("#realms-op-software").on('change', function (e) {
+                me.update_auth_methods();
+            });
+
+            var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                           "com.redhat.Cockpit.Realms");
+
+            $(realm_manager).on("notify:Busy", function () {
+                me.update_busy();
+            });
+        }
+
+        $("#realms-op-spinner").hide();
+        $("#realms-op-address-spinner").hide();
+        $("#realms-op-address-error").hide();
+        $("#realms-op-error").empty();
+        $("#realms-op-diagnostics").empty();
+        $(".realms-op-field").val("");
+
+        me.checking = 0;
+        me.checked = "";
+        me.discovered_details = [ ];
+
+        if (me.op == 'join') {
+            me.check_default_realm();
+            me.maybe_check_realm();
+            me.update_discovered_details();
+        } else {
+            me.stop_initial_discovery();
+            me.update_auth_methods();
+        }
+
+        me.update_busy();
+    },
+
+    leave: function() {
+    },
+
+    update_discovered_details: function () {
+        var me = this;
+
+        var sel = $("#realms-op-software");
+        sel.empty();
+        for (var i = 0; i < me.discovered_details.length; i++) {
+            var d = me.discovered_details[i];
+            var txt = d['client-software'] + " / " + d['server-software'];
+            sel.append('<option value="' + i + '">' + cockpit_esc(txt) + '</option>');
+        }
+        sel.selectmenu('refresh', true);
+        me.update_auth_methods();
+
+        if (me.never_show_software_choice || me.discovered_details.length < 2) {
+            $("#realms-op-software-row").hide();
+        } else {
+            $("#realms-op-software-row").show();
+        }
+    },
+
+    update_auth_methods: function () {
+        var me = this;
+
+        var m = { };
+
+        function add_from_details (d) {
+            if (d) {
+                var c = d['supported-join-credentials'];
+                if (c) {
+                    for (var i = 0; i < c.length; i++)
+                        m[c[i]] = 1;
+                }
+            }
+        }
+
+        if (me.op == 'leave') {
+            add_from_details (me.given_details);
+        } else if (me.never_show_software_choice) {
+            // Just merge them all and trust that realmd will do the
+            // right thing.
+            for (var i = 0; i < me.discovered_details.length; i++)
+                add_from_details (me.discovered_details[i]);
+        } else {
+            var s = $("#realms-op-software").val();
+            add_from_details (me.discovered_details[s]);
+        }
+
+        var have_one = 0;
+        var sel = $("#realms-op-auth");
+
+        function add_choice (tag, text) {
+            if (tag in m) {
+                sel.append('<option value="' + tag + '">' + cockpit_esc(text) + '</option>');
+                have_one = 1;
+            }
+        }
+
+        sel.empty();
+        add_choice ('admin', _('Administrator Password'));
+        add_choice ('user', _('User Password'));
+        add_choice ('otp', _('One Time Password'));
+        add_choice ('none', _('Automatic'));
+        if (!have_one)
+            sel.append('<option value="admin">' + _("Administrator Password") + '</option>');
+        sel.selectmenu('refresh', true);
+
+        me.update_cred_fields();
+    },
+
+    update_cred_fields: function () {
+        var me = this;
+
+        var a = $("#realms-op-auth").val();
+
+        $("#realms-op-admin-row").hide();
+        $("#realms-op-admin-password-row").hide();
+        $("#realms-op-user-row").hide();
+        $("#realms-op-user-password-row").hide();
+        $("#realms-op-otp-row").hide();
+
+        if (a == "admin") {
+            $("#realms-op-admin-row").show();
+            $("#realms-op-admin-password-row").show();
+            var admin;
+            if (me.op == 'join') {
+                var s = $("#realms-op-software").val();
+                var d = s && me.discovered_details[s];
+                admin = d && d['suggested-administrator'];
+            } else {
+                admin = me.given_details['suggested-administrator'];
+            }
+            if (admin)
+                $("#realms-op-admin").val(admin);
+        } else if (a == "user") {
+            $("#realms-op-user-row").show();
+            $("#realms-op-user-password-row").show();
+        } else if (a == "otp") {
+            $("#realms-op-otp-row").show();
+        }
+    },
+
+    update_busy: function () {
+        var me = this;
+
+        var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                       "com.redhat.Cockpit.Realms");
+        var busy = realm_manager.Busy;
+
+        if (busy && busy[0]) {
+            $("#realms-op-spinner").show();
+            $(".realms-op-field").textinput('disable');
+            $("#realms-op-apply").button('disable');
+            $("#realms-op-software").selectmenu('disable');
+            $("#realms-op-auth").selectmenu('disable');
+        } else {
+            $("#realms-op-spinner").hide();
+            $(".realms-op-field").textinput('enable');
+            if (me.initial_discovery)
+                $("#realms-op-apply").button('disable');
+            else
+                $("#realms-op-apply").button('enable');
+            $("#realms-op-software").selectmenu('enable');
+            $("#realms-op-auth").selectmenu('enable');
+        }
+    },
+
+    stop_initial_discovery: function () {
+        this.initial_discovery = 0;
+        $("#realms-op-init-spinner").hide();
+        $("#realms-op-form").css('opacity', 1.0);
+        $("#realms-op-apply").button('enable');
+    },
+
+    check_default_realm: function () {
+        var me = this;
+
+        $("#realms-op-form").css('opacity', 0.0);
+        $("#realms-op-init-spinner").show();
+        $("#realms-op-apply").button('disable');
+
+        me.initial_discovery = 1;
+
+        var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                       "com.redhat.Cockpit.Realms");
+        realm_manager.call("Discover", "", { },
+                           function (error, result, details) {
+                               if (me.initial_discovery) {
+                                   me.stop_initial_discovery();
+                                   if (result) {
+                                       me.checked = result;
+                                       $("#realms-op-address").val(result);
+                                       me.discovered_details = details;
+                                       me.update_discovered_details();
+                                   }
+                               }
+                           });
+    },
+
+    maybe_check_realm: function() {
+        var me = this;
+        if ($("#realms-op-address").val() != me.checked) {
+            $("#realms-op-address-error").hide();
+            if (me.timeout)
+                clearTimeout(me.timeout);
+            me.timeout = setTimeout(function () { me.check_realm(); }, 1000);
+        }
+    },
+
+    check_realm: function() {
+        var me = this;
+
+        var name = $("#realms-op-address").val();
+
+        if (me.checking || !name || me.checked == name) {
+            return;
+        }
+
+        $("#realms-op-address-spinner").show();
+        me.checking = 1;
+        me.checked = name;
+
+        var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                       "com.redhat.Cockpit.Realms");
+
+        realm_manager.call("Discover", name, { },
+                           function (error, result, details) {
+                               if ($("#realms-op-address").val() != me.checked) {
+                                   me.checking = 0;
+                                   me.check_realm();
+                               } else {
+                                   $("#realms-op-address-spinner").hide();
+                                   me.checking = 0;
+                                   me.discovered_details = [ ];
+                                   if (error)
+                                       $("#realms-op-error").empty().append(error.message);
+                                   else if (!result) {
+                                       $("#realms-op-address-error").show();
+                                       $("#realms-op-address-error").attr('title',
+                                                                          F(_("Domain %{domain} could not be contacted"), { 'domain': cockpit_esc(name) }));
+                                   } else {
+                                       me.discovered_details = details;
+                                   }
+                                   me.update_discovered_details();
+                               }
+                           });
+    },
+
+    apply: function() {
+        var me = this;
+
+        var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                       "com.redhat.Cockpit.Realms");
+
+        function handle_op_result (error, result)
+        {
+            me.working = false;
+            if (error && error.name != "com.redhat.Cockpit.Error.Cancelled") {
+                $("#realms-op-error").empty().append(error.message);
+                $("#realms-op-error").append((' <button id="realms-op-more-diagnostics" data-inline="true">' +
+                                              _("More") + '</button>'));
+                $("#realms-op-more-diagnostics").click(function (e) {
+                    realm_manager.call("GetDiagnostics",
+                                       function (error, result) {
+                                           $("#realms-op-more-diagnostics").hide();
+                                           $("#realms-op-diagnostics").empty().append(result);
+                                       });
+                });
+            } else {
+                $("#realms-op").popup("close");
+            }
+        }
+
+        $("#realms-op-error").empty();
+        $("#realms-op-diagnostics").empty();
+
+        var a = $("#realms-op-auth").val();
+        var creds;
+        if (a == "user")
+            creds = [ "user", $("#realms-op-user").val(), $("#realms-op-user-password").val() ];
+        else if (a == "admin")
+            creds = [ "admin", $("#realms-op-admin").val(), $("#realms-op-admin-password").val() ];
+        else if (a == "otp")
+            creds = [ "otp", "", $("#realms-op-ot-password").val() ];
+        else
+            creds = [ "none", "", "" ];
+
+        var options;
+
+        if (me.op == 'join') {
+            var details;
+            if (me.never_show_software_choice)
+                details = { };
+            else {
+                var s = $("#realms-join-software").val();
+                details = me.discovered_details[s];
+            }
+
+            options = { 'computer-ou': $("#realms-join-computer-ou").val() };
+
+            if (details['client-software'])
+                options['client-software'] = details['client-software'];
+            if (details['server-software'])
+                options['server-software'] = details['server-software'];
+
+            me.working = true;
+            realm_manager.call("Join", $("#realms-op-address").val(), creds, options, handle_op_result);
+        } else if (me.op == 'leave') {
+            options = { 'server-software': me.given_details['server-software'],
+                        'client-software': me.given_details['client-software']
+                      };
+            me.working = true;
+            realm_manager.call("Leave", me.realm, creds, options, handle_op_result);
+        }
+    },
+
+    cancel: function() {
+        var me = this;
+
+        if (me.initial_discovery) {
+            me.stop_initial_discovery();
+        } else if (me.working) {
+            var realm_manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms",
+                                                           "com.redhat.Cockpit.Realms");
+            realm_manager.call("Cancel", function (error, result) { });
+        } else {
+            $("#realms-op").popup("close");
+        }
+    }
+};
+
+function PageRealmsOp() {
+    this._init();
+}
+
+cockpit_pages.push(new PageRealmsOp());

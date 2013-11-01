@@ -1,0 +1,83 @@
+<refentry id="cockpit.conf.5">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2013 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>cockpit.conf</title>
+    <productname>cockpit</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>cockpit.conf</refentrytitle>
+    <manvolnum>5</manvolnum>
+    <refmiscinfo class="version"></refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit.conf</refname>
+    <refpurpose>Cockpit configuration file</refpurpose>
+  </refnamediv>
+
+  <refsect1><title>DESCRIPTION</title>
+  <para>
+    Cockpit can be configured via /etc/cockpit.conf.  That file has a INI
+    file syntax and thus contains key / value pairs, grouped into
+    topical groups.
+
+    For example, to set the "group" key in the "login" group to the
+    value "adm", place this into /etc/cockpit.conf:
+
+    <programlisting>
+      [login]
+      group = adm
+    </programlisting>
+
+    No configuration options are defined at the moment.  How
+    disappointing.
+  </para>
+  </refsect1>
+
+  <refsect1><title>AUTHOR</title>
+    <para>
+      Written by Marius Vollmer <email>&lt;marius.vollmer@redhat.com&gt;</email>.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>BUGS</title>
+    <para>
+      Please send bug reports to either the distribution bug tracker
+      or the upstream bug tracker at
+      <ulink url="https://redhat.com/TODO"/>.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>cockpitd</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>,
+      <citerefentry>
+        <refentrytitle>cockpit-ws</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

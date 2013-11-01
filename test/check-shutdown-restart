@@ -1,0 +1,142 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+import re
+import ast
+
+class TestShutdownRestart(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("shutdown")
+
+        # check that the default is one minute
+        check_eq(b.val('#shutdown-delay'), "1")
+
+        # initiate a restart in one minute and cancel it
+        b.click("#shutdown-restart")
+        b.wait_visible("#shutdown-cancel")
+        b.click("#shutdown-cancel")
+        b.wait_visible("#shutdown-restart")
+
+        # initiate a shutdown in one minute and cancel it
+        b.click("#shutdown-shutdown")
+        b.wait_visible("#shutdown-cancel")
+        b.click("#shutdown-cancel")
+        b.wait_visible("#shutdown-shutdown")
+
+        # initiate a restart in one minute and cancel it from outside
+        # Cockpit.
+        b.click("#shutdown-restart")
+        b.wait_visible("#shutdown-cancel")
+        m.execute("shutdown -c")
+        b.wait_visible("#shutdown-restart")
+
+        # initiate a restart from outside of Cockpit, and cancel it
+        m.execute("shutdown -r +1")
+        b.wait_visible("#shutdown-cancel")
+        b.click("#shutdown-cancel")
+        b.wait_visible("#shutdown-restart")
+
+        # initiate a immediate restart and cancel it
+        b.set_val("#shutdown-delay", "0")
+        b.click("#shutdown-restart")
+        b.wait_popup("shutdown-confirm")
+        b.click("#shutdown-confirm-cancel")
+        b.wait_popdown("shutdown-confirm")
+
+        def get_delay_seconds():
+            def get(t, pat, default):
+                m = re.search(pat, t)
+                if m:
+                    return int(m.group(1))
+                else:
+                    return default
+            t = b.text("#shutdown-info")
+            s = get(t, "(\\d+) seconds", 0)
+            m = get(t, "(\\d+) minutes", 0)
+            h = get(t, "(\\d+) hours", 0)
+            return (h * 60 + m) * 60 + s
+
+        # initiate a restart in 5 minutes, check the countdown, and cancel it
+        b.set_val("#shutdown-delay", "5")
+        b.click("#shutdown-restart")
+        b.wait_visible("#shutdown-info")
+        d = get_delay_seconds()
+        check(d <= 5*60+10 and d > 5*60-10)
+        b.click("#shutdown-cancel")
+        b.wait_visible("#shutdown-restart")
+
+        # put in a invalid exact time
+        b.set_val("#shutdown-delay", "x")
+        b.set_val("#shutdown-exact-hours", "25")
+        check_eq(b.attr("#shutdown-exact-error", "title"),
+                 "This is not a valid time")
+
+        # initiate a restart at a exact time, check the countdown, and cancel it
+
+        # literal_eval chokes on "08" since it interprets it as octal, so
+        # we get the numbers as strings.
+        (nh,nm) = ast.literal_eval(m.execute("date '+(\"%H\",\"%M\")'"))
+        x=int(nh)*60+int(nm)+5
+        (xh,xm) = (x / 60, x % 60)
+        b.set_val("#shutdown-exact-hours", str(xh))
+        b.set_val("#shutdown-exact-minutes", str(xm))
+        b.click("#shutdown-restart")
+        b.wait_visible("#shutdown-cancel")
+        d = get_delay_seconds()
+        check(d <= 5*60+10 and d > 4*60-20)
+        b.click("#shutdown-cancel")
+        b.wait_visible("#shutdown-restart")
+
+        # initiate a immediate restart and go through with it
+        b.set_val("#shutdown-delay", "0")
+        b.click("#shutdown-restart")
+        b.wait_popup("shutdown-confirm")
+        b.click("#shutdown-confirm-apply")
+        b.wait_popdown("shutdown-confirm")
+        with b.wait_timeout(60):
+            b.wait_popup("disconnected")
+
+        # after a reboot, we need to restart the servers and log back in.
+        m.wait_boot()
+        self.start_cockpit()
+        b.click("#disconnected-logout")
+        b.wait_visible("#login")
+        b.set_val("#login-password-input", "foobar")
+        b.click("#login-button")
+        b.wait_page("shutdown")
+
+        self.allow_journal_messages("Shutdown scheduled for .*, use 'shutdown -c' to cancel.",
+                            "Cannot make/remove an entry for the specified session")
+        self.check_journal_messages()
+
+        # initiate a immediate shutdown and go through with it
+        b.set_val("#shutdown-delay", "0")
+        b.click("#shutdown-shutdown")
+        b.wait_popup("shutdown-confirm")
+        b.click("#shutdown-confirm-apply")
+        b.wait_popdown("shutdown-confirm")
+        m.wait_poweroff()
+
+test_main()

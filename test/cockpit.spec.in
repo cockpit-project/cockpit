@@ -1,0 +1,115 @@
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+Name:		cockpit
+Version:	@VERSION@
+Release:	1%{?dist}
+Summary:	Cockpit
+
+License:	LGPLv2+
+URL:		http://www.cockpit-project.org/
+Source0:	@TARBALLS_ARE_STUPID@
+
+BuildRequires: pkgconfig(gio-unix-2.0)
+BuildRequires: pkgconfig(gudev-1.0)
+BuildRequires: pkgconfig(json-glib-1.0)
+BuildRequires: pkgconfig(gobject-introspection-1.0)
+BuildRequires: pkgconfig(udisks2) >= 2.1.0
+BuildRequires: pkgconfig(libnm-glib)
+BuildRequires: pkgconfig(libsystemd-daemon)
+BuildRequires: pkgconfig(accountsservice) >= 0.6.30
+BuildRequires: pam-devel
+
+BuildRequires: autoconf automake libtool
+BuildRequires: intltool
+BuildRequires: jsl
+BuildRequires: python-scss
+BuildRequires: gtk-doc
+BuildRequires: libssh-rc-devel
+BuildRequires: openssl-devel
+BuildRequires: zlib-devel
+BuildRequires: krb5-devel
+
+# Used during make check
+BuildRequires: sshpass
+
+BuildRequires: perl-Locale-PO
+BuildRequires: perl-JSON
+
+Requires: glib-networking
+Requires: realmd
+Requires: udisks2 >= 2.1.0
+Requires: mdadm
+Requires: lvm2
+Requires: sshpass
+
+%description
+Cockpit.
+
+%post
+getent group cockpit-user-admin >/dev/null || groupadd -r cockpit-user-admin
+getent group cockpit-realm-admin >/dev/null || groupadd -r cockpit-realm-admin
+getent group cockpit-storage-admin >/dev/null || groupadd -r cockpit-storage-admin
+
+%prep
+%setup -q
+
+%build
+env NOCONFIGURE=1 ./autogen.sh
+%configure --disable-static --disable-silent-rules
+make %{?_smp_mflags} %{?extra_flags}
+
+%check
+make check
+
+%install
+make install DESTDIR=%{buildroot}
+find %{buildroot} -name '*.la' -delete
+rm -f %{buildroot}/%{_libdir}/cockpit/*.so
+
+%files
+%{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.conf
+%{_sysconfdir}/%{name}
+%{_sysconfdir}/pam.d/cockpit
+/usr/lib/systemd/system/cockpit-ws.service
+/usr/lib/systemd/system/cockpit-ws.socket
+/usr/lib/systemd/system/cockpit.service
+%{_datadir}/dbus-1/system-services/com.redhat.Cockpit.service
+%{_libexecdir}/cockpitd
+%{_libexecdir}/cockpit-ws
+%{_libexecdir}/cockpit-session
+%{_libexecdir}/cockpit-agent
+%{_libdir}/%{name}
+%{_datadir}/%{name}/content/
+%{_mandir}/*
+%{_sharedstatedir}/%{name}
+
+%package test-assets
+Summary: Additional stuff for testing Cockpit
+Requires: openssh-clients
+
+%description test-assets
+This package contains programs and other files for testing Cockpit, and
+pulls in some necessary packages via dependencies.
+
+%files test-assets
+%{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.DBusTests.Test.conf
+%{_datadir}/cockpit-test-assets
+/usr/lib/systemd/system/cockpit-ws-notls.service
+/usr/lib/systemd/system/cockpit-ws-notls.socket
+/usr/lib/systemd/system/test-server.service
+/usr/lib/systemd/system/test-server.socket

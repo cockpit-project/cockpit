@@ -1,0 +1,11 @@
+[Unit]
+Description=Cockpit
+Documentation=man:cockpitd(8)
+
+[Service]
+BusName=com.redhat.Cockpit
+ExecStart=@libexecdir@/cockpitd
+
+[Install]
+WantedBy=multi-user.target
+Also=cockpit-ws.socket

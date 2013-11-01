@@ -1,0 +1,10 @@
+[Unit]
+Description=Cockpit Web Server Socket (No TLS)
+Documentation=man:cockpit-ws(8)
+Conflicts=cockpit-ws.socket
+
+[Socket]
+ListenStream=21064
+
+[Install]
+WantedBy=sockets.target

@@ -1,0 +1,116 @@
+LINGUAS = 
+
+translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
+
+cockpit_js_PARTS = \
+	src/web/cockpit-util.js 					\
+	src/web/cockpit-i18n.js 					\
+	src/web/cockpit-plot.js 					\
+	src/web/cockpit-page.js					\
+	src/web/cockpit-login.js 					\
+	src/web/cockpit-about.js 					\
+	src/web/cockpit-language.js 				\
+	src/web/cockpit-dashboard.js				\
+	src/web/cockpit-server.js					\
+	src/web/cockpit-cpu-status.js				\
+	src/web/cockpit-memory-status.js				\
+	src/web/cockpit-disk-io-status.js				\
+	src/web/cockpit-network-traffic-status.js			\
+	src/web/cockpit-system-information.js 			\
+	src/web/cockpit-networking.js				\
+	src/web/cockpit-storage.js					\
+	src/web/cockpit-realms.js					\
+	src/web/cockpit-shutdown.js				\
+	src/web/cockpit-services.js				\
+	src/web/cockpit-journal.js					\
+	src/web/cockpit-journal-renderer.js			\
+	src/web/cockpit-jobs.js					\
+	src/web/cockpit-terminal.js				\
+	src/web/cockpit-search.js					\
+	src/web/cockpit-accounts.js				\
+	src/web/cockpit-main.js 					\
+	$(NULL)
+
+cockpit.js: $(cockpit_js_PARTS)
+	(cd $(srcdir) && JSL=$(JSL) ./src/web/js-lint $(cockpit_js_PARTS))
+	(cd $(srcdir) && ./src/web/minify $(cockpit_js_PARTS)) >$@.tmp && mv $@.tmp $@
+
+# Theme acrobatics.
+#
+# We take the default theme, fix it to be consistent re its own
+# parameters, turn that into a SCSS file that makes the parameters
+# accessible to SASS, and finally use that to generate our theme by
+# modifying some parameters and adding additional CSS.
+
+src/web/lib/jquery.mobile.theme-1.3.0.scss: src/web/lib/jquery.mobile.theme-1.3.0.css src/web/fix-jqm-theme.patch src/web/sassify-jqm
+	patch -i src/web/fix-jqm-theme.patch -o - $< | \
+	  $(srcdir)/src/web/sassify-jqm >$@.tmp && mv $@.tmp $@
+
+src/web/lib/jquery.mobile.adwaita-1.3.0.css: src/web/adwaita.scss src/web/lib/jquery.mobile.theme-1.3.0.scss
+	$(SASS) -I src/web/ -t expanded $< >$@.tmp && mv $@.tmp $@
+
+contentdatadir = $(pkgdatadir)/content
+contentdata_DATA = 						\
+	cockpit.js 						\
+	src/web/cockpit.css 					\
+	src/web/dbus.js 					\
+	src/web/index.html 					\
+	src/web/favicon.ico					\
+	src/web/apple-touch-icon.png				\
+	$(NULL)
+
+contentdatalangdir = $(pkgdatadir)/content/lang
+contentdatalang_DATA = 						\
+	$(translations_json)					\
+	$(NULL)
+
+contentdatafontsdir = $(pkgdatadir)/content/fonts
+contentdatafonts_DATA = 					\
+	src/web/fonts/overpass_bold-web.ttf			\
+	src/web/fonts/overpass_regular-web.ttf			\
+	$(NULL)
+
+contentdataimagesdir = $(pkgdatadir)/content/images
+contentdataimages_DATA = 					\
+	src/web/images/category-journal.png	                \
+	src/web/images/category-networking.png	                \
+	src/web/images/category-services.png	                \
+	src/web/images/category-shutdown.png	                \
+	src/web/images/category-storage.png	                \
+	src/web/images/category-system.png	                \
+	src/web/images/category-users.png	                \
+	src/web/images/avatar-default-48.png	                \
+	src/web/images/avatar-default-128.png	                \
+	src/web/images/header-left-arrow.png			\
+	src/web/images/header-gear.png				\
+	src/web/images/right-arrow.png				\
+	src/web/images/server-large.png				\
+	src/web/images/spinner.gif 				\
+	src/web/images/small-spinner.gif                        \
+	src/web/images/dialog-error.png	                        \
+	src/web/images/refresh.png	                        \
+	$(NULL)
+
+contentdatalibdir = $(pkgdatadir)/content/lib
+contentdatalib_DATA = 						\
+	src/web/lib/jquery-1.8.2.js 				\
+	src/web/lib/jquery.flot.js 				\
+	src/web/lib/jquery.mobile-1.3.0.js			\
+	src/web/lib/jquery.mobile.structure-1.3.0.css 		\
+	src/web/lib/jquery.mobile.adwaita-1.3.0.css 		\
+	$(NULL)
+
+contentdatalibimagesdir = $(pkgdatadir)/content/lib/images
+contentdatalibimages_DATA = 					\
+	src/web/lib/images/ajax-loader.gif 			\
+	src/web/lib/images/icons-18-black.png 			\
+	src/web/lib/images/icons-18-white.png 			\
+	src/web/lib/images/icons-36-black.png 			\
+	src/web/lib/images/icons-36-white.png 			\
+	src/web/lib/images/texture.png	                        \
+	$(NULL)
+
+# ----------------------------------------------------------------------------------------------------
+
+lang/%.json : $(top_srcdir)/po/%.po
+	mkdir -p lang && $(top_srcdir)/tools/po2json -p $(top_srcdir)/po/$*.po > lang/$*.json

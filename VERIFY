@@ -1,0 +1,28 @@
+#! /bin/sh
+
+set -e -x
+
+IFCONFIG=/sbin/ifconfig
+
+silent()
+{
+  "$@" > /dev/null 2> /dev/null
+  return $?
+}
+
+cd test
+
+if ! silent $IFCONFIG cockpit0; then
+  sudo ./vm-prep
+fi
+rpms=$(EXTRA_FLAGS="CFLAGS='-O2 -Wall -Werror'" ./make-rpms)
+if [ -z "$rpms" ]; then
+  exit 1
+fi
+
+./vm-create
+./vm-install $rpms
+
+./check-verify
+
+rm -rf test-machine

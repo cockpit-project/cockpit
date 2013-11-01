@@ -1,0 +1,1115 @@
+<!DOCTYPE node PUBLIC
+"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/" xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2013 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <!-- ********************************************************************** -->
+
+  <!--
+      com.redhat.Cockpit.Manager:
+      @short_description: Manager singleton
+
+      Interface for top-level manager singleton object located at the
+      object path <literal>/com/redhat/Cockpit/Manager</literal>.
+  -->
+  <interface name="com.redhat.Cockpit.Manager">
+    <!-- Version: The version of the cockpitd instance currently running  -->
+    <property name="Version" type="s" access="read"/>
+
+    <!-- OperatingSystem: Human-readable string identifying the OS and version -->
+    <property name="OperatingSystem" type="s" access="read"/>
+
+    <!-- System: Human-readable description of the system, typically including make and model of the machine  -->
+    <property name="System" type="s" access="read"/>
+
+    <!-- SystemSerial: Serial number of the system  -->
+    <property name="SystemSerial" type="s" access="read"/>
+
+    <!-- BIOS: Human-readable string describing the BIOS of the system  -->
+    <property name="BIOS" type="s" access="read"/>
+
+    <!-- Hostname: The currently configured host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
+    <property name="Hostname" type="s" access="read"/>
+
+    <!-- StaticHostname: The statically configured host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
+    <property name="StaticHostname" type="s" access="read"/>
+
+    <!-- PrettyHostname: The pretty host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
+    <property name="PrettyHostname" type="s" access="read"/>
+
+    <!--
+        HTTPGet:
+        @uri: The resource to get.
+        @user: The authenticated user of the request, or the empty string.
+        @data: The data.
+
+        Used for serving static content via HTTP, e.g. HTML and JS
+        files.
+    -->
+    <method name="HTTPGet">
+      <annotation name="org.gtk.GDBus.C.Name" value="HTTP_Get"/>
+      <arg name="resource" type="s" direction="in"/>
+      <arg name="user" type="s" direction="in"/>
+      <arg name="data" type="ay" direction="out">
+        <annotation name="org.gtk.GDBus.C.ForceGVariant" value="true"/>
+      </arg>
+    </method>
+
+    <!--
+        SetHostname:
+        @pretty_hostname: Pretty Hostname to set or blank to not set the pretty hostname.
+        @hostname: Regular hostname to set or blank to not set the regular hostname.
+        @options: Currently unused.
+
+        Sets the host names.
+    -->
+    <method name="SetHostname">
+      <arg name="pretty_hostname" type="s" direction="in"/>
+      <arg name="hostname" type="s" direction="in"/>
+      <arg name="options" type="a{sv}" direction="in"/>
+    </method>
+
+    <!--
+	Shutdown:
+        Initiate a shutdoen or restart of the system.
+
+	@kind: What to do, either "shutdown" or "restart".
+	@when: When to shutdown, either "HH:MM" or "+MINUTES", as for the "shutdown" command.
+	@message: The wall message to display.
+    -->
+    <method name="Shutdown">
+      <arg name="kind" type="s" direction="in"/>
+      <arg name="when" type="s" direction="in"/>
+      <arg name="message" type="s" direction="in"/>
+    </method>
+
+    <!--
+        CancelShutdown:
+	Cancel the currently scheduled shutdown.
+    -->
+    <method name="CancelShutdown">
+    </method>
+
+    <!--
+        ShutdownSchedule:
+
+	A dict with details about the currently scheduled schutdown.
+	"kind" and "message" come directly from the last call to
+	"Shutdown".  The time of the shutdown is indicated by
+	"when_seconds", which is the number of seconds since
+	1970-01-01 00:00:00 UTC as a double.
+    -->
+    <property name="ShutdownSchedule" type="a{sv}" access="read"/>
+
+    <!--
+        GetServerTime:
+        Return the current time on the server.
+
+        @now: Seconds since 1970-01-01 00:00:00 UTC.
+	@tz_abbrev: Abbreviation for the server time zone.
+	@tz_offset: Offset from UTC of the server time zone, in
+	  seconds.  Positive is east, negative is west.
+    -->
+    <method name="GetServerTime">
+      <arg name="now_seconds" type="d" direction="out"/>
+      <arg name="tz_abbrev" type="s" direction="out"/>
+      <arg name="tz_offset_seconds" type="d" direction="out"/>
+    </method>
+
+    <!--
+        ServerTimeUpdate:
+        A signal that is emitted when the server time has been adjusted.
+
+        It is also emitted when the time zone changes, either
+        explicitly or when daylight savings time is changes.
+    -->
+    <signal name="ServerTimeUpdate">
+      <arg name="now_seconds" type="d" direction="out"/>
+      <arg name="tz_abbrev" type="s" direction="out"/>
+      <arg name="tz_offset_seconds" type="d" direction="out"/>
+    </signal>
+
+    <!--
+        Run:
+
+        Execute a arbitrary shell command as root and return its
+        output.
+    -->
+    <method name="Run">
+      <arg name="command" type="s" direction="in"/>
+      <arg name="output" type="s" direction="out"/>
+    </method>
+
+    <!--
+        GetAvatarDataURL:
+
+        Get the avatar for the machine that this service is running
+        on.
+    -->
+    <method name="GetAvatarDataURL">
+      <arg name="result" type="s" direction="out"/>
+    </method>
+
+    <!--
+        SetAvatarDataURL:
+
+        Set the avatar for the machine that this service is running
+        on.
+    -->
+    <method name="SetAvatarDataURL">
+      <arg name="data" type="s" direction="in"/>
+    </method>
+
+    <signal name="AvatarChanged">
+    </signal>
+
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.ResourceMonitor:
+      @short_description: Resource Monitor
+
+      Used to convery resources.
+  -->
+  <interface name="com.redhat.Cockpit.ResourceMonitor">
+
+    <property name="NumSamples" type="u" access="read"/>
+    <property name="NumSeries" type="u" access="read"/>
+
+    <!-- Legends:
+         The legend to use for each series.
+
+         This array is #com.redhat.Cockpit.ResourceMonitor:NumSeries long.
+    -->
+    <property name="Legends" type="as" access="read"/>
+
+    <!--
+        GetSamples:
+        @options: Currently unused.
+        @samples: The samples currently collected.
+
+        Returns (up to) #com.redhat.Cockpit.ResourceMonitor:NumSamples
+        historical samples, returning the oldest ones first.
+    -->
+    <method name="GetSamples">
+      <arg name="options" type="a{sv}" direction="in"/>
+      <arg name="samples" type="a(xad)" direction="out"/>
+    </method>
+
+    <!--
+        NewSample:
+        @timestamp: The point in time the sample was captured (micro-seconds since Epoch).
+        @values: An array of values.
+
+        Signal emitted when a new sample has been collected.
+    -->
+    <signal name="NewSample">
+      <arg name="timestamp" type="x"/>
+      <arg name="values" type="ad"/>
+    </signal>
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Network:
+      @short_description: Network singleton
+
+      Contains system-global networking state.  This object is located
+      at <literal>/com/redhat/Cockpit/Network</literal>.
+  -->
+  <interface name="com.redhat.Cockpit.Network">
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Network.Netinterface:
+      @short_description: A single device
+
+      Represents a running network interface; the primary key is the
+      "ifindex".
+  -->
+  <interface name="com.redhat.Cockpit.Network.Netinterface">
+    <!-- Name: Assigned interface name (primary key) -->
+    <property name="Name" type="s" access="read"/>
+    <!-- HwAddress: For e.g. Ethernet devices, this is the MAC.  If
+         unavailable, will be the empty string. -->
+    <property name="HwAddress" type="s" access="read"/>
+
+    <property name="IP6ConfigMode" type="s" access="read"/>
+
+    <!-- IP6Addresses: scope:global addresses -->
+    <property name="IP6Addresses" type="a(yyyyyyyyyyyyyyyyu)" access="read"/>
+    <!-- IP6LinkAddress: The IPv6 link-local address, if any -->
+    <property name="IP6LinkAddress" type="(yyyyyyyyyyyyyyyyu)" access="read"/>
+    <!-- IP6Gateway: IPv6 gateway host for this interface-->
+    <property name="IP6Gateway" type="(yyyyyyyyyyyyyyyyu)" access="read"/>
+
+    <property name="IP4ConfigMode" type="s" access="read"/>
+
+    <!-- IP4Addresses: IPv4 addresses -->
+    <property name="IP4Addresses" type="a(yyyyu)" access="read"/>
+    <!-- IP4Gateway: IPv4 gateway host for this interface-->
+    <property name="IP4Gateway" type="(yyyyu)" access="read"/>
+    <!-- IP4Broadcast: IPv4 broadcast mask -->
+    <property name="IP4Broadcast" type="(yyyy)" access="read"/>
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Job:
+      @short_description: Information about running operations.
+
+      This interface is implemented by /com/redhat/Cockpit/Jobs/*
+
+      Domain and Operation are symbolic string that together describe
+      the operation.  The following values are defined:
+
+      storage / format-mkfs
+      storage / format-erase
+
+  -->
+
+  <interface name="com.redhat.Cockpit.Job">
+    <property name="Domain" type="s" access="read"/>
+    <property name="Operation" type="s" access="read"/>
+    <property name="Targets" type="as" access="read"/>
+
+    <property name="Progress" type="d" access="read"/>
+    <property name="ProgressValid" type="b" access="read"/>
+    <property name="RemainingUSecs" type="t" access="read"/>
+
+    <property name="Cancellable" type="b" access="read"/>
+
+    <method name="Cancel">
+    </method>
+
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Storage.Manager:
+      @short_description: For managing storage
+
+      This interface is implemented by /com/redhat/Cockpit/Storage.
+  -->
+  <interface name="com.redhat.Cockpit.Storage.Manager">
+
+    <!--
+        MDRaidCreate:
+        @blocks: An array of object paths to objects implementing the #com.redhat.Cockpit.Storage.Block interface.
+        @level: The RAID level for the array.
+        @name: The name for the array.
+        @chunk: The chunk size (in bytes) or 0 if @level is <quote>raid1</quote>.
+
+        Creates a new RAID array on the block devices specified by
+        @blocks. Each element in this array must be an object path to
+        an object implementing the #org.freedesktop.UDisks2.Block
+        interface.
+
+        Known and supported values for @level include
+        <quote>raid0</quote>, <quote>raid1</quote>,
+        <quote>raid4</quote>, <quote>raid5</quote>,
+        <quote>raid6</quote> and <quote>raid10</quote>.
+
+        Before the array is created, all devices in @blocks are
+        erased. Once created (but before the method returns), the RAID
+        array will be erased.
+    -->
+    <method name="MDRaidCreate">
+      <arg name="blocks" direction="in" type="ao"/>
+      <arg name="level" direction="in" type="s"/>
+      <arg name="name" direction="in" type="s"/>
+      <arg name="chunk" direction="in" type="t"/>
+    </method>
+
+    <method name="VolumeGroupCreate">
+      <arg name="blocks" direction="in" type="ao"/>
+      <arg name="name" direction="in" type="s"/>
+      <arg name="extent_size" direction="in" type="t"/>
+    </method>
+
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Storage.Block:
+      @short_description: Block device
+
+      This interface is used for objects that are block devices.
+
+      Objects implementing this interface are located in
+      <literal>/com/redhat/Cockpit/Storage/block_devices/</literal>.
+  -->
+  <interface name="com.redhat.Cockpit.Storage.Block">
+    <!-- For display only.
+    -->
+    <property name="Device" type="s" access="read"/>
+
+    <!-- Size: The size of the block device, in bytes. -->
+    <property name="Size" type="t" access="read"/>
+
+    <!-- Drive:
+         Object path of the #com.redhat.Cockpit.Storage.Drive that this
+         block device belongs to if any. If there is no drive, the
+         value of this property is '/'.
+    -->
+    <property name="Drive" type="o" access="read"/>
+
+    <!-- CryptoBackingdevice:
+         Object path of the #com.redhat.Cockpit.Storage.Block object that
+         is the cryptotext device for this cleartext device.  If there
+         is no such object, the value of this property is '/'.
+    -->
+    <property name="CryptoBackingDevice" type="o" access="read"/>
+
+    <!-- PartitionNumber: The partition number or 0 if not a partition -->
+    <property name="PartitionNumber" type="i" access="read"/>
+
+    <!-- PartitionTable: The object path of the top-level block device the partition is a part of, or "/" -->
+    <property name="PartitionTable" type="o" access="read"/>
+
+    <!-- PartitionTableType: The type of the partition table on this
+         block device, or the empty string if this device does not
+         have a partition table.
+    -->
+    <property name="PartitionTableType" type="s" access="read"/>
+
+    <!-- Partitions: The (object path, offset, size, type) of the
+         partitions.  Type is 'p' for primary partitions, 'x' for the
+         extended partition, and 'l' for logical partitions inside the
+         extended partition.
+    -->
+    <property name="Partitions" type="a(otts)" access="read"/>
+
+    <!-- IdUsage:
+         This corresponds to udisks'
+         <ulink url="http://udisks.freedesktop.org/docs/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-property-org-freedesktop-UDisks2-Block.IdUsage">IdUsage</ulink>
+         property.
+    -->
+    <property name="IdUsage" type="s" access="read"/>
+
+    <!-- IdType:
+         This corresponds to udisks'
+         <ulink url="http://udisks.freedesktop.org/docs/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-property-org-freedesktop-UDisks2-Block.IdType">IdType</ulink>
+         property.
+    -->
+    <property name="IdType" type="s" access="read"/>
+
+    <!-- IdVersion:
+         This corresponds to udisks'
+         <ulink url="http://udisks.freedesktop.org/docs/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-property-org-freedesktop-UDisks2-Block.IdVersion">IdVersion</ulink>
+         property.
+    -->
+    <property name="IdVersion" type="s" access="read"/>
+
+    <!-- IdLabel:
+         This corresponds to udisks'
+         <ulink url="http://udisks.freedesktop.org/docs/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-property-org-freedesktop-UDisks2-Block.IdLabel">IdLabel</ulink>
+         property.
+    -->
+    <property name="IdLabel" type="s" access="read"/>
+
+    <!-- IdUUID:
+         This corresponds to udisks'
+         <ulink url="http://udisks.freedesktop.org/docs/latest/gdbus-org.freedesktop.UDisks2.Block.html#gdbus-property-org-freedesktop-UDisks2-Block.IdUUID">IdUUID</ulink>
+         property.
+    -->
+    <property name="IdUUID" type="s" access="read"/>
+
+    <!-- MDRaid:
+         If the block device is a running MD-RAID array, this is set
+         to the #org.freedesktop.UDisks2.MDRaid object that it
+         correspond to. Is '/' if no such object exists.
+      -->
+    <property name="MDRaid" type="o" access="read"/>
+
+    <!-- MDRaidMember:
+         If the block device is a member of a MD-RAID array, this
+         is set to the #org.freedesktop.UDisks2.MDRaid object that it
+         correspond to. Is '/' if no such object exists.
+      -->
+    <property name="MDRaidMember" type="o" access="read"/>
+
+    <property name="LogicalVolume" type="o" access="read"/>
+
+    <property name="PvGroup" type="o" access="read"/>
+    <property name="PvSize" type="t" access="read"/>
+    <property name="PvFreeSize" type="t" access="read"/>
+
+    <property name="MountPoint" type="s" access="read"/>
+    <property name="MountOptions" type="s" access="read"/>
+    <property name="MountedAt" type="as" access="read"/>
+
+    <property name="CryptoOptions" type="s" access="read"/>
+
+    <method name="Format">
+      <arg name="type" direction="in" type="s"/>
+      <arg name="erase" direction="in" type="s"/>
+      <arg name="label" direction="in" type="s"/>
+      <arg name="passphrase" direction="in" type="s"/>
+      <arg name="mount_point" direction="in" type="s"/>
+      <arg name="mount_options" direction="in" type="s"/>
+      <arg name="crypto_options" direction="in" type="s"/>
+      <arg name="crypto_passphrase" direction="in" type="s"/>
+    </method>
+
+    <method name="CreatePartition">
+      <arg name="offset" direction="in" type="t"/>
+      <arg name="size" direction="in" type="t"/>
+      <arg name="type" direction="in" type="s"/>
+      <arg name="erase" direction="in" type="s"/>
+      <arg name="label" direction="in" type="s"/>
+      <arg name="passphrase" direction="in" type="s"/>
+      <arg name="mount_point" direction="in" type="s"/>
+      <arg name="mount_options" direction="in" type="s"/>
+      <arg name="crypto_passphrase" direction="in" type="s"/>
+      <arg name="crypto_options" direction="in" type="s"/>
+    </method>
+
+    <method name="DeletePartition">
+    </method>
+
+    <method name="Mount">
+    </method>
+
+    <method name="Unmount">
+    </method>
+
+    <method name="Lock">
+    </method>
+
+    <method name="Unlock">
+      <arg name="passphrase" direction="in" type="s"/>
+    </method>
+
+    <method name="SetFilesystemOptions">
+      <arg name="label" direction="in" type="s"/>
+      <arg name="mount_point" direction="in" type="s"/>
+      <arg name="mount_options" direction="in" type="s"/>
+    </method>
+
+    <method name="SetCryptoOptions">
+      <arg name="crypto_passphrase" direction="in" type="s"/>
+      <arg name="crypto_options" direction="in" type="s"/>
+    </method>
+
+    <method name="GetCryptoPassphrase">
+      <arg name="passphrase" direction="out" type="s"/>
+    </method>
+
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Storage.Drive:
+      @short_description: Disk or Drive
+
+      This interface is used for block devices that correspond to
+      physical hard disks or disk drives (or at least, appear to the
+      OS in that way).
+
+      Objects implementing this interface are located in
+      <literal>/com/redhat/Cockpit/Storage/drives</literal>.
+  -->
+  <interface name="com.redhat.Cockpit.Storage.Drive">
+    <!-- Vendor: A name for the vendor of the drive or blank if unknown. -->
+    <property name="Vendor" type="s" access="read"/>
+
+    <!-- Model: A name for the model of the drive or blank if unknown. -->
+    <property name="Model" type="s" access="read"/>
+
+    <!-- Revision: Firmware Revision or blank if unknown. -->
+    <property name="Revision" type="s" access="read"/>
+
+    <!-- Serial: Serial number of the drive or blank if unknown. -->
+    <property name="Serial" type="s" access="read"/>
+
+    <!-- Size: Size of the disk or media (0 if no media is present). -->
+    <property name="Size" type="t" access="read"/>
+
+    <!-- Classification:
+         A high-level classification of the drive.
+
+         Known values include "ssd", "hdd", "optical" and "removable". Blank if unknown.
+    -->
+    <property name="Classification" type="s" access="read"/>
+
+    <!-- Name:
+         A name for the drive suitable for presentation.
+
+         This name includes the serial number (or similar data) so it
+         is suitable to use when there are a lot of drives with the
+         same #com.redhat.Cockpit.Storage.Drive:Vendor and
+         #com.redhat.Cockpit.Storage.Drive:Model.
+    -->
+    <property name="Name" type="s" access="read"/>
+
+    <!-- WWN:
+         The <ulink
+         url="http://en.wikipedia.org/wiki/World_Wide_Name">World Wide
+         Name</ulink> of the drive or blank if unknown.
+    -->
+    <property name="WWN" type="s" access="read"/>
+
+    <!-- SortKey:
+         A string that can be used for sorting drive objects.
+    -->
+    <property name="SortKey" type="s" access="read"/>
+
+    <!-- Temperature: The temperature of the disk in degrees Kelvin (0 if unknown). -->
+    <property name="Temperature" type="d" access="read"/>
+
+    <!-- Failing:
+         An assessment from the disk itself of whether it is currently failing (%FALSE if unknown).
+
+         The value of this property should be ignored unless
+         #com.redhat.Cockpit.Storage.Drive:FailingValid is %TRUE.
+    -->
+    <property name="Failing" type="b" access="read"/>
+
+    <!-- FailingValid:
+         If this is %FALSE, the value of the
+         #com.redhat.Cockpit.Storage.Drive:Failing property should be
+         ignored..
+    -->
+    <property name="FailingValid" type="b" access="read"/>
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Storage.MDRaid:
+      @short_description: mdraid device
+
+      This interface is used for objects that are mdraid devices.
+
+      Objects implementing this interface are located in
+      <literal>/com/redhat/Cockpit/Storage/mdraids/</literal>.
+  -->
+  <interface name="com.redhat.Cockpit.Storage.MDRaid">
+    <!-- UUID:
+         The UUID of the array.
+    -->
+    <property name="UUID" type="s" access="read"/>
+
+    <!-- Name:
+         The name of the array (TODO: homehost etc).
+    -->
+    <property name="Name" type="s" access="read"/>
+
+    <!-- Level:
+         The RAID level.
+
+         Known values include <literal>raid0</literal>, <literal>raid1</literal>, <literal>raid4</literal>, <literal>raid5</literal>, <literal>raid6</literal> and <literal>raid10</literal>.
+    -->
+    <property name="Level" type="s" access="read"/>
+
+    <!-- NumDevices:
+         Number of devices that are part of the array.
+    -->
+    <property name="NumDevices" type="u" access="read"/>
+
+    <!-- Size:
+         The size of the array or 0 if unknown.
+
+         This is the usable size, e.g. for a RAID-5 array backed by 4
+         1TB disks, this will be approximately 3 TB.
+    -->
+    <property name="Size" type="t" access="read"/>
+
+    <!-- SyncAction:
+         The current state of the array or empty if the array is not
+         running or if the array does not have any redundancy
+         (e.g. RAID-0 or linear).
+
+         Use the org.freedesktop.UDisks2.MDRaid.RequestSyncAction()
+         method to change this.
+
+         This property corresponds to the
+         <literal>sync_action</literal> sysfs file, see the
+         <filename><ulink url="http://www.kernel.org/doc/Documentation/md.txt">Documentation/md.txt</ulink></filename>
+         file shipped with the kernel sources.
+    -->
+    <property name="SyncAction" type="s" access="read"/>
+
+    <!-- SyncCompleted:
+         The fraction or sectors completed (always between <constant>0.0</constant> and <constant>1.0</constant>) in the sync operation or 0.0 if no operation is in progress.
+
+         This property corresponds to the
+         <literal>sync_completed</literal> sysfs file, see the
+         <filename><ulink url="http://www.kernel.org/doc/Documentation/md.txt">Documentation/md.txt</ulink></filename>
+         file shipped with the kernel sources.
+    -->
+    <property name="SyncCompleted" type="d" access="read"/>
+
+    <!-- SyncRate:
+         The rate (or speed) at which the sync operation takes
+         place. It is averaged over the last 30 seconds and measured
+         in bytes per second.
+
+         If the rate is unknown or no operation is in progress, the
+         value of this property is 0.
+
+         This property corresponds to the
+         <literal>sync_speed</literal> sysfs file, see the
+         <filename><ulink url="http://www.kernel.org/doc/Documentation/md.txt">Documentation/md.txt</ulink></filename>
+         file shipped with the kernel sources.
+    -->
+    <property name="SyncRate" type="t" access="read"/>
+
+    <!-- SyncRemainingTime:
+         The estimated number of micro-seconds until the operation is
+         finished
+
+         If the amount of remaining time is unknown or no operation is
+         in progress, the value of this property is 0.
+
+         This property is based on the value of the
+         <literal>sync_speed</literal> sysfs file, see the
+         <filename><ulink url="http://www.kernel.org/doc/Documentation/md.txt">Documentation/md.txt</ulink></filename>
+         file shipped with the kernel sources.
+    -->
+    <property name="SyncRemainingTime" type="t" access="read"/>
+
+    <!-- Degraded:
+         Number of devices by which the array is degraded (0 if not degraded or not running).
+
+         This property corresponds to the
+         <literal>degraded</literal> sysfs file, see the
+         <filename><ulink url="http://www.kernel.org/doc/Documentation/md.txt">Documentation/md.txt</ulink></filename>
+         file shipped with the kernel sources.
+    -->
+    <property name="Degraded" type="u" access="read"/>
+
+    <!-- BitmapLocation:
+         The location of a write-intent bitmap (empty if the array is not running), if any.
+
+         If the RAID array does not suppor write-intent bitmaps (for
+         example RAID-0 arrays), this is empty.
+
+         This property corresponds to the
+         <literal>bitmap/location</literal> sysfs file, see the
+         <filename><ulink url="http://www.kernel.org/doc/Documentation/md.txt">Documentation/md.txt</ulink></filename>
+         file shipped with the kernel sources.
+    -->
+    <property name="BitmapLocation" type="s" access="read"/>
+
+    <!-- ChunkSize:
+         The chunk size (0 if the array is not running or not using striping).
+
+         This property corresponds to the
+         <literal>chunk_size</literal> sysfs file, see the
+         <filename><ulink url="http://www.kernel.org/doc/Documentation/md.txt">Documentation/md.txt</ulink></filename>
+         file shipped with the kernel sources.
+    -->
+    <property name="ChunkSize" type="t" access="read"/>
+
+    <property name="ActiveDevices" type="a(oiast)" access="read"/>
+
+    <method name="Start"/>
+
+    <method name="Stop"/>
+
+    <method name="Delete">
+    </method>
+
+    <method name="RequestSyncAction">
+      <arg name="sync_action" type="s" direction="in"/>
+    </method>
+
+    <method name="SetBitmapLocation">
+      <arg name="value" direction="in" type="s"/>
+    </method>
+
+    <method name="RemoveDevices">
+      <arg name="devices" direction="in" type="ao"/>
+    </method>
+
+    <method name="AddDevices">
+      <arg name="devices" direction="in" type="ao"/>
+    </method>
+
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Storage.VolumeGroup:
+      @short_description: A volume group
+
+      Objects implementing this interface are located in
+      <literal>/com/redhat/Cockpit/Storage/lvm/.
+  -->
+  <interface name="com.redhat.Cockpit.Storage.VolumeGroup">
+    <property name="UUID" type="s" access="read"/>
+    <property name="Name" type="s" access="read"/>
+    <property name="DisplayName" type="s" access="read"/>
+    <property name="Size" type="t" access="read"/>
+    <property name="FreeSize" type="t" access="read"/>
+
+    <property name="NeedsPolling" type="b" access="read"/>
+    <method name="Poll">
+    </method>
+
+    <method name="Delete">
+    </method>
+
+    <method name="Rename">
+      <arg name="new_name" type="s" direction="in"/>
+    </method>
+
+    <method name="AddDevice">
+      <arg name="block" type="o" direction="in"/>
+    </method>
+
+    <method name="EmptyDevice">
+      <arg name="block" type="o" direction="in"/>
+    </method>
+
+    <method name="RemoveDevice">
+      <arg name="block" type="o" direction="in"/>
+    </method>
+
+    <method name="CreatePlainVolume">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="size" type="t" direction="in"/>
+      <arg name="stripes" type="i" direction="in"/>
+      <arg name="stripesize" type="t" direction="in"/>
+    </method>
+
+    <method name="CreateThinPoolVolume">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="size" type="t" direction="in"/>
+    </method>
+
+    <method name="CreateThinVolume">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="size" type="t" direction="in"/>
+      <arg name="pool" type="o" direction="in"/>
+    </method>
+
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Storage.LogicalVolume:
+      @short_description: A logical volume
+
+      Objects implementing this interface are located in
+      <literal>/com/redhat/Cockpit/Storage/lvm/<VG>/.
+  -->
+  <interface name="com.redhat.Cockpit.Storage.LogicalVolume">
+    <property name="UUID" type="s" access="read"/>
+    <property name="Name" type="s" access="read"/>
+    <property name="DisplayName" type="s" access="read"/>
+    <property name="VolumeGroup" type="o" access="read"/>
+    <property name="Size" type="t" access="read"/>
+    <property name="DataAllocatedRatio" type="d" access="read"/>
+    <property name="MetadataAllocatedRatio" type="d" access="read"/>
+    <property name="Type" type="s" access="read"/>
+
+    <property name="ThinPool" type="o" access="read"/>
+    <property name="Origin" type="o" access="read"/>
+
+    <method name="Activate">
+    </method>
+
+    <method name="Deactivate">
+    </method>
+
+    <method name="Delete">
+    </method>
+
+    <method name="Rename">
+      <arg name="new_name" type="s" direction="in"/>
+    </method>
+
+    <method name="Resize">
+      <arg name="new_size" type="t" direction="in"/>
+      <arg name="stripes" type="i" direction="in"/>
+      <arg name="stripesize" type="t" direction="in"/>
+    </method>
+
+    <method name="CreateSnapshot">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="size" type="t" direction="in"/>
+    </method>
+
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Realms:
+      @short_description: For managing realm membership.
+
+      Realms are identified by their display name.
+
+      This interface is implemented by
+      /com/redhat/Cockpit/Realms.
+  -->
+  <interface name="com.redhat.Cockpit.Realms">
+
+    <!-- Joined:
+         The joined realms, as a list of 'name', 'detail' tuples.
+
+         The details are a dict like the one returned by Discover
+         below.
+    -->
+    <property name="Joined" type="a(sa{sv})" access="read"/>
+
+    <!-- Busy:
+         What we are busy with
+    -->
+    <property name="Busy" type="(ss)" access="read"/>
+
+    <!-- GetDiagnostics:
+         Get the diagnostics of the last Join or Leave operation
+         command.
+    -->
+    <method name="GetDiagnostics">
+      <arg name="text" type="s" direction="out"/>
+    </method>
+
+    <!-- Discover:
+         Discover information about one realm.
+
+         The given string is used to find the realm.  When it is
+         empty, a default realm might be returned.
+
+         The name of the realm is returned, and some further details
+         as a list of dictionaries.  Each entry in that list describes
+         one way to interact with that realm, and might contain the
+         following keys:
+
+	 server-software (s)
+	 client-software (s)
+	 supported-join-credentials (as)
+	 supported-leave-credentials (as)
+	 suggested-administrator (s)
+
+         When no realm is found, the 'name' result is the empty
+         string.
+    -->
+    <method name="Discover">
+      <arg name="string" type="s" direction="in"/>
+      <arg name="options" type="a{sv}" direction="in"/>
+      <arg name="name" type="s" direction="out"/>
+      <arg name="details" type="aa{sv}" direction="out"/>
+    </method>
+
+    <!-- Join:
+         Join a realm.
+    -->
+    <method name="Join">
+      <arg name="realm" type="s" direction="in"/>
+      <arg name="creds" type="(sss)" direction="in"/>
+      <arg name="options" type="a{sv}" direction="in"/>
+    </method>
+
+    <!-- Leave:
+         Leave a realm.
+    -->
+    <method name="Leave">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="creds" type="(sss)" direction="in"/>
+      <arg name="options" type="a{sv}" direction="in"/>
+    </method>
+
+    <!-- Cancel:
+         Cancel a ongoing Join or Leave method call.
+    -->
+    <method name="Cancel">
+    </method>
+
+  </interface>
+
+  <interface name="com.redhat.Cockpit.Services">
+    <method name="ListServices">
+      <!-- (name,description,load_state,active_state,sub_state,file_state) -->
+      <arg name="services" type="a(ssssss)" direction="out"/>
+    </method>
+
+    <signal name="ServiceUpdate">
+      <arg name="service" type="(ssssss)" direction="out"/>
+    </signal>
+
+    <signal name="ServiceUpdateAll">
+    </signal>
+
+    <method name="GetServiceInfo">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="info" type="a{sv}" direction="out"/>
+    </method>
+
+    <method name="ServiceAction">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="action" type="s" direction="in"/>
+    </method>
+
+  </interface>
+
+  <!-- On /com/redhat/Cockpit/Journal -->
+  <interface name="com.redhat.Cockpit.Journal">
+
+    <!-- Query the journal.
+
+         This will return up-to 'count' journal entries.  When 'wait'
+         is true, the method will return only when at least one entry
+         can be retrieved from the journal, or after a timeout.
+
+         The result is returned as an array of entries where each
+         entry is an array of strings.  The strings contain the
+         requested fields for the entry, one for each element of the
+         'fields' parameter.  The strings are at most 'max_field_size'
+         bytes long.
+
+         As a special case, a "*" element in 'fields' will return all
+         fields of the entries, prefixed with their field names.
+
+         Only entries matching 'match' are returned, which is an array
+         of disjunctions.  Each disjunction is an array of systemd
+         journal match strings, like "PRIORITY=4".
+
+         The first entry is determined by 'seek' and 'skip'.
+
+         When 'seek' is the string 'head' or 'tail', we seek to the
+         head or tail of the journal, respectively.  If it is of the
+         form "rel_usec=NUMBER", we seek to 'now' plus the indicated
+         micro seconds.  If it is of the form "boot_id=ID128", we seek
+         to the start of the indicated boot.  If it is of the form
+         "exact_cursor=CURSOR", we seek to that cursor and fail if we
+         didn't hit it exactly.  Otherwise, 'seek' is used as a
+         journal cursor.
+
+         After seeking, we skip 'skip' entries.  A value of zero for
+         'skip' will return the entry identified by 'seek', and a
+         value of -1 will return the first entry before it.
+
+         After retrieving entries as explained above, they are further
+         filtered by 'filter_text'.  Every field of an entry is
+         checked against 'filter_text', not just those listed in
+         'fields'.  The check is not restricted by 'max_field_size',
+         but by the journal default of 64K.
+
+         In addition to the actual journal entries, two cursors
+         'first' and 'last' are returned.  If non-empty, they describe
+         the beginning and end of the region in the journal that has
+         been examined.
+
+         The next entries after the current result can be queried by
+         setting 'seek' to 'last' and 'skip' to 1, and the N entries
+         preceeding the current result can be queried by setting
+         'seek' to 'first' and 'skip' to -N,
+
+         The journal has been exhausted in the direction indicated by
+         'skip' when the 'eof' result is true.  In this case, 'result'
+         will contain the last entries.
+
+         The cursors are only empty when 'eof' is true.  (But they
+         might also be valid.)  No attempt should be made to query
+         earlier entries, and you can wait for later entries by
+         leaving 'seek' and 'skip' as they were and setting 'wait' to
+         true.
+    -->
+
+    <method name="Query">
+      <arg name="match" type="aas" direction="in"/>
+      <arg name="filter_text" type="s" direction="in"/>
+      <arg name="seek" type="s" direction="in"/>
+      <arg name="skip" type="i" direction="in"/>
+      <arg name="count" type="i" direction="in"/>
+      <arg name="fields" type="as" direction="in"/>
+      <arg name="max_field_size" type="i" direction="in"/>
+      <arg name="wait" type="b" direction="in"/>
+
+      <arg name="entries" type="aas" direction="out"/>
+      <arg name="first" type="s" direction="out"/>
+      <arg name="last" type="s" direction="out"/>
+      <arg name="eof" type="b" direction="out"/>
+    </method>
+
+    <!-- Query the existing values of a journal field.
+
+         This method returns an array with all values of the given
+         field that occur in the journal.  The strings are truncated
+         to be no more than 'max_len' bytes long.
+    -->
+    <method name="QueryUnique">
+      <arg name="field" type="s" direction="in"/>
+      <arg name="max_len" type="i" direction="in"/>
+      <arg name="values" type="as" direction="out">
+        <annotation name="org.gtk.GDBus.C.ForceGVariant" value="please"/>
+      </arg>
+    </method>
+
+  </interface>
+
+  <!-- On /com/redhat/Cockpit/Accounts -->
+  <interface name="com.redhat.Cockpit.Accounts">
+    <method name="CreateAccount">
+      <arg name="user_name" type="s" direction="in"/>
+      <arg name="real_name" type="s" direction="in"/>
+      <arg name="password" type="s" direction="in"/>
+      <arg name="locked" type="b" direction="in"/>
+    </method>
+
+    <property name="Roles" type="a(ss)" access="read"/>
+
+  </interface>
+
+  <!-- On /com/redhat/Cockpit/Accounts/* -->
+  <interface name="com.redhat.Cockpit.Account">
+    <property name="UserName" type="s" access="read"/>
+    <property name="RealName" type="s" access="read"/>
+    <property name="Locked" type="b" access="read"/>
+    <property name="LastLogin" type="t" access="read"/>
+    <property name="LoggedIn" type="b" access="read"/>
+    <property name="Groups" type="as" access="read">
+      <annotation name="org.gtk.GDBus.C.ForceGVariant" value="please"/>
+    </property>
+
+    <signal name="Changed">
+    </signal>
+
+    <method name="GetIconDataURL">
+      <arg name="data" type="s" direction="out"/>
+    </method>
+
+    <method name="SetIconDataURL">
+      <arg name="data" type="s" direction="in"/>
+    </method>
+
+    <method name="SetRealName">
+      <arg name="value" type="s" direction="in"/>
+    </method>
+
+    <method name="SetPassword">
+      <arg name="value" type="s" direction="in"/>
+    </method>
+
+    <method name="SetLocked">
+      <arg name="value" type="b" direction="in"/>
+    </method>
+
+    <method name="ChangeGroups">
+      <arg name="add" type="as" direction="in"/>
+      <arg name="remove" type="as" direction="in"/>
+    </method>
+
+    <method name="Delete">
+      <arg name="remove_files" type="b" direction="in"/>
+    </method>
+
+    <method name="KillSessions">
+    </method>
+
+  </interface>
+
+</node>

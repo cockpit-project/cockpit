@@ -1,0 +1,803 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+import time
+
+class TestStorage(MachineCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+        # Install a udev rule to work around the fact that serials from
+        # VirtIO devices don't seem to appear early enough for udev to
+        # pick them up reliably.  We just wait a bit.
+        #
+        self.machine.write("/usr/lib/udev/rules.d/59-fixup-serial.rules",
+             'SUBSYSTEM=="block" KERNEL=="vd*" IMPORT{program}="/bin/sh -c \'sleep 0.5; s=$(cat /sys/block/$(basename $tempnode)/serial); echo ID_SERIAL=$s\'"')
+        self.machine.execute("udevadm trigger");
+
+    def inode(self, f):
+        return self.machine.execute("stat -L '%s' -c %%i" % f)
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+        b.wait_in_text("#storage_drives", "VirtIO")
+
+        # Add a disk, partition it, format it, and finally remove it.
+        disk1 = m.add_disk("10M", serial="MYSERIAL")
+
+        b.wait_in_text("#storage_drives", "MYSERIAL")
+        b.click('a[onclick*="MYSERIAL"]')
+        b.wait_page("storage-detail")
+        b.wait_in_text('#storage_detail_partition_list', "Unrecognized Data")
+        b.wait_not_in_text('#storage_detail_partition_list', "Partition")
+
+        check_eq(self.inode(b.text("#disk_detail_device_file")), self.inode("/dev/disk/by-id/virtio-MYSERIAL"))
+
+        m.execute('parted /dev/disk/by-id/virtio-MYSERIAL mktable gpt')
+        m.execute('parted /dev/disk/by-id/virtio-MYSERIAL mkpart primary ext2 0 10')
+        m.execute('udevadm settle')
+        b.wait_in_text("#storage_detail_partition_list", "Partition")
+        m.execute('mke2fs /dev/disk/by-id/virtio-MYSERIAL-part1')
+        b.wait_in_text("#storage_detail_partition_list", "File System")
+        b.go("storage")
+        b.wait_in_text("#storage_drives", "MYSERIAL")
+        m.rem_disk(disk1)
+        b.wait_not_in_text("#storage_drives", "MYSERIAL")
+
+    def testMounting(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+
+        # Add a disk
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#storage_drives", "MYDISK")
+        b.click('a[onclick*="MYDISK"]')
+        b.wait_page("storage-detail")
+
+        # Format it
+        b.click("#entry-actions-1")
+        b.wait_popup("block-actions-menu")
+        b.click('#block-actions-menu button[data-op="format"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-type", "ext4")
+        b.set_val("#format-name", "FILESYSTEM")
+        b.set_val("#format-mount-point", "/foo")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "FILESYSTEM")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/foo")
+
+        b.wait_text("#entry-action-1", "Mount");
+        b.click("#entry-action-1")
+        b.wait_in_text("#storage_detail_partition_list", "mounted on /foo")
+
+        b.wait_text("#entry-action-1", "Unmount");
+        b.click("#entry-action-1")
+        b.wait_in_text("#storage_detail_partition_list", "not mounted")
+
+        b.click("#entry-actions-1")
+        b.wait_popup("block-actions-menu")
+        b.click('#block-actions-menu button[data-op="fsys-options"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_popup("filesystem_options_dialog")
+        b.wait_val("#fsysopts-name", "FILESYSTEM")
+        b.wait_val("#fsysopts-mount-point", "/foo")
+        b.set_val("#fsysopts-mount-point", "/bar");
+        b.click("#fsysopts-apply")
+        b.wait_popdown("filesystem_options_dialog")
+
+        b.wait_text("#entry-action-1", "Mount");
+        b.click("#entry-action-1")
+        b.wait_in_text("#storage_detail_partition_list", "mounted on /bar")
+
+    def testDosParts(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+
+        # Add a disk
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#storage_drives", "MYDISK")
+        b.click('a[onclick*="MYDISK"]')
+        b.wait_page("storage-detail")
+
+        # Format it with a DOS partition table
+        b.click("#drive-actions")
+        b.wait_popup("drive-actions-menu")
+        b.click('#drive-actions-menu button[data-op="format"]')
+        b.wait_popdown("drive-actions-menu")
+        b.wait_popup("storage_format_disk_dialog")
+        b.set_val("#format-disk-type", "dos")
+        b.click("#format-disk-format")
+        b.wait_popdown("storage_format_disk_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "Free Space")
+
+        # Create a primary partition
+        b.click("#entry-action-1")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-size", "10")
+        b.set_val("#format-type", "ext4")
+        b.set_val("#format-name", "FIRST")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "FIRST")
+
+        # Create a extended partition
+        b.click("#entry-action-2")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-size", "20")
+        b.set_val("#format-type", "dos-extended")
+        b.set_val("#format-name", "")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "Extended Partition")
+
+        # Create a second primary partition to fill the rest of the disk
+        b.click("#entry-action-4")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-size", "");
+        b.set_val("#format-type", "ext4")
+        b.set_val("#format-name", "SECOND")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "SECOND")
+
+        # Create a logical partition
+        b.click("#entry-action-3")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-size", "10");
+        b.set_val("#format-type", "ext4")
+        b.set_val("#format-name", "LOGICAL")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "LOGICAL")
+
+        # Create a second logical partition to fill the extended partition
+        b.click("#entry-action-4")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-size", "");
+        b.set_val("#format-type", "ext4")
+        b.set_val("#format-name", "LOGICAL2")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "LOGICAL2")
+
+        b.wait_not_in_text("#storage_detail_partition_list", "Free Space")
+
+    def testLuks(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+
+        # Add a disk and partition it
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#storage_drives", "MYDISK")
+        b.click('a[onclick*="MYDISK"]')
+        b.wait_page("storage-detail")
+        b.click("#drive-actions")
+        b.wait_popup("drive-actions-menu")
+        b.click('#drive-actions-menu button[data-op="format"]')
+        b.wait_popdown("drive-actions-menu")
+        b.wait_popup("storage_format_disk_dialog")
+        b.set_val("#format-disk-type", "gpt")
+        b.click("#format-disk-format")
+        b.wait_popdown("storage_format_disk_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "Free Space")
+
+        assert m.execute("cat /etc/crypttab") == ""
+
+        # Format it with luks
+        b.click("#entry-action-1")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-type", "luks+ext4")
+        b.set_val("#format-name", "ENCRYPTED")
+        b.set_val("#format-passphrase", "maisa-artu-keke-tellu")
+        b.set_val("#format-passphrase-2", "maisa-artu-keke-tellu")
+        b.set_val("#format-store-passphrase", "yes")
+        b.set_val("#format-mount-point", "/secret")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        with b.wait_timeout(20):
+            b.wait_in_text("#storage_detail_partition_list", "LUKS Encrypted")
+            b.wait_in_text("#storage_detail_partition_list", "unlocked")
+            b.wait_in_text("#storage_detail_partition_list", "ENCRYPTED")
+
+        assert m.execute("grep 'UUID=' /etc/crypttab") != ""
+        assert m.execute("grep /secret /etc/fstab") != ""
+        assert m.execute("cat /etc/luks-keys/*") == "maisa-artu-keke-tellu"
+
+        # Lock it
+        b.wait_text("#entry-action-1", "Lock")
+        b.click("#entry-action-1")
+        b.wait_in_text("#storage_detail_partition_list", "locked")
+        b.wait_not_in_text("#storage_detail_partition_list", "ENCRYPTED")
+
+        # Unlock
+        b.wait_text("#entry-action-1", "Unlock")
+        b.click("#entry-action-1")
+        b.wait_popup("storage_unlock_dialog")
+        b.set_val("#unlock-passphrase", "maisa-artu-keke-tellu")
+        b.click("#unlock-unlock")
+        b.wait_popdown("storage_unlock_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "unlocked")
+        b.wait_in_text("#storage_detail_partition_list", "ENCRYPTED")
+
+        # Change options
+        b.click("#entry-actions-1")
+        b.wait_popup("block-actions-menu")
+        b.click('#block-actions-menu button[data-op="crypto-options"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_popup("crypto_options_dialog")
+        b.wait_val("#crypto-options-passphrase", "maisa-artu-keke-tellu")
+        b.set_val("#crypto-options-passphrase", "wrong-passphrase")
+        b.set_val("#crypto-options-options", "weird,options")
+        b.click("#crypto-options-apply")
+        b.wait_popdown("crypto_options_dialog")
+
+        assert m.execute("grep 'weird,options' /etc/crypttab") != ""
+        assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
+
+        # Wait for udisks to pick up the crypttab change...
+        m.execute("sleep 1")
+
+        # Delete the partition
+        b.click("#entry-actions-1")
+        b.wait_popup("block-actions-menu")
+        b.click('#block-actions-menu button[data-op="delete"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_in_text("#storage_detail_partition_list", "Free Space")
+        b.wait_not_in_text("#storage_detail_partition_list", "ENCRYPTED")
+
+        assert m.execute("cat /etc/crypttab") == ""
+        assert m.execute("grep /secret /etc/fstab || true") == ""
+
+    def select_disk(self, container, name):
+        self.browser.set_checked('#%s .ui-checkbox:contains("%s") input' % (container, name), 'true')
+
+    def wait_states(self, states):
+        # XXX - This is just here to prove that you can embed non-trivial JS here.  It's not a good idea.
+        self.browser.wait_js_func("""(function(states) {
+          var found = { };
+          $('#raid-disks li').each(function (i, e) {
+            var cols = $(e).find('td').map(function (i, e) { return $(e).text(); }).get();
+            if (cols.length >= 3)
+              found[cols[1]] = cols[2];
+          });
+          for (s in states) {
+            if (states[s] != found[s])
+              return false;
+          }
+          return true;
+        })""", states)
+
+    def add_disk(self, name):
+        b = self.browser
+        b.click("#raid-disks-add")
+        b.wait_popup("raid_disk_add_dialog")
+        self.select_disk("raid-disk-add-drives", name)
+        b.click("#raid-disk-add-add")
+        b.wait_popdown("raid_disk_add_dialog")
+
+    def remove_disk(self, name):
+        self.browser.click('#raid-disks li:contains("%s") button' % name)
+
+    def testRaid(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+        b.wait_in_text("#storage_drives", "VirtIO")
+
+        # Add four disks and make a RAID out of three of them
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        m.add_disk("50M", serial="DISK3")
+        m.add_disk("50M", serial="DISK4")
+        b.wait_in_text("#storage_drives", "DISK1")
+        b.wait_in_text("#storage_drives", "DISK2")
+        b.wait_in_text("#storage_drives", "DISK3")
+        b.wait_in_text("#storage_drives", "DISK4")
+
+        b.click("#storage_create_raid")
+        b.wait_popup("create-raid-dialog")
+        b.wait_val("#create-raid-level", "raid5")
+        b.wait_in_text("#create-raid-summary-drives", "2 more")
+        self.select_disk("create-raid-drives", "DISK1")
+        b.wait_in_text("#create-raid-summary-drives", "1 more")
+        self.select_disk("create-raid-drives", "DISK2")
+        self.select_disk("create-raid-drives", "DISK3")
+        b.set_val("#create-raid-level", "raid6")
+        b.wait_in_text("#create-raid-summary-drives", "1 more")
+        b.set_val("#create-raid-level", "raid5")
+        b.wait_in_text("#create-raid-summary-drives", "3 disks")
+        b.set_val("#create-raid-name", "ARR")
+        b.click("#create-raid-create")
+        b.wait_popdown("create-raid-dialog")
+        b.wait_in_text("#storage_raids", "ARR")
+
+        b.click('a[onclick*="mdraid"]')
+        b.wait_page("storage-detail")
+
+        # The array might resync, so let's give it some extra time
+        with b.wait_timeout(20):
+            b.wait_in_text("#raid_detail_state", "Running")
+
+        self.wait_states({ "VirtIO Disk (DISK1)": "In Sync",
+                   "VirtIO Disk (DISK2)": "In Sync",
+                   "VirtIO Disk (DISK3)": "In Sync" })
+
+        # Degrade and repair it
+        dev = b.text("#raid_detail_device")
+        m.execute("mdadm %s --fail /dev/disk/by-id/virtio-DISK1 --remove /dev/disk/by-id/virtio-DISK1" % dev)
+        b.wait_in_text("#raid_detail_state", "DEGRADED")
+        m.execute("wipefs -a /dev/disk/by-id/virtio-DISK1")
+        m.execute("mdadm %s --add /dev/disk/by-id/virtio-DISK1" % dev)
+        b.wait_in_text("#raid_detail_state", "Recovering")
+        with b.wait_timeout(20):
+            b.wait_in_text("#raid_detail_state", "Running")
+
+        # Turn it off and on again
+        b.wait_in_text("#raid-action", "Stop")
+        b.click("#raid-action")
+        b.wait_in_text("#raid_detail_state", "Not running")
+        b.wait_in_text("#raid-action", "Start")
+        b.click("#raid-action")
+        b.wait_in_text("#raid_detail_state", "Running")
+        b.wait_text_not("#raid_detail_device", "--")
+
+        # Create partition table
+        b.click("#raid-actions")
+        b.wait_popup("raid-actions-menu")
+        b.click('#raid-actions-menu button[data-op="format"]')
+        b.wait_popdown("raid-actions-menu")
+        b.wait_popup("storage_format_disk_dialog")
+        b.set_val("#format-disk-type", "gpt")
+        b.click("#format-disk-format")
+        b.wait_popdown("storage_format_disk_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "Free Space")
+
+        # Create first partition
+        b.click("#entry-action-1")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-size", "20")
+        b.set_val("#format-type", "ext4")
+        b.set_val("#format-name", "One")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "One")
+
+        # Create second partition
+        b.click("#entry-action-2")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-size", "")
+        b.set_val("#format-type", "ext4")
+        b.set_val("#format-name", "Two")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "Two")
+        b.wait_not_in_text("#storage_detail_partition_list", "Free Space")
+
+        # Delete first partition
+        b.click("#entry-actions-1")
+        b.wait_popup("block-actions-menu")
+        b.click('#block-actions-menu button[data-op="delete"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_in_text("#storage_detail_partition_list", "Free Space")
+        b.wait_not_in_text("#storage_detail_partition_list", "One")
+
+        # Play with disks
+
+        # Add a spare
+        self.add_disk("DISK4")
+        self.wait_states({ "VirtIO Disk (DISK4)": "Spare" })
+
+        # Remove DISK1.  The spare takes over.
+        self.remove_disk("DISK1")
+        with b.wait_timeout(20):
+            b.wait_in_text("#raid_detail_state", "Running")
+            self.wait_states({ "VirtIO Disk (DISK4)": "In Sync" })
+
+        # Remove DISK4.  The array degrades.
+        self.remove_disk("DISK4")
+        b.wait_in_text("#raid_detail_state", "DEGRADED")
+
+        # Add DISK1.  The array recovers.
+        self.add_disk("DISK1")
+        with b.wait_timeout(20):
+            b.wait_in_text("#raid_detail_state", "Running")
+
+        # Stop the array, destroy a disk, and start the array
+        b.wait_in_text("#raid-action", "Stop")
+        b.click("#raid-action")
+        b.wait_in_text("#raid_detail_state", "Not running")
+        m.execute("wipefs -a /dev/disk/by-id/virtio-DISK1")
+        m.execute("udevadm settle")
+        b.wait_in_text("#raid-action", "Start")
+        b.click("#raid-action")
+        b.wait_in_text("#raid_detail_state", "DEGRADED")
+        b.wait_not_in_text("#raid_detail_state", "Recovering")
+        b.wait_visible("#raid-disks")
+
+        # Add DISK1.  The array recovers.
+        self.add_disk("DISK1")
+        with b.wait_timeout(20):
+            b.wait_in_text("#raid_detail_state", "Running")
+
+        # Delete the array.  We are back on the storage page.
+        b.click("#raid-actions")
+        b.wait_popup("raid-actions-menu")
+        b.click('#raid-actions-menu button[data-op="delete"]')
+        b.wait_popdown("raid-actions-menu")
+        b.wait_page("storage")
+        b.wait_not_in_text ("#storage_raids", "ARR")
+
+    def testJobs(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+        b.wait_in_text("#storage_drives", "VirtIO")
+
+        # Add a slow disk and format it
+        m.add_disk("10M", serial="SLOW", speed=800)
+        b.wait_in_text("#storage_drives", "SLOW")
+
+        b.click('a[onclick*="SLOW"]')
+        b.wait_page("storage-detail")
+
+        # Format it
+        b.click("#entry-actions-1")
+        b.wait_popup("block-actions-menu")
+        b.click('#block-actions-menu button[data-op="format"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-erase", "zero")
+        b.set_val("#format-type", "ext4")
+        b.set_val("#format-name", "FILESYSTEM");
+        b.set_val("#format-mount-point", "/foo");
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+
+        with b.wait_timeout(120):
+            b.wait_in_text("#storage-detail-jobs", "Erasing")
+            b.wait_in_text("#storage-detail-jobs", "No current jobs")
+            b.wait_in_text("#storage_detail_partition_list", "FILESYSTEM")
+
+    def testLvm(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+        b.wait_in_text("#storage_drives", "VirtIO")
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        m.add_disk("50M", serial="DISK3")
+        b.wait_in_text("#storage_drives", "DISK1")
+        b.wait_in_text("#storage_drives", "DISK2")
+        b.wait_in_text("#storage_drives", "DISK3")
+
+        # Create volume group out of two disks
+        m.execute("vgcreate TEST1 /dev/disk/by-id/virtio-DISK1 /dev/disk/by-id/virtio-DISK2")
+        b.wait_in_text("#storage_vgs", "TEST1")
+        b.click('a[onclick*="TEST1"]')
+        b.wait_page("storage-detail")
+        b.wait_in_text("#vg-physical-volumes", "DISK1")
+        b.wait_in_text("#vg-physical-volumes", "DISK2")
+
+        # Create two logical volumes
+        m.execute("lvcreate TEST1 -n one -L 20m")
+        b.wait_in_text("#storage_detail_content", "Logical Volume \"one\"")
+        m.execute("lvcreate TEST1 -n two -L 20m")
+        b.wait_in_text("#storage_detail_content", "Logical Volume \"two\"")
+
+        # Deactivate one
+        m.execute("lvchange TEST1/one -a n")
+        b.wait_in_text("#storage_detail_content", "(inactive)")
+
+        # and remove it
+        m.execute("lvremove TEST1/one")
+        b.wait_not_in_text("#storage_detail_content", "Logical Volume \"one\"")
+
+        # remove a disk from the volume group
+        m.execute("pvmove /dev/disk/by-id/virtio-DISK2 || true")
+        m.execute("vgreduce TEST1 /dev/disk/by-id/virtio-DISK2")
+        b.wait_not_in_text("#vg-physical-volumes", "DISK2")
+
+        # Thin volumes
+        m.execute("lvcreate TEST1 --thinpool pool -L 20m")
+        b.wait_in_text("#storage_detail_content", "Pool for Thin Logical Volumes \"pool\"")
+        m.execute("lvcreate -T TEST1/pool -n thin -V 100m")
+        b.wait_in_text("#storage_detail_content", "Thin Logical Volume \"thin\"")
+        m.execute("dd if=/dev/urandom of=/dev/mapper/TEST1-thin bs=1M count=10")
+        b.wait_in_text("#storage_detail_content", "50% full")
+        m.execute("lvremove -f TEST1/thin")
+        b.wait_in_text("#storage_detail_content", "1% full")
+
+        # remove the volume group
+        b.go("storage")
+        m.execute("vgremove -f TEST1")
+        b.wait_not_in_text("#storage_vgs", "TEST1")
+
+        # create volume group in the UI
+        b.click('#storage_create_volume_group')
+        b.wait_popup('create-volume-group-dialog')
+        b.set_val('#create-vg-name', "TEST");
+        self.select_disk('create-vg-drives', "DISK1")
+        self.select_disk('create-vg-drives', "DISK2")
+        b.click('#create-vg-create')
+        b.wait_popdown('create-volume-group-dialog')
+        b.wait_in_text("#storage_vgs", "TEST")
+        b.click('a[onclick*="TEST"]')
+
+        # create a logical volume
+        b.click('#entry-action-1')
+        b.wait_popup('storage_create_plain_volume_dialog')
+        b.set_val('#create-pvol-name', "one")
+        b.set_val('#create-pvol-size', "20")
+        b.click('#create-pvol-create')
+        b.wait_popdown('storage_create_plain_volume_dialog')
+        b.wait_in_text("#storage_detail_content", "Logical Volume \"one\"")
+
+        # format and mount it
+        b.click('#entry-action-1')
+        b.wait_popup('storage_format_dialog')
+        b.set_val('#format-type', "ext4")
+        b.set_val('#format-mount-point', "/one");
+        b.click('#format-format')
+        b.wait_popdown('storage_format_dialog')
+        b.wait_in_text("#storage_detail_content", "(ext4 File System)")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/one")
+        b.click('#entry-action-1')
+        b.wait_in_text("#storage_detail_content", "mounted on /one")
+
+        # unmount it
+        b.click('#entry-action-1')
+        b.wait_in_text("#storage_detail_content", "not mounted")
+
+        # delete it
+        b.click('#entry-actions-1')
+        b.wait_popup('block-actions-menu')
+        b.click('#block-actions-menu button[data-op="delete"]')
+        b.wait_popdown('block-actions-menu')
+        b.wait_not_in_text("#storage_detail_content", "Logical Volume \"one\"")
+        check_eq(m.execute("grep /one /etc/fstab || true"), "")
+
+        # remove disk
+        m.execute("pvmove /dev/disk/by-id/virtio-DISK2 || true")
+        b.click('#vg-pv-remove-1')
+        b.wait_not_in_text("#vg-physical-volumes", "DISK2")
+
+        # create thin pool and volume
+        b.click('#entry-actions-1')
+        b.wait_popup('vg-free-actions-menu')
+        b.click('#vg-free-actions-menu button[data-op="create-thin-pool"]')
+        b.wait_popdown('vg-free-actions-menu')
+        b.wait_popup('storage_create_thin_pool_dialog')
+        b.set_val('#create-tpool-name', "pool")
+        b.set_val('#create-tpool-size', "20")
+        b.click('#create-tpool-create')
+        b.wait_popdown('storage_create_thin_pool_dialog')
+        b.wait_in_text('#storage_detail_content', "Pool for Thin Logical Volumes \"pool\"")
+
+        b.click('#entry-action-1')
+        b.wait_popup('storage_create_thin_volume_dialog')
+        b.set_val('#create-tvol-name', "thin")
+        b.set_val('#create-tvol-size', "80")
+        b.click('#create-tvol-create')
+        b.wait_popdown('storage_create_thin_volume_dialog')
+        b.wait_in_text('#storage_detail_content', "Thin Logical Volume \"thin\"")
+
+        # cause the pool to overflow by erasing the thin volume
+        b.click('#entry-action-2')
+        b.wait_popup('storage_format_dialog')
+        b.set_val('#format-erase', "zero")
+        b.set_val('#format-type', "ext4")
+        b.set_val('#format-mount-point', "/thin");
+        b.click('#format-format')
+        with b.wait_timeout(20):
+            b.wait_in_text('#storage_detail_content', "100% full")
+
+        # add a disk, resize the pool and let the operation finish
+        b.click('#vg-pv-add')
+        b.wait_popup('vg_disk_add_dialog')
+        self.select_disk('vg-disk-add-drives', "DISK2")
+        b.click('#vg-disk-add-add')
+        b.wait_popdown('vg_disk_add_dialog')
+        b.wait_in_text("#vg-physical-volumes", "DISK2")
+
+        b.click('#entry-actions-1')
+        b.wait_popup('block-actions-menu')
+        b.click('#block-actions-menu button[data-op="resize"]')
+        b.wait_popdown('block-actions-menu')
+        b.wait_popup('storage_resize_volume_dialog')
+        b.set_val('#resize-lvol-size', "80")
+        b.click('#resize-lvol-resize')
+        b.wait_popdown('storage_resize_volume_dialog')
+        with b.wait_timeout(40):
+            b.wait_in_text("#storage_detail_content", "(ext4 File System)")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/thin")
+
+        # remove volume group
+        b.click('#vg-action')
+        b.wait_page("storage")
+        check_eq(m.execute("grep /thin /etc/fstab || true"), "")
+
+    def testUsed(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+        b.wait_in_text("#storage_drives", "VirtIO")
+
+        m.add_disk("50M", serial="DISK1")
+        b.wait_in_text("#storage_drives", "DISK1")
+        m.execute("parted /dev/disk/by-id/virtio-DISK1 mktable msdos")
+        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart extended 0 50")
+        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart logical ext2 1 25")
+        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart logical ext2 25 50")
+        m.execute("udevadm settle")
+        m.execute("echo einszweidrei | cryptsetup luksFormat /dev/disk/by-id/virtio-DISK1-part5")
+        m.execute("echo einszweidrei | cryptsetup luksOpen /dev/disk/by-id/virtio-DISK1-part5 dm-test")
+        m.execute("udevadm settle")
+        m.execute("mke2fs -L TEST /dev/mapper/dm-test")
+        m.execute("mount /dev/mapper/dm-test /mnt")
+
+        # Now all of /dev/mapper/dm-test, /dev/vdb5, /dev/vdb1, and /dev/vdb should be 'in use'.
+
+        b.click('a[onclick*="DISK1"]')
+        b.wait_page("storage-detail")
+
+        b.click('#entry-actions-3')
+        b.wait_popup('block-actions-menu')
+        b.click('#block-actions-menu button[data-op="format"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_popup("storage_format_dialog")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_popup("error-popup")
+        b.wait_in_text("#error-popup-message", "Device or resource busy")
+        b.click("#error-popup button")
+        b.wait_popdown("error-popup")
+
+        b.click('#entry-actions-2')
+        b.wait_popup('block-actions-menu')
+        b.click('#block-actions-menu button[data-op="delete"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_popup("error-popup")
+        b.wait_in_text("#error-popup-message", "Device or resource busy")
+        b.click("#error-popup button")
+        b.wait_popdown("error-popup")
+
+        b.click('#entry-actions-1')
+        b.wait_popup('block-actions-menu')
+        b.click('#block-actions-menu button[data-op="delete"]')
+        b.wait_popdown("block-actions-menu")
+        b.wait_popup("error-popup")
+        b.wait_in_text("#error-popup-message", "Device or resource busy")
+        b.click("#error-popup button")
+        b.wait_popdown("error-popup")
+
+        b.click('#drive-action')
+        b.wait_popup("storage_format_disk_dialog")
+        b.click("#format-disk-format")
+        b.wait_popdown("storage_format_disk_dialog")
+        b.wait_popup("error-popup")
+        b.wait_in_text("#error-popup-message", "Device or resource busy")
+        b.click("#error-popup button")
+        b.wait_popdown("error-popup")
+
+        # Unmount and format the disk.
+
+        m.execute("umount /mnt")
+        b.wait_in_text("#storage_detail_content", "not mounted")
+
+        b.click('#drive-action')
+        b.wait_popup("storage_format_disk_dialog")
+        b.click("#format-disk-format")
+        b.wait_popdown("storage_format_disk_dialog")
+
+        b.wait_in_text("#storage_detail_content", "50.0 MiB Free Space")
+
+    def testHidden(self):
+        m = self.machine
+        b = self.browser
+
+        m.add_disk("50M", serial="DISK1")
+        self.login_and_go("storage")
+        b.wait_in_text("#storage_drives", "DISK1")
+
+        # Create a volume group with a logical volume with a encrypted
+        # filesystem.
+
+        m.execute("vgcreate TEST /dev/disk/by-id/virtio-DISK1")
+        m.execute("lvcreate TEST -n lvol -L 48")
+        m.execute("echo einszweidrei | cryptsetup luksFormat /dev/TEST/lvol")
+        m.execute("echo einszweidrei | cryptsetup luksOpen /dev/TEST/lvol dm-test")
+        m.execute("udevadm settle")
+        m.execute("mke2fs -L FS /dev/mapper/dm-test")
+        m.execute("echo '/dev/mapper/dm-test /mount ext4 defaults 0 0' >>/etc/fstab")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/mount")
+
+        # Now doubly hide /dev/mapper/dm-test by locking dm-test and deactivating /dev/TEST/lvol
+        m.execute("cryptsetup luksClose dm-test")
+        m.execute("lvchange TEST/lvol -a n")
+
+        # Restart cockpitd.
+        m.execute("systemctl restart cockpit")
+
+        # Delete the volume group and check that fstab has been cleaned up
+        b.click('a[onclick*="TEST"]')
+        b.click('#vg-action')
+        b.wait_page("storage")
+        check_eq(m.execute("grep /mount /etc/fstab || true"), "")
+
+    def testUnused(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+        b.wait_in_text("#storage_drives", "VirtIO")
+
+        # The following block devices should not be offered for creating a
+        # raid
+        #
+        # - filesystems
+        # - extended partition containers
+        # - partition tables
+        #
+        # So we partition a disk with two logical partitions, one of which
+        # has a filesystem on it.
+
+        m.add_disk("50M", "DISK1")
+        m.add_disk("50M", "DISK2")
+        b.wait_in_text("#storage_drives", "DISK1")
+        b.wait_in_text("#storage_drives", "DISK2")
+        m.execute("parted /dev/disk/by-id/virtio-DISK1 mktable msdos")
+        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart extended 0 50")
+        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart logical ext2 1 25")
+        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart logical ext2 25 50")
+        m.execute("udevadm settle")
+        m.execute("mke2fs -L TEST /dev/disk/by-id/virtio-DISK1-part5")
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "IdLabel", "TEST")
+
+        b.click('#storage_create_raid')
+        b.wait_popup('create-raid-dialog')
+
+        b.eval_js("""
+    ph_texts = function (sel) {
+      return $(sel).map(function (i, e) { return $(e).text(); }).get();
+    }
+    """)
+
+        blocks = b.eval_js ("return ph_texts('#create-raid-drives .ui-checkbox')")
+        check_eq (len(blocks), 2);
+        check_in (blocks[0], "/dev/vdb6");
+        check_in (blocks[1], "/dev/vdc");
+
+test_main()

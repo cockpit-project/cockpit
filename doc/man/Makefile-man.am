@@ -1,0 +1,23 @@
+man_MANS += 				\
+	cockpitd.8				\
+	cockpit-ws.8			\
+	cockpit.conf.5			\
+	$(NULL)
+
+cockpitd.8 : doc/man/cockpitd.xml
+	$(XSLTPROC) -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+
+cockpit-ws.8 : doc/man/cockpit-ws.xml
+	$(XSLTPROC) -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+
+cockpit.conf.5 : doc/man/cockpit.conf.xml
+	$(XSLTPROC) -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+
+EXTRA_DIST += 				\
+	doc/man/cockpitd.xml		\
+	doc/man/cockpit-ws.xml		\
+	doc/man/cockpit.conf.xml		\
+	$(NULL)
+
+CLEANFILES += \
+	$(man_MANS)

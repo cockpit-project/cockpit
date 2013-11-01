@@ -1,0 +1,235 @@
+noinst_LTLIBRARIES += libcockpit-ws.la
+
+libcockpit_ws_la_SOURCES = 				\
+	src/ws/cockpitwstypes.h					\
+	src/ws/cockpitwebserver.h		src/ws/cockpitwebserver.c		\
+	src/ws/cockpitwebsocket.h 	src/ws/cockpitwebsocket.c		\
+	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	cockpitwsenumtypes.h	cockpitwsenumtypes.c	\
+	$(NULL)
+
+libcockpit_ws_la_CPPFLAGS = \
+        $(cockpit_cppflags_common) \
+	$(cockpit_cppflags_glib_version)			\
+	-I$(top_srcdir)/src/libgsystem \
+	-I$(top_srcdir)/src/ws \
+	-DG_LOG_DOMAIN=\"libcockpit-ws\" \
+	$(NULL)
+
+libcockpit_ws_la_CFLAGS = \
+	$(COCKPIT_WS_CFLAGS) \
+	$(WARN_CFLAGS) \
+	$(NULL)
+
+libcockpit_ws_la_LIBADD =					\
+	$(COCKPIT_WS_LIBS)					\
+        libcockpit-1.0.la					\
+	libgsystem.la		\
+	libwebsocket.la		\
+	$(NULL)
+
+libcockpit_ws_enumheaders = 				\
+	src/ws/cockpitwstypes.h 					\
+	src/ws/cockpitwebserver.h 				\
+	$(NULL)
+
+cockpitwsenumtypes.h:  src/ws/cockpitwsenumtypes.h.template $(libcockpit_ws_enumheaders)
+	$(AM_V_GEN) ( \
+	  glib-mkenums  --template $< \
+	  $(addprefix $(srcdir)/,$(libcockpit_ws_enumheaders)) > $@.tmp \
+	  && (cmp -s $@.tmp $@ || mv $@.tmp $@))
+
+cockpitwsenumtypes.c: src/ws/cockpitwsenumtypes.c.template $(libcockpit_ws_enumheaders)
+	$(AM_V_GEN) ( \
+	  glib-mkenums --template $< \
+	  $(addprefix $(srcdir)/,$(libcockpit_ws_enumheaders)) ) > $@.tmp && \
+	  mv $@.tmp $@
+
+BUILT_SOURCES += cockpitwsenumtypes.c cockpitwsenumtypes.h
+
+# ----------------------------------------------------------------------------------------------------
+
+libexec_PROGRAMS += cockpit-ws cockpit-session cockpit-agent
+
+cockpit_ws_SOURCES =					\
+	src/ws/main.c					\
+	$(NULL)
+
+cockpit_ws_CFLAGS = 					\
+	$(cockpit_cppflags_common)				\
+	$(cockpit_cppflags_glib_version)			\
+	-DG_LOG_DOMAIN=\"cockpit-ws\"			\
+	-I$(top_srcdir)/src/libgsystem			\
+	-I$(top_srcdir)/src/ws				\
+	$(COCKPIT_WS_CFLAGS)				\
+	$(NULL)
+
+cockpit_ws_LDADD = 					\
+	$(COCKPIT_WS_LIBS)					\
+	libgsystem.la					\
+        libcockpit-ws.la     				\
+	-lpam 						\
+	$(NULL)
+
+cockpit_session_SOURCES =					\
+	src/ws/session.c				\
+	$(NULL)
+
+cockpit_session_CFLAGS = 					\
+	$(cockpit_cppflags_common)				\
+	$(cockpit_cppflags_glib_version)			\
+	$(NULL)
+
+cockpit_session_LDADD = 					\
+	-lpam 						\
+	$(NULL)
+
+cockpit_agent_SOURCES =					\
+	src/ws/agent.c					\
+	src/ws/dbus-server.h				\
+	src/ws/dbus-server.c				\
+	$(NULL)
+
+cockpit_agent_CFLAGS = 					\
+	$(cockpit_cppflags_common)				\
+	$(cockpit_cppflags_glib_version)			\
+	-DG_LOG_DOMAIN=\"cockpit-agent\"			\
+	-I$(top_srcdir)/src/libgsystem			\
+	-I$(top_srcdir)/src/ws				\
+	$(COCKPIT_AGENT_CFLAGS)				\
+	$(NULL)
+
+cockpit_agent_LDADD = 					\
+	$(COCKPIT_AGENT_LIBS)				\
+	libgsystem.la					\
+	-lpam 						\
+	$(NULL)
+
+# ----------------------------------------------------------------------------------------------------
+
+testassetsdir = $(datadir)/cockpit-test-assets
+
+$(test_server_built_sources) : Makefile.am $(top_srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml
+	gdbus-codegen							                \
+		--interface-prefix com.redhat.Cockpit.DBusTests                 	\
+		--c-namespace Test							\
+		--c-generate-object-manager						\
+		--generate-c-code test-server-generated                             	\
+		$(top_srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml		\
+		$(NULL)
+
+test_server_built_sources =								\
+	test-server-generated.h			test-server-generated.c			\
+	$(NULL)
+
+BUILT_SOURCES += $(test_server_built_sources)
+
+testassets_PROGRAMS = test-server test-agent
+
+testassets_DATA = src/ws/dbus-test.html	\
+		  src/ws/dbus.js 		\
+	 	  src/ws/dbus-test.js 		\
+		  src/ws/jquery-1.8.2.js 	\
+		  src/ws/qunit-git.css 	\
+		  src/ws/qunit-git.js \
+		  $(NULL)
+
+test_server_SOURCES = 					\
+	src/ws/test-server.c				\
+	$(test_server_built_sources)			\
+	$(NULL)
+
+# We can't compile the $(test_server_SOURCES) with
+# $(cockpit_cppflags_glib_version) since the sources contain generated
+# code which would break with our version constraints.  Instead, we
+# suppress warnings about deprecated functions.
+#
+test_server_suppress_warning_cflags = -Wno-deprecated-declarations
+
+test_server_CFLAGS = 					\
+	$(cockpit_cppflags_common)				\
+	-I$(top_srcdir)/src/ws \
+	-DG_LOG_DOMAIN=\"test_server\"			\
+	$(test_server_suppress_warning_cflags)		\
+	$(GIO_CFLAGS)					\
+	$(NULL)
+
+test_server_LDADD = 					\
+	$(GIO_LIBS)					\
+        libcockpit-ws.la    	 			\
+	-lpam 						\
+	$(NULL)
+
+test_agent_SOURCES = 					\
+	src/ws/test-agent.c				\
+	src/ws/dbus-server.h 				\
+	src/ws/dbus-server.c 				\
+	$(NULL)
+
+test_agent_CFLAGS = 					\
+	$(cockpit_cppflags_common)				\
+	$(cockpit_cppflags_glib_version)			\
+	-DG_LOG_DOMAIN=\"test_agent\"			\
+	-I$(top_srcdir)/src/libgsystem			\
+	-I$(top_srcdir)/src/ws				\
+	$(COCKPIT_AGENT_CFLAGS)				\
+	$(NULL)
+
+test_agent_LDADD = 					\
+	$(COCKPIT_AGENT_LIBS)				\
+	libgsystem.la					\
+	$(NULL)
+
+CHECK_PROGS = \
+	test-auth \
+	test-webservice \
+	$(NULL)
+
+test_auth_CFLAGS = $(cockpit_ws_CFLAGS)
+
+test_auth_SOURCES = \
+	src/ws/test-auth.c \
+	src/ws/mock-auth.c \
+	src/ws/mock-auth.h \
+	$(NULL)
+
+test_auth_LDADD = \
+	libcockpit-ws.la \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
+test_webservice_SOURCES = \
+	src/ws/test-webservice.c \
+	src/ws/mock-auth.c \
+	src/ws/mock-auth.h \
+	$(NULL)
+
+test_webservice_CFLAGS = $(cockpit_ws_CFLAGS)
+
+test_webservice_LDADD = \
+	libwebsocket.la \
+	libcockpit-ws.la \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
+mock_sshd_SOURCES = src/ws/mock-sshd.c
+mock_sshd_CFLAGS =  $(COCKPIT_WS_CFLAGS)
+mock_sshd_LDADD = $(COCKPIT_WS_LIBS) -lutil
+
+mock_echo_SOURCES = src/ws/mock-echo.c
+mock_echo_CFLAGS = $(COCKPIT_WS_CFLAGS)
+mock_echo_LDADD = $(COCKPIT_WS_LIBS)
+
+noinst_PROGRAMS += \
+	$(CHECK_PROGS) \
+	mock-sshd \
+	mock-echo \
+	$(NULL)
+
+TESTS += $(CHECK_PROGS)
+
+install-exec-hook::
+	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
+	-chmod 700 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
+	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
+	-chmod 700 $(DESTDIR)$(localstatedir)/lib/cockpit

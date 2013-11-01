@@ -1,0 +1,63 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+class TestTerminal(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("terminal")
+
+        b.set_val('#terminal-in', "")
+        b.focus('#terminal-in')
+        b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
+        b.wait_in_text('#terminal-out', "# whoami\nroot")
+        b.wait_val('#terminal-in', "")
+
+        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'A', 'B', 'C', 'Return' ])
+        b.wait_val('#terminal-in', "")
+        b.wait_in_text('#terminal-out', "# echo ABC\nABC")
+        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'D', 'E', 'F', 'Return' ])
+        b.wait_val('#terminal-in', "")
+        b.wait_in_text('#terminal-out', "# echo DEF\nDEF")
+        b.key_press([ 'Up' ])
+        b.wait_val('#terminal-in', "echo DEF")
+        b.key_press([ 'Up' ])
+        b.wait_val('#terminal-in', "echo ABC")
+        b.key_press([ 'End', '1', '2', '3', 'Down', 'Down' ])
+        b.wait_val('#terminal-in', "")
+        b.key_press([ 'Up', 'Up' ])
+        b.wait_val('#terminal-in', "echo ABC123")
+        b.key_press([ 'Down', 'Down' ])
+        b.wait_val('#terminal-in', "")
+
+        b.set_val('#terminal-in', "echo '<blink>!</blink>'")
+        b.key_press([ 'Return' ])
+        b.wait_val('#terminal-in', "")
+        b.wait_in_text('#terminal-out', "# echo '<blink>!</blink>'\n<blink>!</blink>")
+
+        b.set_val('#terminal-in', "echo öüä")
+        b.key_press([ 'Return' ])
+        b.wait_val('#terminal-in', "")
+        b.wait_in_text('#terminal-out', "# echo öüä\nöüä")
+
+test_main()

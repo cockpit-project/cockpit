@@ -1,0 +1,61 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+class TestPages(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/usr/lib/systemd/system/test.service",
+"""
+[Unit]
+Description=Test Service
+
+[Service]
+ExecStart=/bin/true
+
+[Install]
+WantedBy=default.target
+""")
+
+        # login so that we have a cookie.
+        self.login_and_go("server")
+
+        # check that reloading a page with parameters works
+        b.go("services&service?s=test.service")
+        b.wait_page("service")
+        b.reload()
+        b.wait_page("service")
+        b.wait_text("#service-name", "Test Service")
+
+        # check that the login dance preserves parameters
+        m.execute("systemctl restart cockpit-ws-notls.service")
+        b.wait_popup('disconnected')
+        b.click('#disconnected-logout')
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click("#login-button")
+        b.wait_page("service")
+        b.wait_text("#service-name", "Test Service")
+
+test_main()

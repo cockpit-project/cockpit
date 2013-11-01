@@ -1,0 +1,42 @@
+dbus_built_sources = cockpit-generated.h cockpit-generated.c
+
+$(dbus_built_sources) : Makefile.am $(top_srcdir)/data/com.redhat.Cockpit.xml
+	gdbus-codegen							                \
+		--interface-prefix com.redhat.Cockpit.				\
+		--c-namespace Cockpit							\
+		--c-generate-object-manager						\
+		--generate-c-code cockpit-generated                             		\
+		--generate-docbook cockpit-generated-doc					\
+		$(top_srcdir)/data/com.redhat.Cockpit.xml				\
+		$(NULL)
+BUILT_SOURCES += $(dbus_built_sources)
+
+cockpitenumtypes.h: src/cockpit/cockpitenums.h src/cockpit/cockpitenumtypes.h.template
+	glib-mkenums --template $(top_srcdir)/src/cockpit/cockpitenumtypes.h.template $(top_srcdir)/src/cockpit/cockpitenums.h > $@.tmp && mv $@.tmp $@
+
+cockpitenumtypes.c: src/cockpit/cockpitenums.h src/cockpit/cockpitenumtypes.c.template
+	glib-mkenums --template $(top_srcdir)/src/cockpit/cockpitenumtypes.c.template $(top_srcdir)/src/cockpit/cockpitenums.h  > $@.tmp && mv $@.tmp $@
+
+BUILT_SOURCES += cockpitenumtypes.h cockpitenumtypes.c
+EXTRA_DIST += cockpitenumtypes.h.template cockpitenumtypes.c.template
+
+privlib_LTLIBRARIES += libcockpit-1.0.la
+
+libcockpit_1_0_la_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
+	$(dbus_built_sources) \
+	src/cockpit/cockpitenums.h \
+	src/cockpit/cockpiterror.h src/cockpit/cockpiterror.c \
+	src/cockpit/cockpitlog.h src/cockpit/cockpitlog.c \
+	src/cockpit/cockpittypes.h \
+	$(NULL)
+
+libcockpit_1_0_la_CPPFLAGS = 				\
+	$(cockpit_cppflags_common)				\
+	-DG_LOG_DOMAIN=\"libcockpit\"			\
+	$(GIO_CFLAGS)						\
+	$(WARN_CFLAGS)						\
+	$(NULL)
+
+libcockpit_1_0_la_LIBADD = 					\
+	$(GIO_LIBS)					\
+	$(NULL)

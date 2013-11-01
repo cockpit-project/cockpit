@@ -1,0 +1,100 @@
+# Automated Testing of Cockpit
+
+This directory contains automated tests for Cockpit, and the support
+files for them.
+
+To run the tests, you need to install the following packages on
+Fedora:
+
+  # yum install trickle nbd-server js npm python-libguestfs
+  # npm install phantomjs
+
+## Quick list of tools
+
+vm-create,   for creating bare test machine images.
+vm-install,  for installing RPMs into a test machine image.
+vm-run,      for running a test machine image.
+vm-copy,     for copying files into a running test machine.
+vm-sh,       for executing commands in a running test machine.
+
+## Test machines
+
+The code under test is executed in a dedicated virtual machine, called
+the "test machine".  This test machine is started for each test and
+should already contain the version of Cockpit that should be tested.
+
+The test machine is created with the "vm-create" program in this
+directory, and new versions of Cockpit can be installed into it with
+"vm-install".  You can manually run it with "vm-run" if you like, but
+that is usually done automatically by the tests.
+
+The modifications done to the test machine by a test are only
+temporary and are gone when the test machine is started for the next
+test.
+
+Thus, you only need to create the test machine once, or when you
+manage to break it beyond repair while maintaining it.
+
+Typical steps to create a test machine:
+
+  $ ./vm-create
+  $ ./vm-install ./cockpit-wip-1.fc18.x86_64.rpm cockpit-test-assets-wip-1.fc18.x86_64.rpm
+
+## Running tests
+
+You can run tests by picking a program and just executing it:
+
+  $ ./check-realms
+
+This will use the test machine created above.
+
+## Debugging tests
+
+If you pass the "-s" ("sit on failure") option to a test program, it
+will pause when a failure occurs so that you can log into the test
+machine and investigate the problem.
+
+You can log into a running test-machine with "vm-sh".
+
+You can also put calls to sit() into the tests themselves to stop them
+at strategic places.
+
+You can use the "--vm-start-hook" option to execute an arbitrary shell
+command after a test machine has been booted but before the test
+begins.
+
+That way, you can run a test cleanly while still being able to make
+quick changes, such as adding debugging output to JavaScript.
+
+The environment variable TEST_MACHINE is set to the identifier of the
+machine that has just been booted.
+
+For example, one might run a full "make install DESTDIR=..." and copy
+the resulting installation directory to the test machine.  This can
+maybe be done by a script like this:
+
+    inst=/var/tmp/INST
+    f18 rm -rf "$inst"
+    f18 make-top -k install DESTDIR="$inst"
+    f18 tar -C "$inst" -cf - . | ./vm-sh --machine $TEST_MACHINE 'cd / && cpio -idu'
+
+The "f18" command executes a command on the build machine.
+
+## Guidelines for writing tests
+
+It is OK for a test to destroy the test machine OS installation, or
+otherwise modify it without cleaning up.  For example, it is OK to
+remove all of /etc just to see what happens.  The next test will get a
+pristine test machine.
+
+A fast running test suite is more important than independent,
+small test cases.
+
+Thus, it is OK for tests to be long.  Starting the test machine is so
+slow that we should run as many checks within a single session as make
+sense.
+
+Still, within a long test, try to have independent sections, where
+each section returns the machine to more or less the state that it was
+in before the section.  This makes it easier to run these sections
+ad-hoc when doing incremental development.

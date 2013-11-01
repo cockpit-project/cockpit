@@ -1,0 +1,76 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+class TestRoles(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -c 'User' || true")
+        m.execute("echo foobar | passwd --stdin user")
+
+        self.start_cockpit()
+
+        def login(user, password):
+            b.set_val("#login-user-input", user)
+            b.set_val("#login-password-input", password)
+            b.click('#login-button')
+
+        # login
+        b.open("server")
+        b.wait_visible("#login")
+        login("user", "foobar")
+        b.wait_page("server")
+        b.wait_text('#settings-button', 'User')
+
+        # change its own name
+        b.click('#settings-button')
+        b.click('a[onclick*="cockpit_go_login_account"]')
+        b.wait_page("account")
+        b.wait_text("#account-user-name", "user")
+        b.set_val('#account-real-name', "Userrrr")
+        b.wait_in_text('#content-loc-trail', "Userrrr")
+
+        # Try to change admins name
+        b.go("accounts&account?id=admin")
+        b.wait_page("account")
+        b.wait_text("#account-user-name", "admin")
+        b.set_val('#account-real-name', "Administratorrrr\n")
+        b.wait_popup("error-popup")
+        b.click("#error-popup button")
+        b.wait_popdown("error-popup")
+
+        # Add role from the outside (and wait for it to stick)
+        b.go("accounts&account?id=user")
+        b.wait_page("account")
+        m.execute("usermod -a -G cockpit-user-admin user")
+        b.wait_text("#account-roles", "User Account Administrator")
+
+        # Try to change admins name again
+        b.go("accounts&account?id=admin")
+        b.wait_page("account")
+        b.wait_text("#account-user-name", "admin")
+        b.set_val('#account-real-name', "Administratorrrr\n")
+        b.wait_in_text('#content-loc-trail', "Administratorrr")
+
+test_main()

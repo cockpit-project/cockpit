@@ -1,0 +1,122 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+import socket
+import time
+
+def wait_for_port (addr, port):
+    tries = 0
+    while tries < 20:
+        try:
+            socket.create_connection ((addr, port)).close()
+            return
+        except:
+            time.sleep(0.2)
+        tries += 1
+    assert False
+
+def get_webapp_machines(browser):
+    wm = { }
+    cockpit = browser.eval_js('return cockpit_dbus_clients.map(function (c) { return c.target });')
+    for i in range (0, len(cockpit)):
+        wm[cockpit[i]] = i;
+    return wm
+
+def machine_selector(machine):
+    return '#dashboard-machines li:nth-child(%d)' % (machine+1)
+
+def action_selector(machine):
+    return machine_selector(machine) + ' .cockpit-machine-action'
+
+def graph_selector(machine):
+    return machine_selector(machine) + ' .cockpit-graph'
+
+def hostname_selector(machine):
+    return machine_selector(machine) + ' .cockpit-machine-info > div:nth-child(1)'
+
+def machine_error_selector(machine):
+    return machine_selector(machine) + ' .cockpit-machine-error'
+
+class TestMultiMachine(MachineCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+        self.machine2 = self.machine_class()
+        self.machine2.start()
+        self.machine2.wait_boot()
+
+        self.machine3 = self.machine_class()
+        self.machine3.start()
+        self.machine3.wait_boot()
+
+    def tearDown(self):
+        MachineCase.tearDown(self)
+        self.check_journal_messages(self.machine2)
+        self.machine2.kill()
+        self.check_journal_messages(self.machine3)
+        self.machine3.kill()
+
+    def testBasic(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+        m3 = self.machine3
+
+        wait_for_port(m2.address, 22)
+        wait_for_port(m3.address, 22)
+
+        self.login_and_go("dashboard")
+
+        b.click('#dashboard-add-server')
+        b.wait_popup('dashboard_add_server_dialog')
+        b.set_val('#dashboard_add_server_address', m2.address)
+        b.click('#dashboard_add_server_add')
+        b.wait_popdown('dashboard_add_server_dialog')
+
+        b.click('#dashboard-add-server')
+        b.wait_popup('dashboard_add_server_dialog')
+        b.set_val('#dashboard_add_server_address', m3.address)
+        b.click('#dashboard_add_server_add')
+        b.wait_popdown('dashboard_add_server_dialog')
+
+        wm = get_webapp_machines(b)
+        m1_index = wm["localhost"]
+        m2_index = wm[m2.address]
+        m3_index = wm[m3.address]
+
+        m1.execute("loginctl kill-user admin")
+        b.wait_text(machine_error_selector(m1_index), "Your session has been terminated.")
+
+        m2.execute("loginctl kill-user admin")
+        b.wait_text(machine_error_selector(m2_index), "Your session has been terminated.")
+
+        b.wait_text (action_selector (m1_index), "Connect")
+        b.click (action_selector (m1_index))
+        b.wait_visible (graph_selector (m1_index))
+
+        b.wait_text (action_selector (m2_index), "Connect")
+        b.click (action_selector (m2_index))
+        b.wait_visible (graph_selector (m2_index))
+
+        self.allow_journal_messages("Warning: Permanently added '.*' \\(RSA\\) to the list of known hosts.",
+                                    "peer did not close io when expected")
+
+test_main()

@@ -1,0 +1,48 @@
+dbusservicedir = $(datadir)/dbus-1/system-services
+dbusservice_DATA = com.redhat.Cockpit.service
+
+com.redhat.Cockpit.service: data/com.redhat.Cockpit.service.in Makefile
+	@sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
+
+dbusconfdir = $(sysconfdir)/dbus-1/system.d
+dbusconf_DATA = com.redhat.Cockpit.conf \
+	        data/com.redhat.Cockpit.DBusTests.Test.conf
+
+com.redhat.Cockpit.conf: data/com.redhat.Cockpit.conf.in Makefile
+	cp $< $@
+
+if HAVE_SYSTEMD
+systemdunitdir          = $(systemdsystemunitdir)
+dist_systemdunit_DATA   = data/cockpit-ws.socket data/cockpit-ws-notls.socket data/test-server.socket
+nodist_systemdunit_DATA =
+
+cockpit.service : data/cockpit.service.in Makefile
+	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+nodist_systemdunit_DATA += cockpit.service
+
+cockpit-ws.service : data/cockpit-ws.service.in Makefile
+	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+nodist_systemdunit_DATA += cockpit-ws.service
+
+cockpit-ws-notls.service : data/cockpit-ws-notls.service.in Makefile
+	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+nodist_systemdunit_DATA += cockpit-ws-notls.service
+
+test-server.service : data/test-server.service.in Makefile
+	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+nodist_systemdunit_DATA += test-server.service
+
+endif
+EXTRA_DIST += 						\
+	data/com.redhat.Cockpit.xml		\
+	data/cockpit.service.in data/cockpit-ws.service.in	\
+	data/test-server.service.in                     \
+	data/com.redhat.Cockpit.service.in	\
+	data/com.redhat.Cockpit.conf.in		\
+	$(NULL)
+
+pamdir = $(sysconfdir)/pam.d
+dist_pam_DATA = data/cockpit
+
+cockpitconfdir = $(sysconfdir)/cockpit
+cockpitconf_DATA = data/config

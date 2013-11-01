@@ -1,0 +1,237 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+import re
+
+class TestJournal(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        m.write("/usr/lib/systemd/system/log123.service",
+"""
+[Unit]
+Description=123 different log lines
+
+[Service]
+ExecStart=/usr/bin/seq 123
+""")
+
+        m.write("/usr/lib/systemd/system/slow10.service",
+"""
+[Unit]
+Description=Slowly log 10 identical lines
+
+[Service]
+ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done'
+""")
+
+        m.execute("systemctl stop chronyd; date 010112002050; hwclock -w")
+
+        self.login_and_go("journal")
+
+        b.eval_js("""
+    ph_get_log_lines = function () {
+      var lines = [ ], i;
+      lines.push($('#journal-end').text());
+      $('#journal-box').children().each(function (i, e) {
+        var $e = $(e);
+        if ($e.is('.cockpit-loghead'))
+          lines.push ($e.text());
+        else {
+          var c = $e.children();
+          var cc = $(c[1]).children();
+          var ident = $(c[0]).text();
+          var msg = $(cc[0]).text();
+          var count = $e.find('.cockpit-logcount').text();
+          lines.push ([ ident, msg, count ]);
+        }
+      });
+      lines.push($('#journal-start').text());
+      // console.log(JSON.stringify(lines));
+      return lines;
+    }
+    """)
+
+        def wait_log_lines(expected):
+            b.wait_js_func("""(function (expected) {
+          var lines = ph_get_log_lines ();
+          if (expected.length != lines.length)
+            return false;
+          for (i = 0; i < expected.length; i++)
+            if (JSON.stringify(expected[i]) != JSON.stringify(lines[i]))
+              return false;
+          return true;
+        })""", expected)
+
+        def wait_journal_empty():
+            wait_log_lines([ "-- End of Journal, waiting for more --",
+                         "-- Start of Journal --"
+                       ])
+
+        b.go("journal?prio=3?service=log123.service")
+        wait_journal_empty()
+
+        def wait_log123():
+            b.wait_js_func ("""(function () {
+          var lines = ph_get_log_lines();
+
+          if (lines[0] != "-- End of Journal, waiting for more --")
+            return false;
+
+          if (lines[1] != "January 1, 2050")
+            return false;
+
+          if (lines[lines.length-1] != "-- Start of Journal --")
+            return false;
+
+          var seq = 123;
+          var seen_day = false;
+          var seen_starting = false;
+          var seen_started = false;
+
+          for (i = 2; i < lines.length-1; i++) {
+            l = lines[i];
+            if (l[2] != "") {
+              // console.log("repeat", l[2], "?");
+              return false;
+            }
+            if (l[0] == "systemd: ") {
+              if (l[1] == "Starting 123 different log lines...")
+                seen_starting = true;
+              else if (l[1] == "Started 123 different log lines.")
+                seen_started = true;
+              else {
+                // console.log(l[1], "?");
+                return false;
+              }
+            } else if (l[0] == "seq: ") {
+              if (l[1] != seq.toString()) {
+                // console.log(l[1], "?");
+                return false;
+              }
+              seq = seq - 1;
+            } else {
+              // console.log(l[0], "?");
+              return false;
+            }
+          }
+
+          if (!seen_starting) {
+            // console.log("Didn't see 'starting' entry.")
+            return false;
+          }
+
+          if (!seen_started) {
+            // console.log("Didn't see 'started' entry.")
+            return false;
+          }
+
+          if (seq != 0) {
+            // console.log("Didn't see all 'seq' lines.")
+            return false;
+          }
+
+          return true;
+        })""")
+
+        m.execute("systemctl start log123")
+        wait_log123()
+
+        b.go("journal?prio=3?start=oldest?service=nonexisting.service")
+        wait_journal_empty()
+        b.go("journal?prio=3?start=oldest?service=log123.service")
+        wait_log123()
+
+        b.go("journal?prio=3?start=recent?service=nonexisting.service")
+        wait_journal_empty()
+        b.go("journal?prio=3?start=recent?service=log123.service")
+        wait_log123()
+
+        b.go("journal?prio=3?start=recent?service=slow10.service")
+        wait_journal_empty()
+
+        def wait_slow10():
+            wait_log_lines([ "-- End of Journal, waiting for more --",
+                         "January 1, 2050",
+                         [ "sh: ", "SLOW", "10" ],
+                         [ "systemd: ", "Started Slowly log 10 identical lines.", "" ],
+                         [ "systemd: ", "Starting Slowly log 10 identical lines...", "" ],
+                         "-- Start of Journal --"
+                       ])
+
+        m.execute("systemctl start slow10")
+        wait_slow10()
+
+        b.go("journal?prio=3?start=oldest?service=nonexisting.service")
+        wait_journal_empty()
+        b.go("journal?prio=3?start=oldest?service=slow10.service")
+        wait_slow10()
+
+        b.go("journal?prio=3?start=oldest?search=Slowly log 10 identical lines")
+        wait_log_lines([ "-- End of Journal, waiting for more --",
+                      "January 1, 2050",
+                      [ "systemd: ", "Started Slowly log 10 identical lines.", "" ],
+                      [ "systemd: ", "Starting Slowly log 10 identical lines...", "" ],
+                      "-- Start of Journal --"
+                    ])
+
+        m.execute("logger -p3 'check-journal: BEFORE BOOT'")
+        m.spawn("sleep 0.1 && reboot", "reboot")
+        m.wait_boot()
+        m.execute("logger -p3 'check-journal: AFTER BOOT'")
+
+        self.start_cockpit()
+        b.wait_popup ("disconnected")
+        b.click("#disconnected-logout")
+        b.wait_visible("#login")
+        b.set_val("#login-password-input", "foobar")
+        b.click("#login-button")
+        b.wait_page("journal")
+
+        b.go("journal?search=check-journal")
+        wait_log_lines([ "-- End of Journal, waiting for more --",
+                      "January 1, 2050",
+                      [ "root: ", "check-journal: AFTER BOOT", "" ],
+                      [ "-- Reboot --", "", "" ],
+                      [ "root: ", "check-journal: BEFORE BOOT", "" ],
+                      "-- Start of Journal --"
+                    ])
+
+        b.go("journal?start=boot?search=check-journal")
+        wait_log_lines([ "-- End of Journal, waiting for more --",
+                      "January 1, 2050",
+                      [ "root: ", "check-journal: AFTER BOOT", "" ],
+                      "Load earlier entries",
+                    ])
+
+        b.click('#journal-load-earlier')
+        wait_log_lines([ "-- End of Journal, waiting for more --",
+                      "January 1, 2050",
+                      [ "root: ", "check-journal: AFTER BOOT", "" ],
+                      [ "-- Reboot --", "", "" ],
+                      [ "root: ", "check-journal: BEFORE BOOT", "" ],
+                      "-- Start of Journal --"
+                    ])
+
+        self.allow_journal_messages("Cannot make/remove an entry for the specified session")
+
+test_main()

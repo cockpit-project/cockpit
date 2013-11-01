@@ -1,0 +1,902 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2013 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "config.h"
+
+#include <string.h>
+#include <stdio.h>
+
+#include "libgsystem.h"
+
+#include "utils.h"
+#include "daemon.h"
+#include "auth.h"
+#include "storagemanager.h"
+#include "storageprovider.h"
+#include "storageobject.h"
+
+#include <cockpit/cockpit.h>
+
+typedef struct _StorageManagerClass StorageManagerClass;
+
+struct _StorageManager
+{
+  CockpitStorageManagerSkeleton parent_instance;
+  Daemon *daemon;
+
+  UDisksClient *udisks;
+};
+
+struct _StorageManagerClass
+{
+  CockpitStorageManagerSkeletonClass parent_class;
+};
+
+enum
+{
+  PROP_0,
+  PROP_DAEMON,
+};
+
+static void storage_manager_iface_init (CockpitStorageManagerIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (StorageManager, storage_manager, COCKPIT_TYPE_STORAGE_MANAGER_SKELETON,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_STORAGE_MANAGER, storage_manager_iface_init));
+
+static void
+storage_manager_finalize (GObject *object)
+{
+  StorageManager *storage_manager = STORAGE_MANAGER (object);
+
+  g_clear_object (&storage_manager->udisks);
+
+  if (G_OBJECT_CLASS (storage_manager_parent_class)->finalize != NULL)
+    G_OBJECT_CLASS (storage_manager_parent_class)->finalize (object);
+}
+
+static void
+storage_manager_get_property (GObject *object,
+                              guint prop_id,
+                              GValue *value,
+                              GParamSpec *pspec)
+{
+  StorageManager *storage_manager = STORAGE_MANAGER (object);
+
+  switch (prop_id)
+    {
+    case PROP_DAEMON:
+      g_value_set_object (value, storage_manager_get_daemon (storage_manager));
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+storage_manager_set_property (GObject *object,
+                              guint prop_id,
+                              const GValue *value,
+                              GParamSpec *pspec)
+{
+  StorageManager *storage_manager = STORAGE_MANAGER (object);
+
+  switch (prop_id)
+    {
+    case PROP_DAEMON:
+      g_assert (storage_manager->daemon == NULL);
+      storage_manager->daemon = g_value_dup_object (value);
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+storage_manager_init (StorageManager *storage_manager)
+{
+}
+
+static void
+storage_manager_constructed (GObject *_object)
+{
+  StorageManager *storage_manager = STORAGE_MANAGER (_object);
+  GError *error = NULL;
+
+  storage_manager->udisks = udisks_client_new_sync (NULL, &error);
+  if (storage_manager->udisks == NULL)
+    {
+      g_warning ("Error connecting to udisks: %s (%s, %d)",
+                 error->message, g_quark_to_string (error->domain), error->code);
+      g_clear_error (&error);
+    }
+
+  if (G_OBJECT_CLASS (storage_manager_parent_class)->constructed != NULL)
+    G_OBJECT_CLASS (storage_manager_parent_class)->constructed (_object);
+}
+
+static void
+storage_manager_class_init (StorageManagerClass *klass)
+{
+  GObjectClass *gobject_class;
+
+  gobject_class = G_OBJECT_CLASS (klass);
+  gobject_class->finalize     = storage_manager_finalize;
+  gobject_class->constructed  = storage_manager_constructed;
+  gobject_class->set_property = storage_manager_set_property;
+  gobject_class->get_property = storage_manager_get_property;
+
+  /**
+   * StorageManager:daemon:
+   *
+   * The #Daemon to use.
+   */
+  g_object_class_install_property (gobject_class,
+                                   PROP_DAEMON,
+                                   g_param_spec_object ("daemon",
+                                                        "Daemon",
+                                                        "The Daemon to use",
+                                                        TYPE_DAEMON,
+                                                        G_PARAM_READABLE |
+                                                        G_PARAM_WRITABLE |
+                                                        G_PARAM_CONSTRUCT_ONLY |
+                                                        G_PARAM_STATIC_STRINGS));
+}
+
+/**
+ * storage_manager_new:
+ * @daemon: A #Daemon.
+ *
+ * Create a new #StorageManager instance.
+ *
+ * Returns: A #StorageManager object. Free with g_object_unref().
+ */
+CockpitStorageManager *
+storage_manager_new (Daemon *daemon)
+{
+  g_return_val_if_fail (IS_DAEMON (daemon), NULL);
+  return COCKPIT_STORAGE_MANAGER (g_object_new (TYPE_STORAGE_MANAGER,
+                                                "daemon", daemon,
+                                                NULL));
+}
+
+Daemon *
+storage_manager_get_daemon (StorageManager *storage_manager)
+{
+  g_return_val_if_fail (IS_STORAGE_MANAGER (storage_manager), NULL);
+  return storage_manager->daemon;
+}
+
+static GVariant *
+null_asv (void)
+{
+  GVariantBuilder options;
+  g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
+  return g_variant_builder_end (&options);
+}
+
+/* MDRAID_CREATE */
+
+static gboolean
+handle_mdraid_create (CockpitStorageManager *object,
+                      GDBusMethodInvocation *invocation,
+                      const gchar *const *arg_blocks,
+                      const gchar *arg_level,
+                      const gchar *arg_name,
+                      guint64 arg_chunk)
+{
+  StorageManager *storage_manager = STORAGE_MANAGER(object);
+  GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (storage_manager->daemon);
+  GDBusObjectManager *object_manager = G_DBUS_OBJECT_MANAGER (object_manager_server);
+
+  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
+    return TRUE;
+
+  GError *error = NULL;
+
+  int n_blocks = 0;
+  for (int i = 0; arg_blocks[i]; i++)
+    n_blocks += 1;
+
+  const gchar *udisks_blocks[n_blocks + 1];
+
+  for (int i = 0; arg_blocks[i]; i++)
+    {
+      StorageObject *stobj =
+        STORAGE_OBJECT (g_dbus_object_manager_get_object (object_manager, arg_blocks[i]));
+      UDisksBlock *block = storage_object_get_udisks_block (stobj);
+      if (block)
+        udisks_blocks[i] = g_dbus_proxy_get_object_path (G_DBUS_PROXY(block));
+      else
+        udisks_blocks[i] = "XXX";
+    }
+
+  udisks_blocks[n_blocks] = NULL;
+
+  UDisksManager *manager = udisks_client_get_manager (storage_manager->udisks);
+  if (manager == NULL)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             COCKPIT_ERROR,
+                                             COCKPIT_ERROR_FAILED,
+                                             "UDisks daemon is not running");
+      return TRUE;
+    }
+
+  GVariantBuilder options;
+  g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
+
+  if (!udisks_manager_call_mdraid_create_sync (manager,
+                                               udisks_blocks,
+                                               arg_level,
+                                               arg_name,
+                                               arg_chunk,
+                                               null_asv (),
+                                               NULL,
+                                               NULL,
+                                               &error))
+    {
+      g_dbus_error_strip_remote_error (error);
+      g_dbus_method_invocation_return_error (invocation,
+                                             COCKPIT_ERROR,
+                                             COCKPIT_ERROR_FAILED,
+                                             "%s", error->message);
+      g_error_free (error);
+      return TRUE;
+    }
+
+  cockpit_storage_manager_complete_mdraid_create (object, invocation);
+  return TRUE;
+}
+
+static gboolean
+handle_volume_group_create (CockpitStorageManager *object,
+                            GDBusMethodInvocation *invocation,
+                            const gchar *const *arg_blocks,
+                            const gchar *arg_name,
+                            guint64 arg_extent_size)
+{
+  StorageManager *storage_manager = STORAGE_MANAGER(object);
+  GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (storage_manager->daemon);
+  GDBusObjectManager *object_manager = G_DBUS_OBJECT_MANAGER (object_manager_server);
+
+  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
+    return TRUE;
+
+  GError *error = NULL;
+
+  int n_blocks = 0;
+  for (int i = 0; arg_blocks[i]; i++)
+    n_blocks += 1;
+
+  const gchar *udisks_blocks[n_blocks + 1];
+
+  for (int i = 0; arg_blocks[i]; i++)
+    {
+      StorageObject *stobj =
+        STORAGE_OBJECT (g_dbus_object_manager_get_object (object_manager, arg_blocks[i]));
+      UDisksBlock *block = storage_object_get_udisks_block (stobj);
+      if (block)
+        udisks_blocks[i] = g_dbus_proxy_get_object_path (G_DBUS_PROXY(block));
+      else
+        udisks_blocks[i] = "XXX";
+    }
+
+  udisks_blocks[n_blocks] = NULL;
+
+  UDisksManager *manager = udisks_client_get_manager (storage_manager->udisks);
+  if (manager == NULL)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             COCKPIT_ERROR,
+                                             COCKPIT_ERROR_FAILED,
+                                             "UDisks daemon is not running");
+      return TRUE;
+    }
+
+  if (!udisks_manager_call_volume_group_create_sync (manager,
+                                                     udisks_blocks,
+                                                     arg_name,
+                                                     arg_extent_size,
+                                                     null_asv (),
+                                                     NULL,
+                                                     NULL,
+                                                     &error))
+    {
+      g_dbus_error_strip_remote_error (error);
+      g_dbus_method_invocation_return_error (invocation,
+                                             COCKPIT_ERROR,
+                                             COCKPIT_ERROR_FAILED,
+                                             "%s", error->message);
+      g_error_free (error);
+      return TRUE;
+    }
+
+  cockpit_storage_manager_complete_volume_group_create (object, invocation);
+  return TRUE;
+}
+
+/* INTERFACE */
+
+static void
+storage_manager_iface_init (CockpitStorageManagerIface *iface)
+{
+  iface->handle_mdraid_create = handle_mdraid_create;
+  iface->handle_volume_group_create = handle_volume_group_create;
+}
+
+/* Utiltities */
+
+static void
+storage_remove_config (StorageProvider *provider,
+                       UDisksBlock *block,
+                       GVariant *config)
+{
+  GVariantIter iter;
+  GVariant *item;
+  GError *error = NULL;
+  gs_unref_object UDisksBlock *block_to_use = NULL;
+
+  if (block == NULL)
+    {
+      /* Any block can be used to add/remove any configuration item.
+         Let's hope we have at least one...
+
+         XXX - UDisks should offer a method for manipulating fstab and
+               crypttab on the Manager.
+      */
+
+      UDisksClient *client = storage_provider_get_udisks_client (provider);
+      GDBusObjectManager *manager = udisks_client_get_object_manager (client);
+      GList *objects = g_dbus_object_manager_get_objects (manager);
+      for (GList *l = objects; l; l = l->next)
+        {
+          UDisksObject *object = l->data;
+          block_to_use = udisks_object_get_block (object);
+          if (block_to_use)
+            break;
+        }
+      g_list_free_full (objects, g_object_unref);
+
+      if (block_to_use == NULL)
+        {
+          g_warning ("Can't remove config: no block object found.");
+          return;
+        }
+    }
+  else
+    block_to_use = g_object_ref (block);
+
+  g_variant_iter_init (&iter, config);
+  while ((item = g_variant_iter_next_value (&iter)) != NULL)
+    {
+      if (!udisks_block_call_remove_configuration_item_sync (block_to_use,
+                                                             item,
+                                                             g_variant_new ("a{sv}", NULL),
+                                                             NULL,
+                                                             &error))
+        {
+          gs_free gchar *config_text = g_variant_print (config, FALSE);
+          g_warning ("Can't remove storage configuration '%s': %s",
+                     config_text, error->message);
+          g_clear_error (&error);
+        }
+    }
+}
+
+gboolean
+storage_remove_fstab_config (UDisksBlock *block,
+                             GError **error)
+{
+  GVariant *conf = udisks_block_get_configuration (block);
+  GVariantIter iter;
+  GVariant *item;
+  g_variant_iter_init (&iter, conf);
+  while ((item = g_variant_iter_next_value (&iter)))
+    {
+      const gchar *type;
+      g_variant_get (item, "(&s*)", &type, NULL);
+      if (strcmp (type, "fstab") == 0)
+        {
+          if (!udisks_block_call_remove_configuration_item_sync (block,
+                                                                 item,
+                                                                 g_variant_new ("a{sv}", NULL),
+                                                                 NULL,
+                                                                 error))
+            {
+              g_variant_unref (item);
+              return FALSE;
+            }
+          g_variant_unref (item);
+        }
+    }
+
+  return TRUE;
+}
+
+gboolean
+storage_remove_crypto_config (UDisksBlock *block,
+                              GError **error)
+{
+  GVariant *conf = udisks_block_get_configuration (block);
+  GVariantIter iter;
+  GVariant *item;
+  g_variant_iter_init (&iter, conf);
+  while ((item = g_variant_iter_next_value (&iter)))
+    {
+      const gchar *type;
+      g_variant_get (item, "(&s*)", &type, NULL);
+      if (strcmp (type, "crypttab") == 0)
+        {
+          if (!udisks_block_call_remove_configuration_item_sync (block,
+                                                                 item,
+                                                                 g_variant_new ("a{sv}", NULL),
+                                                                 NULL,
+                                                                 error))
+            {
+              g_variant_unref (item);
+              return FALSE;
+            }
+          g_variant_unref (item);
+        }
+    }
+
+  return TRUE;
+}
+
+typedef gboolean BlockWalker (UDisksClient *client,
+                              UDisksBlock *block,
+                              gboolean is_leaf,
+                              gpointer user_data,
+                              GError **error);
+
+static gboolean
+walk_block (UDisksClient *client,
+            UDisksBlock *block,
+            BlockWalker *walker,
+            gpointer user_data,
+            GError **error)
+{
+  gboolean is_leaf = TRUE;
+
+  UDisksObject *object = (UDisksObject *)g_dbus_interface_get_object (G_DBUS_INTERFACE(block));
+  if (object != NULL)
+    {
+      // Recurse for all primary and extended partitions if this is a
+      // partition table, or for all logical partitions if this is a
+      // extended partition.
+
+      UDisksPartitionTable *table;
+      gboolean is_container;
+
+      UDisksPartition *partition = udisks_object_peek_partition (object);
+      if (partition && udisks_partition_get_is_container (partition))
+        {
+          table = udisks_client_get_partition_table (client, partition);
+          is_container = TRUE;
+        }
+      else
+        {
+          table = udisks_object_peek_partition_table (object);
+          is_container = FALSE;
+        }
+
+      if (table)
+        {
+          GList *ps, *l;
+          ps = udisks_client_get_partitions (client, table);
+          for (l = ps; l != NULL; l = l->next)
+            {
+              UDisksPartition *p = UDISKS_PARTITION (l->data);
+              UDisksObject *o = (UDisksObject *) g_dbus_interface_get_object (G_DBUS_INTERFACE (p));
+              UDisksBlock *b = o ? udisks_object_peek_block (o) : NULL;
+              if (b && !is_container == !udisks_partition_get_is_contained (p))
+                {
+                  is_leaf = FALSE;
+                  if (!walk_block (client, b, walker, user_data, error))
+                    {
+                      g_list_free_full (ps, g_object_unref);
+                      return FALSE;
+                    }
+                }
+            }
+          g_list_free_full (ps, g_object_unref);
+        }
+    }
+
+  gs_unref_object UDisksBlock *cleartext = udisks_client_get_cleartext_block (client, block);
+  if (cleartext)
+    {
+      is_leaf = FALSE;
+      if (!walk_block (client, cleartext, walker, user_data, error))
+        return FALSE;
+    }
+
+  return walker (client, block, is_leaf, user_data, error);
+}
+
+typedef gboolean LogicalVolumeWalker (UDisksClient *client,
+                                      UDisksLogicalVolume *logical_volume,
+                                      gpointer user_data,
+                                      GError **error);
+
+static gboolean
+walk_logical_volume (UDisksClient *client,
+                     UDisksLogicalVolume *vol,
+                     LogicalVolumeWalker *walker,
+                     gpointer user_data,
+                     GError **error)
+{
+  if (!walker (client, vol, user_data, error))
+    return FALSE;
+
+  const gchar *vol_objpath = g_dbus_object_get_object_path (g_dbus_interface_get_object (G_DBUS_INTERFACE (vol)));
+  UDisksVolumeGroup *group = udisks_client_get_volume_group_for_logical_volume (client, vol);
+  GList *siblings = group ? udisks_client_get_logical_volumes_for_volume_group (client, group) : NULL;
+  gboolean ret = TRUE;
+
+  for (GList *l = siblings; l; l = l->next)
+    {
+      UDisksLogicalVolume *s = l->data;
+
+      if ((g_strcmp0 (udisks_logical_volume_get_type_ (s), "snapshot") == 0
+           && g_strcmp0 (udisks_logical_volume_get_origin (s), vol_objpath) == 0)
+          || (g_strcmp0 (udisks_logical_volume_get_type_ (s), "thin") == 0
+              && g_strcmp0 (udisks_logical_volume_get_thin_pool (s), vol_objpath) == 0))
+        {
+          if (!walk_logical_volume (client, s, walker, user_data, error))
+            {
+              ret = FALSE;
+              break;
+            }
+        }
+    }
+
+  g_list_free_full (siblings, g_object_unref);
+  return ret;
+}
+
+static gboolean
+walk_volume_group (UDisksClient *client,
+                   UDisksVolumeGroup *group,
+                   LogicalVolumeWalker *walker,
+                   gpointer user_data,
+                   GError **error)
+{
+  GList *lvs = group ? udisks_client_get_logical_volumes_for_volume_group (client, group) : NULL;
+  gboolean ret = TRUE;
+
+  for (GList *l = lvs; l; l = l->next)
+    {
+      UDisksLogicalVolume *s = l->data;
+
+      if (!walker (client, s, user_data, error))
+        {
+          ret = FALSE;
+          break;
+        }
+    }
+
+  g_list_free_full (lvs, g_object_unref);
+  return ret;
+}
+
+static gboolean
+cleanup_block_walker (UDisksClient *client,
+                      UDisksBlock *block,
+                      gboolean is_leaf,
+                      gpointer user_data,
+                      GError **error)
+{
+  StorageProvider *provider = user_data;
+  UDisksObject *object = UDISKS_OBJECT (g_dbus_interface_get_object (G_DBUS_INTERFACE (block)));
+  UDisksEncrypted *enc = udisks_object_peek_encrypted (object);
+
+  if (enc)
+    {
+      UDisksBlock *cleartext = udisks_client_get_cleartext_block (client, block);
+      if (cleartext)
+        {
+          /* The crypto backing device is unlocked and the cleartext
+             device has been cleaned up.  Lock the backing device so
+             that we can format or wipe it later.
+          */
+          if (enc && !udisks_encrypted_call_lock_sync (enc,
+                                                       g_variant_new ("a{sv}", NULL),
+                                                       NULL,
+                                                       error))
+            return FALSE;
+        }
+      else
+        {
+          /* The crypto backing device is locked and the cleartext
+             device has not been cleaned up (since it doesn't exist).
+             Remove its remembered configs.
+          */
+          GList *remembered_configs = storage_provider_get_and_forget_remembered_configs
+              (provider, g_dbus_object_get_object_path (G_DBUS_OBJECT (object)));
+          for (GList *l = remembered_configs; l; l = l->next)
+            {
+              GVariant *config = l->data;
+              storage_remove_config (provider, block, config);
+            }
+          g_list_free_full (remembered_configs, (GDestroyNotify)g_variant_unref);
+        }
+    }
+
+  storage_remove_config (provider, block, udisks_block_get_configuration (block));
+
+  return TRUE;
+}
+
+static gboolean
+cleanup_block (StorageProvider *provider,
+               UDisksBlock *block,
+               GError **error)
+{
+  gboolean ret = walk_block (storage_provider_get_udisks_client (provider),
+                             block, cleanup_block_walker, provider, error);
+  storage_provider_save_remembered_configs (provider);
+  return ret;
+}
+
+static gboolean
+cleanup_logical_volume_walker (UDisksClient *client,
+                               UDisksLogicalVolume *logical_volume,
+                               gpointer user_data,
+                               GError **error)
+{
+  StorageProvider *provider = user_data;
+  UDisksBlock *block = udisks_client_get_block_for_logical_volume (client, logical_volume);
+  if (block)
+    {
+      /* The logical volume is active, let's clean it up by walking
+         the tree of block devices hanging off of it.
+       */
+      return cleanup_block (provider, block, error);
+    }
+  else
+    {
+      /* The logical volume is inactive, let's clean it up by removing
+         the remembered configs from its children.
+      */
+      UDisksObject *object = UDISKS_OBJECT (g_dbus_interface_get_object (G_DBUS_INTERFACE (logical_volume)));
+      GList *remembered_configs = storage_provider_get_and_forget_remembered_configs
+        (provider, g_dbus_object_get_object_path (G_DBUS_OBJECT (object)));
+      for (GList *l = remembered_configs; l; l = l->next)
+        {
+          GVariant *config = l->data;
+          storage_remove_config (provider, NULL, config);
+        }
+      g_list_free_full (remembered_configs, (GDestroyNotify)g_variant_unref);
+      return TRUE;
+    }
+}
+
+static gboolean
+cleanup_logical_volume (StorageProvider *provider,
+                        UDisksLogicalVolume *logical_volume,
+                        GError **error)
+{
+  gboolean ret = walk_logical_volume (storage_provider_get_udisks_client (provider), logical_volume,
+                                      cleanup_logical_volume_walker, provider, error);
+  storage_provider_save_remembered_configs (provider);
+  return ret;
+}
+
+static gboolean
+cleanup_volume_group (StorageProvider *provider,
+                      UDisksVolumeGroup *group,
+                      GError **error)
+{
+  gboolean ret = walk_volume_group (storage_provider_get_udisks_client (provider), group,
+                                    cleanup_logical_volume_walker, provider, error);
+  storage_provider_save_remembered_configs (provider);
+  return ret;
+}
+
+static gboolean
+block_is_unused_walker (UDisksClient *client,
+                        UDisksBlock *block,
+                        gboolean is_leaf,
+                        gpointer user_data,
+                        GError **error)
+{
+  const gchar *device_file;
+  int fd;
+
+  if (is_leaf)
+    {
+      device_file = udisks_block_get_device (block);
+      fd = open (device_file, O_RDONLY | O_EXCL);
+      if (fd < 0)
+        {
+          g_set_error (error, UDISKS_ERROR, UDISKS_ERROR_FAILED,
+                       "Error opening device %s: %m",
+                       device_file);
+          return FALSE;
+        }
+      close (fd);
+    }
+
+  return TRUE;
+}
+
+static gboolean
+block_is_unused (UDisksClient *client,
+                 UDisksBlock *block,
+                 GError **error)
+{
+  return walk_block (client, block, block_is_unused_walker, NULL, error);
+}
+
+static gboolean
+logical_volume_is_unused_walker (UDisksClient *client,
+                                 UDisksLogicalVolume *logical_volume,
+                                 gpointer user_data,
+                                 GError **error)
+{
+  UDisksBlock *block = udisks_client_get_block_for_logical_volume (client, logical_volume);
+  if (block)
+    return block_is_unused (client, block, error);
+  else
+    return TRUE;
+}
+
+static gboolean
+logical_volume_is_unused (UDisksClient *client,
+                          UDisksLogicalVolume *vol,
+                          GError **error)
+{
+  return walk_logical_volume (client, vol, logical_volume_is_unused_walker, NULL, error);
+}
+
+static gboolean
+volume_group_is_unused (UDisksClient *client,
+                        UDisksVolumeGroup *group,
+                        GError **error)
+{
+  return walk_volume_group (client, group, logical_volume_is_unused_walker, NULL, error);
+}
+
+static gboolean
+reload_systemd (GError **error)
+{
+  // XXX - do it.
+  return TRUE;
+}
+
+gboolean
+storage_cleanup_block (StorageProvider *provider,
+                       UDisksBlock *block,
+                       GError **error)
+{
+  return (block_is_unused (storage_provider_get_udisks_client (provider), block, error)
+          && cleanup_block (provider, block, error)
+          && reload_systemd (error));
+}
+
+gboolean
+storage_cleanup_logical_volume (StorageProvider *provider,
+                                UDisksLogicalVolume *volume,
+                                GError **error)
+{
+  return (logical_volume_is_unused (storage_provider_get_udisks_client (provider), volume, error)
+          && cleanup_logical_volume (provider, volume, error)
+          && reload_systemd (error));
+}
+
+gboolean
+storage_cleanup_volume_group (StorageProvider *provider,
+                              UDisksVolumeGroup *group,
+                              GError **error)
+{
+  return (volume_group_is_unused (storage_provider_get_udisks_client (provider), group, error)
+          && cleanup_volume_group (provider, group, error)
+          && reload_systemd (error));
+}
+
+typedef gboolean ObjectWalker (UDisksClient *client,
+                               UDisksObject *object,
+                               gpointer user_data,
+                               GError **error);
+
+static gboolean
+walk_block_parents (UDisksClient *client,
+                    UDisksBlock *block,
+                    ObjectWalker *walker,
+                    gpointer user_data,
+                    GError **error)
+{
+  /* Parents are
+     - of a block that is a logical volume, the logical volume object
+     - of a clear text device, the encrypted device.
+
+     XXX - support the whole tree.
+  */
+
+  while (block)
+    {
+      const gchar *logical_volume_path = udisks_block_get_logical_volume (block);
+      const gchar *crypto_path = udisks_block_get_crypto_backing_device (block);
+
+      if (g_strcmp0 (logical_volume_path, "/") != 0)
+        {
+          UDisksObject *logical_volume_object = udisks_client_get_object (client, logical_volume_path);
+          if (logical_volume_object)
+            {
+              if (!walker (client, logical_volume_object, user_data, error))
+                return FALSE;
+            }
+          block = NULL;
+        }
+      else if (g_strcmp0 (crypto_path, "/") != 0)
+        {
+          UDisksObject *crypto_object = udisks_client_get_object (client, crypto_path);
+          if (crypto_object)
+            {
+              if (!walker (client, crypto_object, user_data, error))
+                return FALSE;
+            }
+          block = udisks_object_peek_block (crypto_object);
+        }
+      else
+        block = NULL;
+    }
+
+  return TRUE;
+}
+
+struct RememberData {
+  StorageProvider *provider;
+  const gchar *child_path;
+  GVariant *config;
+};
+
+static gboolean
+remember_configs (UDisksClient *client,
+                  UDisksObject *object,
+                  gpointer user_data,
+                  GError **error)
+{
+  struct RememberData *data = user_data;
+  const gchar *parent_path = g_dbus_object_get_object_path (G_DBUS_OBJECT (object));
+  storage_provider_remember_config (data->provider, parent_path, data->child_path, data->config);
+  return TRUE;
+}
+
+void
+storage_remember_block_configs (StorageProvider *provider,
+                                UDisksBlock *block)
+{
+  GVariant *config = udisks_block_get_configuration (block);
+  if (g_variant_n_children (config) > 0)
+    {
+      UDisksClient *client = storage_provider_get_udisks_client (provider);
+      GDBusObject *object = g_dbus_interface_get_object (G_DBUS_INTERFACE (block));
+      struct RememberData data;
+      data.provider = provider;
+      data.child_path = g_dbus_object_get_object_path (object);
+      data.config = config;
+      walk_block_parents (client, block, remember_configs, &data, NULL);
+    }
+}

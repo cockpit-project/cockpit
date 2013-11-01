@@ -1,0 +1,121 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+class TestServices(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/usr/lib/systemd/system/test.service",
+"""
+[Unit]
+Description=Test Service
+
+[Service]
+ExecStart=/bin/sh /usr/bin/test-service
+
+[Install]
+WantedBy=default.target
+""")
+        m.write("/usr/bin/test-service",
+"""
+#! /bin/sh
+
+trap "echo STOP" 0
+
+echo START
+while true; do
+  sleep 5
+  echo WORKING
+done
+""")
+        m.write("/usr/lib/systemd/system/test-fail.service",
+"""
+[Unit]
+Description=Failing Test Service
+
+[Service]
+ExecStart=/usr/bin/false
+""")
+        m.write("/usr/lib/systemd/system/test-template@.service",
+"""
+[Unit]
+Description=Test Template for %I
+
+[Service]
+ExecStart=/usr/bin/test-service %I
+""")
+
+        self.login_and_go("services")
+
+        def svc_sel(service):
+            return 'a[onclick*="%s"]' % service
+
+        def wait_service_state(service, state):
+            b.wait_in_text(svc_sel(service), state)
+
+        wait_service_state("test.service", "disabled")
+
+        m.execute("systemctl start test.service")
+        wait_service_state("test.service", "running")
+        m.execute("systemctl stop test.service")
+        wait_service_state("test.service", "disabled")
+        m.execute("systemctl enable test.service")
+        wait_service_state("test.service", "inactive")
+
+        b.click(svc_sel("test.service"))
+        b.wait_text('#service-active-state', "inactive")
+        b.wait_text('#service-unit-action', "Start")
+        b.click('#service-unit-action')
+        b.wait_text('#service-active-state', "active")
+        b.wait_text('#service-unit-action', "Stop")
+        b.wait_in_text('#service-log', "START")
+        b.wait_in_text('#service-log', "WORKING")
+
+        b.wait_text('#service-file-state', "enabled")
+        b.wait_text('#service-file-action', "Disable")
+        b.click('#service-file-action')
+        b.wait_text('#service-file-state', "disabled")
+        b.wait_text('#service-file-action', "Enable")
+
+        b.go("services")
+        b.wait_in_text("#services", "test-fail.service")
+        b.click(svc_sel("test-fail.service"))
+        b.wait_text('#service-active-state', "inactive")
+        b.wait_text('#service-unit-action', "Start")
+        b.click('#service-unit-action')
+        b.wait_text('#service-active-state', "failed")
+
+        b.go("services")
+        b.wait_in_text("#services", "test-fail.service")
+        wait_service_state("test-fail.service", "failed")
+
+        # Instantiate a template
+        b.click(svc_sel("test-template"))
+        b.set_val("#service-parameter", "//param-f//o//o//")
+        b.click("#service-instantiate")
+        b.wait_text("#service-name", "Test Template for param-f/o/o")
+        b.wait_js_cond("$('#service-template-link a').attr('onclick')")
+        b.click("#service-template-link a")
+        b.wait_visible("#service-instantiate")
+
+test_main()

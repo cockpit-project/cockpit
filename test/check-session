@@ -1,0 +1,74 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+class TestSession(MachineCase):
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        def check_session(should_exist):
+            check = check_in if should_exist else check_not_in
+            check(m.execute("loginctl list-sessions"), "admin")
+
+        check_session(False)
+
+        # Login
+        self.login_and_go("server")
+        check_session(True)
+
+        # Logout
+        b.click('#settings-button')
+        b.click('a[onclick*="cockpit_logout"]')
+        b.wait_visible("#login")
+        check_session(False)
+
+        # Login again
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.wait_page("server")
+        check_session(True)
+
+        # Kill session from the outside
+        m.execute("loginctl kill-user admin")
+        b.wait_popup("disconnected")
+        b.wait_text("#disconnected-error", "Your session has been terminated.")
+        check_session(False)
+        b.click("#disconnected-reconnect");
+        b.wait_popdown("disconnected")
+        b.wait_page("server")
+        check_session(True)
+
+        # Kill session from the inside
+        b.click('#settings-button')
+        b.click('a[onclick*="cockpit_go_login_account"]')
+        b.wait_page("account")
+        b.wait_text("#account-user-name", "admin")
+        b.click("#account-logout")
+        b.wait_popup("disconnected")
+        b.wait_text("#disconnected-error", "Your session has been terminated.")
+        check_session(False)
+        check(m.execute("loginctl list-sessions"), "admin")
+
+        self.allow_journal_messages("peer did not close io when expected")
+
+test_main ()

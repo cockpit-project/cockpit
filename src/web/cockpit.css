@@ -1,0 +1,289 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2013 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* ---------------------------------------------------------------------------------------------------- */
+
+/* Text style for header bar and menu */
+
+.cockpit-menu li a,
+.cockpit-menu li .ui-link,
+.cockpit-menu li .ui-link:visited
+{
+    text-decoration: none;
+    text-shadow: none;
+    color: #d9d9d7;
+}
+
+.cockpit-menu li a:hover,
+.cockpit-menu li .ui-link:hover
+{
+    color: #2489ce;
+}
+
+.cockpit-form-table td {
+    padding-left: 0.75em;
+    padding-top: 0.25em;
+}
+
+.cockpit-form-table td:first-child {
+    text-align: right;
+    white-space:nowrap;
+    width: 50px;
+}
+
+.cockpit-note {
+    font-weight: normal;
+    display: none;
+}
+
+#display-language-list {
+    width: 100%;
+    background: white;
+}
+
+.cockpit-network-header {
+    font-weight: bold;
+    text-align: center;
+}
+
+.cockpit-menu {
+    margin: 0;
+    width: 250px;
+
+    color: #d9d9d7;
+    z-index: 100;
+
+    list-style: none;
+
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    background: #303030;
+
+    box-shadow: 0 0 15px black;
+}
+
+.cockpit-menu span {
+    width: 100%;
+    display: inline-block;
+    border-bottom: 1px solid #70726d;
+}
+
+.cockpit-menu li {
+    display: block;
+    margin: 0px;
+    padding-top: 10px;
+    padding-bottom: 5px;
+}
+
+.cockpit-storage-table td {
+}
+
+.cockpit-storage-table td:last-child {
+    color: #a0a0a0;
+}
+
+.cockpit-disk-failing {
+    color: #ff0000;
+}
+
+.cockpit-logprio-0,
+.cockpit-logprio-1,
+.cockpit-logprio-2
+{
+    color: red;
+    font-weight: bold;
+}
+
+.cockpit-logprio-3
+{
+    color: red;
+}
+
+.cockpit-logprio-4
+{
+    font-weight: bold;
+}
+
+.cockpit-logprio-7
+{
+    color: grey;
+}
+
+.cockpit-logdiv
+{
+    padding-left: 10px;
+    color: blue;
+}
+
+.cockpit-logident {
+    display: inline-block;
+    vertical-align: top;
+
+    width: 10%;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    padding-left: 10px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cockpit-logmsg {
+    display: inline-block;
+    width: 90%;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    padding-right: 10px;
+}
+
+.cockpit-loghead {
+    width: 100%;
+    padding-top: 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #CCC;
+}
+
+.cockpit-logline {
+    width: 100%;
+    background: #fff;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #CCC;
+    border-right: 1px solid #CCC;
+    border-left: 1px solid #CCC;
+}
+
+.cockpit-logline:hover {
+    background: #FFC;
+}
+
+.cockpit-logcount {
+    -webkit-border-radius: 1em /*{global-radii-buttons}*/;
+    border-radius: 1em /*{global-radii-buttons}*/;
+    -webkit-background-clip: padding;
+    background-clip: padding-box;
+    border: 1px solid #ccc /*{c-bup-border}*/;
+    background: #eee /*{c-bup-background-color}*/;
+    font-weight: bold;
+    color: #222 /*{c-bup-color}*/;
+    text-shadow: 0 /*{c-bup-shadow-x}*/ 1px /*{c-bup-shadow-y}*/ 0 /*{c-bup-shadow-radius}*/ #fff /*{c-bup-shadow-color}*/;
+    background-image: -webkit-gradient(linear, left top, left bottom, from( #fff /*{c-bup-background-start}*/), to( #f1f1f1 /*{c-bup-background-end}*/)); /* Saf4+, Chrome */
+    background-image: -webkit-linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* Chrome 10+, Saf5.1+ */
+    background-image:    -moz-linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* FF3.6 */
+    background-image:     -ms-linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* IE10 */
+    background-image:      -o-linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* Opera 11.10+ */
+    background-image:         linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/);
+
+    font-size: 11px;
+    font-weight: bold;
+    padding: .2em .5em;
+
+    margin-right: 10px;
+    width: 10%;
+}
+
+.cockpit-logtime {
+    float: right;
+}
+
+.cockpit-link {
+    color:           blue;
+    text-decoration: underline;
+}
+
+.cockpit-category-icon {
+	float: left;
+	padding-top: 0.9em;
+	padding-left: 10px;
+}
+
+.ui-li-static.cockpit-image img {
+    border-radius: 5px;
+    display: block;
+    margin: auto;
+}
+
+.cockpit-graph {
+    position: relative;
+    height: 70px;
+    margin-top: 20px;
+}
+
+.cockpit-graph-label {
+    position: absolute;
+    left: 0px;
+    top: -20px;
+    text-align: left;
+}
+
+.cockpit-graph-text {
+    position: absolute;
+    right: 0px;
+    top: -20px;
+    text-align: right;
+}
+
+.cockpit-account {
+    width: 250px;
+    height: 70px;
+    background: #FFF;
+    margin: 15px;
+    border: 1px solid #888;
+    display: inline-block;
+}
+
+.cockpit-account > .cockpit-account-pic {
+    width: 48px;
+    height: 48px;
+    margin: 10px;
+    float: left;
+}
+
+.cockpit-account > .cockpit-account-real-name {
+    padding-top: 10px;
+    font-weight: bold;
+}
+
+.cockpit-account > .cockpit-account-user-name {
+}
+
+#account table {
+    margin-top: 50px;
+}
+
+#account td:first-child {
+    text-align: right;
+    color: #888;
+    padding: 10px;
+}
+
+#account td {
+    padding: 10px;
+}
+
+#account-pic {
+    background: #d3d7cf;
+    border-radius: 5px;
+    cursor: pointer;
+}

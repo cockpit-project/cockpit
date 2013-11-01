@@ -1,0 +1,98 @@
+#!/bin/bash
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+
+SELF="make-rpms"
+
+usage()
+{
+	echo >&2 "usage: $SELF"
+}
+
+mock_opts=""
+args=$(getopt -o "h,v" -l "help,verbose" -- "$@")
+eval set -- "$args"
+while [ $# -gt 0 ]; do
+	case $1 in
+	-v|--verbose)
+		mock_opts="$mock_opts --verbose"
+		;;
+	-h|--help)
+		usage
+		exit 0
+		;;
+	--)
+		shift
+		break
+		;;
+	esac
+	shift
+done
+
+if [ $# -ne 0 ]; then
+	usage
+	exit 2
+fi
+
+if test $(id -u) = 0; then
+    echo "Don't run this as root!"
+    exit 1
+fi
+
+make_srpm=$(dirname "$0")/make-srpm
+if [ ! -x "$make_srpm" ]; then
+  make_srpm=make-srpm
+fi
+
+os=${TEST_OS:-fedora-18}
+arch=${TEST_ARCH:-x86_64}
+
+srpm=$("$make_srpm" "$@")
+rm -rf mock
+
+# Create our custom config by adding the cockpit-deps repo
+mkdir mock
+cp --preserve=timestamps /etc/mock/site-defaults.cfg mock/
+cp --preserve=timestamps /etc/mock/logging.ini mock/
+cp --preserve=timestamps /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
+cat >>mock/$os-$arch-cockpit.cfg <<EOF
+config_opts['root'] = "$os-$arch-cockpit"
+config_opts['yum.conf'] += """
+[cockpit-deps]
+name=Unreleased Cockpit dependencies
+baseurl=http://cockpit-project.github.io/cockpit-deps/$os/$arch
+enabled=1
+gpgcheck=0
+"""
+EOF
+touch -r /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
+
+if /usr/bin/mock $mock_opts --configdir=mock/ --no-cleanup-after \
+	--resultdir mock -r $os-$arch-cockpit $srpm \
+	--define="extra_flags $EXTRA_FLAGS"; then
+    grep "^Wrote: .*\.$arch\.rpm$" mock/build.log | while read l; do
+        p=$(basename "$l") # knocks off the "Wrote:" part as well...
+        echo $p
+        mv mock/$p .
+    done
+    exit 0
+else
+    echo >&2 FAILED
+    exit 1
+fi

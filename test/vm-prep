@@ -1,0 +1,119 @@
+#!/bin/sh
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+VIRSH=/bin/virsh
+QEMU_BRIDGE_HELPER=/usr/libexec/qemu-bridge-helper
+BRIDGE_CONF=/etc/qemu/bridge.conf
+
+SELF=vm-prep
+. ./testlib.sh
+
+set -euf
+
+usage()
+{
+	echo >&2 "usage: $SELF [-u]"
+}
+
+prepare()
+{
+	if silent $VIRSH net-info cockpit; then
+		$VIRSH net-destroy cockpit
+		$VIRSH net-undefine cockpit
+	fi
+
+	xml=$(mktemp)
+cat > $xml << EOF
+<network>
+	<name>cockpit</name>
+	<uuid>f3605fa4-0763-41ea-8143-49da3bf73262</uuid>
+	<forward mode='nat'>
+		<nat>
+			<port start='1024' end='65535'/>
+		</nat>
+	</forward>
+	<bridge name='cockpit0' stp='on' delay='0' />
+	<mac address='52:54:00:b8:d2:b5'/>
+	<domain name='default.example.com'/>
+	<ip address='10.111.111.200' netmask='255.255.255.0'>
+		<dhcp>
+			<range start='10.111.111.1' end='10.111.111.100' />
+		</dhcp>
+	</ip>
+</network>
+EOF
+
+	$VIRSH net-define $xml
+	rm $xml
+
+	$VIRSH net-autostart cockpit
+	$VIRSH net-start cockpit
+
+	if [ ! -u $QEMU_BRIDGE_HELPER ]; then
+		chmod -v u+s $QEMU_BRIDGE_HELPER
+	fi
+
+	rule="allow cockpit0"
+	if ! silent grep -F cockpit0 $BRIDGE_CONF; then
+		echo "$rule" >> /etc/qemu/bridge.conf
+	fi
+}
+
+unprepare()
+{
+	if ! silent virsh net-info cockpit; then
+		warning "the cockpit network has not been configured"
+		exit 1
+	fi
+
+	$VIRSH net-destroy cockpit
+	$VIRSH net-undefine cockpit
+}
+
+operation=prepare
+args=$(getopt -o "uh" -l "help" -- "$@")
+eval set -- "$args"
+while [ $# -gt 0 ]; do
+	case $1 in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	-u)
+		operation=unprepare
+		;;
+	--)
+		shift
+		break
+		;;
+	esac
+	shift
+done
+
+if [ $# -ne 0 ]; then
+	usage
+	exit 2
+fi
+
+uid=$(id -u)
+if [ "$uid" != "0" ]; then
+	warning "this script must be run as root"
+	exit 1
+fi
+
+$operation

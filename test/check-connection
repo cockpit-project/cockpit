@@ -1,0 +1,74 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+class TestConnection(MachineCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.start_cockpit()
+
+        self.allow_journal_messages("peer did not close io when expected")
+
+        # take cockpit-ws down on the login page
+        b.open("server")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        m.execute("systemctl stop cockpit-ws-notls.socket")
+        b.click('#login-button')
+        b.wait_text_not('#login-error-message', "")
+        m.execute("systemctl start cockpit-ws-notls.socket")
+        b.click('#login-button')
+        b.wait_page("server")
+
+        # take cockpit-ws down on the server page
+        m.execute("systemctl stop cockpit-ws-notls.socket")
+        b.wait_popup("disconnected")
+        m.execute("systemctl start cockpit-ws-notls.socket")
+        b.click('#disconnected-reconnect')
+        b.wait_in_text('#disconnected-error', "Your session has expired.")
+        b.click('#disconnected-logout')
+        b.wait_popdown("disconnected")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+
+        # severe the connection on the login page
+        m.execute("iptables -I INPUT 1 -p tcp --dport 21064 -j REJECT")
+        b.click('#login-button')
+        with b.wait_timeout(20):
+            b.wait_text_not('#login-error-message', "")
+        m.execute("iptables -D INPUT 1")
+        b.click('#login-button')
+        b.wait_page("server")
+
+        # severe the connection on the server page
+        m.execute("iptables -I INPUT 1 -p tcp --dport 21064 -j REJECT")
+        with b.wait_timeout(30):
+            b.wait_popup("disconnected")
+        b.wait_in_text('#disconnected-error', "Connection has timed out.")
+        m.execute("iptables -D INPUT 1")
+        b.click('#disconnected-reconnect')
+        b.wait_popdown("disconnected")
+
+test_main()

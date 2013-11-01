@@ -1,0 +1,75 @@
+COCKPIT_BUILD_INFO = "Built on $(shell date)"
+
+libexec_PROGRAMS += cockpitd
+
+cockpitd_SOURCES = \
+	src/daemon/main.c \
+	src/daemon/types.h \
+	src/daemon/daemon.h \
+	src/daemon/daemon.c \
+	src/daemon/auth.h \
+	src/daemon/auth.c \
+	src/daemon/utils.h \
+	src/daemon/utils.c \
+	src/daemon/manager.h \
+	src/daemon/manager.c \
+	src/daemon/network.h \
+	src/daemon/network.c \
+	src/daemon/netinterface.h \
+	src/daemon/netinterface.c \
+	src/daemon/cpumonitor.h \
+	src/daemon/cpumonitor.c \
+	src/daemon/memorymonitor.h \
+	src/daemon/memorymonitor.c \
+	src/daemon/networkmonitor.h \
+	src/daemon/networkmonitor.c \
+	src/daemon/diskiomonitor.h \
+	src/daemon/diskiomonitor.c \
+	src/daemon/storagemanager.h \
+	src/daemon/storagemanager.c \
+	src/daemon/storageprovider.h \
+	src/daemon/storageprovider.c \
+	src/daemon/storageobject.h \
+	src/daemon/storageobject.c \
+	src/daemon/storageblock.h \
+	src/daemon/storageblock.c \
+	src/daemon/storagedrive.h \
+	src/daemon/storagedrive.c \
+	src/daemon/storagemdraid.h \
+	src/daemon/storagemdraid.c \
+	src/daemon/storagevolumegroup.h \
+	src/daemon/storagevolumegroup.c \
+	src/daemon/storagelogicalvolume.h \
+	src/daemon/storagelogicalvolume.c \
+	src/daemon/storagejob.h \
+	src/daemon/storagejob.c \
+	src/daemon/realms.h \
+	src/daemon/realms.c \
+	src/daemon/services.h \
+	src/daemon/services.c \
+	src/daemon/journal.h \
+	src/daemon/journal.c \
+	src/daemon/accounts.h \
+	src/daemon/accounts.c \
+	src/daemon/account.h \
+	src/daemon/account.c \
+	src/daemon/cgroup-show.h \
+	src/daemon/cgroup-show.c \
+	$(NULL)
+
+cockpitd_CFLAGS = 						\
+	$(cockpit_cppflags_common)				\
+	$(cockpit_cppflags_glib_version)			\
+	-I$(top_srcdir)/src/daemon			\
+	-I$(top_srcdir)/src/libgsystem			\
+	-DG_LOG_DOMAIN=\"cockpitd\"			\
+	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
+	$(COCKPIT_DAEMON_CFLAGS)				\
+	$(NULL)
+
+cockpitd_LDADD = 						\
+	$(COCKPIT_DAEMON_LIBS)				\
+	libgsystem.la					\
+	libcockpit-1.0.la					\
+	-lm 						\
+	$(NULL)

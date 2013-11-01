@@ -1,0 +1,17 @@
+noinst_SCRIPTS += tools/po2json
+EXTRA_DIST += tools/po2json
+
+if WITH_COVERAGE
+clean-local:
+	find $(builddir) -name '*.gc??' -delete
+
+coverage:
+	mkdir -p tools/coverage
+	lcov --directory . --zerocounters
+	$(MAKE) check
+	lcov --directory . --capture --output-file tools/coverage.info
+	genhtml --output-directory tools/coverage \
+		--title "cockpit $(PACKAGE_VERSION)" \
+		tools/coverage.info
+	@echo "file://$(abs_top_builddir)/tools/coverage/index.html"
+endif

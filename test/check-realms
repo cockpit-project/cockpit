@@ -1,0 +1,170 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+realmd_conf = """
+[providers]
+example = yes
+
+[example]
+enabled = yes
+default = default.example.com
+non-discovery-delay = 1
+
+[default.example.com]
+example-administrator = Administrator
+example-password = foobar
+
+[slow-discovery.example.com]
+example-administrator = Administrator
+example-password = barfoo
+example-discovery-delay = 5
+
+[slow-join.example.com]
+example-administrator = Administrator
+example-password = barfoo
+example-join-delay = 5
+
+[slow-leave.example.com]
+example-administrator = Administrator
+example-password = barfoo
+example-leave-delay = 5
+example-no-auto-leave = yes
+
+[no-auto-leave.example.com]
+example-administrator = Administrator
+example-password = barfoo
+example-no-auto-leave = yes
+"""
+
+class TestRealms(MachineCase):
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/etc/realmd.conf", realmd_conf)
+        m.execute("mkdir -p /var/lib/realmd")
+        m.execute("pkill -x realmd || true")
+        m.execute("hostname test-machine.example.lan")
+        self.login_and_go("realms")
+
+        def wait_number_domains(n):
+            b.wait_js_cond('$("#realms-list > li").length == ' + str(n+1))
+
+        wait_number_domains(0)
+
+        # Join the default one
+        b.click("#realms-join-item")
+        b.wait_popup("realms-op")
+        b.wait_visible("#realms-op-form")
+        b.wait_val("#realms-op-address", "default.example.com")
+        b.wait_val("#realms-op-admin", "Administrator")
+        b.set_val("#realms-op-admin-password", "foobar")
+        b.click("#realms-op-apply")
+        b.wait_popdown("realms-op")
+
+        # Check that this has worked
+        wait_number_domains(1)
+
+        # Leave the domain
+        b.click("#realms-leave-0")
+        wait_number_domains(0)
+
+        # Send a wrong password
+        b.click("#realms-join-item")
+        b.wait_popup("realms-op")
+        b.set_val("#realms-op-admin-password", "foo")
+        b.click("#realms-op-apply")
+        b.wait_text_not("#realms-op-error", "")
+        b.click("#realms-op-cancel")
+        b.wait_popdown("realms-op")
+
+        # Join a domain that doesn't allow automatic leaves.
+        b.click("#realms-join-item")
+        b.wait_popup("realms-op")
+        b.wait_val("#realms-op-address", "default.example.com")
+        b.set_val("#realms-op-address", "no-auto-leave.example.com")
+        b.wait_val("#realms-op-admin", "Administrator")
+        b.set_val("#realms-op-admin-password", "barfoo")
+        b.click("#realms-op-apply")
+        b.wait_popdown("realms-op")
+
+        wait_number_domains(1)
+
+        # And cancel the leave
+        b.click("#realms-leave-0")
+        b.wait_popup("realms-op")
+        b.click("#realms-op-cancel")
+        b.wait_popdown("realms-op")
+
+        # Leave it
+        b.click("#realms-leave-0")
+        b.wait_popup("realms-op")
+        b.wait_val("#realms-op-admin", "Administrator")
+        b.set_val("#realms-op-admin-password", "barfoo")
+        b.click("#realms-op-apply")
+        b.wait_popdown("realms-op")
+
+        wait_number_domains(0)
+
+        # Try to join a non-existing domain
+        b.click("#realms-join-item")
+        b.wait_popup("realms-op")
+        b.wait_val("#realms-op-address", "default.example.com")
+        b.set_val("#realms-op-address", "NOPE")
+        b.wait_js_cond("$('#realms-op-address-error').attr('title') != ''")
+        b.click("#realms-op-cancel")
+        b.wait_popdown("realms-op")
+
+        # Cancel a slow join
+        b.click("#realms-join-item")
+        b.wait_popup("realms-op")
+        b.wait_val("#realms-op-address", "default.example.com")
+        b.set_val("#realms-op-address", "slow-join.example.com")
+        b.wait_val("#realms-op-admin", "Administrator")
+        b.set_val("#realms-op-admin-password", "barfoo")
+        b.click("#realms-op-apply")
+        b.wait_visible("#realms-op-spinner")
+        b.click("#realms-op-cancel")
+        b.wait_popdown("realms-op")
+
+        # Cancel a slow leave
+        b.click("#realms-join-item")
+        b.wait_popup("realms-op")
+        b.wait_val("#realms-op-address", "default.example.com")
+        b.set_val("#realms-op-address", "slow-leave.example.com")
+        b.wait_val("#realms-op-admin", "Administrator")
+        b.set_val("#realms-op-admin-password", "barfoo")
+        b.click("#realms-op-apply")
+        b.wait_popdown("realms-op")
+        wait_number_domains(1)
+        b.click("#realms-leave-0")
+        b.wait_popup("realms-op")
+        b.wait_val("#realms-op-admin", "Administrator")
+        b.set_val("#realms-op-admin-password", "barfoo")
+        b.click("#realms-op-apply")
+        b.wait_visible("#realms-op-spinner")
+        b.click("#realms-op-cancel")
+        b.wait_popdown("realms-op")
+        wait_number_domains(1)
+
+test_main()

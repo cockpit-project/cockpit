@@ -102,6 +102,16 @@ The udisks2 package needs a patch.  See
 CFLAGS=$old_CFLAGS
 LIBS=$old_LIBS
 
+# pam
+AC_CHECK_HEADER([security/pam_appl.h], [ ],
+  [AC_MSG_ERROR([Couldn't find PAM headers. Try installing pam-devel])]
+)
+AC_CHECK_LIB(pam, pam_open_session, [ ],
+  [AC_MSG_ERROR([Couldn't find PAM library. Try installing pam-devel])]
+)
+COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lpam"
+COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lpam"
+
 # systemd
 AC_ARG_WITH([systemdsystemunitdir],
             AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),
@@ -194,6 +204,8 @@ AC_MSG_RESULT([$enable_coverage])
 
 # Generate
 #
+
+AC_SUBST(COCKPIT_SESSION_LIBS)
 
 AC_OUTPUT([
 Makefile

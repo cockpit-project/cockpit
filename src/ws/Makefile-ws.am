@@ -68,7 +68,6 @@ cockpit_ws_LDADD = 					\
 	$(COCKPIT_WS_LIBS)					\
 	libgsystem.la					\
         libcockpit-ws.la     				\
-	-lpam 						\
 	$(NULL)
 
 cockpit_session_SOURCES =					\
@@ -81,7 +80,7 @@ cockpit_session_CFLAGS = 					\
 	$(NULL)
 
 cockpit_session_LDADD = 					\
-	-lpam 						\
+	$(COCKPIT_SESSION_LIBS)				\
 	$(NULL)
 
 cockpit_agent_SOURCES =					\
@@ -102,7 +101,6 @@ cockpit_agent_CFLAGS = 					\
 cockpit_agent_LDADD = 					\
 	$(COCKPIT_AGENT_LIBS)				\
 	libgsystem.la					\
-	-lpam 						\
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------

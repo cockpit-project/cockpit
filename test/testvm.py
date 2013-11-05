@@ -458,7 +458,7 @@ class QemuMachine(Machine):
                     if self.verbose:
                         sys.stdout.write(data)
                     output += data
-                    if "Entering emergency mode." in output:
+                    if "emergency mode" in output:
                         raise Failure("qemu vm failed to boot, stuck in emergency mode")
                     address = self._parse_cockpit_canary("COCKPIT_ADDRESS", output)
                     (unused, sep, output) = output.rpartition("\n")

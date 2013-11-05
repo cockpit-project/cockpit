@@ -639,6 +639,8 @@ fi
 # To enable persistent logging
 mkdir -p /var/log/journal
 
+yes | yum --disablerepo=* --enablerepo=cockpit-deps update -y
+
 reinstall=""
 install=""
 for pkg in $TEST_PACKAGES; do

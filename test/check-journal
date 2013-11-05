@@ -26,13 +26,20 @@ class TestJournal(MachineCase):
         b = self.browser
         m = self.machine
 
+
+        # Certain versions of journald wont set _SYSTEMD_UNIT
+        # correctly for entries that are processed after the
+        # originating process has already exited.  So we keep the
+        # process around for a bit longer after the last line has been
+        # output.
+        #
         m.write("/usr/lib/systemd/system/log123.service",
 """
 [Unit]
 Description=123 different log lines
 
 [Service]
-ExecStart=/usr/bin/seq 123
+ExecStart=/bin/sh -c '/usr/bin/seq 123; sleep 1'
 """)
 
         m.write("/usr/lib/systemd/system/slow10.service",
@@ -123,7 +130,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done'
                 // console.log(l[1], "?");
                 return false;
               }
-            } else if (l[0] == "seq: ") {
+            } else if (l[0] == "sh: ") {
               if (l[1] != seq.toString()) {
                 // console.log(l[1], "?");
                 return false;

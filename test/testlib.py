@@ -232,6 +232,7 @@ class MachineCase(unittest.TestCase):
     runner = None
     machine_class = testvm.QemuMachine
     machine = None
+    do_check_journal_messages = True
 
     def setUp(self):
         self.machine = self.machine_class(verbose=arg_trace)
@@ -249,7 +250,7 @@ class MachineCase(unittest.TestCase):
             if arg_sit_on_failure:
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
-        if self.machine.address:
+        if self.machine.address and self.do_check_journal_messages:
             try:
                 self.check_journal_messages()
             finally:
@@ -308,6 +309,9 @@ class MachineCase(unittest.TestCase):
         # A bug?
         ".*ActUserManager: user .* has no username.*"
         ]
+
+    def dont_check_journal_messages(self):
+        self.do_check_journal_messages = False
 
     def allow_journal_messages(self, *patterns):
         """Don't fail if the journal containes a entry matching the given regexp"""

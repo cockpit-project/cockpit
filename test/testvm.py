@@ -657,5 +657,16 @@ fi
 if [ -n "$reinstall" ]; then
     yes | yum reinstall -y $reinstall
 fi
+
+# Stopping a user@.service at poweroff sometimes hangs and then times
+# out, but that seems to be harmless otherwise.  We reduce the timeout
+# so that we don't have to wait for the default 90 seconds.
+#
+f=/usr/lib/systemd/system/user@.service
+if [ -f $f ] && ! grep -q TimeoutStopSec $f; then
+  echo TimeoutStopSec=1 >>$f
+  systemctl daemon-reload
+fi
+
 rm -rf /var/log/journal/*
 """

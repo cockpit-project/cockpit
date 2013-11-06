@@ -138,7 +138,6 @@ class Machine:
             "ssh",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=",
             "-l", "root",
             self.address
         ]
@@ -197,7 +196,6 @@ class Machine:
             "scp",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=",
             source, "root@%s:%s" % (self.address, dest),
         ]
 
@@ -263,6 +261,13 @@ class QemuMachine(Machine):
         def copy(fr, to):
             with open(os.path.join(self.test_dir, fr), "r") as f:
                 gf.write(to, f.read())
+
+        # We use a fixed host key for all test machines since things
+        # get too annoying when it changes from run to run.
+        #
+        copy("host_key", "/etc/ssh/ssh_host_rsa_key")
+        gf.chmod(0600, "/etc/ssh/ssh_host_rsa_key")
+        copy("host_key.pub", "/etc/ssh/ssh_host_rsa_key.pub")
 
         gf.mkdir_mode("/root/.ssh", 0700)
         copy("identity.pub", "/root/.ssh/authorized_keys")

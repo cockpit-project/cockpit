@@ -487,10 +487,7 @@ synchronize_device_config (Network *self,
   connection = device_find_connection (self->settings, device);
 
   if (!connection)
-    {
-      g_message ("No settings connection for device %p", device);
-      return;
-    }
+    return;
 
   ip4config = nm_connection_get_setting_ip4_config (connection);
   if (ip4config)

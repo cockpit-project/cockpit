@@ -42,7 +42,7 @@ clone:
 
     $ cd ./test
     $ srpm=$(./make-srpm)
-    # yum-builddep $srpm
+    # yum-builddep --enablerepo=cockpit-deps $srpm
 
 * Building and installing
 

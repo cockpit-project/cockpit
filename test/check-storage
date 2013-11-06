@@ -556,6 +556,7 @@ class TestStorage(MachineCase):
         b.click('a[onclick*="TEST"]')
 
         # create a logical volume
+        b.wait_text('#entry-action-1', "Create Plain Logical Volume")
         b.click('#entry-action-1')
         b.wait_popup('storage_create_plain_volume_dialog')
         b.set_val('#create-pvol-name', "one")
@@ -565,6 +566,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_content", "Logical Volume \"one\"")
 
         # format and mount it
+        b.wait_text('#entry-action-1', "Format")
         b.click('#entry-action-1')
         b.wait_popup('storage_format_dialog')
         b.set_val('#format-type', "ext4")
@@ -573,10 +575,12 @@ class TestStorage(MachineCase):
         b.wait_popdown('storage_format_dialog')
         b.wait_in_text("#storage_detail_content", "(ext4 File System)")
         b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/one")
+        b.wait_text('#entry-action-1', "Mount")
         b.click('#entry-action-1')
         b.wait_in_text("#storage_detail_content", "mounted on /one")
 
         # unmount it
+        b.wait_text('#entry-action-1', "Unmount")
         b.click('#entry-action-1')
         b.wait_in_text("#storage_detail_content", "not mounted")
 
@@ -605,6 +609,7 @@ class TestStorage(MachineCase):
         b.wait_popdown('storage_create_thin_pool_dialog')
         b.wait_in_text('#storage_detail_content', "Pool for Thin Logical Volumes \"pool\"")
 
+        b.wait_text('#entry-action-1', "Create Thin Volume")
         b.click('#entry-action-1')
         b.wait_popup('storage_create_thin_volume_dialog')
         b.set_val('#create-tvol-name', "thin")
@@ -614,6 +619,7 @@ class TestStorage(MachineCase):
         b.wait_in_text('#storage_detail_content', "Thin Logical Volume \"thin\"")
 
         # cause the pool to overflow by erasing the thin volume
+        b.wait_text('#entry-action-2', "Format")
         b.click('#entry-action-2')
         b.wait_popup('storage_format_dialog')
         b.set_val('#format-erase', "zero")
@@ -644,6 +650,7 @@ class TestStorage(MachineCase):
         b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/thin")
 
         # remove volume group
+        b.wait_text('#vg-action', "Delete")
         b.click('#vg-action')
         b.wait_page("storage")
         check_eq(m.execute("grep /thin /etc/fstab || true"), "")

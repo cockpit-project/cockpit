@@ -680,19 +680,13 @@ network_initialize (Network *self,
                     GCancellable *cancellable,
                     GError **error)
 {
-  gboolean ret = FALSE;
-
   self->ifname_to_netinterface = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                         g_free, (GDestroyNotify) g_object_unref);
 
   self->client = nm_client_new ();
   self->settings = nm_remote_settings_new (dbus_g_bus_get (DBUS_BUS_SYSTEM, NULL));
-  if (!g_initable_init (G_INITABLE (self->settings), cancellable, error))
-    goto out;
   g_signal_connect (self->settings, NM_REMOTE_SETTINGS_CONNECTIONS_READ,
                     G_CALLBACK (on_nm_settings_read), self);
 
-  ret = TRUE;
-out:
-  return ret;
+  return TRUE;
 }

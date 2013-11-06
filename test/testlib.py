@@ -306,8 +306,19 @@ class MachineCase(unittest.TestCase):
         # This happens because we pretty dramatically tear phantom away
 	"connection unexpectedly closed by peer",
 
-        # A bug?
-        ".*ActUserManager: user .* has no username.*"
+        # https://bugs.freedesktop.org/show_bug.cgi?id=70540
+        ".*ActUserManager: user .* has no username.*",
+
+        # https://github.com/cockpit-project/cockpit/issues/69
+        "Warning: Permanently added '.*' (RSA) to the list of known hosts.",
+
+        # https://github.com/cockpit-project/cockpit/issues/88
+        ".*fetch_connections_done: runtime check failed.*",
+        ".*No settings connection for device.*",
+
+        # https://github.com/cockpit-project/cockpit/issues/48
+        "Failed to load '.*': Key file does not have group 'Unit'"
+
         ]
 
     def dont_check_journal_messages(self):

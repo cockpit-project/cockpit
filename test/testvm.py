@@ -287,6 +287,17 @@ class QemuMachine(Machine):
         # systemctl disable sshd.service
         gf.rm("/etc/systemd/system/multi-user.target.wants/sshd.service")
 
+    def _setup_fedora_20 (self, gf):
+        self._setup_fstab(gf)
+        self._setup_ssh_keys(gf)
+        self._setup_fedora_network(gf)
+
+        # systemctl disable sshd.service
+        gf.rm("/etc/systemd/system/multi-user.target.wants/sshd.service")
+        # systemctl enable sshd.socket
+        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
+        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
+
     def build(self):
         assert not self._process
 
@@ -331,6 +342,8 @@ class QemuMachine(Machine):
 
             if self.os == "fedora-18":
                 self._setup_fedora_18(gf)
+            elif self.os == "fedora-20":
+                self._setup_fedora_20(gf)
             else:
                 self.message("Unsupported OS %s" % self.os)
 

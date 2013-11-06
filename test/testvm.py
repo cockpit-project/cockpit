@@ -367,6 +367,7 @@ class QemuMachine(Machine):
             "-nographic",
             "-net", "nic,model=virtio,macaddr=%s" % self.macaddr,
             "-net", "bridge,vlan=0,br=cockpit0",
+            "-device", "virtio-scsi-pci,id=hot"
         ]
 
         if monitor:
@@ -550,19 +551,15 @@ class QemuMachine(Machine):
             proc = None
             nbd = None
 
-        cmd = "pci_add auto storage if=virtio,file=%s,serial=%s" % (file, serial)
+        cmd = "drive_add auto file=%s,if=none,serial=%s,id=drive%d" % (file, serial, index)
         output = self._monitor_qemu(cmd)
 
-        match = re.match(r".*domain ([0-9]+).*bus ([0-9]+).*slot ([0-9]+).*", output, re.DOTALL)
-        if match:
-            info = "%s:%s:%s" % match.group(1, 2, 3)
-        else:
-            raise Failure("Couldn't add disk via pci_add: %s" % output)
+        cmd = "device_add scsi-disk,bus=hot.0,drive=drive%d,id=device%d" % (index, index)
+        output = self._monitor_qemu(cmd)
 
         self._disks[index] = {
             "path": path,
             "socket": nbd,
-            "info": info,
             "proc": proc,
         }
 
@@ -573,7 +570,10 @@ class QemuMachine(Machine):
         disk = self._disks.pop(index)
 
         if self._monitor:
-            cmd = "pci_del %s" % disk["info"]
+            cmd = "device_del device%d" % (index, )
+            self._monitor_qemu(cmd)
+
+            cmd = "drive_del drive%d" % (index, )
             self._monitor_qemu(cmd)
 
         if "path" in disk and disk["path"] and os.path.exists(disk["path"]):

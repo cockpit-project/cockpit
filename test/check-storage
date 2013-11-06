@@ -51,13 +51,13 @@ class TestStorage(MachineCase):
         b.wait_in_text('#storage_detail_partition_list', "Unrecognized Data")
         b.wait_not_in_text('#storage_detail_partition_list', "Partition")
 
-        check_eq(self.inode(b.text("#disk_detail_device_file")), self.inode("/dev/disk/by-id/virtio-MYSERIAL"))
+        check_eq(self.inode(b.text("#disk_detail_device_file")), self.inode("/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL"))
 
-        m.execute('parted /dev/disk/by-id/virtio-MYSERIAL mktable gpt')
-        m.execute('parted /dev/disk/by-id/virtio-MYSERIAL mkpart primary ext2 0 10')
+        m.execute('parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mktable gpt')
+        m.execute('parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL mkpart primary ext2 0 10')
         m.execute('udevadm settle')
         b.wait_in_text("#storage_detail_partition_list", "Partition")
-        m.execute('mke2fs /dev/disk/by-id/virtio-MYSERIAL-part1')
+        m.execute('mke2fs /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_MYSERIAL-part1')
         b.wait_in_text("#storage_detail_partition_list", "File System")
         b.go("storage")
         b.wait_in_text("#storage_drives", "MYSERIAL")
@@ -348,16 +348,16 @@ class TestStorage(MachineCase):
         with b.wait_timeout(20):
             b.wait_in_text("#raid_detail_state", "Running")
 
-        self.wait_states({ "VirtIO Disk (DISK1)": "In Sync",
-                   "VirtIO Disk (DISK2)": "In Sync",
-                   "VirtIO Disk (DISK3)": "In Sync" })
+        self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
+                   "QEMU QEMU HARDDISK (DISK2)": "In Sync",
+                   "QEMU QEMU HARDDISK (DISK3)": "In Sync" })
 
         # Degrade and repair it
         dev = b.text("#raid_detail_device")
-        m.execute("mdadm %s --fail /dev/disk/by-id/virtio-DISK1 --remove /dev/disk/by-id/virtio-DISK1" % dev)
+        m.execute("mdadm %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 --remove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
         b.wait_in_text("#raid_detail_state", "DEGRADED")
-        m.execute("wipefs -a /dev/disk/by-id/virtio-DISK1")
-        m.execute("mdadm %s --add /dev/disk/by-id/virtio-DISK1" % dev)
+        m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        m.execute("mdadm %s --add /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
         b.wait_in_text("#raid_detail_state", "Recovering")
         with b.wait_timeout(20):
             b.wait_in_text("#raid_detail_state", "Running")
@@ -415,13 +415,13 @@ class TestStorage(MachineCase):
 
         # Add a spare
         self.add_disk("DISK4")
-        self.wait_states({ "VirtIO Disk (DISK4)": "Spare" })
+        self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "Spare" })
 
         # Remove DISK1.  The spare takes over.
         self.remove_disk("DISK1")
         with b.wait_timeout(20):
             b.wait_in_text("#raid_detail_state", "Running")
-            self.wait_states({ "VirtIO Disk (DISK4)": "In Sync" })
+            self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "In Sync" })
 
         # Remove DISK4.  The array degrades.
         self.remove_disk("DISK4")
@@ -436,7 +436,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#raid-action", "Stop")
         b.click("#raid-action")
         b.wait_in_text("#raid_detail_state", "Not running")
-        m.execute("wipefs -a /dev/disk/by-id/virtio-DISK1")
+        m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("udevadm settle")
         b.wait_in_text("#raid-action", "Start")
         b.click("#raid-action")
@@ -504,7 +504,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_drives", "DISK3")
 
         # Create volume group out of two disks
-        m.execute("vgcreate TEST1 /dev/disk/by-id/virtio-DISK1 /dev/disk/by-id/virtio-DISK2")
+        m.execute("vgcreate TEST1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
         b.wait_in_text("#storage_vgs", "TEST1")
         b.click('a[onclick*="TEST1"]')
         b.wait_page("storage-detail")
@@ -526,8 +526,8 @@ class TestStorage(MachineCase):
         b.wait_not_in_text("#storage_detail_content", "Logical Volume \"one\"")
 
         # remove a disk from the volume group
-        m.execute("pvmove /dev/disk/by-id/virtio-DISK2 || true")
-        m.execute("vgreduce TEST1 /dev/disk/by-id/virtio-DISK2")
+        m.execute("pvmove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2 || true")
+        m.execute("vgreduce TEST1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
         b.wait_not_in_text("#vg-physical-volumes", "DISK2")
 
         # Thin volumes
@@ -594,7 +594,7 @@ class TestStorage(MachineCase):
         check_eq(m.execute("grep /one /etc/fstab || true"), "")
 
         # remove disk
-        m.execute("pvmove /dev/disk/by-id/virtio-DISK2 || true")
+        m.execute("pvmove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2 || true")
         b.click('#vg-pv-remove-1')
         b.wait_not_in_text("#vg-physical-volumes", "DISK2")
 
@@ -665,13 +665,13 @@ class TestStorage(MachineCase):
 
         m.add_disk("50M", serial="DISK1")
         b.wait_in_text("#storage_drives", "DISK1")
-        m.execute("parted /dev/disk/by-id/virtio-DISK1 mktable msdos")
-        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart extended 0 50")
-        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart logical ext2 1 25")
-        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart logical ext2 25 50")
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mktable msdos")
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart extended 0 50")
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart logical ext2 1 25")
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart logical ext2 25 50")
         m.execute("udevadm settle")
-        m.execute("echo einszweidrei | cryptsetup luksFormat /dev/disk/by-id/virtio-DISK1-part5")
-        m.execute("echo einszweidrei | cryptsetup luksOpen /dev/disk/by-id/virtio-DISK1-part5 dm-test")
+        m.execute("echo einszweidrei | cryptsetup luksFormat /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")
+        m.execute("echo einszweidrei | cryptsetup luksOpen /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5 dm-test")
         m.execute("udevadm settle")
         m.execute("mke2fs -L TEST /dev/mapper/dm-test")
         m.execute("mount /dev/mapper/dm-test /mnt")
@@ -743,7 +743,7 @@ class TestStorage(MachineCase):
         # Create a volume group with a logical volume with a encrypted
         # filesystem.
 
-        m.execute("vgcreate TEST /dev/disk/by-id/virtio-DISK1")
+        m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("lvcreate TEST -n lvol -L 48")
         m.execute("echo einszweidrei | cryptsetup luksFormat /dev/TEST/lvol")
         m.execute("echo einszweidrei | cryptsetup luksOpen /dev/TEST/lvol dm-test")
@@ -786,12 +786,12 @@ class TestStorage(MachineCase):
         m.add_disk("50M", "DISK2")
         b.wait_in_text("#storage_drives", "DISK1")
         b.wait_in_text("#storage_drives", "DISK2")
-        m.execute("parted /dev/disk/by-id/virtio-DISK1 mktable msdos")
-        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart extended 0 50")
-        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart logical ext2 1 25")
-        m.execute("parted /dev/disk/by-id/virtio-DISK1 mkpart logical ext2 25 50")
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mktable msdos")
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart extended 0 50")
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart logical ext2 1 25")
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart logical ext2 25 50")
         m.execute("udevadm settle")
-        m.execute("mke2fs -L TEST /dev/disk/by-id/virtio-DISK1-part5")
+        m.execute("mke2fs -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")
         b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "IdLabel", "TEST")
 
         b.click('#storage_create_raid')
@@ -805,7 +805,7 @@ class TestStorage(MachineCase):
 
         blocks = b.eval_js ("return ph_texts('#create-raid-drives .ui-checkbox')")
         check_eq (len(blocks), 2);
-        check_in (blocks[0], "/dev/vdb6");
-        check_in (blocks[1], "/dev/vdc");
+        check_in (blocks[0], "/dev/sda6");
+        check_in (blocks[1], "/dev/sdb");
 
 test_main()

@@ -338,8 +338,9 @@ write_builder (DBusServerData *data,
 {
   json_builder_end_object (builder);
   gs_free gchar *s = _json_builder_to_str (builder);
-  uint32_t size = strlen (s);
-  write_all (data->out, &size, sizeof(size));
+  guint32 size = strlen (s);
+  guint32 count = GUINT32_TO_BE (size);
+  write_all (data->out, &count, sizeof (count));
   write_all (data->out, s, size);
 }
 
@@ -911,10 +912,11 @@ handle_message (GObject *stream,
   gs_free gchar *buf = NULL;
   gs_unref_object JsonParser *parser = NULL;
 
-  uint32_t size;
+  guint32 size;
   if (!read_all (data->in, &size, sizeof (size)))
     goto close;
 
+  size = GUINT32_FROM_BE (size);
   buf = g_malloc (size + 1);
   if (!read_all (data->in, buf, size))
     goto close;

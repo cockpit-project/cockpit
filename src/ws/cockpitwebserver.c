@@ -30,6 +30,8 @@
 
 #include "websocket/websocket.h"
 
+#include "libgsystem.h"
+
 typedef struct _CockpitWebServerClass CockpitWebServerClass;
 
 struct _CockpitWebServer {
@@ -290,8 +292,8 @@ parse_cookie_pair (const gchar *header_value,
   gboolean ret = FALSE;
   const gchar *equals;
   const gchar *cookie_raw;
-  gchar *ret_cookie_name = NULL;
-  gchar *ret_cookie_value = NULL;
+  gs_free gchar *ret_cookie_name = NULL;
+  gs_free gchar *ret_cookie_value = NULL;
 
   equals = strchr (header_value, '=');
   if (!equals)
@@ -314,8 +316,6 @@ parse_cookie_pair (const gchar *header_value,
   *out_cookie_value = ret_cookie_value;
   ret_cookie_value = NULL;
 out:
-  g_free (ret_cookie_name);
-  g_free (ret_cookie_value);
   return ret;
 }
 
@@ -328,7 +328,7 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
   GHashTableIter hash_iter;
   const gchar *key;
   const gchar *value;
-  GHashTable *ret_cookies = NULL;
+  gs_unref_hashtable GHashTable *ret_cookies = NULL;
 
   ret_cookies = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
@@ -337,7 +337,7 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
     {
       if (g_ascii_strcasecmp (key, "Cookie") == 0)
         {
-          gchar** elements;
+          gs_strfreev gchar** elements = NULL;
           guint n;
           elements = g_strsplit (value, ";", 0);
           for (n = 0; elements[n] != NULL; n++)
@@ -346,14 +346,10 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
               gchar *cookie_value;
               g_strstrip(elements[n]);
               if (!parse_cookie_pair (elements[n], &cookie_name, &cookie_value, error))
-                {
-                  g_strfreev (elements);
-                  goto out;
-                }
+		goto out;
               /* adopt strings */
               g_hash_table_replace (ret_cookies, cookie_name, cookie_value);
             }
-          g_strfreev (elements);
         }
     }
 
@@ -361,8 +357,6 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
   *out_cookies = ret_cookies;
   ret_cookies = NULL;
 out:
-  if (ret_cookies)
-    g_hash_table_unref (ret_cookies);
   return ret;
 }
 
@@ -376,10 +370,10 @@ cockpit_web_server_return_error (GOutputStream *out,
 {
   GError *local_error = NULL;
   GError **error = &local_error;
-  gchar *body = NULL;
-  gchar *s = NULL;
+  gs_free gchar *body = NULL;
+  gs_free gchar *s = NULL;
   va_list var_args;
-  gchar *reason = NULL;
+  gs_free gchar *reason = NULL;
 
   va_start (var_args, format);
   reason = g_strdup_vprintf (format, var_args);
@@ -404,9 +398,6 @@ cockpit_web_server_return_error (GOutputStream *out,
     goto out;
 
 out:
-  g_free (s);
-  g_free (body);
-  g_free (reason);
   if (local_error)
     {
       g_warning ("Failed to write error: %s", local_error->message);
@@ -449,12 +440,12 @@ serve_static_file (CockpitWebServer *server,
   GError *local_error = NULL;
   GError **error = &local_error;
   gchar *query = NULL;
-  gchar *unescaped = NULL;
-  gchar *path = NULL;
-  gchar *mime_type = NULL;
-  GFileInputStream *file_in = NULL;
-  GFile *f = NULL;
-  GFileInfo *info = NULL;
+  gs_free gchar *unescaped = NULL;
+  gs_free gchar *path = NULL;
+  gs_free gchar *mime_type = NULL;
+  gs_unref_object GFileInputStream *file_in = NULL;
+  gs_unref_object GFile *f = NULL;
+  gs_unref_object GFileInfo *info = NULL;
 
   query = strchr (escaped, '?');
   if (query != NULL)
@@ -553,11 +544,6 @@ out:
     }
   if (str)
     g_string_free (str, TRUE);
-  g_free (unescaped);
-  g_free (path);
-  g_free (mime_type);
-  g_clear_object (&file_in);
-  g_clear_object (&info);
 }
 
 static void
@@ -575,10 +561,10 @@ process_request (CockpitWebServer *server,
   gchar *line = NULL;
   gsize line_len;
   gchar *tmp = NULL;
-  GHashTable *headers = NULL;
-  gchar *header_line = NULL;
+  gs_unref_hashtable GHashTable *headers = NULL;
+  gs_free gchar *header_line = NULL;
   CockpitWebServerRequestType reqtype;
-  gchar *buf = NULL;
+  gs_free gchar *buf = NULL;
 
   headers = web_socket_util_new_headers ();
 
@@ -731,11 +717,6 @@ out:
                  local_error->message, g_quark_to_string (local_error->domain), local_error->code);
       g_clear_error (&local_error);
     }
-
-  g_free (header_line);
-  g_free (buf);
-  if (headers)
-    g_hash_table_unref (headers);
 }
 
 static gboolean
@@ -747,12 +728,12 @@ on_run (GThreadedSocketService *service,
   CockpitWebServer *server = COCKPIT_WEB_SERVER (user_data);
   GError *local_error = NULL;
   GError **error = &local_error;
-  GIOStream *io_stream = NULL;
+  gs_unref_object GIOStream *io_stream = NULL;
   GIOStream *tls_stream = NULL;
   GOutputStream *out = NULL;
   GInputStream *in = NULL;
-  GDataInputStream *data = NULL;
-  GDataOutputStream *out_data = NULL;
+  gs_unref_object GDataInputStream *data = NULL;
+  gs_unref_object GDataOutputStream *out_data = NULL;
   GCancellable *cancellable = NULL;
 
   if (server->certificate != NULL)
@@ -824,9 +805,6 @@ out:
                  local_error->message, g_quark_to_string (local_error->domain), local_error->code);
       g_clear_error (&local_error);
     }
-  g_clear_object (&data);
-  g_clear_object (&out_data);
-  g_clear_object (&io_stream);
 
   /* Prevent other GThreadedSocket::run handlers from being called (doesn't matter,
    * we're the only one)
@@ -856,7 +834,7 @@ cockpit_web_server_initable_init (GInitable *initable,
 
       for (fd = SD_LISTEN_FDS_START; fd < SD_LISTEN_FDS_START + n; fd++)
         {
-          GSocket *s;
+          gs_unref_object GSocket *s = NULL;
           gboolean b;
 
           s = g_socket_new_from_fd (fd, error);
@@ -870,7 +848,6 @@ cockpit_web_server_initable_init (GInitable *initable,
                                             s,
                                             NULL,
                                             error);
-          g_object_unref (G_OBJECT (s));
           if (!b)
             {
               g_prefix_error (error, "Failed to add listener for socket %i: ", fd);

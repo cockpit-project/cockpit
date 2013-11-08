@@ -141,16 +141,18 @@ static gpointer
 copy_from_session_to_browser (gpointer user_data)
 {
   WebSocketData *data = user_data;
-  uint32_t size;
+  guint32 size;
   GBytes *message;
 
   while (TRUE)
     {
       gchar *buf = NULL;
 
-      /* TODO: This is not cross-arch safe */
       if (!read_data (data->from_session, NULL, (guint8 *)&size, sizeof(size)))
         break;
+
+      /* See dbus-server.c:write_builder() */
+      size = GUINT32_FROM_BE (size);
 
       buf = g_malloc (size);
       if (!read_data (data->from_session, NULL, buf, size))
@@ -177,9 +179,8 @@ on_web_socket_message (WebSocketConnection *web_socket,
   uint32_t size;
 
   buf = g_bytes_get_data (message, &len);
-  size = len;
+  size = GUINT32_TO_BE (len);
 
-  /* TODO: This is not cross-arch safe */
   if (!write_data (data->to_session, &size, sizeof(size)) ||
       !write_data (data->to_session, buf, len))
     web_socket_connection_close (web_socket, WEB_SOCKET_CLOSE_SERVER_ERROR, "failed-to-proxy");

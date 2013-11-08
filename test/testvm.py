@@ -86,13 +86,27 @@ class Machine:
         """Overridden by machine classes to gracefully shutdown the running machine"""
         assert False, "Cannot shutdown a machine we didn't start"
 
-    def build(self):
+    def build(self, deps):
         """Build a machine image for running tests.
 
         This is usually overridden by derived classes. This should be
         called before running a machine.
         """
         pass
+
+    def run_prepare_script(self, deps):
+        """Prepare a test image further by running some commands in it."""
+        self.start(maintain=True)
+        try:
+            self.wait_boot()
+            env = {
+                "TEST_OS": self.os,
+                "TEST_ARCH": self.arch,
+                "TEST_PACKAGES": " ".join(deps),
+            }
+            self.execute(script=PREPARE_SCRIPT, environment=env)
+        finally:
+            self.stop()
 
     def install(self, rpms):
         """Install rpms in the pre-built test image"""
@@ -269,7 +283,8 @@ class QemuMachine(Machine):
         gf.chmod(0600, "/etc/ssh/ssh_host_rsa_key")
         copy("host_key.pub", "/etc/ssh/ssh_host_rsa_key.pub")
 
-        gf.mkdir_mode("/root/.ssh", 0700)
+        if not gf.exists("/root/.ssh"):
+            gf.mkdir_mode("/root/.ssh", 0700)
         copy("identity.pub", "/root/.ssh/authorized_keys")
 
     def _setup_fedora_network(self,gf):
@@ -290,7 +305,7 @@ class QemuMachine(Machine):
         sshd_service = "[Unit]\nDescription=SSH Server\n[Service]\nExecStart=-/usr/sbin/sshd -i\nStandardInput=socket\n"
         gf.write("/etc/systemd/system/sshd@.service", sshd_service)
         # systemctl disable sshd.service
-        gf.rm("/etc/systemd/system/multi-user.target.wants/sshd.service")
+        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
 
     def _setup_fedora_20 (self, gf):
         self._setup_fstab(gf)
@@ -298,18 +313,20 @@ class QemuMachine(Machine):
         self._setup_fedora_network(gf)
 
         # systemctl disable sshd.service
-        gf.rm("/etc/systemd/system/multi-user.target.wants/sshd.service")
+        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
         # systemctl enable sshd.socket
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
-    def build(self):
+    def unpack(self, flavor=None, modify_func=None):
         assert not self._process
 
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
         data_dir = os.environ.get("TEST_DATA") or self.test_dir
+        if flavor:
+            data_dir = os.path.join(data_dir, flavor)
         tarball = os.path.join(data_dir, "%s.tar.gz" % (self.image, ))
         if not os.path.exists(tarball):
            raise Failure("Unsupported OS %s: %s not found." % (self.image, tarball))
@@ -345,6 +362,40 @@ class QemuMachine(Machine):
             gf.download(kernels[0], self._image_kernel)
             gf.download(initrds[0], self._image_initrd)
 
+            if modify_func:
+                modify_func(gf)
+
+        finally:
+            gf.close()
+
+    def pack(self):
+        assert not self._process
+
+        tarball = os.path.join(self.test_dir, "%s.tar.gz" % (self.image, ))
+
+        import guestfs
+        gf = guestfs.GuestFS(python_return_dict=True)
+        if self.verbose:
+            gf.set_trace(1)
+
+        try:
+            # Attach the disk image to libguestfs.
+            gf.add_drive_opts(self._image_root, format = "raw", readonly = 1)
+            gf.launch()
+
+            devices = gf.list_devices()
+            assert len(devices) == 1
+
+            gf.mount(devices[0], "/")
+
+            self.message("Packing %s into %s" % (self._image_root, tarball))
+            gf.tgz_out("/", tarball)
+
+        finally:
+            gf.close()
+
+    def build(self, deps):
+        def modify(gf):
             if self.os == "fedora-18":
                 self._setup_fedora_18(gf)
             elif self.os == "fedora-20":
@@ -352,8 +403,8 @@ class QemuMachine(Machine):
             else:
                 self.message("Unsupported OS %s" % self.os)
 
-        finally:
-            gf.close()
+        self.unpack("base", modify)
+        self.run_prepare_script(deps)
 
     def _lock_resource(self, resource, exclusive=True):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
@@ -623,7 +674,7 @@ if [ "$2" = "up" ]; then
 fi
 """
 
-INSTALL_SCRIPT = """#!/bin/sh
+PREPARE_SCRIPT = """#!/bin/sh
 set -euf
 
 echo 'SELINUX=disabled' > /etc/selinux/config
@@ -671,23 +722,9 @@ fi
 # To enable persistent logging
 mkdir -p /var/log/journal
 
-yes | yum --disablerepo=* --enablerepo=cockpit-deps update -y
-
-reinstall=""
-install=""
-for pkg in $TEST_PACKAGES; do
-    name=$(rpm -qp $pkg)
-    if rpm -q $name > /dev/null; then
-        reinstall="$reinstall $pkg"
-    else
-        install="$install $pkg"
-    fi
-done
-if [ -n "$install" ]; then
-    yes | yum install -y $install
-fi
-if [ -n "$reinstall" ]; then
-    yes | yum reinstall -y $reinstall
+yes | yum update -y
+if [ -n "$TEST_PACKAGES" ]; then
+  yes | yum install -y $TEST_PACKAGES
 fi
 
 # Stopping a user@.service at poweroff sometimes hangs and then times
@@ -699,6 +736,19 @@ if [ -f $f ] && ! grep -q TimeoutStopSec $f; then
   echo TimeoutStopSec=1 >>$f
   systemctl daemon-reload
 fi
+
+# We rely on the NetworkManager dispatcher, but it sometimes is
+# disabled after the update above.  So let's make sure it is enabled.
+#
+systemctl enable NetworkManager-dispatcher
+
+rm -rf /var/log/journal/*
+"""
+
+INSTALL_SCRIPT = """#!/bin/sh
+set -euf
+
+rpm -U --replacepkgs --oldpackage $TEST_PACKAGES
 
 rm -rf /var/log/journal/*
 """

@@ -26,10 +26,17 @@ usage()
 }
 
 mock_opts=""
-args=$(getopt -o "h,v" -l "help,verbose" -- "$@")
+mock_clean_opts="--no-clean --no-cleanup-after"
+args=$(getopt -o "h,v,c" -l "help,verbose,clean" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in
+	--clean)
+                # We always use --no-cleanup-after because a
+                # --no-clean build can not start with a chroot that
+                # has been cleaned previously.
+		mock_clean_opts="--no-cleanup-after"
+		;;
 	-v|--verbose)
 		mock_opts="$mock_opts --verbose"
 		;;
@@ -83,7 +90,7 @@ gpgcheck=0
 EOF
 touch -r /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
 
-if /usr/bin/mock $mock_opts --configdir=mock/ --no-cleanup-after \
+if /usr/bin/mock $mock_opts $mock_clean_opts --configdir=mock/ \
 	--resultdir mock -r $os-$arch-cockpit $srpm \
 	--define="extra_flags $EXTRA_FLAGS"; then
     grep "^Wrote: .*\.$arch\.rpm$" mock/build.log | while read l; do

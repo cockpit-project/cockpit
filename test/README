@@ -17,42 +17,113 @@ Cockpit on.  Try one of these:
 
 ## Quick list of tools
 
-vm-create,   for creating bare test machine images.
+For managing test machines and running tests:
+
+vm-create,   for creating test machine images from scratch.
+vm-pack,     for archiving a test machine image.
+vm-unpack,   for unarchiving a test machine image.
 vm-install,  for installing RPMs into a test machine image.
+check-*,     the actual tests.
+
+For debugging:
+
 vm-run,      for running a test machine image.
 vm-copy,     for copying files into a running test machine.
 vm-sh,       for executing commands in a running test machine.
 
-## Test machines
+## Configuration
 
-The code under test is executed in a dedicated virtual machine, called
-the "test machine".  This test machine is started for each test and
-should already contain the version of Cockpit that should be tested.
+You can set these environment variables to configure the test suite:
 
-The test machine is created with the "vm-create" program in this
-directory, and new versions of Cockpit can be installed into it with
-"vm-install".  You can manually run it with "vm-run" if you like, but
-that is usually done automatically by the tests.
+  TEST_OS    The OS to run the tests in.  Currently, supported values
+             are "fedora-18" and "fedora-20".  Default is "fedora-18".
 
-The modifications done to the test machine by a test are only
-temporary and are gone when the test machine is started for the next
-test.
+  TEST_ARCH  The machine architecture to use.  Currently, the default
+             and only supported value is "x86_64".
 
-Thus, you only need to create the test machine once, or when you
-manage to break it beyond repair while maintaining it.
+  TEST_DATA  Where to find the archived test machine images.  The
+             default is the same directory that this README file is in.
 
-Typical steps to create a test machine:
+## Quick start
 
-  $ ./vm-create
-  $ ./vm-install ./cockpit-wip-1.fc18.x86_64.rpm cockpit-test-assets-wip-1.fc18.x86_64.rpm
+You need to download a 'magic base tarball' for the OS and machine
+architecture you want to test and store it as
+
+  $TEST_DATA/base/$TEST-OS-$TEST_ARCH.tar.gz
+
+Create a test machine image from it:
+
+  $ ./vm-create -v accountsservice-libs udisks2 libudisks2 json-glib realmd sshpass lvm2
+
+Compile Cockpit:
+
+  $ rpms=$(./make-rpms)
+
+And install it into the test machine image:
+
+  $ ./vm-install $rpms
+
+Then you can run some tests:
+
+  $ ./check-dbus
+
+## Test machines and their images
+
+The code under test is executed in one or more dedicated virtual
+machines, called the "test machines".  Fresh test machines are started
+for each test.
+
+A test machine runs a "test machine image".  Such a test machine image
+contains the root filesystem that is booted inside the virtual
+machine.  A running test machine can write to its root filesystem, of
+course, but these changes are (usually) not propagated back to its
+image.  Thus, you can run multiple test machines from the same image,
+at the same time or one after the other, and each test machine starts
+with a clean state.
+
+A test machine image is created with vm-create, like so:
+
+  $ ./vm-create -v accountsservice-libs udisks2 libudisks2 json-glib realmd sshpass lvm2
+
+This starts from a magic base tarball, makes some magic modifications
+to it, brings it up-to-date with respect to the upstream package
+repositories, and installs the given list of extra packages.  The
+magic base tarballs is looked for in "$TEST_DATA/base", is currently
+lovingly made by hand, and changes almost never.
+
+A test machine image can be archived for later use with vm-pack:
+
+  $ ./vm-pack
+
+This will create a new tarball and place it into the current
+directory.  To create a test machine image from an archived tarball,
+use vm-unpack:
+
+  $ ./vm-unpack
+
+The idea is that vm-unpack is much faster than vm-create.  One
+typically uses vm-create not more often than once a day, but each test
+suite run should start from a clean test machine image.
+
+Also, a archived tarball serves as a point of reference since using it
+will isolate you from changes in the package repositories that are
+used by vm-create.
+
+A test machine image created by vm-create doesn't contain any Cockpit
+code in it yet.  You can build and install the currently checked out
+working copy of Cockpit like this:
+
+  $ ./vm-install $(./make-rpms)
+
+This will modify the test machine image.
 
 ## Running tests
 
-You can run tests by picking a program and just executing it:
+Once you have a test machine image that contains the version of
+Cockpit that you want to test, you can run tests by picking a program
+and just executing it:
 
-  $ ./check-realms
-
-This will use the test machine created above.
+  $ ./check-dbus
 
 ## Debugging tests
 

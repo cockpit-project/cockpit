@@ -1,0 +1,23 @@
+#! /bin/bash
+
+# Prepare a new machine image for the tests.  This should be done once
+# a day or so.
+
+. ./test/testlib.sh
+
+set -x
+
+# Create a new tarball in ./test
+
+( cd test
+  ./vm-create -v accountsservice-libs udisks2 libudisks2 json-glib realmd sshpass lvm2 mdadm glib-networking
+  ./vm-pack
+)
+
+# Test it.
+
+( export TEST_DATA=$PWD/test
+  ./VERIFY || ./VERIFY || ./VERIFY
+)
+
+echo "Tarball $TEST_OS-$TEST_ARCH.tar.gz is ready for use."

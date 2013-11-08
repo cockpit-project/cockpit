@@ -227,6 +227,7 @@ class TestStorage(MachineCase):
             b.wait_in_text("#storage_detail_partition_list", "unlocked")
             b.wait_in_text("#storage_detail_partition_list", "ENCRYPTED")
 
+        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/secret")
         assert m.execute("grep 'UUID=' /etc/crypttab") != ""
         assert m.execute("grep /secret /etc/fstab") != ""
         assert m.execute("cat /etc/luks-keys/*") == "maisa-artu-keke-tellu"

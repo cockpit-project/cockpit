@@ -232,6 +232,7 @@ class MachineCase(unittest.TestCase):
     runner = None
     machine_class = testvm.QemuMachine
     machine = None
+    do_check_journal_messages = True
 
     def setUp(self):
         self.machine = self.machine_class(verbose=arg_trace)
@@ -249,7 +250,7 @@ class MachineCase(unittest.TestCase):
             if arg_sit_on_failure:
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
-        if self.machine.address:
+        if self.machine.address and self.do_check_journal_messages:
             try:
                 self.check_journal_messages()
             finally:
@@ -305,9 +306,23 @@ class MachineCase(unittest.TestCase):
         # This happens because we pretty dramatically tear phantom away
 	"connection unexpectedly closed by peer",
 
-        # A bug?
-        ".*ActUserManager: user .* has no username.*"
+        # https://bugs.freedesktop.org/show_bug.cgi?id=70540
+        ".*ActUserManager: user .* has no username.*",
+
+        # https://github.com/cockpit-project/cockpit/issues/69
+        "Warning: Permanently added '.*' (RSA) to the list of known hosts.",
+
+        # https://github.com/cockpit-project/cockpit/issues/88
+        ".*fetch_connections_done: runtime check failed.*",
+        ".*No settings connection for device.*",
+
+        # https://github.com/cockpit-project/cockpit/issues/48
+        "Failed to load '.*': Key file does not have group 'Unit'"
+
         ]
+
+    def dont_check_journal_messages(self):
+        self.do_check_journal_messages = False
 
     def allow_journal_messages(self, *patterns):
         """Don't fail if the journal containes a entry matching the given regexp"""

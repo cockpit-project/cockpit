@@ -138,7 +138,6 @@ class Machine:
             "ssh",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=",
             "-l", "root",
             self.address
         ]
@@ -197,7 +196,6 @@ class Machine:
             "scp",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=",
             source, "root@%s:%s" % (self.address, dest),
         ]
 
@@ -256,14 +254,54 @@ class QemuMachine(Machine):
         self._disks = { }
         self._locks = [ ]
 
-    # Switch to ssh socket activated so no race on boot
-    def _sshd_socket_activated(self, gf):
-        self.message("Making sshd be socket activated")
+    def _setup_fstab(self,gf):
+        gf.write("/etc/fstab", "/dev/vda / ext4 defaults\n")
+
+    def _setup_ssh_keys(self, gf):
+        def copy(fr, to):
+            with open(os.path.join(self.test_dir, fr), "r") as f:
+                gf.write(to, f.read())
+
+        # We use a fixed host key for all test machines since things
+        # get too annoying when it changes from run to run.
+        #
+        copy("host_key", "/etc/ssh/ssh_host_rsa_key")
+        gf.chmod(0600, "/etc/ssh/ssh_host_rsa_key")
+        copy("host_key.pub", "/etc/ssh/ssh_host_rsa_key.pub")
+
+        gf.mkdir_mode("/root/.ssh", 0700)
+        copy("identity.pub", "/root/.ssh/authorized_keys")
+
+    def _setup_fedora_network(self,gf):
+        dispatcher = "/etc/NetworkManager/dispatcher.d/99-cockpit"
+        gf.write(dispatcher, QEMU_ADDR_SCRIPT)
+        gf.chmod(0755, dispatcher)
+        ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
+        gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
+
+    def _setup_fedora_18(self, gf):
+        self._setup_fstab(gf)
+        self._setup_ssh_keys(gf)
+        self._setup_fedora_network(gf)
+
+        # Switch to ssh socket activated so no race on boot
         sshd_socket = "[Unit]\nDescription=SSH Socket\n[Socket]\nListenStream=22\nAccept=yes\n"
         gf.write("/etc/systemd/system/sockets.target.wants/sshd.socket", sshd_socket)
         sshd_service = "[Unit]\nDescription=SSH Server\n[Service]\nExecStart=-/usr/sbin/sshd -i\nStandardInput=socket\n"
         gf.write("/etc/systemd/system/sshd@.service", sshd_service)
+        # systemctl disable sshd.service
         gf.rm("/etc/systemd/system/multi-user.target.wants/sshd.service")
+
+    def _setup_fedora_20 (self, gf):
+        self._setup_fstab(gf)
+        self._setup_ssh_keys(gf)
+        self._setup_fedora_network(gf)
+
+        # systemctl disable sshd.service
+        gf.rm("/etc/systemd/system/multi-user.target.wants/sshd.service")
+        # systemctl enable sshd.socket
+        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
+        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
     def build(self):
         assert not self._process
@@ -307,18 +345,12 @@ class QemuMachine(Machine):
             gf.download(kernels[0], self._image_kernel)
             gf.download(initrds[0], self._image_initrd)
 
-            # Basic stuff we need to boot/control the VM
-            dispatcher = "/etc/NetworkManager/dispatcher.d/99-cockpit"
-            gf.write(dispatcher, QEMU_ADDR_SCRIPT)
-            gf.chmod(0755, dispatcher)
-            gf.write("/etc/fstab", "/dev/vda / ext4 defaults\n")
-            ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
-            gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
-            gf.mkdir_mode("/root/.ssh", 0700)
-            with open(os.path.join(self.test_dir, "identity.pub"), "r") as f:
-                gf.write("/root/.ssh/authorized_keys", f.read())
-
-            self._sshd_socket_activated(gf)
+            if self.os == "fedora-18":
+                self._setup_fedora_18(gf)
+            elif self.os == "fedora-20":
+                self._setup_fedora_20(gf)
+            else:
+                self.message("Unsupported OS %s" % self.os)
 
         finally:
             gf.close()
@@ -458,7 +490,7 @@ class QemuMachine(Machine):
                     if self.verbose:
                         sys.stdout.write(data)
                     output += data
-                    if "Entering emergency mode." in output:
+                    if "emergency mode" in output:
                         raise Failure("qemu vm failed to boot, stuck in emergency mode")
                     address = self._parse_cockpit_canary("COCKPIT_ADDRESS", output)
                     (unused, sep, output) = output.rpartition("\n")
@@ -639,6 +671,8 @@ fi
 # To enable persistent logging
 mkdir -p /var/log/journal
 
+yes | yum --disablerepo=* --enablerepo=cockpit-deps update -y
+
 reinstall=""
 install=""
 for pkg in $TEST_PACKAGES; do
@@ -655,5 +689,16 @@ fi
 if [ -n "$reinstall" ]; then
     yes | yum reinstall -y $reinstall
 fi
+
+# Stopping a user@.service at poweroff sometimes hangs and then times
+# out, but that seems to be harmless otherwise.  We reduce the timeout
+# so that we don't have to wait for the default 90 seconds.
+#
+f=/usr/lib/systemd/system/user@.service
+if [ -f $f ] && ! grep -q TimeoutStopSec $f; then
+  echo TimeoutStopSec=1 >>$f
+  systemctl daemon-reload
+fi
+
 rm -rf /var/log/journal/*
 """

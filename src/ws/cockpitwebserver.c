@@ -368,11 +368,13 @@ out:
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-void
-cockpit_web_server_return_content (GOutputStream *out,
-                                   GHashTable *headers,
-                                   gpointer content,
-                                   gsize length)
+static void
+return_response (GOutputStream *out,
+                 gint status,
+                 gchar *reason,
+                 GHashTable *headers,
+                 gpointer content,
+                 gsize length)
 {
   GHashTableIter iter;
   GError *error = NULL;
@@ -382,9 +384,9 @@ cockpit_web_server_return_content (GOutputStream *out,
 
   resp = g_string_new (NULL);
 
-  g_string_printf (resp, "HTTP/1.1 200 OK\r\n"
+  g_string_printf (resp, "HTTP/1.1 %d %s\r\n"
                          "Content-Length: %" G_GSIZE_FORMAT "\r\n"
-                         "Connection: close\r\n", length);
+                         "Connection: close\r\n", status, reason, length);
 
   if (headers)
     {
@@ -409,15 +411,22 @@ out:
 }
 
 void
+cockpit_web_server_return_content (GOutputStream *out,
+                                   GHashTable *headers,
+                                   gpointer content,
+                                   gsize length)
+{
+  return_response (out, 200, "OK", headers, content, length);
+}
+
+void
 cockpit_web_server_return_error (GOutputStream *out,
                                  guint code,
+                                 GHashTable *headers,
                                  const gchar *format,
                                  ...)
 {
-  GError *local_error = NULL;
-  GError **error = &local_error;
   gs_free gchar *body = NULL;
-  gs_free gchar *s = NULL;
   va_list var_args;
   gs_free gchar *reason = NULL;
 
@@ -432,27 +441,12 @@ cockpit_web_server_return_error (GOutputStream *out,
                           code, reason,
                           reason);
 
-  s = g_strdup_printf ("HTTP/1.1 %d %s\r\n"
-                       "Content-Length: %" G_GUINT64_FORMAT "\r\n"
-                       "Connection: close\r\n"
-                       "\r\n"
-                       "%s",
-                       code, reason,
-                       strlen (body),
-                       body);
-  if (!g_output_stream_write_all (out, s, strlen (s), NULL, NULL, error))
-    goto out;
-
-out:
-  if (local_error)
-    {
-      g_warning ("Failed to write error: %s", local_error->message);
-      g_error_free (local_error);
-    }
+  return_response (out, code, reason, headers, body, strlen (body));
 }
 
 void
 cockpit_web_server_return_gerror (GOutputStream *out,
+                                  GHashTable *headers,
                                   GError *error)
 {
   int code;
@@ -469,7 +463,7 @@ cockpit_web_server_return_gerror (GOutputStream *out,
   else
     code = 500;
 
-  cockpit_web_server_return_error (out, code, "%s", error->message);
+  cockpit_web_server_return_error (out, code, headers, "%s", error->message);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -515,7 +509,7 @@ again:
         }
 
       /* TODO: Don't leak our errors to untrusted client. And not every error is a 404 ... */
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404,
+      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, NULL,
                                        "Error getting stream for file at path `%s': %s (%s, %d)", path,
                                        local_error->message, g_quark_to_string (local_error->domain), local_error->code);
       g_clear_error (&local_error);
@@ -530,7 +524,8 @@ again:
   if (info == NULL)
     {
       /* TODO: Don't leak our error codes and messages to untrusted client */
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 500, "Error querying file at path %s: %s (%s, %d)", path,
+      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 500, NULL,
+                                       "Error querying file at path %s: %s (%s, %d)", path,
                                        local_error->message, g_quark_to_string (local_error->domain), local_error->code);
       g_clear_error (&local_error);
       goto out;
@@ -683,7 +678,8 @@ process_request (CockpitWebServer *server,
     }
   else
     {
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 501, "Only GET and POST is implemented");
+      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 501, NULL,
+                                       "Only GET and POST is implemented");
       goto out;
     }
 
@@ -743,7 +739,8 @@ process_request (CockpitWebServer *server,
           /* Don't look for filesystem resources for POST */
           if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
             {
-              cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, "Not found (use GET)");
+              cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, NULL,
+                                               "Not found (use GET)");
               goto out;
             }
 

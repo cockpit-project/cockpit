@@ -61,10 +61,12 @@ void              cockpit_web_server_return_content (GOutputStream *out,
 
 void               cockpit_web_server_return_error  (GOutputStream *out,
                                                      guint code,
+                                                     GHashTable *headers,
                                                      const char *format,
-                                                     ...) G_GNUC_PRINTF (3, 4);
+                                                     ...) G_GNUC_PRINTF (4, 5);
 
 void               cockpit_web_server_return_gerror (GOutputStream *out,
+                                                     GHashTable *headers,
                                                      GError *error);
 
 G_END_DECLS

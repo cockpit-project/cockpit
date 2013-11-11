@@ -203,7 +203,7 @@ out:
     g_hash_table_unref (out_headers);
   if (error)
     {
-      cockpit_web_server_return_gerror (G_OUTPUT_STREAM (out), error);
+      cockpit_web_server_return_gerror (G_OUTPUT_STREAM (out), NULL, error);
       g_error_free (error);
     }
 

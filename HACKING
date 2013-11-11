@@ -28,17 +28,11 @@ with pre-build binary packages of all needed dependencies.
 - Fedora:
 
 Currently the 64-bit architectures of Fedora 18 and Fedora 20 are
-supported.  Put this into /etc/yum.repos.d/cockpit-deps.repo:
+supported.  As root, copy or symlink contrib/fedora/cockpit-deps.repo into
+/etc/yum.repos.d/cockpit-deps.repo.
 
-    [cockpit-deps]
-    name=Unreleased Cockpit dependencies
-    baseurl=http://cockpit-project.github.io/cockpit-deps/fedora-NN/x86_64
-    enabled=0
-    gpgcheck=0
-
-where "NN" is either 18 or 20.  Check test/cockpit.spec.in for the
-concrete build dependencies.  The following should work in a fresh Git
-clone:
+Check test/cockpit.spec.in for the concrete build dependencies.  The following
+should work in a fresh Git clone:
 
     $ cd ./test
     $ srpm=$(./make-srpm)

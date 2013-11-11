@@ -106,7 +106,7 @@ test_userpass_cookie_check (Test *test,
                        g_strdup_printf ("CockpitAuth=%s", base64));
   g_free (base64);
 
-  if (!cockpit_auth_check_headers (test->auth, headers, &user, &password))
+  if (!cockpit_auth_check_headers (test->auth, headers, NULL, &user, &password))
     g_assert_not_reached ();
 
   g_assert_cmpstr ("me", ==, user);
@@ -146,13 +146,13 @@ test_headers_bad (Test *test,
 
   /* Bad version */
   g_hash_table_insert (headers, "Cookie", "CockpitAuth=v=1;k=blah");
-  if (cockpit_auth_check_headers (test->auth, headers, &user, &password))
+  if (cockpit_auth_check_headers (test->auth, headers, NULL, &user, &password))
       g_assert_not_reached ();
 
   /* Bad hash */
   g_hash_table_remove_all (headers);
   g_hash_table_insert (headers, "Cookie", "CockpitAuth=v=2;k=blah");
-  if (cockpit_auth_check_headers (test->auth, headers, &user, &password))
+  if (cockpit_auth_check_headers (test->auth, headers, NULL, &user, &password))
       g_assert_not_reached ();
 
   g_hash_table_destroy (headers);

@@ -394,7 +394,8 @@ cockpit_auth_check_userpass (CockpitAuth *self,
 
 gboolean
 cockpit_auth_check_headers (CockpitAuth *auth,
-                            GHashTable *headers,
+                            GHashTable *in_headers,
+                            GHashTable *out_headers,
                             char **out_user,
                             char **out_password)
 {
@@ -417,7 +418,7 @@ cockpit_auth_check_headers (CockpitAuth *auth,
       return TRUE;
     }
 
-  if (!cockpit_web_server_parse_cookies (headers, &cookies, NULL))
+  if (!cockpit_web_server_parse_cookies (in_headers, &cookies, NULL))
     return FALSE;
 
   auth_cookie = base64_decode_string (g_hash_table_lookup (cookies, "CockpitAuth"));

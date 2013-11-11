@@ -268,7 +268,7 @@ test_login_post_accept (Test *test,
   end[0] = '\0';
 
   g_hash_table_insert (test->headers, g_strdup ("Cookie"), cookie);
-  g_assert (cockpit_auth_check_headers (test->auth, test->headers, &check, &password) == TRUE);
+  g_assert (cockpit_auth_check_headers (test->auth, test->headers, NULL, &check, &password) == TRUE);
   g_assert_cmpstr (check, ==, user);
   g_assert_cmpstr (password, ==, PASSWORD);
 

@@ -21,6 +21,8 @@
 
 #include "cockpitwebserver.h"
 
+#include <string.h>
+
 static void
 test_table (void)
 {
@@ -82,6 +84,82 @@ test_return_content_headers (void)
   g_object_unref (out);
 }
 
+
+static void
+test_return_error (void)
+{
+  GOutputStream *out;
+  const gchar *data;
+
+  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+
+  cockpit_web_server_return_error (out, 500, NULL, "Reason here: %s", "booyah");
+
+  /* Null terminate it for fun */
+  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
+
+  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
+  g_assert_cmpstr (data, ==,
+    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+
+  g_object_unref (out);
+}
+
+static void
+test_return_error_headers (void)
+{
+  GOutputStream *out;
+  const gchar *data;
+  GHashTable *headers;
+
+  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+
+  headers = g_hash_table_new (g_str_hash, g_str_equal);
+  g_hash_table_insert (headers, "Header1", "value1");
+
+  cockpit_web_server_return_error (out, 500, headers, "Reason here: %s", "booyah");
+
+  g_hash_table_destroy (headers);
+
+  /* Null terminate it for fun */
+  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
+
+  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
+  g_assert_cmpstr (data, ==,
+    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\nHeader1: value1\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+
+  g_object_unref (out);
+}
+
+static void
+test_return_gerror_headers (void)
+{
+  GOutputStream *out;
+  const gchar *data;
+  GHashTable *headers;
+  GError *error;
+
+  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+
+  headers = g_hash_table_new (g_str_hash, g_str_equal);
+  g_hash_table_insert (headers, "Header1", "value1");
+
+  error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED, "Reason here: %s", "booyah");
+  cockpit_web_server_return_gerror (out, headers, error);
+
+  g_error_free (error);
+  g_hash_table_destroy (headers);
+
+  /* Null terminate it for fun */
+  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
+
+  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
+  g_assert_cmpstr (data, ==,
+    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\nHeader1: value1\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+
+  g_object_unref (out);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -96,6 +174,9 @@ main (int argc,
   g_test_add_func ("/web-server/table", test_table);
   g_test_add_func ("/web-server/return-content", test_return_content);
   g_test_add_func ("/web-server/return-content-headers", test_return_content_headers);
+  g_test_add_func ("/web-server/return-error", test_return_error);
+  g_test_add_func ("/web-server/return-error-headers", test_return_error_headers);
+  g_test_add_func ("/web-server/return-gerror-headers", test_return_gerror_headers);
 
   return g_test_run ();
 }

@@ -137,10 +137,12 @@ cockpit_handler_login (CockpitWebServer *server,
   gs_free gchar *response_body = NULL;
   gs_free gchar *response = NULL;
 
+  out_headers = cockpit_web_server_new_table ();
+
   if (reqtype == COCKPIT_WEB_SERVER_REQUEST_GET)
     {
       // check cookie
-      if (!cockpit_auth_check_headers (ws->auth, headers, &user, NULL))
+      if (!cockpit_auth_check_headers (ws->auth, headers, out_headers, &user, NULL))
         {
           g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                        "Sorry");
@@ -164,7 +166,6 @@ cockpit_handler_login (CockpitWebServer *server,
         goto out;
 
       cookie_b64 = g_base64_encode ((guint8*)cookie, strlen (cookie));
-      out_headers = cockpit_web_server_new_table ();
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"),
                            g_strdup_printf ("CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
                                             cookie_b64,
@@ -199,13 +200,13 @@ cockpit_handler_login (CockpitWebServer *server,
                                      strlen (response_body));
 
 out:
-  if (out_headers)
-    g_hash_table_unref (out_headers);
   if (error)
     {
-      cockpit_web_server_return_gerror (G_OUTPUT_STREAM (out), NULL, error);
+      cockpit_web_server_return_gerror (G_OUTPUT_STREAM (out), out_headers, error);
       g_error_free (error);
     }
+  if (out_headers)
+    g_hash_table_unref (out_headers);
 
   return TRUE;
 }

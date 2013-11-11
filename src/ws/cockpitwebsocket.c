@@ -522,8 +522,8 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   data->sessions = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, NULL);
   data->channels = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
 
-  data->authenticated = cockpit_auth_check_headers (auth, headers,
-                                                 &(data->user), &(data->password));
+  data->authenticated = cockpit_auth_check_headers (auth, headers, NULL,
+                                                    &(data->user), &(data->password));
 
   /* TODO: We need to validate Host throughout */
   url = g_strdup_printf ("%s://host-not-yet-used/socket",

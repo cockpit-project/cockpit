@@ -66,7 +66,8 @@ gboolean        cockpit_auth_check_userpass  (CockpitAuth *auth,
                                               GError **error);
 
 gboolean        cockpit_auth_check_headers   (CockpitAuth *auth,
-                                              GHashTable *headers,
+                                              GHashTable *in_headers,
+                                              GHashTable *out_headers,
                                               char **out_user,
                                               char **out_password);
 

@@ -16,27 +16,18 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# vm-create  -- Make a root image suitable for use with vm-run.
-#
-# Usage: vm-create
-#
-# Installs the OS indicated by TEST_OS and TEST_ARCH into the image
-# for test machine TEST_IMAGE and tweaks it to be useable with
-# vm-run and testlib.py.
-
 import argparse
 import sys
 
 import testvm
 
-parser = argparse.ArgumentParser(description='Create a virtual machine image')
+parser = argparse.ArgumentParser(description='Pack a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-parser.add_argument('deps', metavar='DEPS', nargs='*', help='packages to install')
 args = parser.parse_args()
 
 try:
     machine = testvm.QemuMachine(verbose=args.verbose)
-    machine.build(args.deps)
+    machine.pack()
 except testvm.Failure, ex:
-    print >> sys.stderr, "vm-create:", ex
+    print >> sys.stderr, "vm-pack:", ex
     sys.exit(1)

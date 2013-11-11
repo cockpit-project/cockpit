@@ -18,28 +18,34 @@
 
 set -e
 
-args="$@"
+parallel --gnu --progress -j ${TEST_JOBS:-1} <<EOF
+./check-dbus
+./check-login
+./check-menu
+./check-shutdown-restart
+./check-system-info
+./check-realms
+./check-connection
+./check-services
+./check-networking
+./check-pages
+./check-storage TestStorage.testBasic
+./check-storage TestStorage.testMounting
+./check-storage TestStorage.testDosParts
+./check-storage TestStorage.testLuks
+./check-storage TestStorage.testRaid
+./check-storage TestStorage.testJobs
+./check-storage TestStorage.testLvm
+./check-storage TestStorage.testUsed
+./check-storage TestStorage.testHidden
+./check-storage TestStorage.testUnused
+./check-journal
+./check-journal-renderer
+./check-terminal
+./check-accounts
+./check-session
+./check-roles
+./check-multi-machine
+EOF
 
-check() {
-    echo CHECK $1
-    ./check-$1 $args
-}
-
-check dbus
-check login
-check menu
-check shutdown-restart
-check system-info
-check realms
-check connection
-check services
-check networking
-check pages
-check storage
-check journal
-check journal-renderer
-check terminal
-check accounts
-check session
-check roles
-check multi-machine
+echo VERIFICATION PASSED

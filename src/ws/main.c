@@ -169,7 +169,6 @@ on_handle_resource_login (CockpitWebServer *server,
   GError *error = NULL;
 
   gs_free gchar *user = NULL;
-  gs_free gchar *password = NULL;
   gs_free gchar *cookie_header = NULL;
   gs_free gchar *response_body = NULL;
   gs_free gchar *response = NULL;
@@ -177,7 +176,7 @@ on_handle_resource_login (CockpitWebServer *server,
   if (reqtype == COCKPIT_WEB_SERVER_REQUEST_GET)
     {
       // check cookie
-      if (!cockpit_auth_check_headers (ws->auth, headers, &user, &password))
+      if (!cockpit_auth_check_headers (ws->auth, headers, &user, NULL))
         {
           g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                        "Sorry");
@@ -196,8 +195,8 @@ on_handle_resource_login (CockpitWebServer *server,
         goto out;
 
       if (!cockpit_auth_check_userpass (ws->auth, request_body, &cookie,
-                                     &user, &password,
-                                     &error))
+                                        &user, NULL,
+                                        &error))
         goto out;
 
       cookie_b64 = g_base64_encode ((guint8*)cookie, strlen (cookie));
@@ -322,11 +321,10 @@ on_handle_static (CockpitWebServer *server,
   gsize content_len;
   GString *str = NULL;
   gs_free gchar *user = NULL;
-  gs_free gchar *password = NULL;
 
   handled = TRUE;
 
-  cockpit_auth_check_headers (data->auth, headers, &user, &password);
+  cockpit_auth_check_headers (data->auth, headers, &user, NULL);
 
   proxy = (GDBusProxy *) g_dbus_object_manager_get_interface (data->object_manager,
                                                               "/com/redhat/Cockpit/Manager",

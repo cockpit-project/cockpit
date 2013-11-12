@@ -614,7 +614,7 @@ class QemuMachine(Machine):
         if not serial:
             serial = "DISK%d" % index
 
-        path = os.path.join(self.run_dir, "disk-%d" % index)
+        path = os.path.join(self.run_dir, "disk-%s-%d" % (self.address, index))
         if os.path.exists(path):
             os.unlink(path)
 

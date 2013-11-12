@@ -67,7 +67,7 @@ arg_sit_on_failure = False
 arg_trace = False
 
 class Browser:
-    phantom_wait_timeout = 10
+    phantom_wait_timeout = 60
 
     def __init__(self, address):
         self.address = address
@@ -163,7 +163,7 @@ class Browser:
             def __exit__(self, type, value, traceback):
                 self.phantom_wait_timeout = self.timeout
         r = WaitParamsRestorer(self.phantom_wait_timeout)
-        self.phantom_wait_timeout = timeout
+        self.phantom_wait_timeout = max (timeout, self.phantom_wait_timeout)
         return r
 
     def inject_js(self, code):

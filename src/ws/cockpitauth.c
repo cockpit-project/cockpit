@@ -38,20 +38,6 @@
 #include <security/pam_appl.h>
 #include <stdlib.h>
 
-typedef struct {
-  gchar *user;
-  gchar *password;
-} CockpitCredentials;
-
-static void
-cockpit_credentials_free (gpointer data)
-{
-  CockpitCredentials *credentials = data;
-  g_free (credentials->user);
-  g_free (credentials->password);
-  g_free (credentials);
-}
-
 G_DEFINE_TYPE (CockpitAuth, cockpit_auth, G_TYPE_OBJECT)
 
 static void
@@ -80,7 +66,7 @@ cockpit_auth_init (CockpitAuth *self)
 
   g_mutex_init (&self->mutex);
   self->authenticated = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                               g_free, cockpit_credentials_free);
+                                               g_free, cockpit_creds_unref);
 }
 
 #define PAM_MAX_INPUTS 10
@@ -275,56 +261,64 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
 }
 
 static char *
-authenticated_user_to_id (CockpitAuth *self,
-                          const char *user,
-                          const char *password)
+creds_to_cookie (CockpitAuth *self,
+                 CockpitCreds *creds)
 {
-  CockpitCredentials *credentials;
   guint64 seed;
+  gchar *cookie;
   char *id;
 
   g_mutex_lock (&self->mutex);
-
-  credentials = g_new0 (CockpitCredentials, 1);
-  credentials->user = g_strdup (user);
-  credentials->password = g_strdup (password);
 
   seed = self->nonce_seed++;
   id = g_compute_hmac_for_data (G_CHECKSUM_SHA256,
                                 self->key->data, self->key->len,
                                 (guchar *)&seed, sizeof (seed));
-  g_hash_table_insert (self->authenticated, g_strdup (id), credentials);
+
+  cookie = g_strdup_printf ("v=2;k=%s", id);
+  g_hash_table_insert (self->authenticated, id,
+                       cockpit_creds_ref (creds));
+
+  g_debug ("sending credential id '%s' for user '%s'", id,
+           cockpit_creds_get_user (creds));
 
   g_mutex_unlock (&self->mutex);
 
-  g_debug ("sending credential id '%s' for user '%s'", id, user);
-  return id;
+  return cookie;
 }
 
-static gboolean
-authenticated_id_to_user (CockpitAuth *self,
-                          const char *id,
-                          char **out_user,
-                          char **out_password)
+static CockpitCreds *
+cookie_to_creds  (CockpitAuth *self,
+                  const char *cookie)
 {
-  CockpitCredentials *credentials;
+  CockpitCreds *creds = NULL;
+  const char *prefix = "v=2;k=";
+  const gsize n_prefix = 6;
+  const gchar *id;
+
+  if (!g_str_has_prefix (cookie, prefix))
+    {
+      g_debug ("invalid or unsupported cookie: %s", cookie);
+      return NULL;
+    }
+
+  id = cookie + n_prefix;
 
   g_mutex_lock (&self->mutex);
 
-  credentials = g_hash_table_lookup (self->authenticated, id);
-  if (credentials && out_user)
-    *out_user = g_strdup (credentials->user);
-  if (credentials && out_password)
-    *out_password = g_strdup (credentials->password);
-
-  if (credentials)
-    g_debug ("received credential id '%s' for user '%s'", id, credentials->user);
+  creds = g_hash_table_lookup (self->authenticated, id);
+  if (creds)
+    {
+      g_debug ("received credential id '%s' for user '%s'", id,
+               cockpit_creds_get_user (creds));
+      cockpit_creds_ref (creds);
+    }
   else
     g_debug ("received unknown/invalid credential id '%s'", id);
 
   g_mutex_unlock (&self->mutex);
 
-  return credentials != NULL;
+  return creds;
 }
 
 static char *
@@ -340,26 +334,19 @@ base64_decode_string (const char *enc)
   return dec;
 }
 
-/**
- * cockpit_auth_check_userpass:
- * @self:
- * @userpass: String of the form "<user>\n<pass>" - utf8
- * @out_cookie: (out): Authentication cookie, suitable for encoding as HTTP cookie
- * @error: a #GError
- *
- * Verify the given password.
- */
-gboolean
+CockpitCreds *
 cockpit_auth_check_userpass (CockpitAuth *self,
                              const char *userpass,
-                             char **out_cookie,
-                             char **out_user,
-                             char **out_password,
+                             gboolean secure_req,
+                             GHashTable *out_headers,
                              GError **error)
 {
-  gs_free char *ret_cookie = NULL;
-  gs_free char *password = NULL;
-  gs_free char *user = NULL;
+  CockpitCreds *creds;
+  gs_free char *cookie = NULL;
+  gs_free gchar *cookie_b64 = NULL;
+  gchar *header;
+  char *password;
+  char *user;
   gs_free char *id = NULL;
 
   if (!verify_userpass (self, userpass, &user, &password, error))
@@ -368,55 +355,34 @@ cockpit_auth_check_userpass (CockpitAuth *self,
       return FALSE;
     }
 
-  id = authenticated_user_to_id (self, user, password);
-  ret_cookie = g_strdup_printf ("v=2;k=%s", id);
+  creds = cockpit_creds_take_password (user, password);
+  cookie = creds_to_cookie (self, creds);
 
-  if (out_user)
+  if (out_headers)
     {
-      *out_user = user;
-      user = NULL;
+      cookie_b64 = g_base64_encode ((guint8 *)cookie, strlen (cookie));
+      header = g_strdup_printf ("CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
+                                cookie_b64, secure_req ? " Secure;" : "");
+
+      g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);
     }
 
-  if (out_password)
-    {
-      *out_password = password;
-      password = NULL;
-    }
-
-  if (out_cookie)
-    {
-      *out_cookie = ret_cookie;
-      ret_cookie = NULL;
-    }
-
-  return TRUE;
+  return creds;
 }
 
-gboolean
+CockpitCreds *
 cockpit_auth_check_headers (CockpitAuth *auth,
                             GHashTable *in_headers,
-                            GHashTable *out_headers,
-                            char **out_user,
-                            char **out_password)
+                            GHashTable *out_headers)
 {
   gs_unref_hashtable GHashTable *cookies = NULL;
   gs_free gchar *auth_cookie = NULL;
-  const char *prefix = "v=2;k=";
 
-  if (out_user)
-    *out_user = NULL;
-  if (out_password)
-    *out_password = NULL;
+  g_return_val_if_fail (in_headers != NULL, FALSE);
 
-  /* NOTE: This is pretty risky. Working on a fix */
+  /* TODO: We really should get rid of this, it's very risky */
   if (auth == NULL)
-    {
-      if (out_user)
-        *out_user = g_strdup (g_get_user_name ());
-      if (out_password)
-        *out_password = g_strdup ("<noauth>");
-      return TRUE;
-    }
+      return cockpit_creds_new_password (g_get_user_name (), "<noauth>");
 
   if (!cockpit_web_server_parse_cookies (in_headers, &cookies, NULL))
     return FALSE;
@@ -425,14 +391,7 @@ cockpit_auth_check_headers (CockpitAuth *auth,
   if (auth_cookie == NULL)
     return FALSE;
 
-  if (!g_str_has_prefix (auth_cookie, prefix))
-    {
-      g_debug ("invalid or unsupported cookie: %s", auth_cookie);
-      return FALSE;
-    }
-
-  return authenticated_id_to_user (auth, auth_cookie + strlen (prefix),
-                                   out_user, out_password);
+  return cookie_to_creds (auth, auth_cookie);
 }
 
 CockpitAuth *

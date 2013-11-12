@@ -146,11 +146,12 @@ static void
 setup_mock_webserver (Test *test,
                       gconstpointer data)
 {
+  CockpitCreds *creds;
   GError *error = NULL;
+  GHashTable *headers;
   const gchar *user;
   gchar *userpass;
-  gchar *cookie;
-  gchar *base64;
+  gchar *end;
 
   /* Zero port makes server choose its own */
   test->web_server = cockpit_web_server_new (0, NULL, SRCDIR "/src/ws", NULL, &error);
@@ -159,16 +160,20 @@ setup_mock_webserver (Test *test,
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
 
+  headers = web_socket_util_new_headers ();
   userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
-  cockpit_auth_check_userpass (test->auth, userpass, &cookie, NULL, NULL, &error);
+  creds = cockpit_auth_check_userpass (test->auth, userpass, FALSE, headers, &error);
   g_assert_no_error (error);
+  cockpit_creds_unref (creds);
   g_free (userpass);
 
-  base64 = g_base64_encode ((guchar *)cookie, strlen (cookie));
-  g_free (cookie);
+  /* Dig out the cookie */
+  test->cookie = g_strdup (g_hash_table_lookup (headers, "Set-Cookie"));
+  end = strchr (test->cookie, ';');
+  g_assert (end != NULL);
+  end[0] = '\0';
 
-  test->cookie = g_strdup_printf ("CockpitAuth=%s", base64);
-  g_free (base64);
+  g_hash_table_unref (headers);
 }
 
 static void

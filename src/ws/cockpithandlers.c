@@ -132,17 +132,17 @@ cockpit_handler_login (CockpitWebServer *server,
   GError *error = NULL;
 
   GHashTable *out_headers = NULL;
-  gs_free gchar *user = NULL;
-  gs_free gchar *cookie_header = NULL;
   gs_free gchar *response_body = NULL;
   gs_free gchar *response = NULL;
+  CockpitCreds *creds = NULL;
 
   out_headers = cockpit_web_server_new_table ();
 
   if (reqtype == COCKPIT_WEB_SERVER_REQUEST_GET)
     {
       // check cookie
-      if (!cockpit_auth_check_headers (ws->auth, headers, out_headers, &user, NULL))
+      creds = cockpit_auth_check_headers (ws->auth, headers, out_headers);
+      if (creds == NULL)
         {
           g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                        "Sorry");
@@ -151,34 +151,28 @@ cockpit_handler_login (CockpitWebServer *server,
     }
   else if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
     {
-      // create cookie
-      gs_free gchar *cookie = NULL;
-      gs_free gchar *cookie_b64 = NULL;
       gs_free gchar *request_body = NULL;
 
       request_body = read_request_body (headers, in, &error);
       if (request_body == NULL)
         goto out;
 
-      if (!cockpit_auth_check_userpass (ws->auth, request_body, &cookie,
-                                     &user, NULL,
-                                     &error))
+      creds = cockpit_auth_check_userpass (ws->auth, request_body,
+                                           ws->certificate != NULL,
+                                           out_headers, &error);
+      if (creds == NULL)
         goto out;
-
-      cookie_b64 = g_base64_encode ((guint8*)cookie, strlen (cookie));
-      g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"),
-                           g_strdup_printf ("CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
-                                            cookie_b64,
-                                            ws->certificate != NULL ? " Secure;" : ""));
     }
 
   {
     gs_unref_object JsonBuilder *builder = json_builder_new ();
     gs_unref_object JsonGenerator *generator = json_generator_new ();
+    const gchar *user;
     JsonNode *root;
 
     json_builder_begin_object (builder);
     json_builder_set_member_name (builder, "user");
+    user = cockpit_creds_get_user (creds);
     json_builder_add_string_value (builder, user);
     struct passwd *pwd = getpwnam (user);
     if (pwd)
@@ -200,6 +194,8 @@ cockpit_handler_login (CockpitWebServer *server,
                                      strlen (response_body));
 
 out:
+  if (creds)
+    cockpit_creds_unref (creds);
   if (error)
     {
       cockpit_web_server_return_gerror (G_OUTPUT_STREAM (out), out_headers, error);

@@ -38,11 +38,11 @@ typedef struct
 {
   WebSocketConnection      *web_socket;
   GSocketConnection        *connection;
-  gboolean                  authenticated;
+  CockpitCreds             *authenticated;
+  gchar                    *target_host;
   gint                      specific_port;
   gchar                    *agent_program;
-  gchar                    *user;
-  gchar                    *password;
+  const gchar              *user;
   gchar                    *rhost;
   gint                      rport;
 
@@ -64,8 +64,8 @@ web_socket_data_free (WebSocketData   *data)
   g_object_unref (data->web_socket);
   g_bytes_unref (data->control_prefix);
   g_free (data->agent_program);
-  g_free (data->user);
-  g_free (data->password);
+  if (data->authenticated)
+    cockpit_creds_unref (data->authenticated);
   g_free (data->rhost);
   g_free (data);
 }
@@ -247,10 +247,11 @@ process_open (WebSocketData *data,
               JsonObject *options)
 {
   CockpitTransport *session;
-  const gchar *specific_user = NULL;
-  const gchar *password = NULL;
-  const gchar *host = NULL;
-  const gchar *user = NULL;
+  CockpitCreds *specific_creds = NULL;
+  CockpitCreds *creds = NULL;
+  const gchar *specific_user;
+  const gchar *password;
+  const gchar *host;
   JsonNode *node;
   GError *error = NULL;
 
@@ -266,33 +267,34 @@ process_open (WebSocketData *data,
       return FALSE;
     }
 
+  host = NULL;
   node = json_object_get_member (options, "host");
   if (node && json_node_get_value_type (node) == G_TYPE_STRING)
     host = json_node_get_string (node);
   if (!host)
     host = "localhost";
 
+  specific_user = NULL;
   node = json_object_get_member (options, "user");
   if (node && json_node_get_value_type (node) == G_TYPE_STRING)
-    user = specific_user = json_node_get_string (node);
-  if (!user)
-    user = data->user;
+    specific_user = json_node_get_string (node);
 
-  /* Figure out the password to use */
-  password = NULL;
   if (specific_user)
     {
+      password = NULL;
       node = json_object_get_member (options, "password");
       if (node && json_node_get_value_type (node) == G_TYPE_STRING)
         password = json_node_get_string (node);
+      creds = specific_creds = cockpit_creds_new_password (specific_user, password);
     }
-  if (!password)
-    password = data->password;
+  else
+    {
+      creds = cockpit_creds_ref (data->authenticated);
+    }
 
   /* TODO: For now one session per channel. eventually we want on one session per host/user */
   session = cockpit_fd_transport_spawn (host, data->specific_port, data->agent_program,
-                                        user, password, data->rhost,
-                                        specific_user != NULL, &error);
+                                        creds, data->rhost, specific_user != NULL, &error);
 
   if (session)
     {
@@ -309,6 +311,8 @@ process_open (WebSocketData *data,
       report_close (data, channel, "internal-error");
     }
 
+  if (specific_creds)
+    cockpit_creds_unref (specific_creds);
   return TRUE;
 }
 
@@ -522,8 +526,9 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   data->sessions = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, NULL);
   data->channels = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
 
-  data->authenticated = cockpit_auth_check_headers (auth, headers, NULL,
-                                                    &(data->user), &(data->password));
+  data->authenticated = cockpit_auth_check_headers (auth, headers, NULL);
+  if (data->authenticated)
+    data->user = cockpit_creds_get_user (data->authenticated);
 
   /* TODO: We need to validate Host throughout */
   url = g_strdup_printf ("%s://host-not-yet-used/socket",

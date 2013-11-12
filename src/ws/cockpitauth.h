@@ -23,6 +23,8 @@
 #include <pwd.h>
 #include <gio/gio.h>
 
+#include "cockpitcreds.h"
+
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_AUTH         (cockpit_auth_get_type ())
@@ -58,18 +60,15 @@ GType           cockpit_auth_get_type        (void) G_GNUC_CONST;
 
 CockpitAuth *   cockpit_auth_new             (void);
 
-gboolean        cockpit_auth_check_userpass  (CockpitAuth *auth,
+CockpitCreds *  cockpit_auth_check_userpass  (CockpitAuth *auth,
                                               const char *content,
-                                              char **out_cookie,
-                                              char **out_user,
-                                              char **out_password,
+                                              gboolean secure_req,
+                                              GHashTable *out_headers,
                                               GError **error);
 
-gboolean        cockpit_auth_check_headers   (CockpitAuth *auth,
+CockpitCreds *  cockpit_auth_check_headers   (CockpitAuth *auth,
                                               GHashTable *in_headers,
-                                              GHashTable *out_headers,
-                                              char **out_user,
-                                              char **out_password);
+                                              GHashTable *out_headers);
 
 gboolean        cockpit_auth_verify_password (CockpitAuth *auth,
                                               const gchar *user,

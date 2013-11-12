@@ -24,6 +24,7 @@
 #include "cockpit/cockpitenums.h"
 #include "cockpit/cockpiterror.h"
 #include "ws/cockpitauth.h"
+#include "websocket/websocket.h"
 
 #include <string.h>
 
@@ -80,40 +81,37 @@ static void
 test_userpass_cookie_check (Test *test,
                             gconstpointer data)
 {
-  gchar *user;
-  gchar *cookie;
-  gchar *base64;
-  gchar *password;
+  CockpitCreds *creds;
   GError *error = NULL;
   GHashTable *headers;
+  gchar *cookie;
+  gchar *end;
 
-  if (!cockpit_auth_check_userpass (test->auth, "me\nthis is the password",
-                                    &cookie, &user, &password, &error))
-    g_assert_not_reached ();
+  headers = web_socket_util_new_headers ();
+  creds = cockpit_auth_check_userpass (test->auth, "me\nthis is the password",
+                                       TRUE, headers, &error);
   g_assert_no_error (error);
+  g_assert (creds != NULL);
 
-  g_assert_cmpstr ("me", ==, user);
-  g_assert_cmpstr ("this is the password", ==, password);
-  g_free (user);
-  g_free (password);
-  user = password = NULL;
+  g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr ("this is the password", ==, cockpit_creds_get_password (creds));
+  cockpit_creds_unref (creds);
 
-  base64 = g_base64_encode ((guchar *)cookie, strlen (cookie));
-  g_free (cookie);
+  cookie = g_strdup (g_hash_table_lookup (headers, "Set-Cookie"));
+  g_assert (cookie != NULL);
 
-  headers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  g_hash_table_insert (headers, g_strdup ("Cookie"),
-                       g_strdup_printf ("CockpitAuth=%s", base64));
-  g_free (base64);
+  end = strchr (cookie, ';');
+  g_assert (end != NULL);
+  end[0] = '\0';
 
-  if (!cockpit_auth_check_headers (test->auth, headers, NULL, &user, &password))
-    g_assert_not_reached ();
+  g_hash_table_insert (headers, g_strdup ("Cookie"), cookie);
 
-  g_assert_cmpstr ("me", ==, user);
-  g_assert_cmpstr ("this is the password", ==, password);
-  g_free (user);
-  g_free (password);
-  user = password = NULL;
+  creds = cockpit_auth_check_headers (test->auth, headers, NULL);
+  g_assert (creds != NULL);
+
+  g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr ("this is the password", ==, cockpit_creds_get_password (creds));
+  cockpit_creds_unref (creds);
 
   g_hash_table_destroy (headers);
 }
@@ -122,37 +120,36 @@ static void
 test_userpass_bad (Test *test,
                    gconstpointer data)
 {
-  gchar *user;
-  gchar *cookie;
-  gchar *password;
   GError *error = NULL;
+  GHashTable *headers;
 
-  if (cockpit_auth_check_userpass (test->auth, "bad\nuser",
-                                   &cookie, &user, &password, &error))
+  headers = web_socket_util_new_headers ();
+
+  if (cockpit_auth_check_userpass (test->auth, "bad\nuser", TRUE, headers, &error))
       g_assert_not_reached ();
   g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
   g_clear_error (&error);
+
+  g_hash_table_destroy (headers);
 }
 
 static void
 test_headers_bad (Test *test,
                   gconstpointer data)
 {
-  gchar *user;
-  gchar *password;
   GHashTable *headers;
 
-  headers = g_hash_table_new (g_str_hash, g_str_equal);
+  headers = web_socket_util_new_headers ();
 
   /* Bad version */
-  g_hash_table_insert (headers, "Cookie", "CockpitAuth=v=1;k=blah");
-  if (cockpit_auth_check_headers (test->auth, headers, NULL, &user, &password))
+  g_hash_table_insert (headers, g_strdup ("Cookie"), g_strdup ("CockpitAuth=v=1;k=blah"));
+  if (cockpit_auth_check_headers (test->auth, headers, NULL))
       g_assert_not_reached ();
 
   /* Bad hash */
   g_hash_table_remove_all (headers);
-  g_hash_table_insert (headers, "Cookie", "CockpitAuth=v=2;k=blah");
-  if (cockpit_auth_check_headers (test->auth, headers, NULL, &user, &password))
+  g_hash_table_insert (headers, g_strdup ("Cookie"), g_strdup ("CockpitAuth=v=2;k=blah"));
+  if (cockpit_auth_check_headers (test->auth, headers, NULL))
       g_assert_not_reached ();
 
   g_hash_table_destroy (headers);

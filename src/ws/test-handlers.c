@@ -142,26 +142,40 @@ test_login_no_cookie (Test *test,
 }
 
 static void
+include_cookie_as_if_client (GHashTable *resp_headers,
+                             GHashTable *req_headers)
+{
+  gchar *cookie;
+  gchar *end;
+
+  cookie = g_strdup (g_hash_table_lookup (resp_headers, "Set-Cookie"));
+  g_assert (cookie != NULL);
+  end = strchr (cookie, ';');
+  g_assert (end != NULL);
+  end[0] = '\0';
+
+  g_hash_table_insert (req_headers, g_strdup ("Cookie"), cookie);
+}
+
+static void
 test_login_with_cookie (Test *test,
                         gconstpointer data)
 {
   GError *error = NULL;
   const gchar *user;
+  CockpitCreds *creds;
   gboolean ret;
-  gchar *cookie;
-  gchar *base64;
   gchar *userpass;
   gchar *expect;
 
   user = g_get_user_name ();
   userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
-  cockpit_auth_check_userpass (test->auth, userpass, &cookie, NULL, NULL, &error);
+  creds = cockpit_auth_check_userpass (test->auth, userpass, FALSE, test->headers, &error);
   g_assert_no_error (error);
+  g_assert (creds != NULL);
+  cockpit_creds_unref (creds);
+  include_cookie_as_if_client (test->headers, test->headers);
   g_free (userpass);
-  base64 = g_base64_encode ((guchar *)cookie, strlen (cookie));
-  g_free (cookie);
-  g_hash_table_insert (test->headers, g_strdup ("Cookie"), g_strdup_printf ("CockpitAuth=%s", base64));
-  g_free (base64);
 
   ret = cockpit_handler_login (test->server,
                                COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
@@ -236,12 +250,9 @@ test_login_post_accept (Test *test,
   gchar *userpass;
   const gchar *user;
   const gchar *output;
-  gchar *check;
-  gchar *password;
   GHashTable *headers;
-  gchar *cookie;
-  gchar *end;
   gint length;
+  CockpitCreds *creds;
 
   user = g_get_user_name ();
   userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
@@ -261,20 +272,15 @@ test_login_post_accept (Test *test,
 
   /* Check that returned cookie that works */
   headers = split_headers (output);
-  cookie = g_strdup (g_hash_table_lookup (headers, "Set-Cookie"));
-  g_assert (cookie != NULL);
-  end = strchr (cookie, ';');
-  g_assert (end != NULL);
-  end[0] = '\0';
+  include_cookie_as_if_client (headers, test->headers);
 
-  g_hash_table_insert (test->headers, g_strdup ("Cookie"), cookie);
-  g_assert (cockpit_auth_check_headers (test->auth, test->headers, NULL, &check, &password) == TRUE);
-  g_assert_cmpstr (check, ==, user);
-  g_assert_cmpstr (password, ==, PASSWORD);
+  creds = cockpit_auth_check_headers (test->auth, test->headers, NULL);
+  g_assert (creds != NULL);
+  g_assert_cmpstr (cockpit_creds_get_user (creds), ==, user);
+  g_assert_cmpstr (cockpit_creds_get_password (creds), ==, PASSWORD);
+  cockpit_creds_unref (creds);
 
   g_hash_table_destroy (headers);
-  g_free (check);
-  g_free (password);
 }
 
 static void

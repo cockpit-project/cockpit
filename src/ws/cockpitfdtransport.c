@@ -720,8 +720,7 @@ CockpitTransport *
 cockpit_fd_transport_spawn (const gchar *host,
                             gint port,
                             const gchar *agent,
-                            const gchar *user,
-                            const gchar *password,
+                            CockpitCreds *creds,
                             const gchar *client,
                             gboolean force_remote,
                             GError **error)
@@ -734,6 +733,9 @@ cockpit_fd_transport_spawn (const gchar *host,
   gchar login[256];
   int pwpipe[2] = { -1, -1 };
   GPid pid;
+
+  const gchar *user = cockpit_creds_get_user (creds);
+  const gchar *password;
 
   gchar *argv_remote[] =
     { "/usr/bin/sshpass",
@@ -834,7 +836,9 @@ cockpit_fd_transport_spawn (const gchar *host,
        * we migrate to libssh.
        */
       stream = fdopen (pwpipe[1], "w");
-      fwrite (password, 1, strlen (password), stream);
+      password = cockpit_creds_get_password (creds);
+      if (password)
+        fwrite (password, 1, strlen (password), stream);
       fputc ('\n', stream);
       fflush (stream);
       failed = ferror (stream);

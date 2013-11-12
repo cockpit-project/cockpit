@@ -217,6 +217,25 @@ class Machine:
         self.message(" ".join(cmd))
         subprocess.check_call(cmd)
 
+    def download_dir(self, source, dest):
+        """Download a directory from the test machine, recursively.
+        """
+        assert source and dest
+        assert self.address
+
+        cmd = [
+            "scp",
+            "-i", self._calc_identity(),
+            "-o", "StrictHostKeyChecking=no",
+            "-r",
+            "root@%s:%s" % (self.address, source), dest
+        ]
+
+        self.message("Downloading", source)
+        self.message(" ".join(cmd))
+        subprocess.check_call([ "rm", "-rf", dest ])
+        subprocess.check_call(cmd)
+
     def write(self, dest, content):
         """Write a file into the test machine
 

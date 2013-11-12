@@ -234,14 +234,18 @@ class MachineCase(unittest.TestCase):
     machine = None
     do_check_journal_messages = True
 
+    def new_machine(self):
+        m = self.machine_class(verbose=arg_trace)
+        def cleanup():
+            if m.address:
+                m.kill()
+        self.addCleanup(cleanup)
+        return m
+
     def setUp(self):
-        self.machine = self.machine_class(verbose=arg_trace)
+        self.machine = self.new_machine()
         self.machine.start()
-        try:
-            self.machine.wait_boot()
-        except:
-            self.machine.stop()
-            raise
+        self.machine.wait_boot()
         self.browser = Browser(address=self.machine.address)
 
     def tearDown(self):
@@ -252,10 +256,7 @@ class MachineCase(unittest.TestCase):
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
         if self.machine.address and self.do_check_journal_messages:
-            try:
-                self.check_journal_messages()
-            finally:
-                self.machine.kill()
+            self.check_journal_messages()
 
     def start_cockpit(self):
         """Start Cockpit.

@@ -312,10 +312,6 @@ class MachineCase(unittest.TestCase):
         # https://github.com/cockpit-project/cockpit/issues/69
         "Warning: Permanently added '.*' (RSA) to the list of known hosts.",
 
-        # https://github.com/cockpit-project/cockpit/issues/88
-        ".*fetch_connections_done: runtime check failed.*",
-        ".*No settings connection for device.*",
-
         # https://github.com/cockpit-project/cockpit/issues/48
         "Failed to load '.*': Key file does not have group 'Unit'"
 

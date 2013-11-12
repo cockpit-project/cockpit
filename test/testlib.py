@@ -67,7 +67,7 @@ arg_sit_on_failure = False
 arg_trace = False
 
 class Browser:
-    phantom_wait_timeout = 10
+    phantom_wait_timeout = 60
 
     def __init__(self, address):
         self.address = address
@@ -163,7 +163,7 @@ class Browser:
             def __exit__(self, type, value, traceback):
                 self.phantom_wait_timeout = self.timeout
         r = WaitParamsRestorer(self.phantom_wait_timeout)
-        self.phantom_wait_timeout = timeout
+        self.phantom_wait_timeout = max (timeout, self.phantom_wait_timeout)
         return r
 
     def inject_js(self, code):
@@ -234,14 +234,18 @@ class MachineCase(unittest.TestCase):
     machine = None
     do_check_journal_messages = True
 
+    def new_machine(self):
+        m = self.machine_class(verbose=arg_trace)
+        def cleanup():
+            if m.address:
+                m.kill()
+        self.addCleanup(cleanup)
+        return m
+
     def setUp(self):
-        self.machine = self.machine_class(verbose=arg_trace)
+        self.machine = self.new_machine()
         self.machine.start()
-        try:
-            self.machine.wait_boot()
-        except:
-            self.machine.stop()
-            raise
+        self.machine.wait_boot()
         self.browser = Browser(address=self.machine.address)
 
     def tearDown(self):
@@ -251,10 +255,7 @@ class MachineCase(unittest.TestCase):
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
         if self.machine.address and self.do_check_journal_messages:
-            try:
-                self.check_journal_messages()
-            finally:
-                self.machine.kill()
+            self.check_journal_messages()
 
     def start_cockpit(self):
         """Start Cockpit.
@@ -311,10 +312,6 @@ class MachineCase(unittest.TestCase):
 
         # https://github.com/cockpit-project/cockpit/issues/69
         "Warning: Permanently added '.*' (RSA) to the list of known hosts.",
-
-        # https://github.com/cockpit-project/cockpit/issues/88
-        ".*fetch_connections_done: runtime check failed.*",
-        ".*No settings connection for device.*",
 
         # https://github.com/cockpit-project/cockpit/issues/48
         "Failed to load '.*': Key file does not have group 'Unit'"

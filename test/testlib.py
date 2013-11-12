@@ -247,6 +247,7 @@ class MachineCase(unittest.TestCase):
     def tearDown(self):
         if self.runner and not self.runner.wasSuccessful():
             self.snapshot("FAIL")
+            self.copy_journal("FAIL")
             if arg_sit_on_failure:
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
@@ -354,6 +355,14 @@ class MachineCase(unittest.TestCase):
             (unused, sep, label) = self.id().rpartition(".")
         if self.browser.phantom:
             self.browser.phantom.show(file="%s-%s-%s.png" % (program_name, label, title))
+
+    def copy_journal(self, title, label=None):
+        if label is None:
+            (unused, sep, label) = self.id().rpartition(".")
+        if self.machine.address:
+            dir = "%s-%s-%s.journal" % (program_name, label, title)
+            self.machine.download_dir("/var/log/journal", dir)
+            print "Journal database copied to %s" % dir
 
 some_failed = False
 

@@ -42,6 +42,7 @@ cockpit_journal_log_handler (const gchar *log_domain,
                              gpointer user_data)
 {
   int priority;
+  const gchar *domains;
 
   /*
    * Note: we should not call GLib fucntions here.
@@ -92,9 +93,15 @@ cockpit_journal_log_handler (const gchar *log_domain,
       priority = LOG_INFO;
       break;
 
-    /* Never log internal debug/tracing messages to journal */
+    /* Debug messages. */
     case G_LOG_LEVEL_DEBUG:
-      return;
+      domains = g_getenv ("G_MESSAGES_DEBUG");
+      if (domains == NULL ||
+          (strcmp (domains, "all") != 0 && (!log_domain || !strstr (domains, log_domain))))
+        return;
+
+      priority = LOG_INFO;
+      break;
     }
 
   sd_journal_send ("MESSAGE=%s", message,
@@ -102,4 +109,3 @@ cockpit_journal_log_handler (const gchar *log_domain,
                    "COCKPIT_DOMAIN=%s", log_domain ? log_domain : "",
                    NULL);
 }
-

@@ -109,7 +109,8 @@ pulls in some necessary packages via dependencies.
 %files test-assets
 %{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.DBusTests.Test.conf
 %{_datadir}/cockpit-test-assets
-/usr/lib/systemd/system/cockpit-ws-notls.service
-/usr/lib/systemd/system/cockpit-ws-notls.socket
+/usr/lib/systemd/system/cockpit-testing.service
+/usr/lib/systemd/system/cockpit-ws-testing.service
+/usr/lib/systemd/system/cockpit-ws-testing.socket
 /usr/lib/systemd/system/test-server.service
 /usr/lib/systemd/system/test-server.socket

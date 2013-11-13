@@ -31,9 +31,4 @@ class TestDbus(MachineCase):
         b.open(url="/dbus-test.html", port=8765)
         b.wait_js_cond("test_details && test_details.passed == test_details.total");
 
-        # Some versions of journalctl fail when there are no matches,
-        # and we know that there aren't any, so let's skip it.
-        #
-        self.dont_check_journal_messages()
-
 test_main()

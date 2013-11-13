@@ -127,8 +127,6 @@ class TestShutdownRestart(MachineCase):
         b.click("#login-button")
         b.wait_page("shutdown")
 
-        self.allow_journal_messages("Shutdown scheduled for .*, use 'shutdown -c' to cancel.",
-                            "Cannot make/remove an entry for the specified session")
         self.check_journal_messages()
 
         # initiate a immediate shutdown and go through with it

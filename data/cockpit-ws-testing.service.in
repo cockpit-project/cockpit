@@ -1,0 +1,11 @@
+[Unit]
+Description=Cockpit Web Server (Testing)
+Documentation=man:cockpit-ws(8)
+Requires=cockpit-ws-testing.socket
+Requires=cockpit-testing.service
+After=cockpit-testing.service
+Conflicts=cockpit-ws.service
+
+[Service]
+Environment=G_MESSAGES_DEBUG=all
+ExecStart=@libexecdir@/cockpit-ws --no-tls

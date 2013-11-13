@@ -19,15 +19,15 @@
 # While this script can be executed, it is meant to show the most
 # common things that you will be doing when running tests.
 
-export TEST_OS=fedora-18
+export TEST_OS=fedora-20
 export TEST_ARCH=x86_64
 
 set -e -x
 
 # Get the Fedora bootstrap tarball if necessary.
 #
-if [ ! -f ${TEST_OS}-${TEST_ARCH}.tar.gz ]; then
-  curl -O TODO: URL HERE/${TEST_OS}-${TEST_ARCH}.tar.gz
+if [ ! -f fedora-20-x86_64.tar.gz ]; then
+  curl -O https://dl.dropboxusercontent.com/s/73o8zc73dze771b/fedora-20-x86_64.tar.gz
 fi
 
 # Compile the sources
@@ -37,7 +37,7 @@ fi
 # Make the test machine image and install the RPMs into it
 #
 ./vm-create
-./vm-install cockpit-wip-1.fc18.x86_64.rpm cockpit-test-assets-wip-1.fc18.x86_64.rpm
+./vm-install cockpit-wip-1.fc20.x86_64.rpm cockpit-test-assets-wip-1.fc20.x86_64.rpm
 
 # Run some tests.  This will _not_ change the test machine image.
 #

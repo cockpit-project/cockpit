@@ -18,7 +18,6 @@
 
 VIRSH=/bin/virsh
 QEMU_BRIDGE_HELPER=/usr/libexec/qemu-bridge-helper
-BRIDGE_CONF=/etc/qemu/bridge.conf
 
 SELF=vm-prep
 . ./testlib.sh
@@ -68,9 +67,20 @@ EOF
 		chmod -v u+s $QEMU_BRIDGE_HELPER
 	fi
 
+	qemu_config_dir=
+	for d in /etc/qemu-kvm/ /etc/qemu; do
+	    if test -f ${d}/bridge.conf; then
+		qemu_config_dir=${d}
+	    fi
+	done
+	if test -z "$qemu_config_dir"; then
+	    warning "Could not find qemu config dir"
+	    exit 1
+	fi
+
 	rule="allow cockpit0"
-	if ! silent grep -F cockpit0 $BRIDGE_CONF; then
-		echo "$rule" >> /etc/qemu/bridge.conf
+	if ! silent grep -F cockpit0 ${qemu_config_dir}/bridge.conf; then
+		echo "$rule" >> ${qemu_config_dir}/bridge.conf
 	fi
 }
 

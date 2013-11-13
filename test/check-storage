@@ -680,6 +680,7 @@ class TestStorage(MachineCase):
 
         b.click('a[onclick*="DISK1"]')
         b.wait_page("storage-detail")
+        b.wait_in_text("#storage_detail_content", "/mnt")
 
         b.click('#entry-actions-3')
         b.wait_popup('block-actions-menu')

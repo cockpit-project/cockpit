@@ -49,6 +49,11 @@ struct _CockpitAuthClass
 {
   GObjectClass parent_class;
 
+  /* signals */
+  CockpitCreds * (* authenticate)        (CockpitAuth *auth,
+                                          GHashTable *in_headers,
+                                          GHashTable *out_headers);
+
   /* vfunc */
   gboolean    (* verify_password)        (CockpitAuth *auth,
                                           const gchar *user,

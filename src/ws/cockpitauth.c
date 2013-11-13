@@ -25,6 +25,8 @@
 #include "cockpitwebserver.h"
 #include "gsystem-local-alloc.h"
 
+#include "websocket/websocket.h"
+
 #include <glib/gstdio.h>
 
 #include <stdio.h>
@@ -37,6 +39,17 @@
 
 #include <security/pam_appl.h>
 #include <stdlib.h>
+
+enum {
+  AUTHENTICATE,
+  NUM_SIGNALS
+};
+
+static guint signals[NUM_SIGNALS] = { 0, };
+
+static CockpitCreds *    cockpit_auth_cookie_authenticate      (CockpitAuth *auth,
+                                                                GHashTable *in_headers,
+                                                                GHashTable *out_headers);
 
 G_DEFINE_TYPE (CockpitAuth, cockpit_auth, G_TYPE_OBJECT)
 
@@ -250,6 +263,24 @@ out:
   return ret;
 }
 
+static gboolean
+authenticate_accumulator (GSignalInvocationHint *ihint,
+                          GValue *return_accu,
+                          const GValue *handler_return,
+                          gpointer unused)
+{
+  CockpitCreds *creds;
+
+  creds = g_value_get_boxed (handler_return);
+  if (creds != NULL)
+    {
+      g_value_set_boxed (return_accu, creds);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 cockpit_auth_class_init (CockpitAuthClass *klass)
 {
@@ -257,7 +288,16 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
 
   gobject_class->finalize = cockpit_auth_finalize;
 
+  klass->authenticate = cockpit_auth_cookie_authenticate;
   klass->verify_password = cockpit_auth_pam_verify_password;
+
+  signals[AUTHENTICATE] = g_signal_new ("authenticate", COCKPIT_TYPE_AUTH, G_SIGNAL_RUN_LAST,
+                                        G_STRUCT_OFFSET (CockpitAuthClass, authenticate),
+                                        authenticate_accumulator, NULL,
+                                        g_cclosure_marshal_generic,
+                                        COCKPIT_TYPE_CREDS, 2,
+                                        G_TYPE_HASH_TABLE,
+                                        G_TYPE_HASH_TABLE);
 }
 
 static char *
@@ -375,21 +415,36 @@ cockpit_auth_check_headers (CockpitAuth *auth,
                             GHashTable *in_headers,
                             GHashTable *out_headers)
 {
+  CockpitCreds *creds = NULL;
+
+  g_return_val_if_fail (auth != NULL, FALSE);
+  g_return_val_if_fail (in_headers != NULL, FALSE);
+
+  if (out_headers == NULL)
+    out_headers = web_socket_util_new_headers ();
+  else
+    g_hash_table_ref (out_headers);
+
+  g_signal_emit (auth, signals[AUTHENTICATE], 0, in_headers, out_headers, &creds);
+
+  g_hash_table_unref (out_headers);
+  return creds;
+}
+
+static CockpitCreds *
+cockpit_auth_cookie_authenticate (CockpitAuth *auth,
+                                  GHashTable *in_headers,
+                                  GHashTable *out_headers)
+{
   gs_unref_hashtable GHashTable *cookies = NULL;
   gs_free gchar *auth_cookie = NULL;
 
-  g_return_val_if_fail (in_headers != NULL, FALSE);
-
-  /* TODO: We really should get rid of this, it's very risky */
-  if (auth == NULL)
-      return cockpit_creds_new_password (g_get_user_name (), "<noauth>");
-
   if (!cockpit_web_server_parse_cookies (in_headers, &cookies, NULL))
-    return FALSE;
+    return NULL;
 
   auth_cookie = base64_decode_string (g_hash_table_lookup (cookies, "CockpitAuth"));
   if (auth_cookie == NULL)
-    return FALSE;
+    return NULL;
 
   return cookie_to_creds (auth, auth_cookie);
 }

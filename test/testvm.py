@@ -452,6 +452,13 @@ class QemuMachine(Machine):
                 return macaddr
         raise Failure("Couldn't find unused mac address in directory: %s" % resources)
 
+    def _locate_qemu_kvm(self):
+        rhel_qemu_kvm_path = '/usr/libexec/qemu-kvm'
+        if os.path.exists(rhel_qemu_kvm_path):
+            return rhel_qemu_kvm_path
+        # Assume it's in $PATH
+        return 'qemu-kvm'
+
     def _start_qemu(self, maintain=False, tty=False, monitor=None):
         if not self._lock_resource(self._image_root, exclusive=maintain):
             raise Failure("Already running this image: %s" % self.image)
@@ -460,7 +467,7 @@ class QemuMachine(Machine):
         selinux = "enforcing=0"
         self.macaddr = self._choose_macaddr()
         cmd = [
-            "qemu-kvm",
+            self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),
             "-drive", "if=virtio,file=%s,index=0,serial=ROOT,snapshot=%s" % (self._image_root, snapshot),
             "-kernel", self._image_kernel,

@@ -155,6 +155,44 @@ test_headers_bad (Test *test,
   g_hash_table_destroy (headers);
 }
 
+static CockpitCreds *
+on_auth_authenticate (CockpitAuth *auth,
+                      GHashTable *in_headers,
+                      GHashTable *out_headers,
+                      gpointer user_data)
+{
+  g_hash_table_insert (out_headers, g_strdup ("Who"), g_strdup ("janitor"));
+  g_assert_cmpstr (g_hash_table_lookup (in_headers, "Input"), ==, "value");
+  g_assert_cmpstr (user_data, ==, "Marmalaade!");
+  return cockpit_creds_new_password ("scruffy", "zerogjuggs");
+}
+
+static void
+test_authenticate_signal (Test *test,
+                          gconstpointer data)
+{
+  GHashTable *out_headers;
+  GHashTable *in_headers;
+  CockpitCreds *creds;
+
+  out_headers = web_socket_util_new_headers ();
+  in_headers = web_socket_util_new_headers ();
+  g_hash_table_insert (in_headers, g_strdup ("Input"), g_strdup ("value"));
+
+  g_signal_connect (test->auth, "authenticate", G_CALLBACK (on_auth_authenticate), "Marmalaade!");
+  creds = cockpit_auth_check_headers (test->auth, in_headers, out_headers);
+
+  g_assert (creds != NULL);
+  g_assert_cmpstr (cockpit_creds_get_user (creds), ==, "scruffy");
+  g_assert_cmpstr (cockpit_creds_get_password (creds), ==, "zerogjuggs");
+
+  g_assert_cmpstr (g_hash_table_lookup (out_headers, "Who"), ==, "janitor");
+
+  cockpit_creds_unref (creds);
+  g_hash_table_destroy (in_headers);
+  g_hash_table_destroy (out_headers);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -170,6 +208,7 @@ main (int argc,
   g_test_add ("/auth/userpass-header-check", Test, NULL, setup, test_userpass_cookie_check, teardown);
   g_test_add ("/auth/userpass-bad", Test, NULL, setup, test_userpass_bad, teardown);
   g_test_add ("/auth/headers-bad", Test, NULL, setup, test_headers_bad, teardown);
+  g_test_add ("/auth/authenticate-signal", Test, NULL, setup, test_authenticate_signal, teardown);
 
   return g_test_run ();
 }

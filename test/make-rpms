@@ -19,6 +19,7 @@
 set -e
 
 SELF="make-rpms"
+. ./testlib.sh
 
 usage()
 {
@@ -67,8 +68,8 @@ if [ ! -x "$make_srpm" ]; then
   make_srpm=make-srpm
 fi
 
-os=${TEST_OS:-fedora-18}
-arch=${TEST_ARCH:-x86_64}
+os=$TEST_OS
+arch=$TEST_ARCH
 
 srpm=$("$make_srpm" "$@")
 rm -rf mock

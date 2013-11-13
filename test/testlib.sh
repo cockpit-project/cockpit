@@ -17,7 +17,7 @@
 
 set -eu
 
-TEST_OS=${TEST_OS:-fedora-18}
+TEST_OS=${TEST_OS:-fedora-20}
 TEST_ARCH=${TEST_ARCH:-x86_64}
 TEST_RUN=./run
 

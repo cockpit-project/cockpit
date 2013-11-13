@@ -27,7 +27,7 @@ import tempfile
 import time
 import sys
 
-DEFAULT_OS = "fedora-18"
+DEFAULT_OS = "fedora-20"
 DEFAULT_ARCH = "x86_64"
 
 MEMORY_MB = 1024

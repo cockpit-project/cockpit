@@ -90,6 +90,8 @@ gpgcheck=0
 EOF
 touch -r /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
 
+set -x
+
 if /usr/bin/mock $mock_opts $mock_clean_opts --configdir=mock/ \
 	--resultdir mock -r $os-$arch-cockpit $srpm \
 	--define="extra_flags $EXTRA_FLAGS"; then

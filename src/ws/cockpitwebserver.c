@@ -460,7 +460,6 @@ again:
   if (file_in == NULL)
     {
       if (g_strcmp0 (escaped, "/") == 0 &&
-          local_error != NULL &&
           (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND)
            || g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_IS_DIRECTORY)))
         {
@@ -468,6 +467,8 @@ again:
           g_clear_error (&local_error);
           goto again;
         }
+
+      /* TODO: Don't leak our errors to untrusted client. And not every error is a 404 ... */
       cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404,
                                        "Error getting stream for file at path `%s': %s (%s, %d)", path,
                                        local_error->message, g_quark_to_string (local_error->domain), local_error->code);
@@ -482,6 +483,7 @@ again:
                                          cancellable, error);
   if (info == NULL)
     {
+      /* TODO: Don't leak our error codes and messages to untrusted client */
       cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 500, "Error querying file at path %s: %s (%s, %d)", path,
                                        local_error->message, g_quark_to_string (local_error->domain), local_error->code);
       g_clear_error (&local_error);

@@ -123,7 +123,7 @@ main (int argc,
     g_setenv ("PATH", "/usr/bin:/bin:/usr/sbin:/sbin", TRUE);
 
   if (!opt_debug)
-    g_log_set_default_handler (cockpit_journal_log_handler, NULL);
+    cockpit_set_journal_logging ();
 
   if (opt_http_root == NULL)
   opt_http_root = g_strdup (PACKAGE_DATA_DIR "/cockpit/content");

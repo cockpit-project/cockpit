@@ -109,3 +109,25 @@ cockpit_journal_log_handler (const gchar *log_domain,
                    "COCKPIT_DOMAIN=%s", log_domain ? log_domain : "",
                    NULL);
 }
+
+static void
+printerr_handler (const gchar *string)
+{
+  /* We sanitize the strings produced by g_assert and friends a bit.
+   */
+
+  if (g_str_has_prefix (string, "**\n"))
+    string += strlen("**\n");
+  int len = strlen (string);
+  if (len > 0 && string[len-1] == '\n')
+    len -= 1;
+
+  sd_journal_print (LOG_ERR, "%.*s", len, string);
+}
+
+void
+cockpit_set_journal_logging (void)
+{
+  g_log_set_default_handler (cockpit_journal_log_handler, NULL);
+  g_set_printerr_handler (printerr_handler);
+}

@@ -606,7 +606,7 @@ main (int argc,
     }
 
   if (!opt_debug)
-    g_log_set_default_handler (cockpit_journal_log_handler, NULL);
+    cockpit_set_journal_logging ();
 
   if (opt_no_tls)
     {

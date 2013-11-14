@@ -38,6 +38,8 @@ void     cockpit_journal_log_handler    (const gchar *log_domain,
                                          const gchar *message,
                                          gpointer user_data);
 
+void     cockpit_set_journal_logging    (void);
+
 /*
  * GLib doesn't have g_info() yet:
  * https://bugzilla.gnome.org/show_bug.cgi?id=711103

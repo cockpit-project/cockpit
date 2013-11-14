@@ -628,7 +628,7 @@ on_nm_device_added (NMClient *client,
   iface = (Netinterface*)netinterface_new (self, iface_name);
   cockpit_iface = COCKPIT_NETWORK_NETINTERFACE (iface);
   g_hash_table_insert (self->ifname_to_netinterface, g_strdup (iface_name), iface);
-  path = g_strdup_printf ("/com/redhat/Cockpit/Network/%s", iface_name);
+  path = utils_generate_object_path ("/com/redhat/Cockpit/Network", iface_name);
   object = cockpit_object_skeleton_new (path);
   daemon = network_get_daemon (self);
   cockpit_object_skeleton_set_network_netinterface (object, cockpit_iface);

@@ -139,7 +139,10 @@ cockpit_getpwnam_a (const gchar *user,
 {
   int err;
   long bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
-  struct passwd *buf, *ret;
+  struct passwd *ret = NULL;
+  struct passwd *buf;
+
+  g_return_val_if_fail (bufsize >= 0, NULL);
 
   buf = malloc (sizeof(struct passwd) + bufsize);
   if (buf == NULL)
@@ -404,10 +407,13 @@ cockpit_auth_check_headers (CockpitAuth *auth,
   if (out_password)
     *out_password = NULL;
 
+  /* NOTE: This is pretty risky. Working on a fix */
   if (auth == NULL)
     {
-      *out_user = g_strdup (g_get_user_name ());
-      *out_password = g_strdup ("<noauth>");
+      if (out_user)
+        *out_user = g_strdup (g_get_user_name ());
+      if (out_password)
+        *out_password = g_strdup ("<noauth>");
       return TRUE;
     }
 

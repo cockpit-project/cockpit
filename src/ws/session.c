@@ -84,13 +84,17 @@ utmp_log (int login)
 
   memset (&ut, 0, sizeof(ut));
 
-  strncpy (ut.ut_id, id, sizeof(ut.ut_id));
-  strncpy (ut.ut_line, line, sizeof(ut.ut_line));
+  strncpy (ut.ut_id, id, sizeof (ut.ut_id));
+  ut.ut_id[sizeof (ut.ut_id) - 1] = 0;
+  strncpy (ut.ut_line, line, sizeof (ut.ut_line));
+  ut.ut_line[sizeof (ut.ut_line) - 1] = 0;
 
   if (login)
     {
       strncpy (ut.ut_user, user, sizeof(ut.ut_user));
+      ut.ut_user[sizeof (ut.ut_user) - 1] = 0;
       strncpy (ut.ut_host, rhost, sizeof(ut.ut_host));
+      ut.ut_host[sizeof (ut.ut_host) - 1] = 0;
     }
 
   gettimeofday (&tv, NULL);

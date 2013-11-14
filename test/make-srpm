@@ -49,20 +49,22 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
+top=$(git rev-parse --show-toplevel)
+
 # Fetch submodules if needed
-if test ! -f src/libgsystem/README;
+if test ! -f $top/src/libgsystem/README;
 then
-  echo "+ Setting up submodules"
-  git submodule init
-  git submodule update
+    ( cd $top
+      echo "+ Setting up submodules"
+      git submodule init
+      git submodule update
+    ) >&2
 fi
 
 git_archive_all=$(dirname "$0")/git-archive-all
 if [ ! -x "$git_archive_all" ]; then
   git_archive_all=git-archive-all
 fi
-
-top=$(git rev-parse --show-toplevel)
 
 if [ $# == 2 ]; then
     spec=$1

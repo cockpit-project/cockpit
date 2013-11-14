@@ -110,7 +110,8 @@ ExecStart=/usr/bin/test-service %I
         wait_service_state("test-fail.service", "failed")
 
         # Instantiate a template
-        b.click(svc_sel("test-template"))
+        b.wait_in_text("#services", "test-template@.service")
+        b.click(svc_sel("test-template@.service"))
         b.set_val("#service-parameter", "//param-f//o//o//")
         b.click("#service-instantiate")
         b.wait_text("#service-name", "Test Template for param-f/o/o")

@@ -865,6 +865,7 @@ run_cmd_for_invocation (GDBusMethodInvocation *invocation,
       cmd = va_arg (ap, const gchar *);
     }
   *p = NULL;
+  va_end (ap);
 
   GError *error = NULL;
   gint code;

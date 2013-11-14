@@ -30,7 +30,10 @@ getpwuid_a (uid_t uid,
 {
   int err;
   long bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
-  struct passwd *buf, *ret;
+  struct passwd *ret = NULL;
+  struct passwd *buf;
+
+  g_return_val_if_fail (bufsize >= 0, NULL);
 
   buf = malloc (sizeof(struct passwd) + bufsize);
   if (buf == NULL)
@@ -56,7 +59,10 @@ getgrnam_a (const gchar *group,
 {
   int err;
   long bufsize = sysconf (_SC_GETGR_R_SIZE_MAX);
-  struct group *buf, *ret;
+  struct group *ret = NULL;
+  struct group *buf;
+
+  g_return_val_if_fail (bufsize >= 0, NULL);
 
   buf = malloc (sizeof(struct group) + bufsize);
   if (buf == NULL)

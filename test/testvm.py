@@ -175,14 +175,18 @@ class Machine:
         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         rset = [proc.stdout.fileno()]
         wset = [proc.stdin.fileno()]
-        while proc.poll() is None:
+        while len(rset) > 0 or len(wset) > 0:
             ret = select.select(rset, wset, [], 10)
             for fd in ret[0]:
                 if fd == proc.stdout.fileno():
                     data = os.read(fd, 1024)
-                    if self.verbose:
-                        sys.stdout.write(data)
-                    output += data
+                    if data == "":
+                        proc.stdout.close()
+                        rset = []
+                    else:
+                        if self.verbose:
+                            sys.stdout.write(data)
+                        output += data
             for fd in ret[1]:
                 if fd == proc.stdin.fileno():
                     if input:
@@ -191,6 +195,7 @@ class Machine:
                     if not input:
                         proc.stdin.close()
                         wset = []
+        proc.wait()
 
         if proc.returncode != 0:
             raise subprocess.CalledProcessError(proc.returncode, command)

@@ -1,8 +1,0 @@
-[Unit]
-Description=Cockpit Web Server (No TLS)
-Documentation=man:cockpit-ws(8)
-Requires=cockpit-ws-notls.socket
-Conflicts=cockpit-ws.service
-
-[Service]
-ExecStart=@libexecdir@/cockpit-ws --no-tls

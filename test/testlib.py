@@ -232,7 +232,6 @@ class MachineCase(unittest.TestCase):
     runner = None
     machine_class = testvm.QemuMachine
     machine = None
-    do_check_journal_messages = True
 
     def new_machine(self):
         m = self.machine_class(verbose=arg_trace)
@@ -255,7 +254,7 @@ class MachineCase(unittest.TestCase):
             if arg_sit_on_failure:
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
-        if self.machine.address and self.do_check_journal_messages:
+        if self.machine.address:
             self.check_journal_messages()
 
     def start_cockpit(self):
@@ -264,7 +263,7 @@ class MachineCase(unittest.TestCase):
         Cockpit is not running when the test virtual machine starts up, to
         allow you to make modifications before it starts.
         """
-        self.machine.spawn("systemctl start cockpit-ws-notls.socket", "cockpit-ws")
+        self.machine.execute("systemctl start cockpit-ws-testing.socket")
 
     def login_and_go(self, page):
         self.start_cockpit()
@@ -276,51 +275,27 @@ class MachineCase(unittest.TestCase):
         self.browser.wait_page(page)
 
     allowed_messages = [
-        "Starting Cockpit Web Server...",
-        "Started Cockpit Web Server.",
-        "Stopping Cockpit Web Server...",
-        "Stopped Cockpit Web Server.",
-        "Starting Cockpit Web Server \\(No TLS\\)...",
-        "Started Cockpit Web Server \\(No TLS\\).",
-        "Stopping Cockpit Web Server \\(No TLS\\)...",
-        "Stopped Cockpit Web Server \\(No TLS\\).",
-        "Generating temporary certificate .*",
-        "Using certificate .*",
-        "HTTP Server listening on port [0-9]+",
-        "New connection from .* for .*",
-        "Connection from .* for .* closed",
+        # This is a failed login, which happens every time
         "Returning error-response 403 with reason `Sorry'",
 
-        "Starting Cockpit...",
-        "Started Cockpit.",
-        "Stopping Cockpit...",
-        "Stopped Cockpit.",
-        "cockpit daemon version [0-9.]+ starting",
+        # Reboots are ok
+        "-- Reboot --",
 
-        "Connection to .* closed by remote host.",
-        ".*Connection reset by peer.*",
-
-        ".*-- Reboot --.*",
-
-        # This happens when cockpit-ws is restarted at just the wrong time...
-        "Error while authorizing method .*: GDBus\\.Error:org\\.freedesktop\\.DBus\\.Error\\.NameHasNoOwner: Could not get UID of name '.*': no such name",
-
-        # This happens because we pretty dramatically tear phantom away
-	"connection unexpectedly closed by peer",
+        ## Bugs
 
         # https://bugs.freedesktop.org/show_bug.cgi?id=70540
         ".*ActUserManager: user .* has no username.*",
 
-        # https://github.com/cockpit-project/cockpit/issues/69
-        "Warning: Permanently added '.*' (RSA) to the list of known hosts.",
-
         # https://github.com/cockpit-project/cockpit/issues/48
-        "Failed to load '.*': Key file does not have group 'Unit'"
+        "Failed to load '.*': Key file does not have group 'Unit'",
 
-        ]
+        # https://github.com/cockpit-project/cockpit/issues/114
+        "connection unexpectedly closed by peer",
 
-    def dont_check_journal_messages(self):
-        self.do_check_journal_messages = False
+        # https://github.com/cockpit-project/cockpit/issues/115
+        "cockpit-testing\\.service: main process exited, code=exited, status=1/FAILURE",
+        "Unit cockpit-testing\\.service entered failed state\\."
+    ]
 
     def allow_journal_messages(self, *patterns):
         """Don't fail if the journal containes a entry matching the given regexp"""
@@ -330,8 +305,9 @@ class MachineCase(unittest.TestCase):
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine
-        units = [ "cockpit.service", "cockpit-ws.service", "cockpit-ws-notls.service" ]
-        messages = machine.journal_messages(units)
+        units = [ "cockpit-testing.service", "cockpit-ws-testing.service" ]
+        messages = machine.journal_messages(units, 5)
+        print messages
         all_found = True
         for m in messages:
             found = False
@@ -344,6 +320,7 @@ class MachineCase(unittest.TestCase):
                 print "Unexpected journal message '%s'" % m
                 all_found = False
         if not all_found:
+            self.copy_journal("FAIL")
             raise Error("There were unexpected journal messages")
 
     def snapshot(self, title, label=None):

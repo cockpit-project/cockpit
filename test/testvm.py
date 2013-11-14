@@ -266,12 +266,22 @@ class Machine:
         os.chmod(identity, 0600)
         return identity
 
-    def journal_messages(self, units):
+    def journal_messages(self, units, log_level):
         """Return interesting journal messages"""
-        unit_fields = [ "_SYSTEMD_UNIT", "UNIT", "COREDUMP_UNIT" ]
-        matches = [ "%s=%s" % (f,u) for u in units for f in unit_fields ]
-        cmd = "journalctl -o cat %s" % " + ".join(matches)
-        return self.execute(cmd).splitlines()
+        unit_matches = " ".join(map(lambda u: "-u " + u, units))
+
+        # Some versions of journalctl terminate unsuccessfully when
+        # the output is empty.  We work around this by ignoring the
+        # exit status and including error messages from journalctl
+        # itself in the returned messages.
+
+        cmd = "journalctl 2>&1 -o cat -p %d %s || true" % (log_level, unit_matches)
+        messages = self.execute(cmd).splitlines()
+        if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
+            # No messages
+            return [ ]
+        else:
+            return messages
 
 class QemuMachine(Machine):
     macaddr_prefix = "52:54:00:9e:00"
@@ -774,7 +784,7 @@ rm -rf /var/log/journal/*
 INSTALL_SCRIPT = """#!/bin/sh
 set -euf
 
-rpm -U --replacepkgs --oldpackage $TEST_PACKAGES
+rpm -U --force $TEST_PACKAGES
 
 rm -rf /var/log/journal/*
 """

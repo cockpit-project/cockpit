@@ -13,20 +13,24 @@ com.redhat.Cockpit.conf: data/com.redhat.Cockpit.conf.in Makefile
 
 if HAVE_SYSTEMD
 systemdunitdir          = $(systemdsystemunitdir)
-dist_systemdunit_DATA   = data/cockpit-ws.socket data/cockpit-ws-notls.socket data/test-server.socket
+dist_systemdunit_DATA   = data/cockpit-ws.socket data/cockpit-ws-testing.socket data/test-server.socket
 nodist_systemdunit_DATA =
 
 cockpit.service : data/cockpit.service.in Makefile
 	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
 nodist_systemdunit_DATA += cockpit.service
 
+cockpit-testing.service : data/cockpit-testing.service.in Makefile
+	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+nodist_systemdunit_DATA += cockpit-testing.service
+
 cockpit-ws.service : data/cockpit-ws.service.in Makefile
 	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
 nodist_systemdunit_DATA += cockpit-ws.service
 
-cockpit-ws-notls.service : data/cockpit-ws-notls.service.in Makefile
+cockpit-ws-testing.service : data/cockpit-ws-testing.service.in Makefile
 	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
-nodist_systemdunit_DATA += cockpit-ws-notls.service
+nodist_systemdunit_DATA += cockpit-ws-testing.service
 
 test-server.service : data/test-server.service.in Makefile
 	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@

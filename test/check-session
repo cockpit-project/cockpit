@@ -69,6 +69,7 @@ class TestSession(MachineCase):
         check_session(False)
         check(m.execute("loginctl list-sessions"), "admin")
 
-        self.allow_journal_messages("peer did not close io when expected")
+        self.allow_journal_messages("peer did not close io when expected",
+                                    "Error receiving data: Connection reset by peer")
 
 test_main ()

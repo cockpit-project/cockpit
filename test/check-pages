@@ -48,7 +48,7 @@ WantedBy=default.target
         b.wait_text("#service-name", "Test Service")
 
         # check that the login dance preserves parameters
-        m.execute("systemctl restart cockpit-ws-notls.service")
+        m.execute("systemctl restart cockpit-ws-testing.service")
         b.wait_popup('disconnected')
         b.click('#disconnected-logout')
         b.wait_visible("#login")

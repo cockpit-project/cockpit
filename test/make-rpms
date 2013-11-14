@@ -70,6 +70,7 @@ fi
 
 os=$TEST_OS
 arch=$TEST_ARCH
+EXTRA_FLAGS=${EXTRA_FLAGS:-}
 
 srpm=$("$make_srpm" "$@")
 rm -rf mock

@@ -1268,31 +1268,6 @@ _web_socket_connection_take_incoming (WebSocketConnection *self,
   self->pv->incoming = input_buffer;
 }
 
-void
-_web_socket_connection_take_io_stream (WebSocketConnection *self,
-                                       GIOStream *io_stream)
-{
-  GInputStream *is;
-  GOutputStream *os;
-
-  g_return_if_fail (WEB_SOCKET_IS_CONNECTION (self));
-  g_return_if_fail (G_IS_IO_STREAM (io_stream));
-
-  g_return_if_fail (self->pv->io_stream == NULL);
-  self->pv->io_stream = io_stream;
-
-  is = g_io_stream_get_input_stream (io_stream);
-  os = g_io_stream_get_output_stream (io_stream);
-
-  if (G_IS_POLLABLE_INPUT_STREAM (is))
-    self->pv->input = G_POLLABLE_INPUT_STREAM (is);
-  if (G_IS_POLLABLE_OUTPUT_STREAM (os))
-    self->pv->output = G_POLLABLE_OUTPUT_STREAM (os);
-
-  self->pv->io_open = TRUE;
-  g_object_notify (G_OBJECT (self), "io-stream");
-}
-
 static gboolean
 on_idle_start_input (gpointer user_data)
 {
@@ -1308,6 +1283,39 @@ on_idle_start_input (gpointer user_data)
     }
 
   return FALSE;
+}
+
+void
+_web_socket_connection_take_io_stream (WebSocketConnection *self,
+                                       GIOStream *io_stream)
+{
+  WebSocketConnectionPrivate *pv = self->pv;
+  GInputStream *is;
+  GOutputStream *os;
+
+  g_return_if_fail (WEB_SOCKET_IS_CONNECTION (self));
+  g_return_if_fail (G_IS_IO_STREAM (io_stream));
+
+  g_return_if_fail (pv->io_stream == NULL);
+  pv->io_stream = io_stream;
+
+  is = g_io_stream_get_input_stream (io_stream);
+  os = g_io_stream_get_output_stream (io_stream);
+
+  if (G_IS_POLLABLE_INPUT_STREAM (is))
+    pv->input = G_POLLABLE_INPUT_STREAM (is);
+  if (G_IS_POLLABLE_OUTPUT_STREAM (os))
+    pv->output = G_POLLABLE_OUTPUT_STREAM (os);
+
+  pv->io_open = TRUE;
+  g_object_notify (G_OBJECT (self), "io-stream");
+
+  /* Start handshake from the main context */
+  pv->start_idle = g_idle_source_new ();
+  g_source_set_priority (pv->start_idle, G_PRIORITY_HIGH);
+  g_source_set_callback (pv->start_idle, (GSourceFunc)on_idle_start_input,
+                         g_object_ref (self), g_object_unref);
+  g_source_attach (pv->start_idle, pv->main_context);
 }
 
 static void
@@ -1329,13 +1337,6 @@ web_socket_connection_constructed (GObject *object)
 
   if (!pv->incoming)
     pv->incoming = g_byte_array_sized_new (1024);
-
-  /* Start handshake from the main context */
-  pv->start_idle = g_idle_source_new ();
-  g_source_set_priority (pv->start_idle, G_PRIORITY_HIGH);
-  g_source_set_callback (pv->start_idle, (GSourceFunc)on_idle_start_input,
-                         g_object_ref (self), g_object_unref);
-  g_source_attach (pv->start_idle, pv->main_context);
 }
 
 static void

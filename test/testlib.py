@@ -379,8 +379,9 @@ class Phantom:
             raise Error(status)
 
     def reload(self):
-        if not self.run({'cmd': 'reload'}):
-            raise Error("failed")
+        status = self.run({'cmd': 'reload'})
+        if status != "success":
+            raise Error(status)
 
     def inject(self, file):
         if not self.run({'cmd': 'inject', 'file': file}):

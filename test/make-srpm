@@ -49,6 +49,14 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
+# Fetch submodules if needed
+if test ! -f src/libgsystem/README;
+then
+  echo "+ Setting up submodules"
+  git submodule init
+  git submodule update
+fi
+
 git_archive_all=$(dirname "$0")/git-archive-all
 if [ ! -x "$git_archive_all" ]; then
   git_archive_all=git-archive-all

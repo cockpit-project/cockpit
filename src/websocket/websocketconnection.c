@@ -1823,14 +1823,9 @@ web_socket_connection_send (WebSocketConnection *self,
   g_return_if_fail (WEB_SOCKET_IS_CONNECTION (self));
   g_return_if_fail (message != NULL);
 
-  if (!self->pv->handshake_done)
+  if (web_socket_connection_get_ready_state (self) != WEB_SOCKET_STATE_OPEN)
     {
-      g_critical ("Cannot send message before WebSocket is open");
-      return;
-    }
-  if (self->pv->close_sent)
-    {
-      g_critical ("Cannot send message after WebSocket close");
+      g_critical ("Can only send messages when WebSocket is open");
       return;
     }
 

@@ -1,0 +1,19 @@
+[logging]
+ default = FILE:@dir@/krb5.log
+ kdc = FILE:@dir@/kdc.log
+ admin_server = FILE:@dir@/kadmind.log
+
+[libdefaults]
+ dns_lookup_realm = false
+ default_realm = COCKPIT.MOCK
+ rdns = false
+
+[realms]
+ COCKPIT.MOCK = {
+   kdc = localhost:20088
+   master_kdc = localhost:20088
+ }
+
+[domain_realm]
+ localhost = COCKPIT.MOCK
+

@@ -281,6 +281,10 @@ class MachineCase(unittest.TestCase):
         # Reboots are ok
         "-- Reboot --",
 
+        # Sometimes D-Bus goes away before us during shutdown
+        "Lost \\(or failed to acquire\\) the name com.redhat.Cockpit on the system message bus",
+        "GLib-GIO:ERROR:gdbusobjectmanagerserver\\.c:966:g_dbus_object_manager_server_emit_interfaces_removed: assertion failed \\(error == NULL\\): The connection is closed \\(g-io-error-quark, 18\\)",
+
         ## Bugs
 
         # https://bugs.freedesktop.org/show_bug.cgi?id=70540

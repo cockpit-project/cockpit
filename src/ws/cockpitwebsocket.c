@@ -525,7 +525,8 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
           message = g_async_queue_try_pop (data->async_queue);
           if (message)
             {
-              web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, message);
+              if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
+                web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, message);
               g_bytes_unref (message);
             }
         }

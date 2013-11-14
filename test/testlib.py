@@ -305,9 +305,8 @@ class MachineCase(unittest.TestCase):
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine
-        units = [ "cockpit-testing.service", "cockpit-ws-testing.service" ]
-        messages = machine.journal_messages(units, 5)
-        print messages
+        syslog_ids = [ "cockpitd", "cockpit-ws" ]
+        messages = machine.journal_messages(syslog_ids, 5)
         all_found = True
         for m in messages:
             found = False

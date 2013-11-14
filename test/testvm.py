@@ -271,16 +271,22 @@ class Machine:
         os.chmod(identity, 0600)
         return identity
 
-    def journal_messages(self, units, log_level):
+    def journal_messages(self, syslog_ids, log_level):
         """Return interesting journal messages"""
-        unit_matches = " ".join(map(lambda u: "-u " + u, units))
+
+        # Journald does not always set trusted fields like
+        # _SYSTEMD_UNIT or _EXE correctly for the last few messages of
+        # a dying process, so we filter by the untrusted but reliable
+        # SYSLOG_IDENTIFIER instead
+
+        matches = " ".join(map(lambda id: "SYSLOG_IDENTIFIER=" + id, syslog_ids))
 
         # Some versions of journalctl terminate unsuccessfully when
         # the output is empty.  We work around this by ignoring the
         # exit status and including error messages from journalctl
         # itself in the returned messages.
 
-        cmd = "journalctl 2>&1 -o cat -p %d %s || true" % (log_level, unit_matches)
+        cmd = "journalctl 2>&1 -o cat -p %d %s || true" % (log_level, matches)
         messages = self.execute(cmd).splitlines()
         if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
             # No messages

@@ -1166,7 +1166,8 @@ test_hixie76_response_headers (void)
 {
   GIOStream *ioc;
   GIOStream *ios;
-  gsize count;
+  gsize written;
+  gssize count;
   gchar buffer[1024];
   GHashTable *headers;
   guint status;
@@ -1189,9 +1190,9 @@ test_hixie76_response_headers (void)
 
   /* We rely on kernel buffers here, to prevent deadlock in this test */
   if (!g_output_stream_write_all (g_io_stream_get_output_stream (ioc), handshake,
-                                  strlen (handshake), &count, NULL, NULL))
+                                  strlen (handshake), &written, NULL, NULL))
     g_assert_not_reached ();
-  g_assert_cmpint (count, ==, strlen (handshake));
+  g_assert_cmpint (written, ==, strlen (handshake));
 
   thread = g_thread_new ("server-thread", server_thread, ios);
 

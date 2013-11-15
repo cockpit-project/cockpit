@@ -1080,7 +1080,15 @@ on_web_socket_input (GObject *pollable_stream,
       if (!pv->close_sent || !pv->close_received)
         {
           pv->dirty_close = TRUE;
-          g_message ("connection unexpectedly closed by peer");
+
+          /*
+           * Some versions of the hixie drafts don't have a close handshake,
+           * which is pretty wild. But what can you do. So don't raise a stink
+           * about it if we're talking hixie76
+           */
+
+          if (pv->flavor != WEB_SOCKET_FLAVOR_HIXIE76)
+            g_message ("connection unexpectedly closed by peer");
         }
       else
         {

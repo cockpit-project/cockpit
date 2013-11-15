@@ -1222,6 +1222,87 @@ test_hixie76_response_headers (void)
   g_object_unref (ios);
 }
 
+static gpointer
+close_rough_thread (gpointer data)
+{
+  GIOStream *io = data;
+  const gchar *handshake;
+  gchar buffer[1024];
+  GError *error = NULL;
+  gssize count;
+  gsize written;
+
+  /* hixie76 handshake */
+  handshake = "GET /this/is/my/path HTTP/1.1\r\n"
+              "Host: example.com:3838\r\n"
+              "Upgrade: websocket\r\n"
+              "Connection: upgrade\r\n"
+              "Sec-WebSocket-Key1: m2 304 4880M 4. } Y z 6\r\n"
+              "Sec-WebSocket-Key2: u1   9 944  5$ %s40   <  U96`\r\n"
+              "Sec-WebSocket-Protocol: cockpit1\r\n"
+              "Origin: http://example.com/blah.html\r\n"
+              "\r\n"
+              "01234567";
+
+  /* We rely on kernel buffers here, to prevent deadlock in this test */
+  if (!g_output_stream_write_all (g_io_stream_get_output_stream (io), handshake,
+                                  strlen (handshake), &written, NULL, NULL))
+    g_assert_not_reached ();
+  g_assert_cmpint (written, ==, strlen (handshake));
+
+  /* We rely on kernel buffers here, to prevent deadlock in this test */
+  count = g_input_stream_read (g_io_stream_get_input_stream (io), buffer,
+                               sizeof (buffer), NULL, NULL);
+  g_assert (count > 0);
+
+  /* Now close it hard */
+  g_io_stream_close (io, NULL, &error);
+  g_assert_no_error (error);
+
+  return NULL;
+}
+
+static void
+test_hixie76_rough_close (void)
+{
+  gboolean opened = FALSE;
+  WebSocketConnection *server;
+  GMainContext *context;
+  GIOStream *ioc;
+  GIOStream *ios;
+  GThread *thread;
+
+  create_iostream_pair (&ioc, &ios);
+
+  context = g_main_context_new ();
+  g_main_context_push_thread_default (context);
+
+  /* Create a server and respond to handshake */
+  server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL,
+                                             NULL, ios, NULL, NULL);
+  g_signal_connect (server, "error", G_CALLBACK (on_error_not_reached), NULL);
+  g_signal_connect (server, "open", G_CALLBACK (on_open_set_flag), &opened);
+
+  thread = g_thread_new ("rough-thread", close_rough_thread, ioc);
+
+  while (web_socket_connection_get_ready_state (server) != WEB_SOCKET_STATE_CLOSED)
+    g_main_context_iteration (context, TRUE);
+
+  /* TODO: in the future assert no g_message, but message asserts are broken in glib + g_debug */
+  g_assert (opened == TRUE);
+  g_assert (g_io_stream_is_closed (ioc));
+  g_assert (g_io_stream_is_closed (ios));
+
+  g_object_unref (server);
+
+  g_main_context_pop_thread_default (context);
+  g_main_context_unref (context);
+
+  g_thread_join (thread);
+  g_object_unref (ioc);
+  g_object_unref (ios);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -1305,6 +1386,7 @@ main (int argc,
     }
 
   g_test_add_func ("/web-socket/hixie76/response-headers", test_hixie76_response_headers);
+  g_test_add_func ("/web-socket/hixie76/rough-close", test_hixie76_rough_close);
 
   return g_test_run ();
 }

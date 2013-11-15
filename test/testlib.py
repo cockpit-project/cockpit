@@ -293,9 +293,6 @@ class MachineCase(unittest.TestCase):
         # https://github.com/cockpit-project/cockpit/issues/48
         "Failed to load '.*': Key file does not have group 'Unit'",
 
-        # https://github.com/cockpit-project/cockpit/issues/114
-        "connection unexpectedly closed by peer",
-
         # https://github.com/cockpit-project/cockpit/issues/115
         "cockpit-testing\\.service: main process exited, code=exited, status=1/FAILURE",
         "Unit cockpit-testing\\.service entered failed state\\."

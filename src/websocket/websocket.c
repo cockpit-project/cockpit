@@ -25,6 +25,33 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * WebSocketState:
+ * @WEB_SOCKET_STATE_CONNECTING: the WebSocket is not yet ready to send messages
+ * @WEB_SOCKET_STATE_OPEN: the Websocket is ready to send messages
+ * @WEB_SOCKET_STATE_CLOSING: the Websocket is in the process of closing down, no further messages sent
+ * @WEB_SOCKET_STATE_CLOSED: the Websocket is completely closed down
+ *
+ * The WebSocket is in the %WEB_SOCKET_STATE_CONNECTING state during initial
+ * connection setup, and handshaking. If the handshake or connection fails it
+ * can go directly to the %WEB_SOCKET_STATE_CLOSED state from here.
+ *
+ * Once the WebSocket handshake completes successfully it will be in the
+ * %WEB_SOCKET_STATE_OPEN state. During this state, and only during this state
+ * can WebSocket messages be sent.
+ *
+ * WebSocket messages can be received during either the %WEB_SOCKET_STATE_OPEN
+ * or %WEB_SOCKET_STATE_CLOSING states.
+ *
+ * The WebSocket goes into the %WEB_SOCKET_STATE_CLOSING state once it has
+ * successfully sent a close request to the peer. If we had not yet received
+ * an earlier close request from the peer, then the WebSocket waits for a
+ * response to the close request (until a timeout).
+ *
+ * Once actually closed completely down the WebSocket state is
+ * %WEB_SOCKET_STATE_CLOSED. No communication is possible during this state.
+ */
+
 GQuark
 web_socket_error_get_quark (void)
 {

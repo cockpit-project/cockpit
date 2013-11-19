@@ -48,6 +48,8 @@ CockpitWebServer * cockpit_web_server_new           (gint port,
                                                      GCancellable *cancellable,
                                                      GError **error);
 
+GHashTable *       cockpit_web_server_new_table     (void);
+
 gboolean           cockpit_web_server_parse_cookies (GHashTable *headers,
                                                      GHashTable **out_cookies,
                                                      GError **error);

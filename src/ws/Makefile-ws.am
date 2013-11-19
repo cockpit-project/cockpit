@@ -180,6 +180,7 @@ test_agent_LDADD = 					\
 
 CHECK_PROGS = \
 	test-auth \
+	test-webserver \
 	test-webservice \
 	$(NULL)
 
@@ -205,6 +206,18 @@ test_webservice_SOURCES = \
 test_webservice_CFLAGS = $(cockpit_ws_CFLAGS)
 
 test_webservice_LDADD = \
+	libwebsocket.la \
+	libcockpit-ws.la \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
+test_webserver_SOURCES = \
+	src/ws/test-webserver.c \
+	$(NULL)
+
+test_webserver_CFLAGS = $(cockpit_ws_CFLAGS)
+
+test_webserver_LDADD = \
 	libwebsocket.la \
 	libcockpit-ws.la \
 	$(cockpit_ws_LDADD) \

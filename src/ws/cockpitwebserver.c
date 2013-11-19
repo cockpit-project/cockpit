@@ -319,6 +319,12 @@ out:
   return ret;
 }
 
+GHashTable *
+cockpit_web_server_new_table (void)
+{
+  return web_socket_util_new_headers ();
+}
+
 gboolean
 cockpit_web_server_parse_cookies (GHashTable *headers,
                                   GHashTable **out_cookies,
@@ -330,7 +336,7 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
   const gchar *value;
   gs_unref_hashtable GHashTable *ret_cookies = NULL;
 
-  ret_cookies = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ret_cookies = cockpit_web_server_new_table ();
 
   g_hash_table_iter_init (&hash_iter, headers);
   while (g_hash_table_iter_next (&hash_iter, (gpointer)&key, (gpointer)&value))

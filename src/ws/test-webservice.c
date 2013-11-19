@@ -86,6 +86,7 @@ read_all_into_string (int fd)
       else
         {
           input->len = len + ret;
+          input->str[input->len] = '\0';
         }
     }
 }

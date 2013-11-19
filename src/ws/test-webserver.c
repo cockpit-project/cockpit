@@ -39,6 +39,49 @@ test_table (void)
   g_hash_table_destroy (table);
 }
 
+static void
+test_return_content (void)
+{
+  GOutputStream *out;
+  const gchar *data;
+
+  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+
+  cockpit_web_server_return_content (out, NULL, "the content", 11);
+
+  /* Null terminate because g_assert_cmpstr() */
+  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
+
+  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
+  g_assert_cmpstr (data, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
+
+  g_object_unref (out);
+}
+
+static void
+test_return_content_headers (void)
+{
+  GOutputStream *out;
+  const gchar *data;
+  GHashTable *headers;
+
+  headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (headers, g_strdup ("My-header"), g_strdup ("my-value"));
+
+  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+
+  cockpit_web_server_return_content (out, headers, "the content", 11);
+  g_hash_table_destroy (headers);
+
+  /* Null terminate because g_assert_cmpstr() */
+  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
+
+  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
+  g_assert_cmpstr (data, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\nMy-header: my-value\r\n\r\nthe content");
+
+  g_object_unref (out);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -51,6 +94,8 @@ main (int argc,
   g_test_init (&argc, &argv, NULL);
 
   g_test_add_func ("/web-server/table", test_table);
+  g_test_add_func ("/web-server/return-content", test_return_content);
+  g_test_add_func ("/web-server/return-content-headers", test_return_content_headers);
 
   return g_test_run ();
 }

@@ -132,6 +132,7 @@ cockpit_handler_login (CockpitWebServer *server,
 {
   GError *error = NULL;
 
+  GHashTable *out_headers = NULL;
   gs_free gchar *user = NULL;
   gs_free gchar *cookie_header = NULL;
   gs_free gchar *response_body = NULL;
@@ -164,9 +165,11 @@ cockpit_handler_login (CockpitWebServer *server,
         goto out;
 
       cookie_b64 = g_base64_encode ((guint8*)cookie, strlen (cookie));
-      cookie_header = g_strdup_printf ("Set-Cookie: CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly\r\n",
-                                       cookie_b64,
-                                       ws->certificate != NULL ? " Secure;" : "");
+      out_headers = cockpit_web_server_new_table ();
+      g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"),
+                           g_strdup_printf ("CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
+                                            cookie_b64,
+                                            ws->certificate != NULL ? " Secure;" : ""));
     }
 
   {
@@ -191,26 +194,14 @@ cockpit_handler_login (CockpitWebServer *server,
     json_node_free (root);
   }
 
-  response =
-    g_strdup_printf ("HTTP/1.1 200 OK\r\n"
-                     "%s"
-                     "Content-Length: %d\r\n"
-                     "Connection: close\r\n"
-                     "\r\n"
-                     "%s",
-                     cookie_header? cookie_header : "",
-                     (gint) strlen (response_body),
-                     response_body);
 
-  if (!g_output_stream_write_all (G_OUTPUT_STREAM (out), response, strlen (response), NULL, NULL, &error))
-    {
-      g_warning ("failed to send login reply: %s", error->message);
-      g_error_free (error);
-      error = NULL;
-      goto out;
-    }
+  cockpit_web_server_return_content (G_OUTPUT_STREAM (out),
+                                     out_headers, response_body,
+                                     strlen (response_body));
 
 out:
+  if (out_headers)
+    g_hash_table_unref (out_headers);
   if (error)
     {
       cockpit_web_server_return_gerror (G_OUTPUT_STREAM (out), error);

@@ -550,9 +550,9 @@ class QemuMachine(Machine):
         return output
 
     # This is a special QEMU specific maintenance console
-    def qemu_console(self):
+    def qemu_console(self, snapshot=False):
         try:
-            proc = self._start_qemu(maintain=True, tty=True)
+            proc = self._start_qemu(maintain=not snapshot, tty=True)
         except:
             self._cleanup()
             raise

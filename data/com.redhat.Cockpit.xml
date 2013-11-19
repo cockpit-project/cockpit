@@ -57,24 +57,6 @@
     <property name="PrettyHostname" type="s" access="read"/>
 
     <!--
-        HTTPGet:
-        @uri: The resource to get.
-        @user: The authenticated user of the request, or the empty string.
-        @data: The data.
-
-        Used for serving static content via HTTP, e.g. HTML and JS
-        files.
-    -->
-    <method name="HTTPGet">
-      <annotation name="org.gtk.GDBus.C.Name" value="HTTP_Get"/>
-      <arg name="resource" type="s" direction="in"/>
-      <arg name="user" type="s" direction="in"/>
-      <arg name="data" type="ay" direction="out">
-        <annotation name="org.gtk.GDBus.C.ForceGVariant" value="true"/>
-      </arg>
-    </method>
-
-    <!--
         SetHostname:
         @pretty_hostname: Pretty Hostname to set or blank to not set the pretty hostname.
         @hostname: Regular hostname to set or blank to not set the regular hostname.

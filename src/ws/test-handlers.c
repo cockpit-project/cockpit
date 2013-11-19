@@ -34,6 +34,8 @@
 
 #define PASSWORD "this is the password"
 
+static GDBusConnection *system_bus = NULL;
+
 typedef struct {
   CockpitHandlerData data;
   CockpitWebServer *server;
@@ -61,7 +63,9 @@ setup (Test *test,
 
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
+
   test->data.auth = test->auth;
+  test->data.system_bus = system_bus;
 
   test->headers = cockpit_web_server_new_table ();
 
@@ -273,16 +277,42 @@ test_login_post_accept (Test *test,
   g_free (password);
 }
 
+static void
+test_cockpitdyn (Test *test,
+                 gconstpointer data)
+{
+  gboolean ret;
+  gchar hostname[256];
+  gchar *expected;
+
+  ret = cockpit_handler_cockpitdyn (test->server,
+                                    COCKPIT_WEB_SERVER_REQUEST_GET, "/cockpitdyn.js",
+                                    test->io, test->headers,
+                                    test->datain, test->dataout, &test->data);
+
+  g_assert (ret == TRUE);
+
+  g_assert (gethostname (hostname, sizeof (hostname)) == 0);
+  expected = g_strdup_printf ("HTTP/1.1 200 OK\r\n*cockpitdyn_hostname = \"%s\";\n*cockpitdyn_pretty_hostname*cockpitdyn_supported_languages*",
+                              hostname);
+  assert_matches (output_as_string (test), expected);
+  g_free (expected);
+}
+
 int
 main (int argc,
       char *argv[])
 {
+  gint ret;
+
 #if !GLIB_CHECK_VERSION(2,36,0)
   g_type_init ();
 #endif
 
   g_set_prgname ("test-webservice");
   g_test_init (&argc, &argv, NULL);
+
+  system_bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);
 
   g_test_add ("/handlers/login/no-cookie", Test, NULL,
               setup, test_login_no_cookie, teardown);
@@ -295,5 +325,16 @@ main (int argc,
   g_test_add ("/handlers/login/post-accept", Test, NULL,
               setup, test_login_post_accept, teardown);
 
-  return g_test_run ();
+  /* Skip tests that require a system bus when in mock */
+  if (system_bus)
+    {
+      g_test_add ("/handlers/cockpitdyn", Test, NULL,
+                  setup, test_cockpitdyn, teardown);
+    }
+
+  ret = g_test_run ();
+
+  g_clear_object (&system_bus);
+
+  return ret;
 }

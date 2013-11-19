@@ -29,14 +29,12 @@
 
 static GMainLoop *loop = NULL;
 
-static gchar    *opt_http_root = NULL;
 static gboolean  opt_replace = FALSE;
 static gboolean  opt_no_sigint = FALSE;
 static gboolean  opt_debug = FALSE;
 
 static GOptionEntry opt_entries[] =
 {
-  {"http-root", 0, 0, G_OPTION_ARG_FILENAME, &opt_http_root, "Path to serve HTTP GET requests from", NULL},
   {"replace", 'r', 0, G_OPTION_ARG_NONE, &opt_replace, "Replace existing daemon", NULL},
   {"no-sigint", 's', 0, G_OPTION_ARG_NONE, &opt_no_sigint, "Do not handle SIGINT for controlled shutdown", NULL},
   {"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug, "Debug mode: log messages to output", NULL},
@@ -50,7 +48,7 @@ on_bus_acquired (GDBusConnection *connection,
                  const gchar *name,
                  gpointer user_data)
 {
-  the_daemon = daemon_new (connection, opt_http_root);
+  the_daemon = daemon_new (connection);
 }
 
 static void
@@ -125,9 +123,6 @@ main (int argc,
   if (!opt_debug)
     cockpit_set_journal_logging ();
 
-  if (opt_http_root == NULL)
-  opt_http_root = g_strdup (PACKAGE_DATA_DIR "/cockpit/content");
-
   g_info ("cockpit daemon version %s starting", PACKAGE_VERSION);
 
   loop = g_main_loop_new (NULL, FALSE);
@@ -157,7 +152,6 @@ main (int argc,
   ret = 0;
 
 out:
-  g_free (opt_http_root);
   if (sigint_id > 0)
     g_source_remove (sigint_id);
   if (the_daemon != NULL)

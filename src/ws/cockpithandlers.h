@@ -26,7 +26,7 @@
 typedef struct {
   GTlsCertificate *certificate;
   CockpitAuth *auth;
-  GDBusObjectManager *object_manager;
+  GDBusConnection *system_bus;
 } CockpitHandlerData;
 
 gboolean       cockpit_handler_socket            (CockpitWebServer *server,
@@ -56,10 +56,10 @@ gboolean       cockpit_handler_logout            (CockpitWebServer *server,
                                                   GDataOutputStream *out,
                                                   CockpitHandlerData *data);
 
-gboolean       cockpit_handler_static            (CockpitWebServer *server,
+gboolean       cockpit_handler_cockpitdyn        (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
                                                   const gchar *resource,
-                                                  GSocketConnection *connection,
+                                                  GIOStream *connection,
                                                   GHashTable *headers,
                                                   GDataInputStream *in,
                                                   GDataOutputStream *out,

@@ -62,7 +62,6 @@ struct _Daemon
   GDBusProxy *system_bus_proxy;
   GDBusConnection *connection;
   GDBusObjectManagerServer *object_manager;
-  gchar *http_root;
 
   StorageProvider *storage_provider;
 
@@ -83,7 +82,6 @@ enum
   PROP_0,
   PROP_CONNECTION,
   PROP_OBJECT_MANAGER,
-  PROP_HTTP_ROOT
 };
 
 enum
@@ -109,8 +107,6 @@ daemon_finalize (GObject *object)
   if (daemon->tick_timeout_id > 0)
     g_source_remove (daemon->tick_timeout_id);
 
-  g_free (daemon->http_root);
-
   if (G_OBJECT_CLASS (daemon_parent_class)->finalize != NULL)
     G_OBJECT_CLASS (daemon_parent_class)->finalize (object);
 }
@@ -133,10 +129,6 @@ daemon_get_property (GObject *object,
       g_value_set_object (value, daemon_get_object_manager (daemon));
       break;
 
-    case PROP_HTTP_ROOT:
-      g_value_set_string (value, daemon_get_http_root (daemon));
-      break;
-
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -156,11 +148,6 @@ daemon_set_property (GObject *object,
     case PROP_CONNECTION:
       g_assert (daemon->connection == NULL);
       daemon->connection = g_value_dup_object (value);
-      break;
-
-    case PROP_HTTP_ROOT:
-      g_assert (daemon->http_root == NULL);
-      daemon->http_root = g_value_dup_string (value);
       break;
 
     default:
@@ -345,22 +332,6 @@ daemon_class_init (DaemonClass *klass)
                                                         G_PARAM_STATIC_STRINGS));
 
   /**
-   * Daemon:http-root:
-   *
-   * The path where to serve HTTP files from.
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_HTTP_ROOT,
-                                   g_param_spec_string ("http-root",
-                                                        "HTTP Root",
-                                                        "The path where to serve HTTP files from",
-                                                        PACKAGE_DATA_DIR "/cockpit/content",
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
-
-  /**
    * Daemon:object-manager:
    *
    * The #GDBusObjectManager used by the daemon
@@ -407,13 +378,11 @@ daemon_class_init (DaemonClass *klass)
  * Returns: A #Daemon object. Free with g_object_unref().
  */
 Daemon *
-daemon_new (GDBusConnection *connection,
-            const gchar *http_root)
+daemon_new (GDBusConnection *connection)
 {
   g_return_val_if_fail (G_IS_DBUS_CONNECTION (connection), NULL);
   return DAEMON (g_object_new (TYPE_DAEMON,
                                     "connection", connection,
-                                    "http-root", http_root,
                                     NULL));
 }
 
@@ -457,21 +426,6 @@ daemon_get_object_manager (Daemon *daemon)
 {
   g_return_val_if_fail (IS_DAEMON (daemon), NULL);
   return daemon->object_manager;
-}
-
-/**
- * daemon_get_http_root:
- * @daemon: A #Daemon.
- *
- * Gets the path where HTTP files are to be served from.
- *
- * Returns: A string owned by @daemon.
- */
-const gchar *
-daemon_get_http_root (Daemon *daemon)
-{
-  g_return_val_if_fail (IS_DAEMON (daemon), NULL);
-  return daemon->http_root;
 }
 
 static gboolean

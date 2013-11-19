@@ -1,3 +1,5 @@
+COCKPIT_BUILD_INFO = "Built on $(shell date)"
+
 noinst_LTLIBRARIES += libcockpit-ws.la
 
 libcockpit_ws_la_SOURCES = 				\
@@ -14,6 +16,7 @@ libcockpit_ws_la_CPPFLAGS = \
 	$(cockpit_cppflags_glib_version)			\
 	-I$(top_srcdir)/src/libgsystem \
 	-I$(top_srcdir)/src/ws \
+	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
 	-DG_LOG_DOMAIN=\"libcockpit-ws\" \
 	$(NULL)
 

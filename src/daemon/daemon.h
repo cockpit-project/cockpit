@@ -30,16 +30,13 @@ G_BEGIN_DECLS
 
 GType                      daemon_get_type             (void) G_GNUC_CONST;
 
-Daemon *                   daemon_new                  (GDBusConnection *connection,
-                                                        const gchar *http_root);
+Daemon *                   daemon_new                  (GDBusConnection *connection);
 
 Daemon *                   daemon_get                  (void);
 
 GDBusConnection *          daemon_get_connection       (Daemon *daemon);
 
 GDBusObjectManagerServer * daemon_get_object_manager   (Daemon *daemon);
-
-const gchar *              daemon_get_http_root        (Daemon *daemon);
 
 gboolean                   daemon_authorize_method     (Daemon *daemon,
                                                         GDBusMethodInvocation *invocation);

@@ -21,6 +21,7 @@
 
 #include <gio/gio.h>
 #include <glib-unix.h>
+
 #include <dirent.h>
 
 #include <cockpit/cockpit.h>
@@ -33,12 +34,14 @@
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gint      opt_port         = 21064;
+static gchar    *opt_http_root    = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_disable_auth = FALSE;
 static gboolean  opt_debug = FALSE;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (21064 if unset)", NULL},
+  {"http-root", 0, 0, G_OPTION_ARG_FILENAME, &opt_http_root, "Path to serve HTTP GET requests from", NULL},
   {"no-auth", 0, 0, G_OPTION_ARG_NONE, &opt_disable_auth, "Don't require authentication", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug, "Debug mode: log messages to output", NULL},
@@ -246,6 +249,9 @@ main (int argc,
   if (!opt_debug)
     cockpit_set_journal_logging ();
 
+  if (opt_http_root == NULL)
+    opt_http_root = g_strdup (PACKAGE_DATA_DIR "/cockpit/content");
+
   if (opt_no_tls)
     {
       /* no certificate */
@@ -259,24 +265,16 @@ main (int argc,
   if (!opt_disable_auth)
     data.auth = cockpit_auth_new ();
 
-  data.object_manager = g_dbus_object_manager_client_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
-                                                                       G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-                                                                       "com.redhat.Cockpit",
-                                                                       "/com/redhat/Cockpit",
-                                                                       NULL, /* GDBusProxyTypeFunc */
-                                                                       NULL, /* user_data for GDBusProxyTypeFunc */
-                                                                       NULL, /* GDestroyNotify for GDBusProxyTypeFunc */
-                                                                       NULL, /* GCancellable */
-                                                                       error);
-  if (data.object_manager == NULL)
+  data.system_bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, error);
+  if (data.system_bus == NULL)
     {
-      g_prefix_error (error, "Error creating object manager: ");
+      g_prefix_error (error, "Error getting system bus: ");
       goto out;
     }
 
   server = cockpit_web_server_new (opt_port,
                                    data.certificate,
-                                   NULL, /* opt_root */
+                                   opt_http_root,
                                    NULL,
                                    error);
   if (server == NULL)
@@ -300,10 +298,9 @@ main (int argc,
                     G_CALLBACK (cockpit_handler_logout),
                     &data);
 
-  /* Final default fallback handler */
   g_signal_connect (server,
-                    "handle-resource",
-                    G_CALLBACK (cockpit_handler_static),
+                    "handle-resource::/cockpitdyn.js",
+                    G_CALLBACK (cockpit_handler_cockpitdyn),
                     &data);
 
   g_info ("HTTP Server listening on port %d", opt_port);
@@ -315,6 +312,7 @@ main (int argc,
   ret = 0;
 
 out:
+  g_free (opt_http_root);
   if (local_error)
     {
       g_printerr ("%s (%s, %d)\n", local_error->message, g_quark_to_string (local_error->domain), local_error->code);
@@ -322,7 +320,7 @@ out:
     }
   g_clear_object (&server);
   g_clear_object (&data.auth);
-  g_clear_object (&data.object_manager);
+  g_clear_object (&data.system_bus);
   g_clear_object (&data.certificate);
   return ret;
 }

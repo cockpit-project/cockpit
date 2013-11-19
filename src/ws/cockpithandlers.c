@@ -29,6 +29,7 @@
 #include <json-glib/json-glib.h>
 
 #include <gio/gio.h>
+#include <glib/gi18n-lib.h>
 
 #include <string.h>
 
@@ -255,107 +256,109 @@ out:
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-gboolean
-cockpit_handler_static (CockpitWebServer *server,
-                        CockpitWebServerRequestType reqtype,
-                        const gchar *resource,
-                        GSocketConnection *connection,
-                        GHashTable *headers,
-                        GDataInputStream *in,
-                        GDataOutputStream *out,
-                        CockpitHandlerData *data)
+static gchar *
+get_avatar_data_url (void)
 {
-  gboolean handled = FALSE;
-  GVariant *result_byte_array = NULL;
-  GVariant *result = NULL;
-  GDBusProxy *proxy = NULL;
-  GError *error;
-  const guchar *content;
-  gsize content_len;
-  GString *str = NULL;
-  gs_free gchar *user = NULL;
+  const gchar *file = PACKAGE_SYSCONF_DIR "/cockpit/avatar.png";
 
-  handled = TRUE;
+  gs_free gchar *raw_data = NULL;
+  gsize raw_size;
+  gs_free gchar *base64_data = NULL;
 
-  cockpit_auth_check_headers (data->auth, headers, &user, NULL);
+  if (!g_file_get_contents (file, &raw_data, &raw_size, NULL))
+    return NULL;
 
-  proxy = (GDBusProxy *) g_dbus_object_manager_get_interface (data->object_manager,
-                                                              "/com/redhat/Cockpit/Manager",
-                                                              "com.redhat.Cockpit.Manager");
-  if (proxy == NULL)
+  base64_data = g_base64_encode ((guchar *)raw_data, raw_size);
+  return g_strdup_printf ("data:image/png;base64,%s", base64_data);
+}
+
+gboolean
+cockpit_handler_cockpitdyn (CockpitWebServer *server,
+                            CockpitWebServerRequestType reqtype,
+                            const gchar *resource,
+                            GIOStream *connection,
+                            GHashTable *headers,
+                            GDataInputStream *in,
+                            GDataOutputStream *out,
+                            CockpitHandlerData *data)
+{
+  GError *error = NULL;
+  GVariant *retval;
+  GVariant *props;
+  GString *str;
+  gchar *s;
+  guint n;
+
+  const struct {
+    const gchar *name;
+    const gchar *code;
+  } supported_languages[] = {
+    { NC_("display-language", "English"), "" },
+    { NC_("display-language", "Danish"),  "da" },
+    { NC_("display-language", "German"),  "de" },
+  };
+
+  /*
+   * This is cockpit-ws only use of DBus when in the unauthenticated
+   * state. We don't use a proxy or otherwise require the hostname1
+   * to remain running.
+   *
+   * Unfortunately no convenience function is provided by GDBus for
+   * this call.
+   */
+  retval = g_dbus_connection_call_sync (data->system_bus,
+                                        "org.freedesktop.hostname1",
+                                        "/org/freedesktop/hostname1",
+                                        "org.freedesktop.DBus.Properties",
+                                        "GetAll",
+                                        g_variant_new ("(s)", "org.freedesktop.hostname1"),
+                                        G_VARIANT_TYPE ("(a{sv})"),
+                                        G_DBUS_CALL_FLAGS_NONE,
+                                        -1,
+                                        NULL,
+                                        &error);
+
+  str = g_string_new (NULL);
+
+  if (error == NULL)
     {
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (out), 500, "No proxy for /com/redhat/Cockpit/Manager");
-      goto out;
+      g_variant_get (retval, "(@a{sv})", &props);
+      if (g_variant_lookup (props, "StaticHostname", "&s", &s))
+        g_string_append_printf (str, "cockpitdyn_hostname = \"%s\";\n", s);
+      if (g_variant_lookup (props, "PrettyHostname", "&s", &s))
+        g_string_append_printf (str, "cockpitdyn_pretty_hostname = \"%s\";\n", s);
+    }
+  else
+    {
+      g_warning ("Couldn't get system host name: %s", error->message);
+      g_clear_error (&error);
     }
 
-  error = NULL;
-  result = g_dbus_proxy_call_sync (proxy,
-                                   "HTTPGet",
-                                   g_variant_new ("(ss)", resource, user ? user : ""),
-                                   G_DBUS_CALL_FLAGS_NONE,
-                                   -1,   /* default timeout */
-                                   NULL, /* GCancellable* */
-                                   &error);
-  if (result == NULL)
+  s = get_avatar_data_url ();
+  s = g_strescape (s? s : "", NULL);
+  g_string_append_printf (str, "cockpitdyn_avatar_data_url = \"%s\";\n", s);
+  g_free (s);
+
+  s = g_strescape (PACKAGE_VERSION, NULL);
+  g_string_append_printf (str, "cockpitdyn_version = \"%s\";\n", s);
+  g_free (s);
+
+  s = g_strescape (COCKPIT_BUILD_INFO, NULL);
+  g_string_append_printf (str, "cockpitdyn_build_info = \"%s\";\n", s);
+  g_free (s);
+
+  g_string_append (str, "cockpitdyn_supported_languages = {");
+  for (n = 0; n < G_N_ELEMENTS(supported_languages); n++)
     {
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (out), 500,
-                                       "Error getting resource %s via D-Bus: %s (%s, %d)", resource,
-                                       error->message, g_quark_to_string (error->domain), error->code);
-      g_error_free (error);
-      goto out;
+      if (n > 0)
+        g_string_append (str, ", ");
+      g_string_append_printf (str, "\"%s\": {name: \"%s\"}",
+                              supported_languages[n].code,
+                              supported_languages[n].name);
     }
+  g_string_append (str, "};\n");
 
-  g_variant_get (result, "(@ay)", &result_byte_array);
-  content = g_variant_get_fixed_array (result_byte_array,
-                                       &content_len,
-                                       sizeof (guchar));
-
-  /* Prepare headers */
-  str = g_string_new ("HTTP/1.1 200 OK\r\n");
-  /* TODO: Content-Type ? */
-  g_string_append_printf (str,
-                          "Content-Length: %" G_GINT64_FORMAT "\r\n"
-                          "Connection: close\r\n",
-                          content_len);
-  g_string_append (str, "\r\n");
-
-  error = NULL;
-  if (!g_output_stream_write_all (G_OUTPUT_STREAM (out),
-                                  str->str,
-                                  str->len,
-                                  NULL,
-                                  NULL, /* GCancellable */
-                                  &error))
-    {
-      g_warning ("Error writing %d bytes to output stream for header for resource `%s': %s (%s, %d)",
-                 (gint) str->len, resource,
-                 error->message, g_quark_to_string (error->domain), error->code);
-      g_error_free (error);
-      goto out;
-    }
-
-  error = NULL;
-  if (content != NULL
-      && !g_output_stream_write_all (G_OUTPUT_STREAM (out),
-                                     content,
-                                     content_len,
-                                     NULL,
-                                     NULL, /* GCancellable* */
-                                     &error))
-    {
-      g_warning ("Error writing %d bytes for static content for resource `%s': %s (%s, %d)",
-                 (gint) content_len, resource,
-                 error->message, g_quark_to_string (error->domain), error->code);
-      g_error_free (error);
-      goto out;
-    }
-
-out:
-  if (str != NULL)
-    g_string_free (str, FALSE);
-  if (result_byte_array != NULL)
-    g_variant_unref (result_byte_array);
-  if (result != NULL)
-    g_variant_unref (result);
-  return handled; /* handled */
+  cockpit_web_server_return_content (G_OUTPUT_STREAM (out), NULL, str->str, str->len);
+  g_string_free (str, TRUE);
+  return TRUE;
 }

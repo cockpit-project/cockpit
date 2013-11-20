@@ -10,6 +10,19 @@ silent()
   return $?
 }
 
+# Prerequisites 
+require_binary() {
+  bin=$1
+  if ! which "$bin" >/dev/null 2>/dev/null; then
+    echo 1>&2 "Missing tool /usr/bin/$bin"
+    exit 1
+  fi
+}
+require_binary parallel
+require_binary js
+require_binary trickle
+
+# Start
 cd test
 
 if ! silent $IFCONFIG cockpit0; then

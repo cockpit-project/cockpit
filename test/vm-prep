@@ -51,7 +51,12 @@ cat > $xml << EOF
 	<domain name='default.example.com'/>
 	<ip address='10.111.111.200' netmask='255.255.255.0'>
 		<dhcp>
-			<range start='10.111.111.1' end='10.111.111.100' />
+			<range start='10.111.111.1' end='10.111.111.99' />
+                        <host mac='52:54:00:9e:00:F0' ip='10.111.111.100' name='f0.default.example.com'/>
+                        <host mac='52:54:00:9e:00:F1' ip='10.111.111.101' name='f1.default.example.com'/>
+                        <host mac='52:54:00:9e:00:F2' ip='10.111.111.102' name='f2.default.example.com'/>
+                        <host mac='52:54:00:9e:00:F3' ip='10.111.111.103' name='f3.default.example.com'/>
+                        <host mac='52:54:00:9e:00:F4' ip='10.111.111.104' name='f4.default.example.com'/>
 		</dhcp>
 	</ip>
 </network>

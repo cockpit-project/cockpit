@@ -474,12 +474,20 @@ class QemuMachine(Machine):
             self._locks.append(fd)
             return True
 
-    def _choose_macaddr(self):
-        for i in range(0, 0xFF):
-            macaddr = "%s:%02x" % (self.macaddr_prefix, i)
+    def _choose_macaddr(self, conf):
+        if 'mac' in conf and conf['mac']:
+            macaddr = conf['mac']
+            if len(macaddr) == 2:
+                macaddr = self.macaddr_prefix + ":" + macaddr
             if self._lock_resource(macaddr):
                 return macaddr
-        raise Failure("Couldn't find unused mac address in directory: %s" % resources)
+            raise Failure("Mac address %s is in use" % macaddr)
+        else:
+            for i in range(0, 0xFF):
+                macaddr = "%s:%02x" % (self.macaddr_prefix, i)
+                if self._lock_resource(macaddr):
+                    return macaddr
+            raise Failure("Couldn't find unused mac address in directory: %s" % resources)
 
     def _locate_qemu_kvm(self):
         rhel_qemu_kvm_path = '/usr/libexec/qemu-kvm'
@@ -492,9 +500,16 @@ class QemuMachine(Machine):
         if not self._lock_resource(self._image_root, exclusive=maintain):
             raise Failure("Already running this image: %s" % self.image)
 
+        conf_file = "%s.conf" % self.flavor
+        if os.path.exists(conf_file):
+            with open(conf_file, "r") as f:
+                conf = eval(f.read())
+        else:
+            conf = { }
+
         snapshot = maintain and "off" or "on"
         selinux = "enforcing=0"
-        self.macaddr = self._choose_macaddr()
+        self.macaddr = self._choose_macaddr(conf)
         cmd = [
             self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),

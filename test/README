@@ -120,6 +120,26 @@ To define a new flavor, create a script called "FLAVOR.setup" in this
 directory.  Then, calling "vm-create -f FLAVOR ARGS..." will run
 "FLAVOR.setup ARGS..." inside the virtual machine.
 
+By default, launching a test machine from an image will dynamically
+assign it a 'random' MAC, which results in DHCP assigning it a random
+IP address.  This means that you can launch multiple test machines
+from a single image, maybe to use multiple machines inside a single
+test case, or to run multiple test cases in parallel.
+
+If you want a fixed MAC for a given flavor, you can create the
+"FLAVOR.conf" file in this directory with a content like this:
+
+    { 'mac': "F0" }
+
+Whenever a test machine of the flavor is launched, it will receive
+this MAC, and you can thus only run one of them at any given time.
+
+If you specify only two hex-digits with the "mac" configuration
+option, a default prefix will be used.  The suffices "F0", "F1", "F2",
+"F3", and "F4" will be assigned the fixed IP addresses 10.111.111.100
+to 10.111.111.104.  DNS will resolve "f0.default.example.com",
+"f1.default.example.com", etc to these addresses.
+
 A test machine image can be archived for later use with vm-pack:
 
   $ ./vm-pack [-f FLAVOR]

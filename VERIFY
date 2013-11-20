@@ -33,8 +33,9 @@ if [ -z "$rpms" ]; then
   exit 1
 fi
 
-./vm-unpack
-./vm-install $rpms
+./vm-unpack -f cockpit
+./vm-unpack -f ipa
+./vm-install -f cockpit $rpms
 
 ./check-verify
 

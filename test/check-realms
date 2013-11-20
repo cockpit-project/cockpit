@@ -20,51 +20,21 @@
 
 from testlib import *
 
-realmd_conf = """
-[providers]
-example = yes
-
-[example]
-enabled = yes
-default = default.example.com
-non-discovery-delay = 1
-
-[default.example.com]
-example-administrator = Administrator
-example-password = foobar
-
-[slow-discovery.example.com]
-example-administrator = Administrator
-example-password = barfoo
-example-discovery-delay = 5
-
-[slow-join.example.com]
-example-administrator = Administrator
-example-password = barfoo
-example-join-delay = 5
-
-[slow-leave.example.com]
-example-administrator = Administrator
-example-password = barfoo
-example-leave-delay = 5
-example-no-auto-leave = yes
-
-[no-auto-leave.example.com]
-example-administrator = Administrator
-example-password = barfoo
-example-no-auto-leave = yes
-"""
-
 class TestRealms(MachineCase):
 
-    def testBasic(self):
+    def testIpa(self):
         m = self.machine
         b = self.browser
 
-        m.write("/etc/realmd.conf", realmd_conf)
-        m.execute("mkdir -p /var/lib/realmd")
-        m.execute("pkill -x realmd || true")
-        m.execute("hostname test-machine.example.lan")
+        # Start the FreeIPA instance and use it as the DNS server
+        #
+        ipa = self.new_machine(flavor="ipa")
+        ipa.start()
+        ipa.wait_boot()
+
+        m.execute("hostnamectl set-hostname x0.cockpit.lan")
+        m.execute("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' >/etc/resolv.conf; chattr +i /etc/resolv.conf" % ipa.address)
+
         self.login_and_go("realms")
 
         def wait_number_domains(n):
@@ -76,9 +46,9 @@ class TestRealms(MachineCase):
         b.click("#realms-join-item")
         b.wait_popup("realms-op")
         b.wait_visible("#realms-op-form")
-        b.wait_val("#realms-op-address", "default.example.com")
-        b.wait_val("#realms-op-admin", "Administrator")
-        b.set_val("#realms-op-admin-password", "foobar")
+        b.wait_val("#realms-op-address", "cockpit.lan")
+        b.wait_val("#realms-op-admin", "admin")
+        b.set_val("#realms-op-admin-password", "foobarfoo")
         b.click("#realms-op-apply")
         b.wait_popdown("realms-op")
 
@@ -92,79 +62,35 @@ class TestRealms(MachineCase):
         # Send a wrong password
         b.click("#realms-join-item")
         b.wait_popup("realms-op")
+        b.wait_visible("#realms-op-form")
+        b.wait_val("#realms-op-address", "cockpit.lan")
+        b.wait_val("#realms-op-admin", "admin")
         b.set_val("#realms-op-admin-password", "foo")
         b.click("#realms-op-apply")
         b.wait_text_not("#realms-op-error", "")
         b.click("#realms-op-cancel")
         b.wait_popdown("realms-op")
 
-        # Join a domain that doesn't allow automatic leaves.
-        b.click("#realms-join-item")
-        b.wait_popup("realms-op")
-        b.wait_val("#realms-op-address", "default.example.com")
-        b.set_val("#realms-op-address", "no-auto-leave.example.com")
-        b.wait_val("#realms-op-admin", "Administrator")
-        b.set_val("#realms-op-admin-password", "barfoo")
-        b.click("#realms-op-apply")
-        b.wait_popdown("realms-op")
-
-        wait_number_domains(1)
-
-        # And cancel the leave
-        b.click("#realms-leave-0")
-        b.wait_popup("realms-op")
-        b.click("#realms-op-cancel")
-        b.wait_popdown("realms-op")
-
-        # Leave it
-        b.click("#realms-leave-0")
-        b.wait_popup("realms-op")
-        b.wait_val("#realms-op-admin", "Administrator")
-        b.set_val("#realms-op-admin-password", "barfoo")
-        b.click("#realms-op-apply")
-        b.wait_popdown("realms-op")
-
-        wait_number_domains(0)
-
         # Try to join a non-existing domain
         b.click("#realms-join-item")
         b.wait_popup("realms-op")
-        b.wait_val("#realms-op-address", "default.example.com")
+        b.wait_visible("#realms-op-form")
+        b.wait_val("#realms-op-address", "cockpit.lan")
         b.set_val("#realms-op-address", "NOPE")
         b.wait_js_cond("$('#realms-op-address-error').attr('title') != ''")
         b.click("#realms-op-cancel")
         b.wait_popdown("realms-op")
 
-        # Cancel a slow join
+        # Cancel a join
         b.click("#realms-join-item")
         b.wait_popup("realms-op")
-        b.wait_val("#realms-op-address", "default.example.com")
-        b.set_val("#realms-op-address", "slow-join.example.com")
-        b.wait_val("#realms-op-admin", "Administrator")
-        b.set_val("#realms-op-admin-password", "barfoo")
+        b.wait_visible("#realms-op-form")
+        b.wait_val("#realms-op-address", "cockpit.lan")
+        b.wait_val("#realms-op-admin", "admin")
+        b.set_val("#realms-op-admin-password", "foobarfoo")
         b.click("#realms-op-apply")
         b.wait_visible("#realms-op-spinner")
         b.click("#realms-op-cancel")
         b.wait_popdown("realms-op")
-
-        # Cancel a slow leave
-        b.click("#realms-join-item")
-        b.wait_popup("realms-op")
-        b.wait_val("#realms-op-address", "default.example.com")
-        b.set_val("#realms-op-address", "slow-leave.example.com")
-        b.wait_val("#realms-op-admin", "Administrator")
-        b.set_val("#realms-op-admin-password", "barfoo")
-        b.click("#realms-op-apply")
-        b.wait_popdown("realms-op")
-        wait_number_domains(1)
-        b.click("#realms-leave-0")
-        b.wait_popup("realms-op")
-        b.wait_val("#realms-op-admin", "Administrator")
-        b.set_val("#realms-op-admin-password", "barfoo")
-        b.click("#realms-op-apply")
-        b.wait_visible("#realms-op-spinner")
-        b.click("#realms-op-cancel")
-        b.wait_popdown("realms-op")
-        wait_number_domains(1)
 
 test_main()

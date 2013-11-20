@@ -110,11 +110,13 @@ want to test a scenario where Cockpit on one machine talks to FreeIPA
 on another, and you want those two machines to use different images.
 
 This is handled by passing the "--flavor" / "-f" option to vm-create
-and other scripts that work with test machine images.  Currently, only
-one flavor is available:
+and other scripts that work with test machine images.  Currently, two
+flavors are available:
 
   "cockpit" -- The basic image for running Cockpit.  This is the
                default.
+
+  "ipa"     -- A FreeIPA server.
 
 To define a new flavor, create a script called "FLAVOR.setup" in this
 directory.  Then, calling "vm-create -f FLAVOR ARGS..." will run
@@ -137,8 +139,8 @@ this MAC, and you can thus only run one of them at any given time.
 If you specify only two hex-digits with the "mac" configuration
 option, a default prefix will be used.  The suffices "F0", "F1", "F2",
 "F3", and "F4" will be assigned the fixed IP addresses 10.111.111.100
-to 10.111.111.104.  DNS will resolve "f0.default.example.com",
-"f1.default.example.com", etc to these addresses.
+to 10.111.111.104.  DNS will resolve "f0.cockpit.lan",
+"f1.cockpit.lan", etc to these addresses.
 
 A test machine image can be archived for later use with vm-pack:
 

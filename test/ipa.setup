@@ -1,0 +1,16 @@
+#! /bin/bash
+
+set -eufx
+
+yes | yum install -y freeipa-server bind bind-dyndb-ldap
+
+hostnamectl set-hostname f0.cockpit.lan
+ipa-server-install -U -p foobarfoo -r foobarfoo -a foobarfoo -n cockpit.lan -r COCKPIT.LAN --setup-dns --no-forwarders
+firewall-cmd --permanent \
+             --add-service http \
+             --add-service https \
+             --add-service ldap \
+             --add-service ldaps \
+             --add-service kerberos \
+             --add-service dns \
+             --add-service ntp

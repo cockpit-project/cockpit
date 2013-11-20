@@ -48,15 +48,15 @@ cat > $xml << EOF
 	</forward>
 	<bridge name='cockpit0' stp='on' delay='0' />
 	<mac address='52:54:00:b8:d2:b5'/>
-	<domain name='default.example.com'/>
+	<domain name='cockpit.lan'/>
 	<ip address='10.111.111.200' netmask='255.255.255.0'>
 		<dhcp>
 			<range start='10.111.111.1' end='10.111.111.99' />
-                        <host mac='52:54:00:9e:00:F0' ip='10.111.111.100' name='f0.default.example.com'/>
-                        <host mac='52:54:00:9e:00:F1' ip='10.111.111.101' name='f1.default.example.com'/>
-                        <host mac='52:54:00:9e:00:F2' ip='10.111.111.102' name='f2.default.example.com'/>
-                        <host mac='52:54:00:9e:00:F3' ip='10.111.111.103' name='f3.default.example.com'/>
-                        <host mac='52:54:00:9e:00:F4' ip='10.111.111.104' name='f4.default.example.com'/>
+                        <host mac='52:54:00:9e:00:F0' ip='10.111.111.100' name='f0.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:F1' ip='10.111.111.101' name='f1.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:F2' ip='10.111.111.102' name='f2.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:F3' ip='10.111.111.103' name='f3.cockpit.lan'/>
+                        <host mac='52:54:00:9e:00:F4' ip='10.111.111.104' name='f4.cockpit.lan'/>
 		</dhcp>
 	</ip>
 </network>

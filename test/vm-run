@@ -23,10 +23,11 @@ import testvm
 
 parser = argparse.ArgumentParser(description='Run a test machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose details')
+parser.add_argument('-f', '--flavor', action='store', help='The flavor to run')
 args = parser.parse_args()
 
 try:
-    machine = testvm.QemuMachine(verbose=args.verbose)
+    machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor)
     machine.qemu_console()
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-run:", ex

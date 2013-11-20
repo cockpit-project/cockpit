@@ -1,0 +1,68 @@
+#! /bin/bash
+
+echo 'SELINUX=disabled' > /etc/selinux/config
+
+rm -rf /etc/sysconfig/iptables
+
+echo "[cockpit-deps]
+name=Unreleased Cockpit dependencies
+baseurl=http://cockpit-project.github.io/cockpit-deps/$TEST_OS/$TEST_ARCH
+enabled=1
+gpgcheck=0" > /etc/yum.repos.d/cockpit-deps.repo
+
+echo '<?xml version="1.0" encoding="utf-8"?>
+<zone>
+  <short>Public</short>
+  <description>For use in public areas. You do not trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
+  <service name="ssh"/>
+  <service name="mdns"/>
+  <service name="dhcpv6-client"/>
+  <port protocol="tcp" port="21064"/>
+  <port protocol="tcp" port="8765"/>
+</zone>' > /etc/firewalld/zones/public.xml
+
+echo 'NETWORKING=yes' > /etc/sysconfig/network
+
+if ! grep -q 'admin:' /etc/passwd; then
+    echo 'admin:x:1000:1000:Administrator:/home/admin:/bin/bash' >> /etc/passwd
+fi
+
+# Password is "foobar"
+if ! grep -q 'admin:' /etc/shadow; then
+    echo 'admin:$6$03s8BUsPb6ahCTLG$sb/AvOIJopKrG7KPG7KIqM1bmhpwF/oHSWF8jAicXx9Q0Dghl8PdUNXF61C3pTxOM/3XBJypvIrQdwC5frTCP/:15853:0:99999:7:::' >> /etc/shadow
+fi
+
+if ! grep -q 'admin:' /etc/group; then
+    echo 'admin:x:1000:' >> /etc/group
+    sed -i 's/^wheel:.*/\0admin/' /etc/group
+fi
+
+if ! [ -d /home/admin ]; then
+    mkdir /home/admin
+    chown 1000:1000 /home/admin
+fi
+
+# To enable persistent logging
+mkdir -p /var/log/journal
+
+yes | yum update -y
+if [ -n "$*" ]; then
+  yes | yum install -y "$@"
+fi
+
+# Stopping a user@.service at poweroff sometimes hangs and then times
+# out, but that seems to be harmless otherwise.  We reduce the timeout
+# so that we don't have to wait for the default 90 seconds.
+#
+f=/usr/lib/systemd/system/user@.service
+if [ -f $f ] && ! grep -q TimeoutStopSec $f; then
+  echo TimeoutStopSec=1 >>$f
+  systemctl daemon-reload
+fi
+
+# We rely on the NetworkManager dispatcher, but it sometimes is
+# disabled after the update above.  So let's make sure it is enabled.
+#
+systemctl enable NetworkManager-dispatcher
+
+rm -rf /var/log/journal/*

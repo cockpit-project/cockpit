@@ -10,12 +10,15 @@ Fedora:
   # npm install phantomjs
 
 You also need a base tarball for the distribution you want to test
-Cockpit on.  Try one of these:
+Cockpit on.  Try one this one:
 
-    https://dl.dropboxusercontent.com/s/10b3q7ualqxew1d/fedora-18-x86_64.tar.gz
     https://dl.dropboxusercontent.com/s/73o8zc73dze771b/fedora-20-x86_64.tar.gz
 
 ## Quick list of tools
+
+For setting up the host:
+
+vm-prep,     for creating the test network etc.
 
 For managing test machines and running tests:
 
@@ -49,10 +52,14 @@ You can set these environment variables to configure the test suite:
 
 ## Quick start
 
+Set up the host as root:
+
+  $ sudo ./vm-prep
+
 You need to download a 'magic base tarball' for the OS and machine
 architecture you want to test and store it as
 
-  $TEST_DATA/base/$TEST-OS-$TEST_ARCH.tar.gz
+  $TEST_DATA/base-$TEST-OS-$TEST_ARCH.tar.gz
 
 Create a test machine image from it:
 
@@ -69,6 +76,10 @@ And install it into the test machine image:
 Then you can run some tests:
 
   $ ./check-dbus
+
+This will work for most of the tests, but some tests require
+additional preparation, such as the creation of an image for a FreeIPA
+server.
 
 ## Test machines and their images
 
@@ -91,18 +102,33 @@ A test machine image is created with vm-create, like so:
 This starts from a magic base tarball, makes some magic modifications
 to it, brings it up-to-date with respect to the upstream package
 repositories, and installs the given list of extra packages.  The
-magic base tarballs is looked for in "$TEST_DATA/base", is currently
-lovingly made by hand, and changes almost never.
+magic base tarballs is looked for in $TEST_DATA, is currently lovingly
+made by hand, and changes almost never.
+
+There can be more than one test machine image.  For example, you might
+want to test a scenario where Cockpit on one machine talks to FreeIPA
+on another, and you want those two machines to use different images.
+
+This is handled by passing the "--flavor" / "-f" option to vm-create
+and other scripts that work with test machine images.  Currently, only
+one flavor is available:
+
+  "cockpit" -- The basic image for running Cockpit.  This is the
+               default.
+
+To define a new flavor, create a script called "FLAVOR.setup" in this
+directory.  Then, calling "vm-create -f FLAVOR ARGS..." will run
+"FLAVOR.setup ARGS..." inside the virtual machine.
 
 A test machine image can be archived for later use with vm-pack:
 
-  $ ./vm-pack
+  $ ./vm-pack [-f FLAVOR]
 
 This will create a new tarball and place it into the current
 directory.  To create a test machine image from an archived tarball,
 use vm-unpack:
 
-  $ ./vm-unpack
+  $ ./vm-unpack [-f FLAVOR]
 
 The idea is that vm-unpack is much faster than vm-create.  One
 typically uses vm-create not more often than once a day, but each test
@@ -116,7 +142,7 @@ A test machine image created by vm-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
 working copy of Cockpit like this:
 
-  $ ./vm-install $(./make-rpms)
+  $ ./vm-install [-f FLAVOR] $(./make-rpms)
 
 This will modify the test machine image.
 

@@ -23,11 +23,12 @@ import testvm
 
 parser = argparse.ArgumentParser(description='Install Cockpit on a virtual machine')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+parser.add_argument('-f', '--flavor', action='store', help='The image to modify')
 parser.add_argument('rpms', metavar='RPM', nargs='*', help='RPMS to install')
 args = parser.parse_args()
 
 try:
-    machine = testvm.QemuMachine(verbose=args.verbose)
+    machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor)
     machine.install(args.rpms)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-install:", ex

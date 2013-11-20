@@ -233,12 +233,9 @@ class MachineCase(unittest.TestCase):
     machine_class = testvm.QemuMachine
     machine = None
 
-    def new_machine(self):
-        m = self.machine_class(verbose=arg_trace)
-        def cleanup():
-            if m.address:
-                m.kill()
-        self.addCleanup(cleanup)
+    def new_machine(self, flavor=None):
+        m = self.machine_class(verbose=arg_trace, flavor=flavor)
+        self.addCleanup(lambda: m.kill())
         return m
 
     def setUp(self):

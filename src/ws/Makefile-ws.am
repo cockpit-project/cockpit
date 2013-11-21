@@ -4,6 +4,7 @@ libcockpit_ws_la_SOURCES = 				\
 	src/ws/cockpitwstypes.h					\
 	src/ws/cockpitwebserver.h		src/ws/cockpitwebserver.c		\
 	src/ws/cockpitwebsocket.h 	src/ws/cockpitwebsocket.c		\
+	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
 	cockpitwsenumtypes.h	cockpitwsenumtypes.c	\
 	$(NULL)
@@ -182,6 +183,7 @@ CHECK_PROGS = \
 	test-auth \
 	test-webserver \
 	test-webservice \
+	test-handlers \
 	$(NULL)
 
 test_auth_CFLAGS = $(cockpit_ws_CFLAGS)
@@ -193,6 +195,19 @@ test_auth_SOURCES = \
 	$(NULL)
 
 test_auth_LDADD = \
+	libcockpit-ws.la \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
+test_handlers_CFLAGS = $(cockpit_ws_CFLAGS)
+
+test_handlers_SOURCES = \
+	src/ws/test-handlers.c \
+	src/ws/mock-auth.c src/ws/mock-auth.h \
+	src/ws/mock-io-stream.c src/ws/mock-io-stream.h \
+	$(NULL)
+
+test_handlers_LDADD = \
 	libcockpit-ws.la \
 	$(cockpit_ws_LDADD) \
 	$(NULL)

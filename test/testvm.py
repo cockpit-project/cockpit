@@ -26,6 +26,7 @@ import subprocess
 import tempfile
 import time
 import sys
+import shutil
 
 DEFAULT_FLAVOR="cockpit"
 DEFAULT_OS = "fedora-20"
@@ -49,6 +50,7 @@ class Machine:
         self.arch = arch or os.environ.get("TEST_ARCH") or DEFAULT_ARCH
         self.image = "%s-%s-%s" % (self.flavor, self.os, self.arch)
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
+        self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.address = address
         self.mac = None
 
@@ -363,15 +365,14 @@ class QemuMachine(Machine):
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
-    def unpack(self, flavor=None, modify_func=None):
+    def unpack_base(self, modify_func=None):
         assert not self._process
 
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
-        image = "%s-%s-%s" % (flavor or self.flavor, self.os, self.arch)
-        data_dir = os.environ.get("TEST_DATA") or self.test_dir
-        tarball = os.path.join(data_dir, "%s.tar.gz" % (image, ))
+        image = "%s-%s" % (self.os, self.arch)
+        tarball = os.path.join(self.test_data, "%s.tar.gz" % (image, ))
         if not os.path.exists(tarball):
            raise Failure("Unsupported configuration %s: %s not found." % (image, tarball))
 
@@ -381,14 +382,12 @@ class QemuMachine(Machine):
             gf.set_trace(1)
 
         try:
-            # Create a raw-format sparse disk image
+            # Create a qcow2-format disk image
             self.message("Building disk:", self._image_root)
-            with open(self._image_root, "w") as f:
-                f.truncate(4 * 1024 * 1024 * 1024)
-                f.close()
+            subprocess.check_call([ "qemu-img", "create", "-f", "qcow2", self._image_root, "4G" ])
 
             # Attach the disk image to libguestfs.
-            gf.add_drive_opts(self._image_root, format = "raw", readonly = 0)
+            gf.add_drive_opts(self._image_root, format = "qcow2", readonly = 0)
             gf.launch()
 
             devices = gf.list_devices()
@@ -412,31 +411,24 @@ class QemuMachine(Machine):
         finally:
             gf.close()
 
-    def pack(self):
+    def save(self):
         assert not self._process
 
-        tarball = os.path.join(self.test_dir, "%s.tar.gz" % (self.image, ))
+        if (not os.path.exists(self._image_kernel)
+            or not os.path.exists(self._image_initrd)
+            or not os.path.exists(self._image_root)):
+            raise Failure("Nothing to save.")
 
-        import guestfs
-        gf = guestfs.GuestFS(python_return_dict=True)
-        if self.verbose:
-            gf.set_trace(1)
+        if (os.path.islink(self._image_kernel)
+            or os.path.islink(self._image_initrd)):
+            raise Failure("Can not save now, only right after vm-create.")
 
-        try:
-            # Attach the disk image to libguestfs.
-            gf.add_drive_opts(self._image_root, format = "raw", readonly = 1)
-            gf.launch()
-
-            devices = gf.list_devices()
-            assert len(devices) == 1
-
-            gf.mount(devices[0], "/")
-
-            self.message("Packing %s into %s" % (self._image_root, tarball))
-            gf.tgz_out("/", tarball)
-
-        finally:
-            gf.close()
+        images_dir = os.path.join(self.test_data, "images")
+        if not os.path.exists(images_dir):
+            os.makedirs(images_dir, 0750)
+        shutil.copy(self._image_root, images_dir)
+        shutil.copy(self._image_kernel, images_dir)
+        shutil.copy(self._image_initrd, images_dir)
 
     def build(self, args):
         def modify(gf):
@@ -451,7 +443,7 @@ class QemuMachine(Machine):
         if not os.path.exists(script):
             raise Failure("Unsupported flavor %s: %s not found." % (self.flavor, script))
 
-        self.unpack("base", modify)
+        self.unpack_base(modify)
         self.run_setup_script(script, args)
 
     def _lock_resource(self, resource, exclusive=True):
@@ -497,6 +489,29 @@ class QemuMachine(Machine):
         return 'qemu-kvm'
 
     def _start_qemu(self, maintain=False, tty=False, monitor=None):
+        if (not os.path.exists(self._image_root)
+            or not os.path.exists(self._image_kernel)
+            or not os.path.exists(self._image_initrd)):
+
+            if not os.path.exists(self.run_dir):
+                os.makedirs(self.run_dir, 0750)
+
+            backing_file = os.path.join(self.test_data, "images", os.path.basename(self._image_root))
+            kernel_file = os.path.join(self.test_data, "images", os.path.basename(self._image_kernel))
+            initrd_file = os.path.join(self.test_data, "images", os.path.basename(self._image_initrd))
+            if not os.path.exists(backing_file):
+                raise Failure("Image not found: %s" % backing_file)
+            if not os.path.exists(kernel_file):
+                raise Failure("Kernel not found: %s" % backing_file)
+            if not os.path.exists(initrd_file):
+                raise Failure("Initrd not found: %s" % backing_file)
+            subprocess.check_call([ "qemu-img", "create",
+                                    "-f", "qcow2",
+                                    "-o", "backing_file=%s" % backing_file,
+                                    self._image_root ])
+            subprocess.check_call([ "ln", "-sf", kernel_file, self._image_kernel ])
+            subprocess.check_call([ "ln", "-sf", initrd_file, self._image_initrd ])
+
         if not self._lock_resource(self._image_root, exclusive=maintain):
             raise Failure("Already running this image: %s" % self.image)
 
@@ -576,6 +591,9 @@ class QemuMachine(Machine):
     def start(self, maintain=False):
         assert not self._process
         try:
+            if not os.path.exists(self.run_dir):
+                os.makedirs(self.run_dir, 0750)
+
             (unused, self._monitor) = tempfile.mkstemp(suffix='.mon', prefix="machine-", dir=self.run_dir)
             self._process = self._start_qemu(maintain=maintain, tty=False,
                                              monitor="unix:path=%s,server,nowait" % self._monitor)

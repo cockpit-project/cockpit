@@ -4,19 +4,24 @@
 
 set -x
 
-# Create new tarballs in ./test
+STAGE_DATA=$PWD/stage
+
+# Create new clean images in $STAGE_DATA/images
 
 ( cd test
+  ./vm-reset
   ./vm-create -v -f cockpit
-  ./vm-pack -f cockpit
   ./vm-create -v -f ipa
-  ./vm-pack -f ipa
+  export TEST_DATA=$STAGE_DATA
+  ./vm-save -f cockpit
+  ./vm-save -f ipa
 )
 
-# Test it.
+# Test them.
 
-( export TEST_DATA=$PWD/test
-  ./VERIFY || ./VERIFY || ./VERIFY
+( export TEST_DATA=$STAGE_DATA
+  ./VERIFY
 )
 
-echo "Tarball test/cockpit-$TEST_OS-$TEST_ARCH.tar.gz is ready for use."
+echo "New images are ready in $STAGE_DATA/images."
+echo "Move them to \$TEST_DATA/images, if you like."

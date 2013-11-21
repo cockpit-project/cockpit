@@ -23,8 +23,8 @@ vm-prep,     for creating the test network etc.
 For managing test machines and running tests:
 
 vm-create,   for creating test machine images from scratch.
-vm-pack,     for archiving a test machine image.
-vm-unpack,   for unarchiving a test machine image.
+vm-save,     for saving a known good test machine image for fast reuse.
+vm-reset,    for starting over from a clean slate.
 vm-install,  for installing RPMs into a test machine image.
 check-*,     the actual tests.
 
@@ -59,7 +59,7 @@ Set up the host as root:
 You need to download a 'magic base tarball' for the OS and machine
 architecture you want to test and store it as
 
-  $TEST_DATA/base-$TEST-OS-$TEST_ARCH.tar.gz
+  $TEST_DATA/$TEST-OS-$TEST_ARCH.tar.gz
 
 Create a test machine image from it:
 
@@ -80,6 +80,9 @@ Then you can run some tests:
 This will work for most of the tests, but some tests require
 additional preparation, such as the creation of an image for a FreeIPA
 server.
+
+The vm-create step above can be slow and depends on the network.  See
+below how to use vm-save and vm-reset to speed this up.
 
 ## Test machines and their images
 
@@ -104,6 +107,8 @@ to it, brings it up-to-date with respect to the upstream package
 repositories, and installs the given list of extra packages.  The
 magic base tarballs is looked for in $TEST_DATA, is currently lovingly
 made by hand, and changes almost never.
+
+The image will be created in the "./run" directory.
 
 There can be more than one test machine image.  For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA
@@ -142,23 +147,27 @@ option, a default prefix will be used.  The suffices "F0", "F1", "F2",
 to 10.111.111.104.  DNS will resolve "f0.cockpit.lan",
 "f1.cockpit.lan", etc to these addresses.
 
-A test machine image can be archived for later use with vm-pack:
+A test machine image can be saved for later use with vm-save:
 
-  $ ./vm-pack [-f FLAVOR]
+  $ ./vm-save [-f FLAVOR]
 
-This will create a new tarball and place it into the current
-directory.  To create a test machine image from an archived tarball,
-use vm-unpack:
+This will simply copy the image to $TEST_DATA/images/.
 
-  $ ./vm-unpack [-f FLAVOR]
+To use saved images effectively, you need to understand what happens
+when a test machine is started: If there is a suitable image in
+"./run", it will be used.  Otherwise, a new image is created by using
+an image in $TEST_DATA/images as the 'backing file'.
 
-The idea is that vm-unpack is much faster than vm-create.  One
-typically uses vm-create not more often than once a day, but each test
-suite run should start from a clean test machine image.
+The ./vm-reset program will remove the ./run directory.
 
-Also, a archived tarball serves as a point of reference since using it
-will isolate you from changes in the package repositories that are
-used by vm-create.
+The idea is that creating a fresh image with a backing file is _much_
+faster than vm-create.  One typically uses vm-create not more often
+than once a day, but each test suite run should start from clean test
+machine images.
+
+Also, a saved image serves as a point of reference since using it will
+isolate you from changes in the package repositories that are used by
+vm-create.
 
 A test machine image created by vm-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
@@ -166,7 +175,23 @@ working copy of Cockpit like this:
 
   $ ./vm-install [-f FLAVOR] $(./make-rpms)
 
-This will modify the test machine image.
+This will modify the test machine image in ./run, but will not modify
+the saved version in $TEST_DATA/images.
+
+A typical sequence of steps would thus be the following:
+
+  $ ./vm-create ...       # Create a fresh image in ./run
+  $ ./vm-save             # Save it for future use
+
+  $ ./vm-reset            # Start over
+  $ ./vm-install ...      # Install code to test
+  $ ./check-...           # Run some tests
+
+  $ ./vm-reset            # Start over
+  $ ./vm-install ...      # Install code to test
+  $ ./check-...           # Run some tests
+
+  etc.
 
 ## Running tests
 

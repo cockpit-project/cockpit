@@ -1,16 +1,5 @@
 #! /bin/bash
 
-# We install all dependencies of the cockpit packages since we want
-# them to not spontaneously change from one test run to the next when
-# the distribution repository is updated.
-#
-COCKPIT_DEPS="accountsservice-libs udisks2 libudisks2 json-glib realmd sshpass lvm2 mdadm glib-networking"
-
-# We also install the packages necessary to join a FreeIPA domain so
-# that we don't have to go to the network during a test run.
-#
-IPA_CLIENT_PACKAGES="freeipa-client oddjob oddjob-mkhomedir sssd"
-
 . ./test/testlib.sh
 
 set -x
@@ -18,7 +7,7 @@ set -x
 # Create new tarballs in ./test
 
 ( cd test
-  ./vm-create -v -f cockpit $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+  ./vm-create -v -f cockpit
   ./vm-pack -f cockpit
   ./vm-create -v -f ipa
   ./vm-pack -f ipa

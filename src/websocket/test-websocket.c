@@ -1290,15 +1290,16 @@ test_hixie76_rough_close (void)
 
   /* TODO: in the future assert no g_message, but message asserts are broken in glib + g_debug */
   g_assert (opened == TRUE);
-  g_assert (g_io_stream_is_closed (ioc));
   g_assert (g_io_stream_is_closed (ios));
+
+  g_thread_join (thread);
+  g_assert (g_io_stream_is_closed (ioc));
 
   g_object_unref (server);
 
   g_main_context_pop_thread_default (context);
   g_main_context_unref (context);
 
-  g_thread_join (thread);
   g_object_unref (ioc);
   g_object_unref (ios);
 }

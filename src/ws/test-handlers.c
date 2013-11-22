@@ -138,7 +138,7 @@ test_login_no_cookie (Test *test,
 
   g_assert (ret == TRUE);
 
-  assert_matches (output_as_string (test), "HTTP/1.1 403 Sorry\r\n*");
+  assert_matches (output_as_string (test), "HTTP/1.1 401 Sorry\r\n*");
 }
 
 static void
@@ -218,7 +218,7 @@ test_login_post_fail (Test *test,
                                test->io, test->headers, test->datain, test->dataout, &test->data);
 
   g_assert (ret == TRUE);
-  assert_matches (output_as_string (test), "HTTP/1.1 403 Authentication failed\r\n*");
+  assert_matches (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
 }
 
 static GHashTable *

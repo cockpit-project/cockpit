@@ -101,13 +101,13 @@ class TestLogin(MachineCase):
         assert self.curl_post_code ('/login', 'foo\nbar\n') == 400
         assert self.curl_post_code ('/login', 'foo\nbar\nbaz') == 400
         assert self.curl_post_code ('/login', '\n\n\n') == 400
-        assert self.curl_post_code ('/login', 'admin\nbar') == 403
-        assert self.curl_post_code ('/login', 'foo\nbar') == 403
+        assert self.curl_post_code ('/login', 'admin\nbar') == 401
+        assert self.curl_post_code ('/login', 'foo\nbar') == 401
         assert self.curl_post_code ('/login', 'x' * 5000) == 413
-        assert self.curl_post_code ('/login', 'admin\n' + 'x' * 4000) == 403
-        assert self.curl_post_code ('/login', 'x' * 4000 + '\nbar') == 403
+        assert self.curl_post_code ('/login', 'admin\n' + 'x' * 4000) == 401
+        assert self.curl_post_code ('/login', 'x' * 4000 + '\nbar') == 401
         assert self.curl_post_code ('/login', 'a' * 4000 ) == 400
-        assert self.curl_post_code ('/login', 'a' * 4000 + '\n') == 403
+        assert self.curl_post_code ('/login', 'a' * 4000 + '\n') == 401
         assert self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc') == 400
         assert self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc\n') == 400
 

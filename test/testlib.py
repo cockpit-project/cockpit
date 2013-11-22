@@ -304,7 +304,7 @@ class MachineCase(unittest.TestCase):
 
     allowed_messages = [
         # This is a failed login, which happens every time
-        "Returning error-response 403 with reason `Sorry'",
+        "Returning error-response 401 with reason `Sorry'",
 
         # Reboots are ok
         "-- Reboot --",

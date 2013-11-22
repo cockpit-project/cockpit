@@ -191,13 +191,13 @@ main (int argc,
   pw = getpwnam (user);
   if (pw == NULL)
     {
-      fprintf (stderr, "invalid user: %m");
+      fprintf (stderr, "invalid user: %s\n", user);
       exit (1);
     }
 
   if (initgroups (user, pw->pw_gid) < 0)
     {
-      fprintf (stderr, "can't init groups: %m");
+      fprintf (stderr, "can't init groups: %m\n");
       exit (1);
     }
 

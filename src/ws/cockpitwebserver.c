@@ -453,7 +453,7 @@ cockpit_web_server_return_gerror (GOutputStream *out,
 
   if (g_error_matches (error,
                        COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED))
-	  code = 403;
+    code = 401;
   else if (g_error_matches (error,
                             G_IO_ERROR, G_IO_ERROR_INVALID_DATA))
     code = 400;

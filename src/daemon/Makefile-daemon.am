@@ -1,5 +1,3 @@
-COCKPIT_BUILD_INFO = "Built on $(shell date)"
-
 libexec_PROGRAMS += cockpitd
 
 cockpitd_SOURCES = \
@@ -63,7 +61,6 @@ cockpitd_CFLAGS = 						\
 	-I$(top_srcdir)/src/daemon			\
 	-I$(top_srcdir)/src/libgsystem			\
 	-DG_LOG_DOMAIN=\"cockpitd\"			\
-	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
 	$(COCKPIT_DAEMON_CFLAGS)				\
 	$(NULL)
 

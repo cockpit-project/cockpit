@@ -319,6 +319,12 @@ out:
   return ret;
 }
 
+GHashTable *
+cockpit_web_server_new_table (void)
+{
+  return web_socket_util_new_headers ();
+}
+
 gboolean
 cockpit_web_server_parse_cookies (GHashTable *headers,
                                   GHashTable **out_cookies,
@@ -330,7 +336,7 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
   const gchar *value;
   gs_unref_hashtable GHashTable *ret_cookies = NULL;
 
-  ret_cookies = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ret_cookies = cockpit_web_server_new_table ();
 
   g_hash_table_iter_init (&hash_iter, headers);
   while (g_hash_table_iter_next (&hash_iter, (gpointer)&key, (gpointer)&value))
@@ -361,6 +367,46 @@ out:
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
+
+void
+cockpit_web_server_return_content (GOutputStream *out,
+                                   GHashTable *headers,
+                                   gpointer content,
+                                   gsize length)
+{
+  GHashTableIter iter;
+  GError *error = NULL;
+  gpointer value;
+  gpointer key;
+  GString *resp;
+
+  resp = g_string_new (NULL);
+
+  g_string_printf (resp, "HTTP/1.1 200 OK\r\n"
+                         "Content-Length: %" G_GSIZE_FORMAT "\r\n"
+                         "Connection: close\r\n", length);
+
+  if (headers)
+    {
+      g_hash_table_iter_init (&iter, headers);
+      while (g_hash_table_iter_next (&iter, &key, &value))
+        g_string_append_printf (resp, "%s: %s\r\n", (gchar *)key, (gchar *)value);
+    }
+
+  g_string_append (resp, "\r\n");
+
+  if (!g_output_stream_write_all (out, resp->str, resp->len, NULL, NULL, &error) ||
+      !g_output_stream_write_all (out, content, length, NULL, NULL, &error))
+    goto out;
+
+out:
+  g_string_free (resp, TRUE);
+  if (error)
+    {
+      g_warning ("Failed to write response: %s", error->message);
+      g_error_free (error);
+    }
+}
 
 void
 cockpit_web_server_return_error (GOutputStream *out,

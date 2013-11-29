@@ -73,6 +73,7 @@ ExecStart=/usr/bin/test-service %I
         def wait_service_state(service, state):
             b.wait_in_text(svc_sel(service), state)
 
+        b.wait_in_text("#services", "test.service")
         wait_service_state("test.service", "disabled")
 
         m.execute("systemctl start test.service")

@@ -867,7 +867,7 @@ handle_dbus_call (DBusServerData *data,
                      method_name,
                      g_variant_builder_end (&arg_builder),
                      G_DBUS_CALL_FLAGS_NO_AUTO_START,
-                     -1, /* timeout */
+                     G_MAXINT, /* timeout */
                      data->cancellable,
                      (GAsyncReadyCallback)dbus_call_cb,
                      call_data); /* user_data*/

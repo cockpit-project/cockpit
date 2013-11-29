@@ -31,12 +31,13 @@ import testvm
 
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-parser.add_argument('deps', metavar='DEPS', nargs='*', help='packages to install')
+parser.add_argument('-f', '--flavor', action='store', help='The flavor to create')
+parser.add_argument('args', nargs='*', help='Arguments to the flavor setup script')
 args = parser.parse_args()
 
 try:
-    machine = testvm.QemuMachine(verbose=args.verbose)
-    machine.build(args.deps)
+    machine = testvm.QemuMachine(verbose=args.verbose, flavor=args.flavor)
+    machine.build(args.args)
 except testvm.Failure, ex:
     print >> sys.stderr, "vm-create:", ex
     sys.exit(1)

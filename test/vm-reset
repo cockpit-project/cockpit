@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/bin/bash
 # This file is part of Cockpit.
 #
 # Copyright (C) 2013 Red Hat, Inc.
@@ -16,18 +16,19 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-import sys
+SELF=vm-reset
+. ./testlib.sh
 
-import testvm
+usage()
+{
+	echo >&2 "Usage: $SELF"
+}
 
-parser = argparse.ArgumentParser(description='Unpack a virtual machine image')
-parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-args = parser.parse_args()
+case ${1:-} in
+--help|-h)
+	usage
+	exit 0
+	;;
+esac
 
-try:
-    machine = testvm.QemuMachine(verbose=args.verbose)
-    machine.unpack()
-except testvm.Failure, ex:
-    print >> sys.stderr, "vm-unpack:", ex
-    sys.exit(1)
+rm -rf ./run

@@ -10,18 +10,21 @@ Fedora:
   # npm install phantomjs
 
 You also need a base tarball for the distribution you want to test
-Cockpit on.  Try one of these:
+Cockpit on.  Try one this one:
 
-    https://dl.dropboxusercontent.com/s/10b3q7ualqxew1d/fedora-18-x86_64.tar.gz
     https://dl.dropboxusercontent.com/s/73o8zc73dze771b/fedora-20-x86_64.tar.gz
 
 ## Quick list of tools
 
+For setting up the host:
+
+vm-prep,     for creating the test network etc.
+
 For managing test machines and running tests:
 
 vm-create,   for creating test machine images from scratch.
-vm-pack,     for archiving a test machine image.
-vm-unpack,   for unarchiving a test machine image.
+vm-save,     for saving a known good test machine image for fast reuse.
+vm-reset,    for starting over from a clean slate.
 vm-install,  for installing RPMs into a test machine image.
 check-*,     the actual tests.
 
@@ -49,10 +52,14 @@ You can set these environment variables to configure the test suite:
 
 ## Quick start
 
+Set up the host as root:
+
+  $ sudo ./vm-prep
+
 You need to download a 'magic base tarball' for the OS and machine
 architecture you want to test and store it as
 
-  $TEST_DATA/base/$TEST-OS-$TEST_ARCH.tar.gz
+  $TEST_DATA/$TEST-OS-$TEST_ARCH.tar.gz
 
 Create a test machine image from it:
 
@@ -69,6 +76,13 @@ And install it into the test machine image:
 Then you can run some tests:
 
   $ ./check-dbus
+
+This will work for most of the tests, but some tests require
+additional preparation, such as the creation of an image for a FreeIPA
+server.
+
+The vm-create step above can be slow and depends on the network.  See
+below how to use vm-save and vm-reset to speed this up.
 
 ## Test machines and their images
 
@@ -91,34 +105,93 @@ A test machine image is created with vm-create, like so:
 This starts from a magic base tarball, makes some magic modifications
 to it, brings it up-to-date with respect to the upstream package
 repositories, and installs the given list of extra packages.  The
-magic base tarballs is looked for in "$TEST_DATA/base", is currently
-lovingly made by hand, and changes almost never.
+magic base tarballs is looked for in $TEST_DATA, is currently lovingly
+made by hand, and changes almost never.
 
-A test machine image can be archived for later use with vm-pack:
+The image will be created in the "./run" directory.
 
-  $ ./vm-pack
+There can be more than one test machine image.  For example, you might
+want to test a scenario where Cockpit on one machine talks to FreeIPA
+on another, and you want those two machines to use different images.
 
-This will create a new tarball and place it into the current
-directory.  To create a test machine image from an archived tarball,
-use vm-unpack:
+This is handled by passing the "--flavor" / "-f" option to vm-create
+and other scripts that work with test machine images.  Currently, two
+flavors are available:
 
-  $ ./vm-unpack
+  "cockpit" -- The basic image for running Cockpit.  This is the
+               default.
 
-The idea is that vm-unpack is much faster than vm-create.  One
-typically uses vm-create not more often than once a day, but each test
-suite run should start from a clean test machine image.
+  "ipa"     -- A FreeIPA server.
 
-Also, a archived tarball serves as a point of reference since using it
-will isolate you from changes in the package repositories that are
-used by vm-create.
+To define a new flavor, create a script called "FLAVOR.setup" in this
+directory.  Then, calling "vm-create -f FLAVOR ARGS..." will run
+"FLAVOR.setup ARGS..." inside the virtual machine.
+
+By default, launching a test machine from an image will dynamically
+assign it a 'random' MAC, which results in DHCP assigning it a random
+IP address.  This means that you can launch multiple test machines
+from a single image, maybe to use multiple machines inside a single
+test case, or to run multiple test cases in parallel.
+
+If you want a fixed MAC for a given flavor, you can create the
+"FLAVOR.conf" file in this directory with a content like this:
+
+    { 'mac': "F0" }
+
+Whenever a test machine of the flavor is launched, it will receive
+this MAC, and you can thus only run one of them at any given time.
+
+If you specify only two hex-digits with the "mac" configuration
+option, a default prefix will be used.  The suffices "F0", "F1", "F2",
+"F3", and "F4" will be assigned the fixed IP addresses 10.111.111.100
+to 10.111.111.104.  DNS will resolve "f0.cockpit.lan",
+"f1.cockpit.lan", etc to these addresses.
+
+A test machine image can be saved for later use with vm-save:
+
+  $ ./vm-save [-f FLAVOR]
+
+This will simply copy the image to $TEST_DATA/images/.
+
+To use saved images effectively, you need to understand what happens
+when a test machine is started: If there is a suitable image in
+"./run", it will be used.  Otherwise, a new image is created by using
+an image in $TEST_DATA/images as the 'backing file'.
+
+The ./vm-reset program will remove the ./run directory.
+
+The idea is that creating a fresh image with a backing file is _much_
+faster than vm-create.  One typically uses vm-create not more often
+than once a day, but each test suite run should start from clean test
+machine images.
+
+Also, a saved image serves as a point of reference since using it will
+isolate you from changes in the package repositories that are used by
+vm-create.
 
 A test machine image created by vm-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
 working copy of Cockpit like this:
 
-  $ ./vm-install $(./make-rpms)
+  $ ./vm-install [-f FLAVOR] $(./make-rpms)
 
-This will modify the test machine image.
+This will modify the test machine image in ./run, but will not modify
+the saved version in $TEST_DATA/images.
+
+A typical sequence of steps would thus be the following:
+
+  $ ./vm-create ...       # Create a fresh image in ./run
+  $ ./vm-save             # Save it for future use
+
+  $ ./vm-reset            # Start over
+  $ ./vm-install ...      # Install code to test
+  $ ./check-...           # Run some tests
+
+  $ ./vm-reset            # Start over
+  $ ./vm-install ...      # Install code to test
+  $ ./check-...           # Run some tests
+
+  etc.
 
 ## Running tests
 

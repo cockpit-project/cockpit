@@ -26,7 +26,9 @@ import subprocess
 import tempfile
 import time
 import sys
+import shutil
 
+DEFAULT_FLAVOR="cockpit"
 DEFAULT_OS = "fedora-20"
 DEFAULT_ARCH = "x86_64"
 
@@ -41,12 +43,14 @@ class Failure(Exception):
 class Machine:
     boot_hook = None
 
-    def __init__(self, address=None, system=None, arch=None, verbose=False):
+    def __init__(self, address=None, flavor=None, system=None, arch=None, verbose=False):
         self.verbose = verbose
+        self.flavor = flavor or DEFAULT_FLAVOR
         self.os = system or os.environ.get("TEST_OS") or DEFAULT_OS
         self.arch = arch or os.environ.get("TEST_ARCH") or DEFAULT_ARCH
-        self.image = os.environ.get("TEST_IMAGE") or "%s-%s" % (self.os, self.arch)
+        self.image = "%s-%s-%s" % (self.flavor, self.os, self.arch)
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
+        self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.address = address
         self.mac = None
 
@@ -86,7 +90,7 @@ class Machine:
         """Overridden by machine classes to gracefully shutdown the running machine"""
         assert False, "Cannot shutdown a machine we didn't start"
 
-    def build(self, deps):
+    def build(self, args):
         """Build a machine image for running tests.
 
         This is usually overridden by derived classes. This should be
@@ -94,17 +98,19 @@ class Machine:
         """
         pass
 
-    def run_prepare_script(self, deps):
+    def run_setup_script(self, script, args):
         """Prepare a test image further by running some commands in it."""
         self.start(maintain=True)
         try:
             self.wait_boot()
+            self.upload(script, "/var/tmp/SETUP")
             env = {
                 "TEST_OS": self.os,
                 "TEST_ARCH": self.arch,
-                "TEST_PACKAGES": " ".join(deps),
+                "TEST_FLAVOR": self.flavor,
+                "TEST_SETUP_ARGS": " ".join(args),
             }
-            self.execute(script=PREPARE_SCRIPT, environment=env)
+            self.execute(script=SETUP_SCRIPT, environment=env)
         finally:
             self.stop()
 
@@ -126,6 +132,7 @@ class Machine:
             env = {
                 "TEST_OS": self.os,
                 "TEST_ARCH": self.arch,
+                "TEST_FLAVOR": self.flavor,
                 "TEST_PACKAGES": " ".join(uploaded),
             }
             self.execute(script=INSTALL_SCRIPT, environment=env)
@@ -358,18 +365,16 @@ class QemuMachine(Machine):
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
-    def unpack(self, flavor=None, modify_func=None):
+    def unpack_base(self, modify_func=None):
         assert not self._process
 
         if not os.path.exists(self.run_dir):
             os.makedirs(self.run_dir, 0750)
 
-        data_dir = os.environ.get("TEST_DATA") or self.test_dir
-        if flavor:
-            data_dir = os.path.join(data_dir, flavor)
-        tarball = os.path.join(data_dir, "%s.tar.gz" % (self.image, ))
+        image = "%s-%s" % (self.os, self.arch)
+        tarball = os.path.join(self.test_data, "%s.tar.gz" % (image, ))
         if not os.path.exists(tarball):
-           raise Failure("Unsupported OS %s: %s not found." % (self.image, tarball))
+           raise Failure("Unsupported configuration %s: %s not found." % (image, tarball))
 
         import guestfs
         gf = guestfs.GuestFS(python_return_dict=True)
@@ -377,14 +382,12 @@ class QemuMachine(Machine):
             gf.set_trace(1)
 
         try:
-            # Create a raw-format sparse disk image
+            # Create a qcow2-format disk image
             self.message("Building disk:", self._image_root)
-            with open(self._image_root, "w") as f:
-                f.truncate(4 * 1024 * 1024 * 1024)
-                f.close()
+            subprocess.check_call([ "qemu-img", "create", "-f", "qcow2", self._image_root, "4G" ])
 
             # Attach the disk image to libguestfs.
-            gf.add_drive_opts(self._image_root, format = "raw", readonly = 0)
+            gf.add_drive_opts(self._image_root, format = "qcow2", readonly = 0)
             gf.launch()
 
             devices = gf.list_devices()
@@ -408,43 +411,40 @@ class QemuMachine(Machine):
         finally:
             gf.close()
 
-    def pack(self):
+    def save(self):
         assert not self._process
 
-        tarball = os.path.join(self.test_dir, "%s.tar.gz" % (self.image, ))
+        if (not os.path.exists(self._image_kernel)
+            or not os.path.exists(self._image_initrd)
+            or not os.path.exists(self._image_root)):
+            raise Failure("Nothing to save.")
 
-        import guestfs
-        gf = guestfs.GuestFS(python_return_dict=True)
-        if self.verbose:
-            gf.set_trace(1)
+        if (os.path.islink(self._image_kernel)
+            or os.path.islink(self._image_initrd)):
+            raise Failure("Can not save now, only right after vm-create.")
 
-        try:
-            # Attach the disk image to libguestfs.
-            gf.add_drive_opts(self._image_root, format = "raw", readonly = 1)
-            gf.launch()
+        images_dir = os.path.join(self.test_data, "images")
+        if not os.path.exists(images_dir):
+            os.makedirs(images_dir, 0750)
+        shutil.copy(self._image_root, images_dir)
+        shutil.copy(self._image_kernel, images_dir)
+        shutil.copy(self._image_initrd, images_dir)
 
-            devices = gf.list_devices()
-            assert len(devices) == 1
-
-            gf.mount(devices[0], "/")
-
-            self.message("Packing %s into %s" % (self._image_root, tarball))
-            gf.tgz_out("/", tarball)
-
-        finally:
-            gf.close()
-
-    def build(self, deps):
+    def build(self, args):
         def modify(gf):
-            if self.os == "fedora-18":
+            if self.os == "fedora-18" or self.os == "f18":
                 self._setup_fedora_18(gf)
-            elif self.os == "fedora-20":
+            elif self.os == "fedora-20" or self.os == "f20":
                 self._setup_fedora_20(gf)
             else:
-                self.message("Unsupported OS %s" % self.os)
+                raise Failure("Unsupported OS %s" % self.os)
 
-        self.unpack("base", modify)
-        self.run_prepare_script(deps)
+        script = "%s.setup" % self.flavor
+        if not os.path.exists(script):
+            raise Failure("Unsupported flavor %s: %s not found." % (self.flavor, script))
+
+        self.unpack_base(modify)
+        self.run_setup_script(script, args)
 
     def _lock_resource(self, resource, exclusive=True):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
@@ -466,12 +466,20 @@ class QemuMachine(Machine):
             self._locks.append(fd)
             return True
 
-    def _choose_macaddr(self):
-        for i in range(0, 0xFF):
-            macaddr = "%s:%02x" % (self.macaddr_prefix, i)
+    def _choose_macaddr(self, conf):
+        if 'mac' in conf and conf['mac']:
+            macaddr = conf['mac']
+            if len(macaddr) == 2:
+                macaddr = self.macaddr_prefix + ":" + macaddr
             if self._lock_resource(macaddr):
                 return macaddr
-        raise Failure("Couldn't find unused mac address in directory: %s" % resources)
+            raise Failure("Mac address %s is in use" % macaddr)
+        else:
+            for i in range(0, 0xFF):
+                macaddr = "%s:%02x" % (self.macaddr_prefix, i)
+                if self._lock_resource(macaddr):
+                    return macaddr
+            raise Failure("Couldn't find unused mac address in directory: %s" % resources)
 
     def _locate_qemu_kvm(self):
         rhel_qemu_kvm_path = '/usr/libexec/qemu-kvm'
@@ -481,12 +489,42 @@ class QemuMachine(Machine):
         return 'qemu-kvm'
 
     def _start_qemu(self, maintain=False, tty=False, monitor=None):
+        if (not os.path.exists(self._image_root)
+            or not os.path.exists(self._image_kernel)
+            or not os.path.exists(self._image_initrd)):
+
+            if not os.path.exists(self.run_dir):
+                os.makedirs(self.run_dir, 0750)
+
+            backing_file = os.path.join(self.test_data, "images", os.path.basename(self._image_root))
+            kernel_file = os.path.join(self.test_data, "images", os.path.basename(self._image_kernel))
+            initrd_file = os.path.join(self.test_data, "images", os.path.basename(self._image_initrd))
+            if not os.path.exists(backing_file):
+                raise Failure("Image not found: %s" % backing_file)
+            if not os.path.exists(kernel_file):
+                raise Failure("Kernel not found: %s" % backing_file)
+            if not os.path.exists(initrd_file):
+                raise Failure("Initrd not found: %s" % backing_file)
+            subprocess.check_call([ "qemu-img", "create",
+                                    "-f", "qcow2",
+                                    "-o", "backing_file=%s" % backing_file,
+                                    self._image_root ])
+            subprocess.check_call([ "ln", "-sf", kernel_file, self._image_kernel ])
+            subprocess.check_call([ "ln", "-sf", initrd_file, self._image_initrd ])
+
         if not self._lock_resource(self._image_root, exclusive=maintain):
             raise Failure("Already running this image: %s" % self.image)
 
+        conf_file = "%s.conf" % self.flavor
+        if os.path.exists(conf_file):
+            with open(conf_file, "r") as f:
+                conf = eval(f.read())
+        else:
+            conf = { }
+
         snapshot = maintain and "off" or "on"
         selinux = "enforcing=0"
-        self.macaddr = self._choose_macaddr()
+        self.macaddr = self._choose_macaddr(conf)
         cmd = [
             self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),
@@ -542,9 +580,9 @@ class QemuMachine(Machine):
         return output
 
     # This is a special QEMU specific maintenance console
-    def qemu_console(self):
+    def qemu_console(self, snapshot=False):
         try:
-            proc = self._start_qemu(maintain=True, tty=True)
+            proc = self._start_qemu(maintain=not snapshot, tty=True)
         except:
             self._cleanup()
             raise
@@ -553,6 +591,9 @@ class QemuMachine(Machine):
     def start(self, maintain=False):
         assert not self._process
         try:
+            if not os.path.exists(self.run_dir):
+                os.makedirs(self.run_dir, 0750)
+
             (unused, self._monitor) = tempfile.mkstemp(suffix='.mon', prefix="machine-", dir=self.run_dir)
             self._process = self._start_qemu(maintain=maintain, tty=False,
                                              monitor="unix:path=%s,server,nowait" % self._monitor)
@@ -721,75 +762,16 @@ if [ "$2" = "up" ]; then
 fi
 """
 
-PREPARE_SCRIPT = """#!/bin/sh
+SETUP_SCRIPT = """#!/bin/sh
 set -euf
 
-echo 'SELINUX=disabled' > /etc/selinux/config
-
-rm -rf /etc/sysconfig/iptables
-
-echo "[cockpit-deps]
-name=Unreleased Cockpit dependencies
-baseurl=http://cockpit-project.github.io/cockpit-deps/$TEST_OS/$TEST_ARCH
-enabled=1
-gpgcheck=0" > /etc/yum.repos.d/cockpit-deps.repo
-
-echo '<?xml version="1.0" encoding="utf-8"?>
-<zone>
-  <short>Public</short>
-  <description>For use in public areas. You do not trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
-  <service name="ssh"/>
-  <service name="mdns"/>
-  <service name="dhcpv6-client"/>
-  <port protocol="tcp" port="21064"/>
-  <port protocol="tcp" port="8765"/>
-</zone>' > /etc/firewalld/zones/public.xml
-
-echo 'NETWORKING=yes' > /etc/sysconfig/network
-
-if ! grep -q 'admin:' /etc/passwd; then
-    echo 'admin:x:1000:1000:Administrator:/home/admin:/bin/bash' >> /etc/passwd
-fi
-
-# Password is "foobar"
-if ! grep -q 'admin:' /etc/shadow; then
-    echo 'admin:$6$03s8BUsPb6ahCTLG$sb/AvOIJopKrG7KPG7KIqM1bmhpwF/oHSWF8jAicXx9Q0Dghl8PdUNXF61C3pTxOM/3XBJypvIrQdwC5frTCP/:15853:0:99999:7:::' >> /etc/shadow
-fi
-
-if ! grep -q 'admin:' /etc/group; then
-    echo 'admin:x:1000:' >> /etc/group
-    sed -i 's/^wheel:.*/\\0admin/' /etc/group
-fi
-
-if ! [ -d /home/admin ]; then
-    mkdir /home/admin
-    chown 1000:1000 /home/admin
-fi
-
-# To enable persistent logging
-mkdir -p /var/log/journal
-
 yes | yum update -y
-if [ -n "$TEST_PACKAGES" ]; then
-  yes | yum install -y $TEST_PACKAGES
-fi
 
-# Stopping a user@.service at poweroff sometimes hangs and then times
-# out, but that seems to be harmless otherwise.  We reduce the timeout
-# so that we don't have to wait for the default 90 seconds.
-#
-f=/usr/lib/systemd/system/user@.service
-if [ -f $f ] && ! grep -q TimeoutStopSec $f; then
-  echo TimeoutStopSec=1 >>$f
-  systemctl daemon-reload
-fi
+export TEST_FLAVOR
+export TEST_OS
+export TEST_ARCH
 
-# We rely on the NetworkManager dispatcher, but it sometimes is
-# disabled after the update above.  So let's make sure it is enabled.
-#
-systemctl enable NetworkManager-dispatcher
-
-rm -rf /var/log/journal/*
+/var/tmp/SETUP $TEST_SETUP_ARGS
 """
 
 INSTALL_SCRIPT = """#!/bin/sh

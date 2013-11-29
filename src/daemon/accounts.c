@@ -40,6 +40,8 @@ struct _Accounts {
 
   ActUserManager *um;
   GHashTable *act_user_to_account;
+
+  GFileMonitor *etc_group_monitor;
 };
 
 struct _AccountsClass {
@@ -126,10 +128,38 @@ users_loaded (ActUserManager *manager,
 }
 
 static void
+accounts_update_users (Accounts *accounts)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  g_hash_table_iter_init (&iter, accounts->act_user_to_account);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      ActUser *user = key;
+      Account *acc = value;
+      account_update (acc, user);
+    }
+}
+
+static void
+on_etc_group_changed (GFileMonitor *monitor,
+                      GFile *file,
+                      GFile *other_file,
+                      GFileMonitorEvent *event,
+                      gpointer user_data)
+{
+  Accounts *accounts = user_data;
+  accounts_update_users (accounts);
+}
+
+static void
 accounts_finalize (GObject *object)
 {
   Accounts *accounts = ACCOUNTS (object);
   g_hash_table_unref (accounts->act_user_to_account);
+
+  g_clear_object (&accounts->etc_group_monitor);
 
   if (G_OBJECT_CLASS (accounts_parent_class)->finalize != NULL)
     G_OBJECT_CLASS (accounts_parent_class)->finalize (object);
@@ -150,6 +180,12 @@ accounts_init (Accounts *accounts)
     users_loaded (accounts->um, NULL, accounts);
   else
     g_signal_connect (accounts->um, "notify::is-loaded", G_CALLBACK (users_loaded), accounts);
+
+  gs_unref_object GFile *etc_group = g_file_new_for_path ("/etc/group");
+  accounts->etc_group_monitor = g_file_monitor (etc_group, G_FILE_MONITOR_NONE, NULL, NULL);
+  if (accounts->etc_group_monitor)
+    g_signal_connect (accounts->etc_group_monitor, "changed",
+                      G_CALLBACK (on_etc_group_changed), accounts);
 
   /* A "role" is a POSIX group plus localized descriptions.
      Eventually, this will be configurable by dropping files into a

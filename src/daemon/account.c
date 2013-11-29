@@ -33,6 +33,9 @@
 
 #include <cockpit/cockpit.h>
 
+#include <grp.h>
+#include <pwd.h>
+
 typedef struct _AccountClass AccountClass;
 
 struct _Account
@@ -87,6 +90,117 @@ account_new ()
   return COCKPIT_ACCOUNT (g_object_new (TYPE_ACCOUNT, NULL));
 }
 
+/*
+ * TODO: Once the AccountsService implementation supports groups then we
+ * should conditionally use that instead.
+ */
+
+static struct passwd *
+getpwnam_alloc (const gchar *name)
+{
+  struct passwd *check;
+  struct passwd *buf;
+  gint res;
+
+  buf = g_malloc (sizeof (struct passwd) + 8192);
+  res = getpwnam_r (name, buf, (gchar *)(buf + 1), 8192, &check);
+  if (check == NULL)
+    {
+      g_debug ("couldn't load user info for %s: %s", name,
+               res == 0 ? "not found" : g_strerror (res));
+      g_free (buf);
+      buf = NULL;
+    }
+
+  return buf;
+}
+
+static struct group *
+getgrgid_alloc (gid_t gid)
+{
+  struct group *check;
+  struct group *buf;
+  gint res;
+
+  buf = g_malloc (sizeof (struct group) + 8192);
+  res = getgrgid_r (gid, buf, (gchar *)(buf + 1), 8192, &check);
+  if (check == NULL)
+    {
+      g_debug ("couldn't load group info for %d: %s", (gint)gid,
+               res == 0 ? "not found" : g_strerror (res));
+      g_free (buf);
+      buf = NULL;
+    }
+
+  return buf;
+}
+
+static gint
+get_user_groups (ActUser *user,
+                 gid_t *primary,
+                 gid_t **groups)
+{
+  struct passwd *pwd;
+  const gchar *name;
+  gint res;
+  gint ngroups;
+
+  name = act_user_get_user_name (user);
+  pwd = getpwnam_alloc (name);
+  if (pwd == NULL)
+    {
+      *primary = -1;
+      *groups = NULL;
+      return 0;
+    }
+
+  *primary = pwd->pw_gid;
+
+  ngroups = 0;
+  res = getgrouplist (name, *primary, NULL, &ngroups);
+
+  g_debug ("user %s has %d groups", name, ngroups);
+  *groups = g_new (gid_t, ngroups);
+  res = getgrouplist (name, *primary, *groups, &ngroups);
+
+  g_free (pwd);
+  return res;
+}
+
+static GVariant *
+account_load_groups (ActUser *user)
+{
+  struct group *grp;
+  gid_t primary;
+  gid_t *groups;
+  gint ngroups;
+  gint i;
+  GVariantBuilder result;
+
+  ngroups = get_user_groups (user, &primary, &groups);
+  g_variant_builder_init (&result, G_VARIANT_TYPE("as"));
+  if (primary >= 0)
+    {
+      grp = getgrgid_alloc (primary);
+      if (grp)
+        g_variant_builder_add (&result, "s", grp->gr_name);
+      g_free (grp);
+    }
+  for (i = 0; i < ngroups; i++)
+    {
+      if (groups[i] != primary)
+        {
+          grp = getgrgid_alloc (groups[i]);
+          if (grp)
+            g_variant_builder_add (&result, "s", grp->gr_name);
+          g_free (grp);
+        }
+    }
+
+  g_free (groups);
+  return g_variant_builder_end (&result);
+}
+
 void
 account_update (Account *acc,
                 ActUser *user)
@@ -99,7 +213,7 @@ account_update (Account *acc,
       cockpit_account_set_locked (COCKPIT_ACCOUNT (acc), act_user_get_locked (user));
       cockpit_account_set_last_login (COCKPIT_ACCOUNT (acc), act_user_get_login_time (user));
       cockpit_account_set_logged_in (COCKPIT_ACCOUNT (acc), act_user_is_logged_in_anywhere (user));
-      cockpit_account_set_groups (COCKPIT_ACCOUNT (acc), act_user_get_groups (user));
+      cockpit_account_set_groups (COCKPIT_ACCOUNT (acc), account_load_groups (user));
       cockpit_account_emit_changed (COCKPIT_ACCOUNT (acc));
     }
 }
@@ -254,6 +368,11 @@ handle_set_locked (CockpitAccount *object,
   return TRUE;
 }
 
+/*
+ * TODO: Once the AccountsService implementation supports groups then we
+ * should conditionally use that instead.
+ */
+
 static gboolean
 handle_change_groups (CockpitAccount *object,
                       GDBusMethodInvocation *invocation,
@@ -261,14 +380,72 @@ handle_change_groups (CockpitAccount *object,
                       const gchar *const *arg_remove)
 {
   Account *acc = ACCOUNT (object);
+  GError *error;
+  int i, j, ngroups;
+  gid_t primary;
+  gid_t *groups;
+  GString *str;
+  struct group *gr;
+  const gchar *argv[6];
+  gint status;
 
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_USER_ADMIN))
     return TRUE;
 
-  if (acc->u)
-    act_user_change_groups (acc->u, arg_add, arg_remove);
+  ngroups = get_user_groups (acc->u, &primary, &groups);
 
-  cockpit_account_complete_change_groups (object, invocation);
+  str = g_string_new ("");
+  for (i = 0; i < ngroups; i++)
+    {
+      if (groups[i] == primary)
+        continue;
+
+      gr = getgrgid_alloc (groups[i]);
+      if (gr != NULL)
+        {
+          for (j = 0; arg_remove[j]; j++)
+            {
+              if (strcmp (gr->gr_name, arg_remove[j]) == 0)
+                break;
+            }
+          if (arg_remove[j])
+            continue;
+          g_string_append_printf (str, "%s,", gr->gr_name);
+          g_free (gr);
+        }
+    }
+  for (j = 0; arg_add[j]; j++)
+    g_string_append_printf (str, "%s,", arg_add[j]);
+
+  /* remove excess comma */
+  g_string_truncate (str, str->len - 1);
+
+  g_free (groups);
+
+  argv[0] = "/usr/sbin/usermod";
+  argv[1] = "-G";
+  argv[2] = str->str;
+  argv[3] = "--";
+  argv[4] = act_user_get_user_name (acc->u);
+  argv[5] = NULL;
+
+  error = NULL;
+  if (g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, NULL, &status, &error))
+    g_spawn_check_exit_status (status, &error);
+
+  if (error)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                                             "Failed to change user groups via %s: %s", argv[0], error->message);
+      g_error_free (error);
+    }
+  else
+    {
+      account_update (acc, acc->u);
+      cockpit_account_complete_change_groups (object, invocation);
+    }
+
   return TRUE;
 }
 

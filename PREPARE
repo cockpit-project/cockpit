@@ -2,9 +2,17 @@
 
 . ./test/testlib.sh
 
-set -x
-
 STAGE_DATA=$PWD/stage
+
+# Download base tarball if necessary.
+
+( cd ${TEST_DATA:-./test}
+  tarball=$TEST_OS-$TEST_ARCH.tar.gz
+  if [ ! -f $tarball ]; then
+    echo "Downloading $tarball to ${TEST_DATA:-./test}"
+    curl -O http://mvo.fedorapeople.org/cockpit/$tarball
+  fi
+)
 
 # Create new clean images in $STAGE_DATA/images
 

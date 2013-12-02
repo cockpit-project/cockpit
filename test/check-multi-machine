@@ -134,6 +134,9 @@ class TestMultiMachine(MachineCase):
         b.wait_visible (graph_selector (m2_index))
 
         self.allow_journal_messages("Warning: Permanently added '.*' \\(RSA\\) to the list of known hosts.",
-                                    "peer did not close io when expected")
+                                    "peer did not close io when expected",
+                                    "Using the 'memory' GSettings backend.  Your settings will not be saved or shared with other applications.",
+                                    "Failed to read: Socket error: Success")
+
 
 test_main()

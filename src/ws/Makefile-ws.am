@@ -9,6 +9,7 @@ libcockpit_ws_la_SOURCES = 				\
 	src/ws/cockpitwebsocket.h 	src/ws/cockpitwebsocket.c		\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	src/ws/cockpit-password-interaction.h src/ws/cockpit-password-interaction.c \
 	cockpitwsenumtypes.h	cockpitwsenumtypes.c	\
 	$(NULL)
 
@@ -27,9 +28,9 @@ libcockpit_ws_la_CFLAGS = \
 	$(NULL)
 
 libcockpit_ws_la_LIBADD =					\
-	$(COCKPIT_WS_LIBS)					\
         libcockpit-1.0.la					\
 	libwebsocket.la		\
+	$(COCKPIT_WS_LIBS) \
 	$(NULL)
 
 libcockpit_ws_enumheaders = 				\
@@ -75,8 +76,8 @@ cockpit_ws_CFLAGS = 					\
 	$(NULL)
 
 cockpit_ws_LDADD = 					\
-	$(COCKPIT_WS_LIBS)					\
         libcockpit-ws.la     				\
+	$(COCKPIT_WS_LIBS) \
 	$(NULL)
 
 cockpit_session_SOURCES =					\
@@ -180,8 +181,8 @@ test_server_CFLAGS = 					\
 	$(NULL)
 
 test_server_LDADD = 					\
-	$(GIO_LIBS)					\
         libcockpit-ws.la    	 			\
+	$(COCKPIT_WS_LIBS) \
 	-lpam 						\
 	$(NULL)
 

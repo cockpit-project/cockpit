@@ -323,10 +323,12 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
   if (error == NULL)
     {
       g_variant_get (retval, "(@a{sv})", &props);
-      if (g_variant_lookup (props, "StaticHostname", "&s", &s))
-        g_string_append_printf (str, "cockpitdyn_hostname = \"%s\";\n", s);
-      if (g_variant_lookup (props, "PrettyHostname", "&s", &s))
-        g_string_append_printf (str, "cockpitdyn_pretty_hostname = \"%s\";\n", s);
+      if (!g_variant_lookup (props, "StaticHostname", "&s", &s))
+	s = "";
+      g_string_append_printf (str, "cockpitdyn_hostname = \"%s\";\n", s);
+      if (!g_variant_lookup (props, "PrettyHostname", "&s", &s))
+	s = "";
+      g_string_append_printf (str, "cockpitdyn_pretty_hostname = \"%s\";\n", s);
     }
   else
     {

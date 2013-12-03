@@ -108,7 +108,7 @@ setup_mock_sshd (Test *test,
       NULL
   };
 
-  g_spawn_async_with_pipes (BUILDDIR, (gchar **)argv, NULL, 0, NULL, NULL,
+  g_spawn_async_with_pipes (BUILDDIR, (gchar **)argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
                             &test->mock_sshd, NULL, &out_fd, NULL, &error);
   g_assert_no_error (error);
 

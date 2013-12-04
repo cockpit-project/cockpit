@@ -295,7 +295,7 @@ serve_thread_func (gpointer data)
   g_byte_array_append (consumed, (guchar *)buffer, count);
 
   cockpit_web_socket_serve_dbus (test->web_server,
-                              "localhost", test->ssh_port,
+                                 "127.0.0.1", test->ssh_port,
                               test->agent_program,
                               test->io_b, headers,
                               consumed, test->auth);

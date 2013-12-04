@@ -765,7 +765,18 @@ fi
 SETUP_SCRIPT = """#!/bin/sh
 set -euf
 
-yes | yum update -y
+# The 'disablerepo' is a quick workaround for the following scenario:
+#
+# - updates-testing is enabled in the base tarball
+# - "yum update" installs policycoreutils-2.2.2-3
+# - "yum update" also disables updates-testing
+# - later policycoreutils-python-2.2.2-2 fails to install because
+#   it needs exactly policycoreutils-2.2.2-2.
+#
+# XXX - this is a hack.  We really should make a new base
+# tarball whenever Fedora changes the set of enabled repositories.
+
+yes | yum update --disablerepo=updates-testing -y
 
 export TEST_FLAVOR
 export TEST_OS

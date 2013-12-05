@@ -124,10 +124,10 @@ function cockpit_logout (reason)
 function cockpit_go_login_account ()
 {
     cockpit_go ([ { page: "dashboard" },
-               { page: "server" },
-               { page: "accounts" },
-               { page: "account", id: cockpit_connection_config.user }
-             ]);
+                  { page: "server", machine: "localhost" },
+                  { page: "accounts" },
+                  { page: "account", id: cockpit_connection_config.user }
+                ]);
 }
 
 PageChpasswd.prototype = {

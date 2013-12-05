@@ -178,7 +178,7 @@ function cockpit_update_machines ()
     }
 
     if (!cockpit_dbus_client)
-        cockpit_dbus_client = cockpit_dbus_local_client;
+        cockpit_select_legacy_client ();
 
     cockpit_dashboard_update_machines ();
 }
@@ -285,10 +285,18 @@ function cockpit_disconnect() {
         machines[i].client.close("disconnecting");
 }
 
+var cockpit_expecting_disconnect = false;
+
+function cockpit_expect_disconnect() {
+    cockpit_expecting_disconnect = true;
+}
+
 function cockpit_show_disconnected() {
-    $("#disconnected-error").text(cockpit_client_error_description(cockpit_dbus_client.error));
-    $('[data-role="popup"]').popup('close');
-    cockpit_popup(null, "#disconnected");
+    if (!cockpit_expecting_disconnect) {
+        $("#disconnected-error").text(cockpit_client_error_description(cockpit_dbus_client.error));
+        $('[data-role="popup"]').popup('close');
+        cockpit_popup(null, "#disconnected");
+    }
 }
 
 function cockpit_hide_disconnected() {

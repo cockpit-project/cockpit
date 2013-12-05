@@ -108,8 +108,6 @@ PageDashboard.prototype = {
                 $('#server-actions-menu button.always').button('enable');
                 if (machine.client.state == "ready") {
                     $('#server-actions-menu button.ready').button('enable');
-                    if (machine.client.target == cockpit_dbus_client.target)
-                        $('#server-actions-menu button.first-ready').button('enable');
                 } else if (machine.client.state == "closed")
                     $('#server-actions-menu button.closed').button('enable');
                 $("#server-actions-menu").popup('open', { x: o.left, y: o.top });
@@ -211,8 +209,7 @@ PageDashboard.prototype = {
                     $(manager).on('AvatarChanged.dashboard', $.proxy (me, "update"));
                 }
                 action_btn.text("Manage");
-                if (client.target == cockpit_dbus_client.target)
-                    action_btn.button('enable');
+                action_btn.button('enable');
                 error_div.text("");
                 error_div.hide();
                 spinner_div.hide();
@@ -275,8 +272,7 @@ PageDashboard.prototype = {
 
     server_action: function (machine, op) {
         if (op == "manage") {
-            if (machine.client.target == cockpit_dbus_client.target)
-                cockpit_go_down ({ page: "server", machine: machine.address });
+            cockpit_go_down ({ page: "server", machine: machine.address });
         } else if (op == "connect") {
             machine.client.connect();
         } else if (op == "disconnect") {

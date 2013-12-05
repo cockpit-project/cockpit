@@ -670,6 +670,40 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static void
+send_dbus_reply (DBusServerData *data, const gchar *cookie, GVariant *result, GError *error)
+{
+  gs_unref_object JsonBuilder *builder = NULL;
+  builder = prepare_builder ("call-reply");
+
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "cookie");
+  json_builder_add_string_value (builder, cookie);
+
+  if (result == NULL)
+    {
+      gchar *error_name;
+      error_name = g_dbus_error_get_remote_error (error);
+      g_dbus_error_strip_remote_error (error);
+
+      json_builder_set_member_name (builder, "error_name");
+      json_builder_add_string_value (builder, error_name != NULL ? error_name : "");
+
+      json_builder_set_member_name (builder, "error_message");
+      json_builder_add_string_value (builder, error->message);
+
+      g_free (error_name);
+    }
+  else
+    {
+      json_builder_set_member_name (builder, "result");
+      _json_builder_add_gvariant (builder, result);
+    }
+  json_builder_end_object (builder);
+
+  write_builder (data, builder);
+}
+
 typedef struct
 {
   GList *link;
@@ -692,51 +726,19 @@ dbus_call_cb (GDBusProxy *proxy,
   CallData *data = user_data;
   GVariant *result;
   GError *error;
-  gs_unref_object JsonBuilder *builder = NULL;
 
   error = NULL;
   result = g_dbus_proxy_call_finish (proxy, res, &error);
 
-  if (data->data == NULL)
+  if (data->data)
     {
-      // Our session has already been closed.
-      g_clear_error (&error);
-      call_data_free (data);
-      return;
+      send_dbus_reply (data->data, data->cookie, result, error);
+      data->data->active_calls = g_list_delete_link (data->data->active_calls, data->link);
     }
 
-  builder = prepare_builder ("call-reply");
-
-  json_builder_begin_object (builder);
-  json_builder_set_member_name (builder, "cookie");
-  json_builder_add_string_value (builder, data->cookie);
-
-  if (result == NULL)
-    {
-      gchar *error_name;
-      error_name = g_dbus_error_get_remote_error (error);
-      g_dbus_error_strip_remote_error (error);
-
-      json_builder_set_member_name (builder, "error_name");
-      json_builder_add_string_value (builder, error_name != NULL ? error_name : "");
-
-      json_builder_set_member_name (builder, "error_message");
-      json_builder_add_string_value (builder, error->message);
-
-      g_free (error_name);
-      g_error_free (error);
-    }
-  else
-    {
-      json_builder_set_member_name (builder, "result");
-      _json_builder_add_gvariant (builder, result);
-      g_variant_unref (result);
-    }
-  json_builder_end_object (builder);
-
-  write_builder (data->data, builder);
-
-  data->data->active_calls = g_list_delete_link (data->data->active_calls, data->link);
+  if (result)
+    g_variant_unref (result);
+  g_clear_error (&error);
   call_data_free (data);
 }
 
@@ -780,8 +782,13 @@ handle_dbus_call (DBusServerData *data,
                                                      iface_name);
   if (iface_proxy == NULL)
     {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "No iface for objpath %s and iface %s", objpath, iface_name);
-      /* TODO: don't disconnect client because of this */
+      GError *dbus_error = NULL;
+      g_set_error (&dbus_error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No iface for objpath %s and iface %s calling %s",
+                   objpath, iface_name, method_name);
+      send_dbus_reply (data, cookie, NULL, dbus_error);
+      g_clear_error (&dbus_error);
+      ret = TRUE;
       goto out;
     }
 

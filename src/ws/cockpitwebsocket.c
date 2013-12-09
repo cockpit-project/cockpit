@@ -38,6 +38,7 @@
 
 typedef struct
 {
+  volatile gint             refcount;
   WebSocketConnection      *web_socket;
   GSocketConnection        *connection;
   gboolean                  authenticated;
@@ -52,12 +53,48 @@ typedef struct
   GPid                     session_pid;
   GOutputStream           *to_session;
   GInputStream            *from_session;
-  GThread                 *session_thread;
+  gboolean                 eof_from_session;
 
   GMainContext            *main_context;
-  GAsyncQueue             *async_queue;
-  GCancellable            *reading_cancellable;
+
+  GCancellable            *sessionio_cancellable;
+  GQueue                   session_write_queue;
+  gboolean                 active_session_write;
+  enum {
+    WS_STATE_READING_SIZE_WORD = 0,
+    WS_STATE_READING_MESSAGE
+  } readstate;
+  guint8 size_word_bytes[4];
+  guint8 size_word_bytes_read;
+  GByteArray *message_buffer;
+  guint32 message_bytes_read;
+  guint32 message_bytes_remaining;
 } WebSocketData;
+
+static void
+web_socket_data_unref (WebSocketData   *data)
+{
+  if (!g_atomic_int_dec_and_test (&data->refcount))
+    return;
+    
+  g_queue_foreach (&data->session_write_queue, (GFunc)g_bytes_unref, NULL);
+  g_queue_clear (&data->session_write_queue);
+  g_clear_pointer (&data->message_buffer, g_byte_array_unref);
+  g_object_unref (data->web_socket);
+  g_free (data->target_host);
+  g_free (data->agent_program);
+  g_free (data->user);
+  g_free (data->rhost);
+  g_clear_object (&data->sessionio_cancellable);
+  g_free (data);
+}
+
+static WebSocketData *
+web_socket_data_ref (WebSocketData *data)
+{
+  g_atomic_int_inc (&data->refcount);
+  return data;
+}
 
 static void
 send_error (WebSocketData *data,
@@ -70,100 +107,75 @@ send_error (WebSocketData *data,
   g_bytes_unref (message);
 }
 
-static gboolean
-write_data (GOutputStream *out,
-            const void *buf,
-            gsize len)
+static void
+warn_if_error_is_not_cancelled (GError *error)
 {
-  GError *error = NULL;
-  gsize n_written;
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+    return;
 
-  if (!g_output_stream_write_all (out, buf, len, &n_written, NULL, &error))
-    {
-      g_warning ("%s", error->message);
-      g_error_free (error);
-      return FALSE;
-    }
-
-  if (n_written < len)
-    {
-      g_warning ("Could only write %d of %d bytes", (int)n_written, (int)len);
-      return FALSE;
-    }
-
-  return TRUE;
+  g_warning ("%s", error->message);
 }
 
-static gboolean
-read_data (GInputStream *in,
-           GCancellable *cancellable,
-           void *buf,
-           gsize len)
-{
-  gboolean ret = FALSE;
-  GError *local_error = NULL;
-  GError **error = &local_error;
-  gsize bytes_read;
+static void
+begin_session_write (WebSocketData *data);
 
-  if (!g_input_stream_read_all (in,
-                                buf, len,
-                                &bytes_read,
-                                cancellable,
-                                error))
-    {
-      g_prefix_error (error, "Error reading from stream: ");
-      goto out;
-    }
-
-  if (bytes_read < len)
-    {
-      if (bytes_read > 0)
-        g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                     "Expected %d bytes, only read %d bytes",
-                     (gint)len, (gint)bytes_read);
-      goto out;
-    }
-
-  ret = TRUE;
-
-out:
-  if (local_error)
-    {
-      if (local_error->code != G_IO_ERROR_CANCELLED)
-        g_warning ("%s (%s %d)",
-                   local_error->message, g_quark_to_string (local_error->domain), local_error->code);
-      g_clear_error (&local_error);
-    }
-  return ret;
-}
-
-static gpointer
-copy_from_session_to_browser (gpointer user_data)
+static void
+on_session_write_bytes_complete (GObject                   *src,
+                                 GAsyncResult              *result,
+                                 gpointer                   user_data)
 {
   WebSocketData *data = user_data;
-  uint32_t size;
-  GBytes *message;
+  GError *local_error = NULL;
+  gs_unref_bytes GBytes *first = NULL;
+  gssize bytes_written;
+  gsize first_size;
 
-  while (TRUE)
+  first = g_queue_pop_head (&data->session_write_queue);
+  g_assert (first);
+  first_size = g_bytes_get_size (first);
+
+  data->active_session_write = FALSE;
+
+  bytes_written = g_output_stream_write_bytes_finish ((GOutputStream *)src, result, &local_error);
+  if (bytes_written < 0)
     {
-      gchar *buf = NULL;
-
-      /* TODO: This is not cross-arch safe */
-      if (!read_data (data->from_session, NULL, (guint8 *)&size, sizeof(size)))
-        break;
-
-      buf = g_malloc (size);
-      if (!read_data (data->from_session, NULL, buf, size))
-        break;
-
-      message = g_bytes_new_take (buf, size);
-      g_async_queue_push (data->async_queue, message);
-      g_main_context_wakeup (data->main_context);
+      g_message ("Caught error writing to session: %s", local_error->message);
+      g_clear_error (&local_error);
+      web_socket_connection_close (data->web_socket, WEB_SOCKET_CLOSE_SERVER_ERROR, "failed-to-proxy");
+      goto out;
     }
 
-  g_cancellable_cancel (data->reading_cancellable);
-  g_main_context_wakeup (data->main_context);
-  return NULL;
+  if (bytes_written < first_size)
+    {
+      gsize remainder_len = first_size - bytes_written;
+      GBytes *remainder = g_bytes_new_from_bytes (first, bytes_written, remainder_len);
+      g_debug ("Have %" G_GSIZE_FORMAT " bytes leftover from short write", remainder_len);
+      g_queue_push_head (&data->session_write_queue, remainder);
+    }
+  else
+    g_debug ("Wrote %" G_GSIZE_FORMAT " bytes to client", bytes_written);
+
+  begin_session_write (data);
+ out:
+  web_socket_data_unref (data);
+}
+
+static void
+begin_session_write (WebSocketData       *data)
+{
+  GBytes *first;
+
+  if (data->active_session_write)
+    return;
+
+  first = g_queue_peek_head (&data->session_write_queue);
+  if (!first)
+    return;
+
+  g_output_stream_write_bytes_async (data->to_session, first, G_PRIORITY_DEFAULT,
+                                     data->sessionio_cancellable,
+                                     on_session_write_bytes_complete,
+                                     web_socket_data_ref (data));
 }
 
 static void
@@ -172,17 +184,14 @@ on_web_socket_message (WebSocketConnection *web_socket,
                        GBytes *message,
                        WebSocketData *data)
 {
-  gconstpointer buf;
-  gsize len;
-  uint32_t size;
+  guint32 len = (guint32) g_bytes_get_size (message);
+  /* Canonicalize on network byte order */
+  len = GUINT32_TO_BE (len);
 
-  buf = g_bytes_get_data (message, &len);
-  size = len;
+  g_queue_push_tail (&data->session_write_queue, g_bytes_new (&len, 4));
+  g_queue_push_tail (&data->session_write_queue, g_bytes_ref (message));
 
-  /* TODO: This is not cross-arch safe */
-  if (!write_data (data->to_session, &size, sizeof(size)) ||
-      !write_data (data->to_session, buf, len))
-    web_socket_connection_close (web_socket, WEB_SOCKET_CLOSE_SERVER_ERROR, "failed-to-proxy");
+  begin_session_write (data);
 }
 
 static void
@@ -205,6 +214,108 @@ get_remote_address (GSocketConnection *connection,
       *rhost_out = g_strdup ("<unknown>");
       *rport_out = 0;
     }
+}
+
+static void
+on_session_read_complete (GObject            *src,
+                          GAsyncResult       *result,
+                          gpointer            user_data)
+{
+  WebSocketData *data = user_data;
+  gssize bytes_read;
+  GError *local_error = NULL;
+
+  bytes_read = g_input_stream_read_finish ((GInputStream *)src, result, &local_error);
+  g_debug ("session read %lld bytes", (long long) bytes_read);
+  if (bytes_read <= 0)
+    {
+      data->eof_from_session = TRUE;
+      g_main_context_wakeup (data->main_context);
+      if (bytes_read < 0)
+        {
+          warn_if_error_is_not_cancelled (local_error);
+          g_clear_error (&local_error);
+        }
+      goto out;
+    }
+
+  /* Stream may have been closed */
+  if (!data->from_session)
+    goto out;
+
+  switch (data->readstate)
+    {
+    case WS_STATE_READING_SIZE_WORD:
+      {
+        data->size_word_bytes_read += bytes_read;
+        g_assert_cmpint (data->size_word_bytes_read, <=, 4);
+        if (data->size_word_bytes_read == 4)
+          {
+            data->readstate = WS_STATE_READING_MESSAGE;
+            /* Network byte order */
+            data->message_bytes_remaining =
+              (data->size_word_bytes[0] << 24) |
+              (data->size_word_bytes[1] << 16) |
+              (data->size_word_bytes[2] << 8)  |
+              (data->size_word_bytes[3] << 0)  ;
+            data->message_bytes_read = 0;
+            g_debug ("session will read %u bytes", data->message_bytes_remaining);
+            data->message_buffer = g_byte_array_new ();
+            g_byte_array_set_size (data->message_buffer, data->message_bytes_remaining);
+          }
+        else
+          g_debug ("session header size %u bytes remaining", 4 - data->size_word_bytes_read);
+      }
+      break;
+    case WS_STATE_READING_MESSAGE:
+      {
+        data->message_bytes_remaining -= bytes_read;
+        data->message_bytes_read += bytes_read;
+        g_assert_cmpint (data->message_bytes_remaining, >=, 0);
+        g_assert_cmpint (data->message_bytes_read, <=, data->message_buffer->len);
+        if (data->message_bytes_remaining == 0)
+          {
+            gs_unref_bytes GBytes *message = g_byte_array_free_to_bytes (data->message_buffer);
+            data->message_buffer = NULL;
+            g_assert_cmpint (data->message_bytes_read, ==, g_bytes_get_size (message));
+            g_debug ("session sending message of %u bytes", data->message_bytes_read);
+            if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
+              web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, message);
+            data->readstate = WS_STATE_READING_SIZE_WORD;
+            data->size_word_bytes_read = 0;
+            memset (data->size_word_bytes, 0, 4);
+          }
+        else
+          g_debug ("session message %u bytes remaining", data->message_bytes_remaining);
+      }
+      break;
+    }
+
+  switch (data->readstate)
+    {
+    case WS_STATE_READING_SIZE_WORD:
+      {
+        g_input_stream_read_async (data->from_session,
+                                   data->size_word_bytes + data->size_word_bytes_read,
+                                   4 - data->size_word_bytes_read,
+                                   G_PRIORITY_DEFAULT, data->sessionio_cancellable,
+                                   on_session_read_complete,
+                                   web_socket_data_ref (data));
+      }
+      break;
+    case WS_STATE_READING_MESSAGE:
+      {
+        g_input_stream_read_async (data->from_session,
+                                   data->message_buffer->data + data->message_bytes_read,
+                                   data->message_bytes_remaining,
+                                   G_PRIORITY_DEFAULT, data->sessionio_cancellable,
+                                   on_session_read_complete,
+                                   web_socket_data_ref (data));
+      }
+      break;
+    }
+ out:
+  web_socket_data_unref (data);
 }
 
 static gboolean
@@ -339,12 +450,16 @@ open_session (WebSocketData *data,
   data->from_session = g_unix_input_stream_new (session_stdout, TRUE);
   session_stdin = session_stdout = -1;
 
-  data->session_thread = g_thread_new ("copy",
-                                       copy_from_session_to_browser,
-                                       data);
-
   g_signal_connect (data->web_socket, "message",
                     G_CALLBACK (on_web_socket_message), data);
+
+  data->readstate = WS_STATE_READING_SIZE_WORD;
+  data->size_word_bytes_read = 0;
+  g_input_stream_read_async (data->from_session,
+                             data->size_word_bytes, 4,
+                             G_PRIORITY_DEFAULT, data->sessionio_cancellable,
+                             on_session_read_complete,
+                             web_socket_data_ref (data));
 
   ret = TRUE;
 
@@ -375,6 +490,9 @@ out:
 static void
 close_session (WebSocketData *data)
 {
+  if (data->sessionio_cancellable)
+    g_cancellable_cancel (data->sessionio_cancellable);
+
   if (data->session_pid)
     {
       int status;
@@ -384,8 +502,6 @@ close_session (WebSocketData *data)
       TEMP_FAILURE_RETRY (waitpid (data->session_pid, &status, 0));
       g_spawn_close_pid (data->session_pid);
       data->session_pid = 0;
-
-      g_thread_join (data->session_thread);
 
       g_input_stream_close (data->from_session, NULL, NULL);
 
@@ -452,6 +568,7 @@ static gboolean
 on_web_socket_closing (WebSocketConnection *web_socket,
                        WebSocketData *data)
 {
+  g_debug ("web socket closing");
   close_session (data);
   return FALSE;
 }
@@ -476,10 +593,10 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
 {
   const gchar *protocols[] = { "cockpit1", NULL };
   WebSocketData *data;
-  GBytes *message;
   gchar *url;
 
   data = g_new0 (WebSocketData, 1);
+  data->refcount = 1;
   data->target_host = g_strdup (target_host);
   data->specific_port = specific_port;
   data->agent_program = g_strdup (agent_program);
@@ -492,7 +609,6 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
       if (G_IS_SOCKET_CONNECTION (base))
         data->connection = g_object_ref (base);
     }
-  data->reading_cancellable = g_cancellable_new ();
 
   data->authenticated = cockpit_auth_check_headers (auth, headers,
                                                  &(data->user), &(data->password));
@@ -504,7 +620,9 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
 
   data->main_context = g_main_context_new ();
   g_main_context_push_thread_default (data->main_context);
-  data->async_queue = g_async_queue_new_full ((GDestroyNotify)g_bytes_unref);
+
+  data->sessionio_cancellable = g_cancellable_new ();
+  g_queue_init (&data->session_write_queue);
 
   data->web_socket = web_socket_server_new_for_stream (url, NULL, protocols,
                                                        io_stream, headers,
@@ -519,21 +637,8 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
 
   while (web_socket_connection_get_ready_state (data->web_socket) != WEB_SOCKET_STATE_CLOSED)
     {
-      do
-        {
-          /* Messages coming back from the cockpit-agent */
-          message = g_async_queue_try_pop (data->async_queue);
-          if (message)
-            {
-              if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
-                web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, message);
-              g_bytes_unref (message);
-            }
-        }
-      while (message != NULL);
-
       /* The socket was closed by the cockpit-agent going away */
-      if (g_cancellable_is_cancelled (data->reading_cancellable))
+      if (data->eof_from_session)
         {
           if (web_socket_connection_get_ready_state (data->web_socket) < WEB_SOCKET_STATE_CLOSING)
             web_socket_connection_close (data->web_socket, WEB_SOCKET_CLOSE_GOING_AWAY, NULL);
@@ -542,15 +647,10 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
       g_main_context_iteration (data->main_context, TRUE);
     }
 
+  g_cancellable_cancel (data->sessionio_cancellable);
+
   g_main_context_pop_thread_default (data->main_context);
   g_main_context_unref (data->main_context);
 
-  g_async_queue_unref (data->async_queue);
-  g_object_unref (data->web_socket);
-  g_free (data->target_host);
-  g_free (data->agent_program);
-  g_free (data->user);
-  g_free (data->rhost);
-  g_clear_object (&data->reading_cancellable);
-  g_free (data);
+  web_socket_data_unref (data);
 }

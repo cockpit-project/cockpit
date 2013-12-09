@@ -179,7 +179,7 @@ account_load_groups (ActUser *user)
 
   ngroups = get_user_groups (user, &primary, &groups);
   g_variant_builder_init (&result, G_VARIANT_TYPE("as"));
-  if (primary >= 0)
+  if (primary != (gid_t)-1)
     {
       grp = getgrgid_alloc (primary);
       if (grp)
@@ -408,9 +408,8 @@ handle_change_groups (CockpitAccount *object,
               if (strcmp (gr->gr_name, arg_remove[j]) == 0)
                 break;
             }
-          if (arg_remove[j])
-            continue;
-          g_string_append_printf (str, "%s,", gr->gr_name);
+          if (!arg_remove[j])
+            g_string_append_printf (str, "%s,", gr->gr_name);
           g_free (gr);
         }
     }

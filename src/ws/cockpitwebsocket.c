@@ -38,6 +38,7 @@
 
 typedef struct
 {
+  volatile gint             refcount;
   WebSocketConnection      *web_socket;
   GSocketConnection        *connection;
   gboolean                  authenticated;
@@ -58,6 +59,30 @@ typedef struct
   GAsyncQueue             *async_queue;
   GCancellable            *reading_cancellable;
 } WebSocketData;
+
+static void
+web_socket_data_unref (WebSocketData   *data)
+{
+  if (!g_atomic_int_dec_and_test (&data->refcount))
+    return;
+    
+  g_async_queue_unref (data->async_queue);
+  g_object_unref (data->web_socket);
+  g_free (data->target_host);
+  g_free (data->agent_program);
+  g_free (data->user);
+  g_free (data->rhost);
+  g_clear_object (&data->reading_cancellable);
+  g_free (data);
+}
+
+/*
+static void
+web_socket_data_ref (WebSocketData *data)
+{
+  g_atomic_int_inc (&data->refcount);
+}
+*/
 
 static void
 send_error (WebSocketData *data,
@@ -480,6 +505,7 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   gchar *url;
 
   data = g_new0 (WebSocketData, 1);
+  data->refcount = 1;
   data->target_host = g_strdup (target_host);
   data->specific_port = specific_port;
   data->agent_program = g_strdup (agent_program);
@@ -545,12 +571,5 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   g_main_context_pop_thread_default (data->main_context);
   g_main_context_unref (data->main_context);
 
-  g_async_queue_unref (data->async_queue);
-  g_object_unref (data->web_socket);
-  g_free (data->target_host);
-  g_free (data->agent_program);
-  g_free (data->user);
-  g_free (data->rhost);
-  g_clear_object (&data->reading_cancellable);
-  g_free (data);
+  web_socket_data_unref (data);
 }

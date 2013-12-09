@@ -338,7 +338,9 @@ write_builder (DBusServerData *data,
 {
   json_builder_end_object (builder);
   gs_free gchar *s = _json_builder_to_str (builder);
-  uint32_t size = strlen (s);
+  guint32 size = strlen (s);
+  /* See cockpitwebsocket.c:copy_from_session_to_browser() */
+  size = GUINT32_TO_BE (size);
   write_all (data->out, &size, sizeof(size));
   write_all (data->out, s, size);
 }

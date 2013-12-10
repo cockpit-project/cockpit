@@ -32,8 +32,9 @@ main (void)
   gchar buffer[sizeof (gint) - 1];
   gsize written;
   gssize count;
+  gint i;
 
-  for (;;)
+  for (i = 0; TRUE; i++)
     {
       count = read (0, buffer, sizeof (buffer));
       if (count < 0)
@@ -58,5 +59,11 @@ main (void)
             }
           written += count;
         }
+
+      /* Slow short reads and writes for the first, 10 and then accelerate */
+      if (i < 3)
+        g_usleep (G_USEC_PER_SEC / 10);
+      else if (i < 30)
+        g_usleep (G_USEC_PER_SEC / 100);
     }
 }

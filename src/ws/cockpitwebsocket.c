@@ -172,6 +172,8 @@ begin_session_write (WebSocketData       *data)
   if (!first)
     return;
 
+  data->active_session_write = TRUE;
+
   g_output_stream_write_bytes_async (data->to_session, first, G_PRIORITY_DEFAULT,
                                      data->sessionio_cancellable,
                                      on_session_write_bytes_complete,

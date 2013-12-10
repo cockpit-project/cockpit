@@ -72,7 +72,6 @@ class TestSession(MachineCase):
         b.wait_popup("disconnected")
         b.wait_text("#disconnected-error", "Your session has been terminated.")
         check_session(False)
-        check(m.execute("loginctl list-sessions"), "admin")
 
         self.allow_journal_messages("peer did not close io when expected",
                                     "Error receiving data: Connection reset by peer")

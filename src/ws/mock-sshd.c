@@ -475,6 +475,11 @@ main (int argc,
     { NULL }
   };
 
+#ifdef __linux
+#include <sys/prctl.h>
+  prctl (PR_SET_PDEATHSIG, 15);
+#endif
+
   ssh_init ();
 
   context = g_option_context_new ("- mock ssh server");

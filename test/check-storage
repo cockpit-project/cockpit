@@ -454,8 +454,10 @@ class TestStorage(MachineCase):
         b.wait_popup("raid-actions-menu")
         b.click('#raid-actions-menu button[data-op="delete"]')
         b.wait_popdown("raid-actions-menu")
-        b.wait_page("storage")
-        b.wait_not_in_text ("#storage_raids", "ARR")
+
+	with b.wait_timeout(120):
+	        b.wait_page("storage")
+	       	b.wait_not_in_text ("#storage_raids", "ARR")
 
     def testJobs(self):
         m = self.machine

@@ -537,6 +537,34 @@ handle_kill_sessions (CockpitAccount *object,
                                      -1,
                                      NULL,
                                      &error);
+
+      if (error)
+        {
+          /* logind from systemd 208 is buggy, so we use systemd directly if it fails
+             https://bugs.freedesktop.org/show_bug.cgi?id=71092
+           */
+          g_dbus_error_strip_remote_error (error);
+          g_warning ("logind.KillUser failed (%s), trying systemd.KillUnit", error->message);
+          g_clear_error (&error);
+          gs_free gchar *unit = g_strdup_printf ("user-%d.slice", act_user_get_uid (acc->u));
+          gs_unref_variant GVariant *result =
+            g_dbus_connection_call_sync (bus,
+                                         "org.freedesktop.systemd1",
+                                         "/org/freedesktop/systemd1",
+                                         "org.freedesktop.systemd1.Manager",
+                                         "KillUnit",
+                                         g_variant_new ("(ssi)",
+                                                        unit,
+                                                        "all",
+                                                        SIGTERM),
+                                         NULL,
+                                         0,
+                                         -1,
+                                         NULL,
+                                         &error);
+          if (!error)
+            g_info ("systemd.KillUnit worked");
+        }
     }
 
 out:

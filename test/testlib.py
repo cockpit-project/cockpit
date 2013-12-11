@@ -292,7 +292,10 @@ class MachineCase(unittest.TestCase):
 
         # https://github.com/cockpit-project/cockpit/issues/115
         "cockpit-testing\\.service: main process exited, code=exited, status=1/FAILURE",
-        "Unit cockpit-testing\\.service entered failed state\\."
+        "Unit cockpit-testing\\.service entered failed state\\.",
+
+        # https://bugs.freedesktop.org/show_bug.cgi?id=71092
+        "logind\\.KillUser failed \\(Input/output error\\), trying systemd\\.KillUnit"
     ]
 
     def allow_journal_messages(self, *patterns):

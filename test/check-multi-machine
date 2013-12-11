@@ -78,6 +78,11 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
         m3 = self.machine3
 
+        def kill_user_admin(machine):
+            # logind from systemd 208 is buggy, so we use systemd directly if it fails
+            # https://bugs.freedesktop.org/show_bug.cgi?id=71092
+            machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
+
         wait_for_port(m2.address, 22)
         wait_for_port(m3.address, 22)
 
@@ -100,10 +105,10 @@ class TestMultiMachine(MachineCase):
         m2_index = wm[m2.address]
         m3_index = wm[m3.address]
 
-        m1.execute("loginctl kill-user admin")
+        kill_user_admin(m1)
         b.wait_text(machine_error_selector(m1_index), "Your session has been terminated.")
 
-        m2.execute("loginctl kill-user admin")
+        kill_user_admin(m2)
         b.wait_text(machine_error_selector(m2_index), "Your session has been terminated.")
 
         b.wait_text (action_selector (m1_index), "Connect")

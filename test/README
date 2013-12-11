@@ -63,7 +63,7 @@ architecture you want to test and store it as
 
 Create a test machine image from it:
 
-  $ ./vm-create -v accountsservice-libs udisks2 libudisks2 json-glib realmd sshpass lvm2
+  $ ./vm-create -v
 
 Compile Cockpit:
 
@@ -100,13 +100,13 @@ with a clean state.
 
 A test machine image is created with vm-create, like so:
 
-  $ ./vm-create -v accountsservice-libs udisks2 libudisks2 json-glib realmd sshpass lvm2
+  $ ./vm-create -v -f cockpit
 
 This starts from a magic base tarball, makes some magic modifications
 to it, brings it up-to-date with respect to the upstream package
-repositories, and installs the given list of extra packages.  The
-magic base tarballs is looked for in $TEST_DATA, is currently lovingly
-made by hand, and changes almost never.
+repositories, and sets it up for the indicated flavor.  The magic base
+tarballs is looked for in $TEST_DATA, is currently lovingly made by
+hand, and changes almost never.
 
 The image will be created in the "./run" directory.
 
@@ -173,7 +173,7 @@ A test machine image created by vm-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
 working copy of Cockpit like this:
 
-  $ ./vm-install [-f FLAVOR] $(./make-rpms)
+  $ ./vm-install $(./make-rpms)
 
 This will modify the test machine image in ./run, but will not modify
 the saved version in $TEST_DATA/images.
@@ -227,11 +227,12 @@ the resulting installation directory to the test machine.  This can
 maybe be done by a script like this:
 
     inst=/var/tmp/INST
-    f18 rm -rf "$inst"
-    f18 make-top -k install DESTDIR="$inst"
-    f18 tar -C "$inst" -cf - . | ./vm-sh --machine $TEST_MACHINE 'cd / && cpio -idu'
+    f20 rm -rf "$inst"
+    f20 make-top -k install DESTDIR="$inst"
+    f20 tar -C "$inst" -cf - . | ./vm-sh --machine $TEST_MACHINE 'cd / && cpio -idu'
 
-The "f18" command executes a command on the build machine.
+The hypthetical "f20" command executes a command in the build
+environment.
 
 ## Guidelines for writing tests
 

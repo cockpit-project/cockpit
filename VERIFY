@@ -2,15 +2,7 @@
 
 set -e -x
 
-IFCONFIG=/sbin/ifconfig
-
-silent()
-{
-  "$@" > /dev/null 2> /dev/null
-  return $?
-}
-
-# Prerequisites 
+# Prerequisites
 require_binary() {
   bin=$1
   if ! which "$bin" >/dev/null 2>/dev/null; then
@@ -25,9 +17,10 @@ require_binary trickle
 # Start
 cd test
 
-if ! silent $IFCONFIG cockpit0; then
+if ! ./vm-prep --check; then
   sudo ./vm-prep
 fi
+
 rpms=$(EXTRA_FLAGS="CFLAGS='-O2 -Wall -Werror'" ./make-rpms)
 if [ -z "$rpms" ]; then
   exit 1

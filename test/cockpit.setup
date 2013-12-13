@@ -24,16 +24,13 @@ baseurl=${COCKPIT_DEPS_URL}
 enabled=1
 gpgcheck=0" > /etc/yum.repos.d/cockpit-deps.repo
 
-echo '<?xml version="1.0" encoding="utf-8"?>
-<zone>
-  <short>Public</short>
-  <description>For use in public areas. You do not trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
-  <service name="ssh"/>
-  <service name="mdns"/>
-  <service name="dhcpv6-client"/>
-  <port protocol="tcp" port="21064"/>
-  <port protocol="tcp" port="8765"/>
-</zone>' > /etc/firewalld/zones/public.xml
+maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
+
+# For Cockpit
+maybe firewall-cmd --permanent --add-port 21064/tcp
+
+# For the D-Bus test server
+maybe firewall-cmd --permanent --add-port 8765/tcp
 
 echo 'NETWORKING=yes' > /etc/sysconfig/network
 

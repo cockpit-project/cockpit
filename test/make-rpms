@@ -75,6 +75,8 @@ EXTRA_FLAGS=${EXTRA_FLAGS:-}
 srpm=$("$make_srpm" "$@")
 rm -rf mock
 
+COCKPIT_DEPS_BASEURL=${COCKPIT_DEPS_BASEURL:=http://cockpit-project.github.io/cockpit-deps}
+
 # Create our custom config by adding the cockpit-deps repo
 mkdir mock
 cp --preserve=timestamps /etc/mock/site-defaults.cfg mock/
@@ -85,7 +87,7 @@ config_opts['root'] = "$os-$arch-cockpit"
 config_opts['yum.conf'] += """
 [cockpit-deps]
 name=Unreleased Cockpit dependencies
-baseurl=http://cockpit-project.github.io/cockpit-deps/$os/$arch
+baseurl=${COCKPIT_DEPS_BASEURL}/$os/$arch
 enabled=1
 gpgcheck=0
 """

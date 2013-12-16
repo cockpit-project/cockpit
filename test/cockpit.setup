@@ -15,9 +15,12 @@ echo 'SELINUX=disabled' > /etc/selinux/config
 
 rm -rf /etc/sysconfig/iptables
 
+COCKPIT_DEPS_BASEURL=${COCKPIT_DEPS_BASEURL:=http://cockpit-project.github.io/cockpit-deps}
+COCKPIT_DEPS_URL=${COCKPIT_DEPS_BASEURL}/$TEST_OS/$TEST_ARCH
+
 echo "[cockpit-deps]
 name=Unreleased Cockpit dependencies
-baseurl=http://cockpit-project.github.io/cockpit-deps/$TEST_OS/$TEST_ARCH
+baseurl=${COCKPIT_DEPS_URL}
 enabled=1
 gpgcheck=0" > /etc/yum.repos.d/cockpit-deps.repo
 

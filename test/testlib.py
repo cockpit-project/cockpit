@@ -69,8 +69,9 @@ arg_trace = False
 class Browser:
     phantom_wait_timeout = 60
 
-    def __init__(self, address):
+    def __init__(self, address, label):
         self.address = address
+        self.label = label
         self.phantom = None
 
     def title(self):
@@ -230,6 +231,23 @@ class Browser:
         self.wait_visible('#content')
         self.wait_visible('#' + id)
 
+    def login_and_go(self, page):
+        self.open(page)
+        self.wait_visible("#login")
+        self.set_val('#login-user-input', "admin")
+        self.set_val('#login-password-input', "foobar")
+        self.click('#login-button')
+        self.wait_page(page)
+
+    def snapshot(self, title, label=None):
+        """Take a snapshot of the current screen and save it as a PNG.
+
+        Arguments:
+            title: Used for the filename.
+        """
+        if self.phantom:
+            self.phantom.show(file="%s-%s-%s.png" % (program_name, label or self.label, title))
+
 class MachineCase(unittest.TestCase):
     runner = None
     machine_class = testvm.QemuMachine
@@ -240,11 +258,15 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(lambda: m.kill())
         return m
 
+    def new_browser(self, address=None):
+        (unused, sep, label) = self.id().rpartition(".")
+        return Browser(address = address or self.machine.address, label=label)
+
     def setUp(self):
         self.machine = self.new_machine()
         self.machine.start()
         self.machine.wait_boot()
-        self.browser = Browser(address=self.machine.address)
+        self.browser = self.new_browser()
 
     def tearDown(self):
         if self.runner and not self.runner.wasSuccessful():
@@ -266,12 +288,7 @@ class MachineCase(unittest.TestCase):
 
     def login_and_go(self, page):
         self.start_cockpit()
-        self.browser.open(page)
-        self.browser.wait_visible("#login")
-        self.browser.set_val('#login-user-input', "admin")
-        self.browser.set_val('#login-password-input', "foobar")
-        self.browser.click('#login-button')
-        self.browser.wait_page(page)
+        self.browser.login_and_go(page)
 
     allowed_messages = [
         # This is a failed login, which happens every time
@@ -331,10 +348,7 @@ class MachineCase(unittest.TestCase):
         Arguments:
             title: Used for the filename.
         """
-        if label is None:
-            (unused, sep, label) = self.id().rpartition(".")
-        if self.browser.phantom:
-            self.browser.phantom.show(file="%s-%s-%s.png" % (program_name, label, title))
+        self.browser.snapshot(title, label)
 
     def copy_journal(self, title, label=None):
         if label is None:

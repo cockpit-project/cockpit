@@ -88,7 +88,7 @@ function cockpit_init_get_config() {
             if (req.status == 200) {
                 // Nice, we are logged in.
                 cockpit_connection_config = JSON.parse(req.responseText);
-                cockpit_init_connect();
+                cockpit_init_connect_local();
             } else {
                 // Log in
                 cockpit_login_show();
@@ -97,9 +97,6 @@ function cockpit_init_get_config() {
     };
     req.send();
 }
-
-var cockpit_dbus_clients;
-var cockpit_dbus_client;
 
 /* There are two classes of pages: Those that are multi-server aware,
    and those that are not.
@@ -118,102 +115,157 @@ var cockpit_dbus_client;
 
 function cockpit_is_multi_server_aware (hash)
 {
-    return ((cockpit_dbus_clients.length != 1 && window.location.hash === "") ||
-            window.location.hash == "#dashboard");
+    return ((hash === "" && cockpit_machines.length != 1) ||
+            hash == "#dashboard");
 }
+
+/* A connection to the webserver machine.  It is used to manage global
+ * configuration, such as the list of machines to show on the
+ * dashboard.
+ */
+var cockpit_dbus_local_client;
+
+/* An array of the machines shown on the dashboard.  Each entry has
+ * fields 'address', 'client', and 'dbus_iface'.
+ */
+var cockpit_machines = [ ];
+
+/* A more or less random single client from the array above.  Used
+ * with non-multi-server-aware pages.  This will eventually disappear
+ * when all pages are multi-server-aware.
+ */
+var cockpit_dbus_client;
 
 function cockpit_update_machines ()
 {
     var i, j, found;
-
-    var machines = cockpit_settings_get_json ("machines");
-
+    var machines = cockpit_dbus_local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
+                                                                "com.redhat.Cockpit.Machine");
     for (i = 0; i < machines.length; i++) {
-        found = false;
-        for (j = 0; j < cockpit_dbus_clients.length; j++) {
-            if (cockpit_dbus_clients[j].target == machines[i]) {
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-            cockpit_dbus_clients.push (new DBusClient(machines[i]));
-    }
+        if (!cockpit_find_in_array (machines[i].Tags, "dashboard"))
+            continue;
 
-    for (j = 0; j < cockpit_dbus_clients.length;) {
         found = false;
-        for (i = 0; i < machines.length; i++) {
-            if (cockpit_dbus_clients[j].target == machines[i]) {
+        for (j = 0; j < cockpit_machines.length; j++) {
+            if (cockpit_machines[j].address == machines[i].Address) {
                 found = true;
                 break;
             }
         }
         if (!found) {
-            cockpit_dbus_clients[j].close();
-            cockpit_dbus_clients.splice (j, 1);
+            cockpit_machines.push({ 'address': machines[i].Address,
+                                    'client': new DBusClient(machines[i].Address),
+                                    'dbus_iface': machines[i]
+                                  });
+        }
+    }
+
+    for (j = 0; j < cockpit_machines.length;) {
+        found = false;
+        for (i = 0; i < machines.length; i++) {
+            if (cockpit_find_in_array (machines[i].Tags, "dashboard") &&
+                cockpit_machines[j].address == machines[i].Address) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            cockpit_machines[j].client.close();
+            cockpit_machines.splice (j, 1);
         } else
             j += 1;
     }
 
-    if (!cockpit_dbus_client && cockpit_dbus_clients.length > 0)
-        cockpit_dbus_client = cockpit_dbus_clients[0];
+    if (!cockpit_dbus_client)
+        cockpit_dbus_client = cockpit_dbus_local_client;
 
     cockpit_dashboard_update_machines ();
 }
 
-function cockpit_add_machine (machine)
+function cockpit_add_machine (address)
 {
-    var machines = cockpit_settings_get_json ("machines");
-    if (!machines)
-        machines = [ ];
+    var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
+                                                     "com.redhat.Cockpit.Machines");
 
-    for (var i = 0; i < machines.length; i++) {
-        if (machines[i] == machine)
-            return;
-    }
-
-    machines.push (machine);
-    cockpit_settings_set_json ("machines", machines);
-    cockpit_update_machines ();
+    machines.call('Add', address, function (error, path) {
+        if (error) {
+            cockpit_show_unexpected_error(error);
+        } else {
+            var dbus_iface = cockpit_dbus_local_client.lookup (path, "com.redhat.Cockpit.Machine");
+            if (dbus_iface) {
+                dbus_iface.call('AddTag', "dashboard", function (error) {
+                    if (error)
+                        cockpit_show_unexpected_error(error);
+                });
+            } else
+                cockpit_show_unexpected_error(_("New machine not found in list after adding."));
+        }
+    });
 }
 
 function cockpit_remove_machine (machine)
 {
-    var machines = cockpit_settings_get_json ("machines");
-    for (var i = 0; i < machines.length; i++) {
-        if (machines[i] == machine) {
-            machines.splice (i, 1);
-            cockpit_settings_set_json ("machines", machines);
-            cockpit_update_machines ();
-            return;
-        }
-    }
+    machine.dbus_iface.call('RemoveTag', "dashboard", function (error) {
+        if (error)
+            cockpit_show_unexpected_error (error);
+    });
 }
 
-function cockpit_init_connect()
+function cockpit_init_connect_local()
 {
     var i;
 
-    var machines = cockpit_settings_get_json ("machines");
-    if (!machines)
-        machines = [ "localhost" ];
-    cockpit_settings_set_json ("machines", machines);
+    cockpit_dbus_local_client = new DBusClient("localhost");
+    $(cockpit_dbus_local_client).on('state-change.init', function () {
+        if (cockpit_dbus_local_client.state == "ready") {
+            $(cockpit_dbus_local_client).off('state-change.init');
+            cockpit_init_connect_machines();
+        } else  if (cockpit_dbus_local_client.state == "closed") {
+            $(cockpit_dbus_local_client).off('state-change.init');
+            cockpit_logout(cockpit_dbus_local_client.error);
+        }
+    });
 
-    cockpit_dbus_clients = [ ];
+    $(cockpit_dbus_local_client).on('state-change', function () {
+        if (!cockpit_dbus_local_client)
+            return;
+
+        cockpit_dashboard_local_client_state_change ();
+    });
+}
+
+function cockpit_init_connect_machines()
+{
+    cockpit_machines = [ ];
     cockpit_dbus_client = null;
+
+    $(cockpit_dbus_local_client).on('objectAdded objectRemoved', function (event, object) {
+        if (object.lookup('com.redhat.Cockpit.Machine'))
+            cockpit_update_machines ();
+    });
+    $(cockpit_dbus_local_client).on('propertiesChanged', function (event, object, iface) {
+        if (iface._iface_name == "com.redhat.Cockpit.Machine")
+            cockpit_update_machines ();
+    });
     cockpit_update_machines ();
 
     if (cockpit_is_multi_server_aware (window.location.hash))
         cockpit_content_show ();
 
-    $(cockpit_dbus_client).on('state-change', function () {
-        if (cockpit_dbus_client.state == "closed" && !cockpit_is_multi_server_aware (window.location.hash))
+    function legacy_client_state_change ()
+    {
+        if (cockpit_dbus_client.state == "closed" &&
+            !cockpit_is_multi_server_aware (window.location.hash))
             cockpit_show_disconnected ();
         else if (cockpit_dbus_client.state == "ready") {
             cockpit_hide_disconnected ();
             cockpit_content_show ();
         }
-    });
+    }
+
+    $(cockpit_dbus_client).on('state-change', legacy_client_state_change);
+    legacy_client_state_change ();
 }
 
 function cockpit_reconnect() {
@@ -222,10 +274,15 @@ function cockpit_reconnect() {
 }
 
 function cockpit_disconnect() {
-    var clients = cockpit_dbus_clients;
-    cockpit_dbus_clients = [];
-    for (var i = 0; i < clients.length; i++)
-        clients[i].close("disconnecting");
+    var local_client = cockpit_dbus_local_client;
+    var machines = cockpit_machines;
+
+    cockpit_dbus_local_client = null;
+    cockpit_machines = [];
+
+    local_client.close("disconnecting");
+    for (var i = 0; i < machines.length; i++)
+        machines[i].client.close("disconnecting");
 }
 
 function cockpit_show_disconnected() {

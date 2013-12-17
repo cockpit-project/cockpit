@@ -26,6 +26,7 @@
 #include "daemon.h"
 #include "auth.h"
 #include "manager.h"
+#include "machines.h"
 #include "network.h"
 #include "cpumonitor.h"
 #include "memorymonitor.h"
@@ -63,6 +64,7 @@ struct _Daemon
   GDBusConnection *connection;
   GDBusObjectManagerServer *object_manager;
 
+  Machines *machines;
   StorageProvider *storage_provider;
 
   guint tick_timeout_id;
@@ -185,6 +187,7 @@ daemon_constructed (GObject *_object)
 {
   Daemon *daemon = DAEMON (_object);
   CockpitManager *manager;
+  CockpitMachines *machines;
   CockpitNetwork *network = NULL;
   CockpitResourceMonitor *monitor;
   CockpitRealms *realms;
@@ -204,6 +207,15 @@ daemon_constructed (GObject *_object)
   g_assert (daemon->system_bus_proxy != NULL);
 
   daemon->object_manager = g_dbus_object_manager_server_new ("/com/redhat/Cockpit");
+
+  /* /com/redhat/Cockpit/Machines */
+  machines = machines_new (daemon);
+  daemon->machines = MACHINES (machines);
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Machines");
+  cockpit_object_skeleton_set_machines (object, machines);
+  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (machines);
+  g_object_unref (object);
 
   /* /com/redhat/Cockpit/Manager */
   manager = manager_new (daemon);
@@ -521,4 +533,10 @@ daemon_get_sender_uid (Daemon *daemon,
     }
 
   return TRUE;
+}
+
+Machines *
+daemon_get_machines (Daemon *daemon)
+{
+  return daemon->machines;
 }

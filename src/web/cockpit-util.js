@@ -263,3 +263,11 @@ function cockpit_make_set (array) {
         s[array[i]] = true;
     return s;
 }
+
+function cockpit_find_in_array (array, elt) {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] == elt)
+            return true;
+    }
+    return false;
+}

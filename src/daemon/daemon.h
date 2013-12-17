@@ -45,6 +45,8 @@ gboolean                   daemon_get_sender_uid       (Daemon *daemon,
                                                         GDBusMethodInvocation *invocation,
                                                         uid_t *uid);
 
+Machines                  *daemon_get_machines         (Daemon *daemon);
+
 G_END_DECLS
 
 #endif /* __DAEMON_H__ */

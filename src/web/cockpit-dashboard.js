@@ -54,7 +54,10 @@ PageDashboard.prototype = {
         if (first_visit) {
             $("#server-actions-menu button").on('click', function () {
                 $("#server-actions-menu").popup('close');
-                me.server_action(me.server_client, $(this).attr("data-op"));
+                me.server_action(me.server_machine, $(this).attr("data-op"));
+            });
+            $('#dashboard-local-reconnect').on('click', function () {
+                cockpit_dbus_local_client.connect();
             });
         }
     },
@@ -73,6 +76,18 @@ PageDashboard.prototype = {
         }
     },
 
+    local_client_state_change: function () {
+        if (cockpit_dbus_local_client.state == "ready") {
+            $('#dashboard-local-disconnected').hide();
+        } else {
+            if (cockpit_dbus_local_client.state == "closed")
+                $('#dashboard-local-error').text(cockpit_client_error_description(cockpit_dbus_local_client.error));
+            else
+                $('#dashboard-local-error').text("...");
+            $('#dashboard-local-disconnected').show();
+        }
+    },
+
     update_machines: function () {
         var me = this;
         var machines = $('#dashboard-machines'), i;
@@ -85,16 +100,17 @@ PageDashboard.prototype = {
             }
         }
 
-        function open_actionmenu (client) {
+        function open_actionmenu (machine) {
             return function () {
                 var o = $(this).offset();
-                me.server_client = client;
+                me.server_machine = machine;
                 $('#server-actions-menu button').button('disable');
-                if (client.state == "ready") {
+                $('#server-actions-menu button.always').button('enable');
+                if (machine.client.state == "ready") {
                     $('#server-actions-menu button.ready').button('enable');
-                    if (client == cockpit_dbus_client)
+                    if (machine.client.target == cockpit_dbus_client.target)
                         $('#server-actions-menu button.first-ready').button('enable');
-                } else if (client.state == "closed")
+                } else if (machine.client.state == "closed")
                     $('#server-actions-menu button.closed').button('enable');
                 $("#server-actions-menu").popup('open', { x: o.left, y: o.top });
             };
@@ -102,7 +118,7 @@ PageDashboard.prototype = {
 
         this.cpu_plots = [ ];
         machines.empty ();
-        for (i = 0; i < cockpit_dbus_clients.length; i++) {
+        for (i = 0; i < cockpit_machines.length; i++) {
             var table =
                 $('<table/>', { style: "width:100%" }).append(
                     $('<tr/>').append(
@@ -115,7 +131,7 @@ PageDashboard.prototype = {
                         $('<td/>', { 'class': "cockpit-machine-info",
                                      'style': "vertical-align:top;padding-left:10px" }).
                             append(
-                                $('<div/>', { 'style': "font-weight:bold" }).text(cockpit_dbus_clients[i].target),
+                                $('<div/>', { 'style': "font-weight:bold" }).text(cockpit_machines[i].address),
                                 $('<div/>'),
                                 $('<div/>')),
                         $('<td/>', { style: "width:200px" }).append(
@@ -132,21 +148,23 @@ PageDashboard.prototype = {
                             $('<div>', { "data-role": "controlgroup",
                                          "data-type": "horizontal"
                                        }).append(
-                                           $('<button>', { on: { click: $.proxy (this, "action", cockpit_dbus_clients[i])
+                                           $('<button>', { on: { click: $.proxy (this, "action",
+                                                                                 cockpit_machines[i])
                                                                },
                                                            "class": "cockpit-machine-action",
                                                            "data-inline": "true"
                                                          }).
                                                text("Manage"),
-                                           $('<button>', { on: { click: open_actionmenu (cockpit_dbus_clients[i])
+                                           $('<button>', { on: { click: open_actionmenu (cockpit_machines[i])
                                                                },
+                                                           "class": "cockpit-machine-actions",
                                                            "data-inline": "true"
                                                          }).
                                                text("...")))));
             var li =
                 $('<li/>').append(table);
             machines.append (li);
-            $(cockpit_dbus_clients[i]).on('state-change', $.proxy(this, "update"));
+            $(cockpit_machines[i].client).on('state-change', $.proxy(this, "update"));
         }
         machines.append('<li style="text-align:right">' +
                         '<div data-role="controlgroup" data-type="horizontal">' +
@@ -172,9 +190,10 @@ PageDashboard.prototype = {
             var plot_div = $(e).find('.cockpit-graph');
             var avatar_img = $(e).find('.cockpit-avatar');
 
-            var client = cockpit_dbus_clients[i];
-            if (!client)
+            if (i >= cockpit_machines.length)
                 return;
+
+            var client = cockpit_machines[i].client;
 
             action_btn.button('disable');
             if (client.state == "ready") {
@@ -192,7 +211,7 @@ PageDashboard.prototype = {
                     $(manager).on('AvatarChanged.dashboard', $.proxy (me, "update"));
                 }
                 action_btn.text("Manage");
-                if (client == cockpit_dbus_client)
+                if (client.target == cockpit_dbus_client.target)
                     action_btn.button('enable');
                 error_div.text("");
                 error_div.hide();
@@ -218,55 +237,55 @@ PageDashboard.prototype = {
             }
             action_btn.button('refresh');
 
-            if (cockpit_dbus_clients[i].state == "ready" && !me.cpu_plots[i]) {
-                var monitor = cockpit_dbus_clients[i].lookup("/com/redhat/Cockpit/CpuMonitor",
-                                                          "com.redhat.Cockpit.ResourceMonitor");
+            if (client.state == "ready" && !me.cpu_plots[i]) {
+                var monitor = client.lookup("/com/redhat/Cockpit/CpuMonitor",
+                                            "com.redhat.Cockpit.ResourceMonitor");
                 me.cpu_plots[i] =
                     cockpit_setup_simple_plot($(e).find('.cockpit-graph-plot'),
-                                           $(e).find('.cockpit-graph-text'),
-                                           monitor,
-                                           {
-                                               series: {
-                                                   lines: {show: true, lineWidth: 1},
-                                                   color: "rgb(128, 128, 128)",
-                                                   shadowSize: 0
-                                               },
-                                               grid: {show: false},
-                                               yaxis: {min: 0, max: 100}
-                                           },
-                                           function(values) { // Combines the series into a single plot-value
-                                               return values[1] + values[2] + values[3];
-                                           },
-                                           function(values) { // Combines the series into a textual string
-                                               var total = values[1] + values[2] + values[3];
-                                               return total.toFixed(1) + "%";
-                                           });
+                                              $(e).find('.cockpit-graph-text'),
+                                              monitor,
+                                              {
+                                                  series: {
+                                                      lines: {show: true, lineWidth: 1},
+                                                      color: "rgb(128, 128, 128)",
+                                                      shadowSize: 0
+                                                  },
+                                                  grid: {show: false},
+                                                  yaxis: {min: 0, max: 100}
+                                              },
+                                              function(values) { // Combines the series into a single plot-value
+                                                  return values[1] + values[2] + values[3];
+                                              },
+                                              function(values) { // Combines the series into a textual string
+                                                  var total = values[1] + values[2] + values[3];
+                                                  return total.toFixed(1) + "%";
+                                              });
                 me.cpu_plots[i].start();
             }
         });
 
     },
 
-    action: function (client, event) {
-        if (client.state == "ready")
-            this.server_action(client, "manage");
-        else if (client.state == "closed")
-            this.server_action(client, "connect");
+    action: function (machine, event) {
+        if (machine.client.state == "ready")
+            this.server_action(machine, "manage");
+        else if (machine.client.state == "closed")
+            this.server_action(machine, "connect");
     },
 
-    server_action: function (client, op) {
+    server_action: function (machine, op) {
         if (op == "manage") {
-            if (client == cockpit_dbus_client)
-                cockpit_go_down ({ page: "server", machine: client.target });
+            if (machine.client.target == cockpit_dbus_client.target)
+                cockpit_go_down ({ page: "server", machine: machine.address });
         } else if (op == "connect") {
-            client.connect();
+            machine.client.connect();
         } else if (op == "disconnect") {
-            client.close();
+            machine.client.close();
         } else if (op == "remove") {
-            cockpit_remove_machine (client.target);
+            cockpit_remove_machine (machine);
         } else if (op == "rescue") {
             cockpit_go ([ { page: "dashboard" },
-                          { page: "server", machine: client.target },
+                          { page: "server", machine: machine.address },
                           { page: "terminal" } ]);
         } else
             console.log ("unsupported server op %s", op);
@@ -275,7 +294,6 @@ PageDashboard.prototype = {
     add_server: function () {
         cockpit_popup(null, "#dashboard_add_server_dialog");
     }
-
 };
 
 function PageDashboard() {
@@ -289,6 +307,11 @@ cockpit_pages.push(cockpit_dashboard_page);
 function cockpit_dashboard_update_machines ()
 {
     cockpit_dashboard_page.update_machines();
+}
+
+function cockpit_dashboard_local_client_state_change ()
+{
+    cockpit_dashboard_page.local_client_state_change ();
 }
 
 PageAddServer.prototype = {
@@ -307,11 +330,44 @@ PageAddServer.prototype = {
     },
 
     enter: function(first_visit) {
+        var me = this;
+
         if (first_visit) {
             $("#dashboard_add_server_cancel").on('click', $.proxy(this, "cancel"));
             $("#dashboard_add_server_add").on('click', $.proxy(this, "add"));
+            $(cockpit_dbus_local_client).on('objectAdded objectRemoved', function (event, object) {
+                if (object.lookup('com.redhat.Cockpit.Machine'))
+                    me.update ();
+            });
+            $(cockpit_dbus_local_client).on('propertiesChanged', function (event, object, iface) {
+                if (iface._iface_name == "com.redhat.Cockpit.Machine")
+                    me.update ();
+            });
         }
         $("#dashboard_add_server_address").val("");
+        me.update ();
+    },
+
+    update: function() {
+        var discovered = $('#dashboard_add_server_discovered');
+        var machines = cockpit_dbus_local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
+                                                                    "com.redhat.Cockpit.Machine");
+
+        discovered.empty();
+        for (var i = 0; i < machines.length; i++) {
+            if (!cockpit_find_in_array (machines[i].Tags, "dashboard")) {
+                var item =
+                    $('<li>', { 'on': { 'click': $.proxy(this, 'discovered_clicked', machines[i])
+                                      }
+                              }).text(machines[i].Address);
+                discovered.append(item);
+            }
+        }
+        discovered.listview('refresh');
+    },
+
+    discovered_clicked: function (iface) {
+        $("#dashboard_add_server_address").val(iface.Address);
     },
 
     cancel: function() {
@@ -319,9 +375,9 @@ PageAddServer.prototype = {
     },
 
     add: function() {
-        var machine = $("#dashboard_add_server_address").val();
+        var address = $("#dashboard_add_server_address").val();
         $("#dashboard_add_server_dialog").popup('close');
-        cockpit_add_machine (machine);
+        cockpit_add_machine (address);
     }
 
 };

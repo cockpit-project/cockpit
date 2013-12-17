@@ -1,0 +1,115 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+class TestDashboard(MachineCase):
+    def wait_dashboard_addresses(self, b, expected):
+        b.wait_js_func(
+            """(function (expected) {
+            var actual = cockpit_machines.map(function (m) { return m.address });
+            return expected.sort().toString() == actual.sort().toString();
+            })""", expected)
+
+    def wait_discovered_addresses(self, b, expected):
+        b.wait_js_func(
+            """(function (expected) {
+            var actual = $('#dashboard_add_server_discovered li').map(function(i,e) { return $(e).text() }).get();
+            return expected.sort().toString() == actual.sort().toString();
+            })""", expected)
+
+    def get_address_map(self, b):
+        map = { }
+        dash = b.eval_js('return cockpit_machines.map(function (m) { return m.address });')
+        for i in range (0, len(dash)):
+            map[dash[i]] = i;
+        return map
+
+    def machine_action(self, b, address, action):
+        map = self.get_address_map(b)
+        b.click('#dashboard-machines li:nth-child(%d) .cockpit-machine-actions' % (map[address]+1))
+        b.wait_popup('server-actions-menu')
+        b.click('#server-actions-menu button[data-op="%s"]' % action)
+        b.wait_popdown('server-actions-menu')
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("dashboard")
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+
+        # We don't bother to start multiple machines.  Instead, we add
+        # the same machine multiple times by using different ways to
+        # address it.
+
+        b.click('#dashboard-add-server')
+        b.wait_popup('dashboard_add_server_dialog')
+        b.set_val('#dashboard_add_server_address', "127.0.0.1")
+        b.click('#dashboard_add_server_add')
+        b.wait_popdown('dashboard_add_server_dialog')
+        self.wait_dashboard_addresses (b, [ "localhost", "127.0.0.1" ])
+
+        b.click('#dashboard-add-server')
+        b.wait_popup('dashboard_add_server_dialog')
+        b.set_val('#dashboard_add_server_address', m.address)
+        b.click('#dashboard_add_server_add')
+        b.wait_popdown('dashboard_add_server_dialog')
+        self.wait_dashboard_addresses (b, [ "localhost", "127.0.0.1", m.address ])
+
+        # Remove two
+        self.machine_action (b, "127.0.0.1", "remove")
+        self.wait_dashboard_addresses (b, [ "localhost", m.address ])
+        self.machine_action (b, "localhost", "remove")
+        self.wait_dashboard_addresses (b, [ m.address ])
+
+        # Start second browser and check that it is in sync
+        b2 = self.new_browser()
+        b2.login_and_go("dashboard")
+        self.wait_dashboard_addresses (b2, [ m.address ])
+
+        # Check that the two removed machines are listed in "Add Server"
+        b.click('#dashboard-add-server')
+        b.wait_popup('dashboard_add_server_dialog')
+        self.wait_discovered_addresses (b, [ "127.0.0.1", "localhost" ])
+
+        # Add one again
+        b.set_val('#dashboard_add_server_address', "localhost")
+        b.click('#dashboard_add_server_add')
+        b.wait_popdown('dashboard_add_server_dialog')
+        self.wait_dashboard_addresses (b, [ "localhost", m.address ])
+
+        # Open "Add Server" on second browser
+        b2.click('#dashboard-add-server')
+        b2.wait_popup('dashboard_add_server_dialog')
+        self.wait_discovered_addresses (b2, [ "127.0.0.1" ])
+
+        # Remove one from dashboard of first browser and check that it
+        # appears in dialog of second
+        self.machine_action (b, m.address, "remove")
+        self.wait_discovered_addresses (b2, [ "127.0.0.1", m.address ])
+
+        b2.click('#dashboard_add_server_cancel')
+        b2.wait_popdown('dashboard_add_server_dialog')
+
+        # Hmm...
+        self.allow_journal_messages('Error receiving data: Connection reset by peer')
+
+test_main()

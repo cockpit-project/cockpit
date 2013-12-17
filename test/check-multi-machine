@@ -36,7 +36,7 @@ def wait_for_port (addr, port):
 
 def get_webapp_machines(browser):
     wm = { }
-    cockpit = browser.eval_js('return cockpit_dbus_clients.map(function (c) { return c.target });')
+    cockpit = browser.eval_js('return cockpit_machines.map(function (m) { return m.address; });')
     for i in range (0, len(cockpit)):
         wm[cockpit[i]] = i;
     return wm
@@ -83,22 +83,32 @@ class TestMultiMachine(MachineCase):
             # https://bugs.freedesktop.org/show_bug.cgi?id=71092
             machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
 
+        def wait_dashboard_addresses(expected):
+            b.wait_js_func(
+                """(function (expected) {
+                var actual = cockpit_machines.map(function (m) { return m.address });
+                return expected.sort().toString() == actual.sort().toString();
+                })""", expected)
+
         wait_for_port(m2.address, 22)
         wait_for_port(m3.address, 22)
 
         self.login_and_go("dashboard")
+        wait_dashboard_addresses ([ "localhost" ])
 
         b.click('#dashboard-add-server')
         b.wait_popup('dashboard_add_server_dialog')
         b.set_val('#dashboard_add_server_address', m2.address)
         b.click('#dashboard_add_server_add')
         b.wait_popdown('dashboard_add_server_dialog')
+        wait_dashboard_addresses ([ "localhost", m2.address ])
 
         b.click('#dashboard-add-server')
         b.wait_popup('dashboard_add_server_dialog')
         b.set_val('#dashboard_add_server_address', m3.address)
         b.click('#dashboard_add_server_add')
         b.wait_popdown('dashboard_add_server_dialog')
+        wait_dashboard_addresses ([ "localhost", m2.address, m3.address ])
 
         wm = get_webapp_machines(b)
         m1_index = wm["localhost"]

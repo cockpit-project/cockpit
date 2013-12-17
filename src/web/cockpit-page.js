@@ -227,7 +227,7 @@ function cockpit_decode_trail (hash)
     var locs, params, vals, trail, p, i, j;
 
     if (hash === "")
-        hash = cockpit_dbus_clients.length == 1? "#server" : "#dashboard";
+        hash = cockpit_machines.length == 1? "#server" : "#dashboard";
     if (hash[0] == '#')
         hash = hash.substr(1);
 

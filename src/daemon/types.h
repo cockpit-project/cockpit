@@ -34,6 +34,12 @@ typedef struct _Daemon Daemon;
 struct _Manager;
 typedef struct _Manager Manager;
 
+struct _Machines;
+typedef struct _Machines Machines;
+
+struct _Machine;
+typedef struct _Machine Machine;
+
 struct _CpuMonitor;
 typedef struct _CpuMonitor CpuMonitor;
 

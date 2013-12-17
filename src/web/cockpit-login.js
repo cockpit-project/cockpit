@@ -60,7 +60,7 @@ function cockpit_login_init ()
                 clearTimeout(timeout_id);
                 if (req.status == 200) {
                     cockpit_connection_config = JSON.parse(req.responseText);
-                    cockpit_init_connect();
+                    cockpit_init_connect_local();
                 } else {
                     $("#login-error-message").text(_("Sorry, that didn't work.") + " (" + req.status + ")");
                     $("#login-password-input").focus();

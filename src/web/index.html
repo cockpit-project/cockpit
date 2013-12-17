@@ -85,6 +85,21 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       <div data-role="content" style="width:none;max-width:none">
 
         <div id="dashboard">
+          <ul data-role="listview" data-inset="true" id="dashboard-local-disconnected"
+              style="display:block">
+            <li>
+              <table style="width:100%">
+                <tr>
+                  <td>Interface server</td>
+                  <td id="dashboard-local-error" style="color:red">Dude</td>
+                  <td style="text-align:right">
+                    <button data-mini="true" data-inline="true" id="dashboard-local-reconnect">Reconnect</button>
+                  </td>
+                </tr>
+              </table>
+            </li>
+          </ul>
+
           <ul data-role="listview" data-inset="true" id="dashboard-machines">
           </ul>
 
@@ -94,7 +109,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
               <button translatable="yes" class="first-ready" data-op="manage">Manage</button>
               <button translatable="yes" class="closed" data-op="connect">Connect</button>
               <button translatable="yes" class="ready" data-op="disconnect">Disconnect</button>
-              <button translatable="yes" class="ready closed" data-op="remove">Remove</button>
+              <button translatable="yes" class="always" data-op="remove">Remove</button>
               <button translatable="yes" class="ready" data-op="rescue">Rescue Terminal</button>
             </div>
           </div>
@@ -115,6 +130,8 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                   </td>
                 </tr>
               </table>
+              <ul data-role="listview" data-inset="true" id="dashboard_add_server_discovered">
+              </ul>
               <table style="width:100%">
                 <tr>
                   <td style="text-align:left;width:30%">

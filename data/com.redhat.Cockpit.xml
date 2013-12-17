@@ -25,6 +25,38 @@
   <!-- ********************************************************************** -->
 
   <!--
+      com.redhat.Cockpit.Machines:
+      @short_description: For managing information about known machines.
+
+      Interface for <literal>/com/redhat/Cockpit/Machines</literal>.
+  -->
+  <interface name="com.redhat.Cockpit.Machines">
+    <method name="Add">
+      <arg name="address" type="s" direction="in"/>
+      <arg name="path" type="o" direction="out"/>
+    </method>
+  </interface>
+
+  <!--
+      com.redhat.Cockpit.Machine:
+      @short_description: Information about a machine
+
+      Interface for objects located at <literal>/com/redhat/Cockpit/Machines/</literal>.
+  -->
+  <interface name="com.redhat.Cockpit.Machine">
+    <property name="Address" type="s" access="read"/>
+    <property name="Tags" type="as" access="read"/>
+    <method name="AddTag">
+      <arg name="tag" type="s" direction="in"/>
+    </method>
+    <method name="RemoveTag">
+      <arg name="tag" type="s" direction="in"/>
+    </method>
+  </interface>
+
+  <!-- ********************************************************************** -->
+
+  <!--
       com.redhat.Cockpit.Manager:
       @short_description: Manager singleton
 

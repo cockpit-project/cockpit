@@ -37,24 +37,8 @@ echo '<?xml version="1.0" encoding="utf-8"?>
 
 echo 'NETWORKING=yes' > /etc/sysconfig/network
 
-if ! grep -q 'admin:' /etc/passwd; then
-    echo 'admin:x:1000:1000:Administrator:/home/admin:/bin/bash' >> /etc/passwd
-fi
-
-# Password is "foobar"
-if ! grep -q 'admin:' /etc/shadow; then
-    echo 'admin:$6$03s8BUsPb6ahCTLG$sb/AvOIJopKrG7KPG7KIqM1bmhpwF/oHSWF8jAicXx9Q0Dghl8PdUNXF61C3pTxOM/3XBJypvIrQdwC5frTCP/:15853:0:99999:7:::' >> /etc/shadow
-fi
-
-if ! grep -q 'admin:' /etc/group; then
-    echo 'admin:x:1000:' >> /etc/group
-    sed -i 's/^wheel:.*/\0admin/' /etc/group
-fi
-
-if ! [ -d /home/admin ]; then
-    mkdir /home/admin
-    chown 1000:1000 /home/admin
-fi
+useradd -u 1000 -c Administrator -G wheel admin
+echo foobar | passwd --stdin admin
 
 # To enable persistent logging
 mkdir -p /var/log/journal

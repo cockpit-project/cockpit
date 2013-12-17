@@ -39,7 +39,7 @@ class TestJournal(MachineCase):
 Description=123 different log lines
 
 [Service]
-ExecStart=/bin/sh -c '/usr/bin/seq 123; sleep 1'
+ExecStart=/bin/sh -c '/usr/bin/seq 123; sleep 10'
 """)
 
         m.write("/usr/lib/systemd/system/slow10.service",
@@ -48,7 +48,7 @@ ExecStart=/bin/sh -c '/usr/bin/seq 123; sleep 1'
 Description=Slowly log 10 identical lines
 
 [Service]
-ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done'
+ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 10'
 """)
 
         m.execute("systemctl stop chronyd; date 010112002050; hwclock -w")

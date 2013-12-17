@@ -17,6 +17,9 @@ STAGE_DATA=$PWD/stage
 # Create new clean images in $STAGE_DATA/images
 
 ( cd test
+  if ! ./vm-prep --check --nat; then
+    sudo ./vm-prep --nat
+  fi
   ./vm-reset
   ./vm-create -v -f cockpit
   ./vm-create -v -f ipa

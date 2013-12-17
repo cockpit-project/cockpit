@@ -54,7 +54,7 @@ You can set these environment variables to configure the test suite:
 
 Set up the host as root:
 
-  $ sudo ./vm-prep
+  $ sudo ./vm-prep --nat
 
 You need to download a 'magic base tarball' for the OS and machine
 architecture you want to test and store it as
@@ -64,6 +64,12 @@ architecture you want to test and store it as
 Create a test machine image from it:
 
   $ ./vm-create -v
+
+After the image is created, no package repositories need to be
+accessed anymore via the testing network, and NAT on it can be
+disabled.
+
+  $ sudo ./vm-prep
 
 Compile Cockpit:
 

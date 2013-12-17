@@ -2,14 +2,6 @@
 
 set -e
 
-IFCONFIG=/sbin/ifconfig
-
-silent()
-{
-  "$@" > /dev/null 2> /dev/null
-  return $?
-}
-
 # Prerequisites
 require_binary() {
   bin=$1
@@ -22,8 +14,8 @@ require_binary parallel
 require_binary js
 require_binary trickle
 
-if ! silent $IFCONFIG cockpit0; then
-  sudo ./vm-prep
+if ! ./vm-prep --check; then
+    sudo ./vm-prep
 fi
 
 set -x

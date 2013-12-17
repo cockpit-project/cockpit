@@ -26,7 +26,7 @@ set -euf
 
 usage()
 {
-	echo >&2 "usage: $SELF [-u]"
+	echo >&2 "usage: $SELF [-u] [--nat] [--check]"
 }
 
 prepare()
@@ -37,16 +37,18 @@ prepare()
 	fi
 
 	xml=$(mktemp)
+        forward=""
+        bridge="cockpitisol0"
+        if [ "$do_nat" == "yes" ]; then
+            forward="<forward mode='nat'><nat><port start='1024' end='65535'/></nat></forward>"
+            bridge="cockpit0"
+        fi
 cat > $xml << EOF
 <network>
 	<name>cockpit</name>
 	<uuid>f3605fa4-0763-41ea-8143-49da3bf73262</uuid>
-	<forward mode='nat'>
-		<nat>
-			<port start='1024' end='65535'/>
-		</nat>
-	</forward>
-	<bridge name='cockpit0' stp='on' delay='0' />
+        $forward
+	<bridge name='$bridge' stp='on' delay='0' />
 	<mac address='52:54:00:b8:d2:b5'/>
 	<domain name='cockpit.lan'/>
 	<ip address='10.111.111.200' netmask='255.255.255.0'>
@@ -83,8 +85,8 @@ EOF
 	    exit 1
 	fi
 
-	rule="allow cockpit0"
-	if ! silent grep -F cockpit0 ${qemu_config_dir}/bridge.conf; then
+	rule="allow $bridge"
+	if ! silent grep -F $bridge ${qemu_config_dir}/bridge.conf; then
 		echo "$rule" >> ${qemu_config_dir}/bridge.conf
 	fi
 }
@@ -100,8 +102,26 @@ unprepare()
 	$VIRSH net-undefine cockpit
 }
 
+IFCONFIG=/sbin/ifconfig
+
+check()
+{
+    withorwithout="without"
+    bridge="cockpitisol0"
+    if [ "$do_nat" == "yes" ]; then
+        withorwithout="with"
+        bridge="cockpit0"
+    fi
+
+    if ! silent $IFCONFIG $bridge; then
+        echo "Cockpit test network not set up $withorwithout NAT."
+        exit 1
+    fi
+}
+
 operation=prepare
-args=$(getopt -o "uh" -l "help" -- "$@")
+do_nat=no
+args=$(getopt -o "uhnc" -l "help" -l "nat" -l "check" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -109,9 +129,15 @@ while [ $# -gt 0 ]; do
 		usage
 		exit 0
 		;;
+        -n|--nat)
+                do_nat=yes
+                ;;
 	-u)
 		operation=unprepare
 		;;
+        -c|--check)
+                operation=check
+                ;;
 	--)
 		shift
 		break
@@ -126,7 +152,7 @@ if [ $# -ne 0 ]; then
 fi
 
 uid=$(id -u)
-if [ "$uid" != "0" ]; then
+if [ "$operation" != "check" -a "$uid" != "0" ]; then
 	warning "this script must be run as root"
 	exit 1
 fi

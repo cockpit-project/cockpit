@@ -60,7 +60,7 @@ class Machine:
             return
         print " ".join(args)
 
-    def start(self, maintain=False, macaddr=None):
+    def start(self, maintain=False):
         """Overridden by machine classes to start the machine"""
         self.message("Assuming machine is already running")
 
@@ -530,7 +530,14 @@ class QemuMachine(Machine):
         else:
             conf = { }
 
+        def iface_exists(name):
+            ret = subprocess.call ([ "ifconfig", name ],
+                                   stdout=open("/dev/null", "w"),
+                                   stderr=subprocess.STDOUT)
+            return ret == 0
+
         snapshot = maintain and "off" or "on"
+        bridge = iface_exists("cockpitisol0") and "cockpitisol0" or "cockpit0"
         selinux = "enforcing=0"
         self.macaddr = self._choose_macaddr(conf)
         cmd = [
@@ -542,7 +549,7 @@ class QemuMachine(Machine):
             "-append", "root=/dev/vda console=ttyS0 quiet %s" % (selinux, ),
             "-nographic",
             "-net", "nic,model=virtio,macaddr=%s" % self.macaddr,
-            "-net", "bridge,vlan=0,br=cockpit0",
+            "-net", "bridge,vlan=0,br=%s" % bridge,
             "-device", "virtio-scsi-pci,id=hot"
         ]
 

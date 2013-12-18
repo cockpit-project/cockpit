@@ -1047,32 +1047,37 @@ on_web_socket_input (GObject *pollable_stream,
   gssize count;
   gsize len;
 
-  len = pv->incoming->len;
-  g_byte_array_set_size (pv->incoming, len + 1024);
-
-  count = g_pollable_input_stream_read_nonblocking (pv->input,
-                                                    pv->incoming->data + len,
-                                                    1024, NULL, &error);
-
-  if (count < 0)
+  do
     {
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
-        {
-          g_error_free (error);
-          count = 0;
-        }
-      else
-        {
-          _web_socket_connection_error_and_close (self, error, TRUE);
-          return TRUE;
-        }
-    }
-  else if (count == 0)
-    {
-      end = TRUE;
-    }
+      len = pv->incoming->len;
+      g_byte_array_set_size (pv->incoming, len + 1024);
 
-  pv->incoming->len = len + count;
+      count = g_pollable_input_stream_read_nonblocking (pv->input,
+                                                        pv->incoming->data + len,
+                                                        1024, NULL, &error);
+
+      if (count < 0)
+        {
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
+            {
+              g_error_free (error);
+              count = 0;
+            }
+          else
+            {
+              _web_socket_connection_error_and_close (self, error, TRUE);
+              return TRUE;
+            }
+        }
+      else if (count == 0)
+        {
+          end = TRUE;
+        }
+
+      pv->incoming->len = len + count;
+    }
+  while (count > 0);
+
   process_incoming (self);
 
   if (end)

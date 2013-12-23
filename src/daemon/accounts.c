@@ -244,6 +244,7 @@ create_account_done (ActUserManager *manager,
                      CallData *data)
 {
   CockpitAccounts *object = data->object;
+  Accounts *accounts = ACCOUNTS (object);
   GDBusMethodInvocation *invocation = data->invocation;
   gs_free gchar *password = data->password;
   gboolean locked = data->locked;
@@ -268,7 +269,24 @@ create_account_done (ActUserManager *manager,
 
   act_user_set_locked (user, locked);
 
-  cockpit_accounts_complete_create_account (object, invocation);
+  while (!act_user_is_loaded (user))
+    g_main_context_iteration (NULL, TRUE);
+
+  /* XXX - ActUser objects don't seem to be unique.  The one we have
+           here isn't necessarily the one that we see in user_added
+           and that gets added to the hash table.
+  */
+  ActUser *real_user = act_user_manager_get_user (manager,
+                                                  act_user_get_user_name (user));
+  while (!act_user_is_loaded (real_user))
+    g_main_context_iteration (NULL, TRUE);
+
+  const gchar *path = "/";
+  Account *acc = g_hash_table_lookup (accounts->act_user_to_account, real_user);
+  if (acc)
+    path = g_dbus_object_get_object_path (g_dbus_interface_get_object (G_DBUS_INTERFACE (acc)));
+
+  cockpit_accounts_complete_create_account (object, invocation, path);
 }
 
 static gboolean

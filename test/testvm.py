@@ -424,11 +424,19 @@ class QemuMachine(Machine):
             raise Failure("Can not save now, only right after vm-create.")
 
         images_dir = os.path.join(self.test_data, "images")
+        checksum_file = os.path.join(images_dir, "%s-checksum" % (self.image, ))
         if not os.path.exists(images_dir):
             os.makedirs(images_dir, 0750)
         shutil.copy(self._image_root, images_dir)
         shutil.copy(self._image_kernel, images_dir)
         shutil.copy(self._image_initrd, images_dir)
+        with open(checksum_file, "w") as f:
+            subprocess.check_call([ "sha256sum",
+                                    os.path.basename(self._image_root),
+                                    os.path.basename(self._image_kernel),
+                                    os.path.basename(self._image_initrd) ],
+                                  cwd=images_dir,
+                                  stdout=f)
 
     def build(self, args):
         def modify(gf):

@@ -264,6 +264,10 @@ PageDashboard.prototype = {
             client.close();
         } else if (op == "remove") {
             cockpit_remove_machine (client.target);
+        } else if (op == "rescue") {
+            cockpit_go ([ { page: "dashboard" },
+                          { page: "server", machine: client.target },
+                          { page: "terminal" } ]);
         } else
             console.log ("unsupported server op %s", op);
     },

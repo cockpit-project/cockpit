@@ -93,12 +93,13 @@ class Browser:
             url = "/#%s" % (page, )
         if url.startswith("/"):
             url = "http://%s:%d%s" % (self.address, port, url)
-        if not self.phantom:
-            self.phantom = Phantom("en_US.utf8")
 
-        def tryopen(phantom, hard=False):
+        def tryopen(hard=False):
             try:
-                phantom.open(url)
+                if self.phantom:
+                    self.phantom.kill()
+                self.phantom = Phantom("en_US.utf8")
+                self.phantom.open(url)
                 return True
             except:
                 if hard:
@@ -106,7 +107,8 @@ class Browser:
                 return False
 
         tries = 0
-        while not tryopen(self.phantom, tries >= 20):
+        while not tryopen(tries >= 20):
+            print "Restarting browser..."
             sleep(0.1)
             tries = tries + 1
 
@@ -400,6 +402,10 @@ class Phantom:
 
     def quit(self):
         self.driver.stdin.close()
+        self.driver.wait()
+
+    def kill(self):
+        self.driver.terminate()
         self.driver.wait()
 
 def test_main():

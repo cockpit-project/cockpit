@@ -112,4 +112,32 @@ class TestDashboard(MachineCase):
         # Hmm...
         self.allow_journal_messages('Error receiving data: Connection reset by peer')
 
+    def testDiscovery(self):
+
+        def fix_slpd(machine, name):
+            # OpenSLP needs a resolvable hostname, otherwise it advertises
+            # itself to the world as having address 127.0.0.1.
+            machine.execute("hostnamectl set-hostname %s.cockpit.lan" % name)
+            machine.execute("echo %s %s.cockpit.lan >>/etc/hosts" % (machine.address, name))
+            machine.execute("systemctl restart slpd")
+
+        b = self.browser
+        m1 = self.machine
+
+        m2 = self.new_machine()
+        m2.start()
+        m2.wait_boot()
+
+        fix_slpd(m1, "m1")
+        fix_slpd(m2, "m2")
+
+        self.login_and_go("dashboard")
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+
+        b.click('#dashboard-add-server')
+        b.wait_popup('dashboard_add_server_dialog')
+        self.wait_discovered_addresses (b, [ m1.address, m2.address ])
+        b.click('#dashboard_add_server_cancel')
+        b.wait_popdown('dashboard_add_server_dialog')
+
 test_main()

@@ -107,6 +107,15 @@ AC_CHECK_LIB(pam, pam_open_session, [ ],
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lpam"
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lpam"
 
+# OpenSLP
+AC_CHECK_HEADER([slp.h], [ ],
+  [AC_MSG_ERROR([Couldn't find SLP headers. Try installing openslp-devel])]
+)
+AC_CHECK_LIB(slp, SLPOpen, [ ],
+  [AC_MSG_ERROR([Couldn't find SLP library. Try installing openslp-devel])]
+)
+COCKPIT_DAEMON_LIBS="$COCKPIT_DAEMON_LIBS -lslp"
+
 # systemd
 AC_ARG_WITH([systemdsystemunitdir],
             AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),

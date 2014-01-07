@@ -345,6 +345,13 @@ PageAddServer.prototype = {
             });
         }
         $("#dashboard_add_server_address").val("");
+
+        var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
+                                                         "com.redhat.Cockpit.Machines");
+        machines.call('Discover', function (error) {
+            if (error)
+                console.log ("Discover error %s", error.message);
+        });
         me.update ();
     },
 

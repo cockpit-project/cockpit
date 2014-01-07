@@ -1,0 +1,61 @@
+#! /bin/bash
+
+SELF=vm-upload
+. ./testlib.sh
+
+TEST_DATA=${TEST_DATA:-$PWD}
+
+set -euf
+
+usage()
+{
+	echo >&2 "usage: $SELF [-f FLAVOR]"
+}
+
+flavor=cockpit
+
+case ${1:-} in
+-f|--flavor)
+	if [ $# -lt 2 ]; then
+		usage
+		exit 2
+	fi
+	flavor=$2
+	shift 2
+	;;
+--flavor=*)
+	flavor=${1#--machine=}
+	shift
+	;;
+--help|-h)
+	usage
+	exit 0
+	;;
+esac
+
+TEST_IMAGE=$flavor-$TEST_OS-$TEST_ARCH
+
+checksum_file=$TEST_IMAGE-checksum
+
+cd "$TEST_DATA/images"
+
+if [ ! -f "$checksum_file" ]; then
+    warning "$checksum_file does not exist"
+    exit 1
+fi
+
+if scp -q "mvo@fedorapeople.org:public_html/cockpit/images/$checksum_file" "$checksum_file.remote"; then
+    if cmp "$checksum_file.remote" "$checksum_file"; then
+        exit 0
+    fi
+fi
+
+if ! sha256sum --quiet --check "$checksum_file"; then
+    exit 1
+fi
+
+cat "$checksum_file" | while read sum file; do
+  echo Uploading $file
+  pv "$file" | xz -ze | ssh mvo@fedorapeople.org "cat >public_html/cockpit/images/$file.xz"
+done
+scp "$checksum_file" "mvo@fedorapeople.org:public_html/cockpit/images/$checksum_file"

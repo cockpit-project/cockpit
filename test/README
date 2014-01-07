@@ -20,19 +20,26 @@ For setting up the host:
 
 vm-prep,     for creating the test network etc.
 
-For managing test machines and running tests:
+For managing test machines:
 
 vm-create,   for creating test machine images from scratch.
 vm-save,     for saving a known good test machine image for fast reuse.
+vm-upload,   for uploading test machine images.
+vm-download, for downloading test machine images.
 vm-reset,    for starting over from a clean slate.
 vm-install,  for installing RPMs into a test machine image.
-check-*,     the actual tests.
 
 For debugging:
 
 vm-run,      for running a test machine image.
 vm-copy,     for copying files into a running test machine.
 vm-sh,       for executing commands in a running test machine.
+
+The test suite itself:
+
+testsuite-prepare,   for preparing everything so that tests can run.
+check-verify,        for running all tests.
+check-*,             for running selected tests.
 
 ## Configuration
 
@@ -52,37 +59,20 @@ You can set these environment variables to configure the test suite:
 
 ## Quick start
 
-Set up the host as root:
+First, you need to run ./testsuite-prepare.  This will download
+necessary images, compile cockpit, install the result, and set up some
+virtual networking.  It might ask for the sudo password in order to
+setup the network.
 
-  $ sudo ./vm-prep
-
-You need to download a 'magic base tarball' for the OS and machine
-architecture you want to test and store it as
-
-  $TEST_DATA/$TEST-OS-$TEST_ARCH.tar.gz
-
-Create a test machine image from it:
-
-  $ ./vm-create -v
-
-Compile Cockpit:
-
-  $ rpms=$(./make-rpms)
-
-And install it into the test machine image:
-
-  $ ./vm-install $rpms
+  $ ./testsuite-prepare
 
 Then you can run some tests:
 
   $ ./check-dbus
 
-This will work for most of the tests, but some tests require
-additional preparation, such as the creation of an image for a FreeIPA
-server.
+To run all tests in parallel, run check-verify like this:
 
-The vm-create step above can be slow and depends on the network.  See
-below how to use vm-save and vm-reset to speed this up.
+  $ TEST_JOBS=4 ./check-verify
 
 ## Test machines and their images
 

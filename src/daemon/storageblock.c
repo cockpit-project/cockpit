@@ -52,6 +52,8 @@ struct _StorageBlock
   CockpitStorageBlockSkeleton parent_instance;
 
   UDisksBlock *udisks_block;
+  LvmLogicalVolumeBlock *lvm_logical;
+  LvmPhysicalVolumeBlock *lvm_physical_volume_block;
 
   StorageObject *object;
 };
@@ -330,9 +332,9 @@ storage_block_update (StorageBlock *block)
       g_variant_unref (details);
     }
 
-  cockpit_storage_block_set_logical_volume (iface,
-     storage_provider_translate_path (provider,
-                                      udisks_block_get_logical_volume (udisks_block)));
+  cockpit_storage_block_set_logical_volume
+    (iface, storage_provider_translate_path (provider,
+                                             lvm_logical_volume_block_get_logical_volume (block->lvm_logical)));
 
   if (udisks_physical_volume)
     {
@@ -365,6 +367,18 @@ storage_block_constructed (GObject *object)
                     "notify",
                     G_CALLBACK (on_udisks_block_notify),
                     block);
+
+  GDBusObject *udisks_object = g_dbus_interface_get_object (G_DBUS_INTERFACE (block->udisks_block));
+
+  g_debug ("B %s", g_dbus_object_get_object_path (udisks_object));
+
+  block->lvm_logical =
+    lvm_logical_volume_block_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                     0,
+                                                     "com.redhat.lvm2",
+                                                     g_dbus_object_get_object_path (udisks_object),
+                                                     NULL,
+                                                     NULL);
 
   storage_block_update (block);
 

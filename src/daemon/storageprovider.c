@@ -27,6 +27,7 @@
 #include "storageprovider.h"
 #include "storageobject.h"
 #include "storagejob.h"
+#include "com.redhat.lvm2.h"
 
 #include "libgsystem.h"
 
@@ -54,8 +55,9 @@ struct _StorageProvider
   Daemon *daemon;
 
   UDisksClient *udisks_client;
+  GDBusObjectManager *lvm_objman;
 
-  GHashTable *hash_udisk_interface_to_storage_object;
+  GHashTable *hash_interface_to_storage_object;
   GHashTable *hash_udisk_job_to_storage_job;
 
   GMutex remembered_configs_mutex;
@@ -84,7 +86,7 @@ storage_provider_finalize (GObject *object)
 {
   StorageProvider *provider = STORAGE_PROVIDER (object);
 
-  g_hash_table_unref (provider->hash_udisk_interface_to_storage_object);
+  g_hash_table_unref (provider->hash_interface_to_storage_object);
   g_hash_table_unref (provider->hash_udisk_job_to_storage_job);
 
   g_hash_table_unref (provider->remembered_configs);
@@ -142,7 +144,7 @@ storage_provider_set_property (GObject *object,
 static void
 storage_provider_init (StorageProvider *provider)
 {
-  provider->hash_udisk_interface_to_storage_object = g_hash_table_new_full (g_direct_hash,
+  provider->hash_interface_to_storage_object = g_hash_table_new_full (g_direct_hash,
                                                                             g_direct_equal,
                                                                             g_object_unref,
                                                                             g_object_unref);
@@ -254,17 +256,19 @@ get_udisk_iface (UDisksObject *object)
       return G_DBUS_INTERFACE (mdraid);
     }
 
-  UDisksVolumeGroup *volume_group = udisks_object_peek_volume_group (object);
-  if (volume_group)
-    {
-      return G_DBUS_INTERFACE (volume_group);
-    }
+  return NULL;
+}
 
-  UDisksLogicalVolume *logical_volume = udisks_object_peek_logical_volume (object);
+static GDBusInterface *
+get_lvm_iface (LvmObject *object)
+{
+  LvmVolumeGroup *volume_group = lvm_object_peek_volume_group (object);
+  if (volume_group)
+    return G_DBUS_INTERFACE (volume_group);
+
+  LvmLogicalVolume *logical_volume = lvm_object_peek_logical_volume (object);
   if (logical_volume)
-    {
-      return G_DBUS_INTERFACE (logical_volume);
-    }
+    return G_DBUS_INTERFACE (logical_volume);
 
   return NULL;
 }
@@ -276,8 +280,8 @@ make_storage_object (StorageProvider *provider,
   UDisksBlock *block = UDISKS_IS_BLOCK (iface) ? UDISKS_BLOCK (iface) : NULL;
   UDisksDrive *drive = UDISKS_IS_DRIVE (iface) ? UDISKS_DRIVE (iface) : NULL;
   UDisksMDRaid *mdraid = UDISKS_IS_MDRAID (iface) ? UDISKS_MDRAID (iface) : NULL;
-  UDisksVolumeGroup *volume_group = UDISKS_IS_VOLUME_GROUP (iface) ? UDISKS_VOLUME_GROUP (iface) : NULL;
-  UDisksLogicalVolume *logical_volume = UDISKS_IS_LOGICAL_VOLUME (iface) ? UDISKS_LOGICAL_VOLUME (iface) : NULL;
+  LvmVolumeGroup *volume_group = LVM_IS_VOLUME_GROUP (iface) ? LVM_VOLUME_GROUP (iface) : NULL;
+  LvmLogicalVolume *logical_volume = LVM_IS_LOGICAL_VOLUME (iface) ? LVM_LOGICAL_VOLUME (iface) : NULL;
   return storage_object_new (provider, block, drive, mdraid, volume_group, logical_volume);
 }
 
@@ -286,17 +290,29 @@ provider_update_objects (StorageProvider *provider)
 {
   GDBusObjectManagerServer *object_manager;
   GList *udisks_objects;
+  GList *lvm_objects;
   GList *wanted;
   GList *added, *removed;
   GList *l;
 
+  g_debug ("UPDATE");
+
   object_manager = G_DBUS_OBJECT_MANAGER_SERVER (daemon_get_object_manager (provider->daemon));
   udisks_objects = g_dbus_object_manager_get_objects (udisks_client_get_object_manager (provider->udisks_client));
+  lvm_objects = g_dbus_object_manager_get_objects (provider->lvm_objman);
 
   wanted = NULL;
   for (l = udisks_objects; l != NULL; l = l->next)
     {
       GDBusInterface *iface = get_udisk_iface (UDISKS_OBJECT (l->data));
+      if (iface == NULL)
+        continue;
+
+      wanted = g_list_prepend (wanted, g_object_ref (iface));
+    }
+  for (l = lvm_objects; l != NULL; l = l->next)
+    {
+      GDBusInterface *iface = get_lvm_iface (LVM_OBJECT (l->data));
       if (iface == NULL)
         continue;
 
@@ -313,7 +329,7 @@ provider_update_objects (StorageProvider *provider)
       GDBusInterface *iface = G_DBUS_INTERFACE (l->data);
       StorageObject *object;
 
-      object = g_hash_table_lookup (provider->hash_udisk_interface_to_storage_object, iface);
+      object = g_hash_table_lookup (provider->hash_interface_to_storage_object, iface);
       g_warn_if_fail (object != NULL);
       if (object)
         {
@@ -321,7 +337,7 @@ provider_update_objects (StorageProvider *provider)
                           g_dbus_object_get_object_path (G_DBUS_OBJECT (object))));
         }
 
-      g_hash_table_remove (provider->hash_udisk_interface_to_storage_object, iface);
+      g_hash_table_remove (provider->hash_interface_to_storage_object, iface);
       provider->ifaces = g_list_remove (provider->ifaces, iface);
       g_object_unref (iface);
     }
@@ -331,8 +347,8 @@ provider_update_objects (StorageProvider *provider)
       GDBusInterface *iface = G_DBUS_INTERFACE (l->data);
       StorageObject *object = make_storage_object (provider, iface);
 
-      g_warn_if_fail (g_hash_table_lookup (provider->hash_udisk_interface_to_storage_object, iface) == NULL);
-      g_hash_table_insert (provider->hash_udisk_interface_to_storage_object,
+      g_warn_if_fail (g_hash_table_lookup (provider->hash_interface_to_storage_object, iface) == NULL);
+      g_hash_table_insert (provider->hash_interface_to_storage_object,
                            g_object_ref (iface),
                            object);
 
@@ -346,6 +362,7 @@ provider_update_objects (StorageProvider *provider)
   g_list_free (added);
   g_list_free (removed);
   g_list_free_full (udisks_objects, g_object_unref);
+  g_list_free_full (lvm_objects, g_object_unref);
   g_list_free_full (wanted, g_object_unref);
 }
 
@@ -447,7 +464,7 @@ provider_update (StorageProvider *provider)
     {
       GDBusInterface *iface = G_DBUS_INTERFACE (l->data);
       StorageObject *object;
-      object = g_hash_table_lookup (provider->hash_udisk_interface_to_storage_object,
+      object = g_hash_table_lookup (provider->hash_interface_to_storage_object,
                                     iface);
       g_assert (object != NULL);
       storage_object_update (object);
@@ -483,6 +500,24 @@ on_object_removed (GDBusObjectManager *manager,
 }
 
 static void
+on_lvm_object_added (GDBusObjectManager *manager,
+                     GDBusObject *object,
+                     gpointer user_data)
+{
+  StorageProvider *provider = STORAGE_PROVIDER (user_data);
+  provider_update (provider);
+}
+
+static void
+on_lvm_object_removed (GDBusObjectManager *manager,
+                       GDBusObject *object,
+                       gpointer user_data)
+{
+  StorageProvider *provider = STORAGE_PROVIDER (user_data);
+  provider_update (provider);
+}
+
+static void
 storage_provider_constructed (GObject *_object)
 {
   StorageProvider *provider = STORAGE_PROVIDER (_object);
@@ -498,6 +533,29 @@ storage_provider_constructed (GObject *_object)
       g_clear_error (&error);
       goto out;
     }
+
+  provider->lvm_objman = lvm_object_manager_client_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                                      0,
+                                                                      "com.redhat.lvm2",
+                                                                      "/org/freedesktop/UDisks2",
+                                                                      NULL,
+                                                                      &error);
+  if (provider->lvm_objman == NULL)
+    {
+      g_warning ("Error connecting to udisks-lvm: %s (%s, %d)",
+                 error->message, g_quark_to_string (error->domain), error->code);
+      g_clear_error (&error);
+      goto out;
+    }
+
+  g_signal_connect (provider->lvm_objman,
+                    "object-added",
+                    G_CALLBACK (on_lvm_object_added),
+                    provider);
+  g_signal_connect (provider->lvm_objman,
+                    "object-removed",
+                    G_CALLBACK (on_lvm_object_removed),
+                    provider);
 
   /* init */
   provider_update (provider);
@@ -586,13 +644,20 @@ storage_provider_get_udisks_client (StorageProvider *provider)
   return provider->udisks_client;
 }
 
+GDBusObjectManager *
+storage_provider_get_lvm_object_manager (StorageProvider *provider)
+{
+  g_return_val_if_fail (IS_STORAGE_PROVIDER (provider), NULL);
+  return provider->lvm_objman;
+}
+
 StorageObject *
 storage_provider_lookup_for_udisks_block (StorageProvider *provider,
                                           UDisksBlock *udisks_block)
 {
   g_return_val_if_fail (IS_STORAGE_PROVIDER (provider), NULL);
   g_return_val_if_fail (UDISKS_IS_BLOCK (udisks_block), NULL);
-  return g_hash_table_lookup (provider->hash_udisk_interface_to_storage_object,
+  return g_hash_table_lookup (provider->hash_interface_to_storage_object,
                               udisks_block);
 }
 
@@ -602,7 +667,7 @@ storage_provider_lookup_for_udisks_drive (StorageProvider *provider,
 {
   g_return_val_if_fail (IS_STORAGE_PROVIDER (provider), NULL);
   g_return_val_if_fail (UDISKS_IS_DRIVE (udisks_drive), NULL);
-  return g_hash_table_lookup (provider->hash_udisk_interface_to_storage_object,
+  return g_hash_table_lookup (provider->hash_interface_to_storage_object,
                               udisks_drive);
 }
 
@@ -612,38 +677,43 @@ storage_provider_lookup_for_udisks_mdraid (StorageProvider *provider,
 {
   g_return_val_if_fail (IS_STORAGE_PROVIDER (provider), NULL);
   g_return_val_if_fail (UDISKS_IS_MDRAID (udisks_mdraid), NULL);
-  return g_hash_table_lookup (provider->hash_udisk_interface_to_storage_object,
+  return g_hash_table_lookup (provider->hash_interface_to_storage_object,
                               udisks_mdraid);
 }
 
 StorageObject *
-storage_provider_lookup_for_udisks_volume_group (StorageProvider *provider,
-                                                 UDisksVolumeGroup *udisks_volume_group)
+storage_provider_lookup_for_lvm_volume_group (StorageProvider *provider,
+                                              LvmVolumeGroup *lvm_volume_group)
 {
   g_return_val_if_fail (IS_STORAGE_PROVIDER (provider), NULL);
-  g_return_val_if_fail (UDISKS_IS_VOLUME_GROUP (udisks_volume_group), NULL);
-  return g_hash_table_lookup (provider->hash_udisk_interface_to_storage_object,
-                              udisks_volume_group);
+  g_return_val_if_fail (LVM_IS_VOLUME_GROUP (lvm_volume_group), NULL);
+  return g_hash_table_lookup (provider->hash_interface_to_storage_object,
+                              lvm_volume_group);
 }
 
 StorageObject *
-storage_provider_lookup_for_udisks_logical_volume (StorageProvider *provider,
-                                                   UDisksLogicalVolume *udisks_logical_volume)
+storage_provider_lookup_for_lvm_logical_volume (StorageProvider *provider,
+                                                LvmLogicalVolume *lvm_logical_volume)
 {
   g_return_val_if_fail (IS_STORAGE_PROVIDER (provider), NULL);
-  g_return_val_if_fail (UDISKS_IS_LOGICAL_VOLUME (udisks_logical_volume), NULL);
-  return g_hash_table_lookup (provider->hash_udisk_interface_to_storage_object,
-                              udisks_logical_volume);
+  g_return_val_if_fail (LVM_IS_LOGICAL_VOLUME (lvm_logical_volume), NULL);
+  return g_hash_table_lookup (provider->hash_interface_to_storage_object,
+                              lvm_logical_volume);
 }
 
 const gchar *
 storage_provider_translate_path (StorageProvider *provider,
-                                 const gchar *udisks_path)
+                                 const gchar *udisks_or_lvm_path)
 {
-  UDisksObject *udisks_object = udisks_client_peek_object (provider->udisks_client, udisks_path);
+  StorageObject *object = NULL;
+
+  if (udisks_or_lvm_path == NULL)
+    udisks_or_lvm_path = "/";
+
+  gs_unref_object UDisksObject *udisks_object = udisks_client_get_object (provider->udisks_client,
+                                                                          udisks_or_lvm_path);
   if (udisks_object != NULL)
     {
-      StorageObject *object = NULL;
 
       UDisksDrive *udisks_drive = udisks_object_peek_drive (udisks_object);
       if (udisks_drive != NULL)
@@ -656,20 +726,31 @@ storage_provider_translate_path (StorageProvider *provider,
       UDisksMDRaid *udisks_raid = udisks_object_peek_mdraid (udisks_object);
       if (udisks_raid != NULL)
         object = storage_provider_lookup_for_udisks_mdraid (provider, udisks_raid);
-
-      UDisksVolumeGroup *udisks_volume_group = udisks_object_peek_volume_group (udisks_object);
-      if (udisks_volume_group != NULL)
-        object = storage_provider_lookup_for_udisks_volume_group (provider, udisks_volume_group);
-
-      UDisksLogicalVolume *udisks_logical_volume = udisks_object_peek_logical_volume (udisks_object);
-      if (udisks_logical_volume != NULL)
-        object = storage_provider_lookup_for_udisks_logical_volume (provider, udisks_logical_volume);
-
-      if (object != NULL)
-        return g_dbus_object_get_object_path (G_DBUS_OBJECT (object));
     }
 
-  return "/";
+  gs_unref_object LvmObject *lvm_object = LVM_OBJECT (g_dbus_object_manager_get_object (provider->lvm_objman,
+                                                                                        udisks_or_lvm_path));
+  if (lvm_object)
+    {
+      LvmVolumeGroup *lvm_volume_group = lvm_object_peek_volume_group (lvm_object);
+      if (lvm_volume_group != NULL)
+        object = storage_provider_lookup_for_lvm_volume_group (provider, lvm_volume_group);
+
+      LvmLogicalVolume *lvm_logical_volume = lvm_object_peek_logical_volume (lvm_object);
+      if (lvm_logical_volume != NULL)
+        object = storage_provider_lookup_for_lvm_logical_volume (provider, lvm_logical_volume);
+    }
+
+  if (object != NULL)
+    {
+      g_debug ("%s -> %s", udisks_or_lvm_path, g_dbus_object_get_object_path (G_DBUS_OBJECT (object)));
+      return g_dbus_object_get_object_path (G_DBUS_OBJECT (object));
+    }
+  else
+    {
+      g_debug ("%s -> nothing", udisks_or_lvm_path);
+      return "/";
+    }
 }
 
 static void

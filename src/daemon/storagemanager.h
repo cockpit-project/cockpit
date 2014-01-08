@@ -72,11 +72,11 @@ gboolean   storage_cleanup_block            (StorageProvider *provider,
                                              GError **error);
 
 gboolean   storage_cleanup_logical_volume   (StorageProvider *provider,
-                                             UDisksLogicalVolume *volume,
+                                             LvmLogicalVolume *volume,
                                              GError **error);
 
 gboolean   storage_cleanup_volume_group     (StorageProvider *provider,
-                                             UDisksVolumeGroup *group,
+                                             LvmVolumeGroup *group,
                                              GError **error);
 
 void       storage_remember_block_configs   (StorageProvider *provider,

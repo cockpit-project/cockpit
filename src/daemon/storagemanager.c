@@ -30,6 +30,7 @@
 #include "storagemanager.h"
 #include "storageprovider.h"
 #include "storageobject.h"
+#include "lvmutil.h"
 
 #include <cockpit/cockpit.h>
 
@@ -534,36 +535,36 @@ walk_block (UDisksClient *client,
   return walker (client, block, is_leaf, user_data, error);
 }
 
-typedef gboolean LogicalVolumeWalker (UDisksClient *client,
-                                      UDisksLogicalVolume *logical_volume,
+typedef gboolean LogicalVolumeWalker (GDBusObjectManager *objman,
+                                      LvmLogicalVolume *logical_volume,
                                       gpointer user_data,
                                       GError **error);
 
 static gboolean
-walk_logical_volume (UDisksClient *client,
-                     UDisksLogicalVolume *vol,
+walk_logical_volume (GDBusObjectManager *objman,
+                     LvmLogicalVolume *vol,
                      LogicalVolumeWalker *walker,
                      gpointer user_data,
                      GError **error)
 {
-  if (!walker (client, vol, user_data, error))
+  if (!walker (objman, vol, user_data, error))
     return FALSE;
 
   const gchar *vol_objpath = g_dbus_object_get_object_path (g_dbus_interface_get_object (G_DBUS_INTERFACE (vol)));
-  UDisksVolumeGroup *group = udisks_client_get_volume_group_for_logical_volume (client, vol);
-  GList *siblings = group ? udisks_client_get_logical_volumes_for_volume_group (client, group) : NULL;
+  LvmVolumeGroup *group = lvm_util_get_volume_group_for_logical_volume (objman, vol);
+  GList *siblings = group ? lvm_util_get_logical_volumes_for_volume_group (objman, group) : NULL;
   gboolean ret = TRUE;
 
   for (GList *l = siblings; l; l = l->next)
     {
-      UDisksLogicalVolume *s = l->data;
+      LvmLogicalVolume *s = l->data;
 
-      if ((g_strcmp0 (udisks_logical_volume_get_type_ (s), "snapshot") == 0
-           && g_strcmp0 (udisks_logical_volume_get_origin (s), vol_objpath) == 0)
-          || (g_strcmp0 (udisks_logical_volume_get_type_ (s), "thin") == 0
-              && g_strcmp0 (udisks_logical_volume_get_thin_pool (s), vol_objpath) == 0))
+      if ((g_strcmp0 (lvm_logical_volume_get_type_ (s), "snapshot") == 0
+           && g_strcmp0 (lvm_logical_volume_get_origin (s), vol_objpath) == 0)
+          || (g_strcmp0 (lvm_logical_volume_get_type_ (s), "thin") == 0
+              && g_strcmp0 (lvm_logical_volume_get_thin_pool (s), vol_objpath) == 0))
         {
-          if (!walk_logical_volume (client, s, walker, user_data, error))
+          if (!walk_logical_volume (objman, s, walker, user_data, error))
             {
               ret = FALSE;
               break;
@@ -576,20 +577,20 @@ walk_logical_volume (UDisksClient *client,
 }
 
 static gboolean
-walk_volume_group (UDisksClient *client,
-                   UDisksVolumeGroup *group,
+walk_volume_group (GDBusObjectManager *objman,
+                   LvmVolumeGroup *group,
                    LogicalVolumeWalker *walker,
                    gpointer user_data,
                    GError **error)
 {
-  GList *lvs = group ? udisks_client_get_logical_volumes_for_volume_group (client, group) : NULL;
+  GList *lvs = group ? lvm_util_get_logical_volumes_for_volume_group (objman, group) : NULL;
   gboolean ret = TRUE;
 
   for (GList *l = lvs; l; l = l->next)
     {
-      UDisksLogicalVolume *s = l->data;
+      LvmLogicalVolume *s = l->data;
 
-      if (!walker (client, s, user_data, error))
+      if (!walker (objman, s, user_data, error))
         {
           ret = FALSE;
           break;
@@ -660,13 +661,14 @@ cleanup_block (StorageProvider *provider,
 }
 
 static gboolean
-cleanup_logical_volume_walker (UDisksClient *client,
-                               UDisksLogicalVolume *logical_volume,
+cleanup_logical_volume_walker (GDBusObjectManager *objman,
+                               LvmLogicalVolume *logical_volume,
                                gpointer user_data,
                                GError **error)
 {
   StorageProvider *provider = user_data;
-  UDisksBlock *block = udisks_client_get_block_for_logical_volume (client, logical_volume);
+  UDisksBlock *block = lvm_util_get_block_for_logical_volume (storage_provider_get_udisks_client (provider),
+                                                              logical_volume);
   if (block)
     {
       /* The logical volume is active, let's clean it up by walking
@@ -679,7 +681,7 @@ cleanup_logical_volume_walker (UDisksClient *client,
       /* The logical volume is inactive, let's clean it up by removing
          the remembered configs from its children.
       */
-      UDisksObject *object = UDISKS_OBJECT (g_dbus_interface_get_object (G_DBUS_INTERFACE (logical_volume)));
+      LvmObject *object = LVM_OBJECT (g_dbus_interface_get_object (G_DBUS_INTERFACE (logical_volume)));
       GList *remembered_configs = storage_provider_get_and_forget_remembered_configs
         (provider, g_dbus_object_get_object_path (G_DBUS_OBJECT (object)));
       for (GList *l = remembered_configs; l; l = l->next)
@@ -694,10 +696,10 @@ cleanup_logical_volume_walker (UDisksClient *client,
 
 static gboolean
 cleanup_logical_volume (StorageProvider *provider,
-                        UDisksLogicalVolume *logical_volume,
+                        LvmLogicalVolume *logical_volume,
                         GError **error)
 {
-  gboolean ret = walk_logical_volume (storage_provider_get_udisks_client (provider), logical_volume,
+  gboolean ret = walk_logical_volume (storage_provider_get_lvm_object_manager (provider), logical_volume,
                                       cleanup_logical_volume_walker, provider, error);
   storage_provider_save_remembered_configs (provider);
   return ret;
@@ -705,10 +707,10 @@ cleanup_logical_volume (StorageProvider *provider,
 
 static gboolean
 cleanup_volume_group (StorageProvider *provider,
-                      UDisksVolumeGroup *group,
+                      LvmVolumeGroup *group,
                       GError **error)
 {
-  gboolean ret = walk_volume_group (storage_provider_get_udisks_client (provider), group,
+  gboolean ret = walk_volume_group (storage_provider_get_lvm_object_manager (provider), group,
                                     cleanup_logical_volume_walker, provider, error);
   storage_provider_save_remembered_configs (provider);
   return ret;
@@ -750,32 +752,36 @@ block_is_unused (UDisksClient *client,
 }
 
 static gboolean
-logical_volume_is_unused_walker (UDisksClient *client,
-                                 UDisksLogicalVolume *logical_volume,
+logical_volume_is_unused_walker (GDBusObjectManager *objman,
+                                 LvmLogicalVolume *logical_volume,
                                  gpointer user_data,
                                  GError **error)
 {
-  UDisksBlock *block = udisks_client_get_block_for_logical_volume (client, logical_volume);
+  StorageProvider *provider = user_data;
+  UDisksBlock *block = lvm_util_get_block_for_logical_volume (storage_provider_get_udisks_client (provider),
+                                                              logical_volume);
   if (block)
-    return block_is_unused (client, block, error);
+    return block_is_unused (storage_provider_get_udisks_client (provider), block, error);
   else
     return TRUE;
 }
 
 static gboolean
-logical_volume_is_unused (UDisksClient *client,
-                          UDisksLogicalVolume *vol,
+logical_volume_is_unused (StorageProvider *provider,
+                          LvmLogicalVolume *vol,
                           GError **error)
 {
-  return walk_logical_volume (client, vol, logical_volume_is_unused_walker, NULL, error);
+  return walk_logical_volume (storage_provider_get_lvm_object_manager (provider), vol,
+                              logical_volume_is_unused_walker, provider, error);
 }
 
 static gboolean
-volume_group_is_unused (UDisksClient *client,
-                        UDisksVolumeGroup *group,
+volume_group_is_unused (StorageProvider *provider,
+                        LvmVolumeGroup *group,
                         GError **error)
 {
-  return walk_volume_group (client, group, logical_volume_is_unused_walker, NULL, error);
+  return walk_volume_group (storage_provider_get_lvm_object_manager (provider), group,
+                            logical_volume_is_unused_walker, provider, error);
 }
 
 static gboolean
@@ -797,20 +803,20 @@ storage_cleanup_block (StorageProvider *provider,
 
 gboolean
 storage_cleanup_logical_volume (StorageProvider *provider,
-                                UDisksLogicalVolume *volume,
+                                LvmLogicalVolume *volume,
                                 GError **error)
 {
-  return (logical_volume_is_unused (storage_provider_get_udisks_client (provider), volume, error)
+  return (logical_volume_is_unused (provider, volume, error)
           && cleanup_logical_volume (provider, volume, error)
           && reload_systemd (error));
 }
 
 gboolean
 storage_cleanup_volume_group (StorageProvider *provider,
-                              UDisksVolumeGroup *group,
+                              LvmVolumeGroup *group,
                               GError **error)
 {
-  return (volume_group_is_unused (storage_provider_get_udisks_client (provider), group, error)
+  return (volume_group_is_unused (provider, group, error)
           && cleanup_volume_group (provider, group, error)
           && reload_systemd (error));
 }

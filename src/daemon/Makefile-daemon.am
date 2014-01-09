@@ -9,6 +9,7 @@ $(lvm_dbus_built_sources) : Makefile.am
 		--generate-c-code com.redhat.lvm2 	\
 		/usr/share/dbus-1/interfaces/com.redhat.lvm2.xml \
 		$(NULL)
+	patch com.redhat.lvm2.c <src/daemon/unbreak-lvm-object-notify.patch
 
 # We compile the lvm glue into its own convenience library since we
 # can't use the same CFLAGS for it as for cockpitd.  Specifically, we
@@ -25,6 +26,7 @@ liblvmdbus_a_CPPFLAGS =					\
 	$(NULL)
 
 BUILT_SOURCES += $(lvm_dbus_built_sources)
+CLEANFILES += $(lvm_dbus_built_sources)
 
 cockpitd_SOURCES = \
 	src/daemon/main.c \

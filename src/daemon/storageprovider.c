@@ -58,7 +58,7 @@ struct _StorageProvider
   GDBusObjectManager *lvm_objman;
 
   GHashTable *hash_interface_to_storage_object;
-  GHashTable *hash_udisk_job_to_storage_job;
+  GHashTable *hash_job_to_storage_job;
 
   GMutex remembered_configs_mutex;
   GHashTable *remembered_configs;
@@ -87,7 +87,7 @@ storage_provider_finalize (GObject *object)
   StorageProvider *provider = STORAGE_PROVIDER (object);
 
   g_hash_table_unref (provider->hash_interface_to_storage_object);
-  g_hash_table_unref (provider->hash_udisk_job_to_storage_job);
+  g_hash_table_unref (provider->hash_job_to_storage_job);
 
   g_hash_table_unref (provider->remembered_configs);
   g_mutex_clear (&provider->remembered_configs_mutex);
@@ -148,7 +148,7 @@ storage_provider_init (StorageProvider *provider)
                                                                             g_direct_equal,
                                                                             g_object_unref,
                                                                             g_object_unref);
-  provider->hash_udisk_job_to_storage_job = g_hash_table_new_full (g_direct_hash,
+  provider->hash_job_to_storage_job = g_hash_table_new_full (g_direct_hash,
                                                                    g_direct_equal,
                                                                    g_object_unref,
                                                                    g_object_unref);
@@ -270,6 +270,8 @@ get_lvm_iface (LvmObject *object)
   if (logical_volume)
     return G_DBUS_INTERFACE (logical_volume);
 
+  // g_debug ("Unwanted LVM object %s", g_dbus_object_get_object_path (G_DBUS_OBJECT (object)));
+
   return NULL;
 }
 
@@ -294,8 +296,6 @@ provider_update_objects (StorageProvider *provider)
   GList *wanted;
   GList *added, *removed;
   GList *l;
-
-  g_debug ("UPDATE");
 
   object_manager = G_DBUS_OBJECT_MANAGER_SERVER (daemon_get_object_manager (provider->daemon));
   udisks_objects = g_dbus_object_manager_get_objects (udisks_client_get_object_manager (provider->udisks_client));
@@ -371,12 +371,14 @@ provider_update_jobs (StorageProvider *provider)
 {
   GDBusObjectManagerServer *object_manager;
   GList *udisks_objects;
+  GList *lvm_objects;
   GList *wanted;
   GList *added, *removed;
   GList *l;
 
   object_manager = G_DBUS_OBJECT_MANAGER_SERVER (daemon_get_object_manager (provider->daemon));
   udisks_objects = g_dbus_object_manager_get_objects (udisks_client_get_object_manager (provider->udisks_client));
+  lvm_objects = g_dbus_object_manager_get_objects (provider->lvm_objman);
 
   wanted = NULL;
   for (l = udisks_objects; l != NULL; l = l->next)
@@ -391,11 +393,16 @@ provider_update_jobs (StorageProvider *provider)
       const gchar *operation = udisks_job_get_operation (job);
 
       if (strcmp (operation, "format-mkfs") != 0
-          && strcmp (operation, "format-erase") != 0
-          && strcmp (operation, "lvm-vg-empty-device") != 0)
+          && strcmp (operation, "format-erase") != 0)
         continue;
 
-      wanted = g_list_prepend (wanted, g_object_ref (job));
+      wanted = g_list_prepend (wanted, g_object_ref (l->data));
+    }
+  for (l = lvm_objects; l != NULL; l = l->next)
+    {
+      if (g_str_has_prefix (g_dbus_object_get_object_path (l->data),
+                            "/org/freedesktop/UDisks2/jobs/"))
+        wanted = g_list_prepend (wanted, g_object_ref (l->data));
     }
 
   wanted = g_list_sort (wanted, (GCompareFunc)_udisks_job_compare_func);
@@ -405,10 +412,10 @@ provider_update_jobs (StorageProvider *provider)
 
   for (l = removed; l != NULL; l = l->next)
     {
-      UDisksJob *job = UDISKS_JOB (l->data);
+      GDBusObject *job = G_DBUS_OBJECT (l->data);
       CockpitJob *object;
 
-      object = g_hash_table_lookup (provider->hash_udisk_job_to_storage_job, job);
+      object = g_hash_table_lookup (provider->hash_job_to_storage_job, job);
       if (object == NULL)
         {
           g_warning ("No object for job %p", job);
@@ -417,7 +424,7 @@ provider_update_jobs (StorageProvider *provider)
         {
           g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager,
                                                                  g_dbus_object_get_object_path (G_DBUS_OBJECT (object))));
-          g_hash_table_remove (provider->hash_udisk_job_to_storage_job, job);
+          g_hash_table_remove (provider->hash_job_to_storage_job, job);
         }
 
       provider->jobs = g_list_remove (provider->jobs, job);
@@ -426,21 +433,20 @@ provider_update_jobs (StorageProvider *provider)
 
   for (l = added; l != NULL; l = l->next)
     {
-      UDisksJob *job = UDISKS_JOB (l->data);
+      GDBusObject *job = G_DBUS_OBJECT (l->data);
       CockpitObjectSkeleton *object;
       CockpitJob *cockpit_job;
-      gs_free gchar *object_path;
+      const gchar *object_path;
 
-      object_path = utils_generate_object_path ("/com/redhat/Cockpit/Jobs",
-                                                udisks_job_get_operation (job));
+      object_path = "/com/redhat/Cockpit/Jobs/j";
 
       cockpit_job = storage_job_new (provider, job);
       object = cockpit_object_skeleton_new (object_path);
       cockpit_object_skeleton_set_job (object, cockpit_job);
       g_object_unref (cockpit_job);
 
-      g_warn_if_fail (g_hash_table_lookup (provider->hash_udisk_job_to_storage_job, job) == NULL);
-      g_hash_table_insert (provider->hash_udisk_job_to_storage_job,
+      g_warn_if_fail (g_hash_table_lookup (provider->hash_job_to_storage_job, job) == NULL);
+      g_hash_table_insert (provider->hash_job_to_storage_job,
                            g_object_ref (job),
                            object);
 
@@ -452,6 +458,7 @@ provider_update_jobs (StorageProvider *provider)
   g_list_free (added);
   g_list_free (removed);
   g_list_free_full (udisks_objects, g_object_unref);
+  g_list_free_full (lvm_objects, g_object_unref);
   g_list_free_full (wanted, g_object_unref);
 }
 
@@ -506,6 +513,7 @@ on_lvm_object_added (GDBusObjectManager *manager,
 {
   StorageProvider *provider = STORAGE_PROVIDER (user_data);
   provider_update (provider);
+  provider_update_jobs (provider);
 }
 
 static void
@@ -515,6 +523,7 @@ on_lvm_object_removed (GDBusObjectManager *manager,
 {
   StorageProvider *provider = STORAGE_PROVIDER (user_data);
   provider_update (provider);
+  provider_update_jobs (provider);
 }
 
 static void
@@ -559,6 +568,7 @@ storage_provider_constructed (GObject *_object)
 
   /* init */
   provider_update (provider);
+  provider_update_jobs (provider);
 
   g_signal_connect (provider->udisks_client,
                     "changed",
@@ -743,12 +753,12 @@ storage_provider_translate_path (StorageProvider *provider,
 
   if (object != NULL)
     {
-      g_debug ("%s -> %s", udisks_or_lvm_path, g_dbus_object_get_object_path (G_DBUS_OBJECT (object)));
+      // g_debug ("%s -> %s", udisks_or_lvm_path, g_dbus_object_get_object_path (G_DBUS_OBJECT (object)));
       return g_dbus_object_get_object_path (G_DBUS_OBJECT (object));
     }
   else
     {
-      g_debug ("%s -> nothing", udisks_or_lvm_path);
+      // g_debug ("%s -> nothing", udisks_or_lvm_path);
       return "/";
     }
 }

@@ -53,7 +53,7 @@ struct _StorageBlock
 
   UDisksBlock *udisks_block;
   LvmLogicalVolumeBlock *lvm_logical;
-  LvmPhysicalVolumeBlock *lvm_physical_volume_block;
+  LvmPhysicalVolumeBlock *lvm_physical;
 
   StorageObject *object;
 };
@@ -159,7 +159,6 @@ storage_block_update (StorageBlock *block)
   UDisksPartition *udisks_partition = NULL;
   UDisksPartitionTable *udisks_partition_table = NULL;
   UDisksFilesystem *udisks_filesystem = NULL;
-  UDisksPhysicalVolume *udisks_physical_volume = NULL;
 
   provider = storage_object_get_provider (block->object);
   udisks_client = storage_provider_get_udisks_client (provider);
@@ -170,7 +169,6 @@ storage_block_update (StorageBlock *block)
       udisks_partition = udisks_object_peek_partition (udisks_object);
       udisks_partition_table = udisks_object_peek_partition_table (udisks_object);
       udisks_filesystem = udisks_object_peek_filesystem (udisks_object);
-      udisks_physical_volume = udisks_object_peek_physical_volume (udisks_object);
     }
 
   {
@@ -333,23 +331,41 @@ storage_block_update (StorageBlock *block)
     }
 
   cockpit_storage_block_set_logical_volume
-    (iface, storage_provider_translate_path (provider,
-                                             lvm_logical_volume_block_get_logical_volume (block->lvm_logical)));
+    (iface,
+     storage_provider_translate_path
+     (provider,
+      lvm_logical_volume_block_get_logical_volume (block->lvm_logical)));
 
-  if (udisks_physical_volume)
-    {
-      cockpit_storage_block_set_pv_group (iface,
-         storage_provider_translate_path (provider,
-                                          udisks_physical_volume_get_volume_group (udisks_physical_volume)));
-      cockpit_storage_block_set_pv_size (iface, udisks_physical_volume_get_size (udisks_physical_volume));
-      cockpit_storage_block_set_pv_free_size (iface, udisks_physical_volume_get_free_size (udisks_physical_volume));
-    }
-  else
-    cockpit_storage_block_set_pv_group (iface, "/");
+  cockpit_storage_block_set_pv_group
+    (iface,
+     storage_provider_translate_path (provider,
+                                      lvm_physical_volume_block_get_volume_group (block->lvm_physical)));
+  cockpit_storage_block_set_pv_size (iface,
+                                     lvm_physical_volume_block_get_size (block->lvm_physical));
+  cockpit_storage_block_set_pv_free_size (iface,
+                                          lvm_physical_volume_block_get_free_size (block->lvm_physical));
 }
 
 static void
 on_udisks_block_notify (GObject *object,
+                        GParamSpec *pspec,
+                        gpointer user_data)
+{
+  StorageBlock *block = STORAGE_BLOCK (user_data);
+  storage_block_update (block);
+}
+
+static void
+on_lvm_logical_notify (GObject *object,
+                       GParamSpec *pspec,
+                       gpointer user_data)
+{
+  StorageBlock *block = STORAGE_BLOCK (user_data);
+  storage_block_update (block);
+}
+
+static void
+on_lvm_physical_notify (GObject *object,
                         GParamSpec *pspec,
                         gpointer user_data)
 {
@@ -370,8 +386,6 @@ storage_block_constructed (GObject *object)
 
   GDBusObject *udisks_object = g_dbus_interface_get_object (G_DBUS_INTERFACE (block->udisks_block));
 
-  g_debug ("B %s", g_dbus_object_get_object_path (udisks_object));
-
   block->lvm_logical =
     lvm_logical_volume_block_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                      0,
@@ -379,6 +393,28 @@ storage_block_constructed (GObject *object)
                                                      g_dbus_object_get_object_path (udisks_object),
                                                      NULL,
                                                      NULL);
+  if (block->lvm_logical)
+    {
+      g_signal_connect (block->lvm_logical,
+                        "notify",
+                        G_CALLBACK (on_lvm_logical_notify),
+                        block);
+    }
+
+  block->lvm_physical =
+    lvm_physical_volume_block_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                      0,
+                                                      "com.redhat.lvm2",
+                                                      g_dbus_object_get_object_path (udisks_object),
+                                                      NULL,
+                                                      NULL);
+  if (block->lvm_physical)
+    {
+      g_signal_connect (block->lvm_physical,
+                        "notify",
+                        G_CALLBACK (on_lvm_physical_notify),
+                        block);
+    }
 
   storage_block_update (block);
 

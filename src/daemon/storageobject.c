@@ -352,7 +352,7 @@ storage_object_class_init (StorageObjectClass *klass)
   /**
    * StorageObject:udisks-volume-group:
    *
-   * The #UDisksVolumeGroup for the object.
+   * The #LvmVolumeGroup for the object.
    */
   g_object_class_install_property (gobject_class,
                                    PROP_LVM_VOLUME_GROUP,
@@ -367,7 +367,7 @@ storage_object_class_init (StorageObjectClass *klass)
   /**
    * StorageObject:udisks-logical-volume:
    *
-   * The #UDisksLogicalVolume for the object.
+   * The #LvmLogicalVolume for the object.
    */
   g_object_class_install_property (gobject_class,
                                    PROP_LVM_LOGICAL_VOLUME,

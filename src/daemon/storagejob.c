@@ -138,11 +138,30 @@ storage_job_class_init (StorageJobClass *klass)
 
 CockpitJob *
 storage_job_new (StorageProvider *provider,
-                 UDisksJob *udisks_job)
+                 GDBusObject *udisks_or_lvm_object)
 {
   CockpitJob *job = COCKPIT_JOB (g_object_new (TYPE_STORAGE_JOB, NULL));
+  UDisksJob *udisks_job;
 
-  STORAGE_JOB(job)->udisks_job = g_object_ref (udisks_job);
+  if (UDISKS_IS_OBJECT (udisks_or_lvm_object))
+    {
+      udisks_job = udisks_object_get_job (UDISKS_OBJECT (udisks_or_lvm_object));
+    }
+  else
+    {
+      const gchar *path = g_dbus_object_get_object_path (udisks_or_lvm_object);
+      g_debug ("Creating new proxy for %s", path);
+      udisks_job = udisks_job_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                      0,
+                                                      "com.redhat.lvm2",
+                                                      path,
+                                                      NULL,
+                                                      NULL);
+    }
+
+  STORAGE_JOB(job)->udisks_job = udisks_job;
+  if (udisks_job == NULL)
+    return job;
 
   g_signal_connect (udisks_job, "completed", G_CALLBACK (on_completed), job);
   g_signal_connect (udisks_job, "notify", G_CALLBACK (on_notify), job);

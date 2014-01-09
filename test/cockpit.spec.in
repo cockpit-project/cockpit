@@ -33,6 +33,7 @@ BuildRequires: pkgconfig(libnm-glib)
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(accountsservice) >= 0.6.30
 BuildRequires: pam-devel
+BuildRequires: udisks2-lvm
 
 BuildRequires: autoconf automake libtool
 BuildRequires: intltool
@@ -56,6 +57,7 @@ Requires: udisks2 >= 2.1.0
 Requires: mdadm
 Requires: lvm2
 Requires: sshpass
+Requires: udisks2-lvm
 
 %description
 Cockpit.
@@ -71,7 +73,7 @@ getent group cockpit-storage-admin >/dev/null || groupadd -r cockpit-storage-adm
 %build
 env NOCONFIGURE=1 ./autogen.sh
 %configure --disable-static --disable-silent-rules
-make %{?_smp_mflags} %{?extra_flags}
+make %{?extra_flags}
 
 %check
 make check

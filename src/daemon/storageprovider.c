@@ -27,6 +27,7 @@
 #include "storageprovider.h"
 #include "storageobject.h"
 #include "storagejob.h"
+#include "storageblock.h"
 #include "com.redhat.lvm2.h"
 
 #include "libgsystem.h"
@@ -481,6 +482,29 @@ provider_update (StorageProvider *provider)
 }
 
 static void
+provider_update_block (StorageProvider *provider,
+                       const gchar *path)
+{
+  UDisksObject *udisks_object = udisks_client_peek_object (provider->udisks_client, path);
+  if (udisks_object == NULL)
+    return;
+
+  UDisksBlock *udisks_block = udisks_object_peek_block (udisks_object);
+  if (udisks_block == NULL)
+    return;
+
+  StorageObject *storage_object = storage_provider_lookup_for_udisks_block (provider, udisks_block);
+  if (storage_object == NULL)
+    return;
+
+  CockpitStorageBlock *storage_block = cockpit_object_peek_storage_block (COCKPIT_OBJECT (storage_object));
+  if (storage_block == NULL)
+    return;
+
+  storage_block_update (STORAGE_BLOCK (storage_block));
+}
+
+static void
 on_udisks_client_changed (UDisksClient *client,
                           gpointer user_data)
 {
@@ -507,13 +531,26 @@ on_object_removed (GDBusObjectManager *manager,
 }
 
 static void
+lvm_object_changed (StorageProvider *provider,
+                    GDBusObject *object)
+{
+  const gchar *path = g_dbus_object_get_object_path (object);
+
+  if (g_str_has_prefix (path, "/org/freedesktop/UDisks2/block_devices/"))
+    provider_update_block (provider, path);
+  else if (g_str_has_prefix (path, "/org/freedesktop/UDisks2/jobs/"))
+    provider_update_jobs (provider);
+  else
+    provider_update (provider);
+}
+
+static void
 on_lvm_object_added (GDBusObjectManager *manager,
                      GDBusObject *object,
                      gpointer user_data)
 {
   StorageProvider *provider = STORAGE_PROVIDER (user_data);
-  provider_update (provider);
-  provider_update_jobs (provider);
+  lvm_object_changed (provider, object);
 }
 
 static void
@@ -522,8 +559,40 @@ on_lvm_object_removed (GDBusObjectManager *manager,
                        gpointer user_data)
 {
   StorageProvider *provider = STORAGE_PROVIDER (user_data);
-  provider_update (provider);
-  provider_update_jobs (provider);
+  lvm_object_changed (provider, object);
+}
+
+static void
+on_lvm_interface_added (GDBusObjectManager *manager,
+                        GDBusObject *object,
+                        GDBusInterface *iface,
+                        gpointer user_data)
+{
+  StorageProvider *provider = STORAGE_PROVIDER (user_data);
+  lvm_object_changed (provider, object);
+}
+
+static void
+on_lvm_interface_removed (GDBusObjectManager *manager,
+                       GDBusObject *object,
+                       GDBusInterface *iface,
+                       gpointer user_data)
+{
+  StorageProvider *provider = STORAGE_PROVIDER (user_data);
+  lvm_object_changed (provider, object);
+}
+
+static void
+on_lvm_properties_changed (GDBusConnection *connection,
+                           const gchar *sender_name,
+                           const gchar *object_path,
+                           const gchar *interface_name,
+                           const gchar *signal_name,
+                           GVariant *parameters,
+                           gpointer user_data)
+{
+  StorageProvider *provider = user_data;
+  provider_update_block (provider, object_path);
 }
 
 static void
@@ -565,6 +634,28 @@ storage_provider_constructed (GObject *_object)
                     "object-removed",
                     G_CALLBACK (on_lvm_object_removed),
                     provider);
+  g_signal_connect (provider->lvm_objman,
+                    "interface-added",
+                    G_CALLBACK (on_lvm_interface_added),
+                    provider);
+  g_signal_connect (provider->lvm_objman,
+                    "interface-removed",
+                    G_CALLBACK (on_lvm_interface_removed),
+                    provider);
+
+  GDBusConnection *connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);
+  if (connection)
+    {
+      g_dbus_connection_signal_subscribe (connection,
+                                          "com.redhat.lvm2",
+                                          "org.freedesktop.DBus.Properties",
+                                          "PropertiesChanged",
+                                          NULL,
+                                          NULL, G_DBUS_SIGNAL_FLAGS_NONE,
+                                          on_lvm_properties_changed,
+                                          provider,
+                                          NULL);
+    }
 
   /* init */
   provider_update (provider);

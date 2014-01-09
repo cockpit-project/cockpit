@@ -1450,6 +1450,8 @@ PageStorageDetail.prototype = {
 
         if (vg.NeedsPolling)
             this.start_vg_polling();
+        else
+            this.stop_vg_polling();
 
         val = vg.Size > 0 ? cockpit_fmt_size_long(vg.Size) : "--";
         $("#vg_detail_capacity").html(val);

@@ -42,6 +42,7 @@ struct _StorageManager
   Daemon *daemon;
 
   UDisksClient *udisks;
+  LvmManager *lvm_manager;
 };
 
 struct _StorageManagerClass
@@ -127,6 +128,20 @@ storage_manager_constructed (GObject *_object)
   if (storage_manager->udisks == NULL)
     {
       g_warning ("Error connecting to udisks: %s (%s, %d)",
+                 error->message, g_quark_to_string (error->domain), error->code);
+      g_clear_error (&error);
+    }
+
+  storage_manager->lvm_manager =
+    lvm_manager_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                        0,
+                                        "com.redhat.lvm2",
+                                        "/org/freedesktop/UDisks2/Manager",
+                                        NULL,
+                                        &error);
+  if (storage_manager->lvm_manager == NULL)
+    {
+      g_warning ("Error connecting to udisks-lvm: %s (%s, %d)",
                  error->message, g_quark_to_string (error->domain), error->code);
       g_clear_error (&error);
     }
@@ -304,24 +319,23 @@ handle_volume_group_create (CockpitStorageManager *object,
 
   udisks_blocks[n_blocks] = NULL;
 
-  UDisksManager *manager = udisks_client_get_manager (storage_manager->udisks);
-  if (manager == NULL)
+  if (storage_manager->lvm_manager == NULL)
     {
       g_dbus_method_invocation_return_error (invocation,
                                              COCKPIT_ERROR,
                                              COCKPIT_ERROR_FAILED,
-                                             "UDisks daemon is not running");
+                                             "udisks-lvm daemon is not running");
       return TRUE;
     }
 
-  if (!udisks_manager_call_volume_group_create_sync (manager,
-                                                     udisks_blocks,
-                                                     arg_name,
-                                                     arg_extent_size,
-                                                     null_asv (),
-                                                     NULL,
-                                                     NULL,
-                                                     &error))
+  if (!lvm_manager_call_volume_group_create_sync (storage_manager->lvm_manager,
+                                                  udisks_blocks,
+                                                  arg_name,
+                                                  arg_extent_size,
+                                                  null_asv (),
+                                                  NULL,
+                                                  NULL,
+                                                  &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -667,7 +681,8 @@ cleanup_logical_volume_walker (GDBusObjectManager *objman,
                                GError **error)
 {
   StorageProvider *provider = user_data;
-  UDisksBlock *block = lvm_util_get_block_for_logical_volume (storage_provider_get_udisks_client (provider),
+  UDisksBlock *block = lvm_util_get_block_for_logical_volume (storage_provider_get_lvm_object_manager (provider),
+                                                              storage_provider_get_udisks_client (provider),
                                                               logical_volume);
   if (block)
     {
@@ -758,7 +773,8 @@ logical_volume_is_unused_walker (GDBusObjectManager *objman,
                                  GError **error)
 {
   StorageProvider *provider = user_data;
-  UDisksBlock *block = lvm_util_get_block_for_logical_volume (storage_provider_get_udisks_client (provider),
+  UDisksBlock *block = lvm_util_get_block_for_logical_volume (storage_provider_get_lvm_object_manager (provider),
+                                                              storage_provider_get_udisks_client (provider),
                                                               logical_volume);
   if (block)
     return block_is_unused (storage_provider_get_udisks_client (provider), block, error);

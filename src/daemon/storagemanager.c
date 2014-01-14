@@ -822,12 +822,13 @@ storage_cleanup_volume_group (StorageProvider *provider,
 }
 
 typedef gboolean ObjectWalker (UDisksClient *client,
-                               UDisksObject *object,
+                               GDBusObject *object,
                                gpointer user_data,
                                GError **error);
 
 static gboolean
 walk_block_parents (UDisksClient *client,
+                    GDBusObjectManager  *objman,
                     UDisksBlock *block,
                     ObjectWalker *walker,
                     gpointer user_data,
@@ -842,25 +843,33 @@ walk_block_parents (UDisksClient *client,
 
   while (block)
     {
-      const gchar *logical_volume_path = udisks_block_get_logical_volume (block);
+      const gchar *path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (block));
+      LvmLogicalVolumeBlock *lvm_block =
+        LVM_LOGICAL_VOLUME_BLOCK (g_dbus_object_manager_get_interface (objman, path,
+                                                                       "com.redhat.lvm2.LogicalVolumeBlock"));
+
+      const gchar *logical_volume_path =
+        (lvm_block ? lvm_logical_volume_block_get_logical_volume (lvm_block) : "/");
       const gchar *crypto_path = udisks_block_get_crypto_backing_device (block);
 
       if (g_strcmp0 (logical_volume_path, "/") != 0)
         {
-          UDisksObject *logical_volume_object = udisks_client_get_object (client, logical_volume_path);
+          gs_unref_object LvmObject *logical_volume_object =
+            LVM_OBJECT (g_dbus_object_manager_get_object (objman, logical_volume_path));
+
           if (logical_volume_object)
             {
-              if (!walker (client, logical_volume_object, user_data, error))
+              if (!walker (client, G_DBUS_OBJECT (logical_volume_object), user_data, error))
                 return FALSE;
             }
           block = NULL;
         }
       else if (g_strcmp0 (crypto_path, "/") != 0)
         {
-          UDisksObject *crypto_object = udisks_client_get_object (client, crypto_path);
+          UDisksObject *crypto_object = udisks_client_peek_object (client, crypto_path);
           if (crypto_object)
             {
-              if (!walker (client, crypto_object, user_data, error))
+              if (!walker (client, G_DBUS_OBJECT (crypto_object), user_data, error))
                 return FALSE;
             }
           block = udisks_object_peek_block (crypto_object);
@@ -880,12 +889,12 @@ struct RememberData {
 
 static gboolean
 remember_configs (UDisksClient *client,
-                  UDisksObject *object,
+                  GDBusObject *object,
                   gpointer user_data,
                   GError **error)
 {
   struct RememberData *data = user_data;
-  const gchar *parent_path = g_dbus_object_get_object_path (G_DBUS_OBJECT (object));
+  const gchar *parent_path = g_dbus_object_get_object_path (object);
   storage_provider_remember_config (data->provider, parent_path, data->child_path, data->config);
   return TRUE;
 }
@@ -898,11 +907,12 @@ storage_remember_block_configs (StorageProvider *provider,
   if (g_variant_n_children (config) > 0)
     {
       UDisksClient *client = storage_provider_get_udisks_client (provider);
+      GDBusObjectManager *objman = storage_provider_get_lvm_object_manager (provider);
       GDBusObject *object = g_dbus_interface_get_object (G_DBUS_INTERFACE (block));
       struct RememberData data;
       data.provider = provider;
       data.child_path = g_dbus_object_get_object_path (object);
       data.config = config;
-      walk_block_parents (client, block, remember_configs, &data, NULL);
+      walk_block_parents (client, objman, block, remember_configs, &data, NULL);
     }
 }

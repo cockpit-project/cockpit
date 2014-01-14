@@ -84,7 +84,8 @@ lvm_util_get_logical_volumes_for_volume_group (GDBusObjectManager *objman,
 }
 
 UDisksBlock *
-lvm_util_get_block_for_logical_volume (UDisksClient *client,
+lvm_util_get_block_for_logical_volume (GDBusObjectManager *objman,
+                                       UDisksClient *client,
                                        LvmLogicalVolume *volume)
 {
   UDisksBlock *ret = NULL;
@@ -101,26 +102,23 @@ lvm_util_get_block_for_logical_volume (UDisksClient *client,
 
   volume_objpath = g_dbus_object_get_object_path (volume_object);
 
-  object_proxies = g_dbus_object_manager_get_objects (udisks_client_get_object_manager (client));
+  object_proxies = g_dbus_object_manager_get_objects (objman);
   for (l = object_proxies; l != NULL; l = l->next)
     {
-      UDisksObject *object = UDISKS_OBJECT (l->data);
-      UDisksBlock *block;
+      LvmObject *lvm_object = LVM_OBJECT (l->data);
+      LvmLogicalVolumeBlock *lvm_block;
 
-      block = udisks_object_get_block (object);
-      if (block == NULL)
+      lvm_block = lvm_object_peek_logical_volume_block (lvm_object);
+      if (lvm_block == NULL)
         continue;
 
-      /* ignore partitions */
-      if (udisks_object_peek_partition (object) != NULL)
-        continue;
-
-      if (g_strcmp0 (udisks_block_get_logical_volume (block), volume_objpath) == 0)
+      if (g_strcmp0 (lvm_logical_volume_block_get_logical_volume (lvm_block), volume_objpath) == 0)
         {
-          ret = block;
+          UDisksObject *udisks_object = udisks_client_peek_object (client,
+                                                                   g_dbus_object_get_object_path (lvm_object));
+          ret = udisks_object ? udisks_object_peek_block (udisks_object) : NULL;
           goto out;
         }
-      g_object_unref (block);
     }
 
  out:

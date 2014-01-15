@@ -89,11 +89,6 @@ old_LIBS=$LIBS
 CFLAGS=$COCKPIT_DAEMON_CFLAGS
 LIBS=$COCKPIT_DAEMON_LIBS
 
-AC_CHECK_FUNC(udisks_volume_group_get_name, [], AC_MSG_ERROR([
-The udisks2 package needs a patch.  See
-
-    https://bugs.freedesktop.org/attachment.cgi?id=84713&action=edit]))
-
 CFLAGS=$old_CFLAGS
 LIBS=$old_LIBS
 

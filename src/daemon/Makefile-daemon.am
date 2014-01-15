@@ -1,7 +1,9 @@
 libexec_PROGRAMS += cockpitd
 
 lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
-$(lvm_dbus_built_sources) : Makefile.am
+# Split it like this so we don't get a race condition where both files are tried to be generated at the same time
+com.redhat.lvm2.h : com.redhat.lvm2.c
+com.redhat.lvm2.c : Makefile.am
 	gdbus-codegen					\
 		--interface-prefix com.redhat.lvm2 	\
 		--c-namespace Lvm 			\

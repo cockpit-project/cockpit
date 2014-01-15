@@ -170,7 +170,7 @@ storage_job_new (StorageProvider *provider,
   cockpit_job_set_operation (job, udisks_job_get_operation (udisks_job));
 
   const gchar *const *objects = udisks_job_get_objects (udisks_job);
-  int n_objects = g_strv_length ((gchar **)objects);
+  int n_objects = (objects ? g_strv_length ((gchar **)objects) : 0);
   const gchar **targets = g_new0 (const gchar *, n_objects + 1);
   for (int i = 0; i < n_objects; i++)
     targets[i] = storage_provider_translate_path (provider, objects[i]);

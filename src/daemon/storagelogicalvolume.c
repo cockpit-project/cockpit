@@ -144,6 +144,8 @@ storage_logical_volume_update (StorageLogicalVolume *logical_volume)
     (iface, lvm_logical_volume_get_display_name (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_size
     (iface, lvm_logical_volume_get_size (logical_volume->lvm_logical_volume));
+  cockpit_storage_logical_volume_set_active
+    (iface, lvm_logical_volume_get_active (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_type_
     (iface, lvm_logical_volume_get_type_ (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_data_allocated_ratio

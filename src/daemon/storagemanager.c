@@ -602,6 +602,9 @@ walk_volume_group (GDBusObjectManager *objman,
     {
       LvmLogicalVolume *s = l->data;
 
+      if (g_strcmp0 (lvm_logical_volume_get_type_ (s), "thin-pool") == 0)
+        continue;
+
       if (!walker (objman, s, user_data, error))
         {
           ret = FALSE;

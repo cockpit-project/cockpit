@@ -1146,9 +1146,14 @@ PageStorageDetail.prototype = {
                     if (block)
                         append_logical_volume_block (level, block, lv);
                     else {
-                        desc = F(_("%{size} %{desc}<br/>(inactive)"),
+                        // If we can't find the block for a active
+                        // volume, UDisks2 is probably misbehaving,
+                        // and we show it as "unsupported".
+
+                        desc = F(_("%{size} %{desc}<br/>(%{state})"),
                                  { size: cockpit_fmt_size (lv.Size),
-                                   desc: cockpit_lvol_get_desc(lv)
+                                   desc: cockpit_lvol_get_desc(lv),
+                                   state: lv.Active? _("active, but unsupported") : _("inactive")
                                  });
                         id = append_entry (level, null, desc, true);
 
@@ -1158,12 +1163,21 @@ PageStorageDetail.prototype = {
                             $('#block-actions-menu button').button('disable');
                             $('#block-actions-menu button.all').button('enable');
                             $('#block-actions-menu button.lvol').button('enable');
-                            $('#block-actions-menu button.lvol-inactive').button('enable');
+                            if (lv.Active)
+                                $('#block-actions-menu button.lvol-active').button('enable');
+                            else
+                                $('#block-actions-menu button.lvol-inactive').button('enable');
                             $("#block-actions-menu").popup('open', { x: o.left, y: o.top });
                         });
-                        $("#entry-action-" + id).text(_("Activate"));
-                        $("#entry-action-" + id).button('refresh');
-                        $("#entry-action-" + id).on('click', $.proxy(me, 'activate_logical_volume', lv));
+                        if (lv.Active) {
+                            $("#entry-action-" + id).text(_("Deactivate"));
+                            $("#entry-action-" + id).button('refresh');
+                            $("#entry-action-" + id).on('click', $.proxy(me, 'deactivate_logical_volume', lv));
+                        } else {
+                            $("#entry-action-" + id).text(_("Activate"));
+                            $("#entry-action-" + id).button('refresh');
+                            $("#entry-action-" + id).on('click', $.proxy(me, 'activate_logical_volume', lv));
+                        }
                     }
                 }
             }

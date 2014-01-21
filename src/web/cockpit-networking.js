@@ -279,10 +279,8 @@ PageNetworkingIface.prototype = {
         var networkingPage = cockpit_page_from_id("networking");
         var proxy = networkingPage.getInterfaceProxy(ifname);
 
-        var node = $("#networking_iface_config_ip4_text").get(0);
-        node.appendChild(document.createTextNode(proxy['IP4ConfigMode']));
-        node = $("#networking_iface_config_ip6_text").get(0);
-        node.appendChild(document.createTextNode(proxy['IP6ConfigMode']));
+        $("#networking_iface_config_ip4_text").text(proxy['IP4ConfigMode']);
+        $("#networking_iface_config_ip6_text").text(proxy['IP6ConfigMode']);
     },
 
     show: function() {

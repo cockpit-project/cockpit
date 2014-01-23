@@ -58,4 +58,7 @@ fi
 #
 systemctl enable NetworkManager-dispatcher
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=1057236
+sed -i -e 's/-u ntp:ntp //' /usr/lib/systemd/system/ntpd.service
+
 rm -rf /var/log/journal/*

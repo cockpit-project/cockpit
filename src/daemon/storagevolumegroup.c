@@ -49,7 +49,7 @@ struct _StorageVolumeGroup
 {
   CockpitStorageVolumeGroupSkeleton parent_instance;
 
-  UDisksVolumeGroup *udisks_volume_group;
+  LvmVolumeGroup *lvm_volume_group;
   StorageObject *object;
 };
 
@@ -59,16 +59,16 @@ struct _StorageVolumeGroupClass
 };
 
 enum
-{
-  PROP_0,
-  PROP_OBJECT
-};
+  {
+    PROP_0,
+    PROP_OBJECT
+  };
 
 static void storage_volume_group_iface_init (CockpitStorageVolumeGroupIface *iface);
 
-static void on_udisks_volume_group_notify (GObject    *object,
-                                           GParamSpec *pspec,
-                                           gpointer    user_data);
+static void on_lvm_volume_group_notify (GObject    *object,
+                                        GParamSpec *pspec,
+                                        gpointer    user_data);
 
 G_DEFINE_TYPE_WITH_CODE (StorageVolumeGroup, storage_volume_group, COCKPIT_TYPE_STORAGE_VOLUME_GROUP_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_STORAGE_VOLUME_GROUP, storage_volume_group_iface_init));
@@ -80,10 +80,10 @@ storage_volume_group_finalize (GObject *object)
 {
   StorageVolumeGroup *volume_group = STORAGE_VOLUME_GROUP (object);
 
-  g_signal_handlers_disconnect_by_func (volume_group->udisks_volume_group,
-                                        G_CALLBACK (on_udisks_volume_group_notify),
+  g_signal_handlers_disconnect_by_func (volume_group->lvm_volume_group,
+                                        G_CALLBACK (on_lvm_volume_group_notify),
                                         volume_group);
-  g_object_unref (volume_group->udisks_volume_group);
+  g_object_unref (volume_group->lvm_volume_group);
 
   G_OBJECT_CLASS (storage_volume_group_parent_class)->finalize (object);
 }
@@ -133,18 +133,17 @@ void
 storage_volume_group_update (StorageVolumeGroup *volume_group)
 {
   CockpitStorageVolumeGroup *iface = COCKPIT_STORAGE_VOLUME_GROUP (volume_group);
-  cockpit_storage_volume_group_set_uuid (iface, udisks_volume_group_get_uuid (volume_group->udisks_volume_group));
-  cockpit_storage_volume_group_set_name (iface, udisks_volume_group_get_name (volume_group->udisks_volume_group));
-  cockpit_storage_volume_group_set_display_name (iface, udisks_volume_group_get_display_name (volume_group->udisks_volume_group));
-  cockpit_storage_volume_group_set_size (iface, udisks_volume_group_get_size (volume_group->udisks_volume_group));
-  cockpit_storage_volume_group_set_free_size (iface, udisks_volume_group_get_free_size (volume_group->udisks_volume_group));
-  cockpit_storage_volume_group_set_needs_polling (iface, udisks_volume_group_get_needs_polling (volume_group->udisks_volume_group));
+  cockpit_storage_volume_group_set_uuid (iface, lvm_volume_group_get_uuid (volume_group->lvm_volume_group));
+  cockpit_storage_volume_group_set_name (iface, lvm_volume_group_get_name (volume_group->lvm_volume_group));
+  cockpit_storage_volume_group_set_size (iface, lvm_volume_group_get_size (volume_group->lvm_volume_group));
+  cockpit_storage_volume_group_set_free_size (iface, lvm_volume_group_get_free_size (volume_group->lvm_volume_group));
+  cockpit_storage_volume_group_set_needs_polling (iface, lvm_volume_group_get_needs_polling (volume_group->lvm_volume_group));
 }
 
 static void
-on_udisks_volume_group_notify (GObject *object,
-                               GParamSpec *pspec,
-                               gpointer user_data)
+on_lvm_volume_group_notify (GObject *object,
+                            GParamSpec *pspec,
+                            gpointer user_data)
 {
   StorageVolumeGroup *volume_group = STORAGE_VOLUME_GROUP (user_data);
   storage_volume_group_update (volume_group);
@@ -155,10 +154,10 @@ storage_volume_group_constructed (GObject *object)
 {
   StorageVolumeGroup *volume_group = STORAGE_VOLUME_GROUP (object);
 
-  volume_group->udisks_volume_group = g_object_ref (storage_object_get_udisks_volume_group (volume_group->object));
-  g_signal_connect (volume_group->udisks_volume_group,
+  volume_group->lvm_volume_group = g_object_ref (storage_object_get_lvm_volume_group (volume_group->object));
+  g_signal_connect (volume_group->lvm_volume_group,
                     "notify",
-                    G_CALLBACK (on_udisks_volume_group_notify),
+                    G_CALLBACK (on_lvm_volume_group_notify),
                     volume_group);
 
   storage_volume_group_update (volume_group);
@@ -234,9 +233,9 @@ handle_poll (CockpitStorageVolumeGroup *object,
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
 
-  if (!udisks_volume_group_call_poll_sync (group->udisks_volume_group,
-                                           NULL,
-                                           &error))
+  if (!lvm_volume_group_call_poll_sync (group->lvm_volume_group,
+                                        NULL,
+                                        &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -262,17 +261,13 @@ handle_delete (CockpitStorageVolumeGroup *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  GVariantBuilder options;
-  g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
-  g_variant_builder_add (&options, "{sv}", "wipe", g_variant_new_boolean (TRUE));
-
   if (!storage_cleanup_volume_group (provider,
-                                     group->udisks_volume_group,
+                                     group->lvm_volume_group,
                                      &error)
-      || !udisks_volume_group_call_delete_sync (group->udisks_volume_group,
-                                                g_variant_builder_end (&options),
-                                                NULL,
-                                                &error))
+      || !lvm_volume_group_call_delete_sync (group->lvm_volume_group,
+                                             TRUE,
+                                             NULL,
+                                             &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -299,12 +294,11 @@ handle_rename (CockpitStorageVolumeGroup *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  if (!udisks_volume_group_call_rename_sync (group->udisks_volume_group,
-                                             arg_new_name,
-                                             null_asv (),
-                                             &result,
-                                             NULL,
-                                             &error))
+  if (!lvm_volume_group_call_rename_sync (group->lvm_volume_group,
+                                          arg_new_name,
+                                          &result,
+                                          NULL,
+                                          &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -343,11 +337,10 @@ handle_add_device (CockpitStorageVolumeGroup *object,
   if (udisks_block)
     block_path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (udisks_block));
 
-  if (!udisks_volume_group_call_add_device_sync (group->udisks_volume_group,
-                                                 block_path,
-                                                 null_asv (),
-                                                 NULL,
-                                                 &error))
+  if (!lvm_volume_group_call_add_device_sync (group->lvm_volume_group,
+                                              block_path,
+                                              NULL,
+                                              &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -386,15 +379,11 @@ handle_remove_device (CockpitStorageVolumeGroup *object,
   if (udisks_block)
     block_path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (udisks_block));
 
-  GVariantBuilder options;
-  g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
-  g_variant_builder_add (&options, "{sv}", "wipe", g_variant_new_boolean (TRUE));
-
-  if (!udisks_volume_group_call_remove_device_sync (group->udisks_volume_group,
-                                                    block_path,
-                                                    g_variant_builder_end (&options),
-                                                    NULL,
-                                                    &error))
+  if (!lvm_volume_group_call_remove_device_sync (group->lvm_volume_group,
+                                                 block_path,
+                                                 TRUE,
+                                                 NULL,
+                                                 &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -433,15 +422,13 @@ handle_empty_device (CockpitStorageVolumeGroup *object,
   if (udisks_block)
     block_path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (udisks_block));
 
-  GVariantBuilder options;
-  g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
-  g_variant_builder_add (&options, "{sv}", "no-block", g_variant_new_boolean (TRUE));
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (group->lvm_volume_group),
+                                    G_MAXINT);
 
-  if (!udisks_volume_group_call_empty_device_sync (group->udisks_volume_group,
-                                                   block_path,
-                                                   g_variant_builder_end (&options),
-                                                   NULL,
-                                                   &error))
+  if (!lvm_volume_group_call_empty_device_sync (group->lvm_volume_group,
+                                                block_path,
+                                                NULL,
+                                                &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -453,6 +440,9 @@ handle_empty_device (CockpitStorageVolumeGroup *object,
   else
     cockpit_storage_volume_group_complete_empty_device (object, invocation);
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (group->lvm_volume_group),
+                                    -1);
+
   return TRUE;
 }
 
@@ -460,9 +450,7 @@ static gboolean
 handle_create_plain_volume (CockpitStorageVolumeGroup *object,
                             GDBusMethodInvocation *invocation,
                             const gchar *arg_name,
-                            guint64 arg_size,
-                            gint arg_stripes,
-                            guint64 arg_stripesize)
+                            guint64 arg_size)
 {
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
@@ -471,15 +459,13 @@ handle_create_plain_volume (CockpitStorageVolumeGroup *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  if (!udisks_volume_group_call_create_plain_volume_sync (group->udisks_volume_group,
-                                                          arg_name,
-                                                          arg_size,
-                                                          arg_stripes,
-                                                          arg_stripesize,
-                                                          null_asv (),
-                                                          &result,
-                                                          NULL,
-                                                          &error))
+  if (!lvm_volume_group_call_create_plain_volume_sync (group->lvm_volume_group,
+                                                       arg_name,
+                                                       arg_size,
+                                                       null_asv (),
+                                                       &result,
+                                                       NULL,
+                                                       &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -507,13 +493,13 @@ handle_create_thin_pool_volume (CockpitStorageVolumeGroup *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  if (!udisks_volume_group_call_create_thin_pool_volume_sync (group->udisks_volume_group,
-                                                              arg_name,
-                                                              arg_size,
-                                                              null_asv (),
-                                                              &result,
-                                                              NULL,
-                                                              &error))
+  if (!lvm_volume_group_call_create_thin_pool_volume_sync (group->lvm_volume_group,
+                                                           arg_name,
+                                                           arg_size,
+                                                           null_asv (),
+                                                           &result,
+                                                           NULL,
+                                                           &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -550,19 +536,19 @@ handle_create_thin_volume (CockpitStorageVolumeGroup *object,
 
   StorageObject *pool_object =
     STORAGE_OBJECT (g_dbus_object_manager_get_object (object_manager, arg_pool));
-  UDisksLogicalVolume *udisks_pool_lvol = storage_object_get_udisks_logical_volume (pool_object);
+  LvmLogicalVolume *lvm_pool_lvol = storage_object_get_lvm_logical_volume (pool_object);
 
-  if (udisks_pool_lvol)
-    pool_path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (udisks_pool_lvol));
+  if (lvm_pool_lvol)
+    pool_path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (lvm_pool_lvol));
 
-  if (!udisks_volume_group_call_create_thin_volume_sync (group->udisks_volume_group,
-                                                         arg_name,
-                                                         arg_size,
-                                                         pool_path,
-                                                         null_asv (),
-                                                         &result,
-                                                         NULL,
-                                                         &error))
+  if (!lvm_volume_group_call_create_thin_volume_sync (group->lvm_volume_group,
+                                                      arg_name,
+                                                      arg_size,
+                                                      pool_path,
+                                                      null_asv (),
+                                                      &result,
+                                                      NULL,
+                                                      &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,

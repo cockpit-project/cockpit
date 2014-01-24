@@ -49,7 +49,7 @@ struct _StorageLogicalVolume
 {
   CockpitStorageLogicalVolumeSkeleton parent_instance;
 
-  UDisksLogicalVolume *udisks_logical_volume;
+  LvmLogicalVolume *lvm_logical_volume;
 
   StorageObject *object;
 };
@@ -67,7 +67,7 @@ enum
 
 static void storage_logical_volume_iface_init (CockpitStorageLogicalVolumeIface *iface);
 
-static void on_udisks_logical_volume_notify (GObject    *object,
+static void on_lvm_logical_volume_notify (GObject    *object,
                                            GParamSpec *pspec,
                                            gpointer    user_data);
 
@@ -81,10 +81,10 @@ storage_logical_volume_finalize (GObject *object)
 {
   StorageLogicalVolume *logical_volume = STORAGE_LOGICAL_VOLUME (object);
 
-  g_signal_handlers_disconnect_by_func (logical_volume->udisks_logical_volume,
-                                        G_CALLBACK (on_udisks_logical_volume_notify),
+  g_signal_handlers_disconnect_by_func (logical_volume->lvm_logical_volume,
+                                        G_CALLBACK (on_lvm_logical_volume_notify),
                                         logical_volume);
-  g_object_unref (logical_volume->udisks_logical_volume);
+  g_object_unref (logical_volume->lvm_logical_volume);
 
   G_OBJECT_CLASS (storage_logical_volume_parent_class)->finalize (object);
 }
@@ -137,33 +137,38 @@ storage_logical_volume_update (StorageLogicalVolume *logical_volume)
 
   CockpitStorageLogicalVolume *iface = COCKPIT_STORAGE_LOGICAL_VOLUME (logical_volume);
   cockpit_storage_logical_volume_set_uuid
-    (iface, udisks_logical_volume_get_uuid (logical_volume->udisks_logical_volume));
+    (iface, lvm_logical_volume_get_uuid (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_name
-    (iface, udisks_logical_volume_get_name (logical_volume->udisks_logical_volume));
-  cockpit_storage_logical_volume_set_display_name
-    (iface, udisks_logical_volume_get_display_name (logical_volume->udisks_logical_volume));
+    (iface, lvm_logical_volume_get_name (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_size
-    (iface, udisks_logical_volume_get_size (logical_volume->udisks_logical_volume));
+    (iface, lvm_logical_volume_get_size (logical_volume->lvm_logical_volume));
+  cockpit_storage_logical_volume_set_active
+    (iface, lvm_logical_volume_get_active (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_type_
-    (iface, udisks_logical_volume_get_type_ (logical_volume->udisks_logical_volume));
+    (iface, lvm_logical_volume_get_type_ (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_data_allocated_ratio
-    (iface, udisks_logical_volume_get_data_allocated_ratio (logical_volume->udisks_logical_volume));
+    (iface, lvm_logical_volume_get_data_allocated_ratio (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_metadata_allocated_ratio
-    (iface, udisks_logical_volume_get_metadata_allocated_ratio (logical_volume->udisks_logical_volume));
+    (iface, lvm_logical_volume_get_metadata_allocated_ratio (logical_volume->lvm_logical_volume));
   cockpit_storage_logical_volume_set_volume_group
     (iface,
      storage_provider_translate_path
      (provider,
-      udisks_logical_volume_get_volume_group (logical_volume->udisks_logical_volume)));
+      lvm_logical_volume_get_volume_group (logical_volume->lvm_logical_volume)));
   cockpit_storage_logical_volume_set_thin_pool
     (iface,
      storage_provider_translate_path
      (provider,
-      udisks_logical_volume_get_thin_pool (logical_volume->udisks_logical_volume)));
+      lvm_logical_volume_get_thin_pool (logical_volume->lvm_logical_volume)));
+  cockpit_storage_logical_volume_set_origin
+    (iface,
+     storage_provider_translate_path
+     (provider,
+      lvm_logical_volume_get_origin (logical_volume->lvm_logical_volume)));
 }
 
 static void
-on_udisks_logical_volume_notify (GObject *object,
+on_lvm_logical_volume_notify (GObject *object,
                                  GParamSpec *pspec,
                                  gpointer user_data)
 {
@@ -176,10 +181,10 @@ storage_logical_volume_constructed (GObject *object)
 {
   StorageLogicalVolume *logical_volume = STORAGE_LOGICAL_VOLUME(object);
 
-  logical_volume->udisks_logical_volume = g_object_ref (storage_object_get_udisks_logical_volume (logical_volume->object));
-  g_signal_connect (logical_volume->udisks_logical_volume,
+  logical_volume->lvm_logical_volume = g_object_ref (storage_object_get_lvm_logical_volume (logical_volume->object));
+  g_signal_connect (logical_volume->lvm_logical_volume,
                     "notify",
-                    G_CALLBACK (on_udisks_logical_volume_notify),
+                    G_CALLBACK (on_lvm_logical_volume_notify),
                     logical_volume);
 
   storage_logical_volume_update (logical_volume);
@@ -260,12 +265,11 @@ handle_delete (CockpitStorageLogicalVolume *object,
     return TRUE;
 
   if (!storage_cleanup_logical_volume (provider,
-                                       volume->udisks_logical_volume,
+                                       volume->lvm_logical_volume,
                                        &error)
-      || !udisks_logical_volume_call_delete_sync (volume->udisks_logical_volume,
-                                                  null_asv (),
-                                                  NULL,
-                                                  &error))
+      || !lvm_logical_volume_call_delete_sync (volume->lvm_logical_volume,
+                                               NULL,
+                                               &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -292,12 +296,11 @@ handle_rename (CockpitStorageLogicalVolume *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  if (!udisks_logical_volume_call_rename_sync (volume->udisks_logical_volume,
-                                               arg_new_name,
-                                               null_asv (),
-                                               &result,
-                                               NULL,
-                                               &error))
+  if (!lvm_logical_volume_call_rename_sync (volume->lvm_logical_volume,
+                                            arg_new_name,
+                                            &result,
+                                            NULL,
+                                            &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -315,9 +318,7 @@ handle_rename (CockpitStorageLogicalVolume *object,
 static gboolean
 handle_resize (CockpitStorageLogicalVolume *object,
                GDBusMethodInvocation *invocation,
-               guint64 arg_new_size,
-               int arg_stripes,
-               guint64 arg_stripesize)
+               guint64 arg_new_size)
 {
   StorageLogicalVolume *volume = STORAGE_LOGICAL_VOLUME(object);
   GError *error = NULL;
@@ -325,13 +326,11 @@ handle_resize (CockpitStorageLogicalVolume *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  if (!udisks_logical_volume_call_resize_sync (volume->udisks_logical_volume,
-                                               arg_new_size,
-                                               arg_stripes,
-                                               arg_stripesize,
-                                               null_asv (),
-                                               NULL,
-                                               &error))
+  if (!lvm_logical_volume_call_resize_sync (volume->lvm_logical_volume,
+                                            arg_new_size,
+                                            null_asv (),
+                                            NULL,
+                                            &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -357,11 +356,10 @@ handle_activate (CockpitStorageLogicalVolume *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  if (!udisks_logical_volume_call_activate_sync (volume->udisks_logical_volume,
-                                                 null_asv (),
-                                                 &result,
-                                                 NULL,
-                                                 &error))
+  if (!lvm_logical_volume_call_activate_sync (volume->lvm_logical_volume,
+                                              &result,
+                                              NULL,
+                                              &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -386,10 +384,9 @@ handle_deactivate (CockpitStorageLogicalVolume *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  if (!udisks_logical_volume_call_deactivate_sync (volume->udisks_logical_volume,
-                                                   null_asv (),
-                                                   NULL,
-                                                   &error))
+  if (!lvm_logical_volume_call_deactivate_sync (volume->lvm_logical_volume,
+                                                NULL,
+                                                &error))
     {
       g_dbus_error_strip_remote_error (error);
       g_dbus_method_invocation_return_error (invocation,
@@ -417,7 +414,7 @@ handle_create_snapshot (CockpitStorageLogicalVolume *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
     return TRUE;
 
-  if (!udisks_logical_volume_call_create_snapshot_sync (volume->udisks_logical_volume,
+  if (!lvm_logical_volume_call_create_snapshot_sync (volume->lvm_logical_volume,
                                                         arg_name,
                                                         arg_size,
                                                         null_asv (),

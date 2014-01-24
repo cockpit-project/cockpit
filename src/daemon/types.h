@@ -27,6 +27,7 @@
 #include <udisks/udisks.h>
 
 #include <cockpit/cockpit.h>
+#include "com.redhat.lvm2.h"
 
 struct _Daemon;
 typedef struct _Daemon Daemon;

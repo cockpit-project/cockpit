@@ -17,22 +17,23 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __STORAGE_JOB_H__
-#define __STORAGE_JOB_H__
+#ifndef __LVM_UTIL_H__
+#define __LVM_UTIL_H__
 
 #include "types.h"
 
 G_BEGIN_DECLS
 
-#define TYPE_STORAGE_JOB  (storage_job_get_type ())
-#define STORAGE_JOB(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_STORAGE_JOB, StorageJob))
-#define IS_STORAGE_JOB(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_STORAGE_JOB))
+LvmVolumeGroup *lvm_util_get_volume_group_for_logical_volume (GDBusObjectManager *objman,
+                                                              LvmLogicalVolume *vol);
 
-GType           storage_job_get_type    (void) G_GNUC_CONST;
+GList *lvm_util_get_logical_volumes_for_volume_group (GDBusObjectManager *objman,
+                                                      LvmVolumeGroup *group);
 
-CockpitJob *    storage_job_new         (StorageProvider *provider,
-                                         GDBusObject *job);
+UDisksBlock *lvm_util_get_block_for_logical_volume (GDBusObjectManager *objman,
+                                                    UDisksClient *client,
+                                                    LvmLogicalVolume *logical_volume);
 
 G_END_DECLS
 
-#endif /* __JOB_H__ */
+#endif /* __STORAGE_BLOCK_H__ */

@@ -157,7 +157,6 @@ storage_block_update (StorageBlock *block)
   UDisksPartition *udisks_partition = NULL;
   UDisksPartitionTable *udisks_partition_table = NULL;
   UDisksFilesystem *udisks_filesystem = NULL;
-  UDisksPhysicalVolume *udisks_physical_volume = NULL;
 
   provider = storage_object_get_provider (block->object);
   udisks_client = storage_provider_get_udisks_client (provider);
@@ -168,7 +167,6 @@ storage_block_update (StorageBlock *block)
       udisks_partition = udisks_object_peek_partition (udisks_object);
       udisks_partition_table = udisks_object_peek_partition_table (udisks_object);
       udisks_filesystem = udisks_object_peek_filesystem (udisks_object);
-      udisks_physical_volume = udisks_object_peek_physical_volume (udisks_object);
     }
 
   {
@@ -330,20 +328,51 @@ storage_block_update (StorageBlock *block)
       g_variant_unref (details);
     }
 
-  cockpit_storage_block_set_logical_volume (iface,
-     storage_provider_translate_path (provider,
-                                      udisks_block_get_logical_volume (udisks_block)));
+  /* Now the com.redhat.lvm2 overlays.  The StorageProvider makes sure
+     that we are called whenever something changes about them.
+   */
 
-  if (udisks_physical_volume)
+  LvmLogicalVolumeBlock *lv = NULL;
+  LvmPhysicalVolumeBlock *pv = NULL;
+
+  GDBusObjectManager *objman = storage_provider_get_lvm_object_manager (provider);
+  GDBusObject *lvm_object =
+    g_dbus_object_manager_get_object (objman,
+                                      g_dbus_object_get_object_path (G_DBUS_OBJECT (udisks_object)));
+  if (lvm_object)
     {
-      cockpit_storage_block_set_pv_group (iface,
-         storage_provider_translate_path (provider,
-                                          udisks_physical_volume_get_volume_group (udisks_physical_volume)));
-      cockpit_storage_block_set_pv_size (iface, udisks_physical_volume_get_size (udisks_physical_volume));
-      cockpit_storage_block_set_pv_free_size (iface, udisks_physical_volume_get_free_size (udisks_physical_volume));
+      lv = lvm_object_peek_logical_volume_block (LVM_OBJECT (lvm_object));
+      pv = lvm_object_peek_physical_volume_block (LVM_OBJECT (lvm_object));
+    }
+
+  if (lv)
+    {
+      cockpit_storage_block_set_logical_volume
+        (iface,
+         storage_provider_translate_path
+         (provider,
+          lvm_logical_volume_block_get_logical_volume (lv)));
     }
   else
-    cockpit_storage_block_set_pv_group (iface, "/");
+    cockpit_storage_block_set_logical_volume (iface, "/");
+
+  if (pv)
+    {
+      cockpit_storage_block_set_pv_group
+        (iface,
+         storage_provider_translate_path (provider,
+                                          lvm_physical_volume_block_get_volume_group (pv)));
+      cockpit_storage_block_set_pv_size (iface,
+                                         lvm_physical_volume_block_get_size (pv));
+      cockpit_storage_block_set_pv_free_size (iface,
+                                              lvm_physical_volume_block_get_free_size (pv));
+    }
+  else
+    {
+      cockpit_storage_block_set_pv_group (iface, "/");
+      cockpit_storage_block_set_pv_size (iface, 0);
+      cockpit_storage_block_set_pv_free_size (iface, 0);
+    }
 }
 
 static void

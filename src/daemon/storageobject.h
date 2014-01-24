@@ -34,8 +34,8 @@ StorageObject *       storage_object_new                        (StorageProvider
                                                                  UDisksBlock *udisks_block,
                                                                  UDisksDrive *udisks_drive,
                                                                  UDisksMDRaid *udisks_raid,
-                                                                 UDisksVolumeGroup *udisks_volume_group,
-                                                                 UDisksLogicalVolume *udisks_logical_volume);
+                                                                 LvmVolumeGroup *lvm_volume_group,
+                                                                 LvmLogicalVolume *lvm_logical_volume);
 
 StorageProvider *      storage_object_get_provider              (StorageObject *object);
 
@@ -45,9 +45,9 @@ UDisksDrive *          storage_object_get_udisks_drive          (StorageObject *
 
 UDisksMDRaid *         storage_object_get_udisks_mdraid         (StorageObject *object);
 
-UDisksVolumeGroup *    storage_object_get_udisks_volume_group   (StorageObject *object);
+LvmVolumeGroup *       storage_object_get_lvm_volume_group      (StorageObject *object);
 
-UDisksLogicalVolume *  storage_object_get_udisks_logical_volume (StorageObject *object);
+LvmLogicalVolume *     storage_object_get_lvm_logical_volume    (StorageObject *object);
 
 void                   storage_object_update                    (StorageObject *object);
 

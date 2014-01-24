@@ -389,7 +389,7 @@ PageStorage.prototype = {
 
         html += "<table style=\"width:100%\" class=\"cockpit-storage-table\"><tr>";
         html += "<td style=\"width:60%\">";
-        html += cockpit_esc(vg.DisplayName);
+        html += cockpit_esc(vg.Name);
         html += "</td>";
         html += "<td>";
 
@@ -488,15 +488,15 @@ cockpit_pages.push(new PageStorage());
 function cockpit_lvol_get_desc(lv)
 {
     var type;
-    if (lv.Type == "thin-pool")
+    if (lv.Type == "pool")
         type = _("Pool for Thin Logical Volumes");
-    else if (lv.Type == "thin")
+    else if (lv.ThinPool != "/")
         type =_("Thin Logical Volume");
-    else if (lv.Type == "raid")
-        type = _("RAID Logical Volume");
+    else if (lv.Origin != "/")
+        type = _("Logical Volume (Snapshot)");
     else
         type = _("Logical Volume");
-    return F("%{type} \"%{name}\"", { type: type, name: cockpit_esc(lv.DisplayName) });
+    return F("%{type} \"%{name}\"", { type: type, name: cockpit_esc(lv.Name) });
 }
 
 function cockpit_block_get_desc(block, partition_label, cleartext_device)
@@ -677,7 +677,7 @@ PageStorageDetail.prototype = {
         } else if (this._mdraid) {
             ret = cockpit_raid_get_desc(this._mdraid);
         } else if (this._vg) {
-            ret = this._vg.DisplayName;
+            ret = this._vg.Name;
         } else
             ret = this._block.Device;
         return ret;
@@ -1110,7 +1110,7 @@ PageStorageDetail.prototype = {
                 var block, desc, id, ratio;
                 var lv_obj, objs, i, llv;
 
-                if (lv.Type == "thin-pool") {
+                if (lv.Type == "pool") {
                     ratio = Math.max(lv.DataAllocatedRatio, lv.MetadataAllocatedRatio);
                     desc = F(_("%{size} %{desc}<br/>%{percent}% full"),
                              { size: cockpit_fmt_size (lv.Size),
@@ -1455,7 +1455,7 @@ PageStorageDetail.prototype = {
 
         val = vg.Size > 0 ? cockpit_fmt_size_long(vg.Size) : "--";
         $("#vg_detail_capacity").html(val);
-        $("#vg_detail_name").html(cockpit_esc(vg.DisplayName));
+        $("#vg_detail_name").html(cockpit_esc(vg.Name));
         $("#vg_detail_uuid").html(cockpit_esc(vg.UUID));
 
         pvs_list = $("#vg-physical-volumes");
@@ -1915,7 +1915,7 @@ PageStorageDetail.prototype = {
         if (!cockpit_check_role ('cockpit-storage-admin'))
             return;
 
-        if (origin.Type == "snapshot") {
+        if (origin.Origin != "/") {
             cockpit_show_error_dialog ("Error", "Can't take a snapshot of a snapshot.");
             return;
         }
@@ -2186,7 +2186,7 @@ PageCreateVolumeGroup.prototype = {
         var blocks = cockpit_get_selected_devices_objpath ($('#create-vg-drives'), me.blocks);
         var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Storage/Manager",
                                               "com.redhat.Cockpit.Storage.Manager");
-        manager.call ("VolumeGroupCreate", blocks, name, 0,
+        manager.call ("VolumeGroupCreate", name, blocks,
                       function (error) {
                           $('#create-volume-group-dialog').popup('close');
                           if (error)
@@ -2404,7 +2404,6 @@ PageCreatePlainVolume.prototype = {
 
         PageCreatePlainVolume.volume_group.call('CreatePlainVolume',
                                                 name, size,
-                                                0, 0,
                                                 function (error) {
                                                     $("#storage_create_plain_volume_dialog").popup('close');
                                                     if (error)
@@ -2604,8 +2603,7 @@ PageResizeVolume.prototype = {
         var size = $("#resize-lvol-size").val();
         size = size * 1024*1024;
 
-        PageResizeVolume.volume.call('Resize',
-                                     size, 0, 0,
+        PageResizeVolume.volume.call('Resize', size,
                                      function (error) {
                                          $("#storage_resize_volume_dialog").popup('close');
                                          if (error)
@@ -2641,7 +2639,7 @@ PageRenameVolume.prototype = {
             $("#rename-lvol-cancel").on('click', $.proxy(this, "cancel"));
             $("#rename-lvol-rename").on('click', $.proxy(this, "rename"));
         }
-        $("#rename-lvol-name").val(PageRenameVolume.volume.DisplayName);
+        $("#rename-lvol-name").val(PageRenameVolume.volume.Name);
     },
 
     cancel: function() {
@@ -2688,7 +2686,7 @@ PageRenameGroup.prototype = {
             $("#rename-vg-cancel").on('click', $.proxy(this, "cancel"));
             $("#rename-vg-rename").on('click', $.proxy(this, "rename"));
         }
-        $("#rename-vg-name").val(PageRenameGroup.group.DisplayName);
+        $("#rename-vg-name").val(PageRenameGroup.group.Name);
     },
 
     cancel: function() {

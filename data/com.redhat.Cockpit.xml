@@ -352,9 +352,8 @@
     </method>
 
     <method name="VolumeGroupCreate">
-      <arg name="blocks" direction="in" type="ao"/>
       <arg name="name" direction="in" type="s"/>
-      <arg name="extent_size" direction="in" type="t"/>
+      <arg name="blocks" direction="in" type="ao"/>
     </method>
 
   </interface>
@@ -766,7 +765,6 @@
   <interface name="com.redhat.Cockpit.Storage.VolumeGroup">
     <property name="UUID" type="s" access="read"/>
     <property name="Name" type="s" access="read"/>
-    <property name="DisplayName" type="s" access="read"/>
     <property name="Size" type="t" access="read"/>
     <property name="FreeSize" type="t" access="read"/>
 
@@ -796,8 +794,6 @@
     <method name="CreatePlainVolume">
       <arg name="name" type="s" direction="in"/>
       <arg name="size" type="t" direction="in"/>
-      <arg name="stripes" type="i" direction="in"/>
-      <arg name="stripesize" type="t" direction="in"/>
     </method>
 
     <method name="CreateThinPoolVolume">
@@ -823,9 +819,9 @@
   <interface name="com.redhat.Cockpit.Storage.LogicalVolume">
     <property name="UUID" type="s" access="read"/>
     <property name="Name" type="s" access="read"/>
-    <property name="DisplayName" type="s" access="read"/>
     <property name="VolumeGroup" type="o" access="read"/>
     <property name="Size" type="t" access="read"/>
+    <property name="Active" type="b" access="read"/>
     <property name="DataAllocatedRatio" type="d" access="read"/>
     <property name="MetadataAllocatedRatio" type="d" access="read"/>
     <property name="Type" type="s" access="read"/>
@@ -848,8 +844,6 @@
 
     <method name="Resize">
       <arg name="new_size" type="t" direction="in"/>
-      <arg name="stripes" type="i" direction="in"/>
-      <arg name="stripesize" type="t" direction="in"/>
     </method>
 
     <method name="CreateSnapshot">

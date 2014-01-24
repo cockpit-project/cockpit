@@ -35,6 +35,7 @@ StorageProvider * storage_provider_new                               (Daemon *da
 Daemon *          storage_provider_get_daemon                        (StorageProvider *provider);
 
 UDisksClient *    storage_provider_get_udisks_client                 (StorageProvider *provider);
+GDBusObjectManager* storage_provider_get_lvm_object_manager          (StorageProvider *provider);
 
 StorageObject*    storage_provider_lookup_for_udisks_block           (StorageProvider *provider,
                                                                       UDisksBlock *udisks_block);
@@ -45,11 +46,11 @@ StorageObject*    storage_provider_lookup_for_udisks_drive           (StoragePro
 StorageObject*    storage_provider_lookup_for_udisks_mdraid          (StorageProvider *provider,
                                                                       UDisksMDRaid *udisks_mdraid);
 
-StorageObject*    storage_provider_lookup_for_udisks_volume_group    (StorageProvider *provider,
-                                                                      UDisksVolumeGroup *udisks_volume_group);
+StorageObject*    storage_provider_lookup_for_lvm_volume_group       (StorageProvider *provider,
+                                                                      LvmVolumeGroup *lvm_volume_group);
 
-StorageObject *   storage_provider_lookup_for_udisks_logical_volume  (StorageProvider *provider,
-                                                                      UDisksLogicalVolume *udisks_logical_volume);
+StorageObject *   storage_provider_lookup_for_lvm_logical_volume     (StorageProvider *provider,
+                                                                      LvmLogicalVolume *lvm_logical_volume);
 
 const gchar *     storage_provider_translate_path                    (StorageProvider *provider,
                                                                       const gchar *udisks_path);

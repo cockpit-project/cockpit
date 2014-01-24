@@ -57,8 +57,8 @@ struct _StorageObject
   UDisksBlock *udisks_block;
   UDisksDrive *udisks_drive;
   UDisksMDRaid *udisks_mdraid;
-  UDisksVolumeGroup *udisks_volume_group;
-  UDisksLogicalVolume *udisks_logical_volume;
+  LvmVolumeGroup *lvm_volume_group;
+  LvmLogicalVolume *lvm_logical_volume;
 
   CockpitStorageBlock *storage_block_iface;
   CockpitStorageDrive *storage_drive_iface;
@@ -79,8 +79,8 @@ enum
   PROP_UDISKS_BLOCK,
   PROP_UDISKS_DRIVE,
   PROP_UDISKS_MDRAID,
-  PROP_UDISKS_VOLUME_GROUP,
-  PROP_UDISKS_LOGICAL_VOLUME,
+  PROP_LVM_VOLUME_GROUP,
+  PROP_LVM_LOGICAL_VOLUME,
 };
 
 G_DEFINE_TYPE (StorageObject, storage_object, COCKPIT_TYPE_OBJECT_SKELETON);
@@ -102,8 +102,8 @@ storage_object_finalize (GObject *_object)
   g_clear_object (&object->udisks_block);
   g_clear_object (&object->udisks_drive);
   g_clear_object (&object->udisks_mdraid);
-  g_clear_object (&object->udisks_volume_group);
-  g_clear_object (&object->udisks_logical_volume);
+  g_clear_object (&object->lvm_volume_group);
+  g_clear_object (&object->lvm_logical_volume);
 
   G_OBJECT_CLASS (storage_object_parent_class)->finalize (_object);
 }
@@ -134,12 +134,12 @@ storage_object_get_property (GObject *_object,
       g_value_set_object (value, storage_object_get_udisks_mdraid (object));
       break;
 
-    case PROP_UDISKS_VOLUME_GROUP:
-      g_value_set_object (value, storage_object_get_udisks_volume_group (object));
+    case PROP_LVM_VOLUME_GROUP:
+      g_value_set_object (value, storage_object_get_lvm_volume_group (object));
       break;
 
-    case PROP_UDISKS_LOGICAL_VOLUME:
-      g_value_set_object (value, storage_object_get_udisks_logical_volume (object));
+    case PROP_LVM_LOGICAL_VOLUME:
+      g_value_set_object (value, storage_object_get_lvm_logical_volume (object));
       break;
 
     default:
@@ -178,14 +178,14 @@ storage_object_set_property (GObject *_object,
       object->udisks_mdraid = g_value_dup_object (value);
       break;
 
-    case PROP_UDISKS_VOLUME_GROUP:
-      g_assert (object->udisks_volume_group == NULL);
-      object->udisks_volume_group = g_value_dup_object (value);
+    case PROP_LVM_VOLUME_GROUP:
+      g_assert (object->lvm_volume_group == NULL);
+      object->lvm_volume_group = g_value_dup_object (value);
       break;
 
-    case PROP_UDISKS_LOGICAL_VOLUME:
-      g_assert (object->udisks_logical_volume == NULL);
-      object->udisks_logical_volume = g_value_dup_object (value);
+    case PROP_LVM_LOGICAL_VOLUME:
+      g_assert (object->lvm_logical_volume == NULL);
+      object->lvm_logical_volume = g_value_dup_object (value);
       break;
 
     default:
@@ -242,7 +242,7 @@ storage_object_update (StorageObject *object)
         }
     }
 
-  if (object->udisks_volume_group != NULL)
+  if (object->lvm_volume_group != NULL)
     {
       if (object->storage_volume_group_iface == NULL)
         {
@@ -255,7 +255,7 @@ storage_object_update (StorageObject *object)
         }
     }
 
-  if (object->udisks_logical_volume != NULL)
+  if (object->lvm_logical_volume != NULL)
     {
       if (object->storage_logical_volume_iface == NULL)
         {
@@ -358,14 +358,14 @@ storage_object_class_init (StorageObjectClass *klass)
   /**
    * StorageObject:udisks-volume-group:
    *
-   * The #UDisksVolumeGroup for the object.
+   * The #LvmVolumeGroup for the object.
    */
   g_object_class_install_property (gobject_class,
-                                   PROP_UDISKS_VOLUME_GROUP,
-                                   g_param_spec_object ("udisks-volume-group",
+                                   PROP_LVM_VOLUME_GROUP,
+                                   g_param_spec_object ("lvm-volume-group",
                                                         NULL,
                                                         NULL,
-                                                        UDISKS_TYPE_VOLUME_GROUP,
+                                                        LVM_TYPE_VOLUME_GROUP,
                                                         G_PARAM_READABLE |
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
@@ -373,14 +373,14 @@ storage_object_class_init (StorageObjectClass *klass)
   /**
    * StorageObject:udisks-logical-volume:
    *
-   * The #UDisksLogicalVolume for the object.
+   * The #LvmLogicalVolume for the object.
    */
   g_object_class_install_property (gobject_class,
-                                   PROP_UDISKS_LOGICAL_VOLUME,
-                                   g_param_spec_object ("udisks-logical-volume",
+                                   PROP_LVM_LOGICAL_VOLUME,
+                                   g_param_spec_object ("lvm-logical-volume",
                                                         NULL,
                                                         NULL,
-                                                        UDISKS_TYPE_LOGICAL_VOLUME,
+                                                        LVM_TYPE_LOGICAL_VOLUME,
                                                         G_PARAM_READABLE |
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
@@ -402,21 +402,21 @@ storage_object_new (StorageProvider *provider,
                     UDisksBlock *udisks_block,
                     UDisksDrive *udisks_drive,
                     UDisksMDRaid *udisks_mdraid,
-                    UDisksVolumeGroup *udisks_volume_group,
-                    UDisksLogicalVolume *udisks_logical_volume)
+                    LvmVolumeGroup *lvm_volume_group,
+                    LvmLogicalVolume *lvm_logical_volume)
 {
   g_return_val_if_fail (udisks_block == NULL || UDISKS_IS_BLOCK (udisks_block), NULL);
   g_return_val_if_fail (udisks_drive == NULL || UDISKS_IS_DRIVE (udisks_drive), NULL);
   g_return_val_if_fail (udisks_mdraid == NULL || UDISKS_IS_MDRAID (udisks_mdraid), NULL);
-  g_return_val_if_fail (udisks_volume_group == NULL || UDISKS_IS_VOLUME_GROUP (udisks_volume_group), NULL);
-  g_return_val_if_fail (udisks_logical_volume == NULL || UDISKS_IS_LOGICAL_VOLUME (udisks_logical_volume), NULL);
+  g_return_val_if_fail (lvm_volume_group == NULL || LVM_IS_VOLUME_GROUP (lvm_volume_group), NULL);
+  g_return_val_if_fail (lvm_logical_volume == NULL || LVM_IS_LOGICAL_VOLUME (lvm_logical_volume), NULL);
   return STORAGE_OBJECT (g_object_new (TYPE_STORAGE_OBJECT,
                                        "provider", provider,
                                        "udisks-block", udisks_block,
                                        "udisks-drive", udisks_drive,
                                        "udisks-mdraid", udisks_mdraid,
-                                       "udisks-volume-group", udisks_volume_group,
-                                       "udisks-logical-volume", udisks_logical_volume,
+                                       "lvm-volume-group", lvm_volume_group,
+                                       "lvm-logical-volume", lvm_logical_volume,
                                        NULL));
 }
 
@@ -448,18 +448,18 @@ storage_object_get_udisks_mdraid (StorageObject *object)
   return object->udisks_mdraid;
 }
 
-UDisksVolumeGroup *
-storage_object_get_udisks_volume_group (StorageObject *object)
+LvmVolumeGroup *
+storage_object_get_lvm_volume_group (StorageObject *object)
 {
   g_return_val_if_fail (IS_STORAGE_OBJECT (object), NULL);
-  return object->udisks_volume_group;
+  return object->lvm_volume_group;
 }
 
-UDisksLogicalVolume *
-storage_object_get_udisks_logical_volume (StorageObject *object)
+LvmLogicalVolume *
+storage_object_get_lvm_logical_volume (StorageObject *object)
 {
   g_return_val_if_fail (IS_STORAGE_OBJECT (object), NULL);
-  return object->udisks_logical_volume;
+  return object->lvm_logical_volume;
 }
 
 gchar *
@@ -503,25 +503,24 @@ storage_object_make_object_path (StorageObject *object)
                                          udisks_mdraid_get_uuid (object->udisks_mdraid));
     }
 
-  if (object->udisks_volume_group)
+  if (object->lvm_volume_group)
     {
       return utils_generate_object_path ("/com/redhat/Cockpit/Storage/lvm",
-                                         udisks_volume_group_get_name (object->udisks_volume_group));
+                                         lvm_volume_group_get_name (object->lvm_volume_group));
     }
 
-  if (object->udisks_logical_volume)
+  if (object->lvm_logical_volume)
     {
-      const gchar *vg_path = udisks_logical_volume_get_volume_group (object->udisks_logical_volume);
-      UDisksClient *client = storage_provider_get_udisks_client (object->provider);
-      GDBusObjectManager *manager = udisks_client_get_object_manager (client);
-      UDisksVolumeGroup *vg =
-        UDISKS_VOLUME_GROUP (g_dbus_object_manager_get_interface (manager, vg_path,
-                                                                  "org.freedesktop.UDisks2.VolumeGroup"));
+      const gchar *vg_path = lvm_logical_volume_get_volume_group (object->lvm_logical_volume);
+      GDBusObjectManager *manager = storage_provider_get_lvm_object_manager (object->provider);
+      LvmVolumeGroup *vg =
+        LVM_VOLUME_GROUP (g_dbus_object_manager_get_interface (manager, vg_path,
+                                                               "com.redhat.lvm2.VolumeGroup"));
 
       gchar *prefix = utils_generate_object_path ("/com/redhat/Cockpit/Storage/lvm",
-                                                  udisks_volume_group_get_name (vg));
+                                                  lvm_volume_group_get_name (vg));
       gchar *full = utils_generate_object_path (prefix,
-                                                udisks_logical_volume_get_name (object->udisks_logical_volume));
+                                                lvm_logical_volume_get_name (object->lvm_logical_volume));
       g_free (prefix);
       return full;
     }

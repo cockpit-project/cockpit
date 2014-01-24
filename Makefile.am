@@ -9,6 +9,7 @@ noinst_PROGRAMS =
 noinst_LTLIBRARIES =
 privlibdir = $(pkglibdir)
 privlib_LTLIBRARIES =
+noinst_LIBRARIES=
 TESTS =
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}

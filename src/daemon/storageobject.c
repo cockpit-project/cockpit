@@ -92,6 +92,12 @@ storage_object_finalize (GObject *_object)
 {
   StorageObject *object = STORAGE_OBJECT (_object);
 
+  g_clear_object (&object->storage_block_iface);
+  g_clear_object (&object->storage_drive_iface);
+  g_clear_object (&object->storage_mdraid_iface);
+  g_clear_object (&object->storage_volume_group_iface);
+  g_clear_object (&object->storage_logical_volume_iface);
+
   /* ->provider is a borrowed reference */
   g_clear_object (&object->udisks_block);
   g_clear_object (&object->udisks_drive);

@@ -287,3 +287,23 @@
     border-radius: 5px;
     cursor: pointer;
 }
+
+/* Styling of logs embedded in pages outside the journal */
+
+#service-log,
+#storage-log {
+    padding: 0;
+    border-bottom: 0;
+}
+
+#service-log .cockpit-loghead,
+#storage-log .cockpit-loghead {
+    padding: 10px;
+    width: auto;
+}
+
+#service-log .cockpit-logline,
+#storage-log .cockpit-logline {
+    border-left: 0;
+    border-right: 0;
+}

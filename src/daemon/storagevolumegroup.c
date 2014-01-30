@@ -266,6 +266,7 @@ handle_delete (CockpitStorageVolumeGroup *object,
                                      &error)
       || !lvm_volume_group_call_delete_sync (group->lvm_volume_group,
                                              TRUE,
+                                             null_asv (),
                                              NULL,
                                              &error))
     {
@@ -296,6 +297,7 @@ handle_rename (CockpitStorageVolumeGroup *object,
 
   if (!lvm_volume_group_call_rename_sync (group->lvm_volume_group,
                                           arg_new_name,
+                                          null_asv (),
                                           &result,
                                           NULL,
                                           &error))
@@ -339,6 +341,7 @@ handle_add_device (CockpitStorageVolumeGroup *object,
 
   if (!lvm_volume_group_call_add_device_sync (group->lvm_volume_group,
                                               block_path,
+                                              null_asv (),
                                               NULL,
                                               &error))
     {
@@ -382,6 +385,7 @@ handle_remove_device (CockpitStorageVolumeGroup *object,
   if (!lvm_volume_group_call_remove_device_sync (group->lvm_volume_group,
                                                  block_path,
                                                  TRUE,
+                                                 null_asv (),
                                                  NULL,
                                                  &error))
     {
@@ -427,6 +431,7 @@ handle_empty_device (CockpitStorageVolumeGroup *object,
 
   if (!lvm_volume_group_call_empty_device_sync (group->lvm_volume_group,
                                                 block_path,
+                                                null_asv (),
                                                 NULL,
                                                 &error))
     {

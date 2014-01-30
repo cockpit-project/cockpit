@@ -268,6 +268,7 @@ handle_delete (CockpitStorageLogicalVolume *object,
                                        volume->lvm_logical_volume,
                                        &error)
       || !lvm_logical_volume_call_delete_sync (volume->lvm_logical_volume,
+                                               null_asv (),
                                                NULL,
                                                &error))
     {
@@ -298,6 +299,7 @@ handle_rename (CockpitStorageLogicalVolume *object,
 
   if (!lvm_logical_volume_call_rename_sync (volume->lvm_logical_volume,
                                             arg_new_name,
+                                            null_asv (),
                                             &result,
                                             NULL,
                                             &error))
@@ -357,6 +359,7 @@ handle_activate (CockpitStorageLogicalVolume *object,
     return TRUE;
 
   if (!lvm_logical_volume_call_activate_sync (volume->lvm_logical_volume,
+                                              null_asv (),
                                               &result,
                                               NULL,
                                               &error))
@@ -385,6 +388,7 @@ handle_deactivate (CockpitStorageLogicalVolume *object,
     return TRUE;
 
   if (!lvm_logical_volume_call_deactivate_sync (volume->lvm_logical_volume,
+                                                null_asv (),
                                                 NULL,
                                                 &error))
     {

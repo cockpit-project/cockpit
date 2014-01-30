@@ -614,13 +614,13 @@ storage_provider_constructed (GObject *_object)
 
   provider->lvm_objman = lvm_object_manager_client_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                                       0,
-                                                                      "com.redhat.lvm2",
+                                                                      "com.redhat.storaged",
                                                                       "/org/freedesktop/UDisks2",
                                                                       NULL,
                                                                       &error);
   if (provider->lvm_objman == NULL)
     {
-      g_warning ("Error connecting to udisks-lvm: %s (%s, %d)",
+      g_warning ("Error connecting to storaged: %s (%s, %d)",
                  error->message, g_quark_to_string (error->domain), error->code);
       g_clear_error (&error);
       goto out;
@@ -647,7 +647,7 @@ storage_provider_constructed (GObject *_object)
   if (connection)
     {
       g_dbus_connection_signal_subscribe (connection,
-                                          "com.redhat.lvm2",
+                                          "com.redhat.storaged",
                                           "org.freedesktop.DBus.Properties",
                                           "PropertiesChanged",
                                           NULL,

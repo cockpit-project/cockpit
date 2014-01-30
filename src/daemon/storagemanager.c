@@ -135,7 +135,7 @@ storage_manager_constructed (GObject *_object)
   storage_manager->lvm_manager =
     lvm_manager_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                         0,
-                                        "com.redhat.lvm2",
+                                        "com.redhat.storaged",
                                         "/org/freedesktop/UDisks2/Manager",
                                         NULL,
                                         &error);

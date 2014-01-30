@@ -153,7 +153,7 @@ storage_job_new (StorageProvider *provider,
       g_debug ("Creating new proxy for %s", path);
       udisks_job = udisks_job_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                       0,
-                                                      "com.redhat.lvm2",
+                                                      "com.redhat.storaged",
                                                       path,
                                                       NULL,
                                                       NULL);

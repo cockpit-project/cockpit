@@ -313,6 +313,9 @@ provider_update_objects (StorageProvider *provider)
     }
   for (l = lvm_objects; l != NULL; l = l->next)
     {
+      if (!LVM_IS_OBJECT (l->data))
+        continue;
+
       GDBusInterface *iface = get_lvm_iface (LVM_OBJECT (l->data));
       if (iface == NULL)
         continue;
@@ -373,6 +376,7 @@ provider_update_jobs (StorageProvider *provider)
   GDBusObjectManagerServer *object_manager;
   GList *udisks_objects;
   GList *lvm_objects;
+  GList *all_objects;
   GList *wanted;
   GList *added, *removed;
   GList *l;
@@ -380,10 +384,14 @@ provider_update_jobs (StorageProvider *provider)
   object_manager = G_DBUS_OBJECT_MANAGER_SERVER (daemon_get_object_manager (provider->daemon));
   udisks_objects = g_dbus_object_manager_get_objects (udisks_client_get_object_manager (provider->udisks_client));
   lvm_objects = g_dbus_object_manager_get_objects (provider->lvm_objman);
+  all_objects = g_list_concat (udisks_objects, lvm_objects);
 
   wanted = NULL;
-  for (l = udisks_objects; l != NULL; l = l->next)
+  for (l = all_objects; l != NULL; l = l->next)
     {
+      if (!UDISKS_IS_OBJECT (l->data))
+        continue;
+
       UDisksObject *object = UDISKS_OBJECT (l->data);
       UDisksJob *job;
 
@@ -394,16 +402,11 @@ provider_update_jobs (StorageProvider *provider)
       const gchar *operation = udisks_job_get_operation (job);
 
       if (strcmp (operation, "format-mkfs") != 0
-          && strcmp (operation, "format-erase") != 0)
+          && strcmp (operation, "format-erase") != 0
+          && strcmp (operation, "lvm-vg-empty-device") != 0)
         continue;
 
-      wanted = g_list_prepend (wanted, g_object_ref (l->data));
-    }
-  for (l = lvm_objects; l != NULL; l = l->next)
-    {
-      if (g_str_has_prefix (g_dbus_object_get_object_path (l->data),
-                            "/org/freedesktop/UDisks2/jobs/"))
-        wanted = g_list_prepend (wanted, g_object_ref (l->data));
+      wanted = g_list_prepend (wanted, g_object_ref (job));
     }
 
   wanted = g_list_sort (wanted, (GCompareFunc)_udisks_job_compare_func);
@@ -413,7 +416,7 @@ provider_update_jobs (StorageProvider *provider)
 
   for (l = removed; l != NULL; l = l->next)
     {
-      GDBusObject *job = G_DBUS_OBJECT (l->data);
+      UDisksJob *job = UDISKS_JOB (l->data);
       CockpitJob *object;
 
       object = g_hash_table_lookup (provider->hash_job_to_storage_job, job);
@@ -434,12 +437,13 @@ provider_update_jobs (StorageProvider *provider)
 
   for (l = added; l != NULL; l = l->next)
     {
-      GDBusObject *job = G_DBUS_OBJECT (l->data);
+      UDisksJob *job = UDISKS_JOB (l->data);
       CockpitObjectSkeleton *object;
       CockpitJob *cockpit_job;
-      const gchar *object_path;
+      gs_free gchar *object_path;
 
-      object_path = "/com/redhat/Cockpit/Jobs/j";
+      object_path = utils_generate_object_path ("/com/redhat/Cockpit/Jobs",
+                                                udisks_job_get_operation (job));
 
       cockpit_job = storage_job_new (provider, job);
       object = cockpit_object_skeleton_new (object_path);
@@ -458,8 +462,7 @@ provider_update_jobs (StorageProvider *provider)
 
   g_list_free (added);
   g_list_free (removed);
-  g_list_free_full (udisks_objects, g_object_unref);
-  g_list_free_full (lvm_objects, g_object_unref);
+  g_list_free_full (all_objects, g_object_unref);
   g_list_free_full (wanted, g_object_unref);
 }
 
@@ -595,6 +598,19 @@ on_lvm_properties_changed (GDBusConnection *connection,
   provider_update_block (provider, object_path);
 }
 
+static GType
+lvm_get_proxy_type (GDBusObjectManagerClient *manager,
+                    const gchar *object_path,
+                    const gchar *interface_name,
+                    gpointer user_data)
+{
+  g_debug ("P %s %s", object_path, interface_name);
+  if (g_str_has_prefix (object_path, "/org/freedesktop/UDisks2/jobs/"))
+    return udisks_object_manager_client_get_proxy_type (manager, object_path, interface_name, NULL);
+  else
+    return lvm_object_manager_client_get_proxy_type (manager, object_path, interface_name, NULL);
+}
+
 static void
 storage_provider_constructed (GObject *_object)
 {
@@ -612,12 +628,16 @@ storage_provider_constructed (GObject *_object)
       goto out;
     }
 
-  provider->lvm_objman = lvm_object_manager_client_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
-                                                                      0,
-                                                                      "com.redhat.storaged",
-                                                                      "/org/freedesktop/UDisks2",
-                                                                      NULL,
-                                                                      &error);
+  provider->lvm_objman =
+    g_dbus_object_manager_client_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                   0,
+                                                   "com.redhat.storaged",
+                                                   "/org/freedesktop/UDisks2",
+                                                   lvm_get_proxy_type,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL,
+                                                   &error);
   if (provider->lvm_objman == NULL)
     {
       g_warning ("Error connecting to storaged: %s (%s, %d)",

@@ -31,7 +31,7 @@ G_BEGIN_DECLS
 GType           storage_job_get_type    (void) G_GNUC_CONST;
 
 CockpitJob *    storage_job_new         (StorageProvider *provider,
-                                         GDBusObject *job);
+                                         UDisksJob *udisks_job);
 
 G_END_DECLS
 

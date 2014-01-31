@@ -41,6 +41,8 @@
 
 typedef struct {
   /* setup_mock_sshd */
+  const gchar *ssh_user;
+  const gchar *ssh_password;
   GPid mock_sshd;
   guint16 ssh_port;
 
@@ -103,8 +105,8 @@ setup_mock_sshd (Test *test,
 
   const gchar *argv[] = {
       BUILDDIR "/mock-sshd",
-      "--user", g_get_user_name (),
-      "--password", PASSWORD,
+      "--user", test->ssh_user ? test->ssh_user : g_get_user_name (),
+      "--password", test->ssh_password ? test->ssh_password : PASSWORD,
       NULL
   };
 
@@ -221,6 +223,15 @@ setup_for_socket (Test *test,
 }
 
 static void
+setup_for_socket_spec (Test *test,
+                       gconstpointer data)
+{
+  test->ssh_user = "user";
+  test->ssh_password = "Another password";
+  setup_for_socket (test, data);
+}
+
+static void
 teardown_for_socket (Test *test,
                      gconstpointer data)
 {
@@ -334,9 +345,16 @@ start_web_service_and_connect_client (Test *test,
                                       WebSocketConnection **ws,
                                       GThread **thread)
 {
+  GBytes *sent;
+
   start_web_service_and_create_client (test, flavor, ws, thread);
   WAIT_UNTIL (web_socket_connection_get_ready_state (*ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
+
+  // Send the initial message that starts the agent.
+  sent = g_bytes_new_static ("", 0);
+  web_socket_connection_send (*ws, WEB_SOCKET_DATA_TEXT, sent);
+  g_bytes_unref (sent);
 }
 
 static void
@@ -478,6 +496,70 @@ test_close_error (Test *test,
 }
 
 static void
+test_specified_creds (Test *test,
+                      gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  GBytes *sent;
+  GThread *thread;
+
+  start_web_service_and_create_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  // Send the initial message that starts the agent.
+  const gchar *args = "user\nAnother password";
+  sent = g_bytes_new_static (args, strlen(args));
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  g_bytes_unref (sent);
+
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  sent = g_bytes_new_static ("wheee", 5);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  WAIT_UNTIL (received != NULL);
+  g_assert (g_bytes_equal (received, sent));
+  g_bytes_unref (sent);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, thread);
+}
+
+static void
+test_specified_creds_fail (Test *test,
+                           gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  GBytes *sent;
+  GThread *thread;
+
+  start_web_service_and_create_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  // Send the initial message that starts the agent.
+  const gchar *args = "user\nWrong password";
+  sent = g_bytes_new_static (args, strlen(args));
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  g_bytes_unref (sent);
+
+  /* Connection should close immediately */
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CLOSED);
+
+  /* But we should have gotten a failure message, about the credentials */
+  g_assert (received != NULL);
+  g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
+                   "{\"command\": \"error\", \"data\": \"not-authorized\"}");
+
+  close_client_and_stop_web_service (test, ws, thread);
+}
+
+static void
 test_socket_unauthenticated (Test *test,
                              gconstpointer data)
 {
@@ -521,7 +603,7 @@ test_fail_spawn (Test *test,
   /* Fail to spawn this program */
   test->agent_program = "/nonexistant";
 
-  start_web_service_and_create_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
   g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
 
@@ -578,6 +660,13 @@ main (int argc,
   g_test_add ("/web-service/fail-spawn/hixie76", Test,
               GINT_TO_POINTER (WEB_SOCKET_FLAVOR_HIXIE76), setup_for_socket,
               test_fail_spawn, teardown_for_socket);
+
+  g_test_add ("/web-service/specified-creds", Test,
+              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket_spec,
+              test_specified_creds, teardown_for_socket);
+  g_test_add ("/web-service/specified-creds-fail", Test,
+              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket_spec,
+              test_specified_creds_fail, teardown_for_socket);
 
   return g_test_run ();
 }

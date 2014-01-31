@@ -44,6 +44,8 @@ typedef struct
   gboolean                  authenticated;
   gchar                    *target_host;
   gint                      specific_port;
+  gchar                    *specific_user;
+  gchar                    *specific_password;
   gchar                    *agent_program;
   gchar                    *user;
   gchar                    *password;
@@ -85,6 +87,8 @@ web_socket_data_unref (WebSocketData   *data)
   g_free (data->agent_program);
   g_free (data->user);
   g_free (data->rhost);
+  g_free (data->specific_user);
+  g_free (data->specific_password);
   g_clear_object (&data->sessionio_cancellable);
   g_free (data);
 }
@@ -180,20 +184,62 @@ begin_session_write (WebSocketData       *data)
                                      web_socket_data_ref (data));
 }
 
+static gboolean open_session (WebSocketData *data,
+                              GCancellable *cancellable,
+                              GError **error);
+
 static void
 on_web_socket_message (WebSocketConnection *web_socket,
                        WebSocketDataType type,
                        GBytes *message,
                        WebSocketData *data)
 {
-  guint32 len = (guint32) g_bytes_get_size (message);
-  /* Canonicalize on network byte order */
-  len = GUINT32_TO_BE (len);
+  if (data->session_pid == 0)
+    {
+      GError *error = NULL;
+      gsize msg_len;
+      gconstpointer msg_data;
 
-  g_queue_push_tail (&data->session_write_queue, g_bytes_new (&len, 4));
-  g_queue_push_tail (&data->session_write_queue, g_bytes_ref (message));
+      msg_data = g_bytes_get_data (message, &msg_len);
 
-  begin_session_write (data);
+      if (msg_len > 0)
+        {
+          const gchar *userpass = msg_data;
+          gsize len = msg_len;
+          const gchar *sep = strchr (userpass, '\n');
+
+          if (sep == NULL)
+            data->specific_user = g_strndup (userpass, len);
+          else
+            {
+              data->specific_user = g_strndup (userpass, sep - userpass);
+              data->specific_password = g_strndup (sep + 1,
+                                                   len - (sep - userpass) - 1);
+            }
+        }
+
+      if (!open_session (data, NULL, &error))
+        {
+          g_warning ("Failed to set up session: %s", error->message);
+          g_clear_error (&error);
+
+          send_error (data, "internal-error");
+          web_socket_connection_close (web_socket,
+                                       WEB_SOCKET_CLOSE_SERVER_ERROR,
+                                       "transport-failed");
+        }
+    }
+  else
+    {
+      guint32 len = (guint32) g_bytes_get_size (message);
+      /* Canonicalize on network byte order */
+      len = GUINT32_TO_BE (len);
+
+      g_queue_push_tail (&data->session_write_queue, g_bytes_new (&len, 4));
+      g_queue_push_tail (&data->session_write_queue, g_bytes_ref (message));
+
+      begin_session_write (data);
+    }
 }
 
 static void
@@ -338,7 +384,7 @@ open_session (WebSocketData *data,
       "-d", pwfd,
       "/usr/bin/ssh",
       "-o", "StrictHostKeyChecking=no",
-      "-l", data->user,
+      "-l", data->specific_user ? data->specific_user : data->user,
       "-p", port,
       data->target_host,
       data->agent_program,
@@ -363,6 +409,8 @@ open_session (WebSocketData *data,
   GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
 
   if (data->specific_port == 0 &&
+      data->specific_user == NULL &&
+      data->specific_password == NULL &&
       g_strcmp0 (data->target_host, "localhost") == 0)
     {
       /*
@@ -420,6 +468,7 @@ open_session (WebSocketData *data,
   if (argv == argv_remote)
     {
       FILE *stream;
+      const gchar *password = data->specific_password ? data->specific_password : data->password;
       gboolean failed;
 
       close (pwpipe[0]);
@@ -433,7 +482,7 @@ open_session (WebSocketData *data,
        * we migrate to libssh.
        */
       stream = fdopen (pwpipe[1], "w");
-      fwrite (data->password, 1, strlen (data->password), stream);
+      fwrite (password, 1, strlen (password), stream);
       fputc ('\n', stream);
       fflush (stream);
       failed = ferror (stream);
@@ -451,9 +500,6 @@ open_session (WebSocketData *data,
   data->to_session = g_unix_output_stream_new (session_stdin, TRUE);
   data->from_session = g_unix_input_stream_new (session_stdout, TRUE);
   session_stdin = session_stdout = -1;
-
-  g_signal_connect (data->web_socket, "message",
-                    G_CALLBACK (on_web_socket_message), data);
 
   data->readstate = WS_STATE_READING_SIZE_WORD;
   data->size_word_bytes_read = 0;
@@ -532,8 +578,6 @@ static void
 on_web_socket_open (WebSocketConnection *web_socket,
                     WebSocketData *data)
 {
-  GError *error = NULL;
-
   get_remote_address (data->connection, &(data->rhost), &(data->rport));
   g_info ("New connection from %s:%d for %s%s%s", data->rhost, data->rport,
           data->user ? data->user : "", data->user ? "@" : "", data->target_host);
@@ -546,16 +590,13 @@ on_web_socket_open (WebSocketConnection *web_socket,
   if (!data->authenticated)
     {
       send_error (data, "no-session");
-      web_socket_connection_close (web_socket, WEB_SOCKET_CLOSE_GOING_AWAY, "not-authenticated");
+      web_socket_connection_close (web_socket,
+                                   WEB_SOCKET_CLOSE_GOING_AWAY,
+                                   "not-authenticated");
     }
-  else if (!open_session (data, NULL, &error))
-    {
-      g_warning ("Failed to set up session: %s", error->message);
-      g_clear_error (&error);
-
-      send_error (data, "internal-error");
-      web_socket_connection_close (web_socket, WEB_SOCKET_CLOSE_SERVER_ERROR, "transport-failed");
-    }
+  else
+    g_signal_connect (web_socket, "message",
+                      G_CALLBACK (on_web_socket_message), data);
 }
 
 static void

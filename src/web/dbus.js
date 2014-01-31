@@ -192,14 +192,15 @@ DBusObject.prototype = {
 
 // ----------------------------------------------------------------------------------------------------
 
-function DBusClient(target) {
-    this._init(target);
+function DBusClient(target, open_args) {
+    this._init(target, open_args);
 };
 
 
 DBusClient.prototype = {
-    _init: function(target) {
+    _init: function(target, open_args) {
         this.target = target;
+        this.open_args = open_args;
         this.error = null;
         this.state = null;
         this._ws = null;
@@ -253,6 +254,7 @@ DBusClient.prototype = {
         }, 10000);
 
         this._ws.onopen = function() {
+            this.send (client.open_args || "");
         };
         this._ws.onclose = function(event) {
             if (this === client._ws)

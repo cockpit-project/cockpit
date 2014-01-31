@@ -11,7 +11,6 @@ com.redhat.lvm2.c : Makefile.am /usr/share/dbus-1/interfaces/com.redhat.lvm2.xml
 		--generate-c-code com.redhat.lvm2 	\
 		$(datadir)/dbus-1/interfaces/com.redhat.lvm2.xml \
 		$(NULL)
-	patch com.redhat.lvm2.c <src/daemon/unbreak-lvm-object-notify.patch
 
 # We compile the lvm glue into its own convenience library since we
 # can't use the same CFLAGS for it as for cockpitd.  Specifically, we

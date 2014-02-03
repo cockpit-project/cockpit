@@ -122,7 +122,6 @@ lvm_util_get_block_for_logical_volume (GDBusObjectManager *objman,
     }
 
  out:
-  g_list_foreach (object_proxies, (GFunc) g_object_unref, NULL);
-  g_list_free (object_proxies);
+  g_list_free_full (object_proxies, g_object_unref);
   return ret;
 }

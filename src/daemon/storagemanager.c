@@ -682,9 +682,9 @@ cleanup_logical_volume_walker (GDBusObjectManager *objman,
                                GError **error)
 {
   StorageProvider *provider = user_data;
-  UDisksBlock *block = lvm_util_get_block_for_logical_volume (storage_provider_get_lvm_object_manager (provider),
-                                                              storage_provider_get_udisks_client (provider),
-                                                              logical_volume);
+  UDisksBlock *block = lvm_util_peek_block_for_logical_volume (storage_provider_get_lvm_object_manager (provider),
+                                                               storage_provider_get_udisks_client (provider),
+                                                               logical_volume);
   if (block)
     {
       /* The logical volume is active, let's clean it up by walking
@@ -774,9 +774,9 @@ logical_volume_is_unused_walker (GDBusObjectManager *objman,
                                  GError **error)
 {
   StorageProvider *provider = user_data;
-  UDisksBlock *block = lvm_util_get_block_for_logical_volume (storage_provider_get_lvm_object_manager (provider),
-                                                              storage_provider_get_udisks_client (provider),
-                                                              logical_volume);
+  UDisksBlock *block = lvm_util_peek_block_for_logical_volume (storage_provider_get_lvm_object_manager (provider),
+                                                               storage_provider_get_udisks_client (provider),
+                                                               logical_volume);
   if (block)
     return block_is_unused (storage_provider_get_udisks_client (provider), block, error);
   else

@@ -30,9 +30,9 @@ LvmVolumeGroup *lvm_util_get_volume_group_for_logical_volume (GDBusObjectManager
 GList *lvm_util_get_logical_volumes_for_volume_group (GDBusObjectManager *objman,
                                                       LvmVolumeGroup *group);
 
-UDisksBlock *lvm_util_get_block_for_logical_volume (GDBusObjectManager *objman,
-                                                    UDisksClient *client,
-                                                    LvmLogicalVolume *logical_volume);
+UDisksBlock *lvm_util_peek_block_for_logical_volume (GDBusObjectManager *objman,
+                                                     UDisksClient *client,
+                                                     LvmLogicalVolume *logical_volume);
 
 G_END_DECLS
 

@@ -83,9 +83,9 @@ lvm_util_get_logical_volumes_for_volume_group (GDBusObjectManager *objman,
 }
 
 UDisksBlock *
-lvm_util_get_block_for_logical_volume (GDBusObjectManager *objman,
-                                       UDisksClient *client,
-                                       LvmLogicalVolume *volume)
+lvm_util_peek_block_for_logical_volume (GDBusObjectManager *objman,
+                                        UDisksClient *client,
+                                        LvmLogicalVolume *volume)
 {
   UDisksBlock *ret = NULL;
   GList *l, *object_proxies = NULL;

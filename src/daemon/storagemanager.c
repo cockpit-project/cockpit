@@ -141,7 +141,7 @@ storage_manager_constructed (GObject *_object)
                                         &error);
   if (storage_manager->lvm_manager == NULL)
     {
-      g_warning ("Error connecting to udisks-lvm: %s (%s, %d)",
+      g_warning ("Error connecting to storaged: %s (%s, %d)",
                  error->message, g_quark_to_string (error->domain), error->code);
       g_clear_error (&error);
     }
@@ -323,7 +323,7 @@ handle_volume_group_create (CockpitStorageManager *object,
       g_dbus_method_invocation_return_error (invocation,
                                              COCKPIT_ERROR,
                                              COCKPIT_ERROR_FAILED,
-                                             "udisks-lvm daemon is not running");
+                                             "storaged daemon is not running");
       return TRUE;
     }
 

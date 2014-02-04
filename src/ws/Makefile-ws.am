@@ -28,7 +28,6 @@ libcockpit_ws_la_CFLAGS = \
 libcockpit_ws_la_LIBADD =					\
 	$(COCKPIT_WS_LIBS)					\
         libcockpit-1.0.la					\
-	libgsystem.la		\
 	libwebsocket.la		\
 	$(NULL)
 
@@ -70,7 +69,6 @@ cockpit_ws_CFLAGS = 					\
 
 cockpit_ws_LDADD = 					\
 	$(COCKPIT_WS_LIBS)					\
-	libgsystem.la					\
         libcockpit-ws.la     				\
 	$(NULL)
 
@@ -104,7 +102,6 @@ cockpit_agent_CFLAGS = 					\
 
 cockpit_agent_LDADD = 					\
 	$(COCKPIT_AGENT_LIBS)				\
-	libgsystem.la					\
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------
@@ -179,7 +176,6 @@ test_agent_CFLAGS = 					\
 
 test_agent_LDADD = 					\
 	$(COCKPIT_AGENT_LIBS)				\
-	libgsystem.la					\
 	$(NULL)
 
 CHECK_PROGS = \

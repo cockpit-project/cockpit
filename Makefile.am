@@ -55,9 +55,6 @@ include tools/Makefile-tools.am
 
 libgsystem_srcpath := src/libgsystem
 libgsystem_cflags := -Isrc/libgsystem $(GIO_CFLAGS)
-libgsystem_libs := $(GIO_LIBS)
-include src/libgsystem/Makefile-libgsystem.am
-noinst_LTLIBRARIES += libgsystem.la
 
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am

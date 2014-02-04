@@ -176,13 +176,19 @@ reread_os_release (Manager *manager)
   const char *operating_system_value = NULL;
   char **lines = NULL;
   char **iter = NULL;
+  gsize len;
   GError *local_error = NULL;
   gs_unref_hashtable GHashTable *os_release_keys =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
-  contents = gs_file_load_contents_utf8 (etc_os_release, NULL, &local_error);
-  if (!contents)
+  if (!g_file_load_contents (etc_os_release, NULL, &contents, &len, NULL, &local_error))
     goto out;
+  if (!g_utf8_validate (contents, len, NULL))
+    {
+      g_set_error (&local_error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Invalid UTF-8");
+      goto out;
+    }
 
   lines = g_strsplit (contents, "\n", -1);
   for (iter = lines; iter && *iter; iter++)

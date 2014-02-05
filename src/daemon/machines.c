@@ -26,6 +26,8 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
+#include <slp.h>
+
 #include "libgsystem.h"
 
 #include "daemon.h"
@@ -58,6 +60,9 @@ struct _Machines
 
   GMutex lock;
   GArray *machines;  /* of Machine */
+
+  GMutex slp_lock;
+  SLPHandle slp_handle;
 };
 
 struct _MachinesClass
@@ -218,6 +223,7 @@ machines_init (Machines *machines)
   g_dbus_interface_skeleton_set_flags (G_DBUS_INTERFACE_SKELETON (machines),
                                        G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
   g_mutex_init (&machines->lock);
+  g_mutex_init (&machines->slp_lock);
 }
 
 static void
@@ -348,8 +354,91 @@ handle_add (CockpitMachines *object,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static SLPBoolean
+slp_url_callback (SLPHandle      hslp,
+                  const char    *srvurl,
+                  unsigned short lifetime,
+                  SLPError       error,
+                  void          *cookie)
+{
+  Machines *machines = cookie;
+
+  if (error == SLP_LAST_CALL)
+    return SLP_TRUE;
+
+  if (error != SLP_OK)
+    {
+      g_warning ("Error during SLP discovery: %d\n", error);
+      return SLP_TRUE;
+    }
+
+  if (srvurl)
+    {
+      SLPSrvURL *parsedurl;
+      error = SLPParseSrvURL(srvurl, &parsedurl);
+      if (error != SLP_OK)
+        {
+          g_warning ("Error while parsing %s: %d\n", srvurl, error);
+          return TRUE;
+        }
+
+      machines_add (machines, parsedurl->s_pcHost, NULL);
+
+      SLPFree (parsedurl);
+    }
+
+  return SLP_TRUE;
+}
+
+static gboolean
+handle_discover (CockpitMachines *object,
+                 GDBusMethodInvocation *invocation)
+{
+  Machines *machines = MACHINES (object);
+
+  SLPError error;
+
+  g_mutex_lock (&machines->slp_lock);
+
+  if (machines->slp_handle == NULL)
+    {
+      error = SLPOpen (NULL, SLP_FALSE, &(machines->slp_handle));
+
+      if (error != SLP_OK)
+        {
+          g_dbus_method_invocation_return_error (invocation,
+                                                 COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                                                 "Can't create SLP handle: %d", error);
+          g_mutex_unlock (&machines->slp_lock);
+          return TRUE;
+        }
+    }
+
+  error = SLPFindSrvs (machines->slp_handle,
+                       "service:service-agent",
+                       "",
+                       "",
+                       slp_url_callback,
+                       MACHINES (object));
+
+  if (error != SLP_OK)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                                             "SLP FindSrvs failed: %d", error);
+    }
+  else
+    cockpit_machines_complete_discover (object, invocation);
+
+  g_mutex_unlock (&machines->slp_lock);
+  return TRUE;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+
 static void
 machines_iface_init (CockpitMachinesIface *iface)
 {
   iface->handle_add = handle_add;
+  iface->handle_discover = handle_discover;
 }

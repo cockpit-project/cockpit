@@ -16,9 +16,17 @@ external_test_data=${TEST_DATA:-$PWD}
 
 # Create new clean images in ./run
 
+if ! ./vm-prep --check --nat; then
+    sudo ./vm-prep --nat
+fi
+
 ./vm-reset
 ./vm-create -v -f cockpit
 ./vm-create -v -f ipa
+
+if ! ./vm-prep --check; then
+    sudo ./vm-prep
+fi
 
 # Save them to ./images
 

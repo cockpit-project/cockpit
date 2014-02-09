@@ -52,10 +52,6 @@ include data/Makefile-data.am
 include src/cockpit/Makefile-libcockpit.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
-
-libgsystem_srcpath := src/libgsystem
-libgsystem_cflags := -Isrc/libgsystem $(GIO_CFLAGS)
-
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am
 include src/web/Makefile-web.am

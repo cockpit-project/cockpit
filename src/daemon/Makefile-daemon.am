@@ -94,7 +94,6 @@ cockpitd_CFLAGS = 					\
 	$(cockpit_cppflags_common)			\
 	$(cockpit_cppflags_glib_version)		\
 	-I$(top_srcdir)/src/daemon			\
-	-I$(top_srcdir)/src/libgsystem			\
 	-DG_LOG_DOMAIN=\"cockpitd\"			\
 	$(COCKPIT_DAEMON_CFLAGS)			\
 	$(NULL)

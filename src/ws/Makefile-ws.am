@@ -14,7 +14,6 @@ libcockpit_ws_la_SOURCES = 				\
 libcockpit_ws_la_CPPFLAGS = \
         $(cockpit_cppflags_common) \
 	$(cockpit_cppflags_glib_version)			\
-	-I$(top_srcdir)/src/libgsystem \
 	-I$(top_srcdir)/src/ws \
 	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
 	-DG_LOG_DOMAIN=\"libcockpit-ws\" \
@@ -62,7 +61,6 @@ cockpit_ws_CFLAGS = 					\
 	$(cockpit_cppflags_common)				\
 	$(cockpit_cppflags_glib_version)			\
 	-DG_LOG_DOMAIN=\"cockpit-ws\"			\
-	-I$(top_srcdir)/src/libgsystem			\
 	-I$(top_srcdir)/src/ws				\
 	$(COCKPIT_WS_CFLAGS)				\
 	$(NULL)
@@ -95,7 +93,6 @@ cockpit_agent_CFLAGS = 					\
 	$(cockpit_cppflags_common)				\
 	$(cockpit_cppflags_glib_version)			\
 	-DG_LOG_DOMAIN=\"cockpit-agent\"			\
-	-I$(top_srcdir)/src/libgsystem			\
 	-I$(top_srcdir)/src/ws				\
 	$(COCKPIT_AGENT_CFLAGS)				\
 	$(NULL)
@@ -169,7 +166,6 @@ test_agent_CFLAGS = 					\
 	$(cockpit_cppflags_common)				\
 	$(cockpit_cppflags_glib_version)			\
 	-DG_LOG_DOMAIN=\"test_agent\"			\
-	-I$(top_srcdir)/src/libgsystem			\
 	-I$(top_srcdir)/src/ws				\
 	$(COCKPIT_AGENT_CFLAGS)				\
 	$(NULL)

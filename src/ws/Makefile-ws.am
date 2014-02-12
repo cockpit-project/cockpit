@@ -3,6 +3,7 @@ COCKPIT_BUILD_INFO = "Built on $(shell date)"
 noinst_LTLIBRARIES += libcockpit-ws.la
 
 libcockpit_ws_la_SOURCES = 				\
+	src/ws/cockpitws.h				\
 	src/ws/cockpitwstypes.h					\
 	src/ws/cockpitwebserver.h		src/ws/cockpitwebserver.c		\
 	src/ws/cockpitwebsocket.h 	src/ws/cockpitwebsocket.c		\
@@ -49,6 +50,13 @@ cockpitwsenumtypes.c: src/ws/cockpitwsenumtypes.c.template $(libcockpit_ws_enumh
 	  mv $@.tmp $@
 
 BUILT_SOURCES += cockpitwsenumtypes.c cockpitwsenumtypes.h
+EXTRA_DIST += \
+	src/ws/cockpitwsenumtypes.h.template \
+	src/ws/cockpitwsenumtypes.c.template \
+	src/ws/com.redhat.Cockpit.DBusTests.xml \
+	$(testassets_DATA) \
+	src/ws/mock_rsa_key \
+	src/ws/mock_dsa_key
 
 # ----------------------------------------------------------------------------------------------------
 

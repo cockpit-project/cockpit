@@ -35,6 +35,7 @@
 
 #include <grp.h>
 #include <pwd.h>
+#include <shadow.h>
 
 typedef struct _AccountClass AccountClass;
 
@@ -352,6 +353,72 @@ handle_set_password (CockpitAccount *object,
 }
 
 static gboolean
+handle_get_password_hash (CockpitAccount *object,
+                          GDBusMethodInvocation *invocation)
+{
+  Account *acc = ACCOUNT (object);
+  const gchar *hash = "";
+
+  if (!account_auth_check (object, invocation, acc))
+    return TRUE;
+
+  if (acc->u)
+    {
+      struct spwd *sp = getspnam (act_user_get_user_name (acc->u));
+      if (sp && sp->sp_pwdp)
+        hash = sp->sp_pwdp;
+    }
+
+  cockpit_account_complete_get_password_hash (object, invocation, hash);
+  return TRUE;
+}
+
+static gboolean
+handle_set_password_hash (CockpitAccount *object,
+                          GDBusMethodInvocation *invocation,
+                          const gchar *arg_hash)
+{
+  GError *error;
+  Account *acc = ACCOUNT (object);
+  const gchar *argv[6];
+  gint status;
+
+  if (!account_auth_check (object, invocation, acc))
+    return TRUE;
+
+  if (acc->u == NULL)
+    {
+      cockpit_account_complete_set_password_hash (object, invocation);
+      return TRUE;
+    }
+
+  argv[0] = "/usr/sbin/usermod";
+  argv[1] = "-p";
+  argv[2] = arg_hash;
+  argv[3] = "--";
+  argv[4] = act_user_get_user_name (acc->u);
+  argv[5] = NULL;
+
+  error = NULL;
+  if (g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, NULL, &status, &error))
+    g_spawn_check_exit_status (status, &error);
+
+  if (error)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                                             "Failed to change password hash via %s: %s", argv[0], error->message);
+      g_error_free (error);
+    }
+  else
+    {
+      cockpit_account_complete_set_password_hash (object, invocation);
+    }
+
+  return TRUE;
+}
+
+static gboolean
 handle_set_locked (CockpitAccount *object,
                    GDBusMethodInvocation *invocation,
                    gboolean arg_locked)
@@ -588,6 +655,8 @@ account_iface_init (CockpitAccountIface *iface)
   iface->handle_set_icon_data_url = handle_set_icon_data_url;
   iface->handle_set_real_name = handle_set_real_name;
   iface->handle_set_password = handle_set_password;
+  iface->handle_get_password_hash = handle_get_password_hash;
+  iface->handle_set_password_hash = handle_set_password_hash;
   iface->handle_set_locked = handle_set_locked;
   iface->handle_change_groups = handle_change_groups;
   iface->handle_delete = handle_delete;

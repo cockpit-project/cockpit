@@ -5,6 +5,9 @@ EXTRA_DIST = \
 	cockpit-transport.png \
 	$(NULL)
 
+# Nothing here
+all:
+
 render-images: cockpit-transport.png
 
 cockpit-transport.png: cockpit-transport.svg

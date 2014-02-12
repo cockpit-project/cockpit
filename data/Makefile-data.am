@@ -40,10 +40,23 @@ endif
 EXTRA_DIST += 						\
 	data/com.redhat.Cockpit.xml		\
 	data/cockpit.service.in data/cockpit-ws.service.in	\
+	data/cockpit-ws-testing.service.in \
 	data/test-server.service.in                     \
 	data/com.redhat.Cockpit.service.in	\
+	data/cockpit-testing.service.in		\
 	data/com.redhat.Cockpit.conf.in		\
+	data/config				\
+	$(dbusconf_DATA)			\
 	$(NULL)
+
+CLEANFILES += \
+	cockpit-ws.service \
+	cockpit-testing.service \
+	com.redhat.Cockpit.conf \
+	test-server.service \
+	com.redhat.Cockpit.service \
+	cockpit.service \
+	cockpit-ws-testing.service
 
 pamdir = $(sysconfdir)/pam.d
 dist_pam_DATA = data/cockpit

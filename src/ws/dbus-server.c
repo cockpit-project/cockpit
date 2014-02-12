@@ -27,7 +27,7 @@
 #include <gio/gunixoutputstream.h>
 #include <json-glib/json-glib.h>
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 #include "dbus-server.h"
 
 #include <string.h>

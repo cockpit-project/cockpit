@@ -41,7 +41,7 @@
 #include <nm-device-infiniband.h>
 #include <nm-utils.h>
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 #include "daemon.h"
 #include "network.h"

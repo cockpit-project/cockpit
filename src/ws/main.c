@@ -26,7 +26,7 @@
 
 #include <cockpit/cockpit.h>
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 #include "cockpitws.h"
 #include "cockpithandlers.h"

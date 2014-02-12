@@ -29,7 +29,7 @@
 #include "storageobject.h"
 #include "storageblock.h"
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 /**
  * SECTION:storageblock

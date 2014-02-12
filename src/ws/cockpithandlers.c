@@ -24,7 +24,7 @@
 
 #include <cockpit/cockpit.h>
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 #include <json-glib/json-glib.h>
 

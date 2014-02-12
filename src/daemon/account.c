@@ -25,7 +25,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 #include "daemon.h"
 #include "auth.h"

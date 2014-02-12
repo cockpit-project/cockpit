@@ -24,7 +24,7 @@
 #include <systemd/sd-journal.h>
 #include <glib.h>
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 #include "daemon.h"
 #include "journal.h"
 #include "auth.h"

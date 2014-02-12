@@ -26,7 +26,7 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 #include <gudev/gudev.h>
 

@@ -27,7 +27,7 @@
 #include "storageobject.h"
 #include "storagemdraid.h"
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 /**
  * SECTION:storagemdraid

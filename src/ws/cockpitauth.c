@@ -23,7 +23,7 @@
 
 #include "cockpitauth.h"
 #include "cockpitwebserver.h"
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 #include <glib/gstdio.h>
 

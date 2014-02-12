@@ -20,7 +20,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 #include "auth.h"
 #include "daemon.h"
 

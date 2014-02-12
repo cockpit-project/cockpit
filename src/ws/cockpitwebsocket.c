@@ -30,7 +30,7 @@
 #include <cockpit/cockpit.h>
 
 #include "cockpitws.h"
-#include "libgsystem.h"
+#include "gsystem-local-alloc.h"
 
 #include "websocket/websocket.h"
 

@@ -114,31 +114,62 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
             </div>
           </div>
 
-          <div data-role="popup" id="dashboard_add_server_dialog"
+          <div data-role="popup" id="dashboard_setup_server_dialog"
                data-theme="c"
                data-overlay-theme="a"
                data-history="false">
             <div data-role="header">
               <h1>Add Server</h1>
+              <button data-mini="true" data-inline="true" data-icon="delete" data-iconpos="notext" id="dashboard_setup_cancel"></button>
             </div>
             <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Address</td>
-                  <td style="width:500px">
-                    <input type="text" id="dashboard_add_server_address"/>
-                  </td>
-                </tr>
-              </table>
-              <ul data-role="listview" data-inset="true" id="dashboard_add_server_discovered">
-              </ul>
+
+              <div class="cockpit-setup-tab"
+                   id="dashboard_setup_address_tab">
+                <input type="search" id="dashboard_setup_address"/>
+                <label>
+                   <input type="checkbox" id="dashboard_setup_address_reuse_creds"/>
+                   Login with my current credentials.
+                </label>
+                <ul data-role="listview"
+                    data-inset="true"
+                    id="dashboard_setup_address_discovered">
+                </ul>
+              </div>
+
+              <div class="cockpit-setup-tab"
+                   id="dashboard_setup_login_tab">
+                <p>Login to <span id="dashboard_setup_login_address"></span>.</p>
+                <input type="text" id="dashboard_setup_login_user"/>
+                <input type="password" id="dashboard_setup_login_password"/>
+                <div id="dashboard_setup_login_error" colspan="2" style="color:red"></div>
+              </div>
+
+              <div class="cockpit-setup-tab"
+                   id="dashboard_setup_action_tab">
+                <p>Will add server to dashboard:</p>
+                <table>
+                  <tr>
+                    <td>Address:</td>
+                    <td id="dashboard_setup_action_address"></td>
+                  </tr>
+                  <tr>
+                    <td>Fingerprint:</td>
+                    <td id="dashboard_setup_action_fingerprint"></td>
+                  </tr>
+                </table>
+                <ul data-role="listview" data-inset="true" id="dashboard_setup_action_tasks">
+                </ul>
+              </div>
+
               <table style="width:100%">
                 <tr>
                   <td style="text-align:left;width:30%">
-                    <button id="dashboard_add_server_cancel" data-theme="a" translatable="yes">Cancel</button>
+                    <button id="dashboard_setup_prev" data-theme="a" translatable="yes">Previous</button>
                   </td>
                   <td style="text-align:right;width:30%">
-                    <button id="dashboard_add_server_add" data-theme="b" translatable="yes">Add</button>
+                    <button id="dashboard_setup_next" data-theme="b" translatable="yes">
+                    </button>
                   </td>
                 </tr>
               </table>

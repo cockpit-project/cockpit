@@ -30,6 +30,8 @@ function cockpit_client_error_description (error) {
         return _("Internal error");
     else if (error == "timeout")
         return _("Connection has timed out.");
+    else if (error == "no-agent")
+        return _("The management agent is not installed.");
     else if (error === null)
         return _("Server has closed the connection.");
     else
@@ -278,7 +280,10 @@ PageDashboard.prototype = {
         } else if (op == "disconnect") {
             machine.client.close();
         } else if (op == "remove") {
-            cockpit_remove_machine (machine);
+            machine.dbus_iface.call('RemoveTag', "dashboard", function (error) {
+                if (error)
+                    cockpit_show_unexpected_error (error);
+            });
         } else if (op == "rescue") {
             cockpit_go ([ { page: "dashboard" },
                           { page: "server", machine: machine.address },
@@ -288,7 +293,7 @@ PageDashboard.prototype = {
     },
 
     add_server: function () {
-        cockpit_popup(null, "#dashboard_add_server_dialog");
+        cockpit_popup(null, "#dashboard_setup_server_dialog");
     }
 };
 
@@ -309,77 +314,3 @@ function cockpit_dashboard_local_client_state_change ()
 {
     cockpit_dashboard_page.local_client_state_change ();
 }
-
-PageAddServer.prototype = {
-    _init: function() {
-        this.id = "dashboard_add_server_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Add Server");
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    enter: function(first_visit) {
-        var me = this;
-
-        if (first_visit) {
-            $("#dashboard_add_server_cancel").on('click', $.proxy(this, "cancel"));
-            $("#dashboard_add_server_add").on('click', $.proxy(this, "add"));
-            $(cockpit_dbus_local_client).on('objectAdded objectRemoved', function (event, object) {
-                if (object.lookup('com.redhat.Cockpit.Machine'))
-                    me.update ();
-            });
-            $(cockpit_dbus_local_client).on('propertiesChanged', function (event, object, iface) {
-                if (iface._iface_name == "com.redhat.Cockpit.Machine")
-                    me.update ();
-            });
-        }
-        $("#dashboard_add_server_address").val("");
-        me.update ();
-    },
-
-    update: function() {
-        var discovered = $('#dashboard_add_server_discovered');
-        var machines = cockpit_dbus_local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
-                                                                    "com.redhat.Cockpit.Machine");
-
-        discovered.empty();
-        for (var i = 0; i < machines.length; i++) {
-            if (!cockpit_find_in_array (machines[i].Tags, "dashboard")) {
-                var item =
-                    $('<li>', { 'on': { 'click': $.proxy(this, 'discovered_clicked', machines[i])
-                                      }
-                              }).text(machines[i].Address);
-                discovered.append(item);
-            }
-        }
-        discovered.listview('refresh');
-    },
-
-    discovered_clicked: function (iface) {
-        $("#dashboard_add_server_address").val(iface.Address);
-    },
-
-    cancel: function() {
-        $("#dashboard_add_server_dialog").popup('close');
-    },
-
-    add: function() {
-        var address = $("#dashboard_add_server_address").val();
-        $("#dashboard_add_server_dialog").popup('close');
-        cockpit_add_machine (address);
-    }
-
-};
-
-function PageAddServer() {
-    this._init();
-}
-
-cockpit_pages.push(new PageAddServer());

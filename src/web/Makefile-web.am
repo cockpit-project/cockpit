@@ -1,4 +1,4 @@
-LINGUAS = 
+LINGUAS =
 
 translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
 
@@ -11,6 +11,7 @@ cockpit_js_PARTS = \
 	src/web/cockpit-about.js 					\
 	src/web/cockpit-language.js 				\
 	src/web/cockpit-dashboard.js				\
+	src/web/cockpit-setup.js				\
 	src/web/cockpit-server.js					\
 	src/web/cockpit-cpu-status.js				\
 	src/web/cockpit-memory-status.js				\
@@ -88,6 +89,7 @@ contentdataimages_DATA = 					\
 	src/web/images/spinner.gif 				\
 	src/web/images/small-spinner.gif                        \
 	src/web/images/dialog-error.png	                        \
+	src/web/images/face-smile.png	                        \
 	src/web/images/refresh.png	                        \
 	$(NULL)
 

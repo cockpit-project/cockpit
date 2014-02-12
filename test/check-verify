@@ -21,7 +21,8 @@ set -e
 parallel --gnu --progress -j ${TEST_JOBS:-1} <<EOF
 ./check-dbus
 ./check-login
-./check-dashboard
+./check-dashboard TestDashboard.testBasic
+./check-dashboard TestDashboard.testSetup
 ./check-menu
 ./check-shutdown-restart
 ./check-system-info

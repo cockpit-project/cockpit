@@ -559,6 +559,8 @@ close_session (WebSocketData *data)
         send_error (data, "not-authorized");  // wrong password
       else if (WIFEXITED (status) && WEXITSTATUS (status) == 6)
         send_error (data, "unknown-hostkey");
+      else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
+        send_error (data, "no-agent");        // cockpit-agent not installed
       else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
         send_error (data, "terminated");      // ssh failed or got a signal, etc.
       else if (!g_spawn_check_exit_status (status, &error))

@@ -29,7 +29,6 @@ AM_CPPFLAGS = \
 cockpit_cppflags_common = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
-	-I$(top_builddir)/src \
 	-I$(top_srcdir)/src \
 	-DPACKAGE_LIBEXEC_DIR=\""$(libexecdir)"\" \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \

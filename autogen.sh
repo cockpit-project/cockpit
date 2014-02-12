@@ -31,6 +31,10 @@ PKG_NAME="Cockpit"
     exit 1
 }
 
+# Switch into srcdir until running configure
+olddir=$(pwd)
+cd $srcdir
+
 # Fetch submodules if needed
 if test ! -f src/libgsystem/README;
 then
@@ -60,6 +64,7 @@ if test -z "${NOCONFIGURE:-}"; then
 fi
 
 if test -z "${NOCONFIGURE:-}"; then
+    cd $olddir
     $srcdir/configure --enable-maintainer-mode ${AUTOGEN_CONFIGURE_ARGS:-} "$@" || exit $?
 
     echo

@@ -31,7 +31,7 @@ class TestDashboard(MachineCase):
     def wait_discovered_addresses(self, b, expected):
         b.wait_js_func(
             """(function (expected) {
-            var actual = $('#dashboard_add_server_discovered li').map(function(i,e) { return $(e).text() }).get();
+            var actual = $('#dashboard_setup_address_discovered li').map(function(i,e) { return $(e).text() }).get();
             return expected.sort().toString() == actual.sort().toString();
             })""", expected)
 
@@ -49,6 +49,21 @@ class TestDashboard(MachineCase):
         b.click('#server-actions-menu button[data-op="%s"]' % action)
         b.wait_popdown('server-actions-menu')
 
+    def add_machine(self, b, address):
+        b.click('#dashboard-add-server')
+        b.wait_popup('dashboard_setup_server_dialog')
+        b.set_val('#dashboard_setup_address', address)
+        self.add_machine_finish(b)
+
+    def add_machine_finish(self, b):
+        b.wait_text('#dashboard_setup_next', "Next")
+        b.click('#dashboard_setup_next')
+        b.wait_text('#dashboard_setup_next', "Add server")
+        b.click('#dashboard_setup_next')
+        b.wait_text('#dashboard_setup_next', "Close")
+        b.click('#dashboard_setup_next')
+        b.wait_popdown('dashboard_setup_server_dialog')
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -60,18 +75,10 @@ class TestDashboard(MachineCase):
         # the same machine multiple times by using different ways to
         # address it.
 
-        b.click('#dashboard-add-server')
-        b.wait_popup('dashboard_add_server_dialog')
-        b.set_val('#dashboard_add_server_address', "127.0.0.1")
-        b.click('#dashboard_add_server_add')
-        b.wait_popdown('dashboard_add_server_dialog')
+        self.add_machine (b, "127.0.0.1")
         self.wait_dashboard_addresses (b, [ "localhost", "127.0.0.1" ])
 
-        b.click('#dashboard-add-server')
-        b.wait_popup('dashboard_add_server_dialog')
-        b.set_val('#dashboard_add_server_address', m.address)
-        b.click('#dashboard_add_server_add')
-        b.wait_popdown('dashboard_add_server_dialog')
+        self.add_machine (b, m.address)
         self.wait_dashboard_addresses (b, [ "localhost", "127.0.0.1", m.address ])
 
         # Remove two
@@ -87,18 +94,17 @@ class TestDashboard(MachineCase):
 
         # Check that the two removed machines are listed in "Add Server"
         b.click('#dashboard-add-server')
-        b.wait_popup('dashboard_add_server_dialog')
+        b.wait_popup('dashboard_setup_server_dialog')
         self.wait_discovered_addresses (b, [ "127.0.0.1", "localhost" ])
 
         # Add one again
-        b.set_val('#dashboard_add_server_address', "localhost")
-        b.click('#dashboard_add_server_add')
-        b.wait_popdown('dashboard_add_server_dialog')
+        b.set_val('#dashboard_setup_address', "localhost")
+        self.add_machine_finish(b)
         self.wait_dashboard_addresses (b, [ "localhost", m.address ])
 
         # Open "Add Server" on second browser
         b2.click('#dashboard-add-server')
-        b2.wait_popup('dashboard_add_server_dialog')
+        b2.wait_popup('dashboard_setup_server_dialog')
         self.wait_discovered_addresses (b2, [ "127.0.0.1" ])
 
         # Remove one from dashboard of first browser and check that it
@@ -106,10 +112,70 @@ class TestDashboard(MachineCase):
         self.machine_action (b, m.address, "remove")
         self.wait_discovered_addresses (b2, [ "127.0.0.1", m.address ])
 
-        b2.click('#dashboard_add_server_cancel')
-        b2.wait_popdown('dashboard_add_server_dialog')
+        b2.click('#dashboard_setup_cancel')
+        b2.wait_popdown('dashboard_setup_server_dialog')
 
         # Hmm...
         self.allow_journal_messages('Error receiving data: Connection reset by peer')
+
+    def testSetup(self):
+        b = self.browser
+
+        m1 = self.machine
+        m2 = self.new_machine()
+        m2.start()
+        m2.wait_boot()
+
+        # Create some users on m1 and m2.
+
+        m1.execute("useradd junior -G cockpit-user-admin")
+        m1.execute("echo foobar | passwd --stdin junior")
+
+        m1.execute("useradd senior -G wheel")
+        m1.execute("echo foobar | passwd --stdin senior")
+        m2.execute("useradd senior")
+        m2.execute("echo barfoo | passwd --stdin senior")
+
+        # Sync them via Setup.
+
+        self.login_and_go("dashboard")
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+        b.click('#dashboard-add-server')
+        b.wait_popup('dashboard_setup_server_dialog')
+        b.set_val('#dashboard_setup_address', m2.address)
+        b.set_checked('#dashboard_setup_address_reuse_creds', False)
+        b.wait_text('#dashboard_setup_next', "Next")
+        b.click('#dashboard_setup_next')
+        b.wait_visible('#dashboard_setup_login_tab')
+        b.set_val('#dashboard_setup_login_user', "admin")
+        b.set_val('#dashboard_setup_login_password', "notthepassword")
+        b.click('#dashboard_setup_next')
+        b.wait_text('#dashboard_setup_login_error', "Login failed")
+        b.set_val('#dashboard_setup_login_password', "foobar")
+        b.click('#dashboard_setup_next')
+        b.wait_text('#dashboard_setup_next', "Add server")
+        b.click('#dashboard_setup_next')
+        b.wait_text('#dashboard_setup_next', "Close")
+        b.click('#dashboard_setup_next')
+        b.wait_popdown('dashboard_setup_server_dialog')
+
+        # Check the result
+
+        def password_hash(machine, user):
+            return machine.execute("getent shadow %s | cut -d: -f2" % user)
+
+        def groups(machine, user):
+            return machine.execute("groups %s | cut -d: -f2" % user)
+
+        self.assertEqual(password_hash(m1, "junior"),
+                         password_hash(m2, "junior"))
+
+        self.assertEqual(password_hash(m1, "senior"),
+                         password_hash(m2, "senior"))
+
+        self.assertIn ("cockpit-user-admin", groups(m2, "junior"))
+        self.assertIn ("wheel", groups(m2, "senior"))
+
+        self.allow_journal_messages("peer did not close io when expected")
 
 test_main()

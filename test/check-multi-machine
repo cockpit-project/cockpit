@@ -90,24 +90,28 @@ class TestMultiMachine(MachineCase):
                 return expected.sort().toString() == actual.sort().toString();
                 })""", expected)
 
+        def add_machine(address):
+            b.click('#dashboard-add-server')
+            b.wait_popup('dashboard_setup_server_dialog')
+            b.set_val('#dashboard_setup_address', address)
+            b.wait_text('#dashboard_setup_next', "Next")
+            b.click('#dashboard_setup_next')
+            b.wait_text('#dashboard_setup_next', "Add server")
+            b.click('#dashboard_setup_next')
+            b.wait_text('#dashboard_setup_next', "Close")
+            b.click('#dashboard_setup_next')
+            b.wait_popdown('dashboard_setup_server_dialog')
+
         wait_for_port(m2.address, 22)
         wait_for_port(m3.address, 22)
 
         self.login_and_go("dashboard")
         wait_dashboard_addresses ([ "localhost" ])
 
-        b.click('#dashboard-add-server')
-        b.wait_popup('dashboard_add_server_dialog')
-        b.set_val('#dashboard_add_server_address', m2.address)
-        b.click('#dashboard_add_server_add')
-        b.wait_popdown('dashboard_add_server_dialog')
+        add_machine(m2.address)
         wait_dashboard_addresses ([ "localhost", m2.address ])
 
-        b.click('#dashboard-add-server')
-        b.wait_popup('dashboard_add_server_dialog')
-        b.set_val('#dashboard_add_server_address', m3.address)
-        b.click('#dashboard_add_server_add')
-        b.wait_popdown('dashboard_add_server_dialog')
+        add_machine(m3.address)
         wait_dashboard_addresses ([ "localhost", m2.address, m3.address ])
 
         wm = get_webapp_machines(b)

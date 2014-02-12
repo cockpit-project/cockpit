@@ -183,35 +183,6 @@ function cockpit_update_machines ()
     cockpit_dashboard_update_machines ();
 }
 
-function cockpit_add_machine (address)
-{
-    var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
-                                                     "com.redhat.Cockpit.Machines");
-
-    machines.call('Add', address, function (error, path) {
-        if (error) {
-            cockpit_show_unexpected_error(error);
-        } else {
-            var dbus_iface = cockpit_dbus_local_client.lookup (path, "com.redhat.Cockpit.Machine");
-            if (dbus_iface) {
-                dbus_iface.call('AddTag', "dashboard", function (error) {
-                    if (error)
-                        cockpit_show_unexpected_error(error);
-                });
-            } else
-                cockpit_show_unexpected_error(_("New machine not found in list after adding."));
-        }
-    });
-}
-
-function cockpit_remove_machine (machine)
-{
-    machine.dbus_iface.call('RemoveTag', "dashboard", function (error) {
-        if (error)
-            cockpit_show_unexpected_error (error);
-    });
-}
-
 function cockpit_init_connect_local()
 {
     var i;

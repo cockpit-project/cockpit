@@ -60,6 +60,7 @@ GIO_REQUIREMENT="gio-unix-2.0 >= 2.34"
 SYSTEMD_REQUIREMENT="libsystemd-journal >= 187 libsystemd-daemon"
 JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 0.14.0"
 LIBSSH_REQUIREMENT="libssh >= 0.6.0"
+GSYSTEM_REQUIREMENT="libgsystem >= 2014.1"
 
 dnl Used for anything that just needs gio
 PKG_CHECK_MODULES(GIO, [gio-unix-2.0 >= 2.34.0])
@@ -70,15 +71,18 @@ dnl Our two main binaries
 PKG_CHECK_MODULES(COCKPIT_WS, [$GIO_REQUIREMENT
                                $SYSTEMD_REQUIREMENT
                                $JSON_GLIB_REQUIREMENT
-                               $LIBSSH_REQUIREMENT])
+                               $LIBSSH_REQUIREMENT
+			       $GSYSTEM_REQUIREMENT])
 
 PKG_CHECK_MODULES(COCKPIT_AGENT, [$GIO_REQUIREMENT
                                   $SYSTEMD_REQUIREMENT
-                                  $JSON_GLIB_REQUIREMENT])
+                                  $JSON_GLIB_REQUIREMENT
+				  $GSYSTEM_REQUIREMENT])
 
 PKG_CHECK_MODULES(COCKPIT_DAEMON, [$GIO_REQUIREMENT
                                    $SYSTEMD_REQUIREMENT
                                    $JSON_GLIB_REQUIREMENT
+                                   $GSYSTEM_REQUIREMENT
                                    gudev-1.0 >= 165
                                    udisks2 >= 2.0.91
                                    libnm-glib >= 0.9.7.0 libnm-util

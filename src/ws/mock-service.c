@@ -415,3 +415,96 @@ mock_service_create_and_export (GDBusConnection *connection)
 
   return G_OBJECT (data->object_manager);
 }
+
+static GThread *mock_thread = NULL;
+static GDBusConnection *mock_conn = NULL;
+static GCond mock_cond;
+static GMutex mock_mutex;
+
+static void
+on_name_acquired (GDBusConnection *connection,
+                  const gchar *name,
+                  gpointer user_data)
+{
+  gboolean *owned = user_data;
+  *owned = TRUE;
+}
+
+static void
+on_name_lost (GDBusConnection *connection,
+              const gchar *name,
+              gpointer user_data)
+{
+  gboolean *owned = user_data;
+  *owned = FALSE;
+}
+
+static gpointer
+mock_service_thread (gpointer unused)
+{
+  GDBusConnection *conn;
+  GObject *exported;
+  GMainContext *main_ctx;
+  gboolean owned = FALSE;
+  GError *error = NULL;
+
+  main_ctx = g_main_context_new ();
+  g_main_context_push_thread_default (main_ctx);
+
+  conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+  g_assert_no_error (error);
+
+  exported = mock_service_create_and_export (conn);
+  g_assert (exported != NULL);
+
+  g_bus_own_name_on_connection (conn, "com.redhat.Cockpit.DBusTests.Test",
+                                G_BUS_NAME_OWNER_FLAGS_NONE,
+                                on_name_acquired, on_name_lost, &owned, NULL);
+
+  g_mutex_lock (&mock_mutex);
+
+  while (!owned)
+    g_main_context_iteration (main_ctx, TRUE);
+
+  mock_conn = conn;
+  g_cond_signal (&mock_cond);
+  g_mutex_unlock (&mock_mutex);
+
+  while (!g_dbus_connection_is_closed (conn))
+    g_main_context_iteration (main_ctx, TRUE);
+
+  g_mutex_lock (&mock_mutex);
+  mock_conn = NULL;
+  g_mutex_unlock (&mock_mutex);
+
+  g_object_unref (exported);
+  g_object_unref (conn);
+
+  g_main_context_pop_thread_default (main_ctx);
+  g_main_context_unref (main_ctx);
+
+  return NULL;
+}
+
+void
+mock_service_start (void)
+{
+  g_assert (mock_thread == NULL);
+  mock_thread = g_thread_new ("mock-service", mock_service_thread, NULL);
+
+  g_mutex_lock (&mock_mutex);
+  while (!mock_conn)
+    g_cond_wait (&mock_cond, &mock_mutex);
+  g_mutex_unlock (&mock_mutex);
+}
+
+void
+mock_service_stop (void)
+{
+  GError *error = NULL;
+
+  g_assert (mock_thread != NULL);
+  g_dbus_connection_close_sync (mock_conn, NULL, &error);
+  g_assert_no_error (error);
+  g_thread_join (mock_thread);
+}

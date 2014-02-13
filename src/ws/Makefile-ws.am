@@ -156,6 +156,7 @@ test_server_suppress_warning_cflags = -Wno-deprecated-declarations
 test_server_CFLAGS = 					\
 	$(cockpit_cppflags_common)				\
 	-I$(top_srcdir)/src/ws \
+	-I$(top_srcdir)/src/libgsystem \
 	-DG_LOG_DOMAIN=\"test_server\"			\
 	$(test_server_suppress_warning_cflags)		\
 	$(GIO_CFLAGS)					\
@@ -165,6 +166,23 @@ test_server_LDADD = 					\
 	$(GIO_LIBS)					\
         libcockpit-ws.la    	 			\
 	-lpam 						\
+	$(NULL)
+
+test_dbusserver_SOURCES =  \
+	src/ws/dbus-server.c \
+	src/ws/test-dbusserver.c \
+	src/ws/mock-service.c \
+	$(test_server_built_sources) \
+	$(NULL)
+
+test_dbusserver_CFLAGS = \
+	$(test_server_CFLAGS) \
+	$(COCKPIT_AGENT_CFLAGS) \
+	$(NULL)
+
+test_dbusserver_LDADD =  \
+	$(GIO_LIBS) \
+	libcockpit-ws.la \
 	$(NULL)
 
 test_agent_SOURCES = 					\
@@ -191,6 +209,7 @@ CHECK_PROGS = \
 	test-webserver \
 	test-webservice \
 	test-handlers \
+	test-dbusserver \
 	test-server \
 	$(NULL)
 

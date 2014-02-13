@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __STORAGE_DRIVE_H__
-#define __STORAGE_DRIVE_H__
+#ifndef COCKPIT_STORAGE_DRIVE_H__
+#define COCKPIT_STORAGE_DRIVE_H__
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ void                   storage_drive_update      (StorageDrive *drive);
 
 G_END_DECLS
 
-#endif /* __STORAGE_DRIVE_H__ */
+#endif /* COCKPIT_STORAGE_DRIVE_H__ */

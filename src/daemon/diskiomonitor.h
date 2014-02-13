@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __DISK_IO_MONITOR_H__
-#define __DISK_IO_MONITOR_H__
+#ifndef COCKPIT_DISK_IO_MONITOR_H__
+#define COCKPIT_DISK_IO_MONITOR_H__
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ Daemon *                  disk_io_monitor_get_daemon (DiskIOMonitor *monitor);
 
 G_END_DECLS
 
-#endif /* __DISK_IO_MONITOR_H__ */
+#endif /* COCKPIT_DISK_IO_MONITOR_H__ */

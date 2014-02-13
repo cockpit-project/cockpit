@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __DBUS_SERVER_H__
-#define __DBUS_SERVER_H__
+#ifndef COCKPIT_DBUS_SERVER_H__
+#define COCKPIT_DBUS_SERVER_H__
 
 void      dbus_server_serve_dbus       (const char *user,
                                         const char *dbus_service,

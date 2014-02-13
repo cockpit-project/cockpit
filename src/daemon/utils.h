@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UTILS_H__
-#define __UTILS_H__
+#ifndef COCKPIT_UTILS_H__
+#define COCKPIT_UTILS_H__
 
 #include "types.h"
 
@@ -29,4 +29,4 @@ gchar *    utils_generate_object_path     (const gchar  *base,
 
 G_END_DECLS
 
-#endif /* __UTILS_H__ */
+#endif /* COCKPIT_UTILS_H__ */

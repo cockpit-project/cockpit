@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __AUTH_H__
-#define __AUTH_H__
+#ifndef COCKPIT_AUTH_H__
+#define COCKPIT_AUTH_H__
 
 #include "types.h"
 
@@ -39,4 +39,4 @@ gboolean auth_check_sender_role  (GDBusMethodInvocation *invocation,
 
 G_END_DECLS
 
-#endif /* __DAEMON_H__ */
+#endif /* COCKPIT_AUTH_H__ */

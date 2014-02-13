@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __NETWORK_H__
-#define __NETWORK_H__
+#ifndef COCKPIT_NETWORK_H__
+#define COCKPIT_NETWORK_H__
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ Daemon *          network_get_daemon  (Network *network);
 
 G_END_DECLS
 
-#endif /* __NETWORK_H__ */
+#endif /* COCKPIT_NETWORK_H__ */

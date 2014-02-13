@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MACHINES_H__
-#define __MACHINES_H__
+#ifndef COCKPIT_MACHINES_H__
+#define COCKPIT_MACHINES_H__
 
 #include "types.h"
 
@@ -38,4 +38,4 @@ gboolean          machines_write       (Machines *machines, GError **error);
 
 G_END_DECLS
 
-#endif /* __MACHINES_H__ */
+#endif /* COCKPIT_MACHINES_H__ */

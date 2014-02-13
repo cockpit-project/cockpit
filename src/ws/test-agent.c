@@ -25,8 +25,7 @@
 int
 main (void)
 {
-  dbus_server_serve_dbus ("root",
-                          "com.redhat.Cockpit.DBusTests.Test",
+  dbus_server_serve_dbus ("com.redhat.Cockpit.DBusTests.Test",
                           "/otree",
                           0, 1);
   return 0;

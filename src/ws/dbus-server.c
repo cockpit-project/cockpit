@@ -33,8 +33,6 @@
 #include <string.h>
 
 typedef struct {
-  const gchar              *user;
-
   GDBusObjectManagerClient *object_manager;
   GCancellable             *cancellable;
   GList                    *active_calls;
@@ -961,8 +959,7 @@ close:
 }
 
 void
-dbus_server_serve_dbus (const char *user,
-                        const char *dbus_service,
+dbus_server_serve_dbus (const char *dbus_service,
                         const char *dbus_path,
                         int fd_in,
                         int fd_out)
@@ -995,7 +992,6 @@ dbus_server_serve_dbus (const char *user,
   data.object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (object_manager);
   data.cancellable = g_cancellable_new ();
   data.active_calls = NULL;
-  data.user = user;
   data.in = in;
   data.out = out;
   data.ping_seq = 0;

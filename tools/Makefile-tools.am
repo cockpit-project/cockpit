@@ -1,7 +1,9 @@
 EXTRA_DIST += \
 	tools/po2json \
 	tools/tap-driver \
-	tools/tap-compiler
+	tools/tap-compiler \
+	tools/qunit-git.css \
+	tools/qunit-git.js
 
 if WITH_COVERAGE
 clean-local:
@@ -17,3 +19,13 @@ coverage:
 		tools/coverage.info
 	@echo "file://$(abs_top_builddir)/tools/coverage/index.html"
 endif
+
+# Place these in the build directory for testing/install
+qunit.css: tools/qunit-git.css
+	$(AM_V_GEN) cp $< $@
+qunit.js: tools/qunit-git.js
+	$(AM_V_GEN) cp $< $@
+
+CLEANFILES += \
+	qunit.css \
+	qunit.js

@@ -490,17 +490,25 @@ int
 main (int argc,
       char *argv[])
 {
+  GTestDBus *bus;
   gint ret = 1;
   guint id = -1;
   GMainLoop *loop = NULL;
 
+  /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
+  g_setenv ("GIO_USE_VFS", "local", TRUE);
+
   g_type_init ();
+
+  /* This isolates us from affecting other processes during tests */
+  bus = g_test_dbus_new (G_TEST_DBUS_NONE);
+  g_test_dbus_up (bus);
 
   loop = g_main_loop_new (NULL, FALSE);
 
-  id = g_bus_own_name (G_BUS_TYPE_SYSTEM,
+  id = g_bus_own_name (G_BUS_TYPE_SESSION,
                        "com.redhat.Cockpit.DBusTests.Test",
-                       G_BUS_NAME_OWNER_FLAGS_NONE,
+                       G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_REPLACE,
                        on_bus_acquired,
                        on_name_acquired,
                        on_name_lost,
@@ -511,6 +519,9 @@ main (int argc,
 
   g_bus_unown_name (id);
   g_main_loop_unref (loop);
+
+  g_test_dbus_down (bus);
+  g_object_unref (bus);
 
   return ret;
 }

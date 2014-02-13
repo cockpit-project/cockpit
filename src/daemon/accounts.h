@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ACCOUNTS_H__
-#define __ACCOUNTS_H__
+#ifndef COCKPIT_ACCOUNTS_H__
+#define COCKPIT_ACCOUNTS_H__
 
 #include "types.h"
 
@@ -34,4 +34,4 @@ CockpitAccounts * accounts_new               (void);
 
 G_END_DECLS
 
-#endif /* __ACCOUNTS_H__ */
+#endif /* COCKPIT_ACCOUNTS_H__ */

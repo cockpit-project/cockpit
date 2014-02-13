@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __STORAGE_LOGICAL_VOLUME_H__
-#define __STORAGE_LOGICAL_VOLUME_H__
+#ifndef COCKPIT_STORAGE_LOGICAL_VOLUME_H__
+#define COCKPIT_STORAGE_LOGICAL_VOLUME_H__
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ void                           storage_logical_volume_update    (StorageLogicalV
 
 G_END_DECLS
 
-#endif /* __STORAGE_LOGICAL_VOLUME_H__ */
+#endif /* COCKPIT_STORAGE_LOGICAL_VOLUME_H__ */

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __REALMS_H__
-#define __REALMS_H__
+#ifndef COCKPIT_REALMS_H__
+#define COCKPIT_REALMS_H__
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ Daemon *         realms_get_daemon        (Realms *realms);
 
 G_END_DECLS
 
-#endif /* __REALMS_H__ */
+#endif /* COCKPIT_REALMS_H__ */

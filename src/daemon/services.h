@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SERVICES_H__
-#define __SERVICES_H__
+#ifndef COCKPIT_SERVICES_H__
+#define COCKPIT_SERVICES_H__
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ Daemon *           services_get_daemon        (Services *realms);
 
 G_END_DECLS
 
-#endif /* __SERVICES_H__ */
+#endif /* COCKPIT_SERVICES_H__ */

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __STORAGE_PROVIDER_H__
-#define __STORAGE_PROVIDER_H__
+#ifndef COCKPIT_STORAGE_PROVIDER_H__
+#define COCKPIT_STORAGE_PROVIDER_H__
 
 #include "types.h"
 
@@ -69,4 +69,4 @@ GList *           storage_provider_get_and_forget_remembered_configs (StoragePro
 
 G_END_DECLS
 
-#endif /* __STORAGE_PROVIDER_H__ */
+#endif /* COCKPIT_STORAGE_PROVIDER_H__ */

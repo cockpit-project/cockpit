@@ -959,7 +959,8 @@ close:
 }
 
 void
-dbus_server_serve_dbus (const char *dbus_service,
+dbus_server_serve_dbus (GBusType bus_type,
+                        const char *dbus_service,
                         const char *dbus_path,
                         int fd_in,
                         int fd_out)
@@ -970,7 +971,7 @@ dbus_server_serve_dbus (const char *dbus_service,
   g_type_init ();
 
   gs_unref_object GDBusObjectManager *object_manager =
-    g_dbus_object_manager_client_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+    g_dbus_object_manager_client_new_for_bus_sync (bus_type,
                                                    G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
                                                    dbus_service,
                                                    dbus_path,

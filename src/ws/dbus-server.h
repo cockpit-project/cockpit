@@ -20,7 +20,10 @@
 #ifndef COCKPIT_DBUS_SERVER_H__
 #define COCKPIT_DBUS_SERVER_H__
 
-void      dbus_server_serve_dbus       (const char *dbus_service,
+#include <gio/gio.h>
+
+void      dbus_server_serve_dbus       (GBusType bus_type,
+                                        const char *dbus_service,
                                         const char *dbus_path,
                                         int         fd_in,
                                         int         fd_out);

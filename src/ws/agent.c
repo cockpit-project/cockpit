@@ -31,7 +31,8 @@ int
 main (int argc,
       char **argv)
 {
-  dbus_server_serve_dbus ("com.redhat.Cockpit",
+  dbus_server_serve_dbus (G_BUS_TYPE_SYSTEM,
+                          "com.redhat.Cockpit",
                           "/com/redhat/Cockpit",
                           0, 1);
   exit (0);

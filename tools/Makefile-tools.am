@@ -1,5 +1,7 @@
-noinst_SCRIPTS += tools/po2json
-EXTRA_DIST += tools/po2json
+EXTRA_DIST += \
+	tools/po2json \
+	tools/tap-driver \
+	tools/tap-compiler
 
 if WITH_COVERAGE
 clean-local:

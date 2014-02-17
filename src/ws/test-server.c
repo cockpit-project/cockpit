@@ -251,7 +251,6 @@ on_handle_delete_object (TestFrobber *object,
 static gboolean
 on_handle_delete_all_objects (TestFrobber *object,
                               GDBusMethodInvocation *invocation,
-                              const gchar *greeting,
                               gpointer user_data)
 {
   GHashTableIter iter;

@@ -226,7 +226,7 @@ DBusClient.prototype = {
         } else if (window_loc.indexOf('https:') == 0) {
             ws_loc = "wss://" + window.location.host + "/socket/" + client.target;
         } else {
-            alert("Unknown window location");
+            console.log("Cockpit must be used over http or https");
             return;
         }
         dbus_debug("Connecting to " + ws_loc);
@@ -244,7 +244,8 @@ DBusClient.prototype = {
         } else if ("MozWebSocket" in window) { // Firefox 6
             client._ws = new MozWebSocket(ws_loc);
         } else {
-            alert("WebSocket not supported, application will not work!");
+            /* TODO: This needs a much better display. Bug #212 */
+            console.log("WebSocket not supported, application will not work!");
             return;
         }
 

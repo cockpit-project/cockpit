@@ -2,8 +2,10 @@ EXTRA_DIST += \
 	tools/po2json \
 	tools/tap-driver \
 	tools/tap-compiler \
+	tools/tap-phantom \
 	tools/qunit-1.14.0.css \
-	tools/qunit-1.14.0.js
+	tools/qunit-1.14.0.js \
+	tools/qunit-tap.js
 
 if WITH_COVERAGE
 clean-local:
@@ -25,7 +27,10 @@ qunit.css: tools/qunit-1.14.0.css
 	$(AM_V_GEN) cp $< $@
 qunit.js: tools/qunit-1.14.0.js
 	$(AM_V_GEN) cp $< $@
+qunit-tap.js: tools/qunit-tap.js
+	$(AM_V_GEN) cp $< $@
 
 CLEANFILES += \
 	qunit.css \
-	qunit.js
+	qunit.js \
+	qunit-tap.js

@@ -234,6 +234,7 @@ on_handle_delete_object (TestFrobber *object,
 {
   if (g_hash_table_lookup (extra_objects, path) != NULL)
     {
+      g_hash_table_remove (extra_objects, path);
       g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager, path));
       test_frobber_complete_delete_object (object, invocation);
     }
@@ -262,6 +263,7 @@ on_handle_delete_all_objects (TestFrobber *object,
       g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager, path));
     }
 
+  g_hash_table_remove_all (extra_objects);
   test_frobber_complete_delete_all_objects (object, invocation);
   return TRUE;
 }

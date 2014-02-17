@@ -54,8 +54,6 @@ fi
 
 GTK_DOC_CHECK([1.3])
 
-GOBJECT_INTROSPECTION_CHECK([0.6.2])
-
 GIO_REQUIREMENT="gio-unix-2.0 >= 2.34"
 SYSTEMD_REQUIREMENT="libsystemd-journal >= 187 libsystemd-daemon"
 JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 0.14.0"
@@ -216,7 +214,6 @@ echo "
         datadir:                    ${datadir}
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
-        introspection:              ${found_introspection}
         systemdsystemunitdir:       ${systemdsystemunitdir}
 
         compiler:                   ${CC}

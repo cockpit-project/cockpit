@@ -536,6 +536,8 @@ again:
       goto out;
     }
 
+  g_string_append (str, "Connection: close\r\n");
+
   if (g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_STANDARD_SIZE))
     {
       g_string_append_printf (str,

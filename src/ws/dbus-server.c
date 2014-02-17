@@ -96,12 +96,16 @@ _my_replace (GVariant *value)
           json_node_free (serialized);
           if (ret == NULL)
             {
-              /* Work around bug in JSON-glib, see bug #TODO-FILE_BUG */
+              /*
+               * HACK: Work around bug in JSON-glib, see:
+               * https://bugzilla.gnome.org/show_bug.cgi?id=724319
+               */
               if (error->domain == G_IO_ERROR && error->code == G_IO_ERROR_INVALID_DATA &&
                   g_variant_is_of_type (passed_value, G_VARIANT_TYPE_INT64) &&
                   g_strcmp0 (dbus_type, "d") == 0)
                 {
                   ret = g_variant_new_double (g_variant_get_int64 (passed_value));
+                  g_clear_error (&error);
                 }
               else
                 {
@@ -833,13 +837,17 @@ handle_dbus_call (DBusServerData *data,
                                                 error);
       if (arg_gvariant == NULL)
         {
-          /* Work around bug in JSON-glib, see bug #TODO-FILE_BUG */
+          /*
+           * HACK: Work around bug in JSON-glib, see:
+           * https://bugzilla.gnome.org/show_bug.cgi?id=724319
+           */
           if (local_error &&
               g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA) &&
               json_node_get_node_type (arg_node) == JSON_NODE_VALUE &&
               g_strcmp0 (arg_info->signature, "d") == 0)
             {
               arg_gvariant = g_variant_new_double (json_node_get_int (arg_node));
+              g_clear_error (error);
             }
           else
             {

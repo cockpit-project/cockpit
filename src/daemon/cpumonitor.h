@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_CPU_MONITOR_H__
-#define COCKPIT_CPU_MONITOR_H__
+#ifndef COCKPIT_CPU_MONITOR_H_168190C98AD94EBCA82F677EEC92DDFF
+#define COCKPIT_CPU_MONITOR_H_168190C98AD94EBCA82F677EEC92DDFF
 
 #include "types.h"
 

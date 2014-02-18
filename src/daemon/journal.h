@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_JOURNAL_H__
-#define COCKPIT_JOURNAL_H__
+#ifndef COCKPIT_JOURNAL_H_2A09BE5338994A1BBFA540D4A333CD94
+#define COCKPIT_JOURNAL_H_2A09BE5338994A1BBFA540D4A333CD94
 
 #include "types.h"
 

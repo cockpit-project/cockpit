@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_HANDLERS_H__
-#define __COCKPIT_HANDLERS_H__
+#ifndef COCKPIT_HANDLERS_H_64850FB089714654BDCF3206388FEA50
+#define COCKPIT_HANDLERS_H_64850FB089714654BDCF3206388FEA50
 
 #include "cockpitauth.h"
 #include "cockpitwebserver.h"

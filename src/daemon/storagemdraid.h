@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_STORAGE_MDRAID_H__
-#define COCKPIT_STORAGE_MDRAID_H__
+#ifndef COCKPIT_STORAGE_MDRAID_H_AF47C169D53745C7BE0FBDDA08310ECC
+#define COCKPIT_STORAGE_MDRAID_H_AF47C169D53745C7BE0FBDDA08310ECC
 
 #include "types.h"
 

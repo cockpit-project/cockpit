@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_TYPES_H__
-#define COCKPIT_TYPES_H__
+#ifndef COCKPIT_TYPES_H_A8D7FA297F874F028A7054AB3489F6E2
+#define COCKPIT_TYPES_H_A8D7FA297F874F028A7054AB3489F6E2
 
 #include <glib-unix.h>
 #include <gio/gio.h>

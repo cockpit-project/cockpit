@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MOCK_IO_STREAM_H__
-#define __MOCK_IO_STREAM_H__
+#ifndef MOCK_IO_STREAM_H_785C9FAA74B0493AAD822B1547F17227
+#define MOCK_IO_STREAM_H_785C9FAA74B0493AAD822B1547F17227
 
 #include <gio/gio.h>
 

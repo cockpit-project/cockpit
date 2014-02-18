@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_STORAGE_PROVIDER_H__
-#define COCKPIT_STORAGE_PROVIDER_H__
+#ifndef COCKPIT_STORAGE_PROVIDER_H_43966243D9FE47E3A1C0386C3B04B546
+#define COCKPIT_STORAGE_PROVIDER_H_43966243D9FE47E3A1C0386C3B04B546
 
 #include "types.h"
 

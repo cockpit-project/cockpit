@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_WEB_SOCKET_H__
-#define __COCKPIT_WEB_SOCKET_H__
+#ifndef COCKPIT_WEB_SOCKET_H_48C2232E214744A4BFC9E66BF09124F9
+#define COCKPIT_WEB_SOCKET_H_48C2232E214744A4BFC9E66BF09124F9
 
 #include "cockpitwstypes.h"
 

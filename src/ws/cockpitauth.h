@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_AUTH_H__
-#define __COCKPIT_AUTH_H__
+#ifndef COCKPIT_AUTH_H_22A5945BB8AA45CB826129640F1C47FA
+#define COCKPIT_AUTH_H_22A5945BB8AA45CB826129640F1C47FA
 
 #include <pwd.h>
 #include <gio/gio.h>

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_H__
-#define __COCKPIT_H__
+#ifndef COCKPIT_H_F6C57CA9F33C43AFAEFA0223FAADA8F4
+#define COCKPIT_H_F6C57CA9F33C43AFAEFA0223FAADA8F4
 
 #if !defined(COCKPIT_API_IS_SUBJECT_TO_CHANGE) && !defined(COCKPIT_COMPILATION)
 #error  libcockpit is unstable API. You must define COCKPIT_API_IS_SUBJECT_TO_CHANGE before including cockpit/cockpit.h
@@ -29,13 +29,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#define __COCKPIT_INSIDE_COCKPIT_H__
+#define COCKPIT_INSIDE_COCKPIT_H_
 #include <cockpit/cockpittypes.h>
 #include <cockpit/cockpitenums.h>
 #include <cockpit/cockpiterror.h>
 #include <cockpit/cockpitlog.h>
 #include <cockpitenumtypes.h>
 #include <cockpit-generated.h>
-#undef __COCKPIT_INSIDE_COCKPIT_H__
+#undef COCKPIT_INSIDE_COCKPIT_H_
 
 #endif /* __COCKPIT_H__ */

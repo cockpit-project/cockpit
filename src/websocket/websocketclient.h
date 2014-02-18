@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_CLIENT_H__
-#define __WEB_SOCKET_CLIENT_H__
+#ifndef WEB_SOCKET_CLIENT_H_99A4EC335D4947B6B142DBC11E2DBE7C
+#define WEB_SOCKET_CLIENT_H_99A4EC335D4947B6B142DBC11E2DBE7C
 
 #include "websocketconnection.h"
 

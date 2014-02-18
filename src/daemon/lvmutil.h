@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_LVM_UTIL_H__
-#define COCKPIT_LVM_UTIL_H__
+#ifndef COCKPIT_LVM_UTIL_H_1FE829696A8047FEA551ACEC7D3CF404
+#define COCKPIT_LVM_UTIL_H_1FE829696A8047FEA551ACEC7D3CF404
 
 #include "types.h"
 

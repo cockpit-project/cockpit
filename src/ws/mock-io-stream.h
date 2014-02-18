@@ -26,7 +26,7 @@
 #define MOCK_IO_STREAM(o)      (G_TYPE_CHECK_INSTANCE_CAST ((o), MOCK_TYPE_IO_STREAM, MockIOStream))
 #define MOCK_IS_IO_STREAM(o)   (G_TYPE_CHECK_INSTANCE_TYPE ((o), MOCK_TYPE_IO_STREAM))
 
-typedef struct _MockIOStream MockIOStream;
+typedef struct MockIOStream MockIOStream;
 
 GType            mock_io_stream_get_type          (void);
 

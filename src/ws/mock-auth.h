@@ -25,7 +25,7 @@
 #define MOCK_AUTH(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), MOCK_TYPE_AUTH, MockAuth))
 #define MOCK_IS_AUTH(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), MOCK_TYPE_AUTH))
 
-typedef struct _MockAuth MockAuth;
+typedef struct MockAuth MockAuth;
 
 GType            mock_auth_get_type   (void);
 

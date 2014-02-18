@@ -29,76 +29,76 @@
 #include <cockpit/cockpit.h>
 #include "com.redhat.lvm2.h"
 
-struct _Daemon;
-typedef struct _Daemon Daemon;
+struct Daemon;
+typedef struct Daemon Daemon;
 
-struct _Manager;
-typedef struct _Manager Manager;
+struct Manager;
+typedef struct Manager Manager;
 
-struct _Machines;
-typedef struct _Machines Machines;
+struct Machines;
+typedef struct Machines Machines;
 
-struct _Machine;
-typedef struct _Machine Machine;
+struct Machine;
+typedef struct Machine Machine;
 
-struct _CpuMonitor;
-typedef struct _CpuMonitor CpuMonitor;
+struct CpuMonitor;
+typedef struct CpuMonitor CpuMonitor;
 
-struct _Network;
-typedef struct _Network Network;
+struct Network;
+typedef struct Network Network;
 
-struct _Netinterface;
-typedef struct _Netinterface Netinterface;
+struct Netinterface;
+typedef struct Netinterface Netinterface;
 
-struct _MemoryMonitor;
-typedef struct _MemoryMonitor MemoryMonitor;
+struct MemoryMonitor;
+typedef struct MemoryMonitor MemoryMonitor;
 
-struct _NetworkMonitor;
-typedef struct _NetworkMonitor NetworkMonitor;
+struct NetworkMonitor;
+typedef struct NetworkMonitor NetworkMonitor;
 
-struct _DiskIOMonitor;
-typedef struct _DiskIOMonitor DiskIOMonitor;
+struct DiskIOMonitor;
+typedef struct DiskIOMonitor DiskIOMonitor;
 
-struct _StorageManager;
-typedef struct _StorageManager StorageManager;
+struct StorageManager;
+typedef struct StorageManager StorageManager;
 
-struct _StorageProvider;
-typedef struct _StorageProvider StorageProvider;
+struct StorageProvider;
+typedef struct StorageProvider StorageProvider;
 
-struct _StorageObject;
-typedef struct _StorageObject StorageObject;
+struct StorageObject;
+typedef struct StorageObject StorageObject;
 
-struct _StorageBlock;
-typedef struct _StorageBlock StorageBlock;
+struct StorageBlock;
+typedef struct StorageBlock StorageBlock;
 
-struct _StorageDrive;
-typedef struct _StorageDrive StorageDrive;
+struct StorageDrive;
+typedef struct StorageDrive StorageDrive;
 
-struct _StorageMDRaid;
-typedef struct _StorageMDRaid StorageMDRaid;
+struct StorageMDRaid;
+typedef struct StorageMDRaid StorageMDRaid;
 
-struct _StorageVolumeGroup;
-typedef struct _StorageVolumeGroup StorageVolumeGroup;
+struct StorageVolumeGroup;
+typedef struct StorageVolumeGroup StorageVolumeGroup;
 
-struct _StorageLogicalVolume;
-typedef struct _StorageLogicalVolume StorageLogicalVolume;
+struct StorageLogicalVolume;
+typedef struct StorageLogicalVolume StorageLogicalVolume;
 
-struct _StorageJob;
-typedef struct _StorageJob StorageJob;
+struct StorageJob;
+typedef struct StorageJob StorageJob;
 
-struct _Realms;
-typedef struct _Realms Realms;
+struct Realms;
+typedef struct Realms Realms;
 
-struct _Services;
-typedef struct _Services Services;
+struct Services;
+typedef struct Services Services;
 
-struct _Journal;
-typedef struct _Journal Journal;
+struct Journal;
+typedef struct Journal Journal;
 
-struct _Accounts;
-typedef struct _Accounts Accounts;
+struct Accounts;
+typedef struct Accounts Accounts;
 
-struct _Account;
-typedef struct _Account Account;
+struct Account;
+typedef struct Account Account;
 
 #endif /* COCKPIT_TYPES_H__ */

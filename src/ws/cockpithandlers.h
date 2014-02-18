@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_HANDLERS_H__
-#define __COCKPIT_HANDLERS_H__
+#ifndef COCKPIT_HANDLERS_H_
+#define COCKPIT_HANDLERS_H_
 
 #include "cockpitauth.h"
 #include "cockpitwebserver.h"
@@ -65,4 +65,4 @@ gboolean       cockpit_handler_cockpitdyn        (CockpitWebServer *server,
                                                   GDataOutputStream *out,
                                                   CockpitHandlerData *data);
 
-#endif /* __COCKPIT_HANDLERS_H__ */
+#endif /* COCKPIT_HANDLERS_H_ */

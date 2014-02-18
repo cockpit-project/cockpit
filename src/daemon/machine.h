@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_MACHINE_H__
-#define COCKPIT_MACHINE_H__
+#ifndef COCKPIT_MACHINE_H_
+#define COCKPIT_MACHINE_H_
 
 #include "types.h"
 
@@ -41,4 +41,4 @@ void              machine_unexport    (Machine *machine);
 
 G_END_DECLS
 
-#endif /* COCKPIT_MACHINE_H__ */
+#endif /* COCKPIT_MACHINE_H_ */

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_MEMORY_MONITOR_H__
-#define COCKPIT_MEMORY_MONITOR_H__
+#ifndef COCKPIT_MEMORY_MONITOR_H_
+#define COCKPIT_MEMORY_MONITOR_H_
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ Daemon *                  memory_monitor_get_daemon (MemoryMonitor *monitor);
 
 G_END_DECLS
 
-#endif /* COCKPIT_MEMORY_MONITOR_H__ */
+#endif /* COCKPIT_MEMORY_MONITOR_H_ */

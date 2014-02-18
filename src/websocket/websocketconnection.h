@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_CONNECTION_H__
-#define __WEB_SOCKET_CONNECTION_H__
+#ifndef WEB_SOCKET_CONNECTION_H_
+#define WEB_SOCKET_CONNECTION_H_
 
 #include "websocket.h"
 
@@ -99,4 +99,4 @@ WebSocketFlavor web_socket_connection_get_flavor          (WebSocketConnection *
 
 G_END_DECLS
 
-#endif /* __WEB_SOCKET_CONNECTION_H__ */
+#endif /* WEB_SOCKET_CONNECTION_H_ */

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_SERVER_H__
-#define __WEB_SOCKET_SERVER_H__
+#ifndef WEB_SOCKET_SERVER_H_
+#define WEB_SOCKET_SERVER_H_
 
 #include "websocketconnection.h"
 
@@ -43,4 +43,4 @@ WebSocketConnection * web_socket_server_new_for_stream     (const gchar *url,
 
 G_END_DECLS
 
-#endif /* __WEB_SOCKET_SERVER_H__ */
+#endif /* WEB_SOCKET_SERVER_H_ */

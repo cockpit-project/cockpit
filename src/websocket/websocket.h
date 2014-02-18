@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_H__
-#define __WEB_SOCKET_H__
+#ifndef WEB_SOCKET_H_
+#define WEB_SOCKET_H_
 
 #include <gio/gio.h>
 
@@ -92,4 +92,4 @@ typedef struct _WebSocketServerClass      WebSocketServerClass;
 
 G_END_DECLS
 
-#endif /* __WEB_SOCKET_H__ */
+#endif /* WEB_SOCKET_H_ */

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_WEB_SOCKET_H__
-#define __COCKPIT_WEB_SOCKET_H__
+#ifndef COCKPIT_WEB_SOCKET_H_
+#define COCKPIT_WEB_SOCKET_H_
 
 #include "cockpitwstypes.h"
 
@@ -37,4 +37,4 @@ void         cockpit_web_socket_serve_dbus   (CockpitWebServer *server,
 
 G_END_DECLS
 
-#endif /* __COCKPIT_WEB_SOCKET_H__ */
+#endif /* COCKPIT_WEB_SOCKET_H_ */

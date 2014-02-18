@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_TYPES_H__
-#define COCKPIT_TYPES_H__
+#ifndef COCKPIT_TYPES_H_
+#define COCKPIT_TYPES_H_
 
 #include <glib-unix.h>
 #include <gio/gio.h>
@@ -101,4 +101,4 @@ typedef struct _Accounts Accounts;
 struct _Account;
 typedef struct _Account Account;
 
-#endif /* COCKPIT_TYPES_H__ */
+#endif /* COCKPIT_TYPES_H_ */

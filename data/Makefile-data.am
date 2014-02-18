@@ -5,8 +5,7 @@ com.redhat.Cockpit.service: data/com.redhat.Cockpit.service.in Makefile
 	@sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
 
 dbusconfdir = $(sysconfdir)/dbus-1/system.d
-dbusconf_DATA = com.redhat.Cockpit.conf \
-	        data/com.redhat.Cockpit.DBusTests.Test.conf
+dbusconf_DATA = com.redhat.Cockpit.conf
 
 com.redhat.Cockpit.conf: data/com.redhat.Cockpit.conf.in Makefile
 	cp $< $@

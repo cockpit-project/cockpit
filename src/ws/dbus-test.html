@@ -23,11 +23,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <title>D-Bus Tests</title>
     <script type="text/javascript" src="jquery-1.8.2.js"></script>
     <script type="text/javascript" src="dbus.js"></script>
+    <script type="text/javascript" src="qunit.js"></script>
+    <script type="text/javascript">QUnit.config.autostart = false;</script>
     <script type="text/javascript" src="dbus-test.js"></script>
 
-    <link rel="stylesheet" href="qunit-git.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="qunit-git.js"></script>
-
+    <link rel="stylesheet" href="qunit.css" type="text/css" media="screen" />
   </head>
   <body onload="$(document).ready(function(){dbus_test();})">
     <h1 id="qunit-header">D-Bus Tests</h1>

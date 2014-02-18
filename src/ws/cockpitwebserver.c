@@ -536,6 +536,8 @@ again:
       goto out;
     }
 
+  g_string_append (str, "Connection: close\r\n");
+
   if (g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_STANDARD_SIZE))
     {
       g_string_append_printf (str,
@@ -584,12 +586,13 @@ again:
     }
 
 out:
-  if (local_error != NULL)
+  if (local_error != NULL &&
+      !g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
     {
       g_warning ("Error serving static file: %s (%s, %d)",
                  local_error->message, g_quark_to_string (local_error->domain), local_error->code);
-      g_clear_error (&local_error);
     }
+  g_clear_error (&local_error);
   if (str)
     g_string_free (str, TRUE);
 }

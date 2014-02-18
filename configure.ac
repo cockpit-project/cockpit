@@ -21,7 +21,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([tools])
 
-AM_INIT_AUTOMAKE([1.9 foreign dist-bzip2 no-dist-gzip serial-tests])
+AM_INIT_AUTOMAKE([1.9 foreign dist-bzip2 no-dist-gzip])
 AM_MAINTAINER_MODE([enable])
 
 AC_USE_SYSTEM_EXTENSIONS
@@ -53,8 +53,6 @@ if test -z "$SASS"; then
 fi
 
 GTK_DOC_CHECK([1.3])
-
-GOBJECT_INTROSPECTION_CHECK([0.6.2])
 
 GIO_REQUIREMENT="gio-unix-2.0 >= 2.34"
 SYSTEMD_REQUIREMENT="libsystemd-journal >= 187 libsystemd-daemon"
@@ -216,7 +214,6 @@ echo "
         datadir:                    ${datadir}
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
-        introspection:              ${found_introspection}
         systemdsystemunitdir:       ${systemdsystemunitdir}
 
         compiler:                   ${CC}

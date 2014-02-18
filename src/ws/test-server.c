@@ -21,12 +21,17 @@
 
 #include <gio/gio.h>
 #include <glib-unix.h>
+#include <glib/gstdio.h>
 #include <string.h>
 
 #include "test-server-generated.h"
 
 #include "cockpitwebserver.h"
 #include "cockpitwebsocket.h"
+
+static gboolean tap_mode = FALSE;
+static GMainLoop *loop = NULL;
+static int exit_code = 0;
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -234,6 +239,7 @@ on_handle_delete_object (TestFrobber *object,
 {
   if (g_hash_table_lookup (extra_objects, path) != NULL)
     {
+      g_hash_table_remove (extra_objects, path);
       g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager, path));
       test_frobber_complete_delete_object (object, invocation);
     }
@@ -250,7 +256,6 @@ on_handle_delete_object (TestFrobber *object,
 static gboolean
 on_handle_delete_all_objects (TestFrobber *object,
                               GDBusMethodInvocation *invocation,
-                              const gchar *greeting,
                               gpointer user_data)
 {
   GHashTableIter iter;
@@ -262,6 +267,7 @@ on_handle_delete_all_objects (TestFrobber *object,
       g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager, path));
     }
 
+  g_hash_table_remove_all (extra_objects);
   test_frobber_complete_delete_all_objects (object, invocation);
   return TRUE;
 }
@@ -444,14 +450,41 @@ on_handle_resource_socket (CockpitWebServer *server,
 }
 
 static void
+on_phantomjs_exited (GPid pid,
+                     gint status,
+                     gpointer user_data)
+{
+  GError *error = NULL;
+
+  if (!g_spawn_check_exit_status (status, &error))
+    {
+      g_critical ("phantomjs: %s", error->message);
+      g_error_free (error);
+      exit_code = 1;
+    }
+
+  g_main_loop_quit (loop);
+  g_spawn_close_pid (pid);
+}
+
+static void
 on_name_acquired (GDBusConnection *connection,
                   const gchar *name,
                   gpointer user_data)
 {
   GError *error = NULL;
   CockpitWebServer *server;
+  gchar *args[5];
+  gint port;
+  gchar *url;
+  GPid pid;
 
-  server = cockpit_web_server_new (8765, /* TCP port to listen to */
+  if (tap_mode)
+    port = 0; /* select one automatically */
+  else
+    port = 8765;
+
+  server = cockpit_web_server_new (port, /* TCP port to listen to */
                                    NULL, /* TLS cert */
                                    ".",  /* Where to serve files from */
                                    NULL, /* GCancellable* */
@@ -466,14 +499,56 @@ on_name_acquired (GDBusConnection *connection,
                     G_CALLBACK (on_handle_resource_socket),
                     NULL);
 
-  g_print ("**********************************************************************\n"
+  g_object_get (server, "port", &port, NULL);
+  url = g_strdup_printf("http://localhost:%d/dbus-test.html", port);
+
+  if (tap_mode)
+    {
+      /* When TAP, we run phantomjs on the tests, with qunit-tap */
+      args[0] = "phantomjs";
+      args[1] = SRCDIR "/tools/tap-phantom";
+      args[2] = url;
+      args[3] = NULL;
+      g_spawn_async (NULL, args, NULL, G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+                     NULL, NULL, &pid, &error);
+
+      if (error == NULL)
+        {
+          g_child_watch_add (pid, on_phantomjs_exited, NULL);
+        }
+      else if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
+        {
+          /*
+           * No phantomjs available? Tell TAP harness we're bailing out.
+           *
+           * Unfortunately we can't tell TAP harness how many tests would
+           * have been run, because we don't know ... not even QUnit knows :S
+           * So this'll say we skipped one test, when we actually skipped
+           * many more.
+           */
+          g_print ("Bail out! - phantomjs is not available\n");
+          g_main_loop_quit (loop);
+          g_error_free (error);
+        }
+      else
+        {
+          g_warning ("Couldn't launch phantomjs: %s", error->message);
+          g_error_free (error);
+        }
+    }
+  else
+    {
+      g_print ("**********************************************************************\n"
            "Please connect a supported web browser to\n"
            "\n"
-           " http://localhost:8765/dbus-test.html\n"
+           " %s\n"
            "\n"
            "and check that the test suite passes. Press Ctrl+C to exit.\n"
            "**********************************************************************\n"
-           "\n");
+           "\n", url);
+    }
+
+  g_free (url);
 }
 
 static void
@@ -486,21 +561,64 @@ on_name_lost (GDBusConnection *connection,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static void
+cd_srcdir (const char *argv0)
+{
+  gchar *dir = g_path_get_dirname (argv0);
+  gchar *base;
+
+  /* One day libtool will die a fiery death */
+  base = g_path_get_basename (dir);
+  if (g_str_equal (base, ".libs"))
+    {
+      gchar *parent = g_path_get_dirname (dir);
+      g_free (dir);
+      dir = parent;
+    }
+
+  g_warn_if_fail (g_chdir (dir) == 0);
+  g_free (dir);
+  g_free (base);
+}
+
 int
 main (int argc,
       char *argv[])
 {
-  gint ret = 1;
+  GTestDBus *bus;
+  GError *error = NULL;
+  GOptionContext *context;
   guint id = -1;
-  GMainLoop *loop = NULL;
+
+  GOptionEntry entries[] = {
+    { "tap", 0, 0, G_OPTION_ARG_NONE, &tap_mode, "Automatically run tests in terminal", NULL },
+    { NULL }
+  };
+
+  /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
+  g_setenv ("GIO_USE_VFS", "local", TRUE);
 
   g_type_init ();
 
+  /* This isolates us from affecting other processes during tests */
+  bus = g_test_dbus_new (G_TEST_DBUS_NONE);
+  g_test_dbus_up (bus);
+
+  context = g_option_context_new ("- test dbus json server");
+  g_option_context_add_main_entries (context, entries, NULL);
+  g_option_context_set_ignore_unknown_options (context, TRUE);
+  if (!g_option_context_parse (context, &argc, &argv, &error))
+    {
+      g_printerr ("test-server: %s\n", error->message);
+      exit (2);
+    }
+
+  cd_srcdir (argv[0]);
   loop = g_main_loop_new (NULL, FALSE);
 
-  id = g_bus_own_name (G_BUS_TYPE_SYSTEM,
+  id = g_bus_own_name (G_BUS_TYPE_SESSION,
                        "com.redhat.Cockpit.DBusTests.Test",
-                       G_BUS_NAME_OWNER_FLAGS_NONE,
+                       G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_REPLACE,
                        on_bus_acquired,
                        on_name_acquired,
                        on_name_lost,
@@ -509,8 +627,12 @@ main (int argc,
 
   g_main_loop_run (loop);
 
+  g_clear_object (&object_manager);
   g_bus_unown_name (id);
   g_main_loop_unref (loop);
 
-  return ret;
+  g_test_dbus_down (bus);
+  g_object_unref (bus);
+
+  return exit_code;
 }

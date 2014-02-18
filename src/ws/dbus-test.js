@@ -327,15 +327,6 @@ function basic_tests(client)
 
 }
 
-// It is a bit difficult to know when we are done.  There is a
-// 'QUnit.done' callback, but it gets invoked multiple times with a
-// increasing number of total tests, probably because the queue runs
-// empty in-between calls to 'test' or 'asyncTest'.
-//
-// So we need to wait for the 'done' callback that comes after all
-// tests have been scheduled.  We do this by only registering the
-// callback after 'basic_tests' has returned.
-
 var test_details = null;
 
 function done(details)
@@ -351,6 +342,7 @@ function dbus_test()
         if (client.state == "ready") {
             basic_tests(client);
             QUnit.done(done);
+            QUnit.start();
         }
     });
 }

@@ -46,6 +46,9 @@ cockpit_cppflags_glib_version = \
 	-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_34 \
 	$(NULL)
 
+LOG_DRIVER = $(top_srcdir)/tools/tap-driver
+LOG_COMPILER = $(top_srcdir)/tools/tap-compiler
+
 include doc/man/Makefile-man.am
 include data/Makefile-data.am
 include src/cockpit/Makefile-libcockpit.am

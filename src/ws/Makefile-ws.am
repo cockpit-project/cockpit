@@ -54,7 +54,6 @@ EXTRA_DIST += \
 	src/ws/cockpitwsenumtypes.h.template \
 	src/ws/cockpitwsenumtypes.c.template \
 	src/ws/com.redhat.Cockpit.DBusTests.xml \
-	$(testassets_DATA) \
 	src/ws/mock_rsa_key \
 	src/ws/mock_dsa_key
 
@@ -133,13 +132,32 @@ BUILT_SOURCES += $(test_server_built_sources)
 
 testassets_PROGRAMS = test-server test-agent
 
-testassets_DATA = src/ws/dbus-test.html	\
-		  src/ws/dbus.js 		\
-	 	  src/ws/dbus-test.js 		\
-		  src/ws/jquery-1.8.2.js 	\
-		  src/ws/qunit-git.css 	\
-		  src/ws/qunit-git.js \
+testassets_DATA = dbus-test.html	\
+		  dbus.js  \
+		  dbus-test.js \
+		  jquery-1.8.2.js \
+		  qunit.css 	\
+		  qunit.js \
 		  $(NULL)
+
+# Place these into builddir so we can run tests against them
+dbus-test.js: src/ws/dbus-test.js
+	$(AM_V_GEN) cp $< $@
+dbus-test.html: src/ws/dbus-test.html jquery-1.8.2.js qunit.js qunit.css dbus.js dbus-test.js
+	$(AM_V_GEN) cp $< $@
+
+CLEANFILES += \
+	dbus-test.html \
+	dbus.js \
+	dbus-test.js \
+	jquery-1.8.2.js \
+	qunit-git.css \
+	qunit-git.js \
+	$(NULL)
+
+EXTRA_DIST += \
+	src/ws/dbus-test.html \
+	src/ws/dbus-test.js
 
 test_server_SOURCES = 					\
 	src/ws/test-server.c				\
@@ -191,6 +209,7 @@ CHECK_PROGS = \
 	test-webserver \
 	test-webservice \
 	test-handlers \
+	test-server \
 	$(NULL)
 
 test_auth_CFLAGS = $(cockpit_ws_CFLAGS)
@@ -266,3 +285,5 @@ install-exec-hook::
 	-chmod 700 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
 	-chmod 700 $(DESTDIR)$(localstatedir)/lib/cockpit
+
+all-local: dbus-test.html

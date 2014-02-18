@@ -33,8 +33,6 @@
 #include <string.h>
 
 typedef struct {
-  const gchar              *user;
-
   GDBusObjectManagerClient *object_manager;
   GCancellable             *cancellable;
   GList                    *active_calls;
@@ -98,12 +96,16 @@ _my_replace (GVariant *value)
           json_node_free (serialized);
           if (ret == NULL)
             {
-              /* Work around bug in JSON-glib, see bug #TODO-FILE_BUG */
+              /*
+               * HACK: Work around bug in JSON-glib, see:
+               * https://bugzilla.gnome.org/show_bug.cgi?id=724319
+               */
               if (error->domain == G_IO_ERROR && error->code == G_IO_ERROR_INVALID_DATA &&
                   g_variant_is_of_type (passed_value, G_VARIANT_TYPE_INT64) &&
                   g_strcmp0 (dbus_type, "d") == 0)
                 {
                   ret = g_variant_new_double (g_variant_get_int64 (passed_value));
+                  g_clear_error (&error);
                 }
               else
                 {
@@ -835,13 +837,17 @@ handle_dbus_call (DBusServerData *data,
                                                 error);
       if (arg_gvariant == NULL)
         {
-          /* Work around bug in JSON-glib, see bug #TODO-FILE_BUG */
+          /*
+           * HACK: Work around bug in JSON-glib, see:
+           * https://bugzilla.gnome.org/show_bug.cgi?id=724319
+           */
           if (local_error &&
               g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA) &&
               json_node_get_node_type (arg_node) == JSON_NODE_VALUE &&
               g_strcmp0 (arg_info->signature, "d") == 0)
             {
               arg_gvariant = g_variant_new_double (json_node_get_int (arg_node));
+              g_clear_error (error);
             }
           else
             {
@@ -961,7 +967,7 @@ close:
 }
 
 void
-dbus_server_serve_dbus (const char *user,
+dbus_server_serve_dbus (GBusType bus_type,
                         const char *dbus_service,
                         const char *dbus_path,
                         int fd_in,
@@ -973,7 +979,7 @@ dbus_server_serve_dbus (const char *user,
   g_type_init ();
 
   gs_unref_object GDBusObjectManager *object_manager =
-    g_dbus_object_manager_client_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+    g_dbus_object_manager_client_new_for_bus_sync (bus_type,
                                                    G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
                                                    dbus_service,
                                                    dbus_path,
@@ -995,7 +1001,6 @@ dbus_server_serve_dbus (const char *user,
   data.object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (object_manager);
   data.cancellable = g_cancellable_new ();
   data.active_calls = NULL;
-  data.user = user;
   data.in = in;
   data.out = out;
   data.ping_seq = 0;

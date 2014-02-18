@@ -17,7 +17,6 @@ ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 SUBDIRS = doc po
 
 DISTCHECK_CONFIGURE_FLAGS=						        \
-	--disable-introspection						        \
 	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)   \
 	$(NULL)
 

@@ -23,7 +23,7 @@
 #include <glib-unix.h>
 #include <gio/gio.h>
 
-struct _CockpitWebServer;
-typedef struct _CockpitWebServer CockpitWebServer;
+struct CockpitWebServer_;
+typedef struct CockpitWebServer_ CockpitWebServer;
 
 #endif /* COCKPIT_BRIDGE_TYPES_H_ */

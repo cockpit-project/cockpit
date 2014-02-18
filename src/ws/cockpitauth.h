@@ -30,10 +30,10 @@ G_BEGIN_DECLS
 #define COCKPIT_AUTH_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_AUTH, CockpitAuthClass))
 #define COCKPIT_IS_AUTH_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), COCKPIT_TYPE_AUTH))
 
-typedef struct _CockpitAuth        CockpitAuth;
-typedef struct _CockpitAuthClass   CockpitAuthClass;
+typedef struct CockpitAuth_       CockpitAuth;
+typedef struct CockpitAuthClass_  CockpitAuthClass;
 
-struct _CockpitAuth
+struct CockpitAuth_
 {
   GObject parent_instance;
 
@@ -43,7 +43,7 @@ struct _CockpitAuth
   guint64 nonce_seed;
 };
 
-struct _CockpitAuthClass
+struct CockpitAuthClass_
 {
   GObjectClass parent_class;
 

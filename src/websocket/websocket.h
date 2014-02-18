@@ -79,12 +79,12 @@ typedef enum {
   WEB_SOCKET_FLAVOR_HIXIE76 = 76,  /* http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76 */
 } WebSocketFlavor;
 
-typedef struct _WebSocketConnection       WebSocketConnection;
-typedef struct _WebSocketConnectionClass  WebSocketConnectionClass;
-typedef struct _WebSocketClient           WebSocketClient;
-typedef struct _WebSocketClientClass      WebSocketClientClass;
-typedef struct _WebSocketServer           WebSocketServer;
-typedef struct _WebSocketServerClass      WebSocketServerClass;
+typedef struct WebSocketConnection_      WebSocketConnection;
+typedef struct WebSocketConnectionClass_ WebSocketConnectionClass;
+typedef struct WebSocketClient_          WebSocketClient;
+typedef struct WebSocketClientClass_     WebSocketClientClass;
+typedef struct WebSocketServer_          WebSocketServer;
+typedef struct WebSocketServerClass_     WebSocketServerClass;
 
 #include "websocketconnection.h"
 #include "websocketclient.h"

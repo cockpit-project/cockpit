@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_REALMS_H__
-#define COCKPIT_REALMS_H__
+#ifndef COCKPIT_REALMS_H_7A2FAE20BE954104A72EAB8764C9993A
+#define COCKPIT_REALMS_H_7A2FAE20BE954104A72EAB8764C9993A
 
 #include "types.h"
 

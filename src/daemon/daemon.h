@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_DAEMON_H__
-#define COCKPIT_DAEMON_H__
+#ifndef COCKPIT_DAEMON_H_340E912806474F5998750711A6BAE1F6
+#define COCKPIT_DAEMON_H_340E912806474F5998750711A6BAE1F6
 
 #include "types.h"
 

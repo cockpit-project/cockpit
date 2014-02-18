@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_ACCOUNT_H__
-#define COCKPIT_ACCOUNT_H__
+#ifndef COCKPIT_ACCOUNT_H_D8EF239444F34BEBAC3B5E06F157EF63
+#define COCKPIT_ACCOUNT_H_D8EF239444F34BEBAC3B5E06F157EF63
 
 #include <act/act.h>
 

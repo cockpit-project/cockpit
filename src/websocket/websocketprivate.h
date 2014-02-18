@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_PRIVATE_H__
-#define __WEB_SOCKET_PRIVATE_H__
+#ifndef WEB_SOCKET_PRIVATE_H_557377BC57014EFF987A30DA8B9764EB
+#define WEB_SOCKET_PRIVATE_H_557377BC57014EFF987A30DA8B9764EB
 
 #include <gio/gio.h>
 

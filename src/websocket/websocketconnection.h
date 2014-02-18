@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_CONNECTION_H__
-#define __WEB_SOCKET_CONNECTION_H__
+#ifndef WEB_SOCKET_CONNECTION_H_AF40EF020F9F451E9A5C07CB99EEDEB5
+#define WEB_SOCKET_CONNECTION_H_AF40EF020F9F451E9A5C07CB99EEDEB5
 
 #include "websocket.h"
 
@@ -33,9 +33,9 @@ G_BEGIN_DECLS
 #define WEB_SOCKET_CONNECTION_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), WEB_SOCKET_TYPE_CONNECTION, WebSocketConnectionClass))
 #define WEB_SOCKET_IS_CONNECTION_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), WEB_SOCKET_TYPE_CONNECTION))
 
-typedef struct _WebSocketConnectionPrivate  WebSocketConnectionPrivate;
+typedef struct WebSocketConnectionPrivate  WebSocketConnectionPrivate;
 
-struct _WebSocketConnection
+struct WebSocketConnection
 {
   GObject parent;
 
@@ -43,7 +43,7 @@ struct _WebSocketConnection
   WebSocketConnectionPrivate *pv;
 };
 
-struct _WebSocketConnectionClass
+struct WebSocketConnectionClass
 {
   GObjectClass parent;
 

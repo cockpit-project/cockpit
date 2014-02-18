@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_MACHINES_H__
-#define COCKPIT_MACHINES_H__
+#ifndef COCKPIT_MACHINES_H_947E6C8D208D4D57BC0F30EFF1814F0A
+#define COCKPIT_MACHINES_H_947E6C8D208D4D57BC0F30EFF1814F0A
 
 #include "types.h"
 

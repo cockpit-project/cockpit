@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_STORAGE_DRIVE_H__
-#define COCKPIT_STORAGE_DRIVE_H__
+#ifndef COCKPIT_STORAGE_DRIVE_H_C8FEABA15BAD4EFB9245B34F07F8FE1A
+#define COCKPIT_STORAGE_DRIVE_H_C8FEABA15BAD4EFB9245B34F07F8FE1A
 
 #include "types.h"
 

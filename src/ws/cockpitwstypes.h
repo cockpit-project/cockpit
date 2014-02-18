@@ -17,13 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_BRIDGE_TYPES_H__
-#define __COCKPIT_BRIDGE_TYPES_H__
+#ifndef COCKPIT_BRIDGE_TYPES_H_300C7CB96BD444F5B9F8E8DD3DFDAE03
+#define COCKPIT_BRIDGE_TYPES_H_300C7CB96BD444F5B9F8E8DD3DFDAE03
 
 #include <glib-unix.h>
 #include <gio/gio.h>
 
-struct _CockpitWebServer;
-typedef struct _CockpitWebServer CockpitWebServer;
+struct CockpitWebServer;
+typedef struct CockpitWebServer CockpitWebServer;
 
 #endif /* __COCKPIT_BRIDGE_TYPES_H__ */

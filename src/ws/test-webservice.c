@@ -496,6 +496,36 @@ test_close_error (Test *test,
 }
 
 static void
+test_missing_agent (Test *test,
+                    gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  GBytes *sent;
+  GThread *thread;
+
+  test->agent_program = "/nonexistant";
+
+  start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  /* Send something through to ensure it's open */
+  sent = g_bytes_new_static ("wheee", 5);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  g_bytes_unref (sent);
+
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CLOSED);
+
+  g_assert (received != NULL);
+  g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
+                   "{\"command\": \"error\", \"data\": \"no-agent\"}");
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, thread);
+}
+
+static void
 test_specified_creds (Test *test,
                       gconstpointer data)
 {
@@ -660,6 +690,10 @@ main (int argc,
   g_test_add ("/web-service/fail-spawn/hixie76", Test,
               GINT_TO_POINTER (WEB_SOCKET_FLAVOR_HIXIE76), setup_for_socket,
               test_fail_spawn, teardown_for_socket);
+
+  g_test_add ("/web-service/missing-agent", Test,
+              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket,
+              test_missing_agent, teardown_for_socket);
 
   g_test_add ("/web-service/specified-creds", Test,
               GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket_spec,

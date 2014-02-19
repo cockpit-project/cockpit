@@ -39,13 +39,11 @@ BuildRequires: intltool
 BuildRequires: jsl
 BuildRequires: python-scss
 BuildRequires: gtk-doc
-BuildRequires: libssh-devel >= 0.6.0
+BuildRequires: pkgconfig(libgssh-1)
+BuildRequires: pkgconfig(libssh) >= 0.6.0
 BuildRequires: openssl-devel
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel
-
-# Used during make check
-BuildRequires: sshpass
 
 BuildRequires: perl-Locale-PO
 BuildRequires: perl-JSON
@@ -55,7 +53,6 @@ Requires: realmd
 Requires: udisks2 >= 2.1.0
 Requires: mdadm
 Requires: lvm2
-Requires: sshpass
 Requires: storaged
 
 %description

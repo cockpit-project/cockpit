@@ -38,38 +38,10 @@ typedef struct {
   GList                    *active_calls;
 
   GMainLoop                *loop;
-  GInputStream             *in;
-  GOutputStream            *out;
+  CockpitTransport         *transport;
 
   gint                      ping_seq;
 } DBusServerData;
-
-static gboolean
-read_all (GInputStream *in,
-          void *buf,
-          gsize len)
-{
-  gsize n_read;
-  return (g_input_stream_read_all (in, buf, len, &n_read, NULL, NULL)
-          && n_read == len);
-}
-
-static void
-write_all (GOutputStream *out,
-           void *buf,
-           gsize len)
-{
-  GError *error = NULL;
-  gsize n_written;
-  if (!g_output_stream_write_all (out, buf, len, &n_written, NULL, &error))
-    {
-      g_warning ("%s", error->message);
-      g_error_free (error);
-      return;
-    }
-  if (n_written < len)
-    g_warning ("Short write: %d of %d", (int)n_written, (int)len);
-}
 
 /* Returns a new floating variant (essentially a fixed-up copy of @value) */
 static GVariant *
@@ -305,8 +277,8 @@ _json_builder_add_gvariant (JsonBuilder *builder,
   return builder;
 }
 
-static gchar *
-_json_builder_to_str (JsonBuilder *builder)
+static GBytes *
+_json_builder_to_bytes (JsonBuilder *builder)
 {
   JsonGenerator *generator;
   JsonNode *root;
@@ -319,7 +291,7 @@ _json_builder_to_str (JsonBuilder *builder)
   json_node_free (root);
   g_object_unref (generator);
 
-  return ret;
+  return g_bytes_new_take (ret, strlen (ret));
 }
 
 static JsonBuilder *
@@ -338,12 +310,13 @@ static void
 write_builder (DBusServerData *data,
                JsonBuilder *builder)
 {
+  GBytes *bytes;
+
   json_builder_end_object (builder);
-  gs_free gchar *s = _json_builder_to_str (builder);
-  guint32 size = strlen (s);
-  guint32 count = GUINT32_TO_BE (size);
-  write_all (data->out, &count, sizeof (count));
-  write_all (data->out, s, size);
+  bytes = _json_builder_to_bytes (builder);
+  /* TODO: Zero channel number until later */
+  cockpit_transport_send (data->transport, 0, bytes);
+  g_bytes_unref (bytes);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -910,27 +883,21 @@ on_ping_time (gpointer user_data)
 }
 
 static gboolean
-handle_message (GObject *stream,
+handle_message (CockpitTransport *transport,
+                gint channel,
+                GBytes *message,
                 gpointer user_data)
 {
   GError *error = NULL;
   DBusServerData *data = user_data;
   gs_free gchar *buf = NULL;
   gs_unref_object JsonParser *parser = NULL;
-
-  guint32 size;
-  if (!read_all (data->in, &size, sizeof (size)))
-    goto close;
-
-  size = GUINT32_FROM_BE (size);
-  buf = g_malloc (size + 1);
-  if (!read_all (data->in, buf, size))
-    goto close;
-  buf[size] = '\0';
+  gsize size;
 
   parser = json_parser_new ();
 
-  if (!json_parser_load_from_data (parser, buf, size, &error))
+  size = g_bytes_get_size (message);
+  if (!json_parser_load_from_data (parser, g_bytes_get_data (message, NULL), size, &error))
     {
       g_prefix_error (&error, "Error parsing `%s' as JSON: ", buf);
       goto close;
@@ -962,19 +929,29 @@ close:
       g_warning ("%s", error->message);
       g_error_free (error);
     }
+  cockpit_transport_close (transport, "protocol-error");
+  return TRUE;
+}
+
+static void
+handle_closed (CockpitTransport *transport,
+               const gchar *problem,
+               gpointer user_data)
+{
+  DBusServerData *data = user_data;
   g_main_loop_quit (data->loop);
-  return FALSE;
 }
 
 void
 dbus_server_serve_dbus (GBusType bus_type,
                         const char *dbus_service,
                         const char *dbus_path,
-                        int fd_in,
-                        int fd_out)
+                        CockpitTransport *transport)
 {
   guint ping_id;
   GError *error = NULL;
+  guint recv_sig;
+  guint close_sig;
 
   g_type_init ();
 
@@ -994,15 +971,11 @@ dbus_server_serve_dbus (GBusType bus_type,
       return;
     }
 
-  gs_unref_object GInputStream *in = g_unix_input_stream_new (fd_in, FALSE);
-  gs_unref_object GOutputStream *out = g_unix_output_stream_new (fd_out, FALSE);
-
   DBusServerData data;
   data.object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (object_manager);
   data.cancellable = g_cancellable_new ();
   data.active_calls = NULL;
-  data.in = in;
-  data.out = out;
+  data.transport = transport;
   data.ping_seq = 0;
 
   ping_id = g_timeout_add (5000, on_ping_time, &data);
@@ -1032,19 +1005,16 @@ dbus_server_serve_dbus (GBusType bus_type,
                     G_CALLBACK (on_interface_proxy_signal),
                     &data);
 
+  recv_sig = g_signal_connect (data.transport, "recv", G_CALLBACK (handle_message), &data);
+  close_sig = g_signal_connect (data.transport, "closed", G_CALLBACK (handle_closed), &data);
+
   send_seed (&data);
 
   data.loop = g_main_loop_new (NULL, FALSE);
-  GSource *src = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM (in),
-                                                        NULL);
-  g_source_set_callback (src,
-                         (GSourceFunc)handle_message,
-                         &data,
-                         NULL);
-  g_source_attach (src, NULL);
   g_main_loop_run (data.loop);
-  g_source_destroy (src);
-  g_source_unref (src);
+
+  g_signal_handler_disconnect (data.transport, recv_sig);
+  g_signal_handler_disconnect (data.transport, close_sig);
 
   g_signal_handlers_disconnect_by_func (data.object_manager,
                                         G_CALLBACK (on_object_added),
@@ -1074,4 +1044,5 @@ dbus_server_serve_dbus (GBusType bus_type,
     }
 
   g_cancellable_cancel (data.cancellable);
+  g_main_loop_unref (data.loop);
 }

@@ -22,10 +22,11 @@
 
 #include <gio/gio.h>
 
+#include "cockpittransport.h"
+
 void      dbus_server_serve_dbus       (GBusType bus_type,
                                         const char *dbus_service,
                                         const char *dbus_path,
-                                        int         fd_in,
-                                        int         fd_out);
+                                        CockpitTransport *transport);
 
 #endif

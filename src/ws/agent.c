@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "dbus-server.h"
+#include "cockpitfdtransport.h"
 
 /* This program is run on each managed server, with the credentials
    of the user that is logged into the Server Console.
@@ -31,9 +32,15 @@ int
 main (int argc,
       char **argv)
 {
+  CockpitTransport *transport;
+
+  transport = cockpit_fd_transport_new ("stdio", 0, 1);
+
   dbus_server_serve_dbus (G_BUS_TYPE_SYSTEM,
                           "com.redhat.Cockpit",
                           "/com/redhat/Cockpit",
-                          0, 1);
+                          transport);
+
+  g_object_unref (transport);
   exit (0);
 }

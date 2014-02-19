@@ -9,7 +9,10 @@ libcockpit_ws_la_SOURCES = 				\
 	src/ws/cockpitwebsocket.h 	src/ws/cockpitwebsocket.c		\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	src/ws/cockpittransport.h	src/ws/cockpittransport.c	\
 	cockpitwsenumtypes.h	cockpitwsenumtypes.c	\
+	src/ws/cockpittransport.h src/ws/cockpittransport.c \
+	src/ws/cockpitfdtransport.h src/ws/cockpitfdtransport.c \
 	$(NULL)
 
 libcockpit_ws_la_CPPFLAGS = \
@@ -96,6 +99,8 @@ cockpit_agent_SOURCES =					\
 	src/ws/agent.c					\
 	src/ws/dbus-server.h				\
 	src/ws/dbus-server.c				\
+	src/ws/cockpittransport.c			\
+	src/ws/cockpitfdtransport.c			\
 	$(NULL)
 
 cockpit_agent_CFLAGS = 					\
@@ -185,6 +190,8 @@ test_agent_SOURCES = 					\
 	src/ws/test-agent.c				\
 	src/ws/dbus-server.h 				\
 	src/ws/dbus-server.c 				\
+	src/ws/cockpittransport.c \
+	src/ws/cockpitfdtransport.c \
 	$(NULL)
 
 test_agent_CFLAGS = 					\
@@ -202,6 +209,7 @@ test_agent_LDADD = 					\
 
 CHECK_PROGS = \
 	test-auth \
+	test-transport \
 	test-webserver \
 	test-webservice \
 	test-handlers \
@@ -218,6 +226,17 @@ test_auth_SOURCES = \
 	$(NULL)
 
 test_auth_LDADD = \
+	libcockpit-ws.la \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
+test_transport_CFLAGS = $(cockpit_ws_CFLAGS)
+
+test_transport_SOURCES = \
+	src/ws/test-transport.c \
+	$(NULL)
+
+test_transport_LDADD = \
 	libcockpit-ws.la \
 	$(cockpit_ws_LDADD) \
 	$(NULL)

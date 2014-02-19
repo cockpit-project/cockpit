@@ -483,7 +483,6 @@ test_close_error (Test *test,
   /* Trigger a failure message */
   kill (test->mock_sshd, SIGTERM);
 
-  web_socket_connection_close (ws, 0, NULL);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CLOSED);
 
   g_assert (received != NULL);

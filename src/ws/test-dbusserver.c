@@ -21,6 +21,7 @@
 
 #include "dbus-server.h"
 #include "mock-service.h"
+#include "cockpitfdtransport.h"
 
 #include <json-glib/json-glib.h>
 
@@ -37,14 +38,15 @@ typedef struct {
 static gpointer
 dbus_server_thread (gpointer data)
 {
+  CockpitTransport *transport;
   int fd = GPOINTER_TO_INT (data);
 
+  transport = cockpit_fd_transport_new ("mock", fd, fd);
   dbus_server_serve_dbus (G_BUS_TYPE_SESSION,
                           "com.redhat.Cockpit.DBusTests.Test",
-                          "/otree",
-                          fd, fd);
+                          "/otree", transport);
 
-  close (fd);
+  g_object_unref (transport);
   return NULL;
 }
 
@@ -67,8 +69,9 @@ static void
 teardown_dbus_server(TestCase *tc,
                      gconstpointer unused)
 {
-  close (tc->fd);
+  shutdown (tc->fd, SHUT_WR);
   g_thread_join (tc->thread);
+  close (tc->fd);
   g_object_unref (tc->parser);
 }
 

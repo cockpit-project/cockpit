@@ -61,7 +61,7 @@ Then you can build the sources and install them, as usual:
 ```bash
 make
 make install
-```bash
+```
 
 This will install Cockpit and all support files, and will also install
 some files that are only useful during testing.  (Their presence on

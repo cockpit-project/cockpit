@@ -1,5 +1,4 @@
-Hacking on Cockpit
-==================
+# Hacking on Cockpit
 
 It is recommended that you create one or more dedicated virtual
 machines to try out and develop Cockpit.
@@ -12,7 +11,7 @@ a production system.  And last but not least, it is easier to add more
 virtual hardware to a virtual machine for testing, such as more hard
 disks or network adapters.
 
-* Dependencies
+## Dependencies
 
 The development version of Cockpit very likely has dependencies on
 other packages that can't yet be satisfied by the main distribution.
@@ -25,33 +24,33 @@ might or might not get accepted upstream.
 For supported OS distributions and architectures, we have repositories
 with pre-build binary packages of all needed dependencies.
 
-- Fedora:
+### Fedora:
 
 Currently the 64-bit architectures of Fedora 18 and Fedora 20 are
-supported.  As root, copy or symlink contrib/fedora/cockpit-deps.repo into
-/etc/yum.repos.d/cockpit-deps.repo.
+supported.  As root, copy or symlink `contrib/fedora/cockpit-deps.repo` into
+`/etc/yum.repos.d/cockpit-deps.repo`.
 
-Check test/cockpit.spec.in for the concrete build dependencies.  The following
+Check `test/cockpit.spec.in` for the concrete build dependencies.  The following
 should work in a fresh Git clone:
 
     $ cd ./test
     $ srpm=$(./make-srpm)
     # yum-builddep --enablerepo=cockpit-deps $srpm
 
-* Building and installing
+## Building and installing
 
-Cockpit uses the autotools and thus there are the familiar ./configure
+Cockpit uses the autotools and thus there are the familiar `./configure`
 script and the familar Makefile targets.
 
 But after a fresh clone of the Cockpit sources, you need to prepare
 them by running autogen.sh.  Maybe like so:
 
     $ ./autogen.sh --prefix /usr --libdir /usr/lib64 --sysconfdir /etc \
-                   --localstatedir /var --enable-maintainer-mode
+            --localstatedir /var --enable-maintainer-mode
 
-As shown, autogen.sh also runs ./configure with the given options.
+As shown, autogen.sh also runs `./configure` with the given options.
 When working with a Git clone, it is therefore best to simply always
-run ./autogen.sh instead of ./configure.
+run ./autogen.sh instead of `./configure`.
 
 Then you can build the sources and install them, as usual:
 
@@ -62,10 +61,10 @@ Then you can build the sources and install them, as usual:
 This will install Cockpit and all support files, and will install a
 simplistic PAM configuration.
 
-Cockpit has a single non-recursive Makefile.  You can only run "make"
+Cockpit has a single non-recursive Makefile.  You can only run `make`
 from the top-level and it will always rebuild the whole project.
 
-* Checking
+## Checking
 
 You can run unit tests of the current checkout:
 
@@ -74,9 +73,9 @@ You can run unit tests of the current checkout:
 These should finish very quickly and it is good practice to do it
 often.
 
-To run the integration tests, see "test/README".
+To run the integration tests, see `test/README`.
 
-* Running
+## Running
 
 Once Cockpit has been installed, the normal way to run it is via
 systemd:
@@ -97,9 +96,7 @@ need to open the firewall for it.  On Fedora:
     # firewall-cmd --add-port 21064/tcp
     # firewall-cmd --permanent --add-port 21064/tcp
 
-Point your browser to
-
-    https://IP-OR-NAME-OF-YOUR-VM:21064
+Point your browser to `https://IP-OR-NAME-OF-YOUR-VM:21064`
 
 and Cockpit should load after confirming the self-signed certificate.
 Log in as root with the normal root password (of the virtual machine).
@@ -112,22 +109,22 @@ usually restart both of them
 
 and then reload the browser.
 
-If you want to run /usr/libexec/cockpitd or /usr/libexec/cockpit-ws
+If you want to run `/usr/libexec/cockpitd` or `/usr/libexec/cockpit-ws`
 outside of systemd, stop them first, including the socket:
 
     # systemctl stop cockpit-ws.socket cockpit-ws cockpit
 
-* Updating Patternfly
+## Updating Patternfly
 
 Right now, it's a manual process.
 
 Cockpit uses a different directory layout than Patternfly and you need
-to adjust some paths in "patternfly/less/variables.less":
+to adjust some paths in `patternfly/less/variables.less`:
 
     @icon-font-path:  "fonts";
     @fa-font-path:    "fonts";
     @font-path:       "fonts";
     @img-path:        "images";
 
-Then rebuild Patternfly and copy the files you need into ./lib/,
-./lib/images/, and ./lib/fonts/, as appropriate.
+Then rebuild Patternfly and copy the files you need into `./lib/`,
+`./lib/images/`, and `./lib/fonts/`, as appropriate.

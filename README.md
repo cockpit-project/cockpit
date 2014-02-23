@@ -1,4 +1,5 @@
-# Cockpit, a remote manager for GNU/Linux servers
+# Cockpit
+**A remote manager for GNU/Linux servers**
 
 ### About
 Cockpit is a server manager that makes it easy to administer your GNU/Linux servers via a web browser.

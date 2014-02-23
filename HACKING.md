@@ -1,5 +1,4 @@
-Hacking on Cockpit
-==================
+# Hacking on Cockpit
 
 It is recommended that you create one or more dedicated virtual
 machines to try out and develop Cockpit.
@@ -12,7 +11,7 @@ a production system.  And last but not least, it is easier to add more
 virtual hardware to a virtual machine for testing, such as more hard
 disks or network adapters.
 
-* Dependencies
+## Dependencies
 
 The development version of Cockpit very likely has dependencies on
 other packages that can't yet be satisfied by the main distribution.
@@ -25,7 +24,7 @@ might or might not get accepted upstream.
 For supported OS distributions and architectures, we have repositories
 with pre-build binary packages of all needed dependencies.
 
-- Fedora:
+### Fedora:
 
 Currently the 64-bit architectures of Fedora 18 and Fedora 20 are
 supported.  As root, copy or symlink contrib/fedora/cockpit-deps.repo into
@@ -34,11 +33,13 @@ supported.  As root, copy or symlink contrib/fedora/cockpit-deps.repo into
 Check test/cockpit.spec.in for the concrete build dependencies.  The following
 should work in a fresh Git clone:
 
-    $ cd ./test
-    $ srpm=$(./make-srpm)
-    # yum-builddep --enablerepo=cockpit-deps $srpm
+```bash
+cd ./test
+srpm=$(./make-srpm)
+yum-builddep --enablerepo=cockpit-deps $srpm
+```
 
-* Building and installing
+## Building and installing
 
 Cockpit uses the autotools and thus there are the familiar ./configure
 script and the familar Makefile targets.
@@ -46,8 +47,10 @@ script and the familar Makefile targets.
 But after a fresh clone of the Cockpit sources, you need to prepare
 them by running autogen.sh.  Maybe like so:
 
-    $ ./autogen.sh --prefix /usr --libdir /usr/lib64 --sysconfdir /etc \
-                   --localstatedir /var --enable-maintainer-mode
+```bash
+./autogen.sh --prefix /usr --libdir /usr/lib64 --sysconfdir /etc \
+--localstatedir /var --enable-maintainer-mode
+```
 
 As shown, autogen.sh also runs ./configure with the given options.
 When working with a Git clone, it is therefore best to simply always
@@ -55,8 +58,10 @@ run ./autogen.sh instead of ./configure.
 
 Then you can build the sources and install them, as usual:
 
-    $ make
-    # make install
+```bash
+make
+make install
+```
 
 This will install Cockpit and all support files, and will also install
 some files that are only useful during testing.  (Their presence on
@@ -66,23 +71,27 @@ Cockpit, you should leave these files out.)
 Cockpit has a single non-recursive Makefile.  You can only run "make"
 from the top-level and it will always rebuild the whole project.
 
-* Checking
+## Checking
 
 You can run unit tests of the current checkout:
 
-    $ make check
+```bash
+make check
+```
 
 These should finish very quickly and it is good practice to do it
 often.
 
 To run the integration tests, see "test/README".
 
-* Running
+## Running
 
 Once Cockpit has been installed, the normal way to run it is via
 systemd:
 
-    # systemctl start cockpit-ws.socket
+```bash
+systemctl start cockpit-ws.socket
+```
 
 This will cause systemd to listen on port 21064 and start cockpit-ws
 when someone connects to it.  Cockpit-ws will in turn activate
@@ -90,17 +99,19 @@ cockpitd via D-Bus when someone logs in successfully.
 
 To run Cockpit without systemd, start the cockpit-ws daemon manually:
 
-    # /usr/libexec/cockpit-ws
+```bash
+/usr/libexec/cockpit-ws
+```
 
 Then you can connect to port 21064 of the virtual machine.  You might
 need to open the firewall for it.  On Fedora:
 
-    # firewall-cmd --add-port 21064/tcp
-    # firewall-cmd --permanent --add-port 21064/tcp
+```bash
+firewall-cmd --add-port 21064/tcp
+firewall-cmd --permanent --add-port 21064/tcp
+```
 
-Point your browser to
-
-    https://IP-OR-NAME-OF-YOUR-VM:21064
+Point your browser to `https://IP-OR-NAME-OF-YOUR-VM:21064`
 
 and Cockpit should load after confirming the self-signed certificate.
 Log in as root with the normal root password (of the virtual machine).
@@ -109,11 +120,15 @@ Cockpit consists of two main systemd services: cockpit.service and
 cockpit-ws.service.  After installing a new version, you should
 usually restart both of them
 
-    # systemctl restart cockpit cockpit-ws
+```bash
+systemctl restart cockpit cockpit-ws
+```
 
 and then reload the browser.
 
 If you want to run /usr/libexec/cockpitd or /usr/libexec/cockpit-ws
 outside of systemd, stop them first, including the socket:
 
-    # systemctl stop cockpit-ws.socket cockpit-ws cockpit
+```bash
+systemctl stop cockpit-ws.socket cockpit-ws cockpit
+```

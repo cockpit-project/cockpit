@@ -35,6 +35,12 @@ class TestStorage(MachineCase):
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)
 
+    def add_disk(self, size, serial=None, speed=None):
+        id = self.machine.add_disk(size, serial=serial, speed=speed)
+        drive = self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Drive", "Serial", serial)
+        self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "Drive", drive)
+        return id
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -43,7 +49,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add a disk, partition it, format it, and finally remove it.
-        disk1 = m.add_disk("10M", serial="MYSERIAL")
+        disk1 = self.add_disk("10M", serial="MYSERIAL")
 
         b.wait_in_text("#storage_drives", "MYSERIAL")
         b.click('a[onclick*="MYSERIAL"]')
@@ -71,7 +77,7 @@ class TestStorage(MachineCase):
         self.login_and_go("storage")
 
         # Add a disk
-        m.add_disk("50M", serial="MYDISK")
+        self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
         b.click('a[onclick*="MYDISK"]')
         b.wait_page("storage-detail")
@@ -120,7 +126,7 @@ class TestStorage(MachineCase):
         self.login_and_go("storage")
 
         # Add a disk
-        m.add_disk("50M", serial="MYDISK")
+        self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
         b.click('a[onclick*="MYDISK"]')
         b.wait_page("storage-detail")
@@ -195,7 +201,7 @@ class TestStorage(MachineCase):
         self.login_and_go("storage")
 
         # Add a disk and partition it
-        m.add_disk("50M", serial="MYDISK")
+        self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
         b.click('a[onclick*="MYDISK"]')
         b.wait_page("storage-detail")
@@ -296,7 +302,7 @@ class TestStorage(MachineCase):
           return true;
         })""", states)
 
-    def add_disk(self, name):
+    def raid_add_disk(self, name):
         b = self.browser
         b.click("#raid-disks-add")
         b.wait_popup("raid_disk_add_dialog")
@@ -304,7 +310,7 @@ class TestStorage(MachineCase):
         b.click("#raid-disk-add-add")
         b.wait_popdown("raid_disk_add_dialog")
 
-    def remove_disk(self, name):
+    def raid_remove_disk(self, name):
         self.browser.click('#raid-disks li:contains("%s") button' % name)
 
     def testRaid(self):
@@ -315,10 +321,10 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add four disks and make a RAID out of three of them
-        m.add_disk("50M", serial="DISK1")
-        m.add_disk("50M", serial="DISK2")
-        m.add_disk("50M", serial="DISK3")
-        m.add_disk("50M", serial="DISK4")
+        self.add_disk("50M", serial="DISK1")
+        self.add_disk("50M", serial="DISK2")
+        self.add_disk("50M", serial="DISK3")
+        self.add_disk("50M", serial="DISK4")
         b.wait_in_text("#storage_drives", "DISK1")
         b.wait_in_text("#storage_drives", "DISK2")
         b.wait_in_text("#storage_drives", "DISK3")
@@ -414,21 +420,21 @@ class TestStorage(MachineCase):
         # Play with disks
 
         # Add a spare
-        self.add_disk("DISK4")
+        self.raid_add_disk("DISK4")
         self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "Spare" })
 
         # Remove DISK1.  The spare takes over.
-        self.remove_disk("DISK1")
+        self.raid_remove_disk("DISK1")
         with b.wait_timeout(20):
             b.wait_in_text("#raid_detail_state", "Running")
             self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "In Sync" })
 
         # Remove DISK4.  The array degrades.
-        self.remove_disk("DISK4")
+        self.raid_remove_disk("DISK4")
         b.wait_in_text("#raid_detail_state", "DEGRADED")
 
         # Add DISK1.  The array recovers.
-        self.add_disk("DISK1")
+        self.raid_add_disk("DISK1")
         with b.wait_timeout(20):
             b.wait_in_text("#raid_detail_state", "Running")
 
@@ -445,7 +451,7 @@ class TestStorage(MachineCase):
         b.wait_visible("#raid-disks")
 
         # Add DISK1.  The array recovers.
-        self.add_disk("DISK1")
+        self.raid_add_disk("DISK1")
         with b.wait_timeout(20):
             b.wait_in_text("#raid_detail_state", "Running")
 
@@ -467,7 +473,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add a slow disk and format it
-        m.add_disk("10M", serial="SLOW", speed=800)
+        self.add_disk("10M", serial="SLOW", speed=800)
         b.wait_in_text("#storage_drives", "SLOW")
 
         b.click('a[onclick*="SLOW"]')
@@ -498,9 +504,9 @@ class TestStorage(MachineCase):
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
 
-        m.add_disk("50M", serial="DISK1")
-        m.add_disk("50M", serial="DISK2")
-        m.add_disk("50M", serial="DISK3")
+        self.add_disk("50M", serial="DISK1")
+        self.add_disk("50M", serial="DISK2")
+        self.add_disk("50M", serial="DISK3")
         b.wait_in_text("#storage_drives", "DISK1")
         b.wait_in_text("#storage_drives", "DISK2")
         b.wait_in_text("#storage_drives", "DISK3")
@@ -665,7 +671,7 @@ class TestStorage(MachineCase):
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
 
-        m.add_disk("50M", serial="DISK1")
+        self.add_disk("50M", serial="DISK1")
         b.wait_in_text("#storage_drives", "DISK1")
         m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mktable msdos")
         m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart extended 0 50")
@@ -739,8 +745,9 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        m.add_disk("50M", serial="DISK1")
         self.login_and_go("storage")
+
+        self.add_disk("50M", serial="DISK1")
         b.wait_in_text("#storage_drives", "DISK1")
 
         # Create a volume group with a logical volume with a encrypted
@@ -798,8 +805,8 @@ class TestStorage(MachineCase):
         # So we partition a disk with two logical partitions, one of which
         # has a filesystem on it.
 
-        m.add_disk("50M", "DISK1")
-        m.add_disk("50M", "DISK2")
+        self.add_disk("50M", "DISK1")
+        self.add_disk("50M", "DISK2")
         b.wait_in_text("#storage_drives", "DISK1")
         b.wait_in_text("#storage_drives", "DISK2")
         m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mktable msdos")

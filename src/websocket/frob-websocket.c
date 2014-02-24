@@ -62,7 +62,7 @@ on_input_data (GIOChannel *channel,
     case G_IO_STATUS_NORMAL:
       msg = g_bytes_new_with_free_func (buffer->str, line, on_release_buffer, buffer);
       buffer = NULL;
-      web_socket_connection_send (web_socket, WEB_SOCKET_DATA_TEXT, msg);
+      web_socket_connection_send (web_socket, WEB_SOCKET_DATA_TEXT, NULL, msg);
       g_bytes_unref (msg);
       return TRUE;
     default:

@@ -353,7 +353,7 @@ start_web_service_and_connect_client (Test *test,
 
   // Send the initial message that starts the agent.
   sent = g_bytes_new_static ("", 0);
-  web_socket_connection_send (*ws, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (*ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 }
 
@@ -410,7 +410,7 @@ test_handshake_and_echo (Test *test,
 
   sent = g_bytes_new_static ("the message", 11);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
 
   WAIT_UNTIL (received != NULL);
 
@@ -439,7 +439,7 @@ test_echo_large (Test *test,
 
   /* Medium length */
   sent = g_bytes_new_take (g_strnfill (1020, '!'), 1020);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -448,7 +448,7 @@ test_echo_large (Test *test,
 
   /* Extra large */
   sent = g_bytes_new_take (g_strnfill (100 * 1000, '?'), 100 * 1000);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -473,7 +473,7 @@ test_close_error (Test *test,
 
   /* Send something through to ensure it's open */
   sent = g_bytes_new_static ("wheee", 5);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -510,13 +510,13 @@ test_specified_creds (Test *test,
   // Send the initial message that starts the agent.
   const gchar *args = "user\nAnother password";
   sent = g_bytes_new_static (args, strlen(args));
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   sent = g_bytes_new_static ("wheee", 5);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -544,7 +544,7 @@ test_specified_creds_fail (Test *test,
   // Send the initial message that starts the agent.
   const gchar *args = "user\nWrong password";
   sent = g_bytes_new_static (args, strlen(args));
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 
   /* Connection should close immediately */

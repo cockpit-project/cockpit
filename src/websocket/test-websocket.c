@@ -546,7 +546,7 @@ test_send_client_to_server (Test *test,
   g_assert_cmpint (web_socket_connection_get_ready_state (test->client), ==, WEB_SOCKET_STATE_OPEN);
 
   sent = g_bytes_new ("this is a test", 14);
-  web_socket_connection_send (test->client, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (test->client, WEB_SOCKET_DATA_TEXT, NULL, sent);
 
   WAIT_UNTIL (received != NULL);
 
@@ -575,7 +575,7 @@ test_send_server_to_client (Test *test,
   g_assert_cmpint (web_socket_connection_get_ready_state (test->server), ==, WEB_SOCKET_STATE_OPEN);
 
   sent = g_bytes_new ("this is a test", 14);
-  web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, NULL, sent);
 
   WAIT_UNTIL (received != NULL);
 
@@ -602,7 +602,7 @@ test_send_big_packets (Test *test,
   g_assert_cmpint (web_socket_connection_get_ready_state (test->server), ==, WEB_SOCKET_STATE_OPEN);
 
   sent = g_bytes_new_take (g_strnfill (400, '!'), 400);
-  web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (sent, received));
   g_bytes_unref (sent);
@@ -610,10 +610,35 @@ test_send_big_packets (Test *test,
   received = NULL;
 
   sent = g_bytes_new_take (g_strnfill (100 * 1000, '?'), 100 * 1000);
-  web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, sent);
+  web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (sent, received));
   g_bytes_unref (sent);
+  g_bytes_unref (received);
+}
+
+static void
+test_send_prefixed (Test *test,
+                    gconstpointer data)
+{
+  GBytes *prefix = NULL;
+  GBytes *payload = NULL;
+  GBytes *received = NULL;
+
+  g_signal_connect (test->client, "message", G_CALLBACK (on_text_message), &received);
+
+  WAIT_UNTIL (web_socket_connection_get_ready_state (test->server) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert_cmpint (web_socket_connection_get_ready_state (test->server), ==, WEB_SOCKET_STATE_OPEN);
+
+  prefix = g_bytes_new_static ("funny ", 6);
+  payload = g_bytes_new_static ("thing", 5);
+
+  web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, prefix, payload);
+  WAIT_UNTIL (received != NULL);
+  g_assert_cmpstr (g_bytes_get_data (received, NULL), ==, "funny thing");
+  g_assert_cmpint (g_bytes_get_size (received), ==, 11);
+  g_bytes_unref (payload);
+  g_bytes_unref (prefix);
   g_bytes_unref (received);
 }
 
@@ -829,7 +854,7 @@ on_closing_send_message (WebSocketConnection *ws,
                          gpointer data)
 {
   GBytes *message = data;
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, message);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
   g_signal_handlers_disconnect_by_func (ws, on_closing_send_message, data);
   g_idle_add (on_idle_real_close, ws);
   return TRUE;
@@ -1324,6 +1349,7 @@ main (int argc,
       { test_send_client_to_server, "send-client-to-server" },
       { test_send_server_to_client, "send-server-to-client" },
       { test_send_big_packets, "send-big-packets" },
+      { test_send_prefixed, "send-prefixed" },
       { test_send_bad_data, "send-bad-data" },
       { test_protocol_negotiate, "protocol-negotiate" },
       { test_protocol_mismatch, "protocol-mismatch" },

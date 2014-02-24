@@ -76,7 +76,7 @@ send_error (WebSocketData *data,
   gchar *json = g_strdup_printf ("{\"command\": \"error\", \"data\": \"%s\"}", command);
   GBytes *message = g_bytes_new_take (json, strlen (json));
   if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
-    web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, message);
+    web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, NULL, message);
   g_bytes_unref (message);
 }
 
@@ -112,7 +112,7 @@ on_session_recv (CockpitTransport *transport,
 
   if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
     {
-      web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, payload);
+      web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, NULL, payload);
       return TRUE;
     }
 

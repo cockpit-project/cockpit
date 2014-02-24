@@ -21,6 +21,9 @@
 
 #include "cockpittransport.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 enum {
   RECV,
   CLOSED,
@@ -63,9 +66,6 @@ cockpit_transport_send (CockpitTransport *transport,
 
   g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
 
-  /* TODO: Implement channel support later */
-  g_return_if_fail (channel == 0);
-
   iface = COCKPIT_TRANSPORT_GET_IFACE(transport);
   g_return_if_fail (iface && iface->send);
   iface->send (transport, channel, data);
@@ -93,9 +93,6 @@ cockpit_transport_emit_recv (CockpitTransport *transport,
 
   g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
 
-  /* TODO: Implement channel support later */
-  g_return_if_fail (channel == 0);
-
   g_signal_emit (transport, signals[RECV], 0, channel, data, &result);
 
   if (!result)
@@ -108,4 +105,37 @@ cockpit_transport_emit_closed (CockpitTransport *transport,
 {
   g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
   g_signal_emit (transport, signals[CLOSED], 0, problem);
+}
+
+GBytes *
+cockpit_transport_parse_frame (GBytes *message,
+                               guint *channel)
+{
+  gconstpointer data;
+  unsigned long val;
+  gsize offset;
+  gsize length;
+  const gchar *line;
+  char *end;
+
+  g_return_val_if_fail (message != NULL, NULL);
+
+  data = g_bytes_get_data (message, &length);
+  line = memchr (data, '\n', length);
+  if (!line)
+    {
+      g_warning ("Received invalid message without channel prefix");
+      return NULL;
+    }
+
+  offset = (line - (gchar *)data) + 1;
+  val = strtoul (data, &end, 10);
+  if (end != line || val > G_MAXINT)
+    {
+      g_warning ("Received invalid message prefix");
+      return NULL;
+    }
+
+  *channel = val;
+  return g_bytes_new_from_bytes (message, offset, length - offset);
 }

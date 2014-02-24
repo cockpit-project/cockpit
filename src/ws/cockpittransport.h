@@ -79,6 +79,9 @@ void        cockpit_transport_emit_recv      (CockpitTransport *transport,
 void        cockpit_transport_emit_closed    (CockpitTransport *transport,
                                               const gchar *problem);
 
+GBytes *    cockpit_transport_parse_frame    (GBytes *message,
+                                              guint *channel);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TRANSPORT_H__ */

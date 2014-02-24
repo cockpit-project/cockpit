@@ -40,6 +40,14 @@ enum {
   PROP_PID,
 };
 
+typedef struct _Message Message;
+
+struct _Message {
+  guint channel;
+  GBytes *payload;
+  struct _Message *next;
+};
+
 struct _CockpitFdTransport {
   GObject parent_instance;
 
@@ -52,7 +60,8 @@ struct _CockpitFdTransport {
 
   GSource *io;
   int out_fd;
-  GQueue *out_queue;
+  Message *out_first;
+  Message *out_last;
   gsize out_partial;
   GPollFD *out_poll;
 
@@ -82,7 +91,6 @@ cockpit_fd_transport_init (CockpitFdTransport *self)
   self->in_buffer = g_byte_array_new ();
   self->in_fd = -1;
 
-  self->out_queue = g_queue_new ();
   self->out_fd = -1;
 }
 
@@ -161,7 +169,9 @@ fd_transport_check (GSource *source)
 static void
 transport_dispatch_in (CockpitFdTransport *self)
 {
+  GBytes *message;
   GBytes *payload;
+  guint channel;
   guint32 size;
   guint32 frame;
   guint8 *buf;
@@ -219,18 +229,23 @@ transport_dispatch_in (CockpitFdTransport *self)
           /* When array is reffed, this just clears byte array */
           g_byte_array_ref (self->in_buffer);
           buf = g_byte_array_free (self->in_buffer, FALSE);
-          payload = g_bytes_new_with_free_func (buf + sizeof (size), size, g_free, buf);
+          message = g_bytes_new_with_free_func (buf + sizeof (size), size, g_free, buf);
         }
       else
         {
-          payload = g_bytes_new (self->in_buffer->data + sizeof (size), size);
+          message = g_bytes_new (self->in_buffer->data + sizeof (size), size);
           g_byte_array_remove_range (self->in_buffer, 0, frame);
         }
 
-      /* TODO: Currently channel is just zero */
-      g_debug ("%s: received a %d byte payload", self->name, (int)size);
-      cockpit_transport_emit_recv ((CockpitTransport *)self, 0, payload);
-      g_bytes_unref (payload);
+      payload = cockpit_transport_parse_frame (message, &channel);
+      if (payload)
+        {
+          g_debug ("%s: received a %d byte payload", self->name, (int)size);
+          cockpit_transport_emit_recv ((CockpitTransport *)self, channel, payload);
+          g_bytes_unref (payload);
+        }
+
+      g_bytes_unref (message);
     }
 
   if (!self->in_poll)
@@ -249,11 +264,12 @@ transport_dispatch_in (CockpitFdTransport *self)
     }
 }
 
-static void
+static gssize
 offset_iov (struct iovec *iov,
             int count,
             gsize offset)
 {
+  gsize total = 0;
   int i;
 
   for (i = 0; i < count; i++)
@@ -267,9 +283,12 @@ offset_iov (struct iovec *iov,
         {
           iov[i].iov_base = ((gchar *)iov[i].iov_base) + offset;
           iov[i].iov_len -= offset;
+          total += iov[i].iov_len;
           offset = 0;
         }
     }
+
+  return total;
 }
 
 static void
@@ -298,28 +317,40 @@ transport_close_out (CockpitFdTransport *self)
 static void
 transport_dispatch_out (CockpitFdTransport *self)
 {
-  struct iovec iov[2];
-  GBytes *payload;
+  gchar channel[sizeof(guint) * 3];
+  struct iovec iov[4];
+  Message *message;
+  gsize channel_len;
   guint32 size;
+  gssize total;
   gsize len;
   gssize ret;
 
   g_debug ("%s: writing output", self->name);
 
   g_assert (self->out_poll);
-  payload = g_queue_peek_head (self->out_queue);
-  g_assert (payload != NULL);
+  message = self->out_first;
+  g_assert (message != NULL);
 
-  len = g_bytes_get_size (payload);
-  size = GUINT32_TO_BE (len);
+  g_snprintf (channel, sizeof (channel), "%u", message->channel);
+  channel_len = strlen (channel);
+
+  len = g_bytes_get_size (message->payload);
+
+  /* See doc/protocol.md */
+  size = GUINT32_TO_BE (len + 1 + channel_len);
 
   iov[0].iov_base = &size;
   iov[0].iov_len = sizeof (size);
-  iov[1].iov_base = (void *)g_bytes_get_data (payload, NULL);
-  iov[1].iov_len = len;
-  offset_iov (iov, 2, self->out_partial);
+  iov[1].iov_base = channel;
+  iov[1].iov_len = channel_len;
+  iov[2].iov_base = "\n";
+  iov[2].iov_len = 1;
+  iov[3].iov_base = (void *)g_bytes_get_data (message->payload, NULL);
+  iov[3].iov_len = len;
 
-  ret = writev (self->out_fd, iov, 2);
+  total = offset_iov (iov, 4, self->out_partial);
+  ret = writev (self->out_fd, iov, 4);
   if (ret < 0)
     {
       if (errno != EAGAIN && errno != EINTR)
@@ -331,22 +362,24 @@ transport_dispatch_out (CockpitFdTransport *self)
     }
 
   /* Not all written? */
-  if (ret != iov[0].iov_len + iov[1].iov_len)
+  if (ret != total)
     {
-      g_debug ("%s: partial write %d of %d bytes", self->name,
-               (int)ret, (int)iov[0].iov_len + (int)iov[1].iov_len);
+      g_debug ("%s: partial write %d of %d bytes", self->name, (int)ret, (int)total);
       self->out_partial += ret;
       return;
     }
 
   /* Done with that queued message */
   self->out_partial = 0;
-  g_queue_pop_head (self->out_queue);
-  g_bytes_unref (payload);
+  self->out_first = self->out_first->next;
 
-  if (!g_queue_is_empty (self->out_queue))
+  g_bytes_unref (message->payload);
+  g_free (message);
+
+  if (self->out_first != NULL)
     return;
 
+  self->out_last = NULL;
   g_debug ("%s: output queue empty", self->name);
 
   /* If all messages are done, then stop polling out fd */
@@ -528,6 +561,7 @@ static void
 cockpit_fd_transport_dispose (GObject *object)
 {
   CockpitFdTransport *self = COCKPIT_FD_TRANSPORT (object);
+  Message *message;
 
   if (self->pid)
     {
@@ -540,8 +574,13 @@ cockpit_fd_transport_dispose (GObject *object)
   if (self->io)
     close_immediately (self, "terminated");
 
-  while (!g_queue_is_empty (self->out_queue))
-    g_bytes_unref (g_queue_pop_head (self->out_queue));
+  while (self->out_first)
+    {
+      message = self->out_first;
+      self->out_first = message->next;
+      g_bytes_unref (message->payload);
+      g_free (message);
+    }
 
   G_OBJECT_CLASS (cockpit_fd_transport_parent_class)->dispose (object);
 }
@@ -555,7 +594,6 @@ cockpit_fd_transport_finalize (GObject *object)
   g_assert (!self->in_poll);
   g_assert (!self->out_poll);
 
-  g_queue_free (self->out_queue);
   g_byte_array_unref (self->in_buffer);
 
   if (self->child)
@@ -601,14 +639,20 @@ cockpit_fd_transport_send (CockpitTransport *transport,
                            GBytes *payload)
 {
   CockpitFdTransport *self = COCKPIT_FD_TRANSPORT (transport);
-
-  /* TODO: Implement channel support */
-  g_return_if_fail (channel == 0);
+  Message *message;
 
   g_return_if_fail (!self->closing);
   g_return_if_fail (self->io != NULL);
 
-  g_queue_push_tail (self->out_queue, g_bytes_ref (payload));
+  message = g_new (Message, 1);
+  message->payload = g_bytes_ref (payload);
+  message->channel = channel;
+  message->next = NULL;
+  if (self->out_last)
+    self->out_last->next = message;
+  else
+    self->out_first = message;
+  self->out_last = message;
 
   if (!self->out_poll)
     {
@@ -636,7 +680,7 @@ cockpit_fd_transport_close (CockpitTransport *transport,
 
   if (problem)
       close_immediately (self, problem);
-  else if (g_queue_is_empty (self->out_queue))
+  else if (!self->out_first)
     transport_close_out (self);
 }
 

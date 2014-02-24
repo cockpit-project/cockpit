@@ -92,7 +92,7 @@ on_recv_get_payload (CockpitTransport *transport,
                      gpointer user_data)
 {
   GBytes **received = user_data;
-  g_assert_cmpuint (channel, ==, 0);
+  g_assert_cmpuint (channel, ==, 546);
   g_assert (*received == NULL);
   *received = g_bytes_ref (message);
   return TRUE;
@@ -107,6 +107,8 @@ on_recv_multiple (CockpitTransport *transport,
 {
   gint *state = user_data;
   GBytes *check;
+
+  g_assert_cmpuint (channel, ==, 9);
 
   if (*state == 0)
     check = g_bytes_new_static ("one", 3);
@@ -142,7 +144,7 @@ test_echo_and_close (TestCase *tc,
 
   sent = g_bytes_new_static ("the message", 11);
   g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &received);
-  cockpit_transport_send (tc->transport, 0, sent);
+  cockpit_transport_send (tc->transport, 546, sent);
 
   WAIT_UNTIL (received != NULL);
 
@@ -169,10 +171,10 @@ test_echo_queue (TestCase *tc,
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
   sent = g_bytes_new_static ("one", 3);
-  cockpit_transport_send (tc->transport, 0, sent);
+  cockpit_transport_send (tc->transport, 9, sent);
   g_bytes_unref (sent);
   sent = g_bytes_new_static ("two", 3);
-  cockpit_transport_send (tc->transport, 0, sent);
+  cockpit_transport_send (tc->transport, 9, sent);
   g_bytes_unref (sent);
 
   /* Only closes after above are sent */
@@ -192,7 +194,7 @@ test_echo_large (TestCase *tc,
 
   /* Medium length */
   sent = g_bytes_new_take (g_strnfill (1020, '!'), 1020);
-  cockpit_transport_send (tc->transport, 0, sent);
+  cockpit_transport_send (tc->transport, 546, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -201,7 +203,7 @@ test_echo_large (TestCase *tc,
 
   /* Extra large */
   sent = g_bytes_new_take (g_strnfill (10 * 1000 * 1000, '?'), 10 * 1000 * 1000);
-  cockpit_transport_send (tc->transport, 0, sent);
+  cockpit_transport_send (tc->transport, 546, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -210,7 +212,7 @@ test_echo_large (TestCase *tc,
 
   /* Double check that didn't csrew things up */
   sent = g_bytes_new_static ("yello", 5);
-  cockpit_transport_send (tc->transport, 0, sent);
+  cockpit_transport_send (tc->transport, 546, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -328,7 +330,7 @@ test_write_error (void)
   transport = cockpit_fd_transport_new ("test", fds[0], 1000);
 
   sent = g_bytes_new ("test", 4);
-  cockpit_transport_send (transport, 0, sent);
+  cockpit_transport_send (transport, 3333, sent);
   g_bytes_unref (sent);
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
@@ -360,16 +362,16 @@ test_read_combined (void)
   g_signal_connect (transport, "recv", G_CALLBACK (on_recv_multiple), &state);
 
   /* Write two messages to the pipe at once */
-  size = GUINT32_TO_BE (3);
+  size = GUINT32_TO_BE (5);
   iov[0].iov_base = &size;
   iov[0].iov_len = sizeof (size);
-  iov[1].iov_base = "one";
-  iov[1].iov_len = 3;
+  iov[1].iov_base = "9\none";
+  iov[1].iov_len = 5;
   iov[2].iov_base = &size;
   iov[2].iov_len = sizeof (size);
-  iov[3].iov_base = "two";
-  iov[3].iov_len = 3;
-  g_assert_cmpint (writev (fds[1], iov, 4), ==, 14);
+  iov[3].iov_base = "9\ntwo";
+  iov[3].iov_len = 5;
+  g_assert_cmpint (writev (fds[1], iov, 4), ==, 18);
 
   WAIT_UNTIL (state == 2);
 
@@ -406,6 +408,50 @@ test_read_truncated (void)
   g_object_unref (transport);
 }
 
+static void
+test_parse_frame (void)
+{
+  GBytes *message;
+  GBytes *payload;
+  guint channel;
+
+  message = g_bytes_new_static ("134\ntest", 8);
+
+  payload = cockpit_transport_parse_frame (message, &channel);
+  g_assert (payload != NULL);
+  g_assert_cmpstr (g_bytes_get_data (payload, NULL), ==, "test");
+  g_assert_cmpuint (channel, ==, 134);
+
+  g_bytes_unref (payload);
+  g_bytes_unref (message);
+}
+
+static void
+test_parse_frame_bad (void)
+{
+  GBytes *message;
+  GBytes *payload;
+  guint channel;
+
+  /* Below we cause a warning, and g_test_expect_message() is broken */
+  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+
+  message = g_bytes_new_static ("bad\ntest", 8);
+  payload = cockpit_transport_parse_frame (message, &channel);
+  g_assert (payload == NULL);
+  g_bytes_unref (message);
+
+  message = g_bytes_new_static ("test", 4);
+  payload = cockpit_transport_parse_frame (message, &channel);
+  g_assert (payload == NULL);
+  g_bytes_unref (message);
+
+  message = g_bytes_new_static ("111111111111111\ntest", 20);
+  payload = cockpit_transport_parse_frame (message, &channel);
+  g_assert (payload == NULL);
+  g_bytes_unref (message);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -416,6 +462,9 @@ main (int argc,
 
   g_set_prgname ("test-transport");
   g_test_init (&argc, &argv, NULL);
+
+  g_test_add_func ("/transport/parse-frame", test_parse_frame);
+  g_test_add_func ("/transport/parse-frame-bad", test_parse_frame_bad);
 
   g_test_add ("/transport/echo-message/child", TestCase,
               BUILDDIR "/mock-echo", setup_with_child,

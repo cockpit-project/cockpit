@@ -71,9 +71,10 @@ web_socket_data_free (WebSocketData   *data)
 
 static void
 send_error (WebSocketData *data,
+            guint channel,
             const gchar *command)
 {
-  gchar *json = g_strdup_printf ("{\"command\": \"error\", \"data\": \"%s\"}", command);
+  gchar *json = g_strdup_printf ("%u\n{\"command\": \"error\", \"data\": \"%s\"}", channel, command);
   GBytes *message = g_bytes_new_take (json, strlen (json));
   if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
     web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, NULL, message);
@@ -109,10 +110,16 @@ on_session_recv (CockpitTransport *transport,
                  gpointer user_data)
 {
   WebSocketData *data = user_data;
+  gchar *string;
+  GBytes *prefix;
 
   if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
     {
-      web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, NULL, payload);
+      /* TODO: Temporary code until we start tracking channels */
+      string = g_strdup_printf ("%u\n", channel);
+      prefix = g_bytes_new_take (string, strlen (string));
+      web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, prefix, payload);
+      g_bytes_unref (prefix);
       return TRUE;
     }
 
@@ -133,7 +140,7 @@ on_session_closed (CockpitTransport *transport,
     {
       if (problem)
         {
-          send_error (data, problem);
+          send_error (data, 0, problem);
           web_socket_connection_close (data->web_socket, WEB_SOCKET_CLOSE_SERVER_ERROR, problem);
         }
       else
@@ -187,7 +194,7 @@ on_web_socket_message (WebSocketConnection *web_socket,
           g_warning ("Failed to set up session: %s", error->message);
           g_clear_error (&error);
 
-          send_error (data, "internal-error");
+          send_error (data, 0, "internal-error");
           web_socket_connection_close (web_socket,
                                        WEB_SOCKET_CLOSE_SERVER_ERROR,
                                        "transport-failed");
@@ -195,9 +202,18 @@ on_web_socket_message (WebSocketConnection *web_socket,
     }
   else
     {
-      /* TODO: Zero channel number until later */
+      guint channel;
+      GBytes *payload;
+
       if (!data->eof_to_session)
-        cockpit_transport_send (data->session, 0, message);
+        {
+          payload = cockpit_transport_parse_frame (message, &channel);
+          if (payload)
+            {
+              cockpit_transport_send (data->session, channel, payload);
+              g_bytes_unref (payload);
+            }
+        }
     }
 }
 
@@ -216,7 +232,7 @@ on_web_socket_open (WebSocketConnection *web_socket,
   */
   if (!data->authenticated)
     {
-      send_error (data, "no-session");
+      send_error (data, 0, "no-session");
       web_socket_connection_close (web_socket,
                                    WEB_SOCKET_CLOSE_GOING_AWAY,
                                    "not-authenticated");
@@ -307,6 +323,7 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   data->main_context = g_main_context_new ();
   g_main_context_push_thread_default (data->main_context);
 
+  /* TODO: This is just an arbitrary channel for now */
   data->web_socket = web_socket_server_new_for_stream (url, NULL, protocols,
                                                        io_stream, headers,
                                                        input_buffer);

@@ -408,7 +408,7 @@ test_handshake_and_echo (Test *test,
 
   start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
 
-  sent = g_bytes_new_static ("the message", 11);
+  sent = g_bytes_new_static ("4\nthe message", 13);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
 
@@ -431,6 +431,7 @@ test_echo_large (Test *test,
   WebSocketConnection *ws;
   GBytes *received = NULL;
   GThread *thread;
+  gchar *contents;
   GBytes *sent;
   gulong handler;
 
@@ -438,7 +439,10 @@ test_echo_large (Test *test,
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Medium length */
-  sent = g_bytes_new_take (g_strnfill (1020, '!'), 1020);
+  contents = g_strnfill (1020, '!');
+  contents[0] = '4'; /* channel */
+  contents[1] = '\n';
+  sent = g_bytes_new_take (contents, 1020);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
@@ -447,7 +451,10 @@ test_echo_large (Test *test,
   received = NULL;
 
   /* Extra large */
-  sent = g_bytes_new_take (g_strnfill (100 * 1000, '?'), 100 * 1000);
+  contents = g_strnfill (100 * 1000, '?');
+  contents[0] = '4'; /* channel */
+  contents[1] = '\n';
+  sent = g_bytes_new_take (contents, 100 * 1000);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
@@ -472,7 +479,7 @@ test_close_error (Test *test,
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Send something through to ensure it's open */
-  sent = g_bytes_new_static ("wheee", 5);
+  sent = g_bytes_new_static ("5\nwheee", 7);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
@@ -487,7 +494,7 @@ test_close_error (Test *test,
 
   g_assert (received != NULL);
   g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
-                   "{\"command\": \"error\", \"data\": \"terminated\"}");
+                   "0\n{\"command\": \"error\", \"data\": \"terminated\"}");
   g_bytes_unref (received);
   received = NULL;
 
@@ -515,7 +522,7 @@ test_specified_creds (Test *test,
 
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
-  sent = g_bytes_new_static ("wheee", 5);
+  sent = g_bytes_new_static ("6\nwheee", 7);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
@@ -553,7 +560,7 @@ test_specified_creds_fail (Test *test,
   /* But we should have gotten a failure message, about the credentials */
   g_assert (received != NULL);
   g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
-                   "{\"command\": \"error\", \"data\": \"not-authorized\"}");
+                   "0\n{\"command\": \"error\", \"data\": \"not-authorized\"}");
 
   close_client_and_stop_web_service (test, ws, thread);
 }
@@ -578,7 +585,7 @@ test_socket_unauthenticated (Test *test,
   /* And we should have received a message */
   g_assert (received != NULL);
   g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
-                   "{\"command\": \"error\", \"data\": \"no-session\"}");
+                   "0\n{\"command\": \"error\", \"data\": \"no-session\"}");
   g_bytes_unref (received);
   received = NULL;
 
@@ -612,7 +619,7 @@ test_fail_spawn (Test *test,
   /* But we should have gotten failure message, about the spawn */
   g_assert (received != NULL);
   g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
-                   "{\"command\": \"error\", \"data\": \"internal-error\"}");
+                   "0\n{\"command\": \"error\", \"data\": \"internal-error\"}");
 
   if (GPOINTER_TO_INT (data) == WEB_SOCKET_FLAVOR_RFC6455)
       g_assert_cmpuint (web_socket_connection_get_close_code (ws), ==, WEB_SOCKET_CLOSE_SERVER_ERROR);

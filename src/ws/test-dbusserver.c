@@ -27,6 +27,7 @@
 
 #include <sys/socket.h>
 #include <errno.h>
+#include <string.h>
 #include <unistd.h>
 
 typedef struct {
@@ -101,6 +102,7 @@ read_message (TestCase *tc)
   GError *error = NULL;
   JsonNode *node;
   gchar *message;
+  gchar *line;
   guint32 size;
 
   read_all (tc->fd, (gchar *)&size, sizeof (size));
@@ -110,7 +112,10 @@ read_message (TestCase *tc)
   read_all (tc->fd, message, size);
   message[size] = 0;
 
-  json_parser_load_from_data (tc->parser, message, size, &error);
+  line = strchr (message, '\n');
+  g_assert (line != NULL);
+
+  json_parser_load_from_data (tc->parser, line, size, &error);
   g_assert_no_error (error);
 
   g_free (message);

@@ -115,7 +115,8 @@ DBusInterface.prototype = {
                             cookie: cookie,
                             args: args}
             try {
-                this._client._ws.send(JSON.stringify(call_obj));
+                /* TODO: Eventually we'll be sending a channel here */
+                this._client._ws.send("111\n" + JSON.stringify(call_obj));
             }
             catch (e) {
                 delete this._client._call_reply_map[cookie];
@@ -262,11 +263,15 @@ DBusClient.prototype = {
                 client._disconnected();
         };
         this._ws.onmessage = function(event) {
-            var decoded = JSON.parse(event.data);
+            /* The first line of a message is the channel */
+            var data = event.data;
+            var pos = data.indexOf("\n");
+            var channel = parseInt(data.substring(0, pos))
+            var decoded = JSON.parse(data.substring(pos + 1));
 
             client._got_message = true;
 
-            dbus_debug("in onmessage, command=" + decoded.command);
+            dbus_debug("in onmessage, channel=" + channel + " command=" + decoded.command);
 
             if (decoded.command == "seed") {
                 client._handle_seed(decoded.data, decoded.config);

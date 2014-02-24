@@ -92,7 +92,7 @@ function ph_dbus_prop (iface, prop, text)
     for (var i = 0; i < objs.length; i++) {
         var obj_iface = objs[i].lookup(iface);
         if (obj_iface && obj_iface[prop] && obj_iface[prop] == text)
-            return true;
+            return objs[i].objectPath;
     }
     return false;
 }

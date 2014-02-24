@@ -153,11 +153,13 @@ on_session_write_bytes_complete (GObject                   *src,
     {
       gsize remainder_len = first_size - bytes_written;
       GBytes *remainder = g_bytes_new_from_bytes (first, bytes_written, remainder_len);
-      g_debug ("Have %" G_GSIZE_FORMAT " bytes leftover from short write", remainder_len);
+      // g_debug ("Have %" G_GSIZE_FORMAT " bytes leftover from short write", remainder_len);
       g_queue_push_head (&data->session_write_queue, remainder);
     }
   else
-    g_debug ("Wrote %" G_GSIZE_FORMAT " bytes to client", bytes_written);
+    {
+      // g_debug ("Wrote %" G_GSIZE_FORMAT " bytes to client", bytes_written);
+    }
 
   begin_session_write (data);
  out:
@@ -274,7 +276,7 @@ on_session_read_complete (GObject            *src,
   GError *local_error = NULL;
 
   bytes_read = g_input_stream_read_finish ((GInputStream *)src, result, &local_error);
-  g_debug ("session read %lld bytes", (long long) bytes_read);
+  // g_debug ("session read %lld bytes", (long long) bytes_read);
   if (bytes_read <= 0)
     {
       data->eof_from_session = TRUE;
@@ -307,12 +309,14 @@ on_session_read_complete (GObject            *src,
               (data->size_word_bytes[2] << 8)  |
               (data->size_word_bytes[3] << 0)  ;
             data->message_bytes_read = 0;
-            g_debug ("session will read %u bytes", data->message_bytes_remaining);
+            // g_debug ("session will read %u bytes", data->message_bytes_remaining);
             data->message_buffer = g_byte_array_new ();
             g_byte_array_set_size (data->message_buffer, data->message_bytes_remaining);
           }
         else
-          g_debug ("session header size %u bytes remaining", 4 - data->size_word_bytes_read);
+          {
+            // g_debug ("session header size %u bytes remaining", 4 - data->size_word_bytes_read);
+          }
       }
       break;
     case WS_STATE_READING_MESSAGE:
@@ -326,7 +330,7 @@ on_session_read_complete (GObject            *src,
             gs_unref_bytes GBytes *message = g_byte_array_free_to_bytes (data->message_buffer);
             data->message_buffer = NULL;
             g_assert_cmpint (data->message_bytes_read, ==, g_bytes_get_size (message));
-            g_debug ("session sending message of %u bytes", data->message_bytes_read);
+            // g_debug ("session sending message of %u bytes", data->message_bytes_read);
             if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
               web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, message);
             data->readstate = WS_STATE_READING_SIZE_WORD;
@@ -334,7 +338,9 @@ on_session_read_complete (GObject            *src,
             memset (data->size_word_bytes, 0, 4);
           }
         else
-          g_debug ("session message %u bytes remaining", data->message_bytes_remaining);
+          {
+            // g_debug ("session message %u bytes remaining", data->message_bytes_remaining);
+          }
       }
       break;
     }

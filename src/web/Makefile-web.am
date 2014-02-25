@@ -155,15 +155,10 @@ lang/%.json : $(top_srcdir)/po/%.po
 EXTRA_DIST += \
 	$(cockpit_js_PARTS) \
 	$(contentdata_DATA) \
-	$(contentdatafonts_DATA) \
 	$(contentdataimages_DATA) \
-	$(contentdatalibimages_DATA) \
 	$(contentdatalib_DATA) \
-	src/web/adwaita.scss \
-	jquery.mobile.theme-1.3.0.scss \
-	src/web/lib/jquery.mobile.theme-1.3.0.css \
-	src/web/fix-jqm-theme.patch \
-	src/web/sassify-jqm \
+	$(contentdatalibimages_DATA) \
+	$(contentdatalibfonts_DATA) \
 	src/web/js-lint \
 	src/web/minify \
 	$(NULL)

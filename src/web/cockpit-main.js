@@ -261,7 +261,7 @@ var cockpit_expecting_disconnect = false;
 function cockpit_show_disconnected() {
     if (!cockpit_expecting_disconnect) {
         $("#disconnected-error").text(cockpit_client_error_description(cockpit_dbus_client.error));
-        $('[role="modal"]').modal('hide');
+        $('[role="dialog"]').modal('hide');
         $('#disconnected').modal('show');
     }
 }

@@ -81,6 +81,8 @@ make check
 make install DESTDIR=%{buildroot}
 find %{buildroot} -name '*.la' -delete
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
+mkdir -p %{buildroot}/etc/pam.d/
+cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
 
 %files
 %{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.conf

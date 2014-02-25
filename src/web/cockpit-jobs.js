@@ -79,17 +79,16 @@ function cockpit_ensure_jobs_init ()
     }
 }
 
-function cockpit_job_box (box, title, domain, role, descriptions, target_describer)
+function cockpit_job_box (box, domain, role, descriptions, target_describer)
 {
     function update ()
     {
         var objs = cockpit_dbus_client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
         var i, j, t, tdesc;
-        var target_desc, desc, progress, remaining, cancel;
+        var tbody, target_desc, desc, progress, remaining, cancel;
         var some_added = false;
 
-        box.empty();
-        box.append($('<li data-role="list-divider"/>').text(title));
+        tbody = $('<tbody>');
         for (i = 0; i < objs.length; i++) {
             j = objs[i].lookup("com.redhat.Cockpit.Job");
             if (j && j.Domain == domain) {
@@ -124,25 +123,24 @@ function cockpit_job_box (box, title, domain, role, descriptions, target_describ
                     });
                 } else
                     cancel = "";
-                box.append(
-                    $('<li/>').append(
-                        $('<table style="width:100%"/>').append(
-                            $('<tr/>').append(
-                                $('<td style="width:50%"/>').text(
-                                    desc),
-                                $('<td style="width:15%text-align:right"/>').text(
-                                    progress),
-                                $('<td style="width:15%text-align:right"/>').text(
-                                    remaining),
-                                $('<td style="text-align:right"/>').append(
-                                    cancel)))));
+                tbody.append(
+                    $('<tr>').append(
+                        $('<td style="width:50%"/>').text(
+                            desc),
+                        $('<td style="width:15%text-align:right"/>').text(
+                            progress),
+                        $('<td style="width:15%text-align:right"/>').text(
+                            remaining),
+                        $('<td style="text-align:right"/>').append(
+                            cancel)));
                 some_added = true;
             }
         }
+        box.empty();
         if (!some_added)
-            box.append($('<li/>').text(_("(No current jobs)")));
-        box.trigger('create');
-        box.listview('refresh');
+            box.text(_("(No current jobs)"));
+        else
+            box.append($('<table>', { 'class': 'table' }).append(tbody));
     }
 
     function update_props (event, obj, iface)

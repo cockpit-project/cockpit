@@ -91,7 +91,7 @@ function cockpit_mark_as_block_target (elt, block)
 
 function cockpit_storage_job_box (elt)
 {
-    return cockpit_job_box (elt, _("Storage Jobs"), 'storage', 'cockpit-storage-admin',
+    return cockpit_job_box (elt, 'storage', 'cockpit-storage-admin',
                             { 'format-mkfs' : _("Creating filesystem on %{target}"),
                               'format-erase' : _("Erasing %{target}"),
                               'lvm-vg-empty-device': _("Emptying %{target}")
@@ -122,9 +122,6 @@ PageStorage.prototype = {
     },
 
     show: function() {
-        this._drives.listview("refresh");
-        this._raids.listview("refresh");
-        this._other_devices.listview("refresh");
     },
 
     leave: function() {
@@ -151,12 +148,12 @@ PageStorage.prototype = {
             $("#storage_create_raid").on('click', function() {
                 if (!cockpit_check_role ('cockpit-storage-admin'))
                     return;
-                cockpit_popup(null, "#create-raid-dialog");
+                $('#create-raid-dialog').modal('show');
             });
             $("#storage_create_volume_group").on('click', function() {
                 if (!cockpit_check_role ('cockpit-storage-admin'))
                     return;
-                cockpit_popup(null, "#create-volume-group-dialog");
+                $('#create-volume-group-dialog').modal('show');
             });
         }
 
@@ -169,10 +166,6 @@ PageStorage.prototype = {
             return;
         //cockpit_debug("object added " + obj.objectPath);
         this._add(obj);
-        this._drives.listview("refresh");
-        this._raids.listview("refresh");
-        this._vgs.listview("refresh");
-        this._other_devices.listview("refresh");
     },
 
     _onObjectRemoved: function (event, obj) {
@@ -180,10 +173,6 @@ PageStorage.prototype = {
             return;
         //cockpit_debug("object removed " + obj.objectPath);
         this._remove(obj);
-        this._drives.listview("refresh");
-        this._raids.listview("refresh");
-        this._vgs.listview("refresh");
-        this._other_devices.listview("refresh");
     },
 
     _onPropertiesChanged: function (event, obj, iface) {
@@ -192,37 +181,22 @@ PageStorage.prototype = {
         //cockpit_debug("object changed " + obj.objectPath);
         this._remove(obj);
         this._add(obj);
-        this._drives.listview("refresh");
-        this._raids.listview("refresh");
-        this._vgs.listview("refresh");
-        this._other_devices.listview("refresh");
     },
 
     _coldplug: function() {
         this._drives.empty();
-        this._drives.append("<li data-role=\"list-divider\">" + _("Disk Drives") + "</li>");
-        this._drives.hide();
-
+        this._drives.closest('.panel').hide();
         this._raids.empty();
-        this._raids.append("<li data-role=\"list-divider\">" + _("RAID Arrays") + "</li>");
-        this._raids.hide();
-
+        this._raids.closest('.panel').hide();
         this._vgs.empty();
-        this._vgs.append("<li data-role=\"list-divider\">" + _("Volume Groups") + "</li>");
-        this._vgs.hide();
-
+        this._vgs.closest('.panel').hide();
         this._other_devices.empty();
-        this._other_devices.append("<li data-role=\"list-divider\">" + _("Other Devices") + "</li>");
-        this._other_devices.hide();
+        this._other_devices.closest('.panel').hide();
 
         var objs = cockpit_dbus_client.getObjectsFrom("/com/redhat/Cockpit/Storage/");
         for (var n = 0; n < objs.length; n++) {
             this._add(objs[n]);
         }
-        this._drives.listview("refresh");
-        this._raids.listview("refresh");
-        this._vgs.listview("refresh");
-        this._other_devices.listview("refresh");
     },
 
     _add: function(obj) {
@@ -268,12 +242,10 @@ PageStorage.prototype = {
             device_string += block.Device;
         }
 
-        var html = "<li id=\"storage-drive-" + id + "\" sort=\"" + sort_key + "\">";
-        // Since id part of a D-Bus object path, we are guaranteed it is safe to put in a URL
-        html += "<a onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
+        var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + sort_key + "\"";
+        html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
 
-        html += "<table style=\"width:100%\" class=\"cockpit-storage-table\"><tr>";
-        html += "<td style=\"width:60%\">";
+        html += "<td>";
         html += cockpit_esc(drive.Name);
         html += "</td>";
         html += "<td>";
@@ -300,8 +272,7 @@ PageStorage.prototype = {
         html += val;
         html += "</td>";
         html += '<td style="width:20px"><img id="storage-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
-        html += "</tr></table>";
-        html += "</a></li>";
+        html += "</tr>";
 
         // TODO: should show warning icon etc. if disk is failing
 
@@ -320,7 +291,7 @@ PageStorage.prototype = {
         }
 
         (this._drives[0]).insertBefore(($(html))[0], insert_before);
-        this._drives.show();
+        this._drives.closest('.panel').show();
 
         cockpit_prepare_as_target ($('#storage-spinner-' + id));
         for (n = 0; n < blocks.length; n++)
@@ -334,12 +305,10 @@ PageStorage.prototype = {
         var sort_key = id; // for now
         var n;
 
-        var html = "<li id=\"storage-raid-" + id + "\" sort=\"" + sort_key + "\">";
-        // Since id part of a D-Bus object path, we are guaranteed it is safe to put in a URL
-        html += "<a onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
+        var html = "<tr id=\"storage-raid-" + id + "\" sort=\"" + sort_key + "\"";
+        html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
 
-        html += "<table style=\"width:100%\" class=\"cockpit-storage-table\"><tr>";
-        html += "<td style=\"width:60%\">";
+        html += "<td>";
         html += cockpit_esc(cockpit_raid_get_desc(raid));
         html += "</td>";
         html += "<td>";
@@ -351,8 +320,7 @@ PageStorage.prototype = {
             html += C_("storage", "RAID Array");
         html += "</td>";
         html += '<td style="width:20px"><img id="storage-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
-        html += "</tr></table>";
-        html += "</a></li>";
+        html += "</tr>";
 
         // Insert sorted
         var children = this._raids[0].childNodes;
@@ -368,7 +336,7 @@ PageStorage.prototype = {
         }
 
         (this._raids[0]).insertBefore(($(html))[0], insert_before);
-        this._raids.show();
+        this._raids.closest('.panel').show();
 
         cockpit_prepare_as_target ($('#storage-spinner-' + id));
         var blocks = cockpit_get_block_devices_for_mdraid (raid);
@@ -383,12 +351,10 @@ PageStorage.prototype = {
         var sort_key = id; // for now
         var n;
 
-        var html = "<li id=\"storage-vg-" + id + "\" sort=\"" + sort_key + "\">";
-        // Since id part of a D-Bus object path, we are guaranteed it is safe to put in a URL
-        html += "<a onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
+        var html = "<tr id=\"storage-vg-" + id + "\" sort=\"" + sort_key + "\"";
+        html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
 
-        html += "<table style=\"width:100%\" class=\"cockpit-storage-table\"><tr>";
-        html += "<td style=\"width:60%\">";
+        html += "<td>";
         html += cockpit_esc(vg.Name);
         html += "</td>";
         html += "<td>";
@@ -400,8 +366,7 @@ PageStorage.prototype = {
             html += C_("storage", "Volume Group");
         html += "</td>";
         html += '<td style="width:20px"><img id="storage-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
-        html += "</tr></table>";
-        html += "</a></li>";
+        html += "</tr>";
 
         // Insert sorted
         var children = this._vgs[0].childNodes;
@@ -417,7 +382,7 @@ PageStorage.prototype = {
         }
 
         (this._vgs[0]).insertBefore(($(html))[0], insert_before);
-        this._vgs.show();
+        this._vgs.closest('.panel').show();
 
         cockpit_prepare_as_target ($('#storage-spinner-' + id));
     },
@@ -437,12 +402,10 @@ PageStorage.prototype = {
         var id = cockpit_esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
         var sort_key = id; // for now
 
-        var html = "<li id=\"storage-block-" + id + "\" sort=\"" + sort_key + "\">";
-        // Since id part of a D-Bus object path, we are guaranteed it is safe to put in a URL
-        html += "<a onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
+        var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key + "\"";
+        html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
 
-        html += "<table style=\"width:100%\" class=\"cockpit-storage-table\"><tr>";
-        html += "<td style=\"width:60%\">";
+        html += "<td>";
         html += cockpit_esc(block.Device);
         html += "</td>";
         html += "<td>";
@@ -452,8 +415,7 @@ PageStorage.prototype = {
         html += val;
         html += "</td>";
         html += '<td style="width:20px"><img id="storage-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
-        html += "</tr></table>";
-        html += "</a></li>";
+        html += "</tr>";
 
         // Insert sorted
         var children = this._other_devices[0].childNodes;
@@ -470,7 +432,7 @@ PageStorage.prototype = {
         }
 
         (this._other_devices[0]).insertBefore(($(html))[0], insert_before);
-        this._other_devices.show();
+        this._other_devices.closest('.panel').show();
 
         cockpit_prepare_as_target ($('#storage-spinner-' + id));
         cockpit_mark_as_block_target ($('#storage-spinner-' + id), block);
@@ -718,60 +680,38 @@ PageStorageDetail.prototype = {
         var me = this;
         var type = cockpit_get_page_param("type");
         var id = cockpit_get_page_param("id");
+        var btn;
 
         if (first_visit) {
+            me.raid_action_btn =
+                cockpit_action_btn (function (op) { me.action(op); },
+                                    [ { title: _("Start"),           action: 'start' },
+                                      { title: _("Stop"),            action: 'stop' },
+                                      { title: _("Format"),          action: 'format' },
+                                      { title: _("Start Scrubbing"), action: 'start-scrub' },
+                                      { title: _("Stop Scrubbing"),  action: 'stop-scrub' },
+                                      { title: _("Delete"),          action: 'delete',
+                                        danger: true
+                                      }
+                                    ]);
+            $('#raid_action_btn').html(me.raid_action_btn);
+            $('#raid-disks-add').on('click', $.proxy(this, "raid_disk_add"));
+
             $("#raid_detail_bitmap_enable").on('click', $.proxy (this, "bitmap_enable"));
             $("#raid_detail_bitmap_disable").on('click', $.proxy (this, "bitmap_disable"));
 
-            $("#drive-actions").on('click', function () {
-                var o = $(this).offset();
-                $("#drive-actions-menu").popup('open', { x: o.left, y: o.top });
-            });
-            $("#drive-actions-menu button").on('click', function () {
-                $("#drive-actions-menu").popup('close');
-                me.action($(this).attr("data-op"));
-            });
-            $("#drive-action").on('click', $.proxy(this, "format_disk"));
-
-            $("#raid-actions").on('click', function () {
-                var o = $(this).offset();
-                $("#raid-actions-menu").popup('open', { x: o.left, y: o.top });
-            });
-            $("#raid-actions-menu button").on('click', function () {
-                $("#raid-actions-menu").popup('close');
-                me.action($(this).attr("data-op"));
-            });
-            $("#raid-action").on('click', $.proxy(this, "raid_action"));
-
-            $("#whole-disk-actions-menu button").on('click', function () {
-                $("#whole-disk-actions-menu").popup('close');
-                me.block_action(me.target, $(this).attr("data-op"));
+            $("#drive_format").on('click', function () {
+                me.action('format');
             });
 
-            $("#block-actions-menu button").on('click', function () {
-                $("#block-actions-menu").popup('close');
-                me.block_action(me.target, $(this).attr("data-op"));
-            });
-
-            $("#pv-actions-menu button").on('click', function () {
-                $("#pv-actions-menu").popup('close');
-                me.physical_volume_action(me.target, $(this).attr("data-op"));
-            });
-
-            $("#vg-free-actions-menu button").on('click', function () {
-                $("#vg-free-actions-menu").popup('close');
-                me.volume_group_action($(this).attr("data-op"));
-            });
-
-            $("#vg-actions").on('click', function () {
-                var o = $(this).offset();
-                $("#vg-actions-menu").popup('open', { x: o.left, y: o.top });
-            });
-            $("#vg-actions-menu button").on('click', function () {
-                $("#vg-actions-menu").popup('close');
-                me.volume_group_action($(this).attr("data-op"));
-            });
-            $("#vg-action").on('click', $.proxy(this, "delete_volume_group"));
+            btn = cockpit_action_btn (function (op) { me.volume_group_action(op); },
+                                      [ { title: _("Rename"), action: 'rename',
+                                          is_default: true },
+                                        { title: _("Delete"), action: 'delete',
+                                          danger: true }
+                                      ]);
+            $('#vg_action_btn').html(btn);
+            $("#vg-pv-add").on('click', $.proxy(this, "add_physical_volume"));
         }
 
         this._drive = null;
@@ -856,37 +796,148 @@ PageStorageDetail.prototype = {
 
         var id = 0;
 
-        function append_entry (level, name, desc, actions_button) {
+        function block_action_func (target) {
+            return function (op) {
+                me.block_action(target, op);
+            };
+        }
+
+        function create_block_action_btn (target, is_crypto_locked, is_partition) {
+            var btn;
+
+            var filesystem_action_spec =
+                [ { title: _("Mount"),              action: "mount" },
+                  { title: _("Unmount"),            action: "unmount" },
+                  { title: _("Filesystem Options"), action: "fsys-options" }
+                ];
+
+            var crypto_action_spec =
+                [ { title: _("Lock"),               action: "lock" },
+                  { title: _("Unlock"),             action: "unlock" },
+                  { title: _("Encryption Options"), action: "crypto-options" }
+                ];
+
+            var lvol_action_spec =
+                [ { title: _("Resize"),             action: "resize" },
+                  { title: _("Rename"),             action: "rename" }
+                ];
+
+            var lvol_block_action_spec =
+                [ { title: _("Create Snapshot"),    action: "create-snapshot" },
+                  { title: _("Activate"),           action: "activate" },
+                  { title: _("Deactivate"),         action: "deactivate" }
+                ];
+
+            var lvol_pool_action_spec =
+                [ { title: _("Create Thin Volume"), action: "create-thin-volume" }
+                ];
+
+            var format_action_spec =
+                [ { title: _("Format"),             action: "format" }
+                ];
+
+            var delete_action_spec =
+                [ { title: _("Delete"),             action: "delete", danger: true }
+                ];
+
+            var is_filesystem         = (target.IdUsage == 'filesystem');
+            var is_filesystem_mounted = (target.MountedAt && target.MountedAt.length !== 0);
+            var is_crypto             = (target.IdUsage == 'crypto');
+            var is_lvol               = (target._iface_name == "com.redhat.Cockpit.Storage.LogicalVolume" ||
+                                         target.LogicalVolume != "/");
+            var is_lvol_pool          = (target.Type == "pool");
+            var is_lvol_active        = (target._iface_name == "com.redhat.Cockpit.Storage.Block" ||
+                                         target.Active);
+            var is_formattable        = (target._iface_name == "com.redhat.Cockpit.Storage.Block");
+
+            var default_op = null;
+            var action_spec = [ ];
+
+            if (is_filesystem) {
+                action_spec = action_spec.concat(filesystem_action_spec);
+                default_op = is_filesystem_mounted? 'unmount' : 'mount';
+            } else if (is_crypto) {
+                action_spec = action_spec.concat(crypto_action_spec);
+                default_op = is_crypto_locked? 'unlock' : 'lock';
+            }
+
+            if (is_formattable) {
+                action_spec = action_spec.concat(format_action_spec);
+                if (!default_op)
+                    default_op = 'format';
+            }
+
+            if (is_lvol) {
+                action_spec = action_spec.concat(lvol_action_spec);
+                if (is_lvol_pool) {
+                    action_spec = action_spec.concat(lvol_pool_action_spec);
+                    default_op = 'create-thin-volume';
+                } else {
+                    action_spec = action_spec.concat(lvol_block_action_spec);
+                    if (!default_op)
+                        default_op = is_lvol_active? 'deactivate' : 'activate';
+                }
+            }
+
+            if (is_partition || is_lvol) {
+                action_spec = action_spec.concat(delete_action_spec);
+                if (!default_op)
+                    default_op = 'delete';
+            }
+
+            if (action_spec.length > 0) {
+                btn = cockpit_action_btn (function (op) { me.block_action (target, op); },
+                                          action_spec);
+                cockpit_action_btn_select (btn, default_op);
+
+                cockpit_action_btn_enable (btn, 'mount',              !is_filesystem_mounted);
+                cockpit_action_btn_enable (btn, 'unmount',            is_filesystem_mounted);
+                cockpit_action_btn_enable (btn, 'lock',               !is_crypto_locked);
+                cockpit_action_btn_enable (btn, 'unlock',             is_crypto_locked);
+                cockpit_action_btn_enable (btn, 'activate',           !is_lvol_active);
+                cockpit_action_btn_enable (btn, 'deactivate',         is_lvol_active);
+            }
+
+            return btn;
+        }
+
+        function create_simple_btn (title, func) {
+            return $('<button>', { 'class': 'btn btn-default',
+                                   'on': { 'click': func }
+                                 }).text(title);
+        }
+
+        function append_entry (level, name, desc, button) {
             id += 1;
 
-            var html = "<li>";
-            html += "<table style=\"width:100%\" class=\"cockpit-storage-table\"><tr>";
+            // XXX
+            if (button === true)
+                button = null;
+
+            var tr = $('<tr>');
             if (level > 0)
-                html += '<td width="' + 30*level + 'px"/>';
-            html += "<td style=\"width:50%\">";
-            html += desc;
-            html += "</td>";
-            if (name) {
-                html += '<td style="text-align:left">';
-                html += name;
-                html += "</td>";
-            }
-            html += '<td style="text-align:right"><div data-role="controlgroup" data-type="horizontal">';
-            html += '<button data-inline="true" id="entry-action-' +id+ '"></button>';
-            if (actions_button)
-                html += '<button data-inline="true" id="entry-actions-' +id+ '">...</button>';
-            html += '</div></td>';
-            html += '<td style="width:20px"><img id="entry-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
-            html += "</tr></table>";
-            html += "</li>";
-            list.append(html).trigger('create');
+                tr.append($('<td>', { 'Width': 30*level }));
+            tr.append($('<td>', { 'style': 'width:50%' }).html(desc));
+            if (name)
+                tr.append($('<td>', { 'style': 'text-align:left' }).html(name));
+            if (button)
+                tr.append($('<td>', { 'style': 'text-align:right' }).append(button));
+            tr.append(
+                $('<td>', { 'style': 'width:20px' }).append(
+                    $('<img>', { 'id': 'entry-spinner-' +id,
+                                 'src': 'images/small-spinner.gif'
+                               })));
+            list.append(
+                $('<li>', { 'class': 'list-group-item' }).append(
+                    $('<table>', { 'style': 'width:100%'
+                                 }).append(tr)));
 
             cockpit_prepare_as_target ('#entry-spinner-' + id);
             return id;
         }
 
         function append_non_partitioned_block (level, block, part_desc) {
-            var id, name, desc;
+            var id, name, desc, btn;
             var cleartext_device;
 
             if (block.IdUsage == 'crypto')
@@ -898,54 +949,10 @@ PageStorageDetail.prototype = {
                 name = "—";
             desc = cockpit_block_get_desc(block, part_desc, cleartext_device);
 
-            id = append_entry (level, name, desc, true);
+            id = append_entry (level, name, desc,
+                               create_block_action_btn (block, !cleartext_device, !!part_desc));
 
             cockpit_mark_as_target ('#entry-spinner-' + id, block.getObject().objectPath);
-
-            $("#entry-actions-" + id).on('click', function () {
-                var o = $(this).offset();
-                me.target = block;
-                $('#block-actions-menu button').button('disable');
-                $('#block-actions-menu button.all').button('enable');
-                $('#block-actions-menu button.formattable').button('enable');
-                if (part_desc)
-                    $('#block-actions-menu button.partition').button('enable');
-                if (block.IdUsage == 'filesystem')
-                    $('#block-actions-menu button.filesystem').button('enable');
-                if (block.IdUsage == 'crypto')
-                    $('#block-actions-menu button.crypto').button('enable');
-                if (block.LogicalVolume != "/") {
-                    $('#block-actions-menu button.lvol').button('enable');
-                    $('#block-actions-menu button.lvol-active').button('enable');
-                }
-                $("#block-actions-menu").popup('open', { x: o.left, y: o.top });
-            });
-
-            var label, op;
-            if (block.IdUsage == 'filesystem') {
-                if (block.MountedAt.length === 0) {
-                    op = 'mount';
-                    label = _("Mount");
-                } else {
-                    op = 'unmount';
-                    label = _("Unmount");
-                }
-            } else if (block.IdUsage == 'crypto') {
-                if (cleartext_device) {
-                    op = 'lock';
-                    label = _("Lock");
-                } else {
-                    op = 'unlock';
-                    label = _("Unlock");
-                }
-            } else {
-                op = 'format';
-                label = _("Format");
-            }
-
-            $("#entry-action-" + id).text(label);
-            $("#entry-action-" + id).button('refresh');
-            $("#entry-action-" + id).on('click', $.proxy(me, "block_action", block, op));
 
             me.watch_object(block);
 
@@ -960,7 +967,7 @@ PageStorageDetail.prototype = {
             var wanted = block.Partitions.sort(function (a,b) { return a[1] - b[1]; });
 
             function append_free_space (level, start, size) {
-                var id, desc;
+                var desc;
 
                 // UDisks rounds the start up to the next MiB, so let's do
                 // the same and see whether there is anything left that is
@@ -980,31 +987,16 @@ PageStorageDetail.prototype = {
                         desc = F(_("%{size} Free Space"),
                                  { size: cockpit_fmt_size (size) });
 
-                    id = append_entry (level, null, desc, false);
-
-                    $("#entry-action-" + id).text(_("Create Partition"));
-                    $("#entry-action-" + id).button('refresh');
-                    $("#entry-action-" + id).on('click', $.proxy(me, "create_partition", block, start, size));
+                    append_entry (level, null, desc,
+                                  create_simple_btn (_("Create Partition"),
+                                                     $.proxy(me, "create_partition", block, start, size)));
                 }
             }
 
             function append_extended_partition (level, block, start, size) {
                 var desc = F(_("%{size} Extended Partition"), { size: cockpit_fmt_size (size) });
-                var id = append_entry (level, null, desc, true);
-
-                $("#entry-actions-" + id).on('click', function () {
-                    var o = $(this).offset();
-                    me.target = block;
-                    $('#block-actions-menu button').button('disable');
-                    $('#block-actions-menu button.all').button('enable');
-                    $('#block-actions-menu button.formattable').button('enable');
-                    $('#block-actions-menu button.partition').button('enable');
-                    $("#block-actions-menu").popup('open', { x: o.left, y: o.top });
-                });
-                $("#entry-action-" + id).text(_("Delete"));
-                $("#entry-action-" + id).button('refresh');
-                $("#entry-action-" + id).on('click', $.proxy(me, "block_action", block, 'delete'));
-
+                var btn = create_block_action_btn (block, false, true);
+                append_entry (level, null, desc, btn);
                 me.watch_object(block);
                 process_level (level + 1, start, size);
             }
@@ -1068,27 +1060,14 @@ PageStorageDetail.prototype = {
             var i, id, lvs, objs, block, lv, vg_obj, desc;
 
             function append_logical_volume_block (level, block, lv) {
-                var id, desc;
+                var btn, id, desc;
                 if (block.PartitionTableType) {
                     desc = F(_("%{size} %{desc}"),
                              { desc: cockpit_lvol_get_desc(lv),
                                size: cockpit_fmt_size (block.Size) });
                     desc += "<br/>" + cockpit_esc(block.Device);
-                    id = append_entry (level, null, desc, true);
-                    $("#entry-actions-" + id).on('click', function () {
-                        var o = $(this).offset();
-                        me.target = block;
-                        $('#block-actions-menu button').button('disable');
-                        $('#block-actions-menu button.all').button('enable');
-                        $('#block-actions-menu button.formattable').button('enable');
-                        $('#block-actions-menu button.lvol').button('enable');
-                        $('#block-actions-menu button.lvol-active').button('enable');
-                        $("#block-actions-menu").popup('open', { x: o.left, y: o.top });
-                    });
-                    $("#entry-action-" + id).text(_("Format"));
-                    $("#entry-action-" + id).button('refresh');
-                    $("#entry-action-" + id).on('click', $.proxy(me, "block_action", block, 'format'));
-
+                    btn = create_block_action_btn (block, false, false);
+                    id = append_entry (level, null, desc, btn);
                     append_partitions (level+1, block);
                 } else
                     append_non_partitioned_block (level, block, null);
@@ -1107,7 +1086,7 @@ PageStorageDetail.prototype = {
             }
 
             function append_logical_volume (level, lv) {
-                var block, desc, id, ratio;
+                var block, desc, btn, id, ratio;
                 var lv_obj, objs, i, llv;
 
                 if (lv.Type == "pool") {
@@ -1117,20 +1096,8 @@ PageStorageDetail.prototype = {
                                desc: cockpit_lvol_get_desc(lv),
                                percent: (ratio*100).toFixed(0)
                              });
-                    id = append_entry (level, null, desc, true);
-
-                    $("#entry-actions-" + id).on('click', function () {
-                        var o = $(this).offset();
-                        me.target = lv;
-                        $('#block-actions-menu button').button('disable');
-                        $('#block-actions-menu button.all').button('enable');
-                        $('#block-actions-menu button.lvol').button('enable');
-                        $('#block-actions-menu button.lvol-pool').button('enable');
-                        $("#block-actions-menu").popup('open', { x: o.left, y: o.top });
-                    });
-                    $("#entry-action-" + id).text(_("Create Thin Volume"));
-                    $("#entry-action-" + id).button('refresh');
-                    $("#entry-action-" + id).on('click', $.proxy(me, "create_thin_volume", lv));
+                    btn = create_block_action_btn (lv, false, false);
+                    id = append_entry (level, null, desc, btn);
 
                     lv_obj = lv.getObject();
                     objs = cockpit_dbus_client.getObjectsFrom(lv.VolumeGroup);
@@ -1155,29 +1122,8 @@ PageStorageDetail.prototype = {
                                    desc: cockpit_lvol_get_desc(lv),
                                    state: lv.Active? _("active, but unsupported") : _("inactive")
                                  });
-                        id = append_entry (level, null, desc, true);
-
-                        $("#entry-actions-" + id).on('click', function () {
-                            var o = $(this).offset();
-                            me.target = lv;
-                            $('#block-actions-menu button').button('disable');
-                            $('#block-actions-menu button.all').button('enable');
-                            $('#block-actions-menu button.lvol').button('enable');
-                            if (lv.Active)
-                                $('#block-actions-menu button.lvol-active').button('enable');
-                            else
-                                $('#block-actions-menu button.lvol-inactive').button('enable');
-                            $("#block-actions-menu").popup('open', { x: o.left, y: o.top });
-                        });
-                        if (lv.Active) {
-                            $("#entry-action-" + id).text(_("Deactivate"));
-                            $("#entry-action-" + id).button('refresh');
-                            $("#entry-action-" + id).on('click', $.proxy(me, 'deactivate_logical_volume', lv));
-                        } else {
-                            $("#entry-action-" + id).text(_("Activate"));
-                            $("#entry-action-" + id).button('refresh');
-                            $("#entry-action-" + id).on('click', $.proxy(me, 'activate_logical_volume', lv));
-                        }
+                        btn = create_block_action_btn (lv, false, false);
+                        id = append_entry (level, null, desc, btn);
                     }
                 }
             }
@@ -1195,14 +1141,18 @@ PageStorageDetail.prototype = {
             if (vg.FreeSize > 0) {
                 desc = F(_("%{size} Free Space for Logical Volumes"),
                          { size: cockpit_fmt_size (vg.FreeSize) });
-                id = append_entry (level, null, desc, true);
-                $("#entry-actions-" + id).on('click', function () {
-                    var o = $(this).offset();
-                    $("#vg-free-actions-menu").popup('open', { x: o.left, y: o.top });
-                });
-                $("#entry-action-" + id).text(_("Create Plain Logical Volume"));
-                $("#entry-action-" + id).button('refresh');
-                $("#entry-action-" + id).on('click', $.proxy(me, "create_plain_volume", vg));
+                var btn = cockpit_action_btn (function (op) { me.volume_group_action (op); },
+                                              [ { title: _("Create Plain Logical Volume"),
+                                                  action: 'create-plain', is_default: true
+                                                },
+                                                { title: _("Create RAID Logical Volume"),
+                                                  action: 'create-raid'
+                                                },
+                                                { title: _("Create Pool for Thin Logical Volumes"),
+                                                  action: 'create-thin-pool'
+                                                }
+                                              ]);
+                id = append_entry (level, null, desc, btn);
             }
         }
 
@@ -1216,13 +1166,12 @@ PageStorageDetail.prototype = {
         var list = $("#storage_detail_partition_list");
         list.empty();
         if (block_or_vg._iface_name == "com.redhat.Cockpit.Storage.Block") {
-            list.append('<li data-role="list-divider">' + _("Content") + '</li>');
+            $('#storage_detail_content_title').text(_("Content"));
             append_device (0, block_or_vg);
         } else if (block_or_vg._iface_name == "com.redhat.Cockpit.Storage.VolumeGroup") {
-            list.append('<li data-role="list-divider">' + _("Logical Volumes") + '</li>');
+            $('#storage_detail_content_title').text(_("Logical Volumes"));
             append_volume_group (0, block_or_vg);
         }
-        list.listview('refresh');
     },
 
     _updateDrive: function() {
@@ -1364,17 +1313,11 @@ PageStorageDetail.prototype = {
         }
         $("#raid_detail_state").html(state);
 
-        if (is_running) {
-            $("#raid-action").text(_("Stop"));
-            $("#raid-action").button('refresh');
-            this.raid_op = 'stop';
-        } else {
-            $("#raid-action").text(_("Start"));
-            $("#raid-action").button('refresh');
-            this.raid_op = 'start';
-        }
+        cockpit_action_btn_select (this.raid_action_btn, is_running? 'stop' : 'start');
+        cockpit_action_btn_enable (this.raid_action_btn, 'stop', is_running);
+        cockpit_action_btn_enable (this.raid_action_btn, 'start', !is_running);
 
-        $("#raid-disks").toggle(is_running);
+        $("#raid-disks").closest('.panel').toggle(is_running);
 
         function render_state(slot, state)
         {
@@ -1395,10 +1338,8 @@ PageStorageDetail.prototype = {
         var disks = $("#raid-disks");
         var info = this._mdraid.ActiveDevices;
         var i, j, slot, drive, states, state_html, num_errors;
-        var blocks_in_use = [ ];
 
         disks.empty();
-        disks.append('<li data-role="list-divider">' + _("Disks") + '</li>');
         for (i = 0; i < info.length; i++) {
             slot = info[i][1];
             block = cockpit_dbus_client.lookup (info[i][0],
@@ -1422,36 +1363,18 @@ PageStorageDetail.prototype = {
                                '</span>');
             }
 
-            disks.append('<li>' +
-                         '<table style="width:100%">' +
-                         '<td style="width:20px;text-align:center">' + ((slot < 0)? "--" : slot) + '</td>' +
-                         '<td>' + cockpit_esc(drive? drive.Name : block.Device) + '</td>' +
-                         '<td style="width:100px;text-align:right">' + state_html + '</td>' +
-                         '<td style="text-align:right">' +
-                         '<div data-role="controlgroup" data-type="horizontal">' +
-                         '<button data-inline="true" id="raid-disks-remove-' + i + '">' + _("Remove") + '</button>' +
-                         '</div>' +
-                         '</td>' +
-                         '</tr>' +
-                         '</table>' +
-                         '</li>');
-
-            blocks_in_use.push(block);
+            disks.append(
+                $('<li class="list-group-item">').append(
+                    $('<table style="width:100%">').append(
+                        $('<tr>').append(
+                            $('<td style="width:20px;text-align:center">').text((slot < 0)? "--" : slot),
+                            $('<td>').text(drive? drive.Name : block.Device),
+                            $('<td style="width:100px;text-align:right">').html(state_html),
+                            $('<td style="text-align:right">').append(
+                                $('<button>', { 'class': 'btn btn-default',
+                                                'on': { 'click': $.proxy(this, "raid_disk_remove", block) }
+                                              }).text(_("Remove")))))));
         }
-        disks.append('<li style="text-align:right">' +
-                     '<div data-role="controlgroup" data-type="horizontal">' +
-                     '<button data-inline="true" id="raid-disks-add">' + _("Add") + '</button>' +
-                     '</div>' +
-                     '</li>');
-        disks.trigger('create');
-        disks.listview('refresh');
-
-        for (i = 0; i < info.length; i++) {
-            block = cockpit_dbus_client.lookup (info[i][0],
-                                             "com.redhat.Cockpit.Storage.Block");
-            $("#raid-disks-remove-" + i).on('click', $.proxy(this, "raid_disk_remove", block));
-        }
-        $("#raid-disks-add").on('click', $.proxy(this, "raid_disk_add", blocks_in_use));
     },
 
     _updateVG: function() {
@@ -1469,8 +1392,8 @@ PageStorageDetail.prototype = {
 
         val = vg.Size > 0 ? cockpit_fmt_size_long(vg.Size) : "--";
         $("#vg_detail_capacity").html(val);
-        $("#vg_detail_name").html(cockpit_esc(vg.Name));
-        $("#vg_detail_uuid").html(cockpit_esc(vg.UUID));
+        $("#vg_detail_name").text(vg.Name);
+        $("#vg_detail_uuid").text(vg.UUID);
 
         pvs_list = $("#vg-physical-volumes");
         pvs = [ ];
@@ -1488,8 +1411,16 @@ PageStorageDetail.prototype = {
             return desc_a.localeCompare(desc_b);
         });
 
+        function physical_action_func (block) {
+            return function (op) { me.physical_volume_action (block, op); };
+        }
+
+        var physical_action_spec =
+            [ { title: _("Remove"), action: 'remove', is_default: true },
+              { title: _("Empty"),  action: 'empty' }
+            ];
+
         pvs_list.empty();
-        pvs_list.append('<li data-role="list-divider">' + _("Physical Volumes") + '</li>');
         for (i = 0; i < pvs.length; i++) {
             block = pvs[i];
             drive = (block &&
@@ -1503,39 +1434,15 @@ PageStorageDetail.prototype = {
                                 { size: cockpit_fmt_size (block.PvSize),
                                   free: cockpit_fmt_size (block.PvFreeSize)
                                 });
-            pvs_list.append('<li>' +
-                            '<table style="width:100%">' +
-                            '<td>' + desc + '</td>' +
-                            '<td style="text-align:right">' +
-                            '<div data-role="controlgroup" data-type="horizontal">' +
-                            '<button data-inline="true" id="vg-pv-remove-' + i + '">' + _("Remove") + '</button>' +
-                            '<button data-inline="true" id="vg-pv-actions-' + i + '">...</button>' +
-                            '</div>' +
-                            '</td>' +
-                            '</tr>' +
-                            '</table>' +
-                            '</li>');
+            pvs_list.append(
+                $('<li class="list-group-item">').append(
+                    $('<table style="width:100%">').append(
+                        $('<tr>').append(
+                            $('<td>').html(desc),
+                            $('<td style="text-align:right">').html(
+                                cockpit_action_btn(physical_action_func (block),
+                                                   physical_action_spec))))));
         }
-        pvs_list.append('<li style="text-align:right">' +
-                        '<div data-role="controlgroup" data-type="horizontal">' +
-                        '<button data-inline="true" id="vg-pv-add">' + _("Add") + '</button>' +
-                        '</div>' +
-                        '</li>');
-        pvs_list.trigger('create');
-        pvs_list.listview('refresh');
-
-        for (i = 0; i < pvs.length; i++) {
-            (function (block) {
-                $("#vg-pv-remove-" + i).on('click', $.proxy(me, "remove_physical_volume", block));
-                $("#vg-pv-actions-" + i).on('click', function () {
-                    var o = $(this).offset();
-                    me.target = block;
-                    $("#pv-actions-menu").popup('open', { x: o.left, y: o.top });
-                });
-            }(pvs[i]));
-        }
-        $("#vg-pv-add").on('click', $.proxy(this, "add_physical_volume"));
-
 
         this._updateContent (vg);
     },
@@ -1603,6 +1510,8 @@ PageStorageDetail.prototype = {
             this.resize_logical_volume(get_lv(target));
         else if (op == 'rename')
             this.rename_logical_volume(get_lv(target));
+        else if (op == 'activate')
+            this.activate_logical_volume(get_lv(target));
         else if (op == 'deactivate')
             this.deactivate_logical_volume(get_lv(target));
         else if (op == 'create-thin-volume')
@@ -1690,13 +1599,13 @@ PageStorageDetail.prototype = {
             PageFormatDisk.block = this._block;
 
         if (PageFormatDisk.block)
-            cockpit_popup (null, "#storage_format_disk_dialog");
+            $('#storage_format_disk_dialog').modal('show');
     },
 
     format: function(block) {
         PageFormat.mode = 'format';
         PageFormat.block = block;
-        cockpit_popup(null, "#storage_format_dialog");
+        $('#storage_format_dialog').modal('show');
     },
 
     delete_partition: function(block) {
@@ -1715,7 +1624,7 @@ PageStorageDetail.prototype = {
         PageFormat.mode = 'create-partition';
         PageFormat.start = start;
         PageFormat.size = size;
-        cockpit_popup(null, "#storage_format_dialog");
+        $('#storage_format_dialog').modal('show');
     },
 
     mount: function(block) {
@@ -1744,17 +1653,17 @@ PageStorageDetail.prototype = {
 
     unlock: function(block) {
         PageUnlock.block = block;
-        cockpit_popup(null, "#storage_unlock_dialog");
+        $('#storage_unlock_dialog').modal('show');
     },
 
     fsys_options: function(block) {
         PageFilesystemOptions.block = block;
-        cockpit_popup(null, "#filesystem_options_dialog");
+        $('#filesystem_options_dialog').modal('show');
     },
 
     crypto_options: function(block) {
         PageCryptoOptions.block = block;
-        cockpit_popup(null, "#crypto_options_dialog");
+        $('#crypto_options_dialog').modal('show');
     },
 
     raid_disk_remove: function(block) {
@@ -1768,13 +1677,12 @@ PageStorageDetail.prototype = {
                           });
     },
 
-    raid_disk_add: function(blocks_in_use) {
+    raid_disk_add: function() {
         if (!cockpit_check_role ('cockpit-storage-admin'))
             return;
 
         PageRaidDiskAdd.mdraid = this._mdraid;
-        PageRaidDiskAdd.blocks_in_use = blocks_in_use;
-        cockpit_popup(null, "#raid_disk_add_dialog");
+        $('#raid_disk_add_dialog').modal('show');
     },
 
     start_vg_polling: function() {
@@ -1891,7 +1799,7 @@ PageStorageDetail.prototype = {
             return;
 
         PageVGDiskAdd.volume_group = this._vg;
-        cockpit_popup(null, "#vg_disk_add_dialog");
+        $('#vg_disk_add_dialog').modal('show');
     },
 
     create_plain_volume: function (volume_group) {
@@ -1899,7 +1807,7 @@ PageStorageDetail.prototype = {
             return;
 
         PageCreatePlainVolume.volume_group = volume_group;
-        cockpit_popup(null, "#storage_create_plain_volume_dialog");
+        $('#storage_create_plain_volume_dialog').modal('show');
     },
 
     create_thin_pool: function (volume_group) {
@@ -1907,7 +1815,7 @@ PageStorageDetail.prototype = {
             return;
 
         PageCreateThinPool.volume_group = volume_group;
-        cockpit_popup(null, "#storage_create_thin_pool_dialog");
+        $('#storage_create_thin_pool_dialog').modal('show');
     },
 
     create_thin_volume: function (pool) {
@@ -1915,7 +1823,7 @@ PageStorageDetail.prototype = {
             return;
 
         PageCreateThinVolume.pool = pool;
-        cockpit_popup(null, "#storage_create_thin_volume_dialog");
+        $('#storage_create_thin_volume_dialog').modal('show');
     },
 
     create_raid_volume: function (volume_group) {
@@ -1935,7 +1843,7 @@ PageStorageDetail.prototype = {
         }
 
         PageCreateSnapshot.origin = origin;
-        cockpit_popup(null, "#storage_create_snapshot_dialog");
+        $('#storage_create_snapshot_dialog').modal('show');
     },
 
     delete_logical_volume: function(lv) {
@@ -1953,7 +1861,7 @@ PageStorageDetail.prototype = {
             return;
 
         PageResizeVolume.volume = lv;
-        cockpit_popup(null, "#storage_resize_volume_dialog");
+        $('#storage_resize_volume_dialog').modal('show');
     },
 
     rename_volume_group: function() {
@@ -1961,7 +1869,7 @@ PageStorageDetail.prototype = {
             return;
 
         PageRenameGroup.group = this._vg;
-        cockpit_popup(null, "#storage_rename_group_dialog");
+        $('#storage_rename_group_dialog').modal('show');
     },
 
     rename_logical_volume: function(lv) {
@@ -1969,7 +1877,7 @@ PageStorageDetail.prototype = {
             return;
 
         PageRenameVolume.volume = lv;
-        cockpit_popup(null, "#storage_rename_volume_dialog");
+        $('#storage_rename_volume_dialog').modal('show');
     },
 
     activate_logical_volume: function(lv) {
@@ -2016,9 +1924,6 @@ PageCreateRaid.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#create-raid-cancel").on('click', function () {
-                $("#create-raid-dialog").popup('close');
-            });
             $("#create-raid-create").on('click', $.proxy(this, "create"));
             $('#create-raid-level').on('change', $.proxy(this, "update"));
         }
@@ -2109,7 +2014,7 @@ PageCreateRaid.prototype = {
                                               "com.redhat.Cockpit.Storage.Manager");
         manager.call ("MDRaidCreate", blocks, level, name, chunk * 1024,
                       function (error) {
-                          $('#create-raid-dialog').popup('close');
+                          $('#create-raid-dialog').modal('hide');
                           if (error)
                               cockpit_show_unexpected_error (error);
                       });
@@ -2134,8 +2039,7 @@ function cockpit_fill_free_devices_list(id, filter)
         return desc_a.localeCompare(desc_b);
     });
 
-    element.empty();
-    var text = '<div data-role="fieldcontain"><fieldset data-role="controlgroup">';
+    var list = $('<ul/>', { 'class': 'list-group' });
 
     for (var n = 0; n < blocks.length; n++) {
         var block = blocks[n];
@@ -2144,13 +2048,23 @@ function cockpit_fill_free_devices_list(id, filter)
                        desc: cockpit_block_get_short_desc(block),
                        dev: cockpit_esc(block.Device)
                      });
-        text += '<input data-index="' +n+ '" type="checkbox" name="' +id+'-'+n+ '" id="' +id+'-'+n+ '"/>';
-        text += '<label for="' +id+'-'+n+ '">' + desc + '</label>';
-    }
-    text += '</fieldset></div>';
+        var id_n = id + '-' + n;
 
-    element.append(text);
-    element.trigger('create');
+        list.append(
+            $('<li>', { 'class': 'list-group-item' }).append(
+                $('<div>', { 'class': 'checkbox',
+                             'style': 'margin:0px'
+                           }).append(
+                    $('<input/>', { type: "checkbox",
+                                    name: id_n,
+                                    id: id_n,
+                                    'data-index': n
+                                  }),
+                    $('<label/>', { "for": id_n }).text(
+                        desc))));
+    }
+
+    element.html(list);
 
     return blocks;
 }
@@ -2184,9 +2098,6 @@ PageCreateVolumeGroup.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#create-vg-cancel").on('click', function () {
-                $("#create-volume-group-dialog").popup('close');
-            });
             $("#create-vg-create").on('click', $.proxy(this, "create"));
         }
 
@@ -2202,7 +2113,7 @@ PageCreateVolumeGroup.prototype = {
                                               "com.redhat.Cockpit.Storage.Manager");
         manager.call ("VolumeGroupCreate", name, blocks,
                       function (error) {
-                          $('#create-volume-group-dialog').popup('close');
+                          $('#create-volume-group-dialog').modal('hide');
                           if (error)
                               cockpit_show_unexpected_error (error);
                       });
@@ -2232,13 +2143,8 @@ PageFormatDisk.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#format-disk-cancel").on('click', $.proxy(this, "cancel"));
             $("#format-disk-format").on('click', $.proxy(this, "format"));
         }
-    },
-
-    cancel: function() {
-        $("#storage_format_disk_dialog").popup('close');
     },
 
     format: function() {
@@ -2247,7 +2153,7 @@ PageFormatDisk.prototype = {
                                    $("#format-disk-erase").val(),
                                    "", "", "", "", "", "",
                                    function (error) {
-                                       $("#storage_format_disk_dialog").popup('close');
+                                       $("#storage_format_disk_dialog").modal('hide');
                                        if (error)
                                            cockpit_show_unexpected_error (error);
                                    });
@@ -2280,7 +2186,6 @@ PageFormat.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#format-cancel").on('click', $.proxy(this, "cancel"));
             $("#format-format").on('click', $.proxy(this, "format"));
             $("#format-type").on('change', $.proxy(this, "update"));
             $("#format-custom").on('keyup', $.proxy(this, "update"));
@@ -2301,8 +2206,7 @@ PageFormat.prototype = {
         $("#format-crpyto-options").val("");
         $("#format-passphrase").val("");
         $("#format-passphrase-2").val("");
-        $("#format-store-passphrase").val("no");
-        $("#format-store-passphrase").slider('refresh');
+        $("#format-store-passphrase").prop('checked', false);
 
         this.update();
     },
@@ -2320,10 +2224,6 @@ PageFormat.prototype = {
         } else {
             $("#format-format").button('enable');
         }
-    },
-
-    cancel: function() {
-        $("#storage_format_dialog").popup('close');
     },
 
     format: function() {
@@ -2348,7 +2248,7 @@ PageFormat.prototype = {
                 type = "xfs";
             else
                 throw new Error("Unhandled filesystem type " + type);
-            if ($("#format-store-passphrase").val() == 'yes')
+            if ($("#format-store-passphrase").prop('checked'))
                 stored_passphrase = passphrase;
         }
         var mount_point = $("#format-mount-point").val();
@@ -2362,7 +2262,7 @@ PageFormat.prototype = {
                                   mount_point, mount_options,
                                   stored_passphrase, crypto_options,
                                   function (error) {
-                                      $("#storage_format_dialog").popup('close');
+                                      $("#storage_format_dialog").modal('hide');
                                       if (error)
                                           cockpit_show_unexpected_error (error);
                                   });
@@ -2372,7 +2272,7 @@ PageFormat.prototype = {
                                   mount_point, mount_options,
                                   stored_passphrase, crypto_options,
                                   function (error) {
-                                      $("#storage_format_dialog").popup('close');
+                                      $("#storage_format_dialog").modal('hide');
                                       if (error)
                                           cockpit_show_unexpected_error (error);
                                   });
@@ -2402,13 +2302,8 @@ PageCreatePlainVolume.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#create-pvol-cancel").on('click', $.proxy(this, "cancel"));
             $("#create-pvol-create").on('click', $.proxy(this, "create"));
         }
-    },
-
-    cancel: function() {
-        $("#storage_create_plain_volume_dialog").popup('close');
     },
 
     create: function() {
@@ -2419,7 +2314,7 @@ PageCreatePlainVolume.prototype = {
         PageCreatePlainVolume.volume_group.call('CreatePlainVolume',
                                                 name, size,
                                                 function (error) {
-                                                    $("#storage_create_plain_volume_dialog").popup('close');
+                                                    $("#storage_create_plain_volume_dialog").modal('hide');
                                                     if (error)
                                                         cockpit_show_unexpected_error (error);
                                                 });
@@ -2450,13 +2345,8 @@ PageCreateThinPool.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#create-tpool-cancel").on('click', $.proxy(this, "cancel"));
             $("#create-tpool-create").on('click', $.proxy(this, "create"));
         }
-    },
-
-    cancel: function() {
-        $("#storage_create_thin_pool_dialog").popup('close');
     },
 
     create: function() {
@@ -2467,7 +2357,7 @@ PageCreateThinPool.prototype = {
         PageCreateThinPool.volume_group.call('CreateThinPoolVolume',
                                              name, size,
                                              function (error) {
-                                                 $("#storage_create_thin_pool_dialog").popup('close');
+                                                 $("#storage_create_thin_pool_dialog").modal('hide');
                                                  if (error)
                                                      cockpit_show_unexpected_error (error);
                                              });
@@ -2498,13 +2388,8 @@ PageCreateThinVolume.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#create-tvol-cancel").on('click', $.proxy(this, "cancel"));
             $("#create-tvol-create").on('click', $.proxy(this, "create"));
         }
-    },
-
-    cancel: function() {
-        $("#storage_create_thin_volume_dialog").popup('close');
     },
 
     create: function() {
@@ -2519,7 +2404,7 @@ PageCreateThinVolume.prototype = {
                 name, size,
                 PageCreateThinVolume.pool.getObject().objectPath,
                 function (error) {
-                    $("#storage_create_thin_volume_dialog").popup('close');
+                    $("#storage_create_thin_volume_dialog").modal('hide');
                     if (error)
                         cockpit_show_unexpected_error (error);
                 });
@@ -2550,15 +2435,10 @@ PageCreateSnapshot.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#create-svol-cancel").on('click', $.proxy(this, "cancel"));
             $("#create-svol-create").on('click', $.proxy(this, "create"));
         }
 
         $("#create-svol-size-row").toggle(PageCreateSnapshot.origin.ThinPool == "/");
-    },
-
-    cancel: function() {
-        $("#storage_create_snapshot_dialog").popup('close');
     },
 
     create: function() {
@@ -2572,7 +2452,7 @@ PageCreateSnapshot.prototype = {
         PageCreateSnapshot.origin.call('CreateSnapshot',
                                        name, size,
                                        function (error) {
-                                           $("#storage_create_snapshot_dialog").popup('close');
+                                           $("#storage_create_snapshot_dialog").modal('hide');
                                            if (error)
                                                cockpit_show_unexpected_error (error);
                                        });
@@ -2603,14 +2483,9 @@ PageResizeVolume.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#resize-lvol-cancel").on('click', $.proxy(this, "cancel"));
             $("#resize-lvol-resize").on('click', $.proxy(this, "resize"));
         }
         $("#resize-lvol-size").val((PageResizeVolume.volume.Size / (1024*1024)).toFixed(0));
-    },
-
-    cancel: function() {
-        $("#storage_resize_volume_dialog").popup('close');
     },
 
     resize: function() {
@@ -2619,7 +2494,7 @@ PageResizeVolume.prototype = {
 
         PageResizeVolume.volume.call('Resize', size,
                                      function (error) {
-                                         $("#storage_resize_volume_dialog").popup('close');
+                                         $("#storage_resize_volume_dialog").modal('hide');
                                          if (error)
                                              cockpit_show_unexpected_error (error);
                                      });
@@ -2650,14 +2525,9 @@ PageRenameVolume.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#rename-lvol-cancel").on('click', $.proxy(this, "cancel"));
             $("#rename-lvol-rename").on('click', $.proxy(this, "rename"));
         }
         $("#rename-lvol-name").val(PageRenameVolume.volume.Name);
-    },
-
-    cancel: function() {
-        $("#storage_rename_volume_dialog").popup('close');
     },
 
     rename: function() {
@@ -2666,7 +2536,7 @@ PageRenameVolume.prototype = {
         PageRenameVolume.volume.call('Rename',
                                      name,
                                      function (error) {
-                                         $("#storage_rename_volume_dialog").popup('close');
+                                         $("#storage_rename_volume_dialog").modal('hide');
                                          if (error)
                                              cockpit_show_unexpected_error (error);
                                      });
@@ -2697,14 +2567,9 @@ PageRenameGroup.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#rename-vg-cancel").on('click', $.proxy(this, "cancel"));
             $("#rename-vg-rename").on('click', $.proxy(this, "rename"));
         }
         $("#rename-vg-name").val(PageRenameGroup.group.Name);
-    },
-
-    cancel: function() {
-        $("#storage_rename_group_dialog").popup('close');
     },
 
     rename: function() {
@@ -2713,7 +2578,7 @@ PageRenameGroup.prototype = {
         PageRenameGroup.group.call('Rename',
                                    name,
                                    function (error) {
-                                       $("#storage_rename_group_dialog").popup('close');
+                                       $("#storage_rename_group_dialog").modal('hide');
                                        cockpit_go_up ();
                                        if (error)
                                            cockpit_show_unexpected_error (error);
@@ -2745,16 +2610,11 @@ PageFilesystemOptions.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#fsysopts-cancel").on('click', $.proxy(this, "cancel"));
             $("#fsysopts-apply").on('click', $.proxy(this, "apply"));
         }
         $("#fsysopts-name").val(PageFilesystemOptions.block.IdLabel);
         $("#fsysopts-mount-point").val(PageFilesystemOptions.block.MountPoint);
         $("#fsysopts-mount-options").val(PageFilesystemOptions.block.MountOptions);
-    },
-
-    cancel: function() {
-        $("#filesystem_options_dialog").popup('close');
     },
 
     apply:  function() {
@@ -2765,7 +2625,7 @@ PageFilesystemOptions.prototype = {
         PageFilesystemOptions.block.call('SetFilesystemOptions',
                                          name, mount_point, mount_options,
                                          function (error) {
-                                             $("#filesystem_options_dialog").popup('close');
+                                             $("#filesystem_options_dialog").modal('hide');
                                              if (error)
                                                  cockpit_show_unexpected_error (error);
                                          });
@@ -2795,7 +2655,6 @@ PageCryptoOptions.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#crypto-options-cancel").on('click', $.proxy(this, "cancel"));
             $("#crypto-options-apply").on('click', $.proxy(this, "apply"));
         }
         $("#crypto-options-passphrase").val("");
@@ -2807,10 +2666,6 @@ PageCryptoOptions.prototype = {
                                      });
     },
 
-    cancel: function() {
-        $("#crypto_options_dialog").popup('close');
-    },
-
     apply:  function() {
         var passphrase = $("#crypto-options-passphrase").val();
         var options = $("#crypto-options-options").val();
@@ -2818,7 +2673,7 @@ PageCryptoOptions.prototype = {
         PageCryptoOptions.block.call('SetCryptoOptions',
                                      passphrase, options,
                                      function (error) {
-                                         $("#crypto_options_dialog").popup('close');
+                                         $("#crypto_options_dialog").modal('hide');
                                          if (error)
                                              cockpit_show_unexpected_error (error);
                                      });
@@ -2848,14 +2703,9 @@ PageUnlock.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#unlock-cancel").on('click', $.proxy(this, "cancel"));
             $("#unlock-unlock").on('click', $.proxy(this, "unlock"));
         }
         $("#unlock-passphrase").val("");
-    },
-
-    cancel: function() {
-        $("#storage_unlock_dialog").popup('close');
     },
 
     unlock:  function() {
@@ -2864,7 +2714,7 @@ PageUnlock.prototype = {
         PageUnlock.block.call('Unlock',
                               passphrase,
                               function (error) {
-                                  $("#storage_unlock_dialog").popup('close');
+                                  $("#storage_unlock_dialog").modal('hide');
                                   if (error)
                                       cockpit_show_unexpected_error (error);
                               });
@@ -2894,9 +2744,6 @@ PageRaidDiskAdd.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#raid-disk-add-cancel").on('click', function () {
-                $("#raid_disk_add_dialog").popup('close');
-            });
             $("#raid-disk-add-add").on('click', $.proxy(this, "add"));
         }
 
@@ -2921,7 +2768,7 @@ PageRaidDiskAdd.prototype = {
         var blocks = cockpit_get_selected_devices_objpath ($('#raid-disk-add-drives'), this.blocks);
         PageRaidDiskAdd.mdraid.call('AddDevices', blocks,
                                     function (error) {
-                                        $("#raid_disk_add_dialog").popup('close');
+                                        $("#raid_disk_add_dialog").modal('hide');
                                         if (error)
                                             cockpit_show_unexpected_error (error);
                                     });
@@ -2951,9 +2798,6 @@ PageVGDiskAdd.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $("#vg-disk-add-cancel").on('click', function () {
-                $("#vg_disk_add_dialog").popup('close');
-            });
             $("#vg-disk-add-add").on('click', $.proxy(this, "add"));
         }
 
@@ -2982,14 +2826,14 @@ PageVGDiskAdd.prototype = {
                 PageVGDiskAdd.volume_group.call('AddDevice', blocks[i],
                                                 function (error) {
                                                     if (error) {
-                                                        $("#vg_disk_add_dialog").popup('close');
+                                                        $("#vg_disk_add_dialog").modal('hide');
                                                         cockpit_show_unexpected_error (error);
                                                     } else {
                                                         add_them(i+1);
                                                     }
                                                 });
             else
-                $("#vg_disk_add_dialog").popup('close');
+                $("#vg_disk_add_dialog").modal('hide');
         }
 
         add_them(0);

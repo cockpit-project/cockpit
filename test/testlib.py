@@ -208,11 +208,7 @@ class Browser:
         Arguments:
           id: The 'id' attribute of the popup.
         """
-        # The popup itself remains displayed, but is moved far off the
-        # visible part of the window.  The screen however is made
-        # invisible.
-        #
-        self.wait_visible('#%s-screen' % id);
+        self.wait_visible('#' + id);
 
     def wait_popdown(self, id):
         """Wait for a popup to close.
@@ -220,7 +216,7 @@ class Browser:
         Arguments:
             id: The 'id' attribute of the popup.
         """
-        self.wait_not_visible('#%s-screen' % id)
+        self.wait_not_visible('#' + id)
 
     def wait_page(self, id):
         """Wait for a page to become current.
@@ -230,6 +226,17 @@ class Browser:
         """
         self.wait_visible('#content')
         self.wait_visible('#' + id)
+
+    def wait_action_btn(self, sel, entry):
+        self.wait_text(sel + ' button:first-child', entry);
+
+    def click_action_btn(self, sel, entry=None):
+        # We don't need to open the menu, it's enough to simulate a
+        # click on the invisible button.
+        if entry:
+            self.click(sel + ' a:contains("%s")' % entry);
+        else:
+            self.click(sel + ' button:first-child');
 
     def login_and_go(self, page):
         self.open(page)

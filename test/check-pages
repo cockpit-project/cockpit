@@ -53,7 +53,7 @@ WantedBy=default.target
         # check that the login dance preserves parameters
         m.execute("systemctl restart cockpit-ws-testing.service")
         b.wait_popup('disconnected')
-        b.click('#disconnected-logout')
+        b.click('#disconnected button[onclick*="logout"]')
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")

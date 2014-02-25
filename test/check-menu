@@ -26,13 +26,11 @@ class TestMenu(MachineCase):
 
         self.login_and_go("dashboard")
 
-        b.click('#settings-button')
-        b.click("#gear-menu-screen")
-
-        b.click('#settings-button')
-        b.click('#gear-menu a[onclick*="#about"]')
-        b.wait_popup("about")
-        b.click("#about-screen")
+        b.click('#content-user-name')
+        b.wait_visible('a[data-target="#about"]')
+        b.click('a[data-target="#about"]')
+        b.wait_popup('about')
+        b.click('#about button[data-dismiss="modal"]')
         b.wait_popdown("about")
 
 test_main()

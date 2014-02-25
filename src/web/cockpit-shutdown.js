@@ -64,12 +64,6 @@ PageShutdown.prototype = {
                           function () { me.update_shutdown_shedule(); });
             me.update_shutdown_shedule();
 
-            $("#shutdown-confirm-screen").on('click', function(e) {
-                e.stopPropagation();
-            });
-            $("#shutdown-confirm-cancel").on('click', function() {
-                $("#shutdown-confirm").popup('close');
-            });
             $("#shutdown-confirm-apply").on('click', function() {
                 me.confirm_apply();
             });
@@ -113,11 +107,7 @@ PageShutdown.prototype = {
                 $("#shutdown-exact-error").attr('title', _("This is not a valid time"));
             }
         }
-        if (valid) {
-            $("#shutdown-shutdown,#shutdown-restart").button('enable');
-        } else {
-            $("#shutdown-shutdown,#shutdown-restart").button('disable');
-        }
+        $("#shutdown-shutdown,#shutdown-restart").prop('disabled', !valid);
     },
 
     update_shutdown_shedule: function() {
@@ -128,7 +118,7 @@ PageShutdown.prototype = {
         // XXX - but if it is a "show in progress dialog", we should
         // close it when the shutdown/restart is cancelled.
 
-        if ($("#shutdown-confirm-popup").hasClass("ui-popup-active"))
+        if ($('#shutdown-confirm').is(':visible'))
             return;
 
         var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
@@ -196,7 +186,7 @@ PageShutdown.prototype = {
         if (!cockpit_check_role ('wheel'))
             return;
 
-        $("#shutdown-cancel").button('enable');
+        $("#shutdown-cancel").prop('disabled', false);
 
         if (delay == "0") {
             me.confirm(kind);
@@ -232,30 +222,25 @@ PageShutdown.prototype = {
         var me = this;
         me.confirm_kind = kind;
 
-        // Put the hostname in.
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                 "com.redhat.Cockpit.Manager");
         $("#shutdown-confirm-spinner").hide();
         $("#shutdown-confirm-buttons").show();
         if (kind == 'shutdown') {
             $("#shutdown-confirm-title").text(_("Proceed with System Shutdown?"));
             $("#shutdown-confirm-body").text(_("All services will be halted.  You will not be able to log back in until the system is started again."));
             $("#shutdown-confirm-apply").text(_("Shutdown"));
-            $("#shutdown-confirm-apply").button('refresh');
         } else {
             $("#shutdown-confirm-title").text(_("Proceed with System Restart?"));
             $("#shutdown-confirm-body").text(_("All services will be halted while the system is restarted."));
             $("#shutdown-confirm-apply").text(_("Restart"));
-            $("#shutdown-confirm-apply").button('refresh');
         }
-        $("#shutdown-confirm").popup('open');
+        $("#shutdown-confirm").modal('show');
     },
 
     confirm_apply: function() {
         var me = this;
         var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
                                               "com.redhat.Cockpit.Manager");
-        $("#shutdown-confirm").popup('close');
+        $("#shutdown-confirm").modal('hide');
         manager.call("Shutdown", me.confirm_kind, "now", "", function (error) {
             if (error)
                 cockpit_show_unexpected_error(error);
@@ -281,7 +266,7 @@ PageShutdown.prototype = {
                                                { 'hostname': hostname }));
         }
 
-        $("#shutdown-confirm").popup('open');
+        $("#shutdown-confirm").modal('show');
     }
 };
 

@@ -100,7 +100,7 @@ function cockpit_render_service (name, desc, load_state, active_state, sub_state
     else
         color_style = '';
 
-    return ("<li><a onclick=\"" + cockpit_esc(cockpit_go_down_cmd("service", { s: name })) + "\">" +
+    return ("<a class=\"list-group-item\" onclick=\"" + cockpit_esc(cockpit_go_down_cmd("service", { s: name })) + "\">" +
             "<table style=\"width:100%\">" +
             "<tr><td style=\"text-align:left\">" +
             "<span style=\"font-weight:bold\">" +
@@ -114,7 +114,7 @@ function cockpit_render_service (name, desc, load_state, active_state, sub_state
             '<td style="width:80px">' + cockpit_esc(_(sub_state)) + "</td>" +
             '<td style="width:60px">' + cockpit_esc(_(file_state)) + "</td>" +
             "</tr></table>" +
-            "</a></li>");
+            "</a>");
 }
 
 PageServices.prototype = {
@@ -133,19 +133,25 @@ PageServices.prototype = {
     var me = this;
 
         $('#content-header-extra').append(' \
-            <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" style="padding-left:10px"> \
-              <input data-theme="c" type="radio" name="services-filter" id="services-filter-targets" value=".target"/> \
-              <label for="services-filter-targets" translatable="yes">Targets</label> \
-              <input data-theme="c" type="radio" name="services-filter" id="services-filter-services" value=".service" checked="checked"/> \
-              <label for="services-filter-services" translatable="yes">Services</label> \
-              <input data-theme="c" type="radio" name="services-filter" id="services-filter-sockets" value=".socket"/> \
-              <label for="services-filter-sockets" translatable="yes">Sockets</label> \
-              <input data-theme="c" type="radio" name="services-filter" id="services-filter-timers" value=".timer"/> \
-              <label for="services-filter-timers" translatable="yes">Timers</label> \
-              <input data-theme="c" type="radio" name="services-filter" id="services-filter-paths" value=".path"/> \
-              <label for="services-filter-paths" translatable="yes">Paths</label> \
-            </fieldset>').trigger('create');
-        $('input[name="services-filter"]').on('click', function (event) {
+            <div class="btn-group" data-toggle="buttons"> \
+              <label class="btn btn-default" translatable="yes">Targets \
+                <input type="radio" name="services-filter" id="services-filter-targets" value=".target"/> \
+              </label> \
+              <label class="btn btn-default active" translatable="yes">Services \
+                <input type="radio" name="services-filter" id="services-filter-services" value=".service" checked="checked"/> \
+              </label> \
+              <label class="btn btn-default" translatable="yes">Sockets \
+                <input type="radio" name="services-filter" id="services-filter-sockets" value=".socket"/> \
+              </label> \
+              <label class="btn btn-default" translatable="yes">Timers \
+                <input type="radio" name="services-filter" id="services-filter-timers" value=".timer"/> \
+              </label> \
+              <label class="btn btn-default" translatable="yes">Paths \
+                <input type="radio" name="services-filter" id="services-filter-paths" value=".path"/> \
+              </label> \
+            </div>');
+
+        $('#content-header-extra label').on('click', function (event) {
             me.update();
         });
 
@@ -184,9 +190,6 @@ PageServices.prototype = {
                     item.appendTo($("#services-list-static"));
             }
             this.items[name] = item;
-            $("#services-list-enabled").listview('refresh');
-            $("#services-list-disabled").listview('refresh');
-            $("#services-list-static").listview('refresh');
         }
     },
 
@@ -220,7 +223,7 @@ PageServices.prototype = {
                 suffix = $('input[name="services-filter"]:checked').val();
                 for (i = 0; i < services.length; i++) {
                     service = services[i];
-                    if (suffix && service[0].endsWith(suffix)) {
+                    if (!suffix || service[0].endsWith(suffix)) {
                         var item = $(cockpit_render_service (service[0],
                                                           service[1],
                                                           service[2],
@@ -236,9 +239,6 @@ PageServices.prototype = {
                         me.items[service[0]] = item;
                     }
                 }
-                list_enabled.listview('refresh');
-                list_disabled.listview('refresh');
-                list_static.listview('refresh');
             }
         });
     }
@@ -272,29 +272,35 @@ PageService.prototype = {
             var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Services",
                                                   "com.redhat.Cockpit.Services");
 
-            $("#service-unit-action").on('click', function () {
-                me.unit_action();
-            });
-            $("#service-unit-actions").on('click', function () {
-                var o = $("#service-unit-actions").offset();
-                $("#service-unit-actions-menu").popup('open', { x: o.left, y: o.top });
-            });
-            $("#service-unit-actions-menu button").on('click', function () {
-                $("#service-unit-actions-menu").popup('close');
-                me.action($(this).attr("data-op"));
-            });
+            var unit_action_spec = [
+                { title: _("Start"),                 action: 'start',     is_default: true },
+                { title: _("Stop"),                  action: 'stop' },
+                { title: _("Restart"),               action: 'restart' },
+                { title: _("Reload"),                action: 'reload' },
+                { title: _("Reload or Restart"),     action: 'reload-or-restart' },
+                { title: _("Try Restart"),           action: 'try-restart' },
+                { title: _("Reload or Try Restart"), action: 'reload-or-try-restart' },
+                { title: _("Isolate"),               action: 'isolate' }
+            ];
 
-            $("#service-file-action").on('click', function () {
-                me.file_action();
-            });
-            $("#service-file-actions").on('click', function () {
-                var o = $("#service-file-actions").offset();
-                $("#service-file-actions-menu").popup('open', { x: o.left, y: o.top });
-            });
-            $("#service-file-actions-menu button").on('click', function () {
-                $("#service-file-actions-menu").popup('close');
-                me.action($(this).attr("data-op"));
-            });
+            me.unit_action_btn = cockpit_action_btn(function (op) { me.action(op); },
+                                                    unit_action_spec);
+            $('#service-unit-action-btn').html(me.unit_action_btn);
+
+            var file_action_spec = [
+                { title: _("Enable"),                action: 'enable',     is_default: true },
+                { title: _("Enable Forcefully"),     action: 'force-enable' },
+                { title: _("Disable"),               action: 'disable' },
+                { title: _("Preset"),                action: 'preset' },
+                { title: _("Preset Forcefully"),     action: 'force-preset' },
+                { title: _("Mask"),                  action: 'mask' },
+                { title: _("Mask Forcefully"),       action: 'force-mask' },
+                { title: _("Unmask"),                action: 'unmask' }
+            ];
+
+            me.file_action_btn = cockpit_action_btn(function (op) { me.action(op); },
+                                                    file_action_spec);
+            $('#service-file-action-btn').html(me.file_action_btn);
 
             $(manager).on("ServiceUpdate", function (event, info) {
                 if (info[0] == me.service)
@@ -391,9 +397,9 @@ PageService.prototype = {
 
                 if (active_state == 'active' || active_state == 'reloading' ||
                     active_state == 'activating')
-                    me.set_unit_action(_("Stop"), "stop");
+                    me.set_unit_action('stop');
                 else
-                    me.set_unit_action(_("Start"), "start");
+                    me.set_unit_action('start');
 
                 $("#service-since").text(new Date(timestamp/1000).toLocaleString());
             }
@@ -437,28 +443,27 @@ PageService.prototype = {
             }
 
             if (load_state == 'masked')
-                me.set_file_action(_("Unmask"), "unmask");
+                me.set_file_action('unmask');
             else if (file_state == 'static')
-                me.set_file_action(_("Mask"), "mask");
+                me.set_file_action('mask');
             else if (file_state == 'enabled')
-                me.set_file_action(_("Disable"), "disable");
+                me.set_file_action('disable');
             else
-                me.set_file_action(_("Enable"), "enable");
+                me.set_file_action('enable');
 
+            var procs = $("#service-processes");
             if (info.Processes) {
-                var procs = $("#service-processes");
-                procs.show();
+                procs.closest('.panel').show();
                 procs.empty();
-                procs.append("<li><center style=\"font-weight:bold\">" + _("Processes") + "</center></li>");
-                procs.append("<li> " + _("CGroup") + ": " + cockpit_esc(info.DefaultControlGroup) + "</li>");
+                procs.append("<div class=\"list-group-item\"> " + _("CGroup") + ": " + cockpit_esc(info.DefaultControlGroup) + "</div>");
 
                 function add_proc_info(info, level) {
                     var i;
                     if (level > 0)
-                        procs.append("<li>" + cockpit_esc(info[0]) + "</li>");
+                        procs.append("<div class=\"list-group-item\">" + cockpit_esc(info[0]) + "</div>");
                     for (i = 1; i < info.length; i++) {
                         if (true) {
-                            procs.append("<li>" + cockpit_esc(info[i].Pid) + " " + cockpit_esc(info[i].CmdLine) + "</li>");
+                            procs.append("<div class=\"list-group-item\">" + cockpit_esc(info[i].Pid) + " " + cockpit_esc(info[i].CmdLine) + "</div>");
                         } else {
                             add_proc_info(info[i], level+1);
                         }
@@ -466,33 +471,18 @@ PageService.prototype = {
                 }
 
                 add_proc_info (info.Processes, 0);
-                procs.listview('refresh');
             } else {
-                $("#service-processes").hide();
+                procs.closest('.panel').hide();
             }
-
-            $("#service-state-list").listview('refresh');
         });
     },
 
-    set_unit_action: function(label, op) {
-        $("#service-unit-action").text(label);
-        $("#service-unit-action").button('refresh');
-        this.unit_op = op;
+    set_unit_action: function(op) {
+        cockpit_action_btn_select (this.unit_action_btn, op);
     },
 
-    unit_action: function() {
-        this.action(this.unit_op);
-    },
-
-    set_file_action: function(label, op) {
-        $("#service-file-action").text(label);
-        $("#service-file-action").button('refresh');
-        this.file_op = op;
-    },
-
-    file_action: function() {
-        this.action(this.file_op);
+    set_file_action: function(op) {
+        cockpit_action_btn_select (this.file_action_btn, op);
     },
 
     action: function(op) {

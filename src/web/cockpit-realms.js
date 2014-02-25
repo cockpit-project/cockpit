@@ -36,11 +36,17 @@ PageRealms.prototype = {
                                                            "com.redhat.Cockpit.Realms");
             $(realm_manager).on("notify:Joined", function () { me.update(); });
             $(realm_manager).on("notify:Busy", function () { me.update_busy(); });
+
+            $("#realms-join").click (function (e) {
+                if (!cockpit_check_role ('cockpit-realm-admin'))
+                    return;
+                cockpit_realms_op_set_parameters ('join', '', { });
+                $('#realms-op').modal('show');
+            });
         }
         $("#realms-leave-error").text("");
         me.update();
         me.update_busy();
-        me.enable_join();
     },
 
     leave: function() {
@@ -64,17 +70,12 @@ PageRealms.prototype = {
                 var name = joined[i][0];
                 var details = joined[i][1];
                 var id = "" + i.toString();
-                $("#realms-list").append(('<li>' +
-                                          '<table style="width:100%"><tr>' +
-                                          '<td style="width:500px;font-weight:bold">' +
+                $("#realms-list").append(('<li class="list-group-item">' +
                                           cockpit_esc(name) +
-                                          '</td>' +
-                                          '<td style="width:30px">' +
-                                          '<img class="realms-leave-spinner" id="realms-leave-spinner-' + id + '" src="images/spinner.gif"/>' +
-                                          '</td>' +
-                                          '<td><button class="realms-leave-button" data-theme="e" id="realms-leave-' + id + '">' +
-                                          _("Leave") + '</button></td></tr></table>' +
-                                          '</li>')).trigger('create');
+                                          '<button class="btn btn-default realms-leave-button" id="realms-leave-' + id + '" style="float:right">' +
+                                          _("Leave") + '</button>' +
+                                          '<img class="realms-leave-spinner" id="realms-leave-spinner-' + id + '" src="images/small-spinner.gif" style="float:right"/>' +
+                                          '</li>'));
                 $("#realms-leave-" + id).off("click");
                 $("#realms-leave-" + id).on("click", function (e) {
                     if (!cockpit_check_role ('cockpit-realm-admin'))
@@ -85,34 +86,6 @@ PageRealms.prototype = {
             })();
         }
         $(".realms-leave-spinner").hide();
-
-        $("#realms-list").append('<li id="realms-join-item">' +
-                                 '<center style="font-size:24px">+</center>' +
-                                 '</li>').trigger('create');
-        $("#realms-join-item").click (function (e) {
-            if (!cockpit_check_role ('cockpit-realm-admin'))
-                return;
-            cockpit_realms_op_set_parameters ('join', '', { });
-            $("#realms-op").popup('open');
-        });
-        $("#realms-join-item").on('mouseover', function (e) {
-            if (me.join_enabled)
-                $("#realms-join-item").css('background', 'rgb(180, 180, 180)');
-        });
-        $("#realms-join-item").on('mouseout', function (e) {
-            if (me.join_enabled)
-                $("#realms-join-item").css('background', 'rgb(229, 229, 229)');
-        });
-        $("#realms-list").listview('refresh');
-    },
-
-    enable_join: function () {
-        this.join_enabled = 1;
-    },
-
-    disable_join: function () {
-        this.join_enabled = 0;
-        $("#realms-join-item").css('background', 'rgb(229, 229, 229)');
     },
 
     update_busy: function () {
@@ -123,12 +96,10 @@ PageRealms.prototype = {
         var busy = realm_manager.Busy;
 
         if (busy && busy[0]) {
-            $(".realms-leave-button").button('disable');
-            me.disable_join();
+            $(".realms-leave-button").prop('disabled', true);
         } else {
-            $(".realms-leave-button").button('enable');
+            $(".realms-leave-button").prop('disabled', false);
             $(".realms-leave-spinner").hide();
-            me.enable_join();
         }
     },
 
@@ -144,7 +115,7 @@ PageRealms.prototype = {
             if (error) {
                 if (error.name == 'com.redhat.Cockpit.Error.AuthenticationFailed') {
                     cockpit_realms_op_set_parameters ('leave', name, details);
-                    $("#realms-op").popup('open');
+                    $("#realms-op").modal('show');
                 } else
                     $("#realms-leave-error").text(error.message);
             }
@@ -186,15 +157,15 @@ PageRealmsOp.prototype = {
         if (me.op == 'join') {
             me.never_show_software_choice = 1;
             me.title = C_("page-title", "Join a Domain");
-            $("#realms-op-apply").empty().append(_("Join")).button('refresh');
+            $("#realms-op-apply").text(_("Join"));
             $(".realms-op-join-only-row").show();
         } else if (me.op == 'leave') {
             me.never_show_software_choice = 1;
             me.title = C_("page-title", "Leave Domain");
-            $("#realms-op-apply").empty().append(_("Leave")).button('refresh');
+            $("#realms-op-apply").text(_("Leave"));
             $(".realms-op-join-only-row").hide();
         } else {
-            $("#realms-op").popup("close");
+            $("#realms-op").modal('hide');
             return;
         }
 
@@ -270,7 +241,6 @@ PageRealmsOp.prototype = {
             var txt = d['client-software'] + " / " + d['server-software'];
             sel.append('<option value="' + i + '">' + cockpit_esc(txt) + '</option>');
         }
-        sel.selectmenu('refresh', true);
         me.update_auth_methods();
 
         if (me.never_show_software_choice || me.discovered_details.length < 2) {
@@ -324,7 +294,6 @@ PageRealmsOp.prototype = {
         add_choice ('none', _('Automatic'));
         if (!have_one)
             sel.append('<option value="admin">' + _("Administrator Password") + '</option>');
-        sel.selectmenu('refresh', true);
 
         me.update_cred_fields();
     },
@@ -370,19 +339,19 @@ PageRealmsOp.prototype = {
 
         if (busy && busy[0]) {
             $("#realms-op-spinner").show();
-            $(".realms-op-field").textinput('disable');
-            $("#realms-op-apply").button('disable');
-            $("#realms-op-software").selectmenu('disable');
-            $("#realms-op-auth").selectmenu('disable');
+            $(".realms-op-field").prop('disabled', true);
+            $("#realms-op-apply").prop('disabled', true);
+            $("#realms-op-software").prop('disabled', true);
+            $("#realms-op-auth").prop('disabled', true);
         } else {
             $("#realms-op-spinner").hide();
-            $(".realms-op-field").textinput('enable');
+            $(".realms-op-field").prop('disabled', false);
             if (me.initial_discovery)
-                $("#realms-op-apply").button('disable');
+                $("#realms-op-apply").prop('disabled', true);
             else
-                $("#realms-op-apply").button('enable');
-            $("#realms-op-software").selectmenu('enable');
-            $("#realms-op-auth").selectmenu('enable');
+                $("#realms-op-apply").prop('disabled', false);
+            $("#realms-op-software").prop('disabled', false);
+            $("#realms-op-auth").prop('disabled', false);
         }
     },
 
@@ -398,7 +367,7 @@ PageRealmsOp.prototype = {
 
         $("#realms-op-form").css('opacity', 0.0);
         $("#realms-op-init-spinner").show();
-        $("#realms-op-apply").button('disable');
+        $("#realms-op-apply").prop('disabled', true);
 
         me.initial_discovery = 1;
 
@@ -488,7 +457,7 @@ PageRealmsOp.prototype = {
                                        });
                 });
             } else {
-                $("#realms-op").popup("close");
+                $("#realms-op").modal('hide');
             }
         }
 
@@ -545,7 +514,7 @@ PageRealmsOp.prototype = {
                                                            "com.redhat.Cockpit.Realms");
             realm_manager.call("Cancel", function (error, result) { });
         } else {
-            $("#realms-op").popup("close");
+            $("#realms-op").modal('hide');
         }
     }
 };

@@ -43,8 +43,7 @@ PageCpuStatus.prototype = {
                                 [1.0*60, "4 min"],
                                 [2.0*60, "3 min"],
                                 [3.0*60, "2 min"],
-                                [4.0*60, "1 min"],
-                                [5.0*60-1, "now"]]},
+                                [4.0*60, "1 min"]]},
                 x_rh_stack_graphs: true
             };
             this.plot = cockpit_setup_complicated_plot("#cpu_status_graph",

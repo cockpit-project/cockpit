@@ -68,7 +68,7 @@ function cockpit_output_funcs_for_box (box)
                     '<span class="cockpit-logprio-' + prio + '">' + cockpit_esc(message) + '</span>' +
                     '<span class="cockpit-logtime">' +
                     ((count > 1)?
-                     '<span class="cockpit-logcount">' + count + '</span>' :
+                     '<span class="badge">' + count + '</span>' :
                      '') +
                     cockpit_esc(time) +
                     '</span>' +
@@ -81,7 +81,7 @@ function cockpit_output_funcs_for_box (box)
     function render_reboot_separator ()
     {
         return ('<div class="cockpit-logline"><span class="cockpit-logdiv">' +
-                _("-- Reboot --") +
+                _('<span class="cockpit-logmsg-reboot">Reboot</span>') +
                 '</span></div>');
     }
 
@@ -405,38 +405,48 @@ PageJournal.prototype = {
             });
         }
 
-        $('#content-header-extra').append('<table> \
-              <tr> \
-                <td style="padding-left:10px;width:200px"> \
-                  <button id="journal-current-day" data-theme="c">Goto ...</button> \
-                </td> \
-                <td style="width:300px"> \
-                  <div id="journal-priority-div"> \
-                    <input type="range" data-highlight="true" name="slider-1" id="journal-priority" value="0" min="0" max="3" data-theme="c"/> \
-                  </div> \
-                </td> \
-                <td id="journal-priority-val"> \
-                </td> \
-              </tr> \
-            </table>').trigger('create');
+        $('#content-header-extra').
+            append('<div class="btn-group" id="journal-current-day-menu"> \
+                      <button class="btn btn-default dropdown-toggle" id="journal-current-day" data-toggle="dropdown" style="width:200px">Goto ...</button> \
+                      <ul class="dropdown-menu" role="menu"> \
+                        <li><a data-op="recent">Recent</a></li> \
+                        <li><a data-op="boot">Current boot</a></li> \
+                        <li><a data-op="last-24h">24 hours ago</a></li> \
+                        <li><a data-op="last-week">A week ago</a></li> \
+                      </ul> \
+                    </div>');
 
-        $('#journal-goto-menu button').on('click', function () {
-            $("#journal-goto-menu").popup('close');
+        $('#journal-current-day-menu a').on('click', function () {
             me.query_start = $(this).attr("data-op");
             me.reset_query ();
         });
 
-        $('#journal-current-day').on('click', function () {
-            var o = $(this).offset();
-            $('#journal-goto-menu').popup('open', { x: o.left, y: o.top });
+        var priority_labels = [ _("Errors"), _("Warnings"), _("Notices"), _("All") ];
+        var priority_buttons = priority_labels.map(function (l, i) {
+            function click() {
+                if (i != me.query_prio) {
+                    me.query_prio = i;
+                    update_priority_buttons(i);
+                    me.reset_query();
+                }
+            }
+            return $('<button>', { 'class': 'btn btn-default',
+                                   'on': { 'click': click }
+                                 }).text(l);
         });
 
-        var prio_param = cockpit_get_page_param('prio') || "0";
+        function update_priority_buttons(v) {
+            priority_buttons.forEach(function (b, i) {
+                b.toggleClass('active', i <= v);
+            });
+        }
+
+        $('#content-header-extra').append($('<div>', { 'class': 'btn-group' }).append(priority_buttons));
+
+        this.query_prio = parseInt(cockpit_get_page_param('prio') || "0", 10);
         this.query_service = cockpit_get_page_param('service') || "";
         this.query_search = cockpit_get_page_param('search') || "";
         this.query_start = cockpit_get_page_param('start') || "recent";
-
-        $('#journal-priority').val(prio_param).slider('refresh');
 
         // XXX - hmm.
         if (this.query_search)
@@ -444,24 +454,7 @@ PageJournal.prototype = {
         else if (this.query_service)
             $('#content-search').val('service:' + this.query_service);
 
-        var cur_priority = null;
-        var priority_labels = [ _("Errors"), _("Warnings"), _("Notices"), _("All") ];
-
-        $('#journal-priority').hide();
-        $('#journal-priority-div .ui-slider-track').attr('style', 'top:3px;margin-left:15px; margin-right:15px');
-
-        function update_priority() {
-            var v = $('#journal-priority').val();
-            if (v != cur_priority) {
-                cur_priority = v;
-                $('#journal-priority-val').text(priority_labels[v]);
-            }
-        }
-
-        $('#journal-priority').on('change', update_priority);
-        $('#journal-priority').on('slidestop', $.proxy (this, "reset_query"));
-        update_priority();
-
+        update_priority_buttons (this.query_prio);
         this.reset_service_list ();
         this.reset_query ();
     },
@@ -491,12 +484,12 @@ PageJournal.prototype = {
         if (this.filler)
             this.filler.stop();
 
-        var prio_param = $('#journal-priority').val();
+        var prio_param = this.query_prio;
         var service_param = this.query_service;
         var search_param = this.query_search;
         var start_param = this.query_start;
 
-        cockpit_set_page_param ('prio', prio_param);
+        cockpit_set_page_param ('prio', prio_param.toString());
         cockpit_set_page_param ('service', service_param);
         cockpit_set_page_param ('search', search_param);
         cockpit_set_page_param ('start', start_param);
@@ -526,14 +519,14 @@ PageJournal.prototype = {
             $(window).scrollTop($(document).height());
 
         this.filler = cockpit_journal_filler ($('#journal-box'), start_param, match, search_param,
-                                           '#content-header', '#journal-current-day',
-                                           $('#journal-start'), $('#journal-end'));
+                                              '#content nav', '#journal-current-day',
+                                              $('#journal-start'), $('#journal-end'));
     },
 
     details: function (cursor) {
         if (cursor) {
             PageJournalDetails.cursor = cursor;
-            cockpit_popup (null, '#journal-details');
+            $('#journal-details').modal('show');
         }
     }
 };
@@ -572,20 +565,19 @@ PageJournalDetails.prototype = {
                       function (error, result, first, last, eof)
                       {
                           if (error) {
-                              $('#journal-details').popup('close');
+                              $('#journal-details').modal('hide');
                               cockpit_show_unexpected_error (error);
                           } else if (result.length != 1) {
-                              $('#journal-details').popup('close');
+                              $('#journal-details').modal('hide');
                               cockpit_show_unexpected_error ("No such entry");
                           } else {
                               out.empty();
                               if (result.length == 1) {
                                   var r = result[0];
                                   for (var i = 0; i < r.length; i++) {
-                                      out.append('<li>' + cockpit_esc(r[i]) + '</li>');
+                                      out.append('<li class="list-group-item">' + cockpit_esc(r[i]) + '</li>');
                                   }
                               }
-                              out.listview('refresh');
                           }
                       });
     },

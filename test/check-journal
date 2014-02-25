@@ -68,7 +68,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
           var cc = $(c[1]).children();
           var ident = $(c[0]).text();
           var msg = $(cc[0]).text();
-          var count = $e.find('.cockpit-logcount').text();
+          var count = $e.find('.badge').text();
           lines.push ([ ident, msg, count ]);
         }
       });
@@ -208,7 +208,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.start_cockpit()
         b.wait_popup ("disconnected")
-        b.click("#disconnected-logout")
+        b.click('#disconnected button[onclick*="logout"]')
         b.wait_visible("#login")
         b.set_val("#login-password-input", "foobar")
         b.click("#login-button")
@@ -216,28 +216,28 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.go("journal?search=check-journal")
         wait_log_lines([ "-- End of Journal, waiting for more --",
-                      "January 1, 2050",
-                      [ "root: ", "check-journal: AFTER BOOT", "" ],
-                      [ "-- Reboot --", "", "" ],
-                      [ "root: ", "check-journal: BEFORE BOOT", "" ],
-                      "-- Start of Journal --"
-                    ])
+                         "January 1, 2050",
+                         [ "root: ", "check-journal: AFTER BOOT", "" ],
+                         [ "Reboot", "", "" ],
+                         [ "root: ", "check-journal: BEFORE BOOT", "" ],
+                         "-- Start of Journal --"
+                     ])
 
         b.go("journal?start=boot?search=check-journal")
         wait_log_lines([ "-- End of Journal, waiting for more --",
-                      "January 1, 2050",
-                      [ "root: ", "check-journal: AFTER BOOT", "" ],
-                      "Load earlier entries",
-                    ])
+                         "January 1, 2050",
+                         [ "root: ", "check-journal: AFTER BOOT", "" ],
+                         "Load earlier entries",
+                     ])
 
         b.click('#journal-load-earlier')
         wait_log_lines([ "-- End of Journal, waiting for more --",
-                      "January 1, 2050",
-                      [ "root: ", "check-journal: AFTER BOOT", "" ],
-                      [ "-- Reboot --", "", "" ],
-                      [ "root: ", "check-journal: BEFORE BOOT", "" ],
-                      "-- Start of Journal --"
-                    ])
+                         "January 1, 2050",
+                         [ "root: ", "check-journal: AFTER BOOT", "" ],
+                         [ "Reboot", "", "" ],
+                         [ "root: ", "check-journal: BEFORE BOOT", "" ],
+                         "-- Start of Journal --"
+                     ])
 
         self.allow_journal_messages("Cannot make/remove an entry for the specified session")
 

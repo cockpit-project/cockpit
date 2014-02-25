@@ -1,2051 +1,1939 @@
-<!--
-This file is part of Cockpit.
-
-Copyright (C) 2013 Red Hat, Inc.
-
-Cockpit is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
-(at your option) any later version.
-
-Cockpit is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
--->
 <!DOCTYPE html>
 <html>
   <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
   <head>
-    <meta name="viewport" content="width=850, user-scalable=yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <script type="text/javascript" src="lib/jquery-1.8.2.js"></script>
-    <script type="text/javascript" src="lib/jquery.flot.js"></script>
-    <script type="text/javascript" src="dbus.js"></script>
-    <script type="text/javascript" src="cockpitdyn.js"></script>
-    <script type="text/javascript" src="cockpit.js"></script>
-    <link rel="stylesheet" href="lib/jquery.mobile.structure-1.3.0.css"/>
-    <link rel="stylesheet" href="lib/jquery.mobile.adwaita-1.3.0.css"/>
-    <link rel="stylesheet" href="cockpit.css"/>
-    <script src="lib/jquery.mobile-1.3.0.js"></script>
+    <title>Cockpit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="lib/patternfly.css" rel="stylesheet">
+    <link href="cockpit.css" rel="stylesheet">
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/jquery.flot.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+    <script src="dbus.js"></script>
+    <script src="cockpitdyn.js"></script>
+    <script src="cockpit.js"></script>
   </head>
   <body onload="$(document).ready(cockpit_init);">
 
-    <div data-role="page">
+    <div class="page" id="loading">
     </div>
 
-    <div data-role="page" id="login">
-      <div data-role="header">
-	<h1 translatable="yes">Please Login</h1>
-        <a href="#login-gear-menu" data-role="button" data-icon="gear" data-shadow="false" data-iconpos="notext" class="ui-btn-right"></a>
-      </div>
-
-      <div data-role="content" style="max-width:350px">
-        <center>
-          <div>
-            <h2 id="login-display-name"></h2>
-          </div>
-
-          <img id="login-avatar" src="images/server-large.png"/>
-          <small style="font-weight:normal"><div id="login-error-message"></div></small>
-
-	  <input type="text" id="login-user-input" value=""/>
-	  <input type="password" id="login-password-input"/>
-          <button id="login-button" data-theme="b" disabled="true" translatable="yes">Login</button>
-        </center>
-      </div>
-    </div>
-
-    <div data-role="page" id="content">
-      <div data-role="header" data-position="fixed" id="content-header">
-        <table style="width:100%">
-          <tr>
-            <td style="padding-left:10px">
-              <div id="content-loc-trail" data-role="controlgroup">
-              </div>
-            </td>
-            <td style="width:300px">
-              <input id="content-search" data-theme="c" data-mini="true" type="search"></input>
-            </td>
-            <td style="width:150px;padding-right:10px">
-              <button id="settings-button" data-corners="false" data-theme="c"
-                      onclick="cockpit_open_menu(this,'#gear-menu');">
-              </button>
-            </td>
-          </tr>
-        </table>
-        <div id="content-header-extra">
-        </div>
-      </div>
-
-      <div data-role="content" style="width:none;max-width:none">
-
-        <div id="dashboard">
-          <ul data-role="listview" data-inset="true" id="dashboard-local-disconnected"
-              style="display:block">
-            <li>
-              <table style="width:100%">
-                <tr>
-                  <td>Interface server</td>
-                  <td id="dashboard-local-error" style="color:red">Dude</td>
-                  <td style="text-align:right">
-                    <button data-mini="true" data-inline="true" id="dashboard-local-reconnect">Reconnect</button>
-                  </td>
-                </tr>
-              </table>
-            </li>
-          </ul>
-
-          <ul data-role="listview" data-inset="true" id="dashboard-machines">
-          </ul>
-
-          <div id="server-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" class="ready" data-op="manage">Manage</button>
-              <button translatable="yes" class="closed" data-op="connect">Connect</button>
-              <button translatable="yes" class="ready" data-op="disconnect">Disconnect</button>
-              <button translatable="yes" class="always" data-op="remove">Remove</button>
-              <button translatable="yes" class="ready" data-op="rescue">Rescue Terminal</button>
-            </div>
-          </div>
-
-          <div data-role="popup" id="dashboard_setup_server_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1>Add Server</h1>
-              <button data-mini="true" data-inline="true" data-icon="delete" data-iconpos="notext" id="dashboard_setup_cancel"></button>
-            </div>
-            <div data-role="content">
-
-              <div class="cockpit-setup-tab"
-                   id="dashboard_setup_address_tab">
-                <input type="search" id="dashboard_setup_address"/>
-                <label>
-                   <input type="checkbox" id="dashboard_setup_address_reuse_creds"/>
-                   Login with my current credentials.
-                </label>
-                <ul data-role="listview"
-                    data-inset="true"
-                    id="dashboard_setup_address_discovered">
-                </ul>
-              </div>
-
-              <div class="cockpit-setup-tab"
-                   id="dashboard_setup_login_tab">
-                <p>Login to <span id="dashboard_setup_login_address"></span>.</p>
-                <input type="text" id="dashboard_setup_login_user"/>
-                <input type="password" id="dashboard_setup_login_password"/>
-                <div id="dashboard_setup_login_error" colspan="2" style="color:red"></div>
-              </div>
-
-              <div class="cockpit-setup-tab"
-                   id="dashboard_setup_action_tab">
-                <p>Will add server to dashboard:</p>
-                <table>
-                  <tr>
-                    <td>Address:</td>
-                    <td id="dashboard_setup_action_address"></td>
-                  </tr>
-                  <tr>
-                    <td>Fingerprint:</td>
-                    <td id="dashboard_setup_action_fingerprint"></td>
-                  </tr>
-                </table>
-                <ul data-role="listview" data-inset="true" id="dashboard_setup_action_tasks">
-                </ul>
-              </div>
-
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="dashboard_setup_prev" data-theme="a" translatable="yes">Previous</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="dashboard_setup_next" data-theme="b" translatable="yes">
-                    </button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-        </div>
-
-        <div id="server">
-          <div id="server-nav-column">
-            <ul data-role="listview" data-inset="true" id="settings">
-	      <li class="cockpit-image">
-                <div>
-                  <input data-role="none" type="file" id="server-avatar-uploader" style="display:none"/>
-                  <img id="server-avatar" src="images/server-large.png"/>
+    <div class="page login-pf" id="login" style="display:none">
+      <span id="badge">
+        <img src="images/logo.svg" alt="" />
+      </span>
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <div id="brand">
+              <img src="images/brand.svg">
+            </div><!--/#brand-->
+          </div><!--/.col-*-->
+          <div class="col-sm-7 col-md-6 col-lg-5 login">
+            <div class="form-horizontal" role="form">
+              <div class="form-group login-form">
+                <label for="login-user-input" class="col-sm-2 col-md-2 control-label">Username</label>
+                <div class="col-sm-10 col-md-10">
+                  <input type="text" class="form-control" id="login-user-input" tabindex="1">
                 </div>
-              </li>
-              <li>
-                <img class="cockpit-category-icon" src="images/category-system.png">
-                <a onclick="cockpit_go_down('system_information')" translatable="yes">System Information</a>
-              </li>
-              <li>
-                <img class="cockpit-category-icon" src="images/category-services.png">
-                <a onclick="cockpit_go_down('services')" translatable="yes">System Services</a>
-              </li>
-              <li>
-                <img class="cockpit-category-icon" src="images/category-journal.png">
-                <a onclick="cockpit_go_down('journal')" translatable="yes">Journal</a>
-              </li>
-              <li>
-                <img class="cockpit-category-icon" src="images/category-networking.png">
-                <a onclick="cockpit_go_down('networking')" translatable="yes">Networking</a>
-              </li>
-              <li>
-                <img class="cockpit-category-icon" src="images/category-storage.png">
-                <a onclick="cockpit_go_down('storage')" translatable="yes">Storage</a>
-              </li>
-              <li>
-                <img class="cockpit-category-icon" src="images/category-users.png">
-                <a onclick="cockpit_go_down('accounts')" translatable="yes">User Accounts</a>
-              </li>
-              <li>
-                <img class="cockpit-category-icon" src="images/category-shutdown.png">
-                <a onclick="cockpit_go_down('shutdown')" translatable="yes">Shutdown & Restart</a>
-              </li>
-            </ul>
-          </div>
-          <div id="server-graph-columns">
-            <div id="server-graph-column-1">
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <a onclick="cockpit_go_down('cpu_status');">
-                    <div class="cockpit-graph">
-                      <div class="cockpit-graph-label" translatable="yes">CPU</div>
-                      <div class="cockpit-graph-text" id="server_cpu_text"></div>
-                      <div id="server_cpu_graph" style="width:100%;height:100%"></div>
-                    </div>
-                  </a>
-                </li>
-              </ul>
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <a onclick="cockpit_go_down('memory_status')">
-                    <div class="cockpit-graph">
-                      <div class="cockpit-graph-label" translatable="yes">Memory</div>
-                      <div class="cockpit-graph-text" id="server_memory_text"></div>
-                      <div id="server_memory_graph" style="width:100%;height:100%"></div>
-                    </div>
-                  </a>
-                </li>
-              </ul>
+              </div>
+              <div class="form-group login-form">
+                <label for="login-password-input" class="col-sm-2 col-md-2 control-label">Password</label>
+                <div class="col-sm-10 col-md-10">
+                  <input type="password" class="form-control" id="login-password-input" tabindex="2">
+                </div>
+              </div>
+              <div class="form-group login-form">
+                <div class="col-xs-offset-2 col-xs-7">
+                  <span class="help-block" id="login-error-message"></span>
+                </div>
+                <div class="col-xs-1" style="text-align:right">
+                  <img src="images/small-spinner.gif" id="login-spinner"/>
+                </div>
+                <div class="col-sm-12" style="text-align:right">
+                  <button class="btn btn-primary btn-lg col-xs-12 col-sm-2 col-sm-offset-10" id="login-button" tabindex="3">
+                    Log In
+                  </button>
+                </div>
+              </div>
             </div>
-            <div id="server-graph-column-2">
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <a onclick="cockpit_go_down('disk_io_status')">
-                    <div class="cockpit-graph">
-                      <div class="cockpit-graph-label" translatable="yes">Disk I/O</div>
-                      <div class="cockpit-graph-text" id="server_disk_io_text"></div>
-                      <div id="server_disk_io_graph" style="width:100%;height:100%"></div>
-                    </div>
-                  </a>
-                </li>
-              </ul>
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <a onclick="cockpit_go_down('network_traffic_status')">
-                    <div class="cockpit-graph">
-                      <div class="cockpit-graph-label" translatable="yes">Network Traffic</div>
-                      <div class="cockpit-graph-text" id="server_network_traffic_text"></div>
-                      <div id="server_network_traffic_graph" style="width:100%;height:100%"></div>
-                    </div>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+          </div><!--/.col-*-->
+          <div class="col-sm-5 col-md-6 col-lg-7 details">
+            <p>
+              <strong>Welcome to Cockpit!</strong>
+              <br/>Be safe.
+          </div><!--/.col-*-->
+        </div><!--/.row-->
+      </div><!--/.container-->
+    </div>
 
-        <div id="cpu_status">
-          <ul data-role="listview" data-inset="true">
+    <div class="page" id="content" style="display:none">
+
+      <nav class="navbar navbar-default navbar-pf navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <img class="navbar-brand" src="images/brand.svg" alt="Cockpit" />
+        </div>
+        <div class="collapse navbar-collapse navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-utility">
             <li>
-              <div id="cpu_status_graph" style="height:400px"></div>
+              <a>Status</a>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown">
+                <span class="pficon pficon-user"></span>
+                <span id="content-user-name"></span><b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a data-toggle="modal" data-target="#display-language-dialog">Display Language</a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                  <a data-toggle="modal" data-target="#about">About Cockpit</a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                  <a onclick="cockpit_go_login_account();">Account Settings</a>
+                </li>
+                <li>
+                  <a onclick="cockpit_logout();">Log out</a>
+                </li>
+              </ul>
             </li>
           </ul>
-        </div>
-
-        <div id="memory_status">
-          <ul data-role="listview" data-inset="true">
-            <li>
-              <div id="memory_status_graph" style="height:400px"></div>
-            </li>
-          </ul>
-        </div>
-
-        <div id="disk_io_status">
-          <ul data-role="listview" data-inset="true">
-            <li>
-              <div id="disk_io_status_graph" style="height:400px"></div>
-            </li>
-          </ul>
-        </div>
-
-        <div id="network_traffic_status">
-          <ul data-role="listview" data-inset="true">
-            <li>
-              <div id="network_traffic_status_graph" style="height:400px"></div>
-            </li>
-          </ul>
-        </div>
-
-        <div id="system_information">
-          <ul data-role="listview" data-inset="true">
-            <li><table style="width:100%"><tr>
-                  <td style="width:200px;text-align:right" translatable="yes">Hardware</td>
-                  <td style="width:30px"></td>
-                  <td><div id="system_information_hardware_text"></div></td>
-            </tr></table></li>
-
-            <li><table style="width:100%"><tr>
-                  <td style="width:200px;text-align:right" translatable="yes">Asset Tag</td>
-                  <td style="width:30px"></td>
-                  <td><div id="system_information_asset_tag_text"></div></td>
-            </tr></table></li>
-
-            <li><table style="width:100%"><tr>
-                  <td style="width:200px;text-align:right" translatable="yes">BIOS</td>
-                  <td style="width:30px"></td>
-                  <td><div id="system_information_bios_text"></div></td>
-            </tr></table></li>
-
-            <li><table style="width:100%"><tr>
-                  <td style="width:200px;text-align:right" translatable="yes">Operating System</td>
-                  <td style="width:30px"></td>
-                  <td><div id="system_information_os_text"></div></td>
-            </tr></table></li>
-
-            <li><a id="system_information_change_hostname_button"><table style="width:100%"><tr>
-                    <td style="width:200px;text-align:right" translatable="yes">Host Name</td>
-                    <td style="width:30px"></td>
-                    <td><div id="system_information_hostname_text"></div></td>
-            </tr></table></a></li>
-
-            <li><a onclick="cockpit_go_down('realms')"><table style="width:100%"><tr>
-                    <td style="width:200px;text-align:right" translatable="yes">Domain</td>
-                    <td style="width:30px"></td>
-                    <td><div id="system_information_realms"></div></td>
-            </tr></table></a></li>
-          </ul>
-
-          <div data-role="popup" id="system_information_change_hostname"
-               data-history="false"
-               data-overlay-theme="a">
-            <div data-role="header">
-	      <h1 translatable="yes">Change Hostname</h1>
+          <div class="nav navbar-nav navbar-primary">
+            <div class="col-md-10">
+              <div class="btn-group" id="content-loc-trail">
+              </div>
             </div>
-            <div data-role="content">
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <table style="width:100%" class="cockpit-form-table">
-                    <tr>
-                      <td translatable="yes">Full Name</td>
-                      <td><input type="text" id="sich-pretty-hostname" value=""/></td>
-                    </tr>
-                    <tr>
-                      <td translatable="yes">Simple Name</td>
-                      <td><input type="text" id="sich-hostname" value=""/></td>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td><div class="cockpit-note" id="sich-note" translatable="yes">Simple name can only contain lower-case characters, digits and dash</div></td>
-                    </tr>
-                    <tr>
-                      <td colspan="2">
-                        <div class="ui-grid-a">
-                          <div class="ui-block-a">
-                            <a id="sich-cancel-button" data-role="button" data-theme="a" translatable="yes">Cancel</a>
-                          </div>
-                          <div class="ui-block-b">
-                            <a id="sich-apply-button" data-role="button" data-theme="b" translatable="yes">Change</a>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div id="realms">
-          <center id="realms-empty-text" translatable="yes">No Configured Domains</center>
-          <ul id="realms-list" data-role="listview" data-inset="true"></ul>
-          <div id="realms-leave-error"></div>
-
-          <div data-role="popup" id="realms-op"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 id="realms-op-title"></h1>
-            </div>
-            <div data-role="content">
-              <img src="images/spinner.gif" id="realms-op-init-spinner" style="display:block;position:absolute;left:50%;top:50%;margin-left:-16px;margin-top:-16px;z-index:100"/>
-
-              <div id="realms-op-fields">
-                <table style="width:100%;opacity:0.0" class="cockpit-form-table" id="realms-op-form">
-                  <tr class="realms-op-join-only-row">
-                    <td translatable="yes" style="text-align:right">Domain Address</td>
-                    <td><input class="realms-op-field" type="text" id="realms-op-address" value=""/></td>
-                    <td style="width:0px">
-                      <img id="realms-op-address-spinner" src="images/small-spinner.gif"
-                           style="margin-left:-40px;margin-top:4px"/>
-                      <img id="realms-op-address-error" src="images/dialog-error.png"
-                           style="margin-left:-40px;margin-top:4px"/>
-                    </td>
-                  </tr>
-                  <tr class="realms-op-join-only-row">
-                    <td translatable="yes" style="font-weight:bold;text-align:left;width:200px">Options</td>
-                  </tr>
-                  <tr class="realms-op-join-only-row">
-                    <td translatable="yes" style="text-align:right">Computer OU</td>
-                    <td><input class="realms-op-field" type="text" id="realms-op-computer-ou" value=""/></td>
-                  </tr>
-                  <tr class="realms-op-join-only-row" id="realms-op-software-row">
-                    <td translatable="yes" style="text-align:right">Software</td>
-                    <td style="width:500px">
-                      <label for="realms-op-software" class="select" style="display:none"></label>
-                      <select name="realms-op-software" id="realms-op-software">
-                      </select>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td translatable="yes" style="text-align:right">Authentication</td>
-                    <td style="width:500px">
-                      <label for="realms-op-auth" class="select" style="display:none"></label>
-                      <select name="realms-op-auth" id="realms-op-auth">
-                      </select>
-                    </td>
-                  </tr>
-                  <tr id="realms-op-user-row">
-                    <td translatable="yes" style="text-align:right">User Name</td>
-                    <td><input class="realms-op-field" type="text" id="realms-op-user" value=""/></td>
-                  </tr>
-                  <tr id="realms-op-user-password-row">
-                    <td translatable="yes" style="text-align:right">User Password</td>
-                    <td><input class="realms-op-field" type="password" id="realms-op-user-password" value=""/></td>
-                  </tr>
-                  <tr id="realms-op-admin-row">
-                    <td translatable="yes" style="text-align:right">Domain Administrator Name</td>
-                    <td><input class="realms-op-field" type="text" id="realms-op-admin" value=""/></td>
-                  </tr>
-                  <tr id="realms-op-admin-password-row">
-                    <td translatable="yes" style="text-align:right">Domain Administrator Password</td>
-                    <td><input class="realms-op-field" type="password" id="realms-op-admin-password" value=""/></td>
-                  </tr>
-                  <tr id="realms-op-otp-row">
-                    <td translatable="yes" style="text-align:right">One Time Password</td>
-                    <td><input class="realms-op-field" type="password" id="realms-op-ot-password" value=""/></td>
-                  </tr>
-                  <tr style="height:50px">
-                    <td colspan="3">
-                      <div id="realms-op-error" style="text-align:left;font-weight:bold"></div>
-                      <pre id="realms-op-diagnostics" style="text-align:left"></pre>
-                    </td>
-                  </tr>
-                </table>
-                <table style="width:100%">
-                  <tr>
-                    <td style="text-align:left;width:30%">
-                      <button id="realms-op-cancel" data-theme="a" translatable="yes">Cancel</button>
-                    </td>
-                    <td style="width:40%;text-align:right">
-                      <img id="realms-op-spinner" src="images/spinner.gif"/>
-                    </td>
-                    <td style="text-align:right;width:30%">
-                      <button id="realms-op-apply" data-theme="b"></button>
-                    </td>
-                  </tr>
-                </table>
+            <div class="col-md-2">
+              <form class="navbar-form navbar-right" role="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="content-search">
+              </form>
               </div>
             </div>
           </div>
+          <div class="nav navbar-nav" style="width: 100%;">
+            <div class="col-md-12" id="content-header-extra">
+            </div>
+          </div>
+        </div>
+      </nav>
 
+      <div id="dashboard">
+
+        <div class="panel" id="dashboard-local-disconnected"
+             style="display:none">
+          <div class="panel-body">
+            <table style="width:100%">
+              <tr>
+                <td>Interface server</td>
+                <td id="dashboard-local-error"
+                    style="color:red">Dude</td>
+                <td style="text-align:right">
+                  <button class="btn btn-default" id="dashboard-local-reconnect">Reconnect</button>
+                </td>
+              </tr>
+            </table>
+          </div>
         </div>
 
-        <div id="storage">
-          <ul data-role="listview" data-inset="true" id="storage_drives">
-          </ul>
-          <ul data-role="listview" data-inset="true" id="storage_raids">
-          </ul>
-          <ul data-role="listview" data-inset="true" id="storage_vgs">
-          </ul>
-          <ul data-role="listview" data-inset="true" id="storage_other_devices">
-          </ul>
-          <ul id="storage-jobs" data-role="listview" data-inset="true">
-          </ul>
-          <ul data-role="listview" data-inset="true">
-            <li data-role="list-divider">Storage Log</li>
-            <li id="storage-log"/>
-          </ul>
-          <button id="storage_create_raid" translatable="yes">Create RAID Array</button>
-          <button id="storage_create_volume_group" translatable="yes">Create Volume Group</button>
+        <ul class="list-group" id="dashboard-machines">
+        </ul>
 
-          <div data-role="popup" id="create-raid-dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Create RAID Array</h1>
+      </div>
+
+      <div id="server">
+        <div id="server-nav-column">
+          <div class="list-group">
+            <div class="list-group-item">
+              <input data-role="none" type="file"
+                     id="server-avatar-uploader" style="display:none"/>
+              <img id="server-avatar"
+                   src="images/server-large.png"/>
             </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">RAID Level</td>
-                  <td style="width:500px">
-                    <select id="create-raid-level">
-                      <option translatable="yes" value="raid0">RAID 0 (Stripe)</option>
-                      <option translatable="yes" value="raid1">RAID 1 (Mirror)</option>
-                      <option translatable="yes" value="raid4">RAID 4 (Dedicated Parity)</option>
-                      <option translatable="yes" value="raid5" selected="true">RAID 5 (Distributed Parity)</option>
-                      <option translatable="yes" value="raid6">RAID 6 (Double Distributed Parity)</option>
-                      <option translatable="yes" value="raid10">RAID 10 (Stripe of Mirrors)</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Chunk Size</td>
-                  <td>
-                    <select id="create-raid-chunk">
-                      <option translatable="yes" value="4">4 KiB</option>
-                      <option translatable="yes" value="8">8 KiB</option>
-                      <option translatable="yes" value="16">16 KiB</option>
-                      <option translatable="yes" value="32">32 KiB</option>
-                      <option translatable="yes" value="64">64 KiB</option>
-                      <option translatable="yes" value="128">128 KiB</option>
-                      <option translatable="yes" value="512" selected="true">512 KiB</option>
-                      <option translatable="yes" value="1024">1 MiB</option>
-                      <option translatable="yes" value="2048">2 MiB</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Name</td>
-                  <td>
-                    <input id="create-raid-name" type="text" value=""/>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Disks</td>
-                  <td id="create-raid-drives">
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Number of Disks</td>
-                  <td id="create-raid-summary-drives">
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Usable Size</td>
-                  <td id="create-raid-summary-size">
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="create-raid-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="create-raid-create" data-theme="b" translatable="yes">Create</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
+            <a class="list-group-item" onclick="cockpit_go_down('system_information')">
+              <img class="cockpit-category-icon" src="images/category-system.png">
+              System Information
+            </a>
+            <a class="list-group-item" onclick="cockpit_go_down('services')">
+              <img class="cockpit-category-icon" src="images/category-services.png">
+              System Services
+            </a>
+            <a class="list-group-item" onclick="cockpit_go_down('journal')">
+              <img class="cockpit-category-icon" src="images/category-journal.png">
+              Journal
+            </a>
+            <a class="list-group-item"  onclick="cockpit_go_down('networking')">
+              <img class="cockpit-category-icon" src="images/category-networking.png">
+              Networking
+            </a>
+            <a class="list-group-item" onclick="cockpit_go_down('storage')">
+              <img class="cockpit-category-icon" src="images/category-storage.png">
+              Storage
+            </a>
+            <a class="list-group-item" onclick="cockpit_go_down('accounts')">
+              <img class="cockpit-category-icon" src="images/category-users.png">
+              User Accounts
+            </a>
+            <a class="list-group-item" onclick="cockpit_go_down('shutdown')">
+              <img class="cockpit-category-icon" src="images/category-shutdown.png">
+              Shutdown & Reboot
+            </a>
           </div>
-
-          <div data-role="popup" id="create-volume-group-dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Create Volume Group</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Name</td>
-                  <td>
-                    <input id="create-vg-name" type="text" value=""/>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Disks</td>
-                  <td id="create-vg-drives">
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="create-vg-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="create-vg-create" data-theme="b" translatable="yes">Create</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
         </div>
 
-        <div id="storage-detail">
-          <div id="disk_detail_list">
-            <div data-role="controlgroup" data-type="horizontal" style="text-align:right">
-              <button id="drive-action" data-inline="true" translatable="yes">Format</button>
-              <button id="drive-actions" data-inline="true">...</button>
+        <div id="server-graph-columns">
+          <div id="server-graph-column-1">
+            <div class="list-group-item">
+              <a onclick="cockpit_go_down('cpu_status');">
+                <div class="cockpit-graph">
+                  <div class="cockpit-graph-label"
+                       translatable="yes">CPU</div>
+                  <div class="cockpit-graph-text"
+                       id="server_cpu_text"></div>
+                  <div id="server_cpu_graph"
+                       style="width:100%;height:100%"></div>
+                </div>
+              </a>
             </div>
-            <ul data-role="listview" data-inset="true" id="disk_detail_list">
-              <li data-role="list-divider">Drive</li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Model</td>
-                    <td style="width:30px"></td>
-                    <td><div id="disk_detail_model"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Firmware Version</td>
-                    <td style="width:30px"></td>
-                    <td><div id="disk_detail_firmware_version"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Serial Number</td>
-                    <td style="width:30px"></td>
-                    <td><div id="disk_detail_serial_number"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">World Wide Name</td>
-                    <td style="width:30px"></td>
-                    <td><div id="disk_detail_world_wide_name"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Capacity</td>
-                    <td style="width:30px"></td>
-                    <td><div id="disk_detail_capacity"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Assessment</td>
-                    <td style="width:30px"></td>
-                    <td><div id="disk_detail_assessment"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Device File</td>
-                    <td style="width:30px"></td>
-                    <td><div id="disk_detail_device_file"></div></td>
-              </tr></table></li>
-            </ul>
-          </div>
-
-          <div id="raid_detail_list">
-            <div data-role="controlgroup" data-type="horizontal" style="text-align:right">
-              <button id="raid-action" data-inline="true" translatable="yes">Start</button>
-              <button id="raid-actions" data-inline="true">...</button>
-            </div>
-            <ul data-role="listview" data-inset="true">
-              <li data-role="list-divider">RAID Array</li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Device</td>
-                    <td style="width:30px"></td>
-                    <td><div id="raid_detail_device"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Name</td>
-                    <td style="width:30px"></td>
-                    <td><div id="raid_detail_name"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">UUID</td>
-                    <td style="width:30px"></td>
-                    <td><div id="raid_detail_uuid"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Capacity</td>
-                    <td style="width:30px"></td>
-                    <td><div id="raid_detail_capacity"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">RAID Level</td>
-                    <td style="width:30px"></td>
-                    <td><div id="raid_detail_level"></div></td>
-              </tr></table></li>
-              <li id="raid_detail_bitmap_row"><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Bitmap</td>
-                    <td style="width:30px"></td>
-                    <td style="text-align:left" id="raid_detail_bitmap"></td>
-                    <td style="text-align:right">
-                      <div data-role="controlgroup" data-type="horizontal">
-                        <button translatable="yes" data-inline="true" id="raid_detail_bitmap_enable">Enable</button>
-                        <button translatable="yes" data-inline="true" id="raid_detail_bitmap_disable">Disable</button>
-                      </div>
-                    </td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">State</td>
-                    <td style="width:30px"></td>
-                    <td><div id="raid_detail_state"></div></td>
-              </tr></table></li>
-            </ul>
-            <ul id="raid-disks" data-role="listview" data-inset="true">
-            </ul>
-          </div>
-
-          <div id="vg_detail_list">
-            <div data-role="controlgroup" data-type="horizontal" style="text-align:right">
-              <button id="vg-action" data-inline="true" translatable="yes">Delete</button>
-              <button id="vg-actions" data-inline="true">...</button>
-            </div>
-            <ul data-role="listview" data-inset="true">
-              <li data-role="list-divider">Volume Group</li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Name</td>
-                    <td style="width:30px"></td>
-                    <td><div id="vg_detail_name"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">UUID</td>
-                    <td style="width:30px"></td>
-                    <td><div id="vg_detail_uuid"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:200px" translatable="yes" context="storage">Capacity</td>
-                    <td style="width:30px"></td>
-                    <td><div id="vg_detail_capacity"></div></td>
-              </tr></table></li>
-            </ul>
-            <ul id="vg-physical-volumes" data-role="listview" data-inset="true">
-            </ul>
-          </div>
-
-          <ul data-role="listview" data-inset="true" id="block_detail_list">
-              <li data-role="list-divider">Block Device</li>
-              <li><table style="width:100%"><tr>
-                  <td style="width:200px" translatable="yes" context="storage">Device</td>
-                  <td style="width:30px"></td>
-                  <td><div id="block_detail_device"></div></td>
-            </tr></table></li>
-            <li><table style="width:100%"><tr>
-                  <td style="width:200px" translatable="yes" context="storage">Capacity</td>
-                  <td style="width:30px"></td>
-                  <td><div id="block_detail_capacity"></div></td>
-            </tr></table></li>
-          </ul>
-
-          <div id="storage_detail_content">
-            <ul data-role="listview" data-inset="true" id="storage_detail_partition_list">
-            </ul>
-          </div>
-
-          <ul id="storage-detail-jobs" data-role="listview" data-inset="true">
-          </ul>
-
-          <ul data-role="listview" data-inset="true">
-            <li data-role="list-divider">Storage Log</li>
-            <li id="storage-detail-log"/>
-          </ul>
-
-          <div id="drive-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-op="format">Format</button>
+            <div class="list-group-item">
+              <a onclick="cockpit_go_down('memory_status')">
+                <div class="cockpit-graph">
+                  <div class="cockpit-graph-label"
+                       translatable="yes">Memory</div>
+                  <div class="cockpit-graph-text"
+                       id="server_memory_text"></div>
+                  <div id="server_memory_graph"
+                       style="width:100%;height:100%"></div>
+                </div>
+              </a>
             </div>
           </div>
-
-          <div id="raid-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-op="start">Start</button>
-              <button translatable="yes" data-op="stop">Stop</button>
-              <button translatable="yes" data-op="format">Format</button>
-              <button translatable="yes" data-op="delete">Delete</button>
-              <button translatable="yes" data-op="start-scrub">Start Scrubbing</button>
-              <button translatable="yes" data-op="stop-scrub">Stop Scrubbing</button>
+          <div id="server-graph-column-2">
+            <div class="list-group-item">
+              <a onclick="cockpit_go_down('disk_io_status')">
+                <div class="cockpit-graph">
+                  <div class="cockpit-graph-label"
+                       translatable="yes">Disk I/O</div>
+                  <div class="cockpit-graph-text"
+                       id="server_disk_io_text"></div>
+                  <div id="server_disk_io_graph"
+                       style="width:100%;height:100%"></div>
+                </div>
+              </a>
+            </div>
+            <div class="list-group-item">
+              <a onclick="cockpit_go_down('network_traffic_status')">
+                <div class="cockpit-graph">
+                  <div class="cockpit-graph-label"
+                       translatable="yes">Network Traffic</div>
+                  <div class="cockpit-graph-text"
+                       id="server_network_traffic_text"></div>
+                  <div id="server_network_traffic_graph"
+                       style="width:100%;height:100%"></div>
+                </div>
+              </a>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div id="vg-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-op="delete">Delete</button>
-              <button translatable="yes" data-op="rename">Rename</button>
-            </div>
+      <div id="cpu_status">
+        <div id="cpu_status_graph" style="height:400px;padding:20px"></div>
+      </div>
+
+      <div id="memory_status">
+        <div id="memory_status_graph" style="height:400px;padding:20px"></div>
+      </div>
+
+      <div id="disk_io_status">
+        <div id="disk_io_status_graph" style="height:400px;padding:20px"></div>
+      </div>
+
+      <div id="network_traffic_status">
+        <div id="network_traffic_status_graph" style="height:400px;padding:20px"></div>
+      </div>
+
+      <div id="system_information">
+        <div class="panel panel-default" style="margin:20px">
+          <div class="panel-body">
+            <table class="cockpit-info-table">
+              <tr>
+                <td>Hardware</td>
+                <td id="system_information_hardware_text"></td>
+              </tr>
+              <tr>
+                <td>Asset Tag</td>
+                <td id="system_information_asset_tag_text"></td>
+              </tr>
+              <tr>
+                <td>BIOS</td>
+                <td id="system_information_bios_text"></td>
+              </tr>
+              <tr>
+                <td>Operating System</td>
+                <td id="system_information_os_text"></td>
+              </tr>
+              <tr>
+                <td>Hostname</td>
+                <td id="system_information_hostname_text"></td>
+                <td>
+                  <button class="btn btn-default" id="system_information_change_hostname_button">
+                    Change
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>Domain</td>
+                <td id="system_information_realms"></td>
+                <td>
+                  <button class="btn btn-default" onclick="cockpit_go_down('realms')">Change</button>
+                </td>
+              </tr>
+            </table>
           </div>
+        </div>
+      </div>
 
-          <div id="block-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-op="mount" class="filesystem">Mount</button>
-              <button translatable="yes" data-op="unmount" class="filesystem">Unmount</button>
-              <button translatable="yes" data-op="fsys-options" class="filesystem">Filesystem Options</button>
-              <button translatable="yes" data-op="lock" class="crypto">Lock</button>
-              <button translatable="yes" data-op="unlock" class="crypto">Unlock</button>
-              <button translatable="yes" data-op="crypto-options" class="crypto">Encryption Options</button>
-              <button translatable="yes" data-op="format" class="formattable">Format</button>
-              <button translatable="yes" data-op="delete" class="partition lvol">Delete</button>
-              <button translatable="yes" data-op="resize" class="lvol">Resize</button>
-              <button translatable="yes" data-op="rename" class="lvol">Rename</button>
-              <button translatable="yes" data-op="create-snapshot" class="lvol-active lvol-inactive">Create Snapshot</button>
-              <button translatable="yes" data-op="activate" class="lvol-inactive">Activate</button>
-              <button translatable="yes" data-op="deactivate" class="lvol-active">Deactivate</button>
-              <button translatable="yes" data-op="create-thin-volume" class="lvol-pool">Create Thin Volume</button>
-            </div>
+      <div id="realms">
+        <div class="panel">
+          <div class="panel-body">
+            <center id="realms-empty-text" translatable="yes">
+              No Configured Domains
+            </center>
+            <ul class="list-group" id="realms-list"></ul>
+            <div id="realms-leave-error"></div>
+            <button class="btn btn-default" translatable="yes" id="realms-join">Join a domain</button>
           </div>
+        </div>
+      </div>
 
-          <div id="vg-free-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-op="create-plain">Create Plain Logical Volume</button>
-              <button translatable="yes" data-op="create-raid">Create RAID Logical Volume</button>
-              <button translatable="yes" data-op="create-thin-pool">Create Pool for Thin Logical Volumes</button>
-            </div>
-          </div>
-
-          <div id="pv-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-op="remove">Remove</button>
-              <button translatable="yes" data-op="empty">Empty</button>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_format_disk_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Format Disk</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Erase</td>
-                  <td style="width:500px">
-                    <select id="format-disk-erase">
-                      <option translatable="yes" value="no">Don't overwrite existing data</option>
-                      <option translatable="yes" value="zero">Overwrite existing data with zeros</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Partitioning</td>
-                  <td style="width:500px">
-                    <select id="format-disk-type">
-                      <option translatable="yes" value="dos">Compatible with all systems and devices (MBR)</option>
-                      <option translatable="yes" value="gpt">Compatible with modern system and hard disks > 2TB (GPT)</option>
-                      <option translatable="yes" value="empty">No partitioning</option>
-                    </select>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="format-disk-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="format-disk-format" data-theme="b" translatable="yes">Format</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_format_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 id="format-title"></h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr id="format-size-row">
-                  <td translatable="yes" style="text-align:right">Size (MiB)</td>
-                  <td style="width:500px">
-                    <input type="text" id="format-size"></input>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Erase</td>
-                  <td style="width:500px">
-                    <select id="format-erase">
-                      <option translatable="yes" value="no">Don't overwrite existing data</option>
-                      <option translatable="yes" value="zero">Overwrite existing data with zeros</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Type</td>
-                  <td style="width:500px">
-                    <select id="format-type">
-                      <option translatable="yes" value="xfs">XFS - Red Hat Enterprise Linux 7 default</option>
-                      <option translatable="yes" value="ext4">ext4 - Red Hat Enterprise Linux 6 default</option>
-                      <option translatable="yes" value="luks+xfs">Encrypted XFS (LUKS)</option>
-                      <option translatable="yes" value="luks+ext4">Encrypted EXT4 (LUKS)</option>
-                      <option translatable="yes" value="vfat">VFAT - Compatible with all systems and devices</option>
-                      <option translatable="yes" value="ntfs">NTFS - Compatible with most systems</option>
-                      <option translatable="yes" value="dos-extended">Extended Partition</option>
-                      <option translatable="yes" value="custom">Custom (Enter filesystem type)</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Name</td>
-                  <td style="width:500px">
-                    <input type="text" id="format-name">
-                </input>
-                  </td>
-                </tr>
-                <tr id="format-custom-row">
-                  <td translatable="yes" style="text-align:right">Filesystem</td>
-                  <td style="width:500px">
-                    <input type="text" id="format-custom">
-                </input>
-                  </td>
-                </tr>
-                <tr id="format-passphrase-row">
-                  <td translatable="yes" style="text-align:right">Passphrase</td>
-                  <td style="width:500px">
-                    <input type="password" id="format-passphrase">
-                </input>
-                  </td>
-                </tr>
-                <tr id="format-passphrase-row-2">
-                  <td translatable="yes" style="text-align:right">Confirm Passphrase</td>
-                  <td style="width:500px">
-                    <input type="password" id="format-passphrase-2">
-                </input>
-                  </td>
-                </tr>
-                <tr id="format-store-passphrase-row">
-                  <td translatable="yes" style="text-align:right">Store Passphrase?</td>
-                  <td style="width:500px">
-                    <select name="format-store-passphrase" id="format-store-passphrase" data-role="slider">
-	              <option value="no">No</option>
-	              <option value="yes">Yes</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Mount Point</td>
-                  <td style="width:500px">
-                    <input type="text" id="format-mount-point">
-                </input>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Mount Options</td>
-                  <td style="width:500px">
-                    <input type="text" id="format-mount-options">
-                </input>
-                  </td>
-                </tr>
-                <tr id="format-crypto-options-row">
-                  <td translatable="yes" style="text-align:right">Encryption Options</td>
-                  <td style="width:500px">
-                    <input type="text" id="format-crypto-options">
-                </input>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="format-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="format-format" data-theme="b" translatable="yes">Format</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_create_plain_volume_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1>Create Plain Volume</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Name</td>
-                  <td style="width:500px">
-                    <input type="text" id="create-pvol-name"/>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Size (MiB)</td>
-                  <td style="width:500px">
-                    <input type="text" id="create-pvol-size"/>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="create-pvol-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="create-pvol-create" data-theme="b" translatable="yes">Create</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_create_thin_pool_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1>Create Pool for Thin Logical Volumes</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Name</td>
-                  <td style="width:500px">
-                    <input type="text" id="create-tpool-name"/>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Size (MiB)</td>
-                  <td style="width:500px">
-                    <input type="text" id="create-tpool-size"/>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="create-tpool-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="create-tpool-create" data-theme="b" translatable="yes">Create</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_create_thin_volume_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1>Create Thin Logical Volume</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Name</td>
-                  <td style="width:500px">
-                    <input type="text" id="create-tvol-name"/>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Size (MiB)</td>
-                  <td style="width:500px">
-                    <input type="text" id="create-tvol-size"/>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="create-tvol-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="create-tvol-create" data-theme="b" translatable="yes">Create</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_create_snapshot_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1>Create Snapshot</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Name</td>
-                  <td style="width:500px">
-                    <input type="text" id="create-svol-name"/>
-                  </td>
-                </tr>
-                <tr id="create-svol-size-row">
-                  <td translatable="yes" style="text-align:right">Size (MiB)</td>
-                  <td style="width:500px">
-                    <input type="text" id="create-svol-size"/>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="create-svol-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="create-svol-create" data-theme="b" translatable="yes">Create</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_resize_volume_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1>Resize Logical Volume</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">New Size (MiB)</td>
-                  <td style="width:500px">
-                    <input type="text" id="resize-lvol-size"/>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="resize-lvol-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="resize-lvol-resize" data-theme="b" translatable="yes">Resize</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_rename_volume_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1>Rename Logical Volume</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">New Name</td>
-                  <td style="width:500px">
-                    <input type="text" id="rename-lvol-name"/>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="rename-lvol-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="rename-lvol-rename" data-theme="b" translatable="yes">Rename</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_rename_group_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1>Rename Volume Group</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">New Name</td>
-                  <td style="width:500px">
-                    <input type="text" id="rename-vg-name"/>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="rename-vg-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="rename-vg-rename" data-theme="b" translatable="yes">Rename</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="filesystem_options_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Filesystem Options</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Name</td>
-                  <td style="width:500px">
-                    <input type="text" id="fsysopts-name">
-                </input>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Mount Point</td>
-                  <td style="width:500px">
-                    <input type="text" id="fsysopts-mount-point">
-                </input>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Mount Options</td>
-                  <td style="width:500px">
-                    <input type="text" id="fsysopts-mount-options">
-                </input>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="fsysopts-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="fsysopts-apply" data-theme="b" translatable="yes">Apply</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="crypto_options_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Encryption Options</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Stored Passphrase</td>
-                  <td style="width:500px">
-                    <input type="password" id="crypto-options-passphrase">
-                </input>
-                  </td>
-                </tr>
-                <tr>
-                  <td translatable="yes" style="text-align:right">Options</td>
-                  <td style="width:500px">
-                    <input type="text" id="crypto-options-options">
-                </input>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="crypto-options-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="crypto-options-apply" data-theme="b" translatable="yes">Apply</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="storage_unlock_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Unlock</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Passphrase</td>
-                  <td style="width:500px">
-                    <input type="password" id="unlock-passphrase">
-                </input>
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="unlock-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="unlock-unlock" data-theme="b" translatable="yes">Unlock</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="raid_disk_add_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Add Disks</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Disks</td>
-                  <td id="raid-disk-add-drives">
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="raid-disk-add-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="raid-disk-add-add" data-theme="b" translatable="yes">Add</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <div data-role="popup" id="vg_disk_add_dialog"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Add Disks</h1>
-            </div>
-            <div data-role="content">
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes" style="text-align:right">Disks</td>
-                  <td id="vg-disk-add-drives">
-                  </td>
-                </tr>
-              </table>
-              <table style="width:100%">
-                <tr>
-                  <td style="text-align:left;width:30%">
-                    <button id="vg-disk-add-cancel" data-theme="a" translatable="yes">Cancel</button>
-                  </td>
-                  <td style="text-align:right;width:30%">
-                    <button id="vg-disk-add-add" data-theme="b" translatable="yes">Add</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
+      <div id="storage" class="container-fluid">
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Drives</div>
+          <table class="table">
+            <tbody id="storage_drives">
+            </tbody>
+          </table>
         </div>
 
-        <div id="networking">
-          <ul data-role="listview" data-inset="true" data-filter="true" id="networking_content">
-	  </ul>
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">RAID Arrays</div>
+          <table class="table">
+            <tbody id="storage_raids">
+            </tbody>
+          </table>
         </div>
 
-        <div id="networking-iface">
-	  <ul data-role="listview" data-inset="true" id="networking_iface_config">
-            <li><a onclick="cockpit_go_down('networking_iface_config_ip4')"><table style="width:100%"><tr>
-                    <td style="width:200px;text-align:right">IPv4</td>
-                    <td style="width:30px"></td>
-                    <td><div id="networking_iface_config_ip4_text"></div></td>
-            </tr></table></a></li>
-            <li><a onclick="cockpit_go_down('networking_iface_config_ip6')"><table style="width:100%"><tr>
-                    <td style="width:200px;text-align:right">IPv6</td>
-                    <td style="width:30px"></td>
-                    <td><div id="networking_iface_config_ip6_text"></div></td>
-            </tr></table></a></li>
-	  </ul>
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Volume Groups</div>
+          <table class="table">
+            <tbody id="storage_vgs">
+            </tbody>
+          </table>
         </div>
 
-        <div id="shutdown">
-          <div id="shutdown-idle">
-            <ul data-role="listview" data-inset="true">
-              <li>
-                <table style="width:100%">
-                  <tr id="shutdown-delay-row">
-                    <td style="text-align:right;font-weight:bold;padding-right:1em" translatable="yes">Delay</td>
-                    <td colspan="2">
-                      <label for="shutdown-delay" class="select"></label>
-                      <select name="shutdown-delay" id="shutdown-delay">
-                        <option translatable="yes" value="1">1 Minute</option>
-                        <option translatable="yes" value="5">5 Minutes</option>
-                        <option translatable="yes" value="20">20 Minutes</option>
-                        <option translatable="yes" value="40">40 Minutes</option>
-                        <option translatable="yes" value="60">1 Hour</option>
-                        <option translatable="yes" value="-" disabled="true">---</option>
-                        <option translatable="yes" value="0">No Delay</option>
-                        <option translatable="yes" value="x">Set Exact time</option>
-                      </select>
-                    </td>
-                  </tr>
-                  <tr id="shutdown-exact-time-row">
-                    <td style="text-align:right;font-weight:bold;padding-right:1em" translatable="yes">Time</td>
-                    <td>
-                      <center>
-                        <input id="shutdown-exact-hours"
-                               style="width:48%;display:inline;text-align:center"
-                               value="18"/>
-                        <span style="font-weight:bold">:</span>
-                        <input id="shutdown-exact-minutes"
-                               style="width:48%;display:inline;text-align:center"
-                               value="00"/>
-                        <img id="shutdown-exact-error" src="images/dialog-error.png"
-                             style="width:16px;margin-right:-16px;margin-top:8px;padding-left:4px"/>
-                      </center>
-                    </td>
-                  </tr>
-                  <tr id="shutdown-message-row">
-                    <td style="text-align:right;font-weight:bold;padding-right:1em" translatable="yes">Message</td>
-                    <td colspan="2">
-                      <label for="shutdown-message"></label>
-                      <textarea name="shutdown-message" id="shutdown-message" style="resize:none"></textarea>
-                    </td>
-                  </tr>
-                </table>
-              </li>
-              <li>
-                <button data-theme="e" id="shutdown-restart" translatable="yes">Restart</button>
-                <div style="height:1ex"></div>
-                <button data-theme="e" id="shutdown-shutdown" translatable="yes">Shutdown</button>
-              </li>
-            </ul>
-          </div>
-          <div id="shutdown-active">
-            <ul data-role="listview" data-inset="true">
-              <li>
-                <center id="shutdown-info"></center>
-                <button id="shutdown-cancel" data-theme="e" translatable="yes">Cancel</button>
-              </li>
-            </ul>
-          </div>
-          <div id="shutdown-confirm"
-               data-role="popup"
-               data-history="false"
-               data-overlay-theme="a">
-            <div data-role="header">
-              <h1 id="shutdown-confirm-title"></h1>
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Other Devices</div>
+          <table class="table">
+            <tbody id="storage_other_devices">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Storage Jobs</div>
+          <div class="panel-body" id="storage-jobs"></div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Storage Log</div>
+          <div class="panel-body" id="storage-log"></div>
+        </div>
+
+        <button id="storage_create_raid" class="btn btn-default" translatable="yes">Create RAID Array</button>
+        <button id="storage_create_volume_group" class="btn btn-default" translatable="yes">Create Volume Group</button>
+      </div>
+
+      <div id="storage-detail" class="container-fluid">
+        <div id="disk_detail_list">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <span translatable="yes">Drive</span>
+              <button class="btn btn-default" style="float:right" id="drive_format" translatable="yes">
+                Format
+              </button>
             </div>
-            <div data-role="content">
+            <table class="cockpit-info-table">
+              <tr>
+                <td translatable="yes" context="storage">Model</td>
+                <td id="disk_detail_model"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Firmware Version</td>
+                <td id="disk_detail_firmware_version"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Serial Number</td>
+                <td id="disk_detail_serial_number"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">World Wide Name</td>
+                <td id="disk_detail_world_wide_name"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Capacity</td>
+                <td id="disk_detail_capacity"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Assessment</td>
+                <td id="disk_detail_assessment"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Device File</td>
+                <td id="disk_detail_device_file"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div id="raid_detail_list">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <span translatable="yes">RAID Array</span>
+              <span style="float:right" id="raid_action_btn"></span>
+            </div>
+            <table class="cockpit-info-table">
+              <tr>
+                <td translatable="yes" context="storage">Device</td>
+                <td id="raid_detail_device"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Name</td>
+                <td id="raid_detail_name"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">UUID</td>
+                <td id="raid_detail_uuid"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Capacity</td>
+                <td id="raid_detail_capacity"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">RAID Level</td>
+                <td id="raid_detail_level"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Bitmap</td>
+                <td id="raid_detail_bitmap"></td>
+                <td>
+                  <div class="btn-group">
+                      <button translatable="yes" class="btn btn-default"
+                              id="raid_detail_bitmap_enable">Enable</button>
+                      <button translatable="yes" class="btn btn-default"
+                              id="raid_detail_bitmap_disable">Disable</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">State</td>
+                <td id="raid_detail_state"></td>
+              </tr>
+            </table>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <span translatable="yes">Disks</span>
+              <button style="float:right" class="btn btn-default" id="raid-disks-add">
+                Add
+              </button>
+            </div>
+            <ul class="list-group" id="raid-disks">
+            </ul>
+          </div>
+        </div>
+
+        <div id="vg_detail_list">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <span translatable="yes">Volume Group</span>
+              <span style="float:right" id="vg_action_btn"></span>
+            </div>
+            <table class="cockpit-info-table">
+              <tr>
+                <td translatable="yes" context="storage">Name</td>
+                <td id="vg_detail_name"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">UUID</td>
+                <td id="vg_detail_uuid"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Capacity</td>
+                <td id="vg_detail_capacity"></td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <span translatable="yes">Physical Volumes</span>
+              <button style="float:right" class="btn btn-default" id="vg-pv-add">
+                Add
+              </button>
+            </div>
+            <ul class="list-group" id="vg-physical-volumes">
+            </ul>
+          </div>
+        </div>
+
+        <div id="block_detail_list">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <span translatable="yes">Block Device</span>
+              <span style="float:right" id="vg_action_btn"></span>
+            </div>
+            <table class="cockpit-info-table">
+              <tr>
+                <td translatable="yes" context="storage">Device</td>
+                <td id="block_detail_device"></td>
+              </tr>
+              <tr>
+                <td translatable="yes" context="storage">Capacity</td>
+                <td id="block_detail_capacity"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel panel-default" id="storage_detail_content">
+          <div class="panel-heading" id="storage_detail_content_title"></div>
+          <ul class="list-group" id="storage_detail_partition_list">
+          </ul>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Storage Jobs</div>
+          <div class="panel-body" id="storage-detail-jobs"></div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Storage Log</div>
+          <div class="panel-body" id="storage-detail-log"></div>
+        </div>
+
+      </div>
+
+      <div id="networking" class="container-fluid">
+        <ul class="list-group" id="networking_content">
+	</ul>
+      </div>
+
+      <div id="shutdown" class="container-fluid">
+        <div id="shutdown-idle">
+          <table class="cockpit-form-table">
+            <tr id="shutdown-delay-row">
+              <td translatable="yes">Delay</td>
+              <td>
+                <select class="form-control" id="shutdown-delay">
+                  <option translatable="yes" value="1">1 Minute</option>
+                  <option translatable="yes" value="5">5 Minutes</option>
+                  <option translatable="yes" value="20">20 Minutes</option>
+                  <option translatable="yes" value="40">40 Minutes</option>
+                  <option translatable="yes" value="60">1 Hour</option>
+                  <option translatable="yes" value="-" disabled="true">---</option>
+                  <option translatable="yes" value="0">No Delay</option>
+                  <option translatable="yes" value="x">Set Exact time</option>
+                </select>
+              </td>
+            </tr>
+            <tr id="shutdown-exact-time-row">
+              <td>Time</td>
+              <td>
+                <center>
+                  <input id="shutdown-exact-hours"
+                         style="width:48%;display:inline;text-align:center"
+                         value="18"/>
+                  <span style="font-weight:bold">:</span>
+                  <input id="shutdown-exact-minutes"
+                         style="width:48%;display:inline;text-align:center"
+                         value="00"/>
+                  <img id="shutdown-exact-error"
+                       src="images/dialog-error.png"
+                       style="width:16px;margin-right:-16px;margin-top:8px;padding-left:4px"/>
+                </center>
+              </td>
+            </tr>
+            <tr id="shutdown-message-row">
+              <td translatable="yes">Message</td>
+              <td>
+                <textarea class="form-control"
+                          id="shutdown-message"
+                          style="resize:none"></textarea>
+              </td>
+            </tr>
+          </table>
+          <center>
+            <button class="btn btn-default" id="shutdown-restart" translatable="yes">Restart</button>
+            <button class="btn btn-default" id="shutdown-shutdown" translatable="yes">Shutdown</button>
+          </center>
+        </div>
+        <div id="shutdown-active">
+          <center id="shutdown-info"></center>
+          <button class="btn btn-default" id="shutdown-cancel" translatable="yes">Cancel</button>
+        </div>
+      </div>
+
+      <div id="services" class="container-fluid">
+        <div class="list-group" id="services-list-enabled">
+        </div>
+        <div class="list-group" id="services-list-disabled">
+        </div>
+        <div class="list-group" id="services-list-static">
+        </div>
+      </div>
+
+      <div id="service" class="container-fluid">
+        <div class="panel panel-default">
+          <div class="panel-heading" id="service-name"></div>
+          <div id="service-unknown" translatable="yes">Unknown</div>
+          <div id="service-known" class="list-group">
+            <div class="list-group-item">
               <table style="width:100%">
                 <tr>
-                  <td colspan="2">
-                    <center id="shutdown-confirm-body"></center>
-                  </td>
-                <tr id="shutdown-confirm-buttons">
                   <td style="text-align:left">
-                    <button id="shutdown-confirm-cancel" data-inline="true" translatable="yes">Cancel</button>
+                    <span id="service-active-state"
+                          style="font-weight:bold"></span>
+                    (<span id="service-sub-state"></span>) <br/>
+                    <span translatable="yes">Since</span> <span id="service-since"></span>.
+                  </td>
+                  <td style="text-align:right" id="service-unit-action-btn">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="list-group-item" id="service-instantiate-row">
+              <table style="width:100%">
+                <tr>
+                  <td style="text-align:left">
+                    <input id="service-parameter" type="text">
                   </td>
                   <td style="text-align:right">
-                    <button id="shutdown-confirm-apply" data-inline="true" data-theme="e">
-                    </button>
+                    <button class="btn btn-default" id="service-instantiate"
+                            translatable="yes">Instantiate</button>
                   </td>
                 </tr>
-                <tr id="shutdown-confirm-spinner">
-                  <td colspan="2">
-                    <center><img src="images/spinner.gif"/></center>
+              </table>
+            </div>
+            <div class="list-group-item" id="service-file-row">
+              <table style="width:100%">
+                <tr>
+                  <td style="text-align:left">
+                    <span id="service-file-box">
+                      <span id="service-load-state"></span>
+                      (<span id="service-file"></span>; <span id="service-file-state"></span>)
+                    </span>
+                    <span id="service-load-error-box">
+                      <span style="color:red">Error</span>
+                      (Reason: <span id="service-load-error"></span>)
+                    </span>
+                    <span id="service-template-box">
+                      <span id="service-template-state"></span>
+                    </span>
+                  </td>
+                  <td style="text-align:right" id="service-file-action-btn">
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="list-group-item" id="service-template-row">
+              <table style="width:100%">
+                <tr>
+                  <td id="service-template-link">
                   </td>
                 </tr>
               </table>
             </div>
           </div>
         </div>
-
-        <div id="services">
-          <ul id="services-list-enabled" data-role="listview" data-inset="true">
-          </ul>
-          <ul id="services-list-disabled" data-role="listview" data-inset="true">
-          </ul>
-          <ul id="services-list-static" data-role="listview" data-inset="true">
-          </ul>
+        <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Service Processes</div>
+          <div class="panel-body" id="service-processes"></div>
+        </div>
+        <div class="panel panel-default" id="service-log-box">
+          <div class="panel-heading" translatable="yes">Service Log</div>
+          <div class="panel-body" id="service-log"></div>
         </div>
 
-        <div id="service">
-          <center id="service-name"></center>
-          <div id="service-unknown">
-            <center translatable="yes">Unknown</center>
-          </div>
-          <div id="service-known">
-            <ul id="service-state-list" data-role="listview" data-inset="true">
-              <li id="service-unit-row">
-                <table style="width:100%">
-                  <tr>
-                    <td style="text-align:left">
-                      <span id="service-active-state" style="font-weight:bold"></span>
-                      (<span id="service-sub-state"></span>)
-                      <br/>
-                      <span translatable="yes">Since</span> <span id="service-since"></span>.
-                    </td>
-                    <td style="text-align:right">
-                      <div data-role="controlgroup" data-type="horizontal">
-                        <button id="service-unit-action" data-theme="e" data-inline="true" translatable="yes">Start</button>
-                        <button id="service-unit-actions" data-theme="e" data-inline="true">...</button>
-                      </div>
-                    </td>
-                  </tr>
-                </table>
-              </li>
-              <li id="service-instantiate-row">
-                <table style="width:100%">
-                  <tr>
-                    <td style="text-align:left">
-                      <input id="service-parameter" type="text"></input>
-                    </td>
-                    <td style="text-align:right">
-                      <button id="service-instantiate" data-theme="e" data-inline="true" translatable="yes">Instantiate</button>
-                    </td>
-                  </tr>
-                </table>
-              </li>
-              <li id="service-file-row">
-                <table style="width:100%">
-                  <tr>
-                    <td style="text-align:left">
-                      <span id="service-file-box">
-                        <span id="service-load-state"></span>
-                        (<span id="service-file"></span>; <span id="service-file-state"></span>)
-                      </span>
-                      <span id="service-load-error-box">
-                        <span style="color:red">Error</span> (Reason: <span id="service-load-error"></span>)
-                      </span>
-                      <span id="service-template-box">
-                        <span id="service-template-state"></span>
-                      </span>
-                    </td>
-                    <td style="text-align:right">
-                      <div data-role="controlgroup" data-type="horizontal">
-                        <button id="service-file-action" data-theme="e" data-inline="true" translatable="yes">Enable</button>
-                        <button id="service-file-actions" data-theme="e" data-inline="true">...</button>
-                      </div>
-                    </td>
-                  </tr>
-                </table>
-              </li>
-              <li id="service-template-row">
-                <table style="width:100%">
-                  <tr>
-                    <td id="service-template-link">
-                    </td>
-                  </tr>
-                </table>
-              </li>
-            </ul>
-            <ul id="service-log-box" data-role="listview" data-inset="true">
-              <li id="service-log" style="font-family:monospace"></li>
-            </ul>
-            <ul id="service-processes" data-role="listview" data-inset="true">
-            </ul>
-            <button translatable="yes" id="service-refresh" data-inline="true" data-mini="true">Refresh</button>
-          </div>
+        <button class="btn btn-default" translatable="yes" id="service-refresh">Refresh</button>
+      </div>
 
-          <div id="service-unit-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-theme="e" data-op="start">Start</button>
-              <button translatable="yes" data-theme="e" data-op="stop">Stop</button>
-              <button translatable="yes" data-theme="e" data-op="restart">Restart</button>
-              <button translatable="yes" data-theme="e" data-op="reload">Reload</button>
-              <button translatable="yes" data-theme="e" data-op="reload-or-restart">Reload or Restart</button>
-              <button translatable="yes" data-theme="e" data-op="try-restart">Try Restart</button>
-              <button translatable="yes" data-theme="e" data-op="reload-or-try-restart">Reload or Try Restart</button>
-              <button translatable="yes" data-theme="e" data-op="isolate">Isolate</button>
-            </div>
-          </div>
+      <div id="journal" class="container-fluid">
+        <div>
+          <div id="journal-end"></div>
+          <div id="journal-box"></div>
+          <div id="journal-start"></div>
+        </div>
+      </div>
 
-          <div id="service-file-actions-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-theme="e" data-op="enable">Enable</button>
-              <button translatable="yes" data-theme="e" data-op="force-enable">Enable Forcefully</button>
-              <button translatable="yes" data-theme="e" data-op="disable">Disable</button>
-              <button translatable="yes" data-theme="e" data-op="preset">Preset</button>
-              <button translatable="yes" data-theme="e" data-op="force-preset">Preset Forcefully</button>
-              <button translatable="yes" data-theme="e" data-op="mask">Mask</button>
-              <button translatable="yes" data-theme="e" data-op="force-mask">Mask forcefully</button>
-              <button translatable="yes" data-theme="e" data-op="unmask">Unmask</button>
-            </div>
+      <div id="accounts" class="container-fluid">
+        <button class="btn btn-default" id="accounts-create" translatable="yes">New Account</button>
+        <div id="accounts-list">
+        </div>
+      </div>
+
+      <div id="account">
+        <center>
+          <table>
+            <tr>
+              <td>
+                <input data-role="none" type="file"
+                       id="account-avatar-uploader" style="display:none"/>
+                <img id="account-pic" width="128" height="128">
+              </td>
+              <td style="vertical-align:bottom"><input id="account-real-name" class="form-control"></td>
+            </tr>
+            <tr>
+              <td translatable="yes">User Name</td>
+              <td id="account-user-name"></td>
+            </tr>
+            <tr>
+              <td translatable="yes">Last Login</td>
+              <td id="account-last-login"></td>
+            </tr>
+            <tr>
+              <td translatable="yes"
+                  style="vertical-align:top">Roles</td>
+              <td id="account-roles"></td>
+            </tr>
+            <tr>
+              <td translatable="yes">Account Locked</td>
+              <td>
+                <div class="checkbox">
+                  <input type="checkbox" id="account-locked">
+                </div>
+              </td>
+            </tr>
+          </table>
+          <button class="btn btn-default" id="account-set-password">Set Password</button>
+          <button class="btn btn-default" id="account-delete">Delete</button>
+          <button class="btn btn-default" id="account-logout">Logout</button>
+          <button class="btn btn-default" id="account-change-roles">Change Roles</button>
+        </center>
+
+      </div>
+
+      <div id="terminal">
+        <div style="position:relative">
+          <div style="position:absolute;right:5px;top:5px;z-index:5">
+            <button id="terminal-clear" data-mini="true"
+                    data-inline="true">Clear</button>
+          </div>
+          <pre id="terminal-out"
+               style="min-height:30em;background:#FFF;border:1px solid
+                      black"></pre>
+        </div>
+        <input id="terminal-in" style="width:100%">
+      </div>
+
+    </div>
+
+    <div class="modal" id="display-language-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Display Language</h4>
+          </div>
+          <div class="modal-body">
+	    <p translatable="yes">Choose the language to be used in the
+	      application</p>
+            <select id="display-language-list" size="5" data-role="none">
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="display-language-select-button">
+              Select
+            </button>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div id="journal">
-          <div>
-            <div id="journal-end"></div>
-            <div id="journal-box"></div>
-            <div id="journal-start"></div>
+    <div class="modal" id="disconnected"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Disconnected</h4>
           </div>
-
-          <div id="journal-goto-menu"
-               data-corners="false" data-history="false" data-role="popup">
-            <div data-role="controlgroup" style="margin-top:0;margin-bottom:0">
-              <button translatable="yes" data-op="recent">Most Recent</button>
-              <button translatable="yes" data-op="boot">Current boot</button>
-              <button translatable="yes" data-op="last-24h">24 hours ago</button>
-              <button translatable="yes" data-op="last-week">A week ago</button>
-              <button translatable="yes" data-op="oldest">Oldest</button>
-            </div>
+          <div class="modal-body">
+            <div id="disconnected-error"></div>
           </div>
-
-          <div data-role="popup" id="journal-details"
-               data-theme="c"
-               data-overlay-theme="a"
-               data-history="false">
-            <div data-role="header">
-              <h1 translatable="yes">Journal Details</h1>
-            </div>
-            <div data-role="content">
-              <ul data-role="listview" data-inset="true" style="font-size:75%" id="journal-details-fields">
-              </ul>
-            </div>
-          </div>
-
-        </div>
-
-        <div id="accounts">
-          <button id="accounts-create" translatable="yes" data-inline="true">New Account</button>
-          <div id="accounts-list">
-          </div>
-
-          <div id="accounts-create-dialog"
-               data-role="popup"
-               data-history="false"
-               data-overlay-theme="a">
-            <div data-role="header">
-	      <h1 translatable="yes">Create Account</h1>
-            </div>
-            <div data-role="content">
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <table style="width:100%" class="cockpit-form-table">
-                    <tr>
-                      <td translatable="yes">Real Name</td>
-                      <td><input type="text" id="accounts-create-real-name" value=""/></td>
-                    </tr>
-                    <tr>
-                      <td translatable="yes">User Name</td>
-                      <td><input type="text" id="accounts-create-user-name" value=""/></td>
-                    </tr>
-                    <tr>
-                      <td translatable="yes">Password</td>
-                      <td><input type="password" id="accounts-create-pw1" value=""/></td>
-                    </tr>
-                    <tr>
-                      <td translatable="yes">Confirm</td>
-                      <td><input type="password" id="accounts-create-pw2" value=""/></td>
-                    </tr>
-                    <tr>
-                      <td translatable="yes">Account Locked</td>
-                      <td>
-                        <select id="accounts-create-locked" data-role="slider" data-mini="yes">
-	                  <option value="no">No</option>
-	                  <option value="yes">Yes</option>
-                        </select>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colspan="2">
-                        <div class="ui-grid-a">
-                          <div class="ui-block-a">
-                            <button id="accounts-create-cancel" data-theme="a" translatable="yes">Cancel</button>
-                          </div>
-                          <div class="ui-block-b">
-                            <button id="accounts-create-create" data-theme="b" translatable="yes">Create</button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </li>
-              </ul>
-            </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" onclick="cockpit_reconnect();">
+              Try to reconnect
+            </button>
+            <button class="btn btn-primary" onclick="cockpit_logout();">
+              Log out
+            </button>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div id="account">
-          <center>
-            <table>
+    <div class="modal" id="error-popup"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="error-popup-title"></h4>
+          </div>
+          <div class="modal-body">
+            <p id="error-popup-message"></p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="about"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">About Cockpit</h4>
+          </div>
+          <div class="modal-body">
+            <div translatable="yes">
+              Cockpit is an advanced application with many options.
+            </div>
+            <div>
+              <span translatable="yes">Version</span> <span id="about-version"></span>.
+            </div>
+            <div>
+              <span id="about-build-info"></span>.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="account-change-avatar-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change Picture</h4>
+          </div>
+          <div class="modal-body">
+            <center>
+              <div style="position:relative;width:256px;height:256px">
+                <canvas id="account-change-avatar-canvas"></canvas>
+                <canvas id="account-change-avatar-overlay"
+                        style="position:absolute;top:0px;left:0px;z-index:10"></canvas>
+              </div>
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="account-change-avatar-apply">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="system_information_change_hostname"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change Hostname</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
               <tr>
-                <td>
-                  <input data-role="none" type="file" id="account-avatar-uploader" style="display:none"/>
-                  <img id="account-pic" width="128" height="128"></img>
+                <td>Full Name</td>
+                <td><input id="sich-pretty-hostname" class="form-control"></td>
+              </tr>
+              <tr>
+                <td>Simple Name</td>
+                <td><input id="sich-hostname" class="form-control"></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="cockpit-note" id="sich-note" translatable="yes">
+                  Simple name can only contain lower-case characters, digits and
+                  dash
                 </td>
-                <td style="vertical-align:bottom"><input id="account-real-name"></input></td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="sich-apply-button">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="dashboard_setup_server_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Server</h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="cockpit-setup-tab"
+                 id="dashboard_setup_address_tab">
+              <input type="search" class="form-control" id="dashboard_setup_address"/>
+              <label>
+                <input type="checkbox" id="dashboard_setup_address_reuse_creds"/>
+                Login with my current credentials.
+              </label>
+              <ul class="list-group" id="dashboard_setup_address_discovered">
+              </ul>
+            </div>
+
+            <div class="cockpit-setup-tab"
+                 id="dashboard_setup_login_tab">
+              <p>Login to <span id="dashboard_setup_login_address"></span>.</p>
+              <input type="text" class="form-control" id="dashboard_setup_login_user"/>
+              <input type="password" class="form-control" id="dashboard_setup_login_password"/>
+              <div id="dashboard_setup_login_error" colspan="2" style="color:red"></div>
+            </div>
+
+            <div class="cockpit-setup-tab"
+                 id="dashboard_setup_action_tab">
+              <p>Will add server to dashboard:</p>
+              <table>
+                <tr>
+                  <td>Address:</td>
+                  <td id="dashboard_setup_action_address"></td>
+                </tr>
+                <tr>
+                  <td>Fingerprint:</td>
+                  <td id="dashboard_setup_action_fingerprint"></td>
+                </tr>
+              </table>
+              <ul class="list-group" id="dashboard_setup_action_tasks">
+              </ul>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" id="dashboard_setup_prev">
+              Previous
+            </button>
+            <button class="btn btn-primary" id="dashboard_setup_next">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="realms-op"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="realms-op-title"></h4>
+          </div>
+          <div class="modal-body">
+            <img src="images/small-spinner.gif"
+                 id="realms-op-init-spinner"
+                 style="display:block;position:absolute;left:50%;top:50%;margin-left:-16px;margin-top:-16px;z-index:100"/>
+            <div id="realms-op-fields">
+              <table style="opacity:0.0" class="cockpit-form-table" id="realms-op-form">
+                <tr class="realms-op-join-only-row">
+                  <td translatable="yes">Domain Address</td>
+                  <td>
+                    <input class="realms-op-field form-control" type="text"
+                           id="realms-op-address" value=""/>
+                  </td>
+                  <td style="width:0px">
+                    <img id="realms-op-address-spinner"
+                         src="images/small-spinner.gif"
+                         style="margin-left:-40px;margin-top:4px"/>
+                    <img id="realms-op-address-error"
+                         src="images/dialog-error.png"
+                         style="margin-left:-40px;margin-top:4px"/>
+                  </td>
+                </tr>
+                <tr class="realms-op-join-only-row">
+                  <td translatable="yes" class="header">Options</td>
+                </tr>
+                <tr class="realms-op-join-only-row">
+                  <td translatable="yes">Computer OU</td>
+                  <td>
+                    <input class="realms-op-field form-control" type="text"
+                           id="realms-op-computer-ou" value=""/>
+                  </td>
+                </tr>
+                <tr class="realms-op-join-only-row" id="realms-op-software-row">
+                  <td translatable="yes">Software</td>
+                  <td>
+                    <select class="form-control" id="realms-op-software">
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td translatable="yes">Authentication</td>
+                  <td>
+                    <select class="form-control" id="realms-op-auth">
+                    </select>
+                  </td>
+                </tr>
+                <tr id="realms-op-user-row">
+                  <td translatable="yes">User Name</td>
+                  <td>
+                    <input class="realms-op-field form-control" type="text"
+                           id="realms-op-user" value=""/>
+                  </td>
+                </tr>
+                <tr id="realms-op-user-password-row">
+                  <td translatable="yes">User Password</td>
+                  <td>
+                    <input class="realms-op-field form-control" type="password"
+                           id="realms-op-user-password" value=""/>
+                  </td>
+                </tr>
+                <tr id="realms-op-admin-row">
+                  <td translatable="yes">Domain Administrator Name</td>
+                  <td>
+                    <input class="realms-op-field form-control" type="text"
+                           id="realms-op-admin" value=""/>
+                  </td>
+                </tr>
+                <tr id="realms-op-admin-password-row">
+                  <td translatable="yes">Domain Administrator Password</td>
+                  <td>
+                    <input class="realms-op-field form-control" type="password"
+                           id="realms-op-admin-password" value=""/>
+                  </td>
+                </tr>
+                <tr id="realms-op-otp-row">
+                  <td translatable="yes">One Time Password</td>
+                  <td>
+                    <input class="realms-op-field form-control" type="password"
+                           id="realms-op-ot-password" value=""/>
+                  </td>
+                </tr>
+                <tr style="height:50px">
+                  <td colspan="3">
+                    <div id="realms-op-error"
+                         style="text-align:left;font-weight:bold"></div>
+                    <pre id="realms-op-diagnostics"
+                         style="text-align:left">
+                    </pre>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" id="realms-op-cancel">
+              Cancel
+            </button>
+            <img id="realms-op-spinner" src="images/spinner.gif"/>
+            <button class="btn btn-primary" id="realms-op-apply">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="journal-details"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Journal Details</h4>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group" id="journal-details-fields">
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="accounts-create-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Account</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Real Name</td>
+                <td><input class="form-control" type="text"
+                           id="accounts-create-real-name" value=""/></td>
               </tr>
               <tr>
                 <td translatable="yes">User Name</td>
-                <td id="account-user-name"></td>
+                <td><input class="form-control" type="text"
+                           id="accounts-create-user-name" value=""/></td>
               </tr>
               <tr>
-                <td translatable="yes">Last Login</td>
-                <td id="account-last-login"></td>
+                <td translatable="yes">Password</td>
+                <td><input class="form-control" type="password"
+                           id="accounts-create-pw1" value=""/></td>
               </tr>
               <tr>
-                <td translatable="yes" style="vertical-align:top">Roles</td>
-                <td id="account-roles"></td>
+                <td translatable="yes">Confirm</td>
+                <td><input class="form-control" type="password"
+                           id="accounts-create-pw2" value=""/></td>
               </tr>
               <tr>
-                <td translatable="yes">Account Locked</td>
+                <td></td>
                 <td>
-                  <select id="account-locked" data-role="slider" data-mini="yes">
-	            <option value="no">No</option>
-	            <option value="yes">Yes</option>
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" id="accounts-create-locked">
+                      <span translatable="yes">Account Locked</span>
+                    </label>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="accounts-create-create" translatable="yes">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="account-set-password-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Set Password</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Password</td>
+                <td><input class="form-control" type="password" id="account-set-password-pw1"></td>
+              </tr>
+              <tr>
+                <td translatable="yes">Confirm</td>
+                <td><input class="form-control" type="password" id="account-set-password-pw2"></td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="account-set-password-apply" translatable="yes">
+              Set
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="account-confirm-delete-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Delete Account?</h4>
+          </div>
+          <div class="modal-body">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="account-confirm-delete-files">
+                <span translatable="yes">Delete Files</span>
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-danger" id="account-confirm-delete-apply" translatable="yes">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="account-change-roles-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change Roles</h4>
+          </div>
+          <div class="modal-body">
+            <div id="account-change-roles-roles">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="account-change-roles-apply" translatable="yes">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="shutdown-confirm"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="shutdown-confirm-title"></h4>
+          </div>
+          <div class="modal-body">
+            <center id="shutdown-confirm-body"></center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="shutdown-confirm-apply" translatable="yes">
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="create-raid-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create RAID Array</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">RAID Level</td>
+                <td>
+                  <select class="form-control" id="create-raid-level">
+                    <option translatable="yes" value="raid0">RAID 0 (Stripe)</option>
+                    <option translatable="yes" value="raid1">RAID 1 (Mirror)</option>
+                    <option translatable="yes" value="raid4">RAID 4 (Dedicated Parity)</option>
+                    <option translatable="yes" value="raid5" selected="true">RAID 5 (Distributed Parity)</option>
+                    <option translatable="yes" value="raid6">RAID 6 (Double Distributed Parity)</option>
+                    <option translatable="yes" value="raid10">RAID 10 (Stripe of Mirrors)</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Chunk Size</td>
+                <td>
+                  <select class="form-control" id="create-raid-chunk">
+                    <option translatable="yes" value="4">4 KiB</option>
+                    <option translatable="yes" value="8">8 KiB</option>
+                    <option translatable="yes" value="16">16 KiB</option>
+                    <option translatable="yes" value="32">32 KiB</option>
+                    <option translatable="yes" value="64">64 KiB</option>
+                    <option translatable="yes" value="128">128 KiB</option>
+                    <option translatable="yes" value="512" selected="true">512 KiB</option>
+                    <option translatable="yes" value="1024">1 MiB</option>
+                    <option translatable="yes" value="2048">2 MiB</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" id="create-raid-name" type="text">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Disks</td>
+                <td id="create-raid-drives">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Number of Disks</td>
+                <td id="create-raid-summary-drives">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Usable Size</td>
+                <td id="create-raid-summary-size">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="create-raid-create" translatable="yes">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="create-volume-group-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Volume Group</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" id="create-vg-name" type="text">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Disks</td>
+                <td id="create-vg-drives">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="create-vg-create" translatable="yes">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="storage_format_disk_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Format Disk</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Erase</td>
+                <td>
+                  <select class="form-control" id="format-disk-erase">
+                    <option translatable="yes" value="no">Don't
+                      overwrite existing data</option>
+                    <option translatable="yes"
+                            value="zero">Overwrite existing data with
+                      zeros</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Partitioning</td>
+                <td>
+                  <select class="form-control" id="format-disk-type">
+                    <option translatable="yes"
+                            value="dos">Compatible with all systems and
+                      devices (MBR)</option>
+                    <option translatable="yes"
+                            value="gpt">Compatible with modern system and
+                      hard disks > 2TB (GPT)</option>
+                    <option translatable="yes" value="empty">No
+                      partitioning</option>
                   </select>
                 </td>
               </tr>
             </table>
-            <button id="account-set-password" data-inline="true" data-mini="true">Set Password</button>
-            <button id="account-delete" data-inline="true" data-mini="true">Delete</button>
-            <button id="account-logout" data-inline="true" data-mini="true">Logout</button>
-            <button id="account-change-roles" data-inline="true" data-mini="true">Change Roles</button>
-          </center>
-
-          <div id="account-change-avatar-dialog"
-               data-role="popup"
-               data-history="false"
-               data-overlay-theme="a">
-            <div data-role="header">
-	      <h1 translatable="yes">Change Picture</h1>
-            </div>
-            <div data-role="content">
-              <table>
-                <tr>
-                  <td>
-                    <div style="position:relative">
-                      <canvas id="account-change-avatar-canvas"></canvas>
-                      <canvas id="account-change-avatar-overlay"
-                              style="position:absolute;top:0px;left:0px;z-index:10"></canvas>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="ui-grid-a">
-                      <div class="ui-block-a">
-                        <button id="account-change-avatar-cancel" data-theme="a" translatable="yes">Cancel</button>
-                      </div>
-                      <div class="ui-block-b">
-                        <button id="account-change-avatar-apply" data-theme="b" translatable="yes">Change</button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
           </div>
-
-          <div id="account-set-password-dialog"
-               data-role="popup"
-               data-history="false"
-               data-overlay-theme="a">
-            <div data-role="header">
-	      <h1 translatable="yes">Set Password</h1>
-            </div>
-            <div data-role="content">
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <table style="width:100%" class="cockpit-form-table">
-                    <tr>
-                      <td translatable="yes">Password</td>
-                      <td><input type="password" id="account-set-password-pw1" value=""/></td>
-                    </tr>
-                    <tr>
-                      <td translatable="yes">Confirm</td>
-                      <td><input type="password" id="account-set-password-pw2" value=""/></td>
-                    </tr>
-                    <tr>
-                      <td colspan="2">
-                        <div class="ui-grid-a">
-                          <div class="ui-block-a">
-                            <button id="account-set-password-cancel" data-theme="a" translatable="yes">Cancel</button>
-                          </div>
-                          <div class="ui-block-b">
-                            <button id="account-set-password-apply" data-theme="b" translatable="yes">Set</button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div id="account-change-roles-dialog"
-               data-role="popup"
-               data-history="false"
-               data-overlay-theme="a">
-            <div data-role="header">
-	      <h1 translatable="yes">Change Roles</h1>
-            </div>
-            <div data-role="content">
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <table style="width:400px" class="cockpit-form-table">
-                    <tr>
-                      <td id="account-change-roles-roles">
-                    </tr>
-                    <tr>
-                      <td>
-                        <div class="ui-grid-a">
-                          <div class="ui-block-a">
-                            <button id="account-change-roles-cancel" data-theme="a" translatable="yes">Cancel</button>
-                          </div>
-                          <div class="ui-block-b">
-                            <button id="account-change-roles-apply" data-theme="b" translatable="yes">Set</button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div id="account-confirm-delete-dialog"
-               data-role="popup"
-               data-history="false"
-               data-overlay-theme="a">
-            <div data-role="header">
-	      <h1 translatable="yes">Delete Account?</h1>
-            </div>
-            <div data-role="content">
-              <ul data-role="listview" data-inset="true">
-                <li>
-                  <table style="width:100%" class="cockpit-form-table">
-                    <tr>
-                      <td translatable="yes">Delete Files</td>
-                      <td>
-                        <select id="account-confirm-delete-files" data-role="slider" data-mini="yes">
-	                  <option value="no">No</option>
-	                  <option value="yes">Yes</option>
-                        </select>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colspan="2">
-                        <div class="ui-grid-a">
-                          <div class="ui-block-a">
-                            <button id="account-confirm-delete-cancel" data-theme="a" translatable="yes">Cancel</button>
-                          </div>
-                          <div class="ui-block-b">
-                            <button id="account-confirm-delete-apply" data-theme="b" translatable="yes">Delete</button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-        </div>
-
-        <div id="terminal">
-          <div style="position:relative">
-            <div style="position:absolute;right:5px;top:5px;z-index:5">
-              <button id="terminal-clear" data-mini="true" data-inline="true">Clear</button>
-            </div>
-            <pre id="terminal-out" style="min-height:30em;background:#FFF;border:1px solid black"></pre>
-          </div>
-          <input id="terminal-in" style="width:100%"></input>
-        </div>
-
-      </div>
-
-      <div id="gear-menu"
-           data-role="popup"
-           data-menu="true"
-	   data-shadow="false"
-	   data-corners="false"
-           data-history="false">
-        <ul class="cockpit-menu">
-          <li><a href="#display-language-dialog" translatable="yes">Display Language</a></li>
-          <span></span>
-          <li><a href="#about" translatable="yes">About Cockpit</a></li>
-          <span></span>
-          <li><a onclick="cockpit_go_login_account()" translatable="yes">Account Settings</a></li>
-          <li><a onclick="cockpit_logout();" translatable="yes">Logout</a></li>
-        </ul>
-      </div>
-
-      <div id="login-gear-menu"
-           data-role="popup"
-           data-menu="true"
-	   data-shadow="false"
-	   data-corners="false"
-           data-history="false">
-        <ul class="cockpit-menu">
-          <li><a href="#display-language-dialog" translatable="yes">Display Language</a></li>
-          <span></span>
-          <li><a href="#about" translatable="yes">About Cockpit</a></li>
-        </ul>
-      </div>
-
-      <div data-role="popup" id="about"
-           data-history="false"
-           data-overlay-theme="a">
-        <div data-role="header">
-	  <h1 translatable="yes">About Cockpit</h1>
-        </div>
-        <div data-role="content">
-          <div translatable="yes">Cockpit is an advanced application with many options.</div>
-          <p>
-            <ul data-role="listview" data-inset="true">
-              <li><table style="width:100%"><tr>
-                    <td style="width:100px;text-align:right" translatable="yes">Version</td>
-                    <td style="width:30px"></td>
-                    <td><div id="about-version"></div></td>
-              </tr></table></li>
-              <li><table style="width:100%"><tr>
-                    <td style="width:100px;text-align:right" translatable="yes">Build</td>
-                    <td style="width:30px"></td>
-                    <td><div id="about-build-info"></div></td>
-              </tr></table></li>
-            </ul>
-            <center><button onclick="$('#about').popup('close')">Close</button></center>
-        </div>
-      </div>
-
-      <div data-role="popup" id="display-language-dialog"
-           data-theme="c"
-           data-history="false"
-           data-overlay-theme="a">
-        <div data-role="header">
-	  <h1 translatable="yes">Display Language</h1>
-        </div>
-        <div data-role="content">
-	  <p translatable="yes">Choose the language to be used in the application</p>
-          <select id="display-language-list" size="10" data-role="none">
-          </select>
-          <br>
-          <div class="ui-grid-a">
-            <div class="ui-block-a">
-              <a data-role="button" data-theme="a" data-rel="back" translatable="yes">Cancel</a>
-            </div>
-            <div class="ui-block-b">
-              <a id="display-language-select-button" data-role="button" data-theme="b" translatable="yes">Select</a>
-            </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-danger" id="format-disk-format" translatable="yes">
+              Format
+            </button>
           </div>
         </div>
       </div>
+    </div>
 
-      <div data-role="popup" id="disconnected"
-           data-history="false"
-           data-overlay-theme="a">
-        <div data-role="content"
-             style="width:300px">
-          <h1><center>Disconnected</center></h1>
-          <div id="disconnected-error">
+    <div class="modal" id="storage_format_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="format-title"></h4>
           </div>
-          <button id="disconnected-reconnect" onclick="cockpit_reconnect();">Try to reconnect</button>
-          <button id="disconnected-logout" onclick="cockpit_logout();">Log out</button>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr id="format-size-row">
+                <td translatable="yes">Size (MiB)</td>
+                <td>
+                  <input class="form-control" type="text" id="format-size">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Erase</td>
+                <td>
+                  <select class="form-control" id="format-erase">
+                    <option translatable="yes" value="no">Don't
+                      overwrite existing data</option>
+                    <option translatable="yes"
+                            value="zero">Overwrite existing data with
+                      zeros</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Type</td>
+                <td>
+                  <select class="form-control" id="format-type">
+                    <option translatable="yes" value="xfs">XFS - Red
+                      Hat Enterprise Linux 7 default</option>
+                    <option translatable="yes" value="ext4">ext4 -
+                      Red Hat Enterprise Linux 6 default</option>
+                    <option translatable="yes"
+                            value="luks+xfs">Encrypted XFS (LUKS)</option>
+                    <option translatable="yes"
+                            value="luks+ext4">Encrypted EXT4 (LUKS)</option>
+                    <option translatable="yes" value="vfat">VFAT -
+                      Compatible with all systems and devices</option>
+                    <option translatable="yes" value="ntfs">NTFS -
+                      Compatible with most systems</option>
+                    <option translatable="yes"
+                            value="dos-extended">Extended Partition</option>
+                    <option translatable="yes" value="custom">Custom
+                      (Enter filesystem type)</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" type="text" id="format-name">
+                </td>
+              </tr>
+              <tr id="format-custom-row">
+                <td translatable="yes">Filesystem</td>
+                <td>
+                  <input class="form-control" type="text" id="format-custom">
+                </td>
+              </tr>
+              <tr id="format-passphrase-row">
+                <td translatable="yes">Passphrase</td>
+                <td>
+                  <input class="form-control" type="password" id="format-passphrase">
+                </td>
+              </tr>
+              <tr id="format-passphrase-row-2">
+                <td translatable="yes">Confirm Passphrase</td>
+                <td>
+                  <input class="form-control" type="password" id="format-passphrase-2">
+                </td>
+              </tr>
+              <tr id="format-store-passphrase-row">
+                <td></td>
+                <td>
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" id="format-store-passphrase">
+                      <span translatable="yes">Store Passphrase</span>
+                    </label>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Mount Point</td>
+                <td>
+                  <input class="form-control" type="text" id="format-mount-point">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Mount Options</td>
+                <td>
+                  <input class="form-control" type="text" id="format-mount-options">
+                </td>
+              </tr>
+              <tr id="format-crypto-options-row">
+                <td translatable="yes">Encryption Options</td>
+                <td>
+                  <input class="form-control" type="text" id="format-crypto-options">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-danger" id="format-format" translatable="yes">
+              Format
+            </button>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div data-role="popup" id="chpasswd"
-           data-history="false"
-           data-overlay-theme="a">
-        <div data-role="header">
-	  <h1 translatable="yes">Change Login Password</h1>
-        </div>
-        <div data-role="content">
-          <ul data-role="listview" data-inset="true">
-            <li>
-              <table style="width:100%" class="cockpit-form-table">
-                <tr>
-                  <td translatable="yes">User</td>
-                  <td><input type="text" id="chpasswd-user" value=""/></td>
-                </tr>
-                <tr>
-                  <td translatable="yes">Old Password</td>
-                  <td><input type="password" id="chpasswd-old" value=""/></td>
-                </tr>
-                <tr>
-                  <td translatable="yes">New Password</td>
-                  <td><input type="password" id="chpasswd-new-1" value=""/></td>
-                </tr>
-                <tr>
-                  <td translatable="yes">Confirm New Password</td>
-                  <td><input type="password" id="chpasswd-new-2" value=""/></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td><div id="chpasswd-error">
-                  </div></td>
-                </tr>
-                <tr>
-                  <td colspan="2">
-                    <div class="ui-grid-a">
-                      <div class="ui-block-a">
-                        <button id="chpasswd-cancel" data-theme="a" translatable="yes">Cancel</button>
-                      </div>
-                      <div class="ui-block-b">
-                        <button id="chpasswd-apply" data-theme="b" translatable="yes">Change</button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </li>
-          </ul>
+    <div class="modal" id="filesystem_options_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Filesystem Options</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" type="text" id="fsysopts-name">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Mount Point</td>
+                <td>
+                  <input class="form-control" type="text" id="fsysopts-mount-point">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Mount Options</td>
+                <td>
+                  <input class="form-control" type="text" id="fsysopts-mount-options">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="fsysopts-apply" translatable="yes">
+              Apply
+            </button>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div id="error-popup"
-           data-role="popup"
-           data-theme="c"
-           data-overlay-theme="a"
-           data-history="false">
-        <div data-role="header">
-	  <h1 id="error-popup-title"></h1>
-        </div>
-        <div data-role="content">
-	  <p id="error-popup-message"></p>
-          <button onclick="$('#error-popup').popup('close')">Close
-          </button>
+    <div class="modal" id="vg_disk_add_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Disk</h4>
+          </div>
+          <div class="modal-body">
+            <div id="vg-disk-add-drives">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="vg-disk-add-add" translatable="yes">
+              Add
+            </button>
+          </div>
         </div>
       </div>
+    </div>
 
+    <div class="modal" id="storage_create_plain_volume_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Plain Volume</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" type="text" id="create-pvol-name"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Size (MiB)</td>
+                <td>
+                  <input class="form-control" type="text" id="create-pvol-size"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="create-pvol-create" translatable="yes">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="storage_create_thin_pool_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Pool for Thin Logical Volumes</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" type="text" id="create-tpool-name"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Size (MiB)</td>
+                <td>
+                  <input class="form-control" type="text" id="create-tpool-size"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="create-tpool-create" translatable="yes">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="storage_create_thin_volume_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Thin Logical Volume</h4>
+          </div>
+          <div class="modal-body">
+            <table style="width:100%" class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" type="text" id="create-tvol-name"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Size (MiB)</td>
+                <td>
+                  <input class="form-control" type="text" id="create-tvol-size"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="create-tvol-create" translatable="yes">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="storage_create_snapshot_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Create Snapshot</h4>
+          </div>
+          <div class="modal-body">
+            <table style="width:100%" class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" type="text" id="create-svol-name"/>
+                </td>
+              </tr>
+              <tr id="create-svol-size-row">
+                <td translatable="yes">Size (MiB)</td>
+                <td>
+                  <input class="form-control" type="text" id="create-svol-size"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="create-svol-create" translatable="yes">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="storage_resize_volume_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Resize Logical Volume</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">New Size (MiB)</td>
+                <td>
+                  <input class="form-control" type="text" id="resize-lvol-size"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="resize-lvol-resize" translatable="yes">
+              Resize
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="storage_rename_volume_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Rename Logical Volume</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">New Name</td>
+                <td>
+                  <input class="form-control" type="text" id="rename-lvol-name"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="rename-lvol-rename" translatable="yes">
+              Rename
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="storage_rename_group_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Rename Volume Group</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">New Name</td>
+                <td>
+                  <input class="form-control" type="text" id="rename-vg-name"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="rename-vg-rename" translatable="yes">
+              Rename
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="crypto_options_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Encryption Options</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Stored Passphrase</td>
+                <td>
+                  <input class="form-control" type="password" id="crypto-options-passphrase">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Options</td>
+                <td>
+                  <input class="form-control" type="text" id="crypto-options-options">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="crypto-options-apply" translatable="yes">
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="storage_unlock_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Unlock</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Passphrase</td>
+                <td>
+                  <input class="form-control" type="password" id="unlock-passphrase">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="unlock-unlock" translatable="yes">
+              Unlock
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="raid_disk_add_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Disks</h4>
+          </div>
+          <div class="modal-body">
+            <div id="raid-disk-add-drives">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="raid-disk-add-add" translatable="yes">
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
   </body>
 </html>
-
-<!--
-  Local Variables:
-  indent-tabs-mode: nil
-  End:
--->

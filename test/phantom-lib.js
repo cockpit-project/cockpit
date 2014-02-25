@@ -2,9 +2,6 @@
 
 function ph_init ()
 {
-    $('[data-role="page"]').on('pageshow', phantom_checkpoint);
-    $('[data-role="popup"]').on('popupafteropen', phantom_checkpoint);
-    $('[data-role="popup"]').on('popupafterclose', phantom_checkpoint);
 }
 
 function ph_find (sel)
@@ -54,7 +51,7 @@ function ph_click (sel)
 
 function ph_set_checked (sel, val)
 {
-    ph_find(sel).attr('checked', val).trigger('change').checkboxradio('refresh');
+    ph_find(sel).attr('checked', val).trigger('change');
 }
 
 function ph_is_visible (sel)

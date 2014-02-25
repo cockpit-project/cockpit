@@ -64,7 +64,6 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_login_error').text("");
 
         $('#dashboard_setup_address_reuse_creds').attr('checked', true);
-        $('#dashboard_setup_address_reuse_creds').checkboxradio('refresh');
 
         me.update_discovered ();
         $('#dashboard_setup_address_error').text("");
@@ -95,14 +94,14 @@ PageSetupServer.prototype = {
                 var rendered_address = render_address (machines[i].Address);
                 if (rendered_address) {
                     var item =
-                        $('<li>', { 'on': { 'click': $.proxy(this, 'discovered_clicked', machines[i])
+                        $('<li>', { 'class': 'list-group-item',
+                                    'on': { 'click': $.proxy(this, 'discovered_clicked', machines[i])
                                           }
                                   }).html(rendered_address);
                     discovered.append(item);
                 }
             }
         }
-        discovered.listview('refresh');
     },
 
     discovered_clicked: function (iface) {
@@ -141,7 +140,7 @@ PageSetupServer.prototype = {
     close: function() {
         if (this.client)
             this.client.close ("cancelled");
-        $("#dashboard_setup_server_dialog").popup('close');
+        $("#dashboard_setup_server_dialog").modal('hide');
     },
 
     cancel: function() {
@@ -236,7 +235,7 @@ PageSetupServer.prototype = {
     add_task: function (desc, func) {
         var $tasks = $('#dashboard_setup_action_tasks');
 
-        var $entry = $('<li/>').append(
+        var $entry = $('<li/>', { 'class': 'list-group-item' }).append(
             $('<table/>', { 'class': "cockpit-setup-task-table",
                             'style': "width:100%" }).append(
                 $('<tr/>').append(
@@ -268,7 +267,6 @@ PageSetupServer.prototype = {
 
         this.tasks.push (task);
         $tasks.append($entry);
-        $tasks.listview('refresh');
     },
 
     run_tasks: function (done) {

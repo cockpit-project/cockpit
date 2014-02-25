@@ -28,10 +28,6 @@ function cockpit_init() {
     cockpit_dbus_client = null;
     cockpit_visited_pages = {};
 
-    $("#disconnected-screen").on('click', function(e) {
-        e.stopPropagation();
-    });
-
     var lang_code = null;
     var language, language_normalized, code, code_normalized;
 
@@ -187,6 +183,8 @@ function cockpit_init_connect_local()
 {
     var i;
 
+    cockpit_expecting_disconnect = false;
+
     cockpit_dbus_local_client = new DBusClient("localhost");
     $(cockpit_dbus_local_client).on('state-change.init', function () {
         if (cockpit_dbus_local_client.state == "ready") {
@@ -251,6 +249,8 @@ function cockpit_disconnect() {
     cockpit_dbus_local_client = null;
     cockpit_machines = [];
 
+    cockpit_expecting_disconnect = true;
+
     local_client.close("disconnecting");
     for (var i = 0; i < machines.length; i++)
         machines[i].client.close("disconnecting");
@@ -258,20 +258,16 @@ function cockpit_disconnect() {
 
 var cockpit_expecting_disconnect = false;
 
-function cockpit_expect_disconnect() {
-    cockpit_expecting_disconnect = true;
-}
-
 function cockpit_show_disconnected() {
     if (!cockpit_expecting_disconnect) {
         $("#disconnected-error").text(cockpit_client_error_description(cockpit_dbus_client.error));
-        $('[data-role="popup"]').popup('close');
-        cockpit_popup(null, "#disconnected");
+        $('[role="modal"]').modal('hide');
+        $('#disconnected').modal('show');
     }
 }
 
 function cockpit_hide_disconnected() {
-    $("#disconnected").popup('close');
+    $('#disconnected').modal('hide');
 }
 
 var last_menu;

@@ -62,7 +62,7 @@ class TestShutdownRestart(MachineCase):
         b.set_val("#shutdown-delay", "0")
         b.click("#shutdown-restart")
         b.wait_popup("shutdown-confirm")
-        b.click("#shutdown-confirm-cancel")
+        b.click('#shutdown-confirm button[data-dismiss="modal"]')
         b.wait_popdown("shutdown-confirm")
 
         def get_delay_seconds():
@@ -121,7 +121,7 @@ class TestShutdownRestart(MachineCase):
         # after a reboot, we need to restart the servers and log back in.
         m.wait_boot()
         self.start_cockpit()
-        b.click("#disconnected-logout")
+        b.click('#disconnected button[onclick*="logout"]')
         b.wait_visible("#login")
         b.set_val("#login-password-input", "foobar")
         b.click("#login-button")

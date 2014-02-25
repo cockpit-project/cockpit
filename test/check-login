@@ -44,10 +44,10 @@ class TestLogin(MachineCase):
         b.wait_visible("#login")
         login("admin", "foobar")
         b.wait_page("server")
-        b.wait_text('#settings-button', 'Administrator')
+        b.wait_text('#content-user-name', 'Administrator')
 
         # logout
-        b.click('#settings-button')
+        b.click('#content-user-name')
         b.click('a[onclick*="cockpit_logout"]')
         b.wait_visible("#login")
 
@@ -62,13 +62,13 @@ class TestLogin(MachineCase):
         # login as user
         login ("user", "abcdefg")
         b.wait_page("server")
-        b.wait_text('#settings-button', 'Barney Bär')
+        b.wait_text('#content-user-name', 'Barney Bär')
 
         # reload, which should log us in with the cookie
         b.reload()
         b.wait_page("server")
-        b.wait_text('#settings-button', 'Barney Bär')
-        b.click('#settings-button')
+        b.wait_text('#content-user-name', 'Barney Bär')
+        b.click('#content-user-name')
         b.click('a[onclick*="cockpit_go_login_account"]')
         b.wait_page("account")
         b.wait_text ("#account-user-name", "user")

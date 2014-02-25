@@ -41,6 +41,22 @@ class TestStorage(MachineCase):
         self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "Drive", drive)
         return id
 
+    def content_action_btn(self, index):
+        return "#storage_detail_partition_list li:nth-child(%d) .btn-group" % index
+
+    def content_action(self, index, action):
+        self.browser.click_action_btn (self.content_action_btn(index), action)
+
+    def content_default_action(self, index, action):
+        btn = self.content_action_btn(index)
+        self.browser.wait_action_btn (btn, action)
+        self.browser.click_action_btn (btn)
+
+    def content_single_action(self, index, action):
+        btn = "#storage_detail_partition_list li:nth-child(%d) button" % index
+        self.browser.wait_text (btn, action)
+        self.browser.click (btn)
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -52,7 +68,7 @@ class TestStorage(MachineCase):
         disk1 = self.add_disk("10M", serial="MYSERIAL")
 
         b.wait_in_text("#storage_drives", "MYSERIAL")
-        b.click('a[onclick*="MYSERIAL"]')
+        b.click('tr[onclick*="MYSERIAL"]')
         b.wait_page("storage-detail")
         b.wait_in_text('#storage_detail_partition_list', "Unrecognized Data")
         b.wait_not_in_text('#storage_detail_partition_list', "Partition")
@@ -79,14 +95,11 @@ class TestStorage(MachineCase):
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
-        b.click('a[onclick*="MYDISK"]')
+        b.click('tr[onclick*="MYDISK"]')
         b.wait_page("storage-detail")
 
         # Format it
-        b.click("#entry-actions-1")
-        b.wait_popup("block-actions-menu")
-        b.click('#block-actions-menu button[data-op="format"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_default_action(1, "Format")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-type", "ext4")
         b.set_val("#format-name", "FILESYSTEM")
@@ -96,18 +109,13 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "FILESYSTEM")
         b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/foo")
 
-        b.wait_text("#entry-action-1", "Mount");
-        b.click("#entry-action-1")
+        self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /foo")
 
-        b.wait_text("#entry-action-1", "Unmount");
-        b.click("#entry-action-1")
+        self.content_default_action(1, "Unmount");
         b.wait_in_text("#storage_detail_partition_list", "not mounted")
 
-        b.click("#entry-actions-1")
-        b.wait_popup("block-actions-menu")
-        b.click('#block-actions-menu button[data-op="fsys-options"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_action(1, "Filesystem Options");
         b.wait_popup("filesystem_options_dialog")
         b.wait_val("#fsysopts-name", "FILESYSTEM")
         b.wait_val("#fsysopts-mount-point", "/foo")
@@ -115,8 +123,7 @@ class TestStorage(MachineCase):
         b.click("#fsysopts-apply")
         b.wait_popdown("filesystem_options_dialog")
 
-        b.wait_text("#entry-action-1", "Mount");
-        b.click("#entry-action-1")
+        self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /bar")
 
     def testDosParts(self):
@@ -128,14 +135,11 @@ class TestStorage(MachineCase):
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
-        b.click('a[onclick*="MYDISK"]')
+        b.click('tr[onclick*="MYDISK"]')
         b.wait_page("storage-detail")
 
         # Format it with a DOS partition table
-        b.click("#drive-actions")
-        b.wait_popup("drive-actions-menu")
-        b.click('#drive-actions-menu button[data-op="format"]')
-        b.wait_popdown("drive-actions-menu")
+        b.click("#drive_format")
         b.wait_popup("storage_format_disk_dialog")
         b.set_val("#format-disk-type", "dos")
         b.click("#format-disk-format")
@@ -143,7 +147,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "Free Space")
 
         # Create a primary partition
-        b.click("#entry-action-1")
+        self.content_single_action(1, "Create Partition")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-size", "10")
         b.set_val("#format-type", "ext4")
@@ -153,7 +157,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "FIRST")
 
         # Create a extended partition
-        b.click("#entry-action-2")
+        self.content_single_action(2, "Create Partition")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-size", "20")
         b.set_val("#format-type", "dos-extended")
@@ -163,7 +167,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "Extended Partition")
 
         # Create a second primary partition to fill the rest of the disk
-        b.click("#entry-action-4")
+        self.content_single_action(4, "Create Partition")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-size", "");
         b.set_val("#format-type", "ext4")
@@ -173,7 +177,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "SECOND")
 
         # Create a logical partition
-        b.click("#entry-action-3")
+        self.content_single_action(3, "Create Partition")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-size", "10");
         b.set_val("#format-type", "ext4")
@@ -183,7 +187,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "LOGICAL")
 
         # Create a second logical partition to fill the extended partition
-        b.click("#entry-action-4")
+        self.content_single_action(4, "Create Partition")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-size", "");
         b.set_val("#format-type", "ext4")
@@ -203,12 +207,9 @@ class TestStorage(MachineCase):
         # Add a disk and partition it
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
-        b.click('a[onclick*="MYDISK"]')
+        b.click('tr[onclick*="MYDISK"]')
         b.wait_page("storage-detail")
-        b.click("#drive-actions")
-        b.wait_popup("drive-actions-menu")
-        b.click('#drive-actions-menu button[data-op="format"]')
-        b.wait_popdown("drive-actions-menu")
+        b.click("#drive_format")
         b.wait_popup("storage_format_disk_dialog")
         b.set_val("#format-disk-type", "gpt")
         b.click("#format-disk-format")
@@ -218,13 +219,13 @@ class TestStorage(MachineCase):
         assert m.execute("cat /etc/crypttab") == ""
 
         # Format it with luks
-        b.click("#entry-action-1")
+        self.content_single_action(1, "Create Partition")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-type", "luks+ext4")
         b.set_val("#format-name", "ENCRYPTED")
         b.set_val("#format-passphrase", "maisa-artu-keke-tellu")
         b.set_val("#format-passphrase-2", "maisa-artu-keke-tellu")
-        b.set_val("#format-store-passphrase", "yes")
+        b.set_checked("#format-store-passphrase", True)
         b.set_val("#format-mount-point", "/secret")
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
@@ -239,14 +240,12 @@ class TestStorage(MachineCase):
         assert m.execute("cat /etc/luks-keys/*") == "maisa-artu-keke-tellu"
 
         # Lock it
-        b.wait_text("#entry-action-1", "Lock")
-        b.click("#entry-action-1")
+        self.content_default_action(1, "Lock")
         b.wait_in_text("#storage_detail_partition_list", "locked")
         b.wait_not_in_text("#storage_detail_partition_list", "ENCRYPTED")
 
         # Unlock
-        b.wait_text("#entry-action-1", "Unlock")
-        b.click("#entry-action-1")
+        self.content_default_action(1, "Unlock")
         b.wait_popup("storage_unlock_dialog")
         b.set_val("#unlock-passphrase", "maisa-artu-keke-tellu")
         b.click("#unlock-unlock")
@@ -255,10 +254,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "ENCRYPTED")
 
         # Change options
-        b.click("#entry-actions-1")
-        b.wait_popup("block-actions-menu")
-        b.click('#block-actions-menu button[data-op="crypto-options"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_action(1, "Encryption Options")
         b.wait_popup("crypto_options_dialog")
         b.wait_val("#crypto-options-passphrase", "maisa-artu-keke-tellu")
         b.set_val("#crypto-options-passphrase", "wrong-passphrase")
@@ -273,10 +269,7 @@ class TestStorage(MachineCase):
         m.execute("sleep 1")
 
         # Delete the partition
-        b.click("#entry-actions-1")
-        b.wait_popup("block-actions-menu")
-        b.click('#block-actions-menu button[data-op="delete"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_action(1, "Delete")
         b.wait_in_text("#storage_detail_partition_list", "Free Space")
         b.wait_not_in_text("#storage_detail_partition_list", "ENCRYPTED")
 
@@ -284,7 +277,7 @@ class TestStorage(MachineCase):
         assert m.execute("grep /secret /etc/fstab || true") == ""
 
     def select_disk(self, container, name):
-        self.browser.set_checked('#%s .ui-checkbox:contains("%s") input' % (container, name), 'true')
+        self.browser.set_checked('#%s .checkbox:contains("%s") input' % (container, name), True)
 
     def wait_states(self, states):
         # XXX - This is just here to prove that you can embed non-trivial JS here.  It's not a good idea.
@@ -312,6 +305,13 @@ class TestStorage(MachineCase):
 
     def raid_remove_disk(self, name):
         self.browser.click('#raid-disks li:contains("%s") button' % name)
+
+    def raid_action(self, action):
+        self.browser.click_action_btn ("#raid_action_btn", action)
+
+    def raid_default_action(self, action):
+        self.browser.wait_action_btn ("#raid_action_btn", action)
+        self.browser.click_action_btn ("#raid_action_btn")
 
     def testRaid(self):
         m = self.machine
@@ -347,7 +347,7 @@ class TestStorage(MachineCase):
         b.wait_popdown("create-raid-dialog")
         b.wait_in_text("#storage_raids", "ARR")
 
-        b.click('a[onclick*="mdraid"]')
+        b.click('tr[onclick*="mdraid"]')
         b.wait_page("storage-detail")
 
         # The array might resync, so let's give it some extra time
@@ -355,8 +355,8 @@ class TestStorage(MachineCase):
             b.wait_in_text("#raid_detail_state", "Running")
 
         self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
-                   "QEMU QEMU HARDDISK (DISK2)": "In Sync",
-                   "QEMU QEMU HARDDISK (DISK3)": "In Sync" })
+                           "QEMU QEMU HARDDISK (DISK2)": "In Sync",
+                           "QEMU QEMU HARDDISK (DISK3)": "In Sync" })
 
         # Degrade and repair it
         dev = b.text("#raid_detail_device")
@@ -369,19 +369,14 @@ class TestStorage(MachineCase):
             b.wait_in_text("#raid_detail_state", "Running")
 
         # Turn it off and on again
-        b.wait_in_text("#raid-action", "Stop")
-        b.click("#raid-action")
+        self.raid_default_action("Stop")
         b.wait_in_text("#raid_detail_state", "Not running")
-        b.wait_in_text("#raid-action", "Start")
-        b.click("#raid-action")
+        self.raid_default_action("Start")
         b.wait_in_text("#raid_detail_state", "Running")
         b.wait_text_not("#raid_detail_device", "--")
 
         # Create partition table
-        b.click("#raid-actions")
-        b.wait_popup("raid-actions-menu")
-        b.click('#raid-actions-menu button[data-op="format"]')
-        b.wait_popdown("raid-actions-menu")
+        self.raid_action("Format")
         b.wait_popup("storage_format_disk_dialog")
         b.set_val("#format-disk-type", "gpt")
         b.click("#format-disk-format")
@@ -389,7 +384,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "Free Space")
 
         # Create first partition
-        b.click("#entry-action-1")
+        self.content_single_action(1, "Create Partition")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-size", "20")
         b.set_val("#format-type", "ext4")
@@ -399,7 +394,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "One")
 
         # Create second partition
-        b.click("#entry-action-2")
+        self.content_single_action(2, "Create Partition")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-size", "")
         b.set_val("#format-type", "ext4")
@@ -410,10 +405,7 @@ class TestStorage(MachineCase):
         b.wait_not_in_text("#storage_detail_partition_list", "Free Space")
 
         # Delete first partition
-        b.click("#entry-actions-1")
-        b.wait_popup("block-actions-menu")
-        b.click('#block-actions-menu button[data-op="delete"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_action(1, "Delete")
         b.wait_in_text("#storage_detail_partition_list", "Free Space")
         b.wait_not_in_text("#storage_detail_partition_list", "One")
 
@@ -439,13 +431,11 @@ class TestStorage(MachineCase):
             b.wait_in_text("#raid_detail_state", "Running")
 
         # Stop the array, destroy a disk, and start the array
-        b.wait_in_text("#raid-action", "Stop")
-        b.click("#raid-action")
+        self.raid_default_action("Stop")
         b.wait_in_text("#raid_detail_state", "Not running")
         m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("udevadm settle")
-        b.wait_in_text("#raid-action", "Start")
-        b.click("#raid-action")
+        self.raid_default_action("Start")
         b.wait_in_text("#raid_detail_state", "DEGRADED")
         b.wait_not_in_text("#raid_detail_state", "Recovering")
         b.wait_visible("#raid-disks")
@@ -456,11 +446,7 @@ class TestStorage(MachineCase):
             b.wait_in_text("#raid_detail_state", "Running")
 
         # Delete the array.  We are back on the storage page.
-        b.click("#raid-actions")
-        b.wait_popup("raid-actions-menu")
-        b.click('#raid-actions-menu button[data-op="delete"]')
-        b.wait_popdown("raid-actions-menu")
-
+        self.raid_action("Delete")
 	with b.wait_timeout(120):
 	        b.wait_page("storage")
 	       	b.wait_not_in_text ("#storage_raids", "ARR")
@@ -476,14 +462,11 @@ class TestStorage(MachineCase):
         self.add_disk("10M", serial="SLOW", speed=800)
         b.wait_in_text("#storage_drives", "SLOW")
 
-        b.click('a[onclick*="SLOW"]')
+        b.click('tr[onclick*="SLOW"]')
         b.wait_page("storage-detail")
 
         # Format it
-        b.click("#entry-actions-1")
-        b.wait_popup("block-actions-menu")
-        b.click('#block-actions-menu button[data-op="format"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_default_action(1, "Format")
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-erase", "zero")
         b.set_val("#format-type", "ext4")
@@ -514,7 +497,7 @@ class TestStorage(MachineCase):
         # Create volume group out of two disks
         m.execute("vgcreate TEST1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
         b.wait_in_text("#storage_vgs", "TEST1")
-        b.click('a[onclick*="TEST1"]')
+        b.click('tr[onclick*="TEST1"]')
         b.wait_page("storage-detail")
         b.wait_in_text("#vg-physical-volumes", "DISK1")
         b.wait_in_text("#vg-physical-volumes", "DISK2")
@@ -562,11 +545,10 @@ class TestStorage(MachineCase):
         b.click('#create-vg-create')
         b.wait_popdown('create-volume-group-dialog')
         b.wait_in_text("#storage_vgs", "TEST")
-        b.click('a[onclick*="TEST"]')
+        b.click('tr[onclick*="TEST"]')
 
         # create a logical volume
-        b.wait_text('#entry-action-1', "Create Plain Logical Volume")
-        b.click('#entry-action-1')
+        self.content_default_action(1, "Create Plain Logical Volume")
         b.wait_popup('storage_create_plain_volume_dialog')
         b.set_val('#create-pvol-name', "one")
         b.set_val('#create-pvol-size', "20")
@@ -575,8 +557,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_content", "Logical Volume \"one\"")
 
         # format and mount it
-        b.wait_text('#entry-action-1', "Format")
-        b.click('#entry-action-1')
+        self.content_default_action(1, "Format")
         b.wait_popup('storage_format_dialog')
         b.set_val('#format-type', "ext4")
         b.set_val('#format-mount-point', "/one");
@@ -584,33 +565,26 @@ class TestStorage(MachineCase):
         b.wait_popdown('storage_format_dialog')
         b.wait_in_text("#storage_detail_content", "(ext4 File System)")
         b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/one")
-        b.wait_text('#entry-action-1', "Mount")
-        b.click('#entry-action-1')
+        self.content_default_action(1, "Mount")
         b.wait_in_text("#storage_detail_content", "mounted on /one")
 
         # unmount it
-        b.wait_text('#entry-action-1', "Unmount")
-        b.click('#entry-action-1')
+        self.content_default_action(1, "Unmount")
         b.wait_in_text("#storage_detail_content", "not mounted")
 
         # delete it
-        b.click('#entry-actions-1')
-        b.wait_popup('block-actions-menu')
-        b.click('#block-actions-menu button[data-op="delete"]')
-        b.wait_popdown('block-actions-menu')
+        self.content_action(1, "Delete")
         b.wait_not_in_text("#storage_detail_content", "Logical Volume \"one\"")
         check_eq(m.execute("grep /one /etc/fstab || true"), "")
 
         # remove disk
         m.execute("pvmove /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2 || true")
-        b.click('#vg-pv-remove-1')
+        b.wait_action_btn('#vg-physical-volumes li:nth-child(2) .btn-group', "Remove")
+        b.click_action_btn('#vg-physical-volumes li:nth-child(2) .btn-group')
         b.wait_not_in_text("#vg-physical-volumes", "DISK2")
 
         # create thin pool and volume
-        b.click('#entry-actions-1')
-        b.wait_popup('vg-free-actions-menu')
-        b.click('#vg-free-actions-menu button[data-op="create-thin-pool"]')
-        b.wait_popdown('vg-free-actions-menu')
+        self.content_action(1, "Create Pool for Thin Logical Volumes")
         b.wait_popup('storage_create_thin_pool_dialog')
         b.set_val('#create-tpool-name', "pool")
         b.set_val('#create-tpool-size', "20")
@@ -618,8 +592,7 @@ class TestStorage(MachineCase):
         b.wait_popdown('storage_create_thin_pool_dialog')
         b.wait_in_text('#storage_detail_content', "Pool for Thin Logical Volumes \"pool\"")
 
-        b.wait_text('#entry-action-1', "Create Thin Volume")
-        b.click('#entry-action-1')
+        self.content_default_action(1, "Create Thin Volume")
         b.wait_popup('storage_create_thin_volume_dialog')
         b.set_val('#create-tvol-name', "thin")
         b.set_val('#create-tvol-size', "80")
@@ -628,8 +601,7 @@ class TestStorage(MachineCase):
         b.wait_in_text('#storage_detail_content', "Thin Logical Volume \"thin\"")
 
         # cause the pool to overflow by erasing the thin volume
-        b.wait_text('#entry-action-2', "Format")
-        b.click('#entry-action-2')
+        self.content_default_action(2, "Format")
         b.wait_popup('storage_format_dialog')
         b.set_val('#format-erase', "zero")
         b.set_val('#format-type', "ext4")
@@ -646,10 +618,7 @@ class TestStorage(MachineCase):
         b.wait_popdown('vg_disk_add_dialog')
         b.wait_in_text("#vg-physical-volumes", "DISK2")
 
-        b.click('#entry-actions-1')
-        b.wait_popup('block-actions-menu')
-        b.click('#block-actions-menu button[data-op="resize"]')
-        b.wait_popdown('block-actions-menu')
+        self.content_action(1, "Resize")
         b.wait_popup('storage_resize_volume_dialog')
         b.set_val('#resize-lvol-size', "80")
         b.click('#resize-lvol-resize')
@@ -659,8 +628,7 @@ class TestStorage(MachineCase):
         b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/thin")
 
         # remove volume group
-        b.wait_text('#vg-action', "Delete")
-        b.click('#vg-action')
+        b.click_action_btn('#vg_action_btn', "Delete")
         b.wait_page("storage")
         check_eq(m.execute("grep /thin /etc/fstab || true"), "")
 
@@ -686,14 +654,11 @@ class TestStorage(MachineCase):
 
         # Now all of /dev/mapper/dm-test, /dev/vdb5, /dev/vdb1, and /dev/vdb should be 'in use'.
 
-        b.click('a[onclick*="DISK1"]')
+        b.click('tr[onclick*="DISK1"]')
         b.wait_page("storage-detail")
         b.wait_in_text("#storage_detail_content", "/mnt")
 
-        b.click('#entry-actions-3')
-        b.wait_popup('block-actions-menu')
-        b.click('#block-actions-menu button[data-op="format"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_action(3, "Format")
         b.wait_popup("storage_format_dialog")
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
@@ -702,25 +667,19 @@ class TestStorage(MachineCase):
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
 
-        b.click('#entry-actions-2')
-        b.wait_popup('block-actions-menu')
-        b.click('#block-actions-menu button[data-op="delete"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_action(2, "Delete")
         b.wait_popup("error-popup")
         b.wait_in_text("#error-popup-message", "Device or resource busy")
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
 
-        b.click('#entry-actions-1')
-        b.wait_popup('block-actions-menu')
-        b.click('#block-actions-menu button[data-op="delete"]')
-        b.wait_popdown("block-actions-menu")
+        self.content_action(1, "Delete")
         b.wait_popup("error-popup")
         b.wait_in_text("#error-popup-message", "Device or resource busy")
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
 
-        b.click('#drive-action')
+        b.click('#drive_format')
         b.wait_popup("storage_format_disk_dialog")
         b.click("#format-disk-format")
         b.wait_popdown("storage_format_disk_dialog")
@@ -734,7 +693,7 @@ class TestStorage(MachineCase):
         m.execute("umount /mnt")
         b.wait_in_text("#storage_detail_content", "not mounted")
 
-        b.click('#drive-action')
+        b.click('#drive_format')
         b.wait_popup("storage_format_disk_dialog")
         b.click("#format-disk-format")
         b.wait_popdown("storage_format_disk_dialog")
@@ -774,7 +733,7 @@ class TestStorage(MachineCase):
         #       requires the former), and we need to log in again...
         #
         b.wait_popup("disconnected")
-        b.click('#disconnected-logout')
+        b.click('#disconnected button[onclick*="logout"]')
         b.wait_popdown("disconnected")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
@@ -783,8 +742,8 @@ class TestStorage(MachineCase):
         b.wait_page('storage')
 
         # Delete the volume group and check that fstab has been cleaned up
-        b.click('a[onclick*="TEST"]')
-        b.click('#vg-action')
+        b.click('tr[onclick*="TEST"]')
+        b.click_action_btn('#vg_action_btn', "Delete")
         b.wait_page("storage")
         check_eq(m.execute("grep /mount /etc/fstab || true"), "")
 
@@ -826,7 +785,7 @@ class TestStorage(MachineCase):
     }
     """)
 
-        blocks = b.eval_js ("return ph_texts('#create-raid-drives .ui-checkbox')")
+        blocks = b.eval_js ("return ph_texts('#create-raid-drives .checkbox')")
         check_eq (len(blocks), 2);
         check_in (blocks[0], "/dev/sda6");
         check_in (blocks[1], "/dev/sdb");

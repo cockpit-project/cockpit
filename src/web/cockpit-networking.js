@@ -73,7 +73,7 @@ PageNetworking.prototype = {
 
         var addedProxyIndexes = this._set_subtract(newInterfaceProxyIndexes, currentInterfaceProxyIndexes);
 
-        var match, insertBefore, interfaces, top, topA, header, ifaceContent;
+        var match, insertBefore, interfaces, top, header, ifaceContent;
 
         for (ifname in addedProxyIndexes) {
             match = $.grep(newInterfaceProxies, function (v) {
@@ -98,19 +98,16 @@ PageNetworking.prototype = {
             top = document.createElement("li");
             top.setAttribute("id", "networking-interface-" + ifname);
             top.classList.add("networking-interface");
+            top.classList.add("list-group-item");
             top._ifname = ifname; // expando
 
-            topA = document.createElement("a");
-            top.appendChild(topA);
-
-            topA.setAttribute("onclick", cockpit_go_down_cmd("networking-iface", { ifname: ifname }));
             header = document.createElement("div");
             header.classList.add("cockpit-network-header");
             header.appendChild(document.createTextNode(proxy['Name']));
-            topA.appendChild(header);
+            top.appendChild(header);
             ifaceContent = document.createElement("div");
             ifaceContent.setAttribute("id", "networking_interface_content_" + ifname);
-            topA.appendChild(ifaceContent);
+            top.appendChild(ifaceContent);
 
             ifaceContent.appendChild(document.createTextNode("Loading..."));
 
@@ -121,7 +118,6 @@ PageNetworking.prototype = {
         }
 
         this._resync_network_interface_list_content();
-        $("#networking_content").listview('refresh');
     },
 
     _ip4AddressToHTML: function (address) {
@@ -185,7 +181,7 @@ PageNetworking.prototype = {
             ip6Addresses = proxy['IP6Addresses'];
 
             table = document.createElement('table');
-            table.classList.add("cockpit-form-table");
+            table.classList.add("cockpit-info-table");
             content.appendChild(table);
 
             tr = document.createElement('tr');
@@ -249,7 +245,6 @@ PageNetworking.prototype = {
     },
 
     show: function() {
-        $("#networking_content").listview('refresh');
     },
 
     leave: function() {
@@ -261,37 +256,3 @@ function PageNetworking() {
 }
 
 cockpit_pages.push(new PageNetworking());
-
-PageNetworkingIface.prototype = {
-    _init: function () {
-        this.id = "networking-iface";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Network Interface");
-    },
-
-    enter: function (first_visit) {
-        var ifname = cockpit_get_page_param("ifname");
-        if (!ifname)
-            return;
-
-        var networkingPage = cockpit_page_from_id("networking");
-        var proxy = networkingPage.getInterfaceProxy(ifname);
-
-        $("#networking_iface_config_ip4_text").text(proxy['IP4ConfigMode']);
-        $("#networking_iface_config_ip6_text").text(proxy['IP6ConfigMode']);
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    }
-};
-
-function PageNetworkingIface() {
-    this._init();
-}
-
-cockpit_pages.push(new PageNetworkingIface());

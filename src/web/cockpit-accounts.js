@@ -108,7 +108,7 @@ function cockpit_show_change_avatar_dialog (file_input, callback)
         cockpit_fill_canvas (canvas, overlay, reader.result, 256,
                           function () {
                               PageAccountChangeAvatar.callback = callback;
-                              cockpit_popup (null, '#account-change-avatar-dialog');
+                              $('#account-change-avatar-dialog').modal('show');
                           });
     };
     reader.readAsDataURL(file);
@@ -205,7 +205,7 @@ PageAccounts.prototype = {
 
     create: function () {
         if (cockpit_check_role ('cockpit-user-admin'))
-            cockpit_popup (null, '#accounts-create-dialog');
+            $('#accounts-create-dialog').modal('show');
     },
 
     go: function (user) {
@@ -235,14 +235,13 @@ PageAccountsCreate.prototype = {
         if (first_visit) {
             $('#accounts-create-cancel').on('click', $.proxy(this, "cancel"));
             $('#accounts-create-create').on('click', $.proxy(this, "create"));
-            $('#accounts-create-dialog input').on('keyup', $.proxy(this, "update"));
+            $('#accounts-create-dialog input').on('keyup change', $.proxy(this, "update"));
         }
         $('#accounts-create-user-name').val("");
         $('#accounts-create-real-name').val("");
         $('#accounts-create-pw1').val("");
         $('#accounts-create-pw2').val("");
-        $('#accounts-create-locked').val("no");
-        $('#accounts-create-locked').slider('refresh');
+        $('#accounts-create-locked').prop('checked', false);
         this.update ();
     },
 
@@ -258,25 +257,22 @@ PageAccountsCreate.prototype = {
                     $('#accounts-create-pw2').val() == $('#accounts-create-pw1').val());
         }
 
-        if (check_params ())
-            $('#accounts-create-create').button('enable');
-        else
-            $('#accounts-create-create').button('disable');
+        $('#accounts-create-create').prop('disabled', !check_params());
     },
 
     cancel: function() {
-        $('#accounts-create-dialog').popup('close');
+        $('#accounts-create-dialog').modal('hide');
     },
 
     create: function() {
-        $('#accounts-create-dialog').popup('close');
+        $('#accounts-create-dialog').modal('hide');
         var manager = cockpit_dbus_client.lookup ("/com/redhat/Cockpit/Accounts",
                                                "com.redhat.Cockpit.Accounts");
         manager.call("CreateAccount",
                      $('#accounts-create-user-name').val(),
                      $('#accounts-create-real-name').val(),
                      $('#accounts-create-pw1').val(),
-                     $('#accounts-create-locked').val() == "yes",
+                     $('#accounts-create-locked').prop('checked'),
                      function (error) {
                          if (error)
                              cockpit_show_unexpected_error (error);
@@ -347,8 +343,7 @@ PageAccount.prototype = {
                 $('#account-last-login').text(_("Never"));
             else
                 $('#account-last-login').text((new Date(this.account.LastLogin*1000)).toLocaleString());
-            $('#account-locked').val(this.account.Locked? "yes" : "no");
-            $('#account-locked').slider('refresh');
+            $('#account-locked').prop('checked', this.account.Locked);
             var groups = cockpit_make_set (this.account.Groups);
             var roles = "";
             for (var i = 0; i < this.sys_roles.length; i++) {
@@ -364,8 +359,7 @@ PageAccount.prototype = {
             $('#account-real-name').val("");
             $('#account-user-name').text("");
             $('#account-last-login').text("");
-            $('#account-locked').val("no");
-            $('#account-locked').slider('refresh');
+            $('#account-locked').prop('checked', false);
             $('#account-roles').text("");
         }
         cockpit_content_update_loc_trail ();
@@ -428,7 +422,7 @@ PageAccount.prototype = {
         }
 
         this.account.call ('SetLocked',
-                           $('#account-locked').val() == "yes",
+                           $('#account-locked').prop('checked'),
                            function (error) {
                                if (error) {
                                    cockpit_show_unexpected_error (error);
@@ -442,7 +436,7 @@ PageAccount.prototype = {
             return;
 
         PageAccountSetPassword.account = this.account;
-        cockpit_popup (null, '#account-set-password-dialog');
+        $('#account-set-password-dialog').modal('show');
     },
 
     delete_account: function() {
@@ -450,7 +444,7 @@ PageAccount.prototype = {
             return;
 
         PageAccountConfirmDelete.account = this.account;
-        cockpit_popup (null, '#account-confirm-delete-dialog');
+        $('#account-confirm-delete-dialog').modal('show');
     },
 
     logout_account: function() {
@@ -473,7 +467,7 @@ PageAccount.prototype = {
             return;
 
         PageAccountChangeRoles.account = this.account;
-        cockpit_popup (null, '#account-change-roles-dialog');
+        $('#account-change-roles-dialog').modal('show');
     }
 
 };
@@ -634,7 +628,7 @@ PageAccountChangeAvatar.prototype = {
     },
 
     cancel: function() {
-        $('#account-change-avatar-dialog').popup('close');
+        $('#account-change-avatar-dialog').modal('hide');
     },
 
     apply: function() {
@@ -642,7 +636,7 @@ PageAccountChangeAvatar.prototype = {
                                      this.crop_x, this.crop_y,
                                      this.crop_x+this.crop_s, this.crop_y+this.crop_s,
                                      128, 128, "image/png");
-        $('#account-change-avatar-dialog').popup('close');
+        $('#account-change-avatar-dialog').modal('hide');
         PageAccountChangeAvatar.callback (data);
     }
 };
@@ -669,7 +663,6 @@ PageAccountChangeRoles.prototype = {
         var groups, r, g, i;
 
         if (first_visit) {
-            $('#account-change-roles-cancel').on('click', $.proxy(this, "cancel"));
             $('#account-change-roles-apply').on('click', $.proxy(this, "apply"));
         }
 
@@ -677,24 +670,25 @@ PageAccountChangeRoles.prototype = {
                                                "com.redhat.Cockpit.Accounts");
         this.sys_roles = manager.Roles;
 
-        var fieldset = $('<fieldset/>', { "data-role": "controlgroup" });
+        var list = $('<ul/>', { 'class': 'list-group' });
         for (i = 0; i < this.sys_roles.length; i++) {
             r = this.sys_roles[i][0];
-            fieldset.append ([ $('<input/>', { type: "checkbox",
-                                               name: "account-role-checkbox-" + r,
-                                               id: "account-role-checkbox-" + r
-                                             }),
-                               $('<label/>', { "for": "account-role-checkbox-" + r }).text(
-                                   this.sys_roles[i][1])
-                             ]);
+            list.append(
+                $('<li>', { 'class': 'list-group-item' }).append(
+                    $('<div>', { 'class': 'checkbox',
+                                 'style': 'margin:0px'
+                               }).append(
+                        $('<input/>', { type: "checkbox",
+                                        name: "account-role-checkbox-" + r,
+                                        id: "account-role-checkbox-" + r
+                                      }),
+                        $('<label/>', { "for": "account-role-checkbox-" + r }).text(
+                            this.sys_roles[i][1]))));
         }
 
         var roles = $('#account-change-roles-roles');
         roles.empty();
-        roles.append (
-            $('<div/>', { "data-role": "fieldcontain" }).append(
-                fieldset));
-        roles.trigger('create');
+        roles.append (list);
 
         groups = cockpit_make_set (PageAccountChangeRoles.account.Groups);
         this.roles = { };
@@ -702,16 +696,11 @@ PageAccountChangeRoles.prototype = {
             r = this.sys_roles[i][0];
             if (r in groups)
                 this.roles[r] = true;
-            $('#account-role-checkbox-' + r).attr("checked", this.roles[r]? true: false);
-            $('#account-role-checkbox-' + r).checkboxradio('refresh');
+            $('#account-role-checkbox-' + r).prop('checked', this.roles[r]? true: false);
         }
     },
 
     leave: function() {
-    },
-
-    cancel: function() {
-        $('#account-change-roles-dialog').popup('close');
     },
 
     apply: function() {
@@ -720,7 +709,7 @@ PageAccountChangeRoles.prototype = {
         var remove = [ ];
         for (i = 0; i < this.sys_roles.length; i++) {
             r = this.sys_roles[i][0];
-            checked = $('#account-role-checkbox-' + r).attr("checked");
+            checked = $('#account-role-checkbox-' + r).prop('checked');
             if (checked && !this.roles[r])
                 add.push(r);
             else if (!checked && this.roles[r])
@@ -732,7 +721,7 @@ PageAccountChangeRoles.prototype = {
                                                  if (error)
                                                      cockpit_show_unexpected_error (error);
                                              });
-        $('#account-change-roles-dialog').popup('close');
+        $('#account-change-roles-dialog').modal('hide');
     }
 };
 
@@ -756,28 +745,22 @@ PageAccountConfirmDelete.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $('#account-confirm-delete-cancel').on('click', $.proxy(this, "cancel"));
             $('#account-confirm-delete-apply').on('click', $.proxy(this, "apply"));
         }
-        $('#account-confirm-delete-files').val("no");
-        $('#account-confirm-delete-files').slider('refresh');
+        $('#account-confirm-delete-files').prop('checked', false);
     },
 
     leave: function() {
     },
 
-    cancel: function() {
-        $('#account-confirm-delete-dialog').popup('close');
-    },
-
     apply: function() {
         PageAccountConfirmDelete.account.call ('Delete',
-                                               $('#account-confirm-delete-files').val() == "yes",
+                                               $('#account-confirm-delete-files').prop('checked'),
                                                function (error) {
                                                    if (error)
                                                        cockpit_show_unexpected_error (error);
                                                });
-        $('#account-confirm-delete-dialog').popup('close');
+        $('#account-confirm-delete-dialog').modal('hide');
         cockpit_go_up ();
     }
 };
@@ -802,9 +785,8 @@ PageAccountSetPassword.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $('#account-set-password-cancel').on('click', $.proxy(this, "cancel"));
             $('#account-set-password-apply').on('click', $.proxy(this, "apply"));
-            $('#account-set-password-dialog input').on('keyup', $.proxy(this, "update"));
+            $('#account-set-password-dialog input').on('keyup change', $.proxy(this, "update"));
         }
         this.update ();
     },
@@ -819,18 +801,11 @@ PageAccountSetPassword.prototype = {
                     $('#account-set-password-pw2').val() == $('#account-set-password-pw1').val());
         }
 
-        if (check_params ())
-            $('#account-set-password-apply').button('enable');
-        else
-            $('#account-set-password-apply').button('disable');
-    },
-
-    cancel: function() {
-        $('#account-set-password-dialog').popup('close');
+        $('#account-set-password-apply').prop('disabled', !check_params());
     },
 
     apply: function() {
-        $('#account-set-password-dialog').popup('close');
+        $('#account-set-password-dialog').modal('hide');
         PageAccountSetPassword.account.call ('SetPassword', $('#account-set-password-pw1').val(),
                                              function (error) {
                                                  if (error)

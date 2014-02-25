@@ -56,7 +56,7 @@ PageDisplayLanguageDialog.prototype = {
                 jqxhr.success(function(data) {
                     cockpit_language_code = code_to_select;
                     cockpit_language_po = data[code_to_select];
-                    $("#display-language-dialog").popup("close");
+                    $('#display-language-dialog').modal('hide');
                     // Cool, that worked, update setting
                     cockpit_settings_set("lang-code", code_to_select);
                     cockpit_localize_pages();
@@ -67,7 +67,7 @@ PageDisplayLanguageDialog.prototype = {
                 cockpit_language_po = null;
                 // update setting
                 cockpit_settings_set("lang-code", null);
-                $("#display-language-dialog").popup("close");
+                $('#display-language-dialog').modal('hide');
                 cockpit_localize_pages();
             }
 

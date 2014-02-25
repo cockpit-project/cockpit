@@ -36,24 +36,10 @@ cockpit.js: $(cockpit_js_PARTS)
 	(cd $(srcdir) && JSL=$(JSL) ./src/web/js-lint $(cockpit_js_PARTS))
 	(cd $(srcdir) && ./src/web/minify $(cockpit_js_PARTS)) >$@.tmp && mv $@.tmp $@
 
-# Theme acrobatics.
-#
-# We take the default theme, fix it to be consistent re its own
-# parameters, turn that into a SCSS file that makes the parameters
-# accessible to SASS, and finally use that to generate our theme by
-# modifying some parameters and adding additional CSS.
-
-jquery.mobile.theme-1.3.0.scss: src/web/lib/jquery.mobile.theme-1.3.0.css src/web/fix-jqm-theme.patch src/web/sassify-jqm
-	patch -i $(srcdir)/src/web/fix-jqm-theme.patch -o - $< | \
-	  $(srcdir)/src/web/sassify-jqm >$@.tmp && mv $@.tmp $@
-
-jquery.mobile.adwaita-1.3.0.css: src/web/adwaita.scss jquery.mobile.theme-1.3.0.scss
-	$(SASS) -I src/web/ -I $(builddir) -t expanded $< >$@.tmp && mv $@.tmp $@
-
 # Place these in the build directory for testing/install
 dbus.js: src/web/dbus.js
 	$(AM_V_GEN) cp $< $@
-jquery-1.8.2.js: src/web/lib/jquery-1.8.2.js
+jquery.min.js: src/web/lib/jquery.min.js
 	$(AM_V_GEN) cp $< $@
 
 contentdatadir = $(pkgdatadir)/content
@@ -71,14 +57,11 @@ contentdatalang_DATA = 						\
 	$(translations_json)					\
 	$(NULL)
 
-contentdatafontsdir = $(pkgdatadir)/content/fonts
-contentdatafonts_DATA = 					\
-	src/web/fonts/overpass_bold-web.ttf			\
-	src/web/fonts/overpass_regular-web.ttf			\
-	$(NULL)
-
 contentdataimagesdir = $(pkgdatadir)/content/images
 contentdataimages_DATA = 					\
+	src/web/images/logo.svg			                \
+	src/web/images/brand.svg		                \
+	src/web/images/bg-login.jpg				\
 	src/web/images/category-journal.png	                \
 	src/web/images/category-networking.png	                \
 	src/web/images/category-services.png	                \
@@ -101,21 +84,67 @@ contentdataimages_DATA = 					\
 
 contentdatalibdir = $(pkgdatadir)/content/lib
 contentdatalib_DATA = 						\
-	src/web/lib/jquery-1.8.2.js 				\
 	src/web/lib/jquery.flot.js 				\
-	src/web/lib/jquery.mobile-1.3.0.js			\
-	src/web/lib/jquery.mobile.structure-1.3.0.css 		\
-	jquery.mobile.adwaita-1.3.0.css 			\
+	src/web/lib/bootstrap.min.js                            \
+	src/web/lib/jquery.min.js 	                        \
+	src/web/lib/patternfly.css 	                        \
 	$(NULL)
 
 contentdatalibimagesdir = $(pkgdatadir)/content/lib/images
 contentdatalibimages_DATA = 					\
-	src/web/lib/images/ajax-loader.gif 			\
-	src/web/lib/images/icons-18-black.png 			\
-	src/web/lib/images/icons-18-white.png 			\
-	src/web/lib/images/icons-36-black.png 			\
-	src/web/lib/images/icons-36-white.png 			\
-	src/web/lib/images/texture.png	                        \
+	$(NULL)
+
+contentdatalibfontsdir = $(pkgdatadir)/content/lib/fonts
+contentdatalibfonts_DATA = 					\
+	src/web/lib/fonts/OpenSans-Bold-webfont.eot 		\
+	src/web/lib/fonts/OpenSans-Bold-webfont.svg 		\
+	src/web/lib/fonts/OpenSans-Bold-webfont.ttf 		\
+	src/web/lib/fonts/OpenSans-Bold-webfont.woff 		\
+	src/web/lib/fonts/OpenSans-BoldItalic-webfont.eot	\
+	src/web/lib/fonts/OpenSans-BoldItalic-webfont.svg	\
+	src/web/lib/fonts/OpenSans-BoldItalic-webfont.ttf	\
+	src/web/lib/fonts/OpenSans-BoldItalic-webfont.woff	\
+	src/web/lib/fonts/OpenSans-ExtraBold-webfont.eot 	\
+	src/web/lib/fonts/OpenSans-ExtraBold-webfont.svg 	\
+	src/web/lib/fonts/OpenSans-ExtraBold-webfont.ttf 	\
+	src/web/lib/fonts/OpenSans-ExtraBold-webfont.woff 	\
+	src/web/lib/fonts/OpenSans-ExtraBoldItalic-webfont.eot 	\
+	src/web/lib/fonts/OpenSans-ExtraBoldItalic-webfont.svg 	\
+	src/web/lib/fonts/OpenSans-ExtraBoldItalic-webfont.ttf 	\
+	src/web/lib/fonts/OpenSans-ExtraBoldItalic-webfont.woff \
+	src/web/lib/fonts/OpenSans-Italic-webfont.eot 		\
+	src/web/lib/fonts/OpenSans-Italic-webfont.svg 		\
+	src/web/lib/fonts/OpenSans-Italic-webfont.ttf 		\
+	src/web/lib/fonts/OpenSans-Italic-webfont.woff 		\
+	src/web/lib/fonts/OpenSans-Light-webfont.eot 		\
+	src/web/lib/fonts/OpenSans-Light-webfont.svg 		\
+	src/web/lib/fonts/OpenSans-Light-webfont.ttf 		\
+	src/web/lib/fonts/OpenSans-Light-webfont.woff 		\
+	src/web/lib/fonts/OpenSans-LightItalic-webfont.eot 	\
+	src/web/lib/fonts/OpenSans-LightItalic-webfont.svg 	\
+	src/web/lib/fonts/OpenSans-LightItalic-webfont.ttf 	\
+	src/web/lib/fonts/OpenSans-LightItalic-webfont.woff 	\
+	src/web/lib/fonts/OpenSans-Regular-webfont.eot 		\
+	src/web/lib/fonts/OpenSans-Regular-webfont.svg 		\
+	src/web/lib/fonts/OpenSans-Regular-webfont.ttf 		\
+	src/web/lib/fonts/OpenSans-Regular-webfont.woff 	\
+	src/web/lib/fonts/OpenSans-Semibold-webfont.eot 	\
+	src/web/lib/fonts/OpenSans-Semibold-webfont.svg 	\
+	src/web/lib/fonts/OpenSans-Semibold-webfont.ttf 	\
+	src/web/lib/fonts/OpenSans-Semibold-webfont.woff 	\
+	src/web/lib/fonts/OpenSans-SemiboldItalic-webfont.eot 	\
+	src/web/lib/fonts/OpenSans-SemiboldItalic-webfont.svg 	\
+	src/web/lib/fonts/OpenSans-SemiboldItalic-webfont.ttf 	\
+	src/web/lib/fonts/OpenSans-SemiboldItalic-webfont.woff 	\
+	src/web/lib/fonts/PatternFlyIcons-webfont.eot 		\
+	src/web/lib/fonts/PatternFlyIcons-webfont.svg 		\
+	src/web/lib/fonts/PatternFlyIcons-webfont.ttf 		\
+	src/web/lib/fonts/PatternFlyIcons-webfont.woff 		\
+	src/web/lib/fonts/FontAwesome.otf                       \
+	src/web/lib/fonts/fontawesome-webfont.eot               \
+	src/web/lib/fonts/fontawesome-webfont.svg		\
+	src/web/lib/fonts/fontawesome-webfont.ttf		\
+	src/web/lib/fonts/fontawesome-webfont.woff		\
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------

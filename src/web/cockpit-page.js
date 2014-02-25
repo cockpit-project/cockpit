@@ -27,72 +27,51 @@ var cockpit_content_is_shown = false;
 
 function cockpit_content_init ()
 {
-    $('#content').page();
-
-    var pages = $('#content > [data-role="content"] > div');
+    var pages = $('#content > div');
     pages.each (function (i, p) {
         $(p).hide();
     });
     cockpit_loc_trail = [ ];
 
-    $("div:jqmData(role=\"popup\")").bind("popupbeforeposition", function() {
+    $('div[role="dialog"]').on('show.bs.modal', function() {
 	cockpit_page_enter($(this).attr("id"));
     });
-    $("div:jqmData(role=\"popup\")").bind("popupafteropen", function() {
-    	cockpit_page_show($(this).attr("id"));
+    $('div[role="dialog"]').on('shown.bs.modal', function() {
+	cockpit_page_show($(this).attr("id"));
     });
-    $("div:jqmData(role=\"popup\")").bind("popupafterclose", function() {
-    	cockpit_page_leave($(this).attr("id"));
-    });
-
-    // Rewrite links to popups to open via cockpit_popup or
-    // cockpit_menu_open, as appropriate.
-    //
-    var popup_open = { };
-    var m;
-    $('[data-role="popup"]').each(function(i,p) {
-        var href = "#" + $(p).attr('id');
-        if ($(p).attr('data-menu') == 'true')
-            popup_open[href] = 'cockpit_open_menu';
-        else
-            popup_open[href] = 'cockpit_popup';
-    });
-    $('a[href]').each(function(i,a) {
-        a=$(a);
-        m=popup_open[a.attr('href')];
-        if (m) {
-            a.attr('onclick', m + "(this, '" + a.attr('href') + "')");
-            a.removeAttr('href');
-        }
+    $('div[role="dialog"]').on('hidden.bs.modal', function() {
+	cockpit_page_leave($(this).attr("id"));
     });
 
     $(window).on('hashchange', function () {
-         if (window.location.hash != cockpit_current_hash)
+        if (window.location.hash != cockpit_current_hash)
             cockpit_go_hash (window.location.hash);
+    });
+
+    $(window).on('resize', function () {
+        cockpit_content_header_changed ();
     });
 
     cockpit_search_init ($('#content-search'));
 
     cockpit_content_refresh ();
-
-    $('#content').on('pageshow', function () {
-        cockpit_content_is_shown = true;
-        if (cockpit_loc_trail.length > 0)
-            cockpit_page_show (cockpit_loc_trail[cockpit_loc_trail.length-1].page);
-    });
-
-    $('#content').on('pagehide', function () {
-        cockpit_content_is_shown = false;
-    });
 }
 
 function cockpit_content_show ()
 {
-    $('#settings-button').text(cockpit_connection_config.name || cockpit_connection_config.user || "???").button('refresh');
-    if (!$.mobile.activePage || $.mobile.activePage.attr('id') != "content") {
-        $.mobile.changePage($('#content'), { changeHash: false });
-        cockpit_go_hash (window.location.hash);
-    }
+    $('#content-user-name').text(cockpit_connection_config.name || cockpit_connection_config.user || "???").button('refresh');
+
+    $('.page').hide();
+    $('#content').show();
+    cockpit_content_is_shown = true;
+    cockpit_go_hash (window.location.hash);
+}
+
+function cockpit_content_leave ()
+{
+    if (cockpit_loc_trail.length > 0)
+        cockpit_page_leave (cockpit_loc_trail[cockpit_loc_trail.length-1].page);
+    cockpit_content_is_shown = false;
 }
 
 function cockpit_content_refresh ()
@@ -104,7 +83,7 @@ function cockpit_content_refresh ()
 
 function cockpit_content_header_changed ()
 {
-    $('#content > [data-role="header"]').fixedtoolbar('updatePagePadding');
+    $('body').css('padding-top', $('#content nav').height());
 }
 
 function cockpit_content_update_loc_trail ()
@@ -121,11 +100,10 @@ function cockpit_content_update_loc_trail ()
     for (i = 0; i < cockpit_loc_trail.length; i++) {
         var p = cockpit_page_from_id (cockpit_loc_trail[i].page);
         var title = p? (p.getTitleHtml? p.getTitleHtml() : cockpit_esc(p.getTitle())) : "??";
-        var button = $('<button data-inline="true" data-theme="c">').html(title);
-        box.append(button);
-        button.on('click', go(cockpit_loc_trail.slice(0, i+1)));
+        var btn = $('<button>', { 'class': 'btn btn-default' }).html(title);
+        box.append(btn);
+        btn.on('click', go(cockpit_loc_trail.slice(0, i+1)));
     }
-    box.trigger('create');
 
     var doc_title = "";
     if (cockpit_loc_trail.length == 1)
@@ -173,7 +151,7 @@ function cockpit_go (trail)
         if (wanted_machine != selected_machine) {
             cockpit_loc_trail = trail;
             cockpit_show_hash ();
-            cockpit_expect_disconnect ();
+            cockpit_expecting_disconnect = true;
             window.location.reload(false);
             return;
         }
@@ -300,7 +278,7 @@ function cockpit_decode_trail (hash)
 function cockpit_show_hash ()
 {
     cockpit_current_hash = cockpit_encode_trail (cockpit_loc_trail);
-    $.mobile.navigate (cockpit_current_hash, { }, true);
+    window.location.hash = cockpit_current_hash;
 }
 
 function cockpit_go_hash (hash)
@@ -320,6 +298,16 @@ function cockpit_page_from_id (id)
     return page;
 }
 
+function cockpit_be_safe (thunk)
+{
+    try {
+        return thunk ();
+    } catch (e) {
+        cockpit_show_unexpected_error (e.toString());
+        return undefined;
+    }
+}
+
 function cockpit_page_enter (id)
 {
     var page = cockpit_page_from_id(id);
@@ -329,9 +317,12 @@ function cockpit_page_enter (id)
 
     if (page) {
         // cockpit_debug("enter() for page with id " + id);
-        page.enter(first_visit);
+        cockpit_be_safe (function () {
+            page.enter(first_visit);
+        });
     }
     cockpit_visited_pages[id] = true;
+    phantom_checkpoint ();
 }
 
 function cockpit_page_leave (id)
@@ -339,8 +330,11 @@ function cockpit_page_leave (id)
     var page = cockpit_page_from_id(id);
     if (page) {
         // cockpit_debug("leave() for page with id " + id);
-        page.leave();
+        cockpit_be_safe (function () {
+            page.leave();
+        });
     }
+    phantom_checkpoint ();
 }
 
 function cockpit_page_show(id)
@@ -348,9 +342,13 @@ function cockpit_page_show(id)
     var page = cockpit_page_from_id(id);
     if (page) {
         // cockpit_debug("show() for page with id " + id);
-        if (cockpit_content_is_shown)
-            page.show();
+        if (cockpit_content_is_shown) {
+            cockpit_be_safe (function () {
+                page.show();
+            });
+        }
     }
+    phantom_checkpoint ();
 }
 
 function cockpit_get_page_title(id)
@@ -379,9 +377,15 @@ function cockpit_set_page_param(key, val)
 
 function cockpit_show_error_dialog(title, message)
 {
-    $("#error-popup-title").text(title);
-    $("#error-popup-message").text(message);
-    cockpit_popup (null, "#error-popup");
+    if (message) {
+        $("#error-popup-title").text(title);
+        $("#error-popup-message").text(message);
+    } else {
+        $("#error-popup-title").text(_("Error"));
+        $("#error-popup-message").text(title);
+    }
+
+    $('#error-popup').modal('show');
 }
 
 function cockpit_show_unexpected_error(error)

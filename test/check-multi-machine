@@ -44,7 +44,7 @@ def get_webapp_machines(browser):
 def machine_selector(machine):
     return '#dashboard-machines li:nth-child(%d)' % (machine+1)
 
-def action_selector(machine):
+def action_btn_selector(machine):
     return machine_selector(machine) + ' .cockpit-machine-action'
 
 def graph_selector(machine):
@@ -125,12 +125,12 @@ class TestMultiMachine(MachineCase):
         kill_user_admin(m2)
         b.wait_text(machine_error_selector(m2_index), "Your session has been terminated.")
 
-        b.wait_text (action_selector (m1_index), "Connect")
-        b.click (action_selector (m1_index))
+        b.wait_action_btn (action_btn_selector (m1_index), "Connect")
+        b.click_action_btn (action_btn_selector (m1_index))
         b.wait_visible (graph_selector (m1_index))
 
-        b.wait_text (action_selector (m2_index), "Connect")
-        b.click (action_selector (m2_index))
+        b.wait_action_btn (action_btn_selector (m2_index), "Connect")
+        b.click_action_btn (action_btn_selector (m2_index))
         b.wait_visible (graph_selector (m2_index))
 
         self.allow_journal_messages("Warning: Permanently added '.*' \\(RSA\\) to the list of known hosts.",

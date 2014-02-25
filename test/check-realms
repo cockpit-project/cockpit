@@ -38,12 +38,12 @@ class TestRealms(MachineCase):
         self.login_and_go("realms")
 
         def wait_number_domains(n):
-            b.wait_js_cond('$("#realms-list > li").length == ' + str(n+1))
+            b.wait_js_cond('$("#realms-list > li").length == ' + str(n))
 
         wait_number_domains(0)
 
         # Join the default one
-        b.click("#realms-join-item")
+        b.click("#realms-join")
         b.wait_popup("realms-op")
         b.wait_visible("#realms-op-form")
 
@@ -62,7 +62,7 @@ class TestRealms(MachineCase):
         wait_number_domains(0)
 
         # Send a wrong password
-        b.click("#realms-join-item")
+        b.click("#realms-join")
         b.wait_popup("realms-op")
         b.wait_visible("#realms-op-form")
         b.wait_val("#realms-op-address", "cockpit.lan")
@@ -74,7 +74,7 @@ class TestRealms(MachineCase):
         b.wait_popdown("realms-op")
 
         # Try to join a non-existing domain
-        b.click("#realms-join-item")
+        b.click("#realms-join")
         b.wait_popup("realms-op")
         b.wait_visible("#realms-op-form")
         b.wait_val("#realms-op-address", "cockpit.lan")
@@ -84,7 +84,7 @@ class TestRealms(MachineCase):
         b.wait_popdown("realms-op")
 
         # Cancel a join
-        b.click("#realms-join-item")
+        b.click("#realms-join")
         b.wait_popup("realms-op")
         b.wait_visible("#realms-op-form")
         b.wait_val("#realms-op-address", "cockpit.lan")

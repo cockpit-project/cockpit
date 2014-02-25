@@ -62,7 +62,7 @@ PageSystemInformation.prototype = {
             $('#system_information_change_hostname_button').on('click', function () {
                 if (!cockpit_check_role ('wheel'))
                     return;
-                cockpit_popup(null, '#system_information_change_hostname');
+                $('#system_information_change_hostname').modal('show');
             });
         }
     },
@@ -105,7 +105,6 @@ PageSystemInformationChangeHostname.prototype = {
         $("#sich-pretty-hostname").on("keyup", $.proxy(this._on_full_name_changed, this));
         $("#sich-hostname").on("keyup", $.proxy(this._on_name_changed, this));
         $("#sich-apply-button").on("click", $.proxy(this._on_apply_button, this));
-        $("#sich-cancel-button").on("click", $.proxy(this._on_cancel_button, this));
 
         this._update();
     },
@@ -126,16 +125,12 @@ PageSystemInformationChangeHostname.prototype = {
         manager.call("SetHostname",
                      new_full_name, new_name, {},
                      function(error, reply) {
-                         $("#system_information_change_hostname").popup('close');
+                         $("#system_information_change_hostname").modal('hide');
                          if(error) {
                              cockpit_show_error_dialog("Error changing hostname",
                                                        "The error " + error.name + " occured: " + error.message);
                          }
                      });
-    },
-
-    _on_cancel_button: function(event) {
-        $("#system_information_change_hostname").popup('close');
     },
 
     _on_full_name_changed: function(event) {

@@ -19,21 +19,136 @@
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-/* Text style for header bar and menu */
+/* Hacks on top for now */
 
-.cockpit-menu li a,
-.cockpit-menu li .ui-link,
-.cockpit-menu li .ui-link:visited
-{
-    text-decoration: none;
-    text-shadow: none;
-    color: #d9d9d7;
+#login {
+    background: url("images/bg-login.jpg") no-repeat 50% 0;
+    background-size: auto;
+    background-color: #101010;
+    color: #fff;
 }
 
-.cockpit-menu li a:hover,
-.cockpit-menu li .ui-link:hover
-{
-    color: #2489ce;
+html, body {
+    height: 100%;
+}
+
+a {
+    cursor: pointer;
+}
+
+.dropdown-menu > .disabled > a:hover {
+    cursor: default;
+}
+
+/* Panels don't draw borders between them */
+.panel > .table > tbody:first-child td {
+    border-top: 1px solid rgb(221, 221, 221);
+}
+
+/* Contatiner is glued to the navigation and sides */
+
+.container-fluid {
+    margin: 20px;
+}
+
+/* Style a button group */
+
+.navbar-primary .btn-group {
+    margin: 5px 0;
+}
+
+.navbar-primary .btn-group .btn {
+    background-image:  linear-gradient(to bottom, #1D1D1D 0%, #030303 100%);
+    padding: 5px 20px;
+    color: #fff;
+    border-color: #494949;
+}
+
+.navbar-primary .btn-group .btn:hover {
+    background-image: linear-gradient(to bottom, #2f2f2f 0%, #232323 100%);
+}
+
+.navbar-primary .btn-group .btn.active {
+    background-image: linear-gradient(to bottom, #2f2fFF 0%, #2323FF 100%);
+}
+
+
+.navbar-primary .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+    border-radius: 5px 0 0 5px;
+}
+
+.navbar-primary .btn-group > .btn:last-child:not(:first-child):not(.dropdown-toggle) {
+    border-radius: 0 5px 5px 0;
+}
+
+.navbar-primary .btn-group > .btn:only-child:not(.dropdown-toggle) {
+    border-radius: 5px 5px 5px 5px;
+}
+
+/* Style a search box in navigation bar */
+
+.navbar-primary .navbar-form {
+    margin: 7px;
+    box-shadow: none;
+}
+
+@media (min-width: 320px) and (max-width: 767px) {
+    .navbar-primary .navbar-form {
+    margin: 0;
+    padding: 0;
+    }
+}
+
+.navbar-default .navbar-form {
+    border-color: transparent;
+}
+
+/* Extra content header */
+
+#content-header-extra {
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+#content-header-extra .btn-group {
+    margin: 10px 0;
+}
+
+#content-header-extra .btn-group:not(:first-child) {
+    padding-left: 20px;
+}
+
+/* Sidebar styling */
+
+.cockpit-sidebar {
+    padding-left: 10px;
+}
+
+@media (max-width: 767px) {
+    .cockpit-sidebar {
+    padding-left: 15px;
+    }
+}
+
+/* Break up sidebar in columns in smaller sizes*/
+
+.cockpit-info-table td {
+    padding-left: 0.75em;
+    padding-top: 0.25em;
+}
+
+.cockpit-info-table td:first-child {
+    text-align: right;
+    white-space:nowrap;
+    color: #888888;
+}
+
+.cockpit-info-table td:not(:first-child) {
+    color: black;
+}
+
+.cockpit-form-table {
+    width: 100%;
 }
 
 .cockpit-form-table td {
@@ -44,67 +159,37 @@
 .cockpit-form-table td:first-child {
     text-align: right;
     white-space:nowrap;
-    width: 50px;
 }
 
-.cockpit-note {
-    font-weight: normal;
-    display: none;
+.cockpit-form-table td:not(:first-child) {
+    width: 100%;
 }
+
+.cockpit-form-table td.header {
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Category icons for the sidebar */
+
+.cockpit-category-icon {
+	float: left;
+	padding-right: 5px;
+	padding-top: 3px;
+}
+
+/* Language dialog styling */
 
 #display-language-list {
     width: 100%;
-    background: white;
 }
 
-.cockpit-network-header {
-    font-weight: bold;
-    text-align: center;
+#display-language-list option {
+    padding: 10px;
 }
 
-.cockpit-menu {
-    margin: 0;
-    width: 250px;
-
-    color: #d9d9d7;
-    z-index: 100;
-
-    list-style: none;
-
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-
-    background: #303030;
-
-    box-shadow: 0 0 15px black;
-}
-
-.cockpit-menu span {
-    width: 100%;
-    display: inline-block;
-    border-bottom: 1px solid #70726d;
-}
-
-.cockpit-menu li {
-    display: block;
-    margin: 0px;
-    padding-top: 10px;
-    padding-bottom: 5px;
-}
-
-.cockpit-storage-table td {
-}
-
-.cockpit-storage-table td:last-child {
-    color: #a0a0a0;
-}
-
-.cockpit-disk-failing {
-    color: #ff0000;
-}
-
+/* Journal logs */
+/* Logprio, keep?
 .cockpit-logprio-0,
 .cockpit-logprio-1,
 .cockpit-logprio-2
@@ -127,23 +212,36 @@
 {
     color: grey;
 }
+*/
 
-.cockpit-logdiv
-{
-    padding-left: 10px;
-    color: blue;
+.cockpit-loghead {
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px transparent none;
+    padding: 10px;
+}
+
+.cockpit-logline {
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px transparent none;
+    padding: 10px;
+}
+
+#journal-box .cockpit-logline:last-child {
+    border-bottom: 1px solid #ddd;
 }
 
 .cockpit-logident {
     display: inline-block;
     vertical-align: top;
-
     width: 10%;
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
-    padding-left: 10px;
-
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -157,72 +255,63 @@
     padding-right: 10px;
 }
 
-.cockpit-loghead {
-    width: 100%;
-    padding-top: 10px;
-    font-weight: bold;
-    border-bottom: 1px solid #CCC;
-}
-
-.cockpit-logline {
-    width: 100%;
-    background: #fff;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #CCC;
-    border-right: 1px solid #CCC;
-    border-left: 1px solid #CCC;
-}
-
-.cockpit-logline:hover {
-    background: #FFC;
-}
-
-.cockpit-logcount {
-    -webkit-border-radius: 1em /*{global-radii-buttons}*/;
-    border-radius: 1em /*{global-radii-buttons}*/;
-    -webkit-background-clip: padding;
-    background-clip: padding-box;
-    border: 1px solid #ccc /*{c-bup-border}*/;
-    background: #eee /*{c-bup-background-color}*/;
-    font-weight: bold;
-    color: #222 /*{c-bup-color}*/;
-    text-shadow: 0 /*{c-bup-shadow-x}*/ 1px /*{c-bup-shadow-y}*/ 0 /*{c-bup-shadow-radius}*/ #fff /*{c-bup-shadow-color}*/;
-    background-image: -webkit-gradient(linear, left top, left bottom, from( #fff /*{c-bup-background-start}*/), to( #f1f1f1 /*{c-bup-background-end}*/)); /* Saf4+, Chrome */
-    background-image: -webkit-linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* Chrome 10+, Saf5.1+ */
-    background-image:    -moz-linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* FF3.6 */
-    background-image:     -ms-linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* IE10 */
-    background-image:      -o-linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* Opera 11.10+ */
-    background-image:         linear-gradient( #fff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/);
-
-    font-size: 11px;
-    font-weight: bold;
-    padding: .2em .5em;
-
-    margin-right: 10px;
-    width: 10%;
-}
-
 .cockpit-logtime {
     float: right;
 }
 
-.cockpit-link {
-    color:           blue;
-    text-decoration: underline;
+.cockpit-logtime .badge {
+    margin-right: 10px;
 }
 
-.cockpit-category-icon {
-	float: left;
-	padding-top: 0.9em;
-	padding-left: 10px;
+.cockpit-logmsg-reboot {
+    font-style: italic;
 }
 
-.ui-li-static.cockpit-image img {
-    border-radius: 5px;
-    display: block;
-    margin: auto;
-    cursor: pointer;
+/* Responsive column layout for Server page */
+
+#server-graph-columns {
+    margin-top: 10px;
+}
+
+@media (min-width: 500px) and (max-width: 1280px) {
+
+    #server-nav-column {
+        width: 200px;
+        float: left;
+    }
+
+    #server-graph-columns {
+        padding-left: 210px;
+    }
+
+}
+
+@media (min-width: 1280px) {
+
+    #server-nav-column {
+        width: 200px;
+        float: left;
+    }
+
+    #server-graph-columns {
+        padding-left: 210px;
+    }
+
+    #server-graph-column-1 {
+        width: 49%;
+        float: left;
+        margin-right: 10px;
+    }
+
+    #server-graph-column-2 {
+        width: 49%;
+        float: left;
+    }
+}
+
+.cockpit-note {
+    font-weight: normal;
+    display: none;
 }
 
 .cockpit-graph {
@@ -292,24 +381,22 @@
 /* Styling of logs embedded in pages outside the journal */
 
 #service-log,
-#storage-log {
+#storage-log,
+#storage-detail-log {
     padding: 0;
     border-bottom: 0;
 }
 
 #service-log .cockpit-loghead,
-#storage-log .cockpit-loghead {
+#storage-log .cockpit-loghead,
+#storage-detail-log .cockpit-loghead {
     padding: 10px;
     width: auto;
 }
 
 #service-log .cockpit-logline,
-#storage-log .cockpit-logline {
+#storage-log .cockpit-logline,
+#storage-detail-log .cockpit-logline {
     border-left: 0;
     border-right: 0;
-}
-
-.cockpit-setup-tab {
-    width: 500px;
-    height: 400px;
 }

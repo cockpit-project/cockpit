@@ -44,10 +44,8 @@ class TestDashboard(MachineCase):
 
     def machine_action(self, b, address, action):
         map = self.get_address_map(b)
-        b.click('#dashboard-machines li:nth-child(%d) .cockpit-machine-actions' % (map[address]+1))
-        b.wait_popup('server-actions-menu')
-        b.click('#server-actions-menu button[data-op="%s"]' % action)
-        b.wait_popdown('server-actions-menu')
+        b.click_action_btn('#dashboard-machines li:nth-child(%d) .cockpit-machine-action' % (map[address]+1),
+                           action)
 
     def add_machine(self, b, address):
         b.click('#dashboard-add-server')
@@ -82,9 +80,9 @@ class TestDashboard(MachineCase):
         self.wait_dashboard_addresses (b, [ "localhost", "127.0.0.1", m.address ])
 
         # Remove two
-        self.machine_action (b, "127.0.0.1", "remove")
+        self.machine_action (b, "127.0.0.1", "Remove")
         self.wait_dashboard_addresses (b, [ "localhost", m.address ])
-        self.machine_action (b, "localhost", "remove")
+        self.machine_action (b, "localhost", "Remove")
         self.wait_dashboard_addresses (b, [ m.address ])
 
         # Start second browser and check that it is in sync
@@ -109,10 +107,10 @@ class TestDashboard(MachineCase):
 
         # Remove one from dashboard of first browser and check that it
         # appears in dialog of second
-        self.machine_action (b, m.address, "remove")
+        self.machine_action (b, m.address, "Remove")
         self.wait_discovered_addresses (b2, [ "127.0.0.1", m.address ])
 
-        b2.click('#dashboard_setup_cancel')
+        b2.click('#dashboard_setup_server_dialog button.close')
         b2.wait_popdown('dashboard_setup_server_dialog')
 
         # Hmm...

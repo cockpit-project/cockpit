@@ -45,9 +45,9 @@ class TestConnection(MachineCase):
         m.execute("systemctl stop cockpit-ws-testing.socket")
         b.wait_popup("disconnected")
         m.execute("systemctl start cockpit-ws-testing.socket")
-        b.click('#disconnected-reconnect')
+        b.click('#disconnected button[onclick*="reconnect"]')
         b.wait_in_text('#disconnected-error', "Your session has expired.")
-        b.click('#disconnected-logout')
+        b.click('#disconnected button[onclick*="logout"]')
         b.wait_popdown("disconnected")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
@@ -64,11 +64,11 @@ class TestConnection(MachineCase):
 
         # severe the connection on the server page
         m.execute("iptables -I INPUT 1 -p tcp --dport 21064 -j REJECT")
-        with b.wait_timeout(30):
+        with b.wait_timeout(60):
             b.wait_popup("disconnected")
         b.wait_in_text('#disconnected-error', "Connection has timed out.")
         m.execute("iptables -D INPUT 1")
-        b.click('#disconnected-reconnect')
+        b.click('#disconnected button[onclick*="reconnect"]')
         b.wait_popdown("disconnected")
 
 test_main()

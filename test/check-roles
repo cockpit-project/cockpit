@@ -41,10 +41,10 @@ class TestRoles(MachineCase):
         b.wait_visible("#login")
         login("user", "foobar")
         b.wait_page("server")
-        b.wait_text('#settings-button', 'User')
+        b.wait_text('#content-user-name', 'User')
 
         # change its own name
-        b.click('#settings-button')
+        b.click('#content-user-name')
         b.click('a[onclick*="cockpit_go_login_account"]')
         b.wait_page("account")
         b.wait_text("#account-user-name", "user")

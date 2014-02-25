@@ -57,11 +57,14 @@ Then you can build the sources and install them, as usual:
 
     $ make
     # make install
+    # cp data/cockpit.pam.insecure /etc/pam.d/cockpit
 
-This will install Cockpit and all support files, and will also install
-some files that are only useful during testing.  (Their presence on
-the system might be a security risk.  When making a package for
-Cockpit, you should leave these files out.)
+This will install Cockpit and all support files, and will install a
+simplistic PAM configuration.
+
+Currently, it will also install some files that are only useful during
+testing.  Their presence on the system might be a security risk, just
+like the simplistic PAM configuration.
 
 Cockpit has a single non-recursive Makefile.  You can only run "make"
 from the top-level and it will always rebuild the whole project.

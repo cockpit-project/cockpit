@@ -45,6 +45,7 @@ EXTRA_DIST += 						\
 	data/cockpit-testing.service.in		\
 	data/com.redhat.Cockpit.conf.in		\
 	data/config				\
+	data/cockpit.pam.insecure               \
 	$(dbusconf_DATA)			\
 	$(NULL)
 
@@ -56,9 +57,6 @@ CLEANFILES += \
 	com.redhat.Cockpit.service \
 	cockpit.service \
 	cockpit-ws-testing.service
-
-pamdir = $(sysconfdir)/pam.d
-dist_pam_DATA = data/cockpit
 
 cockpitconfdir = $(sysconfdir)/cockpit
 cockpitconf_DATA = data/config

@@ -39,6 +39,16 @@ function calc_srcdir()
         return dir.substring(0, pos);
 }
 
+function print_error(msg, trace, out, prefix) {
+    out.writeLine(prefix + msg);
+    if (trace && trace.length) {
+        trace.forEach(function(frame) {
+            out.writeLine(prefix + "  " + (frame.file || frame.sourceURL) + ':' + frame.line +
+                          (frame.function ? ' (in function ' + frame.function +')' : ''));
+        });
+    }
+}
+
 var url = sys.args[1];
 var page = require('webpage').create();
 
@@ -67,21 +77,26 @@ page.onResourceError = function(ex) {
     phantom.exit(1);
 };
 
+phantom.onError = function(msg, trace) {
+    print_error(msg, trace, sys.stderr, "");
+    phantom.exit(1);
+}
+
+page.onError = function(msg, trace) {
+    print_error(msg, trace, sys.stdout, "# ");
+    phantom.exit(1);
+}
+
 page.open(url, function(status) {
     if(status !== "success") {
-        console.log("Unable to load page:", url);
+        console.log("Unable to load:", url);
         phantom.exit(1);
     }
 
-    page.injectJs(calc_srcdir() + "/qunit-tap.js")
-
     page.evaluate(function() {
-        /* Automatically start up qunitTap */
-        qunitTap(QUnit, function() {
-            console.log.apply(console, arguments);
-        });
-        QUnit.done(function() {
+        if (typeof qunit_included === "undefined") {
+            console.log("Bail out! QUnit not properly included in test case");
             console.log("qunit-tap-done");
-        });
+        }
     });
 });

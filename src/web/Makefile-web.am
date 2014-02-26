@@ -36,9 +36,6 @@ cockpit.js: $(cockpit_js_PARTS)
 	$(AM_V_GEN) JSL=$(JSL) $(JSLINT) $^
 	$(AM_V_GEN) $(MINIFY) $^ >$@.tmp && mv $@.tmp $@
 
-# Place these in the build directory for testing/install
-dbus.js: src/web/dbus.js
-	$(AM_V_GEN) cp $< $@
 jquery.min.js: src/web/lib/jquery.min.js
 	$(AM_V_GEN) cp $< $@
 
@@ -147,11 +144,33 @@ contentdatalibfonts_DATA = 					\
 	src/web/lib/fonts/fontawesome-webfont.woff		\
 	$(NULL)
 
+# -----------------------------------------------------------------------------
+
+CHECK_HTML = \
+	test-dummy.html \
+	$(NULL)
+
+CHECK_HTML_SRCS = $(addprefix src/web/,$(CHECK_HTML))
+
+TESTS += $(CHECK_HTML)
+
 # ----------------------------------------------------------------------------------------------------
 
 lang/%.json : $(top_srcdir)/po/%.po
 	$(AM_V_GEN) mkdir -p lang && $(PO2JSON) -p $(top_srcdir)/po/$*.po > lang/$*.json
 
+%.html : $(srcdir)/src/web/%.html $(QUNIT_DEPS)
+	$(AM_V_GEN) cp $(srcdir)/src/web/$*.html $*.html
+
+%.js : $(srcdir)/src/web/%.js
+	$(AM_V_GEN) cp $(srcdir)/src/web/$*.js $*.js
+
+CLEANFILES += \
+	$(CHECK_HTML) \
+	jquery.min.js \
+	dbus.js \
+	$(NULL)
+	
 EXTRA_DIST += \
 	$(cockpit_js_PARTS) \
 	$(contentdata_DATA) \
@@ -159,4 +178,9 @@ EXTRA_DIST += \
 	$(contentdatalib_DATA) \
 	$(contentdatalibimages_DATA) \
 	$(contentdatalibfonts_DATA) \
+	$(CHECK_HTML_SRCS) \
+	$(NULL)
+
+noinst_SCRIPTS += \
+	$(CHECK_HTML) \
 	$(NULL)

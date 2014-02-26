@@ -3,6 +3,7 @@ man_MANS =
 BUILT_SOURCES =
 EXTRA_DIST =
 CLEANFILES =
+check_SCRIPTS =
 noinst_SCRIPTS =
 libexec_PROGRAMS =
 noinst_PROGRAMS =
@@ -47,6 +48,9 @@ cockpit_cppflags_glib_version = \
 
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = $(top_srcdir)/tools/tap-compiler
+TEST_EXTENSIONS = .html
+HTML_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
+HTML_LOG_COMPILER = $(top_srcdir)/tools/tap-phantom
 
 MINIFY = $(top_srcdir)/tools/minify
 JSLINT = $(top_srcdir)/tools/js-lint

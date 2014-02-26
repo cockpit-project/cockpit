@@ -48,6 +48,10 @@ cockpit_cppflags_glib_version = \
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = $(top_srcdir)/tools/tap-compiler
 
+MINIFY = $(top_srcdir)/tools/minify
+JSLINT = $(top_srcdir)/tools/js-lint
+PO2JSON = $(top_srcdir)/tools/po2json
+
 include doc/man/Makefile-man.am
 include data/Makefile-data.am
 include src/cockpit/Makefile-libcockpit.am

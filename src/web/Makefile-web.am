@@ -33,8 +33,8 @@ cockpit_js_PARTS = \
 	$(NULL)
 
 cockpit.js: $(cockpit_js_PARTS)
-	(cd $(srcdir) && JSL=$(JSL) ./src/web/js-lint $(cockpit_js_PARTS))
-	(cd $(srcdir) && ./src/web/minify $(cockpit_js_PARTS)) >$@.tmp && mv $@.tmp $@
+	$(AM_V_GEN) JSL=$(JSL) $(JSLINT) $^
+	$(AM_V_GEN) $(MINIFY) $^ >$@.tmp && mv $@.tmp $@
 
 # Place these in the build directory for testing/install
 dbus.js: src/web/dbus.js
@@ -150,7 +150,7 @@ contentdatalibfonts_DATA = 					\
 # ----------------------------------------------------------------------------------------------------
 
 lang/%.json : $(top_srcdir)/po/%.po
-	mkdir -p lang && $(top_srcdir)/tools/po2json -p $(top_srcdir)/po/$*.po > lang/$*.json
+	$(AM_V_GEN) mkdir -p lang && $(PO2JSON) -p $(top_srcdir)/po/$*.po > lang/$*.json
 
 EXTRA_DIST += \
 	$(cockpit_js_PARTS) \
@@ -159,6 +159,4 @@ EXTRA_DIST += \
 	$(contentdatalib_DATA) \
 	$(contentdatalibimages_DATA) \
 	$(contentdatalibfonts_DATA) \
-	src/web/js-lint \
-	src/web/minify \
 	$(NULL)

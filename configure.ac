@@ -47,11 +47,6 @@ if test -z "$JSL"; then
   AC_MSG_WARN([jsl is needed to run js-lint])
 fi
 
-AC_PATH_PROG([SASS], [pyscss])
-if test -z "$SASS"; then
-  AC_MSG_ERROR([pyscss is needed])
-fi
-
 GTK_DOC_CHECK([1.3])
 
 GIO_REQUIREMENT="gio-unix-2.0 >= 2.34"

@@ -27,6 +27,12 @@ coverage:
 	@echo "file://$(abs_top_builddir)/tools/coverage/index.html"
 endif
 
+QUNIT_DEPS = \
+	jquery.min.js \
+	qunit.js \
+	qunit.css \
+	$(NULL)
+
 # Place these in the build directory for testing/install
 qunit.css: tools/qunit-1.14.0.css
 	$(AM_V_GEN) cp $< $@
@@ -34,6 +40,4 @@ qunit.js: tools/qunit-1.14.0.js tools/qunit-tap.js tools/qunit-config.js
 	$(AM_V_GEN) cat $^ > $@.tmp && mv $@.tmp $@
 
 CLEANFILES += \
-	qunit.css \
-	qunit.js \
-	qunit-tap.js
+	$(QUNIT_DEPS)

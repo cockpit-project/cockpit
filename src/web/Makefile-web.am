@@ -43,7 +43,7 @@ contentdatadir = $(pkgdatadir)/content
 contentdata_DATA = 						\
 	cockpit.js 						\
 	src/web/cockpit.css 					\
-	src/web/dbus.js 					\
+	src/web/dbus.js						\
 	src/web/index.html 					\
 	src/web/favicon.ico					\
 	src/web/apple-touch-icon.png				\
@@ -168,6 +168,7 @@ lang/%.json : $(top_srcdir)/po/%.po
 CLEANFILES += \
 	$(CHECK_HTML) \
 	jquery.min.js \
+	dbus-test.html \
 	dbus.js \
 	$(NULL)
 	
@@ -179,8 +180,10 @@ EXTRA_DIST += \
 	$(contentdatalibimages_DATA) \
 	$(contentdatalibfonts_DATA) \
 	$(CHECK_HTML_SRCS) \
+	src/web/dbus-test.html \
 	$(NULL)
 
 noinst_SCRIPTS += \
 	$(CHECK_HTML) \
+	dbus-test.html \
 	$(NULL)

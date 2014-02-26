@@ -6,6 +6,7 @@ EXTRA_DIST += \
 	tools/qunit-1.14.0.css \
 	tools/qunit-1.14.0.js \
 	tools/qunit-tap.js \
+	tools/qunit-config.js \
 	tools/js-lint \
 	tools/minify \
 	$(NULL)
@@ -28,10 +29,8 @@ endif
 # Place these in the build directory for testing/install
 qunit.css: tools/qunit-1.14.0.css
 	$(AM_V_GEN) cp $< $@
-qunit.js: tools/qunit-1.14.0.js
-	$(AM_V_GEN) cp $< $@
-qunit-tap.js: tools/qunit-tap.js
-	$(AM_V_GEN) cp $< $@
+qunit.js: tools/qunit-1.14.0.js tools/qunit-tap.js tools/qunit-config.js
+	$(AM_V_GEN) cat $^ > $@.tmp && mv $@.tmp $@
 
 CLEANFILES += \
 	qunit.css \

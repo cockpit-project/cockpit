@@ -21,6 +21,7 @@
 #define __COCKPIT_TRANSPORT_H__
 
 #include <glib-object.h>
+#include <json-glib/json-glib.h>
 
 G_BEGIN_DECLS
 
@@ -81,6 +82,12 @@ void        cockpit_transport_emit_closed    (CockpitTransport *transport,
 
 GBytes *    cockpit_transport_parse_frame    (GBytes *message,
                                               guint *channel);
+
+gboolean    cockpit_transport_parse_command  (JsonParser *parser,
+                                              GBytes *payload,
+                                              const gchar **command,
+                                              guint *channel,
+                                              JsonObject **options);
 
 G_END_DECLS
 

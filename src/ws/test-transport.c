@@ -452,10 +452,99 @@ test_parse_frame_bad (void)
   g_bytes_unref (message);
 }
 
+static void
+test_parse_command (void)
+{
+  const gchar *input = "{ 'command': 'test', \"channel\": 66, \"opt\": \"one\" }";
+  JsonParser *parser;
+  GBytes *message;
+  guint channel;
+  const gchar *command;
+  JsonObject *options;
+  gboolean ret;
+
+  parser = json_parser_new ();
+  message = g_bytes_new_static (input, strlen (input));
+
+  ret = cockpit_transport_parse_command (parser, message, &command, &channel, &options);
+  g_bytes_unref (message);
+
+  g_assert (ret == TRUE);
+  g_assert_cmpstr (command, ==, "test");
+  g_assert_cmpuint (channel, ==, 66);
+  g_assert_cmpstr (json_object_get_string_member (options, "opt"), ==, "one");
+
+  g_object_unref (parser);
+}
+
+static void
+test_parse_command_no_channel (void)
+{
+  const gchar *input = "{ 'command': 'test', \"opt\": \"one\" }";
+  JsonParser *parser;
+  GBytes *message;
+  guint channel;
+  const gchar *command;
+  JsonObject *options;
+  gboolean ret;
+
+  parser = json_parser_new ();
+  message = g_bytes_new_static (input, strlen (input));
+
+  ret = cockpit_transport_parse_command (parser, message, &command, &channel, &options);
+  g_bytes_unref (message);
+
+  g_assert (ret == TRUE);
+  g_assert_cmpstr (command, ==, "test");
+  g_assert_cmpuint (channel, ==, 0);
+  g_assert_cmpstr (json_object_get_string_member (options, "opt"), ==, "one");
+
+  g_object_unref (parser);
+}
+
+struct {
+  const char *name;
+  const char *json;
+} bad_command_payloads[] = {
+    { "no-command", "{ 'no-command': 'test' }", },
+    { "empty-command", "{ 'command': '' }", },
+    { "channel-bad", "{ 'command': 'test', 'channel', 'not-a-number' }", },
+    { "invalid-json", "{ xxxxxxxxxxxxxxxxxxxxx", },
+    { "not-an-object", "55", },
+    { "negative-channel", "{ 'command': 'test', 'channel', -1 }", },
+    { "zero-channel", "{ 'command': 'test', 'channel', 0 }", },
+};
+
+static void
+test_parse_command_bad (gconstpointer input)
+{
+  JsonParser *parser;
+  GBytes *message;
+  guint channel;
+  const gchar *command;
+  JsonObject *options;
+  gboolean ret;
+
+  /* Below we cause a warning, and g_test_expect_message() is broken */
+  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+
+  parser = json_parser_new ();
+  message = g_bytes_new_static (input, strlen (input));
+
+  ret = cockpit_transport_parse_command (parser, message, &command, &channel, &options);
+  g_bytes_unref (message);
+
+  g_assert (ret == FALSE);
+
+  g_object_unref (parser);
+}
+
 int
 main (int argc,
       char *argv[])
 {
+  gint i;
+
 #if !GLIB_CHECK_VERSION(2,36,0)
   g_type_init ();
 #endif
@@ -465,6 +554,16 @@ main (int argc,
 
   g_test_add_func ("/transport/parse-frame", test_parse_frame);
   g_test_add_func ("/transport/parse-frame-bad", test_parse_frame_bad);
+
+  g_test_add_func ("/transport/parse-command/normal", test_parse_command);
+  g_test_add_func ("/transport/parse-command/no-channel", test_parse_command_no_channel);
+
+  for (i = 0; i < G_N_ELEMENTS (bad_command_payloads); i++)
+    {
+      gchar *name = g_strdup_printf ("/transport/parse-command/%s", bad_command_payloads[i].name);
+      g_test_add_data_func (name, bad_command_payloads[i].json, test_parse_command_bad);
+      g_free (name);
+    }
 
   g_test_add ("/transport/echo-message/child", TestCase,
               BUILDDIR "/mock-echo", setup_with_child,

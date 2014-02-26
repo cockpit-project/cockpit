@@ -139,3 +139,77 @@ cockpit_transport_parse_frame (GBytes *message,
   *channel = val;
   return g_bytes_new_from_bytes (message, offset, length - offset);
 }
+
+static gboolean
+check_and_get_json_int (JsonNode *node,
+                        gint64 *number)
+{
+  if (json_node_get_value_type (node) == G_TYPE_INT64 ||
+      json_node_get_value_type (node) == G_TYPE_DOUBLE)
+    {
+      *number = json_node_get_int (node);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+gboolean
+cockpit_transport_parse_command (JsonParser *parser,
+                                 GBytes *payload,
+                                 const gchar **command,
+                                 guint *channel,
+                                 JsonObject **options)
+{
+  GError *error = NULL;
+  gconstpointer input;
+  JsonObject *object;
+  JsonNode *node;
+  gsize len;
+  gint64 num;
+
+  input = g_bytes_get_data (payload, &len);
+  if (!json_parser_load_from_data (parser, input, len, &error))
+    {
+      g_warning ("Received unparseable control message: %s", error->message);
+      g_error_free (error);
+      return FALSE;
+    }
+
+  node = json_parser_get_root (parser);
+  if (!node || !JSON_NODE_HOLDS_OBJECT (node))
+    {
+      g_warning ("Received invalid control message: not an object");
+      return FALSE;
+    }
+  object = json_node_get_object (node);
+
+  /* Parse out the command */
+  node = json_object_get_member (object, "command");
+  if (!node || json_node_get_value_type (node) != G_TYPE_STRING)
+    {
+      g_warning ("Received invalid control message: invalid or missing command");
+      return FALSE;
+    }
+  *command = json_node_get_string (node);
+  if (*command == NULL || g_str_equal (*command, ""))
+    {
+      g_warning ("Received invalid control message: invalid or missing command");
+      return FALSE;
+    }
+
+  /* Parse out the channel */
+  node = json_object_get_member (object, "channel");
+  if (!node)
+    *channel = 0;
+  else if (check_and_get_json_int (node, &num) && num > 0 && num < G_MAXUINT)
+    *channel = num;
+  else
+    {
+      g_warning ("Received invalid control message: invalid or missing channel");
+      return FALSE;
+    }
+
+  *options = object;
+  return TRUE;
+}

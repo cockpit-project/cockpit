@@ -131,28 +131,21 @@ test_server_built_sources =								\
 BUILT_SOURCES += $(test_server_built_sources)
 
 testassets_PROGRAMS = test-server test-agent
-
 testassets_DATA = dbus-test.html	\
 		  dbus.js  \
 		  dbus-test.js \
-		  jquery.min.js \
-		  qunit.css 	\
-		  qunit.js \
+		  $(QUNIT_DEPS) \
 		  $(NULL)
 
 # Place these into builddir so we can run tests against them
 dbus-test.js: src/ws/dbus-test.js
 	$(AM_V_GEN) cp $< $@
-dbus-test.html: src/ws/dbus-test.html jquery.min.js qunit.js qunit.css dbus.js dbus-test.js
+dbus-test.html: src/ws/dbus-test.html $(QUNIT_DEPS) dbus.js dbus-test.js
 	$(AM_V_GEN) cp $< $@
 
 CLEANFILES += \
 	dbus-test.html \
-	dbus.js \
 	dbus-test.js \
-	jquery.min.js \
-	qunit-git.css \
-	qunit-git.js \
 	$(NULL)
 
 EXTRA_DIST += \

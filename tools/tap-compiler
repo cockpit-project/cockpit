@@ -49,7 +49,9 @@ class NullCompiler:
         proc.wait()
         return proc.returncode
 
-    def run(self, proc):
+    def run(self, proc, line=None):
+        if line:
+            self.input(line)
         return self.process(proc)
 
 
@@ -61,6 +63,7 @@ class GTestCompiler(NullCompiler):
         self.test_remaining = []
 
     def input(self, line):
+        line = line.strip()
         if line.startswith("GTest: "):
            (cmd, unused, data) = line[7:].partition(": ")
            cmd = cmd.strip()
@@ -89,9 +92,16 @@ class GTestCompiler(NullCompiler):
             print "# %s" % line
         sys.stdout.flush()
 
-    def run(self, proc):
-        list = subprocess.check_output([self.command[0], "-l"]).strip()
-        self.test_remaining = list.split("\n")
+    def run(self, proc, output=""):
+        # Complete retrieval of the list of tests
+        output += proc.stdout.read()
+        proc.wait()
+        if proc.returncode:
+            raise subprocess.CalledProcessError(proc.returncode, self.command)
+        self.test_remaining = []
+        for line in output.split("\n"):
+            if line.startswith("/"):
+                self.test_remaining.append(line.strip())
         if not self.test_remaining:
             print "Bail out! No tests found in GTest: %s" % self.command[0]
             return 0
@@ -99,6 +109,7 @@ class GTestCompiler(NullCompiler):
         print "1..%d" % len(self.test_remaining)
 
         # First try to run all the tests in a batch
+        proc = subprocess.Popen(self.command + ["--verbose" ], close_fds=True, stdout=subprocess.PIPE)
         result = self.process(proc)
         if result == 0:
             return 0
@@ -139,12 +150,11 @@ def main(argv):
     proc = None
 
     if format in ["auto", "GTest"]:
-        cmd += ["--verbose", "--tap", "-k"]
-
-    if format == "auto":
-        proc = subprocess.Popen(cmd, close_fds=True, stdout=subprocess.PIPE)
+        list_cmd = cmd + ["-l", "--tap", "--verbose"]
+        proc = subprocess.Popen(list_cmd, close_fds=True, stdout=subprocess.PIPE)
         output = proc.stdout.readline()
-        if "GTest" in output:
+        # Smell whether we're dealing with GTest list output from first line
+        if "random seed" in output or "GTest" in output or output.startswith("/"):
             format = "GTest"
         else:
             format = "TAP"
@@ -158,9 +168,7 @@ def main(argv):
     else:
         assert False, "not reached"
 
-    if output:
-        compiler.input(output)
-    return compiler.run(proc)
+    return compiler.run(proc, output)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

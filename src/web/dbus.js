@@ -113,7 +113,8 @@ DBusInterface.prototype = {
                             iface: this._iface_name,
                             method: dbus_method_name,
                             cookie: cookie,
-                            args: args}
+                            args: args
+            };
             try {
                 /* TODO: Eventually we'll be sending a channel here */
                 this._client._ws.send("111\n" + JSON.stringify(call_obj));
@@ -124,8 +125,8 @@ DBusInterface.prototype = {
                 callback.apply(null, [error]);
             }
         } else {
-            var error = new DBusError ('NotConnected', "Not connected to server.");
-            callback.apply(null, [error]);
+            var err = new DBusError('NotConnected', "Not connected to server.");
+            callback.apply(null, [err]);
         }
 
     },
@@ -156,20 +157,22 @@ DBusObject.prototype = {
     },
 
     _reseed: function(json, client) {
-        for (var iface_name in json.ifaces) {
+        var iface_name;
+        var iface;
+        for (iface_name in json.ifaces) {
             if (iface_name in this._ifaces) {
                 this._ifaces[iface_name]._reseed(json.ifaces[iface_name]);
             } else {
-                var iface = new DBusInterface(json.ifaces[iface_name], iface_name, this, client);
+                iface = new DBusInterface(json.ifaces[iface_name], iface_name, this, client);
                 this._ifaces[iface_name] = iface;
                 $(this).trigger("interfaceAdded", iface);
                 $(client).trigger("interfaceAdded", [this, iface]);
             }
         }
 
-        for (var iface_name in this._ifaces) {
+        for (iface_name in this._ifaces) {
             if (!(iface_name in json.ifaces)) {
-                var iface = this._ifaces[iface_name];
+                iface = this._ifaces[iface_name];
                 delete this._ifaces[iface_name];
                 $(this).trigger("interfaceRemoved", iface);
                 $(client).trigger("interfaceRemoved", [this, iface]);
@@ -183,8 +186,8 @@ DBusObject.prototype = {
     },
 
     getInterfaces: function() {
-        ret = [];
-        for (i in this._ifaces)
+        var ret = [];
+        for (var i in this._ifaces)
             ret.push(this._ifaces[i]);
         return ret;
     }
@@ -195,8 +198,7 @@ DBusObject.prototype = {
 
 function DBusClient(target, open_args) {
     this._init(target, open_args);
-};
-
+}
 
 DBusClient.prototype = {
     _init: function(target, open_args) {
@@ -222,9 +224,9 @@ DBusClient.prototype = {
 
         var window_loc = window.location.toString();
         var ws_loc;
-        if (window_loc.indexOf('http:') == 0) {
+        if (window_loc.indexOf('http:') === 0) {
             ws_loc = "ws://" + window.location.host + "/socket/" + client.target;
-        } else if (window_loc.indexOf('https:') == 0) {
+        } else if (window_loc.indexOf('https:') === 0) {
             ws_loc = "wss://" + window.location.host + "/socket/" + client.target;
         } else {
             console.log("Cockpit must be used over http or https");
@@ -234,7 +236,7 @@ DBusClient.prototype = {
 
         this._last_error = null;
 
-        if (this.state != null) {
+        if (this.state !== null) {
             this.state = null;
             this.error = null;
             client._state_change ();
@@ -266,7 +268,7 @@ DBusClient.prototype = {
             /* The first line of a message is the channel */
             var data = event.data;
             var pos = data.indexOf("\n");
-            var channel = parseInt(data.substring(0, pos))
+            var channel = parseInt(data.substring(0, pos), 10);
             var decoded = JSON.parse(data.substring(pos + 1));
 
             client._got_message = true;
@@ -326,8 +328,7 @@ DBusClient.prototype = {
     },
 
     _check_health: function() {
-        if (this.state != "ready"
-            || !this._got_message) {
+        if (this.state != "ready" || !this._got_message) {
             dbus_debug("Health check failed");
             this.close("timeout");
         }
@@ -343,15 +344,16 @@ DBusClient.prototype = {
     },
 
     _handle_seed : function(data, config) {
+        var objpath;
         if (!this._was_connected) {
-            for (var objpath in data) {
+            for (objpath in data) {
                 this._objmap[objpath] = new DBusObject(data[objpath], this);
             }
         } else {
             // re-seed the object/iface/prop tree, synthesizing
             // signals on the way.
 
-            for (var objpath in data) {
+            for (objpath in data) {
                 if (objpath in this._objmap) {
                     this._objmap[objpath]._reseed(data[objpath], this);
                 } else {
@@ -360,9 +362,9 @@ DBusClient.prototype = {
                 }
             }
 
-            for (var objpath in this._objmap) {
+            for (objpath in this._objmap) {
                 if (!(objpath in data)) {
-                    var obj = this._objmap[objpath]
+                    var obj = this._objmap[objpath];
                     delete this._objmap[objpath];
                     $(this).trigger("objectRemoved", obj);
                 }
@@ -388,8 +390,8 @@ DBusClient.prototype = {
             if (!existing_iface) {
                 dbus_warning("Received interface-properties-changed for existing object path " + objpath + " but non-existant interface " + iface_name);
             } else {
-                changed_properties = data.iface[iface_name];
-                for (key in changed_properties) {
+                var changed_properties = data.iface[iface_name];
+                for (var key in changed_properties) {
                     // Update the property on the existing object
                     existing_iface[key] = changed_properties[key];
                     $(existing_iface).trigger("notify:" + key, changed_properties[key]);
@@ -402,13 +404,13 @@ DBusClient.prototype = {
     },
 
     _handle_object_added : function(data) {
-        var objpath = data.object.objpath
+        var objpath = data.object.objpath;
         var existing_obj = this._objmap[objpath];
         if (existing_obj) {
             dbus_warning("Received object-added for already-existing object path " + objpath);
         }
         var obj = new DBusObject(data.object, this);
-        this._objmap[objpath] = obj
+        this._objmap[objpath] = obj;
         $(this).trigger("objectAdded", obj);
     },
 
@@ -418,14 +420,14 @@ DBusClient.prototype = {
         if (!existing_obj) {
             dbus_warning("Received object-added for non-existing object path " + objpath);
         } else {
-            var obj = this._objmap[objpath]
+            var obj = this._objmap[objpath];
             delete this._objmap[objpath];
             $(this).trigger("objectRemoved", obj);
         }
     },
 
     _handle_interface_added : function(data) {
-        var objpath = data.objpath
+        var objpath = data.objpath;
         var iface_name = data.iface_name;
         var existing_obj = this._objmap[objpath];
         if (!existing_obj) {
@@ -463,7 +465,8 @@ DBusClient.prototype = {
     },
 
     _register_call_reply : function(callback) {
-        var cookie = "cookie" + this._cookie_counter++;
+        var cookie = "cookie" + this._cookie_counter;
+        this._cookie_counter++;
         this._call_reply_map[cookie] = callback;
         return cookie;
     },
@@ -473,15 +476,14 @@ DBusClient.prototype = {
         var callback = this._call_reply_map[cookie];
         delete this._call_reply_map[cookie];
         if (!callback) {
-            if (callback == null) {
-                // don't warn, it's fine to pass a null callback
-            } else {
+            // don't warn if null, it's fine to pass a null callback
+            if (callback !== null) {
                 dbus_warning("Received call-reply for non-existing cookie " + cookie);
             }
         } else {
             var result = data.result;
             if (result) {
-                na = [null];
+                var na = [null];
                 callback.apply(null, na.concat(result));
             } else {
                 var error = new DBusError (data.error_name, data.error_message);
@@ -538,7 +540,7 @@ DBusClient.prototype = {
         var result = [];
         var obj, objpath, obj_iface;
         for (objpath in this._objmap) {
-            if (objpath.indexOf(path_prefix) != 0)
+            if (objpath.indexOf(path_prefix) !== 0)
                 continue;
 
             obj = this._objmap[objpath];
@@ -554,7 +556,7 @@ DBusClient.prototype = {
         var result = [];
         var obj, objpath;
         for (objpath in this._objmap) {
-            if (objpath.indexOf(path_prefix) != 0)
+            if (objpath.indexOf(path_prefix) !== 0)
                 continue;
             result.push(this._objmap[objpath]);
         }
@@ -563,5 +565,5 @@ DBusClient.prototype = {
 
     toString : function() {
         return "[DBusClient]";
-    },
+    }
 };

@@ -105,7 +105,7 @@ DBusInterface.prototype = {
         }
         var callback = arguments[n];
 
-        if (this._client._ws && this._client._ws.readyState == 1) {
+        if (this._client._channel.valid) {
             var cookie = this._client._register_call_reply(callback);
 
             var call_obj = {command: "call",
@@ -116,8 +116,7 @@ DBusInterface.prototype = {
                             args: args
             };
             try {
-                /* TODO: Eventually we'll be sending a channel here */
-                this._client._ws.send("111\n" + JSON.stringify(call_obj));
+                this._client._channel.send(JSON.stringify(call_obj));
             }
             catch (e) {
                 delete this._client._call_reply_map[cookie];
@@ -193,46 +192,40 @@ DBusObject.prototype = {
     }
 };
 
-
 // ----------------------------------------------------------------------------------------------------
 
-function DBusClient(target, open_args) {
-    this._init(target, open_args);
+function DBusClient(target, options) {
+    this._init(target, options);
 }
 
 DBusClient.prototype = {
-    _init: function(target, open_args) {
+    _init: function(target, options) {
         this.target = target;
-        this.open_args = open_args;
+        this.options = options;
         this.error = null;
         this.state = null;
-        this._ws = null;
+        this._channel = null;
         this._objmap = {};
         this._cookie_counter = 0;
         this._call_reply_map = {};
         this._was_connected = false;
         this._last_error = null;
         this.connect();
-
-        var me = this;
     },
 
     connect: function() {
         dbus_debug("Connecting DBusClient to " + this.target);
 
-        var client = this;
+        /* Open a channel */
+        var channel_opts = {
+            "host" : this.target,
+            "payload" : "dbus-json1"
+        };
+        $.extend(channel_opts, this.options);
+        var channel = new Channel(channel_opts);
 
-        var window_loc = window.location.toString();
-        var ws_loc;
-        if (window_loc.indexOf('http:') === 0) {
-            ws_loc = "ws://" + window.location.host + "/socket/" + client.target;
-        } else if (window_loc.indexOf('https:') === 0) {
-            ws_loc = "wss://" + window.location.host + "/socket/" + client.target;
-        } else {
-            console.log("Cockpit must be used over http or https");
-            return;
-        }
-        dbus_debug("Connecting to " + ws_loc);
+        var client = this;
+        client._channel = channel;
 
         this._last_error = null;
 
@@ -242,38 +235,9 @@ DBusClient.prototype = {
             client._state_change ();
         }
 
-        if ("WebSocket" in window) {
-            client._ws = new WebSocket(ws_loc, "cockpit1");
-        } else if ("MozWebSocket" in window) { // Firefox 6
-            client._ws = new MozWebSocket(ws_loc);
-        } else {
-            /* TODO: This needs a much better display. Bug #212 */
-            console.log("WebSocket not supported, application will not work!");
-            return;
-        }
-
-        client._got_message = false;
-        client._check_health_timer = window.setInterval(function () {
-            client._check_health ();
-        }, 10000);
-
-        this._ws.onopen = function() {
-            this.send (client.open_args || "");
-        };
-        this._ws.onclose = function(event) {
-            if (this === client._ws)
-                client._disconnected();
-        };
-        this._ws.onmessage = function(event) {
-            /* The first line of a message is the channel */
-            var data = event.data;
-            var pos = data.indexOf("\n");
-            var channel = parseInt(data.substring(0, pos), 10);
-            var decoded = JSON.parse(data.substring(pos + 1));
-
-            client._got_message = true;
-
-            dbus_debug("in onmessage, channel=" + channel + " command=" + decoded.command);
+        $(client._channel).on("message", function(event, payload) {
+            var decoded = JSON.parse(payload);
+            dbus_debug("got message command=" + decoded.command);
 
             if (decoded.command == "seed") {
                 client._handle_seed(decoded.data, decoded.config);
@@ -293,14 +257,26 @@ DBusClient.prototype = {
                 client._handle_interface_signal(decoded.data);
             } else if (decoded.command == "error") {
                 client._handle_error(decoded.data);
-            } else if (decoded.command == "ping") {
-                client._handle_ping(decoded.data);
             } else {
                 dbus_warning("Unhandled command '" + decoded.command + "'");
             }
+        });
 
-            phantom_checkpoint ();
-        };
+        $(client._channel).on("close", function(event, reason) {
+            client.error = reason;
+            client.state = "closed";
+            client._state_change();
+
+            for (var cookie in client._call_reply_map) {
+                var callback = client._call_reply_map[cookie];
+                if (callback) {
+                    var error = new DBusError('NotConnected', "Not connected to server.");
+                    callback.apply(null, [error]);
+                }
+            }
+            client._call_reply_map = { };
+            phantom_checkpoint();
+        });
     },
 
     _state_change: function() {
@@ -308,39 +284,8 @@ DBusClient.prototype = {
         phantom_checkpoint ();
     },
 
-    _disconnected: function() {
-        var client = this;
-
-        clearInterval(client._check_health_timer);
-        client._ws = null;
-        client.state = "closed";
-        client.error = client._last_error;
-        client._state_change();
-
-        for (var cookie in client._call_reply_map) {
-            var callback = client._call_reply_map[cookie];
-            if (callback) {
-                var error = new DBusError ('NotConnected', "Not connected to server.");
-                callback.apply(null, [error]);
-            }
-        }
-        client._call_reply_map = { };
-    },
-
-    _check_health: function() {
-        if (this.state != "ready" || !this._got_message) {
-            dbus_debug("Health check failed");
-            this.close("timeout");
-        }
-        this._got_message = false;
-    },
-
     _handle_error: function(data) {
         this._last_error = data;
-    },
-
-    _handle_ping: function(data) {
-        // nothing to do
     },
 
     _handle_seed : function(data, config) {
@@ -516,12 +461,10 @@ DBusClient.prototype = {
     // ----------------------------------------------------------------------------------------------------
 
     close : function(reason) {
-        if (this._ws) {
-            var ws = this._ws;
-            this._last_error = reason;
-            this._disconnected();
-            ws.close();
-        }
+        var chan = this._channel;
+        this._channel = null;
+        if (chan)
+            chan.close();
     },
 
     lookup : function(objpath, iface_name) {

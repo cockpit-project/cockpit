@@ -27,7 +27,6 @@
 G_BEGIN_DECLS
 
 void         cockpit_web_socket_serve_dbus   (CockpitWebServer *server,
-                                              const gchar *target_host,
                                               guint16 ssh_port,
                                               const gchar *agent_program,
                                               GIOStream *io_stream,

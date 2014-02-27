@@ -4,6 +4,7 @@ translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
 
 cockpit_js_PARTS = \
 	src/web/channel.js \
+	src/web/dbus.js \
 	src/web/cockpit-util.js 					\
 	src/web/cockpit-i18n.js 					\
 	src/web/cockpit-plot.js 					\
@@ -151,6 +152,7 @@ CHECK_DEPS = \
 	dbus.js \
 	cockpit-journal-renderer.js \
 	channel.js \
+	dbus.js \
 	$(NULL)
 
 CHECK_HTML = \
@@ -179,7 +181,6 @@ CLEANFILES += \
 	$(CHECK_DEPS) \
 	jquery.min.js \
 	dbus-test.html \
-	dbus.js \
 	$(NULL)
 	
 EXTRA_DIST += \

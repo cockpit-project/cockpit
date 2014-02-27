@@ -3,6 +3,7 @@ LINGUAS =
 translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
 
 cockpit_js_PARTS = \
+	src/web/channel.js \
 	src/web/cockpit-util.js 					\
 	src/web/cockpit-i18n.js 					\
 	src/web/cockpit-plot.js 					\
@@ -148,10 +149,12 @@ contentdatalibfonts_DATA = 					\
 
 CHECK_DEPS = \
 	cockpit-journal-renderer.js \
+	channel.js \
 	$(NULL)
 
 CHECK_HTML = \
 	test-dummy.html \
+	test-channel.html \
 	test-journal-renderer.html \
 	$(NULL)
 

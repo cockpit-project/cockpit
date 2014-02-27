@@ -64,7 +64,7 @@ on_handle_resource_socket (CockpitWebServer *server,
   gconstpointer data;
   gsize length;
 
-  if (!(g_strcmp0 (resource, "/socket/localhost") == 0 &&
+  if (!(g_strcmp0 (resource, "/socket") == 0 &&
         (g_ascii_strcasecmp (g_hash_table_lookup (headers, "Upgrade"), "websocket") == 0 ||
          g_ascii_strcasecmp (g_hash_table_lookup (headers, "Connection"), "Upgrade") == 0)))
     return FALSE;
@@ -78,7 +78,7 @@ on_handle_resource_socket (CockpitWebServer *server,
   g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (in), FALSE);
   g_filter_output_stream_set_close_base_stream (G_FILTER_OUTPUT_STREAM (out), FALSE);
 
-  cockpit_web_socket_serve_dbus (server, "localhost", 0, "./test-agent",
+  cockpit_web_socket_serve_dbus (server, 0, "./test-agent",
                                  io_stream, headers, buffer, NULL);
 
   g_byte_array_unref (buffer);
@@ -131,7 +131,7 @@ on_name_acquired (GDBusConnection *connection,
                   error->message, g_quark_to_string (error->domain), error->code);
     }
   g_signal_connect (server,
-                    "handle-resource::/socket/localhost",
+                    "handle-resource::/socket",
                     G_CALLBACK (on_handle_resource_socket),
                     NULL);
 

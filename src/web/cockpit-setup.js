@@ -212,7 +212,7 @@ PageSetupServer.prototype = {
 
         $('#dashboard_setup_login_error').text("");
 
-        me.client = new DBusClient (me.address, user + "\n" + pass);
+        me.client = new DBusClient(me.address, { "user": user, "password": pass });
         $(me.client).on('state-change', function () {
             if (me.client.state == "closed") {
                 if (me.client.error) {

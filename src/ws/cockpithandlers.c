@@ -48,12 +48,11 @@ cockpit_handler_socket (CockpitWebServer *server,
                         GDataOutputStream *out,
                         CockpitHandlerData *ws)
 {
-  const gchar *target_host;
   GByteArray *buffer;
   gconstpointer data;
   gsize length;
 
-  if (!g_str_has_prefix (resource, "/socket/")
+  if (!g_str_equal (resource, "/socket")
       || (g_ascii_strcasecmp (g_hash_table_lookup (headers, "Upgrade"), "websocket") != 0
           && g_ascii_strcasecmp (g_hash_table_lookup (headers, "Connection"), "Upgrade") != 0))
     return FALSE;
@@ -67,8 +66,7 @@ cockpit_handler_socket (CockpitWebServer *server,
   g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (in), FALSE);
   g_filter_output_stream_set_close_base_stream (G_FILTER_OUTPUT_STREAM (out), FALSE);
 
-  target_host = resource + strlen ("/socket/");
-  cockpit_web_socket_serve_dbus (server, target_host, 0, PACKAGE_LIBEXEC_DIR "/cockpit-agent",
+  cockpit_web_socket_serve_dbus (server, 0, PACKAGE_LIBEXEC_DIR "/cockpit-agent",
                                  io_stream, headers, buffer, ws->auth);
 
   g_byte_array_unref (buffer);

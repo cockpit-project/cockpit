@@ -39,8 +39,6 @@ typedef struct {
 
   GMainLoop                *loop;
   CockpitTransport         *transport;
-
-  gint                      ping_seq;
 } DBusServerData;
 
 /* Returns a new floating variant (essentially a fixed-up copy of @value) */
@@ -873,16 +871,6 @@ out:
 }
 
 static gboolean
-on_ping_time (gpointer user_data)
-{
-  DBusServerData *data = user_data;
-  gs_unref_object JsonBuilder *builder = prepare_builder ("ping");
-  json_builder_add_int_value (builder, data->ping_seq++);
-  write_builder (data, builder);
-  return TRUE;
-}
-
-static gboolean
 handle_message (CockpitTransport *transport,
                 gint channel,
                 GBytes *message,
@@ -948,7 +936,6 @@ dbus_server_serve_dbus (GBusType bus_type,
                         const char *dbus_path,
                         CockpitTransport *transport)
 {
-  guint ping_id;
   GError *error = NULL;
   guint recv_sig;
   guint close_sig;
@@ -976,9 +963,6 @@ dbus_server_serve_dbus (GBusType bus_type,
   data.cancellable = g_cancellable_new ();
   data.active_calls = NULL;
   data.transport = transport;
-  data.ping_seq = 0;
-
-  ping_id = g_timeout_add (5000, on_ping_time, &data);
 
   g_signal_connect (data.object_manager,
                     "object-added",
@@ -1034,8 +1018,6 @@ dbus_server_serve_dbus (GBusType bus_type,
   g_signal_handlers_disconnect_by_func (data.object_manager,
                                         G_CALLBACK (on_interface_proxy_signal),
                                         &data);
-
-  g_source_remove (ping_id);
 
   for (GList *c = data.active_calls; c; c = c->next)
     {

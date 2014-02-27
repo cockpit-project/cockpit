@@ -125,6 +125,11 @@ for mod in JSON Locale::PO; do
   fi
 done
 
+# phantomjs
+
+AC_PATH_PROG([PHANTOMJS], [phantomjs])
+AM_CONDITIONAL([WITH_PHANTOMJS], [test -n "$PHANTOMJS"])
+
 # Config
 
 AC_DEFINE_UNQUOTED([COCKPIT_CONFIG_FILE],["$sysconfdir/cockpit/config"],[Configuration file])

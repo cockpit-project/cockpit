@@ -50,7 +50,12 @@ LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = $(top_srcdir)/tools/tap-compiler
 TEST_EXTENSIONS = .html
 HTML_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
+if WITH_PHANTOMJS
 HTML_LOG_COMPILER = $(top_srcdir)/tools/tap-phantom
+else
+HTML_LOG_COMPILER = $(top_srcdir)/tools/tap-missing --missing=phantomjs
+endif
+
 
 MINIFY = $(top_srcdir)/tools/minify
 JSLINT = $(top_srcdir)/tools/js-lint

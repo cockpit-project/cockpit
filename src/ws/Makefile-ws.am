@@ -113,8 +113,6 @@ cockpit_agent_LDADD = 					\
 
 # ----------------------------------------------------------------------------------------------------
 
-testassetsdir = $(datadir)/cockpit-test-assets
-
 $(test_server_built_sources) : Makefile.am $(top_srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml
 	gdbus-codegen							                \
 		--interface-prefix com.redhat.Cockpit.DBusTests                 	\
@@ -130,11 +128,13 @@ test_server_built_sources =								\
 
 BUILT_SOURCES += $(test_server_built_sources)
 
-testassets_PROGRAMS = test-server test-agent
-testassets_DATA = dbus-test.html	\
-		  dbus.js  \
-		  $(QUNIT_DEPS) \
-		  $(NULL)
+noinst_PROGRAMS += test-server test-agent
+
+testassets_programs += test-server test-agent
+testassets_data += dbus-test.html \
+                   dbus.js  \
+                   $(QUNIT_DEPS) \
+                   $(NULL)
 
 test_server_SOURCES = 					\
 	src/ws/test-server.c				\

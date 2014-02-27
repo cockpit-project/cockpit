@@ -78,7 +78,7 @@ make %{?_smp_mflags} %{?extra_flags}
 make check
 
 %install
-make install DESTDIR=%{buildroot}
+make install install-test-assets DESTDIR=%{buildroot}
 find %{buildroot} -name '*.la' -delete
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 mkdir -p %{buildroot}/etc/pam.d/

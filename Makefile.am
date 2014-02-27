@@ -10,6 +10,7 @@ noinst_LTLIBRARIES =
 privlibdir = $(pkglibdir)
 privlib_LTLIBRARIES =
 noinst_LIBRARIES=
+noinst_DATA =
 TESTS =
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
@@ -47,6 +48,21 @@ cockpit_cppflags_glib_version = \
 
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = $(top_srcdir)/tools/tap-compiler
+
+testassetsdir = $(datadir)/cockpit-test-assets
+testassets_programs =
+testassets_data =
+testassets_systemdunit_data =
+
+install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_systemdunit_data)
+	$(MKDIR_P) $(DESTDIR)$(testassetsdir)
+	$(MKDIR_P) $(DESTDIR)$(systemdunitdir)
+	for p in $(testassets_programs); do \
+          $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install \
+            $(INSTALL_PROGRAM) $$p $(DESTDIR)$(testassetsdir); \
+        done
+	for d in $(testassets_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(testassetsdir); done
+	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
 
 include doc/man/Makefile-man.am
 include data/Makefile-data.am

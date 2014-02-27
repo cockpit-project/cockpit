@@ -42,7 +42,6 @@ parallel --gnu --progress -j ${TEST_JOBS:-1} <<EOF
 ./check-storage TestStorage.testHidden
 ./check-storage TestStorage.testUnused
 ./check-journal
-./check-journal-renderer
 ./check-terminal
 ./check-accounts
 ./check-session

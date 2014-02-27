@@ -146,8 +146,13 @@ contentdatalibfonts_DATA = 					\
 
 # -----------------------------------------------------------------------------
 
+CHECK_DEPS = \
+	cockpit-journal-renderer.js \
+	$(NULL)
+
 CHECK_HTML = \
 	test-dummy.html \
+	test-journal-renderer.html \
 	$(NULL)
 
 CHECK_HTML_SRCS = $(addprefix src/web/,$(CHECK_HTML))
@@ -167,6 +172,7 @@ lang/%.json : $(top_srcdir)/po/%.po
 
 CLEANFILES += \
 	$(CHECK_HTML) \
+	$(CHECK_DEPS) \
 	jquery.min.js \
 	dbus-test.html \
 	dbus.js \
@@ -185,5 +191,6 @@ EXTRA_DIST += \
 
 noinst_SCRIPTS += \
 	$(CHECK_HTML) \
+	$(CHECK_DEPS) \
 	dbus-test.html \
 	$(NULL)

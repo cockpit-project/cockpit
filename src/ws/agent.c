@@ -35,8 +35,22 @@ main (int argc,
   CockpitTransport *transport;
   const gchar *dbus_service;
   const gchar *dbus_path;
+  int outfd;
 
-  transport = cockpit_fd_transport_new ("stdio", 0, 1);
+  /*
+   * This process talks on stdin/stdout. However lots of stuff wants to write
+   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
+   * it goes to stderr, and use another fd for stdout.
+   */
+
+  outfd = dup (1);
+  if (outfd < 0 || dup2 (2, 1) < 1)
+    {
+      g_warning ("agent couldn't redirect stdout to stderr");
+      outfd = 1;
+    }
+
+  transport = cockpit_fd_transport_new ("stdio", 0, outfd);
 
   dbus_service = g_getenv ("COCKPIT_AGENT_DBUS_SERVICE");
   if (!dbus_service)

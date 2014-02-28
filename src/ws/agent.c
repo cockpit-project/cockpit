@@ -28,6 +28,15 @@
    of the user that is logged into the Server Console.
 */
 
+static void
+on_closed_set_flag (CockpitTransport *transport,
+                    const gchar *problem,
+                    gpointer user_data)
+{
+  gboolean *flag = user_data;
+  *flag = TRUE;
+}
+
 int
 main (int argc,
       char **argv)
@@ -35,6 +44,8 @@ main (int argc,
   CockpitTransport *transport;
   const gchar *dbus_service;
   const gchar *dbus_path;
+  gboolean closed = FALSE;
+  DBusServerData *ds;
   int outfd;
 
   /*
@@ -51,6 +62,7 @@ main (int argc,
     }
 
   transport = cockpit_fd_transport_new ("stdio", 0, outfd);
+  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
   dbus_service = g_getenv ("COCKPIT_AGENT_DBUS_SERVICE");
   if (!dbus_service)
@@ -59,11 +71,15 @@ main (int argc,
   if (!dbus_path)
     dbus_path = "/com/redhat/Cockpit";
 
-  dbus_server_serve_dbus (G_BUS_TYPE_SYSTEM,
-                          dbus_service,
-                          dbus_path,
-                          transport);
+  ds = dbus_server_serve_dbus (G_BUS_TYPE_SYSTEM,
+                               dbus_service,
+                               dbus_path,
+                               transport);
 
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  dbus_server_stop_dbus (ds);
   g_object_unref (transport);
   exit (0);
 }

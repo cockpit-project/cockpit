@@ -22,7 +22,8 @@
 #ifndef __MOCK_SERVICE_H__
 #define __MOCK_SERVICE_H__
 
-GObject *   mock_service_create_and_export    (GDBusConnection *connection);
+GObject *   mock_service_create_and_export    (GDBusConnection *connection,
+                                               const gchar *object_manager_path);
 
 void        mock_service_start                (void);
 

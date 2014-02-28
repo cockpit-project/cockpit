@@ -457,7 +457,7 @@ start_web_service_and_connect_client (Test *test,
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the agent. */
-  sent = build_control_message ("open", 4, "payload", "dbus-json1", NULL);
+  sent = build_control_message ("open", 4, "payload", "test-text", NULL);
   web_socket_connection_send (*ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 }
@@ -502,6 +502,21 @@ on_message_get_bytes (WebSocketConnection *ws,
 }
 
 static void
+on_message_get_non_control (WebSocketConnection *ws,
+                            WebSocketDataType type,
+                            GBytes *message,
+                            gpointer user_data)
+{
+  GBytes **received = user_data;
+  g_assert_cmpint (type, ==, WEB_SOCKET_DATA_TEXT);
+  /* Control messages have this prefix: ie: a zero channel */
+  if (g_str_has_prefix (g_bytes_get_data (message, NULL), "0\n"))
+      return;
+  g_assert (*received == NULL);
+  *received = g_bytes_ref (message);
+}
+
+static void
 test_handshake_and_echo (Test *test,
                          gconstpointer data)
 {
@@ -514,7 +529,7 @@ test_handshake_and_echo (Test *test,
   start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
 
   sent = g_bytes_new_static ("4\nthe message", 13);
-  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
 
   WAIT_UNTIL (received != NULL);
@@ -541,7 +556,7 @@ test_echo_large (Test *test,
   gulong handler;
 
   start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
-  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
   /* Medium length */
   contents = g_strnfill (1020, '!');
@@ -577,18 +592,14 @@ test_close_error (Test *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  GBytes *sent;
   GThread *thread;
 
   start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Send something through to ensure it's open */
-  sent = g_bytes_new_static ("4\nwheee", 7);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
-  g_assert (g_bytes_equal (received, sent));
-  g_bytes_unref (sent);
+  expect_control_message (received, "open", 4, NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -618,11 +629,11 @@ test_specified_creds (Test *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Open a channel with a non-standard command */
-  sent = build_control_message ("open", 4, "payload", "dbus-json1", "user", "user", "password", "Another password", NULL);
+  sent = build_control_message ("open", 4, "payload", "test-text", "user", "user", "password", "Another password", NULL);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
   sent = g_bytes_new_static ("4\nwheee", 7);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
@@ -651,7 +662,7 @@ test_specified_creds_fail (Test *test,
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Open a channel with a non-standard command, but a bad password */
-  sent = build_control_message ("open", 4, "payload", "dbus-json1", "user", "user", "password", "Wrong password", NULL);
+  sent = build_control_message ("open", 4, "payload", "test-text", "user", "user", "password", "Wrong password", NULL);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 

@@ -149,4 +149,11 @@ Payload: dbus-json1
 -------------------
 
 DBus messages are encoded in JSON payloads by cockpit-web, and decoded in
-cockpit-agent. Contents not yet documented. See dbus-server.c or dbus.js
+cockpit-agent. Contents not yet documented. See dbus-server.c or dbus.js.
+
+Additional "open" command options are needed to open a channel of this
+type:
+
+ * "service": A service name of the DBus service to communicate with.
+ * "object-manager": The object path of a o.f.DBus.ObjectManager whose
+   intefraces and properties will be relayed.

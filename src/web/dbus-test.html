@@ -348,7 +348,12 @@ function done(details)
 
 function dbus_test()
 {
-    var client = new DBusClient("localhost");
+    var options = {
+        "service": "com.redhat.Cockpit.DBusTests.Test",
+        "object-manager": "/otree"
+    };
+
+    var client = new DBusClient("localhost", options);
     $(client).on("state-change", function(event) {
         if (client.state == "closed")
             throw "DBusClient closed before we could start tests";

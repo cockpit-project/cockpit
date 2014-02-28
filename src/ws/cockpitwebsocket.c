@@ -113,6 +113,13 @@ get_remote_address (GSocketConnection *connection,
     }
 }
 
+static void
+outbound_protocol_error (WebSocketData *data,
+                         CockpitTransport *session)
+{
+  cockpit_transport_close (session, "protocol-error");
+}
+
 static gboolean
 process_close (WebSocketData *data,
                guint channel,
@@ -132,6 +139,48 @@ process_close (WebSocketData *data,
   return TRUE;
 }
 
+static void
+dispatch_outbound_command (WebSocketData *data,
+                           CockpitTransport *source,
+                           GBytes *payload)
+{
+  const gchar *command;
+  guint channel;
+  JsonObject *options;
+  gboolean valid = FALSE;
+
+  if (cockpit_transport_parse_command (data->parser, payload,
+                                       &command, &channel, &options))
+    {
+      /*
+       * To prevent one host from messing with another, outbound commands
+       * must have a channel, and it must match one of the channels opened
+       * to that particular session.
+       */
+      if (channel == 0 || g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel)) != source)
+        {
+          g_warning ("Received a command with wrong channel from session");
+          valid = FALSE;
+        }
+      else if (g_strcmp0 (command, "close") == 0)
+        valid = process_close (data, channel, options);
+      else if (g_strcmp0 (command, "ping") == 0)
+        return; /* drop pings */
+      else
+        valid = TRUE; /* forward other messages */
+    }
+
+  if (valid && !data->eof_to_session)
+    {
+      if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
+        web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, data->control_prefix, payload);
+    }
+  else
+    {
+      outbound_protocol_error (data, source);
+    }
+}
+
 static gboolean
 on_session_recv (CockpitTransport *transport,
                  guint channel,
@@ -139,15 +188,28 @@ on_session_recv (CockpitTransport *transport,
                  gpointer user_data)
 {
   WebSocketData *data = user_data;
+  CockpitTransport *session;
   gchar *string;
   GBytes *prefix;
 
-  /* TODO: Ignore the channel numbers from the session for now */
-  channel = GPOINTER_TO_UINT (g_hash_table_lookup (data->sessions, transport));
   if (channel == 0)
     {
-        g_info ("Dropping message from session for which we have no channel");
-        return FALSE;
+      dispatch_outbound_command (data, transport, payload);
+      return TRUE;
+    }
+
+  session = g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel));
+  if (session == NULL)
+    {
+      g_warning ("Rceived message with unknown channel from session");
+      outbound_protocol_error (data, transport);
+      return FALSE;
+    }
+  else if (session != transport)
+    {
+      g_warning ("Received message with wrong channel from session");
+      outbound_protocol_error (data, transport);
+      return FALSE;
     }
 
   if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
@@ -187,7 +249,6 @@ process_open (WebSocketData *data,
   CockpitTransport *session;
   const gchar *specific_user = NULL;
   const gchar *password = NULL;
-  const gchar *payload = NULL;
   const gchar *host = NULL;
   const gchar *user = NULL;
   JsonNode *node;
@@ -203,16 +264,6 @@ process_open (WebSocketData *data,
     {
       g_warning ("Cannot open a channel with the same number as another channel");
       return FALSE;
-    }
-
-  /* TODO: For now we only support one payload: dbus-json1 */
-  node = json_object_get_member (options, "payload");
-  if (node && json_node_get_value_type (node) == G_TYPE_STRING)
-    payload = json_node_get_string (node);
-  if (g_strcmp0 (payload, "dbus-json1") != 0)
-    {
-      report_close (data, channel, "not-supported");
-      return TRUE; /* Honest mistake, don't terminate connection */
     }
 
   node = json_object_get_member (options, "host");
@@ -280,18 +331,16 @@ dispatch_inbound_command (WebSocketData *data,
   guint channel;
   JsonObject *options;
   gboolean valid = FALSE;
+  CockpitTransport *session;
+  GHashTableIter iter;
 
   if (cockpit_transport_parse_command (data->parser, payload,
                                        &command, &channel, &options))
     {
       if (g_strcmp0 (command, "open") == 0)
         valid = process_open (data, channel, options);
-      /*
-       * TODO: In the future we'll forward close to the session,
-       * respond to the session returning the command message
-       */
       else if (g_strcmp0 (command, "close") == 0)
-        valid = process_close (data, channel, options);
+        valid = TRUE;
       else if (g_strcmp0 (command, "ping") == 0)
         return; /* drop pings */
       else
@@ -303,7 +352,22 @@ dispatch_inbound_command (WebSocketData *data,
       inbound_protocol_error (data);
     }
 
-  /* TODO: In the future we'll forward control channel stuff */
+  else if (channel == 0)
+    {
+      /* Control messages without a channel get sent to all sessions */
+      g_hash_table_iter_init (&iter, data->sessions);
+      while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
+        cockpit_transport_send (session, 0, payload);
+    }
+  else
+    {
+      /* Control messages with a channel get forward to that session */
+      session = g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel));
+      if (session)
+        cockpit_transport_send (session, 0, payload);
+      else
+        g_debug ("Dropping control message with unknown channel: %u", channel);
+    }
 }
 
 static void

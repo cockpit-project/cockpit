@@ -40,6 +40,7 @@ struct _DBusServerData {
   GMainLoop                *loop;
   CockpitTransport         *transport;
   guint                     recv_sig;
+  guint                     channel;
 };
 
 /* Returns a new floating variant (essentially a fixed-up copy of @value) */
@@ -313,8 +314,7 @@ write_builder (DBusServerData *data,
 
   json_builder_end_object (builder);
   bytes = _json_builder_to_bytes (builder);
-  /* TODO: Zero channel number until later */
-  cockpit_transport_send (data->transport, 0, bytes);
+  cockpit_transport_send (data->transport, data->channel, bytes);
   g_bytes_unref (bytes);
 }
 
@@ -883,6 +883,10 @@ handle_message (CockpitTransport *transport,
   gs_unref_object JsonParser *parser = NULL;
   gsize size;
 
+  /* Only handle our own channel */
+  if (channel != data->channel)
+    return FALSE;
+
   parser = json_parser_new ();
 
   size = g_bytes_get_size (message);
@@ -926,7 +930,8 @@ DBusServerData *
 dbus_server_serve_dbus (GBusType bus_type,
                         const char *dbus_service,
                         const char *dbus_path,
-                        CockpitTransport *transport)
+                        CockpitTransport *transport,
+                        guint channel)
 {
   GError *error = NULL;
 
@@ -953,6 +958,7 @@ dbus_server_serve_dbus (GBusType bus_type,
   data->cancellable = g_cancellable_new ();
   data->active_calls = NULL;
   data->transport = transport;
+  data->channel = channel;
 
   g_signal_connect (data->object_manager,
                     "object-added",

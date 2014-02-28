@@ -62,7 +62,7 @@ dbus_server_thread (gpointer data)
 
   ds = dbus_server_serve_dbus (G_BUS_TYPE_SESSION,
                                "com.redhat.Cockpit.DBusTests.Test",
-                               "/otree", transport);
+                               "/otree", transport, 444);
 
   while (!closed)
     g_main_context_iteration (ctx, TRUE);

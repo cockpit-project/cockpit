@@ -32,14 +32,15 @@
 
 #include <string.h>
 
-typedef struct {
+struct _DBusServerData {
   GDBusObjectManagerClient *object_manager;
   GCancellable             *cancellable;
   GList                    *active_calls;
 
   GMainLoop                *loop;
   CockpitTransport         *transport;
-} DBusServerData;
+  guint                     recv_sig;
+};
 
 /* Returns a new floating variant (essentially a fixed-up copy of @value) */
 static GVariant *
@@ -921,28 +922,17 @@ close:
   return TRUE;
 }
 
-static void
-handle_closed (CockpitTransport *transport,
-               const gchar *problem,
-               gpointer user_data)
-{
-  DBusServerData *data = user_data;
-  g_main_loop_quit (data->loop);
-}
-
-void
+DBusServerData *
 dbus_server_serve_dbus (GBusType bus_type,
                         const char *dbus_service,
                         const char *dbus_path,
                         CockpitTransport *transport)
 {
   GError *error = NULL;
-  guint recv_sig;
-  guint close_sig;
 
   g_type_init ();
 
-  gs_unref_object GDBusObjectManager *object_manager =
+  GDBusObjectManager *object_manager =
     g_dbus_object_manager_client_new_for_bus_sync (bus_type,
                                                    G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
                                                    dbus_service,
@@ -955,76 +945,78 @@ dbus_server_serve_dbus (GBusType bus_type,
   if (object_manager == NULL)
     {
       g_warning ("%s", error->message);
-      return;
+      return NULL;
     }
 
-  DBusServerData data;
-  data.object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (object_manager);
-  data.cancellable = g_cancellable_new ();
-  data.active_calls = NULL;
-  data.transport = transport;
+  DBusServerData *data = g_new0 (DBusServerData, 1);
+  data->object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (object_manager);
+  data->cancellable = g_cancellable_new ();
+  data->active_calls = NULL;
+  data->transport = transport;
 
-  g_signal_connect (data.object_manager,
+  g_signal_connect (data->object_manager,
                     "object-added",
                     G_CALLBACK (on_object_added),
-                    &data);
-  g_signal_connect (data.object_manager,
+                    data);
+  g_signal_connect (data->object_manager,
                     "object-removed",
                     G_CALLBACK (on_object_removed),
-                    &data);
-  g_signal_connect (data.object_manager,
+                    data);
+  g_signal_connect (data->object_manager,
                     "interface-added",
                     G_CALLBACK (on_interface_added),
-                    &data);
-  g_signal_connect (data.object_manager,
+                    data);
+  g_signal_connect (data->object_manager,
                     "interface-removed",
                     G_CALLBACK (on_interface_removed),
-                    &data);
-  g_signal_connect (data.object_manager,
+                    data);
+  g_signal_connect (data->object_manager,
                     "interface-proxy-properties-changed",
                     G_CALLBACK (on_interface_proxy_properties_changed),
-                    &data);
-  g_signal_connect (data.object_manager,
+                    data);
+  g_signal_connect (data->object_manager,
                     "interface-proxy-signal",
                     G_CALLBACK (on_interface_proxy_signal),
-                    &data);
+                    data);
 
-  recv_sig = g_signal_connect (data.transport, "recv", G_CALLBACK (handle_message), &data);
-  close_sig = g_signal_connect (data.transport, "closed", G_CALLBACK (handle_closed), &data);
+  data->recv_sig = g_signal_connect (data->transport, "recv", G_CALLBACK (handle_message), data);
 
-  send_seed (&data);
+  send_seed (data);
 
-  data.loop = g_main_loop_new (NULL, FALSE);
-  g_main_loop_run (data.loop);
+  return data;
+}
 
-  g_signal_handler_disconnect (data.transport, recv_sig);
-  g_signal_handler_disconnect (data.transport, close_sig);
+void
+dbus_server_stop_dbus (DBusServerData *data)
+{
+  g_signal_handler_disconnect (data->transport, data->recv_sig);
 
-  g_signal_handlers_disconnect_by_func (data.object_manager,
+  g_signal_handlers_disconnect_by_func (data->object_manager,
                                         G_CALLBACK (on_object_added),
-                                        &data);
-  g_signal_handlers_disconnect_by_func (data.object_manager,
+                                        data);
+  g_signal_handlers_disconnect_by_func (data->object_manager,
                                         G_CALLBACK (on_object_removed),
-                                        &data);
-  g_signal_handlers_disconnect_by_func (data.object_manager,
+                                        data);
+  g_signal_handlers_disconnect_by_func (data->object_manager,
                                         G_CALLBACK (on_interface_added),
-                                        &data);
-  g_signal_handlers_disconnect_by_func (data.object_manager,
+                                        data);
+  g_signal_handlers_disconnect_by_func (data->object_manager,
                                         G_CALLBACK (on_interface_removed),
-                                        &data);
-  g_signal_handlers_disconnect_by_func (data.object_manager,
+                                        data);
+  g_signal_handlers_disconnect_by_func (data->object_manager,
                                         G_CALLBACK (on_interface_proxy_properties_changed),
-                                        &data);
-  g_signal_handlers_disconnect_by_func (data.object_manager,
+                                        data);
+  g_signal_handlers_disconnect_by_func (data->object_manager,
                                         G_CALLBACK (on_interface_proxy_signal),
-                                        &data);
+                                        data);
 
-  for (GList *c = data.active_calls; c; c = c->next)
+  for (GList *c = data->active_calls; c; c = c->next)
     {
       CallData *cd = c->data;
       cd->data = NULL;
     }
 
-  g_cancellable_cancel (data.cancellable);
-  g_main_loop_unref (data.loop);
+  g_cancellable_cancel (data->cancellable);
+  g_object_unref (data->object_manager);
+  g_free (data);
 }

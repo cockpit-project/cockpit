@@ -24,9 +24,13 @@
 
 #include "cockpittransport.h"
 
-void      dbus_server_serve_dbus       (GBusType bus_type,
-                                        const char *dbus_service,
-                                        const char *dbus_path,
-                                        CockpitTransport *transport);
+typedef struct _DBusServerData DBusServerData;
+
+DBusServerData *  dbus_server_serve_dbus       (GBusType bus_type,
+                                                const char *dbus_service,
+                                                const char *dbus_path,
+                                                CockpitTransport *transport);
+
+void              dbus_server_stop_dbus        (DBusServerData *data);
 
 #endif

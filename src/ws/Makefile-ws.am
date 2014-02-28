@@ -57,6 +57,10 @@ EXTRA_DIST += \
 	src/ws/mock_rsa_key \
 	src/ws/mock_dsa_key
 
+CLEANFILES += \
+	cockpitwsenumtypes.h \
+	$(NULL)
+
 # ----------------------------------------------------------------------------------------------------
 
 libexec_PROGRAMS += cockpit-ws cockpit-session cockpit-agent

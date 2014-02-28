@@ -240,6 +240,12 @@ main (int argc,
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (bus);
 
+  /* Use the above test session bus as a system bus */
+  g_setenv ("DBUS_SYSTEM_BUS_ADDRESS", g_getenv ("DBUS_SESSION_BUS_ADDRESS"), TRUE);
+
+  g_setenv ("COCKPIT_AGENT_DBUS_SERVICE", "com.redhat.Cockpit.DBusTests.Test", TRUE);
+  g_setenv ("COCKPIT_AGENT_DBUS_PATH", "/otree", TRUE);
+
   context = g_option_context_new ("- test dbus json server");
   g_option_context_add_main_entries (context, entries, NULL);
   g_option_context_set_ignore_unknown_options (context, TRUE);
@@ -252,7 +258,7 @@ main (int argc,
   cd_srcdir (argv[0]);
   loop = g_main_loop_new (NULL, FALSE);
 
-  id = g_bus_own_name (G_BUS_TYPE_SESSION,
+  id = g_bus_own_name (G_BUS_TYPE_SYSTEM,
                        "com.redhat.Cockpit.DBusTests.Test",
                        G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_REPLACE,
                        on_bus_acquired,
@@ -267,6 +273,7 @@ main (int argc,
   g_bus_unown_name (id);
   g_main_loop_unref (loop);
 
+  g_unsetenv ("DBUS_SYSTEM_BUS_ADDRESS");
   g_test_dbus_down (bus);
   g_object_unref (bus);
 

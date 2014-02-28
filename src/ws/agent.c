@@ -33,12 +33,21 @@ main (int argc,
       char **argv)
 {
   CockpitTransport *transport;
+  const gchar *dbus_service;
+  const gchar *dbus_path;
 
   transport = cockpit_fd_transport_new ("stdio", 0, 1);
 
+  dbus_service = g_getenv ("COCKPIT_AGENT_DBUS_SERVICE");
+  if (!dbus_service)
+    dbus_service = "com.redhat.Cockpit";
+  dbus_path = g_getenv ("COCKPIT_AGENT_DBUS_PATH");
+  if (!dbus_path)
+    dbus_path = "/com/redhat/Cockpit";
+
   dbus_server_serve_dbus (G_BUS_TYPE_SYSTEM,
-                          "com.redhat.Cockpit",
-                          "/com/redhat/Cockpit",
+                          dbus_service,
+                          dbus_path,
                           transport);
 
   g_object_unref (transport);

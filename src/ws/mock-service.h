@@ -17,16 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_DBUS_SERVER_H__
-#define COCKPIT_DBUS_SERVER_H__
-
 #include <gio/gio.h>
 
-#include "cockpittransport.h"
+#ifndef __MOCK_SERVICE_H__
+#define __MOCK_SERVICE_H__
 
-void      dbus_server_serve_dbus       (GBusType bus_type,
-                                        const char *dbus_service,
-                                        const char *dbus_path,
-                                        CockpitTransport *transport);
+GObject *   mock_service_create_and_export    (GDBusConnection *connection);
 
-#endif
+void        mock_service_start                (void);
+
+void        mock_service_stop                 (void);
+
+#endif /* __MOCK_SERVICE_H__ */

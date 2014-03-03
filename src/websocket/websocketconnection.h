@@ -89,7 +89,8 @@ GIOStream *     web_socket_connection_get_io_stream       (WebSocketConnection *
 
 void            web_socket_connection_send                (WebSocketConnection *self,
                                                            WebSocketDataType type,
-                                                           GBytes *message);
+                                                           GBytes *prefix,
+                                                           GBytes *payload);
 
 void            web_socket_connection_close               (WebSocketConnection *self,
                                                            gushort code,

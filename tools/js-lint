@@ -50,6 +50,8 @@ cat <<EOF >$conf
 +define JSON
 +define DBusClient
 +define phantom_checkpoint
++define WebSocket
++define MozWebSocket
 EOF
 grep -h '^\(function\|var\)' "$@" | sed -e 's/[a-z]\+ \([a-zA-Z0-9_]\+\).*/+define \1/' >>$conf
 

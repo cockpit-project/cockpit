@@ -187,6 +187,8 @@ storage_logical_volume_constructed (GObject *object)
                     G_CALLBACK (on_lvm_logical_volume_notify),
                     logical_volume);
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (logical_volume->lvm_logical_volume), G_MAXINT);
+
   storage_logical_volume_update (logical_volume);
 
   if (G_OBJECT_CLASS (storage_logical_volume_parent_class)->constructed != NULL)

@@ -55,7 +55,12 @@ HTML_LOG_COMPILER = $(top_srcdir)/tools/tap-missing --missing=phantomjs
 endif
 
 
+if WITH_DEBUG
+MINIFY = cat
+else
 MINIFY = $(top_srcdir)/tools/minify
+endif
+
 JSLINT = $(top_srcdir)/tools/js-lint
 PO2JSON = $(top_srcdir)/tools/po2json
 

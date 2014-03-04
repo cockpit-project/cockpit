@@ -480,6 +480,7 @@ mock_service_thread (gpointer unused)
   g_object_unref (exported);
   g_object_unref (conn);
 
+  while (g_main_context_iteration (main_ctx, FALSE));
   g_main_context_pop_thread_default (main_ctx);
   g_main_context_unref (main_ctx);
 

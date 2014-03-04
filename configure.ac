@@ -198,7 +198,6 @@ AC_SUBST(COCKPIT_SESSION_LIBS)
 
 AC_OUTPUT([
 Makefile
-doc/Makefile
 po/Makefile.in
 ])
 

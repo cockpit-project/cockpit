@@ -349,6 +349,8 @@ xor_with_mask_rfc6455 (const guint8 *mask,
 
 static void
 send_text_hixie76 (WebSocketConnection *self,
+                   const guint8 *prefix,
+                   gsize prefix_len,
                    const guint8 *payload,
                    gsize payload_len)
 {
@@ -357,9 +359,10 @@ send_text_hixie76 (WebSocketConnection *self,
   GByteArray *bytes;
   gsize frame_len;
 
-  bytes = g_byte_array_sized_new (2 + payload_len);
+  bytes = g_byte_array_sized_new (2 + prefix_len + payload_len);
 
   g_byte_array_append (bytes, &b00, 1);
+  g_byte_array_append (bytes, prefix, prefix_len);
   g_byte_array_append (bytes, payload, payload_len);
   g_byte_array_append (bytes, &bff, 1);
 
@@ -370,59 +373,67 @@ send_text_hixie76 (WebSocketConnection *self,
 }
 
 static void
-send_message_rfc6455 (WebSocketConnection *self,
-                      WebSocketQueueFlags flags,
-                      guint8 opcode,
-                      const guint8 *payload,
-                      gsize payload_len)
+send_prefixed_message_rfc6455 (WebSocketConnection *self,
+                               WebSocketQueueFlags flags,
+                               guint8 opcode,
+                               const guint8 *prefix,
+                               gsize prefix_len,
+                               const guint8 *payload,
+                               gsize payload_len)
 {
-  gsize amount = payload_len;
+  gsize amount = payload_len + prefix_len;
   GByteArray *bytes;
   gsize frame_len;
   guint8 *outer;
   guint8 *mask = 0;
   guint8 *at;
+  gsize len;
 
-  bytes = g_byte_array_sized_new (14 + payload_len);
+  len = prefix_len + payload_len;
+  amount = len;
+
+  bytes = g_byte_array_sized_new (14 + len);
   outer = bytes->data;
   outer[0] = 0x80 | opcode;
 
   /* If control message, truncate payload */
   if (opcode & 0x08)
     {
-      if (payload_len > 125)
+      if (len > 125)
         {
           g_warning ("Truncating WebSocket control message payload");
-          payload_len = 125;
+          if (prefix_len > 125)
+              prefix_len = 125;
+          payload_len = 125 - prefix_len;
         }
 
       /* Buffered amount of bytes is zero for control messages */
       amount = 0;
     }
 
-  if (payload_len < 126)
+  if (len < 126)
     {
-      outer[1] = (0xFF & payload_len); /* mask | 7-bit-len */
+      outer[1] = (0xFF & len); /* mask | 7-bit-len */
       bytes->len = 2;
     }
-  else if (payload_len < 65536)
+  else if (len < 65536)
     {
       outer[1] = 126; /* mask | 16-bit-len */
-      outer[2] = (payload_len >> 8) & 0xFF;
-      outer[3] = (payload_len >> 0) & 0xFF;
+      outer[2] = (len >> 8) & 0xFF;
+      outer[3] = (len >> 0) & 0xFF;
       bytes->len = 4;
     }
   else
     {
       outer[1] = 127; /* mask | 64-bit-len */
-      outer[2] = (payload_len >> 56) & 0xFF;
-      outer[3] = (payload_len >> 48) & 0xFF;
-      outer[4] = (payload_len >> 40) & 0xFF;
-      outer[5] = (payload_len >> 32) & 0xFF;
-      outer[6] = (payload_len >> 24) & 0xFF;
-      outer[7] = (payload_len >> 16) & 0xFF;
-      outer[8] = (payload_len >> 8) & 0xFF;
-      outer[9] = (payload_len >> 0) & 0xFF;
+      outer[2] = (len >> 56) & 0xFF;
+      outer[3] = (len >> 48) & 0xFF;
+      outer[4] = (len >> 40) & 0xFF;
+      outer[5] = (len >> 32) & 0xFF;
+      outer[6] = (len >> 24) & 0xFF;
+      outer[7] = (len >> 16) & 0xFF;
+      outer[8] = (len >> 8) & 0xFF;
+      outer[9] = (len >> 0) & 0xFF;
       bytes->len = 10;
     }
 
@@ -439,15 +450,26 @@ send_message_rfc6455 (WebSocketConnection *self,
     }
 
   at = bytes->data + bytes->len;
+  g_byte_array_append (bytes, prefix, prefix_len);
   g_byte_array_append (bytes, payload, payload_len);
 
   if (!self->pv->server_side)
-    xor_with_mask_rfc6455 (mask, at, payload_len);
+    xor_with_mask_rfc6455 (mask, at, len);
 
   frame_len = bytes->len;
   _web_socket_connection_queue (self, flags, g_byte_array_free (bytes, FALSE),
                                 frame_len, amount);
   g_debug ("queued rfc6455 %d frame of len %u", (gint)opcode, (guint)frame_len);
+}
+
+static void
+send_message_rfc6455 (WebSocketConnection *self,
+                      WebSocketQueueFlags flags,
+                      guint8 opcode,
+                      const guint8 *payload,
+                      gsize payload_len)
+{
+  return send_prefixed_message_rfc6455 (self, flags, opcode, NULL, 0, payload, payload_len);
 }
 
 static void
@@ -1814,6 +1836,7 @@ web_socket_connection_get_close_data (WebSocketConnection *self)
  * web_socket_connection_send:
  * @self: the WebSocket
  * @type: the data type of message
+ * @prefix: (allow-none): an optional prefix prepended to the message
  * @message: the message contents
  *
  * Send a message to the peer.
@@ -1823,12 +1846,18 @@ web_socket_connection_get_close_data (WebSocketConnection *self)
  *
  * The message is queued to be sent and will be sent when the main loop
  * is run.
+ *
+ * The optional @prefix can be a canned header to be prefixed to the message.
+ * It can be specified as a separate argument for efficiency.
  */
 void
 web_socket_connection_send (WebSocketConnection *self,
                             WebSocketDataType type,
+                            GBytes *prefix,
                             GBytes *message)
 {
+  gconstpointer pref = NULL;
+  gsize prefix_len = 0;
   gconstpointer payload;
   gsize payload_len;
   guint8 opcode;
@@ -1842,13 +1871,16 @@ web_socket_connection_send (WebSocketConnection *self,
       return;
     }
 
+  if (prefix)
+      pref = g_bytes_get_data (prefix, &prefix_len);
   payload = g_bytes_get_data (message, &payload_len);
 
   switch (type)
     {
     case WEB_SOCKET_DATA_TEXT:
       opcode = 0x01;
-      if (!g_utf8_validate (payload, payload_len, NULL))
+      if (!g_utf8_validate (pref, prefix_len, NULL) ||
+          !g_utf8_validate (payload, payload_len, NULL))
         {
           g_critical ("invalid non-UTF8 @data passed as text to web_socket_connection_send()");
           return;
@@ -1871,9 +1903,10 @@ web_socket_connection_send (WebSocketConnection *self,
     }
 
   if (self->pv->flavor == WEB_SOCKET_FLAVOR_HIXIE76)
-    send_text_hixie76 (self, payload, payload_len);
+    send_text_hixie76 (self, pref, prefix_len, payload, payload_len);
   else if (self->pv->flavor == WEB_SOCKET_FLAVOR_RFC6455)
-    send_message_rfc6455 (self, WEB_SOCKET_QUEUE_NORMAL, opcode, payload, payload_len);
+    send_prefixed_message_rfc6455 (self, WEB_SOCKET_QUEUE_NORMAL, opcode,
+                                   pref, prefix_len, payload, payload_len);
   else
     g_assert_not_reached ();
 

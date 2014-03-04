@@ -9,7 +9,10 @@ libcockpit_ws_la_SOURCES = 				\
 	src/ws/cockpitwebsocket.h 	src/ws/cockpitwebsocket.c		\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	src/ws/cockpittransport.h	src/ws/cockpittransport.c	\
 	cockpitwsenumtypes.h	cockpitwsenumtypes.c	\
+	src/ws/cockpittransport.h src/ws/cockpittransport.c \
+	src/ws/cockpitfdtransport.h src/ws/cockpitfdtransport.c \
 	$(NULL)
 
 libcockpit_ws_la_CPPFLAGS = \
@@ -100,6 +103,8 @@ cockpit_agent_SOURCES =					\
 	src/ws/agent.c					\
 	src/ws/dbus-server.h				\
 	src/ws/dbus-server.c				\
+	src/ws/cockpittransport.c			\
+	src/ws/cockpitfdtransport.c			\
 	$(NULL)
 
 cockpit_agent_CFLAGS = 					\
@@ -137,11 +142,13 @@ noinst_PROGRAMS += test-server test-agent
 testassets_programs += test-server test-agent
 testassets_data += dbus-test.html \
                    dbus.js  \
+                   channel.js \
                    $(QUNIT_DEPS) \
                    $(NULL)
 
 test_server_SOURCES = 					\
 	src/ws/test-server.c				\
+	src/ws/mock-service.c src/ws/mock-service.h \
 	$(test_server_built_sources)			\
 	$(NULL)
 
@@ -155,6 +162,7 @@ test_server_suppress_warning_cflags = -Wno-deprecated-declarations
 test_server_CFLAGS = 					\
 	$(cockpit_cppflags_common)				\
 	-I$(top_srcdir)/src/ws \
+	-I$(top_srcdir)/src/libgsystem \
 	-DG_LOG_DOMAIN=\"test_server\"			\
 	$(test_server_suppress_warning_cflags)		\
 	$(GIO_CFLAGS)					\
@@ -166,10 +174,29 @@ test_server_LDADD = 					\
 	-lpam 						\
 	$(NULL)
 
+test_dbusserver_SOURCES =  \
+	src/ws/dbus-server.c \
+	src/ws/test-dbusserver.c \
+	src/ws/mock-service.c \
+	$(test_server_built_sources) \
+	$(NULL)
+
+test_dbusserver_CFLAGS = \
+	$(test_server_CFLAGS) \
+	$(COCKPIT_AGENT_CFLAGS) \
+	$(NULL)
+
+test_dbusserver_LDADD =  \
+	$(GIO_LIBS) \
+	libcockpit-ws.la \
+	$(NULL)
+
 test_agent_SOURCES = 					\
 	src/ws/test-agent.c				\
 	src/ws/dbus-server.h 				\
 	src/ws/dbus-server.c 				\
+	src/ws/cockpittransport.c \
+	src/ws/cockpitfdtransport.c \
 	$(NULL)
 
 test_agent_CFLAGS = 					\
@@ -187,9 +214,11 @@ test_agent_LDADD = 					\
 
 CHECK_PROGS = \
 	test-auth \
+	test-transport \
 	test-webserver \
 	test-webservice \
 	test-handlers \
+	test-dbusserver \
 	test-server \
 	$(NULL)
 
@@ -202,6 +231,17 @@ test_auth_SOURCES = \
 	$(NULL)
 
 test_auth_LDADD = \
+	libcockpit-ws.la \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
+test_transport_CFLAGS = $(cockpit_ws_CFLAGS)
+
+test_transport_SOURCES = \
+	src/ws/test-transport.c \
+	$(NULL)
+
+test_transport_LDADD = \
 	libcockpit-ws.la \
 	$(cockpit_ws_LDADD) \
 	$(NULL)

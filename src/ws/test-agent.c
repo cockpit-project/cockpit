@@ -21,13 +21,18 @@
 #include <unistd.h>
 
 #include "dbus-server.h"
+#include "cockpitfdtransport.h"
 
 int
 main (void)
 {
+  CockpitTransport *transport;
+
+  transport = cockpit_fd_transport_new ("stdio", 0, 1);
   dbus_server_serve_dbus (G_BUS_TYPE_SESSION,
                           "com.redhat.Cockpit.DBusTests.Test",
-                          "/otree",
-                          0, 1);
+                          "/otree", transport);
+
+  g_object_unref (transport);
   return 0;
 }

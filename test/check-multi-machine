@@ -134,6 +134,8 @@ class TestMultiMachine(MachineCase):
         b.wait_visible (graph_selector (m2_index))
 
         self.allow_journal_messages("Warning: Permanently added '.*' \\(RSA\\) to the list of known hosts.",
-                                    "peer did not close io when expected")
+                                    "peer did not close io when expected",
+                                    # Might happen when killing the agent.
+                                    "Received message for unknown channel: .*")
 
 test_main()

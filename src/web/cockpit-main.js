@@ -250,10 +250,8 @@ function cockpit_disconnect() {
     cockpit_machines = [];
 
     cockpit_expecting_disconnect = true;
-
-    local_client.close("disconnecting");
-    for (var i = 0; i < machines.length; i++)
-        machines[i].client.close("disconnecting");
+    if (Channel.transport)
+        Channel.transport.close('disconnecting');
 }
 
 var cockpit_expecting_disconnect = false;

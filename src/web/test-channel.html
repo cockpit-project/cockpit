@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <title>Channel Tests</title>
+    <link rel="stylesheet" href="qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="qunit.js"></script>
+    <script type="text/javascript" src="channel.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">Channel Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+  </body>
+<script type="text/javascript">
+
+/* The other end of the mock websocket */
+function MockPeer() {
+    /* These are events */
+    this.open = function(event) { };
+    this.recv = function(event, channel, payload) { };
+
+    /* Methods filled in by MockWebSocket */
+    this.send = function(channel, payload) { throw "not reached"; };
+    this.close = function(reason) { throw "not reached"; };
+}
+
+var mock_peer = new MockPeer();
+
+QUnit.testDone(function() {
+    mock_peer = new MockPeer();
+    Channel.transport = null;
+});
+
+/* Mock WebSocket */
+function MockWebSocket(url, protocol) {
+    if (typeof url != "string")
+        throw "WebSocket(@url) is not a string: " + typeof url;
+    if (typeof protocol != "string")
+        throw "WebSocket(@protocol) is not a string: " + typeof protocol;
+
+    this.onopen = function(event) { };
+    this.onclose = function(event) { };
+    this.onmessage = function(event) { };
+    this.onerror = function(event) { };
+    this.readyState = 0;
+    this.url = url;
+    this.protocol = protocol;
+    this.extensions = "";
+    this.binaryType = null;
+
+    var ws = this;
+    var mock = mock_peer;
+
+    this.send = function(data) {
+        if (typeof data != "string")
+            throw "WebSocket.send(@data) is not a string: " + typeof data;
+        var pos = data.indexOf("\n");
+        if (pos == -1)
+            throw "Invalid frame sent to WebSocket: " + data;
+        var channel = parseInt(data.substring(0, pos), 10);
+        var payload = data.substring(pos + 1);
+        window.setTimeout(function() { $(mock).triggerHandler("recv", [channel, payload]); }, 5);
+    };
+
+    this.close = function(code, reason) {
+        if (typeof code != "number" && typeof code != "undefined")
+            throw "WebSocket.close(@code) is not a number: " + typeof code;
+        if (typeof reason != "string" && typeof reason != "undefined")
+            throw "WebSocket.close(@reason) is not a number: " + typeof string;
+        if (this.readyState > 1)
+            throw "WebSocket.close() called on a closed WebSocket" + this.readyState + " " + code + reason;
+        this.readyState = 3;
+        this.onclose({"name": "close", "code": code || 1000, "reason": reason, "wasClean": true });
+    };
+
+    /* console.log("MockWebSocket " + url + " " + protocol); */
+
+    /* Instantiate the global mock peer */
+    mock.send = function(channel, payload) {
+        var event = {
+            "name": "message",
+            "data": channel.toString() + "\n" + payload
+        };
+        window.setTimeout(function() { ws.onmessage(event); }, 5);
+    };
+    mock.close = function(reason) {
+        window.setTimeout(function() {
+            ws.close(reason && 1000 || 1011, reason || "");
+        }, 5);
+    };
+
+    /* Open shortly */
+    window.setTimeout(function() {
+        ws.readyState = 1;
+        $(mock).triggerHandler("open");
+        ws.onopen({"name": "open"});
+    }, 5);
+}
+
+/* Override URL function */
+Channel.calculate_url = function() {
+    return "ws://url";
+};
+
+WebSocket = MockWebSocket;
+
+test("public api", function() {
+    var channel = new Channel({ "host": "host.example.com" });
+    equal(typeof channel, "object", "Channel() constructor");
+    equal(channel.options.host, "host.example.com", "channel.options is dict");
+    equal(typeof channel.number, "number", "channel.number is valid");
+    ok(channel.toString().indexOf("host.example.com") > 0, "channel.toString()");
+    equal(typeof channel.send, "function", "channel.send() is a function");
+    equal(typeof channel.close, "function", "channel.close() is a function");
+    strictEqual(channel.valid, true, "Channel.valid is set");
+    equal(typeof Channel.transport, "object", "Channel.transport is an object");
+    equal(typeof Channel.transport.close, "function", "Channel.transport is a function");
+});
+
+asyncTest("open channel", function() {
+    expect(6);
+
+    var channel = new Channel({ "host": "scruffy" });
+    $(mock_peer).on("open", function(event) {
+        ok(true, "websocket connected");
+    });
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        strictEqual(chan, 0, "open: sent with zero channel");
+        var command = JSON.parse(payload);
+        equal(typeof command, "object", "open: valid json");
+        equal(command.command, "open", "open: right command");
+        strictEqual(command.channel, channel.number, "open: contains right channel");
+        equal(command.host, "scruffy", "open: host as expected");
+        start();
+    });
+});
+
+test("multiple", function() {
+    expect(2);
+
+    var channel = new Channel({ "host": "scruffy" });
+    var transport = Channel.transport;
+
+    var channelb = new Channel({ "host": "amy" });
+    notStrictEqual(channel.number, channelb.number, "mulitple: channels have different numbers");
+    strictEqual(Channel.transport, transport, "multiple: channels share a transport");
+});
+
+asyncTest("send message", function() {
+    expect(2);
+
+    var channel = new Channel({ });
+    $(mock_peer).on("open", function(event) {
+	channel.send("Scruffy gonna die the way he lived");
+    });
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        /* Ignore the open message */
+        if (chan == 0)
+            return;
+        strictEqual(chan, channel.number, "send: sent with correct channel");
+        equal(payload, "Scruffy gonna die the way he lived", "send: sent the right payload");
+        start();
+    });
+});
+
+asyncTest("queue messages", function() {
+    expect(1);
+
+    var sentence = [];
+    var channel = new Channel({ });
+    channel.send("Scruffy");
+    channel.send("knows");
+    channel.send("he");
+    channel.send("rules");
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        if (chan == 0)
+            return; /* ignore control messages */
+        sentence.push(payload);
+        if (sentence.length == 4) {
+            equal(sentence.join(" "), "Scruffy knows he rules", "queue: messages queued and sent correctly");
+            start();
+        }
+    });
+});
+
+asyncTest("receive message", function() {
+    expect(1);
+
+    var channel = new Channel({ });
+    $(channel).on("message", function(event, message) {
+        equal(message, "Oh, marrrrmalade!", "receive: got right message in channel");
+        start();
+    });
+
+    mock_peer.send(channel.number, "Oh, marrrrmalade!");
+});
+
+asyncTest("close channel", function() {
+    expect(5);
+
+    var channel = new Channel({ });
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        var cmd = JSON.parse(payload);
+        if (cmd.command == "open")
+            return; /* ignore the open command */
+        equal(cmd.command, "close", "close: sent close command");
+        strictEqual(cmd.channel, channel.number, "close: correct channel");
+        start();
+    });
+    $(channel).on("close", function(event, reason) {
+        ok(true, "close: triggered event");
+        ok(!reason, "close: no reason");
+    });
+
+    channel.close();
+    strictEqual(channel.valid, false, "close: no longer valid");
+});
+
+asyncTest("close peer", function() {
+    expect(4);
+
+    var channel = new Channel({ });
+    var channelb = new Channel({ });
+
+    $(channel).on("close", function(event, reason) {
+        ok(true, "close: triggered event");
+        equal(reason, "marmalade", "close: received reason");
+        strictEqual(channel.valid, false, "close: became invalid");
+        strictEqual(channelb.valid, true, "close: correct channel");
+        start();
+    });
+
+    var cmd = {
+        "command": "close",
+        "channel": channel.number,
+        "reason" : "marmalade"
+    };
+    mock_peer.send(0, JSON.stringify(cmd));
+});
+
+asyncTest("close broadcast", function() {
+    expect(4);
+
+    var channel = new Channel({ });
+    var channelb = new Channel({ });
+
+    $(channel).on("close", function(event, reason) {
+        equal(reason, "pizzazz", "close-broadcast: received reason");
+        strictEqual(channel.valid, false, "close-broadcast: channel is invalid");
+        if (!channel.valid && !channelb.valid)
+            start();
+    });
+
+    $(channelb).on("close", function(event, reason) {
+        equal(reason, "pizzazz", "close-broadcast: received reason");
+        strictEqual(channelb.valid, false, "close-broadcast: other channel invalid");
+        if (!channel.valid && !channelb.valid)
+            start();
+    });
+
+    var cmd = {
+        "command": "close",
+        /* no channel */
+        "reason" : "pizzazz"
+    };
+    mock_peer.send(0, JSON.stringify(cmd));
+});
+
+asyncTest("close socket", function() {
+    expect(4);
+
+    var channel = new Channel({ });
+    var channelb = new Channel({ });
+
+    $(channel).on("close", function(event, reason) {
+        equal(reason, "disconnected", "close-socket: received reason");
+        strictEqual(channel.valid, false, "close-socket: channel is invalid");
+        if (!channel.valid && !channelb.valid)
+            start();
+    });
+
+    $(channelb).on("close", function(event, reason) {
+        equal(reason, "disconnected", "close-socket: received reason");
+        strictEqual(channelb.valid, false, "close-socket: other channel invalid");
+        if (!channel.valid && !channelb.valid)
+            start();
+    });
+
+    mock_peer.close();
+});
+
+test("close transport", function() {
+    var channel = new Channel({ });
+    var channelb = new Channel({ });
+
+    $(channel).on("close", function(event, reason) {
+        equal(reason, "disconnected", "close-transport: received reason");
+    });
+
+    $(channelb).on("close", function(event, reason) {
+        equal(reason, "disconnected", "close-transport: received reason");
+    });
+
+    Channel.transport.close();
+    strictEqual(Channel.transport, null, "close-transport: clears transport");
+    strictEqual(channel.valid, false, "close-transport: channel is invalid");
+    strictEqual(channelb.valid, false, "close-transport: other channel invalid");
+});
+
+asyncTest("send after close", function() {
+    expect(1);
+
+    var received_message = false;
+    var channel = new Channel({ });
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        if (chan != 0)
+            received_message = true;
+    });
+
+    channel.close();
+    channel.send("Dern it.");
+
+    window.setTimeout(function() {
+        ok(!received_message, "after-close: didn't send message");
+        start();
+    }, 50);
+});
+
+asyncTest("ignore other commands", function() {
+    expect(1);
+
+    var channel = new Channel({ });
+
+    mock_peer.send(0, JSON.stringify({ "command": "ping"}));
+    mock_peer.send(0, JSON.stringify({ "command": "unexpected"}));
+
+    window.setTimeout(function() {
+        ok(channel.valid, "ignore: other messages didn't screw up channel");
+        start();
+    }, 50);
+});
+
+QUnit.start();
+
+</script>
+</html>

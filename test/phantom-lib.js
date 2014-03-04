@@ -93,3 +93,11 @@ function ph_dbus_prop (iface, prop, text)
     }
     return false;
 }
+
+function ph_dbus_object_prop (path, iface, prop, text)
+{
+    // check whether the given property has the given value
+
+    var proxy = cockpit_dbus_client.lookup(path, iface);
+    return proxy && proxy[prop] == text;
+}

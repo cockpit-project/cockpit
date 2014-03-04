@@ -98,7 +98,7 @@ cockpit_transport_emit_recv (CockpitTransport *transport,
 
   if (!result)
     {
-      g_object_get (transport, "name", name, NULL);
+      g_object_get (transport, "name", &name, NULL);
       g_warning ("%s: No handler for received message in channel %u, closing",
                  name, channel);
       cockpit_transport_close (transport, "protocol-error");

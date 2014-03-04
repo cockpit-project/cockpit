@@ -13,7 +13,7 @@ TESTS =
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
-SUBDIRS = . doc po
+SUBDIRS = . po
 
 DISTCHECK_CONFIGURE_FLAGS=						        \
 	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)   \
@@ -78,6 +78,7 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 	for d in $(testassets_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(testassetsdir); done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
 
+include doc/Makefile-doc.am
 include doc/man/Makefile-man.am
 include data/Makefile-data.am
 include src/cockpit/Makefile-libcockpit.am

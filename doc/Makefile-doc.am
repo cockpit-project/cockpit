@@ -1,0 +1,10 @@
+
+EXTRA_DIST += \
+	doc/cockpit-transport.svg \
+	doc/cockpit-transport.png \
+	$(NULL)
+
+render-images:
+	 inkscape --without-gui --export-area-page \
+		--export-width=1280 --export-height=960 \
+		--export-png=$@ $<

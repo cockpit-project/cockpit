@@ -146,6 +146,8 @@ storage_manager_constructed (GObject *_object)
       g_clear_error (&error);
     }
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (storage_manager->lvm_manager), G_MAXINT);
+
   if (G_OBJECT_CLASS (storage_manager_parent_class)->constructed != NULL)
     G_OBJECT_CLASS (storage_manager_parent_class)->constructed (_object);
 }

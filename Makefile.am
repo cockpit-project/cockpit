@@ -7,10 +7,7 @@ check_SCRIPTS =
 noinst_SCRIPTS =
 libexec_PROGRAMS =
 noinst_PROGRAMS =
-noinst_LTLIBRARIES =
-privlibdir = $(pkglibdir)
-privlib_LTLIBRARIES =
-noinst_LIBRARIES=
+noinst_LIBRARIES =
 noinst_DATA =
 TESTS =
 
@@ -71,8 +68,7 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 	$(MKDIR_P) $(DESTDIR)$(testassetsdir)
 	$(MKDIR_P) $(DESTDIR)$(systemdunitdir)
 	for p in $(testassets_programs); do \
-          $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install \
-            $(INSTALL_PROGRAM) $$p $(DESTDIR)$(testassetsdir); \
+          $(INSTALL_PROGRAM) $$p $(DESTDIR)$(testassetsdir); \
         done
 	for d in $(testassets_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(testassetsdir); done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done

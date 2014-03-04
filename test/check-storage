@@ -41,6 +41,10 @@ class TestStorage(MachineCase):
         self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "Drive", drive)
         return id
 
+    def get_block_object(self, serial):
+        drive = self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Drive", "Serial", serial)
+        return self.browser.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "Drive", drive)
+
     def content_action_btn(self, index):
         return "#storage_detail_partition_list li:nth-child(%d) .btn-group" % index
 
@@ -535,6 +539,15 @@ class TestStorage(MachineCase):
         b.go("storage")
         m.execute("vgremove -f TEST1")
         b.wait_not_in_text("#storage_vgs", "TEST1")
+
+        # wait for the disks to be free
+        def wait_free(serial):
+            block = self.get_block_object(serial)
+            b.wait_dbus_object_prop (block, "com.redhat.Cockpit.Storage.Block", "PvGroup", "/")
+
+        wait_free("DISK1")
+        wait_free("DISK2")
+        wait_free("DISK3")
 
         # create volume group in the UI
         b.click('#storage_create_volume_group')

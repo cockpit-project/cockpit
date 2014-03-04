@@ -202,6 +202,9 @@ class Browser:
     def wait_dbus_prop(self, iface, prop, text):
         return self.wait_js_func('ph_dbus_prop', iface, prop, text)
 
+    def wait_dbus_object_prop(self, path, iface, prop, text):
+        return self.wait_js_func('ph_dbus_object_prop', path, iface, prop, text)
+
     def wait_popup(self, id):
         """Wait for a popup to open.
 

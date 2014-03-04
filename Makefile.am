@@ -16,7 +16,7 @@ TESTS =
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
-SUBDIRS = doc po
+SUBDIRS = . doc po
 
 DISTCHECK_CONFIGURE_FLAGS=						        \
 	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)   \

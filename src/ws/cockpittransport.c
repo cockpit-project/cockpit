@@ -90,13 +90,20 @@ cockpit_transport_emit_recv (CockpitTransport *transport,
                              GBytes *data)
 {
   gboolean result = FALSE;
+  gchar *name = NULL;
 
   g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
 
   g_signal_emit (transport, signals[RECV], 0, channel, data, &result);
 
   if (!result)
-    g_warning ("No handler for received message in channel %u, closing", channel);
+    {
+      g_object_get (transport, "name", name, NULL);
+      g_warning ("%s: No handler for received message in channel %u, closing",
+                 name, channel);
+      cockpit_transport_close (transport, "protocol-error");
+      g_free (name);
+    }
 }
 
 void

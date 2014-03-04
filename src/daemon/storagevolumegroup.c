@@ -160,6 +160,8 @@ storage_volume_group_constructed (GObject *object)
                     G_CALLBACK (on_lvm_volume_group_notify),
                     volume_group);
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (volume_group->lvm_volume_group), G_MAXINT);
+
   storage_volume_group_update (volume_group);
 
   if (G_OBJECT_CLASS (storage_volume_group_parent_class)->constructed != NULL)

@@ -259,10 +259,12 @@ class MachineCase(unittest.TestCase):
     runner = None
     machine_class = testvm.QemuMachine
     machine = None
+    machines = [ ]
 
     def new_machine(self, flavor=None):
         m = self.machine_class(verbose=arg_trace, flavor=flavor)
         self.addCleanup(lambda: m.kill())
+        self.machines.append(m)
         return m
 
     def new_browser(self, address=None):
@@ -360,10 +362,11 @@ class MachineCase(unittest.TestCase):
     def copy_journal(self, title, label=None):
         if label is None:
             (unused, sep, label) = self.id().rpartition(".")
-        if self.machine.address:
-            dir = "%s-%s-%s.journal" % (program_name, label, title)
-            self.machine.download_dir("/var/log/journal", dir)
-            print "Journal database copied to %s" % dir
+        for m in self.machines:
+            if m.address:
+                dir = "%s-%s-%s-%s.journal" % (program_name, label, m.address, title)
+                m.download_dir("/var/log/journal", dir)
+                print "Journal database copied to %s" % (dir)
 
 some_failed = False
 

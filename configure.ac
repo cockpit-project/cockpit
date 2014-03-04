@@ -168,6 +168,7 @@ elif test "$enable_debug" = "no"; then
 else
   debug_status="default"
 fi
+AM_CONDITIONAL(WITH_DEBUG, test "$enable_debug" = "yes")
 AC_MSG_RESULT($debug_status)
 
 # Coverage

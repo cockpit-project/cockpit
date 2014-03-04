@@ -642,6 +642,18 @@ cockpit_fd_transport_send (CockpitTransport *transport,
   Message *message;
 
   g_return_if_fail (!self->closing);
+
+  /* If self->io is already gone but we are still waiting for the
+     child to exit, then we haven't emitted the "closed" signal yet
+     and it isn't an error to try to send more messages.  We drop them
+     here.
+  */
+  if (self->io == NULL && self->child && self->pid != 0)
+    {
+      g_message ("%s: dropping message while waiting for child to exit", self->name);
+      return;
+    }
+
   g_return_if_fail (self->io != NULL);
 
   message = g_new (Message, 1);

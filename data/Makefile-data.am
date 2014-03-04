@@ -2,13 +2,13 @@ dbusservicedir = $(datadir)/dbus-1/system-services
 dbusservice_DATA = com.redhat.Cockpit.service
 
 com.redhat.Cockpit.service: data/com.redhat.Cockpit.service.in Makefile
-	@sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
 
 dbusconfdir = $(sysconfdir)/dbus-1/system.d
 dbusconf_DATA = com.redhat.Cockpit.conf
 
 com.redhat.Cockpit.conf: data/com.redhat.Cockpit.conf.in Makefile
-	cp $< $@
+	$(AM_V_GEN) cp $< $@
 
 if HAVE_SYSTEMD
 systemdunitdir          = $(systemdsystemunitdir)
@@ -17,25 +17,25 @@ nodist_systemdunit_DATA =
 testassets_systemdunit_data += data/cockpit-ws-testing.socket data/test-server.socket
 
 cockpit.service : data/cockpit.service.in Makefile
-	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
 nodist_systemdunit_DATA += cockpit.service
 
 cockpit-testing.service : data/cockpit-testing.service.in Makefile
-	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
 noinst_DATA += cockpit-testing.service
 testassets_systemdunit_data += cockpit-testing.service
 
 cockpit-ws.service : data/cockpit-ws.service.in Makefile
-	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
 nodist_systemdunit_DATA += cockpit-ws.service
 
 cockpit-ws-testing.service : data/cockpit-ws-testing.service.in Makefile
-	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
 noinst_DATA += cockpit-ws-testing.service
 testassets_systemdunit_data += cockpit-ws-testing.service
 
 test-server.service : data/test-server.service.in Makefile
-	@sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
 noinst_DATA += test-server.service
 testassets_systemdunit_data += test-server.service
 

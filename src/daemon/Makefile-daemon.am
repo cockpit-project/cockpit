@@ -4,7 +4,7 @@ lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
 # Split it like this so we don't get a race condition where both files are tried to be generated at the same time
 com.redhat.lvm2.h : com.redhat.lvm2.c
 com.redhat.lvm2.c : Makefile.am /usr/share/dbus-1/interfaces/com.redhat.lvm2.xml
-	gdbus-codegen					\
+	$(AM_V_GEN) gdbus-codegen \
 		--interface-prefix com.redhat.lvm2 	\
 		--c-namespace Lvm 			\
 		--c-generate-object-manager 		\

@@ -78,7 +78,6 @@ make check
 
 %install
 make install install-test-assets DESTDIR=%{buildroot}
-find %{buildroot} -name '*.la' -delete
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 mkdir -p %{buildroot}/etc/pam.d/
 cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit

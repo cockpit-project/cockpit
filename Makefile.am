@@ -7,10 +7,7 @@ check_SCRIPTS =
 noinst_SCRIPTS =
 libexec_PROGRAMS =
 noinst_PROGRAMS =
-noinst_LTLIBRARIES =
-privlibdir = $(pkglibdir)
-privlib_LTLIBRARIES =
-noinst_LIBRARIES=
+noinst_LIBRARIES =
 noinst_DATA =
 TESTS =
 

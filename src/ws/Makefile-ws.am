@@ -1,8 +1,8 @@
 COCKPIT_BUILD_INFO = "Built on $(shell date)"
 
-noinst_LTLIBRARIES += libcockpit-ws.la
+noinst_LIBRARIES += libcockpit-ws.a
 
-libcockpit_ws_la_SOURCES = 				\
+libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
 	src/ws/cockpitwstypes.h					\
 	src/ws/cockpitwebserver.h		src/ws/cockpitwebserver.c		\
@@ -15,7 +15,7 @@ libcockpit_ws_la_SOURCES = 				\
 	src/ws/cockpitfdtransport.h src/ws/cockpitfdtransport.c \
 	$(NULL)
 
-libcockpit_ws_la_CPPFLAGS = \
+libcockpit_ws_a_CPPFLAGS = \
         $(cockpit_cppflags_common) \
 	$(cockpit_cppflags_glib_version)			\
 	-I$(top_srcdir)/src/libgsystem \
@@ -24,15 +24,16 @@ libcockpit_ws_la_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"libcockpit-ws\" \
 	$(NULL)
 
-libcockpit_ws_la_CFLAGS = \
+libcockpit_ws_a_CFLAGS = \
 	$(COCKPIT_WS_CFLAGS) \
 	$(WARN_CFLAGS) \
 	$(NULL)
 
-libcockpit_ws_la_LIBADD =					\
-	$(COCKPIT_WS_LIBS)					\
-        libcockpit-1.0.la					\
-	libwebsocket.la		\
+libcockpit_ws_LIBS = \
+	libcockpit-ws.a \
+	libcockpit.a \
+	libwebsocket.a \
+	$(COCKPIT_WS_LIBS) \
 	$(NULL)
 
 libcockpit_ws_enumheaders = 				\
@@ -82,8 +83,8 @@ cockpit_ws_CFLAGS = 					\
 	$(NULL)
 
 cockpit_ws_LDADD = 					\
+	$(libcockpit_ws_LIBS) \
 	$(COCKPIT_WS_LIBS)					\
-        libcockpit-ws.la     				\
 	$(NULL)
 
 cockpit_session_SOURCES =					\
@@ -169,8 +170,8 @@ test_server_CFLAGS = 					\
 	$(NULL)
 
 test_server_LDADD = 					\
+	$(libcockpit_ws_LIBS) \
 	$(GIO_LIBS)					\
-        libcockpit-ws.la    	 			\
 	-lpam 						\
 	$(NULL)
 
@@ -187,8 +188,8 @@ test_dbusserver_CFLAGS = \
 	$(NULL)
 
 test_dbusserver_LDADD =  \
-	$(GIO_LIBS) \
-	libcockpit-ws.la \
+	$(libcockpit_ws_LIBS) \
+	$(COCKPIT_WS_LIBS) \
 	$(NULL)
 
 test_agent_SOURCES = 					\
@@ -231,7 +232,7 @@ test_auth_SOURCES = \
 	$(NULL)
 
 test_auth_LDADD = \
-	libcockpit-ws.la \
+	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
 
@@ -242,7 +243,7 @@ test_transport_SOURCES = \
 	$(NULL)
 
 test_transport_LDADD = \
-	libcockpit-ws.la \
+	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
 
@@ -255,7 +256,7 @@ test_handlers_SOURCES = \
 	$(NULL)
 
 test_handlers_LDADD = \
-	libcockpit-ws.la \
+	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
 
@@ -268,8 +269,8 @@ test_webservice_SOURCES = \
 test_webservice_CFLAGS = $(cockpit_ws_CFLAGS)
 
 test_webservice_LDADD = \
-	libwebsocket.la \
-	libcockpit-ws.la \
+	libwebsocket.a \
+	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
 
@@ -280,8 +281,8 @@ test_webserver_SOURCES = \
 test_webserver_CFLAGS = $(cockpit_ws_CFLAGS)
 
 test_webserver_LDADD = \
-	libwebsocket.la \
-	libcockpit-ws.la \
+	libwebsocket.a \
+	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
 

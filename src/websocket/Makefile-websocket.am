@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-noinst_LTLIBRARIES += libwebsocket.la
+noinst_LIBRARIES += libwebsocket.a
 noinst_PROGRAMS += \
 	frob-websocket \
 	test-websocket \
 	$(NULL)
 
-libwebsocket_la_SOURCES = \
+libwebsocket_a_SOURCES = \
 	src/websocket/websocket.h \
 	src/websocket/websocket.c \
 	src/websocket/websocketclient.h \
@@ -33,23 +33,19 @@ libwebsocket_la_SOURCES = \
 	src/websocket/websocketprivate.h \
 	$(NULL)
 
-libwebsocket_la_CPPFLAGS = \
+libwebsocket_a_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"WebSocket\" \
 	$(GIO_CFLAGS) \
 	$(WARN_CFLAGS) \
 	$(NULL)
 
-libwebsocket_la_LIBADD = \
-	$(GIO_LIBS) \
-	$(NULL)
-
 frob_websocket_SOURCES = src/websocket/frob-websocket.c
-frob_websocket_CPPFLAGS = $(libwebsocket_la_CPPFLAGS)
-frob_websocket_LDADD = libwebsocket.la $(libwebsocket_la_LIBADD)
+frob_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
+frob_websocket_LDADD = libwebsocket.a $(GIO_LIBS)
 
 test_websocket_SOURCES = src/websocket/test-websocket.c
-test_websocket_CPPFLAGS = $(libwebsocket_la_CPPFLAGS)
-test_websocket_LDADD = libwebsocket.la $(libwebsocket_la_LIBADD)
+test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
+test_websocket_LDADD = libwebsocket.a $(GIO_LIBS)
 
 TESTS += \
 	test-websocket \

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_MANAGER_H__
-#define COCKPIT_MANAGER_H__
+#ifndef COCKPIT_MANAGER_H_
+#define COCKPIT_MANAGER_H_
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ Daemon *          manager_get_daemon  (Manager *manager);
 
 G_END_DECLS
 
-#endif /* COCKPIT_MANAGER_H__ */
+#endif /* COCKPIT_MANAGER_H_ */

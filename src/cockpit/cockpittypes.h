@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined (__COCKPIT_INSIDE_COCKPIT_H__) && !defined (COCKPIT_COMPILATION)
+#if !defined(COCKPIT_INSIDE_COCKPIT_H_) && !defined(COCKPIT_COMPILATION)
 #error "Only <cockpit/cockpit.h> can be included directly."
 #endif
 
-#ifndef __COCKPIT_TYPES_H__
-#define __COCKPIT_TYPES_H__
+#ifndef COCKPIT_TYPES_H_
+#define COCKPIT_TYPES_H_
 
 #include <gio/gio.h>
 #include <cockpit/cockpitenums.h>
@@ -31,4 +31,4 @@ G_BEGIN_DECLS
 
 G_END_DECLS
 
-#endif /* __COCKPIT_TYPES_H__ */
+#endif /* COCKPIT_TYPES_H_ */

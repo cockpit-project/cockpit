@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_ACCOUNT_H__
-#define COCKPIT_ACCOUNT_H__
+#ifndef COCKPIT_ACCOUNT_H_
+#define COCKPIT_ACCOUNT_H_
 
 #include <act/act.h>
 
@@ -39,4 +39,4 @@ void               account_update            (Account *acc,
 
 G_END_DECLS
 
-#endif /* COCKPIT_ACCOUNT_H__ */
+#endif /* COCKPIT_ACCOUNT_H_ */

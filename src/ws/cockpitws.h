@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_WS_H__
-#define __COCKPIT_WS_H__
+#ifndef COCKPIT_WS_H_
+#define COCKPIT_WS_H_
 
 #include <gio/gio.h>
 
@@ -34,4 +34,4 @@ G_BEGIN_DECLS
 
 G_END_DECLS
 
-#endif /* __COCKPIT_WS_H__ */
+#endif /* COCKPIT_WS_H_ */

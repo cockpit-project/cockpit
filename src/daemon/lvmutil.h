@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_LVM_UTIL_H__
-#define COCKPIT_LVM_UTIL_H__
+#ifndef COCKPIT_LVM_UTIL_H_
+#define COCKPIT_LVM_UTIL_H_
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ UDisksBlock *lvm_util_peek_block_for_logical_volume (GDBusObjectManager *objman,
 
 G_END_DECLS
 
-#endif /* COCKPIT_LVM_UTIL_H__ */
+#endif /* COCKPIT_LVM_UTIL_H_ */

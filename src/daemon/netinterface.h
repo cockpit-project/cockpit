@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_NETINTERFACE_H__
-#define COCKPIT_NETINTERFACE_H__
+#ifndef COCKPIT_NETINTERFACE_H_
+#define COCKPIT_NETINTERFACE_H_
 
 #include "types.h"
 
@@ -37,4 +37,4 @@ Network *                     netinterface_get_network (Netinterface *network);
 
 G_END_DECLS
 
-#endif /* COCKPIT_NETINTERFACE_H__ */
+#endif /* COCKPIT_NETINTERFACE_H_ */

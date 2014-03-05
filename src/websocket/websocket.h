@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_H__
-#define __WEB_SOCKET_H__
+#ifndef WEB_SOCKET_H_
+#define WEB_SOCKET_H_
 
 #include <gio/gio.h>
 
@@ -79,12 +79,12 @@ typedef enum {
   WEB_SOCKET_FLAVOR_HIXIE76 = 76,  /* http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76 */
 } WebSocketFlavor;
 
-typedef struct _WebSocketConnection       WebSocketConnection;
-typedef struct _WebSocketConnectionClass  WebSocketConnectionClass;
-typedef struct _WebSocketClient           WebSocketClient;
-typedef struct _WebSocketClientClass      WebSocketClientClass;
-typedef struct _WebSocketServer           WebSocketServer;
-typedef struct _WebSocketServerClass      WebSocketServerClass;
+typedef struct WebSocketConnection_      WebSocketConnection;
+typedef struct WebSocketConnectionClass_ WebSocketConnectionClass;
+typedef struct WebSocketClient_          WebSocketClient;
+typedef struct WebSocketClientClass_     WebSocketClientClass;
+typedef struct WebSocketServer_          WebSocketServer;
+typedef struct WebSocketServerClass_     WebSocketServerClass;
 
 #include "websocketconnection.h"
 #include "websocketclient.h"
@@ -92,4 +92,4 @@ typedef struct _WebSocketServerClass      WebSocketServerClass;
 
 G_END_DECLS
 
-#endif /* __WEB_SOCKET_H__ */
+#endif /* WEB_SOCKET_H_ */

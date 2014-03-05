@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_STORAGE_BLOCK_H__
-#define COCKPIT_STORAGE_BLOCK_H__
+#ifndef COCKPIT_STORAGE_BLOCK_H_
+#define COCKPIT_STORAGE_BLOCK_H_
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ void                   storage_block_update      (StorageBlock *block);
 
 G_END_DECLS
 
-#endif /* COCKPIT_STORAGE_BLOCK_H__ */
+#endif /* COCKPIT_STORAGE_BLOCK_H_ */

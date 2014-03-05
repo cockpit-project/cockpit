@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_STORAGE_JOB_H__
-#define COCKPIT_STORAGE_JOB_H__
+#ifndef COCKPIT_STORAGE_JOB_H_
+#define COCKPIT_STORAGE_JOB_H_
 
 #include "types.h"
 
@@ -35,4 +35,4 @@ CockpitJob *    storage_job_new         (StorageProvider *provider,
 
 G_END_DECLS
 
-#endif /* COCKPIT_STORAGE_JOB_H__ */
+#endif /* COCKPIT_STORAGE_JOB_H_ */

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_WEB_SERVER_H__
-#define __COCKPIT_WEB_SERVER_H__
+#ifndef COCKPIT_WEB_SERVER_H_
+#define COCKPIT_WEB_SERVER_H_
 
 #include "cockpitwstypes.h"
 
@@ -69,4 +69,4 @@ void               cockpit_web_server_return_gerror (GOutputStream *out,
 
 G_END_DECLS
 
-#endif /* __COCKPIT_WEB_SERVER_H__ */
+#endif /* COCKPIT_WEB_SERVER_H_ */

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_STORAGE_MANAGER_H__
-#define COCKPIT_STORAGE_MANAGER_H__
+#ifndef COCKPIT_STORAGE_MANAGER_H_
+#define COCKPIT_STORAGE_MANAGER_H_
 
 #include "types.h"
 
@@ -84,4 +84,4 @@ void       storage_remember_block_configs   (StorageProvider *provider,
 
 G_END_DECLS
 
-#endif /* COCKPIT_STORAGE_MANAGER_H__ */
+#endif /* COCKPIT_STORAGE_MANAGER_H_ */

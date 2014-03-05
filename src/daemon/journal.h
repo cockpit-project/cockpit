@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_JOURNAL_H__
-#define COCKPIT_JOURNAL_H__
+#ifndef COCKPIT_JOURNAL_H_
+#define COCKPIT_JOURNAL_H_
 
 #include "types.h"
 
@@ -34,4 +34,4 @@ CockpitJournal *  journal_new         (void);
 
 G_END_DECLS
 
-#endif /* COCKPIT_JOURNAL_H__ */
+#endif /* COCKPIT_JOURNAL_H_ */

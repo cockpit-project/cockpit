@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_PRIVATE_H__
-#define __WEB_SOCKET_PRIVATE_H__
+#ifndef WEB_SOCKET_PRIVATE_H_
+#define WEB_SOCKET_PRIVATE_H_
 
 #include <gio/gio.h>
 
@@ -88,4 +88,4 @@ guint8 *         _web_socket_complete_challenge_hixie76   (guint number_1,
 
 G_END_DECLS
 
-#endif /* __WEB_SOCKET_PRIVATE_H__ */
+#endif /* WEB_SOCKET_PRIVATE_H_ */

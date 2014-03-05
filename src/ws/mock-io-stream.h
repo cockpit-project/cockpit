@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MOCK_IO_STREAM_H__
-#define __MOCK_IO_STREAM_H__
+#ifndef MOCK_IO_STREAM_H_
+#define MOCK_IO_STREAM_H_
 
 #include <gio/gio.h>
 
@@ -26,11 +26,11 @@
 #define MOCK_IO_STREAM(o)      (G_TYPE_CHECK_INSTANCE_CAST ((o), MOCK_TYPE_IO_STREAM, MockIOStream))
 #define MOCK_IS_IO_STREAM(o)   (G_TYPE_CHECK_INSTANCE_TYPE ((o), MOCK_TYPE_IO_STREAM))
 
-typedef struct _MockIOStream MockIOStream;
+typedef struct MockIOStream_ MockIOStream;
 
 GType            mock_io_stream_get_type          (void);
 
 GIOStream *      mock_io_stream_new               (GInputStream *input,
                                                    GOutputStream *output);
 
-#endif /* __MOCK_IO_STREAM_H__ */
+#endif /* MOCK_IO_STREAM_H_ */

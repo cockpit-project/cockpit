@@ -17,14 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined (__COCKPIT_INSIDE_COCKPIT_H__) && !defined (COCKPIT_COMPILATION)
+#if !defined(COCKPIT_INSIDE_COCKPIT_H_) && !defined(COCKPIT_COMPILATION)
 #error "Only <cockpit/cockpit.h> can be included directly."
 #endif
 
 #include <glib.h>
 
-#ifndef __COCKPIT_LOG_H__
-#define __COCKPIT_LOG_H__
+#ifndef COCKPIT_LOG_H_
+#define COCKPIT_LOG_H_
 
 G_BEGIN_DECLS
 
@@ -76,4 +76,4 @@ g_info (const gchar *format,
 
 G_END_DECLS
 
-#endif /* __COCKPIT_LOG_H__ */
+#endif /* COCKPIT_LOG_H_ */

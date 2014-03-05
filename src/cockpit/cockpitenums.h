@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined (__COCKPIT_INSIDE_COCKPIT_H__) && !defined (COCKPIT_COMPILATION)
+#if !defined(COCKPIT_INSIDE_COCKPIT_H_) && !defined(COCKPIT_COMPILATION)
 #error "Only <cockpit/cockpit.h> can be included directly."
 #endif
 
-#ifndef __COCKPIT_ENUMS_H__
-#define __COCKPIT_ENUMS_H__
+#ifndef COCKPIT_ENUMS_H_
+#define COCKPIT_ENUMS_H_
 
 #include <gio/gio.h>
 
@@ -68,4 +68,4 @@ typedef enum
 
 G_END_DECLS
 
-#endif /* __COCKPIT_ENUMS_H__ */
+#endif /* COCKPIT_ENUMS_H_ */

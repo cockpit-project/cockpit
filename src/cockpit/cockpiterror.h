@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined (__COCKPIT_INSIDE_COCKPIT_H__) && !defined (COCKPIT_COMPILATION)
+#if !defined(COCKPIT_INSIDE_COCKPIT_H_) && !defined(COCKPIT_COMPILATION)
 #error "Only <cockpit/cockpit.h> can be included directly."
 #endif
 
-#ifndef __COCKPIT_ERROR_H__
-#define __COCKPIT_ERROR_H__
+#ifndef COCKPIT_ERROR_H_
+#define COCKPIT_ERROR_H_
 
 #include <cockpit/cockpittypes.h>
 
@@ -41,4 +41,4 @@ GQuark cockpit_error_quark (void);
 
 G_END_DECLS
 
-#endif /* __COCKPIT_ERROR_H__ */
+#endif /* COCKPIT_ERROR_H_ */

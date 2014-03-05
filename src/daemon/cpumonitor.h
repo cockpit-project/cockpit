@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_CPU_MONITOR_H__
-#define COCKPIT_CPU_MONITOR_H__
+#ifndef COCKPIT_CPU_MONITOR_H_
+#define COCKPIT_CPU_MONITOR_H_
 
 #include "types.h"
 
@@ -36,4 +36,4 @@ Daemon *                  cpu_monitor_get_daemon  (CpuMonitor *monitor);
 
 G_END_DECLS
 
-#endif /* COCKPIT_CPU_MONITOR_H__ */
+#endif /* COCKPIT_CPU_MONITOR_H_ */

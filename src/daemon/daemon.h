@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_DAEMON_H__
-#define COCKPIT_DAEMON_H__
+#ifndef COCKPIT_DAEMON_H_
+#define COCKPIT_DAEMON_H_
 
 #include "types.h"
 
@@ -49,4 +49,4 @@ Machines                  *daemon_get_machines         (Daemon *daemon);
 
 G_END_DECLS
 
-#endif /* COCKPIT_DAEMON_H__ */
+#endif /* COCKPIT_DAEMON_H_ */

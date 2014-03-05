@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_DBUS_SERVER_H__
-#define COCKPIT_DBUS_SERVER_H__
+#ifndef COCKPIT_DBUS_SERVER_H_
+#define COCKPIT_DBUS_SERVER_H_
 
 #include <gio/gio.h>
 

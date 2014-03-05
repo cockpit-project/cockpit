@@ -540,6 +540,25 @@ class TestStorage(MachineCase):
         m.execute("vgremove -f TEST1")
         b.wait_not_in_text("#storage_vgs", "TEST1")
 
+        # Explicitly wipe the disks and force LVM to see that.
+        # Otherwise, storaged will do the wipe but lvmetad will miss
+        # it and the subsequent vgcreate will not put the correct
+        # signature on the disk, maybe because it thinks that it is
+        # already there.
+        #
+        # Newer versions of storaged also work around this bug, and once that
+        # workaround is in place, we can remove it here.
+        #
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1063813
+
+        def wipe_for_lvm(serial):
+            dev = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_%s" % serial
+            m.execute ("wipefs -a %s; pvscan --cache %s" % (dev, dev))
+
+        wipe_for_lvm("DISK1")
+        wipe_for_lvm("DISK2")
+        wipe_for_lvm("DISK3")
+
         # wait for the disks to be free
         def wait_free(serial):
             block = self.get_block_object(serial)

@@ -61,6 +61,20 @@ control_close_command (CockpitTransport *transport,
   g_bytes_unref (message);
 }
 
+static const gchar *
+safe_read_option (JsonObject *options,
+                  const char *name)
+{
+  JsonNode *node;
+  const gchar *value = NULL;
+
+  node = json_object_get_member (options, name);
+  if (node && json_node_get_value_type (node) == G_TYPE_STRING)
+    value = json_node_get_string (node);
+
+  return value;
+}
+
 static void
 process_open (CockpitTransport *transport,
               guint channel,
@@ -69,12 +83,9 @@ process_open (CockpitTransport *transport,
   const gchar *dbus_service;
   const gchar *dbus_path;
   const gchar *payload = NULL;
-  JsonNode *node;
 
   /* TODO: For now we only support one payload: dbus-json1 */
-  node = json_object_get_member (options, "payload");
-  if (node && json_node_get_value_type (node) == G_TYPE_STRING)
-    payload = json_node_get_string (node);
+  payload = safe_read_option (options, "payload");
   if (g_strcmp0 (payload, "dbus-json1") != 0)
     {
       g_warning ("agent only supports payloads of type dbus-json1");
@@ -82,21 +93,23 @@ process_open (CockpitTransport *transport,
       return;
     }
 
-  /* TODO: Only one channel for now */
-  if (dbus_server != NULL)
+  dbus_service = safe_read_option (options, "service");
+  if (dbus_service == NULL || !g_dbus_is_name (dbus_service))
     {
-      g_warning ("agent cannot open more than one dbus-json1 channel");
-      control_close_command (transport, channel, "not-supported");
+      g_warning ("agent got invalid dbus service");
+      control_close_command (transport, channel, "protocol-error");
       return;
     }
 
-  dbus_service = g_getenv ("COCKPIT_AGENT_DBUS_SERVICE");
-  if (!dbus_service)
-    dbus_service = "com.redhat.Cockpit";
-  dbus_path = g_getenv ("COCKPIT_AGENT_DBUS_PATH");
-  if (!dbus_path)
-    dbus_path = "/com/redhat/Cockpit";
+  dbus_path = safe_read_option (options, "object-manager");
+  if (dbus_path == NULL || !g_variant_is_object_path (dbus_path))
+    {
+      g_warning ("agent got invalid object-manager path");
+      control_close_command (transport, channel, "protocol-error");
+      return;
+    }
 
+  /* TODO: Only one channel for now */
   g_debug ("Open dbus-json1 channel %u with %s at %s", channel, dbus_service, dbus_path);
   dbus_server = dbus_server_serve_dbus (G_BUS_TYPE_SYSTEM,
                                         dbus_service,

@@ -1,0 +1,335 @@
+{
+   g_type_register_static_1
+   Memcheck:Leak
+   ...
+   fun:g_type_register_static
+}
+{
+   g_type_register_fundamental
+   Memcheck:Leak
+   ...
+   fun:g_type_register_fundamental
+}
+{
+   g_type_init_with_debug_flags
+   Memcheck:Leak
+   ...
+   fun:g_type_init_with_debug_flags
+}
+{
+   g_type_class_ref_1
+   Memcheck:Leak
+   ...
+   fun:type_iface_vtable_base_init_Wm
+   ...
+   fun:g_type_class_ref
+}
+{
+   g_type_class_ref_2
+   Memcheck:Leak
+   ...
+   fun:type_class_init_Wm
+   ...
+   fun:g_type_class_ref
+}
+{
+   g_type_add_interface_static
+   Memcheck:Leak
+   ...
+   fun:g_type_add_interface_static
+}
+{
+   g_param_spec_internal
+   Memcheck:Leak
+   ...
+   fun:g_type_class_ref
+   fun:g_type_create_instance
+   fun:g_param_spec_internal
+}
+{
+   g_param_spec_enum
+   Memcheck:Leak
+   ...
+   fun:g_type_class_ref
+   fun:g_param_spec_enum
+}
+{
+   g_param_spec_flags
+   Memcheck:Leak
+   ...
+   fun:g_type_class_ref
+   fun:g_param_spec_flags
+}
+{
+   g_quark_from_static_string
+   Memcheck:Leak
+   ...
+   fun:g_quark_from_static_string
+}
+{
+   g_quark_from_string
+   Memcheck:Leak
+   ...
+   fun:g_quark_from_string
+}
+{
+   g_value_register_transform_func
+   Memcheck:Leak
+   ...
+   fun:g_value_register_transform_func
+}
+{
+   test_run_seed
+   Memcheck:Leak
+   ...
+   fun:g_rand_new_with_seed_array
+   fun:test_run_seed
+   ...
+   fun:g_test_run_suite
+}
+{
+   g_test_init
+   Memcheck:Leak
+   ...
+   fun:g_rand_new_with_seed_array
+   ...
+   fun:g_test_init
+}
+{
+   g_intern_static_string
+   Memcheck:Leak
+   ...
+   fun:g_intern_static_string
+}
+{
+   g_main_context_push_thread_default
+   Memcheck:Leak
+   ...
+   fun:g_queue_new
+   fun:g_main_context_push_thread_default
+}
+{
+   g_dbus_error_register_error
+   Memcheck:Leak
+   ...
+   fun:g_dbus_error_register_error
+}
+{
+   g_param_spec_pool_insert
+   Memcheck:Leak
+   ...
+   fun:g_param_spec_pool_insert
+}
+{
+   g_main_context_default
+   Memcheck:Leak
+   ...
+   fun:g_main_context_default
+}
+{
+   g_main_context_check
+   Memcheck:Leak
+   ...
+   fun:g_ptr_array_add
+   fun:g_main_context_check
+}
+{
+   g_test_run_suite
+   Memcheck:Leak
+   ...
+   fun:g_slist_copy
+   fun:g_test_run_suite_internal
+   fun:g_test_run_suite
+}
+{
+   g_dbus_interface_info_cache_build
+   Memcheck:Leak
+   ...
+   fun:g_dbus_interface_info_cache_build
+}
+{
+   g_cancellable_push_current
+   Memcheck:Leak
+   ...
+   fun:thread_memory_from_self
+   ...
+   fun:g_cancellable_push_current
+}
+{
+   g_io_scheduler_push_job
+   Memcheck:Leak
+   ...
+   fun:init_scheduler
+   fun:g_once_impl
+   fun:g_io_scheduler_push_job
+}
+{
+   g_io_scheduler_push_job_2
+   Memcheck:Leak
+   ...
+   fun:g_system_thread_new
+   ...
+   fun:g_io_scheduler_push_job
+}
+{
+   g_bus_get_sync__available_connections
+   Memcheck:Leak
+   ...
+   fun:g_hash_table_new
+   fun:initable_init
+   fun:g_initable_init
+   fun:g_bus_get_sync
+}
+{
+   g_socket_connection_factory_register_type
+   Memcheck:Leak
+   ...
+   fun:g_socket_connection_factory_register_type
+}
+{
+   g_test_add_vtable
+   Memcheck:Leak
+   ...
+   fun:g_test_add_vtable
+}
+{
+   g_mutex_lock
+   Memcheck:Leak
+   ...
+   fun:g_mutex_impl_new
+   fun:g_mutex_get_impl
+   fun:g_mutex_lock
+}
+{
+   g_thread_self
+   Memcheck:Leak
+   ...
+   fun:g_thread_self
+}
+{
+   g_rec_mutex_lock
+   Memcheck:Leak
+   ...
+   fun:g_rec_mutex_impl_new
+   fun:g_rec_mutex_get_impl
+   fun:g_rec_mutex_lock
+}
+{
+   test_case_run
+   Memcheck:Leak
+   ...
+   fun:g_malloc0
+   fun:test_case_run
+   ...
+   fun:g_test_run_suite
+}
+{
+   g_get_charset
+   Memcheck:Leak
+   ...
+   fun:g_get_charset
+}
+{
+   g_test_run_suite__timer_new
+   Memcheck:Leak
+   ...
+   fun:g_timer_new
+   fun:test_case_run
+   ...
+   fun:g_test_run_suite
+}
+{
+   g_test_run_suite__timer_new2
+   Memcheck:Leak
+   ...
+   fun:g_timer_new
+   fun:test_case_run_suite_internal
+   ...
+   fun:g_test_run_suite
+}
+{
+   g_test_run_suite__strconcat
+   Memcheck:Leak
+   ...
+   fun:g_strconcat
+   fun:test_case_run
+   ...
+   fun:g_test_run_suite
+   fun:g_test_run
+}
+{
+   g_type_interface_add_prerequisite
+   Memcheck:Leak
+   ...
+   fun:g_type_interface_add_prerequisite
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_slist_copy
+   fun:g_test_run_suite_internal
+   ...
+   fun:g_test_run_suite
+}
+{
+   g_set_prgname
+   Memcheck:Leak
+   ...
+   fun:g_set_prgname
+}
+{
+   g_test_run_suite__strconcat_2
+   Memcheck:Leak
+   ...
+   fun:g_strconcat
+   fun:g_test_run_suite_internal
+}
+{
+   g_test_run_suite__strdup
+   Memcheck:Leak
+   ...
+   fun:g_strdup
+   fun:g_test_run_suite_internal
+}
+{
+   g_private_get
+   Memcheck:Leak
+   ...
+   fun:g_private_get
+}
+{
+   g_private_set
+   Memcheck:Leak
+   ...
+   fun:g_private_set
+}
+{
+   g_static_mutex_get_mutex_impl
+   Memcheck:Leak
+   ...
+   fun:g_static_mutex_get_mutex_impl
+}
+{
+   g_variant_type_info_unref
+   Memcheck:Leak
+   ...
+   fun:g_hash_table_remove
+   fun:g_variant_type_info_unref
+}
+{
+   g_rw_lock_reader_lock
+   Memcheck:Leak
+   ...
+   fun:g_rw_lock_impl_new
+   fun:g_rw_lock_get_impl
+   fun:g_rw_lock_reader_lock
+}
+{
+   g_child_watch_finalize__rt_sigaction
+   Memcheck:Param
+   rt_sigaction(act->sa_flags)
+   fun:__libc_sigaction
+   ...
+   fun:g_child_watch_finalize
+}

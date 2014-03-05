@@ -260,6 +260,8 @@ main (int argc,
 
   g_type_init ();
 
+  g_log_set_always_fatal (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR);
+
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (bus);

@@ -20,9 +20,9 @@ cockpitenumtypes.c: src/cockpit/cockpitenums.h src/cockpit/cockpitenumtypes.c.te
 BUILT_SOURCES += cockpitenumtypes.h cockpitenumtypes.c
 EXTRA_DIST += src/cockpit/cockpitenumtypes.h.template src/cockpit/cockpitenumtypes.c.template
 
-privlib_LTLIBRARIES += libcockpit-1.0.la
+noinst_LIBRARIES += libcockpit.a
 
-libcockpit_1_0_la_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
+libcockpit_a_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
 	$(dbus_built_sources) \
 	src/cockpit/cockpit.h \
 	src/cockpit/cockpitenums.h \
@@ -31,13 +31,9 @@ libcockpit_1_0_la_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
 	src/cockpit/cockpittypes.h \
 	$(NULL)
 
-libcockpit_1_0_la_CPPFLAGS = 				\
+libcockpit_a_CPPFLAGS = \
 	$(cockpit_cppflags_common)				\
 	-DG_LOG_DOMAIN=\"libcockpit\"			\
 	$(GIO_CFLAGS)						\
 	$(WARN_CFLAGS)						\
-	$(NULL)
-
-libcockpit_1_0_la_LIBADD = 					\
-	$(GIO_LIBS)					\
 	$(NULL)

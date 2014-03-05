@@ -55,6 +55,28 @@ else
 HTML_LOG_DRIVER_FLAGS = --missing=phantomjs
 endif
 
+VALGRIND_ARGS = --trace-children=no --quiet --error-exitcode=33 \
+	--suppressions=valgrind-suppressions --gen-suppressions=all \
+	--num-callers=16
+VALGRIND_SUPPRESSIONS = \
+	tools/gcrypt.supp \
+	tools/glib.supp \
+	tools/pthread.supp \
+	tools/unknown.supp \
+	$(NULL)
+
+valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
+	$(AM_V_GEN) cat $^ > $@
+
+check-memory: valgrind-suppressions
+	$(MAKE) LOG_FLAGS="-- libtool --mode=execute valgrind $(VALGRIND_ARGS)" \
+		HTML_LOG_DRIVER_FLAGS="--missing=no-phantom-valgrind" \
+		$(AM_MAKEFLAGS) check
+recheck-memory: valgrind-suppressions
+	$(MAKE) LOG_FLAGS="-- libtool --mode=execute valgrind $(VALGRIND_ARGS)" \
+		HTML_LOG_DRIVER_FLAGS="--missing=no-phantom-valgrind" \
+		$(AM_MAKEFLAGS) recheck
+
 if WITH_DEBUG
 MINIFY = cat
 else

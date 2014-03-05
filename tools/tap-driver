@@ -20,7 +20,7 @@
 #
 # In particular it leaves stderr untouched, and is cleaner than the
 # one implemented in shell that is making the rounds.
-# 
+#
 # This implements the automake "Custom Test Driver" protocol:
 # https://www.gnu.org/software/automake/manual/html_node/Custom-Test-Drivers.html
 #
@@ -35,21 +35,16 @@ import subprocess
 import sys
 
 class Driver:
-    def __init__(self, command, args):
-        self.argv = command
-        self.output = ""
+    def __init__(self, args):
+        self.argv = args.command
         self.test_name = args.test_name
         self.log = open(args.log_file, "w")
+        self.log.write("# %s\n" % " ".join(sys.argv))
         self.trs = open(args.trs_file, "w")
         self.color_tests = args.color_tests
         self.expect_failure = args.expect_failure
-        self.reported = { }
-        self.test_plan = None
-        self.late_plan = False
-        self.errored = False
-        self.bail_out = False
 
-    def report(self, code, num, *args):
+    def report(self, code, *args):
         CODES = {
             "XPASS": '\x1b[0;31m', # red
             "FAIL": '\x1b[0;31m', # red
@@ -69,9 +64,6 @@ class Driver:
         sys.stdout.write(": ")
         sys.stdout.write(self.test_name)
         sys.stdout.write(" ")
-        if num:
-            sys.stdout.write(str(num))
-            sys.stdout.write(" ")
         for arg in args:
             sys.stdout.write(str(arg))
         sys.stdout.write("\n")
@@ -79,32 +71,81 @@ class Driver:
 
         # Book keeping
         if code in CODES:
-            if num != None:
-                self.reported[num] = code
             self.trs.write(":test-result: %s\n" % code)
+
+    def result_pass(self, *args):
+        if self.expect_failure:
+            self.report("XPASS", *args)
+        else:
+            self.report("PASS", *args)
+
+    def result_fail(self, *args):
+        if self.expect_failure:
+            self.report("XFAIL", *args)
+        else:
+            self.report("FAIL", *args)
+
+    def result_skip(self, *args):
+        if self.expect_failure:
+            self.report("XFAIL", *args)
+        else:
+            self.report("SKIP", *args)
+
+    def report_error(self, description=""):
+        self.report("ERROR", "", description)
+
+    def process(self, output):
+        pass
+
+    def execute(self):
+        try:
+            proc = subprocess.Popen(self.argv, close_fds=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        except OSError, ex:
+            self.report_error("Couldn't run %s: %s" % (self.argv[0], str(ex)))
+            return
+
+        outf = proc.stdout.fileno()
+        errf = proc.stderr.fileno()
+        rset = [outf, errf]
+        while len(rset) > 0:
+            ret = select.select(rset, [], [], 10)
+            if outf in ret[0]:
+                data = os.read(outf, 1024)
+                if data == "":
+                    rset.remove(outf)
+                self.log.write(data)
+                self.process(data)
+            if errf in ret[0]:
+                data = os.read(errf, 1024)
+                if data == "":
+                    rset.remove(errf)
+                self.log.write(data)
+                sys.stderr.write(data)
+
+        proc.wait()
+        return proc.returncode
+
+
+class TapDriver(Driver):
+    def __init__(self, args):
+        Driver.__init__(self, args)
+        self.output = ""
+        self.reported = { }
+        self.test_plan = None
+        self.late_plan = False
+        self.errored = False
+        self.bail_out = False
+
+    def report(self, code, num, *args):
+        if num:
+            Driver.report(self, code, num, " ", *args)
+            self.reported[num] = code
+        else:
+            Driver.report(self, code, *args)
         if code == "ERROR":
             self.errored = True
-
-    def result_pass(self, num, description):
-        if self.expect_failure:
-            self.report("XPASS", num, description)
-        else:
-            self.report("PASS", num, description)
-
-    def result_fail(self, num, description):
-        if self.expect_failure:
-            self.report("XFAIL", num, description)
-        else:
-            self.report("FAIL", num, description)
-
-    def result_skip(self, num, description, ok):
-        if self.expect_failure:
-            self.report("XFAIL", num, description)
-        else:
-            self.report("SKIP", num, description)
-
-    def report_error(self, problem):
-        self.report("ERROR", None, problem)
 
     def consume_test_line(self, ok, data):
         # It's an error if the caller sends a test plan in the middle of tests
@@ -117,13 +158,13 @@ class Driver:
         try:
             num = int(num)
         except ValueError:
-            self.report_error("Invalid test number: %s" %  data)
+            self.report_error("Invalid test number: %s" % data)
             return
         description = description.lstrip()
 
         # Special case if description starts with this, then skip
         if description.lower().startswith("# skip"):
-            self.result_skip(num, description, ok)
+            self.result_skip(num, description)
         elif ok:
             self.result_pass(num, description)
         else:
@@ -149,12 +190,13 @@ class Driver:
         self.bail_out = True
         self.report("SKIP", 0, line)
 
-    def drain(self):
+    def process(self, output):
+        if output:
+            self.output += output
+        elif self.output:
+            self.output += "\n"
         (ready, unused, self.output) = self.output.rpartition("\n")
         for line in ready.split("\n"):
-            self.log.write(line)
-            self.log.write("\n")
-
             if line.startswith("ok "):
                 self.consume_test_line(True, line[3:])
             elif line.startswith("not ok "):
@@ -165,41 +207,8 @@ class Driver:
             elif line.lower().startswith("bail out!"):
                 self.consume_bail_out(line)
 
-    def execute(self):
-        try:
-            proc = subprocess.Popen(self.argv, close_fds=True,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-        except OSError, ex:
-            self.report_error("Couldn't run %s: %s" % (self.argv[0], str(ex)))
-            return
-
-        outf = proc.stdout.fileno()
-        errf = proc.stderr.fileno()
-        rset = [outf, errf]
-        while len(rset) > 0:
-            ret = select.select(rset, [], [], 10)
-            if outf in ret[0]:
-                data = os.read(outf, 1024)
-                if data == "":
-                    if self.output:
-                        self.output += "\n"
-                    rset.remove(outf)
-                else:
-                    self.output += data
-                self.drain()
-            if errf in ret[0]:
-                data = os.read(errf, 1024)
-                if data == "":
-                    rset.remove(errf)
-                self.log.write(data)
-                sys.stderr.write(data)
-
-        proc.wait()
-        self.returncode = proc.returncode
-
     def run(self):
-        self.execute()
+        returncode = self.execute()
 
         failed = False
         skipped = True
@@ -212,6 +221,10 @@ class Driver:
                 failed = True
             if code != "SKIP":
                 skipped = False
+
+        if not self.errored and returncode:
+            self.report_error("process failed: %d" % returncode)
+            self.errored = True
 
         # Check the plan
         if not self.errored:
@@ -231,7 +244,7 @@ class Driver:
         if self.errored:
             self.trs.write(":global-test-result: ERROR\n")
             self.trs.write(":test-global-result: ERROR\n")
-            self.trs.write(":recheck: no\n")
+            self.trs.write(":recheck: yes\n")
         elif failed:
             self.trs.write(":global-test-result: FAIL\n")
             self.trs.write(":test-global-result: FAIL\n")
@@ -240,11 +253,62 @@ class Driver:
             self.trs.write(":global-test-result: SKIP\n")
             self.trs.write(":test-global-result: SKIP\n")
             self.trs.write(":recheck: no\n")
+        else:
+            self.trs.write(":global-test-result: PASS\n")
+            self.trs.write(":test-global-result: PASS\n")
+            self.trs.write(":recheck: no\n")
         if self.errored or failed:
             self.trs.write(":copy-in-global-log: yes\n")
 
         # Process result code
-        return self.errored and 1 or 0
+        return 0
+
+
+class SimpleDriver(Driver):
+    def __init__(self, args):
+        Driver.__init__(self, args)
+
+    def run(self):
+        returncode = self.execute()
+        if returncode == 0:
+            self.result_pass()
+            self.trs.write(":global-test-result: PASS\n")
+            self.trs.write(":test-global-result: PASS\n")
+            self.trs.write(":recheck: no\n")
+        elif returncode == 77:
+            self.result_skip()
+            self.trs.write(":global-test-result: SKIP\n")
+            self.trs.write(":test-global-result: SKIP\n")
+            self.trs.write(":recheck: no\n")
+        elif returncode == 99:
+            self.report_error()
+            self.trs.write(":global-test-result: ERROR\n")
+            self.trs.write(":test-global-result: ERROR\n")
+            self.trs.write(":copy-in-global-log: yes\n")
+            self.trs.write(":recheck: yes\n")
+        else:
+            self.result_fail()
+            self.trs.write(":global-test-result: FAIL\n")
+            self.trs.write(":test-global-result: FAIL\n")
+            self.trs.write(":copy-in-global-log: yes\n")
+            self.trs.write(":recheck: yes\n")
+
+        # Process result code
+        return 0
+
+
+class MissingDriver(Driver):
+    def __init__(self, args):
+        Driver.__init__(self, args)
+        self.missing = args.missing
+
+    def run(self):
+        self.result_skip("skipping due to: ", self.missing)
+        self.trs.write(":global-test-result: SKIP\n")
+        self.trs.write(":test-global-result: SKIP\n")
+        self.trs.write(":recheck: no\n")
+        return 0
+
 
 class YesNoAction(argparse.Action):
     def __init__(self, option_strings, dest, **kwargs):
@@ -256,8 +320,13 @@ class YesNoAction(argparse.Action):
         else:
             setattr(namespace, self.dest, False)
 
+
 def main(argv):
     parser = argparse.ArgumentParser(description='Automake TAP driver')
+    parser.add_argument('--format', metavar='FORMAT', choices=[ "simple", "tap" ],
+                        default="tap", help='The type of test to drive')
+    parser.add_argument('--missing', metavar="TOOL", nargs='?',
+                        help="Force the test to skip due to missing tool")
     parser.add_argument('--test-name', metavar='NAME',
                         help='The name of the test')
     parser.add_argument('--log-file', metavar='PATH.log', required=True,
@@ -276,8 +345,12 @@ def main(argv):
 
     if not args.test_name:
         args.test_name = os.path.basename(args.command[0])
-
-    driver = Driver(args.command, args)
+    if args.missing:
+        driver = MissingDriver(args)
+    elif args.format == "simple":
+        driver = SimpleDriver(args)
+    elif args.format == "tap":
+        driver = TapDriver(args)
     return driver.run()
 
 if __name__ == "__main__":

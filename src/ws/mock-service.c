@@ -324,12 +324,14 @@ test_data_free (void *user_data)
 }
 
 GObject *
-mock_service_create_and_export (GDBusConnection *connection)
+mock_service_create_and_export (GDBusConnection *connection,
+                                const gchar *object_manager_path)
 {
   GError *error;
   TestFrobber *exported_frobber;
   TestObjectSkeleton *exported_object;
   TestData *data;
+  gchar *path;
 
   /* Test that we can export an object using the generated
    * TestFrobberSkeleton subclass. Notes:
@@ -354,9 +356,12 @@ mock_service_create_and_export (GDBusConnection *connection)
   g_object_set_data_full (G_OBJECT (exported_frobber), "frobber-data", data, test_data_free);
 
   data->extra_objects = g_hash_table_new (g_str_hash, g_str_equal);
-  data->object_manager = g_dbus_object_manager_server_new ("/otree");
+  data->object_manager = g_dbus_object_manager_server_new (object_manager_path);
 
-  exported_object = test_object_skeleton_new ("/otree/frobber");
+  path = g_strdup_printf ("%s/frobber", object_manager_path);
+  exported_object = test_object_skeleton_new (path);
+  g_free (path);
+
   test_object_skeleton_set_frobber (exported_object, exported_frobber);
   g_dbus_object_manager_server_export (data->object_manager, G_DBUS_OBJECT_SKELETON (exported_object));
   g_object_unref (exported_object);
@@ -454,7 +459,7 @@ mock_service_thread (gpointer unused)
   conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
   g_assert_no_error (error);
 
-  exported = mock_service_create_and_export (conn);
+  exported = mock_service_create_and_export (conn, "/otree");
   g_assert (exported != NULL);
 
   g_bus_own_name_on_connection (conn, "com.redhat.Cockpit.DBusTests.Test",

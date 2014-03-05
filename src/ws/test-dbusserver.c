@@ -36,18 +36,41 @@ typedef struct {
   JsonParser *parser;
 } TestCase;
 
+static void
+on_closed_set_flag (CockpitTransport *transport,
+                    const gchar *problem,
+                    gpointer user_data)
+{
+  gboolean *flag = user_data;
+  *flag = TRUE;
+}
+
 static gpointer
 dbus_server_thread (gpointer data)
 {
   CockpitTransport *transport;
   int fd = GPOINTER_TO_INT (data);
+  gboolean closed = FALSE;
+  GMainContext *ctx;
+  DBusServerData *ds;
+
+  ctx = g_main_context_new ();
+  g_main_context_push_thread_default (ctx);
 
   transport = cockpit_fd_transport_new ("mock", fd, fd);
-  dbus_server_serve_dbus (G_BUS_TYPE_SESSION,
-                          "com.redhat.Cockpit.DBusTests.Test",
-                          "/otree", transport);
+  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
+  ds = dbus_server_serve_dbus (G_BUS_TYPE_SESSION,
+                               "com.redhat.Cockpit.DBusTests.Test",
+                               "/otree", transport, 444);
+
+  while (!closed)
+    g_main_context_iteration (ctx, TRUE);
+
+  dbus_server_stop_dbus (ds);
   g_object_unref (transport);
+  g_main_context_pop_thread_default (ctx);
+  g_main_context_unref (ctx);
   return NULL;
 }
 

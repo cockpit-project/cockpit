@@ -214,14 +214,21 @@ DBusClient.prototype = {
     },
 
     connect: function() {
-        dbus_debug("Connecting DBusClient to " + this.target);
-
-        /* Open a channel */
         var channel_opts = {
             "host" : this.target,
             "payload" : "dbus-json1"
         };
         $.extend(channel_opts, this.options);
+
+        /* TODO: Only one object-path (that must be an ObjectManager) for now */
+        if (!channel_opts["service"])
+            channel_opts["service"] = "com.redhat.Cockpit";
+        if (!channel_opts["object-manager"])
+            channel_opts["object-manager"] = "/com/redhat/Cockpit";
+
+        dbus_debug("Connecting DBusClient to " + channel_opts["service"] + " on " + this.target);
+
+        /* Open a channel */
         var channel = new Channel(channel_opts);
 
         var client = this;

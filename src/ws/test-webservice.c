@@ -22,6 +22,7 @@
 #include "mock-auth.h"
 #include "cockpitwebsocket.h"
 #include "cockpitwebserver.h"
+#include "cockpittransport.h"
 
 #include "websocket/websocket.h"
 
@@ -321,6 +322,110 @@ serve_thread_func (gpointer data)
   return test;
 }
 
+static GBytes *
+build_control_message (const gchar *command,
+                       guint channel,
+                       ...) G_GNUC_NULL_TERMINATED;
+
+static GBytes *
+build_control_message (const gchar *command,
+                       guint channel,
+                       ...)
+{
+  JsonGenerator *generator;
+  JsonBuilder *builder;
+  gchar *data;
+  gsize length;
+  va_list va;
+  const gchar *option;
+  GBytes *bytes;
+  JsonNode *node;
+
+  builder = json_builder_new ();
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "command");
+  json_builder_add_string_value (builder, command);
+  if (channel)
+    {
+      json_builder_set_member_name (builder, "channel");
+      json_builder_add_int_value (builder, channel);
+    }
+
+  va_start (va, channel);
+  for (;;)
+    {
+      option = va_arg (va, const gchar *);
+      if (!option)
+        break;
+      json_builder_set_member_name (builder, option);
+      json_builder_add_string_value (builder, va_arg (va, const gchar *));
+    }
+  va_end (va);
+
+  json_builder_end_object (builder);
+  generator = json_generator_new ();
+  node = json_builder_get_root (builder);
+  json_generator_set_root (generator, node);
+  data = json_generator_to_data (generator, &length);
+  data = g_realloc (data, length + 2);
+  memmove (data + 2, data, length);
+  memcpy (data, "0\n", 2);
+  bytes = g_bytes_new_take (data, length + 2);
+  g_object_unref (generator);
+  json_node_free (node);
+  g_object_unref (builder);
+
+  return bytes;
+}
+
+static void
+expect_control_message (GBytes *message,
+                        const gchar *command,
+                        guint channel,
+                        ...) G_GNUC_NULL_TERMINATED;
+
+static void
+expect_control_message (GBytes *message,
+                        const gchar *expected_command,
+                        guint expected_channel,
+                        ...)
+{
+  guint outer_channel;
+  const gchar *message_command;
+  guint message_channel;
+  JsonObject *options;
+  JsonParser *parser;
+  GBytes *payload;
+  const gchar *expect_option;
+  const gchar *expect_value;
+  va_list va;
+
+  payload = cockpit_transport_parse_frame (message, &outer_channel);
+  g_assert (payload != NULL);
+  g_assert_cmpuint (outer_channel, ==, 0);
+
+  parser = json_parser_new ();
+  g_assert (cockpit_transport_parse_command (parser, payload, &message_command,
+                                             &message_channel, &options));
+  g_bytes_unref (payload);
+
+  g_assert_cmpstr (expected_command, ==, message_command);
+  g_assert_cmpuint (expected_channel, ==, expected_channel);
+
+  va_start (va, expected_channel);
+  for (;;) {
+      expect_option = va_arg (va, const gchar *);
+      if (!expect_option)
+        break;
+      expect_value = va_arg (va, const gchar *);
+      g_assert (expect_value != NULL);
+      g_assert_cmpstr (json_object_get_string_member (options, expect_option), ==, expect_value);
+  }
+  va_end (va);
+
+  g_object_unref (parser);
+}
+
 static void
 start_web_service_and_create_client (Test *test,
                                      WebSocketFlavor flavor,
@@ -346,15 +451,13 @@ start_web_service_and_connect_client (Test *test,
                                       GThread **thread)
 {
   GBytes *sent;
-  const gchar *data;
 
   start_web_service_and_create_client (test, flavor, ws, thread);
   WAIT_UNTIL (web_socket_connection_get_ready_state (*ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the agent. */
-  data = "0\n{ 'command': 'open', 'channel': 4, 'payload': 'dbus-json1' }";
-  sent = g_bytes_new_static (data, strlen (data));
+  sent = build_control_message ("open", 4, "payload", "test-text", NULL);
   web_socket_connection_send (*ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 }
@@ -399,6 +502,21 @@ on_message_get_bytes (WebSocketConnection *ws,
 }
 
 static void
+on_message_get_non_control (WebSocketConnection *ws,
+                            WebSocketDataType type,
+                            GBytes *message,
+                            gpointer user_data)
+{
+  GBytes **received = user_data;
+  g_assert_cmpint (type, ==, WEB_SOCKET_DATA_TEXT);
+  /* Control messages have this prefix: ie: a zero channel */
+  if (g_str_has_prefix (g_bytes_get_data (message, NULL), "0\n"))
+      return;
+  g_assert (*received == NULL);
+  *received = g_bytes_ref (message);
+}
+
+static void
 test_handshake_and_echo (Test *test,
                          gconstpointer data)
 {
@@ -411,7 +529,7 @@ test_handshake_and_echo (Test *test,
   start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
 
   sent = g_bytes_new_static ("4\nthe message", 13);
-  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
 
   WAIT_UNTIL (received != NULL);
@@ -438,7 +556,7 @@ test_echo_large (Test *test,
   gulong handler;
 
   start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
-  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
   /* Medium length */
   contents = g_strnfill (1020, '!');
@@ -474,18 +592,14 @@ test_close_error (Test *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  GBytes *sent;
   GThread *thread;
 
   start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Send something through to ensure it's open */
-  sent = g_bytes_new_static ("4\nwheee", 7);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   WAIT_UNTIL (received != NULL);
-  g_assert (g_bytes_equal (received, sent));
-  g_bytes_unref (sent);
+  expect_control_message (received, "open", 4, NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -494,9 +608,7 @@ test_close_error (Test *test,
 
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);
-
-  g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
-                   "0\n{\"command\": \"close\", \"channel\": 4, \"reason\": \"terminated\"}");
+  expect_control_message (received, "close", 4, "reason", "terminated", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -511,19 +623,17 @@ test_specified_creds (Test *test,
   GBytes *received = NULL;
   GBytes *sent;
   GThread *thread;
-  const gchar *args;
 
   start_web_service_and_create_client (test, GPOINTER_TO_INT (data), &ws, &thread);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Open a channel with a non-standard command */
-  args = "0\n{ 'command': 'open', 'channel': 4, 'payload': 'dbus-json1', 'user': 'user', 'password': 'Another password' }";
-  sent = g_bytes_new_static (args, strlen(args));
+  sent = build_control_message ("open", 4, "payload", "test-text", "user", "user", "password", "Another password", NULL);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
   sent = g_bytes_new_static ("4\nwheee", 7);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
@@ -544,7 +654,6 @@ test_specified_creds_fail (Test *test,
   GBytes *received = NULL;
   GBytes *sent;
   GThread *thread;
-  const gchar *args;
 
   start_web_service_and_create_client (test, GPOINTER_TO_INT (data), &ws, &thread);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
@@ -553,8 +662,7 @@ test_specified_creds_fail (Test *test,
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Open a channel with a non-standard command, but a bad password */
-  args = "0\n{ 'command': 'open', 'channel': 4, 'payload': 'dbus-json1', 'user': 'user', 'password': 'Wrong password' }";
-  sent = g_bytes_new_static (args, strlen(args));
+  sent = build_control_message ("open", 4, "payload", "test-text", "user", "user", "password", "Wrong password", NULL);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 
@@ -562,8 +670,7 @@ test_specified_creds_fail (Test *test,
   WAIT_UNTIL (received != NULL);
 
   /* Should have gotten a failure message, about the credentials */
-  g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
-                   "0\n{\"command\": \"close\", \"channel\": 4, \"reason\": \"not-authorized\"}");
+  expect_control_message (received, "close", 4, "reason", "not-authorized", NULL);
 
   close_client_and_stop_web_service (test, ws, thread);
 }
@@ -587,8 +694,7 @@ test_socket_unauthenticated (Test *test,
 
   /* And we should have received a message */
   g_assert (received != NULL);
-  g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
-                   "0\n{\"command\": \"close\", \"reason\": \"no-session\"}");
+  expect_control_message (received, "close", 4, "reason", "no-session", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -620,8 +726,8 @@ test_fail_spawn (Test *test,
   WAIT_UNTIL (received != NULL);
 
   /* But we should have gotten failure message, about the spawn */
-  g_assert_cmpstr (g_bytes_get_data (received, NULL), ==,
-                   "0\n{\"command\": \"close\", \"channel\": 4, \"reason\": \"internal-error\"}");
+  expect_control_message (received, "close", 4, "reason", "internal-error", NULL);
+  g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, thread);
 }

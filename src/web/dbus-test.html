@@ -336,6 +336,22 @@ function basic_tests(client)
                      });
     });
 
+    asyncTest("Multiple DBus services", function() {
+        expect(2);
+        var options = {
+            "service": "com.redhat.Cockpit.DBusTests.Second",
+            "object-manager": "/different"
+        };
+        var second = new DBusClient("localhost", options);
+        $(second).on("state-change", function(event) {
+            equal(second.state, "ready", "Second DBus client is ready");
+            $(second).off("state-change");
+
+            frobber = second.lookup("/different/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
+            ok(frobber, "Make sure other frobber is present");
+            start();
+        });
+    });
 }
 
 var test_details = null;
@@ -348,7 +364,12 @@ function done(details)
 
 function dbus_test()
 {
-    var client = new DBusClient("localhost");
+    var options = {
+        "service": "com.redhat.Cockpit.DBusTests.Test",
+        "object-manager": "/otree"
+    };
+
+    var client = new DBusClient("localhost", options);
     $(client).on("state-change", function(event) {
         if (client.state == "closed")
             throw "DBusClient closed before we could start tests";

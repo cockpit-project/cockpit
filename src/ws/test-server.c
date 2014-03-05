@@ -36,13 +36,15 @@ static int exit_code = 0;
 /* ---------------------------------------------------------------------------------------------------- */
 
 static GObject *exported = NULL;
+static GObject *exported_b = NULL;
 
 static void
 on_bus_acquired (GDBusConnection *connection,
                  const gchar *name,
                  gpointer user_data)
 {
-  exported = mock_service_create_and_export (connection);
+  exported = mock_service_create_and_export (connection, "/otree");
+  exported_b = mock_service_create_and_export (connection, "/different");
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -104,9 +106,7 @@ on_phantomjs_exited (GPid pid,
 }
 
 static void
-on_name_acquired (GDBusConnection *connection,
-                  const gchar *name,
-                  gpointer user_data)
+server_ready (void)
 {
   GError *error = NULL;
   CockpitWebServer *server;
@@ -187,6 +187,29 @@ on_name_acquired (GDBusConnection *connection,
   g_free (url);
 }
 
+static gboolean name_acquired = FALSE;
+static gboolean second_acquired = FALSE;
+
+static void
+on_name_acquired (GDBusConnection *connection,
+                  const gchar *name,
+                  gpointer user_data)
+{
+    name_acquired = TRUE;
+    if (name_acquired && second_acquired)
+      server_ready ();
+}
+
+static void
+on_second_acquired (GDBusConnection *connection,
+                    const gchar *name,
+                    gpointer user_data)
+{
+    second_acquired = TRUE;
+    if (name_acquired && second_acquired)
+      server_ready ();
+}
+
 static void
 on_name_lost (GDBusConnection *connection,
               const gchar *name,
@@ -225,6 +248,7 @@ main (int argc,
   GError *error = NULL;
   GOptionContext *context;
   guint id = -1;
+  guint id_b = -1;
 
   GOptionEntry entries[] = {
     { "tap", 0, 0, G_OPTION_ARG_NONE, &tap_mode, "Automatically run tests in terminal", NULL },
@@ -240,6 +264,9 @@ main (int argc,
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (bus);
 
+  /* Use the above test session bus as a system bus */
+  g_setenv ("DBUS_SYSTEM_BUS_ADDRESS", g_getenv ("DBUS_SESSION_BUS_ADDRESS"), TRUE);
+
   context = g_option_context_new ("- test dbus json server");
   g_option_context_add_main_entries (context, entries, NULL);
   g_option_context_set_ignore_unknown_options (context, TRUE);
@@ -252,7 +279,7 @@ main (int argc,
   cd_srcdir (argv[0]);
   loop = g_main_loop_new (NULL, FALSE);
 
-  id = g_bus_own_name (G_BUS_TYPE_SESSION,
+  id = g_bus_own_name (G_BUS_TYPE_SYSTEM,
                        "com.redhat.Cockpit.DBusTests.Test",
                        G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_REPLACE,
                        on_bus_acquired,
@@ -261,12 +288,24 @@ main (int argc,
                        loop,
                        NULL);
 
+  id_b = g_bus_own_name (G_BUS_TYPE_SYSTEM,
+                         "com.redhat.Cockpit.DBusTests.Second",
+                         G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_REPLACE,
+                         NULL,
+                         on_second_acquired,
+                         on_name_lost,
+                         loop,
+                         NULL);
+
   g_main_loop_run (loop);
 
   g_clear_object (&exported);
+  g_clear_object (&exported_b);
   g_bus_unown_name (id);
+  g_bus_unown_name (id_b);
   g_main_loop_unref (loop);
 
+  g_unsetenv ("DBUS_SYSTEM_BUS_ADDRESS");
   g_test_dbus_down (bus);
   g_object_unref (bus);
 

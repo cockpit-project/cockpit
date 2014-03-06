@@ -1,0 +1,391 @@
+{
+   _g_dbus_shared_thread_ref
+   Memcheck:Leak
+   ...
+   fun:_g_dbus_shared_thread_ref
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:standard_malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   fun:g_type_create_instance
+   fun:g_object_constructor
+   fun:g_object_newv
+   fun:g_object_new
+   fun:g_dbus_message_new
+   fun:g_dbus_message_new_from_blob
+   fun:_g_dbus_worker_do_read_cb
+   fun:g_simple_async_result_complete
+   fun:complete_in_idle_cb
+   fun:g_idle_dispatch
+   fun:g_main_dispatch
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   obj:/lib64/libgcrypt.so.11.7.0
+   fun:egg_dh_gen_pair
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:parse_value_from_blob
+   fun:g_dbus_message_new_from_blob
+   fun:_g_dbus_worker_do_read_cb
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_dbus_message_new
+   fun:g_dbus_message_new_from_blob
+   fun:_g_dbus_worker_do_read_cb
+   fun:g_simple_async_result_complete
+   fun:complete_in_idle_cb
+   fun:g_idle_dispatch
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_variant_get
+   fun:g_dbus_message_to_gerror
+   fun:decode_method_reply
+   fun:g_dbus_connection_call_done
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_dbus_message_set_header
+   fun:g_dbus_message_new_from_blob
+   fun:_g_dbus_worker_do_read_cb
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:standard_malloc
+   fun:g_malloc
+   fun:g_malloc_n
+   fun:g_main_context_iterate
+   fun:g_main_loop_run
+   fun:gdbus_shared_thread_func
+   fun:g_thread_proxy
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:standard_malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_list_prepend
+   fun:g_queue_push_head
+   fun:g_main_context_push_thread_default
+   fun:gdbus_shared_thread_func
+   fun:g_thread_proxy
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:standard_malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   fun:get_dispatch
+   fun:g_main_dispatch
+   fun:g_main_context_dispatch
+   fun:g_main_context_iterate
+   fun:g_main_loop_run
+   fun:g_dbus_connection_send_message_with_reply_sync
+   fun:g_dbus_connection_call_sync_internal
+   fun:g_dbus_connection_call_sync
+   fun:initable_init
+   fun:g_initable_init
+   fun:g_bus_get_sync
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:standard_malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   fun:get_dispatch
+   fun:g_main_dispatch
+   fun:g_main_context_dispatch
+   fun:g_main_context_iterate
+   fun:g_main_loop_run
+   fun:gdbus_shared_thread_func
+   fun:g_thread_proxy
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:standard_malloc
+   fun:g_malloc
+   fun:g_malloc_n
+   fun:g_main_context_iterate
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:standard_realloc
+   fun:g_realloc
+   fun:_g_dbus_worker_do_read_unlocked
+   fun:_g_dbus_worker_do_initial_read
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:_g_socket_output_stream_new
+   fun:g_socket_connection_get_output_stream
+   fun:g_io_stream_get_output_stream
+   fun:_g_dbus_auth_run_client
+}
+{
+   _g_dbus_worker_do_initial_read
+   Memcheck:Leak
+   ...
+   fun:_g_dbus_worker_do_read_unlocked
+   fun:_g_dbus_worker_do_initial_read
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_unix_socket_address_new_with_type
+   fun:g_dbus_address_connect
+   fun:g_dbus_address_try_connect_one
+   fun:g_dbus_address_get_stream_sync
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:_g_socket_input_stream_new
+   fun:g_socket_connection_get_input_stream
+   fun:g_io_stream_get_input_stream
+   fun:_g_dbus_auth_run_client
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:_g_dbus_worker_close
+   fun:_g_dbus_worker_stop
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_simple_async_result_complete_in_idle
+   fun:_g_socket_read_with_control_messages_ready
+   fun:_g_socket_read_with_control_messages
+   fun:_g_dbus_worker_do_read_unlocked
+   fun:_g_dbus_worker_do_read_cb
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_source_new
+   fun:g_idle_source_new
+   fun:g_simple_async_result_complete_in_idle
+   fun:g_socket_connection_close_async
+   fun:g_io_stream_close_async
+   ...
+   fun:gdbus_shared_thread_func
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_simple_async_result_new
+   fun:g_socket_connection_close_async
+   fun:g_io_stream_close_async
+   fun:maybe_write_next_message
+   fun:write_message_in_idle_cb
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_socket_connection_factory_create_connection
+   ...
+   fun:initable_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_socket_client_connect
+   fun:g_dbus_address_connect
+   fun:g_dbus_address_try_connect_one
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:_g_dbus_worker_new
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:_g_socket_read_with_control_messages
+   fun:_g_dbus_worker_do_read_unlocked
+   fun:_g_dbus_worker_do_read_cb
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_socket_receive_message
+   fun:_g_socket_read_with_control_messages_ready
+   fun:_g_socket_read_with_control_messages
+   fun:_g_dbus_worker_do_read_unlocked
+   fun:_g_dbus_worker_do_read_cb
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:maybe_write_next_message
+   ...
+   fun:gdbus_shared_thread_func
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:remove_match_rule
+   fun:unsubscribe_id_internal
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_object_new
+   fun:get_uninitialized_connection
+   fun:g_bus_get_sync
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_dbus_connection_signal_subscribe
+   fun:async_initable_init_first
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_dbus_connection_send_message_with_reply_unlocked
+   fun:g_dbus_connection_send_message_with_reply
+   fun:g_dbus_connection_send_message_with_reply_sync
+   fun:g_dbus_connection_call_sync_internal
+   fun:g_dbus_connection_call_sync
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:_g_dbus_auth_new
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:_g_dbus_auth_run_client
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:_g_dbus_auth_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_variant_dup_string
+   ...
+   fun:g_variant_get
+   ...
+   fun:g_initable_init
+   fun:g_bus_get_sync
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_main_context_push_thread_default
+   ...
+   fun:gdbus_shared_thread_func
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_main_context_add_poll_unlocked
+   ...
+   fun:g_main_loop_run
+   fun:gdbus_shared_thread_func
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_set_error_literal
+   fun:g_cancellable_set_error_if_cancelled
+   fun:g_socket_receive_message
+   ...
+   fun:g_main_loop_run
+   fun:gdbus_shared_thread_func
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_source_new
+   fun:g_idle_source_new
+   fun:call_destroy_notify
+   fun:g_dbus_connection_signal_unsubscribe
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_source_set_callback
+   fun:call_destroy_notify
+   fun:g_dbus_connection_signal_unsubscribe
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   ...
+   fun:g_malloc0_n
+   fun:call_destroy_notify
+   fun:g_dbus_connection_signal_unsubscribe
+}

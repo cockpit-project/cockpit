@@ -80,7 +80,8 @@ class GTestCompiler(NullCompiler):
                    print "not ok %d %s", (self.test_num, self.test_name)
                self.test_name = None
            elif cmd == "skipping":
-               print "ok %d # skip -- %s" % (self.test_num, self.test_name)
+               if "/subprocess" not in data:
+                   print "ok %d # skip -- %s" % (self.test_num, data)
                self.test_name = None
            elif data:
                print "# %s: %s" % (cmd, data)
@@ -97,7 +98,8 @@ class GTestCompiler(NullCompiler):
         output += proc.stdout.read()
         proc.wait()
         if proc.returncode:
-            raise subprocess.CalledProcessError(proc.returncode, self.command)
+            sys.stderr.write("tap-gtester: listing GTest tests failed: %d\n" % proc.returncode)
+            return proc.returncode
         self.test_remaining = []
         for line in output.split("\n"):
             if line.startswith("/"):
@@ -130,14 +132,14 @@ class GTestCompiler(NullCompiler):
             result = self.process(proc)
 
             # The various exit codes and signals we continue for
-            if result not in [ 0, 1, -4, -5, -6, -7, -8, -11 ]:
+            if result not in [ 0, 1, -4, -5, -6, -7, -8, -11, 33 ]:
                 break
 
         return result
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Automake TAP compiler')
-    parser.add_argument('--format', metavar='FORMAT', choices=[ "auto", "GTest", "TAP" ],
+    parser.add_argument('--format', metavar='FORMAT', choices=[ "auto", "gtest", "tap" ],
                         default="auto", help='The input format to compile')
     parser.add_argument('--verbose', action='store_true',
                         default=True, help='Verbose mode (ignored)')
@@ -149,21 +151,23 @@ def main(argv):
     cmd = args.command
     proc = None
 
-    if format in ["auto", "GTest"]:
-        list_cmd = cmd + ["-l", "--tap", "--verbose"]
+    os.environ['HARNESS_ACTIVE'] = '1'
+
+    if format in ["auto", "gtest"]:
+        list_cmd = cmd + ["-l", "--verbose"]
         proc = subprocess.Popen(list_cmd, close_fds=True, stdout=subprocess.PIPE)
         output = proc.stdout.readline()
         # Smell whether we're dealing with GTest list output from first line
         if "random seed" in output or "GTest" in output or output.startswith("/"):
-            format = "GTest"
+            format = "gtest"
         else:
-            format = "TAP"
+            format = "tap"
     else:
         proc = subprocess.Popen(cmd, close_fds=True, stdout=subprocess.PIPE)
 
-    if format == "GTest":
+    if format == "gtest":
         compiler = GTestCompiler(cmd)
-    elif format == "TAP":
+    elif format == "tap":
         compiler = NullCompiler(cmd)
     else:
         assert False, "not reached"

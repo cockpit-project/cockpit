@@ -20,7 +20,9 @@ coverage:
 	mkdir -p tools/coverage
 	lcov --directory . --zerocounters
 	$(MAKE) check
-	lcov --directory . --capture --output-file tools/coverage.info
+	lcov --directory . --capture --output-file tools/coverage.tmp
+	lcov --directory . --remove tools/coverage.tmp \
+		--output tools/coverage.info $(BUILT_SOURCES)
 	genhtml --output-directory tools/coverage \
 		--title "cockpit $(PACKAGE_VERSION)" \
 		tools/coverage.info

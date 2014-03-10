@@ -21,6 +21,7 @@
 
 #include "cockpitchannel.h"
 #include "cockpitdbusjson.h"
+#include "cockpittextstream.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -331,10 +332,11 @@ cockpit_channel_open (CockpitTransport *transport,
   GType channel_type;
   const gchar *payload;
 
-  /* TODO: For now we only support one payload: dbus-json1 */
   payload = safe_read_option (options, "payload");
   if (g_strcmp0 (payload, "dbus-json1") == 0)
     channel_type = COCKPIT_TYPE_DBUS_JSON;
+  else if (g_strcmp0 (payload, "text-stream") == 0)
+    channel_type = COCKPIT_TYPE_TEXT_STREAM;
   else
     channel_type = COCKPIT_TYPE_CHANNEL;
 
@@ -346,8 +348,16 @@ cockpit_channel_open (CockpitTransport *transport,
 
   if (channel_type == COCKPIT_TYPE_CHANNEL)
     {
-      g_warning ("agent only supports payloads of type dbus-json1");
-      cockpit_channel_close (channel, "not-supported");
+      if (payload)
+        {
+          g_warning ("agent doesn't support payloads of type: %s", payload);
+          cockpit_channel_close (channel, "not-supported");
+        }
+      else
+        {
+          g_warning ("no payload type present in request to open channel");
+          cockpit_channel_close (channel, "protocol-error");
+        }
     }
 
   return channel;

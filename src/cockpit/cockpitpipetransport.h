@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_FD_TRANSPORT_H__
-#define __COCKPIT_FD_TRANSPORT_H__
+#ifndef __COCKPIT_PIPE_TRANSPORT_H__
+#define __COCKPIT_PIPE_TRANSPORT_H__
 
 #include <gio/gio.h>
 
@@ -26,21 +26,21 @@
 
 G_BEGIN_DECLS
 
-#define COCKPIT_TYPE_FD_TRANSPORT         (cockpit_fd_transport_get_type ())
-#define COCKPIT_FD_TRANSPORT(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_FD_TRANSPORT, CockpitFdTransport))
-#define COCKPIT_FD_TRANSPORT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_FD_TRANSPORT, CockpitFdTransportClass))
-#define COCKPIT_IS_FD_TRANSPORT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), COCKPIT_TYPE_FD_TRANSPORT))
+#define COCKPIT_TYPE_PIPE_TRANSPORT         (cockpit_pipe_transport_get_type ())
+#define COCKPIT_PIPE_TRANSPORT(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_PIPE_TRANSPORT, CockpitPipeTransport))
+#define COCKPIT_PIPE_TRANSPORT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_PIPE_TRANSPORT, CockpitPipeTransportClass))
+#define COCKPIT_IS_PIPE_TRANSPORT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), COCKPIT_TYPE_PIPE_TRANSPORT))
 
-typedef struct _CockpitFdTransport        CockpitFdTransport;
-typedef struct _CockpitFdTransportClass   CockpitFdTransportClass;
+typedef struct _CockpitPipeTransport        CockpitPipeTransport;
+typedef struct _CockpitPipeTransportClass   CockpitPipeTransportClass;
 
-GType              cockpit_fd_transport_get_type     (void) G_GNUC_CONST;
+GType              cockpit_pipe_transport_get_type   (void) G_GNUC_CONST;
 
-CockpitTransport * cockpit_fd_transport_new          (const gchar *name,
+CockpitTransport * cockpit_pipe_transport_new        (const gchar *name,
                                                       int in_fd,
                                                       int out_fd);
 
-CockpitTransport * cockpit_fd_transport_spawn        (const gchar *host,
+CockpitTransport * cockpit_pipe_transport_spawn      (const gchar *host,
                                                       gint port,
                                                       const gchar *agent,
                                                       const gchar *user,
@@ -51,4 +51,4 @@ CockpitTransport * cockpit_fd_transport_spawn        (const gchar *host,
 
 G_END_DECLS
 
-#endif /* __COCKPIT_FD_TRANSPORT_H__ */
+#endif /* __COCKPIT_PIPE_TRANSPORT_H__ */

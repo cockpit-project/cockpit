@@ -18,12 +18,13 @@
  */
 #include "config.h"
 
+#include "cockpit/cockpitpipetransport.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "dbus-server.h"
-#include "cockpit/cockpitfdtransport.h"
 
 #include "gsystem-local-alloc.h"
 
@@ -206,7 +207,7 @@ main (int argc,
       outfd = 1;
     }
 
-  transport = cockpit_fd_transport_new ("stdio", 0, outfd);
+  transport = cockpit_pipe_transport_new ("stdio", 0, outfd);
   g_signal_connect (transport, "recv", G_CALLBACK (on_transport_recv), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 

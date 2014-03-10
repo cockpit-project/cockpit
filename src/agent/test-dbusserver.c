@@ -21,7 +21,7 @@
 
 #include "dbus-server.h"
 #include "cockpit/mock-service.h"
-#include "cockpit/cockpitfdtransport.h"
+#include "cockpit/cockpitpipetransport.h"
 
 #include <json-glib/json-glib.h>
 
@@ -57,7 +57,7 @@ dbus_server_thread (gpointer data)
   ctx = g_main_context_new ();
   g_main_context_push_thread_default (ctx);
 
-  transport = cockpit_fd_transport_new ("mock", fd, fd);
+  transport = cockpit_pipe_transport_new ("mock", fd, fd);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
   ds = dbus_server_serve_dbus (G_BUS_TYPE_SESSION,

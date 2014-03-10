@@ -26,7 +26,7 @@
 #include <gio/gunixoutputstream.h>
 
 #include <cockpit/cockpit.h>
-#include "cockpit/cockpitfdtransport.h"
+#include "cockpit/cockpitpipetransport.h"
 
 #include "cockpitws.h"
 #include "gsystem-local-alloc.h"
@@ -295,8 +295,8 @@ process_open (WebSocketData *data,
     }
 
   /* TODO: For now one session per channel. eventually we want on one session per host/user */
-  session = cockpit_fd_transport_spawn (host, data->specific_port, data->agent_program,
-                                        user, password, data->rhost, specific_user != NULL, &error);
+  session = cockpit_pipe_transport_spawn (host, data->specific_port, data->agent_program,
+                                          user, password, data->rhost, specific_user != NULL, &error);
 
   if (session)
     {

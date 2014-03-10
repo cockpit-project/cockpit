@@ -43,10 +43,12 @@ libcockpit_a_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
 	src/cockpit/cockpiterror.h src/cockpit/cockpiterror.c \
 	src/cockpit/cockpitlog.h src/cockpit/cockpitlog.c \
 	src/cockpit/cockpittypes.h \
+	src/cockpit/cockpitpipe.c \
+	src/cockpit/cockpitpipe.h \
+	src/cockpit/cockpitpipetransport.c \
+	src/cockpit/cockpitpipetransport.h \
 	src/cockpit/cockpittransport.c \
 	src/cockpit/cockpittransport.h \
-	src/cockpit/cockpitfdtransport.c \
-	src/cockpit/cockpitfdtransport.h \
 	$(NULL)
 
 libcockpit_a_CFLAGS = \
@@ -63,8 +65,13 @@ libcockpit_a_LIBS = \
 # TESTS
 
 COCKPIT_CHECKS = \
+	test-pipe \
 	test-transport \
 	$(NULL)
+
+test_pipe_CFLAGS = $(cockpit_ws_CFLAGS)
+test_pipe_SOURCES = src/cockpit/test-pipe.c
+test_pipe_LDADD = $(libcockpit_a_LIBS)
 
 test_transport_CFLAGS = $(cockpit_ws_CFLAGS)
 test_transport_SOURCES = src/cockpit/test-transport.c

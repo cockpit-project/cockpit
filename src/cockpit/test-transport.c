@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "cockpittransport.h"
-#include "cockpitfdtransport.h"
+#include "cockpitpipetransport.h"
 
 #include "websocket/websocket.h"
 
@@ -54,7 +54,7 @@ setup_with_child (TestCase *tc,
                             NULL, NULL, &pid, &in, &out, NULL, &error);
   g_assert_no_error (error);
 
-  tc->transport = g_object_new (COCKPIT_TYPE_FD_TRANSPORT,
+  tc->transport = g_object_new (COCKPIT_TYPE_PIPE_TRANSPORT,
                                 "name", "mock",
                                 "in-fd", out,
                                 "out-fd", in,
@@ -70,7 +70,7 @@ setup_no_child (TestCase *tc,
   if (socketpair (PF_LOCAL, SOCK_STREAM, 0, sv) < 0)
     g_assert_not_reached ();
 
-  tc->transport = cockpit_fd_transport_new ("mock", sv[0], sv[1]);
+  tc->transport = cockpit_pipe_transport_new ("mock", sv[0], sv[1]);
 }
 
 static void
@@ -297,7 +297,7 @@ test_read_error (void)
   g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
 
   /* Pass in a bad read descriptor */
-  transport = cockpit_fd_transport_new ("test", 1000, 2);
+  transport = cockpit_pipe_transport_new ("test", 1000, 2);
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
@@ -327,7 +327,7 @@ test_write_error (void)
   g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
 
   /* Pass in a bad write descriptor */
-  transport = cockpit_fd_transport_new ("test", fds[0], 1000);
+  transport = cockpit_pipe_transport_new ("test", fds[0], 1000);
 
   sent = g_bytes_new ("test", 4);
   cockpit_transport_send (transport, 3333, sent);
@@ -353,12 +353,16 @@ test_read_combined (void)
   gint state = 0;
   gint fds[2];
   guint32 size;
+  gint out;
 
   if (pipe(fds) < 0)
     g_assert_not_reached ();
 
+  out = dup (2);
+  g_assert (out >= 0);
+
   /* Pass in a read end of the pipe */
-  transport = cockpit_fd_transport_new ("test", fds[0], 2);
+  transport = cockpit_pipe_transport_new ("test", fds[0], out);
   g_signal_connect (transport, "recv", G_CALLBACK (on_recv_multiple), &state);
 
   /* Write two messages to the pipe at once */
@@ -385,15 +389,19 @@ test_read_truncated (void)
   CockpitTransport *transport;
   gchar *problem = NULL;
   gint fds[2];
+  gint out;
 
   if (pipe(fds) < 0)
     g_assert_not_reached ();
+
+  out = dup (2);
+  g_assert (out >= 0);
 
   /* Below we cause a warning, and g_test_expect_message() is broken */
   g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
 
   /* Pass in a read end of the pipe */
-  transport = cockpit_fd_transport_new ("test", fds[0], 2);
+  transport = cockpit_pipe_transport_new ("test", fds[0], out);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
   /* Not a full 4 byte length (ie: truncated) */
@@ -403,6 +411,38 @@ test_read_truncated (void)
   WAIT_UNTIL (problem != NULL);
 
   g_assert_cmpstr (problem, ==, "internal-error");
+  g_free (problem);
+
+  g_object_unref (transport);
+}
+
+static void
+test_no_handler (void)
+{
+  CockpitTransport *transport;
+  gchar *problem = NULL;
+  GBytes *payload;
+  gint fds[2];
+
+  if (pipe(fds) < 0)
+    g_assert_not_reached ();
+
+  /* Below we cause a warning, and g_test_expect_message() is broken */
+  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+
+  /* Pass in a read end of the pipe */
+  transport = cockpit_pipe_transport_new ("test", fds[0], fds[1]);
+  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  /* Emit a message, in a channel without a handler */
+  payload = g_bytes_new ("test", 4);
+  cockpit_transport_emit_recv (transport, 555, payload);
+  g_bytes_unref (payload);
+
+  while (problem == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "protocol-error");
   g_free (problem);
 
   g_object_unref (transport);
@@ -512,7 +552,9 @@ struct {
     { "invalid-json", "{ xxxxxxxxxxxxxxxxxxxxx", },
     { "not-an-object", "55", },
     { "negative-channel", "{ 'command': 'test', 'channel', -1 }", },
-    { "zero-channel", "{ 'command': 'test', 'channel', 0 }", },
+    { "zero-channel", "{ 'command': 'test', 'channel': 0 }", },
+    { "large-channel", "{ 'command': 'test', 'channel': 5555555555 }", },
+    { "string-channel", "{ 'command': 'test', 'channel': '5' }", },
 };
 
 static void
@@ -599,6 +641,7 @@ main (int argc,
   g_test_add_func ("/transport/write-error", test_write_error);
   g_test_add_func ("/transport/read-combined", test_read_combined);
   g_test_add_func ("/transport/read-truncated", test_read_truncated);
+  g_test_add_func ("/transport/no-handler", test_no_handler);
 
   return g_test_run ();
 }

@@ -17,6 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
+#include "cockpitdbusjson.h"
+
+#include "cockpitchannel.h"
+
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -28,20 +34,31 @@
 #include <json-glib/json-glib.h>
 
 #include "gsystem-local-alloc.h"
-#include "dbus-server.h"
 
 #include <string.h>
 
-struct _DBusServerData {
+/**
+ * CockpitDBusJson:
+ *
+ * A #CockpitChannel that sends DBus messages with the dbus-json1 payload
+ * type.
+ */
+
+#define COCKPIT_DBUS_JSON(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DBUS_JSON, CockpitDBusJson))
+
+typedef struct {
+  CockpitChannel parent;
   GDBusObjectManagerClient *object_manager;
   GCancellable             *cancellable;
   GList                    *active_calls;
+} CockpitDBusJson;
 
-  GMainLoop                *loop;
-  CockpitTransport         *transport;
-  guint                     recv_sig;
-  guint                     channel;
-};
+typedef struct {
+  CockpitChannelClass parent_class;
+} CockpitDBusJsonClass;
+
+
+G_DEFINE_TYPE (CockpitDBusJson, cockpit_dbus_json, COCKPIT_TYPE_CHANNEL);
 
 /* Returns a new floating variant (essentially a fixed-up copy of @value) */
 static GVariant *
@@ -307,21 +324,21 @@ prepare_builder (const gchar *command)
 }
 
 static void
-write_builder (DBusServerData *data,
+write_builder (CockpitDBusJson *self,
                JsonBuilder *builder)
 {
   GBytes *bytes;
 
   json_builder_end_object (builder);
   bytes = _json_builder_to_bytes (builder);
-  cockpit_transport_send (data->transport, data->channel, bytes);
+  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
   g_bytes_unref (bytes);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
 
 static GDBusInterfaceInfo *
-get_introspection_data (DBusServerData *data,
+get_introspection_data (CockpitDBusJson *self,
                         const gchar *interface_name,
                         const gchar *owner,
                         const gchar *object_path,
@@ -345,7 +362,7 @@ get_introspection_data (DBusServerData *data,
   if (ret != NULL)
     goto out;
 
-  val = g_dbus_connection_call_sync (g_dbus_object_manager_client_get_connection (G_DBUS_OBJECT_MANAGER_CLIENT (data->object_manager)),
+  val = g_dbus_connection_call_sync (g_dbus_object_manager_client_get_connection (G_DBUS_OBJECT_MANAGER_CLIENT (self->object_manager)),
                                      owner,
                                      object_path,
                                      "org.freedesktop.DBus.Introspectable",
@@ -471,7 +488,7 @@ add_object (JsonBuilder *builder,
 }
 
 static void
-send_seed (DBusServerData *data)
+send_seed (CockpitDBusJson *self)
 {
   gs_unref_object JsonBuilder *builder = json_builder_new ();
 
@@ -482,7 +499,7 @@ send_seed (DBusServerData *data)
   json_builder_set_member_name (builder, "data");
   json_builder_begin_object (builder);
 
-  GList *objects = g_dbus_object_manager_get_objects (G_DBUS_OBJECT_MANAGER (data->object_manager));
+  GList *objects = g_dbus_object_manager_get_objects (G_DBUS_OBJECT_MANAGER (self->object_manager));
   for (GList *l = objects; l != NULL; l = l->next)
     {
       GDBusObject *object = G_DBUS_OBJECT (l->data);
@@ -495,7 +512,7 @@ send_seed (DBusServerData *data)
   g_list_free (objects);
   json_builder_end_object (builder);
 
-  write_builder (data, builder);
+  write_builder (self, builder);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -505,7 +522,7 @@ on_object_added (GDBusObjectManager *manager,
                  GDBusObject *object,
                  gpointer user_data)
 {
-  DBusServerData *data = user_data;
+  CockpitDBusJson *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("object-added");
 
   json_builder_begin_object (builder);
@@ -515,7 +532,7 @@ on_object_added (GDBusObjectManager *manager,
   json_builder_end_object (builder);
   json_builder_end_object (builder);
 
-  write_builder (data, builder);
+  write_builder (self, builder);
 }
 
 static void
@@ -523,14 +540,14 @@ on_object_removed (GDBusObjectManager *manager,
                    GDBusObject *object,
                    gpointer user_data)
 {
-  DBusServerData *data = user_data;
+  CockpitDBusJson *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("object-removed");
 
   json_builder_begin_array (builder);
   json_builder_add_string_value (builder, g_dbus_object_get_object_path (object));
   json_builder_end_array (builder);
 
-  write_builder (data, builder);
+  write_builder (self, builder);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -541,7 +558,7 @@ on_interface_added (GDBusObjectManager *manager,
                     GDBusInterface *interface,
                     gpointer user_data)
 {
-  DBusServerData *data = user_data;
+  CockpitDBusJson *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-added");
 
   json_builder_begin_object (builder);
@@ -555,7 +572,7 @@ on_interface_added (GDBusObjectManager *manager,
   json_builder_end_object (builder);
   json_builder_end_object (builder);
 
-  write_builder (data, builder);
+  write_builder (self, builder);
 }
 
 static void
@@ -564,7 +581,7 @@ on_interface_removed (GDBusObjectManager *manager,
                       GDBusInterface *interface,
                       gpointer user_data)
 {
-  DBusServerData *data = user_data;
+  CockpitDBusJson *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-removed");
 
   json_builder_begin_object (builder);
@@ -574,7 +591,7 @@ on_interface_removed (GDBusObjectManager *manager,
   json_builder_add_string_value (builder, g_dbus_proxy_get_interface_name (G_DBUS_PROXY (interface)));
   json_builder_end_object (builder);
 
-  write_builder (data, builder);
+  write_builder (self, builder);
 }
 
 static void
@@ -585,7 +602,7 @@ on_interface_proxy_properties_changed (GDBusObjectManager *manager,
                                        const gchar * const *invalidated_properties,
                                        gpointer user_data)
 {
-  DBusServerData *data = user_data;
+  CockpitDBusJson *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-properties-changed");
 
   json_builder_begin_object (builder);
@@ -602,7 +619,7 @@ on_interface_proxy_properties_changed (GDBusObjectManager *manager,
   json_builder_end_object (builder);
   json_builder_end_object (builder);
 
-  write_builder (data, builder);
+  write_builder (self, builder);
 }
 
 static void
@@ -614,7 +631,7 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
                            GVariant *parameters,
                            gpointer user_data)
 {
-  DBusServerData *data = user_data;
+  CockpitDBusJson *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-signal");
 
   GVariantIter iter;
@@ -640,13 +657,13 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
 
   json_builder_end_object (builder);
 
-  write_builder (data, builder);
+  write_builder (self, builder);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
-send_dbus_reply (DBusServerData *data, const gchar *cookie, GVariant *result, GError *error)
+send_dbus_reply (CockpitDBusJson *self, const gchar *cookie, GVariant *result, GError *error)
 {
   gs_unref_object JsonBuilder *builder = NULL;
   builder = prepare_builder ("call-reply");
@@ -676,13 +693,13 @@ send_dbus_reply (DBusServerData *data, const gchar *cookie, GVariant *result, GE
     }
   json_builder_end_object (builder);
 
-  write_builder (data, builder);
+  write_builder (self, builder);
 }
 
 typedef struct
 {
   GList *link;
-  DBusServerData *data;
+  CockpitDBusJson *dbus_json;
   gchar *cookie;
 } CallData;
 
@@ -705,10 +722,10 @@ dbus_call_cb (GDBusProxy *proxy,
   error = NULL;
   result = g_dbus_proxy_call_finish (proxy, res, &error);
 
-  if (data->data)
+  if (data->dbus_json)
     {
-      send_dbus_reply (data->data, data->cookie, result, error);
-      data->data->active_calls = g_list_delete_link (data->data->active_calls, data->link);
+      send_dbus_reply (data->dbus_json, data->cookie, result, error);
+      data->dbus_json->active_calls = g_list_delete_link (data->dbus_json->active_calls, data->link);
     }
 
   if (result)
@@ -718,7 +735,7 @@ dbus_call_cb (GDBusProxy *proxy,
 }
 
 static gboolean
-handle_dbus_call (DBusServerData *data,
+handle_dbus_call (CockpitDBusJson *self,
                   JsonObject *root)
 {
   gboolean ret = FALSE;
@@ -752,7 +769,7 @@ handle_dbus_call (DBusServerData *data,
       goto out;
     }
 
-  iface_proxy = g_dbus_object_manager_get_interface (G_DBUS_OBJECT_MANAGER (data->object_manager),
+  iface_proxy = g_dbus_object_manager_get_interface (G_DBUS_OBJECT_MANAGER (self->object_manager),
                                                      objpath,
                                                      iface_name);
   if (iface_proxy == NULL)
@@ -761,15 +778,15 @@ handle_dbus_call (DBusServerData *data,
       g_set_error (&dbus_error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "No iface for objpath %s and iface %s calling %s",
                    objpath, iface_name, method_name);
-      send_dbus_reply (data, cookie, NULL, dbus_error);
+      send_dbus_reply (self, cookie, NULL, dbus_error);
       g_clear_error (&dbus_error);
       ret = TRUE;
       goto out;
     }
 
-  iface_info = get_introspection_data (data,
+  iface_info = get_introspection_data (self,
                                        iface_name,
-                                       g_dbus_object_manager_client_get_name (G_DBUS_OBJECT_MANAGER_CLIENT (data->object_manager)),
+                                       g_dbus_object_manager_client_get_name (G_DBUS_OBJECT_MANAGER_CLIENT (self->object_manager)),
                                        objpath, /* object_path */
                                        error);
   if (iface_info == NULL)
@@ -842,11 +859,11 @@ handle_dbus_call (DBusServerData *data,
     }
 
   call_data = g_new0 (CallData, 1);
-  call_data->data = data;
+  call_data->dbus_json = self;
   call_data->cookie = g_strdup (cookie);
 
-  data->active_calls = g_list_prepend (data->active_calls, call_data);
-  call_data->link = g_list_find (data->active_calls, call_data);
+  self->active_calls = g_list_prepend (self->active_calls, call_data);
+  call_data->link = g_list_find (self->active_calls, call_data);
 
   /* and now, issue the call */
   g_dbus_proxy_call (G_DBUS_PROXY (iface_proxy),
@@ -854,7 +871,7 @@ handle_dbus_call (DBusServerData *data,
                      g_variant_builder_end (&arg_builder),
                      G_DBUS_CALL_FLAGS_NO_AUTO_START,
                      G_MAXINT, /* timeout */
-                     data->cancellable,
+                     self->cancellable,
                      (GAsyncReadyCallback)dbus_call_cb,
                      call_data); /* user_data*/
 
@@ -871,21 +888,15 @@ out:
   return ret;
 }
 
-static gboolean
-handle_message (CockpitTransport *transport,
-                gint channel,
-                GBytes *message,
-                gpointer user_data)
+static void
+cockpit_dbus_json_recv (CockpitChannel *channel,
+                          GBytes *message)
 {
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (channel);
   GError *error = NULL;
-  DBusServerData *data = user_data;
   gs_free gchar *buf = NULL;
   gs_unref_object JsonParser *parser = NULL;
   gsize size;
-
-  /* Only handle our own channel */
-  if (channel != data->channel)
-    return FALSE;
 
   parser = json_parser_new ();
 
@@ -905,7 +916,7 @@ handle_message (CockpitTransport *transport,
 
   if (g_strcmp0 (json_object_get_string_member (root, "command"), "call") == 0)
     {
-      if (!handle_dbus_call (data, root))
+      if (!handle_dbus_call (self, root))
         goto close;
     }
   else
@@ -914,7 +925,7 @@ handle_message (CockpitTransport *transport,
       goto close;
     }
 
-  return TRUE;
+  return;
 
 close:
   if (error)
@@ -922,107 +933,207 @@ close:
       g_warning ("%s", error->message);
       g_error_free (error);
     }
-  cockpit_transport_close (transport, "protocol-error");
-  return TRUE;
+  cockpit_channel_close (channel, "protocol-error");
 }
 
-DBusServerData *
-dbus_server_serve_dbus (GBusType bus_type,
-                        const char *dbus_service,
-                        const char *dbus_path,
-                        CockpitTransport *transport,
-                        guint channel)
+static void
+on_object_manager_ready (GObject *source,
+                         GAsyncResult *result,
+                         gpointer user_data)
 {
+  CockpitDBusJson *self = user_data;
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  GDBusObjectManager *client;
   GError *error = NULL;
 
-  g_type_init ();
-
-  GDBusObjectManager *object_manager =
-    g_dbus_object_manager_client_new_for_bus_sync (bus_type,
-                                                   G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-                                                   dbus_service,
-                                                   dbus_path,
-                                                   NULL, /* GDBusProxyTypeFunc */
-                                                   NULL, /* user_data for GDBusProxyTypeFunc */
-                                                   NULL, /* GDestroyNotify for GDBusProxyTypeFunc */
-                                                   NULL, /* GCancellable */
-                                                   &error);
-  if (object_manager == NULL)
+  client = g_dbus_object_manager_client_new_for_bus_finish (result, &error);
+  if (client == NULL)
     {
       g_warning ("%s", error->message);
-      return NULL;
+      cockpit_channel_close (channel, "internal-error");
+    }
+  else
+    {
+      self->object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (client);
+      g_signal_connect (self->object_manager,
+                        "object-added",
+                        G_CALLBACK (on_object_added),
+                        self);
+      g_signal_connect (self->object_manager,
+                        "object-removed",
+                        G_CALLBACK (on_object_removed),
+                        self);
+      g_signal_connect (self->object_manager,
+                        "interface-added",
+                        G_CALLBACK (on_interface_added),
+                        self);
+      g_signal_connect (self->object_manager,
+                        "interface-removed",
+                        G_CALLBACK (on_interface_removed),
+                        self);
+      g_signal_connect (self->object_manager,
+                        "interface-proxy-properties-changed",
+                        G_CALLBACK (on_interface_proxy_properties_changed),
+                        self);
+      g_signal_connect (self->object_manager,
+                        "interface-proxy-signal",
+                        G_CALLBACK (on_interface_proxy_signal),
+                        self);
+
+      send_seed (self);
+      cockpit_channel_ready (channel);
     }
 
-  DBusServerData *data = g_new0 (DBusServerData, 1);
-  data->object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (object_manager);
-  data->cancellable = g_cancellable_new ();
-  data->active_calls = NULL;
-  data->transport = transport;
-  data->channel = channel;
-
-  g_signal_connect (data->object_manager,
-                    "object-added",
-                    G_CALLBACK (on_object_added),
-                    data);
-  g_signal_connect (data->object_manager,
-                    "object-removed",
-                    G_CALLBACK (on_object_removed),
-                    data);
-  g_signal_connect (data->object_manager,
-                    "interface-added",
-                    G_CALLBACK (on_interface_added),
-                    data);
-  g_signal_connect (data->object_manager,
-                    "interface-removed",
-                    G_CALLBACK (on_interface_removed),
-                    data);
-  g_signal_connect (data->object_manager,
-                    "interface-proxy-properties-changed",
-                    G_CALLBACK (on_interface_proxy_properties_changed),
-                    data);
-  g_signal_connect (data->object_manager,
-                    "interface-proxy-signal",
-                    G_CALLBACK (on_interface_proxy_signal),
-                    data);
-
-  data->recv_sig = g_signal_connect (data->transport, "recv", G_CALLBACK (handle_message), data);
-
-  send_seed (data);
-
-  return data;
+  g_object_unref (self);
 }
 
-void
-dbus_server_stop_dbus (DBusServerData *data)
+static void
+cockpit_dbus_json_init (CockpitDBusJson *self)
 {
-  g_signal_handler_disconnect (data->transport, data->recv_sig);
+  self->cancellable = g_cancellable_new ();
+}
 
-  g_signal_handlers_disconnect_by_func (data->object_manager,
-                                        G_CALLBACK (on_object_added),
-                                        data);
-  g_signal_handlers_disconnect_by_func (data->object_manager,
-                                        G_CALLBACK (on_object_removed),
-                                        data);
-  g_signal_handlers_disconnect_by_func (data->object_manager,
-                                        G_CALLBACK (on_interface_added),
-                                        data);
-  g_signal_handlers_disconnect_by_func (data->object_manager,
-                                        G_CALLBACK (on_interface_removed),
-                                        data);
-  g_signal_handlers_disconnect_by_func (data->object_manager,
-                                        G_CALLBACK (on_interface_proxy_properties_changed),
-                                        data);
-  g_signal_handlers_disconnect_by_func (data->object_manager,
-                                        G_CALLBACK (on_interface_proxy_signal),
-                                        data);
+static gboolean
+on_idle_protocol_error (gpointer user_data)
+{
+  cockpit_channel_close (user_data, "protocol-error");
+  return FALSE;
+}
 
-  for (GList *c = data->active_calls; c; c = c->next)
+static void
+cockpit_dbus_json_constructed (GObject *object)
+{
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  const gchar *dbus_service;
+  const gchar *dbus_path;
+
+  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->constructed (object);
+
+  /*
+   * Guarantee: Remember that we cannot close the channel until we've
+   * hit the main loop. This is to make it easier and predictable on
+   * callers. See teh similar GLib async guarantee.
+   */
+
+  dbus_service = cockpit_channel_get_option (channel, "service");
+  if (dbus_service == NULL || !g_dbus_is_name (dbus_service))
     {
-      CallData *cd = c->data;
-      cd->data = NULL;
+      g_warning ("agent got invalid dbus service");
+      g_idle_add (on_idle_protocol_error, channel);
+      return;
     }
 
-  g_cancellable_cancel (data->cancellable);
-  g_object_unref (data->object_manager);
-  g_free (data);
+  dbus_path = cockpit_channel_get_option (channel, "object-manager");
+  if (dbus_path == NULL || !g_variant_is_object_path (dbus_path))
+    {
+      g_warning ("agent got invalid object-manager path");
+      g_idle_add (on_idle_protocol_error, channel);
+      return;
+    }
+
+  g_dbus_object_manager_client_new_for_bus (G_BUS_TYPE_SYSTEM,
+                                            G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+                                            dbus_service,
+                                            dbus_path,
+                                            NULL, /* GDBusProxyTypeFunc */
+                                            NULL, /* user_data for GDBusProxyTypeFunc */
+                                            NULL, /* GDestroyNotify for GDBusProxyTypeFunc */
+                                            NULL, /* GCancellable */
+                                            on_object_manager_ready,
+                                            g_object_ref (self));
+}
+
+static void
+cockpit_dbus_json_dispose (GObject *object)
+{
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+
+  g_signal_handlers_disconnect_by_func (self->object_manager,
+                                        G_CALLBACK (on_object_added),
+                                        self);
+  g_signal_handlers_disconnect_by_func (self->object_manager,
+                                        G_CALLBACK (on_object_removed),
+                                        self);
+  g_signal_handlers_disconnect_by_func (self->object_manager,
+                                        G_CALLBACK (on_interface_added),
+                                        self);
+  g_signal_handlers_disconnect_by_func (self->object_manager,
+                                        G_CALLBACK (on_interface_removed),
+                                        self);
+  g_signal_handlers_disconnect_by_func (self->object_manager,
+                                        G_CALLBACK (on_interface_proxy_properties_changed),
+                                        self);
+  g_signal_handlers_disconnect_by_func (self->object_manager,
+                                        G_CALLBACK (on_interface_proxy_signal),
+                                        self);
+
+  g_list_free_full (self->active_calls, (GDestroyNotify)call_data_free);
+  self->active_calls = NULL;
+
+  g_cancellable_cancel (self->cancellable);
+
+  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->dispose (object);
+}
+
+static void
+cockpit_dbus_json_finalize (GObject *object)
+{
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+
+  g_object_unref (self->object_manager);
+  g_object_unref (self->cancellable);
+
+  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->finalize (object);
+}
+
+static void
+cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
+
+  gobject_class->constructed = cockpit_dbus_json_constructed;
+  gobject_class->dispose = cockpit_dbus_json_dispose;
+  gobject_class->finalize = cockpit_dbus_json_finalize;
+
+  channel_class->recv = cockpit_dbus_json_recv;
+}
+
+/**
+ * cockpit_dbus_json_open:
+ * @transport: transport to send messages on
+ * @number: the channel number
+ * @dbus_service: the DBus service name to talk to
+ * @dbus_path: the o.f.D.ObjectManager path
+ *
+ * This function is mainly used by tests. The normal way to open
+ * channels is cockpit_channel_open().
+ *
+ * Guarantee: channel will not close immediately, even on invalid input.
+ *
+ * Returns: (transfer full): a new channel
+ */
+CockpitChannel *
+cockpit_dbus_json_open (CockpitTransport *transport,
+                        guint number,
+                        const gchar *dbus_service,
+                        const gchar *dbus_path)
+{
+  CockpitChannel *channel;
+  JsonObject *options;
+
+  options = json_object_new ();
+  json_object_set_string_member (options, "service", dbus_service);
+  json_object_set_string_member (options, "object-manager", dbus_path);
+  json_object_set_string_member (options, "payload", "dbus-json1");
+
+  channel = g_object_new (COCKPIT_TYPE_DBUS_JSON,
+                          "transport", transport,
+                          "channel", number,
+                          "options", options,
+                          NULL);
+
+  json_object_unref (options);
+  return channel;
 }

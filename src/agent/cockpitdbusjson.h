@@ -17,21 +17,22 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_DBUS_SERVER_H__
-#define COCKPIT_DBUS_SERVER_H__
+#ifndef COCKPIT_DBUS_JSON_H__
+#define COCKPIT_DBUS_JSON_H__
 
 #include <gio/gio.h>
 
-#include "cockpit/cockpittransport.h"
+#include "cockpitchannel.h"
 
-typedef struct _DBusServerData DBusServerData;
+G_BEGIN_DECLS
 
-DBusServerData *  dbus_server_serve_dbus       (GBusType bus_type,
-                                                const char *dbus_service,
-                                                const char *dbus_path,
-                                                CockpitTransport *transport,
-                                                guint channel);
+#define COCKPIT_TYPE_DBUS_JSON         (cockpit_dbus_json_get_type ())
 
-void              dbus_server_stop_dbus        (DBusServerData *data);
+GType              cockpit_dbus_json_get_type   (void) G_GNUC_CONST;
 
-#endif
+CockpitChannel *   cockpit_dbus_json_open       (CockpitTransport *transport,
+                                                 guint channel,
+                                                 const gchar *dbus_service,
+                                                 const gchar *dbus_path);
+
+#endif /* COCKPIT_DBUS_JSON_H__ */

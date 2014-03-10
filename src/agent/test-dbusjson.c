@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "dbus-server.h"
+#include "cockpitdbusjson.h"
 #include "cockpit/mock-service.h"
 #include "cockpit/cockpitpipetransport.h"
 
@@ -37,7 +37,7 @@ typedef struct {
 } TestCase;
 
 static void
-on_closed_set_flag (CockpitTransport *transport,
+on_closed_set_flag (CockpitChannel *channel,
                     const gchar *problem,
                     gpointer user_data)
 {
@@ -50,24 +50,24 @@ dbus_server_thread (gpointer data)
 {
   CockpitTransport *transport;
   int fd = GPOINTER_TO_INT (data);
-  gboolean closed = FALSE;
+  CockpitChannel *channel;
   GMainContext *ctx;
-  DBusServerData *ds;
+  gboolean closed = FALSE;
 
   ctx = g_main_context_new ();
   g_main_context_push_thread_default (ctx);
 
   transport = cockpit_pipe_transport_new ("mock", fd, fd);
-  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
-  ds = dbus_server_serve_dbus (G_BUS_TYPE_SESSION,
-                               "com.redhat.Cockpit.DBusTests.Test",
-                               "/otree", transport, 444);
+  channel = cockpit_dbus_json_open (transport, 444,
+                                    "com.redhat.Cockpit.DBusTests.Test", "/otree");
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
+  /* Channel keeps itself alive until done */
   while (!closed)
     g_main_context_iteration (ctx, TRUE);
 
-  dbus_server_stop_dbus (ds);
+  g_object_unref (channel);
   g_object_unref (transport);
   g_main_context_pop_thread_default (ctx);
   g_main_context_unref (ctx);
@@ -187,9 +187,7 @@ main (int argc,
   GTestDBus *bus;
   gint ret;
 
-#if !GLIB_CHECK_VERSION(2,36,0)
   g_type_init ();
-#endif
 
   g_set_prgname ("test-dbusserver");
   g_test_init (&argc, &argv, NULL);
@@ -199,11 +197,16 @@ main (int argc,
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (bus);
+
+  /* Use the above test session bus as a system bus */
+  g_setenv ("DBUS_SYSTEM_BUS_ADDRESS", g_getenv ("DBUS_SESSION_BUS_ADDRESS"), TRUE);
+
   mock_service_start ();
 
   ret = g_test_run ();
 
   mock_service_stop ();
+  g_unsetenv ("DBUS_SYSTEM_BUS_ADDRESS");
   g_test_dbus_down (bus);
 
   return ret;

@@ -2,7 +2,11 @@
 noinst_LIBRARIES += libcockpit-agent.a
 
 libcockpit_agent_a_SOURCES = \
-	src/agent/dbus-server.c src/agent/dbus-server.h
+	src/agent/cockpitchannel.c \
+	src/agent/cockpitchannel.h \
+	src/agent/cockpitdbusjson.c \
+	src/agent/cockpitdbusjson.h \
+	$(NULL)
 
 libcockpit_agent_a_CFLAGS = \
 	$(cockpit_cppflags_common) \
@@ -45,15 +49,20 @@ test_agent_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_agent_LDADD = $(libcockpit_agent_LIBS)
 
 AGENT_CHECKS = \
-	test-dbusserver \
+	test-channel \
+	test-dbusjson \
 	$(NULL)
 
-test_dbusserver_SOURCES =  \
-	src/agent/test-dbusserver.c \
+test_channel_SOURCES = src/agent/test-channel.c
+test_channel_CFLAGS = $(libcockpit_agent_a_CFLAGS)
+test_channel_LDADD = $(libcockpit_agent_LIBS)
+
+test_dbusjson_SOURCES =  \
+	src/agent/test-dbusjson.c \
 	$(test_dbus_sources) \
 	$(NULL)
-test_dbusserver_CFLAGS = $(libcockpit_agent_a_CFLAGS)
-test_dbusserver_LDADD = $(libcockpit_agent_LIBS)
+test_dbusjson_CFLAGS = $(libcockpit_agent_a_CFLAGS)
+test_dbusjson_LDADD = $(libcockpit_agent_LIBS)
 
 noinst_PROGRAMS += $(AGENT_CHECKS)
 TESTS += $(AGENT_CHECKS)

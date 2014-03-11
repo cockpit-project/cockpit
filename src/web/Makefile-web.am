@@ -5,6 +5,7 @@ translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
 cockpit_js_PARTS = \
 	src/web/channel.js \
 	src/web/dbus.js \
+	src/web/rest.js \
 	src/web/cockpit-util.js 					\
 	src/web/cockpit-i18n.js 					\
 	src/web/cockpit-plot.js 					\
@@ -153,12 +154,14 @@ CHECK_DEPS = \
 	cockpit-journal-renderer.js \
 	channel.js \
 	dbus.js \
+	rest.js \
 	$(NULL)
 
 CHECK_HTML = \
 	test-dummy.html \
 	test-channel.html \
 	test-journal-renderer.html \
+	test-rest.html \
 	$(NULL)
 
 CHECK_HTML_SRCS = $(addprefix src/web/,$(CHECK_HTML))

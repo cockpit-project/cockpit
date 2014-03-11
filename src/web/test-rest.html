@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <title>Rest Tests</title>
+    <link rel="stylesheet" href="qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="qunit.js"></script>
+    <script type="text/javascript" src="rest.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">Rest Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+  </body>
+<script type="text/javascript">
+
+/* Seems like something jQuery should provide */
+if (!console.assert) {
+    console.assert = function(cond, msg) {
+        if (!cond)
+            throw msg || "assertion failed";
+    }
+};
+
+function MockPeer() {
+    /*
+     * Events triggered here:
+     * open(event, args)
+     * recv(event, payload)
+     * close(event, reason)
+     * get(event, path)
+     */
+
+    /* open: triggered when mock Channel is created */
+    this.onopened = function(event, channel) {
+        /* nada */
+    };
+
+    /* close event: triggered when mock Channel is closed */
+    this.onclosed = function(event, channel, reason) {
+        /* nada */
+    };
+
+    /* recv event: triggered when mock Channel sends */
+    this.onrecv = function(event, channel, payload) {
+        var pos = payload.indexOf("\r\n");
+        console.assert(pos != -1, "got http request without line ending");
+
+        /* Parse out the first line */
+        var parts = payload.substring(0, pos).split(" ");
+        console.assert(parts.length == 3);
+        var method = parts[0].toLowerCase();
+        var path = parts[1];
+        $(this).trigger(method, [channel, path]);
+    };
+
+    /* get event: triggered when we receive a get request */
+    this.onget = function(event, channel, path, headers) {
+        if (event.isDefaultPrevented())
+            return false;
+        if (path == "/")
+            this.reply(channel, { "key": "value" });
+    };
+
+    this.reply = function(channel, data) {
+        var payload = payload = "HTTP/1.0 200 OK\r\n\r\n" + JSON.stringify(data);
+        this.send(channel, payload);
+        this.close(channel);
+    }
+
+    /* send a message from peer back to channel */
+    this.send = function(channel, payload) {
+        window.setTimeout(function() {
+            if (channel.valid)
+                $(channel).trigger("message", [payload]);
+            else
+                console.log("dropping message after close from MockPeer");
+        }, 5);
+    }
+
+    /* peer closes the channel */
+    this.close = function(channel, reason) {
+        console.assert(channel);
+        window.setTimeout(function() {
+            if (channel.valid) {
+                channel.valid = false;
+                $(channel).trigger("close", [reason || ""]);
+            }
+        }, 5);
+    }
+
+    var peer = this;
+    var last_channel = 0;
+
+    Channel = function MockChannel(options) {
+        this.number = last_channel++;
+        this.options = options;
+        this.valid = true;
+
+        var channel = this;
+
+        this.transport = new function() {
+            this.close = function(reason) { console.assert(arguments.length == 1); }
+        };
+
+        this.send = function(payload) {
+            console.assert(arguments.length == 1);
+            console.assert(this.valid);
+            window.setTimeout(function() { $(peer).trigger("recv", [channel, payload]); }, 5);
+        };
+
+        this.close = function() {
+            console.assert(arguments.length == 0);
+            this.valid = false;
+            window.setTimeout(function() { $(peer).trigger("closed", [channel, ""]); }, 5);
+        };
+
+        QUnit.testDone(function() {
+            channel.valid = false;
+        });
+
+        $(peer).trigger("opened", [channel, options]);
+    }
+}
+
+test("public api", function() {
+    var rest = $cockpit.rest("unix://test");
+    equal(typeof rest, "object", "rest is an object");
+    equal(typeof rest.get, "function", "rest.get() is a function");
+});
+
+asyncTest("simple request", function() {
+    expect(5);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel) {
+        equal(channel.options["unix"], "/test", "passed unix: endpoint correctly");
+        equal(channel.options["host"], undefined, "simple request had no host");
+    });
+    $(peer).on("recv", function(event, channel, payload) {
+        equal(payload, "GET / HTTP/1.0\r\nConnection: keep-alive\r\nContent-Length: 0\r\n\r\n",
+              "simple request looks correct");
+    });
+
+    $cockpit.rest("unix:///test").get("/")
+        .done(function(resp) {
+            deepEqual(resp, { key: "value" }, "simple request returned right json");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "simple request didn't fail");
+            start();
+        });
+});
+
+asyncTest("channel options", function() {
+    expect(1);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel) {
+        deepEqual(channel.options, {
+            "unix": "/my/test/path",
+            "host": "the-other-host.example.com",
+            "extra-option": "zerogjuggs",
+            "payload": "text-stream"
+            }, "channel options sent correctly");
+        start();
+    });
+
+    /* Don't care about the result ... */
+    var options = { "extra-option": "zerogjuggs" };
+    $cockpit.rest("unix:///my/test/path", "the-other-host.example.com", options).get("/");
+});
+
+asyncTest("with params", function() {
+    expect(4);
+
+    var peer = new MockPeer();
+    $(peer).on("get", function(event, channel, path) {
+        var parts = path.split("?");
+        equal(parts[0], "/test/here", "with params constructed path right");
+        equal(parts[1], "key=value&name=Scruffy+the+Janitor", "with params has correct query");
+        this.reply(channel, [ "zerog", "juggs" ]);
+    });
+
+    $cockpit.rest("unix:///test").get("/test/here", { "key": "value", "name": "Scruffy the Janitor" })
+        .done(function(resp) {
+            deepEqual(resp, [ "zerog", "juggs"], "with params returned right json");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "with params didn't fail");
+            start();
+        });
+});
+
+asyncTest("not found", function() {
+    expect(2);
+
+    var peer = new MockPeer();
+    $(peer).on("get", function(event, channel, path) {
+        this.send(channel, "HTTP/1.0 404 Not found\r\n\r\nNot found");
+        this.close(channel);
+        return false;
+    });
+
+    $cockpit.rest("unix:///test").get("/not/found")
+        .done(function(resp) {
+            strictEqual(resp, null, "not found returned null");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "not found didn't fail");
+            start();
+        });
+});
+
+asyncTest("immediate close", function() {
+    expect(2);
+
+    var peer = new MockPeer();
+    $(peer).on("get", function(event, channel, payload) {
+        peer.close(channel);
+        return false;
+    });
+
+    $cockpit.rest("unix:///test").get("/")
+        .fail(function(ex) {
+            equal(ex, "protocol-error", "immediate close should cause protocol-error");
+        })
+        .always(function() {
+            equal(this.state(), "rejected", "immediate close should fail");
+            start();
+        });
+});
+
+function failureTest(test_name, reason, resp_lines) {
+    asyncTest(test_name, function() {
+        expect(2);
+
+        var response = resp_lines.join("\r\n");
+        console.assert(response.indexOf("\r\n\r\n") != -1, "no body in " + response);
+
+        var peer = new MockPeer();
+        $(peer).on("get", function(event, channel, payload) {
+            peer.send(channel, response);
+            peer.close(channel);
+            return false;
+        });
+
+        $cockpit.rest("unix:///test").get("/")
+            .fail(function(ex) {
+                equal(ex, reason, test_name + " should cause " + reason);
+            })
+            .always(function() {
+                equal(this.state(), "rejected", test_name + " should fail");
+                start();
+            });
+    });
+}
+
+failureTest("short content", "protocol-error", [
+    "HTTP/1.0 200 OK",
+    "Content-Length: 1500",
+    "",
+    "unread data, too short"
+]);
+
+failureTest("extra content", "protocol-error", [
+    "HTTP/1.0 200 OK",
+    "Content-Length: 10",
+    "",
+    "unread data, too long"
+]);
+
+failureTest("invalid length", "protocol-error", [
+    "HTTP/1.0 200 OK",
+    "Content-Length: ",
+    "",
+    "body"
+]);
+
+failureTest("bad json", "protocol-error", [
+    "HTTP/1.0 200 OK",
+    "",
+    "{ xxx "
+]);
+
+failureTest("bad header", "protocol-error", [
+    "HTTP/1.0 200 OK",
+    "Header",
+    "",
+    "body"
+]);
+
+failureTest("bad version", "protocol-error", [
+    "HTTP/2.0 200 OK",
+    "",
+    "body"
+]);
+
+failureTest("http 401 error", "not-authorized", [
+    "HTTP/1.0 401 Not Authorized",
+    "",
+    "body"
+]);
+
+QUnit.start();
+
+</script>
+</html>

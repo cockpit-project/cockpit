@@ -26,6 +26,7 @@
 #include <gio/gunixoutputstream.h>
 
 #include <cockpit/cockpit.h>
+#include "cockpit/cockpitfdtransport.h"
 
 #include "cockpitws.h"
 #include "gsystem-local-alloc.h"
@@ -248,9 +249,9 @@ process_open (WebSocketData *data,
 {
   CockpitTransport *session;
   CockpitCreds *specific_creds = NULL;
-  CockpitCreds *creds = NULL;
   const gchar *specific_user;
   const gchar *password;
+  const gchar *user;
   const gchar *host;
   JsonNode *node;
   GError *error = NULL;
@@ -285,16 +286,17 @@ process_open (WebSocketData *data,
       node = json_object_get_member (options, "password");
       if (node && json_node_get_value_type (node) == G_TYPE_STRING)
         password = json_node_get_string (node);
-      creds = specific_creds = cockpit_creds_new_password (specific_user, password);
+      user = specific_user;
     }
   else
     {
-      creds = cockpit_creds_ref (data->authenticated);
+      user = cockpit_creds_get_user (data->authenticated);
+      password = cockpit_creds_get_password (data->authenticated);
     }
 
   /* TODO: For now one session per channel. eventually we want on one session per host/user */
   session = cockpit_fd_transport_spawn (host, data->specific_port, data->agent_program,
-                                        creds, data->rhost, specific_user != NULL, &error);
+                                        user, password, data->rhost, specific_user != NULL, &error);
 
   if (session)
     {

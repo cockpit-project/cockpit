@@ -22,7 +22,6 @@
 
 #include <gio/gio.h>
 
-#include "cockpitcreds.h"
 #include "cockpittransport.h"
 
 G_BEGIN_DECLS
@@ -44,7 +43,8 @@ CockpitTransport * cockpit_fd_transport_new          (const gchar *name,
 CockpitTransport * cockpit_fd_transport_spawn        (const gchar *host,
                                                       gint port,
                                                       const gchar *agent,
-                                                      CockpitCreds *creds,
+                                                      const gchar *user,
+                                                      const gchar *password,
                                                       const gchar *client,
                                                       gboolean force_remote,
                                                       GError **error);

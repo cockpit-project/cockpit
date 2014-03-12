@@ -22,7 +22,7 @@
 
 #include <gio/gio.h>
 
-#include "cockpittransport.h"
+#include "cockpit/cockpittransport.h"
 
 typedef struct _DBusServerData DBusServerData;
 

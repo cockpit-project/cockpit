@@ -1,0 +1,59 @@
+
+noinst_LIBRARIES += libcockpit-agent.a
+
+libcockpit_agent_a_SOURCES = \
+	src/agent/dbus-server.c src/agent/dbus-server.h
+
+libcockpit_agent_a_CFLAGS = \
+	$(cockpit_cppflags_common) \
+	$(cockpit_cppflags_glib_version) \
+	-I$(srcdir)/src/libgsystem \
+	-DG_LOG_DOMAIN=\"cockpit-agent\" \
+	$(COCKPIT_AGENT_CFLAGS) \
+	$(WARN_CFLAGS) \
+	$(NULL)
+
+libcockpit_agent_LIBS = \
+	libcockpit-agent.a \
+	libcockpit.a \
+	$(COCKPIT_AGENT_LIBS) \
+	$(NULL)
+
+# -----------------------------------------------------------------------------
+
+libexec_PROGRAMS += cockpit-session cockpit-agent
+
+cockpit_session_SOURCES = src/agent/session.c
+cockpit_session_LDADD = $(COCKPIT_SESSION_LIBS)
+
+cockpit_agent_SOURCES = src/agent/agent.c
+cockpit_agent_CFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-agent\" \
+	-I$(top_srcdir)/src/libgsystem \
+	$(COCKPIT_AGENT_CFLAGS) \
+	$(NULL)
+cockpit_agent_LDADD = $(libcockpit_agent_LIBS)
+
+# -----------------------------------------------------------------------------
+# TESTS
+
+noinst_PROGRAMS += test-agent
+testassets_programs += test-agent
+
+test_agent_SOURCES = src/agent/agent.c
+test_agent_CFLAGS = $(libcockpit_agent_a_CFLAGS)
+test_agent_LDADD = $(libcockpit_agent_LIBS)
+
+AGENT_CHECKS = \
+	test-dbusserver \
+	$(NULL)
+
+test_dbusserver_SOURCES =  \
+	src/agent/test-dbusserver.c \
+	$(test_dbus_sources) \
+	$(NULL)
+test_dbusserver_CFLAGS = $(libcockpit_agent_a_CFLAGS)
+test_dbusserver_LDADD = $(libcockpit_agent_LIBS)
+
+noinst_PROGRAMS += $(AGENT_CHECKS)
+TESTS += $(AGENT_CHECKS)

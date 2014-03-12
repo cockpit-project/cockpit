@@ -22,7 +22,7 @@
 #include "mock-auth.h"
 #include "cockpitwebsocket.h"
 #include "cockpitwebserver.h"
-#include "cockpittransport.h"
+#include "cockpit/cockpittransport.h"
 
 #include "websocket/websocket.h"
 

@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "mock-service.h"
-#include "test-server-generated.h"
+#include "test-dbus-generated.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>

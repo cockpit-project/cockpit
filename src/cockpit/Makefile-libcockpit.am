@@ -1,17 +1,21 @@
-dbus_built_sources = cockpit-generated.h cockpit-generated.c
+test_dbus_generated = test-dbus-generated.h test-dbus-generated.c
 
-cockpit-generated.h: cockpit-generated.c
-cockpit-generated.c: Makefile.am $(top_srcdir)/data/com.redhat.Cockpit.xml
+test-dbus-generated.h: test-dbus-generated.c
+test-dbus-generated.c: Makefile.am $(srcdir)/src/cockpit/com.redhat.Cockpit.DBusTests.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--interface-prefix com.redhat.Cockpit.				\
-		--c-namespace Cockpit							\
-		--c-generate-object-manager						\
-		--generate-c-code cockpit-generated                             		\
-		--generate-docbook cockpit-generated-doc					\
-		$(top_srcdir)/data/com.redhat.Cockpit.xml				\
+		--interface-prefix com.redhat.Cockpit.DBusTests \
+		--c-namespace Test \
+		--c-generate-object-manager \
+		--generate-c-code test-dbus-generated \
+		$(srcdir)/src/cockpit/com.redhat.Cockpit.DBusTests.xml \
 		$(NULL)
-BUILT_SOURCES += $(dbus_built_sources)
-CLEANFILES += cockpit-generated*
+
+test_dbus_sources = \
+	src/cockpit/mock-service.c src/cockpit/mock-service.h \
+	$(test_dbus_generated) \
+	$(NULL)
+
+BUILT_SOURCES += $(test_dbus_sources)
 
 cockpitenumtypes.h: src/cockpit/cockpitenums.h src/cockpit/cockpitenumtypes.h.template
 	$(AM_V_GEN) (glib-mkenums --template $(top_srcdir)/src/cockpit/cockpitenumtypes.h.template \
@@ -22,7 +26,13 @@ cockpitenumtypes.c: src/cockpit/cockpitenums.h src/cockpit/cockpitenumtypes.c.te
 		$(top_srcdir)/src/cockpit/cockpitenums.h) > $@.tmp && mv $@.tmp $@
 
 BUILT_SOURCES += cockpitenumtypes.h cockpitenumtypes.c
-EXTRA_DIST += src/cockpit/cockpitenumtypes.h.template src/cockpit/cockpitenumtypes.c.template
+
+EXTRA_DIST += \
+	src/cockpit/cockpitenumtypes.h.template \
+	src/cockpit/cockpitenumtypes.c.template \
+	src/cockpit/com.redhat.Cockpit.DBusTests.xml \
+	$(NULL)
+
 CLEANFILES += cockpitenumtypes.h cockpitenumtypes.c
 
 noinst_LIBRARIES += libcockpit.a
@@ -34,9 +44,32 @@ libcockpit_a_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
 	src/cockpit/cockpiterror.h src/cockpit/cockpiterror.c \
 	src/cockpit/cockpitlog.h src/cockpit/cockpitlog.c \
 	src/cockpit/cockpittypes.h \
+	src/cockpit/cockpittransport.c \
+	src/cockpit/cockpittransport.h \
+	src/cockpit/cockpitfdtransport.c \
+	src/cockpit/cockpitfdtransport.h \
 	$(NULL)
 
 libcockpit_a_CFLAGS = \
 	-DG_LOG_DOMAIN=\"libcockpit\"			\
-	$(GIO_CFLAGS)						\
+	$(COCKPIT_CFLAGS) \
 	$(NULL)
+
+libcockpit_a_LIBS = \
+	libcockpit.a \
+	$(COCKPIT_LIBS) \
+	$(NULL)
+
+# -----------------------------------------------------------------------------
+# TESTS
+
+COCKPIT_CHECKS = \
+	test-transport \
+	$(NULL)
+
+test_transport_CFLAGS = $(cockpit_ws_CFLAGS)
+test_transport_SOURCES = src/cockpit/test-transport.c
+test_transport_LDADD = $(libcockpit_a_LIBS)
+
+noinst_PROGRAMS += $(COCKPIT_CHECKS)
+TESTS += $(COCKPIT_CHECKS)

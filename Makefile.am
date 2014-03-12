@@ -20,14 +20,11 @@ DISTCHECK_CONFIGURE_FLAGS=						        \
 	$(NULL)
 
 AM_CPPFLAGS = \
-	-DSRCDIR=\"$(abs_srcdir)\" \
-	-DBUILDDIR=\"$(abs_builddir)\" \
-	$(NULL)
-
-cockpit_cppflags_common = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
+	-DSRCDIR=\"$(abs_srcdir)\" \
+	-DBUILDDIR=\"$(abs_builddir)\" \
 	-DPACKAGE_LIBEXEC_DIR=\""$(libexecdir)"\" \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \

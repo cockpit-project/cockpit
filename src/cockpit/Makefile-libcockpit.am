@@ -2,7 +2,7 @@ dbus_built_sources = cockpit-generated.h cockpit-generated.c
 
 cockpit-generated.h: cockpit-generated.c
 cockpit-generated.c: Makefile.am $(top_srcdir)/data/com.redhat.Cockpit.xml
-	$(AM_V_GEN) gdbus-codegen \
+	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 		--interface-prefix com.redhat.Cockpit.				\
 		--c-namespace Cockpit							\
 		--c-generate-object-manager						\

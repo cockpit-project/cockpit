@@ -39,11 +39,6 @@ cockpit_cppflags_common = \
 	-DCOCKPIT_COMPILATION \
 	$(NULL)
 
-cockpit_cppflags_glib_version = \
-	-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_34 \
-	-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_34 \
-	$(NULL)
-
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = $(top_srcdir)/tools/tap-gtester
 
@@ -85,6 +80,7 @@ endif
 
 JSLINT = $(top_srcdir)/tools/js-lint
 PO2JSON = $(top_srcdir)/tools/po2json
+GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
 
 testassetsdir = $(datadir)/cockpit-test-assets
 testassets_programs =

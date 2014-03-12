@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include "dbus-server.h"
-#include "cockpitfdtransport.h"
+#include "cockpit/cockpitfdtransport.h"
 
 #include "gsystem-local-alloc.h"
 

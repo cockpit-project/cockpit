@@ -29,8 +29,6 @@ G_BEGIN_DECLS
 #include <cockpitwebserver.h>
 #include <cockpitwebsocket.h>
 #include <cockpitauth.h>
-#include "cockpittransport.h"
-#include "cockpitfdtransport.h"
 
 G_END_DECLS
 

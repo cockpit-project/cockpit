@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "mock-service.h"
+#include "cockpit/mock-service.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>

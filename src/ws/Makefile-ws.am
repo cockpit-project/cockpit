@@ -10,10 +10,7 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
 	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
-	src/ws/cockpittransport.h	src/ws/cockpittransport.c	\
 	cockpitwsenumtypes.h	cockpitwsenumtypes.c	\
-	src/ws/cockpittransport.h src/ws/cockpittransport.c \
-	src/ws/cockpitfdtransport.h src/ws/cockpitfdtransport.c \
 	$(NULL)
 
 libcockpit_ws_a_CFLAGS = \
@@ -52,7 +49,6 @@ BUILT_SOURCES += cockpitwsenumtypes.c cockpitwsenumtypes.h
 EXTRA_DIST += \
 	src/ws/cockpitwsenumtypes.h.template \
 	src/ws/cockpitwsenumtypes.c.template \
-	src/ws/com.redhat.Cockpit.DBusTests.xml \
 	src/ws/mock_rsa_key \
 	src/ws/mock_dsa_key
 
@@ -63,7 +59,7 @@ CLEANFILES += \
 
 # ----------------------------------------------------------------------------------------------------
 
-libexec_PROGRAMS += cockpit-ws cockpit-session cockpit-agent
+libexec_PROGRAMS += cockpit-ws
 
 cockpit_ws_SOURCES =					\
 	src/ws/main.c					\
@@ -81,54 +77,11 @@ cockpit_ws_LDADD = 					\
 	$(COCKPIT_WS_LIBS)					\
 	$(NULL)
 
-cockpit_session_SOURCES =					\
-	src/ws/session.c				\
-	$(NULL)
-
-cockpit_session_LDADD = 					\
-	$(COCKPIT_SESSION_LIBS)				\
-	$(NULL)
-
-cockpit_agent_SOURCES =					\
-	src/ws/agent.c					\
-	src/ws/dbus-server.h				\
-	src/ws/dbus-server.c				\
-	src/ws/cockpitcreds.c \
-	src/ws/cockpittransport.c			\
-	src/ws/cockpitfdtransport.c			\
-	$(NULL)
-
-cockpit_agent_CFLAGS = 					\
-	-DG_LOG_DOMAIN=\"cockpit-agent\"			\
-	-I$(top_srcdir)/src/libgsystem			\
-	-I$(top_srcdir)/src/ws				\
-	$(COCKPIT_AGENT_CFLAGS)				\
-	$(NULL)
-
-cockpit_agent_LDADD = 					\
-	$(COCKPIT_AGENT_LIBS)				\
-	$(NULL)
-
 # ----------------------------------------------------------------------------------------------------
 
-$(test_server_built_sources) : Makefile.am $(top_srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--interface-prefix com.redhat.Cockpit.DBusTests                 	\
-		--c-namespace Test							\
-		--c-generate-object-manager						\
-		--generate-c-code test-server-generated                             	\
-		$(top_srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml		\
-		$(NULL)
+noinst_PROGRAMS += test-server
 
-test_server_built_sources =								\
-	test-server-generated.h			test-server-generated.c			\
-	$(NULL)
-
-BUILT_SOURCES += $(test_server_built_sources)
-
-noinst_PROGRAMS += test-server test-agent
-
-testassets_programs += test-server test-agent
+testassets_programs += test-server
 testassets_data += dbus-test.html \
                    dbus.js  \
                    channel.js \
@@ -137,8 +90,7 @@ testassets_data += dbus-test.html \
 
 test_server_SOURCES = 					\
 	src/ws/test-server.c				\
-	src/ws/mock-service.c src/ws/mock-service.h \
-	$(test_server_built_sources)			\
+	$(test_dbus_sources) \
 	$(NULL)
 
 test_server_CFLAGS = 					\
@@ -154,51 +106,13 @@ test_server_LDADD = 					\
 	-lpam 						\
 	$(NULL)
 
-test_dbusserver_SOURCES =  \
-	src/ws/dbus-server.c \
-	src/ws/test-dbusserver.c \
-	src/ws/mock-service.c \
-	$(test_server_built_sources) \
-	$(NULL)
-
-test_dbusserver_CFLAGS = \
-	$(test_server_CFLAGS) \
-	$(COCKPIT_AGENT_CFLAGS) \
-	$(NULL)
-
-test_dbusserver_LDADD =  \
-	$(libcockpit_ws_LIBS) \
-	$(COCKPIT_WS_LIBS) \
-	$(NULL)
-
-test_agent_SOURCES = 					\
-	src/ws/agent.c					\
-	src/ws/dbus-server.h 				\
-	src/ws/dbus-server.c 				\
-	src/ws/cockpitcreds.c \
-	src/ws/cockpittransport.c \
-	src/ws/cockpitfdtransport.c \
-	$(NULL)
-
-test_agent_CFLAGS = 					\
-	-DG_LOG_DOMAIN=\"test_agent\"			\
-	-I$(top_srcdir)/src/libgsystem			\
-	-I$(top_srcdir)/src/ws				\
-	$(COCKPIT_AGENT_CFLAGS)				\
-	$(NULL)
-
-test_agent_LDADD = 					\
-	$(COCKPIT_AGENT_LIBS)				\
-	$(NULL)
-
-CHECK_PROGS = \
+WS_CHECKS = \
 	test-creds \
 	test-auth \
 	test-transport \
 	test-webserver \
 	test-webservice \
 	test-handlers \
-	test-dbusserver \
 	test-server \
 	$(NULL)
 
@@ -211,17 +125,6 @@ test_auth_SOURCES = \
 	$(NULL)
 
 test_auth_LDADD = \
-	libcockpit-ws.a \
-	$(cockpit_ws_LDADD) \
-	$(NULL)
-
-test_transport_CFLAGS = $(cockpit_ws_CFLAGS)
-
-test_transport_SOURCES = \
-	src/ws/test-transport.c \
-	$(NULL)
-
-test_transport_LDADD = \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
@@ -280,12 +183,12 @@ mock_echo_CFLAGS = $(COCKPIT_WS_CFLAGS)
 mock_echo_LDADD = $(COCKPIT_WS_LIBS)
 
 noinst_PROGRAMS += \
-	$(CHECK_PROGS) \
+	$(WS_CHECKS) \
 	mock-sshd \
 	mock-echo \
 	$(NULL)
 
-TESTS += $(CHECK_PROGS)
+TESTS += $(WS_CHECKS)
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d

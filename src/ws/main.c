@@ -234,7 +234,9 @@ main (int argc,
   GError **error = &local_error;
   GMainLoop *loop;
 
+#if !GLIB_CHECK_VERSION(2,36,0)
   g_type_init ();
+#endif
 
   memset (&data, 0, sizeof (data));
 

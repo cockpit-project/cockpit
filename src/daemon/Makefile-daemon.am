@@ -78,7 +78,6 @@ cockpitd_SOURCES = \
 	$(NULL)
 
 cockpitd_CFLAGS = 					\
-	$(cockpit_cppflags_common)			\
 	-I$(top_srcdir)/src/daemon			\
 	-I$(top_srcdir)/src/libgsystem			\
 	-DG_LOG_DOMAIN=\"cockpitd\"			\

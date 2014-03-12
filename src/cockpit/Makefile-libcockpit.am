@@ -35,8 +35,7 @@ libcockpit_a_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
 	src/cockpit/cockpittypes.h \
 	$(NULL)
 
-libcockpit_a_CPPFLAGS = \
-	$(cockpit_cppflags_common)				\
+libcockpit_a_CFLAGS = \
 	-DG_LOG_DOMAIN=\"libcockpit\"			\
 	$(GIO_CFLAGS)						\
 	$(WARN_CFLAGS)						\

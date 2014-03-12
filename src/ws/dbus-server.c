@@ -935,7 +935,9 @@ dbus_server_serve_dbus (GBusType bus_type,
 {
   GError *error = NULL;
 
+#if !GLIB_CHECK_VERSION(2,36,0)
   g_type_init ();
+#endif
 
   GDBusObjectManager *object_manager =
     g_dbus_object_manager_client_new_for_bus_sync (bus_type,

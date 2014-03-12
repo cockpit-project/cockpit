@@ -39,11 +39,6 @@ cockpit_cppflags_common = \
 	-DCOCKPIT_COMPILATION \
 	$(NULL)
 
-cockpit_cppflags_glib_version = \
-	-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_34 \
-	-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_34 \
-	$(NULL)
-
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = $(top_srcdir)/tools/tap-gtester
 

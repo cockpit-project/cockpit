@@ -259,7 +259,7 @@ asyncTest("with params", function() {
 });
 
 asyncTest("not found", function() {
-    expect(2);
+    expect(4);
 
     var peer = new MockPeer();
     $(peer).on("get", function(event, channel, path) {
@@ -269,11 +269,13 @@ asyncTest("not found", function() {
     });
 
     $cockpit.rest("unix:///test").get("/not/found")
-        .done(function(resp) {
-            strictEqual(resp, null, "not found returned null");
+        .fail(function(ex) {
+            equal(ex.problem, "internal-error", "not found mapped to cockpit code");
+            strictEqual(ex.status, 404, "not found has status code");
+            equal(ex.message, "Not found", "not found has message");
         })
         .always(function() {
-            equal(this.state(), "resolved", "not found didn't fail");
+            equal(this.state(), "rejected", "not found should fail");
             start();
         });
 });
@@ -401,7 +403,7 @@ function failureTest(test_name, reason, resp_lines) {
 
         $cockpit.rest("unix:///test").get("/")
             .fail(function(ex) {
-                equal(ex, reason, test_name + " should cause " + reason);
+                equal(ex.problem, reason, test_name + " should cause " + reason);
             })
             .always(function() {
                 equal(this.state(), "rejected", test_name + " should fail");

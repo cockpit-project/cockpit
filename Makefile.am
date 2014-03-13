@@ -20,14 +20,11 @@ DISTCHECK_CONFIGURE_FLAGS=						        \
 	$(NULL)
 
 AM_CPPFLAGS = \
-	-DSRCDIR=\"$(abs_srcdir)\" \
-	-DBUILDDIR=\"$(abs_builddir)\" \
-	$(NULL)
-
-cockpit_cppflags_common = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
+	-DSRCDIR=\"$(abs_srcdir)\" \
+	-DBUILDDIR=\"$(abs_builddir)\" \
 	-DPACKAGE_LIBEXEC_DIR=\""$(libexecdir)"\" \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
@@ -37,11 +34,6 @@ cockpit_cppflags_common = \
 	-DPACKAGE_LIB_DIR=\""$(libdir)"\" \
 	-D_POSIX_PTHREAD_SEMANTICS -D_REENTRANT \
 	-DCOCKPIT_COMPILATION \
-	$(NULL)
-
-cockpit_cppflags_glib_version = \
-	-DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_34 \
-	-DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_34 \
 	$(NULL)
 
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
@@ -85,6 +77,7 @@ endif
 
 JSLINT = $(top_srcdir)/tools/js-lint
 PO2JSON = $(top_srcdir)/tools/po2json
+GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
 
 testassetsdir = $(datadir)/cockpit-test-assets
 testassets_programs =
@@ -112,6 +105,7 @@ libgsystem_srcpath := $(top_srcdir)/src/libgsystem
 libgsystem_cflags := -I$(top_srcdir)/src/libgsystem $(GIO_CFLAGS)
 EXTRA_DIST += src/libgsystem/gsystem-local-alloc.h
 
+include src/agent/Makefile-agent.am
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am
 include src/web/Makefile-web.am

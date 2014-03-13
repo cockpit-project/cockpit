@@ -20,8 +20,8 @@
 #include "config.h"
 
 #include "dbus-server.h"
-#include "mock-service.h"
-#include "cockpitfdtransport.h"
+#include "cockpit/mock-service.h"
+#include "cockpit/cockpitfdtransport.h"
 
 #include <json-glib/json-glib.h>
 

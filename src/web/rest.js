@@ -34,11 +34,11 @@
  *   Makes a REST JSON GET request to the specified HTTP path.
  *   Returns: a jQuery deferred object with the following promise:
  *      .done(function(resp) { }): called when REST operation completes
- *             and @resp will be the parsed JSON returned.
+ *             and @resp will be the parsed JSON returned, or null if
+ *             nothing was returned.
  *      .fail(function(reason) { }): called if the operation fails, with
  *             @reason as a standard cockpit error code.
  *
- * Example:
  *     $cockpit.rest("unix:///var/run/docker.sock")
  *          .get("/containers/json")
  *              .done(function(resp) {
@@ -47,6 +47,18 @@
  *              .fail(function(reason) {
  *                  console.warn(reason);
  *              });
+ *
+ * Rest.post(path, params)
+ *   @path: an HTTP path starting with a slash, optionally with query string
+ *   @params: optional, a plain object which will be encoded as JSON
+ *   Makes a REST JSON POST request as application/json to the specified
+ *   HTTP path.
+ *   Returns: a jQuery deferred object with the following promise:
+ *      .done(function(resp) { }): called when REST operation completes
+ *             and @resp will be the parsed JSON returned, or null if
+ *             nothing was returned.
+ *      .fail(function(reason) { }): called if the operation fails, with
+ *             @reason as a standard cockpit error code.
  */
 
 var $cockpit = $cockpit || { };
@@ -108,8 +120,12 @@ var $cockpit = $cockpit || { };
             "Connection: keep-alive"
         ];
 
-        /* TODO: Handle other than GET here */
-        if (method === "GET") {
+        if (method === "POST") {
+            if (params) {
+                body = JSON.stringify(params);
+                headers.push("Content-Type: application/json; charset=utf-8");
+            }
+        } else {
             if (params)
                 path += "?" + $.param(params);
         }
@@ -267,6 +283,13 @@ var $cockpit = $cockpit || { };
         this.get = function(path, params) {
             return http_perform(pool, process_json, {
                 "method": "GET",
+                "params": params,
+                "path": path
+            });
+        };
+        this.post = function(path, params) {
+            return http_perform(pool, process_json, {
+                "method": "POST",
                 "params": params,
                 "path": path
             });

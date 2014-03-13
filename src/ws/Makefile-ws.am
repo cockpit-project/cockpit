@@ -126,7 +126,8 @@ cockpit_agent_LDADD = 					\
 
 # ----------------------------------------------------------------------------------------------------
 
-$(test_server_built_sources) : Makefile.am $(top_srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml
+test-server-generated.h: test-server-generated.c
+test-server-generated.c: Makefile.am $(top_srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml
 	$(AM_V_GEN) gdbus-codegen \
 		--interface-prefix com.redhat.Cockpit.DBusTests                 	\
 		--c-namespace Test							\

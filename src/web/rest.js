@@ -39,8 +39,8 @@
  *              .done(function(resp) {
  *                  console.log(resp);
  *              })
- *              .fail(function(reason) {
- *                  console.warn(reason);
+ *              .fail(function(ex) {
+ *                  console.warn(ex);
  *              });
  *
  * Rest.del(path, params)
@@ -62,8 +62,9 @@
  *      .done(function(resp) { }): called when REST operation completes
  *             and @resp will be the parsed JSON returned, or null if
  *             nothing was returned.
- *      .fail(function(reason) { }): called if the operation fails, with
- *             @reason as a standard cockpit error code.
+ *      .fail(function(ex) { }): called if the operation fails, with
+ *             @ex.problem as a standard cockpit error code and @ex.status
+ *             as an HTTP code.
  *      .always(function() { }): called when the operation fails or
  *             completes. Use this.state() to see what happened.
  *      .stream(function(resp) { }): if a handler is attached to the
@@ -71,6 +72,14 @@
  *             mode and it is expected that the REST endpoint will return
  *             multiple JSON snippets. callback will be called mulitple
  *             times and the .done() callback will get null.
+ *
+ * RestError
+ *   Errors passd to the deferred .fail function will be of this class
+ *   and have the following properties:
+ *      .status: an HTTP status code, or zero if not an HTTP error
+ *      .message: an HTTP message
+ *      .problem: a Cockpit style problem code, mapped from the HTTP
+ *             status where possible.
  */
 
 var $cockpit = $cockpit || { };
@@ -79,21 +88,35 @@ var $cockpit = $cockpit || { };
     "use strict";
 
     /* Translates HTTP error codes to Cockpit codes */
-    function HttpError(status, reason) {
-        if (status == 400)
-            this.code = "protocol-error";
-        else if (status == 401 || status == 403)
-            this.code = "not-authorized";
-        else if (status == 404)
-            this.code = "not-found";
-        else
-            this.code = "internal-error";
-        this.toString = function() { return this.code; };
-    }
+    function RestError(arg0, arg1) {
+        var status = parseInt(arg0, 10);
+        if (isNaN(status)) {
+            this.problem = arg0;
+            this.status = 0;
+            this.message = arg1 || arg0;
+        } else {
+            this.status = status;
+            this.message = arg1;
+            if (status == 400)
+                this.problem = "protocol-error";
+            else if (status == 401 || status == 403)
+                this.problem = "not-authorized";
+            else
+                this.problem = "internal-error";
+        }
 
-    function CockpitError(reason) {
-        this.code = reason;
-        this.toString = function() { return this.code; };
+        this.valueOf = function() {
+            if (this.status === 0)
+                return this.problem;
+            else
+                return this.status;
+        };
+        this.toString = function() {
+            if (this.status === 0)
+                return this.problem;
+            else
+                return this.status + " " + this.message;
+        };
     }
 
     function ChannelPool(options) {
@@ -151,16 +174,14 @@ var $cockpit = $cockpit || { };
         return request;
     }
 
-    function process_json(state, body) {
-        if (state.status == 404)
-            return null; /* not found */
+    function process_json(body) {
         if (body === null || body === "")
             return null; /* no response */
         try {
             return $.parseJSON(body);
         } catch (ex) {
             console.log("Received bad JSON: ", ex);
-            throw new CockpitError("protocol-error");
+            throw new RestError("protocol-error");
         }
     }
 
@@ -177,27 +198,25 @@ var $cockpit = $cockpit || { };
             if (i === 0) {
                 var parts = line.split(/\s+/);
                 var version = parts.shift();
-                state.status = parts.shift();
-                var reason = parts.join(" ");
+                var status = parts.shift();
+                var message = parts.join(" ");
 
                 /* Check the http status is something sane */
-                if (state.status == 404) {
-                     rest_debug("interpreting 404 as a null response");
-                } else if (state.status != 200) {
-                     console.warn(state.status, reason);
-                     throw new HttpError(state.status, reason);
+                if (status < 200 || status > 299) {
+                     console.warn(status, message);
+                     throw new RestError(status, message);
                 }
 
                 /* Parse version after status, in case status has more info */
                 if (!version.match(/http\/1\.0/i)) {
                      console.warn("Got unsupported HTTP version:", version);
-                     throw new CockpitError("protocol-error");
+                     throw new RestError("protocol-error");
                 }
             } else {
                 var lp = line.indexOf(":");
                 if (lp == -1) {
                     console.warn("Invalid HTTP header without colon:", line);
-                    throw new CockpitError("protocol-error");
+                    throw new RestError("protocol-error");
                 }
                 var name = $.trim(line.substring(0, lp)).toLowerCase();
                 state.headers[name] = $.trim(line.substring(lp + 1));
@@ -215,25 +234,25 @@ var $cockpit = $cockpit || { };
             if (isNaN(length)) {
                 console.warn("Invalid HTTP Content-Length received:",
                              state.headers["content-length"]);
-                throw new CockpitError("protocol-error");
+                throw new RestError("protocol-error");
             }
             if (length < body.length) {
                 console.warn("Too much data in HTTP response: expected",
                              length, "got", body.length);
-                throw new CockpitError("protocol-error");
+                throw new RestError("protocol-error");
             }
             if (length > body.length) {
                 if (force) {
                     console.warn("Truncated HTTP response received: expected",
                                  length, "got", body.length);
-                    throw new CockpitError("protocol-error");
+                    throw new RestError("protocol-error");
                 }
                 return undefined; /* wait for more data */
             }
         }
 
         state.buffer = "";
-        return processor(state, body);
+        return processor(body);
     }
 
     function http_perform(pool, processor, args) {
@@ -248,8 +267,7 @@ var $cockpit = $cockpit || { };
         /* Used during response parsing */
         var state = {
             buffer: "",
-            headers: null,
-            status: null
+            headers: null
         };
 
         function process(data, problem, eof) {
@@ -257,17 +275,17 @@ var $cockpit = $cockpit || { };
             var ret;
             try {
                 if (problem)
-                    throw new CockpitError(problem);
+                    throw new RestError(problem);
                 if (state.headers === null)
                     parse_http_headers(state);
                 if (state.headers !== null)
                     ret = parse_http_body(state, eof || streamers, processor);
                 if (ret === undefined && eof) {
                     console.log("Received incomplete HTTP response");
-                    throw new CockpitError("protocol-error");
+                    throw new RestError("protocol-error");
                 }
             } catch (ex) {
-                if (ex.code)
+                if (ex instanceof RestError)
                     dfd.reject(ex);
                 else
                     throw ex;

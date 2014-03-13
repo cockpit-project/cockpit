@@ -30,6 +30,7 @@ cat <<EOF >$conf
 -context
 
 +define $
++define jQuery
 +define console
 +define window
 +define document
@@ -53,7 +54,7 @@ cat <<EOF >$conf
 +define WebSocket
 +define MozWebSocket
 EOF
-grep -h '^\(function\|var\)' "$@" | sed -e 's/[a-z]\+ \([a-zA-Z0-9_]\+\).*/+define \1/' >>$conf
+grep -h '^\(function\|var\)' "$@" | sed -e 's/[a-z]\+ \([$a-zA-Z0-9_]\+\).*/+define \1/' >>$conf
 
 ret=0
 for f in "$@"; do

@@ -71,7 +71,28 @@ function MockPeer() {
         console.assert(parts.length == 3);
         var method = parts[0].toLowerCase();
         var path = parts[1];
-        $(this).trigger(method, [channel, path]);
+
+        /* Parse out the headers */
+        var bpos = payload.indexOf("\r\n\r\n");
+        console.assert(bpos != -1, "got http request without body");
+        var lines = payload.substring(pos + 2, bpos).split("\r\n");
+        var headers = { };
+        $(lines).each(function(i, line) {
+            var cpos = line.indexOf(":");
+            console.assert(cpos != -1, "got http header without colon");
+            var name = $.trim(line.substring(0, cpos)).toLowerCase();
+            console.assert(headers[name] === undefined, "got duplicate header");
+            headers[name] = $.trim(line.substring(cpos + 1));
+        });
+
+        var body = payload.substring(bpos + 4);
+        if (headers["content-length"]) {
+            var length = parseInt(headers["content-length"]);
+            console.assert(!isNaN(length), "received bad Content-Length");
+            console.assert(body.length == length, "received incorrect body length");
+        }
+
+        $(this).trigger(method, [channel, path, body, headers]);
     };
 
     /* get event: triggered when we receive a get request */
@@ -231,6 +252,50 @@ asyncTest("not found", function() {
             start();
         });
 });
+
+asyncTest("post json", function() {
+    expect(4);
+
+    var peer = new MockPeer();
+    $(peer).on("post", function(event, channel, path, body) {
+        equal(path, "/scruffy", "post json correct path");
+        console.log(body);
+        deepEqual(JSON.parse(body), { "request": "oh?" }, "post json got request");
+        this.reply(channel, { "reply": "Marmallaaade!" });
+    });
+
+    $cockpit.rest("unix:///test").post("/scruffy", { "request": "oh?" })
+        .done(function(resp) {
+            deepEqual(resp, { "reply": "Marmallaaade!" }, "post json got reply");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "post json didn't fail");
+            start();
+        });
+});
+
+asyncTest("post nothing", function() {
+    expect(4);
+
+    var peer = new MockPeer();
+    $(peer).on("post", function(event, channel, path, body) {
+        equal(path, "/nothing", "post nothing correct path");
+        equal(body, "", "post nothing sent nothing");
+        this.send(channel, "HTTP/1.0 200 OK\r\n\r\n");
+        this.close(channel);
+        return false;
+    });
+
+    $cockpit.rest("unix:///test").post("/nothing")
+        .done(function(resp) {
+            equal(resp, null, "post nothing got null back");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "post nothing didn't fail");
+            start();
+        });
+});
+
 
 asyncTest("immediate close", function() {
     expect(2);

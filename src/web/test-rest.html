@@ -193,6 +193,31 @@ asyncTest("simple request", function() {
         });
 });
 
+asyncTest("split response", function() {
+    expect(2);
+
+    var peer = new MockPeer();
+    $(peer).on("get", function(event, channel, path) {
+        this.send(channel, "HTTP/1");
+        this.send(channel, ".0 200 OK\r");
+        this.send(channel, "\n\r\n");
+        this.send(channel, '{ "firs');
+        this.send(channel, 't": "line"');
+        this.send(channel, ', "second": ');
+        this.send(channel, '2 }');
+        this.close(channel);
+    });
+
+    $cockpit.rest("unix:///test").get("/split")
+        .done(function(resp) {
+            deepEqual(resp, { "first": "line", "second": 2 }, "split response returned right json");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "split response didn't fail");
+            start();
+        });
+});
+
 asyncTest("channel options", function() {
     expect(1);
 
@@ -249,6 +274,31 @@ asyncTest("not found", function() {
         })
         .always(function() {
             equal(this.state(), "resolved", "not found didn't fail");
+            start();
+        });
+});
+
+asyncTest("streaming", function() {
+    expect(11);
+
+    var peer = new MockPeer();
+    $(peer).on("get", function(event, channel, path) {
+        this.send(channel, "HTTP/1.0 200 OK\r\n\r\n");
+        for(var i = 0; i < 10; i++)
+            this.send(channel, '{ "' + i + '": ' + i + ' }');
+        this.close(channel);
+    });
+
+    var at = 0;
+    $cockpit.rest("unix:///test").get("/split")
+        .stream(function(resp) {
+            var match = { };
+            match[at.toString()] = at;
+            deepEqual(resp, match, "stream got right data");
+            at++;
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "split response didn't fail");
             start();
         });
 });

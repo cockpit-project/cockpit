@@ -296,6 +296,25 @@ asyncTest("post nothing", function() {
         });
 });
 
+asyncTest("delete method", function() {
+    expect(3);
+
+    var peer = new MockPeer();
+    $(peer).on("delete", function(event, channel, path) {
+        equal(path, "/undead?param=1", "delete method correct path");
+        this.reply(channel, [ "one", "two", "three", "boom" ]);
+    });
+
+    $cockpit.rest("unix:///test").del("/undead", { "param": 1 })
+        .done(function(resp) {
+            deepEqual(resp, [ "one", "two", "three", "boom" ], "delete method right response");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "delete method didn't fail");
+            start();
+        });
+});
+
 
 asyncTest("immediate close", function() {
     expect(2);

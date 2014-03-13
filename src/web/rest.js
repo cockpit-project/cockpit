@@ -32,12 +32,7 @@
  *   @path: an HTTP path starting with a slash
  *   @params: optional, a plain object of additional query params
  *   Makes a REST JSON GET request to the specified HTTP path.
- *   Returns: a jQuery deferred object with the following promise:
- *      .done(function(resp) { }): called when REST operation completes
- *             and @resp will be the parsed JSON returned, or null if
- *             nothing was returned.
- *      .fail(function(reason) { }): called if the operation fails, with
- *             @reason as a standard cockpit error code.
+ *   Returns: a jQuery deferred promise. See below.
  *
  *     $cockpit.rest("unix:///var/run/docker.sock")
  *          .get("/containers/json")
@@ -57,13 +52,25 @@
  *   @params: optional, a plain object which will be encoded as JSON
  *   Makes a REST JSON POST request as application/json to the specified
  *   HTTP path.
- *   Returns: a jQuery deferred object with the following promise:
+ *   Returns: a jQuery deferred promise. See below.
+ *
+ * Deferred promise (return values)
+ *   The return values from .get(), .post() and similar methods are jQuery
+ *   deferred promises. You can call various functions on these in order
+ *   to handle the responses. In addition there is an extra .stream()
+ *   method.
  *      .done(function(resp) { }): called when REST operation completes
  *             and @resp will be the parsed JSON returned, or null if
  *             nothing was returned.
  *      .fail(function(reason) { }): called if the operation fails, with
  *             @reason as a standard cockpit error code.
- *
+ *      .always(function() { }): called when the operation fails or
+ *             completes. Use this.state() to see what happened.
+ *      .stream(function(resp) { }): if a handler is attached to the
+ *             .stream() method then the response switches into streaming
+ *             mode and it is expected that the REST endpoint will return
+ *             multiple JSON snippets. callback will be called mulitple
+ *             times and the .done() callback will get null.
  */
 
 var $cockpit = $cockpit || { };
@@ -144,9 +151,11 @@ var $cockpit = $cockpit || { };
         return request;
     }
 
-    function process_json(headers, body) {
-        if (body === null || body === "")
+    function process_json(state, body) {
+        if (state.status == 404)
             return null; /* not found */
+        if (body === null || body === "")
+            return null; /* no response */
         try {
             return $.parseJSON(body);
         } catch (ex) {
@@ -155,28 +164,28 @@ var $cockpit = $cockpit || { };
         }
     }
 
-    function parse_http_response(response, eof, processor) {
-        var pos = response.indexOf("\r\n\r\n");
+    function parse_http_headers(state) {
+        var pos = state.buffer.indexOf("\r\n\r\n");
         if (pos == -1)
-            return undefined; /* no headers yet */
+            return; /* no headers yet */
 
-        var headers = { };
-        var lines = response.substring(0, pos).split("\r\n");
-        var body = response.substring(pos + 4);
+        state.headers = { };
+        var lines = state.buffer.substring(0, pos).split("\r\n");
+        state.buffer = state.buffer.substring(pos + 4);
         var num = 0;
         $(lines).each(function(i, line) {
             if (i === 0) {
                 var parts = line.split(/\s+/);
                 var version = parts.shift();
-                var status = parts.shift();
+                state.status = parts.shift();
                 var reason = parts.join(" ");
 
                 /* Check the http status is something sane */
-                if (status == 404) {
-                     body = null;
-                } else if (status != 200) {
-                     console.warn(status, reason);
-                     throw new HttpError(status, reason);
+                if (state.status == 404) {
+                     rest_debug("interpreting 404 as a null response");
+                } else if (state.status != 200) {
+                     console.warn(state.status, reason);
+                     throw new HttpError(state.status, reason);
                 }
 
                 /* Parse version after status, in case status has more info */
@@ -191,18 +200,21 @@ var $cockpit = $cockpit || { };
                     throw new CockpitError("protocol-error");
                 }
                 var name = $.trim(line.substring(0, lp)).toLowerCase();
-                headers[name] = $.trim(line.substring(lp + 1));
+                state.headers[name] = $.trim(line.substring(lp + 1));
             }
         });
+    }
 
-        if (headers["content-length"] === undefined) {
-            if (!eof)
+    function parse_http_body(state, force, processor) {
+        var body = state.buffer;
+        if (state.headers["content-length"] === undefined) {
+            if (!force)
                 return undefined; /* wait until end of channel */
         } else {
-            var length = parseInt(headers["content-length"], 10);
+            var length = parseInt(state.headers["content-length"], 10);
             if (isNaN(length)) {
                 console.warn("Invalid HTTP Content-Length received:",
-                             headers["content-length"]);
+                             state.headers["content-length"]);
                 throw new CockpitError("protocol-error");
             }
             if (length < body.length) {
@@ -211,7 +223,7 @@ var $cockpit = $cockpit || { };
                 throw new CockpitError("protocol-error");
             }
             if (length > body.length) {
-                if (eof) {
+                if (force) {
                     console.warn("Truncated HTTP response received: expected",
                                  length, "got", body.length);
                     throw new CockpitError("protocol-error");
@@ -220,7 +232,8 @@ var $cockpit = $cockpit || { };
             }
         }
 
-        return processor(headers, body);
+        state.buffer = "";
+        return processor(state, body);
     }
 
     function http_perform(pool, processor, args) {
@@ -229,31 +242,27 @@ var $cockpit = $cockpit || { };
         var channel = pool.checkout();
         channel.send(request);
 
-        var response = "";
-        $(channel).on("message", function(event, payload) {
-            rest_debug("rest message:", payload);
-            response += payload;
-            var ret;
-            try {
-                ret = parse_http_response(response, false, processor);
-            } catch (ex) {
-                if (ex.code)
-                    dfd.reject(ex);
-                else
-                    throw ex;
-            }
-            if (ret !== undefined)
-                dfd.resolve(ret);
-        });
+        /* Callbacks that want to stream response, see below */
+        var streamers = null;
 
-        $(channel).on("close", function(event, reason) {
-            rest_debug("rest closed:", reason);
+        /* Used during response parsing */
+        var state = {
+            buffer: "",
+            headers: null,
+            status: null
+        };
+
+        function process(data, problem, eof) {
+            state.buffer += data;
             var ret;
             try {
-                if (reason)
-                    throw new CockpitError(reason);
-                ret = parse_http_response(response, true, processor);
-                if (ret === undefined) {
+                if (problem)
+                    throw new CockpitError(problem);
+                if (state.headers === null)
+                    parse_http_headers(state);
+                if (state.headers !== null)
+                    ret = parse_http_body(state, eof || streamers, processor);
+                if (ret === undefined && eof) {
                     console.log("Received incomplete HTTP response");
                     throw new CockpitError("protocol-error");
                 }
@@ -263,15 +272,46 @@ var $cockpit = $cockpit || { };
                 else
                     throw ex;
             }
-            if (dfd.state() == "pending")
-                dfd.resolve(ret);
+            if (ret !== undefined) {
+                if (streamers) {
+                    if (ret !== null)
+                        streamers.fire(ret);
+                    ret = undefined;
+                }
+                if (!streamers || eof) {
+                    dfd.resolve(ret);
+                }
+            }
+        }
+
+        $(channel).on("message", function(event, payload) {
+            rest_debug("rest message:", payload);
+            process(payload);
+        });
+        $(channel).on("close", function(event, problem) {
+            rest_debug("rest closed:", problem);
+            process("", problem, true);
         });
 
+        /* This also stops events on the channel */
         dfd.always(function() {
             pool.checkin(channel);
         });
 
-        return dfd.promise();
+        var promise = dfd.promise();
+
+        /*
+         * An additional method on our deferred promise, which enables
+         * streaming of the resulting data.
+         */
+        promise.stream = function(callback) {
+            if (streamers === null)
+               streamers = $.Callbacks("" /* no flags */);
+            streamers.add(callback);
+            return this;
+        };
+
+        return promise;
     }
 
     function Rest(endpoint, machine, options) {

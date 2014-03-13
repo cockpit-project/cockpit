@@ -48,6 +48,10 @@
  *                  console.warn(reason);
  *              });
  *
+ * Rest.del(path, params)
+ *   See .get() method above. Behaves identically except for makes a DELETE
+ *   HTTP request.
+ *
  * Rest.post(path, params)
  *   @path: an HTTP path starting with a slash, optionally with query string
  *   @params: optional, a plain object which will be encoded as JSON
@@ -59,6 +63,7 @@
  *             nothing was returned.
  *      .fail(function(reason) { }): called if the operation fails, with
  *             @reason as a standard cockpit error code.
+ *
  */
 
 var $cockpit = $cockpit || { };
@@ -290,6 +295,13 @@ var $cockpit = $cockpit || { };
         this.post = function(path, params) {
             return http_perform(pool, process_json, {
                 "method": "POST",
+                "params": params,
+                "path": path
+            });
+        };
+        this.del = function(path, params) {
+            return http_perform(pool, process_json, {
+                "method": "DELETE",
                 "params": params,
                 "path": path
             });

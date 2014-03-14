@@ -468,6 +468,25 @@ cockpit_web_server_return_gerror (GOutputStream *out,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static const struct {
+    const gchar *extension;
+    const gchar *content_type;
+} CONTENT_TYPES[] = {
+  { ".css", "text/css" },
+  { ".gif", "image/gif" },
+  { ".eot", "application/vnd.ms-fontobject" },
+  { ".html", "text/html" },
+  { ".ico", "image/vnd.microsoft.icon" },
+  { ".jpg", "image/jpg" },
+  { ".js", "application/javascript" },
+  { ".otf", "font/opentype" },
+  { ".png", "image/png" },
+  { ".svg", "image/svg+xml" },
+  { ".ttf", "application/octet-stream" }, /* unassigned */
+  { ".woff", "application/font-woff" },
+  { ".xml", "text/xml" },
+};
+
 static void
 serve_static_file (CockpitWebServer *server,
                    GDataInputStream *input,
@@ -475,7 +494,6 @@ serve_static_file (CockpitWebServer *server,
                    const gchar *escaped,
                    GCancellable *cancellable)
 {
-  const gchar *content_type;
   GString *str = NULL;
   GError *local_error = NULL;
   GError **error = &local_error;
@@ -486,6 +504,7 @@ serve_static_file (CockpitWebServer *server,
   gs_unref_object GFileInputStream *file_in = NULL;
   gs_unref_object GFile *f = NULL;
   gs_unref_object GFileInfo *info = NULL;
+  gint i;
 
   query = strchr (escaped, '?');
   if (query != NULL)
@@ -517,9 +536,7 @@ again:
     }
 
   str = g_string_new ("HTTP/1.1 200 OK\r\n");
-  info = g_file_input_stream_query_info (file_in,
-                                         G_FILE_ATTRIBUTE_STANDARD_SIZE ","
-                                         G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+  info = g_file_input_stream_query_info (file_in, G_FILE_ATTRIBUTE_STANDARD_SIZE,
                                          cancellable, error);
   if (info == NULL)
     {
@@ -539,15 +556,15 @@ again:
                               "Content-Length: %" G_GINT64_FORMAT "\r\n",
                               g_file_info_get_size (info));
     }
-  content_type = g_file_info_get_content_type (info);
-  if (content_type != NULL)
+
+  for (i = 0; i < G_N_ELEMENTS (CONTENT_TYPES); i++)
     {
-      mime_type = g_content_type_get_mime_type (content_type);
-      if (mime_type != NULL)
+      if (g_str_has_suffix (path, CONTENT_TYPES[i].extension))
         {
           g_string_append_printf (str,
                                   "Content-Type: %s\r\n",
-                                  mime_type);
+                                  CONTENT_TYPES[i].content_type);
+          break;
         }
     }
 

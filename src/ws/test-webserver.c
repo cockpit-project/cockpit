@@ -21,7 +21,37 @@
 
 #include "cockpitwebserver.h"
 
+#include "websocket/websocket.h"
+#include "websocket/websocketprivate.h"
+
 #include <string.h>
+
+typedef struct {
+    CockpitWebServer *web_server;
+    gint port;
+} TestCase;
+
+static void
+setup (TestCase *tc,
+       gconstpointer data)
+{
+  GError *error = NULL;
+  tc->web_server = cockpit_web_server_new (0, NULL, BUILDDIR, NULL, &error);
+  g_assert_no_error (error);
+
+  /* Automatically chosen by the web server */
+  g_object_get (tc->web_server, "port", &tc->port, NULL);
+}
+
+static void
+teardown (TestCase *tc,
+          gconstpointer data)
+{
+  /* Verifies that we're not leaking the web server */
+  g_object_add_weak_pointer (G_OBJECT (tc->web_server), (gpointer *)&tc->web_server);
+  g_object_unref (tc->web_server);
+  g_assert (tc->web_server == NULL);
+}
 
 static void
 test_table (void)
@@ -160,6 +190,98 @@ test_return_gerror_headers (void)
   g_object_unref (out);
 }
 
+static void
+on_ready_get_result (GObject *source,
+                     GAsyncResult *result,
+                     gpointer user_data)
+{
+  GAsyncResult **retval = user_data;
+  g_assert (retval && *retval == NULL);
+  *retval = g_object_ref (result);
+}
+
+static gchar *
+perform_http_request (gint port,
+                      const gchar *request,
+                      gsize *length)
+{
+  GSocketClient *client;
+  GSocketConnection *conn;
+  GAsyncResult *result;
+  GInputStream *input;
+  GError *error = NULL;
+  GString *reply;
+  gsize len;
+  gssize ret;
+
+  client = g_socket_client_new ();
+
+  result = NULL;
+  g_socket_client_connect_to_host_async (client, "localhost", port, NULL, on_ready_get_result, &result);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  conn = g_socket_client_connect_to_host_finish (client, result, &error);
+  g_object_unref (result);
+  g_assert_no_error (error);
+
+  g_output_stream_write_all (g_io_stream_get_output_stream (G_IO_STREAM (conn)),
+                             request, strlen (request), NULL, NULL, &error);
+  g_assert_no_error (error);
+
+  reply = g_string_new ("");
+  input = g_io_stream_get_input_stream (G_IO_STREAM (conn));
+  for (;;)
+    {
+      result = NULL;
+      len = reply->len;
+      g_string_set_size (reply, len + 1024);
+      g_input_stream_read_async (input, reply->str + len, 1024, G_PRIORITY_DEFAULT,
+                                 NULL, on_ready_get_result, &result);
+      while (result == NULL)
+        g_main_context_iteration (NULL, TRUE);
+      ret = g_input_stream_read_finish (input, result, &error);
+      g_object_unref (result);
+      g_assert_no_error (error);
+      g_assert (ret >= 0);
+      g_string_set_size (reply, len + ret);
+      if (ret == 0)
+        break;
+    }
+
+  g_object_unref (conn);
+  g_object_unref (client);
+
+  *length = reply->len;
+  return g_string_free (reply, FALSE);
+}
+
+static void
+test_webserver_content_type (TestCase *tc,
+                             gconstpointer user_data)
+{
+  GHashTable *headers;
+  gchar *resp;
+  gsize length;
+  guint status;
+  gssize off;
+
+  resp = perform_http_request (tc->port, "GET /dbus-test.html HTTP/1.0\r\n\r\n", &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, >, 0);
+
+  off = _web_socket_util_parse_status_line (resp, length, &status, NULL);
+  g_assert_cmpuint (off, >, 0);
+  g_assert_cmpint (status, ==, 200);
+
+  off = web_socket_util_parse_headers (resp + off, length - off, &headers);
+  g_assert_cmpuint (off, >, 0);
+
+  g_assert_cmpstr (g_hash_table_lookup (headers, "Content-Type"), ==, "text/html");
+
+  g_hash_table_unref (headers);
+  g_free (resp);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -177,6 +299,9 @@ main (int argc,
   g_test_add_func ("/web-server/return-error", test_return_error);
   g_test_add_func ("/web-server/return-error-headers", test_return_error_headers);
   g_test_add_func ("/web-server/return-gerror-headers", test_return_gerror_headers);
+
+  g_test_add ("/web-server/content-type", TestCase, NULL,
+              setup, test_webserver_content_type, teardown);
 
   return g_test_run ();
 }

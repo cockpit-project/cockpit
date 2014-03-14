@@ -1,6 +1,7 @@
 test_dbus_generated = test-dbus-generated.h test-dbus-generated.c
 
-$(test_dbus_generated) : Makefile.am $(srcdir)/src/cockpit/com.redhat.Cockpit.DBusTests.xml
+test-dbus-generated.h: test-dbus-generated.c
+test-dbus-generated.c: Makefile.am $(srcdir)/src/cockpit/com.redhat.Cockpit.DBusTests.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 		--interface-prefix com.redhat.Cockpit.DBusTests \
 		--c-namespace Test \

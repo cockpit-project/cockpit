@@ -2,7 +2,8 @@ libexec_PROGRAMS += cockpitd
 
 dbus_built_sources = cockpit-generated.h cockpit-generated.c
 
-$(dbus_built_sources) : Makefile.am $(top_srcdir)/data/com.redhat.Cockpit.xml
+cockpit-generated.h: cockpit-generated.c
+cockpit-generated.c: Makefile.am $(top_srcdir)/data/com.redhat.Cockpit.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 		--interface-prefix com.redhat.Cockpit.				\
 		--c-namespace Cockpit							\
@@ -15,7 +16,7 @@ BUILT_SOURCES += $(dbus_built_sources)
 CLEANFILES += cockpit-generated*
 
 lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
-# Split it like this so we don't get a race condition where both files are tried to be generated at the same time
+
 com.redhat.lvm2.h : com.redhat.lvm2.c
 com.redhat.lvm2.c : Makefile.am /usr/share/dbus-1/interfaces/com.redhat.lvm2.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN)  \

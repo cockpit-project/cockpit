@@ -34,7 +34,224 @@
 
 #include "websocket/websocket.h"
 
-/* ---------------------------------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
+ * CockpitSession
+ */
+
+/* The session timeout when no channels */
+#define TIMEOUT 30
+
+typedef struct
+{
+  gchar *host;
+  gchar *user;
+} CockpitHostUser;
+
+typedef struct
+{
+  CockpitHostUser key;
+  GArray *channels;
+  CockpitTransport *transport;
+  guint timeout;
+} CockpitSession;
+
+typedef struct
+{
+  GHashTable *by_host_user;
+  GHashTable *by_channel;
+  GHashTable *by_transport;
+} CockpitSessions;
+
+static guint
+host_user_hash (gconstpointer v)
+{
+  const CockpitHostUser *hu = v;
+  return g_str_hash (hu->host) ^ g_str_hash (hu->user);
+}
+
+static gboolean
+host_user_equal (gconstpointer v1,
+                 gconstpointer v2)
+{
+  const CockpitHostUser *hu1 = v1;
+  const CockpitHostUser *hu2 = v2;
+  return g_str_equal (hu1->host, hu2->host) &&
+         g_str_equal (hu1->user, hu2->user);
+}
+
+/* Should only called as a hash table GDestroyNotify */
+static void
+cockpit_session_free (gpointer data)
+{
+  CockpitSession *session = data;
+
+  g_debug ("%s: freeing session", session->key.host);
+
+  if (session->timeout)
+    g_source_remove (session->timeout);
+  g_array_free (session->channels, TRUE);
+  g_object_unref (session->transport);
+  g_free (session->key.host);
+  g_free (session->key.user);
+  g_free (session);
+}
+
+static void
+cockpit_sessions_init (CockpitSessions *sessions)
+{
+  sessions->by_channel = g_hash_table_new (g_direct_hash, g_direct_equal);
+  sessions->by_host_user = g_hash_table_new (host_user_hash, host_user_equal);
+
+  /* This owns the session */
+  sessions->by_transport = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+                                                  NULL, cockpit_session_free);
+}
+
+inline static CockpitSession *
+cockpit_session_by_channel (CockpitSessions *sessions,
+                            guint channel)
+{
+  return g_hash_table_lookup (sessions->by_channel, GUINT_TO_POINTER (channel));
+}
+
+inline static CockpitSession *
+cockpit_session_by_transport (CockpitSessions *sessions,
+                              CockpitTransport *transport)
+{
+  return g_hash_table_lookup (sessions->by_transport, transport);
+}
+
+inline static CockpitSession *
+cockpit_session_by_host_user (CockpitSessions *sessions,
+                              const gchar *host,
+                              const gchar *user)
+{
+  const CockpitHostUser hu = { (gchar *)host, (gchar *)user };
+  return g_hash_table_lookup (sessions->by_host_user, &hu);
+}
+
+static gboolean
+on_timeout_cleanup_session (gpointer user_data)
+{
+  CockpitSession *session = user_data;
+
+  session->timeout = 0;
+  if (session->channels->len == 0)
+    {
+      /*
+       * This should cause the transport to immediately be closed
+       * and on_session_closed() will react and remove it from
+       * the main session lookup tables.
+       */
+      g_debug ("%s: session timed out without channels", session->key.host);
+      cockpit_transport_close (session->transport, "timeout");
+    }
+  return FALSE;
+}
+
+static void
+cockpit_session_remove_channel (CockpitSessions *sessions,
+                                CockpitSession *session,
+                                guint channel)
+{
+  guint i;
+
+  g_hash_table_remove (sessions->by_channel, GUINT_TO_POINTER (channel));
+
+  for (i = 0; i < session->channels->len; i++)
+    {
+      if (g_array_index (session->channels, guint, i) == channel)
+        g_array_remove_index_fast (session->channels, i++);
+    }
+
+  if (session->channels->len == 0)
+    {
+      /*
+       * Close sessions that are no longer in use after N seconds
+       * of them being that way.
+       */
+      g_debug ("%s: removed last channel %u for session", session->key.host, channel);
+      session->timeout = g_timeout_add_seconds (TIMEOUT, on_timeout_cleanup_session, session);
+    }
+  else
+    {
+      g_debug ("%s: removed channel %u for session", session->key.host, channel);
+    }
+}
+
+static void
+cockpit_session_add_channel (CockpitSessions *sessions,
+                             CockpitSession *session,
+                             guint channel)
+{
+  g_hash_table_insert (sessions->by_channel, GUINT_TO_POINTER (channel), session);
+  g_array_append_val (session->channels, channel);
+
+  g_debug ("%s: added channel %u to session", session->key.host, channel);
+
+  if (session->timeout)
+    {
+      g_source_remove (session->timeout);
+      session->timeout = 0;
+    }
+}
+
+static CockpitSession *
+cockpit_session_track (CockpitSessions *sessions,
+                       const gchar *host,
+                       const gchar *user,
+                       CockpitTransport *transport)
+{
+  CockpitSession *session;
+
+  g_debug ("%s: new session", host);
+
+  session = g_new0 (CockpitSession, 1);
+  session->channels = g_array_sized_new (FALSE, TRUE, sizeof (guint), 2);
+  session->transport = g_object_ref (transport);
+  session->key.host = g_strdup (host);
+  session->key.user = g_strdup (user);
+
+  g_hash_table_insert (sessions->by_host_user, &session->key, session);
+
+  /* This owns the session */
+  g_hash_table_insert (sessions->by_transport, transport, session);
+
+  return session;
+}
+
+static void
+cockpit_session_destroy (CockpitSessions *sessions,
+                         CockpitSession *session)
+{
+  guint channel;
+  guint i;
+
+  g_debug ("%s: destroy session", session->key.host);
+
+  for (i = 0; i < session->channels->len; i++)
+    {
+      channel = g_array_index (session->channels, guint, i);
+      g_hash_table_remove (sessions->by_channel, GUINT_TO_POINTER (channel));
+    }
+
+  g_hash_table_remove (sessions->by_host_user, &session->key);
+
+  /* This owns the session */
+  g_hash_table_remove (sessions->by_transport, session->transport);
+}
+
+static void
+cockpit_sessions_cleanup (CockpitSessions *sessions)
+{
+  g_hash_table_destroy (sessions->by_channel);
+  g_hash_table_destroy (sessions->by_host_user);
+  g_hash_table_destroy (sessions->by_transport);
+}
+
+/* ----------------------------------------------------------------------------
+ * Web Socket Routing
+ */
 
 typedef struct
 {
@@ -49,8 +266,7 @@ typedef struct
   gint                      rport;
 
   JsonParser *parser;
-  GHashTable *channels;    /* channel -> session */
-  GHashTable *sessions;    /* session -> channel */
+  CockpitSessions sessions;
   gboolean eof_to_session;
   GBytes *control_prefix;
 
@@ -60,8 +276,7 @@ typedef struct
 static void
 web_socket_data_free (WebSocketData   *data)
 {
-  g_hash_table_unref (data->channels);
-  g_hash_table_unref (data->sessions);
+  cockpit_sessions_cleanup (&data->sessions);
   g_object_unref (data->parser);
   g_object_unref (data->web_socket);
   g_bytes_unref (data->control_prefix);
@@ -124,20 +339,11 @@ outbound_protocol_error (WebSocketData *data,
 
 static gboolean
 process_close (WebSocketData *data,
+               CockpitSession *session,
                guint channel,
                JsonObject *options)
 {
-  CockpitTransport *session;
-
-  session = g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel));
-  if (!session)
-    {
-      g_warning ("Closing a channel that doesn't exist: %u", channel);
-      return FALSE;
-    }
-
-  /* TODO: Right now closing a channel means closing the session */
-  cockpit_transport_close (session, NULL);
+  cockpit_session_remove_channel (&data->sessions, session, channel);
   return TRUE;
 }
 
@@ -146,6 +352,7 @@ dispatch_outbound_command (WebSocketData *data,
                            CockpitTransport *source,
                            GBytes *payload)
 {
+  CockpitSession *session;
   const gchar *command;
   guint channel;
   JsonObject *options;
@@ -159,13 +366,19 @@ dispatch_outbound_command (WebSocketData *data,
        * must have a channel, and it must match one of the channels opened
        * to that particular session.
        */
-      if (channel == 0 || g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel)) != source)
+      session = cockpit_session_by_channel (&data->sessions, channel);
+      if (!session)
+        {
+          g_warning ("Channel does not exist: %u", channel);
+          valid = FALSE;
+        }
+      else if (session->transport != source)
         {
           g_warning ("Received a command with wrong channel from session");
           valid = FALSE;
         }
       else if (g_strcmp0 (command, "close") == 0)
-        valid = process_close (data, channel, options);
+        valid = process_close (data, session, channel, options);
       else if (g_strcmp0 (command, "ping") == 0)
         return; /* drop pings */
       else
@@ -190,7 +403,7 @@ on_session_recv (CockpitTransport *transport,
                  gpointer user_data)
 {
   WebSocketData *data = user_data;
-  CockpitTransport *session;
+  CockpitSession *session;
   gchar *string;
   GBytes *prefix;
 
@@ -200,14 +413,14 @@ on_session_recv (CockpitTransport *transport,
       return TRUE;
     }
 
-  session = g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel));
+  session = cockpit_session_by_channel (&data->sessions, channel);
   if (session == NULL)
     {
       g_warning ("Rceived message with unknown channel from session");
       outbound_protocol_error (data, transport);
       return FALSE;
     }
-  else if (session != transport)
+  else if (session->transport != transport)
     {
       g_warning ("Received message with wrong channel from session");
       outbound_protocol_error (data, transport);
@@ -232,14 +445,15 @@ on_session_closed (CockpitTransport *transport,
                    gpointer user_data)
 {
   WebSocketData *data = user_data;
-  guint channel;
+  CockpitSession *session;
+  guint i;
 
-  channel = GPOINTER_TO_UINT (g_hash_table_lookup (data->sessions, transport));
-  if (channel != 0)
+  session = cockpit_session_by_transport (&data->sessions, transport);
+  if (session != NULL)
     {
-      g_hash_table_remove (data->channels, GUINT_TO_POINTER (channel));
-      g_hash_table_remove (data->sessions, transport);
-      report_close (data, channel, problem);
+      for (i = 0; i < session->channels->len; i++)
+        report_close (data, g_array_index (session->channels, guint, i), problem);
+      cockpit_session_destroy (&data->sessions, session);
     }
 }
 
@@ -248,7 +462,8 @@ process_open (WebSocketData *data,
               guint channel,
               JsonObject *options)
 {
-  CockpitTransport *session;
+  CockpitSession *session;
+  CockpitTransport *transport;
   const gchar *specific_user;
   const gchar *password;
   const gchar *user;
@@ -261,7 +476,7 @@ process_open (WebSocketData *data,
       return TRUE;
     }
 
-  if (g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel)))
+  if (cockpit_session_by_channel (&data->sessions, channel))
     {
       g_warning ("Cannot open a channel with the same number as another channel");
       return FALSE;
@@ -285,24 +500,29 @@ process_open (WebSocketData *data,
       password = cockpit_creds_get_password (data->authenticated);
     }
 
-  /* TODO: For now one session per channel. eventually we want on one session per host/user */
-  session = cockpit_pipe_transport_spawn (host, data->specific_port, data->agent_program,
-                                          user, password, data->rhost, specific_user != NULL, &error);
+  session = cockpit_session_by_host_user (&data->sessions, host, user);
+  if (!session)
+    {
+      transport = cockpit_pipe_transport_spawn (host, data->specific_port, data->agent_program,
+                                                user, password, data->rhost, specific_user != NULL, &error);
+
+      if (transport)
+        {
+          g_signal_connect (transport, "recv", G_CALLBACK (on_session_recv), data);
+          g_signal_connect (transport, "closed", G_CALLBACK (on_session_closed), data);
+          session = cockpit_session_track (&data->sessions, host, user, transport);
+          g_object_unref (transport);
+        }
+      else
+        {
+          g_warning ("Failed to set up session: %s", error->message);
+          g_clear_error (&error);
+          report_close (data, channel, "internal-error");
+        }
+    }
 
   if (session)
-    {
-      g_signal_connect (session, "recv", G_CALLBACK (on_session_recv), data);
-      g_signal_connect (session, "closed", G_CALLBACK (on_session_closed), data);
-      g_hash_table_insert (data->channels, GUINT_TO_POINTER (channel), g_object_ref (session));
-      g_hash_table_insert (data->sessions, g_object_ref (session), GUINT_TO_POINTER (channel));
-      g_object_unref (session);
-    }
-  else
-    {
-      g_warning ("Failed to set up session: %s", error->message);
-      g_clear_error (&error);
-      report_close (data, channel, "internal-error");
-    }
+    cockpit_session_add_channel (&data->sessions, session, channel);
 
   return TRUE;
 }
@@ -326,7 +546,7 @@ dispatch_inbound_command (WebSocketData *data,
   guint channel;
   JsonObject *options;
   gboolean valid = FALSE;
-  CockpitTransport *session;
+  CockpitSession *session;
   GHashTableIter iter;
 
   if (cockpit_transport_parse_command (data->parser, payload,
@@ -350,16 +570,16 @@ dispatch_inbound_command (WebSocketData *data,
   else if (channel == 0)
     {
       /* Control messages without a channel get sent to all sessions */
-      g_hash_table_iter_init (&iter, data->sessions);
+      g_hash_table_iter_init (&iter, data->sessions.by_transport);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
-        cockpit_transport_send (session, 0, payload);
+        cockpit_transport_send (session->transport, 0, payload);
     }
   else
     {
       /* Control messages with a channel get forward to that session */
-      session = g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel));
+      session = cockpit_session_by_channel (&data->sessions, channel);
       if (session)
-        cockpit_transport_send (session, 0, payload);
+        cockpit_transport_send (session->transport, 0, payload);
       else
         g_debug ("Dropping control message with unknown channel: %u", channel);
     }
@@ -371,7 +591,7 @@ on_web_socket_message (WebSocketConnection *web_socket,
                        GBytes *message,
                        WebSocketData *data)
 {
-  CockpitTransport *session;
+  CockpitSession *session;
   guint channel;
   GBytes *payload;
 
@@ -388,9 +608,9 @@ on_web_socket_message (WebSocketConnection *web_socket,
   /* An actual payload message */
   else if (!data->eof_to_session)
     {
-      session = g_hash_table_lookup (data->channels, GUINT_TO_POINTER (channel));
+      session = cockpit_session_by_channel (&data->sessions, channel);
       if (session)
-        cockpit_transport_send (session, channel, payload);
+        cockpit_transport_send (session->transport, channel, payload);
       else
         g_message ("Received message for unknown channel: %u", channel);
     }
@@ -435,7 +655,7 @@ static gboolean
 on_web_socket_closing (WebSocketConnection *web_socket,
                        WebSocketData *data)
 {
-  CockpitTransport *session;
+  CockpitSession *session;
   GHashTableIter iter;
   gint sent = 0;
 
@@ -444,10 +664,10 @@ on_web_socket_closing (WebSocketConnection *web_socket,
   if (!data->eof_to_session)
     {
       data->eof_to_session = TRUE;
-      g_hash_table_iter_init (&iter, data->channels);
+      g_hash_table_iter_init (&iter, data->sessions.by_transport);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
         {
-          cockpit_transport_close (session, NULL);
+          cockpit_transport_close (session->transport, NULL);
           sent++;
         }
     }
@@ -514,8 +734,7 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
 
   data->parser = json_parser_new ();
   data->control_prefix = g_bytes_new_static ("0\n", 2);
-  data->sessions = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, NULL);
-  data->channels = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
+  cockpit_sessions_init (&data->sessions);
 
   data->authenticated = cockpit_auth_check_headers (auth, headers, NULL);
   if (data->authenticated)

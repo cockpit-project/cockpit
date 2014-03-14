@@ -52,6 +52,7 @@ typedef struct
   CockpitHostUser key;
   GArray *channels;
   CockpitTransport *transport;
+  gboolean sent_eof;
   guint timeout;
 } CockpitSession;
 
@@ -267,7 +268,7 @@ typedef struct
 
   JsonParser *parser;
   CockpitSessions sessions;
-  gboolean eof_to_session;
+  gboolean closing;
   GBytes *control_prefix;
 
   GMainContext            *main_context;
@@ -352,7 +353,7 @@ dispatch_outbound_command (WebSocketData *data,
                            CockpitTransport *source,
                            GBytes *payload)
 {
-  CockpitSession *session;
+  CockpitSession *session = NULL;
   const gchar *command;
   guint channel;
   JsonObject *options;
@@ -385,7 +386,7 @@ dispatch_outbound_command (WebSocketData *data,
         valid = TRUE; /* forward other messages */
     }
 
-  if (valid && !data->eof_to_session)
+  if (valid && !session->sent_eof)
     {
       if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
         web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, data->control_prefix, payload);
@@ -470,7 +471,7 @@ process_open (WebSocketData *data,
   const gchar *host;
   GError *error = NULL;
 
-  if (data->eof_to_session)
+  if (data->closing)
     {
       g_debug ("Ignoring open command during while web socket is closing");
       return TRUE;
@@ -572,14 +573,20 @@ dispatch_inbound_command (WebSocketData *data,
       /* Control messages without a channel get sent to all sessions */
       g_hash_table_iter_init (&iter, data->sessions.by_transport);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
-        cockpit_transport_send (session->transport, 0, payload);
+        {
+          if (!session->sent_eof)
+            cockpit_transport_send (session->transport, 0, payload);
+        }
     }
   else
     {
       /* Control messages with a channel get forward to that session */
       session = cockpit_session_by_channel (&data->sessions, channel);
       if (session)
-        cockpit_transport_send (session->transport, 0, payload);
+        {
+          if (!session->sent_eof)
+            cockpit_transport_send (session->transport, 0, payload);
+        }
       else
         g_debug ("Dropping control message with unknown channel: %u", channel);
     }
@@ -606,13 +613,18 @@ on_web_socket_message (WebSocketConnection *web_socket,
     }
 
   /* An actual payload message */
-  else if (!data->eof_to_session)
+  else if (!data->closing)
     {
       session = cockpit_session_by_channel (&data->sessions, channel);
       if (session)
-        cockpit_transport_send (session->transport, channel, payload);
+        {
+          if (!session->sent_eof)
+            cockpit_transport_send (session->transport, channel, payload);
+        }
       else
-        g_message ("Received message for unknown channel: %u", channel);
+        {
+          g_message ("Received message for unknown channel: %u", channel);
+        }
     }
 
   g_bytes_unref (payload);
@@ -661,12 +673,13 @@ on_web_socket_closing (WebSocketConnection *web_socket,
 
   g_debug ("web socket closing");
 
-  if (!data->eof_to_session)
+  if (!data->closing)
     {
-      data->eof_to_session = TRUE;
+      data->closing = TRUE;
       g_hash_table_iter_init (&iter, data->sessions.by_transport);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
         {
+          session->sent_eof = TRUE;
           cockpit_transport_close (session->transport, NULL);
           sent++;
         }

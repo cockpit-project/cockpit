@@ -34,54 +34,57 @@
    of the user that is logged into the Server Console.
 */
 
-/*
- * TODO: Currently this only handles one channel per agent. Future
- * work will make it so that each agent (and thus ssh connection)
- * can handle mulitple channels.
- */
-
-
-static CockpitChannel *the_channel = NULL;
-static guint the_number = 0;
+static GHashTable *channels;
 
 static void
 on_channel_closed (CockpitChannel *channel,
                    const gchar *problem,
                    gpointer user_data)
 {
-  g_object_unref (the_channel);
-  the_channel = NULL;
-  the_number = 0;
+  guint channel_number = 0;
+  g_object_get (channel, "channel", &channel_number, NULL);
+  g_hash_table_remove (channels, GUINT_TO_POINTER (channel_number));
 }
 
 static void
 process_open (CockpitTransport *transport,
-              guint channel,
+              guint channel_number,
               JsonObject *options)
 {
-  if (the_channel != NULL)
+  CockpitChannel *channel;
+
+  if (g_hash_table_lookup (channels, GUINT_TO_POINTER (channel_number)))
     {
-      g_warning ("Caller tried to open more than one channel");
+      g_warning ("Caller tried to reuse a channel that's already in use");
       cockpit_transport_close (transport, "protocol-error");
       return;
     }
 
-  the_number = channel;
-  the_channel = cockpit_channel_open (transport, channel, options);
-  g_signal_connect (the_channel, "closed", G_CALLBACK (on_channel_closed), NULL);
+  channel = cockpit_channel_open (transport, channel_number, options);
+  g_hash_table_insert (channels, GUINT_TO_POINTER (channel_number), channel);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), NULL);
 }
 
 static void
 process_close (CockpitTransport *transport,
-               guint channel)
+               guint channel_number)
 {
-  if (the_number == channel)
-    {
-      g_debug ("Close channel %u", channel);
+  CockpitChannel *channel;
 
-      /* Might be set to NULL if race between client/server close */
-      if (the_channel)
-        cockpit_channel_close (the_channel, NULL);
+  /*
+   * The channel may no longer exist due to a race of the agent closing
+   * a channel and the web closing it at the same time.
+   */
+
+  channel = g_hash_table_lookup (channels, GUINT_TO_POINTER (channel_number));
+  if (channel)
+    {
+      g_debug ("Close channel %u", channel_number);
+      cockpit_channel_close (channel, NULL);
+    }
+  else
+    {
+      g_debug ("Already closed channel %u", channel_number);
     }
 }
 
@@ -153,9 +156,13 @@ main (int argc,
   g_signal_connect (transport, "recv", G_CALLBACK (on_transport_recv), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
+  /* Owns the channels */
+  channels = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
+
   while (!closed)
     g_main_context_iteration (NULL, TRUE);
 
   g_object_unref (transport);
+  g_hash_table_destroy (channels);
   exit (0);
 }

@@ -300,6 +300,7 @@ static void
 test_cockpitdyn (Test *test,
                  gconstpointer data)
 {
+  const gchar *output;
   gboolean ret;
   gchar hostname[256];
   gchar *expected;
@@ -321,7 +322,10 @@ test_cockpitdyn (Test *test,
   g_assert (gethostname (hostname, sizeof (hostname)) == 0);
   expected = g_strdup_printf ("HTTP/1.1 200 OK\r\n*cockpitdyn_hostname = \"%s\";\n*cockpitdyn_pretty_hostname*cockpitdyn_supported_languages*",
                               hostname);
-  assert_matches (output_as_string (test), expected);
+
+  output = output_as_string (test);
+  assert_matches (output, expected);
+  assert_matches (output, "*Content-Type: application/javascript\r\n*");
   g_free (expected);
 }
 

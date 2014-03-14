@@ -22,6 +22,7 @@
 #include "cockpithandlers.h"
 #include "cockpitws.h"
 
+#include "websocket/websocket.h"
 #include <cockpit/cockpit.h>
 
 #include "gsystem-local-alloc.h"
@@ -278,6 +279,7 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
                             CockpitHandlerData *data)
 {
   GError *error = NULL;
+  GHashTable *out_headers;
   GVariant *retval;
   GVariant *props;
   GString *str;
@@ -355,7 +357,10 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
     }
   g_string_append (str, "};\n");
 
-  cockpit_web_server_return_content (G_OUTPUT_STREAM (out), NULL, str->str, str->len);
+  out_headers = web_socket_util_new_headers ();
+  g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup ("application/javascript"));
+  cockpit_web_server_return_content (G_OUTPUT_STREAM (out), out_headers, str->str, str->len);
+  g_hash_table_unref (out_headers);
   g_string_free (str, TRUE);
   return TRUE;
 }

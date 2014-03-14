@@ -155,6 +155,7 @@ connect_in_idle (gpointer user_data)
   GSocketAddress *address;
   const gchar *unix_path;
   GError *error = NULL;
+  const gchar *problem;
   gint fd;
 
   if (self->closing)
@@ -192,9 +193,22 @@ connect_in_idle (gpointer user_data)
 
   if (error)
     {
-      g_warning ("%s: %s", unix_path, error->message);
+      problem = NULL;
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+        problem = "not-found";
+      else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
+        problem = "not-authorized";
+      if (problem)
+        {
+          g_message ("%s: %s", unix_path, error->message);
+          cockpit_channel_close (channel, problem);
+        }
+      else
+        {
+          g_warning ("%s: %s", unix_path, error->message);
+          cockpit_channel_close (channel, "internal-error");
+        }
       g_error_free (error);
-      cockpit_channel_close (channel, "internal-error");
     }
 
   g_object_unref (address);

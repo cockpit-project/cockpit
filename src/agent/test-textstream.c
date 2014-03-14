@@ -259,9 +259,9 @@ on_closed_get_problem (CockpitChannel *channel,
                        const gchar *problem,
                        gpointer user_data)
 {
-  TestCase *tc = user_data;
-  g_assert (tc->channel_problem == NULL);
-  tc->channel_problem = g_strdup (problem ? problem : "");
+  gchar **retval = user_data;
+  g_assert (retval != NULL && *retval == NULL);
+  *retval = g_strdup (problem ? problem : "");
 }
 
 static void
@@ -270,7 +270,7 @@ setup_channel (TestCase *tc,
 {
   setup (tc, data);
   tc->channel = cockpit_text_stream_open (COCKPIT_TRANSPORT (tc->transport), 548, tc->unix_path);
-  g_signal_connect (tc->channel, "closed", G_CALLBACK (on_closed_get_problem), tc);
+  g_signal_connect (tc->channel, "closed", G_CALLBACK (on_closed_get_problem), &tc->channel_problem);
 }
 
 static void
@@ -522,6 +522,63 @@ test_recv_invalid (TestCase *tc,
   expect_control_message (tc->transport->control_sent, "close", 548, "reason", "protocol-error", NULL);
 }
 
+static void
+test_fail_not_found (void)
+{
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+  gchar *problem = NULL;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+  channel = cockpit_text_stream_open (transport, 1, "/non-existent");
+  g_assert (channel != NULL);
+
+  /* Even through failure is on open, should not have closed yet */
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  while (problem == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "not-found");
+  g_free (problem);
+  g_object_unref (channel);
+  g_object_unref (transport);
+}
+
+static void
+test_fail_not_authorized (void)
+{
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+  gchar *unix_path;
+  gchar *problem = NULL;
+  gint fd;
+
+  unix_path = g_strdup ("/tmp/cockpit-test-XXXXXX.sock");
+  fd = g_mkstemp (unix_path);
+  g_assert_cmpint (fd, >=, 0);
+
+  /* Take away all permissions from the file */
+  g_assert_cmpint (fchmod (fd, 0000), ==, 0);
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+  channel = cockpit_text_stream_open (transport, 1, unix_path);
+  g_assert (channel != NULL);
+
+  /* Even through failure is on open, should not have closed yet */
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  while (problem == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "not-authorized");
+  g_free (problem);
+  g_free (unix_path);
+  close (fd);
+  g_object_unref (channel);
+  g_object_unref (transport);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -545,6 +602,9 @@ main (int argc,
               setup_channel, test_send_invalid, teardown);
   g_test_add ("/text-stream/invalid-recv", TestCase, NULL,
               setup_channel, test_recv_invalid, teardown);
+
+  g_test_add_func ("/test-stream/fail/not-found", test_fail_not_found);
+  g_test_add_func ("/test-stream/fail/not-authorized", test_fail_not_authorized);
 
   return g_test_run ();
 }

@@ -54,6 +54,7 @@ enum {
 struct _CockpitPipePrivate {
   gchar *name;
   gboolean closing;
+  gboolean connecting;
   gchar *problem;
 
   GSource *io;
@@ -99,15 +100,15 @@ close_immediately (CockpitPipe *self,
   if (!self->priv->io)
     return;
 
-  g_debug ("%s: closing io%s%s", self->priv->name,
-           problem ? ": " : "",
-           problem ? problem : "");
-
   if (problem)
     {
       g_free (self->priv->problem);
       self->priv->problem = g_strdup (problem);
     }
+
+  g_debug ("%s: closing io%s%s", self->priv->name,
+           self->priv->problem ? ": " : "",
+           self->priv->problem ? self->priv->problem : "");
 
   source = self->priv->io;
   self->priv->io = NULL;
@@ -278,6 +279,74 @@ close_output (CockpitPipe *self)
 }
 
 static void
+start_output (CockpitPipe *self)
+{
+  g_assert (self->priv->io != NULL);
+  g_assert (self->priv->out_poll == NULL);
+  self->priv->out_poll = g_new0 (GPollFD, 1);
+  self->priv->out_poll->fd = self->priv->out_fd;
+  self->priv->out_poll->events = G_IO_OUT | G_IO_ERR;
+  g_source_add_poll (self->priv->io, self->priv->out_poll);
+}
+
+static void
+set_problem_from_connect_errno (CockpitPipe *self,
+                                int errn)
+{
+  const gchar *problem = NULL;
+
+  if (errn == EPERM || errn == EACCES)
+    problem = "not-authorized";
+  else if (errn == ENOENT)
+    problem = "not-found";
+
+  g_free (self->priv->problem);
+
+  if (problem)
+    {
+      g_message ("%s: couldn't connect: %s", self->priv->name, g_strerror (errn));
+      self->priv->problem = g_strdup (problem);
+    }
+  else
+    {
+      g_warning ("%s: couldn't connect: %s", self->priv->name, g_strerror (errn));
+      self->priv->problem = g_strdup ("internal-error");
+    }
+}
+
+static gboolean
+dispatch_connect (CockpitPipe *self)
+{
+  socklen_t slen;
+  int error;
+
+  self->priv->connecting = FALSE;
+
+  slen = sizeof (error);
+  if (getsockopt (self->priv->out_fd, SOL_SOCKET, SO_ERROR, &error, &slen) != 0)
+    {
+      g_warning ("%s: couldn't get connection result", self->priv->name);
+      close_immediately (self, "internal-error");
+    }
+  else if (error == EINPROGRESS)
+    {
+      /* keep connecting */
+      self->priv->connecting = TRUE;
+    }
+  else if (error != 0)
+    {
+      set_problem_from_connect_errno (self, error);
+      close_immediately (self, NULL); /* problem already set */
+    }
+  else
+    {
+      return TRUE;
+    }
+
+  return TRUE;
+}
+
+static void
 dispatch_output (CockpitPipe *self)
 {
   struct iovec iov[4];
@@ -286,9 +355,13 @@ dispatch_output (CockpitPipe *self)
   gint i, count;
   GList *l;
 
-  g_assert (self->priv->out_poll);
-  g_assert (self->priv->out_queue->head);
+  /* A non-blocking connect is processed here */
+  if (self->priv->connecting && !dispatch_connect (self))
+    return;
 
+  g_assert (self->priv->out_poll);
+
+  /* Note we fall through when nothing to write */
   partial = self->priv->out_partial;
   for (l = self->priv->out_queue->head, i = 0;
       i < G_N_ELEMENTS (iov) && l != NULL;
@@ -306,7 +379,10 @@ dispatch_output (CockpitPipe *self)
     }
   count = i;
 
-  ret = writev (self->priv->out_fd, iov, count);
+  if (count == 0)
+    ret = 0;
+  else
+    ret = writev (self->priv->out_fd, iov, count);
   if (ret < 0)
     {
       if (errno != EAGAIN && errno != EINTR)
@@ -387,24 +463,38 @@ cockpit_pipe_constructed (GObject *object)
 
   G_OBJECT_CLASS (cockpit_pipe_parent_class)->constructed (object);
 
-  if (!g_unix_set_fd_nonblocking (self->priv->in_fd, TRUE, &error) ||
-      !g_unix_set_fd_nonblocking (self->priv->out_fd, TRUE, &error))
-    {
-      g_warning ("%s: couldn't set file descriptor to non-blocking: %s",
-                 self->priv->name, error->message);
-      g_clear_error (&error);
-    }
-
-  self->priv->in_poll = g_new0 (GPollFD, 1);
-  self->priv->in_poll->fd = self->priv->in_fd;
-  self->priv->in_poll->events = G_IO_IN | G_IO_HUP | G_IO_ERR;
-
   ctx = g_main_context_get_thread_default ();
 
   self->priv->io = g_source_new (&source_funcs, sizeof (CockpitPipeSource));
   fs = (CockpitPipeSource *)self->priv->io;
   fs->pipe = self;
-  g_source_add_poll (self->priv->io, self->priv->in_poll);
+
+  if (self->priv->in_fd >= 0)
+    {
+      if (!g_unix_set_fd_nonblocking (self->priv->in_fd, TRUE, &error))
+        {
+          g_warning ("%s: couldn't set file descriptor to non-blocking: %s",
+                     self->priv->name, error->message);
+          g_clear_error (&error);
+        }
+
+      self->priv->in_poll = g_new0 (GPollFD, 1);
+      self->priv->in_poll->fd = self->priv->in_fd;
+      self->priv->in_poll->events = G_IO_IN | G_IO_HUP | G_IO_ERR;
+      g_source_add_poll (self->priv->io, self->priv->in_poll);
+    }
+
+  if (self->priv->out_fd >= 0)
+    {
+      if (!g_unix_set_fd_nonblocking (self->priv->out_fd, TRUE, &error))
+        {
+          g_warning ("%s: couldn't set file descriptor to non-blocking: %s",
+                     self->priv->name, error->message);
+          g_clear_error (&error);
+        }
+      start_output (self);
+    }
+
   g_source_attach (self->priv->io, ctx);
 
   if (self->priv->pid)
@@ -430,11 +520,9 @@ cockpit_pipe_set_property (GObject *obj,
         break;
       case PROP_IN_FD:
         self->priv->in_fd = g_value_get_int (value);
-        g_return_if_fail (self->priv->in_fd >= 0);
         break;
       case PROP_OUT_FD:
         self->priv->out_fd = g_value_get_int (value);
-        g_return_if_fail (self->priv->out_fd >= 0);
         break;
       case PROP_PID:
         self->priv->pid = g_value_get_int (value);
@@ -646,10 +734,7 @@ cockpit_pipe_write (CockpitPipe *self,
 
   if (!self->priv->out_poll)
     {
-      self->priv->out_poll = g_new0 (GPollFD, 1);
-      self->priv->out_poll->fd = self->priv->out_fd;
-      self->priv->out_poll->events = G_IO_OUT | G_IO_ERR;
-      g_source_add_poll (self->priv->io, self->priv->out_poll);
+      start_output (self);
     }
 
   /*
@@ -683,6 +768,85 @@ cockpit_pipe_close (CockpitPipe *self,
       close_immediately (self, problem);
   else if (g_queue_is_empty (self->priv->out_queue))
     close_output (self);
+}
+
+static gboolean
+on_later_close (gpointer user_data)
+{
+  close_immediately (user_data, NULL); /* problem already set */
+  return FALSE;
+}
+
+/**
+ * cockpit_pipe_connect:
+ * @name: name for pipe, for debugging
+ * @address: socket address to connect to
+ *
+ * Create a new pipe connected as a client to the given socket
+ * address, which can be a unix or inet address. Will connect
+ * in stream mode.
+ *
+ * If the connection fails, a pipe is still returned. It will
+ * close once the main loop is run with an appropriate problem.
+ *
+ * Returns: (transfer full): newly allocated CockpitPipe.
+ */
+CockpitPipe *
+cockpit_pipe_connect (const gchar *name,
+                      GSocketAddress *address)
+{
+  gboolean connecting = FALSE;
+  gsize native_len;
+  gpointer native;
+  CockpitPipe *pipe;
+  int errn = 0;
+  int sock;
+
+  g_return_val_if_fail (G_IS_SOCKET_ADDRESS (address), NULL);
+
+  sock = socket (g_socket_address_get_family (address), SOCK_STREAM, 0);
+  if (sock < 0)
+    {
+      errn = errno;
+    }
+  else
+    {
+      if (!g_unix_set_fd_nonblocking (sock, TRUE, NULL))
+        g_return_val_if_reached (NULL);
+      native_len = g_socket_address_get_native_size (address);
+      native = g_malloc (native_len);
+      if (!g_socket_address_to_native (address, native, native_len, NULL))
+        g_return_val_if_reached (NULL);
+      if (connect (sock, native, native_len) < 0)
+        {
+          if (errno == EINPROGRESS)
+            {
+              connecting = TRUE;
+            }
+          else
+            {
+              errn = errno;
+              close (sock);
+              sock = -1;
+            }
+        }
+    }
+
+  pipe = g_object_new (COCKPIT_TYPE_PIPE,
+                       "in-fd", sock,
+                       "out-fd", sock,
+                       "name", name,
+                       NULL);
+
+  pipe->priv->connecting = connecting;
+  if (errn != 0)
+    {
+      set_problem_from_connect_errno (pipe, errn);
+      g_idle_add_full (G_PRIORITY_DEFAULT, on_later_close,
+                       g_object_ref (pipe), g_object_unref);
+    }
+
+  return pipe;
 }
 
 /**

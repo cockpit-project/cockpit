@@ -269,7 +269,7 @@ test_webserver_content_type (TestCase *tc,
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
-  off = _web_socket_util_parse_status_line (resp, length, &status, NULL);
+  off = web_socket_util_parse_status_line (resp, length, &status, NULL);
   g_assert_cmpuint (off, >, 0);
   g_assert_cmpint (status, ==, 200);
 

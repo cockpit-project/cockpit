@@ -407,11 +407,33 @@ _web_socket_util_header_empty (GHashTable *headers,
   return FALSE;
 }
 
+/**
+ * web_socket_util_parse_status_line:
+ * @data: (array length=length): the input data
+ * @length: length of data
+ * @status: (out): location to place HTTP status, or %NULL
+ * @reason: (out): location to place HTTP message, or %NULL
+ *
+ * Parse an HTTP status line.
+ *
+ * The number of bytes parsed will be returned if parsing succeeds, including
+ * the new line at the end of the status line. A negative value will be
+ * returned if parsing fails.
+ *
+ * If the HTTP request line was truncated (ie: not all of it was present
+ * within @length) then zero will be returned.
+ *
+ * @reason should point to a string pointer. The value
+ * returned should be freed by the caller using g_free().
+ *
+ * Return value: zero if truncated, negative if fails, or number of
+ *               characters parsed
+ */
 gssize
-_web_socket_util_parse_status_line (const gchar *data,
-                                    gsize length,
-                                    guint *status,
-                                    gchar **reason)
+web_socket_util_parse_status_line (const gchar *data,
+                                   gsize length,
+                                   guint *status,
+                                   gchar **reason)
 {
   const gchar *at;
   const gchar *end;

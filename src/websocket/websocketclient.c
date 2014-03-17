@@ -153,8 +153,8 @@ parse_handshake_response (WebSocketClient *self,
   gssize consumed;
 
   /* Parse the handshake response received from the server */
-  in1 = _web_socket_util_parse_status_line ((const gchar *)incoming->data,
-                                            incoming->len, &status, &reason);
+  in1 = web_socket_util_parse_status_line ((const gchar *)incoming->data,
+                                           incoming->len, &status, &reason);
   if (in1 < 0)
     {
       g_message ("received invalid status line");

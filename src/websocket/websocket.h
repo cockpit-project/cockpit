@@ -39,6 +39,11 @@ gsize           web_socket_util_parse_req_line (const gchar *data,
                                                 gchar **method,
                                                 gchar **resource);
 
+gssize       web_socket_util_parse_status_line (const gchar *data,
+                                                gsize length,
+                                                guint *status,
+                                                gchar **reason);
+
 typedef enum {
   WEB_SOCKET_DATA_TEXT = 0x01,
   WEB_SOCKET_DATA_BINARY = 0x02,

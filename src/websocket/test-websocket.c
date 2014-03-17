@@ -212,7 +212,7 @@ test_parse_status (void)
 
   for (i = 0; i < G_N_ELEMENTS (lines); i++)
     {
-      ret = _web_socket_util_parse_status_line (lines[i], strlen (lines[i]), &status, &reason);
+      ret = web_socket_util_parse_status_line (lines[i], strlen (lines[i]), &status, &reason);
       g_assert_cmpint (ret, ==, strlen (lines[i]) - 2);
       g_assert_cmpuint (status, ==, 101);
       g_assert_cmpstr (reason, ==, "Switching Protocols");
@@ -226,7 +226,7 @@ test_parse_status_no_out (void)
   const gchar *line = "HTTP/1.0 101 Switching Protocols\r\n  ";
   gssize ret;
 
-  ret = _web_socket_util_parse_status_line (line, strlen (line), NULL, NULL);
+  ret = web_socket_util_parse_status_line (line, strlen (line), NULL, NULL);
   g_assert_cmpint (ret, ==, strlen (line) - 2);
 }
 
@@ -236,7 +236,7 @@ test_parse_status_not_enough (void)
   const gchar *data = "HTTP/";
   gssize ret;
 
-  ret = _web_socket_util_parse_status_line (data, strlen (data), NULL, NULL);
+  ret = web_socket_util_parse_status_line (data, strlen (data), NULL, NULL);
   g_assert_cmpint (ret, ==, 0);
 }
 
@@ -255,7 +255,7 @@ test_parse_status_bad (void)
 
   for (i = 0; i < G_N_ELEMENTS (lines); i++)
     {
-      ret = _web_socket_util_parse_status_line (lines[i], strlen (lines[i]), NULL, NULL);
+      ret = web_socket_util_parse_status_line (lines[i], strlen (lines[i]), NULL, NULL);
       g_assert_cmpint (ret, ==, -1);
     }
 }
@@ -1227,7 +1227,7 @@ test_hixie76_response_headers (void)
   g_assert (count > 0);
 
   /* Parse things out */
-  in1 = _web_socket_util_parse_status_line (buffer, count, &status, NULL);
+  in1 = web_socket_util_parse_status_line (buffer, count, &status, NULL);
   g_assert_cmpint (in1, >, 0);
   in2 = web_socket_util_parse_headers (buffer + in1, count - in1, &headers);
   g_assert_cmpint (in2, >, 0);

@@ -41,11 +41,6 @@ gboolean     _web_socket_util_header_contains   (GHashTable *headers,
 gboolean     _web_socket_util_header_empty      (GHashTable *headers,
                                                  const gchar *name);
 
-gssize       _web_socket_util_parse_status_line (const gchar *data,
-                                                 gsize length,
-                                                 guint *status,
-                                                 gchar **reason);
-
 typedef enum {
   WEB_SOCKET_QUEUE_NORMAL = 0,
   WEB_SOCKET_QUEUE_URGENT = 1 << 0,

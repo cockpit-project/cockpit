@@ -440,7 +440,7 @@ provider_update_jobs (StorageProvider *provider)
       UDisksJob *job = UDISKS_JOB (l->data);
       CockpitObjectSkeleton *object;
       CockpitJob *cockpit_job;
-      gs_free gchar *object_path;
+      gchar *object_path;
 
       object_path = utils_generate_object_path ("/com/redhat/Cockpit/Jobs",
                                                 udisks_job_get_operation (job));
@@ -449,6 +449,8 @@ provider_update_jobs (StorageProvider *provider)
       object = cockpit_object_skeleton_new (object_path);
       cockpit_object_skeleton_set_job (object, cockpit_job);
       g_object_unref (cockpit_job);
+
+      g_free (object_path);
 
       g_warn_if_fail (g_hash_table_lookup (provider->hash_job_to_storage_job, job) == NULL);
       g_hash_table_insert (provider->hash_job_to_storage_job,

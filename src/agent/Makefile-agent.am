@@ -6,6 +6,8 @@ libcockpit_agent_a_SOURCES = \
 	src/agent/cockpitchannel.h \
 	src/agent/cockpitdbusjson.c \
 	src/agent/cockpitdbusjson.h \
+	src/agent/cockpitrestjson.c \
+	src/agent/cockpitrestjson.h \
 	src/agent/cockpittextstream.c \
 	src/agent/cockpittextstream.h \
 	$(NULL)
@@ -22,6 +24,7 @@ libcockpit_agent_a_CFLAGS = \
 libcockpit_agent_LIBS = \
 	libcockpit-agent.a \
 	libcockpit.a \
+	libwebsocket.a \
 	$(COCKPIT_AGENT_LIBS) \
 	$(NULL)
 
@@ -53,6 +56,7 @@ test_agent_LDADD = $(libcockpit_agent_LIBS)
 AGENT_CHECKS = \
 	test-channel \
 	test-dbusjson \
+	test-restjson \
 	test-textstream \
 	$(NULL)
 
@@ -66,6 +70,10 @@ test_dbusjson_SOURCES =  \
 	$(NULL)
 test_dbusjson_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_dbusjson_LDADD = $(libcockpit_agent_LIBS)
+
+test_restjson_SOURCES = src/agent/test-restjson.c
+test_restjson_CFLAGS = $(libcockpit_agent_a_CFLAGS)
+test_restjson_LDADD = $(libcockpit_agent_LIBS)
 
 test_textstream_SOURCES = src/agent/test-textstream.c
 test_textstream_CFLAGS = $(libcockpit_agent_a_CFLAGS)

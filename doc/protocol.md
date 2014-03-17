@@ -160,6 +160,51 @@ type:
  * "object-manager": The object path of a o.f.DBus.ObjectManager whose
    interfaces and properties will be relayed.
 
+Payload: rest-json1
+-------------------
+
+REST as application/json requests and responses.
+
+What normally would be an HTTP request is encoded in a JSON wrapper. See
+cockpitrestjson.c or rest.js.
+
+Additional "open" command options are needed to open a channel of this
+payload type:
+
+ * "unix": Open a channel with the given unix socket.
+ * "port": Open a channel with the given TCP port on localhost.
+
+Requests are encoded as JSON objects. These objects have the following
+fields:
+
+ * "cookie": A unique integer which identifies this request. It will
+   be included in the response. Defaults to zero. If a cookie is
+   reused, then a previous request with that cookie will be cancelled.
+ * "method": The HTTP method. Defaults to "GET"
+ * "path": The HTTP path or resource. Required.
+ * "body": JSON to be sent as the body of the HTTP request. It will
+   be sent with the Content-Type application/json.
+ * "poll": An optional JSON object which turns this request into
+   a JSON poll. Currently it has an "interval" field, which is an
+   integer of how often in milliseconds to poll. It also has a "watch"
+   field with contains a cookie value of another (usually streaming)
+   request to watch, when the other request changes, polls again.
+
+Responses are encoded as JSON objects. These objects have the following
+fields:
+
+ * "cookie": The cookie number of the request.
+ * "status": The HTTP status number.
+ * "message" HTTP status message.
+ * "complete": true when this is the last response for the request.
+   If not present, or set to false, then more responses will follow
+   at some point.
+ * "body": JSON returned as the body of the response. If this is
+   missing then no JSON was returned.
+
+If the HTTP response body contains multiple JSON results, then these will
+be returned as separate response messages.
+
 Payload: text-stream
 --------------------
 

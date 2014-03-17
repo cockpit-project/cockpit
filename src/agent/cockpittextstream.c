@@ -154,9 +154,6 @@ connect_in_idle (gpointer user_data)
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   GSocketAddress *address;
   const gchar *unix_path;
-  GError *error = NULL;
-  const gchar *problem;
-  gint fd;
 
   if (self->closing)
     return FALSE;
@@ -171,46 +168,11 @@ connect_in_idle (gpointer user_data)
 
   self->name = unix_path;
   address = g_unix_socket_address_new (unix_path);
-  self->sock = g_socket_new (G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM,
-                             G_SOCKET_PROTOCOL_DEFAULT, &error);
-  if (self->sock)
-    {
-      /* TODO: This needs to be non-blocking */
-      if (g_socket_connect (self->sock, address, NULL, &error))
-        {
-          fd = g_socket_get_fd (self->sock);
-          self->pipe = g_object_new (COCKPIT_TYPE_PIPE,
-                                     "name", unix_path,
-                                     "in-fd", fd,
-                                     "out-fd", fd,
-                                     NULL);
-          self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
-          self->sig_closed = g_signal_connect (self->pipe, "closed", G_CALLBACK (on_pipe_closed), self);
-          self->open = TRUE;
-          cockpit_channel_ready (channel);
-        }
-    }
-
-  if (error)
-    {
-      problem = NULL;
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-        problem = "not-found";
-      else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-        problem = "not-authorized";
-      if (problem)
-        {
-          g_message ("%s: %s", unix_path, error->message);
-          cockpit_channel_close (channel, problem);
-        }
-      else
-        {
-          g_warning ("%s: %s", unix_path, error->message);
-          cockpit_channel_close (channel, "internal-error");
-        }
-      g_error_free (error);
-    }
-
+  self->pipe = cockpit_pipe_connect (self->name, address);
+  self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
+  self->sig_closed = g_signal_connect (self->pipe, "closed", G_CALLBACK (on_pipe_closed), self);
+  self->open = TRUE;
+  cockpit_channel_ready (channel);
   g_object_unref (address);
   return FALSE; /* don't run again */
 }

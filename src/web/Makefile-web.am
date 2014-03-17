@@ -32,6 +32,7 @@ cockpit_js_PARTS = \
 	src/web/cockpit-terminal.js				\
 	src/web/cockpit-search.js					\
 	src/web/cockpit-accounts.js				\
+	src/web/cockpit-docker.js				\
 	src/web/cockpit-main.js 					\
 	$(NULL)
 
@@ -62,6 +63,7 @@ contentdataimages_DATA = 					\
 	src/web/images/logo.svg			                \
 	src/web/images/brand.svg		                \
 	src/web/images/bg-login.jpg				\
+	src/web/images/category-containers.png	                \
 	src/web/images/category-journal.png	                \
 	src/web/images/category-networking.png	                \
 	src/web/images/category-services.png	                \
@@ -186,7 +188,7 @@ CLEANFILES += \
 	dbus-test.html \
 	cockpit.js \
 	$(NULL)
-	
+
 EXTRA_DIST += \
 	$(cockpit_js_PARTS) \
 	$(contentdata_DATA) \

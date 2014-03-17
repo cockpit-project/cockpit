@@ -129,6 +129,8 @@ backends will send this message when a channel closes whether because of an
 error or a normal closure. The frontend cockpit-web will send this when it
 wants to close a channel normally.
 
+See below for a list of problem codes.
+
 Command: ping
 -------------
 
@@ -149,7 +151,7 @@ Payload: dbus-json1
 -------------------
 
 DBus messages are encoded in JSON payloads by cockpit-web, and decoded in
-cockpit-agent. Contents not yet documented. See dbus-server.c or dbus.js.
+cockpit-agent. Contents not yet documented. See cockpitdbusjson.c or dbus.js.
 
 Additional "open" command options are needed to open a channel of this
 type:
@@ -157,3 +159,34 @@ type:
  * "service": A service name of the DBus service to communicate with.
  * "object-manager": The object path of a o.f.DBus.ObjectManager whose
    interfaces and properties will be relayed.
+
+Payload: text-stream
+--------------------
+
+Raw text is sent back and forth to a socket. See cockpittextstream.c. The
+boundaries of the messages are arbitrary, and depend on how the kernel
+and socket buffer things.
+
+Non-UTF8 data is not supported.
+
+Additional "open" command options should be specified with a channel of
+this payload type:
+
+ * "unix": Open a channel with the given unix socket.
+
+Problem codes
+-------------
+
+These are problem codes for errors that cockpit-web responds to. They should
+be self explanatory. It's totally not interesting to arbitrarily invent new
+codes. Instead the web needs to be ready to react to these problems. When in
+doubt use "internal-error".
+
+ * "internal-error"
+ * "no-agent"
+ * "no-session"
+ * "not-authorized"
+ * "not-found"
+ * "terminated"
+ * "timeout"
+ * "unknown-hostkey"

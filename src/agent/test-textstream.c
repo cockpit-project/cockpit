@@ -32,6 +32,16 @@
 #include <string.h>
 #include <unistd.h>
 
+/* Can't use g_test_skip() yet */
+static void
+test_skip (const gchar *reason)
+{
+  if (g_test_verbose ())
+    g_print ("GTest: skipping: %s\n", reason);
+  else
+    g_print ("SKIP: %s ", reason);
+}
+
 /* -----------------------------------------------------------------------------
  * Mock
  */
@@ -553,6 +563,12 @@ test_fail_not_authorized (void)
   gchar *unix_path;
   gchar *problem = NULL;
   gint fd;
+
+  if (geteuid () == 0)
+    {
+      test_skip ("running as root");
+      return;
+    }
 
   unix_path = g_strdup ("/tmp/cockpit-test-XXXXXX.sock");
   fd = g_mkstemp (unix_path);

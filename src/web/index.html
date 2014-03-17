@@ -182,6 +182,10 @@
               <img class="cockpit-category-icon" src="images/category-users.png">
               User Accounts
             </a>
+            <a class="list-group-item" onclick="cockpit_go_down('containers')">
+              <img class="cockpit-category-icon" src="images/category-containers.png">
+              Containers
+            </a>
             <a class="list-group-item" onclick="cockpit_go_down('shutdown')">
               <img class="cockpit-category-icon" src="images/category-shutdown.png">
               Shutdown & Reboot
@@ -742,6 +746,113 @@
                       black"></pre>
         </div>
         <input id="terminal-in" style="width:100%">
+      </div>
+
+      <div id="containers" class="container-fluid">
+        <div class="panel panel-default" id="containers-containers">
+          <div class="panel-heading">
+            Containers
+            <span style="float:right">
+            </span>
+          </div>
+          <table>
+          </table>
+        </div>
+        <div class="panel panel-default" id="containers-images">
+          <div class="panel-heading">
+            Images
+          </div>
+          <table>
+          </table>
+        </div>
+      </div>
+
+      <!-- Layout for container details page -->
+      <div id="container-details" class="container-fluid">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="pull-right">
+              <button class="btn btn-default" id="container-details-start">Start</button>
+              <button class="btn btn-default" id="container-details-stop">Stop</button>
+              <button class="btn btn-default" id="container-details-restart">Restart</button>
+              <button class="btn btn-danger" id="container-details-delete">Delete</button>
+            </div>
+          </div>
+        </div>
+        <br/>
+	<div class="panel panel-default">
+	  <div class="panel-body">
+	    <table class="cockpit-info-table">
+	      <tr>
+                <td>Name:</td>
+                <td id="container-details-names" style="font-weight:bold"></td>
+              </tr>
+	      <tr>
+                <td>Id:</td>
+                <td id="container-details-id"></td>
+              </tr>
+	      <tr>
+                <td>Created:</td>
+                <td id="container-details-created"></td>
+              </tr>
+	      <tr>
+                <td>Image:</td>
+                <td id="container-details-image"></td>
+              </tr>
+	      <tr>
+                <td>Commmand:</td>
+                <td id="container-details-command"></td>
+              </tr>
+	      <tr>
+                <td>State:</td>
+                <td id="container-details-state"></td>
+              </tr>
+	      <tr>
+                <td>Ports:</td>
+                <td id="container-details-ports"></td>
+              </tr>
+	    </table>
+	  </div>
+        </div>
+      </div>
+
+      <!-- Layout for image details page-->
+      <div id="image-details" class="container-fluid">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="pull-right">
+              <button class="btn btn-default" id="image-details-run">Run</button>
+              <button class="btn btn-danger" id="image-details-delete">Delete</button>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <div class="panel panel-default">
+	  <div class="panel-body">
+	    <table class="cockpit-info-table">
+	      <tr>
+                <td>Id:</td>
+                <td id="image-details-id"></td>
+              </tr>
+	      <tr>
+                <td>Command:</td>
+                <td id="image-details-command"></td>
+              </tr>
+	      <tr>
+                <td>Created:</td>
+                <td id="image-details-created"></td>
+              </tr>
+	      <tr>
+                <td>Author:</td>
+                <td id="image-details-author"></td>
+              </tr>
+	      <tr>
+                <td>Ports:</td>
+                <td id="image-details-ports"></td>
+              </tr>
+	    </table>
+	  </div>
+        </div>
       </div>
 
     </div>
@@ -1928,6 +2039,42 @@
             </button>
             <button class="btn btn-primary" id="raid-disk-add-add" translatable="yes">
               Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="containers_run_image_dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Run Image</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Container Name</td>
+                <td>
+                  <input class="form-control" type="text" id="containers-run-image-name"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Command</td>
+                <td>
+                  <input class="form-control" type="text" id="containers-run-image-command"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="containers-run-image-run" translatable="yes">
+              Run
             </button>
           </div>
         </div>

@@ -21,6 +21,7 @@
 
 #include "cockpitchannel.h"
 #include "cockpitdbusjson.h"
+#include "cockpitrestjson.h"
 #include "cockpittextstream.h"
 
 #include "cockpit/cockpitjson.h"
@@ -324,6 +325,8 @@ cockpit_channel_open (CockpitTransport *transport,
     payload = NULL;
   if (g_strcmp0 (payload, "dbus-json1") == 0)
     channel_type = COCKPIT_TYPE_DBUS_JSON;
+  else if (g_strcmp0 (payload, "rest-json1") == 0)
+    channel_type = COCKPIT_TYPE_REST_JSON;
   else if (g_strcmp0 (payload, "text-stream") == 0)
     channel_type = COCKPIT_TYPE_TEXT_STREAM;
   else
@@ -451,5 +454,25 @@ cockpit_channel_get_option (CockpitChannel *self,
   const gchar *value;
   if (!cockpit_json_get_string (self->priv->options, name, NULL, &value))
     value = NULL;
+  return value;
+}
+
+/**
+ * cockpit_channel_get_int_option:
+ * @self: a channel
+ * @name: the option name
+ *
+ * Called by implementations to get an int value from the
+ * channel's options.
+ *
+ * Returns: the option value or G_MAXINT64
+ */
+gint64
+cockpit_channel_get_int_option (CockpitChannel *self,
+                                const gchar *name)
+{
+  gint64 value;
+  if (!cockpit_json_get_int (self->priv->options, name, G_MAXINT64, &value))
+    value = G_MAXINT64;
   return value;
 }

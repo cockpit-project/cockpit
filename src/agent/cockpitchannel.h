@@ -80,6 +80,9 @@ void                cockpit_channel_send              (CockpitChannel *self,
 const gchar *       cockpit_channel_get_option        (CockpitChannel *self,
                                                        const gchar *name);
 
+gint64              cockpit_channel_get_int_option    (CockpitChannel *self,
+                                                       const gchar *name);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_CHANNEL_H__ */

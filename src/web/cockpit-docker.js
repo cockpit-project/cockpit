@@ -407,6 +407,8 @@ PageContainerDetails.prototype = {
         this.client.delete_("/containers/" + this.container_id, function (error, result) {
             if (error)
                 cockpit_show_unexpected_error (error);
+            else
+                cockpit_go_up();
         });
     }
 
@@ -490,6 +492,8 @@ PageImageDetails.prototype = {
         this.client.delete_("/images/" + this.image_id, function (error, result) {
             if (error)
                 cockpit_show_unexpected_error (error);
+            else
+                cockpit_go_up();
         });
     }
 

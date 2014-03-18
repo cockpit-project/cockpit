@@ -21,6 +21,8 @@
 
 #include "cockpitjson.h"
 
+#include "string.h"
+
 static const gchar *test_data =
   "{"
   "   \"string\": \"value\","
@@ -121,11 +123,106 @@ test_int_equal (void)
   g_assert (cockpit_json_int_equal (&one, &copy));
 }
 
+typedef struct {
+    const gchar *name;
+    const gchar *json;
+    gint blocks[8];
+} FixtureSkip;
+
+static const FixtureSkip skip_fixtures[] = {
+  { "number", "0123456789",
+      { 10 } },
+  { "number-fancy", "-0123456789.33E-5",
+      { 17 } },
+  { "string", "\"string\"",
+      { 8 } },
+  { "string-escaped", "\"st\\\"ring\"",
+      { 10 } },
+  { "string-truncated", "\"string",
+      { 0 } },
+  { "boolean", "true",
+      { 4 } },
+  { "null", "null",
+      { 4 } },
+  { "string-number", "\"string\"0123456789",
+      { 8, 10 } },
+  { "number-string", "0123456789\"string\"",
+      { 10, 8 } },
+  { "number-number", "0123456789 123",
+      { 11, 3 } },
+  { "string-string-string", "\"string\"\"two\"\"three\"",
+      { 8, 5, 7 } },
+  { "string-string-truncated", "\"string\"\"tw",
+      { 8, 0 } },
+  { "array", "[\"string\",\"two\",\"three\"]",
+      { 24, } },
+  { "array-escaped", "[\"string\",\"two\",\"thr]e\"]",
+      { 24, } },
+  { "array-spaces", " [ \"string\", \"two\" ,\"thr]e\" ]\t",
+      { 30, } },
+  { "array-truncated", "[\"string\",\"two\",\"thr",
+      { 0, } },
+  { "object", "{\"string\":\"two\",\"number\":222}",
+      { 29, } },
+  { "object-escaped", "{\"string\":\"two\",\"num]}}ber\":222}",
+      { 32, } },
+  { "object-spaces", "{ \"string\": \"two\", \"number\": 222 }",
+      { 34, } },
+  { "object-object", "{\"string\":\"two\",\"number\":222}{\"string\":\"two\",\"number\":222}",
+      { 29, 29, } },
+  { "object-line-object", "{\"string\":\"two\",\"number\":222}\n{\"string\":\"two\",\"number\":222}",
+      { 30, 29, } },
+  { "object-truncated", "{\"stri}ng\"",
+      { 0, } },
+  { "whitespace", "  \r\n\t \v",
+      { 7, } },
+};
+
+static void
+test_skip (gconstpointer data)
+{
+  const FixtureSkip *fixture = data;
+  const gchar *string = fixture->json;
+  gsize length = strlen (string);
+  gsize off;
+  gint i;
+
+  for (i = 0; TRUE; i++)
+    {
+      off = cockpit_json_skip (string, length, NULL);
+      g_assert_cmpuint (off, ==, fixture->blocks[i]);
+      g_assert_cmpuint (off, <=, length);
+
+      if (off == 0)
+        break;
+
+      string += off;
+      length -= off;
+    }
+}
+
+static void
+test_skip_whitespace (void)
+{
+  gsize spaces;
+  gsize off;
+
+  off = cockpit_json_skip ("  234  ", 7, &spaces);
+  g_assert_cmpuint (off, ==, 7);
+  g_assert_cmpuint (spaces, ==, 2);
+
+  off = cockpit_json_skip ("   \t   ", 7, &spaces);
+  g_assert_cmpuint (off, ==, 7);
+  g_assert_cmpuint (spaces, ==, 7);
+}
 
 int
 main (int argc,
       char *argv[])
 {
+  gchar *name;
+  gint i;
+
   g_type_init ();
 
   g_set_prgname ("test-json");
@@ -138,6 +235,14 @@ main (int argc,
               setup, test_get_string, teardown);
   g_test_add ("/json/get-int", TestCase, NULL,
               setup, test_get_int, teardown);
+
+  for (i = 0; i < G_N_ELEMENTS (skip_fixtures); i++)
+    {
+      name = g_strdup_printf ("/json/skip/%s", skip_fixtures[i].name);
+      g_test_add_data_func (name, skip_fixtures + i, test_skip);
+      g_free (name);
+    }
+  g_test_add_func ("/json/skip/return-spaces", test_skip_whitespace);
 
   return g_test_run ();
 }

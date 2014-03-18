@@ -469,7 +469,7 @@ PageImageDetails.prototype = {
                             $('#image-details-command').text(cockpit_quote_cmdline(result.config.Cmd));
                             $('#image-details-created').text(result.created);
                             $('#image-details-author').text(result.author);
-                            $('#image-details-ports').html(ports.map(cockpit_esc).join('<br/>'));
+                            $('#image-details-ports').text(ports.join(', '));
                         });
     },
 

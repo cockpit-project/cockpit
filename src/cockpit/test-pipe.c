@@ -108,7 +108,7 @@ setup_echo (TestCase *tc,
   if (pipe (fds) < 0)
     g_assert_not_reached ();
 
-  tc->pipe = g_object_new (mock_echo_pipe_get_type (),
+  tc->pipe = g_object_new (g_type_from_name (data),
                            "name", "test",
                            "in-fd", fds[0],
                            "out-fd", fds[1],
@@ -215,7 +215,6 @@ test_echo_large (TestCase *tc,
   g_bytes_unref (sent);
 }
 
-
 static void
 test_close_problem (TestCase *tc,
                     gconstpointer data)
@@ -228,6 +227,29 @@ test_close_problem (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (echo_pipe->problem, ==, "right now");
+}
+
+static void
+test_buffer (TestCase *tc,
+             gconstpointer data)
+{
+  GByteArray *buffer;
+  GBytes *sent;
+
+  buffer = cockpit_pipe_get_buffer (tc->pipe);
+  g_assert (buffer != NULL);
+  g_assert_cmpuint (buffer->len, ==, 0);
+
+  /* Including null terminator */
+  sent = g_bytes_new_static ("blahdeedoo", 11);
+  cockpit_pipe_write (tc->pipe, sent);
+  g_bytes_unref (sent);
+
+  while (buffer->len == 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (buffer->len, ==, 11);
+  g_assert_cmpstr ((gchar *)buffer->data, ==, "blahdeedoo");
 }
 
 static gboolean
@@ -452,14 +474,23 @@ main (int argc,
 
   g_test_add_func ("/pipe/properties", test_properties);
 
-  g_test_add ("/pipe/echo-message", TestCase, NULL,
+  /*
+   * Fixture data is the GType name of the pipe class
+   * so register these types here.
+   */
+  g_type_class_ref (mock_echo_pipe_get_type ());
+  g_type_class_ref (cockpit_pipe_get_type ());
+
+  g_test_add ("/pipe/echo-message", TestCase, "MockEchoPipe",
               setup_echo, test_echo_and_close, teardown);
-  g_test_add ("/pipe/echo-queue", TestCase, NULL,
+  g_test_add ("/pipe/echo-queue", TestCase, "MockEchoPipe",
               setup_echo, test_echo_queue, teardown);
-  g_test_add ("/pipe/echo-large", TestCase, NULL,
+  g_test_add ("/pipe/echo-large", TestCase, "MockEchoPipe",
               setup_echo, test_echo_large, teardown);
-  g_test_add ("/pipe/close-problem", TestCase, NULL,
+  g_test_add ("/pipe/close-problem", TestCase, "MockEchoPipe",
               setup_echo, test_close_problem, teardown);
+  g_test_add ("/pipe/buffer", TestCase, "CockpitPipe",
+              setup_echo, test_buffer, teardown);
 
   g_test_add_func ("/pipe/read-error", test_read_error);
   g_test_add_func ("/pipe/write-error", test_write_error);

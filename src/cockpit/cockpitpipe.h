@@ -60,6 +60,8 @@ void               cockpit_pipe_write        (CockpitPipe *self,
 void               cockpit_pipe_close        (CockpitPipe *self,
                                               const gchar *problem);
 
+GByteArray *       cockpit_pipe_get_buffer   (CockpitPipe *self);
+
 GBytes *           cockpit_pipe_consume      (GByteArray *buffer,
                                               gsize skip,
                                               gsize length);

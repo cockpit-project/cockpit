@@ -686,6 +686,24 @@ cockpit_pipe_close (CockpitPipe *self,
 }
 
 /**
+ * cockpit_pipe_get_buffer:
+ * @self: a pipe
+ *
+ * Get the input buffer for the pipe.
+ *
+ * This can change when the main loop is run. You can use
+ * cockpit_pipe_consume() to consume data from it.
+ *
+ * Returns: (transfer none): the buffer
+ */
+GByteArray *
+cockpit_pipe_get_buffer (CockpitPipe *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_PIPE (self), NULL);
+  return self->priv->in_buffer;
+}
+
+/**
  * cockpit_pipe_consume:
  * @buffer: a data buffer
  * @skip: amount of bytes to skip

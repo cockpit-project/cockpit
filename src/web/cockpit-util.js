@@ -277,7 +277,7 @@ function cockpit_action_btn (func, spec) {
     var direct_action, disabled;
 
     direct_btn =
-        $('<button>', { 'class': 'btn' }).text("");
+        $('<button>', { 'class': 'btn btn-default' }).text("");
 
     indirect_btns = [ ];
     disabled = [ ];

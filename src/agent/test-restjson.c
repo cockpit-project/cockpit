@@ -189,7 +189,7 @@ mock_server_respond (MockServer *self,
 {
   gboolean keep_alive;
   GQueue *queue;
-  gchar *response;
+  gchar *response = NULL;
   gsize length;
   GError *error = NULL;
 

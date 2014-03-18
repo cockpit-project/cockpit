@@ -122,206 +122,77 @@ var $cockpit = $cockpit || { };
         };
     }
 
-    function ChannelPool(options) {
-        var max_idle = 3;
-        var channels = [ ];
-        options["payload"] = "text-stream";
-        this.checkout = function() {
-            var channel = channels.shift();
-            if (!channel || !channel.valid) {
-                channel = new Channel(options);
-            }
-            return channel;
-        };
-
-        this.checkin = function(channel) {
-            $(channel).off("message").off("close");
-            if (channel.valid && channels.length < 3) {
-                channel.close();
-            } else {
-                channels.push(channel);
-            }
-        };
-    }
-
     function rest_debug() {
-        /* console.debug.apply(console, arguments); */
+        console.debug.apply(console, arguments);
     }
 
-    function build_http_request(args) {
-        var path = args["path"] || "/";
-        var method = args["method"] || "GET";
-        var params = args["params"];
-        var body = "";
+    var last_cookie = 3;
 
-        var headers = [
-            "Connection: keep-alive"
-        ];
-
-        if (method === "POST") {
-            if (params) {
-                body = JSON.stringify(params);
-                headers.push("Content-Type: application/json; charset=utf-8");
-            }
-        } else {
-            if (params)
-                path += "?" + $.param(params);
-        }
-
-        headers.push("Content-Length: " + body.length);
-
-        /* We can't handle HTTP/1.1 responses to chunked encoding */
-        headers.unshift(method + " " + path + " HTTP/1.0");
-        var request = headers.join("\r\n") + "\r\n\r\n" + body;
-        rest_debug("rest request:", request);
-        return request;
-    }
-
-    function process_json(body) {
-        if (body === null || body === "")
-            return null; /* no response */
-        try {
-            return $.parseJSON(body);
-        } catch (ex) {
-            console.log("Received bad JSON: ", ex);
-            throw new RestError("protocol-error");
-        }
-    }
-
-    function process_raw(body) {
-        return body;
-    }
-
-    function parse_http_headers(state) {
-        var pos = state.buffer.indexOf("\r\n\r\n");
-        if (pos == -1)
-            return; /* no headers yet */
-
-        state.headers = { };
-        var lines = state.buffer.substring(0, pos).split("\r\n");
-        state.buffer = state.buffer.substring(pos + 4);
-        var num = 0;
-        $(lines).each(function(i, line) {
-            if (i === 0) {
-                var parts = line.split(/\s+/);
-                var version = parts.shift();
-                var status = parts.shift();
-                var message = parts.join(" ");
-
-                /* Check the http status is something sane */
-                if (status < 200 || status > 299) {
-                     console.warn(status, message);
-                     throw new RestError(status, message);
-                }
-
-                /* Parse version after status, in case status has more info */
-                if (!version.match(/http\/1\.0/i)) {
-                     console.warn("Got unsupported HTTP version:", version);
-                     throw new RestError("protocol-error");
-                }
-            } else {
-                var lp = line.indexOf(":");
-                if (lp == -1) {
-                    console.warn("Invalid HTTP header without colon:", line);
-                    throw new RestError("protocol-error");
-                }
-                var name = $.trim(line.substring(0, lp)).toLowerCase();
-                state.headers[name] = $.trim(line.substring(lp + 1));
-            }
-        });
-    }
-
-    function parse_http_body(state, force, processor) {
-        var body = state.buffer;
-        if (state.headers["content-length"] === undefined) {
-            if (!force)
-                return undefined; /* wait until end of channel */
-        } else {
-            var length = parseInt(state.headers["content-length"], 10);
-            var body_length_in_bytes = unescape(encodeURIComponent(body)).length;
-            if (isNaN(length)) {
-                console.warn("Invalid HTTP Content-Length received:",
-                             state.headers["content-length"]);
-                throw new RestError("protocol-error");
-            }
-            if (length < body_length_in_bytes) {
-                console.warn("Too much data in HTTP response: expected",
-                             length, "got", body.length);
-                throw new RestError("protocol-error");
-            }
-            if (length > body_length_in_bytes) {
-                if (force) {
-                    console.warn("Truncated HTTP response received: expected",
-                                 length, "got", body.length);
-                    throw new RestError("protocol-error");
-                }
-                return undefined; /* wait for more data */
-            }
-        }
-
-        state.buffer = "";
-        return processor(body);
-    }
-
-    function http_perform(pool, processor, args) {
+    function rest_perform(channel, req) {
         var dfd = new $.Deferred();
-        var request = build_http_request(args);
-        var channel = pool.checkout();
-        channel.send(request);
+
+        /* Unique cookie for this request */
+        var cookie = last_cookie;
+        last_cookie++;
+
+        if (!req.path)
+            req.path = "/";
+        if (!req.method)
+            req.method = "GET";
+        req.cookie = cookie;
+        if (req.params) {
+            if (req.path.indexOf("?") == -1)
+                req.path += "?" + $.param(req.params);
+            else
+                req.path += "&" + $.param(req.params);
+        }
+        delete req.params;
+        if (req.body === undefined)
+            delete req.body;
+
+        rest_debug("rest request:", req);
+        channel.send(JSON.stringify(req));
 
         /* Callbacks that want to stream response, see below */
         var streamers = null;
 
-        /* Used during response parsing */
-        var state = {
-            buffer: "",
-            headers: null
-        };
+        function on_result(event, result) {
+            if (result.cookie !== cookie)
+                return;
 
-        function process(data, problem, eof) {
-            state.buffer += data;
-            var ret;
-            try {
-                if (problem)
-                    throw new RestError(problem);
-                if (state.headers === null)
-                    parse_http_headers(state);
-                if (state.headers !== null)
-                    ret = parse_http_body(state, eof || streamers, processor);
-                if (ret === undefined && eof) {
-                    console.log("Received incomplete HTTP response");
-                    throw new RestError("protocol-error");
+            /* An error, fail here */
+            if (result.status < 200 || result.status > 299) {
+                var httpex = new RestError(result.status, result.message);
+                httpex.body = result.body;
+                dfd.reject(httpex);
+
+            /* A normal result */
+            } else {
+                if (streamers && result.body !== undefined) {
+                    streamers.fire(result.body);
+                    result.body = undefined;
                 }
-            } catch (ex) {
-                if (ex instanceof RestError)
-                    dfd.reject(ex);
-                else
-                    throw ex;
-            }
-            if (ret !== undefined) {
-                if (streamers) {
-                    if (ret !== null)
-                        streamers.fire(ret);
-                    ret = undefined;
-                }
-                if (!streamers || eof) {
-                    dfd.resolve(ret);
-                }
+
+                if (result.body !== undefined || result.complete)
+                    dfd.resolve(result.body);
             }
         }
 
-        $(channel).on("message", function(event, payload) {
-            rest_debug("rest message:", payload);
-            process(payload);
-        });
-        $(channel).on("close", function(event, problem) {
-            rest_debug("rest closed:", problem);
-            process("", problem, true);
-        });
+        function on_close(event, problem) {
+            rest_debug("rest close:", problem);
+            if (!problem)
+                problem = "disconnected";
+            dfd.reject(new RestError(problem));
+        }
 
-        /* This also stops events on the channel */
+        /* result event is triggered below */
+        $(channel).on("result", on_result);
+        $(channel).on("close", on_close);
+
+        /* disconnect handlers when done */
         dfd.always(function() {
-            pool.checkin(channel);
+            $(channel).off("result", on_result);
+            $(channel).off("close", on_close);
         });
 
         var promise = dfd.promise();
@@ -343,37 +214,55 @@ var $cockpit = $cockpit || { };
     function Rest(endpoint, machine, options) {
         if (endpoint.indexOf("unix://") !== 0)
             console.error("the Rest(uri) must currently start with 'unix://'");
-        var args = { "unix": endpoint.substring(7) };
+        var args = { "unix": endpoint.substring(7), "payload": "rest-json1" };
         if (machine !== undefined)
             args["host"] = machine;
         if (options !== undefined)
             $.extend(args, options);
-        var pool = new ChannelPool(args);
+
+        var channel = null;
+        function get_channel() {
+            if (channel === null || channel.valid !== true) {
+                channel = new Channel(args);
+
+                /* Individual requests wait for 'result' event */
+                $(channel).on("message", function(event, payload) {
+                    var result = undefined;
+                    try {
+                        result = JSON.parse(payload);
+                        rest_debug("rest result:", result);
+                    } catch(ex) {
+                        rest_debug("rest result:", payload);
+                        console.warn("received invalid rest-json1:", ex);
+                    }
+                    if (result === undefined)
+                        channel.close("protocol-error");
+                    else
+                        $(channel).trigger("result", [result]);
+                });
+            }
+
+            return channel;
+        }
 
         /* public */
         this.get = function(path, params) {
-            return http_perform(pool, process_json, {
+            return rest_perform(get_channel(), {
                 "method": "GET",
                 "params": params,
                 "path": path
             });
         };
-        this.getraw = function(path, params) {
-            return http_perform(pool, process_raw, {
-                "method": "GET",
-                "params": params,
-                "path": path
-            });
-        };
-        this.post = function(path, params) {
-            return http_perform(pool, process_json, {
+        this.post = function(path, params, body) {
+            return rest_perform(get_channel(), {
                 "method": "POST",
                 "params": params,
-                "path": path
+                "path": path,
+                "body": body
             });
         };
         this.del = function(path, params) {
-            return http_perform(pool, process_json, {
+            return rest_perform(get_channel(), {
                 "method": "DELETE",
                 "params": params,
                 "path": path

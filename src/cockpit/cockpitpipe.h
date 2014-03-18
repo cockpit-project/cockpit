@@ -65,6 +65,9 @@ void               cockpit_pipe_close        (CockpitPipe *self,
 
 GByteArray *       cockpit_pipe_get_buffer   (CockpitPipe *self);
 
+void               cockpit_pipe_skip         (GByteArray *buffer,
+                                              gsize skip);
+
 GBytes *           cockpit_pipe_consume      (GByteArray *buffer,
                                               gsize skip,
                                               gsize length);

@@ -35,6 +35,13 @@ function cockpit_unquote_cmdline (string) {
     return shift(string).split(' ').map(unshift);
 }
 
+function cockpit_render_container_name (name) {
+    if (name.length > 0 && name[0] == "/")
+        return name.slice(1);
+    else
+        return name;
+}
+
 function cockpit_render_container_state (state) {
     if (state.Running)
         return F(_("Up since %{StartedAt}"), state);
@@ -101,7 +108,7 @@ PageContainers.prototype = {
             var state_td = $('<td>');
             var tr =
                 $('<tr>').append(
-                    $('<td>').html(multi_line(container.Names)),
+                    $('<td>').html(multi_line(container.Names.map(cockpit_render_container_name))),
                     $('<td>').text(container.Image),
                     $('<td>').text(container.Command),
                     state_td);
@@ -366,7 +373,7 @@ PageContainerDetails.prototype = {
                             }
 
                             $('#container-details-id').text(result.ID);
-                            $('#container-details-names').text(result.Name);
+                            $('#container-details-names').text(cockpit_render_container_name(result.Name));
                             $('#container-details-created').text(result.Created);
                             $('#container-details-image').text(result.Image);
                             $('#container-details-command').text(cockpit_quote_cmdline([ result.Path ].concat(result.Args)));

@@ -216,6 +216,31 @@ test_skip_whitespace (void)
   g_assert_cmpuint (spaces, ==, 7);
 }
 
+static void
+test_parser_trims (void)
+{
+  JsonParser *parser = json_parser_new ();
+  GError *error = NULL;
+
+  /* Test that the parser trims whitespace, as long as something is present */
+
+  json_parser_load_from_data (parser, " 55  ", -1, &error);
+  g_assert_no_error (error);
+  g_assert_cmpint (json_node_get_node_type (json_parser_get_root (parser)), ==, JSON_NODE_VALUE);
+  g_assert_cmpint (json_node_get_value_type (json_parser_get_root (parser)), ==, G_TYPE_INT64);
+
+  json_parser_load_from_data (parser, " \"xx\"  ", -1, &error);
+  g_assert_no_error (error);
+  g_assert_cmpint (json_node_get_node_type (json_parser_get_root (parser)), ==, JSON_NODE_VALUE);
+  g_assert_cmpint (json_node_get_value_type (json_parser_get_root (parser)), ==, G_TYPE_STRING);
+
+  json_parser_load_from_data (parser, " {\"xx\":5}  ", -1, &error);
+  g_assert_no_error (error);
+  g_assert_cmpint (json_node_get_node_type (json_parser_get_root (parser)), ==, JSON_NODE_OBJECT);
+
+  g_object_unref (parser);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -235,6 +260,8 @@ main (int argc,
               setup, test_get_string, teardown);
   g_test_add ("/json/get-int", TestCase, NULL,
               setup, test_get_int, teardown);
+
+  g_test_add_func ("/json/parser-trims", test_parser_trims);
 
   for (i = 0; i < G_N_ELEMENTS (skip_fixtures); i++)
     {

@@ -26,6 +26,7 @@
 #include <gio/gunixoutputstream.h>
 
 #include <cockpit/cockpit.h>
+#include "cockpit/cockpitjson.h"
 #include "cockpit/cockpitpipetransport.h"
 
 #include "cockpitws.h"
@@ -252,7 +253,6 @@ process_open (WebSocketData *data,
   const gchar *password;
   const gchar *user;
   const gchar *host;
-  JsonNode *node;
   GError *error = NULL;
 
   if (data->eof_to_session)
@@ -267,24 +267,16 @@ process_open (WebSocketData *data,
       return FALSE;
     }
 
-  host = NULL;
-  node = json_object_get_member (options, "host");
-  if (node && json_node_get_value_type (node) == G_TYPE_STRING)
-    host = json_node_get_string (node);
-  if (!host)
+  if (!cockpit_json_get_string (options, "host", "localhost", &host))
     host = "localhost";
 
-  specific_user = NULL;
-  node = json_object_get_member (options, "user");
-  if (node && json_node_get_value_type (node) == G_TYPE_STRING)
-    specific_user = json_node_get_string (node);
+  if (!cockpit_json_get_string (options, "user", NULL, &specific_user))
+    specific_user = NULL;
 
   if (specific_user)
     {
-      password = NULL;
-      node = json_object_get_member (options, "password");
-      if (node && json_node_get_value_type (node) == G_TYPE_STRING)
-        password = json_node_get_string (node);
+      if (!cockpit_json_get_string (options, "password", NULL, &password))
+        password = NULL;
       user = specific_user;
     }
   else

@@ -42,6 +42,8 @@ libcockpit_a_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
 	src/cockpit/cockpit.h \
 	src/cockpit/cockpitenums.h \
 	src/cockpit/cockpiterror.h src/cockpit/cockpiterror.c \
+	src/cockpit/cockpitjson.c \
+	src/cockpit/cockpitjson.h \
 	src/cockpit/cockpitlog.h src/cockpit/cockpitlog.c \
 	src/cockpit/cockpittypes.h \
 	src/cockpit/cockpitpipe.c \
@@ -66,9 +68,14 @@ libcockpit_a_LIBS = \
 # TESTS
 
 COCKPIT_CHECKS = \
+	test-json \
 	test-pipe \
 	test-transport \
 	$(NULL)
+
+test_json_CFLAGS = $(cockpit_ws_CFLAGS)
+test_json_SOURCES = src/cockpit/test-json.c
+test_json_LDADD = $(libcockpit_a_LIBS)
 
 test_pipe_CFLAGS = $(cockpit_ws_CFLAGS)
 test_pipe_SOURCES = src/cockpit/test-pipe.c

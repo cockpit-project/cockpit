@@ -21,6 +21,8 @@
 
 #include "cockpittransport.h"
 
+#include "cockpit/cockpitjson.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -147,20 +149,6 @@ cockpit_transport_parse_frame (GBytes *message,
   return g_bytes_new_from_bytes (message, offset, length - offset);
 }
 
-static gboolean
-check_and_get_json_int (JsonNode *node,
-                        gint64 *number)
-{
-  if (json_node_get_value_type (node) == G_TYPE_INT64 ||
-      json_node_get_value_type (node) == G_TYPE_DOUBLE)
-    {
-      *number = json_node_get_int (node);
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
 gboolean
 cockpit_transport_parse_command (JsonParser *parser,
                                  GBytes *payload,
@@ -192,14 +180,8 @@ cockpit_transport_parse_command (JsonParser *parser,
   object = json_node_get_object (node);
 
   /* Parse out the command */
-  node = json_object_get_member (object, "command");
-  if (!node || json_node_get_value_type (node) != G_TYPE_STRING)
-    {
-      g_warning ("Received invalid control message: invalid or missing command");
-      return FALSE;
-    }
-  *command = json_node_get_string (node);
-  if (*command == NULL || g_str_equal (*command, ""))
+  if (!cockpit_json_get_string (object, "command", NULL, command) ||
+      *command == NULL || g_str_equal (*command, ""))
     {
       g_warning ("Received invalid control message: invalid or missing command");
       return FALSE;
@@ -209,7 +191,7 @@ cockpit_transport_parse_command (JsonParser *parser,
   node = json_object_get_member (object, "channel");
   if (!node)
     *channel = 0;
-  else if (check_and_get_json_int (node, &num) && num > 0 && num < G_MAXUINT)
+  else if (cockpit_json_get_int (object, "channel", 0, &num) && num > 0 && num < G_MAXUINT)
     *channel = num;
   else
     {

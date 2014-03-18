@@ -43,6 +43,9 @@
  *                  console.warn(ex);
  *              });
  *
+ * Rest.getraw(path, params)
+ *   Same as Rest.get but doesn't parse the response body as JSON.
+ *
  * Rest.del(path, params)
  *   See .get() method above. Behaves identically except for makes a DELETE
  *   HTTP request.
@@ -183,6 +186,10 @@ var $cockpit = $cockpit || { };
             console.log("Received bad JSON: ", ex);
             throw new RestError("protocol-error");
         }
+    }
+
+    function process_raw(body) {
+        return body;
     }
 
     function parse_http_headers(state) {
@@ -345,6 +352,13 @@ var $cockpit = $cockpit || { };
         /* public */
         this.get = function(path, params) {
             return http_perform(pool, process_json, {
+                "method": "GET",
+                "params": params,
+                "path": path
+            });
+        };
+        this.getraw = function(path, params) {
+            return http_perform(pool, process_raw, {
                 "method": "GET",
                 "params": params,
                 "path": path

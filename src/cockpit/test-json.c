@@ -241,6 +241,108 @@ test_parser_trims (void)
   g_object_unref (parser);
 }
 
+typedef struct {
+    const gchar *name;
+    gboolean equal;
+    const gchar *a;
+    const gchar *b;
+} FixtureEqual;
+
+static const FixtureEqual equal_fixtures[] = {
+ { "nulls", TRUE,
+    NULL,
+    NULL },
+ { "null-non-null", FALSE,
+    NULL,
+    "555" },
+ { "non-null-null", FALSE,
+    "555",
+    NULL },
+ { "number-string", FALSE,
+    "555",
+    "\"str\"" },
+ { "string-string", TRUE,
+    "\"str\"",
+    "\"str\"" },
+ { "string-string-ne", FALSE,
+    "\"xxxx\"",
+    "\"str\"" },
+ { "int-int", TRUE,
+    "555",
+    "555" },
+ { "int-int-ne", FALSE,
+    "555",
+    "556" },
+ { "double-double", TRUE,
+    "555.0",
+    "555.00" },
+ { "boolean-boolean", TRUE,
+    "true",
+    "true" },
+ { "boolean-boolean-ne", FALSE,
+    "true",
+    "false" },
+ { "null-null", TRUE,
+    "null",
+    "null" },
+ { "array-string", FALSE,
+    "[]",
+    "\"str\"" },
+ { "array-array", TRUE,
+    "[1, 2.0, 3]",
+    "[1, 2.00, 3]" },
+ { "array-array-ne", FALSE,
+    "[1, 2.0, 3]",
+    "[1, 4.00, 3]" },
+ { "array-array-length", FALSE,
+    "[1, 2.0, 3]",
+    "[1]" },
+ { "object-object", TRUE,
+    "{\"one\": 1, \"two\": \"2.0\"}",
+    "{\"one\": 1, \"two\": \"2.0\"}" },
+ { "object-object-order", TRUE,
+    "{\"one\": 1, \"two\": \"2.0\"}",
+    "{\"two\": \"2.0\", \"one\": 1}" },
+ { "object-object-missing", FALSE,
+    "{\"one\": 1, \"two\": \"2.0\"}",
+    "{\"two\": \"2.0\"}" },
+ { "object-object-value", FALSE,
+    "{\"one\": 1, \"two\": \"2.0\"}",
+    "{\"one\": 1, \"two\": \"2\"}" },
+};
+
+static void
+test_equal (gconstpointer data)
+{
+  const FixtureEqual *fixture = data;
+  JsonParser *parser;
+  JsonNode *a = NULL;
+  JsonNode *b = NULL;
+  GError *error = NULL;
+
+  parser = json_parser_new ();
+  if (fixture->a)
+    {
+      json_parser_load_from_data (parser, fixture->a, -1, &error);
+      g_assert_no_error (error);
+      a = json_node_copy (json_parser_get_root (parser));
+    }
+  if (fixture->b)
+    {
+      json_parser_load_from_data (parser, fixture->b, -1, &error);
+      g_assert_no_error (error);
+      b = json_node_copy (json_parser_get_root (parser));
+    }
+
+  g_assert (cockpit_json_equal (a, b) == fixture->equal);
+
+  if (a)
+    json_node_free (a);
+  if (b)
+    json_node_free (b);
+  g_object_unref (parser);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -270,6 +372,13 @@ main (int argc,
       g_free (name);
     }
   g_test_add_func ("/json/skip/return-spaces", test_skip_whitespace);
+
+  for (i = 0; i < G_N_ELEMENTS (equal_fixtures); i++)
+    {
+      name = g_strdup_printf ("/json/equal/%s", equal_fixtures[i].name);
+      g_test_add_data_func (name, equal_fixtures + i, test_equal);
+      g_free (name);
+    }
 
   return g_test_run ();
 }

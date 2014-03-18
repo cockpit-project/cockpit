@@ -76,6 +76,124 @@ cockpit_json_get_string (JsonObject *options,
   return TRUE;
 }
 
+static gboolean
+cockpit_json_equal_object (JsonObject *previous,
+                           JsonObject *current)
+{
+  const gchar *name = NULL;
+  GList *names;
+  GList *l;
+
+  names = json_object_get_members (previous);
+  names = g_list_concat (names, json_object_get_members (current));
+  names = g_list_sort (names, (GCompareFunc)strcmp);
+
+  for (l = names; l != NULL; l = g_list_next (l))
+    {
+      if (name && g_str_equal (name, l->data))
+          continue;
+
+      name = l->data;
+      if (!cockpit_json_equal (json_object_get_member (previous, name),
+                               json_object_get_member (current, name)))
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static gboolean
+cockpit_json_equal_array (JsonArray *previous,
+                          JsonArray *current)
+{
+  guint len_previous;
+  guint len_current;
+  guint i;
+
+  len_previous = json_array_get_length (previous);
+  len_current = json_array_get_length (current);
+
+  if (len_previous != len_current)
+    return FALSE;
+
+  /* Look for something that has changed */
+  for (i = 0; i < len_previous; i++)
+    {
+      if (!cockpit_json_equal (json_array_get_element (previous, i),
+                               json_array_get_element (current, i)))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+/**
+ * cockpit_json_equal:
+ * @previous: first JSON thing or %NULL
+ * @current: second JSON thing or %NULL
+ *
+ * Compares whether two JSON nodes are equal or not. Accepts
+ * %NULL for either parameter, and if both are %NULL is equal.
+ *
+ * The keys of objects do not have to be in the same order.
+ *
+ * If nodes have different types or value types then equality
+ * is FALSE.
+ *
+ * Returns: whether equal or not
+ */
+gboolean
+cockpit_json_equal (JsonNode *previous,
+                    JsonNode *current)
+
+{
+  JsonNodeType type = 0;
+  GType gtype = 0;
+
+  if (previous == current)
+    return TRUE;
+  if (!previous || !current)
+    return FALSE;
+
+  type = json_node_get_node_type (previous);
+  if (type != json_node_get_node_type (current))
+    return FALSE;
+  if (type == JSON_NODE_VALUE)
+    {
+      gtype = json_node_get_value_type (previous);
+      if (gtype != json_node_get_value_type (current))
+        return FALSE;
+    }
+
+  /* Now compare values */
+  switch (type)
+    {
+    case JSON_NODE_OBJECT:
+      return cockpit_json_equal_object (json_node_get_object (previous),
+                                        json_node_get_object (current));
+    case JSON_NODE_ARRAY:
+      return cockpit_json_equal_array (json_node_get_array (previous),
+                                       json_node_get_array (current));
+    case JSON_NODE_NULL:
+      return TRUE;
+
+    case JSON_NODE_VALUE:
+      if (gtype == G_TYPE_INT64)
+        return json_node_get_int (previous) == json_node_get_int (current);
+      else if (gtype == G_TYPE_DOUBLE)
+        return json_node_get_double (previous) == json_node_get_double (current);
+      else if (gtype == G_TYPE_BOOLEAN)
+        return json_node_get_boolean (previous) == json_node_get_boolean (current);
+      else if (gtype == G_TYPE_STRING)
+        return g_strcmp0 (json_node_get_string (previous), json_node_get_string (current)) == 0;
+      else
+        return TRUE;
+
+    default:
+      return FALSE;
+    }
+}
+
 /**
  * cockpit_json_int_hash:
  * @v: pointer to a gint64

@@ -248,7 +248,6 @@ process_open (WebSocketData *data,
               JsonObject *options)
 {
   CockpitTransport *session;
-  CockpitCreds *specific_creds = NULL;
   const gchar *specific_user;
   const gchar *password;
   const gchar *user;
@@ -313,8 +312,6 @@ process_open (WebSocketData *data,
       report_close (data, channel, "internal-error");
     }
 
-  if (specific_creds)
-    cockpit_creds_unref (specific_creds);
   return TRUE;
 }
 

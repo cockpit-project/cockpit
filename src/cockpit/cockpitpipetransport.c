@@ -258,7 +258,7 @@ cockpit_pipe_transport_spawn (const gchar *host,
   gchar port_arg[sizeof(int) * 3];
   gchar login[256];
   int pwpipe[2] = { -1, -1 };
-  GPid pid;
+  GPid pid = 0;
 
   gchar *argv_remote[] =
     { "/usr/bin/sshpass",
@@ -397,7 +397,7 @@ out:
    * will make child go away.
    */
 
-  if (!transport)
+  if (!transport && pid)
       g_spawn_close_pid (pid);
 
   return transport;

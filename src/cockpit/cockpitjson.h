@@ -36,4 +36,9 @@ gboolean       cockpit_json_get_string        (JsonObject *object,
                                                const gchar *defawlt,
                                                const gchar **value);
 
+guint          cockpit_json_int_hash          (gconstpointer v);
+
+gboolean       cockpit_json_int_equal         (gconstpointer v1,
+                                               gconstpointer v2);
+
 #endif /* COCKPIT_JSON_H__ */

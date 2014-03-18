@@ -97,6 +97,31 @@ test_get_int (TestCase *tc,
   g_assert (ret == FALSE);
 }
 
+static void
+test_int_hash (void)
+{
+  gint64 one = 1;
+  gint64 two = G_MAXINT;
+  gint64 copy = 1;
+
+  g_assert_cmpuint (cockpit_json_int_hash (&one), !=, cockpit_json_int_hash (&two));
+  g_assert_cmpuint (cockpit_json_int_hash (&one), ==, cockpit_json_int_hash (&one));
+  g_assert_cmpuint (cockpit_json_int_hash (&one), ==, cockpit_json_int_hash (&copy));
+}
+
+static void
+test_int_equal (void)
+{
+  gint64 one = 1;
+  gint64 two = G_MAXINT;
+  gint64 copy = 1;
+
+  g_assert (!cockpit_json_int_equal (&one, &two));
+  g_assert (cockpit_json_int_equal (&one, &one));
+  g_assert (cockpit_json_int_equal (&one, &copy));
+}
+
+
 int
 main (int argc,
       char *argv[])
@@ -105,6 +130,9 @@ main (int argc,
 
   g_set_prgname ("test-json");
   g_test_init (&argc, &argv, NULL);
+
+  g_test_add_func ("/json/int-equal", test_int_equal);
+  g_test_add_func ("/json/int-hash", test_int_hash);
 
   g_test_add ("/json/get-string", TestCase, NULL,
               setup, test_get_string, teardown);

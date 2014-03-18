@@ -75,3 +75,35 @@ cockpit_json_get_string (JsonObject *options,
 
   return TRUE;
 }
+
+/**
+ * cockpit_json_int_hash:
+ * @v: pointer to a gint64
+ *
+ * Hash a pointer to a gint64. This is like g_int_hash()
+ * but for gint64.
+ *
+ * Returns: the hash
+ */
+guint
+cockpit_json_int_hash (gconstpointer v)
+{
+  return (guint)*((const guint64 *)v);
+}
+
+/**
+ * cockpit_json_int_equal:
+ * @v1: pointer to a gint64
+ * @v2: pointer to a gint64
+ *
+ * Compare pointers to a gint64. This is like g_int_equal()
+ * but for gint64.
+ *
+ * Returns: the hash
+ */
+gboolean
+cockpit_json_int_equal (gconstpointer v1,
+                        gconstpointer v2)
+{
+  return *((const guint64 *)v1) == *((const guint64 *)v2);
+}

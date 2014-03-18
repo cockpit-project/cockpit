@@ -30,6 +30,9 @@ gsize          cockpit_json_skip              (const gchar *data,
                                                gsize length,
                                                gsize *spaces);
 
+gboolean       cockpit_json_equal             (JsonNode *previous,
+                                               JsonNode *current);
+
 gboolean       cockpit_json_get_int           (JsonObject *object,
                                                const gchar *member,
                                                gint64 defawlt,

@@ -348,8 +348,8 @@ PageContainerDetails.prototype = {
         this.client.get("/containers/" + this.container_id + "/json",
                         function (error, result) {
                             if (error) {
+                                $('#container-details-names').text(error);
                                 $('#container-details-id').text("");
-                                $('#container-details-names').text("");
                                 $('#container-details-created').text("");
                                 $('#container-details-image').text("");
                                 $('#container-details-command').text("");
@@ -452,7 +452,7 @@ PageImageDetails.prototype = {
         this.client.get("/images/" + this.image_id + "/json",
                         function (error, result) {
                             if (error) {
-                                $('#image-details-id').text("");
+                                $('#image-details-id').text(error);
                                 $('#image-details-command').text("");
                                 $('#image-details-created').text("");
                                 $('#image-details-author').text("");

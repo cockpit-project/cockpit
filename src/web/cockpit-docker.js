@@ -245,16 +245,15 @@ PageRunImage.prototype = {
             }
 
             var li =
-                $('<li class="list-group-item">').append(
-                    $('<div>', { 'class': 'checkbox',
-                                 'style': 'margin:0px'
-                               }).append(
-                                   $('<label>').append(
-                                       $('<input type="checkbox">'),
-                                       $('<span>').text(
-                                           F(_("Bind port %{port} to "),
-                                             { port: p }))),
-                                   port_input));
+                $('<div>', { 'class': 'checkbox',
+                             'style': 'margin:0px;padding-top:0.75em'
+                           }).append(
+                               $('<label>').append(
+                                   $('<input type="checkbox">'),
+                                   $('<span>').text(
+                                       F(_("Bind port %{port} to "),
+                                         { port: p }))),
+                               port_input);
             port_input.prop('disabled', true);
             li.find('input[type="checkbox"]').on('change', changed);
             return li;
@@ -263,7 +262,7 @@ PageRunImage.prototype = {
         var ports = $('#containers-run-image-ports');
         ports.empty();
         this.port_items = { };
-        var list = $('<ul class="list-group">');
+        var list = $('<div>');
         for (var p in PageRunImage.image_info.config.ExposedPorts) {
             var li = render_port(p);
             this.port_items[p] = li;

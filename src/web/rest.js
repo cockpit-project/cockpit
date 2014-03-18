@@ -238,17 +238,18 @@ var $cockpit = $cockpit || { };
                 return undefined; /* wait until end of channel */
         } else {
             var length = parseInt(state.headers["content-length"], 10);
+            var body_length_in_bytes = unescape(encodeURIComponent(body)).length;
             if (isNaN(length)) {
                 console.warn("Invalid HTTP Content-Length received:",
                              state.headers["content-length"]);
                 throw new RestError("protocol-error");
             }
-            if (length < body.length) {
+            if (length < body_length_in_bytes) {
                 console.warn("Too much data in HTTP response: expected",
                              length, "got", body.length);
                 throw new RestError("protocol-error");
             }
-            if (length > body.length) {
+            if (length > body_length_in_bytes) {
                 if (force) {
                     console.warn("Truncated HTTP response received: expected",
                                  length, "got", body.length);

@@ -879,6 +879,11 @@ cockpit_pipe_get_buffer (CockpitPipe *self)
  * @skip + @length bytes will be removed from the @buffer,
  * and @length bytes will be returned.
  *
+ * As an omptimization of @skip + @length is equal to the
+ * entire length of the buffer, then the data will not
+ * be copied but ownership will be transferred to the returned
+ * bytes.
+ *
  * Returns: (transfer full): the read bytes
  */
 GBytes *
@@ -906,4 +911,21 @@ cockpit_pipe_consume (GByteArray *buffer,
     }
 
   return bytes;
+}
+
+/**
+ * cockpit_pipe_skip:
+ * @buffer: a data buffer
+ * @skip: amount of bytes to skip
+ *
+ * Used to remove data from the front of the buffer.
+ * @skip should be less than the number of bytes in
+ * the buffer.
+ */
+void
+cockpit_pipe_skip (GByteArray *buffer,
+                   gsize skip)
+{
+  g_return_if_fail (buffer != NULL);
+  g_byte_array_remove_range (buffer, 0, skip);
 }

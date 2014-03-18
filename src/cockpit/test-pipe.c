@@ -445,6 +445,21 @@ test_consume_skip (void)
 }
 
 static void
+test_buffer_skip (void)
+{
+  GByteArray *buffer;
+
+  buffer = g_byte_array_new ();
+  g_byte_array_append (buffer, (guint8 *)"Marmaalaaaade!", 15);
+
+  cockpit_pipe_skip (buffer, 7);
+  g_assert_cmpuint (buffer->len, ==, 8);
+
+  g_assert_cmpstr ((char *)buffer->data, ==,  "aaaade!");
+  g_byte_array_free (buffer, TRUE);
+}
+
+static void
 test_properties (void)
 {
   CockpitPipe *tpipe;
@@ -717,9 +732,10 @@ main (int argc,
   g_set_prgname ("test-pipe");
   g_test_init (&argc, &argv, NULL);
 
-  g_test_add_func ("/pipe/consume/entire", test_consume_entire);
-  g_test_add_func ("/pipe/consume/partial", test_consume_partial);
-  g_test_add_func ("/pipe/consume/skip", test_consume_skip);
+  g_test_add_func ("/pipe/buffer/consume-entire", test_consume_entire);
+  g_test_add_func ("/pipe/buffer/consume-partial", test_consume_partial);
+  g_test_add_func ("/pipe/buffer/consume-skip", test_consume_skip);
+  g_test_add_func ("/pipe/buffer/skip", test_buffer_skip);
 
   g_test_add_func ("/pipe/properties", test_properties);
 

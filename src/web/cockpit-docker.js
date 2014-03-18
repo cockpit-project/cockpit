@@ -486,7 +486,7 @@ PageImageDetails.prototype = {
         });
     },
 
-    remove_image: function () {
+    delete_image: function () {
         this.client.delete_("/images/" + this.image_id, function (error, result) {
             if (error)
                 cockpit_show_unexpected_error (error);

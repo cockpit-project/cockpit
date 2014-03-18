@@ -347,3 +347,67 @@ function cockpit_action_btn_select (btn, action) {
 function cockpit_action_btn_enable (btn, action, val) {
     $.data(btn[0], 'cockpit-action-btn-funcs').enable(action, val);
 }
+
+function cockpit_select_btn (func, spec) {
+    var direct_btn, indirect_btns, btn;
+    var selected_choice;
+
+    direct_btn =
+        $('<button>', { 'class': 'btn btn-default dropdown-toggle',
+                        'data-toggle': 'dropdown'
+                      }).append(
+            $('<span>'),
+            $('<span>', { 'style': 'margin-left:8px', 'class': 'caret' }));
+
+
+    indirect_btns = [ ];
+    spec.forEach (function (s, i) {
+        indirect_btns[i] = $('<li>', { 'class': 'presentation' }).
+            append(
+                $('<a>', { 'role': 'menuitem',
+                           'on': { 'click':
+                                   function () {
+                                       direct_btn.find(':first-child').text(s.title);
+                                       selected_choice = s.choice;
+                                       func (s.choice);
+                                   }
+                                 }
+                         }).append(
+                             $('<span>').text(s.title)));
+    });
+
+    btn =
+        $('<div>', { 'class': 'dropdown' }).append(
+            direct_btn,
+            $('<ul>', { 'class': 'dropdown-menu',
+                        'style': 'right:0px;left:auto;min-width:0;text-align:left',
+                        'role': 'menu'
+                      }).
+                append(indirect_btns));
+
+    function select (a) {
+        spec.forEach(function (s, i) {
+            if (s.choice == a || (a == 'default' && s.is_default)) {
+                direct_btn.find(':first-child').text(s.title);
+                selected_choice = s.choice;
+            }
+        });
+    }
+
+    function selected () {
+        return selected_choice;
+    }
+
+    select ('default');
+
+    $.data(btn[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
+    return btn;
+}
+
+function cockpit_select_btn_select (btn, choice) {
+    $.data(btn[0], 'cockpit-select-btn-funcs').select(choice);
+}
+
+function cockpit_select_btn_selected (btn) {
+    return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
+}

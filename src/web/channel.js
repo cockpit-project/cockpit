@@ -42,7 +42,8 @@
  *   Sends a message over the channel. The contents of the message depends
  *   on the payload type of the channel.
  *
- * channel.close()
+ * channel.close(problem)
+ *   @problem: optonal, if set indicate the problem that occurred
  *   Closes a channel. Channels can also close if the other end closes
  *   or the underlying WebSocket transport closes.
  *
@@ -273,7 +274,7 @@ Channel.prototype = {
             console.log("sending message on closed channel: " + this);
     },
 
-    close: function() {
+    close: function(problem) {
         this.valid = false;
         var command = {
             "command" : "close",
@@ -281,7 +282,7 @@ Channel.prototype = {
         };
         this._transport._send_control(command);
         this._transport._unregister(this.number);
-        $(this).triggerHandler("close", null);
+        $(this).triggerHandler("close", problem || null);
     },
 
     toString : function() {

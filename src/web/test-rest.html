@@ -150,10 +150,11 @@ function MockPeer() {
             window.setTimeout(function() { $(peer).trigger("recv", [channel, payload]); }, 5);
         };
 
-        this.close = function() {
-            console.assert(arguments.length == 0);
+        this.close = function(problem) {
+            console.assert(arguments.length <= 1);
             this.valid = false;
-            window.setTimeout(function() { $(peer).trigger("closed", [channel, ""]); }, 5);
+            window.setTimeout(function() { $(peer).trigger("closed", [channel, problem || null]); }, 5);
+            $(this).triggerHandler("close", [problem || null]);
         };
 
         QUnit.testDone(function() {

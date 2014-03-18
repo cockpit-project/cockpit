@@ -238,49 +238,39 @@ PageRunImage.prototype = {
         $("#containers-run-image-command").val(cockpit_quote_cmdline(PageRunImage.image_info.config.Cmd));
 
         function render_port(p) {
-            var port_input = $('<input type="text" class="form-control" style="display:inline;width:auto" >');
+            var port_input = $('<input class="form-control" style="display:inline;width:auto" >');
+            var tr =
+                $('<tr class="port-map">').append(
+                    $('<td>').text(
+                        F(_("Bind port %{port} to "),
+                          { port: p })),
+                    $('<td>').append(
+                        port_input));
 
-            function changed(event) {
-                port_input.prop('disabled', !$(event.target).prop('checked'));
-            }
-
-            var li =
-                $('<div>', { 'class': 'checkbox',
-                             'style': 'margin:0px;padding-top:0.75em'
-                           }).append(
-                               $('<label>').append(
-                                   $('<input type="checkbox">'),
-                                   $('<span>').text(
-                                       F(_("Bind port %{port} to "),
-                                         { port: p }))),
-                               port_input);
-            port_input.prop('disabled', true);
-            li.find('input[type="checkbox"]').on('change', changed);
-            return li;
+            port_input.attr('placeholder', _("none"));
+            return tr;
         }
 
-        var ports = $('#containers-run-image-ports');
-        ports.empty();
+        var table = $('#containers_run_image_dialog .modal-body table');
+        table.find('.port-map').remove();
         this.port_items = { };
-        var list = $('<div>');
         for (var p in PageRunImage.image_info.config.ExposedPorts) {
-            var li = render_port(p);
-            this.port_items[p] = li;
-            list.append(li);
+            var tr = render_port(p);
+            this.port_items[p] = tr;
+            table.append(tr);
         }
-        ports.append(list);
     },
 
     run: function() {
         var name = $("#containers-run-image-name").val();
         var cmd = $("#containers-run-image-command").val();
         var port_bindings = { };
-        var p, item;
+        var p, map;
         for (p in this.port_items) {
-            item = this.port_items[p];
-            if (item.find('input[type="checkbox"]').prop('checked'))
+            map = this.port_items[p].find('input').val();
+            if (map)
                 port_bindings[p] = [ { "HostIp": "",
-                                       "HostPort": item.find('input[type="text"]').val()
+                                       "HostPort": map
                                      }
                                    ];
         }

@@ -450,7 +450,7 @@ PageContainerDetails.prototype = {
         var empty = total - swap_used - mem_used - off_limit;
         function perc(num) { return Math.round(num/total * 100).toString() + '%'; }
 
-        var title = F(off_limit > 0?_("%{inuse} of %{limit} in use") : _("%{inuse} in use"),
+        var title = F(limit < 1e16?_("%{inuse} of %{limit} in use") : _("%{inuse} in use"),
                       { inuse: cockpit_format_bytes_pow2 (mem_used+swap_used),
                         limit: cockpit_format_bytes_pow2 (limit)
                       });

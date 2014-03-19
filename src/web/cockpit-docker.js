@@ -315,6 +315,7 @@ PageContainerDetails.prototype = {
     },
 
     leave: function() {
+        this.destroy_monitor();
     },
 
     enter: function(first_visit) {
@@ -330,10 +331,12 @@ PageContainerDetails.prototype = {
             $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
         }
 
+        $('#container-details-monitor').hide();
         this.update();
     },
 
     update: function() {
+        var me = this;
         this.client.get("/containers/" + this.container_id + "/json",
                         function (error, result) {
                             if (error) {
@@ -368,7 +371,83 @@ PageContainerDetails.prototype = {
                             $('#container-details-command').text(cockpit_quote_cmdline([ result.Path ].concat(result.Args)));
                             $('#container-details-state').text(cockpit_render_container_state(result.State));
                             $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
+
+                            if (result.State && result.State.Running)
+                                me.create_monitor ();
+                            else
+                                me.destroy_monitor ();
                         });
+    },
+
+    create_monitor: function () {
+        var me = this;
+        if (!me.monitor) {
+            var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
+                                                     "com.redhat.Cockpit.Manager");
+            me.monitor = "...";
+            $('#container-details-monitor').show();
+            manager.call('CreateCGroupMonitor', "lxc/" + this.container_id,
+                         function (error, result) {
+                             if (result) {
+                                 var m = cockpit_dbus_client.lookup(result,
+                                                                    "com.redhat.Cockpit.ResourceMonitor");
+                                 if (!me.monitor) {
+                                     m.call('Destroy', function (error) {
+                                         if (error)
+                                             console.log(error);
+                                     });
+                                 } else {
+                                     me.monitor = m;
+                                     $(me.monitor).on('NewSample', function (event, time, samples) {
+                                         me.update_monitor(samples);
+                                     });
+                                 }
+                             }
+                         });
+        }
+    },
+
+    destroy_monitor: function () {
+        if (this.monitor) {
+            if (this.monitor != "...") {
+                this.monitor.call('Destroy', function (error) {
+                    if (error)
+                        console.log(error);
+                });
+            }
+            $('#container-details-monitor').hide();
+            this.monitor = null;
+        }
+    },
+
+    update_monitor: function (samples) {
+        var me = this;
+
+        var mem_used = samples[0];
+        var swap_used = samples[2] - mem_used;
+        var limit = samples[3];
+
+        function round_top(num) {
+            var gran = (num < 1024*1024*1024)? 100*1024*1024 : 10*1024*1024*1024;
+            return (Math.ceil(num / gran)*1.5)*gran;
+        }
+
+        var total = round_top(mem_used+swap_used);
+        var off_limit = (limit < total)? total-limit : 0;
+        var empty = total - swap_used - mem_used - off_limit;
+        function perc(num) { return Math.round(num/total * 100).toString() + '%'; }
+
+        var title = F(off_limit > 0?_("%{inuse} of %{limit} in use") : _("%{inuse} in use"),
+                      { inuse: cockpit_format_bytes_pow2 (mem_used+swap_used),
+                        limit: cockpit_format_bytes_pow2 (limit)
+                      });
+
+        $('#container-details-monitor-title').text(title);
+        var table = $('#container-details-monitor-graph');
+        table.find('td:nth-child(1)').attr('width', perc(swap_used));
+        table.find('td:nth-child(2)').attr('width', perc(mem_used));
+        table.find('td:nth-child(3)').attr('width', perc(empty));
+        table.find('td:nth-child(4)').attr('width', perc(off_limit));
     },
 
     start_container: function () {

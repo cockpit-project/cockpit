@@ -520,17 +520,27 @@ function DockerClient(machine) {
     var me = this;
     var rest = $cockpit.rest("unix:///var/run/docker.sock", machine);
 
-    /* Subscribe to docker events
+    var events = rest.get("/events");
 
-       XXX - streaming JSON doesn't work yet since message don't
-             always contain exactly one JSON object.
-    */
-    rest.getraw("/events").stream(function(resp) {
-        console.log("DockerClient event:", resp);
-        $(me).trigger("event");
-    }).fail(function(reason) {
-        console.warn("DockerClient events failed:", reason);
-    });
+    /* This is a named function because we call it recursively */
+    function connect_events() {
+
+        /* Trigger the event signal when JSON from /events */
+        events.stream(function(resp) {
+            console.log("DockerClient event:", resp);
+            $(me).trigger("event");
+
+        /* Reconnect to /events when it disconnects/fails */
+        }).always(function() {
+            window.setTimeout(function() {
+                if (events) {
+                    events = events.restart();
+                    connect_events();
+                }
+            }, 1000);
+        });
+    }
+    connect_events();
 
     /*
      * TODO: it would probably make sense for this API to use

@@ -21,7 +21,7 @@ function cockpit_quote_cmdline (cmds) {
     function quote(arg) {
         return arg.replace(/\\/g, '\\\\').replace(/ /g, '\\ ');
     }
-    return cmds.map(quote).join(' ');
+    return cmds? cmds.map(quote).join(' ') : "";
 }
 
 function cockpit_unquote_cmdline (string) {
@@ -337,30 +337,33 @@ PageContainerDetails.prototype = {
 
     update: function() {
         var me = this;
+        $('#container-details-names').text("");
+        $('#container-details-id').text("");
+        $('#container-details-created').text("");
+        $('#container-details-image').text("");
+        $('#container-details-command').text("");
+        $('#container-details-state').text("");
+        $('#container-details-ports').text("");
         this.client.get("/containers/" + this.container_id + "/json",
                         function (error, result) {
                             if (error) {
                                 $('#container-details-names').text(error);
-                                $('#container-details-id').text("");
-                                $('#container-details-created').text("");
-                                $('#container-details-image').text("");
-                                $('#container-details-command').text("");
-                                $('#container-details-state').text("");
-                                $('#container-details-ports').text("");
                                 return;
                             }
 
                             var port_bindings = [ ];
-                            for (var p in result.NetworkSettings.Ports) {
-                                var h = result.NetworkSettings.Ports[p];
-                                if (!h)
-                                    continue;
-                                for (var i = 0; i < h.length; i++) {
-                                    port_bindings.push(F(_("%{hip}:%{hport} -> %{cport}"),
-                                                         { hip: h[i].HostIp,
-                                                           hport: h[i].HostPort,
-                                                           cport: p
-                                                         }));
+                            if (result.NetworkSettings) {
+                                for (var p in result.NetworkSettings.Ports) {
+                                    var h = result.NetworkSettings.Ports[p];
+                                    if (!h)
+                                        continue;
+                                    for (var i = 0; i < h.length; i++) {
+                                        port_bindings.push(F(_("%{hip}:%{hport} -> %{cport}"),
+                                                             { hip: h[i].HostIp,
+                                                               hport: h[i].HostPort,
+                                                               cport: p
+                                                             }));
+                                    }
                                 }
                             }
 
@@ -519,27 +522,33 @@ PageImageDetails.prototype = {
     },
 
     update: function() {
+        $('#image-details-id').text("");
+        $('#image-details-command').text("");
+        $('#image-details-created').text("");
+        $('#image-details-author').text("");
+        $('#image-details-ports').text("");
+
         this.client.get("/images/" + this.image_id + "/json",
                         function (error, result) {
                             if (error) {
                                 $('#image-details-id').text(error);
-                                $('#image-details-command').text("");
-                                $('#image-details-created').text("");
-                                $('#image-details-author').text("");
-                                $('#image-details-ports').text("");
                                 return;
                             }
 
-                            var ports = [ ];
-                            for (var p in result.config.ExposedPorts) {
-                                ports.push(p);
-                            }
-
                             $('#image-details-id').text(result.id);
-                            $('#image-details-command').text(cockpit_quote_cmdline(result.config.Cmd));
                             $('#image-details-created').text(result.created);
                             $('#image-details-author').text(result.author);
-                            $('#image-details-ports').text(ports.join(', '));
+
+                            var config = result.config;
+                            if (config) {
+                                var ports = [ ];
+                                for (var p in config.ExposedPorts) {
+                                    ports.push(p);
+                                }
+
+                                $('#image-details-command').text(cockpit_quote_cmdline(config.Cmd));
+                                $('#image-details-ports').text(ports.join(', '));
+                            }
                         });
     },
 

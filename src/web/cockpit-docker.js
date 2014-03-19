@@ -332,6 +332,7 @@ PageContainerDetails.prototype = {
         }
 
         $('#container-details-monitor').hide();
+        this.reset_monitor();
         this.update();
     },
 
@@ -421,6 +422,15 @@ PageContainerDetails.prototype = {
             $('#container-details-monitor').hide();
             this.monitor = null;
         }
+    },
+
+    reset_monitor: function () {
+        $('#container-details-monitor-title').text("");
+        var table = $('#container-details-monitor-graph');
+        table.find('td:nth-child(1)').attr('width', '0%');
+        table.find('td:nth-child(2)').attr('width', '0%');
+        table.find('td:nth-child(3)').attr('width', '100%');
+        table.find('td:nth-child(4)').attr('width', '0%');
     },
 
     update_monitor: function (samples) {

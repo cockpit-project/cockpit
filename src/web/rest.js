@@ -43,9 +43,6 @@
  *                  console.warn(ex);
  *              });
  *
- * Rest.getraw(path, params)
- *   Same as Rest.get but doesn't parse the response body as JSON.
- *
  * Rest.del(path, params)
  *   See .get() method above. Behaves identically except for makes a DELETE
  *   HTTP request.
@@ -56,6 +53,33 @@
  *   Makes a REST JSON POST request as application/json to the specified
  *   HTTP path.
  *   Returns: a jQuery deferred promise. See below.
+ *
+ * Rest.poll(path, interval, watch, params)
+ *   @path: an HTTP path starting with a slash
+ *   @interval: interval in milliseconds or zero
+ *   @watch: another request to watch for changes on, or undefined
+ *   @params: optional, a plain object of query params
+ *   Asks REST JSON agent to check the result of the given GET request
+ *   every @interval milliseconds. Any changes in the results are sent.
+ *   If @watch is specified, watch another request for output, and when
+ *   that request has output, perform the poll request.
+ *
+ *   You'll almost certainly want to use .stream() on the result, see
+ *   Deferred promise below.
+ *
+ *   Example:
+ *
+ *      var rest = $cockpit.rest("unix:///var/run/docker.sock");
+ *      var events = rest.get("/events")
+ *          .done(function on_done(resp) {
+ *              setTimeout(function() {
+ *                  events = events.restart().done(on_done);
+ *              }, 1000);
+ *          });
+ *      rest.poll("/containers/jsan", 2000, events)
+ *          .stream(function(resp) {
+ *              console.log(resp);
+ *          });
  *
  * Deferred promise (return values)
  *   The return values from .get(), .post() and similar methods are jQuery
@@ -70,11 +94,16 @@
  *             as an HTTP code.
  *      .always(function() { }): called when the operation fails or
  *             completes. Use this.state() to see what happened.
+ *   non-standard:
  *      .stream(function(resp) { }): if a handler is attached to the
  *             .stream() method then the response switches into streaming
  *             mode and it is expected that the REST endpoint will return
  *             multiple JSON snippets. callback will be called mulitple
  *             times and the .done() callback will get null.
+ *      .restart(): restart the given request, if still active
+ *             will replace it with new request.
+ *      .cancel(): cancel the given request, unless already done, in
+ *             which case nothing will happen.
  *
  * RestError
  *   Errors passd to the deferred .fail function will be of this class
@@ -128,12 +157,14 @@ var $cockpit = $cockpit || { };
 
     var last_cookie = 3;
 
-    function rest_perform(channel, req) {
+    function rest_perform(channel_get, req, cookie) {
         var dfd = new $.Deferred();
 
         /* Unique cookie for this request */
-        var cookie = last_cookie;
-        last_cookie++;
+        if (cookie === undefined) {
+            cookie = last_cookie;
+            last_cookie++;
+        }
 
         if (!req.path)
             req.path = "/";
@@ -151,6 +182,9 @@ var $cockpit = $cockpit || { };
             delete req.body;
 
         rest_debug("rest request:", req);
+
+        /* We need a channel for the request */
+        var channel = channel_get();
         channel.send(JSON.stringify(req));
 
         /* Callbacks that want to stream response, see below */
@@ -196,6 +230,7 @@ var $cockpit = $cockpit || { };
         });
 
         var promise = dfd.promise();
+        promise.cookie = cookie;
 
         /*
          * An additional method on our deferred promise, which enables
@@ -206,6 +241,18 @@ var $cockpit = $cockpit || { };
                streamers = $.Callbacks("" /* no flags */);
             streamers.add(callback);
             return this;
+        };
+
+        promise.restart = function(callback) {
+            this.cancel();
+            return rest_perform(channel_get, req, cookie);
+        };
+
+        promise.cancel = function(callback) {
+            if (this.state() == "pending") {
+                /* TODO: need to tell channel */
+                dfd.reject(null);
+            }
         };
 
         return promise;
@@ -247,14 +294,26 @@ var $cockpit = $cockpit || { };
 
         /* public */
         this.get = function(path, params) {
-            return rest_perform(get_channel(), {
+            return rest_perform(get_channel, {
                 "method": "GET",
                 "params": params,
                 "path": path
             });
         };
+        this.poll = function(path, interval, watch, params) {
+            if (watch === undefined || watch === null)
+                watch = 0;
+            else if (typeof(watch) != "number")
+                watch = watch.cookie;
+            return rest_perform(get_channel, {
+                "method": "GET",
+                "params": params,
+                "path": path,
+                "poll": { "interval": interval || 0, "watch": watch }
+            });
+        };
         this.post = function(path, params, body) {
-            return rest_perform(get_channel(), {
+            return rest_perform(get_channel, {
                 "method": "POST",
                 "params": params,
                 "path": path,
@@ -262,7 +321,7 @@ var $cockpit = $cockpit || { };
             });
         };
         this.del = function(path, params) {
-            return rest_perform(get_channel(), {
+            return rest_perform(get_channel, {
                 "method": "DELETE",
                 "params": params,
                 "path": path

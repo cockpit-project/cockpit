@@ -52,10 +52,11 @@ static void
 setup (Test *test,
        gconstpointer data)
 {
+  const gchar *roots[] = { SRCDIR "/src/ws", NULL };
   GError *error = NULL;
   const gchar *user;
 
-  test->server = cockpit_web_server_new (0, NULL, SRCDIR "/src/ws", NULL, &error);
+  test->server = cockpit_web_server_new (0, NULL, roots, NULL, &error);
   g_assert_no_error (error);
 
   /* Other test->data fields are fine NULL */

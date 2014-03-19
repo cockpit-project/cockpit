@@ -34,14 +34,14 @@
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gint      opt_port         = 21064;
-static gchar    *opt_http_root    = NULL;
+static gchar   **opt_http_roots   = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_disable_auth = FALSE;
 static gboolean  opt_debug = FALSE;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (21064 if unset)", NULL},
-  {"http-root", 0, 0, G_OPTION_ARG_FILENAME, &opt_http_root, "Path to serve HTTP GET requests from", NULL},
+  {"http-root", 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &opt_http_roots, "Path to serve HTTP GET requests from", NULL},
   {"no-auth", 0, 0, G_OPTION_ARG_NONE, &opt_disable_auth, "Don't require authentication", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug, "Debug mode: log messages to output", NULL},
@@ -226,6 +226,7 @@ int
 main (int argc,
       char *argv[])
 {
+  const gchar *default_roots[] = { PACKAGE_DATA_DIR "/cockpit/content", NULL };
   gint ret = 1;
   CockpitWebServer *server = NULL;
   GOptionContext *context;
@@ -249,8 +250,8 @@ main (int argc,
   if (!opt_debug)
     cockpit_set_journal_logging ();
 
-  if (opt_http_root == NULL)
-    opt_http_root = g_strdup (PACKAGE_DATA_DIR "/cockpit/content");
+  if (opt_http_roots == NULL)
+    opt_http_roots = g_strdupv ((gchar **)default_roots);
 
   if (opt_no_tls)
     {
@@ -274,7 +275,7 @@ main (int argc,
 
   server = cockpit_web_server_new (opt_port,
                                    data.certificate,
-                                   opt_http_root,
+                                   (const gchar **)opt_http_roots,
                                    NULL,
                                    error);
   if (server == NULL)
@@ -312,7 +313,7 @@ main (int argc,
   ret = 0;
 
 out:
-  g_free (opt_http_root);
+  g_strfreev (opt_http_roots);
   if (local_error)
     {
       g_printerr ("%s (%s, %d)\n", local_error->message, g_quark_to_string (local_error->domain), local_error->code);

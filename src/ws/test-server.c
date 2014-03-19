@@ -118,6 +118,7 @@ on_phantomjs_exited (GPid pid,
 static void
 server_ready (void)
 {
+  const gchar *roots[] = { ".", NULL };
   GError *error = NULL;
   CockpitWebServer *server;
   CockpitAuth *auth;
@@ -133,7 +134,7 @@ server_ready (void)
 
   server = cockpit_web_server_new (port, /* TCP port to listen to */
                                    NULL, /* TLS cert */
-                                   ".",  /* Where to serve files from */
+                                   roots,/* Where to serve files from */
                                    NULL, /* GCancellable* */
                                    &error);
   if (server == NULL)

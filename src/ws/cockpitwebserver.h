@@ -44,7 +44,7 @@ GType              cockpit_web_server_get_type      (void) G_GNUC_CONST;
 
 CockpitWebServer * cockpit_web_server_new           (gint port,
                                                      GTlsCertificate *certificate,
-                                                     const gchar *document_root,
+                                                     const gchar **document_roots,
                                                      GCancellable *cancellable,
                                                      GError **error);
 

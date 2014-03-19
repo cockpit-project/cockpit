@@ -814,6 +814,18 @@
 	    </table>
 	  </div>
         </div>
+
+        <div cass="panel panel-default" id="container-details-monitor">
+          <div id="container-details-monitor-title"></div>
+          <table width="100%" style="border:1px solid #DDD" id="container-details-monitor-graph">
+            <tr height="20px">
+              <!-- swap_used --><td width="0%" style="background:#4ca938;padding:0px"></td>
+              <!-- mem_used  --><td width="0%" style="background:#ab1852;padding:0px"></td>
+              <!-- empty     --><td style="padding:0px"></td>
+              <!-- off_limit --><td width="0%" style="background:black;padding:0px"></td>
+            </tr>
+          </table>
+        </div>
       </div>
 
       <!-- Layout for image details page-->
@@ -833,6 +845,10 @@
 	      <tr>
                 <td>Id:</td>
                 <td id="image-details-id"></td>
+              </tr>
+	      <tr>
+                <td>Entrypoint:</td>
+                <td id="image-details-entrypoint"></td>
               </tr>
 	      <tr>
                 <td>Command:</td>
@@ -2065,6 +2081,18 @@
                 <td translatable="yes">Command</td>
                 <td>
                   <input class="form-control" type="text" id="containers-run-image-command"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Memory limit</td>
+                <td>
+                  <input class="form-control" type="text" id="containers-run-image-memory"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Swap limit</td>
+                <td>
+                  <input class="form-control" type="text" id="containers-run-image-swap"/>
                 </td>
               </tr>
             </table>

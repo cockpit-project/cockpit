@@ -33,6 +33,7 @@
 #include "daemon.h"
 #include "auth.h"
 #include "manager.h"
+#include "cgroupmonitor.h"
 #include "utils.h"
 
 /**
@@ -806,6 +807,30 @@ handle_run (CockpitManager *object,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static gboolean
+handle_create_cgroup_monitor (CockpitManager *object,
+                              GDBusMethodInvocation *invocation,
+                              const char *arg_cgroup)
+{
+  Manager *manager = MANAGER (object);
+  GDBusObjectManagerServer *object_manager = daemon_get_object_manager (manager->daemon);
+  CockpitResourceMonitor *monitor = cgroup_monitor_new (arg_cgroup,
+                                                        g_dbus_method_invocation_get_sender (invocation),
+                                                        manager->daemon);
+  CockpitObjectSkeleton *object_skel = cockpit_object_skeleton_new ("/com/redhat/Cockpit/CGroupMonitor");
+  cockpit_object_skeleton_set_resource_monitor (object_skel, monitor);
+  g_dbus_object_manager_server_export_uniquely (object_manager,
+                                                G_DBUS_OBJECT_SKELETON (object_skel));
+  cockpit_manager_complete_create_cgroup_monitor (object, invocation,
+                                                  g_dbus_object_get_object_path (G_DBUS_OBJECT (object_skel)));
+  g_object_unref (monitor);
+  g_object_unref (object_skel);
+
+  return TRUE;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+
 static void
 manager_iface_init (CockpitManagerIface *iface)
 {
@@ -818,4 +843,5 @@ manager_iface_init (CockpitManagerIface *iface)
   iface->handle_cancel_shutdown = handle_cancel_shutdown;
 
   iface->handle_run = handle_run;
+  iface->handle_create_cgroup_monitor = handle_create_cgroup_monitor;
 }

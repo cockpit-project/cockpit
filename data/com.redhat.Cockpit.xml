@@ -196,6 +196,11 @@
     <signal name="AvatarChanged">
     </signal>
 
+    <method name="CreateCGroupMonitor">
+      <arg name="cgroup" type="s" direction="in"/>
+      <arg name="monitor" type="o" direction="out"/>
+    </method>
+
   </interface>
 
   <!--
@@ -227,6 +232,18 @@
     <method name="GetSamples">
       <arg name="options" type="a{sv}" direction="in"/>
       <arg name="samples" type="a(xad)" direction="out"/>
+    </method>
+
+    <!--
+        Destroy:
+
+        Destroy this resource monitor.
+
+        Only the resource monitors created with
+        com.redhat.Cockpit.Manager.CreateCGroupsMonitor implement this
+        method.
+    -->
+    <method name="Destroy">
     </method>
 
     <!--

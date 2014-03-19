@@ -533,6 +533,7 @@ PageImageDetails.prototype = {
 
     update: function() {
         $('#image-details-id').text("");
+        $('#image-details-entrypoint').text("");
         $('#image-details-command').text("");
         $('#image-details-created').text("");
         $('#image-details-author').text("");
@@ -556,6 +557,7 @@ PageImageDetails.prototype = {
                                     ports.push(p);
                                 }
 
+                                $('#image-details-entrypoint').text(cockpit_quote_cmdline(config.Entrypoint));
                                 $('#image-details-command').text(cockpit_quote_cmdline(config.Cmd));
                                 $('#image-details-ports').text(ports.join(', '));
                             }

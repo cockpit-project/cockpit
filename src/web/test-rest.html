@@ -278,6 +278,37 @@ asyncTest("streaming", function() {
         });
 });
 
+asyncTest("restart", function() {
+    expect(5);
+
+    var count = 0;
+    var cookie = 0;
+    var peer = new MockPeer();
+    $(peer).on("get", function(event, channel, request) {
+        if (cookie == 0)
+            cookie = request.cookie;
+        else
+            equal(cookie, request.cookie, "restart sent with same cookie");
+        count++;
+        this.reply(channel, request, count);
+    });
+
+    function on_restart_done(resp) {
+        strictEqual(resp, 2, "restart responded with right data");
+        start();
+    }
+
+    var req = $cockpit.rest("unix:///test").get("/restart")
+        .done(function(resp) {
+            strictEqual(resp, 1, "restart responded with right initial");
+            var next = req.restart();
+            notStrictEqual(next, req, "restart returned a new req");
+            equal(typeof(next.done), "function", "restart returned a deferred");
+            next.done(on_restart_done);
+            req = next;
+        });
+});
+
 asyncTest("post json", function() {
     expect(4);
 

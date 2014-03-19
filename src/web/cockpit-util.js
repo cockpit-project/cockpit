@@ -411,3 +411,26 @@ function cockpit_select_btn_select (btn, choice) {
 function cockpit_select_btn_selected (btn) {
     return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
 }
+
+function cockpit_parse_bytes (str, def) {
+    var factor = { '': 1,
+                   'k': 1024,
+                   'm': 1024*1024,
+                   'M': 1024*1024,
+                   'g': 1024*1024*1024,
+                   'G': 1024*1024*1024
+                 };
+
+    if (str.trim() === "")
+        return def;
+
+    var match = str.match('^([0-9.]+)([^0-9.]*)$');
+    var val = parseFloat(str);
+    var suffix;
+    if (!isNaN(val) && match) {
+        suffix = match[2].trim();
+        if (factor[suffix])
+            return val*factor[suffix];
+    }
+    return NaN;
+}

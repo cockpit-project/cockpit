@@ -39,7 +39,7 @@ struct _CockpitWebServer {
 
   gint port;
   GTlsCertificate *certificate;
-  gchar *document_root;
+  gchar **document_roots;
 
   GSocketService *socket_service;
 };
@@ -61,7 +61,7 @@ enum
   PROP_0,
   PROP_PORT,
   PROP_CERTIFICATE,
-  PROP_DOCUMENT_ROOT
+  PROP_DOCUMENT_ROOTS
 };
 
 enum
@@ -86,12 +86,24 @@ cockpit_web_server_init (CockpitWebServer *server)
 }
 
 static void
+cockpit_web_server_constructed (GObject *object)
+{
+  CockpitWebServer *server = COCKPIT_WEB_SERVER (object);
+  static gchar *default_roots[] = { ".", NULL };
+
+  G_OBJECT_CLASS (cockpit_web_server_parent_class)->constructed (object);
+
+  if (server->document_roots == NULL)
+    server->document_roots = g_strdupv (default_roots);
+}
+
+static void
 cockpit_web_server_finalize (GObject *object)
 {
   CockpitWebServer *server = COCKPIT_WEB_SERVER (object);
 
   g_clear_object (&server->certificate);
-  g_free (server->document_root);
+  g_strfreev (server->document_roots);
 
   g_clear_object (&server->socket_service);
 
@@ -116,8 +128,8 @@ cockpit_web_server_get_property (GObject *object,
       g_value_set_object (value, server->certificate);
       break;
 
-    case PROP_DOCUMENT_ROOT:
-      g_value_set_string (value, server->document_root);
+    case PROP_DOCUMENT_ROOTS:
+      g_value_set_boxed (value, server->document_roots);
       break;
 
     default:
@@ -144,8 +156,8 @@ cockpit_web_server_set_property (GObject *object,
       server->certificate = g_value_dup_object (value);
       break;
 
-    case PROP_DOCUMENT_ROOT:
-      server->document_root = g_value_dup_string (value);
+    case PROP_DOCUMENT_ROOTS:
+      server->document_roots = g_value_dup_boxed (value);
       break;
 
     default:
@@ -160,6 +172,7 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
   GObjectClass *gobject_class;
 
   gobject_class = G_OBJECT_CLASS (klass);
+  gobject_class->constructed = cockpit_web_server_constructed;
   gobject_class->finalize = cockpit_web_server_finalize;
   gobject_class->set_property = cockpit_web_server_set_property;
   gobject_class->get_property = cockpit_web_server_get_property;
@@ -183,9 +196,9 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                                         G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
-                                   PROP_DOCUMENT_ROOT,
-                                   g_param_spec_string ("document-root", NULL, NULL,
-                                                        ".",
+                                   PROP_DOCUMENT_ROOTS,
+                                   g_param_spec_boxed ("document-roots", NULL, NULL,
+                                                        G_TYPE_STRV,
                                                         G_PARAM_READABLE |
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
@@ -211,7 +224,7 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
 CockpitWebServer *
 cockpit_web_server_new (gint port,
                         GTlsCertificate *certificate,
-                        const gchar *document_root,
+                        const gchar **document_roots,
                         GCancellable *cancellable,
                         GError **error)
 {
@@ -221,7 +234,7 @@ cockpit_web_server_new (gint port,
                              error,
                              "port", port,
                              "certificate", certificate,
-                             "document-root", document_root,
+                             "document-roots", document_roots,
                              NULL);
   if (initable != NULL)
     return COCKPIT_WEB_SERVER (initable);
@@ -504,6 +517,8 @@ serve_static_file (CockpitWebServer *server,
   gs_unref_object GFileInputStream *file_in = NULL;
   gs_unref_object GFile *f = NULL;
   gs_unref_object GFileInfo *info = NULL;
+  const gchar **roots;
+  const gchar *root;
   gint i;
 
   query = strchr (escaped, '?');
@@ -513,8 +528,18 @@ serve_static_file (CockpitWebServer *server,
   if (g_strcmp0 (escaped, "/") == 0)
     escaped = "/index.html";
 
+  roots = (const gchar **)server->document_roots;
+
+again:
+  root = *(roots++);
+  if (root == NULL)
+    {
+      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, NULL, "Not found");
+      goto out;
+    }
+
   unescaped = g_uri_unescape_string (escaped, NULL);
-  path = g_build_filename (server->document_root, unescaped, NULL);
+  path = g_build_filename (root, unescaped, NULL);
   f = g_file_new_for_path (path);
 
   file_in = g_file_read (f, NULL, error);
@@ -522,9 +547,8 @@ serve_static_file (CockpitWebServer *server,
     {
       if (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
         {
-          cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, NULL, "Not found");
           g_clear_error (&local_error);
-          goto out;
+          goto again;
         }
       else if (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED) ||
                g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_IS_DIRECTORY))

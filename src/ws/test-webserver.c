@@ -35,8 +35,9 @@ static void
 setup (TestCase *tc,
        gconstpointer data)
 {
+  const gchar *roots[] = { BUILDDIR, NULL };
   GError *error = NULL;
-  tc->web_server = cockpit_web_server_new (0, NULL, BUILDDIR, NULL, &error);
+  tc->web_server = cockpit_web_server_new (0, NULL, roots, NULL, &error);
   g_assert_no_error (error);
 
   /* Automatically chosen by the web server */

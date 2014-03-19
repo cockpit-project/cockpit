@@ -236,6 +236,8 @@ PageRunImage.prototype = {
 
         $("#containers-run-image-name").val(make_name());
         $("#containers-run-image-command").val(cockpit_quote_cmdline(PageRunImage.image_info.config.Cmd));
+        $("#containers-run-image-memory").val("");
+        $("#containers-run-image-swap").val("");
 
         function render_port(p) {
             var port_input = $('<input class="form-control" style="display:inline;width:auto" >');
@@ -264,6 +266,8 @@ PageRunImage.prototype = {
     run: function() {
         var name = $("#containers-run-image-name").val();
         var cmd = $("#containers-run-image-command").val();
+        var mem_limit = cockpit_parse_bytes($("#containers-run-image-memory").val(), 0);
+        var swap_limit = cockpit_parse_bytes($("#containers-run-image-swap").val(), 0);
         var port_bindings = { };
         var p, map;
         for (p in this.port_items) {
@@ -279,7 +283,9 @@ PageRunImage.prototype = {
 
         PageRunImage.client.post("/containers/create?name=" + encodeURIComponent(name),
                                  { "Cmd": cockpit_unquote_cmdline(cmd),
-                                   "Image": PageRunImage.image_info.id
+                                   "Image": PageRunImage.image_info.id,
+                                   "Memory": mem_limit,
+                                   "MemorySwap": swap_limit
                                  },
                                  function (error, result) {
                                      if (error)

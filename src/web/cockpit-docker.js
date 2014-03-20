@@ -80,6 +80,18 @@ PageContainers.prototype = {
     leave: function() {
     },
 
+    show_failure: function(ex) {
+        var msg;
+        if (ex.problem == "not-found")
+            msg = "Docker is not installed or activated on the system";
+        else if (ex.problem == "not-authorized")
+            msg = "Not authorized to access Docker on this system";
+        else
+            msg = ex.toString();
+        $("#containers-failure").show();
+        $("#containers-failure span").text(msg);
+    },
+
     update: function() {
         var me = this;
 
@@ -156,10 +168,7 @@ PageContainers.prototype = {
 
         this.client.get(containers_resource, function (error, containers) {
             if (error) {
-                container_table.append(
-                    $('<tr>').append(
-                        $('<td>').text(F("Can't get %{resource}: %{error}",
-                                         { resource: containers_resource, error: error }))));
+                me.show_failure(error);
                 return;
             }
 
@@ -177,10 +186,7 @@ PageContainers.prototype = {
 
         this.client.get('/images/json', function (error, images) {
             if (error) {
-                images_table.append(
-                    $('<tr>').append(
-                        $('<td>').text(F("Can't get %{resource}: %{error}",
-                                         { resource: '/images/json', error: error }))));
+                me.show_failure(error);
                 return;
             }
 

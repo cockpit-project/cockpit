@@ -510,7 +510,9 @@ serve_static_file (CockpitWebServer *server,
   if (query != NULL)
     *query++ = 0;
 
-again:
+  if (g_strcmp0 (escaped, "/") == 0)
+    escaped = "/index.html";
+
   unescaped = g_uri_unescape_string (escaped, NULL);
   path = g_build_filename (server->document_root, unescaped, NULL);
   f = g_file_new_for_path (path);
@@ -518,39 +520,33 @@ again:
   file_in = g_file_read (f, NULL, error);
   if (file_in == NULL)
     {
-      if (g_strcmp0 (escaped, "/") == 0 &&
-          (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND)
-           || g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_IS_DIRECTORY)))
+      if (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
         {
-          escaped = "/index.html";
+          cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, NULL, "Not found");
           g_clear_error (&local_error);
-          goto again;
+          goto out;
         }
-
-      /* TODO: Don't leak our errors to untrusted client. And not every error is a 404 ... */
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, NULL,
-                                       "Error getting stream for file at path `%s': %s (%s, %d)", path,
-                                       local_error->message, g_quark_to_string (local_error->domain), local_error->code);
-      g_clear_error (&local_error);
-      goto out;
+      else if (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED) ||
+               g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_IS_DIRECTORY))
+        {
+          cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 403, NULL, "Access denied");
+          g_clear_error (&local_error);
+          goto out;
+        }
+      else
+        {
+          cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 500, NULL, "Internal server error");
+          goto out;
+        }
     }
 
   str = g_string_new ("HTTP/1.1 200 OK\r\n");
   info = g_file_input_stream_query_info (file_in, G_FILE_ATTRIBUTE_STANDARD_SIZE,
-                                         cancellable, error);
-  if (info == NULL)
-    {
-      /* TODO: Don't leak our error codes and messages to untrusted client */
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 500, NULL,
-                                       "Error querying file at path %s: %s (%s, %d)", path,
-                                       local_error->message, g_quark_to_string (local_error->domain), local_error->code);
-      g_clear_error (&local_error);
-      goto out;
-    }
+                                         cancellable, NULL);
 
   g_string_append (str, "Connection: close\r\n");
 
-  if (g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_STANDARD_SIZE))
+  if (info && g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_STANDARD_SIZE))
     {
       g_string_append_printf (str,
                               "Content-Length: %" G_GINT64_FORMAT "\r\n",

@@ -39,6 +39,19 @@ cockpit_js_PARTS = \
 	src/web/cockpit-main.js 					\
 	$(NULL)
 
+# When in debug mode we don't use the built cockpit.js (although we still
+# build it as jslint is a side effect of that. Instead we distribute and
+# include all the individual files in index.html
+if WITH_DEBUG
+cockpit_js_FILES = $(notdir $(cockpit_js_PARTS))
+cockpit_js_TAGS = $(cockpit_js_FILES:%=<script src="%"></script>)
+index.html: src/web/index.html $(cockpit_js_FILES) src/web/Makefile-web.am
+	$(AM_V_GEN) sed -e "s|<script.*cockpit.js.*>|$(cockpit_js_TAGS)|" $< > $@
+BUILT_SOURCES += cockpit.js
+else
+cockpit_js_FILES = cockpit.js
+endif
+
 cockpit.js: $(cockpit_js_PARTS)
 	$(AM_V_GEN) JSL=$(JSL) $(JSLINT) $^
 	$(AM_V_GEN) $(MINIFY) $^ >$@.tmp && mv $@.tmp $@
@@ -48,12 +61,13 @@ jquery.min.js: src/web/lib/jquery.min.js
 
 contentdatadir = $(pkgdatadir)/content
 contentdata_DATA = 						\
-	cockpit.js 						\
+	$(cockpit_js_FILES) \
 	src/web/cockpit.css 					\
-	src/web/dbus.js						\
-	src/web/index.html 					\
 	src/web/favicon.ico					\
 	src/web/apple-touch-icon.png				\
+	$(NULL)
+contentdata_SCRIPTS = \
+	index.html \
 	$(NULL)
 
 contentdatalangdir = $(pkgdatadir)/content/lang
@@ -185,6 +199,8 @@ lang/%.json : $(top_srcdir)/po/%.po
 
 %.js : $(srcdir)/src/web/%.js
 	$(AM_V_GEN) cp $(srcdir)/src/web/$*.js $*.js
+%.js : $(srcdir)/src/web/lib/%.js
+	$(AM_V_GEN) cp $(srcdir)/src/web/lib/$*.js $*.js
 
 CLEANFILES += \
 	$(CHECK_HTML) \

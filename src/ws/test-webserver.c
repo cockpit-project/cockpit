@@ -282,6 +282,47 @@ test_webserver_content_type (TestCase *tc,
   g_free (resp);
 }
 
+static void
+test_webserver_not_found (TestCase *tc,
+                          gconstpointer user_data)
+{
+  gchar *resp;
+  gsize length;
+  guint status;
+  gssize off;
+
+  resp = perform_http_request (tc->port, "GET /non-existent\r\n\r\n", &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, >, 0);
+
+  off = web_socket_util_parse_status_line (resp, length, &status, NULL);
+  g_assert_cmpuint (off, >, 0);
+  g_assert_cmpint (status, ==, 404);
+
+  g_free (resp);
+}
+
+static void
+test_webserver_not_authorized (TestCase *tc,
+                               gconstpointer user_data)
+{
+  gchar *resp;
+  gsize length;
+  guint status;
+  gssize off;
+
+  /* Listing a directory will result in 403 (except / -> index.html) */
+  resp = perform_http_request (tc->port, "GET /po\r\n\r\n", &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, >, 0);
+
+  off = web_socket_util_parse_status_line (resp, length, &status, NULL);
+  g_assert_cmpuint (off, >, 0);
+  g_assert_cmpint (status, ==, 403);
+
+  g_free (resp);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -302,6 +343,10 @@ main (int argc,
 
   g_test_add ("/web-server/content-type", TestCase, NULL,
               setup, test_webserver_content_type, teardown);
+  g_test_add ("/web-server/not-found", TestCase, NULL,
+              setup, test_webserver_not_found, teardown);
+  g_test_add ("/web-server/not-authorized", TestCase, NULL,
+              setup, test_webserver_not_authorized, teardown);
 
   return g_test_run ();
 }

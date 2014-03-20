@@ -51,6 +51,7 @@ cockpit_handler_socket (CockpitWebServer *server,
 {
   GByteArray *buffer;
   gconstpointer data;
+  const gchar *agent;
   gsize length;
 
   if (!g_str_equal (resource, "/socket")
@@ -67,8 +68,11 @@ cockpit_handler_socket (CockpitWebServer *server,
   g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (in), FALSE);
   g_filter_output_stream_set_close_base_stream (G_FILTER_OUTPUT_STREAM (out), FALSE);
 
-  cockpit_web_socket_serve_dbus (server, 0, PACKAGE_LIBEXEC_DIR "/cockpit-agent",
-                                 io_stream, headers, buffer, ws->auth);
+  agent = ws->agent_program;
+  if (!agent)
+    agent = PACKAGE_LIBEXEC_DIR "/cockpit-agent";
+
+  cockpit_web_socket_serve_dbus (server, 0, agent, io_stream, headers, buffer, ws->auth);
 
   g_byte_array_unref (buffer);
   return TRUE;

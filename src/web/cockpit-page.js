@@ -298,16 +298,6 @@ function cockpit_page_from_id (id)
     return page;
 }
 
-function cockpit_be_safe (thunk)
-{
-    try {
-        return thunk ();
-    } catch (e) {
-        cockpit_show_unexpected_error (e.toString());
-        return undefined;
-    }
-}
-
 function cockpit_page_enter (id)
 {
     var page = cockpit_page_from_id(id);
@@ -317,9 +307,7 @@ function cockpit_page_enter (id)
 
     if (page) {
         // cockpit_debug("enter() for page with id " + id);
-        cockpit_be_safe (function () {
-            page.enter(first_visit);
-        });
+        page.enter(first_visit);
     }
     cockpit_visited_pages[id] = true;
     phantom_checkpoint ();
@@ -330,9 +318,7 @@ function cockpit_page_leave (id)
     var page = cockpit_page_from_id(id);
     if (page) {
         // cockpit_debug("leave() for page with id " + id);
-        cockpit_be_safe (function () {
-            page.leave();
-        });
+        page.leave();
     }
     phantom_checkpoint ();
 }
@@ -343,9 +329,7 @@ function cockpit_page_show(id)
     if (page) {
         // cockpit_debug("show() for page with id " + id);
         if (cockpit_content_is_shown) {
-            cockpit_be_safe (function () {
-                page.show();
-            });
+            page.show();
         }
     }
     phantom_checkpoint ();

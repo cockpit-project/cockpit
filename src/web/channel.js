@@ -89,8 +89,8 @@ function Channel(options) {
     function Transport() {
         var transport = this;
 
-        function transport_debug(str) {
-            /* console.debug("DEBUG: " + str); */
+        function transport_debug() {
+            /* console.debug.apply(console, arguments); */
         }
 
         var ws_loc = Channel.calculate_url();
@@ -142,10 +142,10 @@ function Channel(options) {
             var channel = parseInt(data.substring(0, pos), 10);
             var payload = data.substring(pos + 1);
             if (channel === 0) {
-                transport_debug("control message " + payload);
+                transport_debug("recv control:", payload);
                 transport._process_control(JSON.parse(payload));
             } else {
-                transport_debug("payload message, channel=" + channel);
+                transport_debug("recv payload:", channel);
                 transport._process_message(channel, payload);
             }
             phantom_checkpoint();
@@ -194,6 +194,10 @@ function Channel(options) {
                 console.log("transport closed, dropped message: " + payload);
                 return;
             }
+            if (channel)
+                transport_debug("send payload:", channel);
+            else
+                transport_debug("send control:", payload);
             var msg = channel.toString() + "\n" + payload;
             if (this._ws.readyState == 1)
                 this._ws.send(msg);

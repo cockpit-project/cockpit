@@ -38,13 +38,17 @@ static gchar   **opt_http_roots   = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_disable_auth = FALSE;
 static gboolean  opt_debug = FALSE;
+static gchar    *opt_agent_program;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (21064 if unset)", NULL},
   {"http-root", 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &opt_http_roots, "Path to serve HTTP GET requests from", NULL},
-  {"no-auth", 0, 0, G_OPTION_ARG_NONE, &opt_disable_auth, "Don't require authentication", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug, "Debug mode: log messages to output", NULL},
+#ifdef WITH_DEBUG
+  {"no-auth", 0, 0, G_OPTION_ARG_NONE, &opt_disable_auth, "Don't require authentication", NULL},
+  {"agent-path", 0, 0, G_OPTION_ARG_FILENAME, &opt_agent_program, "Change path to agent program", NULL},
+#endif
   {NULL}
 };
 
@@ -272,6 +276,7 @@ main (int argc,
       g_prefix_error (error, "Error getting system bus: ");
       goto out;
     }
+  data.agent_program = opt_agent_program;
 
   server = cockpit_web_server_new (opt_port,
                                    data.certificate,
@@ -314,6 +319,7 @@ main (int argc,
 
 out:
   g_strfreev (opt_http_roots);
+  g_free (opt_agent_program);
   if (local_error)
     {
       g_printerr ("%s (%s, %d)\n", local_error->message, g_quark_to_string (local_error->domain), local_error->code);

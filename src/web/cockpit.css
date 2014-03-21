@@ -401,3 +401,53 @@ a {
     border-left: 0;
     border-right: 0;
 }
+
+/*
+ * Control buttons such as play and stop
+ * Used with .btn .btn-default
+ */
+
+.btn-control,
+.btn-control:hover {
+    background-position: center center;
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
+    -webkit-border-radius: 2;
+    -moz-border-radius: 2;
+    border-radius: 2px;
+    height: 28px;
+    width: 28px;
+    box-shadow: none;
+}
+
+.btn-control {
+    background-color: #eeeeee;
+}
+
+.btn-control:hover {
+   background-color: #e0e0e0;
+}
+
+.btn-play,
+.btn-play:hover,
+.btn-play:active,
+.btn-play:focus {
+    background-image: url(images/play.png);
+}
+
+.btn-stop,
+.btn-stop:hover,
+.btn-stop:active,
+.btn-stop:focus {
+    background-image: url(images/stop.png);
+}
+
+/*
+ * Used to make a table cell that containts buttons have less padding
+ * HACK: Because CSS has no parant selector.
+ */
+td.cell-buttons,
+.table > tbody > tr > td.cell-buttons {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}

@@ -8,6 +8,8 @@
     <link href="cockpit.css" rel="stylesheet">
     <script src="lib/jquery.min.js"></script>
     <script src="lib/bootstrap.min.js"></script>
+    <script src="lib/attrchange.js"></script>
+    <script src="controls.js"></script>
   </head>
   <body style="padding: 10px;">
 
@@ -154,6 +156,49 @@
             60%
         </div>
     </div>
+
+    <h2>Table Bar Graphs</h2>
+
+    <p>This is a set of table bar graphs, all size related to one another.</p>
+
+    <table class="table table-condensed" style="width: 50%;">
+        <tr>
+            <td>Fry</td>
+            <td>
+                <div class="bar-row" graph="planet-express" value="30/50"/>
+            </td>
+            <td>30/50</td>
+        </tr>
+        <tr>
+            <td>Leela</td>
+            <td>
+                <div class="bar-row" graph="planet-express" value="40/80"/>
+            </td>
+            <td>40/80</td>
+        </tr>
+        <tr>
+            <td>The Professor</td>
+            <td>
+                <div class="bar-row" graph="planet-express" value="75"/>
+            </td>
+            <td>75</td>
+        </tr>
+        <tr>
+            <td>Scruffy</td>
+            <td>
+                <div class="bar-row" graph="planet-express" value="1"/>
+            </td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>Hermes</td>
+            <td>
+                <div class="bar-row bar-row-danger" graph="planet-express" value="50/55"/>
+            </td>
+            <td>50/55</td>
+        </tr>
+     </table>
+
 
     <h2>Panel</h2>
     

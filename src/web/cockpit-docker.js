@@ -281,7 +281,9 @@ PageRunImage.prototype = {
 
         $("#containers_run_image_dialog").modal('hide');
 
-        PageRunImage.client.post("/containers/create?name=" + encodeURIComponent(name),
+        PageRunImage.client.post("/containers/create",
+                                 { "name": name
+                                 },
                                  { "Cmd": cockpit_unquote_cmdline(cmd),
                                    "Image": PageRunImage.image_info.id,
                                    "Memory": mem_limit,
@@ -291,7 +293,9 @@ PageRunImage.prototype = {
                                      if (error)
                                          cockpit_show_unexpected_error (error);
                                      else {
-                                         PageRunImage.client.post("/containers/" + result.Id + "/start", { "PortBindings": port_bindings },
+                                         PageRunImage.client.post("/containers/" + result.Id + "/start",
+                                                                  null,
+                                                                  { "PortBindings": port_bindings },
                                                                   function (error) {
                                                                       if (error)
                                                                           cockpit_show_unexpected_error (error);
@@ -381,21 +385,21 @@ PageContainerDetails.prototype = {
     },
 
     start_container: function () {
-        this.client.post("/containers/" + this.container_id + "/start", null, function (error, result) {
+        this.client.post("/containers/" + this.container_id + "/start", null, null, function (error, result) {
             if (error)
                 cockpit_show_unexpected_error (error);
         });
     },
 
     stop_container: function () {
-        this.client.post("/containers/" + this.container_id + "/stop?t=10", null, function (error, result) {
+        this.client.post("/containers/" + this.container_id + "/stop", { 't': '10' }, null, function (error, result) {
             if (error)
                 cockpit_show_unexpected_error (error);
         });
     },
 
     restart_container: function () {
-        this.client.post("/containers/" + this.container_id + "/restart", null, function (error, result) {
+        this.client.post("/containers/" + this.container_id + "/restart", null, null, function (error, result) {
             if (error)
                 cockpit_show_unexpected_error (error);
         });
@@ -542,8 +546,8 @@ function DockerClient(machine) {
             });
     }
 
-    function post(resource, data, cont) {
-        rest.post(resource, data).done(function(resp) {
+    function post(resource, params, body, cont) {
+        rest.post(resource, params, body).done(function(resp) {
                 cont(null, resp);
             }).fail(function(reason) {
                 cont(reason);

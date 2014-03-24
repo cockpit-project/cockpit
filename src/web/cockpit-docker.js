@@ -64,6 +64,10 @@ function cockpit_render_container_state (state) {
         return F(_("Exited %{ExitCode}"), state);
 }
 
+function multi_line(strings) {
+    return strings.map(cockpit_esc).join('<br/>');
+}
+
 PageContainers.prototype = {
     _init: function() {
         this.id = "containers";
@@ -217,10 +221,6 @@ PageContainers.prototype = {
             return;
         }
 
-        function multi_line(strings) {
-            return strings.map(cockpit_esc).join('<br/>');
-        }
-
         var tr =
             $('<tr>').append(
                     $('<td>').html(multi_line(image.RepoTags)),
@@ -368,28 +368,34 @@ PageContainerDetails.prototype = {
     },
 
     getTitle: function() {
-        var id = this.container_id;
-        return F(C_("page-title", "Container %{id}"), { id: id? id.slice(0,12) : "<??>" });
+        return this.name;
     },
 
     show: function() {
     },
 
     leave: function() {
+        $(this.client).off('.container-details');
     },
 
     enter: function(first_visit) {
-        this.container_id = cockpit_get_page_param('id');
+        var self = this;
 
         if (first_visit) {
-            this.client = new DockerClient();
-            $(this.client).on('event', $.proxy (this, "update"));
-
             $('#container-details-start').on('click', $.proxy(this, "start_container"));
             $('#container-details-stop').on('click', $.proxy(this, "stop_container"));
             $('#container-details-restart').on('click', $.proxy(this, "restart_container"));
             $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
         }
+
+        this.client = get_docker_client();
+        this.container_id = cockpit_get_page_param('id');
+        this.name = this.container_id.slice(0,12);
+
+        $(this.client).on('container.container-details', function (event, id, container) {
+            if (id == self.container_id)
+                self.update();
+        });
 
         this.update();
     },
@@ -402,37 +408,43 @@ PageContainerDetails.prototype = {
         $('#container-details-command').text("");
         $('#container-details-state').text("");
         $('#container-details-ports').text("");
-        this.client.get("/containers/" + this.container_id + "/json",
-                        function (error, result) {
-                            if (error) {
-                                $('#container-details-names').text(error);
-                                return;
-                            }
 
-                            var port_bindings = [ ];
-                            if (result.NetworkSettings) {
-                                for (var p in result.NetworkSettings.Ports) {
-                                    var h = result.NetworkSettings.Ports[p];
-                                    if (!h)
-                                        continue;
-                                    for (var i = 0; i < h.length; i++) {
-                                        port_bindings.push(F(_("%{hip}:%{hport} -> %{cport}"),
-                                                             { hip: h[i].HostIp,
-                                                               hport: h[i].HostPort,
-                                                               cport: p
-                                                             }));
-                                    }
-                                }
-                            }
+        var info = this.client.containers[this.container_id];
 
-                            $('#container-details-id').text(result.ID);
-                            $('#container-details-names').text(cockpit_render_container_name(result.Name));
-                            $('#container-details-created').text(result.Created);
-                            $('#container-details-image').text(result.Image);
-                            $('#container-details-command').text(cockpit_quote_cmdline([ result.Path ].concat(result.Args)));
-                            $('#container-details-state').text(cockpit_render_container_state(result.State));
-                            $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
-                        });
+        if (!info) {
+            $('#container-details-names').text(_("Not found"));
+            return;
+        }
+
+        var name = cockpit_render_container_name(info.Name);
+        if (name != this.name) {
+            this.name = name;
+            cockpit_content_update_loc_trail();
+        }
+
+        var port_bindings = [ ];
+        if (info.NetworkSettings) {
+            for (var p in info.NetworkSettings.Ports) {
+                var h = info.NetworkSettings.Ports[p];
+                if (!h)
+                    continue;
+                for (var i = 0; i < h.length; i++) {
+                    port_bindings.push(F(_("%{hip}:%{hport} -> %{cport}"),
+                                         { hip: h[i].HostIp,
+                                           hport: h[i].HostPort,
+                                           cport: p
+                                         }));
+                }
+            }
+        }
+
+        $('#container-details-id').text(info.ID);
+        $('#container-details-names').text(cockpit_render_container_name(info.Name));
+        $('#container-details-created').text(info.Created);
+        $('#container-details-image').text(info.Image);
+        $('#container-details-command').text(info.Command);
+        $('#container-details-state').text(cockpit_render_container_state(info.State));
+        $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
     },
 
     start_container: function () {
@@ -479,26 +491,33 @@ PageImageDetails.prototype = {
     },
 
     getTitle: function() {
-        var id = this.image_id;
-        return F(C_("page-title", "Image %{id}"), { id: id? id.slice(0,12) : "<??>" });
+        return this.name;
     },
 
     show: function() {
     },
 
     leave: function() {
+        $(this.client).off('.container-details');
     },
 
     enter: function(first_visit) {
-        this.image_id = cockpit_get_page_param('id');
+        var self = this;
 
         if (first_visit) {
-            this.client = new DockerClient();
-            $(this.client).on('event', $.proxy (this, "update"));
 
             $('#image-details-run').on('click', $.proxy(this, "run_image"));
             $('#image-details-delete').on('click', $.proxy(this, "delete_image"));
         }
+
+        this.client = get_docker_client();
+        this.image_id = cockpit_get_page_param('id');
+        this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
+
+        $(this.client).on('image.image-details', function (event, id, imaege) {
+            if (id == self.image_id)
+                self.update();
+        });
 
         this.update();
     },
@@ -511,29 +530,37 @@ PageImageDetails.prototype = {
         $('#image-details-author').text("");
         $('#image-details-ports').text("");
 
-        this.client.get("/images/" + this.image_id + "/json",
-                        function (error, result) {
-                            if (error) {
-                                $('#image-details-id').text(error);
-                                return;
-                            }
+        var info = this.client.images[this.image_id];
 
-                            $('#image-details-id').text(result.id);
-                            $('#image-details-created').text(result.created);
-                            $('#image-details-author').text(result.author);
+        if (!info) {
+            $('#image-details-id').text(_("Not found"));
+            return;
+        }
 
-                            var config = result.config;
-                            if (config) {
-                                var ports = [ ];
-                                for (var p in config.ExposedPorts) {
-                                    ports.push(p);
-                                }
+        if (info.RepoTags && info.RepoTags.length > 0) {
+            var name = info.RepoTags[0];
+            if (name != this.name) {
+                this.name = name;
+                cockpit_content_update_loc_trail();
+            }
+        }
 
-                                $('#image-details-entrypoint').text(cockpit_quote_cmdline(config.Entrypoint));
-                                $('#image-details-command').text(cockpit_quote_cmdline(config.Cmd));
-                                $('#image-details-ports').text(ports.join(', '));
-                            }
-                        });
+        $('#image-details-id').text(info.id);
+        $('#image-details-tags').html(multi_line(info.RepoTags));
+        $('#image-details-created').text(info.created);
+        $('#image-details-author').text(info.author);
+
+        var config = info.config;
+        if (config) {
+            var ports = [ ];
+            for (var p in config.ExposedPorts) {
+                ports.push(p);
+            }
+
+            $('#image-details-entrypoint').text(cockpit_quote_cmdline(config.Entrypoint));
+            $('#image-details-command').text(cockpit_quote_cmdline(config.Cmd));
+            $('#image-details-ports').text(ports.join(', '));
+        }
     },
 
     run_image: function () {

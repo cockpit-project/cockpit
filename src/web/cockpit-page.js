@@ -341,10 +341,15 @@ function cockpit_get_page_title(id)
     return page? page.getTitle() : _("Unknown Page");
 }
 
-function cockpit_get_page_param(key)
+function cockpit_get_page_param(key, page)
 {
-    if (cockpit_loc_trail.length > 0)
-        return cockpit_loc_trail[cockpit_loc_trail.length-1][key];
+    var index = cockpit_loc_trail.length-1;
+    if (page) {
+        while (index >= 0 && cockpit_loc_trail[index].page != page)
+            index--;
+    }
+    if (index >= 0)
+        return cockpit_loc_trail[index][key];
     else
         return undefined;
 }

@@ -60,17 +60,44 @@ PageContainers.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
+            var self = this;
             this.client = new DockerClient();
-            $(this.client).on('event', $.proxy (this, "update"));
+
+            /* Every time a container appears, disappears, changes */
+            $(this.client).on('container', function(event, id, container) {
+                self.render_container(id, container);
+            });
+
+            /* Every time a container appears, disappears, changes */
+            $(this.client).on('image', function(event, id, image) {
+                self.render_image(id, image);
+            });
+
+            /* High level failures about the overall functionality of docker */
+            $(this.client).on('failure', function(event, ex) {
+                var msg;
+                console.warn(ex);
+                if (ex.problem == "not-found")
+                    msg = _("Docker is not installed or activated on the system");
+                else if (ex.problem == "not-authorized")
+                    msg = _("Not authorized to access Docker on this system");
+                else
+                    msg = ex.toString();
+                $("#containers-failure").show();
+                $("#containers-failure span").text(msg);
+            });
 
             this.container_filter_btn =
                 cockpit_select_btn($.proxy(this, "update"),
                                    [ { title: _("All"),                 choice: 'all',  is_default: true },
-                                     { title: _("Running"),             choice: 'running' },
-                                     { title: _("10 Recently Created"), choice: 'recent10' }
+                                     { title: _("Running"),             choice: 'running' }
                                    ]);
             $('#containers-containers .panel-heading span').append(this.container_filter_btn);
         }
+
+        /* HACK: This is our pretend angularjs */
+        this.tags = { };
+
         this.update();
     },
 
@@ -80,117 +107,82 @@ PageContainers.prototype = {
     leave: function() {
     },
 
-    update: function() {
-        var me = this;
+    render_container: function(id, container) {
+        if (!container) {
+            if (this.tags[id]) {
+                this.tags[id].remove();
+                delete this.tags[id];
+            }
+            return;
+        }
+
+        var tr =
+            $('<tr>').append(
+                    $('<td>').text(cockpit_render_container_name(container.Name)),
+                    $('<td>').text(container.Image),
+                    $('<td>').text(container.Command),
+                    $('<td>').text(cockpit_render_container_state(container.State)));
+
+        tr.on('click', function(event) {
+            cockpit_go_down ({ page: 'container-details',
+                id: id
+            });
+        });
 
         var filter = cockpit_select_btn_selected(this.container_filter_btn);
+        if (filter == "running" && !container.State.Running)
+            tr.css("display", "none");
+        else
+            tr.css("display", "table-row");
 
-        // Updating happens asynchronously, as we receive responses
-        // from Docker.  However, a event might come in that triggers
-        // a new update before the last one has finished.  To prevent
-        // these two concurrent updates from interfering with each
-        // other when they manipulate the DOM, we give each
-        // asynchronous call a fresh and unique DOM element to
-        // populate when the results come in.  If this update as been
-        // overtaken by a concurrent update that DOM element will
-        // never appear in the document.
-        //
-        // A better solution would be to maintain a Docker Object
-        // Model that can be consulted synchronously and sends
-        // asynchronous change notifications.
+        if (this.tags[id])
+            this.tags[id].replaceWith(tr);
+        else
+            $('#containers-containers table').append(tr);
+        this.tags[id] = tr;
+    },
+
+    render_image: function(id, image) {
+        if (!image) {
+            if (this.tags[id]) {
+                this.tags[id].remove();
+                delete this.tags[id];
+            }
+            return;
+        }
 
         function multi_line(strings) {
             return strings.map(cockpit_esc).join('<br/>');
         }
 
-        function render_container(container) {
-
-            var state_td = $('<td>');
-            var tr =
-                $('<tr>').append(
-                    $('<td>').html(multi_line(container.Names.map(cockpit_render_container_name))),
-                    $('<td>').text(container.Image),
-                    $('<td>').text(container.Command),
-                    state_td);
-
-            tr.on('click', function (event) {
-                cockpit_go_down ({ page: 'container-details',
-                                   id: container.Id
-                                 });
-            });
-
-            me.client.get("/containers/" + container.Id + "/json",
-                          function (error, info) {
-                              var state = info.State;
-                              state_td.text(cockpit_render_container_state(state));
-                          });
-
-            return tr;
-        }
-
-        function render_image(image) {
-
-            var tr =
-                $('<tr>').append(
+        var tr =
+            $('<tr>').append(
                     $('<td>').html(multi_line(image.RepoTags)),
-                    $('<td>').text(new Date(image.Created*1000).toLocaleString()),
-                    $('<td>').text(cockpit_format_bytes_pow2 (image.VirtualSize)));
+                    $('<td>').text(new Date(image.Created * 1000).toLocaleString()),
+                    $('<td>').text(cockpit_format_bytes_pow2(image.VirtualSize)));
 
-            tr.on('click', function (event) {
-                cockpit_go_down ({ page: 'image-details',
-                                   id: image.Id
-                                 });
-            });
+        tr.on('click', function (event) {
+            cockpit_go_down ({ page: 'image-details',
+                               id: image.Id
+                             });
+        });
 
-            return tr;
+        if (this.tags[id])
+            this.tags[id].replaceWith(tr);
+        else
+            $('#containers-images table').append(tr);
+        this.tags[id] = tr;
+    },
+
+    update: function() {
+        var id;
+        for (id in this.client.containers) {
+            this.render_container(id, this.client.containers[id]);
         }
 
-        var container_table = $('<table class="table">');
-        $('#containers-containers table').replaceWith(container_table);
-
-        var containers_resource = '/containers/json';
-        if (filter == 'all')
-            containers_resource += '?all=1';
-        else if (filter == 'recent10')
-            containers_resource += '?limit=10';
-
-        this.client.get(containers_resource, function (error, containers) {
-            if (error) {
-                container_table.append(
-                    $('<tr>').append(
-                        $('<td>').text(F("Can't get %{resource}: %{error}",
-                                         { resource: containers_resource, error: error }))));
-                return;
-            }
-
-            container_table.append(
-                $('<tr>', { 'style': 'font-weight:bold' }).append(
-                    $('<td>').text(_("Name")),
-                    $('<td>').text(_("Image")),
-                    $('<td>').text(_("Command")),
-                    $('<td>').text(_("Status"))),
-                containers.map(render_container));
-        });
-
-        var images_table = $('<table class="table">');
-        $('#containers-images table').replaceWith(images_table);
-
-        this.client.get('/images/json', function (error, images) {
-            if (error) {
-                images_table.append(
-                    $('<tr>').append(
-                        $('<td>').text(F("Can't get %{resource}: %{error}",
-                                         { resource: '/images/json', error: error }))));
-                return;
-            }
-
-            images_table.append(
-                $('<tr>', { 'style': 'font-weight:bold' }).append(
-                    $('<td>').text(_("Tags")),
-                    $('<td>').text(_("Created")),
-                    $('<td>').text(_("Virtual Size"))),
-                images.map(render_image));
-        });
+        for (id in this.client.images) {
+            this.render_image(id, this.client.images[id]);
+        }
     }
 
 };
@@ -521,6 +513,7 @@ function DockerClient(machine) {
     var rest = $cockpit.rest("unix:///var/run/docker.sock", machine);
 
     var events = rest.get("/events");
+    var alive = true;
 
     /* This is a named function because we call it recursively */
     function connect_events() {
@@ -530,17 +523,104 @@ function DockerClient(machine) {
             console.log("DockerClient event:", resp);
             $(me).trigger("event");
 
+        }).
+
         /* Reconnect to /events when it disconnects/fails */
-        }).always(function() {
+        always(function() {
             window.setTimeout(function() {
-                if (events) {
+                if (alive && events) {
                     events = events.restart();
                     connect_events();
+                    alive = false;
                 }
             }, 1000);
         });
     }
     connect_events();
+
+    /* Both indexed by container.Id */
+    this.containers = { };
+    var polls = { };
+
+    /* Indexd by image.Id */
+    this.images = { };
+
+    /*
+     * Gets a list of the containers and then starts to poll each
+     * one for changes. We rely on the /events for notification when
+     * something changes. However since docker is racy with its /events
+     * sometimes firing them before it updates its internal state ...
+     * we rely on a interval fallback to see if something changed.
+     */
+    rest.poll("/containers/json", 4000, events, { "all": 1 }).
+        stream(function(containers) {
+            alive = true;
+
+            /*
+             * The output we get from /containers/json is mostly useless
+             * conflicting with the information that we get about specific
+             * containers. So just use it to get a list of containers.
+             */
+            $(containers).each(function(i, item) {
+                var id = item.Id;
+                if (id && !polls[id]) {
+                    polls[id] = rest.poll("/containers/" + id + "/json", 5000, events).
+                        stream(function(container) {
+                            me.containers[id] = container;
+                            $(me).trigger("container", [id, container]);
+                        }).
+                        fail(function(ex) {
+                            /*
+                             * A 404 is the way we determine when a cotnainer
+                             * actually goes away
+                             */
+                            if (ex.status == 404) {
+                                delete me.containers[id];
+                                $(me).trigger("container", [id, undefined]);
+                            }
+                        }).
+                        always(function() {
+                            /*
+                             * This lets us start a new poll for this, if it failed
+                             * for a reason other than a 404
+                             */
+                            polls[id].cancel();
+                            delete polls[id];
+                        });
+                }
+            });
+        }).
+        fail(function(ex) {
+            $(me).trigger("failure", [ex]);
+        });
+
+    /*
+     * Gets a list of images and keeps it up to date
+     */
+    rest.poll("/images/json", 1000).
+        stream(function(images) {
+            alive = true;
+
+            var id;
+            var snapshot = { };
+            for (id in me.images)
+                snapshot[id] = id;
+
+            $(images).each(function(i, image) {
+                delete snapshot[image.Id];
+                me.images[image.Id] = image;
+                $(me).trigger("image", [image.Id, image]);
+            });
+
+            /* Images that were deleted */
+            for (id in snapshot) {
+                delete me.images[id];
+                $(me).trigger("image", [id, undefined]);
+            }
+        }).
+        fail(function(ex) {
+            $(me).trigger("failure", [ex]);
+        });
 
     /*
      * TODO: it would probably make sense for this API to use

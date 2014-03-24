@@ -749,20 +749,39 @@
       </div>
 
       <div id="containers" class="container-fluid">
+        <div class="alert alert-warning alert-dismissable" style="display: none;" id="containers-failure">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <strong>Warning!</strong> <span></span>
+        </div>
         <div class="panel panel-default" id="containers-containers">
           <div class="panel-heading">
             Containers
             <span style="float:right">
             </span>
           </div>
-          <table>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Command</th>
+                <th>Status</th>
+              </tr>
+            </thead>
           </table>
         </div>
         <div class="panel panel-default" id="containers-images">
           <div class="panel-heading">
             Images
           </div>
-          <table>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Tags</th>
+                <th>Created</th>
+                <th>Virtual Size</th>
+              </td>
+            </thead>
           </table>
         </div>
       </div>

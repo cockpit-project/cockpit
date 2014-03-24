@@ -93,8 +93,9 @@ PageContainers.prototype = {
             this.client = client;
 
             /* HACK: This is our pretend angularjs */
-            this.tags = { };
-            $('#containers-containers table tr').remove();
+            this.rows = { };
+            $('#containers-containers table tbody tr').remove();
+            $('#containers-images table tbody tr').remove();
 
             /* Every time a container appears, disappears, changes */
             $(this.client).on('container.containers', function(event, id, container) {
@@ -137,12 +138,56 @@ PageContainers.prototype = {
     leave: function() {
     },
 
+    /* HACK: Poor mans angularjs */
+    update_or_insert_row: function(table, id, row) {
+        /* If we already have a row for this id? */
+        if (this.rows[id]) {
+
+            /* Move cells to the old row if changed */
+            var otds = this.rows[id].children("td");
+            var ntds = row.children("td");
+            var otd, ntd;
+            for (var i = 0; i < otds.length || i < ntds.length; i++) {
+                otd = $(otds[i]);
+                ntd = $(ntds[i]);
+                if (otd && ntd && otd.html() != ntd.html())
+                    otd.replaceWith(ntd);
+                else if (!otd)
+                    this.rows[id].append(ntd);
+                else if (!ntd)
+                    otd.remove();
+            }
+
+            /* Update the classes to the old row */
+            this.rows[id].attr('class', row.attr('class'));
+
+        /* Otherwise add a new row, sorted */
+        } else {
+            this.rows[id] = row;
+            var key = row.text();
+            var rows = table.find("tbody tr");
+            for (var j = 0; j < rows.length; j++) {
+               if ($(rows[j]).text().localeCompare(key) > 0) {
+                   row.insertBefore(rows[j]);
+                   row = null;
+                   break;
+               }
+            }
+            if (row !== null)
+                table.find("tbody").append(row);
+        }
+    },
+
+    delete_row: function(id) {
+        if (this.rows[id]) {
+            this.rows[id].remove();
+            delete this.rows[id];
+        }
+    },
+
     render_container: function(id, container) {
         if (!container) {
-            if (this.tags[id]) {
-                this.tags[id].remove();
-                delete this.tags[id];
-            }
+            this.delete_row(id);
             return;
         }
 
@@ -163,19 +208,12 @@ PageContainers.prototype = {
         if (!container.State.Running)
             tr.addClass("unimportant");
 
-        if (this.tags[id])
-            this.tags[id].replaceWith(tr);
-        else
-            $('#containers-containers table').append(tr);
-        this.tags[id] = tr;
+        this.update_or_insert_row($('#containers-containers table'), id, tr);
     },
 
     render_image: function(id, image) {
         if (!image) {
-            if (this.tags[id]) {
-                this.tags[id].remove();
-                delete this.tags[id];
-            }
+            this.delete_row(id);
             return;
         }
 
@@ -195,11 +233,7 @@ PageContainers.prototype = {
                              });
         });
 
-        if (this.tags[id])
-            this.tags[id].replaceWith(tr);
-        else
-            $('#containers-images table').append(tr);
-        this.tags[id] = tr;
+        this.update_or_insert_row($('#containers-images table'), id, tr);
     },
 
     filter: function() {

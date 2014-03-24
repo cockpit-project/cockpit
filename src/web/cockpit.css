@@ -379,6 +379,16 @@ a {
     cursor: pointer;
 }
 
+/*
+ * For showing and filtering disabled unimportant rows in a table
+ *
+ * Set .unimportant on things, and then .filter-unimportant on
+ * ancestor when you want to filter them.
+ */
+.filter-unimportant .unimportant {
+    display: none;
+}
+
 /* Styling of logs embedded in pages outside the journal */
 
 #service-log,

@@ -21,6 +21,17 @@ var $cockpit = $cockpit || { };
 
 (function($, $cockpit, cockpit_pages) {
 
+var docker_clients = { };
+
+function get_docker_client(machine) {
+    if (!machine)
+        machine = cockpit_get_page_param ("machine", "server");
+    console.log("DC", machine);
+    if (!docker_clients[machine])
+        docker_clients[machine] = new DockerClient (machine);
+    return docker_clients[machine];
+}
+
 function cockpit_quote_cmdline (cmds) {
     function quote(arg) {
         return arg.replace(/\\/g, '\\\\').replace(/ /g, '\\ ');
@@ -63,25 +74,40 @@ PageContainers.prototype = {
     },
 
     enter: function(first_visit) {
+        var self = this;
+
         if (first_visit) {
-            var self = this;
-            this.client = new DockerClient();
+            this.container_filter_btn =
+                cockpit_select_btn($.proxy(this, "update"),
+                                   [ { title: _("All"),                 choice: 'all',  is_default: true },
+                                     { title: _("Running"),             choice: 'running' }
+                                   ]);
+            $('#containers-containers .panel-heading span').append(this.container_filter_btn);
+        }
+
+        var client = get_docker_client();
+        if (client != this.client) {
+            if (this.client)
+                this.client.off('.containers');
+
+            this.client = client;
 
             /* HACK: This is our pretend angularjs */
             this.tags = { };
+            $('#containers-containers table tr').remove();
 
             /* Every time a container appears, disappears, changes */
-            $(this.client).on('container', function(event, id, container) {
+            $(this.client).on('container.containers', function(event, id, container) {
                 self.render_container(id, container);
             });
 
             /* Every time a image appears, disappears, changes */
-            $(this.client).on('image', function(event, id, image) {
+            $(this.client).on('image.containers', function(event, id, image) {
                 self.render_image(id, image);
             });
 
             /* High level failures about the overall functionality of docker */
-            $(this.client).on('failure', function(event, ex) {
+            $(this.client).on('failure.containers', function(event, ex) {
                 var msg;
                 console.warn(ex);
                 if (ex.problem == "not-found")
@@ -93,13 +119,6 @@ PageContainers.prototype = {
                 $("#containers-failure").show();
                 $("#containers-failure span").text(msg);
             });
-
-            this.container_filter_btn =
-                cockpit_select_btn($.proxy(this, "update"),
-                                   [ { title: _("All"),                 choice: 'all',  is_default: true },
-                                     { title: _("Running"),             choice: 'running' }
-                                   ]);
-            $('#containers-containers .panel-heading span').append(this.container_filter_btn);
         }
 
         this.update();

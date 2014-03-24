@@ -253,13 +253,20 @@ PageContainers.prototype = {
             return;
         }
 
+        var button = $('<button class="btn btn-default btn-control btn-play">').
+                on("click", function() {
+                    console.log(id);
+                    return false;
+                });
+
         var tr =
             $('<tr>').append(
                     $('<td>').html(multi_line(image.RepoTags)),
                     $('<td>').text(new Date(image.Created * 1000).toLocaleString()),
                     $('<td>').append(new $cockpit.BarRow("container-images").
                                                 attr("value", image.VirtualSize)),
-                    $('<td>').text(cockpit_format_bytes_pow2(image.VirtualSize)));
+                    $('<td>').text(cockpit_format_bytes_pow2(image.VirtualSize)),
+                    $('<td class="cell-buttons">').append(button));
 
         tr.on('click', function (event) {
             cockpit_go_down ({ page: 'image-details',

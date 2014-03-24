@@ -225,6 +225,8 @@ PageContainers.prototype = {
             $('<tr>').append(
                     $('<td>').html(multi_line(image.RepoTags)),
                     $('<td>').text(new Date(image.Created * 1000).toLocaleString()),
+                    $('<td>').append(new $cockpit.BarRow("container-images").
+                                                attr("value", image.VirtualSize)),
                     $('<td>').text(cockpit_format_bytes_pow2(image.VirtualSize)));
 
         tr.on('click', function (event) {

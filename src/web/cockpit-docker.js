@@ -78,7 +78,7 @@ PageContainers.prototype = {
 
         if (first_visit) {
             this.container_filter_btn =
-                cockpit_select_btn($.proxy(this, "update"),
+                cockpit_select_btn($.proxy(this, "filter"),
                                    [ { title: _("All"),                 choice: 'all',  is_default: true },
                                      { title: _("Running"),             choice: 'running' }
                                    ]);
@@ -121,7 +121,14 @@ PageContainers.prototype = {
             });
         }
 
-        this.update();
+        var id;
+        for (id in this.client.containers) {
+            this.render_container(id, this.client.containers[id]);
+        }
+
+        for (id in this.client.images) {
+            this.render_image(id, this.client.images[id]);
+        }
     },
 
     show: function() {
@@ -153,10 +160,8 @@ PageContainers.prototype = {
         });
 
         var filter = cockpit_select_btn_selected(this.container_filter_btn);
-        if (filter == "running" && !container.State.Running)
-            tr.css("display", "none");
-        else
-            tr.css("display", "table-row");
+        if (!container.State.Running)
+            tr.addClass("unimportant");
 
         if (this.tags[id])
             this.tags[id].replaceWith(tr);
@@ -197,15 +202,12 @@ PageContainers.prototype = {
         this.tags[id] = tr;
     },
 
-    update: function() {
-        var id;
-        for (id in this.client.containers) {
-            this.render_container(id, this.client.containers[id]);
-        }
-
-        for (id in this.client.images) {
-            this.render_image(id, this.client.images[id]);
-        }
+    filter: function() {
+        var filter = cockpit_select_btn_selected(this.container_filter_btn);
+        if (filter == "running")
+            $("#containers-containers table").addClass("filter-unimportant");
+        else
+            $("#containers-conatiners table").removeClass("filter-unimportant");
     }
 
 };

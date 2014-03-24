@@ -248,6 +248,8 @@ PageContainers.prototype = {
     },
 
     render_image: function(id, image) {
+        var self = this;
+
         if (!image) {
             this.delete_row(id);
             return;
@@ -255,7 +257,7 @@ PageContainers.prototype = {
 
         var button = $('<button class="btn btn-default btn-control btn-play">').
                 on("click", function() {
-                    console.log(id);
+                    PageRunImage.display(self.client, id);
                     return false;
                 });
 
@@ -397,9 +399,16 @@ PageRunImage.prototype = {
     }
 };
 
+PageRunImage.display = function(client, id) {
+    PageRunImage.image_info = client.images[id];
+    PageRunImage.client = client;
+    $("#containers_run_image_dialog").modal('show');
+};
+
 function PageRunImage() {
     this._init();
 }
+
 
 cockpit_pages.push(new PageRunImage());
 
@@ -605,16 +614,7 @@ PageImageDetails.prototype = {
     },
 
     run_image: function () {
-        var me = this;
-        this.client.get("/images/" + this.image_id + "/json", function (error, info) {
-            if (error) {
-                cockpit_show_unexpected_error (error);
-            } else {
-                PageRunImage.image_info = info;
-                PageRunImage.client = me.client;
-                $("#containers_run_image_dialog").modal('show');
-            }
-        });
+        PageRunImage.display(this.client, this.image_id);
     },
 
     delete_image: function () {

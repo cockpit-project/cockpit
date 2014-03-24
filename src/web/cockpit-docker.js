@@ -17,6 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+var $cockpit = $cockpit || { };
+
+(function($, $cockpit, cockpit_pages) {
+
 function cockpit_quote_cmdline (cmds) {
     function quote(arg) {
         return arg.replace(/\\/g, '\\\\').replace(/ /g, '\\ ');
@@ -582,3 +586,5 @@ function DockerClient(machine) {
     this.post = post;
     this.delete_ = delete_;
 }
+
+})(jQuery, $cockpit, cockpit_pages);

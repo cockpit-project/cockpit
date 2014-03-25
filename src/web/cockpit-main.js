@@ -132,6 +132,15 @@ var cockpit_machines = [ ];
  */
 var cockpit_dbus_client;
 
+function cockpit_get_dbus_client (address)
+{
+    for (var i = 0; i < cockpit_machines.length; i++) {
+        if (cockpit_machines[i].address == address)
+            return cockpit_machines[i].client;
+    }
+    return null;
+}
+
 function cockpit_update_machines ()
 {
     var i, j, found;

@@ -243,6 +243,52 @@
   </interface>
 
   <!--
+      com.redhat.Cockpit.MultiResourceMonitor:
+
+      @short_description: Monitor for a dynamic set of consumers, such
+      as all individual cgroups in a hierarchy.
+  -->
+  <interface name="com.redhat.Cockpit.MultiResourceMonitor">
+
+    <property name="NumSamples" type="u" access="read"/>
+    <property name="NumSeries" type="u" access="read"/>
+    <property name="Consumers" type="as" access="read"/>
+
+    <!-- Legends:
+         The legend to use for each series.
+
+         This array is #com.redhat.Cockpit.MultiResourceMonitor:NumSeries long.
+    -->
+    <property name="Legends" type="as" access="read"/>
+
+    <!--
+        GetSamples:
+        @resources: The resources to get.
+        @samples: The samples currently collected.  This is an array with
+        one element for each element of @resources.
+
+        Returns (up to) #com.redhat.Cockpit.MultiResourceMonitor:NumSamples
+        historical samples, returning the oldest ones first.
+    -->
+    <method name="GetSamples">
+      <arg name="consumers" type="as" direction="in"/>
+      <arg name="samples" type="aa(xad)" direction="out"/>
+    </method>
+
+    <!--
+        NewSample:
+        @timestamp: The point in time the sample was captured (micro-seconds since Epoch).
+        @values: A dict with (consumer, array of values) pairs.
+
+        Signal emitted when a new sample has been collected.
+    -->
+    <signal name="NewSample">
+      <arg name="timestamp" type="x"/>
+      <arg name="values" type="a{sad}"/>
+    </signal>
+  </interface>
+
+  <!--
       com.redhat.Cockpit.Network:
       @short_description: Network singleton
 

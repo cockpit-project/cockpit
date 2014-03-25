@@ -195,12 +195,44 @@ PageContainers.prototype = {
             return;
         }
 
+        var cpuuse, cputext;
+        var memuse, memlimit;
+        var membar, memtext, memtextstyle;
+
+        if (container.State && container.State.Running) {
+            cputext = (container.CpuUsage || 0).toString() + "%";
+
+            memuse = container.MemoryUsage || 0;
+            memlimit = container.Config && container.Config.Memory;
+
+            var barvalue = memuse.toString();
+            memtext = cockpit_format_bytes_pow2(memuse);
+            memtextstyle = "text-align:right";
+
+            if (memlimit) {
+                barvalue += "/" + memlimit.toString();
+                memtext += " / " + cockpit_format_bytes_pow2(memlimit);
+            }
+
+            membar = $cockpit.BarRow("containers-containers").attr("value", barvalue);
+
+            if (memlimit && memuse > 0.9*memlimit)
+                membar.addClass("bar-row-danger");
+
+        } else {
+            membar = null;
+            memtext = _("Stopped");
+            memtextstyle = "color:grey;text-align:right";
+        }
+
         var tr =
             $('<tr>').append(
                     $('<td>').text(cockpit_render_container_name(container.Name)),
                     $('<td>').text(container.Image),
                     $('<td>').text(container.Command),
-                    $('<td>').text(cockpit_render_container_state(container.State)));
+                    $('<td>').text(cputext),
+                    $('<td>').append(membar),
+                    $('<td>', { 'style': memtextstyle }).text(memtext));
 
         tr.on('click', function(event) {
             cockpit_go_down ({ page: 'container-details',
@@ -225,6 +257,8 @@ PageContainers.prototype = {
             $('<tr>').append(
                     $('<td>').html(multi_line(image.RepoTags)),
                     $('<td>').text(new Date(image.Created * 1000).toLocaleString()),
+                    $('<td>').append(new $cockpit.BarRow("container-images").
+                                                attr("value", image.VirtualSize)),
                     $('<td>').text(cockpit_format_bytes_pow2(image.VirtualSize)));
 
         tr.on('click', function (event) {
@@ -732,6 +766,36 @@ function DockerClient(machine) {
         fail(function(ex) {
             $(me).trigger("failure", [ex]);
         });
+
+    /* We listen to the resource monitor and include the measurements
+     * in the container objects.
+     *
+     * TODO: Don't assume that the D-Bus client is ready.  Call
+     * GetSamples for quicker initialization.
+     */
+
+    var dbus_client = cockpit_get_dbus_client (machine);
+    var monitor = dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
+                                      "com.redhat.Cockpit.MultiResourceMonitor");
+
+    if (monitor) {
+        $(monitor).on('NewSample', function (event, timestampUsec, samples) {
+            for (var id in me.containers) {
+                var container = me.containers[id];
+                var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
+
+                var mem = sample? sample[0] : 0;
+                var cpu = sample? sample[4] : 0;
+                if (mem != container.MemoryUsage || cpu != container.CpuUsage) {
+                    container.MemoryUsage = mem;
+                    container.CpuUsage = cpu;
+                    $(me).trigger("container", [id, container]);
+                }
+            }
+        });
+    } else {
+        console.log("No monitor");
+    }
 
     /*
      * TODO: it would probably make sense for this API to use

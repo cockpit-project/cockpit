@@ -195,16 +195,14 @@ PageContainers.prototype = {
             return;
         }
 
+        var cpuuse, cputext;
         var memuse, memlimit;
         var membar, memtext, memtextstyle;
 
-        memuse = container.MemoryUsage || 0;
+        if (container.State && container.State.Running) {
+            cputext = (container.CpuUsage || 0).toString() + "%";
 
-        if (memuse === 0) {
-            membar = null;
-            memtext = _("Stopped");
-            memtextstyle = "color:grey;text-align:right";
-        } else {
+            memuse = container.MemoryUsage || 0;
             memlimit = container.Config && container.Config.Memory;
 
             var barvalue = memuse.toString();
@@ -220,6 +218,11 @@ PageContainers.prototype = {
 
             if (memlimit && memuse > 0.9*memlimit)
                 membar.addClass("bar-row-danger");
+
+        } else {
+            membar = null;
+            memtext = _("Stopped");
+            memtextstyle = "color:grey;text-align:right";
         }
 
         var tr =
@@ -227,6 +230,7 @@ PageContainers.prototype = {
                     $('<td>').text(cockpit_render_container_name(container.Name)),
                     $('<td>').text(container.Image),
                     $('<td>').text(container.Command),
+                    $('<td>').text(cputext),
                     $('<td>').append(membar),
                     $('<td>', { 'style': memtextstyle }).text(memtext));
 
@@ -779,9 +783,12 @@ function DockerClient(machine) {
             for (var id in me.containers) {
                 var container = me.containers[id];
                 var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
+
                 var mem = sample? sample[0] : 0;
-                if (mem != container.MemoryUsage) {
+                var cpu = sample? sample[4] : 0;
+                if (mem != container.MemoryUsage || cpu != container.CpuUsage) {
                     container.MemoryUsage = mem;
+                    container.CpuUsage = cpu;
                     $(me).trigger("container", [id, container]);
                 }
             }

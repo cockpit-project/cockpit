@@ -387,13 +387,10 @@ PageRunImage.prototype = {
                                      if (error)
                                          cockpit_show_unexpected_error (error);
                                      else {
-                                         PageRunImage.client.post("/containers/" + result.Id + "/start",
-                                                                  null,
-                                                                  { "PortBindings": port_bindings },
-                                                                  function (error) {
-                                                                      if (error)
-                                                                          cockpit_show_unexpected_error (error);
-                                                                  });
+                                         PageRunImage.client.start(result.Id, { "PortBindings": port_bindings }).
+                                                fail(function(ex) {
+                                                    cockpit_show_unexpected_error(ex);
+                                                });
                                      }
                                  });
     }
@@ -498,24 +495,24 @@ PageContainerDetails.prototype = {
     },
 
     start_container: function () {
-        this.client.post("/containers/" + this.container_id + "/start", null, null, function (error, result) {
-            if (error)
-                cockpit_show_unexpected_error (error);
-        });
+        this.client.start(this.container_id).
+                fail(function(ex) {
+                    cockpit_show_unexpected_error (ex);
+                });
     },
 
     stop_container: function () {
-        this.client.post("/containers/" + this.container_id + "/stop", { 't': '10' }, null, function (error, result) {
-            if (error)
-                cockpit_show_unexpected_error (error);
-        });
+        this.client.stop(this.container_id).
+                fail(function(ex) {
+                    cockpit_show_unexpected_error (ex);
+                });
     },
 
     restart_container: function () {
-        this.client.post("/containers/" + this.container_id + "/restart", null, null, function (error, result) {
-            if (error)
-                cockpit_show_unexpected_error (error);
-        });
+        this.client.restart(this.container_id).
+                fail(function(ex) {
+                    cockpit_show_unexpected_error (ex);
+                });
     },
 
     delete_container: function () {
@@ -803,6 +800,20 @@ function DockerClient(machine) {
     } else {
         console.log("No monitor");
     }
+
+    this.start = function start(id, options) {
+        return rest.post("/containers/" + id + "/start", null, options);
+    };
+
+    this.stop = function stop(id, timeout) {
+        if (timeout === undefined)
+            timeout = 10;
+        return rest.post("/containers/" + id + "/stop", { 't': timeout });
+    };
+
+    this.restart = function restart(id) {
+        return rest.post("/containers/" + id + "/restart");
+    };
 
     /*
      * TODO: it would probably make sense for this API to use

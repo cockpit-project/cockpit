@@ -81,6 +81,7 @@ cockpit_json_equal_object (JsonObject *previous,
                            JsonObject *current)
 {
   const gchar *name = NULL;
+  gboolean ret = TRUE;
   GList *names;
   GList *l;
 
@@ -96,10 +97,14 @@ cockpit_json_equal_object (JsonObject *previous,
       name = l->data;
       if (!cockpit_json_equal (json_object_get_member (previous, name),
                                json_object_get_member (current, name)))
-        return FALSE;
+        {
+          ret = FALSE;
+          break;
+        }
     }
 
-    return TRUE;
+  g_list_free (names);
+  return ret;
 }
 
 static gboolean

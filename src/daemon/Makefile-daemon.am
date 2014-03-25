@@ -30,8 +30,9 @@ com.redhat.lvm2.c : Makefile.am /usr/share/dbus-1/interfaces/com.redhat.lvm2.xml
 BUILT_SOURCES += $(lvm_dbus_built_sources)
 CLEANFILES += $(lvm_dbus_built_sources)
 
-cockpitd_SOURCES = \
-	src/daemon/main.c \
+noinst_LIBRARIES += libcockpitd.a
+
+libcockpitd_a_SOURCES = \
 	src/daemon/types.h \
 	src/daemon/daemon.h \
 	src/daemon/daemon.c \
@@ -94,6 +95,16 @@ cockpitd_SOURCES = \
 	$(lvm_dbus_built_sources) \
 	$(NULL)
 
+libcockpitd_a_CFLAGS = \
+	-I$(top_srcdir)/src/libgsystem\
+	-DG_LOG_DOMAIN=\"cockpitd\" \
+	$(COCKPIT_DAEMON_CFLAGS) \
+	$(NULL)
+
+cockpitd_SOURCES = \
+	src/daemon/main.c \
+	$(NULL)
+
 cockpitd_CFLAGS = 					\
 	-I$(top_srcdir)/src/daemon			\
 	-I$(top_srcdir)/src/libgsystem			\
@@ -103,6 +114,7 @@ cockpitd_CFLAGS = 					\
 
 cockpitd_LDADD = 					\
 	$(COCKPIT_DAEMON_LIBS)				\
+	libcockpitd.a \
 	libcockpit.a \
 	-lm 						\
 	$(NULL)

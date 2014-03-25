@@ -711,7 +711,7 @@ function DockerClient(machine) {
                         fail(function(ex) {
                             /*
                              * A 404 is the way we determine when a container
-                             * actaully goes away
+                             * actually goes away
                              */
                             if (ex.status == 404) {
                                 delete me.images[id];

@@ -118,3 +118,16 @@ cockpitd_LDADD = 					\
 	libcockpit.a \
 	-lm 						\
 	$(NULL)
+
+# -----------------------------------------------------------------------------
+# TESTS
+
+DAEMON_CHECKS = \
+	test-cgroupmonitor
+
+test_cgroupmonitor_SOURCES = src/daemon/test-cgroupmonitor.c
+test_cgroupmonitor_CFLAGS = $(libcockpitd_a_CFLAGS)
+test_cgroupmonitor_LDADD = $(cockpitd_LDADD)
+
+noinst_PROGRAMS += $(DAEMON_CHECKS)
+TESTS += $(DAEMON_CHECKS)

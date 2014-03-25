@@ -359,7 +359,7 @@ collect_cgroup (gpointer key,
   GVariantBuilder builder;
 
   gs_free gchar *mem_dir = g_build_filename (monitor->memory_root, cgroup, NULL);
-  gs_free gchar *cpu_dir = g_strdup_printf (monitor->cpuacct_root, cgroup, NULL);
+  gs_free gchar *cpu_dir = g_build_filename (monitor->cpuacct_root, cgroup, NULL);
 
   /* TODO - don't insist that we are in both hierarchies
    */

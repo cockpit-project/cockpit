@@ -190,6 +190,8 @@ PageContainers.prototype = {
     },
 
     render_container: function(id, container) {
+        var self = this;
+
         if (!container) {
             this.delete_row(id);
             return;
@@ -225,6 +227,29 @@ PageContainers.prototype = {
             memtextstyle = "color:grey;text-align:right";
         }
 
+        var button = $('<button class="btn btn-default btn-control">');
+        if (container.State.Running) {
+            button.
+                addClass("btn-stop").
+                on("click", function() {
+                    self.client.stop(id).
+                        fail(function(ex) {
+                            cockpit_show_unexpected_error(ex);
+                        });
+                    return false;
+                });
+        } else {
+            button.
+                addClass("btn-play").
+                on("click", function() {
+                    self.client.start(id).
+                        fail(function(ex) {
+                            cockpit_show_unexpected_error (ex);
+                        });
+                    return false;
+                });
+        }
+
         var tr =
             $('<tr>').append(
                     $('<td>').text(cockpit_render_container_name(container.Name)),
@@ -232,7 +257,8 @@ PageContainers.prototype = {
                     $('<td>').text(container.Command),
                     $('<td>').text(cputext),
                     $('<td>').append(membar),
-                    $('<td>', { 'style': memtextstyle }).text(memtext));
+                    $('<td>', { 'style': memtextstyle }).text(memtext),
+                    $('<td class="cell-buttons">').append(button));
 
         tr.on('click', function(event) {
             cockpit_go_down ({ page: 'container-details',

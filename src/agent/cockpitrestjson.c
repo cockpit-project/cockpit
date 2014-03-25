@@ -326,6 +326,7 @@ cockpit_rest_response_reply (CockpitRestJson *self,
 {
   CockpitRestRequest *req = resp->req;
   JsonBuilder *builder;
+  JsonNode *node;
   gchar *data;
   gsize length;
   GBytes *bytes;
@@ -397,11 +398,13 @@ cockpit_rest_response_reply (CockpitRestJson *self,
   if (body)
     {
       json_builder_set_member_name (builder, "body");
-      json_builder_add_value (builder, body);
+      json_builder_add_value (builder, json_node_copy (body));
     }
   json_builder_end_object (builder);
 
-  json_generator_set_root (self->generator, json_builder_get_root (builder));
+  node = json_builder_get_root (builder);
+  json_generator_set_root (self->generator, node);
+  json_node_free (node);
   g_object_unref (builder);
 
   data = json_generator_to_data (self->generator, &length);

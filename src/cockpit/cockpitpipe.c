@@ -830,6 +830,7 @@ cockpit_pipe_connect (const gchar *name,
               sock = -1;
             }
         }
+      g_free (native);
     }
 
   pipe = g_object_new (COCKPIT_TYPE_PIPE,

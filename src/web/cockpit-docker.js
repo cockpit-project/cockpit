@@ -195,12 +195,40 @@ PageContainers.prototype = {
             return;
         }
 
+        var memuse, memlimit;
+        var membar, memtext, memtextstyle;
+
+        memuse = container.MemoryUsage || 0;
+
+        if (memuse === 0) {
+            membar = null;
+            memtext = _("Stopped");
+            memtextstyle = "color:grey;text-align:right";
+        } else {
+            memlimit = container.Config && container.Config.Memory;
+
+            var barvalue = memuse.toString();
+            memtext = cockpit_format_bytes_pow2(memuse);
+            memtextstyle = "text-align:right";
+
+            if (memlimit) {
+                barvalue += "/" + memlimit.toString();
+                memtext += " / " + cockpit_format_bytes_pow2(memlimit);
+            }
+
+            membar = $cockpit.BarRow("containers-containers").attr("value", barvalue);
+
+            if (memlimit && memuse > 0.9*memlimit)
+                membar.addClass("bar-row-danger");
+        }
+
         var tr =
             $('<tr>').append(
                     $('<td>').text(cockpit_render_container_name(container.Name)),
                     $('<td>').text(container.Image),
                     $('<td>').text(container.Command),
-                    $('<td>').text(cockpit_render_container_state(container.State)));
+                    $('<td>').append(membar),
+                    $('<td>', { 'style': memtextstyle }).text(memtext));
 
         tr.on('click', function(event) {
             cockpit_go_down ({ page: 'container-details',
@@ -734,6 +762,33 @@ function DockerClient(machine) {
         fail(function(ex) {
             $(me).trigger("failure", [ex]);
         });
+
+    /* We listen to the resource monitor and include the measurements
+     * in the container objects.
+     *
+     * TODO: Don't assume that the D-Bus client is ready.  Call
+     * GetSamples for quicker initialization.
+     */
+
+    var dbus_client = cockpit_get_dbus_client (machine);
+    var monitor = dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
+                                      "com.redhat.Cockpit.MultiResourceMonitor");
+
+    if (monitor) {
+        $(monitor).on('NewSample', function (event, timestampUsec, samples) {
+            for (var id in me.containers) {
+                var container = me.containers[id];
+                var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
+                var mem = sample? sample[0] : 0;
+                if (mem != container.MemoryUsage) {
+                    container.MemoryUsage = mem;
+                    $(me).trigger("container", [id, container]);
+                }
+            }
+        });
+    } else {
+        console.log("No monitor");
+    }
 
     /*
      * TODO: it would probably make sense for this API to use

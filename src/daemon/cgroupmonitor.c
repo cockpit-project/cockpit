@@ -247,6 +247,7 @@ update_consumers_property (CGroupMonitor *monitor)
   for (l = cgroups, i = 0; l != NULL && i < n_cgroups; l = l->next, i++)
     prop_value[i] = l->data;
 
+  g_debug ("updating to %d consumers", i);
   cockpit_multi_resource_monitor_set_consumers (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), prop_value);
   g_list_free (cgroups);
   g_free (prop_value);

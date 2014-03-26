@@ -90,7 +90,8 @@ function Channel(options) {
         var transport = this;
 
         function transport_debug() {
-            /* console.debug.apply(console, arguments); */
+            if ($cockpit.debugging == "all" || $cockpit.debugging == "channel")
+                console.debug.apply(console, arguments);
         }
 
         var ws_loc = Channel.calculate_url();

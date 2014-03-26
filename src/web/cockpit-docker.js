@@ -93,8 +93,40 @@ PageContainers.prototype = {
         if (client != this.client) {
             if (this.client)
                 this.client.off('.containers');
+            if (this.cpu_plot)
+                this.cpu_plot.stop();
+            if (this.mem_plot)
+                this.mem_plot.stop();
+
+            var reds = [ "#5c080c",
+                         "#970911",
+                         "#ce0e15",
+                         "#ef2930",
+                         "#f36166",
+                         "#f7999c",
+                         "#fbd1d2"
+                       ];
+
+            var blues = [ "#004778",
+                          "#006bb4",
+                          "#008ff0",
+                          "#2daaff",
+                          "#69c2ff",
+                          "#a5daff",
+                          "#e1f3ff"
+                        ];
 
             this.client = client;
+
+            this.cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues);
+            $(this.cpu_plot).on('update-total', function (event, total) {
+                $('#containers-cpu-text').text(total+"%");
+            });
+
+            this.mem_plot = client.setup_cgroups_plot ('#containers-mem-graph', 0, reds);
+            $(this.mem_plot).on('update-total', function (event, total) {
+                $('#containers-mem-text').text(cockpit_format_bytes_pow2 (total));
+            });
 
             /* HACK: This is our pretend angularjs */
             this.rows = { };
@@ -137,9 +169,17 @@ PageContainers.prototype = {
     },
 
     show: function() {
+        if (this.cpu_plot)
+            this.cpu_plot.start();
+        if (this.mem_plot)
+            this.mem_plot.start();
     },
 
     leave: function() {
+        if (this.cpu_plot)
+            this.cpu_plot.stop();
+        if (this.mem_plot)
+            this.mem_plot.stop();
     },
 
     /* HACK: Poor mans angularjs */
@@ -774,12 +814,12 @@ function DockerClient(machine) {
      * GetSamples for quicker initialization.
      */
 
-    var dbus_client = cockpit_get_dbus_client (machine);
-    var monitor = dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
-                                      "com.redhat.Cockpit.MultiResourceMonitor");
+    this.dbus_client = cockpit_get_dbus_client (machine);
+    this.monitor = this.dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
+                                            "com.redhat.Cockpit.MultiResourceMonitor");
 
-    if (monitor) {
-        $(monitor).on('NewSample', function (event, timestampUsec, samples) {
+    if (this.monitor) {
+        $(this.monitor).on('NewSample', function (event, timestampUsec, samples) {
             for (var id in me.containers) {
                 var container = me.containers[id];
                 var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
@@ -795,6 +835,89 @@ function DockerClient(machine) {
         });
     } else {
         console.log("No monitor");
+    }
+
+    function setup_cgroups_plot(element, sample_index, colors) {
+        var self = this;
+        var max_consumers = colors.length-1;
+        var data = new Array(max_consumers+1);       // max_consumers entries plus one for the total
+        var consumers = new Array(max_consumers);
+        var plot;
+        var i;
+
+        if (!this.monitor)
+            return null;
+
+        for (i = 0; i < data.length; i++)
+            data[i] = { };
+
+        function is_container(cgroup) {
+            return cgroup.startsWith("lxc/");
+        }
+
+        function update_consumers() {
+            var mcons = self.monitor.Consumers;
+            consumers.forEach(function (c, i) {
+                if (c && mcons.indexOf(c) < 0) {
+                    console.log("Consumer disappeared", c);
+                    consumers[i] = null;
+                }
+            });
+            mcons.forEach(function (mc) {
+                if (!is_container(mc))
+                    return;
+                if (consumers.indexOf(mc) < 0) {
+                    console.log("New consumer", mc);
+                    for (i = 0; i < max_consumers; i++) {
+                        if (!consumers[i]) {
+                            consumers[i] = mc;
+                            return;
+                        }
+                    }
+                    console.log("Too many consumers");
+                }
+            });
+        }
+
+        function store_samples (samples, index) {
+            var total = 0;
+            for (var c in samples) {
+                if (is_container(c))
+                    total += samples[c][sample_index];
+            }
+            function store(i, value) {
+                var series = data[i].data;
+                var floor = (i > 0? data[i-1].data[index][2] : 0);
+                series[index][1] = floor;
+                series[index][2] = floor + value;
+            }
+            consumers.forEach(function (c, i) {
+                store(i, (c && samples[c]? samples[c][sample_index] : 0));
+            });
+            store(max_consumers, total);
+            if (index == self.monitor.NumSamples-1)
+                $(plot).trigger('update-total', [ total ]);
+        }
+
+        plot = cockpit_setup_plot (element, this.monitor, data,
+                                   { colors: colors,
+                                     legend: { show: false },
+                                     series: { shadowSize: 0,
+                                               lines: { lineWidth: 0.0,
+                                                        fill: true
+                                                      }
+                                             },
+                                     xaxis: { tickFormatter: function() { return "";  } },
+                                     yaxis: { tickFormatter: function() { return "";  } },
+                                     grid: { borderWidth: 1 }
+                                   },
+                                   store_samples);
+        $(this.monitor).on("notify:Consumers", function (event) {
+            update_consumers();
+        });
+
+        update_consumers();
+        return plot;
     }
 
     /*
@@ -830,6 +953,8 @@ function DockerClient(machine) {
     this.get = get;
     this.post = post;
     this.delete_ = delete_;
+
+    this.setup_cgroups_plot = setup_cgroups_plot;
 }
 
 })(jQuery, $cockpit, cockpit_pages);

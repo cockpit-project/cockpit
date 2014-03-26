@@ -41,7 +41,6 @@
 
 typedef struct
 {
-  gint64 timestamp;
   double mem_usage_in_bytes;
   double mem_limit_in_bytes;
   double memsw_usage_in_bytes;
@@ -75,6 +74,10 @@ struct _CGroupMonitor
   /* Path -> Arrays of SAMPLES_MAX Sample instances
    */
   GHashTable *samples;
+
+  /* SAMPLES_MAX timestamps for the samples
+   */
+  gint64 *timestamps;
 };
 
 struct _CGroupMonitorClass
@@ -108,6 +111,7 @@ cgroup_monitor_init (CGroupMonitor *monitor)
 
   monitor->samples_prev = -1;
   monitor->samples = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  monitor->timestamps = g_new0 (gint64, SAMPLES_MAX);
 }
 
 static void
@@ -119,7 +123,7 @@ cgroup_monitor_finalize (GObject *object)
   g_free (monitor->memory_root);
   g_free (monitor->cpuacct_root);
   g_hash_table_destroy (monitor->samples);
-
+  g_free (monitor->timestamps);
 
   G_OBJECT_CLASS (cgroup_monitor_parent_class)->finalize (object);
 }
@@ -279,8 +283,6 @@ read_double (const gchar *prefix,
 
 typedef struct {
   CGroupMonitor *monitor;
-  GVariantBuilder signal_builder;
-  gint64 now;
   gboolean need_update_consumers_property;
 } CollectData;
 
@@ -329,8 +331,8 @@ notice_cgroups_in_hierarchy (CollectData *data,
 
 static gboolean
 calc_percentage (CGroupMonitor *monitor,
-                 Sample *sample,
-                 Sample *last,
+                 gint64 sample_timestamp,
+                 gint64 last_timestamp,
                  double sample_value,
                  double last_value)
 {
@@ -339,7 +341,7 @@ calc_percentage (CGroupMonitor *monitor,
   gdouble nanosecs_in_period;
 
   nanosecs_usage_in_period = (sample_value - last_value);
-  nanosecs_in_period = (sample->timestamp - last->timestamp) * 1000.0;
+  nanosecs_in_period = (sample_timestamp - last_timestamp) * 1000.0;
   ret = 100.0 * nanosecs_usage_in_period / nanosecs_in_period;
   if (ret < 0.0)
     ret = 0.0;
@@ -357,7 +359,6 @@ collect_cgroup (gpointer key,
   Sample *samples = value;
 
   Sample *sample = NULL, *prev_sample = NULL;
-  GVariantBuilder builder;
 
   gs_free gchar *mem_dir = g_build_filename (monitor->memory_root, cgroup, NULL);
   gs_free gchar *cpu_dir = g_build_filename (monitor->cpuacct_root, cgroup, NULL);
@@ -374,7 +375,6 @@ collect_cgroup (gpointer key,
     }
 
   sample = &(samples[monitor->samples_next]);
-  sample->timestamp = data->now;
 
   sample->mem_usage_in_bytes = read_double (mem_dir, "memory.usage_in_bytes");
   sample->mem_limit_in_bytes = read_double (mem_dir, "memory.limit_in_bytes");
@@ -387,25 +387,45 @@ collect_cgroup (gpointer key,
     {
       prev_sample = &(samples[monitor->samples_prev]);
       sample->cpuacct_usage_perc = calc_percentage (monitor,
-                                                    sample, prev_sample,
-                                                    sample->cpuacct_usage, prev_sample->cpuacct_usage);
+                                                    monitor->timestamps[monitor->samples_next],
+                                                    monitor->timestamps[monitor->samples_prev],
+                                                    sample->cpuacct_usage,
+                                                    prev_sample->cpuacct_usage);
     }
   else
     {
       sample->cpuacct_usage_perc = 0.0;
     }
 
-  g_variant_builder_init (&builder, G_VARIANT_TYPE ("ad"));
-  g_variant_builder_add (&builder, "d", sample->mem_usage_in_bytes);
-  g_variant_builder_add (&builder, "d", sample->mem_limit_in_bytes);
-  g_variant_builder_add (&builder, "d", sample->memsw_usage_in_bytes);
-  g_variant_builder_add (&builder, "d", sample->memsw_limit_in_bytes);
-  g_variant_builder_add (&builder, "d", sample->cpuacct_usage_perc);
-  g_variant_builder_add (&(data->signal_builder), "{sad}", cgroup, &builder);
-
   /* We want to keep it.
    */
   return FALSE;
+}
+
+static GVariant *
+build_sample_variant (CGroupMonitor *monitor,
+                      gint index)
+{
+  GVariantBuilder builder;
+  GHashTableIter iter;
+  gpointer key, value;
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE("a{sad}"));
+  g_hash_table_iter_init (&iter, monitor->samples);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      GVariantBuilder inner_builder;
+      Sample *sample = (Sample *)value + index;
+      g_variant_builder_init (&inner_builder, G_VARIANT_TYPE("ad"));
+      g_variant_builder_add (&inner_builder, "d", sample->mem_usage_in_bytes);
+      g_variant_builder_add (&inner_builder, "d", sample->mem_limit_in_bytes);
+      g_variant_builder_add (&inner_builder, "d", sample->memsw_usage_in_bytes);
+      g_variant_builder_add (&inner_builder, "d", sample->memsw_limit_in_bytes);
+      g_variant_builder_add (&inner_builder, "d", sample->cpuacct_usage_perc);
+      g_variant_builder_add (&builder, "{sad}", key, &inner_builder);
+    }
+
+  return g_variant_builder_end (&builder);
 }
 
 static void
@@ -413,8 +433,6 @@ collect (CGroupMonitor *monitor)
 {
   CollectData data;
   data.monitor = monitor;
-  g_variant_builder_init (&data.signal_builder, G_VARIANT_TYPE("a{sad}"));
-  data.now = g_get_real_time ();
   data.need_update_consumers_property = FALSE;
 
   /* We are looking for files like
@@ -424,6 +442,8 @@ collect (CGroupMonitor *monitor)
      /sys/fs/cgroup/cpuacct/.../cpuacct.usage
   */
 
+  monitor->timestamps[monitor->samples_next] = g_get_real_time ();
+
   notice_cgroups_in_hierarchy (&data, monitor->memory_root);
   g_hash_table_foreach_remove (monitor->samples, collect_cgroup, &data);
 
@@ -431,8 +451,8 @@ collect (CGroupMonitor *monitor)
     update_consumers_property (monitor);
 
   cockpit_multi_resource_monitor_emit_new_sample (COCKPIT_MULTI_RESOURCE_MONITOR (monitor),
-                                                  data.now,
-                                                  g_variant_builder_end (&data.signal_builder));
+                                                  monitor->timestamps[monitor->samples_next],
+                                                  build_sample_variant (monitor, monitor->samples_next));
 
   monitor->samples_prev = monitor->samples_next;
   monitor->samples_next += 1;
@@ -445,49 +465,28 @@ collect (CGroupMonitor *monitor)
 static gboolean
 handle_get_samples (CockpitMultiResourceMonitor *_monitor,
                     GDBusMethodInvocation *invocation,
-                    const gchar *const *arg_consumers)
+                    GVariant *arg_options)
 {
   CGroupMonitor *monitor = CGROUP_MONITOR (_monitor);
   GVariantBuilder builder;
-  Sample *samples;
-  gint i, n;
+  gint n;
 
-  g_variant_builder_init (&builder, G_VARIANT_TYPE ("aa(xad)"));
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a(xa{sad})"));
 
-  for (i = 0; arg_consumers[i]; i++)
+  for (n = 0; n < SAMPLES_MAX; n++)
     {
-      GVariantBuilder consumer_builder;
-      g_variant_builder_init (&consumer_builder, G_VARIANT_TYPE ("a(xad)"));
+      gint pos;
 
-      samples = g_hash_table_lookup (monitor->samples, arg_consumers[i]);
-      if (samples)
-        {
-          for (n = 0; n < SAMPLES_MAX; n++)
-            {
-              gint pos;
-              GVariantBuilder sample_builder;
+      pos = monitor->samples_next + n;
+      if (pos > SAMPLES_MAX)
+        pos -= SAMPLES_MAX;
 
-              pos = monitor->samples_next + n;
-              if (pos > SAMPLES_MAX)
-                pos -= SAMPLES_MAX;
+      if (monitor->timestamps[pos] == 0)
+        continue;
 
-              if (samples[pos].timestamp == 0)
-                continue;
-
-              g_variant_builder_init (&sample_builder, G_VARIANT_TYPE ("ad"));
-              g_variant_builder_add (&sample_builder, "d", samples[pos].mem_usage_in_bytes);
-              g_variant_builder_add (&sample_builder, "d", samples[pos].mem_limit_in_bytes);
-              g_variant_builder_add (&sample_builder, "d", samples[pos].memsw_usage_in_bytes);
-              g_variant_builder_add (&sample_builder, "d", samples[pos].memsw_limit_in_bytes);
-              g_variant_builder_add (&sample_builder, "d", samples[pos].cpuacct_usage_perc);
-
-              g_variant_builder_add (&consumer_builder, "(xad)",
-                                     samples[pos].timestamp,
-                                     &sample_builder);
-            }
-        }
-
-      g_variant_builder_add (&builder, "a(xad)", &consumer_builder);
+      g_variant_builder_add (&builder, "(x@a{sad})",
+                             monitor->timestamps[pos],
+                             build_sample_variant (monitor, pos));
     }
 
   cockpit_multi_resource_monitor_complete_get_samples (_monitor, invocation,

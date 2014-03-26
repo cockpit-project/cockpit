@@ -284,17 +284,18 @@ test_get_samples (TestCase *tc,
 {
   GAsyncResult *result = NULL;
   GError *error = NULL;
-  const gchar *consumers[] = { ".", NULL };
   GVariant *samples;
   GVariant *values;
   GVariant *child;
   double value;
   gint64 timestamp;
+  GVariant *options;
 
   while (tc->timestamp_received == 0)
     g_main_context_iteration (NULL, TRUE);
 
-  cockpit_multi_resource_monitor_call_get_samples (tc->proxy, consumers, NULL, on_ready_get_result, &result);
+  options = g_variant_new_array (G_VARIANT_TYPE ("{sv}"), NULL, 0);
+  cockpit_multi_resource_monitor_call_get_samples (tc->proxy, options, NULL, on_ready_get_result, &result);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
   cockpit_multi_resource_monitor_call_get_samples_finish (tc->proxy, &samples, result, &error);
@@ -308,13 +309,11 @@ test_get_samples (TestCase *tc,
       g_free (str);
     }
 
-  /* Variant for the first consumer: "." */
-  child = g_variant_get_child_value (samples, 0);
-  g_assert (child != NULL);
+  /* Parse timestamp and child out */
+  g_variant_get_child (samples, 0, "(x@a{sad})", &timestamp, &child);
+  g_assert (timestamp != 0);
 
-  /* Parse variant for the first sample */
-  g_variant_get_child (child, 0, "(x@ad)", &timestamp, &values);
-  g_assert (timestamp == tc->timestamp_received);
+  values = g_variant_lookup_value (child, ".", G_VARIANT_TYPE ("ad"));
 
   /* Memory usage */
   g_variant_get_child (values, 0, "d", &value);

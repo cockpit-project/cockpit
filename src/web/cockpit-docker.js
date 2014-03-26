@@ -312,7 +312,9 @@ PageContainers.prototype = {
         var self = this;
         var tr = $("#" + id);
 
-        if (!image) {
+        if (!image ||
+            !image.RepoTags ||
+            image.RepoTags[0] == "<none>:<none>") {
             tr.remove();
             return;
         }

@@ -32,7 +32,8 @@
  * or file descriptor. Any data is read in whatever chunks it
  * shows up in read().
  *
- * Only UTF8 text data may be transmitted.
+ * Only UTF8 text data is transmitted. Anything else is
+ * forced into UTF8 by replacing invalid characters.
  *
  * The payload type for this channel is 'text-stream'.
  */
@@ -56,26 +57,48 @@ typedef struct {
 
 G_DEFINE_TYPE (CockpitTextStream, cockpit_text_stream, COCKPIT_TYPE_CHANNEL);
 
+static GBytes *
+check_utf8_and_force_if_necessary (GBytes *input)
+{
+  const gchar *data;
+  const gchar *end;
+  gsize length;
+  GString *string;
+
+  data = g_bytes_get_data (input, &length);
+  if (g_utf8_validate (data, length, &end))
+    return g_bytes_ref (input);
+
+  string = g_string_sized_new (length + 16);
+  do
+    {
+      /* Valid part of the string */
+      g_string_append_len (string, data, end - data);
+
+      /* Replacement character */
+      g_string_append (string, "\xef\xbf\xbd");
+
+      length -= (end - data) + 1;
+      data = end + 1;
+    }
+  while (!g_utf8_validate (data, length, &end));
+
+  if (length)
+    g_string_append_len (string, data, length);
+
+  return g_string_free_to_bytes (string);
+}
+
 static void
 cockpit_text_stream_recv (CockpitChannel *channel,
                           GBytes *message)
 {
   CockpitTextStream *self = COCKPIT_TEXT_STREAM (channel);
-  gconstpointer data;
-  gsize len;
+  GBytes *clean;
 
-  data = g_bytes_get_data (message, &len);
-  if (g_utf8_validate (data, len, NULL))
-    {
-      cockpit_pipe_write (self->pipe, message);
-    }
-  else
-    {
-      g_warning ("received non-textual data from web");
-      if (self->open)
-        cockpit_pipe_close (self->pipe, "protocol-error");
-    }
-
+  clean = check_utf8_and_force_if_necessary (message);
+  cockpit_pipe_write (self->pipe, clean);
+  g_bytes_unref (clean);
 }
 
 static void
@@ -105,21 +128,17 @@ on_pipe_read (CockpitPipe *pipe,
   CockpitTextStream *self = user_data;
   CockpitChannel *channel = user_data;
   GBytes *message;
+  GBytes *clean;
 
   if (data->len || !end_of_data)
     {
-      if (g_utf8_validate ((gchar *)data->data, data->len, NULL))
-        {
-          /* When array is reffed, this just clears byte array */
-          g_byte_array_ref (data);
-          message = g_byte_array_free_to_bytes (data);
-          cockpit_channel_send (channel, message);
-          g_bytes_unref (message);
-        } else {
-            g_warning ("received non-textual data from socket");
-            if (self->open)
-              cockpit_pipe_close (pipe, "protocol-error");
-        }
+      /* When array is reffed, this just clears byte array */
+      g_byte_array_ref (data);
+      message = g_byte_array_free_to_bytes (data);
+      clean = check_utf8_and_force_if_necessary (message);
+      cockpit_channel_send (channel, clean);
+      g_bytes_unref (message);
+      g_bytes_unref (clean);
     }
 
   /* Close the pipe when writing is done */

@@ -212,7 +212,7 @@ Raw text is sent back and forth to a socket. See cockpittextstream.c. The
 boundaries of the messages are arbitrary, and depend on how the kernel
 and socket buffer things.
 
-Non-UTF8 data is not supported.
+Non-UTF8 data is forced into UTF8 with a replacement character.
 
 Additional "open" command options should be specified with a channel of
 this payload type:

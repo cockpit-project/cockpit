@@ -105,7 +105,9 @@ function reflow_bar_graph(graph, div) {
             }
             $(this).css('visibility', 'visible');
             bar_progress.css("width", ((limit / max) * 100) + "%");
-            $(this).data('bar-progress-bar').css('width', ((portion / limit) * 100) + "%");
+            $(this).data('bar-progress-bar').
+                css('width', ((portion / limit) * 100) + "%").
+                toggle(portion > 0);
         }
     });
 }

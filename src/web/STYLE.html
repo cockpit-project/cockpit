@@ -199,9 +199,46 @@
         </tr>
      </table>
 
+    <h2>Slider Selector</h2>
+
+    <p>A numeric selector: <span id="slider-value">?</span></p>
+
+    <div class="slider" value="0.5" id="slider" style="width: 30%;">
+        <div class="slider-bar">
+            <div class="slider-thumb"></div>
+        </div>
+        <div class="slider-bar">
+            <div class="slider-bar" style="width: 50%"></div>
+            <div class="slider-bar" style="width: 10%"></div>
+        </div>
+        <script>
+            $("#slider").on("change", function(event, value) {
+                $("#slider-value").text(value.toFixed(2));
+            });
+        </script>
+    </div>
+    <br>
+
+    <div class="slider" value="0.6" style="width: 30%;">
+        <div class="slider-bar">
+            <div class="slider-thumb"></div>
+        </div>
+        <div class="slider-bar" style="width: 40%">
+            <div class="slider-bar"></div>
+        </div>
+    </div>
+    <br>
+
+    <div class="slider" disabled="true" value="0.3" style="width: 30%;">
+        <div class="slider-bar">
+            <div class="slider-thumb"></div>
+        </div>
+        <div class="slider-bar" style="width: 40%">
+        </div>
+    </div>
 
     <h2>Panel</h2>
-    
+
     Panels containing table data
     <br/>
     <div class="panel panel-default">

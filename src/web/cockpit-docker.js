@@ -709,6 +709,10 @@ function PageImageDetails() {
 
 cockpit_pages.push(new PageImageDetails());
 
+function resource_debug() {
+    if ($cockpit.debugging == "all" || $cockpit.debugging == "resource")
+        console.debug.apply(console, arguments);
+}
 
 function DockerClient(machine) {
     var me = this;
@@ -865,6 +869,7 @@ function DockerClient(machine) {
 
     if (monitor) {
         $(monitor).on('NewSample', function (event, timestampUsec, samples) {
+            resource_debug("samples", timestampUsec, samples);
             for (var id in me.containers) {
                 var container = me.containers[id];
                 var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
@@ -922,7 +927,7 @@ function DockerClient(machine) {
             var mcons = monitor.Consumers;
             consumers.forEach(function (c, i) {
                 if (c && mcons.indexOf(c) < 0) {
-                    console.log("Consumer disappeared", c);
+                    resource_debug("Consumer disappeared", c);
                     consumers[i] = null;
                 }
             });
@@ -930,7 +935,7 @@ function DockerClient(machine) {
                 if (!is_container(mc))
                     return;
                 if (consumers.indexOf(mc) < 0) {
-                    console.log("New consumer", mc);
+                    resource_debug("New consumer", mc);
                     for (i = 0; i < max_consumers; i++) {
                         if (!consumers[i]) {
                             consumers[i] = mc;

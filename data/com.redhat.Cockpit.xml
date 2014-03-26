@@ -263,16 +263,14 @@
 
     <!--
         GetSamples:
-        @resources: The resources to get.
-        @samples: The samples currently collected.  This is an array with
-        one element for each element of @resources.
+        @samples: The samples currently collected.
 
         Returns (up to) #com.redhat.Cockpit.MultiResourceMonitor:NumSamples
         historical samples, returning the oldest ones first.
     -->
     <method name="GetSamples">
-      <arg name="consumers" type="as" direction="in"/>
-      <arg name="samples" type="aa(xad)" direction="out"/>
+      <arg name="options" type="a{sv}" direction="in"/>
+      <arg name="samples" type="a(xa{sad})" direction="out"/>
     </method>
 
     <!--

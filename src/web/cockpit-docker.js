@@ -417,6 +417,7 @@ PageRunImage.prototype = {
                                                 fail(function(ex) {
                                                     cockpit_show_unexpected_error(ex);
                                                 });
+                                         cockpit_go_up();
                                      }
                                  });
     }

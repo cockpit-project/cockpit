@@ -382,8 +382,50 @@ PageRunImage.prototype = {
     },
 
     enter: function(first_visit) {
+        var page = this;
+        page.memory_limit = undefined;
+
+        /* Memory limit slider/checkbox interaction happens here */
+        function init_interact_memory(min, max, defawlt) {
+            var slider, desc;
+
+            function update_limit() {
+                if (slider.disabled) {
+                    page.memory_limit = undefined;
+                    return _("unlimited");
+                }
+                var limit = Math.round(slider.value * max);
+                if (limit < min)
+                    limit = min;
+                page.memory_limit = limit;
+                return $cockpit.format_bytes(limit).join(" ");
+            }
+
+            /* Slider to limit amount of memory */
+            slider = $("#containers-run-image-memory-slider").
+                on('change', function() {
+                    $(desc).text(update_limit());
+                })[0];
+
+            /* Description of how much memory is selected */
+            desc = $("#containers-run-image-memory-desc")[0];
+
+            /* Unlimited checkbox */
+            $("#containers-run-image-memory-limit").
+                on('change', function() {
+                    $(slider).attr("disabled", !this.checked);
+                    $(desc).toggleClass("disabled", !this.checked);
+                    $(desc).text(update_limit());
+                });
+
+            /* Set the default value */
+            slider.value = defawlt / max;
+        }
+
         if (first_visit) {
             $("#containers-run-image-run").on('click', $.proxy(this, "run"));
+            /* TODO: Get max memory from elsewhere */
+            init_interact_memory(10000000, 8000000000, 400000000);
         }
 
         // from https://github.com/dotcloud/docker/blob/master/pkg/namesgenerator/names-generator.go
@@ -401,8 +443,6 @@ PageRunImage.prototype = {
 
         $("#containers-run-image-name").val(make_name());
         $("#containers-run-image-command").val(cockpit_quote_cmdline(PageRunImage.image_info.config.Cmd));
-        $("#containers-run-image-memory").val("");
-        $("#containers-run-image-swap").val("");
 
         function render_port(p) {
             var port_input = $('<input class="form-control" style="display:inline;width:auto" >');
@@ -411,7 +451,7 @@ PageRunImage.prototype = {
                     $('<td>').text(
                         F(_("Bind port %{port} to "),
                           { port: p })),
-                    $('<td>').append(
+                    $('<td colspan="2">').append(
                         port_input));
 
             port_input.attr('placeholder', _("none"));
@@ -431,8 +471,6 @@ PageRunImage.prototype = {
     run: function() {
         var name = $("#containers-run-image-name").val();
         var cmd = $("#containers-run-image-command").val();
-        var mem_limit = cockpit_parse_bytes($("#containers-run-image-memory").val(), 0);
-        var swap_limit = cockpit_parse_bytes($("#containers-run-image-swap").val(), 0);
         var port_bindings = { };
         var p, map;
         for (p in this.port_items) {
@@ -451,8 +489,8 @@ PageRunImage.prototype = {
                                  },
                                  { "Cmd": cockpit_unquote_cmdline(cmd),
                                    "Image": PageRunImage.image_info.id,
-                                   "Memory": mem_limit,
-                                   "MemorySwap": swap_limit,
+                                   "Memory": this.memory_limit || 0,
+                                   "MemorySwap": (this.memory_limit * 2) || 0,
                                    "Tty": true
                                  },
                                  function (error, result) {
@@ -902,6 +940,9 @@ function DockerClient(machine) {
     var dbus_client = cockpit_get_dbus_client (machine);
     var monitor = dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
                                       "com.redhat.Cockpit.MultiResourceMonitor");
+
+    /* TODO: dig out the maximum memory */
+    this.max_memory = 8000000000;
 
     if (monitor) {
         $(monitor).on('NewSample', function (event, timestampUsec, samples) {

@@ -155,20 +155,31 @@ a {
 .cockpit-form-table td {
     padding-left: 0.75em;
     padding-top: 0.25em;
+    vertical-align: middle;
 }
 
 .cockpit-form-table td:first-child {
     text-align: right;
-    white-space:nowrap;
+    white-space: nowrap;
+    width: 5px; /* will be expanded by nowrap */
 }
 
-.cockpit-form-table td:not(:first-child) {
-    width: 100%;
+.cockpit-form-table td {
+    height: 26px;
+}
+
+.cockpit-form-table .shrink {
+    white-space: nowrap;
+    width: 5px;
 }
 
 .cockpit-form-table td.header {
     font-weight: bold;
     text-align: left;
+}
+
+.cockpit-form-table input[type='checkbox'] {
+    margin: 8px;
 }
 
 /* Category icons for the sidebar */

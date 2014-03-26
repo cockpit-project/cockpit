@@ -68,6 +68,20 @@ function multi_line(strings) {
     return strings.map(cockpit_esc).join('<br/>');
 }
 
+function insert_table_sorted(table, row) {
+    var key = $(row).text();
+    var rows = $(table).find("tbody tr");
+    for (var j = 0; j < rows.length; j++) {
+        if ($(rows[j]).text().localeCompare(key) > 0) {
+            $(row).insertBefore(rows[j]);
+            row = null;
+            break;
+        }
+    }
+    if (row !== null)
+        $(table).find("tbody").append(row);
+}
+
 PageContainers.prototype = {
     _init: function() {
         this.id = "containers";
@@ -142,58 +156,14 @@ PageContainers.prototype = {
     leave: function() {
     },
 
-    /* HACK: Poor mans angularjs */
-    update_or_insert_row: function(table, id, row) {
-        /* If we already have a row for this id? */
-        if (this.rows[id]) {
-
-            /* Move cells to the old row if changed */
-            var otds = this.rows[id].children("td");
-            var ntds = row.children("td");
-            var otd, ntd;
-            for (var i = 0; i < otds.length || i < ntds.length; i++) {
-                otd = $(otds[i]);
-                ntd = $(ntds[i]);
-                if (otd && ntd && otd.html() != ntd.html())
-                    otd.replaceWith(ntd);
-                else if (!otd)
-                    this.rows[id].append(ntd);
-                else if (!ntd)
-                    otd.remove();
-            }
-
-            /* Update the classes to the old row */
-            this.rows[id].attr('class', row.attr('class'));
-
-        /* Otherwise add a new row, sorted */
-        } else {
-            this.rows[id] = row;
-            var key = row.text();
-            var rows = table.find("tbody tr");
-            for (var j = 0; j < rows.length; j++) {
-               if ($(rows[j]).text().localeCompare(key) > 0) {
-                   row.insertBefore(rows[j]);
-                   row = null;
-                   break;
-               }
-            }
-            if (row !== null)
-                table.find("tbody").append(row);
-        }
-    },
-
-    delete_row: function(id) {
-        if (this.rows[id]) {
-            this.rows[id].remove();
-            delete this.rows[id];
-        }
-    },
-
     render_container: function(id, container) {
         var self = this;
+        var tr = this.rows[id];
 
         if (!container) {
-            this.delete_row(id);
+            if (tr)
+                tr.remove();
+            delete this.rows[id];
             return;
         }
 
@@ -216,31 +186,22 @@ PageContainers.prototype = {
                 memtext += " / " + cockpit_format_bytes_pow2(memlimit);
             }
 
-            membar = $cockpit.BarRow("containers-containers").attr("value", barvalue);
 
             if (memlimit && memuse > 0.9*memlimit)
                 membar.addClass("bar-row-danger");
 
+            membar = true;
+            memtextstyle = { 'color': 'inherit', 'text-align': 'inherit' };
         } else {
-            membar = null;
+            membar = false;
             memtext = _("Stopped");
-            memtextstyle = "color:grey;text-align:right";
+            memtextstyle = { 'color': 'grey', 'text-align': 'right' };
+            barvalue = 0;
         }
 
-        var button = $('<button class="btn btn-default btn-control">');
-        if (container.State.Running) {
-            button.
-                addClass("btn-stop").
-                on("click", function() {
-                    self.client.stop(id).
-                        fail(function(ex) {
-                            cockpit_show_unexpected_error(ex);
-                        });
-                    return false;
-                });
-        } else {
-            button.
-                addClass("btn-play").
+        var added = false;
+        if (!tr) {
+            var btn_play = $('<button class="btn btn-default btn-control btn-play">').
                 on("click", function() {
                     self.client.start(id).
                         fail(function(ex) {
@@ -248,61 +209,95 @@ PageContainers.prototype = {
                         });
                     return false;
                 });
+            var btn_stop = $('<button class="btn btn-default btn-control btn-stop">').
+                on("click", function() {
+                    self.client.stop(id).
+                        fail(function(ex) {
+                            cockpit_show_unexpected_error (ex);
+                        });
+                    return false;
+                });
+            tr = $('<tr>').append(
+                $('<td>'),
+                $('<td>'),
+                $('<td>'),
+                $('<td>'),
+                $('<td>').append($cockpit.BarRow("containers-containers")),
+                $('<td>'),
+                $('<td class="cell-buttons">').append(btn_play, btn_stop))[0];
+            $(tr).on('click', function(event) {
+                cockpit_go_down ({ page: 'container-details',
+                    id: id
+                });
+            });
+
+            added = true;
+            this.rows[id] = tr;
         }
 
-        var tr =
-            $('<tr>').append(
-                    $('<td>').text(cockpit_render_container_name(container.Name)),
-                    $('<td>').text(container.Image),
-                    $('<td>').text(container.Command),
-                    $('<td>').text(cputext),
-                    $('<td>').append(membar),
-                    $('<td>', { 'style': memtextstyle }).text(memtext),
-                    $('<td class="cell-buttons">').append(button));
-
-        tr.on('click', function(event) {
-            cockpit_go_down ({ page: 'container-details',
-                id: id
-            });
-        });
+        var row = $(tr).children("td");
+        $(row[0]).text(cockpit_render_container_name(container.Name));
+        $(row[1]).text(container.Image);
+        $(row[2]).text(container.Command);
+        $(row[3]).text(cputext);
+        $(row[4]).children("div").
+            attr("value", barvalue).
+            toggle(membar);
+        $(row[5]).
+            css(memtextstyle).
+            text(memtext);
+        $(row[6]).children("button.btn-play").toggle(!container.State.Running);
+        $(row[6]).children("button.btn-stop").toggle(container.State.Running);
 
         var filter = cockpit_select_btn_selected(this.container_filter_btn);
-        if (!container.State.Running)
-            tr.addClass("unimportant");
+        $(tr).toggleClass("unimportant", !container.State.Running);
 
-        this.update_or_insert_row($('#containers-containers table'), id, tr);
+        if (added)
+            insert_table_sorted($('#containers-containers table'), tr);
     },
 
     render_image: function(id, image) {
         var self = this;
+        var tr = this.rows[id];
 
         if (!image) {
-            this.delete_row(id);
+            if (tr)
+                tr.remove();
+            delete this.rows[id];
             return;
         }
 
-        var button = $('<button class="btn btn-default btn-control btn-play">').
+        var added = false;
+        if (!tr) {
+            var button = $('<button class="btn btn-default btn-control btn-play">').
                 on("click", function() {
                     PageRunImage.display(self.client, id);
                     return false;
                 });
+            tr = $('<tr>').append(
+                    $('<td>'),
+                    $('<td>'),
+                    $('<td>').append($cockpit.BarRow("container-images")),
+                    $('<td>'),
+                    $('<td class="cell-buttons">').append(button))[0];
+            $(tr).on('click', function(event) {
+                cockpit_go_down ({ page: 'image-details',
+                    id: id
+                });
+            });
 
-        var tr =
-            $('<tr>').append(
-                    $('<td>').html(multi_line(image.RepoTags)),
-                    $('<td>').text(new Date(image.Created * 1000).toLocaleString()),
-                    $('<td>').append(new $cockpit.BarRow("container-images").
-                                                attr("value", image.VirtualSize)),
-                    $('<td>').text(cockpit_format_bytes_pow2(image.VirtualSize)),
-                    $('<td class="cell-buttons">').append(button));
+            added = true;
+            this.rows[id] = tr;
+        }
 
-        tr.on('click', function (event) {
-            cockpit_go_down ({ page: 'image-details',
-                               id: image.Id
-                             });
-        });
+        var row = $(tr).children("td");
+        $(row[0]).html(multi_line(image.RepoTags));
+        $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
+        $(row[2]).children("div").attr("value", image.VirtualSize);
+        $(row[3]).text(cockpit_format_bytes_pow2(image.VirtualSize));
 
-        this.update_or_insert_row($('#containers-images table'), id, tr);
+        if (added)
+            insert_table_sorted($('#containers-images table'), tr);
     },
 
     filter: function() {

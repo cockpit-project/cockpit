@@ -15,7 +15,6 @@ libcockpit_agent_a_SOURCES = \
 libcockpit_agent_a_CFLAGS = \
 	$(cockpit_cppflags_common) \
 	$(cockpit_cppflags_glib_version) \
-	-I$(srcdir)/src/libgsystem \
 	-DG_LOG_DOMAIN=\"cockpit-agent\" \
 	$(COCKPIT_AGENT_CFLAGS) \
 	$(WARN_CFLAGS) \
@@ -38,7 +37,6 @@ cockpit_session_LDADD = $(COCKPIT_SESSION_LIBS)
 cockpit_agent_SOURCES = src/agent/agent.c
 cockpit_agent_CFLAGS = \
 	-DG_LOG_DOMAIN=\"cockpit-agent\" \
-	-I$(top_srcdir)/src/libgsystem \
 	$(COCKPIT_AGENT_CFLAGS) \
 	$(NULL)
 cockpit_agent_LDADD = $(libcockpit_agent_LIBS)

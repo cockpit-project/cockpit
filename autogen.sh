@@ -35,14 +35,6 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
-# Fetch submodules if needed
-if test ! -f src/libgsystem/README;
-then
-  echo "+ Setting up submodules"
-  git submodule init
-  git submodule update
-fi
-
 rm -rf autom4te.cache
 
 autoreconf -f -i

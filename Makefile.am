@@ -100,11 +100,6 @@ include src/cockpit/Makefile-libcockpit.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
 
-# We only use the memory allocation code from libgsystem
-libgsystem_srcpath := $(top_srcdir)/src/libgsystem
-libgsystem_cflags := -I$(top_srcdir)/src/libgsystem $(GIO_CFLAGS)
-EXTRA_DIST += src/libgsystem/gsystem-local-alloc.h
-
 include src/agent/Makefile-agent.am
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am

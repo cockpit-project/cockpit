@@ -96,7 +96,6 @@ libcockpitd_a_SOURCES = \
 	$(NULL)
 
 libcockpitd_a_CFLAGS = \
-	-I$(top_srcdir)/src/libgsystem\
 	-DG_LOG_DOMAIN=\"cockpitd\" \
 	$(COCKPIT_DAEMON_CFLAGS) \
 	$(NULL)
@@ -107,7 +106,6 @@ cockpitd_SOURCES = \
 
 cockpitd_CFLAGS = 					\
 	-I$(top_srcdir)/src/daemon			\
-	-I$(top_srcdir)/src/libgsystem			\
 	-DG_LOG_DOMAIN=\"cockpitd\"			\
 	$(COCKPIT_DAEMON_CFLAGS)			\
 	$(NULL)

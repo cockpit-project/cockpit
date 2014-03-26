@@ -19,8 +19,11 @@
 
 var phantom_checkpoint = function () { };
 
-function dbus_debug(str) {
-    //console.debug("DEBUG: " + str);
+var $cockpit = $cockpit || { };
+
+function dbus_debug() {
+    if ($cockpit.debugging == "all" || $cockpit.debugging == "dbus")
+        console.debug.apply(console, arguments);
 }
 
 function dbus_log(str) {

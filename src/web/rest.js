@@ -152,7 +152,8 @@ var $cockpit = $cockpit || { };
     }
 
     function rest_debug() {
-        console.debug.apply(console, arguments);
+        if ($cockpit.debugging == "all" || $cockpit.debugging == "rest")
+            console.debug.apply(console, arguments);
     }
 
     var last_cookie = 3;

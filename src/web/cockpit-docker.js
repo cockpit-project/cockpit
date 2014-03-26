@@ -208,7 +208,7 @@ PageContainers.prototype = {
             memlimit = container.Config && container.Config.Memory;
 
             var barvalue = memuse.toString();
-            memtext = cockpit_format_bytes_pow2(memuse);
+            memtext = memuse && cockpit_format_bytes_pow2(memuse) || "?";
             memtextstyle = "text-align:right";
 
             if (memlimit) {

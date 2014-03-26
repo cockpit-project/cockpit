@@ -50,6 +50,11 @@ typedef struct
   double cpuacct_usage_perc;
 } Sample;
 
+typedef struct {
+  gint64 last_timestamp;        // the time when this consumer disappeared, 0 when it still exists
+  Sample samples[SAMPLES_MAX];
+} Consumer;
+
 typedef struct _CGroupMonitorClass CGroupMonitorClass;
 
 /**
@@ -71,9 +76,9 @@ struct _CGroupMonitor
   gint samples_prev;
   guint samples_next;
 
-  /* Path -> Arrays of SAMPLES_MAX Sample instances
+  /* Path -> Consumer
    */
-  GHashTable *samples;
+  GHashTable *consumers;
 
   /* SAMPLES_MAX timestamps for the samples
    */
@@ -110,7 +115,7 @@ cgroup_monitor_init (CGroupMonitor *monitor)
                                        G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
 
   monitor->samples_prev = -1;
-  monitor->samples = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  monitor->consumers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   monitor->timestamps = g_new0 (gint64, SAMPLES_MAX);
 }
 
@@ -122,7 +127,7 @@ cgroup_monitor_finalize (GObject *object)
   g_free (monitor->basedir);
   g_free (monitor->memory_root);
   g_free (monitor->cpuacct_root);
-  g_hash_table_destroy (monitor->samples);
+  g_hash_table_destroy (monitor->consumers);
   g_free (monitor->timestamps);
 
   G_OBJECT_CLASS (cgroup_monitor_parent_class)->finalize (object);
@@ -242,9 +247,9 @@ cgroup_monitor_new (GObject *tick_source)
 static void
 update_consumers_property (CGroupMonitor *monitor)
 {
-  guint n_cgroups =  g_hash_table_size (monitor->samples);
+  guint n_cgroups =  g_hash_table_size (monitor->consumers);
   const gchar **prop_value = g_new0 (const gchar *, n_cgroups+1);
-  GList *cgroups = g_hash_table_get_keys (monitor->samples);
+  GList *cgroups = g_hash_table_get_keys (monitor->consumers);
 
   GList *l;
   int i;
@@ -282,6 +287,7 @@ read_double (const gchar *prefix,
 
 typedef struct {
   CGroupMonitor *monitor;
+  gint64 now;
   gboolean need_update_consumers_property;
 } CollectData;
 
@@ -289,15 +295,17 @@ static void
 notice_cgroup (CollectData *data,
                const gchar *cgroup)
 {
-  Sample *samples;
+  Consumer *consumer;
 
-  samples = g_hash_table_lookup (data->monitor->samples, cgroup);
-  if (samples == NULL)
+  consumer = g_hash_table_lookup (data->monitor->consumers, cgroup);
+  if (consumer == NULL)
     {
-      samples = g_new0 (Sample, SAMPLES_MAX);
-      g_hash_table_insert (data->monitor->samples, g_strdup (cgroup), samples);
+      consumer = g_new0 (Consumer, 1);
+      g_hash_table_insert (data->monitor->consumers, g_strdup (cgroup), consumer);
       data->need_update_consumers_property = TRUE;
     }
+  else
+    consumer->last_timestamp = 0;
 }
 
 static void
@@ -347,7 +355,18 @@ calc_percentage (CGroupMonitor *monitor,
   return ret;
 }
 
-static gboolean
+static void
+zero_sample (Sample *sample)
+{
+  sample->mem_usage_in_bytes = 0;
+  sample->mem_limit_in_bytes = 0;
+  sample->memsw_usage_in_bytes = 0;
+  sample->memsw_limit_in_bytes = 0;
+  sample->cpuacct_usage = 0;
+  sample->cpuacct_usage_perc = 0;
+}
+
+static void
 collect_cgroup (gpointer key,
                 gpointer value,
                 gpointer user_data)
@@ -355,9 +374,17 @@ collect_cgroup (gpointer key,
   CollectData *data = user_data;
   CGroupMonitor *monitor = data->monitor;
   const gchar *cgroup = key;
-  Sample *samples = value;
+  Consumer *consumer = value;
 
   Sample *sample = NULL, *prev_sample = NULL;
+
+  sample = &(consumer->samples[monitor->samples_next]);
+
+  if (consumer->last_timestamp > 0)
+    {
+      zero_sample (sample);
+      return;
+    }
 
   gs_free gchar *mem_dir = g_build_filename (monitor->memory_root, cgroup, NULL);
   gs_free gchar *cpu_dir = g_build_filename (monitor->cpuacct_root, cgroup, NULL);
@@ -367,13 +394,10 @@ collect_cgroup (gpointer key,
   if (access (mem_dir, F_OK) != 0
       || access (cpu_dir, F_OK) != 0)
     {
-      /* Returning TRUE will remove it from the hash table.
-       */
-      data->need_update_consumers_property = TRUE;
-      return TRUE;
+      consumer->last_timestamp = data->now;
+      zero_sample (sample);
+      return;
     }
-
-  sample = &(samples[monitor->samples_next]);
 
   sample->mem_usage_in_bytes = read_double (mem_dir, "memory.usage_in_bytes");
   sample->mem_limit_in_bytes = read_double (mem_dir, "memory.limit_in_bytes");
@@ -384,7 +408,7 @@ collect_cgroup (gpointer key,
 
   if (monitor->samples_prev >= 0)
     {
-      prev_sample = &(samples[monitor->samples_prev]);
+      prev_sample = &(consumer->samples[monitor->samples_prev]);
       sample->cpuacct_usage_perc = calc_percentage (monitor,
                                                     monitor->timestamps[monitor->samples_next],
                                                     monitor->timestamps[monitor->samples_prev],
@@ -395,9 +419,23 @@ collect_cgroup (gpointer key,
     {
       sample->cpuacct_usage_perc = 0.0;
     }
+}
 
-  /* We want to keep it.
-   */
+static gboolean
+expire_consumer (gpointer key,
+                 gpointer value,
+                 gpointer user_data)
+{
+  CollectData *data = user_data;
+  CGroupMonitor *monitor = data->monitor;
+  Consumer *consumer = value;
+
+  if (monitor->timestamps[monitor->samples_next]
+      && monitor->timestamps[monitor->samples_next] == consumer->last_timestamp)
+    {
+      data->need_update_consumers_property = TRUE;
+      return TRUE;
+    }
   return FALSE;
 }
 
@@ -410,11 +448,11 @@ build_sample_variant (CGroupMonitor *monitor,
   gpointer key, value;
 
   g_variant_builder_init (&builder, G_VARIANT_TYPE("a{sad}"));
-  g_hash_table_iter_init (&iter, monitor->samples);
+  g_hash_table_iter_init (&iter, monitor->consumers);
   while (g_hash_table_iter_next (&iter, &key, &value))
     {
       GVariantBuilder inner_builder;
-      Sample *sample = (Sample *)value + index;
+      Sample *sample = ((Consumer *)value)->samples + index;
       g_variant_builder_init (&inner_builder, G_VARIANT_TYPE("ad"));
       g_variant_builder_add (&inner_builder, "d", sample->mem_usage_in_bytes);
       g_variant_builder_add (&inner_builder, "d", sample->mem_limit_in_bytes);
@@ -432,6 +470,7 @@ collect (CGroupMonitor *monitor)
 {
   CollectData data;
   data.monitor = monitor;
+  data.now = g_get_real_time ();
   data.need_update_consumers_property = FALSE;
 
   /* We are looking for files like
@@ -441,22 +480,23 @@ collect (CGroupMonitor *monitor)
      /sys/fs/cgroup/cpuacct/.../cpuacct.usage
   */
 
-  monitor->timestamps[monitor->samples_next] = g_get_real_time ();
+  monitor->timestamps[monitor->samples_next] = data.now;
 
   notice_cgroups_in_hierarchy (&data, monitor->memory_root);
-  g_hash_table_foreach_remove (monitor->samples, collect_cgroup, &data);
-
-  if (data.need_update_consumers_property)
-    update_consumers_property (monitor);
+  g_hash_table_foreach (monitor->consumers, collect_cgroup, &data);
 
   cockpit_multi_resource_monitor_emit_new_sample (COCKPIT_MULTI_RESOURCE_MONITOR (monitor),
-                                                  monitor->timestamps[monitor->samples_next],
+                                                  data.now,
                                                   build_sample_variant (monitor, monitor->samples_next));
 
   monitor->samples_prev = monitor->samples_next;
   monitor->samples_next += 1;
   if (monitor->samples_next == SAMPLES_MAX)
     monitor->samples_next = 0;
+
+  g_hash_table_foreach_remove (monitor->consumers, expire_consumer, &data);
+  if (data.need_update_consumers_property)
+    update_consumers_property (monitor);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

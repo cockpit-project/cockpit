@@ -252,7 +252,7 @@ PageContainers.prototype = {
 
         var tr =
             $('<tr>').append(
-                    $('<td>').text(cockpit_render_container_name(container.Name)),
+                    $('<td>').append($('<a>').text(cockpit_render_container_name(container.Name))),
                     $('<td>').text(container.Image),
                     $('<td>').text(container.Command),
                     $('<td>').text(cputext),
@@ -289,7 +289,7 @@ PageContainers.prototype = {
 
         var tr =
             $('<tr>').append(
-                    $('<td>').html(multi_line(image.RepoTags)),
+                    $('<td>').append($('<a>').html(multi_line(image.RepoTags))),
                     $('<td>').text(new Date(image.Created * 1000).toLocaleString()),
                     $('<td>').append(new $cockpit.BarRow("container-images").
                                                 attr("value", image.VirtualSize)),

@@ -208,12 +208,14 @@ PageContainers.prototype = {
             memlimit = container.Config && container.Config.Memory;
 
             var barvalue = memuse.toString();
-            memtext = cockpit_format_bytes_pow2(memuse);
-            memtextstyle = "text-align:right";
+            if (memlimit)
+                barvalue += "/" + memlimit.toString();
 
             if (memlimit) {
-                barvalue += "/" + memlimit.toString();
-                memtext += " / " + cockpit_format_bytes_pow2(memlimit);
+                var parts = $cockpit.format_bytes(memlimit);
+                memtext = $cockpit.format_bytes(memuse, parts[1])[0] + " / " + parts.join(" ");
+            } else {
+                memtext = $cockpit.format_bytes(memuse).join(" ");
             }
 
             membar = $cockpit.BarRow("containers-containers").attr("value", barvalue);
@@ -293,7 +295,7 @@ PageContainers.prototype = {
                     $('<td>').text(new Date(image.Created * 1000).toLocaleString()),
                     $('<td>').append(new $cockpit.BarRow("container-images").
                                                 attr("value", image.VirtualSize)),
-                    $('<td>').text(cockpit_format_bytes_pow2(image.VirtualSize)),
+                    $('<td>').text($cockpit.format_bytes(image.VirtualSize, 1024).join(" ")),
                     $('<td class="cell-buttons">').append(button));
 
         tr.on('click', function (event) {

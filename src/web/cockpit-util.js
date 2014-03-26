@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+var $cockpit = $cockpit || { };
+
 // Used for escaping things in HTML elements and attributes
 function cockpit_esc(str) {
     var pre = document.createElement('pre');
@@ -56,39 +58,101 @@ function cockpit_bind_dbus_property_func(id, object, func) {
     callback();
 }
 
-function cockpit_format_bytes(num_bytes) {
-    if (num_bytes < 1000*1000)
-        return (num_bytes/(1000)).toFixed(1) + " kB";
-    else if (num_bytes < 1000*1000*1000)
-        return (num_bytes/(1000*1000)).toFixed(1) + " MB";
-    else if (num_bytes < 1000*1000*1000*1000)
-        return (num_bytes/(1000*1000*1000)).toFixed(1) + " GB";
-    else if (num_bytes < 1000*1000*1000*1000*1000)
-        return (num_bytes/(1000*1000*1000*1000)).toFixed(1) + " TB";
-    else if (num_bytes < 1000*1000*1000*1000*1000*1000)
-        return (num_bytes/(1000*1000*1000*1000*1000)).toFixed(1) + " PB";
-    else if (num_bytes < 1000*1000*1000*1000*1000*1000*1000)
-        return (num_bytes/(1000*1000*1000*1000*1000*1000)).toFixed(1) + " EB";
+/*
+ * Byte formatting
+ *
+ * $cockpit.format_bytes(number, [factor])
+ * @number: a normal number
+ * @factor: optional, either 1000, 1024 or a string suffix
+ *
+ * Formats bytes into a displayable string and suffix, such as
+ * 'kB' or 'MiB'. Returns an array of the formatted number and
+ * the suffix.
+ *
+ * If specifying 1000 or 1024 these will be used as the factors
+ * to choose an appropriate suffix. By default the factor is
+ * 1000.
+ *
+ * You can pass the suffix into the second argument in which
+ * case the number will be formatted with that specific suffix.
+ *
+ * If the number is less than the factor or an unknown suffix
+ * was passed in, then the formatted number is returned without
+ * a suffix.
+ *
+ * Returns an array of [formatted_number, suffix], unless no
+ * suffix is returned.
+ *
+ * Examples:
+ *    $cockpit.format_bytes(1000000).join(" ");
+ *    $cockpit.format_bytes(1000000, 1024).join(" ");
+ *    $cockpit.format_bytes(1000000, "kB").join(" ");
+ */
+(function($cockpit) {
+
+var suffixes = {
+    1000: [ null, "kB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
+    1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ]
+};
+
+$cockpit.format_bytes = function format_bytes(number, factor) {
+    var quotient;
+    var suffix = null;
+
+    if (factor === undefined)
+        factor = 1000;
+
+    /* Find that factor string */
+    if (typeof (factor) === "string") {
+        for (var key in suffixes) {
+            for (var x = 0; x < suffixes[key].length; x++) {
+                if (factor == suffixes[key][x]) {
+                    number = number / Math.pow(key, x);
+                    suffix = factor;
+                    break;
+                }
+            }
+            if (suffix)
+                break;
+        }
+
+    /* @factor is a number */
+    } else if (factor in suffixes) {
+        var divisor = 1;
+        for (var i = 0; i < suffixes[factor].length; i++) {
+            quotient = number / divisor;
+            if (quotient < factor) {
+                number = quotient;
+                suffix = suffixes[factor][i];
+                break;
+            }
+            divisor *= factor;
+        }
+    }
+
+    if (!suffix)
+        return [number.toString()];
+
+    /* non-zero values should never appear zero */
+    if (number > 0 && number < 0.1)
+        number = 0.1;
+
+    if (number === 0)
+        return [number.toString(), suffix];
     else
-        return (num_bytes/(1000*1000*1000*1000*1000*1000*1000)).toFixed(1) + " ZB";
+        return [number.toFixed(1), suffix];
+};
+
+})($cockpit);
+
+function cockpit_format_bytes(num_bytes) {
+    return $cockpit.format_bytes(num_bytes, 1000).join(" ");
 }
 
 function cockpit_format_bytes_pow2(num_bytes) {
-    if (num_bytes < 1024*1024)
-        return (num_bytes/(1024)).toFixed(1) + " KiB";
-    else if (num_bytes < 1024*1024*1024)
-        return (num_bytes/(1024*1024)).toFixed(1) + " MiB";
-    else if (num_bytes < 1024*1024*1024*1024)
-        return (num_bytes/(1024*1024*1024)).toFixed(1) + " GiB";
-    else if (num_bytes < 1024*1024*1024*1024*1024)
-        return (num_bytes/(1024*1024*1024*1024)).toFixed(1) + " TiB";
-    else if (num_bytes < 1024*1024*1024*1024*1024*1024)
-        return (num_bytes/(1024*1024*1024*1024*1024)).toFixed(1) + " PiB";
-    else if (num_bytes < 1024*1024*1024*1024*1024*1024*1024)
-        return (num_bytes/(1024*1024*1024*1024*1024*1024)).toFixed(1) + " EiB";
-    else
-        return (num_bytes/(1024*1024*1024*1024*1024*1024*1024)).toFixed(1) + " ZiB";
+    return $cockpit.format_bytes(num_bytes, 1024).join(" ");
 }
+
 
 function cockpit_format_delay(d) {
     var seconds = Math.round(d/1000);

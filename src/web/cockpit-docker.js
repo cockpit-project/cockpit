@@ -208,14 +208,15 @@ PageContainers.prototype = {
             memlimit = container.Config && container.Config.Memory;
 
             var barvalue = memuse.toString();
+
             if (memlimit)
                 barvalue += "/" + memlimit.toString();
 
             if (memlimit) {
                 var parts = $cockpit.format_bytes(memlimit);
-                memtext = $cockpit.format_bytes(memuse, parts[1])[0] + " / " + parts.join(" ");
+                memtext = (memuse? $cockpit.format_bytes(memuse, parts[1])[0] : "?") + " / " + parts.join(" ");
             } else {
-                memtext = $cockpit.format_bytes(memuse).join(" ");
+                memtext = (memuse? $cockpit.format_bytes(memuse).join(" ") : "?");
             }
 
             membar = $cockpit.BarRow("containers-containers").attr("value", barvalue);

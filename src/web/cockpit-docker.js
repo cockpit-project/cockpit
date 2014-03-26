@@ -252,6 +252,10 @@ PageContainers.prototype = {
             this.delete_row(id);
             return;
         }
+        if (!image.RepoTags) {
+            this.delete_row(id);
+            return;
+        }
 
         var tr =
             $('<tr>').append(

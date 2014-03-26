@@ -489,6 +489,11 @@ PageContainerDetails.prototype = {
             return;
         }
 
+        $('#container-details-start').prop('disabled', info.State.Running);
+        $('#container-details-stop').prop('disabled', !info.State.Running);
+        $('#container-details-restart').prop('disabled', !info.State.Running);
+        $('#container-details-delete').prop('disabled', info.State.Running);
+
         var name = cockpit_render_container_name(info.Name);
         if (name != this.name) {
             this.name = name;

@@ -417,7 +417,7 @@ PageRunImage.prototype = {
                                                 fail(function(ex) {
                                                     cockpit_show_unexpected_error(ex);
                                                 });
-                                          if (cockpit_loc_trail[cockpit_loc_trail.length-1].page == "image-details") {
+                                          if (cockpit_get_page_param('page') == "image-details") {
                                               cockpit_go_up();
                                           }
                                      }

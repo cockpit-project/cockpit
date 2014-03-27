@@ -665,6 +665,9 @@ PageContainerDetails.prototype = {
             return;
         }
 
+        var waiting = !!(this.client.waiting[this.container_id]);
+        $('#container-details div.waiting').toggle(waiting);
+        $('#container-details button').toggle(!waiting);
         $('#container-details-start').prop('disabled', info.State.Running);
         $('#container-details-stop').prop('disabled', !info.State.Running);
         $('#container-details-restart').prop('disabled', !info.State.Running);
@@ -802,6 +805,10 @@ PageImageDetails.prototype = {
             $('#image-details-id').text(_("Not found"));
             return;
         }
+
+        var waiting = !!(this.client.waiting[this.image_id]);
+        $('#container-details div.waiting').toggle(waiting);
+        $('#container-details button').toggle(!waiting);
 
         if (info.RepoTags && info.RepoTags.length > 0) {
             var name = info.RepoTags[0];

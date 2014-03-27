@@ -141,8 +141,6 @@ PageContainers.prototype = {
                 $('#containers-mem-text').text(cockpit_format_bytes_pow2 (total));
             });
 
-            /* HACK: This is our pretend angularjs */
-            this.rows = { };
             $('#containers-containers table tbody tr').remove();
             $('#containers-images table tbody tr').remove();
 
@@ -197,12 +195,10 @@ PageContainers.prototype = {
 
     render_container: function(id, container) {
         var self = this;
-        var tr = this.rows[id];
+        var tr = $("#" + id);
 
         if (!container) {
-            if (tr)
-                tr.remove();
-            delete this.rows[id];
+            tr.remove();
             return;
         }
 
@@ -241,7 +237,7 @@ PageContainers.prototype = {
         }
 
         var added = false;
-        if (!tr) {
+        if (!tr.length) {
             var img_waiting = $('<div class="waiting">');
             var btn_play = $('<button class="btn btn-default btn-control btn-play">').
                 on("click", function() {
@@ -263,25 +259,24 @@ PageContainers.prototype = {
                         });
                     return false;
                 });
-            tr = $('<tr>').append(
+            tr = $('<tr id="' + id + '">').append(
                 $('<td>'),
                 $('<td>'),
                 $('<td>'),
                 $('<td>'),
                 $('<td>').append($cockpit.BarRow("containers-containers")),
                 $('<td>'),
-                $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting))[0];
-            $(tr).on('click', function(event) {
+                $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
+            tr.on('click', function(event) {
                 cockpit_go_down ({ page: 'container-details',
                     id: id
                 });
             });
 
             added = true;
-            this.rows[id] = tr;
         }
 
-        var row = $(tr).children("td");
+        var row = tr.children("td");
         $(row[0]).text(cockpit_render_container_name(container.Name));
         $(row[1]).text(container.Image);
         $(row[2]).text(container.Command);
@@ -300,7 +295,7 @@ PageContainers.prototype = {
         $(row[6]).children("button.btn-stop").toggle(!waiting && container.State.Running);
 
         var filter = cockpit_select_btn_selected(this.container_filter_btn);
-        $(tr).toggleClass("unimportant", !container.State.Running);
+        tr.toggleClass("unimportant", !container.State.Running);
 
         if (added)
             insert_table_sorted($('#containers-containers table'), tr);
@@ -308,17 +303,15 @@ PageContainers.prototype = {
 
     render_image: function(id, image) {
         var self = this;
-        var tr = this.rows[id];
+        var tr = $("#" + id);
 
         if (!image) {
-            if (tr)
-                tr.remove();
-            delete this.rows[id];
+            tr.remove();
             return;
         }
 
         var added = false;
-        if (!tr) {
+        if (!tr.length) {
             var button = $('<button class="btn btn-default btn-control btn-play">').
                 on("click", function() {
                     PageRunImage.display(self.client, id);
@@ -329,18 +322,17 @@ PageContainers.prototype = {
                     $('<td>'),
                     $('<td>').append($cockpit.BarRow("container-images")),
                     $('<td>'),
-                    $('<td class="cell-buttons">').append(button))[0];
-            $(tr).on('click', function(event) {
+                    $('<td class="cell-buttons">').append(button));
+            tr.on('click', function(event) {
                 cockpit_go_down ({ page: 'image-details',
                     id: id
                 });
             });
 
             added = true;
-            this.rows[id] = tr;
         }
 
-        var row = $(tr).children("td");
+        var row = tr.children("td");
         $(row[0]).html(multi_line(image.RepoTags));
         $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
         $(row[2]).children("div").attr("value", image.VirtualSize);

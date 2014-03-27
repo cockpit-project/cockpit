@@ -167,7 +167,7 @@ PageContainers.prototype = {
             return;
         }
 
-        var cpuuse, cputext;
+        var cputext;
         var memuse, memlimit;
         var membar, memtext, memtextstyle;
 
@@ -196,6 +196,7 @@ PageContainers.prototype = {
             membar = true;
             memtextstyle = { 'color': 'inherit', 'text-align': 'inherit' };
         } else {
+            cputext = "";
             membar = false;
             memtext = _("Stopped");
             memtextstyle = { 'color': 'grey', 'text-align': 'right' };

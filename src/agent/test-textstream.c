@@ -487,23 +487,19 @@ static void
 test_send_invalid (TestCase *tc,
                    gconstpointer unused)
 {
+  GBytes *converted;
   GBytes *sent;
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
-
-  sent = g_bytes_new ("\x00Marmalaade!", 12);
+  sent = g_bytes_new ("Oh \x00Marma\x00laade!", 16);
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 548, sent);
   g_bytes_unref (sent);
 
-  /* Wait until channel closes */
-  while (tc->channel_problem == NULL)
+  while (!tc->transport->payload_sent)
     g_main_context_iteration (NULL, TRUE);
 
-  /* Should have sent payload and control */
-  g_assert_cmpstr (tc->channel_problem, ==, "protocol-error");
-  g_assert (tc->transport->payload_sent == 0);
-  expect_control_message (tc->transport->control_sent, "close", 548, "reason", "protocol-error", NULL);
+  converted = g_bytes_new ("Oh \xef\xbf\xbd""Marma""\xef\xbf\xbd""laade!", 20);
+  g_assert (g_bytes_equal (converted, tc->transport->payload_sent));
+  g_bytes_unref (converted);
 }
 
 static void
@@ -511,6 +507,7 @@ test_recv_invalid (TestCase *tc,
                    gconstpointer unused)
 {
   GError *error = NULL;
+  GBytes *converted;
 
   /* Wait until the socket has opened */
   while (tc->conn_sock == NULL)
@@ -519,17 +516,15 @@ test_recv_invalid (TestCase *tc,
   /* Below we cause a warning, and g_test_expect_message() is broken */
   g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
 
-  g_assert_cmpint (g_socket_send (tc->conn_sock, "\x00Marmalaade!", 12, NULL, &error), ==, 12);
+  g_assert_cmpint (g_socket_send (tc->conn_sock, "\x00Marmalaade!\x00", 13, NULL, &error), ==, 13);
   g_assert_no_error (error);
 
-  /* Wait until channel closes */
-  while (tc->channel_problem == NULL)
+  while (!tc->transport->payload_sent)
     g_main_context_iteration (NULL, TRUE);
 
-  /* Should have sent payload and control */
-  g_assert_cmpstr (tc->channel_problem, ==, "protocol-error");
-  g_assert (tc->transport->payload_sent == 0);
-  expect_control_message (tc->transport->control_sent, "close", 548, "reason", "protocol-error", NULL);
+  converted = g_bytes_new ("\xef\xbf\xbd""Marmalaade!""\xef\xbf\xbd", 17);
+  g_assert (g_bytes_equal (converted, tc->transport->payload_sent));
+  g_bytes_unref (converted);
 }
 
 static void

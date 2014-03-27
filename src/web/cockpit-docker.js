@@ -131,15 +131,23 @@ PageContainers.prototype = {
 
             this.client = client;
 
+            function highlight_container_row (event, id)
+            {
+                $('#containers-containers tr').removeClass('highlight');
+                $('#' + id).addClass('highlight');
+            }
+
             this.cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues);
             $(this.cpu_plot).on('update-total', function (event, total) {
                 $('#containers-cpu-text').text(total+"%");
             });
+            $(this.cpu_plot).on('highlight', highlight_container_row);
 
             this.mem_plot = client.setup_cgroups_plot ('#containers-mem-graph', 0, reds);
             $(this.mem_plot).on('update-total', function (event, total) {
                 $('#containers-mem-text').text(cockpit_format_bytes_pow2 (total));
             });
+            $(this.mem_plot).on('highlight', highlight_container_row);
 
             $('#containers-containers table tbody tr').remove();
             $('#containers-images table tbody tr').remove();
@@ -1005,11 +1013,44 @@ function DockerClient(machine) {
                                              },
                                      xaxis: { tickFormatter: function() { return "";  } },
                                      yaxis: { tickFormatter: function() { return "";  } },
-                                     grid: { borderWidth: 1 }
+                                     grid: { borderWidth: 1, hoverable: true, autoHighlight: false }
                                    },
                                    store_samples);
         $(monitor).on("notify:Consumers", function (event) {
             update_consumers();
+        });
+
+        var cur_highlight = null;
+
+        function highlight (consumer) {
+            if (consumer != cur_highlight) {
+                cur_highlight = consumer;
+                if (consumer && consumer.startsWith("lxc/"))
+                    consumer = consumer.substring(4);
+                $(plot).trigger('highlight', [ consumer ]);
+            }
+        }
+
+        $(plot.element).on("plothover", function (event, pos, item) {
+            var i, index;
+
+            index = Math.round(pos.x);
+            if (index < 0)
+                index = 0;
+            if (index > monitor.NumSamples-1)
+                index = monitor.NumSamples-1;
+
+            for (i = 0; i < max_consumers; i++) {
+                if (i < max_consumers && data[i].data[index][1] <= pos.y && pos.y <= data[i].data[index][2])
+                    break;
+            }
+            if (i < max_consumers) {
+                highlight(consumers[i]);
+            } else
+                highlight(null);
+        });
+        $(plot.element).on("mouseleave", function (event, pos, item) {
+            highlight(null);
         });
 
         update_consumers();

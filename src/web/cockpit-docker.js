@@ -470,6 +470,13 @@ PageRunImage.prototype = {
             init_interact_cpu(2, 1000000, 1024);
         }
 
+        $("#containers-run-image-memory-limit").
+            prop("checked", false).
+            trigger("change");
+        $("#containers-run-image-cpu-prioritize").
+            prop("checked", false).
+            trigger("change");
+
         // from https://github.com/dotcloud/docker/blob/master/pkg/namesgenerator/names-generator.go
 
         var left = [ "happy", "jolly", "dreamy", "sad", "angry", "pensive", "focused", "sleepy", "grave", "distracted", "determined", "stoic", "stupefied", "sharp", "agitated", "cocky", "tender", "goofy", "furious", "desperate", "hopeful", "compassionate", "silly", "lonely", "condescending", "naughty", "kickass", "drunk", "boring", "nostalgic", "ecstatic", "insane", "cranky", "mad", "jovial", "sick", "hungry", "thirsty", "elegant", "backstabbing", "clever", "trusting", "loving", "suspicious", "berserk", "high", "romantic", "prickly", "evil" ];

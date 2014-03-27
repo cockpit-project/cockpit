@@ -484,6 +484,9 @@ PageRunImage.prototype = {
         $("#containers-run-image-cpu-prioritize").
             prop("checked", false).
             trigger("change");
+        $("#containers-run-image-with-terminal").
+            prop("checked", true).
+            trigger("change");
 
         docker_debug("run-image", PageRunImage.image_info);
 
@@ -544,14 +547,25 @@ PageRunImage.prototype = {
 
         $("#containers_run_image_dialog").modal('hide');
 
+        var tty = $("#containers-run-image-with-terminal").prop('checked');
         var options = {
             "Cmd": cockpit_unquote_cmdline(cmd),
             "Image": PageRunImage.image_info.id,
             "Memory": this.memory_limit || 0,
             "MemorySwap": (this.memory_limit * 2) || 0,
             "CpuShares": this.cpu_priority || 0,
-            "Tty": true
+            "Tty": tty
         };
+
+        if (tty) {
+            $.extend(options, {
+                "AttachStderr": true,
+                "AttachStdin": true,
+                "AttachStdout": true,
+                "OpenStdin": true,
+                "StdinOnce": true
+            });
+        }
 
         PageRunImage.client.create(name, options).
             fail(function(ex) {
@@ -562,8 +576,9 @@ PageRunImage.prototype = {
                     fail(function(ex) {
                         cockpit_show_unexpected_error(ex);
                     });
-                if (cockpit_get_page_param('page') == "image-details")
+                if (cockpit_get_page_param('page') == "image-details") {
                     cockpit_go_up();
+                }
             });
     }
 };

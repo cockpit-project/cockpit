@@ -453,7 +453,8 @@ PageRunImage.prototype = {
                                  { "Cmd": cockpit_unquote_cmdline(cmd),
                                    "Image": PageRunImage.image_info.id,
                                    "Memory": mem_limit,
-                                   "MemorySwap": swap_limit
+                                   "MemorySwap": swap_limit,
+                                   "Tty": true
                                  },
                                  function (error, result) {
                                      if (error)
@@ -484,6 +485,7 @@ cockpit_pages.push(new PageRunImage());
 PageContainerDetails.prototype = {
     _init: function() {
         this.id = "container-details";
+        this.terminal = null;
     },
 
     getTitle: function() {
@@ -495,6 +497,11 @@ PageContainerDetails.prototype = {
 
     leave: function() {
         $(this.client).off('.container-details');
+        if (this.terminal) {
+            this.terminal.close();
+            this.terminal = null;
+            $("#container-terminal").hide();
+        }
     },
 
     enter: function(first_visit) {
@@ -517,6 +524,29 @@ PageContainerDetails.prototype = {
         });
 
         this.update();
+    },
+
+    maybe_show_terminal: function(info) {
+        if (!info.Config.Tty)
+            return;
+
+        if (!this.terminal) {
+            this.terminal = new DockerTerminal($("#container-terminal")[0],
+                                               this.client.machine,
+                                               this.container_id);
+        }
+
+        if (this.terminal.connected)
+            this.terminal.typeable(info.State.Running);
+
+        $("#container-terminal").show();
+    },
+
+    maybe_reconnect_terminal: function() {
+        if (this.terminal && !this.terminal.connected) {
+            this.terminal.connect();
+            this.terminal.typeable(true);
+        }
     },
 
     update: function() {
@@ -569,12 +599,18 @@ PageContainerDetails.prototype = {
         $('#container-details-command').text(info.Command);
         $('#container-details-state').text(cockpit_render_container_state(info.State));
         $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
+
+        this.maybe_show_terminal(info);
     },
 
     start_container: function () {
+        var self = this;
         this.client.start(this.container_id).
                 fail(function(ex) {
                     cockpit_show_unexpected_error (ex);
+                }).
+                done(function() {
+                    self.maybe_reconnect_terminal();
                 });
     },
 
@@ -586,9 +622,13 @@ PageContainerDetails.prototype = {
     },
 
     restart_container: function () {
+        var self = this;
         this.client.restart(this.container_id).
                 fail(function(ex) {
                     cockpit_show_unexpected_error (ex);
+                }).
+                done(function() {
+                    self.maybe_reconnect_terminal();
                 });
     },
 
@@ -1018,6 +1058,119 @@ function DockerClient(machine) {
     this.get = get;
     this.post = post;
     this.delete_ = delete_;
+}
+
+function DockerTerminal(parent, machine, id) {
+    var self = this;
+
+    var term = new Terminal({
+        cols: 80,
+        rows: 24,
+        screenKeys: true
+    });
+
+    /* term.js wants the parent element to build its terminal inside of */
+    term.open(parent);
+
+    var enable_input = true;
+    var channel = null;
+
+    /*
+     * A raw channel over which we speak Docker's strange /attach
+     * protocol. It starts with a HTTP POST, and then quickly
+     * degenerates into a simple stream.
+     *
+     * We only support the tty stream. The other framed stream
+     * contains embedded nulls in the framing and doesn't work
+     * with our text-stream channels.
+     *
+     * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
+     */
+    function attach() {
+        channel = new Channel({
+            "host": machine,
+            "payload": "text-stream",
+            "unix": "/var/run/docker.sock"
+        });
+
+        var buffer = "";
+        var headers = false;
+        self.connected = true;
+
+        $(channel).
+            on("close.terminal", function(ev, problem) {
+                self.connected = false;
+                if (!problem)
+                    problem = "disconnected";
+                term.write('\x1b[31m' + problem + '\x1b[m\r\n');
+                self.typeable(false);
+                $(channel).off("close.terminal");
+                $(channel).off("message.terminal");
+                channel = null;
+            }).
+            on("message.terminal", function(ev, payload) {
+                /* Look for end of headers first */
+                if (!headers) {
+                    buffer += payload;
+                    var pos = buffer.indexOf("\r\n\r\n");
+                    if (pos == -1)
+                        return;
+                    headers = true;
+                    payload = buffer.substring(pos + 2);
+                }
+                /* Once headers are done it's just raw data */
+                term.write(payload);
+            });
+
+        var req =
+            "POST /containers/" + id + "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
+            "Content-Length: 0\r\n" +
+            "\r\n";
+        channel.send(req);
+    }
+
+    term.on('data', function(data) {
+        /* Send typed input back through channel */
+        if (enable_input)
+            channel.send(data);
+    });
+
+    attach();
+
+    /* Allows caller to cleanup nicely */
+    this.close = function close() {
+        if (self.connected)
+            channel.close(null);
+        term.destroy();
+    };
+
+    /* Allows the curser to restart the attach request */
+    this.connect = function connect() {
+        if (channel) {
+            channel.close();
+            channel = null;
+        }
+        term.softReset();
+        term.refresh(term.y, term.y);
+        attach();
+    };
+
+    /* Shows and hides the cursor */
+    this.typeable = function typeable(yes) {
+        if (yes === undefined)
+            yes = !enable_input;
+        if (yes) {
+            term.cursorHidden = false;
+            term.showCursor();
+        } else {
+            /* There's no term.hideCursor() function */
+            term.cursorHidden = true;
+            term.refresh(term.y, term.y);
+        }
+        enable_input = yes;
+    };
+
+    return this;
 }
 
 })(jQuery, $cockpit, cockpit_pages);

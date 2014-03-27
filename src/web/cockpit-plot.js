@@ -128,7 +128,7 @@ function cockpit_setup_plot (graph_id, resmon, data, options,
 
     $(window).on('resize', resize);
 
-    return { start: start, stop: stop, resize: resize };
+    return { start: start, stop: stop, resize: resize, element: inner_div[0] };
 }
 
 function cockpit_setup_complicated_plot (graph_id, resmon, data, options)

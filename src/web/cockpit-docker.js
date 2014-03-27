@@ -23,6 +23,16 @@ var $cockpit = $cockpit || { };
 
 var docker_clients = { };
 
+function resource_debug() {
+    if ($cockpit.debugging == "all" || $cockpit.debugging == "resource")
+        console.debug.apply(console, arguments);
+}
+
+function docker_debug() {
+    if ($cockpit.debugging == "all" || $cockpit.debugging == "docker")
+        console.debug.apply(console, arguments);
+}
+
 function get_docker_client(machine) {
     if (!machine)
         machine = cockpit_get_page_param ("machine", "server");
@@ -475,6 +485,8 @@ PageRunImage.prototype = {
             prop("checked", false).
             trigger("change");
 
+        docker_debug("run-image", PageRunImage.image_info);
+
         // from https://github.com/dotcloud/docker/blob/master/pkg/namesgenerator/names-generator.go
 
         var left = [ "happy", "jolly", "dreamy", "sad", "angry", "pensive", "focused", "sleepy", "grave", "distracted", "determined", "stoic", "stupefied", "sharp", "agitated", "cocky", "tender", "goofy", "furious", "desperate", "hopeful", "compassionate", "silly", "lonely", "condescending", "naughty", "kickass", "drunk", "boring", "nostalgic", "ecstatic", "insane", "cranky", "mad", "jovial", "sick", "hungry", "thirsty", "elegant", "backstabbing", "clever", "trusting", "loving", "suspicious", "berserk", "high", "romantic", "prickly", "evil" ];
@@ -532,28 +544,27 @@ PageRunImage.prototype = {
 
         $("#containers_run_image_dialog").modal('hide');
 
-        PageRunImage.client.post("/containers/create",
-                                 { "name": name
-                                 },
-                                 { "Cmd": cockpit_unquote_cmdline(cmd),
-                                   "Image": PageRunImage.image_info.id,
-                                   "Memory": this.memory_limit || 0,
-                                   "MemorySwap": (this.memory_limit * 2) || 0,
-                                   "CpuShares": this.cpu_priority || 0,
-                                   "Tty": true
-                                 },
-                                 function (error, result) {
-                                     if (error)
-                                         cockpit_show_unexpected_error (error);
-                                     else {
-                                         PageRunImage.client.start(result.Id, { "PortBindings": port_bindings }).
-                                                fail(function(ex) {
-                                                    cockpit_show_unexpected_error(ex);
-                                                });
-                                         if (cockpit_get_page_param('page') == "image-details")
-                                             cockpit_go_up();
-                                     }
-                                 });
+        var options = {
+            "Cmd": cockpit_unquote_cmdline(cmd),
+            "Image": PageRunImage.image_info.id,
+            "Memory": this.memory_limit || 0,
+            "MemorySwap": (this.memory_limit * 2) || 0,
+            "CpuShares": this.cpu_priority || 0,
+            "Tty": true
+        };
+
+        PageRunImage.client.create(name, options).
+            fail(function(ex) {
+                cockpit_show_unexpected_error(ex);
+            }).
+            done(function(result) {
+                PageRunImage.client.start(result.Id, { "PortBindings": port_bindings }).
+                    fail(function(ex) {
+                        cockpit_show_unexpected_error(ex);
+                    });
+                if (cockpit_get_page_param('page') == "image-details")
+                    cockpit_go_up();
+            });
     }
 };
 
@@ -647,6 +658,7 @@ PageContainerDetails.prototype = {
         $('#container-details-ports').text("");
 
         var info = this.client.containers[this.container_id];
+        docker_debug("container-details", this.container_id, info);
 
         if (!info) {
             $('#container-details-names').text(_("Not found"));
@@ -721,12 +733,13 @@ PageContainerDetails.prototype = {
     },
 
     delete_container: function () {
-        this.client.delete_("/containers/" + this.container_id, function (error, result) {
-            if (error)
-                cockpit_show_unexpected_error (error);
-            else
+        this.client.rm(this.container_id).
+            fail(function(ex) {
+                cockpit_show_unexpected_error(ex);
+            }).
+            done(function() {
                 cockpit_go_up();
-        });
+            });
     }
 
 };
@@ -783,6 +796,7 @@ PageImageDetails.prototype = {
         $('#image-details-ports').text("");
 
         var info = this.client.images[this.image_id];
+        docker_debug("image-details", this.image_id, info);
 
         if (!info) {
             $('#image-details-id').text(_("Not found"));
@@ -820,12 +834,13 @@ PageImageDetails.prototype = {
     },
 
     delete_image: function () {
-        this.client.delete_("/images/" + this.image_id, function (error, result) {
-            if (error)
-                cockpit_show_unexpected_error (error);
-            else
+        this.client.rmi(this.image_id).
+            fail(function(ex) {
+                cockpit_show_unexpected_error(ex);
+            }).
+            done(function() {
                 cockpit_go_up();
-        });
+            });
     }
 
 };
@@ -835,11 +850,6 @@ function PageImageDetails() {
 }
 
 cockpit_pages.push(new PageImageDetails());
-
-function resource_debug() {
-    if ($cockpit.debugging == "all" || $cockpit.debugging == "resource")
-        console.debug.apply(console, arguments);
-}
 
 function DockerClient(machine) {
     var me = this;
@@ -853,6 +863,7 @@ function DockerClient(machine) {
 
         /* Trigger the event signal when JSON from /events */
         events.stream(function(resp) {
+            docker_debug("event:", resp);
             $(me).trigger("event");
         }).
 
@@ -1015,22 +1026,116 @@ function DockerClient(machine) {
         console.warn("No resource monitor");
     }
 
+    function trigger_id(id) {
+        if (id in me.containers)
+            $(me).trigger("container", [id, me.containers[id]]);
+        else if (id in me.images)
+            $(me).trigger("image", [id, me.images[id]]);
+    }
+
+    function waiting(id, yes) {
+        if (id in me.waiting) {
+            me.waiting[id]++;
+        } else {
+            me.waiting[id] = 1;
+            trigger_id(id);
+        }
+    }
+
+    function not_waiting(id) {
+        me.waiting[id]--;
+        if (me.waiting[id] === 0) {
+            delete me.waiting[id];
+            trigger_id(id);
+        }
+    }
+
     this.start = function start(id, options) {
-        me.waiting[id] = true;
+        waiting(id);
+        docker_debug("starting:", id, options);
         return rest.post("/containers/" + id + "/start", null, options).
-            done(function() { delete me.waiting[id]; });
+            fail(function(ex) {
+                docker_debug("start failed:", id, ex);
+            }).
+            done(function(resp) {
+                docker_debug("started:", id, resp);
+            }).
+            always(function() {
+                not_waiting(id);
+            });
     };
 
     this.stop = function stop(id, timeout) {
+        waiting(id);
         if (timeout === undefined)
             timeout = 10;
-        me.waiting[id] = true;
+        docker_debug("stopping:", id, timeout);
         return rest.post("/containers/" + id + "/stop", { 't': timeout }).
-            done(function() { delete me.waiting[id]; });
+            fail(function(ex) {
+                docker_debug("stop failed:", id, ex);
+            }).
+            done(function(resp) {
+                docker_debug("stopped:", id, resp);
+            }).
+            always(function() {
+                not_waiting(id);
+            });
     };
 
     this.restart = function restart(id) {
-        return rest.post("/containers/" + id + "/restart");
+        waiting(id);
+        docker_debug("restarting:", id);
+        return rest.post("/containers/" + id + "/restart").
+            fail(function(ex) {
+                docker_debug("restart failed:", id, ex);
+            }).
+            done(function(resp) {
+                docker_debug("restarted:", id, resp);
+            }).
+            always(function() {
+                not_waiting(id);
+            });
+    };
+
+    this.create = function create(name, options) {
+        docker_debug("creating:", name, options);
+        return rest.post("/containers/create", { "name": name }, options).
+            fail(function(ex) {
+                docker_debug("create failed:", name, ex);
+            }).
+            done(function(resp) {
+                docker_debug("created:", name, resp);
+            });
+    };
+
+    this.rm = function rm(id) {
+        waiting(id);
+        docker_debug("deleting:", id);
+        return rest.del("/containers/" + id).
+            fail(function(ex) {
+                docker_debug("delete failed:", id, ex);
+            }).
+            done(function(resp) {
+                docker_debug("deleted:", id, resp);
+            }).
+            always(function() {
+                not_waiting(id);
+            });
+    };
+
+    this.rmi = function rmi(id) {
+        waiting(id);
+        docker_debug("deleting:", id);
+        return rest.del("/images/" + id).
+            fail(function(ex) {
+                docker_debug("delete failed:", id, ex);
+            }).
+            done(function(resp) {
+                docker_debug("deleted:", id, resp);
+            }).
+            always(function() {
+                not_waiting(id);
+            });
     };
 
     this.setup_cgroups_plot = function setup_cgroups_plot(element, sample_index, colors) {
@@ -1148,40 +1253,6 @@ function DockerClient(machine) {
         update_consumers();
         return plot;
     };
-
-    /*
-     * TODO: it would probably make sense for this API to use
-     * Deferreds as well. But for now we just map it to the
-     * continuation style API DockerClient has.
-     */
-
-    function get(resource, cont) {
-        rest.get(resource).done(function(resp) {
-                cont(null, resp);
-            }).fail(function(reason) {
-                cont(reason);
-            });
-    }
-
-    function post(resource, params, body, cont) {
-        rest.post(resource, params, body).done(function(resp) {
-                cont(null, resp);
-            }).fail(function(reason) {
-                cont(reason);
-            });
-    }
-
-    function delete_ (resource, cont) {
-        rest.del(resource).done(function(resp) {
-                cont(null, resp);
-            }).fail(function(reason) {
-                cont(reason);
-            });
-    }
-
-    this.get = get;
-    this.post = post;
-    this.delete_ = delete_;
 }
 
 function DockerTerminal(parent, machine, id) {

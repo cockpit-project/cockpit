@@ -326,7 +326,7 @@ PageContainers.prototype = {
                     PageRunImage.display(self.client, id);
                     return false;
                 });
-            tr = $('<tr>').append(
+            tr = $('<tr id="' + id + '">').append(
                     $('<td>'),
                     $('<td>'),
                     $('<td>').append($cockpit.BarRow("container-images")),

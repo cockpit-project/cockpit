@@ -161,6 +161,7 @@ struct _CockpitRestResponse {
   gboolean got_status;
   guint status;
   gchar *message;
+  GString *failure;
   GHashTable *headers;
   gssize remaining_length;
 
@@ -270,6 +271,8 @@ cockpit_rest_response_destroy (gpointer data)
     g_hash_table_unref (resp->headers);
   if (resp->req)
     resp->req->resp = NULL;
+  if (resp->failure)
+    g_string_free (resp->failure, TRUE);
   g_free (resp->message);
   g_free (resp);
 }
@@ -388,7 +391,10 @@ cockpit_rest_response_reply (CockpitRestJson *self,
   json_builder_set_member_name (builder, "status");
   json_builder_add_int_value (builder, resp->status);
   json_builder_set_member_name (builder, "message");
-  json_builder_add_string_value (builder, resp->message);
+  if (resp->failure && resp->failure->len > 0)
+    json_builder_add_string_value (builder, resp->failure->str);
+  else
+    json_builder_add_string_value (builder, resp->message);
   if (complete)
     {
       json_builder_set_member_name (builder, "complete");
@@ -516,6 +522,7 @@ cockpit_rest_response_process (CockpitRestJson *self,
   gssize off;
   gsize at = 0;
   const gchar *type;
+  const gchar *data;
   gsize block;
 
   if (!resp->got_status)
@@ -585,6 +592,17 @@ cockpit_rest_response_process (CockpitRestJson *self,
         {
           resp->skip_body = TRUE;
         }
+
+      /*
+       * If a plain text error, then get the contents as a more
+       * detailed message. This lets us return something better
+       * than "Internal Server Error" in those cases.
+       */
+      if (g_str_has_prefix (type, "text/plain") &&
+          (resp->status < 200 || resp->status > 299))
+        {
+          resp->failure = g_string_new ("");
+        }
     }
 
   /* Calculate how much of received data we should process */
@@ -598,15 +616,17 @@ cockpit_rest_response_process (CockpitRestJson *self,
         end_of_data = TRUE;
     }
 
+  data = (const gchar *)buffer->data + at;
   replies = 0;
   if (resp->skip_body)
     {
       off = block;
+      if (resp->failure && g_utf8_validate (data, block, NULL))
+        g_string_append_len (resp->failure, data, block);
     }
   else
     {
-      off = cockpit_rest_response_parse (self, resp, (const gchar *)buffer->data + at,
-                                         block, end_of_data, &replies);
+      off = cockpit_rest_response_parse (self, resp, data, block, end_of_data, &replies);
       if (off < 0)
         {
           cockpit_channel_close (COCKPIT_CHANNEL (self), "protocol-error");

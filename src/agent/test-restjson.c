@@ -201,7 +201,7 @@ mock_server_respond (MockServer *self,
   if (response == NULL)
     {
       keep_alive = FALSE;
-      response = "HTTP/1.0 404 Not Found\r\n\r\nNot found";
+      response = "HTTP/1.0 404 Not Found\r\n\r\nNot Found";
     }
   else
     {
@@ -853,6 +853,27 @@ test_bad_version (TestCase *tc,
 }
 
 static void
+test_failure_message (TestCase *tc,
+                      gconstpointer unused)
+{
+  tc->server->slowly = TRUE;
+
+  mock_server_push (tc->server, "GET", "/",
+                    "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/plain\r\n\r\nOh Marmallaaade!");
+
+  simple_request (tc, "GET", "/");
+
+  while (all_is_quiet (tc))
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Even though message was 'Bad' use HTTP body since it's text */
+  assert_json_eq (g_queue_pop_head (tc->sent),
+                  "{\"cookie\":0,\"status\":500,\"message\":\"Oh Marmallaaade!\","
+                  " \"complete\":true}");
+}
+
+
+static void
 test_skip_body_error_version (TestCase *tc,
                               gconstpointer unused)
 {
@@ -1180,6 +1201,8 @@ main (int argc,
               setup, test_bad_version, teardown);
   g_test_add_func ("/rest-json/bad-unix", test_bad_unix_socket);
 
+  g_test_add ("/rest-json/failure-message", TestCase, NULL,
+              setup, test_failure_message, teardown);
   g_test_add ("/rest-json/skip-body-error-version", TestCase, NULL,
               setup, test_skip_body_error_version, teardown);
   g_test_add ("/rest-json/stream", TestCase, NULL,

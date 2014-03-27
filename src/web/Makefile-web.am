@@ -3,6 +3,7 @@ LINGUAS =
 translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
 
 cockpit_js_PARTS = \
+	src/web/polyfills.js \
 	src/web/channel.js \
 	src/web/dbus.js \
 	src/web/rest.js \

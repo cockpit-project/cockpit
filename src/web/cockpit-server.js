@@ -128,7 +128,7 @@ PageServer.prototype = {
                                                  "com.redhat.Cockpit.Manager");
         manager.call('GetAvatarDataURL', function (error, result) {
             if (result)
-                $('#server-avatar').attr('src', result);
+                $('#server-avatar').css('background-image', 'url(' + result + ')');
         });
     },
 

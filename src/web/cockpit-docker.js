@@ -353,10 +353,7 @@ PageContainers.prototype = {
 
     filter: function() {
         var filter = cockpit_select_btn_selected(this.container_filter_btn);
-        if (filter == "running")
-            $("#containers-containers table").addClass("filter-unimportant");
-        else
-            $("#containers-conatiners table").removeClass("filter-unimportant");
+        $("#containers-containers table").toggleClass("filter-unimportant", filter === "running");
     }
 
 };

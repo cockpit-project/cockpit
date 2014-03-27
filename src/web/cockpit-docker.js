@@ -488,6 +488,7 @@ PageRunImage.prototype = {
             return ranchoice(left) + "_" + ranchoice(right);
         }
 
+        $("#containers-run-image-image-tags").text(PageRunImage.image_info.RepoTags);
         $("#containers-run-image-name").val(make_name());
         $("#containers-run-image-command").val(cockpit_quote_cmdline(PageRunImage.image_info.config.Cmd));
 

@@ -837,7 +837,7 @@ function DockerClient(machine) {
         console.log("No monitor");
     }
 
-    function setup_cgroups_plot(element, sample_index, colors) {
+    this.setup_cgroups_plot = function setup_cgroups_plot(element, sample_index, colors) {
         var self = this;
         var max_consumers = colors.length-1;
         var data = new Array(max_consumers+1);       // max_consumers entries plus one for the total
@@ -918,7 +918,7 @@ function DockerClient(machine) {
 
         update_consumers();
         return plot;
-    }
+    };
 
     /*
      * TODO: it would probably make sense for this API to use
@@ -953,8 +953,6 @@ function DockerClient(machine) {
     this.get = get;
     this.post = post;
     this.delete_ = delete_;
-
-    this.setup_cgroups_plot = setup_cgroups_plot;
 }
 
 })(jQuery, $cockpit, cockpit_pages);

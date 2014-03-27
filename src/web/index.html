@@ -2104,26 +2104,48 @@
             <table class="cockpit-form-table">
               <tr>
                 <td translatable="yes">Container Name</td>
-                <td>
+                <td colspan="3">
                   <input class="form-control" type="text" id="containers-run-image-name"/>
                 </td>
               </tr>
               <tr>
                 <td translatable="yes">Command</td>
-                <td>
+                <td colspan="3">
                   <input class="form-control" type="text" id="containers-run-image-command"/>
                 </td>
               </tr>
               <tr>
                 <td translatable="yes">Memory limit</td>
+                <td class="shrink">
+                  <input type="checkbox" id="containers-run-image-memory-limit" />
+                </td>
                 <td>
-                  <input class="form-control" type="text" id="containers-run-image-memory"/>
+                  <div class="slider" disabled='true' value="0.2" id="containers-run-image-memory-slider">
+                    <div class="slider-bar">
+                      <div class="slider-thumb"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="shrink" id="containers-run-image-memory-desc"
+                    style="min-width: 8em; text-align: right;">
+                    unlimited
                 </td>
               </tr>
               <tr>
-                <td translatable="yes">Swap limit</td>
+                <td translatable="yes">CPU priority</td>
+                <td class="shrink">
+                  <input type="checkbox" id="containers-run-image-cpu-prioritize" />
+                </td>
                 <td>
-                  <input class="form-control" type="text" id="containers-run-image-swap"/>
+                  <div class="slider" disabled='true' value="0.2" id="containers-run-image-cpu-slider">
+                    <div class="slider-bar">
+                      <div class="slider-thumb"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="shrink" id="containers-run-image-cpu-desc"
+                    style="min-width: 8em; text-align: right;">
+                    default
                 </td>
               </tr>
             </table>

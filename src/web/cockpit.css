@@ -513,6 +513,18 @@ td.cell-buttons,
     padding-top: 4px;
     padding-bottom: 4px;
     width: 30px;
+    padding-right: 15px;
+}
+
+/* Make things line up */
+.table tbody tr td:first-child,
+.table thead tr th:first-child {
+    padding-left: 15px;
+}
+
+/* Vertically center dropdown buttons in panel headers */
+.panel-heading .dropdown {
+    margin-top: -3px;
 }
 
 /*

@@ -245,19 +245,24 @@ PageContainers.prototype = {
 
         var added = false;
         if (!tr) {
+            var img_waiting = $('<div class="waiting">');
             var btn_play = $('<button class="btn btn-default btn-control btn-play">').
                 on("click", function() {
+                    $(this).hide().
+                        siblings("div.waiting").show();
                     self.client.start(id).
                         fail(function(ex) {
-                            cockpit_show_unexpected_error (ex);
+                            cockpit_show_unexpected_error(ex);
                         });
                     return false;
                 });
             var btn_stop = $('<button class="btn btn-default btn-control btn-stop">').
                 on("click", function() {
+                    $(this).hide().
+                        siblings("div.waiting").show();
                     self.client.stop(id).
                         fail(function(ex) {
-                            cockpit_show_unexpected_error (ex);
+                            cockpit_show_unexpected_error(ex);
                         });
                     return false;
                 });
@@ -268,7 +273,7 @@ PageContainers.prototype = {
                 $('<td>'),
                 $('<td>').append($cockpit.BarRow("containers-containers")),
                 $('<td>'),
-                $('<td class="cell-buttons">').append(btn_play, btn_stop))[0];
+                $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting))[0];
             $(tr).on('click', function(event) {
                 cockpit_go_down ({ page: 'container-details',
                     id: id
@@ -290,8 +295,11 @@ PageContainers.prototype = {
         $(row[5]).
             css(memtextstyle).
             text(memtext);
-        $(row[6]).children("button.btn-play").toggle(!container.State.Running);
-        $(row[6]).children("button.btn-stop").toggle(container.State.Running);
+
+        var waiting = id in self.client.waiting;
+        $(row[6]).children("div.waiting").toggle(waiting);
+        $(row[6]).children("button.btn-play").toggle(!waiting && !container.State.Running);
+        $(row[6]).children("button.btn-stop").toggle(!waiting && container.State.Running);
 
         var filter = cockpit_select_btn_selected(this.container_filter_btn);
         $(tr).toggleClass("unimportant", !container.State.Running);
@@ -745,6 +753,9 @@ function DockerClient(machine) {
     this.containers = { };
     this.images = { };
 
+    /* Containers we're waiting for an action to complete on */
+    this.waiting = { };
+
     /*
      * Gets a list of the containers and details for each one.  We use
      * /events for notification when something changes.  However, for
@@ -872,13 +883,17 @@ function DockerClient(machine) {
     }
 
     this.start = function start(id, options) {
-        return rest.post("/containers/" + id + "/start", null, options);
+        me.waiting[id] = true;
+        return rest.post("/containers/" + id + "/start", null, options).
+            done(function() { delete me.waiting[id]; });
     };
 
     this.stop = function stop(id, timeout) {
         if (timeout === undefined)
             timeout = 10;
-        return rest.post("/containers/" + id + "/stop", { 't': timeout });
+        me.waiting[id] = true;
+        return rest.post("/containers/" + id + "/stop", { 't': timeout }).
+            done(function() { delete me.waiting[id]; });
     };
 
     this.restart = function restart(id) {

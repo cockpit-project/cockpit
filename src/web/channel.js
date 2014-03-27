@@ -70,6 +70,7 @@
  */
 
 var phantom_checkpoint = function () { };
+var $cockpit = $cockpit || { };
 
 function Channel(options) {
     /* Choose a new channel number */

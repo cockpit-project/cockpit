@@ -26,7 +26,6 @@ var docker_clients = { };
 function get_docker_client(machine) {
     if (!machine)
         machine = cockpit_get_page_param ("machine", "server");
-    console.log("DC", machine);
     if (!docker_clients[machine])
         docker_clients[machine] = new DockerClient (machine);
     return docker_clients[machine];
@@ -713,9 +712,7 @@ function DockerClient(machine) {
 
         /* Trigger the event signal when JSON from /events */
         events.stream(function(resp) {
-            console.log("DockerClient event:", resp);
             $(me).trigger("event");
-
         }).
 
         /* Reconnect to /events when it disconnects/fails */
@@ -868,7 +865,7 @@ function DockerClient(machine) {
             }
         });
     } else {
-        console.log("No monitor");
+        console.warn("No resource monitor");
     }
 
     this.start = function start(id, options) {
@@ -922,7 +919,7 @@ function DockerClient(machine) {
                             return;
                         }
                     }
-                    console.log("Too many consumers");
+                    console.warn("Too many consumers");
                 }
             });
         }

@@ -150,7 +150,7 @@
 
       </div>
 
-      <div id="server">
+      <div id="server" class="container-fluid">
         <div id="server-nav-column">
           <div class="list-group">
             <div class="list-group-item">
@@ -196,56 +196,28 @@
 
         <div id="server-graph-columns">
           <div id="server-graph-column-1">
-            <div class="list-group-item">
-              <a onclick="cockpit_go_down('cpu_status');">
-                <div class="cockpit-graph">
-                  <div class="cockpit-graph-label"
-                       translatable="yes">CPU</div>
-                  <div class="cockpit-graph-text"
-                       id="server_cpu_text"></div>
-                  <div id="server_cpu_graph"
-                       style="width:100%;height:100%"></div>
-                </div>
-              </a>
-            </div>
-            <div class="list-group-item">
-              <a onclick="cockpit_go_down('memory_status')">
-                <div class="cockpit-graph">
-                  <div class="cockpit-graph-label"
-                       translatable="yes">Memory</div>
-                  <div class="cockpit-graph-text"
-                       id="server_memory_text"></div>
-                  <div id="server_memory_graph"
-                       style="width:100%;height:100%"></div>
-                </div>
-              </a>
-            </div>
+            <a onclick="cockpit_go_down('cpu_status');">
+              <div style="color:black">CPU<span style="float:right" id="server_cpu_text"></span></div>
+              <div style="height:120px" id="server_cpu_graph"></div>
+            </a>
+            <br/>
+            <a onclick="cockpit_go_down('memory_status')">
+              <div style="color:black">Memory<span style="float:right" id="server_memory_text"></span></div>
+              <div style="height:120px" id="server_memory_graph"></div>
+            </a>
+            <br/>
           </div>
           <div id="server-graph-column-2">
-            <div class="list-group-item">
-              <a onclick="cockpit_go_down('disk_io_status')">
-                <div class="cockpit-graph">
-                  <div class="cockpit-graph-label"
-                       translatable="yes">Disk I/O</div>
-                  <div class="cockpit-graph-text"
-                       id="server_disk_io_text"></div>
-                  <div id="server_disk_io_graph"
-                       style="width:100%;height:100%"></div>
-                </div>
-              </a>
-            </div>
-            <div class="list-group-item">
-              <a onclick="cockpit_go_down('network_traffic_status')">
-                <div class="cockpit-graph">
-                  <div class="cockpit-graph-label"
-                       translatable="yes">Network Traffic</div>
-                  <div class="cockpit-graph-text"
-                       id="server_network_traffic_text"></div>
-                  <div id="server_network_traffic_graph"
-                       style="width:100%;height:100%"></div>
-                </div>
-              </a>
-            </div>
+            <a onclick="cockpit_go_down('disk_io_status')">
+              <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
+              <div style="height:120px" id="server_disk_io_graph"></div>
+            </a>
+            <br/>
+            <a onclick="cockpit_go_down('network_traffic_status')">
+              <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
+              <div style="height:120px" id="server_network_traffic_graph"></div>
+            </a>
+            <br/>
           </div>
         </div>
       </div>

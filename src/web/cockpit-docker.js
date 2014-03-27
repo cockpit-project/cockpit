@@ -131,18 +131,24 @@ PageContainers.prototype = {
 
             this.client = client;
 
+            function highlight_container_row (event, id)
+            {
+                $('#containers-containers tr').removeClass('highlight');
+                $('#' + id).addClass('highlight');
+            }
+
             this.cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues);
             $(this.cpu_plot).on('update-total', function (event, total) {
                 $('#containers-cpu-text').text(total+"%");
             });
+            $(this.cpu_plot).on('highlight', highlight_container_row);
 
             this.mem_plot = client.setup_cgroups_plot ('#containers-mem-graph', 0, reds);
             $(this.mem_plot).on('update-total', function (event, total) {
                 $('#containers-mem-text').text(cockpit_format_bytes_pow2 (total));
             });
+            $(this.mem_plot).on('highlight', highlight_container_row);
 
-            /* HACK: This is our pretend angularjs */
-            this.rows = { };
             $('#containers-containers table tbody tr').remove();
             $('#containers-images table tbody tr').remove();
 
@@ -197,12 +203,10 @@ PageContainers.prototype = {
 
     render_container: function(id, container) {
         var self = this;
-        var tr = this.rows[id];
+        var tr = $("#" + id);
 
         if (!container) {
-            if (tr)
-                tr.remove();
-            delete this.rows[id];
+            tr.remove();
             return;
         }
 
@@ -241,7 +245,7 @@ PageContainers.prototype = {
         }
 
         var added = false;
-        if (!tr) {
+        if (!tr.length) {
             var img_waiting = $('<div class="waiting">');
             var btn_play = $('<button class="btn btn-default btn-control btn-play">').
                 on("click", function() {
@@ -263,25 +267,24 @@ PageContainers.prototype = {
                         });
                     return false;
                 });
-            tr = $('<tr>').append(
+            tr = $('<tr id="' + id + '">').append(
                 $('<td>'),
                 $('<td>'),
                 $('<td>'),
                 $('<td>'),
                 $('<td>').append($cockpit.BarRow("containers-containers")),
                 $('<td>'),
-                $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting))[0];
-            $(tr).on('click', function(event) {
+                $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
+            tr.on('click', function(event) {
                 cockpit_go_down ({ page: 'container-details',
                     id: id
                 });
             });
 
             added = true;
-            this.rows[id] = tr;
         }
 
-        var row = $(tr).children("td");
+        var row = tr.children("td");
         $(row[0]).text(cockpit_render_container_name(container.Name));
         $(row[1]).text(container.Image);
         $(row[2]).text(container.Command);
@@ -300,7 +303,7 @@ PageContainers.prototype = {
         $(row[6]).children("button.btn-stop").toggle(!waiting && container.State.Running);
 
         var filter = cockpit_select_btn_selected(this.container_filter_btn);
-        $(tr).toggleClass("unimportant", !container.State.Running);
+        tr.toggleClass("unimportant", !container.State.Running);
 
         if (added)
             insert_table_sorted($('#containers-containers table'), tr);
@@ -308,17 +311,15 @@ PageContainers.prototype = {
 
     render_image: function(id, image) {
         var self = this;
-        var tr = this.rows[id];
+        var tr = $("#" + id);
 
         if (!image) {
-            if (tr)
-                tr.remove();
-            delete this.rows[id];
+            tr.remove();
             return;
         }
 
         var added = false;
-        if (!tr) {
+        if (!tr.length) {
             var button = $('<button class="btn btn-default btn-control btn-play">').
                 on("click", function() {
                     PageRunImage.display(self.client, id);
@@ -329,18 +330,17 @@ PageContainers.prototype = {
                     $('<td>'),
                     $('<td>').append($cockpit.BarRow("container-images")),
                     $('<td>'),
-                    $('<td class="cell-buttons">').append(button))[0];
-            $(tr).on('click', function(event) {
+                    $('<td class="cell-buttons">').append(button));
+            tr.on('click', function(event) {
                 cockpit_go_down ({ page: 'image-details',
                     id: id
                 });
             });
 
             added = true;
-            this.rows[id] = tr;
         }
 
-        var row = $(tr).children("td");
+        var row = tr.children("td");
         $(row[0]).html(multi_line(image.RepoTags));
         $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
         $(row[2]).children("div").attr("value", image.VirtualSize);
@@ -1104,11 +1104,44 @@ function DockerClient(machine) {
                                              },
                                      xaxis: { tickFormatter: function() { return "";  } },
                                      yaxis: { tickFormatter: function() { return "";  } },
-                                     grid: { borderWidth: 1 }
+                                     grid: { borderWidth: 1, hoverable: true, autoHighlight: false }
                                    },
                                    store_samples);
         $(monitor).on("notify:Consumers", function (event) {
             update_consumers();
+        });
+
+        var cur_highlight = null;
+
+        function highlight (consumer) {
+            if (consumer != cur_highlight) {
+                cur_highlight = consumer;
+                if (consumer && consumer.startsWith("lxc/"))
+                    consumer = consumer.substring(4);
+                $(plot).trigger('highlight', [ consumer ]);
+            }
+        }
+
+        $(plot.element).on("plothover", function (event, pos, item) {
+            var i, index;
+
+            index = Math.round(pos.x);
+            if (index < 0)
+                index = 0;
+            if (index > monitor.NumSamples-1)
+                index = monitor.NumSamples-1;
+
+            for (i = 0; i < max_consumers; i++) {
+                if (i < max_consumers && data[i].data[index][1] <= pos.y && pos.y <= data[i].data[index][2])
+                    break;
+            }
+            if (i < max_consumers) {
+                highlight(consumers[i]);
+            } else
+                highlight(null);
+        });
+        $(plot.element).on("mouseleave", function (event, pos, item) {
+            highlight(null);
         });
 
         update_consumers();

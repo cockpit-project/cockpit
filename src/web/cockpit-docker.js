@@ -814,12 +814,12 @@ function DockerClient(machine) {
      * GetSamples for quicker initialization.
      */
 
-    this.dbus_client = cockpit_get_dbus_client (machine);
-    this.monitor = this.dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
-                                            "com.redhat.Cockpit.MultiResourceMonitor");
+    var dbus_client = cockpit_get_dbus_client (machine);
+    var monitor = dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
+                                      "com.redhat.Cockpit.MultiResourceMonitor");
 
-    if (this.monitor) {
-        $(this.monitor).on('NewSample', function (event, timestampUsec, samples) {
+    if (monitor) {
+        $(monitor).on('NewSample', function (event, timestampUsec, samples) {
             for (var id in me.containers) {
                 var container = me.containers[id];
                 var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
@@ -845,7 +845,7 @@ function DockerClient(machine) {
         var plot;
         var i;
 
-        if (!this.monitor)
+        if (!monitor)
             return null;
 
         for (i = 0; i < data.length; i++)
@@ -856,7 +856,7 @@ function DockerClient(machine) {
         }
 
         function update_consumers() {
-            var mcons = self.monitor.Consumers;
+            var mcons = monitor.Consumers;
             consumers.forEach(function (c, i) {
                 if (c && mcons.indexOf(c) < 0) {
                     console.log("Consumer disappeared", c);
@@ -895,11 +895,11 @@ function DockerClient(machine) {
                 store(i, (c && samples[c]? samples[c][sample_index] : 0));
             });
             store(max_consumers, total);
-            if (index == self.monitor.NumSamples-1)
+            if (index == monitor.NumSamples-1)
                 $(plot).trigger('update-total', [ total ]);
         }
 
-        plot = cockpit_setup_plot (element, this.monitor, data,
+        plot = cockpit_setup_plot (element, monitor, data,
                                    { colors: colors,
                                      legend: { show: false },
                                      series: { shadowSize: 0,
@@ -912,7 +912,7 @@ function DockerClient(machine) {
                                      grid: { borderWidth: 1 }
                                    },
                                    store_samples);
-        $(this.monitor).on("notify:Consumers", function (event) {
+        $(monitor).on("notify:Consumers", function (event) {
             update_consumers();
         });
 

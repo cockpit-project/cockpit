@@ -315,12 +315,6 @@ function cockpit_get_display_hostname()
     return h;
 }
 
-if (typeof String.prototype.endsWith !== 'function') {
-    String.prototype.endsWith = function(suffix) {
-        return this.length >= suffix.length && this.indexOf(suffix, this.length - suffix.length) !== -1;
-    };
-}
-
 function cockpit_make_set (array) {
     var s = { };
     for (var i = 0; i < array.length; i++)

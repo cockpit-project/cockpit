@@ -28,17 +28,13 @@ function cockpit_search_init (element) {
 }
 
 function cockpit_search (string) {
-    function startsWith(str, prefix) {
-        return str.substring(str, prefix.length) == prefix;
-    }
-
     var prio = 3, start = 'oldest', loc;
     if (cockpit_get_page_param ('page') == 'journal') {
         prio = cockpit_get_page_param ('prio');
         start = cockpit_get_page_param ('start');
     }
 
-    if (startsWith (string, "service:"))
+    if (string.startsWith ("service:"))
         loc = { page: "journal", prio: prio, start: start, service: string.substring(8) };
     else
         loc = { page: "journal", prio: prio, start: start, search: string };

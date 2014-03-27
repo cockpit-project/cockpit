@@ -316,6 +316,10 @@ PageContainers.prototype = {
             tr.remove();
             return;
         }
+        if (!image.RepoTags) {
+            this.delete_row(id);
+            return;
+        }
 
         var added = false;
         if (!tr.length) {

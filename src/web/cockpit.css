@@ -45,6 +45,11 @@ a {
     border-top: 1px solid rgb(221, 221, 221);
 }
 
+/* Table headers should not generate a double border */
+.panel .table thead tr th {
+    border-bottom: none;
+}
+
 /* Contatiner is glued to the navigation and sides */
 
 .container-fluid {

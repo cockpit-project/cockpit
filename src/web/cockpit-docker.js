@@ -222,10 +222,10 @@ PageContainers.prototype = {
                 barvalue += "/" + memlimit.toString();
 
             if (memlimit) {
-                var parts = $cockpit.format_bytes(memlimit);
+                var parts = $cockpit.format_bytes(memlimit, 1024);
                 memtext = (memuse? $cockpit.format_bytes(memuse, parts[1])[0] : "?") + " / " + parts.join(" ");
             } else {
-                memtext = (memuse? $cockpit.format_bytes(memuse).join(" ") : "?");
+                memtext = (memuse? $cockpit.format_bytes(memuse, 1024).join(" ") : "?");
             }
 
 

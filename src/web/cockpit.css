@@ -453,6 +453,21 @@ a {
 }
 
 /*
+ * Fix up table row hovering.
+ *
+ * When you hover over table rows it's because they're clickable.
+ * Make the table row hover color match the list-group-item.
+ */
+.table-hover > tbody > tr > td,
+.table-hover > tbody > tr > th {
+    cursor: pointer;
+}
+.table-hover > tbody > tr:hover > td,
+.table-hover > tbody > tr:hover > th {
+    background-color: #f5f9fc;
+}
+
+/*
  * Used to make a table cell that containts buttons have less padding
  * HACK: Because CSS has no parant selector.
  */

@@ -208,7 +208,7 @@ PageContainers.prototype = {
 
         var cputext;
         var memuse, memlimit;
-        var membar, memtext, memtextstyle;
+        var membar, memtext, memtextstyle, memdanger;
 
         if (container.State && container.State.Running) {
             cputext = (container.CpuUsage || 0).toString() + "%";
@@ -229,14 +229,14 @@ PageContainers.prototype = {
             }
 
 
-            if (memlimit && memuse > 0.9*memlimit)
-                membar.addClass("bar-row-danger");
+            memdanger = (memlimit && memuse > 0.9*memlimit);
 
             membar = true;
             memtextstyle = { 'color': 'inherit', 'text-align': 'inherit' };
         } else {
             cputext = "";
             membar = false;
+            memdanger = false;
             memtext = _("Stopped");
             memtextstyle = { 'color': 'grey', 'text-align': 'right' };
             barvalue = 0;
@@ -290,6 +290,7 @@ PageContainers.prototype = {
         $(row[3]).text(cputext);
         $(row[4]).children("div").
             attr("value", barvalue).
+            toggleClass("bar-row-danger", memdanger).
             toggle(membar);
         $(row[5]).
             css(memtextstyle).

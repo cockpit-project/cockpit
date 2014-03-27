@@ -903,13 +903,21 @@ function DockerClient(machine) {
     /* Containers we're waiting for an action to complete on */
     this.waiting = { };
 
+    var containers_meta = { };
+    function populate_container(id, container) {
+        if (container.State === undefined)
+            container.State = { };
+        if (container.Config === undefined)
+            container.Config = { };
+        $.extend(container, containers_meta[id]);
+    }
+
     /*
      * Gets a list of the containers and details for each one.  We use
      * /events for notification when something changes.  However, for
      * extra robustness and to account for the fact that there are no
      * events when new images appear, we also poll for changes.
      */
-    var containers_meta = { };
     rest.poll("/containers/json", 4000, events, { "all": 1 }).
         stream(function(containers) {
             alive = true;
@@ -925,7 +933,7 @@ function DockerClient(machine) {
                     containers_meta[id] = item;
                     polls[id] = rest.poll("/containers/" + id + "/json", 5000, events).
                         stream(function(container) {
-                            $.extend(container, containers_meta[id]);
+                            populate_container(id, container);
                             me.containers[id] = container;
                             $(me).trigger("container", [id, container]);
                         }).
@@ -954,12 +962,22 @@ function DockerClient(machine) {
             $(me).trigger("failure", [ex]);
         });
 
+    var images_meta = { };
+    function populate_image(id, image) {
+        if (image.config === undefined) {
+            if (image.container_config)
+                image.config = image.container_config;
+            else
+                image.config = { };
+        }
+        $.extend(image, images_meta[id]);
+    }
+
     /*
      * Gets a list of images and keeps it up to date. Again, the /images/json and
      * /images/xxxx/json have completely inconsistent keys. So using the former
      * is pretty useless here :S
      */
-    var images_meta = { };
     var images_req = rest.poll("/images/json", 1000).
         stream(function(images) {
             alive = true;
@@ -970,7 +988,7 @@ function DockerClient(machine) {
                     images_meta[id] = item;
                     polls[id] = rest.poll("/images/" + id + "/json", 0, images_req).
                         stream(function(image) {
-                            $.extend(image, images_meta[id]);
+                            populate_image(id, image);
                             me.images[id] = image;
                             $(me).trigger("image", [id, image]);
                         }).

@@ -928,7 +928,9 @@ cockpit_rest_request_create (CockpitRestJson *self,
   if (pollopts)
     {
       req->poll = g_new0 (CockpitRestPoll, 1);
-      if (interval % 1000 == 0)
+      if (interval == 0)
+        ;
+      else if (interval % 1000 == 0)
         req->poll->timeout_id = g_timeout_add_seconds (interval / 1000, on_request_interval, req);
       else
         req->poll->timeout_id = g_timeout_add (interval, on_request_interval, req);

@@ -325,7 +325,7 @@ test_get_samples (TestCase *tc,
   g_variant_get_child (values, 3, "d", &value);
   g_assert_cmpfloat (value, ==, -1.0);
   g_variant_get_child (values, 4, "d", &value);
-  g_assert_cmpfloat (value, >, 1.0);
+  /* Cannot reliably predict the CPU value */
   g_variant_unref (values);
 
   g_variant_unref (child);

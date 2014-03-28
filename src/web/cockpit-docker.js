@@ -672,7 +672,9 @@ PageContainerDetails.prototype = {
         $('#container-details-image').text("");
         $('#container-details-command').text("");
         $('#container-details-state').text("");
-        $('#container-details-ports').text("");
+        $('#container-details-ports-row').hide();
+        $('#container-detail-memory-row').hide();
+        $('#container-detail-cpu-row').hide();
 
         var info = this.client.containers[this.container_id];
         docker_debug("container-details", this.container_id, info);
@@ -718,7 +720,15 @@ PageContainerDetails.prototype = {
         $('#container-details-image').text(info.Image);
         $('#container-details-command').text(info.Command);
         $('#container-details-state').text(cockpit_render_container_state(info.State));
+
+        $('#container-details-ports-row').toggle(port_bindings.length > 0);
         $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
+
+        $('#container-details-memory-row').toggle(!!(info.Config.Memory));
+        $('#container-details-memory').text($cockpit.format_bytes(info.Config.Memory, 1024).join(" "));
+
+        $('#container-details-cpu-row').toggle(!!(info.Config.CpuShares));
+        $('#container-details-cpu').text(info.Config.CpuShares + _(" shares"));
 
         this.maybe_show_terminal(info);
     },

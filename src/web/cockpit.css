@@ -293,10 +293,28 @@ a {
     font-style: italic;
 }
 
-/* Responsive column layout for Server page */
-
 #server-graph-columns {
     margin-top: 10px;
+}
+
+/* Responsive  layout for Server page and container tables */
+
+
+@media (max-width: 499px) {
+
+    .table thead tr th.container-image-header,
+    .table tbody tr td.container-image {
+        display: none;
+    }
+
+    .table thead tr th.container-command-header,
+    .table tbody tr td.container-command {
+        display: none;
+    }
+
+    .table tbody tr td.container-memory-graph {
+        display: none;
+    }
 }
 
 @media (min-width: 500px) and (max-width: 1280px) {
@@ -310,7 +328,17 @@ a {
         padding-left: 210px;
     }
 
+    .table thead tr th.container-image-header,
+    .table tbody tr td.container-image {
+        display: none;
+    }
+
+    .table thead tr th.container-command-header,
+    .table tbody tr td.container-command {
+        display: none;
+    }
 }
+
 
 @media (min-width: 1280px) {
 
@@ -503,6 +531,11 @@ a {
 .table-hover > tbody > tr:hover > td,
 .table-hover > tbody > tr:hover > th {
     background-color: #f5f9fc;
+}
+
+/* Set a fixed width for memory graph so it doesn't resize all the time */
+.table tbody tr td.container-memory-graph {
+    width: 300px;
 }
 
 /*

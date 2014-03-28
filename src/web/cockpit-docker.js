@@ -1247,12 +1247,24 @@ function DockerClient(machine) {
                                      legend: { show: false },
                                      series: { shadowSize: 0,
                                                lines: { lineWidth: 0.0,
-                                                        fill: true
+                                                        fill: 1.0
                                                       }
                                              },
                                      xaxis: { tickFormatter: function() { return ""; } },
                                      yaxis: { tickFormatter: function() { return ""; } },
-                                     grid: { borderWidth: 1, hoverable: true, autoHighlight: false }
+                                     // The point radius influences
+                                     // the margin around the grid
+                                     // even if no points are plotted.
+                                     // We don't want any margin, so
+                                     // we set the radius to zero.
+                                     points: { radius: 0 },
+                                     grid: { borderWidth: 1,
+                                             hoverable: true,
+                                             autoHighlight: false,
+                                             aboveData: true,
+                                             color: "black",
+                                             labelMargin: 0
+                                           }
                                    },
                                    store_samples);
         $(monitor).on("notify:Consumers", function (event) {

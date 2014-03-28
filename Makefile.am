@@ -1,7 +1,7 @@
 NULL =
 man_MANS =
 BUILT_SOURCES =
-EXTRA_DIST =
+EXTRA_DIST = README.md
 CLEANFILES =
 check_SCRIPTS =
 noinst_SCRIPTS =
@@ -17,6 +17,8 @@ SUBDIRS = . po
 
 DISTCHECK_CONFIGURE_FLAGS=						        \
 	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)   \
+	--disable-debug \
+	--disable-coverage \
 	$(NULL)
 
 AM_CPPFLAGS = \

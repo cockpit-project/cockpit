@@ -61,8 +61,10 @@ jquery.min.js: src/web/lib/jquery.min.js
 	$(AM_V_GEN) cp $< $@
 
 contentdatadir = $(pkgdatadir)/content
-contentdata_DATA = 						\
+nodist_contentdata_DATA = \
 	$(cockpit_js_FILES) \
+	$(NULL)
+contentdata_DATA = 						\
 	src/web/cockpit.css 					\
 	src/web/favicon.ico					\
 	src/web/apple-touch-icon.png				\
@@ -213,6 +215,7 @@ CLEANFILES += \
 	jquery.min.js \
 	dbus-test.html \
 	cockpit.js \
+	$(contentdata_SCRIPTS) \
 	$(NULL)
 
 EXTRA_DIST += \
@@ -224,6 +227,7 @@ EXTRA_DIST += \
 	$(contentdatalibfonts_DATA) \
 	$(CHECK_HTML_SRCS) \
 	src/web/dbus-test.html \
+	src/web/index.html \
 	$(NULL)
 
 noinst_SCRIPTS += \

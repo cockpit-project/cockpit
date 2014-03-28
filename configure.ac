@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
-AC_INIT([Cockpit],[0.2],[devel@lists.cockpit-project.org],[cockpit],[http://www.cockpit-project.org/])
+AC_INIT([Cockpit],[0.3],[devel@lists.cockpit-project.org],[cockpit],[http://www.cockpit-project.org/])
 
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
@@ -171,7 +171,6 @@ if test "$enable_debug" = "yes"; then
 elif test "$enable_debug" = "no"; then
   debug_status="no"
   CFLAGS="$CFLAGS -O2"
-  AC_DEFINE_UNQUOTED(G_DISABLE_ASSERT, 1, [Disable glib assertions])
 else
   debug_status="default"
 fi

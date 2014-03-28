@@ -131,14 +131,14 @@ PageContainers.prototype = {
                          "#fbd1d2"
                        ];
 
-            var blues = [ "#00243c",
-                          "#004778",
-                          "#006bb4",
+            var blues = [ "#006bb4",
                           "#008ff0",
                           "#2daaff",
                           "#69c2ff",
                           "#a5daff",
-                          "#e1f3ff"
+                          "#e1f3ff",
+                          "#00243c",
+                          "#004778"
                         ];
 
             this.client = client;

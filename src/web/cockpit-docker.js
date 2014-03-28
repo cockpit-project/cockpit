@@ -279,12 +279,12 @@ PageContainers.prototype = {
                     return false;
                 });
             tr = $('<tr id="' + id + '">').append(
-                $('<td>'),
-                $('<td>'),
-                $('<td>'),
-                $('<td>'),
-                $('<td>').append($cockpit.BarRow("containers-containers")),
-                $('<td>'),
+                $('<td class="container-name">'),
+                $('<td class="container-image">'),
+                $('<td class="container-command">'),
+                $('<td class="container-cpu">'),
+                $('<td class="container-memory-graph">').append($cockpit.BarRow("containers-containers")),
+                $('<td class="container-memory-size">'),
                 $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
             tr.on('click', function(event) {
                 cockpit_go_down ({ page: 'container-details',

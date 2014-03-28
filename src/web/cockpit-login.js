@@ -33,12 +33,10 @@ function cockpit_login_init ()
     $("#login-display-name").text(display_hostname);
     if (cockpitdyn_avatar_data_url)
         $("#login-avatar").attr('src', cockpitdyn_avatar_data_url);
-    $('#login-spinner').hide();
 
     function login ()
     {
         $('#login-error-message').text("");
-        $('#login-spinner').show();
 
         var req = new XMLHttpRequest();
         var loc = window.location.protocol + "//" + window.location.host + "/login";
@@ -47,7 +45,6 @@ function cockpit_login_init ()
         req.onreadystatechange = function (event) {
 	    if (req.readyState == 4) {
                 clearTimeout(timeout_id);
-                $('#login-spinner').hide();
                 if (req.status == 200) {
                     cockpit_connection_config = JSON.parse(req.responseText);
                     cockpit_init_connect_local();

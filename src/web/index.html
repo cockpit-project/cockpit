@@ -735,19 +735,20 @@
         <br/>
         <div class="panel panel-default" id="containers-containers">
           <div class="panel-heading">
-            Containers
             <span style="float:right">
             </span>
+            Containers
           </div>
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Image</th>
-                <th>Command</th>
-                <th>CPU</th>
-                <th colspan="2">Memory</th>
-                <th><!-- Action --></th>
+                <th class="container-col-name">Name</th>
+                <th class="container-col-image">Image</th>
+                <th class="container-col-command">Command</th>
+                <th class="container-col-cpu">CPU</th>
+                <th class="container-col-memory-graph">Memory</th>
+                <th class="container-col-memory-text"></th>
+                <th class="cell-buttons"><!-- Action --></th>
               </tr>
             </thead>
             <tbody>
@@ -761,9 +762,10 @@
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>Tags</th>
-                <th>Created</th>
-                <th colspan="2">Virtual Size</th>
+                <th class="image-col-tags">Tags</th>
+                <th class="image-col-created">Created</th>
+                <th class="image-col-size-graph">Virtual Size</th>
+                <th class="image-col-size-text"></th>
                 <th class="cell-buttons"><!-- Action --></th>
               </td>
             </thead>

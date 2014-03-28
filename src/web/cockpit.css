@@ -505,12 +505,40 @@ a {
     background-color: #f5f9fc;
 }
 
+.container-col-name {
+    width: 125px;
+}
+
+.container-col-image,
+.image-col-tags {
+    width: 180px;
+}
+
+.container-col-command {
+    width: 150px;
+}
+
+.container-col-cpu {
+    width: 50px;
+    text-align: right;
+}
+
+.container-col-memory-text,
+.image-col-size-text {
+    width: 100px;
+    text-align: right;
+}
+
+.image-col-created {
+    width: 325px;
+}
+
 /*
  * Used to make a table cell that containts buttons have less padding
  * HACK: Because CSS has no parant selector.
  */
-td.cell-buttons,
-.table > tbody > tr > td.cell-buttons {
+.cell-buttons,
+.table > tbody > tr > .cell-buttons {
     padding-top: 4px;
     padding-bottom: 4px;
     width: 30px;

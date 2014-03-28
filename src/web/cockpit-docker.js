@@ -834,8 +834,8 @@ PageImageDetails.prototype = {
         }
 
         var waiting = !!(this.client.waiting[this.image_id]);
-        $('#container-details div.waiting').toggle(waiting);
-        $('#container-details button').toggle(!waiting);
+        $('#image-details div.waiting').toggle(waiting);
+        $('#image-details button').toggle(!waiting);
 
         if (info.RepoTags && info.RepoTags.length > 0) {
             var name = info.RepoTags[0];

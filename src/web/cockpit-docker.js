@@ -245,7 +245,7 @@ PageContainers.prototype = {
 
             memdanger = (memlimit && memuse > 0.9 * memlimit) ? true : false;
             membar = true;
-            memtextstyle = { 'color': 'inherit', 'text-align': 'inherit' };
+            memtextstyle = { 'color': 'inherit' };
         } else {
             cputext = "";
             membar = false;
@@ -279,12 +279,12 @@ PageContainers.prototype = {
                     return false;
                 });
             tr = $('<tr id="' + id + '">').append(
-                $('<td>'),
-                $('<td>'),
-                $('<td>'),
-                $('<td>'),
-                $('<td>').append($cockpit.BarRow("containers-containers")),
-                $('<td>'),
+                $('<td class="container-col-name">'),
+                $('<td class="container-col-image">'),
+                $('<td class="container-col-command">'),
+                $('<td class="container-col-cpu">'),
+                $('<td class="container-col-memory-graph">').append($cockpit.BarRow("containers-containers")),
+                $('<td class="container-col-memory-text">'),
                 $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
             tr.on('click', function(event) {
                 cockpit_go_down ({ page: 'container-details',
@@ -339,10 +339,10 @@ PageContainers.prototype = {
                     return false;
                 });
             tr = $('<tr id="' + id + '">').append(
-                    $('<td>'),
-                    $('<td>'),
-                    $('<td>').append($cockpit.BarRow("container-images")),
-                    $('<td>'),
+                    $('<td class="image-col-tags">'),
+                    $('<td class="image-col-created">'),
+                    $('<td class="image-col-size-graph">').append($cockpit.BarRow("container-images")),
+                    $('<td class="image-col-size-text">'),
                     $('<td class="cell-buttons">').append(button));
             tr.on('click', function(event) {
                 cockpit_go_down ({ page: 'image-details',

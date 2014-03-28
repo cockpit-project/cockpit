@@ -396,8 +396,18 @@ PageRunImage.prototype = {
         page.memory_limit = undefined;
         page.cpu_priority = undefined;
 
+        /* Logarithmic CPU scale */
+        var cpu_minv = Math.log(2);
+        var cpu_maxv = Math.log(1000000);
+        var cpu_scale = (cpu_maxv - cpu_minv);
+
+        /* Linear memory scale */
+        /* TODO: Get max memory from elsewhere */
+        var memory_min = 10000000;
+        var memory_max = 8000000000;
+
         /* Memory limit slider/checkbox interaction happens here */
-        function init_interact_memory(min, max, defawlt) {
+        function init_interact_memory() {
             var slider, desc;
 
             function update_limit() {
@@ -405,9 +415,9 @@ PageRunImage.prototype = {
                     page.memory_limit = undefined;
                     return _("unlimited");
                 }
-                var limit = Math.round(slider.value * max);
-                if (limit < min)
-                    limit = min;
+                var limit = Math.round(slider.value * memory_max);
+                if (limit < memory_min)
+                    limit = memory_min;
                 page.memory_limit = limit;
                 return $cockpit.format_bytes(limit).join(" ");
             }
@@ -428,26 +438,18 @@ PageRunImage.prototype = {
                     $(desc).toggleClass("disabled", !this.checked);
                     $(desc).text(update_limit());
                 });
-
-            /* Set the default value */
-            slider.value = defawlt / max;
         }
 
         /* CPU priority slider/checkbox interaction happens here */
-        function init_interact_cpu(min, max, defawlt) {
+        function init_interact_cpu() {
             var slider, desc;
-
-            /* Logarithmic position between these */
-            var minv = Math.log(min);
-            var maxv = Math.log(max);
-            var scale = (maxv - minv);
 
             function update_priority() {
                 if (slider.disabled) {
                     page.cpu_priority = undefined;
                     return _("default");
                 }
-                page.cpu_priority = Math.round(Math.exp(minv + scale * slider.value));
+                page.cpu_priority = Math.round(Math.exp(cpu_minv + cpu_scale * slider.value));
                 return String(page.cpu_priority) + _(" shares");
             }
 
@@ -469,28 +471,52 @@ PageRunImage.prototype = {
                     $(desc).text(update_priority());
                 });
 
-            /* Setup the default value */
-            slider.value = (Math.log(defawlt) - minv) / scale;
         }
 
         if (first_visit) {
             $("#containers-run-image-run").on('click', $.proxy(this, "run"));
-            /* TODO: Get max memory from elsewhere */
-            init_interact_memory(10000000, 8000000000, 400000000);
-            init_interact_cpu(2, 1000000, 1024);
+            init_interact_memory();
+            init_interact_cpu();
         }
 
+        var info = PageRunImage.image_info;
+        docker_debug("run-image", info);
+
+        var checked;
+        var value;
+
+        /* Memory slider defaults */
+        if (info.container_config.Memory) {
+            checked = true;
+            value = info.container_config.Memory;
+        } else {
+            checked = false;
+            value = 400000000;
+        }
+        $('#containers-run-image-memory-slider').
+            prop('value', value / memory_max);
         $("#containers-run-image-memory-limit").
-            prop("checked", false).
-            trigger("change");
-        $("#containers-run-image-cpu-prioritize").
-            prop("checked", false).
-            trigger("change");
-        $("#containers-run-image-with-terminal").
-            prop("checked", true).
+            prop("checked", checked).
             trigger("change");
 
-        docker_debug("run-image", PageRunImage.image_info);
+        /* CPU slider defaults */
+        if (info.container_config.CpuShares) {
+            checked = true;
+            value = info.container_config.CpuShares;
+        } else {
+            checked = false;
+            value = 1024;
+        }
+        $('#containers-run-image-cpu-slider').
+            prop('value', (Math.log(value) - cpu_minv) / cpu_scale);
+        $("#containers-run-image-cpu-prioritize").
+            prop("checked", checked).
+            trigger("change");
+
+        checked = !!(info.container_config.Tty);
+        $("#containers-run-image-with-terminal").
+            prop("checked", checked).
+            trigger("change");
 
         // from https://github.com/dotcloud/docker/blob/master/pkg/namesgenerator/names-generator.go
 

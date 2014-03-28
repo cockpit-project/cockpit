@@ -121,7 +121,8 @@ PageContainers.prototype = {
             if (this.mem_plot)
                 this.mem_plot.stop();
 
-            var reds = [ "#5c080c",
+            var reds = [ "#250304",
+                         "#5c080c",
                          "#970911",
                          "#ce0e15",
                          "#ef2930",
@@ -130,7 +131,8 @@ PageContainers.prototype = {
                          "#fbd1d2"
                        ];
 
-            var blues = [ "#004778",
+            var blues = [ "#00243c",
+                          "#004778",
                           "#006bb4",
                           "#008ff0",
                           "#2daaff",
@@ -146,13 +148,13 @@ PageContainers.prototype = {
                 $('#' + id).addClass('highlight');
             }
 
-            this.cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues);
+            this.cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues.concat(blues));
             $(this.cpu_plot).on('update-total', function (event, total) {
                 $('#containers-cpu-text').text(total+"%");
             });
             $(this.cpu_plot).on('highlight', highlight_container_row);
 
-            this.mem_plot = client.setup_cgroups_plot ('#containers-mem-graph', 0, reds);
+            this.mem_plot = client.setup_cgroups_plot ('#containers-mem-graph', 0, blues.concat(blues));
             $(this.mem_plot).on('update-total', function (event, total) {
                 $('#containers-mem-text').text(cockpit_format_bytes_pow2 (total));
             });

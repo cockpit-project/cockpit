@@ -14,7 +14,6 @@ libcockpit_ws_a_SOURCES = \
 	$(NULL)
 
 libcockpit_ws_a_CFLAGS = \
-	-I$(top_srcdir)/src/libgsystem \
 	-I$(top_srcdir)/src/ws \
 	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
 	-DG_LOG_DOMAIN=\"libcockpit-ws\" \
@@ -67,7 +66,6 @@ cockpit_ws_SOURCES =					\
 
 cockpit_ws_CFLAGS = 					\
 	-DG_LOG_DOMAIN=\"cockpit-ws\"			\
-	-I$(top_srcdir)/src/libgsystem			\
 	-I$(top_srcdir)/src/ws				\
 	$(COCKPIT_WS_CFLAGS)				\
 	$(NULL)
@@ -95,7 +93,6 @@ test_server_SOURCES = 					\
 
 test_server_CFLAGS = 					\
 	-I$(top_srcdir)/src/ws \
-	-I$(top_srcdir)/src/libgsystem \
 	-DG_LOG_DOMAIN=\"test_server\"			\
 	$(GIO_CFLAGS)					\
 	$(NULL)

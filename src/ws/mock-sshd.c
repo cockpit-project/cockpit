@@ -47,6 +47,8 @@ struct {
   int childpid;
   const gchar *user;
   const gchar *password;
+  GByteArray *buffer;
+  gboolean buffer_eof;
 } state;
 
 static gboolean
@@ -67,6 +69,7 @@ fd_data (socket_t fd,
   gint sz = 0;
   gint bytes = 0;
   gint status;
+  gint written;
   static pid_t p = 0;
 
   if (p != 0)
@@ -81,20 +84,49 @@ fd_data (socket_t fd,
           if (ws && (bytes = read (fd, buf, ws)) > 0)
             {
               sz += bytes;
-              ssh_channel_write (chan, buf, bytes);
+              written = ssh_channel_write (chan, buf, bytes);
+              if (written != bytes)
+                g_assert_not_reached ();
             }
         }
       while (ws > 0 && bytes == BUFSIZE);
     }
   if (revents & (POLLHUP | POLLERR | POLLNVAL))
     {
+      ssh_channel_send_eof (chan);
       if ((p = waitpid (state.childpid, &status, WNOHANG)) > 0)
         ssh_channel_request_send_exit_status (chan, WEXITSTATUS(status));
-      ssh_channel_send_eof (chan);
+      g_assert_cmpint (ssh_blocking_flush (state.session, -1), >=, SSH_OK);
       ssh_channel_close (chan);
+      ssh_channel_free (chan);
+      state.channel = NULL;
       ssh_event_remove_fd (state.event, fd);
       sz = -1;
     }
+  else if ((revents & POLLOUT))
+    {
+      if (state.buffer->len > 0)
+        {
+          written = write (fd, state.buffer->data, state.buffer->len);
+          if (written < 0 && errno != EAGAIN)
+            g_critical ("couldn't write: %s", g_strerror (errno));
+          if (written > 0)
+            g_byte_array_remove_range (state.buffer, 0, written);
+        }
+      if (state.buffer_eof && state.buffer->len == 0)
+        {
+          if (shutdown (fd, SHUT_WR) < 0)
+            {
+              if (errno != EAGAIN)
+                g_critical ("couldn't shutdown: %s", g_strerror (errno));
+            }
+          else
+            {
+              state.buffer_eof = FALSE;
+            }
+        }
+    }
+
   return sz;
 }
 
@@ -106,10 +138,8 @@ chan_data (ssh_session session,
            int is_stderr,
            gpointer user_data)
 {
-  int fd = GPOINTER_TO_INT (user_data);
-  if (!len)
-    return 0;
-  return write (fd, data, len);
+  g_byte_array_append (state.buffer, data, len);
+  return len;
 }
 
 static void
@@ -117,8 +147,7 @@ chan_eof (ssh_session session,
           ssh_channel channel,
           gpointer user_data)
 {
-  int fd = GPOINTER_TO_INT (user_data);
-  shutdown (fd, SHUT_WR);
+  state.buffer_eof = TRUE;
 }
 
 static void
@@ -172,7 +201,7 @@ do_shell (ssh_event event,
   ssh_callbacks_init(&cb);
   ssh_set_channel_callbacks (chan, &cb);
 
-  events = POLLIN | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
+  events = POLLIN | POLLOUT | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
   if (ssh_event_add_fd (event, fd, events, fd_data, chan) != SSH_OK)
     g_return_val_if_reached(-1);
 
@@ -241,7 +270,7 @@ do_exec (ssh_event event,
   ssh_callbacks_init(&cb);
   ssh_set_channel_callbacks (chan, &cb);
 
-  events = POLLIN | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
+  events = POLLIN | POLLOUT | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
   if (ssh_event_add_fd (event, fd, events, fd_data, chan) != SSH_OK)
     g_return_val_if_reached(-1);
 
@@ -394,6 +423,7 @@ mock_ssh_server (const gchar *server_addr,
   state.bind_fd = ssh_bind_get_fd (sshbind);
   state.user = user;
   state.password = password;
+  state.buffer = g_byte_array_new ();
 
   /* Print out the port */
   if (server_port == 0)
@@ -447,7 +477,8 @@ mock_ssh_server (const gchar *server_addr,
 
   ssh_event_remove_session (state.event, state.session);
   ssh_event_free (state.event);
-  ssh_disconnect (state.session);
+  ssh_free (state.session);
+  g_byte_array_free (state.buffer, TRUE);
   ssh_bind_free (sshbind);
 
   return 0;

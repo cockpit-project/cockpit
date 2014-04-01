@@ -1288,6 +1288,7 @@ function DockerClient(machine) {
                                              autoHighlight: false,
                                              aboveData: true,
                                              color: "black",
+                                             borderColor: $.color.parse("black").scale('a', 0.22).toString(),
                                              labelMargin: 0
                                            }
                                    },

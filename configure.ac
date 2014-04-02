@@ -47,8 +47,6 @@ if test -z "$JSL"; then
   AC_MSG_WARN([jsl is needed to run js-lint])
 fi
 
-GTK_DOC_CHECK([1.3])
-
 GLIB_VERSION="2.34"
 
 GIO_REQUIREMENT="gio-unix-2.0 >= $GLIB_VERSION"

@@ -117,7 +117,35 @@ static void
 cockpit_pipe_signal_close (CockpitPipe *pipe,
                            const gchar *problem)
 {
+  CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (pipe);
+  GError *error = NULL;
+  gint status;
+
   /* This function is called by the base class when it is closed */
+  if (problem == NULL && cockpit_pipe_get_pid (pipe) != 0)
+    {
+      status = cockpit_pipe_exit_status (pipe);
+      if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
+        problem = "terminated";
+      else if (WIFEXITED (status) && WEXITSTATUS (status) == 5)
+        problem = "not-authorized";  // wrong password
+      else if (WIFEXITED (status) && WEXITSTATUS (status) == 6)
+        problem = "unknown-hostkey";
+      else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
+        problem = "no-agent";        // cockpit-agent not installed
+      else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
+        problem = "terminated";      // ssh failed or got a signal, etc.
+      else if (!g_spawn_check_exit_status (status, &error))
+        {
+          problem = "internal-error";
+          g_warning ("session program failed: %s", error->message);
+          g_error_free (error);
+        }
+    }
+
+  g_debug ("%s: closed%s%s", self->name,
+           problem ? ": " : "", problem ? problem : "");
+
   cockpit_transport_emit_closed (COCKPIT_TRANSPORT (pipe), problem);
 }
 

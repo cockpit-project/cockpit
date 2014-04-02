@@ -28,6 +28,7 @@
 #include <gio/gunixsocketaddress.h>
 
 #include <sys/uio.h>
+#include <sys/wait.h>
 #include <string.h>
 
 /* ----------------------------------------------------------------------------
@@ -314,6 +315,71 @@ test_buffer (TestCase *tc,
 
   g_assert_cmpint (buffer->len, ==, 11);
   g_assert_cmpstr ((gchar *)buffer->data, ==, "blahdeedoo");
+}
+
+static const TestFixture fixture_exit_success = {
+  .command = "true"
+};
+
+static void
+test_exit_success (TestCase *tc,
+                   gconstpointer data)
+{
+  MockEchoPipe *echo_pipe = (MockEchoPipe *)tc->pipe;
+  gint status;
+
+  while (!echo_pipe->closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  status = cockpit_pipe_exit_status (tc->pipe);
+  g_assert (WIFEXITED (status));
+  g_assert_cmpint (WEXITSTATUS (status), ==, 0);
+
+}
+
+static const TestFixture fixture_exit_fail = {
+  .command = "sh -c 'exit 5'"
+};
+
+static void
+test_exit_fail (TestCase *tc,
+                gconstpointer data)
+{
+  MockEchoPipe *echo_pipe = (MockEchoPipe *)tc->pipe;
+  gint status;
+
+  while (!echo_pipe->closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  status = cockpit_pipe_exit_status (tc->pipe);
+  g_assert (WIFEXITED (status));
+  g_assert_cmpint (WEXITSTATUS (status), ==, 5);
+}
+
+static const TestFixture fixture_exit_signal = {
+  .command = "cat"
+};
+
+static void
+test_exit_signal (TestCase *tc,
+                  gconstpointer data)
+{
+  MockEchoPipe *echo_pipe = (MockEchoPipe *)tc->pipe;
+  gint status;
+  GPid pid = 0;
+
+  g_object_get (tc->pipe, "pid", &pid, NULL);
+  g_assert (pid != 0);
+
+  kill (pid, SIGINT);
+
+  while (!echo_pipe->closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  status = cockpit_pipe_exit_status (tc->pipe);
+  g_assert (!WIFEXITED (status));
+  g_assert (WIFSIGNALED (status));
+  g_assert_cmpint (WTERMSIG (status), ==, SIGINT);
 }
 
 static void
@@ -885,6 +951,13 @@ main (int argc,
               setup_simple, test_buffer, teardown);
   g_test_add ("/pipe/pid", TestCase, &fixture_pid,
               setup_simple, test_pid, teardown);
+
+  g_test_add ("/pipe/exit-success", TestCase, &fixture_exit_success,
+              setup_simple, test_exit_success, teardown);
+  g_test_add ("/pipe/exit-fail", TestCase, &fixture_exit_fail,
+              setup_simple, test_exit_fail, teardown);
+  g_test_add ("/pipe/exit-signal", TestCase, &fixture_exit_signal,
+              setup_simple, test_exit_signal, teardown);
 
   g_test_add_func ("/pipe/read-error", test_read_error);
   g_test_add_func ("/pipe/write-error", test_write_error);

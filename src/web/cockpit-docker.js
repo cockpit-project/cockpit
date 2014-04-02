@@ -338,7 +338,7 @@ PageContainers.prototype = {
             cputext = (container.CpuUsage || 0).toString() + "%";
 
             memuse = container.MemoryUsage || 0;
-            memlimit = container.Config && container.Config.Memory;
+            memlimit = container.MemoryLimit || 0;
 
             var barvalue = memuse.toString();
 
@@ -1108,9 +1108,13 @@ function DockerClient(machine) {
                 var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
 
                 var mem = sample? sample[0] : 0;
+                var limit = sample ? sample[1] : 0;
                 var cpu = sample? sample[4] : 0;
-                if (mem != container.MemoryUsage || cpu != container.CpuUsage) {
+                if (mem != container.MemoryUsage ||
+                    limit != container.MemoryLimit ||
+                    cpu != container.CpuUsage) {
                     container.MemoryUsage = mem;
+                    container.MemoryLimit = limit;
                     container.CpuUsage = cpu;
                     $(me).trigger("container", [id, container]);
                 }

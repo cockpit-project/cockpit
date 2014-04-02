@@ -43,6 +43,11 @@ gboolean       cockpit_json_get_string        (JsonObject *object,
                                                const gchar *defawlt,
                                                const gchar **value);
 
+gboolean       cockpit_json_get_strv          (JsonObject *object,
+                                               const gchar *member,
+                                               const gchar **defawlt,
+                                               gchar ***value);
+
 guint          cockpit_json_int_hash          (gconstpointer v);
 
 gboolean       cockpit_json_int_equal         (gconstpointer v1,

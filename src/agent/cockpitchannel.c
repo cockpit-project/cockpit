@@ -476,3 +476,33 @@ cockpit_channel_get_int_option (CockpitChannel *self,
     value = G_MAXINT64;
   return value;
 }
+
+/**
+ * cockpit_channel_get_strv_option:
+ * @self: a channel
+ * @name: the option name
+ *
+ * Called by implementations to get a string array value from
+ * the channel's options.
+ *
+ * Returns: (transfer none): the option value or NULL.
+ */
+const gchar **
+cockpit_channel_get_strv_option (CockpitChannel *self,
+                                 const gchar *name)
+{
+  gchar **value;
+
+  g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
+
+  value = g_object_get_data (G_OBJECT (self), name);
+  if (value)
+    return (const gchar **)value;
+
+  if (!cockpit_json_get_strv (self->priv->options, name, NULL, &value))
+    value = NULL;
+
+  /* Stash here so caller can not worry about memory */
+  g_object_set_data_full (G_OBJECT (self), name, value, g_free);
+  return (const gchar **)value;
+}

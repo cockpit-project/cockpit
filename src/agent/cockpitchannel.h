@@ -83,6 +83,9 @@ const gchar *       cockpit_channel_get_option        (CockpitChannel *self,
 gint64              cockpit_channel_get_int_option    (CockpitChannel *self,
                                                        const gchar *name);
 
+const gchar **      cockpit_channel_get_strv_option   (CockpitChannel *self,
+                                                       const gchar *name);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_CHANNEL_H__ */

@@ -76,6 +76,74 @@ cockpit_json_get_string (JsonObject *options,
   return TRUE;
 }
 
+/**
+ * cockpit_json_get_strv:
+ * @options: the json object
+ * @member: the member name
+ * @defawlt: defawlt value
+ * @value: returned value
+ *
+ * Gets a string array member from a JSON object. Validates
+ * that the member is an array, and that all elements in the
+ * array are strings. If these fail, then will return %FALSE.
+ *
+ * If @member does not exist in @options, returns the values
+ * in @defawlt.
+ *
+ * The returned value in @value should be freed with g_free()
+ * but the actual strings are owned by the JSON object.
+ *
+ * Returns: %FALSE if invalid member, %TRUE if valid or missing.
+ */
+gboolean
+cockpit_json_get_strv (JsonObject *options,
+                       const gchar *member,
+                       const gchar **defawlt,
+                       gchar ***value)
+{
+  gboolean valid = FALSE;
+  JsonArray *array;
+  JsonNode *node;
+  guint length, i;
+  gchar **val = NULL;
+
+  node = json_object_get_member (options, member);
+  if (!node)
+    {
+      if (defawlt)
+        val = g_memdup (defawlt, sizeof (gchar *) * (g_strv_length ((gchar **)defawlt) + 1));
+      valid = TRUE;
+    }
+  else if (json_node_get_node_type (node) == JSON_NODE_ARRAY)
+    {
+      valid = TRUE;
+      array = json_node_get_array (node);
+      length = json_array_get_length (array);
+      val = g_new (gchar *, length + 1);
+      for (i = 0; i < length; i++)
+        {
+          node = json_array_get_element (array, i);
+          if (json_node_get_value_type (node) == G_TYPE_STRING)
+            {
+              val[i] = (gchar *)json_node_get_string (node);
+            }
+          else
+            {
+              valid = FALSE;
+              break;
+            }
+        }
+      val[length] = NULL;
+    }
+
+  if (valid)
+    *value = val;
+  else
+    g_free (val);
+
+  return valid;
+}
+
 static gboolean
 cockpit_json_equal_object (JsonObject *previous,
                            JsonObject *current)

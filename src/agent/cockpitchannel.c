@@ -586,6 +586,29 @@ cockpit_channel_close_option (CockpitChannel *self,
 }
 
 /**
+ * cockpit_channel_close_int_option:
+ * @self: a channel
+ * @name: the option name
+ * @value: the value to add
+ *
+ * Add a value to the close message for this channel. This must
+ * be called before the cockpit_channel_close base class
+ * implementation.
+ */
+void
+cockpit_channel_close_int_option (CockpitChannel *self,
+                                  const gchar *name,
+                                  gint64 value)
+{
+  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
+  g_return_if_fail (name != NULL);
+
+  if (!self->priv->close_options)
+    self->priv->close_options = json_object_new ();
+  json_object_set_int_member (self->priv->close_options, name, value);
+}
+
+/**
  * cockpit_channel_get_generator:
  * @self: a channel
  *

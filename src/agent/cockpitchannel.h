@@ -95,6 +95,10 @@ void                cockpit_channel_close_option      (CockpitChannel *self,
                                                        const gchar *name,
                                                        const gchar *value);
 
+void                cockpit_channel_close_int_option  (CockpitChannel *self,
+                                                       const gchar *name,
+                                                       gint64 value);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_CHANNEL_H__ */

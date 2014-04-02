@@ -91,6 +91,10 @@ gboolean            cockpit_channel_get_bool_option   (CockpitChannel *self,
 const gchar **      cockpit_channel_get_strv_option   (CockpitChannel *self,
                                                        const gchar *name);
 
+void                cockpit_channel_close_option      (CockpitChannel *self,
+                                                       const gchar *name,
+                                                       const gchar *value);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_CHANNEL_H__ */

@@ -758,10 +758,10 @@ class TestStorage(MachineCase):
         m.execute("lvchange TEST/lvol -a n")
 
         # Restart cockpitd.
-        m.execute("systemctl restart cockpit-testing.service")
+        m.execute("systemctl restart cockpitd-testing.service")
 
-        # XXX - Restarting cockpit-testing.service will restart
-        #       cockpit-ws-testing.service as well (because the latter
+        # XXX - Restarting cockpitd-testing.service will restart
+        #       cockpit-testing.service as well (because the latter
         #       requires the former), and we need to log in again...
         #
         b.wait_popup("disconnected")

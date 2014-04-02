@@ -12,9 +12,18 @@ com.redhat.Cockpit.conf: data/com.redhat.Cockpit.conf.in Makefile
 
 if HAVE_SYSTEMD
 systemdunitdir          = $(systemdsystemunitdir)
-dist_systemdunit_DATA   = data/cockpit-ws.socket
+dist_systemdunit_DATA   = data/cockpit.socket
 nodist_systemdunit_DATA =
-testassets_systemdunit_data += data/cockpit-ws-testing.socket data/test-server.socket
+testassets_systemdunit_data += data/cockpit-testing.socket data/test-server.socket
+
+cockpitd.service : data/cockpitd.service.in Makefile
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+nodist_systemdunit_DATA += cockpitd.service
+
+cockpitd-testing.service : data/cockpitd-testing.service.in Makefile
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+noinst_DATA += cockpitd-testing.service
+testassets_systemdunit_data += cockpitd-testing.service
 
 cockpit.service : data/cockpit.service.in Makefile
 	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
@@ -25,15 +34,6 @@ cockpit-testing.service : data/cockpit-testing.service.in Makefile
 noinst_DATA += cockpit-testing.service
 testassets_systemdunit_data += cockpit-testing.service
 
-cockpit-ws.service : data/cockpit-ws.service.in Makefile
-	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
-nodist_systemdunit_DATA += cockpit-ws.service
-
-cockpit-ws-testing.service : data/cockpit-ws-testing.service.in Makefile
-	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
-noinst_DATA += cockpit-ws-testing.service
-testassets_systemdunit_data += cockpit-ws-testing.service
-
 test-server.service : data/test-server.service.in Makefile
 	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
 noinst_DATA += test-server.service
@@ -42,11 +42,11 @@ testassets_systemdunit_data += test-server.service
 endif
 EXTRA_DIST += 						\
 	data/com.redhat.Cockpit.xml		\
-	data/cockpit.service.in data/cockpit-ws.service.in	\
-	data/cockpit-ws-testing.service.in \
+	data/cockpit.service.in data/cockpitd.service.in \
+	data/cockpit-testing.service.in \
 	data/test-server.service.in                     \
 	data/com.redhat.Cockpit.service.in	\
-	data/cockpit-testing.service.in		\
+	data/cockpitd-testing.service.in \
 	data/com.redhat.Cockpit.conf.in		\
 	data/config				\
 	data/cockpit.pam.insecure               \
@@ -54,13 +54,14 @@ EXTRA_DIST += 						\
 	$(NULL)
 
 CLEANFILES += \
-	cockpit-ws.service \
+	cockpitd.service \
 	cockpit-testing.service \
 	com.redhat.Cockpit.conf \
 	test-server.service \
 	com.redhat.Cockpit.service \
 	cockpit.service \
-	cockpit-ws-testing.service
+	cockpitd-testing.service \
+	$(NULL)
 
 cockpitconfdir = $(sysconfdir)/cockpit
 cockpitconf_DATA = data/config

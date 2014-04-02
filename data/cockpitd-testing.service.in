@@ -1,0 +1,12 @@
+[Unit]
+Description=Cockpit (Testing)
+Documentation=man:cockpitd(8)
+
+[Service]
+BusName=com.redhat.Cockpit
+Environment=G_MESSAGES_DEBUG=all
+ExecStart=@libexecdir@/cockpitd
+
+[Install]
+WantedBy=multi-user.target
+Also=cockpit-testing.socket

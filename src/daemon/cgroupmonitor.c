@@ -27,7 +27,7 @@
 #include "daemon.h"
 #include "cgroupmonitor.h"
 
-#include "gsystem-local-alloc.h"
+#include <libgsystem/gsystem-local-alloc.h>
 
 #define SAMPLES_MAX 300
 

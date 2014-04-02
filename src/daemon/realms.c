@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "gsystem-local-alloc.h"
+#include <libgsystem/gsystem-local-alloc.h>
 
 #include "utils.h"
 #include "daemon.h"

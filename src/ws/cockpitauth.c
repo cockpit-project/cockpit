@@ -23,7 +23,7 @@
 
 #include "cockpitauth.h"
 #include "cockpitwebserver.h"
-#include "gsystem-local-alloc.h"
+#include <libgsystem/gsystem-local-alloc.h>
 
 #include "websocket/websocket.h"
 

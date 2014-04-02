@@ -30,7 +30,7 @@
 #include "storageblock.h"
 #include "com.redhat.lvm2.h"
 
-#include "gsystem-local-alloc.h"
+#include <libgsystem/gsystem-local-alloc.h>
 
 #include <cockpit/cockpit.h>
 

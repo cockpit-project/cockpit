@@ -97,7 +97,6 @@ typedef struct _CockpitRestJson {
 
   /* Singleton objects for efficiency ... */
   JsonParser *parser;
-  JsonGenerator *generator;
 
   /* Whether the channel is closed or not */
   gboolean closed;
@@ -328,6 +327,7 @@ cockpit_rest_response_reply (CockpitRestJson *self,
                              gboolean complete)
 {
   CockpitRestRequest *req = resp->req;
+  JsonGenerator *generator;
   JsonBuilder *builder;
   JsonNode *node;
   gchar *data;
@@ -406,11 +406,12 @@ cockpit_rest_response_reply (CockpitRestJson *self,
   json_builder_end_object (builder);
 
   node = json_builder_get_root (builder);
-  json_generator_set_root (self->generator, node);
+  generator = cockpit_channel_get_generator (COCKPIT_CHANNEL (self));
+  json_generator_set_root (generator, node);
   json_node_free (node);
   g_object_unref (builder);
 
-  data = json_generator_to_data (self->generator, &length);
+  data = json_generator_to_data (generator, &length);
 
   bytes = g_bytes_new_take (data, length);
   cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
@@ -814,6 +815,7 @@ static GBytes *
 build_body_from_json (CockpitRestJson *self,
                       JsonObject *json)
 {
+  JsonGenerator *generator;
   gchar *data;
   gsize length;
   JsonNode *node;
@@ -822,8 +824,9 @@ build_body_from_json (CockpitRestJson *self,
   if (!node)
     return NULL;
 
-  json_generator_set_root (self->generator, node);
-  data = json_generator_to_data (self->generator, &length);
+  generator = cockpit_channel_get_generator (COCKPIT_CHANNEL (self));
+  json_generator_set_root (generator, node);
+  data = json_generator_to_data (generator, &length);
   return g_bytes_new_take (data, length);
 }
 
@@ -1049,7 +1052,6 @@ static void
 cockpit_rest_json_init (CockpitRestJson *self)
 {
   self->parser = json_parser_new ();
-  self->generator = json_generator_new ();
 
   /* Table of gint64 -> CockpitRestRequest */
   self->requests = g_hash_table_new_full (cockpit_json_int_hash, cockpit_json_int_equal,
@@ -1173,7 +1175,6 @@ cockpit_rest_json_finalize (GObject *object)
   CockpitRestJson *self = COCKPIT_REST_JSON (object);
 
   g_object_unref (self->parser);
-  g_object_unref (self->generator);
   if (self->address)
     g_object_unref (self->address);
   g_hash_table_destroy (self->requests);

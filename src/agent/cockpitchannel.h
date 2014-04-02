@@ -77,6 +77,8 @@ void                cockpit_channel_ready             (CockpitChannel *self);
 void                cockpit_channel_send              (CockpitChannel *self,
                                                        GBytes *payload);
 
+JsonGenerator *     cockpit_channel_get_generator     (CockpitChannel *self);
+
 const gchar *       cockpit_channel_get_option        (CockpitChannel *self,
                                                        const gchar *name);
 

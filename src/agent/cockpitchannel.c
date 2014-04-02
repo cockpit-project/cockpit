@@ -26,6 +26,8 @@
 
 #include "cockpit/cockpitjson.h"
 
+#include <json-glib/json-glib.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -61,6 +63,9 @@ struct _CockpitChannelPrivate {
 
   /* Whether we've sent a closed message */
   gboolean closed;
+
+  /* Other state */
+  JsonGenerator *generator;
 };
 
 enum {
@@ -212,6 +217,8 @@ cockpit_channel_finalize (GObject *object)
 
   g_object_unref (self->priv->transport);
   json_object_unref (self->priv->options);
+  if (self->priv->generator)
+    g_object_unref (self->priv->generator);
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->finalize (object);
 }
@@ -526,4 +533,22 @@ cockpit_channel_get_strv_option (CockpitChannel *self,
   /* Stash here so caller can not worry about memory */
   g_object_set_data_full (G_OBJECT (self), name, value, g_free);
   return (const gchar **)value;
+}
+
+/**
+ * cockpit_channel_get_generator:
+ * @self: a channel
+ *
+ * Get a cached JsonGenerator object for the channel. Do
+ * not cache the return value, use it and move on.
+ *
+ * Returns: (transfer none): the generator
+ */
+JsonGenerator *
+cockpit_channel_get_generator (CockpitChannel *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
+  if (!self->priv->generator)
+    self->priv->generator = json_generator_new ();
+  return self->priv->generator;
 }

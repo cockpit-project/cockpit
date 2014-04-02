@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <act/act.h>
 
-#include "gsystem-local-alloc.h"
+#include <gsystem-local-alloc.h>
 
 #include "utils.h"
 #include "daemon.h"

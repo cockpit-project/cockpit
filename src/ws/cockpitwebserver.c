@@ -30,7 +30,7 @@
 
 #include "websocket/websocket.h"
 
-#include "gsystem-local-alloc.h"
+#include <gsystem-local-alloc.h>
 
 typedef struct _CockpitWebServerClass CockpitWebServerClass;
 

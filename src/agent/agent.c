@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "gsystem-local-alloc.h"
+#include <gsystem-local-alloc.h>
 
 
 /* This program is run on each managed server, with the credentials

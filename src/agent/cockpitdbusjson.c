@@ -33,7 +33,7 @@
 #include <gio/gunixoutputstream.h>
 #include <json-glib/json-glib.h>
 
-#include "gsystem-local-alloc.h"
+#include <gsystem-local-alloc.h>
 
 #include <string.h>
 

@@ -51,6 +51,7 @@ typedef struct {
   gboolean closing;
   guint sig_read;
   guint sig_close;
+  gboolean is_process;
 } CockpitTextStream;
 
 typedef struct {
@@ -158,8 +159,20 @@ on_pipe_close (CockpitPipe *buffer,
 {
   CockpitTextStream *self = user_data;
   CockpitChannel *channel = user_data;
+  gint status;
 
   self->open = FALSE;
+
+  if (self->is_process)
+    {
+      status = cockpit_pipe_exit_status (buffer);
+      if (WIFEXITED (status))
+        cockpit_channel_close_int_option (channel, "exit-status", WEXITSTATUS (status));
+      else if (WIFSIGNALED (status))
+        cockpit_channel_close_int_option (channel, "exit-signal", WTERMSIG (status));
+      else if (status)
+        cockpit_channel_close_int_option (channel, "exit-status", -1);
+    }
 
   cockpit_channel_close (channel, problem);
 }

@@ -28,7 +28,7 @@
 #include "storageobject.h"
 #include "storagevolumegroup.h"
 
-#include "gsystem-local-alloc.h"
+#include <libgsystem/gsystem-local-alloc.h>
 
 /**
  * SECTION:storagevolume_group

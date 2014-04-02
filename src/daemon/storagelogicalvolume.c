@@ -29,7 +29,7 @@
 #include "storageblock.h"
 #include "storagelogicalvolume.h"
 
-#include "gsystem-local-alloc.h"
+#include <libgsystem/gsystem-local-alloc.h>
 
 /**
  * SECTION:storagelogicalvolume

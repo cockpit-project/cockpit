@@ -131,6 +131,8 @@ wants to close a channel normally.
 
 See below for a list of problem codes.
 
+Other fields may be present in a close message.
+
 Command: ping
 -------------
 

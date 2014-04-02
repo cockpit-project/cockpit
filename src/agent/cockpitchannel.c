@@ -55,7 +55,7 @@ struct _CockpitChannelPrivate {
   /* Construct arguments */
   CockpitTransport *transport;
   guint number;
-  JsonObject *options;
+  JsonObject *open_options;
 
   /* Queued messages before channel is ready */
   gboolean ready;
@@ -66,6 +66,7 @@ struct _CockpitChannelPrivate {
 
   /* Other state */
   JsonGenerator *generator;
+  JsonObject *close_options;
 };
 
 enum {
@@ -179,7 +180,7 @@ cockpit_channel_set_property (GObject *object,
         self->priv->number = g_value_get_uint (value);
         break;
       case PROP_OPTIONS:
-        self->priv->options = g_value_dup_boxed (value);
+        self->priv->open_options = g_value_dup_boxed (value);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -216,7 +217,9 @@ cockpit_channel_finalize (GObject *object)
   CockpitChannel *self = COCKPIT_CHANNEL (object);
 
   g_object_unref (self->priv->transport);
-  json_object_unref (self->priv->options);
+  json_object_unref (self->priv->open_options);
+  if (self->priv->close_options)
+    json_object_unref (self->priv->close_options);
   if (self->priv->generator)
     g_object_unref (self->priv->generator);
 
@@ -228,8 +231,12 @@ cockpit_channel_real_close (CockpitChannel *self,
                             const gchar *problem)
 {
   const gchar *reason = problem;
+  JsonGenerator *generator;
+  JsonObject *object;
   GBytes *message;
+  gsize length;
   gchar *json;
+  JsonNode *node;
 
   if (self->priv->closed)
     return;
@@ -238,10 +245,29 @@ cockpit_channel_real_close (CockpitChannel *self,
 
   if (reason == NULL)
     reason = "";
-  json = g_strdup_printf ("{\"command\": \"close\", \"channel\": %u, \"reason\": \"%s\"}",
-                          self->priv->number, reason);
 
-  message = g_bytes_new_take (json, strlen (json));
+  if (self->priv->close_options)
+    {
+      object = self->priv->close_options;
+      self->priv->close_options = NULL;
+    }
+  else
+    {
+      object = json_object_new ();
+    }
+
+  json_object_set_string_member (object, "command", "close");
+  json_object_set_int_member (object, "channel", self->priv->number);
+  json_object_set_string_member (object, "reason", reason);
+
+  generator = cockpit_channel_get_generator (self);
+  node = json_node_alloc ();
+  json_node_take_object (node, object);
+  json_generator_set_root (generator, node);
+  json_node_free (node);
+
+  json = json_generator_to_data (generator, &length);
+  message = g_bytes_new_take (json, length);
   cockpit_transport_send (self->priv->transport, 0, message);
   g_bytes_unref (message);
 
@@ -459,7 +485,7 @@ cockpit_channel_get_option (CockpitChannel *self,
                             const gchar *name)
 {
   const gchar *value;
-  if (!cockpit_json_get_string (self->priv->options, name, NULL, &value))
+  if (!cockpit_json_get_string (self->priv->open_options, name, NULL, &value))
     value = NULL;
   return value;
 }
@@ -479,7 +505,7 @@ cockpit_channel_get_int_option (CockpitChannel *self,
                                 const gchar *name)
 {
   gint64 value;
-  if (!cockpit_json_get_int (self->priv->options, name, G_MAXINT64, &value))
+  if (!cockpit_json_get_int (self->priv->open_options, name, G_MAXINT64, &value))
     value = G_MAXINT64;
   return value;
 }
@@ -499,7 +525,7 @@ cockpit_channel_get_bool_option (CockpitChannel *self,
                                  const gchar *name)
 {
   gboolean value;
-  if (!cockpit_json_get_bool (self->priv->options, name, FALSE, &value))
+  if (!cockpit_json_get_bool (self->priv->open_options, name, FALSE, &value))
     value = FALSE;
   return value;
 }
@@ -527,12 +553,36 @@ cockpit_channel_get_strv_option (CockpitChannel *self,
   if (value)
     return (const gchar **)value;
 
-  if (!cockpit_json_get_strv (self->priv->options, name, NULL, &value))
+  if (!cockpit_json_get_strv (self->priv->open_options, name, NULL, &value))
     value = NULL;
 
   /* Stash here so caller can not worry about memory */
   g_object_set_data_full (G_OBJECT (self), name, value, g_free);
   return (const gchar **)value;
+}
+
+/**
+ * cockpit_channel_close_option:
+ * @self: a channel
+ * @name: the option name
+ * @value: the value to add
+ *
+ * Add a value to the close message for this channel. This must
+ * be called before the cockpit_channel_close base class
+ * implementation.
+ */
+void
+cockpit_channel_close_option (CockpitChannel *self,
+                              const gchar *name,
+                              const gchar *value)
+{
+  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
+  g_return_if_fail (name != NULL);
+  g_return_if_fail (value != NULL);
+
+  if (!self->priv->close_options)
+    self->priv->close_options = json_object_new ();
+  json_object_set_string_member (self->priv->close_options, name, value);
 }
 
 /**

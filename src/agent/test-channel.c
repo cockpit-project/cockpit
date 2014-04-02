@@ -21,6 +21,7 @@
 
 #include "cockpitchannel.h"
 
+#include "cockpit/cockpitjson.h"
 #include "cockpit/cockpittest.h"
 
 #include <json-glib/json-glib.h>
@@ -226,6 +227,53 @@ teardown (TestCase *tc,
 }
 
 static void
+assert_bytes_eq_json_msg (const char *domain,
+                          const char *file,
+                          int line,
+                          const char *func,
+                          GBytes *bytes,
+                          const gchar *expect)
+{
+  GError *error = NULL;
+  JsonParser *parser;
+  JsonGenerator *generator;
+  JsonNode *node;
+  gchar *escaped;
+  gconstpointer data;
+  gsize length;
+  gchar *msg;
+
+  parser = json_parser_new ();
+  data = g_bytes_get_data (bytes, &length);
+  json_parser_load_from_data (parser, data, length, &error);
+  if (error)
+    g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
+  node = json_node_copy (json_parser_get_root (parser));
+
+  json_parser_load_from_data (parser, expect, -1, &error);
+  if (error)
+    g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
+
+  if (!cockpit_json_equal (json_parser_get_root (parser), node))
+    {
+      generator = json_generator_new ();
+      json_generator_set_root (generator, node);
+      escaped = json_generator_to_data (generator, NULL);
+      g_object_unref (generator);
+
+      msg = g_strdup_printf ("%s != %s", escaped, expect);
+      g_assertion_message (domain, file, line, func, msg);
+      g_free (escaped);
+      g_free (msg);
+    }
+  json_node_free (node);
+  g_object_unref (parser);
+}
+
+#define assert_bytes_eq_json(node, expect) \
+  assert_bytes_eq_json_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (node), (expect))
+
+static void
 test_recv_and_send (TestCase *tc,
                     gconstpointer unused)
 {
@@ -284,7 +332,25 @@ test_close_immediately (TestCase *tc,
 
   g_assert (tc->transport->payload_sent == NULL);
   g_assert (tc->transport->control_sent != NULL);
+
+  assert_bytes_eq_json (tc->transport->control_sent,
+                  "{ \"command\": \"close\", \"channel\": 554, \"reason\": \"bad-boy\"}");
 }
+
+static void
+test_close_option (TestCase *tc,
+                   gconstpointer unused)
+{
+  cockpit_channel_close_option (tc->channel, "option", "four");
+  cockpit_channel_close (tc->channel, "bad-boy");
+
+  g_assert (tc->transport->payload_sent == NULL);
+  g_assert (tc->transport->control_sent != NULL);
+
+  assert_bytes_eq_json (tc->transport->control_sent,
+                  "{ \"command\": \"close\", \"channel\": 554, \"reason\": \"bad-boy\", \"option\": \"four\" }");
+}
+
 
 static void
 on_closed_get_problem (CockpitChannel *channel,
@@ -413,6 +479,8 @@ main (int argc,
               setup, test_recv_and_queue, teardown);
   g_test_add ("/channel/close-immediately", TestCase, NULL,
               setup, test_close_immediately, teardown);
+  g_test_add ("/channel/close-option", TestCase, NULL,
+              setup, test_close_option, teardown);
   g_test_add ("/channel/close-transport", TestCase, NULL,
               setup, test_close_transport, teardown);
 

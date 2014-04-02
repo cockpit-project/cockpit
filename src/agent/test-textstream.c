@@ -434,30 +434,115 @@ test_close_problem (TestCase *tc,
   while (tc->channel_problem == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  /* Should have sent payload and control */
+  /* Should have sent no payload and control */
   g_assert_cmpstr (tc->channel_problem, ==, "boooyah");
   g_assert (tc->transport->payload_sent == 0);
   expect_control_message (tc->transport->control_sent, "close", 548, "reason", "boooyah", NULL);
 }
 
 static void
-test_close_before_open (TestCase *tc,
-                        gconstpointer unused)
+test_spawn_simple (void)
 {
-  cockpit_channel_close (tc->channel, "boooyah");
+  MockTransport *transport;
+  CockpitChannel *channel;
+  gchar *problem = NULL;
+  JsonObject *options;
+  JsonArray *array;
+  GBytes *sent;
 
-  /* Wait until channel closes */
-  while (tc->channel_problem == NULL)
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  options = json_object_new ();
+  array = json_array_new ();
+  json_array_add_string_element (array, "/bin/cat");
+  json_object_set_array_member (options, "spawn", array);
+  json_object_set_string_member (options, "payload", "text-stream");
+
+  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+                          "options", options,
+                          "channel", 548,
+                          "transport", transport,
+                          NULL);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  json_object_unref (options);
+
+  sent = g_bytes_new ("Marmalaade!", 11);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), 548, sent);
+  cockpit_channel_close (channel, NULL);
+
+  while (!transport->payload_sent)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (g_bytes_equal (sent, transport->payload_sent));
+  g_bytes_unref (sent);
+
+  while (!problem)
     g_main_context_iteration (NULL, TRUE);
 
-  /* Should have sent payload and control */
-  g_assert_cmpstr (tc->channel_problem, ==, "boooyah");
-  g_assert (tc->transport->payload_sent == NULL);
-  expect_control_message (tc->transport->control_sent, "close", 548, "reason", "boooyah", NULL);
+  g_assert_cmpstr (problem, ==, "");
+  g_object_unref (channel);
 
-  /* Should never have opened */
-  while (g_main_context_iteration (NULL, FALSE));
-  g_assert (tc->conn_sock == NULL);
+  g_object_unref (transport);
+}
+
+static void
+test_spawn_environ (void)
+{
+  MockTransport *transport;
+  CockpitChannel *channel;
+  gchar *problem = NULL;
+  JsonObject *options;
+  JsonArray *array;
+  GString *string;
+  gconstpointer data;
+  gsize len;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  options = json_object_new ();
+
+  array = json_array_new ();
+  json_array_add_string_element (array, "/bin/sh");
+  json_array_add_string_element (array, "-c");
+  json_array_add_string_element (array, "set");
+  json_object_set_array_member (options, "spawn", array);
+
+  array = json_array_new ();
+  json_array_add_string_element (array, "ENVIRON=Marmalaade");
+  json_object_set_array_member (options, "environ", array);
+
+  json_object_set_string_member (options, "payload", "text-stream");
+
+  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+                          "options", options,
+                          "channel", 548,
+                          "transport", transport,
+                          NULL);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  cockpit_channel_close (channel, NULL);
+  json_object_unref (options);
+
+  string = g_string_new ("");
+  while (!problem)
+    {
+      g_main_context_iteration (NULL, TRUE);
+      if (transport->payload_sent)
+        {
+          data = g_bytes_get_data (transport->payload_sent, &len);
+          g_string_append_len (string, data, len);
+          g_bytes_unref (transport->payload_sent);
+          transport->channel_sent = G_MAXUINT;
+          transport->payload_sent = NULL;
+        }
+    }
+
+  g_assert_cmpstr (problem, ==, "");
+  g_free (problem);
+
+  cockpit_assert_strmatch (string->str, "*ENVIRON=*Marmalaade*");
+  g_string_free (string, TRUE);
+
+  g_object_unref (channel);
+  g_object_unref (transport);
 }
 
 static void
@@ -586,12 +671,13 @@ main (int argc,
               setup_channel, test_close_normal, teardown);
   g_test_add ("/text-stream/close-problem", TestCase, NULL,
               setup_channel, test_close_problem, teardown);
-  g_test_add ("/text-stream/close-before-open", TestCase, NULL,
-              setup_channel, test_close_before_open, teardown);
   g_test_add ("/text-stream/invalid-send", TestCase, NULL,
               setup_channel, test_send_invalid, teardown);
   g_test_add ("/text-stream/invalid-recv", TestCase, NULL,
               setup_channel, test_recv_invalid, teardown);
+
+  g_test_add_func ("/text-stream/spawn/simple", test_spawn_simple);
+  g_test_add_func ("/text-stream/spawn/environ", test_spawn_environ);
 
   g_test_add_func ("/test-stream/fail/not-found", test_fail_not_found);
   g_test_add_func ("/test-stream/fail/not-authorized", test_fail_not_authorized);

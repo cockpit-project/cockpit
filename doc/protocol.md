@@ -230,6 +230,14 @@ Additional "open" command options should be specified with a channel of
 this payload type:
 
  * "unix": Open a channel with the given unix socket.
+ * "spawn": Spawn a process and connect standard input and standard output
+   to the channel. Should be an array of strings which is the process
+   file path and arguments.
+ * "environ": If "spawn" is set, then this is the environment for the new
+   spawned process. If unset, then the environment is inherited from the
+   agent.
+
+You can't specify both "unix" and "spawn" together.
 
 Problem codes
 -------------

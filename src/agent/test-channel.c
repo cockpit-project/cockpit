@@ -369,6 +369,34 @@ test_properties (void)
   g_object_unref (channel);
 }
 
+static void
+test_generator (void)
+{
+  JsonGenerator *generator;
+  JsonGenerator *same;
+  JsonObject *options;
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+
+  options = json_object_new ();
+  transport = g_object_new (mock_transport_get_type (), NULL);
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "channel", 55,
+                          "options", options,
+                          NULL);
+  g_object_unref (transport);
+  json_object_unref (options);
+
+  generator = cockpit_channel_get_generator (channel);
+  g_assert (JSON_IS_GENERATOR (generator));
+
+  same = cockpit_channel_get_generator (channel);
+  g_assert (generator == same);
+
+  g_object_unref (channel);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -377,6 +405,7 @@ main (int argc,
 
   g_test_add_func ("/channel/get-option", test_get_option);
   g_test_add_func ("/channel/properties", test_properties);
+  g_test_add_func ("/channel/generator", test_generator);
 
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);

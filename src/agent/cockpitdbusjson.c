@@ -296,18 +296,18 @@ _json_builder_add_gvariant (JsonBuilder *builder,
 }
 
 static GBytes *
-_json_builder_to_bytes (JsonBuilder *builder)
+_json_builder_to_bytes (CockpitDBusJson *self,
+                        JsonBuilder *builder)
 {
   JsonGenerator *generator;
   JsonNode *root;
   gchar *ret;
 
-  generator = json_generator_new ();
+  generator = cockpit_channel_get_generator (COCKPIT_CHANNEL (self));
   root = json_builder_get_root (builder);
   json_generator_set_root (generator, root);
   ret = json_generator_to_data (generator, NULL);
   json_node_free (root);
-  g_object_unref (generator);
 
   return g_bytes_new_take (ret, strlen (ret));
 }
@@ -331,7 +331,7 @@ write_builder (CockpitDBusJson *self,
   GBytes *bytes;
 
   json_builder_end_object (builder);
-  bytes = _json_builder_to_bytes (builder);
+  bytes = _json_builder_to_bytes (self, builder);
   cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
   g_bytes_unref (bytes);
 }

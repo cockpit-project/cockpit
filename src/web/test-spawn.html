@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <title>Spawn Tests</title>
+    <link rel="stylesheet" href="qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="qunit.js"></script>
+    <script type="text/javascript" src="spawn.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">Spawn Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+  </body>
+<script type="text/javascript">
+
+/* Seems like something jQuery should provide */
+if (!console.assert) {
+    console.assert = function(cond, msg) {
+        if (!cond)
+            throw msg || "assertion failed";
+    }
+};
+
+function MockPeer() {
+    /*
+     * Events triggered here:
+     * open(event, args)
+     * recv(event, payload)
+     * close(event, reason)
+     * get(event, path)
+     */
+
+    /* open: triggered when mock Channel is created */
+    this.onopened = function(event, channel, options) {
+        /* nada */
+    };
+
+    /* close event: triggered when mock Channel is closed */
+    this.onclosed = function(event, channel, options) {
+        /* nada */
+    };
+
+    /* get event: triggered when we receive a get request */
+    this.onget = function(event, channel, request) {
+        if (event.isDefaultPrevented())
+            return false;
+        if (request.path == "/")
+            this.reply(channel, request, { "key": "value" });
+    };
+
+    /* send a message from peer back to channel */
+    this.send = function(channel, payload) {
+        if (typeof(payload) != "string")
+            payload = String(payload);
+        window.setTimeout(function() {
+            if (channel.valid)
+                $(channel).trigger("message", [payload]);
+            else
+                console.log("dropping message after close from MockPeer");
+        }, 5);
+    }
+
+    /* peer closes the channel */
+    this.close = function(channel, options) {
+        console.assert(channel);
+        window.setTimeout(function() {
+            if (channel.valid) {
+                channel.valid = false;
+                $(channel).trigger("close", [options || { }]);
+            }
+        }, 5);
+    }
+
+    var peer = this;
+    var last_channel = 0;
+
+    Channel = function MockChannel(options) {
+        this.number = last_channel++;
+        this.options = options;
+        this.valid = true;
+
+        var channel = this;
+
+        this.transport = new function() {
+            this.close = function(reason) { console.assert(arguments.length == 1); }
+        };
+
+        this.send = function(payload) {
+            console.assert(arguments.length == 1);
+            console.assert(this.valid);
+            window.setTimeout(function() { $(peer).trigger("recv", [channel, payload]); }, 5);
+        };
+
+        this.close = function(options) {
+            console.assert(arguments.length <= 1);
+            this.valid = false;
+            window.setTimeout(function() { $(peer).trigger("closed", [channel, options || { }]); }, 5);
+            $(this).triggerHandler("close", [options || { }]);
+        };
+
+        QUnit.testDone(function() {
+            channel.valid = false;
+        });
+
+        $(peer).trigger("opened", [channel, options]);
+    }
+}
+
+test("public api", function() {
+    equal(typeof $cockpit.spawn, "function", "spawn is a function");
+});
+
+asyncTest("simple request", function() {
+    expect(5);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel, options) {
+        deepEqual(channel.options["spawn"], ["/the/path", "arg1", "arg2"], "passed spawn correctly");
+        equal(channel.options["host"], undefined, "simple request had no host");
+    });
+    $(peer).on("recv", function(event, channel, payload) {
+        equal(payload, "input", "simple request had input");
+        this.send(channel, "output");
+        this.close(channel);
+    });
+
+    $cockpit.spawn(["/the/path", "arg1", "arg2"]).
+        write("input").
+        done(function(resp) {
+            deepEqual(resp, "output", "simple request returned right json");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "simple request didn't fail");
+            start();
+        });
+});
+
+asyncTest("channel options", function() {
+    expect(1);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel) {
+        deepEqual(channel.options, {
+            "spawn": ["/the/path", "arg"],
+            "host": "the-other-host.example.com",
+            "extra-option": "zerogjuggs",
+            "payload": "text-stream"
+            }, "channel options sent correctly");
+        start();
+    });
+
+    /* Don't care about the result ... */
+    var options = { "extra-option": "zerogjuggs" };
+    $cockpit.spawn(["/the/path", "arg"], "the-other-host.example.com", options);
+});
+
+asyncTest("streaming", function() {
+    expect(12);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel) {
+        for(var i = 0; i < 10; i++)
+            this.send(channel, String(i));
+        this.close(channel);
+    });
+
+    var at = 0;
+    $cockpit.spawn(["/unused"]).
+        stream(function(resp) {
+            equal(String(at), resp, "stream got right data");
+            at++;
+        }).
+        done(function(resp) {
+            ok(!resp, "stream didn't send data to done");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "split response didn't fail");
+            start();
+        });
+});
+
+asyncTest("with problem", function() {
+    expect(4);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel) {
+        peer.close(channel, {"reason": "not-found"});
+    });
+
+    $cockpit.spawn("/unused").
+        fail(function(ex) {
+            equal(ex.problem, "not-found", "with problem got problem");
+            ok(isNaN(ex.exit_signal), "with problem got no signal");
+            ok(isNaN(ex.exit_status), "with problem got no status");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "with problem should fail");
+            start();
+        });
+});
+
+asyncTest("with status", function() {
+    expect(4);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel) {
+        peer.close(channel, {"exit-status": 5});
+    });
+
+    $cockpit.spawn("/unused").
+        fail(function(ex) {
+            equal(ex.problem, "internal-error", "with status got problem");
+            ok(isNaN(ex.exit_signal), "with status got no signal");
+            strictEqual(ex.exit_status, 5, "with status got status");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "with status should fail");
+            start();
+        });
+});
+
+asyncTest("with signal", function() {
+    expect(4);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel) {
+        peer.close(channel, {"exit-signal": 15});
+    });
+
+    $cockpit.spawn("/unused").
+        fail(function(ex) {
+            equal(ex.problem, "internal-error", "with signal got problem");
+            strictEqual(ex.exit_signal, 15, "with signal got signal");
+            ok(isNaN(ex.exit_status), "with signal got no status");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "with signal should fail");
+            start();
+        });
+});
+
+QUnit.start();
+
+</script>
+</html>

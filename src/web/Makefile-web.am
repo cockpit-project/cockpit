@@ -7,6 +7,7 @@ cockpit_js_PARTS = \
 	src/web/channel.js \
 	src/web/dbus.js \
 	src/web/rest.js \
+	src/web/spawn.js \
 	src/web/debug.js \
 	src/web/lib/attrchange.js \
 	src/web/controls.js \
@@ -182,6 +183,7 @@ CHECK_DEPS = \
 	channel.js \
 	dbus.js \
 	rest.js \
+	spawn.js \
 	$(NULL)
 
 CHECK_HTML = \
@@ -190,6 +192,7 @@ CHECK_HTML = \
 	test-chan.html \
 	test-journal-renderer.html \
 	test-rest.html \
+	test-spawn.html \
 	$(NULL)
 
 CHECK_HTML_SRCS = $(addprefix src/web/,$(CHECK_HTML))

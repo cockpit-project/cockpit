@@ -464,6 +464,97 @@ test_properties (void)
   g_object_unref (tpipe);
 }
 
+static void
+on_closed_get_flag (CockpitPipe *pipe,
+                    const gchar *problem,
+                    gpointer user_data)
+{
+  gboolean *retval = user_data;
+  g_assert (*retval == FALSE);
+  *retval = TRUE;
+}
+
+static void
+on_closed_get_problem (CockpitPipe *pipe,
+                       const gchar *problem,
+                       gpointer user_data)
+{
+  gchar **retval = user_data;
+  g_assert (retval != NULL && *retval == NULL);
+  *retval = g_strdup (problem ? problem : "");
+}
+
+static void
+test_spawn_and_read (void)
+{
+  gboolean closed = FALSE;
+  GByteArray *buffer;
+  CockpitPipe *pipe;
+
+  const gchar *argv[] = { "/bin/sh", "-c", "set", NULL };
+  const gchar *env[] = { "ENVIRON=Marmalaaade", NULL, };
+
+  pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, env, NULL);
+  g_assert (pipe != NULL);
+  g_signal_connect (pipe, "closed", G_CALLBACK (on_closed_get_flag), &closed);
+
+  while (closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+
+  buffer = cockpit_pipe_get_buffer (pipe);
+  g_byte_array_append (buffer, (const guint8 *)"\0", 1);
+
+  cockpit_assert_strmatch ((gchar *)buffer->data, "*ENVIRON*Marmalaaade*");
+  g_object_unref (pipe);
+}
+
+static void
+test_spawn_and_write (void)
+{
+  CockpitPipe *pipe;
+  GByteArray *buffer;
+  GBytes *sent;
+
+  const gchar *argv[] = { "/bin/cat", NULL };
+
+  pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, NULL, NULL);
+  g_assert (pipe != NULL);
+
+  /* Sending on the pipe before actually connected */
+  sent = g_bytes_new_static ("jola", 5);
+  cockpit_pipe_write (pipe, sent);
+  g_bytes_unref (sent);
+
+  buffer = cockpit_pipe_get_buffer (pipe);
+  while (buffer->len == 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpuint (buffer->len, ==, 5);
+  g_assert_cmpstr ((gchar *)buffer->data, ==, "jola");
+
+  g_object_unref (pipe);
+}
+
+static void
+test_spawn_and_fail (void)
+{
+  gchar *problem = NULL;
+  CockpitPipe *pipe;
+
+  const gchar *argv[] = { "/non-existant", NULL };
+
+  pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, NULL, NULL);
+  g_assert (pipe != NULL);
+  g_signal_connect (pipe, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  while (problem == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "not-found");
+  g_free (problem);
+  g_object_unref (pipe);
+}
+
 typedef struct {
   GSocket *listen_sock;
   GSource *listen_source;
@@ -627,16 +718,6 @@ test_connect_and_write (TestConnect *tc,
 }
 
 static void
-on_closed_get_problem (CockpitPipe *pipe,
-                       const gchar *problem,
-                       gpointer user_data)
-{
-  gchar **retval = user_data;
-  g_assert (retval != NULL && *retval == NULL);
-  *retval = g_strdup (problem ? problem : "");
-}
-
-static void
 test_fail_not_found (void)
 {
   CockpitPipe *pipe;
@@ -746,6 +827,10 @@ main (int argc,
   g_test_add_func ("/pipe/read-error", test_read_error);
   g_test_add_func ("/pipe/write-error", test_write_error);
   g_test_add_func ("/pipe/read-combined", test_read_combined);
+
+  g_test_add_func ("/pipe/spawn/and-read", test_spawn_and_read);
+  g_test_add_func ("/pipe/spawn/and-write", test_spawn_and_write);
+  g_test_add_func ("/pipe/spawn/and-fail", test_spawn_and_fail);
 
   g_test_add ("/pipe/connect/and-read", TestConnect, NULL,
               setup_connect, test_connect_and_read, teardown_connect);

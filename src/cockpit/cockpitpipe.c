@@ -732,7 +732,7 @@ cockpit_pipe_write (CockpitPipe *self,
 
   g_queue_push_tail (self->priv->out_queue, g_bytes_ref (data));
 
-  if (!self->priv->out_poll)
+  if (!self->priv->out_poll && self->priv->out_fd >= 0)
     {
       start_output (self);
     }
@@ -846,6 +846,90 @@ cockpit_pipe_connect (const gchar *name,
       g_idle_add_full (G_PRIORITY_DEFAULT, on_later_close,
                        g_object_ref (pipe), g_object_unref);
     }
+
+  return pipe;
+}
+
+/**
+ * cockpit_pipe_spawn:
+ * @pipe_gtype: the GType of the resulting pipe object
+ * @argv: null terminated string array of command arguments
+ * @env: optional null terminated string array of child environment
+ * @directory: optional working directory of child process
+ *
+ * Launch a child process and create a CockpitPipe for it. Standard
+ * in and standard out are connected to the pipe. Standard error
+ * goes to the standard error output of parent process.
+ *
+ * If the spawn fails, a pipe is still returned. It will
+ * close once the main loop is run with an appropriate problem.
+ *
+ * NOTE: Although we could probably implement this as construct arguments
+ * and without the @pipe_gtype argument, this is just simpler
+ * for now.
+ *
+ * Returns: (transfer full): newly allocated CockpitPipe.
+ */
+CockpitPipe *
+cockpit_pipe_spawn (GType pipe_gtype,
+                    const gchar **argv,
+                    const gchar **env,
+                    const gchar *directory)
+{
+  CockpitPipe *pipe = NULL;
+  int session_stdin = -1;
+  int session_stdout = -1;
+  GError *error = NULL;
+  const gchar *problem = NULL;
+  gchar *name;
+  GPid pid = 0;
+
+  GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
+
+  g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
+                            flags, NULL, NULL,
+                            &pid, &session_stdin, &session_stdout, NULL,
+                            &error);
+
+  name = g_path_get_basename (argv[0]);
+  if (name == NULL)
+    name = g_strdup (argv[0]);
+
+  pipe = g_object_new (pipe_gtype,
+                       "name", name,
+                       "in-fd", session_stdout,
+                       "out-fd", session_stdin,
+                       "pid", pid,
+                       NULL);
+
+  if (error)
+    {
+      if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
+        problem = "not-found";
+      else if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_PERM) ||
+               g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_ACCES))
+        problem = "not-authorized";
+
+      if (problem)
+        {
+          g_debug ("%s: couldn't run %s: %s", name, argv[0], error->message);
+        }
+      else
+        {
+          g_message ("%s: couldn't run %s: %s", name, argv[0], error->message);
+          problem = "internal-error";
+        }
+      pipe->priv->problem = g_strdup (problem);
+      g_idle_add_full (G_PRIORITY_DEFAULT, on_later_close,
+                       g_object_ref (pipe), g_object_unref);
+      g_error_free (error);
+    }
+  else
+    {
+      g_debug ("%s: spawned: %s", name, argv[0]);
+    }
+
+  g_free (name);
 
   return pipe;
 }

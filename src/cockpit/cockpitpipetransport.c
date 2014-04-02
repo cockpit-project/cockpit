@@ -237,7 +237,8 @@ cockpit_pipe_transport_new (const gchar *name,
  * either locally or on another machine.
  *
  * TODO: There's a lot of logic in this function, and it's not
- * general. Eventually needs refactoring.
+ * general. Eventually needs refactoring. After libssh is merged
+ * this should use cockpit_pipe_spawn() or some variant of it.
  *
  * Returns: (transfer full): the new transport
  */

@@ -54,6 +54,11 @@ struct _CockpitPipeClass {
 
 GType              cockpit_pipe_get_type     (void) G_GNUC_CONST;
 
+CockpitPipe *      cockpit_pipe_spawn        (GType pipe_gtype,
+                                              const gchar **argv,
+                                              const gchar **env,
+                                              const gchar *directory);
+
 CockpitPipe *      cockpit_pipe_connect      (const gchar *name,
                                               GSocketAddress *address);
 

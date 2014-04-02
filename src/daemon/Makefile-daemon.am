@@ -32,6 +32,7 @@ CLEANFILES += $(lvm_dbus_built_sources)
 
 noinst_LIBRARIES += libcockpitd.a
 
+nodist_libcockpitd_a_SOURCES = $(lvm_dbus_built_sources)
 libcockpitd_a_SOURCES = \
 	src/daemon/types.h \
 	src/daemon/daemon.h \
@@ -92,7 +93,6 @@ libcockpitd_a_SOURCES = \
 	src/daemon/cgroup-show.c \
 	src/daemon/lvmutil.h \
 	src/daemon/lvmutil.c \
-	$(lvm_dbus_built_sources) \
 	$(NULL)
 
 libcockpitd_a_CFLAGS = \

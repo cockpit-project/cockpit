@@ -2,15 +2,18 @@ COCKPIT_BUILD_INFO = "Built on $(shell date)"
 
 noinst_LIBRARIES += libcockpit-ws.a
 
+nodist_libcockpit_ws_a_SOURCES = \
+	cockpitwsenumtypes.c \
+	cockpitwsenumtypes.h \
+	$(NULL)
 libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
-	src/ws/cockpitwstypes.h					\
+	src/ws/cockpitwstypes.h	\
 	src/ws/cockpitwebserver.h		src/ws/cockpitwebserver.c		\
 	src/ws/cockpitwebsocket.h 	src/ws/cockpitwebsocket.c		\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
 	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
-	cockpitwsenumtypes.h	cockpitwsenumtypes.c	\
 	$(NULL)
 
 libcockpit_ws_a_CFLAGS = \
@@ -86,11 +89,8 @@ testassets_data += dbus-test.html \
                    $(QUNIT_DEPS) \
                    $(NULL)
 
-test_server_SOURCES = 					\
-	src/ws/test-server.c				\
-	$(test_dbus_sources) \
-	$(NULL)
-
+test_server_SOURCES = src/ws/test-server.c $(mock_dbus_sources)
+nodist_test_server_SOURCES = $(test_built_sources)
 test_server_CFLAGS = 					\
 	-I$(top_srcdir)/src/ws \
 	-DG_LOG_DOMAIN=\"test_server\"			\

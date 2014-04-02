@@ -2100,38 +2100,36 @@
                   <input class="form-control" type="text" id="containers-run-image-command"/>
                 </td>
               </tr>
-              <tr>
+              <tr id="containers-run-image-memory">
                 <td translatable="yes">Memory limit</td>
                 <td class="shrink">
-                  <input type="checkbox" id="containers-run-image-memory-limit" />
+                  <input type="checkbox" />
                 </td>
                 <td>
-                  <div class="slider" disabled='true' value="0.2" id="containers-run-image-memory-slider">
+                  <div class="slider" disabled='true' value="0.2">
                     <div class="slider-bar">
                       <div class="slider-thumb"></div>
                     </div>
                   </div>
                 </td>
-                <td class="shrink" id="containers-run-image-memory-desc"
-                    style="min-width: 8em; text-align: right;">
-                    unlimited
+                <td class="shrink" style="min-width: 8em; text-align: right;">
+                    <span>unlimited</span>
                 </td>
               </tr>
-              <tr>
+              <tr id="containers-run-image-cpu">
                 <td translatable="yes">CPU priority</td>
                 <td class="shrink">
-                  <input type="checkbox" id="containers-run-image-cpu-prioritize" />
+                  <input type="checkbox" />
                 </td>
                 <td>
-                  <div class="slider" disabled='true' value="0.2" id="containers-run-image-cpu-slider">
+                  <div class="slider" disabled='true' value="0.2">
                     <div class="slider-bar">
                       <div class="slider-thumb"></div>
                     </div>
                   </div>
                 </td>
-                <td class="shrink" id="containers-run-image-cpu-desc"
-                    style="min-width: 8em; text-align: right;">
-                    default
+                <td class="shrink" style="min-width: 8em; text-align: right;">
+                  <span>default</span>
                 </td>
               </tr>
               <tr>

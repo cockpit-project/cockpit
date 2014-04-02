@@ -25,6 +25,8 @@
 
 #include <gio/gunixsocketaddress.h>
 
+#include <sys/wait.h>
+
 /**
  * CockpitTextStream:
  *
@@ -156,8 +158,18 @@ on_pipe_close (CockpitPipe *buffer,
 {
   CockpitTextStream *self = user_data;
   CockpitChannel *channel = user_data;
+
   self->open = FALSE;
+
   cockpit_channel_close (channel, problem);
+}
+
+static gboolean
+on_idle_protocol_error (gpointer user_data)
+{
+  CockpitChannel *channel = COCKPIT_CHANNEL (user_data);
+  cockpit_channel_close (channel, "protocol-error");
+  return FALSE;
 }
 
 static void
@@ -166,44 +178,53 @@ cockpit_text_stream_init (CockpitTextStream *self)
 
 }
 
-static gboolean
-connect_in_idle (gpointer user_data)
+static void
+cockpit_text_stream_constructed (GObject *object)
 {
-  CockpitTextStream *self = COCKPIT_TEXT_STREAM (user_data);
+  CockpitTextStream *self = COCKPIT_TEXT_STREAM (object);
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   GSocketAddress *address;
   const gchar *unix_path;
+  const gchar **argv;
+  const gchar **env;
 
-  if (self->closing)
-    return FALSE;
+  G_OBJECT_CLASS (cockpit_text_stream_parent_class)->constructed (object);
 
   unix_path = cockpit_channel_get_option (channel, "unix");
-  if (unix_path == NULL)
+  argv = cockpit_channel_get_strv_option (channel, "spawn");
+
+  if (argv == NULL && unix_path == NULL)
     {
-      g_warning ("did not receive a unix option");
-      cockpit_channel_close (channel, "protocol-error");
-      return FALSE;
+      g_warning ("did not receive a unix or spawn option");
+      g_idle_add_full (G_PRIORITY_DEFAULT, on_idle_protocol_error,
+                       g_object_ref (channel), g_object_unref);
+      return;
+    }
+  else if (argv != NULL && unix_path != NULL)
+    {
+      g_warning ("received both a unix and spawn option");
+      g_idle_add_full (G_PRIORITY_DEFAULT, on_idle_protocol_error,
+                       g_object_ref (channel), g_object_unref);
+      return;
+    }
+  else if (unix_path)
+    {
+      self->name = unix_path;
+      address = g_unix_socket_address_new (unix_path);
+      self->pipe = cockpit_pipe_connect (self->name, address);
+      g_object_unref (address);
+    }
+  else if (argv)
+    {
+      self->name = argv[0];
+      env = cockpit_channel_get_strv_option (channel, "environ");
+      self->pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, env, NULL);
     }
 
-  self->name = unix_path;
-  address = g_unix_socket_address_new (unix_path);
-  self->pipe = cockpit_pipe_connect (self->name, address);
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
   self->open = TRUE;
   cockpit_channel_ready (channel);
-  g_object_unref (address);
-  return FALSE; /* don't run again */
-}
-
-static void
-cockpit_text_stream_constructed (GObject *object)
-{
-  G_OBJECT_CLASS (cockpit_text_stream_parent_class)->constructed (object);
-
-  /* Guarantee not to close immediately */
-  g_idle_add_full (G_PRIORITY_DEFAULT, connect_in_idle,
-                   g_object_ref (object), g_object_unref);
 }
 
 static void

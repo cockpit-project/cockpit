@@ -235,20 +235,23 @@ dispatch_input (CockpitPipe *self)
 static void
 close_output (CockpitPipe *self)
 {
-  g_debug ("%s: end of output", self->priv->name);
-
-  /* And if closing, then we need to shutdown the output fd */
-  if (shutdown (self->priv->out_fd, SHUT_WR) < 0)
+  if (self->priv->out_fd != -1)
     {
-      if (errno == ENOTSOCK)
+      g_debug ("%s: end of output", self->priv->name);
+
+      /* And if closing, then we need to shutdown the output fd */
+      if (shutdown (self->priv->out_fd, SHUT_WR) < 0)
         {
-          close (self->priv->out_fd);
-          self->priv->out_fd = -1;
-        }
-      else
-        {
-          g_warning ("%s: couldn't shutdown fd: %s", self->priv->name, g_strerror (errno));
-          close_immediately (self, "internal-error");
+          if (errno == ENOTSOCK)
+            {
+              close (self->priv->out_fd);
+              self->priv->out_fd = -1;
+            }
+          else
+            {
+              g_warning ("%s: couldn't shutdown fd: %s", self->priv->name, g_strerror (errno));
+              close_immediately (self, "internal-error");
+            }
         }
     }
 

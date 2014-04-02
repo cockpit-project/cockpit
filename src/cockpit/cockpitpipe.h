@@ -68,6 +68,8 @@ void               cockpit_pipe_write        (CockpitPipe *self,
 void               cockpit_pipe_close        (CockpitPipe *self,
                                               const gchar *problem);
 
+gint               cockpit_pipe_exit_status  (CockpitPipe *self);
+
 GByteArray *       cockpit_pipe_get_buffer   (CockpitPipe *self);
 
 GPid               cockpit_pipe_get_pid      (CockpitPipe *self);

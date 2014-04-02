@@ -61,6 +61,7 @@ struct _CockpitPipePrivate {
   GPid pid;
   GSource *child;
   gboolean exited;
+  gint status;
 
   int out_fd;
   GQueue *out_queue;
@@ -90,6 +91,7 @@ cockpit_pipe_init (CockpitPipe *self)
   self->priv->in_fd = -1;
   self->priv->out_queue = g_queue_new ();
   self->priv->out_fd = -1;
+  self->priv->status = -1;
 }
 
 static void
@@ -153,40 +155,16 @@ on_child_reap (GPid pid,
                gpointer user_data)
 {
   CockpitPipe *self = COCKPIT_PIPE (user_data);
-  const gchar *problem = NULL;
-  GError *error = NULL;
 
-  g_debug ("%s: reaping child: %d %d", self->priv->name, (int)pid, status);
+  self->priv->status = status;
   self->priv->exited = TRUE;
-
-  if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
-    problem = "terminated";
-  else if (WIFEXITED (status) && WEXITSTATUS (status) == 5)
-    problem = "not-authorized";  // wrong password
-  else if (WIFEXITED (status) && WEXITSTATUS (status) == 6)
-    problem = "unknown-hostkey";
-  else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
-    problem = "no-agent";        // cockpit-agent not installed
-  else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
-    problem = "terminated";      // ssh failed or got a signal, etc.
-  else if (!g_spawn_check_exit_status (status, &error))
-    {
-      problem = "internal-error";
-      g_warning ("session program failed: %s", error->message);
-      g_error_free (error);
-    }
-
-  if (!self->priv->problem)
-    self->priv->problem = g_strdup (problem);
 
   /*
    * When a pid is present then this is the definitive way of
    * determining when the process has closed.
    */
-  g_debug ("%s: child process quit: closed%s%s",
-           self->priv->name, problem ? ": " : "",
-           problem ? problem : "");
 
+  g_debug ("%s: child process quit: closed: %d %d", self->priv->name, (int)pid, status);
   g_signal_emit (self, cockpit_pipe_sig_close, 0, self->priv->problem);
 }
 
@@ -977,6 +955,27 @@ cockpit_pipe_get_buffer (CockpitPipe *self)
 {
   g_return_val_if_fail (COCKPIT_IS_PIPE (self), NULL);
   return self->priv->in_buffer;
+}
+
+/**
+ * cockpit_pipe_exit_status:
+ * @self: a pipe
+ *
+ * Get the exit status of a process pipe. This is only
+ * valid if this pipe has a CockpitPipe:pid property
+ * and the CockpitPipe::closed signal has fired.
+ *
+ * This is the raw exit status from waitpid() and friends
+ * and needs to be checked if it's a signal or exit return
+ * value.
+ *
+ * Returns: the exit signal.
+ */
+gint
+cockpit_pipe_exit_status (CockpitPipe *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_PIPE (self), -1);
+  return self->priv->status;
 }
 
 /**

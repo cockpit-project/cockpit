@@ -18,13 +18,13 @@ CLEANFILES += cockpit-generated*
 lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
 
 com.redhat.lvm2.h : com.redhat.lvm2.c
-com.redhat.lvm2.c : Makefile.am /usr/share/dbus-1/interfaces/com.redhat.lvm2.xml
+com.redhat.lvm2.c : Makefile.am $(LVM2_INTERFACE)
 	$(AM_V_GEN) $(GDBUS_CODEGEN)  \
 		--interface-prefix com.redhat.lvm2 	\
 		--c-namespace Lvm 			\
 		--c-generate-object-manager 		\
 		--generate-c-code com.redhat.lvm2 	\
-		$(datadir)/dbus-1/interfaces/com.redhat.lvm2.xml \
+		$(LVM2_INTERFACE) \
 		$(NULL)
 
 BUILT_SOURCES += $(lvm_dbus_built_sources)

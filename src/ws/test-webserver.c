@@ -24,24 +24,102 @@
 #include "websocket/websocket.h"
 #include "websocket/websocketprivate.h"
 
+#include <sys/types.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <netinet/ip6.h>
+#include <ifaddrs.h>
 #include <string.h>
 
 typedef struct {
     CockpitWebServer *web_server;
-    gint port;
+    gchar *localport;
+    gchar *hostport;
 } TestCase;
+
+typedef struct {
+    const gchar *cert_file;
+} TestFixture;
+
+/* Can't use g_test_skip() yet */
+static void
+test_skip (const gchar *reason)
+{
+  if (g_test_verbose ())
+    g_print ("GTest: skipping: %s\n", reason);
+  else
+    g_print ("SKIP: %s ", reason);
+}
+
+static GInetAddress *
+find_non_loopback_address (void)
+{
+  GInetAddress *inet = NULL;
+  struct ifaddrs *ifas, *ifa;
+  gpointer bytes;
+
+  g_assert_cmpint (getifaddrs (&ifas), ==, 0);
+  for (ifa = ifas; ifa != NULL; ifa = ifa->ifa_next)
+    {
+      if (!(ifa->ifa_flags & IFF_UP))
+        continue;
+      if (ifa->ifa_addr->sa_family == AF_INET)
+        {
+          bytes = &(((struct sockaddr_in *)ifa->ifa_addr)->sin_addr);
+          inet = g_inet_address_new_from_bytes (bytes, G_SOCKET_FAMILY_IPV4);
+        }
+      else if (ifa->ifa_addr->sa_family == AF_INET6)
+        {
+          bytes = &(((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr);
+          inet = g_inet_address_new_from_bytes (bytes, G_SOCKET_FAMILY_IPV6);
+        }
+      if (inet)
+        {
+          if (!g_inet_address_get_is_loopback (inet))
+            break;
+          g_object_unref (inet);
+          inet = NULL;
+        }
+    }
+
+  freeifaddrs (ifas);
+  return inet;
+}
 
 static void
 setup (TestCase *tc,
        gconstpointer data)
 {
   const gchar *roots[] = { BUILDDIR, NULL };
+  const TestFixture *fixture = data;
+  GTlsCertificate *cert = NULL;
   GError *error = NULL;
-  tc->web_server = cockpit_web_server_new (0, NULL, roots, NULL, &error);
+  GInetAddress *inet;
+  gchar *str;
+  gint port;
+
+  if (fixture && fixture->cert_file)
+    {
+      cert = g_tls_certificate_new_from_file (fixture->cert_file, &error);
+      g_assert_no_error (error);
+    }
+
+  tc->web_server = cockpit_web_server_new (0, cert, roots, NULL, &error);
   g_assert_no_error (error);
+  g_clear_object (&cert);
 
   /* Automatically chosen by the web server */
-  g_object_get (tc->web_server, "port", &tc->port, NULL);
+  g_object_get (tc->web_server, "port", &port, NULL);
+  tc->localport = g_strdup_printf ("localhost:%d", port);
+
+  inet = find_non_loopback_address ();
+  if (inet)
+    {
+      str = g_inet_address_to_string (inet);
+      tc->hostport = g_strdup_printf ("%s:%d", str, port);
+      g_free (str);
+      g_object_unref (inet);
+    }
 }
 
 static void
@@ -52,7 +130,50 @@ teardown (TestCase *tc,
   g_object_add_weak_pointer (G_OBJECT (tc->web_server), (gpointer *)&tc->web_server);
   g_object_unref (tc->web_server);
   g_assert (tc->web_server == NULL);
+
+  g_free (tc->localport);
+  g_free (tc->hostport);
 }
+
+static void
+assert_matches_msg (const char *domain,
+                    const char *file,
+                    int line,
+                    const char *func,
+                    const gchar *string,
+                    const gchar *pattern)
+{
+  const gchar *suffix;
+  gchar *escaped;
+  gchar *msg;
+  int len;
+
+  if (!string || !g_pattern_match_simple (pattern, string))
+    {
+      escaped = g_strescape (pattern, "");
+      if (!string)
+        {
+          msg = g_strdup_printf ("'%s' does not match: (null)", escaped);
+        }
+      else
+        {
+          suffix = "";
+          len = strlen (string);
+          if (len > 256)
+            {
+              len = 256;
+              suffix = "\n...\n";
+            }
+          msg = g_strdup_printf ("'%s' does not match: %.*s%s", escaped, len, string, suffix);
+        }
+      g_assertion_message (domain, file, line, func, msg);
+      g_free (escaped);
+      g_free (msg);
+    }
+}
+
+#define assert_matches(str, pattern) \
+  assert_matches_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (str), (pattern))
 
 static void
 test_table (void)
@@ -202,7 +323,7 @@ on_ready_get_result (GObject *source,
 }
 
 static gchar *
-perform_http_request (gint port,
+perform_http_request (const gchar *hostport,
                       const gchar *request,
                       gsize *length)
 {
@@ -218,7 +339,7 @@ perform_http_request (gint port,
   client = g_socket_client_new ();
 
   result = NULL;
-  g_socket_client_connect_to_host_async (client, "localhost", port, NULL, on_ready_get_result, &result);
+  g_socket_client_connect_to_host_async (client, hostport, 1, NULL, on_ready_get_result, &result);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
   conn = g_socket_client_connect_to_host_finish (client, result, &error);
@@ -252,7 +373,8 @@ perform_http_request (gint port,
   g_object_unref (conn);
   g_object_unref (client);
 
-  *length = reply->len;
+  if (length)
+    *length = reply->len;
   return g_string_free (reply, FALSE);
 }
 
@@ -266,7 +388,7 @@ test_webserver_content_type (TestCase *tc,
   guint status;
   gssize off;
 
-  resp = perform_http_request (tc->port, "GET /dbus-test.html HTTP/1.0\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -292,7 +414,7 @@ test_webserver_not_found (TestCase *tc,
   guint status;
   gssize off;
 
-  resp = perform_http_request (tc->port, "GET /non-existent\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /non-existent\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -313,7 +435,7 @@ test_webserver_not_authorized (TestCase *tc,
   gssize off;
 
   /* Listing a directory will result in 403 (except / -> index.html) */
-  resp = perform_http_request (tc->port, "GET /po\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /po\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -321,6 +443,38 @@ test_webserver_not_authorized (TestCase *tc,
   g_assert_cmpuint (off, >, 0);
   g_assert_cmpint (status, ==, 403);
 
+  g_free (resp);
+}
+
+static const TestFixture fixture_with_cert = {
+    .cert_file = SRCDIR "/src/ws/mock_cert"
+};
+
+static void
+test_webserver_redirect_notls (TestCase *tc,
+                               gconstpointer data)
+{
+  gchar *resp;
+
+  if (!tc->hostport)
+    {
+      test_skip ("no non-loopback address found");
+      return;
+    }
+
+  resp = perform_http_request (tc->hostport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
+  assert_matches (resp, "HTTP/* 301 *\r\nLocation: https://*");
+  g_free (resp);
+}
+
+static void
+test_webserver_noredirect_localhost (TestCase *tc,
+                                     gconstpointer data)
+{
+  gchar *resp;
+
+  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
+  assert_matches (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
 
@@ -348,6 +502,11 @@ main (int argc,
               setup, test_webserver_not_found, teardown);
   g_test_add ("/web-server/not-authorized", TestCase, NULL,
               setup, test_webserver_not_authorized, teardown);
+
+  g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert,
+              setup, test_webserver_redirect_notls, teardown);
+  g_test_add ("/web-server/no-redirect-localhost", TestCase, &fixture_with_cert,
+              setup, test_webserver_noredirect_localhost, teardown);
 
   return g_test_run ();
 }

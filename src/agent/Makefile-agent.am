@@ -62,10 +62,8 @@ test_channel_SOURCES = src/agent/test-channel.c
 test_channel_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_channel_LDADD = $(libcockpit_agent_LIBS)
 
-test_dbusjson_SOURCES =  \
-	src/agent/test-dbusjson.c \
-	$(test_dbus_sources) \
-	$(NULL)
+test_dbusjson_SOURCES = src/agent/test-dbusjson.c $(mock_dbus_sources)
+nodist_test_dbusjson_SOURCES = $(test_built_sources)
 test_dbusjson_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_dbusjson_LDADD = $(libcockpit_agent_LIBS)
 

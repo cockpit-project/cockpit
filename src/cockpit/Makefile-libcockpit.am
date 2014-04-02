@@ -10,12 +10,14 @@ test-dbus-generated.c: Makefile.am $(srcdir)/src/cockpit/com.redhat.Cockpit.DBus
 		$(srcdir)/src/cockpit/com.redhat.Cockpit.DBusTests.xml \
 		$(NULL)
 
-test_dbus_sources = \
-	src/cockpit/mock-service.c src/cockpit/mock-service.h \
-	$(test_dbus_generated) \
+test_built_sources = $(test_dbus_generated)
+mock_dbus_sources = \
+	src/cockpit/mock-service.c \
+	src/cockpit/mock-service.h \
 	$(NULL)
 
-BUILT_SOURCES += $(test_dbus_sources)
+BUILT_SOURCES += $(test_built_sources)
+CLEANFILES += $(test_built_sources)
 
 cockpitenumtypes.h: src/cockpit/cockpitenums.h src/cockpit/cockpitenumtypes.h.template
 	$(AM_V_GEN) (glib-mkenums --template $(top_srcdir)/src/cockpit/cockpitenumtypes.h.template \
@@ -37,8 +39,12 @@ CLEANFILES += cockpitenumtypes.h cockpitenumtypes.c
 
 noinst_LIBRARIES += libcockpit.a
 
-libcockpit_a_SOURCES = cockpitenumtypes.h cockpitenumtypes.c \
+nodist_libcockpit_a_SOURCES = \
 	$(dbus_built_sources) \
+	cockpitenumtypes.c \
+	cockpitenumtypes.h \
+	$(NULL)
+libcockpit_a_SOURCES = \
 	src/cockpit/cockpit.h \
 	src/cockpit/cockpitenums.h \
 	src/cockpit/cockpiterror.h src/cockpit/cockpiterror.c \

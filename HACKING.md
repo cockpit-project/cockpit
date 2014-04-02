@@ -80,7 +80,7 @@ To run the integration tests, see `test/README`.
 Once Cockpit has been installed, the normal way to run it is via
 systemd:
 
-    # systemctl start cockpit-ws.socket
+    # systemctl start cockpit.socket
 
 This will cause systemd to listen on port 21064 and start cockpit-ws
 when someone connects to it.  Cockpit-ws will in turn activate
@@ -101,18 +101,18 @@ Point your browser to `https://IP-OR-NAME-OF-YOUR-VM:21064`
 and Cockpit should load after confirming the self-signed certificate.
 Log in as root with the normal root password (of the virtual machine).
 
-Cockpit consists of two main systemd services: cockpit.service and
-cockpit-ws.service.  After installing a new version, you should
+Cockpit consists of two main systemd services: cockpitd.service and
+cockpit.service.  After installing a new version, you should
 usually restart both of them
 
-    # systemctl restart cockpit cockpit-ws
+    # systemctl restart cockpit cockpitd
 
 and then reload the browser.
 
 If you want to run `/usr/libexec/cockpitd` or `/usr/libexec/cockpit-ws`
 outside of systemd, stop them first, including the socket:
 
-    # systemctl stop cockpit-ws.socket cockpit-ws cockpit
+    # systemctl stop cockpit.socket cockpit cockpitd
 
 ## Updating Patternfly
 

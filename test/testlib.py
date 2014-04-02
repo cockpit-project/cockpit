@@ -296,7 +296,7 @@ class MachineCase(unittest.TestCase):
         Cockpit is not running when the test virtual machine starts up, to
         allow you to make modifications before it starts.
         """
-        self.machine.execute("systemctl start cockpit-ws-testing.socket")
+        self.machine.execute("systemctl start cockpit-testing.socket")
 
     def login_and_go(self, page):
         self.start_cockpit()

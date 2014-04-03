@@ -5,10 +5,7 @@ com.redhat.Cockpit.service: data/com.redhat.Cockpit.service.in Makefile
 	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
 
 dbusconfdir = $(sysconfdir)/dbus-1/system.d
-nodist_dbusconf_DATA = com.redhat.Cockpit.conf
-
-com.redhat.Cockpit.conf: data/com.redhat.Cockpit.conf.in Makefile
-	$(AM_V_GEN) cp $< $@
+nodist_dbusconf_DATA = data/com.redhat.Cockpit.conf
 
 if HAVE_SYSTEMD
 systemdunitdir          = $(systemdsystemunitdir)
@@ -47,7 +44,7 @@ EXTRA_DIST += 						\
 	data/test-server.service.in                     \
 	data/com.redhat.Cockpit.service.in	\
 	data/cockpitd-testing.service.in \
-	data/com.redhat.Cockpit.conf.in		\
+	data/com.redhat.Cockpit.conf		\
 	data/config				\
 	data/cockpit.pam.insecure               \
 	$(dbusconf_DATA)			\
@@ -56,7 +53,6 @@ EXTRA_DIST += 						\
 CLEANFILES += \
 	cockpitd.service \
 	cockpit-testing.service \
-	com.redhat.Cockpit.conf \
 	test-server.service \
 	com.redhat.Cockpit.service \
 	cockpit.service \

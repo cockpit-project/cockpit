@@ -634,7 +634,7 @@ process_request (CockpitWebServer *server,
                  GIOStream *io_stream,
                  GDataInputStream *input,
                  GDataOutputStream *output,
-                 gboolean using_tls,
+                 gboolean redirect_tls,
                  GCancellable *cancellable)
 {
   gboolean claimed = FALSE;
@@ -729,7 +729,7 @@ process_request (CockpitWebServer *server,
     }
 
   /* Redirect plain HTTP if configured to use HTTPS */
-  if (server->certificate != NULL && !using_tls)
+  if (redirect_tls)
     {
       const gchar *body =
         "<html><head><title>Moved</title></head>"
@@ -820,6 +820,9 @@ on_run (GThreadedSocketService *service,
   gs_unref_object GDataInputStream *data = NULL;
   gs_unref_object GDataOutputStream *out_data = NULL;
   GCancellable *cancellable = NULL;
+  gboolean redirect_tls = FALSE;
+  GSocketAddress *addr;
+  GInetAddress *inet;
 
   if (server->certificate != NULL)
     {
@@ -844,7 +847,17 @@ on_run (GThreadedSocketService *service,
        * from regular HTTP requests
        */
       if (first_byte != 22 && first_byte != 0x80)
-        goto not_tls;
+        {
+          redirect_tls = TRUE;
+          addr = g_socket_connection_get_remote_address (connection, NULL);
+          if (G_IS_INET_SOCKET_ADDRESS (addr))
+            {
+              inet = g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (addr));
+              redirect_tls = !g_inet_address_get_is_loopback (inet);
+            }
+          g_clear_object (&addr);
+          goto not_tls;
+        }
 
       tls_stream = g_tls_server_connection_new (G_IO_STREAM (connection),
                                                 server->certificate,
@@ -855,6 +868,7 @@ on_run (GThreadedSocketService *service,
       io_stream = tls_stream;
       in = g_io_stream_get_input_stream (G_IO_STREAM (tls_stream));
       out = g_io_stream_get_output_stream (G_IO_STREAM (tls_stream));
+      redirect_tls = FALSE;
     }
   else
     {
@@ -874,7 +888,7 @@ not_tls:
   g_data_input_stream_set_newline_type (data, G_DATA_STREAM_NEWLINE_TYPE_ANY);
 
   /* Keep serving until requested to not to anymore */
-  process_request (server, io_stream, data, out_data, tls_stream != NULL, cancellable);
+  process_request (server, io_stream, data, out_data, redirect_tls, cancellable);
 
   /* Forcibly close the connection when we're done */
   (void) g_io_stream_close (G_IO_STREAM (connection), cancellable, NULL);

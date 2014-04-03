@@ -48,7 +48,7 @@ struct _CockpitPipeClass {
                                GByteArray *buffer,
                                gboolean eof);
 
-  void        (* closed)      (CockpitPipe *pipe,
+  void        (* close)       (CockpitPipe *pipe,
                                const gchar *problem);
 };
 

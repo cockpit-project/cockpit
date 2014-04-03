@@ -114,8 +114,8 @@ cockpit_pipe_transport_read (CockpitPipe *pipe,
 }
 
 static void
-cockpit_pipe_transport_closed (CockpitPipe *pipe,
-                               const gchar *problem)
+cockpit_pipe_signal_close (CockpitPipe *pipe,
+                           const gchar *problem)
 {
   /* This function is called by the base class when it is closed */
   cockpit_transport_emit_closed (COCKPIT_TRANSPORT (pipe), problem);
@@ -151,7 +151,7 @@ cockpit_pipe_transport_class_init (CockpitPipeTransportClass *klass)
   gobject_class->finalize = cockpit_pipe_transport_finalize;
 
   pipe_class->read = cockpit_pipe_transport_read;
-  pipe_class->closed = cockpit_pipe_transport_closed;
+  pipe_class->close = cockpit_pipe_signal_close;
 
 }
 

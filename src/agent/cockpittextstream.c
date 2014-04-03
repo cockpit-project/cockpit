@@ -48,7 +48,7 @@ typedef struct {
   gboolean open;
   gboolean closing;
   guint sig_read;
-  guint sig_closed;
+  guint sig_close;
 } CockpitTextStream;
 
 typedef struct {
@@ -150,9 +150,9 @@ on_pipe_read (CockpitPipe *pipe,
 }
 
 static void
-on_pipe_closed (CockpitPipe *buffer,
-                const gchar *problem,
-                gpointer user_data)
+on_pipe_close (CockpitPipe *buffer,
+               const gchar *problem,
+               gpointer user_data)
 {
   CockpitTextStream *self = user_data;
   CockpitChannel *channel = user_data;
@@ -189,7 +189,7 @@ connect_in_idle (gpointer user_data)
   address = g_unix_socket_address_new (unix_path);
   self->pipe = cockpit_pipe_connect (self->name, address);
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
-  self->sig_closed = g_signal_connect (self->pipe, "closed", G_CALLBACK (on_pipe_closed), self);
+  self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
   self->open = TRUE;
   cockpit_channel_ready (channel);
   g_object_unref (address);
@@ -217,9 +217,9 @@ cockpit_text_stream_dispose (GObject *object)
         cockpit_pipe_close (self->pipe, "terminated");
       if (self->sig_read)
         g_signal_handler_disconnect (self->pipe, self->sig_read);
-      if (self->sig_closed)
-        g_signal_handler_disconnect (self->pipe, self->sig_closed);
-      self->sig_read = self->sig_closed = 0;
+      if (self->sig_close)
+        g_signal_handler_disconnect (self->pipe, self->sig_close);
+      self->sig_read = self->sig_close = 0;
     }
 
   G_OBJECT_CLASS (cockpit_text_stream_parent_class)->dispose (object);

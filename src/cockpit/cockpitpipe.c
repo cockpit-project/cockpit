@@ -78,7 +78,7 @@ typedef struct {
 } CockpitPipeSource;
 
 static guint cockpit_pipe_sig_read;
-static guint cockpit_pipe_sig_closed;
+static guint cockpit_pipe_sig_close;
 
 G_DEFINE_TYPE (CockpitPipe, cockpit_pipe, G_TYPE_OBJECT);
 
@@ -130,7 +130,7 @@ close_immediately (CockpitPipe *self,
   if (!self->priv->child)
     {
       g_debug ("%s: no child process to wait for: closed", self->priv->name);
-      g_signal_emit (self, cockpit_pipe_sig_closed, 0, self->priv->problem);
+      g_signal_emit (self, cockpit_pipe_sig_close, 0, self->priv->problem);
     }
 }
 
@@ -187,7 +187,7 @@ on_child_reap (GPid pid,
            self->priv->name, problem ? ": " : "",
            problem ? problem : "");
 
-  g_signal_emit (self, cockpit_pipe_sig_closed, 0, self->priv->problem);
+  g_signal_emit (self, cockpit_pipe_sig_close, 0, self->priv->problem);
 }
 
 
@@ -675,7 +675,7 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
    *
    * This handler will only be called once with @eof set to TRUE. But
    * in error conditions it may not be called with @eof set to TRUE
-   * at all, and the CockpitPipe::closed signal will simply fire.
+   * at all, and the CockpitPipe::close signal will simply fire.
    */
   cockpit_pipe_sig_read = g_signal_new ("read", COCKPIT_TYPE_PIPE, G_SIGNAL_RUN_LAST,
                                         G_STRUCT_OFFSET (CockpitPipeClass, read),
@@ -683,7 +683,7 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
                                         G_TYPE_NONE, 2, G_TYPE_BYTE_ARRAY, G_TYPE_BOOLEAN);
 
   /**
-   * CockpitPipe::closed:
+   * CockpitPipe::close:
    * @problem: problem string or %NULL
    *
    * Emitted when the pipe closes, whether due to a problem or a normal
@@ -691,10 +691,10 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
    *
    * @problem will be NULL if the pipe closed normally.
    */
-  cockpit_pipe_sig_closed = g_signal_new ("closed", COCKPIT_TYPE_PIPE, G_SIGNAL_RUN_LAST,
-                                          G_STRUCT_OFFSET (CockpitPipeClass, closed),
-                                          NULL, NULL, NULL,
-                                          G_TYPE_NONE, 1, G_TYPE_STRING);
+  cockpit_pipe_sig_close = g_signal_new ("close", COCKPIT_TYPE_PIPE, G_SIGNAL_RUN_FIRST,
+                                         G_STRUCT_OFFSET (CockpitPipeClass, close),
+                                         NULL, NULL, NULL,
+                                         G_TYPE_NONE, 1, G_TYPE_STRING);
 
   g_type_class_add_private (klass, sizeof (CockpitPipePrivate));
 }
@@ -721,7 +721,7 @@ cockpit_pipe_write (CockpitPipe *self,
   g_return_if_fail (!self->priv->closing);
 
   /* If self->priv->io is already gone but we are still waiting for the
-     child to exit, then we haven't emitted the "closed" signal yet
+     child to exit, then we haven't emitted the "close" signal yet
      and it isn't an error to try to send more messages.  We drop them
      here.
   */
@@ -755,7 +755,7 @@ cockpit_pipe_write (CockpitPipe *self,
  * as if an error occurred, and the pipe is closed immediately.
  * Otherwise the pipe output is closed when all data has been sent.
  *
- * The 'closed' signal will be fired when the pipe actually closes.
+ * The 'close' signal will be fired when the pipe actually closes.
  * This may be during this function call (esp. in the case of a
  * non-NULL @problem) or later.
  */

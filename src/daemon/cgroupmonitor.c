@@ -48,6 +48,7 @@ typedef struct
 
   double cpuacct_usage;
   double cpuacct_usage_perc;
+  double cpu_shares;
 } Sample;
 
 typedef struct {
@@ -184,7 +185,7 @@ cgroup_monitor_constructed (GObject *object)
 
   cockpit_multi_resource_monitor_set_num_samples (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), SAMPLES_MAX);
   cockpit_multi_resource_monitor_set_legends (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), legends);
-  cockpit_multi_resource_monitor_set_num_series (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), 5);
+  cockpit_multi_resource_monitor_set_num_series (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), 6);
 
   monitor->memory_root = g_build_filename (monitor->basedir, "memory", NULL);
   monitor->cpuacct_root = g_build_filename (monitor->basedir, "cpuacct", NULL);
@@ -365,6 +366,7 @@ zero_sample (Sample *sample)
   sample->memsw_limit_in_bytes = 0;
   sample->cpuacct_usage = 0;
   sample->cpuacct_usage_perc = 0;
+  sample->cpu_shares = 0;
 }
 
 static void
@@ -406,6 +408,14 @@ collect_cgroup (gpointer key,
   sample->memsw_limit_in_bytes = read_double (mem_dir, "memory.memsw.limit_in_bytes");
 
   sample->cpuacct_usage = read_double (cpu_dir, "cpuacct.usage");
+  sample->cpu_shares = read_double (cpu_dir, "cpu.shares");
+
+  if (sample->mem_limit_in_bytes == G_MAXUINT64 ||
+      sample->mem_limit_in_bytes == G_MAXUINT32)
+    sample->mem_limit_in_bytes = 0;
+  if (sample->memsw_limit_in_bytes == G_MAXUINT64 ||
+      sample->memsw_limit_in_bytes == G_MAXUINT32)
+    sample->memsw_limit_in_bytes = 0;
 
   if (monitor->samples_prev >= 0)
     {
@@ -460,6 +470,7 @@ build_sample_variant (CGroupMonitor *monitor,
       g_variant_builder_add (&inner_builder, "d", sample->memsw_usage_in_bytes);
       g_variant_builder_add (&inner_builder, "d", sample->memsw_limit_in_bytes);
       g_variant_builder_add (&inner_builder, "d", sample->cpuacct_usage_perc);
+      g_variant_builder_add (&inner_builder, "d", sample->cpu_shares);
       g_variant_builder_add (&builder, "{sad}", key, &inner_builder);
     }
 

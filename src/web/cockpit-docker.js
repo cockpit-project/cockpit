@@ -77,6 +77,49 @@ function multi_line(strings) {
     return strings.map(cockpit_esc).join('<br/>');
 }
 
+function format_cpu_shares(priority) {
+    if (!priority)
+        return _("default");
+    return F(_("%{shares} shares"), { shares: Math.round(priority) });
+}
+
+function format_cpu_usage(usage) {
+    if (usage === undefined || isNaN(usage))
+        return "";
+    return Math.round(usage) + "%";
+}
+
+function update_memory_bar(bar, usage, limit) {
+    var parts = [ usage ];
+    if (limit)
+        parts.push(limit);
+    $(bar).
+        attr("value", parts.join("/")).
+        toggleClass("bar-row-danger",
+                    (limit && usage > 0.9 * limit) ? true : false);
+}
+
+function format_memory_and_limit(usage, limit) {
+    var mtext = "";
+    var units = 1024;
+    var parts;
+    if (limit) {
+        parts = $cockpit.format_bytes(limit, units);
+        mtext = " / " + parts.join(" ");
+        units = parts[1];
+    }
+
+    if (usage) {
+        parts = $cockpit.format_bytes(usage, units);
+        if (mtext)
+            return parts[0] + mtext;
+        else
+            return parts.join(" ");
+    } else {
+        return "?" + mtext;
+    }
+}
+
 function insert_table_sorted(table, row) {
     var key = $(row).text();
     var rows = $(table).find("tbody tr");
@@ -89,6 +132,114 @@ function insert_table_sorted(table, row) {
     }
     if (row !== null)
         $(table).find("tbody").append(row);
+}
+
+/* Memory limit slider/checkbox interaction happens here */
+function MemorySlider(sel, min, max) {
+    var self = this;
+    var slider, desc;
+    var limit;
+
+    function update_limit() {
+        if (slider.disabled) {
+            limit = undefined;
+            return _("unlimited");
+        }
+        limit = Math.round(slider.value * max);
+        if (limit < min)
+            limit = min;
+        return $cockpit.format_bytes(limit).join(" ");
+    }
+
+    /* Slider to limit amount of memory */
+    slider = sel.find("div.slider").
+        on('change', function() {
+            $(desc).text(update_limit());
+        })[0];
+
+    /* Description of how much memory is selected */
+    desc = sel.find("span")[0];
+
+    /* Unlimited checkbox */
+    var check = sel.find("input[type='checkbox']").
+        on('change', function() {
+            $(slider).attr("disabled", !this.checked);
+            $(desc).toggleClass("disabled", !this.checked);
+            $(desc).text(update_limit());
+        })[0];
+
+    Object.defineProperty(this, "value", {
+        get: function() {
+            return limit;
+        },
+        set: function(v) {
+            if (v !== undefined) {
+                $(slider).
+                    prop("value", v / max).
+                    trigger("change");
+            }
+            $(check).
+                prop("checked", v !== undefined).
+                trigger("change");
+        }
+    });
+
+    return this;
+}
+
+/* CPU priority slider/checkbox interaction happens here */
+function CpuSlider(sel, min, max) {
+    var self = this;
+    var slider, desc;
+    var priority;
+
+    /* Logarithmic CPU scale */
+    var minv = Math.log(min);
+    var maxv = Math.log(max);
+    var scale = (maxv - minv);
+
+    function update_priority() {
+        if (slider.disabled)
+            priority = undefined;
+        else
+            priority = Math.round(Math.exp(minv + scale * slider.value));
+        return format_cpu_shares(priority);
+    }
+
+    /* Slider to change CPU priority */
+    slider = sel.find("div.slider").
+        on('change', function() {
+            $(desc).text(update_priority());
+        })[0];
+
+    /* Description of CPU priority */
+    desc = sel.find("span")[0];
+
+    /* Default checkbox */
+    var check = sel.find("input[type='checkbox']").
+        on('change', function() {
+            $(slider).attr("disabled", !this.checked);
+            $(desc).toggleClass("disabled", !this.checked);
+            $(desc).text(update_priority());
+        });
+
+    Object.defineProperty(this, "value", {
+        get: function() {
+            return priority;
+        },
+        set: function(v) {
+            if (v !== undefined) {
+                $(slider).
+                    prop("value", (Math.log(v) - minv) / scale).
+                    trigger("change");
+            }
+            $(check).
+                prop("checked", v !== undefined).
+                trigger("change");
+        }
+    });
+
+    return this;
 }
 
 PageContainers.prototype = {
@@ -150,7 +301,7 @@ PageContainers.prototype = {
 
             this.cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues.concat(blues));
             $(this.cpu_plot).on('update-total', function (event, total) {
-                $('#containers-cpu-text').text(total+"%");
+                $('#containers-cpu-text').text(format_cpu_usage(total));
             });
             $(this.cpu_plot).on('highlight', highlight_container_row);
 
@@ -223,36 +374,23 @@ PageContainers.prototype = {
 
         var cputext;
         var memuse, memlimit;
-        var membar, memtext, memtextstyle, memdanger;
+        var membar, memtext, memtextstyle;
+        var barvalue;
 
         if (container.State && container.State.Running) {
-            cputext = (container.CpuUsage || 0).toString() + "%";
+            cputext = format_cpu_usage(container.CpuUsage);
 
             memuse = container.MemoryUsage || 0;
-            memlimit = container.Config && container.Config.Memory;
+            memlimit = container.MemoryLimit || 0;
+            memtext = format_memory_and_limit(memuse, memlimit);
 
-            var barvalue = memuse.toString();
-
-            if (memlimit)
-                barvalue += "/" + memlimit.toString();
-
-            if (memlimit) {
-                var parts = $cockpit.format_bytes(memlimit, 1024);
-                memtext = (memuse? $cockpit.format_bytes(memuse, parts[1])[0] : "?") + " / " + parts.join(" ");
-            } else {
-                memtext = (memuse? $cockpit.format_bytes(memuse, 1024).join(" ") : "?");
-            }
-
-            memdanger = (memlimit && memuse > 0.9 * memlimit) ? true : false;
             membar = true;
             memtextstyle = { 'color': 'inherit' };
         } else {
             cputext = "";
             membar = false;
-            memdanger = false;
             memtext = _("Stopped");
             memtextstyle = { 'color': 'grey', 'text-align': 'right' };
-            barvalue = 0;
         }
 
         var added = false;
@@ -300,10 +438,7 @@ PageContainers.prototype = {
         $(row[1]).text(container.Image);
         $(row[2]).text(container.Command);
         $(row[3]).text(cputext);
-        $(row[4]).children("div").
-            attr("value", barvalue).
-            toggleClass("bar-row-danger", memdanger).
-            toggle(membar);
+        update_memory_bar($(row[4]).children("div").toggle(membar), memuse, memlimit);
         $(row[5]).
             css(memtextstyle).
             text(memtext);
@@ -393,104 +528,37 @@ PageRunImage.prototype = {
 
     enter: function(first_visit) {
         var page = this;
-        page.memory_limit = undefined;
-        page.cpu_priority = undefined;
-
-        /* Memory limit slider/checkbox interaction happens here */
-        function init_interact_memory(min, max, defawlt) {
-            var slider, desc;
-
-            function update_limit() {
-                if (slider.disabled) {
-                    page.memory_limit = undefined;
-                    return _("unlimited");
-                }
-                var limit = Math.round(slider.value * max);
-                if (limit < min)
-                    limit = min;
-                page.memory_limit = limit;
-                return $cockpit.format_bytes(limit).join(" ");
-            }
-
-            /* Slider to limit amount of memory */
-            slider = $("#containers-run-image-memory-slider").
-                on('change', function() {
-                    $(desc).text(update_limit());
-                })[0];
-
-            /* Description of how much memory is selected */
-            desc = $("#containers-run-image-memory-desc")[0];
-
-            /* Unlimited checkbox */
-            $("#containers-run-image-memory-limit").
-                on('change', function() {
-                    $(slider).attr("disabled", !this.checked);
-                    $(desc).toggleClass("disabled", !this.checked);
-                    $(desc).text(update_limit());
-                });
-
-            /* Set the default value */
-            slider.value = defawlt / max;
-        }
-
-        /* CPU priority slider/checkbox interaction happens here */
-        function init_interact_cpu(min, max, defawlt) {
-            var slider, desc;
-
-            /* Logarithmic position between these */
-            var minv = Math.log(min);
-            var maxv = Math.log(max);
-            var scale = (maxv - minv);
-
-            function update_priority() {
-                if (slider.disabled) {
-                    page.cpu_priority = undefined;
-                    return _("default");
-                }
-                page.cpu_priority = Math.round(Math.exp(minv + scale * slider.value));
-                return String(page.cpu_priority) + _(" shares");
-            }
-
-            /* Slider to change CPU priority */
-            slider = $("#containers-run-image-cpu-slider").
-                on('change', function() {
-                    $(desc).text(update_priority());
-                })[0];
-
-            /* Description of CPU priority */
-            desc = $("#containers-run-image-cpu-desc")[0];
-            console.log(desc);
-
-            /* Default checkbox */
-            $("#containers-run-image-cpu-prioritize").
-                on('change', function() {
-                    $(slider).attr("disabled", !this.checked);
-                    $(desc).toggleClass("disabled", !this.checked);
-                    $(desc).text(update_priority());
-                });
-
-            /* Setup the default value */
-            slider.value = (Math.log(defawlt) - minv) / scale;
-        }
 
         if (first_visit) {
             $("#containers-run-image-run").on('click', $.proxy(this, "run"));
+
             /* TODO: Get max memory from elsewhere */
-            init_interact_memory(10000000, 8000000000, 400000000);
-            init_interact_cpu(2, 1000000, 1024);
+            this.memory_slider = new MemorySlider($("#containers-run-image-memory"), 10000000, 8000000000);
+            this.cpu_slider = new CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
         }
 
-        $("#containers-run-image-memory-limit").
-            prop("checked", false).
-            trigger("change");
-        $("#containers-run-image-cpu-prioritize").
-            prop("checked", false).
-            trigger("change");
-        $("#containers-run-image-with-terminal").
-            prop("checked", true).
-            trigger("change");
+        var info = PageRunImage.image_info;
+        docker_debug("run-image", info);
 
-        docker_debug("run-image", PageRunImage.image_info);
+        var checked;
+        var value;
+
+        /* Memory slider defaults */
+        if (info.container_config.Memory) {
+            this.memory_slider.value = info.config_container.Memory;
+        } else {
+            /* First call sets the position of slider */
+            this.memory_slider.value = 400000000;
+            this.memory_slider.value = undefined;
+        }
+
+        /* CPU slider defaults */
+        if (info.container_config.CpuShares) {
+            this.cpu_slider.value = info.container_config.CpuShares;
+        } else {
+            this.cpu_slider.value = 1024;
+            this.cpu_slider.value = undefined;
+        }
 
         // from https://github.com/dotcloud/docker/blob/master/pkg/namesgenerator/names-generator.go
 
@@ -553,9 +621,9 @@ PageRunImage.prototype = {
         var options = {
             "Cmd": cockpit_unquote_cmdline(cmd),
             "Image": PageRunImage.image_info.id,
-            "Memory": this.memory_limit || 0,
-            "MemorySwap": (this.memory_limit * 2) || 0,
-            "CpuShares": this.cpu_priority || 0,
+            "Memory": this.memory_limit.value || 0,
+            "MemorySwap": (this.memory_limit.value * 2) || 0,
+            "CpuShares": this.cpu_priority.value || 0,
             "Tty": tty
         };
 
@@ -628,6 +696,27 @@ PageContainerDetails.prototype = {
             $('#container-details-stop').on('click', $.proxy(this, "stop_container"));
             $('#container-details-restart').on('click', $.proxy(this, "restart_container"));
             $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
+
+            /* TODO: Get max memory from elsewhere */
+            self.memory_limit = new MemorySlider($("#container-resources-dialog .memory-slider"),
+                                                10000000, 8000000000);
+            self.cpu_priority = new CpuSlider($("#container-resources-dialog .cpu-slider"),
+                                              2, 1000000);
+
+            self.memory_usage = $('#container-details-memory .bar-row');
+            $('#container-resources-dialog').
+                on("show.bs.modal", function() {
+                    var info = self.client.containers[self.container_id];
+
+                    /* Fill in the resource dialog */
+                    $(this).find(".container-name").text(self.name);
+                    self.memory_limit.value = info.MemoryLimit || undefined;
+                    self.cpu_priority.value = info.CpuPriority || undefined;
+                }).
+                find(".btn-primary").on("click", function() {
+                    self.client.change_memory_limit(self.container_id, self.memory_limit.value);
+                    self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
+                });
         }
 
         this.client = get_docker_client();
@@ -673,8 +762,6 @@ PageContainerDetails.prototype = {
         $('#container-details-command').text("");
         $('#container-details-state').text("");
         $('#container-details-ports-row').hide();
-        $('#container-detail-memory-row').hide();
-        $('#container-detail-cpu-row').hide();
 
         var info = this.client.containers[this.container_id];
         docker_debug("container-details", this.container_id, info);
@@ -691,6 +778,9 @@ PageContainerDetails.prototype = {
         $('#container-details-stop').prop('disabled', !info.State.Running);
         $('#container-details-restart').prop('disabled', !info.State.Running);
         $('#container-details-delete').prop('disabled', info.State.Running);
+        $('#container-details-memory-row').toggle(!!info.State.Running);
+        $('#container-details-cpu-row').toggle(!!info.State.Running);
+        $('#container-details-resource-row').toggle(!!info.State.Running);
 
         var name = cockpit_render_container_name(info.Name);
         if (name != this.name) {
@@ -715,7 +805,7 @@ PageContainerDetails.prototype = {
         }
 
         $('#container-details-id').text(info.ID);
-        $('#container-details-names').text(cockpit_render_container_name(info.Name));
+        $('#container-details-names').text(name);
         $('#container-details-created').text(info.Created);
         $('#container-details-image').text(info.Image);
         $('#container-details-command').text(info.Command);
@@ -724,11 +814,11 @@ PageContainerDetails.prototype = {
         $('#container-details-ports-row').toggle(port_bindings.length > 0);
         $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
 
-        $('#container-details-memory-row').toggle(!!(info.Config.Memory));
-        $('#container-details-memory').text($cockpit.format_bytes(info.Config.Memory, 1024).join(" "));
+        update_memory_bar(this.memory_usage, info.MemoryUsage, info.MemoryLimit);
+        $('#container-details-memory-text').text(format_memory_and_limit(info.MemoryUsage, info.MemoryLimit));
 
-        $('#container-details-cpu-row').toggle(!!(info.Config.CpuShares));
-        $('#container-details-cpu').text(info.Config.CpuShares + _(" shares"));
+        $('#container-details .cpu-usage').text(format_cpu_usage(info.CpuUsage));
+        $('#container-details .cpu-shares').text(format_cpu_shares(info.CpuPriority));
 
         this.maybe_show_terminal(info);
     },
@@ -1069,13 +1159,28 @@ function DockerClient(machine) {
             resource_debug("samples", timestampUsec, samples);
             for (var id in me.containers) {
                 var container = me.containers[id];
-                var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
+                var key = "lxc/" + id;
+                var sample = samples[key];
+                if (!sample) {
+                    key = "docker-" + id + ".slice";
+                    sample = samples[key];
+                }
+                if (!sample)
+                    continue;
 
-                var mem = sample? sample[0] : 0;
-                var cpu = sample? sample[4] : 0;
-                if (mem != container.MemoryUsage || cpu != container.CpuUsage) {
+                container.CGroup = key;
+                var mem = sample[0];
+                var limit = sample[1];
+                var cpu = sample[4];
+                var priority = sample[5];
+                if (mem != container.MemoryUsage ||
+                    limit != container.MemoryLimit ||
+                    cpu != container.CpuUsage ||
+                    priority != container.CpuPriority) {
                     container.MemoryUsage = mem;
+                    container.MemoryLimit = limit;
                     container.CpuUsage = cpu;
+                    container.CpuPriority = priority;
                     $(me).trigger("container", [id, container]);
                 }
             }
@@ -1194,6 +1299,36 @@ function DockerClient(machine) {
             always(function() {
                 not_waiting(id);
             });
+    };
+
+    function change_cgroup(directory, cgroup, filename, value) {
+        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager", "com.redhat.Cockpit.Manager");
+
+        /* TODO: Yup need a nicer way of doing this ... likely systemd once we're geard'd out */
+        var path = "/sys/fs/cgroup/" + directory + "/" + cgroup + "/" + filename;
+        var command = "echo '" + value.toFixed(0) + "' > " + path;
+        docker_debug("changing cgroup:", command);
+
+        /*
+         * TODO: We need a sane UI for showing that the resources can't be changed
+         * Showing unexpected error isn't it.
+         */
+        manager.call('Run', command, function (error, output) {
+            if (error)
+                console.warn(error);
+        });
+    }
+
+    this.change_memory_limit = function change_memory_limit(id, value) {
+        if (value == undefined || value <= 0)
+            value = -1;
+        return change_cgroup("memory", this.containers[id].CGroup, "memory.limit_in_bytes", value);
+    };
+
+    this.change_cpu_priority = function change_cpu_priority(id, value) {
+        if (value == undefined || value <= 0)
+            value = 1024;
+        return change_cgroup("cpuacct", this.containers[id].CGroup, "cpu.shares", value);
     };
 
     this.setup_cgroups_plot = function setup_cgroups_plot(element, sample_index, colors) {

@@ -775,6 +775,10 @@
         </div>
       </div>
 
+      <!-- hidden bar-row to help set a minimum limit for container memory and image space-->
+      <div class="bar-row hidden" graph="containers-containers" value="0/100000000"></div>
+      <div class="bar-row hidden" graph="containers-images" value="0/100000000"></div>
+
       <!-- Layout for container details page -->
       <div id="container-details" class="container-fluid">
         <div class="row">
@@ -794,39 +798,63 @@
 	    <table class="cockpit-info-table col-sm-5">
 	      <tr>
                 <td>Name:</td>
-                <td id="container-details-names" style="font-weight:bold"></td>
+                <td colspan="2" id="container-details-names" style="font-weight:bold"></td>
               </tr>
 	      <tr>
                 <td>Id:</td>
-                <td id="container-details-id"></td>
+                <td colspan="2" id="container-details-id"></td>
               </tr>
 	      <tr>
                 <td>Created:</td>
-                <td id="container-details-created"></td>
+                <td colspan="2" id="container-details-created"></td>
               </tr>
 	      <tr>
                 <td>Image:</td>
-                <td id="container-details-image"></td>
+                <td colspan="2" id="container-details-image"></td>
               </tr>
 	      <tr>
                 <td>Commmand:</td>
-                <td id="container-details-command"></td>
+                <td colspan="2" id="container-details-command"></td>
               </tr>
 	      <tr>
                 <td>State:</td>
-                <td id="container-details-state"></td>
+                <td colspan="2" id="container-details-state"></td>
               </tr>
 	      <tr id="container-details-ports-row" style="display: none;">
                 <td>Ports:</td>
-                <td id="container-details-ports"></td>
+                <td colspan="2" id="container-details-ports"></td>
               </tr>
-	      <tr id="container-details-memory-row" style="display: none;">
-                <td>Memory limit:</td>
-                <td id="container-details-memory"></td>
+              <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <!-- hidden bar-row to help set a minimum limit for memory -->
+                    <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
+                </td>
               </tr>
-	      <tr id="container-details-cpu-row" style="display: none;">
-                <td>CPU priority:</td>
-                <td id="container-details-cpu"></td>
+	      <tr id="container-details-memory-row" class="interactive" style="display: none;">
+                <td>Memory usage:</td>
+                <td colspan="2" id="container-details-memory">
+                    <div class="bar-row" graph="container-details"></div>
+                </td>
+                <td class="shrink" id="container-details-memory-text" style="min-width: 8em; text-align: right;"></td>
+              </tr>
+	      <tr id="container-details-cpu-row" class="interactive" style="display: none;">
+                <td>CPU usage:</td>
+                <td colspan="2">
+                    <span class="cpu-usage"></span>
+                </td>
+                <td class="shrink" style="min-width: 8em; text-align: right;">
+                    <span class="cpu-shares"></span>
+                </td>
+              </tr>
+              <tr id="container-details-resource-row" style="display: none;">
+                <td></td>
+                <td>
+                  <button class="btn btn-default resource-button" data-toggle="modal"
+                      data-target="#container-resources-dialog">
+                      Change resource limits
+                  </button>
+                </td>
               </tr>
 	    </table>
             <div id="container-terminal" class="terminal-emulator" style="display: none;"></div>
@@ -2100,38 +2128,36 @@
                   <input class="form-control" type="text" id="containers-run-image-command"/>
                 </td>
               </tr>
-              <tr>
+              <tr id="containers-run-image-memory">
                 <td translatable="yes">Memory limit</td>
                 <td class="shrink">
-                  <input type="checkbox" id="containers-run-image-memory-limit" />
+                  <input type="checkbox" />
                 </td>
                 <td>
-                  <div class="slider" disabled='true' value="0.2" id="containers-run-image-memory-slider">
+                  <div class="slider" disabled='true' value="0.2">
                     <div class="slider-bar">
                       <div class="slider-thumb"></div>
                     </div>
                   </div>
                 </td>
-                <td class="shrink" id="containers-run-image-memory-desc"
-                    style="min-width: 8em; text-align: right;">
-                    unlimited
+                <td class="shrink" style="min-width: 8em; text-align: right;">
+                    <span>unlimited</span>
                 </td>
               </tr>
-              <tr>
+              <tr id="containers-run-image-cpu">
                 <td translatable="yes">CPU priority</td>
                 <td class="shrink">
-                  <input type="checkbox" id="containers-run-image-cpu-prioritize" />
+                  <input type="checkbox" />
                 </td>
                 <td>
-                  <div class="slider" disabled='true' value="0.2" id="containers-run-image-cpu-slider">
+                  <div class="slider" disabled='true' value="0.2">
                     <div class="slider-bar">
                       <div class="slider-thumb"></div>
                     </div>
                   </div>
                 </td>
-                <td class="shrink" id="containers-run-image-cpu-desc"
-                    style="min-width: 8em; text-align: right;">
-                    default
+                <td class="shrink" style="min-width: 8em; text-align: right;">
+                  <span>default</span>
                 </td>
               </tr>
               <tr>
@@ -2153,5 +2179,68 @@
         </div>
       </div>
     </div>
+
+    <div class="modal" id="container-resources-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change resources limits</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Container Name</td>
+                <td colspan="3">
+                  <span class="container-name"/>
+                </td>
+              </tr>
+              <tr class="memory-slider">
+                <td translatable="yes">Memory limit</td>
+                <td class="shrink">
+                  <input type="checkbox" />
+                </td>
+                <td>
+                  <div class="slider" disabled='true' value="0.2">
+                    <div class="slider-bar">
+                      <div class="slider-thumb"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="shrink" style="min-width: 8em; text-align: right;">
+                    <span>unlimited</span>
+                </td>
+              </tr>
+              <tr class="cpu-slider">
+                <td translatable="yes">CPU priority</td>
+                <td class="shrink">
+                  <input type="checkbox" />
+                </td>
+                <td>
+                  <div class="slider" disabled='true' value="0.2">
+                    <div class="slider-bar">
+                      <div class="slider-thumb"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="shrink" style="min-width: 8em; text-align: right;">
+                  <span>default</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </body>
 </html>

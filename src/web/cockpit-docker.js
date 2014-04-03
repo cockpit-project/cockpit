@@ -663,7 +663,6 @@ function PageRunImage() {
     this._init();
 }
 
-
 cockpit_pages.push(new PageRunImage());
 
 PageContainerDetails.prototype = {
@@ -722,6 +721,50 @@ PageContainerDetails.prototype = {
                     self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
                 });
         }
+
+        var commit = $('#container-commit-dialog')[0];
+        $(commit).
+            on("show.bs.modal", function() {
+                var info = self.client.containers[self.container_id];
+
+                $(commit).find(".container-name").text(self.name);
+
+                var image = self.client.images[info.Config.Image];
+                var repo = "";
+                if (image && image.RepoTags)
+                    repo = image.RepoTags[0].split(":", 1)[0];
+                $(commit).find(".container-repository").attr('value', repo);
+
+                $(commit).find(".container-tag").attr('value', "");
+
+                var author = cockpit_connection_config.name || cockpit_connection_config.user;
+                $(commit).find(".container-author").attr('value', author);
+
+                var command = "";
+                if (info.Config)
+                    command = cockpit_quote_cmdline(info.Config.Cmd);
+                if (!command)
+                    command = info.Command;
+                $(commit).find(".container-command").attr('value', command);
+            }).
+            find(".btn-primary").on("click", function() {
+                var run = { "Cmd": cockpit_unquote_cmdline($(commit).find(".container-command").val()) };
+                var options = {
+                    "author": $(commit).find(".container-author").val()
+                };
+                var tag = $(commit).find(".container-tag").val();
+                if (tag)
+                    options["tag"] = tag;
+                var repository = $(commit).find(".container-repository").val();
+                self.client.commit(self.container_id, repository, options, run).
+                    fail(function(ex) {
+                        cockpit_show_unexpected_error (ex);
+                    }).
+                    done(function() {
+                        if (cockpit_get_page_param('page') == "container-details")
+                            cockpit_go_up();
+                    });
+            });
 
         this.client = get_docker_client();
         this.container_id = cockpit_get_page_param('id');
@@ -783,6 +826,7 @@ PageContainerDetails.prototype = {
         $('#container-details-stop').prop('disabled', !info.State.Running);
         $('#container-details-restart').prop('disabled', !info.State.Running);
         $('#container-details-delete').prop('disabled', info.State.Running);
+        $('#container-details-commit').prop('disabled', !!info.State.Running);
         $('#container-details-memory-row').toggle(!!info.State.Running);
         $('#container-details-cpu-row').toggle(!!info.State.Running);
         $('#container-details-resource-row').toggle(!!info.State.Running);
@@ -1273,6 +1317,27 @@ function DockerClient(machine) {
             }).
             done(function(resp) {
                 docker_debug("created:", name, resp);
+            });
+    };
+
+    this.commit = function create(id, repotag, options, run_config) {
+        var args = {
+            "container": id,
+            "repo": repotag
+        };
+        $.extend(args, options);
+
+        waiting(id);
+        docker_debug("committing:", id, repotag, options, run_config);
+        return rest.post("/commit", args, run_config).
+            fail(function(ex) {
+                docker_debug("commit failed:", repotag, ex);
+            }).
+            done(function(resp) {
+                docker_debug("committed:", repotag);
+            }).
+            always(function() {
+                not_waiting(id);
             });
     };
 

@@ -4,7 +4,7 @@ dbusservice_DATA = com.redhat.Cockpit.service
 com.redhat.Cockpit.service: data/com.redhat.Cockpit.service.in Makefile
 	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
 
-dbusconfdir = $(sysconfdir)/dbus-1/system.d
+dbusconfdir = /etc/dbus-1/system.d
 nodist_dbusconf_DATA = com.redhat.Cockpit.conf
 
 com.redhat.Cockpit.conf: data/com.redhat.Cockpit.conf.in Makefile

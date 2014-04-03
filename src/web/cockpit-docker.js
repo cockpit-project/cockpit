@@ -418,7 +418,7 @@ PageRunImage.prototype = {
                 if (limit < min)
                     limit = min;
                 page.memory_limit = limit;
-                return $cockpit.format_bytes(limit).join(" ");
+                return $cockpit.format_bytes(limit,1024).join(" ");
             }
 
             /* Slider to limit amount of memory */
@@ -485,7 +485,7 @@ PageRunImage.prototype = {
         if (first_visit) {
             $("#containers-run-image-run").on('click', $.proxy(this, "run"));
             /* TODO: Get max memory from elsewhere */
-            init_interact_memory(10000000, 8000000000, 400000000);
+            init_interact_memory(10*1024*1024, 1024*1024*1024, 512*1024*1024);
             init_interact_cpu(2, 1000000, 1024);
         }
 

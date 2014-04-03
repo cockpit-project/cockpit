@@ -58,8 +58,8 @@ mock_echo_pipe_read (CockpitPipe *pipe,
 }
 
 static void
-mock_echo_pipe_closed (CockpitPipe *pipe,
-                       const gchar *problem)
+mock_echo_pipe_close (CockpitPipe *pipe,
+                      const gchar *problem)
 {
   MockEchoPipe *self = (MockEchoPipe *)pipe;
   g_assert (!self->closed);
@@ -92,7 +92,7 @@ mock_echo_pipe_class_init (MockEchoPipeClass *klass)
   object_class->finalize = mock_echo_pipe_finalize;
 
   pipe_class->read = mock_echo_pipe_read;
-  pipe_class->closed = mock_echo_pipe_closed;
+  pipe_class->close = mock_echo_pipe_close;
 }
 
 /* ----------------------------------------------------------------------------
@@ -525,9 +525,9 @@ test_properties (void)
 }
 
 static void
-on_closed_get_flag (CockpitPipe *pipe,
-                    const gchar *problem,
-                    gpointer user_data)
+on_close_get_flag (CockpitPipe *pipe,
+                   const gchar *problem,
+                   gpointer user_data)
 {
   gboolean *retval = user_data;
   g_assert (*retval == FALSE);
@@ -535,9 +535,9 @@ on_closed_get_flag (CockpitPipe *pipe,
 }
 
 static void
-on_closed_get_problem (CockpitPipe *pipe,
-                       const gchar *problem,
-                       gpointer user_data)
+on_close_get_problem (CockpitPipe *pipe,
+                      const gchar *problem,
+                      gpointer user_data)
 {
   gchar **retval = user_data;
   g_assert (retval != NULL && *retval == NULL);
@@ -556,7 +556,7 @@ test_spawn_and_read (void)
 
   pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, env, NULL);
   g_assert (pipe != NULL);
-  g_signal_connect (pipe, "closed", G_CALLBACK (on_closed_get_flag), &closed);
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
 
   while (closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
@@ -605,7 +605,7 @@ test_spawn_and_fail (void)
 
   pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, NULL, NULL);
   g_assert (pipe != NULL);
-  g_signal_connect (pipe, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_problem), &problem);
 
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -792,7 +792,7 @@ test_fail_not_found (void)
 
   /* Should not have closed at this point */
   g_assert (pipe != NULL);
-  g_signal_connect (pipe, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_problem), &problem);
 
   /* closes in main loop */
   while (problem == NULL)
@@ -835,7 +835,7 @@ test_fail_not_authorized (void)
 
   /* Should not have closed at this point */
   g_assert (pipe != NULL);
-  g_signal_connect (pipe, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_problem), &problem);
 
   /* closes in main loop */
   while (problem == NULL)

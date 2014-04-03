@@ -81,7 +81,7 @@ typedef struct _CockpitRestJson {
    * inactively cached around here for efficiency.
    */
   CockpitPipe *inactive;
-  guint inactive_closed;
+  guint inactive_close;
 
   /*
    * A table of gint64 -> GArray(gint64)
@@ -152,7 +152,7 @@ struct _CockpitRestResponse {
   /* The pipe we're talking on */
   CockpitPipe *pipe;
   guint sig_read;
-  guint sig_closed;
+  guint sig_close;
 
   /* Corresponding req, owned by requests table */
   CockpitRestRequest *req;
@@ -263,7 +263,7 @@ cockpit_rest_response_destroy (gpointer data)
   if (resp->pipe)
     {
       g_signal_handler_disconnect (resp->pipe, resp->sig_read);
-      g_signal_handler_disconnect (resp->pipe, resp->sig_closed);
+      g_signal_handler_disconnect (resp->pipe, resp->sig_close);
       cockpit_pipe_close (resp->pipe, NULL);
       g_object_unref (resp->pipe);
     }
@@ -688,8 +688,8 @@ on_pipe_read (CockpitPipe *pipe,
 #endif
               g_signal_handler_disconnect (resp->pipe, resp->sig_read);
               self->inactive = resp->pipe;
-              self->inactive_closed = resp->sig_closed;
-              resp->sig_read = resp->sig_closed = 0;
+              self->inactive_close = resp->sig_close;
+              resp->sig_read = resp->sig_close = 0;
               resp->pipe = NULL;
             }
         }
@@ -714,9 +714,9 @@ on_pipe_read (CockpitPipe *pipe,
 }
 
 static void
-on_pipe_closed (CockpitPipe *pipe,
-                const gchar *problem,
-                gpointer user_data)
+on_pipe_close (CockpitPipe *pipe,
+               const gchar *problem,
+               gpointer user_data)
 {
   CockpitRestJson *self = user_data;
   CockpitRestResponse *resp;
@@ -757,13 +757,13 @@ cockpit_rest_request_send (CockpitRestJson *self,
     {
       resp->pipe = self->inactive;
       self->inactive = NULL;
-      resp->sig_closed = self->inactive_closed;
-      self->inactive_closed = 0;
+      resp->sig_close = self->inactive_close;
+      self->inactive_close = 0;
     }
   else
     {
       resp->pipe = cockpit_pipe_connect (self->name, self->address);
-      resp->sig_closed = g_signal_connect (resp->pipe, "closed", G_CALLBACK (on_pipe_closed), self);
+      resp->sig_close = g_signal_connect (resp->pipe, "close", G_CALLBACK (on_pipe_close), self);
     }
 
   /*
@@ -1037,7 +1037,7 @@ cockpit_rest_json_close (CockpitChannel *channel,
     {
       pipe = self->inactive;
       self->inactive = NULL;
-      g_signal_handler_disconnect (pipe, self->inactive_closed);
+      g_signal_handler_disconnect (pipe, self->inactive_close);
       cockpit_pipe_close (pipe, NULL);
       g_object_unref (pipe);
     }

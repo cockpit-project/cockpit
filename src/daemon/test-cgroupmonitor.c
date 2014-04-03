@@ -279,6 +279,7 @@ static const TestFixture fixture_samples = {
     { "memory.usage_in_bytes", 4042923.0 },
     { "memory.limit_in_bytes", 104042923.0 },
     { "cpuacct.usage", 1000.0 },
+    { "cpu.shares", 999 },
   }
 };
 
@@ -330,6 +331,11 @@ test_get_samples (TestCase *tc,
   g_assert_cmpfloat (value, ==, -1.0);
   g_variant_get_child (values, 4, "d", &value);
   /* TODO: Cannot reliably predict the CPU value */
+
+  /* number of shares */
+  g_variant_get_child (values, 5, "d", &value);
+  g_assert_cmpfloat (value, ==, 999.0);
+
   g_variant_unref (values);
 
   g_variant_unref (child);
@@ -371,6 +377,11 @@ test_new_samples (TestCase *tc,
   g_assert_cmpfloat (value, ==, -1.0);
   g_variant_get_child (values, 4, "d", &value);
   /* Cannot reliably predict the CPU value */
+
+  /* number of shares */
+  g_variant_get_child (values, 5, "d", &value);
+  g_assert_cmpfloat (value, ==, 999.0);
+
   g_variant_unref (values);
 
   g_variant_unref (sample);

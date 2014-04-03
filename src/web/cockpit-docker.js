@@ -73,6 +73,15 @@ function cockpit_render_container_state (state) {
         return F(_("Exited %{ExitCode}"), state);
 }
 
+function cockpit_render_image_short_name (name) {
+    var last_slash = name.lastIndexOf('/');
+    if (last_slash >= 0)
+        name = name.slice(last_slash+1);
+    if (name.endsWith(":latest"))
+        name = name.slice(0,name.length-":latest".length);
+    return name;
+}
+
 function multi_line(strings) {
     return strings.map(cockpit_esc).join('<br/>');
 }
@@ -297,7 +306,7 @@ PageContainers.prototype = {
 
         var row = tr.children("td");
         $(row[0]).text(cockpit_render_container_name(container.Name));
-        $(row[1]).text(container.Image);
+        $(row[1]).text(cockpit_render_image_short_name(container.Image));
         $(row[2]).text(container.Command);
         $(row[3]).text(cputext);
         $(row[4]).children("div").
@@ -354,7 +363,7 @@ PageContainers.prototype = {
         }
 
         var row = tr.children("td");
-        $(row[0]).html(multi_line(image.RepoTags));
+        $(row[0]).html(multi_line(image.RepoTags.map(cockpit_render_image_short_name)));
         $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
         $(row[2]).children("div").attr("value", image.VirtualSize);
         $(row[3]).text($cockpit.format_bytes(image.VirtualSize, 1024).join(" "));
@@ -409,7 +418,7 @@ PageRunImage.prototype = {
                 if (limit < min)
                     limit = min;
                 page.memory_limit = limit;
-                return $cockpit.format_bytes(limit).join(" ");
+                return $cockpit.format_bytes(limit,1024).join(" ");
             }
 
             /* Slider to limit amount of memory */
@@ -476,7 +485,7 @@ PageRunImage.prototype = {
         if (first_visit) {
             $("#containers-run-image-run").on('click', $.proxy(this, "run"));
             /* TODO: Get max memory from elsewhere */
-            init_interact_memory(10000000, 8000000000, 400000000);
+            init_interact_memory(10*1024*1024, 1024*1024*1024, 512*1024*1024);
             init_interact_cpu(2, 1000000, 1024);
         }
 
@@ -838,7 +847,7 @@ PageImageDetails.prototype = {
         $('#image-details button').toggle(!waiting);
 
         if (info.RepoTags && info.RepoTags.length > 0) {
-            var name = info.RepoTags[0];
+            var name = cockpit_render_image_short_name (info.RepoTags[0]);
             if (name != this.name) {
                 this.name = name;
                 cockpit_content_update_loc_trail();
@@ -1279,6 +1288,7 @@ function DockerClient(machine) {
                                              autoHighlight: false,
                                              aboveData: true,
                                              color: "black",
+                                             borderColor: $.color.parse("black").scale('a', 0.22).toString(),
                                              labelMargin: 0
                                            }
                                    },

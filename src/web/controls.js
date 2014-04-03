@@ -84,9 +84,9 @@ function reflow_bar_graph(graph, div) {
             max = limit;
     });
 
-    /* Max gets rounded up to the nearest 10th + 1 */
-    var bound = max / 10;
-    max += (max % bound);
+    /* Max gets rounded up to the nearest 100 MiB */
+    var bound = 100*1024*1024;
+    max = max - (max % bound) + bound;
 
     /* Now resize everything to the right aspect */
     parts.each(function() {

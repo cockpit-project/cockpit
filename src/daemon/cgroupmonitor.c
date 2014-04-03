@@ -407,6 +407,13 @@ collect_cgroup (gpointer key,
 
   sample->cpuacct_usage = read_double (cpu_dir, "cpuacct.usage");
 
+  if (sample->mem_limit_in_bytes == G_MAXUINT64 ||
+      sample->mem_limit_in_bytes == G_MAXUINT32)
+    sample->mem_limit_in_bytes = 0;
+  if (sample->memsw_limit_in_bytes == G_MAXUINT64 ||
+      sample->memsw_limit_in_bytes == G_MAXUINT32)
+    sample->memsw_limit_in_bytes = 0;
+
   if (monitor->samples_prev >= 0)
     {
       prev_sample = &(consumer->samples[monitor->samples_prev]);

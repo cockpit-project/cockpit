@@ -107,6 +107,13 @@ typedef struct {
   GQueue *samples_received;
 } TestCase;
 
+typedef struct {
+  struct {
+    const gchar *filename;
+    double value;
+  } data[16];
+} TestFixture;
+
 static void
 on_ready_get_result (GObject *source_object,
                      GAsyncResult *result,
@@ -130,29 +137,14 @@ set_file_contents (const gchar *directory,
 }
 
 static void
-populate_cgroup_data (const gchar *directory,
-                      const gchar *filename,
-                      ...) G_GNUC_NULL_TERMINATED;
-
-static void
-populate_cgroup_data (const gchar *directory,
-                      const gchar *filename,
-                      ...)
+write_cgroup_file (const gchar *directory,
+                   const gchar *filename,
+                   double value)
 {
-  double value;
   gchar *contents;
-  va_list va;
-
-  va_start (va, filename);
-  while (filename)
-    {
-      value = va_arg (va, double);
-      contents = g_strdup_printf ("%lf", value);
-      set_file_contents (directory, filename, contents);
-      g_free (contents);
-      filename = va_arg (va, const gchar *);
-    }
-  va_end (va);
+  contents = g_strdup_printf ("%lf", value);
+  set_file_contents (directory, filename, contents);
+  g_free (contents);
 }
 
 static void
@@ -171,9 +163,11 @@ setup (TestCase *tc,
        gconstpointer data)
 {
   CockpitObjectSkeleton *object = NULL;
+  const TestFixture *fixture = data;
   GDBusConnection *connection;
   GError *error = NULL;
   GAsyncResult *result = NULL;
+  gint i;
 
   tc->bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (tc->bus);
@@ -188,14 +182,18 @@ setup (TestCase *tc,
   tc->cpudir = g_build_filename (tc->testdir, "cpuacct", NULL);
   g_assert_cmpint (g_mkdir (tc->cpudir, 0700), ==, 0);
 
-  populate_cgroup_data (tc->memdir,
-                        "memory.usage_in_bytes", 4042923.0,
-                        "memory.limit_in_bytes", 104042923.0,
-                        NULL);
-
-  populate_cgroup_data (tc->cpudir,
-                        "cpuacct.usage", 1000.0,
-                        NULL);
+  for (i = 0; fixture && i < G_N_ELEMENTS (fixture->data); i++)
+    {
+      const gchar *filename = fixture->data[i].filename;
+      if (filename == NULL)
+        break;
+      if (g_str_has_prefix (filename, "memory"))
+        write_cgroup_file (tc->memdir, filename, fixture->data[i].value);
+      else if (g_str_has_prefix (filename, "cpu"))
+        write_cgroup_file (tc->cpudir, filename, fixture->data[i].value);
+      else
+        g_assert_not_reached ();
+    }
 
   tc->ticker = mock_ticker_new (10);
   tc->impl = g_object_new (TYPE_CGROUP_MONITOR,
@@ -227,9 +225,7 @@ setup (TestCase *tc,
   tc->samples_received = g_queue_new ();
 
   /* Update the CPU usage again since we're looking for a difference */
-  populate_cgroup_data (tc->cpudir,
-                        "cpuacct.usage", 10000000.0,
-                        NULL);
+  write_cgroup_file (tc->cpudir, "cpuacct.usage", 10000000.0);
 
   /* Wait for all updates to arrive asynchronously */
   while (g_main_context_iteration (NULL, FALSE));
@@ -277,6 +273,14 @@ test_new (void)
   g_object_unref (monitor);
   g_assert (monitor == NULL);
 }
+
+static const TestFixture fixture_samples = {
+  .data = {
+    { "memory.usage_in_bytes", 4042923.0 },
+    { "memory.limit_in_bytes", 104042923.0 },
+    { "cpuacct.usage", 1000.0 },
+  }
+};
 
 static void
 test_get_samples (TestCase *tc,
@@ -372,6 +376,61 @@ test_new_samples (TestCase *tc,
   g_variant_unref (sample);
 }
 
+static const TestFixture fixture_unlimited = {
+  .data = {
+    { "memory.limit_in_bytes", G_MAXUINT64 },
+    { "memory.memsw.limit_in_bytes", G_MAXUINT32 },
+  }
+};
+
+static void
+test_zero_limits (TestCase *tc,
+                  gconstpointer unused)
+{
+  GAsyncResult *result = NULL;
+  GError *error = NULL;
+  GVariant *samples;
+  GVariant *values;
+  GVariant *child;
+  double value;
+  gint64 timestamp;
+  GVariant *options;
+
+  while (tc->timestamp_received == 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  options = g_variant_new_array (G_VARIANT_TYPE ("{sv}"), NULL, 0);
+  cockpit_multi_resource_monitor_call_get_samples (tc->proxy, options, NULL, on_ready_get_result, &result);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_multi_resource_monitor_call_get_samples_finish (tc->proxy, &samples, result, &error);
+  g_object_unref (result);
+  g_assert_no_error (error);
+
+  if (g_test_verbose ())
+    {
+      gchar *str = g_variant_print (samples, TRUE);
+      g_printerr ("GetSamples(): %s\n", str);
+      g_free (str);
+    }
+
+  /* Parse timestamp and child out */
+  g_variant_get_child (samples, 0, "(x@a{sad})", &timestamp, &child);
+  g_assert (timestamp != 0);
+
+  values = g_variant_lookup_value (child, ".", G_VARIANT_TYPE ("ad"));
+
+  /* Memory usage */
+  g_variant_get_child (values, 1, "d", &value);
+  g_assert_cmpfloat (value, ==, 0);
+  g_variant_get_child (values, 3, "d", &value);
+  g_assert_cmpfloat (value, ==, 0);
+  g_variant_unref (values);
+
+  g_variant_unref (child);
+  g_variant_unref (samples);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -384,10 +443,12 @@ main (int argc,
   g_test_init (&argc, &argv, NULL);
 
   g_test_add_func ("/cgroup-monitor/new", test_new);
-  g_test_add ("/cgroup-monitor/get-samples", TestCase, NULL,
+  g_test_add ("/cgroup-monitor/get-samples", TestCase, &fixture_samples,
               setup, test_get_samples, teardown);
-  g_test_add ("/cgroup-monitor/new-sample", TestCase, NULL,
+  g_test_add ("/cgroup-monitor/new-sample", TestCase, &fixture_samples,
               setup, test_new_samples, teardown);
+  g_test_add ("/cgroup-monitor/zero-limits", TestCase, &fixture_unlimited,
+              setup, test_zero_limits, teardown);
 
   ret = g_test_run ();
 

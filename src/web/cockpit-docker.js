@@ -77,6 +77,49 @@ function multi_line(strings) {
     return strings.map(cockpit_esc).join('<br/>');
 }
 
+function format_cpu_shares(priority) {
+    if (!priority)
+        return _("default");
+    return F(_("%{shares} shares"), { shares: Math.round(priority) });
+}
+
+function format_cpu_usage(usage) {
+    if (usage === undefined || isNaN(usage))
+        return "";
+    return Math.round(usage) + "%";
+}
+
+function update_memory_bar(bar, usage, limit) {
+    var parts = [ usage ];
+    if (limit)
+        parts.push(limit);
+    $(bar).
+        attr("value", parts.join("/")).
+        toggleClass("bar-row-danger",
+                    (limit && usage > 0.9 * limit) ? true : false);
+}
+
+function format_memory_and_limit(usage, limit) {
+    var mtext = "";
+    var units = 1024;
+    var parts;
+    if (limit) {
+        parts = $cockpit.format_bytes(limit, units);
+        mtext = " / " + parts.join(" ");
+        units = parts[1];
+    }
+
+    if (usage) {
+        parts = $cockpit.format_bytes(usage, units);
+        if (mtext)
+            return parts[0] + mtext;
+        else
+            return parts.join(" ");
+    } else {
+        return "?" + mtext;
+    }
+}
+
 function insert_table_sorted(table, row) {
     var key = $(row).text();
     var rows = $(table).find("tbody tr");
@@ -156,12 +199,11 @@ function CpuSlider(sel, min, max) {
     var scale = (maxv - minv);
 
     function update_priority() {
-        if (slider.disabled) {
+        if (slider.disabled)
             priority = undefined;
-            return _("default");
-        }
-        priority = Math.round(Math.exp(minv + scale * slider.value));
-        return String(priority) + _(" shares");
+        else
+            priority = Math.round(Math.exp(minv + scale * slider.value));
+        return format_cpu_shares(priority);
     }
 
     /* Slider to change CPU priority */
@@ -259,7 +301,7 @@ PageContainers.prototype = {
 
             this.cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues.concat(blues));
             $(this.cpu_plot).on('update-total', function (event, total) {
-                $('#containers-cpu-text').text(total+"%");
+                $('#containers-cpu-text').text(format_cpu_usage(total));
             });
             $(this.cpu_plot).on('highlight', highlight_container_row);
 
@@ -332,36 +374,23 @@ PageContainers.prototype = {
 
         var cputext;
         var memuse, memlimit;
-        var membar, memtext, memtextstyle, memdanger;
+        var membar, memtext, memtextstyle;
+        var barvalue;
 
         if (container.State && container.State.Running) {
-            cputext = (container.CpuUsage || 0).toString() + "%";
+            cputext = format_cpu_usage(container.CpuUsage);
 
             memuse = container.MemoryUsage || 0;
             memlimit = container.MemoryLimit || 0;
+            memtext = format_memory_and_limit(memuse, memlimit);
 
-            var barvalue = memuse.toString();
-
-            if (memlimit)
-                barvalue += "/" + memlimit.toString();
-
-            if (memlimit) {
-                var parts = $cockpit.format_bytes(memlimit, 1024);
-                memtext = (memuse? $cockpit.format_bytes(memuse, parts[1])[0] : "?") + " / " + parts.join(" ");
-            } else {
-                memtext = (memuse? $cockpit.format_bytes(memuse, 1024).join(" ") : "?");
-            }
-
-            memdanger = (memlimit && memuse > 0.9 * memlimit) ? true : false;
             membar = true;
             memtextstyle = { 'color': 'inherit' };
         } else {
             cputext = "";
             membar = false;
-            memdanger = false;
             memtext = _("Stopped");
             memtextstyle = { 'color': 'grey', 'text-align': 'right' };
-            barvalue = 0;
         }
 
         var added = false;
@@ -409,10 +438,7 @@ PageContainers.prototype = {
         $(row[1]).text(container.Image);
         $(row[2]).text(container.Command);
         $(row[3]).text(cputext);
-        $(row[4]).children("div").
-            attr("value", barvalue).
-            toggleClass("bar-row-danger", memdanger).
-            toggle(membar);
+        update_memory_bar($(row[4]).children("div").toggle(membar), memuse, memlimit);
         $(row[5]).
             css(memtextstyle).
             text(memtext);

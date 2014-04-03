@@ -161,6 +161,13 @@ a {
     color: black;
 }
 
+/* For table rows containing interactive controls like bars */
+.cockpit-info-table tr.interactive td {
+    line-height: 26px;
+    padding-top: 0px;
+    vertical-align: center;
+}
+
 .cockpit-form-table {
     width: 100%;
 }
@@ -182,6 +189,7 @@ a {
     height: 26px;
 }
 
+.cockpit-info-table .shrink,
 .cockpit-form-table .shrink {
     white-space: nowrap;
     width: 5px;

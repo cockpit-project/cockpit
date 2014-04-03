@@ -775,6 +775,10 @@
         </div>
       </div>
 
+      <!-- hidden bar-row to help set a minimum limit for container memory and image space-->
+      <div class="bar-row hidden" graph="containers-containers" value="0/100000000"></div>
+      <div class="bar-row hidden" graph="containers-images" value="0/100000000"></div>
+
       <!-- Layout for container details page -->
       <div id="container-details" class="container-fluid">
         <div class="row">
@@ -822,6 +826,10 @@
               </tr>
               <tr>
                 <td>&nbsp;</td>
+                <td>
+                    <!-- hidden bar-row to help set a minimum limit for memory -->
+                    <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
+                </td>
               </tr>
 	      <tr id="container-details-memory-row" class="interactive" style="display: none;">
                 <td>Memory usage:</td>

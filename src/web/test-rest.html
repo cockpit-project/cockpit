@@ -67,7 +67,7 @@ function MockPeer() {
     };
 
     /* close event: triggered when mock Channel is closed */
-    this.onclosed = function(event, channel, reason) {
+    this.onclosed = function(event, channel, options) {
         /* nada */
     };
 
@@ -109,12 +109,12 @@ function MockPeer() {
     }
 
     /* peer closes the channel */
-    this.close = function(channel, reason) {
+    this.close = function(channel, options) {
         console.assert(channel);
         window.setTimeout(function() {
             if (channel.valid) {
                 channel.valid = false;
-                $(channel).trigger("close", [reason || ""]);
+                $(channel).trigger("close", [options || { }]);
             }
         }, 5);
     }
@@ -139,11 +139,11 @@ function MockPeer() {
             window.setTimeout(function() { $(peer).trigger("recv", [channel, payload]); }, 5);
         };
 
-        this.close = function(problem) {
+        this.close = function(options) {
             console.assert(arguments.length <= 1);
             this.valid = false;
-            window.setTimeout(function() { $(peer).trigger("closed", [channel, problem || null]); }, 5);
-            $(this).triggerHandler("close", [problem || null]);
+            window.setTimeout(function() { $(peer).trigger("closed", [channel, options || { }]); }, 5);
+            $(this).triggerHandler("close", [options || { }]);
         };
 
         QUnit.testDone(function() {

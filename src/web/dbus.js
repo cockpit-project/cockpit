@@ -272,8 +272,8 @@ DBusClient.prototype = {
             }
         });
 
-        $(client._channel).on("close", function(event, reason) {
-            client.error = reason;
+        $(client._channel).on("close", function(event, options) {
+            client.error = options.reason;
             client.state = "closed";
             client._state_change();
 

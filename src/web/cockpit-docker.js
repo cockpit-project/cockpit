@@ -1559,10 +1559,9 @@ function DockerTerminal(parent, machine, id) {
         self.connected = true;
 
         $(channel).
-            on("close.terminal", function(ev, problem) {
+            on("close.terminal", function(ev, options) {
                 self.connected = false;
-                if (!problem)
-                    problem = "disconnected";
+                var problem = options.reason || "disconnected";
                 term.write('\x1b[31m' + problem + '\x1b[m\r\n');
                 self.typeable(false);
                 $(channel).off("close.terminal");

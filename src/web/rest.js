@@ -213,11 +213,9 @@ var $cockpit = $cockpit || { };
             }
         }
 
-        function on_close(event, problem) {
-            rest_debug("rest close:", problem);
-            if (!problem)
-                problem = "disconnected";
-            dfd.reject(new RestError(problem));
+        function on_close(event, options) {
+            rest_debug("rest close:", options);
+            dfd.reject(new RestError(options.reason || "disconnected"));
         }
 
         /* result event is triggered below */
@@ -284,7 +282,7 @@ var $cockpit = $cockpit || { };
                         console.warn("received invalid rest-json1:", ex);
                     }
                     if (result === undefined)
-                        channel.close("protocol-error");
+                        channel.close({"reason": "protocol-error"});
                     else
                         $(channel).trigger("result", [result]);
                 });

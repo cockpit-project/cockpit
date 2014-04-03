@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
-AC_INIT([Cockpit],[0.3],[devel@lists.cockpit-project.org],[cockpit],[http://www.cockpit-project.org/])
+AC_INIT([Cockpit],[0.4],[devel@lists.cockpit-project.org],[cockpit],[http://www.cockpit-project.org/])
 
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])

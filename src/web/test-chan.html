@@ -52,7 +52,7 @@ function MockPeer() {
 
     /* Methods filled in by MockWebSocket */
     this.send = function(channel, payload) { throw "not reached"; };
-    this.close = function(reason) { throw "not reached"; };
+    this.close = function(options) { throw "not reached"; };
 }
 
 var mock_peer = new MockPeer();
@@ -114,9 +114,11 @@ function MockWebSocket(url, protocol) {
         };
         window.setTimeout(function() { ws.onmessage(event); }, 5);
     };
-    mock.close = function(reason) {
+    mock.close = function(options) {
+        if (!options)
+            options = { };
         window.setTimeout(function() {
-            ws.close(reason && 1000 || 1011, reason || "");
+            ws.close(options.reason && 1000 || 1011, options.reason || "");
         }, 5);
     };
 
@@ -238,9 +240,9 @@ asyncTest("close channel", function() {
         strictEqual(cmd.channel, channel.number, "close: correct channel");
         start();
     });
-    $(channel).on("close", function(event, reason) {
+    $(channel).on("close", function(event, options) {
         ok(true, "close: triggered event");
-        ok(!reason, "close: no reason");
+        ok(!options.reason, "close: no reason");
     });
 
     channel.close();
@@ -258,33 +260,35 @@ asyncTest("close problem", function() {
         equal(cmd.command, "close", "close problem: sent close command");
         start();
     });
-    $(channel).on("close", function(event, reason) {
+    $(channel).on("close", function(event, options) {
         ok(true, "close problem: triggered event");
-        equal(reason, "problem", "close problem: set");
+        equal(options.reason, "problem", "close problem: set");
     });
 
-    channel.close("problem");
+    channel.close({"reason": "problem"});
     strictEqual(channel.valid, false, "close problem: no longer valid");
 });
 
 asyncTest("close peer", function() {
-    expect(4);
+    expect(5);
 
     var channel = new Channel({ });
     var channelb = new Channel({ });
 
-    $(channel).on("close", function(event, reason) {
+    $(channel).on("close", function(event, options) {
         ok(true, "close: triggered event");
-        equal(reason, "marmalade", "close: received reason");
-        strictEqual(channel.valid, false, "close: became invalid");
-        strictEqual(channelb.valid, true, "close: correct channel");
+        equal(options.reason, "marmalade", "close peer: received reason");
+        equal(options.extra, 5, "close peer: received extra");
+        strictEqual(channel.valid, false, "close peer: became invalid");
+        strictEqual(channelb.valid, true, "close peer: correct channel");
         start();
     });
 
     var cmd = {
         "command": "close",
         "channel": channel.number,
-        "reason" : "marmalade"
+        "reason" : "marmalade",
+        "extra": 5
     };
     mock_peer.send(0, JSON.stringify(cmd));
 });
@@ -295,15 +299,15 @@ asyncTest("close broadcast", function() {
     var channel = new Channel({ });
     var channelb = new Channel({ });
 
-    $(channel).on("close", function(event, reason) {
-        equal(reason, "pizzazz", "close-broadcast: received reason");
+    $(channel).on("close", function(event, options) {
+        equal(options.reason, "pizzazz", "close-broadcast: received reason");
         strictEqual(channel.valid, false, "close-broadcast: channel is invalid");
         if (!channel.valid && !channelb.valid)
             start();
     });
 
-    $(channelb).on("close", function(event, reason) {
-        equal(reason, "pizzazz", "close-broadcast: received reason");
+    $(channelb).on("close", function(event, options) {
+        equal(options.reason, "pizzazz", "close-broadcast: received reason");
         strictEqual(channelb.valid, false, "close-broadcast: other channel invalid");
         if (!channel.valid && !channelb.valid)
             start();
@@ -323,15 +327,15 @@ asyncTest("close socket", function() {
     var channel = new Channel({ });
     var channelb = new Channel({ });
 
-    $(channel).on("close", function(event, reason) {
-        equal(reason, "disconnected", "close-socket: received reason");
+    $(channel).on("close", function(event, options) {
+        equal(options.reason, "disconnected", "close-socket: received reason");
         strictEqual(channel.valid, false, "close-socket: channel is invalid");
         if (!channel.valid && !channelb.valid)
             start();
     });
 
-    $(channelb).on("close", function(event, reason) {
-        equal(reason, "disconnected", "close-socket: received reason");
+    $(channelb).on("close", function(event, options) {
+        equal(options.reason, "disconnected", "close-socket: received reason");
         strictEqual(channelb.valid, false, "close-socket: other channel invalid");
         if (!channel.valid && !channelb.valid)
             start();
@@ -344,12 +348,12 @@ test("close transport", function() {
     var channel = new Channel({ });
     var channelb = new Channel({ });
 
-    $(channel).on("close", function(event, reason) {
-        equal(reason, "disconnected", "close-transport: received reason");
+    $(channel).on("close", function(event, options) {
+        equal(options.reason, "disconnected", "close-transport: received reason");
     });
 
-    $(channelb).on("close", function(event, reason) {
-        equal(reason, "disconnected", "close-transport: received reason");
+    $(channelb).on("close", function(event, options) {
+        equal(options.reason, "disconnected", "close-transport: received reason");
     });
 
     Channel.transport.close();

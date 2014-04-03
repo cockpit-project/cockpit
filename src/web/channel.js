@@ -42,8 +42,8 @@
  *   Sends a message over the channel. The contents of the message depends
  *   on the payload type of the channel.
  *
- * channel.close(problem)
- *   @problem: optonal, if set indicate the problem that occurred
+ * channel.close(options)
+ *   @options: optonal, if 'reason' field set indicate the problem that occurred
  *   Closes a channel. Channels can also close if the other end closes
  *   or the underlying WebSocket transport closes.
  *
@@ -52,12 +52,13 @@
  *   An event triggered when the channel receives a message. The contents
  *   of the message depends on the payload type of the channel.
  *
- * $(channel).on("close", function(reason) { })
- *   @reason: a short string reason code, or null
+ * $(channel).on("close", function(options) { })
+ *   @options: a short string reason code, or null
  *   An event triggered when the channel closes. This can happen either
  *   because channel.close() was called, or if the other end closed the
- *   channel, or the underlying WebSocket transport closes. The @reason
- *   will be null if channel.close() was called.
+ *   channel, or the underlying WebSocket transport closes. @options will
+ *   contain various close information, including a 'reason' field which
+ *   will indicate a problem closing.
  *
  * Channel.transport
  *   This object represents the underlying transport. It will be defined
@@ -257,7 +258,7 @@ Channel.prototype = {
             if (data.command == "close") {
                 channel.valid = false;
                 transport._unregister(channel.number);
-                $(channel).triggerHandler("close", data.reason);
+                $(channel).triggerHandler("close", data);
             } else {
                 console.log("unhandled control message: '" + data.command + "'");
             }
@@ -280,7 +281,7 @@ Channel.prototype = {
             console.log("sending message on closed channel: " + this);
     },
 
-    close: function(problem) {
+    close: function(options) {
         this.valid = false;
         var command = {
             "command" : "close",
@@ -288,7 +289,7 @@ Channel.prototype = {
         };
         this._transport._send_control(command);
         this._transport._unregister(this.number);
-        $(this).triggerHandler("close", problem || null);
+        $(this).triggerHandler("close", options || { });
     },
 
     toString : function() {

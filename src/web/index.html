@@ -788,6 +788,10 @@
               <button class="btn btn-default" id="container-details-stop">Stop</button>
               <button class="btn btn-default" id="container-details-restart">Restart</button>
               <button class="btn btn-danger" id="container-details-delete">Delete</button>
+              <button class="btn btn-default" id="container-details-commit"
+                  data-toggle="modal" data-target="#container-commit-dialog">
+                  Commit
+              </button>
               <div class="waiting" style="display: none;"></div>
             </div>
           </div>
@@ -2236,6 +2240,60 @@
             </button>
             <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
               Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="container-commit-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Commit Image</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Container Name</td>
+                <td colspan="3">
+                  <span class="container-name"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Repository</td>
+                <td colspan="3">
+                  <input class="form-control container-repository" type="text"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Tag</td>
+                <td colspan="3">
+                  <input class="form-control container-tag" type="text"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Author</td>
+                <td colspan="3">
+                  <input class="form-control container-author" type="text"/>
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Command</td>
+                <td colspan="3">
+                  <input class="form-control container-command" type="text"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
+              Commit
             </button>
           </div>
         </div>

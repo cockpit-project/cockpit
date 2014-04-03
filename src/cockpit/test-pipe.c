@@ -103,19 +103,49 @@ typedef struct {
   CockpitPipe *pipe;
 } TestCase;
 
+typedef struct {
+  const gchar *pipe_type_name;
+  const gchar *command;
+} TestFixture;
+
 static void
-setup_echo (TestCase *tc,
-            gconstpointer data)
+setup_simple (TestCase *tc,
+              gconstpointer data)
 {
+  const TestFixture *fixture = data;
+  const gchar *pipe_type;
+  GError *error = NULL;
+  gchar **argv;
   int fds[2];
+  GPid pid = 0;
 
-  if (pipe (fds) < 0)
-    g_assert_not_reached ();
+  pipe_type = "MockEchoPipe";
+  if (fixture && fixture->pipe_type_name)
+    pipe_type = fixture->pipe_type_name;
 
-  tc->pipe = g_object_new (g_type_from_name (data),
+  if (fixture && fixture->command)
+    {
+      g_shell_parse_argv (fixture->command, NULL, &argv, &error);
+      g_assert_no_error (error);
+
+      g_spawn_async_with_pipes (NULL, argv, NULL,
+                                G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH, NULL, NULL,
+                                &pid, fds + 1, fds + 0, NULL,
+                                &error);
+      g_assert_no_error (error);
+      g_free (argv);
+    }
+  else
+    {
+      if (pipe (fds) < 0)
+        g_assert_not_reached ();
+    }
+
+  tc->pipe = g_object_new (g_type_from_name (pipe_type),
                            "name", "test",
                            "in-fd", fds[0],
                            "out-fd", fds[1],
+                           "pid", pid,
                            NULL);
 }
 
@@ -232,6 +262,36 @@ test_close_problem (TestCase *tc,
 
   g_assert_cmpstr (echo_pipe->problem, ==, "right now");
 }
+
+static const TestFixture fixture_pid = {
+    .command = "cat"
+};
+
+static void
+test_pid (TestCase *tc,
+          gconstpointer data)
+{
+  MockEchoPipe *echo_pipe = (MockEchoPipe *)tc->pipe;
+  GPid pid;
+  GPid check;
+
+  pid = cockpit_pipe_get_pid (tc->pipe);
+  g_assert (pid != 0);
+
+  /* Test it's real */
+  g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
+
+  /* Should still be available after closing */
+  while (!echo_pipe->closed)
+    g_main_context_iteration (NULL, TRUE);
+  check = cockpit_pipe_get_pid (tc->pipe);
+  g_assert_cmpuint (pid, ==, check);
+}
+
+
+static const TestFixture fixture_buffer = {
+    .pipe_type_name = "CockpitPipe"
+};
 
 static void
 test_buffer (TestCase *tc,
@@ -813,16 +873,18 @@ main (int argc,
   g_type_class_ref (mock_echo_pipe_get_type ());
   g_type_class_ref (cockpit_pipe_get_type ());
 
-  g_test_add ("/pipe/echo-message", TestCase, "MockEchoPipe",
-              setup_echo, test_echo_and_close, teardown);
-  g_test_add ("/pipe/echo-queue", TestCase, "MockEchoPipe",
-              setup_echo, test_echo_queue, teardown);
-  g_test_add ("/pipe/echo-large", TestCase, "MockEchoPipe",
-              setup_echo, test_echo_large, teardown);
-  g_test_add ("/pipe/close-problem", TestCase, "MockEchoPipe",
-              setup_echo, test_close_problem, teardown);
-  g_test_add ("/pipe/buffer", TestCase, "CockpitPipe",
-              setup_echo, test_buffer, teardown);
+  g_test_add ("/pipe/echo-message", TestCase, NULL,
+              setup_simple, test_echo_and_close, teardown);
+  g_test_add ("/pipe/echo-queue", TestCase, NULL,
+              setup_simple, test_echo_queue, teardown);
+  g_test_add ("/pipe/echo-large", TestCase, NULL,
+              setup_simple, test_echo_large, teardown);
+  g_test_add ("/pipe/close-problem", TestCase, NULL,
+              setup_simple, test_close_problem, teardown);
+  g_test_add ("/pipe/buffer", TestCase, &fixture_buffer,
+              setup_simple, test_buffer, teardown);
+  g_test_add ("/pipe/pid", TestCase, &fixture_pid,
+              setup_simple, test_pid, teardown);
 
   g_test_add_func ("/pipe/read-error", test_read_error);
   g_test_add_func ("/pipe/write-error", test_write_error);

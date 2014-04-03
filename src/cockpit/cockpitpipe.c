@@ -60,6 +60,7 @@ struct _CockpitPipePrivate {
   GSource *io;
   GPid pid;
   GSource *child;
+  gboolean exited;
 
   int out_fd;
   GQueue *out_queue;
@@ -156,6 +157,7 @@ on_child_reap (GPid pid,
   GError *error = NULL;
 
   g_debug ("%s: reaping child: %d %d", self->priv->name, (int)pid, status);
+  self->priv->exited = TRUE;
 
   if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
     problem = "terminated";
@@ -176,9 +178,6 @@ on_child_reap (GPid pid,
 
   if (!self->priv->problem)
     self->priv->problem = g_strdup (problem);
-
-  g_spawn_close_pid (self->priv->pid);
-  self->priv->pid = 0;
 
   /*
    * When a pid is present then this is the definitive way of
@@ -566,10 +565,14 @@ cockpit_pipe_dispose (GObject *object)
 {
   CockpitPipe *self = COCKPIT_PIPE (object);
 
-  if (self->priv->pid)
+  if (self->priv->pid && !self->priv->exited)
     {
       g_debug ("%s: killing child: %d", self->priv->name, (int)self->priv->pid);
       kill (self->priv->pid, SIGTERM);
+    }
+
+  if (self->priv->pid)
+    {
       g_spawn_close_pid (self->priv->pid);
       self->priv->pid = 0;
     }
@@ -940,6 +943,22 @@ cockpit_pipe_spawn (GType pipe_gtype,
   g_free (name);
 
   return pipe;
+}
+
+/**
+ * cockpit_pipe_get_pid:
+ * @self: a pipe
+ *
+ * Get the pid of this pipe or zero if not a process
+ * pipe.
+ *
+ * Returns: the pid or zero
+ */
+GPid
+cockpit_pipe_get_pid (CockpitPipe *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_PIPE (self), 0);
+  return self->priv->pid;
 }
 
 /**

@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpittransport.h"
+#include "cockpitpipe.h"
 #include "cockpitpipetransport.h"
 
 #include "cockpit/cockpittest.h"
@@ -260,7 +261,7 @@ test_terminate_problem (TestCase *tc,
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
-  g_object_get (tc->transport, "pid", &pid, NULL);
+  pid = cockpit_pipe_get_pid (COCKPIT_PIPE (tc->transport));
   g_assert (pid != 0);
   kill (pid, SIGTERM);
 

@@ -70,6 +70,8 @@ void               cockpit_pipe_close        (CockpitPipe *self,
 
 GByteArray *       cockpit_pipe_get_buffer   (CockpitPipe *self);
 
+GPid               cockpit_pipe_get_pid      (CockpitPipe *self);
+
 void               cockpit_pipe_skip         (GByteArray *buffer,
                                               gsize skip);
 

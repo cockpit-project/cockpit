@@ -541,7 +541,8 @@ PageRunImage.prototype = {
             $("#containers-run-image-run").on('click', $.proxy(this, "run"));
 
             /* TODO: Get max memory from elsewhere */
-            this.memory_slider = new MemorySlider($("#containers-run-image-memory"), 10000000, 8000000000);
+            this.memory_slider = new MemorySlider($("#containers-run-image-memory"),
+                    10*1024*1024, 2*1024*1024*1024);
             this.cpu_slider = new CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
         }
 
@@ -556,7 +557,7 @@ PageRunImage.prototype = {
             this.memory_slider.value = info.config_container.Memory;
         } else {
             /* First call sets the position of slider */
-            this.memory_slider.value = 400000000;
+            this.memory_slider.value = 512*1024*1024;
             this.memory_slider.value = undefined;
         }
 
@@ -707,7 +708,7 @@ PageContainerDetails.prototype = {
 
             /* TODO: Get max memory from elsewhere */
             self.memory_limit = new MemorySlider($("#container-resources-dialog .memory-slider"),
-                                                10000000, 8000000000);
+                                                 10*1024*1024, 2*1024*1024*1024);
             self.cpu_priority = new CpuSlider($("#container-resources-dialog .cpu-slider"),
                                               2, 1000000);
 

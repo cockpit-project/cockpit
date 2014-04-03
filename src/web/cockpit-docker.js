@@ -956,8 +956,8 @@ function DockerClient(machine) {
              */
             $(containers).each(function(i, item) {
                 var id = item.Id;
+                containers_meta[id] = item;
                 if (id && !polls[id]) {
-                    containers_meta[id] = item;
                     polls[id] = rest.poll("/containers/" + id + "/json", 5000, events).
                         stream(function(container) {
                             populate_container(id, container);
@@ -982,6 +982,9 @@ function DockerClient(machine) {
                             polls[id].cancel();
                             delete polls[id];
                         });
+                } else if (id && me.containers[id]) {
+                    populate_container(id, me.containers[id]);
+                    $(me).trigger("container", [id, me.containers[id]]);
                 }
             });
         }).
@@ -1011,8 +1014,8 @@ function DockerClient(machine) {
 
             $(images).each(function(i, item) {
                 var id = item.Id;
+                images_meta[id] = item;
                 if (id && !polls[id]) {
-                    images_meta[id] = item;
                     polls[id] = rest.poll("/images/" + id + "/json", 0, images_req).
                         stream(function(image) {
                             populate_image(id, image);
@@ -1037,6 +1040,9 @@ function DockerClient(machine) {
                             polls[id].cancel();
                             delete polls[id];
                         });
+                } else if (id && me.images[id]) {
+                    populate_image(id, me.images[id]);
+                    $(me).trigger("image", [id, me.images[id]]);
                 }
             });
         }).

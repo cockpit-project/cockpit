@@ -696,6 +696,27 @@ PageContainerDetails.prototype = {
             $('#container-details-stop').on('click', $.proxy(this, "stop_container"));
             $('#container-details-restart').on('click', $.proxy(this, "restart_container"));
             $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
+
+            /* TODO: Get max memory from elsewhere */
+            self.memory_limit = new MemorySlider($("#container-resources-dialog .memory-slider"),
+                                                10000000, 8000000000);
+            self.cpu_priority = new CpuSlider($("#container-resources-dialog .cpu-slider"),
+                                              2, 1000000);
+
+            self.memory_usage = $('#container-details-memory .bar-row');
+            $('#container-resources-dialog').
+                on("show.bs.modal", function() {
+                    var info = self.client.containers[self.container_id];
+
+                    /* Fill in the resource dialog */
+                    $(this).find(".container-name").text(self.name);
+                    self.memory_limit.value = info.MemoryLimit || undefined;
+                    self.cpu_priority.value = info.CpuPriority || undefined;
+                }).
+                find(".btn-primary").on("click", function() {
+                    self.client.change_memory_limit(self.container_id, self.memory_limit.value);
+                    self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
+                });
         }
 
         this.client = get_docker_client();
@@ -741,8 +762,6 @@ PageContainerDetails.prototype = {
         $('#container-details-command').text("");
         $('#container-details-state').text("");
         $('#container-details-ports-row').hide();
-        $('#container-detail-memory-row').hide();
-        $('#container-detail-cpu-row').hide();
 
         var info = this.client.containers[this.container_id];
         docker_debug("container-details", this.container_id, info);
@@ -759,6 +778,9 @@ PageContainerDetails.prototype = {
         $('#container-details-stop').prop('disabled', !info.State.Running);
         $('#container-details-restart').prop('disabled', !info.State.Running);
         $('#container-details-delete').prop('disabled', info.State.Running);
+        $('#container-details-memory-row').toggle(!!info.State.Running);
+        $('#container-details-cpu-row').toggle(!!info.State.Running);
+        $('#container-details-resource-row').toggle(!!info.State.Running);
 
         var name = cockpit_render_container_name(info.Name);
         if (name != this.name) {
@@ -783,7 +805,7 @@ PageContainerDetails.prototype = {
         }
 
         $('#container-details-id').text(info.ID);
-        $('#container-details-names').text(cockpit_render_container_name(info.Name));
+        $('#container-details-names').text(name);
         $('#container-details-created').text(info.Created);
         $('#container-details-image').text(info.Image);
         $('#container-details-command').text(info.Command);
@@ -792,11 +814,11 @@ PageContainerDetails.prototype = {
         $('#container-details-ports-row').toggle(port_bindings.length > 0);
         $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
 
-        $('#container-details-memory-row').toggle(!!(info.Config.Memory));
-        $('#container-details-memory').text($cockpit.format_bytes(info.Config.Memory, 1024).join(" "));
+        update_memory_bar(this.memory_usage, info.MemoryUsage, info.MemoryLimit);
+        $('#container-details-memory-text').text(format_memory_and_limit(info.MemoryUsage, info.MemoryLimit));
 
-        $('#container-details-cpu-row').toggle(!!(info.Config.CpuShares));
-        $('#container-details-cpu').text(info.Config.CpuShares + _(" shares"));
+        $('#container-details .cpu-usage').text(format_cpu_usage(info.CpuUsage));
+        $('#container-details .cpu-shares').text(format_cpu_shares(info.CpuPriority));
 
         this.maybe_show_terminal(info);
     },
@@ -1131,17 +1153,28 @@ function DockerClient(machine) {
             resource_debug("samples", timestampUsec, samples);
             for (var id in me.containers) {
                 var container = me.containers[id];
-                var sample = samples["lxc/" + id] || samples["docker-" + id + ".slice"];
+                var key = "lxc/" + id;
+                var sample = samples[key];
+                if (!sample) {
+                    key = "docker-" + id + ".slice";
+                    sample = samples[key];
+                }
+                if (!sample)
+                    continue;
 
-                var mem = sample? sample[0] : 0;
-                var limit = sample ? sample[1] : 0;
-                var cpu = sample? sample[4] : 0;
+                container.CGroup = key;
+                var mem = sample[0];
+                var limit = sample[1];
+                var cpu = sample[4];
+                var priority = sample[5];
                 if (mem != container.MemoryUsage ||
                     limit != container.MemoryLimit ||
-                    cpu != container.CpuUsage) {
+                    cpu != container.CpuUsage ||
+                    priority != container.CpuPriority) {
                     container.MemoryUsage = mem;
                     container.MemoryLimit = limit;
                     container.CpuUsage = cpu;
+                    container.CpuPriority = priority;
                     $(me).trigger("container", [id, container]);
                 }
             }
@@ -1260,6 +1293,36 @@ function DockerClient(machine) {
             always(function() {
                 not_waiting(id);
             });
+    };
+
+    function change_cgroup(directory, cgroup, filename, value) {
+        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager", "com.redhat.Cockpit.Manager");
+
+        /* TODO: Yup need a nicer way of doing this ... likely systemd once we're geard'd out */
+        var path = "/sys/fs/cgroup/" + directory + "/" + cgroup + "/" + filename;
+        var command = "echo '" + value.toFixed(0) + "' > " + path;
+        docker_debug("changing cgroup:", command);
+
+        /*
+         * TODO: We need a sane UI for showing that the resources can't be changed
+         * Showing unexpected error isn't it.
+         */
+        manager.call('Run', command, function (error, output) {
+            if (error)
+                console.warn(error);
+        });
+    }
+
+    this.change_memory_limit = function change_memory_limit(id, value) {
+        if (value == undefined || value <= 0)
+            value = -1;
+        return change_cgroup("memory", this.containers[id].CGroup, "memory.limit_in_bytes", value);
+    };
+
+    this.change_cpu_priority = function change_cpu_priority(id, value) {
+        if (value == undefined || value <= 0)
+            value = 1024;
+        return change_cgroup("cpuacct", this.containers[id].CGroup, "cpu.shares", value);
     };
 
     this.setup_cgroups_plot = function setup_cgroups_plot(element, sample_index, colors) {

@@ -35,18 +35,7 @@ PageServer.prototype = {
                                                   "com.redhat.Cockpit.Manager");
             $(manager).on('AvatarChanged', $.proxy (this, "update"));
 
-            var plot_options =
-                { colors: [ "black" ],
-                  legend: { show: false },
-                  series: { shadowSize: 0,
-                            lines: { lineWidth: 0.0,
-                                     fill: true
-                                   }
-                          },
-                  xaxis: { tickFormatter: function() { return "";  } },
-                  yaxis: { tickFormatter: function() { return "";  } },
-                  grid: { borderWidth: 1 }
-                };
+            var plot_options = { };
 
             var monitor = cockpit_dbus_client.lookup("/com/redhat/Cockpit/CpuMonitor", "com.redhat.Cockpit.ResourceMonitor");
             this.cpu_plot =

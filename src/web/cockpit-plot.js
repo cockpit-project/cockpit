@@ -17,14 +17,40 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_setup_plot (graph_id, resmon, data, options,
+function cockpit_setup_plot (graph_id, resmon, data, user_options,
                              store_samples)
 {
+    var options = {
+        colors: [ "#0099d3" ],
+        legend: { show: false },
+        series: { shadowSize: 0,
+                  lines: { lineWidth: 0.0,
+                           fill: 1.0
+                         }
+                },
+        xaxis: { tickFormatter: function() { return ""; } },
+        yaxis: { tickFormatter: function() { return ""; } },
+        // The point radius influences
+        // the margin around the grid
+        // even if no points are plotted.
+        // We don't want any margin, so
+        // we set the radius to zero.
+        points: { radius: 0 },
+        grid: { borderWidth: 1,
+                aboveData: true,
+                color: "black",
+                borderColor: $.color.parse("black").scale('a', 0.22).toString(),
+                labelMargin: 0
+              }
+    };
+
     var num_series = data.length;
     var num_points = resmon.NumSamples;
     var got_historical_data = false;
     var plot;
     var running = false;
+
+    $.extend(true, options, user_options);
 
     // We put the plot inside its own div so that we can give that div
     // a fixed size which only changes when we can also immediately

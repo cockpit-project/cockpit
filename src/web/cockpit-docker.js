@@ -1206,18 +1206,16 @@ function DockerClient(machine) {
     if (monitor) {
         $(monitor).on('NewSample', function (event, timestampUsec, samples) {
             resource_debug("samples", timestampUsec, samples);
-            for (var id in me.containers) {
-                var container = me.containers[id];
-                var key = "lxc/" + id;
-                var sample = samples[key];
-                if (!sample) {
-                    key = "docker-" + id + ".slice";
-                    sample = samples[key];
-                }
-                if (!sample)
+            for (var cgroup in samples) {
+		var match = /[A-Fa-f0-9]{64}/.exec(cgroup);
+                if (!match)
                     continue;
-
-                container.CGroup = key;
+                var id = match[0];
+                var container = me.containers[id];
+                if (!container)
+                    continue;
+                var sample = samples[cgroup];
+                container.CGroup = cgroup;
                 var mem = sample[0];
                 var limit = sample[1];
                 var cpu = sample[4];

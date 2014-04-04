@@ -246,7 +246,6 @@ DBusClient.prototype = {
         }
 
         $(client._channel).on("message", function(event, payload) {
-            console.warn(payload);
             var decoded = JSON.parse(payload);
             dbus_debug("got message command=" + decoded.command);
 

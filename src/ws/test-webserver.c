@@ -63,6 +63,8 @@ find_non_loopback_address (void)
     {
       if (!(ifa->ifa_flags & IFF_UP))
         continue;
+      if (ifa->ifa_addr == NULL)
+        continue;
       if (ifa->ifa_addr->sa_family == AF_INET)
         {
           bytes = &(((struct sockaddr_in *)ifa->ifa_addr)->sin_addr);

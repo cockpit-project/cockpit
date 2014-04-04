@@ -21,6 +21,8 @@ var $cockpit = $cockpit || { };
 
 // Used for escaping things in HTML elements and attributes
 function cockpit_esc(str) {
+    if (str === null || str === undefined)
+        return "";
     var pre = document.createElement('pre');
     var text = document.createTextNode(str);
     pre.appendChild(text);

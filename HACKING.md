@@ -102,12 +102,16 @@ and Cockpit should load after confirming the self-signed certificate.
 Log in as root with the normal root password (of the virtual machine).
 
 Cockpit consists of two main systemd services: cockpitd.service and
-cockpit.service.  After installing a new version, you should
-usually restart both of them
+cockpit.service.  After installing a new version, you should usually
+restart both of them.  Also, the D-Bus daemon sometimes gets confused,
+so you might want to reload it.  So you might want to put the
+following into a little script or alias:
 
+    # systemctl daemon-reload
+    # systemctl reload dbus
     # systemctl restart cockpit cockpitd
 
-and then reload the browser.
+Then reload the browser.
 
 If you want to run `/usr/libexec/cockpitd` or `/usr/libexec/cockpit-ws`
 outside of systemd, stop them first, including the socket:

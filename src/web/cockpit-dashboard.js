@@ -220,19 +220,24 @@ PageDashboard.prototype = {
             if (client.state == "ready" && !me.cpu_plots[i]) {
                 var monitor = client.lookup("/com/redhat/Cockpit/CpuMonitor",
                                             "com.redhat.Cockpit.ResourceMonitor");
+                var plot_options = {
+                    colors: [ "black" ],
+                    legend: { show: false },
+                    series: {
+                        shadowSize: 0,
+                        lines: {
+                            lineWidth: 0.0,
+                            fill: true
+                        }
+                    },
+                    xaxis: { tickFormatter: function() { return "";  } },
+                    yaxis: { tickFormatter: function() { return "";  } },
+                    grid: { borderWidth: 1 }
+                };
                 me.cpu_plots[i] =
                     cockpit_setup_simple_plot($(e).find('.cockpit-graph-plot'),
                                               $(e).find('.cockpit-graph-text'),
-                                              monitor,
-                                              {
-                                                  series: {
-                                                      lines: {show: true, lineWidth: 1},
-                                                      color: "rgb(128, 128, 128)",
-                                                      shadowSize: 0
-                                                  },
-                                                  grid: {show: false},
-                                                  yaxis: {min: 0, max: 100}
-                                              },
+                                              monitor, plot_options,
                                               function(values) { // Combines the series into a single plot-value
                                                   return values[1] + values[2] + values[3];
                                               },

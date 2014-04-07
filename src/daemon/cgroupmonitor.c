@@ -386,45 +386,49 @@ collect_cgroup (gpointer key,
   CGroupMonitor *monitor = data->monitor;
   const gchar *cgroup = key;
   Consumer *consumer = value;
+  gboolean have_mem;
+  gboolean have_cpu;
 
   Sample *sample = NULL, *prev_sample = NULL;
 
   sample = &(consumer->samples[monitor->samples_next]);
+  zero_sample (sample);
 
   if (consumer->last_timestamp > 0)
-    {
-      zero_sample (sample);
-      return;
-    }
+    return;
 
   gs_free gchar *mem_dir = g_build_filename (monitor->memory_root, cgroup, NULL);
   gs_free gchar *cpu_dir = g_build_filename (monitor->cpuacct_root, cgroup, NULL);
 
-  /* TODO - don't insist that we are in both hierarchies
-   */
-  if (access (mem_dir, F_OK) != 0
-      || access (cpu_dir, F_OK) != 0)
+  have_mem = access (mem_dir, F_OK) == 0;
+  have_cpu = access (cpu_dir, F_OK) == 0;
+  if (!have_mem && !have_cpu)
     {
       consumer->last_timestamp = data->now;
-      zero_sample (sample);
       return;
     }
 
-  sample->mem_usage_in_bytes = read_double (mem_dir, "memory.usage_in_bytes");
-  sample->mem_limit_in_bytes = read_double (mem_dir, "memory.limit_in_bytes");
-  sample->memsw_usage_in_bytes = read_double (mem_dir, "memory.memsw.usage_in_bytes");
-  sample->memsw_limit_in_bytes = read_double (mem_dir, "memory.memsw.limit_in_bytes");
+  if (have_mem)
+    {
+      sample->mem_usage_in_bytes = read_double (mem_dir, "memory.usage_in_bytes");
+      sample->mem_limit_in_bytes = read_double (mem_dir, "memory.limit_in_bytes");
+      sample->memsw_usage_in_bytes = read_double (mem_dir, "memory.memsw.usage_in_bytes");
+      sample->memsw_limit_in_bytes = read_double (mem_dir, "memory.memsw.limit_in_bytes");
 
-  sample->cpuacct_usage = read_double (cpu_dir, "cpuacct.usage");
-  sample->cpu_shares = read_double (cpu_dir, "cpu.shares");
+      /* If at max for arch, then unlimited => zero */
+      if (sample->mem_limit_in_bytes == (double)G_MAXSIZE ||
+          sample->mem_limit_in_bytes == (double)G_MAXSSIZE)
+        sample->mem_limit_in_bytes = 0;
+      if (sample->memsw_limit_in_bytes == (double)G_MAXSIZE ||
+          sample->memsw_limit_in_bytes == (double)G_MAXSSIZE)
+        sample->memsw_limit_in_bytes = 0;
+    }
 
-  /* If at max for arch, then unlimited => zero */
-  if (sample->mem_limit_in_bytes == (double)G_MAXSIZE ||
-      sample->mem_limit_in_bytes == (double)G_MAXSSIZE)
-    sample->mem_limit_in_bytes = 0;
-  if (sample->memsw_limit_in_bytes == (double)G_MAXSIZE ||
-      sample->memsw_limit_in_bytes == (double)G_MAXSSIZE)
-    sample->memsw_limit_in_bytes = 0;
+  if (have_cpu)
+    {
+      sample->cpuacct_usage = read_double (cpu_dir, "cpuacct.usage");
+      sample->cpu_shares = read_double (cpu_dir, "cpu.shares");
+    }
 
   if (monitor->samples_prev >= 0)
     {

@@ -390,7 +390,7 @@ test_new_samples (TestCase *tc,
 static const TestFixture fixture_unlimited = {
   .data = {
     { "memory.limit_in_bytes", G_MAXSIZE },
-    { "memory.memsw.limit_in_bytes", G_MAXSIZE },
+    { "memory.memsw.limit_in_bytes", G_MAXSSIZE },
   }
 };
 

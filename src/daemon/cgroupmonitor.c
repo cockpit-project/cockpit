@@ -412,9 +412,11 @@ collect_cgroup (gpointer key,
   sample->cpu_shares = read_double (cpu_dir, "cpu.shares");
 
   /* If at max for arch, then unlimited => zero */
-  if (sample->mem_limit_in_bytes == (double)G_MAXSIZE)
+  if (sample->mem_limit_in_bytes == (double)G_MAXSIZE ||
+      sample->mem_limit_in_bytes == (double)G_MAXSSIZE)
     sample->mem_limit_in_bytes = 0;
-  if (sample->memsw_limit_in_bytes == (double)G_MAXSIZE)
+  if (sample->memsw_limit_in_bytes == (double)G_MAXSIZE ||
+      sample->memsw_limit_in_bytes == (double)G_MAXSSIZE)
     sample->memsw_limit_in_bytes = 0;
 
   if (monitor->samples_prev >= 0)

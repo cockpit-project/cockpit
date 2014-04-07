@@ -330,8 +330,15 @@ notice_cgroups_in_hierarchy (CollectData *data,
                 const char *f = ent->fts_path + prefix_len;
                 if (*f == '/')
                   f++;
+
+                /*
+                 * HACK: These are both hacks around a completely broken json-glib
+                 * https://bugzilla.gnome.org/show_bug.cgi?id=727593
+                 */
                 if (*f == '\0')
                   f = ".";
+                if (strstr (ent->fts_name, "\\"))
+                    continue;
                 notice_cgroup (data, f);
               }
           }

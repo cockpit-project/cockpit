@@ -119,6 +119,13 @@ function format_memory_and_limit(usage, limit) {
     }
 }
 
+function container_from_cgroup(cgroup) {
+    var match = /[A-Fa-f0-9]{64}/.exec(cgroup);
+    if (!match)
+        return null;
+    return match[0];
+}
+
 function insert_table_sorted(table, row) {
     var key = $(row).text();
     var rows = $(table).find("tbody tr");
@@ -1207,10 +1214,9 @@ function DockerClient(machine) {
         $(monitor).on('NewSample', function (event, timestampUsec, samples) {
             resource_debug("samples", timestampUsec, samples);
             for (var cgroup in samples) {
-		var match = /[A-Fa-f0-9]{64}/.exec(cgroup);
-                if (!match)
+                var id = container_from_cgroup(cgroup);
+                if (!id)
                     continue;
-                var id = match[0];
                 var container = me.containers[id];
                 if (!container)
                     continue;
@@ -1420,7 +1426,7 @@ function DockerClient(machine) {
             data[i] = { };
 
         function is_container(cgroup) {
-            return cgroup.startsWith("lxc/");
+            return !!container_from_cgroup(cgroup);
         }
 
         function update_consumers() {
@@ -1483,8 +1489,7 @@ function DockerClient(machine) {
         function highlight(consumer) {
             if (consumer != cur_highlight) {
                 cur_highlight = consumer;
-                if (consumer && consumer.startsWith("lxc/"))
-                    consumer = consumer.substring(4);
+                consumer = container_from_cgroup(consumer) || consumer;
                 $(plot).trigger('highlight', [ consumer ]);
             }
         }

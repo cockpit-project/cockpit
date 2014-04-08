@@ -5,7 +5,24 @@ com.redhat.Cockpit.service: data/com.redhat.Cockpit.service.in Makefile
 	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
 
 dbusconfdir = $(sysconfdir)/dbus-1/system.d
-nodist_dbusconf_DATA = data/com.redhat.Cockpit.conf
+custom_dbusconfdir_data = data/com.redhat.Cockpit.conf
+
+# We don't let Automake install into dbusconfdir with /usr/bin/install.
+# https://github.com/cockpit-project/cockpit/issues/410
+#
+install-data-local::
+	dir="$(DESTDIR)$(dbusconfdir)"; \
+	$(MKDIR_P) "$$dir"; \
+	for f in $(custom_dbusconfdir_data); do \
+	  cp "$(srcdir)"/"$$f" "$$dir"; \
+	  chmod 0644 "$$dir"/$$(basename "$$f"); \
+	done
+
+uninstall-local::
+	dir="$(DESTDIR)$(dbusconfdir)"; \
+	for f in $(custom_dbusconfdir_data); do \
+	  rm -f "$$dir"/$$(basename "$$f"); \
+	done
 
 if HAVE_SYSTEMD
 systemdunitdir          = $(systemdsystemunitdir)

@@ -94,11 +94,16 @@ COCKPIT_DAEMON_LIBS="$COCKPIT_LIBS $COCKPIT_DAEMON_LIBS"
 
 # dbus interfaces dir
 
+# Can't use PKG_CHECK_VAR() as not all our target systems have it
+AC_CHECK_PROGS(PKG_CONFIG, pkg-config)
 AC_MSG_CHECKING(for dbus interfaces directory)
-PKG_CHECK_VAR(interfacesdir, [dbus-1], interfaces_dir,
-    [AC_MSG_RESULT($interfacesdir)],
-    [AC_MSG_ERROR(Couldn't find dbus interfaces directory. Try installing dbus-devel)]
-)
+interfacesdir=$($PKG_CONFIG dbus-1 --variable=interfaces_dir)
+if test "$interfacesdir" = ""; then
+    AC_MSG_ERROR(Couldn't find dbus interfaces directory. Try installing dbus-devel)
+else
+    AC_MSG_RESULT($interfacesdir)
+    AC_SUBST(interfacesdir)
+fi
 
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], [ ],

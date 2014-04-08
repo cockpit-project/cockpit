@@ -513,7 +513,6 @@ serve_static_file (CockpitWebServer *server,
   gchar *query = NULL;
   gs_free gchar *unescaped = NULL;
   gs_free gchar *path = NULL;
-  gs_free gchar *mime_type = NULL;
   gs_unref_object GFileInputStream *file_in = NULL;
   gs_unref_object GFile *f = NULL;
   gs_unref_object GFileInfo *info = NULL;

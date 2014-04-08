@@ -387,7 +387,6 @@ cockpit_auth_check_userpass (CockpitAuth *self,
   gchar *header;
   char *password;
   char *user;
-  gs_free char *id = NULL;
 
   if (!verify_userpass (self, userpass, &user, &password, error))
     {

@@ -849,12 +849,12 @@ cockpit_rest_request_create (CockpitRestJson *self,
 {
   CockpitRestRequest *req = NULL;
   JsonObject *pollopts = NULL;
+  GString *string = NULL;
+  GBytes *body = NULL;
   gint64 cookie;
   const gchar *method;
   const gchar *path;
-  GString *string;
   gsize length;
-  GBytes *body;
   JsonNode *node;
   gint64 interval;
   gint64 watch;
@@ -899,7 +899,7 @@ cockpit_rest_request_create (CockpitRestJson *self,
         }
       pollopts = json_node_get_object (node);
       if (!cockpit_json_get_int (pollopts, "interval", 1000, &interval) ||
-          interval < 0 || interval > G_MAXUINT32)
+          interval < 0 || interval >= G_MAXINT32)
         {
           g_warning ("Invalid \"interval\" member in REST JSON request: should be non-negative integer");
           goto out;

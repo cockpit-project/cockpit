@@ -233,11 +233,15 @@ on_subscribe_done (GObject *object,
                    gpointer user_data)
 {
   GError *error = NULL;
-  gs_unref_variant GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
+  GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
   if (error)
     {
       g_warning ("Can't subscribe to systemd signals: %s", error->message);
       g_error_free (error);
+    }
+  else
+    {
+      g_variant_unref (result);
     }
 }
 
@@ -977,7 +981,7 @@ on_reload_done (GObject *object,
   ServiceActionData *data = user_data;
   GError *error = NULL;
 
-  gs_unref_variant GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
+  GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
   if (error)
     {
       end_invocation_take_gerror (data->invocation, error);
@@ -985,6 +989,7 @@ on_reload_done (GObject *object,
       return;
     }
 
+  g_variant_unref (result);
   cockpit_services_complete_service_action (COCKPIT_SERVICES (data->services),
                                             data->invocation);
   g_free (data);

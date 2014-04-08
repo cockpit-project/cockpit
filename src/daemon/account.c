@@ -590,7 +590,7 @@ handle_kill_sessions (CockpitAccount *object,
       if (bus == NULL)
         goto out;
 
-      gs_unref_variant GVariant *result =
+      GVariant *result =
         g_dbus_connection_call_sync (bus,
                                      "org.freedesktop.login1",
                                      "/org/freedesktop/login1",
@@ -605,7 +605,11 @@ handle_kill_sessions (CockpitAccount *object,
                                      NULL,
                                      &error);
 
-      if (error)
+      if (!error)
+        {
+          g_variant_unref (result);
+        }
+      else
         {
           /* logind from systemd 208 is buggy, so we use systemd directly if it fails
              https://bugs.freedesktop.org/show_bug.cgi?id=71092
@@ -614,7 +618,7 @@ handle_kill_sessions (CockpitAccount *object,
           g_warning ("logind.KillUser failed (%s), trying systemd.KillUnit", error->message);
           g_clear_error (&error);
           gs_free gchar *unit = g_strdup_printf ("user-%d.slice", act_user_get_uid (acc->u));
-          gs_unref_variant GVariant *result =
+          GVariant *result =
             g_dbus_connection_call_sync (bus,
                                          "org.freedesktop.systemd1",
                                          "/org/freedesktop/systemd1",
@@ -630,7 +634,10 @@ handle_kill_sessions (CockpitAccount *object,
                                          NULL,
                                          &error);
           if (!error)
-            g_info ("systemd.KillUnit worked");
+            {
+              g_info ("systemd.KillUnit worked");
+              g_variant_unref (result);
+            }
         }
     }
 

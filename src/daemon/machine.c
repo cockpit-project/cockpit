@@ -336,7 +336,6 @@ handle_remove_tag (CockpitMachine *object,
   GError *error = NULL;
   Machine *machine = MACHINE (object);
   Machines *machines = daemon_get_machines (machine->daemon);
-  gs_free const gchar **new_tags = NULL;
 
   const gchar *const *tags = cockpit_machine_get_tags (object);
 

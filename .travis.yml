@@ -16,4 +16,4 @@ before_install:
   - sudo mkdir /usr/include/libgsystem
   - sudo wget -O /usr/include/libgsystem/gsystem-local-alloc.h https://git.gnome.org/browse/libgsystem/plain/src/gsystem-local-alloc.h
 script:
- - ./autogen.sh --prefix=/usr --enable-strict && make V=1 check
+ - ./autogen.sh --prefix=/usr --enable-strict && make V=1 distcheck

@@ -2,7 +2,7 @@
 
 set -e
 
-IFCONFIG=/sbin/ifconfig
+IP=/sbin/ip
 
 silent()
 {
@@ -22,7 +22,7 @@ require_binary parallel
 require_binary js
 require_binary trickle
 
-if ! silent $IFCONFIG cockpit0; then
+if ! silent $IP address show dev cockpit0; then
   sudo ./vm-prep
 fi
 

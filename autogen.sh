@@ -37,7 +37,7 @@ cd $srcdir
 
 rm -rf autom4te.cache
 
-autoreconf -f -i
+autoreconf -f -i -I tools
 
 intltoolize --force --copy || exit $?
 

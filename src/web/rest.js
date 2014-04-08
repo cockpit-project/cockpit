@@ -251,7 +251,7 @@ var $cockpit = $cockpit || { };
 
         promise.cancel = function(callback) {
             if (this.state() == "pending") {
-                /* TODO: need to tell channel */
+                channel.send(JSON.stringify({ 'cookie': cookie }));
                 dfd.reject(null);
             }
         };

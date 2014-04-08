@@ -914,7 +914,7 @@ on_op_done (GObject *object,
   Realms *realms = REALMS (user_data);
 
   GError *error = NULL;
-  gs_unref_variant GVariant *join_result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
+  GVariant *join_result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
 
   if (error)
     end_invocation_take_gerror (realms, error);
@@ -925,6 +925,7 @@ on_op_done (GObject *object,
       else
         cockpit_realms_complete_leave (COCKPIT_REALMS (realms), realms->op_invocation);
       clear_invocation (realms);
+      g_variant_unref (join_result);
     }
 }
 
@@ -1095,11 +1096,15 @@ on_cancel_done (GObject *object,
 {
   GError *error = NULL;
 
-  gs_unref_variant GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
+  GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
   if (error)
     {
       g_warning ("Failed to cancel: %s", error->message);
       g_error_free (error);
+    }
+  else
+    {
+      g_variant_unref (result);
     }
 }
 

@@ -138,7 +138,6 @@ cockpit_handler_login (CockpitWebServer *server,
 
   GHashTable *out_headers = NULL;
   gs_free gchar *response_body = NULL;
-  gs_free gchar *response = NULL;
   CockpitCreds *creds = NULL;
 
   out_headers = cockpit_web_server_new_table ();

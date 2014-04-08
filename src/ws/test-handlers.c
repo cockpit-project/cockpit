@@ -129,14 +129,11 @@ assert_matches_msg (const char *domain,
 static void
 skip_test (const gchar *reason)
 {
-#if GLIB_CHECK_VERSION(2, 40, 0)
-        g_test_skip (reason);
-#else
-        if (g_test_verbose ())
-                g_print ("GTest: skipping: %s\n", reason);
-        else
-                g_print ("SKIP: %s ", reason);
-#endif
+  /* Can't use g_test_skip() yet */
+  if (g_test_verbose ())
+    g_print ("GTest: skipping: %s\n", reason);
+  else
+    g_print ("SKIP: %s ", reason);
 }
 
 static void

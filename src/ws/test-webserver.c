@@ -484,6 +484,10 @@ int
 main (int argc,
       char *argv[])
 {
+  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
+  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  g_setenv ("GIO_USE_VFS", "local", TRUE);
+
 #if !GLIB_CHECK_VERSION(2,36,0)
   g_type_init ();
 #endif

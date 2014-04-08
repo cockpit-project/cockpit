@@ -152,6 +152,12 @@ main (int argc,
       outfd = 1;
     }
 
+  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
+  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  g_setenv ("GIO_USE_VFS", "local", TRUE);
+
+  g_type_init ();
+
   transport = cockpit_pipe_transport_new ("stdio", 0, outfd);
   g_signal_connect (transport, "recv", G_CALLBACK (on_transport_recv), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);

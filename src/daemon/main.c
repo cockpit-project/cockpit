@@ -100,6 +100,8 @@ main (int argc,
 
   g_type_init ();
 
+  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+
   /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
   if (!g_setenv ("GIO_USE_VFS", "local", TRUE))
     {

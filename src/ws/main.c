@@ -239,6 +239,10 @@ main (int argc,
   GError **error = &local_error;
   GMainLoop *loop;
 
+  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
+  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  g_setenv ("GIO_USE_VFS", "local", TRUE);
+
   g_type_init ();
 
   memset (&data, 0, sizeof (data));

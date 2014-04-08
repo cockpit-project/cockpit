@@ -331,6 +331,19 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
 	s = "";
       g_string_append_printf (str, "cockpitdyn_pretty_hostname = \"%s\";\n", s);
     }
+
+  /* hostnamed not installed or active on the system? */
+  else if (g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_SPAWN_SERVICE_NOT_FOUND) ||
+           g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN))
+    {
+      s = g_new0 (gchar, HOST_NAME_MAX + 1);
+      if (gethostname (s, HOST_NAME_MAX) < 0)
+        s[0] = 0;
+      g_string_append_printf (str, "cockpitdyn_hostname = \"%s\";\n", s);
+      g_string_append_printf (str, "cockpitdyn_pretty_hostname = \"\";\n");
+      g_free (s);
+    }
+
   else
     {
       g_warning ("Couldn't get system host name: %s", error->message);

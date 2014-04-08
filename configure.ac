@@ -218,6 +218,20 @@ fi
 AM_CONDITIONAL([WITH_COVERAGE], [test "$enable_coverage" = "yes"])
 AC_MSG_RESULT([$enable_coverage])
 
+# Strict
+
+AC_ARG_ENABLE(strict, [
+               AS_HELP_STRING([--enable-strict], [Strict code compilation])
+             ])
+
+AC_MSG_CHECKING([build strict])
+if test "$enable_strict" = "yes"; then
+  CFLAGS="$CFLAGS -Werror"
+else
+  enable_strict="no"
+fi
+AC_MSG_RESULT($enable_strict)
+
 # Generate
 #
 

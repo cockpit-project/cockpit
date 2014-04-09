@@ -180,8 +180,11 @@ fields:
  * "cookie": A unique integer which identifies this request. It will
    be included in the response. Defaults to zero. If a cookie is
    reused, then a previous request with that cookie will be cancelled.
- * "method": The HTTP method. Defaults to "GET"
- * "path": The HTTP path or resource. Required.
+   See below for more information about cancelling of requests.
+ * "method": The HTTP method. If omitted, the request does nothing
+   (and no responses will be sent) except maybe cancelling a previous
+   request with the same cookie.
+ * "path": The HTTP path or resource. Required if "method" is given.
  * "body": JSON to be sent as the body of the HTTP request. It will
    be sent with the Content-Type application/json.
  * "poll": An optional JSON object which turns this request into
@@ -204,6 +207,13 @@ fields:
 
 If the HTTP response body contains multiple JSON results, then these will
 be returned as separate response messages.
+
+To cancel a previous request, send a new request with the same
+"cookie" value but without a "method" field.  The connection to the
+unix socket or port on localhost that was used for the previous
+request will be closed.  A cancelled request will not receive any
+further responses, not even one to indicate that it has been
+cancelled.
 
 Payload: text-stream
 --------------------

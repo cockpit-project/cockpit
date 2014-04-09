@@ -65,7 +65,8 @@ function MockPeer() {
     this.onrecv = function(event, channel, payload) {
         var request = JSON.parse(payload);
         console.assert(typeof(request) == "object");
-        $(this).trigger(request.method.toLowerCase(), [channel, request]);
+        if (request.method)
+            $(this).trigger(request.method.toLowerCase(), [channel, request]);
     };
 
     /* get event: triggered when we receive a get request */
@@ -274,6 +275,43 @@ asyncTest("streaming", function() {
         })
         .always(function() {
             equal(this.state(), "resolved", "split response didn't fail");
+            start();
+        });
+});
+
+asyncTest("cancel", function() {
+    expect(3);
+
+    var peer = new MockPeer();
+    $(peer).on("get", function(event, channel, request) {
+        var result;
+        for(var i = 0; i < 10; i++)
+        {
+            result = {
+                "cookie": request.cookie,
+                "complete": i < 9 ? false : true,
+                "status": 200,
+                "message": "OK",
+                "body": JSON.parse('{ "' + i + '": ' + i +' }')
+            };
+            this.send(channel, result);
+        }
+    });
+
+    var at = 0;
+    var req = $cockpit.rest("unix:///test").get("/split")
+        .stream(function(resp) {
+            var match = { };
+            match[at.toString()] = at;
+            deepEqual(resp, match, "stream got right data");
+            at++;
+
+            if (at == 1)
+                req.cancel();
+        })
+        .always(function() {
+            equal(at, 1, "stream got cancelled");
+            equal(this.state(), "rejected", "cancelling a response rejects it");
             start();
         });
 });

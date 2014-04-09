@@ -861,10 +861,30 @@ cockpit_rest_request_create (CockpitRestJson *self,
 
   if (!cockpit_json_get_int (json, "cookie", 0, &cookie) ||
       !cockpit_json_get_string (json, "path", NULL, &path) ||
-      !cockpit_json_get_string (json, "method", "GET", &method))
+      !cockpit_json_get_string (json, "method", NULL, &method))
     {
       g_warning ("Invalid arguments in REST JSON request");
       goto out;
+    }
+
+  if (method == NULL)
+    {
+      /* Cancel a request with the given cookie.  It is not an error
+         if there is no request with that cookie.  Such a request
+         might just have completed and our caller might not yet have
+         noticed that.
+      */
+
+      req = g_hash_table_lookup (self->requests, &cookie);
+      if (req)
+        {
+          g_debug ("%s: %s request cancelled", self->name, req->label);
+          g_hash_table_remove (self->requests, &cookie);
+        }
+      else
+        g_debug ("%s: no request found when cancelling cookie %"G_GINT64_FORMAT, self->name, cookie);
+
+      goto out_without_request;
     }
 
   if (path == NULL)
@@ -965,6 +985,7 @@ cockpit_rest_request_create (CockpitRestJson *self,
 out:
   if (!req)
     cockpit_channel_close (COCKPIT_CHANNEL (self), "protocol-error");
+out_without_request:
   if (string)
     g_string_free (string, TRUE);
   if (body)

@@ -162,6 +162,7 @@ typedef struct {
   gboolean stutter; /* write data, then wait, then close */
   gboolean no_length; /* don't send Content-Length */
   gint connections;
+  gint connections_now_open;
 }MockServer;
 
 typedef GThreadedSocketServiceClass MockServerClass;
@@ -392,6 +393,7 @@ mock_server_connection (GThreadedSocketService *service,
   GError *error = NULL;
 
   self->connections++;
+  self->connections_now_open++;
   in = g_buffered_input_stream_new (g_io_stream_get_input_stream (G_IO_STREAM (connection)));
   out = g_io_stream_get_output_stream (G_IO_STREAM (connection));
 
@@ -404,6 +406,8 @@ mock_server_connection (GThreadedSocketService *service,
   g_io_stream_close (G_IO_STREAM (connection), NULL, &error);
   g_assert_no_error (error);
   g_object_unref (in);
+  self->connections_now_open--;
+  g_main_context_wakeup (NULL);
   return TRUE;
 }
 
@@ -585,15 +589,30 @@ send_request (TestCase *tc,
   g_bytes_unref (sent);
 }
 
-static void
+static gint
 simple_request (TestCase *tc,
                 const gchar *method,
                 const gchar *path)
 {
   GBytes *sent;
   gchar *data;
+  int cookie = 0;   // We always use '0' as the cookie.
 
-  data = g_strdup_printf ("{\"method\":\"%s\",\"path\":\"%s\"}", method, path);
+  data = g_strdup_printf ("{\"method\":\"%s\",\"path\":\"%s\",\"cookie\":%d}", method, path, cookie);
+  sent = g_bytes_new_take (data, strlen (data));
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 888, sent);
+  g_bytes_unref (sent);
+
+  return cookie;
+}
+
+static void
+cancel_request (TestCase *tc, gint cookie)
+{
+  GBytes *sent;
+  gchar *data;
+
+  data = g_strdup_printf ("{\"cookie\":%d}", cookie);
   sent = g_bytes_new_take (data, strlen (data));
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 888, sent);
   g_bytes_unref (sent);
@@ -972,6 +991,26 @@ test_stream_stutter (TestCase *tc,
 }
 
 static void
+test_stream_cancel (TestCase *tc,
+                    gconstpointer unused)
+{
+  gint cookie;
+
+  cookie = simple_request (tc, "GET", "/stream");
+
+  while (all_is_quiet (tc))
+    g_main_context_iteration (NULL, TRUE);
+
+  assert_json_eq (g_queue_pop_head (tc->sent),
+                  "{\"cookie\":0,\"status\":200,\"message\":\"OK\",\"body\":[0]}");
+
+  cancel_request (tc, cookie);
+
+  while (tc->server->connections_now_open > 0)
+    g_main_context_iteration (NULL, TRUE);
+}
+
+static void
 test_poll_interval (TestCase *tc,
                     gconstpointer unused)
 {
@@ -989,7 +1028,7 @@ test_poll_interval (TestCase *tc,
       g_free (response);
     }
 
-  send_request (tc, "{ \"path\": \"/poll\", \"poll\": { \"interval\": 20 }}");
+  send_request (tc, "{ \"method\": \"GET\", \"path\": \"/poll\", \"poll\": { \"interval\": 20 }}");
 
   count = 0;
   for (;;)
@@ -1035,7 +1074,7 @@ test_poll_stutter (TestCase *tc,
       g_free (response);
     }
 
-  send_request (tc, "{ \"path\": \"/poll\", \"poll\": { \"interval\": 20 }}");
+  send_request (tc, "{ \"method\": \"GET\", \"path\": \"/poll\", \"poll\": { \"interval\": 20 }}");
 
   count = 0;
   for (;;)
@@ -1080,10 +1119,10 @@ test_poll_watch (TestCase *tc,
       g_free (response);
     }
 
-  send_request (tc, "{ \"path\": \"/poll\", \"poll\": { \"watch\": 5 }}");
+  send_request (tc, "{ \"method\": \"GET\", \"path\": \"/poll\", \"poll\": { \"watch\": 5 }}");
 
   /* Get the streaming request to use as a watch, note we can do this after */
-  send_request (tc, "{ \"cookie\": 5, \"path\": \"/stream\" }");
+  send_request (tc, "{ \"cookie\": 5, \"method\": \"GET\", \"path\": \"/stream\" }");
 
   count = 0;
   for (;;)
@@ -1142,7 +1181,7 @@ test_bad_unix_socket (void)
   /* Send requests immediately */
   for (i = 0; i < 4; i++)
     {
-      string = g_strdup_printf ("{ \"cookie\": %d, \"path\": \"/bad-unix\" }", i);
+      string = g_strdup_printf ("{ \"cookie\": %d, \"method\": \"GET\", \"path\": \"/bad-unix\" }", i);
       sent = g_bytes_new_take (string, strlen (string));
       cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), 888, sent);
       g_bytes_unref (sent);
@@ -1209,6 +1248,8 @@ main (int argc,
               setup, test_stream, teardown);
   g_test_add ("/rest-json/stream-stutter", TestCase, NULL,
               setup, test_stream_stutter, teardown);
+  g_test_add ("/rest-json/stream-cancel", TestCase, NULL,
+              setup, test_stream_cancel, teardown);
   g_test_add ("/rest-json/poll-interval", TestCase, NULL,
               setup, test_poll_interval, teardown);
   g_test_add ("/rest-json/poll-watch", TestCase, NULL,

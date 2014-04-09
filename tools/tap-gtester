@@ -139,17 +139,24 @@ class GTestCompiler(NullCompiler):
         return result
 
 def main(argv):
-    parser = argparse.ArgumentParser(description='Automake TAP compiler')
+    parser = argparse.ArgumentParser(description='Automake TAP compiler',
+                                     usage="tap-gtester [--format FORMAT] command ...")
     parser.add_argument('--format', metavar='FORMAT', choices=[ "auto", "gtest", "tap" ],
                         default="auto", help='The input format to compile')
     parser.add_argument('--verbose', action='store_true',
                         default=True, help='Verbose mode (ignored)')
-    parser.add_argument('command', nargs='+', help="A test command to run")
+    parser.add_argument('command', nargs=argparse.REMAINDER, help="A test command to run")
     args = parser.parse_args(argv[1:])
 
     output = None
     format = args.format
     cmd = args.command
+    if not cmd:
+        print >> sys.stderr, "tap-gtester: specify a command to run"
+        return 2
+    if cmd[0] == '--':
+        cmd.pop(0)
+
     proc = None
 
     os.environ['HARNESS_ACTIVE'] = '1'

@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpit/mock-service.h"
+#include "tools/valgrind.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>
@@ -240,20 +241,8 @@ static void
 cd_srcdir (const char *argv0)
 {
   gchar *dir = g_path_get_dirname (argv0);
-  gchar *base;
-
-  /* One day libtool will die a fiery death */
-  base = g_path_get_basename (dir);
-  if (g_str_equal (base, ".libs"))
-    {
-      gchar *parent = g_path_get_dirname (dir);
-      g_free (dir);
-      dir = parent;
-    }
-
   g_warn_if_fail (g_chdir (dir) == 0);
   g_free (dir);
-  g_free (base);
 }
 
 int
@@ -280,7 +269,15 @@ main (int argc,
 
   /* This is how tap-gtester runs us */
   if (g_getenv ("HARNESS_ACTIVE"))
-    tap_mode = TRUE;
+    {
+      /* We don't run phantomjs under valgrind */
+      if (RUNNING_ON_VALGRIND)
+        {
+          g_print ("Bail out! - not running phantomjs under valgrind\n");
+          return 0;
+        }
+      tap_mode = TRUE;
+    }
 
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);

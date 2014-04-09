@@ -317,7 +317,7 @@ notice_cgroups_in_hierarchy (CollectData *data,
   gint prefix_len = strlen (prefix);
   const gchar * paths[] = { prefix, NULL };
 
-  fs = fts_open ((gchar **)paths, FTS_NOCHDIR, NULL);
+  fs = fts_open ((gchar **)paths, FTS_NOCHDIR | FTS_COMFOLLOW, NULL);
   if (fs)
     {
       while((ent = fts_read (fs)))
@@ -505,6 +505,7 @@ collect (CGroupMonitor *monitor)
   monitor->timestamps[monitor->samples_next] = data.now;
 
   notice_cgroups_in_hierarchy (&data, monitor->memory_root);
+  notice_cgroups_in_hierarchy (&data, monitor->cpuacct_root);
   g_hash_table_foreach (monitor->consumers, collect_cgroup, &data);
 
   cockpit_multi_resource_monitor_emit_new_sample (COCKPIT_MULTI_RESOURCE_MONITOR (monitor),

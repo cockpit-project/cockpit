@@ -112,9 +112,6 @@ static void on_tick (GObject    *unused_source,
 static void
 cgroup_monitor_init (CGroupMonitor *monitor)
 {
-  g_dbus_interface_skeleton_set_flags (G_DBUS_INTERFACE_SKELETON (monitor),
-                                       G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
-
   monitor->samples_prev = -1;
   monitor->consumers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   monitor->timestamps = g_new0 (gint64, SAMPLES_MAX);
@@ -542,7 +539,7 @@ handle_get_samples (CockpitMultiResourceMonitor *_monitor,
       gint pos;
 
       pos = monitor->samples_next + n;
-      if (pos > SAMPLES_MAX)
+      if (pos >= SAMPLES_MAX)
         pos -= SAMPLES_MAX;
 
       if (monitor->timestamps[pos] == 0)

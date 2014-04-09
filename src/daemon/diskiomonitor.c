@@ -96,9 +96,6 @@ disk_io_monitor_init (DiskIOMonitor *monitor)
 {
   const gchar *legends[4] = {"Disk Reads", "Disk Writes", "I/O Operations", NULL}; /* TODO: i18n */
 
-  g_dbus_interface_skeleton_set_flags (G_DBUS_INTERFACE_SKELETON (monitor),
-                                       G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
-
   /* Assign legends */
   cockpit_resource_monitor_set_legends (COCKPIT_RESOURCE_MONITOR (monitor), legends);
 
@@ -428,7 +425,7 @@ handle_get_samples (CockpitResourceMonitor *_monitor,
       GVariantBuilder sample_builder;
 
       pos = monitor->samples_next + n;
-      if (pos > monitor->samples_max)
+      if (pos >= monitor->samples_max)
         pos -= monitor->samples_max;
 
       if (monitor->samples[pos].timestamp == 0)

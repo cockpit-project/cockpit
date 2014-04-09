@@ -97,9 +97,6 @@ cpu_monitor_init (CpuMonitor *monitor)
 {
   const gchar *legends[5] = {"Nice", "User", "Kernel", "I/O Wait", NULL}; /* TODO: i18n */
 
-  g_dbus_interface_skeleton_set_flags (G_DBUS_INTERFACE_SKELETON (monitor),
-                                       G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
-
   monitor->user_hz = sysconf (_SC_CLK_TCK);
   if (monitor->user_hz == -1 || monitor->user_hz == 0)
     {
@@ -394,7 +391,7 @@ handle_get_samples (CockpitResourceMonitor *_monitor,
       GVariantBuilder sample_builder;
 
       pos = monitor->samples_next + n;
-      if (pos > monitor->samples_max)
+      if (pos >= monitor->samples_max)
         pos -= monitor->samples_max;
 
       if (monitor->samples[pos].timestamp == 0)

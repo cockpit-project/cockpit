@@ -63,11 +63,11 @@ valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
 	$(AM_V_GEN) cat $^ > $@
 
 check-memory: valgrind-suppressions
-	$(MAKE) LOG_FLAGS="-- libtool --mode=execute valgrind $(VALGRIND_ARGS)" \
+	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
 		HTML_LOG_DRIVER_FLAGS="--missing=no-phantom-valgrind" \
 		$(AM_MAKEFLAGS) check
 recheck-memory: valgrind-suppressions
-	$(MAKE) LOG_FLAGS="-- libtool --mode=execute valgrind $(VALGRIND_ARGS)" \
+	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
 		HTML_LOG_DRIVER_FLAGS="--missing=no-phantom-valgrind" \
 		$(AM_MAKEFLAGS) recheck
 

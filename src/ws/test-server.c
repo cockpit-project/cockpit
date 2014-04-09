@@ -240,20 +240,8 @@ static void
 cd_srcdir (const char *argv0)
 {
   gchar *dir = g_path_get_dirname (argv0);
-  gchar *base;
-
-  /* One day libtool will die a fiery death */
-  base = g_path_get_basename (dir);
-  if (g_str_equal (base, ".libs"))
-    {
-      gchar *parent = g_path_get_dirname (dir);
-      g_free (dir);
-      dir = parent;
-    }
-
   g_warn_if_fail (g_chdir (dir) == 0);
   g_free (dir);
-  g_free (base);
 }
 
 int

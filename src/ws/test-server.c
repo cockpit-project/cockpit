@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpit/mock-service.h"
+#include "tools/valgrind.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>
@@ -268,7 +269,15 @@ main (int argc,
 
   /* This is how tap-gtester runs us */
   if (g_getenv ("HARNESS_ACTIVE"))
-    tap_mode = TRUE;
+    {
+      /* We don't run phantomjs under valgrind */
+      if (RUNNING_ON_VALGRIND)
+        {
+          g_print ("Bail out! - not running phantomjs under valgrind\n");
+          return 0;
+        }
+      tap_mode = TRUE;
+    }
 
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);

@@ -1035,16 +1035,18 @@ collect_extra_pids (GVariantBuilder *bob,
                 return -ENOMEM;
 
         for (i = 0, j = 0; i < n_pids; i++) {
-                char *k;
-
                 if (controller && path) {
+                        char *k;
                         r = cg_get_by_pid(controller, pids[i], &k);
                         if (r < 0) {
                                 free(copy);
                                 return r;
                         }
 
-                        if (path_startswith(k, path))
+                        r = path_startswith(k, path) != NULL;
+                        free (k);
+
+                        if (r)
                                 continue;
                 }
 

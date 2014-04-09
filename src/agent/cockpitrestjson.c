@@ -362,10 +362,7 @@ cockpit_rest_response_reply (CockpitRestJson *self,
                    self->name, req->label);
           if (req->poll->last)
             json_node_free (req->poll->last);
-          if (body)
-            req->poll->last = json_node_copy (body);
-          else
-            req->poll->last = NULL;
+          req->poll->last = json_node_copy (body);
           complete = FALSE;
        }
       else

@@ -230,11 +230,9 @@ fork_exec (const gchar *cmd)
 
       close (0);
       close (1);
-      close (2);
       close (spair[1]);
       dup2 (spair[0], 0);
       dup2 (spair[0], 1);
-      dup2 (spair[0], 2);
       close (spair[0]);
       execl ("/bin/sh", "/bin/sh", "-c", cmd, NULL);
       _exit (127);

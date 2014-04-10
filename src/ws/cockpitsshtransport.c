@@ -64,10 +64,13 @@ typedef struct {
   ssh_session session;
   CockpitCreds *creds;
   gchar *command;
+  gchar *expect_key;
 
   /* Output from the connect thread */
   ssh_channel channel;
   const gchar *problem;
+  gchar *host_key;
+  gchar *host_fingerprint;
 
   /* When connect is done this flag is cleared */
   gint *connecting;
@@ -98,73 +101,106 @@ auth_method_description (int methods)
 static const gchar *
 verify_knownhost (CockpitSshData *data)
 {
+  const gchar *ret = "unknown-hostkey";
   ssh_key key;
   unsigned char *hash = NULL;
-  char *hexa = NULL;
   const char *type = NULL;
+  char *base_64;
   int state;
   gsize len;
 
-  state = ssh_is_server_known (data->session);
-  if (state == SSH_SERVER_KNOWN_OK)
-    {
-      g_debug ("%s: verified host key", data->logname);
-      return NULL;
-    }
-  else if (state == SSH_SERVER_ERROR)
-    {
-      if (g_atomic_int_get (data->connecting))
-        g_warning ("%s: couldn't check host key: %s", data->logname,
-                   ssh_get_error (data->session));
-      return "internal-error";
-    }
-
   if (ssh_get_publickey (data->session, &key) == SSH_OK)
     {
-      if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_SHA1, &hash, &len) < 0)
-        {
-          g_warning ("Couldn't hash ssh public key");
-          hash = NULL;
-        }
       type = ssh_key_type_to_char (ssh_key_type (key));
+      if (type == NULL)
+        {
+          g_warning ("Couldn't lookup host key type");
+          ret = "internal-error";
+          goto done;
+        }
+      if (ssh_pki_export_pubkey_base64 (key, &base_64) != SSH_OK)
+        {
+          g_warning ("Couldn't base64 encode host key");
+          ret = "internal-error";
+          goto done;
+        }
+      data->host_key = g_strdup_printf ("%s %s", type, base_64);
+      ssh_string_free_char (base_64);
     }
   else
     {
       g_warning ("Couldn't look up ssh host key");
+      ret = "internal-error";
+      goto done;
     }
 
-  if (hash == NULL)
-    hexa = strdup ("<unknown>");
-  else
-    hexa = ssh_get_hexa (hash, len);
-  if (type == NULL)
-    type = "<unknown>";
-
-  switch (state)
+  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_SHA1, &hash, &len) < 0)
     {
-    case SSH_SERVER_KNOWN_OK:
-    case SSH_SERVER_ERROR:
-      g_assert_not_reached ();
-    case SSH_SERVER_KNOWN_CHANGED:
-      g_message ("%s: host key for server has changed to: %s", data->logname, hexa);
-      break;
-    case SSH_SERVER_FOUND_OTHER:
-      g_message ("%s: host key for this server changed key type: %s", data->logname, type);
-      break;
-    case SSH_SERVER_FILE_NOT_FOUND:
-      g_debug ("Couldn't find the known hosts file");
-      /* fall through */
-    case SSH_SERVER_NOT_KNOWN:
-      g_message ("%s: host key for server is not known: %s", data->logname, hexa);
-      break;
+      g_warning ("Couldn't hash ssh public key");
+      ret = "internal-error";
+      goto done;
+    }
+  else
+    {
+      data->host_fingerprint = ssh_get_hexa (hash, len);
+      ssh_clean_pubkey_hash (&hash);
     }
 
-  if (hash)
-    ssh_clean_pubkey_hash (&hash);
+  if (data->expect_key)
+    {
+      /* Only check that the host key matches this specifically */
+      if (g_str_equal (data->host_key, data->expect_key))
+        {
+          g_debug ("%s: host key matched expected", data->logname);
+          ret = NULL; /* success */
+        }
+      else
+        {
+          g_message ("%s: host key did not match expected", data->logname);
+        }
+    }
+  else
+    {
+      state = ssh_is_server_known (data->session);
+      if (state == SSH_SERVER_KNOWN_OK)
+        {
+          g_debug ("%s: verified host key", data->logname);
+          ret = NULL; /* success */
+          goto done;
+        }
+      else if (state == SSH_SERVER_ERROR)
+        {
+          if (g_atomic_int_get (data->connecting))
+            g_warning ("%s: couldn't check host key: %s", data->logname,
+                       ssh_get_error (data->session));
+          ret = "internal-error";
+          goto done;
+        }
+
+      switch (state)
+        {
+        case SSH_SERVER_KNOWN_OK:
+        case SSH_SERVER_ERROR:
+          g_assert_not_reached ();
+        case SSH_SERVER_KNOWN_CHANGED:
+          g_message ("%s: host key for server has changed to: %s", data->logname, data->host_fingerprint);
+          break;
+        case SSH_SERVER_FOUND_OTHER:
+          g_message ("%s: host key for this server changed key type: %s", data->logname, type);
+          break;
+        case SSH_SERVER_FILE_NOT_FOUND:
+          g_debug ("Couldn't find the known hosts file");
+          /* fall through */
+        case SSH_SERVER_NOT_KNOWN:
+          g_message ("%s: host key for server is not known: %s", data->logname, data->host_fingerprint);
+          break;
+        }
+    }
+
+done:
   if (key)
     ssh_key_free (key);
-  free (hexa);
-  return "unknown-hostkey";
+  return ret;
 }
 
 static const gchar *
@@ -286,6 +322,10 @@ cockpit_ssh_data_free (CockpitSshData *data)
   g_free (data->command);
   if (data->creds)
     cockpit_creds_unref (data->creds);
+  g_free (data->expect_key);
+  g_free (data->host_key);
+  if (data->host_fingerprint)
+    ssh_string_free_char (data->host_fingerprint);
   ssh_free (data->session);
   g_free (data);
 }
@@ -301,6 +341,8 @@ enum {
   PROP_PORT,
   PROP_CREDS,
   PROP_COMMAND,
+  PROP_HOST_KEY,
+  PROP_HOST_FINGERPRINT,
   PROP_KNOWN_HOSTS,
 };
 
@@ -954,6 +996,9 @@ cockpit_ssh_transport_set_property (GObject *obj,
         string = PACKAGE_LIBEXEC_DIR "/cockpit-agent";
       self->data->command = g_strdup (string);
       break;
+    case PROP_HOST_KEY:
+      self->data->expect_key = g_value_dup_string (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
       break;
@@ -972,6 +1017,12 @@ cockpit_ssh_transport_get_property (GObject *obj,
     {
     case PROP_NAME:
       g_value_set_string (value, self->logname);
+      break;
+    case PROP_HOST_KEY:
+      g_value_set_string (value, cockpit_ssh_transport_get_host_key (self));
+      break;
+    case PROP_HOST_FINGERPRINT:
+      g_value_set_string (value, cockpit_ssh_transport_get_host_fingerprint (self));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -1040,6 +1091,14 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
   g_object_class_install_property (object_class, PROP_KNOWN_HOSTS,
          g_param_spec_string ("known-hosts", NULL, NULL, NULL,
                               G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_HOST_KEY,
+         g_param_spec_string ("host-key", NULL, NULL, NULL,
+                              G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_HOST_FINGERPRINT,
+         g_param_spec_string ("host-fingerprint", NULL, NULL, NULL,
+                              G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class, PROP_CREDS,
          g_param_spec_boxed ("creds", NULL, NULL, COCKPIT_TYPE_CREDS,
@@ -1114,4 +1173,46 @@ cockpit_ssh_transport_new (const gchar *host,
                        "port", port,
                        "creds", creds,
                        NULL);
+}
+
+/**
+ * cockpit_ssh_transport_get_hostkey:
+ * @self: the ssh tranpsort
+ *
+ * Get the host key of the ssh connection. This is only
+ * valid after the transport opens ... and since you
+ * can't detect that reliably, you really should only
+ * be calling this after the transport closes.
+ *
+ * Returns: (transfer none): the host key
+ */
+const gchar *
+cockpit_ssh_transport_get_host_key (CockpitSshTransport *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_SSH_TRANSPORT (self), NULL);
+
+  if (!self->data)
+    return NULL;
+  return self->data->host_key;
+}
+
+/**
+ * cockpit_ssh_transport_get_host_fingerprint:
+ * @self: the ssh tranpsort
+ *
+ * Get the host fingerprint of the ssh connection. This is only
+ * valid after the transport opens ... and since you
+ * can't detect that reliably, you really should only
+ * be calling this after the transport closes.
+ *
+ * Returns: (transfer none): the host key
+ */
+const gchar *
+cockpit_ssh_transport_get_host_fingerprint (CockpitSshTransport *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_SSH_TRANSPORT (self), NULL);
+
+  if (!self->data)
+    return NULL;
+  return self->data->host_fingerprint;
 }

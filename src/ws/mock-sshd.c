@@ -97,7 +97,12 @@ fd_data (socket_t fd,
     {
       ssh_channel_send_eof (chan);
       if ((p = waitpid (state.childpid, &status, WNOHANG)) > 0)
-        ssh_channel_request_send_exit_status (chan, WEXITSTATUS(status));
+        {
+          if (WIFSIGNALED (status))
+            ssh_channel_request_send_exit_signal (chan, strsignal (WTERMSIG (status)), 0, "", "");
+          else
+            ssh_channel_request_send_exit_status (chan, WEXITSTATUS (status));
+        }
       g_assert_cmpint (ssh_blocking_flush (state.session, -1), >=, SSH_OK);
       ssh_channel_close (chan);
       ssh_channel_free (chan);

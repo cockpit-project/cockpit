@@ -26,11 +26,6 @@
 #include <glib-unix.h>
 #include <string.h>
 
-typedef struct {
-  GHashTable *extra_objects;
-  GDBusObjectManagerServer *object_manager;
-} TestData;
-
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gboolean
@@ -193,14 +188,17 @@ on_handle_create_object (TestFrobber *object,
                          const gchar *at_path,
                          gpointer user_data)
 {
-  TestData *data = user_data;
+  GDBusObjectManagerServer *object_manager = G_DBUS_OBJECT_MANAGER_SERVER (user_data);
+  GDBusObject *previous;
 
-  if (g_hash_table_lookup (data->extra_objects, at_path) != NULL)
+  previous = g_dbus_object_manager_get_object (G_DBUS_OBJECT_MANAGER (object_manager), at_path);
+  if (previous != NULL)
     {
       g_dbus_method_invocation_return_error (invocation,
                                              G_IO_ERROR, G_IO_ERROR_FAILED,
                                              "Sorry, object already exists at %s",
                                              at_path);
+      g_object_unref (previous);
     }
   else
     {
@@ -210,13 +208,9 @@ on_handle_create_object (TestFrobber *object,
       new_object = test_object_skeleton_new (at_path);
       frobber = test_frobber_skeleton_new ();
       test_object_skeleton_set_frobber (new_object, frobber);
-      g_dbus_object_manager_server_export (data->object_manager, G_DBUS_OBJECT_SKELETON (new_object));
+      g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (new_object));
       g_object_unref (frobber);
       g_object_unref (new_object);
-
-      g_hash_table_insert (data->extra_objects,
-                           (gpointer) g_dbus_object_get_object_path (G_DBUS_OBJECT (new_object)),
-                           new_object);
 
       test_frobber_complete_create_object (object, invocation);
     }
@@ -229,12 +223,15 @@ on_handle_delete_object (TestFrobber *object,
                          const gchar *path,
                          gpointer user_data)
 {
-  TestData *data = user_data;
-  if (g_hash_table_lookup (data->extra_objects, path) != NULL)
+  GDBusObjectManagerServer *object_manager = G_DBUS_OBJECT_MANAGER_SERVER (user_data);
+  GDBusObject *previous;
+
+  previous = g_dbus_object_manager_get_object (G_DBUS_OBJECT_MANAGER (object_manager), path);
+  if (previous != NULL)
     {
-      g_hash_table_remove (data->extra_objects, path);
-      g_warn_if_fail (g_dbus_object_manager_server_unexport (data->object_manager, path));
+      g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager, path));
       test_frobber_complete_delete_object (object, invocation);
+      g_object_unref (previous);
     }
   else
     {
@@ -251,18 +248,21 @@ on_handle_delete_all_objects (TestFrobber *object,
                               GDBusMethodInvocation *invocation,
                               gpointer user_data)
 {
-  TestData *data = user_data;
-  GHashTableIter iter;
+  GDBusObjectManagerServer *object_manager = G_DBUS_OBJECT_MANAGER_SERVER (user_data);
   const gchar *path;
+  GList *objects;
+  GList *l;
 
-  g_hash_table_iter_init (&iter, data->extra_objects);
-  while (g_hash_table_iter_next (&iter, (gpointer *)&path, NULL))
+  objects = g_dbus_object_manager_get_objects (G_DBUS_OBJECT_MANAGER (object_manager));
+  for (l = objects; l != NULL; l = g_list_next (l))
     {
-      g_hash_table_iter_remove (&iter);
-      g_warn_if_fail (g_dbus_object_manager_server_unexport (data->object_manager, path));
+      path = g_dbus_object_get_object_path (l->data);
+      if (!g_str_has_suffix (path, "/frobber"))
+        g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager, path));
     }
 
   test_frobber_complete_delete_all_objects (object, invocation);
+  g_list_free_full (objects, g_object_unref);
   return TRUE;
 }
 
@@ -315,14 +315,6 @@ on_handle_remove_alpha (TestFrobber *frobber,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static void
-test_data_free (void *user_data)
-{
-  TestData *data = user_data;
-  g_hash_table_unref (data->extra_objects);
-  g_free (data);
-}
-
 GObject *
 mock_service_create_and_export (GDBusConnection *connection,
                                 const gchar *object_manager_path)
@@ -330,7 +322,7 @@ mock_service_create_and_export (GDBusConnection *connection,
   GError *error;
   TestFrobber *exported_frobber;
   TestObjectSkeleton *exported_object;
-  TestData *data;
+  GDBusObjectManagerServer *object_manager;
   gchar *path;
 
   /* Test that we can export an object using the generated
@@ -352,73 +344,70 @@ mock_service_create_and_export (GDBusConnection *connection,
   test_frobber_set_writeonly_property (exported_frobber, "Mr. Burns");
   test_frobber_set_readonly_property (exported_frobber, "blah");
 
-  data = g_new0 (TestData, 1);
-  g_object_set_data_full (G_OBJECT (exported_frobber), "frobber-data", data, test_data_free);
-
-  data->extra_objects = g_hash_table_new (g_str_hash, g_str_equal);
-  data->object_manager = g_dbus_object_manager_server_new (object_manager_path);
+  object_manager = g_dbus_object_manager_server_new (object_manager_path);
 
   path = g_strdup_printf ("%s/frobber", object_manager_path);
   exported_object = test_object_skeleton_new (path);
   g_free (path);
 
   test_object_skeleton_set_frobber (exported_object, exported_frobber);
-  g_dbus_object_manager_server_export (data->object_manager, G_DBUS_OBJECT_SKELETON (exported_object));
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (exported_object));
   g_object_unref (exported_object);
 
-  g_dbus_object_manager_server_set_connection (data->object_manager, connection);
+  g_dbus_object_manager_server_set_connection (object_manager, connection);
 
   g_assert_no_error (error);
   g_signal_connect (exported_frobber,
                     "handle-hello-world",
                     G_CALLBACK (on_handle_hello_world),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-test-primitive-types",
                     G_CALLBACK (on_handle_test_primitive_types),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-test-non-primitive-types",
                     G_CALLBACK (on_handle_test_non_primitive_types),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-request-signal-emission",
                     G_CALLBACK (on_handle_request_signal_emission),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-request-multi-property-mods",
                     G_CALLBACK (on_handle_request_multi_property_mods),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-property-cancellation",
                     G_CALLBACK (on_handle_property_cancellation),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-delete-all-objects",
                     G_CALLBACK (on_handle_delete_all_objects),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-create-object",
                     G_CALLBACK (on_handle_create_object),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-delete-object",
                     G_CALLBACK (on_handle_delete_object),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-test-asv",
                     G_CALLBACK (on_handle_test_asv),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-add-alpha",
                     G_CALLBACK (on_handle_add_alpha),
-                    data);
+                    object_manager);
   g_signal_connect (exported_frobber,
                     "handle-remove-alpha",
                     G_CALLBACK (on_handle_remove_alpha),
-                    data);
+                    object_manager);
 
-  return G_OBJECT (data->object_manager);
+  g_object_unref (exported_frobber);
+  return G_OBJECT (object_manager);
 }
 
 static GThread *mock_thread = NULL;

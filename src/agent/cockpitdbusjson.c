@@ -22,6 +22,7 @@
 #include "cockpitdbusjson.h"
 
 #include "cockpitchannel.h"
+#include "cockpitfakemanager.h"
 
 #include <unistd.h>
 #include <stdint.h>
@@ -949,9 +950,12 @@ on_object_manager_ready (GObject *source,
 {
   CockpitDBusJson *self = user_data;
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  GAsyncInitable *initable;
   GError *error = NULL;
 
-  self->object_manager = g_dbus_object_manager_client_new_for_bus_finish (result, &error);
+  initable = G_ASYNC_INITABLE (source);
+  self->object_manager = G_DBUS_OBJECT_MANAGER (g_async_initable_new_finish (initable, result, &error));
+
   if (self->object_manager == NULL)
     {
       g_warning ("%s", error->message);
@@ -1011,6 +1015,9 @@ cockpit_dbus_json_constructed (GObject *object)
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   const gchar *dbus_service;
   const gchar *dbus_path;
+  const gchar *new_prop_name;
+  GType object_manager_type;
+  gconstpointer new_prop_value;
 
   G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->constructed (object);
 
@@ -1029,23 +1036,35 @@ cockpit_dbus_json_constructed (GObject *object)
     }
 
   dbus_path = cockpit_channel_get_option (channel, "object-manager");
-  if (dbus_path == NULL || !g_variant_is_object_path (dbus_path))
+  if (dbus_path == NULL)
+    {
+      new_prop_value = cockpit_channel_get_strv_option (channel, "paths");
+      new_prop_name = "object-paths";
+      object_manager_type = COCKPIT_TYPE_FAKE_MANAGER;
+    }
+  else if (!g_variant_is_object_path (dbus_path))
     {
       g_warning ("agent got invalid object-manager path");
       g_idle_add (on_idle_protocol_error, channel);
       return;
     }
+  else
+    {
+      new_prop_value = dbus_path;
+      new_prop_name = "object-path";
+      object_manager_type = G_TYPE_DBUS_OBJECT_MANAGER_CLIENT;
+    }
 
-  g_dbus_object_manager_client_new_for_bus (G_BUS_TYPE_SYSTEM,
-                                            G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-                                            dbus_service,
-                                            dbus_path,
-                                            NULL, /* GDBusProxyTypeFunc */
-                                            NULL, /* user_data for GDBusProxyTypeFunc */
-                                            NULL, /* GDestroyNotify for GDBusProxyTypeFunc */
-                                            NULL, /* GCancellable */
-                                            on_object_manager_ready,
-                                            g_object_ref (self));
+  /* Both GDBusObjectManager and CockpitFakeManager have similar props */
+  g_async_initable_new_async (object_manager_type,
+                              G_PRIORITY_DEFAULT, NULL,
+                              on_object_manager_ready,
+                              g_object_ref (self),
+                              "bus-type", G_BUS_TYPE_SYSTEM,
+                              "flags", G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+                              "name", dbus_service,
+                              new_prop_name, new_prop_value,
+                              NULL);
 }
 
 static void

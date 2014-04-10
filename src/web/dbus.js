@@ -223,10 +223,10 @@ DBusClient.prototype = {
         };
         $.extend(channel_opts, this.options);
 
-        /* TODO: Only one object-path (that must be an ObjectManager) for now */
         if (!channel_opts["service"])
             channel_opts["service"] = "com.redhat.Cockpit";
-        if (!channel_opts["object-manager"])
+        if (channel_opts["object-manager"] == undefined &&
+            channel_opts["object-paths"] == undefined)
             channel_opts["object-manager"] = "/com/redhat/Cockpit";
 
         dbus_debug("Connecting DBusClient to " + channel_opts["service"] + " on " + this.target);

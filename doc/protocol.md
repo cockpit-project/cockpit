@@ -159,6 +159,8 @@ type:
  * "service": A service name of the DBus service to communicate with.
  * "object-manager": The object path of a o.f.DBus.ObjectManager whose
    interfaces and properties will be relayed.
+ * "object-paths": An array of object paths to start monitoring in the
+   case of a non o.f.DBus.ObjectManager based service.
 
 Payload: rest-json1
 -------------------

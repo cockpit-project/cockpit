@@ -352,6 +352,28 @@ function basic_tests(client)
             start();
         });
     });
+
+    asyncTest("Non-Objectmanager Service", function() {
+        expect(6);
+        var options = {
+            "service": "com.redhat.Cockpit.DBusTests.Test",
+            "object-paths": [ "/otree" ]
+        };
+        var cli = new DBusClient("localhost", options);
+        $(cli).on("state-change", function(event) {
+            equal(cli.state, "ready", "non-objectmanager DBus client is ready");
+            $(cli).off("state-change");
+
+            frobber = cli.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
+            ok(frobber, "non-objectmanager frobber is present");
+            equal(frobber.y, 42, "non-objectmanager Property");
+            equal(frobber.d, 43.0, "non-objectmanager Property 2");
+            equal(frobber.FinallyNormalName, "There aint no place like home", "non-objectmanager String");
+            equal(frobber.ReadonlyProperty, "blah", "non-objectmanager ReadonlyProperty Property");
+            start();
+        });
+    });
+
 }
 
 var test_details = null;

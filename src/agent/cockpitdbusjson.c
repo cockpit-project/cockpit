@@ -48,7 +48,7 @@
 
 typedef struct {
   CockpitChannel parent;
-  GDBusObjectManagerClient *object_manager;
+  GDBusObjectManager       *object_manager;
   GCancellable             *cancellable;
   GList                    *active_calls;
 } CockpitDBusJson;
@@ -340,7 +340,6 @@ write_builder (CockpitDBusJson *self,
 static GDBusInterfaceInfo *
 get_introspection_data (CockpitDBusJson *self,
                         const gchar *interface_name,
-                        const gchar *owner,
                         const gchar *object_path,
                         GError **error)
 {
@@ -348,10 +347,11 @@ get_introspection_data (CockpitDBusJson *self,
   GDBusNodeInfo *node = NULL;
   GDBusInterfaceInfo *ret = NULL;
   GVariant *val = NULL;
+  GDBusConnection *connection = NULL;
+  gchar *owner = NULL;
   const gchar *xml;
 
   g_return_val_if_fail (g_dbus_is_interface_name (interface_name), NULL);
-  g_return_val_if_fail (g_dbus_is_name (owner), NULL);
   g_return_val_if_fail (g_variant_is_object_path (object_path), NULL);
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
@@ -362,7 +362,12 @@ get_introspection_data (CockpitDBusJson *self,
   if (ret != NULL)
     goto out;
 
-  val = g_dbus_connection_call_sync (g_dbus_object_manager_client_get_connection (G_DBUS_OBJECT_MANAGER_CLIENT (self->object_manager)),
+  g_object_get (self->object_manager,
+                "connection", &connection,
+                "name-owner", &owner,
+                NULL);
+
+  val = g_dbus_connection_call_sync (connection,
                                      owner,
                                      object_path,
                                      "org.freedesktop.DBus.Introspectable",
@@ -398,6 +403,8 @@ get_introspection_data (CockpitDBusJson *self,
                        g_dbus_interface_info_ref (ret));
 
 out:
+  g_clear_object (&connection);
+  g_free (owner);
   if (node != NULL)
     g_dbus_node_info_unref (node);
   if (val != NULL)
@@ -499,7 +506,7 @@ send_seed (CockpitDBusJson *self)
   json_builder_set_member_name (builder, "data");
   json_builder_begin_object (builder);
 
-  GList *objects = g_dbus_object_manager_get_objects (G_DBUS_OBJECT_MANAGER (self->object_manager));
+  GList *objects = g_dbus_object_manager_get_objects (self->object_manager);
   for (GList *l = objects; l != NULL; l = l->next)
     {
       GDBusObject *object = G_DBUS_OBJECT (l->data);
@@ -769,7 +776,7 @@ handle_dbus_call (CockpitDBusJson *self,
       goto out;
     }
 
-  iface_proxy = g_dbus_object_manager_get_interface (G_DBUS_OBJECT_MANAGER (self->object_manager),
+  iface_proxy = g_dbus_object_manager_get_interface (self->object_manager,
                                                      objpath,
                                                      iface_name);
   if (iface_proxy == NULL)
@@ -786,7 +793,6 @@ handle_dbus_call (CockpitDBusJson *self,
 
   iface_info = get_introspection_data (self,
                                        iface_name,
-                                       g_dbus_object_manager_client_get_name (G_DBUS_OBJECT_MANAGER_CLIENT (self->object_manager)),
                                        objpath, /* object_path */
                                        error);
   if (iface_info == NULL)
@@ -943,18 +949,16 @@ on_object_manager_ready (GObject *source,
 {
   CockpitDBusJson *self = user_data;
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
-  GDBusObjectManager *client;
   GError *error = NULL;
 
-  client = g_dbus_object_manager_client_new_for_bus_finish (result, &error);
-  if (client == NULL)
+  self->object_manager = g_dbus_object_manager_client_new_for_bus_finish (result, &error);
+  if (self->object_manager == NULL)
     {
       g_warning ("%s", error->message);
       cockpit_channel_close (channel, "internal-error");
     }
   else
     {
-      self->object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (client);
       g_signal_connect (self->object_manager,
                         "object-added",
                         G_CALLBACK (on_object_added),

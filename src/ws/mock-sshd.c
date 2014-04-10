@@ -38,6 +38,8 @@
 
 #define BUFSIZE          (8 * 1024)
 
+static gint auth_methods = SSH_AUTH_METHOD_PASSWORD;
+
 struct {
   int bind_fd;
   int session_fd;
@@ -361,20 +363,21 @@ authenticate_callback (ssh_session session,
       switch (ssh_message_subtype (message))
         {
         case SSH_AUTH_METHOD_PASSWORD:
-          if (auth_password (ssh_message_auth_user (message),
+          if ((auth_methods & SSH_AUTH_METHOD_PASSWORD) &&
+              auth_password (ssh_message_auth_user (message),
                              ssh_message_auth_password (message)))
             goto accept;
-          ssh_message_auth_set_methods (message, SSH_AUTH_METHOD_PASSWORD);
+          ssh_message_auth_set_methods (message, auth_methods);
           goto deny;
 
         case SSH_AUTH_METHOD_NONE:
         default:
-          ssh_message_auth_set_methods (message, SSH_AUTH_METHOD_PASSWORD);
+          ssh_message_auth_set_methods (message, auth_methods);
           goto deny;
         }
 
     default:
-      ssh_message_auth_set_methods (message, SSH_AUTH_METHOD_PASSWORD);
+      ssh_message_auth_set_methods (message, auth_methods);
       goto deny;
     }
 
@@ -494,6 +497,7 @@ main (int argc,
   gchar *bind = NULL;
   GError *error = NULL;
   gboolean verbose = FALSE;
+  gboolean broken_auth = FALSE;
   gint port = 0;
   int ret;
 
@@ -503,6 +507,7 @@ main (int argc,
     { "bind", 0, 0, G_OPTION_ARG_STRING, &bind, "Address to bind to", "addr" },
     { "port", 'p', 0, G_OPTION_ARG_INT, &port, "Port to bind to", "NN" },
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose info", NULL },
+    { "broken-auth", 0, 0, G_OPTION_ARG_NONE, &broken_auth, "Break authentication", NULL },
     { NULL }
   };
 
@@ -528,6 +533,8 @@ main (int argc,
     }
   else
     {
+      if (broken_auth)
+        auth_methods = SSH_AUTH_METHOD_HOSTBASED | SSH_AUTH_METHOD_PUBLICKEY;
       if (verbose)
         ssh_set_log_level (SSH_LOG_PROTOCOL);
       ret = mock_ssh_server (bind, port, user, password);

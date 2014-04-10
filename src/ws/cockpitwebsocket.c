@@ -497,6 +497,7 @@ process_open (WebSocketData *data,
   const gchar *password;
   const gchar *user;
   const gchar *host;
+  const gchar *host_key;
 
   if (data->closing)
     {
@@ -526,6 +527,9 @@ process_open (WebSocketData *data,
       user = cockpit_creds_get_user (data->authenticated);
     }
 
+  if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
+    host_key = NULL;
+
   session = cockpit_session_by_host_user (&data->sessions, host, user);
   if (!session)
     {
@@ -551,6 +555,7 @@ process_open (WebSocketData *data,
                                     "command", data->agent_program,
                                     "creds", creds,
                                     "known-hosts", data->known_hosts,
+                                    "host-key", host_key,
                                     NULL);
           cockpit_creds_unref (creds);
         }

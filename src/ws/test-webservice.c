@@ -744,6 +744,45 @@ test_unknown_host_key (TestCase *test,
 }
 
 static void
+test_expect_host_key (TestCase *test,
+                      gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GThread *thread;
+  GBytes *sent;
+  GBytes *received = NULL;
+
+  /* No known hosts */
+  test->known_hosts = "/dev/null";
+
+  start_web_service_and_create_client (test, data, &ws, &thread);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  /* Send the open control message that starts the agent specify a specific host key. */
+  sent = build_control_message ("open", 4,
+                                "payload", "test-text",
+                                "host-key", MOCK_RSA_KEY,
+                                NULL);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
+  g_bytes_unref (sent);
+
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  /* Should close right after opening */
+  while (received == NULL && web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* And we should have received an open message even though no known hosts */
+  g_assert (received != NULL);
+  expect_control_message (received, "open", 4, "payload", "test-text", NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, thread);
+}
+
+static void
 test_fail_spawn (TestCase *test,
                  gconstpointer data)
 {
@@ -814,6 +853,9 @@ main (int argc,
   g_test_add ("/web-service/unknown-hostkey", TestCase,
               NULL, setup_for_socket,
               test_unknown_host_key, teardown_for_socket);
+  g_test_add ("/web-service/expect-host-key", TestCase,
+              NULL, setup_for_socket,
+              test_expect_host_key, teardown_for_socket);
 
   g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,

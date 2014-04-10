@@ -84,7 +84,13 @@ The following fields are defined:
  * "payload": A payload type, see below
  * "host": The destination host for the channel, defaults to "localhost"
  * "user": Optional alternate user for authenticating with host
+
+These optional fields are used when establishing a channel over a new
+connection with a host. If a connection is already open for the given
+"host" and "user" then these will not be used.
+
  * "password": Optional alternate password for authenticating with host
+ * "host-key": Optional ssh public hostkey to expect when connecting to machine
 
 After the command is sent, then the channel is assumed to be open. No response
 is sent. If for some reason the channel shouldn't or cannot be opened, then

@@ -30,6 +30,8 @@
 #include "cockpit/cockpitpipetransport.h"
 
 #include "cockpitws.h"
+#include "cockpitsshtransport.h"
+
 #include <gsystem-local-alloc.h>
 
 #include "websocket/websocket.h"
@@ -262,6 +264,7 @@ typedef struct
   gchar                    *target_host;
   gint                      specific_port;
   gchar                    *agent_program;
+  gchar                    *known_hosts;
   const gchar              *user;
   gchar                    *rhost;
   gint                      rport;
@@ -282,6 +285,7 @@ web_socket_data_free (WebSocketData   *data)
   g_object_unref (data->web_socket);
   g_bytes_unref (data->control_prefix);
   g_free (data->agent_program);
+  g_free (data->known_hosts);
   if (data->authenticated)
     cockpit_creds_unref (data->authenticated);
   g_free (data->rhost);
@@ -465,11 +469,11 @@ process_open (WebSocketData *data,
 {
   CockpitSession *session;
   CockpitTransport *transport;
+  CockpitCreds *creds;
   const gchar *specific_user;
   const gchar *password;
   const gchar *user;
   const gchar *host;
-  GError *error = NULL;
 
   if (data->closing)
     {
@@ -486,45 +490,51 @@ process_open (WebSocketData *data,
   if (!cockpit_json_get_string (options, "host", "localhost", &host))
     host = "localhost";
 
-  if (!cockpit_json_get_string (options, "user", NULL, &specific_user))
-    specific_user = NULL;
-
-  if (specific_user)
+  if (cockpit_json_get_string (options, "user", NULL, &specific_user) && specific_user)
     {
       if (!cockpit_json_get_string (options, "password", NULL, &password))
         password = NULL;
+      creds = NULL;
       user = specific_user;
     }
   else
     {
+      creds = data->authenticated;
       user = cockpit_creds_get_user (data->authenticated);
-      password = cockpit_creds_get_password (data->authenticated);
     }
 
   session = cockpit_session_by_host_user (&data->sessions, host, user);
   if (!session)
     {
-      transport = cockpit_pipe_transport_spawn (host, data->specific_port, data->agent_program,
-                                                user, password, data->rhost, specific_user != NULL, &error);
-
-      if (transport)
+      if (data->specific_port == 0 && g_strcmp0 (host, "localhost") == 0)
         {
-          g_signal_connect (transport, "recv", G_CALLBACK (on_session_recv), data);
-          g_signal_connect (transport, "closed", G_CALLBACK (on_session_closed), data);
-          session = cockpit_session_track (&data->sessions, host, user, transport);
-          g_object_unref (transport);
+          /* Any failures happen asyncronously */
+          transport = cockpit_pipe_transport_spawn (data->agent_program, user, data->rhost);
         }
       else
         {
-          g_warning ("Failed to set up session: %s", error->message);
-          g_clear_error (&error);
-          report_close (data, channel, "internal-error");
+          if (creds)
+            cockpit_creds_ref (creds);
+          else
+            creds = cockpit_creds_new_password (user, password);
+          transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
+                                    "name", host,
+                                    "host", host,
+                                    "port", data->specific_port,
+                                    "command", data->agent_program,
+                                    "creds", creds,
+                                    "known-hosts", data->known_hosts,
+                                    NULL);
+          cockpit_creds_unref (creds);
         }
+
+      g_signal_connect (transport, "recv", G_CALLBACK (on_session_recv), data);
+      g_signal_connect (transport, "closed", G_CALLBACK (on_session_closed), data);
+      session = cockpit_session_track (&data->sessions, host, user, transport);
+      g_object_unref (transport);
     }
 
-  if (session)
-    cockpit_session_add_channel (&data->sessions, session, channel);
-
+  cockpit_session_add_channel (&data->sessions, session, channel);
   return TRUE;
 }
 
@@ -722,6 +732,7 @@ void
 cockpit_web_socket_serve_dbus (CockpitWebServer *server,
                                guint16 specific_port,
                                const gchar *agent_program,
+                               const gchar *known_hosts,
                                GIOStream *io_stream,
                                GHashTable *headers,
                                GByteArray *input_buffer,
@@ -735,6 +746,7 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   data = g_new0 (WebSocketData, 1);
   data->specific_port = specific_port;
   data->agent_program = g_strdup (agent_program);
+  data->known_hosts = g_strdup (known_hosts);
   if (G_IS_SOCKET_CONNECTION (io_stream))
     data->connection = g_object_ref (io_stream);
   else if (G_IS_TLS_CONNECTION (io_stream))

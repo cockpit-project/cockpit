@@ -300,6 +300,7 @@ serve_thread_func (gpointer data)
   cockpit_web_socket_serve_dbus (test->web_server,
                               test->ssh_port,
                               test->agent_program,
+                              SRCDIR "/src/ws/mock_known_hosts",
                               test->io_b, headers,
                               consumed, test->auth);
 
@@ -488,7 +489,13 @@ on_message_get_bytes (WebSocketConnection *ws,
 {
   GBytes **received = user_data;
   g_assert_cmpint (type, ==, WEB_SOCKET_DATA_TEXT);
-  g_assert (*received == NULL);
+  if (*received != NULL)
+    {
+      gsize length;
+      gconstpointer data = g_bytes_get_data (message, &length);
+      g_test_message ("received unexpected extra message: %*.s", (int)length, (gchar *)data);
+      g_assert_not_reached ();
+    }
   *received = g_bytes_ref (message);
 }
 
@@ -599,7 +606,7 @@ test_close_error (Test *test,
 
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);
-  expect_control_message (received, "close", 4, "reason", "terminated", NULL);
+  expect_control_message (received, "close", 4, "reason", "disconnected", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -701,7 +708,7 @@ test_fail_spawn (Test *test,
   GThread *thread;
 
   cockpit_expect_info ("New connection*");
-  cockpit_expect_warning ("*Failed to execute child process*");
+  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*failed to execute*");
 
   /* Don't connect via SSH */
   test->ssh_port = 0;
@@ -717,7 +724,7 @@ test_fail_spawn (Test *test,
   WAIT_UNTIL (received != NULL);
 
   /* But we should have gotten failure message, about the spawn */
-  expect_control_message (received, "close", 4, "reason", "internal-error", NULL);
+  expect_control_message (received, "close", 4, "reason", "no-agent", NULL);
   g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, thread);

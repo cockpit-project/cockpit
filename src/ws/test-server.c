@@ -82,7 +82,7 @@ on_handle_resource_socket (CockpitWebServer *server,
   g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (in), FALSE);
   g_filter_output_stream_set_close_base_stream (G_FILTER_OUTPUT_STREAM (out), FALSE);
 
-  cockpit_web_socket_serve_dbus (server, 0, "./test-agent",
+  cockpit_web_socket_serve_dbus (server, 0, "./test-agent", NULL,
                                  io_stream, headers, buffer, auth);
 
   g_byte_array_unref (buffer);

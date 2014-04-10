@@ -513,12 +513,20 @@ mock_service_thread (gpointer unused)
   GMainContext *main_ctx;
   gboolean owned = FALSE;
   GError *error = NULL;
+  gchar *address;
 
   main_ctx = g_main_context_new ();
   g_main_context_push_thread_default (main_ctx);
 
-  conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+  address = g_dbus_address_get_for_bus_sync (G_BUS_TYPE_SESSION, NULL, &error);
   g_assert_no_error (error);
+
+  conn = g_dbus_connection_new_for_address_sync (address,
+                                                 G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT |
+                                                 G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION,
+                                                 NULL, NULL, &error);
+  g_assert_no_error (error);
+  g_free (address);
 
   exported = mock_service_create_and_export (conn, "/otree");
   g_assert (exported != NULL);

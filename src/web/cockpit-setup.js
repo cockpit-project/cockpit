@@ -132,9 +132,8 @@ PageSetupServer.prototype = {
             this.prev_tab = null;
         }
 
-        $('#dashboard_setup_next').button('enable');
-        $('#dashboard_setup_next').button('refresh');
-        $('#dashboard_setup_prev').button(this.prev_tab? 'enable' : 'disable');
+        $('#dashboard_setup_next').prop('disable', false);
+        $('#dashboard_setup_prev').prop('disable', !this.prev_tab);
     },
 
     close: function() {
@@ -154,8 +153,7 @@ PageSetupServer.prototype = {
 
     next: function() {
         $('#dashboard_setup_next').html('<img src="images/small-spinner.gif"/>');
-        $('#dashboard_setup_next').button('disable');
-        $('#dashboard_setup_next').button('refresh');
+        $('#dashboard_setup_next').prop('disable', true);
         this.next_action();
     },
 

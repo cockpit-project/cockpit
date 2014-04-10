@@ -49,7 +49,7 @@ PageShutdown.prototype = {
                 me.shutdown('restart');
             });
             $("#shutdown-cancel").on("click", function() {
-                $("#shutdown-cancel").button('disable');
+                $("#shutdown-cancel").prop('disable', true);
                 me.cancel();
             });
             $("#shutdown-delay").on('change', function () {

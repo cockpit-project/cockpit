@@ -33,11 +33,15 @@ G_BEGIN_DECLS
 typedef struct _CockpitSshTransport        CockpitSshTransport;
 typedef struct _CockpitSshTransportClass   CockpitSshTransportClass;
 
-GType               cockpit_ssh_transport_get_type       (void) G_GNUC_CONST;
+GType               cockpit_ssh_transport_get_type              (void) G_GNUC_CONST;
 
-CockpitTransport *  cockpit_ssh_transport_new            (const gchar *host,
-                                                          guint port,
-                                                          CockpitCreds *creds);
+CockpitTransport *  cockpit_ssh_transport_new                   (const gchar *host,
+                                                                 guint port,
+                                                                 CockpitCreds *creds);
+
+const gchar *       cockpit_ssh_transport_get_host_key          (CockpitSshTransport *self);
+
+const gchar *       cockpit_ssh_transport_get_host_fingerprint  (CockpitSshTransport *self);
 
 G_END_DECLS
 

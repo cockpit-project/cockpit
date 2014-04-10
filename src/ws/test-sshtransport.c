@@ -51,6 +51,7 @@ typedef struct {
     const char *mock_sshd_arg;
     const char *known_hosts;
     const char *client_password;
+    const char *expect_key;
 } TestFixture;
 
 #if WITH_MOCK
@@ -170,6 +171,7 @@ setup_transport (TestCase *tc,
                                 "command", command,
                                 "known-hosts", known_hosts,
                                 "creds", creds,
+                                "host-key", fixture->expect_key,
                                 NULL);
 
   cockpit_creds_unref (creds);
@@ -354,8 +356,9 @@ on_closed_get_problem (CockpitTransport *transport,
                        gpointer user_data)
 {
   const gchar **ret = user_data;
-  g_assert (problem != NULL);
   g_assert (*ret == NULL);
+  if (problem == NULL)
+    problem = "";
   *ret = g_strdup (problem);
 }
 
@@ -476,6 +479,129 @@ test_unknown_hostkey (TestCase *tc,
   g_free (problem);
 }
 
+static const gchar MOCK_RSA_KEY[] = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v";
+
+static const gchar MOCK_RSA_FP[] = "d4:5d:fc:8c:49:ae:52:bd:49:c9:ab:28:43:34:e2:d2:ff:3a:52:3f";
+
+static void
+test_get_host_key (TestCase *tc,
+                   gconstpointer data)
+{
+
+  GBytes *received = NULL;
+  GBytes *sent;
+  gboolean closed = FALSE;
+  gchar *ssh_key;
+  gchar *ssh_fingerprint;
+
+  sent = g_bytes_new_static ("the message", 11);
+  g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &received);
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+  cockpit_transport_send (tc->transport, 546, sent);
+  g_bytes_unref (sent);
+
+  while (received == NULL && !closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert (!closed);
+  g_bytes_unref (received);
+  received = NULL;
+
+  g_assert_cmpstr (cockpit_ssh_transport_get_host_key (COCKPIT_SSH_TRANSPORT (tc->transport)), ==, MOCK_RSA_KEY);
+  g_assert_cmpstr (cockpit_ssh_transport_get_host_fingerprint (COCKPIT_SSH_TRANSPORT (tc->transport)), ==, MOCK_RSA_FP);
+
+  g_object_get (tc->transport, "host-key", &ssh_key, "host-fingerprint", &ssh_fingerprint, NULL);
+  g_assert_cmpstr (ssh_key, ==, MOCK_RSA_KEY);
+  g_free (ssh_key);
+  g_assert_cmpstr (ssh_fingerprint, ==, MOCK_RSA_FP);
+  g_free (ssh_fingerprint);
+
+  g_signal_handlers_disconnect_by_func (tc->transport, on_closed_set_flag, &closed);
+}
+
+static const TestFixture fixture_expect_host_key = {
+  .known_hosts = "/dev/null",
+  .expect_key = MOCK_RSA_KEY
+};
+
+static void
+test_expect_host_key (TestCase *tc,
+                      gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  gchar *problem = NULL;
+
+  /* This test should validate in spite of not having known_hosts */
+  g_assert (fixture->expect_key != NULL);
+
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  cockpit_transport_close (tc->transport, NULL);
+
+  while (!problem)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "");
+}
+
+static const TestFixture fixture_expect_bad_key = {
+  .expect_key = "wrong key"
+};
+
+static void
+test_expect_bad_key (TestCase *tc,
+                     gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  gchar *problem = NULL;
+
+  /*
+   * This tail should fail in spite of having key in known_hosts,
+   * because expect_key is set.
+   */
+  g_assert (fixture->known_hosts == NULL);
+  g_assert (fixture->expect_key != NULL);
+
+  cockpit_expect_message ("*host key did not match expected*");
+
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  cockpit_transport_close (tc->transport, NULL);
+
+  while (!problem)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "unknown-hostkey");
+}
+
+static const TestFixture fixture_expect_empty_key = {
+  .expect_key = ""
+};
+
+static void
+test_expect_empty_key (TestCase *tc,
+                       gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  gchar *problem = NULL;
+
+  /*
+   * This tail should fail in spite of having key in known_hosts,
+   * because expect_key is set.
+   */
+  g_assert (fixture->known_hosts == NULL);
+  g_assert (fixture->expect_key != NULL);
+
+  cockpit_expect_message ("*host key did not match expected*");
+
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  cockpit_transport_close (tc->transport, NULL);
+
+  while (!problem)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "unknown-hostkey");
+}
+
+
 static const TestFixture fixture_bad_command = {
   .ssh_command = "/nonexistant 2> /dev/null"
 };
@@ -556,13 +682,22 @@ main (int argc,
   g_test_add ("/ssh-transport/auth-failed", TestCase, &fixture_auth_failed,
               setup_transport, test_auth_failed, teardown);
 #endif
-  g_test_add ("/ssh-transport/unknown-hostkey", TestCase, &fixture_unknown_hostkey,
-              setup_transport, test_unknown_hostkey, teardown);
   g_test_add ("/ssh-transport/bad-command", TestCase, &fixture_bad_command,
               setup_transport, test_bad_command, teardown);
   g_test_add ("/ssh-transport/close-while-connecting", TestCase, &fixture_cat,
               setup_transport, test_close_while_connecting, teardown);
   g_test_add_func ("/ssh-transport/cannot-connect", test_cannot_connect);
+
+  g_test_add ("/ssh-transport/unknown-hostkey", TestCase, &fixture_unknown_hostkey,
+              setup_transport, test_unknown_hostkey, teardown);
+  g_test_add ("/ssh-transport/get-host-key", TestCase, &fixture_cat,
+              setup_transport, test_get_host_key, teardown);
+  g_test_add ("/ssh-transport/expect-host-key", TestCase, &fixture_expect_host_key,
+              setup_transport, test_expect_host_key, teardown);
+  g_test_add ("/ssh-transport/expect-bad-key", TestCase, &fixture_expect_bad_key,
+              setup_transport, test_expect_bad_key, teardown);
+  g_test_add ("/ssh-transport/expect-empty-key", TestCase, &fixture_expect_empty_key,
+              setup_transport, test_expect_empty_key, teardown);
 
   return g_test_run ();
 }

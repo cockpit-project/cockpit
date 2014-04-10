@@ -60,7 +60,11 @@ typedef struct {
   /* serve_dbus */
   GThread *thread;
   const gchar *agent_program;
-} Test;
+} TestCase;
+
+typedef struct {
+  WebSocketFlavor web_socket_flavor;
+} TestFixture;
 
 static GString *
 read_all_into_string (int fd)
@@ -96,7 +100,7 @@ read_all_into_string (int fd)
 }
 
 static void
-setup_mock_sshd (Test *test,
+setup_mock_sshd (TestCase *test,
                  gconstpointer data)
 {
   GError *error = NULL;
@@ -136,7 +140,7 @@ setup_mock_sshd (Test *test,
 }
 
 static void
-teardown_mock_sshd (Test *test,
+teardown_mock_sshd (TestCase *test,
                     gconstpointer data)
 {
   kill (test->mock_sshd, SIGTERM);
@@ -144,7 +148,7 @@ teardown_mock_sshd (Test *test,
 }
 
 static void
-setup_mock_webserver (Test *test,
+setup_mock_webserver (TestCase *test,
                       gconstpointer data)
 {
   const gchar *roots[] = { SRCDIR "/src/ws", NULL };
@@ -179,7 +183,7 @@ setup_mock_webserver (Test *test,
 }
 
 static void
-teardown_mock_webserver (Test *test,
+teardown_mock_webserver (TestCase *test,
                          gconstpointer data)
 {
   g_clear_object (&test->web_server);
@@ -188,7 +192,7 @@ teardown_mock_webserver (Test *test,
 }
 
 static void
-setup_io_streams (Test *test,
+setup_io_streams (TestCase *test,
                   gconstpointer data)
 {
   GSocket *socket1, *socket2;
@@ -214,7 +218,7 @@ setup_io_streams (Test *test,
 }
 
 static void
-teardown_io_streams (Test *test,
+teardown_io_streams (TestCase *test,
                      gconstpointer data)
 {
   g_clear_object (&test->io_a);
@@ -222,7 +226,7 @@ teardown_io_streams (Test *test,
 }
 
 static void
-setup_for_socket (Test *test,
+setup_for_socket (TestCase *test,
                   gconstpointer data)
 {
   setup_mock_sshd (test, data);
@@ -231,7 +235,7 @@ setup_for_socket (Test *test,
 }
 
 static void
-setup_for_socket_spec (Test *test,
+setup_for_socket_spec (TestCase *test,
                        gconstpointer data)
 {
   test->ssh_user = "user";
@@ -240,7 +244,7 @@ setup_for_socket_spec (Test *test,
 }
 
 static void
-teardown_for_socket (Test *test,
+teardown_for_socket (TestCase *test,
                      gconstpointer data)
 {
   teardown_mock_sshd (test, data);
@@ -262,7 +266,7 @@ on_error_not_reached (WebSocketConnection *ws,
 static gpointer
 serve_thread_func (gpointer data)
 {
-  Test *test = data;
+  TestCase *test = data;
   GBufferedInputStream *bis;
   GError *error = NULL;
   GHashTable *headers;
@@ -419,8 +423,8 @@ expect_control_message (GBytes *message,
 }
 
 static void
-start_web_service_and_create_client (Test *test,
-                                     WebSocketFlavor flavor,
+start_web_service_and_create_client (TestCase *test,
+                                     const TestFixture *fixture,
                                      WebSocketConnection **ws,
                                      GThread **thread)
 {
@@ -428,7 +432,7 @@ start_web_service_and_create_client (Test *test,
   *ws = g_object_new (WEB_SOCKET_TYPE_CLIENT,
                      "url", "ws://127.0.0.1/unused",
                      "io-stream", test->io_a,
-                     "flavor", flavor,
+                     "flavor", fixture ? fixture->web_socket_flavor : 0,
                      NULL);
 
   g_signal_connect (*ws, "error", G_CALLBACK (on_error_not_reached), NULL);
@@ -437,14 +441,14 @@ start_web_service_and_create_client (Test *test,
 }
 
 static void
-start_web_service_and_connect_client (Test *test,
-                                      WebSocketFlavor flavor,
+start_web_service_and_connect_client (TestCase *test,
+                                      const TestFixture *fixture,
                                       WebSocketConnection **ws,
                                       GThread **thread)
 {
   GBytes *sent;
 
-  start_web_service_and_create_client (test, flavor, ws, thread);
+  start_web_service_and_create_client (test, fixture, ws, thread);
   WAIT_UNTIL (web_socket_connection_get_ready_state (*ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
@@ -455,7 +459,7 @@ start_web_service_and_connect_client (Test *test,
 }
 
 static void
-close_client_and_stop_web_service (Test *test,
+close_client_and_stop_web_service (TestCase *test,
                                    WebSocketConnection *ws,
                                    GThread *thread)
 {
@@ -471,13 +475,13 @@ close_client_and_stop_web_service (Test *test,
 }
 
 static void
-test_handshake_and_auth (Test *test,
+test_handshake_and_auth (TestCase *test,
                          gconstpointer data)
 {
   WebSocketConnection *ws;
   GThread *thread;
 
-  start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  start_web_service_and_connect_client (test, data, &ws, &thread);
   close_client_and_stop_web_service (test, ws, thread);
 }
 
@@ -515,7 +519,7 @@ on_message_get_non_control (WebSocketConnection *ws,
 }
 
 static void
-test_handshake_and_echo (Test *test,
+test_handshake_and_echo (TestCase *test,
                          gconstpointer data)
 {
   WebSocketConnection *ws;
@@ -524,7 +528,7 @@ test_handshake_and_echo (Test *test,
   GBytes *sent;
   gulong handler;
 
-  start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  start_web_service_and_connect_client (test, data, &ws, &thread);
 
   sent = g_bytes_new_static ("4\nthe message", 13);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
@@ -543,7 +547,7 @@ test_handshake_and_echo (Test *test,
 }
 
 static void
-test_echo_large (Test *test,
+test_echo_large (TestCase *test,
                  gconstpointer data)
 {
   WebSocketConnection *ws;
@@ -553,7 +557,7 @@ test_echo_large (Test *test,
   GBytes *sent;
   gulong handler;
 
-  start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  start_web_service_and_connect_client (test, data, &ws, &thread);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
   /* Medium length */
@@ -585,14 +589,14 @@ test_echo_large (Test *test,
 }
 
 static void
-test_close_error (Test *test,
+test_close_error (TestCase *test,
                   gconstpointer data)
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
   GThread *thread;
 
-  start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  start_web_service_and_connect_client (test, data, &ws, &thread);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Send something through to ensure it's open */
@@ -614,7 +618,7 @@ test_close_error (Test *test,
 }
 
 static void
-test_specified_creds (Test *test,
+test_specified_creds (TestCase *test,
                       gconstpointer data)
 {
   WebSocketConnection *ws;
@@ -622,7 +626,7 @@ test_specified_creds (Test *test,
   GBytes *sent;
   GThread *thread;
 
-  start_web_service_and_create_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  start_web_service_and_create_client (test, data, &ws, &thread);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
@@ -645,7 +649,7 @@ test_specified_creds (Test *test,
 }
 
 static void
-test_specified_creds_fail (Test *test,
+test_specified_creds_fail (TestCase *test,
                            gconstpointer data)
 {
   WebSocketConnection *ws;
@@ -653,7 +657,7 @@ test_specified_creds_fail (Test *test,
   GBytes *sent;
   GThread *thread;
 
-  start_web_service_and_create_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  start_web_service_and_create_client (test, data, &ws, &thread);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
@@ -674,7 +678,7 @@ test_specified_creds_fail (Test *test,
 }
 
 static void
-test_socket_unauthenticated (Test *test,
+test_socket_unauthenticated (TestCase *test,
                              gconstpointer data)
 {
   WebSocketConnection *ws;
@@ -700,7 +704,7 @@ test_socket_unauthenticated (Test *test,
 }
 
 static void
-test_fail_spawn (Test *test,
+test_fail_spawn (TestCase *test,
                  gconstpointer data)
 {
   WebSocketConnection *ws;
@@ -716,7 +720,7 @@ test_fail_spawn (Test *test,
   /* Fail to spawn this program */
   test->agent_program = "/nonexistant";
 
-  start_web_service_and_connect_client (test, GPOINTER_TO_INT (data), &ws, &thread);
+  start_web_service_and_connect_client (test, data, &ws, &thread);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
   g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
 
@@ -736,40 +740,50 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/web-service/handshake-and-auth/rfc6455", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket,
+  static const TestFixture fixture_rfc6455 = {
+      .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
+  };
+
+  static const TestFixture fixture_hixie76 = {
+      .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
+  };
+
+  g_test_add ("/web-service/handshake-and-auth/rfc6455", TestCase,
+              &fixture_rfc6455, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
-  g_test_add ("/web-service/handshake-and-auth/hixie76", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_HIXIE76), setup_for_socket,
+  g_test_add ("/web-service/handshake-and-auth/hixie76", TestCase,
+              &fixture_hixie76, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
 
-  g_test_add ("/web-service/echo-message/rfc6455", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket,
+  g_test_add ("/web-service/echo-message/rfc6455", TestCase,
+              &fixture_rfc6455, setup_for_socket,
               test_handshake_and_echo, teardown_for_socket);
-  g_test_add ("/web-service/echo-message/hixie76", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_HIXIE76), setup_for_socket,
+  g_test_add ("/web-service/echo-message/hixie76", TestCase,
+              &fixture_hixie76, setup_for_socket,
               test_handshake_and_echo, teardown_for_socket);
-  g_test_add ("/web-service/echo-message/large", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket,
+  g_test_add ("/web-service/echo-message/large", TestCase,
+              &fixture_rfc6455, setup_for_socket,
               test_echo_large, teardown_for_socket);
 
-  g_test_add ("/web-service/close-error", Test, 0, setup_for_socket,
+  g_test_add ("/web-service/close-error", TestCase,
+              NULL, setup_for_socket,
               test_close_error, teardown_for_socket);
-  g_test_add ("/web-service/unauthenticated", Test, 0, setup_for_socket,
+  g_test_add ("/web-service/unauthenticated", TestCase,
+              NULL, setup_for_socket,
               test_socket_unauthenticated, teardown_for_socket);
 
-  g_test_add ("/web-service/fail-spawn/rfc6455", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket,
+  g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
+              &fixture_rfc6455, setup_for_socket,
               test_fail_spawn, teardown_for_socket);
-  g_test_add ("/web-service/fail-spawn/hixie76", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_HIXIE76), setup_for_socket,
+  g_test_add ("/web-service/fail-spawn/hixie76", TestCase,
+              &fixture_hixie76, setup_for_socket,
               test_fail_spawn, teardown_for_socket);
 
-  g_test_add ("/web-service/specified-creds", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket_spec,
+  g_test_add ("/web-service/specified-creds", TestCase,
+              &fixture_rfc6455, setup_for_socket_spec,
               test_specified_creds, teardown_for_socket);
-  g_test_add ("/web-service/specified-creds-fail", Test,
-              GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket_spec,
+  g_test_add ("/web-service/specified-creds-fail", TestCase,
+              &fixture_rfc6455, setup_for_socket_spec,
               test_specified_creds_fail, teardown_for_socket);
 
   return g_test_run ();

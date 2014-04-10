@@ -260,182 +260,55 @@ cockpit_pipe_transport_new (const gchar *name,
 
 /**
  * cockpit_pipe_transport_spawn:
- * @host: the host to run the process on
- * @port: the ssh port, if another host
  * @agent: the process to run
- * @user: the ssh user to use
- * @password: the ssh password to use
+ * @user: the user to use
  * @client: for logging, the caller this is being done for
- * @force_remote: force an ssh connection
- * @error: location to return an error
  *
  * Create a new #CockpitPipeTransport for cockpit-agent
- * either locally or on another machine.
- *
- * TODO: There's a lot of logic in this function, and it's not
- * general. Eventually needs refactoring. After libssh is merged
- * this should use cockpit_pipe_spawn() or some variant of it.
+ * on the local machine.
  *
  * Returns: (transfer full): the new transport
  */
 CockpitTransport *
-cockpit_pipe_transport_spawn (const gchar *host,
-                              gint port,
-                              const gchar *agent,
+cockpit_pipe_transport_spawn (const gchar *agent,
                               const gchar *user,
-                              const gchar *password,
-                              const gchar *client,
-                              gboolean force_remote,
-                              GError **error)
+                              const gchar *client)
 {
-  CockpitTransport *transport = NULL;
-  int session_stdin = -1;
-  int session_stdout = -1;
-  gchar pwfd_arg[sizeof(int) * 3];
-  gchar port_arg[sizeof(int) * 3];
-  gchar login[256];
-  int pwpipe[2] = { -1, -1 };
-  GPid pid = 0;
-
-  gchar *argv_remote[] =
-    { "/usr/bin/sshpass",
-      "-d", pwfd_arg,
-      "/usr/bin/ssh",
-      "-o", "StrictHostKeyChecking=no",
-      "-l", (gchar *)user,
-      "-p", port_arg,
-      (gchar *)host,
-      (gchar *)agent,
-      NULL
-    };
-
-  gchar *argv_session[] =
+  const gchar *argv_session[] =
     { PACKAGE_LIBEXEC_DIR "/cockpit-session",
-      (gchar *)user,
-      (gchar *)client,
-      (gchar *)agent,
+      user,
+      client,
+      agent,
       NULL
     };
 
-  gchar *argv_local[] = {
-      (gchar *)agent,
+  const gchar *argv_local[] = {
+      agent,
       NULL,
   };
 
-  gchar **argv;
+  gchar login[256];
+  const gchar **argv;
 
-  GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
 
-  if (port == 0 && !force_remote &&
-      g_strcmp0 (host, "localhost") == 0)
+  /*
+   * If we're already in the right session, then skip cockpit-session.
+   * This is used when testing, or running as your own user.
+   *
+   * This doesn't apply if this code is running as a service, or otherwise
+   * unassociated from a terminal, we get a non-zero return value from
+   * getlogin_r() in that case.
+   */
+  if (getlogin_r (login, sizeof (login)) == 0 &&
+      g_str_equal (login, user))
     {
-      /*
-       * If we're already in the right session, then skip cockpit-session.
-       * This is used when testing, or running as your own user.
-       *
-       * This doesn't apply if this code is running as a service, or otherwise
-       * unassociated from a terminal, we get a non-zero return value from
-       * getlogin_r() in that case.
-       */
-      if (getlogin_r (login, sizeof (login)) == 0 &&
-          g_str_equal (login, user))
-        {
-          argv = argv_local;
-        }
-      else
-        {
-          argv = argv_session;
-        }
+      argv = argv_local;
     }
   else
     {
-      argv = argv_remote;
-
-      if (g_unix_open_pipe (pwpipe, 0, error) < 0)
-        goto out;
-
-      /* Pass the out side (by convention) of the pipe to sshpass */
-      g_snprintf (pwfd_arg, sizeof (pwfd_arg), "%d", pwpipe[0]);
-
-      flags |= G_SPAWN_LEAVE_DESCRIPTORS_OPEN;
-
-      g_snprintf (port_arg, sizeof (port_arg), "%d", port ? port : 22);
+      argv = argv_session;
     }
 
-  /*
-   * We leave file descriptors open for communication with sshpass. ssh
-   * itself will close open file descriptors before proceeding further.
-   */
-
-  if (!g_spawn_async_with_pipes (NULL,
-                                 argv,
-                                 NULL,
-                                 flags,
-                                 NULL,
-                                 NULL,
-                                 &pid,
-                                 &session_stdin,
-                                 &session_stdout,
-                                 NULL,
-                                 error))
-      goto out;
-
-  if (argv == argv_remote)
-    {
-      FILE *stream;
-      gboolean failed;
-
-      close (pwpipe[0]);
-      pwpipe[0] = -1;
-
-      /*
-       * Yes, doing a blocking write like this assumes inside knowledge of the
-       * sshpass tool. We have that inside knowledge (sshpass [driven by ssh]
-       * will read the password fd before blocking on stdin or stdout, besides
-       * there's a kernel buffer as well) ... And this is temporary until
-       * we migrate to libssh.
-       */
-      stream = fdopen (pwpipe[1], "w");
-      if (password)
-        fwrite (password, 1, strlen (password), stream);
-      fputc ('\n', stream);
-      fflush (stream);
-      failed = ferror (stream);
-      fclose (stream);
-      pwpipe[1] = -1;
-
-      if (failed)
-        {
-          g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                               "Couldn't give password to sshpass");
-          goto out;
-        }
-    }
-
-  transport = g_object_new (COCKPIT_TYPE_PIPE_TRANSPORT,
-                            "name", host,
-                            "in-fd", session_stdout,
-                            "out-fd", session_stdin,
-                            "pid", pid);
-  session_stdin = session_stdout = -1;
-
-out:
-  if (pwpipe[0] >= 0)
-    close (pwpipe[0]);
-  if (pwpipe[1] >= 0)
-    close (pwpipe[1]);
-  if (session_stdin >= 0)
-    close (session_stdin);
-  if (session_stdout >= 0)
-    close (session_stdout);
-
-  /*
-   * In the case of failure, closing all the inputs
-   * will make child go away.
-   */
-
-  if (!transport && pid)
-      g_spawn_close_pid (pid);
-
-  return transport;
+  return COCKPIT_TRANSPORT (cockpit_pipe_spawn (COCKPIT_TYPE_PIPE_TRANSPORT,
+                                                argv, NULL, NULL));
 }

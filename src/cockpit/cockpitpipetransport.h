@@ -40,14 +40,9 @@ CockpitTransport * cockpit_pipe_transport_new        (const gchar *name,
                                                       int in_fd,
                                                       int out_fd);
 
-CockpitTransport * cockpit_pipe_transport_spawn      (const gchar *host,
-                                                      gint port,
-                                                      const gchar *agent,
+CockpitTransport * cockpit_pipe_transport_spawn      (const gchar *agent,
                                                       const gchar *user,
-                                                      const gchar *password,
-                                                      const gchar *client,
-                                                      gboolean force_remote,
-                                                      GError **error);
+                                                      const gchar *client);
 
 G_END_DECLS
 

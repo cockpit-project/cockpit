@@ -835,7 +835,6 @@ cockpit_ssh_source_dispatch (GSource *source,
       break;
     case SSH_ERROR:
       msg = ssh_get_error (self->data->session);
-      g_message ("%s: failed to process channel: %s", self->logname, msg);
 
       /*
        * HACK: There doesn't seem to be a way to get at the original socket errno
@@ -844,9 +843,15 @@ cockpit_ssh_source_dispatch (GSource *source,
        * https://red.libssh.org/issues/158
        */
       if (msg && (strstr (msg, "disconnected") || strstr (msg, "SSH_MSG_DISCONNECT")))
-        close_immediately (self, "disconnected");
+        {
+          g_debug ("%s: failed to process channel: %s", self->logname, msg);
+          close_immediately (self, "disconnected");
+        }
       else
-        close_immediately (self, "internal-error");
+        {
+          g_message ("%s: failed to process channel: %s", self->logname, msg);
+          close_immediately (self, "internal-error");
+        }
       return TRUE;
     default:
       g_critical ("%s: ssh_event_dopoll() returned %d", self->logname, rc);

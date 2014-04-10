@@ -21,6 +21,8 @@
 
 #include "cockpitsshtransport.h"
 
+#include "cockpit/cockpittest.h"
+
 #include <libssh/libssh.h>
 
 #include <sys/wait.h>
@@ -233,7 +235,7 @@ on_closed_set_flag (CockpitTransport *transport,
                     gpointer user_data)
 {
   gboolean *flag = user_data;
-  g_assert (problem == NULL);
+  g_assert_cmpstr (problem, ==, NULL);
   g_assert (*flag == FALSE);
   *flag = TRUE;
 }
@@ -423,6 +425,8 @@ test_unsupported_auth (TestCase *tc,
 {
   gchar *problem = NULL;
 
+  cockpit_expect_message ("*server offered unsupported authentication methods*");
+
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -462,6 +466,8 @@ test_unknown_hostkey (TestCase *tc,
 {
   gchar *problem = NULL;
 
+  cockpit_expect_message ("*host key for server is not known*");
+
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -471,7 +477,7 @@ test_unknown_hostkey (TestCase *tc,
 }
 
 static const TestFixture fixture_bad_command = {
-  .ssh_command = "/nonexistant"
+  .ssh_command = "/nonexistant 2> /dev/null"
 };
 
 static void
@@ -494,6 +500,8 @@ test_cannot_connect (void)
   CockpitTransport *transport;
   CockpitCreds *creds;
   gchar *problem = NULL;
+
+  cockpit_expect_message ("*couldn't connect*");
 
   creds = cockpit_creds_new_password ("user", "unused password");
   transport = cockpit_ssh_transport_new ("localhost", 65533, creds);
@@ -527,11 +535,9 @@ int
 main (int argc,
       char *argv[])
 {
-  g_type_init ();
   ssh_init ();
 
-  g_set_prgname ("test-sshtransport");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add ("/ssh-transport/echo-message", TestCase, &fixture_mock_echo,
               setup_transport, test_echo_and_close, teardown);

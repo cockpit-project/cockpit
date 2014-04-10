@@ -72,7 +72,7 @@ cockpit_handler_socket (CockpitWebServer *server,
   if (!agent)
     agent = PACKAGE_LIBEXEC_DIR "/cockpit-agent";
 
-  cockpit_web_socket_serve_dbus (server, 0, agent, io_stream, headers, buffer, ws->auth);
+  cockpit_web_socket_serve_dbus (server, 0, agent, NULL, io_stream, headers, buffer, ws->auth);
 
   g_byte_array_unref (buffer);
   return TRUE;

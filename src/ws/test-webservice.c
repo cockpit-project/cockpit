@@ -52,6 +52,7 @@ typedef struct {
   CockpitWebServer *web_server;
   gchar *cookie;
   CockpitAuth *auth;
+  const gchar *known_hosts;
 
   /* setup_io_pair */
   GIOStream *io_a;
@@ -137,6 +138,8 @@ setup_mock_sshd (TestCase *test,
 
   test->ssh_port = (gushort)value;
   g_string_free (port, TRUE);
+
+  test->known_hosts = SRCDIR "/src/ws/mock_known_hosts";
 }
 
 static void
@@ -304,7 +307,7 @@ serve_thread_func (gpointer data)
   cockpit_web_socket_serve_dbus (test->web_server,
                               test->ssh_port,
                               test->agent_program,
-                              SRCDIR "/src/ws/mock_known_hosts",
+                              test->known_hosts,
                               test->io_b, headers,
                               consumed, test->auth);
 
@@ -703,6 +706,43 @@ test_socket_unauthenticated (TestCase *test,
   close_client_and_stop_web_service (test, ws, thread);
 }
 
+static const gchar MOCK_RSA_KEY[] = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v";
+
+static const gchar MOCK_RSA_FP[] = "d4:5d:fc:8c:49:ae:52:bd:49:c9:ab:28:43:34:e2:d2:ff:3a:52:3f";
+
+static void
+test_unknown_host_key (TestCase *test,
+                       gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GThread *thread;
+  GBytes *received = NULL;
+
+  cockpit_expect_info ("*New connection from*");
+  cockpit_expect_message ("*host key for server is not known*");
+
+  /* No known hosts */
+  test->known_hosts = "/dev/null";
+
+  start_web_service_and_connect_client (test, data, &ws, &thread);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  /* Should close right after opening */
+  while (received == NULL && web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* And we should have received a close message */
+  g_assert (received != NULL);
+  expect_control_message (received, "close", 4, "reason", "unknown-hostkey",
+                          "host-key", MOCK_RSA_KEY,
+                          "host-fingerprint", MOCK_RSA_FP,
+                          NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, thread);
+}
+
 static void
 test_fail_spawn (TestCase *test,
                  gconstpointer data)
@@ -771,6 +811,9 @@ main (int argc,
   g_test_add ("/web-service/unauthenticated", TestCase,
               NULL, setup_for_socket,
               test_socket_unauthenticated, teardown_for_socket);
+  g_test_add ("/web-service/unknown-hostkey", TestCase,
+              NULL, setup_for_socket,
+              test_unknown_host_key, teardown_for_socket);
 
   g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,

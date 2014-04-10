@@ -777,6 +777,16 @@ on_later_close (gpointer user_data)
   return FALSE;
 }
 
+static void
+close_later (CockpitPipe *self)
+{
+  GSource *source = g_idle_source_new ();
+  g_source_set_priority (source, G_PRIORITY_HIGH);
+  g_source_set_callback (source, on_later_close, g_object_ref (self), g_object_unref);
+  g_source_attach (source, g_main_context_get_thread_default ());
+  g_source_unref (source);
+}
+
 /**
  * cockpit_pipe_connect:
  * @name: name for pipe, for debugging
@@ -843,8 +853,7 @@ cockpit_pipe_connect (const gchar *name,
   if (errn != 0)
     {
       set_problem_from_connect_errno (pipe, errn);
-      g_idle_add_full (G_PRIORITY_DEFAULT, on_later_close,
-                       g_object_ref (pipe), g_object_unref);
+      close_later (pipe);
     }
 
   return pipe;
@@ -920,8 +929,7 @@ cockpit_pipe_spawn (GType pipe_gtype,
           problem = "internal-error";
         }
       pipe->priv->problem = g_strdup (problem);
-      g_idle_add_full (G_PRIORITY_DEFAULT, on_later_close,
-                       g_object_ref (pipe), g_object_unref);
+      close_later (pipe);
       g_error_free (error);
     }
   else

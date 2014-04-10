@@ -325,6 +325,61 @@ on_handle_remove_alpha (TestFrobber *frobber,
   return TRUE;
 }
 
+/* ----------------------------------------------------------------------------------------------------
+ * An Introspect() that actually fails
+ */
+
+static void
+introspect_fail_method_call (GDBusConnection *connection,
+                             const gchar *sender,
+                             const gchar *object_path,
+                             const gchar *interface_name,
+                             const gchar *method_name,
+                             GVariant *parameters,
+                             GDBusMethodInvocation *invocation,
+                             gpointer user_data)
+{
+  const gchar *dbus_error = user_data;
+  g_dbus_method_invocation_return_dbus_error (invocation, dbus_error, dbus_error);
+}
+
+static void
+mock_service_create_introspect_fail (GDBusConnection *connection)
+{
+  static const gchar introspectable_xml[] =
+    "<node>"
+    "  <interface name=\"org.freedesktop.DBus.Introspectable\">"
+    "    <method name=\"Introspect\">"
+    "      <arg type=\"s\" name=\"xml_data\" direction=\"out\"/>"
+    "    </method>"
+    "  </interface>"
+    "</node>";
+
+  const GDBusInterfaceVTable introspect_vtable = {
+      .method_call = introspect_fail_method_call,
+  };
+
+  GDBusNodeInfo *node_info;
+  GDBusInterfaceInfo *interface_info;
+  GError *error = NULL;
+
+  node_info = g_dbus_node_info_new_for_xml (introspectable_xml, &error);
+  g_assert_no_error (error);
+
+  interface_info = g_dbus_node_info_lookup_interface (node_info, "org.freedesktop.DBus.Introspectable");
+  g_assert (interface_info != NULL);
+
+  /* Return a failure when introspecting this object path */
+  g_dbus_connection_register_object (connection, "/introspect/unknown", interface_info, &introspect_vtable,
+                                     "org.freedesktop.DBus.Error.UnknownObject", NULL, &error);
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_EXISTS))
+    g_error_free (error);
+  else
+    g_assert_no_error (error);
+
+  g_dbus_node_info_unref (node_info);
+}
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 GObject *
@@ -423,6 +478,7 @@ mock_service_create_and_export (GDBusConnection *connection,
                     object_manager);
 
   g_object_unref (exported_frobber);
+  mock_service_create_introspect_fail (connection);
   return G_OBJECT (object_manager);
 }
 

@@ -293,24 +293,34 @@ web_socket_data_free (WebSocketData   *data)
 }
 
 static void
+report_close_with_extra (WebSocketData *data,
+                         guint channel,
+                         const gchar *reason,
+                         const gchar *extra)
+{
+  GBytes *message;
+  GString *json;
+
+  json = g_string_new ("{\"command\": \"close\"");
+  if (channel != 0)
+    g_string_append_printf (json, ", \"channel\": %u", channel);
+  g_string_append_printf (json, ", \"reason\": \"%s\"", reason ? reason : "");
+  if (extra)
+    g_string_append_printf (json, ", %s", extra);
+  g_string_append (json, "}");
+
+  message = g_string_free_to_bytes (json);
+  if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
+    web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, data->control_prefix, message);
+  g_bytes_unref (message);
+}
+
+static void
 report_close (WebSocketData *data,
               guint channel,
               const gchar *reason)
 {
-  GBytes *message;
-  gchar *json;
-
-  if (reason == NULL)
-    reason = "";
-  if (channel == 0)
-    json = g_strdup_printf ("{\"command\": \"close\", \"reason\": \"%s\"}", reason);
-  else
-    json = g_strdup_printf ("{\"command\": \"close\", \"channel\": %u, \"reason\": \"%s\"}", channel, reason);
-
-  message = g_bytes_new_take (json, strlen (json));
-  if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
-    web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, data->control_prefix, message);
-  g_bytes_unref (message);
+  report_close_with_extra (data, channel, reason, NULL);
 }
 
 static void
@@ -451,13 +461,26 @@ on_session_closed (CockpitTransport *transport,
 {
   WebSocketData *data = user_data;
   CockpitSession *session;
+  CockpitSshTransport *ssh;
+  gchar *extra = NULL;
   guint i;
 
   session = cockpit_session_by_transport (&data->sessions, transport);
   if (session != NULL)
     {
+      if (g_strcmp0 (problem, "unknown-hostkey") == 0 &&
+          COCKPIT_IS_SSH_TRANSPORT (transport))
+        {
+          ssh = COCKPIT_SSH_TRANSPORT (transport);
+          extra = g_strdup_printf ("\"host-key\": \"%s\", \"host-fingerprint\": \"%s\"",
+                                   cockpit_ssh_transport_get_host_key (ssh),
+                                   cockpit_ssh_transport_get_host_fingerprint (ssh));
+        }
+
       for (i = 0; i < session->channels->len; i++)
-        report_close (data, g_array_index (session->channels, guint, i), problem);
+        report_close_with_extra (data, g_array_index (session->channels, guint, i), problem, extra);
+
+      g_free (extra);
       cockpit_session_destroy (&data->sessions, session);
     }
 }

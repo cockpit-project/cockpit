@@ -133,6 +133,10 @@ See below for a list of problem codes.
 
 Other fields may be present in a close message.
 
+In the case of a connection that fails wiwh the reason "unknown-hostkey" the
+host key for the server will be included in a "host-key" field in the close
+message.
+
 Command: ping
 -------------
 

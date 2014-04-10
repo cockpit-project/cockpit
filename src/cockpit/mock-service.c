@@ -145,6 +145,18 @@ on_handle_request_signal_emission (TestFrobber *object,
 }
 
 static gboolean
+on_handle_request_property_mods (TestFrobber *object,
+                                 GDBusMethodInvocation *invocation,
+                                 gpointer user_data)
+{
+  test_frobber_set_y (object, test_frobber_get_y (object) + 1);
+  test_frobber_set_i (object, test_frobber_get_i (object) + 1);
+  g_dbus_interface_skeleton_flush (G_DBUS_INTERFACE_SKELETON (object));
+  test_frobber_complete_request_multi_property_mods (object, invocation);
+  return TRUE;
+}
+
+static gboolean
 on_handle_request_multi_property_mods (TestFrobber *object,
                                        GDBusMethodInvocation *invocation,
                                        gpointer user_data)
@@ -372,6 +384,10 @@ mock_service_create_and_export (GDBusConnection *connection,
   g_signal_connect (exported_frobber,
                     "handle-request-signal-emission",
                     G_CALLBACK (on_handle_request_signal_emission),
+                    object_manager);
+  g_signal_connect (exported_frobber,
+                    "handle-request-property-mods",
+                    G_CALLBACK (on_handle_request_property_mods),
                     object_manager);
   g_signal_connect (exported_frobber,
                     "handle-request-multi-property-mods",

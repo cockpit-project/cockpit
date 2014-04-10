@@ -283,20 +283,6 @@ function _is_non_blank(str) {
     return str.search(/\S/) != -1;
 }
 
-function cockpit_set_text(node, val) {
-    if (node.nodeType == 3) {
-        if (_is_non_blank($(node.parentNode).text()))
-            $(node.parentNode).text(val);
-    }
-
-    if (node.childNodes) {
-        for(var n = 0; n < node.childNodes.length; n++) {
-            var child = node.childNodes[n];
-            cockpit_set_text(child, val);
-        }
-    }
-}
-
 function cockpit_get_display_hostname()
 {
     var h;

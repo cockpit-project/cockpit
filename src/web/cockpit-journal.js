@@ -261,7 +261,6 @@ function cockpit_journal_filler (box, start, match, match_text, header, day_box,
                        _("Load more entries") +
                        '</button><div/>');
         end_box.html(button);
-        button.trigger('create');
         button.click (function () {
             end_box.text(_("Loading..."));
             get_entries_fwd (last, 1, query_more);
@@ -326,7 +325,6 @@ function cockpit_journal_filler (box, start, match, match_text, header, day_box,
                        _("Load earlier entries") +
                        '</button>');
         start_box.html(button);
-        button.trigger('create');
         button.click(function () {
             start_box.text(_("Loading..."));
             get_entries_bwd (first, 0, query_more);
@@ -354,7 +352,6 @@ function cockpit_journal_filler (box, start, match, match_text, header, day_box,
             $(day_box).text($(closest).text());
         else
             $(day_box).text(_("Goto ..."));
-        $(day_box).button('refresh');
     }
 
     box.empty();

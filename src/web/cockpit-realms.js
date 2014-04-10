@@ -359,7 +359,7 @@ PageRealmsOp.prototype = {
         this.initial_discovery = 0;
         $("#realms-op-init-spinner").hide();
         $("#realms-op-form").css('opacity', 1.0);
-        $("#realms-op-apply").button('enable');
+        $("#realms-op-apply").prop('disabled', false);
     },
 
     check_default_realm: function () {

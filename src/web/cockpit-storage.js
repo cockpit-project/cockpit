@@ -1994,12 +1994,12 @@ PageCreateRaid.prototype = {
                                                       size: cockpit_fmt_size (disk_size)
                                                     }));
             $("#create-raid-summary-size").text(cockpit_fmt_size (raid_size));
-            $("#create-raid-create").button('enable');
+            $("#create-raid-create").prop('disable', false);
         } else {
             $("#create-raid-summary-drives").text(F(_("%{n} more disks needed"),
                                                     { n: n_disks_needed - n_disks }));
             $("#create-raid-summary-size").text("--");
-            $("#create-raid-create").button('disable');
+            $("#create-raid-create").prop('disable', true);
         }
     },
 
@@ -2220,9 +2220,9 @@ PageFormat.prototype = {
             (isLuks &&
              (!$("#format-passphrase").val() ||
               $("#format-passphrase").val() != $("#format-passphrase-2").val()))) {
-            $("#format-format").button('disable');
+            $("#format-format").prop('disable', true);
         } else {
-            $("#format-format").button('enable');
+            $("#format-format").prop('disable', false);
         }
     },
 
@@ -2760,7 +2760,7 @@ PageRaidDiskAdd.prototype = {
 
     update: function() {
         var n_disks = cockpit_get_selected_devices_objpath ($('#raid-disk-add-drives'), this.blocks).length;
-        $("#raid-disk-add-add").button((n_disks > 0)? 'enable' : 'disable');
+        $("#raid-disk-add-add").prop('disable', n_disks === 0);
     },
 
     add: function() {
@@ -2814,7 +2814,7 @@ PageVGDiskAdd.prototype = {
 
     update: function() {
         var n_disks = cockpit_get_selected_devices_objpath ($('#vg-disk-add-drives'), this.blocks).length;
-        $("#vg-disk-add-add").button((n_disks > 0)? 'enable' : 'disable');
+        $("#vg-disk-add-add").prop('disable', n_disks === 0);
     },
 
     add: function() {

@@ -59,7 +59,7 @@ function cockpit_content_init ()
 
 function cockpit_content_show ()
 {
-    $('#content-user-name').text(cockpit_connection_config.name || cockpit_connection_config.user || "???").button('refresh');
+    $('#content-user-name').text(cockpit_connection_config.name || cockpit_connection_config.user || "???");
 
     $('.page').hide();
     $('#content').show();
@@ -137,8 +137,6 @@ function cockpit_select_legacy_client ()
 function cockpit_go (trail)
 {
     var new_loc = trail[trail.length-1];
-
-    cockpit_close_menu ();
 
     if (trail.length >= 2 && trail[1].page == "server") {
         // Check whether we are connected to the right machine, and if

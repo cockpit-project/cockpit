@@ -53,16 +53,7 @@ function cockpit_localize_pages() {
                 e._orig = $(e).text();
 
             var translated = cockpit_i18n(e._orig, e.getAttribute("context"));
-
-            if (e.tagName == "BUTTON") {
-                // Some elements need extra attention
-                $(e).text(translated);
-                $(e).button();
-                $(e).button('refresh');
-            } else {
-                // Others need other kinds of extra attention
-                cockpit_set_text(e, translated);
-            }
+            $(e).text(translated);
         });
     cockpit_content_refresh ();
     cockpit_login_refresh ();

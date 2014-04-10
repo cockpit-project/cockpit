@@ -574,4 +574,5 @@ mock_service_stop (void)
   g_dbus_connection_close_sync (mock_conn, NULL, &error);
   g_assert_no_error (error);
   g_thread_join (mock_thread);
+  mock_thread = NULL;
 }

@@ -22,6 +22,7 @@
 #include "cockpitdbusjson.h"
 
 #include "cockpitchannel.h"
+#include "cockpitfakemanager.h"
 
 #include <unistd.h>
 #include <stdint.h>
@@ -48,7 +49,7 @@
 
 typedef struct {
   CockpitChannel parent;
-  GDBusObjectManagerClient *object_manager;
+  GDBusObjectManager       *object_manager;
   GCancellable             *cancellable;
   GList                    *active_calls;
 } CockpitDBusJson;
@@ -340,7 +341,6 @@ write_builder (CockpitDBusJson *self,
 static GDBusInterfaceInfo *
 get_introspection_data (CockpitDBusJson *self,
                         const gchar *interface_name,
-                        const gchar *owner,
                         const gchar *object_path,
                         GError **error)
 {
@@ -348,10 +348,11 @@ get_introspection_data (CockpitDBusJson *self,
   GDBusNodeInfo *node = NULL;
   GDBusInterfaceInfo *ret = NULL;
   GVariant *val = NULL;
+  GDBusConnection *connection = NULL;
+  gchar *owner = NULL;
   const gchar *xml;
 
   g_return_val_if_fail (g_dbus_is_interface_name (interface_name), NULL);
-  g_return_val_if_fail (g_dbus_is_name (owner), NULL);
   g_return_val_if_fail (g_variant_is_object_path (object_path), NULL);
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
@@ -362,7 +363,12 @@ get_introspection_data (CockpitDBusJson *self,
   if (ret != NULL)
     goto out;
 
-  val = g_dbus_connection_call_sync (g_dbus_object_manager_client_get_connection (G_DBUS_OBJECT_MANAGER_CLIENT (self->object_manager)),
+  g_object_get (self->object_manager,
+                "connection", &connection,
+                "name-owner", &owner,
+                NULL);
+
+  val = g_dbus_connection_call_sync (connection,
                                      owner,
                                      object_path,
                                      "org.freedesktop.DBus.Introspectable",
@@ -398,6 +404,8 @@ get_introspection_data (CockpitDBusJson *self,
                        g_dbus_interface_info_ref (ret));
 
 out:
+  g_clear_object (&connection);
+  g_free (owner);
   if (node != NULL)
     g_dbus_node_info_unref (node);
   if (val != NULL)
@@ -499,7 +507,7 @@ send_seed (CockpitDBusJson *self)
   json_builder_set_member_name (builder, "data");
   json_builder_begin_object (builder);
 
-  GList *objects = g_dbus_object_manager_get_objects (G_DBUS_OBJECT_MANAGER (self->object_manager));
+  GList *objects = g_dbus_object_manager_get_objects (self->object_manager);
   for (GList *l = objects; l != NULL; l = l->next)
     {
       GDBusObject *object = G_DBUS_OBJECT (l->data);
@@ -769,7 +777,7 @@ handle_dbus_call (CockpitDBusJson *self,
       goto out;
     }
 
-  iface_proxy = g_dbus_object_manager_get_interface (G_DBUS_OBJECT_MANAGER (self->object_manager),
+  iface_proxy = g_dbus_object_manager_get_interface (self->object_manager,
                                                      objpath,
                                                      iface_name);
   if (iface_proxy == NULL)
@@ -786,7 +794,6 @@ handle_dbus_call (CockpitDBusJson *self,
 
   iface_info = get_introspection_data (self,
                                        iface_name,
-                                       g_dbus_object_manager_client_get_name (G_DBUS_OBJECT_MANAGER_CLIENT (self->object_manager)),
                                        objpath, /* object_path */
                                        error);
   if (iface_info == NULL)
@@ -943,18 +950,19 @@ on_object_manager_ready (GObject *source,
 {
   CockpitDBusJson *self = user_data;
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
-  GDBusObjectManager *client;
+  GAsyncInitable *initable;
   GError *error = NULL;
 
-  client = g_dbus_object_manager_client_new_for_bus_finish (result, &error);
-  if (client == NULL)
+  initable = G_ASYNC_INITABLE (source);
+  self->object_manager = G_DBUS_OBJECT_MANAGER (g_async_initable_new_finish (initable, result, &error));
+
+  if (self->object_manager == NULL)
     {
       g_warning ("%s", error->message);
       cockpit_channel_close (channel, "internal-error");
     }
   else
     {
-      self->object_manager = G_DBUS_OBJECT_MANAGER_CLIENT (client);
       g_signal_connect (self->object_manager,
                         "object-added",
                         G_CALLBACK (on_object_added),
@@ -1007,6 +1015,9 @@ cockpit_dbus_json_constructed (GObject *object)
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   const gchar *dbus_service;
   const gchar *dbus_path;
+  const gchar *new_prop_name;
+  GType object_manager_type;
+  gconstpointer new_prop_value;
 
   G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->constructed (object);
 
@@ -1025,23 +1036,35 @@ cockpit_dbus_json_constructed (GObject *object)
     }
 
   dbus_path = cockpit_channel_get_option (channel, "object-manager");
-  if (dbus_path == NULL || !g_variant_is_object_path (dbus_path))
+  if (dbus_path == NULL)
+    {
+      new_prop_value = cockpit_channel_get_strv_option (channel, "paths");
+      new_prop_name = "object-paths";
+      object_manager_type = COCKPIT_TYPE_FAKE_MANAGER;
+    }
+  else if (!g_variant_is_object_path (dbus_path))
     {
       g_warning ("agent got invalid object-manager path");
       g_idle_add (on_idle_protocol_error, channel);
       return;
     }
+  else
+    {
+      new_prop_value = dbus_path;
+      new_prop_name = "object-path";
+      object_manager_type = G_TYPE_DBUS_OBJECT_MANAGER_CLIENT;
+    }
 
-  g_dbus_object_manager_client_new_for_bus (G_BUS_TYPE_SYSTEM,
-                                            G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-                                            dbus_service,
-                                            dbus_path,
-                                            NULL, /* GDBusProxyTypeFunc */
-                                            NULL, /* user_data for GDBusProxyTypeFunc */
-                                            NULL, /* GDestroyNotify for GDBusProxyTypeFunc */
-                                            NULL, /* GCancellable */
-                                            on_object_manager_ready,
-                                            g_object_ref (self));
+  /* Both GDBusObjectManager and CockpitFakeManager have similar props */
+  g_async_initable_new_async (object_manager_type,
+                              G_PRIORITY_DEFAULT, NULL,
+                              on_object_manager_ready,
+                              g_object_ref (self),
+                              "bus-type", G_BUS_TYPE_SYSTEM,
+                              "flags", G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+                              "name", dbus_service,
+                              new_prop_name, new_prop_value,
+                              NULL);
 }
 
 static void

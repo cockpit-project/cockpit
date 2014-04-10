@@ -41,14 +41,14 @@ function get_docker_client(machine) {
     return docker_clients[machine];
 }
 
-function cockpit_quote_cmdline (cmds) {
+function quote_cmdline (cmds) {
     function quote(arg) {
         return arg.replace(/\\/g, '\\\\').replace(/ /g, '\\ ');
     }
     return cmds? cmds.map(quote).join(' ') : "";
 }
 
-function cockpit_unquote_cmdline (string) {
+function unquote_cmdline (string) {
     function shift(str) {
         return string.replace(/\\ /g, '\u0001').replace(/\\\\/g, '\u0002');
     }
@@ -59,14 +59,14 @@ function cockpit_unquote_cmdline (string) {
     return shift(string).split(' ').map(unshift);
 }
 
-function cockpit_render_container_name (name) {
+function render_container_name (name) {
     if (name.length > 0 && name[0] == "/")
         return name.slice(1);
     else
         return name;
 }
 
-function cockpit_render_container_state (state) {
+function render_container_state (state) {
     if (state.Running)
         return F(_("Up since %{StartedAt}"), state);
     else
@@ -440,7 +440,7 @@ PageContainers.prototype = {
         }
 
         var row = tr.children("td");
-        $(row[0]).text(cockpit_render_container_name(container.Name));
+        $(row[0]).text(render_container_name(container.Name));
         $(row[1]).text(container.Image);
         $(row[2]).text(container.Command);
         $(row[3]).text(cputext);
@@ -582,7 +582,7 @@ PageRunImage.prototype = {
 
         $("#containers-run-image").text(PageRunImage.image_info.RepoTags[0]);
         $("#containers-run-image-name").val(make_name());
-        $("#containers-run-image-command").val(cockpit_quote_cmdline(PageRunImage.image_info.config.Cmd));
+        $("#containers-run-image-command").val(quote_cmdline(PageRunImage.image_info.config.Cmd));
 
         function render_port(p) {
             var port_input = $('<input class="form-control" style="display:inline;width:auto" >');
@@ -626,7 +626,7 @@ PageRunImage.prototype = {
 
         var tty = $("#containers-run-image-with-terminal").prop('checked');
         var options = {
-            "Cmd": cockpit_unquote_cmdline(cmd),
+            "Cmd": unquote_cmdline(cmd),
             "Image": PageRunImage.image_info.id,
             "Memory": this.memory_slider.value || 0,
             "MemorySwap": (this.memory_slider.value * 2) || 0,
@@ -749,13 +749,13 @@ PageContainerDetails.prototype = {
 
                 var command = "";
                 if (info.Config)
-                    command = cockpit_quote_cmdline(info.Config.Cmd);
+                    command = quote_cmdline(info.Config.Cmd);
                 if (!command)
                     command = info.Command;
                 $(commit).find(".container-command").attr('value', command);
             }).
             find(".btn-primary").on("click", function() {
-                var run = { "Cmd": cockpit_unquote_cmdline($(commit).find(".container-command").val()) };
+                var run = { "Cmd": unquote_cmdline($(commit).find(".container-command").val()) };
                 var options = {
                     "author": $(commit).find(".container-author").val()
                 };
@@ -838,7 +838,7 @@ PageContainerDetails.prototype = {
         $('#container-details-cpu-row').toggle(!!info.State.Running);
         $('#container-details-resource-row').toggle(!!info.State.Running);
 
-        var name = cockpit_render_container_name(info.Name);
+        var name = render_container_name(info.Name);
         if (name != this.name) {
             this.name = name;
             cockpit_content_update_loc_trail();
@@ -861,11 +861,11 @@ PageContainerDetails.prototype = {
         }
 
         $('#container-details-id').text(info.ID);
-        $('#container-details-names').text(cockpit_render_container_name(info.Name));
+        $('#container-details-names').text(render_container_name(info.Name));
         $('#container-details-created').text(info.Created);
         $('#container-details-image').text(info.Image);
         $('#container-details-command').text(info.Command);
-        $('#container-details-state').text(cockpit_render_container_state(info.State));
+        $('#container-details-state').text(render_container_state(info.State));
 
         $('#container-details-ports-row').toggle(port_bindings.length > 0);
         $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
@@ -1003,8 +1003,8 @@ PageImageDetails.prototype = {
                 ports.push(p);
             }
 
-            $('#image-details-entrypoint').text(cockpit_quote_cmdline(config.Entrypoint));
-            $('#image-details-command').text(cockpit_quote_cmdline(config.Cmd));
+            $('#image-details-entrypoint').text(quote_cmdline(config.Entrypoint));
+            $('#image-details-command').text(quote_cmdline(config.Cmd));
             $('#image-details-ports').text(ports.join(', '));
         }
     },

@@ -115,7 +115,7 @@ function init() {
     if (lang_code) {
         init_load_lang(lang_code);
     } else {
-        init_get_config();
+        init_done();
     }
 }
 
@@ -124,34 +124,21 @@ function init_load_lang(lang_code) {
     var jqxhr = $.getJSON("lang/" + lang_code + ".json");
     jqxhr.error(function() {
         cockpit_debug("Error loading language \"" + lang_code + "\"");
-        init_get_config();
+        init_done();
     });
     jqxhr.success(function(data) {
         $cockpit.language_code = lang_code;
         $cockpit.language_po = data[lang_code];
-        init_get_config();
+        init_done();
     });
 }
 
-function init_get_config() {
+function init_done() {
     cockpit_login_init ();
     cockpit_content_init ();
     cockpit_localize_pages();
 
-    var req = new XMLHttpRequest();
-    var loc = window.location.protocol + "//" + window.location.host + "/login";
-    req.open("GET", loc, true);
-    req.onreadystatechange = function (event) {
-	if (req.readyState == 4) {
-            if (req.status == 200) {
-                logged_in(JSON.parse(req.responseText));
-            } else {
-                // Log in
-                cockpit_login_show();
-	    }
-        }
-    };
-    req.send();
+    cockpit_login_try ();
 }
 
 /* There are two classes of pages: Those that are multi-server aware,

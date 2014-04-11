@@ -289,6 +289,7 @@ test_read_error (void)
 {
   CockpitTransport *transport;
   gchar *problem = NULL;
+  gint fds[2];
 
   /* Assuming FD 1000 is not taken */
   g_assert (write (1000, "1", 1) < 0);
@@ -296,8 +297,10 @@ test_read_error (void)
   /* Below we cause a warning, and g_test_expect_message() is broken */
   g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
 
+  g_assert_cmpint (pipe (fds), ==, 0);
+
   /* Pass in a bad read descriptor */
-  transport = cockpit_pipe_transport_new ("test", 1000, 2);
+  transport = cockpit_pipe_transport_new ("test", 1000, fds[0]);
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
@@ -306,6 +309,7 @@ test_read_error (void)
   g_free (problem);
 
   g_object_unref (transport);
+  close (fds[1]);
 }
 
 static void

@@ -59,6 +59,10 @@ CockpitPipe *      cockpit_pipe_spawn        (GType pipe_gtype,
                                               const gchar **env,
                                               const gchar *directory);
 
+CockpitPipe *      cockpit_pipe_pty          (const gchar **argv,
+                                              const gchar **env,
+                                              const gchar *directory);
+
 CockpitPipe *      cockpit_pipe_connect      (const gchar *name,
                                               GSocketAddress *address);
 

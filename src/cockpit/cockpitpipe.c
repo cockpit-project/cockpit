@@ -23,12 +23,15 @@
 
 #include <glib-unix.h>
 
+#include <sys/resource.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <sys/wait.h>
 
 #include <errno.h>
+#include <pty.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -177,10 +180,12 @@ pipe_prepare (GSource *source,
   return FALSE;
 }
 
-static inline gboolean
+static inline GIOCondition
 have_events (GPollFD *pfd)
 {
-  return pfd && (pfd->revents & (pfd->events | G_IO_NVAL | G_IO_ERR));
+  if (!pfd)
+    return 0;
+  return pfd->revents & (pfd->events | G_IO_NVAL | G_IO_ERR);
 }
 
 static gboolean
@@ -192,30 +197,40 @@ pipe_check (GSource *source)
 }
 
 static void
-dispatch_input (CockpitPipe *self)
+dispatch_input (CockpitPipe *self,
+                GIOCondition cond)
 {
-  gssize ret;
+  gssize ret = 0;
   gsize len;
   gboolean eof;
 
-  g_debug ("%s: reading input", self->priv->name);
-
   g_assert (self->priv->in_poll);
-
   len = self->priv->in_buffer->len;
-  g_byte_array_set_size (self->priv->in_buffer, len + 1024);
-  ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, 1024);
-  if (ret < 0)
+
+  /*
+   * Enable clean shutdown by not reading when we just get
+   * G_IO_HUP. Note that when we get G_IO_ERR we do want to read
+   * just so we can get the appropriate detailed error message.
+   */
+  if (cond != G_IO_HUP)
     {
-      g_byte_array_set_size (self->priv->in_buffer, len);
-      if (errno != EAGAIN && errno != EINTR)
+      g_debug ("%s: reading input", self->priv->name);
+
+      g_byte_array_set_size (self->priv->in_buffer, len + 1024);
+      ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, 1024);
+      if (ret < 0)
         {
-          g_warning ("%s: couldn't read: %s", self->priv->name, g_strerror (errno));
-          close_immediately (self, "internal-error");
+          g_byte_array_set_size (self->priv->in_buffer, len);
+          if (errno != EAGAIN && errno != EINTR)
+            {
+              g_warning ("%s: couldn't read: %s", self->priv->name, g_strerror (errno));
+              close_immediately (self, "internal-error");
+            }
+          return;
         }
-      return;
     }
-  else if (ret == 0)
+
+  if (ret == 0)
     {
       g_debug ("%s: end of input", self->priv->name);
       g_source_remove_poll (self->priv->io, self->priv->in_poll);
@@ -428,12 +443,17 @@ pipe_dispatch (GSource *source,
 {
   CockpitPipeSource *fs = (CockpitPipeSource *)source;
   CockpitPipe *self = fs->pipe;
+  GIOCondition cond;
 
   g_object_ref (self);
+
   if (have_events (self->priv->out_poll))
     dispatch_output (self);
-  if (have_events (self->priv->in_poll))
-    dispatch_input (self);
+
+  cond = have_events (self->priv->in_poll);
+  if (cond)
+    dispatch_input (self, cond);
+
   g_object_unref (self);
 
   return TRUE;
@@ -938,6 +958,143 @@ cockpit_pipe_spawn (GType pipe_gtype,
 
   return pipe;
 }
+
+static int
+set_cloexec (void *data,
+             gint fd)
+{
+  if (fd >= GPOINTER_TO_INT (data))
+    fcntl (fd, F_SETFD, FD_CLOEXEC);
+
+  return 0;
+}
+
+#ifndef HAVE_FDWALK
+static int
+fdwalk (int (*cb)(void *data, int fd), void *data)
+{
+  gint open_max;
+  gint fd;
+  gint res = 0;
+
+  struct rlimit rl;
+
+#ifdef __linux__
+  DIR *d;
+
+  if ((d = opendir("/proc/self/fd"))) {
+      struct dirent *de;
+
+      while ((de = readdir(d))) {
+          glong l;
+          gchar *e = NULL;
+
+          if (de->d_name[0] == '.')
+              continue;
+
+          errno = 0;
+          l = strtol(de->d_name, &e, 10);
+          if (errno != 0 || !e || *e)
+              continue;
+
+          fd = (gint) l;
+
+          if ((glong) fd != l)
+              continue;
+
+          if (fd == dirfd(d))
+              continue;
+
+          if ((res = cb (data, fd)) != 0)
+              break;
+        }
+
+      closedir(d);
+      return res;
+  }
+
+  /* If /proc is not mounted or not accessible we fall back to the old
+   * rlimit trick */
+
+#endif
+
+  if (getrlimit(RLIMIT_NOFILE, &rl) == 0 && rl.rlim_max != RLIM_INFINITY)
+      open_max = rl.rlim_max;
+  else
+      open_max = sysconf (_SC_OPEN_MAX);
+
+  for (fd = 0; fd < open_max; fd++)
+      if ((res = cb (data, fd)) != 0)
+          break;
+
+  return res;
+}
+
+#endif /* HAVE_FDWALK */
+
+/**
+ * cockpit_pipe_pty:
+ * @argv: null terminated string array of command arguments
+ * @env: optional null terminated string array of child environment
+ * @directory: optional working directory of child process
+ *
+ * Launch a child pty and create a CockpitPipe for it.
+ *
+ * If the pty or exec fails, a pipe is still returned. It will
+ * close once the main loop is run with an appropriate problem.
+ *
+ * Returns: (transfer full): newly allocated CockpitPipe.
+ */
+CockpitPipe *
+cockpit_pipe_pty (const gchar **argv,
+                  const gchar **env,
+                  const gchar *directory)
+{
+  CockpitPipe *pipe = NULL;
+  GPid pid = 0;
+  int fd;
+
+  pid = forkpty (&fd, NULL, NULL, NULL);
+  if (pid == 0)
+    {
+      fdwalk (set_cloexec, GINT_TO_POINTER (3));
+      if (directory)
+        {
+          if (chdir (directory) < 0)
+            {
+              g_printerr ("couldn't change to directory: %s", g_strerror (errno));
+              _exit (127);
+            }
+        }
+      if (env)
+        execvpe (argv[0], (char *const *)argv, (char *const *)env);
+      else
+        execvp (argv[0], (char *const *)argv);
+      g_printerr ("couldn't execute: %s: %s", argv[0], g_strerror (errno));
+      _exit (127);
+    }
+  else if (pid == 0)
+    {
+      g_warning ("forkpty failed: %s", g_strerror (errno));
+      fd = -1;
+    }
+
+  pipe = g_object_new (COCKPIT_TYPE_PIPE,
+                       "name", argv[0],
+                       "in-fd", fd,
+                       "out-fd", fd,
+                       "pid", pid,
+                       NULL);
+
+  if (fd < 0)
+    {
+      pipe->priv->problem = g_strdup ("internal-error");
+      close_later (pipe);
+    }
+
+  return pipe;
+}
+
 
 /**
  * cockpit_pipe_get_pid:

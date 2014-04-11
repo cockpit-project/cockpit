@@ -23,8 +23,8 @@ function cockpit_i18n(string, context) {
         lookup_key = context + "\u0004" + string;
 
     var ret = string;
-    if (cockpit_language_po) {
-        var translated = cockpit_language_po[lookup_key];
+    if ($cockpit.language_po) {
+        var translated = $cockpit.language_po[lookup_key];
         if (translated && translated.length >= 1 && translated[1].length > 0) {
             ret = translated[1];
         }

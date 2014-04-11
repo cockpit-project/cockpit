@@ -21,7 +21,7 @@ function cockpit_check_role (role)
 {
     var acc, i;
 
-    acc = cockpit_find_account (cockpit_connection_config.user);
+    acc = cockpit_find_account ($cockpit.connection_config.user);
     if (acc) {
         for (i = 0; i < acc.Groups.length; i++) {
             if (acc.Groups[i] == 'wheel' || acc.Groups[i] == role)
@@ -390,7 +390,7 @@ PageAccount.prototype = {
     },
 
     check_role_for_self_mod: function () {
-        return (this.account.UserName == cockpit_connection_config.user ||
+        return (this.account.UserName == $cockpit.connection_config.user ||
                 cockpit_check_role ('cockpit-user-admin'));
     },
 

@@ -17,14 +17,76 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit_connection_config;
+/* MAIN
 
-var cockpit_language_code;
-var cockpit_language_po;
+   - $cockpit.connection_config
 
-function cockpit_init() {
-    cockpit_language_code = "";
-    cockpit_language_po = null;
+   An object with information about the current connection to the
+   interface server when we are logged in.  It has 'user' and 'name'
+   fields describing the user account of the logged in user.
+
+   - $cockpit.language_code
+   - $cockpit.language_po
+
+   Information about the selected display language.  'language_code'
+   contains the symbol identifying the language, such as "de" or "fi".
+   'language_po' is a dictionary with the actual translations.
+
+   - client = $cockpit.get_dbus_client(address, options)
+   - $cockpit.put_dbus_client(client)
+
+   Manage the active D-Bus clients.  The 'get_dbus_client' function
+   returns a client connected to 'address' with the given 'options'.
+   Use 'put_dbus_client' to release it.  Typically, clients are gotten
+   in the 'enter' method of a page and released again in 'leave'.
+
+   A client returned by get_dbus_client can be in any state; it isn't
+   necessarily "ready".
+
+   Clients stay around a while after they have been released by its
+   last user.
+
+   - $cockpit.init()
+   - $cockpit.logged_in(config)
+
+   Manage the life-cycle of the application.  'init' should be called
+   when index.html has been loaded, and 'logged_in' should be called
+   when we have successfully logged in.
+*/
+
+/* A connection to the webserver machine.  It is used to manage global
+ * configuration, such as the list of machines to show on the
+ * dashboard.
+ */
+var cockpit_dbus_local_client;
+
+/* An array of the machines shown on the dashboard.  Each entry has
+ * fields 'address', 'client', and 'dbus_iface'.
+ */
+var cockpit_machines = [ ];
+
+/* A more or less random single client from the array above.  Used
+ * with non-multi-server-aware pages.  This will eventually disappear
+ * when all pages are multi-server-aware.
+ */
+var cockpit_dbus_client;
+
+var cockpit_expecting_disconnect = false;
+
+var $cockpit = $cockpit || { };
+
+(function($, $cockpit) {
+
+$cockpit.init = init;
+$cockpit.logged_in = logged_in;
+
+$cockpit.disconnect = disconnect;
+$cockpit.hide_disconnected = hide_disconnected;
+$cockpit.get_dbus_client = get_dbus_client;
+
+function init() {
+    $cockpit.language_code = "";
+    $cockpit.language_po = null;
     cockpit_dbus_client = null;
     cockpit_visited_pages = {};
 
@@ -51,27 +113,27 @@ function cockpit_init() {
     }
 
     if (lang_code) {
-        cockpit_init_load_lang(lang_code);
+        init_load_lang(lang_code);
     } else {
-        cockpit_init_get_config();
+        init_get_config();
     }
 }
 
-function cockpit_init_load_lang(lang_code) {
+function init_load_lang(lang_code) {
     //cockpit_debug("Loading language `" + lang_code + "'");
     var jqxhr = $.getJSON("lang/" + lang_code + ".json");
     jqxhr.error(function() {
         cockpit_debug("Error loading language \"" + lang_code + "\"");
-        cockpit_init_get_config();
+        init_get_config();
     });
     jqxhr.success(function(data) {
-        cockpit_language_code = lang_code;
-        cockpit_language_po = data[lang_code];
-        cockpit_init_get_config();
+        $cockpit.language_code = lang_code;
+        $cockpit.language_po = data[lang_code];
+        init_get_config();
     });
 }
 
-function cockpit_init_get_config() {
+function init_get_config() {
     cockpit_login_init ();
     cockpit_content_init ();
     cockpit_localize_pages();
@@ -82,9 +144,7 @@ function cockpit_init_get_config() {
     req.onreadystatechange = function (event) {
 	if (req.readyState == 4) {
             if (req.status == 200) {
-                // Nice, we are logged in.
-                cockpit_connection_config = JSON.parse(req.responseText);
-                cockpit_init_connect_local();
+                logged_in(JSON.parse(req.responseText));
             } else {
                 // Log in
                 cockpit_login_show();
@@ -109,30 +169,13 @@ function cockpit_init_get_config() {
    Currently, only the "dashboard" page is multi-server aware.
 */
 
-function cockpit_is_multi_server_aware (hash)
+function is_multi_server_aware (hash)
 {
     return ((hash === "" && cockpit_machines.length != 1) ||
             hash == "#dashboard");
 }
 
-/* A connection to the webserver machine.  It is used to manage global
- * configuration, such as the list of machines to show on the
- * dashboard.
- */
-var cockpit_dbus_local_client;
-
-/* An array of the machines shown on the dashboard.  Each entry has
- * fields 'address', 'client', and 'dbus_iface'.
- */
-var cockpit_machines = [ ];
-
-/* A more or less random single client from the array above.  Used
- * with non-multi-server-aware pages.  This will eventually disappear
- * when all pages are multi-server-aware.
- */
-var cockpit_dbus_client;
-
-function cockpit_get_dbus_client (address)
+function get_dbus_client (address)
 {
     for (var i = 0; i < cockpit_machines.length; i++) {
         if (cockpit_machines[i].address == address)
@@ -141,7 +184,7 @@ function cockpit_get_dbus_client (address)
     return null;
 }
 
-function cockpit_update_machines ()
+function update_machines ()
 {
     var i, j, found;
     var machines = cockpit_dbus_local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
@@ -188,8 +231,12 @@ function cockpit_update_machines ()
     cockpit_dashboard_update_machines ();
 }
 
-function cockpit_init_connect_local()
-{
+function logged_in(config) {
+    $cockpit.connection_config = config;
+    init_connect_local();
+}
+
+function init_connect_local() {
     var i;
 
     cockpit_expecting_disconnect = false;
@@ -198,7 +245,7 @@ function cockpit_init_connect_local()
     $(cockpit_dbus_local_client).on('state-change.init', function () {
         if (cockpit_dbus_local_client.state == "ready") {
             $(cockpit_dbus_local_client).off('state-change.init');
-            cockpit_init_connect_machines();
+            init_connect_machines();
         } else  if (cockpit_dbus_local_client.state == "closed") {
             $(cockpit_dbus_local_client).off('state-change.init');
             cockpit_logout(cockpit_dbus_local_client.error);
@@ -213,31 +260,31 @@ function cockpit_init_connect_local()
     });
 }
 
-function cockpit_init_connect_machines()
+function init_connect_machines()
 {
     cockpit_machines = [ ];
     cockpit_dbus_client = null;
 
     $(cockpit_dbus_local_client).on('objectAdded objectRemoved', function (event, object) {
         if (object.lookup('com.redhat.Cockpit.Machine'))
-            cockpit_update_machines ();
+            update_machines ();
     });
     $(cockpit_dbus_local_client).on('propertiesChanged', function (event, object, iface) {
         if (iface._iface_name == "com.redhat.Cockpit.Machine")
-            cockpit_update_machines ();
+            update_machines ();
     });
-    cockpit_update_machines ();
+    update_machines ();
 
-    if (cockpit_is_multi_server_aware (window.location.hash))
+    if (is_multi_server_aware (window.location.hash))
         cockpit_content_show ();
 
     function legacy_client_state_change ()
     {
         if (cockpit_dbus_client.state == "closed" &&
-            !cockpit_is_multi_server_aware (window.location.hash))
-            cockpit_show_disconnected ();
+            !is_multi_server_aware (window.location.hash))
+            show_disconnected ();
         else if (cockpit_dbus_client.state == "ready") {
-            cockpit_hide_disconnected ();
+            hide_disconnected ();
             cockpit_content_show ();
         }
     }
@@ -246,12 +293,12 @@ function cockpit_init_connect_machines()
     legacy_client_state_change ();
 }
 
-function cockpit_reconnect() {
+function reconnect() {
     if (cockpit_dbus_client.state == "closed")
         cockpit_dbus_client.connect();
 }
 
-function cockpit_disconnect() {
+function disconnect() {
     var local_client = cockpit_dbus_local_client;
     var machines = cockpit_machines;
 
@@ -263,9 +310,7 @@ function cockpit_disconnect() {
         Channel.transport.close('disconnecting');
 }
 
-var cockpit_expecting_disconnect = false;
-
-function cockpit_show_disconnected() {
+function show_disconnected() {
     if (!cockpit_expecting_disconnect) {
         $("#disconnected-error").text(cockpit_client_error_description(cockpit_dbus_client.error));
         $('[role="dialog"]').modal('hide');
@@ -273,6 +318,8 @@ function cockpit_show_disconnected() {
     }
 }
 
-function cockpit_hide_disconnected() {
+function hide_disconnected() {
     $('#disconnected').modal('hide');
 }
+
+})(jQuery, $cockpit);

@@ -744,7 +744,7 @@ PageContainerDetails.prototype = {
 
                 $(commit).find(".container-tag").attr('value', "");
 
-                var author = cockpit_connection_config.name || cockpit_connection_config.user;
+                var author = $cockpit.connection_config.name || $cockpit.connection_config.user;
                 $(commit).find(".container-author").attr('value', author);
 
                 var command = "";
@@ -1203,7 +1203,7 @@ function DockerClient(machine) {
      * GetSamples for quicker initialization.
      */
 
-    var dbus_client = cockpit_get_dbus_client (machine);
+    var dbus_client = $cockpit.get_dbus_client (machine);
     var monitor = dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
                                       "com.redhat.Cockpit.MultiResourceMonitor");
 

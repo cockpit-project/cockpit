@@ -169,7 +169,8 @@ PageSetupServer.prototype = {
         var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
                                                          "com.redhat.Cockpit.Machines");
 
-        machines.call('Add', me.address, function (error, path) {
+        /* TODO: No host key yet */
+        machines.call('Add', me.address, "", function (error, path) {
             if (error) {
                 $('#dashboard_setup_address_error').text(error.message);
                 me.show_tab('address');

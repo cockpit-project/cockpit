@@ -21,6 +21,7 @@
 
 #include "cockpitfakemanager.h"
 
+#include "cockpit/cockpittest.h"
 #include "cockpit/mock-service.h"
 
 #include <sys/socket.h>
@@ -835,10 +836,7 @@ main (int argc,
   GTestDBus *bus;
   gint ret;
 
-  g_type_init ();
-
-  g_set_prgname ("test-fakemanager");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add ("/fake-manager/empty", TestCase, NULL,
               setup_mock, test_empty, teardown_mock);

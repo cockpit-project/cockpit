@@ -23,6 +23,7 @@
 
 #include "cockpit/cockpitenums.h"
 #include "cockpit/cockpiterror.h"
+#include "cockpit/cockpittest.h"
 #include "ws/cockpitauth.h"
 #include "websocket/websocket.h"
 
@@ -197,11 +198,7 @@ int
 main (int argc,
       char *argv[])
 {
-#if !GLIB_CHECK_VERSION(2,36,0)
-  g_type_init ();
-#endif
-
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add ("/auth/verify-password", Test, NULL, setup, test_verify_password, teardown);
   g_test_add ("/auth/verify-password-bad", Test, NULL, setup, test_verify_password_bad, teardown);

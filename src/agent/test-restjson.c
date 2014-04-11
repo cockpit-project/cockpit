@@ -1225,9 +1225,6 @@ main (int argc,
 {
   gint ret;
 
-  g_type_init ();
-
-  g_set_prgname ("test-restjson");
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/rest-json/simple", TestCase, NULL,

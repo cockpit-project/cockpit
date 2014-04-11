@@ -21,6 +21,8 @@
 
 #include "cockpitjson.h"
 
+#include "cockpit/cockpittest.h"
+
 #include "string.h"
 
 static const gchar *test_data =
@@ -384,10 +386,7 @@ main (int argc,
   gchar *name;
   gint i;
 
-  g_type_init ();
-
-  g_set_prgname ("test-json");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/json/int-equal", test_int_equal);
   g_test_add_func ("/json/int-hash", test_int_hash);

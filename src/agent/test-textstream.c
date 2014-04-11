@@ -586,9 +586,6 @@ int
 main (int argc,
       char *argv[])
 {
-  g_type_init ();
-
-  g_set_prgname ("test-textstream");
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/text-stream/echo", TestCase, NULL,

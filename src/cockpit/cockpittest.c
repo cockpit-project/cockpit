@@ -21,6 +21,8 @@
 
 #include "cockpittest.h"
 
+#include <glib-object.h>
+
 /*
  * HACK: We can't yet use g_test_expect_message() and friends.
  * They were pretty broken until GLib 2.40 if you have any debug
@@ -139,12 +141,26 @@ expected_message_handler (const gchar *log_domain,
  * Call this instead of g_test_init() to setup a cocpit test.
  * Enables use of cockpit_expect_xxx() functions.
  *
+ * Calls g_type_init() if necessary. Sets up cleaner logging
+ * during testing.
+ *
  * Also calls g_test_init() for you.
  */
 void
 cockpit_test_init (int *argc,
                    char ***argv)
 {
+  gchar *basename;
+
+  g_type_init ();
+
+  if (*argc > 0)
+    {
+      basename = g_path_get_basename ((*argv)[0]);
+      g_set_prgname (basename);
+      g_free (basename);
+    }
+
   g_test_init (argc, argv, NULL);
 
   /* Chain to the gtest log handler */

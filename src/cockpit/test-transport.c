@@ -593,11 +593,6 @@ main (int argc,
 {
   gint i;
 
-#if !GLIB_CHECK_VERSION(2,36,0)
-  g_type_init ();
-#endif
-
-  g_set_prgname ("test-transport");
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/transport/parse-frame", test_parse_frame);

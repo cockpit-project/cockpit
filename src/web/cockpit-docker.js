@@ -1387,10 +1387,13 @@ function DockerClient(machine) {
          * TODO: We need a sane UI for showing that the resources can't be changed
          * Showing unexpected error isn't it.
          */
-        manager.call('Run', command, function (error, output) {
-            if (error)
-                console.warn(error);
-        });
+        var options = {
+            host: cockpit_get_page_param ("machine", "server")
+        };
+        $cockpit.spawn(["/bin/sh", "-c", command], options).
+            fail(function(ex) {
+                console.warn(ex);
+            });
     }
 
     this.change_memory_limit = function change_memory_limit(id, value) {

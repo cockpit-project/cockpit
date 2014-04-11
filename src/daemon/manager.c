@@ -790,22 +790,6 @@ handle_cancel_shutdown (CockpitManager *object,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static gboolean
-handle_run (CockpitManager *object,
-            GDBusMethodInvocation *invocation,
-            const char *arg_command)
-{
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_ADMIN))
-    return TRUE;
-
-  gs_free char *output = NULL;
-  if (run_cmd_for_invocation (invocation, &output, "/bin/sh", "-c", arg_command, NULL))
-    cockpit_manager_complete_run (object, invocation, output);
-  return TRUE;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
 static void
 manager_iface_init (CockpitManagerIface *iface)
 {
@@ -816,6 +800,4 @@ manager_iface_init (CockpitManagerIface *iface)
   iface->handle_get_server_time = handle_get_server_time;
   iface->handle_shutdown = handle_shutdown;
   iface->handle_cancel_shutdown = handle_cancel_shutdown;
-
-  iface->handle_run = handle_run;
 }

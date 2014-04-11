@@ -22,6 +22,8 @@
 #include "cockpittransport.h"
 #include "cockpitpipetransport.h"
 
+#include "cockpit/cockpittest.h"
+
 #include "websocket/websocket.h"
 
 #include <glib.h>
@@ -77,6 +79,8 @@ static void
 teardown_transport (TestCase *tc,
                     gconstpointer data)
 {
+  cockpit_assert_expected ();
+
   g_object_add_weak_pointer (G_OBJECT (tc->transport),
                              (gpointer *)&tc->transport);
   g_object_unref (tc->transport);
@@ -266,24 +270,6 @@ test_terminate_problem (TestCase *tc,
   g_free (problem);
 }
 
-static gboolean
-on_log_ignore_warnings (const gchar *log_domain,
-                        GLogLevelFlags log_level,
-                        const gchar *message,
-                        gpointer user_data)
-{
-  switch (log_level & G_LOG_LEVEL_MASK)
-    {
-    case G_LOG_LEVEL_WARNING:
-    case G_LOG_LEVEL_MESSAGE:
-    case G_LOG_LEVEL_INFO:
-    case G_LOG_LEVEL_DEBUG:
-      return FALSE;
-    default:
-      return TRUE;
-    }
-}
-
 static void
 test_read_error (void)
 {
@@ -294,10 +280,10 @@ test_read_error (void)
   /* Assuming FD 1000 is not taken */
   g_assert (write (1000, "1", 1) < 0);
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
-
   g_assert_cmpint (pipe (fds), ==, 0);
+
+  cockpit_expect_warning ("*Bad file descriptor");
+  cockpit_expect_warning ("*Bad file descriptor");
 
   /* Pass in a bad read descriptor */
   transport = cockpit_pipe_transport_new ("test", 1000, fds[0]);
@@ -307,6 +293,8 @@ test_read_error (void)
   WAIT_UNTIL (problem != NULL);
   g_assert_cmpstr (problem, ==, "internal-error");
   g_free (problem);
+
+  cockpit_assert_expected ();
 
   g_object_unref (transport);
   close (fds[1]);
@@ -327,8 +315,8 @@ test_write_error (void)
   /* Assuming FD 1000 is not taken */
   g_assert (write (1000, "1", 1) < 0);
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+  cockpit_expect_warning ("*Bad file descriptor");
+  cockpit_expect_warning ("*Bad file descriptor");
 
   /* Pass in a bad write descriptor */
   transport = cockpit_pipe_transport_new ("test", fds[0], 1000);
@@ -347,6 +335,8 @@ test_write_error (void)
   close (fds[1]);
 
   g_object_unref (transport);
+
+  cockpit_assert_expected ();
 }
 
 static void
@@ -401,8 +391,7 @@ test_read_truncated (void)
   out = dup (2);
   g_assert (out >= 0);
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+  cockpit_expect_warning ("*received truncated 1 byte frame");
 
   /* Pass in a read end of the pipe */
   transport = cockpit_pipe_transport_new ("test", fds[0], out);
@@ -418,6 +407,8 @@ test_read_truncated (void)
   g_free (problem);
 
   g_object_unref (transport);
+
+  cockpit_assert_expected ();
 }
 
 static void
@@ -431,8 +422,7 @@ test_no_handler (void)
   if (pipe(fds) < 0)
     g_assert_not_reached ();
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+  cockpit_expect_warning ("*No handler for received message*");
 
   /* Pass in a read end of the pipe */
   transport = cockpit_pipe_transport_new ("test", fds[0], fds[1]);
@@ -450,6 +440,8 @@ test_no_handler (void)
   g_free (problem);
 
   g_object_unref (transport);
+
+  cockpit_assert_expected ();
 }
 
 static void
@@ -477,23 +469,32 @@ test_parse_frame_bad (void)
   GBytes *payload;
   guint channel;
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+  cockpit_expect_warning ("*invalid message prefix");
 
   message = g_bytes_new_static ("bad\ntest", 8);
   payload = cockpit_transport_parse_frame (message, &channel);
   g_assert (payload == NULL);
   g_bytes_unref (message);
 
+  cockpit_assert_expected ();
+
+  cockpit_expect_warning ("*invalid message without channel prefix");
+
   message = g_bytes_new_static ("test", 4);
   payload = cockpit_transport_parse_frame (message, &channel);
   g_assert (payload == NULL);
   g_bytes_unref (message);
 
+  cockpit_assert_expected ();
+
+  cockpit_expect_warning ("*invalid message prefix");
+
   message = g_bytes_new_static ("111111111111111\ntest", 20);
   payload = cockpit_transport_parse_frame (message, &channel);
   g_assert (payload == NULL);
   g_bytes_unref (message);
+
+  cockpit_assert_expected ();
 }
 
 static void
@@ -571,8 +572,7 @@ test_parse_command_bad (gconstpointer input)
   JsonObject *options;
   gboolean ret;
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+  cockpit_expect_warning ("*");
 
   parser = json_parser_new ();
   message = g_bytes_new_static (input, strlen (input));
@@ -583,6 +583,8 @@ test_parse_command_bad (gconstpointer input)
   g_assert (ret == FALSE);
 
   g_object_unref (parser);
+
+  cockpit_assert_expected ();
 }
 
 int
@@ -596,7 +598,7 @@ main (int argc,
 #endif
 
   g_set_prgname ("test-transport");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/transport/parse-frame", test_parse_frame);
   g_test_add_func ("/transport/parse-frame-bad", test_parse_frame_bad);

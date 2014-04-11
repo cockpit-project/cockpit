@@ -465,24 +465,6 @@ test_close_before_open (TestCase *tc,
   g_assert (tc->conn_sock == NULL);
 }
 
-static gboolean
-on_log_ignore_warnings (const gchar *log_domain,
-                        GLogLevelFlags log_level,
-                        const gchar *message,
-                        gpointer user_data)
-{
-  switch (log_level & G_LOG_LEVEL_MASK)
-    {
-    case G_LOG_LEVEL_WARNING:
-    case G_LOG_LEVEL_MESSAGE:
-    case G_LOG_LEVEL_INFO:
-    case G_LOG_LEVEL_DEBUG:
-      return FALSE;
-    default:
-      return TRUE;
-    }
-}
-
 static void
 test_send_invalid (TestCase *tc,
                    gconstpointer unused)
@@ -512,9 +494,6 @@ test_recv_invalid (TestCase *tc,
   /* Wait until the socket has opened */
   while (tc->conn_sock == NULL)
     g_main_context_iteration (NULL, TRUE);
-
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
 
   g_assert_cmpint (g_socket_send (tc->conn_sock, "\x00Marmalaade!\x00", 13, NULL, &error), ==, 13);
   g_assert_no_error (error);

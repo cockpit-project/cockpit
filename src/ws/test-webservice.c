@@ -23,6 +23,7 @@
 #include "cockpitwebsocket.h"
 #include "cockpitwebserver.h"
 #include "cockpit/cockpittransport.h"
+#include "cockpit/cockpittest.h"
 
 #include "websocket/websocket.h"
 
@@ -245,6 +246,8 @@ teardown_for_socket (Test *test,
   teardown_mock_sshd (test, data);
   teardown_mock_webserver (test, data);
   teardown_io_streams (test, data);
+
+  cockpit_assert_expected ();
 }
 
 static void
@@ -254,24 +257,6 @@ on_error_not_reached (WebSocketConnection *ws,
 {
   /* At this point we know this will fail, but is informative */
   g_assert_no_error (error);
-}
-
-static gboolean
-on_log_ignore_warnings (const gchar *log_domain,
-                        GLogLevelFlags log_level,
-                        const gchar *message,
-                        gpointer user_data)
-{
-  switch (log_level & G_LOG_LEVEL_MASK)
-    {
-    case G_LOG_LEVEL_WARNING:
-    case G_LOG_LEVEL_MESSAGE:
-    case G_LOG_LEVEL_INFO:
-    case G_LOG_LEVEL_DEBUG:
-      return FALSE;
-    default:
-      return TRUE;
-    }
 }
 
 static gpointer
@@ -715,8 +700,8 @@ test_fail_spawn (Test *test,
   GBytes *received = NULL;
   GThread *thread;
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+  cockpit_expect_info ("New connection*");
+  cockpit_expect_warning ("*Failed to execute child process*");
 
   /* Don't connect via SSH */
   test->ssh_port = 0;
@@ -747,7 +732,7 @@ main (int argc,
 #endif
 
   g_set_prgname ("test-webservice");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add ("/web-service/handshake-and-auth/rfc6455", Test,
               GINT_TO_POINTER (WEB_SOCKET_FLAVOR_RFC6455), setup_for_socket,

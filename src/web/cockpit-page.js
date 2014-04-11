@@ -59,7 +59,7 @@ function cockpit_content_init ()
 
 function cockpit_content_show ()
 {
-    $('#content-user-name').text(cockpit_connection_config.name || cockpit_connection_config.user || "???");
+    $('#content-user-name').text($cockpit.connection_config.name || $cockpit.connection_config.user || "???");
 
     $('.page').hide();
     $('#content').show();

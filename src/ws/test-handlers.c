@@ -25,6 +25,8 @@
 #include "cockpitwebserver.h"
 #include "cockpithandlers.h"
 
+#include "cockpit/cockpittest.h"
+
 #include <glib.h>
 
 #include <string.h>
@@ -92,6 +94,8 @@ teardown (Test *test,
   g_clear_object (&test->dataout);
   g_clear_object (&test->io);
   g_hash_table_destroy (test->headers);
+
+  cockpit_assert_expected ();
 }
 
 static const gchar *
@@ -141,6 +145,8 @@ test_login_no_cookie (Test *test,
                       gconstpointer data)
 {
   gboolean ret;
+
+  cockpit_expect_message ("*Returning error-response 401*");
 
   ret = cockpit_handler_login (test->server,
                                COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
@@ -209,6 +215,8 @@ test_login_post_bad (Test *test,
   g_hash_table_insert (test->headers, g_strdup ("Content-Length"), g_strdup ("7"));
   g_memory_input_stream_add_data (test->input, "boooyah", 7, NULL);
 
+  cockpit_expect_message ("*Returning error-response 400*");
+
   ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
                                test->io, test->headers, test->datain, test->dataout, &test->data);
 
@@ -224,6 +232,8 @@ test_login_post_fail (Test *test,
 
   g_hash_table_insert (test->headers, g_strdup ("Content-Length"), g_strdup ("8"));
   g_memory_input_stream_add_data (test->input, "booo\nyah", 8, NULL);
+
+  cockpit_expect_message ("*Returning error-response 401*");
 
   ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
                                test->io, test->headers, test->datain, test->dataout, &test->data);
@@ -338,7 +348,7 @@ main (int argc,
 #endif
 
   g_set_prgname ("test-webservice");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   system_bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);
 

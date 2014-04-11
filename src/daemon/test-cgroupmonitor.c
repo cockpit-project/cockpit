@@ -295,6 +295,7 @@ test_get_samples (TestCase *tc,
   double value;
   gint64 timestamp;
   GVariant *options;
+  gchar *str;
 
   while (tc->timestamp_received == 0)
     g_main_context_iteration (NULL, TRUE);
@@ -307,12 +308,9 @@ test_get_samples (TestCase *tc,
   g_object_unref (result);
   g_assert_no_error (error);
 
-  if (g_test_verbose ())
-    {
-      gchar *str = g_variant_print (samples, TRUE);
-      g_printerr ("GetSamples(): %s\n", str);
-      g_free (str);
-    }
+  str = g_variant_print (samples, TRUE);
+  g_info ("GetSamples(): %s\n", str);
+  g_free (str);
 
   /* Parse timestamp and child out */
   g_variant_get_child (samples, 0, "(x@a{sad})", &timestamp, &child);
@@ -349,18 +347,16 @@ test_new_samples (TestCase *tc,
   GVariant *sample;
   GVariant *values;
   double value;
+  gchar *str;
 
   while (tc->timestamp_received == 0)
     g_main_context_iteration (NULL, TRUE);
 
   sample = g_queue_pop_head (tc->samples_received);
 
-  if (g_test_verbose ())
-    {
-      gchar *str = g_variant_print (sample, TRUE);
-      g_printerr ("NewSample(): %s\n", str);
-      g_free (str);
-    }
+  str = g_variant_print (sample, TRUE);
+  g_info ("NewSample(): %s\n", str);
+  g_free (str);
 
   /* Variant for the first consumer: "" */
   values = g_variant_lookup_value (sample, ".", G_VARIANT_TYPE ("ad"));
@@ -406,6 +402,7 @@ test_zero_limits (TestCase *tc,
   double value;
   gint64 timestamp;
   GVariant *options;
+  gchar *str;
 
   while (tc->timestamp_received == 0)
     g_main_context_iteration (NULL, TRUE);
@@ -418,12 +415,9 @@ test_zero_limits (TestCase *tc,
   g_object_unref (result);
   g_assert_no_error (error);
 
-  if (g_test_verbose ())
-    {
-      gchar *str = g_variant_print (samples, TRUE);
-      g_printerr ("GetSamples(): %s\n", str);
-      g_free (str);
-    }
+  str = g_variant_print (samples, TRUE);
+  g_info ("GetSamples(): %s\n", str);
+  g_free (str);
 
   /* Parse timestamp and child out */
   g_variant_get_child (samples, 0, "(x@a{sad})", &timestamp, &child);

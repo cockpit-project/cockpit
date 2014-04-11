@@ -22,6 +22,8 @@ PageTerminal.prototype = {
         this.id = "terminal";
         this.history = [ "" ];
         this.history_pos = 0;
+        this.term = null;
+        this.channel = null;
     },
 
     getTitle: function() {
@@ -32,64 +34,60 @@ PageTerminal.prototype = {
     },
 
     enter: function(first_visit) {
-        var me = this;
-        if (first_visit) {
-            $('#terminal-in').on('keydown', function(event) {
-                if (event.which === 38)
-                    me.history_up();
-                else if (event.which === 40)
-                    me.history_down();
-                else if (event.which === 13)
-                    me.run ();
+        var self = this;
+        self.term = new Terminal({
+            cols: 80,
+            rows: 24,
+            screenKeys: true
+        });
+
+        /* term.js wants the parent element to build its terminal inside of */
+        self.term.open($("#rescue-terminal")[0]);
+
+        self.channel = new Channel({
+            "host": cockpit_get_page_param ("machine", "server"),
+            "payload": "text-stream",
+            "spawn": ["/bin/bash", "-i"],
+            "environ": [
+                "TERM=xterm-256color",
+                "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
+            ],
+            "pty": true
+        });
+
+        $(self.channel).
+            on("close", function(ev, options) {
+                if (self.term) {
+                    var problem = options.reason || "disconnected";
+                    self.term.write('\x1b[31m' + problem + '\x1b[m\r\n');
+                    /* There's no term.hideCursor() function */
+                    self.term.cursorHidden = true;
+                    self.term.refresh(self.term.y, self.term.y);
+                }
+            }).
+            on("message", function(ev, payload) {
+                /* Output from pty to terminal */
+                if (self.term)
+                    self.term.write(payload);
             });
-            $('#terminal-clear').on('click', $.proxy (this, 'clear'));
-        }
+
+        self.term.on('data', function(data) {
+            /* Output from terminal to pty */
+            if (self.channel && self.channel.valid)
+                self.channel.send(data);
+        });
     },
 
     leave: function() {
-    },
-
-    run: function() {
-        if (!cockpit_check_role ('wheel'))
-            return;
-
-        var cmd = $('#terminal-in').val();
-        $('#terminal-in').val("");
-        $('#terminal-out').append('# ' + cockpit_esc(cmd) + '\n');
-
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager", "com.redhat.Cockpit.Manager");
-
-        this.history_pos = 0;
-        this.history[this.history_pos] = cmd;
-        this.history.unshift("");
-
-        manager.call('Run', cmd,
-                     function (error, output) {
-                         if (error)
-                             cockpit_show_unexpected_error (error);
-                         else
-                             $('#terminal-out').append(cockpit_esc(output));
-                     });
-    },
-
-    history_up: function() {
-        if (this.history_pos < this.history.length-1) {
-            this.history[this.history_pos] = $('#terminal-in').val();
-            this.history_pos += 1;
-            $('#terminal-in').val(this.history[this.history_pos]);
+        if (this.term) {
+            this.term.destroy();
+            this.term = null;
         }
-    },
-
-    history_down: function() {
-        if (this.history_pos > 0) {
-            this.history[this.history_pos] = $('#terminal-in').val();
-            this.history_pos -= 1;
-            $('#terminal-in').val(this.history[this.history_pos]);
+        if (this.channel) {
+            if (this.channel.valid)
+                this.channel.close(null);
+            this.channel = null;
         }
-    },
-
-    clear: function() {
-        $('#terminal-out').empty();
     }
 };
 

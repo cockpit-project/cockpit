@@ -30,16 +30,6 @@
 #include <sys/uio.h>
 #include <string.h>
 
-/* Can't use g_test_skip() yet */
-static void
-test_skip (const gchar *reason)
-{
-  if (g_test_verbose ())
-    g_print ("GTest: skipping: %s\n", reason);
-  else
-    g_print ("SKIP: %s ", reason);
-}
-
 /* ----------------------------------------------------------------------------
  * Mock
  */
@@ -685,7 +675,7 @@ test_fail_not_authorized (void)
 
   if (geteuid () == 0)
     {
-      test_skip ("running as root");
+      cockpit_test_skip ("running as root");
       return;
     }
 

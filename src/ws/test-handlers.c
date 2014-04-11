@@ -107,16 +107,6 @@ output_as_string (Test *test)
 }
 
 static void
-skip_test (const gchar *reason)
-{
-  /* Can't use g_test_skip() yet */
-  if (g_test_verbose ())
-    g_print ("GTest: skipping: %s\n", reason);
-  else
-    g_print ("SKIP: %s ", reason);
-}
-
-static void
 test_login_no_cookie (Test *test,
                       gconstpointer data)
 {
@@ -292,7 +282,7 @@ test_cockpitdyn (Test *test,
   /* Skip tests that require a system bus when in mock */
   if (!system_bus)
     {
-      skip_test ("No system bus");
+      cockpit_test_skip ("No system bus");
       return;
     }
 

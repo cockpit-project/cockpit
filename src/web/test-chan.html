@@ -34,6 +34,16 @@
   </body>
 <script type="text/javascript">
 
+/* Set this to a regexp to ignore that warning once */
+function console_ignore_log(exp) {
+    var console_log = console.log;
+    console.log = function() {
+        if (!exp.exec(arguments[0]))
+            console_log.apply(console, arguments);
+        console.log = console_log;
+    }
+}
+
 /* The other end of the mock websocket */
 function MockPeer() {
     /* These are events */
@@ -351,6 +361,8 @@ test("close transport", function() {
 asyncTest("send after close", function() {
     expect(1);
 
+    console_ignore_log(/sending message on closed.*/);
+
     var received_message = false;
     var channel = new Channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -371,6 +383,8 @@ asyncTest("ignore other commands", function() {
     expect(1);
 
     var channel = new Channel({ });
+
+    console_ignore_log(/unhandled control message.*/);
 
     mock_peer.send(0, JSON.stringify({ "command": "ping"}));
     mock_peer.send(0, JSON.stringify({ "command": "unexpected"}));

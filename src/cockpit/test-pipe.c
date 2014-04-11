@@ -21,6 +21,8 @@
 
 #include "cockpitpipe.h"
 
+#include "cockpit/cockpittest.h"
+
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <gio/gunixsocketaddress.h>
@@ -264,24 +266,6 @@ test_buffer (TestCase *tc,
   g_assert_cmpstr ((gchar *)buffer->data, ==, "blahdeedoo");
 }
 
-static gboolean
-on_log_ignore_warnings (const gchar *log_domain,
-                        GLogLevelFlags log_level,
-                        const gchar *message,
-                        gpointer user_data)
-{
-  switch (log_level & G_LOG_LEVEL_MASK)
-    {
-    case G_LOG_LEVEL_WARNING:
-    case G_LOG_LEVEL_MESSAGE:
-    case G_LOG_LEVEL_INFO:
-    case G_LOG_LEVEL_DEBUG:
-      return FALSE;
-    default:
-      return TRUE;
-    }
-}
-
 static void
 test_read_error (void)
 {
@@ -294,8 +278,8 @@ test_read_error (void)
   out = dup (2);
   g_assert (out >= 0);
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+  cockpit_expect_warning ("*Bad file descriptor");
+  cockpit_expect_warning ("*Bad file descriptor");
 
   /* Pass in a bad read descriptor */
   echo_pipe = g_object_new (mock_echo_pipe_get_type (),
@@ -306,6 +290,8 @@ test_read_error (void)
 
   while (!echo_pipe->closed)
     g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_expected ();
 
   g_assert_cmpstr (echo_pipe->problem, ==, "internal-error");
 
@@ -323,8 +309,8 @@ test_write_error (void)
   if (pipe(fds) < 0)
     g_assert_not_reached ();
 
-  /* Below we cause a warning, and g_test_expect_message() is broken */
-  g_test_log_set_fatal_handler (on_log_ignore_warnings, NULL);
+  cockpit_expect_warning ("*Bad file descriptor");
+  cockpit_expect_warning ("*Bad file descriptor");
 
   /* Pass in a bad write descriptor */
   echo_pipe = g_object_new (mock_echo_pipe_get_type (),
@@ -339,6 +325,8 @@ test_write_error (void)
 
   while (!echo_pipe->closed)
     g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_expected ();
 
   g_assert_cmpstr (echo_pipe->problem, ==, "internal-error");
 
@@ -665,6 +653,8 @@ test_fail_not_found (void)
   GSocketAddress *address;
   gchar *problem = NULL;
 
+  cockpit_expect_message ("*No such file or directory");
+
   address = g_unix_socket_address_new ("/non-existent");
   pipe = cockpit_pipe_connect ("bad", address);
   g_object_unref (address);
@@ -676,6 +666,8 @@ test_fail_not_found (void)
   /* closes in main loop */
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_expected ();
 
   g_assert_cmpstr (problem, ==, "not-found");
   g_free (problem);
@@ -704,6 +696,8 @@ test_fail_not_authorized (void)
   /* Take away all permissions from the file */
   g_assert_cmpint (fchmod (fd, 0000), ==, 0);
 
+  cockpit_expect_message ("*Permission denied");
+
   address = g_unix_socket_address_new (unix_path);
   pipe = cockpit_pipe_connect ("bad", address);
   g_object_unref (address);
@@ -715,6 +709,8 @@ test_fail_not_authorized (void)
   /* closes in main loop */
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
+
+  cockpit_assert_expected ();
 
   g_assert_cmpstr (problem, ==, "not-authorized");
   g_free (unix_path);
@@ -730,7 +726,7 @@ main (int argc,
   g_type_init ();
 
   g_set_prgname ("test-pipe");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/pipe/buffer/consume-entire", test_consume_entire);
   g_test_add_func ("/pipe/buffer/consume-partial", test_consume_partial);

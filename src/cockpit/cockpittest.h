@@ -61,6 +61,8 @@ void     _cockpit_assert_strmatch_msg       (const char *domain,
 #define cockpit_assert_strmatch(str, pattern) \
   (_cockpit_assert_strmatch_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (str), (pattern)))
 
+void     cockpit_test_skip                  (const gchar *reason);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TEST_H__ */

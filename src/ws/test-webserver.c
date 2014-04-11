@@ -43,16 +43,6 @@ typedef struct {
     const gchar *cert_file;
 } TestFixture;
 
-/* Can't use g_test_skip() yet */
-static void
-test_skip (const gchar *reason)
-{
-  if (g_test_verbose ())
-    g_print ("GTest: skipping: %s\n", reason);
-  else
-    g_print ("SKIP: %s ", reason);
-}
-
 static GInetAddress *
 find_non_loopback_address (void)
 {
@@ -434,7 +424,7 @@ test_webserver_redirect_notls (TestCase *tc,
 
   if (!tc->hostport)
     {
-      test_skip ("no non-loopback address found");
+      cockpit_test_skip ("no non-loopback address found");
       return;
     }
 

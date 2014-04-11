@@ -50,10 +50,6 @@ PageDashboard.prototype = {
     enter: function(first_visit) {
         var me = this;
         if (first_visit) {
-            $("#server-actions-menu button").on('click', function () {
-                $("#server-actions-menu").popup('close');
-                me.server_action(me.server_machine, $(this).attr("data-op"));
-            });
             $('#dashboard-local-reconnect').on('click', function () {
                 cockpit_dbus_local_client.connect();
             });

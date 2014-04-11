@@ -213,6 +213,7 @@ DBusClient.prototype = {
         this._call_reply_map = {};
         this._was_connected = false;
         this._last_error = null;
+        this.error_details = {};
         this.connect();
     },
 
@@ -274,6 +275,7 @@ DBusClient.prototype = {
 
         $(client._channel).on("close", function(event, options) {
             client.error = options.reason;
+            client.error_details = options;
             client.state = "closed";
             client._state_change();
 

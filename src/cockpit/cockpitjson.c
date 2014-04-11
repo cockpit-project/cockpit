@@ -50,6 +50,32 @@ cockpit_json_get_int (JsonObject *object,
 }
 
 gboolean
+cockpit_json_get_bool (JsonObject *object,
+                       const gchar *name,
+                       gboolean defawlt,
+                       gboolean *value)
+{
+  JsonNode *node;
+
+  node = json_object_get_member (object, name);
+  if (!node)
+    {
+      *value = defawlt;
+      return TRUE;
+    }
+  else if (json_node_get_value_type (node) == G_TYPE_BOOLEAN)
+    {
+      *value = json_node_get_boolean (node);
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
+
+gboolean
 cockpit_json_get_string (JsonObject *options,
                          const gchar *name,
                          const gchar *defawlt,

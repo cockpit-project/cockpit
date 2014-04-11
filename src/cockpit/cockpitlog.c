@@ -27,15 +27,6 @@
 #include <systemd/sd-journal.h>
 
 void
-cockpit_null_log_handler (const gchar *log_domain,
-                          GLogLevelFlags log_level,
-                          const gchar *message,
-                          gpointer user_data)
-{
-  /* who, me? */
-}
-
-void
 cockpit_journal_log_handler (const gchar *log_domain,
                              GLogLevelFlags log_level,
                              const gchar *message,

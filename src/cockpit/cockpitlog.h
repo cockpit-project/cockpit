@@ -28,11 +28,6 @@
 
 G_BEGIN_DECLS
 
-void     cockpit_null_log_handler       (const gchar *log_domain,
-                                         GLogLevelFlags log_level,
-                                         const gchar *message,
-                                         gpointer user_data);
-
 void     cockpit_journal_log_handler    (const gchar *log_domain,
                                          GLogLevelFlags log_level,
                                          const gchar *message,

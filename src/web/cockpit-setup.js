@@ -164,7 +164,7 @@ PageSetupServer.prototype = {
         me.address = $('#dashboard_setup_address').val();
         $('#dashboard_setup_login_address').text(this.address);
 
-        reuse_creds = $('#dashboard_setup_address_reuse_creds').attr('checked');
+        reuse_creds = $('#dashboard_setup_address_reuse_creds').prop('checked');
 
         var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
                                                          "com.redhat.Cockpit.Machines");

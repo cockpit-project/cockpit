@@ -343,11 +343,6 @@ main (int argc,
 {
   gint ret;
 
-#if !GLIB_CHECK_VERSION(2,36,0)
-  g_type_init ();
-#endif
-
-  g_set_prgname ("test-webservice");
   cockpit_test_init (&argc, &argv);
 
   system_bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);

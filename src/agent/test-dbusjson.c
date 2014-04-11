@@ -22,6 +22,7 @@
 #include "cockpitdbusjson.h"
 #include "cockpit/mock-service.h"
 #include "cockpit/cockpitpipetransport.h"
+#include "cockpit/cockpittest.h"
 
 #include <json-glib/json-glib.h>
 
@@ -187,10 +188,7 @@ main (int argc,
   GTestDBus *bus;
   gint ret;
 
-  g_type_init ();
-
-  g_set_prgname ("test-dbusserver");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add ("/dbus-server/seed", TestCase, NULL, setup_dbus_server, test_seed, teardown_dbus_server);
 

@@ -21,6 +21,8 @@
 
 #include "cgroupmonitor.h"
 
+#include "cockpit/cockpittest.h"
+
 #include <glib/gstdio.h>
 
 /* -----------------------------------------------------------------------------
@@ -442,10 +444,7 @@ main (int argc,
 {
   gint ret;
 
-  g_type_init ();
-
-  g_set_prgname ("test-cgroupmonitor");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/cgroup-monitor/new", test_new);
   g_test_add ("/cgroup-monitor/get-samples", TestCase, &fixture_samples,

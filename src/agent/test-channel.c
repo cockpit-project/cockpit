@@ -21,6 +21,8 @@
 
 #include "cockpitchannel.h"
 
+#include "cockpit/cockpittest.h"
+
 #include <json-glib/json-glib.h>
 
 #include <gio/gio.h>
@@ -371,10 +373,7 @@ int
 main (int argc,
       char *argv[])
 {
-  g_type_init ();
-
-  g_set_prgname ("test-channel");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/channel/get-option", test_get_option);
   g_test_add_func ("/channel/properties", test_properties);

@@ -95,6 +95,22 @@ function cockpit_login_refresh ()
 {
 }
 
+function cockpit_login_try() {
+    var req = new XMLHttpRequest();
+    var loc = window.location.protocol + "//" + window.location.host + "/login";
+    req.open("GET", loc, true);
+    req.onreadystatechange = function (event) {
+	if (req.readyState == 4) {
+            if (req.status == 200) {
+                $cockpit.logged_in(JSON.parse(req.responseText));
+            } else {
+                cockpit_login_show();
+	    }
+        }
+    };
+    req.send();
+}
+
 function cockpit_logout (reason)
 {
     if (reason) {

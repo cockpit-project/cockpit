@@ -56,6 +56,7 @@ PageSetupServer.prototype = {
 
         me.client = null;
         me.address = null;
+        me.options = { "host-key": "" };
 
         $('#dashboard_setup_address').val("");
 
@@ -63,7 +64,7 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_login_password').val("");
         $('#dashboard_setup_login_error').text("");
 
-        $('#dashboard_setup_address_reuse_creds').attr('checked', true);
+        $('#dashboard_setup_address_reuse_creds').prop('checked', true);
 
         me.update_discovered ();
         $('#dashboard_setup_address_error').text("");
@@ -157,6 +158,51 @@ PageSetupServer.prototype = {
         this.next_action();
     },
 
+    connect_server: function() {
+        /* This function tries to connect to the server in
+         * 'this.address' with 'this.options' and does the right thing
+         * depending on the result.
+         */
+
+        var self = this;
+        var client = new DBusClient (self.address, self.options);
+        $(client).on('state-change', function () {
+            if (client.state == "closed") {
+                if (!self.options["host_key"] && client.error == "unknown-hostkey") {
+                    /* The host key is unknown.  Remember it and try
+                     * again while allowing that one host key.  When
+                     * the user confirms the host key eventually, we
+                     * store it permanently.
+                     */
+                    self.options["host-key"] = client.error_details["host-key"];
+                    $('#dashboard_setup_action_fingerprint').text(client.error_details["host-fingerprint"]);
+                    self.connect_server();
+                    return;
+                } else if (client.error == "not-authorized") {
+                    /* The given credentials didn't work.  Ask the
+                     * user to try again.
+                     */
+                    $('#dashboard_setup_login_error').text(cockpit_client_error_description(client.error));
+                    self.show_tab('login');
+                    return;
+                }
+
+                /* The connection has failed.  Show the error on every
+                 * tab but stay on the current tab.
+                 */
+                $('#dashboard_setup_address_error').text(cockpit_client_error_description(client.error));
+                $('#dashboard_setup_login_error').text(cockpit_client_error_description(client.error));
+                return;
+
+            } else if (client.state == "ready") {
+                /* We are in.  Start the setup.
+                 */
+                self.client = client;
+                self.prepare_setup();
+            }
+        });
+    },
+
     next_select: function() {
         var me = this;
         var reuse_creds;
@@ -166,41 +212,10 @@ PageSetupServer.prototype = {
 
         reuse_creds = $('#dashboard_setup_address_reuse_creds').prop('checked');
 
-        var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
-                                                         "com.redhat.Cockpit.Machines");
-
-        /* TODO: No host key yet */
-        machines.call('Add', me.address, "", function (error, path) {
-            if (error) {
-                $('#dashboard_setup_address_error').text(error.message);
-                me.show_tab('address');
-                return;
-            }
-
-            me.machine = cockpit_dbus_local_client.lookup (path, "com.redhat.Cockpit.Machine");
-            if (!me.machine) {
-                $('#dashboard_setup_address_error').text(_("New machine not found in list after adding."));
-                me.show_tab('address');
-                return;
-            }
-
-            $('#dashboard_setup_login_error').text("");
-
-            if (!reuse_creds) {
-                me.show_tab('login');
-                return;
-            }
-
-            me.client = new DBusClient (me.address);
-            $(me.client).on('state-change', function () {
-                if (me.client.state == "closed") {
-                    me.client = null;
-                    me.show_tab('login');
-                } else if (me.client.state == "ready") {
-                    me.prepare_setup();
-                }
-            });
-        });
+        if (!reuse_creds)
+            me.show_tab('login');
+        else
+            me.connect_server();
     },
 
     next_login: function() {
@@ -211,17 +226,10 @@ PageSetupServer.prototype = {
 
         $('#dashboard_setup_login_error').text("");
 
-        me.client = new DBusClient(me.address, { "user": user, "password": pass });
-        $(me.client).on('state-change', function () {
-            if (me.client.state == "closed") {
-                if (me.client.error) {
-                    $('#dashboard_setup_login_error').text(cockpit_client_error_description (me.client.error));
-                    me.show_tab('login');
-                }
-            } else if (me.client.state == "ready") {
-                me.prepare_setup();
-            }
-        });
+        me.options.user = user;
+        me.options.password = pass;
+
+        me.connect_server();
     },
 
     reset_tasks: function () {
@@ -420,7 +428,6 @@ PageSetupServer.prototype = {
         }
 
         $('#dashboard_setup_action_address').text(this.address);
-        $('#dashboard_setup_action_fingerprint').text("xx:xx:xx");
 
         if (this.tasks.length > 0) {
             this.show_tab ('action');
@@ -432,18 +439,42 @@ PageSetupServer.prototype = {
 
     next_setup: function() {
         var me = this;
-        function done () {
-            me.show_tab ('close');
-        }
-        me.run_tasks (done);
+
+        /* We can only add the machine to the list of known machines
+         * here since doing so also stores its key as 'known good',
+         * and we need the users permission for this.
+         *
+         * TODO: Add a method to set only the key and use it here.
+         */
+
+        var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
+                                                         "com.redhat.Cockpit.Machines");
+        machines.call('Add', me.address, me.options["host-key"], function (error, path) {
+            if (error) {
+                $('#dashboard_setup_address_error').text(error.message);
+                me.show_tab('address');
+                return;
+            }
+
+            me.machine = cockpit_dbus_local_client.lookup (path, "com.redhat.Cockpit.Machine");
+            if (!me.machine) {
+                $('#dashboard_setup_address_error').text(_("New machine not found in list after adding."));
+                me.show_tab('address');
+                return;
+            }
+
+            me.run_tasks (function () {
+                me.machine.call('AddTag', "dashboard", function (error) {
+                    if (error)
+                        cockpit_show_unexpected_error(error);
+                    me.show_tab ('close');
+                });
+            });
+        });
     },
 
     next_close: function () {
         this.close();
-        this.machine.call('AddTag', "dashboard", function (error) {
-            if (error)
-                cockpit_show_unexpected_error(error);
-        });
     }
 
 };

@@ -681,6 +681,35 @@ test_spawn_and_fail (void)
   g_object_unref (pipe);
 }
 
+static void
+test_pty_shell (void)
+{
+  gboolean closed = FALSE;
+  GByteArray *buffer;
+  CockpitPipe *pipe;
+  GBytes *sent;
+
+  const gchar *argv[] = { "/bin/bash", "-i", NULL };
+
+  pipe = cockpit_pipe_pty (argv, NULL, NULL);
+  g_assert (pipe != NULL);
+
+  sent = g_bytes_new_static ("echo booyah\nexit\n", 17);
+  cockpit_pipe_write (pipe, sent);
+  g_bytes_unref (sent);
+
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
+
+  while (closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+
+  buffer = cockpit_pipe_get_buffer (pipe);
+  g_byte_array_append (buffer, (const guint8 *)"\0", 1);
+
+  g_assert (strstr ((gchar *)buffer->data, "booyah") != NULL);
+  g_object_unref (pipe);
+}
+
 typedef struct {
   GSocket *listen_sock;
   GSource *listen_source;
@@ -963,6 +992,8 @@ main (int argc,
   g_test_add_func ("/pipe/spawn/and-read", test_spawn_and_read);
   g_test_add_func ("/pipe/spawn/and-write", test_spawn_and_write);
   g_test_add_func ("/pipe/spawn/and-fail", test_spawn_and_fail);
+
+  g_test_add_func ("/pipe/pty/shell", test_pty_shell);
 
   g_test_add ("/pipe/connect/and-read", TestConnect, NULL,
               setup_connect, test_connect_and_read, teardown_connect);

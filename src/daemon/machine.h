@@ -30,14 +30,15 @@ G_BEGIN_DECLS
 
 GType             machine_get_type    (void) G_GNUC_CONST;
 
-CockpitMachine *  machine_new         (Daemon  *daemon, const gchar *id);
-
-Daemon *          machine_get_daemon  (Machine *machine);
+CockpitMachine *  machine_new         (Machines *machines,
+                                       const gchar *id);
 
 void              machine_read        (Machine *machine, GKeyFile *file, const gchar *group);
 void              machine_write       (Machine *machine, GKeyFile *file);
-void              machine_export      (Machine *machine);
-void              machine_unexport    (Machine *machine);
+void              machine_export      (Machine *machine,
+                                       GDBusObjectManagerServer *object_manager);
+void              machine_unexport    (Machine *machine,
+                                       GDBusObjectManagerServer *object_manager);
 
 G_END_DECLS
 

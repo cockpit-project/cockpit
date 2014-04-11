@@ -211,7 +211,7 @@ daemon_constructed (GObject *_object)
   daemon->object_manager = g_dbus_object_manager_server_new ("/com/redhat/Cockpit");
 
   /* /com/redhat/Cockpit/Machines */
-  machines = machines_new (daemon);
+  machines = machines_new (daemon_get_object_manager (daemon));
   daemon->machines = MACHINES (machines);
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Machines");
   cockpit_object_skeleton_set_machines (object, machines);
@@ -543,10 +543,4 @@ daemon_get_sender_uid (Daemon *daemon,
     }
 
   return TRUE;
-}
-
-Machines *
-daemon_get_machines (Daemon *daemon)
-{
-  return daemon->machines;
 }

@@ -30,9 +30,7 @@ G_BEGIN_DECLS
 
 GType             machines_get_type    (void) G_GNUC_CONST;
 
-CockpitMachines * machines_new         (Daemon  *daemon);
-
-Daemon *          machines_get_daemon  (Machines *machines);
+CockpitMachines * machines_new         (GDBusObjectManagerServer *object_manager);
 
 gboolean          machines_write       (Machines *machines, GError **error);
 

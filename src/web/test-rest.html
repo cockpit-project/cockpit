@@ -42,6 +42,16 @@ if (!console.assert) {
     }
 };
 
+/* Set this to a regexp to ignore that warning once */
+function console_ignore_warning(exp) {
+    var console_warn = console.warn;
+    console.warn = function() {
+        if (!exp.exec(arguments[0]))
+            console_warn.apply(console, arguments);
+        console.warn = console_warn;
+    }
+}
+
 function MockPeer() {
     /*
      * Events triggered here:
@@ -95,8 +105,6 @@ function MockPeer() {
         window.setTimeout(function() {
             if (channel.valid)
                 $(channel).trigger("message", [payload]);
-            else
-                console.log("dropping message after close from MockPeer");
         }, 5);
     }
 
@@ -430,6 +438,8 @@ asyncTest("immediate close", function() {
 function failureTest(test_name, reason, response) {
     asyncTest(test_name, function() {
         expect(2);
+
+        console_ignore_warning(/received invalid rest-json.*/);
 
         var peer = new MockPeer();
         $(peer).on("get", function(event, channel, request) {

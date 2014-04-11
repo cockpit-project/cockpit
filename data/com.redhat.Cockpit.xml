@@ -33,6 +33,7 @@
   <interface name="com.redhat.Cockpit.Machines">
     <method name="Add">
       <arg name="address" type="s" direction="in"/>
+      <arg name="host_key" type="s" direction="in"/>
       <arg name="path" type="o" direction="out"/>
     </method>
   </interface>

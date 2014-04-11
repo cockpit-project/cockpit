@@ -59,6 +59,7 @@ struct _Machines
   GMutex lock;
   GArray *machines;  /* of Machine */
   gchar *machines_file;
+  gchar *known_hosts;
 };
 
 struct _MachinesClass
@@ -71,6 +72,7 @@ enum
   PROP_0,
   PROP_OBJECT_MANAGER,
   PROP_MACHINES_FILE,
+  PROP_KNOWN_HOSTS,
 };
 
 static void machines_iface_init (CockpitMachinesIface *iface);
@@ -166,6 +168,7 @@ machines_finalize (GObject *object)
   Machines *machines = MACHINES (object);
 
   g_free (machines->machines_file);
+  g_free (machines->known_hosts);
   g_mutex_clear (&machines->lock);
 
   G_OBJECT_CLASS (machines_parent_class)->finalize (object);
@@ -188,6 +191,9 @@ machines_set_property (GObject *object,
       break;
     case PROP_MACHINES_FILE:
       machines->machines_file = g_value_dup_string (value);
+      break;
+    case PROP_KNOWN_HOSTS:
+      machines->known_hosts = g_value_dup_string (value);
       break;
 
     default:
@@ -240,6 +246,7 @@ machines_class_init (MachinesClass *klass)
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
+
   /**
    * Machines:machines-file:
    *
@@ -249,6 +256,16 @@ machines_class_init (MachinesClass *klass)
             g_param_spec_string ("machines-file", NULL, NULL,
                                  PACKAGE_LOCALSTATE_DIR "/lib/cockpit/machines",
                                  G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * Machines:known-hosts:
+   *
+   * SSH style known_hosts file to update
+   */
+  g_object_class_install_property (gobject_class, PROP_KNOWN_HOSTS,
+           g_param_spec_string ("known-hosts", NULL, NULL,
+                                PACKAGE_LOCALSTATE_DIR "/lib/cockpit/known_hosts",
+                                G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
 /**
@@ -270,13 +287,66 @@ machines_new (GDBusObjectManagerServer *object_manager)
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static Machine *
-machines_add (Machines *machines, const gchar *address, GError **error)
+static gboolean
+update_known_hosts_inlock (Machines *machines,
+                           const gchar *address,
+                           const gchar *host_key,
+                           GError **error)
 {
-  Machine *machine;
+  GError *local_error = NULL;
+  gsize length = 0;
+  gchar *contents;
+  gchar *updated;
+  gchar *sep = "";
+
+  /* Read in the known hosts file */
+  if (!g_file_get_contents (machines->known_hosts, &contents, &length, &local_error))
+    {
+      if (!g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+        {
+          g_propagate_error (error, local_error);
+          return FALSE;
+        }
+      g_clear_error (&local_error);
+    }
+
+  if (length && contents[length - 1] != '\n')
+    sep = "\n";
+
+  /* Write out updated known hosts file */
+  updated = g_strdup_printf ("%s%s%s %s\n", contents ? contents : "",
+                             sep, address, host_key);
+  g_free (contents);
+
+  g_file_set_contents (machines->known_hosts, updated, -1, &local_error);
+  g_free (updated);
+
+  if (local_error)
+    {
+      g_propagate_error (error, local_error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static Machine *
+machines_add (Machines *machines,
+              const gchar *address,
+              const gchar *host_key,
+              GError **error)
+{
+  Machine *machine = NULL;
 
   g_mutex_lock (&machines->lock);
 
+  if (host_key && host_key[0])
+    {
+      if (!update_known_hosts_inlock (machines, address, host_key, error))
+        goto out;
+    }
+
+  /* Do we already have this machine? */
   for (int i = 0; i < machines->machines->len; i++)
     {
       machine = g_array_index (machines->machines, Machine *, i);
@@ -304,13 +374,14 @@ machines_add (Machines *machines, const gchar *address, GError **error)
 static gboolean
 handle_add (CockpitMachines *object,
             GDBusMethodInvocation *invocation,
-            const gchar *arg_address)
+            const gchar *arg_address,
+            const gchar *arg_host_key)
 {
   GError *error = NULL;
   Machines *machines = MACHINES (object);
   Machine *machine;
 
-  machine = machines_add (machines, arg_address, &error);
+  machine = machines_add (machines, arg_address, arg_host_key, &error);
   if (machine)
     {
       GDBusObject *obj = g_dbus_interface_get_object (G_DBUS_INTERFACE (machine));

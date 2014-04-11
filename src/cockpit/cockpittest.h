@@ -51,6 +51,16 @@ void     _cockpit_expect_logged_msg         (const char *domain,
 
 void     cockpit_assert_expected            (void);
 
+void     _cockpit_assert_strmatch_msg       (const char *domain,
+                                             const char *file,
+                                             int line,
+                                             const char *func,
+                                             const gchar *string,
+                                             const gchar *pattern);
+
+#define cockpit_assert_strmatch(str, pattern) \
+  (_cockpit_assert_strmatch_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (str), (pattern)))
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TEST_H__ */

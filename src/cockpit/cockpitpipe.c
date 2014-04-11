@@ -244,7 +244,20 @@ close_output (CockpitPipe *self)
         {
           if (errno == ENOTSOCK)
             {
+              g_debug ("%s: not a socket, closing entirely", self->priv->name);
               close (self->priv->out_fd);
+
+              if (self->priv->in_fd == self->priv->out_fd)
+                {
+                  self->priv->in_fd = -1;
+                  if (self->priv->in_poll)
+                    {
+                      g_source_remove_poll (self->priv->io, self->priv->in_poll);
+                      g_free (self->priv->in_poll);
+                      self->priv->in_poll = NULL;
+                    }
+                }
+
               self->priv->out_fd = -1;
             }
           else

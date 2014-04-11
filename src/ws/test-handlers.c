@@ -107,30 +107,6 @@ output_as_string (Test *test)
 }
 
 static void
-assert_matches_msg (const char *domain,
-                    const char *file,
-                    int line,
-                    const char *func,
-                    const gchar *string,
-                    const gchar *pattern)
-{
-  gchar *escaped;
-  gchar *msg;
-
-  if (!g_pattern_match_simple (pattern, string))
-    {
-      escaped = g_strescape (pattern, "");
-      msg = g_strdup_printf ("does not match: %s\n>>>\n%s\n<<<\n", escaped, string);
-      g_assertion_message (domain, file, line, func, msg);
-      g_free (escaped);
-      g_free (msg);
-    }
-}
-
-#define assert_matches(str, pattern) \
-  assert_matches_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (str), (pattern))
-
-static void
 skip_test (const gchar *reason)
 {
   /* Can't use g_test_skip() yet */
@@ -155,7 +131,7 @@ test_login_no_cookie (Test *test,
 
   g_assert (ret == TRUE);
 
-  assert_matches (output_as_string (test), "HTTP/1.1 401 Sorry\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Sorry\r\n*");
 }
 
 static void
@@ -202,7 +178,7 @@ test_login_with_cookie (Test *test,
   g_assert (ret == TRUE);
 
   expect = g_strdup_printf ("HTTP/1.1 200 OK\r\n*\r\n\r\n{\"user\"*:*\"%s\"*,*\"name\"*:*}", user);
-  assert_matches (output_as_string (test), expect);
+  cockpit_assert_strmatch (output_as_string (test), expect);
   g_free (expect);
 }
 
@@ -221,7 +197,7 @@ test_login_post_bad (Test *test,
                                test->io, test->headers, test->datain, test->dataout, &test->data);
 
   g_assert (ret == TRUE);
-  assert_matches (output_as_string (test), "HTTP/1.1 400 Malformed input\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 400 Malformed input\r\n*");
 }
 
 static void
@@ -239,7 +215,7 @@ test_login_post_fail (Test *test,
                                test->io, test->headers, test->datain, test->dataout, &test->data);
 
   g_assert (ret == TRUE);
-  assert_matches (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
 }
 
 static GHashTable *
@@ -289,7 +265,7 @@ test_login_post_accept (Test *test,
   g_assert (ret == TRUE);
 
   output = output_as_string (test);
-  assert_matches (output, "HTTP/1.1 200 OK\r\n*");
+  cockpit_assert_strmatch (output, "HTTP/1.1 200 OK\r\n*");
 
   /* Check that returned cookie that works */
   headers = split_headers (output);
@@ -332,8 +308,8 @@ test_cockpitdyn (Test *test,
                               hostname);
 
   output = output_as_string (test);
-  assert_matches (output, expected);
-  assert_matches (output, "*Content-Type: application/javascript\r\n*");
+  cockpit_assert_strmatch (output, expected);
+  cockpit_assert_strmatch (output, "*Content-Type: application/javascript\r\n*");
   g_free (expected);
 }
 

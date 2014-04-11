@@ -23,6 +23,8 @@
 
 #include <glib-object.h>
 
+#include <string.h>
+
 /*
  * HACK: We can't yet use g_test_expect_message() and friends.
  * They were pretty broken until GLib 2.40 if you have any debug
@@ -227,4 +229,48 @@ cockpit_assert_expected (void)
     }
 
   ignore_fatal_count = 0;
+}
+
+/**
+ * cockpit_assert_strmatch:
+ * @str: the string
+ * @pattern: to match
+ *
+ * Checks that @str matches the wildcard style @pattern
+ */
+void
+_cockpit_assert_strmatch_msg (const char *domain,
+                              const char *file,
+                              int line,
+                              const char *func,
+                              const gchar *string,
+                              const gchar *pattern)
+{
+  const gchar *suffix;
+  gchar *escaped;
+  gchar *msg;
+  int len;
+
+  if (!string || !g_pattern_match_simple (pattern, string))
+    {
+      escaped = g_strescape (pattern, "");
+      if (!string)
+        {
+          msg = g_strdup_printf ("'%s' does not match: (null)", escaped);
+        }
+      else
+        {
+          suffix = "";
+          len = strlen (string);
+          if (len > 256)
+            {
+              len = 256;
+              suffix = "\n...\n";
+            }
+          msg = g_strdup_printf ("'%s' does not match: %.*s%s", escaped, len, string, suffix);
+        }
+      g_assertion_message (domain, file, line, func, msg);
+      g_free (escaped);
+      g_free (msg);
+    }
 }

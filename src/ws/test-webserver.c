@@ -142,46 +142,6 @@ teardown (TestCase *tc,
 }
 
 static void
-assert_matches_msg (const char *domain,
-                    const char *file,
-                    int line,
-                    const char *func,
-                    const gchar *string,
-                    const gchar *pattern)
-{
-  const gchar *suffix;
-  gchar *escaped;
-  gchar *msg;
-  int len;
-
-  if (!string || !g_pattern_match_simple (pattern, string))
-    {
-      escaped = g_strescape (pattern, "");
-      if (!string)
-        {
-          msg = g_strdup_printf ("'%s' does not match: (null)", escaped);
-        }
-      else
-        {
-          suffix = "";
-          len = strlen (string);
-          if (len > 256)
-            {
-              len = 256;
-              suffix = "\n...\n";
-            }
-          msg = g_strdup_printf ("'%s' does not match: %.*s%s", escaped, len, string, suffix);
-        }
-      g_assertion_message (domain, file, line, func, msg);
-      g_free (escaped);
-      g_free (msg);
-    }
-}
-
-#define assert_matches(str, pattern) \
-  assert_matches_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (str), (pattern))
-
-static void
 test_table (void)
 {
   GHashTable *table;
@@ -479,7 +439,7 @@ test_webserver_redirect_notls (TestCase *tc,
     }
 
   resp = perform_http_request (tc->hostport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
-  assert_matches (resp, "HTTP/* 301 *\r\nLocation: https://*");
+  cockpit_assert_strmatch (resp, "HTTP/* 301 *\r\nLocation: https://*");
   g_free (resp);
 }
 
@@ -490,7 +450,7 @@ test_webserver_noredirect_localhost (TestCase *tc,
   gchar *resp;
 
   resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
-  assert_matches (resp, "HTTP/* 200 *\r\n*");
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
 

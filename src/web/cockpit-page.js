@@ -187,6 +187,23 @@ function cockpit_go_up ()
         cockpit_go (cockpit_loc_trail.slice(0, cockpit_loc_trail.length-1));
 }
 
+function cockpit_go_server (machine, extra)
+{
+    var loc = [ { page: "server",
+                  machine: machine
+                }
+              ];
+
+    if (extra)
+        loc = loc.concat(extra);
+
+    if (cockpit_loc_trail.length > 1 && cockpit_loc_trail[0].page == "dashboard")
+        loc =[ { page: "dashboard" } ].concat(loc);
+
+    cockpit_go(loc);
+}
+
+
 function cockpit_encode_trail (trail)
 {
     function encode (p)
@@ -200,16 +217,11 @@ function cockpit_encode_trail (trail)
         return res;
     }
 
-    var hash;
-    if (trail.length == 1 && trail[0].page == "dashboard")
-        hash = encode(trail[0]);
-    else {
-        hash = '';
-        for (var i = 1; i < trail.length; i++) {
-            hash += encode(trail[i]);
-            if (i < trail.length-1)
-                hash += '&';
-        }
+    var hash = '';
+    for (var i = 0; i < trail.length; i++) {
+        hash += encode(trail[i]);
+        if (i < trail.length-1)
+            hash += '&';
     }
 
     return '#' + hash;
@@ -238,8 +250,6 @@ function cockpit_decode_trail (hash)
         }
         trail.push(p);
     }
-    if (trail[0].page != "dashboard")
-        trail = [ { page: 'dashboard' } ].concat(trail);
 
     return trail;
 }

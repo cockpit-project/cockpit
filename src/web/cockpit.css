@@ -691,15 +691,20 @@ a {
     padding: 1em;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 0;
+    margin-top: 2em;
     margin-bottom: 2em;
-    float: right;
     line-height: 1;
+    font-size: 10pt;
 }
 
-@media (min-width: 1280px) {
-    .terminal-emulator {
-	font-size: 10pt;
+.container-fluid .terminal-emulator {
+    margin-top: 0;
+    float: right;
+}
+
+@media (max-width: 1350px) {
+    .container-fluid .terminal-emulator {
+	font-size: 11px;
     }
 }
 

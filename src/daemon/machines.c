@@ -54,10 +54,11 @@ struct _Machines
 {
   CockpitMachinesSkeleton parent_instance;
 
-  Daemon *daemon;
+  GDBusObjectManagerServer *object_manager;
 
   GMutex lock;
   GArray *machines;  /* of Machine */
+  gchar *machines_file;
 };
 
 struct _MachinesClass
@@ -68,7 +69,8 @@ struct _MachinesClass
 enum
 {
   PROP_0,
-  PROP_DAEMON
+  PROP_OBJECT_MANAGER,
+  PROP_MACHINES_FILE,
 };
 
 static void machines_iface_init (CockpitMachinesIface *iface);
@@ -77,8 +79,6 @@ G_DEFINE_TYPE_WITH_CODE (Machines, machines, COCKPIT_TYPE_MACHINES_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_MACHINES, machines_iface_init));
 
 /* ---------------------------------------------------------------------------------------------------- */
-
-#define MACHINES_FILE PACKAGE_LOCALSTATE_DIR "/lib/cockpit/machines"
 
 static gboolean
 machines_write_inlock (Machines *machines, GError **error)
@@ -91,7 +91,7 @@ machines_write_inlock (Machines *machines, GError **error)
   gs_free gchar *data = g_key_file_to_data (file, NULL, NULL);
   g_key_file_free (file);
 
-  return g_file_set_contents (MACHINES_FILE, data, -1, error);
+  return g_file_set_contents (machines->machines_file, data, -1, error);
 }
 
 gboolean
@@ -109,7 +109,7 @@ static Machine *
 machines_new_machine (Machines *machines)
 {
   gs_free gchar *id = g_strdup_printf ("%d", machines->machines->len);
-  Machine *machine = MACHINE (machine_new (machines->daemon, id));
+  Machine *machine = MACHINE (machine_new (machines, id));
   g_object_ref_sink (machine);
   g_array_append_val (machines->machines, machine);
   return machine;
@@ -127,7 +127,7 @@ machines_read (Machines *machines)
   g_array_set_size (machines->machines, 0);
 
   file = g_key_file_new();
-  if (!g_key_file_load_from_file (file, MACHINES_FILE, 0, &error))
+  if (!g_key_file_load_from_file (file, machines->machines_file, 0, &error))
     {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
         {
@@ -137,11 +137,11 @@ machines_read (Machines *machines)
           Machine *machine = machines_new_machine (machines);
           cockpit_machine_set_address (COCKPIT_MACHINE (machine), address);
           cockpit_machine_set_tags (COCKPIT_MACHINE (machine), tags);
-          machine_export (machine);
+          machine_export (machine, machines->object_manager);
           machines_write_inlock (machines, NULL);
         }
       else
-        g_warning ("Can't read %s: %s", MACHINES_FILE, error->message);
+        g_warning ("Can't read %s: %s", machines->machines_file, error->message);
       goto out;
     }
 
@@ -150,7 +150,7 @@ machines_read (Machines *machines)
     {
       Machine *machine = machines_new_machine (machines);
       machine_read (machine, file, groups[i]);
-      machine_export (machine);
+      machine_export (machine, machines->object_manager);
     }
 
  out:
@@ -165,29 +165,10 @@ machines_finalize (GObject *object)
 {
   Machines *machines = MACHINES (object);
 
+  g_free (machines->machines_file);
   g_mutex_clear (&machines->lock);
 
   G_OBJECT_CLASS (machines_parent_class)->finalize (object);
-}
-
-static void
-machines_get_property (GObject *object,
-                       guint prop_id,
-                       GValue *value,
-                       GParamSpec *pspec)
-{
-  Machines *machines = MACHINES (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_value_set_object (value, machines_get_daemon (machines));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
 }
 
 static void
@@ -200,10 +181,13 @@ machines_set_property (GObject *object,
 
   switch (prop_id)
     {
-    case PROP_DAEMON:
-      g_assert (machines->daemon == NULL);
-      /* we don't take a reference to the daemon */
-      machines->daemon = g_value_get_object (value);
+    case PROP_OBJECT_MANAGER:
+      g_assert (machines->object_manager == NULL);
+      /* we don't take a reference to the object manager */
+      machines->object_manager = g_value_get_object (value);
+      break;
+    case PROP_MACHINES_FILE:
+      machines->machines_file = g_value_dup_string (value);
       break;
 
     default:
@@ -241,55 +225,47 @@ machines_class_init (MachinesClass *klass)
   gobject_class->finalize     = machines_finalize;
   gobject_class->constructed  = machines_constructed;
   gobject_class->set_property = machines_set_property;
-  gobject_class->get_property = machines_get_property;
 
   /**
-   * Machines:daemon:
+   * Machines:object-manager:
    *
-   * The #Daemon for the object.
+   * Object Manager to add objects to
    */
   g_object_class_install_property (gobject_class,
-                                   PROP_DAEMON,
-                                   g_param_spec_object ("daemon",
+                                   PROP_OBJECT_MANAGER,
+                                   g_param_spec_object ("object-manager",
                                                         NULL,
                                                         NULL,
-                                                        TYPE_DAEMON,
-                                                        G_PARAM_READABLE |
+                                                        G_TYPE_DBUS_OBJECT_MANAGER_SERVER,
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
+  /**
+   * Machines:machines-file:
+   *
+   * The file to write out machine addresses to
+   */
+  g_object_class_install_property (gobject_class, PROP_MACHINES_FILE,
+            g_param_spec_string ("machines-file", NULL, NULL,
+                                 PACKAGE_LOCALSTATE_DIR "/lib/cockpit/machines",
+                                 G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
 /**
  * machines_new:
- * @daemon: A #Daemon.
+ * @object_manager: object manager to export dbus interfaces
  *
  * Creates a new #Machines instance.
  *
  * Returns: A new #Machines. Free with g_object_unref().
  */
 CockpitMachines *
-machines_new (Daemon *daemon)
+machines_new (GDBusObjectManagerServer *object_manager)
 {
-  g_return_val_if_fail (IS_DAEMON (daemon), NULL);
+  g_return_val_if_fail (G_IS_DBUS_OBJECT_MANAGER_SERVER (object_manager), NULL);
   return COCKPIT_MACHINES (g_object_new (COCKPIT_TYPE_DAEMON_MACHINES,
-                                        "daemon", daemon,
+                                        "object-manager", object_manager,
                                          NULL));
-}
-
-/**
- * machines_get_daemon:
- * @machines: A #Machines.
- *
- * Gets the daemon used by @machines.
- *
- * Returns: A #Daemon. Do not free, the object is owned by @machines.
- */
-Daemon *
-machines_get_daemon (Machines *machines)
-{
-  g_return_val_if_fail (COCKPIT_IS_DAEMON_MACHINES (machines), NULL);
-  return machines->daemon;
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -310,7 +286,7 @@ machines_add (Machines *machines, const gchar *address, GError **error)
 
   machine = machines_new_machine (machines);
   cockpit_machine_set_address (COCKPIT_MACHINE (machine), address);
-  machine_export (machine);
+  machine_export (machine, machines->object_manager);
 
   if (!machines_write_inlock (machines, error))
     {

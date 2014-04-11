@@ -21,6 +21,8 @@
 
 #include "cockpitwebserver.h"
 
+#include "cockpit/cockpittest.h"
+
 #include "websocket/websocket.h"
 #include "websocket/websocketprivate.h"
 
@@ -135,6 +137,8 @@ teardown (TestCase *tc,
 
   g_free (tc->localport);
   g_free (tc->hostport);
+
+  cockpit_assert_expected ();
 }
 
 static void
@@ -245,6 +249,8 @@ test_return_error (void)
   GOutputStream *out;
   const gchar *data;
 
+  cockpit_expect_message ("Returning error-response 500*");
+
   out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
 
   cockpit_web_server_return_error (out, 500, NULL, "Reason here: %s", "booyah");
@@ -265,6 +271,8 @@ test_return_error_headers (void)
   GOutputStream *out;
   const gchar *data;
   GHashTable *headers;
+
+  cockpit_expect_message ("Returning error-response 500*");
 
   out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
 
@@ -292,6 +300,8 @@ test_return_gerror_headers (void)
   const gchar *data;
   GHashTable *headers;
   GError *error;
+
+  cockpit_expect_message ("Returning error-response 500*");
 
   out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
 
@@ -416,6 +426,8 @@ test_webserver_not_found (TestCase *tc,
   guint status;
   gssize off;
 
+  cockpit_expect_message ("Returning error-response 404*");
+
   resp = perform_http_request (tc->localport, "GET /non-existent\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
@@ -435,6 +447,8 @@ test_webserver_not_authorized (TestCase *tc,
   gsize length;
   guint status;
   gssize off;
+
+  cockpit_expect_message ("Returning error-response 403*");
 
   /* Listing a directory will result in 403 (except / -> index.html) */
   resp = perform_http_request (tc->localport, "GET /po\r\n\r\n", &length);
@@ -493,7 +507,7 @@ main (int argc,
 #endif
 
   g_set_prgname ("test-webserver");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/web-server/table", test_table);
   g_test_add_func ("/web-server/return-content", test_return_content);

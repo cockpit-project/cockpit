@@ -34,6 +34,9 @@ void     _cockpit_expect_logged_msg         (const char *domain,
                                              GLogLevelFlags log_level,
                                              const gchar *pattern);
 
+#define cockpit_expect_log(domain, level, pattern) \
+  (_cockpit_expect_logged_msg ((domain), __FILE__, __LINE__, G_STRFUNC, (level), (pattern)))
+
 #define cockpit_expect_warning(pattern) \
   (_cockpit_expect_logged_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, G_LOG_LEVEL_WARNING, (pattern)))
 

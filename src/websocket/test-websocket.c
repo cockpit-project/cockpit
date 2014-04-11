@@ -27,11 +27,6 @@
 
 #include <string.h>
 
-/*
- * TODO: Use g_test_expect_message() to quieten things down once this lands:
- * https://bugzilla.gnome.org/show_bug.cgi?id=710991
- */
-
 typedef struct {
   WebSocketConnection *client;
   WebSocketConnection *server;
@@ -41,6 +36,18 @@ typedef struct {
   WebSocketFlavor flavor;
   const gchar *flavor_name;
 } FlavorFixture;
+
+static void
+null_log_handler (const gchar *log_domain,
+                  GLogLevelFlags log_level,
+                  const gchar *message,
+                  gpointer user_data)
+{
+  /*
+   * TODO: Use g_test_expect_message() to quieten things down once this lands:
+   * https://bugzilla.gnome.org/show_bug.cgi?id=710991
+   */
+}
 
 #define WAIT_UNTIL(cond) \
   G_STMT_START \
@@ -651,6 +658,7 @@ test_send_bad_data (Test *test,
   GIOStream *io;
   gsize written;
   const gchar *frame;
+  guint logid;
 
   g_signal_handlers_disconnect_by_func (test->server, on_error_not_reached, NULL);
   g_signal_connect (test->server, "error", G_CALLBACK (on_error_copy), &error);
@@ -658,6 +666,8 @@ test_send_bad_data (Test *test,
   WAIT_UNTIL (web_socket_connection_get_ready_state (test->client) != WEB_SOCKET_STATE_CONNECTING);
 
   io = web_socket_connection_get_io_stream (test->client);
+
+  logid = g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, null_log_handler, NULL);
 
   /* Bad UTF-8 raw frames, for each flavor */
   flavor = web_socket_connection_get_flavor (test->client);
@@ -681,6 +691,8 @@ test_send_bad_data (Test *test,
     g_assert_cmpuint (web_socket_connection_get_close_code (test->client), ==, WEB_SOCKET_CLOSE_BAD_DATA);
 
   g_error_free (error);
+
+  g_log_remove_handler (G_LOG_DOMAIN, logid);
 }
 
 static void
@@ -703,6 +715,7 @@ test_protocol_mismatch (Test *test,
                         gconstpointer unused)
 {
   GError *error = NULL;
+  guint logid;
 
   const gchar *server_protocols[] = { "aaa", "bbb", "ccc", NULL };
   const gchar *client_protocols[] = { "ddd", NULL };
@@ -711,6 +724,8 @@ test_protocol_mismatch (Test *test,
   g_signal_handlers_disconnect_by_func (test->server, on_error_not_reached, NULL);
   g_signal_connect (test->client, "error", G_CALLBACK (on_error_copy), &error);
 
+  logid = g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, null_log_handler, NULL);
+
   g_object_set (test->server, "protocols", server_protocols, NULL);
   g_object_set (test->client, "protocols", client_protocols, NULL);
 
@@ -718,6 +733,8 @@ test_protocol_mismatch (Test *test,
 
   g_assert_error (error, WEB_SOCKET_ERROR, WEB_SOCKET_CLOSE_PROTOCOL);
   g_error_free (error);
+
+  g_log_remove_handler (G_LOG_DOMAIN, logid);
 }
 
 static void
@@ -1151,6 +1168,7 @@ test_bad_hixie76_keys (Test *unused,
   gsize count;
   GError *error = NULL;
   gchar *handshake;
+  guint logid;
 
   create_iostream_pair (&ioc, &ios);
 
@@ -1169,6 +1187,8 @@ test_bad_hixie76_keys (Test *unused,
     g_assert_not_reached ();
   g_assert_cmpint (count, ==, strlen (handshake));
 
+  logid = g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, null_log_handler, NULL);
+
   server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL,
                                              NULL, ios, NULL, NULL);
   g_signal_connect (server, "error", G_CALLBACK (on_error_copy), &error);
@@ -1184,6 +1204,8 @@ test_bad_hixie76_keys (Test *unused,
   g_object_unref (server);
   g_object_unref (ioc);
   g_object_unref (ios);
+
+  g_log_remove_handler (G_LOG_DOMAIN, logid);
 }
 
 static void

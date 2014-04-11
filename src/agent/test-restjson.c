@@ -22,6 +22,7 @@
 #include "cockpitrestjson.h"
 
 #include "cockpit/cockpitjson.h"
+#include "cockpit/cockpittest.h"
 
 #include "websocket/websocket.h"
 
@@ -813,6 +814,8 @@ test_bad_json (TestCase *tc,
 {
   tc->server->slowly = TRUE;
 
+  cockpit_expect_message ("*invalid JSON received in response to REST request");
+
   mock_server_response (tc->server, "GET", "/", 200, "{ ");
 
   simple_request (tc, "GET", "/");
@@ -828,6 +831,8 @@ test_bad_status (TestCase *tc,
                  gconstpointer unused)
 {
   tc->server->slowly = TRUE;
+
+  cockpit_expect_message ("*received response with bad HTTP status line");
 
   mock_server_push (tc->server, "GET", "/", "BLAH\r\n");
 
@@ -845,6 +850,8 @@ test_bad_truncated (TestCase *tc,
 {
   tc->server->slowly = TRUE;
 
+  cockpit_expect_message ("*received truncated HTTP response");
+
   mock_server_push (tc->server, "GET", "/", "BL");
 
   simple_request (tc, "GET", "/");
@@ -860,6 +867,8 @@ test_bad_version (TestCase *tc,
                   gconstpointer unused)
 {
   tc->server->slowly = TRUE;
+
+  cockpit_expect_message ("*received response with bad HTTP status line");
 
   mock_server_push (tc->server, "GET", "/", "HTTP/2.0 200 OK\r\n\r\n");
 
@@ -917,6 +926,8 @@ test_bad_content_length (TestCase *tc,
                          gconstpointer unused)
 {
   tc->server->slowly = TRUE;
+
+  cockpit_expect_message ("*received invalid Content-Length*");
 
   mock_server_push (tc->server, "GET", "/",
                     "HTTP/1.0 200 OK\r\nContent-Length: blah\r\n\r\n");
@@ -1169,6 +1180,12 @@ test_bad_unix_socket (void)
   options = json_object_new ();
   json_object_set_string_member (options, "unix", "/non-existant");
 
+  /* For the four iterations below */
+  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+
   channel = g_object_new (COCKPIT_TYPE_REST_JSON,
                           "options", options,
                           "transport", transport,
@@ -1211,7 +1228,7 @@ main (int argc,
   g_type_init ();
 
   g_set_prgname ("test-restjson");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add ("/rest-json/simple", TestCase, NULL,
               setup, test_simple, teardown);

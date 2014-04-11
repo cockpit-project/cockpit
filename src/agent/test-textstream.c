@@ -22,6 +22,8 @@
 
 #include "cockpittextstream.h"
 
+#include "cockpit/cockpittest.h"
+
 #include <json-glib/json-glib.h>
 
 #include <glib/gstdio.h>
@@ -311,7 +313,10 @@ teardown (TestCase *tc,
       g_object_unref (tc->channel);
       g_assert (tc->channel == NULL);
     }
+
+  cockpit_assert_expected ();
 }
+
 static void
 expect_control_message (GBytes *payload,
                         const gchar *command,
@@ -513,6 +518,8 @@ test_fail_not_found (void)
   CockpitChannel *channel;
   gchar *problem = NULL;
 
+  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+
   transport = g_object_new (mock_transport_get_type (), NULL);
   channel = cockpit_text_stream_open (transport, 1, "/non-existent");
   g_assert (channel != NULL);
@@ -527,6 +534,8 @@ test_fail_not_found (void)
   g_free (problem);
   g_object_unref (channel);
   g_object_unref (transport);
+
+  cockpit_assert_expected ();
 }
 
 static void
@@ -543,6 +552,8 @@ test_fail_not_authorized (void)
       test_skip ("running as root");
       return;
     }
+
+  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
 
   unix_path = g_strdup ("/tmp/cockpit-test-XXXXXX.sock");
   fd = g_mkstemp (unix_path);
@@ -567,6 +578,8 @@ test_fail_not_authorized (void)
   close (fd);
   g_object_unref (channel);
   g_object_unref (transport);
+
+  cockpit_assert_expected ();
 }
 
 int
@@ -576,7 +589,7 @@ main (int argc,
   g_type_init ();
 
   g_set_prgname ("test-textstream");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add ("/text-stream/echo", TestCase, NULL,
               setup_channel, test_echo, teardown);

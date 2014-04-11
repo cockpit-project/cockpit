@@ -79,15 +79,15 @@ COCKPIT_CHECKS = \
 	test-transport \
 	$(NULL)
 
-test_json_CFLAGS = $(cockpit_ws_CFLAGS)
+test_json_CFLAGS = $(libcockpit_a_CFLAGS)
 test_json_SOURCES = src/cockpit/test-json.c
 test_json_LDADD = $(libcockpit_a_LIBS)
 
-test_pipe_CFLAGS = $(cockpit_ws_CFLAGS)
+test_pipe_CFLAGS = $(libcockpit_a_CFLAGS)
 test_pipe_SOURCES = src/cockpit/test-pipe.c
 test_pipe_LDADD = $(libcockpit_a_LIBS)
 
-test_transport_CFLAGS = $(cockpit_ws_CFLAGS)
+test_transport_CFLAGS = $(libcockpit_a_CFLAGS)
 test_transport_SOURCES = src/cockpit/test-transport.c
 test_transport_LDADD = $(libcockpit_a_LIBS)
 

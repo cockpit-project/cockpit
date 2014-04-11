@@ -546,6 +546,63 @@ test_spawn_environ (void)
 }
 
 static void
+test_spawn_pty (void)
+{
+  MockTransport *transport;
+  CockpitChannel *channel;
+  gchar *problem = NULL;
+  JsonObject *options;
+  JsonArray *array;
+  GBytes *sent;
+  GString *received;
+  gconstpointer data;
+  gsize len;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  options = json_object_new ();
+  array = json_array_new ();
+  json_array_add_string_element (array, "/bin/bash");
+  json_array_add_string_element (array, "/bin/-i");
+  json_object_set_array_member (options, "spawn", array);
+  json_object_set_string_member (options, "payload", "text-stream");
+  json_object_set_boolean_member (options, "pty", TRUE);
+
+  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+                          "options", options,
+                          "channel", 548,
+                          "transport", transport,
+                          NULL);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  json_object_unref (options);
+
+  sent = g_bytes_new ("echo booyah\nexit\n", 17);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), 548, sent);
+  g_bytes_unref (sent);
+
+  received = g_string_new ("");
+  while (!problem)
+    {
+      g_main_context_iteration (NULL, TRUE);
+      if (transport->payload_sent)
+        {
+          data = g_bytes_get_data (transport->payload_sent, &len);
+          g_string_append_len (received, data, len);
+          g_bytes_unref (transport->payload_sent);
+          transport->channel_sent = G_MAXUINT;
+          transport->payload_sent = NULL;
+        }
+    }
+
+  g_assert (strstr (received->str, "booyah") != NULL);
+
+  g_assert_cmpstr (problem, ==, "");
+  g_object_unref (channel);
+
+  g_object_unref (transport);
+}
+
+static void
 test_send_invalid (TestCase *tc,
                    gconstpointer unused)
 {
@@ -678,6 +735,7 @@ main (int argc,
 
   g_test_add_func ("/text-stream/spawn/simple", test_spawn_simple);
   g_test_add_func ("/text-stream/spawn/environ", test_spawn_environ);
+  g_test_add_func ("/text-stream/spawn/pty", test_spawn_pty);
 
   g_test_add_func ("/test-stream/fail/not-found", test_fail_not_found);
   g_test_add_func ("/test-stream/fail/not-authorized", test_fail_not_authorized);

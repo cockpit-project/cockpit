@@ -236,6 +236,7 @@ this payload type:
  * "environ": If "spawn" is set, then this is the environment for the new
    spawned process. If unset, then the environment is inherited from the
    agent.
+ * "pty": If "spawn" is set, then execute the command as a terminal pty.
 
 You can't specify both "unix" and "spawn" together.
 

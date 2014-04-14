@@ -27,37 +27,27 @@ class TestTerminal(MachineCase):
 
         self.login_and_go("terminal")
 
-        b.set_val('#terminal-in', "")
-        b.focus('#terminal-in')
+        def line_sel(i):
+            return '#rescue-terminal .terminal div:nth-child(%d)' % i
+
+        def line_text(t):
+            return t + u'\xa0'*(80-len(t))
+
+        def wait_line(i,t):
+            b.wait_text(line_sel(i), line_text(t))
+
+        b.focus('#rescue-terminal .terminal')
+
+        # wait for prompt in first line and remember it
+        b.wait_text_not(line_sel(1), line_text(""))
+        prompt = b.text(line_sel(1))
+
+        # Run some commands
         b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
-        b.wait_in_text('#terminal-out', "# whoami\nroot")
-        b.wait_val('#terminal-in', "")
+        wait_line(2, "admin")
 
-        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'A', 'B', 'C', 'Return' ])
-        b.wait_val('#terminal-in', "")
-        b.wait_in_text('#terminal-out', "# echo ABC\nABC")
-        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'D', 'E', 'F', 'Return' ])
-        b.wait_val('#terminal-in', "")
-        b.wait_in_text('#terminal-out', "# echo DEF\nDEF")
-        b.key_press([ 'Up' ])
-        b.wait_val('#terminal-in', "echo DEF")
-        b.key_press([ 'Up' ])
-        b.wait_val('#terminal-in', "echo ABC")
-        b.key_press([ 'End', '1', '2', '3', 'Down', 'Down' ])
-        b.wait_val('#terminal-in', "")
-        b.key_press([ 'Up', 'Up' ])
-        b.wait_val('#terminal-in', "echo ABC123")
-        b.key_press([ 'Down', 'Down' ])
-        b.wait_val('#terminal-in', "")
-
-        b.set_val('#terminal-in', "echo '<blink>!</blink>'")
-        b.key_press([ 'Return' ])
-        b.wait_val('#terminal-in', "")
-        b.wait_in_text('#terminal-out', "# echo '<blink>!</blink>'\n<blink>!</blink>")
-
-        b.set_val('#terminal-in', "echo öüä")
-        b.key_press([ 'Return' ])
-        b.wait_val('#terminal-in', "")
-        b.wait_in_text('#terminal-out', "# echo öüä\nöüä")
+        wait_line(3, prompt)
+        b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ä', 'ö', 'ü', 'Return' ])
+        wait_line(4, u'äöü')
 
 test_main()

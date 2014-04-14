@@ -920,9 +920,6 @@ int
 main (int argc,
       char *argv[])
 {
-  g_type_init ();
-
-  g_set_prgname ("test-pipe");
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/pipe/buffer/consume-entire", test_consume_entire);

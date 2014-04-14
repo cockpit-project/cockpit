@@ -262,11 +262,14 @@ _cockpit_assert_strmatch_msg (const char *domain,
         {
           suffix = "";
           len = strlen (string);
-          if (len > 256)
+
+          /* To avoid insane output */
+          if (len > 8192)
             {
-              len = 256;
+              len = 8192;
               suffix = "\n...\n";
             }
+
           msg = g_strdup_printf ("'%s' does not match: %.*s%s", escaped, len, string, suffix);
         }
       g_assertion_message (domain, file, line, func, msg);

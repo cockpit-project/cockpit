@@ -341,7 +341,7 @@ PageContainers.prototype = {
                 else
                     msg = ex.toString();
                 $("#containers-failure").show();
-                $("#containers-failure span").text(msg);
+                $("#containers-failure span.alert-message").text(msg);
             });
         }
 

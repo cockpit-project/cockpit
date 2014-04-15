@@ -56,7 +56,7 @@ gboolean           cockpit_web_server_parse_cookies (GHashTable *headers,
 
 void              cockpit_web_server_return_content (GOutputStream *out,
                                                      GHashTable *headers,
-                                                     gpointer content,
+                                                     gconstpointer content,
                                                      gsize length);
 
 void               cockpit_web_server_return_error  (GOutputStream *out,

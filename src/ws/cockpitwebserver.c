@@ -386,7 +386,7 @@ return_response (GOutputStream *out,
                  gint status,
                  gchar *reason,
                  GHashTable *headers,
-                 gpointer content,
+                 gconstpointer content,
                  gsize length)
 {
   GHashTableIter iter;
@@ -427,7 +427,7 @@ out:
 void
 cockpit_web_server_return_content (GOutputStream *out,
                                    GHashTable *headers,
-                                   gpointer content,
+                                   gconstpointer content,
                                    gsize length)
 {
   return_response (out, 200, "OK", headers, content, length);

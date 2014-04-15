@@ -623,7 +623,7 @@ on_web_socket_message (WebSocketConnection *web_socket,
         }
       else
         {
-          g_message ("Received message for unknown channel: %u", channel);
+          g_debug ("Received message for unknown channel: %u", channel);
         }
     }
 

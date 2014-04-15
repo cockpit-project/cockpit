@@ -293,6 +293,24 @@ test_cockpitdyn (Test *test,
   g_free (expected);
 }
 
+static void
+test_logout (Test *test,
+             gconstpointer data)
+{
+  const gchar *output;
+  gboolean ret;
+
+  ret = cockpit_handler_logout (test->server,
+                                COCKPIT_WEB_SERVER_REQUEST_GET, "/logout",
+                                test->io, test->headers,
+                                test->datain, test->dataout, &test->data);
+
+  g_assert (ret == TRUE);
+
+  output = output_as_string (test);
+  cockpit_assert_strmatch (output, "HTTP/1.1 200 OK\r\n*Set-Cookie: CockpitAuth=blank;*Logged out*");
+}
+
 int
 main (int argc,
       char *argv[])
@@ -309,6 +327,9 @@ main (int argc,
               setup, test_login_post_fail, teardown);
   g_test_add ("/handlers/login/post-accept", Test, NULL,
               setup, test_login_post_accept, teardown);
+
+  g_test_add ("/handlers/logout", Test, NULL,
+              setup, test_logout, teardown);
 
   g_test_add ("/handlers/cockpitdyn", Test, NULL,
               setup, test_cockpitdyn, teardown);

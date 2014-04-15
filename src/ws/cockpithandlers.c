@@ -223,33 +223,21 @@ cockpit_handler_logout (CockpitWebServer *server,
                         GDataOutputStream *out,
                         CockpitHandlerData *ws)
 {
-  GError *error = NULL;
-  gchar *buf;
+  GHashTable *out_headers;
   const gchar *body;
+  gchar *cookie;
 
   body ="<html><head><title>Logged out</title></head>"
-    "<body>Please log in again</body></html>";
+    "<body>Logged out</body></html>";
 
-  buf = g_strdup_printf ("HTTP/1.1 200 OK\r\n"
-                         "Set-Cookie: CockpitAuth=blank; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly\r\n"
-                         "Content-Length: %d\r\n"
-                         "Connection: close\r\n"
-                         "\r\n"
-                         "%s",
-                         ws->certificate != NULL ? " Secure;" : "",
-                         (gint)strlen (body),
-                         body);
+  cookie = g_strdup_printf ("CockpitAuth=blank; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly\r\n",
+                            ws->certificate != NULL ? " Secure;" : "");
 
-  if (!g_output_stream_write_all (G_OUTPUT_STREAM (out), buf, strlen (buf), NULL, NULL, &error))
-    {
-      g_warning ("Error sending /logout response: %s (%s, %d)",
-                 error->message, g_quark_to_string (error->domain), error->code);
-      g_error_free (error);
-      goto out;
-    }
+  out_headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), cookie);
+  cockpit_web_server_return_content (G_OUTPUT_STREAM (out), out_headers, body, strlen (body));
+  g_hash_table_unref (out_headers);
 
-out:
-  g_free (buf);
   return TRUE;
 }
 

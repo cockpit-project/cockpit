@@ -79,8 +79,7 @@ class TestLogin(MachineCase):
                             "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
 
         # Reloading might trigger this.
-        self.allow_journal_messages("Error receiving data: Connection reset by peer",
-                                    "localhost: No handler for received message in channel .*, closing")
+        self.allow_journal_messages("Error receiving data: Connection reset by peer")
 
     def curl_post(self, url, data):
         return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',

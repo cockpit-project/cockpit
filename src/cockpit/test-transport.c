@@ -413,39 +413,6 @@ test_read_truncated (void)
 }
 
 static void
-test_no_handler (void)
-{
-  CockpitTransport *transport;
-  gchar *problem = NULL;
-  GBytes *payload;
-  gint fds[2];
-
-  if (pipe(fds) < 0)
-    g_assert_not_reached ();
-
-  cockpit_expect_warning ("*No handler for received message*");
-
-  /* Pass in a read end of the pipe */
-  transport = cockpit_pipe_transport_new ("test", fds[0], fds[1]);
-  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-
-  /* Emit a message, in a channel without a handler */
-  payload = g_bytes_new ("test", 4);
-  cockpit_transport_emit_recv (transport, 555, payload);
-  g_bytes_unref (payload);
-
-  while (problem == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_assert_cmpstr (problem, ==, "protocol-error");
-  g_free (problem);
-
-  g_object_unref (transport);
-
-  cockpit_assert_expected ();
-}
-
-static void
 test_parse_frame (void)
 {
   GBytes *message;
@@ -643,7 +610,6 @@ main (int argc,
   g_test_add_func ("/transport/write-error", test_write_error);
   g_test_add_func ("/transport/read-combined", test_read_combined);
   g_test_add_func ("/transport/read-truncated", test_read_truncated);
-  g_test_add_func ("/transport/no-handler", test_no_handler);
 
   return g_test_run ();
 }

@@ -78,9 +78,9 @@ test_textstream_SOURCES = src/agent/test-textstream.c
 test_textstream_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_textstream_LDADD = $(libcockpit_agent_LIBS)
 
+nodist_test_fakemanager_SOURCES = $(test_dbus_generated)
 test_fakemanager_SOURCES = \
 	src/agent/test-fakemanager.c \
-	$(test_dbus_generated) \
 	$(mock_dbus_sources)
 test_fakemanager_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_fakemanager_LDADD = $(libcockpit_agent_LIBS)

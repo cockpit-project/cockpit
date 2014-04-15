@@ -274,12 +274,6 @@ main (int argc,
   if (!opt_disable_auth)
     data.auth = cockpit_auth_new ();
 
-  data.system_bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, error);
-  if (data.system_bus == NULL)
-    {
-      g_prefix_error (error, "Error getting system bus: ");
-      goto out;
-    }
   data.agent_program = opt_agent_program;
 
   server = cockpit_web_server_new (opt_port,
@@ -331,7 +325,6 @@ out:
     }
   g_clear_object (&server);
   g_clear_object (&data.auth);
-  g_clear_object (&data.system_bus);
   g_clear_object (&data.certificate);
   return ret;
 }

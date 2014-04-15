@@ -76,9 +76,7 @@ class TestSession(MachineCase):
         self.allow_journal_messages("peer did not close io when expected",
                                     "Error receiving data: Connection reset by peer",
                                     # Might happen when killing the agent.
-                                    "localhost: dropping message while waiting for child to exit",
-                                    "Received message for unknown channel: .*",
-                                    "localhost: No handler for received message in channel .*, closing")
+                                    "localhost: dropping message while waiting for child to exit")
 
 
 test_main ()

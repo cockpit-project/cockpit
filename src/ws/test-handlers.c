@@ -36,8 +36,6 @@
 
 #define PASSWORD "this is the password"
 
-static GDBusConnection *system_bus = NULL;
-
 typedef struct {
   CockpitHandlerData data;
   CockpitWebServer *server;
@@ -68,7 +66,6 @@ setup (Test *test,
   test->auth = mock_auth_new (user, PASSWORD);
 
   test->data.auth = test->auth;
-  test->data.system_bus = system_bus;
 
   test->headers = cockpit_web_server_new_table ();
 
@@ -279,13 +276,6 @@ test_cockpitdyn (Test *test,
   gchar hostname[256];
   gchar *expected;
 
-  /* Skip tests that require a system bus when in mock */
-  if (!system_bus)
-    {
-      cockpit_test_skip ("No system bus");
-      return;
-    }
-
   ret = cockpit_handler_cockpitdyn (test->server,
                                     COCKPIT_WEB_SERVER_REQUEST_GET, "/cockpitdyn.js",
                                     test->io, test->headers,
@@ -307,11 +297,7 @@ int
 main (int argc,
       char *argv[])
 {
-  gint ret;
-
   cockpit_test_init (&argc, &argv);
-
-  system_bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);
 
   g_test_add ("/handlers/login/no-cookie", Test, NULL,
               setup, test_login_no_cookie, teardown);
@@ -327,9 +313,5 @@ main (int argc,
   g_test_add ("/handlers/cockpitdyn", Test, NULL,
               setup, test_cockpitdyn, teardown);
 
-  ret = g_test_run ();
-
-  g_clear_object (&system_bus);
-
-  return ret;
+  return g_test_run ();
 }

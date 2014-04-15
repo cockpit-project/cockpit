@@ -281,10 +281,8 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
                             GDataOutputStream *out,
                             CockpitHandlerData *data)
 {
-  GError *error = NULL;
+  gchar *hostname;
   GHashTable *out_headers;
-  GVariant *retval;
-  GVariant *props;
   GString *str;
   gchar *s;
   guint n;
@@ -298,56 +296,15 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
     { NC_("display-language", "German"),  "de" },
   };
 
-  /*
-   * This is cockpit-ws only use of DBus when in the unauthenticated
-   * state. We don't use a proxy or otherwise require the hostname1
-   * to remain running.
-   *
-   * Unfortunately no convenience function is provided by GDBus for
-   * this call.
-   */
-  retval = g_dbus_connection_call_sync (data->system_bus,
-                                        "org.freedesktop.hostname1",
-                                        "/org/freedesktop/hostname1",
-                                        "org.freedesktop.DBus.Properties",
-                                        "GetAll",
-                                        g_variant_new ("(s)", "org.freedesktop.hostname1"),
-                                        G_VARIANT_TYPE ("(a{sv})"),
-                                        G_DBUS_CALL_FLAGS_NONE,
-                                        -1,
-                                        NULL,
-                                        &error);
-
   str = g_string_new (NULL);
 
-  if (error == NULL)
-    {
-      g_variant_get (retval, "(@a{sv})", &props);
-      if (!g_variant_lookup (props, "StaticHostname", "&s", &s))
-	s = "";
-      g_string_append_printf (str, "cockpitdyn_hostname = \"%s\";\n", s);
-      if (!g_variant_lookup (props, "PrettyHostname", "&s", &s))
-	s = "";
-      g_string_append_printf (str, "cockpitdyn_pretty_hostname = \"%s\";\n", s);
-    }
+  hostname = g_malloc0 (HOST_NAME_MAX + 1);
+  gethostname (hostname, HOST_NAME_MAX);
+  hostname[HOST_NAME_MAX] = '\0';
 
-  /* hostnamed not installed or active on the system? */
-  else if (g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_SPAWN_SERVICE_NOT_FOUND) ||
-           g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN))
-    {
-      s = g_new0 (gchar, HOST_NAME_MAX + 1);
-      if (gethostname (s, HOST_NAME_MAX) < 0)
-        s[0] = 0;
-      g_string_append_printf (str, "cockpitdyn_hostname = \"%s\";\n", s);
-      g_string_append_printf (str, "cockpitdyn_pretty_hostname = \"\";\n");
-      g_free (s);
-    }
-
-  else
-    {
-      g_warning ("Couldn't get system host name: %s", error->message);
-      g_clear_error (&error);
-    }
+  g_string_append_printf (str, "cockpitdyn_hostname = \"%s\";\n", hostname);
+  g_string_append (str, "cockpitdyn_pretty_hostname = \"\";\n");
+  g_free (hostname);
 
   s = get_avatar_data_url ();
   s = g_strescape (s? s : "", NULL);

@@ -26,7 +26,6 @@
 typedef struct {
   GTlsCertificate *certificate;
   CockpitAuth *auth;
-  GDBusConnection *system_bus;
   const gchar *agent_program;
 } CockpitHandlerData;
 

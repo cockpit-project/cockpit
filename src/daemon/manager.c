@@ -287,6 +287,7 @@ manager_constructed (GObject *object)
   Manager *manager = MANAGER (object);
   GError *error = NULL;
   gs_unref_object GFile *etc_os_release = g_file_new_for_path ("/etc/os-release");
+  gs_free gchar *hostname;
 
   manager->etc_os_release_monitor = g_file_monitor (etc_os_release, G_FILE_MONITOR_NONE, NULL, &error);
   if (!manager->etc_os_release_monitor)
@@ -300,6 +301,12 @@ manager_constructed (GObject *object)
                         G_CALLBACK (on_etc_os_release_changed), manager);
       reread_os_release (manager);
     }
+
+  hostname = g_malloc0 (HOST_NAME_MAX + 1);
+  gethostname (hostname, HOST_NAME_MAX);
+  hostname[HOST_NAME_MAX] = '\0';
+
+  cockpit_manager_set_hostname (COCKPIT_MANAGER (manager), hostname);
 
   g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
                             G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES,

@@ -28,6 +28,7 @@
 #include <sys/uio.h>
 #include <sys/wait.h>
 
+#include <dirent.h>
 #include <errno.h>
 #include <pty.h>
 #include <stdio.h>

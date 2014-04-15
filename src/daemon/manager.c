@@ -56,6 +56,7 @@ struct _Manager
   CockpitManagerSkeleton parent_instance;
 
   Daemon *daemon;
+  GCancellable *cancellable;
 
   /* may be NULL */
   GDBusProxy *hostname1_proxy;
@@ -90,6 +91,16 @@ static void on_hostname1_properties_changed (GDBusProxy         *proxy,
                                              gpointer            user_data);
 
 /* ---------------------------------------------------------------------------------------------------- */
+
+static void
+manager_dispose (GObject *object)
+{
+  Manager *self = MANAGER (object);
+
+  g_cancellable_cancel (self->cancellable);
+
+  G_OBJECT_CLASS (manager_parent_class)->dispose (object);
+}
 
 static void
 manager_finalize (GObject *object)
@@ -159,6 +170,7 @@ manager_init (Manager *manager)
 {
   g_dbus_interface_skeleton_set_flags (G_DBUS_INTERFACE_SKELETON (manager),
                                        G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
+  manager->cancellable = g_cancellable_new ();
 }
 
 static void
@@ -240,6 +252,36 @@ on_etc_os_release_changed (GFileMonitor *monitor,
 }
 
 static void
+on_hostname_proxy_ready (GObject *source,
+                         GAsyncResult *result,
+                         gpointer user_data)
+{
+  Manager *self = MANAGER (user_data);
+  GError *error = NULL;
+
+  self->hostname1_proxy = g_dbus_proxy_new_for_bus_finish (result, &error);
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+    {
+      /* nothing */
+    }
+  else if (self->hostname1_proxy == NULL)
+    {
+      g_warning ("Unable to create hostname1 proxy: %s (%s, %d)",
+                 error->message, g_quark_to_string (error->domain), error->code);
+    }
+  else
+    {
+      update_hostname1 (self);
+      g_signal_connect (self->hostname1_proxy,
+                        "g-properties-changed",
+                        G_CALLBACK (on_hostname1_properties_changed),
+                        self);
+    }
+
+  g_object_unref (self);
+}
+
+static void
 manager_constructed (GObject *object)
 {
   Manager *manager = MANAGER (object);
@@ -259,27 +301,15 @@ manager_constructed (GObject *object)
       reread_os_release (manager);
     }
 
-  manager->hostname1_proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
-                                                            G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES,
-                                                            NULL, /* GDBusInterfaceInfo* */
-                                                            "org.freedesktop.hostname1",
-                                                            "/org/freedesktop/hostname1",
-                                                            "org.freedesktop.hostname1",
-                                                            NULL, /* GCancellable* */
-                                                            &error);
-  if (manager->hostname1_proxy == NULL)
-    {
-      g_warning ("Unable to create hostname1 proxy: %s (%s, %d)",
-                 error->message, g_quark_to_string (error->domain), error->code);
-    }
-  else
-    {
-      update_hostname1 (manager);
-      g_signal_connect (manager->hostname1_proxy,
-                        "g-properties-changed",
-                        G_CALLBACK (on_hostname1_properties_changed),
-                        manager);
-    }
+  g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
+                            G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES,
+                            NULL, /* GDBusInterfaceInfo* */
+                            "org.freedesktop.hostname1",
+                            "/org/freedesktop/hostname1",
+                            "org.freedesktop.hostname1",
+                            manager->cancellable,
+                            on_hostname_proxy_ready,
+                            g_object_ref (manager));
 
   update_dmi (manager);
 
@@ -309,6 +339,7 @@ manager_class_init (ManagerClass *klass)
   GObjectClass *gobject_class;
 
   gobject_class = G_OBJECT_CLASS (klass);
+  gobject_class->dispose = manager_dispose;
   gobject_class->finalize     = manager_finalize;
   gobject_class->constructed  = manager_constructed;
   gobject_class->set_property = manager_set_property;

@@ -178,7 +178,7 @@ PageDashboard.prototype = {
                 var manager = client.lookup("/com/redhat/Cockpit/Manager",
                                             "com.redhat.Cockpit.Manager");
                 if (manager) {
-                    $(info_divs[0]).text(manager.PrettyHostname || manager.Hostname);
+                    $(info_divs[0]).text(manager.PrettyHostname || manager.Hostname || client.target);
                     $(info_divs[1]).text(manager.System || "--");
                     $(info_divs[2]).text(manager.OperatingSystem || "--");
                     manager.call('GetAvatarDataURL', function (error, result) {

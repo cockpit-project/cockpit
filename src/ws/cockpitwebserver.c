@@ -418,7 +418,8 @@ out:
   g_string_free (resp, TRUE);
   if (error)
     {
-      g_warning ("Failed to write response: %s", error->message);
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
+        g_warning ("Failed to write response: %s", error->message);
       g_error_free (error);
     }
 }

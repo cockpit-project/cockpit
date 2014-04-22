@@ -403,6 +403,7 @@ mock_ssh_server (const gchar *server_addr,
   struct sockaddr_storage addr;
   socklen_t addrlen;
   ssh_bind sshbind;
+  const char *msg;
   int r;
 
   state.event = ssh_event_new ();
@@ -468,7 +469,9 @@ mock_ssh_server (const gchar *server_addr,
 
   if (ssh_handle_key_exchange (state.session))
     {
-      g_critical ("key exchange failed: %s", ssh_get_error (state.session));
+      msg = ssh_get_error (state.session);
+      if (!strstr (msg, "SSH_MESSAGE_DISCONNECT"))
+        g_critical ("key exchange failed: %s", msg);
       return 1;
     }
 

@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "cockpit/mock-service.h"
-#include "tools/valgrind.h"
+#include "lib/valgrind.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>

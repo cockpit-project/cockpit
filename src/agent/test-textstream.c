@@ -594,7 +594,8 @@ test_spawn_pty (void)
         }
     }
 
-  g_assert (strstr (received->str, "booyah") != NULL);
+  cockpit_assert_strmatch (received->str, "*booyah*");
+  g_string_free (received, TRUE);
 
   g_assert_cmpstr (problem, ==, "");
   g_object_unref (channel);

@@ -706,7 +706,7 @@ test_pty_shell (void)
   buffer = cockpit_pipe_get_buffer (pipe);
   g_byte_array_append (buffer, (const guint8 *)"\0", 1);
 
-  g_assert (strstr ((gchar *)buffer->data, "booyah") != NULL);
+  cockpit_assert_strmatch ((gchar *)buffer->data, "*booyah*");
   g_object_unref (pipe);
 }
 

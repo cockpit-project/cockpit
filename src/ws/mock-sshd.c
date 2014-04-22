@@ -124,7 +124,7 @@ fd_data (socket_t fd,
         {
           if (shutdown (fd, SHUT_WR) < 0)
             {
-              if (errno != EAGAIN)
+              if (errno != EAGAIN && errno != EBADF)
                 g_critical ("couldn't shutdown: %s", g_strerror (errno));
             }
           else

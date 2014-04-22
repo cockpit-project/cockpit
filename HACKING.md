@@ -13,29 +13,15 @@ disks or network adapters.
 
 ## Dependencies
 
-The development version of Cockpit very likely has dependencies on
-other packages that can't yet be satisfied by the main distribution.
-
-Sometimes this is just a newer version of a package, or a new package
-altogether that hasn't yet made it into the main distribution.
-Sometimes, we depend on experimental patches to other projects that
-might or might not get accepted upstream.
-
-For supported OS distributions and architectures, we have repositories
-with pre-build binary packages of all needed dependencies.
-
-### Fedora:
-
-Currently the 64-bit architectures of Fedora 18 and Fedora 20 are
-supported.  As root, copy or symlink `contrib/fedora/cockpit-deps.repo` into
-`/etc/yum.repos.d/cockpit-deps.repo`.
+Currently the x86_64 architectures of Fedora 20 and Rawhide are most
+often used for development.
 
 Check `test/cockpit.spec.in` for the concrete build dependencies.  The following
 should work in a fresh Git clone:
 
     $ cd ./test
     $ srpm=$(./make-srpm)
-    # yum-builddep --enablerepo=cockpit-deps $srpm
+    # yum-builddep $srpm
 
 ## Building and installing
 

@@ -45,18 +45,22 @@ script and the familar Makefile targets.
 But after a fresh clone of the Cockpit sources, you need to prepare
 them by running autogen.sh.  Maybe like so:
 
-    $ ./autogen.sh --prefix /usr --libdir /usr/lib64 --sysconfdir /etc \
-            --localstatedir /var --enable-maintainer-mode
+    $ mkdir build
+    $ cd build
+    $ ../autogen.sh --prefix /usr --enable-maintainer-mode --enable-debug
 
-As shown, autogen.sh also runs `./configure` with the given options.
+As shown, autogen.sh also runs 'configure' with the given options.
 When working with a Git clone, it is therefore best to simply always
-run ./autogen.sh instead of `./configure`.
+run ../autogen.sh instead of `../configure`.
+
+Creating a build directory puts the output of the build in a separate
+directory, rather than mixing it in with the sources, which is confusing.
 
 Then you can build the sources and install them, as usual:
 
     $ make
-    # make install
-    # cp data/cockpit.pam.insecure /etc/pam.d/cockpit
+    $ sudo make install
+    $ sudo cp ../data/cockpit.pam.insecure /etc/pam.d/cockpit
 
 This will install Cockpit and all support files, and will install a
 simplistic PAM configuration.
@@ -113,6 +117,36 @@ If you want to run `/usr/libexec/cockpitd` or `/usr/libexec/cockpit-ws`
 outside of systemd, stop them first, including the socket:
 
     # systemctl stop cockpit.socket cockpit cockpitd
+
+## Making a change
+
+Simple version. Edit the appropriate sources and then:
+
+    $ make
+    $ sudo make install
+    $ sudo systemctl restart cockpit cockpitd
+
+Then refresh in your browser and your change should be visible. Note that
+for pure javascript changes you probably don't need to do the last part.
+
+## Contributing a change
+
+Bigger changes need to be discussed on #cockpit or our mailing list
+cockpit-devel@lists.fedoraproject.org before you invest too much time and
+energy.
+
+Cockpit is a designed project. Anything that the user will see should have
+design done first. This is done on the wiki and mailing list.
+
+You need to be familiar with git to contribute a change. Do your changes
+on a branch. Your change should be one or more git commits that each
+contain one single logical simple reviewable change, without modifications
+that are unrelated to the commit message.
+
+Make a pull request on github.com with your change. All changes get
+reviewed, tested and iterated on before getting into Cockpit. Don't feel
+bad if there's multiple steps back and forth asking for changes or tweaks
+before your change gets in.
 
 ## Updating Patternfly
 

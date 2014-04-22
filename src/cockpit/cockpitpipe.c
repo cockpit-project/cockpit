@@ -960,11 +960,21 @@ cockpit_pipe_spawn (GType pipe_gtype,
 }
 
 static int
-set_cloexec (void *data,
-             gint fd)
+closefd (void *data,
+         gint fd)
 {
   if (fd >= GPOINTER_TO_INT (data))
-    fcntl (fd, F_SETFD, FD_CLOEXEC);
+    {
+      while (close (fd) < 0)
+        {
+          if (errno == EAGAIN || errno == EINTR)
+            continue;
+          if (errno == EBADF || errno == EINVAL)
+            break;
+          g_critical ("couldn't close fd in child process: %s", g_strerror (errno));
+          return -1;
+        }
+    }
 
   return 0;
 }
@@ -1057,7 +1067,11 @@ cockpit_pipe_pty (const gchar **argv,
   pid = forkpty (&fd, NULL, NULL, NULL);
   if (pid == 0)
     {
-      fdwalk (set_cloexec, GINT_TO_POINTER (3));
+      if (fdwalk (closefd, GINT_TO_POINTER (3)) < 0)
+        {
+          g_printerr ("couldn't close file descriptors");
+          _exit (127);
+        }
       if (directory)
         {
           if (chdir (directory) < 0)

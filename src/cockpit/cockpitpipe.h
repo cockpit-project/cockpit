@@ -76,7 +76,8 @@ gint               cockpit_pipe_exit_status  (CockpitPipe *self);
 
 GByteArray *       cockpit_pipe_get_buffer   (CockpitPipe *self);
 
-GPid               cockpit_pipe_get_pid      (CockpitPipe *self);
+gboolean           cockpit_pipe_get_pid      (CockpitPipe *self,
+                                              GPid *pid);
 
 void               cockpit_pipe_skip         (GByteArray *buffer,
                                               gsize skip);

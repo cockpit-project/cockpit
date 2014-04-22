@@ -134,7 +134,7 @@ verify_knownhost (CockpitSshData *data)
       goto done;
     }
 
-  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_SHA1, &hash, &len) < 0)
+  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_MD5, &hash, &len) < 0)
     {
       g_warning ("Couldn't hash ssh public key");
       ret = "internal-error";
@@ -183,16 +183,19 @@ verify_knownhost (CockpitSshData *data)
         case SSH_SERVER_ERROR:
           g_assert_not_reached ();
         case SSH_SERVER_KNOWN_CHANGED:
-          g_message ("%s: host key for server has changed to: %s", data->logname, data->host_fingerprint);
+          g_message ("%s: %s host key for server has changed to: %s",
+                     data->logname, type, data->host_fingerprint);
           break;
         case SSH_SERVER_FOUND_OTHER:
-          g_message ("%s: host key for this server changed key type: %s", data->logname, type);
+          g_message ("%s: host key for this server changed key type: %s",
+                     data->logname, type);
           break;
         case SSH_SERVER_FILE_NOT_FOUND:
           g_debug ("Couldn't find the known hosts file");
           /* fall through */
         case SSH_SERVER_NOT_KNOWN:
-          g_message ("%s: host key for server is not known: %s", data->logname, data->host_fingerprint);
+          g_message ("%s: %s host key for server is not known: %s",
+                     data->logname, type, data->host_fingerprint);
           break;
         }
     }

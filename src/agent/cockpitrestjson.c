@@ -850,7 +850,6 @@ cockpit_rest_request_create (CockpitRestJson *self,
   CockpitRestRequest *req = NULL;
   JsonObject *pollopts = NULL;
   GString *string = NULL;
-  GBytes *body = NULL;
   gint64 cookie;
   const gchar *method;
   const gchar *path;
@@ -935,25 +934,24 @@ cockpit_rest_request_create (CockpitRestJson *self,
   g_string_printf (string, "%s %s HTTP/1.0\r\n", method, path);
   g_string_append (string, "Connection: keep-alive\r\n");
 
+  req = g_new0 (CockpitRestRequest, 1);
+  req->body = build_body_from_json (self, json);
+
   length = 0;
-  body = build_body_from_json (self, json);
-  if (body)
+  if (req->body)
     {
-      length = g_bytes_get_size (body);
+      length = g_bytes_get_size (req->body);
       g_string_append (string, "Content-Type: application/json\r\n");
     }
 
   g_string_append_printf (string, "Content-Length: %" G_GSIZE_FORMAT "\r\n", length);
   g_string_append (string, "\r\n");
 
-  req = g_new0 (CockpitRestRequest, 1);
   req->label = g_strdup (path);
   req->channel = self;
   req->cookie = cookie;
   req->headers = g_string_free_to_bytes (string);
-  req->body = body;
 
-  body = NULL;
   string = NULL;
 
   /*
@@ -988,8 +986,6 @@ out:
 out_without_request:
   if (string)
     g_string_free (string, TRUE);
-  if (body)
-    g_bytes_unref (body);
 }
 
 static void

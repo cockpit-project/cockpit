@@ -506,7 +506,11 @@ process_open (WebSocketData *data,
   session = cockpit_session_by_host_user (&data->sessions, host, user);
   if (!session)
     {
-      if (data->specific_port == 0 && g_strcmp0 (host, "localhost") == 0)
+      /* Used during testing */
+      if (data->specific_port != 0)
+        host = "127.0.0.1";
+
+      if (g_strcmp0 (host, "localhost") == 0)
         {
           /* Any failures happen asyncronously */
           transport = cockpit_pipe_transport_spawn (data->agent_program, user, data->rhost);

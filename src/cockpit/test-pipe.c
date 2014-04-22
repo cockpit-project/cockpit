@@ -276,7 +276,7 @@ test_pid (TestCase *tc,
   GPid pid;
   GPid check;
 
-  pid = cockpit_pipe_get_pid (tc->pipe);
+  g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert (pid != 0);
 
   /* Test it's real */
@@ -285,7 +285,7 @@ test_pid (TestCase *tc,
   /* Should still be available after closing */
   while (!echo_pipe->closed)
     g_main_context_iteration (NULL, TRUE);
-  check = cockpit_pipe_get_pid (tc->pipe);
+  g_assert (cockpit_pipe_get_pid (tc->pipe, &check));
   g_assert_cmpuint (pid, ==, check);
 }
 

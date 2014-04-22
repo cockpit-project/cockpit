@@ -122,24 +122,32 @@ cockpit_pipe_signal_close (CockpitPipe *pipe,
   gint status;
 
   /* This function is called by the base class when it is closed */
-  if (problem == NULL && cockpit_pipe_get_pid (pipe) != 0)
+  if (cockpit_pipe_get_pid (pipe, NULL))
     {
-      status = cockpit_pipe_exit_status (pipe);
-      if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
-        problem = "terminated";
-      else if (WIFEXITED (status) && WEXITSTATUS (status) == 5)
-        problem = "not-authorized";  // wrong password
-      else if (WIFEXITED (status) && WEXITSTATUS (status) == 6)
-        problem = "unknown-hostkey";
-      else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
-        problem = "no-agent";        // cockpit-agent not installed
-      else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
-        problem = "terminated";      // ssh failed or got a signal, etc.
-      else if (!g_spawn_check_exit_status (status, &error))
+      if (problem == NULL)
         {
-          problem = "internal-error";
-          g_warning ("session program failed: %s", error->message);
-          g_error_free (error);
+          status = cockpit_pipe_exit_status (pipe);
+          if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
+            problem = "terminated";
+          else if (WIFEXITED (status) && WEXITSTATUS (status) == 5)
+            problem = "not-authorized";  // wrong password
+          else if (WIFEXITED (status) && WEXITSTATUS (status) == 6)
+            problem = "unknown-hostkey";
+          else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
+            problem = "no-agent";        // cockpit-agent not installed
+          else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
+            problem = "terminated";      // ssh failed or got a signal, etc.
+          else if (!g_spawn_check_exit_status (status, &error))
+            {
+              problem = "internal-error";
+              g_warning ("%s: agent program failed: %s", self->name, error->message);
+              g_error_free (error);
+            }
+        }
+      else if (g_str_equal (problem, "not-found"))
+        {
+          g_message ("%s: failed to execute agent: not found", self->name);
+          problem = "no-agent";
         }
     }
 

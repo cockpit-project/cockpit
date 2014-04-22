@@ -449,7 +449,7 @@ test_poke_path (TestCase *tc,
   g_signal_connect (manager, "interface-added", G_CALLBACK (on_interface_count), &count);
 
   while (count < 2)
-    g_main_context_iteration (NULL, FALSE);
+    g_main_context_iteration (NULL, TRUE);
 
   /* Now we should have two objects and two interfaces */
   objects = g_dbus_object_manager_get_objects (manager);

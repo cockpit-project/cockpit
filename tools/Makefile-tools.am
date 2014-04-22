@@ -3,14 +3,14 @@ EXTRA_DIST += \
 	tools/tap-driver \
 	tools/tap-gtester \
 	tools/tap-phantom \
-	tools/qunit-1.14.0.css \
-	tools/qunit-1.14.0.js \
-	tools/qunit-tap.js \
+	lib/qunit-1.14.0.css \
+	lib/qunit-1.14.0.js \
+	lib/qunit-tap.js \
 	tools/qunit-config.js \
 	tools/js-lint \
 	tools/minify \
 	tools/gdbus-unbreak-codegen \
-	tools/valgrind.h \
+	lib/valgrind.h \
 	$(NULL)
 
 if WITH_COVERAGE
@@ -46,9 +46,9 @@ QUNIT_DEPS = \
 	$(NULL)
 
 # Place these in the build directory for testing/install
-qunit.css: tools/qunit-1.14.0.css
+qunit.css: lib/qunit-1.14.0.css
 	$(AM_V_GEN) cp $< $@
-qunit.js: tools/qunit-1.14.0.js tools/qunit-tap.js tools/qunit-config.js
+qunit.js: lib/qunit-1.14.0.js lib/qunit-tap.js tools/qunit-config.js
 	$(AM_V_GEN) cat $^ > $@.tmp && mv $@.tmp $@
 
 CLEANFILES += \

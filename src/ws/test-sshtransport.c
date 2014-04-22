@@ -161,7 +161,7 @@ setup_transport (TestCase *tc,
 
   tc->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "name", "test",
-                                "host", "localhost",
+                                "host", "127.0.0.1",
 #if WITH_MOCK
                                 "port", (guint)tc->ssh_port,
 #else

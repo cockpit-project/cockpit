@@ -211,5 +211,5 @@ install-exec-hook::
 
 update-known-hosts:
 	cat $(srcdir)/src/ws/mock_*.pub | \
-		sed -ne 's/\(.*\) [^ ]\+$$/[localhost]:* \1/p' > \
+		sed -ne 's/\(.*\) [^ ]\+$$/[localhost]:*,[127.0.0.1]:* \1/p' > \
 			$(srcdir)/src/ws/mock_known_hosts

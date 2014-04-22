@@ -426,7 +426,7 @@ start_web_service_and_create_client (Test *test,
 {
   /* This is web_socket_client_new_for_stream() with a flavor passed in fixture */
   *ws = g_object_new (WEB_SOCKET_TYPE_CLIENT,
-                     "url", "ws://localhost/unused",
+                     "url", "ws://127.0.0.1/unused",
                      "io-stream", test->io_a,
                      "flavor", flavor,
                      NULL);

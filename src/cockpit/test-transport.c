@@ -261,7 +261,7 @@ test_terminate_problem (TestCase *tc,
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
-  pid = cockpit_pipe_get_pid (COCKPIT_PIPE (tc->transport));
+  g_assert (cockpit_pipe_get_pid (COCKPIT_PIPE (tc->transport), &pid));
   g_assert (pid != 0);
   kill (pid, SIGTERM);
 

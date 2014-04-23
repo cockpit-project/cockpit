@@ -20,6 +20,9 @@
 PageSetupServer.prototype = {
     _init: function() {
         this.id = "dashboard_setup_server_dialog";
+        this.options = { };
+        this.host_key = "";
+        this.host_fp = "";
     },
 
     getTitle: function() {
@@ -157,6 +160,32 @@ PageSetupServer.prototype = {
         this.next_action();
     },
 
+    connect_server: function(continuation, retried) {
+        var self = this;
+        var client = new DBusClient (self.address, self.options);
+        $(client).on('state-change', function () {
+            if (client.state == "closed") {
+                if (!retried && client.error == "unknown-hostkey") {
+                    self.host_key = client.error_details["host-key"];
+                    self.options["host-key"] = self.host_key;
+                    $('#dashboard_setup_action_fingerprint').text(client.error_details["host-fingerprint"]);
+                    self.connect_server(continuation, true); /* try again */
+                    return;
+                } else if (client.error == "not-authorized") {
+                    $('#dashboard_setup_login_error').text(cockpit_client_error_description(client.error));
+                    self.show_tab('login');
+                    return;
+                }
+
+                $('#dashboard_setup_address_error').text(cockpit_client_error_description(client.error));
+                self.show_tab('address');
+            } else if (client.state == "ready") {
+                self.client = client;
+                continuation();
+            }
+        });
+    },
+
     next_select: function() {
         var me = this;
         var reuse_creds;
@@ -164,40 +193,34 @@ PageSetupServer.prototype = {
         me.address = $('#dashboard_setup_address').val();
         $('#dashboard_setup_login_address').text(this.address);
 
-        reuse_creds = $('#dashboard_setup_address_reuse_creds').attr('checked');
+        reuse_creds = $('#dashboard_setup_address_reuse_creds').prop('checked');
 
-        var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
-                                                         "com.redhat.Cockpit.Machines");
+        me.connect_server(function() {
+            var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
+                                                             "com.redhat.Cockpit.Machines");
 
-        machines.call('Add', me.address, function (error, path) {
-            if (error) {
-                $('#dashboard_setup_address_error').text(error.message);
-                me.show_tab('address');
-                return;
-            }
-
-            me.machine = cockpit_dbus_local_client.lookup (path, "com.redhat.Cockpit.Machine");
-            if (!me.machine) {
-                $('#dashboard_setup_address_error').text(_("New machine not found in list after adding."));
-                me.show_tab('address');
-                return;
-            }
-
-            $('#dashboard_setup_login_error').text("");
-
-            if (!reuse_creds) {
-                me.show_tab('login');
-                return;
-            }
-
-            me.client = new DBusClient (me.address);
-            $(me.client).on('state-change', function () {
-                if (me.client.state == "closed") {
-                    me.client = null;
-                    me.show_tab('login');
-                } else if (me.client.state == "ready") {
-                    me.prepare_setup();
+            machines.call('Add', me.address, me.host_key, function (error, path) {
+                if (error) {
+                    $('#dashboard_setup_address_error').text(error.message);
+                    me.show_tab('address');
+                    return;
                 }
+
+                me.machine = cockpit_dbus_local_client.lookup (path, "com.redhat.Cockpit.Machine");
+                if (!me.machine) {
+                    $('#dashboard_setup_address_error').text(_("New machine not found in list after adding."));
+                    me.show_tab('address');
+                    return;
+                }
+
+                $('#dashboard_setup_login_error').text("");
+console.log(reuse_creds);
+                if (!reuse_creds) {
+                    me.show_tab('login');
+                    return;
+                }
+
+                me.prepare_setup();
             });
         });
     },
@@ -210,7 +233,7 @@ PageSetupServer.prototype = {
 
         $('#dashboard_setup_login_error').text("");
 
-        me.client = new DBusClient(me.address, { "user": user, "password": pass });
+        me.client = new DBusClient(me.address, { "user": user, "password": pass, "host-key": this.host_key });
         $(me.client).on('state-change', function () {
             if (me.client.state == "closed") {
                 if (me.client.error) {
@@ -419,7 +442,6 @@ PageSetupServer.prototype = {
         }
 
         $('#dashboard_setup_action_address').text(this.address);
-        $('#dashboard_setup_action_fingerprint').text("xx:xx:xx");
 
         if (this.tasks.length > 0) {
             this.show_tab ('action');

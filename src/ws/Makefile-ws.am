@@ -14,6 +14,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
 	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
+	src/ws/cockpitsshtransport.h \
+	src/ws/cockpitsshtransport.c \
 	$(NULL)
 
 libcockpit_ws_a_CFLAGS = \
@@ -54,6 +56,7 @@ EXTRA_DIST += \
 	src/ws/mock_rsa_key \
 	src/ws/mock_dsa_key \
 	src/ws/mock_cert \
+	src/ws/mock_known_hosts \
 	$(NULL)
 
 CLEANFILES += \
@@ -109,6 +112,7 @@ WS_CHECKS = \
 	test-creds \
 	test-auth \
 	test-webserver \
+	test-sshtransport \
 	test-webservice \
 	test-handlers \
 	test-server \
@@ -145,6 +149,17 @@ test_handlers_LDADD = \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \
 	$(NULL)
+
+test_sshtransport_SOURCES = \
+	src/ws/test-sshtransport.c \
+	$(NULL)
+test_sshtransport_CFLAGS = $(cockpit_ws_CFLAGS)
+test_sshtransport_LDADD = \
+	libwebsocket.a \
+	libcockpit-ws.a \
+	$(cockpit_ws_LDADD) \
+	$(NULL)
+
 
 test_webservice_SOURCES = \
 	src/ws/test-webservice.c \
@@ -193,3 +208,8 @@ install-exec-hook::
 	-chmod 700 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
 	-chmod 700 $(DESTDIR)$(localstatedir)/lib/cockpit
+
+update-known-hosts:
+	cat $(srcdir)/src/ws/mock_*.pub | \
+		sed -ne 's/\(.*\) [^ ]\+$$/[localhost]:*,[127.0.0.1]:* \1/p' > \
+			$(srcdir)/src/ws/mock_known_hosts

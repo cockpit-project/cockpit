@@ -66,6 +66,7 @@ struct _CockpitPipePrivate {
   GSource *child;
   gboolean exited;
   gint status;
+  gboolean is_process;
 
   int out_fd;
   GQueue *out_queue;
@@ -513,6 +514,7 @@ cockpit_pipe_constructed (GObject *object)
 
   if (self->priv->pid)
     {
+      self->priv->is_process = TRUE;
       self->priv->child = g_child_watch_source_new (self->priv->pid);
       g_source_set_callback (self->priv->child, (GSourceFunc)on_child_reap, self, NULL);
       g_source_attach (self->priv->child, ctx);
@@ -929,6 +931,9 @@ cockpit_pipe_spawn (GType pipe_gtype,
                        "pid", pid,
                        NULL);
 
+  /* Regardless of whether spawn succeeded or not */
+  pipe->priv->is_process = TRUE;
+
   if (error)
     {
       if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
@@ -1120,11 +1125,16 @@ cockpit_pipe_pty (const gchar **argv,
  *
  * Returns: the pid or zero
  */
-GPid
-cockpit_pipe_get_pid (CockpitPipe *self)
+gboolean
+cockpit_pipe_get_pid (CockpitPipe *self,
+                      GPid *pid)
 {
-  g_return_val_if_fail (COCKPIT_IS_PIPE (self), 0);
-  return self->priv->pid;
+  g_return_val_if_fail (COCKPIT_IS_PIPE (self), FALSE);
+  if (!self->priv->is_process)
+    return FALSE;
+  if (pid)
+    *pid = self->priv->pid;
+  return TRUE;
 }
 
 /**

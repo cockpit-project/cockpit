@@ -31,6 +31,8 @@
 #include "cockpitws.h"
 #include "cockpithandlers.h"
 
+#include <libssh/libssh.h>
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gint      opt_port         = 21064;
@@ -244,6 +246,7 @@ main (int argc,
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
   g_type_init ();
+  ssh_init ();
 
   memset (&data, 0, sizeof (data));
 

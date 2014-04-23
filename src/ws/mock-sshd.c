@@ -38,6 +38,8 @@
 
 #define BUFSIZE          (8 * 1024)
 
+static gint auth_methods = SSH_AUTH_METHOD_PASSWORD;
+
 struct {
   int bind_fd;
   int session_fd;
@@ -47,6 +49,8 @@ struct {
   int childpid;
   const gchar *user;
   const gchar *password;
+  GByteArray *buffer;
+  gboolean buffer_eof;
 } state;
 
 static gboolean
@@ -67,6 +71,7 @@ fd_data (socket_t fd,
   gint sz = 0;
   gint bytes = 0;
   gint status;
+  gint written;
   static pid_t p = 0;
 
   if (p != 0)
@@ -81,20 +86,54 @@ fd_data (socket_t fd,
           if (ws && (bytes = read (fd, buf, ws)) > 0)
             {
               sz += bytes;
-              ssh_channel_write (chan, buf, bytes);
+              written = ssh_channel_write (chan, buf, bytes);
+              if (written != bytes)
+                g_assert_not_reached ();
             }
         }
       while (ws > 0 && bytes == BUFSIZE);
     }
   if (revents & (POLLHUP | POLLERR | POLLNVAL))
     {
-      if ((p = waitpid (state.childpid, &status, WNOHANG)) > 0)
-        ssh_channel_request_send_exit_status (chan, WEXITSTATUS(status));
       ssh_channel_send_eof (chan);
+      if ((p = waitpid (state.childpid, &status, WNOHANG)) > 0)
+        {
+          if (WIFSIGNALED (status))
+            ssh_channel_request_send_exit_signal (chan, strsignal (WTERMSIG (status)), 0, "", "");
+          else
+            ssh_channel_request_send_exit_status (chan, WEXITSTATUS (status));
+        }
+      g_assert_cmpint (ssh_blocking_flush (state.session, -1), >=, SSH_OK);
       ssh_channel_close (chan);
+      ssh_channel_free (chan);
+      state.channel = NULL;
       ssh_event_remove_fd (state.event, fd);
       sz = -1;
     }
+  else if ((revents & POLLOUT))
+    {
+      if (state.buffer->len > 0)
+        {
+          written = write (fd, state.buffer->data, state.buffer->len);
+          if (written < 0 && errno != EAGAIN)
+            g_critical ("couldn't write: %s", g_strerror (errno));
+          if (written > 0)
+            g_byte_array_remove_range (state.buffer, 0, written);
+        }
+      if (state.buffer_eof && state.buffer->len == 0)
+        {
+          if (shutdown (fd, SHUT_WR) < 0)
+            {
+              if (errno != EAGAIN && errno != EBADF)
+                g_critical ("couldn't shutdown: %s", g_strerror (errno));
+            }
+          else
+            {
+              state.buffer_eof = FALSE;
+            }
+        }
+    }
+
   return sz;
 }
 
@@ -106,10 +145,8 @@ chan_data (ssh_session session,
            int is_stderr,
            gpointer user_data)
 {
-  int fd = GPOINTER_TO_INT (user_data);
-  if (!len)
-    return 0;
-  return write (fd, data, len);
+  g_byte_array_append (state.buffer, data, len);
+  return len;
 }
 
 static void
@@ -117,8 +154,7 @@ chan_eof (ssh_session session,
           ssh_channel channel,
           gpointer user_data)
 {
-  int fd = GPOINTER_TO_INT (user_data);
-  shutdown (fd, SHUT_WR);
+  state.buffer_eof = TRUE;
 }
 
 static void
@@ -172,7 +208,7 @@ do_shell (ssh_event event,
   ssh_callbacks_init(&cb);
   ssh_set_channel_callbacks (chan, &cb);
 
-  events = POLLIN | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
+  events = POLLIN | POLLOUT | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
   if (ssh_event_add_fd (event, fd, events, fd_data, chan) != SSH_OK)
     g_return_val_if_reached(-1);
 
@@ -199,11 +235,9 @@ fork_exec (const gchar *cmd)
 
       close (0);
       close (1);
-      close (2);
       close (spair[1]);
       dup2 (spair[0], 0);
       dup2 (spair[0], 1);
-      dup2 (spair[0], 2);
       close (spair[0]);
       execl ("/bin/sh", "/bin/sh", "-c", cmd, NULL);
       _exit (127);
@@ -241,7 +275,7 @@ do_exec (ssh_event event,
   ssh_callbacks_init(&cb);
   ssh_set_channel_callbacks (chan, &cb);
 
-  events = POLLIN | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
+  events = POLLIN | POLLOUT | POLLPRI | POLLERR | POLLHUP | POLLNVAL;
   if (ssh_event_add_fd (event, fd, events, fd_data, chan) != SSH_OK)
     g_return_val_if_reached(-1);
 
@@ -332,20 +366,21 @@ authenticate_callback (ssh_session session,
       switch (ssh_message_subtype (message))
         {
         case SSH_AUTH_METHOD_PASSWORD:
-          if (auth_password (ssh_message_auth_user (message),
+          if ((auth_methods & SSH_AUTH_METHOD_PASSWORD) &&
+              auth_password (ssh_message_auth_user (message),
                              ssh_message_auth_password (message)))
             goto accept;
-          ssh_message_auth_set_methods (message, SSH_AUTH_METHOD_PASSWORD);
+          ssh_message_auth_set_methods (message, auth_methods);
           goto deny;
 
         case SSH_AUTH_METHOD_NONE:
         default:
-          ssh_message_auth_set_methods (message, SSH_AUTH_METHOD_PASSWORD);
+          ssh_message_auth_set_methods (message, auth_methods);
           goto deny;
         }
 
     default:
-      ssh_message_auth_set_methods (message, SSH_AUTH_METHOD_PASSWORD);
+      ssh_message_auth_set_methods (message, auth_methods);
       goto deny;
     }
 
@@ -368,6 +403,7 @@ mock_ssh_server (const gchar *server_addr,
   struct sockaddr_storage addr;
   socklen_t addrlen;
   ssh_bind sshbind;
+  const char *msg;
   int r;
 
   state.event = ssh_event_new ();
@@ -394,6 +430,7 @@ mock_ssh_server (const gchar *server_addr,
   state.bind_fd = ssh_bind_get_fd (sshbind);
   state.user = user;
   state.password = password;
+  state.buffer = g_byte_array_new ();
 
   /* Print out the port */
   if (server_port == 0)
@@ -432,7 +469,9 @@ mock_ssh_server (const gchar *server_addr,
 
   if (ssh_handle_key_exchange (state.session))
     {
-      g_critical ("key exchange failed: %s", ssh_get_error (state.session));
+      msg = ssh_get_error (state.session);
+      if (!strstr (msg, "SSH_MESSAGE_DISCONNECT"))
+        g_critical ("key exchange failed: %s", msg);
       return 1;
     }
 
@@ -447,7 +486,8 @@ mock_ssh_server (const gchar *server_addr,
 
   ssh_event_remove_session (state.event, state.session);
   ssh_event_free (state.event);
-  ssh_disconnect (state.session);
+  ssh_free (state.session);
+  g_byte_array_free (state.buffer, TRUE);
   ssh_bind_free (sshbind);
 
   return 0;
@@ -463,6 +503,7 @@ main (int argc,
   gchar *bind = NULL;
   GError *error = NULL;
   gboolean verbose = FALSE;
+  gboolean broken_auth = FALSE;
   gint port = 0;
   int ret;
 
@@ -472,6 +513,7 @@ main (int argc,
     { "bind", 0, 0, G_OPTION_ARG_STRING, &bind, "Address to bind to", "addr" },
     { "port", 'p', 0, G_OPTION_ARG_INT, &port, "Port to bind to", "NN" },
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose info", NULL },
+    { "broken-auth", 0, 0, G_OPTION_ARG_NONE, &broken_auth, "Break authentication", NULL },
     { NULL }
   };
 
@@ -497,6 +539,8 @@ main (int argc,
     }
   else
     {
+      if (broken_auth)
+        auth_methods = SSH_AUTH_METHOD_HOSTBASED | SSH_AUTH_METHOD_PUBLICKEY;
       if (verbose)
         ssh_set_log_level (SSH_LOG_PROTOCOL);
       ret = mock_ssh_server (bind, port, user, password);

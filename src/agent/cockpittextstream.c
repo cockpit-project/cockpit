@@ -234,7 +234,7 @@ cockpit_text_stream_constructed (GObject *object)
       if (cockpit_channel_get_bool_option (channel, "pty"))
         self->pipe = cockpit_pipe_pty (argv, env, NULL);
       else
-        self->pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, env, NULL);
+        self->pipe = cockpit_pipe_spawn (argv, env, NULL);
     }
 
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);

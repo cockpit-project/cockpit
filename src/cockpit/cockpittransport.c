@@ -44,8 +44,8 @@ static void
 cockpit_transport_default_init (CockpitTransportIface *iface)
 {
   g_object_interface_install_property (iface,
-             g_param_spec_string ("name", "name", "name", "<unnamed>",
-                                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+             g_param_spec_string ("name", "name", "name", NULL,
+                                  G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   signals[RECV] = g_signal_new ("recv", COCKPIT_TYPE_TRANSPORT, G_SIGNAL_RUN_LAST,
                                 G_STRUCT_OFFSET (CockpitTransportIface, recv),

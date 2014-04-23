@@ -620,7 +620,7 @@ test_spawn_and_read (void)
   const gchar *argv[] = { "/bin/sh", "-c", "set", NULL };
   const gchar *env[] = { "ENVIRON=Marmalaaade", NULL, };
 
-  pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, env, NULL);
+  pipe = cockpit_pipe_spawn (argv, env, NULL);
   g_assert (pipe != NULL);
   g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
 
@@ -643,7 +643,7 @@ test_spawn_and_write (void)
 
   const gchar *argv[] = { "/bin/cat", NULL };
 
-  pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, NULL, NULL);
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
   g_assert (pipe != NULL);
 
   /* Sending on the pipe before actually connected */
@@ -669,7 +669,7 @@ test_spawn_and_fail (void)
 
   const gchar *argv[] = { "/non-existant", NULL };
 
-  pipe = cockpit_pipe_spawn (COCKPIT_TYPE_PIPE, argv, NULL, NULL);
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
   g_assert (pipe != NULL);
   g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_problem), &problem);
 

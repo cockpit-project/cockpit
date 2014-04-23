@@ -155,7 +155,7 @@ main (int argc,
 
   g_type_init ();
 
-  transport = cockpit_pipe_transport_new ("stdio", 0, outfd);
+  transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
   g_signal_connect (transport, "recv", G_CALLBACK (on_transport_recv), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 

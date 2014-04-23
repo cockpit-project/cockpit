@@ -564,7 +564,7 @@ a {
 }
 
 /* Vertically center dropdown buttons in panel headers */
-.panel-heading .dropdown {
+.panel-heading .btn {
     margin-top: -3px;
 }
 
@@ -729,4 +729,37 @@ a {
   background: none;
   border: none;
   text-align: center;
+}
+
+#containers-search-image-dialog .modal-body {
+    height: 340px;
+}
+
+#containers-search-image-results {
+    display: block;
+    height: 300px;
+    overflow-y: scroll;
+    border: 1px solid #BABABA;
+    margin-top: 10px;
+}
+
+#containers-search-image-results tr:hover {
+    cursor: pointer;
+    background-color: #f5f9fc;
+}
+
+#containers-search-image-search {
+    background: url("images/search-icon.png") no-repeat 3px;
+    padding-left: 20px;
+}
+
+#containers-search-image-waiting.waiting {
+    margin: auto;
+    margin-top: 150px;
+}
+
+#containers-search-image-no-results {
+    margin: auto;
+    margin-top: 100px;
+    text-align: center;
 }

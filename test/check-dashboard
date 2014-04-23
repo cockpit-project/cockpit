@@ -113,8 +113,7 @@ class TestDashboard(MachineCase):
         b2.click('#dashboard_setup_server_dialog button.close')
         b2.wait_popdown('dashboard_setup_server_dialog')
 
-        # Hmm...
-        self.allow_journal_messages('Error receiving data: Connection reset by peer')
+        self.allow_journal_messages('.*: .* host key for server is not known: .*')
 
     def testSetup(self):
         b = self.browser

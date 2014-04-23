@@ -133,7 +133,7 @@ class TestMultiMachine(MachineCase):
         b.click_action_btn (action_btn_selector (m2_index))
         b.wait_visible (graph_selector (m2_index))
 
-        self.allow_journal_messages("Warning: Permanently added '.*' \\(RSA\\) to the list of known hosts.",
+        self.allow_journal_messages(".*: .* host key for server is not known: .*",
                                     "peer did not close io when expected",
                                     # Might happen when killing the agent.
                                     "localhost: dropping message while waiting for child to exit",

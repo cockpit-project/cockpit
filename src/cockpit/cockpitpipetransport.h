@@ -22,6 +22,7 @@
 
 #include <gio/gio.h>
 
+#include "cockpitpipe.h"
 #include "cockpittransport.h"
 
 G_BEGIN_DECLS
@@ -36,13 +37,11 @@ typedef struct _CockpitPipeTransportClass   CockpitPipeTransportClass;
 
 GType              cockpit_pipe_transport_get_type   (void) G_GNUC_CONST;
 
-CockpitTransport * cockpit_pipe_transport_new        (const gchar *name,
-                                                      int in_fd,
-                                                      int out_fd);
+CockpitTransport * cockpit_pipe_transport_new        (CockpitPipe *pipe);
 
-CockpitTransport * cockpit_pipe_transport_spawn      (const gchar *agent,
-                                                      const gchar *user,
-                                                      const gchar *client);
+CockpitTransport * cockpit_pipe_transport_new_fds    (const gchar *name,
+                                                      gint in_fd,
+                                                      gint out_fd);
 
 G_END_DECLS
 

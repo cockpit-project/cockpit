@@ -1032,11 +1032,9 @@ cockpit_ssh_transport_set_property (GObject *obj,
 
   switch (prop_id)
     {
-    case PROP_NAME:
+    case PROP_HOST:
       self->logname = g_value_dup_string (value);
       self->data->logname = self->logname;
-      break;
-    case PROP_HOST:
       g_warn_if_fail (ssh_options_set (self->data->session, SSH_OPTIONS_HOST,
                                        g_value_get_string (value)) == 0);
       break;
@@ -1233,7 +1231,6 @@ cockpit_ssh_transport_new (const gchar *host,
                            CockpitCreds *creds)
 {
   return g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                       "name", host,
                        "host", host,
                        "port", port,
                        "creds", creds,

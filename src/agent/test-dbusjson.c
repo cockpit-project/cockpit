@@ -58,7 +58,7 @@ dbus_server_thread (gpointer data)
   ctx = g_main_context_new ();
   g_main_context_push_thread_default (ctx);
 
-  transport = cockpit_pipe_transport_new ("mock", fd, fd);
+  transport = cockpit_pipe_transport_new_fds ("mock", fd, fd);
 
   channel = cockpit_dbus_json_open (transport, 444,
                                     "com.redhat.Cockpit.DBusTests.Test", "/otree");

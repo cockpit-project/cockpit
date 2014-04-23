@@ -493,6 +493,7 @@ process_open (WebSocketData *data,
   CockpitSession *session;
   CockpitTransport *transport;
   CockpitCreds *creds;
+  CockpitPipe *pipe;
   const gchar *specific_user;
   const gchar *password;
   const gchar *user;
@@ -539,8 +540,36 @@ process_open (WebSocketData *data,
 
       if (g_strcmp0 (host, "localhost") == 0)
         {
+          const gchar *argv_session[] =
+            { PACKAGE_LIBEXEC_DIR "/cockpit-session",
+              user, data->rhost, data->agent_program, NULL };
+          const gchar *argv_local[] =
+            { data->agent_program, NULL, };
+          gchar login[256];
+          const gchar **argv;
+
+          /*
+           * If we're already in the right session, then skip cockpit-session.
+           * This is used when testing, or running as your own user.
+           *
+           * This doesn't apply if this code is running as a service, or otherwise
+           * unassociated from a terminal, we get a non-zero return value from
+           * getlogin_r() in that case.
+           */
+          if (getlogin_r (login, sizeof (login)) == 0 &&
+              g_str_equal (login, user))
+            {
+              argv = argv_local;
+            }
+          else
+            {
+              argv = argv_session;
+            }
+
           /* Any failures happen asyncronously */
-          transport = cockpit_pipe_transport_spawn (data->agent_program, user, data->rhost);
+          pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+          transport = cockpit_pipe_transport_new (pipe);
+          g_object_unref (pipe);
         }
       else
         {
@@ -549,7 +578,6 @@ process_open (WebSocketData *data,
           else
             creds = cockpit_creds_new_password (user, password);
           transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                                    "name", host,
                                     "host", host,
                                     "port", data->specific_port,
                                     "command", data->agent_program,

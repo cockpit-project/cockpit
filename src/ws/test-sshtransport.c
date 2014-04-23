@@ -165,7 +165,6 @@ setup_transport (TestCase *tc,
     expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
 
   tc->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                                "name", "test",
                                 "host", "127.0.0.1",
 #if WITH_MOCK
                                 "port", (guint)tc->ssh_port,

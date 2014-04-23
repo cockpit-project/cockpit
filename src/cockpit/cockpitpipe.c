@@ -881,7 +881,6 @@ cockpit_pipe_connect (const gchar *name,
 
 /**
  * cockpit_pipe_spawn:
- * @pipe_gtype: the GType of the resulting pipe object
  * @argv: null terminated string array of command arguments
  * @env: optional null terminated string array of child environment
  * @directory: optional working directory of child process
@@ -900,8 +899,7 @@ cockpit_pipe_connect (const gchar *name,
  * Returns: (transfer full): newly allocated CockpitPipe.
  */
 CockpitPipe *
-cockpit_pipe_spawn (GType pipe_gtype,
-                    const gchar **argv,
+cockpit_pipe_spawn (const gchar **argv,
                     const gchar **env,
                     const gchar *directory)
 {
@@ -924,7 +922,7 @@ cockpit_pipe_spawn (GType pipe_gtype,
   if (name == NULL)
     name = g_strdup (argv[0]);
 
-  pipe = g_object_new (pipe_gtype,
+  pipe = g_object_new (COCKPIT_TYPE_PIPE,
                        "name", name,
                        "in-fd", session_stdout,
                        "out-fd", session_stdin,
@@ -1237,4 +1235,26 @@ cockpit_pipe_skip (GByteArray *buffer,
 {
   g_return_if_fail (buffer != NULL);
   g_byte_array_remove_range (buffer, 0, skip);
+}
+
+/**
+ * cockpit_pipe_new:
+ * @name: a name for debugging
+ * @in_fd: the input file descriptor
+ * @out_fd: the output file descriptor
+ *
+ * Create a pipe for the given file descriptors.
+ *
+ * Returns: (transfer full): a new CockpitPipe
+ */
+CockpitPipe *
+cockpit_pipe_new (const gchar *name,
+                  gint in_fd,
+                  gint out_fd)
+{
+  return g_object_new (COCKPIT_TYPE_PIPE,
+                       "name", name,
+                       "in-fd", in_fd,
+                       "out-fd", out_fd,
+                       NULL);
 }

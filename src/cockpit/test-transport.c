@@ -41,6 +41,7 @@
 
 typedef struct {
   CockpitTransport *transport;
+  CockpitPipe *pipe;
 } TestCase;
 
 static void
@@ -57,11 +58,12 @@ setup_with_child (TestCase *tc,
                             NULL, NULL, &pid, &in, &out, NULL, &error);
   g_assert_no_error (error);
 
-  tc->transport = g_object_new (COCKPIT_TYPE_PIPE_TRANSPORT,
-                                "name", "mock",
-                                "in-fd", out,
-                                "out-fd", in,
-                                "pid", pid);
+  tc->pipe = g_object_new (COCKPIT_TYPE_PIPE,
+                           "name", "mock",
+                           "in-fd", out,
+                           "out-fd", in,
+                           "pid", pid);
+  tc->transport = cockpit_pipe_transport_new (tc->pipe);
 }
 
 static void
@@ -73,7 +75,8 @@ setup_no_child (TestCase *tc,
   if (socketpair (PF_LOCAL, SOCK_STREAM, 0, sv) < 0)
     g_assert_not_reached ();
 
-  tc->transport = cockpit_pipe_transport_new ("mock", sv[0], sv[1]);
+  tc->pipe = cockpit_pipe_new ("mock", sv[0], sv[1]);
+  tc->transport = cockpit_pipe_transport_new (tc->pipe);
 }
 
 static void
@@ -88,6 +91,13 @@ teardown_transport (TestCase *tc,
 
   /* If this asserts, outstanding references to transport */
   g_assert (tc->transport == NULL);
+
+  g_object_add_weak_pointer (G_OBJECT (tc->pipe),
+                             (gpointer *)&tc->pipe);
+  g_object_unref (tc->pipe);
+
+  /* If this asserts, outstanding references to transport */
+  g_assert (tc->pipe == NULL);
 }
 
 static gboolean
@@ -261,7 +271,7 @@ test_terminate_problem (TestCase *tc,
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
-  g_assert (cockpit_pipe_get_pid (COCKPIT_PIPE (tc->transport), &pid));
+  g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert (pid != 0);
   kill (pid, SIGTERM);
 
@@ -287,7 +297,7 @@ test_read_error (void)
   cockpit_expect_warning ("*Bad file descriptor");
 
   /* Pass in a bad read descriptor */
-  transport = cockpit_pipe_transport_new ("test", 1000, fds[0]);
+  transport = cockpit_pipe_transport_new_fds ("test", 1000, fds[0]);
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
@@ -320,7 +330,7 @@ test_write_error (void)
   cockpit_expect_warning ("*Bad file descriptor");
 
   /* Pass in a bad write descriptor */
-  transport = cockpit_pipe_transport_new ("test", fds[0], 1000);
+  transport = cockpit_pipe_transport_new_fds ("test", fds[0], 1000);
 
   sent = g_bytes_new ("test", 4);
   cockpit_transport_send (transport, 3333, sent);
@@ -357,7 +367,7 @@ test_read_combined (void)
   g_assert (out >= 0);
 
   /* Pass in a read end of the pipe */
-  transport = cockpit_pipe_transport_new ("test", fds[0], out);
+  transport = cockpit_pipe_transport_new_fds ("test", fds[0], out);
   g_signal_connect (transport, "recv", G_CALLBACK (on_recv_multiple), &state);
 
   /* Write two messages to the pipe at once */
@@ -395,7 +405,7 @@ test_read_truncated (void)
   cockpit_expect_warning ("*received truncated 1 byte frame");
 
   /* Pass in a read end of the pipe */
-  transport = cockpit_pipe_transport_new ("test", fds[0], out);
+  transport = cockpit_pipe_transport_new_fds ("test", fds[0], out);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
   /* Not a full 4 byte length (ie: truncated) */

@@ -43,17 +43,26 @@
  */
 
 struct _CockpitPipeTransport {
-  CockpitPipe parent_instance;
+  GObject parent_instance;
   gchar *name;
+  CockpitPipe *pipe;
+  gulong read_sig;
+  gulong close_sig;
 };
 
 struct _CockpitPipeTransportClass {
-  CockpitPipeClass parent_class;
+  GObjectClass parent_class;
+};
+
+enum {
+    PROP_0,
+    PROP_NAME,
+    PROP_PIPE,
 };
 
 static void cockpit_pipe_transport_iface (CockpitTransportIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (CockpitPipeTransport, cockpit_pipe_transport, COCKPIT_TYPE_PIPE,
+G_DEFINE_TYPE_WITH_CODE (CockpitPipeTransport, cockpit_pipe_transport, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_TRANSPORT, cockpit_pipe_transport_iface)
 );
 
@@ -64,11 +73,12 @@ cockpit_pipe_transport_init (CockpitPipeTransport *self)
 }
 
 static void
-cockpit_pipe_transport_read (CockpitPipe *pipe,
-                             GByteArray *input,
-                             gboolean end_of_data)
+on_pipe_read (CockpitPipe *pipe,
+              GByteArray *input,
+              gboolean end_of_data,
+              gpointer user_data)
 {
-  CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (pipe);
+  CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (user_data);
   GBytes *message;
   GBytes *payload;
   guint channel;
@@ -114,10 +124,11 @@ cockpit_pipe_transport_read (CockpitPipe *pipe,
 }
 
 static void
-cockpit_pipe_signal_close (CockpitPipe *pipe,
-                           const gchar *problem)
+on_pipe_close (CockpitPipe *pipe,
+               const gchar *problem,
+               gpointer user_data)
 {
-  CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (pipe);
+  CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (user_data);
   GError *error = NULL;
   gint status;
 
@@ -154,7 +165,7 @@ cockpit_pipe_signal_close (CockpitPipe *pipe,
   g_debug ("%s: closed%s%s", self->name,
            problem ? ": " : "", problem ? problem : "");
 
-  cockpit_transport_emit_closed (COCKPIT_TRANSPORT (pipe), problem);
+  cockpit_transport_emit_closed (COCKPIT_TRANSPORT (self), problem);
 }
 
 static void
@@ -164,7 +175,51 @@ cockpit_pipe_transport_constructed (GObject *object)
 
   G_OBJECT_CLASS (cockpit_pipe_transport_parent_class)->constructed (object);
 
-  g_object_get (self, "name", &self->name, NULL);
+  g_return_if_fail (self->pipe != NULL);
+  g_object_get (self->pipe, "name", &self->name, NULL);
+  self->read_sig = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
+  self->close_sig = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
+}
+
+static void
+cockpit_pipe_transport_get_property (GObject *object,
+                                     guint prop_id,
+                                     GValue *value,
+                                     GParamSpec *pspec)
+{
+  CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (object);
+
+  switch (prop_id)
+    {
+    case PROP_NAME:
+      g_value_set_string (value, self->name);
+      break;
+    case PROP_PIPE:
+      g_value_set_object (value, self->pipe);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+cockpit_pipe_transport_set_property (GObject *object,
+                                     guint prop_id,
+                                     const GValue *value,
+                                     GParamSpec *pspec)
+{
+  CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (object);
+
+  switch (prop_id)
+    {
+    case PROP_PIPE:
+      self->pipe = g_value_dup_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
 }
 
 static void
@@ -172,7 +227,13 @@ cockpit_pipe_transport_finalize (GObject *object)
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (object);
 
+  if (self->read_sig)
+    g_signal_handler_disconnect (self->pipe, self->read_sig);
+  if (self->close_sig)
+    g_signal_handler_disconnect (self->pipe, self->close_sig);
+
   g_free (self->name);
+  g_clear_object (&self->pipe);
 
   G_OBJECT_CLASS (cockpit_pipe_transport_parent_class)->finalize (object);
 }
@@ -181,14 +242,18 @@ static void
 cockpit_pipe_transport_class_init (CockpitPipeTransportClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  CockpitPipeClass *pipe_class = COCKPIT_PIPE_CLASS (klass);
 
   gobject_class->constructed = cockpit_pipe_transport_constructed;
+  gobject_class->get_property = cockpit_pipe_transport_get_property;
+  gobject_class->set_property = cockpit_pipe_transport_set_property;
   gobject_class->finalize = cockpit_pipe_transport_finalize;
 
-  pipe_class->read = cockpit_pipe_transport_read;
-  pipe_class->close = cockpit_pipe_signal_close;
+  g_object_class_override_property (gobject_class, PROP_NAME, "name");
 
+  g_object_class_install_property (gobject_class, PROP_PIPE,
+              g_param_spec_object ("pipe", NULL, NULL,
+                                   COCKPIT_TYPE_PIPE,
+                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -197,7 +262,6 @@ cockpit_pipe_transport_send (CockpitTransport *transport,
                              GBytes *payload)
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (transport);
-  CockpitPipe *pipe;
   GBytes *prefix;
   gchar *prefix_str;
   gsize prefix_len;
@@ -212,9 +276,8 @@ cockpit_pipe_transport_send (CockpitTransport *transport,
 
   prefix = g_bytes_new_take (prefix_str, prefix_len);
 
-  pipe = COCKPIT_PIPE (self);
-  cockpit_pipe_write (pipe, prefix);
-  cockpit_pipe_write (pipe, payload);
+  cockpit_pipe_write (self->pipe, prefix);
+  cockpit_pipe_write (self->pipe, payload);
   g_bytes_unref (prefix);
 
   g_debug ("%s: queued %d byte payload", self->name, (int)g_bytes_get_size (payload));
@@ -224,7 +287,8 @@ static void
 cockpit_pipe_transport_close (CockpitTransport *transport,
                               const gchar *problem)
 {
-  cockpit_pipe_close (COCKPIT_PIPE (transport), problem);
+  CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (transport);
+  cockpit_pipe_close (self->pipe, problem);
 }
 
 static void
@@ -236,6 +300,22 @@ cockpit_pipe_transport_iface (CockpitTransportIface *iface)
 
 /**
  * cockpit_pipe_transport_new:
+ * @pipe: the pipe to send data over
+ *
+ * Create a new CockpitPipeTransport for a pipe
+ *
+ * Returns: (transfer full): the new transport
+ */
+CockpitTransport *
+cockpit_pipe_transport_new (CockpitPipe *pipe)
+{
+  return g_object_new (COCKPIT_TYPE_PIPE_TRANSPORT,
+                       "pipe", pipe,
+                       NULL);
+}
+
+/**
+ * cockpit_pipe_transport_new_fds:
  * @name: name for debugging
  * @in_fd: the file descriptor to read from
  * @out_fd: the file descriptor to write to
@@ -246,69 +326,16 @@ cockpit_pipe_transport_iface (CockpitTransportIface *iface)
  * Returns: (transfer full): the new transport
  */
 CockpitTransport *
-cockpit_pipe_transport_new (const gchar *name,
-                            int in_fd,
-                            int out_fd)
+cockpit_pipe_transport_new_fds (const gchar *name,
+                                gint in_fd,
+                                gint out_fd)
 {
-  return g_object_new (COCKPIT_TYPE_PIPE_TRANSPORT,
-                       "name", name,
-                       "in-fd", in_fd,
-                       "out-fd", out_fd,
-                       "pid", 0,
-                       NULL);
-}
+  CockpitTransport *transport;
+  CockpitPipe *pipe;
 
-/**
- * cockpit_pipe_transport_spawn:
- * @agent: the process to run
- * @user: the user to use
- * @client: for logging, the caller this is being done for
- *
- * Create a new #CockpitPipeTransport for cockpit-agent
- * on the local machine.
- *
- * Returns: (transfer full): the new transport
- */
-CockpitTransport *
-cockpit_pipe_transport_spawn (const gchar *agent,
-                              const gchar *user,
-                              const gchar *client)
-{
-  const gchar *argv_session[] =
-    { PACKAGE_LIBEXEC_DIR "/cockpit-session",
-      user,
-      client,
-      agent,
-      NULL
-    };
+  pipe = cockpit_pipe_new (name, in_fd, out_fd);
+  transport = cockpit_pipe_transport_new (pipe);
+  g_object_unref (pipe);
 
-  const gchar *argv_local[] = {
-      agent,
-      NULL,
-  };
-
-  gchar login[256];
-  const gchar **argv;
-
-
-  /*
-   * If we're already in the right session, then skip cockpit-session.
-   * This is used when testing, or running as your own user.
-   *
-   * This doesn't apply if this code is running as a service, or otherwise
-   * unassociated from a terminal, we get a non-zero return value from
-   * getlogin_r() in that case.
-   */
-  if (getlogin_r (login, sizeof (login)) == 0 &&
-      g_str_equal (login, user))
-    {
-      argv = argv_local;
-    }
-  else
-    {
-      argv = argv_session;
-    }
-
-  return COCKPIT_TRANSPORT (cockpit_pipe_spawn (COCKPIT_TYPE_PIPE_TRANSPORT,
-                                                argv, NULL, NULL));
+  return transport;
 }

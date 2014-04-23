@@ -613,7 +613,7 @@ test_close_error (TestCase *test,
 
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);
-  expect_control_message (received, "close", 4, "reason", "disconnected", NULL);
+  expect_control_message (received, "close", 4, "reason", "terminated", NULL);
   g_bytes_unref (received);
   received = NULL;
 

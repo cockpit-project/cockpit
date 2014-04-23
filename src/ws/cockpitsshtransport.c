@@ -952,7 +952,7 @@ cockpit_ssh_source_dispatch (GSource *source,
       if (msg && (strstr (msg, "disconnected") || strstr (msg, "SSH_MSG_DISCONNECT")))
         {
           g_debug ("%s: failed to process channel: %s", self->logname, msg);
-          close_immediately (self, "disconnected");
+          close_immediately (self, "terminated");
         }
       else
         {

@@ -17,6 +17,41 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* D-BUS CLIENT
+
+   - client = new DBusClient(address, options)
+
+   Creates a new D-Bus client for a service on the machine with the
+   given address.
+
+   XXX - options
+
+   A client immediately starts to connect to the service in the
+   background and retrieves its object/interface/property tree.  Once
+   that is done, 'client.state' changes to "ready" and the client
+   emits a "state-changed" signal.
+
+   With some care, you can use a client before it is 'ready'.
+
+   - iface = client.lookup(objpath, iface)
+
+   If the client knows about a object at 'objpath' with the given
+   interface name, it will be returned.  Otherwise, 'null' is
+   returned.
+
+   - iface = client.get(objpath, iface)
+
+   Creates a new proxy for 'objpath' and 'iface'.  This will never
+   return 'null', but the returned proxy might not have any
+   properties.  It will be populated with properties in the
+   background, and the usual change notification signals will be
+   emitted as that happens.
+
+   You can use 'iface.call' even on an empty proxy and the call will
+   be delayed until the proxy (and its client) are ready to carry it
+   out.
+ */
+
 var phantom_checkpoint = function () { };
 
 var $cockpit = $cockpit || { };
@@ -211,7 +246,6 @@ DBusClient.prototype = {
         this._objmap = {};
         this._cookie_counter = 0;
         this._call_reply_map = {};
-        this._was_connected = false;
         this._last_error = null;
         this.error_details = {};
         this.connect();
@@ -301,35 +335,22 @@ DBusClient.prototype = {
     },
 
     _handle_seed : function(data, config) {
-        var objpath;
-        if (!this._was_connected) {
-            for (objpath in data) {
+        for (var objpath in data) {
+            if (objpath in this._objmap) {
+                this._objmap[objpath]._reseed(data[objpath], this);
+            } else {
                 this._objmap[objpath] = new DBusObject(data[objpath], this);
+                $(this).trigger("objectAdded", this._objmap[objpath]);
             }
-        } else {
-            // re-seed the object/iface/prop tree, synthesizing
-            // signals on the way.
-
-            for (objpath in data) {
-                if (objpath in this._objmap) {
-                    this._objmap[objpath]._reseed(data[objpath], this);
-                } else {
-                    this._objmap[objpath] = new DBusObject(data[objpath], this);
-                    $(this).trigger("objectAdded", this._objmap[objpath]);
-                }
-            }
-
-            for (objpath in this._objmap) {
-                if (!(objpath in data)) {
-                    var obj = this._objmap[objpath];
-                    delete this._objmap[objpath];
-                    $(this).trigger("objectRemoved", obj);
-                }
-            }
-
         }
 
-        this._was_connected = true;
+        for (objpath in this._objmap) {
+            if (!(objpath in data)) {
+                var obj = this._objmap[objpath];
+                delete this._objmap[objpath];
+                $(this).trigger("objectRemoved", obj);
+            }
+        }
 
         this.state = "ready";
         this.error = null;
@@ -488,6 +509,27 @@ DBusClient.prototype = {
                 return null;
         } else {
             return this._objmap[objpath];
+        }
+    },
+
+    get : function(objpath, iface_name) {
+        var obj = this._objmap[objpath];
+        if (!obj) {
+            obj = new DBusObject({'objpath': objpath, ifaces: {}}, this);
+            this._objmap[objpath] = obj;
+            $(this).trigger("objectAdded", obj);
+        }
+        if (iface_name) {
+            var iface = obj._ifaces[iface_name];
+            if (!iface) {
+                iface = new DBusInterface({}, iface_name, obj, this);
+                obj._ifaces[iface_name] = iface;
+                $(obj).trigger("interfaceAdded", iface);
+                $(this).trigger("interfaceAdded", [obj, iface]);
+            }
+            return iface;
+        } else {
+            return obj;
         }
     },
 

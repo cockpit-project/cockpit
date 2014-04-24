@@ -161,26 +161,13 @@ cockpit_getpwnam_a (const gchar *user,
   return ret;
 }
 
-static gboolean
-user_is_authorized (const gchar *user,
-                    GError **error)
-{
-  /* Welcome!
-   */
-  return TRUE;
-}
-
-static gboolean
+static CockpitCreds *
 verify_userpass (CockpitAuth *self,
                  const char *content,
-                 char **out_user,
-                 char **out_password,
                  GError **error)
 {
   gchar **lines = g_strsplit (content, "\n", 0);
-  gboolean ret = FALSE;
-  gchar *user;
-  gchar *password;
+  CockpitCreds *ret = NULL;
 
   if (lines[0] == NULL
       || lines[1] == NULL
@@ -188,32 +175,15 @@ verify_userpass (CockpitAuth *self,
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
                    "Malformed input");
-      ret = FALSE;
-      goto out;
+      return NULL;
     }
 
-  user = lines[0];
-  password = lines[1];
-
-  if (!cockpit_auth_verify_password (self, user, password, error))
-    goto out;
-
-  if (!user_is_authorized (user, error))
-    goto out;
-
-  if (out_user)
-    *out_user = g_strdup (user);
-  if (out_password)
-    *out_password = g_strdup (password);
-
-  ret = TRUE;
-
-out:
+  ret = cockpit_auth_verify_password (self, lines[0], lines[1], error);
   g_strfreev (lines);
   return ret;
 }
 
-static gboolean
+static CockpitCreds *
 cockpit_auth_pam_verify_password (CockpitAuth *auth,
                                   const gchar *user,
                                   const gchar *password,
@@ -222,7 +192,7 @@ cockpit_auth_pam_verify_password (CockpitAuth *auth,
   pam_handle_t *pamh = NULL;
   const char *pam_user = NULL;
   int pam_status = 0;
-  gboolean ret = FALSE;
+  CockpitCreds *ret = NULL;
   struct pam_conv_data data;
   struct pam_conv conv;
 
@@ -237,25 +207,24 @@ cockpit_auth_pam_verify_password (CockpitAuth *auth,
     pam_status = pam_authenticate (pamh, 0);
 
   if (pam_status == PAM_SUCCESS)
-    pam_status = pam_get_item (pamh, PAM_USER, (const void **)&pam_user);
+    {
+      pam_status = pam_get_item (pamh, PAM_USER, (const void **)&pam_user);
+      if (pam_status == PAM_SUCCESS)
+          ret = cockpit_creds_new_password (pam_user, password);
+    }
 
   if (pam_status == PAM_AUTH_ERR || pam_status == PAM_USER_UNKNOWN)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Authentication failed");
-      ret = FALSE;
       goto out;
     }
-
-  if (pam_status != PAM_SUCCESS)
+  else if (pam_status != PAM_SUCCESS)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
                    "%s", pam_strerror (pamh, pam_status));
-      ret = FALSE;
       goto out;
     }
-
-  ret = TRUE;
 
 out:
   if (pamh)
@@ -385,16 +354,14 @@ cockpit_auth_check_userpass (CockpitAuth *self,
   gs_free char *cookie = NULL;
   gs_free gchar *cookie_b64 = NULL;
   gchar *header;
-  char *password;
-  char *user;
 
-  if (!verify_userpass (self, userpass, &user, &password, error))
+  creds = verify_userpass (self, userpass, error);
+  if (!creds)
     {
       g_debug ("user failed to verify");
       return FALSE;
     }
 
-  creds = cockpit_creds_take_password (user, password);
   cookie = creds_to_cookie (self, creds);
 
   if (out_headers)
@@ -454,7 +421,7 @@ cockpit_auth_new (void)
   return (CockpitAuth *)g_object_new (COCKPIT_TYPE_AUTH, NULL);
 }
 
-gboolean
+CockpitCreds *
 cockpit_auth_verify_password (CockpitAuth *auth,
                               const gchar *user,
                               const gchar *password,

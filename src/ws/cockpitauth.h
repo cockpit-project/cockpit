@@ -55,7 +55,7 @@ struct _CockpitAuthClass
                                           GHashTable *out_headers);
 
   /* vfunc */
-  gboolean    (* verify_password)        (CockpitAuth *auth,
+  CockpitCreds * (* verify_password)     (CockpitAuth *auth,
                                           const gchar *user,
                                           const gchar *password,
                                           GError **error);
@@ -75,7 +75,7 @@ CockpitCreds *  cockpit_auth_check_headers   (CockpitAuth *auth,
                                               GHashTable *in_headers,
                                               GHashTable *out_headers);
 
-gboolean        cockpit_auth_verify_password (CockpitAuth *auth,
+CockpitCreds *  cockpit_auth_verify_password (CockpitAuth *auth,
                                               const gchar *user,
                                               const gchar *password,
                                               GError **error);

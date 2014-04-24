@@ -49,7 +49,7 @@ mock_auth_finalize (GObject *obj)
   G_OBJECT_CLASS (mock_auth_parent_class)->finalize (obj);
 }
 
-static gboolean
+static CockpitCreds *
 mock_auth_verify_password (CockpitAuth *auth,
                            const gchar *user,
                            const gchar *password,
@@ -62,7 +62,7 @@ mock_auth_verify_password (CockpitAuth *auth,
 
   if (g_str_equal (user, self->expect_user) &&
       g_str_equal (password, self->expect_password))
-    return TRUE;
+    return cockpit_creds_new_password (user, password);
 
   g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                "Authentication failed");

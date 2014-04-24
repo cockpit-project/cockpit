@@ -42,6 +42,7 @@ const char *rhost;
 const char *agent;
 char line[UT_LINESIZE + 1];
 static pid_t child;
+static char **env;
 
 static int
 pam_conv_func (int num_msg,
@@ -156,7 +157,9 @@ fork_session (struct passwd *pw,
 static int
 session (void)
 {
-  execl (agent, agent, NULL);
+  char *argv[] = { (char *)agent, NULL };
+  assert (env != NULL);
+  execve (agent, argv, env);
   warn ("can't exec %s", agent);
   return 127;
 }
@@ -208,6 +211,10 @@ main (int argc,
   check (pam_setcred (pamh, PAM_ESTABLISH_CRED));
   check (pam_open_session (pamh, 0));
   check (pam_setcred (pamh, PAM_REINITIALIZE_CRED));
+
+  env = pam_getenvlist (pamh);
+  if (env == NULL)
+    errx (1, "couldn't get PAM environment");
 
   utmp_log (1);
 

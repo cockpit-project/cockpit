@@ -39,21 +39,14 @@ cockpit_creds_free (gpointer data)
 }
 
 CockpitCreds *
-cockpit_creds_take_password (gchar *user,
-                             gchar *password)
-{
-  CockpitCreds *creds = g_new0 (CockpitCreds, 1);
-  creds->user = user;
-  creds->password = password;
-  creds->refs = 1;
-  return creds;
-}
-
-CockpitCreds *
 cockpit_creds_new_password (const gchar *user,
                             const gchar *password)
 {
-  return cockpit_creds_take_password (g_strdup (user), g_strdup (password));
+  CockpitCreds *creds = g_new0 (CockpitCreds, 1);
+  creds->user = g_strdup (user);
+  creds->password = g_strdup (password);
+  creds->refs = 1;
+  return creds;
 }
 
 CockpitCreds *

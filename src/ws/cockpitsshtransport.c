@@ -26,6 +26,8 @@
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
 
+#include <glib/gstdio.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -65,6 +67,7 @@ typedef struct {
   CockpitCreds *creds;
   gchar *command;
   gchar *expect_key;
+  gchar *knownhosts_file;
 
   /* Output from the connect thread */
   ssh_channel channel;
@@ -98,38 +101,85 @@ auth_method_description (int methods)
   return g_string_free (string, FALSE);
 }
 
+/*
+ * NOTE: This function changes the SSH_OPTIONS_KNOWNHOSTS option on
+ * the session.
+ *
+ * We can't save and restore it since ssh_options_get doesn't allow us
+ * to retrieve the old value of SSH_OPTIONS_KNOWNHOSTS.
+ *
+ * HACK: This function should be provided by libssh, which would also
+ * avoid using mktemp.
+ *
+ * https://red.libssh.org/issues/162
+*/
+static gchar *
+get_knownhosts_line (ssh_session session)
+{
+  char template[] = "/tmp/cockpit-XXXXXX";
+  GError *error = NULL;
+  char *name;
+  gchar *line;
+
+  name = mktemp (template);
+  if (name == NULL)
+    {
+      g_warning ("Couldn't make temporary name for knownhosts line: %m");
+      return NULL;
+    }
+
+  if (ssh_options_set (session, SSH_OPTIONS_KNOWNHOSTS, name) != SSH_OK)
+    {
+      g_warning ("Couldn't set SSH_OPTIONS_KNOWNHOSTS option.");
+      return NULL;
+    }
+
+  if (ssh_write_knownhost (session) != SSH_OK)
+    {
+      g_warning ("Couldn't write knownhosts file: %s", ssh_get_error (session));
+      return NULL;
+    }
+
+  if (!g_file_get_contents (name, &line, NULL, &error))
+    {
+      g_warning ("Couldn't read temporary known_hosts %s: %s", name, error->message);
+      g_clear_error (&error);
+      line = NULL;
+    }
+
+  g_strstrip (line);
+  g_unlink (name);
+  return line;
+}
+
 static const gchar *
 verify_knownhost (CockpitSshData *data)
 {
   const gchar *ret = "unknown-hostkey";
-  ssh_key key;
+  ssh_key key = NULL;
   unsigned char *hash = NULL;
   const char *type = NULL;
-  char *base_64;
   int state;
   gsize len;
 
-  if (ssh_get_publickey (data->session, &key) == SSH_OK)
+  data->host_key = get_knownhosts_line (data->session);
+  if (data->host_key == NULL)
     {
-      type = ssh_key_type_to_char (ssh_key_type (key));
-      if (type == NULL)
-        {
-          g_warning ("Couldn't lookup host key type");
-          ret = "internal-error";
-          goto done;
-        }
-      if (ssh_pki_export_pubkey_base64 (key, &base_64) != SSH_OK)
-        {
-          g_warning ("Couldn't base64 encode host key");
-          ret = "internal-error";
-          goto done;
-        }
-      data->host_key = g_strdup_printf ("%s %s", type, base_64);
-      ssh_string_free_char (base_64);
+      ret = "internal-error";
+      goto done;
     }
-  else
+
+  if (ssh_get_publickey (data->session, &key) != SSH_OK)
     {
       g_warning ("Couldn't look up ssh host key");
+      ret = "internal-error";
+      goto done;
+    }
+
+  type = ssh_key_type_to_char (ssh_key_type (key));
+  if (type == NULL)
+    {
+      g_warning ("Couldn't lookup host key type");
       ret = "internal-error";
       goto done;
     }
@@ -165,6 +215,13 @@ verify_knownhost (CockpitSshData *data)
     }
   else
     {
+      if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, data->knownhosts_file) != SSH_OK)
+        {
+          g_warning ("Couldn't set knownhosts file location");
+          ret = "internal-error";
+          goto done;
+        }
+
       state = ssh_is_server_known (data->session);
       if (state == SSH_SERVER_KNOWN_OK)
         {
@@ -334,6 +391,7 @@ cockpit_ssh_data_free (CockpitSshData *data)
   if (data->host_fingerprint)
     ssh_string_free_char (data->host_fingerprint);
   ssh_free (data->session);
+  g_free (data->knownhosts_file);
   g_free (data);
 }
 
@@ -992,7 +1050,7 @@ cockpit_ssh_transport_set_property (GObject *obj,
       string = g_value_get_string (value);
       if (string == NULL)
         string = PACKAGE_LOCALSTATE_DIR "/lib/cockpit/known_hosts";
-      g_warn_if_fail (ssh_options_set (self->data->session, SSH_OPTIONS_KNOWNHOSTS, string) == 0);
+      self->data->knownhosts_file = g_strdup (string);
       break;
     case PROP_CREDS:
       self->data->creds = g_value_dup_boxed (value);
@@ -1183,13 +1241,17 @@ cockpit_ssh_transport_new (const gchar *host,
 }
 
 /**
- * cockpit_ssh_transport_get_hostkey:
+ * cockpit_ssh_transport_get_host_key:
  * @self: the ssh tranpsort
  *
  * Get the host key of the ssh connection. This is only
  * valid after the transport opens ... and since you
  * can't detect that reliably, you really should only
  * be calling this after the transport closes.
+ *
+ * The host key is a opaque string.  You can pass it to the AddMachine
+ * method of cockpitd, for example, but you should not try to
+ * interpret it.
  *
  * Returns: (transfer none): the host key
  */

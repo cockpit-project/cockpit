@@ -717,6 +717,7 @@ test_unknown_host_key (TestCase *test,
   WebSocketConnection *ws;
   GThread *thread;
   GBytes *received = NULL;
+  gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   cockpit_expect_info ("*New connection from*");
   cockpit_expect_message ("*host key for server is not known*");
@@ -734,13 +735,14 @@ test_unknown_host_key (TestCase *test,
   /* And we should have received a close message */
   g_assert (received != NULL);
   expect_control_message (received, "close", 4, "reason", "unknown-hostkey",
-                          "host-key", MOCK_RSA_KEY,
+                          "host-key", knownhosts,
                           "host-fingerprint", MOCK_RSA_FP,
                           NULL);
   g_bytes_unref (received);
   received = NULL;
 
   close_client_and_stop_web_service (test, ws, thread);
+  g_free (knownhosts);
 }
 
 static void
@@ -751,6 +753,7 @@ test_expect_host_key (TestCase *test,
   GThread *thread;
   GBytes *sent;
   GBytes *received = NULL;
+  gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   /* No known hosts */
   test->known_hosts = "/dev/null";
@@ -762,7 +765,7 @@ test_expect_host_key (TestCase *test,
   /* Send the open control message that starts the agent specify a specific host key. */
   sent = build_control_message ("open", 4,
                                 "payload", "test-text",
-                                "host-key", MOCK_RSA_KEY,
+                                "host-key", knownhosts,
                                 NULL);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
@@ -780,6 +783,7 @@ test_expect_host_key (TestCase *test,
   received = NULL;
 
   close_client_and_stop_web_service (test, ws, thread);
+  g_free (knownhosts);
 }
 
 static void

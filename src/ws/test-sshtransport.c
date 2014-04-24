@@ -140,6 +140,7 @@ setup_transport (TestCase *tc,
   CockpitCreds *creds;
   const gchar *known_hosts;
   const gchar *command;
+  gchar *expect_knownhosts = NULL;
 
 #if WITH_MOCK
   setup_mock_sshd (tc, data);
@@ -160,6 +161,9 @@ setup_transport (TestCase *tc,
   if (!command)
     command = "cat";
 
+  if (fixture->expect_key)
+    expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
+
   tc->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "name", "test",
                                 "host", "127.0.0.1",
@@ -171,10 +175,11 @@ setup_transport (TestCase *tc,
                                 "command", command,
                                 "known-hosts", known_hosts,
                                 "creds", creds,
-                                "host-key", fixture->expect_key,
+                                "host-key", expect_knownhosts,
                                 NULL);
 
   cockpit_creds_unref (creds);
+  g_free (expect_knownhosts);
 }
 
 static void
@@ -493,6 +498,7 @@ test_get_host_key (TestCase *tc,
   gboolean closed = FALSE;
   gchar *ssh_key;
   gchar *ssh_fingerprint;
+  gchar *knownhosts;
 
   sent = g_bytes_new_static ("the message", 11);
   g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &received);
@@ -507,16 +513,19 @@ test_get_host_key (TestCase *tc,
   g_bytes_unref (received);
   received = NULL;
 
-  g_assert_cmpstr (cockpit_ssh_transport_get_host_key (COCKPIT_SSH_TRANSPORT (tc->transport)), ==, MOCK_RSA_KEY);
+  knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, MOCK_RSA_KEY);
+
+  g_assert_cmpstr (cockpit_ssh_transport_get_host_key (COCKPIT_SSH_TRANSPORT (tc->transport)), ==, knownhosts);
   g_assert_cmpstr (cockpit_ssh_transport_get_host_fingerprint (COCKPIT_SSH_TRANSPORT (tc->transport)), ==, MOCK_RSA_FP);
 
   g_object_get (tc->transport, "host-key", &ssh_key, "host-fingerprint", &ssh_fingerprint, NULL);
-  g_assert_cmpstr (ssh_key, ==, MOCK_RSA_KEY);
+  g_assert_cmpstr (ssh_key, ==, knownhosts);
   g_free (ssh_key);
   g_assert_cmpstr (ssh_fingerprint, ==, MOCK_RSA_FP);
   g_free (ssh_fingerprint);
 
   g_signal_handlers_disconnect_by_func (tc->transport, on_closed_set_flag, &closed);
+  g_free (knownhosts);
 }
 
 static const TestFixture fixture_expect_host_key = {

@@ -314,8 +314,8 @@ update_known_hosts_inlock (Machines *machines,
     sep = "\n";
 
   /* Write out updated known hosts file */
-  updated = g_strdup_printf ("%s%s%s %s\n", contents ? contents : "",
-                             sep, address, host_key);
+  updated = g_strdup_printf ("%s%s%s\n", contents ? contents : "",
+                             sep, host_key);
   g_free (contents);
 
   g_file_set_contents (machines->known_hosts, updated, -1, &local_error);

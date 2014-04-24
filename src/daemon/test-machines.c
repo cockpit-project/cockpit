@@ -159,7 +159,7 @@ test_new_known_hosts (TestCase *tc,
 
   g_assert (g_unlink (tc->known_hosts) == 0);
 
-  cockpit_machines_call_add (tc->proxy, "blah", "ssh-rsa xxxxyyyyzzzz", NULL, on_ready_get_result, &result);
+  cockpit_machines_call_add (tc->proxy, "blah", "blah:22 ssh-rsa xxxxyyyyzzzz", NULL, on_ready_get_result, &result);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
   cockpit_machines_call_add_finish (tc->proxy, &path, result, &error);
@@ -171,7 +171,7 @@ test_new_known_hosts (TestCase *tc,
 
   g_file_get_contents (tc->known_hosts, &contents, NULL, &error);
   g_assert_no_error (error);
-  g_assert_cmpstr (contents, ==, "blah ssh-rsa xxxxyyyyzzzz\n");
+  g_assert_cmpstr (contents, ==, "blah:22 ssh-rsa xxxxyyyyzzzz\n");
   g_free (contents);
 }
 
@@ -187,7 +187,7 @@ test_append_known_hosts (TestCase *tc,
   g_file_set_contents (tc->known_hosts, "# comment", -1, &error);
   g_assert_no_error (error);
 
-  cockpit_machines_call_add (tc->proxy, "blah", "ssh-rsa xxxxyyyyzzzz", NULL, on_ready_get_result, &result);
+  cockpit_machines_call_add (tc->proxy, "blah", "blah:22 ssh-rsa xxxxyyyyzzzz", NULL, on_ready_get_result, &result);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
   cockpit_machines_call_add_finish (tc->proxy, &path, result, &error);
@@ -199,7 +199,7 @@ test_append_known_hosts (TestCase *tc,
 
   g_file_get_contents (tc->known_hosts, &contents, NULL, &error);
   g_assert_no_error (error);
-  g_assert_cmpstr (contents, ==, "# comment\nblah ssh-rsa xxxxyyyyzzzz\n");
+  g_assert_cmpstr (contents, ==, "# comment\nblah:22 ssh-rsa xxxxyyyyzzzz\n");
   g_free (contents);
 }
 

@@ -34,9 +34,6 @@ GType           cockpit_creds_get_type       (void) G_GNUC_CONST;
 CockpitCreds *  cockpit_creds_new_password   (const gchar *user,
                                               const gchar *password);
 
-CockpitCreds *  cockpit_creds_take_password  (gchar *user,
-                                              gchar *password);
-
 CockpitCreds *  cockpit_creds_ref            (CockpitCreds *creds);
 
 void            cockpit_creds_unref          (gpointer creds);

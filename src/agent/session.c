@@ -136,8 +136,24 @@ fork_session (void (*func) (void))
     {
       signal (SIGTERM, SIG_DFL);
 
+      if (setgid (pw->pw_gid) < 0)
+        {
+          fprintf (stderr, "setgid() failed: %m");
+          _exit (42);
+        }
+
       if (setuid (pw->pw_uid) < 0)
-        _exit (42);
+        {
+          fprintf (stderr, "setuid() failed: %m");
+          _exit (42);
+        }
+
+      if (getuid() != geteuid() &&
+          getgid() != getegid())
+        {
+          fprintf (stderr, "couldn't drop privileges");
+          _exit (42);
+        }
 
       func ();
       _exit (0);

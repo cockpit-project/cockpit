@@ -277,7 +277,8 @@ main (int argc,
   if (!opt_disable_auth)
     data.auth = cockpit_auth_new ();
 
-  data.agent_program = opt_agent_program;
+  if (opt_agent_program)
+    cockpit_ws_agent_program = opt_agent_program;
 
   server = cockpit_web_server_new (opt_port,
                                    data.certificate,

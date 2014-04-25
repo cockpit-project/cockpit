@@ -985,19 +985,13 @@ cockpit_rest_json_recv (CockpitChannel *channel,
                         GBytes *message)
 {
   CockpitRestJson *self = (CockpitRestJson *)channel;
+  JsonObject *object = NULL;
   GError *error = NULL;
-  JsonNode *node = NULL;
 
-  node = cockpit_json_parse_bytes (message, &error);
-  if (node)
-    {
-      if (json_node_get_node_type (node) != JSON_NODE_OBJECT)
-          g_set_error (&error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_UNKNOWN, "Not an object");
-    }
-
+  object = cockpit_json_parse_bytes (message, &error);
   if (error == NULL)
     {
-      cockpit_rest_request_create (self, json_node_get_object (node));
+      cockpit_rest_request_create (self, object);
     }
   else
     {
@@ -1006,7 +1000,7 @@ cockpit_rest_json_recv (CockpitChannel *channel,
       g_error_free (error);
     }
 
-  json_node_free (node);
+  json_object_unref (object);
 }
 
 static void

@@ -457,7 +457,7 @@ cockpit_json_skip (const gchar *data,
  * Returns: (transfer full): the parsed node or %NULL
  */
 JsonNode *
-cockpit_json_parse (const char *data,
+cockpit_json_parse (const gchar *data,
                     gssize length,
                     GError **error)
 {
@@ -496,20 +496,62 @@ cockpit_json_parse (const char *data,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * cockpit_json_parse_object:
+ * @data: string data to parse
+ * @length: length of @data or -1
+ * @error: optional location to return an error
+ *
+ * Parses JSON GBytes into a JsonObject. This is a helper function
+ * combining cockpit_json_parse(), json_node_get_type() and
+ * json_node_get_object().
+ *
+ * Returns: (transfer full): the parsed object or %NULL
+ */
+JsonObject *
+cockpit_json_parse_object (const gchar *data,
+                           gssize length,
+                           GError **error)
+{
+  JsonNode *node;
+  JsonObject *object;
+
+  node = cockpit_json_parse (data, length, error);
+  if (!node)
+    return NULL;
+
+  if (json_node_get_node_type (node) != JSON_NODE_OBJECT)
+    {
+      object = NULL;
+      g_set_error (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_UNKNOWN, "Not a JSON object");
+    }
+  else
+    {
+      object = json_node_dup_object (node);
+    }
+
+  json_node_free (node);
+  return object;
+}
+
+/**
  * cockpit_json_parse_bytes:
  * @data: data to parse
  * @error: optional location to return an error
  *
- * Parses JSON GBytes into a JsonNode.
+ * Parses JSON GBytes into a JsonObject. This is a helper function
+ * combining cockpit_json_parse(), json_node_get_type() and
+ * json_node_get_object().
  *
- * Returns: (transfer full): the parsed node or %NULL
+ * Returns: (transfer full): the parsed object or %NULL
  */
-JsonNode *
+JsonObject *
 cockpit_json_parse_bytes (GBytes *data,
                           GError **error)
 {
   gsize length = g_bytes_get_size (data);
-  return cockpit_json_parse (g_bytes_get_data (data, NULL), length, error);
+  return cockpit_json_parse_object (g_bytes_get_data (data, NULL), length, error);
 }
 
 /**

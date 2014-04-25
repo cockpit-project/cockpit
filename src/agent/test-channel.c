@@ -240,7 +240,8 @@ assert_bytes_eq_json_msg (const char *domain,
   gchar *escaped;
   gchar *msg;
 
-  node = cockpit_json_parse_bytes (bytes, &error);
+  node = cockpit_json_parse (g_bytes_get_data (bytes, NULL),
+                             g_bytes_get_size (bytes), &error);
   if (error)
     g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
   g_assert (node);

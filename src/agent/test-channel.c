@@ -235,31 +235,24 @@ assert_bytes_eq_json_msg (const char *domain,
                           const gchar *expect)
 {
   GError *error = NULL;
-  JsonParser *parser;
-  JsonGenerator *generator;
   JsonNode *node;
+  JsonNode *exnode;
   gchar *escaped;
-  gconstpointer data;
-  gsize length;
   gchar *msg;
 
-  parser = json_parser_new ();
-  data = g_bytes_get_data (bytes, &length);
-  json_parser_load_from_data (parser, data, length, &error);
+  node = cockpit_json_parse_bytes (bytes, &error);
   if (error)
     g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
-  node = json_node_copy (json_parser_get_root (parser));
+  g_assert (node);
 
-  json_parser_load_from_data (parser, expect, -1, &error);
+  exnode = cockpit_json_parse (expect, -1, &error);
   if (error)
     g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
+  g_assert (exnode);
 
-  if (!cockpit_json_equal (json_parser_get_root (parser), node))
+  if (!cockpit_json_equal (exnode, node))
     {
-      generator = json_generator_new ();
-      json_generator_set_root (generator, node);
-      escaped = json_generator_to_data (generator, NULL);
-      g_object_unref (generator);
+      escaped = cockpit_json_write (node, NULL);
 
       msg = g_strdup_printf ("%s != %s", escaped, expect);
       g_assertion_message (domain, file, line, func, msg);
@@ -267,7 +260,7 @@ assert_bytes_eq_json_msg (const char *domain,
       g_free (msg);
     }
   json_node_free (node);
-  g_object_unref (parser);
+  json_node_free (exnode);
 }
 
 #define assert_bytes_eq_json(node, expect) \
@@ -448,34 +441,6 @@ test_properties (void)
   g_object_unref (channel);
 }
 
-static void
-test_generator (void)
-{
-  JsonGenerator *generator;
-  JsonGenerator *same;
-  JsonObject *options;
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-
-  options = json_object_new ();
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "channel", 55,
-                          "options", options,
-                          NULL);
-  g_object_unref (transport);
-  json_object_unref (options);
-
-  generator = cockpit_channel_get_generator (channel);
-  g_assert (JSON_IS_GENERATOR (generator));
-
-  same = cockpit_channel_get_generator (channel);
-  g_assert (generator == same);
-
-  g_object_unref (channel);
-}
-
 int
 main (int argc,
       char *argv[])
@@ -484,7 +449,6 @@ main (int argc,
 
   g_test_add_func ("/channel/get-option", test_get_option);
   g_test_add_func ("/channel/properties", test_properties);
-  g_test_add_func ("/channel/generator", test_generator);
 
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);

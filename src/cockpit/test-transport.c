@@ -469,17 +469,15 @@ static void
 test_parse_command (void)
 {
   const gchar *input = "{ 'command': 'test', \"channel\": 66, \"opt\": \"one\" }";
-  JsonParser *parser;
   GBytes *message;
   guint channel;
   const gchar *command;
   JsonObject *options;
   gboolean ret;
 
-  parser = json_parser_new ();
   message = g_bytes_new_static (input, strlen (input));
 
-  ret = cockpit_transport_parse_command (parser, message, &command, &channel, &options);
+  ret = cockpit_transport_parse_command (message, &command, &channel, &options);
   g_bytes_unref (message);
 
   g_assert (ret == TRUE);
@@ -487,24 +485,22 @@ test_parse_command (void)
   g_assert_cmpuint (channel, ==, 66);
   g_assert_cmpstr (json_object_get_string_member (options, "opt"), ==, "one");
 
-  g_object_unref (parser);
+  json_object_unref (options);
 }
 
 static void
 test_parse_command_no_channel (void)
 {
   const gchar *input = "{ 'command': 'test', \"opt\": \"one\" }";
-  JsonParser *parser;
   GBytes *message;
   guint channel;
   const gchar *command;
   JsonObject *options;
   gboolean ret;
 
-  parser = json_parser_new ();
   message = g_bytes_new_static (input, strlen (input));
 
-  ret = cockpit_transport_parse_command (parser, message, &command, &channel, &options);
+  ret = cockpit_transport_parse_command (message, &command, &channel, &options);
   g_bytes_unref (message);
 
   g_assert (ret == TRUE);
@@ -512,7 +508,7 @@ test_parse_command_no_channel (void)
   g_assert_cmpuint (channel, ==, 0);
   g_assert_cmpstr (json_object_get_string_member (options, "opt"), ==, "one");
 
-  g_object_unref (parser);
+  json_object_unref (options);
 }
 
 struct {
@@ -533,7 +529,6 @@ struct {
 static void
 test_parse_command_bad (gconstpointer input)
 {
-  JsonParser *parser;
   GBytes *message;
   guint channel;
   const gchar *command;
@@ -542,15 +537,12 @@ test_parse_command_bad (gconstpointer input)
 
   cockpit_expect_warning ("*");
 
-  parser = json_parser_new ();
   message = g_bytes_new_static (input, strlen (input));
 
-  ret = cockpit_transport_parse_command (parser, message, &command, &channel, &options);
+  ret = cockpit_transport_parse_command (message, &command, &channel, &options);
   g_bytes_unref (message);
 
   g_assert (ret == FALSE);
-
-  g_object_unref (parser);
 
   cockpit_assert_expected ();
 }

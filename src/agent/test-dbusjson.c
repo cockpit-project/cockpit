@@ -22,6 +22,7 @@
 #include "cockpitdbusjson.h"
 #include "cockpit/mock-service.h"
 #include "cockpit/cockpitpipetransport.h"
+#include "cockpit/cockpitjson.h"
 #include "cockpit/cockpittest.h"
 
 #include <json-glib/json-glib.h>
@@ -34,7 +35,6 @@
 typedef struct {
   int fd;
   GThread *thread;
-  JsonParser *parser;
 } TestCase;
 
 static void
@@ -86,8 +86,6 @@ setup_dbus_server(TestCase *tc,
 
   tc->fd = fds[0];
   tc->thread = g_thread_new ("dbus-server", dbus_server_thread, GINT_TO_POINTER(fds[1]));
-
-  tc->parser = json_parser_new ();
 }
 
 static void
@@ -97,7 +95,6 @@ teardown_dbus_server(TestCase *tc,
   shutdown (tc->fd, SHUT_WR);
   g_thread_join (tc->thread);
   close (tc->fd);
-  g_object_unref (tc->parser);
 }
 
 static void
@@ -124,6 +121,7 @@ static JsonObject *
 read_message (TestCase *tc)
 {
   GError *error = NULL;
+  JsonObject *object;
   JsonNode *node;
   gchar *message;
   gchar *line;
@@ -139,14 +137,16 @@ read_message (TestCase *tc)
   line = strchr (message, '\n');
   g_assert (line != NULL);
 
-  json_parser_load_from_data (tc->parser, line, size, &error);
+  node = cockpit_json_parse (line, size, &error);
   g_assert_no_error (error);
-
+  g_assert (node);
   g_free (message);
-  node = json_parser_get_root (tc->parser);
 
   g_assert_cmpint (JSON_NODE_TYPE (node), ==, JSON_NODE_OBJECT);
-  return json_node_get_object (node);
+  object = json_node_dup_object (node);
+  json_node_free (node);
+
+  return object;
 }
 
 static void
@@ -179,6 +179,8 @@ test_seed (TestCase *tc,
 
   g_assert_cmpstr (json_object_get_string_member (frobber, "dbus_prop_FinallyNormalName"), ==, "There aint no place like home");
   g_assert_cmpstr (json_object_get_string_member (frobber, "dbus_prop_ReadonlyProperty"), ==, "blah");
+
+  json_object_unref (msg);
 }
 
 int

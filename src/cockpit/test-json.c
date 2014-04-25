@@ -34,7 +34,6 @@ static const gchar *test_data =
   "}";
 
 typedef struct {
-    JsonParser *parser;
     JsonObject *root;
 } TestCase;
 
@@ -45,20 +44,19 @@ setup (TestCase *tc,
   GError *error = NULL;
   JsonNode *node;
 
-  tc->parser = json_parser_new ();
-  json_parser_load_from_data (tc->parser, test_data, -1, &error);
+  node = cockpit_json_parse (test_data, -1, &error);
   g_assert_no_error (error);
 
-  node = json_parser_get_root (tc->parser);
   g_assert (json_node_get_node_type (node) == JSON_NODE_OBJECT);
-  tc->root = json_node_get_object (node);
+  tc->root = json_node_dup_object (node);
+  json_node_free (node);
 }
 
 static void
 teardown (TestCase *tc,
           gconstpointer data)
 {
-  g_object_unref (tc->parser);
+  json_object_unref (tc->root);
 }
 
 static void
@@ -279,26 +277,30 @@ test_skip_whitespace (void)
 static void
 test_parser_trims (void)
 {
-  JsonParser *parser = json_parser_new ();
   GError *error = NULL;
+  JsonNode *node;
 
   /* Test that the parser trims whitespace, as long as something is present */
 
-  json_parser_load_from_data (parser, " 55  ", -1, &error);
+  node = cockpit_json_parse (" 55  ", -1, &error);
   g_assert_no_error (error);
-  g_assert_cmpint (json_node_get_node_type (json_parser_get_root (parser)), ==, JSON_NODE_VALUE);
-  g_assert_cmpint (json_node_get_value_type (json_parser_get_root (parser)), ==, G_TYPE_INT64);
+  g_assert (node);
+  g_assert_cmpint (json_node_get_node_type (node), ==, JSON_NODE_VALUE);
+  g_assert_cmpint (json_node_get_value_type (node), ==, G_TYPE_INT64);
+  json_node_free (node);
 
-  json_parser_load_from_data (parser, " \"xx\"  ", -1, &error);
+  node = cockpit_json_parse (" \"xx\"  ", -1, &error);
   g_assert_no_error (error);
-  g_assert_cmpint (json_node_get_node_type (json_parser_get_root (parser)), ==, JSON_NODE_VALUE);
-  g_assert_cmpint (json_node_get_value_type (json_parser_get_root (parser)), ==, G_TYPE_STRING);
+  g_assert (node);
+  g_assert_cmpint (json_node_get_node_type (node), ==, JSON_NODE_VALUE);
+  g_assert_cmpint (json_node_get_value_type (node), ==, G_TYPE_STRING);
+  json_node_free (node);
 
-  json_parser_load_from_data (parser, " {\"xx\":5}  ", -1, &error);
+  node = cockpit_json_parse (" {\"xx\":5}  ", -1, &error);
   g_assert_no_error (error);
-  g_assert_cmpint (json_node_get_node_type (json_parser_get_root (parser)), ==, JSON_NODE_OBJECT);
-
-  g_object_unref (parser);
+  g_assert (node);
+  g_assert_cmpint (json_node_get_node_type (node), ==, JSON_NODE_OBJECT);
+  json_node_free (node);
 }
 
 typedef struct {
@@ -375,32 +377,19 @@ static void
 test_equal (gconstpointer data)
 {
   const FixtureEqual *fixture = data;
-  JsonParser *parser;
   JsonNode *a = NULL;
   JsonNode *b = NULL;
   GError *error = NULL;
 
-  parser = json_parser_new ();
   if (fixture->a)
-    {
-      json_parser_load_from_data (parser, fixture->a, -1, &error);
-      g_assert_no_error (error);
-      a = json_node_copy (json_parser_get_root (parser));
-    }
+    a = cockpit_json_parse (fixture->a, -1, &error);
   if (fixture->b)
-    {
-      json_parser_load_from_data (parser, fixture->b, -1, &error);
-      g_assert_no_error (error);
-      b = json_node_copy (json_parser_get_root (parser));
-    }
+    b = cockpit_json_parse (fixture->b, -1, &error);
 
   g_assert (cockpit_json_equal (a, b) == fixture->equal);
 
-  if (a)
-    json_node_free (a);
-  if (b)
-    json_node_free (b);
-  g_object_unref (parser);
+  json_node_free (a);
+  json_node_free (b);
 }
 
 int

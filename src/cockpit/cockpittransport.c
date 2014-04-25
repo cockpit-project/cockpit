@@ -147,14 +147,30 @@ cockpit_transport_parse_frame (GBytes *message,
   return g_bytes_new_from_bytes (message, offset, length - offset);
 }
 
+/**
+ * cockpit_transport_parse_command:
+ * @payload: command JSON payload to parse
+ * @command: a location to return the command
+ * @channel: location to return the channel
+ * @options: location to return the options
+ *
+ * Parse a command and return various values from the
+ * command. The @options value is transfered with ownership,
+ * so you should free it after done. @command is owned by
+ * @options.
+ *
+ * On failure, message has already been printed.
+ *
+ * Returns: whether command parsed or not.
+ */
 gboolean
-cockpit_transport_parse_command (JsonParser *parser,
-                                 GBytes *payload,
+cockpit_transport_parse_command (GBytes *payload,
                                  const gchar **command,
                                  guint *channel,
                                  JsonObject **options)
 {
   GError *error = NULL;
+  gboolean ret = FALSE;
   gconstpointer input;
   JsonObject *object;
   JsonNode *node;
@@ -162,18 +178,18 @@ cockpit_transport_parse_command (JsonParser *parser,
   gint64 num;
 
   input = g_bytes_get_data (payload, &len);
-  if (!json_parser_load_from_data (parser, input, len, &error))
+  node = cockpit_json_parse (input, len, &error);
+  if (!node)
     {
       g_warning ("Received unparseable control message: %s", error->message);
       g_error_free (error);
-      return FALSE;
+      goto out;
     }
 
-  node = json_parser_get_root (parser);
-  if (!node || !JSON_NODE_HOLDS_OBJECT (node))
+  if (!JSON_NODE_HOLDS_OBJECT (node))
     {
       g_warning ("Received invalid control message: not an object");
-      return FALSE;
+      goto out;
     }
   object = json_node_get_object (node);
 
@@ -182,7 +198,7 @@ cockpit_transport_parse_command (JsonParser *parser,
       *command == NULL || g_str_equal (*command, ""))
     {
       g_warning ("Received invalid control message: invalid or missing command");
-      return FALSE;
+      goto out;
     }
 
   /* Parse out the channel */
@@ -194,9 +210,13 @@ cockpit_transport_parse_command (JsonParser *parser,
   else
     {
       g_warning ("Received invalid control message: invalid or missing channel");
-      return FALSE;
+      goto out;
     }
 
-  *options = object;
-  return TRUE;
+  *options = json_object_ref (object);
+  ret = TRUE;
+
+out:
+  json_node_free (node);
+  return ret;
 }

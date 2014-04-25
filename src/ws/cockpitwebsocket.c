@@ -269,7 +269,6 @@ typedef struct
   gchar                    *rhost;
   gint                      rport;
 
-  JsonParser *parser;
   CockpitSessions sessions;
   gboolean closing;
   GBytes *control_prefix;
@@ -281,7 +280,6 @@ static void
 web_socket_data_free (WebSocketData   *data)
 {
   cockpit_sessions_cleanup (&data->sessions);
-  g_object_unref (data->parser);
   g_object_unref (data->web_socket);
   g_bytes_unref (data->control_prefix);
   g_free (data->agent_program);
@@ -372,9 +370,9 @@ dispatch_outbound_command (WebSocketData *data,
   guint channel;
   JsonObject *options;
   gboolean valid = FALSE;
+  gboolean forward = TRUE;
 
-  if (cockpit_transport_parse_command (data->parser, payload,
-                                       &command, &channel, &options))
+  if (cockpit_transport_parse_command (payload, &command, &channel, &options))
     {
       /*
        * To prevent one host from messing with another, outbound commands
@@ -395,20 +393,25 @@ dispatch_outbound_command (WebSocketData *data,
       else if (g_strcmp0 (command, "close") == 0)
         valid = process_close (data, session, channel, options);
       else if (g_strcmp0 (command, "ping") == 0)
-        return; /* drop pings */
+        {
+          valid = TRUE;
+          forward = FALSE;
+        }
       else
         valid = TRUE; /* forward other messages */
     }
 
   if (valid && !session->sent_eof)
     {
-      if (web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
+      if (forward && web_socket_connection_get_ready_state (data->web_socket) == WEB_SOCKET_STATE_OPEN)
         web_socket_connection_send (data->web_socket, WEB_SOCKET_DATA_TEXT, data->control_prefix, payload);
     }
   else
     {
       outbound_protocol_error (data, source);
     }
+
+  json_object_unref (options);
 }
 
 static gboolean
@@ -589,18 +592,21 @@ dispatch_inbound_command (WebSocketData *data,
   guint channel;
   JsonObject *options;
   gboolean valid = FALSE;
+  gboolean forward = TRUE;
   CockpitSession *session;
   GHashTableIter iter;
 
-  if (cockpit_transport_parse_command (data->parser, payload,
-                                       &command, &channel, &options))
+  if (cockpit_transport_parse_command (payload, &command, &channel, &options))
     {
       if (g_strcmp0 (command, "open") == 0)
         valid = process_open (data, channel, options);
       else if (g_strcmp0 (command, "close") == 0)
         valid = TRUE;
       else if (g_strcmp0 (command, "ping") == 0)
-        return; /* drop pings */
+        {
+          valid = TRUE;
+          forward = FALSE;
+        }
       else
         valid = TRUE; /* forward other messages */
     }
@@ -610,7 +616,7 @@ dispatch_inbound_command (WebSocketData *data,
       inbound_protocol_error (data);
     }
 
-  else if (channel == 0)
+  else if (forward && channel == 0)
     {
       /* Control messages without a channel get sent to all sessions */
       g_hash_table_iter_init (&iter, data->sessions.by_transport);
@@ -620,7 +626,7 @@ dispatch_inbound_command (WebSocketData *data,
             cockpit_transport_send (session->transport, 0, payload);
         }
     }
-  else
+  else if (forward)
     {
       /* Control messages with a channel get forward to that session */
       session = cockpit_session_by_channel (&data->sessions, channel);
@@ -632,6 +638,8 @@ dispatch_inbound_command (WebSocketData *data,
       else
         g_debug ("Dropping control message with unknown channel: %u", channel);
     }
+
+  json_object_unref (options);
 }
 
 static void
@@ -789,7 +797,6 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
         data->connection = g_object_ref (base);
     }
 
-  data->parser = json_parser_new ();
   data->control_prefix = g_bytes_new_static ("0\n", 2);
   cockpit_sessions_init (&data->sessions);
 

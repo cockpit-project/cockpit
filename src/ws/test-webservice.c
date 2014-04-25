@@ -23,6 +23,7 @@
 #include "cockpitwebsocket.h"
 #include "cockpitwebserver.h"
 #include "cockpit/cockpittransport.h"
+#include "cockpit/cockpitjson.h"
 #include "cockpit/cockpittest.h"
 
 #include "websocket/websocket.h"
@@ -331,7 +332,6 @@ build_control_message (const gchar *command,
                        guint channel,
                        ...)
 {
-  JsonGenerator *generator;
   JsonBuilder *builder;
   gchar *data;
   gsize length;
@@ -362,15 +362,12 @@ build_control_message (const gchar *command,
   va_end (va);
 
   json_builder_end_object (builder);
-  generator = json_generator_new ();
   node = json_builder_get_root (builder);
-  json_generator_set_root (generator, node);
-  data = json_generator_to_data (generator, &length);
+  data = cockpit_json_write (node, &length);
   data = g_realloc (data, length + 2);
   memmove (data + 2, data, length);
   memcpy (data, "0\n", 2);
   bytes = g_bytes_new_take (data, length + 2);
-  g_object_unref (generator);
   json_node_free (node);
   g_object_unref (builder);
 
@@ -393,7 +390,6 @@ expect_control_message (GBytes *message,
   const gchar *message_command;
   guint message_channel;
   JsonObject *options;
-  JsonParser *parser;
   GBytes *payload;
   const gchar *expect_option;
   const gchar *expect_value;
@@ -403,8 +399,7 @@ expect_control_message (GBytes *message,
   g_assert (payload != NULL);
   g_assert_cmpuint (outer_channel, ==, 0);
 
-  parser = json_parser_new ();
-  g_assert (cockpit_transport_parse_command (parser, payload, &message_command,
+  g_assert (cockpit_transport_parse_command (payload, &message_command,
                                              &message_channel, &options));
   g_bytes_unref (payload);
 
@@ -422,7 +417,7 @@ expect_control_message (GBytes *message,
   }
   va_end (va);
 
-  g_object_unref (parser);
+  json_object_unref (options);
 }
 
 static void

@@ -83,8 +83,7 @@ void        cockpit_transport_emit_closed    (CockpitTransport *transport,
 GBytes *    cockpit_transport_parse_frame    (GBytes *message,
                                               guint *channel);
 
-gboolean    cockpit_transport_parse_command  (JsonParser *parser,
-                                              GBytes *payload,
+gboolean    cockpit_transport_parse_command  (GBytes *payload,
                                               const gchar **command,
                                               guint *channel,
                                               JsonObject **options);

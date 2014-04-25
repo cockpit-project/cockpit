@@ -22,6 +22,8 @@
 #include "cockpithandlers.h"
 #include "cockpitws.h"
 
+#include "cockpit/cockpitjson.h"
+
 #include "websocket/websocket.h"
 #include <cockpit/cockpit.h>
 
@@ -170,7 +172,6 @@ cockpit_handler_login (CockpitWebServer *server,
 
   {
     gs_unref_object JsonBuilder *builder = json_builder_new ();
-    gs_unref_object JsonGenerator *generator = json_generator_new ();
     const gchar *user;
     JsonNode *root;
 
@@ -187,8 +188,7 @@ cockpit_handler_login (CockpitWebServer *server,
     json_builder_end_object (builder);
 
     root = json_builder_get_root (builder);
-    json_generator_set_root (generator, root);
-    response_body = json_generator_to_data (generator, NULL);
+    response_body = cockpit_json_write (root, NULL);
     json_node_free (root);
   }
 

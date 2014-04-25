@@ -93,7 +93,6 @@ on_transport_recv (CockpitTransport *transport,
                    guint channel,
                    GBytes *payload)
 {
-  gs_unref_object JsonParser *parser = NULL;
   const gchar *command = NULL;
   JsonObject *options;
 
@@ -101,11 +100,8 @@ on_transport_recv (CockpitTransport *transport,
   if (channel != 0)
     return FALSE;
 
-  parser = json_parser_new();
-
   /* Read out the actual command and channel this message is about */
-  if (!cockpit_transport_parse_command (parser, payload, &command,
-                                        &channel, &options))
+  if (!cockpit_transport_parse_command (payload, &command, &channel, &options))
     {
       /* Warning already logged */
       cockpit_transport_close (transport, "protocol-error");
@@ -119,6 +115,7 @@ on_transport_recv (CockpitTransport *transport,
   else
     g_debug ("Received unknown control command: %s", command);
 
+  json_object_unref (options);
   return TRUE; /* handled */
 }
 

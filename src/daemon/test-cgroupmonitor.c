@@ -318,7 +318,7 @@ test_get_samples (TestCase *tc,
   g_variant_get_child (samples, 0, "(x@a{sad})", &timestamp, &child);
   g_assert (timestamp != 0);
 
-  values = g_variant_lookup_value (child, ".", G_VARIANT_TYPE ("ad"));
+  values = g_variant_lookup_value (child, "", G_VARIANT_TYPE ("ad"));
 
   /* Memory usage */
   g_variant_get_child (values, 0, "d", &value);
@@ -361,7 +361,7 @@ test_new_samples (TestCase *tc,
   g_free (str);
 
   /* Variant for the first consumer: "" */
-  values = g_variant_lookup_value (sample, ".", G_VARIANT_TYPE ("ad"));
+  values = g_variant_lookup_value (sample, "", G_VARIANT_TYPE ("ad"));
   g_assert (values != NULL);
 
   /* Memory usage */
@@ -425,7 +425,7 @@ test_zero_limits (TestCase *tc,
   g_variant_get_child (samples, 0, "(x@a{sad})", &timestamp, &child);
   g_assert (timestamp != 0);
 
-  values = g_variant_lookup_value (child, ".", G_VARIANT_TYPE ("ad"));
+  values = g_variant_lookup_value (child, "", G_VARIANT_TYPE ("ad"));
 
   /* Memory usage */
   g_variant_get_child (values, 1, "d", &value);

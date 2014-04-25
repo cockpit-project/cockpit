@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <assert.h>
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,10 +59,7 @@ static void
 check (int r)
 {
   if (r != PAM_SUCCESS)
-    {
-      fprintf (stderr, "%s\n", pam_strerror (pamh, r));
-      exit (1);
-    }
+    errx (1, "%s", pam_strerror (pamh, r));
 }
 
 static void
@@ -119,7 +118,7 @@ fork_session (void (*func) (void))
   struct passwd *pw = getpwnam (user);
   if (pw == NULL)
     {
-      fprintf (stderr, "can't get uid: %m\n");
+      warn ("can't get uid");
       return 1 << 8;
     }
 
@@ -128,7 +127,7 @@ fork_session (void (*func) (void))
   child = fork ();
   if (child < 0)
     {
-      fprintf (stderr, "can't fork: %m\n");
+      warn ("can't fork");
       return 1 << 8;
     }
 
@@ -138,20 +137,20 @@ fork_session (void (*func) (void))
 
       if (setgid (pw->pw_gid) < 0)
         {
-          fprintf (stderr, "setgid() failed: %m");
+          warn ("setgid() failed");
           _exit (42);
         }
 
       if (setuid (pw->pw_uid) < 0)
         {
-          fprintf (stderr, "setuid() failed: %m");
+          warn ("setuid() failed");
           _exit (42);
         }
 
       if (getuid() != geteuid() &&
           getgid() != getegid())
         {
-          fprintf (stderr, "couldn't drop privileges");
+          warnx ("couldn't drop privileges");
           _exit (42);
         }
 
@@ -169,7 +168,7 @@ static void
 session (void)
 {
   execl (agent, agent, NULL);
-  fprintf (stderr, "can't exec %s: %m\n", agent);
+  warn ("can't exec %s", agent);
 }
 
 static void
@@ -206,16 +205,10 @@ main (int argc,
 
   pw = getpwnam (user);
   if (pw == NULL)
-    {
-      fprintf (stderr, "invalid user: %s\n", user);
-      exit (1);
-    }
+    errx (1, "invalid user: %s", user);
 
   if (initgroups (user, pw->pw_gid) < 0)
-    {
-      fprintf (stderr, "can't init groups: %m\n");
-      exit (1);
-    }
+    err (1, "can't init groups");
 
   check (pam_start ("cockpit", user, &conv, &pamh));
   check (pam_set_item (pamh, PAM_RHOST, rhost));

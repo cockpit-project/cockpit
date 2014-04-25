@@ -65,7 +65,6 @@ struct _CockpitChannelPrivate {
   gboolean closed;
 
   /* Other state */
-  JsonGenerator *generator;
   JsonObject *close_options;
 };
 
@@ -220,8 +219,6 @@ cockpit_channel_finalize (GObject *object)
   json_object_unref (self->priv->open_options);
   if (self->priv->close_options)
     json_object_unref (self->priv->close_options);
-  if (self->priv->generator)
-    g_object_unref (self->priv->generator);
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->finalize (object);
 }
@@ -231,12 +228,8 @@ cockpit_channel_real_close (CockpitChannel *self,
                             const gchar *problem)
 {
   const gchar *reason = problem;
-  JsonGenerator *generator;
   JsonObject *object;
   GBytes *message;
-  gsize length;
-  gchar *json;
-  JsonNode *node;
 
   if (self->priv->closed)
     return;
@@ -260,14 +253,9 @@ cockpit_channel_real_close (CockpitChannel *self,
   json_object_set_int_member (object, "channel", self->priv->number);
   json_object_set_string_member (object, "reason", reason);
 
-  generator = cockpit_channel_get_generator (self);
-  node = json_node_alloc ();
-  json_node_take_object (node, object);
-  json_generator_set_root (generator, node);
-  json_node_free (node);
+  message = cockpit_json_write_bytes (object);
+  json_object_unref (object);
 
-  json = json_generator_to_data (generator, &length);
-  message = g_bytes_new_take (json, length);
   cockpit_transport_send (self->priv->transport, 0, message);
   g_bytes_unref (message);
 
@@ -606,22 +594,4 @@ cockpit_channel_close_int_option (CockpitChannel *self,
   if (!self->priv->close_options)
     self->priv->close_options = json_object_new ();
   json_object_set_int_member (self->priv->close_options, name, value);
-}
-
-/**
- * cockpit_channel_get_generator:
- * @self: a channel
- *
- * Get a cached JsonGenerator object for the channel. Do
- * not cache the return value, use it and move on.
- *
- * Returns: (transfer none): the generator
- */
-JsonGenerator *
-cockpit_channel_get_generator (CockpitChannel *self)
-{
-  g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
-  if (!self->priv->generator)
-    self->priv->generator = json_generator_new ();
-  return self->priv->generator;
 }

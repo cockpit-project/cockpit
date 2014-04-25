@@ -24,6 +24,8 @@
 #include "cockpitchannel.h"
 #include "cockpitfakemanager.h"
 
+#include "cockpit/cockpitjson.h"
+
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -300,17 +302,15 @@ static GBytes *
 _json_builder_to_bytes (CockpitDBusJson *self,
                         JsonBuilder *builder)
 {
-  JsonGenerator *generator;
   JsonNode *root;
+  gsize length;
   gchar *ret;
 
-  generator = cockpit_channel_get_generator (COCKPIT_CHANNEL (self));
   root = json_builder_get_root (builder);
-  json_generator_set_root (generator, root);
-  ret = json_generator_to_data (generator, NULL);
+  ret = cockpit_json_write (root, &length);
   json_node_free (root);
 
-  return g_bytes_new_take (ret, strlen (ret));
+  return g_bytes_new_take (ret, length);
 }
 
 static JsonBuilder *
@@ -964,19 +964,14 @@ cockpit_dbus_json_recv (CockpitChannel *channel,
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (channel);
   GError *error = NULL;
   gs_free gchar *buf = NULL;
-  gs_unref_object JsonParser *parser = NULL;
-  gsize size;
+  JsonNode *root_node = NULL;
 
-  parser = json_parser_new ();
-
-  size = g_bytes_get_size (message);
-  if (!json_parser_load_from_data (parser, g_bytes_get_data (message, NULL), size, &error))
+  root_node = cockpit_json_parse_bytes (message, &error);
+  if (!root_node)
     {
       g_prefix_error (&error, "Error parsing `%s' as JSON: ", buf);
       goto close;
     }
-
-  JsonNode *root_node = json_parser_get_root (parser);
 
   if (JSON_NODE_TYPE (root_node) != JSON_NODE_OBJECT)
     goto close;
@@ -997,6 +992,7 @@ cockpit_dbus_json_recv (CockpitChannel *channel,
   return;
 
 close:
+  json_node_free (root_node);
   if (error)
     {
       g_warning ("%s", error->message);

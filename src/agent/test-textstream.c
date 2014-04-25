@@ -322,13 +322,11 @@ expect_control_message (GBytes *payload,
   const gchar *message_command;
   guint message_channel;
   JsonObject *options;
-  JsonParser *parser;
   const gchar *expect_option;
   const gchar *expect_value;
   va_list va;
 
-  parser = json_parser_new ();
-  g_assert (cockpit_transport_parse_command (parser, payload, &message_command,
+  g_assert (cockpit_transport_parse_command (payload, &message_command,
                                              &message_channel, &options));
 
   g_assert_cmpstr (expected_command, ==, message_command);
@@ -345,7 +343,7 @@ expect_control_message (GBytes *payload,
   }
   va_end (va);
 
-  g_object_unref (parser);
+  json_object_unref (options);
 }
 
 

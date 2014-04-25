@@ -445,3 +445,379 @@ cockpit_json_skip (const gchar *data,
   /* The position at which we found the end */
   return p - data;
 }
+
+/**
+ * cockpit_json_parse:
+ * @data: string data to parse
+ * @length: length of @data or -1
+ * @error: optional location to return an error
+ *
+ * Parses JSON into a JsonNode.
+ *
+ * Returns: (transfer full): the parsed node or %NULL
+ */
+JsonNode *
+cockpit_json_parse (const char *data,
+                    gssize length,
+                    GError **error)
+{
+  static GPrivate cached_parser = G_PRIVATE_INIT (g_object_unref);
+  JsonParser *parser;
+  JsonNode *root;
+  JsonNode *ret;
+
+  parser = g_private_get (&cached_parser);
+  if (parser == NULL)
+    {
+      parser = json_parser_new ();
+      g_private_set (&cached_parser, parser);
+    }
+
+  if (json_parser_load_from_data (parser, data, length, error))
+    {
+      root = json_parser_get_root (parser);
+      ret = json_node_copy (root);
+
+      /*
+       * HACK: JsonParser doesn't give us a way to clear the parser
+       * and remove memory sitting around until the next parse, so
+       * we clear it like this.
+       *
+       * https://bugzilla.gnome.org/show_bug.cgi?id=728951
+       */
+      json_node_init_null (root);
+    }
+  else
+    {
+      ret = NULL;
+    }
+
+  return ret;
+}
+
+/**
+ * cockpit_json_parse_bytes:
+ * @data: data to parse
+ * @error: optional location to return an error
+ *
+ * Parses JSON GBytes into a JsonNode.
+ *
+ * Returns: (transfer full): the parsed node or %NULL
+ */
+JsonNode *
+cockpit_json_parse_bytes (GBytes *data,
+                          GError **error)
+{
+  gsize length = g_bytes_get_size (data);
+  return cockpit_json_parse (g_bytes_get_data (data, NULL), length, error);
+}
+
+/**
+ * cockpit_json_write_bytes:
+ * @object: object to write
+ *
+ * Encode a JsonObject to a GBytes.
+ *
+ * Returns: (transfer full): the encoded data
+ */
+GBytes *
+cockpit_json_write_bytes (JsonObject *object)
+{
+  gchar *data;
+  gsize length;
+
+  data = cockpit_json_write_object (object, &length);
+  return g_bytes_new_take (data, length);
+}
+
+/**
+ * cockpit_json_write_object:
+ * @object: object to write
+ * @length: optionally a location to return the length
+ *
+ * Encode a JsonObject to a string.
+ *
+ * Returns: (transfer full): the encoded data
+ */
+gchar *
+cockpit_json_write_object (JsonObject *object,
+                           gsize *length)
+{
+  JsonNode *node;
+  gchar *ret;
+
+  node = json_node_init_object (json_node_alloc (), object);
+  ret = cockpit_json_write (node, length);
+  json_node_free (node);
+
+  return ret;
+}
+
+/*
+ * HACK: JsonGenerator is completely borked, so we've copied it\
+ * here until we can rely on a fixed version.
+ *
+ * https://bugzilla.gnome.org/show_bug.cgi?id=727593
+ */
+
+static gchar *dump_value  (const gchar   *name,
+                           JsonNode      *node,
+                           gsize         *length);
+static gchar *dump_array  (const gchar   *name,
+                           JsonArray     *array,
+                           gsize         *length);
+static gchar *dump_object (const gchar   *name,
+                           JsonObject    *object,
+                           gsize         *length);
+
+/* non-ASCII characters can't be escaped, otherwise UTF-8
+ * chars will break, so we just pregenerate this table of
+ * high characters and then we feed it to g_strescape()
+ */
+static const char json_exceptions[] = {
+  0x7f,  0x80,  0x81,  0x82,  0x83,  0x84,  0x85,  0x86,
+  0x87,  0x88,  0x89,  0x8a,  0x8b,  0x8c,  0x8d,  0x8e,
+  0x8f,  0x90,  0x91,  0x92,  0x93,  0x94,  0x95,  0x96,
+  0x97,  0x98,  0x99,  0x9a,  0x9b,  0x9c,  0x9d,  0x9e,
+  0x9f,  0xa0,  0xa1,  0xa2,  0xa3,  0xa4,  0xa5,  0xa6,
+  0xa7,  0xa8,  0xa9,  0xaa,  0xab,  0xac,  0xad,  0xae,
+  0xaf,  0xb0,  0xb1,  0xb2,  0xb3,  0xb4,  0xb5,  0xb6,
+  0xb7,  0xb8,  0xb9,  0xba,  0xbb,  0xbc,  0xbd,  0xbe,
+  0xbf,  0xc0,  0xc1,  0xc2,  0xc3,  0xc4,  0xc5,  0xc6,
+  0xc7,  0xc8,  0xc9,  0xca,  0xcb,  0xcc,  0xcd,  0xce,
+  0xcf,  0xd0,  0xd1,  0xd2,  0xd3,  0xd4,  0xd5,  0xd6,
+  0xd7,  0xd8,  0xd9,  0xda,  0xdb,  0xdc,  0xdd,  0xde,
+  0xdf,  0xe0,  0xe1,  0xe2,  0xe3,  0xe4,  0xe5,  0xe6,
+  0xe7,  0xe8,  0xe9,  0xea,  0xeb,  0xec,  0xed,  0xee,
+  0xef,  0xf0,  0xf1,  0xf2,  0xf3,  0xf4,  0xf5,  0xf6,
+  0xf7,  0xf8,  0xf9,  0xfa,  0xfb,  0xfc,  0xfd,  0xfe,
+  0xff,
+  '\0'   /* g_strescape() expects a NUL-terminated string */
+};
+
+static gchar *
+json_strescape (const gchar *str)
+{
+  return g_strescape (str, json_exceptions);
+}
+
+static gchar *
+dump_value (const gchar   *name,
+            JsonNode      *node,
+            gsize         *length)
+{
+  GString *buffer;
+  GType type;
+
+  buffer = g_string_new ("");
+
+  if (name)
+    g_string_append_printf (buffer, "\"%s\":", name);
+
+  type = json_node_get_value_type (node);
+  if (type == G_TYPE_INT64)
+    {
+      g_string_append_printf (buffer, "%" G_GINT64_FORMAT, json_node_get_int (node));
+    }
+  else if (type == G_TYPE_DOUBLE)
+    {
+        gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
+
+        g_string_append (buffer,
+                         g_ascii_dtostr (buf, sizeof (buf),
+                                         json_node_get_double (node)));
+    }
+  else if (type == G_TYPE_BOOLEAN)
+    {
+      g_string_append (buffer, json_node_get_boolean (node) ? "true" : "false");
+    }
+  else if (type == G_TYPE_STRING)
+    {
+        gchar *tmp;
+
+        tmp = json_strescape (json_node_get_string (node));
+        g_string_append_c (buffer, '"');
+        g_string_append (buffer, tmp);
+        g_string_append_c (buffer, '"');
+
+        g_free (tmp);
+    }
+  else
+    {
+      g_return_val_if_reached (NULL);
+    }
+
+  if (length)
+    *length = buffer->len;
+
+  return g_string_free (buffer, FALSE);
+}
+
+static gchar *
+dump_array (const gchar   *name,
+            JsonArray     *array,
+            gsize         *length)
+{
+  guint array_len = json_array_get_length (array);
+  guint i;
+  GString *buffer;
+
+  buffer = g_string_new ("");
+
+  if (name)
+    g_string_append_printf (buffer, "\"%s\":", name);
+
+  g_string_append_c (buffer, '[');
+
+  for (i = 0; i < array_len; i++)
+    {
+      JsonNode *cur = json_array_get_element (array, i);
+      gchar *value;
+
+      switch (JSON_NODE_TYPE (cur))
+        {
+        case JSON_NODE_NULL:
+          g_string_append (buffer, "null");
+          break;
+
+        case JSON_NODE_VALUE:
+          value = dump_value (NULL, cur, NULL);
+          g_string_append (buffer, value);
+          g_free (value);
+          break;
+
+        case JSON_NODE_ARRAY:
+          value = dump_array (NULL, json_node_get_array (cur), NULL);
+          g_string_append (buffer, value);
+          g_free (value);
+          break;
+
+        case JSON_NODE_OBJECT:
+          value = dump_object (NULL, json_node_get_object (cur), NULL);
+          g_string_append (buffer, value);
+          g_free (value);
+          break;
+        }
+
+      if ((i + 1) != array_len)
+        g_string_append_c (buffer, ',');
+    }
+
+  g_string_append_c (buffer, ']');
+
+  if (length)
+    *length = buffer->len;
+
+  return g_string_free (buffer, FALSE);
+}
+
+static gchar *
+dump_object (const gchar   *name,
+             JsonObject    *object,
+             gsize         *length)
+{
+  GList *members, *l;
+  GString *buffer;
+
+  buffer = g_string_new ("");
+
+  if (name)
+    g_string_append_printf (buffer, "\"%s\":", name);
+
+  g_string_append_c (buffer, '{');
+
+  members = json_object_get_members (object);
+
+  for (l = members; l != NULL; l = l->next)
+    {
+      const gchar *member_name = l->data;
+      gchar *escaped_name = json_strescape (member_name);
+      JsonNode *cur = json_object_get_member (object, member_name);
+      gchar *value;
+
+      switch (JSON_NODE_TYPE (cur))
+        {
+        case JSON_NODE_NULL:
+          g_string_append_printf (buffer, "\"%s\":null", escaped_name);
+          break;
+
+        case JSON_NODE_VALUE:
+          value = dump_value (escaped_name, cur, NULL);
+          g_string_append (buffer, value);
+          g_free (value);
+          break;
+
+        case JSON_NODE_ARRAY:
+          value = dump_array (escaped_name, json_node_get_array (cur), NULL);
+          g_string_append (buffer, value);
+          g_free (value);
+          break;
+
+        case JSON_NODE_OBJECT:
+          value = dump_object (escaped_name, json_node_get_object (cur), NULL);
+          g_string_append (buffer, value);
+          g_free (value);
+          break;
+        }
+
+      if (l->next != NULL)
+        g_string_append_c (buffer, ',');
+
+      g_free (escaped_name);
+    }
+
+  g_list_free (members);
+
+  g_string_append_c (buffer, '}');
+
+  if (length)
+    *length = buffer->len;
+
+  return g_string_free (buffer, FALSE);
+}
+
+/**
+ * cockpit_json_write:
+ * @node: the node to encode
+ * @length: optional place to return length
+ *
+ * Encode a JsonNode to a string.
+ *
+ * Returns: (transfer full): the encoded string
+ */
+gchar *
+cockpit_json_write (JsonNode *node,
+                    gsize *length)
+{
+  gchar *retval = NULL;
+
+  if (!node)
+    {
+      if (length)
+        *length = 0;
+      return NULL;
+    }
+
+  switch (JSON_NODE_TYPE (node))
+    {
+    case JSON_NODE_ARRAY:
+      retval = dump_array (NULL, json_node_get_array (node), length);
+      break;
+
+    case JSON_NODE_OBJECT:
+      retval = dump_object (NULL, json_node_get_object (node), length);
+      break;
+
+    case JSON_NODE_NULL:
+      retval = g_strdup ("null");
+      if (length)
+        *length = 4;
+      break;
+
+    case JSON_NODE_VALUE:
+      retval = dump_value (NULL, node, length);
+      break;
+    }
+
+  return retval;
+}

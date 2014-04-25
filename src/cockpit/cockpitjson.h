@@ -26,6 +26,21 @@
 
 G_BEGIN_DECLS
 
+JsonNode *     cockpit_json_parse             (const char *data,
+                                               gssize length,
+                                               GError **error);
+
+JsonNode *     cockpit_json_parse_bytes       (GBytes *data,
+                                               GError **error);
+
+gchar *        cockpit_json_write             (JsonNode *node,
+                                               gsize *length);
+
+gchar *        cockpit_json_write_object      (JsonObject *object,
+                                               gsize *length);
+
+GBytes *       cockpit_json_write_bytes       (JsonObject *object);
+
 gsize          cockpit_json_skip              (const gchar *data,
                                                gsize length,
                                                gsize *spaces);

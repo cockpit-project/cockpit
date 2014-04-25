@@ -33,9 +33,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static JsonParser *parser;
-static JsonGenerator *generator;
-
 /* -----------------------------------------------------------------------------
  * Mock
  */
@@ -123,17 +120,13 @@ mock_transport_send (CockpitTransport *transport,
 {
   MockTransport *self = (MockTransport *)transport;
   GError *error = NULL;
-  const gchar *string;
-  gsize length;
   JsonNode *node;
 
   if (channel != 0)
     {
-      string = g_bytes_get_data (data, &length);
-      g_assert (length > 0);
-      json_parser_load_from_data (parser, string, length, &error);
+      node = cockpit_json_parse_bytes (data, &error);
       g_assert_no_error (error);
-      node = json_node_copy (json_parser_get_root (parser));
+      g_assert (node);
       g_queue_push_tail (self->sent, node);
       self->gc = g_list_prepend (self->gc, node);
     }
@@ -314,6 +307,7 @@ mock_server_handle (MockServer *self,
   const gchar *value;
   gchar *end;
   gboolean keep_alive;
+  JsonNode *node;
 
   /* Read the request */
   do
@@ -365,8 +359,10 @@ mock_server_handle (MockServer *self,
       if (want > 0)
         {
           g_assert_cmpstr (g_hash_table_lookup (headers, "Content-Type"), ==, "application/json");
-          json_parser_load_from_data (parser, data, want, &error);
+          node = cockpit_json_parse (data, want, &error);
           g_assert_no_error (error);
+          g_assert (node);
+          json_node_free (node);
           g_assert_cmpint (g_input_stream_skip (G_INPUT_STREAM (in), want, NULL, NULL), ==, want);
         }
     }
@@ -631,14 +627,15 @@ assert_json_eq_ (const gchar *domain,
   GError *error = NULL;
   gchar *message;
   gchar *generated;
+  JsonNode *node;
 
-  json_parser_load_from_data (parser, str, -1, &error);
+  node = cockpit_json_parse (str, -1, &error);
   g_assert_no_error (error);
+  g_assert (node);
 
-  if (!cockpit_json_equal (json, json_parser_get_root (parser)))
+  if (!cockpit_json_equal (json, node))
     {
-      json_generator_set_root (generator, json);
-      generated = json_generator_to_data (generator, NULL);
+      generated = cockpit_json_write (json, NULL);
 
       message = g_strdup_printf ("assertion failed (%s == %s): %s == %s",
                                  expr, str, generated, str);
@@ -646,6 +643,8 @@ assert_json_eq_ (const gchar *domain,
       g_free (message);
       g_free (generated);
     }
+
+  json_node_free (node);
 }
 
 #define assert_json_eq(json, str) \
@@ -1223,8 +1222,6 @@ int
 main (int argc,
       char *argv[])
 {
-  gint ret;
-
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/rest-json/simple", TestCase, NULL,
@@ -1271,13 +1268,5 @@ main (int argc,
   g_test_add ("/rest-json/poll-stutter", TestCase, NULL,
               setup, test_poll_stutter, teardown);
 
-  parser = json_parser_new ();
-  generator = json_generator_new ();
-
-  ret = g_test_run ();
-
-  g_object_unref (parser);
-  g_object_unref (generator);
-
-  return ret;
+  return g_test_run ();
 }

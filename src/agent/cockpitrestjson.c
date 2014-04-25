@@ -95,9 +95,6 @@ typedef struct _CockpitRestJson {
    */
   GHashTable *watches;
 
-  /* Singleton objects for efficiency ... */
-  JsonParser *parser;
-
   /* Whether the channel is closed or not */
   gboolean closed;
 } CockpitRestJson;
@@ -327,7 +324,6 @@ cockpit_rest_response_reply (CockpitRestJson *self,
                              gboolean complete)
 {
   CockpitRestRequest *req = resp->req;
-  JsonGenerator *generator;
   JsonBuilder *builder;
   JsonNode *node;
   gchar *data;
@@ -406,12 +402,9 @@ cockpit_rest_response_reply (CockpitRestJson *self,
   json_builder_end_object (builder);
 
   node = json_builder_get_root (builder);
-  generator = cockpit_channel_get_generator (COCKPIT_CHANNEL (self));
-  json_generator_set_root (generator, node);
+  data = cockpit_json_write (node, &length);
   json_node_free (node);
   g_object_unref (builder);
-
-  data = json_generator_to_data (generator, &length);
 
   bytes = g_bytes_new_take (data, length);
   cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
@@ -427,6 +420,7 @@ cockpit_rest_response_parse (CockpitRestJson *self,
                              guint *replies)
 {
   GError *error = NULL;
+  JsonNode *node;
   gssize total = 0;
   gsize block;
   gsize spaces;
@@ -456,7 +450,8 @@ cockpit_rest_response_parse (CockpitRestJson *self,
       /* Some non-whitespace data found */
       if (spaces != block)
         {
-          if (!json_parser_load_from_data (self->parser, data + spaces, block - spaces, &error))
+          node = cockpit_json_parse (data + spaces, block - spaces, &error);
+          if (!node)
             {
               g_debug ("%s", error->message);
               g_message ("%s: %s: invalid JSON received in response to REST request",
@@ -465,9 +460,9 @@ cockpit_rest_response_parse (CockpitRestJson *self,
               return -1;
             }
 
-          cockpit_rest_response_reply (self, resp,
-                                       json_parser_get_root (self->parser),
+          cockpit_rest_response_reply (self, resp, node,
                                        end_of_data && limit == 0);
+          json_node_free (node);
           (*replies)++;
         }
 
@@ -815,7 +810,6 @@ static GBytes *
 build_body_from_json (CockpitRestJson *self,
                       JsonObject *json)
 {
-  JsonGenerator *generator;
   gchar *data;
   gsize length;
   JsonNode *node;
@@ -824,9 +818,7 @@ build_body_from_json (CockpitRestJson *self,
   if (!node)
     return NULL;
 
-  generator = cockpit_channel_get_generator (COCKPIT_CHANNEL (self));
-  json_generator_set_root (generator, node);
-  data = json_generator_to_data (generator, &length);
+  data = cockpit_json_write (node, &length);
   return g_bytes_new_take (data, length);
 }
 
@@ -995,14 +987,10 @@ cockpit_rest_json_recv (CockpitChannel *channel,
   CockpitRestJson *self = (CockpitRestJson *)channel;
   GError *error = NULL;
   JsonNode *node = NULL;
-  gsize length;
 
-  length = g_bytes_get_size (message);
-  if (json_parser_load_from_data (self->parser,
-                                  g_bytes_get_data (message, NULL),
-                                  length, &error))
+  node = cockpit_json_parse_bytes (message, &error);
+  if (node)
     {
-      node = json_parser_get_root (self->parser);
       if (json_node_get_node_type (node) != JSON_NODE_OBJECT)
           g_set_error (&error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_UNKNOWN, "Not an object");
     }
@@ -1017,6 +1005,8 @@ cockpit_rest_json_recv (CockpitChannel *channel,
       cockpit_channel_close (channel, "protocol-error");
       g_error_free (error);
     }
+
+  json_node_free (node);
 }
 
 static void
@@ -1047,8 +1037,6 @@ cockpit_rest_json_close (CockpitChannel *channel,
 static void
 cockpit_rest_json_init (CockpitRestJson *self)
 {
-  self->parser = json_parser_new ();
-
   /* Table of gint64 -> CockpitRestRequest */
   self->requests = g_hash_table_new_full (cockpit_json_int_hash, cockpit_json_int_equal,
                                           NULL, cockpit_rest_request_destroy);
@@ -1170,7 +1158,6 @@ cockpit_rest_json_finalize (GObject *object)
 {
   CockpitRestJson *self = COCKPIT_REST_JSON (object);
 
-  g_object_unref (self->parser);
   if (self->address)
     g_object_unref (self->address);
   g_hash_table_destroy (self->requests);

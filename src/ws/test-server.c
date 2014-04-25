@@ -27,6 +27,7 @@
 #include <glib/gstdio.h>
 #include <string.h>
 
+#include "cockpitws.h"
 #include "cockpitwebserver.h"
 #include "cockpitwebsocket.h"
 
@@ -82,8 +83,7 @@ on_handle_resource_socket (CockpitWebServer *server,
   g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (in), FALSE);
   g_filter_output_stream_set_close_base_stream (G_FILTER_OUTPUT_STREAM (out), FALSE);
 
-  cockpit_web_socket_serve_dbus (server, 0, "./test-agent", NULL,
-                                 io_stream, headers, buffer, auth);
+  cockpit_web_socket_serve_dbus (server, io_stream, headers, buffer, auth);
 
   g_byte_array_unref (buffer);
   return TRUE;
@@ -296,6 +296,8 @@ main (int argc,
     }
 
   cd_srcdir (argv[0]);
+  cockpit_ws_agent_program = "./test-agent";
+
   loop = g_main_loop_new (NULL, FALSE);
 
   id = g_bus_own_name (G_BUS_TYPE_SYSTEM,

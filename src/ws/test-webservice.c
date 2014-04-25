@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "mock-auth.h"
+#include "cockpitws.h"
 #include "cockpitwebsocket.h"
 #include "cockpitwebserver.h"
 #include "cockpit/cockpittransport.h"
@@ -53,7 +54,6 @@ typedef struct {
   CockpitWebServer *web_server;
   gchar *cookie;
   CockpitAuth *auth;
-  const gchar *known_hosts;
 
   /* setup_io_pair */
   GIOStream *io_a;
@@ -61,7 +61,6 @@ typedef struct {
 
   /* serve_dbus */
   GThread *thread;
-  const gchar *agent_program;
 } TestCase;
 
 typedef struct {
@@ -140,7 +139,8 @@ setup_mock_sshd (TestCase *test,
   test->ssh_port = (gushort)value;
   g_string_free (port, TRUE);
 
-  test->known_hosts = SRCDIR "/src/ws/mock_known_hosts";
+  cockpit_ws_specific_ssh_port = test->ssh_port;
+  cockpit_ws_known_hosts = SRCDIR "/src/ws/mock_known_hosts";
 }
 
 static void
@@ -218,7 +218,7 @@ setup_io_streams (TestCase *test,
   g_object_unref (socket1);
   g_object_unref (socket2);
 
-  test->agent_program = BUILDDIR "/mock-echo";
+  cockpit_ws_agent_program = BUILDDIR "/mock-echo";
 }
 
 static void
@@ -306,9 +306,6 @@ serve_thread_func (gpointer data)
   g_byte_array_append (consumed, (guchar *)buffer, count);
 
   cockpit_web_socket_serve_dbus (test->web_server,
-                              test->ssh_port,
-                              test->agent_program,
-                              test->known_hosts,
                               test->io_b, headers,
                               consumed, test->auth);
 
@@ -718,7 +715,7 @@ test_unknown_host_key (TestCase *test,
   cockpit_expect_message ("*host key for server is not known*");
 
   /* No known hosts */
-  test->known_hosts = "/dev/null";
+  cockpit_ws_known_hosts = "/dev/null";
 
   start_web_service_and_connect_client (test, data, &ws, &thread);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
@@ -751,7 +748,7 @@ test_expect_host_key (TestCase *test,
   gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   /* No known hosts */
-  test->known_hosts = "/dev/null";
+  cockpit_ws_known_hosts = "/dev/null";
 
   start_web_service_and_create_client (test, data, &ws, &thread);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
@@ -793,10 +790,10 @@ test_fail_spawn (TestCase *test,
   cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*failed to execute*");
 
   /* Don't connect via SSH */
-  test->ssh_port = 0;
+  cockpit_ws_specific_ssh_port = 0;
 
   /* Fail to spawn this program */
-  test->agent_program = "/nonexistant";
+  cockpit_ws_agent_program = "/nonexistant";
 
   start_web_service_and_connect_client (test, data, &ws, &thread);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);

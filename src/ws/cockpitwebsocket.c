@@ -36,6 +36,18 @@
 
 #include "websocket/websocket.h"
 
+/* Some tunables that can be set from tests */
+const gchar *cockpit_ws_session_program =
+    PACKAGE_LIBEXEC_DIR "/cockpit-session";
+
+const gchar *cockpit_ws_agent_program =
+    PACKAGE_LIBEXEC_DIR "/cockpit-agent";
+
+const gchar *cockpit_ws_known_hosts =
+    PACKAGE_LOCALSTATE_DIR "/lib/cockpit/known_hosts";
+
+gint cockpit_ws_specific_ssh_port = 0;
+
 /* ----------------------------------------------------------------------------
  * CockpitSession
  */
@@ -261,10 +273,6 @@ typedef struct
   WebSocketConnection      *web_socket;
   GSocketConnection        *connection;
   CockpitCreds             *authenticated;
-  gchar                    *target_host;
-  gint                      specific_port;
-  gchar                    *agent_program;
-  gchar                    *known_hosts;
   const gchar              *user;
   gchar                    *rhost;
   gint                      rport;
@@ -282,8 +290,6 @@ web_socket_data_free (WebSocketData   *data)
   cockpit_sessions_cleanup (&data->sessions);
   g_object_unref (data->web_socket);
   g_bytes_unref (data->control_prefix);
-  g_free (data->agent_program);
-  g_free (data->known_hosts);
   if (data->authenticated)
     cockpit_creds_unref (data->authenticated);
   g_free (data->rhost);
@@ -538,16 +544,19 @@ process_open (WebSocketData *data,
   if (!session)
     {
       /* Used during testing */
-      if (data->specific_port != 0)
-        host = "127.0.0.1";
+      if (g_strcmp0 (host, "localhost") == 0)
+        {
+          if (cockpit_ws_specific_ssh_port != 0)
+            host = "127.0.0.1";
+        }
 
       if (g_strcmp0 (host, "localhost") == 0)
         {
           const gchar *argv_session[] =
-            { PACKAGE_LIBEXEC_DIR "/cockpit-session",
-              user, data->rhost, data->agent_program, NULL };
+            { cockpit_ws_session_program,
+              user, data->rhost, cockpit_ws_agent_program, NULL };
           const gchar *argv_local[] =
-            { data->agent_program, NULL, };
+            { cockpit_ws_agent_program, NULL, };
           gchar login[256];
           const gchar **argv;
 
@@ -582,10 +591,10 @@ process_open (WebSocketData *data,
             creds = cockpit_creds_new_password (user, password);
           transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                     "host", host,
-                                    "port", data->specific_port,
-                                    "command", data->agent_program,
+                                    "port", cockpit_ws_specific_ssh_port,
+                                    "command", cockpit_ws_agent_program,
                                     "creds", creds,
-                                    "known-hosts", data->known_hosts,
+                                    "known-hosts", cockpit_ws_known_hosts,
                                     "host-key", host_key,
                                     NULL);
           cockpit_creds_unref (creds);
@@ -798,9 +807,6 @@ on_ping_time (gpointer user_data)
 
 void
 cockpit_web_socket_serve_dbus (CockpitWebServer *server,
-                               guint16 specific_port,
-                               const gchar *agent_program,
-                               const gchar *known_hosts,
                                GIOStream *io_stream,
                                GHashTable *headers,
                                GByteArray *input_buffer,
@@ -812,9 +818,6 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   gchar *url;
 
   data = g_new0 (WebSocketData, 1);
-  data->specific_port = specific_port;
-  data->agent_program = g_strdup (agent_program);
-  data->known_hosts = g_strdup (known_hosts);
   if (G_IS_SOCKET_CONNECTION (io_stream))
     data->connection = g_object_ref (io_stream);
   else if (G_IS_TLS_CONNECTION (io_stream))

@@ -257,9 +257,14 @@ teardown (TestCase *tc,
   g_assert (tc->impl == NULL);
 
   g_test_dbus_down (tc->bus);
+  g_object_add_weak_pointer (G_OBJECT (tc->bus), (gpointer *)&tc->bus);
   g_object_unref (tc->bus);
+  g_assert (tc->bus == NULL);
 
   g_queue_free_full (tc->samples_received, (GDestroyNotify)g_variant_unref);
+
+  /* Wait for all updates to arrive asynchronously */
+  while (g_main_context_iteration (NULL, FALSE));
 }
 
 static void

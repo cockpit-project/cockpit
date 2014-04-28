@@ -41,6 +41,7 @@ const char *user;
 const char *rhost;
 const char *agent;
 char line[UT_LINESIZE + 1];
+static pid_t child;
 
 static int
 pam_conv_func (int num_msg,
@@ -105,18 +106,11 @@ utmp_log (int login)
   updwtmp (_PATH_WTMP, &ut);
 }
 
-static pid_t child;
-
 static int
-fork_session (void (*func) (void))
+fork_session (struct passwd *pw,
+              void (*func) (void))
 {
   int status;
-  struct passwd *pw = getpwnam (user);
-  if (pw == NULL)
-    {
-      warn ("can't get uid");
-      return 1 << 8;
-    }
 
   fflush (stderr);
 
@@ -217,7 +211,7 @@ main (int argc,
 
   utmp_log (1);
 
-  status = fork_session (session);
+  status = fork_session (pw, session);
 
   utmp_log (0);
 

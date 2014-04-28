@@ -786,12 +786,6 @@ test_fail_spawn (TestCase *test,
   GBytes *received = NULL;
   GThread *thread;
 
-  cockpit_expect_info ("New connection*");
-  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*failed to execute*");
-
-  /* Don't connect via SSH */
-  cockpit_ws_specific_ssh_port = 0;
-
   /* Fail to spawn this program */
   cockpit_ws_agent_program = "/nonexistant";
 

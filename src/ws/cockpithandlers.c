@@ -119,6 +119,39 @@ out:
   return NULL;
 }
 
+static gchar *
+get_remote_address (GIOStream *io)
+{
+  GSocketAddress *remote = NULL;
+  GSocketConnection *connection = NULL;
+  GIOStream *base;
+  gchar *result = NULL;
+
+  if (G_IS_TLS_CONNECTION (io))
+    {
+      g_object_get (io, "base-io-stream", &base, NULL);
+      if (G_IS_SOCKET_CONNECTION (base))
+        connection = g_object_ref (base);
+      g_object_unref (base);
+    }
+  else if (G_IS_SOCKET_CONNECTION (io))
+    {
+      connection = g_object_ref (io);
+    }
+
+  if (connection)
+    remote = g_socket_connection_get_remote_address (connection, NULL);
+  if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
+    result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
+
+  if (remote)
+    g_object_unref (remote);
+  if (connection)
+    g_object_unref (connection);
+
+  return result;
+}
+
 gboolean
 cockpit_handler_login (CockpitWebServer *server,
                        CockpitWebServerRequestType reqtype,
@@ -134,6 +167,7 @@ cockpit_handler_login (CockpitWebServer *server,
   GHashTable *out_headers = NULL;
   gs_free gchar *response_body = NULL;
   CockpitCreds *creds = NULL;
+  gchar *remote_peer = NULL;
 
   out_headers = cockpit_web_server_new_table ();
 
@@ -156,8 +190,10 @@ cockpit_handler_login (CockpitWebServer *server,
       if (request_body == NULL)
         goto out;
 
+      remote_peer = get_remote_address (io_stream);
       creds = cockpit_auth_check_userpass (ws->auth, request_body,
                                            !G_IS_SOCKET_CONNECTION (io_stream),
+                                           remote_peer,
                                            out_headers, &error);
       if (creds == NULL)
         goto out;
@@ -191,6 +227,7 @@ cockpit_handler_login (CockpitWebServer *server,
                                      strlen (response_body));
 
 out:
+  g_free (remote_peer);
   if (creds)
     cockpit_creds_unref (creds);
   if (error)

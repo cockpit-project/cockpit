@@ -25,6 +25,7 @@ struct _CockpitCreds {
   gint refs;
   gchar *user;
   gchar *password;
+  gchar *rhost;
 };
 
 G_DEFINE_BOXED_TYPE (CockpitCreds, cockpit_creds, cockpit_creds_ref, cockpit_creds_unref);
@@ -35,16 +36,47 @@ cockpit_creds_free (gpointer data)
   CockpitCreds *creds = data;
   g_free (creds->user);
   g_free (creds->password);
+  g_free (creds->rhost);
   g_free (creds);
 }
 
+/**
+ * cockpit_creds_new:
+ * @user: the user name the creds are for
+ * @...: multiple credentials, followed by NULL
+ *
+ * Create a new set of credentials for a user. Each vararg should be
+ * a COCKPIT_CRED_PASSWORD, COCKPIT_CRED_RHOST, or similar constant
+ * followed by the value.
+ *
+ * Returns: (transfer full): the new set of credentials.
+ */
 CockpitCreds *
-cockpit_creds_new_password (const gchar *user,
-                            const gchar *password)
+cockpit_creds_new (const gchar *user,
+                   ...)
 {
-  CockpitCreds *creds = g_new0 (CockpitCreds, 1);
+  CockpitCreds *creds;
+  const char *type;
+  va_list va;
+
+  creds = g_new0 (CockpitCreds, 1);
   creds->user = g_strdup (user);
-  creds->password = g_strdup (password);
+
+  va_start (va, user);
+  for (;;)
+    {
+      type = va_arg (va, const char *);
+      if (type == NULL)
+        break;
+      else if (g_str_equal (type, COCKPIT_CRED_PASSWORD))
+        creds->password = g_strdup (va_arg (va, const char *));
+      else if (g_str_equal (type, COCKPIT_CRED_RHOST))
+        creds->rhost = g_strdup (va_arg (va, const char *));
+      else
+        g_assert_not_reached ();
+    }
+  va_end (va);
+
   creds->refs = 1;
   return creds;
 }
@@ -78,4 +110,20 @@ cockpit_creds_get_password (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->password;
+}
+
+/**
+ * cockpit_creds_get_rhost:
+ * @creds: the credentials
+ *
+ * Get the remote host credential, or NULL
+ * if none present.
+ *
+ * Returns: the remote host or NULL
+ */
+const gchar *
+cockpit_creds_get_rhost (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  return creds->rhost;
 }

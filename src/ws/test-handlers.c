@@ -150,7 +150,7 @@ test_login_with_cookie (Test *test,
 
   user = g_get_user_name ();
   userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
-  creds = cockpit_auth_check_userpass (test->auth, userpass, FALSE, test->headers, &error);
+  creds = cockpit_auth_check_userpass (test->auth, userpass, FALSE, NULL, test->headers, &error);
   g_assert_no_error (error);
   g_assert (creds != NULL);
   cockpit_creds_unref (creds);

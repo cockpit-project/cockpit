@@ -172,7 +172,7 @@ setup_mock_webserver (TestCase *test,
 
   headers = web_socket_util_new_headers ();
   userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
-  creds = cockpit_auth_check_userpass (test->auth, userpass, FALSE, headers, &error);
+  creds = cockpit_auth_check_userpass (test->auth, userpass, FALSE, NULL, headers, &error);
   g_assert_no_error (error);
   cockpit_creds_unref (creds);
   g_free (userpass);

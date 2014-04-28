@@ -273,9 +273,6 @@ typedef struct
   WebSocketConnection      *web_socket;
   GSocketConnection        *connection;
   CockpitCreds             *authenticated;
-  const gchar              *user;
-  gchar                    *rhost;
-  gint                      rport;
 
   CockpitSessions sessions;
   gboolean closing;
@@ -292,7 +289,6 @@ web_socket_data_free (WebSocketData   *data)
   g_bytes_unref (data->control_prefix);
   if (data->authenticated)
     cockpit_creds_unref (data->authenticated);
-  g_free (data->rhost);
   g_free (data);
 }
 
@@ -325,28 +321,6 @@ report_close (WebSocketData *data,
               const gchar *reason)
 {
   report_close_with_extra (data, channel, reason, NULL);
-}
-
-static void
-get_remote_address (GSocketConnection *connection,
-                    gchar **rhost_out,
-                    gint *rport_out)
-{
-  gs_unref_object GSocketAddress *remote = NULL;
-  if (connection)
-    remote = g_socket_connection_get_remote_address (connection, NULL);
-  if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
-    {
-      *rhost_out =
-        g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
-      *rport_out =
-        g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (remote));
-    }
-  else
-    {
-      *rhost_out = g_strdup ("<unknown>");
-      *rport_out = 0;
-    }
 }
 
 static void
@@ -508,6 +482,7 @@ process_open (WebSocketData *data,
   const gchar *user;
   const gchar *host;
   const gchar *host_key;
+  const gchar *rhost;
 
   if (data->closing)
     {
@@ -528,12 +503,15 @@ process_open (WebSocketData *data,
     {
       if (!cockpit_json_get_string (options, "password", NULL, &password))
         password = NULL;
-      creds = NULL;
+      creds = cockpit_creds_new (specific_user,
+                                 COCKPIT_CRED_PASSWORD, password,
+                                 COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (data->authenticated),
+                                 NULL);
       user = specific_user;
     }
   else
     {
-      creds = data->authenticated;
+      creds = cockpit_creds_ref (data->authenticated);
       user = cockpit_creds_get_user (data->authenticated);
     }
 
@@ -550,11 +528,15 @@ process_open (WebSocketData *data,
             host = "127.0.0.1";
         }
 
+      rhost = cockpit_creds_get_rhost (creds);
+      if (rhost == NULL)
+        rhost = "<unknown>";
+
       if (g_strcmp0 (host, "localhost") == 0)
         {
           const gchar *argv_session[] =
             { cockpit_ws_session_program,
-              user, data->rhost, cockpit_ws_agent_program, NULL };
+              user, rhost, cockpit_ws_agent_program, NULL };
           const gchar *argv_local[] =
             { cockpit_ws_agent_program, NULL, };
           gchar login[256];
@@ -585,10 +567,6 @@ process_open (WebSocketData *data,
         }
       else
         {
-          if (creds)
-            cockpit_creds_ref (creds);
-          else
-            creds = cockpit_creds_new_password (user, password);
           transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                     "host", host,
                                     "port", cockpit_ws_specific_ssh_port,
@@ -597,7 +575,6 @@ process_open (WebSocketData *data,
                                     "known-hosts", cockpit_ws_known_hosts,
                                     "host-key", host_key,
                                     NULL);
-          cockpit_creds_unref (creds);
         }
 
       g_signal_connect (transport, "recv", G_CALLBACK (on_session_recv), data);
@@ -606,6 +583,7 @@ process_open (WebSocketData *data,
       g_object_unref (transport);
     }
 
+  cockpit_creds_unref (creds);
   cockpit_session_add_channel (&data->sessions, session, channel);
   return TRUE;
 }
@@ -721,10 +699,6 @@ static void
 on_web_socket_open (WebSocketConnection *web_socket,
                     WebSocketData *data)
 {
-  get_remote_address (data->connection, &(data->rhost), &(data->rport));
-  g_info ("New connection from %s:%d for %s", data->rhost, data->rport,
-          data->user ? data->user : "");
-
   /* We send auth errors as regular messages after establishing the
      connection because the WebSocket API doesn't let us see the HTTP
      status code.  We can't just use 'close' control frames to return a
@@ -732,14 +706,20 @@ on_web_socket_open (WebSocketConnection *web_socket,
   */
   if (!data->authenticated)
     {
+      g_info ("Closing unauthenticated connection");
       report_close (data, 0, "no-session");
       web_socket_connection_close (web_socket,
                                    WEB_SOCKET_CLOSE_GOING_AWAY,
                                    "not-authenticated");
     }
   else
-    g_signal_connect (web_socket, "message",
-                      G_CALLBACK (on_web_socket_message), data);
+    {
+      g_info ("New connection from %s for %s",
+              cockpit_creds_get_rhost (data->authenticated),
+              cockpit_creds_get_user (data->authenticated));
+      g_signal_connect (web_socket, "message",
+                        G_CALLBACK (on_web_socket_message), data);
+    }
 }
 
 static void
@@ -784,7 +764,12 @@ static void
 on_web_socket_close (WebSocketConnection *web_socket,
                      WebSocketData *data)
 {
-  g_info ("Connection from %s:%d for %s closed",data->rhost, data->rport, data->user);
+  if (data->authenticated)
+    {
+      g_info ("Connection from %s for %s closed",
+              cockpit_creds_get_rhost (data->authenticated),
+              cockpit_creds_get_user (data->authenticated));
+    }
 }
 
 static gboolean
@@ -832,8 +817,6 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   cockpit_sessions_init (&data->sessions);
 
   data->authenticated = cockpit_auth_check_headers (auth, headers, NULL);
-  if (data->authenticated)
-    data->user = cockpit_creds_get_user (data->authenticated);
 
   /* TODO: We need to validate Host throughout */
   url = g_strdup_printf ("%s://host-not-yet-used/socket",

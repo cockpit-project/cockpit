@@ -164,6 +164,7 @@ cockpit_getpwnam_a (const gchar *user,
 static CockpitCreds *
 verify_userpass (CockpitAuth *self,
                  const char *content,
+                 const char *remote_peer,
                  GError **error)
 {
   gchar **lines = g_strsplit (content, "\n", 0);
@@ -178,7 +179,7 @@ verify_userpass (CockpitAuth *self,
       return NULL;
     }
 
-  ret = cockpit_auth_verify_password (self, lines[0], lines[1], error);
+  ret = cockpit_auth_verify_password (self, lines[0], lines[1], remote_peer, error);
   g_strfreev (lines);
   return ret;
 }
@@ -187,6 +188,7 @@ static CockpitCreds *
 cockpit_auth_pam_verify_password (CockpitAuth *auth,
                                   const gchar *user,
                                   const gchar *password,
+                                  const gchar *remote_peer,
                                   GError **error)
 {
   pam_handle_t *pamh = NULL;
@@ -210,7 +212,12 @@ cockpit_auth_pam_verify_password (CockpitAuth *auth,
     {
       pam_status = pam_get_item (pamh, PAM_USER, (const void **)&pam_user);
       if (pam_status == PAM_SUCCESS)
-          ret = cockpit_creds_new_password (pam_user, password);
+        {
+          ret = cockpit_creds_new (pam_user,
+                                   COCKPIT_CRED_PASSWORD, password,
+                                   COCKPIT_CRED_RHOST, remote_peer,
+                                   NULL);
+        }
     }
 
   if (pam_status == PAM_AUTH_ERR || pam_status == PAM_USER_UNKNOWN)
@@ -347,6 +354,7 @@ CockpitCreds *
 cockpit_auth_check_userpass (CockpitAuth *self,
                              const char *userpass,
                              gboolean force_secure,
+                             const gchar *remote_peer,
                              GHashTable *out_headers,
                              GError **error)
 {
@@ -355,7 +363,7 @@ cockpit_auth_check_userpass (CockpitAuth *self,
   gs_free gchar *cookie_b64 = NULL;
   gchar *header;
 
-  creds = verify_userpass (self, userpass, error);
+  creds = verify_userpass (self, userpass, remote_peer, error);
   if (!creds)
     {
       g_debug ("user failed to verify");
@@ -425,9 +433,10 @@ CockpitCreds *
 cockpit_auth_verify_password (CockpitAuth *auth,
                               const gchar *user,
                               const gchar *password,
+                              const gchar *remote_peer,
                               GError **error)
 {
   CockpitAuthClass *klass = COCKPIT_AUTH_GET_CLASS (auth);
   g_return_val_if_fail (klass->verify_password != NULL, FALSE);
-  return klass->verify_password (auth, user, password, error);
+  return klass->verify_password (auth, user, password, remote_peer, error);
 }

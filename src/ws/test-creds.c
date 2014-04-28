@@ -28,7 +28,7 @@ test_password (void)
 {
   CockpitCreds *creds;
 
-  creds = cockpit_creds_new_password ("user", "password");
+  creds = cockpit_creds_new ("user", COCKPIT_CRED_PASSWORD, "password", NULL);
   g_assert (creds != NULL);
 
   g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
@@ -37,6 +37,39 @@ test_password (void)
   cockpit_creds_unref (creds);
 }
 
+static void
+test_rhost (void)
+{
+  CockpitCreds *creds;
+
+  creds = cockpit_creds_new ("user", COCKPIT_CRED_RHOST, "remote", NULL);
+  g_assert (creds != NULL);
+
+  g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr ("remote", ==, cockpit_creds_get_rhost (creds));
+
+  cockpit_creds_unref (creds);
+}
+
+static void
+test_multiple (void)
+{
+  CockpitCreds *creds;
+
+  creds = cockpit_creds_new ("user",
+                             COCKPIT_CRED_PASSWORD, "password",
+                             COCKPIT_CRED_RHOST, "remote",
+                             NULL);
+  g_assert (creds != NULL);
+
+  g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr ("remote", ==, cockpit_creds_get_rhost (creds));
+  g_assert_cmpstr ("password", ==, cockpit_creds_get_password (creds));
+
+  cockpit_creds_unref (creds);
+}
+
+
 int
 main (int argc,
       char *argv[])
@@ -44,6 +77,8 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/creds/basic-password", test_password);
+  g_test_add_func ("/creds/rhost", test_rhost);
+  g_test_add_func ("/creds/multiple", test_multiple);
 
   return g_test_run ();
 }

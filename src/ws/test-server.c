@@ -95,7 +95,9 @@ on_auth_authenticate (CockpitAuth *auth,
                       GHashTable *out_headers)
 {
   /* Dummy auth, overrides all other auth */
-  return cockpit_creds_new_password (g_get_user_name (), "<noauth>");
+  return cockpit_creds_new (g_get_user_name (),
+                            COCKPIT_CRED_PASSWORD, "<noauth>",
+                            NULL);
 }
 
 static void

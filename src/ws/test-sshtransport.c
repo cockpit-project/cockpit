@@ -146,7 +146,7 @@ setup_transport (TestCase *tc,
   setup_mock_sshd (tc, data);
 #endif
 
-  creds = cockpit_creds_new_password (g_get_user_name (), password);
+  creds = cockpit_creds_new (g_get_user_name (), COCKPIT_CRED_PASSWORD, password, NULL);
 
   known_hosts = fixture->known_hosts;
   if (!known_hosts)
@@ -637,7 +637,7 @@ test_cannot_connect (void)
 
   cockpit_expect_message ("*couldn't connect*");
 
-  creds = cockpit_creds_new_password ("user", "unused password");
+  creds = cockpit_creds_new ("user", COCKPIT_CRED_PASSWORD, "unused password", NULL);
   transport = cockpit_ssh_transport_new ("localhost", 65533, creds);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 

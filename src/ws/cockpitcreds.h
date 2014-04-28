@@ -47,6 +47,11 @@ const gchar *   cockpit_creds_get_password   (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
 
+gboolean        cockpit_creds_equal          (gconstpointer v1,
+                                              gconstpointer v2);
+
+guint           cockpit_creds_hash           (gconstpointer v);
+
 G_END_DECLS
 
 #endif

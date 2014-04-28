@@ -127,3 +127,39 @@ cockpit_creds_get_rhost (CockpitCreds *creds)
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->rhost;
 }
+
+gboolean
+cockpit_creds_equal (gconstpointer v1,
+                     gconstpointer v2)
+{
+  const CockpitCreds *c1;
+  const CockpitCreds *c2;
+
+  if (v1 == v2)
+    return TRUE;
+  if (!v1 || !v2)
+    return FALSE;
+
+  c1 = v1;
+  c2 = v2;
+
+  return g_strcmp0 (c1->user, c2->user) == 0 &&
+         g_strcmp0 (c1->password, c2->password) == 0 &&
+         g_strcmp0 (c1->rhost, c2->rhost) == 0;
+}
+
+guint
+cockpit_creds_hash (gconstpointer v)
+{
+  const CockpitCreds *c = v;
+  guint hash = 0;
+  if (v)
+    {
+      c = v;
+      if (c->user)
+        hash ^= g_str_hash (c->user);
+      if (c->rhost)
+        hash ^= g_str_hash (c->rhost);
+    }
+  return hash;
+}

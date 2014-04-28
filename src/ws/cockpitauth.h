@@ -25,6 +25,8 @@
 
 #include "cockpitcreds.h"
 
+#include "cockpit/cockpitpipe.h"
+
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_AUTH         (cockpit_auth_get_type ())
@@ -42,6 +44,7 @@ struct _CockpitAuth
   GByteArray *key;
   GMutex mutex;
   GHashTable *authenticated;
+  GHashTable *ready_sessions;
   guint64 nonce_seed;
 };
 
@@ -82,6 +85,9 @@ CockpitCreds *  cockpit_auth_verify_password (CockpitAuth *auth,
                                               const gchar *password,
                                               const gchar *remote_peer,
                                               GError **error);
+
+CockpitPipe *   cockpit_auth_start_session   (CockpitAuth *auth,
+                                              CockpitCreds *creds);
 
 struct passwd * cockpit_getpwnam_a           (const gchar *user,
                                               int *errp);

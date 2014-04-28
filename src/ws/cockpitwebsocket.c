@@ -272,6 +272,7 @@ typedef struct
 {
   WebSocketConnection      *web_socket;
   GSocketConnection        *connection;
+  CockpitAuth              *auth;
   CockpitCreds             *authenticated;
 
   CockpitSessions sessions;
@@ -287,6 +288,7 @@ web_socket_data_free (WebSocketData   *data)
   cockpit_sessions_cleanup (&data->sessions);
   g_object_unref (data->web_socket);
   g_bytes_unref (data->control_prefix);
+  g_object_unref (data->auth);
   if (data->authenticated)
     cockpit_creds_unref (data->authenticated);
   g_free (data);
@@ -534,34 +536,8 @@ process_open (WebSocketData *data,
 
       if (g_strcmp0 (host, "localhost") == 0)
         {
-          const gchar *argv_session[] =
-            { cockpit_ws_session_program,
-              user, rhost, cockpit_ws_agent_program, NULL };
-          const gchar *argv_local[] =
-            { cockpit_ws_agent_program, NULL, };
-          gchar login[256];
-          const gchar **argv;
-
-          /*
-           * If we're already in the right session, then skip cockpit-session.
-           * This is used when testing, or running as your own user.
-           *
-           * This doesn't apply if this code is running as a service, or otherwise
-           * unassociated from a terminal, we get a non-zero return value from
-           * getlogin_r() in that case.
-           */
-          if (getlogin_r (login, sizeof (login)) == 0 &&
-              g_str_equal (login, user))
-            {
-              argv = argv_local;
-            }
-          else
-            {
-              argv = argv_session;
-            }
-
           /* Any failures happen asyncronously */
-          pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+          pipe = cockpit_auth_start_session (data->auth, data->authenticated);
           transport = cockpit_pipe_transport_new (pipe);
           g_object_unref (pipe);
         }
@@ -819,6 +795,7 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   data->control_prefix = g_bytes_new_static ("0\n", 2);
   cockpit_sessions_init (&data->sessions);
 
+  data->auth = g_object_ref (auth);
   data->authenticated = cockpit_auth_check_headers (auth, headers, NULL);
 
   host = g_hash_table_lookup (headers, "Host");

@@ -17,8 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
+
 #include <assert.h>
 #include <err.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +40,9 @@
  * this job.
  */
 
+#define DEBUG_SESSION 0
+#define EX 127
+
 const char *user;
 const char *rhost;
 const char *agent;
@@ -44,13 +50,166 @@ char line[UT_LINESIZE + 1];
 static pid_t child;
 static char **env;
 
+#if DEBUG_SESSION
+#define debug(fmt, ...) (fprintf (stderr, "cockpit-session: " fmt "\n", ##__VA_ARGS__))
+#else
+#define debug(...)
+#endif
+
+static char *
+read_until_eof (int fd)
+{
+  size_t len = 0;
+  size_t alloc = 0;
+  char *buf = NULL;
+  int r;
+
+  for (;;)
+    {
+      if (alloc <= len)
+        {
+          alloc += 1024;
+          buf = realloc (buf, alloc);
+          if (!buf)
+            errx (EX, "couldn't allocate memory for password");
+        }
+
+      r = read (fd, buf + len, alloc - len);
+      if (r < 0)
+        {
+          if (errno == EAGAIN)
+            continue;
+          err (EX, "couldn't read password from cockpit-ws");
+        }
+      else if (r == 0)
+        {
+          break;
+        }
+      else
+        {
+          len += r;
+        }
+    }
+
+  buf[len] = '\0';
+  return buf;
+}
+
+static void
+write_json_string (FILE *file,
+                   const char *str)
+{
+  const unsigned char *at;
+  char buf[8];
+
+  fputc_unlocked ('\"', file);
+  for (at = (const unsigned char *)str; *at; at++)
+    {
+      if (*at == '\\' || *at == '\"' || *at < 0x1f)
+        {
+          snprintf (buf, sizeof (buf), "\\u%04x", (int)*at);
+          fputs_unlocked (buf, file);
+        }
+      else
+        {
+          fputc_unlocked (*at, file);
+        }
+    }
+  fputc_unlocked ('\"', file);
+}
+
+static void
+write_pam_result (int fd,
+                  int pam_result,
+                  const char *user)
+{
+  FILE *file;
+
+  file = fdopen (fd, "w");
+  if (!file)
+    err (EX, "couldn't write result to cockpit-ws");
+
+  /*
+   * The use of JSON here is not coincidental. It allows the cockpit-ws
+   * to detect whether it received the entire result or not. Partial
+   * JSON objects do not parse.
+   *
+   * In addition this is not a cross platform message. We are sending
+   * to cockpit-ws running on the same machine. PAM codes will be
+   * identical and should all be understood by cockpit-ws.
+   */
+
+  fprintf (file, "{ \"pam-result\": %d", pam_result);
+  if (user)
+    {
+      fprintf (file, ", \"user\": ");
+      write_json_string (file, user);
+    }
+  fprintf (file, " }\n");
+
+  if (ferror (file) || fclose (file) != 0)
+    err (EX, "couldn't write result to cockpit-ws");
+
+  debug ("wrote pam result %d/%s to cockpit-ws", pam_result, user);
+}
+
 static int
 pam_conv_func (int num_msg,
                const struct pam_message **msg,
-               struct pam_response **resp,
+               struct pam_response **ret_resp,
                void *appdata_ptr)
 {
-  return PAM_CONV_ERR;
+  char **passwd = (char **)appdata_ptr;
+  struct pam_response *resp;
+  int success = 1;
+  int i;
+
+  resp = calloc (sizeof (struct pam_response), num_msg);
+  if (resp == NULL)
+    {
+      warnx ("couldn't allocate memory for pam response");
+      return PAM_BUF_ERR;
+    }
+
+  for (i = 0; i < num_msg; i++)
+    {
+      if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF)
+        {
+          if (*passwd == NULL)
+            {
+              warnx ("pam asked us for more than one password");
+              success = 0;
+            }
+          else
+            {
+              debug ("answered pam passwd prompt");
+              resp[i].resp = *passwd;
+              resp[i].resp_retcode = 0;
+              *passwd = NULL;
+            }
+        }
+      else if (msg[i]->msg_style == PAM_ERROR_MSG ||
+               msg[i]->msg_style == PAM_TEXT_INFO)
+        {
+          warnx ("pam: %s", msg[i]->msg);
+        }
+      else
+        {
+          warnx ("pam asked us for an unspported info: %s", msg[i]->msg);
+          success = 0;
+        }
+    }
+
+  if (!success)
+    {
+      for (i = 0; i < num_msg; i++)
+        free (resp[i].resp);
+      free (resp);
+      return PAM_CONV_ERR;
+    }
+
+  *ret_resp = resp;
+  return PAM_SUCCESS;
 }
 
 static void
@@ -63,8 +222,8 @@ check (int r)
 static void
 usage (void)
 {
-  fprintf (stderr, "Usage: cockpit-session USER REMOTE-HOST AGENT\n");
-  exit (1);
+  fprintf (stderr, "usage: cockpit-session [-p FD] USER REMOTE-HOST AGENT\n");
+  exit (2);
 }
 
 static void
@@ -124,8 +283,6 @@ fork_session (struct passwd *pw,
 
   if (child == 0)
     {
-      signal (SIGTERM, SIG_DFL);
-
       if (setgid (pw->pw_gid) < 0)
         {
           warn ("setgid() failed");
@@ -145,6 +302,7 @@ fork_session (struct passwd *pw,
           _exit (42);
         }
 
+      debug ("dropped privileges");
       _exit (func ());
     }
 
@@ -158,8 +316,8 @@ static int
 session (void)
 {
   char *argv[] = { (char *)agent, NULL };
-  assert (env != NULL);
-  execve (agent, argv, env);
+  debug ("executing agent: %s", agent);
+  execve (argv[0], argv, env);
   warn ("can't exec %s", agent);
   return 127;
 }
@@ -174,61 +332,144 @@ int
 main (int argc,
       char **argv)
 {
-  struct pam_conv conv;
   pam_handle_t *pamh = NULL;
+  struct pam_conv conv = { pam_conv_func, };
+  const char *pam_user = NULL;
+  int want_session;
+  char *password = NULL;
   struct passwd *pw;
+  char login[256];
+  int pwfd = 0;
   int status;
+  int opt;
+  int res;
 
-  if (argc != 4)
+  while ((opt = getopt (argc, argv, "p:")) != -1)
+    {
+      switch (opt)
+        {
+        case 'p':
+          pwfd = atoi (optarg);
+          if (pwfd == 0)
+            errx (2, "invalid password fd: %s\n", optarg);
+          break;
+        default:
+          usage ();
+          break;
+        }
+    }
+
+  argc -= optind;
+  argv += optind;
+
+  if (argc != 3)
     usage ();
 
-  user = argv[1];
-  rhost = argv[2];
-  agent = argv[3];
-
-  snprintf (line, UT_LINESIZE, "cockpit-%d", getpid ());
-  line[UT_LINESIZE] = '\0';
-
-  conv.conv = pam_conv_func;
+  user = argv[0];
+  rhost = argv[1];
+  agent = argv[2];
 
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
   signal (SIGTSTP, SIG_IGN);
-  signal (SIGTERM, pass_to_child);
-  signal (SIGINT, SIG_IGN);
   signal (SIGHUP, SIG_IGN);
+  signal (SIGPIPE, SIG_IGN);
 
-  pw = getpwnam (user);
-  if (pw == NULL)
-    errx (1, "invalid user: %s", user);
+  snprintf (line, UT_LINESIZE, "cockpit-%d", getpid ());
+  line[UT_LINESIZE] = '\0';
 
-  if (initgroups (user, pw->pw_gid) < 0)
-    err (1, "can't init groups");
+  if (pwfd)
+    {
+      debug ("reading password from cockpit-ws");
+      password = read_until_eof (pwfd);
+      conv.appdata_ptr = &password;
+    }
 
   check (pam_start ("cockpit", user, &conv, &pamh));
   check (pam_set_item (pamh, PAM_RHOST, rhost));
-  check (pam_set_item (pamh, PAM_TTY, line));
-  check (pam_setcred (pamh, PAM_ESTABLISH_CRED));
-  check (pam_open_session (pamh, 0));
-  check (pam_setcred (pamh, PAM_REINITIALIZE_CRED));
 
-  env = pam_getenvlist (pamh);
-  if (env == NULL)
-    errx (1, "couldn't get PAM environment");
+  if (pwfd)
+    {
+      debug ("authenticating %s", user);
+      res = pam_authenticate (pamh, 0);
+      if (res != PAM_SUCCESS)
+        {
+          write_pam_result (pwfd, res, NULL);
+          exit (5); /* auth failure */
+        }
+    }
 
-  utmp_log (1);
+  check (pam_get_item (pamh, PAM_USER, (const void **)&pam_user));
+  debug ("user from pam is %s", user);
 
-  status = fork_session (pw, session);
+  /*
+   * If we're already in the right session, then skip cockpit-session.
+   * This is used when testing, or running as your own user.
+   *
+   * This doesn't apply if this code is running as a service, or otherwise
+   * unassociated from a terminal, we get a non-zero return value from
+   * getlogin_r() in that case.
+   */
+  want_session = (getlogin_r (login, sizeof (login)) != 0 ||
+                  strcmp (login, pam_user) != 0);
 
-  utmp_log (0);
+  if (want_session)
+    {
+      debug ("opening pam session for %s", user);
+      check (pam_set_item (pamh, PAM_TTY, line));
+      check (pam_setcred (pamh, PAM_ESTABLISH_CRED));
+      check (pam_open_session (pamh, 0));
+      check (pam_setcred (pamh, PAM_REINITIALIZE_CRED));
+    }
 
-  check (pam_setcred (pamh, PAM_DELETE_CRED));
-  check (pam_close_session (pamh, 0));
+  if (pwfd)
+    {
+      write_pam_result (pwfd, res, pam_user);
+    }
 
-  if (pamh)
-    pam_end (pamh, PAM_SUCCESS);
+  if (password)
+    {
+      memset (password, 0, strlen (password));
+      free (password);
+    }
 
-  signal (SIGTERM, SIG_DFL);
+  if (want_session)
+    {
+      env = pam_getenvlist (pamh);
+      if (env == NULL)
+        errx (1, "get pam environment failed");
+
+      pw = getpwnam (user);
+      if (pw == NULL)
+        errx (1, "invalid user: %s", user);
+
+      if (initgroups (user, pw->pw_gid) < 0)
+        err (1, "can't init groups");
+
+      signal (SIGTERM, pass_to_child);
+      signal (SIGINT, pass_to_child);
+      signal (SIGQUIT, pass_to_child);
+
+      utmp_log (1);
+
+      status = fork_session (pw, session);
+
+      utmp_log (0);
+
+      signal (SIGTERM, SIG_DFL);
+      signal (SIGINT, SIG_DFL);
+      signal (SIGQUIT, SIG_DFL);
+
+      check (pam_setcred (pamh, PAM_DELETE_CRED));
+      check (pam_close_session (pamh, 0));
+    }
+  else
+    {
+      status = session ();
+    }
+
+  pam_end (pamh, PAM_SUCCESS);
+
 
   if (WIFEXITED(status))
     exit (WEXITSTATUS(status));

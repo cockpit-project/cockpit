@@ -108,7 +108,7 @@ utmp_log (int login)
 
 static int
 fork_session (struct passwd *pw,
-              void (*func) (void))
+              int (*func) (void))
 {
   int status;
 
@@ -144,8 +144,7 @@ fork_session (struct passwd *pw,
           _exit (42);
         }
 
-      func ();
-      _exit (0);
+      _exit (func ());
     }
 
   close (0);
@@ -154,11 +153,12 @@ fork_session (struct passwd *pw,
   return status;
 }
 
-static void
+static int
 session (void)
 {
   execl (agent, agent, NULL);
   warn ("can't exec %s", agent);
+  return 127;
 }
 
 static void

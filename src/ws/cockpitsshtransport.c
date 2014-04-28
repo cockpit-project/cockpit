@@ -429,6 +429,7 @@ struct _CockpitSshTransport {
   GSource *io;
   gboolean closing;
   gboolean closed;
+  guint timeout_close;
   const gchar *problem;
   ssh_event event;
   struct ssh_channel_callbacks_struct channel_cbs;
@@ -445,17 +446,65 @@ struct _CockpitSshTransport {
   gboolean drain_buffer;
   gboolean received_eof;
   gboolean received_close;
+  gboolean received_exit;
 };
 
 struct _CockpitSshTransportClass {
   GObjectClass parent_class;
 };
 
+static void close_immediately (CockpitSshTransport *self,
+                               const gchar *problem);
+
 static void cockpit_ssh_transport_iface (CockpitTransportIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitSshTransport, cockpit_ssh_transport, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_TRANSPORT, cockpit_ssh_transport_iface)
 );
+
+static gboolean
+on_timeout_close (gpointer data)
+{
+  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (data);
+  self->timeout_close = 0;
+
+  g_debug ("%s: forcing close after timeout", self->logname);
+  close_immediately (self, NULL);
+
+  return FALSE;
+}
+
+static gboolean
+close_maybe (CockpitSshTransport *self,
+             gint session_io_status)
+{
+  if (self->closed)
+    return TRUE;
+
+  if (!self->sent_close || !self->received_close)
+    return FALSE;
+
+  /*
+   * Channel completely closed, and output buffers
+   * are empty. We're in a good place to close the
+   * SSH session and thus the transport.
+   */
+  if (self->received_exit && !(session_io_status & SSH_WRITE_PENDING))
+    {
+      close_immediately (self, NULL);
+      return TRUE;
+    }
+
+  /*
+   * Give a 3 second timeout for the session to get an
+   * exit signal and or drain its buffers. Otherwise force.
+   */
+  if (!self->timeout_close)
+    self->timeout_close = g_timeout_add_seconds (3, on_timeout_close, self);
+
+  return FALSE;
+}
+
 
 static int
 on_channel_data (ssh_session session,
@@ -516,6 +565,8 @@ on_channel_exit_signal (ssh_session session,
 
   g_return_if_fail (signal != NULL);
 
+  self->received_exit = TRUE;
+
   if (g_ascii_strcasecmp (signal, "TERM") == 0 ||
       g_ascii_strcasecmp (signal, "Terminated") == 0)
     {
@@ -533,6 +584,8 @@ on_channel_exit_signal (ssh_session session,
 
   if (!self->problem)
     self->problem = problem;
+
+  close_maybe (self, ssh_get_status (session));
 }
 
 static void
@@ -560,6 +613,7 @@ on_channel_exit_status (ssh_session session,
   CockpitSshTransport *self = userdata;
   const gchar *problem = NULL;
 
+  self->received_exit = TRUE;
   if (exit_status == 127)
     {
       g_debug ("%s: received exit status %d", self->logname, exit_status);
@@ -572,6 +626,8 @@ on_channel_exit_status (ssh_session session,
     }
   if (!self->problem)
     self->problem = problem;
+
+  close_maybe (self, ssh_get_status (session));
 }
 
 static void
@@ -611,6 +667,12 @@ close_immediately (CockpitSshTransport *self,
 {
   GSource *source;
   GThread *thread;
+
+  if (self->timeout_close)
+    {
+      g_source_remove (self->timeout_close);
+      self->timeout_close = 0;
+    }
 
   if (self->closed)
     return;
@@ -852,18 +914,17 @@ cockpit_ssh_source_prepare (GSource *source,
 
   status = ssh_get_status (self->data->session);
 
+  /* Short cut this ... we're ready now */
+  if (self->drain_buffer)
+    return TRUE;
+
   /*
    * Channel completely closed, and output buffers
    * are empty. We're in a good place to close the
    * SSH session and thus the transport.
    */
-  if (self->sent_close && self->received_close &&
-      !(status & SSH_WRITE_PENDING))
-    close_immediately (self, NULL);
-
-  /* Short cut this ... we're ready now */
-  if (self->drain_buffer)
-    return TRUE;
+  if (close_maybe (self, status))
+    return FALSE;
 
   cs->pfd.revents = 0;
   cs->pfd.events = G_IO_IN | G_IO_ERR | G_IO_NVAL | G_IO_HUP;

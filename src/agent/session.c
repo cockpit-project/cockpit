@@ -37,6 +37,11 @@
  * this job.
  */
 
+const char *user;
+const char *rhost;
+const char *agent;
+char line[UT_LINESIZE + 1];
+
 static int
 pam_conv_func (int num_msg,
                const struct pam_message **msg,
@@ -46,20 +51,11 @@ pam_conv_func (int num_msg,
   return PAM_CONV_ERR;
 }
 
-struct pam_conv conv;
-pam_handle_t *pamh = NULL;
-
-const char *user;
-const char *rhost;
-const char *agent;
-const char *tty;
-char line[UT_LINESIZE + 1];
-
 static void
 check (int r)
 {
   if (r != PAM_SUCCESS)
-    errx (1, "%s", pam_strerror (pamh, r));
+    errx (1, "%s", pam_strerror (NULL, r));
 }
 
 static void
@@ -181,6 +177,8 @@ int
 main (int argc,
       char **argv)
 {
+  struct pam_conv conv;
+  pam_handle_t *pamh = NULL;
   struct passwd *pw;
   int status;
 

@@ -964,19 +964,14 @@ cockpit_dbus_json_recv (CockpitChannel *channel,
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (channel);
   GError *error = NULL;
   gs_free gchar *buf = NULL;
-  JsonNode *root_node = NULL;
+  JsonObject *root;
 
-  root_node = cockpit_json_parse_bytes (message, &error);
-  if (!root_node)
+  root = cockpit_json_parse_bytes (message, &error);
+  if (!root)
     {
       g_prefix_error (&error, "Error parsing `%s' as JSON: ", buf);
       goto close;
     }
-
-  if (JSON_NODE_TYPE (root_node) != JSON_NODE_OBJECT)
-    goto close;
-
-  JsonObject *root = json_node_get_object (root_node);
 
   if (g_strcmp0 (json_object_get_string_member (root, "command"), "call") == 0)
     {
@@ -992,7 +987,8 @@ cockpit_dbus_json_recv (CockpitChannel *channel,
   return;
 
 close:
-  json_node_free (root_node);
+  if (root)
+    json_object_unref (root);
   if (error)
     {
       g_warning ("%s", error->message);

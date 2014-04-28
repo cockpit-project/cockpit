@@ -30,7 +30,11 @@ JsonNode *     cockpit_json_parse             (const char *data,
                                                gssize length,
                                                GError **error);
 
-JsonNode *     cockpit_json_parse_bytes       (GBytes *data,
+JsonObject *   cockpit_json_parse_object      (const gchar *data,
+                                               gssize length,
+                                               GError **error);
+
+JsonObject *   cockpit_json_parse_bytes       (GBytes *data,
                                                GError **error);
 
 gchar *        cockpit_json_write             (JsonNode *node,

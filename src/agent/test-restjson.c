@@ -124,7 +124,8 @@ mock_transport_send (CockpitTransport *transport,
 
   if (channel != 0)
     {
-      node = cockpit_json_parse_bytes (data, &error);
+      node = cockpit_json_parse (g_bytes_get_data (data, NULL),
+                                 g_bytes_get_size (data), &error);
       g_assert_no_error (error);
       g_assert (node);
       g_queue_push_tail (self->sent, node);

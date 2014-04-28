@@ -944,6 +944,35 @@ test_fail_not_authorized (void)
   g_object_unref (pipe);
 }
 
+static void
+test_problem_later (void)
+{
+  gchar *problem = NULL;
+  gchar *check;
+  CockpitPipe *pipe;
+
+  pipe = g_object_new (COCKPIT_TYPE_PIPE,
+                       "problem", "i-have-a-problem",
+                       NULL);
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_problem), &problem);
+
+  g_object_get (pipe, "problem", &check, NULL);
+  g_assert_cmpstr (check, ==, "i-have-a-problem");
+  g_free (check);
+  check = NULL;
+
+  g_assert (problem == NULL);
+  while (problem == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "i-have-a-problem");
+  g_object_get (pipe, "problem", &check, NULL);
+  g_assert_cmpstr (problem, ==, check);
+
+  g_object_unref (pipe);
+  g_free (problem);
+  g_free (check);
+}
 
 int
 main (int argc,
@@ -999,6 +1028,8 @@ main (int argc,
               setup_connect, test_connect_and_read, teardown_connect);
   g_test_add ("/pipe/connect/and-write", TestConnect, NULL,
               setup_connect, test_connect_and_write, teardown_connect);
+
+  g_test_add_func ("/pipe/problem-later", test_problem_later);
 
   g_test_add_func ("/test-stream/connect/not-found", test_fail_not_found);
   g_test_add_func ("/test-stream/connect/not-authorized", test_fail_not_authorized);

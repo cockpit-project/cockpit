@@ -69,8 +69,11 @@ function cockpit_content_show ()
 
 function cockpit_content_leave ()
 {
+    for (var i = 0; i < cockpit_loc_trail.length; i++)
+        cockpit_page_leave_breadcrumb(cockpit_loc_trail[i].page);
     if (cockpit_loc_trail.length > 0)
         cockpit_page_leave (cockpit_loc_trail[cockpit_loc_trail.length-1].page);
+    cockpit_loc_trail = [ ];
     cockpit_content_is_shown = false;
 }
 
@@ -158,18 +161,32 @@ function cockpit_go (trail)
             window.alert("This is not the machine you are looking for.");
     }
 
+    function leave_breadcrumb(trail) {
+        for (var i = 0; i < trail.length; i++)
+            cockpit_page_leave_breadcrumb(trail[i].page);
+    }
+
+    function enter_breadcrumb(trail) {
+        for (var i = 0; i < trail.length; i++)
+            cockpit_page_enter_breadcrumb(trail[i].page);
+    }
+
     if ($('#' + new_loc.page).length === 0) {
         cockpit_go (trail.slice(0, trail.length-1));
         return;
     } else if (cockpit_loc_trail.length === 0) {
+        leave_breadcrumb(cockpit_loc_trail);
         cockpit_loc_trail = trail;
+        enter_breadcrumb(cockpit_loc_trail);
         $('#content-header-extra').empty();
         $('#content-search').val("");
         cockpit_page_enter (new_loc.page);
     } else {
         var cur_loc = cockpit_loc_trail[cockpit_loc_trail.length-1];
         cockpit_page_leave (cur_loc.page);
+        leave_breadcrumb(cockpit_loc_trail);
         cockpit_loc_trail = trail;
+        enter_breadcrumb(cockpit_loc_trail);
         $('#content-header-extra').empty();
         $('#content-search').val("");
         cockpit_page_enter (new_loc.page);
@@ -331,6 +348,20 @@ function cockpit_page_show(id)
         }
     }
     phantom_checkpoint ();
+}
+
+function cockpit_page_enter_breadcrumb (id)
+{
+    var page = cockpit_page_from_id(id);
+    if (page && page.enter_breadcrumb)
+        page.enter_breadcrumb();
+}
+
+function cockpit_page_leave_breadcrumb (id)
+{
+    var page = cockpit_page_from_id(id);
+    if (page && page.leave_breadcrumb)
+        page.leave_breadcrumb();
 }
 
 function cockpit_get_page_title(id)

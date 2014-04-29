@@ -45,10 +45,11 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     };
 
     var num_series = data.length;
-    var num_points = resmon.NumSamples;
+    var num_points;
     var got_historical_data = false;
     var plot;
     var running = false;
+    var ready = false;
 
     $.extend(true, options, user_options);
 
@@ -62,13 +63,34 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     outer_div.empty();
     outer_div.append(inner_div);
 
-    // Initialize series
-    for (var n = 0; n < num_series; n++) {
-        var series = [];
-        for (var m = 0; m < num_points; m++) {
-            series[m] = [m, 0];
+    function init() {
+        if (!ready && resmon.NumSamples !== undefined) {
+            // Initialize series
+            num_points = resmon.NumSamples;
+            for (var n = 0; n < num_series; n++) {
+                var series = [];
+                for (var m = 0; m < num_points; m++) {
+                    series[m] = [m, 0];
+                }
+                data[n].data = series;
+            }
+
+            $(resmon).on("NewSample", new_sample_handler);
+
+            resmon.call("GetSamples", {},
+                        function(error, result) {
+                            if (!error) {
+                                got_historical_samples (result);
+                                got_historical_data = true;
+                                refresh ();
+                            }
+                        });
+
+            $(window).on('resize', resize);
+
+            ready = true;
+            maybe_start();
         }
-        data[n].data = series;
     }
 
     function sync_divs ()
@@ -80,11 +102,18 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     function start ()
     {
         running = true;
-        if (!plot) {
-            sync_divs ();
-            plot = $.plot(inner_div, data, options);
-        } else
-            resize();
+        maybe_start();
+    }
+
+    function maybe_start()
+    {
+        if (ready && running) {
+            if (!plot) {
+                sync_divs ();
+                plot = $.plot(inner_div, data, options);
+            } else
+                resize();
+        }
     }
 
     function stop ()
@@ -103,7 +132,7 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
 
     function resize ()
     {
-        if (running) {
+        if (plot && running) {
             sync_divs ();
             plot.resize();
             refresh();
@@ -144,24 +173,17 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     }
 
     function destroy () {
+        $(resmon).off('notify:NumSamples', init);
         $(resmon).off("NewSample", new_sample_handler);
         $(window).off('resize', resize);
         $(outer_div).empty();
         plot = null;
     }
 
-    $(resmon).on("NewSample", new_sample_handler);
-
-    resmon.call("GetSamples", {},
-                function(error, result) {
-                    if (!error) {
-                        got_historical_samples (result);
-                        got_historical_data = true;
-                        refresh ();
-                    }
-                });
-
-    $(window).on('resize', resize);
+    if (resmon.NumSamples !== undefined)
+        init();
+    else
+        $(resmon).on('notify:NumSamples', init);
 
     return { start: start, stop: stop,
              resize: resize, element: inner_div[0],
@@ -172,6 +194,9 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
 function cockpit_setup_complicated_plot (graph_id, resmon, data, options)
 {
     var i;
+    var plot = null;
+    var my_options = $.extend ({ legend: { show: true } },
+                               options);
 
     function store_samples (samples, index)
     {
@@ -194,11 +219,22 @@ function cockpit_setup_complicated_plot (graph_id, resmon, data, options)
         }
     }
 
-    for (i = 0; i < data.length; i++)
-        data[i].label = resmon.Legends[i];
+    function setup_legends()
+    {
+        for (i = 0; i < data.length; i++)
+            data[i].label = resmon.Legends[i];
+        if (plot)
+            plot.resize();
+    }
 
-    return cockpit_setup_plot (graph_id, resmon, data, options,
+    if (resmon.Legends)
+        setup_legends();
+    else
+        $(resmon).on('notify:Legends', setup_legends);
+
+    plot = cockpit_setup_plot (graph_id, resmon, data, my_options,
                                store_samples);
+    return plot;
 }
 
 // ----------------------------------------------------------------------------------------------------

@@ -94,7 +94,7 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
 
     function refresh ()
     {
-        if (running) {
+        if (plot && running) {
             plot.setData(data);
             plot.setupGrid();
             plot.draw();
@@ -136,12 +136,21 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
         }
     }
 
-    $(resmon).on("NewSample", function (event, timestampUsec, samples) {
+    function new_sample_handler (event, timestampUsec, samples) {
         if (got_historical_data) {
             new_samples (samples);
             refresh ();
         }
-    });
+    }
+
+    function destroy () {
+        $(resmon).off("NewSample", new_sample_handler);
+        $(window).off('resize', resize);
+        $(outer_div).empty();
+        plot = null;
+    }
+
+    $(resmon).on("NewSample", new_sample_handler);
 
     resmon.call("GetSamples", {},
                 function(error, result) {
@@ -154,7 +163,10 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
 
     $(window).on('resize', resize);
 
-    return { start: start, stop: stop, resize: resize, element: inner_div[0] };
+    return { start: start, stop: stop,
+             resize: resize, element: inner_div[0],
+             destroy: destroy
+           };
 }
 
 function cockpit_setup_complicated_plot (graph_id, resmon, data, options)

@@ -69,6 +69,7 @@ typedef struct
   CockpitTransport *transport;
   gboolean sent_eof;
   guint timeout;
+  CockpitCreds *creds;
 } CockpitSession;
 
 typedef struct
@@ -215,7 +216,7 @@ cockpit_session_add_channel (CockpitSessions *sessions,
 static CockpitSession *
 cockpit_session_track (CockpitSessions *sessions,
                        const gchar *host,
-                       const gchar *user,
+                       CockpitCreds *creds,
                        CockpitTransport *transport)
 {
   CockpitSession *session;
@@ -226,7 +227,8 @@ cockpit_session_track (CockpitSessions *sessions,
   session->channels = g_array_sized_new (FALSE, TRUE, sizeof (guint), 2);
   session->transport = g_object_ref (transport);
   session->key.host = g_strdup (host);
-  session->key.user = g_strdup (user);
+  session->key.user = g_strdup (cockpit_creds_get_user (creds));
+  session->creds = cockpit_creds_ref (creds);
 
   g_hash_table_insert (sessions->by_host_user, &session->key, session);
 
@@ -492,7 +494,6 @@ process_open (CockpitWebService *self,
   CockpitPipe *pipe;
   const gchar *specific_user;
   const gchar *password;
-  const gchar *user;
   const gchar *host;
   const gchar *host_key;
   const gchar *rhost;
@@ -520,18 +521,17 @@ process_open (CockpitWebService *self,
                                  COCKPIT_CRED_PASSWORD, password,
                                  COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->authenticated),
                                  NULL);
-      user = specific_user;
     }
   else
     {
       creds = cockpit_creds_ref (self->authenticated);
-      user = cockpit_creds_get_user (self->authenticated);
     }
 
   if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
     host_key = NULL;
 
-  session = cockpit_session_by_host_user (&self->sessions, host, user);
+  session = cockpit_session_by_host_user (&self->sessions, host,
+                                          cockpit_creds_get_user (creds));
   if (!session)
     {
       /* Used during testing */
@@ -566,7 +566,7 @@ process_open (CockpitWebService *self,
 
       g_signal_connect (transport, "recv", G_CALLBACK (on_session_recv), self);
       g_signal_connect (transport, "closed", G_CALLBACK (on_session_closed), self);
-      session = cockpit_session_track (&self->sessions, host, user, transport);
+      session = cockpit_session_track (&self->sessions, host, creds, transport);
       g_object_unref (transport);
     }
 

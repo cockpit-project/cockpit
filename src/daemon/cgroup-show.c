@@ -399,9 +399,6 @@ static char *path_get_file_name(const char *p) {
         return (char*) p;
 }
 
-static inline const char *strna(const char *s) {
-        return s ? s : "n/a";
-}
 #define streq(a,b) (strcmp((a),(b)) == 0)
 
 

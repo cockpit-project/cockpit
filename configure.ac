@@ -119,6 +119,35 @@ AC_CHECK_LIB(pam, pam_open_session, [ ],
 )
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lpam"
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lpam"
+REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lpam"
+
+# pam module directory
+AC_ARG_WITH([pamdir],
+            [AC_HELP_STRING([--with-pamdir=DIR],
+                             [directory to install pam modules in])],
+             [], [with_pamdir='${libdir}/security'])
+pamdir=$with_pamdir
+AC_SUBST(pamdir)
+
+# keyutils
+AC_CHECK_HEADER([keyutils.h], [ ],
+  [AC_MSG_ERROR([Couldn't find keyutils headers. Try installing keyutils-libs-devel])]
+)
+AC_CHECK_LIB(keyutils, keyctl_join_session_keyring, [ ],
+  [AC_MSG_ERROR([Couldn't find keyutils library. Try installing keyutils-libs-devel])]
+)
+COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lkeyutils"
+REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lkeyutils"
+
+# crypt
+AC_CHECK_HEADER([crypt.h], [ ],
+  [AC_MSG_ERROR([Couldn't find crypt headers. Try installing glibc-headers])]
+)
+AC_CHECK_LIB(crypt, crypt_r, [ ],
+  [AC_MSG_ERROR([Couldn't find crypt library. Try installing glibc-devel])]
+)
+COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
+REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lcrypt"
 
 # systemd
 AC_ARG_WITH([systemdsystemunitdir],
@@ -245,6 +274,7 @@ AC_MSG_RESULT($enable_strict)
 #
 
 AC_SUBST(COCKPIT_SESSION_LIBS)
+AC_SUBST(REAUTHORIZE_LIBS)
 
 AC_OUTPUT([
 Makefile
@@ -265,6 +295,7 @@ echo "
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
         systemdsystemunitdir:       ${systemdsystemunitdir}
+        pamdir:                     ${pamdir}
 
         compiler:                   ${CC}
         cflags:                     ${CFLAGS}

@@ -17,6 +17,7 @@ SUBDIRS = . po
 
 DISTCHECK_CONFIGURE_FLAGS=						        \
 	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)   \
+	--with-pamdir=$$dc_install_base/$(pamdir) \
 	--disable-debug \
 	--disable-coverage \
 	$(NULL)
@@ -106,3 +107,4 @@ include src/agent/Makefile-agent.am
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am
 include src/web/Makefile-web.am
+include src/reauthorize/Makefile-reauthorize.am

@@ -1,0 +1,101 @@
+
+noinst_LIBRARIES += libreauthorize.a
+
+libreauthorize_a_SOURCES = \
+	src/reauthorize/reauthorize.c \
+	src/reauthorize/reauthorize.h \
+	src/reauthorize/reauthutil.c \
+	src/reauthorize/reauthutil.h \
+	$(NULL)
+libreauthorize_a_LIBS = \
+	libreauthorize.a \
+	$(REAUTHORIZE_LIBS)
+
+pam_reauthorize_DEPS = src/reauthorize/reauthutil.c src/reauthorize/reauthutil.h
+pam_reauthorize_SOURCE = src/reauthorize/pam_reauthorize.c
+pam_reauthorize.so: $(pam_reauthorize_SOURCE) $(pam_reauthorize_DEPS)
+	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -I$(builddir) -o $@ $< $(REAUTHORIZE_LIBS)
+
+pam_mock_SOURCE = src/reauthorize/pam_mock.c
+pam_mock.so: $(pam_mock_SOURCE)
+	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -o $@ $< $(REAUTHORIZE_LIBS)
+
+pam_MODULES = pam_mock.so pam_reauthorize.so
+
+all-local: $(pam_MODULES)
+
+EXTRA_DIST += \
+	$(pam_reauthorize_SOURCE) \
+	$(pam_mock_SOURCE) \
+	$(NULL)
+
+CLEANFILES += $(pam_MODULES)
+
+install-exec-local:
+	$(MKDIR_P) $(pamdir) && chmod 755 $(pamdir)
+	$(INSTALL) pam_reauthorize.so $(pamdir)
+uninstall-local::
+	$(RM) -f $(pamdir)/pam_reauthorize.so
+
+# -----------------------------------------------------------------------------
+# Tests
+
+noinst_PROGRAMS += \
+	frob-reauthorize \
+	mock-reauthorize \
+	$(NULL)
+
+frob_reauthorize_SOURCES = src/reauthorize/frob-reauthorize.c
+frob_reauthorize_LDADD = $(libreauthorize_a_LIBS)
+
+mock_reauthorize_SOURCES = src/reauthorize/mock-reauthorize.c
+mock_reauthorize_CFLAGS = \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DBUILDDIR=\"$(abs_builddir)\"
+	$(NULL)
+mock_reauthorize_LDADD = $(REAUTHORIZE_LIBS)
+
+REAUTHORIZE_CHECKS = \
+	test-reauthorize \
+	test-pamreauth \
+	$(NULL)
+
+noinst_LIBRARIES += libretest.a
+libretest_a_SOURCES = \
+	src/reauthorize/retest.c \
+	src/reauthorize/retest.h \
+	$(NULL)
+
+test_reauthorize_CFLAGS = $(libreauthorize_a_CFLAGS)
+test_reauthorize_SOURCES = src/reauthorize/test-reauthorize.c
+test_reauthorize_LDADD = libretest.a $(libreauthorize_a_LIBS)
+
+test_pamreauth_CFLAGS = $(libreauthorize_a_CFLAGS)
+test_pamreauth_SOURCES = src/reauthorize/test-pamreauth.c
+test_pamreauth_LDADD = libretest.a $(libreauthorize_a_LIBS)
+
+noinst_PROGRAMS += $(REAUTHORIZE_CHECKS)
+TESTS += $(REAUTHORIZE_CHECKS)
+
+pam_CONFIGS = \
+	src/reauthorize/mock-reauthorize-prepare \
+	src/reauthorize/mock-reauthorize-perform \
+	$(NULL)
+
+EXTRA_DIST += $(pam_CONFIGS)
+
+SED_SUBST = sed -e 's,[@]abs_srcdir[@],$(abs_srcdir),g'
+
+enable-pam-tests:
+	chown 0:0 $(builddir)/mock-reauthorize
+	chmod u+s $(builddir)/mock-reauthorize
+	for t in $(notdir $(pam_CONFIGS)); do \
+		sed -e 's,[@]abs_builddir[@],$(abs_builddir),g' \
+			$(srcdir)/src/reauthorize/$$t > $(sysconfdir)/pam.d/$$t; \
+	done
+
+disable-pam-tests:
+	chmod u-s $(builddir)/mock-reauthorize
+	for t in $(notdir $(pam_CONFIGS)); do \
+		$(RM) -f $(sysconfdir)/pam.d/$$t; \
+	done

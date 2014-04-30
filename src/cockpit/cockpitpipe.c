@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitpipe.h"
+#include "cockpitunixfd.h"
 
 #include <glib-unix.h>
 
@@ -57,11 +58,13 @@ enum {
 
 struct _CockpitPipePrivate {
   gchar *name;
+  GMainContext *context;
+
+  gboolean closed;
   gboolean closing;
   gboolean connecting;
   gchar *problem;
 
-  GSource *io;
   GPid pid;
   GSource *child;
   gboolean exited;
@@ -69,13 +72,13 @@ struct _CockpitPipePrivate {
   gboolean is_process;
 
   int out_fd;
+  GSource *in_source;
   GQueue *out_queue;
   gsize out_partial;
-  GPollFD *out_poll;
 
   int in_fd;
+  GSource *out_source;
   GByteArray *in_buffer;
-  GPollFD *in_poll;
 };
 
 typedef struct {
@@ -97,15 +100,33 @@ cockpit_pipe_init (CockpitPipe *self)
   self->priv->out_queue = g_queue_new ();
   self->priv->out_fd = -1;
   self->priv->status = -1;
+
+  self->priv->context = g_main_context_ref_thread_default ();
+}
+
+static void
+stop_output (CockpitPipe *self)
+{
+  g_assert (self->priv->out_source != NULL);
+  g_source_destroy (self->priv->out_source);
+  g_source_unref (self->priv->out_source);
+  self->priv->out_source = NULL;
+}
+
+static void
+stop_input (CockpitPipe *self)
+{
+  g_assert (self->priv->in_source != NULL);
+  g_source_destroy (self->priv->in_source);
+  g_source_unref (self->priv->in_source);
+  self->priv->in_source = NULL;
 }
 
 static void
 close_immediately (CockpitPipe *self,
                    const gchar *problem)
 {
-  GSource *source;
-
-  if (!self->priv->io)
+  if (self->priv->closed)
     return;
 
   if (problem)
@@ -114,24 +135,27 @@ close_immediately (CockpitPipe *self,
       self->priv->problem = g_strdup (problem);
     }
 
-  g_debug ("%s: closing io%s%s", self->priv->name,
+  self->priv->closed = TRUE;
+
+  g_debug ("%s: closing pipe%s%s", self->priv->name,
            self->priv->problem ? ": " : "",
            self->priv->problem ? self->priv->problem : "");
 
-  source = self->priv->io;
-  self->priv->io = NULL;
-
-  g_source_destroy (source);
-  g_source_unref (source);
-
-  g_free (self->priv->in_poll);
-  g_free (self->priv->out_poll);
-  self->priv->in_poll = self->priv->out_poll = NULL;
+  if (self->priv->in_source)
+    stop_input (self);
+  if (self->priv->out_source)
+    stop_output (self);
 
   if (self->priv->in_fd != -1)
-    close (self->priv->in_fd);
+    {
+      close (self->priv->in_fd);
+      self->priv->in_fd = -1;
+    }
   if (self->priv->out_fd != -1)
-    close (self->priv->out_fd);
+    {
+      close (self->priv->out_fd);
+      self->priv->out_fd = -1;
+    }
 
   /* If not tracking a pid, then we are now closed. */
   if (!self->priv->child)
@@ -144,9 +168,9 @@ close_immediately (CockpitPipe *self,
 static void
 close_maybe (CockpitPipe *self)
 {
-  if (self->priv->io)
+  if (!self->priv->closed)
     {
-      if (!self->priv->in_poll && !self->priv->out_poll)
+      if (!self->priv->in_source && !self->priv->out_source)
         {
           g_debug ("%s: input and output done", self->priv->name);
           close_immediately (self, NULL);
@@ -173,40 +197,17 @@ on_child_reap (GPid pid,
   g_signal_emit (self, cockpit_pipe_sig_close, 0, self->priv->problem);
 }
 
-
 static gboolean
-pipe_prepare (GSource *source,
-              gint *timeout)
+dispatch_input (gint fd,
+                GIOCondition cond,
+                gpointer user_data)
 {
-  *timeout = -1;
-  return FALSE;
-}
-
-static inline GIOCondition
-have_events (GPollFD *pfd)
-{
-  if (!pfd)
-    return 0;
-  return pfd->revents & (pfd->events | G_IO_NVAL | G_IO_ERR);
-}
-
-static gboolean
-pipe_check (GSource *source)
-{
-  CockpitPipeSource *fs = (CockpitPipeSource *)source;
-  CockpitPipe *self = fs->pipe;
-  return have_events (self->priv->out_poll) || have_events (self->priv->in_poll);
-}
-
-static void
-dispatch_input (CockpitPipe *self,
-                GIOCondition cond)
-{
+  CockpitPipe *self = (CockpitPipe *)user_data;
   gssize ret = 0;
   gsize len;
   gboolean eof;
 
-  g_assert (self->priv->in_poll);
+  g_return_val_if_fail (self->priv->in_source, FALSE);
   len = self->priv->in_buffer->len;
 
   /*
@@ -227,30 +228,30 @@ dispatch_input (CockpitPipe *self,
             {
               g_warning ("%s: couldn't read: %s", self->priv->name, g_strerror (errno));
               close_immediately (self, "internal-error");
+              return FALSE;
             }
-          return;
+          return TRUE;
         }
     }
 
   if (ret == 0)
     {
       g_debug ("%s: end of input", self->priv->name);
-      g_source_remove_poll (self->priv->io, self->priv->in_poll);
-      g_free (self->priv->in_poll);
-      self->priv->in_poll = NULL;
+      stop_input (self);
     }
 
   g_object_ref (self);
 
   g_byte_array_set_size (self->priv->in_buffer, len + ret);
 
-  eof = (self->priv->in_poll == NULL);
+  eof = (self->priv->in_source == NULL);
   g_signal_emit (self, cockpit_pipe_sig_read, 0, self->priv->in_buffer, eof);
 
   if (eof)
     close_maybe (self);
 
   g_object_unref (self);
+  return TRUE;
 }
 
 static void
@@ -271,11 +272,10 @@ close_output (CockpitPipe *self)
               if (self->priv->in_fd == self->priv->out_fd)
                 {
                   self->priv->in_fd = -1;
-                  if (self->priv->in_poll)
+                  if (self->priv->in_source)
                     {
-                      g_source_remove_poll (self->priv->io, self->priv->in_poll);
-                      g_free (self->priv->in_poll);
-                      self->priv->in_poll = NULL;
+                      g_debug ("%s: and closing input because same fd", self->priv->name);
+                      stop_input (self);
                     }
                 }
 
@@ -290,17 +290,6 @@ close_output (CockpitPipe *self)
     }
 
   close_maybe (self);
-}
-
-static void
-start_output (CockpitPipe *self)
-{
-  g_assert (self->priv->io != NULL);
-  g_assert (self->priv->out_poll == NULL);
-  self->priv->out_poll = g_new0 (GPollFD, 1);
-  self->priv->out_poll->fd = self->priv->out_fd;
-  self->priv->out_poll->events = G_IO_OUT | G_IO_ERR;
-  g_source_add_poll (self->priv->io, self->priv->out_poll);
 }
 
 static void
@@ -360,9 +349,12 @@ dispatch_connect (CockpitPipe *self)
   return TRUE;
 }
 
-static void
-dispatch_output (CockpitPipe *self)
+static gboolean
+dispatch_output (gint fd,
+                 GIOCondition cond,
+                 gpointer user_data)
 {
+  CockpitPipe *self = (CockpitPipe *)user_data;
   struct iovec iov[4];
   gsize partial;
   gssize ret;
@@ -371,9 +363,9 @@ dispatch_output (CockpitPipe *self)
 
   /* A non-blocking connect is processed here */
   if (self->priv->connecting && !dispatch_connect (self))
-    return;
+    return TRUE;
 
-  g_assert (self->priv->out_poll);
+  g_return_val_if_fail (self->priv->out_source, FALSE);
 
   /* Note we fall through when nothing to write */
   partial = self->priv->out_partial;
@@ -404,7 +396,7 @@ dispatch_output (CockpitPipe *self)
           g_warning ("%s: couldn't write: %s", self->priv->name, g_strerror (errno));
           close_immediately (self, "internal-error");
         }
-      return;
+      return FALSE;
     }
 
   /* Figure out what was written */
@@ -427,66 +419,36 @@ dispatch_output (CockpitPipe *self)
     }
 
   if (self->priv->out_queue->head)
-    return;
+    return TRUE;
 
   g_debug ("%s: output queue empty", self->priv->name);
 
   /* If all messages are done, then stop polling out fd */
-  g_source_remove_poll (self->priv->io, self->priv->out_poll);
-  g_free (self->priv->out_poll);
-  self->priv->out_poll = NULL;
+  stop_output (self);
 
-  if (!self->priv->closing)
-    return;
-
-  close_output (self);
-}
-
-static gboolean
-pipe_dispatch (GSource *source,
-               GSourceFunc callback,
-               gpointer user_data)
-{
-  CockpitPipeSource *fs = (CockpitPipeSource *)source;
-  CockpitPipe *self = fs->pipe;
-  GIOCondition cond;
-
-  g_object_ref (self);
-
-  if (have_events (self->priv->out_poll))
-    dispatch_output (self);
-
-  cond = have_events (self->priv->in_poll);
-  if (cond)
-    dispatch_input (self, cond);
-
-  g_object_unref (self);
+  if (self->priv->closing)
+    close_output (self);
 
   return TRUE;
 }
 
-static GSourceFuncs source_funcs = {
-  pipe_prepare,
-  pipe_check,
-  pipe_dispatch,
-  NULL,
-};
+static void
+start_output (CockpitPipe *self)
+{
+  g_assert (self->priv->out_source == NULL);
+  self->priv->out_source = cockpit_unix_fd_source_new (self->priv->out_fd, G_IO_OUT);
+  g_source_set_name (self->priv->out_source, "pipe-output");
+  g_source_set_callback (self->priv->out_source, (GSourceFunc)dispatch_output, self, NULL);
+  g_source_attach (self->priv->out_source, self->priv->context);
+}
 
 static void
 cockpit_pipe_constructed (GObject *object)
 {
   CockpitPipe *self = COCKPIT_PIPE (object);
-  CockpitPipeSource *fs;
-  GMainContext *ctx;
   GError *error = NULL;
 
   G_OBJECT_CLASS (cockpit_pipe_parent_class)->constructed (object);
-
-  ctx = g_main_context_get_thread_default ();
-
-  self->priv->io = g_source_new (&source_funcs, sizeof (CockpitPipeSource));
-  fs = (CockpitPipeSource *)self->priv->io;
-  fs->pipe = self;
 
   if (self->priv->in_fd >= 0)
     {
@@ -497,10 +459,10 @@ cockpit_pipe_constructed (GObject *object)
           g_clear_error (&error);
         }
 
-      self->priv->in_poll = g_new0 (GPollFD, 1);
-      self->priv->in_poll->fd = self->priv->in_fd;
-      self->priv->in_poll->events = G_IO_IN | G_IO_HUP | G_IO_ERR;
-      g_source_add_poll (self->priv->io, self->priv->in_poll);
+      self->priv->in_source = cockpit_unix_fd_source_new (self->priv->in_fd, G_IO_IN);
+      g_source_set_name (self->priv->in_source, "pipe-input");
+      g_source_set_callback (self->priv->in_source, (GSourceFunc)dispatch_input, self, NULL);
+      g_source_attach (self->priv->in_source, self->priv->context);
     }
 
   if (self->priv->out_fd >= 0)
@@ -514,14 +476,12 @@ cockpit_pipe_constructed (GObject *object)
       start_output (self);
     }
 
-  g_source_attach (self->priv->io, ctx);
-
   if (self->priv->pid)
     {
       self->priv->is_process = TRUE;
       self->priv->child = g_child_watch_source_new (self->priv->pid);
       g_source_set_callback (self->priv->child, (GSourceFunc)on_child_reap, self, NULL);
-      g_source_attach (self->priv->child, ctx);
+      g_source_attach (self->priv->child, self->priv->context);
     }
 }
 
@@ -598,7 +558,7 @@ cockpit_pipe_dispose (GObject *object)
       self->priv->pid = 0;
     }
 
-  if (self->priv->io)
+  if (!self->priv->closed)
     close_immediately (self, "terminated");
 
   while (self->priv->out_queue->head)
@@ -612,9 +572,9 @@ cockpit_pipe_finalize (GObject *object)
 {
   CockpitPipe *self = COCKPIT_PIPE (object);
 
-  g_assert (!self->priv->io);
-  g_assert (!self->priv->in_poll);
-  g_assert (!self->priv->out_poll);
+  g_assert (self->priv->closed);
+  g_assert (!self->priv->in_source);
+  g_assert (!self->priv->out_source);
 
   if (self->priv->child)
     {
@@ -626,6 +586,9 @@ cockpit_pipe_finalize (GObject *object)
   g_queue_free (self->priv->out_queue);
   g_free (self->priv->problem);
   g_free (self->priv->name);
+
+  if (self->priv->context)
+    g_main_context_unref (self->priv->context);
 
   G_OBJECT_CLASS (cockpit_pipe_parent_class)->finalize (object);
 }
@@ -746,17 +709,17 @@ cockpit_pipe_write (CockpitPipe *self,
      and it isn't an error to try to send more messages.  We drop them
      here.
   */
-  if (self->priv->io == NULL && self->priv->child && self->priv->pid != 0)
+  if (self->priv->closed && self->priv->child && self->priv->pid != 0)
     {
       g_message ("%s: dropping message while waiting for child to exit", self->priv->name);
       return;
     }
 
-  g_return_if_fail (self->priv->io != NULL);
+  g_return_if_fail (!self->priv->closed);
 
   g_queue_push_tail (self->priv->out_queue, g_bytes_ref (data));
 
-  if (!self->priv->out_poll && self->priv->out_fd >= 0)
+  if (!self->priv->out_source && self->priv->out_fd >= 0)
     {
       start_output (self);
     }

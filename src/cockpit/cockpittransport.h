@@ -28,16 +28,20 @@ G_BEGIN_DECLS
 #define COCKPIT_TYPE_TRANSPORT            (cockpit_transport_get_type ())
 #define COCKPIT_TRANSPORT(o)              (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_TRANSPORT, CockpitTransport))
 #define COCKPIT_IS_TRANSPORT(o)           (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_TRANSPORT))
-#define COCKPIT_TRANSPORT_GET_IFACE(inst) (G_TYPE_INSTANCE_GET_INTERFACE ((inst), COCKPIT_TYPE_TRANSPORT, CockpitTransportIface))
+#define COCKPIT_TRANSPORT_CLASS(k)        (G_TYPE_CHECK_CLASS_CAST((k), COCKPIT_TYPE_TRANSPORT, CockpitTransportClass))
+#define COCKPIT_TRANSPORT_GET_CLASS(o)    (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_TRANSPORT, CockpitTransportClass))
 
 typedef struct _CockpitTransport        CockpitTransport;
-typedef struct _CockpitTransportIface   CockpitTransportIface;
+typedef struct _CockpitTransportClass   CockpitTransportClass;
 
-#define COCKPIT_TRANSPORT_FINISHED -1
-
-struct _CockpitTransportIface
+struct _CockpitTransport
 {
-  GTypeInterface parent_iface;
+  GObject parent;
+};
+
+struct _CockpitTransportClass
+{
+  GObjectClass parent_class;
 
   /* signals */
 

@@ -40,18 +40,14 @@
 static GType mock_transport_get_type (void) G_GNUC_CONST;
 
 typedef struct {
-  GObject parent;
+  CockpitTransport parent;
   GQueue *sent;
   GList *gc;
 } MockTransport;
 
-typedef GObjectClass MockTransportClass;
+typedef CockpitTransportClass MockTransportClass;
 
-static void mock_transport_iface (CockpitTransportIface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (MockTransport, mock_transport, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_TRANSPORT, mock_transport_iface);
-);
+G_DEFINE_TYPE (MockTransport, mock_transport, COCKPIT_TYPE_TRANSPORT);
 
 static void
 mock_transport_init (MockTransport *self)
@@ -104,16 +100,6 @@ mock_transport_finalize (GObject *object)
 }
 
 static void
-mock_transport_class_init (MockTransportClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  object_class->finalize = mock_transport_finalize;
-  object_class->get_property = mock_transport_get_property;
-  object_class->set_property = mock_transport_set_property;
-  g_object_class_override_property (object_class, 1, "name");
-}
-
-static void
 mock_transport_send (CockpitTransport *transport,
                      guint channel,
                      GBytes *data)
@@ -141,10 +127,16 @@ mock_transport_close (CockpitTransport *transport,
 }
 
 static void
-mock_transport_iface (CockpitTransportIface *iface)
+mock_transport_class_init (MockTransportClass *klass)
 {
-  iface->send = mock_transport_send;
-  iface->close = mock_transport_close;
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  CockpitTransportClass *transport_class = COCKPIT_TRANSPORT_CLASS (klass);
+  object_class->finalize = mock_transport_finalize;
+  object_class->get_property = mock_transport_get_property;
+  object_class->set_property = mock_transport_set_property;
+  g_object_class_override_property (object_class, 1, "name");
+  transport_class->send = mock_transport_send;
+  transport_class->close = mock_transport_close;
 }
 
 static GType mock_server_get_type (void) G_GNUC_CONST;

@@ -52,6 +52,11 @@ struct _CockpitTransportClass
                                guint channel,
                                GBytes *data);
 
+  gboolean    (* control)     (CockpitTransport *transport,
+                               const char *command,
+                               guint channel,
+                               JsonObject *options);
+
   void        (* closed)      (CockpitTransport *transport,
                                const gchar *problem);
 

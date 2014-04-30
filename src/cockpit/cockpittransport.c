@@ -28,6 +28,7 @@
 
 enum {
   RECV,
+  CONTROL,
   CLOSED,
   NUM_SIGNALS
 };
@@ -52,10 +53,44 @@ cockpit_transport_get_property (GObject *object,
   G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 }
 
+static gboolean
+cockpit_transport_default_recv (CockpitTransport *transport,
+                                guint channel,
+                                GBytes *data)
+{
+  gboolean ret = FALSE;
+  guint inner_channel;
+  JsonObject *options;
+  const gchar *command;
+
+  /* Our default handler parses control channel and fires control signal */
+  if (channel != 0)
+    return FALSE;
+
+  /* Read out the actual command and channel this message is about */
+  if (!cockpit_transport_parse_command (data, &command, &inner_channel, &options))
+    {
+      /* Warning already logged */
+      cockpit_transport_close (transport, "protocol-error");
+      return TRUE;
+    }
+
+  g_signal_emit (transport, signals[CONTROL], 0, command, inner_channel, options, &ret);
+  json_object_unref (options);
+
+  if (!ret)
+    g_debug ("received unknown control command: %s", command);
+
+  return TRUE;
+}
+
+
 static void
 cockpit_transport_class_init (CockpitTransportClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  klass->recv = cockpit_transport_default_recv;
 
   object_class->get_property = cockpit_transport_get_property;
 
@@ -68,6 +103,12 @@ cockpit_transport_class_init (CockpitTransportClass *klass)
                                 g_signal_accumulator_true_handled, NULL,
                                 g_cclosure_marshal_generic,
                                 G_TYPE_BOOLEAN, 2, G_TYPE_UINT, G_TYPE_BYTES);
+
+  signals[CONTROL] = g_signal_new ("control", COCKPIT_TYPE_TRANSPORT, G_SIGNAL_RUN_LAST,
+                                   G_STRUCT_OFFSET (CockpitTransportClass, control),
+                                   g_signal_accumulator_true_handled, NULL,
+                                   g_cclosure_marshal_generic,
+                                   G_TYPE_BOOLEAN, 3, G_TYPE_STRING, G_TYPE_UINT, JSON_TYPE_OBJECT);
 
   signals[CLOSED] = g_signal_new ("closed", COCKPIT_TYPE_TRANSPORT, G_SIGNAL_RUN_FIRST,
                                   G_STRUCT_OFFSET (CockpitTransportClass, closed),

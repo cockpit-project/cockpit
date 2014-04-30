@@ -8,6 +8,8 @@ libcockpit_agent_a_SOURCES = \
 	src/agent/cockpitdbusjson.h \
 	src/agent/cockpitfakemanager.c \
 	src/agent/cockpitfakemanager.h \
+	src/agent/cockpitreauthorize.c \
+	src/agent/cockpitreauthorize.h \
 	src/agent/cockpitrestjson.c \
 	src/agent/cockpitrestjson.h \
 	src/agent/cockpittextstream.c \
@@ -26,7 +28,9 @@ libcockpit_agent_LIBS = \
 	libcockpit-agent.a \
 	libcockpit.a \
 	libwebsocket.a \
+	libreauthorize.a \
 	$(COCKPIT_AGENT_LIBS) \
+	$(REAUTHORIZE_LIBS) \
 	$(NULL)
 
 # -----------------------------------------------------------------------------
@@ -59,6 +63,7 @@ AGENT_CHECKS = \
 	test-dbusjson \
 	test-restjson \
 	test-textstream \
+	test-reauthagent \
 	$(NULL)
 
 test_channel_SOURCES = src/agent/test-channel.c
@@ -77,6 +82,10 @@ test_restjson_LDADD = $(libcockpit_agent_LIBS)
 test_textstream_SOURCES = src/agent/test-textstream.c
 test_textstream_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_textstream_LDADD = $(libcockpit_agent_LIBS)
+
+test_reauthagent_SOURCES = src/agent/test-reauthagent.c
+test_reauthagent_CFLAGS = $(libcockpit_agent_a_CFLAGS)
+test_reauthagent_LDADD = $(libcockpit_agent_LIBS)
 
 nodist_test_fakemanager_SOURCES = $(test_dbus_generated)
 test_fakemanager_SOURCES = \

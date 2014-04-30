@@ -20,6 +20,7 @@
 
 #include "cockpitchannel.h"
 #include "cockpitdbusjson.h"
+#include "cockpitreauthorize.h"
 
 #include "cockpit/cockpitpipetransport.h"
 
@@ -118,6 +119,7 @@ main (int argc,
       char **argv)
 {
   CockpitTransport *transport;
+  CockpitReauthorize *reauthorize;
   gboolean closed = FALSE;
   int outfd;
 
@@ -144,12 +146,15 @@ main (int argc,
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
+  reauthorize = cockpit_reauthorize_new (transport);
+
   /* Owns the channels */
   channels = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
 
   while (!closed)
     g_main_context_iteration (NULL, TRUE);
 
+  g_object_unref (reauthorize);
   g_object_unref (transport);
   g_hash_table_destroy (channels);
   exit (0);

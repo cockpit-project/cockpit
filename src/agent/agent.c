@@ -89,33 +89,18 @@ process_close (CockpitTransport *transport,
 }
 
 static gboolean
-on_transport_recv (CockpitTransport *transport,
-                   guint channel,
-                   GBytes *payload)
+on_transport_control (CockpitTransport *transport,
+                      const char *command,
+                      guint channel,
+                      JsonObject *options,
+                      gpointer user_data)
 {
-  const gchar *command = NULL;
-  JsonObject *options;
-
-  /* We only handle control channel commands here */
-  if (channel != 0)
-    return FALSE;
-
-  /* Read out the actual command and channel this message is about */
-  if (!cockpit_transport_parse_command (payload, &command, &channel, &options))
-    {
-      /* Warning already logged */
-      cockpit_transport_close (transport, "protocol-error");
-      return TRUE; /* handled */
-    }
-
   if (g_str_equal (command, "open"))
     process_open (transport, channel, options);
   else if (g_str_equal (command, "close"))
     process_close (transport, channel);
   else
-    g_debug ("Received unknown control command: %s", command);
-
-  json_object_unref (options);
+    return FALSE;
   return TRUE; /* handled */
 }
 
@@ -156,7 +141,7 @@ main (int argc,
   g_type_init ();
 
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
-  g_signal_connect (transport, "recv", G_CALLBACK (on_transport_recv), NULL);
+  g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
   /* Owns the channels */

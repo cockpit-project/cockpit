@@ -34,27 +34,43 @@ enum {
 
 static guint signals[NUM_SIGNALS];
 
-typedef CockpitTransportIface CockpitTransportInterface;
-
-static void   cockpit_transport_default_init    (CockpitTransportIface *iface);
-
-G_DEFINE_INTERFACE (CockpitTransport, cockpit_transport, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE (CockpitTransport, cockpit_transport, G_TYPE_OBJECT);
 
 static void
-cockpit_transport_default_init (CockpitTransportIface *iface)
+cockpit_transport_init (CockpitTransport *self)
 {
-  g_object_interface_install_property (iface,
-             g_param_spec_string ("name", "name", "name", NULL,
-                                  G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+}
+
+static void
+cockpit_transport_get_property (GObject *object,
+                                guint property_id,
+                                GValue *value,
+                                GParamSpec *pspec)
+{
+  /* Should be overridden by derived abstract classes */
+  G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+}
+
+static void
+cockpit_transport_class_init (CockpitTransportClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->get_property = cockpit_transport_get_property;
+
+  g_object_class_install_property (object_class, 1,
+              g_param_spec_string ("name", "name", "name", NULL,
+                                   G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   signals[RECV] = g_signal_new ("recv", COCKPIT_TYPE_TRANSPORT, G_SIGNAL_RUN_LAST,
-                                G_STRUCT_OFFSET (CockpitTransportIface, recv),
+                                G_STRUCT_OFFSET (CockpitTransportClass, recv),
                                 g_signal_accumulator_true_handled, NULL,
                                 g_cclosure_marshal_generic,
                                 G_TYPE_BOOLEAN, 2, G_TYPE_UINT, G_TYPE_BYTES);
 
   signals[CLOSED] = g_signal_new ("closed", COCKPIT_TYPE_TRANSPORT, G_SIGNAL_RUN_FIRST,
-                                  G_STRUCT_OFFSET (CockpitTransportIface, closed),
+                                  G_STRUCT_OFFSET (CockpitTransportClass, closed),
                                   NULL, NULL, g_cclosure_marshal_generic,
                                   G_TYPE_NONE, 1, G_TYPE_STRING);
 }
@@ -64,26 +80,26 @@ cockpit_transport_send (CockpitTransport *transport,
                         guint channel,
                         GBytes *data)
 {
-  CockpitTransportIface *iface;
+  CockpitTransportClass *klass;
 
   g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
 
-  iface = COCKPIT_TRANSPORT_GET_IFACE(transport);
-  g_return_if_fail (iface && iface->send);
-  iface->send (transport, channel, data);
+  klass = COCKPIT_TRANSPORT_GET_CLASS (transport);
+  g_return_if_fail (klass && klass->send);
+  klass->send (transport, channel, data);
 }
 
 void
 cockpit_transport_close (CockpitTransport *transport,
                          const gchar *problem)
 {
-  CockpitTransportIface *iface;
+  CockpitTransportClass *klass;
 
   g_return_if_fail (COCKPIT_IS_TRANSPORT (transport));
 
-  iface = COCKPIT_TRANSPORT_GET_IFACE(transport);
-  g_return_if_fail (iface && iface->close);
-  iface->close (transport, problem);
+  klass = COCKPIT_TRANSPORT_GET_CLASS (transport);
+  g_return_if_fail (klass && klass->close);
+  klass->close (transport, problem);
 }
 
 void

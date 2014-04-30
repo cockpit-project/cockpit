@@ -413,7 +413,7 @@ enum {
 };
 
 struct _CockpitSshTransport {
-  GObject parent_instance;
+  CockpitTransport parent_instance;
 
   /* Name used for logging */
   gchar *logname;
@@ -450,17 +450,13 @@ struct _CockpitSshTransport {
 };
 
 struct _CockpitSshTransportClass {
-  GObjectClass parent_class;
+  CockpitTransportClass parent_class;
 };
 
 static void close_immediately (CockpitSshTransport *self,
                                const gchar *problem);
 
-static void cockpit_ssh_transport_iface (CockpitTransportIface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (CockpitSshTransport, cockpit_ssh_transport, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_TRANSPORT, cockpit_ssh_transport_iface)
-);
+G_DEFINE_TYPE (CockpitSshTransport, cockpit_ssh_transport, COCKPIT_TYPE_TRANSPORT);
 
 static gboolean
 on_timeout_close (gpointer data)
@@ -1186,10 +1182,51 @@ cockpit_ssh_transport_finalize (GObject *object)
 }
 
 static void
+cockpit_ssh_transport_send (CockpitTransport *transport,
+                            guint channel,
+                            GBytes *payload)
+{
+  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
+  gchar *prefix;
+  gsize length;
+  guint32 size;
+
+  g_return_if_fail (!self->closing);
+
+  prefix = g_strdup_printf ("xxxx%u\n", channel);
+  length = strlen (prefix);
+
+  /* See doc/protocol.md */
+  size = GUINT32_TO_BE (g_bytes_get_size (payload) + length - 4);
+  memcpy (prefix, &size, 4);
+
+  g_queue_push_tail (self->queue, g_bytes_new_take (prefix, length));
+  g_queue_push_tail (self->queue, g_bytes_ref (payload));
+
+  g_debug ("%s: queued %d byte payload", self->logname, (int)g_bytes_get_size (payload));
+}
+
+static void
+cockpit_ssh_transport_close (CockpitTransport *transport,
+                             const gchar *problem)
+{
+  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
+
+  self->closing = TRUE;
+
+  if (problem)
+    close_immediately (self, problem);
+}
+
+static void
 cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  CockpitTransportClass *transport_class = COCKPIT_TRANSPORT_CLASS (klass);
   const gchar *env;
+
+  transport_class->send = cockpit_ssh_transport_send;
+  transport_class->close = cockpit_ssh_transport_close;
 
   env = g_getenv ("G_MESSAGES_DEBUG");
   if (env && strstr (env, "libssh"))
@@ -1230,50 +1267,6 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
                              G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   g_object_class_override_property (object_class, PROP_NAME, "name");
-}
-
-static void
-cockpit_ssh_transport_send (CockpitTransport *transport,
-                            guint channel,
-                            GBytes *payload)
-{
-  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
-  gchar *prefix;
-  gsize length;
-  guint32 size;
-
-  g_return_if_fail (!self->closing);
-
-  prefix = g_strdup_printf ("xxxx%u\n", channel);
-  length = strlen (prefix);
-
-  /* See doc/protocol.md */
-  size = GUINT32_TO_BE (g_bytes_get_size (payload) + length - 4);
-  memcpy (prefix, &size, 4);
-
-  g_queue_push_tail (self->queue, g_bytes_new_take (prefix, length));
-  g_queue_push_tail (self->queue, g_bytes_ref (payload));
-
-  g_debug ("%s: queued %d byte payload", self->logname, (int)g_bytes_get_size (payload));
-}
-
-static void
-cockpit_ssh_transport_close (CockpitTransport *transport,
-                             const gchar *problem)
-{
-  CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
-
-  self->closing = TRUE;
-
-  if (problem)
-    close_immediately (self, problem);
-}
-
-static void
-cockpit_ssh_transport_iface (CockpitTransportIface *iface)
-{
-  iface->send = cockpit_ssh_transport_send;
-  iface->close = cockpit_ssh_transport_close;
 }
 
 /**

@@ -43,7 +43,7 @@
  */
 
 struct _CockpitPipeTransport {
-  GObject parent_instance;
+  CockpitTransport parent_instance;
   gchar *name;
   CockpitPipe *pipe;
   gulong read_sig;
@@ -51,7 +51,7 @@ struct _CockpitPipeTransport {
 };
 
 struct _CockpitPipeTransportClass {
-  GObjectClass parent_class;
+  CockpitTransportClass parent_class;
 };
 
 enum {
@@ -60,11 +60,7 @@ enum {
     PROP_PIPE,
 };
 
-static void cockpit_pipe_transport_iface (CockpitTransportIface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (CockpitPipeTransport, cockpit_pipe_transport, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_TRANSPORT, cockpit_pipe_transport_iface)
-);
+G_DEFINE_TYPE (CockpitPipeTransport, cockpit_pipe_transport, COCKPIT_TYPE_TRANSPORT);
 
 static void
 cockpit_pipe_transport_init (CockpitPipeTransport *self)
@@ -239,24 +235,6 @@ cockpit_pipe_transport_finalize (GObject *object)
 }
 
 static void
-cockpit_pipe_transport_class_init (CockpitPipeTransportClass *klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  gobject_class->constructed = cockpit_pipe_transport_constructed;
-  gobject_class->get_property = cockpit_pipe_transport_get_property;
-  gobject_class->set_property = cockpit_pipe_transport_set_property;
-  gobject_class->finalize = cockpit_pipe_transport_finalize;
-
-  g_object_class_override_property (gobject_class, PROP_NAME, "name");
-
-  g_object_class_install_property (gobject_class, PROP_PIPE,
-              g_param_spec_object ("pipe", NULL, NULL,
-                                   COCKPIT_TYPE_PIPE,
-                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
-}
-
-static void
 cockpit_pipe_transport_send (CockpitTransport *transport,
                              guint channel,
                              GBytes *payload)
@@ -292,10 +270,25 @@ cockpit_pipe_transport_close (CockpitTransport *transport,
 }
 
 static void
-cockpit_pipe_transport_iface (CockpitTransportIface *iface)
+cockpit_pipe_transport_class_init (CockpitPipeTransportClass *klass)
 {
-  iface->send = cockpit_pipe_transport_send;
-  iface->close = cockpit_pipe_transport_close;
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  CockpitTransportClass *transport_class = COCKPIT_TRANSPORT_CLASS (klass);
+
+  transport_class->send = cockpit_pipe_transport_send;
+  transport_class->close = cockpit_pipe_transport_close;
+
+  gobject_class->constructed = cockpit_pipe_transport_constructed;
+  gobject_class->get_property = cockpit_pipe_transport_get_property;
+  gobject_class->set_property = cockpit_pipe_transport_set_property;
+  gobject_class->finalize = cockpit_pipe_transport_finalize;
+
+  g_object_class_override_property (gobject_class, PROP_NAME, "name");
+
+  g_object_class_install_property (gobject_class, PROP_PIPE,
+              g_param_spec_object ("pipe", NULL, NULL,
+                                   COCKPIT_TYPE_PIPE,
+                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
 /**

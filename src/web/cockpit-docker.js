@@ -1200,10 +1200,10 @@ function DockerClient(machine) {
      * in the container objects.
      *
      * TODO: Don't assume that the D-Bus client is ready.  Call
-     * GetSamples for quicker initialization.
+     * GetSamples for quicker initialization.  Release the client.
      */
 
-    var dbus_client = $cockpit.get_dbus_client (machine);
+    var dbus_client = $cockpit.dbus(machine);
     var monitor = dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
                                       "com.redhat.Cockpit.MultiResourceMonitor");
 

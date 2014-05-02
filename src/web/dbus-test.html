@@ -374,6 +374,100 @@ function basic_tests(client)
         });
     });
 
+    asyncTest("Property of non-ready client", function() {
+        expect(5);
+
+        var options = {
+            "service": "com.redhat.Cockpit.DBusTests.Test",
+            "object-manager": "/otree"
+        };
+
+        var second = new DBusClient("localhost", options);
+        equal(second.state, null, "DBus client is not ready yet");
+
+        frobber = second.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
+        equal(frobber, null, "Object isn't known yet")
+
+        frobber = second.get("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
+        ok(frobber, "Object proxy can be created anyway");
+        equal(frobber.y, undefined, "Property is not known yet");
+        $(frobber).on('notify:y', function () {
+            equal(frobber.y, 42, "Property gets notify event when known");
+            start();
+        });
+    });
+
+    asyncTest("Call on non-ready client", function() {
+        expect(5);
+
+        var options = {
+            "service": "com.redhat.Cockpit.DBusTests.Test",
+            "object-manager": "/otree"
+        };
+
+        var second = new DBusClient("localhost", options);
+        equal(second.state, null, "DBus client is not ready yet");
+
+        frobber = second.get("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
+        ok(frobber, "Object proxy can be created anyway");
+        equal(frobber.y, undefined, "Object proxy is not ready yet");
+
+        frobber.call("HelloWorld",
+                     "Browser-side JS",
+                     function (error, reply) {
+                         ok(!error, "Error is not set");
+                         equal(reply,
+                               "Word! You said `Browser-side JS'. I'm Skeleton, btw!",
+                               "Check HelloWorld() reply");
+                         start();
+                     });
+    });
+
+    asyncTest("Call on non-existing object on non-ready client", function() {
+        expect(4);
+
+        var options = {
+            "service": "com.redhat.Cockpit.DBusTests.Test",
+            "object-manager": "/otree"
+        };
+
+        var second = new DBusClient("localhost", options);
+        equal(second.state, null, "DBus client is not ready yet");
+
+        frobber = second.get("/otree/nonexisting", "com.redhat.Cockpit.DBusTests.Frobber");
+        ok(frobber, "Object proxy can be created anyway");
+        equal(frobber.y, undefined, "Object proxy is not ready yet");
+
+        frobber.call("HelloWorld",
+                     "Browser-side JS",
+                     function (error, reply) {
+                         equal(error.message, "No iface for objpath /otree/nonexisting and iface com.redhat.Cockpit.DBusTests.Frobber calling HelloWorld", "Call fails");
+                         start();
+                     });
+    });
+
+    asyncTest("objectAdded during seeding", function() {
+        expect(3);
+
+        var options = {
+            "service": "com.redhat.Cockpit.DBusTests.Test",
+            "object-manager": "/otree"
+        };
+
+        var second = new DBusClient("localhost", options);
+        equal(second.state, null, "DBus client is not ready yet");
+
+        frobber = second.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
+        equal(frobber, null, "Object isn't known yet")
+
+        $(second).on('objectAdded', function(event, object) {
+            if (object.objectPath == "/otree/frobber") {
+                ok(true, "objectAdded received during seed");
+                start();
+            }
+        });
+    });
+
 }
 
 var test_details = null;

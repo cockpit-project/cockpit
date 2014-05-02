@@ -21,10 +21,19 @@
 
    - client = new DBusClient(address, options)
 
-   Creates a new D-Bus client for a service on the machine with the
-   given address.
+   Creates a new D-Bus client for a service at the given host address
+   and options.
 
-   XXX - options
+   Available options are:
+
+   * "service": A service name of the DBus service to communicate
+     with.
+
+   * "object-manager": The object path of a o.f.DBus.ObjectManager
+     whose interfaces and properties will be relayed.
+
+   * "object-paths": An array of object paths to start monitoring in
+     the case of a non o.f.DBus.ObjectManager based service.
 
    A client immediately starts to connect to the service in the
    background and retrieves its object/interface/property tree.  Once
@@ -46,6 +55,11 @@
    properties.  It will be populated with properties in the
    background, and the usual change notification signals will be
    emitted as that happens.
+
+   Calling 'get' will always create a valid proxy and add it to the
+   client, regardless of whether the service really exports a object
+   at 'objpath' with the given interface.  Subsequent calls to
+   'lookup' will be able to find it.
 
    You can use 'iface.call' even on an empty proxy and the call will
    be delayed until the proxy (and its client) are ready to carry it

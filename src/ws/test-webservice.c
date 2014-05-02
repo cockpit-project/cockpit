@@ -492,7 +492,7 @@ on_message_get_bytes (WebSocketConnection *ws,
     {
       gsize length;
       gconstpointer data = g_bytes_get_data (message, &length);
-      g_test_message ("received unexpected extra message: %*.s", (int)length, (gchar *)data);
+      g_test_message ("received unexpected extra message: %.*s", (int)length, (gchar *)data);
       g_assert_not_reached ();
     }
   *received = g_bytes_ref (message);

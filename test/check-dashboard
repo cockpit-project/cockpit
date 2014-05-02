@@ -152,6 +152,14 @@ class TestDashboard(MachineCase):
         b.set_val('#dashboard_setup_login_password', "foobar")
         b.click('#dashboard_setup_next')
         b.wait_text('#dashboard_setup_next', "Add server")
+
+        # Before starting the setup, we wait for cockpitd to have
+        # loaded all accounts.  Otherwise, setup would try to create
+        # accounts that already exist, and fail.
+        #
+        b.wait_dbus_prop("com.redhat.Cockpit.Account", "UserName", "admin", m2.address);
+        b.wait_dbus_prop("com.redhat.Cockpit.Account", "UserName", "senior", m2.address);
+
         b.click('#dashboard_setup_next')
         b.wait_text('#dashboard_setup_next', "Close")
         b.click('#dashboard_setup_next')

@@ -171,27 +171,17 @@ cockpit_transport_parse_command (GBytes *payload,
 {
   GError *error = NULL;
   gboolean ret = FALSE;
-  gconstpointer input;
   JsonObject *object;
   JsonNode *node;
-  gsize len;
   gint64 num;
 
-  input = g_bytes_get_data (payload, &len);
-  node = cockpit_json_parse (input, len, &error);
-  if (!node)
+  object = cockpit_json_parse_bytes (payload, &error);
+  if (!object)
     {
       g_warning ("Received unparseable control message: %s", error->message);
       g_error_free (error);
       goto out;
     }
-
-  if (!JSON_NODE_HOLDS_OBJECT (node))
-    {
-      g_warning ("Received invalid control message: not an object");
-      goto out;
-    }
-  object = json_node_get_object (node);
 
   /* Parse out the command */
   if (!cockpit_json_get_string (object, "command", NULL, command) ||
@@ -217,6 +207,7 @@ cockpit_transport_parse_command (GBytes *payload,
   ret = TRUE;
 
 out:
-  json_node_free (node);
+  if (object)
+    json_object_unref (object);
   return ret;
 }

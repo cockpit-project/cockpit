@@ -46,7 +46,8 @@ function cockpit_login_init ()
 	    if (req.readyState == 4) {
                 clearTimeout(timeout_id);
                 if (req.status == 200) {
-                    $cockpit.logged_in(JSON.parse(req.responseText));
+                    $cockpit.connection_config = JSON.parse(req.responseText);
+                    cockpit_content_show();
                 } else {
                     $("#login-error-message").text(_("Sorry, that didn't work.") + " (" + req.status + ")");
                     $("#login-password-input").focus();
@@ -102,7 +103,8 @@ function cockpit_login_try() {
     req.onreadystatechange = function (event) {
 	if (req.readyState == 4) {
             if (req.status == 200) {
-                $cockpit.logged_in(JSON.parse(req.responseText));
+                $cockpit.connection_config = JSON.parse(req.responseText);
+                cockpit_content_show();
             } else {
                 cockpit_login_show();
 	    }
@@ -122,7 +124,7 @@ function cockpit_logout (reason)
     req.open("POST", loc, true);
     req.onreadystatechange = function (event) {
 	if (req.readyState == 4) {
-            $cockpit.logged_out();
+            $cockpit._logged_out();
             cockpit_login_show();
         }
     };

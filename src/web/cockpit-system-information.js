@@ -27,50 +27,85 @@ PageSystemInformation.prototype = {
     },
 
     enter: function(first_visit) {
+        var self = this;
+
         if (first_visit) {
-            var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager", "com.redhat.Cockpit.Manager");
-            cockpit_bind_dbus_property("#system_information_hardware_text", manager, "System");
-            cockpit_bind_dbus_property("#system_information_asset_tag_text", manager, "SystemSerial");
-            cockpit_bind_dbus_property("#system_information_bios_text", manager, "BIOS");
-            cockpit_bind_dbus_property("#system_information_os_text", manager, "OperatingSystem");
-
-            var realms = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Realms", "com.redhat.Cockpit.Realms");
-            cockpit_bind_dbus_property_func("#system_information_realms", realms,
-                                            function () {
-                                                var res = [ ];
-                                                var joined = realms.Joined;
-                                                for (var i = 0; i < joined.length; i++)
-                                                    res.push(joined[i][0]);
-                                                return res.join (", ");
-                                            });
-
-            var si_on_hostname_changed = function() {
-                var pretty_hostname = manager.PrettyHostname;
-                var hostname = manager.Hostname;
-                var str;
-                if (!pretty_hostname || pretty_hostname == hostname)
-                    str = hostname;
-                else
-                    str = pretty_hostname + " (" + hostname + ")";
-	        $("#system_information_hostname_text").empty();
-	        $("#system_information_hostname_text").append(document.createTextNode(str));
-            };
-            $(manager).on("notify:Hostname", si_on_hostname_changed);
-            $(manager).on("notify:PrettyHostname", si_on_hostname_changed);
-            si_on_hostname_changed();
-
             $('#system_information_change_hostname_button').on('click', function () {
-                if (!cockpit_check_role ('wheel'))
+                if (!cockpit_check_role ('wheel', self.client))
                     return;
+                PageSystemInformationChangeHostname.client = self.client;
                 $('#system_information_change_hostname').modal('show');
             });
         }
+
+        self.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        self.client = $cockpit.dbus(self.address);
+
+        self.manager = self.client.get("/com/redhat/Cockpit/Manager",
+                                       "com.redhat.Cockpit.Manager");
+
+        function bindf(sel, object, prop, func) {
+            function update() {
+                $(sel).text(func(object[prop]));
+            }
+            $(object).on('notify:' + prop + '.system-information', update);
+            update();
+        }
+
+        function bind(sel, object, prop) {
+            bindf(sel, object, prop, function (s) { return s; });
+        }
+
+        bind("#system_information_hardware_text", self.manager, "System");
+        bind("#system_information_asset_tag_text", self.manager, "SystemSerial");
+        bind("#system_information_bios_text", self.manager, "BIOS");
+        bind("#system_information_os_text", self.manager, "OperatingSystem");
+
+        function hostname_text() {
+            var pretty_hostname = self.manager.PrettyHostname;
+            var hostname = self.manager.Hostname;
+            var str;
+            if (!pretty_hostname || pretty_hostname == hostname)
+                str = hostname;
+            else
+                str = pretty_hostname + " (" + hostname + ")";
+	    return str;
+        }
+
+        bindf("#system_information_hostname_text", self.manager, "Hostname", hostname_text);
+        bindf("#system_information_hostname_text", self.manager, "PrettyHostname", hostname_text);
+
+        function realms_text(val) {
+            if (!val)
+                return "?";
+
+            var res = [ ];
+            for (var i = 0; i < val.length; i++)
+                res.push(val[i][0]);
+            return res.join (", ");
+        }
+
+        self.realms = self.client.get("/com/redhat/Cockpit/Realms", "com.redhat.Cockpit.Realms");
+        bindf("#system_information_realms", self.realms, "Joined", realms_text);
     },
 
     show: function() {
     },
 
     leave: function() {
+        var self = this;
+
+        function unbind(object) {
+            $(object).off('.system-information');
+        }
+
+        unbind(self.manager);
+        unbind(self.realms);
+
+        self.client.release();
+        self.client = null;
+        self.manager = null;
+        self.realms = null;
     }
 };
 
@@ -90,22 +125,22 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     enter: function(first_visit) {
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager", "com.redhat.Cockpit.Manager");
-        var hostname = manager.Hostname;
-        var pretty_hostname = manager.PrettyHostname;
-        // If there is no pretty hostname, just set it to the hostname
-        if (!pretty_hostname)
-            pretty_hostname = hostname;
-        $("#sich-pretty-hostname").val(pretty_hostname);
-        $("#sich-hostname").val(hostname);
+        var self = this;
+
+        if (first_visit) {
+            $("#sich-pretty-hostname").on("keyup", $.proxy(this._on_full_name_changed, this));
+            $("#sich-hostname").on("keyup", $.proxy(this._on_name_changed, this));
+            $("#sich-apply-button").on("click", $.proxy(this._on_apply_button, this));
+        }
+
+        self.manager = PageSystemInformationChangeHostname.client.get("/com/redhat/Cockpit/Manager",
+                                                                      "com.redhat.Cockpit.Manager");
+        self._initial_hostname = self.manager.Hostname || "";
+        self._initial_pretty_hostname = self.manager.PrettyHostname || self._initial_hostname;
+        $("#sich-pretty-hostname").val(self._initial_pretty_hostname);
+        $("#sich-hostname").val(self._initial_hostname);
 
         this._always_update_from_pretty = false;
-        this._initial_hostname = $("#sich-hostname").val();
-        this._initial_pretty_hostname = $("#sich-pretty-hostname").val();
-        $("#sich-pretty-hostname").on("keyup", $.proxy(this._on_full_name_changed, this));
-        $("#sich-hostname").on("keyup", $.proxy(this._on_name_changed, this));
-        $("#sich-apply-button").on("click", $.proxy(this._on_apply_button, this));
-
         this._update();
     },
 
@@ -114,23 +149,21 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     leave: function() {
-        $("#sich-apply-button").off("click");
-        $("#sich-pretty-hostname").off("keyup");
     },
 
     _on_apply_button: function(event) {
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager", "com.redhat.Cockpit.Manager");
+        var self = this;
+
         var new_full_name = $("#sich-pretty-hostname").val();
         var new_name = $("#sich-hostname").val();
-        manager.call("SetHostname",
-                     new_full_name, new_name, {},
-                     function(error, reply) {
-                         $("#system_information_change_hostname").modal('hide');
-                         if(error) {
-                             cockpit_show_error_dialog("Error changing hostname",
-                                                       "The error " + error.name + " occured: " + error.message);
-                         }
-                     });
+        self.manager.call("SetHostname",
+                          new_full_name, new_name, {},
+                          function(error, reply) {
+                              $("#system_information_change_hostname").modal('hide');
+                              if(error) {
+                                  cockpit_show_unexpected_error(error);
+                              }
+                          });
     },
 
     _on_full_name_changed: function(event) {
@@ -151,7 +184,6 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     _update: function() {
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager", "com.redhat.Cockpit.Manager");
         var apply_button = $("#sich-apply-button");
         var note = $("#sich-note");
         var changed = false;
@@ -176,10 +208,7 @@ PageSystemInformationChangeHostname.prototype = {
         else
             note.show();
 
-        if (can_apply)
-            apply_button.removeClass("ui-disabled");
-        else
-            apply_button.addClass("ui-disabled");
+        apply_button.prop('disabled', !can_apply);
     }
 };
 

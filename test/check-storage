@@ -764,14 +764,7 @@ class TestStorage(MachineCase):
         #       cockpit-testing.service as well (because the latter
         #       requires the former), and we need to log in again...
         #
-        b.wait_popup("disconnected")
-        b.click('#disconnected button[onclick*="logout"]')
-        b.wait_popdown("disconnected")
-        b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "foobar")
-        b.click('#login-button')
-        b.wait_page('storage')
+        b.relogin('storage')
 
         # Delete the volume group and check that fstab has been cleaned up
         b.click('tr[onclick*="TEST"]')

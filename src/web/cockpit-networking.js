@@ -41,11 +41,10 @@ PageNetworking.prototype = {
     },
 
     _resync_network_interface_list: function () {
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Network", "com.redhat.Cockpit.Network");
         var listContainer = $("#networking_content").get(0);
 
-        var newInterfaceProxies = cockpit_dbus_client.getInterfacesFrom("/com/redhat/Cockpit/Network/",
-                                                                    "com.redhat.Cockpit.Network.Netinterface");
+        var newInterfaceProxies = this.client.getInterfacesFrom("/com/redhat/Cockpit/Network/",
+                                                                "com.redhat.Cockpit.Network.Netinterface");
         var newInterfaceProxyIndexes = {};
 
         var ifname, i, proxy, node, parent;
@@ -167,7 +166,6 @@ PageNetworking.prototype = {
     },
 
     _resync_network_interface_list_content: function () {
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Network", "com.redhat.Cockpit.Network");
         var i, j, ifname, proxy, content, ip4Addresses, ip6Addresses;
         var table, tr, td;
 
@@ -237,17 +235,21 @@ PageNetworking.prototype = {
     },
 
     enter: function (first_visit) {
-        if (first_visit) {
-            $(cockpit_dbus_client).on("objectAdded", $.proxy(this._resync_if_netinterface_changed, this));
-            $(cockpit_dbus_client).on("objectRemoved", $.proxy(this._resync_if_netinterface_changed, this));
-            this._resync_network_interface_list();
-        }
+        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.client = $cockpit.dbus(this.address);
+
+        $(this.client).on("objectAdded.networking", $.proxy(this._resync_if_netinterface_changed, this));
+        $(this.client).on("objectRemoved.networking", $.proxy(this._resync_if_netinterface_changed, this));
+        this._resync_network_interface_list();
     },
 
     show: function() {
     },
 
     leave: function() {
+        $(this.client).off(".networking");
+        this.client.release();
+        this.client = null;
     }
 };
 

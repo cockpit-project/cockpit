@@ -27,43 +27,45 @@ PageDiskIOStatus.prototype = {
     },
 
     enter: function(first_visit) {
-        if (first_visit) {
-            var resmon = cockpit_dbus_client.lookup("/com/redhat/Cockpit/DiskIOMonitor", "com.redhat.Cockpit.ResourceMonitor");
-            var options = {
-                series: {shadowSize: 1,
-                         lines: {lineWidth: 0.5}
-                        },
-                yaxes: [{min: 0,
-                         ticks: 5,
-                         tickFormatter: function (v) {
-                             return cockpit_format_bytes_per_sec(v);
-                         }},
-                        {
-                            min: 0,
-                            position: "right",
-                            tickFormatter: function (v) {
-                                if (v === 0)
-                                    return "0";
-                                else
-                                    return v.toFixed(1) + "/s";
-                            }
-                        }],
-                xaxis: {show: true,
-                        ticks: [[0.0*60, "5 min"],
-                                [1.0*60, "4 min"],
-                                [2.0*60, "3 min"],
-                                [3.0*60, "2 min"],
-                                [4.0*60, "1 min"]]},
-                x_rh_stack_graphs: true
-            };
-            this.plot = cockpit_setup_complicated_plot("#disk_io_status_graph",
-                                                    resmon,
-                                                    [{color: "rgb(  0,  0,255)"},
-                                                     {color: "rgb(255,  0,255)"},
-                                                     {color: "rgb(128,128,128)", yaxis: 2}
-                                                    ],
-                                                    options);
-        } // if (first_visit)
+        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.client = $cockpit.dbus(this.address);
+
+        var resmon = this.client.get("/com/redhat/Cockpit/DiskIOMonitor", "com.redhat.Cockpit.ResourceMonitor");
+        var options = {
+            series: {shadowSize: 1,
+                     lines: {lineWidth: 0.5}
+                    },
+            yaxes: [{min: 0,
+                     ticks: 5,
+                     tickFormatter: function (v) {
+                         return cockpit_format_bytes_per_sec(v);
+                     }},
+                    {
+                        min: 0,
+                        position: "right",
+                        tickFormatter: function (v) {
+                            if (v === 0)
+                                return "0";
+                            else
+                                return v.toFixed(1) + "/s";
+                        }
+                    }],
+            xaxis: {show: true,
+                    ticks: [[0.0*60, "5 min"],
+                            [1.0*60, "4 min"],
+                            [2.0*60, "3 min"],
+                            [3.0*60, "2 min"],
+                            [4.0*60, "1 min"]]},
+            x_rh_stack_graphs: true
+        };
+
+        this.plot = cockpit_setup_complicated_plot("#disk_io_status_graph",
+                                                   resmon,
+                                                   [{color: "rgb(  0,  0,255)"},
+                                                    {color: "rgb(255,  0,255)"},
+                                                    {color: "rgb(128,128,128)", yaxis: 2}
+                                                   ],
+                                                   options);
     },
 
     show: function() {
@@ -71,7 +73,9 @@ PageDiskIOStatus.prototype = {
     },
 
     leave: function() {
-        this.plot.stop();
+        this.plot.destroy();
+        this.client.release();
+        this.client = null;
     }
 };
 

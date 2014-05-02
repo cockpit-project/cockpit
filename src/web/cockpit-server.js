@@ -22,80 +22,110 @@ PageServer.prototype = {
         this.id = "server";
     },
 
+    enter_breadcrumb: function() {
+        this.title_address = cockpit_get_page_param('machine') || "localhost";
+        this.title_client = $cockpit.dbus(this.title_address);
+        this.title_manager = this.title_client.get("/com/redhat/Cockpit/Manager",
+                                                   "com.redhat.Cockpit.Manager");
+        $(this.title_manager).on('notify:PrettyHostname.server-title', cockpit_content_update_loc_trail);
+        $(this.title_manager).on('notify:Hostname.server-title', cockpit_content_update_loc_trail);
+    },
+
+    leave_breadcrumb: function() {
+        $(this.title_manager).off('.server-title');
+        this.title_client.release();
+    },
+
     getTitle: function() {
-        return cockpit_get_display_hostname();
+        var fallback = this.title_address || "?";
+        if (this.title_manager)
+            return this.title_manager.PrettyHostname || this.title_manager.Hostname || fallback;
+        else
+            return fallback;
     },
 
     enter: function(first_visit) {
+        var self = this;
+
         if (first_visit) {
             $('#server-avatar').on('click', $.proxy (this, "trigger_change_avatar"));
             $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
+        }
 
-            var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                  "com.redhat.Cockpit.Manager");
-            $(manager).on('AvatarChanged', $.proxy (this, "update"));
+        self.address = cockpit_get_page_param('machine') || "localhost";
+        self.client = $cockpit.dbus(self.address);
+        $(self.client).on('state-change.server', $.proxy(self, "update"));
 
-            var plot_options = { };
+        self.manager = self.client.get("/com/redhat/Cockpit/Manager",
+                                       "com.redhat.Cockpit.Manager");
+        $(self.manager).on('AvatarChanged.server', $.proxy (this, "update_avatar"));
 
-            var monitor = cockpit_dbus_client.lookup("/com/redhat/Cockpit/CpuMonitor", "com.redhat.Cockpit.ResourceMonitor");
-            this.cpu_plot =
-                cockpit_setup_simple_plot("#server_cpu_graph",
-                                          "#server_cpu_text",
-                                          monitor,
-                                          plot_options,
-                                          function(values) { // Combines the series into a single plot-value
-                                              return values[1] + values[2] + values[3];
-                                          },
-                                          function(values) { // Combines the series into a textual string
-                                              var total = values[1] + values[2] + values[3];
-                                              return total.toFixed(1) + "%";
-                                          });
+        $('#server-avatar').css('background-image', 'url(images/server-large.png)');
 
-            monitor = cockpit_dbus_client.lookup("/com/redhat/Cockpit/MemoryMonitor", "com.redhat.Cockpit.ResourceMonitor");
-            this.memory_plot =
-                cockpit_setup_simple_plot("#server_memory_graph",
-                                          "#server_memory_text",
-                                          monitor,
-                                          plot_options,
-                                          function(values) { // Combines the series into a single plot-value
-                                              return values[1] + values[2] + values[3];
-                                          },
-                                          function(values) { // Combines the series into a textual string
-                                              var total = values[1] + values[2] + values[3];
-                                              return cockpit_format_bytes(total);
-                                          });
+        var plot_options = { };
 
-            monitor = cockpit_dbus_client.lookup("/com/redhat/Cockpit/NetworkMonitor", "com.redhat.Cockpit.ResourceMonitor");
-            this.network_traffic_plot =
-                cockpit_setup_simple_plot("#server_network_traffic_graph",
-                                          "#server_network_traffic_text",
-                                          monitor,
-                                          plot_options,
-                                          function(values) { // Combines the series into a single plot-value
-                                              return values[0] + values[1];
-                                          },
-                                          function(values) { // Combines the series into a textual string
-                                              var total = values[0] + values[1];
-                                              return cockpit_format_bytes_per_sec(total);
-                                          });
+        var monitor = self.client.get("/com/redhat/Cockpit/CpuMonitor",
+                                      "com.redhat.Cockpit.ResourceMonitor");
+        self.cpu_plot =
+            cockpit_setup_simple_plot("#server_cpu_graph",
+                                      "#server_cpu_text",
+                                      monitor,
+                                      plot_options,
+                                      function(values) { // Combines the series into a single plot-value
+                                          return values[1] + values[2] + values[3];
+                                      },
+                                      function(values) { // Combines the series into a textual string
+                                          var total = values[1] + values[2] + values[3];
+                                          return total.toFixed(1) + "%";
+                                      });
 
-            monitor = cockpit_dbus_client.lookup("/com/redhat/Cockpit/DiskIOMonitor", "com.redhat.Cockpit.ResourceMonitor");
-            this.disk_io_plot =
-                cockpit_setup_simple_plot("#server_disk_io_graph",
-                                          "#server_disk_io_text",
-                                          monitor,
-                                          plot_options,
-                                          function(values) { // Combines the series into a single plot-value
-                                              return values[0] + values[1];
-                                          },
-                                          function(values) { // Combines the series into a textual string
-                                              var total = values[0] + values[1];
-                                              return cockpit_format_bytes_per_sec(total);
-                                          });
+        monitor = self.client.get("/com/redhat/Cockpit/MemoryMonitor",
+                                  "com.redhat.Cockpit.ResourceMonitor");
+        self.memory_plot =
+            cockpit_setup_simple_plot("#server_memory_graph",
+                                      "#server_memory_text",
+                                      monitor,
+                                      plot_options,
+                                      function(values) { // Combines the series into a single plot-value
+                                          return values[1] + values[2] + values[3];
+                                      },
+                                      function(values) { // Combines the series into a textual string
+                                          var total = values[1] + values[2] + values[3];
+                                          return cockpit_format_bytes(total);
+                                      });
 
-        } // if (first_visit)
+        monitor = self.client.get("/com/redhat/Cockpit/NetworkMonitor",
+                                  "com.redhat.Cockpit.ResourceMonitor");
+        self.network_traffic_plot =
+            cockpit_setup_simple_plot("#server_network_traffic_graph",
+                                      "#server_network_traffic_text",
+                                      monitor,
+                                      plot_options,
+                                      function(values) { // Combines the series into a single plot-value
+                                          return values[0] + values[1];
+                                      },
+                                      function(values) { // Combines the series into a textual string
+                                          var total = values[0] + values[1];
+                                          return cockpit_format_bytes_per_sec(total);
+                                      });
 
-        this.update ();
+        monitor = self.client.get("/com/redhat/Cockpit/DiskIOMonitor",
+                                  "com.redhat.Cockpit.ResourceMonitor");
+        self.disk_io_plot =
+            cockpit_setup_simple_plot("#server_disk_io_graph",
+                                      "#server_disk_io_text",
+                                      monitor,
+                                      plot_options,
+                                      function(values) { // Combines the series into a single plot-value
+                                          return values[0] + values[1];
+                                      },
+                                      function(values) { // Combines the series into a textual string
+                                          var total = values[0] + values[1];
+                                          return cockpit_format_bytes_per_sec(total);
+                                      });
+
+
+        self.update_avatar ();
     },
 
     show: function() {
@@ -106,16 +136,27 @@ PageServer.prototype = {
     },
 
     leave: function() {
-        this.cpu_plot.stop();
-        this.memory_plot.stop();
-        this.disk_io_plot.stop();
-        this.network_traffic_plot.stop();
+        var self = this;
+
+        self.cpu_plot.destroy();
+        self.memory_plot.destroy();
+        self.disk_io_plot.destroy();
+        self.network_traffic_plot.destroy();
+
+        $(self.manager).off('.server');
+        self.manager = null;
+        $(self.client).off('.server');
+        self.client.release();
+        self.client = null;
     },
 
-    update: function () {
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                 "com.redhat.Cockpit.Manager");
-        manager.call('GetAvatarDataURL', function (error, result) {
+    start_plots: function () {
+        var self = this;
+
+    },
+
+    update_avatar: function () {
+        this.manager.call('GetAvatarDataURL', function (error, result) {
             if (result)
                 $('#server-avatar').css('background-image', 'url(' + result + ')');
         });
@@ -130,13 +171,11 @@ PageServer.prototype = {
         var me = this;
         cockpit_show_change_avatar_dialog ('#server-avatar-uploader',
                                            function (data) {
-                                               var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                                                        "com.redhat.Cockpit.Manager");
-                                               manager.call('SetAvatarDataURL', data,
-                                                            function (error) {
-                                                                if (error)
-                                                                    cockpit_show_unexpected_error (error);
-                                                            });
+                                               me.manager.call('SetAvatarDataURL', data,
+                                                               function (error) {
+                                                                   if (error)
+                                                                       cockpit_show_unexpected_error (error);
+                                                               });
                                            });
     }
 

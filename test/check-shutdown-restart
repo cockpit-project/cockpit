@@ -115,17 +115,11 @@ class TestShutdownRestart(MachineCase):
         b.wait_popup("shutdown-confirm")
         b.click("#shutdown-confirm-apply")
         b.wait_popdown("shutdown-confirm")
-        with b.wait_timeout(60):
-            b.wait_popup("disconnected")
 
         # after a reboot, we need to restart the servers and log back in.
         m.wait_boot()
         self.start_cockpit()
-        b.click('#disconnected button[onclick*="logout"]')
-        b.wait_visible("#login")
-        b.set_val("#login-password-input", "foobar")
-        b.click("#login-button")
-        b.wait_page("shutdown")
+        b.relogin("shutdown")
 
         self.check_journal_messages()
 

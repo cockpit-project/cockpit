@@ -29,18 +29,6 @@ PageShutdown.prototype = {
     enter: function(first_visit) {
         var me = this;
 
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                 "com.redhat.Cockpit.Manager");
-        manager.call('GetServerTime', function(error, now_seconds, abbrev, offset_seconds) {
-            if (!error) {
-                me.server_time_offset_millis = Date.now() - now_seconds*1000;
-                me.server_tz_offset_seconds = offset_seconds;
-                me.server_tz_abbrev = abbrev;
-                me.update_shutdown_info();
-            } else
-                console.log(error.message);
-        });
-
         if (first_visit) {
             $("#shutdown-shutdown").on("click", function() {
                 me.shutdown('shutdown');
@@ -60,20 +48,38 @@ PageShutdown.prototype = {
                 me.check_valid_delay();
             });
 
-            $(manager).on("notify:ShutdownSchedule",
-                          function () { me.update_shutdown_shedule(); });
-            me.update_shutdown_shedule();
-
             $("#shutdown-confirm-apply").on('click', function() {
                 me.confirm_apply();
             });
         }
+
+        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.client = $cockpit.dbus(this.address);
+
+        this.manager = this.client.get("/com/redhat/Cockpit/Manager",
+                                       "com.redhat.Cockpit.Manager");
+        this.manager.call('GetServerTime', function(error, now_seconds, abbrev, offset_seconds) {
+            if (!error) {
+                me.server_time_offset_millis = Date.now() - now_seconds*1000;
+                me.server_tz_offset_seconds = offset_seconds;
+                me.server_tz_abbrev = abbrev;
+                me.update_shutdown_info();
+            } else
+                console.log(error.message);
+        });
+
+        $(this.manager).on("notify:ShutdownSchedule.shutdown", $.proxy(this, "update_shutdown_shedule"));
+        me.update_shutdown_shedule();
     },
 
     show: function() {
     },
 
     leave: function() {
+        $(this.manager).off(".shutdown");
+        this.manager = null;
+        this.client.release();
+        this.client = null;
     },
 
     update_delay: function() {
@@ -121,23 +127,22 @@ PageShutdown.prototype = {
         if ($('#shutdown-confirm').is(':visible'))
             return;
 
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                 "com.redhat.Cockpit.Manager");
-        me.schedule = manager.ShutdownSchedule;
+        me.schedule = this.manager.ShutdownSchedule;
 
-        me.shutdown_when_millis = me.schedule.when_seconds*1000;
-        me.shutdown_kind = me.schedule.kind;
-        me.update_shutdown_info();
-        if (me.shutdown_when_millis) {
-            if (!me.timer)
-                me.timer = setInterval(function() { me.update_shutdown_info(); },
-                                       1000);
-        } else {
-            if (me.timer)
-                clearInterval(me.timer);
-            me.timer = 0;
+        if (me.schedule) {
+            me.shutdown_when_millis = me.schedule.when_seconds*1000;
+            me.shutdown_kind = me.schedule.kind;
+            me.update_shutdown_info();
+            if (me.shutdown_when_millis) {
+                if (!me.timer)
+                    me.timer = setInterval(function() { me.update_shutdown_info(); },
+                                           1000);
+            } else {
+                if (me.timer)
+                    clearInterval(me.timer);
+                me.timer = 0;
+            }
         }
-
     },
 
     update_shutdown_info: function() {
@@ -183,7 +188,7 @@ PageShutdown.prototype = {
         var delay = $("#shutdown-delay").val();
         var message = $("#shutdown-message").val();
 
-        if (!cockpit_check_role ('wheel'))
+        if (!cockpit_check_role ('wheel', this.client))
             return;
 
         $("#shutdown-cancel").prop('disabled', false);
@@ -191,15 +196,13 @@ PageShutdown.prototype = {
         if (delay == "0") {
             me.confirm(kind);
         } else {
-            var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                     "com.redhat.Cockpit.Manager");
             var when;
             if (delay == "x")
                 when = $("#shutdown-exact-hours").val() + ":" + $("#shutdown-exact-minutes").val();
             else
                 when = "+" + delay;
 
-            manager.call('Shutdown', kind, when, message, function(error) {
+            this.manager.call('Shutdown', kind, when, message, function(error) {
                 if (error)
                     cockpit_show_unexpected_error(error);
             });
@@ -207,12 +210,10 @@ PageShutdown.prototype = {
     },
 
     cancel: function() {
-        if (!cockpit_check_role ('wheel'))
+        if (!cockpit_check_role ('wheel', this.client))
             return;
 
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                 "com.redhat.Cockpit.Manager");
-        manager.call('CancelShutdown', function(error) {
+        this.manager.call('CancelShutdown', function(error) {
             if (error)
                 cockpit_show_unexpected_error(error);
         });
@@ -238,10 +239,8 @@ PageShutdown.prototype = {
 
     confirm_apply: function() {
         var me = this;
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                              "com.redhat.Cockpit.Manager");
         $("#shutdown-confirm").modal('hide');
-        manager.call("Shutdown", me.confirm_kind, "now", "", function (error) {
+        this.manager.call("Shutdown", me.confirm_kind, "now", "", function (error) {
             if (error)
                 cockpit_show_unexpected_error(error);
         });
@@ -252,9 +251,7 @@ PageShutdown.prototype = {
         $("#shutdown-confirm-spinner").show();
         $("#shutdown-confirm-buttons").hide();
 
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                 "com.redhat.Cockpit.Manager");
-        var hostname = manager.PrettyHostname || manager.Hostname;
+        var hostname = this.manager.PrettyHostname || this.manager.Hostname || this.address;
 
         if (kind == 'shutdown') {
             $("#shutdown-confirm-title").text(_("System Shutdown"));

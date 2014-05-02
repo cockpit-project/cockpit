@@ -17,11 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_check_role (role)
+function cockpit_check_role (role, client)
 {
     var acc, i;
 
-    acc = cockpit_find_account ($cockpit.connection_config.user);
+    acc = cockpit_find_account ($cockpit.connection_config.user, client);
     if (acc) {
         for (i = 0; i < acc.Groups.length; i++) {
             if (acc.Groups[i] == 'wheel' || acc.Groups[i] == role)
@@ -34,9 +34,9 @@ function cockpit_check_role (role)
     return true;
 }
 
-function cockpit_find_account(user_name)
+function cockpit_find_account(user_name, client)
 {
-    var account_objs = cockpit_dbus_client.getObjectsFrom("/com/redhat/Cockpit/Accounts/");
+    var account_objs = client.getObjectsFrom("/com/redhat/Cockpit/Accounts/");
     var i, acc;
 
     for (i = 0; i < account_objs.length; i++) {
@@ -114,6 +114,40 @@ function cockpit_show_change_avatar_dialog (file_input, callback)
     reader.readAsDataURL(file);
 }
 
+// XXX - make private
+
+function cockpit_on_account_changes(client, id, func) {
+    function object_added(event, obj) {
+        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
+            func();
+    }
+
+    function object_removed(event, obj) {
+        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
+            func();
+    }
+
+    function properties_changed(event, obj) {
+        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
+            func();
+    }
+
+    function signal_emitted(event, iface, signal, args) {
+        if (iface.getObject().objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0 &&
+            signal == "Changed")
+            func();
+    }
+
+    $(client).on("objectAdded." + id, object_added);
+    $(client).on("objectRemoved." + id, object_removed);
+    $(client).on("propertiesChanged." + id, properties_changed);
+    $(client).on("signalEmitted." + id, signal_emitted);
+}
+
+function cockpit_off_account_changes(client, id) {
+    $(client).off("." + id);
+}
+
 PageAccounts.prototype = {
     _init: function() {
         this.id = "accounts";
@@ -128,43 +162,25 @@ PageAccounts.prototype = {
 
     enter: function(first_visit) {
         if (first_visit) {
-            $(cockpit_dbus_client).on("objectAdded", $.proxy(this, "object_added"));
-	    $(cockpit_dbus_client).on("objectRemoved", $.proxy(this, "object_removed"));
-	    $(cockpit_dbus_client).on("propertiesChanged", $.proxy(this, "properties_changed"));
-	    $(cockpit_dbus_client).on("signalEmitted", $.proxy(this, "signal_emitted"));
             $('#accounts-create').on('click', $.proxy (this, "create"));
         }
 
+        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.client = $cockpit.dbus(this.address);
+
+        cockpit_on_account_changes(this.client, "accounts", $.proxy(this, "update"));
         this.update();
     },
 
     leave: function() {
-    },
-
-    object_added: function (event, obj) {
-        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
-            this.update ();
-    },
-
-    object_removed: function (event, obj) {
-        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
-            this.update ();
-    },
-
-    properties_changed: function (event, obj) {
-        if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
-            this.update ();
-    },
-
-    signal_emitted: function (event, iface, signal, args) {
-        if (iface.getObject().objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0 &&
-            signal == "Changed")
-            this.update ();
+        cockpit_off_account_changes(this.client, "accounts");
+        this.client.release();
+        this.client = null;
     },
 
     update: function() {
         var list = $("#accounts-list");
-        var account_objs = cockpit_dbus_client.getObjectsFrom("/com/redhat/Cockpit/Accounts/");
+        var account_objs = this.client.getObjectsFrom("/com/redhat/Cockpit/Accounts/");
         var i, acc;
 
         this.accounts = [ ];
@@ -204,8 +220,10 @@ PageAccounts.prototype = {
     },
 
     create: function () {
-        if (cockpit_check_role ('cockpit-user-admin'))
+        if (cockpit_check_role ('cockpit-user-admin', this.client)) {
+            PageAccountsCreate.client = this.client;
             $('#accounts-create-dialog').modal('show');
+        }
     },
 
     go: function (user) {
@@ -266,8 +284,8 @@ PageAccountsCreate.prototype = {
 
     create: function() {
         $('#accounts-create-dialog').modal('hide');
-        var manager = cockpit_dbus_client.lookup ("/com/redhat/Cockpit/Accounts",
-                                               "com.redhat.Cockpit.Accounts");
+        var manager = PageAccountsCreate.client.get ("/com/redhat/Cockpit/Accounts",
+                                                     "com.redhat.Cockpit.Accounts");
         manager.call("CreateAccount",
                      $('#accounts-create-user-name').val(),
                      $('#accounts-create-real-name').val(),
@@ -311,23 +329,28 @@ PageAccount.prototype = {
             $('#account-locked').on('change', $.proxy (this, "change_locked"));
         }
 
-        this.account = cockpit_find_account(cockpit_get_page_param('id'));
-        $(this.account).on('notify', $.proxy(this, "update"));
-        $(this.account).on('Changed', $.proxy(this, "update"));
+        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.client = $cockpit.dbus(this.address);
+
+        cockpit_on_account_changes(this.client, "account", $.proxy(this, "update"));
         this.real_name_dirty = false;
         this.update ();
     },
 
     leave: function() {
-        this.account = null;
+        cockpit_off_account_changes(this.client, "account");
+        this.client.release();
+        this.client = null;
     },
 
     update: function() {
-        var manager = cockpit_dbus_client.lookup ("/com/redhat/Cockpit/Accounts",
-                                               "com.redhat.Cockpit.Accounts");
-        this.sys_roles = manager.Roles;
+        this.account = cockpit_find_account(cockpit_get_page_param('id'), this.client);
 
         if (this.account) {
+            var manager = this.client.get ("/com/redhat/Cockpit/Accounts",
+                                           "com.redhat.Cockpit.Accounts");
+            this.sys_roles = manager.Roles || [ ];
+
             this.account.call('GetIconDataURL',
                               function (error, result) {
                                   if (result)
@@ -391,7 +414,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account.UserName == $cockpit.connection_config.user ||
-                cockpit_check_role ('cockpit-user-admin'));
+                cockpit_check_role ('cockpit-user-admin', this.client));
     },
 
     change_real_name: function() {
@@ -416,7 +439,7 @@ PageAccount.prototype = {
     change_locked: function() {
         var me = this;
 
-        if (!cockpit_check_role ('cockpit-user-admin')) {
+        if (!cockpit_check_role ('cockpit-user-admin', this.client)) {
             me.update ();
             return;
         }
@@ -440,7 +463,7 @@ PageAccount.prototype = {
     },
 
     delete_account: function() {
-        if (!cockpit_check_role ('cockpit-user-admin'))
+        if (!cockpit_check_role ('cockpit-user-admin', this.client))
             return;
 
         PageAccountConfirmDelete.account = this.account;
@@ -450,7 +473,7 @@ PageAccount.prototype = {
     logout_account: function() {
         var me = this;
 
-        if (!cockpit_check_role ('cockpit-user-admin'))
+        if (!cockpit_check_role ('cockpit-user-admin', this.client))
             return;
 
         this.account.call('KillSessions',
@@ -463,7 +486,7 @@ PageAccount.prototype = {
     },
 
     change_roles: function() {
-        if (!cockpit_check_role ('cockpit-user-admin'))
+        if (!cockpit_check_role ('cockpit-user-admin', this.client))
             return;
 
         PageAccountChangeRoles.account = this.account;
@@ -666,9 +689,10 @@ PageAccountChangeRoles.prototype = {
             $('#account-change-roles-apply').on('click', $.proxy(this, "apply"));
         }
 
-        var manager = cockpit_dbus_client.lookup ("/com/redhat/Cockpit/Accounts",
-                                               "com.redhat.Cockpit.Accounts");
-        this.sys_roles = manager.Roles;
+        this.client = PageAccountChangeRoles.account._client;
+        var manager = this.client.get ("/com/redhat/Cockpit/Accounts",
+                                       "com.redhat.Cockpit.Accounts");
+        this.sys_roles = manager.Roles || [ ];
 
         var list = $('<ul/>', { 'class': 'list-group' });
         for (i = 0; i < this.sys_roles.length; i++) {

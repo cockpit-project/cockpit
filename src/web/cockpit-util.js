@@ -40,26 +40,6 @@ function cockpit_debug(str) {
     console.debug("DEBUG: " + str);
 }
 
-function cockpit_bind_dbus_property(id, object, property) {
-    var callback = function () {
-	var stringified = object[property].toString();
-	$(id).empty();
-	$(id).append(document.createTextNode(stringified));
-    };
-    $(object).on("notify:" + property, callback);
-    callback();
-}
-
-function cockpit_bind_dbus_property_func(id, object, func) {
-    var callback = function () {
-	var stringified = func(object);
-	$(id).empty();
-	$(id).append(document.createTextNode(stringified));
-    };
-    $(object).on("notify", callback);
-    callback();
-}
-
 /*
  * Byte formatting
  *
@@ -283,26 +263,6 @@ function _is_non_blank(str) {
     return str.search(/\S/) != -1;
 }
 
-function cockpit_get_display_hostname()
-{
-    var h;
-    if (cockpit_dbus_client && cockpit_dbus_client.state == "ready") {
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager",
-                                                 "com.redhat.Cockpit.Manager");
-        if (manager) {
-            h = manager.PrettyHostname;
-            if (!h)
-                h = manager.Hostname;
-        }
-    }
-    if (!h)
-        h = cockpitdyn_pretty_hostname;
-    if (!h)
-        h = cockpitdyn_hostname;
-
-    return h;
-}
-
 function cockpit_make_set (array) {
     var s = { };
     for (var i = 0; i < array.length; i++)
@@ -480,3 +440,29 @@ function cockpit_parse_bytes (str, def) {
     }
     return NaN;
 }
+
+(function ($cockpit) {
+
+$cockpit.client_error_description = client_error_description;
+function client_error_description (error) {
+    if (error == "terminated")
+        return _("Your session has been terminated.");
+    else if (error == "no-session")
+        return _("Your session has expired.  Please log in again.");
+    else if (error == "not-authorized")
+        return _("Login failed");
+    else if (error == "unknown-hostkey")
+        return _("Untrusted host");
+    else if (error == "internal-error")
+        return _("Internal error");
+    else if (error == "timeout")
+        return _("Connection has timed out.");
+    else if (error == "no-agent")
+        return _("The management agent is not installed.");
+    else if (error === null)
+        return _("Server has closed the connection.");
+    else
+        return error;
+}
+
+})($cockpit);

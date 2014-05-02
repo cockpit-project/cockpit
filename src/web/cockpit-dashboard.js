@@ -17,30 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_client_error_description (error) {
-    if (error == "terminated")
-        return _("Your session has been terminated.");
-    else if (error == "no-session")
-        return _("Your session has expired.  Please log in again.");
-    else if (error == "not-authorized")
-        return _("Login failed");
-    else if (error == "unknown-hostkey")
-        return _("Untrusted host");
-    else if (error == "internal-error")
-        return _("Internal error");
-    else if (error == "timeout")
-        return _("Connection has timed out.");
-    else if (error == "no-agent")
-        return _("The management agent is not installed.");
-    else if (error === null)
-        return _("Server has closed the connection.");
-    else
-        return error;
-}
+var $cockpit = $cockpit || { };
+
+(function($, $cockpit, cockpit_pages) {
 
 PageDashboard.prototype = {
     _init: function() {
         this.id = "dashboard";
+        this.cpu_plots = [ ];
+        this.local_client = null;
+        this.dbus_clients = [ ];
     },
 
     getTitle: function() {
@@ -48,55 +34,92 @@ PageDashboard.prototype = {
     },
 
     enter: function(first_visit) {
-        var me = this;
+        var self = this;
+
         if (first_visit) {
-            $('#dashboard-local-reconnect').on('click', function () {
-                cockpit_dbus_local_client.connect();
+            $('#dashboard-local-reconnect').on('click', function() {
+                if (self.local_client)
+                    self.local_client.connect();
             });
         }
+
+        self.local_client = $cockpit.dbus("localhost");
+        $(self.local_client).on('state-change.dashboard-local', $.proxy(self, "local_client_state_change"));
+        $(self.local_client).on('objectAdded.dashboard-local objectRemoved.dashboard-local', function (event, object) {
+            if (object.lookup('com.redhat.Cockpit.Machine'))
+                self.update_machines ();
+        });
+        $(self.local_client).on('propertiesChanged.dashboard-local', function (event, object, iface) {
+            if (iface._iface_name == "com.redhat.Cockpit.Machine")
+                self.update_machines ();
+        });
+        self.update_machines ();
     },
 
     show: function() {
-        for (var i = 0; i < this.cpu_plots.length; i++) {
-            if (this.cpu_plots[i])
-                this.cpu_plots[i].start();
-        }
+        this.start_plots();
     },
 
     leave: function() {
-        for (var i = 0; i < this.cpu_plots.length; i++) {
-            if (this.cpu_plots[i])
-                this.cpu_plots[i].stop();
-        }
+        this.destroy_plots();
+        this.put_clients();
+
+        $(this.local_client).off('.dashboard-local');
+        this.local_client.release();
+        this.local_client = null;
     },
 
     local_client_state_change: function () {
-        if (cockpit_dbus_local_client.state == "ready") {
+        if (this.local_client.state == "ready") {
             $('#dashboard-local-disconnected').hide();
         } else {
-            if (cockpit_dbus_local_client.state == "closed")
-                $('#dashboard-local-error').text(cockpit_client_error_description(cockpit_dbus_local_client.error));
+            if (this.local_client.state == "closed")
+                $('#dashboard-local-error').text($cockpit.client_error_description(this.local_client.error));
             else
                 $('#dashboard-local-error').text("...");
             $('#dashboard-local-disconnected').show();
         }
     },
 
-    update_machines: function () {
-        var me = this;
-        var machines = $('#dashboard-machines'), i;
-        var monitor;
+    destroy_plots: function () {
+        this.cpu_plots.forEach(function(p) {
+            if (p)
+                p.destroy();
+        });
+        this.cpu_plots = [ ];
+    },
 
-        if (this.cpu_plots) {
-            for (i = 0; i < this.cpu_plots.length; i++) {
-                if (this.cpu_plots[i])
-                    this.cpu_plots[i].stop();
-            }
-        }
+    put_clients: function () {
+        this.dbus_clients.forEach(function (c) {
+            $(c).off('.dashboard');
+            c.release();
+        });
+        this.dbus_clients = [ ];
+    },
+
+    start_plots: function () {
+        this.cpu_plots.forEach(function(p) {
+            if (p)
+                p.start();
+        });
+    },
+
+    update_machines: function () {
+
+        var self = this;
+        var machines = $('#dashboard-machines'), i;
+        var configured_machines = this.local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
+                                                                       "com.redhat.Cockpit.Machine");
+        this.destroy_plots();
+        this.put_clients();
+
+        configured_machines = configured_machines.filter(function (m) {
+            return cockpit_find_in_array(m.Tags, "dashboard");
+        });
 
         function machine_action_func (machine) {
             return function (action) {
-                me.server_action (machine, action);
+                self.server_action (machine, action);
             };
         }
 
@@ -108,9 +131,14 @@ PageDashboard.prototype = {
             { title: _("Rescue Terminal"), action: 'rescue' }
         ];
 
-        this.cpu_plots = [ ];
         machines.empty ();
-        for (i = 0; i < cockpit_machines.length; i++) {
+        for (i = 0; i < configured_machines.length; i++) {
+            var address = configured_machines[i].Address;
+            var machine = { address: address,
+                            client: $cockpit.dbus(address, { }, false),
+                            dbus_iface: configured_machines[i]
+                          };
+
             var table =
                 $('<table/>', { style: "width:100%" }).append(
                     $('<tr/>').append(
@@ -123,7 +151,7 @@ PageDashboard.prototype = {
                         $('<td/>', { 'class': "cockpit-machine-info",
                                      'style': "vertical-align:top;padding-left:10px" }).
                             append(
-                                $('<div/>', { 'style': "font-weight:bold" }).text(cockpit_machines[i].address),
+                                $('<div/>', { 'style': "font-weight:bold" }).text(address),
                                 $('<div/>'),
                                 $('<div/>')),
                         $('<td/>', { style: "width:200px" }).append(
@@ -137,13 +165,14 @@ PageDashboard.prototype = {
                                 $('<img/>', { 'src': "images/small-spinner.gif" })),
                             $('<div/>', { 'class': "cockpit-machine-error", 'style': "color:red" })),
                         $('<td/>', { style: "text-align:right;width:180px" }).append(
-                            cockpit_action_btn (machine_action_func (cockpit_machines[i]),
+                            cockpit_action_btn (machine_action_func (machine),
                                                 machine_action_spec).addClass('cockpit-machine-action'))));
 
             var bd =
                 $('<li>', { 'class': 'list-group-item' }).append(table);
             machines.append (bd);
-            $(cockpit_machines[i].client).on('state-change', $.proxy(this, "update"));
+            this.dbus_clients[i] = machine.client;
+            $(this.dbus_clients[i]).on('state-change.dashboard', $.proxy(this, "update"));
         }
         machines.append('<div class="panel-body" style="text-align:right">' +
                         '<button class="btn btn-default" id="dashboard-add-server">' + _("Add Server") + '</button>' +
@@ -155,7 +184,7 @@ PageDashboard.prototype = {
     },
 
     update: function () {
-        var me = this;
+        var self = this;
 
         $('#dashboard-machines > li').each (function (i, e) {
             var info_divs = $(e).find('.cockpit-machine-info > div');
@@ -165,10 +194,7 @@ PageDashboard.prototype = {
             var plot_div = $(e).find('.cockpit-graph');
             var avatar_img = $(e).find('.cockpit-avatar');
 
-            if (i >= cockpit_machines.length)
-                return;
-
-            var client = cockpit_machines[i].client;
+            var client = self.dbus_clients[i];
 
             if (client.state == "ready") {
                 var manager = client.lookup("/com/redhat/Cockpit/Manager",
@@ -182,7 +208,7 @@ PageDashboard.prototype = {
                             avatar_img.attr('src', result);
                     });
                     $(manager).off('AvatarChanged.dashboard');
-                    $(manager).on('AvatarChanged.dashboard', $.proxy (me, "update"));
+                    $(manager).on('AvatarChanged.dashboard', $.proxy (self, "update"));
                 }
                 cockpit_action_btn_enable (action_btn, 'manage', true);
                 cockpit_action_btn_enable (action_btn, 'connect', false);
@@ -197,13 +223,13 @@ PageDashboard.prototype = {
                 cockpit_action_btn_enable (action_btn, 'connect', true);
                 cockpit_action_btn_enable (action_btn, 'disconnect', false);
                 cockpit_action_btn_select (action_btn, 'connect');
-                error_div.text(cockpit_client_error_description(client.error) || "Disconnected");
+                error_div.text($cockpit.client_error_description(client.error) || "Disconnected");
                 error_div.show();
                 spinner_div.hide();
                 plot_div.hide();
-                if (me.cpu_plots[i]) {
-                    me.cpu_plots[i].stop();
-                    me.cpu_plots[i] = null;
+                if (self.cpu_plots[i]) {
+                    self.cpu_plots[i].stop();
+                    self.cpu_plots[i] = null;
                 }
             } else {
                 cockpit_action_btn_select (action_btn, 'manage');
@@ -213,11 +239,11 @@ PageDashboard.prototype = {
                 plot_div.hide();
             }
 
-            if (client.state == "ready" && !me.cpu_plots[i]) {
+            if (client.state == "ready" && !self.cpu_plots[i]) {
                 var monitor = client.lookup("/com/redhat/Cockpit/CpuMonitor",
                                             "com.redhat.Cockpit.ResourceMonitor");
                 var plot_options = { };
-                me.cpu_plots[i] =
+                self.cpu_plots[i] =
                     cockpit_setup_simple_plot($(e).find('.cockpit-graph-plot'),
                                               $(e).find('.cockpit-graph-text'),
                                               monitor, plot_options,
@@ -228,7 +254,7 @@ PageDashboard.prototype = {
                                                   var total = values[1] + values[2] + values[3];
                                                   return total.toFixed(1) + "%";
                                               });
-                me.cpu_plots[i].start();
+                self.cpu_plots[i].start();
             }
         });
 
@@ -270,16 +296,6 @@ function PageDashboard() {
     this._init();
 }
 
-var cockpit_dashboard_page = new PageDashboard();
+cockpit_pages.push(new PageDashboard());
 
-cockpit_pages.push(cockpit_dashboard_page);
-
-function cockpit_dashboard_update_machines ()
-{
-    cockpit_dashboard_page.update_machines();
-}
-
-function cockpit_dashboard_local_client_state_change ()
-{
-    cockpit_dashboard_page.local_client_state_change ();
-}
+})(jQuery, $cockpit, cockpit_pages);

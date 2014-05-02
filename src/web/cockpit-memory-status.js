@@ -27,35 +27,37 @@ PageMemoryStatus.prototype = {
     },
 
     enter: function(first_visit) {
-        if (first_visit) {
-            var resmon = cockpit_dbus_client.lookup("/com/redhat/Cockpit/MemoryMonitor", "com.redhat.Cockpit.ResourceMonitor");
-            var options = {
-                series: {shadowSize: 0, // drawing is faster without shadows
-                         lines: {lineWidth: 0.0, fill: true}
-                        },
-                yaxis: {min: 0,
-                        ticks: 5,
-                        tickFormatter: function (v) {
-                            return cockpit_format_bytes(v);
-                        }
-                       },
-                xaxis: {show: true,
-                        ticks: [[0.0*60, "5 min"],
-                                [1.0*60, "4 min"],
-                                [2.0*60, "3 min"],
-                                [3.0*60, "2 min"],
-                                [4.0*60, "1 min"]]},
-                x_rh_stack_graphs: true
-            };
-            this.plot = cockpit_setup_complicated_plot("#memory_status_graph",
-                                                       resmon,
-                                                       [{color: "rgb(200,200,200)"},
-                                                        {color: "rgb(150,150,150)"},
-                                                        {color: "rgb(100,100,100)"},
-                                                        {color: "rgb( 50, 50, 50)"}
-                                                       ],
-                                                       options);
-        } // if (first_visit)
+        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.client = $cockpit.dbus(this.address);
+
+        var resmon = this.client.get("/com/redhat/Cockpit/MemoryMonitor", "com.redhat.Cockpit.ResourceMonitor");
+        var options = {
+            series: {shadowSize: 0, // drawing is faster without shadows
+                     lines: {lineWidth: 0.0, fill: true}
+                    },
+            yaxis: {min: 0,
+                    ticks: 5,
+                    tickFormatter: function (v) {
+                        return cockpit_format_bytes(v);
+                    }
+                   },
+            xaxis: {show: true,
+                    ticks: [[0.0*60, "5 min"],
+                            [1.0*60, "4 min"],
+                            [2.0*60, "3 min"],
+                            [3.0*60, "2 min"],
+                            [4.0*60, "1 min"]]},
+            x_rh_stack_graphs: true
+        };
+
+        this.plot = cockpit_setup_complicated_plot("#memory_status_graph",
+                                                   resmon,
+                                                   [{color: "rgb(200,200,200)"},
+                                                    {color: "rgb(150,150,150)"},
+                                                    {color: "rgb(100,100,100)"},
+                                                    {color: "rgb( 50, 50, 50)"}
+                                                   ],
+                                                   options);
     },
 
     show: function() {
@@ -63,7 +65,9 @@ PageMemoryStatus.prototype = {
     },
 
     leave: function() {
-        this.plot.stop();
+        this.plot.destroy();
+        this.client.release();
+        this.client = null;
     }
 };
 

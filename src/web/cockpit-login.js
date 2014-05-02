@@ -122,8 +122,7 @@ function cockpit_logout (reason)
     req.open("POST", loc, true);
     req.onreadystatechange = function (event) {
 	if (req.readyState == 4) {
-            $cockpit.hide_disconnected();
-            $cockpit.disconnect();
+            $cockpit.logged_out();
             cockpit_login_show();
         }
     };

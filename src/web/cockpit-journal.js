@@ -17,12 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_watch_journal (match, fields,
-                             seek, skip,
-                             callback)
+function cockpit_watch_journal (client,
+                                match, fields,
+                                seek, skip,
+                                callback)
 {
-    var journal = cockpit_dbus_client.lookup ("/com/redhat/Cockpit/Journal",
-                                           "com.redhat.Cockpit.Journal");
+    var journal = client.get ("/com/redhat/Cockpit/Journal",
+                              "com.redhat.Cockpit.Journal");
 
     var running = true;
 
@@ -102,7 +103,7 @@ function cockpit_output_funcs_for_box (box)
     };
 }
 
-function cockpit_simple_logbox (box, match, max_entries)
+function cockpit_simple_logbox (client, box, match, max_entries)
 {
     var entries = [ ];
 
@@ -137,21 +138,19 @@ function cockpit_simple_logbox (box, match, max_entries)
     }
 
     render();
-    return cockpit_watch_journal (match,
-                               cockpit_journal_fields,
-                               'tail', -max_entries, callback);
+    return cockpit_watch_journal (client,
+                                  match,
+                                  cockpit_journal_fields,
+                                  'tail', -max_entries, callback);
 }
 
-function cockpit_journal_filler (box, start, match, match_text, header, day_box, start_box, end_box)
+function cockpit_journal_filler (journal, box, start, match, match_text, header, day_box, start_box, end_box)
 {
     var query_count = 5000;
     var query_more = 1000;
     var query_increment = 100;
     var query_fields = cockpit_journal_fields;
     var query_max_length = 512;
-
-    var journal = cockpit_dbus_client.lookup ("/com/redhat/Cockpit/Journal",
-                                           "com.redhat.Cockpit.Journal");
 
     var bottom_scroll;
     var running = true;
@@ -452,6 +451,13 @@ PageJournal.prototype = {
             $('#content-search').val('service:' + this.query_service);
 
         update_priority_buttons (this.query_prio);
+
+        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.client = $cockpit.dbus(this.address);
+
+        this.journal = this.client.get ("/com/redhat/Cockpit/Journal",
+                                        "com.redhat.Cockpit.Journal");
+
         this.reset_service_list ();
         this.reset_query ();
     },
@@ -459,12 +465,14 @@ PageJournal.prototype = {
     leave: function() {
         if (this.filler)
             this.filler.stop();
+
+        this.client.release();
+        this.client = null;
+        this.journal = null;
     },
 
     reset_service_list: function () {
-        var journal = cockpit_dbus_client.lookup ("/com/redhat/Cockpit/Journal",
-                                               "com.redhat.Cockpit.Journal");
-        journal.call('QueryUnique', "_SYSTEMD_UNIT", 50, function (error, result) {
+        this.journal.call('QueryUnique', "_SYSTEMD_UNIT", 50, function (error, result) {
             if (error)
                 console.log(error.message);
             else {
@@ -515,13 +523,15 @@ PageJournal.prototype = {
         if (start_param == 'recent')
             $(window).scrollTop($(document).height());
 
-        this.filler = cockpit_journal_filler ($('#journal-box'), start_param, match, search_param,
+        this.filler = cockpit_journal_filler (this.journal,
+                                              $('#journal-box'), start_param, match, search_param,
                                               '#content nav', '#journal-current-day',
                                               $('#journal-start'), $('#journal-end'));
     },
 
     details: function (cursor) {
         if (cursor) {
+            PageJournalDetails.journal = this.journal;
             PageJournalDetails.cursor = cursor;
             $('#journal-details').modal('show');
         }
@@ -548,8 +558,7 @@ PageJournalDetails.prototype = {
     },
 
     enter: function(first_visit) {
-        var journal = cockpit_dbus_client.lookup ("/com/redhat/Cockpit/Journal",
-                                               "com.redhat.Cockpit.Journal");
+        var journal = PageJournalDetails.journal;
 
         var out = $('#journal-details-fields');
 

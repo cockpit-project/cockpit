@@ -34,8 +34,6 @@ function cockpit_mark_as_target (elt, target)
     var i;
     var cl = cockpit_job_target_class (target);
 
-    cockpit_ensure_jobs_init ();
-
     elt = $(elt);
     elt.addClass(cl);
     for (i = 0; i < cockpit_active_targets.length; i++) {
@@ -44,13 +42,11 @@ function cockpit_mark_as_target (elt, target)
     }
 }
 
-var cockpit_jobs_initialized = false;
-
-function cockpit_ensure_jobs_init ()
+function cockpit_watch_jobs (client)
 {
     function update ()
     {
-        var objs = cockpit_dbus_client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
+        var objs = client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
         var job;
         var i, j;
 
@@ -71,19 +67,28 @@ function cockpit_ensure_jobs_init ()
         }
     }
 
-    if (!cockpit_jobs_initialized) {
-        cockpit_jobs_initialized = true;
-        $(cockpit_dbus_client).on("objectAdded", update);
-        $(cockpit_dbus_client).on("objectRemoved", update);
+    if (!client._job_watchers) {
+        client._job_watchers = 1;
+        $(client).on("objectAdded.watch-jobs", update);
+        $(client).on("objectRemoved.watch-jobs", update);
         update ();
     }
 }
 
-function cockpit_job_box (box, domain, role, descriptions, target_describer)
+function cockpit_unwatch_jobs (client)
+{
+    client._job_watchers = client._job_watchers - 1;
+
+    if (!client._job_watchers) {
+        $(client).off(".watch-jobs");
+    }
+}
+
+function cockpit_job_box (client, box, domain, role, descriptions, target_describer)
 {
     function update ()
     {
-        var objs = cockpit_dbus_client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
+        var objs = client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
         var i, j, t, tdesc;
         var tbody, target_desc, desc, progress, remaining, cancel;
         var some_added = false;
@@ -151,16 +156,16 @@ function cockpit_job_box (box, domain, role, descriptions, target_describer)
 
     function stop ()
     {
-        $(cockpit_dbus_client).off("objectAdded", update);
-        $(cockpit_dbus_client).off("objectRemoved", update);
-        $(cockpit_dbus_client).off("propertiesChanged", update_props);
+        $(client).off("objectAdded", update);
+        $(client).off("objectRemoved", update);
+        $(client).off("propertiesChanged", update_props);
     }
 
     function start ()
     {
-        $(cockpit_dbus_client).on("objectAdded", update);
-        $(cockpit_dbus_client).on("objectRemoved", update);
-        $(cockpit_dbus_client).on("propertiesChanged", update_props);
+        $(client).on("objectAdded", update);
+        $(client).on("objectRemoved", update);
+        $(client).on("propertiesChanged", update_props);
         update ();
     }
 

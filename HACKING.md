@@ -26,16 +26,15 @@ with pre-build binary packages of all needed dependencies.
 
 ### Fedora:
 
-Currently the 64-bit architectures of Fedora 18 and Fedora 20 are
-supported.  As root, copy or symlink `contrib/fedora/cockpit-deps.repo` into
-`/etc/yum.repos.d/cockpit-deps.repo`.
+Currently the 64-bit architectures of Fedora 20 and Rawhide are most
+often used for development.
 
 Check `test/cockpit.spec.in` for the concrete build dependencies.  The following
 should work in a fresh Git clone:
 
     $ cd ./test
     $ srpm=$(./make-srpm)
-    # yum-builddep --enablerepo=cockpit-deps $srpm
+    # yum-builddep $srpm
 
 ## Building and installing
 

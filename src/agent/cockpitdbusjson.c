@@ -630,6 +630,35 @@ send_dbus_reply (CockpitDBusJson *self, const gchar *cookie, GVariant *result, G
   write_builder (self, builder);
 }
 
+static GVariantType *
+compute_complete_signature (GDBusArgInfo **args)
+{
+  const GVariantType *arg_types[256];
+  guint n;
+
+  if (args)
+    {
+      for (n = 0; args[n] != NULL; n++)
+        {
+          /* DBus places a hard limit of 255 on signature length.
+           * therefore number of args must be less than 256.
+           */
+          if (n >= G_N_ELEMENTS (arg_types))
+            return NULL;
+
+          arg_types[n] = G_VARIANT_TYPE (args[n]->signature);
+
+          if G_UNLIKELY (arg_types[n] == NULL)
+            return NULL;
+        }
+    }
+  else
+    {
+      n = 0;
+    }
+  return g_variant_type_new_tuple (arg_types, n);
+}
+
 typedef struct
 {
   /* Cleared by dispose */
@@ -637,7 +666,7 @@ typedef struct
   CockpitDBusJson *dbus_json;
 
   /* Request data */
-  GDBusInterface *iface_proxy;
+  GDBusConnection *connection;
   JsonObject *request;
 
   /* Owned by proxy or cache */
@@ -654,13 +683,13 @@ typedef struct
 static void
 call_data_free (CallData *data)
 {
-  g_object_unref (data->iface_proxy);
+  g_object_unref (data->connection);
   json_object_unref (data->request);
   g_free (data);
 }
 
 static void
-dbus_call_cb (GDBusProxy *proxy,
+dbus_call_cb (GDBusConnection *proxy,
               GAsyncResult *res,
               gpointer user_data)
 {
@@ -669,7 +698,7 @@ dbus_call_cb (GDBusProxy *proxy,
   GError *error;
 
   error = NULL;
-  result = g_dbus_proxy_call_finish (proxy, res, &error);
+  result = g_dbus_connection_call_finish (proxy, res, &error);
 
   if (data->dbus_json)
     {
@@ -690,8 +719,10 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
 {
   GDBusMethodInfo *method_info = NULL;
   GVariantBuilder arg_builder;
+  GVariantType *reply_type;
   guint n;
   GError *error = NULL;
+  gchar *owner;
 
   if (call_data->iface_info)
     method_info = g_dbus_interface_info_lookup_method (call_data->iface_info, call_data->method_name);
@@ -760,15 +791,26 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
 
   g_debug ("invoking %s %s.%s", call_data->objpath, call_data->iface_name, call_data->method_name);
 
+  g_object_get (self->object_manager,
+                "name-owner", &owner,
+                NULL);
+
+  reply_type = compute_complete_signature (method_info->out_args);
+
   /* and now, issue the call */
-  g_dbus_proxy_call (G_DBUS_PROXY (call_data->iface_proxy),
-                     call_data->method_name,
-                     g_variant_builder_end (&arg_builder),
-                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
-                     G_MAXINT, /* timeout */
-                     self->cancellable,
-                     (GAsyncReadyCallback)dbus_call_cb,
-                     call_data); /* user_data*/
+  g_dbus_connection_call (call_data->connection, owner, call_data->objpath,
+                          call_data->iface_name, call_data->method_name,
+                          g_variant_builder_end (&arg_builder),
+                          reply_type,
+                          G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                          G_MAXINT, /* timeout */
+                          self->cancellable,
+                          (GAsyncReadyCallback)dbus_call_cb,
+                          call_data); /* user_data*/
+
+  g_variant_type_free (reply_type);
+
+  g_free (owner);
 
 out:
   if (error)
@@ -791,6 +833,7 @@ on_introspect_ready (GObject *source,
   GDBusInterfaceInfo *iface = NULL;
   const gchar *xml = NULL;
   GError *error = NULL;
+  gboolean not_found;
   gboolean expected;
   gchar *remote;
   gint i;
@@ -801,6 +844,8 @@ on_introspect_ready (GObject *source,
       call_data_free (call_data);
       return;
     }
+
+  not_found = FALSE;
 
   self = COCKPIT_DBUS_JSON (call_data->dbus_json);
   val = g_dbus_connection_call_finish (G_DBUS_CONNECTION (source), result, &error);
@@ -828,6 +873,7 @@ on_introspect_ready (GObject *source,
           expected = (g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownMethod") ||
                       g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownObject") ||
                       g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownInterface"));
+          not_found = TRUE;
           g_free (remote);
         }
 
@@ -855,18 +901,42 @@ on_introspect_ready (GObject *source,
                      call_data->objpath, error->message);
           g_clear_error (&error);
         }
-      if (node)
+      else if (node)
         {
+          not_found = TRUE;
           for (i = 0; node->interfaces && node->interfaces[i] != NULL; i++)
             {
               iface = node->interfaces[i];
               if (iface->name)
-                g_hash_table_replace (self->introspect_cache, iface->name,
-                                      g_dbus_interface_info_ref (iface));
+                {
+                  g_hash_table_replace (self->introspect_cache, iface->name,
+                                        g_dbus_interface_info_ref (iface));
+                  if (g_str_equal (iface->name, call_data->iface_name))
+                    not_found = FALSE;
+                }
             }
           g_dbus_node_info_unref (node);
         }
       g_variant_unref (val);
+    }
+
+  /*
+   * If we got introspect data *but* the service didn't know about the object, then
+   * we know there's no such object. We cannot simply perform the call and have the
+   * service reply with the real error message. We have no way to make the call with
+   * the right arguments.
+   *
+   * So return an intelligent error message here.
+   */
+  if (not_found)
+    {
+      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No iface for objpath %s and iface %s calling %s",
+                   call_data->objpath, call_data->iface_name, call_data->method_name);
+      send_dbus_reply (self, call_data->cookie, NULL, error);
+      g_error_free (error);
+      call_data_free (call_data);
+      return;
     }
 
   call_data->iface_info = g_hash_table_lookup (self->introspect_cache, call_data->iface_name);
@@ -877,9 +947,8 @@ static gboolean
 handle_dbus_call (CockpitDBusJson *self,
                   JsonObject *root)
 {
-  GDBusConnection *connection = NULL;
+  GDBusInterface *iface_proxy;
   gchar *owner = NULL;
-  GError *error = NULL;
   CallData *call_data;
 
   call_data = g_new0 (CallData, 1);
@@ -900,32 +969,28 @@ handle_dbus_call (CockpitDBusJson *self,
       return FALSE;
     }
 
-  call_data->iface_proxy = g_dbus_object_manager_get_interface (self->object_manager,
-                                                                call_data->objpath,
-                                                                call_data->iface_name);
-  if (call_data->iface_proxy == NULL)
-    {
-      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "No iface for objpath %s and iface %s calling %s",
-                   call_data->objpath, call_data->iface_name, call_data->method_name);
-      send_dbus_reply (self, call_data->cookie, NULL, error);
-      g_error_free (error);
-      g_free (call_data);
-      return TRUE;
-    }
-
   call_data->dbus_json = self;
   call_data->request = json_object_ref (root);
   self->active_calls = g_list_prepend (self->active_calls, call_data);
   call_data->link = g_list_find (self->active_calls, call_data);
+  g_object_get (self->object_manager, "connection", &call_data->connection, NULL);
 
-  call_data->iface_info = g_dbus_interface_get_info (call_data->iface_proxy);
-  if (call_data->iface_info == NULL)
+  call_data->iface_info = g_hash_table_lookup (self->introspect_cache,
+                                               call_data->iface_name);
+  if (call_data->iface_info)
     {
-      call_data->iface_info = g_hash_table_lookup (self->introspect_cache,
-                                                   call_data->iface_name);
-      if (call_data->iface_info)
-        g_debug ("found introspect data for %s in cache", call_data->iface_name);
+      g_debug ("found introspect data for %s in cache", call_data->iface_name);
+    }
+  else
+    {
+      iface_proxy = g_dbus_object_manager_get_interface (self->object_manager,
+                                                         call_data->objpath,
+                                                         call_data->iface_name);
+      if (iface_proxy)
+        {
+          call_data->iface_info = g_dbus_interface_get_info (iface_proxy);
+          g_object_unref (iface_proxy);
+        }
     }
 
   if (call_data->iface_info != NULL)
@@ -938,11 +1003,10 @@ handle_dbus_call (CockpitDBusJson *self,
       g_debug ("no introspect data for %s %s", call_data->objpath, call_data->iface_name);
 
       g_object_get (self->object_manager,
-                    "connection", &connection,
                     "name-owner", &owner,
                     NULL);
 
-      g_dbus_connection_call (connection, owner, call_data->objpath,
+      g_dbus_connection_call (call_data->connection, owner, call_data->objpath,
                               "org.freedesktop.DBus.Introspectable", "Introspect",
                               NULL, G_VARIANT_TYPE ("(s)"),
                               G_DBUS_CALL_FLAGS_NO_AUTO_START,
@@ -950,7 +1014,6 @@ handle_dbus_call (CockpitDBusJson *self,
                               NULL, /* GCancellable */
                               on_introspect_ready, call_data);
 
-      g_object_unref (connection);
       g_free (owner);
     }
 

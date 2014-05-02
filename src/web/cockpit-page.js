@@ -119,47 +119,9 @@ function cockpit_content_update_loc_trail ()
     document.title = doc_title;
 }
 
-var cockpit_dbus_client_selected_machine;
-
-function cockpit_select_legacy_client ()
-{
-    cockpit_dbus_client_selected_machine = "localhost";
-    cockpit_dbus_client = cockpit_dbus_local_client;
-
-    var trail = cockpit_decode_trail (window.location.hash);
-
-    if (trail.length >= 2 && trail[1].page == "server") {
-        cockpit_dbus_client_selected_machine = trail[1].machine || "localhost";
-        for (var j = 0; j < cockpit_machines.length; j++) {
-            if (cockpit_machines[j].address == cockpit_dbus_client_selected_machine)
-                cockpit_dbus_client = cockpit_machines[j].client;
-        }
-    }
-}
-
 function cockpit_go (trail)
 {
     var new_loc = trail[trail.length-1];
-
-    if (trail.length >= 2 && trail[1].page == "server") {
-        // Check whether we are connected to the right machine, and if
-        // not, reload the whole thing.
-
-        var wanted_machine = trail[1].machine || "localhost";
-        var selected_machine = cockpit_dbus_client_selected_machine;
-        var connected_machine = cockpit_dbus_client.target;
-
-        if (wanted_machine != selected_machine) {
-            cockpit_loc_trail = trail;
-            cockpit_show_hash ();
-            cockpit_expecting_disconnect = true;
-            window.location.reload(false);
-            return;
-        }
-
-        if (selected_machine != connected_machine)
-            window.alert("This is not the machine you are looking for.");
-    }
 
     function leave_breadcrumb(trail) {
         for (var i = 0; i < trail.length; i++)
@@ -258,15 +220,7 @@ function cockpit_decode_trail (hash)
     var locs, params, vals, trail, p, i, j;
 
     if (hash === "") {
-        if (cockpit_machines.length == 1)
-            return [ { page: "dashboard"
-                     },
-                     { page: "server",
-                       machine: cockpit_machines[0].address
-                     }
-                   ];
-        else
-            return [ { page: "dashboard" } ];
+        return [ { page: "dashboard" } ];
     }
 
     if (hash[0] == '#')

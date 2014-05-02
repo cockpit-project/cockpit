@@ -40,7 +40,7 @@ function cockpit_search (string) {
         loc = { page: "journal", prio: prio, start: start, search: string };
 
     cockpit_go ([ { page: "dashboard" },
-                  { page: "server", machine: cockpit_dbus_client.target },
+                  { page: "server", machine: cockpit_get_page_param('machine', 'server') },
                   loc
                 ]);
 }

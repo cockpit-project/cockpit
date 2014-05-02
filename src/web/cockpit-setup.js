@@ -30,33 +30,38 @@ PageSetupServer.prototype = {
     },
 
     leave: function() {
+        $(this.local_client).off('.setup');
+        this.local_client.release();
+        this.local_client = null;
     },
 
     enter: function(first_visit) {
-        var me = this;
+        var self = this;
 
         if (first_visit) {
-            $("#dashboard_setup_address")[0].placeholder = _("Enter IP address or hostname");
-            $("#dashboard_setup_login_user")[0].placeholder = C_("login-screen", "Enter user name");
-            $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
-
             $('#dashboard_setup_cancel').on('click', $.proxy(this, 'cancel'));
             $('#dashboard_setup_prev').on('click', $.proxy(this, 'prev'));
             $('#dashboard_setup_next').on('click', $.proxy(this, 'next'));
-            $(cockpit_dbus_local_client).on('objectAdded objectRemoved', function (event, object) {
-                if (object.lookup('com.redhat.Cockpit.Machine'))
-                    me.update_discovered ();
-            });
-            $(cockpit_dbus_local_client).on('propertiesChanged', function (event, object, iface) {
-                if (iface._iface_name == "com.redhat.Cockpit.Machine")
-                    me.update_discovered ();
-            });
-            $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));
         }
 
-        me.client = null;
-        me.address = null;
-        me.options = { "host-key": "" };
+        self.client = null;
+        self.address = null;
+        self.options = { "host-key": "" };
+
+        $("#dashboard_setup_address")[0].placeholder = _("Enter IP address or hostname");
+        $("#dashboard_setup_login_user")[0].placeholder = C_("login-screen", "Enter user name");
+        $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
+        $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));
+
+        self.local_client = $cockpit.dbus("localhost");
+        $(self.local_client).on('objectAdded.setup objectRemoved.setup', function (event, object) {
+            if (object.lookup('com.redhat.Cockpit.Machine'))
+                self.update_discovered ();
+        });
+        $(self.local_client).on('propertiesChanged.setup', function (event, object, iface) {
+            if (iface._iface_name == "com.redhat.Cockpit.Machine")
+                self.update_discovered ();
+        });
 
         $('#dashboard_setup_address').val("");
 
@@ -66,16 +71,16 @@ PageSetupServer.prototype = {
 
         $('#dashboard_setup_address_reuse_creds').prop('checked', true);
 
-        me.update_discovered ();
         $('#dashboard_setup_address_error').text("");
         this.show_tab ('address');
+        self.update_discovered ();
     },
 
     update_discovered: function() {
         var filter = $('#dashboard_setup_address').val();
         var discovered = $('#dashboard_setup_address_discovered');
-        var machines = cockpit_dbus_local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
-                                                                    "com.redhat.Cockpit.Machine");
+        var machines = this.local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
+                                                            "com.redhat.Cockpit.Machine");
 
         function render_address (address) {
             if (!filter)
@@ -182,7 +187,7 @@ PageSetupServer.prototype = {
                     /* The given credentials didn't work.  Ask the
                      * user to try again.
                      */
-                    $('#dashboard_setup_login_error').text(cockpit_client_error_description(client.error));
+                    $('#dashboard_setup_login_error').text($cockpit.client_error_description(client.error));
                     self.show_tab('login');
                     return;
                 }
@@ -190,8 +195,8 @@ PageSetupServer.prototype = {
                 /* The connection has failed.  Show the error on every
                  * tab but stay on the current tab.
                  */
-                $('#dashboard_setup_address_error').text(cockpit_client_error_description(client.error));
-                $('#dashboard_setup_login_error').text(cockpit_client_error_description(client.error));
+                $('#dashboard_setup_address_error').text($cockpit.client_error_description(client.error));
+                $('#dashboard_setup_login_error').text($cockpit.client_error_description(client.error));
                 return;
 
             } else if (client.state == "ready") {
@@ -324,9 +329,9 @@ PageSetupServer.prototype = {
             return map;
         }
 
-        var manager = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Accounts",
-                                                        "com.redhat.Cockpit.Accounts");
-        var local = get_role_accounts (cockpit_dbus_local_client, manager.Roles);
+        var manager = this.local_client.lookup ("/com/redhat/Cockpit/Accounts",
+                                                "com.redhat.Cockpit.Accounts");
+        var local = get_role_accounts (this.local_client, manager.Roles);
         var remote = get_role_accounts (this.client, null);
 
         function needs_update (l) {
@@ -447,8 +452,8 @@ PageSetupServer.prototype = {
          * TODO: Add a method to set only the key and use it here.
          */
 
-        var machines = cockpit_dbus_local_client.lookup ("/com/redhat/Cockpit/Machines",
-                                                         "com.redhat.Cockpit.Machines");
+        var machines = this.local_client.lookup ("/com/redhat/Cockpit/Machines",
+                                                 "com.redhat.Cockpit.Machines");
         machines.call('Add', me.address, me.options["host-key"], function (error, path) {
             if (error) {
                 $('#dashboard_setup_address_error').text(error.message);
@@ -456,7 +461,7 @@ PageSetupServer.prototype = {
                 return;
             }
 
-            me.machine = cockpit_dbus_local_client.lookup (path, "com.redhat.Cockpit.Machine");
+            me.machine = me.local_client.lookup (path, "com.redhat.Cockpit.Machine");
             if (!me.machine) {
                 $('#dashboard_setup_address_error').text(_("New machine not found in list after adding."));
                 me.show_tab('address');

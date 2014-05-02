@@ -55,12 +55,8 @@ class TestSession(MachineCase):
 
         # Kill session from the outside
         kill_user_admin()
-        b.wait_popup("disconnected")
-        b.wait_text("#disconnected-error", "Your session has been terminated.")
         check_session(False)
-        b.click('#disconnected button[onclick*="reconnect"]')
-        b.wait_popdown("disconnected")
-        b.wait_page("server")
+        b.relogin("server")
         check_session(True)
 
         # Kill session from the inside
@@ -69,8 +65,6 @@ class TestSession(MachineCase):
         b.wait_page("account")
         b.wait_text("#account-user-name", "admin")
         b.click("#account-logout")
-        b.wait_popup("disconnected")
-        b.wait_text("#disconnected-error", "Your session has been terminated.")
         check_session(False)
 
         self.allow_journal_messages("peer did not close io when expected",

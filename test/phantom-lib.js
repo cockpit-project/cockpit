@@ -80,24 +80,40 @@ function ph_focus(sel)
     ph_find(sel).focus();
 }
 
-function ph_dbus_prop (iface, prop, text)
+function ph_dbus_ready (client_address, client_options)
+{
+    var client = $cockpit.dbus(client_address, client_options);
+    var result = client && client.state == "ready";
+    client.release();
+    return result;
+}
+
+function ph_dbus_prop (client_address, client_options, iface, prop, text)
 {
     // check whether there is any object that has the given text as
     // the value of the given property
 
-    var objs = cockpit_dbus_client.getObjectsFrom("/");
+    var result = false;
+    var client = $cockpit.dbus(client_address, client_options);
+    var objs = client.getObjectsFrom("/");
     for (var i = 0; i < objs.length; i++) {
         var obj_iface = objs[i].lookup(iface);
-        if (obj_iface && obj_iface[prop] && obj_iface[prop] == text)
-            return objs[i].objectPath;
+        if (obj_iface && obj_iface[prop] && obj_iface[prop] == text) {
+            result = objs[i].objectPath;
+            break;
+        }
     }
-    return false;
+    client.release()
+    return result;
 }
 
-function ph_dbus_object_prop (path, iface, prop, text)
+function ph_dbus_object_prop (client_address, client_options, path, iface, prop, text)
 {
     // check whether the given property has the given value
 
-    var proxy = cockpit_dbus_client.lookup(path, iface);
-    return proxy && proxy[prop] == text;
+    var client = $cockpit.dbus(client_address, client_options);
+    var proxy = client.lookup(path, iface);
+    var result = proxy && proxy[prop] == text;
+    client.release()
+    return result;
 }

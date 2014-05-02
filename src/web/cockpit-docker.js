@@ -1376,8 +1376,6 @@ function DockerClient(machine) {
     };
 
     function change_cgroup(directory, cgroup, filename, value) {
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Manager", "com.redhat.Cockpit.Manager");
-
         /* TODO: Yup need a nicer way of doing this ... likely systemd once we're geard'd out */
         var path = "/sys/fs/cgroup/" + directory + "/" + cgroup + "/" + filename;
         var command = "echo '" + value.toFixed(0) + "' > " + path;

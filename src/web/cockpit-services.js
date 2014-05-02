@@ -126,11 +126,8 @@ PageServices.prototype = {
         return C_("page-title", "System Services");
     },
 
-    show: function() {
-    },
-
     enter: function(first_visit) {
-    var me = this;
+        var me = this;
 
         $('#content-header-extra').append(' \
             <div class="btn-group" data-toggle="buttons"> \
@@ -155,23 +152,31 @@ PageServices.prototype = {
             me.update();
         });
 
+        me.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        me.client = $cockpit.dbus(me.address);
+
+        me.manager = me.client.get("/com/redhat/Cockpit/Services",
+                                   "com.redhat.Cockpit.Services");
+        $(me.manager).on("ServiceUpdate.services", function (event, service) {
+            me.update_service (service[0], service[1], service[2], service[3], service[4], service[5]);
+        });
+        $(me.manager).on("ServiceUpdateAll.services", function (event) {
+            me.update();
+        });
+
         me.update();
-        if (first_visit) {
-            var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Services",
-                                                  "com.redhat.Cockpit.Services");
-            $(manager).on("ServiceUpdate", function (event, service) {
-                me.update_service (service[0], service[1], service[2], service[3], service[4], service[5]);
-            });
-            $(manager).on("ServiceUpdateAll", function (event) {
-                me.update();
-            });
-            $(cockpit_dbus_client).on('ready', function () {
-                me.update();
-            });
-        }
+    },
+
+    show: function() {
     },
 
     leave: function() {
+        var self = this;
+
+        $(self.manager).off('.services');
+        self.client.release();
+        self.client = null;
+        self.manager = null;
     },
 
     update_service: function (name, desc, load_state, active_state, sub_state, file_state) {
@@ -195,15 +200,13 @@ PageServices.prototype = {
 
     update: function() {
         var me = this;
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Services",
-                                              "com.redhat.Cockpit.Services");
 
         function compare_service(a,b)
         {
             return (a[1]).localeCompare(b[1]);
         }
 
-        manager.call('ListServices', function(error, services) {
+        me.manager.call('ListServices', function(error, services) {
             var suffix;
             var service;
 
@@ -259,19 +262,10 @@ PageService.prototype = {
         return C_("page-title", "Service");
     },
 
-    show: function() {
-    },
-
     enter: function(first_visit) {
         var me = this;
-        me.service = cockpit_get_page_param('s') || "";
-        me.update();
-        me.watch_journal();
 
         if (first_visit) {
-            var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Services",
-                                                  "com.redhat.Cockpit.Services");
-
             var unit_action_spec = [
                 { title: _("Start"),                 action: 'start',     is_default: true },
                 { title: _("Stop"),                  action: 'stop' },
@@ -302,17 +296,7 @@ PageService.prototype = {
                                                     file_action_spec);
             $('#service-file-action-btn').html(me.file_action_btn);
 
-            $(manager).on("ServiceUpdate", function (event, info) {
-                if (info[0] == me.service)
-                    me.update();
-            });
-            $(manager).on("ServiceUpdateAll", function () {
-                me.update();
-            });
             $("#service-refresh").on('click', function () {
-                me.update();
-            });
-            $(cockpit_dbus_client).on('ready', function () {
                 me.update();
             });
 
@@ -328,6 +312,27 @@ PageService.prototype = {
                 }
             });
         }
+
+        me.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        me.client = $cockpit.dbus(me.address);
+
+        me.manager = me.client.get("/com/redhat/Cockpit/Services",
+                                   "com.redhat.Cockpit.Services");
+
+        $(me.manager).on("ServiceUpdate", function (event, info) {
+            if (info[0] == me.service)
+                me.update();
+        });
+        $(me.manager).on("ServiceUpdateAll", function () {
+            me.update();
+        });
+
+        me.service = cockpit_get_page_param('s') || "";
+        me.update();
+        me.watch_journal();
+    },
+
+    show: function() {
     },
 
     leave: function() {
@@ -335,12 +340,13 @@ PageService.prototype = {
     },
 
     watch_journal: function () {
-        this.journal_watcher = cockpit_simple_logbox ($('#service-log'),
-                                                   [ [ "_SYSTEMD_UNIT=" + this.service ],
-                                                     [ "COREDUMP_UNIT=" + this.service ],
-                                                     [ "UNIT=" + this.service ]
-                                                   ],
-                                                   10);
+        this.journal_watcher = cockpit_simple_logbox (this.client,
+                                                      $('#service-log'),
+                                                      [ [ "_SYSTEMD_UNIT=" + this.service ],
+                                                        [ "COREDUMP_UNIT=" + this.service ],
+                                                        [ "UNIT=" + this.service ]
+                                                      ],
+                                                      10);
     },
 
     update: function () {
@@ -356,9 +362,7 @@ PageService.prototype = {
                 me.template = me.template + me.service.substring(sp);
         }
 
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Services",
-                                              "com.redhat.Cockpit.Services");
-        manager.call('GetServiceInfo', me.service, function (error, info) {
+        me.manager.call('GetServiceInfo', me.service, function (error, info) {
             if (error) {
                 $("#service-unknown").show();
                 $("#service-known").hide();
@@ -486,12 +490,10 @@ PageService.prototype = {
     },
 
     action: function(op) {
-        if (!cockpit_check_role ('wheel'))
+        if (!cockpit_check_role ('wheel', this.client))
             return;
 
-        var manager = cockpit_dbus_client.lookup("/com/redhat/Cockpit/Services",
-                                              "com.redhat.Cockpit.Services");
-        manager.call('ServiceAction', this.service, op, function (error) {
+        this.manager.call('ServiceAction', this.service, op, function (error) {
             if (error)
                 cockpit_show_error_dialog(_("Error"), error.message);
         });

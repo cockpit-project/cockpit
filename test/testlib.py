@@ -199,11 +199,14 @@ class Browser:
     def wait_text_not(self, selector, text):
         return self.wait_js_func('!ph_text_is', selector, text)
 
-    def wait_dbus_prop(self, iface, prop, text):
-        return self.wait_js_func('ph_dbus_prop', iface, prop, text)
+    def wait_dbus_ready(self, client_address = "localhost", client_options = { }):
+        return self.wait_js_func('ph_dbus_ready', client_address, client_options)
 
-    def wait_dbus_object_prop(self, path, iface, prop, text):
-        return self.wait_js_func('ph_dbus_object_prop', path, iface, prop, text)
+    def wait_dbus_prop(self, iface, prop, text, client_address = "localhost", client_options = { }):
+        return self.wait_js_func('ph_dbus_prop', client_address, client_options, iface, prop, text)
+
+    def wait_dbus_object_prop(self, path, iface, prop, text, client_address = "localhost", client_options = { }):
+        return self.wait_js_func('ph_dbus_object_prop', client_address, client_options, path, iface, prop, text)
 
     def wait_popup(self, id):
         """Wait for a popup to open.
@@ -229,6 +232,7 @@ class Browser:
         """
         self.wait_visible('#content')
         self.wait_visible('#' + id)
+        self.wait_dbus_ready()
 
     def wait_action_btn(self, sel, entry):
         self.wait_text(sel + ' button:first-child', entry);
@@ -246,6 +250,14 @@ class Browser:
         self.wait_visible("#login")
         self.set_val('#login-user-input', "admin")
         self.set_val('#login-password-input', "foobar")
+        self.click('#login-button')
+        self.wait_page(page)
+
+    def relogin(self, page):
+        self.click('a[onclick*="cockpit_logout"]')
+        self.wait_visible("#login")
+        self.set_val("#login-user-input", "admin")
+        self.set_val("#login-password-input", "foobar")
         self.click('#login-button')
         self.wait_page(page)
 

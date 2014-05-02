@@ -47,17 +47,6 @@
 
    Clients stay around a while after they have been released by its
    last user.
-
-   - $cockpit.init()
-   - $cockpit.logged_in(config)
-   - $cockpit.logged_out()
-
-   Manage the life-cycle of the application.  Only very specific parts
-   of the code need to call these functions.  'init' should be called
-   when index.html has been loaded, and 'logged_in' should be called
-   when we have successfully logged in.  Calling 'logged_out' will
-   close the WebSocket to the webserver and reset the state of the
-   application in other ways..
 */
 
 var $cockpit = $cockpit || { };
@@ -66,9 +55,9 @@ var $cockpit = $cockpit || { };
 
 $cockpit.dbus = dbus;
 
-$cockpit.init = init;
-$cockpit.logged_in = logged_in;
-$cockpit.logged_out = logged_out;
+$cockpit._logged_out = _logged_out;
+
+$(init);
 
 function init() {
     $cockpit.language_code = "";
@@ -175,12 +164,7 @@ function dbus(address, options, auto_reconnect) {
     return client;
 }
 
-function logged_in(config) {
-    $cockpit.connection_config = config;
-    cockpit_content_show();
-}
-
-function logged_out() {
+function _logged_out() {
     dbus_clients = { };
     if (Channel.transport)
         Channel.transport.close('disconnecting');

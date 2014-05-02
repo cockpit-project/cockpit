@@ -32,16 +32,18 @@
    contains the symbol identifying the language, such as "de" or "fi".
    'language_po' is a dictionary with the actual translations.
 
-   - client = $cockpit.get_dbus_client(address, options)
-   - $cockpit.put_dbus_client(client)
+   - client = $cockpit.dbus(address, [options], [auto_reconnect])
+   - client.release()
 
-   Manage the active D-Bus clients.  The 'get_dbus_client' function
-   returns a client connected to 'address' with the given 'options'.
-   Use 'put_dbus_client' to release it.  Typically, clients are gotten
-   in the 'enter' method of a page and released again in 'leave'.
+   Manage the active D-Bus clients.  The 'dbus' function returns a
+   client for the given 'address' with the given 'options'.  Use
+   'client.release' to release it.  Typically, clients are gotten in
+   the 'enter' method of a page and released again in 'leave'.
 
-   A client returned by get_dbus_client can be in any state; it isn't
-   necessarily "ready".
+   A client returned by 'dbus' can be in any state; it isn't
+   necessarily "ready". However, if it is closed and auto_reconnect is
+   not false, a reconnection attempt will be started.  (The
+   auto_reconnect parameter defaults to 'true'.)
 
    Clients stay around a while after they have been released by its
    last user.
@@ -82,7 +84,7 @@ $cockpit.logged_in = logged_in;
 
 $cockpit.disconnect = disconnect;
 $cockpit.hide_disconnected = hide_disconnected;
-$cockpit.get_dbus_client = get_dbus_client;
+$cockpit.dbus = dbus;
 
 function init() {
     $cockpit.language_code = "";
@@ -162,13 +164,53 @@ function is_multi_server_aware (hash)
             hash == "#dashboard");
 }
 
-function get_dbus_client (address)
-{
-    for (var i = 0; i < cockpit_machines.length; i++) {
-        if (cockpit_machines[i].address == address)
-            return cockpit_machines[i].client;
+var dbus_clients = { };
+
+function make_dict_key(dict) {
+    function stringify_elt(k) { return JSON.stringify(k) + ':' + JSON.stringify(dict[k]); }
+    return Object.keys(dict).sort().map(stringify_elt).join(";");
+}
+
+function dbus(address, options, auto_reconnect) {
+    var key, client;
+
+    options = $.extend({host: address}, options);
+    key = make_dict_key(options);
+    client = dbus_clients[key];
+
+    if (!client) {
+        dbus_debug("Creating dbus client for %s", key);
+        client = new DBusClient(options.host, options);
+        client._get_dbus_client_leases = 0;
+        client._get_dbus_client_key = key;
+        dbus_clients[key] = client;
+    } else {
+        dbus_debug("Getting dbus client for %s", key);
     }
-    return null;
+
+    client._get_dbus_client_leases += 1;
+    if (client.state == "closed" && auto_reconnect !== false)
+        client.connect();
+
+    function release() {
+        dbus_debug("Releasing %s", key);
+        // Only really release it after a delay
+        setTimeout(function () {
+            if (!client._get_dbus_client_leases) {
+                console.warn("Releasing unleased client");
+            } else {
+                client._get_dbus_client_leases -= 1;
+                if (client._get_dbus_client_leases === 0) {
+                    delete dbus_clients[key];
+                    dbus_debug("Closing %s", key);
+                    client.close("unused");
+                }
+            }
+        }, 10000);
+    }
+
+    client.release = release;
+    return client;
 }
 
 function update_machines ()

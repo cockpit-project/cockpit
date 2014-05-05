@@ -36,9 +36,36 @@ function docker_debug() {
 function get_docker_client(machine) {
     if (!machine)
         machine = cockpit_get_page_param ("machine", "server");
-    if (!docker_clients[machine])
-        docker_clients[machine] = new DockerClient (machine);
-    return docker_clients[machine];
+
+    var handle = docker_clients[machine];
+
+    if (!handle) {
+        docker_debug("Creating docker client for %s", machine);
+        handle = { refcount: 1, client: new DockerClient(machine) };
+        docker_clients[machine] = handle;
+
+        handle.client.release = function() {
+            docker_debug("Releasing %s", machine);
+            // Only really release it after a delay
+            setTimeout(function () {
+                if (!handle.refcount) {
+                    console.warn("Releasing unreffed client");
+                } else {
+                    handle.refcount -= 1;
+                    if (handle.refcount === 0) {
+                        delete docker_clients[machine];
+                        docker_debug("Closing %s", machine);
+                        handle.client.close();
+                    }
+                }
+            }, 10000);
+        };
+    } else {
+        docker_debug("Getting docker client for %s", machine);
+        handle.refcount += 1;
+    }
+
+    return handle.client;
 }
 
 function quote_cmdline (cmds) {
@@ -269,81 +296,71 @@ PageContainers.prototype = {
     enter: function() {
         var self = this;
 
-        var client = get_docker_client();
-        if (client != this.client) {
-            if (this.client)
-                this.client.off('.containers');
-            if (this.cpu_plot)
-                this.cpu_plot.stop();
-            if (this.mem_plot)
-                this.mem_plot.stop();
+        this.client = get_docker_client();
 
-            var reds = [ "#250304",
-                         "#5c080c",
-                         "#970911",
-                         "#ce0e15",
-                         "#ef2930",
-                         "#f36166",
-                         "#f7999c",
-                         "#fbd1d2"
-                       ];
+        var reds = [ "#250304",
+                     "#5c080c",
+                     "#970911",
+                     "#ce0e15",
+                     "#ef2930",
+                     "#f36166",
+                     "#f7999c",
+                     "#fbd1d2"
+                   ];
 
-            var blues = [ "#006bb4",
-                          "#008ff0",
-                          "#2daaff",
-                          "#69c2ff",
-                          "#a5daff",
-                          "#e1f3ff",
-                          "#00243c",
-                          "#004778"
-                        ];
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
 
-            this.client = client;
-
-            function highlight_container_row(event, id) {
-                $('#containers-containers tr').removeClass('highlight');
-                $('#' + id).addClass('highlight');
-            }
-
-            this.cpu_plot = client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues.concat(blues));
-            $(this.cpu_plot).on('update-total', function (event, total) {
-                $('#containers-cpu-text').text(format_cpu_usage(total));
-            });
-            $(this.cpu_plot).on('highlight', highlight_container_row);
-
-            this.mem_plot = client.setup_cgroups_plot ('#containers-mem-graph', 0, blues.concat(blues));
-            $(this.mem_plot).on('update-total', function (event, total) {
-                $('#containers-mem-text').text(cockpit_format_bytes_pow2 (total));
-            });
-            $(this.mem_plot).on('highlight', highlight_container_row);
-
-            $('#containers-containers table tbody tr').remove();
-            $('#containers-images table tbody tr').remove();
-
-            /* Every time a container appears, disappears, changes */
-            $(this.client).on('container.containers', function(event, id, container) {
-                self.render_container(id, container);
-            });
-
-            /* Every time a image appears, disappears, changes */
-            $(this.client).on('image.containers', function(event, id, image) {
-                self.render_image(id, image);
-            });
-
-            /* High level failures about the overall functionality of docker */
-            $(this.client).on('failure.containers', function(event, ex) {
-                var msg;
-                console.warn(ex);
-                if (ex.problem == "not-found")
-                    msg = _("Docker is not installed or activated on the system");
-                else if (ex.problem == "not-authorized")
-                    msg = _("Not authorized to access Docker on this system");
-                else
-                    msg = ex.toString();
-                $("#containers-failure").show();
-                $("#containers-failure span.alert-message").text(msg);
-            });
+        function highlight_container_row(event, id) {
+            $('#containers-containers tr').removeClass('highlight');
+            $('#' + id).addClass('highlight');
         }
+
+        this.cpu_plot = this.client.setup_cgroups_plot ('#containers-cpu-graph', 4, blues.concat(blues));
+        $(this.cpu_plot).on('update-total', function (event, total) {
+            $('#containers-cpu-text').text(format_cpu_usage(total));
+        });
+        $(this.cpu_plot).on('highlight', highlight_container_row);
+
+        this.mem_plot = this.client.setup_cgroups_plot ('#containers-mem-graph', 0, blues.concat(blues));
+        $(this.mem_plot).on('update-total', function (event, total) {
+            $('#containers-mem-text').text(cockpit_format_bytes_pow2 (total));
+        });
+        $(this.mem_plot).on('highlight', highlight_container_row);
+
+        $('#containers-containers table tbody tr').remove();
+        $('#containers-images table tbody tr').remove();
+
+        /* Every time a container appears, disappears, changes */
+        $(this.client).on('container.containers', function(event, id, container) {
+            self.render_container(id, container);
+        });
+
+        /* Every time a image appears, disappears, changes */
+        $(this.client).on('image.containers', function(event, id, image) {
+            self.render_image(id, image);
+        });
+
+        /* High level failures about the overall functionality of docker */
+        $(this.client).on('failure.containers', function(event, ex) {
+            var msg;
+            console.warn(ex);
+            if (ex.problem == "not-found")
+                msg = _("Docker is not installed or activated on the system");
+            else if (ex.problem == "not-authorized")
+                msg = _("Not authorized to access Docker on this system");
+            else
+                msg = ex.toString();
+            $("#containers-failure").show();
+            $("#containers-failure span.alert-message").text(msg);
+        });
 
         var id;
         for (id in this.client.containers) {
@@ -356,17 +373,16 @@ PageContainers.prototype = {
     },
 
     show: function() {
-        if (this.cpu_plot)
-            this.cpu_plot.start();
-        if (this.mem_plot)
-            this.mem_plot.start();
+        this.cpu_plot.start();
+        this.mem_plot.start();
     },
 
     leave: function() {
-        if (this.cpu_plot)
-            this.cpu_plot.stop();
-        if (this.mem_plot)
-            this.mem_plot.stop();
+        this.cpu_plot.destroy();
+        this.mem_plot.destroy();
+        $(this.client).off('.containers');
+        this.client.release();
+        this.client = null;
     },
 
     render_container: function(id, container) {
@@ -687,6 +703,9 @@ PageContainerDetails.prototype = {
 
     leave: function() {
         $(this.client).off('.container-details');
+        this.client.release();
+        this.client = null;
+
         if (this.terminal) {
             this.terminal.close();
             this.terminal = null;
@@ -941,7 +960,9 @@ PageImageDetails.prototype = {
     },
 
     leave: function() {
-        $(this.client).off('.container-details');
+        $(this.client).off('.image-details');
+        this.client.release();
+        this.client = null;
     },
 
     setup: function() {
@@ -1200,48 +1221,45 @@ function DockerClient(machine) {
     /* We listen to the resource monitor and include the measurements
      * in the container objects.
      *
-     * TODO: Don't assume that the D-Bus client is ready.  Call
-     * GetSamples for quicker initialization.  Release the client.
+     * TODO: Call GetSamples for quicker initialization.
      */
 
     var dbus_client = $cockpit.dbus(machine);
-    var monitor = dbus_client.lookup ("/com/redhat/Cockpit/LxcMonitor",
-                                      "com.redhat.Cockpit.MultiResourceMonitor");
+    var monitor = dbus_client.get ("/com/redhat/Cockpit/LxcMonitor",
+                                   "com.redhat.Cockpit.MultiResourceMonitor");
 
     /* TODO: dig out the maximum memory */
     this.max_memory = 8000000000;
 
-    if (monitor) {
-        $(monitor).on('NewSample', function (event, timestampUsec, samples) {
-            resource_debug("samples", timestampUsec, samples);
-            for (var cgroup in samples) {
-                var id = container_from_cgroup(cgroup);
-                if (!id)
-                    continue;
-                var container = me.containers[id];
-                if (!container)
-                    continue;
-                var sample = samples[cgroup];
-                container.CGroup = cgroup;
-                var mem = sample[0];
-                var limit = sample[1];
-                var cpu = sample[4];
-                var priority = sample[5];
-                if (mem != container.MemoryUsage ||
-                    limit != container.MemoryLimit ||
-                    cpu != container.CpuUsage ||
-                    priority != container.CpuPriority) {
-                    container.MemoryUsage = mem;
-                    container.MemoryLimit = limit;
-                    container.CpuUsage = cpu;
-                    container.CpuPriority = priority;
-                    $(me).trigger("container", [id, container]);
-                }
+    function handle_new_samples (event, timestampUsec, samples) {
+        resource_debug("samples", timestampUsec, samples);
+        for (var cgroup in samples) {
+            var id = container_from_cgroup(cgroup);
+            if (!id)
+                continue;
+            var container = me.containers[id];
+            if (!container)
+                continue;
+            var sample = samples[cgroup];
+            container.CGroup = cgroup;
+            var mem = sample[0];
+            var limit = sample[1];
+            var cpu = sample[4];
+            var priority = sample[5];
+            if (mem != container.MemoryUsage ||
+                limit != container.MemoryLimit ||
+                cpu != container.CpuUsage ||
+                priority != container.CpuPriority) {
+                container.MemoryUsage = mem;
+                container.MemoryLimit = limit;
+                container.CpuUsage = cpu;
+                container.CpuPriority = priority;
+                $(me).trigger("container", [id, container]);
             }
-        });
-    } else {
-        console.warn("No resource monitor");
+        }
     }
+
+    $(monitor).on('NewSample', handle_new_samples);
 
     function trigger_id(id) {
         if (id in me.containers)
@@ -1421,9 +1439,6 @@ function DockerClient(machine) {
         var plot;
         var i;
 
-        if (!monitor)
-            return null;
-
         for (i = 0; i < data.length; i++)
             data[i] = { };
 
@@ -1432,7 +1447,7 @@ function DockerClient(machine) {
         }
 
         function update_consumers() {
-            var mcons = monitor.Consumers;
+            var mcons = monitor.Consumers || [ ];
             consumers.forEach(function (c, i) {
                 if (c && mcons.indexOf(c) < 0) {
                     resource_debug("Consumer disappeared", c);
@@ -1520,6 +1535,13 @@ function DockerClient(machine) {
 
         update_consumers();
         return plot;
+    };
+
+    this.close = function close() {
+        $(monitor).off('NewSample', handle_new_samples);
+        monitor = null;
+        dbus_client.release();
+        dbus_client = null;
     };
 }
 

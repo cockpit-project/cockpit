@@ -126,7 +126,7 @@ PageServices.prototype = {
         return C_("page-title", "System Services");
     },
 
-    enter: function(first_visit) {
+    enter: function() {
         var me = this;
 
         $('#content-header-extra').append(' \
@@ -262,56 +262,58 @@ PageService.prototype = {
         return C_("page-title", "Service");
     },
 
-    enter: function(first_visit) {
+    setup: function() {
+        var self = this;
+
+        var unit_action_spec = [
+            { title: _("Start"),                 action: 'start',     is_default: true },
+            { title: _("Stop"),                  action: 'stop' },
+            { title: _("Restart"),               action: 'restart' },
+            { title: _("Reload"),                action: 'reload' },
+            { title: _("Reload or Restart"),     action: 'reload-or-restart' },
+            { title: _("Try Restart"),           action: 'try-restart' },
+            { title: _("Reload or Try Restart"), action: 'reload-or-try-restart' },
+            { title: _("Isolate"),               action: 'isolate' }
+        ];
+
+        self.unit_action_btn = cockpit_action_btn(function (op) { self.action(op); },
+                                                  unit_action_spec);
+        $('#service-unit-action-btn').html(self.unit_action_btn);
+
+        var file_action_spec = [
+            { title: _("Enable"),                action: 'enable',     is_default: true },
+            { title: _("Enable Forcefully"),     action: 'force-enable' },
+            { title: _("Disable"),               action: 'disable' },
+            { title: _("Preset"),                action: 'preset' },
+            { title: _("Preset Forcefully"),     action: 'force-preset' },
+            { title: _("Mask"),                  action: 'mask' },
+            { title: _("Mask Forcefully"),       action: 'force-mask' },
+            { title: _("Unmask"),                action: 'unmask' }
+        ];
+
+        self.file_action_btn = cockpit_action_btn(function (op) { self.action(op); },
+                                                  file_action_spec);
+        $('#service-file-action-btn').html(self.file_action_btn);
+
+        $("#service-refresh").on('click', function () {
+            self.update();
+        });
+
+        $("#service-instantiate").on('click', function () {
+            var tp = self.service.indexOf("@");
+            var sp = self.service.lastIndexOf(".");
+            if (tp != -1) {
+                var s = self.service.substring(0, tp+1);
+                s = s + systemd_param_esc($("#service-parameter").val());
+                if (sp != -1)
+                    s = s + self.service.substring(sp);
+                cockpit_go_down ({ page: "service", s: s });
+            }
+        });
+    },
+
+    enter: function() {
         var me = this;
-
-        if (first_visit) {
-            var unit_action_spec = [
-                { title: _("Start"),                 action: 'start',     is_default: true },
-                { title: _("Stop"),                  action: 'stop' },
-                { title: _("Restart"),               action: 'restart' },
-                { title: _("Reload"),                action: 'reload' },
-                { title: _("Reload or Restart"),     action: 'reload-or-restart' },
-                { title: _("Try Restart"),           action: 'try-restart' },
-                { title: _("Reload or Try Restart"), action: 'reload-or-try-restart' },
-                { title: _("Isolate"),               action: 'isolate' }
-            ];
-
-            me.unit_action_btn = cockpit_action_btn(function (op) { me.action(op); },
-                                                    unit_action_spec);
-            $('#service-unit-action-btn').html(me.unit_action_btn);
-
-            var file_action_spec = [
-                { title: _("Enable"),                action: 'enable',     is_default: true },
-                { title: _("Enable Forcefully"),     action: 'force-enable' },
-                { title: _("Disable"),               action: 'disable' },
-                { title: _("Preset"),                action: 'preset' },
-                { title: _("Preset Forcefully"),     action: 'force-preset' },
-                { title: _("Mask"),                  action: 'mask' },
-                { title: _("Mask Forcefully"),       action: 'force-mask' },
-                { title: _("Unmask"),                action: 'unmask' }
-            ];
-
-            me.file_action_btn = cockpit_action_btn(function (op) { me.action(op); },
-                                                    file_action_spec);
-            $('#service-file-action-btn').html(me.file_action_btn);
-
-            $("#service-refresh").on('click', function () {
-                me.update();
-            });
-
-            $("#service-instantiate").on('click', function () {
-                var tp = me.service.indexOf("@");
-                var sp = me.service.lastIndexOf(".");
-                if (tp != -1) {
-                    var s = me.service.substring(0, tp+1);
-                    s = s + systemd_param_esc($("#service-parameter").val());
-                    if (sp != -1)
-                        s = s + me.service.substring(sp);
-                    cockpit_go_down ({ page: "service", s: s });
-                }
-            });
-        }
 
         me.address = cockpit_get_page_param('machine', 'server') || "localhost";
         me.client = $cockpit.dbus(me.address);

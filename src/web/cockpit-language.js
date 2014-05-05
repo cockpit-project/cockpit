@@ -26,7 +26,7 @@ PageDisplayLanguageDialog.prototype = {
         return C_("page-title", "Choose Display Language");
     },
 
-    enter: function(first_visit) {
+    enter: function() {
         // Note: we may not have D-Bus connection available (could be invoked from
         // the login page) so we need to use the cockpitdyn.js mechanism to obtain
         // info to display

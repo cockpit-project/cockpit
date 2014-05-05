@@ -26,7 +26,7 @@ PageCpuStatus.prototype = {
         return C_("page-title", "CPU Status");
     },
 
-    enter: function(first_visit) {
+    enter: function() {
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.client = $cockpit.dbus(this.address);

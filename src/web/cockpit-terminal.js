@@ -33,7 +33,7 @@ PageTerminal.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
+    enter: function() {
         var self = this;
         self.term = new Terminal({
             cols: 80,

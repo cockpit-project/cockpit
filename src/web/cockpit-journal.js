@@ -392,14 +392,16 @@ PageJournal.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
-        var me = this;
+    setup: function() {
+        var self = this;
 
-        if (first_visit) {
-            $('#journal-box').on('click', '.cockpit-logline', function (event) {
-                me.details($(this).data('cockpit-cursor'));
-            });
-        }
+        $('#journal-box').on('click', '.cockpit-logline', function (event) {
+            self.details($(this).data('cockpit-cursor'));
+        });
+    },
+
+    enter: function() {
+        var me = this;
 
         $('#content-header-extra').
             append('<div class="btn-group" id="journal-current-day-menu"> \
@@ -557,7 +559,7 @@ PageJournalDetails.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
+    enter: function() {
         var journal = PageJournalDetails.journal;
 
         var out = $('#journal-details-fields');

@@ -35,14 +35,14 @@ PageSetupServer.prototype = {
         this.local_client = null;
     },
 
-    enter: function(first_visit) {
-        var self = this;
+    setup: function() {
+        $('#dashboard_setup_cancel').on('click', $.proxy(this, 'cancel'));
+        $('#dashboard_setup_prev').on('click', $.proxy(this, 'prev'));
+        $('#dashboard_setup_next').on('click', $.proxy(this, 'next'));
+    },
 
-        if (first_visit) {
-            $('#dashboard_setup_cancel').on('click', $.proxy(this, 'cancel'));
-            $('#dashboard_setup_prev').on('click', $.proxy(this, 'prev'));
-            $('#dashboard_setup_next').on('click', $.proxy(this, 'next'));
-        }
+    enter: function() {
+        var self = this;
 
         self.client = null;
         self.address = null;

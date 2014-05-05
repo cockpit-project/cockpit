@@ -160,11 +160,11 @@ PageAccounts.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
-        if (first_visit) {
-            $('#accounts-create').on('click', $.proxy (this, "create"));
-        }
+    setup: function() {
+        $('#accounts-create').on('click', $.proxy (this, "create"));
+    },
 
+    enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.client = $cockpit.dbus(this.address);
 
@@ -249,12 +249,13 @@ PageAccountsCreate.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
-        if (first_visit) {
-            $('#accounts-create-cancel').on('click', $.proxy(this, "cancel"));
-            $('#accounts-create-create').on('click', $.proxy(this, "create"));
-            $('#accounts-create-dialog input').on('keyup change', $.proxy(this, "update"));
-        }
+    setup: function() {
+        $('#accounts-create-cancel').on('click', $.proxy(this, "cancel"));
+        $('#accounts-create-create').on('click', $.proxy(this, "create"));
+        $('#accounts-create-dialog input').on('keyup change', $.proxy(this, "update"));
+    },
+
+    enter: function() {
         $('#accounts-create-user-name').val("");
         $('#accounts-create-real-name').val("");
         $('#accounts-create-pw1').val("");
@@ -316,19 +317,19 @@ PageAccount.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
-        if (first_visit) {
-            $('#account-pic').on('click', $.proxy (this, "trigger_change_avatar"));
-            $('#account-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
-            $('#account-real-name').on('change', $.proxy (this, "change_real_name"));
-            $('#account-real-name').on('keydown', $.proxy (this, "real_name_edited"));
-            $('#account-set-password').on('click', $.proxy (this, "set_password"));
-            $('#account-delete').on('click', $.proxy (this, "delete_account"));
-            $('#account-logout').on('click', $.proxy (this, "logout_account"));
-            $('#account-change-roles').on('click', $.proxy (this, "change_roles"));
-            $('#account-locked').on('change', $.proxy (this, "change_locked"));
-        }
+    setup: function() {
+        $('#account-pic').on('click', $.proxy (this, "trigger_change_avatar"));
+        $('#account-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
+        $('#account-real-name').on('change', $.proxy (this, "change_real_name"));
+        $('#account-real-name').on('keydown', $.proxy (this, "real_name_edited"));
+        $('#account-set-password').on('click', $.proxy (this, "set_password"));
+        $('#account-delete').on('click', $.proxy (this, "delete_account"));
+        $('#account-logout').on('click', $.proxy (this, "logout_account"));
+        $('#account-change-roles').on('click', $.proxy (this, "change_roles"));
+        $('#account-locked').on('change', $.proxy (this, "change_locked"));
+    },
 
+    enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.client = $cockpit.dbus(this.address);
 
@@ -515,78 +516,79 @@ PageAccountChangeAvatar.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
-        var me = this;
+    setup: function() {
+        var self = this;
 
-        if (first_visit) {
-            $('#account-change-avatar-cancel').on('click', $.proxy(this, "cancel"));
-            $('#account-change-avatar-apply').on('click', $.proxy(this, "apply"));
+        $('#account-change-avatar-cancel').on('click', $.proxy(this, "cancel"));
+        $('#account-change-avatar-apply').on('click', $.proxy(this, "apply"));
 
-            var $canvas = $('#account-change-avatar-overlay');
-            this.canvas = $canvas[0];
-            this.canvas2d = this.canvas.getContext("2d");
+        var $canvas = $('#account-change-avatar-overlay');
+        this.canvas = $canvas[0];
+        this.canvas2d = this.canvas.getContext("2d");
 
-            $canvas.on('mousedown', function (ev) {
-                var offset = $canvas.offset();
-                var xoff = ev.pageX - offset.left - me.crop_x;
-                var yoff = ev.pageY - offset.top - me.crop_y;
+        $canvas.on('mousedown', function (ev) {
+            var offset = $canvas.offset();
+            var xoff = ev.pageX - offset.left - self.crop_x;
+            var yoff = ev.pageY - offset.top - self.crop_y;
 
-                var orig_x = me.crop_x;
-                var orig_y = me.crop_y;
-                var orig_s = me.crop_s;
+            var orig_x = self.crop_x;
+            var orig_y = self.crop_y;
+            var orig_s = self.crop_s;
 
-                var proj_sign, dx_sign, dy_sign, ds_sign;
+            var proj_sign, dx_sign, dy_sign, ds_sign;
 
-                var h_w = cockpit_crop_handle_width;
+            var h_w = cockpit_crop_handle_width;
 
-                if (xoff > 0 && yoff > 0 && xoff < me.crop_s && yoff < me.crop_s) {
-                    if (xoff < h_w && yoff < h_w) {
-                        // top left
-                        proj_sign = 1;
-                        dx_sign = 1;
-                        dy_sign = 1;
-                        ds_sign = -1;
-                    } else if (xoff > me.crop_s - h_w && yoff < h_w) {
-                        // top right
-                        proj_sign = -1;
-                        dx_sign = 0;
-                        dy_sign = -1;
-                        ds_sign = 1;
-                    } else if (xoff < h_w && yoff > me.crop_s - h_w) {
-                        // bottom left
-                        proj_sign = -1;
-                        dx_sign = 1;
-                        dy_sign = 0;
-                        ds_sign = -1;
-                    } else if (xoff > me.crop_s - h_w && yoff > me.crop_s - h_w) {
-                        // bottom right
-                        proj_sign = 1;
-                        dx_sign = 0;
-                        dy_sign = 0;
-                        ds_sign = 1;
-                    } else {
-                        // center
-                        proj_sign = 0;
-                    }
-
-                    $('body').on('mousemove', function (ev) {
-                        var x = ev.pageX - offset.left - xoff;
-                        var y = ev.pageY - offset.top - yoff;
-                        if (proj_sign === 0)
-                            me.set_crop (x, y, orig_s, true);
-                        else {
-                            var d = Math.floor((x - orig_x + proj_sign * (y - orig_y)) / 2);
-                            me.set_crop (orig_x + dx_sign*d, orig_y + dy_sign*d, orig_s + ds_sign*d, false);
-                        }
-                    });
-                    $('body').on('mouseup', function (ev) {
-                        $('body').off('mouseup');
-                        $('body').off('mousemove');
-                    });
+            if (xoff > 0 && yoff > 0 && xoff < self.crop_s && yoff < self.crop_s) {
+                if (xoff < h_w && yoff < h_w) {
+                    // top left
+                    proj_sign = 1;
+                    dx_sign = 1;
+                    dy_sign = 1;
+                    ds_sign = -1;
+                } else if (xoff > self.crop_s - h_w && yoff < h_w) {
+                    // top right
+                    proj_sign = -1;
+                    dx_sign = 0;
+                    dy_sign = -1;
+                    ds_sign = 1;
+                } else if (xoff < h_w && yoff > self.crop_s - h_w) {
+                    // bottom left
+                    proj_sign = -1;
+                    dx_sign = 1;
+                    dy_sign = 0;
+                    ds_sign = -1;
+                } else if (xoff > self.crop_s - h_w && yoff > self.crop_s - h_w) {
+                    // bottom right
+                    proj_sign = 1;
+                    dx_sign = 0;
+                    dy_sign = 0;
+                    ds_sign = 1;
+                } else {
+                    // center
+                    proj_sign = 0;
                 }
-            });
-        }
 
+                $('body').on('mousemove', function (ev) {
+                    var x = ev.pageX - offset.left - xoff;
+                    var y = ev.pageY - offset.top - yoff;
+                    if (proj_sign === 0)
+                        self.set_crop (x, y, orig_s, true);
+                    else {
+                        var d = Math.floor((x - orig_x + proj_sign * (y - orig_y)) / 2);
+                        self.set_crop (orig_x + dx_sign*d, orig_y + dy_sign*d, orig_s + ds_sign*d, false);
+                    }
+                });
+                $('body').on('mouseup', function (ev) {
+                    $('body').off('mouseup');
+                    $('body').off('mousemove');
+                });
+            }
+        });
+    },
+
+    enter: function() {
+        var me = this;
         var size = Math.min (this.canvas.width, this.canvas.height);
         this.set_crop ((this.canvas.width - size) / 2, (this.canvas.height - size) / 2, size, true);
     },
@@ -682,12 +684,12 @@ PageAccountChangeRoles.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
-        var groups, r, g, i;
+    setup: function() {
+        $('#account-change-roles-apply').on('click', $.proxy(this, "apply"));
+    },
 
-        if (first_visit) {
-            $('#account-change-roles-apply').on('click', $.proxy(this, "apply"));
-        }
+    enter: function() {
+        var groups, r, g, i;
 
         this.client = PageAccountChangeRoles.account._client;
         var manager = this.client.get ("/com/redhat/Cockpit/Accounts",
@@ -767,10 +769,11 @@ PageAccountConfirmDelete.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
-        if (first_visit) {
-            $('#account-confirm-delete-apply').on('click', $.proxy(this, "apply"));
-        }
+    setup: function() {
+        $('#account-confirm-delete-apply').on('click', $.proxy(this, "apply"));
+    },
+
+    enter: function() {
         $('#account-confirm-delete-files').prop('checked', false);
     },
 
@@ -807,11 +810,12 @@ PageAccountSetPassword.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
-        if (first_visit) {
-            $('#account-set-password-apply').on('click', $.proxy(this, "apply"));
-            $('#account-set-password-dialog input').on('keyup change', $.proxy(this, "update"));
-        }
+    setup: function() {
+        $('#account-set-password-apply').on('click', $.proxy(this, "apply"));
+        $('#account-set-password-dialog input').on('keyup change', $.proxy(this, "update"));
+    },
+
+    enter: function() {
         this.update ();
     },
 

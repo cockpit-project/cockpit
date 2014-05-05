@@ -33,15 +33,17 @@ PageDashboard.prototype = {
         return C_("page-title", "All");
     },
 
-    enter: function(first_visit) {
+    setup: function() {
         var self = this;
 
-        if (first_visit) {
-            $('#dashboard-local-reconnect').on('click', function() {
-                if (self.local_client)
-                    self.local_client.connect();
-            });
-        }
+        $('#dashboard-local-reconnect').on('click', function() {
+            if (self.local_client)
+                self.local_client.connect();
+        });
+    },
+
+    enter: function() {
+        var self = this;
 
         self.local_client = $cockpit.dbus("localhost");
         $(self.local_client).on('state-change.dashboard-local', $.proxy(self, "local_client_state_change"));

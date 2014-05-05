@@ -123,45 +123,42 @@ function make_dict_key(dict) {
 }
 
 function dbus(address, options, auto_reconnect) {
-    var key, client;
+    var key, handle;
 
     options = $.extend({host: address}, options);
     key = make_dict_key(options);
-    client = dbus_clients[key];
+    handle = dbus_clients[key];
 
-    if (!client) {
+    if (!handle) {
         dbus_debug("Creating dbus client for %s", key);
-        client = new DBusClient(options.host, options);
-        client._get_dbus_client_leases = 0;
-        client._get_dbus_client_key = key;
-        dbus_clients[key] = client;
+        handle = { refcount: 1, client: new DBusClient(options.host, options) };
+        dbus_clients[key] = handle;
+
+        handle.client.release = function() {
+            dbus_debug("Releasing %s", key);
+            // Only really release it after a delay
+            setTimeout(function () {
+                if (!handle.refcount) {
+                    console.warn("Releasing unreffed client");
+                } else {
+                    handle.refcount -= 1;
+                    if (handle.refcount === 0) {
+                        delete dbus_clients[key];
+                        dbus_debug("Closing %s", key);
+                        handle.client.close("unused");
+                    }
+                }
+            }, 10000);
+        };
     } else {
         dbus_debug("Getting dbus client for %s", key);
+        handle.refcount += 1;
     }
 
-    client._get_dbus_client_leases += 1;
-    if (client.state == "closed" && auto_reconnect !== false)
-        client.connect();
+    if (handle.client.state == "closed" && auto_reconnect !== false)
+        handle.client.connect();
 
-    function release() {
-        dbus_debug("Releasing %s", key);
-        // Only really release it after a delay
-        setTimeout(function () {
-            if (!client._get_dbus_client_leases) {
-                console.warn("Releasing unleased client");
-            } else {
-                client._get_dbus_client_leases -= 1;
-                if (client._get_dbus_client_leases === 0) {
-                    delete dbus_clients[key];
-                    dbus_debug("Closing %s", key);
-                    client.close("unused");
-                }
-            }
-        }, 10000);
-    }
-
-    client.release = release;
-    return client;
+    return handle.client;
 }
 
 function _logged_out() {

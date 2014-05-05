@@ -26,17 +26,19 @@ PageRealms.prototype = {
         return C_("page-title", "Domains");
     },
 
-    enter: function(first_visit) {
+    setup: function() {
         var self = this;
 
-        if (first_visit) {
-            $("#realms-join").click (function (e) {
-                if (!cockpit_check_role ('cockpit-realm-admin', self.client))
-                    return;
-                cockpit_realms_op_set_parameters (self.realm_manager, 'join', '', { });
-                $('#realms-op').modal('show');
-            });
-        }
+        $("#realms-join").click (function (e) {
+            if (!cockpit_check_role ('cockpit-realm-admin', self.client))
+                return;
+            cockpit_realms_op_set_parameters (self.realm_manager, 'join', '', { });
+            $('#realms-op').modal('show');
+        });
+    },
+
+    enter: function() {
+        var self = this;
 
         self.address = cockpit_get_page_param('machine', 'server') || "localhost";
         self.client = $cockpit.dbus(self.address);
@@ -159,35 +161,37 @@ PageRealmsOp.prototype = {
     show: function() {
     },
 
-    enter: function(first_visit) {
+    setup: function() {
+        var self = this;
+
+        $("#realms-op-apply").on("click", function (e) {
+            self.apply();
+        });
+        $("#realms-op-cancel").on("click", function (e) {
+            self.cancel();
+        });
+        $("#realms-op-address").on("keyup", function (e) {
+            self.maybe_check_realm();
+        });
+        $("#realms-op-address").on("changed", function (e) {
+            self.maybe_check_realm();
+        });
+        $(".realms-op-field").on("keydown", function (e) {
+            if (e.which == 13)
+                self.apply();
+        });
+
+        $("#realms-op-auth").on('change', function (e) {
+            self.update_cred_fields();
+        });
+
+        $("#realms-op-software").on('change', function (e) {
+            self.update_auth_methods();
+        });
+    },
+
+    enter: function() {
         var me = this;
-
-        if (first_visit) {
-            $("#realms-op-apply").on("click", function (e) {
-                me.apply();
-            });
-            $("#realms-op-cancel").on("click", function (e) {
-                me.cancel();
-            });
-            $("#realms-op-address").on("keyup", function (e) {
-                me.maybe_check_realm();
-            });
-            $("#realms-op-address").on("changed", function (e) {
-                me.maybe_check_realm();
-            });
-            $(".realms-op-field").on("keydown", function (e) {
-                if (e.which == 13)
-                    me.apply();
-            });
-
-            $("#realms-op-auth").on('change', function (e) {
-                me.update_cred_fields();
-            });
-
-            $("#realms-op-software").on('change', function (e) {
-                me.update_auth_methods();
-            });
-        }
 
         me.realm_manager = PageRealmsOp.manager;
         me.op = PageRealmsOp.op;

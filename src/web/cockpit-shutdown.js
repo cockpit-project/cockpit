@@ -26,32 +26,34 @@ PageShutdown.prototype = {
         return C_("page-title", "Shutdown & Restart");
     },
 
-    enter: function(first_visit) {
+    setup: function() {
+        var self = this;
+
+        $("#shutdown-shutdown").on("click", function() {
+            self.shutdown('shutdown');
+        });
+        $("#shutdown-restart").on("click", function() {
+            self.shutdown('restart');
+        });
+        $("#shutdown-cancel").on("click", function() {
+            $("#shutdown-cancel").prop('disable', true);
+            self.cancel();
+        });
+        $("#shutdown-delay").on('change', function () {
+            self.update_delay();
+        });
+        self.update_delay();
+        $("#shutdown-exact-hours,#shutdown-exact-minutes").on('keyup change', function() {
+            self.check_valid_delay();
+        });
+
+        $("#shutdown-confirm-apply").on('click', function() {
+            self.confirm_apply();
+        });
+    },
+
+    enter: function() {
         var me = this;
-
-        if (first_visit) {
-            $("#shutdown-shutdown").on("click", function() {
-                me.shutdown('shutdown');
-            });
-            $("#shutdown-restart").on("click", function() {
-                me.shutdown('restart');
-            });
-            $("#shutdown-cancel").on("click", function() {
-                $("#shutdown-cancel").prop('disable', true);
-                me.cancel();
-            });
-            $("#shutdown-delay").on('change', function () {
-                me.update_delay();
-            });
-            me.update_delay();
-            $("#shutdown-exact-hours,#shutdown-exact-minutes").on('keyup change', function() {
-                me.check_valid_delay();
-            });
-
-            $("#shutdown-confirm-apply").on('click', function() {
-                me.confirm_apply();
-            });
-        }
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.client = $cockpit.dbus(this.address);

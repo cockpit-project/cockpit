@@ -26,17 +26,19 @@ PageSystemInformation.prototype = {
         return C_("page-title", "System Information");
     },
 
-    enter: function(first_visit) {
+    setup: function() {
         var self = this;
 
-        if (first_visit) {
-            $('#system_information_change_hostname_button').on('click', function () {
-                if (!cockpit_check_role ('wheel', self.client))
-                    return;
-                PageSystemInformationChangeHostname.client = self.client;
-                $('#system_information_change_hostname').modal('show');
-            });
-        }
+        $('#system_information_change_hostname_button').on('click', function () {
+            if (!cockpit_check_role ('wheel', self.client))
+                return;
+            PageSystemInformationChangeHostname.client = self.client;
+            $('#system_information_change_hostname').modal('show');
+        });
+    },
+
+    enter: function() {
+        var self = this;
 
         self.address = cockpit_get_page_param('machine', 'server') || "localhost";
         self.client = $cockpit.dbus(self.address);
@@ -124,14 +126,14 @@ PageSystemInformationChangeHostname.prototype = {
         return C_("page-title", "Change Hostname");
     },
 
-    enter: function(first_visit) {
-        var self = this;
+    setup: function() {
+        $("#sich-pretty-hostname").on("keyup", $.proxy(this._on_full_name_changed, this));
+        $("#sich-hostname").on("keyup", $.proxy(this._on_name_changed, this));
+        $("#sich-apply-button").on("click", $.proxy(this._on_apply_button, this));
+    },
 
-        if (first_visit) {
-            $("#sich-pretty-hostname").on("keyup", $.proxy(this._on_full_name_changed, this));
-            $("#sich-hostname").on("keyup", $.proxy(this._on_name_changed, this));
-            $("#sich-apply-button").on("click", $.proxy(this._on_apply_button, this));
-        }
+    enter: function() {
+        var self = this;
 
         self.manager = PageSystemInformationChangeHostname.client.get("/com/redhat/Cockpit/Manager",
                                                                       "com.redhat.Cockpit.Manager");

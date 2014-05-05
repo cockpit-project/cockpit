@@ -286,7 +286,9 @@ function cockpit_page_enter (id)
 
     if (page) {
         // cockpit_debug("enter() for page with id " + id);
-        page.enter(first_visit);
+        if (first_visit && page.setup)
+            page.setup();
+        page.enter();
     }
     cockpit_visited_pages[id] = true;
     phantom_checkpoint ();

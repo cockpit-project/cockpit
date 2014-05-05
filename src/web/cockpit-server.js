@@ -44,13 +44,13 @@ PageServer.prototype = {
             return fallback;
     },
 
-    enter: function(first_visit) {
-        var self = this;
+    setup: function() {
+        $('#server-avatar').on('click', $.proxy (this, "trigger_change_avatar"));
+        $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
+    },
 
-        if (first_visit) {
-            $('#server-avatar').on('click', $.proxy (this, "trigger_change_avatar"));
-            $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
-        }
+    enter: function() {
+        var self = this;
 
         self.address = cockpit_get_page_param('machine') || "localhost";
         self.client = $cockpit.dbus(self.address);

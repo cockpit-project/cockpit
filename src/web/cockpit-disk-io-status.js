@@ -26,7 +26,7 @@ PageDiskIOStatus.prototype = {
         return C_("page-title", "Disk I/O");
     },
 
-    enter: function(first_visit) {
+    enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.client = $cockpit.dbus(this.address);
 

@@ -257,17 +257,17 @@ PageContainers.prototype = {
         return C_("page-title", "Containers");
     },
 
-    enter: function(first_visit) {
-        var self = this;
+    setup: function() {
+        this.container_filter_btn =
+            cockpit_select_btn($.proxy(this, "filter"),
+                               [ { title: _("All"),                 choice: 'all',  is_default: true },
+                                 { title: _("Running"),             choice: 'running' }
+                               ]);
+        $('#containers-containers .panel-heading span').append(this.container_filter_btn);
+    },
 
-        if (first_visit) {
-            this.container_filter_btn =
-                cockpit_select_btn($.proxy(this, "filter"),
-                                   [ { title: _("All"),                 choice: 'all',  is_default: true },
-                                     { title: _("Running"),             choice: 'running' }
-                                   ]);
-            $('#containers-containers .panel-heading span').append(this.container_filter_btn);
-        }
+    enter: function() {
+        var self = this;
 
         var client = get_docker_client();
         if (client != this.client) {
@@ -532,17 +532,17 @@ PageRunImage.prototype = {
     leave: function() {
     },
 
-    enter: function(first_visit) {
+    setup: function() {
+        $("#containers-run-image-run").on('click', $.proxy(this, "run"));
+
+        /* TODO: Get max memory from elsewhere */
+        this.memory_slider = new MemorySlider($("#containers-run-image-memory"),
+                                              10*1024*1024, 2*1024*1024*1024);
+        this.cpu_slider = new CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
+    },
+
+    enter: function() {
         var page = this;
-
-        if (first_visit) {
-            $("#containers-run-image-run").on('click', $.proxy(this, "run"));
-
-            /* TODO: Get max memory from elsewhere */
-            this.memory_slider = new MemorySlider($("#containers-run-image-memory"),
-                    10*1024*1024, 2*1024*1024*1024);
-            this.cpu_slider = new CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
-        }
 
         var info = PageRunImage.image_info;
         docker_debug("run-image", info);
@@ -694,40 +694,42 @@ PageContainerDetails.prototype = {
         }
     },
 
-    enter: function(first_visit) {
+    setup: function() {
         var self = this;
 
-        if (first_visit) {
-            $('#container-details-start').on('click', $.proxy(this, "start_container"));
-            $('#container-details-stop').on('click', $.proxy(this, "stop_container"));
-            $('#container-details-restart').on('click', $.proxy(this, "restart_container"));
-            $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
+        $('#container-details-start').on('click', $.proxy(this, "start_container"));
+        $('#container-details-stop').on('click', $.proxy(this, "stop_container"));
+        $('#container-details-restart').on('click', $.proxy(this, "restart_container"));
+        $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
 
-            /* TODO: Get max memory from elsewhere */
-            self.memory_limit = new MemorySlider($("#container-resources-dialog .memory-slider"),
-                                                 10*1024*1024, 2*1024*1024*1024);
-            self.cpu_priority = new CpuSlider($("#container-resources-dialog .cpu-slider"),
-                                              2, 1000000);
+        /* TODO: Get max memory from elsewhere */
+        self.memory_limit = new MemorySlider($("#container-resources-dialog .memory-slider"),
+                                             10*1024*1024, 2*1024*1024*1024);
+        self.cpu_priority = new CpuSlider($("#container-resources-dialog .cpu-slider"),
+                                          2, 1000000);
 
-            self.memory_usage = $('#container-details-memory .bar-row');
-            $('#container-resources-dialog').
-                on("show.bs.modal", function() {
-                    var info = self.client.containers[self.container_id];
+        self.memory_usage = $('#container-details-memory .bar-row');
+        $('#container-resources-dialog').
+            on("show.bs.modal", function() {
+                var info = self.client.containers[self.container_id];
 
-                    /* Fill in the resource dialog */
-                    $(this).find(".container-name").text(self.name);
-                    self.memory_limit.value = info.MemoryLimit || undefined;
-                    self.cpu_priority.value = info.CpuPriority || undefined;
-                }).
-                find(".btn-primary").on("click", function() {
-                    self.client.change_memory_limit(self.container_id, self.memory_limit.value);
-                    var swap = self.memory_limit.value;
-                    if (!isNaN(swap))
-                        swap *= 2;
-                    self.client.change_swap_limit(self.container_id, swap);
-                    self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
-                });
-        }
+                /* Fill in the resource dialog */
+                $(this).find(".container-name").text(self.name);
+                self.memory_limit.value = info.MemoryLimit || undefined;
+                self.cpu_priority.value = info.CpuPriority || undefined;
+            }).
+            find(".btn-primary").on("click", function() {
+                self.client.change_memory_limit(self.container_id, self.memory_limit.value);
+                var swap = self.memory_limit.value;
+                if (!isNaN(swap))
+                    swap *= 2;
+                self.client.change_swap_limit(self.container_id, swap);
+                self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
+            });
+    },
+
+    enter: function() {
+        var self = this;
 
         var commit = $('#container-commit-dialog')[0];
         $(commit).
@@ -942,14 +944,13 @@ PageImageDetails.prototype = {
         $(this.client).off('.container-details');
     },
 
-    enter: function(first_visit) {
+    setup: function() {
+        $('#image-details-run').on('click', $.proxy(this, "run_image"));
+        $('#image-details-delete').on('click', $.proxy(this, "delete_image"));
+    },
+
+    enter: function() {
         var self = this;
-
-        if (first_visit) {
-
-            $('#image-details-run').on('click', $.proxy(this, "run_image"));
-            $('#image-details-delete').on('click', $.proxy(this, "delete_image"));
-        }
 
         this.client = get_docker_client();
         this.image_id = cockpit_get_page_param('id');

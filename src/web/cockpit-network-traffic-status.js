@@ -27,7 +27,7 @@ PageNetworkTrafficStatus.prototype =
         return C_("page-title", "Network Traffic");
     },
 
-    enter: function(first_visit) {
+    enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.client = $cockpit.dbus(this.address);
 

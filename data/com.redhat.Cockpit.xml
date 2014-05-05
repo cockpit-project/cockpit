@@ -277,49 +277,6 @@
   </interface>
 
   <!--
-      com.redhat.Cockpit.Network:
-      @short_description: Network singleton
-
-      Contains system-global networking state.  This object is located
-      at <literal>/com/redhat/Cockpit/Network</literal>.
-  -->
-  <interface name="com.redhat.Cockpit.Network">
-  </interface>
-
-  <!--
-      com.redhat.Cockpit.Network.Netinterface:
-      @short_description: A single device
-
-      Represents a running network interface; the primary key is the
-      "ifindex".
-  -->
-  <interface name="com.redhat.Cockpit.Network.Netinterface">
-    <!-- Name: Assigned interface name (primary key) -->
-    <property name="Name" type="s" access="read"/>
-    <!-- HwAddress: For e.g. Ethernet devices, this is the MAC.  If
-         unavailable, will be the empty string. -->
-    <property name="HwAddress" type="s" access="read"/>
-
-    <property name="IP6ConfigMode" type="s" access="read"/>
-
-    <!-- IP6Addresses: scope:global addresses -->
-    <property name="IP6Addresses" type="a(yyyyyyyyyyyyyyyyu)" access="read"/>
-    <!-- IP6LinkAddress: The IPv6 link-local address, if any -->
-    <property name="IP6LinkAddress" type="(yyyyyyyyyyyyyyyyu)" access="read"/>
-    <!-- IP6Gateway: IPv6 gateway host for this interface-->
-    <property name="IP6Gateway" type="(yyyyyyyyyyyyyyyyu)" access="read"/>
-
-    <property name="IP4ConfigMode" type="s" access="read"/>
-
-    <!-- IP4Addresses: IPv4 addresses -->
-    <property name="IP4Addresses" type="a(yyyyu)" access="read"/>
-    <!-- IP4Gateway: IPv4 gateway host for this interface-->
-    <property name="IP4Gateway" type="(yyyyu)" access="read"/>
-    <!-- IP4Broadcast: IPv4 broadcast mask -->
-    <property name="IP4Broadcast" type="(yyyy)" access="read"/>
-  </interface>
-
-  <!--
       com.redhat.Cockpit.Job:
       @short_description: Information about running operations.
 

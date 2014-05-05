@@ -243,6 +243,7 @@ verify_knownhost (CockpitSshData *data)
         case SSH_SERVER_KNOWN_OK:
         case SSH_SERVER_ERROR:
           g_assert_not_reached ();
+          break;
         case SSH_SERVER_KNOWN_CHANGED:
           g_message ("%s: %s host key for server has changed to: %s",
                      data->logname, type, data->host_fingerprint);

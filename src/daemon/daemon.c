@@ -27,7 +27,6 @@
 #include "auth.h"
 #include "manager.h"
 #include "machines.h"
-#include "network.h"
 #include "cpumonitor.h"
 #include "memorymonitor.h"
 #include "networkmonitor.h"
@@ -189,7 +188,6 @@ daemon_constructed (GObject *_object)
   Daemon *daemon = DAEMON (_object);
   CockpitManager *manager;
   CockpitMachines *machines;
-  CockpitNetwork *network = NULL;
   CockpitResourceMonitor *monitor;
   CockpitMultiResourceMonitor *multi_monitor;
   CockpitRealms *realms;
@@ -226,14 +224,6 @@ daemon_constructed (GObject *_object)
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (manager);
   g_object_unref (object);
-
-  /* /com/redhat/Cockpit/Network */
-  network = network_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Network");
-  cockpit_object_skeleton_set_network (object, network);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_clear_object (&network);
-  g_clear_object (&object);
 
   /* /com/redhat/Cockpit/CpuMonitor */
   monitor = cpu_monitor_new (daemon);

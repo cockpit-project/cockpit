@@ -430,6 +430,17 @@ send_seed (CockpitDBusJson *self)
   json_builder_set_member_name (builder, "command");
   json_builder_add_string_value (builder, "seed");
 
+  json_builder_set_member_name (builder, "options");
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "byteorder");
+  if (G_BYTE_ORDER == G_LITTLE_ENDIAN)
+    json_builder_add_string_value (builder, "le");
+  else if (G_BYTE_ORDER == G_BIG_ENDIAN)
+    json_builder_add_string_value (builder, "be");
+  else
+    json_builder_add_string_value (builder, "");
+  json_builder_end_object (builder);
+
   json_builder_set_member_name (builder, "data");
   json_builder_begin_object (builder);
 

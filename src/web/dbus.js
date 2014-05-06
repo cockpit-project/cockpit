@@ -64,6 +64,13 @@
    You can use 'iface.call' even on an empty proxy and the call will
    be delayed until the proxy (and its client) are ready to carry it
    out.
+
+   - client.byteorder
+
+   Indicates the byte order of the machine that the service runs on.
+   The value is one of the strings "le" (for little endian) or "be"
+   (for big endian).
+
  */
 
 var phantom_checkpoint = function () { };
@@ -262,6 +269,7 @@ DBusClient.prototype = {
         this._call_reply_map = {};
         this._last_error = null;
         this.error_details = {};
+        this.byteorder = null;
         this.connect();
     },
 
@@ -299,7 +307,7 @@ DBusClient.prototype = {
             dbus_debug("got message command=" + decoded.command);
 
             if (decoded.command == "seed") {
-                client._handle_seed(decoded.data, decoded.config);
+                client._handle_seed(decoded.data, decoded.options);
             } else if (decoded.command == "interface-properties-changed") {
                 client._handle_properties_changed(decoded.data);
             } else if (decoded.command == "object-added") {
@@ -348,7 +356,9 @@ DBusClient.prototype = {
         this._last_error = data;
     },
 
-    _handle_seed : function(data, config) {
+    _handle_seed : function(data, options) {
+        if (options && options.byteorder)
+            this.byteorder = options.byteorder;
         for (var objpath in data) {
             if (objpath in this._objmap) {
                 this._objmap[objpath]._reseed(data[objpath], this);

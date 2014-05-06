@@ -35,31 +35,62 @@
    * "object-paths": An array of object paths to start monitoring in
      the case of a non o.f.DBus.ObjectManager based service.
 
+   A DBusClient has a local data structure that describes (a subset
+   of) the objects of the service that it represents, the interfaces
+   of those objects, and the properties of those interfaces.  This is
+   called the "object tree".
+
    A client immediately starts to connect to the service in the
-   background and retrieves its object/interface/property tree.  Once
-   that is done, 'client.state' changes to "ready" and the client
-   emits a "state-changed" signal.
+   background and lazily populates its object tree.  While that
+   happens, the client emits the appropriate notification signals.
 
-   With some care, you can use a client before it is 'ready'.
+   - $(client).on('objectAdded', function (event, obj) { })
+   - $(client).on('objectRemoved', function (event, obj) { })
+   - $(client).on('interfaceAdded', function (event, obj, iface) { })
+   - $(client).on('interfaceRemoved', function (event, obj, iface) { })
+   - $(client).on('propertiesChanged', function (event, obj, iface) { })
 
-   - iface = client.lookup(objpath, iface)
+   For monitoring changes to the object tree of the client.
 
-   If the client knows about a object at 'objpath' with the given
+   The 'objectAdded' signal announces that a new object, complete with
+   all its interfaces and their properties, has appeared in the object
+   tree.  You wont receive 'interfaceAdded' signals for the interfaces
+   that are already attached to that object, for example.
+
+   Likewise, the 'interfaceAdded' signal announces a new interface,
+   complete with all its properties.
+
+   There is no guarantee in what order these signals are emitted.  In
+   particular, if a new object path appears in some property, that
+   corresponding object might or might not yet be part of the object
+   tree.
+
+   - $(client).on('signalEmitted', function (event, iface, signal_name, ...) { })
+
+   For monitoring all signals that are emitted on the object tree.
+
+   - iface = client.lookup(obj_path, iface_name)
+
+   If the object tree contains a object at 'objpath' with the given
    interface name, it will be returned.  Otherwise, 'null' is
    returned.
 
-   - iface = client.get(objpath, iface)
+   - iface = client.get(obj_path, iface_name)
 
-   Creates a new proxy for 'objpath' and 'iface'.  This will never
-   return 'null', but the returned proxy might not have any
-   properties.  It will be populated with properties in the
+   Make sure that the object tree contains an object with the given
+   object path and that the object has an interface with the given
+   name.
+
+   This will never return 'null', but the returned proxy might not
+   have any properties.  It will be populated with properties in the
    background, and the usual change notification signals will be
    emitted as that happens.
 
    Calling 'get' will always create a valid proxy and add it to the
    client, regardless of whether the service really exports a object
    at 'objpath' with the given interface.  Subsequent calls to
-   'lookup' will be able to find it.
+   'lookup' will be able to find it, and 'objectAdded' or
+   'interfaceAdded' signals will be emitted, as appropriate.
 
    You can use 'iface.call' even on an empty proxy and the call will
    be delayed until the proxy (and its client) are ready to carry it

@@ -72,7 +72,7 @@ systemd:
 
     # systemctl start cockpit.socket
 
-This will cause systemd to listen on port 21064 and start cockpit-ws
+This will cause systemd to listen on port 1001 and start cockpit-ws
 when someone connects to it.  Cockpit-ws will in turn activate
 cockpitd via D-Bus when someone logs in successfully.
 
@@ -80,13 +80,13 @@ To run Cockpit without systemd, start the cockpit-ws daemon manually:
 
     # /usr/libexec/cockpit-ws
 
-Then you can connect to port 21064 of the virtual machine.  You might
+Then you can connect to port 1001 of the virtual machine.  You might
 need to open the firewall for it.  On Fedora:
 
-    # firewall-cmd --add-port 21064/tcp
-    # firewall-cmd --permanent --add-port 21064/tcp
+    # firewall-cmd --add-port 1001/tcp
+    # firewall-cmd --permanent --add-port 1001/tcp
 
-Point your browser to `https://IP-OR-NAME-OF-YOUR-VM:21064`
+Point your browser to `https://IP-OR-NAME-OF-YOUR-VM:1001`
 
 and Cockpit should load after confirming the self-signed certificate.
 Log in as root with the normal root password (of the virtual machine).

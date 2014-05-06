@@ -240,6 +240,8 @@ dispatch_input (CockpitPipe *self,
       self->priv->in_poll = NULL;
     }
 
+  g_object_ref (self);
+
   g_byte_array_set_size (self->priv->in_buffer, len + ret);
 
   eof = (self->priv->in_poll == NULL);
@@ -247,6 +249,8 @@ dispatch_input (CockpitPipe *self,
 
   if (eof)
     close_maybe (self);
+
+  g_object_unref (self);
 }
 
 static void

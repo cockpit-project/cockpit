@@ -509,9 +509,13 @@ static int cg_split_spec(const char *spec, char **controller, char **path) {
 
         if (controller)
                 *controller = t;
+        else
+          free (t);
 
         if (path)
                 *path = u;
+        else
+          free (u);
 
         return 0;
 }

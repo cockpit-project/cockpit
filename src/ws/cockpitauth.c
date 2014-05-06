@@ -220,8 +220,8 @@ cockpit_auth_pam_verify_password (CockpitAuth *auth,
                                   GError **error)
 {
   pam_handle_t *pamh = NULL;
+  const char *pam_user = NULL;
   int pam_status = 0;
-  const char *pam_user;
   gboolean ret = FALSE;
   struct pam_conv_data data;
   struct pam_conv conv;

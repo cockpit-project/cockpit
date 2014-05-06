@@ -18,7 +18,7 @@ rm -rf /etc/sysconfig/iptables
 maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
 
 # For Cockpit
-maybe firewall-cmd --permanent --add-port 21064/tcp
+maybe firewall-cmd --permanent --add-port 1001/tcp
 
 # For the D-Bus test server
 maybe firewall-cmd --permanent --add-port 8765/tcp

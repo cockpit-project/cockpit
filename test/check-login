@@ -83,7 +83,7 @@ class TestLogin(MachineCase):
 
     def curl_post(self, url, data):
         return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',
-                                    'http://%s:21064%s' % (self.machine.address, url),
+                                    'http://%s:1001%s' % (self.machine.address, url),
                                     '--data-binary', data ])
 
     def curl_post_code(self, url, data):

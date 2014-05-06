@@ -35,7 +35,7 @@
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static gint      opt_port         = 21064;
+static gint      opt_port         = 1001;
 static gchar   **opt_http_roots   = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_disable_auth = FALSE;
@@ -43,7 +43,7 @@ static gboolean  opt_debug = FALSE;
 static gchar    *opt_agent_program;
 
 static GOptionEntry cmd_entries[] = {
-  {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (21064 if unset)", NULL},
+  {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (1001 if unset)", NULL},
   {"http-root", 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &opt_http_roots, "Path to serve HTTP GET requests from", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug, "Debug mode: log messages to output", NULL},

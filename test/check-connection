@@ -54,7 +54,7 @@ class TestConnection(MachineCase):
         b.set_val("#login-password-input", "foobar")
 
         # severe the connection on the login page
-        m.execute("iptables -I INPUT 1 -p tcp --dport 21064 -j REJECT")
+        m.execute("iptables -I INPUT 1 -p tcp --dport 1001 -j REJECT")
         b.click('#login-button')
         with b.wait_timeout(20):
             b.wait_text_not('#login-error-message', "")
@@ -63,7 +63,7 @@ class TestConnection(MachineCase):
         b.wait_page("server")
 
         # severe the connection on the server page
-        m.execute("iptables -I INPUT 1 -p tcp --dport 21064 -j REJECT")
+	m.execute("iptables -I INPUT 1 -p tcp --dport 1001 -j REJECT")
         with b.wait_timeout(60):
             b.wait_popup("disconnected")
         b.wait_in_text('#disconnected-error', "Connection has timed out.")

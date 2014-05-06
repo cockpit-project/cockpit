@@ -91,6 +91,7 @@ getgrouplist_a (const char *user,
 {
   int err, n_groups;
   gid_t *buf;
+  gid_t *mem;
 
   n_groups = 200;
   buf = malloc ((n_groups + 1) * sizeof (gid_t));
@@ -106,13 +107,16 @@ getgrouplist_a (const char *user,
       err = 0;
       while (getgrouplist (user, gid, buf, &n_groups) == -1)
         {
-          buf = realloc (buf, (n_groups + 1) * sizeof (gid_t));
-          if (buf == NULL)
+          mem = realloc (buf, (n_groups + 1) * sizeof (gid_t));
+          if (mem == NULL)
             {
               err = ENOMEM;
+              free (buf);
+              buf = NULL;
               break;
             }
 
+          buf = mem;
           tries += 1;
           if (tries > 5)
             {

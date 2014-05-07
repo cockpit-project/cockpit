@@ -377,7 +377,7 @@ base64_decode_string (const char *enc)
 CockpitCreds *
 cockpit_auth_check_userpass (CockpitAuth *self,
                              const char *userpass,
-                             gboolean secure_req,
+                             gboolean force_secure,
                              GHashTable *out_headers,
                              GError **error)
 {
@@ -401,7 +401,7 @@ cockpit_auth_check_userpass (CockpitAuth *self,
     {
       cookie_b64 = g_base64_encode ((guint8 *)cookie, strlen (cookie));
       header = g_strdup_printf ("CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
-                                cookie_b64, secure_req ? " Secure;" : "");
+                                cookie_b64, force_secure ? " Secure;" : "");
 
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);
     }

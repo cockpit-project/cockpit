@@ -253,6 +253,7 @@ test_login_post_accept (Test *test,
 
   output = output_as_string (test);
   cockpit_assert_strmatch (output, "HTTP/1.1 200 OK\r\n*");
+  cockpit_assert_strmatch (output, "*Secure; *");
 
   /* Check that returned cookie that works */
   headers = split_headers (output);
@@ -308,7 +309,7 @@ test_logout (Test *test,
   g_assert (ret == TRUE);
 
   output = output_as_string (test);
-  cockpit_assert_strmatch (output, "HTTP/1.1 200 OK\r\n*Set-Cookie: CockpitAuth=blank;*Logged out*");
+  cockpit_assert_strmatch (output, "HTTP/1.1 200 OK\r\n*Set-Cookie: CockpitAuth=blank;*Secure*Logged out*");
 }
 
 int

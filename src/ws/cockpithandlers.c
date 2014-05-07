@@ -55,9 +55,7 @@ cockpit_handler_socket (CockpitWebServer *server,
   gconstpointer data;
   gsize length;
 
-  if (!g_str_equal (resource, "/socket")
-      || (g_ascii_strcasecmp (g_hash_table_lookup (headers, "Upgrade"), "websocket") != 0
-          && g_ascii_strcasecmp (g_hash_table_lookup (headers, "Connection"), "Upgrade") != 0))
+  if (!g_str_equal (resource, "/socket"))
     return FALSE;
 
   /* Save the data which has already been read from input */

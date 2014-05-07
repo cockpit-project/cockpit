@@ -44,7 +44,7 @@ null_log_handler (const gchar *log_domain,
                   gpointer user_data)
 {
   /*
-   * TODO: Use g_test_expect_message() to quieten things down once this lands:
+   * HACK: Use g_test_expect_message() to quieten things down once this lands:
    * https://bugzilla.gnome.org/show_bug.cgi?id=710991
    */
 }
@@ -1335,7 +1335,10 @@ test_hixie76_rough_close (void)
   while (web_socket_connection_get_ready_state (server) != WEB_SOCKET_STATE_CLOSED)
     g_main_context_iteration (context, TRUE);
 
-  /* TODO: in the future assert no g_message, but message asserts are broken in glib + g_debug */
+  /*
+   * HACK: in the future assert no g_message, but message asserts are broken in glib + g_debug
+   * https://bugzilla.gnome.org/show_bug.cgi?id=710991
+   */
   g_assert (opened == TRUE);
   g_assert (g_io_stream_is_closed (ios));
 

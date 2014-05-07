@@ -439,7 +439,8 @@ DBusClient.prototype = {
             if (existing_iface) {
                 dbus_warning("Received interface-added for existing object path " + objpath + " and existing interface " + iface_name);
             } else {
-                var iface = new DBusInterface(data.iface, iface_name, existing_obj, this);
+                var iface = new DBusInterface(data.iface[iface_name],
+                                              iface_name, existing_obj, this);
                 existing_obj._ifaces[iface_name] = iface;
                 $(existing_obj).trigger("interfaceAdded", iface);
                 $(this).trigger("interfaceAdded", [existing_obj, iface]);

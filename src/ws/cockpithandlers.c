@@ -272,6 +272,38 @@ cockpit_handler_logout (CockpitWebServer *server,
   return TRUE;
 }
 
+gboolean
+cockpit_handler_deauthorize (CockpitWebServer *server,
+                             CockpitWebServerRequestType reqtype,
+                             const gchar *resource,
+                             GIOStream *io_stream,
+                             GHashTable *headers,
+                             GDataInputStream *in,
+                             GDataOutputStream *out,
+                             CockpitHandlerData *ws)
+{
+  CockpitCreds *creds;
+  const gchar *body;
+
+  creds = cockpit_auth_check_headers (ws->auth, headers, NULL);
+  if (!creds)
+    {
+      cockpit_web_server_return_error (G_OUTPUT_STREAM (out), 401, NULL, "Unauthorized");
+      return TRUE;
+    }
+
+  /* Poison the creds, so they no longer work for new reauthorization */
+  cockpit_creds_poison (creds);
+  cockpit_creds_unref (creds);
+
+  body ="<html><head><title>Deauthorized</title></head>"
+    "<body>Deauthorized</body></html>";
+
+  cockpit_web_server_return_content (G_OUTPUT_STREAM (out), NULL, body, strlen (body));
+  return TRUE;
+}
+
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gchar *

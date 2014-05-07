@@ -2,10 +2,6 @@ COCKPIT_BUILD_INFO = "Built on $(shell date)"
 
 noinst_LIBRARIES += libcockpit-ws.a
 
-nodist_libcockpit_ws_a_SOURCES = \
-	cockpitwsenumtypes.c \
-	cockpitwsenumtypes.h \
-	$(NULL)
 libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
 	src/ws/cockpitwstypes.h	\
@@ -37,31 +33,11 @@ libcockpit_ws_enumheaders = 				\
 	src/ws/cockpitwebserver.h 				\
 	$(NULL)
 
-cockpitwsenumtypes.h:  src/ws/cockpitwsenumtypes.h.template $(libcockpit_ws_enumheaders)
-	$(AM_V_GEN) ( \
-	  glib-mkenums  --template $< \
-	  $(addprefix $(srcdir)/,$(libcockpit_ws_enumheaders)) > $@.tmp \
-	  && (cmp -s $@.tmp $@ || mv $@.tmp $@))
-
-cockpitwsenumtypes.c: src/ws/cockpitwsenumtypes.c.template $(libcockpit_ws_enumheaders)
-	$(AM_V_GEN) ( \
-	  glib-mkenums --template $< \
-	  $(addprefix $(srcdir)/,$(libcockpit_ws_enumheaders)) ) > $@.tmp && \
-	  mv $@.tmp $@
-
-BUILT_SOURCES += cockpitwsenumtypes.c cockpitwsenumtypes.h
 EXTRA_DIST += \
-	src/ws/cockpitwsenumtypes.h.template \
-	src/ws/cockpitwsenumtypes.c.template \
 	src/ws/mock_rsa_key \
 	src/ws/mock_dsa_key \
 	src/ws/mock_cert \
 	src/ws/mock_known_hosts \
-	$(NULL)
-
-CLEANFILES += \
-	cockpitwsenumtypes.h \
-	cockpitwsenumtypes.c \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------

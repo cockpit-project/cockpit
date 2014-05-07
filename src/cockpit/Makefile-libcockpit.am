@@ -19,30 +19,14 @@ mock_dbus_sources = \
 BUILT_SOURCES += $(test_built_sources)
 CLEANFILES += $(test_built_sources)
 
-cockpitenumtypes.h: src/cockpit/cockpitenums.h src/cockpit/cockpitenumtypes.h.template
-	$(AM_V_GEN) (glib-mkenums --template $(top_srcdir)/src/cockpit/cockpitenumtypes.h.template \
-		$(top_srcdir)/src/cockpit/cockpitenums.h) > $@.tmp && mv $@.tmp $@
-
-cockpitenumtypes.c: src/cockpit/cockpitenums.h src/cockpit/cockpitenumtypes.c.template
-	$(AM_V_GEN) (glib-mkenums --template $(top_srcdir)/src/cockpit/cockpitenumtypes.c.template \
-		$(top_srcdir)/src/cockpit/cockpitenums.h) > $@.tmp && mv $@.tmp $@
-
-BUILT_SOURCES += cockpitenumtypes.h cockpitenumtypes.c
-
 EXTRA_DIST += \
-	src/cockpit/cockpitenumtypes.h.template \
-	src/cockpit/cockpitenumtypes.c.template \
 	src/cockpit/com.redhat.Cockpit.DBusTests.xml \
 	$(NULL)
-
-CLEANFILES += cockpitenumtypes.h cockpitenumtypes.c
 
 noinst_LIBRARIES += libcockpit.a
 
 nodist_libcockpit_a_SOURCES = \
 	$(dbus_built_sources) \
-	cockpitenumtypes.c \
-	cockpitenumtypes.h \
 	$(NULL)
 libcockpit_a_SOURCES = \
 	src/cockpit/cockpit.h \

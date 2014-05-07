@@ -25,7 +25,6 @@
 G_BEGIN_DECLS
 
 #include <cockpitwstypes.h>
-#include <cockpitwsenumtypes.h>
 #include <cockpitwebserver.h>
 #include <cockpitwebsocket.h>
 #include <cockpitauth.h>

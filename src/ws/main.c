@@ -306,6 +306,10 @@ main (int argc,
                     "handle-resource::/logout",
                     G_CALLBACK (cockpit_handler_logout),
                     &data);
+  g_signal_connect (server,
+                    "handle-resource::/deauthorize",
+                    G_CALLBACK (cockpit_handler_deauthorize),
+                    &data);
 
   g_signal_connect (server,
                     "handle-resource::/cockpitdyn.js",

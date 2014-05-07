@@ -38,6 +38,24 @@ test_password (void)
 }
 
 static void
+test_poison (void)
+{
+  CockpitCreds *creds;
+
+  creds = cockpit_creds_new ("user", COCKPIT_CRED_PASSWORD, "password", NULL);
+  g_assert (creds != NULL);
+
+  g_assert_cmpstr ("user", ==, cockpit_creds_get_user (creds));
+  g_assert_cmpstr ("password", ==, cockpit_creds_get_password (creds));
+
+  cockpit_creds_poison (creds);
+
+  g_assert_cmpstr (NULL, ==, cockpit_creds_get_password (creds));
+
+  cockpit_creds_unref (creds);
+}
+
+static void
 test_rhost (void)
 {
   CockpitCreds *creds;
@@ -93,7 +111,7 @@ test_equal (void)
   CockpitCreds *rhost = cockpit_creds_new ("user", COCKPIT_CRED_PASSWORD, "pass1",
                                            COCKPIT_CRED_RHOST, "meh", NULL);
   CockpitCreds *scruffy = cockpit_creds_new ("scruffy", COCKPIT_CRED_PASSWORD, "pass1", NULL);
-  CockpitCreds *two = cockpit_creds_new ("user", COCKPIT_CRED_PASSWORD, "pass2", NULL);
+  CockpitCreds *two = cockpit_creds_new ("user2", COCKPIT_CRED_PASSWORD, "pass2", NULL);
   CockpitCreds *copy = cockpit_creds_new ("user", COCKPIT_CRED_PASSWORD, "pass1", NULL);
 
   g_assert (!cockpit_creds_equal (one, two));
@@ -123,6 +141,7 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/creds/basic-password", test_password);
+  g_test_add_func ("/creds/poison", test_poison);
   g_test_add_func ("/creds/rhost", test_rhost);
   g_test_add_func ("/creds/multiple", test_multiple);
   g_test_add_func ("/creds/hash", test_hash);

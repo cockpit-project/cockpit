@@ -395,7 +395,7 @@ process_authorize (CockpitWebService *self,
       password = cockpit_creds_get_password (session->creds);
       if (!password)
         {
-          g_warning ("%s: received authorize crypt1 challenge, but didn't use password to authenticate", host);
+          g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate", host);
         }
       else
         {

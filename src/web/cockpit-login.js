@@ -30,6 +30,9 @@ $(function() {
             if (req.readyState == 4) {
                 $(".cockpit-deauthorize-item").addClass("disabled");
                 $(".cockpit-deauthorize-item a").off("click");
+
+                /* TODO: We need a better indicator for deauthorized state */
+                $(".cockpit-deauthorize-status").text("deauthorized");
             }
         };
         req.send();

@@ -47,6 +47,7 @@ parallel --gnu --progress -j ${TEST_JOBS:-1} <<EOF
 ./check-session
 ./check-roles
 ./check-multi-machine
+./check-reauthorize
 EOF
 
 echo VERIFICATION PASSED

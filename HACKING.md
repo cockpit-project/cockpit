@@ -47,6 +47,7 @@ Then you can build the sources and install them, as usual:
     $ make
     $ sudo make install
     $ sudo cp ../data/cockpit.pam.insecure /etc/pam.d/cockpit
+    $ sudo sh -c "cat data/sshd-reauthorize.pam >> /etc/pam.d/sshd"
 
 This will install Cockpit and all support files, and will install a
 simplistic PAM configuration.

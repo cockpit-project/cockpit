@@ -732,6 +732,15 @@
           <div id="rescue-terminal" class="terminal-emulator"></div>
       </div>
 
+      <div id="internal" class="container-fluid">
+          <img src="images/hammer.gif" style="float: right;"
+              onclick="$(this).hide();">
+          <div class="cockpit-internal-reauthorize">
+              <button class="btn btn-default">Priveleged Action</button>
+              <span class="cockpit-deauthorize-status"></span>
+          </div>
+      </div>
+
       <div id="containers" class="container-fluid">
         <div class="alert alert-warning alert-dismissable" style="display: none;" id="containers-failure">
           <span class="pficon-layered" style="float: left; font-size: 200%;">

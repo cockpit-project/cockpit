@@ -24,10 +24,10 @@ EXTRA_DIST += \
 CLEANFILES += $(pam_MODULES)
 
 install-exec-local:
-	$(MKDIR_P) $(pamdir) && chmod 755 $(pamdir)
-	$(INSTALL) pam_reauthorize.so $(pamdir)
+	$(MKDIR_P) $(DESTDIR)$(pamdir)
+	$(INSTALL) pam_reauthorize.so $(DESTDIR)$(pamdir)
 uninstall-local::
-	$(RM) -f $(pamdir)/pam_reauthorize.so
+	$(RM) -f $(DESTDIR)$(pamdir)/pam_reauthorize.so
 
 # -----------------------------------------------------------------------------
 # Tests

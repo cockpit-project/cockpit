@@ -30,6 +30,7 @@ BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(udisks2) >= 2.1.0
 BuildRequires: pkgconfig(libnm-glib)
 BuildRequires: pkgconfig(libsystemd-daemon)
+BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pkgconfig(accountsservice) >= 0.6.30
 BuildRequires: pam-devel
 BuildRequires: storaged >= 0.2.0
@@ -44,6 +45,7 @@ BuildRequires: krb5-devel
 BuildRequires: libgsystem-devel
 BuildRequires: libxslt-devel
 BuildRequires: docbook-style-xsl
+BuildRequires: keyutils-libs-devel
 
 BuildRequires: perl-JavaScript-Minifier-XS
 BuildRequires: perl-Locale-PO
@@ -63,6 +65,8 @@ Cockpit.
 getent group cockpit-user-admin >/dev/null || groupadd -r cockpit-user-admin
 getent group cockpit-realm-admin >/dev/null || groupadd -r cockpit-realm-admin
 getent group cockpit-storage-admin >/dev/null || groupadd -r cockpit-storage-admin
+# Only for testing: in a distro we would ask sshd to ship the relevant lines
+cat %{_datadir}/%{name}/sshd-reauthorize.pam >> %{_sysconfdir}/pam.d/sshd
 
 %prep
 %setup -q
@@ -80,6 +84,7 @@ make install install-test-assets DESTDIR=%{buildroot}
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 mkdir -p %{buildroot}/etc/pam.d/
 cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
+cp data/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
 
 %files
 %{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.conf
@@ -93,7 +98,9 @@ cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-session
 %{_libexecdir}/cockpit-agent
-%{_datadir}/%{name}/content/
+%{_libexecdir}/cockpit-polkit
+%{_libdir}/security/pam_reauthorize.so
+%{_datadir}/%{name}
 %{_mandir}/*
 %{_sharedstatedir}/%{name}
 

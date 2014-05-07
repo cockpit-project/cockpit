@@ -213,7 +213,7 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                                   g_cclosure_marshal_generic,
                                                   G_TYPE_BOOLEAN,
                                                   6,
-                                                  COCKPIT_TYPE_WEB_SERVER_REQUEST_TYPE,
+                                                  G_TYPE_INT,
                                                   G_TYPE_STRING,
                                                   G_TYPE_IO_STREAM,
                                                   G_TYPE_HASH_TABLE,

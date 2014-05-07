@@ -34,7 +34,6 @@
 #include <cockpit/cockpitenums.h>
 #include <cockpit/cockpiterror.h>
 #include <cockpit/cockpitlog.h>
-#include <cockpitenumtypes.h>
 #include <cockpit-generated.h>
 #undef __COCKPIT_INSIDE_COCKPIT_H__
 

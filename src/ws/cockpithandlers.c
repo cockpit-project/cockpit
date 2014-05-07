@@ -159,7 +159,7 @@ cockpit_handler_login (CockpitWebServer *server,
         goto out;
 
       creds = cockpit_auth_check_userpass (ws->auth, request_body,
-                                           ws->certificate != NULL,
+                                           !G_IS_SOCKET_CONNECTION (io_stream),
                                            out_headers, &error);
       if (creds == NULL)
         goto out;
@@ -226,7 +226,7 @@ cockpit_handler_logout (CockpitWebServer *server,
     "<body>Logged out</body></html>";
 
   cookie = g_strdup_printf ("CockpitAuth=blank; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly\r\n",
-                            ws->certificate != NULL ? " Secure;" : "");
+                            !G_IS_SOCKET_CONNECTION (io_stream) ? " Secure;" : "");
 
   out_headers = cockpit_web_server_new_table ();
   g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), cookie);

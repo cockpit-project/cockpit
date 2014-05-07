@@ -237,6 +237,7 @@ main (int argc,
   CockpitWebServer *server = NULL;
   GOptionContext *context;
   CockpitHandlerData data;
+  GTlsCertificate *certificate = NULL;
   GError *local_error = NULL;
   GError **error = &local_error;
   GMainLoop *loop;
@@ -270,7 +271,7 @@ main (int argc,
     }
   else
     {
-      if (!load_cert (&data.certificate, error))
+      if (!load_cert (&certificate, error))
         goto out;
     }
 
@@ -281,7 +282,7 @@ main (int argc,
     cockpit_ws_agent_program = opt_agent_program;
 
   server = cockpit_web_server_new (opt_port,
-                                   data.certificate,
+                                   certificate,
                                    (const gchar **)opt_http_roots,
                                    NULL,
                                    error);
@@ -329,7 +330,7 @@ out:
     }
   g_clear_object (&server);
   g_clear_object (&data.auth);
-  g_clear_object (&data.certificate);
+  g_clear_object (&certificate);
   return ret;
 }
 

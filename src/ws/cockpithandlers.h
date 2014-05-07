@@ -24,7 +24,6 @@
 #include "cockpitwebserver.h"
 
 typedef struct {
-  GTlsCertificate *certificate;
   CockpitAuth *auth;
 } CockpitHandlerData;
 

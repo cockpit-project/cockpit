@@ -813,8 +813,11 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
                                CockpitAuth *auth)
 {
   const gchar *protocols[] = { "cockpit1", NULL };
+  const gchar *host;
   WebSocketData *data;
+  gboolean secure;
   guint ping_id;
+  gchar *origin;
   gchar *url;
 
   data = g_new0 (WebSocketData, 1);
@@ -835,18 +838,28 @@ cockpit_web_socket_serve_dbus (CockpitWebServer *server,
   if (data->authenticated)
     data->user = cockpit_creds_get_user (data->authenticated);
 
-  /* TODO: We need to validate Host throughout */
-  url = g_strdup_printf ("%s://host-not-yet-used/socket",
-                         G_IS_TLS_CONNECTION (io_stream) ? "wss" : "ws");
+  host = g_hash_table_lookup (headers, "Host");
+
+  /*
+   * This invalid Host is a fallback. The websocket code will refuse requests
+   * with a missing Host. But to be defensive, in case it doesn't set to
+   * something impossible here.
+   */
+  if (!host)
+    host = "0.0.0.0:0";
+  secure = G_IS_TLS_CONNECTION (io_stream);
+
+  url = g_strdup_printf ("%s://%s/socket", secure ? "wss" : "ws", host);
+  origin = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
 
   data->main_context = g_main_context_new ();
   g_main_context_push_thread_default (data->main_context);
 
-  /* TODO: This is just an arbitrary channel for now */
-  data->web_socket = web_socket_server_new_for_stream (url, NULL, protocols,
+  data->web_socket = web_socket_server_new_for_stream (url, origin, protocols,
                                                        io_stream, headers,
                                                        input_buffer);
 
+  g_free (origin);
   g_free (url);
 
   g_signal_connect (data->web_socket, "open", G_CALLBACK (on_web_socket_open), data);

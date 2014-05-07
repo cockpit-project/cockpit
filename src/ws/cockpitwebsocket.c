@@ -747,7 +747,7 @@ on_web_socket_error (WebSocketConnection *web_socket,
                      GError *error,
                      WebSocketData *data)
 {
-  g_warning ("%s", error->message);
+  g_message ("%s", error->message);
 }
 
 static gboolean

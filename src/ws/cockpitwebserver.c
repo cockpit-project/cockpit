@@ -788,8 +788,9 @@ process_request (CockpitWebServer *server,
 out:
   if (local_error != NULL)
     {
-      g_warning ("Error processing request: %s (%s, %d)",
-                 local_error->message, g_quark_to_string (local_error->domain), local_error->code);
+      if (!g_error_matches (local_error, G_TLS_ERROR, G_TLS_ERROR_EOF))
+        g_warning ("Error processing request: %s (%s, %d)",
+                   local_error->message, g_quark_to_string (local_error->domain), local_error->code);
       g_clear_error (&local_error);
     }
 
@@ -798,8 +799,9 @@ out:
   if (!g_io_stream_is_closed (io_stream) && !g_output_stream_is_closed (G_OUTPUT_STREAM (output)) &&
       !g_output_stream_flush (G_OUTPUT_STREAM (output), NULL, &local_error))
     {
-      g_warning ("Error flusing output stream: %s (%s, %d)",
-                 local_error->message, g_quark_to_string (local_error->domain), local_error->code);
+      if (!g_error_matches (local_error, G_TLS_ERROR, G_TLS_ERROR_EOF))
+        g_warning ("Error flusing output stream: %s (%s, %d)",
+                   local_error->message, g_quark_to_string (local_error->domain), local_error->code);
       g_clear_error (&local_error);
     }
 }

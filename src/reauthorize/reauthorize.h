@@ -20,21 +20,20 @@
 #ifndef REAUTHORIZE_H__
 #define REAUTHORIZE_H__
 
+int     reauthorize_prepare    (const char *user,
+                                const char *password,
+                                long keyring,
+                                long *key);
+
 enum {
-    REAUTHORIZE_REPLACE = 1 << 0,
+    REAUTHORIZE_CONTINUE = 0,
+    REAUTHORIZE_NO = 1,
+    REAUTHORIZE_YES = 2
 };
 
-int     reauthorize_listen     (int flags,
-                                int *sock);
-
-int     reauthorize_accept     (int sock,
-                                int *connection);
-
-int     reauthorize_recv       (int connection,
+int     reauthorize_perform    (const char *user,
+                                const char *response,
                                 char **challenge);
-
-int     reauthorize_send       (int connection,
-                                const char *response);
 
 int     reauthorize_type       (const char *challenge,
                                 char **type);

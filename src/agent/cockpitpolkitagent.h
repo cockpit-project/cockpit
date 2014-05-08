@@ -27,6 +27,8 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
+#include "cockpit/cockpittransport.h"
+
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_POLKIT_AGENT          (cockpit_polkit_agent_get_type())
@@ -37,7 +39,8 @@ typedef struct _CockpitPolkitAgent CockpitPolkitAgent;
 
 GType                 cockpit_polkit_agent_get_type     (void) G_GNUC_CONST;
 
-gpointer              cockpit_polkit_agent_register     (GCancellable *cancellable);
+gpointer              cockpit_polkit_agent_register     (CockpitTransport *transport,
+                                                         GCancellable *cancellable);
 
 void                  cockpit_polkit_agent_unregister   (gpointer handle);
 

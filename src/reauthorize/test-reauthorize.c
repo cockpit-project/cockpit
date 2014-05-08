@@ -32,23 +32,26 @@
  * Author: Stef Walter <stefw@redhat.com>
  */
 
+#define _GNU_SOURCE
+
 #include "retest.h"
 
 #include "reauthorize.h"
 
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <sys/un.h>
+#include <sys/wait.h>
 
 #include <err.h>
 #include <errno.h>
 #include <keyutils.h>
+#include <pwd.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 static const char *expect_message;
+static char *user;
 
 static void
 test_logger (const char *msg)
@@ -70,11 +73,17 @@ static void
 setup (void *arg)
 {
   key_serial_t keyring;
+  struct passwd *pw;
 
   expect_message = NULL;
 
   keyring = keyctl_join_session_keyring (NULL);
   assert (keyring >= 0);
+
+  pw = getpwuid (getuid ());
+  assert (pw != NULL);
+  user = strdup (pw->pw_name);
+  assert (user != NULL);
 }
 
 static void
@@ -82,6 +91,96 @@ teardown (void *arg)
 {
   if (expect_message)
     assert_fail ("message didn't get logged", expect_message);
+  free (user);
+  user = NULL;
+}
+
+static char *
+read_until_eof (int fd)
+{
+  size_t len = 0;
+  size_t alloc = 0;
+  char *buf = NULL;
+  int r;
+
+  for (;;)
+    {
+      if (alloc <= len)
+        {
+          alloc += 1024;
+          buf = realloc (buf, alloc);
+          assert (buf != NULL);
+        }
+
+      r = read (fd, buf + len, alloc - len);
+      if (r < 0)
+        {
+          if (errno == EAGAIN)
+            continue;
+          assert_not_reached ();
+        }
+      else if (r == 0)
+        {
+          break;
+        }
+      else
+        {
+          len += r;
+        }
+    }
+
+  buf[len] = '\0';
+  return buf;
+}
+
+static int
+mock_reauthorize (const char *mode,
+                  const char *user,
+                  const char *argument,
+                  char **output)
+{
+  int fds[2];
+  pid_t pid;
+  int status;
+
+  const char *argv[] = {
+      BUILDDIR "/mock-reauthorize",
+      mode,
+      user,
+      argument,
+      NULL
+  };
+
+  if (output)
+    {
+      if (pipe (fds) < 0)
+        assert_not_reached ();
+    }
+
+  pid = fork ();
+  if (pid == 0)
+    {
+      if (output)
+        dup2 (fds[1], 1);
+      execv (argv[0], (char **)argv);
+      fprintf (stderr, "exec failed: %s: %m\n", argv[0]);
+      _exit (127);
+    }
+
+  if (output)
+    {
+      close (fds[1]);
+      *output = read_until_eof (fds[0]);
+      close (fds[0]);
+    }
+
+  assert_num_eq (waitpid (pid, &status, 0), pid);
+
+  assert (WIFEXITED (status));
+  if (WEXITSTATUS (status) == 77)
+    re_test_skip ("need to 'make enable-root-tests'");
+
+  return WEXITSTATUS (status);
 }
 
 typedef struct {
@@ -177,203 +276,62 @@ test_crypt1 (void *data)
 }
 
 static void
-test_listen_chat (void)
+test_password_success (void)
 {
-  int connection;
+  const char *password = "booo";
+  char *response;
   char *challenge;
-  int sock;
 
-  assert_num_eq (reauthorize_listen (0, &sock), 0);
-  assert_num_cmp (sock, >=, 0);
+  assert_num_eq (mock_reauthorize ("prepare", user, password, NULL), 0);
+  assert_num_eq (mock_reauthorize ("perform", user, NULL, &challenge), REAUTHORIZE_CONTINUE);
+  assert_num_eq (reauthorize_crypt1 (challenge, password, &response), 0);
+  assert_num_eq (mock_reauthorize ("perform", user, response, NULL), REAUTHORIZE_YES);
 
-  if (re_test_fork ())
-    {
-      struct sockaddr *addr;
-      socklen_t addr_len;
-      key_serial_t key;
-      char *response;
-      int client;
+  free (response);
+  free (challenge);
+}
 
-      close (sock);
+static void
+test_password_bad (void)
+{
+  char *response;
+  char *challenge;
 
-      key = keyctl_search (KEY_SPEC_SESSION_KEYRING, "user", "reauthorize/socket", 0);
-      assert_num_cmp (key, >=, 0);
-      addr_len = keyctl_read_alloc (key, (void *)&addr);
-      assert_num_cmp (addr_len, >=, sizeof (sa_family_t));
-      assert_num_cmp (addr_len, <=, sizeof (struct sockaddr_un));
-      client = socket (AF_UNIX, SOCK_SEQPACKET, 0);
-      assert_num_cmp (client, >, 0);
-      assert_num_cmp (connect (client, addr, addr_len), >=, 0);
+  assert_num_eq (mock_reauthorize ("prepare", user, "actual-password", NULL), 0);
+  assert_num_eq (mock_reauthorize ("perform", user, NULL, &challenge), REAUTHORIZE_CONTINUE);
 
-      assert_num_eq (reauthorize_send (client, "Marmalaaade!"), 0);
+  assert_num_eq (reauthorize_crypt1 (challenge, "bad password", &response), 0);
+  assert_num_eq (mock_reauthorize ("perform", user, response, NULL), REAUTHORIZE_NO);
 
-      assert_num_eq (reauthorize_recv (client, &response), 0);
-      assert_str_eq (response, "Zerogjuggs");
-      free (response);
-      assert_num_eq (shutdown (client, SHUT_WR), 0);
+  free (response);
+  free (challenge);
+}
 
-      return;
-    }
+static void
+test_password_no_prepare (void)
+{
+  char *challenge = NULL;
 
-  assert_num_eq (reauthorize_accept (sock, &connection), 0);
-  assert_num_cmp (connection, >=, 0);
-
-  assert_num_eq (reauthorize_recv (connection, &challenge), 0);
-  assert_str_eq (challenge, "Marmalaaade!");
-
-  assert_num_eq (reauthorize_send (connection, "Zerogjuggs"), 0);
+  assert_num_eq (mock_reauthorize ("perform", user, NULL, &challenge), REAUTHORIZE_NO);
 
   free (challenge);
-  assert_num_eq (shutdown (connection, SHUT_WR), 0);
-
-  close (sock);
-}
-static void
-test_listen_bad_data (void)
-{
-  int connection;
-  char *challenge;
-  int sock;
-
-  assert_num_eq (reauthorize_listen (0, &sock), 0);
-  assert_num_cmp (sock, >=, 0);
-
-  if (re_test_fork ())
-    {
-      struct sockaddr *addr;
-      socklen_t addr_len;
-      key_serial_t key;
-      char *response;
-      int client;
-
-      close (sock);
-
-      key = keyctl_search (KEY_SPEC_SESSION_KEYRING, "user", "reauthorize/socket", 0);
-      assert_num_cmp (key, >=, 0);
-      addr_len = keyctl_read_alloc (key, (void *)&addr);
-      assert_num_cmp (addr_len, >=, sizeof (sa_family_t));
-      assert_num_cmp (addr_len, <=, sizeof (struct sockaddr_un));
-      client = socket (AF_UNIX, SOCK_SEQPACKET, 0);
-      assert_num_cmp (client, >, 0);
-      assert_num_cmp (connect (client, addr, addr_len), >=, 0);
-
-      /* message contains nul bytes: invalid */
-      assert_num_eq (send (client, "1\x00z", 3, 0), 3);
-
-      expect_message = "invalid null characters";
-
-      assert_num_eq (reauthorize_recv (client, &response), -EINVAL);
-      assert_num_eq (shutdown (client, SHUT_WR), 0);
-
-      return;
-    }
-
-  assert_num_eq (reauthorize_accept (sock, &connection), 0);
-  assert_num_cmp (connection, >=, 0);
-
-  expect_message = "invalid null characters";
-
-  assert_num_eq (reauthorize_recv (connection, &challenge), -EINVAL);
-
-  /* message contains nul bytes: invalid */
-  assert_num_eq (send (connection, "2\x00z", 3, 0), 3);
-
-  assert_num_eq (shutdown (connection, SHUT_WR), 0);
-  close (sock);
 }
 
 static void
-test_listen_replace (void)
+test_password_bad_secret (void)
 {
-  int connection;
-  char *challenge;
-  int sock;
+  char *description;
+  char *challenge = NULL;
 
-  assert_num_eq (reauthorize_listen (0, &sock), 0);
-  assert_num_cmp (sock, >=, 0);
+  if (asprintf (&description, "reauthorize/secret/%s", user) < 0)
+    assert_not_reached ();
+  if (add_key ("user", description, "$6$abcdef0123456789$", 20, KEY_SPEC_SESSION_KEYRING) < 0)
+    assert_not_reached (0);
+  free (description);
 
-  /* That socket went away */
-  close (sock);
-
-  /* But another one takes its place */
-  assert_num_eq (reauthorize_listen (REAUTHORIZE_REPLACE, &sock), 0);
-  assert_num_cmp (sock, >=, 0);
-
-  if (re_test_fork ())
-    {
-      struct sockaddr *addr;
-      socklen_t addr_len;
-      key_serial_t key;
-      int client;
-
-      close (sock);
-
-      key = keyctl_search (KEY_SPEC_SESSION_KEYRING, "user", "reauthorize/socket", 0);
-      assert_num_cmp (key, >=, 0);
-      addr_len = keyctl_read_alloc (key, (void *)&addr);
-      assert_num_cmp (addr_len, >=, sizeof (sa_family_t));
-      assert_num_cmp (addr_len, <=, sizeof (struct sockaddr_un));
-      client = socket (AF_UNIX, SOCK_SEQPACKET, 0);
-      assert_num_cmp (client, >, 0);
-      assert_num_cmp (connect (client, addr, addr_len), >=, 0);
-
-      assert_num_eq (reauthorize_send (client, "Marmalaaadeo!"), 0);
-
-      assert_num_eq (shutdown (client, SHUT_WR), 0);
-      return;
-    }
-
-  assert_num_eq (reauthorize_accept (sock, &connection), 0);
-  assert_num_cmp (connection, >=, 0);
-
-  assert_num_eq (reauthorize_recv (connection, &challenge), 0);
-  assert_str_eq (challenge, "Marmalaaadeo!");
+  assert_num_eq (mock_reauthorize ("perform", user, NULL, &challenge), 127);
 
   free (challenge);
-  assert_num_eq (shutdown (connection, SHUT_WR), 0);
-
-  close (sock);
-}
-
-static void
-test_listen_replace_fail (void)
-{
-  int sock;
-  int sock2;
-
-  expect_message = "couldn't bind socket";
-
-  assert_num_eq (reauthorize_listen (0, &sock), 0);
-  assert_num_cmp (sock, >=, 0);
-
-  assert_num_eq (reauthorize_listen (REAUTHORIZE_REPLACE, &sock2), -EADDRINUSE);
-
-  close (sock);
-}
-
-static void
-test_listen_replace_invalid (void)
-{
-  key_serial_t key;
-  int sock;
-
-  expect_message = "socket address to replace was invalid";
-
-  key = add_key ("user", "reauthorize/socket", "x", 1, KEY_SPEC_SESSION_KEYRING);
-  assert_num_cmp (key, >=, 0);
-
-  assert_num_eq (reauthorize_listen (REAUTHORIZE_REPLACE, &sock), -EMSGSIZE);
-}
-
-static void
-test_listen_replace_nothing (void)
-{
-  int sock;
-
-  assert_num_eq (reauthorize_listen (REAUTHORIZE_REPLACE, &sock), 0);
-  assert_num_cmp (sock, >=, 0);
-
-  close (sock);
 }
 
 int
@@ -387,13 +345,6 @@ main (int argc,
 
   re_fixture (setup, teardown);
 
-  re_test (test_listen_chat, "/reauthorize/listen-chat");
-  re_test (test_listen_bad_data, "/reauthorize/listen-bad-data");
-  re_test (test_listen_replace, "/reauthorize/listen-replace");
-  re_test (test_listen_replace_fail, "/reauthorize/listen-replace-fail");
-  re_test (test_listen_replace_invalid, "/reauthorize/listen-replace-invalid");
-  re_test (test_listen_replace_nothing, "/reauthorize/listen-replace-nothing");
-
   for (i = 0; type_fixtures[i].challenge != NULL; i++)
     re_testx (test_type, type_fixtures + i,
               "/reauthorize/type/%s", type_fixtures[i].challenge);
@@ -403,6 +354,11 @@ main (int argc,
   for (i = 0; crypt1_fixtures[i].challenge != NULL; i++)
     re_testx (test_crypt1, crypt1_fixtures + i,
               "/reauthorize/crypt1/%s", crypt1_fixtures[i].challenge);
+
+  re_test (test_password_success, "/pamreauth/password-success");
+  re_test (test_password_bad, "/pamreauth/password-bad");
+  re_test (test_password_no_prepare, "/pamreauth/password-no-prepare");
+  re_test (test_password_bad_secret, "/pamreauth/password-bad-secret");
 
   return re_test_run (argc, argv);
 }

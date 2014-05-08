@@ -157,18 +157,18 @@ above. In fact the "auth" PAM stack is not called (eg: sshd).
 
 When cockpit-agent starts it does:
 
- * Binds to a unix domain socket on which to receive reauthorize requests.
-   * Each reauthorization challenge it receives in this socket gets forwarded to
-     cockpit-ws, which sends back a relevant response.
- * Places address of this socket in the session kernel keyring.
+ * Registers itself as a polkit agent for its own session.
+ * Like all other polkit agents, cockpit-agent's polkit agent
+   has a privileged helper: cockpit-polkit
 
-When either sudo or Polkit needs to reauthorize the user:
+When Polkit needs to reauthorize the user, it connects to the
+cockpit-agent polkit agent:
 
- * The pam_authorize.so module is present in early "auth" stack.
-   * If root is being authenticated then bail
-   * If ```getuid() != getpwnam(user)->pw_uid``` then bail.
+ * cockpit-agent checks that polkit is trying to reauthorize
+   the current user and bails if not.
+ * Via its privileged helper, cockpit-agent performs the following:
+   * If ```getuid() == 0``` then bail
    * If ```geteuid() != 0``` then bail
-   * Retrieve reauthorize socket address from session kernel keyring.
    * If ```secret``` is present in session kernel keyring.
      * Verify that ```secret``` in keyring is owned by root, and only readable
        by root, otherwise: bail
@@ -177,14 +177,18 @@ When either sudo or Polkit needs to reauthorize the user:
      * ```challenge = "crypt1:" encode_hex(user) ":" salt ":" nonce```
    * If no ```secret``` is present in session kernel keyring
      * ```challenge = "gssapi1:" encode_hex(user)```
-   * Send ```challenge``` to reauthorize socket
-   * Read ```response``` from reauthorize socket
+   * Send ```challenge``` to cockpit-ws
+   * Wait for ```response``` from cockpit-ws
    * If ```startswith(response, "gssapi1:")``` then
      * Pass response to ```gss_accept_sec_context()``` appropriately
      * User has reauthorized if successful GSSAPI auth
    * If ```startswith(response, "crypt1:")``` then:
      * ```expected = "crypt1:" crypt(nonce, secret)```
      * User has reauthorized if ```response``` is identical to ```expected```
+
+When sudo wants to reauthorize the user, we place a pam module in
+its PAM stack so it does this reauthorization via a polkit action with
+a policy of ```auth_self```.
 
 See [doc/protocol.md](protocol.md) for the exact syntax the messages that
 carry the challenge and response between cockpit-agent and cockpit-ws.
@@ -225,7 +229,6 @@ question.
 
 Once again: any access policy (either centralized from the domain or not) applied
 to the user for the given action is over and above the reauthorization discussed here.
-
 
 Snooping
 --------
@@ -269,25 +272,9 @@ the user):
  * cockpit
  * sshd
 
-pam_authorize.so is in the PAM auth stack for the following (before
-other PAM authentication modules):
-
- * polkit-1
- * sudo
-
-We don't use normal PAM conversation for sending the challenge and
-response from the PAM module. Instead we use a unix domain socket.
-For the following reasons:
-
- * We never want this to show up as a textual prompt.
- * The PAM conversation max response length is too short to be sure
-   that we can send GSSAPI responses/challenges.
- * Dealing with sudo's PAM prompting isn't trivial, and would require
-   something like a UNIX domain socket anyway.
-
-We check that our module never authorizes root, and only ever
-reauthorizes when running setuid() (ie: the user has already
-logged in and is reauthorizing as themselves).
+The PAM module is present to derive the secret from a password login.
+This allows us to not send the user's password through the user's
+session.
 
 Session Keyring
 ---------------
@@ -304,11 +291,6 @@ We place the secret in the session kernel keyring. However this secret is
 only writable and readable by root. Before using the secret from the session
 kernel keyring, we verify that it is owned by root, and nobody else has any
 permissions (including link permissions).
-
-In addition, cockpit-agent stores a socket address in the session keyring.
-We use the session keyring because sudo and Polkit clear either file
-descriptors or clear the environment before pam_authorize.so can make
-use of either of those mechanisms (however note that neither clear both).
 
 Reauthentication
 ----------------

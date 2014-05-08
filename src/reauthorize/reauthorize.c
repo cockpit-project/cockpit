@@ -17,17 +17,20 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include "reauthorize.h"
-#include "reauthutil.h"
 
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/un.h>
 
+#include <assert.h>
 #include <crypt.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <keyutils.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -35,14 +38,21 @@
 #include <string.h>
 #include <unistd.h>
 
+/* ----------------------------------------------------------------------------
+ * Tools
+ */
+
+#ifndef debug
 #define debug(format, ...) \
-  do { if (verbose_mode) \
+  do { if (logger_verbose) \
       message ("debug: " format, ##__VA_ARGS__); \
   } while (0)
+#endif
 
-static int verbose_mode = 0;
+static int logger_verbose = 0;
 static void (* logger) (const char *data);
 
+#ifndef message
 #if __GNUC__ > 2
 static void
 message (const char *format, ...)
@@ -79,254 +89,580 @@ message (const char *format, ...)
   logger (data);
   free (data);
 }
+#endif
 
 void
 reauthorize_logger (void (* func) (const char *data),
                     int verbose)
 {
-  verbose_mode = verbose;
+  logger_verbose = verbose;
   logger = func;
 }
 
-int
-reauthorize_listen (int flags,
-                    int *sock)
-{
-  struct sockaddr_un addr;
-  socklen_t addr_len;
-  key_serial_t key;
-  int have_addr = 0;
-  int fd = -1;
-  int ret;
+static const char HEX[] = "0123456789abcdef";
 
-  fd = socket (AF_UNIX, SOCK_SEQPACKET, 0);
+static int
+hex_encode (const void *data,
+            ssize_t len,
+            char **hex)
+{
+  const unsigned char *in = data;
+  char *out;
+  size_t i;
+
+  if (len < 0)
+    len = strlen (data);
+
+  out = malloc (len * 2 + 1);
+  if (out == NULL)
+    return -ENOMEM;
+
+  for (i = 0; i < len; i++)
+    {
+      out[i * 2] = HEX[in[i] >> 4];
+      out[i * 2 + 1] = HEX[in[i] & 0xf];
+    }
+  out[i * 2] = '\0';
+  *hex = out;
+  return 0;
+}
+
+static int
+hex_decode (const char *hex,
+            ssize_t len,
+            void **data,
+            size_t *data_len)
+{
+  const char *hpos;
+  const char *lpos;
+  char *out;
+  int i;
+
+  if (len < 0)
+    len = strlen (hex);
+
+  out = malloc (len * 2 + 1);
+  if (out == NULL)
+    return -ENOMEM;
+
+  if (len % 2 != 0)
+    return -EINVAL;
+  for (i = 0; i < len / 2; i++)
+    {
+      hpos = strchr (HEX, hex[i * 2]);
+      lpos = strchr (HEX, hex[i * 2 + 1]);
+      if (hpos == NULL || lpos == NULL)
+        {
+          free (out);
+          return -EINVAL;
+        }
+      out[i] = ((hpos - HEX) << 4) | ((lpos - HEX) & 0xf);
+    }
+
+  /* A convenience null termination */
+  out[i] = '\0';
+
+  *data = out;
+  *data_len = i;
+  return 0;
+}
+
+int _reauthorize_drain = 0;
+
+static void
+secfree (void *data,
+         ssize_t len)
+{
+  volatile char *vp;
+
+  if (!data)
+    return;
+
+  if (len < 0)
+    len = strlen (data);
+
+  /* Defeats some optimizations */
+  memset (data, 0xAA, len);
+  memset (data, 0xBB, len);
+
+  /* Defeats others */
+  vp = (volatile char*)data;
+  while (len--)
+    {
+      _reauthorize_drain |= *vp;
+      *(vp++) = 0xAA;
+    }
+
+  free (data);
+}
+
+static ssize_t
+parse_salt (const char *input)
+{
+  const char *pos;
+  const char *end;
+
+  /*
+   * Parse a encrypted secret produced by crypt() using one
+   * of the additional algorithms. Return the length of
+   * the salt or -1.
+   */
+
+  if (input[0] != '$')
+    return -1;
+  pos = strchr (input + 1, '$');
+  if (pos == NULL || pos == input + 1)
+    return -1;
+  end = strchr (pos + 1, '$');
+  if (end == NULL || end != pos + 17)
+    return -1;
+
+  /* Full length of the salt */
+  return (end - input) + 1;
+}
+
+static int
+generate_salt (char **salt)
+{
+  static const char set[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
+  static const char random[] = "/dev/urandom";
+  static const char prefix[] = "$6$";
+  static const int salt_len = 16;
+
+  unsigned char *data;
+  char *buffer;
+  ssize_t count;
+  size_t length;
+  size_t prefix_len;
+  size_t set_len;
+  int ret;
+  int fd;
+  int i;
+
+  /*
+   * We are making a string like this:
+   *
+   * $6$0123456789abcdef$
+   */
+
+  prefix_len = strlen (prefix);
+  buffer = malloc (prefix_len + salt_len + 2);
+  if (buffer < 0)
+    return -ENOMEM;
+
+  fd = open (random, O_RDONLY);
   if (fd < 0)
     {
       ret = -errno;
-      message ("couldn't open socket: %m");
-      goto out;
+      free (buffer);
+      return ret;
     }
 
-  if (flags & REAUTHORIZE_REPLACE)
+  /* Read binary data into appropriate place in buffer */
+  length = salt_len;
+  data = (unsigned char *)buffer + prefix_len;
+  while (length > 0)
     {
-      key = keyctl_search (KEY_SPEC_SESSION_KEYRING, "user", "reauthorize/socket", 0);
-      if (key < 0)
+      count = read (fd, data, length);
+      if (count == 0)
         {
-          if (errno != ENOKEY)
-            {
-              ret = -errno;
-              message ("couldn't search for socket address to replace: %m");
-              goto out;
-            }
+          /* Strange condition, but just in case */
+          errno = EWOULDBLOCK;
+          count = -1;
         }
-      else
-        {
-          addr_len = keyctl_read (key, (char *)&addr, sizeof (addr));
-          if (addr_len < 0)
-            {
-              if (errno != ENOKEY)
-                {
-                  ret = -errno;
-                  message ("couldn't read socket address to replace: %m");
-                  goto out;
-                }
-            }
-          else if (addr_len < sizeof (sa_family_t) || addr_len > sizeof (struct sockaddr_un))
-            {
-              ret = -EMSGSIZE;
-              message ("socket address to replace was invalid");
-              goto out;
-            }
-          have_addr = 1;
-        }
-    }
-
-  /* The local address: autobind */
-  if (!have_addr)
-    {
-      memset (&addr, 0, sizeof (addr));
-      addr.sun_family = AF_UNIX;
-      addr_len = sizeof (addr.sun_family);
-    }
-
-  if (bind (fd, &addr, addr_len) < 0)
-    {
-      ret = -errno;
-      message ("couldn't bind socket: %m");
-      goto out;
-    }
-
-  if (listen (fd, 64) < 0)
-    {
-      ret = -errno;
-      message ("couldn't listen on socket: %m");
-      goto out;
-    }
-
-  /* Dig out the automatically assigned address */
-  if (!have_addr)
-    {
-      addr_len = sizeof (addr);
-      if (getsockname (fd, &addr, &addr_len) < 0)
-        {
-          ret = -errno;
-          message ("couldn't lookup socket address: %m");
-          goto out;
-        }
-
-      if (add_key ("user", "reauthorize/socket", &addr, addr_len, KEY_SPEC_SESSION_KEYRING) < 0)
-        {
-          ret = -errno;
-          message ("couldn't put socket address into keyring: %m");
-          goto out;
-        }
-    }
-
-  debug ("listening on reauthorize socket");
-
-  ret = 0;
-  *sock = fd;
-  fd = -1;
-
-out:
-  if (fd != -1)
-    close (fd);
-  return ret;
-}
-
-int
-reauthorize_accept (int sock,
-                    int *connection)
-{
-  int conn = -1;
-  int ret;
-
-  conn = accept (sock, NULL, NULL);
-  if (conn < 0)
-    {
-      ret = -errno;
-      if (ret != -EINTR && ret != -EAGAIN)
-        message ("couldn't accept reauthorize connection: %m");
-      goto out;
-    }
-
-  debug ("accepted reauthorize connection");
-
-  *connection = conn;
-  conn = -1;
-  ret = 0;
-
-out:
-  if (conn != -1)
-    close (conn);
-  return ret;
-}
-
-int
-reauthorize_recv (int connection,
-                  char **challenge)
-{
-  char *msg = NULL;
-  socklen_t msg_len;
-  ssize_t count;
-  char dummy[2];
-  int ret;
-
-  for (msg = NULL, msg_len = 8192; 1; msg_len *= 2)
-    {
-      msg = _reauthorize_xrealloc (msg, msg_len);
-      if (msg == NULL)
-        {
-          ret = -ENOMEM;
-          message ("couldn't allocate response buffer");
-          goto out;
-        }
-
-      count = recv (connection, msg, msg_len - 1, MSG_PEEK);
-
       if (count < 0)
         {
-          ret = -errno;
-          if (ret != -EAGAIN && ret != -EINTR)
-            message ("couldn't read reauthorize message: %m");
-          goto out;
-        }
-      else if (count != msg_len - 1)
-        {
-          if (memchr (msg, 0, count) != NULL)
+          if (errno == EAGAIN || errno == EINTR)
             {
-              ret = -EINVAL;
-              message ("invalid null characters in reauthorize message");
-              goto out;
+              count = 0;
             }
-          msg[count] = '\0';
-
-          /* Drain the peeked message */
-          for (;;)
+          else
             {
-              count = recv (connection, dummy, sizeof (dummy), 0);
-              if (count < 0)
-                {
-                  if (errno == EINTR || errno == EAGAIN)
-                    continue;
-                  ret = -errno;
-                  message ("couldn't drain reauthorize message: %m");
-                  goto out;
-                }
-              break;
+              ret = -errno;
+              close (fd);
+              free (buffer);
+              return ret;
             }
-
-          break;
         }
-      else
-        {
-          /* try again if buffer was too small */
-        }
+      assert (count <= length);
+      data += count;
+      length -= count;
     }
 
-  debug ("received reauthorize challenge: %s", msg);
+  close (fd);
 
-  *challenge = msg;
-  msg = NULL;
+  /* Buffer first has prefix */
+  memcpy (buffer, prefix, prefix_len);
+
+  /* Encode the binary data into crypt() allowed set */
+  set_len = strlen (set);
+  for (i = prefix_len; i < prefix_len + salt_len; i++)
+    buffer[i] = set[buffer[i] % set_len];
+
+  /* End up with a '$\0' */
+  memcpy (buffer + prefix_len + salt_len, "$", 2);
+
+  *salt = buffer;
+  return 0;
+}
+
+/* ----------------------------------------------------------------------------
+ * Prepare for later reauthorization
+ */
+
+int
+reauthorize_prepare (const char *user,
+                     const char *password,
+                     long keyring,
+                     long *out_key)
+{
+  struct crypt_data *cd = NULL;
+  key_serial_t key;
+  const char *secret;
+  char *salt = NULL;
+  ssize_t salt_len;
+  char *name = NULL;
+  key_perm_t perm;
+  int ret;
+
+  if (password == NULL)
+    {
+      debug ("no password available for user %s", user);
+      return 0;
+    }
+
+  /* The salt already contains algorithm prefix and suffix */
+  ret = generate_salt (&salt);
+  if (ret < 0)
+    {
+      message ("couldn't generate crypt salt: %m");
+      goto out;
+    }
+
+  cd = calloc (1, sizeof (struct crypt_data));
+  if (!cd)
+    {
+      message ("couldn't allocate crypt data");
+      ret = -ENOMEM;
+      goto out;
+    }
+
+  secret = crypt_r (password, salt, cd);
+  if (!secret)
+    {
+      ret = -errno;
+      message ("couldn't crypt reauthorize secret: %m");
+      goto out;
+    }
+
+  /*
+   * Double check that our assumptions about crypt() work
+   * as expected. We're later going to be sending away the
+   * salt as a challenge, so guarantee that it works.
+   */
+
+  salt_len = parse_salt (secret);
+  if (salt_len != strlen (salt) || memcmp (secret, salt, salt_len) != 0)
+    {
+      ret = -EINVAL;
+      message ("got invalid result from crypt");
+      goto out;
+    }
+
+  if (asprintf (&name, "reauthorize/secret/%s", user) < 0)
+    {
+      ret = -ENOMEM;
+      message ("couldn't allocate keyring name");
+      goto out;
+    }
+
+  /*
+   * Don't put our secret into the session keyring until the permissions
+   * are strong enough. Since we want that to be atomic, first store in
+   * our thread keyring, and then link below.
+   */
+  if (keyring == 0)
+    keyring = KEY_SPEC_SESSION_KEYRING;
+
+  key = add_key ("user", name, "xxx", 3, keyring);
+  if (key < 0)
+    {
+      ret = -errno;
+      message ("couldn't create key in kernel session keyring: %s: %m", name);
+      goto out;
+    }
+
+  /* Set permissions, and double check that what we expect happened */
+  perm = KEY_USR_VIEW | KEY_USR_READ | KEY_USR_WRITE | KEY_USR_SEARCH | KEY_USR_LINK;
+  if (keyctl_setperm (key, perm) < 0)
+    {
+      ret = -errno;
+      message ("couldn't set permissions on kernel key: %s: %m", name);
+      goto out;
+    }
+
+  if (keyctl_update (key, secret, strlen (secret)))
+    {
+      ret = -errno;
+      message ("couldn't update secret reauthorize key in kernel keyring: %s: %m", name);
+      goto out;
+    }
+
+  debug ("placed secret in kernel session keyring");
+  *out_key = key;
   ret = 0;
 
 out:
-  free (msg);
+  secfree (cd, sizeof (struct crypt_data));
+  free (name);
+  free (salt);
+  return ret;
+}
+
+/* ----------------------------------------------------------------------------
+ * Perform reauthorization
+ */
+
+static int
+build_reauthorize_challenge (const char *user,
+                             const char *secret,
+                             char **challenge)
+{
+  int ret;
+  char *nonce = NULL;
+  char *hex = NULL;
+  ssize_t salt_len;
+  int len;
+
+  salt_len = parse_salt (secret);
+  if (salt_len < 0)
+    {
+      message ("ignoring invalid reauthorize secret");
+      ret = -EINVAL;
+      goto out;
+    }
+
+  ret = generate_salt (&nonce);
+  if (ret < 0)
+    {
+      errno = -ret;
+      message ("unable to generate crypt salt: %m");
+      goto out;
+    }
+
+  ret = hex_encode (user, -1, &hex);
+  if (ret < 0)
+    {
+      errno = -ret;
+      message ("couldn't encode user as hex: %m");
+      goto out;
+    }
+
+  len = asprintf (challenge, "crypt1:%s:%s:%.*s", hex, nonce, (int)salt_len, secret);
+  if (len < 0)
+    {
+      message ("failed to allocate challenge");
+      ret = -ENOMEM;
+      goto out;
+    }
+
+  /* Double check that we didn't include the whole secret */
+  assert ((*challenge)[len - 1] == '$');
+  assert (strstr (*challenge, secret) == NULL);
+  ret = 0;
+
+out:
+  free (nonce);
+  free (hex);
+  return ret;
+}
+
+static int
+perform_reauthorize_validate (const char *user,
+                              const char *secret,
+                              const char *response)
+{
+  struct crypt_data *cd = NULL;
+  char *nonce = NULL;
+  const char *check;
+  ssize_t nonce_len;
+  int ret;
+
+  assert (user != NULL);
+  assert (secret != NULL);
+  assert (response != NULL);
+
+  if (strncmp (response, "crypt1:", 7) != 0)
+    {
+      message ("received invalid response");
+      ret = -EINVAL;
+      goto out;
+    }
+  response += 7;
+
+  nonce_len = parse_salt (response);
+  if (nonce_len < 0)
+    {
+      message ("ignoring invalid reauthorize response");
+      ret = -EINVAL;
+      goto out;
+    }
+
+  nonce = strndup (response, nonce_len);
+  if (!nonce)
+    {
+      message ("couldn't allocate memory for nonce");
+      ret = -ENOMEM;
+      goto out;
+    }
+
+  cd = calloc (1, sizeof (struct crypt_data));
+  if (cd == NULL)
+    {
+      message ("couldn't allocate crypt data context");
+      ret = -ENOMEM;
+      goto out;
+    }
+
+  check = crypt_r (secret, nonce, cd);
+  if (check == NULL)
+    {
+      ret = -errno;
+      message ("couldn't crypt data: %m");
+      goto out;
+    }
+
+  debug ("expected response is: %s", check);
+
+  if (strcmp (check, response) != 0)
+    {
+      ret = REAUTHORIZE_NO;
+      message ("user %s reauthorization failed", user);
+      goto out;
+    }
+
+  message ("user %s was reauthorized", user);
+  ret = REAUTHORIZE_YES;
+
+out:
+  free (nonce);
+  secfree (cd, sizeof (struct crypt_data));
+  return ret;
+}
+
+static int
+lookup_reauthorize_secret (const char *user,
+                           char **secret)
+{
+  char *buffer = NULL;
+  char *name = NULL;
+  key_serial_t key;
+  int ret;
+
+  if (asprintf (&name, "reauthorize/secret/%s", user) < 0)
+    {
+      message ("failed to allocate secret name");
+      ret = -ENOMEM;
+      goto out;
+    }
+
+  key = keyctl_search (KEY_SPEC_SESSION_KEYRING, "user", name, 0);
+  if (key < 0)
+    {
+      /* missing key is not an error */
+      if (errno == ENOKEY)
+        {
+          ret = 0;
+          *secret = NULL;
+          goto out;
+        }
+
+      ret = -errno;
+      message ("failed to lookup reauthorize secret key: %s: %m", name);
+      goto out;
+    }
+
+  if (keyctl_describe_alloc (key, &buffer) < 0)
+    {
+      ret = -errno;
+      message ("couldn't describe reauthorize secret key: %s: %m", name);
+      goto out;
+    }
+  if (strncmp (buffer, "user;0;0;001f0000;", 18) != 0)
+    {
+      ret = -EPERM;
+      message ("kernel reauthorize secret key has invalid permissions: %s: %s", name, buffer);
+      goto out;
+    }
+
+  /* null-terminates */
+  if (keyctl_read_alloc (key, (void **)secret) < 0)
+    {
+      ret = -errno;
+      message ("couldn't read kernel reauthorize secret key: %s: %m", name);
+      goto out;
+    }
+
+  ret = 0;
+
+out:
+  free (buffer);
+  free (name);
   return ret;
 }
 
 int
-reauthorize_send (int connection,
-                  const char *response)
+reauthorize_perform (const char *user,
+                     const char *response,
+                     char **challenge)
 {
-  size_t response_len;
-  ssize_t count;
+  char *secret = NULL;
   int ret;
 
-  response_len = strlen (response);
-
-  count = send (connection, response, response_len, MSG_NOSIGNAL);
-  if (count < 0)
+  if (!user || !challenge)
     {
-      ret = -errno;
-      if (errno != EAGAIN && errno != EINTR)
-        message ("couldn't send response message: %m");
-      goto out;
-    }
-  if (count != response_len)
-    {
-      ret = -EMSGSIZE;
-      message ("couldn't send response message: too long");
+      message ("bad arguments");
+      ret = -EINVAL;
       goto out;
     }
 
-  debug ("sent reauthorize response: %s", response);
+  if (response != NULL &&
+      strcmp (response, "") == 0)
+    {
+      debug ("reauthorize was cancelled");
+      *challenge = NULL;
+      ret = REAUTHORIZE_NO;
+      goto out;
+    }
 
-  ret = 0;
+  ret = lookup_reauthorize_secret (user, &secret);
+  if (ret < 0)
+    goto out;
+
+  /* This is where we'll plug in GSSAPI auth */
+  if (secret == NULL)
+    {
+      debug ("no reauthorize secret available");
+      *challenge = NULL;
+      ret = REAUTHORIZE_NO;
+    }
+  else if (response == NULL)
+    {
+      ret = build_reauthorize_challenge (user, secret, challenge);
+    }
+  else if (strcmp (response, ""))
+    {
+      ret = perform_reauthorize_validate (user, secret, response);
+    }
 
 out:
+  secfree (secret, -1);
   return ret;
 }
+
+/* ----------------------------------------------------------------------------
+ * Respond to challenges
+ */
 
 int
 reauthorize_type (const char *challenge,
@@ -376,7 +712,7 @@ reauthorize_user (const char *challenge,
       return -EINVAL;
     }
 
-  ret = _reauthorize_unhex (beg, len, &result, &user_len);
+  ret = hex_decode (beg, len, &result, &user_len);
   if (ret < 0)
     {
       message ("invalid reauthorize challenge: bad hex encoding");
@@ -415,6 +751,7 @@ reauthorize_crypt1 (const char *challenge,
     }
   challenge += 7;
 
+  spos = NULL;
   npos = strchr (challenge, ':');
   if (npos != NULL)
     {
@@ -438,8 +775,8 @@ reauthorize_crypt1 (const char *challenge,
       goto out;
     }
 
-  if (_reauthorize_parse_salt (nonce) < 0 ||
-      _reauthorize_parse_salt (salt) < 0)
+  if (parse_salt (nonce) < 0 ||
+      parse_salt (salt) < 0)
     {
       message ("reauthorize challenge has bad nonce or salt");
       ret = -EINVAL;
@@ -488,7 +825,7 @@ reauthorize_crypt1 (const char *challenge,
 out:
   free (nonce);
   free (salt);
-  _reauthorize_secfree (cd, sizeof (struct crypt_data) * 2);
+  secfree (cd, sizeof (struct crypt_data) * 2);
 
   return ret;
 }

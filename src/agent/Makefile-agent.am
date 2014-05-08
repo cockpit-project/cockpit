@@ -10,8 +10,6 @@ libcockpit_agent_a_SOURCES = \
 	src/agent/cockpitfakemanager.h \
 	src/agent/cockpitpolkitagent.c \
 	src/agent/cockpitpolkitagent.h \
-	src/agent/cockpitreauthorize.c \
-	src/agent/cockpitreauthorize.h \
 	src/agent/cockpitrestjson.c \
 	src/agent/cockpitrestjson.h \
 	src/agent/cockpittextstream.c \
@@ -30,14 +28,12 @@ libcockpit_agent_LIBS = \
 	libcockpit-agent.a \
 	libcockpit.a \
 	libwebsocket.a \
-	libreauthorize.a \
 	$(COCKPIT_AGENT_LIBS) \
-	$(REAUTHORIZE_LIBS) \
 	$(NULL)
 
 # -----------------------------------------------------------------------------
 
-libexec_PROGRAMS += cockpit-session cockpit-agent
+libexec_PROGRAMS += cockpit-session cockpit-agent cockpit-polkit
 
 cockpit_session_SOURCES = src/agent/session.c
 cockpit_session_LDADD = $(COCKPIT_SESSION_LIBS)
@@ -48,6 +44,16 @@ cockpit_agent_CFLAGS = \
 	$(COCKPIT_AGENT_CFLAGS) \
 	$(NULL)
 cockpit_agent_LDADD = $(libcockpit_agent_LIBS)
+
+cockpit_polkit_SOURCES = src/agent/cockpitpolkithelper.c
+cockpit_polkit_CFLAGS = $(COCKPIT_POLKIT_CFLAGS)
+cockpit_polkit_LDADD = libreauthorize.a $(REAUTHORIZE_LIBS) $(COCKPIT_POLKIT_LIBS)
+
+# polkit-agent-helper-1 need to be setuid root because polkit wants
+# responses to come from a root process
+install-data-hook:
+	-chown root $(DESTDIR)$(libexecdir)/cockpit-polkit
+	-chmod 4755 $(DESTDIR)$(libexecdir)/cockpit-polkit
 
 # -----------------------------------------------------------------------------
 # TESTS
@@ -65,7 +71,6 @@ AGENT_CHECKS = \
 	test-dbusjson \
 	test-restjson \
 	test-textstream \
-	test-reauthagent \
 	$(NULL)
 
 test_channel_SOURCES = src/agent/test-channel.c
@@ -84,10 +89,6 @@ test_restjson_LDADD = $(libcockpit_agent_LIBS)
 test_textstream_SOURCES = src/agent/test-textstream.c
 test_textstream_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_textstream_LDADD = $(libcockpit_agent_LIBS)
-
-test_reauthagent_SOURCES = src/agent/test-reauthagent.c
-test_reauthagent_CFLAGS = $(libcockpit_agent_a_CFLAGS)
-test_reauthagent_LDADD = $(libcockpit_agent_LIBS)
 
 nodist_test_fakemanager_SOURCES = $(test_dbus_generated)
 test_fakemanager_SOURCES = \

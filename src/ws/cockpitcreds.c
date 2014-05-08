@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitcreds.h"
+#include "cockpit/cockpitmemory.h"
 
 #include <string.h>
 
@@ -38,6 +39,7 @@ cockpit_creds_free (gpointer data)
 {
   CockpitCreds *creds = data;
   g_free (creds->user);
+  cockpit_secclear (creds->password, -1);
   g_free (creds->password);
   g_free (creds->rhost);
   g_free (creds);

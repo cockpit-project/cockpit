@@ -31,6 +31,7 @@
 
 #include "cockpit/cockpitjson.h"
 #include "cockpit/cockpitpipe.h"
+#include "cockpit/cockpitmemory.h"
 
 #include <glib/gstdio.h>
 
@@ -381,6 +382,7 @@ verify_userpass (CockpitAuth *self,
 {
   gchar **lines = g_strsplit (content, "\n", 0);
   CockpitCreds *ret = NULL;
+  gint i;
 
   if (lines[0] == NULL
       || lines[1] == NULL
@@ -392,6 +394,8 @@ verify_userpass (CockpitAuth *self,
     }
 
   ret = cockpit_auth_verify_password (self, lines[0], lines[1], remote_peer, error);
+  for (i = 0; lines && lines[i]; i++)
+    cockpit_secclear (lines[i], -1);
   g_strfreev (lines);
   return ret;
 }

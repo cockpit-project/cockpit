@@ -21,6 +21,10 @@
 
 #include "cockpitcreds.h"
 
+#include "cockpit/cockpitmemory.h"
+
+#include <string.h>
+
 struct _CockpitCreds {
   gint refs;
   gchar *user;
@@ -34,7 +38,7 @@ cockpit_creds_free (gpointer data)
 {
   CockpitCreds *creds = data;
   g_free (creds->user);
-  g_free (creds->password);
+  cockpit_secfree (creds->password, -1);
   g_free (creds);
 }
 

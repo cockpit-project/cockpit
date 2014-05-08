@@ -27,6 +27,8 @@
 
 #include "websocket/websocket.h"
 
+#include "cockpit/cockpitmemory.h"
+
 #include <glib/gstdio.h>
 
 #include <stdio.h>
@@ -181,6 +183,7 @@ verify_userpass (CockpitAuth *self,
   gboolean ret = FALSE;
   gchar *user;
   gchar *password;
+  gint i;
 
   if (lines[0] == NULL
       || lines[1] == NULL
@@ -209,7 +212,9 @@ verify_userpass (CockpitAuth *self,
   ret = TRUE;
 
 out:
-  g_strfreev (lines);
+  for (i = 0; lines && lines[i]; i++)
+    cockpit_secfree (lines[i], -1);
+  g_free (lines);
   return ret;
 }
 

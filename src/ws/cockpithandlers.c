@@ -136,6 +136,7 @@ cockpit_handler_login (CockpitWebServer *server,
   GHashTable *out_headers = NULL;
   gs_free gchar *response_body = NULL;
   CockpitCreds *creds = NULL;
+  struct passwd *pwd;
 
   out_headers = cockpit_web_server_new_table ();
 
@@ -174,11 +175,12 @@ cockpit_handler_login (CockpitWebServer *server,
     json_builder_set_member_name (builder, "user");
     user = cockpit_creds_get_user (creds);
     json_builder_add_string_value (builder, user);
-    struct passwd *pwd = getpwnam (user);
+    pwd = cockpit_getpwnam_a (user, NULL);
     if (pwd)
       {
         json_builder_set_member_name (builder, "name");
         json_builder_add_string_value (builder, pwd->pw_gecos);
+        free (pwd);
       }
     json_builder_end_object (builder);
 

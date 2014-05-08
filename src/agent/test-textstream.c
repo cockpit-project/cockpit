@@ -22,6 +22,7 @@
 
 #include "cockpittextstream.h"
 
+#include "cockpit/cockpitjson.h"
 #include "cockpit/cockpittest.h"
 
 #include <json-glib/json-glib.h>
@@ -46,7 +47,7 @@ typedef struct {
   gchar *problem;
   guint channel_sent;
   GBytes *payload_sent;
-  GBytes *control_sent;
+  JsonObject *control_sent;
 }MockTransport;
 
 typedef CockpitTransportClass MockTransportClass;
@@ -101,7 +102,7 @@ mock_transport_finalize (GObject *object)
   if (self->payload_sent)
     g_bytes_unref (self->payload_sent);
   if (self->control_sent)
-    g_bytes_unref (self->control_sent);
+    json_object_unref (self->control_sent);
 
   G_OBJECT_CLASS (mock_transport_parent_class)->finalize (object);
 }
@@ -112,10 +113,13 @@ mock_transport_send (CockpitTransport *transport,
                      GBytes *data)
 {
   MockTransport *self = (MockTransport *)transport;
+  GError *error = NULL;
+
   if (channel == 0)
     {
       g_assert (self->control_sent == NULL);
-      self->control_sent = g_bytes_ref (data);
+      self->control_sent = cockpit_json_parse_bytes (data, &error);
+      g_assert_no_error (error);
     }
   else
     {
@@ -300,29 +304,24 @@ teardown (TestCase *tc,
 }
 
 static void
-expect_control_message (GBytes *payload,
+expect_control_message (JsonObject *options,
                         const gchar *command,
                         guint channel,
                         ...) G_GNUC_NULL_TERMINATED;
 
 static void
-expect_control_message (GBytes *payload,
+expect_control_message (JsonObject *options,
                         const gchar *expected_command,
                         guint expected_channel,
                         ...)
 {
-  const gchar *message_command;
-  guint message_channel;
-  JsonObject *options;
   const gchar *expect_option;
   const gchar *expect_value;
   va_list va;
 
-  g_assert (cockpit_transport_parse_command (payload, &message_command,
-                                             &message_channel, &options));
-
-  g_assert_cmpstr (expected_command, ==, message_command);
-  g_assert_cmpuint (expected_channel, ==, expected_channel);
+  g_assert (options != NULL);
+  g_assert_cmpstr (json_object_get_string_member (options, "command"), ==, expected_command);
+  g_assert_cmpint (json_object_get_int_member (options, "channel"), ==, expected_channel);
 
   va_start (va, expected_channel);
   for (;;) {
@@ -334,8 +333,6 @@ expect_control_message (GBytes *payload,
       g_assert_cmpstr (json_object_get_string_member (options, expect_option), ==, expect_value);
   }
   va_end (va);
-
-  json_object_unref (options);
 }
 
 
@@ -473,7 +470,6 @@ test_spawn_simple (void)
 
   g_object_unref (transport);
 }
-
 static void
 test_spawn_environ (void)
 {
@@ -530,6 +526,49 @@ test_spawn_environ (void)
 
   cockpit_assert_strmatch (string->str, "*ENVIRON=*Marmalaade*");
   g_string_free (string, TRUE);
+
+  g_object_unref (channel);
+  g_object_unref (transport);
+}
+
+static void
+test_spawn_status (void)
+{
+  MockTransport *transport;
+  CockpitChannel *channel;
+  gchar *problem = NULL;
+  JsonObject *options;
+  JsonArray *array;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  options = json_object_new ();
+
+  array = json_array_new ();
+  json_array_add_string_element (array, "/bin/sh");
+  json_array_add_string_element (array, "-c");
+  json_array_add_string_element (array, "exit 5");
+  json_object_set_array_member (options, "spawn", array);
+
+  json_object_set_string_member (options, "payload", "text-stream");
+
+  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+                          "options", options,
+                          "channel", 548,
+                          "transport", transport,
+                          NULL);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  cockpit_channel_close (channel, NULL);
+  json_object_unref (options);
+
+  while (!problem)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert (transport->control_sent);
+  expect_control_message (transport->control_sent, "close", 548, "reason", "", NULL);
+  g_assert_cmpint (json_object_get_int_member (transport->control_sent, "exit-status"), ==, 5);
+
+  g_free (problem);
 
   g_object_unref (channel);
   g_object_unref (transport);
@@ -725,6 +764,7 @@ main (int argc,
               setup_channel, test_recv_invalid, teardown);
 
   g_test_add_func ("/text-stream/spawn/simple", test_spawn_simple);
+  g_test_add_func ("/text-stream/spawn/status", test_spawn_status);
   g_test_add_func ("/text-stream/spawn/environ", test_spawn_environ);
   g_test_add_func ("/text-stream/spawn/pty", test_spawn_pty);
 

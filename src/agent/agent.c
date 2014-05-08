@@ -21,7 +21,6 @@
 #include "cockpitchannel.h"
 #include "cockpitdbusjson.h"
 #include "cockpitpolkitagent.h"
-#include "cockpitreauthorize.h"
 
 #include "cockpit/cockpitpipetransport.h"
 
@@ -120,11 +119,10 @@ main (int argc,
       char **argv)
 {
   CockpitTransport *transport;
-  CockpitReauthorize *reauthorize;
   GDBusConnection *connection;
   gboolean closed = FALSE;
   GError *error = NULL;
-  gpointer agent;
+  gpointer polkit_agent;
   int outfd;
 
   /*
@@ -157,8 +155,7 @@ main (int argc,
       g_clear_error (&error);
     }
 
-  agent = cockpit_polkit_agent_register (NULL);
-  reauthorize = cockpit_reauthorize_new (transport);
+  polkit_agent = cockpit_polkit_agent_register (transport, NULL);
 
   /* Owns the channels */
   channels = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
@@ -166,9 +163,8 @@ main (int argc,
   while (!closed)
     g_main_context_iteration (NULL, TRUE);
 
-  g_object_unref (reauthorize);
-  if (agent)
-    cockpit_polkit_agent_unregister (agent);
+  if (polkit_agent)
+    cockpit_polkit_agent_unregister (polkit_agent);
   if (connection)
     g_object_unref (connection);
   g_object_unref (transport);

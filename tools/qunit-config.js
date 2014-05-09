@@ -75,7 +75,7 @@ QUnit.done(function() {
 });
 window.setTimeout(function() {
     if (!qunit_started) {
-        console.log("Bail out! QUnit not started by test");
-        console.log("qunit-tap-done");
+        console.log("QUnit not started by test");
+        console.log("qunit-tap-error");
     }
-}, 1000);
+}, 5000);

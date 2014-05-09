@@ -33,4 +33,20 @@ GType            mock_io_stream_get_type          (void);
 GIOStream *      mock_io_stream_new               (GInputStream *input,
                                                    GOutputStream *output);
 
+#define MOCK_TYPE_OUTPUT_STREAM    (mock_output_stream_get_type ())
+#define MOCK_OUTPUT_STREAM(o)      (G_TYPE_CHECK_INSTANCE_CAST ((o), MOCK_TYPE_OUTPUT_STREAM, MockOutputStream))
+#define MOCK_IS_OUTPUT_STREAM(o)   (G_TYPE_CHECK_INSTANCE_TYPE ((o), MOCK_TYPE_OUTPUT_STREAM))
+
+typedef struct _MockOutputStream MockOutputStream;
+
+GType            mock_output_stream_get_type      (void);
+
+GOutputStream *  mock_output_stream_new           (GString *buffer);
+
+void             mock_output_stream_fail          (MockOutputStream *self,
+                                                   GError *write_error,
+                                                   GError *flush_error,
+                                                   GError *close_error);
+
+
 #endif /* __MOCK_IO_STREAM_H__ */

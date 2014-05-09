@@ -49,6 +49,9 @@ const gchar *cockpit_ws_agent_program =
 const gchar *cockpit_ws_known_hosts =
     PACKAGE_LOCALSTATE_DIR "/lib/cockpit/known_hosts";
 
+const gchar *cockpit_ws_default_host_header =
+    "0.0.0.0:0"; /* Must be something invalid */
+
 gint cockpit_ws_specific_ssh_port = 0;
 
 /* ----------------------------------------------------------------------------
@@ -165,6 +168,7 @@ on_timeout_cleanup_session (gpointer user_data)
       g_debug ("%s: session timed out without channels", session->key.host);
       cockpit_transport_close (session->transport, "timeout");
     }
+
   return FALSE;
 }
 
@@ -279,8 +283,7 @@ struct _CockpitWebService {
   CockpitSessions sessions;
   gboolean closing;
   GBytes *control_prefix;
-
-  GMainContext            *main_context;
+  guint ping_timeout;
 };
 
 typedef struct {
@@ -300,6 +303,8 @@ cockpit_web_service_finalize (GObject *object)
   g_object_unref (self->auth);
   if (self->authenticated)
     cockpit_creds_unref (self->authenticated);
+  if (self->ping_timeout)
+    g_source_remove (self->ping_timeout);
 
   G_OBJECT_CLASS (cockpit_web_service_parent_class)->finalize (object);
 }
@@ -883,6 +888,12 @@ on_web_socket_close (WebSocketConnection *web_socket,
               cockpit_creds_get_rhost (self->authenticated),
               cockpit_creds_get_user (self->authenticated));
     }
+
+  /*
+   * We were holding a reference while the web socket was open.
+   * Now close down, and allow anything remaining to finalize.
+   */
+  g_object_unref (self);
 }
 
 static gboolean
@@ -918,17 +929,31 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
   object_class->finalize = cockpit_web_service_finalize;
 }
 
-void
+/**
+ * cockpit_web_service_socket:
+ * @io_stream: the stream to talk on
+ * @headers: optional headers already parsed
+ * @input_buffer: optional bytes already parsed after headers
+ * @auth: authentication object
+ * @creds: credentials of user or NULL for failed auth
+ *
+ * Creates a new web service to serve a web socket on the given
+ * stream. Holds an extra reference to itself until its done, so
+ * you can safely unref the returned service.
+ *
+ * Returns: (transfer full): the service, unref when no longer needed
+ */
+CockpitWebService *
 cockpit_web_service_socket (GIOStream *io_stream,
                             GHashTable *headers,
                             GByteArray *input_buffer,
-                            CockpitAuth *auth)
+                            CockpitAuth *auth,
+                            CockpitCreds *creds)
 {
   const gchar *protocols[] = { "cockpit1", NULL };
   CockpitWebService *self;
-  const gchar *host;
+  const gchar *host = NULL;
   gboolean secure;
-  guint ping_id;
   gchar *origin;
   gchar *url;
 
@@ -945,24 +970,19 @@ cockpit_web_service_socket (GIOStream *io_stream,
     }
 
   self->auth = g_object_ref (auth);
-  self->authenticated = cockpit_auth_check_headers (auth, headers, NULL);
+  if (creds)
+    self->authenticated = cockpit_creds_ref (creds);
 
-  host = g_hash_table_lookup (headers, "Host");
-
-  /*
-   * This invalid Host is a fallback. The websocket code will refuse requests
-   * with a missing Host. But to be defensive, in case it doesn't set to
-   * something impossible here.
-   */
+  if (headers)
+    host = g_hash_table_lookup (headers, "Host");
   if (!host)
-    host = "0.0.0.0:0";
+    host = cockpit_ws_default_host_header;
+
   secure = G_IS_TLS_CONNECTION (io_stream);
 
-  url = g_strdup_printf ("%s://%s/socket", secure ? "wss" : "ws", host);
+  url = g_strdup_printf ("%s://%s/socket", secure ? "wss" : "ws",
+                         host ? host : "localhost");
   origin = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
-
-  self->main_context = g_main_context_new ();
-  g_main_context_push_thread_default (self->main_context);
 
   self->web_socket = web_socket_server_new_for_stream (url, origin, protocols,
                                                        io_stream, headers,
@@ -971,18 +991,15 @@ cockpit_web_service_socket (GIOStream *io_stream,
   g_free (origin);
   g_free (url);
 
+  /* Matching unref in on_web_socket_close() */
+  g_object_ref (self);
+
   g_signal_connect (self->web_socket, "open", G_CALLBACK (on_web_socket_open), self);
   g_signal_connect (self->web_socket, "closing", G_CALLBACK (on_web_socket_closing), self);
   g_signal_connect (self->web_socket, "close", G_CALLBACK (on_web_socket_close), self);
   g_signal_connect (self->web_socket, "error", G_CALLBACK (on_web_socket_error), self);
-  ping_id = g_timeout_add (5000, on_ping_time, self);
 
-  while (web_socket_connection_get_ready_state (self->web_socket) != WEB_SOCKET_STATE_CLOSED)
-    g_main_context_iteration (self->main_context, TRUE);
+  self->ping_timeout = g_timeout_add_seconds (5, on_ping_time, self);
 
-  g_source_remove (ping_id);
-  g_main_context_pop_thread_default (self->main_context);
-  g_main_context_unref (self->main_context);
-
-  g_object_unref (self);
+  return self;
 }

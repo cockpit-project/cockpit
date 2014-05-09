@@ -22,6 +22,7 @@
 
 #include "cockpitauth.h"
 #include "cockpitwebserver.h"
+#include "cockpitwebresponse.h"
 
 typedef struct {
   CockpitAuth *auth;
@@ -29,47 +30,43 @@ typedef struct {
 
 gboolean       cockpit_handler_socket            (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
-                                                  const gchar *resource,
+                                                  const gchar *path,
                                                   GIOStream *io_stream,
                                                   GHashTable *headers,
-                                                  GDataInputStream *in,
-                                                  GDataOutputStream *out,
+                                                  GByteArray *input,
+                                                  guint in_length,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_login             (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
-                                                  const gchar *resource,
-                                                  GIOStream *io_stream,
+                                                  const gchar *path,
                                                   GHashTable *headers,
-                                                  GDataInputStream *in,
-                                                  GDataOutputStream *out,
+                                                  GBytes *input,
+                                                  CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_logout            (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
-                                                  const gchar *resource,
-                                                  GIOStream *io_stream,
+                                                  const gchar *path,
                                                   GHashTable *headers,
-                                                  GDataInputStream *in,
-                                                  GDataOutputStream *out,
+                                                  GBytes *input,
+                                                  CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_deauthorize       (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
                                                   const gchar *resource,
-                                                  GIOStream *io_stream,
                                                   GHashTable *headers,
-                                                  GDataInputStream *in,
-                                                  GDataOutputStream *out,
+                                                  GBytes *input,
+                                                  CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_cockpitdyn        (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
-                                                  const gchar *resource,
-                                                  GIOStream *connection,
+                                                  const gchar *path,
                                                   GHashTable *headers,
-                                                  GDataInputStream *in,
-                                                  GDataOutputStream *out,
+                                                  GBytes *input,
+                                                  CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
 #endif /* __COCKPIT_HANDLERS_H__ */

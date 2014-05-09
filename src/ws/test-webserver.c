@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitwebserver.h"
+#include "cockpitws.h"
 
 #include "cockpit/cockpittest.h"
 
@@ -92,6 +93,8 @@ setup (TestCase *tc,
   gchar *str;
   gint port;
 
+  alarm (10);
+
   if (fixture && fixture->cert_file)
     {
       cert = g_tls_certificate_new_from_file (fixture->cert_file, &error);
@@ -120,6 +123,8 @@ static void
 teardown (TestCase *tc,
           gconstpointer data)
 {
+  cockpit_ws_request_timeout = 30;
+
   /* Verifies that we're not leaking the web server */
   g_object_add_weak_pointer (G_OBJECT (tc->web_server), (gpointer *)&tc->web_server);
   g_object_unref (tc->web_server);
@@ -129,6 +134,8 @@ teardown (TestCase *tc,
   g_free (tc->hostport);
 
   cockpit_assert_expected ();
+
+  alarm (0);
 }
 
 static void
@@ -150,131 +157,6 @@ test_table (void)
 }
 
 static void
-test_return_content (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  cockpit_web_server_return_content (out, NULL, "the content", 11);
-
-  /* Null terminate because g_assert_cmpstr() */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
-
-  g_object_unref (out);
-}
-
-static void
-test_return_content_headers (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-  GHashTable *headers;
-
-  headers = cockpit_web_server_new_table ();
-  g_hash_table_insert (headers, g_strdup ("My-header"), g_strdup ("my-value"));
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  cockpit_web_server_return_content (out, headers, "the content", 11);
-  g_hash_table_destroy (headers);
-
-  /* Null terminate because g_assert_cmpstr() */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\nMy-header: my-value\r\n\r\nthe content");
-
-  g_object_unref (out);
-}
-
-
-static void
-test_return_error (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-
-  cockpit_expect_message ("Returning error-response 500*");
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  cockpit_web_server_return_error (out, 500, NULL, "Reason here: %s", "booyah");
-
-  /* Null terminate it for fun */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
-
-  g_object_unref (out);
-}
-
-static void
-test_return_error_headers (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-  GHashTable *headers;
-
-  cockpit_expect_message ("Returning error-response 500*");
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  headers = g_hash_table_new (g_str_hash, g_str_equal);
-  g_hash_table_insert (headers, "Header1", "value1");
-
-  cockpit_web_server_return_error (out, 500, headers, "Reason here: %s", "booyah");
-
-  g_hash_table_destroy (headers);
-
-  /* Null terminate it for fun */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\nHeader1: value1\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
-
-  g_object_unref (out);
-}
-
-static void
-test_return_gerror_headers (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-  GHashTable *headers;
-  GError *error;
-
-  cockpit_expect_message ("Returning error-response 500*");
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  headers = g_hash_table_new (g_str_hash, g_str_equal);
-  g_hash_table_insert (headers, "Header1", "value1");
-
-  error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED, "Reason here: %s", "booyah");
-  cockpit_web_server_return_gerror (out, headers, error);
-
-  g_error_free (error);
-  g_hash_table_destroy (headers);
-
-  /* Null terminate it for fun */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\nHeader1: value1\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
-
-  g_object_unref (out);
-}
-
-static void
 on_ready_get_result (GObject *source,
                      GAsyncResult *result,
                      gpointer user_data)
@@ -284,19 +166,13 @@ on_ready_get_result (GObject *source,
   *retval = g_object_ref (result);
 }
 
-static gchar *
-perform_http_request (const gchar *hostport,
-                      const gchar *request,
-                      gsize *length)
+static GIOStream *
+create_io_stream (const gchar *hostport)
 {
   GSocketClient *client;
   GSocketConnection *conn;
   GAsyncResult *result;
-  GInputStream *input;
   GError *error = NULL;
-  GString *reply;
-  gsize len;
-  gssize ret;
 
   client = g_socket_client_new ();
 
@@ -308,12 +184,59 @@ perform_http_request (const gchar *hostport,
   g_object_unref (result);
   g_assert_no_error (error);
 
-  g_output_stream_write_all (g_io_stream_get_output_stream (G_IO_STREAM (conn)),
-                             request, strlen (request), NULL, NULL, &error);
-  g_assert_no_error (error);
+  g_object_unref (client);
+  return G_IO_STREAM (conn);
+}
+
+static GString *
+perform_io_http (GIOStream *io,
+                 const gchar *request,
+                 gboolean close)
+{
+  GError *error = NULL;
+  GString *reply;
+  GInputStream *input;
+  GOutputStream *output;
+  GAsyncResult *result;
+  gssize ret;
+  gsize len;
+
+  len = strlen (request);
+  output = g_io_stream_get_output_stream (io);
+  while (len > 0)
+    {
+      result = NULL;
+      g_output_stream_write_async (output, request, len, G_PRIORITY_DEFAULT,
+                                   NULL, on_ready_get_result, &result);
+      while (result == NULL)
+        g_main_context_iteration (NULL, TRUE);
+      ret = g_output_stream_write_finish (output, result, &error);
+      g_object_unref (result);
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
+        {
+          g_clear_error (&error);
+          ret = 0;
+        }
+      g_assert_no_error (error);
+      request += ret;
+      len -= ret;
+    }
+
+  if (close)
+    {
+      g_output_stream_close (output, NULL, &error);
+      g_assert_no_error (error);
+
+      if (G_IS_SOCKET_CONNECTION (io))
+        {
+          g_socket_shutdown (g_socket_connection_get_socket (G_SOCKET_CONNECTION (io)),
+                             FALSE, TRUE, &error);
+          g_assert_no_error (error);
+        }
+    }
 
   reply = g_string_new ("");
-  input = g_io_stream_get_input_stream (G_IO_STREAM (conn));
+  input = g_io_stream_get_input_stream (io);
   for (;;)
     {
       result = NULL;
@@ -332,8 +255,19 @@ perform_http_request (const gchar *hostport,
         break;
     }
 
-  g_object_unref (conn);
-  g_object_unref (client);
+  return reply;
+}
+
+static gchar *
+perform_http_request (const gchar *hostport,
+                      const gchar *request,
+                      gsize *length)
+{
+  GIOStream *io = create_io_stream (hostport);
+  GString *reply;
+
+  reply = perform_io_http (io, request, FALSE);
+  g_object_unref (io);
 
   if (length)
     *length = reply->len;
@@ -376,9 +310,7 @@ test_webserver_not_found (TestCase *tc,
   guint status;
   gssize off;
 
-  cockpit_expect_message ("Returning error-response 404*");
-
-  resp = perform_http_request (tc->localport, "GET /non-existent\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /non-existent HTTP/1.0\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -398,10 +330,8 @@ test_webserver_not_authorized (TestCase *tc,
   guint status;
   gssize off;
 
-  cockpit_expect_message ("Returning error-response 403*");
-
   /* Listing a directory will result in 403 (except / -> index.html) */
-  resp = perform_http_request (tc->localport, "GET /po\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /po HTTP/1.0\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -409,6 +339,139 @@ test_webserver_not_authorized (TestCase *tc,
   g_assert_cmpuint (off, >, 0);
   g_assert_cmpint (status, ==, 403);
 
+  g_free (resp);
+}
+
+static void
+test_input_too_big (TestCase *tc,
+                    gconstpointer user_data)
+{
+  GString *req;
+  gchar *resp;
+  gint i;
+
+  req = g_string_new ("GET /blah HTTP/1.0\r\n");
+  g_string_append (req, "Content-Length: 5000\r\n\r\n");
+  for (i = 0; i < 5000; i++)
+    g_string_append_c (req, 'x');
+
+  /* Listing a directory will result in 403 (except / -> index.html) */
+  resp = perform_http_request (tc->localport, req->str, NULL);
+  g_string_free (req, TRUE);
+
+  cockpit_assert_strmatch (resp, "HTTP/1.1 413 Request Entity Too Large\r\n*");
+  g_free (resp);
+}
+
+static void
+test_request_too_big (TestCase *tc,
+                      gconstpointer user_data)
+{
+  GString *req;
+  gchar *resp;
+  gint i;
+
+  req = g_string_new ("GET /blah HTTP/1.0\r\n");
+  for (i = 0; i < 800; i++)
+    g_string_append (req, "Header: value\r\n");
+  g_string_append (req, "\r\n");
+
+  cockpit_expect_message ("received HTTP request that was too large");
+
+  /* Listing a directory will result in 403 (except / -> index.html) */
+  resp = perform_http_request (tc->localport, req->str, NULL);
+  g_string_free (req, TRUE);
+
+  cockpit_assert_expected ();
+
+  g_assert_cmpstr (resp, ==, "");
+  g_free (resp);
+}
+
+static void
+test_input_extra (TestCase *tc,
+                  gconstpointer user_data)
+{
+  gchar *resp;
+
+  resp = perform_http_request (tc->localport, "GET /blah HTTP/1.0\r\n\r\nExtra input", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/1.1 404*");
+  g_free (resp);
+}
+
+static void
+test_unsupported_method (TestCase *tc,
+                         gconstpointer user_data)
+{
+  gchar *resp;
+  gsize length;
+  guint status;
+  gssize off;
+
+  cockpit_expect_message ("received unsupported HTTP method");
+
+  resp = perform_http_request (tc->localport, "PUT /dbus-test.html HTTP/1.0\r\n\r\n", &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, >, 0);
+
+  cockpit_assert_expected ();
+
+  off = web_socket_util_parse_status_line (resp, length, &status, NULL);
+  g_assert_cmpuint (off, >, 0);
+  g_assert_cmpint (status, ==, 405);
+
+  g_free (resp);
+}
+
+static void
+test_default_no_post (TestCase *tc,
+                      gconstpointer user_data)
+{
+  gchar *resp;
+
+  /* Listing a directory will result in 403 (except / -> index.html) */
+  resp = perform_http_request (tc->localport, "POST /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
+
+  cockpit_assert_strmatch (resp, "HTTP/1.1 405 POST not available*");
+  g_free (resp);
+}
+
+static void
+test_bad_length (TestCase *tc,
+                 gconstpointer user_data)
+{
+  gchar *resp;
+
+  cockpit_expect_message ("received invalid Content-Length");
+
+  resp = perform_http_request (tc->localport, "POST / HTTP/1.0\r\nContent-length: blah\r\n\r\n", NULL);
+  g_assert_cmpstr (resp, ==, ""); /* just disconects */
+  g_free (resp);
+}
+
+static void
+test_bad_request (TestCase *tc,
+                  gconstpointer user_data)
+{
+  gchar *resp;
+
+  cockpit_expect_message ("received invalid HTTP request line");
+
+  resp = perform_http_request (tc->localport, "POST/HTTP/1.0\r\n\r\n", NULL);
+  g_assert_cmpstr (resp, ==, ""); /* just disconects */
+  g_free (resp);
+}
+
+static void
+test_bad_header (TestCase *tc,
+                 gconstpointer user_data)
+{
+  gchar *resp;
+
+  cockpit_expect_message ("received invalid HTTP request headers");
+
+  resp = perform_http_request (tc->localport, "POST / HTTP/1.0\r\nHeader\r\n\r\n", NULL);
+  g_assert_cmpstr (resp, ==, ""); /* just disconects */
   g_free (resp);
 }
 
@@ -444,6 +507,167 @@ test_webserver_noredirect_localhost (TestCase *tc,
   g_free (resp);
 }
 
+static void
+test_tls_request (TestCase *tc,
+                  gconstpointer user_data)
+{
+  GError *error = NULL;
+  GIOStream *io;
+  GIOStream *tls;
+  GString *resp;
+
+  g_assert (user_data == &fixture_with_cert);
+
+  io = create_io_stream (tc->hostport);
+
+  tls = g_tls_client_connection_new (io, NULL, &error);
+  g_assert_no_error (error);
+
+  g_tls_client_connection_set_validation_flags (G_TLS_CLIENT_CONNECTION (tls), 0);
+
+  resp = perform_io_http (tls, "GET /dbus-test.html HTTP/1.0\r\n\r\n", FALSE);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (resp->len, >, 0);
+
+  cockpit_assert_strmatch (resp->str, "HTTP/1.1 200 OK\r\n*");
+
+  g_string_free (resp, TRUE);
+  g_object_unref (tls);
+  g_object_unref (io);
+}
+
+static void
+test_close_early (TestCase *tc,
+                  gconstpointer data)
+{
+  GIOStream *io;
+  GString *resp;
+
+  io = create_io_stream (tc->hostport);
+
+  /* Write something, then close */
+  resp = perform_io_http (io, "GET / HTTP/1.1", TRUE);
+
+  g_assert_cmpint (resp->len, ==, 0);
+
+  g_string_free (resp, TRUE);
+  g_object_unref (io);
+}
+
+static void
+test_write_slow (TestCase *tc,
+                 gconstpointer data)
+{
+  GIOStream *io;
+  GAsyncResult *result;
+  GInputStream *input;
+  GError *error = NULL;
+  gchar buffer[8];
+  gssize ret;
+
+  io = create_io_stream (tc->hostport);
+
+  /* Write something, then wait, write again */
+  g_output_stream_write_all (g_io_stream_get_output_stream (io),
+                             "GET / HTTP/1.0", 14, NULL, NULL, &error);
+  g_assert_no_error (error);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  /* Write something, then wait, write again */
+  g_output_stream_write_all (g_io_stream_get_output_stream (io),
+                             "\r\n\r\n", 4, NULL, NULL, &error);
+  g_assert_no_error (error);
+
+  result = NULL;
+  input = g_io_stream_get_input_stream (io);
+  g_input_stream_read_async (input, buffer, sizeof (buffer), G_PRIORITY_DEFAULT,
+                             NULL, on_ready_get_result, &result);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  ret = g_input_stream_read_finish (input, result, &error);
+  g_object_unref (result);
+
+  /* Remote returns something valid */
+  g_assert_no_error (error);
+  g_assert_cmpint (ret, ==, sizeof (buffer));
+
+  g_object_unref (io);
+}
+
+static void
+test_timeout_write (TestCase *tc,
+                    gconstpointer data)
+{
+  GIOStream *io;
+  GAsyncResult *result;
+  GInputStream *input;
+  GError *error = NULL;
+  gchar buffer[8];
+  gssize ret;
+
+  cockpit_ws_request_timeout = 1;
+
+  io = create_io_stream (tc->hostport);
+
+  /* Write something, then stop */
+  g_output_stream_write_all (g_io_stream_get_output_stream (io),
+                             "GET / HTTP/1.1", 14, NULL, NULL, &error);
+  g_assert_no_error (error);
+
+  cockpit_expect_message ("request timed out*");
+
+  result = NULL;
+  input = g_io_stream_get_input_stream (io);
+  g_input_stream_read_async (input, buffer, sizeof (buffer), G_PRIORITY_DEFAULT,
+                             NULL, on_ready_get_result, &result);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  ret = g_input_stream_read_finish (input, result, &error);
+  g_object_unref (result);
+
+  /* Remote just closes */
+  g_assert_no_error (error);
+  g_assert_cmpint (ret, ==, 0);
+
+  g_object_unref (io);
+}
+
+static void
+test_timeout_empty (TestCase *tc,
+                    gconstpointer data)
+{
+  GIOStream *io;
+  GAsyncResult *result;
+  GInputStream *input;
+  GError *error = NULL;
+  gchar buffer[8];
+  gssize ret;
+
+  cockpit_ws_request_timeout = 1;
+
+  io = create_io_stream (tc->hostport);
+
+  /* Don't write anytihng */
+
+  cockpit_expect_message ("request timed out*");
+
+  result = NULL;
+  input = g_io_stream_get_input_stream (io);
+  g_input_stream_read_async (input, buffer, sizeof (buffer), G_PRIORITY_DEFAULT,
+                             NULL, on_ready_get_result, &result);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  ret = g_input_stream_read_finish (input, result, &error);
+  g_object_unref (result);
+
+  /* Remote just closes */
+  g_assert_no_error (error);
+  g_assert_cmpint (ret, ==, 0);
+
+  g_object_unref (io);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -455,11 +679,6 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/web-server/table", test_table);
-  g_test_add_func ("/web-server/return-content", test_return_content);
-  g_test_add_func ("/web-server/return-content-headers", test_return_content_headers);
-  g_test_add_func ("/web-server/return-error", test_return_error);
-  g_test_add_func ("/web-server/return-error-headers", test_return_error_headers);
-  g_test_add_func ("/web-server/return-gerror-headers", test_return_gerror_headers);
 
   g_test_add ("/web-server/content-type", TestCase, NULL,
               setup, test_webserver_content_type, teardown);
@@ -467,11 +686,40 @@ main (int argc,
               setup, test_webserver_not_found, teardown);
   g_test_add ("/web-server/not-authorized", TestCase, NULL,
               setup, test_webserver_not_authorized, teardown);
+  g_test_add ("/web-server/unsupported-method", TestCase, NULL,
+              setup, test_unsupported_method, teardown);
+  g_test_add ("/web-server/default-no-post", TestCase, NULL,
+              setup, test_default_no_post, teardown);
+  g_test_add ("/web-server/input-too-big", TestCase, NULL,
+              setup, test_input_too_big, teardown);
+  g_test_add ("/web-server/request-too-big", TestCase, NULL,
+              setup, test_request_too_big, teardown);
+  g_test_add ("/web-server/input-extra", TestCase, NULL,
+              setup, test_input_extra, teardown);
+  g_test_add ("/web-server/bad-length", TestCase, NULL,
+              setup, test_bad_length, teardown);
+  g_test_add ("/web-server/bad-request", TestCase, NULL,
+              setup, test_bad_request, teardown);
+  g_test_add ("/web-server/bad-header", TestCase, NULL,
+              setup, test_bad_header, teardown);
 
-  g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert,
+  g_test_add ("/web-server/redirect/no-tls", TestCase, &fixture_with_cert,
               setup, test_webserver_redirect_notls, teardown);
-  g_test_add ("/web-server/no-redirect-localhost", TestCase, &fixture_with_cert,
+  g_test_add ("/web-server/redirect/except-localhost", TestCase, &fixture_with_cert,
               setup, test_webserver_noredirect_localhost, teardown);
+
+  g_test_add ("/web-server/tls", TestCase, &fixture_with_cert,
+              setup, test_tls_request, teardown);
+
+  g_test_add ("/web-server/timeout/write", TestCase, NULL,
+              setup, test_timeout_write, teardown);
+  g_test_add ("/web-server/timeout/empty", TestCase, NULL,
+              setup, test_timeout_empty, teardown);
+
+  g_test_add ("/web-server/write-slow", TestCase, NULL,
+              setup, test_write_slow, teardown);
+  g_test_add ("/web-server/close-early", TestCase, NULL,
+              setup, test_close_early, teardown);
 
   return g_test_run ();
 }

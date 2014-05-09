@@ -327,7 +327,6 @@ web_socket_util_parse_headers (const gchar *data,
           colon = memchr (data, ':', length);
           if (!colon || colon >= line)
             {
-              g_message ("received invalid header line: %.*s", (gint)line_len, data);
               consumed = -1;
               break;
             }

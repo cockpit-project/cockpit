@@ -294,7 +294,7 @@ main (int argc,
 
   /* Ignores stuff it shouldn't handle */
   g_signal_connect (server,
-                    "handle-resource",
+                    "handle-stream",
                     G_CALLBACK (cockpit_handler_socket),
                     &data);
 

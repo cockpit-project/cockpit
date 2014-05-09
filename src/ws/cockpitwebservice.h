@@ -31,12 +31,13 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitWebService   CockpitWebService;
 
-GType        cockpit_web_service_get_type    (void);
+GType                cockpit_web_service_get_type    (void);
 
-void         cockpit_web_service_socket      (GIOStream *io_stream,
-                                              GHashTable *headers,
-                                              GByteArray *input_buffer,
-                                              CockpitAuth *auth);
+CockpitWebService *  cockpit_web_service_socket      (GIOStream *io_stream,
+                                                      GHashTable *headers,
+                                                      GByteArray *input_buffer,
+                                                      CockpitAuth *auth,
+                                                      CockpitCreds *creds);
 
 G_END_DECLS
 

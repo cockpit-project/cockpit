@@ -49,16 +49,6 @@ function cockpit_login_update ()
 
 function cockpit_login_init ()
 {
-    // Note: we don't yet have a D-Bus connection so use the cockpitdyn.js mechanism
-    // to obtain the hostname to display
-    var display_hostname;
-    display_hostname = cockpitdyn_pretty_hostname;
-    if (!display_hostname)
-        display_hostname = cockpitdyn_hostname;
-    $("#login-display-name").text(display_hostname);
-    if (cockpitdyn_avatar_data_url)
-        $("#login-avatar").attr('src', cockpitdyn_avatar_data_url);
-
     function login ()
     {
         $('#login-error-message').text("");

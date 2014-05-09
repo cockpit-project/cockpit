@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2013-2014 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_WEB_SOCKET_H__
-#define __COCKPIT_WEB_SOCKET_H__
+#ifndef __COCKPIT_WEB_SERVICE_H__
+#define __COCKPIT_WEB_SERVICE_H__
 
 #include "cockpitwstypes.h"
 
@@ -26,12 +26,18 @@
 
 G_BEGIN_DECLS
 
-void         cockpit_web_socket_serve_dbus   (CockpitWebServer *server,
-                                              GIOStream *io_stream,
+#define COCKPIT_TYPE_WEB_SERVICE         (cockpit_web_service_get_type ())
+#define COCKPIT_WEB_SERVICE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_SERVICE, CockpitWebService))
+
+typedef struct _CockpitWebService   CockpitWebService;
+
+GType        cockpit_web_service_get_type    (void);
+
+void         cockpit_web_service_socket      (GIOStream *io_stream,
                                               GHashTable *headers,
                                               GByteArray *input_buffer,
                                               CockpitAuth *auth);
 
 G_END_DECLS
 
-#endif /* __COCKPIT_WEB_SOCKET_H__ */
+#endif /* __COCKPIT_WEB_SERVICE_H__ */

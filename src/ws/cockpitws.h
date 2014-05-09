@@ -26,7 +26,6 @@ G_BEGIN_DECLS
 
 #include <cockpitwstypes.h>
 #include <cockpitwebserver.h>
-#include <cockpitwebsocket.h>
 #include <cockpitauth.h>
 
 /* Some tunables that can be set from tests. See cockpitwebsocket.c */

@@ -95,7 +95,7 @@ on_auth_authenticate (CockpitAuth *auth,
                       GHashTable *out_headers)
 {
   /* Dummy auth, overrides all other auth */
-  return cockpit_creds_new_password (g_get_user_name (), "<noauth>");
+  return cockpit_creds_new (g_get_user_name (), NULL);
 }
 
 static void
@@ -296,7 +296,9 @@ main (int argc,
     }
 
   cd_srcdir (argv[0]);
-  cockpit_ws_agent_program = "./test-agent";
+
+  /* Just execute the agent, no session necessary */
+  cockpit_ws_session_program = "./test-agent";
 
   loop = g_main_loop_new (NULL, FALSE);
 

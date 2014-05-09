@@ -54,7 +54,7 @@ test_verify_password (Test *test,
   GError *error = NULL;
 
   /* A valid password */
-  if (!cockpit_auth_verify_password (test->auth, "me", "this is the password", &error))
+  if (!cockpit_auth_verify_password (test->auth, "me", "this is the password", NULL, &error))
     g_assert_not_reached ();
   g_assert_no_error (error);
 }
@@ -66,13 +66,13 @@ test_verify_password_bad (Test *test,
   GError *error = NULL;
 
   /* An invalid password */
-  if (cockpit_auth_verify_password (test->auth, "me", "different password", &error))
+  if (cockpit_auth_verify_password (test->auth, "me", "different password", NULL, &error))
     g_assert_not_reached ();
   g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
   g_clear_error (&error);
 
   /* An invalid user */
-  if (cockpit_auth_verify_password (test->auth, "another", "this is the password", &error))
+  if (cockpit_auth_verify_password (test->auth, "another", "this is the password", NULL, &error))
     g_assert_not_reached ();
   g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
   g_clear_error (&error);
@@ -90,7 +90,7 @@ test_userpass_cookie_check (Test *test,
 
   headers = web_socket_util_new_headers ();
   creds = cockpit_auth_check_userpass (test->auth, "me\nthis is the password",
-                                       TRUE, headers, &error);
+                                       TRUE, NULL, headers, &error);
   g_assert_no_error (error);
   g_assert (creds != NULL);
 
@@ -126,7 +126,7 @@ test_userpass_bad (Test *test,
 
   headers = web_socket_util_new_headers ();
 
-  if (cockpit_auth_check_userpass (test->auth, "bad\nuser", TRUE, headers, &error))
+  if (cockpit_auth_check_userpass (test->auth, "bad\nuser", TRUE, NULL, headers, &error))
       g_assert_not_reached ();
   g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
   g_clear_error (&error);
@@ -165,7 +165,7 @@ on_auth_authenticate (CockpitAuth *auth,
   g_hash_table_insert (out_headers, g_strdup ("Who"), g_strdup ("janitor"));
   g_assert_cmpstr (g_hash_table_lookup (in_headers, "Input"), ==, "value");
   g_assert_cmpstr (user_data, ==, "Marmalaade!");
-  return cockpit_creds_new_password ("scruffy", "zerogjuggs");
+  return cockpit_creds_new ("scruffy", COCKPIT_CRED_PASSWORD, "zerogjuggs", NULL);
 }
 
 static void

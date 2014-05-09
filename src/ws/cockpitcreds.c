@@ -25,6 +25,7 @@ struct _CockpitCreds {
   gint refs;
   gchar *user;
   gchar *password;
+  gchar *rhost;
 };
 
 G_DEFINE_BOXED_TYPE (CockpitCreds, cockpit_creds, cockpit_creds_ref, cockpit_creds_unref);
@@ -35,25 +36,49 @@ cockpit_creds_free (gpointer data)
   CockpitCreds *creds = data;
   g_free (creds->user);
   g_free (creds->password);
+  g_free (creds->rhost);
   g_free (creds);
 }
 
+/**
+ * cockpit_creds_new:
+ * @user: the user name the creds are for
+ * @...: multiple credentials, followed by NULL
+ *
+ * Create a new set of credentials for a user. Each vararg should be
+ * a COCKPIT_CRED_PASSWORD, COCKPIT_CRED_RHOST, or similar constant
+ * followed by the value.
+ *
+ * Returns: (transfer full): the new set of credentials.
+ */
 CockpitCreds *
-cockpit_creds_take_password (gchar *user,
-                             gchar *password)
+cockpit_creds_new (const gchar *user,
+                   ...)
 {
-  CockpitCreds *creds = g_new0 (CockpitCreds, 1);
-  creds->user = user;
-  creds->password = password;
+  CockpitCreds *creds;
+  const char *type;
+  va_list va;
+
+  creds = g_new0 (CockpitCreds, 1);
+  creds->user = g_strdup (user);
+
+  va_start (va, user);
+  for (;;)
+    {
+      type = va_arg (va, const char *);
+      if (type == NULL)
+        break;
+      else if (g_str_equal (type, COCKPIT_CRED_PASSWORD))
+        creds->password = g_strdup (va_arg (va, const char *));
+      else if (g_str_equal (type, COCKPIT_CRED_RHOST))
+        creds->rhost = g_strdup (va_arg (va, const char *));
+      else
+        g_assert_not_reached ();
+    }
+  va_end (va);
+
   creds->refs = 1;
   return creds;
-}
-
-CockpitCreds *
-cockpit_creds_new_password (const gchar *user,
-                            const gchar *password)
-{
-  return cockpit_creds_take_password (g_strdup (user), g_strdup (password));
 }
 
 CockpitCreds *
@@ -85,4 +110,56 @@ cockpit_creds_get_password (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->password;
+}
+
+/**
+ * cockpit_creds_get_rhost:
+ * @creds: the credentials
+ *
+ * Get the remote host credential, or NULL
+ * if none present.
+ *
+ * Returns: the remote host or NULL
+ */
+const gchar *
+cockpit_creds_get_rhost (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  return creds->rhost;
+}
+
+gboolean
+cockpit_creds_equal (gconstpointer v1,
+                     gconstpointer v2)
+{
+  const CockpitCreds *c1;
+  const CockpitCreds *c2;
+
+  if (v1 == v2)
+    return TRUE;
+  if (!v1 || !v2)
+    return FALSE;
+
+  c1 = v1;
+  c2 = v2;
+
+  return g_strcmp0 (c1->user, c2->user) == 0 &&
+         g_strcmp0 (c1->password, c2->password) == 0 &&
+         g_strcmp0 (c1->rhost, c2->rhost) == 0;
+}
+
+guint
+cockpit_creds_hash (gconstpointer v)
+{
+  const CockpitCreds *c = v;
+  guint hash = 0;
+  if (v)
+    {
+      c = v;
+      if (c->user)
+        hash ^= g_str_hash (c->user);
+      if (c->rhost)
+        hash ^= g_str_hash (c->rhost);
+    }
+  return hash;
 }

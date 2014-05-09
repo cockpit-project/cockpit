@@ -27,15 +27,15 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitCreds       CockpitCreds;
 
+#define COCKPIT_CRED_PASSWORD "password"
+#define COCKPIT_CRED_RHOST    "rhost"
+
 #define         COCKPIT_TYPE_CREDS           (cockpit_creds_get_type ())
 
 GType           cockpit_creds_get_type       (void) G_GNUC_CONST;
 
-CockpitCreds *  cockpit_creds_new_password   (const gchar *user,
-                                              const gchar *password);
-
-CockpitCreds *  cockpit_creds_take_password  (gchar *user,
-                                              gchar *password);
+CockpitCreds *  cockpit_creds_new            (const gchar *user,
+                                              ...) G_GNUC_NULL_TERMINATED;
 
 CockpitCreds *  cockpit_creds_ref            (CockpitCreds *creds);
 
@@ -44,6 +44,13 @@ void            cockpit_creds_unref          (gpointer creds);
 const gchar *   cockpit_creds_get_user       (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_password   (CockpitCreds *creds);
+
+const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
+
+gboolean        cockpit_creds_equal          (gconstpointer v1,
+                                              gconstpointer v2);
+
+guint           cockpit_creds_hash           (gconstpointer v);
 
 G_END_DECLS
 

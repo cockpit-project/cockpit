@@ -25,6 +25,8 @@
 
 #include "cockpitcreds.h"
 
+#include "cockpit/cockpitpipe.h"
+
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_AUTH         (cockpit_auth_get_type ())
@@ -42,6 +44,7 @@ struct _CockpitAuth
   GByteArray *key;
   GMutex mutex;
   GHashTable *authenticated;
+  GHashTable *ready_sessions;
   guint64 nonce_seed;
 };
 
@@ -55,9 +58,10 @@ struct _CockpitAuthClass
                                           GHashTable *out_headers);
 
   /* vfunc */
-  gboolean    (* verify_password)        (CockpitAuth *auth,
+  CockpitCreds * (* verify_password)     (CockpitAuth *auth,
                                           const gchar *user,
                                           const gchar *password,
+                                          const gchar *remote_peer,
                                           GError **error);
 };
 
@@ -68,6 +72,7 @@ CockpitAuth *   cockpit_auth_new             (void);
 CockpitCreds *  cockpit_auth_check_userpass  (CockpitAuth *auth,
                                               const char *content,
                                               gboolean secure_req,
+                                              const gchar *remote_peer,
                                               GHashTable *out_headers,
                                               GError **error);
 
@@ -75,10 +80,14 @@ CockpitCreds *  cockpit_auth_check_headers   (CockpitAuth *auth,
                                               GHashTable *in_headers,
                                               GHashTable *out_headers);
 
-gboolean        cockpit_auth_verify_password (CockpitAuth *auth,
+CockpitCreds *  cockpit_auth_verify_password (CockpitAuth *auth,
                                               const gchar *user,
                                               const gchar *password,
+                                              const gchar *remote_peer,
                                               GError **error);
+
+CockpitPipe *   cockpit_auth_start_session   (CockpitAuth *auth,
+                                              CockpitCreds *creds);
 
 struct passwd * cockpit_getpwnam_a           (const gchar *user,
                                               int *errp);

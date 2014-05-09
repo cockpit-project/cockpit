@@ -54,6 +54,27 @@ web_socket_server_init (WebSocketServer *self)
 }
 
 static void
+respond_handshake_forbidden (WebSocketConnection *conn)
+{
+  GError *error;
+
+  const gchar *bad_request = "HTTP/1.1 403 Forbidden\r\n"
+                             "Connection: close\r\n"
+                             "\r\n"
+                             "<html><head><title>403 Forbidden</title></head>\r\n"
+                             "<body>Received invalid WebSocket request</body></html>\r\n";
+
+  _web_socket_connection_queue (conn, WEB_SOCKET_QUEUE_URGENT | WEB_SOCKET_QUEUE_LAST,
+                                g_strdup (bad_request), strlen (bad_request), 0);
+  g_debug ("queued: forbidden request response");
+
+  error = g_error_new_literal (WEB_SOCKET_ERROR,
+                               WEB_SOCKET_CLOSE_PROTOCOL,
+                               "Received invalid handshake request from the client");
+  _web_socket_connection_error (conn, error);
+}
+
+static void
 respond_handshake_bad (WebSocketConnection *conn)
 {
   GError *error;
@@ -141,17 +162,10 @@ respond_handshake_hixie76 (WebSocketServer *self,
   const gchar *protocol;
   const gchar *origin;
   const gchar *host;
+  const gchar *expect_origin;
   GString *handshake;
   guint8 *response;
   gsize len;
-
-  /*
-   * This is a server receiving a client handshake and responding to it.
-   *
-   * TODO: The following is not yet validated
-   * - Origin
-   * - Host
-   */
 
   if (!_web_socket_util_header_equals (headers, "Upgrade", "websocket") ||
       !_web_socket_util_header_contains (headers, "Connection", "upgrade") ||
@@ -173,12 +187,10 @@ respond_handshake_hixie76 (WebSocketServer *self,
       return FALSE;
     }
 
-  origin = g_hash_table_lookup (headers, "Sec-WebSocket-Origin");
-  if (!origin)
-    origin = g_hash_table_lookup (headers, "Origin");
+  origin = g_hash_table_lookup (headers, "Origin");
   if (!origin)
     {
-      g_message ("received request without Origin or Sec-WebSocket-Origin");
+      g_message ("received request without Origin");
       respond_handshake_bad (conn);
       return FALSE;
     }
@@ -188,6 +200,17 @@ respond_handshake_hixie76 (WebSocketServer *self,
       g_message ("received request without Host");
       respond_handshake_bad (conn);
       return FALSE;
+    }
+
+  expect_origin = web_socket_connection_get_origin (conn);
+  if (expect_origin)
+    {
+      if (g_ascii_strcasecmp (origin, expect_origin) != 0)
+        {
+          g_message ("received request from bad Origin: %s", origin);
+          respond_handshake_forbidden (conn);
+          return FALSE;
+        }
     }
 
   response = _web_socket_complete_challenge_hixie76 (key1, key2, challenge);
@@ -241,24 +264,33 @@ _web_socket_complete_accept_key_rfc6455 (const gchar *key)
 }
 
 static gboolean
+validate_rfc6455_websocket_key (const gchar *key)
+{
+  /* The key must be 16 bytes base64 encoded */
+  guchar *decoded;
+  gsize length;
+  if (strlen (key) > 1024)
+    return FALSE;
+  decoded = g_base64_decode (key, &length);
+  if (!decoded)
+    return FALSE;
+  g_free (decoded);
+  return length == 16;
+}
+
+static gboolean
 respond_handshake_rfc6455 (WebSocketServer *self,
                            WebSocketConnection *conn,
                            GHashTable *headers)
 {
   const gchar *protocol;
+  const gchar *expect_origin;
+  const gchar *origin;
+  const gchar *host;
   gchar *accept_key;
   gchar *key;
   GString *handshake;
   gsize len;
-
-  /*
-   * This is a server receiving a client handshake and responding to it.
-   *
-   * TODO: The following is not yet validated
-   * - Origin
-   * - Host
-   * - Sec-WebSocket-Key must be 16 characters
-   */
 
   if (!_web_socket_util_header_equals (headers, "Upgrade", "websocket") ||
       !_web_socket_util_header_contains (headers, "Connection", "upgrade") ||
@@ -273,9 +305,41 @@ respond_handshake_rfc6455 (WebSocketServer *self,
   key = g_hash_table_lookup (headers, "Sec-WebSocket-Key");
   if (key == NULL)
     {
-      g_message ("received missing Sec-WebSocket-Key header: %s", key);
+      g_message ("received missing Sec-WebSocket-Key header");
       respond_handshake_bad (conn);
       return FALSE;
+    }
+  if (!validate_rfc6455_websocket_key (key))
+    {
+      g_message ("received invalid Sec-WebSocket-Key header: %s", key);
+      respond_handshake_bad (conn);
+      return FALSE;
+    }
+
+  host = g_hash_table_lookup (headers, "Host");
+  if (host == NULL)
+    {
+      g_message ("received request without Host");
+      respond_handshake_bad (conn);
+      return FALSE;
+    }
+
+  expect_origin = web_socket_connection_get_origin (conn);
+  if (expect_origin)
+    {
+      origin = g_hash_table_lookup (headers, "Origin");
+      if (!origin)
+        {
+          g_message ("received request without Origin");
+          respond_handshake_forbidden (conn);
+          return FALSE;
+        }
+      if (g_ascii_strcasecmp (origin, expect_origin) != 0)
+        {
+          g_message ("received request from bad Origin: %s", origin);
+          respond_handshake_forbidden (conn);
+          return FALSE;
+        }
     }
 
   accept_key = _web_socket_complete_accept_key_rfc6455 (key);

@@ -1231,7 +1231,7 @@ test_hixie76_response_headers (void)
               "Sec-WebSocket-Key1: m2 304 4880M 4. } Y z 6\r\n"
               "Sec-WebSocket-Key2: u1   9 944  5$ %s40   <  U96`\r\n"
               "Sec-WebSocket-Protocol: cockpit1\r\n"
-              "Origin: http://example.com/blah.html\r\n"
+              "Origin: http://example.com\r\n"
               "\r\n"
               "01234567";
 
@@ -1257,7 +1257,7 @@ test_hixie76_response_headers (void)
   /* Check what we got back */
   g_assert_cmpuint (status, ==, 101);
   g_assert_cmpstr (g_hash_table_lookup (headers, "Sec-WebSocket-Location"), ==, "ws://example.com:3838/this/is/my/path");
-  g_assert_cmpstr (g_hash_table_lookup (headers, "Sec-WebSocket-Origin"), ==, "http://example.com/blah.html");
+  g_assert_cmpstr (g_hash_table_lookup (headers, "Sec-WebSocket-Origin"), ==, "http://example.com");
   g_assert_cmpstr (g_hash_table_lookup (headers, "Sec-WebSocket-Protocol"), ==, "cockpit1");
   g_assert_cmpstr (g_hash_table_lookup (headers, "Upgrade"), ==, "WebSocket");
   g_assert_cmpstr (g_hash_table_lookup (headers, "Connection"), ==, "Upgrade");
@@ -1287,7 +1287,7 @@ close_rough_thread (gpointer data)
               "Sec-WebSocket-Key1: m2 304 4880M 4. } Y z 6\r\n"
               "Sec-WebSocket-Key2: u1   9 944  5$ %s40   <  U96`\r\n"
               "Sec-WebSocket-Protocol: cockpit1\r\n"
-              "Origin: http://example.com/blah.html\r\n"
+              "Origin: http://example.com\r\n"
               "\r\n"
               "01234567";
 

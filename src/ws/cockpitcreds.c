@@ -21,8 +21,11 @@
 
 #include "cockpitcreds.h"
 
+#include <string.h>
+
 struct _CockpitCreds {
   gint refs;
+  gint poisoned;
   gchar *user;
   gchar *password;
   gchar *rhost;
@@ -78,6 +81,7 @@ cockpit_creds_new (const gchar *user,
   va_end (va);
 
   creds->refs = 1;
+  creds->poisoned = 0;
   return creds;
 }
 
@@ -98,6 +102,15 @@ cockpit_creds_unref (gpointer creds)
     cockpit_creds_free (c);
 }
 
+void
+cockpit_creds_poison (CockpitCreds *creds)
+{
+  g_return_if_fail (creds != NULL);
+  g_atomic_int_set (&creds->poisoned, 1);
+  if (creds->password)
+    memset (creds->password, 0, strlen (creds->password));
+}
+
 const gchar *
 cockpit_creds_get_user (CockpitCreds *creds)
 {
@@ -109,6 +122,8 @@ const gchar *
 cockpit_creds_get_password (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
+  if (g_atomic_int_get (&creds->poisoned))
+      return NULL;
   return creds->password;
 }
 
@@ -144,7 +159,6 @@ cockpit_creds_equal (gconstpointer v1,
   c2 = v2;
 
   return g_strcmp0 (c1->user, c2->user) == 0 &&
-         g_strcmp0 (c1->password, c2->password) == 0 &&
          g_strcmp0 (c1->rhost, c2->rhost) == 0;
 }
 

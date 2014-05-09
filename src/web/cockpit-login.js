@@ -17,6 +17,31 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+var $cockpit = $cockpit || { };
+
+(function($cockpit, $) {
+
+$(function() {
+    $(".cockpit-deauthorize-item a").on("click", function(ev) {
+        var req = new XMLHttpRequest();
+        var loc = window.location.protocol + "//" + window.location.host + "/deauthorize";
+        req.open("POST", loc, true);
+        req.onreadystatechange = function (event) {
+            if (req.readyState == 4) {
+                $(".cockpit-deauthorize-item").addClass("disabled");
+                $(".cockpit-deauthorize-item a").off("click");
+
+                /* TODO: We need a better indicator for deauthorized state */
+                $(".cockpit-deauthorize-status").text("deauthorized");
+            }
+        };
+        req.send();
+        ev.preventDefault();
+    });
+});
+
+}($cockpit, jQuery));
+
 function cockpit_login_update ()
 {
     $("#login-error-message").text("");

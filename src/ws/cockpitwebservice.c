@@ -37,6 +37,8 @@
 
 #include "websocket/websocket.h"
 
+#include "reauthorize/reauthorize.h"
+
 /* Some tunables that can be set from tests */
 const gchar *cockpit_ws_session_program =
     PACKAGE_LIBEXEC_DIR "/cockpit-session";
@@ -69,6 +71,7 @@ typedef struct
   CockpitTransport *transport;
   gboolean sent_eof;
   guint timeout;
+  CockpitCreds *creds;
 } CockpitSession;
 
 typedef struct
@@ -215,7 +218,7 @@ cockpit_session_add_channel (CockpitSessions *sessions,
 static CockpitSession *
 cockpit_session_track (CockpitSessions *sessions,
                        const gchar *host,
-                       const gchar *user,
+                       CockpitCreds *creds,
                        CockpitTransport *transport)
 {
   CockpitSession *session;
@@ -226,7 +229,8 @@ cockpit_session_track (CockpitSessions *sessions,
   session->channels = g_array_sized_new (FALSE, TRUE, sizeof (guint), 2);
   session->transport = g_object_ref (transport);
   session->key.host = g_strdup (host);
-  session->key.user = g_strdup (user);
+  session->key.user = g_strdup (cockpit_creds_get_user (creds));
+  session->creds = cockpit_creds_ref (creds);
 
   g_hash_table_insert (sessions->by_host_user, &session->key, session);
 
@@ -353,6 +357,83 @@ process_close (CockpitWebService *self,
   return TRUE;
 }
 
+static gboolean
+process_authorize (CockpitWebService *self,
+                   CockpitSession *session,
+                   JsonObject *options)
+{
+  JsonObject *object = NULL;
+  GBytes *bytes = NULL;
+  const gchar *host;
+  char *user = NULL;
+  char *type = NULL;
+  char *response = NULL;
+  const gchar *challenge;
+  const gchar *password;
+  gboolean ret = FALSE;
+  gint64 cookie;
+  int rc;
+
+  host = session->key.host;
+
+  if (!cockpit_json_get_string (options, "challenge", NULL, &challenge) ||
+      !cockpit_json_get_int (options, "cookie", 0, &cookie) ||
+      challenge == NULL ||
+      reauthorize_type (challenge, &type) < 0 ||
+      reauthorize_user (challenge, &user) < 0)
+    {
+      g_warning ("%s: received invalid authorize command", host);
+      goto out;
+    }
+
+  if (!g_str_equal (cockpit_creds_get_user (session->creds), user))
+    {
+      g_warning ("%s: received authorize command for wrong user: %s", host, user);
+    }
+  else if (g_str_equal (type, "crypt1"))
+    {
+      password = cockpit_creds_get_password (session->creds);
+      if (!password)
+        {
+          g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate", host);
+        }
+      else
+        {
+          rc = reauthorize_crypt1 (challenge, password, &response);
+          if (rc < 0)
+            g_warning ("%s: failed to reauthorize crypt1 challenge", host);
+        }
+    }
+
+  /*
+   * TODO: So the missing piece is that something needs to unauthorize
+   * the user. This needs to be coordinated with the web service.
+   *
+   * For now we assume that since this is an admin tool, as long as the
+   * user has it open, he/she is authorized.
+   */
+
+  object = json_object_new ();
+  json_object_set_string_member (object, "command", "authorize");
+  json_object_set_int_member (object, "cookie", cookie);
+  json_object_set_string_member (object, "response", response ? response : "");
+  bytes = cockpit_json_write_bytes (object);
+
+  if (!session->sent_eof)
+    cockpit_transport_send (session->transport, 0, bytes);
+  ret = TRUE;
+
+out:
+  if (bytes)
+    g_bytes_unref (bytes);
+  if (object)
+    json_object_unref (object);
+  free (user);
+  free (type);
+  free (response);
+  return ret;
+}
+
 static void
 dispatch_outbound_command (CockpitWebService *self,
                            CockpitTransport *source,
@@ -367,31 +448,57 @@ dispatch_outbound_command (CockpitWebService *self,
 
   if (cockpit_transport_parse_command (payload, &command, &channel, &options))
     {
-      /*
-       * To prevent one host from messing with another, outbound commands
-       * must have a channel, and it must match one of the channels opened
-       * to that particular session.
-       */
-      session = cockpit_session_by_channel (&self->sessions, channel);
-      if (!session)
+      if (channel == 0)
         {
-          g_warning ("Channel does not exist: %u", channel);
-          valid = FALSE;
-        }
-      else if (session->transport != source)
-        {
-          g_warning ("Received a command with wrong channel from session");
-          valid = FALSE;
-        }
-      else if (g_strcmp0 (command, "close") == 0)
-        valid = process_close (self, session, channel, options);
-      else if (g_strcmp0 (command, "ping") == 0)
-        {
-          valid = TRUE;
           forward = FALSE;
+          session = cockpit_session_by_transport (&self->sessions, source);
+          if (!session)
+            {
+              g_critical ("received control command for transport that isn't present");
+              valid = FALSE;
+            }
+          else if (g_strcmp0 (command, "authorize") == 0)
+            {
+              valid = process_authorize (self, session, options);
+            }
+          else if (g_strcmp0 (command, "ping") == 0)
+            {
+              valid = TRUE;
+            }
+          else
+            {
+              g_warning ("received a '%s' control command without a channel", command);
+              valid = FALSE;
+            }
         }
       else
-        valid = TRUE; /* forward other messages */
+        {
+          /*
+           * To prevent one host from messing with another, outbound commands
+           * must have a channel, and it must match one of the channels opened
+           * to that particular session.
+           */
+          session = cockpit_session_by_channel (&self->sessions, channel);
+          if (!session)
+            {
+              g_warning ("Channel does not exist: %u", channel);
+              valid = FALSE;
+            }
+          else if (session->transport != source)
+            {
+              g_warning ("Received a command with wrong channel from session");
+              valid = FALSE;
+            }
+          else if (g_strcmp0 (command, "close") == 0)
+            {
+              valid = process_close (self, session, channel, options);
+            }
+          else
+            {
+              g_debug ("forwarding a '%s' control command", command);
+              valid = TRUE; /* forward other messages */
+            }
+        }
     }
 
   if (valid && !session->sent_eof)
@@ -492,7 +599,6 @@ process_open (CockpitWebService *self,
   CockpitPipe *pipe;
   const gchar *specific_user;
   const gchar *password;
-  const gchar *user;
   const gchar *host;
   const gchar *host_key;
   const gchar *rhost;
@@ -520,18 +626,17 @@ process_open (CockpitWebService *self,
                                  COCKPIT_CRED_PASSWORD, password,
                                  COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->authenticated),
                                  NULL);
-      user = specific_user;
     }
   else
     {
       creds = cockpit_creds_ref (self->authenticated);
-      user = cockpit_creds_get_user (self->authenticated);
     }
 
   if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
     host_key = NULL;
 
-  session = cockpit_session_by_host_user (&self->sessions, host, user);
+  session = cockpit_session_by_host_user (&self->sessions, host,
+                                          cockpit_creds_get_user (creds));
   if (!session)
     {
       /* Used during testing */
@@ -566,7 +671,7 @@ process_open (CockpitWebService *self,
 
       g_signal_connect (transport, "recv", G_CALLBACK (on_session_recv), self);
       g_signal_connect (transport, "closed", G_CALLBACK (on_session_closed), self);
-      session = cockpit_session_track (&self->sessions, host, user, transport);
+      session = cockpit_session_track (&self->sessions, host, creds, transport);
       g_object_unref (transport);
     }
 

@@ -20,6 +20,7 @@
 
 #include "cockpitchannel.h"
 #include "cockpitdbusjson.h"
+#include "cockpitpolkitagent.h"
 
 #include "cockpit/cockpitpipetransport.h"
 
@@ -118,7 +119,10 @@ main (int argc,
       char **argv)
 {
   CockpitTransport *transport;
+  GDBusConnection *connection;
   gboolean closed = FALSE;
+  GError *error = NULL;
+  gpointer polkit_agent;
   int outfd;
 
   /*
@@ -144,12 +148,25 @@ main (int argc,
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
+  connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &error);
+  if (connection == NULL)
+    {
+      g_message ("couldn't connect to system bus: %s", error->message);
+      g_clear_error (&error);
+    }
+
+  polkit_agent = cockpit_polkit_agent_register (transport, NULL);
+
   /* Owns the channels */
   channels = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
 
   while (!closed)
     g_main_context_iteration (NULL, TRUE);
 
+  if (polkit_agent)
+    cockpit_polkit_agent_unregister (polkit_agent);
+  if (connection)
+    g_object_unref (connection);
   g_object_unref (transport);
   g_hash_table_destroy (channels);
   exit (0);

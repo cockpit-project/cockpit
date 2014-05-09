@@ -1,0 +1,4 @@
+# These are lines that should go at the end of your /etc/pam.d/sshd in
+# order to support polkit and sudo reauthorization in cockpit.
+auth        optional      pam_reauthorize.so prepare
+session     optional      pam_reauthorize.so prepare

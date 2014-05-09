@@ -62,6 +62,7 @@ GUDEV_REQUIREMENT="gudev-1.0 >= 165"
 UDISKS_REQUIREMENT="udisks2 >= 2.0.91"
 NM_REQUIREMENT="libnm-glib >= 0.9.7.0 libnm-util"
 ACCOUNTS_REQUIREMENT="accountsservice >= 0.6.35"
+POLKIT_REQUIREMENT="polkit-agent-1 >= 0.105"
 LIBGSYSTEM_REQUIREMENT="libgsystem"
 
 PKG_CHECK_MODULES(GIO, [$GIO_REQUIREMENT])
@@ -73,6 +74,7 @@ PKG_CHECK_MODULES(SYSTEMD, [$SYSTEMD_REQUIREMENT])
 PKG_CHECK_MODULES(JSON_GLIB, [$JSON_GLIB_REQUIREMENT])
 PKG_CHECK_MODULES(LIBSSH, [$LIBSSH_REQUIREMENT])
 PKG_CHECK_MODULES(LIBGSYSTEM, [$LIBGSYSTEM_REQUIREMENT])
+PKG_CHECK_MODULES(POLKIT, [$POLKIT_REQUIREMENT])
 
 COCKPIT_CFLAGS="$GIO_CFLAGS $JSON_GLIB_CFLAGS $SYSTEMD_CFLAGS"
 COCKPIT_LIBS="$GIO_LIBS $JSON_GLIB_LIBS $SYSTEMD_LIBS -lutil"
@@ -84,10 +86,15 @@ COCKPIT_WS_LIBS="$COCKPIT_LIBS $LIBSSH_LIBS"
 AC_SUBST(COCKPIT_WS_CFLAGS)
 AC_SUBST(COCKPIT_WS_LIBS)
 
-COCKPIT_AGENT_CFLAGS="$COCKPIT_CFLAGS $LIBGSYSTEM_CFLAGS"
-COCKPIT_AGENT_LIBS="$COCKPIT_LIBS"
+COCKPIT_AGENT_CFLAGS="$COCKPIT_CFLAGS $LIBGSYSTEM_CFLAGS $POLKIT_CFLAGS"
+COCKPIT_AGENT_LIBS="$COCKPIT_LIBS $POLKIT_LIBS"
 AC_SUBST(COCKPIT_AGENT_CFLAGS)
 AC_SUBST(COCKPIT_AGENT_LIBS)
+
+COCKPIT_POLKIT_CFLAGS="$GIO_CFLAGS $POLKIT_CFLAGS"
+COCKPIT_POLKIT_LIBS="$GIO_LIBS $POLKIT_LIBS"
+AC_SUBST(COCKPIT_POLKIT_CFLAGS)
+AC_SUBST(COCKPIT_POLKIT_LIBS)
 
 PKG_CHECK_MODULES(COCKPIT_DAEMON, [$GUDEV_REQUIREMENT
                                    $UDISKS_REQUIREMENT
@@ -119,6 +126,35 @@ AC_CHECK_LIB(pam, pam_open_session, [ ],
 )
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lpam"
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lpam"
+REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lpam"
+
+# pam module directory
+AC_ARG_WITH([pamdir],
+            [AC_HELP_STRING([--with-pamdir=DIR],
+                             [directory to install pam modules in])],
+             [], [with_pamdir='${libdir}/security'])
+pamdir=$with_pamdir
+AC_SUBST(pamdir)
+
+# keyutils
+AC_CHECK_HEADER([keyutils.h], [ ],
+  [AC_MSG_ERROR([Couldn't find keyutils headers. Try installing keyutils-libs-devel])]
+)
+AC_CHECK_LIB(keyutils, keyctl_join_session_keyring, [ ],
+  [AC_MSG_ERROR([Couldn't find keyutils library. Try installing keyutils-libs-devel])]
+)
+COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lkeyutils"
+REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lkeyutils"
+
+# crypt
+AC_CHECK_HEADER([crypt.h], [ ],
+  [AC_MSG_ERROR([Couldn't find crypt headers. Try installing glibc-headers])]
+)
+AC_CHECK_LIB(crypt, crypt_r, [ ],
+  [AC_MSG_ERROR([Couldn't find crypt library. Try installing glibc-devel])]
+)
+COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
+REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lcrypt"
 
 # systemd
 AC_ARG_WITH([systemdsystemunitdir],
@@ -245,6 +281,7 @@ AC_MSG_RESULT($enable_strict)
 #
 
 AC_SUBST(COCKPIT_SESSION_LIBS)
+AC_SUBST(REAUTHORIZE_LIBS)
 
 AC_OUTPUT([
 Makefile
@@ -265,6 +302,7 @@ echo "
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
         systemdsystemunitdir:       ${systemdsystemunitdir}
+        pamdir:                     ${pamdir}
 
         compiler:                   ${CC}
         cflags:                     ${CFLAGS}

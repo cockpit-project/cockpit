@@ -54,6 +54,15 @@ gboolean       cockpit_handler_logout            (CockpitWebServer *server,
                                                   GDataOutputStream *out,
                                                   CockpitHandlerData *data);
 
+gboolean       cockpit_handler_deauthorize       (CockpitWebServer *server,
+                                                  CockpitWebServerRequestType reqtype,
+                                                  const gchar *resource,
+                                                  GIOStream *io_stream,
+                                                  GHashTable *headers,
+                                                  GDataInputStream *in,
+                                                  GDataOutputStream *out,
+                                                  CockpitHandlerData *data);
+
 gboolean       cockpit_handler_cockpitdyn        (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
                                                   const gchar *resource,

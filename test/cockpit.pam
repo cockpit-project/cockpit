@@ -2,6 +2,7 @@
 auth	   required	pam_sepermit.so
 auth       substack     password-auth
 auth       include      postlogin
+auth       optional     pam_reauthorize.so prepare
 account    required     pam_nologin.so
 account    include      password-auth
 password   include      password-auth
@@ -11,5 +12,6 @@ session    required     pam_loginuid.so
 # pam_selinux.so open should only be followed by sessions to be executed in the user context
 session    required     pam_selinux.so open env_params
 session    optional     pam_keyinit.so force revoke
+session    optional     pam_reauthorize.so prepare
 session    include      password-auth
 session    include      postlogin

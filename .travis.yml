@@ -7,7 +7,7 @@ compiler:
 before_install:
   - sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ trusty main universe"
   - sudo apt-get update -qq
-  - sudo apt-get install automake autoconf intltool xsltproc libglib2.0-dev libgudev-1.0-dev libpolkit-gobject-1-dev libpolkit-agent-1-dev phantomjs gtk-doc-tools libjson-glib-dev libnm-glib-dev libaccountsservice-dev libpam0g-dev libssh-dev libsystemd-daemon-dev libsystemd-journal-dev libudisks2-dev libjson-perl liblocale-po-perl libjavascript-minifier-xs-perl pkg-config glib-networking valgrind
+  - sudo apt-get install automake autoconf intltool xsltproc libglib2.0-dev libgudev-1.0-dev libpolkit-gobject-1-dev libpolkit-agent-1-dev phantomjs gtk-doc-tools libjson-glib-dev libnm-glib-dev libaccountsservice-dev libpam0g-dev libssh-dev libsystemd-daemon-dev libsystemd-journal-dev libudisks2-dev libjson-perl liblocale-po-perl libjavascript-minifier-xs-perl pkg-config glib-networking valgrind libkeyutils-dev
   - sudo wget -O /usr/share/dbus-1/interfaces/com.redhat.lvm2.xml https://raw.githubusercontent.com/cockpit-project/storaged/master/data/com.redhat.lvm2.xml
   - wget http://www.javascriptlint.com/download/jsl-0.3.0-src.tar.gz
   - tar -xzvf jsl-0.3.0-src.tar.gz
@@ -18,4 +18,4 @@ before_install:
   - sudo mkdir /usr/include/libgsystem
   - sudo wget -O /usr/include/libgsystem/gsystem-local-alloc.h https://git.gnome.org/browse/libgsystem/plain/src/gsystem-local-alloc.h
 script:
-  - ./autogen.sh --prefix=/usr --enable-strict && make V=1 all && make distcheck && make -j8 check-memory
+  - ./autogen.sh --prefix=/usr --enable-strict && make V=1 all && sudo make enable-root-tests && make distcheck && make -j8 check-memory

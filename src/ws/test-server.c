@@ -71,12 +71,7 @@ on_handle_stream_socket (CockpitWebServer *server,
   if (!g_str_equal (resource, "/socket"))
     return FALSE;
 
-  /*
-   * Check the connection, the web socket will respond with a "not-authorized"
-   * if user failed to authenticate, ie: creds == NULL
-   */
-  creds = cockpit_auth_check_headers (auth, headers, NULL);
-  g_assert (creds != NULL);
+  creds = cockpit_creds_new (g_get_user_name (), NULL);
 
   service = cockpit_web_service_socket (io_stream, headers, input, auth, creds);
 
@@ -85,15 +80,6 @@ on_handle_stream_socket (CockpitWebServer *server,
 
   cockpit_creds_unref (creds);
   return TRUE;
-}
-
-static CockpitCreds *
-on_auth_authenticate (CockpitAuth *auth,
-                      GHashTable *in_headers,
-                      GHashTable *out_headers)
-{
-  /* Dummy auth, overrides all other auth */
-  return cockpit_creds_new (g_get_user_name (), NULL);
 }
 
 static void
@@ -143,7 +129,6 @@ server_ready (void)
     }
 
   auth = cockpit_auth_new ();
-  g_signal_connect (auth, "authenticate", G_CALLBACK (on_auth_authenticate), NULL);
 
   g_signal_connect_data (server,
                          "handle-stream",

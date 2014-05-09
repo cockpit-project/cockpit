@@ -49,28 +49,64 @@ mock_auth_finalize (GObject *obj)
   G_OBJECT_CLASS (mock_auth_parent_class)->finalize (obj);
 }
 
-static CockpitCreds *
-mock_auth_verify_password (CockpitAuth *auth,
-                           const gchar *user,
-                           const gchar *password,
-                           const gchar *remote_peer,
-                           GError **error)
+static void
+mock_auth_login_async (CockpitAuth *auth,
+                       GHashTable *headers,
+                       GBytes *input,
+                       const gchar *remote_peer,
+                       GAsyncReadyCallback callback,
+                       gpointer user_data)
 {
   MockAuth *self = MOCK_AUTH (auth);
+  GSimpleAsyncResult *result;
+  gchar *request;
+  const gchar *data;
+  gsize length;
+  gchar **lines;
 
-  g_assert (user != NULL);
-  g_assert (password != NULL);
+  data = g_bytes_get_data (input, &length);
+  request = g_strndup (data, length);
+  lines = g_strsplit (request, "\n", 2);
 
-  if (g_str_equal (user, self->expect_user) &&
-      g_str_equal (password, self->expect_password))
-    return cockpit_creds_new (user,
-                              COCKPIT_CRED_PASSWORD, password,
-                              COCKPIT_CRED_RHOST, remote_peer,
-                              NULL);
+  result = g_simple_async_result_new (G_OBJECT (auth), callback, user_data, NULL);
+  g_simple_async_result_set_op_res_gpointer (result, g_strdup (remote_peer), g_free);
 
-  g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-               "Authentication failed");
-  return FALSE;
+  if (!lines[0] || !lines[1])
+    {
+      g_simple_async_result_set_error (result, G_IO_ERROR,
+                                       G_IO_ERROR_INVALID_DATA,
+                                       "Malformed input");
+    }
+  else if (!g_str_equal (lines[0], self->expect_user) ||
+           !g_str_equal (lines[1], self->expect_password))
+    {
+      g_simple_async_result_set_error (result, COCKPIT_ERROR,
+                                       COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                       "Authentication failed");
+    }
+
+  g_simple_async_result_complete_in_idle (result);
+  g_object_unref (result);
+
+  g_free (request);
+  g_strfreev (lines);
+}
+
+static CockpitCreds *
+mock_auth_login_finish (CockpitAuth *auth,
+                        GAsyncResult *async,
+                        GError **error)
+{
+  MockAuth *self = MOCK_AUTH (auth);
+  GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT (async);
+
+  if (g_simple_async_result_propagate_error (result, error))
+      return NULL;
+
+  return cockpit_creds_new (self->expect_user,
+                            COCKPIT_CRED_PASSWORD, self->expect_password,
+                            COCKPIT_CRED_RHOST, g_simple_async_result_get_op_res_gpointer (result),
+                            NULL);
 }
 
 static void
@@ -78,7 +114,8 @@ mock_auth_class_init (MockAuthClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  klass->verify_password = mock_auth_verify_password;
+  klass->login_async = mock_auth_login_async;
+  klass->login_finish = mock_auth_login_finish;
   object_class->finalize = mock_auth_finalize;
 }
 

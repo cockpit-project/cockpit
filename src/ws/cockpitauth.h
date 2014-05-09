@@ -42,7 +42,6 @@ struct _CockpitAuth
   GObject parent_instance;
 
   GByteArray *key;
-  GMutex mutex;
   GHashTable *authenticated;
   GHashTable *ready_sessions;
   guint64 nonce_seed;
@@ -52,16 +51,16 @@ struct _CockpitAuthClass
 {
   GObjectClass parent_class;
 
-  /* signals */
-  CockpitCreds * (* authenticate)        (CockpitAuth *auth,
-                                          GHashTable *in_headers,
-                                          GHashTable *out_headers);
-
   /* vfunc */
-  CockpitCreds * (* verify_password)     (CockpitAuth *auth,
-                                          const gchar *user,
-                                          const gchar *password,
+  void           (* login_async)         (CockpitAuth *auth,
+                                          GHashTable *headers,
+                                          GBytes *input,
                                           const gchar *remote_peer,
+                                          GAsyncReadyCallback callback,
+                                          gpointer user_data);
+
+  CockpitCreds * (* login_finish)        (CockpitAuth *auth,
+                                          GAsyncResult *result,
                                           GError **error);
 };
 
@@ -69,22 +68,21 @@ GType           cockpit_auth_get_type        (void) G_GNUC_CONST;
 
 CockpitAuth *   cockpit_auth_new             (void);
 
-CockpitCreds *  cockpit_auth_check_userpass  (CockpitAuth *auth,
-                                              const char *content,
-                                              gboolean secure_req,
+void            cockpit_auth_login_async     (CockpitAuth *self,
+                                              GHashTable *headers,
+                                              GBytes *input,
                                               const gchar *remote_peer,
+                                              GAsyncReadyCallback callback,
+                                              gpointer user_data);
+
+CockpitCreds *  cockpit_auth_login_finish    (CockpitAuth *self,
+                                              GAsyncResult *result,
+                                              gboolean secure_req,
                                               GHashTable *out_headers,
                                               GError **error);
 
-CockpitCreds *  cockpit_auth_check_headers   (CockpitAuth *auth,
-                                              GHashTable *in_headers,
-                                              GHashTable *out_headers);
-
-CockpitCreds *  cockpit_auth_verify_password (CockpitAuth *auth,
-                                              const gchar *user,
-                                              const gchar *password,
-                                              const gchar *remote_peer,
-                                              GError **error);
+CockpitCreds *  cockpit_auth_check_cookie    (CockpitAuth *auth,
+                                              GHashTable *in_headers);
 
 CockpitPipe *   cockpit_auth_start_session   (CockpitAuth *auth,
                                               CockpitCreds *creds);

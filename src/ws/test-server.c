@@ -55,37 +55,35 @@ on_bus_acquired (GDBusConnection *connection,
  * thread dedicated to the request so it may do blocking I/O
  */
 static gboolean
-on_handle_resource_socket (CockpitWebServer *server,
-                           CockpitWebServerRequestType reqtype,
-                           const gchar *resource,
-                           GIOStream *io_stream,
-                           GHashTable *headers,
-                           GDataInputStream *in,
-                           GDataOutputStream *out,
-                           gpointer user_data)
+on_handle_stream_socket (CockpitWebServer *server,
+                         CockpitWebServerRequestType reqtype,
+                         const gchar *resource,
+                         GIOStream *io_stream,
+                         GHashTable *headers,
+                         GByteArray *input,
+                         guint in_length,
+                         gpointer user_data)
 {
+  CockpitWebService *service;
   CockpitAuth *auth = user_data;
-  GByteArray *buffer;
-  gconstpointer data;
-  gsize length;
+  CockpitCreds *creds;
 
-  if (!(g_strcmp0 (resource, "/socket") == 0 &&
-        (g_ascii_strcasecmp (g_hash_table_lookup (headers, "Upgrade"), "websocket") == 0 ||
-         g_ascii_strcasecmp (g_hash_table_lookup (headers, "Connection"), "Upgrade") == 0)))
+  if (!g_str_equal (resource, "/socket"))
     return FALSE;
 
-  /* Save the data which has already been read from input */
-  buffer = g_byte_array_new ();
-  data = g_buffered_input_stream_peek_buffer (G_BUFFERED_INPUT_STREAM (in), &length);
-  g_byte_array_append (buffer, data, length);
+  /*
+   * Check the connection, the web socket will respond with a "not-authorized"
+   * if user failed to authenticate, ie: creds == NULL
+   */
+  creds = cockpit_auth_check_headers (auth, headers, NULL);
+  g_assert (creds != NULL);
 
-  /* We're going to be dealing with the IO stream directly, so skip these */
-  g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (in), FALSE);
-  g_filter_output_stream_set_close_base_stream (G_FILTER_OUTPUT_STREAM (out), FALSE);
+  service = cockpit_web_service_socket (io_stream, headers, input, auth, creds);
 
-  cockpit_web_service_socket (io_stream, headers, buffer, auth);
+  /* Keeps ref on itself until it closes */
+  g_object_unref (service);
 
-  g_byte_array_unref (buffer);
+  cockpit_creds_unref (creds);
   return TRUE;
 }
 
@@ -148,8 +146,8 @@ server_ready (void)
   g_signal_connect (auth, "authenticate", G_CALLBACK (on_auth_authenticate), NULL);
 
   g_signal_connect_data (server,
-                         "handle-resource::/socket",
-                         G_CALLBACK (on_handle_resource_socket),
+                         "handle-stream",
+                         G_CALLBACK (on_handle_stream_socket),
                          auth, (GClosureNotify)g_object_unref, 0);
 
   g_object_get (server, "port", &port, NULL);

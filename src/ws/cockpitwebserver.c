@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2013-2014 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -27,10 +27,14 @@
 #include <cockpit/cockpit.h>
 
 #include "cockpitws.h"
+#include "cockpitwebresponse.h"
 
 #include "websocket/websocket.h"
 
 #include <gsystem-local-alloc.h>
+
+guint cockpit_ws_request_timeout = 30;
+gsize cockpit_ws_request_maximum = 4096;
 
 typedef struct _CockpitWebServerClass CockpitWebServerClass;
 
@@ -40,20 +44,31 @@ struct _CockpitWebServer {
   gint port;
   GTlsCertificate *certificate;
   gchar **document_roots;
+  gint request_timeout;
+  gint request_max;
 
   GSocketService *socket_service;
+  GMainContext *main_context;
+  GHashTable *requests;
 };
 
 struct _CockpitWebServerClass {
   GObjectClass parent_class;
 
-  gboolean (* handle_resource) (CockpitWebServer *server,
+  gboolean (* handle_stream)   (CockpitWebServer *server,
                                 CockpitWebServerRequestType reqtype,
-                                const gchar *escaped_resource,
+                                const gchar *path,
                                 GIOStream *io_stream,
                                 GHashTable *headers,
-                                GDataInputStream *in,
-                                GDataOutputStream *out);
+                                GByteArray *input,
+                                guint in_length);
+
+  gboolean (* handle_resource) (CockpitWebServer *server,
+                                CockpitWebServerRequestType reqtype,
+                                const gchar *path,
+                                GHashTable *headers,
+                                GBytes *input,
+                                CockpitWebResponse *response);
 };
 
 enum
@@ -61,19 +76,15 @@ enum
   PROP_0,
   PROP_PORT,
   PROP_CERTIFICATE,
-  PROP_DOCUMENT_ROOTS
+  PROP_DOCUMENT_ROOTS,
 };
 
-enum
-{
-  HANDLE_RESOURCE_SIGNAL,
-  LAST_SIGNAL
-};
+static gint sig_handle_stream = 0;
+static gint sig_handle_resource = 0;
+
+static void cockpit_request_free (gpointer data);
 
 static void initable_iface_init (GInitableIface *iface);
-
-
-static guint signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE_WITH_CODE (CockpitWebServer, cockpit_web_server, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, initable_iface_init));
@@ -83,6 +94,9 @@ G_DEFINE_TYPE_WITH_CODE (CockpitWebServer, cockpit_web_server, G_TYPE_OBJECT,
 static void
 cockpit_web_server_init (CockpitWebServer *server)
 {
+  server->requests = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+                                            cockpit_request_free, NULL);
+  server->main_context = g_main_context_ref_thread_default ();
 }
 
 static void
@@ -98,13 +112,25 @@ cockpit_web_server_constructed (GObject *object)
 }
 
 static void
+cockpit_web_server_dispose (GObject *object)
+{
+  CockpitWebServer *self = COCKPIT_WEB_SERVER (object);
+
+  g_hash_table_remove_all (self->requests);
+
+  G_OBJECT_CLASS (cockpit_web_server_parent_class)->dispose (object);
+}
+
+static void
 cockpit_web_server_finalize (GObject *object)
 {
   CockpitWebServer *server = COCKPIT_WEB_SERVER (object);
 
   g_clear_object (&server->certificate);
   g_strfreev (server->document_roots);
-
+  g_hash_table_destroy (server->requests);
+  if (server->main_context)
+    g_main_context_unref (server->main_context);
   g_clear_object (&server->socket_service);
 
   G_OBJECT_CLASS (cockpit_web_server_parent_class)->finalize (object);
@@ -138,6 +164,26 @@ cockpit_web_server_get_property (GObject *object,
     }
 }
 
+static gchar **
+filter_document_roots (const gchar **input)
+{
+  GPtrArray *roots;
+  char *path;
+  gint i;
+
+  roots = g_ptr_array_new ();
+  for (i = 0; input && input[i]; i++)
+    {
+      path = realpath (input[i], NULL);
+      if (path == NULL)
+        g_warning ("couldn't resolve document root: %s: %m", input[i]);
+      else
+        g_ptr_array_add (roots, path);
+    }
+  g_ptr_array_add (roots, NULL);
+  return (gchar **)g_ptr_array_free (roots, FALSE);
+}
+
 static void
 cockpit_web_server_set_property (GObject *object,
                                  guint prop_id,
@@ -157,7 +203,7 @@ cockpit_web_server_set_property (GObject *object,
       break;
 
     case PROP_DOCUMENT_ROOTS:
-      server->document_roots = g_value_dup_boxed (value);
+      server->document_roots = filter_document_roots (g_value_get_boxed (value));
       break;
 
     default:
@@ -166,13 +212,81 @@ cockpit_web_server_set_property (GObject *object,
     }
 }
 
+static gboolean
+cockpit_web_server_default_handle_stream (CockpitWebServer *self,
+                                          CockpitWebServerRequestType reqtype,
+                                          const gchar *path,
+                                          GIOStream *io_stream,
+                                          GHashTable *headers,
+                                          GByteArray *input,
+                                          guint in_length)
+{
+  CockpitWebResponse *response;
+  gboolean claimed = FALSE;
+  GQuark detail;
+  GBytes *bytes;
+
+  if (in_length == input->len)
+    {
+      /* preserve the byte array wrapper */
+      g_byte_array_ref (input);
+      bytes = g_byte_array_free_to_bytes (input);
+    }
+  else
+    {
+      bytes = g_bytes_new (input->data, in_length);
+      g_byte_array_remove_range (input, 0, in_length);
+    }
+
+  /* TODO: Correct HTTP version for response */
+  response = cockpit_web_response_new (io_stream, path);
+
+  detail = g_quark_try_string (path);
+
+  /* See if we have any takers... */
+  g_signal_emit (self,
+                 sig_handle_resource, detail,
+                 reqtype,  /* args */
+                 path,
+                 headers,
+                 bytes,
+                 response,
+                 &claimed);
+
+  g_bytes_unref (bytes);
+
+  /* TODO: Here is where we would plug keep-alive into respnse */
+  g_object_unref (response);
+
+  return claimed;
+}
+
+static gboolean
+cockpit_web_server_default_handle_resource (CockpitWebServer *self,
+                                            CockpitWebServerRequestType reqtype,
+                                            const gchar *path,
+                                            GHashTable *headers,
+                                            GBytes *input,
+                                            CockpitWebResponse *response)
+{
+  if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
+    cockpit_web_response_error (response, 405, NULL, "POST not available for this path");
+  else
+    cockpit_web_response_file (response, path, (const gchar **)self->document_roots);
+  return TRUE;
+}
+
 static void
 cockpit_web_server_class_init (CockpitWebServerClass *klass)
 {
   GObjectClass *gobject_class;
 
+  klass->handle_stream = cockpit_web_server_default_handle_stream;
+  klass->handle_resource = cockpit_web_server_default_handle_resource;
+
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->constructed = cockpit_web_server_constructed;
+  gobject_class->dispose = cockpit_web_server_dispose;
   gobject_class->finalize = cockpit_web_server_finalize;
   gobject_class->set_property = cockpit_web_server_set_property;
   gobject_class->get_property = cockpit_web_server_get_property;
@@ -204,21 +318,36 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
 
-  signals[HANDLE_RESOURCE_SIGNAL] = g_signal_new ("handle-resource",
-                                                  G_OBJECT_CLASS_TYPE (klass),
-                                                  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
-                                                  G_STRUCT_OFFSET (CockpitWebServerClass, handle_resource),
-                                                  g_signal_accumulator_true_handled,
-                                                  NULL, /* accu_data */
-                                                  g_cclosure_marshal_generic,
-                                                  G_TYPE_BOOLEAN,
-                                                  6,
-                                                  G_TYPE_INT,
-                                                  G_TYPE_STRING,
-                                                  G_TYPE_IO_STREAM,
-                                                  G_TYPE_HASH_TABLE,
-                                                  G_TYPE_DATA_INPUT_STREAM,
-                                                  G_TYPE_DATA_OUTPUT_STREAM);
+  sig_handle_stream = g_signal_new ("handle-stream",
+                                    G_OBJECT_CLASS_TYPE (klass),
+                                    G_SIGNAL_RUN_LAST,
+                                    G_STRUCT_OFFSET (CockpitWebServerClass, handle_stream),
+                                    g_signal_accumulator_true_handled,
+                                    NULL, /* accu_data */
+                                    g_cclosure_marshal_generic,
+                                    G_TYPE_BOOLEAN,
+                                    6,
+                                    G_TYPE_INT,
+                                    G_TYPE_STRING,
+                                    G_TYPE_IO_STREAM,
+                                    G_TYPE_HASH_TABLE,
+                                    G_TYPE_BYTE_ARRAY,
+                                    G_TYPE_UINT);
+
+  sig_handle_resource = g_signal_new ("handle-resource",
+                                      G_OBJECT_CLASS_TYPE (klass),
+                                      G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
+                                      G_STRUCT_OFFSET (CockpitWebServerClass, handle_resource),
+                                      g_signal_accumulator_true_handled,
+                                      NULL, /* accu_data */
+                                      g_cclosure_marshal_generic,
+                                      G_TYPE_BOOLEAN,
+                                      5,
+                                      G_TYPE_INT,
+                                      G_TYPE_STRING,
+                                      G_TYPE_HASH_TABLE,
+                                      G_TYPE_BYTES,
+                                      COCKPIT_TYPE_WEB_RESPONSE);
 }
 
 CockpitWebServer *
@@ -381,536 +510,449 @@ out:
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+typedef struct {
+  int state;
+  GIOStream *io;
+  GByteArray *buffer;
+  gint delayed_reply;
+  CockpitWebServer *web_server;
+  GSource *source;
+  GSource *timeout;
+} CockpitRequest;
+
 static void
-return_response (GOutputStream *out,
-                 gint status,
-                 gchar *reason,
+cockpit_request_free (gpointer data)
+{
+  CockpitRequest *request = data;
+  if (request->timeout)
+    {
+      g_source_destroy (request->timeout);
+      g_source_unref (request->timeout);
+    }
+  if (request->source)
+    {
+      g_source_destroy (request->source);
+      g_source_unref (request->source);
+    }
+
+  g_byte_array_unref (request->buffer);
+  g_object_unref (request->io);
+}
+
+static void
+cockpit_request_finish (CockpitRequest *request)
+{
+  g_hash_table_remove (request->web_server->requests, request);
+}
+
+static void
+process_delayed_reply (CockpitRequest *request,
+                       const gchar *path,
+                       GHashTable *headers)
+{
+  CockpitWebResponse *response;
+  const gchar *host;
+  const gchar *body;
+  GBytes *bytes;
+  gsize length;
+  gchar *url;
+
+  g_assert (request->delayed_reply > 299);
+
+  response = cockpit_web_response_new (request->io, NULL);
+
+  if (request->delayed_reply == 301)
+    {
+      body = "<html><head><title>Moved</title></head>"
+        "<body>Please use TLS</body></html>";
+      host = g_hash_table_lookup (headers, "Host");
+      url = g_strdup_printf ("https://%s%s",
+                             host != NULL ? host : "", path);
+      length = strlen (body);
+      cockpit_web_response_headers (response, 301, "Moved Permanently", length,
+                                    "Content-Type", "text/html",
+                                    "Location", url,
+                                    NULL);
+      g_free (url);
+      bytes = g_bytes_new_static (body, length);
+      if (cockpit_web_response_queue (response, bytes))
+        cockpit_web_response_complete (response);
+      g_bytes_unref (bytes);
+      return;
+    }
+
+  cockpit_web_response_error (response, request->delayed_reply, NULL, NULL);
+  g_object_unref (response);
+}
+
+static void
+process_request (CockpitRequest *request,
+                 CockpitWebServerRequestType reqtype,
+                 const gchar *path,
                  GHashTable *headers,
-                 gconstpointer content,
-                 gsize length)
-{
-  GHashTableIter iter;
-  GError *error = NULL;
-  gpointer value;
-  gpointer key;
-  GString *resp;
-
-  resp = g_string_new (NULL);
-
-  g_string_printf (resp, "HTTP/1.1 %d %s\r\n"
-                         "Content-Length: %" G_GSIZE_FORMAT "\r\n"
-                         "Connection: close\r\n", status, reason, length);
-
-  if (headers)
-    {
-      g_hash_table_iter_init (&iter, headers);
-      while (g_hash_table_iter_next (&iter, &key, &value))
-        g_string_append_printf (resp, "%s: %s\r\n", (gchar *)key, (gchar *)value);
-    }
-
-  g_string_append (resp, "\r\n");
-
-  if (!g_output_stream_write_all (out, resp->str, resp->len, NULL, NULL, &error) ||
-      !g_output_stream_write_all (out, content, length, NULL, NULL, &error))
-    goto out;
-
-out:
-  g_string_free (resp, TRUE);
-  if (error)
-    {
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
-        g_warning ("Failed to write response: %s", error->message);
-      g_error_free (error);
-    }
-}
-
-void
-cockpit_web_server_return_content (GOutputStream *out,
-                                   GHashTable *headers,
-                                   gconstpointer content,
-                                   gsize length)
-{
-  return_response (out, 200, "OK", headers, content, length);
-}
-
-void
-cockpit_web_server_return_error (GOutputStream *out,
-                                 guint code,
-                                 GHashTable *headers,
-                                 const gchar *format,
-                                 ...)
-{
-  gs_free gchar *body = NULL;
-  va_list var_args;
-  gs_free gchar *reason = NULL;
-
-  va_start (var_args, format);
-  reason = g_strdup_vprintf (format, var_args);
-  va_end (var_args);
-
-  g_message ("Returning error-response %d with reason `%s'", code, reason);
-
-  body = g_strdup_printf ("<html><head><title>%d %s</title></head>"
-                          "<body>%s</body></html>",
-                          code, reason,
-                          reason);
-
-  return_response (out, code, reason, headers, body, strlen (body));
-}
-
-void
-cockpit_web_server_return_gerror (GOutputStream *out,
-                                  GHashTable *headers,
-                                  GError *error)
-{
-  int code;
-
-  if (g_error_matches (error,
-                       COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED))
-    code = 401;
-  else if (g_error_matches (error,
-                            G_IO_ERROR, G_IO_ERROR_INVALID_DATA))
-    code = 400;
-  else if (g_error_matches (error,
-                            G_IO_ERROR, G_IO_ERROR_NO_SPACE))
-    code = 413;
-  else
-    code = 500;
-
-  cockpit_web_server_return_error (out, code, headers, "%s", error->message);
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
-static const struct {
-    const gchar *extension;
-    const gchar *content_type;
-} CONTENT_TYPES[] = {
-  { ".css", "text/css" },
-  { ".gif", "image/gif" },
-  { ".eot", "application/vnd.ms-fontobject" },
-  { ".html", "text/html" },
-  { ".ico", "image/vnd.microsoft.icon" },
-  { ".jpg", "image/jpg" },
-  { ".js", "application/javascript" },
-  { ".otf", "font/opentype" },
-  { ".png", "image/png" },
-  { ".svg", "image/svg+xml" },
-  { ".ttf", "application/octet-stream" }, /* unassigned */
-  { ".woff", "application/font-woff" },
-  { ".xml", "text/xml" },
-};
-
-static void
-serve_static_file (CockpitWebServer *server,
-                   GDataInputStream *input,
-                   GDataOutputStream *output,
-                   const gchar *escaped,
-                   GCancellable *cancellable)
-{
-  GString *str = NULL;
-  GError *local_error = NULL;
-  GError **error = &local_error;
-  gchar *query = NULL;
-  gs_free gchar *unescaped = NULL;
-  gs_free gchar *path = NULL;
-  gs_unref_object GFileInputStream *file_in = NULL;
-  gs_unref_object GFile *f = NULL;
-  gs_unref_object GFileInfo *info = NULL;
-  const gchar **roots;
-  const gchar *root;
-  gint i;
-
-  query = strchr (escaped, '?');
-  if (query != NULL)
-    *query++ = 0;
-
-  if (g_strcmp0 (escaped, "/") == 0)
-    escaped = "/index.html";
-
-  roots = (const gchar **)server->document_roots;
-
-again:
-  root = *(roots++);
-  if (root == NULL)
-    {
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, NULL, "Not found");
-      goto out;
-    }
-
-  unescaped = g_uri_unescape_string (escaped, NULL);
-  path = g_build_filename (root, unescaped, NULL);
-  f = g_file_new_for_path (path);
-
-  file_in = g_file_read (f, NULL, error);
-  if (file_in == NULL)
-    {
-      if (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-        {
-          g_clear_error (&local_error);
-          goto again;
-        }
-      else if (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED) ||
-               g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_IS_DIRECTORY))
-        {
-          cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 403, NULL, "Access denied");
-          g_clear_error (&local_error);
-          goto out;
-        }
-      else
-        {
-          cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 500, NULL, "Internal server error");
-          goto out;
-        }
-    }
-
-  str = g_string_new ("HTTP/1.1 200 OK\r\n");
-  info = g_file_input_stream_query_info (file_in, G_FILE_ATTRIBUTE_STANDARD_SIZE,
-                                         cancellable, NULL);
-
-  g_string_append (str, "Connection: close\r\n");
-
-  if (info && g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_STANDARD_SIZE))
-    {
-      g_string_append_printf (str,
-                              "Content-Length: %" G_GINT64_FORMAT "\r\n",
-                              g_file_info_get_size (info));
-    }
-
-  for (i = 0; i < G_N_ELEMENTS (CONTENT_TYPES); i++)
-    {
-      if (g_str_has_suffix (path, CONTENT_TYPES[i].extension))
-        {
-          g_string_append_printf (str,
-                                  "Content-Type: %s\r\n",
-                                  CONTENT_TYPES[i].content_type);
-          break;
-        }
-    }
-
-  g_string_append (str, "\r\n");
-
-  if (!g_output_stream_write_all (G_OUTPUT_STREAM (output),
-                                  str->str,
-                                  str->len,
-                                  NULL,
-                                  cancellable,
-                                  error))
-    {
-      g_prefix_error (error, "Error writing %d bytes to output stream: ", (gint) str->len);
-      goto out;
-    }
-
-  if (!g_output_stream_splice (G_OUTPUT_STREAM (output),
-                               G_INPUT_STREAM (file_in),
-                               0,
-                               cancellable,
-                               error))
-    {
-      g_prefix_error (error, "Error splicing to output stream: ");
-      goto out;
-    }
-
-  if (!g_input_stream_close (G_INPUT_STREAM (file_in), cancellable, error))
-    {
-      g_prefix_error (error, "Error closing input stream: ");
-      goto out;
-    }
-
-out:
-  if (local_error != NULL &&
-      !g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
-    {
-      g_warning ("Error serving static file: %s (%s, %d)",
-                 local_error->message, g_quark_to_string (local_error->domain), local_error->code);
-    }
-  g_clear_error (&local_error);
-  if (str)
-    g_string_free (str, TRUE);
-}
-
-static void
-process_request (CockpitWebServer *server,
-                 GIOStream *io_stream,
-                 GDataInputStream *input,
-                 GDataOutputStream *output,
-                 gboolean redirect_tls,
-                 GCancellable *cancellable)
+                 guint length)
 {
   gboolean claimed = FALSE;
-  GError *local_error = NULL;
-  GError **error = &local_error;
-  const gchar *escaped;
-  gchar *line = NULL;
-  gsize line_len;
-  gchar *tmp = NULL;
-  gs_unref_hashtable GHashTable *headers = NULL;
-  gs_free gchar *header_line = NULL;
-  CockpitWebServerRequestType reqtype;
-  gs_free gchar *buf = NULL;
 
-  headers = web_socket_util_new_headers ();
-
-  /* First read the request line */
-  line = g_data_input_stream_read_line (input, &line_len, cancellable, error);
-  if (line == NULL)
+  if (request->delayed_reply)
     {
-      if (error != NULL)
-        {
-          g_prefix_error (error, "Error reading request line: ");
-        }
-      else
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "Error reading request line (no data)");
-        }
-      goto out;
+      process_delayed_reply (request, path, headers);
+      return;
     }
 
-  /* Then each header */
-  do
-    {
-      gchar *key;
-      gchar *value;
+  /* See if we have any takers... */
+  g_signal_emit (request->web_server,
+                 sig_handle_stream, 0,
+                 reqtype,  /* args */
+                 path,
+                 request->io,
+                 headers,
+                 request->buffer,
+                 length,
+                 &claimed);
 
-      g_free (header_line);
-      header_line = g_data_input_stream_read_line (input, NULL, cancellable, error);
-      if (header_line == NULL)
-        {
-          g_prefix_error (error,
-                          "Error reading header line %d: ",
-                          g_hash_table_size (headers));
-          goto out;
-        }
-
-      if (strlen (header_line) == 0)
-        break;
-
-      tmp = strstr (header_line, ": ");
-      if (tmp == NULL)
-        {
-          g_prefix_error (error,
-                          "Header line %d with content `%s' is malformed: ",
-                          g_hash_table_size (headers),
-                          header_line);
-          goto out;
-        }
-      key = g_strndup (header_line, tmp - header_line);
-      value = g_strdup (tmp + 2);
-      g_strstrip (key);
-      /* transfer ownership of key and value */
-      g_hash_table_insert (headers, key, value);
-    }
-  while (TRUE);
-
-  if (g_str_has_prefix (line, "GET "))
-    {
-      reqtype = COCKPIT_WEB_SERVER_REQUEST_GET;
-      escaped = line + 4; /* Skip "GET " */
-    }
-  else if (g_str_has_prefix (line, "POST "))
-    {
-      reqtype = COCKPIT_WEB_SERVER_REQUEST_POST;
-      escaped = line + 5;
-    }
-  else
-    {
-      cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 501, NULL,
-                                       "Only GET and POST is implemented");
-      goto out;
-    }
-
-  /* TODO: This is a bug, which causes all redirects to go to '/' */
-  tmp = strchr (escaped, ' ');
-  if (tmp != NULL)
-    {
-      *tmp = 0;
-      /* version = tmp + 1; */
-    }
-
-  /* Redirect plain HTTP if configured to use HTTPS */
-  if (redirect_tls)
-    {
-      const gchar *body =
-        "<html><head><title>Moved</title></head>"
-        "<body>Please use TLS</body></html>";
-      const gchar *host;
-      host = g_hash_table_lookup (headers, "Host");
-      g_free (buf);
-      buf = g_strdup_printf ("HTTP/1.1 301 Moved Permanently\r\n"
-                             "Location: https://%s/%s\r\n"
-                             "Content-Length: %d\r\n"
-                             "Connection: close\r\n"
-                             "\r\n"
-                             "%s",
-                             host != NULL ? host : "", tmp,
-                             (gint) strlen (body), body);
-      if (!g_output_stream_write_all (G_OUTPUT_STREAM (output), buf, strlen (buf), NULL, cancellable, error))
-        {
-          g_prefix_error (error, "Error writing 301 to redirect to https://%s/%s: ",
-                          host != NULL ? host : "", tmp);
-          goto out;
-        }
-      goto out;
-    }
-  else
-    {
-      /* See if we have any takers... */
-      g_signal_emit (server,
-                     signals[HANDLE_RESOURCE_SIGNAL],
-                     /* TODO: This is a resource leak */
-                     g_quark_from_string (escaped), /* detail */
-                     reqtype,  /* args */
-                     escaped,
-                     io_stream,
-                     headers,
-                     input,
-                     output,
-                     &claimed);
-      if (claimed)
-        {
-          goto out;
-        }
-      else
-        {
-          /* Don't look for filesystem resources for POST */
-          if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
-            {
-              cockpit_web_server_return_error (G_OUTPUT_STREAM (output), 404, NULL,
-                                               "Not found (use GET)");
-              goto out;
-            }
-
-          serve_static_file (server, input, output, escaped, cancellable);
-        }
-    }
-
-out:
-  if (local_error != NULL)
-    {
-      if (!g_error_matches (local_error, G_TLS_ERROR, G_TLS_ERROR_EOF))
-        g_warning ("Error processing request: %s (%s, %d)",
-                   local_error->message, g_quark_to_string (local_error->domain), local_error->code);
-      g_clear_error (&local_error);
-    }
-
-
-  local_error = NULL;
-  if (!g_io_stream_is_closed (io_stream) && !g_output_stream_is_closed (G_OUTPUT_STREAM (output)) &&
-      !g_output_stream_flush (G_OUTPUT_STREAM (output), NULL, &local_error))
-    {
-      if (!g_error_matches (local_error, G_TLS_ERROR, G_TLS_ERROR_EOF))
-        g_warning ("Error flusing output stream: %s (%s, %d)",
-                   local_error->message, g_quark_to_string (local_error->domain), local_error->code);
-      g_clear_error (&local_error);
-    }
+  if (!claimed)
+    g_critical ("no handler responded to request: %s", path);
 }
 
 static gboolean
-on_run (GThreadedSocketService *service,
-        GSocketConnection *connection,
-        GSocketListener *listener,
-        gpointer user_data)
+parse_and_process_request (CockpitRequest *request)
 {
-  CockpitWebServer *server = COCKPIT_WEB_SERVER (user_data);
-  GError *local_error = NULL;
-  GError **error = &local_error;
-  gs_unref_object GIOStream *io_stream = NULL;
-  GIOStream *tls_stream = NULL;
-  GOutputStream *out = NULL;
-  GInputStream *in = NULL;
-  gs_unref_object GDataInputStream *data = NULL;
-  gs_unref_object GDataOutputStream *out_data = NULL;
-  GCancellable *cancellable = NULL;
-  gboolean redirect_tls = FALSE;
-  GSocketAddress *addr;
-  GInetAddress *inet;
+  CockpitWebServerRequestType reqtype = 0;
+  gboolean again = FALSE;
+  GHashTable *headers = NULL;
+  gchar *method = NULL;
+  gchar *path = NULL;
+  const gchar *str;
+  gchar *end = NULL;
+  gssize off1;
+  gssize off2;
+  guint64 length;
 
-  if (server->certificate != NULL)
+  /* The hard input limit, we just terminate the connection */
+  if (request->buffer->len > cockpit_ws_request_maximum * 2)
     {
-      guchar first_byte;
-      GInputVector vector[1] = {{&first_byte, 1}};
-      gint flags = G_SOCKET_MSG_PEEK;
-      gssize num_read;
+      g_message ("received HTTP request that was too large");
+      goto out;
+    }
 
-      num_read = g_socket_receive_message (g_socket_connection_get_socket (connection),
-                                           NULL, /* out GSocketAddress */
-                                           vector,
-                                           1,
-                                           NULL, /* out GSocketControlMessage */
-                                           NULL, /* out num_messages */
-                                           &flags,
-                                           NULL, /* GCancellable* */
-                                           error);
-      if (num_read == -1)
-        goto out;
+  off1 = web_socket_util_parse_req_line ((const gchar *)request->buffer->data,
+                                         request->buffer->len,
+                                         &method,
+                                         &path);
+  if (off1 == 0)
+    {
+      again = TRUE;
+      goto out;
+    }
+  if (off1 < 0)
+    {
+      g_message ("received invalid HTTP request line");
+      request->delayed_reply = 400;
+      goto out;
+    }
 
-      /* TLS streams are guaranteed to start with octet 22.. this way we can distinguish them
-       * from regular HTTP requests
-       */
-      if (first_byte != 22 && first_byte != 0x80)
+  off2 = web_socket_util_parse_headers ((const gchar *)request->buffer->data + off1,
+                                        request->buffer->len - off1,
+                                        &headers);
+  if (off2 == 0)
+    {
+      again = TRUE;
+      goto out;
+    }
+  if (off2 < 0)
+    {
+      g_message ("received invalid HTTP request headers");
+      request->delayed_reply = 400;
+      goto out;
+    }
+
+  /* If we get a Content-Length then we have to read that much data */
+  length = 0;
+  str = g_hash_table_lookup (headers, "Content-Length");
+  if (str != NULL)
+    {
+      end = NULL;
+      length = g_ascii_strtoull (str, &end, 10);
+      if (!end || end[0])
         {
-          redirect_tls = TRUE;
-          addr = g_socket_connection_get_remote_address (connection, NULL);
-          if (G_IS_INET_SOCKET_ADDRESS (addr))
-            {
-              inet = g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (addr));
-              redirect_tls = !g_inet_address_get_is_loopback (inet);
-            }
-          g_clear_object (&addr);
-          goto not_tls;
+          g_message ("received invalid Content-Length");
+          request->delayed_reply = 400;
+          goto out;
         }
 
-      tls_stream = g_tls_server_connection_new (G_IO_STREAM (connection),
-                                                server->certificate,
-                                                error);
-      if (tls_stream == NULL)
-        goto out;
+      /* The soft limit, we return 413 */
+      if (length > cockpit_ws_request_maximum)
+        {
+          g_debug ("received too large Content-Length");
+          request->delayed_reply = 413;
+        }
+    }
 
-      io_stream = tls_stream;
-      in = g_io_stream_get_input_stream (G_IO_STREAM (tls_stream));
-      out = g_io_stream_get_output_stream (G_IO_STREAM (tls_stream));
-      redirect_tls = FALSE;
+  /* Not enough data yet */
+  if (request->buffer->len < off1 + off2 + length)
+    {
+      again = TRUE;
+      goto out;
+    }
+
+  if (g_str_equal (method, "GET"))
+    reqtype = COCKPIT_WEB_SERVER_REQUEST_GET;
+  else if (g_str_equal (method, "POST"))
+    reqtype = COCKPIT_WEB_SERVER_REQUEST_POST;
+  else
+    {
+      g_message ("received unsupported HTTP method");
+      request->delayed_reply = 405;
+    }
+
+  /*
+   * TODO: the following are not implemented and required by HTTP/1.1
+   *  * Transfer-Encoding: chunked (for requests)
+   *
+   * TODO: The following would help speed up cockpit:
+   *  * keep-alives
+   */
+
+  g_byte_array_remove_range (request->buffer, 0, off1 + off2);
+  process_request (request, reqtype, path, headers, length);
+
+out:
+  if (headers)
+    g_hash_table_unref (headers);
+  g_free (method);
+  g_free (path);
+  if (!again)
+    cockpit_request_finish (request);
+  return again;
+}
+
+static gboolean
+should_suppress_request_error (GError *error)
+{
+  if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF))
+    {
+      g_debug ("request error: %s", error->message);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+on_request_input (GObject *pollable_input,
+                  gpointer user_data)
+{
+  GPollableInputStream *input = (GPollableInputStream *)pollable_input;
+  CockpitRequest *request = user_data;
+  GError *error = NULL;
+  gsize length;
+  gssize count;
+
+  length = request->buffer->len;
+  g_byte_array_set_size (request->buffer, length + 4096);
+
+  count = g_pollable_input_stream_read_nonblocking (input, request->buffer->data + length,
+                                                    4096, NULL, &error);
+  if (count < 0)
+    {
+      g_byte_array_set_size (request->buffer, length);
+
+      /* Just wait and try again */
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
+        {
+          g_error_free (error);
+          return TRUE;
+        }
+
+      if (!should_suppress_request_error (error))
+        g_warning ("couldn't read from connection: %s", error->message);
+
+      cockpit_request_finish (request);
+      g_error_free (error);
+      return FALSE;
+    }
+
+  g_byte_array_set_size (request->buffer, length + count);
+
+  if (count == 0)
+    {
+      g_debug ("caller closed connection early");
+      cockpit_request_finish (request);
+      return FALSE;
+    }
+
+  return parse_and_process_request (request);
+}
+
+static void
+start_request_input (CockpitRequest *request)
+{
+  GPollableInputStream *poll_in;
+  GInputStream *in;
+
+  /* Both GSocketConnection and GTlsServerConnection are pollable */
+  in = g_io_stream_get_input_stream (request->io);
+  poll_in = NULL;
+  if (G_IS_POLLABLE_INPUT_STREAM (in))
+    poll_in = (GPollableInputStream *)in;
+
+  if (!poll_in || !g_pollable_input_stream_can_poll (poll_in))
+    {
+      g_critical ("cannot use a non-pollable input stream: %s", G_OBJECT_TYPE_NAME (in));
+      cockpit_request_finish (request);
+      return;
+    }
+
+  /* Replace with a new source */
+  if (request->source)
+    {
+      g_source_destroy (request->source);
+      g_source_unref (request->source);
+    }
+
+  request->source = g_pollable_input_stream_create_source (poll_in, NULL);
+  g_source_set_callback (request->source, (GSourceFunc)on_request_input, request, NULL);
+  g_source_attach (request->source, request->web_server->main_context);
+}
+
+static gboolean
+on_socket_input (GSocket *socket,
+                 GIOCondition condition,
+                 gpointer user_data)
+{
+  CockpitRequest *request = user_data;
+  guchar first_byte;
+  GInputVector vector[1] = { { &first_byte, 1 } };
+  gint flags = G_SOCKET_MSG_PEEK;
+  gboolean redirect_tls;
+  gboolean is_tls;
+  GSocketAddress *addr;
+  GInetAddress *inet;
+  GError *error = NULL;
+  GIOStream *tls_stream;
+  gssize num_read;
+
+  num_read = g_socket_receive_message (socket,
+                                       NULL, /* out GSocketAddress */
+                                       vector,
+                                       1,
+                                       NULL, /* out GSocketControlMessage */
+                                       NULL, /* out num_messages */
+                                       &flags,
+                                       NULL, /* GCancellable* */
+                                       &error);
+  if (num_read < 0)
+    {
+      /* Just wait and try again */
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
+        {
+          g_error_free (error);
+          return TRUE;
+        }
+
+      if (!should_suppress_request_error (error))
+        g_warning ("couldn't read from socket: %s", error->message);
+
+      cockpit_request_finish (request);
+      g_error_free (error);
+      return FALSE;
+    }
+
+  is_tls = TRUE;
+  redirect_tls = FALSE;
+
+  /*
+   * TLS streams are guaranteed to start with octet 22.. this way we can distinguish them
+   * from regular HTTP requests
+   */
+  if (first_byte != 22 && first_byte != 0x80)
+    {
+      is_tls = FALSE;
+      redirect_tls = TRUE;
+      addr = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (request->io), NULL);
+      if (G_IS_INET_SOCKET_ADDRESS (addr))
+        {
+          inet = g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (addr));
+          redirect_tls = !g_inet_address_get_is_loopback (inet);
+        }
+      g_clear_object (&addr);
+    }
+
+  if (is_tls)
+    {
+      tls_stream = g_tls_server_connection_new (request->io,
+                                                request->web_server->certificate,
+                                                &error);
+      if (tls_stream == NULL)
+        {
+          g_warning ("couldn't create new TLS stream: %s", error->message);
+          cockpit_request_finish (request);
+          g_error_free (error);
+          return FALSE;
+        }
+
+      g_object_unref (request->io);
+      request->io = G_IO_STREAM (tls_stream);
+    }
+  else if (redirect_tls)
+    {
+      request->delayed_reply = 301;
+    }
+
+  start_request_input (request);
+
+  /* No longer run *this* source */
+  return FALSE;
+}
+
+static gboolean
+on_request_timeout (gpointer data)
+{
+  CockpitRequest *request = data;
+  g_message ("request timed out, closing");
+  cockpit_request_finish (request);
+  return FALSE;
+}
+
+static gboolean
+on_incoming (GSocketService *service,
+             GSocketConnection *connection,
+             GObject *source_object,
+             gpointer user_data)
+{
+  CockpitWebServer *self = COCKPIT_WEB_SERVER (user_data);
+  CockpitRequest *request;
+  GSocket *socket;
+
+  request = g_new0 (CockpitRequest, 1);
+  request->web_server = self;
+  request->io = g_object_ref (connection);
+  request->buffer = g_byte_array_new ();
+
+  request->timeout = g_timeout_source_new_seconds (cockpit_ws_request_timeout);
+  g_source_set_callback (request->timeout, on_request_timeout, request, NULL);
+  g_source_attach (request->timeout, self->main_context);
+
+  socket = g_socket_connection_get_socket (connection);
+  g_socket_set_blocking (socket, FALSE);
+
+  /* Owns the request */
+  g_hash_table_add (self->requests, request);
+
+  if (self->certificate)
+    {
+      request->source = g_socket_create_source (g_socket_connection_get_socket (connection),
+                                                G_IO_IN, NULL);
+      g_source_set_callback (request->source, (GSourceFunc)on_socket_input, request, NULL);
+      g_source_attach (request->source, self->main_context);
     }
   else
     {
-not_tls:
-      io_stream = g_object_ref (connection);
-      in = g_io_stream_get_input_stream (G_IO_STREAM (connection));
-      out = g_io_stream_get_output_stream (G_IO_STREAM (connection));
+      start_request_input (request);
     }
 
-  data = g_data_input_stream_new (in);
-  g_data_input_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN);
-
-  out_data = g_data_output_stream_new (out);
-  g_data_output_stream_set_byte_order (out_data, G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN);
-
-  /* Be tolerant of input */
-  g_data_input_stream_set_newline_type (data, G_DATA_STREAM_NEWLINE_TYPE_ANY);
-
-  /* Keep serving until requested to not to anymore */
-  process_request (server, io_stream, data, out_data, redirect_tls, cancellable);
-
-  /* Forcibly close the connection when we're done */
-  (void) g_io_stream_close (G_IO_STREAM (connection), cancellable, NULL);
-  if (tls_stream != NULL)
-    {
-      (void) g_io_stream_close ((GIOStream*)tls_stream, cancellable, NULL);
-    }
-
-out:
-  if (local_error)
-    {
-      g_warning ("Serving the stream resulted in error: %s (%s, %d)",
-                 local_error->message, g_quark_to_string (local_error->domain), local_error->code);
-      g_clear_error (&local_error);
-    }
-
-  /* Prevent other GThreadedSocket::run handlers from being called (doesn't matter,
-   * we're the only one)
-   */
-
+  /* handled */
   return TRUE;
 }
 
@@ -926,7 +968,7 @@ cockpit_web_server_initable_init (GInitable *initable,
   gboolean failed;
   int n, fd;
 
-  server->socket_service = g_threaded_socket_service_new (G_MAXINT);
+  server->socket_service = g_socket_service_new ();
 
   n = sd_listen_fds (0);
   if (n > 0)
@@ -978,8 +1020,8 @@ cockpit_web_server_initable_init (GInitable *initable,
     }
 
   g_signal_connect (server->socket_service,
-                    "run",
-                    G_CALLBACK (on_run),
+                    "incoming",
+                    G_CALLBACK (on_incoming),
                     server);
 
   ret = TRUE;

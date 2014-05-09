@@ -28,11 +28,18 @@ G_BEGIN_DECLS
 #include <cockpitwebserver.h>
 #include <cockpitauth.h>
 
-/* Some tunables that can be set from tests. See cockpitwebsocket.c */
+/* Some tunables that can be set from tests. */
+
+/* From cockpitwebsocket.c */
 extern const gchar *cockpit_ws_session_program;
 extern const gchar *cockpit_ws_agent_program;
 extern const gchar *cockpit_ws_known_hosts;
+extern const gchar *cockpit_ws_default_host_header;
 extern gint cockpit_ws_specific_ssh_port;
+
+/* From cockpitwebserver */
+extern guint cockpit_ws_request_timeout;
+extern gsize cockpit_ws_request_maximum;
 
 G_END_DECLS
 

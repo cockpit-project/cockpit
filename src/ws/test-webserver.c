@@ -150,131 +150,6 @@ test_table (void)
 }
 
 static void
-test_return_content (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  cockpit_web_server_return_content (out, NULL, "the content", 11);
-
-  /* Null terminate because g_assert_cmpstr() */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
-
-  g_object_unref (out);
-}
-
-static void
-test_return_content_headers (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-  GHashTable *headers;
-
-  headers = cockpit_web_server_new_table ();
-  g_hash_table_insert (headers, g_strdup ("My-header"), g_strdup ("my-value"));
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  cockpit_web_server_return_content (out, headers, "the content", 11);
-  g_hash_table_destroy (headers);
-
-  /* Null terminate because g_assert_cmpstr() */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\nMy-header: my-value\r\n\r\nthe content");
-
-  g_object_unref (out);
-}
-
-
-static void
-test_return_error (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-
-  cockpit_expect_message ("Returning error-response 500*");
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  cockpit_web_server_return_error (out, 500, NULL, "Reason here: %s", "booyah");
-
-  /* Null terminate it for fun */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
-
-  g_object_unref (out);
-}
-
-static void
-test_return_error_headers (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-  GHashTable *headers;
-
-  cockpit_expect_message ("Returning error-response 500*");
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  headers = g_hash_table_new (g_str_hash, g_str_equal);
-  g_hash_table_insert (headers, "Header1", "value1");
-
-  cockpit_web_server_return_error (out, 500, headers, "Reason here: %s", "booyah");
-
-  g_hash_table_destroy (headers);
-
-  /* Null terminate it for fun */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\nHeader1: value1\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
-
-  g_object_unref (out);
-}
-
-static void
-test_return_gerror_headers (void)
-{
-  GOutputStream *out;
-  const gchar *data;
-  GHashTable *headers;
-  GError *error;
-
-  cockpit_expect_message ("Returning error-response 500*");
-
-  out = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-
-  headers = g_hash_table_new (g_str_hash, g_str_equal);
-  g_hash_table_insert (headers, "Header1", "value1");
-
-  error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED, "Reason here: %s", "booyah");
-  cockpit_web_server_return_gerror (out, headers, error);
-
-  g_error_free (error);
-  g_hash_table_destroy (headers);
-
-  /* Null terminate it for fun */
-  g_assert (g_output_stream_write (out, "\0", 1, NULL, NULL) == 1);
-
-  data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (out));
-  g_assert_cmpstr (data, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\nHeader1: value1\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
-
-  g_object_unref (out);
-}
-
-static void
 on_ready_get_result (GObject *source,
                      GAsyncResult *result,
                      gpointer user_data)
@@ -376,9 +251,7 @@ test_webserver_not_found (TestCase *tc,
   guint status;
   gssize off;
 
-  cockpit_expect_message ("Returning error-response 404*");
-
-  resp = perform_http_request (tc->localport, "GET /non-existent\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /non-existent HTTP/1.0\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -398,10 +271,8 @@ test_webserver_not_authorized (TestCase *tc,
   guint status;
   gssize off;
 
-  cockpit_expect_message ("Returning error-response 403*");
-
   /* Listing a directory will result in 403 (except / -> index.html) */
-  resp = perform_http_request (tc->localport, "GET /po\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /po HTTP/1.0\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -455,11 +326,6 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/web-server/table", test_table);
-  g_test_add_func ("/web-server/return-content", test_return_content);
-  g_test_add_func ("/web-server/return-content-headers", test_return_content_headers);
-  g_test_add_func ("/web-server/return-error", test_return_error);
-  g_test_add_func ("/web-server/return-error-headers", test_return_error_headers);
-  g_test_add_func ("/web-server/return-gerror-headers", test_return_gerror_headers);
 
   g_test_add ("/web-server/content-type", TestCase, NULL,
               setup, test_webserver_content_type, teardown);

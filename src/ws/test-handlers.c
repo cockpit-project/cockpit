@@ -42,10 +42,11 @@ typedef struct {
   CockpitAuth *auth;
   GHashTable *headers;
   GIOStream *io;
+  CockpitWebResponse *response;
   GMemoryOutputStream *output;
   GMemoryInputStream *input;
-  GDataOutputStream *dataout;
-  GDataInputStream *datain;
+  GByteArray *buffer;
+  gchar *scratch;
 } Test;
 
 static void
@@ -70,13 +71,12 @@ setup (Test *test,
   test->headers = cockpit_web_server_new_table ();
 
   test->output = G_MEMORY_OUTPUT_STREAM (g_memory_output_stream_new (NULL, 0, g_realloc, g_free));
-  test->dataout = g_data_output_stream_new (G_OUTPUT_STREAM (test->output));
-
   test->input = G_MEMORY_INPUT_STREAM (g_memory_input_stream_new ());
-  test->datain = g_data_input_stream_new (G_INPUT_STREAM (test->input));
 
   test->io = mock_io_stream_new (G_INPUT_STREAM (test->input),
                                  G_OUTPUT_STREAM (test->output));
+
+  test->response = cockpit_web_response_new (test->io, NULL);
 }
 
 static void
@@ -86,11 +86,11 @@ teardown (Test *test,
   g_clear_object (&test->auth);
   g_clear_object (&test->server);
   g_clear_object (&test->output);
-  g_clear_object (&test->dataout);
   g_clear_object (&test->input);
-  g_clear_object (&test->dataout);
   g_clear_object (&test->io);
   g_hash_table_destroy (test->headers);
+  g_free (test->scratch);
+  g_object_unref (test->response);
 
   cockpit_assert_expected ();
 }
@@ -98,23 +98,27 @@ teardown (Test *test,
 static const gchar *
 output_as_string (Test *test)
 {
-  g_assert (g_output_stream_flush (G_OUTPUT_STREAM (test->dataout), NULL, NULL));
-  g_assert (g_output_stream_write (G_OUTPUT_STREAM (test->output), "\0", 1, NULL, NULL) == 1);
-  return g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (test->output));
+  while (!g_output_stream_is_closed (G_OUTPUT_STREAM (test->output)))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_free (test->scratch);
+  test->scratch = g_strndup (g_memory_output_stream_get_data (test->output),
+                             g_memory_output_stream_get_data_size (test->output));
+  return test->scratch;
 }
 
 static void
 test_login_no_cookie (Test *test,
                       gconstpointer data)
 {
+  GBytes *input;
   gboolean ret;
 
-  cockpit_expect_message ("*Returning error-response 401*");
-
+  input = g_bytes_new_static ("", 0);
   ret = cockpit_handler_login (test->server,
                                COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
-                               test->io, test->headers,
-                               test->datain, test->dataout, &test->data);
+                               test->headers, input, test->response, &test->data);
+  g_bytes_unref (input);
 
   g_assert (ret == TRUE);
 
@@ -147,6 +151,7 @@ test_login_with_cookie (Test *test,
   gboolean ret;
   gchar *userpass;
   gchar *expect;
+  GBytes *input;
 
   user = g_get_user_name ();
   userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
@@ -157,10 +162,11 @@ test_login_with_cookie (Test *test,
   include_cookie_as_if_client (test->headers, test->headers);
   g_free (userpass);
 
+  input = g_bytes_new_static ("", 0);
   ret = cockpit_handler_login (test->server,
                                COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
-                               test->io, test->headers,
-                               test->datain, test->dataout, &test->data);
+                               test->headers, input, test->response, &test->data);
+  g_bytes_unref (input);
 
   g_assert (ret == TRUE);
 
@@ -174,14 +180,13 @@ test_login_post_bad (Test *test,
                      gconstpointer data)
 {
   gboolean ret;
+  GBytes *input;
 
-  g_hash_table_insert (test->headers, g_strdup ("Content-Length"), g_strdup ("7"));
-  g_memory_input_stream_add_data (test->input, "boooyah", 7, NULL);
-
-  cockpit_expect_message ("*Returning error-response 400*");
+  input = g_bytes_new ("boooyah", 7);
 
   ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->io, test->headers, test->datain, test->dataout, &test->data);
+                               test->headers, input, test->response, &test->data);
+  g_bytes_unref (input);
 
   g_assert (ret == TRUE);
   cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 400 Malformed input\r\n*");
@@ -192,14 +197,16 @@ test_login_post_fail (Test *test,
                       gconstpointer data)
 {
   gboolean ret;
+  GBytes *input;
 
-  g_hash_table_insert (test->headers, g_strdup ("Content-Length"), g_strdup ("8"));
-  g_memory_input_stream_add_data (test->input, "booo\nyah", 8, NULL);
-
-  cockpit_expect_message ("*Returning error-response 401*");
+  input = g_bytes_new_static ("booo\nyah", 8);
 
   ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->io, test->headers, test->datain, test->dataout, &test->data);
+                               test->headers, input, test->response, &test->data);
+  g_bytes_unref (input);
+
+  while (!g_output_stream_is_closed (G_OUTPUT_STREAM (test->output)))
+    g_main_context_iteration (NULL, TRUE);
 
   g_assert (ret == TRUE);
   cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
@@ -235,19 +242,17 @@ test_login_post_accept (Test *test,
   const gchar *user;
   const gchar *output;
   GHashTable *headers;
-  gint length;
   CockpitCreds *creds;
+  GBytes *input;
 
   user = g_get_user_name ();
   userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
-  length = strlen (userpass);
-  g_hash_table_insert (test->headers, g_strdup ("Content-Length"), g_strdup_printf ("%d", length));
-  g_memory_input_stream_add_data (test->input, userpass, length, g_free);
+  input = g_bytes_new_take (userpass, strlen (userpass));
 
   ret = cockpit_handler_login (test->server,
                                COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->io, test->headers,
-                               test->datain, test->dataout, &test->data);
+                               test->headers, input, test->response, &test->data);
+  g_bytes_unref (input);
 
   g_assert (ret == TRUE);
 
@@ -276,11 +281,13 @@ test_cockpitdyn (Test *test,
   gboolean ret;
   gchar hostname[256];
   gchar *expected;
+  GBytes *input;
 
+  input = g_bytes_new_static ("", 0);
   ret = cockpit_handler_cockpitdyn (test->server,
                                     COCKPIT_WEB_SERVER_REQUEST_GET, "/cockpitdyn.js",
-                                    test->io, test->headers,
-                                    test->datain, test->dataout, &test->data);
+                                    test->headers, input, test->response, &test->data);
+  g_bytes_unref (input);
 
   g_assert (ret == TRUE);
 
@@ -300,11 +307,13 @@ test_logout (Test *test,
 {
   const gchar *output;
   gboolean ret;
+  GBytes *input;
 
+  input = g_bytes_new_static ("", 0);
   ret = cockpit_handler_logout (test->server,
                                 COCKPIT_WEB_SERVER_REQUEST_GET, "/logout",
-                                test->io, test->headers,
-                                test->datain, test->dataout, &test->data);
+                                test->headers, input, test->response, &test->data);
+  g_bytes_unref (input);
 
   g_assert (ret == TRUE);
 

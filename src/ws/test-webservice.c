@@ -65,6 +65,7 @@ typedef struct {
 
 typedef struct {
   WebSocketFlavor web_socket_flavor;
+  const char *origin;
 } TestFixture;
 
 static GString *
@@ -263,8 +264,22 @@ on_error_not_reached (WebSocketConnection *ws,
                       GError *error,
                       gpointer user_data)
 {
+  g_assert (error != NULL);
+
   /* At this point we know this will fail, but is informative */
   g_assert_no_error (error);
+}
+
+static void
+on_error_copy (WebSocketConnection *ws,
+               GError *error,
+               gpointer user_data)
+{
+  GError **result = user_data;
+  g_assert (error != NULL);
+  g_assert (result != NULL);
+  g_assert (*result == NULL);
+  *result = g_error_copy (error);
 }
 
 static gpointer
@@ -423,9 +438,14 @@ start_web_service_and_create_client (TestCase *test,
                                      WebSocketConnection **ws,
                                      GThread **thread)
 {
+  const char *origin = fixture ? fixture->origin : NULL;
+  if (!origin)
+    origin = "http://127.0.0.1";
+
   /* This is web_socket_client_new_for_stream() with a flavor passed in fixture */
   *ws = g_object_new (WEB_SOCKET_TYPE_CLIENT,
                      "url", "ws://127.0.0.1/unused",
+                     "origin", origin,
                      "io-stream", test->io_a,
                      "flavor", fixture ? fixture->web_socket_flavor : 0,
                      NULL);
@@ -778,6 +798,42 @@ test_expect_host_key (TestCase *test,
   g_free (knownhosts);
 }
 
+static const TestFixture fixture_bad_origin_rfc6455 = {
+  .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
+  .origin = "http://another-place.com",
+};
+
+static const TestFixture fixture_bad_origin_hixie76 = {
+  .web_socket_flavor = WEB_SOCKET_FLAVOR_HIXIE76,
+  .origin = "http://another-place.com",
+};
+
+static void
+test_bad_origin (TestCase *test,
+                 gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GThread *thread;
+  GError *error = NULL;
+
+  cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "*received request from bad Origin*");
+  cockpit_expect_warning ("*invalid handshake*");
+  cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "*unexpected status: 403*");
+
+  start_web_service_and_create_client (test, data, &ws, &thread);
+
+  g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
+  g_signal_connect (ws, "error", G_CALLBACK (on_error_copy), &error);
+
+  while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING ||
+         web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CLOSING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpint (web_socket_connection_get_ready_state (ws), ==, WEB_SOCKET_STATE_CLOSED);
+  g_assert_error (error, WEB_SOCKET_ERROR, WEB_SOCKET_CLOSE_PROTOCOL);
+
+  close_client_and_stop_web_service (test, ws, thread);
+}
+
 static void
 test_fail_spawn (TestCase *test,
                  gconstpointer data)
@@ -852,6 +908,13 @@ main (int argc,
   g_test_add ("/web-service/expect-host-key", TestCase,
               NULL, setup_for_socket,
               test_expect_host_key, teardown_for_socket);
+
+  g_test_add ("/web-service/bad-origin/rfc6455", TestCase,
+              &fixture_bad_origin_rfc6455, setup_for_socket,
+              test_bad_origin, teardown_for_socket);
+  g_test_add ("/web-service/bad-origin/hixie76", TestCase,
+              &fixture_bad_origin_hixie76, setup_for_socket,
+              test_bad_origin, teardown_for_socket);
 
   g_test_add ("/web-service/fail-spawn/rfc6455", TestCase,
               &fixture_rfc6455, setup_for_socket,

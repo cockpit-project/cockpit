@@ -33,6 +33,10 @@
  * https://bugzilla.gnome.org/show_bug.cgi?id=661926
  */
 
+static gboolean cockpit_test_init_was_called = FALSE;
+
+G_LOCK_DEFINE (expected);
+
 typedef struct {
   gchar *log_domain;
   GLogLevelFlags log_level;
@@ -42,7 +46,6 @@ typedef struct {
   const gchar *func;
 } ExpectedMessage;
 
-static gboolean cockpit_test_init_was_called = FALSE;
 static gint ignore_fatal_count = 0;
 static GSList *expected_messages = NULL;
 static GLogFunc gtest_default_log_handler = NULL;
@@ -75,16 +78,22 @@ expected_fatal_handler (const gchar *log_domain,
                         const gchar *message,
                         gpointer user_data)
 {
+  gboolean ret = TRUE;
+
   if (log_level & G_LOG_FLAG_FATAL)
     {
+      G_LOCK (expected);
+
       if (ignore_fatal_count > 0)
         {
           ignore_fatal_count--;
-          return FALSE;
+          ret = FALSE;
         }
+
+      G_UNLOCK (expected);
     }
 
-  return TRUE;
+  return ret;
 }
 
 static void
@@ -96,6 +105,9 @@ expected_message_handler (const gchar *log_domain,
   gint level = log_level & G_LOG_LEVEL_MASK;
   ExpectedMessage *expected = NULL;
   gchar *expected_message;
+  gboolean skip = FALSE;
+
+  G_LOCK (expected);
 
   if (level && expected_messages &&
       (level & G_LOG_LEVEL_DEBUG) == 0)
@@ -119,9 +131,14 @@ expected_message_handler (const gchar *log_domain,
           g_free (expected->log_domain);
           g_free (expected->pattern);
           g_free (expected);
-          return;
+          skip = TRUE;
         }
     }
+
+  G_UNLOCK (expected);
+
+  if (skip)
+    return;
 
   gtest_default_log_handler (log_domain, log_level, message, NULL);
 
@@ -197,7 +214,9 @@ _cockpit_expect_logged_msg (const char *domain,
   expected->line = line;
   expected->func = func;
 
+  G_LOCK (expected);
   expected_messages = g_slist_append (expected_messages, expected);
+  G_UNLOCK (expected);
 }
 
 /**
@@ -210,10 +229,12 @@ _cockpit_expect_logged_msg (const char *domain,
 void
 cockpit_assert_expected (void)
 {
-  ExpectedMessage *expected;
-  gchar *message;
+  ExpectedMessage *expected = NULL;
+  gchar *message = NULL;
 
   g_assert (cockpit_test_init_was_called);
+
+  G_LOCK (expected);
 
   if (expected_messages)
     {
@@ -223,6 +244,12 @@ cockpit_assert_expected (void)
                                  expected->log_domain,
                                  calc_prefix (expected->log_level),
                                  expected->pattern);
+    }
+
+  G_UNLOCK (expected);
+
+  if (expected)
+    {
       g_assertion_message (expected->log_domain, expected->file, expected->line,
                            expected->func, message);
       g_free (message);

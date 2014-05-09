@@ -59,6 +59,9 @@ page.onConsoleMessage = function(msg, lineNum, sourceId) {
     if (msg === "qunit-tap-done")
         setTimeout(function() { phantom.exit(0); }, 0);
 
+    else if (msg == "qunit-tap-error")
+        setTimeout(function() { phantom.exit(1); }, 0);
+
     /* TAP lines go to stdout */
     else if (msg.match(/^ok [0-9]+/i) ||
              msg.match(/^not ok [0-9]+/i) ||
@@ -95,8 +98,8 @@ page.open(url, function(status) {
 
     page.evaluate(function() {
         if (typeof qunit_included === "undefined") {
-            console.log("Bail out! QUnit not properly included in test case");
-            console.log("qunit-tap-done");
+            console.log("QUnit not properly included in test case");
+            phantom.exit(1);
         }
     });
 });

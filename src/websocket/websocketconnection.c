@@ -1996,8 +1996,8 @@ _web_socket_connection_choose_protocol (WebSocketConnection *self,
   /* Accept any protocol */
   if (!protocols)
     {
-      g_debug ("automatically selected protocol: %s", pv->chosen_protocol);
       pv->chosen_protocol = g_strdup (values[0]);
+      g_debug ("automatically selected protocol: %s", pv->chosen_protocol);
       chosen = TRUE;
     }
 

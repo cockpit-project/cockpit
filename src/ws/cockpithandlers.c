@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpithandlers.h"
+#include "cockpitwebservice.h"
 #include "cockpitws.h"
 
 #include "cockpit/cockpitjson.h"
@@ -67,7 +68,7 @@ cockpit_handler_socket (CockpitWebServer *server,
   g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (in), FALSE);
   g_filter_output_stream_set_close_base_stream (G_FILTER_OUTPUT_STREAM (out), FALSE);
 
-  cockpit_web_socket_serve_dbus (server, io_stream, headers, buffer, ws->auth);
+  cockpit_web_service_socket (io_stream, headers, buffer, ws->auth);
 
   g_byte_array_unref (buffer);
   return TRUE;

@@ -21,7 +21,7 @@
 
 #include "mock-auth.h"
 #include "cockpitws.h"
-#include "cockpitwebsocket.h"
+#include "cockpitwebservice.h"
 #include "cockpitwebserver.h"
 #include "cockpit/cockpittransport.h"
 #include "cockpit/cockpitjson.h"
@@ -298,7 +298,7 @@ serve_thread_func (gpointer data)
   g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (bis), FALSE);
 
   /*
-   * Parse the headers, as that's what cockpit_web_socket_serve_dbus()
+   * Parse the headers, as that's what cockpit_web_service_socket()
    * expects its caller to do.
    */
   g_buffered_input_stream_fill (bis, 1024, NULL, &error);
@@ -320,8 +320,7 @@ serve_thread_func (gpointer data)
   buffer = g_buffered_input_stream_peek_buffer (bis, &count);
   g_byte_array_append (consumed, (guchar *)buffer, count);
 
-  cockpit_web_socket_serve_dbus (test->web_server,
-                              test->io_b, headers,
+  cockpit_web_service_socket (test->io_b, headers,
                               consumed, test->auth);
 
   g_io_stream_close (test->io_b, NULL, &error);

@@ -50,6 +50,17 @@ typedef struct {
 } Test;
 
 static void
+on_ready_get_result (GObject *source,
+                     GAsyncResult *result,
+                     gpointer user_data)
+{
+  GAsyncResult **retval = user_data;
+  g_assert (retval != NULL);
+  g_assert (*retval == NULL);
+  *retval = g_object_ref (result);
+}
+
+static void
 setup (Test *test,
        gconstpointer data)
 {
@@ -122,7 +133,7 @@ test_login_no_cookie (Test *test,
 
   g_assert (ret == TRUE);
 
-  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Sorry\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Unauthorized\r\n*");
 }
 
 static void
@@ -146,6 +157,7 @@ test_login_with_cookie (Test *test,
                         gconstpointer data)
 {
   GError *error = NULL;
+  GAsyncResult *result = NULL;
   const gchar *user;
   CockpitCreds *creds;
   gboolean ret;
@@ -155,12 +167,19 @@ test_login_with_cookie (Test *test,
 
   user = g_get_user_name ();
   userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
-  creds = cockpit_auth_check_userpass (test->auth, userpass, FALSE, NULL, test->headers, &error);
+
+  input = g_bytes_new_take (userpass, strlen (userpass));
+  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
+  g_bytes_unref (input);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  creds = cockpit_auth_login_finish (test->auth, result, TRUE, test->headers, &error);
+  g_object_unref (result);
+
   g_assert_no_error (error);
   g_assert (creds != NULL);
   cockpit_creds_unref (creds);
   include_cookie_as_if_client (test->headers, test->headers);
-  g_free (userpass);
 
   input = g_bytes_new_static ("", 0);
   ret = cockpit_handler_login (test->server,
@@ -264,7 +283,7 @@ test_login_post_accept (Test *test,
   headers = split_headers (output);
   include_cookie_as_if_client (headers, test->headers);
 
-  creds = cockpit_auth_check_headers (test->auth, test->headers, NULL);
+  creds = cockpit_auth_check_cookie (test->auth, test->headers);
   g_assert (creds != NULL);
   g_assert_cmpstr (cockpit_creds_get_user (creds), ==, user);
   g_assert_cmpstr (cockpit_creds_get_password (creds), ==, PASSWORD);

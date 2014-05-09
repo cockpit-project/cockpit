@@ -48,49 +48,38 @@ teardown (Test *test,
 }
 
 static void
-test_verify_password (Test *test,
-                      gconstpointer data)
+on_ready_get_result (GObject *source,
+                     GAsyncResult *result,
+                     gpointer user_data)
 {
-  GError *error = NULL;
-
-  /* A valid password */
-  if (!cockpit_auth_verify_password (test->auth, "me", "this is the password", NULL, &error))
-    g_assert_not_reached ();
-  g_assert_no_error (error);
-}
-
-static void
-test_verify_password_bad (Test *test,
-                          gconstpointer data)
-{
-  GError *error = NULL;
-
-  /* An invalid password */
-  if (cockpit_auth_verify_password (test->auth, "me", "different password", NULL, &error))
-    g_assert_not_reached ();
-  g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
-  g_clear_error (&error);
-
-  /* An invalid user */
-  if (cockpit_auth_verify_password (test->auth, "another", "this is the password", NULL, &error))
-    g_assert_not_reached ();
-  g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
-  g_clear_error (&error);
+  GAsyncResult **retval = user_data;
+  g_assert (retval != NULL);
+  g_assert (*retval == NULL);
+  *retval = g_object_ref (result);
 }
 
 static void
 test_userpass_cookie_check (Test *test,
                             gconstpointer data)
 {
+  GAsyncResult *result = NULL;
   CockpitCreds *creds;
   GError *error = NULL;
   GHashTable *headers;
+  GBytes *input;
   gchar *cookie;
   gchar *end;
 
+  input = g_bytes_new_static ("me\nthis is the password", 23);
+  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
+  g_bytes_unref (input);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
   headers = web_socket_util_new_headers ();
-  creds = cockpit_auth_check_userpass (test->auth, "me\nthis is the password",
-                                       TRUE, NULL, headers, &error);
+  creds = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  g_object_unref (result);
   g_assert_no_error (error);
   g_assert (creds != NULL);
 
@@ -107,7 +96,7 @@ test_userpass_cookie_check (Test *test,
 
   g_hash_table_insert (headers, g_strdup ("Cookie"), cookie);
 
-  creds = cockpit_auth_check_headers (test->auth, headers, NULL);
+  creds = cockpit_auth_check_cookie (test->auth, headers);
   g_assert (creds != NULL);
 
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
@@ -121,13 +110,80 @@ static void
 test_userpass_bad (Test *test,
                    gconstpointer data)
 {
+  GAsyncResult *result = NULL;
   GError *error = NULL;
   GHashTable *headers;
+  CockpitCreds *creds;
+  GBytes *input;
+
+  input = g_bytes_new_static ("me\nbad", 6);
+  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
+  g_bytes_unref (input);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
+  creds = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  g_object_unref (result);
 
-  if (cockpit_auth_check_userpass (test->auth, "bad\nuser", TRUE, NULL, headers, &error))
-      g_assert_not_reached ();
+  g_assert (creds == NULL);
+  g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
+  g_clear_error (&error);
+
+  g_hash_table_destroy (headers);
+}
+
+static void
+test_userpass_invalid (Test *test,
+                       gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  GError *error = NULL;
+  GHashTable *headers;
+  CockpitCreds *creds;
+  GBytes *input;
+
+  input = g_bytes_new_static ("me=bad", 6);
+  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
+  g_bytes_unref (input);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  headers = web_socket_util_new_headers ();
+  creds = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  g_object_unref (result);
+
+  g_assert (creds == NULL);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
+  g_clear_error (&error);
+
+  g_hash_table_destroy (headers);
+}
+
+static void
+test_userpass_emptypass (Test *test,
+                         gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  GError *error = NULL;
+  GHashTable *headers;
+  CockpitCreds *creds;
+  GBytes *input;
+
+  input = g_bytes_new_static ("aaaaaa\n", 7);
+  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
+  g_bytes_unref (input);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  headers = web_socket_util_new_headers ();
+  creds = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  g_object_unref (result);
+
+  g_assert (creds == NULL);
   g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
   g_clear_error (&error);
 
@@ -144,54 +200,16 @@ test_headers_bad (Test *test,
 
   /* Bad version */
   g_hash_table_insert (headers, g_strdup ("Cookie"), g_strdup ("CockpitAuth=v=1;k=blah"));
-  if (cockpit_auth_check_headers (test->auth, headers, NULL))
+  if (cockpit_auth_check_cookie (test->auth, headers))
       g_assert_not_reached ();
 
   /* Bad hash */
   g_hash_table_remove_all (headers);
   g_hash_table_insert (headers, g_strdup ("Cookie"), g_strdup ("CockpitAuth=v=2;k=blah"));
-  if (cockpit_auth_check_headers (test->auth, headers, NULL))
+  if (cockpit_auth_check_cookie (test->auth, headers))
       g_assert_not_reached ();
 
   g_hash_table_destroy (headers);
-}
-
-static CockpitCreds *
-on_auth_authenticate (CockpitAuth *auth,
-                      GHashTable *in_headers,
-                      GHashTable *out_headers,
-                      gpointer user_data)
-{
-  g_hash_table_insert (out_headers, g_strdup ("Who"), g_strdup ("janitor"));
-  g_assert_cmpstr (g_hash_table_lookup (in_headers, "Input"), ==, "value");
-  g_assert_cmpstr (user_data, ==, "Marmalaade!");
-  return cockpit_creds_new ("scruffy", COCKPIT_CRED_PASSWORD, "zerogjuggs", NULL);
-}
-
-static void
-test_authenticate_signal (Test *test,
-                          gconstpointer data)
-{
-  GHashTable *out_headers;
-  GHashTable *in_headers;
-  CockpitCreds *creds;
-
-  out_headers = web_socket_util_new_headers ();
-  in_headers = web_socket_util_new_headers ();
-  g_hash_table_insert (in_headers, g_strdup ("Input"), g_strdup ("value"));
-
-  g_signal_connect (test->auth, "authenticate", G_CALLBACK (on_auth_authenticate), "Marmalaade!");
-  creds = cockpit_auth_check_headers (test->auth, in_headers, out_headers);
-
-  g_assert (creds != NULL);
-  g_assert_cmpstr (cockpit_creds_get_user (creds), ==, "scruffy");
-  g_assert_cmpstr (cockpit_creds_get_password (creds), ==, "zerogjuggs");
-
-  g_assert_cmpstr (g_hash_table_lookup (out_headers, "Who"), ==, "janitor");
-
-  cockpit_creds_unref (creds);
-  g_hash_table_destroy (in_headers);
-  g_hash_table_destroy (out_headers);
 }
 
 int
@@ -200,12 +218,11 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/auth/verify-password", Test, NULL, setup, test_verify_password, teardown);
-  g_test_add ("/auth/verify-password-bad", Test, NULL, setup, test_verify_password_bad, teardown);
   g_test_add ("/auth/userpass-header-check", Test, NULL, setup, test_userpass_cookie_check, teardown);
   g_test_add ("/auth/userpass-bad", Test, NULL, setup, test_userpass_bad, teardown);
+  g_test_add ("/auth/userpass-invalid", Test, NULL, setup, test_userpass_invalid, teardown);
+  g_test_add ("/auth/userpass-emptypass", Test, NULL, setup, test_userpass_emptypass, teardown);
   g_test_add ("/auth/headers-bad", Test, NULL, setup, test_headers_bad, teardown);
-  g_test_add ("/auth/authenticate-signal", Test, NULL, setup, test_authenticate_signal, teardown);
 
   return g_test_run ();
 }

@@ -60,7 +60,7 @@ cockpit_handler_socket (CockpitWebServer *server,
    * Check the connection, the web socket will respond with a "not-authorized"
    * if user failed to authenticate, ie: creds == NULL
    */
-  creds = cockpit_auth_check_headers (ws->auth, headers, NULL);
+  creds = cockpit_auth_check_cookie (ws->auth, headers);
 
   service = cockpit_web_service_socket (io_stream, headers, input, ws->auth, creds);
 
@@ -106,6 +106,73 @@ get_remote_address (GIOStream *io)
   return result;
 }
 
+static void
+send_login_response (CockpitWebResponse *response,
+                     GHashTable *out_headers,
+                     CockpitCreds *creds)
+{
+  JsonBuilder *builder = json_builder_new ();
+  gchar *response_body;
+  GBytes *content;
+  const gchar *user;
+  gsize length;
+  JsonNode *root;
+
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "user");
+  user = cockpit_creds_get_user (creds);
+  json_builder_add_string_value (builder, user);
+  struct passwd *pwd = cockpit_getpwnam_a (user, NULL);
+  if (pwd)
+    {
+      json_builder_set_member_name (builder, "name");
+      json_builder_add_string_value (builder, pwd->pw_gecos);
+    }
+  json_builder_end_object (builder);
+
+  root = json_builder_get_root (builder);
+  response_body = cockpit_json_write (root, &length);
+  json_node_free (root);
+
+  content = g_bytes_new_take (response_body, length);
+  cockpit_web_response_content (response, out_headers, content, NULL);
+  g_bytes_unref (content);
+}
+
+static void
+on_login_complete (GObject *object,
+                   GAsyncResult *result,
+                   gpointer user_data)
+{
+  CockpitWebResponse *response = COCKPIT_WEB_RESPONSE (user_data);
+  GError *error = NULL;
+  GHashTable *out_headers = NULL;
+  CockpitCreds *creds = NULL;
+  GIOStream *io_stream;
+
+  out_headers = cockpit_web_server_new_table ();
+
+  io_stream = cockpit_web_response_get_stream (response);
+  creds = cockpit_auth_login_finish (COCKPIT_AUTH (object), result,
+                                     !G_IS_SOCKET_CONNECTION (io_stream),
+                                     out_headers, &error);
+
+  if (error)
+    {
+      cockpit_web_response_gerror (response, out_headers, error);
+      g_error_free (error);
+    }
+  else
+    {
+      send_login_response (response, out_headers, creds);
+      cockpit_creds_unref (creds);
+    }
+
+  g_hash_table_unref (out_headers);
+
+  g_object_unref (response);
+}
+
 gboolean
 cockpit_handler_login (CockpitWebServer *server,
                        CockpitWebServerRequestType reqtype,
@@ -115,85 +182,32 @@ cockpit_handler_login (CockpitWebServer *server,
                        CockpitWebResponse *response,
                        CockpitHandlerData *ws)
 {
-  GError *error = NULL;
-
-  GHashTable *out_headers = NULL;
-  gchar *response_body = NULL;
   CockpitCreds *creds = NULL;
   gchar *remote_peer = NULL;
-  struct passwd *pwd;
   GIOStream *io_stream;
-  GBytes *content;
-  gsize length;
-
-  out_headers = cockpit_web_server_new_table ();
 
   if (reqtype == COCKPIT_WEB_SERVER_REQUEST_GET)
     {
-      // check cookie
-      creds = cockpit_auth_check_headers (ws->auth, headers, out_headers);
+      creds = cockpit_auth_check_cookie (ws->auth, headers);
       if (creds == NULL)
         {
-          g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                       "Sorry");
-          goto out;
+          cockpit_web_response_error (response, 401, NULL, "Unauthorized");
+        }
+      else
+        {
+          send_login_response (response, NULL, creds);
+          cockpit_creds_unref (creds);
         }
     }
   else if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
     {
-      gs_free gchar *request_body = NULL;
-
-      request_body = g_strndup (g_bytes_get_data (input, NULL),
-                                g_bytes_get_size (input));
-
       io_stream = cockpit_web_response_get_stream (response);
       remote_peer = get_remote_address (io_stream);
-      creds = cockpit_auth_check_userpass (ws->auth, request_body,
-                                           !G_IS_SOCKET_CONNECTION (io_stream),
-                                           remote_peer,
-                                           out_headers, &error);
-      if (creds == NULL)
-        goto out;
+      cockpit_auth_login_async (ws->auth, headers, input, remote_peer,
+                                on_login_complete, g_object_ref (response));
+      g_free (remote_peer);
+      /* no response yet */
     }
-
-  {
-    gs_unref_object JsonBuilder *builder = json_builder_new ();
-    const gchar *user;
-    JsonNode *root;
-
-    json_builder_begin_object (builder);
-    json_builder_set_member_name (builder, "user");
-    user = cockpit_creds_get_user (creds);
-    json_builder_add_string_value (builder, user);
-    pwd = cockpit_getpwnam_a (user, NULL);
-    if (pwd)
-      {
-        json_builder_set_member_name (builder, "name");
-        json_builder_add_string_value (builder, pwd->pw_gecos);
-        free (pwd);
-      }
-    json_builder_end_object (builder);
-
-    root = json_builder_get_root (builder);
-    response_body = cockpit_json_write (root, &length);
-    json_node_free (root);
-  }
-
-  content = g_bytes_new_take (response_body, length);
-  cockpit_web_response_content (response, out_headers, content, NULL);
-  g_bytes_unref (content);
-
-out:
-  g_free (remote_peer);
-  if (creds)
-    cockpit_creds_unref (creds);
-  if (error)
-    {
-      cockpit_web_response_gerror (response, out_headers, error);
-      g_error_free (error);
-    }
-  if (out_headers)
-    g_hash_table_unref (out_headers);
 
   return TRUE;
 }
@@ -245,7 +259,7 @@ cockpit_handler_deauthorize (CockpitWebServer *server,
   const gchar *body;
   GBytes *bytes;
 
-  creds = cockpit_auth_check_headers (ws->auth, headers, NULL);
+  creds = cockpit_auth_check_cookie (ws->auth, headers);
   if (!creds)
     {
       cockpit_web_response_error (response, 401, NULL, "Unauthorized");

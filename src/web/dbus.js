@@ -65,6 +65,14 @@
    be delayed until the proxy (and its client) are ready to carry it
    out.
 
+   - iface.propertiesChanged(dict)
+
+   Inform the interface that some of its properties have changed.
+   Interfaces automatically listen to the normal
+   org.freedesktop.DBus.Properties.PropertiesChanged signal, and you
+   only need to use this function for interfaces that don't support
+   that signal.
+
    - client.byteorder
 
    Indicates the byte order of the machine that the service runs on.
@@ -129,31 +137,31 @@ DBusInterface.prototype = {
         this._enclosing_object = enclosing_object;
         this._client = client;
 
-        for (var prop_name in json) {
-            if (prop_name.substr(0, 10) == "dbus_prop_") {
-                var name = prop_name.substr(10);
-                this[name] = json[prop_name];
-            }
-        }
+        this._set_props(json, "dbus_prop_", false);
     },
 
-    _reseed: function(json) {
+    _set_props: function(props, prefix, emit_signals) {
         var some_changed = false;
-        for (var prop_name in json) {
-            if (prop_name.substr(0, 10) == "dbus_prop_") {
-                var name = prop_name.substr(10);
-                if (!this.hasOwnProperty(name) || this[name] != json[prop_name]) {
-                    this[name] = json[prop_name];
-                    $(this).trigger("notify:" + name, this[name]);
+        for (var prop_name in props) {
+            if (prop_name.startsWith(prefix)) {
+                var name = prop_name.substr(prefix.length);
+                if (!this.hasOwnProperty(name) || this[name] != props[prop_name]) {
+                    this[name] = props[prop_name];
+                    if (emit_signals)
+                        $(this).trigger("notify:" + name, this[name]);
                     some_changed = true;
                 }
             }
         }
 
-        if (some_changed) {
+        if (some_changed && emit_signals) {
             $(this).trigger("notify");
             $(this._client).trigger("propertiesChanged", [ this._enclosing_object, this ]);
         }
+    },
+
+    _reseed: function(json) {
+        this._set_props(json, "dbus_prop_", true);
     },
 
     call: function() {
@@ -187,6 +195,10 @@ DBusInterface.prototype = {
             callback.apply(null, [err]);
         }
 
+    },
+
+    propertiesChanged: function(dict) {
+        this._set_props(dict, "", true);
     },
 
     getObject: function() {

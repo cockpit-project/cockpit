@@ -25,14 +25,16 @@ class TestNetworking(MachineCase):
         b = self.browser
         m = self.machine
 
+        # HACK: Trick D-Bus into thinking that "admin" is logged in at
+        # the console.  Otherwise NetworkManager wont let us
+        # introspect it.
+        #
+        # https://bugzilla.gnome.org/show_bug.cgi?id=707983
+        #
+        m.execute("touch /var/run/console/admin")
+
         self.login_and_go("networking")
 
-        # Check the addresses of the eth0 interface.  These values are
-        # explicitly configured by vm-run, so we can rely on them here.
-        # The name "eth0" is not guaranteed, however...
-
-        if m.mac is not None:
-            b.wait_in_text("#networking_interface_content_eth0", m.mac.upper())
-        b.wait_in_text("#networking_interface_content_eth0", m.address)
+        b.wait_in_text("#networking-interfaces", m.address)
 
 test_main()

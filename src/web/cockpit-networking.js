@@ -50,7 +50,7 @@ PageNetworking.prototype = {
 
     leave: function() {
         $(this.manager).off(".networking");
-        this.client.off(".networking");
+        $(this.client).off(".networking");
         this.client.release();
         this.client = null;
     },

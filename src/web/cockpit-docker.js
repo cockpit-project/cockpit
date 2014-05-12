@@ -17,19 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
-(function($, $cockpit, cockpit_pages) {
+(function($, cockpit, cockpit_pages) {
 
 var docker_clients = { };
 
 function resource_debug() {
-    if ($cockpit.debugging == "all" || $cockpit.debugging == "resource")
+    if (cockpit.debugging == "all" || cockpit.debugging == "resource")
         console.debug.apply(console, arguments);
 }
 
 function docker_debug() {
-    if ($cockpit.debugging == "all" || $cockpit.debugging == "docker")
+    if (cockpit.debugging == "all" || cockpit.debugging == "docker")
         console.debug.apply(console, arguments);
 }
 
@@ -130,13 +130,13 @@ function format_memory_and_limit(usage, limit) {
     var units = 1024;
     var parts;
     if (limit) {
-        parts = $cockpit.format_bytes(limit, units);
+        parts = cockpit.format_bytes(limit, units);
         mtext = " / " + parts.join(" ");
         units = parts[1];
     }
 
     if (usage) {
-        parts = $cockpit.format_bytes(usage, units);
+        parts = cockpit.format_bytes(usage, units);
         if (mtext)
             return parts[0] + mtext;
         else
@@ -181,7 +181,7 @@ function MemorySlider(sel, min, max) {
         limit = Math.round(slider.value * max);
         if (limit < min)
             limit = min;
-        return $cockpit.format_bytes(limit, 1024).join(" ");
+        return cockpit.format_bytes(limit, 1024).join(" ");
     }
 
     /* Slider to limit amount of memory */
@@ -443,7 +443,7 @@ PageContainers.prototype = {
                 $('<td class="container-col-image">'),
                 $('<td class="container-col-command">'),
                 $('<td class="container-col-cpu">'),
-                $('<td class="container-col-memory-graph">').append($cockpit.BarRow("containers-containers")),
+                $('<td class="container-col-memory-graph">').append(cockpit.BarRow("containers-containers")),
                 $('<td class="container-col-memory-text">'),
                 $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
             tr.on('click', function(event) {
@@ -498,7 +498,7 @@ PageContainers.prototype = {
             tr = $('<tr id="' + id + '">').append(
                     $('<td class="image-col-tags">'),
                     $('<td class="image-col-created">'),
-                    $('<td class="image-col-size-graph">').append($cockpit.BarRow("container-images")),
+                    $('<td class="image-col-size-graph">').append(cockpit.BarRow("container-images")),
                     $('<td class="image-col-size-text">'),
                     $('<td class="cell-buttons">').append(button));
             tr.on('click', function(event) {
@@ -514,7 +514,7 @@ PageContainers.prototype = {
         $(row[0]).html(multi_line(image.RepoTags));
         $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
         $(row[2]).children("div").attr("value", image.VirtualSize);
-        $(row[3]).text($cockpit.format_bytes(image.VirtualSize, 1024).join(" "));
+        $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024).join(" "));
 
         if (added)
             insert_table_sorted($('#containers-images table'), tr);
@@ -765,7 +765,7 @@ PageContainerDetails.prototype = {
 
                 $(commit).find(".container-tag").attr('value', "");
 
-                var author = $cockpit.connection_config.name || $cockpit.connection_config.user;
+                var author = cockpit.connection_config.name || cockpit.connection_config.user;
                 $(commit).find(".container-author").attr('value', author);
 
                 var command = "";
@@ -1055,7 +1055,7 @@ cockpit_pages.push(new PageImageDetails());
 
 function DockerClient(machine) {
     var me = this;
-    var rest = $cockpit.rest("unix:///var/run/docker.sock", machine);
+    var rest = cockpit.rest("unix:///var/run/docker.sock", machine);
 
     var events = rest.get("/events");
     var alive = true;
@@ -1224,7 +1224,7 @@ function DockerClient(machine) {
      * TODO: Call GetSamples for quicker initialization.
      */
 
-    var dbus_client = $cockpit.dbus(machine);
+    var dbus_client = cockpit.dbus(machine);
     var monitor = dbus_client.get ("/com/redhat/Cockpit/LxcMonitor",
                                    "com.redhat.Cockpit.MultiResourceMonitor");
 
@@ -1407,7 +1407,7 @@ function DockerClient(machine) {
         var options = {
             host: cockpit_get_page_param ("machine", "server")
         };
-        $cockpit.spawn(["/bin/sh", "-c", command], options).
+        cockpit.spawn(["/bin/sh", "-c", command], options).
             fail(function(ex) {
                 console.warn(ex);
             });
@@ -1657,4 +1657,4 @@ function DockerTerminal(parent, machine, id) {
     return this;
 }
 
-})(jQuery, $cockpit, cockpit_pages);
+})(jQuery, cockpit, cockpit_pages);

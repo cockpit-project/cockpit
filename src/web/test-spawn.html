@@ -128,7 +128,7 @@ function MockPeer() {
 }
 
 test("public api", function() {
-    equal(typeof $cockpit.spawn, "function", "spawn is a function");
+    equal(typeof cockpit.spawn, "function", "spawn is a function");
 });
 
 asyncTest("simple request", function() {
@@ -145,7 +145,7 @@ asyncTest("simple request", function() {
         this.close(channel);
     });
 
-    $cockpit.spawn(["/the/path", "arg1", "arg2"]).
+    cockpit.spawn(["/the/path", "arg1", "arg2"]).
         write("input").
         done(function(resp) {
             deepEqual(resp, "output", "simple request returned right json");
@@ -172,7 +172,7 @@ asyncTest("channel options", function() {
 
     /* Don't care about the result ... */
     var options = { "extra-option": "zerogjuggs" };
-    $cockpit.spawn(["/the/path", "arg"], "the-other-host.example.com", options);
+    cockpit.spawn(["/the/path", "arg"], "the-other-host.example.com", options);
 });
 
 asyncTest("streaming", function() {
@@ -186,7 +186,7 @@ asyncTest("streaming", function() {
     });
 
     var at = 0;
-    $cockpit.spawn(["/unused"]).
+    cockpit.spawn(["/unused"]).
         stream(function(resp) {
             equal(String(at), resp, "stream got right data");
             at++;
@@ -208,7 +208,7 @@ asyncTest("with problem", function() {
         peer.close(channel, {"reason": "not-found"});
     });
 
-    $cockpit.spawn("/unused").
+    cockpit.spawn("/unused").
         fail(function(ex) {
             equal(ex.problem, "not-found", "with problem got problem");
             ok(isNaN(ex.exit_signal), "with problem got no signal");
@@ -228,7 +228,7 @@ asyncTest("with status", function() {
         peer.close(channel, {"exit-status": 5});
     });
 
-    $cockpit.spawn("/unused").
+    cockpit.spawn("/unused").
         fail(function(ex) {
             equal(ex.problem, "internal-error", "with status got problem");
             ok(isNaN(ex.exit_signal), "with status got no signal");
@@ -248,7 +248,7 @@ asyncTest("with signal", function() {
         peer.close(channel, {"exit-signal": 15});
     });
 
-    $cockpit.spawn("/unused").
+    cockpit.spawn("/unused").
         fail(function(ex) {
             equal(ex.problem, "internal-error", "with signal got problem");
             strictEqual(ex.exit_signal, 15, "with signal got signal");

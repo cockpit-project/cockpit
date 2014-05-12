@@ -41,7 +41,7 @@ PageRealms.prototype = {
         var self = this;
 
         self.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        self.client = $cockpit.dbus(self.address);
+        self.client = cockpit.dbus(self.address);
         self.realm_manager = self.client.get("/com/redhat/Cockpit/Realms",
                                              "com.redhat.Cockpit.Realms");
         $(self.realm_manager).on("notify:Joined.realms", $.proxy(self, "update"));

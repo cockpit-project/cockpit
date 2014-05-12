@@ -71,7 +71,7 @@
  */
 
 var phantom_checkpoint = function () { };
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
 function Channel(options) {
     /* Choose a new channel number */
@@ -92,7 +92,7 @@ function Channel(options) {
         var transport = this;
 
         function transport_debug() {
-            if ($cockpit.debugging == "all" || $cockpit.debugging == "channel")
+            if (cockpit.debugging == "all" || cockpit.debugging == "channel")
                 console.debug.apply(console, arguments);
         }
 

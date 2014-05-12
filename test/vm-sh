@@ -46,4 +46,4 @@ case ${1:-} in
 esac
 
 chmod 600 ./identity
-ssh -i ./identity -p 22 -o StrictHostKeyChecking=no root@$M "$@"
+ssh -i ./identity -p 22 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$M "$@"

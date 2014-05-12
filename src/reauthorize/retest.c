@@ -405,7 +405,7 @@ re_test_fork (void)
 
   if (gl.child_pid == 0)
     {
-      if (signal (SIGCHLD, SIG_DFL) < 0)
+      if (signal (SIGCHLD, SIG_DFL) == SIG_ERR)
         assert (0 && "signal failed");
       gl.am_child = 1;
     }

@@ -140,13 +140,13 @@ hex_decode (const char *hex,
 
   if (len < 0)
     len = strlen (hex);
+  if (len % 2 != 0)
+    return -EINVAL;
 
   out = malloc (len * 2 + 1);
   if (out == NULL)
     return -ENOMEM;
 
-  if (len % 2 != 0)
-    return -EINVAL;
   for (i = 0; i < len / 2; i++)
     {
       hpos = strchr (HEX, hex[i * 2]);
@@ -247,7 +247,7 @@ generate_salt (char **salt)
 
   prefix_len = strlen (prefix);
   buffer = malloc (prefix_len + salt_len + 2);
-  if (buffer < 0)
+  if (buffer == NULL)
     return -ENOMEM;
 
   fd = open (random, O_RDONLY);

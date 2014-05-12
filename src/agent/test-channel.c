@@ -61,15 +61,17 @@ mock_echo_channel_class_init (MockEchoChannelClass *klass)
 
 static CockpitChannel *
 mock_echo_channel_open (CockpitTransport *transport,
-                        guint number)
+                        const gchar *channel_id)
 {
   CockpitChannel *channel;
   JsonObject *options;
 
+  g_assert (channel_id != NULL);
+
   options = json_object_new ();
   channel = g_object_new (mock_echo_channel_get_type (),
                           "transport", transport,
-                          "channel", number,
+                          "id", channel_id,
                           "options", options,
                           NULL);
 
@@ -83,7 +85,7 @@ typedef struct {
   CockpitTransport parent;
   gboolean closed;
   gchar *problem;
-  guint channel_sent;
+  gchar *channel_sent;
   GBytes *payload_sent;
   GBytes *control_sent;
 }MockTransport;
@@ -95,7 +97,7 @@ G_DEFINE_TYPE (MockTransport, mock_transport, COCKPIT_TYPE_TRANSPORT);
 static void
 mock_transport_init (MockTransport *self)
 {
-  self->channel_sent = G_MAXUINT;
+  self->channel_sent = NULL;
 }
 
 static void
@@ -141,26 +143,27 @@ mock_transport_finalize (GObject *object)
     g_bytes_unref (self->payload_sent);
   if (self->control_sent)
     g_bytes_unref (self->control_sent);
+  g_free (self->channel_sent);
 
   G_OBJECT_CLASS (mock_transport_parent_class)->finalize (object);
 }
 
 static void
 mock_transport_send (CockpitTransport *transport,
-                     guint channel,
+                     const gchar *channel_id,
                      GBytes *data)
 {
   MockTransport *self = (MockTransport *)transport;
-  if (channel == 0)
+  if (!channel_id)
     {
       g_assert (self->control_sent == NULL);
       self->control_sent = g_bytes_ref (data);
     }
   else
     {
-      g_assert (self->channel_sent == G_MAXUINT);
+      g_assert (self->channel_sent == NULL);
       g_assert (self->payload_sent == NULL);
-      self->channel_sent = channel;
+      self->channel_sent = g_strdup (channel_id);
       self->payload_sent = g_bytes_ref (data);
     }
 }
@@ -203,7 +206,7 @@ setup (TestCase *tc,
        gconstpointer unused)
 {
   tc->transport = g_object_new (mock_transport_get_type (), NULL);
-  tc->channel = mock_echo_channel_open (COCKPIT_TRANSPORT (tc->transport), 554);
+  tc->channel = mock_echo_channel_open (COCKPIT_TRANSPORT (tc->transport), "554");
 }
 
 static void
@@ -269,9 +272,9 @@ test_recv_and_send (TestCase *tc,
   cockpit_channel_ready (tc->channel);
 
   sent = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 554, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
 
-  g_assert_cmpuint (tc->transport->channel_sent, ==, 554);
+  g_assert_cmpstr (tc->transport->channel_sent, ==, "554");
   g_assert (tc->transport->payload_sent != NULL);
 
   g_assert (g_bytes_equal (tc->transport->payload_sent, sent));
@@ -285,7 +288,7 @@ test_recv_and_queue (TestCase *tc,
   GBytes *sent;
 
   sent = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 554, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
 
   /* Shouldn't have received it yet */
   g_assert (tc->transport->payload_sent == NULL);
@@ -293,7 +296,7 @@ test_recv_and_queue (TestCase *tc,
   /* Ready to go */
   cockpit_channel_ready (tc->channel);
 
-  g_assert_cmpuint (tc->transport->channel_sent, ==, 554);
+  g_assert_cmpstr (tc->transport->channel_sent, ==, "554");
   g_assert (tc->transport->payload_sent != NULL);
 
   g_assert (g_bytes_equal (tc->transport->payload_sent, sent));
@@ -307,7 +310,7 @@ test_close_immediately (TestCase *tc,
   GBytes *sent;
 
   sent = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 554, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
   g_bytes_unref (sent);
 
   /* Shouldn't have received it yet */
@@ -320,7 +323,7 @@ test_close_immediately (TestCase *tc,
   g_assert (tc->transport->control_sent != NULL);
 
   assert_bytes_eq_json (tc->transport->control_sent,
-                  "{ \"command\": \"close\", \"channel\": 554, \"reason\": \"bad-boy\"}");
+                  "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\"}");
 }
 
 static void
@@ -334,7 +337,7 @@ test_close_option (TestCase *tc,
   g_assert (tc->transport->control_sent != NULL);
 
   assert_bytes_eq_json (tc->transport->control_sent,
-                  "{ \"command\": \"close\", \"channel\": 554, \"reason\": \"bad-boy\", \"option\": \"four\" }");
+                  "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\", \"option\": \"four\" }");
 }
 
 static void
@@ -348,7 +351,7 @@ test_close_int_option (TestCase *tc,
   g_assert (tc->transport->control_sent != NULL);
 
   assert_bytes_eq_json (tc->transport->control_sent,
-                  "{ \"command\": \"close\", \"channel\": 554, \"reason\": \"bad-boy\", \"option\": 4 }");
+                  "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\", \"option\": 4 }");
 }
 
 static void
@@ -371,7 +374,7 @@ test_close_transport (TestCase *tc,
   cockpit_channel_ready (tc->channel);
 
   sent = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 554, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
   g_bytes_unref (sent);
 
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
@@ -395,7 +398,7 @@ test_get_option (void)
   transport = g_object_new (mock_transport_get_type (), NULL);
   channel = g_object_new (mock_echo_channel_get_type (),
                           "transport", transport,
-                          "channel", 55,
+                          "id", "55",
                           "options", options,
                           NULL);
   g_object_unref (transport);
@@ -415,21 +418,23 @@ test_properties (void)
   CockpitTransport *transport;
   CockpitTransport *check;
   CockpitChannel *channel;
-  guint number;
+  gchar *channel_id;
 
   options = json_object_new ();
   transport = g_object_new (mock_transport_get_type (), NULL);
   channel = g_object_new (mock_echo_channel_get_type (),
                           "transport", transport,
-                          "channel", 55,
+                          "id", "55",
                           "options", options,
                           NULL);
   g_object_unref (transport);
   json_object_unref (options);
 
-  g_object_get (channel, "transport", &check, "channel", &number, NULL);
+  g_object_get (channel, "transport", &check, "id", &channel_id, NULL);
   g_assert (check == transport);
-  g_assert_cmpuint (number, ==, 55);
+  g_assert_cmpstr (cockpit_channel_get_id (channel), ==, "55");
+  g_assert_cmpstr (channel_id, ==, "55");
+  g_free (channel_id);
 
   g_object_unref (channel);
 }

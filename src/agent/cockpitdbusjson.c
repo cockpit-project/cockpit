@@ -1257,7 +1257,7 @@ cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
 /**
  * cockpit_dbus_json_open:
  * @transport: transport to send messages on
- * @number: the channel number
+ * @channel_id: the channel id
  * @dbus_service: the DBus service name to talk to
  * @dbus_path: the o.f.D.ObjectManager path
  *
@@ -1270,12 +1270,14 @@ cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
  */
 CockpitChannel *
 cockpit_dbus_json_open (CockpitTransport *transport,
-                        guint number,
+                        const gchar *channel_id,
                         const gchar *dbus_service,
                         const gchar *dbus_path)
 {
   CockpitChannel *channel;
   JsonObject *options;
+
+  g_return_val_if_fail (channel_id != NULL, NULL);
 
   options = json_object_new ();
   json_object_set_string_member (options, "service", dbus_service);
@@ -1284,7 +1286,7 @@ cockpit_dbus_json_open (CockpitTransport *transport,
 
   channel = g_object_new (COCKPIT_TYPE_DBUS_JSON,
                           "transport", transport,
-                          "channel", number,
+                          "id", channel_id,
                           "options", options,
                           NULL);
 

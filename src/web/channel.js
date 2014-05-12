@@ -27,8 +27,8 @@
  *   Open a new channel. The channel is immediately ready to send()
  *   messages.
  *
- * channel.number
- *   The underlying protocol number for the channel.
+ * channel.id
+ *   The underlying protocol id for the channel.
  *
  * channel.options
  *   The options used to open this channel. See Channel().
@@ -73,17 +73,18 @@
 var phantom_checkpoint = function () { };
 var $cockpit = $cockpit || { };
 
+(function($cockpit, $) {
+
+var last_channel = 10;
+
 function Channel(options) {
-    /* Choose a new channel number */
-    if (!Channel.last_channel)
-        Channel.last_channel = 10;
-    else
-        Channel.last_channel++;
-    var number = Channel.last_channel;
+    /* Choose a new channel id */
+    last_channel++;
+    var id = last_channel.toString();
 
     /* Find a valid transport */
     if (Channel.transport) {
-        this._init(number, Channel.transport, options);
+        this._init(id, Channel.transport, options);
         return;
     }
 
@@ -142,9 +143,9 @@ function Channel(options) {
             /* The first line of a message is the channel */
             var data = event.data;
             var pos = data.indexOf("\n");
-            var channel = parseInt(data.substring(0, pos), 10);
+            var channel = data.substring(0, pos);
             var payload = data.substring(pos + 1);
-            if (channel === 0) {
+            if (!channel) {
                 transport_debug("recv control:", payload);
                 transport._process_control(JSON.parse(payload));
             } else {
@@ -211,7 +212,7 @@ function Channel(options) {
         this._send_control = function(data) {
             if(!this._ws && data.command == "close")
                 return; /* don't complain if closed and closing */
-            this._send_message(0, JSON.stringify(data));
+            this._send_message("", JSON.stringify(data));
         };
 
         this._register = function(channel, control_cb, message_cb) {
@@ -227,7 +228,7 @@ function Channel(options) {
 
     /* Instantiate the transport singleton */
     Channel.transport = new Transport();
-    this._init(number, Channel.transport, options);
+    this._init(id, Channel.transport, options);
 }
 
 Channel.calculate_url = function() {
@@ -243,8 +244,8 @@ Channel.calculate_url = function() {
 };
 
 Channel.prototype = {
-    _init: function(number, transport, options) {
-        this.number = number;
+    _init: function(id, transport, options) {
+        this.id = id;
         this._transport = transport;
         this.options = options;
         this.valid = true;
@@ -257,18 +258,18 @@ Channel.prototype = {
         function on_control(data) {
             if (data.command == "close") {
                 channel.valid = false;
-                transport._unregister(channel.number);
+                transport._unregister(channel.id);
                 $(channel).triggerHandler("close", data);
             } else {
                 console.log("unhandled control message: '" + data.command + "'");
             }
         }
-        transport._register(number, on_control, on_message);
+        transport._register(id, on_control, on_message);
 
         /* Now open the channel */
         var command = {
             "command" : "open",
-            "channel": number
+            "channel": id
         };
         $.extend(command, options);
         transport._send_control(command);
@@ -276,7 +277,7 @@ Channel.prototype = {
 
     send: function(message) {
         if (this.valid)
-            this._transport._send_message(this.number, message);
+            this._transport._send_message(this.id, message);
         else
             console.log("sending message on closed channel: " + this);
     },
@@ -285,15 +286,20 @@ Channel.prototype = {
         this.valid = false;
         var command = {
             "command" : "close",
-            "channel": this.number
+            "channel": this.id
         };
         this._transport._send_control(command);
-        this._transport._unregister(this.number);
+        this._transport._unregister(this.id);
         $(this).triggerHandler("close", options || { });
     },
 
     toString : function() {
         var host = this.options["host"] || "localhost";
-        return "[Channel " + (this.valid ? this.number : "invalid") + " -> " + host + "]";
+        return "[Channel " + (this.valid ? this.id : "<invalid>") + " -> " + host + "]";
     }
 };
+
+/* TODO: This needs to be namespaced properly */
+window.Channel = Channel;
+
+})($cockpit, jQuery);

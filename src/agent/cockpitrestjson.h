@@ -31,7 +31,7 @@ G_BEGIN_DECLS
 GType              cockpit_rest_json_get_type       (void) G_GNUC_CONST;
 
 CockpitChannel *   cockpit_rest_json_open           (CockpitTransport *transport,
-                                                     guint channel,
+                                                     const gchar *channel_id,
                                                      const gchar *unix_path);
 
 #endif /* COCKPIT_REST_JSON_H__ */

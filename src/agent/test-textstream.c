@@ -45,7 +45,7 @@ typedef struct {
   CockpitTransport parent;
   gboolean closed;
   gchar *problem;
-  guint channel_sent;
+  gchar *channel_sent;
   GBytes *payload_sent;
   JsonObject *control_sent;
 }MockTransport;
@@ -57,7 +57,7 @@ G_DEFINE_TYPE (MockTransport, mock_transport, COCKPIT_TYPE_TRANSPORT);
 static void
 mock_transport_init (MockTransport *self)
 {
-  self->channel_sent = G_MAXUINT;
+  self->channel_sent = NULL;
 }
 
 static void
@@ -109,13 +109,13 @@ mock_transport_finalize (GObject *object)
 
 static void
 mock_transport_send (CockpitTransport *transport,
-                     guint channel,
+                     const gchar *channel_id,
                      GBytes *data)
 {
   MockTransport *self = (MockTransport *)transport;
   GError *error = NULL;
 
-  if (channel == 0)
+  if (!channel_id)
     {
       g_assert (self->control_sent == NULL);
       self->control_sent = cockpit_json_parse_bytes (data, &error);
@@ -123,9 +123,9 @@ mock_transport_send (CockpitTransport *transport,
     }
   else
     {
-      g_assert (self->channel_sent == G_MAXUINT);
+      g_assert (self->channel_sent == NULL);
       g_assert (self->payload_sent == NULL);
-      self->channel_sent = channel;
+      self->channel_sent = g_strdup (channel_id);
       self->payload_sent = g_bytes_ref (data);
     }
 }
@@ -267,7 +267,7 @@ setup_channel (TestCase *tc,
                gconstpointer data)
 {
   setup (tc, data);
-  tc->channel = cockpit_text_stream_open (COCKPIT_TRANSPORT (tc->transport), 548, tc->unix_path);
+  tc->channel = cockpit_text_stream_open (COCKPIT_TRANSPORT (tc->transport), "548", tc->unix_path);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_closed_get_problem), &tc->channel_problem);
 }
 
@@ -306,13 +306,13 @@ teardown (TestCase *tc,
 static void
 expect_control_message (JsonObject *options,
                         const gchar *command,
-                        guint channel,
+                        const gchar *expected_channel,
                         ...) G_GNUC_NULL_TERMINATED;
 
 static void
 expect_control_message (JsonObject *options,
                         const gchar *expected_command,
-                        guint expected_channel,
+                        const gchar *expected_channel,
                         ...)
 {
   const gchar *expect_option;
@@ -321,7 +321,7 @@ expect_control_message (JsonObject *options,
 
   g_assert (options != NULL);
   g_assert_cmpstr (json_object_get_string_member (options, "command"), ==, expected_command);
-  g_assert_cmpint (json_object_get_int_member (options, "channel"), ==, expected_channel);
+  g_assert_cmpstr (json_object_get_string_member (options, "channel"), ==, expected_channel);
 
   va_start (va, expected_channel);
   for (;;) {
@@ -343,7 +343,7 @@ test_echo (TestCase *tc,
   GBytes *sent;
 
   sent = g_bytes_new ("Marmalaade!", 11);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 548, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "548", sent);
 
   while (!tc->transport->payload_sent)
     g_main_context_iteration (NULL, TRUE);
@@ -373,7 +373,7 @@ test_shutdown (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (tc->channel_problem, ==, "");
-  expect_control_message (tc->transport->control_sent, "close", 548, "reason", "", NULL);
+  expect_control_message (tc->transport->control_sent, "close", "548", "reason", "", NULL);
 }
 
 static void
@@ -387,7 +387,7 @@ test_close_normal (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   sent = g_bytes_new ("Marmalaade!", 11);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 548, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "548", sent);
   cockpit_channel_close (tc->channel, NULL);
 
   /* Wait until channel closes */
@@ -399,7 +399,7 @@ test_close_normal (TestCase *tc,
   g_assert (tc->transport->payload_sent != NULL);
   g_assert (g_bytes_equal (sent, tc->transport->payload_sent));
   g_bytes_unref (sent);
-  expect_control_message (tc->transport->control_sent, "close", 548, "reason", "", NULL);
+  expect_control_message (tc->transport->control_sent, "close", "548", "reason", "", NULL);
 }
 
 static void
@@ -413,7 +413,7 @@ test_close_problem (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   sent = g_bytes_new ("Marmalaade!", 11);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 548, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "548", sent);
   g_bytes_unref (sent);
   cockpit_channel_close (tc->channel, "boooyah");
 
@@ -424,7 +424,7 @@ test_close_problem (TestCase *tc,
   /* Should have sent no payload and control */
   g_assert_cmpstr (tc->channel_problem, ==, "boooyah");
   g_assert (tc->transport->payload_sent == 0);
-  expect_control_message (tc->transport->control_sent, "close", 548, "reason", "boooyah", NULL);
+  expect_control_message (tc->transport->control_sent, "close", "548", "reason", "boooyah", NULL);
 }
 
 static void
@@ -447,14 +447,14 @@ test_spawn_simple (void)
 
   channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
                           "options", options,
-                          "channel", 548,
+                          "id", "548",
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   json_object_unref (options);
 
   sent = g_bytes_new ("Marmalaade!", 11);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), 548, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
   cockpit_channel_close (channel, NULL);
 
   while (!transport->payload_sent)
@@ -500,7 +500,7 @@ test_spawn_environ (void)
 
   channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
                           "options", options,
-                          "channel", 548,
+                          "id", "548",
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
@@ -516,7 +516,7 @@ test_spawn_environ (void)
           data = g_bytes_get_data (transport->payload_sent, &len);
           g_string_append_len (string, data, len);
           g_bytes_unref (transport->payload_sent);
-          transport->channel_sent = G_MAXUINT;
+          transport->channel_sent = NULL;
           transport->payload_sent = NULL;
         }
     }
@@ -554,7 +554,7 @@ test_spawn_status (void)
 
   channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
                           "options", options,
-                          "channel", 548,
+                          "id", "548",
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
@@ -565,7 +565,7 @@ test_spawn_status (void)
     g_main_context_iteration (NULL, TRUE);
 
   g_assert (transport->control_sent);
-  expect_control_message (transport->control_sent, "close", 548, "reason", "", NULL);
+  expect_control_message (transport->control_sent, "close", "548", "reason", "", NULL);
   g_assert_cmpint (json_object_get_int_member (transport->control_sent, "exit-status"), ==, 5);
 
   g_free (problem);
@@ -599,14 +599,14 @@ test_spawn_pty (void)
 
   channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
                           "options", options,
-                          "channel", 548,
+                          "id", "548",
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   json_object_unref (options);
 
   sent = g_bytes_new ("echo booyah\nexit\n", 17);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), 548, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
   g_bytes_unref (sent);
 
   received = g_string_new ("");
@@ -618,7 +618,7 @@ test_spawn_pty (void)
           data = g_bytes_get_data (transport->payload_sent, &len);
           g_string_append_len (received, data, len);
           g_bytes_unref (transport->payload_sent);
-          transport->channel_sent = G_MAXUINT;
+          transport->channel_sent = NULL;
           transport->payload_sent = NULL;
         }
     }
@@ -640,7 +640,7 @@ test_send_invalid (TestCase *tc,
   GBytes *sent;
 
   sent = g_bytes_new ("Oh \x00Marma\x00laade!", 16);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 548, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "548", sent);
   g_bytes_unref (sent);
 
   while (!tc->transport->payload_sent)
@@ -683,7 +683,7 @@ test_fail_not_found (void)
   cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
 
   transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = cockpit_text_stream_open (transport, 1, "/non-existent");
+  channel = cockpit_text_stream_open (transport, "1", "/non-existent");
   g_assert (channel != NULL);
 
   /* Even through failure is on open, should not have closed yet */
@@ -725,7 +725,7 @@ test_fail_not_authorized (void)
   g_assert_cmpint (fchmod (fd, 0000), ==, 0);
 
   transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = cockpit_text_stream_open (transport, 1, unix_path);
+  channel = cockpit_text_stream_open (transport, "1", unix_path);
   g_assert (channel != NULL);
 
   /* Even through failure is on open, should not have closed yet */

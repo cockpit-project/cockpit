@@ -55,16 +55,16 @@ cockpit_transport_get_property (GObject *object,
 
 static gboolean
 cockpit_transport_default_recv (CockpitTransport *transport,
-                                guint channel,
+                                const gchar *channel,
                                 GBytes *data)
 {
   gboolean ret = FALSE;
-  guint inner_channel;
+  const gchar *inner_channel;
   JsonObject *options;
   const gchar *command;
 
   /* Our default handler parses control channel and fires control signal */
-  if (channel != 0)
+  if (channel)
     return FALSE;
 
   /* Read out the actual command and channel this message is about */
@@ -102,13 +102,13 @@ cockpit_transport_class_init (CockpitTransportClass *klass)
                                 G_STRUCT_OFFSET (CockpitTransportClass, recv),
                                 g_signal_accumulator_true_handled, NULL,
                                 g_cclosure_marshal_generic,
-                                G_TYPE_BOOLEAN, 2, G_TYPE_UINT, G_TYPE_BYTES);
+                                G_TYPE_BOOLEAN, 2, G_TYPE_STRING, G_TYPE_BYTES);
 
   signals[CONTROL] = g_signal_new ("control", COCKPIT_TYPE_TRANSPORT, G_SIGNAL_RUN_LAST,
                                    G_STRUCT_OFFSET (CockpitTransportClass, control),
                                    g_signal_accumulator_true_handled, NULL,
                                    g_cclosure_marshal_generic,
-                                   G_TYPE_BOOLEAN, 3, G_TYPE_STRING, G_TYPE_UINT, JSON_TYPE_OBJECT);
+                                   G_TYPE_BOOLEAN, 3, G_TYPE_STRING, G_TYPE_STRING, JSON_TYPE_OBJECT);
 
   signals[CLOSED] = g_signal_new ("closed", COCKPIT_TYPE_TRANSPORT, G_SIGNAL_RUN_FIRST,
                                   G_STRUCT_OFFSET (CockpitTransportClass, closed),
@@ -118,7 +118,7 @@ cockpit_transport_class_init (CockpitTransportClass *klass)
 
 void
 cockpit_transport_send (CockpitTransport *transport,
-                        guint channel,
+                        const gchar *channel,
                         GBytes *data)
 {
   CockpitTransportClass *klass;
@@ -145,7 +145,7 @@ cockpit_transport_close (CockpitTransport *transport,
 
 void
 cockpit_transport_emit_recv (CockpitTransport *transport,
-                             guint channel,
+                             const gchar *channel,
                              GBytes *data)
 {
   gboolean result = FALSE;
@@ -158,7 +158,7 @@ cockpit_transport_emit_recv (CockpitTransport *transport,
   if (!result)
     {
       g_object_get (transport, "name", &name, NULL);
-      g_debug ("%s: No handler for received message in channel %u", name, channel);
+      g_debug ("%s: No handler for received message in channel %s", name, channel);
       g_free (name);
     }
 }
@@ -171,16 +171,27 @@ cockpit_transport_emit_closed (CockpitTransport *transport,
   g_signal_emit (transport, signals[CLOSED], 0, problem);
 }
 
+/**
+ * cockpit_transport_parse_frame:
+ * @message: message to parse
+ * @channel: location to return the channel
+ *
+ * Parse a message into a channel and payload.
+ * @channel will be set to NULL if a control channel
+ * message. @channel must be freed.
+ *
+ * Will return NULL if invalid message.
+ *
+ * Returns: (transfer full): the payload or NULL.
+ */
 GBytes *
 cockpit_transport_parse_frame (GBytes *message,
-                               guint *channel)
+                               gchar **channel)
 {
-  gconstpointer data;
-  unsigned long val;
-  gsize offset;
+  const gchar *data;
   gsize length;
   const gchar *line;
-  char *end;
+  gsize channel_len;
 
   g_return_val_if_fail (message != NULL, NULL);
 
@@ -192,16 +203,20 @@ cockpit_transport_parse_frame (GBytes *message,
       return NULL;
     }
 
-  offset = (line - (gchar *)data) + 1;
-  val = strtoul (data, &end, 10);
-  if (end != line || val > G_MAXINT)
+  channel_len = line - data;
+  if (memchr (data, '\0', channel_len) != NULL)
     {
-      g_warning ("Received invalid message prefix");
+      g_warning ("Received massage with invalid channel prefix");
       return NULL;
     }
 
-  *channel = val;
-  return g_bytes_new_from_bytes (message, offset, length - offset);
+  if (channel_len)
+    *channel = g_strndup (data, channel_len);
+  else
+    *channel = NULL;
+
+  channel_len++;
+  return g_bytes_new_from_bytes (message, channel_len, length - channel_len);
 }
 
 /**
@@ -213,8 +228,8 @@ cockpit_transport_parse_frame (GBytes *message,
  *
  * Parse a command and return various values from the
  * command. The @options value is transfered with ownership,
- * so you should free it after done. @command is owned by
- * @options.
+ * so you should free it after done. @command and @channel are owned by
+ * @options. @channel will be NULL for a missing channel.
  *
  * On failure, message has already been printed.
  *
@@ -223,14 +238,13 @@ cockpit_transport_parse_frame (GBytes *message,
 gboolean
 cockpit_transport_parse_command (GBytes *payload,
                                  const gchar **command,
-                                 guint *channel,
+                                 const gchar **channel,
                                  JsonObject **options)
 {
   GError *error = NULL;
   gboolean ret = FALSE;
   JsonObject *object;
-  JsonNode *node;
-  gint64 num;
+  gboolean valid;
 
   object = cockpit_json_parse_bytes (payload, &error);
   if (!object)
@@ -249,14 +263,16 @@ cockpit_transport_parse_command (GBytes *payload,
     }
 
   /* Parse out the channel */
-  node = json_object_get_member (object, "channel");
-  if (!node)
-    *channel = 0;
-  else if (cockpit_json_get_int (object, "channel", 0, &num) && num > 0 && num < G_MAXUINT)
-    *channel = num;
-  else
+  valid = cockpit_json_get_string (object, "channel", NULL, channel);
+  if (valid && *channel)
     {
-      g_warning ("Received invalid control message: invalid or missing channel");
+      valid = (!g_str_equal ("", *channel) &&
+               strcspn (*channel, "\n") == strlen (*channel));
+    }
+
+  if (!valid)
+    {
+      g_warning ("Received invalid control message: invalid channel");
       goto out;
     }
 

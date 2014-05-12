@@ -31,7 +31,7 @@ G_BEGIN_DECLS
 GType              cockpit_text_stream_get_type     (void) G_GNUC_CONST;
 
 CockpitChannel *   cockpit_text_stream_open         (CockpitTransport *transport,
-                                                     guint channel,
+                                                     const gchar *channel_id,
                                                      const gchar *unix_path);
 
 #endif /* COCKPIT_TEXT_STREAM_H__ */

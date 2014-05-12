@@ -96,20 +96,20 @@ class TestLogin(MachineCase):
     def testRaw(self):
         self.start_cockpit()
         time.sleep(0.5)
-        assert self.curl_post_code ('/login', '') == 400
-        assert self.curl_post_code ('/login', 'foo') == 400
-        assert self.curl_post_code ('/login', 'foo\nbar\n') == 400
-        assert self.curl_post_code ('/login', 'foo\nbar\nbaz') == 400
-        assert self.curl_post_code ('/login', '\n\n\n') == 400
-        assert self.curl_post_code ('/login', 'admin\nbar') == 401
-        assert self.curl_post_code ('/login', 'foo\nbar') == 401
-        assert self.curl_post_code ('/login', 'x' * 5000) == 413
-        assert self.curl_post_code ('/login', 'admin\n' + 'x' * 4000) == 401
-        assert self.curl_post_code ('/login', 'x' * 4000 + '\nbar') == 401
-        assert self.curl_post_code ('/login', 'a' * 4000 ) == 400
-        assert self.curl_post_code ('/login', 'a' * 4000 + '\n') == 401
-        assert self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc') == 400
-        assert self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc\n') == 400
+        self.assertEqual(self.curl_post_code ('/login', ''), 400)
+        self.assertEqual(self.curl_post_code ('/login', 'foo'), 400)
+        self.assertEqual(self.curl_post_code ('/login', 'foo\nbar\n'), 400)
+        self.assertEqual(self.curl_post_code ('/login', 'foo\nbar\nbaz'), 400)
+        self.assertEqual(self.curl_post_code ('/login', '\n\n\n'), 400)
+        self.assertEqual(self.curl_post_code ('/login', 'admin\nbar'), 401)
+        self.assertEqual(self.curl_post_code ('/login', 'foo\nbar'), 401)
+        self.assertEqual(self.curl_post_code ('/login', 'x' * 5000), 413)
+        self.assertEqual(self.curl_post_code ('/login', 'admin\n' + 'x' * 4000), 401)
+        self.assertEqual(self.curl_post_code ('/login', 'x' * 4000 + '\nbar'), 401)
+        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 ), 400)
+        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\n'), 401)
+        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc'), 400)
+        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc\n'), 400)
 
         self.allow_journal_messages ("Returning error-response ... with reason .*",
                             "pam_unix\(cockpit:auth\): authentication failure; .*",

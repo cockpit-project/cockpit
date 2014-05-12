@@ -335,12 +335,12 @@ serve_thread_func (gpointer data)
 
 static GBytes *
 build_control_message (const gchar *command,
-                       guint channel,
+                       const gchar *channel,
                        ...) G_GNUC_NULL_TERMINATED;
 
 static GBytes *
 build_control_message (const gchar *command,
-                       guint channel,
+                       const gchar *channel,
                        ...)
 {
   JsonBuilder *builder;
@@ -358,7 +358,7 @@ build_control_message (const gchar *command,
   if (channel)
     {
       json_builder_set_member_name (builder, "channel");
-      json_builder_add_int_value (builder, channel);
+      json_builder_add_string_value (builder, channel);
     }
 
   va_start (va, channel);
@@ -375,10 +375,10 @@ build_control_message (const gchar *command,
   json_builder_end_object (builder);
   node = json_builder_get_root (builder);
   data = cockpit_json_write (node, &length);
-  data = g_realloc (data, length + 2);
-  memmove (data + 2, data, length);
-  memcpy (data, "0\n", 2);
-  bytes = g_bytes_new_take (data, length + 2);
+  data = g_realloc (data, length + 1);
+  memmove (data + 1, data, length);
+  memcpy (data, "\n", 1);
+  bytes = g_bytes_new_take (data, length + 1);
   json_node_free (node);
   g_object_unref (builder);
 
@@ -388,18 +388,18 @@ build_control_message (const gchar *command,
 static void
 expect_control_message (GBytes *message,
                         const gchar *command,
-                        guint channel,
+                        const gchar *expected_channel,
                         ...) G_GNUC_NULL_TERMINATED;
 
 static void
 expect_control_message (GBytes *message,
                         const gchar *expected_command,
-                        guint expected_channel,
+                        const gchar *expected_channel,
                         ...)
 {
-  guint outer_channel;
+  gchar *outer_channel;
   const gchar *message_command;
-  guint message_channel;
+  const gchar *message_channel;
   JsonObject *options;
   GBytes *payload;
   const gchar *expect_option;
@@ -408,14 +408,15 @@ expect_control_message (GBytes *message,
 
   payload = cockpit_transport_parse_frame (message, &outer_channel);
   g_assert (payload != NULL);
-  g_assert_cmpuint (outer_channel, ==, 0);
+  g_assert_cmpstr (outer_channel, ==, NULL);
+  g_free (outer_channel);
 
   g_assert (cockpit_transport_parse_command (payload, &message_command,
                                              &message_channel, &options));
   g_bytes_unref (payload);
 
   g_assert_cmpstr (expected_command, ==, message_command);
-  g_assert_cmpuint (expected_channel, ==, expected_channel);
+  g_assert_cmpstr (expected_channel, ==, expected_channel);
 
   va_start (va, expected_channel);
   for (;;) {
@@ -467,7 +468,7 @@ start_web_service_and_connect_client (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the agent. */
-  sent = build_control_message ("open", 4, "payload", "test-text", NULL);
+  sent = build_control_message ("open", "4", "payload", "test-text", NULL);
   web_socket_connection_send (*ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 }
@@ -526,7 +527,7 @@ on_message_get_non_control (WebSocketConnection *ws,
   GBytes **received = user_data;
   g_assert_cmpint (type, ==, WEB_SOCKET_DATA_TEXT);
   /* Control messages have this prefix: ie: a zero channel */
-  if (g_str_has_prefix (g_bytes_get_data (message, NULL), "0\n"))
+  if (g_str_has_prefix (g_bytes_get_data (message, NULL), "\n"))
       return;
   g_assert (*received == NULL);
   *received = g_bytes_ref (message);
@@ -615,7 +616,7 @@ test_close_error (TestCase *test,
 
   /* Send something through to ensure it's open */
   WAIT_UNTIL (received != NULL);
-  expect_control_message (received, "open", 4, NULL);
+  expect_control_message (received, "open", "4", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -624,7 +625,7 @@ test_close_error (TestCase *test,
 
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);
-  expect_control_message (received, "close", 4, "reason", "terminated", NULL);
+  expect_control_message (received, "close", "4", "reason", "terminated", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -645,7 +646,7 @@ test_specified_creds (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Open a channel with a non-standard command */
-  sent = build_control_message ("open", 4, "payload", "test-text", "user", "user", "password", "Another password", NULL);
+  sent = build_control_message ("open", "4", "payload", "test-text", "user", "user", "password", "Another password", NULL);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 
@@ -678,7 +679,7 @@ test_specified_creds_fail (TestCase *test,
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Open a channel with a non-standard command, but a bad password */
-  sent = build_control_message ("open", 4, "payload", "test-text", "user", "user", "password", "Wrong password", NULL);
+  sent = build_control_message ("open", "4", "payload", "test-text", "user", "user", "password", "Wrong password", NULL);
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
   g_bytes_unref (sent);
 
@@ -686,7 +687,7 @@ test_specified_creds_fail (TestCase *test,
   WAIT_UNTIL (received != NULL);
 
   /* Should have gotten a failure message, about the credentials */
-  expect_control_message (received, "close", 4, "reason", "not-authorized", NULL);
+  expect_control_message (received, "close", "4", "reason", "not-authorized", NULL);
 
   close_client_and_stop_web_service (test, ws, thread);
 }
@@ -710,7 +711,7 @@ test_socket_unauthenticated (TestCase *test,
 
   /* And we should have received a message */
   g_assert (received != NULL);
-  expect_control_message (received, "close", 4, "reason", "no-session", NULL);
+  expect_control_message (received, "close", "4", "reason", "no-session", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -745,7 +746,7 @@ test_unknown_host_key (TestCase *test,
 
   /* And we should have received a close message */
   g_assert (received != NULL);
-  expect_control_message (received, "close", 4, "reason", "unknown-hostkey",
+  expect_control_message (received, "close", "4", "reason", "unknown-hostkey",
                           "host-key", knownhosts,
                           "host-fingerprint", MOCK_RSA_FP,
                           NULL);
@@ -774,7 +775,7 @@ test_expect_host_key (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the agent specify a specific host key. */
-  sent = build_control_message ("open", 4,
+  sent = build_control_message ("open", "4",
                                 "payload", "test-text",
                                 "host-key", knownhosts,
                                 NULL);
@@ -789,7 +790,7 @@ test_expect_host_key (TestCase *test,
 
   /* And we should have received an open message even though no known hosts */
   g_assert (received != NULL);
-  expect_control_message (received, "open", 4, "payload", "test-text", NULL);
+  expect_control_message (received, "open", "4", "payload", "test-text", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -855,7 +856,7 @@ test_fail_spawn (TestCase *test,
   WAIT_UNTIL (received != NULL);
 
   /* But we should have gotten failure message, about the spawn */
-  expect_control_message (received, "close", 4, "reason", "no-agent", NULL);
+  expect_control_message (received, "close", "4", "reason", "no-agent", NULL);
   g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, thread);

@@ -101,14 +101,14 @@ mock_transport_finalize (GObject *object)
 
 static void
 mock_transport_send (CockpitTransport *transport,
-                     guint channel,
+                     const gchar *channel_id,
                      GBytes *data)
 {
   MockTransport *self = (MockTransport *)transport;
   GError *error = NULL;
   JsonNode *node;
 
-  if (channel != 0)
+  if (channel_id)
     {
       node = cockpit_json_parse (g_bytes_get_data (data, NULL),
                                  g_bytes_get_size (data), &error);
@@ -544,7 +544,7 @@ setup (TestCase *tc,
   tc->channel = g_object_new (COCKPIT_TYPE_REST_JSON,
                               "options", tc->options,
                               "transport", tc->transport,
-                              "channel", 888,
+                              "id", "888",
                               NULL);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_closed_get_problem), &tc->channel_problem);
 }
@@ -575,7 +575,7 @@ send_request (TestCase *tc,
   GBytes *sent;
 
   sent = g_bytes_new (string, strlen (string));
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 888, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "888", sent);
   g_bytes_unref (sent);
 }
 
@@ -590,7 +590,7 @@ simple_request (TestCase *tc,
 
   data = g_strdup_printf ("{\"method\":\"%s\",\"path\":\"%s\",\"cookie\":%d}", method, path, cookie);
   sent = g_bytes_new_take (data, strlen (data));
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 888, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "888", sent);
   g_bytes_unref (sent);
 
   return cookie;
@@ -604,7 +604,7 @@ cancel_request (TestCase *tc, gint cookie)
 
   data = g_strdup_printf ("{\"cookie\":%d}", cookie);
   sent = g_bytes_new_take (data, strlen (data));
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), 888, sent);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "888", sent);
   g_bytes_unref (sent);
 }
 
@@ -1181,7 +1181,7 @@ test_bad_unix_socket (void)
   channel = g_object_new (COCKPIT_TYPE_REST_JSON,
                           "options", options,
                           "transport", transport,
-                          "channel", 888,
+                          "id", "888",
                           NULL);
   json_object_unref (options);
 
@@ -1192,7 +1192,7 @@ test_bad_unix_socket (void)
     {
       string = g_strdup_printf ("{ \"cookie\": %d, \"method\": \"GET\", \"path\": \"/bad-unix\" }", i);
       sent = g_bytes_new_take (string, strlen (string));
-      cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), 888, sent);
+      cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "888", sent);
       g_bytes_unref (sent);
     }
 

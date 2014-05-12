@@ -49,12 +49,12 @@ struct _CockpitTransportClass
    * Fired when the transport recieves a new message.
    */
   gboolean    (* recv)        (CockpitTransport *transport,
-                               guint channel,
+                               const gchar *channel,
                                GBytes *data);
 
   gboolean    (* control)     (CockpitTransport *transport,
                                const char *command,
-                               guint channel,
+                               const gchar *channel,
                                JsonObject *options);
 
   void        (* closed)      (CockpitTransport *transport,
@@ -66,7 +66,7 @@ struct _CockpitTransportClass
    * Called when transport should queue a new message to send.
    */
   void        (* send)        (CockpitTransport *transport,
-                               guint channel,
+                               const gchar *channel,
                                GBytes *data);
 
   void        (* close)       (CockpitTransport *transport,
@@ -76,25 +76,25 @@ struct _CockpitTransportClass
 GType       cockpit_transport_get_type       (void) G_GNUC_CONST;
 
 void        cockpit_transport_send           (CockpitTransport *transport,
-                                              guint channel,
+                                              const gchar *channel,
                                               GBytes *data);
 
 void        cockpit_transport_close          (CockpitTransport *transport,
                                               const gchar *problem);
 
 void        cockpit_transport_emit_recv      (CockpitTransport *transport,
-                                              guint channel,
+                                              const gchar *channel,
                                               GBytes *data);
 
 void        cockpit_transport_emit_closed    (CockpitTransport *transport,
                                               const gchar *problem);
 
 GBytes *    cockpit_transport_parse_frame    (GBytes *message,
-                                              guint *channel);
+                                              gchar **channel);
 
 gboolean    cockpit_transport_parse_command  (GBytes *payload,
                                               const gchar **command,
-                                              guint *channel,
+                                              const gchar **channel,
                                               JsonObject **options);
 
 G_END_DECLS

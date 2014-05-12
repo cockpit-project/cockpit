@@ -60,7 +60,7 @@ dbus_server_thread (gpointer data)
 
   transport = cockpit_pipe_transport_new_fds ("mock", fd, fd);
 
-  channel = cockpit_dbus_json_open (transport, 444,
+  channel = cockpit_dbus_json_open (transport, "444",
                                     "com.redhat.Cockpit.DBusTests.Test", "/otree");
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 

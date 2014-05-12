@@ -1183,7 +1183,7 @@ cockpit_rest_json_class_init (CockpitRestJsonClass *klass)
 /**
  * cockpit_rest_json_open:
  * @transport: the transport to send/receive messages on
- * @number: the channel number
+ * @channel_id: the channel id
  * @unix_path: the UNIX socket path to communicate with
  *
  * This function is mainly used by tests. The usual way
@@ -1193,7 +1193,7 @@ cockpit_rest_json_class_init (CockpitRestJsonClass *klass)
  */
 CockpitChannel *
 cockpit_rest_json_open (CockpitTransport *transport,
-                        guint number,
+                        const gchar *channel_id,
                         const gchar *unix_path)
 {
   CockpitChannel *channel;
@@ -1205,7 +1205,7 @@ cockpit_rest_json_open (CockpitTransport *transport,
 
   channel = g_object_new (COCKPIT_TYPE_REST_JSON,
                           "transport", transport,
-                          "channel", number,
+                          "id", channel_id,
                           "options", options,
                           NULL);
 

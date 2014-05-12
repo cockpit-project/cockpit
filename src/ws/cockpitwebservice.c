@@ -67,7 +67,7 @@ typedef struct
 typedef struct
 {
   CockpitHostUser key;
-  GArray *channels;
+  GHashTable *channels;
   CockpitTransport *transport;
   gboolean sent_eof;
   guint timeout;
@@ -108,7 +108,7 @@ cockpit_session_free (gpointer data)
 
   if (session->timeout)
     g_source_remove (session->timeout);
-  g_array_free (session->channels, TRUE);
+  g_hash_table_unref (session->channels);
   g_object_unref (session->transport);
   g_free (session->key.host);
   g_free (session->key.user);
@@ -118,7 +118,7 @@ cockpit_session_free (gpointer data)
 static void
 cockpit_sessions_init (CockpitSessions *sessions)
 {
-  sessions->by_channel = g_hash_table_new (g_direct_hash, g_direct_equal);
+  sessions->by_channel = g_hash_table_new (g_str_hash, g_str_equal);
   sessions->by_host_user = g_hash_table_new (host_user_hash, host_user_equal);
 
   /* This owns the session */
@@ -128,9 +128,9 @@ cockpit_sessions_init (CockpitSessions *sessions)
 
 inline static CockpitSession *
 cockpit_session_by_channel (CockpitSessions *sessions,
-                            guint channel)
+                            const gchar *channel)
 {
-  return g_hash_table_lookup (sessions->by_channel, GUINT_TO_POINTER (channel));
+  return g_hash_table_lookup (sessions->by_channel, channel);
 }
 
 inline static CockpitSession *
@@ -155,7 +155,7 @@ on_timeout_cleanup_session (gpointer user_data)
   CockpitSession *session = user_data;
 
   session->timeout = 0;
-  if (session->channels->len == 0)
+  if (g_hash_table_size (session->channels) == 0)
     {
       /*
        * This should cause the transport to immediately be closed
@@ -171,42 +171,38 @@ on_timeout_cleanup_session (gpointer user_data)
 static void
 cockpit_session_remove_channel (CockpitSessions *sessions,
                                 CockpitSession *session,
-                                guint channel)
+                                const gchar *channel)
 {
-  guint i;
+  g_hash_table_remove (sessions->by_channel, channel);
+  g_hash_table_remove (session->channels, channel);
 
-  g_hash_table_remove (sessions->by_channel, GUINT_TO_POINTER (channel));
-
-  for (i = 0; i < session->channels->len; i++)
-    {
-      if (g_array_index (session->channels, guint, i) == channel)
-        g_array_remove_index_fast (session->channels, i++);
-    }
-
-  if (session->channels->len == 0)
+  if (g_hash_table_size (session->channels) == 0)
     {
       /*
        * Close sessions that are no longer in use after N seconds
        * of them being that way.
        */
-      g_debug ("%s: removed last channel %u for session", session->key.host, channel);
+      g_debug ("%s: removed last channel %s for session", session->key.host, channel);
       session->timeout = g_timeout_add_seconds (TIMEOUT, on_timeout_cleanup_session, session);
     }
   else
     {
-      g_debug ("%s: removed channel %u for session", session->key.host, channel);
+      g_debug ("%s: removed channel %s for session", session->key.host, channel);
     }
 }
 
 static void
 cockpit_session_add_channel (CockpitSessions *sessions,
                              CockpitSession *session,
-                             guint channel)
+                             const gchar *channel)
 {
-  g_hash_table_insert (sessions->by_channel, GUINT_TO_POINTER (channel), session);
-  g_array_append_val (session->channels, channel);
+  gchar *chan;
 
-  g_debug ("%s: added channel %u to session", session->key.host, channel);
+  chan = g_strdup (channel);
+  g_hash_table_insert (sessions->by_channel, chan, session);
+  g_hash_table_add (session->channels, chan);
+
+  g_debug ("%s: added channel %s to session", session->key.host, channel);
 
   if (session->timeout)
     {
@@ -226,7 +222,7 @@ cockpit_session_track (CockpitSessions *sessions,
   g_debug ("%s: new session", host);
 
   session = g_new0 (CockpitSession, 1);
-  session->channels = g_array_sized_new (FALSE, TRUE, sizeof (guint), 2);
+  session->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   session->transport = g_object_ref (transport);
   session->key.host = g_strdup (host);
   session->key.user = g_strdup (cockpit_creds_get_user (creds));
@@ -244,16 +240,15 @@ static void
 cockpit_session_destroy (CockpitSessions *sessions,
                          CockpitSession *session)
 {
-  guint channel;
-  guint i;
+  GHashTableIter iter;
+  const gchar *chan;
 
   g_debug ("%s: destroy session", session->key.host);
 
-  for (i = 0; i < session->channels->len; i++)
-    {
-      channel = g_array_index (session->channels, guint, i);
-      g_hash_table_remove (sessions->by_channel, GUINT_TO_POINTER (channel));
-    }
+  g_hash_table_iter_init (&iter, session->channels);
+  while (g_hash_table_iter_next (&iter, (gpointer *)&chan, NULL))
+    g_hash_table_remove (sessions->by_channel, chan);
+  g_hash_table_remove_all (session->channels);
 
   g_hash_table_remove (sessions->by_host_user, &session->key);
 
@@ -310,23 +305,37 @@ cockpit_web_service_finalize (GObject *object)
 }
 
 static void
-report_close_with_extra (CockpitWebService *self,
-                         guint channel,
-                         const gchar *reason,
-                         const gchar *extra)
+report_close_options (CockpitWebService *self,
+                      ...) G_GNUC_NULL_TERMINATED;
+
+static void
+report_close_options (CockpitWebService *self,
+                      ...)
 {
+  JsonObject *object;
   GBytes *message;
-  GString *json;
+  const gchar *name;
+  const gchar *value;
+  va_list va;
 
-  json = g_string_new ("{\"command\": \"close\"");
-  if (channel != 0)
-    g_string_append_printf (json, ", \"channel\": %u", channel);
-  g_string_append_printf (json, ", \"reason\": \"%s\"", reason ? reason : "");
-  if (extra)
-    g_string_append_printf (json, ", %s", extra);
-  g_string_append (json, "}");
+  object = json_object_new ();
+  json_object_set_string_member (object, "command", "close");
 
-  message = g_string_free_to_bytes (json);
+  va_start (va, self);
+  for (;;)
+    {
+      name = va_arg (va, const gchar *);
+      if (!name)
+        break;
+      value = va_arg (va, const gchar *);
+      if (value)
+        json_object_set_string_member (object, name, value);
+    }
+  va_end (va);
+
+  message = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+
   if (web_socket_connection_get_ready_state (self->web_socket) == WEB_SOCKET_STATE_OPEN)
     web_socket_connection_send (self->web_socket, WEB_SOCKET_DATA_TEXT, self->control_prefix, message);
   g_bytes_unref (message);
@@ -334,10 +343,13 @@ report_close_with_extra (CockpitWebService *self,
 
 static void
 report_close (CockpitWebService *self,
-              guint channel,
+              const gchar *channel,
               const gchar *reason)
 {
-  report_close_with_extra (self, channel, reason, NULL);
+  report_close_options (self,
+                        "channel", channel,
+                        "reason", reason,
+                        NULL);
 }
 
 static void
@@ -350,7 +362,7 @@ outbound_protocol_error (CockpitWebService *self,
 static gboolean
 process_close (CockpitWebService *self,
                CockpitSession *session,
-               guint channel,
+               const gchar *channel,
                JsonObject *options)
 {
   cockpit_session_remove_channel (&self->sessions, session, channel);
@@ -441,14 +453,14 @@ dispatch_outbound_command (CockpitWebService *self,
 {
   CockpitSession *session = NULL;
   const gchar *command;
-  guint channel;
+  const gchar *channel;
   JsonObject *options;
   gboolean valid = FALSE;
   gboolean forward = TRUE;
 
   if (cockpit_transport_parse_command (payload, &command, &channel, &options))
     {
-      if (channel == 0)
+      if (!channel)
         {
           forward = FALSE;
           session = cockpit_session_by_transport (&self->sessions, source);
@@ -481,7 +493,7 @@ dispatch_outbound_command (CockpitWebService *self,
           session = cockpit_session_by_channel (&self->sessions, channel);
           if (!session)
             {
-              g_warning ("Channel does not exist: %u", channel);
+              g_warning ("Channel does not exist: %s", channel);
               valid = FALSE;
             }
           else if (session->transport != source)
@@ -516,7 +528,7 @@ dispatch_outbound_command (CockpitWebService *self,
 
 static gboolean
 on_session_recv (CockpitTransport *transport,
-                 guint channel,
+                 const gchar *channel,
                  GBytes *payload,
                  gpointer user_data)
 {
@@ -547,7 +559,7 @@ on_session_recv (CockpitTransport *transport,
 
   if (web_socket_connection_get_ready_state (self->web_socket) == WEB_SOCKET_STATE_OPEN)
     {
-      string = g_strdup_printf ("%u\n", channel);
+      string = g_strdup_printf ("%s\n", channel);
       prefix = g_bytes_new_take (string, strlen (string));
       web_socket_connection_send (self->web_socket, WEB_SOCKET_DATA_TEXT, prefix, payload);
       g_bytes_unref (prefix);
@@ -563,10 +575,12 @@ on_session_closed (CockpitTransport *transport,
                    gpointer user_data)
 {
   CockpitWebService *self = user_data;
+  const gchar *channel = NULL;
   CockpitSession *session;
   CockpitSshTransport *ssh;
-  gchar *extra = NULL;
-  guint i;
+  GHashTableIter iter;
+  const gchar *key = NULL;
+  const gchar *fp = NULL;
 
   session = cockpit_session_by_transport (&self->sessions, transport);
   if (session != NULL)
@@ -575,22 +589,28 @@ on_session_closed (CockpitTransport *transport,
           COCKPIT_IS_SSH_TRANSPORT (transport))
         {
           ssh = COCKPIT_SSH_TRANSPORT (transport);
-          extra = g_strdup_printf ("\"host-key\": \"%s\", \"host-fingerprint\": \"%s\"",
-                                   cockpit_ssh_transport_get_host_key (ssh),
-                                   cockpit_ssh_transport_get_host_fingerprint (ssh));
+          key = cockpit_ssh_transport_get_host_key (ssh);
+          fp = cockpit_ssh_transport_get_host_fingerprint (ssh);
         }
 
-      for (i = 0; i < session->channels->len; i++)
-        report_close_with_extra (self, g_array_index (session->channels, guint, i), problem, extra);
+      g_hash_table_iter_init (&iter, session->channels);
+      while (g_hash_table_iter_next (&iter, (gpointer *)&channel, NULL))
+        {
+          report_close_options (self,
+                                "channel", channel,
+                                "reason", problem,
+                                "host-key", key,
+                                "host-fingerprint", fp,
+                                NULL);
+        }
 
-      g_free (extra);
       cockpit_session_destroy (&self->sessions, session);
     }
 }
 
 static gboolean
 process_open (CockpitWebService *self,
-              guint channel,
+              const gchar *channel,
               JsonObject *options)
 {
   CockpitSession *session;
@@ -696,7 +716,7 @@ dispatch_inbound_command (CockpitWebService *self,
                           GBytes *payload)
 {
   const gchar *command;
-  guint channel;
+  const gchar *channel;
   JsonObject *options;
   gboolean valid = FALSE;
   gboolean forward = TRUE;
@@ -743,7 +763,7 @@ dispatch_inbound_command (CockpitWebService *self,
             cockpit_transport_send (session->transport, 0, payload);
         }
       else
-        g_debug ("Dropping control message with unknown channel: %u", channel);
+        g_debug ("Dropping control message with unknown channel: %s", channel);
     }
 
   json_object_unref (options);
@@ -756,7 +776,7 @@ on_web_socket_message (WebSocketConnection *web_socket,
                        CockpitWebService *self)
 {
   CockpitSession *session;
-  guint channel;
+  gchar *channel;
   GBytes *payload;
 
   payload = cockpit_transport_parse_frame (message, &channel);
@@ -764,7 +784,7 @@ on_web_socket_message (WebSocketConnection *web_socket,
     return;
 
   /* A control channel command */
-  if (channel == 0)
+  if (!channel)
     {
       dispatch_inbound_command (self, payload);
     }
@@ -780,10 +800,11 @@ on_web_socket_message (WebSocketConnection *web_socket,
         }
       else
         {
-          g_debug ("Received message for unknown channel: %u", channel);
+          g_debug ("Received message for unknown channel: %s", channel);
         }
     }
 
+  g_free (channel);
   g_bytes_unref (payload);
 }
 
@@ -885,7 +906,7 @@ on_ping_time (gpointer user_data)
 static void
 cockpit_web_service_init (CockpitWebService *self)
 {
-  self->control_prefix = g_bytes_new_static ("0\n", 2);
+  self->control_prefix = g_bytes_new_static ("\n", 1);
   cockpit_sessions_init (&self->sessions);
 }
 

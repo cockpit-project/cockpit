@@ -77,7 +77,7 @@ on_pipe_read (CockpitPipe *pipe,
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (user_data);
   GBytes *message;
   GBytes *payload;
-  guint channel;
+  gchar *channel;
   guint32 size;
 
   for (;;)
@@ -104,6 +104,7 @@ on_pipe_read (CockpitPipe *pipe,
           g_debug ("%s: received a %d byte payload", self->name, (int)size);
           cockpit_transport_emit_recv ((CockpitTransport *)self, channel, payload);
           g_bytes_unref (payload);
+          g_free (channel);
         }
       g_bytes_unref (message);
     }
@@ -236,7 +237,7 @@ cockpit_pipe_transport_finalize (GObject *object)
 
 static void
 cockpit_pipe_transport_send (CockpitTransport *transport,
-                             guint channel,
+                             const gchar *channel_id,
                              GBytes *payload)
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (transport);
@@ -245,7 +246,7 @@ cockpit_pipe_transport_send (CockpitTransport *transport,
   gsize prefix_len;
   guint32 size;
 
-  prefix_str = g_strdup_printf ("xxxx%u\n", channel);
+  prefix_str = g_strdup_printf ("xxxx%s\n", channel_id ? channel_id : "");
   prefix_len = strlen (prefix_str);
 
   /* See doc/protocol.md */

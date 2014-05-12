@@ -11,30 +11,29 @@ seconds. Leave now while you still can.
 Channels
 --------
 
-Each message is part of a channel, which has a number. This channel number
+Each message is part of a channel, which has a id. This channel number
 identifies the type of data in the message payload, the host where it is
 headed to/from and things like the service or user credentials.
 
-Channel zero is a special channel called the control channel. It contains
-command messages. These are described below. Initially only the control
-channel exists. Additional channels are opened and closed via command
-messages.
+An empty/missing channel id represents a special channel called the control
+channel. It contains command messages. These are described below. Initially
+only the control channel exists. Additional channels are opened and closed
+via command messages.
 
 Channels operate across all participants, and they help the cockpit-ws
 forwarding layer to know where to send messages.
 
-The maximum channel number is 4294967294.
-
 Framing
 -------
 
-The channel number is an integer in decimal as a string, and ends with a newline.
-After this comes the channel dependent payload.
+The channel id is a string in decimal as a string, and ends with a newline.
+It may not contain a newline, and must be utf8 valid. After this comes the
+channel dependent payload.
 
 For example if you had a payload of the string 'abc', and it was being
-sent through the channel 2, that might look like:
+sent through the channel 'a5', that might look like:
 
-    2\nabc
+    5.5\nabc
 
 When a message is sent over a stream transport that does not have distinct
 messages (such as SSH or stdio), the message is also prefixed with a 32-bit MSB
@@ -42,12 +41,12 @@ length in bytes of the message. The length does not include the 4 bytes
 of the length itself.
 
 An example. When going over a stream transport with a payload of the 3 byte
-string 'abc', and a channel of 2, would have a message length of 5: 3 bytes of
-payload, 1 bytes for the channel number, 1 for the new line. It would look like
+string 'abc', and a channel of 'a5', would have a message length of 6: 3 bytes of
+payload, 2 bytes for the channel number, 1 for the new line. It would look like
 this on the wire:
 
-    |----msb length---| |-chan--| |---payload--|
-    0x05 0x00 0x00 0x00 0x32 0x0A 0x61 0x62 0x63
+    |----msb length---| |----chan----| |---payload--|
+    0x00 0x00 0x00 0x06 0x61 0x35 0x0A 0x61 0x62 0x63
 
 Once again, note that the channel number is ASCII digits followed by an ASCII
 newline.
@@ -69,7 +68,8 @@ object. There is always a "command" field:
     }
 
 If a command message pertains to a specific channel it has a "channel" field
-containing the decimal number of the channel.
+containing the id of the channel. It is invalid to have an present but empty
+"channel" field.
 
 Unknown command messages are ignored, and forwarded as appropriate.
 
@@ -80,7 +80,7 @@ The "open" command opens a new channel for payload.
 
 The following fields are defined:
 
- * "channel": A uniquely chosen channel number in decimal
+ * "channel": A uniquely chosen channel id
  * "payload": A payload type, see below
  * "host": The destination host for the channel, defaults to "localhost"
  * "user": Optional alternate user for authenticating with host
@@ -96,13 +96,13 @@ After the command is sent, then the channel is assumed to be open. No response
 is sent. If for some reason the channel shouldn't or cannot be opened, then
 the recipient will respond with a "close" message.
 
-The channel number must not already be in use by another channel.
+The channel id must not already be in use by another channel.
 
 An example of an open:
 
     {
         "command": "open",
-        "channel": 5,
+        "channel": "a4",
         "payload": "dbus-json1",
         "host": "localhost"
     }
@@ -116,7 +116,7 @@ The "close" command closes a channel or more channels.
 
 The following fields are defined:
 
- * "channel": The decimal number of the channel to close
+ * "channel": The id of the channel to close
  * "reason": A short reason code for closure, or empty for a normal close
 
 If the channel is not set, then all channels (that the recipient of the message
@@ -126,7 +126,7 @@ An example of a close:
 
     {
         "command": "close",
-        "channel" : 5,
+        "channel" : "5x",
         "reason": "not-authorized"
     }
 

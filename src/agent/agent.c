@@ -42,33 +42,37 @@ on_channel_closed (CockpitChannel *channel,
                    const gchar *problem,
                    gpointer user_data)
 {
-  guint channel_number = 0;
-  g_object_get (channel, "channel", &channel_number, NULL);
-  g_hash_table_remove (channels, GUINT_TO_POINTER (channel_number));
+  g_hash_table_remove (channels, cockpit_channel_get_id (channel));
 }
 
 static void
 process_open (CockpitTransport *transport,
-              guint channel_number,
+              const gchar *channel_id,
               JsonObject *options)
 {
   CockpitChannel *channel;
 
-  if (g_hash_table_lookup (channels, GUINT_TO_POINTER (channel_number)))
+  if (!channel_id)
+    {
+      g_warning ("Caller tried to open channel with invalid id");
+      cockpit_transport_close (transport, "protocol-error");
+    }
+  else if (g_hash_table_lookup (channels, channel_id))
     {
       g_warning ("Caller tried to reuse a channel that's already in use");
       cockpit_transport_close (transport, "protocol-error");
-      return;
     }
-
-  channel = cockpit_channel_open (transport, channel_number, options);
-  g_hash_table_insert (channels, GUINT_TO_POINTER (channel_number), channel);
-  g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), NULL);
+  else
+    {
+      channel = cockpit_channel_open (transport, channel_id, options);
+      g_hash_table_insert (channels, g_strdup (channel_id), channel);
+      g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), NULL);
+    }
 }
 
 static void
 process_close (CockpitTransport *transport,
-               guint channel_number)
+               const gchar *channel_id)
 {
   CockpitChannel *channel;
 
@@ -77,29 +81,36 @@ process_close (CockpitTransport *transport,
    * a channel and the web closing it at the same time.
    */
 
-  channel = g_hash_table_lookup (channels, GUINT_TO_POINTER (channel_number));
+  if (!channel_id)
+    {
+      g_warning ("Caller tried to close channel without an id");
+      cockpit_transport_close (transport, "protocol-error");
+      return;
+    }
+
+  channel = g_hash_table_lookup (channels, channel_id);
   if (channel)
     {
-      g_debug ("Close channel %u", channel_number);
+      g_debug ("Close channel %s", channel_id);
       cockpit_channel_close (channel, NULL);
     }
   else
     {
-      g_debug ("Already closed channel %u", channel_number);
+      g_debug ("Already closed channel %s", channel_id);
     }
 }
 
 static gboolean
 on_transport_control (CockpitTransport *transport,
                       const char *command,
-                      guint channel,
+                      const gchar *channel_id,
                       JsonObject *options,
                       gpointer user_data)
 {
   if (g_str_equal (command, "open"))
-    process_open (transport, channel, options);
+    process_open (transport, channel_id, options);
   else if (g_str_equal (command, "close"))
-    process_close (transport, channel);
+    process_close (transport, channel_id);
   else
     return FALSE;
   return TRUE; /* handled */
@@ -158,7 +169,7 @@ main (int argc,
   polkit_agent = cockpit_polkit_agent_register (transport, NULL);
 
   /* Owns the channels */
-  channels = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
+  channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
   while (!closed)
     g_main_context_iteration (NULL, TRUE);

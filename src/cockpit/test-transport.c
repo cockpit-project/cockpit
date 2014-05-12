@@ -102,12 +102,12 @@ teardown_transport (TestCase *tc,
 
 static gboolean
 on_recv_get_payload (CockpitTransport *transport,
-                     guint channel,
+                     const gchar *channel,
                      GBytes *message,
                      gpointer user_data)
 {
   GBytes **received = user_data;
-  g_assert_cmpuint (channel, ==, 546);
+  g_assert_cmpstr (channel, ==, "546");
   g_assert (*received == NULL);
   *received = g_bytes_ref (message);
   return TRUE;
@@ -116,14 +116,14 @@ on_recv_get_payload (CockpitTransport *transport,
 
 static gboolean
 on_recv_multiple (CockpitTransport *transport,
-                  guint channel,
+                  const gchar *channel,
                   GBytes *message,
                   gpointer user_data)
 {
   gint *state = user_data;
   GBytes *check;
 
-  g_assert_cmpuint (channel, ==, 9);
+  g_assert_cmpstr (channel, ==, "9");
 
   if (*state == 0)
     check = g_bytes_new_static ("one", 3);
@@ -159,7 +159,7 @@ test_echo_and_close (TestCase *tc,
 
   sent = g_bytes_new_static ("the message", 11);
   g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &received);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
 
   WAIT_UNTIL (received != NULL);
 
@@ -186,10 +186,10 @@ test_echo_queue (TestCase *tc,
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
   sent = g_bytes_new_static ("one", 3);
-  cockpit_transport_send (tc->transport, 9, sent);
+  cockpit_transport_send (tc->transport, "9", sent);
   g_bytes_unref (sent);
   sent = g_bytes_new_static ("two", 3);
-  cockpit_transport_send (tc->transport, 9, sent);
+  cockpit_transport_send (tc->transport, "9", sent);
   g_bytes_unref (sent);
 
   /* Only closes after above are sent */
@@ -209,7 +209,7 @@ test_echo_large (TestCase *tc,
 
   /* Medium length */
   sent = g_bytes_new_take (g_strnfill (1020, '!'), 1020);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -218,7 +218,7 @@ test_echo_large (TestCase *tc,
 
   /* Extra large */
   sent = g_bytes_new_take (g_strnfill (10 * 1000 * 1000, '?'), 10 * 1000 * 1000);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -227,7 +227,7 @@ test_echo_large (TestCase *tc,
 
   /* Double check that didn't csrew things up */
   sent = g_bytes_new_static ("yello", 5);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
   WAIT_UNTIL (received != NULL);
   g_assert (g_bytes_equal (received, sent));
   g_bytes_unref (sent);
@@ -333,7 +333,7 @@ test_write_error (void)
   transport = cockpit_pipe_transport_new_fds ("test", fds[0], 1000);
 
   sent = g_bytes_new ("test", 4);
-  cockpit_transport_send (transport, 3333, sent);
+  cockpit_transport_send (transport, "3333", sent);
   g_bytes_unref (sent);
 
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
@@ -427,50 +427,45 @@ test_parse_frame (void)
 {
   GBytes *message;
   GBytes *payload;
-  guint channel;
+  gchar *channel;
 
   message = g_bytes_new_static ("134\ntest", 8);
 
   payload = cockpit_transport_parse_frame (message, &channel);
   g_assert (payload != NULL);
   g_assert_cmpstr (g_bytes_get_data (payload, NULL), ==, "test");
-  g_assert_cmpuint (channel, ==, 134);
+  g_assert_cmpstr (channel, ==, "134");
 
   g_bytes_unref (payload);
   g_bytes_unref (message);
+  g_free (channel);
 }
 
 static void
 test_parse_frame_bad (void)
 {
+  gchar *channel = NULL;
   GBytes *message;
   GBytes *payload;
-  guint channel;
 
-  cockpit_expect_warning ("*invalid message prefix");
+  cockpit_expect_warning ("*invalid channel prefix");
 
-  message = g_bytes_new_static ("bad\ntest", 8);
+  message = g_bytes_new_static ("b\x00y\ntest", 8);
   payload = cockpit_transport_parse_frame (message, &channel);
   g_assert (payload == NULL);
   g_bytes_unref (message);
+  g_free (channel);
 
   cockpit_assert_expected ();
 
   cockpit_expect_warning ("*invalid message without channel prefix");
 
+  channel = NULL;
   message = g_bytes_new_static ("test", 4);
   payload = cockpit_transport_parse_frame (message, &channel);
   g_assert (payload == NULL);
   g_bytes_unref (message);
-
-  cockpit_assert_expected ();
-
-  cockpit_expect_warning ("*invalid message prefix");
-
-  message = g_bytes_new_static ("111111111111111\ntest", 20);
-  payload = cockpit_transport_parse_frame (message, &channel);
-  g_assert (payload == NULL);
-  g_bytes_unref (message);
+  g_free (channel);
 
   cockpit_assert_expected ();
 }
@@ -478,9 +473,9 @@ test_parse_frame_bad (void)
 static void
 test_parse_command (void)
 {
-  const gchar *input = "{ 'command': 'test', \"channel\": 66, \"opt\": \"one\" }";
+  const gchar *input = "{ \"command\": \"test\", \"channel\": \"66\", \"opt\": \"one\" }";
   GBytes *message;
-  guint channel;
+  const gchar *channel;
   const gchar *command;
   JsonObject *options;
   gboolean ret;
@@ -492,7 +487,7 @@ test_parse_command (void)
 
   g_assert (ret == TRUE);
   g_assert_cmpstr (command, ==, "test");
-  g_assert_cmpuint (channel, ==, 66);
+  g_assert_cmpstr (channel, ==, "66");
   g_assert_cmpstr (json_object_get_string_member (options, "opt"), ==, "one");
 
   json_object_unref (options);
@@ -501,9 +496,9 @@ test_parse_command (void)
 static void
 test_parse_command_no_channel (void)
 {
-  const gchar *input = "{ 'command': 'test', \"opt\": \"one\" }";
+  const gchar *input = "{ \"command\": \"test\", \"opt\": \"one\" }";
   GBytes *message;
-  guint channel;
+  const gchar *channel;
   const gchar *command;
   JsonObject *options;
   gboolean ret;
@@ -515,7 +510,7 @@ test_parse_command_no_channel (void)
 
   g_assert (ret == TRUE);
   g_assert_cmpstr (command, ==, "test");
-  g_assert_cmpuint (channel, ==, 0);
+  g_assert_cmpstr (channel, ==, NULL);
   g_assert_cmpstr (json_object_get_string_member (options, "opt"), ==, "one");
 
   json_object_unref (options);
@@ -525,22 +520,20 @@ struct {
   const char *name;
   const char *json;
 } bad_command_payloads[] = {
-    { "no-command", "{ 'no-command': 'test' }", },
-    { "empty-command", "{ 'command': '' }", },
-    { "channel-bad", "{ 'command': 'test', 'channel', 'not-a-number' }", },
+    { "no-command", "{ \"no-command\": \"test\" }", },
+    { "empty-command", "{ \"command\": \"\" }", },
     { "invalid-json", "{ xxxxxxxxxxxxxxxxxxxxx", },
     { "not-an-object", "55", },
-    { "negative-channel", "{ 'command': 'test', 'channel', -1 }", },
-    { "zero-channel", "{ 'command': 'test', 'channel': 0 }", },
-    { "large-channel", "{ 'command': 'test', 'channel': 5555555555 }", },
-    { "string-channel", "{ 'command': 'test', 'channel': '5' }", },
+    { "number-channel", "{ \"command\": \"test\", \"channel\": 0 }", },
+    { "empty-channel", "{ \"command\": \"test\", \"channel\": \"\" }", },
+    { "newline-channel", "{ \"command\": \"test\", \"channel\": \"blah\nline\" }", },
 };
 
 static void
 test_parse_command_bad (gconstpointer input)
 {
   GBytes *message;
-  guint channel;
+  const gchar *channel;
   const gchar *command;
   JsonObject *options;
   gboolean ret;

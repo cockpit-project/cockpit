@@ -31,7 +31,7 @@ G_BEGIN_DECLS
 GType              cockpit_dbus_json_get_type   (void) G_GNUC_CONST;
 
 CockpitChannel *   cockpit_dbus_json_open       (CockpitTransport *transport,
-                                                 guint channel,
+                                                 const gchar *channel_id,
                                                  const gchar *dbus_service,
                                                  const gchar *dbus_path);
 

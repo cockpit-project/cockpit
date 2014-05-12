@@ -592,7 +592,7 @@ test_spawn_pty (void)
   options = json_object_new ();
   array = json_array_new ();
   json_array_add_string_element (array, "/bin/bash");
-  json_array_add_string_element (array, "/bin/-i");
+  json_array_add_string_element (array, "-i");
   json_object_set_array_member (options, "spawn", array);
   json_object_set_string_member (options, "payload", "text-stream");
   json_object_set_boolean_member (options, "pty", TRUE);

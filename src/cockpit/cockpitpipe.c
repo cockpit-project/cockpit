@@ -718,6 +718,9 @@ cockpit_pipe_class_init (CockpitPipeClass *klass)
  *
  * Calling this function on a closed or closing pipe (one on which
  * cockpit_pipe_close() has been called) is invalid.
+ *
+ * Zero length data blocks are ignored, it doesn't makes sense to
+ * write zero bytes to a pipe.
  */
 void
 cockpit_pipe_write (CockpitPipe *self,
@@ -738,6 +741,12 @@ cockpit_pipe_write (CockpitPipe *self,
     }
 
   g_return_if_fail (!self->priv->closed);
+
+  if (g_bytes_get_size (data) == 0)
+    {
+      g_debug ("%s: ignoring zero byte data block", self->priv->name);
+      return;
+    }
 
   g_queue_push_tail (self->priv->out_queue, g_bytes_ref (data));
 

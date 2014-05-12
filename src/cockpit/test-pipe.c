@@ -317,6 +317,31 @@ test_buffer (TestCase *tc,
   g_assert_cmpstr ((gchar *)buffer->data, ==, "blahdeedoo");
 }
 
+static void
+test_skip_zero (TestCase *tc,
+                gconstpointer data)
+{
+  MockEchoPipe *echo_pipe = (MockEchoPipe *)tc->pipe;
+  GBytes *sent;
+  GBytes *zero;
+
+  /* Including null terminator */
+  sent = g_bytes_new_static ("blah", 4);
+  zero = g_bytes_new_static ("", 0);
+  cockpit_pipe_write (tc->pipe, sent);
+  cockpit_pipe_write (tc->pipe, zero);
+  cockpit_pipe_write (tc->pipe, sent);
+  g_bytes_unref (zero);
+  g_bytes_unref (sent);
+
+  while (echo_pipe->received->len < 8)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (echo_pipe->received->len, ==, 8);
+  g_byte_array_append (echo_pipe->received, (guint8 *)"", 1);
+  g_assert_cmpstr ((gchar *)echo_pipe->received->data, ==, "blahblah");
+}
+
 static const TestFixture fixture_exit_success = {
   .command = "true"
 };
@@ -1004,6 +1029,8 @@ main (int argc,
               setup_simple, test_close_problem, teardown);
   g_test_add ("/pipe/buffer", TestCase, &fixture_buffer,
               setup_simple, test_buffer, teardown);
+  g_test_add ("/pipe/skip-zero", TestCase, NULL,
+              setup_simple, test_skip_zero, teardown);
   g_test_add ("/pipe/pid", TestCase, &fixture_pid,
               setup_simple, test_pid, teardown);
 

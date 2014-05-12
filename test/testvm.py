@@ -159,6 +159,7 @@ class Machine:
             "ssh",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
             "-l", "root",
             self.address
         ]
@@ -222,6 +223,7 @@ class Machine:
             "scp",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
             source, "root@%s:%s" % (self.address, dest),
         ]
 
@@ -239,6 +241,7 @@ class Machine:
             "scp",
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
             "-r",
             "root@%s:%s" % (self.address, source), dest
         ]

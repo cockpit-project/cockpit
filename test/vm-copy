@@ -60,4 +60,4 @@ done
 dest=$1
 
 chmod 600 ./identity
-scp -i ./identity -o StrictHostKeyChecking=no -r "${srcs[@]}" "root@$M:$dest"
+scp -i ./identity -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r "${srcs[@]}" "root@$M:$dest"

@@ -716,7 +716,7 @@ drain_buffer (CockpitSshTransport *self)
 {
   GBytes *message;
   GBytes *payload;
-  guint channel;
+  gchar *channel;
   guint32 size;
 
   for (;;)
@@ -744,6 +744,7 @@ drain_buffer (CockpitSshTransport *self)
           g_debug ("%s: received a %d byte payload", self->logname, (int)g_bytes_get_size (payload));
           cockpit_transport_emit_recv ((CockpitTransport *)self, channel, payload);
           g_bytes_unref (payload);
+          g_free (channel);
         }
       g_bytes_unref (message);
     }
@@ -1183,7 +1184,7 @@ cockpit_ssh_transport_finalize (GObject *object)
 
 static void
 cockpit_ssh_transport_send (CockpitTransport *transport,
-                            guint channel,
+                            const gchar *channel,
                             GBytes *payload)
 {
   CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
@@ -1193,7 +1194,7 @@ cockpit_ssh_transport_send (CockpitTransport *transport,
 
   g_return_if_fail (!self->closing);
 
-  prefix = g_strdup_printf ("xxxx%u\n", channel);
+  prefix = g_strdup_printf ("xxxx%s\n", channel ? channel : "");
   length = strlen (prefix);
 
   /* See doc/protocol.md */

@@ -54,7 +54,7 @@ struct _CockpitChannelPrivate {
 
   /* Construct arguments */
   CockpitTransport *transport;
-  guint number;
+  gchar *id;
   JsonObject *open_options;
 
   /* Queued messages before channel is ready */
@@ -71,7 +71,7 @@ struct _CockpitChannelPrivate {
 enum {
   PROP_0,
   PROP_TRANSPORT,
-  PROP_CHANNEL,
+  PROP_ID,
   PROP_OPTIONS,
 };
 
@@ -88,14 +88,14 @@ cockpit_channel_init (CockpitChannel *self)
 
 static gboolean
 on_transport_recv (CockpitTransport *transport,
-                   guint channel,
+                   const gchar *channel_id,
                    GBytes *data,
                    gpointer user_data)
 {
   CockpitChannel *self = user_data;
   CockpitChannelClass *klass;
 
-  if (channel != self->priv->number)
+  if (g_strcmp0 (channel_id, self->priv->id) != 0)
     return FALSE;
 
   if (self->priv->ready)
@@ -134,6 +134,8 @@ cockpit_channel_constructed (GObject *object)
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->constructed (object);
 
+  g_return_if_fail (self->priv->id != NULL);
+
   self->priv->recv_sig = g_signal_connect (self->priv->transport, "recv",
                                            G_CALLBACK (on_transport_recv), self);
   self->priv->close_sig = g_signal_connect (self->priv->transport, "closed",
@@ -153,8 +155,8 @@ cockpit_channel_get_property (GObject *object,
       case PROP_TRANSPORT:
         g_value_set_object (value, self->priv->transport);
         break;
-      case PROP_CHANNEL:
-        g_value_set_uint (value, self->priv->number);
+      case PROP_ID:
+        g_value_set_string (value, self->priv->id);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -175,8 +177,8 @@ cockpit_channel_set_property (GObject *object,
       case PROP_TRANSPORT:
         self->priv->transport = g_value_dup_object (value);
         break;
-      case PROP_CHANNEL:
-        self->priv->number = g_value_get_uint (value);
+      case PROP_ID:
+        self->priv->id = g_value_dup_string (value);
         break;
       case PROP_OPTIONS:
         self->priv->open_options = g_value_dup_boxed (value);
@@ -219,6 +221,7 @@ cockpit_channel_finalize (GObject *object)
   json_object_unref (self->priv->open_options);
   if (self->priv->close_options)
     json_object_unref (self->priv->close_options);
+  g_free (self->priv->id);
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->finalize (object);
 }
@@ -250,7 +253,7 @@ cockpit_channel_real_close (CockpitChannel *self,
     }
 
   json_object_set_string_member (object, "command", "close");
-  json_object_set_int_member (object, "channel", self->priv->number);
+  json_object_set_string_member (object, "channel", self->priv->id);
   json_object_set_string_member (object, "reason", reason);
 
   message = cockpit_json_write_bytes (object);
@@ -289,8 +292,8 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
    *
    * The numeric channel to receive and send messages on.
    */
-  g_object_class_install_property (gobject_class, PROP_CHANNEL,
-             g_param_spec_uint ("channel", "channel", "channel", 1, G_MAXUINT, G_MAXUINT,
+  g_object_class_install_property (gobject_class, PROP_ID,
+             g_param_spec_string ("id", "id", "id", NULL,
                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
@@ -335,7 +338,7 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
  */
 CockpitChannel *
 cockpit_channel_open (CockpitTransport *transport,
-                      guint number,
+                      const gchar *id,
                       JsonObject *options)
 {
   CockpitChannel *channel;
@@ -355,7 +358,7 @@ cockpit_channel_open (CockpitTransport *transport,
 
   channel = g_object_new (channel_type,
                           "transport", transport,
-                          "channel", number,
+                          "id", id,
                           "options", options,
                           NULL);
 
@@ -455,7 +458,7 @@ void
 cockpit_channel_send (CockpitChannel *self,
                       GBytes *payload)
 {
-  cockpit_transport_send (self->priv->transport, self->priv->number, payload);
+  cockpit_transport_send (self->priv->transport, self->priv->id, payload);
 }
 
 /**
@@ -594,4 +597,19 @@ cockpit_channel_close_int_option (CockpitChannel *self,
   if (!self->priv->close_options)
     self->priv->close_options = json_object_new ();
   json_object_set_int_member (self->priv->close_options, name, value);
+}
+
+/**
+ * cockpit_channel_get_id:
+ * @self a channel
+ *
+ * Get the identifier for this channel.
+ *
+ * Returns: (transfer none): the identifier
+ */
+const gchar *
+cockpit_channel_get_id (CockpitChannel *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
+  return self->priv->id;
 }

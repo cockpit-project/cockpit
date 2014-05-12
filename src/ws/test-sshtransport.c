@@ -201,12 +201,12 @@ teardown (TestCase *tc,
 
 static gboolean
 on_recv_get_payload (CockpitTransport *transport,
-                     guint channel,
+                     const gchar *channel,
                      GBytes *message,
                      gpointer user_data)
 {
   GBytes **received = user_data;
-  g_assert_cmpuint (channel, ==, 546);
+  g_assert_cmpstr (channel, ==, "546");
   g_assert (*received == NULL);
   *received = g_bytes_ref (message);
   return TRUE;
@@ -214,14 +214,14 @@ on_recv_get_payload (CockpitTransport *transport,
 
 static gboolean
 on_recv_multiple (CockpitTransport *transport,
-                  guint channel,
+                  const gchar *channel,
                   GBytes *message,
                   gpointer user_data)
 {
   gint *state = user_data;
   GBytes *check;
 
-  g_assert_cmpuint (channel, ==, 9);
+  g_assert_cmpstr (channel, ==, "9");
 
   if (*state == 0)
     check = g_bytes_new_static ("one", 3);
@@ -266,7 +266,7 @@ test_echo_and_close (TestCase *tc,
   sent = g_bytes_new_static ("the message", 11);
   g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &received);
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
 
   while (received == NULL && !closed)
     g_main_context_iteration (NULL, TRUE);
@@ -298,10 +298,10 @@ test_echo_queue (TestCase *tc,
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
   sent = g_bytes_new_static ("one", 3);
-  cockpit_transport_send (tc->transport, 9, sent);
+  cockpit_transport_send (tc->transport, "9", sent);
   g_bytes_unref (sent);
   sent = g_bytes_new_static ("two", 3);
-  cockpit_transport_send (tc->transport, 9, sent);
+  cockpit_transport_send (tc->transport, "9", sent);
   g_bytes_unref (sent);
 
   /* Only closes after above are sent */
@@ -324,7 +324,7 @@ test_echo_large (TestCase *tc,
 
   /* Medium length */
   sent = g_bytes_new_take (g_strnfill (1020, '!'), 1020);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
   g_assert (g_bytes_equal (received, sent));
@@ -334,7 +334,7 @@ test_echo_large (TestCase *tc,
 
   /* Extra large */
   sent = g_bytes_new_take (g_strnfill (10 * 1000 * 1000, '?'), 10 * 1000 * 1000);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
   g_assert (g_bytes_equal (received, sent));
@@ -344,7 +344,7 @@ test_echo_large (TestCase *tc,
 
   /* Double check that didn't csrew things up */
   sent = g_bytes_new_static ("yello", 5);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
   g_assert (g_bytes_equal (received, sent));
@@ -502,7 +502,7 @@ test_get_host_key (TestCase *tc,
   sent = g_bytes_new_static ("the message", 11);
   g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &received);
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
-  cockpit_transport_send (tc->transport, 546, sent);
+  cockpit_transport_send (tc->transport, "546", sent);
   g_bytes_unref (sent);
 
   while (received == NULL && !closed)

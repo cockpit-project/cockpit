@@ -88,7 +88,7 @@ function MockWebSocket(url, protocol) {
         var pos = data.indexOf("\n");
         if (pos == -1)
             throw "Invalid frame sent to WebSocket: " + data;
-        var channel = parseInt(data.substring(0, pos), 10);
+        var channel = data.substring(0, pos);
         var payload = data.substring(pos + 1);
         window.setTimeout(function() { $(mock).triggerHandler("recv", [channel, payload]); }, 5);
     };
@@ -141,7 +141,7 @@ test("public api", function() {
     var channel = new Channel({ "host": "host.example.com" });
     equal(typeof channel, "object", "Channel() constructor");
     equal(channel.options.host, "host.example.com", "channel.options is dict");
-    equal(typeof channel.number, "number", "channel.number is valid");
+    equal(typeof channel.id, "string", "channel.id is valid");
     ok(channel.toString().indexOf("host.example.com") > 0, "channel.toString()");
     equal(typeof channel.send, "function", "channel.send() is a function");
     equal(typeof channel.close, "function", "channel.close() is a function");
@@ -158,11 +158,11 @@ asyncTest("open channel", function() {
         ok(true, "websocket connected");
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
-        strictEqual(chan, 0, "open: sent with zero channel");
+        strictEqual(chan, "", "open: sent with empty channel");
         var command = JSON.parse(payload);
         equal(typeof command, "object", "open: valid json");
         equal(command.command, "open", "open: right command");
-        strictEqual(command.channel, channel.number, "open: contains right channel");
+        strictEqual(command.channel, channel.id, "open: contains right channel");
         equal(command.host, "scruffy", "open: host as expected");
         start();
     });
@@ -175,7 +175,7 @@ test("multiple", function() {
     var transport = Channel.transport;
 
     var channelb = new Channel({ "host": "amy" });
-    notStrictEqual(channel.number, channelb.number, "mulitple: channels have different numbers");
+    notStrictEqual(channel.id, channelb.id, "mulitple: channels have different ids");
     strictEqual(Channel.transport, transport, "multiple: channels share a transport");
 });
 
@@ -188,9 +188,9 @@ asyncTest("send message", function() {
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
         /* Ignore the open message */
-        if (chan == 0)
+        if (!chan)
             return;
-        strictEqual(chan, channel.number, "send: sent with correct channel");
+        strictEqual(chan, channel.id, "send: sent with correct channel");
         equal(payload, "Scruffy gonna die the way he lived", "send: sent the right payload");
         start();
     });
@@ -225,7 +225,7 @@ asyncTest("receive message", function() {
         start();
     });
 
-    mock_peer.send(channel.number, "Oh, marrrrmalade!");
+    mock_peer.send(channel.id, "Oh, marrrrmalade!");
 });
 
 asyncTest("close channel", function() {
@@ -237,7 +237,7 @@ asyncTest("close channel", function() {
         if (cmd.command == "open")
             return; /* ignore the open command */
         equal(cmd.command, "close", "close: sent close command");
-        strictEqual(cmd.channel, channel.number, "close: correct channel");
+        strictEqual(cmd.channel, channel.id, "close: correct channel");
         start();
     });
     $(channel).on("close", function(event, options) {
@@ -286,11 +286,11 @@ asyncTest("close peer", function() {
 
     var cmd = {
         "command": "close",
-        "channel": channel.number,
+        "channel": channel.id,
         "reason" : "marmalade",
         "extra": 5
     };
-    mock_peer.send(0, JSON.stringify(cmd));
+    mock_peer.send("", JSON.stringify(cmd));
 });
 
 asyncTest("close broadcast", function() {
@@ -318,7 +318,7 @@ asyncTest("close broadcast", function() {
         /* no channel */
         "reason" : "pizzazz"
     };
-    mock_peer.send(0, JSON.stringify(cmd));
+    mock_peer.send("", JSON.stringify(cmd));
 });
 
 asyncTest("close socket", function() {

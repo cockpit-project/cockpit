@@ -289,7 +289,7 @@ cockpit_text_stream_class_init (CockpitTextStreamClass *klass)
 /**
  * cockpit_text_stream_open:
  * @transport: the transport to send/receive messages on
- * @number: the channel number
+ * @channel_id: the channel id
  * @unix_path: the UNIX socket path to communicate with
  *
  * This function is mainly used by tests. The usual way
@@ -299,11 +299,13 @@ cockpit_text_stream_class_init (CockpitTextStreamClass *klass)
  */
 CockpitChannel *
 cockpit_text_stream_open (CockpitTransport *transport,
-                          guint number,
+                          const gchar *channel_id,
                           const gchar *unix_path)
 {
   CockpitChannel *channel;
   JsonObject *options;
+
+  g_return_val_if_fail (channel_id != NULL, NULL);
 
   options = json_object_new ();
   json_object_set_string_member (options, "unix", unix_path);
@@ -311,7 +313,7 @@ cockpit_text_stream_open (CockpitTransport *transport,
 
   channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
                           "transport", transport,
-                          "channel", number,
+                          "id", channel_id,
                           "options", options,
                           NULL);
 

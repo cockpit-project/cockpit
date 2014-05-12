@@ -53,7 +53,7 @@ PageSetupServer.prototype = {
         $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
         $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));
 
-        self.local_client = $cockpit.dbus("localhost");
+        self.local_client = cockpit.dbus("localhost");
         $(self.local_client).on('objectAdded.setup objectRemoved.setup', function (event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
                 self.update_discovered ();
@@ -187,7 +187,7 @@ PageSetupServer.prototype = {
                     /* The given credentials didn't work.  Ask the
                      * user to try again.
                      */
-                    $('#dashboard_setup_login_error').text($cockpit.client_error_description(client.error));
+                    $('#dashboard_setup_login_error').text(cockpit.client_error_description(client.error));
                     self.show_tab('login');
                     return;
                 }
@@ -195,8 +195,8 @@ PageSetupServer.prototype = {
                 /* The connection has failed.  Show the error on every
                  * tab but stay on the current tab.
                  */
-                $('#dashboard_setup_address_error').text($cockpit.client_error_description(client.error));
-                $('#dashboard_setup_login_error').text($cockpit.client_error_description(client.error));
+                $('#dashboard_setup_address_error').text(cockpit.client_error_description(client.error));
+                $('#dashboard_setup_login_error').text(cockpit.client_error_description(client.error));
                 return;
 
             } else if (client.state == "ready") {

@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
-(function($, $cockpit) {
+(function($, cockpit) {
 
 /*
  * HACK: Don't touch window.onerror in phantomjs, once it's non-null
@@ -65,6 +65,6 @@ function lookup_debugging_cookie() {
  * Set this from the javascript console to get debugging or use
  * document.cookie = "debugging=all; " + document.cookie;
  */
-$cockpit.debugging = lookup_debugging_cookie();
+cockpit.debugging = lookup_debugging_cookie();
 
-})(jQuery, $cockpit);
+})(jQuery, cockpit);

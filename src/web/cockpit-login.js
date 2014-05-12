@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
-(function($cockpit, $) {
+(function(cockpit, $) {
 
 $(function() {
     $(".cockpit-deauthorize-item a").on("click", function(ev) {
@@ -40,7 +40,7 @@ $(function() {
     });
 });
 
-}($cockpit, jQuery));
+}(cockpit, jQuery));
 
 function cockpit_login_update ()
 {
@@ -71,7 +71,7 @@ function cockpit_login_init ()
 	    if (req.readyState == 4) {
                 clearTimeout(timeout_id);
                 if (req.status == 200) {
-                    $cockpit.connection_config = JSON.parse(req.responseText);
+                    cockpit.connection_config = JSON.parse(req.responseText);
                     cockpit_content_show();
                 } else {
                     $("#login-error-message").text(_("Sorry, that didn't work.") + " (" + req.status + ")");
@@ -128,7 +128,7 @@ function cockpit_login_try() {
     req.onreadystatechange = function (event) {
 	if (req.readyState == 4) {
             if (req.status == 200) {
-                $cockpit.connection_config = JSON.parse(req.responseText);
+                cockpit.connection_config = JSON.parse(req.responseText);
                 cockpit_content_show();
             } else {
                 cockpit_login_show();
@@ -149,7 +149,7 @@ function cockpit_logout (reason)
     req.open("POST", loc, true);
     req.onreadystatechange = function (event) {
 	if (req.readyState == 4) {
-            $cockpit._logged_out();
+            cockpit._logged_out();
             cockpit_login_show();
         }
     };
@@ -160,6 +160,6 @@ function cockpit_go_login_account ()
 {
     cockpit_go_server ("localhost",
                        [ { page: "accounts" },
-                         { page: "account", id: $cockpit.connection_config.user }
+                         { page: "account", id: cockpit.connection_config.user }
                        ]);
 }

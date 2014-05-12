@@ -455,7 +455,7 @@ PageJournal.prototype = {
         update_priority_buttons (this.query_prio);
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = $cockpit.dbus(this.address);
+        this.client = cockpit.dbus(this.address);
 
         this.journal = this.client.get ("/com/redhat/Cockpit/Journal",
                                         "com.redhat.Cockpit.Journal");

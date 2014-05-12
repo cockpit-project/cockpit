@@ -24,7 +24,7 @@ PageServer.prototype = {
 
     enter_breadcrumb: function() {
         this.title_address = cockpit_get_page_param('machine') || "localhost";
-        this.title_client = $cockpit.dbus(this.title_address);
+        this.title_client = cockpit.dbus(this.title_address);
         this.title_manager = this.title_client.get("/com/redhat/Cockpit/Manager",
                                                    "com.redhat.Cockpit.Manager");
         $(this.title_manager).on('notify:PrettyHostname.server-title', cockpit_content_update_loc_trail);
@@ -53,7 +53,7 @@ PageServer.prototype = {
         var self = this;
 
         self.address = cockpit_get_page_param('machine') || "localhost";
-        self.client = $cockpit.dbus(self.address);
+        self.client = cockpit.dbus(self.address);
         $(self.client).on('state-change.server', $.proxy(self, "update"));
 
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",

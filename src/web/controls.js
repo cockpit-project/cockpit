@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
 /* ----------------------------------------------------------------------------
  * Bar Graphs (in table rows)
@@ -41,13 +41,13 @@ var $cockpit = $cockpit || { };
  * graph should update a short while later.
  *
  * On document creation any div.bar-row are automatically turned into
- * Bar graphs. Or use $cockpit.BarRow('name') constructor.
+ * Bar graphs. Or use cockpit.BarRow('name') constructor.
  *
  * You can also use the el.reflow() function on the element to reflow
  * the corresponding graph.
  */
 
-(function($, $cockpit) {
+(function($, cockpit) {
 
 function reflow_bar_graph(graph, div) {
     var parts;
@@ -179,7 +179,7 @@ function setup_bar_graphs() {
 }
 
 /* Public API */
-$cockpit.BarRow = function BarRow(graph) {
+cockpit.BarRow = function BarRow(graph) {
     var div = $("<div>").addClass('bar-row').attr('graph', graph);
     setup_bar_graph(div);
     return div;
@@ -187,7 +187,7 @@ $cockpit.BarRow = function BarRow(graph) {
 
 $(document).ready(setup_bar_graphs);
 
-})(jQuery, $cockpit);
+})(jQuery, cockpit);
 
 /* ----------------------------------------------------------------------------
  * Sliders
@@ -213,7 +213,7 @@ $(document).ready(setup_bar_graphs);
  * it will get the .slider-warning class and go a bit red.
  *
  * On document creation any div.slider are automatically turned into
- * Bar graphs. Or use $cockpit.Slider() constructor.
+ * Bar graphs. Or use cockpit.Slider() constructor.
  *
  * Slider has the following extra read/write properties:
  *
@@ -225,7 +225,7 @@ $(document).ready(setup_bar_graphs);
  * on('change'): fired when the slider changes, passes value as additional arg.
  */
 
-(function($, $cockpit) {
+(function($, cockpit) {
 
 function resize_flex(slider, flex, total, part) {
     var value = 0;
@@ -333,7 +333,7 @@ function setup_sliders() {
 }
 
 /* Public API */
-$cockpit.Slider = function Slider() {
+cockpit.Slider = function Slider() {
     var div = $("<div class='slider'>").
         append($("<div class='slider-bar'>").
             append($("<div class='slider-thumb'>")));
@@ -343,4 +343,4 @@ $cockpit.Slider = function Slider() {
 
 $(document).ready(setup_sliders);
 
-})(jQuery, $cockpit);
+})(jQuery, cockpit);

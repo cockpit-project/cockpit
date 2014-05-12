@@ -19,20 +19,20 @@
 
 /* MAIN
 
-   - $cockpit.connection_config
+   - cockpit.connection_config
 
    An object with information about the current connection to the
    interface server when we are logged in.  It has 'user' and 'name'
    fields describing the user account of the logged in user.
 
-   - $cockpit.language_code
-   - $cockpit.language_po
+   - cockpit.language_code
+   - cockpit.language_po
 
    Information about the selected display language.  'language_code'
    contains the symbol identifying the language, such as "de" or "fi".
    'language_po' is a dictionary with the actual translations.
 
-   - client = $cockpit.dbus(address, [options], [auto_reconnect])
+   - client = cockpit.dbus(address, [options], [auto_reconnect])
    - client.release()
 
    Manage the active D-Bus clients.  The 'dbus' function returns a
@@ -49,19 +49,19 @@
    last user.
 */
 
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
-(function($, $cockpit) {
+(function($, cockpit) {
 
-$cockpit.dbus = dbus;
+cockpit.dbus = dbus;
 
-$cockpit._logged_out = _logged_out;
+cockpit._logged_out = _logged_out;
 
 $(init);
 
 function init() {
-    $cockpit.language_code = "";
-    $cockpit.language_po = null;
+    cockpit.language_code = "";
+    cockpit.language_po = null;
     cockpit_visited_pages = {};
 
     var lang_code = null;
@@ -101,8 +101,8 @@ function init_load_lang(lang_code) {
         init_done();
     });
     jqxhr.success(function(data) {
-        $cockpit.language_code = lang_code;
-        $cockpit.language_po = data[lang_code];
+        cockpit.language_code = lang_code;
+        cockpit.language_po = data[lang_code];
         init_done();
     });
 }
@@ -167,4 +167,4 @@ function _logged_out() {
         Channel.transport.close('disconnecting');
 }
 
-})(jQuery, $cockpit);
+})(jQuery, cockpit);

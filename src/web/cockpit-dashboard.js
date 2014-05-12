@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
-(function($, $cockpit, cockpit_pages) {
+(function($, cockpit, cockpit_pages) {
 
 PageDashboard.prototype = {
     _init: function() {
@@ -45,7 +45,7 @@ PageDashboard.prototype = {
     enter: function() {
         var self = this;
 
-        self.local_client = $cockpit.dbus("localhost");
+        self.local_client = cockpit.dbus("localhost");
         $(self.local_client).on('state-change.dashboard-local', $.proxy(self, "local_client_state_change"));
         $(self.local_client).on('objectAdded.dashboard-local objectRemoved.dashboard-local', function (event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
@@ -76,7 +76,7 @@ PageDashboard.prototype = {
             $('#dashboard-local-disconnected').hide();
         } else {
             if (this.local_client.state == "closed")
-                $('#dashboard-local-error').text($cockpit.client_error_description(this.local_client.error));
+                $('#dashboard-local-error').text(cockpit.client_error_description(this.local_client.error));
             else
                 $('#dashboard-local-error').text("...");
             $('#dashboard-local-disconnected').show();
@@ -137,7 +137,7 @@ PageDashboard.prototype = {
         for (i = 0; i < configured_machines.length; i++) {
             var address = configured_machines[i].Address;
             var machine = { address: address,
-                            client: $cockpit.dbus(address, { }, false),
+                            client: cockpit.dbus(address, { }, false),
                             dbus_iface: configured_machines[i]
                           };
 
@@ -225,7 +225,7 @@ PageDashboard.prototype = {
                 cockpit_action_btn_enable (action_btn, 'connect', true);
                 cockpit_action_btn_enable (action_btn, 'disconnect', false);
                 cockpit_action_btn_select (action_btn, 'connect');
-                error_div.text($cockpit.client_error_description(client.error) || "Disconnected");
+                error_div.text(cockpit.client_error_description(client.error) || "Disconnected");
                 error_div.show();
                 spinner_div.hide();
                 plot_div.hide();
@@ -300,4 +300,4 @@ function PageDashboard() {
 
 cockpit_pages.push(new PageDashboard());
 
-})(jQuery, $cockpit, cockpit_pages);
+})(jQuery, cockpit, cockpit_pages);

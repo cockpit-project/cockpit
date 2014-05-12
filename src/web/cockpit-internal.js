@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function($cockpit, $){
+(function(cockpit, $){
 
 PageInternal.prototype = {
     _init: function() {
@@ -39,7 +39,7 @@ PageInternal.prototype = {
         $(".cockpit-internal-reauthorize .btn").on("click", function() {
             $(".cockpit-internal-reauthorize span").text("checking...");
             var cmd = "pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1";
-            $cockpit.spawn(["/bin/sh", "-c", cmd]).
+            cockpit.spawn(["/bin/sh", "-c", cmd]).
                 stream(function(data) {
                     console.debug(data);
                 }).
@@ -65,4 +65,4 @@ function PageInternal() {
 
 cockpit_pages.push(new PageInternal());
 
-})($cockpit, jQuery);
+})(cockpit, jQuery);

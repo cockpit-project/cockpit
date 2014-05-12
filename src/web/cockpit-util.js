@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
 // Used for escaping things in HTML elements and attributes
 function cockpit_esc(str) {
@@ -43,7 +43,7 @@ function cockpit_debug(str) {
 /*
  * Byte formatting
  *
- * $cockpit.format_bytes(number, [factor])
+ * cockpit.format_bytes(number, [factor])
  * @number: a normal number
  * @factor: optional, either 1000, 1024 or a string suffix
  *
@@ -66,18 +66,18 @@ function cockpit_debug(str) {
  * suffix is returned.
  *
  * Examples:
- *    $cockpit.format_bytes(1000000).join(" ");
- *    $cockpit.format_bytes(1000000, 1024).join(" ");
- *    $cockpit.format_bytes(1000000, "kB").join(" ");
+ *    cockpit.format_bytes(1000000).join(" ");
+ *    cockpit.format_bytes(1000000, 1024).join(" ");
+ *    cockpit.format_bytes(1000000, "kB").join(" ");
  */
-(function($cockpit) {
+(function(cockpit) {
 
 var suffixes = {
     1000: [ null, "kB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
     1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ]
 };
 
-$cockpit.format_bytes = function format_bytes(number, factor) {
+cockpit.format_bytes = function format_bytes(number, factor) {
     var quotient;
     var suffix = null;
 
@@ -125,14 +125,14 @@ $cockpit.format_bytes = function format_bytes(number, factor) {
         return [number.toFixed(1), suffix];
 };
 
-})($cockpit);
+})(cockpit);
 
 function cockpit_format_bytes(num_bytes) {
-    return $cockpit.format_bytes(num_bytes, 1000).join(" ");
+    return cockpit.format_bytes(num_bytes, 1000).join(" ");
 }
 
 function cockpit_format_bytes_pow2(num_bytes) {
-    return $cockpit.format_bytes(num_bytes, 1024).join(" ");
+    return cockpit.format_bytes(num_bytes, 1024).join(" ");
 }
 
 
@@ -441,9 +441,9 @@ function cockpit_parse_bytes (str, def) {
     return NaN;
 }
 
-(function ($cockpit) {
+(function (cockpit) {
 
-$cockpit.client_error_description = client_error_description;
+cockpit.client_error_description = client_error_description;
 function client_error_description (error) {
     if (error == "terminated")
         return _("Your session has been terminated.");
@@ -465,4 +465,4 @@ function client_error_description (error) {
         return error;
 }
 
-})($cockpit);
+})(cockpit);

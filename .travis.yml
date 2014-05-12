@@ -1,5 +1,9 @@
 notifications:
   irc: "chat.freenode.net#cockpit"
+  skip_join: true
+  use_notice: true
+  template:
+    - "%{message} (%{branch} - %{commit} : %{author}): %{build_url}"
 language: c
 compiler:
   - gcc

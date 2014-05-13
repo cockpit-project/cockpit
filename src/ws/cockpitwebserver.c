@@ -29,6 +29,8 @@
 #include "cockpitws.h"
 #include "cockpitwebresponse.h"
 
+#include "cockpit/cockpitmemory.h"
+
 #include "websocket/websocket.h"
 
 #include <gsystem-local-alloc.h>
@@ -212,6 +214,20 @@ cockpit_web_server_set_property (GObject *object,
     }
 }
 
+typedef struct {
+  gpointer data;
+  gsize length;
+} InputData;
+
+static void
+input_data_clear_and_free (gpointer data)
+{
+  InputData *id = data;
+  cockpit_secclear (id->data, id->length);
+  g_free (id->data);
+  g_free (id);
+}
+
 static gboolean
 cockpit_web_server_default_handle_stream (CockpitWebServer *self,
                                           CockpitWebServerRequestType reqtype,
@@ -223,19 +239,39 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
 {
   CockpitWebResponse *response;
   gboolean claimed = FALSE;
+  InputData *id = NULL;
   GQuark detail;
   GBytes *bytes;
 
-  if (in_length == input->len)
+  /*
+   * A bit more complicated, so that we can guarantee clearing the
+   * input data. It might contain passwords.
+   */
+
+  if (in_length == 0)
     {
-      /* preserve the byte array wrapper */
-      g_byte_array_ref (input);
-      bytes = g_byte_array_free_to_bytes (input);
+      bytes = g_bytes_new_static ("", 0);
     }
   else
     {
-      bytes = g_bytes_new (input->data, in_length);
-      g_byte_array_remove_range (input, 0, in_length);
+      id = g_new0 (InputData, 1);
+      id->length = in_length;
+
+      if (in_length == input->len)
+        {
+          /* preserve the byte array wrapper */
+          g_byte_array_ref (input);
+          id->data = g_byte_array_free (input, FALSE);
+        }
+      else
+        {
+          id->data = g_memdup (input->data, in_length);
+          cockpit_secclear (input->data, in_length);
+          g_byte_array_remove_range (input, 0, in_length);
+        }
+
+      bytes = g_bytes_new_with_free_func (id->data, id->length,
+                                          input_data_clear_and_free, id);
     }
 
   /* TODO: Correct HTTP version for response */
@@ -535,6 +571,11 @@ cockpit_request_free (gpointer data)
       g_source_unref (request->source);
     }
 
+  /*
+   * Request memory is either cleared or used elsewhere, by
+   * handle-stream handlers (eg: the default handler. Don't
+   * clear it here. The buffer may still be in use.
+   */
   g_byte_array_unref (request->buffer);
   g_object_unref (request->io);
 }

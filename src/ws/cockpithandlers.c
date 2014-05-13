@@ -64,7 +64,9 @@ cockpit_handler_socket (CockpitWebServer *server,
    */
   creds = cockpit_auth_check_cookie (ws->auth, headers);
 
-  service = cockpit_web_service_socket (io_stream, headers, input, ws->auth, creds);
+  service = cockpit_web_service_new (ws->auth, creds);
+
+  cockpit_web_service_socket (service, io_stream, headers, input);
 
   /* Keeps a ref on itself until web socket closes */
   g_object_unref (service);

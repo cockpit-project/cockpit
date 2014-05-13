@@ -73,7 +73,9 @@ on_handle_stream_socket (CockpitWebServer *server,
 
   creds = cockpit_creds_new (g_get_user_name (), NULL);
 
-  service = cockpit_web_service_socket (io_stream, headers, input, auth, creds);
+  service = cockpit_web_service_new (auth, creds);
+
+  cockpit_web_service_socket (service, io_stream, headers, input);
 
   /* Keeps ref on itself until it closes */
   g_object_unref (service);

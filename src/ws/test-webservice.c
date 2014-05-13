@@ -422,8 +422,10 @@ start_web_service_and_create_client (TestCase *test,
   /* Matching the above origin */
   cockpit_ws_default_host_header = "127.0.0.1";
 
+  *service = cockpit_web_service_new (test->auth, test->creds);
+
   /* Note, we are forcing the websocket to parse its own headers */
-  *service = cockpit_web_service_socket (test->io_b, NULL, NULL, test->auth, test->creds);
+  cockpit_web_service_socket (*service, test->io_b, NULL, NULL);
 }
 
 static void
@@ -850,6 +852,8 @@ test_timeout_session (TestCase *test,
   CockpitWebService *service;
   GError *error = NULL;
   JsonObject *object;
+  GBytes *payload;
+  gchar *unused;
   pid_t pid;
   guint sig;
   guint tag;
@@ -867,20 +871,26 @@ test_timeout_session (TestCase *test,
   sig = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Queue channel open/close, so we can guarantee having a session */
-  send_control_message (ws, "open", " ", "payload", "test-text", NULL);
-  send_control_message (ws, "close", " ", NULL);
+  send_control_message (ws, "open", "x", "payload", "test-text", NULL);
 
   /* First we should receive the pid message from mock-pid-cat */
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  object = cockpit_json_parse_bytes (received, &error);
+  payload = cockpit_transport_parse_frame (received, &unused);
+  g_assert (payload);
+  g_bytes_unref (received);
+  g_free (unused);
+
+  object = cockpit_json_parse_bytes (payload, &error);
   g_assert_no_error (error);
   pid = json_object_get_int_member (object, "pid");
   json_object_unref (object);
-  g_bytes_unref (received);
+  g_bytes_unref (payload);
 
   g_signal_handler_disconnect (ws, sig);
+
+  send_control_message (ws, "close", "x", NULL);
 
   /* The process should exit shortly */
   tag = g_timeout_add_seconds (1, on_timeout_dummy, NULL);

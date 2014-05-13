@@ -38,7 +38,7 @@ PageDisplayLanguageDialog.prototype = {
             var info = cockpitdyn_supported_languages[code];
             var name = info.name;
             var display_name = cockpit_i18n(name, "display-language");
-            if (code == $cockpit.language_code)
+            if (code == cockpit.language_code)
                 list.append("<option selected=\"true\" value=\"" + code + "\">" + display_name + "</option>");
             else
                 list.append("<option value=\"" + code + "\">" + display_name + "</option>");
@@ -54,8 +54,8 @@ PageDisplayLanguageDialog.prototype = {
                     cockpit_show_error_dialog("Error loading language \"" + code_to_select + "\"");
                 });
                 jqxhr.success(function(data) {
-                    $cockpit.language_code = code_to_select;
-                    $cockpit.language_po = data[code_to_select];
+                    cockpit.language_code = code_to_select;
+                    cockpit.language_po = data[code_to_select];
                     $('#display-language-dialog').modal('hide');
                     // Cool, that worked, update setting
                     cockpit_settings_set("lang-code", code_to_select);
@@ -63,8 +63,8 @@ PageDisplayLanguageDialog.prototype = {
                 });
             } else {
                 // English
-                $cockpit.language_code = "";
-                $cockpit.language_po = null;
+                cockpit.language_code = "";
+                cockpit.language_po = null;
                 // update setting
                 cockpit_settings_set("lang-code", null);
                 $('#display-language-dialog').modal('hide');

@@ -56,7 +56,7 @@ test("format_bytes", function() {
 
     expect(checks.length);
     for (var i = 0; i < checks.length; i++) {
-       deepEqual($cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
+       deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
                  "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2].join(" "));
     }
 });

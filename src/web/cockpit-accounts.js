@@ -21,7 +21,7 @@ function cockpit_check_role (role, client)
 {
     var acc, i;
 
-    acc = cockpit_find_account ($cockpit.connection_config.user, client);
+    acc = cockpit_find_account (cockpit.connection_config.user, client);
     if (acc) {
         for (i = 0; i < acc.Groups.length; i++) {
             if (acc.Groups[i] == 'wheel' || acc.Groups[i] == role)
@@ -166,7 +166,7 @@ PageAccounts.prototype = {
 
     enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = $cockpit.dbus(this.address);
+        this.client = cockpit.dbus(this.address);
 
         cockpit_on_account_changes(this.client, "accounts", $.proxy(this, "update"));
         this.update();
@@ -331,7 +331,7 @@ PageAccount.prototype = {
 
     enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = $cockpit.dbus(this.address);
+        this.client = cockpit.dbus(this.address);
 
         cockpit_on_account_changes(this.client, "account", $.proxy(this, "update"));
         this.real_name_dirty = false;
@@ -414,7 +414,7 @@ PageAccount.prototype = {
     },
 
     check_role_for_self_mod: function () {
-        return (this.account.UserName == $cockpit.connection_config.user ||
+        return (this.account.UserName == cockpit.connection_config.user ||
                 cockpit_check_role ('cockpit-user-admin', this.client));
     },
 

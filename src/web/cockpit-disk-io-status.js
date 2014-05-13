@@ -28,7 +28,7 @@ PageDiskIOStatus.prototype = {
 
     enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = $cockpit.dbus(this.address);
+        this.client = cockpit.dbus(this.address);
 
         var resmon = this.client.get("/com/redhat/Cockpit/DiskIOMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {

@@ -56,7 +56,7 @@ PageShutdown.prototype = {
         var me = this;
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = $cockpit.dbus(this.address);
+        this.client = cockpit.dbus(this.address);
 
         this.manager = this.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");

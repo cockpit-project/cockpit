@@ -18,9 +18,9 @@
  */
 
 /*
- * API: defined in $cockpit namespace
+ * API: defined in cockpit namespace
  *
- * $cockpit.spawn(args, [machine], [options])
+ * cockpit.spawn(args, [machine], [options])
  *   @args: an array of args including process path, or just process path as string
  *   @machine: optional, a host name of the machine to connect to
  *   @options: optional, a plain object of additional channel options
@@ -61,9 +61,9 @@
  *             status where possible.
  */
 
-var $cockpit = $cockpit || { };
+var cockpit = cockpit || { };
 
-(function($cockpit, $) {
+(function(cockpit, $) {
     "use strict";
 
     /* Translates HTTP error codes to Cockpit codes */
@@ -90,12 +90,12 @@ var $cockpit = $cockpit || { };
     }
 
     function spawn_debug() {
-        if ($cockpit.debugging == "all" || $cockpit.debugging == "spawn")
+        if (cockpit.debugging == "all" || cockpit.debugging == "spawn")
             console.debug.apply(console, arguments);
     }
 
     /* public */
-    $cockpit.spawn = function(command, machine, options) {
+    cockpit.spawn = function(command, machine, options) {
         var dfd = new $.Deferred();
 
         var args = { "payload": "text-stream" };
@@ -157,4 +157,4 @@ var $cockpit = $cockpit || { };
         return promise;
     };
 
-}($cockpit, jQuery));
+}(cockpit, jQuery));

@@ -143,7 +143,7 @@ PageStorage.prototype = {
         var self = this;
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = $cockpit.dbus(this.address);
+        this.client = cockpit.dbus(this.address);
         cockpit_watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
@@ -729,7 +729,7 @@ PageStorageDetail.prototype = {
         var id = cockpit_get_page_param("id");
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = $cockpit.dbus(this.address);
+        this.client = cockpit.dbus(this.address);
         cockpit_watch_jobs(this.client);
 
         this._drive = null;

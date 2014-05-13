@@ -82,7 +82,7 @@ function ph_focus(sel)
 
 function ph_dbus_ready (client_address, client_options)
 {
-    var client = $cockpit.dbus(client_address, client_options);
+    var client = cockpit.dbus(client_address, client_options);
     var result = client && client.state == "ready";
     client.release();
     return result;
@@ -94,7 +94,7 @@ function ph_dbus_prop (client_address, client_options, iface, prop, text)
     // the value of the given property
 
     var result = false;
-    var client = $cockpit.dbus(client_address, client_options);
+    var client = cockpit.dbus(client_address, client_options);
     var objs = client.getObjectsFrom("/");
     for (var i = 0; i < objs.length; i++) {
         var obj_iface = objs[i].lookup(iface);
@@ -111,7 +111,7 @@ function ph_dbus_object_prop (client_address, client_options, path, iface, prop,
 {
     // check whether the given property has the given value
 
-    var client = $cockpit.dbus(client_address, client_options);
+    var client = cockpit.dbus(client_address, client_options);
     var proxy = client.lookup(path, iface);
     var result = proxy && proxy[prop] == text;
     client.release()

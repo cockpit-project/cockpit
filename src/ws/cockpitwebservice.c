@@ -256,7 +256,6 @@ struct _CockpitWebService {
   GObject parent;
 
   WebSocketConnection      *web_socket;
-  GSocketConnection        *connection;
   CockpitAuth              *auth;
   CockpitCreds             *authenticated;
 
@@ -951,16 +950,6 @@ cockpit_web_service_socket (GIOStream *io_stream,
   gchar *url;
 
   self = g_object_new (COCKPIT_TYPE_WEB_SERVICE, NULL);
-
-  if (G_IS_SOCKET_CONNECTION (io_stream))
-    self->connection = g_object_ref (io_stream);
-  else if (G_IS_TLS_CONNECTION (io_stream))
-    {
-      GIOStream *base;
-      g_object_get (io_stream, "base-io-stream", &base, NULL);
-      if (G_IS_SOCKET_CONNECTION (base))
-        self->connection = g_object_ref (base);
-    }
 
   self->auth = g_object_ref (auth);
   if (creds)

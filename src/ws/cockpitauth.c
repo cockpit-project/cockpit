@@ -388,10 +388,11 @@ verify_userpass (CockpitAuth *self,
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
                    "Malformed input");
-      return NULL;
+      goto out;
     }
 
   ret = cockpit_auth_verify_password (self, lines[0], lines[1], remote_peer, error);
+ out:
   g_strfreev (lines);
   return ret;
 }

@@ -66,12 +66,7 @@ guint cockpit_ws_ping_interval = 5;
 typedef struct
 {
   gchar *host;
-  gchar *user;
-} CockpitHostUser;
-
-typedef struct
-{
-  CockpitHostUser key;
+  gboolean private;
   GHashTable *channels;
   CockpitTransport *transport;
   gboolean sent_eof;
@@ -81,27 +76,10 @@ typedef struct
 
 typedef struct
 {
-  GHashTable *by_host_user;
+  GHashTable *by_host;
   GHashTable *by_channel;
   GHashTable *by_transport;
 } CockpitSessions;
-
-static guint
-host_user_hash (gconstpointer v)
-{
-  const CockpitHostUser *hu = v;
-  return g_str_hash (hu->host) ^ g_str_hash (hu->user);
-}
-
-static gboolean
-host_user_equal (gconstpointer v1,
-                 gconstpointer v2)
-{
-  const CockpitHostUser *hu1 = v1;
-  const CockpitHostUser *hu2 = v2;
-  return g_str_equal (hu1->host, hu2->host) &&
-         g_str_equal (hu1->user, hu2->user);
-}
 
 /* Should only called as a hash table GDestroyNotify */
 static void
@@ -109,14 +87,13 @@ cockpit_session_free (gpointer data)
 {
   CockpitSession *session = data;
 
-  g_debug ("%s: freeing session", session->key.host);
+  g_debug ("%s: freeing session", session->host);
 
   if (session->timeout)
     g_source_remove (session->timeout);
   g_hash_table_unref (session->channels);
   g_object_unref (session->transport);
-  g_free (session->key.host);
-  g_free (session->key.user);
+  g_free (session->host);
   g_free (session);
 }
 
@@ -124,7 +101,7 @@ static void
 cockpit_sessions_init (CockpitSessions *sessions)
 {
   sessions->by_channel = g_hash_table_new (g_str_hash, g_str_equal);
-  sessions->by_host_user = g_hash_table_new (host_user_hash, host_user_equal);
+  sessions->by_host = g_hash_table_new (g_str_hash, g_str_equal);
 
   /* This owns the session */
   sessions->by_transport = g_hash_table_new_full (g_direct_hash, g_direct_equal,
@@ -146,12 +123,10 @@ cockpit_session_by_transport (CockpitSessions *sessions,
 }
 
 inline static CockpitSession *
-cockpit_session_by_host_user (CockpitSessions *sessions,
-                              const gchar *host,
-                              const gchar *user)
+cockpit_session_by_host (CockpitSessions *sessions,
+                         const gchar *host)
 {
-  const CockpitHostUser hu = { (gchar *)host, (gchar *)user };
-  return g_hash_table_lookup (sessions->by_host_user, &hu);
+  return g_hash_table_lookup (sessions->by_host, host);
 }
 
 static gboolean
@@ -167,7 +142,7 @@ on_timeout_cleanup_session (gpointer user_data)
        * and on_session_closed() will react and remove it from
        * the main session lookup tables.
        */
-      g_debug ("%s: session timed out without channels", session->key.host);
+      g_debug ("%s: session timed out without channels", session->host);
       cockpit_transport_close (session->transport, "timeout");
     }
 
@@ -188,12 +163,12 @@ cockpit_session_remove_channel (CockpitSessions *sessions,
        * Close sessions that are no longer in use after N seconds
        * of them being that way.
        */
-      g_debug ("%s: removed last channel %s for session", session->key.host, channel);
+      g_debug ("%s: removed last channel %s for session", session->host, channel);
       session->timeout = g_timeout_add_seconds (TIMEOUT, on_timeout_cleanup_session, session);
     }
   else
     {
-      g_debug ("%s: removed channel %s for session", session->key.host, channel);
+      g_debug ("%s: removed channel %s for session", session->host, channel);
     }
 }
 
@@ -208,7 +183,7 @@ cockpit_session_add_channel (CockpitSessions *sessions,
   g_hash_table_insert (sessions->by_channel, chan, session);
   g_hash_table_add (session->channels, chan);
 
-  g_debug ("%s: added channel %s to session", session->key.host, channel);
+  g_debug ("%s: added channel %s to session", session->host, channel);
 
   if (session->timeout)
     {
@@ -220,6 +195,7 @@ cockpit_session_add_channel (CockpitSessions *sessions,
 static CockpitSession *
 cockpit_session_track (CockpitSessions *sessions,
                        const gchar *host,
+                       gboolean private,
                        CockpitCreds *creds,
                        CockpitTransport *transport)
 {
@@ -230,11 +206,12 @@ cockpit_session_track (CockpitSessions *sessions,
   session = g_new0 (CockpitSession, 1);
   session->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   session->transport = g_object_ref (transport);
-  session->key.host = g_strdup (host);
-  session->key.user = g_strdup (cockpit_creds_get_user (creds));
+  session->host = g_strdup (host);
+  session->private = private;
   session->creds = cockpit_creds_ref (creds);
 
-  g_hash_table_insert (sessions->by_host_user, &session->key, session);
+  if (!private)
+    g_hash_table_insert (sessions->by_host, session->host, session);
 
   /* This owns the session */
   g_hash_table_insert (sessions->by_transport, transport, session);
@@ -249,14 +226,15 @@ cockpit_session_destroy (CockpitSessions *sessions,
   GHashTableIter iter;
   const gchar *chan;
 
-  g_debug ("%s: destroy session", session->key.host);
+  g_debug ("%s: destroy session", session->host);
 
   g_hash_table_iter_init (&iter, session->channels);
   while (g_hash_table_iter_next (&iter, (gpointer *)&chan, NULL))
     g_hash_table_remove (sessions->by_channel, chan);
   g_hash_table_remove_all (session->channels);
 
-  g_hash_table_remove (sessions->by_host_user, &session->key);
+  if (!session->private)
+    g_hash_table_remove (sessions->by_host, session->host);
 
   /* This owns the session */
   g_hash_table_remove (sessions->by_transport, session->transport);
@@ -266,7 +244,7 @@ static void
 cockpit_sessions_cleanup (CockpitSessions *sessions)
 {
   g_hash_table_destroy (sessions->by_channel);
-  g_hash_table_destroy (sessions->by_host_user);
+  g_hash_table_destroy (sessions->by_host);
   g_hash_table_destroy (sessions->by_transport);
 }
 
@@ -393,7 +371,7 @@ process_authorize (CockpitWebService *self,
   gint64 cookie;
   int rc;
 
-  host = session->key.host;
+  host = session->host;
 
   if (!cockpit_json_get_string (options, "challenge", NULL, &challenge) ||
       !cockpit_json_get_int (options, "cookie", 0, &cookie) ||
@@ -620,7 +598,7 @@ process_open (CockpitWebService *self,
               const gchar *channel,
               JsonObject *options)
 {
-  CockpitSession *session;
+  CockpitSession *session = NULL;
   CockpitTransport *transport;
   CockpitCreds *creds;
   CockpitPipe *pipe;
@@ -628,6 +606,7 @@ process_open (CockpitWebService *self,
   const gchar *password;
   const gchar *host;
   const gchar *host_key;
+  gboolean private;
 
   if (self->closing)
     {
@@ -644,6 +623,18 @@ process_open (CockpitWebService *self,
   if (!cockpit_json_get_string (options, "host", "localhost", &host))
     host = "localhost";
 
+  /*
+   * Some sessions shouldn't be shared by multiple channels, such as those that
+   * explicitly specify a host-key or specific user.
+   *
+   * In the future we'd like to get away from having these sorts of channels, but
+   * for now we force them to have their own session, started with those specific
+   * arguments.
+   *
+   * This means the session doesn't show up in the by_host table.
+   */
+  private = FALSE;
+
   if (cockpit_json_get_string (options, "user", NULL, &specific_user) && specific_user)
     {
       if (!cockpit_json_get_string (options, "password", NULL, &password))
@@ -652,6 +643,9 @@ process_open (CockpitWebService *self,
                                  COCKPIT_CRED_PASSWORD, password,
                                  COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->authenticated),
                                  NULL);
+
+      /* A private session for this host */
+      private = TRUE;
     }
   else
     {
@@ -660,9 +654,11 @@ process_open (CockpitWebService *self,
 
   if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
     host_key = NULL;
+  if (host_key)
+    private = TRUE;
 
-  session = cockpit_session_by_host_user (&self->sessions, host,
-                                          cockpit_creds_get_user (creds));
+  if (!private)
+    session = cockpit_session_by_host (&self->sessions, host);
   if (!session)
     {
       /* Used during testing */
@@ -693,7 +689,7 @@ process_open (CockpitWebService *self,
 
       g_signal_connect (transport, "recv", G_CALLBACK (on_session_recv), self);
       g_signal_connect (transport, "closed", G_CALLBACK (on_session_closed), self);
-      session = cockpit_session_track (&self->sessions, host, creds, transport);
+      session = cockpit_session_track (&self->sessions, host, private, creds, transport);
       g_object_unref (transport);
     }
 

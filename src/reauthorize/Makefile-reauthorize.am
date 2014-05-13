@@ -15,7 +15,7 @@ pam_reauthorize.so: $(pam_reauthorize_FILES)
 
 pam_MODULES = pam_reauthorize.so
 
-all-local: $(pam_MODULES)
+all-local:: $(pam_MODULES)
 
 EXTRA_DIST += \
 	$(pam_reauthorize_FILES) \

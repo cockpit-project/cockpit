@@ -72,6 +72,7 @@ void                  cockpit_web_response_gerror        (CockpitWebResponse *se
 
 void                  cockpit_web_response_file          (CockpitWebResponse *response,
                                                           const gchar *escaped,
+                                                          gboolean cache_forever,
                                                           const gchar **roots);
 
 G_END_DECLS

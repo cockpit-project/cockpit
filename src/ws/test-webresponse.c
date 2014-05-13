@@ -185,7 +185,7 @@ test_file_not_found (TestCase *tc,
                      gconstpointer user_data)
 {
   const gchar *roots[] = { BUILDDIR, NULL };
-  cockpit_web_response_file (tc->response, "/non-existant", roots);
+  cockpit_web_response_file (tc->response, "/non-existant", FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404 Not Found*");
 }
 
@@ -194,7 +194,7 @@ test_file_directory_denied (TestCase *tc,
                             gconstpointer user_data)
 {
   const gchar *roots[] = { BUILDDIR, NULL };
-  cockpit_web_response_file (tc->response, "/src", roots);
+  cockpit_web_response_file (tc->response, "/src", FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 403 Directory Listing Denied*");
 }
 
@@ -208,7 +208,7 @@ test_file_access_denied (TestCase *tc,
   if (!g_mkdtemp_full (templ, 0000))
     g_assert_not_reached ();
 
-  cockpit_web_response_file (tc->response, templ + 4, roots);
+  cockpit_web_response_file (tc->response, templ + 4, FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 403*");
 
   g_unlink (templ);
@@ -223,7 +223,7 @@ test_file_breakout_denied (TestCase *tc,
   gchar *check = g_build_filename (roots[0], breakout, NULL);
   g_assert (g_file_test (check, G_FILE_TEST_EXISTS));
   g_free (check);
-  cockpit_web_response_file (tc->response, breakout, roots);
+  cockpit_web_response_file (tc->response, breakout, FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404*");
 }
 
@@ -236,7 +236,7 @@ test_file_breakout_non_existant (TestCase *tc,
   gchar *check = g_build_filename (roots[0], breakout, NULL);
   g_assert (!g_file_test (check, G_FILE_TEST_EXISTS));
   g_free (check);
-  cockpit_web_response_file (tc->response, breakout, roots);
+  cockpit_web_response_file (tc->response, breakout, FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404*");
 }
 
@@ -257,7 +257,7 @@ test_content_type (TestCase *tc,
 
   g_assert (user_data == &content_type_fixture);
 
-  cockpit_web_response_file (tc->response, NULL, roots);
+  cockpit_web_response_file (tc->response, NULL, FALSE, roots);
 
   resp = output_as_string (tc);
   length = strlen (resp);

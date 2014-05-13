@@ -30,7 +30,7 @@ AM_CPPFLAGS = \
 	-DBUILDDIR=\"$(abs_builddir)\" \
 	-DPACKAGE_LIBEXEC_DIR=\""$(libexecdir)"\" \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
-	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
+	-DPACKAGE_DATA_DIR=\""$(datadir)/cockpit"\" \
 	-DPACKAGE_BIN_DIR=\""$(bindir)"\" \
 	-DPACKAGE_LOCALSTATE_DIR=\""$(localstatedir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
@@ -81,6 +81,7 @@ endif
 JSLINT = $(top_srcdir)/tools/js-lint
 PO2JSON = $(top_srcdir)/tools/po2json
 GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
+VERIFY_CHECKSUMS = $(top_srcdir)/tools/verify-checksums
 
 testassetsdir = $(datadir)/cockpit-test-assets
 testassets_programs =
@@ -106,9 +107,9 @@ include data/Makefile-data.am
 include src/cockpit/Makefile-libcockpit.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
-
 include src/agent/Makefile-agent.am
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am
 include src/web/Makefile-web.am
+include src/static/Makefile-static.am
 include src/reauthorize/Makefile-reauthorize.am

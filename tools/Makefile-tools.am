@@ -10,6 +10,7 @@ EXTRA_DIST += \
 	tools/js-lint \
 	tools/minify \
 	tools/gdbus-unbreak-codegen \
+	tools/verify-checksums \
 	lib/valgrind.h \
 	$(NULL)
 
@@ -37,15 +38,14 @@ coverage:
 endif
 
 QUNIT_DEPS = \
-	jquery.min.js \
-	qunit.js \
+	testing.js \
 	qunit.css \
 	$(NULL)
 
 # Place these in the build directory for testing/install
 qunit.css: lib/qunit-1.14.0.css
 	$(AM_V_GEN) cp $< $@
-qunit.js: lib/qunit-1.14.0.js lib/qunit-tap.js tools/qunit-config.js
+testing.js: lib/jquery-min.v2.1.0.js lib/qunit-1.14.0.js lib/qunit-tap.js tools/qunit-config.js
 	$(AM_V_GEN) cat $^ > $@.tmp && mv $@.tmp $@
 
 CLEANFILES += \

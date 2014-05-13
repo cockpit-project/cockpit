@@ -844,8 +844,10 @@ path_has_prefix (const gchar *path,
 void
 cockpit_web_response_file (CockpitWebResponse *response,
                            const gchar *escaped,
+                           gboolean cache_forever,
                            const gchar **roots)
 {
+  const gchar *cache_control;
   GError *error = NULL;
   gchar *query = NULL;
   gchar *unescaped;
@@ -939,7 +941,13 @@ again:
 
   body = g_mapped_file_get_bytes (file);
 
-  cockpit_web_response_content (response, NULL, body, NULL);
+  cache_control = cache_forever ? "max-age=31556926, public" : NULL;
+  cockpit_web_response_headers (response, 200, "OK", g_bytes_get_size (body),
+                                "Cache-Control", cache_control,
+                                NULL);
+
+  if (cockpit_web_response_queue (response, body))
+    cockpit_web_response_complete (response);
 
   g_bytes_unref (body);
 

@@ -314,7 +314,7 @@ cockpit_web_server_default_handle_resource (CockpitWebServer *self,
   if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
     cockpit_web_response_error (response, 405, NULL, "POST not available for this path");
   else
-    cockpit_web_response_file (response, path, (const gchar **)self->document_roots);
+    cockpit_web_response_file (response, path, FALSE, (const gchar **)self->document_roots);
   return TRUE;
 }
 

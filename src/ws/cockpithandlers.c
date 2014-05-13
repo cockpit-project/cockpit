@@ -37,6 +37,8 @@
 
 #include <string.h>
 
+const char *cockpit_ws_static_directory = PACKAGE_DATA_DIR "/static";
+
 /* Called by @server when handling HTTP requests to /socket - runs in a separate
  * thread dedicated to the request so it may do blocking I/O
  */
@@ -363,5 +365,26 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
   cockpit_web_response_content (response, out_headers, content, NULL);
   g_hash_table_unref (out_headers);
   g_bytes_unref (content);
+  return TRUE;
+}
+
+gboolean
+cockpit_handler_static (CockpitWebServer *server,
+                        CockpitWebServerRequestType reqtype,
+                        const gchar *path,
+                        GHashTable *headers,
+                        GBytes *input,
+                        CockpitWebResponse *response,
+                        CockpitHandlerData *ws)
+{
+  const gchar *roots[] = { cockpit_ws_static_directory, NULL };
+
+  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
+    return FALSE;
+
+  if (!g_str_has_prefix (path, "/static/"))
+    return FALSE;
+
+  cockpit_web_response_file (response, path + 8, TRUE, roots);
   return TRUE;
 }

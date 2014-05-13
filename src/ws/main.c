@@ -232,7 +232,7 @@ int
 main (int argc,
       char *argv[])
 {
-  const gchar *default_roots[] = { PACKAGE_DATA_DIR "/cockpit/content", NULL };
+  const gchar *default_roots[] = { PACKAGE_DATA_DIR "/content", NULL };
   gint ret = 1;
   CockpitWebServer *server = NULL;
   GOptionContext *context;
@@ -314,6 +314,12 @@ main (int argc,
   g_signal_connect (server,
                     "handle-resource::/cockpitdyn.js",
                     G_CALLBACK (cockpit_handler_cockpitdyn),
+                    &data);
+
+  /* static handler, ignores stuff it shouldn't handle */
+  g_signal_connect (server,
+                    "handle-resource",
+                    G_CALLBACK (cockpit_handler_static),
                     &data);
 
   g_info ("HTTP Server listening on port %d", opt_port);

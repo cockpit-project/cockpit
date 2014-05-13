@@ -628,7 +628,6 @@ process_open (CockpitWebService *self,
   const gchar *password;
   const gchar *host;
   const gchar *host_key;
-  const gchar *rhost;
 
   if (self->closing)
     {
@@ -672,10 +671,6 @@ process_open (CockpitWebService *self,
           if (cockpit_ws_specific_ssh_port != 0)
             host = "127.0.0.1";
         }
-
-      rhost = cockpit_creds_get_rhost (creds);
-      if (rhost == NULL)
-        rhost = "<unknown>";
 
       if (g_strcmp0 (host, "localhost") == 0)
         {

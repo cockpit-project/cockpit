@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Here we send our PID as a message on channel ' ', which we happen to know will be
+# 29 bytes (or 0x1d) long. After that we echo anything sent
+
+/bin/sleep 1
+/usr/bin/printf '\x00\x00\x00\x1d \n{ "pid": % 16s }' $$
+exec /bin/cat

@@ -247,6 +247,9 @@ teardown_for_socket (TestCase *test,
   teardown_mock_webserver (test, data);
   teardown_io_streams (test, data);
 
+  /* Reset this if changed by a test */
+  cockpit_ws_agent_timeout = 30;
+
   cockpit_assert_expected ();
   alarm (0);
 }
@@ -282,19 +285,13 @@ on_timeout_fail (gpointer data)
 }
 
 static GBytes *
-build_control_message (const gchar *command,
-                       const gchar *channel,
-                       ...) G_GNUC_NULL_TERMINATED;
-
-static GBytes *
-build_control_message (const gchar *command,
-                       const gchar *channel,
-                       ...)
+build_control_va (const gchar *command,
+                  const gchar *channel,
+                  va_list va)
 {
   JsonBuilder *builder;
   gchar *data;
   gsize length;
-  va_list va;
   const gchar *option;
   GBytes *bytes;
   JsonNode *node;
@@ -309,7 +306,6 @@ build_control_message (const gchar *command,
       json_builder_add_string_value (builder, channel);
     }
 
-  va_start (va, channel);
   for (;;)
     {
       option = va_arg (va, const gchar *);
@@ -318,7 +314,6 @@ build_control_message (const gchar *command,
       json_builder_set_member_name (builder, option);
       json_builder_add_string_value (builder, va_arg (va, const gchar *));
     }
-  va_end (va);
 
   json_builder_end_object (builder);
   node = json_builder_get_root (builder);
@@ -331,6 +326,29 @@ build_control_message (const gchar *command,
   g_object_unref (builder);
 
   return bytes;
+}
+
+static void
+send_control_message (WebSocketConnection *ws,
+                      const gchar *command,
+                      const gchar *channel,
+                      ...) G_GNUC_NULL_TERMINATED;
+
+static void
+send_control_message (WebSocketConnection *ws,
+                      const gchar *command,
+                      const gchar *channel,
+                      ...)
+{
+  GBytes *payload;
+  va_list va;
+
+  va_start (va, channel);
+  payload = build_control_va (command, channel, va);
+  va_end (va);
+
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, payload);
+  g_bytes_unref (payload);
 }
 
 static void
@@ -414,16 +432,12 @@ start_web_service_and_connect_client (TestCase *test,
                                       WebSocketConnection **ws,
                                       CockpitWebService **service)
 {
-  GBytes *sent;
-
   start_web_service_and_create_client (test, fixture, ws, service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (*ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the agent. */
-  sent = build_control_message ("open", "4", "payload", "test-text", NULL);
-  web_socket_connection_send (*ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
-  g_bytes_unref (sent);
+  send_control_message (*ws, "open", "4", "payload", "test-text", NULL);
 }
 
 static void
@@ -607,9 +621,11 @@ test_specified_creds (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Open a channel with a non-standard command */
-  sent = build_control_message ("open", "4", "payload", "test-text", "user", "user", "password", "Another password", NULL);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
-  g_bytes_unref (sent);
+  send_control_message (ws, "open", "4",
+                        "payload", "test-text",
+                        "user", "user", "password",
+                        "Another password",
+                        NULL);
 
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
@@ -630,7 +646,6 @@ test_specified_creds_fail (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  GBytes *sent;
   CockpitWebService *service;
 
   start_web_service_and_create_client (test, data, &ws, &service);
@@ -640,9 +655,11 @@ test_specified_creds_fail (TestCase *test,
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Open a channel with a non-standard command, but a bad password */
-  sent = build_control_message ("open", "4", "payload", "test-text", "user", "user", "password", "Wrong password", NULL);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
-  g_bytes_unref (sent);
+  send_control_message (ws, "open", "4",
+                        "payload", "test-text",
+                        "user", "user",
+                        "password", "Wrong password",
+                        NULL);
 
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);
@@ -725,7 +742,6 @@ test_expect_host_key (TestCase *test,
 {
   WebSocketConnection *ws;
   CockpitWebService *service;
-  GBytes *sent;
   GBytes *received = NULL;
   gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
@@ -737,12 +753,10 @@ test_expect_host_key (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the agent specify a specific host key. */
-  sent = build_control_message ("open", "4",
-                                "payload", "test-text",
-                                "host-key", knownhosts,
-                                NULL);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
-  g_bytes_unref (sent);
+  send_control_message (ws, "open", "4",
+                        "payload", "test-text",
+                        "host-key", knownhosts,
+                        NULL);
 
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
@@ -821,6 +835,64 @@ test_fail_spawn (TestCase *test,
   close_client_and_stop_web_service (test, ws, service);
 }
 
+static gboolean
+on_timeout_dummy (gpointer unused)
+{
+  return TRUE;
+}
+
+static void
+test_timeout_session (TestCase *test,
+                      gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+  GError *error = NULL;
+  JsonObject *object;
+  pid_t pid;
+  guint sig;
+  guint tag;
+
+  cockpit_ws_agent_timeout = 1;
+
+  /* This sends us a mesage with a pid in it on channel ' ' */
+  cockpit_ws_agent_program = SRCDIR "/src/ws/mock-pid-cat";
+
+  /* Start the client */
+  start_web_service_and_create_client (test, data, &ws, &service);
+  while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+  sig = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  /* Queue channel open/close, so we can guarantee having a session */
+  send_control_message (ws, "open", " ", "payload", "test-text", NULL);
+  send_control_message (ws, "close", " ", NULL);
+
+  /* First we should receive the pid message from mock-pid-cat */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  object = cockpit_json_parse_bytes (received, &error);
+  g_assert_no_error (error);
+  pid = json_object_get_int_member (object, "pid");
+  json_object_unref (object);
+  g_bytes_unref (received);
+
+  g_signal_handler_disconnect (ws, sig);
+
+  /* The process should exit shortly */
+  tag = g_timeout_add_seconds (1, on_timeout_dummy, NULL);
+  while (kill (pid, 0) == 0)
+    g_main_context_iteration (NULL, TRUE);
+  g_source_remove (tag);
+
+  g_assert_cmpint (errno, ==, ESRCH);
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -888,6 +960,9 @@ main (int argc,
   g_test_add ("/web-service/specified-creds-fail", TestCase,
               &fixture_rfc6455, setup_for_socket_spec,
               test_specified_creds_fail, teardown_for_socket);
+
+  g_test_add ("/web-service/timeout-session", TestCase, NULL,
+              setup_for_socket, test_timeout_session, teardown_for_socket);
 
   return g_test_run ();
 }

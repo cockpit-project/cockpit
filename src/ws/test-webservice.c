@@ -422,7 +422,7 @@ start_web_service_and_create_client (TestCase *test,
   /* Matching the above origin */
   cockpit_ws_default_host_header = "127.0.0.1";
 
-  *service = cockpit_web_service_new (test->auth, test->creds);
+  *service = cockpit_web_service_new (test->creds, NULL);
 
   /* Note, we are forcing the websocket to parse its own headers */
   cockpit_web_service_socket (*service, test->io_b, NULL, NULL);
@@ -673,22 +673,60 @@ test_specified_creds_fail (TestCase *test,
 }
 
 static void
+test_socket_null_creds (TestCase *test,
+                        gconstpointer data)
+{
+  CockpitWebService *service;
+  CockpitPipe *session;
+  int pair[2];
+
+  /*
+   * These are tests double checking that we *never*
+   * open up a real CockpitWebService for NULL creds.
+   *
+   * Other code paths do the real checks, but these are
+   * the last resorts.
+   */
+
+  cockpit_expect_critical ("*assertion*failed*");
+
+  service = cockpit_web_service_new (NULL, NULL);
+  g_assert (service == NULL);
+
+  cockpit_expect_critical ("*assertion*failed*");
+
+  g_assert (pipe(pair) >= 0);
+  session = cockpit_pipe_new ("dummy", pair[0], pair[1]);
+  service = cockpit_web_service_new (NULL, session);
+  g_assert (service == NULL);
+  g_object_unref (session);
+}
+
+static void
 test_socket_unauthenticated (TestCase *test,
                              gconstpointer data)
 {
-  WebSocketConnection *ws;
-  CockpitWebService *service;
+  WebSocketConnection *client;
   GBytes *received = NULL;
 
-  /* No credentials came in */
-  cockpit_creds_unref (test->creds);
-  test->creds = NULL;
+  client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
+                         "url", "ws://127.0.0.1/unused",
+                         "origin", "http://127.0.0.1",
+                         "io-stream", test->io_a,
+                         NULL);
 
-  start_web_service_and_create_client (test, 0, &ws, &service);
-  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+  g_signal_connect (client, "error", G_CALLBACK (on_error_not_reached), NULL);
+
+  /* Matching the above origin */
+  cockpit_ws_default_host_header = "127.0.0.1";
+
+  cockpit_web_service_noauth (test->io_b, NULL, NULL);
+
+  g_signal_connect (client, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Should close right after opening */
-  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CLOSED);
+  while (web_socket_connection_get_ready_state (client) != WEB_SOCKET_STATE_CLOSED)
+    g_main_context_iteration (NULL, TRUE);
 
   /* And we should have received a message */
   g_assert (received != NULL);
@@ -696,7 +734,9 @@ test_socket_unauthenticated (TestCase *test,
   g_bytes_unref (received);
   received = NULL;
 
-  close_client_and_stop_web_service (test, ws, service);
+  g_object_unref (client);
+
+  while (g_main_context_iteration (NULL, FALSE));
 }
 
 static const gchar MOCK_RSA_KEY[] = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v";
@@ -943,6 +983,8 @@ main (int argc,
   g_test_add ("/web-service/unauthenticated", TestCase,
               NULL, setup_for_socket,
               test_socket_unauthenticated, teardown_for_socket);
+  g_test_add ("/web-service/null-creds", TestCase, NULL,
+              setup_for_socket, test_socket_null_creds, teardown_for_socket);
   g_test_add ("/web-service/unknown-hostkey", TestCase,
               NULL, setup_for_socket,
               test_unknown_host_key, teardown_for_socket);

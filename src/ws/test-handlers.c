@@ -133,7 +133,7 @@ test_login_no_cookie (Test *test,
 
   g_assert (ret == TRUE);
 
-  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Unauthorized\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Not Authorized\r\n*");
 }
 
 static void
@@ -158,8 +158,8 @@ test_login_with_cookie (Test *test,
 {
   GError *error = NULL;
   GAsyncResult *result = NULL;
+  CockpitWebService *service;
   const gchar *user;
-  CockpitCreds *creds;
   gboolean ret;
   gchar *userpass;
   gchar *expect;
@@ -173,12 +173,13 @@ test_login_with_cookie (Test *test,
   g_bytes_unref (input);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
-  creds = cockpit_auth_login_finish (test->auth, result, TRUE, test->headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, TRUE, test->headers, &error);
   g_object_unref (result);
 
   g_assert_no_error (error);
-  g_assert (creds != NULL);
-  cockpit_creds_unref (creds);
+  g_assert (service != NULL);
+  g_object_unref (service);
+
   include_cookie_as_if_client (test->headers, test->headers);
 
   input = g_bytes_new_static ("", 0);
@@ -256,6 +257,7 @@ static void
 test_login_post_accept (Test *test,
                         gconstpointer data)
 {
+  CockpitWebService *service;
   gboolean ret;
   gchar *userpass;
   const gchar *user;
@@ -283,13 +285,14 @@ test_login_post_accept (Test *test,
   headers = split_headers (output);
   include_cookie_as_if_client (headers, test->headers);
 
-  creds = cockpit_auth_check_cookie (test->auth, test->headers);
-  g_assert (creds != NULL);
+  service = cockpit_auth_check_cookie (test->auth, test->headers);
+  g_assert (service != NULL);
+  creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (cockpit_creds_get_user (creds), ==, user);
   g_assert_cmpstr (cockpit_creds_get_password (creds), ==, PASSWORD);
-  cockpit_creds_unref (creds);
 
   g_hash_table_destroy (headers);
+  g_object_unref (service);
 }
 
 static void

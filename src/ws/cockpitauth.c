@@ -50,10 +50,46 @@
 #include <security/pam_appl.h>
 #include <stdlib.h>
 
-static char *     creds_to_cookie    (CockpitAuth *self,
-                                      CockpitCreds *creds);
-
 G_DEFINE_TYPE (CockpitAuth, cockpit_auth, G_TYPE_OBJECT)
+
+typedef struct {
+  gchar *cookie;
+  CockpitAuth *auth;
+  CockpitCreds *creds;
+  CockpitWebService *service;
+  gint startup;
+} CockpitAuthenticated;
+
+static void
+on_web_service_gone (gpointer data,
+                     GObject *where_the_object_was)
+{
+  CockpitAuthenticated *authenticated = data;
+  CockpitAuth *self = authenticated->auth;
+  authenticated->service = NULL;
+  g_hash_table_remove (self->authenticated, authenticated->cookie);
+}
+
+static void
+cockpit_authenticated_free (gpointer data)
+{
+  CockpitAuthenticated *authenticated = data;
+  GObject *object;
+
+  g_free (authenticated->cookie);
+  cockpit_creds_poison (authenticated->creds);
+  cockpit_creds_unref (authenticated->creds);
+
+  if (authenticated->service)
+    {
+      object = G_OBJECT (authenticated->service);
+      g_object_weak_unref (object, on_web_service_gone, authenticated);
+      g_object_run_dispose (object);
+      g_object_unref (authenticated->service);
+    }
+
+  g_free (authenticated);
+}
 
 static void
 cockpit_auth_finalize (GObject *object)
@@ -62,7 +98,6 @@ cockpit_auth_finalize (GObject *object)
 
   g_byte_array_unref (self->key);
   g_hash_table_destroy (self->authenticated);
-  g_hash_table_destroy (self->ready_sessions);
 
   G_OBJECT_CLASS (cockpit_auth_parent_class)->finalize (object);
 }
@@ -80,10 +115,7 @@ cockpit_auth_init (CockpitAuth *self)
   close (fd);
 
   self->authenticated = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                               g_free, cockpit_creds_unref);
-
-  self->ready_sessions = g_hash_table_new_full (cockpit_creds_hash, cockpit_creds_equal,
-                                                cockpit_creds_unref, g_object_unref);
+                                               NULL, cockpit_authenticated_free);
 }
 
 struct passwd *
@@ -113,42 +145,6 @@ cockpit_getpwnam_a (const gchar *user,
   if (errp)
     *errp = err;
   return ret;
-}
-
-static void
-stash_session_process (CockpitAuth *self,
-                       CockpitCreds *creds,
-                       CockpitPipe *proc)
-{
-  /* Avoid calling destructors within the mutex */
-  if (g_hash_table_lookup (self->ready_sessions, creds))
-    {
-      g_debug ("already had stashed session process for user");
-    }
-  else
-    {
-      g_debug ("stashed session process for later");
-      g_hash_table_insert (self->ready_sessions,
-                           cockpit_creds_ref (creds), proc);
-    }
-}
-
-static CockpitPipe *
-pop_session_process (CockpitAuth *self,
-                     CockpitCreds *creds)
-{
-  CockpitPipe *proc = NULL;
-  CockpitCreds *orig = NULL;
-
-  if (g_hash_table_lookup_extended (self->ready_sessions, creds,
-                                    (gpointer *)&orig, (gpointer *)&proc))
-    {
-      if (!g_hash_table_steal (self->ready_sessions, orig))
-        g_assert_not_reached ();
-      cockpit_creds_unref (orig);
-    }
-
-  return proc;
 }
 
 static CockpitPipe *
@@ -450,6 +446,7 @@ parse_auth_results (LoginData *login,
 static CockpitCreds *
 cockpit_auth_session_login_finish (CockpitAuth *self,
                                    GAsyncResult *result,
+                                   CockpitPipe **session,
                                    GError **error)
 {
   CockpitCreds *creds;
@@ -467,8 +464,11 @@ cockpit_auth_session_login_finish (CockpitAuth *self,
   if (!creds)
     return NULL;
 
-  stash_session_process (self, creds, login->session_pipe);
-  login->session_pipe = NULL;
+  if (session)
+    {
+      *session = login->session_pipe;
+      login->session_pipe = NULL;
+    }
 
   return creds;
 }
@@ -485,59 +485,6 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
 }
 
 static char *
-creds_to_cookie (CockpitAuth *self,
-                 CockpitCreds *creds)
-{
-  guint64 seed;
-  gchar *cookie;
-  char *id;
-
-  seed = self->nonce_seed++;
-  id = g_compute_hmac_for_data (G_CHECKSUM_SHA256,
-                                self->key->data, self->key->len,
-                                (guchar *)&seed, sizeof (seed));
-
-  cookie = g_strdup_printf ("v=2;k=%s", id);
-  g_hash_table_insert (self->authenticated, id,
-                       cockpit_creds_ref (creds));
-
-  g_debug ("sending credential id '%s' for user '%s'", id,
-           cockpit_creds_get_user (creds));
-
-  return cookie;
-}
-
-static CockpitCreds *
-cookie_to_creds  (CockpitAuth *self,
-                  const char *cookie)
-{
-  CockpitCreds *creds = NULL;
-  const char *prefix = "v=2;k=";
-  const gsize n_prefix = 6;
-  const gchar *id;
-
-  if (!g_str_has_prefix (cookie, prefix))
-    {
-      g_debug ("invalid or unsupported cookie: %s", cookie);
-      return NULL;
-    }
-
-  id = cookie + n_prefix;
-
-  creds = g_hash_table_lookup (self->authenticated, id);
-  if (creds)
-    {
-      g_debug ("received credential id '%s' for user '%s'", id,
-               cockpit_creds_get_user (creds));
-      cockpit_creds_ref (creds);
-    }
-  else
-    g_debug ("received unknown/invalid credential id '%s'", id);
-
-  return creds;
-}
-
-static char *
 base64_decode_string (const char *enc)
 {
   if (enc == NULL)
@@ -550,24 +497,52 @@ base64_decode_string (const char *enc)
   return dec;
 }
 
-CockpitCreds *
-cockpit_auth_check_cookie (CockpitAuth *auth,
+static CockpitAuthenticated *
+authenticated_for_headers (CockpitAuth *self,
                            GHashTable *in_headers)
 {
   gs_unref_hashtable GHashTable *cookies = NULL;
-  gs_free gchar *auth_cookie = NULL;
+  gs_free gchar *cookie = NULL;
+  const char *prefix = "v=2;k=";
 
-  g_return_val_if_fail (auth != NULL, FALSE);
+  g_return_val_if_fail (self != NULL, FALSE);
   g_return_val_if_fail (in_headers != NULL, FALSE);
 
   if (!cockpit_web_server_parse_cookies (in_headers, &cookies, NULL))
     return NULL;
 
-  auth_cookie = base64_decode_string (g_hash_table_lookup (cookies, "CockpitAuth"));
-  if (auth_cookie == NULL)
+  cookie = base64_decode_string (g_hash_table_lookup (cookies, "CockpitAuth"));
+  if (cookie == NULL)
     return NULL;
 
-  return cookie_to_creds (auth, auth_cookie);
+  if (!g_str_has_prefix (cookie, prefix))
+    {
+      g_debug ("invalid or unsupported cookie: %s", cookie);
+      return NULL;
+    }
+
+  return g_hash_table_lookup (self->authenticated, cookie);
+}
+
+CockpitWebService *
+cockpit_auth_check_cookie (CockpitAuth *self,
+                           GHashTable *in_headers)
+{
+  CockpitAuthenticated *authenticated;
+
+  authenticated = authenticated_for_headers (self, in_headers);
+
+  if (authenticated)
+    {
+      g_debug ("received credential cookie for user '%s'",
+               cockpit_creds_get_user (authenticated->creds));
+      return g_object_ref (authenticated->service);
+    }
+  else
+    {
+      g_debug ("received unknown/invalid credential cookie");
+      return NULL;
+    }
 }
 
 void
@@ -583,7 +558,23 @@ cockpit_auth_login_async (CockpitAuth *self,
   klass->login_async (self, headers, input, remote_peer, callback, user_data);
 }
 
-CockpitCreds *
+static gboolean
+on_authenticated_startup (gpointer data)
+{
+  CockpitAuthenticated *authenticated = data;
+
+  /*
+   * Now that startup has completed, someone else must
+   * own the reference to the web service.
+   */
+
+  g_object_unref (authenticated->service);
+
+  authenticated->startup = 0;
+  return FALSE;
+}
+
+CockpitWebService *
 cockpit_auth_login_finish (CockpitAuth *self,
                            GAsyncResult *result,
                            gboolean force_secure,
@@ -591,25 +582,82 @@ cockpit_auth_login_finish (CockpitAuth *self,
                            GError **error)
 {
   CockpitAuthClass *klass = COCKPIT_AUTH_GET_CLASS (self);
+  CockpitAuthenticated *authenticated;
+  CockpitPipe *session = NULL;
   CockpitCreds *creds;
-  gs_free char *cookie = NULL;
-  gs_free gchar *cookie_b64 = NULL;
+  gchar *cookie_b64 = NULL;
   gchar *header;
+  guint64 seed;
+  gchar *id;
 
   g_return_val_if_fail (klass->login_finish != NULL, FALSE);
-  creds = klass->login_finish (self, result, error);
+  creds = klass->login_finish (self, result, &session, error);
 
-  if (creds && out_headers)
+  if (creds == NULL)
+    return NULL;
+
+  seed = self->nonce_seed++;
+  id = g_compute_hmac_for_data (G_CHECKSUM_SHA256,
+                                self->key->data, self->key->len,
+                                (guchar *)&seed, sizeof (seed));
+
+  authenticated = g_new0 (CockpitAuthenticated, 1);
+  authenticated->cookie = g_strdup_printf ("v=2;k=%s", id);
+  authenticated->creds = creds;
+  authenticated->service = cockpit_web_service_new (creds, session);
+  authenticated->auth = self;
+
+  if (session)
+    g_object_unref (session);
+
+  g_object_weak_ref (G_OBJECT (authenticated->service),
+                     on_web_service_gone, authenticated);
+
+  /*
+   * The minimum amount of time before a request uses this new web service,
+   * otherwise it will just go away.
+   */
+  authenticated->startup = g_timeout_add_seconds (30, on_authenticated_startup,
+                                                  authenticated);
+
+  g_hash_table_insert (self->authenticated, authenticated->cookie, authenticated);
+
+  g_debug ("sending credential id '%s' for user '%s'", id,
+           cockpit_creds_get_user (creds));
+
+  g_free (id);
+
+  if (out_headers)
     {
-      cookie = creds_to_cookie (self, creds);
-      cookie_b64 = g_base64_encode ((guint8 *)cookie, strlen (cookie));
+      cookie_b64 = g_base64_encode ((guint8 *)authenticated->cookie, strlen (authenticated->cookie));
       header = g_strdup_printf ("CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
                                 cookie_b64, force_secure ? " Secure;" : "");
-
+      g_free (cookie_b64);
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);
     }
 
-  return creds;
+  return g_object_ref (authenticated->service);
+}
+
+void
+cockpit_auth_logout (CockpitAuth *self,
+                     GHashTable *headers,
+                     gboolean secure_req,
+                     GHashTable *out_headers)
+{
+  CockpitAuthenticated *authenticated;
+  gchar *cookie;
+
+  authenticated = authenticated_for_headers (self, headers);
+  if (authenticated)
+    g_hash_table_remove (self->authenticated, authenticated->cookie);
+
+  if (out_headers)
+    {
+      cookie = g_strdup_printf ("CockpitAuth=blank; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
+                                secure_req ? " Secure;" : "");
+      g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), cookie);
+    }
 }
 
 CockpitAuth *
@@ -620,12 +668,9 @@ cockpit_auth_new (void)
 
 /**
  * cockpit_auth_start_session:
- * @self: a CockpitAuth
  * @creds: credentials for the session
  *
- * Start a local session process for the given credentials. It may be
- * that one is hanging around from prior authentication, in which case
- * that one is used.
+ * Start a local session process for the given credentials.
  *
  * If launching the session fails, then the pipe will be created in a
  * failed state, and will close shortly. A CockpitPipe is always returned.
@@ -633,41 +678,33 @@ cockpit_auth_new (void)
  * Returns: (transfer full): the new pipe
  */
 CockpitPipe *
-cockpit_auth_start_session (CockpitAuth *self,
-                            CockpitCreds *creds)
+cockpit_auth_start_session (CockpitCreds *creds)
 {
   CockpitPipe *pipe;
   CockpitPipe *auth_pipe = NULL;
   const gchar *password;
-  GBytes *bytes;
+  GBytes *bytes = NULL;
 
   g_return_val_if_fail (creds != NULL, NULL);
 
-  pipe = pop_session_process (self, creds);
-  if (pipe == NULL)
+  password = cockpit_creds_get_password (creds);
+  if (password != NULL)
     {
-      password = cockpit_creds_get_password (creds);
-      if (password == NULL)
-        {
-          bytes = NULL;
-        }
-      else
-        {
-          bytes = g_bytes_new_with_free_func (password, strlen (password),
-                                              cockpit_creds_unref, creds);
-        }
+      bytes = g_bytes_new_with_free_func (password, strlen (password),
+                                          cockpit_creds_unref,
+                                          cockpit_creds_ref (creds));
+    }
 
-      pipe = spawn_session_process (cockpit_creds_get_user (creds),
-                                    bytes, cockpit_creds_get_rhost (creds),
-                                    &auth_pipe);
-      if (auth_pipe)
-        {
-          /*
-           * Any failure will come from the pipe exit code, but the session
-           * needs our password (if we have one) so let it get sent.
-           */
-          g_signal_connect (auth_pipe, "close", G_CALLBACK (g_object_unref), NULL);
-        }
+  pipe = spawn_session_process (cockpit_creds_get_user (creds),
+                                bytes, cockpit_creds_get_rhost (creds),
+                                &auth_pipe);
+  if (auth_pipe)
+    {
+      /*
+       * Any failure will come from the pipe exit code, but the session
+       * needs our password (if we have one) so let it get sent.
+       */
+      g_signal_connect (auth_pipe, "close", G_CALLBACK (g_object_unref), NULL);
     }
 
   if (!pipe)

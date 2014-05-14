@@ -24,6 +24,7 @@
 #include <gio/gio.h>
 
 #include "cockpitcreds.h"
+#include "cockpitwebservice.h"
 
 #include "cockpit/cockpitpipe.h"
 
@@ -43,7 +44,6 @@ struct _CockpitAuth
 
   GByteArray *key;
   GHashTable *authenticated;
-  GHashTable *ready_sessions;
   guint64 nonce_seed;
 };
 
@@ -61,6 +61,7 @@ struct _CockpitAuthClass
 
   CockpitCreds * (* login_finish)        (CockpitAuth *auth,
                                           GAsyncResult *result,
+                                          CockpitPipe **session,
                                           GError **error);
 };
 
@@ -75,17 +76,21 @@ void            cockpit_auth_login_async     (CockpitAuth *self,
                                               GAsyncReadyCallback callback,
                                               gpointer user_data);
 
-CockpitCreds *  cockpit_auth_login_finish    (CockpitAuth *self,
-                                              GAsyncResult *result,
-                                              gboolean secure_req,
-                                              GHashTable *out_headers,
-                                              GError **error);
+CockpitWebService *  cockpit_auth_login_finish    (CockpitAuth *self,
+                                                   GAsyncResult *result,
+                                                   gboolean secure_req,
+                                                   GHashTable *out_headers,
+                                                   GError **error);
 
-CockpitCreds *  cockpit_auth_check_cookie    (CockpitAuth *auth,
-                                              GHashTable *in_headers);
+CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
+                                                   GHashTable *in_headers);
 
-CockpitPipe *   cockpit_auth_start_session   (CockpitAuth *auth,
-                                              CockpitCreds *creds);
+void                 cockpit_auth_logout          (CockpitAuth *self,
+                                                   GHashTable *headers,
+                                                   gboolean secure_req,
+                                                   GHashTable *out_headers);
+
+CockpitPipe *   cockpit_auth_start_session   (CockpitCreds *creds);
 
 gboolean        cockpit_auth_parse_input     (GBytes *input,
                                               gchar **user,

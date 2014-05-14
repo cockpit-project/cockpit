@@ -31,6 +31,7 @@
 #include "cockpit/cockpitjson.h"
 #include "cockpit/cockpitpipetransport.h"
 
+#include "cockpitauth.h"
 #include "cockpitsshtransport.h"
 
 #include <gsystem-local-alloc.h>
@@ -387,9 +388,7 @@ cockpit_sockets_cleanup (CockpitSockets *sockets)
 struct _CockpitWebService {
   GObject parent;
 
-  CockpitAuth              *auth;
-  CockpitCreds             *authenticated;
-
+  CockpitCreds *creds;
   CockpitSockets sockets;
   CockpitSessions sessions;
   gboolean closing;
@@ -443,9 +442,7 @@ cockpit_web_service_finalize (GObject *object)
   cockpit_sessions_cleanup (&self->sessions);
   cockpit_sockets_cleanup (&self->sockets);
   g_bytes_unref (self->control_prefix);
-  g_object_unref (self->auth);
-  if (self->authenticated)
-    cockpit_creds_unref (self->authenticated);
+  cockpit_creds_unref (self->creds);
   if (self->ping_timeout)
     g_source_remove (self->ping_timeout);
 
@@ -812,7 +809,7 @@ process_open (CockpitWebService *self,
         password = NULL;
       creds = cockpit_creds_new (specific_user,
                                  COCKPIT_CRED_PASSWORD, password,
-                                 COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->authenticated),
+                                 COCKPIT_CRED_RHOST, cockpit_creds_get_rhost (self->creds),
                                  NULL);
 
       /* A private session for this host */
@@ -820,7 +817,7 @@ process_open (CockpitWebService *self,
     }
   else
     {
-      creds = cockpit_creds_ref (self->authenticated);
+      creds = cockpit_creds_ref (self->creds);
     }
 
   if (!cockpit_json_get_string (options, "host-key", NULL, &host_key))
@@ -842,7 +839,7 @@ process_open (CockpitWebService *self,
       if (g_strcmp0 (host, "localhost") == 0)
         {
           /* Any failures happen asyncronously */
-          pipe = cockpit_auth_start_session (self->auth, self->authenticated);
+          pipe = cockpit_auth_start_session (self->creds);
           transport = cockpit_pipe_transport_new (pipe);
           g_object_unref (pipe);
         }
@@ -1015,40 +1012,17 @@ static void
 on_web_socket_open (WebSocketConnection *connection,
                     CockpitWebService *self)
 {
-  GBytes *payload;
-
-  /* We send auth errors as regular messages after establishing the
-     connection because the WebSocket API doesn't let us see the HTTP
-     status code.  We can't just use 'close' control frames to return a
-     meaningful status code, but the old protocol doesn't have them.
-  */
-  if (!self->authenticated)
-    {
-      g_info ("Closing unauthenticated connection");
-
-      payload = build_control ("command", "close", "reason", "no-session", NULL);
-      web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT,
-                                  self->control_prefix, payload);
-      g_bytes_unref (payload);
-
-      web_socket_connection_close (connection,
-                                   WEB_SOCKET_CLOSE_GOING_AWAY,
-                                   "not-authenticated");
-    }
-  else
-    {
-      g_info ("New connection from %s for %s",
-              cockpit_creds_get_rhost (self->authenticated),
-              cockpit_creds_get_user (self->authenticated));
-      g_signal_connect (connection, "message",
-                        G_CALLBACK (on_web_socket_message), self);
-    }
+  g_info ("New connection from %s for %s",
+          cockpit_creds_get_rhost (self->creds),
+          cockpit_creds_get_user (self->creds));
+  g_signal_connect (connection, "message",
+                    G_CALLBACK (on_web_socket_message), self);
 }
 
 static void
 on_web_socket_error (WebSocketConnection *connection,
                      GError *error,
-                     CockpitWebService *self)
+                     gpointer unused)
 {
   g_message ("%s", error->message);
 }
@@ -1097,12 +1071,9 @@ on_web_socket_close (WebSocketConnection *connection,
 {
   CockpitSocket *socket;
 
-  if (self->authenticated)
-    {
-      g_info ("WebSocket from %s for %s closed",
-              cockpit_creds_get_rhost (self->authenticated),
-              cockpit_creds_get_user (self->authenticated));
-    }
+  g_info ("WebSocket from %s for %s closed",
+          cockpit_creds_get_rhost (self->creds),
+          cockpit_creds_get_user (self->creds));
 
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_open, self);
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_closing, self);
@@ -1161,48 +1132,44 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
 
 /**
  * cockpit_web_service_new:
- * @auth: authentication object
- * @creds: credentials of user or NULL for failed auth
+ * @creds: credentials of user
+ * @session: optional already open cockpit-session process, or NULL
  *
  * Creates a new web service to serve web sockets and connect
  * to agents for the given user.
  *
- * If creds are NULL, then this will immediately reply on new
- * WebSockets with an authentication failed error.
- *
  * Returns: (transfer full): the new web service
  */
 CockpitWebService *
-cockpit_web_service_new (CockpitAuth *auth,
-                         CockpitCreds *creds)
+cockpit_web_service_new (CockpitCreds *creds,
+                         CockpitPipe *pipe)
 {
   CockpitWebService *self;
+  CockpitTransport *transport;
+
+  g_return_val_if_fail (creds != NULL, NULL);
 
   self = g_object_new (COCKPIT_TYPE_WEB_SERVICE, NULL);
+  self->creds = cockpit_creds_ref (creds);
 
-  self->auth = g_object_ref (auth);
-  if (creds)
-    self->authenticated = cockpit_creds_ref (creds);
+  if (pipe)
+    {
+      /* Any failures happen asyncronously */
+      transport = cockpit_pipe_transport_new (pipe);
+      g_signal_connect (transport, "control", G_CALLBACK (on_session_control), self);
+      g_signal_connect (transport, "recv", G_CALLBACK (on_session_recv), self);
+      g_signal_connect (transport, "closed", G_CALLBACK (on_session_closed), self);
+      cockpit_session_track (&self->sessions, "localhost", FALSE, creds, transport);
+      g_object_unref (transport);
+    }
 
   return self;
 }
 
-/**
- * cockpit_web_service_socket:
- * @io_stream: the stream to talk on
- * @headers: optional headers already parsed
- * @input_buffer: optional bytes already parsed after headers
- * @auth: authentication object
- * @creds: credentials of user or NULL for failed auth
- *
- * Serves the WebSocket on the given web service. Holds an extra
- * reference to the web service until the socket is closed.
- */
-void
-cockpit_web_service_socket (CockpitWebService *self,
-                            GIOStream *io_stream,
-                            GHashTable *headers,
-                            GByteArray *input_buffer)
+static WebSocketConnection *
+create_web_socket_server_for_stream (GIOStream *io_stream,
+                                     GHashTable *headers,
+                                     GByteArray *input_buffer)
 {
   const gchar *protocols[] = { "cockpit1", NULL };
   WebSocketConnection *connection;
@@ -1225,18 +1192,101 @@ cockpit_web_service_socket (CockpitWebService *self,
   connection = web_socket_server_new_for_stream (url, origin, protocols,
                                                  io_stream, headers,
                                                  input_buffer);
-
   g_free (origin);
   g_free (url);
+
+  return connection;
+}
+
+/**
+ * cockpit_web_service_socket:
+ * @io_stream: the stream to talk on
+ * @headers: optional headers already parsed
+ * @input_buffer: optional bytes already parsed after headers
+ * @auth: authentication object
+ * @creds: credentials of user or NULL for failed auth
+ *
+ * Serves the WebSocket on the given web service. Holds an extra
+ * reference to the web service until the socket is closed.
+ */
+void
+cockpit_web_service_socket (CockpitWebService *self,
+                            GIOStream *io_stream,
+                            GHashTable *headers,
+                            GByteArray *input_buffer)
+{
+  WebSocketConnection *connection;
+
+  connection = create_web_socket_server_for_stream (io_stream, headers, input_buffer);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_open), self);
   g_signal_connect (connection, "closing", G_CALLBACK (on_web_socket_closing), self);
   g_signal_connect (connection, "close", G_CALLBACK (on_web_socket_close), self);
-  g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), self);
+  g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
 
   cockpit_socket_track (&self->sockets, connection);
   g_object_unref (connection);
 
   /* Matching unref in on_web_socket_close() */
   g_object_ref (self);
+}
+
+/**
+ * cockpit_web_service_get_creds:
+ * @self: the service
+ *
+ * Returns: (transfer none): the credentials for which this service was opened.
+ */
+CockpitCreds *
+cockpit_web_service_get_creds (CockpitWebService *self)
+{
+  return self->creds;
+}
+
+/**
+ * cockpit_web_service_disconnect:
+ * @self: the service
+ *
+ * Close all sessions and sockets that are running in this web
+ * service.
+ */
+void
+cockpit_web_service_disconnect (CockpitWebService *self)
+{
+  g_object_run_dispose (G_OBJECT (self));
+}
+
+static void
+on_web_socket_noauth (WebSocketConnection *connection,
+                      gpointer unused)
+{
+  GBytes *payload;
+  GBytes *prefix;
+
+  g_debug ("closing unauthenticated web socket");
+
+  payload = build_control ("command", "close", "reason", "no-session", NULL);
+  prefix = g_bytes_new_static ("\n", 1);
+
+  web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, prefix, payload);
+  web_socket_connection_close (connection, WEB_SOCKET_CLOSE_GOING_AWAY, "no-session");
+
+  g_bytes_unref (prefix);
+  g_bytes_unref (payload);
+}
+
+void
+cockpit_web_service_noauth (GIOStream *io_stream,
+                            GHashTable *headers,
+                            GByteArray *input_buffer)
+{
+  WebSocketConnection *connection;
+
+  connection = create_web_socket_server_for_stream (io_stream, headers, input_buffer);
+
+  g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_noauth), NULL);
+  g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
+
+  /* Unreferences connection when it closes */
+  g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
 }

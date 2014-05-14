@@ -53,26 +53,20 @@ cockpit_handler_socket (CockpitWebServer *server,
                         CockpitHandlerData *ws)
 {
   CockpitWebService *service;
-  CockpitCreds *creds;
 
   if (!g_str_equal (path, "/socket"))
     return FALSE;
 
-  /*
-   * Check the connection, the web socket will respond with a "not-authorized"
-   * if user failed to authenticate, ie: creds == NULL
-   */
-  creds = cockpit_auth_check_cookie (ws->auth, headers);
-
-  service = cockpit_web_service_new (ws->auth, creds);
-
-  cockpit_web_service_socket (service, io_stream, headers, input);
-
-  /* Keeps a ref on itself until web socket closes */
-  g_object_unref (service);
-
-  if (creds)
-    cockpit_creds_unref (creds);
+  service = cockpit_auth_check_cookie (ws->auth, headers);
+  if (service)
+    {
+      cockpit_web_service_socket (service, io_stream, headers, input);
+      g_object_unref (service);
+    }
+  else
+    {
+      cockpit_web_service_noauth (io_stream, headers, input);
+    }
 
   return TRUE;
 }
@@ -112,15 +106,18 @@ get_remote_address (GIOStream *io)
 
 static void
 send_login_response (CockpitWebResponse *response,
-                     GHashTable *out_headers,
-                     CockpitCreds *creds)
+                     CockpitWebService *service,
+                     GHashTable *out_headers)
 {
   JsonBuilder *builder = json_builder_new ();
+  CockpitCreds *creds;
   gchar *response_body;
   GBytes *content;
   const gchar *user;
   gsize length;
   JsonNode *root;
+
+  creds = cockpit_web_service_get_creds (service);
 
   json_builder_begin_object (builder);
   json_builder_set_member_name (builder, "user");
@@ -151,15 +148,15 @@ on_login_complete (GObject *object,
   CockpitWebResponse *response = COCKPIT_WEB_RESPONSE (user_data);
   GError *error = NULL;
   GHashTable *out_headers = NULL;
-  CockpitCreds *creds = NULL;
+  CockpitWebService *service;
   GIOStream *io_stream;
 
   out_headers = cockpit_web_server_new_table ();
 
   io_stream = cockpit_web_response_get_stream (response);
-  creds = cockpit_auth_login_finish (COCKPIT_AUTH (object), result,
-                                     !G_IS_SOCKET_CONNECTION (io_stream),
-                                     out_headers, &error);
+  service = cockpit_auth_login_finish (COCKPIT_AUTH (object), result,
+                                       !G_IS_SOCKET_CONNECTION (io_stream),
+                                       out_headers, &error);
 
   if (error)
     {
@@ -168,8 +165,8 @@ on_login_complete (GObject *object,
     }
   else
     {
-      send_login_response (response, out_headers, creds);
-      cockpit_creds_unref (creds);
+      send_login_response (response, service, out_headers);
+      g_object_unref (service);
     }
 
   g_hash_table_unref (out_headers);
@@ -186,21 +183,21 @@ cockpit_handler_login (CockpitWebServer *server,
                        CockpitWebResponse *response,
                        CockpitHandlerData *ws)
 {
-  CockpitCreds *creds = NULL;
+  CockpitWebService *service;
   gchar *remote_peer = NULL;
   GIOStream *io_stream;
 
   if (reqtype == COCKPIT_WEB_SERVER_REQUEST_GET)
     {
-      creds = cockpit_auth_check_cookie (ws->auth, headers);
-      if (creds == NULL)
+      service = cockpit_auth_check_cookie (ws->auth, headers);
+      if (service == NULL)
         {
-          cockpit_web_response_error (response, 401, NULL, "Unauthorized");
+          cockpit_web_response_error (response, 401, NULL, NULL);
         }
       else
         {
-          send_login_response (response, NULL, creds);
-          cockpit_creds_unref (creds);
+          send_login_response (response, service, NULL);
+          g_object_unref (service);
         }
     }
   else if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
@@ -230,18 +227,18 @@ cockpit_handler_logout (CockpitWebServer *server,
   GIOStream *io_stream;
   GHashTable *out_headers;
   const gchar *body;
-  gchar *cookie;
+  gboolean secure;
   GBytes *content;
+
+  io_stream = cockpit_web_response_get_stream (response);
+  secure = !G_IS_SOCKET_CONNECTION (io_stream);
+
+  out_headers = cockpit_web_server_new_table ();
+  cockpit_auth_logout (ws->auth, headers, secure, out_headers);
 
   body ="<html><head><title>Logged out</title></head>"
     "<body>Logged out</body></html>";
 
-  io_stream = cockpit_web_response_get_stream (response);
-  cookie = g_strdup_printf ("CockpitAuth=blank; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
-                            !G_IS_SOCKET_CONNECTION (io_stream) ? " Secure;" : "");
-
-  out_headers = cockpit_web_server_new_table ();
-  g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), cookie);
   content = g_bytes_new_static (body, strlen (body));
   cockpit_web_response_content (response, out_headers, content, NULL);
   g_bytes_unref (content);
@@ -259,20 +256,22 @@ cockpit_handler_deauthorize (CockpitWebServer *server,
                              CockpitWebResponse *response,
                              CockpitHandlerData *ws)
 {
+  CockpitWebService *service;
   CockpitCreds *creds;
   const gchar *body;
   GBytes *bytes;
 
-  creds = cockpit_auth_check_cookie (ws->auth, headers);
-  if (!creds)
+  service = cockpit_auth_check_cookie (ws->auth, headers);
+  if (!service)
     {
       cockpit_web_response_error (response, 401, NULL, "Unauthorized");
       return TRUE;
     }
 
   /* Poison the creds, so they no longer work for new reauthorization */
+  creds = cockpit_web_service_get_creds (service);
   cockpit_creds_poison (creds);
-  cockpit_creds_unref (creds);
+  g_object_unref (service);
 
   body ="<html><head><title>Deauthorized</title></head>"
     "<body>Deauthorized</body></html>";

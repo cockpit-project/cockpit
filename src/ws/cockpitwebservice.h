@@ -22,7 +22,9 @@
 
 #include "cockpitwstypes.h"
 
-#include "cockpitauth.h"
+#include "cockpitcreds.h"
+
+#include "cockpit/cockpitpipe.h"
 
 G_BEGIN_DECLS
 
@@ -33,13 +35,21 @@ typedef struct _CockpitWebService   CockpitWebService;
 
 GType                cockpit_web_service_get_type    (void);
 
-CockpitWebService *  cockpit_web_service_new         (CockpitAuth *auth,
-                                                      CockpitCreds *creds);
+CockpitWebService *  cockpit_web_service_new         (CockpitCreds *creds,
+                                                      CockpitPipe *local_session);
+
+void                 cockpit_web_service_disconnect  (CockpitWebService *self);
 
 void                 cockpit_web_service_socket      (CockpitWebService *self,
                                                       GIOStream *io_stream,
                                                       GHashTable *headers,
                                                       GByteArray *input_buffer);
+
+void                 cockpit_web_service_noauth      (GIOStream *io_stream,
+                                                      GHashTable *headers,
+                                                      GByteArray *input_buffer);
+
+CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
 
 G_END_DECLS
 

@@ -94,6 +94,7 @@ mock_auth_login_async (CockpitAuth *auth,
 static CockpitCreds *
 mock_auth_login_finish (CockpitAuth *auth,
                         GAsyncResult *async,
+                        CockpitPipe **session,
                         GError **error)
 {
   MockAuth *self = MOCK_AUTH (auth);
@@ -101,6 +102,9 @@ mock_auth_login_finish (CockpitAuth *auth,
 
   if (g_simple_async_result_propagate_error (result, error))
       return NULL;
+
+  if (session)
+    *session = NULL;
 
   return cockpit_creds_new (self->expect_user,
                             COCKPIT_CRED_PASSWORD, self->expect_password,

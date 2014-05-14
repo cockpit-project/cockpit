@@ -63,7 +63,10 @@ test_userpass_cookie_check (Test *test,
                             gconstpointer data)
 {
   GAsyncResult *result = NULL;
+  CockpitWebService *service;
+  CockpitWebService *prev_service;
   CockpitCreds *creds;
+  CockpitCreds *prev_creds;
   GError *error = NULL;
   GHashTable *headers;
   GBytes *input;
@@ -78,14 +81,21 @@ test_userpass_cookie_check (Test *test,
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  creds = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
   g_object_unref (result);
   g_assert_no_error (error);
-  g_assert (creds != NULL);
+  g_assert (service != NULL);
 
+  creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("this is the password", ==, cockpit_creds_get_password (creds));
-  cockpit_creds_unref (creds);
+
+  prev_service = service;
+  g_object_unref (service);
+  service = NULL;
+
+  prev_creds = creds;
+  creds = NULL;
 
   cookie = g_strdup (g_hash_table_lookup (headers, "Set-Cookie"));
   g_assert (cookie != NULL);
@@ -96,14 +106,17 @@ test_userpass_cookie_check (Test *test,
 
   g_hash_table_insert (headers, g_strdup ("Cookie"), cookie);
 
-  creds = cockpit_auth_check_cookie (test->auth, headers);
-  g_assert (creds != NULL);
+  service = cockpit_auth_check_cookie (test->auth, headers);
+  g_assert (prev_service == service);
+
+  creds = cockpit_web_service_get_creds (service);
+  g_assert (prev_creds == creds);
 
   g_assert_cmpstr ("me", ==, cockpit_creds_get_user (creds));
   g_assert_cmpstr ("this is the password", ==, cockpit_creds_get_password (creds));
-  cockpit_creds_unref (creds);
 
   g_hash_table_destroy (headers);
+  g_object_unref (service);
 }
 
 static void
@@ -111,9 +124,9 @@ test_userpass_bad (Test *test,
                    gconstpointer data)
 {
   GAsyncResult *result = NULL;
+  CockpitWebService *service;
   GError *error = NULL;
   GHashTable *headers;
-  CockpitCreds *creds;
   GBytes *input;
 
   input = g_bytes_new_static ("me\nbad", 6);
@@ -124,10 +137,10 @@ test_userpass_bad (Test *test,
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  creds = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
   g_object_unref (result);
 
-  g_assert (creds == NULL);
+  g_assert (service == NULL);
   g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
   g_clear_error (&error);
 
@@ -139,9 +152,9 @@ test_userpass_invalid (Test *test,
                        gconstpointer data)
 {
   GAsyncResult *result = NULL;
+  CockpitWebService *service;
   GError *error = NULL;
   GHashTable *headers;
-  CockpitCreds *creds;
   GBytes *input;
 
   input = g_bytes_new_static ("me=bad", 6);
@@ -152,10 +165,10 @@ test_userpass_invalid (Test *test,
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  creds = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
   g_object_unref (result);
 
-  g_assert (creds == NULL);
+  g_assert (service == NULL);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
   g_clear_error (&error);
 
@@ -167,9 +180,9 @@ test_userpass_emptypass (Test *test,
                          gconstpointer data)
 {
   GAsyncResult *result = NULL;
+  CockpitWebService *service;
   GError *error = NULL;
   GHashTable *headers;
-  CockpitCreds *creds;
   GBytes *input;
 
   input = g_bytes_new_static ("aaaaaa\n", 7);
@@ -180,10 +193,10 @@ test_userpass_emptypass (Test *test,
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  creds = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
   g_object_unref (result);
 
-  g_assert (creds == NULL);
+  g_assert (service == NULL);
   g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
   g_clear_error (&error);
 

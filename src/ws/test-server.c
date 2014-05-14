@@ -65,7 +65,6 @@ on_handle_stream_socket (CockpitWebServer *server,
                          gpointer user_data)
 {
   CockpitWebService *service;
-  CockpitAuth *auth = user_data;
   CockpitCreds *creds;
 
   if (!g_str_equal (resource, "/socket"))
@@ -73,7 +72,7 @@ on_handle_stream_socket (CockpitWebServer *server,
 
   creds = cockpit_creds_new (g_get_user_name (), NULL);
 
-  service = cockpit_web_service_new (auth, creds);
+  service = cockpit_web_service_new (creds, NULL);
 
   cockpit_web_service_socket (service, io_stream, headers, input);
 
@@ -108,7 +107,6 @@ server_ready (void)
   const gchar *roots[] = { ".", NULL };
   GError *error = NULL;
   CockpitWebServer *server;
-  CockpitAuth *auth;
   gchar *args[5];
   gint port;
   gchar *url;
@@ -130,12 +128,9 @@ server_ready (void)
                   error->message, g_quark_to_string (error->domain), error->code);
     }
 
-  auth = cockpit_auth_new ();
-
-  g_signal_connect_data (server,
-                         "handle-stream",
-                         G_CALLBACK (on_handle_stream_socket),
-                         auth, (GClosureNotify)g_object_unref, 0);
+  g_signal_connect (server,
+                    "handle-stream",
+                    G_CALLBACK (on_handle_stream_socket), NULL);
 
   g_object_get (server, "port", &port, NULL);
   url = g_strdup_printf("http://localhost:%d/dbus-test.html", port);

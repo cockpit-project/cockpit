@@ -43,6 +43,7 @@ EXTRA_DIST += \
 	src/ws/mock_dsa_key \
 	src/ws/mock_cert \
 	src/ws/mock_known_hosts \
+	src/ws/mock-pid-cat \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------
@@ -194,6 +195,9 @@ noinst_PROGRAMS += \
 	mock-sshd \
 	mock-echo \
 	$(NULL)
+
+noinst_SCRIPTS += \
+	src/ws/mock-pid-cat
 
 TESTS += $(WS_CHECKS)
 

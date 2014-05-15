@@ -28,6 +28,8 @@
 
 #include <security/pam_appl.h>
 #include <sys/signal.h>
+#include <sys/resource.h>
+#include <dirent.h>
 #include <utmp.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -267,10 +269,97 @@ utmp_log (int login)
 }
 
 static int
+closefd (void *data,
+         int fd)
+{
+  int *from = data;
+  if (fd >= *from)
+    {
+      while (close (fd) < 0)
+        {
+          if (errno == EAGAIN || errno == EINTR)
+            continue;
+          if (errno == EBADF || errno == EINVAL)
+            break;
+          warnx ("couldn't close fd in agent process: %m");
+          return -1;
+        }
+    }
+
+  return 0;
+}
+
+#ifndef HAVE_FDWALK
+
+static int
+fdwalk (int (*cb)(void *data, int fd),
+        void *data)
+{
+  int open_max;
+  int fd;
+  int res = 0;
+
+  struct rlimit rl;
+
+#ifdef __linux__
+  DIR *d;
+
+  if ((d = opendir ("/proc/self/fd"))) {
+      struct dirent *de;
+
+      while ((de = readdir (d))) {
+          long l;
+          char *e = NULL;
+
+          if (de->d_name[0] == '.')
+              continue;
+
+          errno = 0;
+          l = strtol (de->d_name, &e, 10);
+          if (errno != 0 || !e || *e)
+              continue;
+
+          fd = (int) l;
+
+          if ((long) fd != l)
+              continue;
+
+          if (fd == dirfd (d))
+              continue;
+
+          if ((res = cb (data, fd)) != 0)
+              break;
+        }
+
+      closedir (d);
+      return res;
+  }
+
+  /* If /proc is not mounted or not accessible we fall back to the old
+   * rlimit trick */
+
+#endif
+
+  if (getrlimit (RLIMIT_NOFILE, &rl) == 0 && rl.rlim_max != RLIM_INFINITY)
+      open_max = rl.rlim_max;
+  else
+      open_max = sysconf (_SC_OPEN_MAX);
+
+  for (fd = 0; fd < open_max; fd++)
+      if ((res = cb (data, fd)) != 0)
+          break;
+
+  return res;
+}
+
+#endif /* HAVE_FDWALK */
+
+static int
 fork_session (struct passwd *pw,
               int (*func) (void))
 {
   int status;
+  int from;
 
   fflush (stderr);
 
@@ -303,6 +392,14 @@ fork_session (struct passwd *pw,
         }
 
       debug ("dropped privileges");
+
+      from = 3;
+      if (fdwalk (closefd, &from) < 0)
+        {
+          warnx ("couldn't close all file descirptors");
+          _exit (42);
+        }
+
       _exit (func ());
     }
 

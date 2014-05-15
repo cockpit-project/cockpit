@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpitdbusjson.h"
+#include "cockpitdbusjson1.h"
 
 #include "cockpitchannel.h"
 #include "cockpitfakemanager.h"
@@ -41,13 +41,15 @@
 #include <string.h>
 
 /**
- * CockpitDBusJson:
+ * CockpitDBusJson1:
  *
- * A #CockpitChannel that sends DBus messages with the dbus-json2 payload
+ * TODO: Outdated old dbus-json1 protocol.
+ *
+ * A #CockpitChannel that sends DBus messages with the dbus-json1 payload
  * type.
  */
 
-#define COCKPIT_DBUS_JSON(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DBUS_JSON, CockpitDBusJson))
+#define COCKPIT_DBUS_JSON1(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DBUS_JSON1, CockpitDBusJson1))
 
 typedef struct {
   CockpitChannel parent;
@@ -55,504 +57,95 @@ typedef struct {
   GCancellable             *cancellable;
   GList                    *active_calls;
   GHashTable               *introspect_cache;
-} CockpitDBusJson;
+} CockpitDBusJson1;
 
 typedef struct {
   CockpitChannelClass parent_class;
-} CockpitDBusJsonClass;
+} CockpitDBusJson1Class;
 
 
-G_DEFINE_TYPE (CockpitDBusJson, cockpit_dbus_json, COCKPIT_TYPE_CHANNEL);
+G_DEFINE_TYPE (CockpitDBusJson1, cockpit_dbus_json1, COCKPIT_TYPE_CHANNEL);
 
-static gboolean
-check_type (JsonNode *node,
-            JsonNodeType type,
-            GType sub_type,
-            GError **error)
-{
-  if (JSON_NODE_TYPE (node) != type ||
-      (type == JSON_NODE_VALUE && (json_node_get_value_type (node) != sub_type)))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "Unexpected type '%s' in JSON node",
-                   g_type_name (json_node_get_value_type (node)));
-      return FALSE;
-    }
-  return TRUE;
-}
-
+/* Returns a new floating variant (essentially a fixed-up copy of @value) */
 static GVariant *
-parse_json (JsonNode *node,
-            const GVariantType *type,
-            GError **error);
-
-static GVariant *
-parse_json_tuple (JsonNode *node,
-                  const GVariantType *child_type,
-                  GError **error)
+_my_replace (GVariant *value)
 {
-  GVariant *result = NULL;
-  GPtrArray *children;
-  GVariant *value;
-  JsonArray *array;
-  guint length;
-  guint i;
+  GVariant *ret;
+  const gchar *dbus_type;
 
-  children = g_ptr_array_new ();
-
-  if (!check_type (node, JSON_NODE_ARRAY, 0, error))
-    goto out;
-
-  array = json_node_get_array (node);
-  length = json_array_get_length (array);
-
-  for (i = 0; i < length; i++)
+  if (g_variant_is_of_type (value, G_VARIANT_TYPE_VARDICT) &&
+      g_variant_lookup (value, "_dbus_type", "&s", &dbus_type))
     {
-      value = NULL;
-      if (child_type == NULL)
+      GVariant *passed_value;
+      passed_value = g_variant_lookup_value (value, "value", NULL);
+      if (passed_value != NULL)
         {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                       "Too many values in tuple/struct");
-        }
-      else
-        {
-          value = parse_json (json_array_get_element (array, i),
-                              child_type, error);
-        }
+          JsonNode *serialized;
+          GError *error;
 
-      if (!value)
-        goto out;
-
-      g_ptr_array_add (children, value);
-      child_type = g_variant_type_next (child_type);
-    }
-
-  if (child_type)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "Too few values in tuple/struct");
-      goto out;
-    }
-
-  result = g_variant_new_tuple ((GVariant *const *)children->pdata,
-                                children->len);
-  children->len = 0;
-
-out:
-  g_ptr_array_foreach (children, (GFunc)g_variant_unref, NULL);
-  g_ptr_array_free (children, TRUE);
-  return result;
-}
-
-static GVariant *
-parse_json_array (JsonNode *node,
-                  const GVariantType *child_type,
-                  GError **error)
-{
-  GVariant *result = NULL;
-  GPtrArray *children;
-  GVariant *child;
-  JsonArray *array;
-  guint length;
-  guint i;
-
-  children = g_ptr_array_new ();
-
-  if (!check_type (node, JSON_NODE_ARRAY, 0, error))
-    goto out;
-
-  array = json_node_get_array (node);
-  length = json_array_get_length (array);
-
-  for (i = 0; i < length; i++)
-    {
-      child = parse_json (json_array_get_element (array, i),
-                          child_type,
-                          error);
-      if (!child)
-        goto out;
-
-      g_ptr_array_add (children, child);
-    }
-
-  result = g_variant_new_array (child_type,
-                                (GVariant *const *)children->pdata,
-                                children->len);
-  children->len = 0;
-
-out:
-  g_ptr_array_foreach (children, (GFunc)g_variant_unref, NULL);
-  g_ptr_array_free (children, TRUE);
-  return result;
-}
-
-static GVariant *
-parse_json_with_sig (JsonObject *object,
-                     GError **error)
-{
-  GVariantType *inner_type;
-  GVariant *inner;
-  JsonNode *val;
-  const gchar *sig;
-
-  val = json_object_get_member (object, "val");
-  if (val == NULL)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "JSON did not contain a 'val' field");
-      return NULL;
-    }
-  if (!cockpit_json_get_string (object, "sig", NULL, &sig) || !sig)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "JSON did not contain valid 'sig' fields");
-      return NULL;
-    }
-  if (!g_variant_type_string_is_valid (sig))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "JSON 'sig' field '%s' is invalid", sig);
-      return NULL;
-    }
-
-  inner_type = g_variant_type_new (sig);
-  inner = parse_json (val, inner_type, error);
-  g_variant_type_free (inner_type);
-
-  if (!inner)
-    return NULL;
-
-  return g_variant_new_variant (inner);
-}
-
-static GVariant *
-parse_json_variant (JsonNode *node,
-                    GError **error)
-{
-  if (check_type (node, JSON_NODE_OBJECT, 0, error))
-    return parse_json_with_sig (json_node_get_object (node), error);
-  return NULL;
-}
-
-static GVariant *
-parse_json_dictionary (JsonNode *node,
-                       const GVariantType *entry_type,
-                       GError **error)
-{
-  const GVariantType *key_type;
-  const GVariantType *value_type;
-  GVariant *result = NULL;
-  GPtrArray *children;
-  JsonObject *object;
-  JsonNode *key_node;
-  GList *members = NULL;
-  gboolean is_string;
-  GVariant *value;
-  GVariant *key;
-  GVariant *child;
-  GList *l;
-
-  children = g_ptr_array_new ();
-
-  if (!check_type (node, JSON_NODE_OBJECT, 0, error))
-    goto out;
-
-  object = json_node_get_object (node);
-  key_type = g_variant_type_key (entry_type);
-  value_type = g_variant_type_value (entry_type);
-
-  is_string = (g_variant_type_equal (key_type, G_VARIANT_TYPE_STRING) ||
-               g_variant_type_equal (key_type, G_VARIANT_TYPE_OBJECT_PATH) ||
-               g_variant_type_equal (key_type, G_VARIANT_TYPE_SIGNATURE));
-
-  members = json_object_get_members (object);
-  for (l = members; l != NULL; l = g_list_next (l))
-    {
-      if (is_string)
-        {
-          key_node = json_node_init_string (json_node_alloc (), l->data);
-        }
-      else
-        {
-          key_node = cockpit_json_parse (l->data, -1, NULL);
-          if (key_node == NULL)
+          serialized = json_gvariant_serialize (passed_value);
+          error = NULL;
+          ret = json_gvariant_deserialize (serialized,
+                                           dbus_type,
+                                           &error);
+          json_node_free (serialized);
+          if (ret == NULL)
             {
-              g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                           "Unexpected key '%s' in JSON object", (gchar *)l->data);
-              goto out;
-            }
-        }
-
-      key = parse_json (key_node, key_type, error);
-      json_node_free (key_node);
-
-      if (!key)
-        goto out;
-
-      value = parse_json (json_object_get_member (object, l->data),
-                          value_type, error);
-      if (!value)
-        {
-          g_variant_unref (key);
-          goto out;
-        }
-
-      child = g_variant_new_dict_entry (key, value);
-      g_ptr_array_add (children, child);
-    }
-
-  result = g_variant_new_array (entry_type,
-                                (GVariant *const *)children->pdata,
-                                children->len);
-  children->len = 0;
-
-out:
-  g_list_free (members);
-  g_ptr_array_foreach (children, (GFunc)g_variant_unref, NULL);
-  g_ptr_array_free (children, TRUE);
-  return result;
-}
-
-static void
-parse_not_supported (const GVariantType *type,
-                     GError **error)
-{
-  g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-               "DBus type '%.*s' is unknown or not supported",
-               (int)g_variant_type_get_string_length (type),
-               g_variant_type_peek_string (type));
-}
-
-static GVariant *
-parse_json (JsonNode *node,
-            const GVariantType *type,
-            GError **error)
-{
-  const GVariantType *element_type;
-  const gchar *str;
-
-  if (!g_variant_type_is_definite (type))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "Indefinite type '%.*s' is not supported",
-                   (int)g_variant_type_get_string_length (type),
-                   g_variant_type_peek_string (type));
-      return NULL;
-    }
-
-  if (g_variant_type_is_basic (type))
-    {
-      if (g_variant_type_equal (type, G_VARIANT_TYPE_BOOLEAN))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_BOOLEAN, error))
-            return g_variant_new_boolean (json_node_get_boolean (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_BYTE))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
-            return g_variant_new_byte (json_node_get_int (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT16))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
-            return g_variant_new_int16 (json_node_get_int (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_UINT16))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
-            return g_variant_new_uint16 (json_node_get_int (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT32))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
-            return g_variant_new_int32 (json_node_get_int (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_UINT32))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
-            return g_variant_new_uint32 (json_node_get_int (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT64))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
-            return g_variant_new_int64 (json_node_get_int (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_UINT64))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, error))
-            return g_variant_new_uint64 (json_node_get_int (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_DOUBLE))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_INT64, NULL))
-            return g_variant_new_double (json_node_get_int (node));
-          else if (check_type (node, JSON_NODE_VALUE, G_TYPE_DOUBLE, error))
-            return g_variant_new_double (json_node_get_double (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_STRING))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_STRING, error))
-            return g_variant_new_string (json_node_get_string (node));
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_OBJECT_PATH))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_STRING, error))
-            {
-              str = json_node_get_string (node);
-              if (g_variant_is_object_path (str))
-                return g_variant_new_object_path (str);
-              else
+              /*
+               * HACK: Work around bug in JSON-glib, see:
+               * https://bugzilla.gnome.org/show_bug.cgi?id=724319
+               */
+              if (error->domain == G_IO_ERROR && error->code == G_IO_ERROR_INVALID_DATA &&
+                  g_variant_is_of_type (passed_value, G_VARIANT_TYPE_INT64) &&
+                  g_strcmp0 (dbus_type, "d") == 0)
                 {
-                  g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                               "Invalid object path '%s'", str);
-                  return NULL;
+                  ret = g_variant_new_double (g_variant_get_int64 (passed_value));
+                  g_clear_error (&error);
                 }
-            }
-        }
-      else if (g_variant_type_equal (type, G_VARIANT_TYPE_SIGNATURE))
-        {
-          if (check_type (node, JSON_NODE_VALUE, G_TYPE_STRING, error))
-            {
-              str = json_node_get_string (node);
-              if (g_variant_is_signature (str))
-                return g_variant_new_signature (str);
               else
                 {
-                  g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                               "Invalid signature '%s'", str);
-                  return NULL;
+                  g_warning ("Error converting JSON to requested type %s: %s (%s, %d)",
+                             dbus_type,
+                             error->message, g_quark_to_string (error->domain), error->code);
+                  g_error_free (error);
+                  ret = g_variant_ref (value);
                 }
             }
         }
       else
         {
-          parse_not_supported (type, error);
+          g_warning ("Malformed _dbus_type vardict");
+          ret = g_variant_ref (value);
         }
     }
-  else if (g_variant_type_is_variant (type))
+  else if (g_variant_is_container (value))
     {
-      return parse_json_variant (node, error);
-    }
-  else if (g_variant_type_is_array (type))
-    {
-      element_type = g_variant_type_element (type);
-      if (g_variant_type_is_dict_entry (element_type))
-        return parse_json_dictionary (node, element_type, error);
-      else
-        return parse_json_array (node, element_type, error);
-    }
-  else if (g_variant_type_is_tuple (type))
-    {
-      return parse_json_tuple (node, g_variant_type_first (type), error);
+      GVariantBuilder builder;
+      GVariantIter iter;
+      GVariant *child;
+
+      g_variant_builder_init (&builder, g_variant_get_type (value));
+
+      g_variant_iter_init (&iter, value);
+      while ((child = g_variant_iter_next_value (&iter)) != NULL)
+        {
+          g_variant_builder_add_value (&builder, _my_replace (child));
+          g_variant_unref (child);
+        }
+      ret = g_variant_builder_end (&builder);
     }
   else
     {
-      parse_not_supported (type, error);
+      ret = g_variant_ref (value);
     }
-
-  return NULL;
+  return ret;
 }
 
-static void
-build_json (JsonBuilder *builder,
-            GVariant *value);
-
-static void
-build_json_with_sig (JsonBuilder *builder,
-                     GVariant *value)
+static JsonBuilder *
+_json_builder_add_gvariant (JsonBuilder *builder,
+                            GVariant *value)
 {
-  json_builder_set_member_name (builder, "sig");
-  json_builder_add_string_value (builder, g_variant_get_type_string (value));
-  json_builder_set_member_name (builder, "val");
-  build_json (builder, value);
-}
-
-static void
-build_json_array_or_tuple (JsonBuilder *builder,
-                           GVariant *value)
-{
-  GVariantIter iter;
-  GVariant *child;
-
-  json_builder_begin_array (builder);
-
-  g_variant_iter_init (&iter, value);
-  while ((child = g_variant_iter_next_value (&iter)) != NULL)
-    {
-      build_json (builder, child);
-      g_variant_unref (child);
-    }
-
-  json_builder_end_array (builder);
-}
-
-static void
-build_json_variant (JsonBuilder *builder,
-                    GVariant *value)
-{
-  GVariant *child;
-
-  child = g_variant_get_variant (value);
-  json_builder_begin_object (builder);
-
-  build_json_with_sig (builder, child);
-
-  json_builder_end_object (builder);
-  g_variant_unref (child);
-}
-
-static void
-build_json_dictionary (JsonBuilder *builder,
-                       const GVariantType *entry_type,
-                       GVariant *dict)
-{
-  const GVariantType *key_type;
-  GVariantIter iter;
-  GVariant *child;
-  GVariant *key;
-  GVariant *value;
-  gboolean is_string;
-  gchar *key_string;
-
-  json_builder_begin_object (builder);
-  key_type = g_variant_type_key (entry_type);
-
-  is_string = (g_variant_type_equal (key_type, G_VARIANT_TYPE_STRING) ||
-               g_variant_type_equal (key_type, G_VARIANT_TYPE_OBJECT_PATH) ||
-               g_variant_type_equal (key_type, G_VARIANT_TYPE_SIGNATURE));
-
-  g_variant_iter_init (&iter, dict);
-  while ((child = g_variant_iter_next_value (&iter)) != NULL)
-    {
-      key = g_variant_get_child_value (child, 0);
-      value = g_variant_get_child_value (child, 1);
-
-      if (is_string)
-        {
-          json_builder_set_member_name (builder, g_variant_get_string (key, NULL));
-        }
-      else
-        {
-          key_string = g_variant_print (key, FALSE);
-          json_builder_set_member_name (builder, key_string);
-          g_free (key_string);
-        }
-
-      build_json (builder, value);
-
-      g_variant_unref (key);
-      g_variant_unref (value);
-    }
-
-  json_builder_end_object (builder);
-}
-
-static void
-build_json (JsonBuilder *builder,
-            GVariant *value)
-{
-  const GVariantType *type;
-  const GVariantType *element_type;
+  g_return_val_if_fail (JSON_IS_BUILDER (builder), builder);
 
   g_variant_ref_sink (value);
 
@@ -604,31 +197,122 @@ build_json (JsonBuilder *builder,
       json_builder_add_string_value (builder, g_variant_get_string (value, NULL));
       break;
 
+     /* TODO: */
     case G_VARIANT_CLASS_VARIANT:
-      build_json_variant (builder, value);
+      {
+        GVariant *child;
+        child = g_variant_get_variant (value);
+        _json_builder_add_gvariant (builder, child);
+        g_variant_unref (child);
+      }
+      break;
+
+    case G_VARIANT_CLASS_MAYBE:
+      g_assert_not_reached ();
       break;
 
     case G_VARIANT_CLASS_ARRAY:
-      type = g_variant_get_type (value);
-      element_type = g_variant_type_element (type);
-      if (g_variant_type_is_dict_entry (element_type))
-        build_json_dictionary (builder, element_type, value);
-      else
-        build_json_array_or_tuple (builder, value);
+      {
+        const GVariantType *type;
+        const GVariantType *element_type;
+
+        type = g_variant_get_type (value);
+        element_type = g_variant_type_element (type);
+        if (g_variant_type_is_dict_entry (element_type))
+          {
+            GVariantIter iter;
+            GVariant *child;
+
+            json_builder_begin_object (builder);
+
+            g_variant_iter_init (&iter, value);
+            while ((child = g_variant_iter_next_value (&iter)) != NULL)
+              {
+                _json_builder_add_gvariant (builder, child);
+                g_variant_unref (child);
+              }
+
+            json_builder_end_object (builder);
+          }
+        else
+          {
+            GVariantIter iter;
+            GVariant *child;
+
+            json_builder_begin_array (builder);
+
+            g_variant_iter_init (&iter, value);
+            while ((child = g_variant_iter_next_value (&iter)) != NULL)
+              {
+                _json_builder_add_gvariant (builder, child);
+                g_variant_unref (child);
+              }
+
+            json_builder_end_array (builder);
+          }
+      }
       break;
 
     case G_VARIANT_CLASS_TUPLE:
-      build_json_array_or_tuple (builder, value);
+      {
+        GVariantIter iter;
+        GVariant *child;
+
+        json_builder_begin_array (builder);
+
+        g_variant_iter_init (&iter, value);
+        while ((child = g_variant_iter_next_value (&iter)) != NULL)
+          {
+            _json_builder_add_gvariant (builder, child);
+            g_variant_unref (child);
+          }
+
+        json_builder_end_array (builder);
+      }
       break;
 
     case G_VARIANT_CLASS_DICT_ENTRY:
-    case G_VARIANT_CLASS_MAYBE:
-    default:
-      g_return_if_reached ();
+      {
+        GVariant *dict_key;
+        GVariant *dict_value;
+        gchar *dict_key_string;
+
+        dict_key = g_variant_get_child_value (value, 0);
+        dict_value = g_variant_get_child_value (value, 1);
+
+        if (g_variant_is_of_type (dict_key, G_VARIANT_TYPE("s")))
+          dict_key_string = g_variant_dup_string (dict_key, NULL);
+        else
+          dict_key_string = g_variant_print (dict_key, FALSE);
+
+        json_builder_set_member_name (builder, dict_key_string);
+        _json_builder_add_gvariant (builder, dict_value);
+        g_free (dict_key_string);
+
+        g_variant_unref (dict_key);
+        g_variant_unref (dict_value);
+      }
       break;
     }
 
   g_variant_unref (value);
+
+  return builder;
+}
+
+static GBytes *
+_json_builder_to_bytes (CockpitDBusJson1 *self,
+                        JsonBuilder *builder)
+{
+  JsonNode *root;
+  gsize length;
+  gchar *ret;
+
+  root = json_builder_get_root (builder);
+  ret = cockpit_json_write (root, &length);
+  json_node_free (root);
+
+  return g_bytes_new_take (ret, length);
 }
 
 static JsonBuilder *
@@ -644,21 +328,13 @@ prepare_builder (const gchar *command)
 }
 
 static void
-write_builder (CockpitDBusJson *self,
+write_builder (CockpitDBusJson1 *self,
                JsonBuilder *builder)
 {
   GBytes *bytes;
-  JsonNode *root;
-  gsize length;
-  gchar *ret;
 
   json_builder_end_object (builder);
-
-  root = json_builder_get_root (builder);
-  ret = cockpit_json_write (root, &length);
-  json_node_free (root);
-
-  bytes = g_bytes_new_take (ret, length);
+  bytes = _json_builder_to_bytes (self, builder);
   cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
   g_bytes_unref (bytes);
 }
@@ -691,7 +367,7 @@ add_interface (JsonBuilder *builder,
               s = g_strconcat ("dbus_prop_", property_name, NULL);
               json_builder_set_member_name (builder, s);
               g_free (s);
-              build_json (builder, value);
+              _json_builder_add_gvariant (builder, value);
               g_variant_unref (value);
             }
         }
@@ -714,7 +390,7 @@ add_interface (JsonBuilder *builder,
           s = g_strconcat ("dbus_prop_", property_name, NULL);
           json_builder_set_member_name (builder, property_name);
           g_free (s);
-          build_json (builder, value);
+          _json_builder_add_gvariant (builder, value);
           g_variant_unref (value);
         }
     }
@@ -748,7 +424,7 @@ add_object (JsonBuilder *builder,
 }
 
 static void
-send_seed (CockpitDBusJson *self)
+send_seed (CockpitDBusJson1 *self)
 {
   gs_unref_object JsonBuilder *builder = json_builder_new ();
 
@@ -793,7 +469,7 @@ on_object_added (GDBusObjectManager *manager,
                  GDBusObject *object,
                  gpointer user_data)
 {
-  CockpitDBusJson *self = user_data;
+  CockpitDBusJson1 *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("object-added");
 
   json_builder_begin_object (builder);
@@ -811,7 +487,7 @@ on_object_removed (GDBusObjectManager *manager,
                    GDBusObject *object,
                    gpointer user_data)
 {
-  CockpitDBusJson *self = user_data;
+  CockpitDBusJson1 *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("object-removed");
 
   json_builder_begin_array (builder);
@@ -829,7 +505,7 @@ on_interface_added (GDBusObjectManager *manager,
                     GDBusInterface *interface,
                     gpointer user_data)
 {
-  CockpitDBusJson *self = user_data;
+  CockpitDBusJson1 *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-added");
 
   json_builder_begin_object (builder);
@@ -852,7 +528,7 @@ on_interface_removed (GDBusObjectManager *manager,
                       GDBusInterface *interface,
                       gpointer user_data)
 {
-  CockpitDBusJson *self = user_data;
+  CockpitDBusJson1 *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-removed");
 
   json_builder_begin_object (builder);
@@ -873,7 +549,7 @@ on_interface_proxy_properties_changed (GDBusObjectManager *manager,
                                        const gchar * const *invalidated_properties,
                                        gpointer user_data)
 {
-  CockpitDBusJson *self = user_data;
+  CockpitDBusJson1 *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-properties-changed");
 
   json_builder_begin_object (builder);
@@ -902,7 +578,7 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
                            GVariant *parameters,
                            gpointer user_data)
 {
-  CockpitDBusJson *self = user_data;
+  CockpitDBusJson1 *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-signal");
 
   GVariantIter iter;
@@ -921,7 +597,7 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
   g_variant_iter_init (&iter, parameters);
   while ((child = g_variant_iter_next_value (&iter)) != NULL)
     {
-      build_json (builder, child);
+      _json_builder_add_gvariant (builder, child);
       g_variant_unref (child);
     }
   json_builder_end_array (builder);
@@ -934,7 +610,7 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
-send_dbus_reply (CockpitDBusJson *self, const gchar *cookie, GVariant *result, GError *error)
+send_dbus_reply (CockpitDBusJson1 *self, const gchar *cookie, GVariant *result, GError *error)
 {
   gs_unref_object JsonBuilder *builder = NULL;
   builder = prepare_builder ("call-reply");
@@ -960,7 +636,7 @@ send_dbus_reply (CockpitDBusJson *self, const gchar *cookie, GVariant *result, G
   else
     {
       json_builder_set_member_name (builder, "result");
-      build_json (builder, result);
+      _json_builder_add_gvariant (builder, result);
     }
   json_builder_end_object (builder);
 
@@ -1000,7 +676,7 @@ typedef struct
 {
   /* Cleared by dispose */
   GList *link;
-  CockpitDBusJson *dbus_json;
+  CockpitDBusJson1 *dbus_json;
 
   /* Request data */
   GDBusConnection *connection;
@@ -1014,7 +690,7 @@ typedef struct
   const gchar *iface_name;
   const gchar *method_name;
   const gchar *objpath;
-  JsonNode *args;
+  JsonArray *args;
 } CallData;
 
 static void
@@ -1051,13 +727,13 @@ dbus_call_cb (GDBusConnection *connection,
 
 
 static void
-handle_dbus_call_on_interface (CockpitDBusJson *self,
+handle_dbus_call_on_interface (CockpitDBusJson1 *self,
                                CallData *call_data)
 {
   GDBusMethodInfo *method_info = NULL;
-  GVariantType *param_type;
+  GVariantBuilder arg_builder;
   GVariantType *reply_type;
-  GVariant *parameters = NULL;
+  guint n;
   GError *error = NULL;
   gchar *owner;
 
@@ -1070,26 +746,74 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
                    call_data->iface_name, call_data->method_name);
       goto out;
     }
-  param_type = compute_complete_signature (method_info->in_args);
-  parameters = parse_json (call_data->args, param_type, &error);
-  g_variant_type_free (param_type);
 
-  if (!parameters)
+  g_variant_builder_init (&arg_builder, G_VARIANT_TYPE_TUPLE);
+  for (n = 0; n < json_array_get_length (call_data->args); n++)
     {
-      g_prefix_error (&error, "Failed to convert parameters for '%s': ", call_data->method_name);
-      goto out;
+      GVariant *arg_gvariant;
+      JsonNode *arg_node;
+      GDBusArgInfo *arg_info;
+      GVariant *old;
+
+      arg_node = json_array_get_element (call_data->args, n);
+
+      arg_info = method_info->in_args != NULL ? method_info->in_args[n] : NULL;
+      if (arg_info == NULL)
+        {
+          g_set_error (&error, G_IO_ERROR, G_IO_ERROR_FAILED, "No GDBusArgInfo for arg %d", n);
+          g_variant_builder_clear (&arg_builder);
+          goto out;
+        }
+
+      arg_gvariant = json_gvariant_deserialize (arg_node,
+                                                arg_info->signature,
+                                                &error);
+      if (arg_gvariant == NULL)
+        {
+          /*
+           * HACK: Work around bug in JSON-glib, see:
+           * https://bugzilla.gnome.org/show_bug.cgi?id=724319
+           */
+          if (error &&
+              g_error_matches (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA) &&
+              json_node_get_node_type (arg_node) == JSON_NODE_VALUE &&
+              g_strcmp0 (arg_info->signature, "d") == 0)
+            {
+              arg_gvariant = g_variant_new_double (json_node_get_int (arg_node));
+              g_clear_error (&error);
+            }
+          else
+            {
+              g_assert (error);
+              g_prefix_error (&error,
+                              "Error converting arg %d to GVariant of type %s for method %s on interface %s: ",
+                              n,
+                              arg_info->signature,
+                              call_data->method_name,
+                              call_data->iface_name);
+              g_variant_builder_clear (&arg_builder);
+              goto out;
+            }
+        }
+      /* replace DBusValue(type, value) entries */
+      old = arg_gvariant;
+      arg_gvariant = _my_replace (arg_gvariant);
+      g_variant_unref (old);
+      g_variant_builder_add_value (&arg_builder, arg_gvariant);
     }
 
   g_debug ("invoking %s %s.%s", call_data->objpath, call_data->iface_name, call_data->method_name);
 
-  g_object_get (self->object_manager, "name-owner", &owner, NULL);
+  g_object_get (self->object_manager,
+                "name-owner", &owner,
+                NULL);
 
   reply_type = compute_complete_signature (method_info->out_args);
 
   /* and now, issue the call */
   g_dbus_connection_call (call_data->connection, owner, call_data->objpath,
                           call_data->iface_name, call_data->method_name,
-                          parameters,
+                          g_variant_builder_end (&arg_builder),
                           reply_type,
                           G_DBUS_CALL_FLAGS_NO_AUTO_START,
                           G_MAXINT, /* timeout */
@@ -1116,7 +840,7 @@ on_introspect_ready (GObject *source,
                      gpointer user_data)
 {
   CallData *call_data = (CallData *)user_data;
-  CockpitDBusJson *self;
+  CockpitDBusJson1 *self;
   GVariant *val = NULL;
   GDBusNodeInfo *node = NULL;
   GDBusInterfaceInfo *iface = NULL;
@@ -1136,7 +860,7 @@ on_introspect_ready (GObject *source,
 
   not_found = FALSE;
 
-  self = COCKPIT_DBUS_JSON (call_data->dbus_json);
+  self = COCKPIT_DBUS_JSON1 (call_data->dbus_json);
   val = g_dbus_connection_call_finish (G_DBUS_CONNECTION (source), result, &error);
   if (error)
     {
@@ -1233,7 +957,7 @@ on_introspect_ready (GObject *source,
 }
 
 static gboolean
-handle_dbus_call (CockpitDBusJson *self,
+handle_dbus_call (CockpitDBusJson1 *self,
                   JsonObject *root)
 {
   GDBusInterface *iface_proxy;
@@ -1245,7 +969,7 @@ handle_dbus_call (CockpitDBusJson *self,
   call_data->iface_name = json_object_get_string_member (root, "iface");
   call_data->method_name = json_object_get_string_member (root, "method");
   call_data->cookie = json_object_get_string_member (root, "cookie");
-  call_data->args = json_object_get_member (root, "args");
+  call_data->args = json_object_get_array_member (root, "args");
 
   if (!(g_variant_is_object_path (call_data->objpath) &&
         g_dbus_is_interface_name (call_data->iface_name) &&
@@ -1310,10 +1034,10 @@ handle_dbus_call (CockpitDBusJson *self,
 }
 
 static void
-cockpit_dbus_json_recv (CockpitChannel *channel,
+cockpit_dbus_json1_recv (CockpitChannel *channel,
                           GBytes *message)
 {
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (channel);
+  CockpitDBusJson1 *self = COCKPIT_DBUS_JSON1 (channel);
   GError *error = NULL;
   gs_free gchar *buf = NULL;
   JsonObject *root = NULL;
@@ -1354,7 +1078,7 @@ on_object_manager_ready (GObject *source,
                          GAsyncResult *result,
                          gpointer user_data)
 {
-  CockpitDBusJson *self = user_data;
+  CockpitDBusJson1 *self = user_data;
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   GAsyncInitable *initable;
   GError *error = NULL;
@@ -1402,7 +1126,7 @@ on_object_manager_ready (GObject *source,
 }
 
 static void
-cockpit_dbus_json_init (CockpitDBusJson *self)
+cockpit_dbus_json1_init (CockpitDBusJson1 *self)
 {
   self->cancellable = g_cancellable_new ();
   self->introspect_cache = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
@@ -1417,19 +1141,17 @@ on_idle_protocol_error (gpointer user_data)
 }
 
 static void
-cockpit_dbus_json_constructed (GObject *object)
+cockpit_dbus_json1_constructed (GObject *object)
 {
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+  CockpitDBusJson1 *self = COCKPIT_DBUS_JSON1 (object);
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   const gchar *dbus_service;
   const gchar *dbus_path;
-  const gchar *bus;
   const gchar *new_prop_name;
   GType object_manager_type;
   gconstpointer new_prop_value;
-  GBusType bus_type;
 
-  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->constructed (object);
+  G_OBJECT_CLASS (cockpit_dbus_json1_parent_class)->constructed (object);
 
   /*
    * Guarantee: Remember that we cannot close the channel until we've
@@ -1465,34 +1187,12 @@ cockpit_dbus_json_constructed (GObject *object)
       object_manager_type = G_TYPE_DBUS_OBJECT_MANAGER_CLIENT;
     }
 
-  /*
-   * The default bus is the "user" bus which doesn't exist in many
-   * places yet, so use the session bus for now.
-   */
-  bus_type = G_BUS_TYPE_SESSION;
-  bus = cockpit_channel_get_option (channel, "bus");
-  if (bus == NULL || g_str_equal (bus, "session") ||
-      g_str_equal (bus, "user"))
-    {
-      bus_type = G_BUS_TYPE_SESSION;
-    }
-  else if (g_str_equal (bus, "system"))
-    {
-      bus_type = G_BUS_TYPE_SYSTEM;
-    }
-  else
-    {
-      g_warning ("agent got an invalid bus type");
-      g_idle_add (on_idle_protocol_error, channel);
-      return;
-    }
-
   /* Both GDBusObjectManager and CockpitFakeManager have similar props */
   g_async_initable_new_async (object_manager_type,
                               G_PRIORITY_DEFAULT, NULL,
                               on_object_manager_ready,
                               g_object_ref (self),
-                              "bus-type", bus_type,
+                              "bus-type", G_BUS_TYPE_SYSTEM,
                               "flags", G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
                               "name", dbus_service,
                               new_prop_name, new_prop_value,
@@ -1500,9 +1200,9 @@ cockpit_dbus_json_constructed (GObject *object)
 }
 
 static void
-cockpit_dbus_json_dispose (GObject *object)
+cockpit_dbus_json1_dispose (GObject *object)
 {
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+  CockpitDBusJson1 *self = COCKPIT_DBUS_JSON1 (object);
   GList *l;
 
   g_signal_handlers_disconnect_by_func (self->object_manager,
@@ -1533,37 +1233,37 @@ cockpit_dbus_json_dispose (GObject *object)
   /* And cancel them all, which should free them */
   g_cancellable_cancel (self->cancellable);
 
-  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->dispose (object);
+  G_OBJECT_CLASS (cockpit_dbus_json1_parent_class)->dispose (object);
 }
 
 static void
-cockpit_dbus_json_finalize (GObject *object)
+cockpit_dbus_json1_finalize (GObject *object)
 {
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+  CockpitDBusJson1 *self = COCKPIT_DBUS_JSON1 (object);
 
   if (self->object_manager)
     g_object_unref (self->object_manager);
   g_object_unref (self->cancellable);
   g_hash_table_destroy (self->introspect_cache);
 
-  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->finalize (object);
+  G_OBJECT_CLASS (cockpit_dbus_json1_parent_class)->finalize (object);
 }
 
 static void
-cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
+cockpit_dbus_json1_class_init (CockpitDBusJson1Class *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_dbus_json_constructed;
-  gobject_class->dispose = cockpit_dbus_json_dispose;
-  gobject_class->finalize = cockpit_dbus_json_finalize;
+  gobject_class->constructed = cockpit_dbus_json1_constructed;
+  gobject_class->dispose = cockpit_dbus_json1_dispose;
+  gobject_class->finalize = cockpit_dbus_json1_finalize;
 
-  channel_class->recv = cockpit_dbus_json_recv;
+  channel_class->recv = cockpit_dbus_json1_recv;
 }
 
 /**
- * cockpit_dbus_json_open:
+ * cockpit_dbus_json1_open:
  * @transport: transport to send messages on
  * @channel_id: the channel id
  * @dbus_service: the DBus service name to talk to
@@ -1577,7 +1277,7 @@ cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
  * Returns: (transfer full): a new channel
  */
 CockpitChannel *
-cockpit_dbus_json_open (CockpitTransport *transport,
+cockpit_dbus_json1_open (CockpitTransport *transport,
                         const gchar *channel_id,
                         const gchar *dbus_service,
                         const gchar *dbus_path)
@@ -1588,12 +1288,11 @@ cockpit_dbus_json_open (CockpitTransport *transport,
   g_return_val_if_fail (channel_id != NULL, NULL);
 
   options = json_object_new ();
-  json_object_set_string_member (options, "bus", "session");
   json_object_set_string_member (options, "service", dbus_service);
   json_object_set_string_member (options, "object-manager", dbus_path);
-  json_object_set_string_member (options, "payload", "dbus-json2");
+  json_object_set_string_member (options, "payload", "dbus-json1");
 
-  channel = g_object_new (COCKPIT_TYPE_DBUS_JSON,
+  channel = g_object_new (COCKPIT_TYPE_DBUS_JSON1,
                           "transport", transport,
                           "id", channel_id,
                           "options", options,

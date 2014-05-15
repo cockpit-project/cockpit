@@ -1264,7 +1264,9 @@ function DockerClient(machine) {
      *
      * TODO: Call GetSamples for quicker initialization.
      */
-    var dbus_client = cockpit.dbus(machine);
+
+    /* TODO: This code needs to be migrated away from dbus-json1 */
+    var dbus_client = cockpit.dbus(machine, { protocol: "dbus-json1" });
     var monitor = dbus_client.get ("/com/redhat/Cockpit/LxcMonitor",
                                    "com.redhat.Cockpit.MultiResourceMonitor");
 

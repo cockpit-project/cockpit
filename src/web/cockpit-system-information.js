@@ -41,7 +41,8 @@ PageSystemInformation.prototype = {
         var self = this;
 
         self.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        self.client = cockpit.dbus(self.address);
+        /* TODO: This code needs to be migrated away from dbus-json1 */
+        self.client = cockpit.dbus(self.address, { protocol: 'dbus-json1' });
 
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");

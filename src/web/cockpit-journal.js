@@ -455,7 +455,9 @@ PageJournal.prototype = {
         update_priority_buttons (this.query_prio);
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = cockpit.dbus(this.address);
+
+        /* TODO: This code needs to be migrated away from dbus-json1 */
+        this.client = cockpit.dbus(this.address, { protocol: "dbus-json1" });
 
         this.journal = this.client.get ("/com/redhat/Cockpit/Journal",
                                         "com.redhat.Cockpit.Journal");

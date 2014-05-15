@@ -28,10 +28,12 @@ PageNetworking.prototype = {
 
     enter: function () {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address,
                                     { 'bus': 'system',
                                       'service': "org.freedesktop.NetworkManager",
-                                      'object-paths': [ "/org/freedesktop/NetworkManager" ]
+                                      'object-paths': [ "/org/freedesktop/NetworkManager" ],
+                                      'protocol': "dbus-json1"
                                     });
 
         this.manager = this.client.get("/org/freedesktop/NetworkManager",

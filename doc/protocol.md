@@ -100,7 +100,7 @@ An example of an open:
     {
         "command": "open",
         "channel": "a4",
-        "payload": "dbus-json1",
+        "payload": "text-stream",
         "host": "localhost"
     }
 

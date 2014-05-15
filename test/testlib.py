@@ -206,6 +206,7 @@ class Browser:
     def wait_text_not(self, selector, text):
         return self.wait_js_func('!ph_text_is', selector, text)
 
+    # TODO: This code needs to be migrated away from dbus-json1
     def wait_dbus_ready(self, client_address = "localhost", client_options = { }):
         return self.wait_js_func('ph_dbus_ready', client_address, client_options)
 

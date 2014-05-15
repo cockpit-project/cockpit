@@ -700,7 +700,7 @@ call_data_free (CallData *data)
 }
 
 static void
-dbus_call_cb (GDBusConnection *proxy,
+dbus_call_cb (GDBusConnection *connection,
               GAsyncResult *res,
               gpointer user_data)
 {
@@ -709,7 +709,7 @@ dbus_call_cb (GDBusConnection *proxy,
   GError *error;
 
   error = NULL;
-  result = g_dbus_connection_call_finish (proxy, res, &error);
+  result = g_dbus_connection_call_finish (connection, res, &error);
 
   if (data->dbus_json)
     {
@@ -1201,6 +1201,7 @@ static void
 cockpit_dbus_json_dispose (GObject *object)
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+  GList *l;
 
   g_signal_handlers_disconnect_by_func (self->object_manager,
                                         G_CALLBACK (on_object_added),
@@ -1221,9 +1222,13 @@ cockpit_dbus_json_dispose (GObject *object)
                                         G_CALLBACK (on_interface_proxy_signal),
                                         self);
 
-  g_list_free_full (self->active_calls, (GDestroyNotify)call_data_free);
+  /* Divorce ourselves the outstanding calls */
+  for (l = self->active_calls; l != NULL; l = g_list_next (l))
+    ((CallData *)l->data)->dbus_json = NULL;
+  g_list_free (self->active_calls);
   self->active_calls = NULL;
 
+  /* And cancel them all, which should free them */
   g_cancellable_cancel (self->cancellable);
 
   G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->dispose (object);
@@ -1234,7 +1239,8 @@ cockpit_dbus_json_finalize (GObject *object)
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
 
-  g_object_unref (self->object_manager);
+  if (self->object_manager)
+    g_object_unref (self->object_manager);
   g_object_unref (self->cancellable);
   g_hash_table_destroy (self->introspect_cache);
 

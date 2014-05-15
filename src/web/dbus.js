@@ -131,14 +131,14 @@ function dbus_warning(str) {
 
 // ----------------------------------------------------------------------------------------------------
 
-function DBusValue(signature, value) {
+function DBusVariant(signature, value) {
     this._init(signature, value);
 }
 
-DBusValue.prototype = {
+DBusVariant.prototype = {
     _init: function(type, value) {
-        this._dbus_type = type;
-        this.value = value;
+        this.sig = type;
+        this.val = value;
     }
 };
 
@@ -319,7 +319,7 @@ DBusClient.prototype = {
     connect: function() {
         var channel_opts = {
             "host" : this.target,
-            "payload" : "dbus-json1"
+            "payload" : "dbus-json2"
         };
         $.extend(channel_opts, this.options);
 

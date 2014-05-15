@@ -166,7 +166,8 @@ PageAccounts.prototype = {
 
     enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = cockpit.dbus(this.address);
+        /* TODO: This code needs to be migrated away from dbus-json1 */
+        this.client = cockpit.dbus(this.address, { "protocol": "dbus-json1" });
 
         cockpit_on_account_changes(this.client, "accounts", $.proxy(this, "update"));
         this.update();
@@ -331,7 +332,8 @@ PageAccount.prototype = {
 
     enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
-        this.client = cockpit.dbus(this.address);
+        /* TODO: This code needs to be migrated away from dbus-json1 */
+        this.client = cockpit.dbus(this.address, { protocol: "dbus-json1" });
 
         cockpit_on_account_changes(this.client, "account", $.proxy(this, "update"));
         this.real_name_dirty = false;

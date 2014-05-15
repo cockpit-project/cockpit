@@ -45,7 +45,8 @@ PageDashboard.prototype = {
     enter: function() {
         var self = this;
 
-        self.local_client = cockpit.dbus("localhost");
+        /* TODO: This code needs to be migrated away from dbus-json1 */
+        self.local_client = cockpit.dbus("localhost", { protocol: "dbus-json1" });
         $(self.local_client).on('state-change.dashboard-local', $.proxy(self, "local_client_state_change"));
         $(self.local_client).on('objectAdded.dashboard-local objectRemoved.dashboard-local', function (event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
@@ -136,8 +137,9 @@ PageDashboard.prototype = {
         machines.empty ();
         for (i = 0; i < configured_machines.length; i++) {
             var address = configured_machines[i].Address;
+            /* TODO: This code needs to be migrated away from dbus-json1 */
             var machine = { address: address,
-                            client: cockpit.dbus(address, { }, false),
+                            client: cockpit.dbus(address, { protocol: "dbus-json1" }, false),
                             dbus_iface: configured_machines[i]
                           };
 

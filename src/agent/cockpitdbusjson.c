@@ -694,6 +694,9 @@ typedef struct
 static void
 call_data_free (CallData *data)
 {
+  if (data->dbus_json)
+    data->dbus_json->active_calls = g_list_delete_link (data->dbus_json->active_calls, data->link);
+
   g_object_unref (data->connection);
   json_object_unref (data->request);
   g_free (data);
@@ -712,10 +715,7 @@ dbus_call_cb (GDBusConnection *connection,
   result = g_dbus_connection_call_finish (connection, res, &error);
 
   if (data->dbus_json)
-    {
-      send_dbus_reply (data->dbus_json, data->cookie, result, error);
-      data->dbus_json->active_calls = g_list_delete_link (data->dbus_json->active_calls, data->link);
-    }
+    send_dbus_reply (data->dbus_json, data->cookie, result, error);
 
   if (result)
     g_variant_unref (result);

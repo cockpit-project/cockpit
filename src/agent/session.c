@@ -415,6 +415,9 @@ main (int argc,
 
   if (want_session)
     {
+      debug ("checking access for %s", user);
+      check (pam_acct_mgmt (pamh, 0));
+
       debug ("opening pam session for %s", user);
       check (pam_set_item (pamh, PAM_TTY, line));
       check (pam_setcred (pamh, PAM_ESTABLISH_CRED));

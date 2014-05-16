@@ -205,7 +205,8 @@ install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
 	-chmod 700 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
-	-chmod 700 $(DESTDIR)$(localstatedir)/lib/cockpit
+	-chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit
+	-chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit
 
 update-known-hosts:
 	cat $(srcdir)/src/ws/mock_*.pub | \

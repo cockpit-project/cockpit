@@ -65,6 +65,8 @@ Cockpit.
 getent group cockpit-user-admin >/dev/null || groupadd -r cockpit-user-admin
 getent group cockpit-realm-admin >/dev/null || groupadd -r cockpit-realm-admin
 getent group cockpit-storage-admin >/dev/null || groupadd -r cockpit-storage-admin
+chgrp wheel %{_sharedstatedir}/%{name}
+chmod 775 %{_sharedstatedir}/%{name}
 # Only for testing: in a distro we would ask sshd to ship the relevant lines
 cat %{_datadir}/%{name}/sshd-reauthorize.pam >> %{_sysconfdir}/pam.d/sshd
 

@@ -14,9 +14,6 @@ EXTRA_DIST += \
 	$(NULL)
 
 if WITH_COVERAGE
-clean-local:
-	find $(builddir) -name '*.gc??' -delete
-
 coverage:
 	mkdir -p tools/coverage
 	$(MAKE)

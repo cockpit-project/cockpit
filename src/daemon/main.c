@@ -98,6 +98,9 @@ main (int argc,
   name_owner_id = 0;
   sigint_id = 0;
 
+  /* Ignore SIGPIPE, it's not useful in daemons */
+  signal (SIGPIPE, SIG_IGN);
+
   g_type_init ();
 
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);

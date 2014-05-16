@@ -58,7 +58,7 @@ on_name_lost (GDBusConnection *connection,
 {
   if (the_daemon == NULL)
     {
-      g_warning ("Failed to connect to the system message bus");
+      g_warning ("Failed to connect to the message bus");
     }
   else
     {
@@ -139,7 +139,7 @@ main (int argc,
                                           NULL); /* GDestroyNotify */
     }
 
-  name_owner_id = g_bus_own_name (G_BUS_TYPE_SYSTEM,
+  name_owner_id = g_bus_own_name (G_BUS_TYPE_SESSION,
                                   "com.redhat.Cockpit",
                                   G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
                                     (opt_replace ? G_BUS_NAME_OWNER_FLAGS_REPLACE : 0),

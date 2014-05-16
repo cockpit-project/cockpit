@@ -92,18 +92,17 @@ Point your browser to `https://IP-OR-NAME-OF-YOUR-VM:1001`
 and Cockpit should load after confirming the self-signed certificate.
 Log in as root with the normal root password (of the virtual machine).
 
-Cockpit consists of two main systemd services: cockpitd.service and
-cockpit.service.  After installing a new version, you should
-usually restart both of them
+Cockpit consists of the systemd service: cockpit.service .
+After installing a new version, you should usually restart it:
 
-    # systemctl restart cockpit cockpitd
+    # systemctl restart cockpit
 
 and then reload the browser.
 
-If you want to run `/usr/libexec/cockpitd` or `/usr/libexec/cockpit-ws`
-outside of systemd, stop them first, including the socket:
+If you want to run `/usr/libexec/cockpit-ws` outside of systemd, stop
+it first, including the socket:
 
-    # systemctl stop cockpit.socket cockpit cockpitd
+    # systemctl stop cockpit.socket cockpit
 
 ## Making a change
 
@@ -111,7 +110,7 @@ Simple version. Edit the appropriate sources and then:
 
     $ make
     $ sudo make install
-    $ sudo systemctl restart cockpit cockpitd
+    $ sudo systemctl restart cockpit
 
 Then refresh in your browser and your change should be visible. Note that
 for pure javascript changes you probably don't need to do the last part.

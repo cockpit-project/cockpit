@@ -87,13 +87,11 @@ cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
 cp data/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
 
 %files
-%{_sysconfdir}/dbus-1/system.d/com.redhat.Cockpit.conf
 %{_sysconfdir}/%{name}
 %{_sysconfdir}/pam.d/cockpit
-/usr/lib/systemd/system/cockpitd.service
 /usr/lib/systemd/system/cockpit.socket
 /usr/lib/systemd/system/cockpit.service
-%{_datadir}/dbus-1/system-services/com.redhat.Cockpit.service
+%{_datadir}/dbus-1/services/com.redhat.Cockpit.service
 %{_libexecdir}/cockpitd
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-session
@@ -115,7 +113,6 @@ pulls in some necessary packages via dependencies.
 %files test-assets
 %{_datadir}/cockpit-test-assets
 /usr/lib/systemd/system/cockpit-testing.service
-/usr/lib/systemd/system/cockpitd-testing.service
 /usr/lib/systemd/system/cockpit-testing.socket
 /usr/lib/systemd/system/test-server.service
 /usr/lib/systemd/system/test-server.socket

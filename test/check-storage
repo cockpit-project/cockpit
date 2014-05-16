@@ -757,13 +757,7 @@ class TestStorage(MachineCase):
         m.execute("cryptsetup luksClose dm-test")
         m.execute("lvchange TEST/lvol -a n")
 
-        # Restart cockpitd.
-        m.execute("systemctl restart cockpitd-testing.service")
-
-        # XXX - Restarting cockpitd-testing.service will restart
-        #       cockpit-testing.service as well (because the latter
-        #       requires the former), and we need to log in again...
-        #
+        # Restart cockpitd by logging in again
         b.relogin('storage')
 
         # Delete the volume group and check that fstab has been cleaned up

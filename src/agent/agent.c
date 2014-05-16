@@ -24,6 +24,7 @@
 
 #include "cockpit/cockpitpipetransport.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -125,6 +126,79 @@ on_closed_set_flag (CockpitTransport *transport,
   *flag = TRUE;
 }
 
+static GPid
+start_dbus_daemon (void)
+{
+  GError *error = NULL;
+  const gchar *env;
+  GString *address;
+  gint std_output;
+  gchar *line;
+  gsize len;
+  gssize ret;
+  GPid pid = 0;
+
+  gchar *dbus_argv[] = {
+      "dbus-daemon",
+      "--print-address",
+      "--session",
+      "--nofork",
+      "--nopidfile",
+      NULL
+  };
+
+  /* Automatically start a DBus session if necessary */
+  env = g_getenv ("DBUS_SESSION_BUS_ADDRESS");
+  if (env != NULL && env[0] != '\0')
+    return 0;
+
+  g_spawn_async_with_pipes (NULL, dbus_argv, NULL, G_SPAWN_SEARCH_PATH,
+                            NULL, NULL, &pid, NULL, &std_output, NULL, &error);
+  if (error != NULL)
+    {
+      g_warning ("couldn't start DBus session bus: %s", error->message);
+      g_error_free (error);
+      return 0;
+    }
+
+  address = g_string_new ("");
+  for (;;)
+    {
+      len = address->len;
+      g_string_set_size (address, len + 256);
+      ret = read (std_output, address->str + len, 256);
+      if (ret < 0)
+        {
+          g_string_set_size (address, len);
+          if (errno != EAGAIN)
+            {
+              g_warning ("couldn't read address from dbus-daemon: %s", g_strerror (errno));
+              break;
+            }
+        }
+      else if (ret == 0)
+        {
+          break;
+        }
+      else
+        {
+          g_string_set_size (address, len + ret);
+          line = strchr (address->str, '\n');
+          if (line != NULL)
+            {
+              *line = '\0';
+              break;
+            }
+        }
+    }
+
+  close (std_output);
+  g_setenv ("DBUS_SESSION_BUS_ADDRESS", address->str, TRUE);
+  g_string_free (address, TRUE);
+
+  return pid;
+}
+
 int
 main (int argc,
       char **argv)
@@ -134,6 +208,7 @@ main (int argc,
   gboolean closed = FALSE;
   GError *error = NULL;
   gpointer polkit_agent;
+  GPid daemon_pid;
   int outfd;
 
   /*
@@ -153,6 +228,9 @@ main (int argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
+  /* Start a session daemon if necessary */
+  daemon_pid = start_dbus_daemon ();
+
   g_type_init ();
 
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
@@ -165,7 +243,6 @@ main (int argc,
       g_message ("couldn't connect to system bus: %s", error->message);
       g_clear_error (&error);
     }
-
   polkit_agent = cockpit_polkit_agent_register (transport, NULL);
 
   /* Owns the channels */
@@ -180,5 +257,8 @@ main (int argc,
     g_object_unref (connection);
   g_object_unref (transport);
   g_hash_table_destroy (channels);
+
+  if (daemon_pid)
+    kill (daemon_pid, SIGTERM);
   exit (0);
 }

@@ -359,6 +359,7 @@ process_authorize (CockpitWebService *self,
                    JsonObject *options)
 {
   JsonObject *object = NULL;
+  const gchar *cookie = NULL;
   GBytes *bytes = NULL;
   const gchar *host;
   char *user = NULL;
@@ -367,13 +368,12 @@ process_authorize (CockpitWebService *self,
   const gchar *challenge;
   const gchar *password;
   gboolean ret = FALSE;
-  gint64 cookie;
   int rc;
 
   host = session->host;
 
   if (!cockpit_json_get_string (options, "challenge", NULL, &challenge) ||
-      !cockpit_json_get_int (options, "cookie", 0, &cookie) ||
+      !cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
       challenge == NULL ||
       reauthorize_type (challenge, &type) < 0 ||
       reauthorize_user (challenge, &user) < 0)
@@ -411,7 +411,7 @@ process_authorize (CockpitWebService *self,
 
   object = json_object_new ();
   json_object_set_string_member (object, "command", "authorize");
-  json_object_set_int_member (object, "cookie", cookie);
+  json_object_set_string_member (object, "cookie", cookie);
   json_object_set_string_member (object, "response", response ? response : "");
   bytes = cockpit_json_write_bytes (object);
 

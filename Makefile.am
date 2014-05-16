@@ -96,6 +96,10 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 	for d in $(testassets_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(testassetsdir); done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
 
+clean-local:
+	find $(builddir) -name '*.gc??' -delete
+	find $(srcdir) -name '*.pyc' -delete
+
 include doc/Makefile-doc.am
 include doc/man/Makefile-man.am
 include data/Makefile-data.am

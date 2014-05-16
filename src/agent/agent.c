@@ -250,12 +250,17 @@ main (int argc,
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
-  connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &error);
+  connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
   if (connection == NULL)
     {
-      g_message ("couldn't connect to system bus: %s", error->message);
+      g_message ("couldn't connect to session bus: %s", error->message);
       g_clear_error (&error);
     }
+  else
+    {
+      g_dbus_connection_set_exit_on_close (connection, FALSE);
+    }
+
   polkit_agent = cockpit_polkit_agent_register (transport, NULL);
 
   /* Owns the channels */

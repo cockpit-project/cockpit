@@ -17,6 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN "cockpit-protocol"
+
 #include "config.h"
 
 #include "cockpitsshtransport.h"

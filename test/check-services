@@ -25,6 +25,9 @@ class TestServices(MachineCase):
         m = self.machine
         b = self.browser
 
+        # TODO: Make this work with non-root
+        b.default_user = "root"
+
         m.write("/usr/lib/systemd/system/test.service",
 """
 [Unit]

@@ -65,6 +65,9 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
+        # TODO: Make this work with non-root
+        b.default_user = "root"
+
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
 
@@ -93,6 +96,9 @@ class TestStorage(MachineCase):
     def testMounting(self):
         m = self.machine
         b = self.browser
+
+        # TODO: Make this work with non-root
+        b.default_user = "root"
 
         self.login_and_go("storage")
 
@@ -133,6 +139,9 @@ class TestStorage(MachineCase):
     def testDosParts(self):
         m = self.machine
         b = self.browser
+
+        # TODO: Make this work with non-root
+        b.default_user = "root"
 
         self.login_and_go("storage")
 
@@ -205,6 +214,9 @@ class TestStorage(MachineCase):
     def testLuks(self):
         m = self.machine
         b = self.browser
+
+        # TODO: Make this work with non-root
+        b.default_user = "root"
 
         self.login_and_go("storage")
 
@@ -320,6 +332,9 @@ class TestStorage(MachineCase):
     def testRaid(self):
         m = self.machine
         b = self.browser
+
+        # TODO: Make this work with non-root
+        b.default_user = "root"
 
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
@@ -459,6 +474,9 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
+        # TODO: Make this work with non-root
+        b.default_user = "root"
+
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
 
@@ -487,6 +505,9 @@ class TestStorage(MachineCase):
     def testLvm(self):
         m = self.machine
         b = self.browser
+
+        # TODO: Make this work with non-root
+        b.default_user = "root"
 
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
@@ -668,6 +689,9 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
+        # TODO: Make this work with non-root
+        b.default_user = "root"
+
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
 
@@ -758,6 +782,7 @@ class TestStorage(MachineCase):
         m.execute("lvchange TEST/lvol -a n")
 
         # Restart cockpitd by logging in again
+        self.allow_journal_messages("Error receiving data: Connection reset by peer")
         b.relogin('storage')
 
         # Delete the volume group and check that fstab has been cleaned up

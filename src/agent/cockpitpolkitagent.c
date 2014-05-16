@@ -36,7 +36,7 @@
 #include <string.h>
 
 typedef struct {
-    gint64 cookie;
+    gchar *cookie;
 
     GSimpleAsyncResult *result;
     CockpitPolkitAgent *self;
@@ -54,7 +54,6 @@ struct _CockpitPolkitAgent {
   CockpitTransport *transport;
   gulong control_sig;
   GHashTable *callers;
-  gint64 last_cookie;
 };
 
 typedef struct {
@@ -89,6 +88,7 @@ caller_free (gpointer data)
       g_object_unref (caller->result);
     }
 
+  g_free (caller->cookie);
   g_free (caller);
 }
 
@@ -98,14 +98,13 @@ caller_close (ReauthorizeCaller *caller)
   g_debug ("closing agent authentication");
 
   /* Closes the caller socket and cleans up */
-  g_hash_table_remove (caller->self->callers, &caller->cookie);
+  g_hash_table_remove (caller->self->callers, caller->cookie);
 }
 
 static void
 cockpit_polkit_agent_init (CockpitPolkitAgent *self)
 {
-  self->callers = g_hash_table_new_full (cockpit_json_int_hash,
-                                         cockpit_json_int_equal,
+  self->callers = g_hash_table_new_full (g_str_hash, g_str_equal,
                                          NULL, caller_free);
 }
 
@@ -119,22 +118,22 @@ on_transport_control (CockpitTransport *transport,
   CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (user_data);
   ReauthorizeCaller *caller;
   const gchar *response;
-  gint64 cookie;
+  const gchar *cookie;
   GBytes *bytes;
 
   if (!g_str_equal (command, "authorize"))
     return FALSE;
 
-  if (!cockpit_json_get_int (options, "cookie", -1, &cookie) ||
+  if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
       !cockpit_json_get_string (options, "response", NULL, &response) ||
-      cookie < 0 || !response)
+      !cookie || !response)
     {
       g_warning ("got an invalid authorize command from cockpit-ws");
       cockpit_transport_close (transport, "protocol-error");
       return TRUE;
     }
 
-  caller = g_hash_table_lookup (self->callers, &cookie);
+  caller = g_hash_table_lookup (self->callers, cookie);
   if (!caller)
     {
       g_debug ("received authorize response for caller that has gone away");
@@ -162,8 +161,6 @@ cockpit_polkit_agent_constructed (GObject *object)
   CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (object);
 
   G_OBJECT_CLASS (cockpit_polkit_agent_parent_class)->constructed (object);
-
-  self->last_cookie = 1;
 
   self->control_sig = g_signal_connect (self->transport, "control",
                                         G_CALLBACK (on_transport_control), self);
@@ -240,7 +237,7 @@ on_helper_read (CockpitPipe *pipe,
   /* send an authorize packet here */
   object = json_object_new ();
   json_object_set_string_member (object, "command", "authorize");
-  json_object_set_int_member (object, "cookie", caller->cookie);
+  json_object_set_string_member (object, "cookie", caller->cookie);
   json_object_set_string_member (object, "challenge", (gchar *)buffer->data);
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);
@@ -377,7 +374,7 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
   g_free (string);
 
   caller = g_new0 (ReauthorizeCaller, 1);
-  caller->cookie = self->last_cookie++;
+  caller->cookie = g_strdup (cookie);
   caller->helper = cockpit_pipe_spawn (argv, NULL, NULL);
   caller->read_sig = g_signal_connect (caller->helper, "read", G_CALLBACK (on_helper_read), caller);
   caller->close_sig = g_signal_connect (caller->helper, "close", G_CALLBACK (on_helper_close), caller);
@@ -388,7 +385,7 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
   caller->result = g_object_ref (result);
   caller->self = self;
 
-  g_hash_table_replace (self->callers, &caller->cookie, caller);
+  g_hash_table_replace (self->callers, caller->cookie, caller);
 
   g_debug ("cockpit-polkit helper starting");
 

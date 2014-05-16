@@ -164,7 +164,7 @@ and responses between cockpit-agent and cockpit-ws.
 
 The following fields are defined:
 
- * "cookie": an integer sent with a challenge, that must be present in
+ * "cookie": an string sent with a challenge, that must be present in
    the corresponding response.
  * "challenge": a challenge string from the reauthorize component, present
    in messages from cockpit-agent to cockpit-ws
@@ -178,13 +178,13 @@ Example authorize challenge and response messages:
 
     {
         "command": "authorize",
-        "cookie": 555,
+        "cookie": "555",
         "challenge": "crypt1:74657374:$6$2rcph,noe92ot..."
     }
 
     {
         "command": "authorize",
-        "cookie": 555,
+        "cookie": "555",
         "response": "crypt1:$6$r0oetn2039ntoen..."
     }
 

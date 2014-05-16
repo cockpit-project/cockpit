@@ -70,6 +70,7 @@ class Browser:
     phantom_wait_timeout = 60
 
     def __init__(self, address, label):
+        self.default_user = "admin"
         self.address = address
         self.label = label
         self.phantom = None
@@ -245,18 +246,22 @@ class Browser:
         else:
             self.click(sel + ' button:first-child');
 
-    def login_and_go(self, page):
+    def login_and_go(self, page, user=None):
+        if user is None:
+            user = self.default_user
         self.open(page)
         self.wait_visible("#login")
-        self.set_val('#login-user-input', "admin")
+        self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', "foobar")
         self.click('#login-button')
         self.wait_page(page)
 
-    def relogin(self, page):
+    def relogin(self, page, user=None):
+        if user is None:
+            user = self.default_user
         self.click('a[onclick*="cockpit_logout"]')
         self.wait_visible("#login")
-        self.set_val("#login-user-input", "admin")
+        self.set_val("#login-user-input", user)
         self.set_val("#login-password-input", "foobar")
         self.click('#login-button')
         self.wait_page(page)
@@ -310,9 +315,9 @@ class MachineCase(unittest.TestCase):
         """
         self.machine.execute("systemctl start cockpit-testing.socket")
 
-    def login_and_go(self, page):
+    def login_and_go(self, page, user=None):
         self.start_cockpit()
-        self.browser.login_and_go(page)
+        self.browser.login_and_go(page, user)
 
     allowed_messages = [
         # This is a failed login, which happens every time
@@ -323,7 +328,8 @@ class MachineCase(unittest.TestCase):
 
         # Sometimes D-Bus goes away before us during shutdown
         "Lost \\(or failed to acquire\\) the name com.redhat.Cockpit on the system message bus",
-        "GLib-GIO:ERROR:gdbusobjectmanagerserver\\.c:966:g_dbus_object_manager_server_emit_interfaces_removed: assertion failed \\(error == NULL\\): The connection is closed \\(g-io-error-quark, 18\\)",
+        "GLib-GIO:ERROR:gdbusobjectmanagerserver\\.c:.*:g_dbus_object_manager_server_emit_interfaces_.*: assertion failed \\(error == NULL\\): The connection is closed \\(g-io-error-quark, 18\\)",
+        "Error sending message: The connection is closed",
 
         ## Bugs
 

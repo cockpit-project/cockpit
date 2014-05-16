@@ -29,7 +29,8 @@ PageNetworking.prototype = {
     enter: function () {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.client = cockpit.dbus(this.address,
-                                    { 'service': "org.freedesktop.NetworkManager",
+                                    { 'bus': 'system',
+                                      'service': "org.freedesktop.NetworkManager",
                                       'object-paths': [ "/org/freedesktop/NetworkManager" ]
                                     });
 

@@ -25,6 +25,7 @@
 #include "cockpit/cockpitlog.h"
 #include "cockpit/cockpitpipetransport.h"
 
+#include <sys/prctl.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -127,6 +128,12 @@ on_closed_set_flag (CockpitTransport *transport,
   *flag = TRUE;
 }
 
+static void
+setup_dbus_daemon (gpointer unused)
+{
+  prctl (PR_SET_PDEATHSIG, SIGTERM);
+}
+
 static GPid
 start_dbus_daemon (void)
 {
@@ -153,8 +160,10 @@ start_dbus_daemon (void)
   if (env != NULL && env[0] != '\0')
     return 0;
 
-  g_spawn_async_with_pipes (NULL, dbus_argv, NULL, G_SPAWN_SEARCH_PATH,
-                            NULL, NULL, &pid, NULL, &std_output, NULL, &error);
+  /* The DBus daemon produces useless messages on stderr mixed in */
+  g_spawn_async_with_pipes (NULL, dbus_argv, NULL,
+                            G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+                            setup_dbus_daemon, NULL, &pid, NULL, &std_output, NULL, &error);
   if (error != NULL)
     {
       g_warning ("couldn't start DBus session bus: %s", error->message);

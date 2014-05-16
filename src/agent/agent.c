@@ -22,6 +22,7 @@
 #include "cockpitdbusjson.h"
 #include "cockpitpolkitagent.h"
 
+#include "cockpit/cockpitlog.h"
 #include "cockpit/cockpitpipetransport.h"
 
 #include <errno.h>
@@ -210,6 +211,9 @@ main (int argc,
   gpointer polkit_agent;
   GPid daemon_pid;
   int outfd;
+
+  signal (SIGPIPE, SIG_IGN);
+  cockpit_set_journal_logging ();
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write

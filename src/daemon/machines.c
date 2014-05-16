@@ -140,7 +140,13 @@ machines_read (Machines *machines)
           cockpit_machine_set_address (COCKPIT_MACHINE (machine), address);
           cockpit_machine_set_tags (COCKPIT_MACHINE (machine), tags);
           machine_export (machine, machines->object_manager);
-          machines_write_inlock (machines, NULL);
+
+          g_clear_error (&error);
+          if (!machines_write_inlock (machines, &error))
+            {
+              g_warning ("Can't write %s: %s", machines->machines_file, error->message);
+              goto out;
+            }
         }
       else
         g_warning ("Can't read %s: %s", machines->machines_file, error->message);

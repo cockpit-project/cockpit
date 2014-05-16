@@ -70,6 +70,7 @@ struct _CockpitPipePrivate {
   GSource *child;
   gboolean exited;
   gint status;
+  CockpitPipe **watch_arg;
   gboolean is_process;
 
   int out_fd;
@@ -186,10 +187,16 @@ on_child_reap (GPid pid,
                gint status,
                gpointer user_data)
 {
-  CockpitPipe *self = COCKPIT_PIPE (user_data);
+  CockpitPipe **arg = user_data;
+  CockpitPipe *self = *arg;
+
+  /* This happens if this child watch outlasts the pipe */
+  if (!self)
+    return;
 
   self->priv->status = status;
   self->priv->exited = TRUE;
+  self->priv->watch_arg = NULL;
 
   /*
    * When a pid is present then this is the definitive way of
@@ -482,8 +489,14 @@ cockpit_pipe_constructed (GObject *object)
   if (self->priv->pid)
     {
       self->priv->is_process = TRUE;
+
+      /* We may need this watch to outlast this process ... */
+      self->priv->watch_arg = g_new0 (CockpitPipe *, 1);
+      *(self->priv->watch_arg) = self;
+
       self->priv->child = g_child_watch_source_new (self->priv->pid);
-      g_source_set_callback (self->priv->child, (GSourceFunc)on_child_reap, self, NULL);
+      g_source_set_callback (self->priv->child, (GSourceFunc)on_child_reap,
+                             self->priv->watch_arg, g_free);
       g_source_attach (self->priv->child, self->priv->context);
     }
 }
@@ -563,12 +576,6 @@ cockpit_pipe_dispose (GObject *object)
       kill (self->priv->pid, SIGTERM);
     }
 
-  if (self->priv->pid)
-    {
-      g_spawn_close_pid (self->priv->pid);
-      self->priv->pid = 0;
-    }
-
   if (!self->priv->closed)
     close_immediately (self, "terminated");
 
@@ -587,11 +594,16 @@ cockpit_pipe_finalize (GObject *object)
   g_assert (!self->priv->in_source);
   g_assert (!self->priv->out_source);
 
+  /* Release our reference on watch handler */
   if (self->priv->child)
-    {
-      g_source_destroy (self->priv->child);
-      g_source_unref (self->priv->child);
-    }
+    g_source_unref (self->priv->child);
+
+  /*
+   * Tell the child watch that we've gone away ...
+   * But note that if the child watch hasn't fired, it'll continue to wait
+   */
+  if (self->priv->watch_arg)
+    *(self->priv->watch_arg) = NULL;
 
   g_byte_array_unref (self->priv->in_buffer);
   g_queue_free (self->priv->out_queue);

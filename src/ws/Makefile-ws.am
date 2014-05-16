@@ -80,7 +80,7 @@ test_server_SOURCES = src/ws/test-server.c $(mock_dbus_sources)
 nodist_test_server_SOURCES = $(test_built_sources)
 test_server_CFLAGS = 					\
 	-I$(top_srcdir)/src/ws \
-	-DG_LOG_DOMAIN=\"test_server\"			\
+	-DG_LOG_DOMAIN=\"test-server\"			\
 	$(GIO_CFLAGS)					\
 	$(NULL)
 

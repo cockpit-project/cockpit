@@ -680,7 +680,7 @@ test_fail_not_found (void)
   CockpitChannel *channel;
   gchar *problem = NULL;
 
-  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
 
   transport = g_object_new (mock_transport_get_type (), NULL);
   channel = cockpit_text_stream_open (transport, "1", "/non-existent");
@@ -715,7 +715,7 @@ test_fail_not_authorized (void)
       return;
     }
 
-  cockpit_expect_log ("libcockpit", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
 
   unix_path = g_strdup ("/tmp/cockpit-test-XXXXXX.sock");
   fd = g_mkstemp (unix_path);

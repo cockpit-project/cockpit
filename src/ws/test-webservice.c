@@ -689,7 +689,7 @@ test_unknown_host_key (TestCase *test,
   gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   cockpit_expect_info ("*New connection from*");
-  cockpit_expect_message ("*host key for server is not known*");
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*host key for server is not known*");
 
   /* No known hosts */
   cockpit_ws_known_hosts = "/dev/null";

@@ -92,7 +92,7 @@ libcockpitd_a_SOURCES = \
 	$(NULL)
 
 libcockpitd_a_CFLAGS = \
-	-DG_LOG_DOMAIN=\"cockpitd\" \
+	-DG_LOG_DOMAIN=\"cockpit-daemon\" \
 	$(COCKPIT_DAEMON_CFLAGS) \
 	$(NULL)
 
@@ -102,7 +102,7 @@ cockpitd_SOURCES = \
 
 cockpitd_CFLAGS = 					\
 	-I$(top_srcdir)/src/daemon			\
-	-DG_LOG_DOMAIN=\"cockpitd\"			\
+	-DG_LOG_DOMAIN=\"cockpit-daemon\" \
 	$(COCKPIT_DAEMON_CFLAGS)			\
 	$(NULL)
 

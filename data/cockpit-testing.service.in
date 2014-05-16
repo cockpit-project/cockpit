@@ -7,5 +7,5 @@ After=cockpitd-testing.service
 Conflicts=cockpit.service
 
 [Service]
-Environment=G_MESSAGES_DEBUG=libcockpit-ws,cockpit-ws
+Environment=G_MESSAGES_DEBUG=cockpit-ws
 ExecStart=@libexecdir@/cockpit-ws --no-tls

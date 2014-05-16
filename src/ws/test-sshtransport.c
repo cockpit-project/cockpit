@@ -36,6 +36,9 @@
  */
 #define WITH_MOCK 1
 
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN "cockpit-protocol"
+
 #define PASSWORD "this is the password"
 
 typedef struct {

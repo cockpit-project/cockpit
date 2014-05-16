@@ -293,6 +293,7 @@ test_read_error (void)
 
   g_assert_cmpint (pipe (fds), ==, 0);
 
+
   cockpit_expect_warning ("*Bad file descriptor");
   cockpit_expect_warning ("*Bad file descriptor");
 

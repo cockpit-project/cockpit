@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <glib-unix.h>
 #include <gsystem-local-alloc.h>
 
 
@@ -209,6 +210,14 @@ start_dbus_daemon (void)
   return pid;
 }
 
+static gboolean
+on_signal_done (gpointer data)
+{
+  gboolean *closed = data;
+  *closed = TRUE;
+  return FALSE;
+}
+
 int
 main (int argc,
       char **argv)
@@ -245,6 +254,10 @@ main (int argc,
   daemon_pid = start_dbus_daemon ();
 
   g_type_init ();
+
+  g_unix_signal_add_full (G_PRIORITY_DEFAULT,
+                          SIGTERM, on_signal_done,
+                          &closed, NULL);
 
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);

@@ -985,12 +985,6 @@ cockpit_ssh_source_dispatch (GSource *source,
           self->received_eof = TRUE;
           self->received_close = TRUE;
         }
-      else
-        {
-          g_message ("%s: disconnected from ssh", self->logname);
-          close_immediately (self, "disconnected");
-        }
-      return TRUE;
     }
   if (cond & G_IO_ERR)
     {

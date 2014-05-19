@@ -37,6 +37,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#define TIMEOUT 30
+
 #define WAIT_UNTIL(cond) \
   G_STMT_START \
     while (!(cond)) g_main_context_iteration (NULL, TRUE); \
@@ -221,6 +223,8 @@ static void
 setup_for_socket (TestCase *test,
                   gconstpointer data)
 {
+  alarm (TIMEOUT);
+
   setup_mock_sshd (test, data);
   setup_mock_webserver (test, data);
   setup_io_streams (test, data);
@@ -244,6 +248,7 @@ teardown_for_socket (TestCase *test,
   teardown_io_streams (test, data);
 
   cockpit_assert_expected ();
+  alarm (0);
 }
 
 static void

@@ -534,7 +534,7 @@ class QemuMachine(Machine):
             conf = { }
 
         snapshot = maintain and "off" or "on"
-        selinux = "enforcing=0"
+        selinux = "enforcing=1"
         self.macaddr = self._choose_macaddr(conf)
         cmd = [
             self._locate_qemu_kvm(),
@@ -791,4 +791,5 @@ set -euf
 rpm -U --force $TEST_PACKAGES
 
 rm -rf /var/log/journal/*
+echo 'SELINUX=enforcing' > /etc/sysconfig/selinux
 """

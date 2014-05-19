@@ -86,7 +86,7 @@ make install install-test-assets DESTDIR=%{buildroot}
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 mkdir -p %{buildroot}/etc/pam.d/
 cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
-cp data/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
+cp src/agent/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
 
 %files
 %{_sysconfdir}/%{name}

@@ -65,6 +65,33 @@ cockpit_ws_LDADD = 					\
 	$(COCKPIT_WS_LIBS)					\
 	$(NULL)
 
+dist_systemdunit_DATA += src/ws/cockpit.socket
+
+cockpit.service : src/ws/cockpit.service.in Makefile
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+nodist_systemdunit_DATA += cockpit.service
+
+cockpit-testing.service : src/ws/cockpit-testing.service.in Makefile
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+noinst_DATA += cockpit-testing.service
+testassets_systemdunit_data += cockpit-testing.service
+
+cockpitconfdir = $(sysconfdir)/cockpit
+cockpitconf_DATA = src/ws/config
+
+EXTRA_DIST += \
+	src/ws/cockpit.service.in \
+	src/ws/cockpit-testing.service.in \
+	src/ws/test-server.service.in \
+	src/ws/config \
+	$(NULL)
+
+CLEANFILES += \
+	cockpit-testing.service \
+	test-server.service \
+	cockpit.service \
+	$(NULL)
+
 # ----------------------------------------------------------------------------------------------------
 
 noinst_PROGRAMS += test-server
@@ -90,6 +117,15 @@ test_server_LDADD = 					\
 	$(GIO_LIBS)					\
 	-lpam 						\
 	$(NULL)
+
+testassets_systemdunit_data += \
+	src/ws/cockpit-testing.socket \
+	src/ws/test-server.socket
+
+test-server.service : src/ws/test-server.service.in Makefile
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+noinst_DATA += test-server.service
+testassets_systemdunit_data += test-server.service
 
 WS_CHECKS = \
 	test-creds \

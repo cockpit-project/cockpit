@@ -827,6 +827,9 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
+  /* We don't want to test the ping functionality in these tests */
+  cockpit_ws_ping_interval = G_MAXUINT;
+
   static const TestFixture fixture_rfc6455 = {
       .web_socket_flavor = WEB_SOCKET_FLAVOR_RFC6455,
   };

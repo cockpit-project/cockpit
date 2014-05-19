@@ -55,6 +55,11 @@ install-data-hook:
 	-chown root $(DESTDIR)$(libexecdir)/cockpit-polkit
 	-chmod 4755 $(DESTDIR)$(libexecdir)/cockpit-polkit
 
+EXTRA_DIST += \
+	src/agent/cockpit.pam.insecure \
+	src/agent/sshd-reauthorize.pam \
+	$(NULL)
+
 # -----------------------------------------------------------------------------
 # TESTS
 

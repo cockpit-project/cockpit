@@ -11,6 +11,15 @@ noinst_LIBRARIES =
 noinst_DATA =
 TESTS =
 
+dist_systemdunit_DATA   =
+nodist_systemdunit_DATA =
+
+if HAVE_SYSTEMD
+systemdunitdir          = $(systemdsystemunitdir)
+else
+systemdunitdir          = /tmp
+endif
+
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
 SUBDIRS = . po
@@ -103,7 +112,6 @@ clean-local:
 
 include doc/Makefile-doc.am
 include doc/man/Makefile-man.am
-include data/Makefile-data.am
 include src/cockpit/Makefile-libcockpit.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am

@@ -3,14 +3,14 @@ libexec_PROGRAMS += cockpitd
 dbus_built_sources = cockpit-generated.h cockpit-generated.c
 
 cockpit-generated.h: cockpit-generated.c
-cockpit-generated.c: Makefile.am $(top_srcdir)/data/com.redhat.Cockpit.xml
+cockpit-generated.c: Makefile.am $(top_srcdir)/src/daemon/com.redhat.Cockpit.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 		--interface-prefix com.redhat.Cockpit.				\
 		--c-namespace Cockpit							\
 		--c-generate-object-manager						\
 		--generate-c-code cockpit-generated                             		\
 		--generate-docbook cockpit-generated-doc					\
-		$(top_srcdir)/data/com.redhat.Cockpit.xml				\
+		$(top_srcdir)/src/daemon/com.redhat.Cockpit.xml	\
 		$(NULL)
 BUILT_SOURCES += $(dbus_built_sources)
 CLEANFILES += cockpit-generated*
@@ -111,6 +111,21 @@ cockpitd_LDADD = 					\
 	libcockpit.a \
 	$(COCKPIT_DAEMON_LIBS) \
 	-lm 						\
+	$(NULL)
+
+dbusservicedir = $(datadir)/dbus-1/services
+dbusservice_DATA = com.redhat.Cockpit.service
+
+com.redhat.Cockpit.service: src/daemon/com.redhat.Cockpit.service.in Makefile
+	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
+
+EXTRA_DIST += \
+	src/daemon/com.redhat.Cockpit.xml \
+	src/daemon/com.redhat.Cockpit.service.in \
+	$(NULL)
+
+CLEANFILES += \
+	com.redhat.Cockpit.service \
 	$(NULL)
 
 # -----------------------------------------------------------------------------

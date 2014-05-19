@@ -392,6 +392,19 @@ test_equal (gconstpointer data)
   json_node_free (b);
 }
 
+static void
+test_utf8_invalid (void)
+{
+  const gchar *input = "\"\xff\xff\"";
+  GError *error = NULL;
+
+  if (cockpit_json_parse (input, -1, &error))
+    g_assert_not_reached ();
+
+  g_assert_error (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_INVALID_DATA);
+  g_error_free (error);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -403,6 +416,8 @@ main (int argc,
 
   g_test_add_func ("/json/int-equal", test_int_equal);
   g_test_add_func ("/json/int-hash", test_int_hash);
+
+  g_test_add_func ("/json/utf8-invalid", test_utf8_invalid);
 
   g_test_add ("/json/get-string", TestCase, NULL,
               setup, test_get_string, teardown);

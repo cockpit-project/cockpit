@@ -4,14 +4,12 @@
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
 #
-COCKPIT_DEPS="accountsservice-libs udisks2 libudisks2 json-glib realmd lvm2 mdadm glib-networking libssh storaged"
+COCKPIT_DEPS="accountsservice-libs udisks2 libudisks2 json-glib realmd lvm2 mdadm glib-networking libssh storaged selinux-policy-targeted"
 
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.
 #
 IPA_CLIENT_PACKAGES="freeipa-client oddjob oddjob-mkhomedir sssd"
-
-echo 'SELINUX=disabled' > /etc/selinux/config
 
 rm -rf /etc/sysconfig/iptables
 
@@ -53,3 +51,8 @@ systemctl enable NetworkManager-dispatcher
 sed -i -e 's/-u ntp:ntp //' /usr/lib/systemd/system/ntpd.service
 
 rm -rf /var/log/journal/*
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+echo 'SELINUX=enforcing' > /etc/selinux/config
+
+touch /.autorelabel

@@ -226,6 +226,62 @@ spawn_session_process (const gchar *user,
   return pipe;
 }
 
+gboolean
+cockpit_auth_parse_input (GBytes *input,
+                          gchar **ret_user,
+                          GBytes **ret_password,
+                          GError **error)
+{
+  gchar *user = NULL;
+  GBytes *password = NULL;
+  const gchar *post;
+  const gchar *line;
+  gboolean ret;
+  gsize length;
+  gsize offset;
+
+  if (input)
+    {
+      post = g_bytes_get_data (input, &length);
+      line = memchr (post, '\n', length);
+      if (line && line != post)
+        {
+          user = g_strndup (post, line - post);
+          offset = (line - post) + 1;
+
+          /* No newline allowed in password */
+          if (memchr (post + offset, '\n', length - offset) == NULL)
+            password = g_bytes_new_from_bytes (input, offset, length - offset);
+        }
+    }
+
+  if (user && password)
+    {
+      if (ret_user)
+        {
+          *ret_user = user;
+          user = NULL;
+        }
+      if (ret_password)
+        {
+          *ret_password = password;
+          password = NULL;
+        }
+      ret = TRUE;
+    }
+  else
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Malformed input");
+      ret = FALSE;
+    }
+
+  if (password)
+    g_bytes_unref (password);
+  g_free (user);
+  return ret;
+}
+
 typedef struct {
   CockpitPipe *session_pipe;
   CockpitPipe *auth_pipe;
@@ -276,40 +332,21 @@ cockpit_auth_session_login_async (CockpitAuth *self,
   GSimpleAsyncResult *result;
   GBytes *password = NULL;
   gchar *user = NULL;
-  const gchar *post;
-  const gchar *line;
   LoginData *login;
-  gsize length;
-  gsize offset;
+  GError *error = NULL;
 
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                       cockpit_auth_session_login_async);
 
-  if (input)
+  if (!cockpit_auth_parse_input (input, &user, &password, &error))
     {
-      post = g_bytes_get_data (input, &length);
-      line = memchr (post, '\n', length);
-      if (line && line != post)
-        {
-          user = g_strndup (post, line - post);
-          offset = (line - post) + 1;
-
-          /* No newline allowed in password */
-          if (memchr (post + offset, '\n', length - offset) == NULL)
-            password = g_bytes_new_from_bytes (input, offset, length - offset);
-        }
-    }
-
-  if (!user || !password)
-    {
-      g_simple_async_result_set_error (result, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                                       "Malformed input");
+      g_simple_async_result_take_error (result, error);
       g_simple_async_result_complete_in_idle (result);
     }
   else
     {
       login = g_new0 (LoginData, 1);
-      login->password = g_bytes_ref (password);
+      login->password = password;
       login->remote_peer = g_strdup (remote_peer);
       g_simple_async_result_set_op_res_gpointer (result, login, login_data_free);
 
@@ -331,8 +368,6 @@ cockpit_auth_session_login_async (CockpitAuth *self,
     }
 
   g_free (user);
-  if (password)
-    g_bytes_unref (password);
   g_object_unref (result);
 }
 

@@ -87,6 +87,11 @@ CockpitCreds *  cockpit_auth_check_cookie    (CockpitAuth *auth,
 CockpitPipe *   cockpit_auth_start_session   (CockpitAuth *auth,
                                               CockpitCreds *creds);
 
+gboolean        cockpit_auth_parse_input     (GBytes *input,
+                                              gchar **user,
+                                              GBytes **password,
+                                              GError **error);
+
 struct passwd * cockpit_getpwnam_a           (const gchar *user,
                                               int *errp);
 

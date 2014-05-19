@@ -119,8 +119,8 @@ test_server_LDADD = 					\
 	$(NULL)
 
 testassets_systemdunit_data += \
-	src/ws/cockpit-testing.socket \
-	src/ws/test-server.socket
+	$(srcdir)/src/ws/cockpit-testing.socket \
+	$(srcdir)/src/ws/test-server.socket
 
 test-server.service : src/ws/test-server.service.in Makefile
 	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@

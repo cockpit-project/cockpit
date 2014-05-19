@@ -54,6 +54,8 @@ const gchar *cockpit_ws_default_host_header =
 
 gint cockpit_ws_specific_ssh_port = 0;
 
+guint cockpit_ws_ping_interval = 5;
+
 /* ----------------------------------------------------------------------------
  * CockpitSession
  */
@@ -999,7 +1001,7 @@ cockpit_web_service_socket (GIOStream *io_stream,
   g_signal_connect (self->web_socket, "close", G_CALLBACK (on_web_socket_close), self);
   g_signal_connect (self->web_socket, "error", G_CALLBACK (on_web_socket_error), self);
 
-  self->ping_timeout = g_timeout_add_seconds (5, on_ping_time, self);
+  self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);
 
   return self;
 }

@@ -137,6 +137,8 @@ read_message (TestCase *tc)
   line = strchr (message, '\n');
   g_assert (line != NULL);
 
+  size -= (line - message);
+
   node = cockpit_json_parse (line, size, &error);
   g_assert_no_error (error);
   g_assert (node);

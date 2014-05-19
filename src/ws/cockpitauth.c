@@ -387,6 +387,16 @@ parse_auth_results (LoginData *login,
 
   buffer = cockpit_pipe_get_buffer (login->auth_pipe);
   results = cockpit_json_parse_object ((const gchar *)buffer->data, buffer->len, &json_error);
+
+  if (g_error_matches (json_error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_INVALID_DATA))
+    {
+      g_message ("got non-utf8 user name from cockpit-session");
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Login user name is not UTF8 encoded");
+      g_error_free (json_error);
+      return NULL;
+    }
+
   if (!results)
     {
       g_warning ("couldn't parse session auth output: %s", json_error->message);

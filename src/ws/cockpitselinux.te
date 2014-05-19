@@ -1,0 +1,93 @@
+policy_module(cockpit, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+type cockpit_t;
+type cockpit_exec_t;
+init_daemon_domain(cockpit_t, cockpit_exec_t)
+
+type cockpit_var_lib_t;
+files_type(cockpit_var_lib_t)
+
+type cockpit_unit_file_t;
+systemd_unit_file(cockpit_unit_file_t)
+
+########################################
+#
+# cockpit local policy
+#
+allow cockpit_t self:capability net_admin;
+allow cockpit_t self:fifo_file rw_fifo_file_perms;
+allow cockpit_t self:unix_stream_socket create_stream_socket_perms;
+allow cockpit_t self:netlink_kobject_uevent_socket create_socket_perms;
+allow cockpit_t self:unix_dgram_socket create_socket_perms;
+
+manage_dirs_pattern(cockpit_t, cockpit_var_lib_t, cockpit_var_lib_t)
+manage_files_pattern(cockpit_t, cockpit_var_lib_t, cockpit_var_lib_t)
+manage_lnk_files_pattern(cockpit_t, cockpit_var_lib_t, cockpit_var_lib_t)
+files_var_lib_filetrans(cockpit_t, cockpit_var_lib_t, { dir file lnk_file })
+
+kernel_read_system_state(cockpit_t)
+kernel_read_network_state(cockpit_t)
+
+corecmd_exec_bin(cockpit_t)
+corecmd_exec_shell(cockpit_t)
+
+dev_read_sysfs(cockpit_t)
+
+domain_use_interactive_fds(cockpit_t)
+domain_read_all_domains_state(cockpit_t)
+
+files_read_etc_files(cockpit_t)
+files_list_tmp(cockpit_t)
+
+fs_read_tmpfs_symlinks(cockpit_t)
+fs_list_cgroup_dirs(cockpit_t)
+fs_read_cgroup_files(cockpit_t)
+fs_getattr_all_fs(cockpit_t)
+
+auth_use_nsswitch(cockpit_t)
+
+init_dbus_chat(cockpit_t)
+init_status(cockpit_t)
+init_read_state(cockpit_t)
+init_list_pid_dirs(cockpit_t)
+
+logging_send_syslog_msg(cockpit_t)
+
+miscfiles_read_localization(cockpit_t)
+
+systemd_status_all_unit_files(cockpit_t)
+systemd_read_logind_sessions_files(cockpit_t)
+
+udev_read_pid_files(cockpit_t)
+
+optional_policy(`
+	dbus_system_bus_client(cockpit_t)
+	dbus_connect_system_bus(cockpit_t)
+
+	optional_policy(`
+		accountsd_dbus_chat(cockpit_t)
+	')
+
+	optional_policy(`
+		devicekit_dbus_chat_disk(cockpit_t)
+		devicekit_dbus_chat_power(cockpit_t)
+	')
+
+	optional_policy(`
+		networkmanager_dbus_chat(cockpit_t)
+		networkmanager_stream_connect(cockpit_t)
+	')
+
+	optional_policy(`
+		realmd_dbus_chat(cockpit_t)
+	')
+')
+
+optional_policy(`
+	docker_stream_connect(cockpit_t)
+')

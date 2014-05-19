@@ -1,0 +1,9 @@
+/usr/lib/systemd/system/cockpit.service		--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
+
+/usr/lib/systemd/system/cockpit.socket		--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
+
+/usr/lib/systemd/system/cockpitd.service		--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
+
+/usr/libexec/cockpitd		--	gen_context(system_u:object_r:cockpit_exec_t,s0)
+
+/var/lib/cockpit(/.*)?		gen_context(system_u:object_r:cockpit_var_lib_t,s0)

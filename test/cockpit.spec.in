@@ -47,9 +47,15 @@ BuildRequires: libxslt-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: keyutils-libs-devel
 
+
 BuildRequires: perl-JavaScript-Minifier-XS
 BuildRequires: perl-Locale-PO
 BuildRequires: perl-JSON
+
+# For selinux
+BuildRequires: selinux-policy-devel
+BuildRequires: checkpolicy
+BuildRequires: /usr/share/selinux/devel/policyhelp
 
 Requires: glib-networking
 Requires: realmd
@@ -57,6 +63,7 @@ Requires: udisks2 >= 2.1.0
 Requires: mdadm
 Requires: lvm2
 Requires: storaged
+Requires: selinux-policy
 
 %description
 Cockpit.
@@ -76,7 +83,7 @@ cat %{_datadir}/%{name}/sshd-reauthorize.pam >> %{_sysconfdir}/pam.d/sshd
 %build
 env NOCONFIGURE=1 ./autogen.sh
 %configure --disable-static --disable-silent-rules
-make %{?_smp_mflags} %{?extra_flags}
+make %{?_smp_mflags} %{?extra_flags} all selinux
 
 %check
 make check
@@ -87,6 +94,8 @@ rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 mkdir -p %{buildroot}/etc/pam.d/
 cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
 cp src/agent/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
+install -d %{buildroot}%{_datadir}/selinux/targeted
+install -p -m 644 cockpitselinux.pp %{buildroot}%{_datadir}/selinux/targeted/
 
 %files
 %{_sysconfdir}/%{name}
@@ -103,6 +112,34 @@ cp src/agent/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
 %{_datadir}/%{name}
 %{_mandir}/*
 %{_sharedstatedir}/%{name}
+
+%package selinux
+Summary: SELinux policy for Cockpit testing
+Requires: %{name} = %{version}-%{release}
+Requires: selinux-policy
+Requires: selinux-policy-targeted
+Requires(post): /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
+Requires(postun): /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
+
+%description selinux
+SELinux policy for Cockpit testing.
+
+%files selinux
+%defattr(-,root,root,0755)
+%{_datadir}/selinux/targeted/cockpitselinux.pp
+
+%post selinux
+/usr/sbin/semodule -s targeted -i %{_datadir}/selinux/targeted/cockpitselinux.pp &> /dev/null || :
+/sbin/fixfiles -R cockpit-selinux restore || :
+/sbin/restorecon -R %{_sharedstatedir}/%{name} || :
+
+%postun selinux
+if [ $1 -eq 0 ] ; then
+  /usr/sbin/semodule -s targeted -r cockpitselinux &> /dev/null || :
+  /sbin/fixfiles -R cockpit-selinux restore || :
+  [ -d %{_sharedstatedir}/%{name} ]  && \
+    /sbin/restorecon -R %{_sharedstatedir}/%{name} &> /dev/null || :
+fi
 
 %package test-assets
 Summary: Additional stuff for testing Cockpit

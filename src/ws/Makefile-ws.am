@@ -92,6 +92,18 @@ CLEANFILES += \
 	cockpit.service \
 	$(NULL)
 
+SELINUX_FILES = \
+	src/ws/cockpitselinux.fc \
+	src/ws/cockpitselinux.if \
+	src/ws/cockpitselinux.te \
+	$(NULL)
+
+cockpitselinux.pp: $(SELINUX_FILES)
+	cp $^ $(builddir)
+	$(MAKE) -f /usr/share/selinux/devel/Makefile cockpitselinux.pp
+
+selinux: cockpitselinux.pp
+
 # ----------------------------------------------------------------------------------------------------
 
 noinst_PROGRAMS += test-server

@@ -1,0 +1,186 @@
+
+## <summary>policy for cockpit</summary>
+
+########################################
+## <summary>
+##	Execute TEMPLATE in the cockpit domin.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`cockpit_domtrans',`
+	gen_require(`
+		type cockpit_t, cockpit_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, cockpit_exec_t, cockpit_t)
+')
+
+########################################
+## <summary>
+##	Search cockpit lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`cockpit_search_lib',`
+	gen_require(`
+		type cockpit_var_lib_t;
+	')
+
+	allow $1 cockpit_var_lib_t:dir search_dir_perms;
+	files_search_var_lib($1)
+')
+
+########################################
+## <summary>
+##	Read cockpit lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`cockpit_read_lib_files',`
+	gen_require(`
+		type cockpit_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	read_files_pattern($1, cockpit_var_lib_t, cockpit_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage cockpit lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`cockpit_manage_lib_files',`
+	gen_require(`
+		type cockpit_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_files_pattern($1, cockpit_var_lib_t, cockpit_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage cockpit lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`cockpit_manage_lib_dirs',`
+	gen_require(`
+		type cockpit_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_dirs_pattern($1, cockpit_var_lib_t, cockpit_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Execute cockpit server in the cockpit domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition.
+##	</summary>
+## </param>
+#
+interface(`cockpit_systemctl',`
+	gen_require(`
+		type cockpit_t;
+		type cockpit_unit_file_t;
+	')
+
+	systemd_exec_systemctl($1)
+        systemd_read_fifo_file_passwd_run($1)
+	allow $1 cockpit_unit_file_t:file read_file_perms;
+	allow $1 cockpit_unit_file_t:service manage_service_perms;
+
+	ps_process_pattern($1, cockpit_t)
+')
+
+
+########################################
+## <summary>
+##	Send and receive messages from
+##	cockpit over dbus.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`cockpit_dbus_chat',`
+	gen_require(`
+		type cockpit_t;
+		class dbus send_msg;
+	')
+
+	allow $1 cockpit_t:dbus send_msg;
+	allow cockpit_t $1:dbus send_msg;
+')
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	an cockpit environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`cockpit_admin',`
+	gen_require(`
+		type cockpit_t;
+		type cockpit_var_lib_t;
+	type cockpit_unit_file_t;
+	')
+
+	allow $1 cockpit_t:process { signal_perms };
+	ps_process_pattern($1, cockpit_t)
+
+    tunable_policy(`deny_ptrace',`',`
+        allow $1 cockpit_t:process ptrace;
+    ')
+
+	files_search_var_lib($1)
+	admin_pattern($1, cockpit_var_lib_t)
+
+	cockpit_systemctl($1)
+	admin_pattern($1, cockpit_unit_file_t)
+	allow $1 cockpit_unit_file_t:service all_service_perms;
+	optional_policy(`
+		systemd_passwd_agent_exec($1)
+		systemd_read_fifo_file_passwd_run($1)
+	')
+')

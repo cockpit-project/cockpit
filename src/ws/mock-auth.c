@@ -24,6 +24,8 @@
 #include "cockpit/cockpitenums.h"
 #include "cockpit/cockpiterror.h"
 
+#include <string.h>
+
 struct _MockAuth {
   CockpitAuth parent;
   gchar *expect_user;
@@ -59,26 +61,22 @@ mock_auth_login_async (CockpitAuth *auth,
 {
   MockAuth *self = MOCK_AUTH (auth);
   GSimpleAsyncResult *result;
-  gchar *request;
-  const gchar *data;
-  gsize length;
-  gchar **lines;
-
-  data = g_bytes_get_data (input, &length);
-  request = g_strndup (data, length);
-  lines = g_strsplit (request, "\n", 2);
+  gsize expect_len;
+  GBytes *password = NULL;
+  gchar *user = NULL;
+  GError *error = NULL;
 
   result = g_simple_async_result_new (G_OBJECT (auth), callback, user_data, NULL);
   g_simple_async_result_set_op_res_gpointer (result, g_strdup (remote_peer), g_free);
 
-  if (!lines[0] || !lines[1])
+  expect_len = strlen (self->expect_password);
+  if (!cockpit_auth_parse_input (input, &user, &password, &error))
     {
-      g_simple_async_result_set_error (result, G_IO_ERROR,
-                                       G_IO_ERROR_INVALID_DATA,
-                                       "Malformed input");
+      g_simple_async_result_take_error (result, error);
     }
-  else if (!g_str_equal (lines[0], self->expect_user) ||
-           !g_str_equal (lines[1], self->expect_password))
+  else if (!g_str_equal (user, self->expect_user) ||
+           g_bytes_get_size (password) != expect_len ||
+           memcmp (g_bytes_get_data (password, NULL), self->expect_password, expect_len) != 0)
     {
       g_simple_async_result_set_error (result, COCKPIT_ERROR,
                                        COCKPIT_ERROR_AUTHENTICATION_FAILED,
@@ -88,8 +86,9 @@ mock_auth_login_async (CockpitAuth *auth,
   g_simple_async_result_complete_in_idle (result);
   g_object_unref (result);
 
-  g_free (request);
-  g_strfreev (lines);
+  g_free (user);
+  if (password)
+    g_bytes_unref (password);
 }
 
 static CockpitCreds *

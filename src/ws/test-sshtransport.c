@@ -50,6 +50,7 @@ typedef struct {
   /* setup_mock_sshd */
   GPid mock_sshd;
   guint16 ssh_port;
+  int old_log_level;
 } TestCase;
 
 typedef struct {
@@ -58,6 +59,7 @@ typedef struct {
     const char *known_hosts;
     const char *client_password;
     const char *expect_key;
+    int ssh_log_level;
 } TestFixture;
 
 #if WITH_MOCK
@@ -148,6 +150,10 @@ setup_transport (TestCase *tc,
   const gchar *command;
   gchar *expect_knownhosts = NULL;
 
+  tc->old_log_level = ssh_get_log_level ();
+  if (fixture->ssh_log_level)
+    ssh_set_log_level (fixture->ssh_log_level);
+
 #if WITH_MOCK
   setup_mock_sshd (tc, data);
 #endif
@@ -203,6 +209,8 @@ teardown (TestCase *tc,
 
   /* If this asserts, outstanding references to transport */
   g_assert (tc->transport == NULL);
+
+  ssh_set_log_level (tc->old_log_level);
 }
 
 static gboolean
@@ -392,7 +400,13 @@ test_close_problem (TestCase *tc,
 
 /* An ssh command that sends back a payload with process id */
 static const TestFixture fixture_terminate_problem = {
-  .ssh_command = "/usr/bin/printf '\\x00\\x00\\x00\\x14546\\n% 16s' $$; exec cat"
+  .ssh_command = "/usr/bin/printf '\\x00\\x00\\x00\\x14546\\n% 16s' $$; exec cat",
+
+  /*
+   * TODO: Trying to solve:
+   * https://travis-ci.org/cockpit-project/cockpit/jobs/25494752
+   */
+  .ssh_log_level = SSH_LOG_FUNCTIONS,
 };
 
 static void

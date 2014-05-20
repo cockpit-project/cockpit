@@ -405,10 +405,41 @@ test_utf8_invalid (void)
   g_error_free (error);
 }
 
+typedef struct {
+    const gchar *str;
+    const gchar *expect;
+} FixtureString;
+
+static const FixtureString string_fixtures[] = {
+  { "abc", "\"abc\"" },
+  { "a\x7fxc", "\"a\\u007fxc\"" },
+  { "a\033xc", "\"a\\u001bxc\"" },
+  { "a\nxc", "\"a\\nxc\"" },
+  { "a\\xc", "\"a\\\\xc\"" },
+  { "Barney B\303\244r", "\"Barney B\303\244r\"" },
+};
+
+static void
+test_string_encode (gconstpointer data)
+{
+  const FixtureString *fixture = data;
+  JsonNode *node;
+  gsize length;
+  gchar *output;
+
+  node = json_node_init_string (json_node_alloc (), fixture->str);
+  output = cockpit_json_write (node, &length);
+  g_assert_cmpstr (output, ==, fixture->expect);
+  g_assert_cmpuint (length, ==, strlen (fixture->expect));
+  g_free (output);
+  json_node_free (node);
+}
+
 int
 main (int argc,
       char *argv[])
 {
+  gchar *escaped;
   gchar *name;
   gint i;
 
@@ -444,6 +475,16 @@ main (int argc,
       g_test_add_data_func (name, equal_fixtures + i, test_equal);
       g_free (name);
     }
+
+  for (i = 0; i < G_N_ELEMENTS (string_fixtures); i++)
+    {
+      escaped = g_strescape (string_fixtures[i].str, NULL);
+      name = g_strdup_printf ("/json/string/%s", escaped);
+      g_test_add_data_func (name, string_fixtures + i, test_string_encode);
+      g_free (escaped);
+      g_free (name);
+    }
+
 
   return g_test_run ();
 }

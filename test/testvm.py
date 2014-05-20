@@ -312,6 +312,14 @@ class Machine:
         else:
             return messages
 
+    def audit_messages(self, type_pref):
+        cmd = "journalctl -o cat SYSLOG_IDENTIFIER=kernel 2>&1 | grep 'type=%s.*audit' || true" % (type_pref, )
+        messages = self.execute(cmd).splitlines()
+        if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
+            messages = [ ]
+        return messages
+
+
 class QemuMachine(Machine):
     macaddr_prefix = "52:54:00:9e:00"
 

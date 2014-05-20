@@ -648,6 +648,23 @@ storage_provider_constructed (GObject *_object)
       goto out;
     }
 
+  /* HACK: Kill the object manager client when storaged isn't running
+     and bail out.  Otherwise it will erroneously pick up signals
+     intended for the UDisks2 object manager with the same object path
+     (730440).  It will then create proxies for unknown interfaces and
+     bad things will happen (730442).
+
+     https://bugzilla.gnome.org/show_bug.cgi?id=730440
+     https://bugzilla.gnome.org/show_bug.cgi?id=730442
+  */
+
+  if (g_dbus_object_manager_client_get_name_owner (G_DBUS_OBJECT_MANAGER_CLIENT (provider->lvm_objman)) == NULL)
+    {
+      g_warning ("storaged not running");
+      g_clear_object (&provider->lvm_objman);
+      goto out;
+    }
+
   g_signal_connect (provider->lvm_objman,
                     "object-added",
                     G_CALLBACK (on_lvm_object_added),

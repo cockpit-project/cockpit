@@ -120,47 +120,54 @@ auth_method_description (int methods)
  * We can't save and restore it since ssh_options_get doesn't allow us
  * to retrieve the old value of SSH_OPTIONS_KNOWNHOSTS.
  *
- * HACK: This function should be provided by libssh, which would also
- * avoid using mktemp.
+ * HACK: This function should be provided by libssh.
  *
  * https://red.libssh.org/issues/162
 */
 static gchar *
 get_knownhosts_line (ssh_session session)
 {
-  char template[] = "/tmp/cockpit-XXXXXX";
+  char name[] = "/tmp/cockpit-XXXXXX";
+  int fd;
   GError *error = NULL;
-  char *name;
-  gchar *line;
+  gchar *line = NULL;
 
-  name = mktemp (template);
-  if (name == NULL)
+  fd = mkstemp (name);
+  if (fd == -1)
     {
       g_warning ("Couldn't make temporary name for knownhosts line: %m");
-      return NULL;
+      goto out;
     }
+
+  close (fd);
 
   if (ssh_options_set (session, SSH_OPTIONS_KNOWNHOSTS, name) != SSH_OK)
     {
       g_warning ("Couldn't set SSH_OPTIONS_KNOWNHOSTS option.");
-      return NULL;
+      goto out;
     }
 
   if (ssh_write_knownhost (session) != SSH_OK)
     {
       g_warning ("Couldn't write knownhosts file: %s", ssh_get_error (session));
-      return NULL;
+      goto out;
     }
 
   if (!g_file_get_contents (name, &line, NULL, &error))
     {
       g_warning ("Couldn't read temporary known_hosts %s: %s", name, error->message);
       g_clear_error (&error);
-      line = NULL;
+      goto out;
     }
 
   g_strstrip (line);
-  g_unlink (name);
+
+out:
+  if (fd != -1)
+    {
+      g_unlink (name);
+    }
+
   return line;
 }
 

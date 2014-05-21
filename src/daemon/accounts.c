@@ -105,11 +105,9 @@ user_changed (ActUserManager *um,
 }
 
 static void
-users_loaded (ActUserManager *manager,
-              GParamSpec *pspec,
-              Accounts *accounts)
+users_loaded (Accounts *accounts)
 {
-  if (act_user_manager_no_service (manager))
+  if (act_user_manager_no_service (accounts->um))
     g_warning ("Can't contact accountsservice");
 
   GSList *list = act_user_manager_list_users (accounts->um);
@@ -165,6 +163,14 @@ accounts_finalize (GObject *object)
     G_OBJECT_CLASS (accounts_parent_class)->finalize (object);
 }
 
+static gboolean
+um_is_loaded (Accounts *accounts)
+{
+  gboolean loaded;
+  g_object_get (accounts->um, "is-loaded", &loaded, NULL);
+  return loaded;
+}
+
 static void
 accounts_init (Accounts *accounts)
 {
@@ -174,12 +180,9 @@ accounts_init (Accounts *accounts)
                                                          g_object_unref);
   accounts->um = act_user_manager_get_default ();
 
-  gboolean loaded;
-  g_object_get (accounts->um, "is-loaded", &loaded, NULL);
-  if (loaded)
-    users_loaded (accounts->um, NULL, accounts);
-  else
-    g_signal_connect (accounts->um, "notify::is-loaded", G_CALLBACK (users_loaded), accounts);
+  while (!um_is_loaded (accounts))
+    g_main_context_iteration (NULL, TRUE);
+  users_loaded (accounts);
 
   gs_unref_object GFile *etc_group = g_file_new_for_path ("/etc/group");
   accounts->etc_group_monitor = g_file_monitor (etc_group, G_FILE_MONITOR_NONE, NULL, NULL);

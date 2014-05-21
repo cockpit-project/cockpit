@@ -3,14 +3,10 @@ policy_module(cockpitselinux, 1.0.0)
 # Common types and requires
 
 require {
-	type urandom_device_t;
-	type random_device_t;
 	type hi_reserved_port_t;
+	type ssh_port_t;
 	type user_home_t;
 	type unconfined_exec_t;
-	type unconfined_t;
-	type ssh_port_t;
-	type unreserved_port_t;
 }
 
 # Handy links:
@@ -22,7 +18,7 @@ require {
 
 type cockpit_ws_t;
 type cockpit_ws_exec_t;
-init_daemon_domain(cockpit_ws_t, cockpit_ws_exec_t)
+init_daemon_domain(cockpit_ws_t,cockpit_ws_exec_t)
 
 type cockpit_var_lib_t;
 files_type(cockpit_var_lib_t)
@@ -34,8 +30,8 @@ type cockpit_unit_file_t;
 systemd_unit_file(cockpit_unit_file_t)
 
 # cockpit-ws can read from /var/lib/cockpit, but not write to it
-allow cockpit_ws_t cockpit_var_lib_t:file { read open getattr };
-allow cockpit_ws_t cockpit_var_lib_t:dir { read search open getattr };
+read_files_pattern(cockpit_ws_t,cockpit_var_lib_t,cockpit_var_lib_t)
+search_dirs_pattern(cockpit_ws_t,cockpit_var_lib_t,cockpit_var_lib_t)
 
 # cockpit-ws can read from /dev/urandom
 dev_read_urand(cockpit_ws_t) # for authkey
@@ -45,17 +41,16 @@ dev_read_rand(cockpit_ws_t)  # for libssh
 allow cockpit_ws_t hi_reserved_port_t:tcp_socket name_bind;
 allow cockpit_ws_t self:capability net_admin;
 allow cockpit_ws_t self:tcp_socket accept;
-allow cockpit_ws_t unreserved_port_t:tcp_socket name_bind;
+corenet_tcp_bind_all_unreserved_ports(cockpit_ws_t)
 
 # cockpit-ws can execute cockpit-session
-allow cockpit_ws_t cockpit_session_exec_t:file execute;
-allow cockpit_ws_t cockpit_session_exec_t:file { read open };
+exec_files_pattern(cockpit_ws_t,bin_t,cockpit_session_exec_t)
 allow cockpit_ws_t cockpit_session_t:process signal;
 domtrans_pattern(cockpit_ws_t,cockpit_session_exec_t,cockpit_session_t)
-allow cockpit_session_t unconfined_t:process signal;
+unconfined_signal(cockpit_session_t)
 
 # cockpit-ws can write to its temp files
-allow cockpit_ws_t cockpit_tmp_t:file manage_file_perms;
+manage_files_pattern(cockpit_ws_t,tmp_t,cockpit_tmp_t)
 files_tmp_filetrans(cockpit_ws_t,cockpit_tmp_t,file)
 
 # cockpit-ws can connect to other hosts via ssh
@@ -70,18 +65,14 @@ logging_send_syslog_msg(cockpit_ws_t)
 type cockpit_session_t;
 type cockpit_session_exec_t;
 domain_type(cockpit_session_t)
-domain_entry_file(cockpit_session_t, cockpit_session_exec_t)
+domain_entry_file(cockpit_session_t,cockpit_session_exec_t)
 
 # cockpit-session runs a full pam stack, including pam_selinux.so
 auth_login_pgm_domain(cockpit_session_t)
 
 # cockpit-session changes to the actual logged in user
-allow cockpit_session_t self:capability sys_admin;
-allow cockpit_session_t self:capability dac_override;
-allow cockpit_session_t self:capability setuid;
-allow cockpit_session_t self:capability setgid;
-allow cockpit_session_t user_home_t:dir search;
-allow cockpit_session_t user_home_t:file { read write };
+allow cockpit_session_t self:capability { sys_admin dac_override setuid setgid };
+rw_files_pattern(cockpit_session_t,user_home_t,user_home_t)
 
 # cockpit-session communicates back with cockpit-ws
 allow cockpit_session_t cockpit_ws_t:unix_stream_socket { getattr read recvfrom write getopt setopt shutdown };
@@ -90,11 +81,9 @@ auth_use_nsswitch(cockpit_session_t)
 logging_send_syslog_msg(cockpit_session_t)
 
 # cockpit-session can execute unconfined (ie: cockpit-agent)
-allow cockpit_session_t unconfined_exec_t:file execute;
-allow cockpit_session_t unconfined_exec_t:file { read open };
-allow cockpit_session_t unconfined_exec_t:process signal;
+exec_files_pattern(cockpit_session_t,bin_t,unconfined_exec_t)
+unconfined_signal(cockpit_session_t)
 domtrans_pattern(cockpit_session_t,unconfined_exec_t,unconfined_t)
 
 # cockpit-session can write to temp files
-allow cockpit_session_t wtmp_t:file write;
-
+write_files_pattern(cockpit_session_t,var_log_t,wtmp_t)

@@ -51,7 +51,7 @@
     <para>
       The <command>cockpit-ws</command> program is the web server
       component used for communication between the browser application
-      and
+      and various configuration tools and services like
       <citerefentry>
         <refentrytitle>cockpitd</refentrytitle><manvolnum>8</manvolnum>
       </citerefentry>.
@@ -86,7 +86,7 @@
       self-signed certificate is automatically generated using the
       <command>/etc/pki/tls/certs/make-dummy-cert</command> command
       and stored in
-      <filename>/var/lib/cockpit/temp-self-signed.cert</filename>.
+      <filename>/etc/cockpit/ws-certs.d/~self-signed.cert</filename>.
     </para>
   </refsect1>
 

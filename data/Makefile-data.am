@@ -1,43 +1,14 @@
-dbusservicedir = $(datadir)/dbus-1/system-services
+dbusservicedir = $(datadir)/dbus-1/services
 dbusservice_DATA = com.redhat.Cockpit.service
 
 com.redhat.Cockpit.service: data/com.redhat.Cockpit.service.in Makefile
 	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
-
-dbusconfdir = $(sysconfdir)/dbus-1/system.d
-custom_dbusconfdir_data = data/com.redhat.Cockpit.conf
-
-# We don't let Automake install into dbusconfdir with /usr/bin/install.
-# https://bugs.freedesktop.org/show_bug.cgi?id=77168
-#
-install-data-local::
-	dir="$(DESTDIR)$(dbusconfdir)"; \
-	$(MKDIR_P) "$$dir"; \
-	for f in $(custom_dbusconfdir_data); do \
-	  cp "$(srcdir)"/"$$f" "$$dir"; \
-	  chmod 0644 "$$dir"/$$(basename "$$f"); \
-	done
-
-uninstall-local::
-	dir="$(DESTDIR)$(dbusconfdir)"; \
-	for f in $(custom_dbusconfdir_data); do \
-	  rm -f "$$dir"/$$(basename "$$f"); \
-	done
 
 if HAVE_SYSTEMD
 systemdunitdir          = $(systemdsystemunitdir)
 dist_systemdunit_DATA   = data/cockpit.socket
 nodist_systemdunit_DATA =
 testassets_systemdunit_data += data/cockpit-testing.socket data/test-server.socket
-
-cockpitd.service : data/cockpitd.service.in Makefile
-	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
-nodist_systemdunit_DATA += cockpitd.service
-
-cockpitd-testing.service : data/cockpitd-testing.service.in Makefile
-	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
-noinst_DATA += cockpitd-testing.service
-testassets_systemdunit_data += cockpitd-testing.service
 
 cockpit.service : data/cockpit.service.in Makefile
 	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
@@ -54,27 +25,23 @@ noinst_DATA += test-server.service
 testassets_systemdunit_data += test-server.service
 
 endif
+
 EXTRA_DIST += 						\
 	data/com.redhat.Cockpit.xml		\
-	data/cockpit.service.in data/cockpitd.service.in \
+	data/cockpit.service.in \
 	data/cockpit-testing.service.in \
 	data/test-server.service.in                     \
 	data/com.redhat.Cockpit.service.in	\
-	data/cockpitd-testing.service.in \
-	data/com.redhat.Cockpit.conf		\
 	data/config				\
 	data/cockpit.pam.insecure               \
 	data/sshd-reauthorize.pam               \
-	$(dbusconf_DATA)			\
 	$(NULL)
 
 CLEANFILES += \
-	cockpitd.service \
 	cockpit-testing.service \
 	test-server.service \
 	com.redhat.Cockpit.service \
 	cockpit.service \
-	cockpitd-testing.service \
 	$(NULL)
 
 cockpitconfdir = $(sysconfdir)/cockpit

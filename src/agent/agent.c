@@ -22,12 +22,16 @@
 #include "cockpitdbusjson.h"
 #include "cockpitpolkitagent.h"
 
+#include "cockpit/cockpitlog.h"
 #include "cockpit/cockpitpipetransport.h"
 
+#include <sys/prctl.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include <glib-unix.h>
 #include <gsystem-local-alloc.h>
 
 
@@ -125,6 +129,95 @@ on_closed_set_flag (CockpitTransport *transport,
   *flag = TRUE;
 }
 
+static void
+setup_dbus_daemon (gpointer unused)
+{
+  prctl (PR_SET_PDEATHSIG, SIGTERM);
+}
+
+static GPid
+start_dbus_daemon (void)
+{
+  GError *error = NULL;
+  const gchar *env;
+  GString *address;
+  gint std_output;
+  gchar *line;
+  gsize len;
+  gssize ret;
+  GPid pid = 0;
+
+  gchar *dbus_argv[] = {
+      "dbus-daemon",
+      "--print-address",
+      "--session",
+      "--nofork",
+      "--nopidfile",
+      NULL
+  };
+
+  /* Automatically start a DBus session if necessary */
+  env = g_getenv ("DBUS_SESSION_BUS_ADDRESS");
+  if (env != NULL && env[0] != '\0')
+    return 0;
+
+  /* The DBus daemon produces useless messages on stderr mixed in */
+  g_spawn_async_with_pipes (NULL, dbus_argv, NULL,
+                            G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+                            setup_dbus_daemon, NULL, &pid, NULL, &std_output, NULL, &error);
+  if (error != NULL)
+    {
+      g_warning ("couldn't start DBus session bus: %s", error->message);
+      g_error_free (error);
+      return 0;
+    }
+
+  address = g_string_new ("");
+  for (;;)
+    {
+      len = address->len;
+      g_string_set_size (address, len + 256);
+      ret = read (std_output, address->str + len, 256);
+      if (ret < 0)
+        {
+          g_string_set_size (address, len);
+          if (errno != EAGAIN)
+            {
+              g_warning ("couldn't read address from dbus-daemon: %s", g_strerror (errno));
+              break;
+            }
+        }
+      else if (ret == 0)
+        {
+          break;
+        }
+      else
+        {
+          g_string_set_size (address, len + ret);
+          line = strchr (address->str, '\n');
+          if (line != NULL)
+            {
+              *line = '\0';
+              break;
+            }
+        }
+    }
+
+  close (std_output);
+  g_setenv ("DBUS_SESSION_BUS_ADDRESS", address->str, TRUE);
+  g_string_free (address, TRUE);
+
+  return pid;
+}
+
+static gboolean
+on_signal_done (gpointer data)
+{
+  gboolean *closed = data;
+  *closed = TRUE;
+  return FALSE;
+}
+
 int
 main (int argc,
       char **argv)
@@ -134,7 +227,11 @@ main (int argc,
   gboolean closed = FALSE;
   GError *error = NULL;
   gpointer polkit_agent;
+  GPid daemon_pid;
   int outfd;
+
+  signal (SIGPIPE, SIG_IGN);
+  cockpit_set_journal_logging ();
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write
@@ -153,17 +250,28 @@ main (int argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
+  /* Start a session daemon if necessary */
+  daemon_pid = start_dbus_daemon ();
+
   g_type_init ();
+
+  g_unix_signal_add_full (G_PRIORITY_DEFAULT,
+                          SIGTERM, on_signal_done,
+                          &closed, NULL);
 
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
-  connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &error);
+  connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
   if (connection == NULL)
     {
-      g_message ("couldn't connect to system bus: %s", error->message);
+      g_message ("couldn't connect to session bus: %s", error->message);
       g_clear_error (&error);
+    }
+  else
+    {
+      g_dbus_connection_set_exit_on_close (connection, FALSE);
     }
 
   polkit_agent = cockpit_polkit_agent_register (transport, NULL);
@@ -180,5 +288,8 @@ main (int argc,
     g_object_unref (connection);
   g_object_unref (transport);
   g_hash_table_destroy (channels);
+
+  if (daemon_pid)
+    kill (daemon_pid, SIGTERM);
   exit (0);
 }

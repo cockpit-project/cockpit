@@ -28,6 +28,9 @@ class TestShutdownRestart(MachineCase):
         m = self.machine
         b = self.browser
 
+        # TODO: Make this work as non-root user
+        b.default_user = "root"
+
         self.login_and_go("shutdown")
 
         # check that the default is one minute

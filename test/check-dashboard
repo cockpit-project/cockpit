@@ -67,6 +67,9 @@ class TestDashboard(MachineCase):
         b = self.browser
         m = self.machine
 
+        # TODO: Make this work with non-root
+        b.default_user = "root"
+
         self.login_and_go("dashboard")
         self.wait_dashboard_addresses (b, [ "localhost" ])
 
@@ -88,6 +91,7 @@ class TestDashboard(MachineCase):
 
         # Start second browser and check that it is in sync
         b2 = self.new_browser()
+        b2.default_user = "root"
         b2.login_and_go("dashboard")
         self.wait_dashboard_addresses (b2, [ m.address ])
 
@@ -104,12 +108,12 @@ class TestDashboard(MachineCase):
         # Open "Add Server" on second browser
         b2.click('#dashboard-add-server')
         b2.wait_popup('dashboard_setup_server_dialog')
-        self.wait_discovered_addresses (b2, [ "127.0.0.1" ])
+        self.wait_discovered_addresses (b2, [ "127.0.0.1", "localhost" ])
 
         # Remove one from dashboard of first browser and check that it
         # appears in dialog of second
         self.machine_action (b, m.address, "Remove")
-        self.wait_discovered_addresses (b2, [ "127.0.0.1", m.address ])
+        self.wait_discovered_addresses (b2, [ "127.0.0.1", "localhost" ])
 
         b2.click('#dashboard_setup_server_dialog button.close')
         b2.wait_popdown('dashboard_setup_server_dialog')
@@ -118,6 +122,9 @@ class TestDashboard(MachineCase):
 
     def testSetup(self):
         b = self.browser
+
+        # TODO: Make this work as non-root
+        b.default_user = "root"
 
         m1 = self.machine
         m2 = self.new_machine()
@@ -145,7 +152,7 @@ class TestDashboard(MachineCase):
         b.wait_text('#dashboard_setup_next', "Next")
         b.click('#dashboard_setup_next')
         b.wait_visible('#dashboard_setup_login_tab')
-        b.set_val('#dashboard_setup_login_user', "admin")
+        b.set_val('#dashboard_setup_login_user', "root")
         b.set_val('#dashboard_setup_login_password', "notthepassword")
         b.click('#dashboard_setup_next')
         b.wait_text('#dashboard_setup_login_error', "Login failed")
@@ -176,5 +183,6 @@ class TestDashboard(MachineCase):
         self.assertIn ("wheel", groups(m2, "senior"))
 
         self.allow_journal_messages("peer did not close io when expected")
+        self.allow_journal_messages('.*: .* host key for server is not known: .*')
 
 test_main()

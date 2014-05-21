@@ -649,14 +649,19 @@ on_diagnostics_signal (GDBusConnection *connection,
 }
 
 static void
-on_realmd_proxy_ready (GObject *object,
-                       GAsyncResult *res,
-                       gpointer user_data)
+realms_constructed (GObject *_object)
 {
-  Realms *realms = REALMS (user_data);
-
+  Realms *realms = REALMS (_object);
   GError *error = NULL;
-  realms->realmd = g_dbus_proxy_new_for_bus_finish (res, &error);
+
+  realms->realmd = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                 0,
+                                 NULL,
+                                 "org.freedesktop.realmd",
+                                 "/org/freedesktop/realmd",
+                                 "org.freedesktop.realmd.Provider",
+                                 NULL,
+                                 &error);
 
   if (error)
     {
@@ -665,33 +670,9 @@ on_realmd_proxy_ready (GObject *object,
       return;
     }
 
-  g_signal_connect (realms->realmd,
-                    "g-properties-changed",
-                    G_CALLBACK (on_properties_changed),
-                    realms);
-
-  update_realms (realms);
-}
-
-static void
-realms_constructed (GObject *_object)
-{
-  Realms *realms = REALMS (_object);
-
-  g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
-                            0,
-                            NULL,
-                            "org.freedesktop.realmd",
-                            "/org/freedesktop/realmd",
-                            "org.freedesktop.realmd.Provider",
-                            NULL,
-                            on_realmd_proxy_ready,
-                            realms);
-
   clear_invocation (realms);
 
   GDBusConnection *connection;
-  GError *error = NULL;
 
   connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &error);
   if (error == NULL)
@@ -713,6 +694,13 @@ realms_constructed (GObject *_object)
 
   if (G_OBJECT_CLASS (realms_parent_class)->constructed != NULL)
     G_OBJECT_CLASS (realms_parent_class)->constructed (_object);
+
+  g_signal_connect (realms->realmd,
+                    "g-properties-changed",
+                    G_CALLBACK (on_properties_changed),
+                    realms);
+
+  update_realms (realms);
 }
 
 static void
@@ -979,8 +967,9 @@ on_kerberos_ready_for_discover_info (GObject *object,
                                      gpointer user_data)
 {
   struct DiscoverData *data = (struct DiscoverData *)user_data;
+  GError *error = NULL;
 
-  GDBusProxy *kerberos = g_dbus_proxy_new_for_bus_finish (res, NULL);
+  GDBusProxy *kerberos = g_dbus_proxy_new_for_bus_finish (res, &error);
   if (kerberos)
     {
       gs_unref_variant GVariant *n = g_dbus_proxy_get_cached_property (data->cur_proxy, "Name");
@@ -1001,6 +990,11 @@ on_kerberos_ready_for_discover_info (GObject *object,
 
       g_variant_builder_add (&(data->all_details), "@a{sv}", get_realm_details (data->cur_proxy, kerberos));
       get_next_discover_info (data);
+    }
+  if (error)
+    {
+      g_warning ("Failed to connect to realmd: %s", error->message);
+      g_clear_error (&error);
     }
 }
 
@@ -1113,6 +1107,7 @@ handle_cancel (CockpitRealms *object,
                GDBusMethodInvocation *invocation)
 {
   Realms *realms = REALMS (object);
+  GError *error = NULL;
 
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_REALM_ADMIN))
     return TRUE;
@@ -1129,7 +1124,12 @@ handle_cancel (CockpitRealms *object,
                                        "/org/freedesktop/realmd",
                                        "org.freedesktop.realmd.Service",
                                        NULL,
-                                       NULL);
+                                       &error);
+      if (error)
+        {
+          g_warning ("Failed to connect to realmd: %s", error->message);
+          g_clear_error (&error);
+        }
 
       if (service)
         g_dbus_proxy_call (service,

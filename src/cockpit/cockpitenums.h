@@ -45,27 +45,6 @@ typedef enum
 
 #define COCKPIT_ERROR_NUM_ENTRIES  (COCKPIT_ERROR_FAILED + 1)
 
-/**
- * CockpitLogLevel:
- * @COCKPIT_LOG_LEVEL_DEBUG: Debug messages.
- * @COCKPIT_LOG_LEVEL_INFO: Informational messages.
- * @COCKPIT_LOG_LEVEL_NOTICE: Messages that the administrator should take notice of.
- * @COCKPIT_LOG_LEVEL_WARNING: Warning messages.
- * @COCKPIT_LOG_LEVEL_ERROR: Error messages.
- *
- * Logging levels. The level @COCKPIT_LOG_LEVEL_NOTICE and above goes to syslog.
- *
- * Unlike g_warning() and g_error(), none of these logging levels causes the program to ever terminate.
- */
-typedef enum
-{
-  COCKPIT_LOG_LEVEL_DEBUG,
-  COCKPIT_LOG_LEVEL_INFO,
-  COCKPIT_LOG_LEVEL_NOTICE,
-  COCKPIT_LOG_LEVEL_WARNING,
-  COCKPIT_LOG_LEVEL_ERROR
-} CockpitLogLevel;
-
 G_END_DECLS
 
 #endif /* __COCKPIT_ENUMS_H__ */

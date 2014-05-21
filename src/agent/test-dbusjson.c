@@ -200,15 +200,11 @@ main (int argc,
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (bus);
 
-  /* Use the above test session bus as a system bus */
-  g_setenv ("DBUS_SYSTEM_BUS_ADDRESS", g_getenv ("DBUS_SESSION_BUS_ADDRESS"), TRUE);
-
   mock_service_start ();
 
   ret = g_test_run ();
 
   mock_service_stop ();
-  g_unsetenv ("DBUS_SYSTEM_BUS_ADDRESS");
   g_test_dbus_down (bus);
 
   return ret;

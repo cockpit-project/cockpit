@@ -24,6 +24,7 @@ class TestTerminal(MachineCase):
     def testBasic(self):
         b = self.browser
         m = self.machine
+        b.default_user = "admin"
 
         self.login_and_go("terminal")
 

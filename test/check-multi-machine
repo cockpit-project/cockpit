@@ -121,7 +121,7 @@ class TestMultiMachine(MachineCase):
         m3_index = wm[m3.address]
 
         kill_user_admin(m1)
-        b.wait_text(machine_error_selector(m1_index), "Your session has been terminated.")
+        b.wait_text(machine_error_selector(m1_index), "Disconnected")
 
         kill_user_admin(m2)
         b.wait_text(machine_error_selector(m2_index), "Your session has been terminated.")

@@ -59,7 +59,7 @@ static GOptionEntry cmd_entries[] = {
 static gchar *
 generate_temp_cert (GError **error)
 {
-  const gchar *dir = PACKAGE_LOCALSTATE_DIR "/lib/cockpit";
+  const gchar *dir = PACKAGE_SYSCONF_DIR "/cockpit/ws-certs.d";
   gchar *cert_path = NULL;
   gchar *stdout_str = NULL;
   gchar *stderr_str = NULL;
@@ -67,7 +67,7 @@ generate_temp_cert (GError **error)
   gchar *ret = NULL;
   gint exit_status;
 
-  cert_path = g_strdup_printf ("%s/temp-self-signed.cert", dir);
+  cert_path = g_strdup_printf ("%s/~self-signed.cert", dir);
 
   /* Generate self-signed cert, if it does not exist */
   if (g_file_test (cert_path, G_FILE_TEST_EXISTS))

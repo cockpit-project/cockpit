@@ -47,8 +47,7 @@ class TestLogin(MachineCase):
         b.wait_text('#content-user-name', 'Administrator')
 
         # logout
-        b.click('#content-user-name')
-        b.click('a[onclick*="cockpit_logout"]')
+        b.logout()
         b.wait_visible("#login")
 
         # try to login as a non-existing user

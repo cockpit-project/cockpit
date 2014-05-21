@@ -44,8 +44,7 @@ class TestSession(MachineCase):
         check_session(True)
 
         # Logout
-        b.click('#content-user-name')
-        b.click('a[onclick*="cockpit_logout"]')
+        b.logout()
         b.wait_visible("#login")
         check_session(False)
 

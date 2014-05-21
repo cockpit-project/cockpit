@@ -114,13 +114,19 @@ class Browser:
             sleep(0.1)
             tries = tries + 1
 
+        self.init_after_load()
+
+    def init_after_load(self):
         self.phantom.inject("%s/test/phantom-lib.js" % topdir)
         self.phantom.do("ph_init()")
 
     def reload(self):
         self.phantom.reload()
-        self.phantom.inject("%s/test/phantom-lib.js" % topdir)
-        self.phantom.do("ph_init()")
+        self.init_after_load()
+
+    def expect_reload(self):
+        self.phantom.expect_reload()
+        self.init_after_load()
 
     def eval_js(self, code):
         return self.phantom.do(code)
@@ -256,10 +262,14 @@ class Browser:
         self.click('#login-button')
         self.wait_page(page)
 
+    def logout(self):
+        self.click('a[onclick*="cockpit_logout"]')
+        self.expect_reload()
+
     def relogin(self, page, user=None):
         if user is None:
             user = self.default_user
-        self.click('a[onclick*="cockpit_logout"]')
+        self.logout()
         self.wait_visible("#login")
         self.set_val("#login-user-input", user)
         self.set_val("#login-password-input", "foobar")
@@ -424,6 +434,11 @@ class Phantom:
 
     def reload(self):
         status = self.run({'cmd': 'reload'})
+        if status != "success":
+            raise Error(status)
+
+    def expect_reload(self):
+        status = self.run({'cmd': 'expect-reload'})
         if status != "success":
             raise Error(status)
 

@@ -26,6 +26,29 @@ class TestJournal(MachineCase):
         b = self.browser
         m = self.machine
 
+        def inject_extras():
+            b.eval_js("""
+            ph_get_log_lines = function () {
+              var lines = [ ], i;
+              lines.push($('#journal-end').text());
+              $('#journal-box').children().each(function (i, e) {
+                var $e = $(e);
+                if ($e.is('.cockpit-loghead'))
+                  lines.push ($e.text());
+                else {
+                  var c = $e.children();
+                  var cc = $(c[1]).children();
+                  var ident = $(c[0]).text();
+                  var msg = $(cc[0]).text();
+                  var count = $e.find('.badge').text();
+                  lines.push ([ ident, msg, count ]);
+                }
+              });
+              lines.push($('#journal-start').text());
+              // console.log(JSON.stringify(lines));
+              return lines;
+            }
+            """)
 
         # Certain versions of journald wont set _SYSTEMD_UNIT
         # correctly for entries that are processed after the
@@ -54,29 +77,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("systemctl stop chronyd; date 010112002050; hwclock -w")
 
         self.login_and_go("journal")
-
-        b.eval_js("""
-    ph_get_log_lines = function () {
-      var lines = [ ], i;
-      lines.push($('#journal-end').text());
-      $('#journal-box').children().each(function (i, e) {
-        var $e = $(e);
-        if ($e.is('.cockpit-loghead'))
-          lines.push ($e.text());
-        else {
-          var c = $e.children();
-          var cc = $(c[1]).children();
-          var ident = $(c[0]).text();
-          var msg = $(cc[0]).text();
-          var count = $e.find('.badge').text();
-          lines.push ([ ident, msg, count ]);
-        }
-      });
-      lines.push($('#journal-start').text());
-      // console.log(JSON.stringify(lines));
-      return lines;
-    }
-    """)
+        inject_extras()
 
         def wait_log_lines(expected):
             b.wait_js_func("""(function (expected) {
@@ -208,6 +209,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.start_cockpit()
         b.relogin('journal')
+        inject_extras()
 
         b.go("journal?search=check-journal")
         wait_log_lines([ "-- End of Journal, waiting for more --",

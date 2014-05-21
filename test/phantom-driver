@@ -91,6 +91,8 @@ function step ()
         } else if (cmd.cmd == "reload") {
             page.onLoadFinished = on_load_finished;
             page.reload();
+        } else if (cmd.cmd == "expect-reload") {
+            page.onLoadFinished = on_load_finished;
         } else if (cmd.cmd == "inject") {
             page.injectJs(cmd.file);
             sys.stdout.writeLine(JSON.stringify({result: true}));

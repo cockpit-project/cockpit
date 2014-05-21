@@ -55,8 +55,6 @@ var cockpit = cockpit || { };
 
 cockpit.dbus = dbus;
 
-cockpit._logged_out = _logged_out;
-
 $(init);
 
 function init() {
@@ -159,12 +157,6 @@ function dbus(address, options, auto_reconnect) {
         handle.client.connect();
 
     return handle.client;
-}
-
-function _logged_out() {
-    dbus_clients = { };
-    if (Channel.transport)
-        Channel.transport.close('disconnecting');
 }
 
 })(jQuery, cockpit);

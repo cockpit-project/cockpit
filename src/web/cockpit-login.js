@@ -138,10 +138,8 @@ function cockpit_logout (reason)
     var loc = window.location.protocol + "//" + window.location.host + "/logout";
     req.open("POST", loc, true);
     req.onreadystatechange = function (event) {
-	if (req.readyState == 4) {
-            cockpit._logged_out();
-            cockpit_login_show();
-        }
+	if (req.readyState == 4)
+            window.location.reload(true);
     };
     req.send();
 }

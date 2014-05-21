@@ -337,6 +337,7 @@ cockpit_auth_session_login_async (CockpitAuth *self,
 
   if (!cockpit_auth_parse_input (input, &user, &password, &error))
     {
+      g_message ("couldn't parse login input: %s", error->message);
       g_simple_async_result_take_error (result, error);
       g_simple_async_result_complete_in_idle (result);
     }
@@ -383,6 +384,8 @@ parse_auth_results (LoginData *login,
   gsize length;
 
   buffer = cockpit_pipe_get_buffer (login->auth_pipe);
+  g_debug ("cockpit-session says: %.*s", (int)buffer->len, (const gchar *)buffer->data);
+
   results = cockpit_json_parse_object ((const gchar *)buffer->data, buffer->len, &json_error);
 
   if (g_error_matches (json_error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_INVALID_DATA))

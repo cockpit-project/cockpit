@@ -8,7 +8,7 @@
 
 /usr/libexec/cockpit-session	--	gen_context(system_u:object_r:cockpit_session_exec_t,s0)
 
-/usr/libexec/cockpit-agent	--	gen_context(system_u:object_r:unconfined_exec_t,s0)
+/usr/libexec/cockpit-agent	--	gen_context(system_u:object_r:shell_exec_t,s0)
 
 /etc/cockpit/ws-certs.d(/.*)?		gen_context(system_u:object_r:cockpit_ws_t,s0)
 

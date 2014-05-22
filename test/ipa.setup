@@ -14,3 +14,6 @@ firewall-cmd --permanent \
              --add-service kerberos \
              --add-service dns \
              --add-service ntp
+
+ln -sf ../selinux/config /etc/sysconfig/selinux
+echo 'SELINUX=permissive' > /etc/selinux/config

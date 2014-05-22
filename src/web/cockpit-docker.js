@@ -146,13 +146,6 @@ function format_memory_and_limit(usage, limit) {
     }
 }
 
-function container_from_cgroup(cgroup) {
-    var match = /[A-Fa-f0-9]{64}/.exec(cgroup);
-    if (!match)
-        return null;
-    return match[0];
-}
-
 function insert_table_sorted(table, row) {
     var key = $(row).text();
     var rows = $(table).find("tbody tr");
@@ -1099,12 +1092,34 @@ function DockerClient(machine) {
     this.waiting = { };
 
     var containers_meta = { };
+    var containers_by_name = { };
+
+    function container_to_name(container) {
+        if (!container.Name)
+            return null;
+        var name = container.Name;
+        if (name[0] === '/')
+            name = name.substring(1);
+        return name;
+    }
+         
     function populate_container(id, container) {
         if (container.State === undefined)
             container.State = { };
         if (container.Config === undefined)
             container.Config = { };
         $.extend(container, containers_meta[id]);
+        var name = container_to_name(container);
+        if (name)
+           containers_by_name[name] = id;
+    }
+
+    function cleanup_container(id, container) {
+       if (!container)
+           return;
+       var name = container_to_name(container);
+       if (name && containers_by_name[name] == id)
+           delete containers_by_name[name];
     }
 
     /*
@@ -1138,6 +1153,7 @@ function DockerClient(machine) {
                              * actually goes away
                              */
                             if (ex.status == 404) {
+                                cleanup_container(id, me.containers[id]);
                                 delete me.containers[id];
                                 $(me).trigger("container", [id, undefined]);
                             }
@@ -1218,12 +1234,32 @@ function DockerClient(machine) {
             $(me).trigger("failure", [ex]);
         });
 
+    var regex_docker_cgroup = /[A-Fa-f0-9]{64}/;
+    var regex_geard_cgroup = /.*\/ctr-(.+).service/;
+    function container_from_cgroup(cgroup) {
+        /*
+         * TODO: When we move to showing resources for systemd units
+         * instead of containers then we'll get rid of all this
+         * nastiness.
+         */
+
+        /* Docker created cgroups */
+        var match = regex_docker_cgroup.exec(cgroup);
+        if (match)
+            return match[0];
+
+        /* geard created cgroups */
+        match = regex_geard_cgroup.exec(cgroup);
+        if (match)
+            return containers_by_name[match[1]];
+        return null;
+    }
+
     /* We listen to the resource monitor and include the measurements
      * in the container objects.
      *
      * TODO: Call GetSamples for quicker initialization.
      */
-
     var dbus_client = cockpit.dbus(machine);
     var monitor = dbus_client.get ("/com/redhat/Cockpit/LxcMonitor",
                                    "com.redhat.Cockpit.MultiResourceMonitor");

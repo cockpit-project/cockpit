@@ -812,8 +812,4 @@ set -eu
 rpm -U --force $TEST_PACKAGES
 
 rm -rf /var/log/journal/*
-
-# Audit events to the journal
-rm '/etc/systemd/system/multi-user.target.wants/auditd.service'
-rm -rf /var/log/audit/
 """

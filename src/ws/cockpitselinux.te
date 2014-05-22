@@ -80,10 +80,8 @@ allow cockpit_session_t cockpit_ws_t:unix_stream_socket { getattr read recvfrom 
 auth_use_nsswitch(cockpit_session_t)
 logging_send_syslog_msg(cockpit_session_t)
 
-# cockpit-session can execute unconfined (ie: cockpit-agent)
-exec_files_pattern(cockpit_session_t,bin_t,unconfined_exec_t)
-unconfined_signal(cockpit_session_t)
-domtrans_pattern(cockpit_session_t,unconfined_exec_t,unconfined_t)
+# cockpit-session can execute cockpit-agent as the user
+userdom_spec_domtrans_all_users(cockpit_session_t, userdomain)
 
 # cockpit-session can write to temp files
 write_files_pattern(cockpit_session_t,var_log_t,wtmp_t)

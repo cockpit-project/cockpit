@@ -1169,6 +1169,10 @@ function DockerClient(machine) {
                 image.config = { };
         }
         $.extend(image, images_meta[id]);
+
+	/* HACK: TODO upstream bug */
+        if (image.RepoTags)
+            image.RepoTags.sort();
     }
 
     /*

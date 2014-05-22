@@ -107,7 +107,8 @@ install -p -m 644 cockpitselinux.pp %{buildroot}%{_datadir}/selinux/targeted/
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-session
 %{_libexecdir}/cockpit-agent
-%{_libexecdir}/cockpit-polkit
+# We need to do attr because stripping debuginfo removes setuid
+%attr{4755, -, -} %{_libexecdir}/cockpit-polkit
 %{_libdir}/security/pam_reauthorize.so
 %{_datadir}/%{name}
 %{_mandir}/*

@@ -807,7 +807,7 @@ export TEST_ARCH
 """
 
 INSTALL_SCRIPT = """#!/bin/sh
-set -euf
+set -eu
 
 rpm -U --force $TEST_PACKAGES
 

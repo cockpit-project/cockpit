@@ -44,7 +44,7 @@ dev_read_urand(cockpit_ws_t) # for authkey
 dev_read_rand(cockpit_ws_t)  # for libssh
 
 # cockpit-ws can read from a reserved port
-corenet_tcp_bind_reserved_port(cockpit_ws_t)
+corenet_tcp_bind_all_reserved_ports(cockpit_ws_t)
 corenet_tcp_bind_all_unreserved_ports(cockpit_ws_t)
 
 # cockpit-ws can connect to other hosts via ssh

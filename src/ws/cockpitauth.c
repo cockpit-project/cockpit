@@ -50,6 +50,9 @@
 #include <security/pam_appl.h>
 #include <stdlib.h>
 
+/* Timeout of authentication when no connections */
+guint cockpit_ws_idle_timeout = 15;
+
 G_DEFINE_TYPE (CockpitAuth, cockpit_auth, G_TYPE_OBJECT)
 
 typedef struct {
@@ -57,7 +60,8 @@ typedef struct {
   CockpitAuth *auth;
   CockpitCreds *creds;
   CockpitWebService *service;
-  gint startup;
+  guint timeout_tag;
+  gulong idling_sig;
 } CockpitAuthenticated;
 
 static void
@@ -76,12 +80,17 @@ cockpit_authenticated_free (gpointer data)
   CockpitAuthenticated *authenticated = data;
   GObject *object;
 
+  if (authenticated->timeout_tag)
+    g_source_remove (authenticated->timeout_tag);
+
   g_free (authenticated->cookie);
   cockpit_creds_poison (authenticated->creds);
   cockpit_creds_unref (authenticated->creds);
 
   if (authenticated->service)
     {
+      if (authenticated->idling_sig)
+        g_signal_handler_disconnect (authenticated->service, authenticated->idling_sig);
       object = G_OBJECT (authenticated->service);
       g_object_weak_unref (object, on_web_service_gone, authenticated);
       g_object_run_dispose (object);
@@ -563,19 +572,40 @@ cockpit_auth_login_async (CockpitAuth *self,
 }
 
 static gboolean
-on_authenticated_startup (gpointer data)
+on_authenticated_timeout (gpointer data)
+{
+  CockpitAuthenticated *authenticated = data;
+  CockpitAuth *self = authenticated->auth;
+
+  authenticated->timeout_tag = 0;
+
+  if (cockpit_web_service_get_idling (authenticated->service))
+    {
+      g_info ("%s: timed out", cockpit_creds_get_user (authenticated->creds));
+      g_hash_table_remove (self->authenticated, authenticated->cookie);
+    }
+
+  return FALSE;
+}
+
+static void
+on_web_service_idling (CockpitWebService *service,
+                       gpointer data)
 {
   CockpitAuthenticated *authenticated = data;
 
+  if (authenticated->timeout_tag)
+    g_source_remove (authenticated->timeout_tag);
+
+  g_debug ("%s: login is idle", cockpit_creds_get_user (authenticated->creds));
+
   /*
-   * Now that startup has completed, someone else must
-   * own the reference to the web service.
+   * The minimum amount of time before a request uses this new web service,
+   * otherwise it will just go away.
    */
-
-  g_object_unref (authenticated->service);
-
-  authenticated->startup = 0;
-  return FALSE;
+  authenticated->timeout_tag = g_timeout_add_seconds (cockpit_ws_idle_timeout,
+                                                      on_authenticated_timeout,
+                                                      authenticated);
 }
 
 CockpitWebService *
@@ -611,18 +641,17 @@ cockpit_auth_login_finish (CockpitAuth *self,
   authenticated->service = cockpit_web_service_new (creds, session);
   authenticated->auth = self;
 
+  authenticated->idling_sig = g_signal_connect (authenticated->service, "idling",
+                                                G_CALLBACK (on_web_service_idling), authenticated);
+
   if (session)
     g_object_unref (session);
 
   g_object_weak_ref (G_OBJECT (authenticated->service),
                      on_web_service_gone, authenticated);
 
-  /*
-   * The minimum amount of time before a request uses this new web service,
-   * otherwise it will just go away.
-   */
-  authenticated->startup = g_timeout_add_seconds (30, on_authenticated_startup,
-                                                  authenticated);
+  /* Start off in the idling state, and begin a timeout during which caller must do something else */
+  on_web_service_idling (authenticated->service, authenticated);
 
   g_hash_table_insert (self->authenticated, authenticated->cookie, authenticated);
 
@@ -640,6 +669,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);
     }
 
+  g_info ("logged in user: %s", cockpit_creds_get_user (authenticated->creds));
   return g_object_ref (authenticated->service);
 }
 
@@ -654,7 +684,10 @@ cockpit_auth_logout (CockpitAuth *self,
 
   authenticated = authenticated_for_headers (self, headers);
   if (authenticated)
-    g_hash_table_remove (self->authenticated, authenticated->cookie);
+    {
+      g_info ("logged out user %s", cockpit_creds_get_user (authenticated->creds));
+      g_hash_table_remove (self->authenticated, authenticated->cookie);
+    }
 
   if (out_headers)
     {

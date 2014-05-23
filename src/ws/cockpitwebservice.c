@@ -394,11 +394,14 @@ struct _CockpitWebService {
   gboolean closing;
   GBytes *control_prefix;
   guint ping_timeout;
+  gint callers;
 };
 
 typedef struct {
   GObjectClass parent;
 } CockpitWebServiceClass;
+
+static guint sig_idling = 0;
 
 G_DEFINE_TYPE (CockpitWebService, cockpit_web_service, G_TYPE_OBJECT);
 
@@ -477,6 +480,23 @@ build_control (const gchar *name,
   message = cockpit_json_write_bytes (object);
   json_object_unref (object);
   return message;
+}
+
+static void
+caller_begin (CockpitWebService *self)
+{
+  g_object_ref (self);
+  self->callers++;
+}
+
+static void
+caller_end (CockpitWebService *self)
+{
+  g_return_if_fail (self->callers > 0);
+  self->callers--;
+  if (self->callers == 0)
+    g_signal_emit (self, sig_idling, 0);
+  g_object_unref (self);
 }
 
 static void
@@ -1085,11 +1105,7 @@ on_web_socket_close (WebSocketConnection *connection,
 
   cockpit_socket_destroy (&self->sockets, socket);
 
-  /*
-   * We were holding a reference while the web socket was open.
-   * So unref once here when it closes.
-   */
-  g_object_unref (self);
+  caller_end (self);
 }
 
 static gboolean
@@ -1128,6 +1144,10 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   object_class->dispose = cockpit_web_service_dispose;
   object_class->finalize = cockpit_web_service_finalize;
+
+  sig_idling = g_signal_new ("idling", COCKPIT_TYPE_WEB_SERVICE,
+                             G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
+                             G_TYPE_NONE, 0);
 }
 
 /**
@@ -1227,8 +1247,7 @@ cockpit_web_service_socket (CockpitWebService *self,
   cockpit_socket_track (&self->sockets, connection);
   g_object_unref (connection);
 
-  /* Matching unref in on_web_socket_close() */
-  g_object_ref (self);
+  caller_begin (self);
 }
 
 /**
@@ -1289,4 +1308,11 @@ cockpit_web_service_noauth (GIOStream *io_stream,
 
   /* Unreferences connection when it closes */
   g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
+}
+
+gboolean
+cockpit_web_service_get_idling (CockpitWebService *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), TRUE);
+  return (self->callers == 0);
 }

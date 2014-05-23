@@ -43,6 +43,9 @@ extern gint cockpit_ws_agent_timeout;
 extern guint cockpit_ws_request_timeout;
 extern gsize cockpit_ws_request_maximum;
 
+/* From cockpitauth.c */
+extern guint cockpit_ws_idle_timeout;
+
 G_END_DECLS
 
 #endif /* __COCKPIT_WS_H__ */

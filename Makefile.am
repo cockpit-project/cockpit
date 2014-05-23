@@ -121,3 +121,4 @@ include src/daemon/Makefile-daemon.am
 include src/web/Makefile-web.am
 include src/static/Makefile-static.am
 include src/reauthorize/Makefile-reauthorize.am
+include src/selinux/Makefile-selinux.am

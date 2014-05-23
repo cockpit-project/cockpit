@@ -1,0 +1,14 @@
+
+SELINUX_FILES = \
+	src/selinux/cockpit.fc \
+	src/selinux/cockpit.if \
+	src/selinux/cockpit.te \
+	$(NULL)
+
+cockpit.pp: $(SELINUX_FILES)
+	cp $^ $(builddir)
+	$(MAKE) -f /usr/share/selinux/devel/Makefile cockpit.pp
+
+selinux: cockpit.pp
+
+EXTRA_DIST += $(SELINUX_FILES)

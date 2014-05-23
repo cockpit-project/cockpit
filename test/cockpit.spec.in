@@ -95,7 +95,7 @@ mkdir -p %{buildroot}/etc/pam.d/
 cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
 cp src/agent/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
 install -d %{buildroot}%{_datadir}/selinux/targeted
-install -p -m 644 cockpitselinux.pp %{buildroot}%{_datadir}/selinux/targeted/
+install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 
 %files
 %{_sysconfdir}/%{name}
@@ -144,17 +144,17 @@ SELinux policy for Cockpit testing.
 
 %files selinux
 %defattr(-,root,root,0755)
-%{_datadir}/selinux/targeted/cockpitselinux.pp
+%{_datadir}/selinux/targeted/cockpit.pp
 
 %post selinux
-/usr/sbin/semodule -s targeted -i %{_datadir}/selinux/targeted/cockpitselinux.pp &> /dev/null || :
+/usr/sbin/semodule -s targeted -i %{_datadir}/selinux/targeted/cockpit.pp &> /dev/null || :
 /sbin/fixfiles -R cockpit restore || :
 /sbin/fixfiles -R cockpit-test-assets restore || :
 /sbin/restorecon -R %{_sharedstatedir}/%{name} || :
 
 %postun selinux
 if [ $1 -eq 0 ] ; then
-  /usr/sbin/semodule -s targeted -r cockpitselinux &> /dev/null || :
+  /usr/sbin/semodule -s targeted -r cockpit &> /dev/null || :
   /sbin/fixfiles -R cockpit-selinux restore || :
   [ -d %{_sharedstatedir}/%{name} ]  && \
     /sbin/restorecon -R %{_sharedstatedir}/%{name} &> /dev/null || :

@@ -943,6 +943,93 @@ test_timeout_session (TestCase *test,
   close_client_and_stop_web_service (test, ws, service);
 }
 
+static void
+on_idling_set_flag (CockpitWebService *service,
+                    gpointer data)
+{
+  gboolean *flag = data;
+  g_assert (*flag == FALSE);
+  *flag = TRUE;
+}
+
+static void
+test_idling (TestCase *test,
+             gconstpointer data)
+{
+  WebSocketConnection *client;
+  CockpitWebService *service;
+  gboolean flag = FALSE;
+
+  cockpit_ws_default_host_header = "127.0.0.1";
+
+  /* This is web_socket_client_new_for_stream() with a flavor passed in fixture */
+  client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
+                         "url", "ws://127.0.0.1/unused",
+                         "origin", "http://127.0.0.1",
+                         "io-stream", test->io_a,
+                         "flavor", 0,
+                         NULL);
+
+  service = cockpit_web_service_new (test->creds, NULL);
+  g_signal_connect (service, "idling", G_CALLBACK (on_idling_set_flag), &flag);
+  g_assert (cockpit_web_service_get_idling (service));
+
+  cockpit_web_service_socket (service, test->io_b, NULL, NULL);
+  g_assert (!cockpit_web_service_get_idling (service));
+
+  while (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_CONNECTING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_OPEN);
+
+  web_socket_connection_close (client, WEB_SOCKET_CLOSE_NORMAL, "aoeuaoeuaoeu");
+  while (web_socket_connection_get_ready_state (client) != WEB_SOCKET_STATE_CLOSED)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Now the web service should go idle and fire idling signal */
+  while (!flag)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert (cockpit_web_service_get_idling (service));
+
+  g_object_unref (service);
+  g_object_unref (client);
+}
+
+static void
+test_dispose (TestCase *test,
+              gconstpointer data)
+{
+  WebSocketConnection *client;
+  CockpitWebService *service;
+
+  cockpit_ws_default_host_header = "127.0.0.1";
+
+  /* This is web_socket_client_new_for_stream() with a flavor passed in fixture */
+  client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
+                         "url", "ws://127.0.0.1/unused",
+                         "origin", "http://127.0.0.1",
+                         "io-stream", test->io_a,
+                         "flavor", 0,
+                         NULL);
+
+  service = cockpit_web_service_new (test->creds, NULL);
+
+  cockpit_web_service_socket (service, test->io_b, NULL, NULL);
+
+  while (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_CONNECTING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_OPEN);
+
+  /* Dispose the WebSocket ... this is what happens on forceful /logout */
+  g_object_run_dispose (G_OBJECT (service));
+
+  while (web_socket_connection_get_ready_state (client) != WEB_SOCKET_STATE_CLOSED)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_object_unref (service);
+  g_object_unref (client);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -1015,6 +1102,10 @@ main (int argc,
 
   g_test_add ("/web-service/timeout-session", TestCase, NULL,
               setup_for_socket, test_timeout_session, teardown_for_socket);
+  g_test_add ("/web-service/idling-signal", TestCase, NULL,
+              setup_for_socket, test_idling, teardown_for_socket);
+  g_test_add ("/web-service/force-dispose", TestCase, NULL,
+              setup_for_socket, test_dispose, teardown_for_socket);
 
   return g_test_run ();
 }

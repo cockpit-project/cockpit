@@ -27,6 +27,8 @@
 #include "ws/cockpitauth.h"
 #include "websocket/websocket.h"
 
+#include "cockpitws.h"
+
 #include <string.h>
 
 typedef struct {
@@ -59,6 +61,22 @@ on_ready_get_result (GObject *source,
 }
 
 static void
+include_cookie_as_if_client (GHashTable *resp_headers,
+                             GHashTable *req_headers)
+{
+  gchar *cookie;
+  gchar *end;
+
+  cookie = g_strdup (g_hash_table_lookup (resp_headers, "Set-Cookie"));
+  g_assert (cookie != NULL);
+  end = strchr (cookie, ';');
+  g_assert (end != NULL);
+  end[0] = '\0';
+
+  g_hash_table_insert (req_headers, g_strdup ("Cookie"), cookie);
+}
+
+static void
 test_userpass_cookie_check (Test *test,
                             gconstpointer data)
 {
@@ -70,8 +88,6 @@ test_userpass_cookie_check (Test *test,
   GError *error = NULL;
   GHashTable *headers;
   GBytes *input;
-  gchar *cookie;
-  gchar *end;
 
   input = g_bytes_new_static ("me\nthis is the password", 23);
   cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
@@ -97,14 +113,7 @@ test_userpass_cookie_check (Test *test,
   prev_creds = creds;
   creds = NULL;
 
-  cookie = g_strdup (g_hash_table_lookup (headers, "Set-Cookie"));
-  g_assert (cookie != NULL);
-
-  end = strchr (cookie, ';');
-  g_assert (end != NULL);
-  end[0] = '\0';
-
-  g_hash_table_insert (headers, g_strdup ("Cookie"), cookie);
+  include_cookie_as_if_client (headers, headers);
 
   service = cockpit_auth_check_cookie (test->auth, headers);
   g_assert (prev_service == service);
@@ -225,6 +234,113 @@ test_headers_bad (Test *test,
   g_hash_table_destroy (headers);
 }
 
+static gboolean
+on_timeout_set_flag (gpointer data)
+{
+  gboolean *flag = data;
+  g_assert (*flag == FALSE);
+  *flag = TRUE;
+  return FALSE;
+}
+
+static void
+test_idle_timeout (Test *test,
+                   gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  CockpitWebService *service;
+  GError *error = NULL;
+  GHashTable *headers;
+  GBytes *input;
+  gboolean flag = FALSE;
+
+  /* The idle timeout is one second */
+  cockpit_ws_idle_timeout = 1;
+
+  input = g_bytes_new_static ("me\nthis is the password", 23);
+  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
+  g_bytes_unref (input);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  headers = web_socket_util_new_headers ();
+  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  g_object_unref (result);
+  g_assert_no_error (error);
+
+  /* Logged in ... the webservice is idle though */
+  g_assert (service != NULL);
+  g_assert (cockpit_web_service_get_idling (service));
+  g_object_unref (service);
+
+  /* We should be able to authenticate with cookie and get the web service again */
+  include_cookie_as_if_client (headers, headers);
+
+  service = cockpit_auth_check_cookie (test->auth, headers);
+
+  /* Still logged in ... the web service is still idling */
+  g_assert (service != NULL);
+  g_assert (cockpit_web_service_get_idling (service));
+  g_object_unref (service);
+
+  /* Now wait for 2 seconds, and the service should be gone */
+  g_timeout_add_seconds (2, on_timeout_set_flag, &flag);
+  while (!flag)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Timeout, no longer logged in */
+  service = cockpit_auth_check_cookie (test->auth, headers);
+  g_assert (service == NULL);
+
+  g_hash_table_destroy (headers);
+}
+
+static void
+test_logout (Test *test,
+             gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  CockpitWebService *service;
+  GError *error = NULL;
+  GHashTable *headers;
+  GBytes *input;
+
+  input = g_bytes_new_static ("me\nthis is the password", 23);
+  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
+  g_bytes_unref (input);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  headers = web_socket_util_new_headers ();
+  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  g_object_unref (result);
+  g_assert_no_error (error);
+
+  /* Logged in */
+  g_assert (service != NULL);
+  g_object_unref (service);
+
+  /* We should be able to authenticate with cookie and get the web service again */
+  include_cookie_as_if_client (headers, headers);
+
+  service = cockpit_auth_check_cookie (test->auth, headers);
+
+  /* Still logged in ... */
+  g_assert (service != NULL);
+  g_object_unref (service);
+
+  /* Now log out with those headers */
+  cockpit_auth_logout (test->auth, headers, TRUE, NULL);
+
+  /* No longer logged in */
+  service = cockpit_auth_check_cookie (test->auth, headers);
+  g_assert (service == NULL);
+
+  g_hash_table_destroy (headers);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -236,6 +352,8 @@ main (int argc,
   g_test_add ("/auth/userpass-invalid", Test, NULL, setup, test_userpass_invalid, teardown);
   g_test_add ("/auth/userpass-emptypass", Test, NULL, setup, test_userpass_emptypass, teardown);
   g_test_add ("/auth/headers-bad", Test, NULL, setup, test_headers_bad, teardown);
+  g_test_add ("/auth/idle-timeout", Test, NULL, setup, test_idle_timeout, teardown);
+  g_test_add ("/auth/force-logout", Test, NULL, setup, test_logout, teardown);
 
   return g_test_run ();
 }

@@ -30,6 +30,7 @@ G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_WEB_SERVICE         (cockpit_web_service_get_type ())
 #define COCKPIT_WEB_SERVICE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_SERVICE, CockpitWebService))
+#define COCKPIT_IS_WEB_SERVICE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_SERVICE))
 
 typedef struct _CockpitWebService   CockpitWebService;
 
@@ -50,6 +51,8 @@ void                 cockpit_web_service_noauth      (GIOStream *io_stream,
                                                       GByteArray *input_buffer);
 
 CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
+
+gboolean             cockpit_web_service_get_idling  (CockpitWebService *self);
 
 G_END_DECLS
 

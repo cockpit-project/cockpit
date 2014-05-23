@@ -42,7 +42,9 @@ dev_read_urand(cockpit_ws_t) # for authkey
 dev_read_rand(cockpit_ws_t)  # for libssh
 
 # cockpit-ws can read from the cockpit port
-corenet_tcp_bind_cockpit_port(cockpit_ws_t)
+# TODO: disable this until we have it in our f20 selinux-policy-targeted
+# corenet_tcp_bind_cockpit_port(cockpit_ws_t)
+corenet_tcp_bind_all_reserved_ports(cockpit_ws_t)
 
 # cockpit-ws can connect to other hosts via ssh
 corenet_tcp_connect_ssh_port(cockpit_ws_t)
@@ -78,6 +80,7 @@ allow cockpit_session_t self:process { setexec setsched signal_perms };
 
 # cockpit-session runs a full pam stack, including pam_selinux.so
 auth_login_pgm_domain(cockpit_session_t)
+auth_write_login_records(cockpit_session_t);
 
 # cockpit-session can execute cockpit-agent as the user
 userdom_spec_domtrans_all_users(cockpit_session_t)

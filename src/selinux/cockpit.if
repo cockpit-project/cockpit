@@ -141,38 +141,6 @@ interface(`cockpit_systemctl',`
 
 ########################################
 ## <summary>
-##	Send and receive messages from
-##	cockpit over dbus.
-## </summary>
-## <param name="domain">
-##	<summary>
-##	Domain allowed access.
-##	</summary>
-## </param>
-#
-interface(`cockpit_dbus_chat',`
-	gen_require(`
-		type cockpit_ws_t;
-		class dbus send_msg;
-	')
-
-	allow $1 cockpit_ws_t:dbus send_msg;
-	allow cockpit_ws_t $1:dbus send_msg;
-')
-
-
-interface(`cockpit_ws_domtrans',`
-	gen_require(`
-		type cockpit_ws_t, cockpit_ws_exec_t;
-	')
-
-	corecmd_search_bin($1)
-	domtrans_pattern($1, cockpit_ws_exec_t, cockpit_ws_t)
-')
-
-
-########################################
-## <summary>
 ##	All of the rules required to administrate
 ##	an cockpit environment
 ## </summary>

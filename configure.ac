@@ -218,6 +218,23 @@ changequote([,])dnl
 
 AC_CHECK_FUNCS(fdwalk)
 
+# Address sanitizer
+
+AC_MSG_CHECKING([for asan flags])
+AC_ARG_ENABLE(asan,
+              AC_HELP_STRING([--enable-asan=no/yes],
+                             [Turn on or off ASAN])
+             )
+
+if test "$enable_asan" = "yes"; then
+    CFLAGS="$CFLAGS -fsanitize=address -O1 -fno-omit-frame-pointer -g"
+    asan_status="yes"
+else
+    asan_status="no"
+fi
+AM_CONDITIONAL(WITH_ASAN, test "$enable_asan" = "yes")
+AC_MSG_RESULT($asan_status)
+
 # Debug
 
 AC_MSG_CHECKING([for debug mode])
@@ -312,4 +329,5 @@ echo "
         Building api docs:          ${enable_gtk_doc}
         Debug mode:                 ${debug_status}
         With coverage:              ${enable_coverage}
+        With address sanitizer:     ${asan_status}
 "

@@ -120,11 +120,20 @@ class TestMultiMachine(MachineCase):
         m2_index = wm[m2.address]
         m3_index = wm[m3.address]
 
+        # TODO: The concrete error message when killing the agent
+        # session is not predictable.  So we just wait for any error
+        # to appear without checking the precise text.  We print the
+        # error message, to help with issue #606.
+        #
+        # https://github.com/cockpit-project/cockpit/issues/606
+
         kill_user_admin(m1)
-        b.wait_text(machine_error_selector(m1_index), "Disconnected")
+        b.wait_visible(machine_error_selector(m1_index))
+        print "Error for m1: %s" % b.text(machine_error_selector(m1_index))
 
         kill_user_admin(m2)
-        b.wait_text(machine_error_selector(m2_index), "Your session has been terminated.")
+        b.wait_visible(machine_error_selector(m2_index))
+        print "Error for m2: %s" % b.text(machine_error_selector(m2_index))
 
         b.wait_action_btn (action_btn_selector (m1_index), "Connect")
         b.click_action_btn (action_btn_selector (m1_index))
@@ -138,6 +147,8 @@ class TestMultiMachine(MachineCase):
                                     "peer did not close io when expected",
                                     # Might happen when killing the agent.
                                     "localhost: dropping message while waiting for child to exit",
-                                    "Received message for unknown channel: .*")
+                                    "Received message for unknown channel: .*",
+                                    ".*: error reading from ssh",
+                                    ".*: agent program failed: Child process exited with code .*")
 
 test_main()

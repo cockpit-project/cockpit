@@ -1,4 +1,4 @@
-policy_module(cockpitselinux, 1.0.0)
+policy_module(cockpit, 1.0.0)
 
 ########################################
 #
@@ -22,19 +22,17 @@ type cockpit_session_t;
 type cockpit_session_exec_t;
 domain_type(cockpit_session_t)
 domain_entry_file(cockpit_session_t,cockpit_session_exec_t)
-# cockpit-session runs a full pam stack, including pam_selinux.so
-auth_login_pgm_domain(cockpit_session_t)
 
 ########################################
 #
-# cockpit local policy
+# cockpit_ws_t local policy
 #
 
 allow cockpit_ws_t self:capability net_admin;
-allow cockpit_ws_t self:tcp_socket accept;
+allow cockpit_ws_t self:tcp_socket create_stream_socket_perms;
 
 # cockpit-ws can read from /var/lib/cockpit, but not write to it
-read_files_pattern(cockpit_ws_t,cockpit_var_lib_t,cockpit_var_lib_t)
+cockpit_read_lib_files(cockpit_ws_t)
 
 # cockpit-ws can execute cockpit-session
 can_exec(cockpit_ws_t,cockpit_session_exec_t)
@@ -43,38 +41,51 @@ can_exec(cockpit_ws_t,cockpit_session_exec_t)
 dev_read_urand(cockpit_ws_t) # for authkey
 dev_read_rand(cockpit_ws_t)  # for libssh
 
-# cockpit-ws can read from a reserved port
-corenet_tcp_bind_all_reserved_ports(cockpit_ws_t)
-corenet_tcp_bind_all_unreserved_ports(cockpit_ws_t)
+# cockpit-ws can read from the cockpit port
+corenet_tcp_bind_cockpit_port(cockpit_ws_t)
 
 # cockpit-ws can connect to other hosts via ssh
 corenet_tcp_connect_ssh_port(cockpit_ws_t)
 
 # cockpit-ws can write to its temp files
+manage_dirs_pattern(cockpit_ws_t, cockpit_tmp_t, cockpit_tmp_t)
 manage_files_pattern(cockpit_ws_t, cockpit_tmp_t, cockpit_tmp_t)
-files_tmp_filetrans(cockpit_ws_t, cockpit_tmp_t, file)
+files_tmp_filetrans(cockpit_ws_t, cockpit_tmp_t, { dir file })
 
 auth_use_nsswitch(cockpit_ws_t)
+
 logging_send_syslog_msg(cockpit_ws_t)
 
 # cockpit-ws launches cockpit-session
-domtrans_pattern(cockpit_ws_t,cockpit_session_exec_t,cockpit_session_t)
-allow cockpit_ws_t cockpit_session_t:process signal;
-
-# cockpit-session changes to the actual logged in user
-allow cockpit_session_t self:capability { sys_admin dac_override setuid setgid };
+cockpit_session_domtrans(cockpit_ws_t)
+allow cockpit_ws_t cockpit_session_t:process signal_perms;
 
 # cockpit-session communicates back with cockpit-ws
 allow cockpit_session_t cockpit_ws_t:unix_stream_socket rw_stream_socket_perms;
 
-auth_use_nsswitch(cockpit_session_t)
-auth_rw_login_records(cockpit_session_t)
-logging_send_syslog_msg(cockpit_session_t)
+optional_policy(`
+	ssh_read_user_home_files(cockpit_ws_t)
+')
+
+#########################################################
+#
+#  cockpit-session local policy
+#
+
+# cockpit-session changes to the actual logged in user
+allow cockpit_session_t self:capability { sys_admin dac_override setuid setgid };
+allow cockpit_session_t self:process { setexec setsched signal_perms };
+
+# cockpit-session runs a full pam stack, including pam_selinux.so
+auth_login_pgm_domain(cockpit_session_t)
 
 # cockpit-session can execute cockpit-agent as the user
-userdom_spec_domtrans_all_users(cockpit_session_t, userdomain)
-allow cockpit_session_t self:process { setexec setsched signal };
+userdom_spec_domtrans_all_users(cockpit_session_t)
 
 optional_policy(`
     userdom_signal_all_users(cockpit_session_t)
+')
+
+optional_policy(`
+	unconfined_domtrans(cockpit_session_t)
 ')

@@ -1,8 +1,7 @@
 # cockpit stuff
 
-/usr/lib/systemd/system/cockpit.service		--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
-
-/usr/lib/systemd/system/cockpit.socket		--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
+/usr/lib/systemd/system/cockpit.*		--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
+/etc/systemd/system/cockpit.*	--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
 
 /usr/libexec/cockpit-ws		--	gen_context(system_u:object_r:cockpit_ws_exec_t,s0)
 
@@ -10,12 +9,8 @@
 
 /usr/libexec/cockpit-agent	--	gen_context(system_u:object_r:shell_exec_t,s0)
 
-/etc/cockpit/ws-certs.d(/.*)?		gen_context(system_u:object_r:cockpit_ws_t,s0)
-
 /var/lib/cockpit(/.*)?		gen_context(system_u:object_r:cockpit_var_lib_t,s0)
 
 # test-server stuff
 
-/usr/lib/systemd/system/cockpit-testing.service	--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
-/usr/lib/systemd/system/cockpit-testing.socket	--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
 /usr/share/cockpit-test-assets/test-server      --      gen_context(system_u:object_r:unconfined_exec_t,s0)

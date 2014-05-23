@@ -16,4 +16,6 @@
 
 # test-server stuff
 
+/usr/lib/systemd/system/cockpit-testing.service	--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
+/usr/lib/systemd/system/cockpit-testing.socket	--	gen_context(system_u:object_r:cockpit_unit_file_t,s0)
 /usr/share/cockpit-test-assets/test-server      --      gen_context(system_u:object_r:unconfined_exec_t,s0)

@@ -1118,6 +1118,7 @@ cockpit_ssh_transport_set_property (GObject *obj,
       string = g_value_get_string (value);
       if (string == NULL)
         string = PACKAGE_LOCALSTATE_DIR "/lib/cockpit/known_hosts";
+      ssh_options_set (self->data->session, SSH_OPTIONS_KNOWNHOSTS, string);
       self->data->knownhosts_file = g_strdup (string);
       break;
     case PROP_CREDS:

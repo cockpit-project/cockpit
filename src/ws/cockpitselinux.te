@@ -73,7 +73,7 @@ logging_send_syslog_msg(cockpit_session_t)
 
 # cockpit-session can execute cockpit-agent as the user
 userdom_spec_domtrans_all_users(cockpit_session_t, userdomain)
-allow cockpit_session_t self:process setexec;
+allow cockpit_session_t self:process { setexec setsched signal };
 
 optional_policy(`
     userdom_signal_all_users(cockpit_session_t)

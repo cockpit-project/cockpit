@@ -458,6 +458,7 @@ PageJournal.prototype = {
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
+        cockpit.set_watched_client(this.client);
 
         this.journal = this.client.get ("/com/redhat/Cockpit/Journal",
                                         "com.redhat.Cockpit.Journal");
@@ -470,6 +471,7 @@ PageJournal.prototype = {
         if (this.filler)
             this.filler.stop();
 
+        cockpit.set_watched_client(null);
         this.client.release();
         this.client = null;
         this.journal = null;

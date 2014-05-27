@@ -30,6 +30,7 @@ PageDiskIOStatus.prototype = {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
+        cockpit.set_watched_client(this.client);
 
         var resmon = this.client.get("/com/redhat/Cockpit/DiskIOMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {
@@ -74,6 +75,7 @@ PageDiskIOStatus.prototype = {
     },
 
     leave: function() {
+        cockpit.set_watched_client(null);
         this.plot.destroy();
         this.client.release();
         this.client = null;

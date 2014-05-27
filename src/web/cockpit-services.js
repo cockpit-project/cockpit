@@ -155,6 +155,7 @@ PageServices.prototype = {
         me.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
+        cockpit.set_watched_client(me.client);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -174,6 +175,7 @@ PageServices.prototype = {
     leave: function() {
         var self = this;
 
+        cockpit.set_watched_client(null);
         $(self.manager).off('.services');
         self.client.release();
         self.client = null;
@@ -319,6 +321,7 @@ PageService.prototype = {
         me.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
+        cockpit.set_watched_client(me.client);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -340,6 +343,7 @@ PageService.prototype = {
     },
 
     leave: function() {
+        cockpit.set_watched_client(null);
         this.journal_watcher.stop();
         this.client.release();
         this.client = null;

@@ -47,13 +47,24 @@
 
    Clients stay around a while after they have been released by its
    last user.
+
+   - cockpit.set_watched_client(client)
+
+   Start watching the state of the given D-Bus client.  When it is
+   closed, a modal dialog will pop up that prevents interaction with
+   the current page (which is broken now because of the closed
+   client).
+
+   There can be at most one watched client at any given time.  Pass
+   'null' to this function to stop watching any client.
 */
 
 var cockpit = cockpit || { };
 
-(function($, cockpit) {
+(function($, cockpit, cockpit_pages) {
 
 cockpit.dbus = dbus;
+cockpit.set_watched_client = set_watched_client;
 
 $(init);
 
@@ -160,4 +171,61 @@ function dbus(address, options, auto_reconnect) {
     return handle.client;
 }
 
-})(jQuery, cockpit);
+var watched_client = null;
+
+function set_watched_client(client) {
+    $(watched_client).off('.client-watcher');
+    $('#disconnected-dialog').modal('hide');
+
+    function update() {
+        if (watched_client && watched_client.state == "closed")
+            $('#disconnected-dialog').modal('show');
+        else
+            $('#disconnected-dialog').modal('hide');
+    }
+
+    watched_client = client;
+    $(watched_client).on('state-change.client-watcher', update);
+    update ();
+}
+
+PageDisconnected.prototype = {
+    _init: function() {
+        this.id = "disconnected-dialog";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Disconnected");
+    },
+
+    setup: function() {
+        $('#disconnected-reconnect').click($.proxy(this, "reconnect"));
+        $('#disconnected-logout').click($.proxy(this, "logout"));
+    },
+
+    enter: function() {
+        $('#disconnected-error').text(cockpit.client_error_description(watched_client.error));
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    reconnect: function() {
+        watched_client.connect();
+    },
+
+    logout: function() {
+        cockpit_logout();
+    }
+};
+
+function PageDisconnected() {
+    this._init();
+}
+
+cockpit_pages.push(new PageDisconnected());
+
+})(jQuery, cockpit, cockpit_pages);

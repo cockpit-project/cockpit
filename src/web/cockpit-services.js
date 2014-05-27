@@ -341,6 +341,8 @@ PageService.prototype = {
 
     leave: function() {
         this.journal_watcher.stop();
+        this.client.release();
+        this.client = null;
     },
 
     watch_journal: function () {

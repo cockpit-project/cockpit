@@ -139,7 +139,7 @@ PageDashboard.prototype = {
             var address = configured_machines[i].Address;
             /* TODO: This code needs to be migrated away from dbus-json1 */
             var machine = { address: address,
-                            client: cockpit.dbus(address, { payload: "dbus-json1" }, false),
+                            client: cockpit.dbus(address, { payload: "dbus-json1" }),
                             dbus_iface: configured_machines[i]
                           };
 

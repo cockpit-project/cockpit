@@ -32,7 +32,7 @@
    contains the symbol identifying the language, such as "de" or "fi".
    'language_po' is a dictionary with the actual translations.
 
-   - client = cockpit.dbus(address, [options], [auto_reconnect])
+   - client = cockpit.dbus(address, [options])
    - client.release()
 
    Manage the active D-Bus clients.  The 'dbus' function returns a
@@ -41,9 +41,7 @@
    the 'enter' method of a page and released again in 'leave'.
 
    A client returned by 'dbus' can be in any state; it isn't
-   necessarily "ready". However, if it is closed and auto_reconnect is
-   not false, a reconnection attempt will be started.  (The
-   auto_reconnect parameter defaults to 'true'.)
+   necessarily "ready".
 
    Clients stay around a while after they have been released by its
    last user.
@@ -131,7 +129,7 @@ function make_dict_key(dict) {
     return Object.keys(dict).sort().map(stringify_elt).join(";");
 }
 
-function dbus(address, options, auto_reconnect) {
+function dbus(address, options) {
     var key, handle;
     var client;
 
@@ -164,9 +162,6 @@ function dbus(address, options, auto_reconnect) {
         dbus_debug("Getting dbus client for %s", key);
         handle.refcount += 1;
     }
-
-    if (handle.client.state == "closed" && auto_reconnect !== false)
-        handle.client.connect();
 
     return handle.client;
 }

@@ -601,7 +601,16 @@ build_json (JsonBuilder *builder,
     case G_VARIANT_CLASS_STRING:      /* explicit fall-through */
     case G_VARIANT_CLASS_OBJECT_PATH: /* explicit fall-through */
     case G_VARIANT_CLASS_SIGNATURE:
-      json_builder_add_string_value (builder, g_variant_get_string (value, NULL));
+      {
+        /* HACK: We can't use json_builder_add_string_value here since
+           it turns empty strings into 'null' values inside arrays.
+
+           https://bugzilla.gnome.org/show_bug.cgi?id=730803
+        */
+        JsonNode *string_element = json_node_alloc ();
+        json_node_init_string (string_element, g_variant_get_string (value, NULL));
+        json_builder_add_value (builder, string_element);
+      }
       break;
 
     case G_VARIANT_CLASS_VARIANT:

@@ -459,10 +459,8 @@ function client_error_description (error) {
         return _("Connection has timed out.");
     else if (error == "no-agent")
         return _("The management agent is not installed.");
-    else if (error === null)
-        return _("Server has closed the connection.");
     else
-        return error;
+        return _("Server has closed the connection.");
 }
 
 })(cockpit);

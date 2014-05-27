@@ -43,12 +43,12 @@ class TestConnection(MachineCase):
 
         # take cockpit-ws down on the server page
         m.execute("systemctl stop cockpit-testing.socket")
-        b.wait_popup("disconnected")
+        b.wait_popup("disconnected-dialog")
         m.execute("systemctl start cockpit-testing.socket")
-        b.click('#disconnected button[onclick*="reconnect"]')
+        b.click('#disconnected-reconnect')
         b.wait_in_text('#disconnected-error', "Your session has expired.")
-        b.click('#disconnected button[onclick*="logout"]')
-        b.wait_popdown("disconnected")
+        b.click('#disconnected-logout')
+        b.expect_reload()
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
@@ -65,13 +65,10 @@ class TestConnection(MachineCase):
         # severe the connection on the server page
 	m.execute("iptables -I INPUT 1 -p tcp --dport 1001 -j REJECT")
         with b.wait_timeout(60):
-            b.wait_popup("disconnected")
+            b.wait_popup("disconnected-dialog")
         b.wait_in_text('#disconnected-error', "Connection has timed out.")
         m.execute("iptables -D INPUT 1")
-        b.click('#disconnected button[onclick*="reconnect"]')
-        b.wait_popdown("disconnected")
+        b.click('#disconnected-reconnect')
+        b.wait_popdown("disconnected-dialog")
 
-# XXX - we don't have any reaction in the UI when the
-# connection is lost.  So we skip this test.
-
-# test_main()
+test_main()

@@ -35,6 +35,7 @@ PageNetworking.prototype = {
                                       'object-paths': [ "/org/freedesktop/NetworkManager" ],
                                       'payload': "dbus-json1"
                                     });
+        cockpit.set_watched_client(this.client);
 
         this.manager = this.client.get("/org/freedesktop/NetworkManager",
                                        "org.freedesktop.NetworkManager");
@@ -52,6 +53,7 @@ PageNetworking.prototype = {
     },
 
     leave: function() {
+        cockpit.set_watched_client(null);
         $(this.manager).off(".networking");
         $(this.client).off(".networking");
         this.client.release();

@@ -56,7 +56,7 @@ PageServer.prototype = {
         self.address = cockpit_get_page_param('machine') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
-        $(self.client).on('state-change.server', $.proxy(self, "update"));
+        cockpit.set_watched_client(self.client);
 
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");
@@ -145,6 +145,7 @@ PageServer.prototype = {
         self.disk_io_plot.destroy();
         self.network_traffic_plot.destroy();
 
+        cockpit.set_watched_client(null);
         $(self.manager).off('.server');
         self.manager = null;
         $(self.client).off('.server');

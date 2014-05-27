@@ -144,7 +144,7 @@ PageStorage.prototype = {
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        this.client = cockpit.dbus(this.address, { protocol: 'dbus-json1' });
+        this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit_watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
@@ -731,7 +731,7 @@ PageStorageDetail.prototype = {
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        this.client = cockpit.dbus(this.address, { protocol: 'dbus-json1' });
+        this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit_watch_jobs(this.client);
 
         this._drive = null;

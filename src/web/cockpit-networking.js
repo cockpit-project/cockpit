@@ -33,7 +33,7 @@ PageNetworking.prototype = {
                                     { 'bus': 'system',
                                       'service': "org.freedesktop.NetworkManager",
                                       'object-paths': [ "/org/freedesktop/NetworkManager" ],
-                                      'protocol': "dbus-json1"
+                                      'payload': "dbus-json1"
                                     });
 
         this.manager = this.client.get("/org/freedesktop/NetworkManager",

@@ -29,7 +29,7 @@ PageMemoryStatus.prototype = {
     enter: function() {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        this.client = cockpit.dbus(this.address, { protocol: "dbus-json1" });
+        this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
 
         var resmon = this.client.get("/com/redhat/Cockpit/MemoryMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {

@@ -1147,9 +1147,11 @@ cockpit_dbus_json1_constructed (GObject *object)
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
   const gchar *dbus_service;
   const gchar *dbus_path;
+  const gchar *bus;
   const gchar *new_prop_name;
   GType object_manager_type;
   gconstpointer new_prop_value;
+  GBusType bus_type;
 
   G_OBJECT_CLASS (cockpit_dbus_json1_parent_class)->constructed (object);
 
@@ -1187,12 +1189,34 @@ cockpit_dbus_json1_constructed (GObject *object)
       object_manager_type = G_TYPE_DBUS_OBJECT_MANAGER_CLIENT;
     }
 
+  /*
+   * The default bus is the "user" bus which doesn't exist in many
+   * places yet, so use the session bus for now.
+   */
+  bus_type = G_BUS_TYPE_SESSION;
+  bus = cockpit_channel_get_option (channel, "bus");
+  if (bus == NULL || g_str_equal (bus, "session") ||
+      g_str_equal (bus, "user"))
+    {
+      bus_type = G_BUS_TYPE_SESSION;
+    }
+  else if (g_str_equal (bus, "system"))
+    {
+      bus_type = G_BUS_TYPE_SYSTEM;
+    }
+  else
+    {
+      g_warning ("agent got an invalid bus type");
+      g_idle_add (on_idle_protocol_error, channel);
+      return;
+    }
+
   /* Both GDBusObjectManager and CockpitFakeManager have similar props */
   g_async_initable_new_async (object_manager_type,
                               G_PRIORITY_DEFAULT, NULL,
                               on_object_manager_ready,
                               g_object_ref (self),
-                              "bus-type", G_BUS_TYPE_SYSTEM,
+                              "bus-type", bus_type,
                               "flags", G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
                               "name", dbus_service,
                               new_prop_name, new_prop_value,
@@ -1288,6 +1312,7 @@ cockpit_dbus_json1_open (CockpitTransport *transport,
   g_return_val_if_fail (channel_id != NULL, NULL);
 
   options = json_object_new ();
+  json_object_set_string_member (options, "bus", "session");
   json_object_set_string_member (options, "service", dbus_service);
   json_object_set_string_member (options, "object-manager", dbus_path);
   json_object_set_string_member (options, "payload", "dbus-json1");

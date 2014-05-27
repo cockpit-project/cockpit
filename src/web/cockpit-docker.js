@@ -1102,7 +1102,7 @@ function DockerClient(machine) {
             name = name.substring(1);
         return name;
     }
-         
+
     function populate_container(id, container) {
         if (container.State === undefined)
             container.State = { };
@@ -1266,7 +1266,7 @@ function DockerClient(machine) {
      */
 
     /* TODO: This code needs to be migrated away from dbus-json1 */
-    var dbus_client = cockpit.dbus(machine, { protocol: "dbus-json1" });
+    var dbus_client = cockpit.dbus(machine, { payload: "dbus-json1" });
     var monitor = dbus_client.get ("/com/redhat/Cockpit/LxcMonitor",
                                    "com.redhat.Cockpit.MultiResourceMonitor");
 

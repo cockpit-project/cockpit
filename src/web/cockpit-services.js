@@ -154,7 +154,7 @@ PageServices.prototype = {
 
         me.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        me.client = cockpit.dbus(me.address, { protocol: 'dbus-json1' });
+        me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -318,7 +318,7 @@ PageService.prototype = {
 
         me.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        me.client = cockpit.dbus(me.address, { protocol: 'dbus-json1' });
+        me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");

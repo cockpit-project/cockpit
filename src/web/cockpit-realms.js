@@ -42,7 +42,7 @@ PageRealms.prototype = {
 
         self.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        self.client = cockpit.dbus(self.address, { protocol: 'dbus-json1' });
+        self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
         self.realm_manager = self.client.get("/com/redhat/Cockpit/Realms",
                                              "com.redhat.Cockpit.Realms");
         $(self.realm_manager).on("notify:Joined.realms", $.proxy(self, "update"));

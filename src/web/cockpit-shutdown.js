@@ -57,7 +57,7 @@ PageShutdown.prototype = {
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        this.client = cockpit.dbus(this.address, { protocol: 'dbus-json1' });
+        this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
 
         this.manager = this.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");

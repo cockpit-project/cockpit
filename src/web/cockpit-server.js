@@ -25,7 +25,7 @@ PageServer.prototype = {
     enter_breadcrumb: function() {
         this.title_address = cockpit_get_page_param('machine') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        this.title_client = cockpit.dbus(this.title_address, { protocol: 'dbus-json1' });
+        this.title_client = cockpit.dbus(this.title_address, { payload: 'dbus-json1' });
         this.title_manager = this.title_client.get("/com/redhat/Cockpit/Manager",
                                                    "com.redhat.Cockpit.Manager");
         $(this.title_manager).on('notify:PrettyHostname.server-title', cockpit_content_update_loc_trail);
@@ -55,7 +55,7 @@ PageServer.prototype = {
 
         self.address = cockpit_get_page_param('machine') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        self.client = cockpit.dbus(self.address, { protocol: 'dbus-json1' });
+        self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
         $(self.client).on('state-change.server', $.proxy(self, "update"));
 
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",

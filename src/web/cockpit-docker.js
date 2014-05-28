@@ -34,9 +34,6 @@ function docker_debug() {
 }
 
 function get_docker_client(machine) {
-    if (!machine)
-        machine = cockpit_get_page_param ("machine", "server");
-
     var handle = docker_clients[machine];
 
     if (!handle) {
@@ -289,7 +286,12 @@ PageContainers.prototype = {
     enter: function() {
         var self = this;
 
-        this.client = get_docker_client();
+        this.address = cockpit_get_page_param('machine') || "localhost";
+        this.client = get_docker_client(this.address);
+
+        // Just for watching
+        this.dbus_client = cockpit.dbus(this.address, { payload: "dbus-json1" });
+        cockpit.set_watched_client(this.dbus_client);
 
         var reds = [ "#250304",
                      "#5c080c",
@@ -345,6 +347,14 @@ PageContainers.prototype = {
         $(this.client).on('failure.containers', function(event, ex) {
             var msg;
             console.warn(ex);
+
+            if (ex.problem == "disconnected") {
+                /* This error is handled via cockpit.set_watched_client
+                 * and we don't need to show it here.
+                 */
+                return;
+            }
+
             if (ex.problem == "not-found")
                 msg = _("Docker is not installed or activated on the system");
             else if (ex.problem == "not-authorized")
@@ -371,6 +381,10 @@ PageContainers.prototype = {
     },
 
     leave: function() {
+        cockpit.set_watched_client(null);
+        this.dbus_client.release();
+        this.dbus_client = null;
+
         this.cpu_plot.destroy();
         this.mem_plot.destroy();
         $(this.client).off('.containers');
@@ -695,6 +709,10 @@ PageContainerDetails.prototype = {
     },
 
     leave: function() {
+        cockpit.set_watched_client(null);
+        this.dbus_client.release();
+        this.dbus_client = null;
+
         $(this.client).off('.container-details');
         this.client.release();
         this.client = null;
@@ -787,9 +805,14 @@ PageContainerDetails.prototype = {
                     });
             });
 
-        this.client = get_docker_client();
+        this.address = cockpit_get_page_param('machine') || "localhost";
+        this.client = get_docker_client(this.address);
         this.container_id = cockpit_get_page_param('id');
         this.name = this.container_id.slice(0,12);
+
+        // Just for watching
+        this.dbus_client = cockpit.dbus(this.address, { payload: "dbus-json1" });
+        cockpit.set_watched_client(this.dbus_client);
 
         $(this.client).on('container.container-details', function (event, id, container) {
             if (id == self.container_id)
@@ -953,6 +976,10 @@ PageImageDetails.prototype = {
     },
 
     leave: function() {
+        cockpit.set_watched_client(null);
+        this.dbus_client.release();
+        this.dbus_client = null;
+
         $(this.client).off('.image-details');
         this.client.release();
         this.client = null;
@@ -966,9 +993,14 @@ PageImageDetails.prototype = {
     enter: function() {
         var self = this;
 
-        this.client = get_docker_client();
+        this.address = cockpit_get_page_param('machine') || "localhost";
+        this.client = get_docker_client(this.address);
         this.image_id = cockpit_get_page_param('id');
         this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
+
+        // Just for watching
+        this.dbus_client = cockpit.dbus(this.address, { payload: "dbus-json1" });
+        cockpit.set_watched_client(this.dbus_client);
 
         $(this.client).on('image.image-details', function (event, id, imaege) {
             if (id == self.image_id)

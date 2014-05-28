@@ -404,12 +404,14 @@ PageStorage.prototype = {
         var block = obj.lookup("com.redhat.Cockpit.Storage.Block");
 
         // Ignore partitions, block devices part of a drive, unlocked
-        // cleartext devices, RAIDs, and logical volumes.
+        // cleartext devices, RAIDs, logical volumes, and devices that
+        // we are told to ignore.
         if (block.PartitionNumber !== 0 ||
             block.Drive != "/" ||
             block.CryptoBackingDevice != "/" ||
             block.MDRaid != "/" ||
-            block.LogicalVolume != "/")
+            block.LogicalVolume != "/" ||
+            block.HintIgnore)
             return;
 
         var id = cockpit_esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));

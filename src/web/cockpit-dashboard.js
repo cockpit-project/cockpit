@@ -47,7 +47,7 @@ PageDashboard.prototype = {
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.local_client = cockpit.dbus("localhost", { payload: "dbus-json1" });
-        $(self.local_client).on('state-change.dashboard-local', $.proxy(self, "local_client_state_change"));
+        cockpit.set_watched_client(self.local_client);
         $(self.local_client).on('objectAdded.dashboard-local objectRemoved.dashboard-local', function (event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
                 self.update_machines ();
@@ -67,21 +67,10 @@ PageDashboard.prototype = {
         this.destroy_plots();
         this.put_clients();
 
+        cockpit.set_watched_client(null);
         $(this.local_client).off('.dashboard-local');
         this.local_client.release();
         this.local_client = null;
-    },
-
-    local_client_state_change: function () {
-        if (this.local_client.state == "ready") {
-            $('#dashboard-local-disconnected').hide();
-        } else {
-            if (this.local_client.state == "closed")
-                $('#dashboard-local-error').text(cockpit.client_error_description(this.local_client.error));
-            else
-                $('#dashboard-local-error').text("...");
-            $('#dashboard-local-disconnected').show();
-        }
     },
 
     destroy_plots: function () {

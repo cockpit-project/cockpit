@@ -222,8 +222,8 @@ PageNetworking.prototype = {
             if (!device)
                 continue;
 
-            // Skip loopback
-            if (device.DeviceType == 14)
+            // Skip everything that is not ethernet
+            if (device.DeviceType != 1)
                 continue;
 
             merge_props(device, "org.freedesktop.NetworkManager.Device.Wired",

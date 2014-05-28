@@ -182,6 +182,8 @@ storage_block_update (StorageBlock *block)
   cockpit_storage_block_set_id_label   (iface, udisks_block_get_id_label   (udisks_block));
   cockpit_storage_block_set_id_uuid    (iface, udisks_block_get_id_uuid    (udisks_block));
 
+  cockpit_storage_block_set_hint_ignore (iface, udisks_block_get_hint_ignore (udisks_block));
+
   if (udisks_partition == NULL)
     {
       cockpit_storage_block_set_partition_number (iface, 0);

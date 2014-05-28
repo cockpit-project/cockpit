@@ -268,6 +268,99 @@ function CpuSlider(sel, min, max) {
     return this;
 }
 
+function render_container (client, $panel, filter_button, prefix, id, container) {
+    var tr = $("#" + prefix + id);
+
+    if (!container) {
+        tr.remove();
+        return;
+    }
+
+    var cputext;
+    var memuse, memlimit;
+    var membar, memtext, memtextstyle;
+    var barvalue;
+
+    if (container.State && container.State.Running) {
+        cputext = format_cpu_usage(container.CpuUsage);
+
+        memuse = container.MemoryUsage || 0;
+        memlimit = container.MemoryLimit || 0;
+        memtext = format_memory_and_limit(memuse, memlimit);
+
+        membar = true;
+        memtextstyle = { 'color': 'inherit' };
+    } else {
+        cputext = "";
+        membar = false;
+        memtext = _("Stopped");
+        memtextstyle = { 'color': 'grey', 'text-align': 'right' };
+    }
+
+    var added = false;
+    if (!tr.length) {
+        var img_waiting = $('<div class="waiting">');
+        var btn_play = $('<button class="btn btn-default btn-control btn-play">').
+            on("click", function() {
+                $(this).hide().
+                    siblings("div.waiting").show();
+                client.start(id).
+                    fail(function(ex) {
+                        cockpit_show_unexpected_error(ex);
+                    });
+                return false;
+            });
+        var btn_stop = $('<button class="btn btn-default btn-control btn-stop">').
+            on("click", function() {
+                $(this).hide().
+                    siblings("div.waiting").show();
+                client.stop(id).
+                    fail(function(ex) {
+                        cockpit_show_unexpected_error(ex);
+                    });
+                return false;
+            });
+        tr = $('<tr id="' + prefix + id + '">').append(
+            $('<td class="container-col-name">'),
+            $('<td class="container-col-image">'),
+            $('<td class="container-col-command">'),
+            $('<td class="container-col-cpu">'),
+            $('<td class="container-col-memory-graph">').append(cockpit.BarRow("containers-containers")),
+            $('<td class="container-col-memory-text">'),
+            $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
+        tr.on('click', function(event) {
+            cockpit_go_down ({ page: 'container-details',
+                               id: id
+                             });
+        });
+
+        added = true;
+    }
+
+    var row = tr.children("td");
+    $(row[0]).text(render_container_name(container.Name));
+    $(row[1]).text(container.Image);
+    $(row[2]).text(container.Command);
+    $(row[3]).text(cputext);
+    update_memory_bar($(row[4]).children("div").toggle(membar), memuse, memlimit);
+    $(row[5]).
+        css(memtextstyle).
+        text(memtext);
+
+    var waiting = id in client.waiting;
+    $(row[6]).children("div.waiting").toggle(waiting);
+    $(row[6]).children("button.btn-play").toggle(!waiting && !container.State.Running);
+    $(row[6]).children("button.btn-stop").toggle(!waiting && container.State.Running);
+
+    if (filter_button) {
+        var filter = cockpit_select_btn_selected(filter_button);
+        tr.toggleClass("unimportant", !container.State.Running);
+    }
+
+    if (added)
+        insert_table_sorted($panel.find('table'), tr);
+}
+
 PageContainers.prototype = {
     _init: function() {
         this.id = "containers";
@@ -379,95 +472,8 @@ PageContainers.prototype = {
     },
 
     render_container: function(id, container) {
-        var self = this;
-        var tr = $("#" + id);
-
-        if (!container) {
-            tr.remove();
-            return;
-        }
-
-        var cputext;
-        var memuse, memlimit;
-        var membar, memtext, memtextstyle;
-        var barvalue;
-
-        if (container.State && container.State.Running) {
-            cputext = format_cpu_usage(container.CpuUsage);
-
-            memuse = container.MemoryUsage || 0;
-            memlimit = container.MemoryLimit || 0;
-            memtext = format_memory_and_limit(memuse, memlimit);
-
-            membar = true;
-            memtextstyle = { 'color': 'inherit' };
-        } else {
-            cputext = "";
-            membar = false;
-            memtext = _("Stopped");
-            memtextstyle = { 'color': 'grey', 'text-align': 'right' };
-        }
-
-        var added = false;
-        if (!tr.length) {
-            var img_waiting = $('<div class="waiting">');
-            var btn_play = $('<button class="btn btn-default btn-control btn-play">').
-                on("click", function() {
-                    $(this).hide().
-                        siblings("div.waiting").show();
-                    self.client.start(id).
-                        fail(function(ex) {
-                            cockpit_show_unexpected_error(ex);
-                        });
-                    return false;
-                });
-            var btn_stop = $('<button class="btn btn-default btn-control btn-stop">').
-                on("click", function() {
-                    $(this).hide().
-                        siblings("div.waiting").show();
-                    self.client.stop(id).
-                        fail(function(ex) {
-                            cockpit_show_unexpected_error(ex);
-                        });
-                    return false;
-                });
-            tr = $('<tr id="' + id + '">').append(
-                $('<td class="container-col-name">'),
-                $('<td class="container-col-image">'),
-                $('<td class="container-col-command">'),
-                $('<td class="container-col-cpu">'),
-                $('<td class="container-col-memory-graph">').append(cockpit.BarRow("containers-containers")),
-                $('<td class="container-col-memory-text">'),
-                $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
-            tr.on('click', function(event) {
-                cockpit_go_down ({ page: 'container-details',
-                    id: id
-                });
-            });
-
-            added = true;
-        }
-
-        var row = tr.children("td");
-        $(row[0]).text(render_container_name(container.Name));
-        $(row[1]).text(container.Image);
-        $(row[2]).text(container.Command);
-        $(row[3]).text(cputext);
-        update_memory_bar($(row[4]).children("div").toggle(membar), memuse, memlimit);
-        $(row[5]).
-            css(memtextstyle).
-            text(memtext);
-
-        var waiting = id in self.client.waiting;
-        $(row[6]).children("div.waiting").toggle(waiting);
-        $(row[6]).children("button.btn-play").toggle(!waiting && !container.State.Running);
-        $(row[6]).children("button.btn-stop").toggle(!waiting && container.State.Running);
-
-        var filter = cockpit_select_btn_selected(this.container_filter_btn);
-        tr.toggleClass("unimportant", !container.State.Running);
-
-        if (added)
-            insert_table_sorted($('#containers-containers table'), tr);
+        render_container(this.client, $('#containers-containers'), this.container_filter_btn,
+                         "", id, container);
     },
 
     render_image: function(id, image) {
@@ -662,9 +668,6 @@ PageRunImage.prototype = {
                     fail(function(ex) {
                         cockpit_show_unexpected_error(ex);
                     });
-                if (cockpit_get_page_param('page') == "image-details") {
-                    cockpit_go_up();
-                }
             });
     }
 };
@@ -970,10 +973,23 @@ PageImageDetails.prototype = {
         this.image_id = cockpit_get_page_param('id');
         this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
 
-        $(this.client).on('image.image-details', function (event, id, imaege) {
+        $('#image-details-containers table tbody tr').remove();
+
+        $(this.client).on('image.image-details', function (event, id, image) {
             if (id == self.image_id)
                 self.update();
         });
+
+        $(this.client).on('container.image-details', function(event, id, container) {
+            if (!container || (container.Config && container.Config.Image == self.image_id))
+                self.render_container(id, container);
+        });
+
+        for (var cid in this.client.containers) {
+            var c = this.client.containers[cid];
+            if (c.Config && c.Config.Image == self.image_id)
+                self.render_container(c.Id, c);
+        }
 
         this.update();
     },
@@ -1022,6 +1038,11 @@ PageImageDetails.prototype = {
             $('#image-details-command').text(quote_cmdline(config.Cmd));
             $('#image-details-ports').text(ports.join(', '));
         }
+    },
+
+    render_container: function (id, container) {
+        render_container(this.client, $('#image-details-containers'), null, "I",
+                         id, container);
     },
 
     run_image: function () {

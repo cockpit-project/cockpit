@@ -786,6 +786,7 @@ class TestStorage(MachineCase):
         b.relogin('storage')
 
         # Delete the volume group and check that fstab has been cleaned up
+        b.wait_in_text("#storage_vgs", "TEST")
         b.click('tr[onclick*="TEST"]')
         b.click_action_btn('#vg_action_btn', "Delete")
         b.wait_page("storage")

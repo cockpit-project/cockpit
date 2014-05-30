@@ -555,4 +555,57 @@ function quote_words(words) {
     return words.map(quote).join(' ');
 }
 
+/* - cache = cockpit.util.make_resource_cache()
+ * - resource = cache.get(key, create)
+ * - resource.release()
+ *
+ * Create a cache for objects that are expensive to create.  Calling
+ * 'get' will either return an existing object that matches 'key' or
+ * execute 'create()' to create a new one.
+ *
+ * You need to call 'release' on the returned object once you are done
+ * with it.  After the last user has released an object, 'close' will
+ * be called on that object after a delay.
+ */
+cockpit.util.make_resource_cache = make_resource_cache;
+function make_resource_cache() {
+    var resources = { };
+
+    function get(key, create) {
+        var handle;
+
+        handle = resources[key];
+
+        if (!handle) {
+            dbus_debug("Creating %s", key);
+            handle = { refcount: 1, resource: create() };
+            resources[key] = handle;
+
+            handle.resource.release = function() {
+                dbus_debug("Releasing %s", key);
+                // Only really release it after a delay
+                setTimeout(function () {
+                    if (!handle.refcount) {
+                        console.warn("Releasing unreffed resource");
+                    } else {
+                        handle.refcount -= 1;
+                        if (handle.refcount === 0) {
+                            delete resources[key];
+                            dbus_debug("Closing %s", key);
+                            handle.resource.close("unused");
+                        }
+                    }
+                }, 10000);
+            };
+        } else {
+            dbus_debug("Getting %s", key);
+            handle.refcount += 1;
+        }
+
+        return handle.resource;
+    }
+
+    return { get: get };
+}
+
 })(cockpit);

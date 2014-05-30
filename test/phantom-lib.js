@@ -82,7 +82,7 @@ function ph_focus(sel)
 
 function ph_dbus_ready (client_address, client_options)
 {
-    client_options.protocol = "dbus-json1";
+    client_options.payload = "dbus-json1";
     var client = cockpit.dbus(client_address, client_options);
     var result = client && client.state == "ready";
     client.release();

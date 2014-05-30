@@ -122,7 +122,7 @@ function init_done() {
     cockpit_login_try ();
 }
 
-var dbus_clients = { };
+var dbus_clients = cockpit.util.make_resource_cache();
 
 function make_dict_key(dict) {
     function stringify_elt(k) { return JSON.stringify(k) + ':' + JSON.stringify(dict[k]); }
@@ -130,40 +130,8 @@ function make_dict_key(dict) {
 }
 
 function dbus(address, options) {
-    var key, handle;
-    var client;
-
-    options = $.extend({host: address}, options);
-    key = make_dict_key(options);
-    handle = dbus_clients[key];
-
-    if (!handle) {
-        dbus_debug("Creating dbus client for %s", key);
-        handle = { refcount: 1, client: new DBusClient(options.host, options) };
-        dbus_clients[key] = handle;
-
-        handle.client.release = function() {
-            dbus_debug("Releasing %s", key);
-            // Only really release it after a delay
-            setTimeout(function () {
-                if (!handle.refcount) {
-                    console.warn("Releasing unreffed client");
-                } else {
-                    handle.refcount -= 1;
-                    if (handle.refcount === 0) {
-                        delete dbus_clients[key];
-                        dbus_debug("Closing %s", key);
-                        handle.client.close("unused");
-                    }
-                }
-            }, 10000);
-        };
-    } else {
-        dbus_debug("Getting dbus client for %s", key);
-        handle.refcount += 1;
-    }
-
-    return handle.client;
+    return dbus_clients.get(make_dict_key($.extend({host: address}, options)),
+                            function () { return new DBusClient(address, options); });
 }
 
 var watched_client = null;

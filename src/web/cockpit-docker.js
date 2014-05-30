@@ -1043,8 +1043,8 @@ PageImageDetails.prototype = {
         }
 
         var waiting = !!(this.client.waiting[this.image_id]);
-        $('#image-details div.waiting').toggle(waiting);
-        $('#image-details button').toggle(!waiting);
+        $('#image-details-buttons div.waiting').toggle(waiting);
+        $('#image-details-buttons button').toggle(!waiting);
 
         if (info.RepoTags && info.RepoTags.length > 0) {
             var name = info.RepoTags[0];

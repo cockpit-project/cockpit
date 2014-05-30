@@ -1238,7 +1238,7 @@ function DockerClient(machine) {
             $(me).trigger("failure", [ex]);
         });
 
-    var regex_docker_cgroup = /[A-Fa-f0-9]{64}/;
+    var regex_docker_cgroup = /docker-([A-Fa-f0-9]{64})\.scope/;
     var regex_geard_cgroup = /.*\/ctr-(.+).service/;
     function container_from_cgroup(cgroup) {
         /*
@@ -1250,7 +1250,7 @@ function DockerClient(machine) {
         /* Docker created cgroups */
         var match = regex_docker_cgroup.exec(cgroup);
         if (match)
-            return match[0];
+            return match[1];
 
         /* geard created cgroups */
         match = regex_geard_cgroup.exec(cgroup);

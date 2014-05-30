@@ -23,7 +23,7 @@ PageServer.prototype = {
     },
 
     enter_breadcrumb: function() {
-        this.title_address = cockpit_get_page_param('machine') || "localhost";
+        this.title_address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.title_client = cockpit.dbus(this.title_address, { payload: 'dbus-json1' });
         this.title_manager = this.title_client.get("/com/redhat/Cockpit/Manager",

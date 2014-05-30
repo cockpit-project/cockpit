@@ -1592,9 +1592,8 @@ function DockerClient(machine) {
                                            }
                                    },
                                    store_samples);
-        $(monitor).on("notify:Consumers", function (event) {
-            update_consumers();
-        });
+        $(monitor).on("notify:Consumers", update_consumers);
+        cleanups.push(function () { $(monitor).off("notify:Consumers", update_consumers); });
 
         var cur_highlight = null;
 
@@ -1632,7 +1631,10 @@ function DockerClient(machine) {
         return plot;
     };
 
+    var cleanups = [ ];
+
     this.close = function close() {
+        cleanups.forEach(function (f) { f(); });
         $(monitor).off('NewSample', handle_new_samples);
         monitor = null;
         dbus_client.release();

@@ -437,12 +437,7 @@ PageSetupServer.prototype = {
 
         $('#dashboard_setup_action_address').text(this.address);
 
-        if (this.tasks.length > 0) {
-            this.show_tab ('action');
-        } else {
-            this.show_tab ('close');
-        }
-
+        this.show_tab ('action');
     },
 
     next_setup: function() {

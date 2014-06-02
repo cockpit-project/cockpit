@@ -207,6 +207,19 @@ function MemorySlider(sel, min, max) {
         }
     });
 
+    Object.defineProperty(this, "max", {
+        get: function() {
+            return max;
+        },
+        set: function(v) {
+            var old_max = max;
+            max = v;
+            $(slider).
+                prop("value", (slider.value*old_max) / max).
+                trigger("change");
+        }
+    });
+
     return this;
 }
 
@@ -564,7 +577,6 @@ PageRunImage.prototype = {
     setup: function() {
         $("#containers-run-image-run").on('click', $.proxy(this, "run"));
 
-        /* TODO: Get max memory from elsewhere */
         this.memory_slider = new MemorySlider($("#containers-run-image-memory"),
                                               10*1024*1024, 2*1024*1024*1024);
         this.cpu_slider = new CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
@@ -578,6 +590,11 @@ PageRunImage.prototype = {
 
         var checked;
         var value;
+
+        PageRunImage.client.get_sys_memory().
+            done(function (max) {
+                page.memory_slider.max = max;
+            });
 
         /* Memory slider defaults */
         if (info.container_config.Memory) {
@@ -735,7 +752,6 @@ PageContainerDetails.prototype = {
         $('#container-details-restart').on('click', $.proxy(this, "restart_container"));
         $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
 
-        /* TODO: Get max memory from elsewhere */
         self.memory_limit = new MemorySlider($("#container-resources-dialog .memory-slider"),
                                              10*1024*1024, 2*1024*1024*1024);
         self.cpu_priority = new CpuSlider($("#container-resources-dialog .cpu-slider"),
@@ -806,6 +822,11 @@ PageContainerDetails.prototype = {
                         if (cockpit_get_page_param('page') == "container-details")
                             cockpit_go_up();
                     });
+            });
+
+        PageRunImage.client.get_sys_memory().
+            done(function (max) {
+                self.memory_limit.max = max;
             });
 
         this.address = cockpit_get_page_param('machine') || "localhost";
@@ -1323,9 +1344,6 @@ function DockerClient(machine) {
     var monitor = dbus_client.get ("/com/redhat/Cockpit/LxcMonitor",
                                    "com.redhat.Cockpit.MultiResourceMonitor");
 
-    /* TODO: dig out the maximum memory */
-    this.max_memory = 8000000000;
-
     function handle_new_samples (event, timestampUsec, samples) {
         resource_debug("samples", timestampUsec, samples);
         for (var cgroup in samples) {
@@ -1629,6 +1647,25 @@ function DockerClient(machine) {
 
         update_consumers();
         return plot;
+    };
+
+    var sys_memory_dfd = null;
+
+    this.get_sys_memory = function get_sys_memory() {
+        if (!sys_memory_dfd) {
+            sys_memory_dfd = new $.Deferred();
+            cockpit.spawn(["/bin/cat", "/proc/meminfo"], { host: machine }).
+                done(function(meminfo) {
+                    var match = meminfo.match(/MemTotal:[^0-9]*([0-9]+) kB/);
+                    var total_kb = match && parseInt(match[1], 10);
+                    if (total_kb)
+                        sys_memory_dfd.resolve(total_kb*1024);
+                }).
+                fail(function(ex) {
+                    console.warn(ex);
+                });
+        }
+        return sys_memory_dfd.promise();
     };
 
     var cleanups = [ ];

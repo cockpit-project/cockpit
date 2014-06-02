@@ -310,7 +310,7 @@ set_problem_from_connect_errno (CockpitPipe *self,
 
   if (errn == EPERM || errn == EACCES)
     problem = "not-authorized";
-  else if (errn == ENOENT)
+  else if (errn == ENOENT || errn == ECONNREFUSED)
     problem = "not-found";
 
   g_free (self->priv->problem);

@@ -733,6 +733,10 @@ PageSearchImage.prototype = {
     enter: function() {
         this.client = get_docker_client();
 
+        $(this.client).on("docker_download_fail", function(event, name, ex) {
+            $("#imagedl_" + name + " td")[1].text('Error downloading');
+        });
+
         // Clear the previous results and search string from previous time
         $('#containers-search-image-results tbody tr').remove();
         $('#containers-search-image-results').hide();
@@ -774,6 +778,18 @@ PageSearchImage.prototype = {
                                     $('<td>').text(entry.description));
                       row.on('click', function(event) {
                           client.pull(entry.name);
+
+                          var tr = $('<tr id="imagedl_' + name.replace("/", "_") + '">').append(
+                              $('<td class="container-col-tags">').text(name),
+                              $('<td class="container-col-created">').text('Downloading'),
+                              $('<td class="image-col-size-graph">').append(
+                                  $('<div class="progress progress-striped active">').append(
+                                  $('<div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="1" style="width: 100%">'))),
+                              $('<td class="image-col-size-text">'),
+                              $('<td class="cell-buttons">'));
+			
+                          insert_table_sorted($('#containers-images table'), tr);
+
                           $("#containers-search-image-dialog").modal('hide');
                       });
                       row.data('entry', entry);
@@ -1267,9 +1283,6 @@ function DockerClient(machine) {
     /* All active poll requests for containers/images indexed by Id */
     var polls = { };
 
-    /* All current download actions */
-    var progress = { };
-
     /*
      * Exposed API, all containers and images
      * Contains the combined /container/json and /container/xxx/json
@@ -1455,22 +1468,14 @@ function DockerClient(machine) {
      */
     this.pull = function pull(name) {
         docker_debug("pulling:", name);
-        var tr = $('<tr id="imagedl_' + name.replace("/", "_") + '">').append(
-            $('<td class="container-col-tags">').text(name),
-            $('<td class="container-col-created">').text('Downloading'),
-            $('<td class="image-col-size-graph">').append(
-                $('<div class="progress progress-striped active">').append(
-                    $('<div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="1" style="width: 100%">'))),
-            $('<td class="image-col-size-text">'),
-            $('<td class="cell-buttons">'));
-        
-        insert_table_sorted($('#containers-images table'), tr);
 
         return rest.post("/images/create?fromImage=" + name).
             stream(function(progress) {
                 // We do not get any useful progress, as we have no idea of how many layers we should expect in total
             }).
             fail(function(ex) {
+                $(me).trigger("docker_download_fail", [name, ex]);
+
                 $(me).trigger("failure", [ex]);
             });
     };

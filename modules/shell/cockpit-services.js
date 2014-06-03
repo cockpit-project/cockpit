@@ -81,6 +81,7 @@ function systemd_param_esc(str) {
 N_("loaded");
 N_("error");
 N_("masked");
+N_("not-found");
 // active_state
 N_("active");
 N_("reloading");
@@ -110,24 +111,41 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
 {
     var color_style;
 
+    if (!load_state)
+        load_state = "";
+
+    if (!active_state)
+        active_state = "";
+
+    if (!sub_state)
+        sub_state = "";
+
     if (active_state == 'failed' || load_state == 'error')
         color_style = ';color:red';
     else
         color_style = '';
 
-    return ("<tr data-unit=\"" + cockpit_esc(name) + "\" onclick=\"" + cockpit_esc(cockpit_go_down_cmd("service", { s: name })) + "\"><td>" +
-            "<span style=\"font-weight:bold\">" +
-            cockpit_esc(desc) +
-            "</span></td><td><span>" +
-            cockpit_esc(name) +
-            "</span></td>" +
-            "<td style=\"text-align:right" + color_style + "\">" +
-            '<td style="width:60px">' + cockpit_esc(_(load_state)) + "</td>" +
-            '<td style="width:60px">' + cockpit_esc(_(active_state)) + "</td>" +
-            '<td style="width:80px">' + cockpit_esc(_(sub_state)) + "</td>" +
-            '<td style="width:60px">' + cockpit_esc(_(file_state)) + "</td>" +
-            "</tr>" +
-            "</a>");
+    if (load_state == "loaded")
+        load_state = "";
+
+    load_state = _(load_state);
+    active_state = _(active_state);
+    sub_state = _(sub_state);
+    file_state = _(file_state);
+
+    if (sub_state !== "" && sub_state != active_state)
+        active_state = active_state + " (" + sub_state + ")";
+
+    if (load_state !== "")
+        active_state = load_state + " / " + active_state;
+
+    return ($('<tr>', { 'data-unit': name
+                      }).
+            click(function () { cockpit_go_down({page: "service", s: name }); }).
+            append(
+                $('<td style="font-weight:bold">').text(desc),
+                $('<td>').text(name),
+                $('<td>', { style: "text-align:right;white-space:nowrap" + color_style }).text(active_state)));
 }
 
 PageServices.prototype = {

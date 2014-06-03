@@ -223,7 +223,7 @@ AC_CHECK_FUNCS(fdwalk)
 AC_MSG_CHECKING([for asan flags])
 AC_ARG_ENABLE(asan,
               AC_HELP_STRING([--enable-asan=no/yes],
-                             [Turn on or off ASAN])
+                             [Turn the Address Sanitizer on or off])
              )
 
 if test "$enable_asan" = "yes"; then

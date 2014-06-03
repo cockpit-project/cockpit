@@ -566,6 +566,17 @@
       </div>
 
       <div id="service" class="container-fluid">
+        <div class="row" id="service-graphs">
+          <div class="col-sm-6">
+            <div>CPU usage<span style="float:right" id="service-cpu-text"></span></div>
+            <div style="height:120px" id="service-cpu-graph"></div>
+          </div>
+          <div class="col-sm-6">
+            <div>Memory usage<span style="float:right" id="service-mem-text"></span></div>
+            <div style="height:120px" id="service-mem-graph"></div>
+          </div>
+        </div>
+        <br/>
         <div class="panel panel-default">
           <div class="panel-heading" id="service-name"></div>
           <div id="service-unknown" translatable="yes">Unknown</div>

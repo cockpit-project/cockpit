@@ -542,13 +542,24 @@
       </div>
 
       <div id="services" class="container-fluid">
+        <div class="row" id="services-graphs">
+          <div class="col-sm-6">
+            <div>Combined CPU usage<span style="float:right" id="services-cpu-text"></span></div>
+            <div style="height:120px" id="services-cpu-graph"></div>
+          </div>
+          <div class="col-sm-6">
+            <div>Combined memory usage<span style="float:right" id="services-mem-text"></span></div>
+            <div style="height:120px" id="services-mem-graph"></div>
+          </div>
+        </div>
+        <br/>
         <div class="panel panel-default">
           <div class="panel-heading">Enabled</div>
           <table class="table table-hover">
             <tbody id="services-list-enabled">
             </tbody>
           </table>
-        </div>      
+        </div>
         <div class="panel panel-default">
           <div class="panel-heading">Disabled</div>
           <table class="table table-hover">

@@ -404,6 +404,7 @@ PageContainers.prototype = {
                     ];
 
         function highlight_container_row(event, id) {
+            id = self.client.container_from_cgroup(id) || id;
             $('#containers-containers tr').removeClass('highlight');
             $('#' + id).addClass('highlight');
         }
@@ -1506,7 +1507,8 @@ function DockerClient(machine) {
 
     var regex_docker_cgroup = /docker-([A-Fa-f0-9]{64})\.scope/;
     var regex_geard_cgroup = /.*\/ctr-(.+).service/;
-    function container_from_cgroup(cgroup) {
+    this.container_from_cgroup = container_from_cgroup;
+    function container_from_cgroup (cgroup) {
         /*
          * TODO: When we move to showing resources for systemd units
          * instead of containers then we'll get rid of all this
@@ -1761,108 +1763,12 @@ function DockerClient(machine) {
     };
 
     this.setup_cgroups_plot = function setup_cgroups_plot(element, sample_index, colors) {
-        var self = this;
-        var max_consumers = colors.length-1;
-        var data = new Array(max_consumers+1);       // max_consumers entries plus one for the total
-        var consumers = new Array(max_consumers);
-        var plot;
-        var i;
-
-        for (i = 0; i < data.length; i++)
-            data[i] = { };
-
         function is_container(cgroup) {
             return !!container_from_cgroup(cgroup);
         }
 
-        function update_consumers() {
-            var mcons = monitor.Consumers || [ ];
-            consumers.forEach(function (c, i) {
-                if (c && mcons.indexOf(c) < 0) {
-                    resource_debug("Consumer disappeared", c);
-                    consumers[i] = null;
-                }
-            });
-            mcons.forEach(function (mc) {
-                if (!is_container(mc))
-                    return;
-                if (consumers.indexOf(mc) < 0) {
-                    resource_debug("New consumer", mc);
-                    for (i = 0; i < max_consumers; i++) {
-                        if (!consumers[i]) {
-                            consumers[i] = mc;
-                            return;
-                        }
-                    }
-                    console.warn("Too many consumers");
-                }
-            });
-        }
-
-        function store_samples (samples, index) {
-            var total = 0;
-            for (var c in samples) {
-                if (is_container(c))
-                    total += samples[c][sample_index];
-            }
-            function store(i, value) {
-                var series = data[i].data;
-                var floor = (i > 0? data[i-1].data[index][2] : 0);
-                series[index][1] = floor;
-                series[index][2] = floor + value;
-            }
-            consumers.forEach(function (c, i) {
-                store(i, (c && samples[c]? samples[c][sample_index] : 0));
-            });
-            store(max_consumers, total);
-            if (index == monitor.NumSamples-1)
-                $(plot).trigger('update-total', [ total ]);
-        }
-
-        plot = cockpit_setup_plot (element, monitor, data,
-                                   { colors: colors,
-                                     grid: { hoverable: true,
-                                             autoHighlight: false
-                                           }
-                                   },
-                                   store_samples);
-        $(monitor).on("notify:Consumers", update_consumers);
-        cleanups.push(function () { $(monitor).off("notify:Consumers", update_consumers); });
-
-        var cur_highlight = null;
-
-        function highlight(consumer) {
-            if (consumer != cur_highlight) {
-                cur_highlight = consumer;
-                consumer = container_from_cgroup(consumer) || consumer;
-                $(plot).trigger('highlight', [ consumer ]);
-            }
-        }
-
-        $(plot.element).on("plothover", function(event, pos, item) {
-            var i, index;
-
-            index = Math.round(pos.x);
-            if (index < 0)
-                index = 0;
-            if (index > monitor.NumSamples-1)
-                index = monitor.NumSamples-1;
-
-            for (i = 0; i < max_consumers; i++) {
-                if (i < max_consumers && data[i].data[index][1] <= pos.y && pos.y <= data[i].data[index][2])
-                    break;
-            }
-            if (i < max_consumers)
-                highlight(consumers[i]);
-            else
-                highlight(null);
-        });
-        $(plot.element).on("mouseleave", function(event, pos, item) {
-            highlight(null);
-        });
-
-        update_consumers();
-        return plot;
+        return cockpit_setup_cgroups_plot(element, monitor, sample_index, colors,
+                                          is_container);
     };
 
     var sys_memory_dfd = null;
@@ -1884,10 +1790,7 @@ function DockerClient(machine) {
         return sys_memory_dfd.promise();
     };
 
-    var cleanups = [ ];
-
     this.close = function close() {
-        cleanups.forEach(function (f) { f(); });
         $(monitor).off('NewSample', handle_new_samples);
         monitor = null;
         dbus_client.release();

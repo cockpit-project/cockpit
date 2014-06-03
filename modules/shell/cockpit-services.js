@@ -188,7 +188,7 @@ PageServices.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "System Services");
+        return C_("page-title", "Services");
     },
 
     enter: function() {
@@ -196,7 +196,7 @@ PageServices.prototype = {
 
         $('#content-header-extra').append(' \
             <div class="btn-group" data-toggle="buttons"> \
-              <label class="btn btn-default active" translatable="yes">My Services \
+              <label class="btn btn-default active" translatable="yes">Services \
                 <input type="radio" name="services-filter" id="services-filter-my-services" \
                        value="^ctr-.*\\.service$"/ checked="checked" data-show-graphs data-include-buttons> \
               </label> \
@@ -204,7 +204,7 @@ PageServices.prototype = {
                 <input type="radio" name="services-filter" id="services-filter-targets" \
                        value="\\.target$"/> \
               </label> \
-              <label class="btn btn-default" translatable="yes">Services \
+              <label class="btn btn-default" translatable="yes">System Services \
                 <input type="radio" name="services-filter" id="services-filter-services" \
                        value="\\.service$"/> \
               </label> \

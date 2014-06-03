@@ -50,6 +50,7 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     var plot;
     var running = false;
     var ready = false;
+    var self;
 
     $.extend(true, options, user_options);
 
@@ -173,6 +174,7 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     }
 
     function destroy () {
+        $(self).trigger('destroyed');
         $(resmon).off('notify:NumSamples', init);
         $(resmon).off("NewSample", new_sample_handler);
         $(window).off('resize', resize);
@@ -185,10 +187,11 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     else
         $(resmon).on('notify:NumSamples', init);
 
-    return { start: start, stop: stop,
+    self = { start: start, stop: stop,
              resize: resize, element: inner_div[0],
              destroy: destroy
            };
+    return self;
 }
 
 function cockpit_setup_complicated_plot (graph_id, resmon, data, options)
@@ -258,4 +261,115 @@ function cockpit_setup_simple_plot (plot_id,
 
     return cockpit_setup_plot (plot_id, resmon, data, options,
                                store_samples);
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+function cockpit_setup_cgroups_plot (element, monitor, sample_index, colors,
+                                     is_interesting)
+{
+    var self = this;
+    var max_consumers = colors.length-1;
+    var data = new Array(max_consumers+1);       // max_consumers entries plus one for the total
+    var consumers = new Array(max_consumers);
+    var plot;
+    var i;
+
+    for (i = 0; i < data.length; i++)
+        data[i] = { };
+
+    function update_consumers() {
+        var mcons = monitor.Consumers || [ ];
+        consumers.forEach(function (c, i) {
+            if (c && mcons.indexOf(c) < 0) {
+                consumers[i] = null;
+            }
+        });
+        mcons.forEach(function (mc) {
+            if (!is_interesting(mc))
+                return;
+            if (consumers.indexOf(mc) < 0) {
+                for (i = 0; i < max_consumers; i++) {
+                    if (!consumers[i]) {
+                        consumers[i] = mc;
+                        return;
+                    }
+                }
+                console.warn("Too many consumers");
+            }
+        });
+    }
+
+    function store_samples (samples, index) {
+        var total = 0;
+        for (var c in samples) {
+            if (is_interesting(c))
+                total += samples[c][sample_index];
+        }
+        function store(i, value) {
+            var series = data[i].data;
+            var floor = (i > 0? data[i-1].data[index][2] : 0);
+            series[index][1] = floor;
+            series[index][2] = floor + value;
+        }
+        consumers.forEach(function (c, i) {
+            store(i, (c && samples[c]? samples[c][sample_index] : 0));
+        });
+        store(max_consumers, total);
+        if (index == monitor.NumSamples-1)
+            $(plot).trigger('update-total', [ total ]);
+    }
+
+    plot = cockpit_setup_plot (element, monitor, data,
+                               { colors: colors,
+                                 grid: { hoverable: true,
+                                         autoHighlight: false
+                                       }
+                               },
+                               store_samples);
+    $(monitor).on("notify:Consumers", update_consumers);
+
+    var cur_highlight = null;
+
+    function highlight(consumer) {
+        if (consumer != cur_highlight) {
+            cur_highlight = consumer;
+            $(plot).trigger('highlight', [ consumer ]);
+        }
+    }
+
+    function highlight_on(event, pos, item) {
+        var i, index;
+
+        index = Math.round(pos.x);
+        if (index < 0)
+            index = 0;
+        if (index > monitor.NumSamples-1)
+            index = monitor.NumSamples-1;
+
+        for (i = 0; i < max_consumers; i++) {
+            if (i < max_consumers && data[i].data[index][1] <= pos.y && pos.y <= data[i].data[index][2])
+                break;
+        }
+        if (i < max_consumers)
+            highlight(consumers[i]);
+        else
+            highlight(null);
+    }
+
+    function highlight_off(event) {
+        highlight(null);
+    }
+
+    $(plot.element).on("plothover", highlight_on);
+    $(plot.element).on("mouseleave", highlight_off);
+
+    $(plot).on("destroyed", function () {
+        $(monitor).off("notify:Consumers", update_consumers);
+        $(plot.element).off("plothover", highlight_on);
+        $(plot.element).off("mouseleave", highlight_off);
+    });
+
+    update_consumers();
+    return plot;
 }

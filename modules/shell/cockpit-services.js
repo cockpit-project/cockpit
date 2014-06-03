@@ -335,12 +335,45 @@ PageService.prototype = {
         me.service = cockpit_get_page_param('s') || "";
         me.update();
         me.watch_journal();
+
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
+
+        me.monitor = me.client.get ("/com/redhat/Cockpit/LxcMonitor",
+                                    "com.redhat.Cockpit.MultiResourceMonitor");
+
+        function is_interesting_cgroup(cgroup) {
+            return cgroup && cgroup.endsWith(me.service);
+        }
+
+        this.cpu_plot = cockpit_setup_cgroups_plot ('#service-cpu-graph', me.monitor, 4, blues.concat(blues),
+                                                    is_interesting_cgroup);
+        $(this.cpu_plot).on('update-total', function (event, total) {
+            $('#service-cpu-text').text(format_cpu_usage(total));
+        });
+
+        this.mem_plot = cockpit_setup_cgroups_plot ('#service-mem-graph', me.monitor, 0, blues.concat(blues),
+                                                    is_interesting_cgroup);
+        $(this.mem_plot).on('update-total', function (event, total) {
+            $('#service-mem-text').text(cockpit_format_bytes_pow2 (total));
+        });
     },
 
     show: function() {
+        this.cpu_plot.start();
+        this.mem_plot.start();
     },
 
     leave: function() {
+        this.cpu_plot.destroy();
+        this.mem_plot.destroy();
         cockpit.set_watched_client(null);
         this.journal_watcher.stop();
         this.client.release();

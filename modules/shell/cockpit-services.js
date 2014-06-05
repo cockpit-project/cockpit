@@ -177,6 +177,22 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
         tr.append(
             $('<td class="cell-buttons" style="padding-left:20px;padding-right:5px">').append(
                 btn_play, btn_stop, img_waiting));
+
+        var address = manager._client.target; // XXX
+        var geard_match = name.match(/ctr-(.*)\.service/);
+
+        if (geard_match) {
+            var btn_eject = $('<button class="btn btn-default btn-control btn-eject">').
+                on("click", function() {
+                    cockpit.spawn([ "/usr/bin/gear", "delete", geard_match[1] ], { host: address }).
+                        fail(cockpit_show_unexpected_error);
+                    return false;
+                });
+
+            tr.append(
+                $('<td class="cell-buttons" style="padding-left:5px;padding-right:5px">').append(
+                    btn_eject));
+        }
     }
 
     return tr;
@@ -189,6 +205,14 @@ PageServices.prototype = {
 
     getTitle: function() {
         return C_("page-title", "Services");
+    },
+
+    setup: function() {
+        var self = this;
+        $('#services-add').click(function () {
+            PageServiceAdd.address = self.address;
+            $('#service-add-dialog').modal('show');
+        });
     },
 
     enter: function() {
@@ -306,34 +330,44 @@ PageServices.prototype = {
         var include_buttons =
             ($('input[name="services-filter"]:checked').attr('data-include-buttons') !== undefined);
         if (pattern && name.match(pattern)) {
-            var item = $(render_service(name, desc, load_state, active_state, sub_state, file_state,
-                                        include_buttons? this.manager : null));
-            if (this.items[name])
-                this.items[name].replaceWith(item);
-            else {
-                // XXX - sort it properly
-                if (file_state == 'enabled')
-                    item.appendTo($("#services-list-enabled"));
-                else if (file_state == 'disabled')
-                    item.appendTo($("#services-list-disabled"));
-                else
-                    item.appendTo($("#services-list-static"));
+            if (!include_buttons || load_state != "not-found") {
+                var item = $(render_service(name, desc, load_state, active_state, sub_state, file_state,
+                                            include_buttons? this.manager : null));
+                if (this.items[name])
+                    this.items[name].replaceWith(item);
+                else {
+                    // XXX - sort it properly
+                    if (file_state == 'enabled')
+                        item.appendTo($("#services-list-enabled"));
+                    else if (file_state == 'disabled')
+                        item.appendTo($("#services-list-disabled"));
+                    else
+                        item.appendTo($("#services-list-static"));
+                }
+                this.items[name] = item;
+            } else {
+                if (this.items[name])
+                    this.items[name].remove();
+                delete this.items[name];
             }
-            this.items[name] = item;
         }
     },
 
     update: function() {
         var me = this;
 
+        console.log("Update all");
+
         if ($('input[name="services-filter"]:checked').attr('data-show-graphs') !== undefined) {
             $('#services-graphs').show();
+            $('#services-add').show();
             if ($('#services-graphs').is(':visible')) {
                 this.cpu_plot.start();
                 this.mem_plot.start();
             }
         } else {
             $('#services-graphs').hide();
+            $('#services-add').hide();
             this.cpu_plot.stop();
             this.mem_plot.stop();
         }
@@ -366,7 +400,7 @@ PageServices.prototype = {
                     ($('input[name="services-filter"]:checked').attr('data-include-buttons') !== undefined);
                 for (i = 0; i < services.length; i++) {
                     service = services[i];
-                    if (!pattern || service[0].match(pattern)) {
+                    if (!pattern || (service[0].match(pattern) && (service[2] != "not-found" || !include_buttons))) {
                         var item = $(render_service (service[0],
                                                      service[1],
                                                      service[2],
@@ -387,6 +421,43 @@ PageServices.prototype = {
         });
     }
 };
+
+PageServiceAdd.prototype = {
+    _init: function() {
+        this.id = "service-add-dialog";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Add Service");
+    },
+
+    setup: function() {
+        $('#service-add-add').click($.proxy(this, "add"));
+    },
+
+    enter: function() {
+        $('#service-add-image, #service-add-name').val("");
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    add: function() {
+        $('#service-add-dialog').modal('hide');
+        cockpit.spawn([ "/usr/bin/gear", "install", $('#service-add-image').val(), $('#service-add-name').val() ],
+                      { host: PageServiceAdd.address }).
+            fail(cockpit_show_unexpected_error);
+    }
+};
+
+function PageServiceAdd() {
+    this._init();
+}
+
+cockpit_pages.push(new PageServiceAdd());
 
 function PageServices() {
     this._init();

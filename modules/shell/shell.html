@@ -574,6 +574,7 @@
             </tbody>
           </table>
         </div>
+        <button class="btn btn-default" id="services-add">Add Service</button>
       </div>
 
       <div id="service" class="container-fluid">
@@ -2388,6 +2389,46 @@
             </button>
             <button class="btn btn-primary" translatable="yes" id="network-ip-settings-apply">
               Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="service-add-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Service</h4>
+          </div>
+          <div class="modal-body">
+            <center>
+              (Imagine a nice dialog with filterable a list of local images here and a way to search for more.)
+            </center>
+            <br/>
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Image</td>
+                <td>
+                  <input class="form-control" id="service-add-image">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" id="service-add-name">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" id="service-add-add">
+              Add
             </button>
           </div>
         </div>

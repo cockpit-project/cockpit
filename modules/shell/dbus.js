@@ -203,6 +203,10 @@ DBusInterface.prototype = {
         }
         var callback = arguments[n];
 
+        return this.call_with_args(dbus_method_name, args, callback);
+    },
+
+    call_with_args: function(dbus_method_name, args, callback) {
         if (this._client._channel && this._client._channel.valid) {
             var cookie = this._client._register_call_reply(callback);
 

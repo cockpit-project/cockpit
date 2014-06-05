@@ -7,7 +7,7 @@ SELINUX_FILES = \
 
 cockpit.pp: $(SELINUX_FILES)
 	cp $^ $(builddir)
-	$(MAKE) -f /usr/share/selinux/devel/Makefile cockpit.pp
+	$(MAKE) -j1 -f /usr/share/selinux/devel/Makefile cockpit.pp
 
 selinux: cockpit.pp
 

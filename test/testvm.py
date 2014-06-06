@@ -786,6 +786,12 @@ class QemuMachine(Machine):
         if "proc" in disk and disk["proc"] and disk["proc"].poll() is not None:
             disk["proc"].terminate()
 
+    def add_netiface(self, mac):
+        if len(mac) == 2:
+            mac = self.macaddr_prefix + ":" + mac
+        self._monitor_qemu("device_add e1000,vlan=0,mac=%s" % mac);
+        return mac
+
 TestMachine = QemuMachine
 
 QEMU_ADDR_SCRIPT = """#!/bin/sh

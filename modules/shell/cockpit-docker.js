@@ -528,6 +528,7 @@ PageContainers.prototype = {
 
         if (added) {
             // Remove downloading row if it exists
+            window.alert('Removing');
             $("#imagedl_" + image.RepoTags[0].split(':')[0].replace("/", "_")).remove();
 
             insert_table_sorted($('#containers-images table'), tr);
@@ -726,10 +727,8 @@ PageSearchImage.prototype = {
     setup: function() {
         $("#containers-search-image-search").on('keypress', $.proxy(this, "input"));
         $("#containers-search-image-search").attr( "placeholder", "search by name, namespace or description" );
-        $("#containers-search-download").on('click', $.proxy(this, 'download'));
-        $('#containers-search-tag').text('latest');
+        $("#containers-search-download").on('click', $.proxy(this, 'start_download'));
         $('#containers-search-tag').prop('disabled', true);
-        $('#containers-search-download').data('repo', '');
         $('#containers-search-download').prop('disabled', true);
         this.search_timeout = null;
         this.search_request = null;
@@ -739,7 +738,8 @@ PageSearchImage.prototype = {
         this.client = get_docker_client();
 
         $(this.client).on("docker_download_fail", function(event, name, ex) {
-            $("#imagedl_" + name + " td")[1].text('Error downloading');
+            $("#imagedl_" + name.split(':')[0].replace("/", "_") + " td").eq(1).text('Error');
+            $("#imagedl_" + name.split(':')[0].replace("/", "_") + " td").eq(2).text('Error downloading: '+ ex);
         });
 
         // Clear the previous results and search string from previous time
@@ -765,9 +765,8 @@ PageSearchImage.prototype = {
 
     start_download: function(event) {
         var repo = $('#containers-search-download').data('repo');
-        var tag = $('#containers-search-tag').value;
-        
-        $('#containers-search-tag').text('latest');
+        var tag = $('#containers-search-tag').val();
+
         $('#containers-search-tag').prop('disabled', true);
         $('#containers-search-download').data('repo', '');
         $('#containers-search-download').prop('disabled', true);
@@ -778,7 +777,7 @@ PageSearchImage.prototype = {
         
         this.client.pull(name);
 
-        var tr = $('<tr id="imagedl_' + name.replace("/", "_") + '">').append(
+        var tr = $('<tr id="imagedl_' + repo.replace("/", "_") + '">').append(
             $('<td class="container-col-tags">').text(name),
             $('<td class="container-col-created">').text('Downloading'),
             $('<td class="image-col-size-graph">').append(
@@ -811,9 +810,9 @@ PageSearchImage.prototype = {
                                     $('<td>').text(entry.name),
                                     $('<td>').text(entry.description));
                       row.on('click', function(event) {
-                          $('#containers-search-tag').text('latest');
+                          $('#containers-search-tag').val('latest');
                           $('#containers-search-tag').prop('disabled', false);
-                          $('#containers-search-download').data('repo', name);
+                          $('#containers-search-download').data('repo', entry.name);
                           $('#containers-search-download').prop('disabled', false);
                       });
                       row.data('entry', entry);

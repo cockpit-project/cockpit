@@ -165,9 +165,13 @@ cockpit_session_remove_channel (CockpitSessions *sessions,
        * Close sessions that are no longer in use after N seconds
        * of them being that way.
        */
-      g_debug ("%s: removed last channel for session", session->host);
+      g_debug ("%s: removed last channel %s for session", session->host, channel);
       session->timeout = g_timeout_add_seconds (cockpit_ws_agent_timeout,
                                                 on_timeout_cleanup_session, session);
+    }
+  else
+    {
+      g_debug ("%s: removed channel %s for session", session->host, channel);
     }
 }
 

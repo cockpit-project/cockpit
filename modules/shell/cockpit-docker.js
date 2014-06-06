@@ -738,8 +738,15 @@ PageSearchImage.prototype = {
         this.client = get_docker_client();
 
         $(this.client).on("docker_download_fail", function(event, name, ex) {
-            $("#imagedl_" + name.split(':')[0].replace("/", "_") + " td").eq(1).text('Error');
-            $("#imagedl_" + name.split(':')[0].replace("/", "_") + " td").eq(2).text('Error downloading: '+ ex);
+            var rowname = "#imagedl_" + name.split(':')[0].replace("/", "_");
+
+            $(rowname + " td").eq(1).text('Error');
+            $(rowname + " td").eq(2).text('Error downloading: '+ ex);
+
+            $(rowname).on('click', function() {
+                // Make the row be gone when clicking it
+                $(rowname).remove();
+            });
         });
 
         // Clear the previous results and search string from previous time

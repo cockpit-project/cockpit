@@ -735,6 +735,11 @@ PageSearchImage.prototype = {
     setup: function() {
         $("#containers-search-image-search").on('keypress', $.proxy(this, "input"));
         $("#containers-search-image-search").attr( "placeholder", "search by name, namespace or description" );
+        $("#containers-search-download").on('click', $.proxy(this, 'download'));
+        $('#containers-search-tag').text('latest');
+        $('#containers-search-tag').prop('disabled', true);
+        $('#containers-search-download').data('repo', '');
+        $('#containers-search-download').prop('disabled', true);
         this.search_timeout = null;
         this.search_request = null;
     },
@@ -767,6 +772,35 @@ PageSearchImage.prototype = {
         }, event.which == 13 ? 0 : 2000);
     },
 
+    start_download: function(event) {
+        var repo = $('#containers-search-download').data('repo');
+        var tag = $('#containers-search-tag').value;
+        
+        $('#containers-search-tag').text('latest');
+        $('#containers-search-tag').prop('disabled', true);
+        $('#containers-search-download').data('repo', '');
+        $('#containers-search-download').prop('disabled', true);
+
+        name = repo;
+        if(tag !== '')
+            name = name + ':' + tag;
+        
+        this.client.pull(name);
+
+        var tr = $('<tr id="imagedl_' + name.replace("/", "_") + '">').append(
+            $('<td class="container-col-tags">').text(name),
+            $('<td class="container-col-created">').text('Downloading'),
+            $('<td class="image-col-size-graph">').append(
+                $('<div class="progress progress-striped active">').append(
+                $('<div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="1" style="width: 100%">'))),
+            $('<td class="image-col-size-text">'),
+            $('<td class="cell-buttons">'));
+
+        insert_table_sorted($('#containers-images table'), tr);
+
+        $("#containers-search-image-dialog").modal('hide');
+    },
+
     perform_search: function(client) {
         var term = $('#containers-search-image-search')[0].value;
 
@@ -786,20 +820,10 @@ PageSearchImage.prototype = {
                                     $('<td>').text(entry.name),
                                     $('<td>').text(entry.description));
                       row.on('click', function(event) {
-                          client.pull(entry.name);
-
-                          var tr = $('<tr id="imagedl_' + name.replace("/", "_") + '">').append(
-                              $('<td class="container-col-tags">').text(name),
-                              $('<td class="container-col-created">').text('Downloading'),
-                              $('<td class="image-col-size-graph">').append(
-                                  $('<div class="progress progress-striped active">').append(
-                                  $('<div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="1" style="width: 100%">'))),
-                              $('<td class="image-col-size-text">'),
-                              $('<td class="cell-buttons">'));
-			
-                          insert_table_sorted($('#containers-images table'), tr);
-
-                          $("#containers-search-image-dialog").modal('hide');
+                          $('#containers-search-tag').text('latest');
+                          $('#containers-search-tag').prop('disabled', false);
+                          $('#containers-search-download').data('repo', name);
+                          $('#containers-search-download').prop('disabled', false);
                       });
                       row.data('entry', entry);
 
@@ -840,6 +864,9 @@ PageSearchImage.prototype = {
             this.search_request = null;
         }
         $('#containers-search-image-waiting').removeClass('waiting');
+
+        $('#containers-search-tag').prop('disabled', true);
+        $('#containers-search-download').prop('disabled', true);
     }
 };
 

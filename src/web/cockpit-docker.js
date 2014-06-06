@@ -541,7 +541,6 @@ PageContainers.prototype = {
 
         if (added) {
             // Remove downloading row if it exists
-            window.alert('Removing');
             $("#imagedl_" + image.RepoTags[0].split(':')[0].replace("/", "_")).remove();
 
             insert_table_sorted($('#containers-images table'), tr);

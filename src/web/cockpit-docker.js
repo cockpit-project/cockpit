@@ -66,21 +66,23 @@ function get_docker_client(machine) {
 }
 
 function quote_cmdline (cmds) {
-    function quote(arg) {
-        return arg.replace(/\\/g, '\\\\').replace(/ /g, '\\ ');
-    }
-    return cmds? cmds.map(quote).join(' ') : "";
+    return cockpit.util.quote_words(cmds || []);
 }
 
 function unquote_cmdline (string) {
-    function shift(str) {
-        return string.replace(/\\ /g, '\u0001').replace(/\\\\/g, '\u0002');
-    }
-    function unshift(str) {
-        return str.replace(/\u0001/g, ' ').replace(/\u0002/g, '\\');
-    }
+    return cockpit.util.parse_words(string);
+}
 
-    return shift(string).split(' ').map(unshift);
+function render_container_cmdline (container) {
+    // We do our own quoting in preference to using container.Command.
+    // We do this for consistency, and also to avoid bugs in how
+    // Docker creates container.Command.  Docker doesn't escape quote
+    // characters, for example.
+
+    if (container.Config)
+        return quote_cmdline ((container.Config.Entrypoint || []).concat(container.Config.Cmd || []));
+    else
+        return container.Command;
 }
 
 function render_container_name (name) {
@@ -350,7 +352,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
     var row = tr.children("td");
     $(row[0]).text(render_container_name(container.Name));
     $(row[1]).text(container.Image);
-    $(row[2]).text(container.Command);
+    $(row[2]).text(render_container_cmdline(container));
     $(row[3]).text(cputext);
     update_memory_bar($(row[4]).children("div").toggle(membar), memuse, memlimit);
     $(row[5]).
@@ -925,7 +927,7 @@ PageContainerDetails.prototype = {
         $('#container-details-names').text(render_container_name(info.Name));
         $('#container-details-created').text(info.Created);
         $('#container-details-image').text(info.Image);
-        $('#container-details-command').text(info.Command);
+        $('#container-details-command').text(render_container_cmdline(info));
         $('#container-details-state').text(render_container_state(info.State));
 
         $('#container-details-ports-row').toggle(port_bindings.length > 0);

@@ -203,7 +203,7 @@ DBusInterface.prototype = {
         }
         var callback = arguments[n];
 
-        if (this._client._channel.valid) {
+        if (this._client._channel && this._client._channel.valid) {
             var cookie = this._client._register_call_reply(callback);
 
             var call_obj = {command: "call",

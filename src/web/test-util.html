@@ -70,6 +70,45 @@ test("cockpit_format_bytes_pow2", function() {
     strictEqual(cockpit_format_bytes_pow2(5000), "4.9 KiB", "cockpit_format_bytes(5000) = 5.0 kB");
 });
 
+test("quote_words", function() {
+    var checks = [
+        [ [ "foo" ],          "foo" ],
+        [ [ "foo", "bar" ],   "foo bar" ],
+        [ [ "f o o" ],        "\"f o o\"" ],
+        [ [ "f\\o" ],         "f\\\\o" ],
+        [ [ "f\"o" ],         "'f\"o'" ],
+        [ [ "f\"\'o" ],       "'f\"\\'o'" ],
+        [ [ "f \"o" ],        "\"f \\\"o\"" ]
+    ];
+
+    expect(checks.length);
+    for (var i = 0; i < checks.length; i++)
+        strictEqual(cockpit.util.quote_words(checks[i][0]), checks[i][1],
+                    "quote_words(" + String(checks[i][0]) + ") = " + checks[i][1]);
+
+});
+
+test("parse_words", function() {
+    var checks = [
+        [ [ "foo" ],            "  foo  " ],
+        [ [ "foo", "bar" ],     "foo    bar  " ],
+        [ [ "f o o" ],          "\"f o o\"" ],
+        [ [ "f o o" ],          "'f o o'" ],
+        [ [ "f\\o" ],           "f\\\\o" ],
+        [ [ "f\"o" ],           "'f\"o'" ],
+        [ [ "f\"\'o" ],         "'f\"\\'o'" ],
+        [ [ "f \"o" ],          "\"f \\\"o\"" ],
+        [ [ "f o o" ],          "f' 'o\" \"o" ],
+        [ [ "f'" , "o\" \"o" ], "f\\' 'o\" \"o" ]
+    ];
+
+    expect(checks.length);
+    for (var i = 0; i < checks.length; i++)
+        deepEqual(cockpit.util.parse_words(checks[i][1]), checks[i][0],
+                  "parse_words(" + String(checks[i][1]) + ") = " + checks[i][0]);
+
+});
+
 QUnit.start();
 
 </script>

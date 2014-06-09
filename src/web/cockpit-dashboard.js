@@ -116,7 +116,6 @@ PageDashboard.prototype = {
         }
 
         var machine_action_spec = [
-            { title: _("Manage"),          action: 'manage',     is_default: true },
             { title: _("Connect"),         action: 'connect' },
             { title: _("Disconnect"),      action: 'disconnect' },
             { title: _("Remove"),          action: 'remove' },
@@ -132,6 +131,7 @@ PageDashboard.prototype = {
                             dbus_iface: configured_machines[i]
                           };
 
+            var btn;
             var table =
                 $('<table/>', { style: "width:100%" }).append(
                     $('<tr/>').append(
@@ -158,12 +158,26 @@ PageDashboard.prototype = {
                                 $('<img/>', { 'src': "images/small-spinner.gif" })),
                             $('<div/>', { 'class': "cockpit-machine-error", 'style': "color:red" })),
                         $('<td/>', { style: "text-align:right;width:180px" }).append(
-                            cockpit_action_btn (machine_action_func (machine),
-                                                machine_action_spec).addClass('cockpit-machine-action'))));
+                            btn = cockpit_action_btn (machine_action_func (machine),
+                                                      machine_action_spec).addClass('cockpit-machine-action'))));
 
-            var bd =
-                $('<li>', { 'class': 'list-group-item' }).append(table);
-            machines.append (bd);
+            machines.append(
+                $('<a>', { 'class': 'list-group-item' }).
+                    append(table).
+                    click((function (machine, btn) {
+                        return function (event) {
+                            // The click events that open and close
+                            // the action button dropdown bubble up to
+                            // here and we can't seem to stop them
+                            // earlier without breaking the dropdown
+                            // itself.  So we ignore them here.
+                            if (!$.contains(btn[0], event.target)) {
+                                if (machine.client.state == "closed")
+                                    machine.client.connect();
+                                cockpit_go_down ({ page: "server", machine: machine.address });
+                            }
+                        };
+                    })(machine, btn)));
             this.dbus_clients[i] = machine.client;
             $(this.dbus_clients[i]).on('state-change.dashboard', $.proxy(this, "update"));
         }
@@ -179,7 +193,7 @@ PageDashboard.prototype = {
     update: function () {
         var self = this;
 
-        $('#dashboard-machines > li').each (function (i, e) {
+        $('#dashboard-machines > a').each (function (i, e) {
             var info_divs = $(e).find('.cockpit-machine-info > div');
             var action_btn = $(e).find('.cockpit-machine-action');
             var error_div = $(e).find('.cockpit-machine-error');
@@ -203,16 +217,14 @@ PageDashboard.prototype = {
                     $(manager).off('AvatarChanged.dashboard');
                     $(manager).on('AvatarChanged.dashboard', $.proxy (self, "update"));
                 }
-                cockpit_action_btn_enable (action_btn, 'manage', true);
                 cockpit_action_btn_enable (action_btn, 'connect', false);
                 cockpit_action_btn_enable (action_btn, 'disconnect', true);
-                cockpit_action_btn_select (action_btn, 'manage');
+                cockpit_action_btn_select (action_btn, 'disconnect');
                 error_div.text("");
                 error_div.hide();
                 spinner_div.hide();
                 plot_div.show();
             } else if (client.state == "closed") {
-                cockpit_action_btn_enable (action_btn, 'manage', false);
                 cockpit_action_btn_enable (action_btn, 'connect', true);
                 cockpit_action_btn_enable (action_btn, 'disconnect', false);
                 cockpit_action_btn_select (action_btn, 'connect');
@@ -225,7 +237,6 @@ PageDashboard.prototype = {
                     self.cpu_plots[i] = null;
                 }
             } else {
-                cockpit_action_btn_select (action_btn, 'manage');
                 error_div.text("");
                 error_div.hide();
                 spinner_div.show();
@@ -253,17 +264,8 @@ PageDashboard.prototype = {
 
     },
 
-    action: function (machine, event) {
-        if (machine.client.state == "ready")
-            this.server_action(machine, "manage");
-        else if (machine.client.state == "closed")
-            this.server_action(machine, "connect");
-    },
-
     server_action: function (machine, op) {
-        if (op == "manage") {
-            cockpit_go_down ({ page: "server", machine: machine.address });
-        } else if (op == "connect") {
+        if (op == "connect") {
             machine.client.connect();
         } else if (op == "disconnect") {
             machine.client.close();

@@ -144,10 +144,15 @@ function format_memory_and_limit(usage, limit) {
 }
 
 function insert_table_sorted(table, row) {
-    var key = $(row).text();
+    insert_table_sorted_generic(table, row, function(row1, row2) {
+        return row1.text().localeCompare(row2.text());
+    });
+}
+
+function insert_table_sorted_generic(table, row, cmp) {
     var rows = $(table).find("tbody tr");
     for (var j = 0; j < rows.length; j++) {
-        if ($(rows[j]).text().localeCompare(key) > 0) {
+        if (cmp($(rows[j]), row) > 0) {
             $(row).insertBefore(rows[j]);
             row = null;
             break;
@@ -387,6 +392,11 @@ PageContainers.prototype = {
                                  { title: _("Running"),             choice: 'running' }
                                ]);
         $('#containers-containers .panel-heading span').append(this.container_filter_btn);
+
+        $('#containers-images-search').on("click", function() {
+              PageSearchImage.display();
+              return false;
+          });
     },
 
     enter: function() {
@@ -542,8 +552,12 @@ PageContainers.prototype = {
         $(row[2]).children("div").attr("value", image.VirtualSize);
         $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024).join(" "));
 
-        if (added)
+        if (added) {
+            // Remove downloading row if it exists
+            $("#imagedl_" + image.RepoTags[0].split(':')[0].replace("/", "_")).remove();
+
             insert_table_sorted($('#containers-images table'), tr);
+        }
     },
 
     filter: function() {
@@ -714,6 +728,179 @@ function PageRunImage() {
 }
 
 cockpit_pages.push(new PageRunImage());
+
+PageSearchImage.prototype = {
+    _init: function() {
+        this.id = "containers-search-image-dialog";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Get new image");
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+        this.cancel_search();
+
+        $(this.client).off('.containers-search-image-dialog');
+        this.client.release();
+        this.client = null;
+    },
+
+    setup: function() {
+        $("#containers-search-image-search").on('keypress', $.proxy(this, "input"));
+        $("#containers-search-image-search").attr( "placeholder", "search by name, namespace or description" );
+        $("#containers-search-download").on('click', $.proxy(this, 'start_download'));
+        $('#containers-search-tag').prop('disabled', true);
+        $('#containers-search-download').prop('disabled', true);
+        this.search_timeout = null;
+        this.search_request = null;
+    },
+
+    enter: function() {
+        this.client = get_docker_client();
+
+        $(this.client).on("docker_download_fail", function(event, name, ex) {
+            var rowname = "#imagedl_" + name.split(':')[0].replace("/", "_");
+
+            $(rowname + " td").eq(1).text('Error');
+            $(rowname + " td").eq(2).text('Error downloading: '+ ex);
+
+            $(rowname).on('click', function() {
+                // Make the row be gone when clicking it
+                $(rowname).remove();
+            });
+        });
+
+        // Clear the previous results and search string from previous time
+        $('#containers-search-image-results tbody tr').remove();
+        $('#containers-search-image-results').hide();
+        $('#containers-search-image-no-results').hide();
+        $('#containers-search-image-search')[0].value = '';
+    },
+
+    input: function(event) {
+        this.cancel_search();
+
+        // Only handle if the new value is at least 3 characters long
+        if(event.target.value.length < 3)
+            return;
+
+        var self = this;
+
+        this.search_timeout = window.setTimeout(function() {
+            self.perform_search(self.client);
+        }, event.which == 13 ? 0 : 2000);
+    },
+
+    start_download: function(event) {
+        var repo = $('#containers-search-download').data('repo');
+        var tag = $('#containers-search-tag').val();
+
+        $('#containers-search-tag').prop('disabled', true);
+        $('#containers-search-download').data('repo', '');
+        $('#containers-search-download').prop('disabled', true);
+
+        name = repo;
+        if(tag !== '')
+            name = name + ':' + tag;
+        
+        this.client.pull(name);
+
+        var tr = $('<tr id="imagedl_' + repo.replace("/", "_") + '">').append(
+            $('<td class="container-col-tags">').text(name),
+            $('<td class="container-col-created">').text('Downloading'),
+            $('<td class="image-col-size-graph">').append(
+                $('<div class="progress progress-striped active">').append(
+                $('<div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="1" style="width: 100%">'))),
+            $('<td class="image-col-size-text">'),
+            $('<td class="cell-buttons">'));
+
+        insert_table_sorted($('#containers-images table'), tr);
+
+        $("#containers-search-image-dialog").modal('hide');
+    },
+
+    perform_search: function(client) {
+        var term = $('#containers-search-image-search')[0].value;
+
+        $('#containers-search-image-waiting').addClass('waiting');
+        $('#containers-search-image-no-results').hide();
+        $('#containers-search-image-results').hide();
+        $('#containers-search-image-results tbody tr').remove();
+        this.search_request = client.search(term).
+          done(function(resp){
+              $('#containers-search-image-waiting').removeClass('waiting');
+
+              if(resp.length > 0)
+              {
+                  $('#containers-search-image-results').show();
+                  resp.forEach(function(entry) {
+                      var row = $('<tr>').append(
+                                    $('<td>').text(entry.name),
+                                    $('<td>').text(entry.description));
+                      row.on('click', function(event) {
+                          $('#containers-search-tag').val('latest');
+                          $('#containers-search-tag').prop('disabled', false);
+                          $('#containers-search-download').data('repo', entry.name);
+                          $('#containers-search-download').prop('disabled', false);
+                      });
+                      row.data('entry', entry);
+
+                      insert_table_sorted_generic($('#containers-search-image-results'), row, function(row1, row2) {
+                          //Bigger than 0 means row1 after row2
+                          //Smaller than 0 means row1 before row2
+                          if (row1.data('entry').is_official && !row2.data('entry').is_official)
+                              return -1;
+                          if (!row1.data('entry').is_official && row2.data('entry').is_official)
+                              return 1;
+                          if (row1.data('entry').is_trusted && !row2.data('entry').is_trusted)
+                              return -1;
+                          if (!row1.data('entry').is_trusted && row2.data('entry').is_trusted)
+                              return 1;
+                          if (row1.data('entry').star_count != row2.data('entry').star_count)
+                              return row2.data('entry').star_count - row1.data('entry').star_count;
+                          return row1.data('entry').name.localeCompare(row2.data('entry').name);
+                      });
+                  });
+              } else {
+                  // No results
+                  $('#containers-search-image-no-results').html('No results for ' + term + "<br />Please try another term");
+                  $('#containers-search-image-no-results').show();
+              }
+          }).
+          fail(function(ex){
+              $(this).trigger("failure", [ex]);
+         });
+    },
+
+    cancel_search: function() {
+        window.clearTimeout(this.search_timeout);
+        $('#containers-search-image-no-results').hide();
+        $('#containers-search-image-results').hide();
+        $('#containers-search-image-results tbody tr').remove();
+        if (this.search_request !== null) {
+            this.search_request.cancel();
+            this.search_request = null;
+        }
+        $('#containers-search-image-waiting').removeClass('waiting');
+
+        $('#containers-search-tag').prop('disabled', true);
+        $('#containers-search-download').prop('disabled', true);
+    }
+};
+
+PageSearchImage.display = function(client) {
+    $("#containers-search-image-dialog").modal('show');
+};
+
+function PageSearchImage() {
+    this._init();
+}
+
+cockpit_pages.push(new PageSearchImage());
 
 PageContainerDetails.prototype = {
     _init: function() {
@@ -1333,6 +1520,22 @@ function DockerClient(machine) {
         return null;
     }
 
+    /* Pull an image from the central registry
+     */
+    this.pull = function pull(name) {
+        docker_debug("pulling:", name);
+
+        return rest.post("/images/create?fromImage=" + name).
+            stream(function(progress) {
+                // We do not get any useful progress, as we have no idea of how many layers we should expect in total
+            }).
+            fail(function(ex) {
+                $(me).trigger("docker_download_fail", [name, ex]);
+
+                $(me).trigger("failure", [ex]);
+            });
+    };
+
     /* We listen to the resource monitor and include the measurements
      * in the container objects.
      *
@@ -1453,6 +1656,17 @@ function DockerClient(machine) {
             }).
             done(function(resp) {
                 docker_debug("created:", name, resp);
+            });
+    };
+
+    this.search = function search(term) {
+        docker_debug("searching:", term);
+        return rest.get("/images/search", { "term": term }).
+            fail(function(ex) {
+                docker_debug("search failed:", term, ex);
+            }).
+            done(function(resp) {
+                docker_debug("searched:", term, resp);
             });
     };
 

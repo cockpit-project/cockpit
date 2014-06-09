@@ -767,6 +767,11 @@
         </div>
         <div class="panel panel-default" id="containers-images">
           <div class="panel-heading">
+            <span style="float:right">
+              <button class="btn btn-primary" id="containers-images-search" translatable="yes">
+                Get new image
+              </button>
+            </span>
             Images
           </div>
           <table class="table table-hover">
@@ -789,10 +794,12 @@
       <div class="bar-row hidden" graph="containers-containers" value="0/100000000"></div>
       <div class="bar-row hidden" graph="containers-images" value="0/100000000"></div>
 
-      <!-- Layout for container details page -->
-      <div id="container-details" class="container-fluid">
-        <div class="row">
+      
+<!-- Layout for container details page -->
+      <div id="container-details" class="container-fluid panel-default panel">
+        <div class="panel-heading" style="height:41px">
           <div class="col-sm-12">
+Container Details
             <div class="pull-right" style="height:25px">
               <button class="btn btn-default" id="container-details-start">Start</button>
               <button class="btn btn-default" id="container-details-stop">Stop</button>
@@ -806,8 +813,7 @@
             </div>
           </div>
         </div>
-        <br/>
-	<div class="panel panel-default">
+	<div class="panel-default">
 	  <div class="panel-body">
 	    <table class="cockpit-info-table col-sm-5">
 	      <tr>
@@ -878,51 +884,52 @@
 
       <!-- Layout for image details page-->
       <div id="image-details" class="container-fluid">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="pull-right" style="height:25px" id="image-details-buttons">
-              <button class="btn btn-default" id="image-details-run">Run</button>
-              <button class="btn btn-danger" id="image-details-delete">Delete</button>
-              <div class="waiting" style="display: none;"></div>
-            </div>
-          </div>
-        </div>
-        <br/>
-        <div class="panel panel-default">
-	  <div class="panel-body">
-	    <table class="cockpit-info-table">
-	      <tr>
-                <td>Id:</td>
-                <td id="image-details-id"></td>
-              </tr>
-	      <tr>
-                <td>Tags:</td>
-                <td id="image-details-tags"></td>
-              </tr>
-	      <tr>
-                <td>Entrypoint:</td>
-                <td id="image-details-entrypoint"></td>
-              </tr>
-	      <tr>
-                <td>Command:</td>
-                <td id="image-details-command"></td>
-              </tr>
-	      <tr>
-                <td>Created:</td>
-                <td id="image-details-created"></td>
-              </tr>
-	      <tr>
-                <td>Author:</td>
-                <td id="image-details-author"></td>
-              </tr>
-	      <tr>
-                <td>Ports:</td>
-                <td id="image-details-ports"></td>
-              </tr>
-	    </table>
-	  </div>
-        </div>
-
+	<div class="panel-default panel">
+		<div class="panel-heading" style="height:41px">
+		  <div class="col-sm-12">
+Image Details
+		    <div class="pull-right" style="height:25px" id="image-details-buttons">
+		      <button class="btn btn-default" id="image-details-run">Run</button>
+		      <button class="btn btn-danger" id="image-details-delete">Delete</button>
+		      <div class="waiting" style="display: none;"></div>
+		    </div>
+		  </div>
+		</div>
+		<div class="panel-default">
+		  <div class="panel-body">
+		    <table class="cockpit-info-table">
+		      <tr>
+		        <td>Id:</td>
+		        <td id="image-details-id"></td>
+		      </tr>
+		      <tr>
+		        <td>Tags:</td>
+		        <td id="image-details-tags"></td>
+		      </tr>
+		      <tr>
+		        <td>Entrypoint:</td>
+		        <td id="image-details-entrypoint"></td>
+		      </tr>
+		      <tr>
+		        <td>Command:</td>
+		        <td id="image-details-command"></td>
+		      </tr>
+		      <tr>
+		        <td>Created:</td>
+		        <td id="image-details-created"></td>
+		      </tr>
+		      <tr>
+		        <td>Author:</td>
+		        <td id="image-details-author"></td>
+		      </tr>
+		      <tr>
+		        <td>Ports:</td>
+		        <td id="image-details-ports"></td>
+		      </tr>
+		    </table>
+		  </div>
+		</div>
+	</div>
         <div class="panel panel-default" id="image-details-containers">
           <div class="panel-heading">
             Containers
@@ -2210,6 +2217,42 @@
             </button>
             <button class="btn btn-primary" id="containers-run-image-run" translatable="yes">
               Run
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="containers-search-image-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Search Image</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <input type="search" class="form-control" id="containers-search-image-search"/>
+                <div id="containers-search-image-waiting" class=""></div>
+              </tr>
+              <tr>
+                <table class="table" id="containers-search-image-results">
+                  <tbody />
+                </table>
+                <div id="containers-search-image-no-results">
+                </div>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <input type="text" id="containers-search-tag" disabled="disabled" />
+            <button class="btn btn-default" translatable="yes" disabled="disabled" id="containers-search-download">
+              Download
             </button>
           </div>
         </div>

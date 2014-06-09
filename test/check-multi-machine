@@ -42,7 +42,7 @@ def get_webapp_machines(browser):
     return wm
 
 def machine_selector(machine):
-    return '#dashboard-machines li:nth-child(%d)' % (machine+1)
+    return '#dashboard-machines a:nth-child(%d)' % (machine+1)
 
 def action_btn_selector(machine):
     return machine_selector(machine) + ' .cockpit-machine-action'

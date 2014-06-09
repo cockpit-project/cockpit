@@ -45,7 +45,7 @@ class TestDashboard(MachineCase):
 
     def machine_action(self, b, address, action):
         map = self.get_address_map(b)
-        b.click_action_btn('#dashboard-machines li:nth-child(%d) .cockpit-machine-action' % (map[address]+1),
+        b.click_action_btn('#dashboard-machines a:nth-child(%d) .cockpit-machine-action' % (map[address]+1),
                            action)
 
     def add_machine(self, b, address):

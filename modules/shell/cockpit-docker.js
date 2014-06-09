@@ -816,6 +816,12 @@ PageSearchImage.prototype = {
                                     $('<td>').text(entry.name),
                                     $('<td>').text(entry.description));
                       row.on('click', function(event) {
+                          // Remove the active class from all other rows
+                          $('#containers-search-image-results tr').each(function(){
+                              $(this).removeClass('active');
+                          });
+
+                          row.addClass('active');
                           $('#containers-search-tag').val('latest');
                           $('#containers-search-tag').prop('disabled', false);
                           $('#containers-search-download').data('repo', entry.name);

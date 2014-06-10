@@ -991,12 +991,6 @@ cockpit_ssh_source_dispatch (GSource *source,
           self->received_close = TRUE;
         }
     }
-  if (cond & G_IO_ERR)
-    {
-      g_message ("%s: error reading from ssh", self->logname);
-      close_immediately (self, "disconnected");
-      return TRUE;
-    }
 
   /*
    * HACK: Yes this is anohter poll() call. The async support in
@@ -1033,6 +1027,13 @@ cockpit_ssh_source_dispatch (GSource *source,
     default:
       g_critical ("%s: ssh_event_dopoll() returned %d", self->logname, rc);
       return FALSE;
+    }
+
+  if (cond & G_IO_ERR)
+    {
+      g_message ("%s: error reading from ssh", self->logname);
+      close_immediately (self, "disconnected");
+      return TRUE;
     }
 
   if (self->drain_buffer)

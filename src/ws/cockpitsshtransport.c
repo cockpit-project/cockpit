@@ -1019,7 +1019,9 @@ cockpit_ssh_source_dispatch (GSource *source,
        *
        * https://red.libssh.org/issues/158
        */
-      if (msg && (strstr (msg, "disconnected") || strstr (msg, "SSH_MSG_DISCONNECT")))
+      if (msg && (strstr (msg, "disconnected") ||
+                  strstr (msg, "SSH_MSG_DISCONNECT") ||
+                  strstr (msg, "Socket error: Success")))
         {
           g_debug ("%s: failed to process channel: %s", self->logname, msg);
           close_immediately (self, "terminated");

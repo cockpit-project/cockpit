@@ -106,6 +106,7 @@ fd_data (socket_t fd,
       g_assert_cmpint (ssh_blocking_flush (state.session, -1), >=, SSH_OK);
       ssh_channel_close (chan);
       ssh_channel_free (chan);
+      g_assert_cmpint (ssh_blocking_flush (state.session, -1), >=, SSH_OK);
       state.channel = NULL;
       ssh_event_remove_fd (state.event, fd);
       sz = -1;

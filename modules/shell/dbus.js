@@ -373,7 +373,7 @@ DBusClient.prototype = {
             for (var cookie in client._call_reply_map) {
                 var callback = client._call_reply_map[cookie];
                 if (callback) {
-                    var error = new DBusError('NotConnected', "Not connected to server.");
+                    var error = new DBusError('Disconnected', "Disconnected from server.");
                     callback.apply(null, [error]);
                 }
             }

@@ -798,15 +798,15 @@ PageContainerDetails.prototype = {
                     });
             });
 
-        PageRunImage.client.get_sys_memory().
-            done(function (max) {
-                self.memory_limit.max = max;
-            });
-
         this.address = cockpit_get_page_param('machine') || "localhost";
         this.client = get_docker_client(this.address);
         this.container_id = cockpit_get_page_param('id');
         this.name = this.container_id.slice(0,12);
+
+        this.client.get_sys_memory().
+            done(function(max) {
+                self.memory_limit.max = max;
+            });
 
         // Just for watching
         this.dbus_client = cockpit.dbus(this.address, { payload: "dbus-json1" });

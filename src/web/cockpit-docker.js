@@ -719,7 +719,6 @@ PageContainerDetails.prototype = {
     _init: function() {
         this.id = "container-details";
         this.terminal = null;
-        this.enter_leave_counter = 0;
     },
 
     getTitle: function() {
@@ -730,8 +729,6 @@ PageContainerDetails.prototype = {
     },
 
     leave: function() {
-        this.enter_leave_counter += 1;
-
         cockpit.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
@@ -783,8 +780,6 @@ PageContainerDetails.prototype = {
     enter: function() {
         var self = this;
 
-        self.enter_leave_counter += 1;
-
         var commit = $('#container-commit-dialog')[0];
         $(commit).
             on("show.bs.modal", function() {
@@ -811,7 +806,7 @@ PageContainerDetails.prototype = {
                 $(commit).find(".container-command").attr('value', command);
             }).
             find(".btn-primary").on("click", function() {
-                var enter_leave_counter = self.enter_leave_counter;
+                var location = cockpit.location();
                 var run = { "Cmd": unquote_cmdline($(commit).find(".container-command").val()) };
                 var options = {
                     "author": $(commit).find(".container-author").val()
@@ -825,8 +820,7 @@ PageContainerDetails.prototype = {
                         cockpit_show_unexpected_error (ex);
                     }).
                     done(function() {
-                        if (enter_leave_counter == self.enter_leave_counter)
-                            cockpit_go_up();
+                        location.go_up();
                     });
             });
 
@@ -976,15 +970,13 @@ PageContainerDetails.prototype = {
     },
 
     delete_container: function () {
-        var self = this;
-        var enter_leave_counter = self.enter_leave_counter;
+        var location = cockpit.location();
         this.client.rm(this.container_id).
             fail(function(ex) {
                 cockpit_show_unexpected_error(ex);
             }).
             done(function() {
-                if (enter_leave_counter == self.enter_leave_counter)
-                    cockpit_go_up();
+                location.go_up();
             });
     }
 
@@ -999,7 +991,6 @@ cockpit_pages.push(new PageContainerDetails());
 PageImageDetails.prototype = {
     _init: function() {
         this.id = "image-details";
-        this.enter_leave_counter = 0;
     },
 
     getTitle: function() {
@@ -1010,8 +1001,6 @@ PageImageDetails.prototype = {
     },
 
     leave: function() {
-        this.enter_leave_counter += 1;
-
         cockpit.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
@@ -1028,8 +1017,6 @@ PageImageDetails.prototype = {
 
     enter: function() {
         var self = this;
-
-        self.enter_leave_counter += 1;
 
         this.address = cockpit_get_page_param('machine') || "localhost";
         this.client = get_docker_client(this.address);
@@ -1117,15 +1104,13 @@ PageImageDetails.prototype = {
     },
 
     delete_image: function () {
-        var self = this;
-        var enter_leave_counter = self.enter_leave_counter;
+        var location = cockpit.location();
         this.client.rmi(this.image_id).
             fail(function(ex) {
                 cockpit_show_unexpected_error(ex);
             }).
             done(function() {
-                if (enter_leave_counter == self.enter_leave_counter)
-                    cockpit_go_up();
+                location.go_up();
             });
     }
 

@@ -21,10 +21,12 @@
 
 #include <gio/gio.h>
 #include <glib-unix.h>
+#include <glib/gstdio.h>
 
 #include <dirent.h>
 
 #include <cockpit/cockpit.h>
+#include <cockpit/cockpitmemory.h>
 
 #include <gsystem-local-alloc.h>
 
@@ -56,16 +58,84 @@ static GOptionEntry cmd_entries[] = {
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static gboolean
+openssl_make_dummy_cert (const gchar *key_file,
+                         const gchar *out_file,
+                         GError **error)
+{
+  gboolean ret = FALSE;
+  gint exit_status;
+  gchar *stderr_str = NULL;
+  gchar *command_line = NULL;
+
+  const gchar *argv[] = {
+    "openssl",
+    "req", "-x509",
+    "-days", "36500",
+    "-newkey", "rsa:2048",
+    "-keyout", key_file,
+    "-keyform", "PEM",
+    "-nodes",
+    "-out", out_file,
+    "-outform", "PEM",
+    "-subj", "/CN=localhost.localdomain",
+    NULL
+  };
+
+  command_line = g_strjoinv (" ", (gchar **)argv);
+  g_info ("Generating temporary certificate using: %s", command_line);
+
+  if (!g_spawn_sync (NULL, (gchar **)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL,
+                     NULL, &stderr_str, &exit_status, error) ||
+      !g_spawn_check_exit_status (exit_status, error))
+    {
+      g_warning ("%s", stderr_str);
+      g_prefix_error (error, "Error generating temporary self-signed dummy cert using openssl: ");
+      goto out;
+    }
+
+  ret = TRUE;
+
+out:
+  g_free (stderr_str);
+  g_free (command_line);
+  return ret;
+}
+
+static gchar *
+create_temp_file (const gchar *directory,
+                  const gchar *templ,
+                  GError **error)
+{
+  gchar *path;
+  gint fd;
+
+  path = g_build_filename (directory, templ, NULL);
+  fd = g_mkstemp (path);
+  if (fd < 0)
+    {
+      g_set_error (error, G_FILE_ERROR,
+                   g_file_error_from_errno (errno),
+                   "Couldn't create temporary file: %s: %m", path);
+      g_free (path);
+      return NULL;
+    }
+
+  close (fd);
+  return path;
+}
+
 static gchar *
 generate_temp_cert (GError **error)
 {
   const gchar *dir = PACKAGE_SYSCONF_DIR "/cockpit/ws-certs.d";
   gchar *cert_path = NULL;
-  gchar *stdout_str = NULL;
-  gchar *stderr_str = NULL;
-  gchar *command_line = NULL;
+  gchar *tmp_key = NULL;
+  gchar *tmp_pem = NULL;
+  gchar *cert_data = NULL;
+  gchar *pem_data = NULL;
+  gchar *key_data = NULL;
   gchar *ret = NULL;
-  gint exit_status;
 
   cert_path = g_strdup_printf ("%s/~self-signed.cert", dir);
 
@@ -87,43 +157,39 @@ generate_temp_cert (GError **error)
       goto out;
     }
 
-  command_line = g_strdup_printf ("/etc/pki/tls/certs/make-dummy-cert %s", cert_path);
+  tmp_key = create_temp_file (dir, "~self-signed.XXXXXX.tmp", error);
+  if (!tmp_key)
+    goto out;
+  tmp_pem = create_temp_file (dir, "~self-signed.XXXXXX.tmp", error);
+  if (!tmp_pem)
+    goto out;
+  if (!openssl_make_dummy_cert (tmp_key, tmp_pem, error))
+    goto out;
+  if (!g_file_get_contents (tmp_key, &key_data, NULL, error))
+    goto out;
+  if (!g_file_get_contents (tmp_pem, &pem_data, NULL, error))
+    goto out;
 
-  g_info ("Generating temporary certificate using (command_line: `%s')",
-          command_line);
-
-  if (!g_spawn_command_line_sync (command_line,
-                                  &stdout_str, /* standard_output */
-                                  &stderr_str, /* standard_error */
-                                  &exit_status,
-                                  error))
-    {
-      g_prefix_error (error,
-                      "Error generating temporary self-signed dummy cert using command-line `%s': ",
-                      command_line);
-      goto out;
-    }
-
-  if (!(WIFEXITED (exit_status) && exit_status == 0))
-    {
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "Error generating temporary self-signed dummy cert: command-line `%s' did exit as expected: stdout=`%s' stderr=`%s'",
-                   command_line,
-                   stdout_str,
-                   stderr_str);
-      goto out;
-    }
+  cert_data = g_strdup_printf ("%s\n%s\n", pem_data, key_data);
+  if (!g_file_set_contents (cert_path, cert_data, -1, error))
+    goto out;
 
   ret = cert_path;
   cert_path = NULL;
 
 out:
   g_free (cert_path);
-  g_free (command_line);
-  g_free (stdout_str);
-  g_free (stderr_str);
+  cockpit_secclear (key_data, -1);
+  g_free (key_data);
+  g_free (pem_data);
+  cockpit_secclear (cert_data, -1);
+  g_free (cert_data);
+  if (tmp_key)
+    g_unlink (tmp_key);
+  if (tmp_pem)
+    g_unlink (tmp_pem);
+  g_free (tmp_key);
+  g_free (tmp_pem);
   return ret;
 }
 

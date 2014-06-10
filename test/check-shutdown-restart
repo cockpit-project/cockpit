@@ -31,107 +31,24 @@ class TestShutdownRestart(MachineCase):
         # TODO: Make this work as non-root user
         b.default_user = "root"
 
-        self.login_and_go("shutdown")
+        self.login_and_go("server")
 
-        # check that the default is one minute
-        check_eq(b.val('#shutdown-delay'), "1")
-
-        # initiate a restart in one minute and cancel it
-        b.click("#shutdown-restart")
-        b.wait_visible("#shutdown-cancel")
-        b.click("#shutdown-cancel")
-        b.wait_visible("#shutdown-restart")
-
-        # initiate a shutdown in one minute and cancel it
-        b.click("#shutdown-shutdown")
-        b.wait_visible("#shutdown-cancel")
-        b.click("#shutdown-cancel")
-        b.wait_visible("#shutdown-shutdown")
-
-        # initiate a restart in one minute and cancel it from outside
-        # Cockpit.
-        b.click("#shutdown-restart")
-        b.wait_visible("#shutdown-cancel")
-        m.execute("shutdown -c")
-        b.wait_visible("#shutdown-restart")
-
-        # initiate a restart from outside of Cockpit, and cancel it
-        m.execute("shutdown -r +1")
-        b.wait_visible("#shutdown-cancel")
-        b.click("#shutdown-cancel")
-        b.wait_visible("#shutdown-restart")
-
-        # initiate a immediate restart and cancel it
-        b.set_val("#shutdown-delay", "0")
-        b.click("#shutdown-restart")
-        b.wait_popup("shutdown-confirm")
-        b.click('#shutdown-confirm button[data-dismiss="modal"]')
-        b.wait_popdown("shutdown-confirm")
-
-        def get_delay_seconds():
-            def get(t, pat, default):
-                m = re.search(pat, t)
-                if m:
-                    return int(m.group(1))
-                else:
-                    return default
-            t = b.text("#shutdown-info")
-            s = get(t, "(\\d+) seconds", 0)
-            m = get(t, "(\\d+) minutes", 0)
-            h = get(t, "(\\d+) hours", 0)
-            return (h * 60 + m) * 60 + s
-
-        # initiate a restart in 5 minutes, check the countdown, and cancel it
-        b.set_val("#shutdown-delay", "5")
-        b.click("#shutdown-restart")
-        b.wait_visible("#shutdown-info")
-        d = get_delay_seconds()
-        check(d <= 5*60+10 and d > 5*60-10)
-        b.click("#shutdown-cancel")
-        b.wait_visible("#shutdown-restart")
-
-        # put in a invalid exact time
-        b.set_val("#shutdown-delay", "x")
-        b.set_val("#shutdown-exact-hours", "25")
-        check_eq(b.attr("#shutdown-exact-error", "title"),
-                 "This is not a valid time")
-
-        # initiate a restart at a exact time, check the countdown, and cancel it
-
-        # literal_eval chokes on "08" since it interprets it as octal, so
-        # we get the numbers as strings.
-        (nh,nm) = ast.literal_eval(m.execute("date '+(\"%H\",\"%M\")'"))
-        x=int(nh)*60+int(nm)+5
-        (xh,xm) = (x / 60, x % 60)
-        b.set_val("#shutdown-exact-hours", str(xh))
-        b.set_val("#shutdown-exact-minutes", str(xm))
-        b.click("#shutdown-restart")
-        b.wait_visible("#shutdown-cancel")
-        d = get_delay_seconds()
-        check(d <= 5*60+10 and d > 4*60-20)
-        b.click("#shutdown-cancel")
-        b.wait_visible("#shutdown-restart")
-
-        # initiate a immediate restart and go through with it
-        b.set_val("#shutdown-delay", "0")
-        b.click("#shutdown-restart")
-        b.wait_popup("shutdown-confirm")
-        b.click("#shutdown-confirm-apply")
-        b.wait_popdown("shutdown-confirm")
-
-        # after a reboot, we need to restart the servers and log back in.
+        # Reboot
+        b.click("#server a:contains('Shutdown')")
+        b.wait_popup("shutdown-dialog")
+        b.click("#shutdown-dialog button:contains('Restart')")
+        b.wait_popdown("shutdown-dialog")
         m.wait_boot()
         self.start_cockpit()
-        b.relogin("shutdown")
+        b.relogin("server")
 
         self.check_journal_messages()
 
-        # initiate a immediate shutdown and go through with it
-        b.set_val("#shutdown-delay", "0")
-        b.click("#shutdown-shutdown")
-        b.wait_popup("shutdown-confirm")
-        b.click("#shutdown-confirm-apply")
-        b.wait_popdown("shutdown-confirm")
+        # Poweroff
+        b.click("#server a:contains('Shutdown')")
+        b.wait_popup("shutdown-dialog")
+        b.click("#shutdown-dialog button:contains('Power Off')")
+        b.wait_popdown("shutdown-dialog")
         m.wait_poweroff()
 
 test_main()

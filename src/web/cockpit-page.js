@@ -25,6 +25,9 @@ var cockpit_loc_trail;
 var cockpit_current_hash;
 var cockpit_content_is_shown = false;
 
+/* TODO: This should be a private variable */
+var cockpit_page_navigation_count = 0;
+
 function cockpit_content_init ()
 {
     var pages = $('#content > div');
@@ -132,6 +135,8 @@ function cockpit_go (trail)
         for (var i = 0; i < trail.length; i++)
             cockpit_page_enter_breadcrumb(trail[i].page);
     }
+
+    cockpit_page_navigation_count += 1;
 
     if ($('#' + new_loc.page).length === 0) {
         cockpit_go (trail.slice(0, trail.length-1));
@@ -376,3 +381,33 @@ function cockpit_show_unexpected_error(error)
 {
     cockpit_show_error_dialog(_("Unexpected error"), error.message || error);
 }
+
+var cockpit = cockpit || { };
+
+(function($, cockpit) {
+
+/* A Location object can navigate to a different page, but silently
+ * does nothing when some navigation has already happened since it was
+ * created.
+ */
+
+Location.prototype = {
+    go_up: function() {
+        if (this.can_go())
+            cockpit_go_up();
+    }
+};
+
+function Location(can_go) {
+    this.can_go = can_go;
+}
+
+cockpit.location = function location() {
+    var navcount = cockpit_page_navigation_count;
+    function can_navigate() {
+        return navcount === cockpit_page_navigation_count;
+    }
+    return new Location(can_navigate);
+};
+
+})($, cockpit);

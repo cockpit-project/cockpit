@@ -21,8 +21,6 @@ var cockpit = cockpit || { };
 
 (function($, cockpit, cockpit_pages) {
 
-var docker_clients = { };
-
 function resource_debug() {
     if (cockpit.debugging == "all" || cockpit.debugging == "resource")
         console.debug.apply(console, arguments);
@@ -33,36 +31,10 @@ function docker_debug() {
         console.debug.apply(console, arguments);
 }
 
+var docker_clients = cockpit.util.make_resource_cache();
+
 function get_docker_client(machine) {
-    var handle = docker_clients[machine];
-
-    if (!handle) {
-        docker_debug("Creating docker client for %s", machine);
-        handle = { refcount: 1, client: new DockerClient(machine) };
-        docker_clients[machine] = handle;
-
-        handle.client.release = function() {
-            docker_debug("Releasing %s", machine);
-            // Only really release it after a delay
-            setTimeout(function () {
-                if (!handle.refcount) {
-                    console.warn("Releasing unreffed client");
-                } else {
-                    handle.refcount -= 1;
-                    if (handle.refcount === 0) {
-                        delete docker_clients[machine];
-                        docker_debug("Closing %s", machine);
-                        handle.client.close();
-                    }
-                }
-            }, 10000);
-        };
-    } else {
-        docker_debug("Getting docker client for %s", machine);
-        handle.refcount += 1;
-    }
-
-    return handle.client;
+    return docker_clients.get(machine, function () { return new DockerClient(machine); });
 }
 
 function quote_cmdline (cmds) {

@@ -34,6 +34,23 @@ import select
 import subprocess
 import sys
 
+def out(data, stream=None, flush=False):
+    if not stream:
+        stream = sys.stdout
+    while True: 
+        try:
+            if data:
+                stream.write(data)
+            data = None
+            if flush:
+                stream.flush()
+            flush = False
+            break
+        except IOError, (errno, strerror):
+            if errno == 11: # EAGAIN 
+                continue
+            raise
+
 class Driver:
     def __init__(self, args):
         self.argv = args.command
@@ -57,17 +74,16 @@ class Driver:
         # Print out to console
         if self.color_tests:
             if code in CODES:
-                sys.stdout.write(CODES[code])
-        sys.stdout.write(code)
+                out(CODES[code])
+        out(code)
         if self.color_tests:
-            sys.stdout.write('\x1b[m')
-        sys.stdout.write(": ")
-        sys.stdout.write(self.test_name)
-        sys.stdout.write(" ")
+            out('\x1b[m')
+        out(": ")
+        out(self.test_name)
+        out(" ")
         for arg in args:
-            sys.stdout.write(str(arg))
-        sys.stdout.write("\n")
-        sys.stdout.flush()
+            out(str(arg))
+        out("\n", flush=True)
 
         # Book keeping
         if code in CODES:
@@ -122,7 +138,7 @@ class Driver:
                 if data == "":
                     rset.remove(errf)
                 self.log.write(data)
-                sys.stderr.write(data)
+                out(data, stream=sys.stderr, flush=True)
 
         proc.wait()
         return proc.returncode

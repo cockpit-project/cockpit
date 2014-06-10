@@ -107,7 +107,7 @@
               <img class="cockpit-category-icon" src="@@module@@/images/category-containers.png">
               Containers
             </a>
-            <a class="list-group-item" onclick="cockpit_go_down('shutdown')">
+            <a class="list-group-item" data-toggle="modal" data-target="#shutdown-dialog">
               <img class="cockpit-category-icon" src="@@module@@/images/category-shutdown.png">
               Shutdown & Reboot
             </a>
@@ -483,61 +483,6 @@
           </div>
         </div>
         <div id="network-interface-connections">
-        </div>
-      </div>
-
-      <div id="shutdown" class="container-fluid">
-        <div id="shutdown-idle">
-          <table class="cockpit-form-table">
-            <tr id="shutdown-delay-row">
-              <td translatable="yes">Delay</td>
-              <td>
-                <select class="form-control" id="shutdown-delay">
-                  <option translatable="yes" value="1">1 Minute</option>
-                  <option translatable="yes" value="5">5 Minutes</option>
-                  <option translatable="yes" value="20">20 Minutes</option>
-                  <option translatable="yes" value="40">40 Minutes</option>
-                  <option translatable="yes" value="60">1 Hour</option>
-                  <option translatable="yes" value="-" disabled="true">---</option>
-                  <option translatable="yes" value="0">No Delay</option>
-                  <option translatable="yes" value="x">Set Exact time</option>
-                </select>
-              </td>
-            </tr>
-            <tr id="shutdown-exact-time-row">
-              <td>Time</td>
-              <td>
-                <center>
-                  <input id="shutdown-exact-hours"
-                         style="width:48%;display:inline;text-align:center"
-                         value="18"/>
-                  <span style="font-weight:bold">:</span>
-                  <input id="shutdown-exact-minutes"
-                         style="width:48%;display:inline;text-align:center"
-                         value="00"/>
-                  <img id="shutdown-exact-error"
-                       src="@@module@@/images/dialog-error.png"
-                       style="width:16px;margin-right:-16px;margin-top:8px;padding-left:4px"/>
-                </center>
-              </td>
-            </tr>
-            <tr id="shutdown-message-row">
-              <td translatable="yes">Message</td>
-              <td>
-                <textarea class="form-control"
-                          id="shutdown-message"
-                          style="resize:none"></textarea>
-              </td>
-            </tr>
-          </table>
-          <center>
-            <button class="btn btn-default" id="shutdown-restart" translatable="yes">Restart</button>
-            <button class="btn btn-default" id="shutdown-shutdown" translatable="yes">Shutdown</button>
-          </center>
-        </div>
-        <div id="shutdown-active">
-          <center id="shutdown-info"></center>
-          <button class="btn btn-default" id="shutdown-cancel" translatable="yes">Cancel</button>
         </div>
       </div>
 
@@ -2364,6 +2309,48 @@
             <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
               Commit
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="shutdown-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog cockpit-modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Shutdown</h4>
+          </div>
+          <div class="modal-body">
+            <textarea class="form-control" style="resize:none;margin-bottom:10px" id="shutdown-message">
+            </textarea>
+            <table width="100%">
+              <tr>
+                <td style="width:3em">Delay:</td>
+                <td style="text-align:right" id="shutdown-delay"></td>
+                <td style="text-align:center;width:8em">
+                  <div id="shutdown-time">
+                    <input class="form-control" style="width:3em;display:inline" value="18"/>
+                    <span style="font-weight:bold">:</span>
+                    <input class="form-control" style="width:3em;display:inline" value="00"/>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <center>
+              <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+                Cancel
+              </button>
+              <button class="btn btn-primary" translatable="yes" id="shutdown-restart">
+                Restart
+              </button>
+              <button class="btn btn-primary" translatable="yes" id="shutdown-poweroff">
+                Power Off
+              </button>
+            </center>
           </div>
         </div>
       </div>

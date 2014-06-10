@@ -832,6 +832,8 @@ dispatch_queue (CockpitSshTransport *self)
 
   if (self->sent_eof)
     return FALSE;
+  if (self->received_close)
+    return FALSE;
 
   for (;;)
     {

@@ -27,7 +27,7 @@ PageTerminal.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Rescue Terminal");
+        return C_("page-title", "Terminal");
     },
 
     show: function() {

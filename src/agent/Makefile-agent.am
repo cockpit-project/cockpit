@@ -80,7 +80,9 @@ AGENT_CHECKS = \
 	test-textstream \
 	$(NULL)
 
-test_channel_SOURCES = src/agent/test-channel.c
+test_channel_SOURCES = \
+	src/agent/test-channel.c \
+	src/agent/mock-transport.c src/agent/mock-transport.h
 test_channel_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_channel_LDADD = $(libcockpit_agent_LIBS)
 
@@ -93,7 +95,9 @@ test_restjson_SOURCES = src/agent/test-restjson.c
 test_restjson_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_restjson_LDADD = $(libcockpit_agent_LIBS)
 
-test_textstream_SOURCES = src/agent/test-textstream.c
+test_textstream_SOURCES = \
+	src/agent/test-textstream.c \
+	src/agent/mock-transport.c src/agent/mock-transport.h
 test_textstream_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_textstream_LDADD = $(libcockpit_agent_LIBS)
 

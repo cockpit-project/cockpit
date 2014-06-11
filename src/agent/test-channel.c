@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
+#include "mock-transport.h"
 
 #include "cockpit/cockpitjson.h"
 #include "cockpit/cockpittest.h"
@@ -79,119 +80,6 @@ mock_echo_channel_open (CockpitTransport *transport,
   return channel;
 }
 
-static GType mock_transport_get_type (void) G_GNUC_CONST;
-
-typedef struct {
-  CockpitTransport parent;
-  gboolean closed;
-  gchar *problem;
-  gchar *channel_sent;
-  GBytes *payload_sent;
-  GBytes *control_sent;
-}MockTransport;
-
-typedef CockpitTransportClass MockTransportClass;
-
-G_DEFINE_TYPE (MockTransport, mock_transport, COCKPIT_TYPE_TRANSPORT);
-
-static void
-mock_transport_init (MockTransport *self)
-{
-  self->channel_sent = NULL;
-}
-
-static void
-mock_transport_get_property (GObject *object,
-                             guint prop_id,
-                             GValue *value,
-                             GParamSpec *pspec)
-{
-  switch (prop_id)
-    {
-    case 1:
-      g_value_set_string (value, "mock-name");
-      break;
-    default:
-      g_assert_not_reached ();
-      break;
-    }
-}
-
-static void
-mock_transport_set_property (GObject *object,
-                             guint prop_id,
-                             const GValue *value,
-                             GParamSpec *pspec)
-{
-  switch (prop_id)
-    {
-    case 1:
-      break;
-    default:
-      g_assert_not_reached ();
-      break;
-    }
-}
-
-static void
-mock_transport_finalize (GObject *object)
-{
-  MockTransport *self = (MockTransport *)object;
-
-  g_free (self->problem);
-  if (self->payload_sent)
-    g_bytes_unref (self->payload_sent);
-  if (self->control_sent)
-    g_bytes_unref (self->control_sent);
-  g_free (self->channel_sent);
-
-  G_OBJECT_CLASS (mock_transport_parent_class)->finalize (object);
-}
-
-static void
-mock_transport_send (CockpitTransport *transport,
-                     const gchar *channel_id,
-                     GBytes *data)
-{
-  MockTransport *self = (MockTransport *)transport;
-  if (!channel_id)
-    {
-      g_assert (self->control_sent == NULL);
-      self->control_sent = g_bytes_ref (data);
-    }
-  else
-    {
-      g_assert (self->channel_sent == NULL);
-      g_assert (self->payload_sent == NULL);
-      self->channel_sent = g_strdup (channel_id);
-      self->payload_sent = g_bytes_ref (data);
-    }
-}
-
-static void
-mock_transport_close (CockpitTransport *transport,
-                      const gchar *problem)
-{
-  MockTransport *self = (MockTransport *)transport;
-  g_assert (!self->closed);
-  self->problem = g_strdup (problem);
-  self->closed = TRUE;
-  cockpit_transport_emit_closed (transport, problem);
-}
-
-static void
-mock_transport_class_init (MockTransportClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  CockpitTransportClass *transport_class = COCKPIT_TRANSPORT_CLASS (klass);
-  object_class->finalize = mock_transport_finalize;
-  object_class->get_property = mock_transport_get_property;
-  object_class->set_property = mock_transport_set_property;
-  g_object_class_override_property (object_class, 1, "name");
-  transport_class->send = mock_transport_send;
-  transport_class->close = mock_transport_close;
-}
-
 /* ----------------------------------------------------------------------------
  * Testing
  */
@@ -222,107 +110,72 @@ teardown (TestCase *tc,
 }
 
 static void
-assert_bytes_eq_json_msg (const char *domain,
-                          const char *file,
-                          int line,
-                          const char *func,
-                          GBytes *bytes,
-                          const gchar *expect)
-{
-  GError *error = NULL;
-  JsonNode *node;
-  JsonNode *exnode;
-  gchar *escaped;
-  gchar *msg;
-
-  node = cockpit_json_parse (g_bytes_get_data (bytes, NULL),
-                             g_bytes_get_size (bytes), &error);
-  if (error)
-    g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
-  g_assert (node);
-
-  exnode = cockpit_json_parse (expect, -1, &error);
-  if (error)
-    g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
-  g_assert (exnode);
-
-  if (!cockpit_json_equal (exnode, node))
-    {
-      escaped = cockpit_json_write (node, NULL);
-
-      msg = g_strdup_printf ("%s != %s", escaped, expect);
-      g_assertion_message (domain, file, line, func, msg);
-      g_free (escaped);
-      g_free (msg);
-    }
-  json_node_free (node);
-  json_node_free (exnode);
-}
-
-#define assert_bytes_eq_json(node, expect) \
-  assert_bytes_eq_json_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (node), (expect))
-
-static void
 test_recv_and_send (TestCase *tc,
                     gconstpointer unused)
 {
   GBytes *sent;
+  GBytes *payload;
 
   /* Ready to go */
   cockpit_channel_ready (tc->channel);
 
-  sent = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
+  payload = g_bytes_new ("Yeehaw!", 7);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", payload);
 
-  g_assert_cmpstr (tc->transport->channel_sent, ==, "554");
-  g_assert (tc->transport->payload_sent != NULL);
+  sent = mock_transport_pop_channel (tc->transport, "554");
+  g_assert (sent != NULL);
 
-  g_assert (g_bytes_equal (tc->transport->payload_sent, sent));
-  g_bytes_unref (sent);
+  g_assert (g_bytes_equal (payload, sent));
+  g_bytes_unref (payload);
 }
 
 static void
 test_recv_and_queue (TestCase *tc,
                      gconstpointer unused)
 {
+  GBytes *payload;
   GBytes *sent;
 
-  sent = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
+  payload = g_bytes_new ("Yeehaw!", 7);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", payload);
 
   /* Shouldn't have received it yet */
-  g_assert (tc->transport->payload_sent == NULL);
+  g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 0);
 
   /* Ready to go */
   cockpit_channel_ready (tc->channel);
 
-  g_assert_cmpstr (tc->transport->channel_sent, ==, "554");
-  g_assert (tc->transport->payload_sent != NULL);
+  sent = mock_transport_pop_channel (tc->transport, "554");
+  g_assert (sent != NULL);
 
-  g_assert (g_bytes_equal (tc->transport->payload_sent, sent));
-  g_bytes_unref (sent);
+  g_assert (g_bytes_equal (payload, sent));
+  g_bytes_unref (payload);
 }
 
 static void
 test_close_immediately (TestCase *tc,
                         gconstpointer unused)
 {
-  GBytes *sent;
+  GBytes *payload;
+  JsonObject *sent;
 
-  sent = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
-  g_bytes_unref (sent);
+  payload = g_bytes_new ("Yeehaw!", 7);
+  cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", payload);
+  g_bytes_unref (payload);
 
   /* Shouldn't have received it yet */
-  g_assert (tc->transport->payload_sent == NULL);
+  g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 0);
 
   /* Now close without getting anything */
   cockpit_channel_close (tc->channel, "bad-boy");
 
-  g_assert (tc->transport->payload_sent == NULL);
-  g_assert (tc->transport->control_sent != NULL);
+  g_assert (mock_transport_pop_channel (tc->transport, "554") == NULL);
+  g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 1);
 
-  assert_bytes_eq_json (tc->transport->control_sent,
+  sent = mock_transport_pop_control (tc->transport);
+  g_assert (sent != NULL);
+
+  cockpit_assert_json_eq (sent,
                   "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\"}");
 }
 
@@ -330,13 +183,17 @@ static void
 test_close_option (TestCase *tc,
                    gconstpointer unused)
 {
+  JsonObject *sent;
+
   cockpit_channel_close_option (tc->channel, "option", "four");
   cockpit_channel_close (tc->channel, "bad-boy");
 
-  g_assert (tc->transport->payload_sent == NULL);
-  g_assert (tc->transport->control_sent != NULL);
+  g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 1);
 
-  assert_bytes_eq_json (tc->transport->control_sent,
+  sent = mock_transport_pop_control (tc->transport);
+  g_assert (sent != NULL);
+
+  cockpit_assert_json_eq (sent,
                   "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\", \"option\": \"four\" }");
 }
 
@@ -344,13 +201,17 @@ static void
 test_close_int_option (TestCase *tc,
                        gconstpointer unused)
 {
+  JsonObject *sent;
+
   cockpit_channel_close_int_option (tc->channel, "option", 4);
   cockpit_channel_close (tc->channel, "bad-boy");
 
-  g_assert (tc->transport->payload_sent == NULL);
-  g_assert (tc->transport->control_sent != NULL);
+  g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 1);
 
-  assert_bytes_eq_json (tc->transport->control_sent,
+  sent = mock_transport_pop_control (tc->transport);
+  g_assert (sent != NULL);
+
+  cockpit_assert_json_eq (sent,
                   "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\", \"option\": 4 }");
 }
 
@@ -381,7 +242,7 @@ test_close_transport (TestCase *tc,
   cockpit_transport_close (COCKPIT_TRANSPORT (tc->transport), "boooo");
 
   g_assert_cmpstr (problem, ==, "boooo");
-  g_assert (tc->transport->control_sent == NULL);
+  g_assert (mock_transport_pop_control (tc->transport) == NULL);
 }
 
 static void

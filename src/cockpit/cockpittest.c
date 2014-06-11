@@ -21,6 +21,8 @@
 
 #include "cockpittest.h"
 
+#include "cockpitjson.h"
+
 #include <glib-object.h>
 
 #include <string.h>
@@ -322,4 +324,41 @@ cockpit_test_skip (const gchar *reason)
   else
     g_print ("SKIP: %s ", reason);
 }
+
+void
+_cockpit_assert_json_eq_msg (const char *domain,
+                             const char *file,
+                             int line,
+                             const char *func,
+                             JsonObject *object,
+                             const gchar *expect)
+{
+  GError *error = NULL;
+  JsonNode *node;
+  JsonNode *exnode;
+  gchar *escaped;
+  gchar *msg;
+
+  node = json_node_init_object (json_node_alloc (), object);
+
+  exnode = cockpit_json_parse (expect, -1, &error);
+  if (error)
+    g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
+  g_assert (exnode);
+
+  if (!cockpit_json_equal (exnode, node))
+    {
+      escaped = cockpit_json_write (node, NULL);
+
+      msg = g_strdup_printf ("%s != %s", escaped, expect);
+      g_assertion_message (domain, file, line, func, msg);
+      g_free (escaped);
+      g_free (msg);
+    }
+  json_node_free (node);
+  json_node_free (exnode);
+}
+
+#define assert_bytes_eq_json(node, expect) \
+  assert_bytes_eq_json_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (node), (expect))
 

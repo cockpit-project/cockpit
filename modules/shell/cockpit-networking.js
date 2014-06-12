@@ -779,17 +779,6 @@ PageNetworkInterface.prototype = {
                 }
             }
 
-            function configure_ip_setting(topic) {
-                PageNetworkIpSettings.connection = con;
-                PageNetworkIpSettings.topic = topic;
-                $('#network-ip-settings-dialog').modal('show');
-            }
-
-            function change_id(event) {
-                con.Settings.connection.id = $(event.target).val();
-                apply();
-            }
-
             function render_ip_settings(topic) {
                 var params = con.Settings[topic];
                 var parts = [];
@@ -829,10 +818,26 @@ PageNetworkInterface.prototype = {
                 return parts.join(", ");
             }
 
+            function change_id(event) {
+                con.Settings.connection.id = $(event.target).val();
+                apply();
+            }
+
             function configure_ip_settings(topic) {
                 PageNetworkIpSettings.connection = con;
                 PageNetworkIpSettings.topic = topic;
+                PageNetworkIpSettings.done = is_active? activate_connection : null;
                 $('#network-ip-settings-dialog').modal('show');
+            }
+
+            function toggle_onoff(event) {
+                $(this).find('.btn').toggleClass('active');
+        	$(this).find('.btn').toggleClass('btn-primary');
+                $(this).find('.btn').toggleClass('btn-default');
+                if ($(this).find("button:first-child").hasClass('active'))
+                    activate_connection();
+                else
+                    deactivate_connection();
             }
 
             var $panel =
@@ -842,18 +847,20 @@ PageNetworkInterface.prototype = {
                             val(con.Settings.connection.id).
                             change(change_id),
                         $('<span>').text(
-                            is_active?
-                                (con.Settings.connection.autoconnect?
-                                 " (active)" :
-                                 " (active now, but wont be active after next boot)") :
-                            ""),
-                        $('<button class="btn btn-default" style="display:inline;float:right">').
-                            text("Deactivate").
-                            click(deactivate_connection).
-                            prop('disabled', !is_active),
-                        $('<button class="btn btn-default" style="display:inline;float:right">').
+                            (is_active && !con.Settings.connection.autoconnect)?
+                                " (active now, but wont be active after next boot)" :
+                                ""),
+                        $('<button>').
                             text("Activate").
-                            click(activate_connection)),
+                            click(activate_connection),
+                        $('<div class="btn-group btn-toggle" style="float:right">').append(
+                            $('<button class="btn">').
+                                text("On").
+                                addClass(!is_active? "btn-default" : "btn-primary active"),
+                            $('<button class="btn">').
+                                text("Off").
+                                addClass(is_active? "btn-default" : "btn-primary active")).
+                            click(toggle_onoff)),
                     $('<div class="panel-body">').append(
                         $('<table class="cockpit-form-table">').append(
                             $('<tr>').append(
@@ -1028,6 +1035,8 @@ PageNetworkIpSettings.prototype = {
         PageNetworkIpSettings.connection.apply().
             done(function () {
                 $('#network-ip-settings-dialog').modal('hide');
+                if (PageNetworkIpSettings.done)
+                    PageNetworkIpSettings.done();
             }).
             fail(function (error) {
                 $('#network-ip-settings-error').text(error.message || error.toString());

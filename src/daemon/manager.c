@@ -768,7 +768,8 @@ run_cmd_for_invocation (GDBusMethodInvocation *invocation,
   GError *error = NULL;
   gint code;
 
-  g_spawn_sync (NULL, (gchar **)argv, NULL, G_SPAWN_SEARCH_PATH,
+  g_spawn_sync (NULL, (gchar **)argv, NULL,
+                G_SPAWN_SEARCH_PATH | (output == NULL? G_SPAWN_STDOUT_TO_DEV_NULL : 0),
                 redirect_stderr_to_stdout, NULL, output, NULL, &code, &error);
   if (error)
     {

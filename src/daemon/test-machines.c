@@ -116,11 +116,11 @@ teardown (TestCase *tc,
   g_object_add_weak_pointer (G_OBJECT (tc->machines), (gpointer *)&tc->machines);
   g_object_unref (tc->machines);
 
-  while (g_main_context_iteration (NULL, FALSE));
-  g_assert (tc->machines == NULL);
-
   g_test_dbus_down (tc->bus);
   g_object_unref (tc->bus);
+
+  while (g_main_context_iteration (NULL, FALSE));
+  g_assert (tc->machines == NULL);
 
   g_assert_cmpint (g_unlink (tc->machines_file), ==, 0);
 }

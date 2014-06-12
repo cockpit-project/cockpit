@@ -216,6 +216,29 @@ test_close_int_option (TestCase *tc,
 }
 
 static void
+test_close_obj_option (TestCase *tc,
+                       gconstpointer unused)
+{
+  JsonObject *sent;
+  JsonObject *obj;
+
+  obj = json_object_new ();
+  json_object_set_string_member (obj, "test", "value");
+  cockpit_channel_close_obj_option (tc->channel, "option", obj);
+  json_object_unref (obj);
+
+  cockpit_channel_close (tc->channel, "bad-boy");
+
+  g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 1);
+
+  sent = mock_transport_pop_control (tc->transport);
+  g_assert (sent != NULL);
+
+  cockpit_assert_json_eq (sent,
+                  "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\", \"option\": { \"test\": \"value\" } }");
+}
+
+static void
 on_closed_get_problem (CockpitChannel *channel,
                        const gchar *problem,
                        gpointer user_data)
@@ -317,6 +340,8 @@ main (int argc,
               setup, test_close_immediately, teardown);
   g_test_add ("/channel/close-option", TestCase, NULL,
               setup, test_close_option, teardown);
+  g_test_add ("/channel/close-obj-option", TestCase, NULL,
+              setup, test_close_obj_option, teardown);
   g_test_add ("/channel/close-int-option", TestCase, NULL,
               setup, test_close_int_option, teardown);
   g_test_add ("/channel/close-transport", TestCase, NULL,

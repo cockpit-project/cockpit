@@ -413,8 +413,9 @@ cockpit_web_response_complete (CockpitWebResponse *self)
   if (self->failed)
     return;
 
-  /* Hold a reference until cockpit_web_response_finish() */
+  /* Hold a reference until cockpit_web_response_done() */
   g_object_ref (self);
+  self->failed = TRUE;
   self->complete = TRUE;
 
   if (self->source)
@@ -427,6 +428,33 @@ cockpit_web_response_complete (CockpitWebResponse *self)
       g_output_stream_flush_async (G_OUTPUT_STREAM (self->out), G_PRIORITY_DEFAULT,
                                    NULL, on_output_flushed, g_object_ref (self));
     }
+}
+
+/**
+ * cockpit_web_response_abort:
+ * @self: the response
+ *
+ * This function is used when streaming content, and at
+ * some point we can't provide the remainder of the content
+ *
+ * This completes the response and terminates the connection.
+ */
+void
+cockpit_web_response_abort (CockpitWebResponse *self)
+{
+  g_return_if_fail (self->complete == FALSE);
+
+  if (self->failed)
+    return;
+
+  /* Hold a reference until cockpit_web_response_done() */
+  g_object_ref (self);
+
+  self->complete = TRUE;
+  self->failed = TRUE;
+
+  g_debug ("%s: aborted", self->logname);
+  cockpit_web_response_done (self);
 }
 
 enum {

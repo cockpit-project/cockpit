@@ -82,7 +82,7 @@ function cockpit_output_funcs_for_box (box)
     function render_reboot_separator ()
     {
         return ('<div class="cockpit-logline"><span class="cockpit-logdiv">' +
-                _('<span class="cockpit-logmsg-reboot">Reboot</span>') +
+                '<span class="cockpit-logmsg-reboot">' + _("Reboot") + '</span>' +
                 '</span></div>');
     }
 

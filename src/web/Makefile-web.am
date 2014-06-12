@@ -1,6 +1,6 @@
-LINGUAS =
+LINGUAS = de
 
-translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
+translations_json = $(addsuffix .json,$(LINGUAS))
 
 cockpit_js_PARTS = \
 	src/web/polyfills.js \
@@ -131,8 +131,8 @@ TESTS += $(CHECK_HTML)
 
 # ----------------------------------------------------------------------------------------------------
 
-lang/%.json : $(top_srcdir)/po/%.po
-	$(AM_V_GEN) mkdir -p lang && $(PO2JSON) -p $(top_srcdir)/po/$*.po > lang/$*.json
+%.json : $(top_srcdir)/po/%.po
+	$(AM_V_GEN) mkdir -p lang && $(PO2JSON) -p $(top_srcdir)/po/$*.po > $*.json
 
 %.html : $(srcdir)/src/web/%.html $(QUNIT_DEPS)
 	$(AM_V_GEN) cp $(srcdir)/src/web/$*.html $*.html
@@ -146,6 +146,7 @@ CLEANFILES += \
 	dbus-test.html \
 	cockpit.js \
 	$(contentdata_SCRIPTS) \
+	$(translations_json) \
 	$(NULL)
 
 EXTRA_DIST += \

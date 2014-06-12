@@ -322,7 +322,6 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
     const gchar *code;
   } supported_languages[] = {
     { NC_("display-language", "English"), "" },
-    { NC_("display-language", "Danish"),  "da" },
     { NC_("display-language", "German"),  "de" },
   };
 

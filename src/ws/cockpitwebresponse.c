@@ -906,7 +906,6 @@ cockpit_web_response_file (CockpitWebResponse *response,
 {
   const gchar *cache_control;
   GError *error = NULL;
-  gchar *query = NULL;
   gchar *unescaped;
   char *path = NULL;
   gchar *built = NULL;
@@ -918,10 +917,6 @@ cockpit_web_response_file (CockpitWebResponse *response,
     escaped = cockpit_web_response_get_path (response);
 
   g_return_if_fail (escaped != NULL);
-
-  query = strchr (escaped, '?');
-  if (query != NULL)
-    *query++ = 0;
 
   /* TODO: Remove this logic when we no longer use an index.html */
   if (g_strcmp0 (escaped, "/") == 0)

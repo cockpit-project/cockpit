@@ -248,6 +248,7 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   InputData *id = NULL;
   GQuark detail;
   GBytes *bytes;
+  gchar *pos;
 
   /*
    * A bit more complicated, so that we can guarantee clearing the
@@ -279,6 +280,14 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
       bytes = g_bytes_new_with_free_func (id->data, id->length,
                                           input_data_clear_and_free, id);
     }
+
+  /*
+   * We have no use for query string right now, and yes we happen to know
+   * that we can modify this string safely.
+   */
+  pos = strchr (path, '?');
+  if (pos != NULL)
+    *pos = '\0';
 
   /* TODO: Correct HTTP version for response */
   response = cockpit_web_response_new (io_stream, path);

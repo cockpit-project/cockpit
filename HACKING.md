@@ -134,3 +134,80 @@ reviewed, tested and iterated on before getting into Cockpit. Don't feel
 bad if there's multiple steps back and forth asking for changes or tweaks
 before your change gets in.
 
+## Making Changes in the UI Code
+
+The Cockpit UI code is comprised of HTML, javascript and CSS. Almost all of
+this code is found in the modules in the modules/ subdirectory of
+the Cockpit code.
+
+You can setup a system for rapid development of Cockpit UI code. This will
+allow you to simply refresh your browser and see any changes you've made
+to code in the modules/ subdirectory.
+
+Run this command from your top level Cockpit checkout directory, and make
+sure to run it as the user that you will using to log into Cockpit.
+
+    $ ln -s $(pwd)/modules ~/.local/share/cockpit
+
+This will cause cockpit to read UI files directly from the Cockpit code
+modules/ directory instead of using the installed Cockpit UI files. But
+only for the user which ran the above command.
+
+To revert the above change, run:
+
+    $ rm ~/.local/share/cockpit
+
+## Debug logging of Cockpit processes
+
+All messages from the various cockpit services go to the journal and can
+be seen with commands like:
+
+    $ sudo journalctl -f
+
+Much of Cockpit has more verbose internal debug logging that can be
+enabled when trying to track down a problem. To turn it on add a file
+to your system like this:
+
+    $ sudo mkdir -p /etc/systemd/system/cockpit.service.d
+    $ sudo printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent\n" > /etc/systemd/system/cockpit.service.d/debug.conf
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl restart cockpit
+
+In the above command you'll notice the string "cockpit-ws". This is a log
+domain. There are various log domains you can enable:
+
+ * cockpit-agent: Cockpit agent daemon detailed debug messages
+ * cockpit-daemon: Cockpit DBus daemon detailed debug messages
+ * cockpit-protocol: Very verbose low level traffic logging
+ * cockpit-ws: Cockpit Web Service detailed debug messages
+ * WebSocket: Verbose low level WebSocket logging
+
+To revert the above logging changes:
+
+    $ sudo rm /etc/systemd/system/cockpit.service.d/debug.conf
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl restart cockpit
+
+## Running Cockpit processes under a debugger
+
+You may want to run cockpit-ws under a debugger such as valgrind or gdb.
+You can run these processes as your own user, although you won't be able
+to debug all the authentication logic in those cases.
+
+First of all make sure Cockpit is installed correctly. Even though we
+will be running cockpit-ws and cockpit-agent from the built sources
+this still relies on some of the right bits being installed in order
+for Cockpit to work (ie: PAM stack, UI files, etc.)
+
+This is how you would run cockpit-ws under gdb:
+
+   $ export G_DEBUG=fatal-criticals
+   $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
+   $ gdb --args ./cockpit-ws --port 10000 --no-tls --uninstalled
+
+And you can run cockpit-ws and cockpit-agent under valgrind like this:
+
+   $ export G_DEBUG=fatal-criticals
+   $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
+   $ valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
+         ./cockpit-ws --port 10000 --no-tls --uninstalled

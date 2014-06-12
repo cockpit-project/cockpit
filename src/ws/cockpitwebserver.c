@@ -249,6 +249,7 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   GQuark detail;
   GBytes *bytes;
   gchar *pos;
+  gchar bak;
 
   /*
    * A bit more complicated, so that we can guarantee clearing the
@@ -292,7 +293,33 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   /* TODO: Correct HTTP version for response */
   response = cockpit_web_response_new (io_stream, path);
 
+  /*
+   * If the path has more than one component, then we search
+   * for handlers registered under the detail like this:
+   *
+   *   /component/
+   *
+   * Otherwise we search for handlers registered under detail
+   * of the entire path:
+   *
+   *  /component
+   */
+
+  /* Temporarily null terminate string after first component */
+  pos = NULL;
+  if (path[0] != '\0')
+    {
+      pos = strchr (path + 1, '/');
+      if (pos != NULL)
+        {
+          pos++;
+          bak = *pos;
+          *pos = '\0';
+        }
+    }
   detail = g_quark_try_string (path);
+  if (pos != NULL)
+    *pos = bak;
 
   /* See if we have any takers... */
   g_signal_emit (self,

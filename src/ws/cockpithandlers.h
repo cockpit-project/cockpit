@@ -61,7 +61,7 @@ gboolean       cockpit_handler_deauthorize       (CockpitWebServer *server,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
-gboolean       cockpit_handler_cockpitdyn        (CockpitWebServer *server,
+gboolean       cockpit_handler_index             (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
                                                   const gchar *path,
                                                   GHashTable *headers,

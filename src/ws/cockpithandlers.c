@@ -37,7 +37,8 @@
 
 #include <string.h>
 
-const char *cockpit_ws_static_directory = PACKAGE_DATA_DIR "/static";
+const gchar *cockpit_ws_static_directory = PACKAGE_DATA_DIR "/static";
+const gchar *cockpit_ws_content_directory = PACKAGE_DATA_DIR "/content";
 
 /* Called by @server when handling HTTP requests to /socket - runs in a separate
  * thread dedicated to the request so it may do blocking I/O
@@ -311,34 +312,10 @@ cockpit_handler_deauthorize (CockpitWebServer *server,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static gchar *
-get_avatar_data_url (void)
-{
-  const gchar *file = PACKAGE_SYSCONF_DIR "/cockpit/avatar.png";
-
-  gs_free gchar *raw_data = NULL;
-  gsize raw_size;
-  gs_free gchar *base64_data = NULL;
-
-  if (!g_file_get_contents (file, &raw_data, &raw_size, NULL))
-    return NULL;
-
-  base64_data = g_base64_encode ((guchar *)raw_data, raw_size);
-  return g_strdup_printf ("data:image/png;base64,%s", base64_data);
-}
-
-gboolean
-cockpit_handler_cockpitdyn (CockpitWebServer *server,
-                            CockpitWebServerRequestType reqtype,
-                            const gchar *path,
-                            GHashTable *headers,
-                            GBytes *input,
-                            CockpitWebResponse *response,
-                            CockpitHandlerData *data)
+static GBytes *
+build_cockpitdyn_js (CockpitHandlerData *data)
 {
   gchar *hostname;
-  GHashTable *out_headers;
-  GBytes *content;
   GString *str;
   gchar *s;
   guint n;
@@ -362,11 +339,6 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
   g_string_append (str, "cockpitdyn_pretty_hostname = \"\";\n");
   g_free (hostname);
 
-  s = get_avatar_data_url ();
-  s = g_strescape (s? s : "", NULL);
-  g_string_append_printf (str, "cockpitdyn_avatar_data_url = \"%s\";\n", s);
-  g_free (s);
-
   s = g_strescape (PACKAGE_VERSION, NULL);
   g_string_append_printf (str, "cockpitdyn_version = \"%s\";\n", s);
   g_free (s);
@@ -386,13 +358,7 @@ cockpit_handler_cockpitdyn (CockpitWebServer *server,
     }
   g_string_append (str, "};\n");
 
-  out_headers = web_socket_util_new_headers ();
-  g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup ("application/javascript"));
-  content = g_string_free_to_bytes (str);
-  cockpit_web_response_content (response, out_headers, content, NULL);
-  g_hash_table_unref (out_headers);
-  g_bytes_unref (content);
-  return TRUE;
+  return g_string_free_to_bytes (str);
 }
 
 gboolean
@@ -410,5 +376,86 @@ cockpit_handler_static (CockpitWebServer *server,
     return FALSE;
 
   cockpit_web_response_file (response, path + 8, TRUE, roots);
+  return TRUE;
+}
+
+gboolean
+cockpit_handler_index (CockpitWebServer *server,
+                       CockpitWebServerRequestType reqtype,
+                       const gchar *path,
+                       GHashTable *headers,
+                       GBytes *input,
+                       CockpitWebResponse *response,
+                       CockpitHandlerData *ws)
+{
+  GHashTable *out_headers;
+  GError *error = NULL;
+  GMappedFile *file = NULL;
+  GBytes *body = NULL;
+  GBytes *prefix = NULL;
+  GBytes *dynamic = NULL;
+  GBytes *suffix = NULL;
+  gchar *index_html;
+  const gchar *needle;
+  const gchar *data;
+  const gchar *pos;
+  gsize length;
+  gsize offset;
+
+  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
+    return FALSE;
+
+  /*
+   * Since the index file cannot be heavily cached, it can change on
+   * each request. We use it to include dynamic data about the server
+   * such as the languages available, and the server name.
+   */
+
+  index_html = g_build_filename (cockpit_ws_content_directory, "index.html", NULL);
+  file = g_mapped_file_new (index_html, FALSE, &error);
+  if (file == NULL)
+    {
+      g_warning ("%s: %s", path, error->message);
+      cockpit_web_response_error (response, 500, NULL, "Internal server error");
+      g_clear_error (&error);
+      goto out;
+    }
+
+  body = g_mapped_file_get_bytes (file);
+  data = g_bytes_get_data (body, &length);
+
+  needle = "/* cockpitdyn.js */";
+  pos = g_strstr_len (data, length, needle);
+  if (pos)
+    {
+      offset = (pos - data) + strlen (needle);
+      prefix = g_bytes_new_from_bytes (body, 0, offset);
+      dynamic = build_cockpitdyn_js (ws);
+      suffix = g_bytes_new_from_bytes (body, offset, length - offset);
+    }
+  else
+    {
+      prefix = g_bytes_ref (body);
+      dynamic = g_bytes_new_static ("", 0);
+      suffix = g_bytes_new_static ("", 0);
+    }
+
+  out_headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup ("text/html; charset=utf8"));
+  cockpit_web_response_content (response, out_headers, prefix, dynamic, suffix, NULL);
+  g_hash_table_unref (out_headers);
+
+out:
+  g_free (index_html);
+  if (prefix)
+    g_bytes_unref (prefix);
+  if (body)
+    g_bytes_unref (body);
+  if (dynamic)
+    g_bytes_unref (dynamic);
+  if (suffix)
+    g_bytes_unref (suffix);
+  if (file)
+    g_mapped_file_unref (file);
   return TRUE;
 }

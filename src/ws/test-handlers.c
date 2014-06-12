@@ -24,6 +24,7 @@
 
 #include "cockpitwebserver.h"
 #include "cockpithandlers.h"
+#include "cockpitws.h"
 
 #include "cockpit/cockpittest.h"
 
@@ -296,8 +297,8 @@ test_login_post_accept (Test *test,
 }
 
 static void
-test_cockpitdyn (Test *test,
-                 gconstpointer data)
+test_index (Test *test,
+            gconstpointer data)
 {
   const gchar *output;
   gboolean ret;
@@ -306,9 +307,9 @@ test_cockpitdyn (Test *test,
   GBytes *input;
 
   input = g_bytes_new_static ("", 0);
-  ret = cockpit_handler_cockpitdyn (test->server,
-                                    COCKPIT_WEB_SERVER_REQUEST_GET, "/cockpitdyn.js",
-                                    test->headers, input, test->response, &test->data);
+  ret = cockpit_handler_index (test->server,
+                               COCKPIT_WEB_SERVER_REQUEST_GET, "/",
+                               test->headers, input, test->response, &test->data);
   g_bytes_unref (input);
 
   g_assert (ret == TRUE);
@@ -319,7 +320,7 @@ test_cockpitdyn (Test *test,
 
   output = output_as_string (test);
   cockpit_assert_strmatch (output, expected);
-  cockpit_assert_strmatch (output, "*Content-Type: application/javascript\r\n*");
+  cockpit_assert_strmatch (output, "*Content-Type: text/html; charset=utf8\r\n*");
   g_free (expected);
 }
 
@@ -347,6 +348,11 @@ int
 main (int argc,
       char *argv[])
 {
+  cockpit_ws_static_directory = SRCDIR "/src/static";
+  cockpit_ws_content_directory = SRCDIR "/src/web";
+  cockpit_ws_session_program = BUILDDIR "/cockpit-session";
+  cockpit_ws_agent_program = BUILDDIR "/cockpit-agent";
+
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/handlers/login/no-cookie", Test, NULL,
@@ -363,8 +369,8 @@ main (int argc,
   g_test_add ("/handlers/logout", Test, NULL,
               setup, test_logout, teardown);
 
-  g_test_add ("/handlers/cockpitdyn", Test, NULL,
-              setup, test_cockpitdyn, teardown);
+  g_test_add ("/handlers/index", Test, NULL,
+              setup, test_index, teardown);
 
   return g_test_run ();
 }

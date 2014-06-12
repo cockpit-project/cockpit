@@ -73,6 +73,30 @@ void     _cockpit_assert_json_eq_msg        (const char *domain,
 #define cockpit_assert_json_eq(obj, json) \
   (_cockpit_assert_json_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (obj), (json)))
 
+void     _cockpit_assert_data_eq_msg        (const char *domain,
+                                             const char *file,
+                                             int line,
+                                             const char *func,
+                                             gconstpointer data,
+                                             gssize len,
+                                             gconstpointer expect,
+                                             gssize exp_len);
+
+#define  cockpit_assert_data_eq(data, len, exp, elen) \
+  (_cockpit_assert_data_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (data), (len), (exp), (elen)))
+
+void     _cockpit_assert_bytes_eq_msg       (const char *domain,
+                                             const char *file,
+                                             int line,
+                                             const char *func,
+                                             GBytes *data,
+                                             gconstpointer expect,
+                                             gssize exp_len);
+
+#define  cockpit_assert_bytes_eq(data, exp, len) \
+  (_cockpit_assert_bytes_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (data), (exp), (len)))
+
+
 void     cockpit_test_skip                  (const gchar *reason);
 
 G_END_DECLS

@@ -414,7 +414,10 @@ session (void)
 {
   char *argv[] = { (char *)agent, NULL };
   debug ("executing agent: %s", agent);
-  execve (argv[0], argv, env);
+  if (env)
+    execve (argv[0], argv, env);
+  else
+    execv (argv[0], argv);
   warn ("can't exec %s", agent);
   return 127;
 }

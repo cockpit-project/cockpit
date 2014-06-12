@@ -205,57 +205,77 @@ function NetworkManagerModel(address) {
 
 
     function settings_from_nm(settings) {
-        var result = { };
 
-        function from_nm(first, second, def, trans) {
-            if (!result[first])
-                result[first] = { };
-            if (!trans)
-                trans = function (x) { return x; };
+        function get(first, second, def) {
             if (settings[first] && settings[first][second])
-                result[first][second] = trans(settings[first][second].val);
+                return settings[first][second].val;
             else
-                result[first][second] = def;
+                return def;
         }
 
-        from_nm("connection", "id", _("Unknown"));
-        from_nm("connection", "autoconnect", true);
-        from_nm("ipv4", "method", "auto");
-        from_nm("ipv4", "addresses", [], function (addrs) { return addrs.map(ip4_from_nm); });
-        from_nm("ipv4", "dns", [], function (addrs) { return addrs.map(ip4_to_text); });
-        from_nm("ipv4", "dns-search", []);
-        from_nm("ipv4", "ignore-auto-dns", false);
-        from_nm("ipv6", "method", "auto");
-        from_nm("ipv6", "addresses", [], function (addrs) { return addrs.map(ip6_from_nm); });
-        from_nm("ipv6", "dns", [], function (addrs) { return addrs.map(ip6_to_text); });
-        from_nm("ipv6", "dns-search", []);
-        from_nm("ipv6", "ignore-auto-dns", false);
-        return result;
+        function get_ip(first, addr_from_nm, ip_to_text) {
+            var meth = get(first, "method", "auto");
+            var ign_dns = get(first, "ignore-auto-dns", false);
+            if (meth == "auto" && ign_dns)
+                meth = "auto-addr";
+            if (meth == "dhcp" && ign_dns)
+                meth = "dhcp-addr";
+
+            return {
+                method:       meth,
+                addresses:    get(first, "addresses", []).map(addr_from_nm),
+                dns:          get(first, "dns", []).map(ip_to_text),
+                "dns-search": get(first, "dns-search", []).map(ip_to_text)
+            };
+        }
+
+        return {
+            connection: {
+                id:          get("connection", "id", _("Unknown")),
+                autoconnect: get("connection", "autoconnect", true)
+            },
+            ipv4: get_ip("ipv4", ip4_from_nm, ip4_to_text),
+            ipv6: get_ip("ipv6", ip6_from_nm, ip6_to_text)
+        };
     }
 
     function settings_to_nm(settings, orig) {
         var result = $.extend(true, {}, orig);
 
-        function to_nm(first, second, sig, trans) {
+        function set(first, second, sig, val) {
             if (!result[first])
                 result[first] = { };
-            if (!trans)
-                trans = function (x) { return x; };
-            result[first][second] = new DBusVariant(sig, trans(settings[first][second]));
+            result[first][second] = new DBusVariant(sig, val);
         }
 
-        to_nm("connection", "id", 's');
-        to_nm("connection", "autoconnect", 'b');
-        to_nm("ipv4", "method", 's');
-        to_nm("ipv4", "addresses", 'aau', function (addrs) { return addrs.map(ip4_to_nm); });
-        to_nm("ipv4", "dns", 'au', function (addrs) { return addrs.map(ip4_from_text); });
-        to_nm("ipv4", "dns-search", 'as');
-        to_nm("ipv4", "ignore-auto-dns", 'b');
-        to_nm("ipv6", "method", 's');
-        to_nm("ipv6", "addresses", 'a(ayuay)', function (addrs) { return addrs.map(ip6_to_nm); });
-        to_nm("ipv6", "dns", 'aay', function (addrs) { return addrs.map(ip6_from_text); });
-        to_nm("ipv6", "dns-search", 'as');
-        to_nm("ipv6", "ignore-auto-dns", 'b');
+        function set_ip(first, addrs_sig, addr_to_nm, ips_sig, ip_from_text) {
+            var meth = settings[first].method;
+            var ign_dns = undefined;
+
+            if (meth == "auto-addr") {
+                meth = "auto";
+                ign_dns = true;
+            } else if (meth == "dhcp-addr") {
+                meth = "dhcp";
+                ign_dns = true;
+            } else if (meth == "auto" || meth == "dhcp") {
+                ign_dns = false;
+            }
+
+            set(first, "method", 's', meth);
+            if (ign_dns !== undefined)
+                set(first, "ignore-auto-dns", 'b', ign_dns);
+
+            set(first, "addresses", addrs_sig, settings[first].addresses.map(addr_to_nm));
+            set(first, "dns", ips_sig, settings[first].dns.map(ip_from_text));
+            set(first, "dns-search", 'as', settings[first]["dns-search"]);
+        }
+
+        set("connection", "id", 's', settings.connection.id);
+        set("connection", "autoconnect", 'b', settings.connection.autoconnect);
+        set_ip("ipv4", 'aau', ip4_to_nm, 'au', ip4_from_text);
+        set_ip("ipv6", 'a(ayuay)', ip6_to_nm, 'aay', ip6_from_text);
+
         return result;
     }
 
@@ -663,6 +683,7 @@ cockpit_pages.push(new PageNetworking());
 var ipv4_method_choices =
     [
         { choice: 'auto',         title: _("Automatic (DHCP)") },
+        { choice: 'auto-addr',    title: _("Automatic (DHCP), Addresses only") },
         { choice: 'link-local',   title: _("Link local") },
         { choice: 'manual',       title: _("Manual") },
         { choice: 'shared',       title: _("Shared") },
@@ -672,7 +693,9 @@ var ipv4_method_choices =
 var ipv6_method_choices =
     [
         { choice: 'auto',         title: _("Automatic") },
+        { choice: 'auto-addr',    title: _("Automatic, Addresses only") },
         { choice: 'dhcp',         title: _("Automatic (DHCP only)") },
+        { choice: 'dhcp-addr',    title: _("Automatic (DHCP only), Addresses only") },
         { choice: 'link-local',   title: _("Link local") },
         { choice: 'manual',       title: _("Manual") },
         { choice: 'ignore',       title: _("Ignore") }
@@ -850,9 +873,6 @@ PageNetworkInterface.prototype = {
                             (is_active && !con.Settings.connection.autoconnect)?
                                 " (active now, but wont be active after next boot)" :
                                 ""),
-                        $('<button>').
-                            text("Activate").
-                            click(activate_connection),
                         $('<div class="btn-group btn-toggle" style="float:right">').append(
                             $('<button class="btn">').
                                 text("On").
@@ -1015,7 +1035,6 @@ PageNetworkIpSettings.prototype = {
                     choicebox("method", (topic == "ipv4")? ipv4_method_choices : ipv6_method_choices),
                     tablebox("addresses", [ "Address", "Netmask", "Gateway" ],
                              (topic == "ipv4")? [ "", "24", "" ] : [ "", "64", "" ]),
-                    boolbox("ignore-auto-dns", "Get DNS addresses and search domains from DHCP?", true),
                     tablebox("dns", "DNS Server", ""),
                     tablebox("dns-search", "DNS Search Domains", ""));
             return body;

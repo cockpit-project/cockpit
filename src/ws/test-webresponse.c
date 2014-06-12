@@ -275,6 +275,37 @@ test_content_type (TestCase *tc,
 }
 
 static void
+test_stream (TestCase *tc,
+             gconstpointer data)
+{
+  const gchar *resp;
+  GBytes *content;
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_READY);
+
+  cockpit_web_response_headers (tc->response, 200, "OK", 11, NULL);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  content = g_bytes_new_static ("the content", 11);
+  cockpit_web_response_queue (tc->response, content);
+  g_bytes_unref (content);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+
+  cockpit_web_response_complete (tc->response);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_COMPLETE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
+}
+
+static void
 test_abort (TestCase *tc,
             gconstpointer data)
 {
@@ -290,11 +321,12 @@ test_abort (TestCase *tc,
   g_bytes_unref (content);
 
   cockpit_web_response_abort (tc->response);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
   resp = output_as_string (tc);
+
   g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\n");
 }
-
 
 int
 main (int argc,
@@ -324,6 +356,8 @@ main (int argc,
               setup, test_file_breakout_non_existant, teardown);
   g_test_add ("/web-response/content-type", TestCase, &content_type_fixture,
               setup, test_content_type, teardown);
+  g_test_add ("/web-response/stream", TestCase, NULL,
+              setup, test_stream, teardown);
   g_test_add ("/web-response/abort", TestCase, NULL,
               setup, test_abort, teardown);
 

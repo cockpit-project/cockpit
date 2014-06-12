@@ -23,6 +23,7 @@
 #include <err.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -428,6 +429,32 @@ pass_to_child (int signo)
   kill (child, signo);
 }
 
+static void
+transfer_pam_env (pam_handle_t *pamh,
+                  ...)
+{
+  const char *name;
+  const char *value;
+  char *nameval;
+  va_list va;
+
+  va_start (va, pamh);
+  for (;;)
+    {
+      name = va_arg (va, const char *);
+      if (!name)
+        break;
+      value = getenv (name);
+      if (value)
+        {
+          if (asprintf (&nameval, "%s=%s", name, value) < 0)
+            errx (42, "couldn't allocate environment");
+          pam_putenv (pamh, nameval);
+        }
+    }
+  va_end (va);
+}
+
 int
 main (int argc,
       char **argv)
@@ -487,6 +514,9 @@ main (int argc,
 
   check (pam_start ("cockpit", user, &conv, &pamh));
   check (pam_set_item (pamh, PAM_RHOST, rhost));
+
+  /* Let the G_MESSAGES_DEBUG leak through from parent as a default */
+  transfer_pam_env (pamh, "G_DEBUG", "G_MESSAGES_DEBUG", NULL);
 
   if (pwfd)
     {

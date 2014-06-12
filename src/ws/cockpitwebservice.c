@@ -1259,6 +1259,7 @@ cockpit_web_service_socket (CockpitWebService *self,
 CockpitCreds *
 cockpit_web_service_get_creds (CockpitWebService *self)
 {
+  g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
   return self->creds;
 }
 

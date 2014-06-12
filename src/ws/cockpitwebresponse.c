@@ -457,6 +457,35 @@ cockpit_web_response_abort (CockpitWebResponse *self)
   cockpit_web_response_done (self);
 }
 
+/**
+ * CockpitWebResponding:
+ * @COCKPIT_WEB_RESPONSE_READY: nothing queued or sent yet
+ * @COCKPIT_WEB_RESPONSE_QUEUING: started and still queuing data on response
+ * @COCKPIT_WEB_RESPONSE_COMPLETE: all data is queued or aborted
+ * @COCKPIT_WEB_RESPONSE_SENT: data is completely sent
+ *
+ * Various states of the web response.
+ */
+
+/**
+ * cockpit_web_response_get_state:
+ * @self: the web response
+ *
+ * Return the state of the web response.
+ */
+CockpitWebResponding
+cockpit_web_response_get_state (CockpitWebResponse *self)
+{
+  if (self->done)
+    return COCKPIT_WEB_RESPONSE_SENT;
+  else if (self->complete)
+    return COCKPIT_WEB_RESPONSE_COMPLETE;
+  else if (self->count == 0)
+    return COCKPIT_WEB_RESPONSE_READY;
+  else
+    return COCKPIT_WEB_RESPONSE_QUEUING;
+}
+
 enum {
     HEADER_CONTENT_TYPE = 1 << 0,
 };

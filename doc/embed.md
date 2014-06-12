@@ -1,8 +1,8 @@
 Embedding Cockpit
 =================
 
-You can Cockpit into a larger web page as a frame.  You can control
-some aspects of Cockpit via the URL.
+You can embed Cockpit into a larger web page as a frame.  You can
+control some aspects of Cockpit via the URL.
 
 See the file embed-example.html in this directory.
 

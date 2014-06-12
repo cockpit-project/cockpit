@@ -50,7 +50,7 @@ const char *rhost;
 const char *agent;
 char line[UT_LINESIZE + 1];
 static pid_t child;
-static char **env;
+static char **env = NULL;
 
 #if DEBUG_SESSION
 #define debug(fmt, ...) (fprintf (stderr, "cockpit-session: " fmt "\n", ##__VA_ARGS__))

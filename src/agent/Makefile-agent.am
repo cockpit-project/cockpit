@@ -12,6 +12,8 @@ libcockpit_agent_a_SOURCES = \
 	src/agent/cockpitfakemanager.h \
 	src/agent/cockpitpolkitagent.c \
 	src/agent/cockpitpolkitagent.h \
+	src/agent/cockpitresource.c \
+	src/agent/cockpitresource.h \
 	src/agent/cockpitrestjson.c \
 	src/agent/cockpitrestjson.h \
 	src/agent/cockpittextstream.c \
@@ -78,6 +80,7 @@ AGENT_CHECKS = \
 	test-dbusjson \
 	test-restjson \
 	test-textstream \
+	test-resource \
 	$(NULL)
 
 test_channel_SOURCES = \
@@ -101,6 +104,12 @@ test_textstream_SOURCES = \
 test_textstream_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_textstream_LDADD = $(libcockpit_agent_LIBS)
 
+test_resource_SOURCES = \
+	src/agent/test-resource.c \
+	src/agent/mock-transport.c src/agent/mock-transport.h
+test_resource_CFLAGS = $(libcockpit_agent_a_CFLAGS)
+test_resource_LDADD = $(libcockpit_agent_LIBS)
+
 nodist_test_fakemanager_SOURCES = $(test_dbus_generated)
 test_fakemanager_SOURCES = \
 	src/agent/test-fakemanager.c \
@@ -110,3 +119,6 @@ test_fakemanager_LDADD = $(libcockpit_agent_LIBS)
 
 noinst_PROGRAMS += $(AGENT_CHECKS)
 TESTS += $(AGENT_CHECKS)
+
+EXTRA_DIST += \
+	src/agent/mock-resource

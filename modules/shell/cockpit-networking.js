@@ -708,7 +708,7 @@ PageNetworkInterface.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Network Interface");
+        return cockpit_get_page_param ("dev", "network-interface") || "?";
     },
 
     setup: function () {
@@ -749,25 +749,20 @@ PageNetworkInterface.prototype = {
         var $hw = $('#network-interface-hw');
         var $connections = $('#network-interface-connections');
 
-        $hw.empty();
-        $connections.empty();
-
         var dev = self.model.find_device(cockpit_get_page_param('dev'));
         if (!dev)
             return;
 
         self.dev = dev;
 
-        $hw.append($('<table class="table">').
-                   append($('<tr>').
-                          append($('<td>').text(dev.Driver),
-                                 $('<td>').text(dev.IdVendor),
-                                 $('<td>').text(dev.IdModel),
-                                 $('<td>').text(dev.HwAddress)),
-                          $('<tr>').
-                          append($('<td>').text(dev.Interface),
-                                 $('<td colspan="2">').text(render_device_addresses(dev)),
-                                 $('<td>').text(dev.State))));
+        $hw.html(
+            $('<div class="panel-body">').append(
+                $('<div>').append(
+                    $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev)),
+                    $('<span style="float:right">').text(dev.HwAddress)),
+                $('<div>').append(
+                    $('<span>').text(render_device_addresses(dev)),
+                    $('<span style="float:right">').text(dev.State))));
 
         $('#network-interface-disconnect').prop('disabled', !dev.ActiveConnection);
 
@@ -904,6 +899,7 @@ PageNetworkInterface.prototype = {
             return $panel;
         }
 
+        $connections.empty();
         (dev.AvailableConnections || []).forEach(function (con) {
             $connections.append(render_connection(con));
         });

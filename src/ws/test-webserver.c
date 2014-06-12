@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitwebserver.h"
+#include "cockpitwebresponse.h"
 
 #include "cockpit/cockpittest.h"
 
@@ -330,6 +331,153 @@ test_webserver_noredirect_localhost (TestCase *tc,
   g_free (resp);
 }
 
+static gboolean
+on_oh_resource (CockpitWebServer *server,
+                CockpitWebServerRequestType reqtype,
+                const gchar *path,
+                GHashTable *headers,
+                GBytes *input,
+                CockpitWebResponse *response,
+                const gchar **invoked)
+{
+  gchar *data;
+  GBytes *bytes;
+
+  g_assert (*invoked == NULL);
+  *invoked = "oh";
+
+  data = g_strdup_printf ("Scruffy says: %s", path);
+  bytes = g_bytes_new_take (data, strlen (data));
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+  return TRUE;
+}
+
+static gboolean
+on_scruffy_resource (CockpitWebServer *server,
+                     CockpitWebServerRequestType reqtype,
+                     const gchar *path,
+                     GHashTable *headers,
+                     GBytes *input,
+                     CockpitWebResponse *response,
+                     const gchar **invoked)
+{
+  const gchar *data;
+  GBytes *bytes;
+
+  g_assert (*invoked == NULL);
+  *invoked = "scruffy";
+
+  data = "Scruffy is here";
+  bytes = g_bytes_new_static (data, strlen (data));
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+  return TRUE;
+}
+
+static gboolean
+on_index_resource (CockpitWebServer *server,
+                   CockpitWebServerRequestType reqtype,
+                   const gchar *path,
+                   GHashTable *headers,
+                   GBytes *input,
+                   CockpitWebResponse *response,
+                   const gchar **invoked)
+{
+  const gchar *data;
+  GBytes *bytes;
+
+  g_assert (*invoked == NULL);
+  *invoked = "index";
+
+  data = "Yello from index";
+  bytes = g_bytes_new_static (data, strlen (data));
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+  return TRUE;
+}
+
+static gboolean
+on_default_resource (CockpitWebServer *server,
+                     CockpitWebServerRequestType reqtype,
+                     const gchar *path,
+                     GHashTable *headers,
+                     GBytes *input,
+                     CockpitWebResponse *response,
+                     const gchar **invoked)
+{
+  GBytes *bytes;
+
+  g_assert (*invoked == NULL);
+  *invoked = "default";
+
+  bytes = g_bytes_new_static ("default", 7);
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+  return TRUE;
+}
+
+
+static void
+test_handle_resource (TestCase *tc,
+                      gconstpointer data)
+{
+  const gchar *invoked = NULL;
+  gchar *resp;
+
+  g_signal_connect (tc->web_server, "handle-resource::/oh/",
+                    G_CALLBACK (on_oh_resource), &invoked);
+  g_signal_connect (tc->web_server, "handle-resource::/scruffy",
+                    G_CALLBACK (on_scruffy_resource), &invoked);
+  g_signal_connect (tc->web_server, "handle-resource::/",
+                    G_CALLBACK (on_index_resource), &invoked);
+  g_signal_connect (tc->web_server, "handle-resource",
+                    G_CALLBACK (on_default_resource), &invoked);
+
+  /* Should call the /oh/ handler */
+  resp = perform_http_request (tc->localport, "GET /oh/marmalade HTTP/1.0\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "oh");
+  invoked = NULL;
+  cockpit_assert_strmatch (resp, "*Scruffy says: /oh/marmalade");
+  g_free (resp);
+
+  /* Should call the /oh/ handler */
+  resp = perform_http_request (tc->localport, "GET /oh/ HTTP/1.0\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "oh");
+  cockpit_assert_strmatch (resp, "*Scruffy says: /oh/");
+  invoked = NULL;
+  g_free (resp);
+
+  /* Should call the default handler */
+  g_free (perform_http_request (tc->localport, "GET /oh HTTP/1.0\r\n\r\n", NULL));
+  g_assert_cmpstr (invoked, ==, "default");
+  invoked = NULL;
+
+  /* Should call the scruffy handler */
+  resp = perform_http_request (tc->localport, "GET /scruffy HTTP/1.0\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "scruffy");
+  invoked = NULL;
+  cockpit_assert_strmatch (resp, "*Scruffy is here");
+  g_free (resp);
+
+  /* Should call the default handler */
+  g_free (perform_http_request (tc->localport, "GET /scruffy/blah HTTP/1.0\r\n\r\n", NULL));
+  g_assert_cmpstr (invoked, ==, "default");
+  invoked = NULL;
+
+  /* Should call the index handler */
+  resp = perform_http_request (tc->localport, "GET / HTTP/1.0\r\n\r\n", NULL);
+  g_assert_cmpstr (invoked, ==, "index");
+  invoked = NULL;
+  cockpit_assert_strmatch (resp, "*Yello from index");
+  g_free (resp);
+
+  /* Should call the default handler */
+  g_free (perform_http_request (tc->localport, "GET /oooo HTTP/1.0\r\n\r\n", NULL));
+  g_assert_cmpstr (invoked, ==, "default");
+  invoked = NULL;
+}
+
 int
 main (int argc,
       char *argv[])
@@ -355,6 +503,9 @@ main (int argc,
               setup, test_webserver_redirect_notls, teardown);
   g_test_add ("/web-server/no-redirect-localhost", TestCase, &fixture_with_cert,
               setup, test_webserver_noredirect_localhost, teardown);
+
+  g_test_add ("/web-server/handle-resource", TestCase, NULL,
+              setup, test_handle_resource, teardown);
 
   return g_test_run ();
 }

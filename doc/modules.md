@@ -8,7 +8,7 @@ The cockpit web UI is compromised of various components called modules.
 Each module can provide one or more pieces of the UI, usually pages.
 
 Each module is a subdirectory of cockpit in the $XDG_DATA_DIRS and
-$XDG_DATA_HOME directories. That means, that by default the following
+$XDG_DATA_HOME directories. That means, by default the following
 directories are seacrhed for modules:
 
     ~/.local/share/cockpit
@@ -36,7 +36,7 @@ in $XDG_DATA_DIRS is respected.
 Manifest
 --------
 
-Each module has a manifest.json file. It is a stringified JSON object.
+Each module has a manifest.json file. It is a JSON object file.
 Not yet documented, some notes:
 
  * "version": informational only, checksums are used to compare modules
@@ -60,7 +60,7 @@ Checksums
 Modules in system directories (ie: not the user's home directory) have
 all their files and filenames run through a checksum. This checksum
 allows cockpit to identify when two modules are identical and enables
-allow caching in the browser.
+caching in the browser.
 
 
 Loading

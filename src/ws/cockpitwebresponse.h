@@ -55,6 +55,8 @@ gboolean              cockpit_web_response_queue         (CockpitWebResponse *se
 
 void                  cockpit_web_response_complete      (CockpitWebResponse *self);
 
+void                  cockpit_web_response_abort         (CockpitWebResponse *self);
+
 void                  cockpit_web_response_content       (CockpitWebResponse *self,
                                                           GHashTable *headers,
                                                           GBytes *block,

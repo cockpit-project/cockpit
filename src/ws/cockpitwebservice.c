@@ -521,7 +521,6 @@ process_authorize (CockpitWebService *self,
                    CockpitSession *session,
                    JsonObject *options)
 {
-  JsonObject *object = NULL;
   const gchar *cookie = NULL;
   GBytes *payload;
   const gchar *host;
@@ -584,8 +583,6 @@ process_authorize (CockpitWebService *self,
   ret = TRUE;
 
 out:
-  if (object)
-    json_object_unref (object);
   free (user);
   free (type);
   free (response);

@@ -398,9 +398,9 @@ test_close_problem (TestCase *tc,
 
 #if WITH_MOCK
 
-/* An ssh command that sends back a payload with process id */
+/* An ssh command that just kills itself with SIGTERM */
 static const TestFixture fixture_terminate_problem = {
-  .ssh_command = "/usr/bin/printf '\\x00\\x00\\x00\\x14546\\n% 16s' $$; exec cat",
+  .ssh_command = "kill $$",
 
   /*
    * TODO: Trying to solve:
@@ -414,26 +414,10 @@ test_terminate_problem (TestCase *tc,
                         gconstpointer data)
 {
   gchar *problem = NULL;
-  gconstpointer str;
-  gsize length;
-  GBytes *payload = NULL;
-  gchar *cmd;
+
+  g_assert (data == &fixture_terminate_problem);
 
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-
-  /* Get the first message which is the pid */
-  g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &payload);
-  while (payload == NULL && problem == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_assert_cmpstr (problem, ==, NULL);
-  g_assert (payload != NULL);
-
-  str = g_bytes_get_data (payload, &length);
-  g_assert (tc->mock_sshd != 0);
-  cmd = g_strdup_printf ("kill %.*s", (gint)length, (gchar *)str);
-  g_assert_cmpint (system (cmd), ==, 0);
-  g_free (cmd);
 
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);

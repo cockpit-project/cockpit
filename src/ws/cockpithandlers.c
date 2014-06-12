@@ -128,6 +128,7 @@ send_login_response (CockpitWebResponse *response,
     {
       json_builder_set_member_name (builder, "name");
       json_builder_add_string_value (builder, pwd->pw_gecos);
+      free (pwd);
     }
   json_builder_end_object (builder);
 

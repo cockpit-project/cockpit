@@ -378,8 +378,8 @@ main (int argc,
                     &data);
 
   g_signal_connect (server,
-                    "handle-resource::/cockpitdyn.js",
-                    G_CALLBACK (cockpit_handler_cockpitdyn),
+                    "handle-resource::/",
+                    G_CALLBACK (cockpit_handler_index),
                     &data);
 
   g_signal_connect (server, "handle-resource::/static/",

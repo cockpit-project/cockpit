@@ -923,10 +923,6 @@ cockpit_web_response_file (CockpitWebResponse *response,
 
   g_return_if_fail (escaped != NULL);
 
-  /* TODO: Remove this logic when we no longer use an index.html */
-  if (g_strcmp0 (escaped, "/") == 0)
-    escaped = "/index.html";
-
 again:
   root = *(roots++);
   if (root == NULL)

@@ -46,6 +46,10 @@ extern gsize cockpit_ws_request_maximum;
 /* From cockpitauth.c */
 extern guint cockpit_ws_idle_timeout;
 
+/* From cockpithandlers.c */
+extern const gchar *cockpit_ws_static_directory;
+extern const gchar *cockpit_ws_content_directory;
+
 G_END_DECLS
 
 #endif /* __COCKPIT_WS_H__ */

@@ -50,7 +50,7 @@ const char *rhost;
 const char *agent;
 char line[UT_LINESIZE + 1];
 static pid_t child;
-static char **env;
+static char **env = NULL;
 
 #if DEBUG_SESSION
 #define debug(fmt, ...) (fprintf (stderr, "cockpit-session: " fmt "\n", ##__VA_ARGS__))
@@ -414,7 +414,10 @@ session (void)
 {
   char *argv[] = { (char *)agent, NULL };
   debug ("executing agent: %s", agent);
-  execve (argv[0], argv, env);
+  if (env)
+    execve (argv[0], argv, env);
+  else
+    execv (argv[0], argv);
   warn ("can't exec %s", agent);
   return 127;
 }

@@ -462,7 +462,7 @@ function NetworkManagerModel(address) {
 
         if (!changed_pending) {
             changed_pending = true;
-            setTimeout(function () { changed_pending = false; $(self).trigger('changed'); }, 0);
+            setTimeout(function () { changed_pending = false; $(self).trigger('changed'); }, 300);
         }
     }
 

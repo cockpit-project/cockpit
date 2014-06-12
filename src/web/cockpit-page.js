@@ -374,6 +374,7 @@ function cockpit_show_error_dialog(title, message)
         $("#error-popup-message").text(title);
     }
 
+    $('.modal[role="dialog"]').modal('hide');
     $('#error-popup').modal('show');
 }
 

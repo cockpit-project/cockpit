@@ -141,9 +141,10 @@ function set_watched_client(client) {
     $('#disconnected-dialog').modal('hide');
 
     function update() {
-        if (watched_client && watched_client.state == "closed")
+        if (watched_client && watched_client.state == "closed") {
+            $('.modal[role="dialog"]').modal('hide');
             $('#disconnected-dialog').modal('show');
-        else
+        } else
             $('#disconnected-dialog').modal('hide');
     }
 

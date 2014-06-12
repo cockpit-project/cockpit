@@ -382,11 +382,8 @@ main (int argc,
                     G_CALLBACK (cockpit_handler_cockpitdyn),
                     &data);
 
-  /* static handler, ignores stuff it shouldn't handle */
-  g_signal_connect (server,
-                    "handle-resource",
-                    G_CALLBACK (cockpit_handler_static),
-                    &data);
+  g_signal_connect (server, "handle-resource::/static/",
+                    G_CALLBACK (cockpit_handler_static), &data);
 
   g_info ("HTTP Server listening on port %d", opt_port);
 

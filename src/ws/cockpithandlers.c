@@ -384,9 +384,6 @@ cockpit_handler_static (CockpitWebServer *server,
   if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
     return FALSE;
 
-  if (!g_str_has_prefix (path, "/static/"))
-    return FALSE;
-
   cockpit_web_response_file (response, path + 8, TRUE, roots);
   return TRUE;
 }

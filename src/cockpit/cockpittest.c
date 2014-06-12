@@ -359,6 +359,79 @@ _cockpit_assert_json_eq_msg (const char *domain,
   json_node_free (exnode);
 }
 
-#define assert_bytes_eq_json(node, expect) \
-  assert_bytes_eq_json_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (node), (expect))
+static gchar *
+test_escape_data (const guchar *data,
+                  gssize n_data)
+{
+  static const char HEXC[] = "0123456789ABCDEF";
+  GString *result;
+  gchar c;
+  gsize i;
+  guchar j;
 
+  if (!data)
+    return g_strdup ("NULL");
+
+  result = g_string_sized_new (n_data * 2 + 1);
+  for (i = 0; i < n_data; ++i)
+    {
+      c = data[i];
+      if (g_ascii_isprint (c) && !strchr ("\n\r\v", c))
+        {
+          g_string_append_c (result, c);
+        }
+      else
+        {
+          g_string_append (result, "\\x");
+          j = c >> 4 & 0xf;
+          g_string_append_c (result, HEXC[j]);
+          j = c & 0xf;
+          g_string_append_c (result, HEXC[j]);
+        }
+    }
+
+  return g_string_free (result, FALSE);
+}
+
+void
+_cockpit_assert_data_eq_msg (const char *domain,
+                             const char *file,
+                             int line,
+                             const char *func,
+                             gconstpointer data,
+                             gssize len,
+                             gconstpointer expect,
+                             gssize exp_len)
+{
+  char *a1, *a2, *s;
+  if (!data && !expect)
+    return;
+  if (len < 0)
+    len = strlen (data);
+  if (exp_len < 0)
+    exp_len = strlen (expect);
+  if (len == exp_len && memcmp (data, expect, len) == 0)
+    return;
+  a1 = test_escape_data (data, len);
+  a2 = test_escape_data (expect, exp_len);
+  s = g_strdup_printf ("data is not the same (%s != %s)", a1, a2);
+  g_free (a1);
+  g_free (a2);
+  g_assertion_message (domain, file, line, func, s);
+  g_free (s);
+}
+
+void
+_cockpit_assert_bytes_eq_msg (const char *domain,
+                              const char *file,
+                              int line,
+                              const char *func,
+                              GBytes *data,
+                              gconstpointer expect,
+                              gssize exp_len)
+{
+  _cockpit_assert_data_eq_msg (domain, file, line, func,
+                               g_bytes_get_data (data, NULL),
+                               g_bytes_get_size (data),
+                               expect, exp_len);
+}

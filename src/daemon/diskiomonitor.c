@@ -349,7 +349,7 @@ collect (DiskIOMonitor *monitor)
        */
 
       num_parsed = sscanf (line,
-                           "%d %d %s"
+                           "%d %d %64s"
                            " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT
                            " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT
                            " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT,

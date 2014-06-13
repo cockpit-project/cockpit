@@ -96,7 +96,7 @@ fd_data (socket_t fd,
   if (revents & (POLLHUP | POLLERR | POLLNVAL))
     {
       ssh_channel_send_eof (chan);
-      if ((p = waitpid (state.childpid, &status, WNOHANG)) > 0)
+      if ((p = waitpid (state.childpid, &status, 0)) > 0)
         {
           if (WIFSIGNALED (status))
             ssh_channel_request_send_exit_signal (chan, strsignal (WTERMSIG (status)), 0, "", "");

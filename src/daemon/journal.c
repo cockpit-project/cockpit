@@ -358,7 +358,7 @@ again:
               else
                 {
                   gs_free char *cursor_buf = NULL;
-                  char usec_buf[40];
+                  gs_free char *usec_buf = NULL;
 
                   if (strcmp (arg_fields[i], "__REALTIME_TIMESTAMP") == 0)
                     {
@@ -366,7 +366,7 @@ again:
                       ret = sd_journal_get_realtime_usec (j, &usec);
                       if (ret >= 0)
                         {
-                          snprintf (usec_buf, sizeof (usec_buf), "%" G_GUINT64_FORMAT, usec);
+                          usec_buf = g_strdup_printf ("%" G_GUINT64_FORMAT, usec);
                           data = usec_buf;
                           len = strlen (usec_buf);
                         }

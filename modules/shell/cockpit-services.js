@@ -436,13 +436,47 @@ PageServiceAdd.prototype = {
     },
 
     enter: function() {
+        this.docker = cockpit.docker(PageServiceAdd.address);
+        $(this.docker).on("image.services", $.proxy(this, "update"));
+
         $('#service-add-image, #service-add-name').val("");
+        this.update();
     },
 
     show: function() {
     },
 
     leave: function() {
+        $(cockpit.docker).off(".services");
+        this.docker.release();
+        this.docker = null;
+    },
+
+    update: function() {
+        var $images = $('#service-add-images');
+
+        var images = [];
+        for (var id in this.docker.images) {
+            var image = this.docker.images[id];
+            if (image && image.RepoTags && image.RepoTags[0] != "<none>:<none>")
+                images.push(image);
+        }
+
+        images.sort(function (a, b) {
+            var an = a.RepoTags[0];
+            var bn = b.RepoTags[0];
+
+            return (an > bn)? 1 : (an < bn)? -1 : 0;
+        });
+
+        $images.html(
+            images.map(function (image) {
+                return $('<a class="list-group-item">').
+                           text(image.RepoTags[0]).
+                           click(function () {
+                               $('#service-add-image').val(image.RepoTags[0]);
+                           });
+            }));
     },
 
     add: function() {

@@ -33,7 +33,8 @@ function docker_debug() {
 
 var docker_clients = cockpit.util.make_resource_cache();
 
-function get_docker_client(machine) {
+cockpit.docker = docker;
+function docker(machine) {
     return docker_clients.get(machine, function () { return new DockerClient(machine); });
 }
 
@@ -377,7 +378,7 @@ PageContainers.prototype = {
         var self = this;
 
         this.address = cockpit_get_page_param('machine') || "localhost";
-        this.client = get_docker_client(this.address);
+        this.client = cockpit.docker(this.address);
 
         // Just for watching
         this.dbus_client = cockpit.dbus(this.address, { payload: "dbus-json1" });
@@ -732,7 +733,7 @@ PageSearchImage.prototype = {
     },
 
     enter: function() {
-        this.client = get_docker_client();
+        this.client = cockpit.docker();
 
         // Clear the previous results and search string from previous time
         $('#containers-search-image-results tbody tr').remove();
@@ -1015,7 +1016,7 @@ PageContainerDetails.prototype = {
             });
 
         this.address = cockpit_get_page_param('machine') || "localhost";
-        this.client = get_docker_client(this.address);
+        this.client = cockpit.docker(this.address);
         this.container_id = cockpit_get_page_param('id');
         this.name = this.container_id.slice(0,12);
 
@@ -1209,7 +1210,7 @@ PageImageDetails.prototype = {
         var self = this;
 
         this.address = cockpit_get_page_param('machine') || "localhost";
-        this.client = get_docker_client(this.address);
+        this.client = cockpit.docker(this.address);
         this.image_id = cockpit_get_page_param('id');
         this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
 

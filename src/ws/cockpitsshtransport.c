@@ -1017,7 +1017,8 @@ cockpit_ssh_source_dispatch (GSource *source,
        */
       if (msg && (strstr (msg, "disconnected") ||
                   strstr (msg, "SSH_MSG_DISCONNECT") ||
-                  strstr (msg, "Socket error: Success")))
+                  strstr (msg, "Socket error: Success") ||
+                  strstr (msg, "Socket error: Connection reset by peer")))
         {
           g_debug ("%s: failed to process channel: %s", self->logname, msg);
           close_immediately (self, "terminated");

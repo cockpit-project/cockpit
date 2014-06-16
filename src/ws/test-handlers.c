@@ -317,7 +317,7 @@ test_index (Test *test,
   g_assert (ret == TRUE);
 
   g_assert (gethostname (hostname, sizeof (hostname)) == 0);
-  expected = g_strdup_printf ("HTTP/1.1 200 OK\r\n*cockpitdyn_hostname = \"%s\";\n*cockpitdyn_pretty_hostname*cockpitdyn_supported_languages*",
+  expected = g_strdup_printf ("HTTP/1.1 200 OK\r\n*\"hostname\":\"%s\"*",
                               hostname);
 
   output = output_as_string (test);

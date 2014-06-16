@@ -1723,7 +1723,6 @@ on_listing_closed (CockpitTransport *transport,
 
   lm = g_simple_async_result_get_op_res_gpointer (async);
   g_message ("%s: transport closed while listing cockpit modules: %s", lm->logname, problem);
-g_printerr ("modules closed: %s\n", problem);
 
   g_simple_async_result_complete (async);
   g_object_unref (async);

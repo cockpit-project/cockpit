@@ -413,8 +413,9 @@ cockpit_web_response_complete (CockpitWebResponse *self)
   if (self->failed)
     return;
 
-  /* Hold a reference until cockpit_web_response_finish() */
+  /* Hold a reference until cockpit_web_response_done() */
   g_object_ref (self);
+  self->failed = TRUE;
   self->complete = TRUE;
 
   if (self->source)
@@ -427,6 +428,62 @@ cockpit_web_response_complete (CockpitWebResponse *self)
       g_output_stream_flush_async (G_OUTPUT_STREAM (self->out), G_PRIORITY_DEFAULT,
                                    NULL, on_output_flushed, g_object_ref (self));
     }
+}
+
+/**
+ * cockpit_web_response_abort:
+ * @self: the response
+ *
+ * This function is used when streaming content, and at
+ * some point we can't provide the remainder of the content
+ *
+ * This completes the response and terminates the connection.
+ */
+void
+cockpit_web_response_abort (CockpitWebResponse *self)
+{
+  g_return_if_fail (self->complete == FALSE);
+
+  if (self->failed)
+    return;
+
+  /* Hold a reference until cockpit_web_response_done() */
+  g_object_ref (self);
+
+  self->complete = TRUE;
+  self->failed = TRUE;
+
+  g_debug ("%s: aborted", self->logname);
+  cockpit_web_response_done (self);
+}
+
+/**
+ * CockpitWebResponding:
+ * @COCKPIT_WEB_RESPONSE_READY: nothing queued or sent yet
+ * @COCKPIT_WEB_RESPONSE_QUEUING: started and still queuing data on response
+ * @COCKPIT_WEB_RESPONSE_COMPLETE: all data is queued or aborted
+ * @COCKPIT_WEB_RESPONSE_SENT: data is completely sent
+ *
+ * Various states of the web response.
+ */
+
+/**
+ * cockpit_web_response_get_state:
+ * @self: the web response
+ *
+ * Return the state of the web response.
+ */
+CockpitWebResponding
+cockpit_web_response_get_state (CockpitWebResponse *self)
+{
+  if (self->done)
+    return COCKPIT_WEB_RESPONSE_SENT;
+  else if (self->complete)
+    return COCKPIT_WEB_RESPONSE_COMPLETE;
+  else if (self->count == 0)
+    return COCKPIT_WEB_RESPONSE_READY;
+  else
+    return COCKPIT_WEB_RESPONSE_QUEUING;
 }
 
 enum {
@@ -849,7 +906,6 @@ cockpit_web_response_file (CockpitWebResponse *response,
 {
   const gchar *cache_control;
   GError *error = NULL;
-  gchar *query = NULL;
   gchar *unescaped;
   char *path = NULL;
   gchar *built = NULL;
@@ -861,10 +917,6 @@ cockpit_web_response_file (CockpitWebResponse *response,
     escaped = cockpit_web_response_get_path (response);
 
   g_return_if_fail (escaped != NULL);
-
-  query = strchr (escaped, '?');
-  if (query != NULL)
-    *query++ = 0;
 
   /* TODO: Remove this logic when we no longer use an index.html */
   if (g_strcmp0 (escaped, "/") == 0)

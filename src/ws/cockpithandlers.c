@@ -71,6 +71,31 @@ cockpit_handler_socket (CockpitWebServer *server,
   return TRUE;
 }
 
+gboolean
+cockpit_handler_resource (CockpitWebService *server,
+                          CockpitWebServerRequestType reqtype,
+                          const gchar *path,
+                          GHashTable *headers,
+                          GBytes *input,
+                          CockpitWebResponse *response,
+                          CockpitHandlerData *ws)
+{
+  CockpitWebService *service;
+
+  service = cockpit_auth_check_cookie (ws->auth, headers);
+  if (service)
+    {
+      cockpit_web_service_resource (service, response);
+      g_object_unref (service);
+    }
+  else
+    {
+      cockpit_web_response_error (response, 401, NULL, NULL);
+    }
+
+  return TRUE;
+}
+
 static gchar *
 get_remote_address (GIOStream *io)
 {
@@ -382,9 +407,6 @@ cockpit_handler_static (CockpitWebServer *server,
   const gchar *roots[] = { cockpit_ws_static_directory, NULL };
 
   if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
-    return FALSE;
-
-  if (!g_str_has_prefix (path, "/static/"))
     return FALSE;
 
   cockpit_web_response_file (response, path + 8, TRUE, roots);

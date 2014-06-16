@@ -32,7 +32,10 @@
 #include "cockpit/cockpitpipetransport.h"
 
 #include "cockpitauth.h"
+#include "cockpitws.h"
+
 #include "cockpitsshtransport.h"
+#include "cockpitwebresponse.h"
 
 #include <gsystem-local-alloc.h>
 
@@ -72,6 +75,7 @@ typedef struct
   gboolean sent_eof;
   guint timeout;
   CockpitCreds *creds;
+  GHashTable *checksums;
 } CockpitSession;
 
 typedef struct
@@ -93,6 +97,8 @@ cockpit_session_free (gpointer data)
     g_source_remove (session->timeout);
   g_hash_table_unref (session->channels);
   g_object_unref (session->transport);
+  if (session->checksums)
+    g_hash_table_unref (session->checksums);
   g_free (session->host);
   g_free (session);
 }
@@ -165,9 +171,13 @@ cockpit_session_remove_channel (CockpitSessions *sessions,
        * Close sessions that are no longer in use after N seconds
        * of them being that way.
        */
-      g_debug ("%s: removed last channel for session", session->host);
+      g_debug ("%s: removed last channel %s for session", session->host, channel);
       session->timeout = g_timeout_add_seconds (cockpit_ws_agent_timeout,
                                                 on_timeout_cleanup_session, session);
+    }
+  else
+    {
+      g_debug ("%s: removed channel %s for session", session->host, channel);
     }
 }
 
@@ -382,6 +392,11 @@ cockpit_sockets_cleanup (CockpitSockets *sockets)
 }
 
 /* ----------------------------------------------------------------------------
+ * Checksums
+ */
+
+
+/* ----------------------------------------------------------------------------
  * Web Socket Routing
  */
 
@@ -395,6 +410,7 @@ struct _CockpitWebService {
   GBytes *control_prefix;
   guint ping_timeout;
   gint callers;
+  guint next_resource_id;
 };
 
 typedef struct {
@@ -506,12 +522,49 @@ outbound_protocol_error (CockpitWebService *self,
   cockpit_transport_close (transport, "protocol-error");
 }
 
+static void
+process_resources (CockpitWebService *self,
+                   CockpitSession *session,
+                   JsonObject *resources)
+{
+  const gchar *checksum;
+  JsonObject *details;
+  GList *modules;
+  GList *l;
+
+  if (session->checksums)
+    g_hash_table_unref (session->checksums);
+
+  /* Build a table mapping checksum to module for resources on this session */
+  session->checksums = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  modules = json_object_get_members (resources);
+  for (l = modules; l != NULL; l = g_list_next (l))
+    {
+      details = json_object_get_object_member (resources, l->data);
+      if (details)
+        {
+          if (cockpit_json_get_string (details, "checksum", NULL, &checksum) && checksum)
+            {
+              g_debug ("%s: module %s has checksum %s", session->host, (gchar *)l->data, checksum);
+              g_hash_table_insert (session->checksums, g_strdup (checksum), g_strdup (l->data));
+            }
+        }
+    }
+  g_list_free (modules);
+}
+
 static gboolean
 process_close (CockpitWebService *self,
                CockpitSession *session,
                const gchar *channel,
                JsonObject *options)
 {
+  JsonNode *node;
+
+  node = json_object_get_member (options, "resources");
+  if (node != NULL && json_node_get_node_type (node) == JSON_NODE_OBJECT)
+    process_resources (self, session, json_node_get_object (node));
+
   cockpit_session_remove_channel (&self->sessions, session, channel);
   return TRUE;
 }
@@ -1314,3 +1367,267 @@ cockpit_web_service_get_idling (CockpitWebService *self)
   g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), TRUE);
   return (self->callers == 0);
 }
+
+typedef struct {
+  gchar *logname;
+  CockpitWebResponse *response;
+  CockpitTransport *transport;
+  gchar *channel;
+  gulong recv_sig;
+  gulong closed_sig;
+  gulong control_sig;
+} ResourceResponse;
+
+static void
+resource_response_done (ResourceResponse *rr,
+                        const gchar *problem)
+{
+  CockpitWebResponding state;
+
+  /* Ensure no more signals arrive about our response */
+  g_signal_handler_disconnect (rr->transport, rr->recv_sig);
+  g_signal_handler_disconnect (rr->transport, rr->closed_sig);
+  g_signal_handler_disconnect (rr->transport, rr->control_sig);
+
+  /* The web response should not yet be complete */
+  state = cockpit_web_response_get_state (rr->response);
+  g_return_if_fail (state < COCKPIT_WEB_RESPONSE_COMPLETE);
+
+  if (problem == NULL)
+    {
+      g_debug ("%s: completed serving resource", rr->logname);
+      if (state == COCKPIT_WEB_RESPONSE_READY)
+        cockpit_web_response_headers (rr->response, 200, "OK", 0, NULL);
+      cockpit_web_response_complete (rr->response);
+    }
+  else if (state == COCKPIT_WEB_RESPONSE_READY)
+    {
+      if (g_str_equal (problem, "not-found"))
+        {
+          g_debug ("%s: resource not found", rr->logname);
+          cockpit_web_response_error (rr->response, 404, NULL, NULL);
+        }
+      else
+        {
+          g_message ("%s: failed to retrieve resource: %s", rr->logname, problem);
+          cockpit_web_response_error (rr->response, 500, NULL, NULL);
+        }
+    }
+  else
+    {
+      g_message ("%s: failure while serving resource: %s", rr->logname, problem);
+      cockpit_web_response_abort (rr->response);
+    }
+
+  g_object_unref (rr->response);
+  g_object_unref (rr->transport);
+  g_free (rr->channel);
+  g_free (rr);
+}
+
+static gboolean
+on_resource_recv (CockpitTransport *transport,
+                  const gchar *channel,
+                  GBytes *payload,
+                  gpointer user_data)
+{
+  ResourceResponse *rr = user_data;
+
+  if (g_strcmp0 (channel, rr->channel) != 0)
+    return FALSE;
+
+  if (cockpit_web_response_get_state (rr->response) == COCKPIT_WEB_RESPONSE_READY)
+    cockpit_web_response_headers (rr->response, 200, "OK", -1, NULL);
+
+  cockpit_web_response_queue (rr->response, payload);
+  return TRUE;
+}
+
+static gboolean
+on_resource_control (CockpitTransport *transport,
+                     const gchar *command,
+                     const gchar *channel,
+                     JsonObject *options,
+                     gpointer user_data)
+{
+  ResourceResponse *rr = user_data;
+  const gchar *problem = NULL;
+
+  if (g_strcmp0 (channel, rr->channel) != 0)
+    return FALSE; /* not handled */
+
+  if (!g_str_equal (command, "close"))
+    {
+      g_message ("%s: received unknown command on resource channel: %s",
+                 rr->logname, command);
+      return TRUE; /* but handled */
+    }
+
+  if (!cockpit_json_get_string (options, "reason", NULL, &problem))
+    {
+      g_message ("%s: received close command with invalid reason", rr->logname);
+      problem = "unknown";
+    }
+
+  if (g_strcmp0 (problem, "") == 0)
+    problem = NULL;
+
+  resource_response_done (rr, problem);
+  return TRUE; /* handled */
+}
+
+static void
+on_resource_closed (CockpitTransport *transport,
+                    const gchar *problem,
+                    gpointer user_data)
+{
+  ResourceResponse *rr = user_data;
+
+  g_debug ("%s: transport closed while serving resource: %s", rr->logname, problem);
+
+  if (g_strcmp0 (problem, "") == 0)
+    problem = "terminated";
+
+  resource_response_done (rr, problem);
+}
+
+static ResourceResponse *
+resource_response_new (CockpitWebService *self,
+                       CockpitSession *session,
+                       CockpitWebResponse *response)
+{
+  ResourceResponse *rr;
+
+  rr = g_new0 (ResourceResponse, 1);
+  rr->response = g_object_ref (response);
+  rr->transport = g_object_ref (session->transport);
+  rr->channel = g_strdup_printf ("0:%d", self->next_resource_id++);
+
+  rr->recv_sig = g_signal_connect (rr->transport, "recv", G_CALLBACK (on_resource_recv), rr);
+  rr->closed_sig = g_signal_connect (rr->transport, "closed", G_CALLBACK (on_resource_closed), rr);
+  rr->control_sig = g_signal_connect (rr->transport, "control", G_CALLBACK (on_resource_control), rr);
+
+  return rr;
+}
+
+static gboolean
+resource_respond_normal (CockpitWebService *self,
+                         CockpitWebResponse *response,
+                         const gchar *remaining_path)
+{
+  ResourceResponse *rr;
+  CockpitSession *session;
+  gboolean ret = FALSE;
+  GBytes *command;
+  gchar **parts;
+
+  parts = g_strsplit (remaining_path, "/", 3);
+  if (!parts[0] || !parts[1] || !parts[2])
+    {
+      g_debug ("invalid resource path: %s", remaining_path);
+      goto out;
+    }
+
+  session = g_hash_table_lookup (self->sessions.by_host, parts[0]);
+  if (!session)
+    {
+      g_debug ("no session found for resource host: %s", parts[0]);
+      goto out;
+    }
+
+  rr = resource_response_new (self, session, response);
+
+  command = build_control ("command", "open",
+                           "channel", rr->channel,
+                           "payload", "resource1",
+                           "module", parts[1],
+                           "path", parts[2],
+                           NULL);
+
+  cockpit_transport_send (rr->transport, NULL, command);
+  g_bytes_unref (command);
+  ret = TRUE;
+
+out:
+  g_strfreev (parts);
+  return ret;
+}
+
+
+static gboolean
+resource_respond_checksum (CockpitWebService *self,
+                           CockpitWebResponse *response,
+                           const gchar *remaining_path)
+{
+  ResourceResponse *rr;
+  CockpitSession *session;
+  CockpitSession *found = NULL;
+  const gchar *module = NULL;
+  gboolean ret = FALSE;
+  GHashTableIter iter;
+  GBytes *command;
+  gchar **parts;
+
+  parts = g_strsplit (remaining_path, "/", 3);
+  if (!parts[0] || !parts[1])
+    {
+      g_debug ("invalid checksum path: %s", remaining_path);
+      goto out;
+    }
+
+  g_hash_table_iter_init (&iter, self->sessions.by_transport);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
+    {
+      if (session->checksums)
+        {
+          module = g_hash_table_lookup (session->checksums, parts[0]);
+          if (module != NULL)
+            {
+              found = session;
+              break;
+            }
+        }
+    }
+
+  if (!found)
+    {
+      g_debug ("no session found for resource checksum: %s", parts[0]);
+      goto out;
+    }
+
+  rr = resource_response_new (self, session, response);
+
+  command = build_control ("command", "open",
+                           "channel", rr->channel,
+                           "payload", "resource1",
+                           "module", module,
+                           "path", parts[1],
+                           NULL);
+
+  cockpit_transport_send (rr->transport, NULL, command);
+  g_bytes_unref (command);
+  ret = TRUE;
+
+out:
+  g_strfreev (parts);
+  return ret;
+}
+
+void
+cockpit_web_service_resource (CockpitWebService *self,
+                              CockpitWebResponse *response)
+{
+  gboolean handled = FALSE;
+  const gchar *path;
+
+  path = cockpit_web_response_get_path (response);
+
+  if (g_str_has_prefix (path, "/res/"))
+    handled = resource_respond_normal (self, response, path + 5);
+  if (g_str_has_prefix (path, "/cache/"))
+    handled = resource_respond_checksum (self, response, path + 7);
+
+  if (!handled)
+    cockpit_web_response_error (response, 404, NULL, NULL);
+}
+

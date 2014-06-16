@@ -23,6 +23,7 @@
 #include "cockpitwstypes.h"
 
 #include "cockpitcreds.h"
+#include "cockpitwebresponse.h"
 
 #include "cockpit/cockpitpipe.h"
 
@@ -45,6 +46,9 @@ void                 cockpit_web_service_socket      (CockpitWebService *self,
                                                       GIOStream *io_stream,
                                                       GHashTable *headers,
                                                       GByteArray *input_buffer);
+
+void                 cockpit_web_service_resource    (CockpitWebService *self,
+                                                      CockpitWebResponse *response);
 
 void                 cockpit_web_service_noauth      (GIOStream *io_stream,
                                                       GHashTable *headers,

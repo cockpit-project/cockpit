@@ -188,6 +188,38 @@ Example authorize challenge and response messages:
         "response": "crypt1:$6$r0oetn2039ntoen..."
     }
 
+Payload: resource1
+------------------
+
+These payloads contain resource data, such as javascript and html files that
+make up cockpit modules. Typically, channels of this type are opened between
+cockpit-ws and cockpit-agent. See doc/modules.md
+
+Additional "open" command options are available to open a channel of this
+type:
+
+ * "module": the short module name to retrieve resource from
+ * "path": path of the resource within the module.
+
+The channel payload will be the raw (possibly binary) byte data of the
+resource being retrieved.
+
+If "module" and "path" are missing, then the channel will be immediately
+closed without a "reason", and a combined manifest of all modules, including
+checksums for system modules will be returned in the "close" message under
+the "resources" option:
+
+    {
+        "command": "close",
+        "channel": -5,
+        "resources": {
+            "app1" : {
+                "checksum" : "0d599f0ec05c3bda8c3b8a68c32a1b47",
+            },
+            ...
+        }
+    }
+
 Payload: dbus-json1
 -------------------
 

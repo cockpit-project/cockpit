@@ -243,6 +243,21 @@ test_webserver_content_type (TestCase *tc,
 }
 
 static void
+test_with_query_string (TestCase *tc,
+                        gconstpointer user_data)
+{
+  gchar *resp;
+  gsize length;
+
+  resp = perform_http_request (tc->localport, "GET /dbus-test.html?blah HTTP/1.0\r\n\r\n", &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, >, 0);
+
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\nContent-Length: *\r\n\r\n<!DOCTYPE html>*");
+  g_free (resp);
+}
+
+static void
 test_webserver_not_found (TestCase *tc,
                           gconstpointer user_data)
 {
@@ -329,6 +344,8 @@ main (int argc,
 
   g_test_add ("/web-server/content-type", TestCase, NULL,
               setup, test_webserver_content_type, teardown);
+  g_test_add ("/web-server/query-string", TestCase, NULL,
+              setup, test_with_query_string, teardown);
   g_test_add ("/web-server/not-found", TestCase, NULL,
               setup, test_webserver_not_found, teardown);
   g_test_add ("/web-server/not-authorized", TestCase, NULL,

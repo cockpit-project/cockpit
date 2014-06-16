@@ -64,7 +64,7 @@ function cockpit_login_init ()
                     cockpit.connection_config = JSON.parse(req.responseText);
                     cockpit_content_show();
                 } else {
-                    $("#login-error-message").text(_("Sorry, that didn't work.") + " (" + req.status + ")");
+                    $("#login-error-message").text(_("Sorry, wrong username or password."));
                     $("#login-password-input").focus();
                 }
 	    }

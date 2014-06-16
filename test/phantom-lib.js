@@ -60,6 +60,12 @@ function ph_is_visible (sel)
     return $sel.is(':visible') && !$sel.is(':animated');
 }
 
+function ph_is_present(sel)
+{
+    var $sel = $(sel);
+    return $sel.length > 0;
+}
+
 function ph_in_text (sel, text)
 {
     return ph_find(sel).text().indexOf(text) != -1;

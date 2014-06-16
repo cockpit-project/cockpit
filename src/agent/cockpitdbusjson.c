@@ -1457,7 +1457,7 @@ cockpit_dbus_json_constructed (GObject *object)
   dbus_path = cockpit_channel_get_option (channel, "object-manager");
   if (dbus_path == NULL)
     {
-      new_prop_value = cockpit_channel_get_strv_option (channel, "paths");
+      new_prop_value = cockpit_channel_get_strv_option (channel, "object-paths");
       new_prop_name = "object-paths";
       object_manager_type = COCKPIT_TYPE_FAKE_MANAGER;
     }

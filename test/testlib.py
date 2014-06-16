@@ -185,6 +185,9 @@ class Browser:
     def wait_js_func(self, func, *args):
         return self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))), timeout=self.phantom_wait_timeout)
 
+    def wait_present(self, selector):
+        return self.wait_js_func('ph_is_present', selector)
+
     def wait_visible(self, selector):
         return self.wait_js_func('ph_is_visible', selector)
 
@@ -238,6 +241,7 @@ class Browser:
         Arguments:
             id: The 'id' attribute of the page.
         """
+        self.wait_present('#content')
         self.wait_visible('#content')
         self.wait_visible('#' + id)
         self.wait_dbus_ready()

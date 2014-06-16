@@ -70,7 +70,8 @@
  *   channels using this transport and Channel.transport will be cleared.
  */
 
-var phantom_checkpoint = function () { };
+var phantom_checkpoint = phantom_checkpoint || function () { };
+
 var cockpit = cockpit || { };
 
 (function(cockpit, $) {

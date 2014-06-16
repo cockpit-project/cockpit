@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cockpit starting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/patternfly.v0.css" rel="stylesheet">
+    <script src="/static/jquery-min.v2.1.0.js"></script>
+    <script src="/static/bootstrap-min.v3.0.3.js"></script>
+    <style>
+        /* Login page specific overrides */
+        .login-pf {
+            background: url("/static/images/bg-login.x0.jpg") no-repeat 50% 0;
+            background-size: auto;
+            background-color: #101010;
+            color: #fff;
+        }
+        .message-icon {
+            float: left;
+            margin: 0 5px;
+        }
+        .pficon-layered {
+            float: left;
+            font-size: 200%;
+        }
+        .login-fatal {
+            font-size: 130%;
+        }
+    </style>
+    <script>
+        var cockpit = { };
+        var phantom_checkpoint = phantom_checkpoint || function () { };
+
+        (function($, cockpit) {
+
+            /* Filled in by cockpit-ws handler */
+            var initial_environment = cockpit_environment_info;
+
+            function fatal(msg) {
+                console.warn("fatal:", msg);
+                $("#login").hide();
+                $(".login-details").hide();
+                $(".login-fatal").show();
+                $("#login-fatal-message").text(msg);
+            }
+
+            function requisites() {
+                return ("WebSocket" in window || "MozWebSocket" in window) &&
+                       ("XMLHttpRequest" in window);
+            }
+
+            function boot() {
+                if (!requisites()) {
+                    fatal("This web browser is too old to run Cockpit");
+                    return;
+                }
+
+                /* Already logged in */
+                if (initial_environment.user) {
+                    shell(initial_environment);
+                    return;
+                }
+
+                /* Show the login screen */
+                $("#login").css("visibility", "visible");
+                $("#login-user-input").focus();
+                $("#login-user-input").on("keydown", function (e) {
+                    if (e.which == 13)
+                        $("#login-password-input").focus();
+                });
+                $("#login-password-input").on("keydown", function (e) {
+                    if (e.which == 13) {
+                        login($("#login-user-input").val(),
+                              $("#login-password-input").val());
+                    }
+                });
+                $("#login-button").on("click", function() {
+                    login($("#login-user-input").val(),
+                          $("#login-password-input").val());
+                });
+                phantom_checkpoint();
+            }
+
+            function login(user, password) {
+                var options = { url: "/login", dataType: "json" };
+                options.type = "POST";
+                options.data = user + "\n" + password;
+                $.ajax(options).
+                    done(function(environment) {
+                        shell(environment);
+                        phantom_checkpoint();
+                    }).
+                    fail(function(xhr, reason) {
+                        if (xhr.status == 401 || xhr.status == 413) {
+                            console.log(xhr.statusText);
+                            $("#login-error-message").show().text(xhr.statusText);
+                        } else {
+                            fatal(xhr.statusText);
+                        }
+                        phantom_checkpoint();
+                    });
+            }
+
+            function shell(environment) {
+                var module = null;
+                if (environment.localhost && environment.localhost.modules)
+                    module = environment.localhost.modules["shell"];
+                if (!module || !module.manifest) {
+                    fatal("Cockpit not available: shell not installed correctly");
+                    return;
+                }
+                if (module.checksum)
+                    module.prefix = "/cache/" + module.checksum;
+                else
+                    module.prefix = "/res/localhost/shell";
+
+                function qualify(path) {
+                    if (path.indexOf('/') === 0)
+                        return path;
+                    return module.prefix + '/' + path;
+                }
+
+                /* TODO: Compatibility ... rework these later */
+                window.cockpitdyn_supported_languages = environment.localhost.languages;
+                window.cockpitdyn_version = environment.localhost.version;
+                window.cockpitdyn_build_info = environment.localhost.build_info;
+                cockpit.environment = environment;
+                cockpit.connection_config = environment;
+
+                /* Simplistic module loader good enough for shell */
+                if (module.manifest.css) {
+                    $('head').append($('<link rel="stylesheet" type="text/css" />')
+                                        .attr("href", qualify(module.manifest.css)));
+                }
+
+                /* Load all the html */
+                $.ajax({
+                    url: qualify(module.manifest.html),
+                    dataType: "html",
+                }).done(function(content) {
+                    content = content.replace(/@@module@@/g, module.prefix);
+                    $("body")
+                        .removeClass()
+                        .html(content);
+                    $.each(module.manifest.scripts, function(i, file) {
+                        var script = document.createElement("script");
+                        script.async = false;
+                        script.src = qualify(file);
+                        document.head.appendChild(script);
+                    });
+                    phantom_checkpoint();
+                });
+         }
+
+         $(boot);
+        })(jQuery, cockpit);
+    </script>
+  </head>
+  <body class="login-pf">
+    <span id="badge">
+      <img src="/static/images/logo.v0.svg" alt="" />
+    </span>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <div id="brand">
+            <img src="/static/images/brand.v0.svg">
+          </div><!--/#brand-->
+        </div><!--/.col-*-->
+
+        <div id="login" class="col-sm-7 col-md-6 col-lg-5 login-area" style="visibility: hidden;">
+          <div class="form-horizontal" role="form">
+            <div class="form-group login-form">
+              <label for="login-user-input" class="col-sm-2 col-md-2 control-label">Username</label>
+              <div class="col-sm-10 col-md-10">
+                <input type="text" class="form-control" id="login-user-input" tabindex="1">
+              </div>
+            </div>
+            <div class="form-group login-form">
+              <label for="login-password-input" class="col-sm-2 col-md-2 control-label">Password</label>
+              <div class="col-sm-10 col-md-10">
+                <input type="password" class="form-control" id="login-password-input" tabindex="2">
+              </div>
+            </div>
+            <div class="form-group login-form">
+              <div class=" col-xs-12 col-sm-offset-2 col-sm-7">
+                <span class="help-block" id="login-error-message"></span>
+              </div>
+              <div class="col-sm-3">
+                <button class="btn btn-primary btn-lg col-xs-12" id="login-button" tabindex="3">
+                  Log In
+                </button>
+              </div>
+            </div>
+          </div>
+        </div><!--/.col-*-->
+
+        <div class="col-sm-5 col-md-6 col-lg-7 details login-details">
+          <p>
+            <strong>Welcome to Cockpit!</strong>
+            <div class="message-icon">
+              <span class="pficon-layered">
+                <span class="pficon pficon-warning-triangle"></span>
+                <span class="pficon pficon-warning-exclamation"></span>
+              </span>
+            </div>
+            This is pre-release software. Only use it on a system that you are willing to lose.
+          </p>
+        </div><!--/.col-*-->
+
+        <div class="login-fatal" style="display: none;">
+          <div class="message-icon">
+            <span class="pficon-layered">
+              <span class="pficon pficon-error-octagon"></span>
+              <span class="pficon pficon-warning-exclamation"></span>
+            </span>
+          </div>
+          <span id="login-fatal-message"></span>
+        </div>
+
+      </div><!--/.row-->
+    </div><!--/.container-->
+  </body>
+</html>

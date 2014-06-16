@@ -48,7 +48,6 @@ extern guint cockpit_ws_idle_timeout;
 
 /* From cockpithandlers.c */
 extern const gchar *cockpit_ws_static_directory;
-extern const gchar *cockpit_ws_content_directory;
 
 G_END_DECLS
 

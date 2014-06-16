@@ -38,7 +38,6 @@
 #include <string.h>
 
 const gchar *cockpit_ws_static_directory = PACKAGE_DATA_DIR "/static";
-const gchar *cockpit_ws_content_directory = PACKAGE_DATA_DIR "/content";
 
 /* Called by @server when handling HTTP requests to /socket - runs in a separate
  * thread dedicated to the request so it may do blocking I/O
@@ -455,7 +454,7 @@ send_index_response (CockpitWebResponse *response,
    * environment.
    */
 
-  index_html = g_build_filename (cockpit_ws_content_directory, "index.html", NULL);
+  index_html = g_build_filename (cockpit_ws_static_directory, "index.html", NULL);
   file = g_mapped_file_new (index_html, FALSE, &error);
   if (file == NULL)
     {

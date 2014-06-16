@@ -40,8 +40,8 @@ Each module has a manifest.json file. It is a JSON object file.
 Not yet documented, some notes:
 
  * "version": informational only, checksums are used to compare modules
- * "description": a simple description
- * "author": the module author
+ * "scripts": array of scripts to load for the module
+ * "html": array of html snippets to load for the module
  ...
 
 

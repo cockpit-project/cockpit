@@ -51,20 +51,22 @@ function NetworkManagerModel(address) {
         };
     }
 
+    function priv(obj) {
+        return obj[' priv'];
+    }
+
     function get_object(path, type) {
         if (path == "/")
             return null;
         if (!objects[path]) {
             function constructor() {
-                this[' type'] = type;
-                this[' path'] = path;
-                if (type) {
-                    for (var p in type.props)
-                        this[p] = type.props[p].def;
-                }
+                this[' priv'] = { };
+                priv(this).type = type;
+                priv(this).path = path;
+                for (var p in type.props)
+                    this[p] = type.props[p].def;
             }
-            if (type)
-                constructor.prototype = type.prototype;
+            constructor.prototype = type.prototype;
             objects[path] = new constructor();
         }
         return objects[path];
@@ -72,7 +74,7 @@ function NetworkManagerModel(address) {
 
     function set_object_properties(obj, props) {
         var p, decl, val;
-        decl = obj[' type'].props;
+        decl = priv(obj).type.props;
         for (p in decl) {
             if(props[p]) {
                 val = props[p];
@@ -88,15 +90,15 @@ function NetworkManagerModel(address) {
     }
 
     function objpath(obj) {
-        if (obj && obj[' path'])
-            return obj[' path'];
+        if (obj && priv(obj).path)
+            return priv(obj).path;
         else
             return "/";
     }
 
     function call_object_method(obj, iface, method) {
         var dfd = new $.Deferred();
-        var proxy = client.get(obj[' path'], iface);
+        var proxy = client.get(objpath(obj), iface);
 
         function slice_arguments(args, first, last) {
             return Array.prototype.slice.call(args, first, last);
@@ -330,19 +332,20 @@ function NetworkManagerModel(address) {
 
         prototype: {
             freeze: function () {
-                this[' frozen'] = true;
+                priv(this).frozen = true;
             },
 
             apply: function() {
+                var self = this;
                 return call_object_method(this,
                                           "org.freedesktop.NetworkManager.Settings.Connection", "Update",
-                                          settings_to_nm(this.Settings, this[' orig'])).
-                    done(function () { this[' frozen'] = false; });
+                                          settings_to_nm(this.Settings, priv(this).orig)).
+                    done(function () { priv(self).frozen = false; });
             },
 
             reset:  function () {
-                this.Settings = settings_from_nm(this[' orig']);
-                this[' frozen'] = false;
+                this.Settings = settings_from_nm(priv(this).orig);
+                priv(this).frozen = false;
                 export_model();
             },
 
@@ -490,8 +493,8 @@ function NetworkManagerModel(address) {
             if (result) {
                 var path = iface.getObject().objectPath;
                 var obj = get_object(path, type_Connection);
-                obj[' orig'] = result;
-                if (!obj[' frozen']) {
+                priv(obj).orig = result;
+                if (!priv(obj).frozen) {
                     obj.Settings = settings_from_nm(result);
                     export_model ();
                 }

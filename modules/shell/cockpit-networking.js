@@ -606,6 +606,9 @@ function NetworkManagerModel(address) {
     }
 
     function refresh_udev(obj) {
+        if (!obj.Udi.startsWith("/sys/"))
+            return;
+
         push_refresh();
         cockpit.spawn(["/usr/bin/udevadm", "info", obj.Udi], { host: address }).
             done(function(res) {

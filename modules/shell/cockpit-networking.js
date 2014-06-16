@@ -26,13 +26,108 @@ function nm_debug() {
         console.debug.apply(console, arguments);
 }
 
+/* NetworkManagerModel
+ *
+ * The NetworkManager model maintains a mostly-read-only data
+ * structure that represents the state of the NetworkManager service
+ * on a given machine.
+ *
+ * The data structure consists of JavaScript values such as objects,
+ * arrays, and strings that point at each other.  It might have
+ * cycles.  In general, it follows the NetworkManager D-Bus API.
+ *
+ * For example,
+ *
+ *    model.manager.Devices[0].Ipv4Config.Addresses[0][0]
+ *
+ * is the first IPv4 address of the first device as a string.
+ *
+ * The model initializes itself asynchronously and emits the 'changed'
+ * event whenever anything changes.  If you only access the data
+ * structure from within the 'changed' event handler, you should
+ * always see it in a complete state.
+ *
+ * In other words, any change from one version of the data structure
+ * to the next represents a real change in the state of
+ * NetworkManager.
+ *
+ * When a new model is created, its main 'manager' object starts out
+ * as 'null'.  The first 'changed' event signals that initialization
+ * is complete and that the whole data structure is now stable and
+ * reachable from the 'manager' object.
+ *
+ * Methods are invoked directly on the objects in the data structure.
+ * For example,
+ *
+ *    model.manager.Devices[0].disconnect();
+ *    model.manager.Devices[0].ActiveConnection.deactivate();
+ *
+ * Editing connection settings is supported directly:
+ *
+ *    connection = model.manager.Devices[0].AvailableConnections[0];
+ *    connection.freeze();
+ *    connection.Settings.connection.autoconnect = false;
+ *    connection.apply().fail(show_error);
+ *
+ * Freezing a connection object will prevent external, asynchronous
+ * updates to the Settings.  Calling 'apply' will unfreeze the object
+ * when it succeeds.
+ */
+
+/* HACK
+ *
+ * NetworkManager doesn't implement the standard o.fd.DBus.Properties
+ * interface.
+ *
+ * 1) NM does not emit the PropertiesChanged signal on the
+ *    o.fd.DBus.Properties interface but rather on its own interfaces
+ *    like o.fd.NetworkManager.Device.Wired.
+ *
+ * 2) NM does not always emit the PropertiesChanged signal on the
+ *    interface whose properties have changed.  For example, when a
+ *    property on o.fd.NM.Device changes, this might be notified by a
+ *    PropertiesChanged signal on the o.fd.NM.Device.Wired interface
+ *    for the same object path.
+ *
+ * https://bugzilla.gnome.org/show_bug.cgi?id=729826
+ *
+ * We cope with this here by merging all properties of all interfaces
+ * for a given object path.  This is appropriate and nice for
+ * NetworkManager, and we should probably keep it that way even if
+ * NetworkManager would use a standard o.fd.DBus.Properties API.
+ */
+
+/* TODO
+ *
+ * We potentially do a lot of round trips when populating our data
+ * structure.  When the Device.IPv4Config changes to a new object
+ * path, for example, we first get the PropertiesChanges signal for
+ * this, and then we issue a GetAll call to retrieve the contents for
+ * the new object.  It would be better if the agent would send us the
+ * properties of the new object together with the PropertiesChanged so
+ * that we don't have to query them explicitly.
+ *
+ * During initialization, we can use a fake object manager and its
+ * 'seed' message to avoid most round trips, but later on there isn't
+ * any reliable mechanisms yet.  The fake object manager comes close,
+ * but it doesn't make any guarantees that it sends information about
+ * new object paths before the information that references them.
+ *
+ * Also, the fake object manager will start tracking the objects that
+ * it knows about and our DBusClient will acquire a lot of state that
+ * we don't want.  This is wasteful and might even interfere a bit
+ * with us, such as when we have created a new proxy via client.get
+ * and the fake object manager later sends a objectAdded signal for
+ * it.
+ */
+
 function NetworkManagerModel(address) {
     var self = this;
 
     var client = new DBusClient(address,
                                 { 'bus':          "system",
                                   'service':      "org.freedesktop.NetworkManager",
-                                  'object-paths': [ "/org/freedesktop/NetworkManager" ]
+                                  'object-paths': [ ]
                                 });
 
     self.client = client;
@@ -55,6 +150,18 @@ function NetworkManagerModel(address) {
         return obj[' priv'];
     }
 
+    var outstanding_refreshes = 0;
+
+    function push_refresh() {
+        outstanding_refreshes += 1;
+    }
+
+    function pop_refresh() {
+        outstanding_refreshes -= 1;
+        if (outstanding_refreshes === 0)
+            emit_changed();
+    }
+
     function get_object(path, type) {
         if (path == "/")
             return null;
@@ -68,8 +175,13 @@ function NetworkManagerModel(address) {
             }
             constructor.prototype = type.prototype;
             objects[path] = new constructor();
+            refresh_object_properties(objects[path]);
         }
         return objects[path];
+    }
+
+    function peek_object(path) {
+        return objects[path] || null;
     }
 
     function set_object_properties(obj, props) {
@@ -87,6 +199,35 @@ function NetworkManagerModel(address) {
                 }
             }
         }
+    }
+
+    function remove_signatures(props_with_sigs) {
+        var props = { };
+        for (var p in props_with_sigs) {
+            if (props_with_sigs.hasOwnProperty(p)) {
+                props[p] = props_with_sigs[p].val;
+            }
+        }
+        return props;
+    }
+
+    function refresh_object_properties(obj) {
+        var type = priv(obj).type;
+        var path = priv(obj).path;
+        var p = client.get(path, "org.freedesktop.DBus.Properties");
+        push_refresh();
+        type.interfaces.forEach(function (iface) {
+            push_refresh();
+            p.call('GetAll', iface,
+                   function (error, result) {
+                       if (!error)
+                           set_object_properties(obj, remove_signatures(result));
+                       pop_refresh();
+                   });
+        });
+        if (type.refresh)
+            type.refresh(obj);
+        pop_refresh();
     }
 
     function objpath(obj) {
@@ -314,21 +455,35 @@ function NetworkManagerModel(address) {
     }
 
     var type_Ipv4Config = {
+        interfaces: [
+            "org.freedesktop.NetworkManager.IP4Config"
+        ],
+
         props: {
             Addresses:            { conv: conv_Array(ip4_from_nm), def: [] }
         }
     };
 
     var type_Ipv6Config = {
+        interfaces: [
+            "org.freedesktop.NetworkManager.IP6Config"
+        ],
+
         props: {
             Addresses:            { conv: conv_Array(ip6_from_nm), def: [] }
         }
     };
 
     var type_Connection = {
+        interfaces: [
+            "org.freedesktop.NetworkManager.Settings.Connection"
+        ],
+
         props: {
             Unsaved:              { }
         },
+
+        refresh: refresh_settings,
 
         prototype: {
             freeze: function () {
@@ -346,7 +501,7 @@ function NetworkManagerModel(address) {
             reset:  function () {
                 this.Settings = settings_from_nm(priv(this).orig);
                 priv(this).frozen = false;
-                export_model();
+                emit_changed();
             },
 
             activate: function (dev, specific_object) {
@@ -358,6 +513,10 @@ function NetworkManagerModel(address) {
     };
 
     var type_ActiveConnection = {
+        interfaces: [
+            "org.freedesktop.NetworkManager.Connection.Active"
+        ],
+
         props: {
             Connection:           { conv: conv_Object(type_Connection) }
         },
@@ -372,6 +531,11 @@ function NetworkManagerModel(address) {
     };
 
     var type_Device = {
+        interfaces: [
+            "org.freedesktop.NetworkManager.Device",
+            "org.freedesktop.NetworkManager.Device.Wired"
+        ],
+
         props: {
             DeviceType:           { },
             Interface:            { },
@@ -395,73 +559,22 @@ function NetworkManagerModel(address) {
     };
 
     var type_Manager = {
+        interfaces: [
+            "org.freedesktop.NetworkManager"
+        ],
+
         props: {
             Devices:            { conv: conv_Array(conv_Object(type_Device)),           def: [] },
             ActiveConnections:  { conv: conv_Array(conv_Object(type_ActiveConnection)), def: [] }
         }
     };
 
-    var interface_types = {
-        "org.freedesktop.NetworkManager":                     type_Manager,
-        "org.freedesktop.NetworkManager.Device":              type_Device,
-        "org.freedesktop.NetworkManager.IP4Config":           type_Ipv4Config,
-        "org.freedesktop.NetworkManager.IP6Config":           type_Ipv6Config,
-        "org.freedesktop.NetworkManager.Settings.Connection": type_Connection,
-        "org.freedesktop.NetworkManager.Connection.Active":   type_ActiveConnection
-    };
-
-    function model_properties_changed (path, iface, props) {
-        /* HACK
-         *
-         * NetworkManager interfaces have their own PropertiesChanged
-         * signals, so we catch them here.
-         *
-         * Unfortunatly, o.f.NM.Device doesn't have a PropertiesChanged
-         * signal.  Instead, the specialized interfaces like
-         * o.f.NM.Device.Wired do double duty: Their PropertiesChanged signals
-         * contain change notifications for both themselves and the
-         * o.f.NM.Device properties.
-         *
-         * We 'solve' this here by merging the properties of all interfaces
-         * for a given object.
-         *
-         * https://bugzilla.gnome.org/show_bug.cgi?id=729826
-         */
-        if (iface.startsWith("org.freedesktop.NetworkManager.Device."))
-            iface = "org.freedesktop.NetworkManager.Device";
-
-        var type = interface_types[iface];
-        if (type) {
-            set_object_properties(get_object(path, type), props);
-            export_model();
-        }
-    }
-
-    function model_removed (path) {
-        delete objects[path];
-    }
-
-    function model_refresh (path, iface) {
-        var p = client.get(path, "org.freedesktop.DBus.Properties");
-        p.call('GetAll', iface,
-               function (error, result) {
-                   if (!error) {
-                       model_properties_changed(path, iface, remove_signatures(result));
-                       if (iface == "org.freedesktop.NetworkManager.Settings.Connection") {
-                           var proxy = client.get(path, iface);
-                           refresh_settings(proxy);
-                       }
-                   }
-               });
-    }
-
     var changed_pending;
 
-    self.devices = [ ];
+    self.manager = null;
 
-    function export_model() {
-        var manager = objects["/org/freedesktop/NetworkManager"];
-        self.devices = (manager && manager.Devices) || [];
+    function emit_changed() {
+        self.manager = peek_object("/org/freedesktop/NetworkManager");
 
         if (!changed_pending) {
             changed_pending = true;
@@ -469,26 +582,16 @@ function NetworkManagerModel(address) {
         }
     }
 
-    function remove_signatures(props_with_sigs) {
-        var props = { };
-        for (var p in props_with_sigs) {
-            if (props_with_sigs.hasOwnProperty(p)) {
-                props[p] = props_with_sigs[p].val;
-            }
-        }
-        return props;
-    }
-
     function refresh_all_devices() {
         for (var path in objects) {
-            if (path.startsWith("/org/freedesktop/NetworkManager/Devices/")) {
-                model_refresh(path, "org.freedesktop.NetworkManager.Device");
-                model_refresh(path, "org.freedesktop.NetworkManager.Wired");
-            }
+            if (path.startsWith("/org/freedesktop/NetworkManager/Devices/"))
+                refresh_object_properties(objects[path]);
         }
     }
 
-    function refresh_settings(iface) {
+    function refresh_settings(obj) {
+        var iface = client.get(objpath(obj), "org.freedesktop.NetworkManager.Settings.Connection");
+        push_refresh();
         iface.call('GetSettings', function (error, result) {
             if (result) {
                 var path = iface.getObject().objectPath;
@@ -496,13 +599,14 @@ function NetworkManagerModel(address) {
                 priv(obj).orig = result;
                 if (!priv(obj).frozen) {
                     obj.Settings = settings_from_nm(result);
-                    export_model ();
                 }
             }
+            pop_refresh();
         });
     }
 
     function refresh_udev(obj) {
+        push_refresh();
         cockpit.spawn(["/usr/bin/udevadm", "info", obj.Udi], { host: address }).
             done(function(res) {
                 var props = { };
@@ -517,82 +621,58 @@ function NetworkManagerModel(address) {
                     snarf_prop(line, "ID_VENDOR_FROM_DATABASE", "IdVendor");
                 });
                 set_object_properties(obj, props);
-                export_model();
             }).
             fail(function(ex) {
                 console.warn(ex);
-            });
-    }
-
-    function object_added (event, object) {
-        for (var iface in object._ifaces)
-            interface_added (event, object, object._ifaces[iface]);
-    }
-
-    function object_removed (event, object) {
-        for (var iface in object._ifaces)
-            interface_removed (event, object, object._ifaces[iface]);
-    }
-
-    function interface_added (event, object, iface) {
-        var path = object.objectPath;
-        model_properties_changed (path, iface._iface_name, iface);
-        if (iface._iface_name == "org.freedesktop.NetworkManager.Settings.Connection")
-            refresh_settings(iface);
-    }
-
-    function interface_removed (event, object, iface) {
-        var path = object.objectPath;
-        model_removed (path);
+            }).
+            always(pop_refresh);
     }
 
     function signal_emitted (event, iface, signal, args) {
-        if (signal == "PropertiesChanged") {
-            var path = iface.getObject().objectPath;
-            model_properties_changed (path, iface._iface_name, remove_signatures(args[0]));
-        } else if (signal == "Updated") {
-            refresh_settings(iface);
+        var path = iface.getObject().objectPath;
+        var obj = peek_object(path);
 
-            /* HACK
-             *
-             * Some versions of NetworkManager don't always send
-             * PropertyChanged notifications for the
-             * o.f.NM.Device.Ip4Config property.
-             *
-             * https://bugzilla.gnome.org/show_bug.cgi?id=729828
-             */
-            refresh_all_devices();
+        if (obj) {
+            if (signal == "PropertiesChanged") {
+                push_refresh();
+                set_object_properties(obj, remove_signatures(args[0]));
+                pop_refresh();
+            } else if (signal == "Updated") {
+                push_refresh();
+                refresh_settings(obj);
+
+                /* HACK
+                 *
+                 * Some versions of NetworkManager don't always send
+                 * PropertyChanged notifications for the
+                 * o.f.NM.Device.Ip4Config property.
+                 *
+                 * https://bugzilla.gnome.org/show_bug.cgi?id=729828
+                 */
+                refresh_all_devices();
+                pop_refresh();
+            }
         }
     }
 
-    $(client).on("objectAdded", object_added);
-    $(client).on("objectRemoved", object_removed);
-    $(client).on("interfaceAdded", interface_added);
-    $(client).on("interfaceRemoved", interface_removed);
     $(client).on("signalEmitted", signal_emitted);
 
     self.close = function close() {
-        $(client).off("objectAdded", object_added);
-        $(client).off("objectRemoved", object_removed);
-        $(client).off("interfaceAdded", interface_added);
-        $(client).off("interfaceRemoved", interface_removed);
         $(client).off("signalEmitted", signal_emitted);
         client.close("unused");
     };
 
     self.find_device = function find_device(iface) {
-        for (var i = 0; i < self.devices.length; i++) {
-            if (self.devices[i].Interface == iface)
-                return self.devices[i];
+        if (self.manager) {
+            for (var i = 0; i < self.manager.Devices.length; i++) {
+                if (self.manager.Devices[i].Interface == iface)
+                    return self.manager.Devices[i];
+            }
         }
         return null;
     };
 
-    client.getObjectsFrom("/").forEach(function (object) {
-        for (var iface in object._ifaces)
-            model_refresh (object.objectPath, iface);
-    });
-
+    get_object("/org/freedesktop/NetworkManager", type_Manager);
     return self;
 }
 
@@ -655,7 +735,11 @@ PageNetworking.prototype = {
 
         tbody = $('#networking-interfaces tbody');
         tbody.empty();
-        self.model.devices.forEach(function (dev) {
+
+        if (!self.model.manager)
+            return;
+
+        self.model.manager.Devices.forEach(function (dev) {
             if (!dev)
                 return;
 

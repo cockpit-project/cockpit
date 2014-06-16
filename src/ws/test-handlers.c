@@ -379,7 +379,6 @@ main (int argc,
   g_assert (root != NULL);
 
   cockpit_ws_static_directory = root;
-  cockpit_ws_content_directory = SRCDIR "/src/web";
   cockpit_ws_session_program = BUILDDIR "/cockpit-session";
   cockpit_ws_agent_program = BUILDDIR "/cockpit-agent";
 

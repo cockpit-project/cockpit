@@ -64,8 +64,6 @@ var cockpit = cockpit || { };
 cockpit.dbus = dbus;
 cockpit.set_watched_client = set_watched_client;
 
-$(init);
-
 function init() {
     cockpit.language_code = "";
     cockpit.language_po = null;
@@ -115,11 +113,9 @@ function init_load_lang(lang_code) {
 }
 
 function init_done() {
-    cockpit_login_init ();
     cockpit_content_init ();
     cockpit_localize_pages();
-
-    cockpit_login_try ();
+    cockpit_content_show();
 }
 
 var dbus_clients = cockpit.util.make_resource_cache();
@@ -191,5 +187,7 @@ function PageDisconnected() {
 }
 
 cockpit_pages.push(new PageDisconnected());
+
+$(init);
 
 })(jQuery, cockpit, cockpit_pages);

@@ -982,11 +982,34 @@ PageNetworkInterface.prototype = {
                     deactivate_connection();
             }
 
-            var active_status = "";
-            if (is_active && !con.Settings.connection.autoconnect)
-                active_status = " (active now, but wont be active after next boot)";
-            else if (!is_active && con.Settings.connection.autoconnect)
-                active_status = " (not active now, but might be automatically activated)";
+            var active_status = null;
+            if (is_active && !con.Settings.connection.autoconnect) {
+                active_status =
+                    $('<tr>').append(
+                        $('<td>'),
+                        $('<td>').
+                            text(_("This connection is active now, but wont be active after next boot.")),
+                        $('<td style="text-align:right">').append(
+                            $('<button class="btn btn-default">').
+                                text(_("Activate on next boot")).
+                                click(function () {
+                                    con.Settings.connection.autoconnect = true;
+                                    apply();
+                                })));
+            } else if (!is_active && con.Settings.connection.autoconnect) {
+                active_status =
+                    $('<tr>').append(
+                        $('<td>'),
+                        $('<td>').
+                            text(_("This connection is not active now, but might be automatically activated.")),
+                        $('<td style="text-align:right">').append(
+                            $('<button class="btn btn-default">').
+                                text(_("Don't allow automatic activation")).
+                                click(function () {
+                                    con.Settings.connection.autoconnect = false;
+                                    apply();
+                                })));
+            }
 
             var $panel =
                 $('<div class="panel panel-default">').append(
@@ -994,7 +1017,6 @@ PageNetworkInterface.prototype = {
                         $('<input>').
                             val(con.Settings.connection.id).
                             change(change_id),
-                        $('<span>').text(active_status),
                         $('<div class="btn-group btn-toggle" style="float:right">').append(
                             $('<button class="btn">').
                                 text("On").
@@ -1005,6 +1027,7 @@ PageNetworkInterface.prototype = {
                             click(toggle_onoff)),
                     $('<div class="panel-body">').append(
                         $('<table class="cockpit-form-table">').append(
+                            active_status,
                             $('<tr>').append(
                                 $('<td>').text("IPv4"),
                                 $('<td>').text(render_ip_settings("ipv4")),

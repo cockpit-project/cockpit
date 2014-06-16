@@ -112,13 +112,13 @@ clean-local:
 
 include doc/Makefile-doc.am
 include doc/man/Makefile-man.am
+include modules/shell/Makefile-shell.am
 include src/cockpit/Makefile-libcockpit.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
 include src/agent/Makefile-agent.am
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am
-include src/web/Makefile-web.am
 include src/static/Makefile-static.am
 include src/reauthorize/Makefile-reauthorize.am
 include src/selinux/Makefile-selinux.am

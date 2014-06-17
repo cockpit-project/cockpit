@@ -30,6 +30,8 @@
 
 #include <glib.h>
 
+#include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <sys/types.h>
@@ -348,7 +350,13 @@ int
 main (int argc,
       char *argv[])
 {
-  cockpit_ws_static_directory = SRCDIR "/src/static";
+  gchar *root;
+  gint ret;
+
+  root = realpath (SRCDIR "/src/static", NULL);
+  g_assert (root != NULL);
+
+  cockpit_ws_static_directory = root;
   cockpit_ws_content_directory = SRCDIR "/src/web";
   cockpit_ws_session_program = BUILDDIR "/cockpit-session";
   cockpit_ws_agent_program = BUILDDIR "/cockpit-agent";
@@ -372,5 +380,9 @@ main (int argc,
   g_test_add ("/handlers/index", Test, NULL,
               setup, test_index, teardown);
 
-  return g_test_run ();
+  ret = g_test_run ();
+
+  free (root);
+
+  return ret;
 }

@@ -224,10 +224,12 @@ main (int argc,
 {
   CockpitTransport *transport;
   GDBusConnection *connection;
+  gboolean terminated = FALSE;
   gboolean closed = FALSE;
   GError *error = NULL;
   gpointer polkit_agent;
   GPid daemon_pid;
+  guint sig_term;
   int outfd;
 
   signal (SIGPIPE, SIG_IGN);
@@ -246,6 +248,10 @@ main (int argc,
       outfd = 1;
     }
 
+  sig_term = g_unix_signal_add_full (G_PRIORITY_DEFAULT,
+                                     SIGTERM, on_signal_done,
+                                     &terminated, NULL);
+
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
@@ -254,10 +260,6 @@ main (int argc,
   daemon_pid = start_dbus_daemon ();
 
   g_type_init ();
-
-  g_unix_signal_add_full (G_PRIORITY_DEFAULT,
-                          SIGTERM, on_signal_done,
-                          &closed, NULL);
 
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
@@ -279,7 +281,7 @@ main (int argc,
   /* Owns the channels */
   channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
-  while (!closed)
+  while (!terminated && !closed)
     g_main_context_iteration (NULL, TRUE);
 
   if (polkit_agent)
@@ -291,5 +293,12 @@ main (int argc,
 
   if (daemon_pid)
     kill (daemon_pid, SIGTERM);
+
+  g_source_remove (sig_term);
+
+  /* So the caller gets the right signal */
+  if (terminated)
+    raise (SIGTERM);
+
   exit (0);
 }

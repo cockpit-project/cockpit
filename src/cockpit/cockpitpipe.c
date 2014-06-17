@@ -403,7 +403,10 @@ dispatch_output (gint fd,
     {
       if (errno != EAGAIN && errno != EINTR)
         {
-          g_warning ("%s: couldn't write: %s", self->priv->name, g_strerror (errno));
+          if (errno == EPIPE)
+            g_debug ("%s: couldn't write: %s", self->priv->name, g_strerror (errno));
+          else
+            g_warning ("%s: couldn't write: %s", self->priv->name, g_strerror (errno));
           close_immediately (self, "internal-error");
         }
       return FALSE;

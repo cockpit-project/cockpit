@@ -941,7 +941,10 @@ again:
   if (path == NULL)
     {
       if (errno == ENOENT || errno == ENOTDIR || errno == ELOOP || errno == ENAMETOOLONG)
-        goto again;
+        {
+          g_debug ("%s: file not found in root: %s", escaped, root);
+          goto again;
+        }
       else if (errno == EACCES)
         {
           cockpit_web_response_error (response, 403, NULL, "Access Denied");
@@ -962,6 +965,7 @@ again:
   /* Someone is trying to escape the root directory */
   if (!path_has_prefix (path, root))
     {
+      g_debug ("%s: request tried to escape the root directory: %s: %s", escaped, root, path);
       cockpit_web_response_error (response, 404, NULL, "Not Found");
       goto out;
     }

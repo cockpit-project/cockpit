@@ -112,7 +112,7 @@
 
  */
 
-var phantom_checkpoint = function () { };
+var phantom_checkpoint = phantom_checkpoint || function () { };
 
 var cockpit = cockpit || { };
 

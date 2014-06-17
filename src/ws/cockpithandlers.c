@@ -37,7 +37,7 @@
 
 #include <string.h>
 
-const char *cockpit_ws_static_directory = PACKAGE_DATA_DIR "/static";
+const gchar *cockpit_ws_static_directory = PACKAGE_DATA_DIR "/static";
 
 /* Called by @server when handling HTTP requests to /socket - runs in a separate
  * thread dedicated to the request so it may do blocking I/O
@@ -66,6 +66,31 @@ cockpit_handler_socket (CockpitWebServer *server,
   else
     {
       cockpit_web_service_noauth (io_stream, headers, input);
+    }
+
+  return TRUE;
+}
+
+gboolean
+cockpit_handler_resource (CockpitWebService *server,
+                          CockpitWebServerRequestType reqtype,
+                          const gchar *path,
+                          GHashTable *headers,
+                          GBytes *input,
+                          CockpitWebResponse *response,
+                          CockpitHandlerData *ws)
+{
+  CockpitWebService *service;
+
+  service = cockpit_auth_check_cookie (ws->auth, headers);
+  if (service)
+    {
+      cockpit_web_service_resource (service, response);
+      g_object_unref (service);
+    }
+  else
+    {
+      cockpit_web_response_error (response, 401, NULL, NULL);
     }
 
   return TRUE;
@@ -104,41 +129,117 @@ get_remote_address (GIOStream *io)
   return result;
 }
 
-static void
-send_login_response (CockpitWebResponse *response,
-                     CockpitWebService *service,
-                     GHashTable *out_headers)
+static GBytes *
+build_environment (CockpitWebService *service,
+                   JsonObject *modules)
 {
-  JsonBuilder *builder = json_builder_new ();
-  CockpitCreds *creds;
-  gchar *response_body;
-  GBytes *content;
   const gchar *user;
-  gsize length;
-  JsonNode *root;
+  CockpitCreds *creds;
+  JsonObject *env;
+  JsonObject *localhost;
+  JsonObject *languages;
+  JsonObject *language;
+  struct passwd *pwd;
+  gchar *hostname;
+  GBytes *bytes;
+  guint n;
 
-  creds = cockpit_web_service_get_creds (service);
+  const struct {
+    const gchar *name;
+    const gchar *code;
+  } supported_languages[] = {
+    { NC_("display-language", "English"), "" },
+    { NC_("display-language", "Danish"),  "da" },
+    { NC_("display-language", "German"),  "de" },
+  };
 
-  json_builder_begin_object (builder);
-  json_builder_set_member_name (builder, "user");
-  user = cockpit_creds_get_user (creds);
-  json_builder_add_string_value (builder, user);
-  struct passwd *pwd = cockpit_getpwnam_a (user, NULL);
-  if (pwd)
+  env = json_object_new ();
+  if (service)
     {
-      json_builder_set_member_name (builder, "name");
-      json_builder_add_string_value (builder, pwd->pw_gecos);
-      free (pwd);
+      creds = cockpit_web_service_get_creds (service);
+      user = cockpit_creds_get_user (creds);
+      json_object_set_string_member (env, "user", user);
+      pwd = cockpit_getpwnam_a (user, NULL);
+      if (pwd)
+        {
+          json_object_set_string_member (env, "name", pwd->pw_gecos);
+          free (pwd);
+        }
     }
-  json_builder_end_object (builder);
 
-  root = json_builder_get_root (builder);
-  response_body = cockpit_json_write (root, &length);
-  json_node_free (root);
+  localhost = json_object_new ();
 
-  content = g_bytes_new_take (response_body, length);
-  cockpit_web_response_content (response, out_headers, content, NULL);
+  /* This awkwardly takes the localhost reference */
+  json_object_set_object_member (env, "localhost", localhost);
+
+  hostname = g_malloc0 (HOST_NAME_MAX + 1);
+  gethostname (hostname, HOST_NAME_MAX);
+  hostname[HOST_NAME_MAX] = '\0';
+
+  json_object_set_string_member (env, "hostname", hostname);
+
+  /* Only include version info if logged in */
+  if (service)
+    {
+      json_object_set_string_member (localhost, "version", PACKAGE_VERSION);
+      json_object_set_string_member (localhost, "build_info", COCKPIT_BUILD_INFO);
+    }
+
+  languages = json_object_new ();
+
+  /* This awkwardly takes the languages reference */
+  json_object_set_object_member (localhost, "languages", languages);
+
+  for (n = 0; n < G_N_ELEMENTS (supported_languages); n++)
+    {
+      language = json_object_new ();
+      json_object_set_object_member (languages, supported_languages[n].code, language);
+      json_object_set_string_member (language, "name", supported_languages[n].name);
+    }
+
+  if (modules)
+    json_object_set_object_member (localhost, "modules", json_object_ref (modules));
+
+  bytes = cockpit_json_write_bytes (env);
+  json_object_unref (env);
+
+  return bytes;
+}
+
+typedef struct {
+  CockpitWebResponse *response;
+  GHashTable *headers;
+} LoginResponse;
+
+static void
+login_response_free (gpointer data)
+{
+  LoginResponse *lr = data;
+  g_object_unref (lr->response);
+  g_hash_table_unref (lr->headers);
+  g_free (lr);
+}
+
+static void
+on_login_modules (GObject *source,
+                  GAsyncResult *result,
+                  gpointer user_data)
+{
+  LoginResponse *lr = user_data;
+  CockpitWebService *service;
+  JsonObject *modules;
+  GBytes *content;
+
+  service = COCKPIT_WEB_SERVICE (source);
+  modules = cockpit_web_service_modules_finish (service, result);
+
+  content = build_environment (service, modules);
+  g_hash_table_replace (lr->headers, g_strdup ("Content-Type"), g_strdup ("application/json"));
+  cockpit_web_response_content (lr->response, lr->headers, content, NULL);
   g_bytes_unref (content);
+
+  if (modules)
+    json_object_unref (modules);
 }
 
 static void
@@ -146,33 +247,27 @@ on_login_complete (GObject *object,
                    GAsyncResult *result,
                    gpointer user_data)
 {
-  CockpitWebResponse *response = COCKPIT_WEB_RESPONSE (user_data);
+  LoginResponse *lr = user_data;
   GError *error = NULL;
-  GHashTable *out_headers = NULL;
   CockpitWebService *service;
   GIOStream *io_stream;
 
-  out_headers = cockpit_web_server_new_table ();
-
-  io_stream = cockpit_web_response_get_stream (response);
+  io_stream = cockpit_web_response_get_stream (lr->response);
   service = cockpit_auth_login_finish (COCKPIT_AUTH (object), result,
                                        !G_IS_SOCKET_CONNECTION (io_stream),
-                                       out_headers, &error);
+                                       lr->headers, &error);
 
   if (error)
     {
-      cockpit_web_response_gerror (response, out_headers, error);
+      cockpit_web_response_gerror (lr->response, lr->headers, error);
+      login_response_free (lr);
       g_error_free (error);
     }
   else
     {
-      send_login_response (response, service, out_headers);
+      cockpit_web_service_modules (service, "localhost", on_login_modules, lr);
       g_object_unref (service);
     }
-
-  g_hash_table_unref (out_headers);
-
-  g_object_unref (response);
 }
 
 gboolean
@@ -187,6 +282,11 @@ cockpit_handler_login (CockpitWebServer *server,
   CockpitWebService *service;
   gchar *remote_peer = NULL;
   GIOStream *io_stream;
+  LoginResponse *lr;
+
+  lr = g_new0 (LoginResponse, 1);
+  lr->response = g_object_ref (response);
+  lr->headers = cockpit_web_server_new_table ();
 
   if (reqtype == COCKPIT_WEB_SERVER_REQUEST_GET)
     {
@@ -194,11 +294,13 @@ cockpit_handler_login (CockpitWebServer *server,
       if (service == NULL)
         {
           cockpit_web_response_error (response, 401, NULL, NULL);
+          login_response_free (lr);
         }
       else
         {
-          send_login_response (response, service, NULL);
+          cockpit_web_service_modules (service, "localhost", on_login_modules, lr);
           g_object_unref (service);
+          /* no response yet */
         }
     }
   else if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
@@ -206,7 +308,7 @@ cockpit_handler_login (CockpitWebServer *server,
       io_stream = cockpit_web_response_get_stream (response);
       remote_peer = get_remote_address (io_stream);
       cockpit_auth_login_async (ws->auth, headers, input, remote_peer,
-                                on_login_complete, g_object_ref (response));
+                                on_login_complete, lr);
       g_free (remote_peer);
       /* no response yet */
     }
@@ -286,90 +388,6 @@ cockpit_handler_deauthorize (CockpitWebServer *server,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static gchar *
-get_avatar_data_url (void)
-{
-  const gchar *file = PACKAGE_SYSCONF_DIR "/cockpit/avatar.png";
-
-  gs_free gchar *raw_data = NULL;
-  gsize raw_size;
-  gs_free gchar *base64_data = NULL;
-
-  if (!g_file_get_contents (file, &raw_data, &raw_size, NULL))
-    return NULL;
-
-  base64_data = g_base64_encode ((guchar *)raw_data, raw_size);
-  return g_strdup_printf ("data:image/png;base64,%s", base64_data);
-}
-
-gboolean
-cockpit_handler_cockpitdyn (CockpitWebServer *server,
-                            CockpitWebServerRequestType reqtype,
-                            const gchar *path,
-                            GHashTable *headers,
-                            GBytes *input,
-                            CockpitWebResponse *response,
-                            CockpitHandlerData *data)
-{
-  gchar *hostname;
-  GHashTable *out_headers;
-  GBytes *content;
-  GString *str;
-  gchar *s;
-  guint n;
-
-  const struct {
-    const gchar *name;
-    const gchar *code;
-  } supported_languages[] = {
-    { NC_("display-language", "English"), "" },
-    { NC_("display-language", "Danish"),  "da" },
-    { NC_("display-language", "German"),  "de" },
-  };
-
-  str = g_string_new (NULL);
-
-  hostname = g_malloc0 (HOST_NAME_MAX + 1);
-  gethostname (hostname, HOST_NAME_MAX);
-  hostname[HOST_NAME_MAX] = '\0';
-
-  g_string_append_printf (str, "cockpitdyn_hostname = \"%s\";\n", hostname);
-  g_string_append (str, "cockpitdyn_pretty_hostname = \"\";\n");
-  g_free (hostname);
-
-  s = get_avatar_data_url ();
-  s = g_strescape (s? s : "", NULL);
-  g_string_append_printf (str, "cockpitdyn_avatar_data_url = \"%s\";\n", s);
-  g_free (s);
-
-  s = g_strescape (PACKAGE_VERSION, NULL);
-  g_string_append_printf (str, "cockpitdyn_version = \"%s\";\n", s);
-  g_free (s);
-
-  s = g_strescape (COCKPIT_BUILD_INFO, NULL);
-  g_string_append_printf (str, "cockpitdyn_build_info = \"%s\";\n", s);
-  g_free (s);
-
-  g_string_append (str, "cockpitdyn_supported_languages = {");
-  for (n = 0; n < G_N_ELEMENTS(supported_languages); n++)
-    {
-      if (n > 0)
-        g_string_append (str, ", ");
-      g_string_append_printf (str, "\"%s\": {name: \"%s\"}",
-                              supported_languages[n].code,
-                              supported_languages[n].name);
-    }
-  g_string_append (str, "};\n");
-
-  out_headers = web_socket_util_new_headers ();
-  g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup ("application/javascript"));
-  content = g_string_free_to_bytes (str);
-  cockpit_web_response_content (response, out_headers, content, NULL);
-  g_hash_table_unref (out_headers);
-  g_bytes_unref (content);
-  return TRUE;
-}
-
 gboolean
 cockpit_handler_static (CockpitWebServer *server,
                         CockpitWebServerRequestType reqtype,
@@ -384,9 +402,158 @@ cockpit_handler_static (CockpitWebServer *server,
   if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
     return FALSE;
 
-  if (!g_str_has_prefix (path, "/static/"))
+  cockpit_web_response_file (response, path + 8, TRUE, roots);
+  return TRUE;
+}
+
+gboolean
+cockpit_handler_root (CockpitWebServer *server,
+                      CockpitWebServerRequestType reqtype,
+                      const gchar *path,
+                      GHashTable *headers,
+                      GBytes *input,
+                      CockpitWebResponse *response,
+                      CockpitHandlerData *ws)
+{
+  const gchar *roots[] = { cockpit_ws_static_directory, NULL };
+
+  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
     return FALSE;
 
-  cockpit_web_response_file (response, path + 8, TRUE, roots);
+  /* Don't cache forever */
+  cockpit_web_response_file (response, path, FALSE, roots);
+  return TRUE;
+}
+
+static void
+send_index_response (CockpitWebResponse *response,
+                     CockpitWebService *service,
+                     JsonObject *modules)
+{
+  GHashTable *out_headers;
+  GError *error = NULL;
+  GMappedFile *file = NULL;
+  GBytes *body = NULL;
+  GBytes *prefix = NULL;
+  GBytes *environ = NULL;
+  GBytes *suffix = NULL;
+  gchar *index_html;
+  const gchar *needle;
+  const gchar *data;
+  const gchar *pos;
+  gsize needle_len;
+  gsize length;
+  gsize offset;
+
+  /*
+   * Since the index file cannot be properly cached, it can change on
+   * each request, so we include full environment information directly
+   * rather than making the client do another round trip later.
+   *
+   * If the caller is already logged in, then this is included in the
+   * environment.
+   */
+
+  index_html = g_build_filename (cockpit_ws_static_directory, "index.html", NULL);
+  file = g_mapped_file_new (index_html, FALSE, &error);
+  if (file == NULL)
+    {
+      g_warning ("%s: %s", index_html, error->message);
+      cockpit_web_response_error (response, 500, NULL, NULL);
+      g_clear_error (&error);
+      goto out;
+    }
+
+  body = g_mapped_file_get_bytes (file);
+  data = g_bytes_get_data (body, &length);
+
+  needle = "cockpit_environment_info";
+  pos = g_strstr_len (data, length, needle);
+  if (!pos)
+    {
+      g_warning ("couldn't find 'cockpit_environment_info' string in index.html");
+      cockpit_web_response_error (response, 500, NULL, NULL);
+      goto out;
+    }
+
+  environ = build_environment (service, modules);
+
+  offset = (pos - data);
+  prefix = g_bytes_new_from_bytes (body, 0, offset);
+
+  needle_len = strlen (needle);
+  suffix = g_bytes_new_from_bytes (body, offset + needle_len,
+                                   length - (offset + needle_len));
+
+  out_headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup ("text/html; charset=utf8"));
+  cockpit_web_response_content (response, out_headers, prefix, environ, suffix, NULL);
+  g_hash_table_unref (out_headers);
+
+out:
+  g_free (index_html);
+  if (prefix)
+    g_bytes_unref (prefix);
+  if (body)
+    g_bytes_unref (body);
+  if (environ)
+    g_bytes_unref (environ);
+  if (suffix)
+    g_bytes_unref (suffix);
+  if (file)
+    g_mapped_file_unref (file);
+}
+
+static void
+on_index_modules (GObject *source_object,
+                  GAsyncResult *result,
+                  gpointer user_data)
+{
+  CockpitWebResponse *response = user_data;
+  CockpitWebService *service = COCKPIT_WEB_SERVICE (source_object);
+  JsonObject *modules;
+
+  /* Failures printed elsewhere */
+  modules = cockpit_web_service_modules_finish (service, result);
+  send_index_response (response, service, modules);
+
+  if (modules)
+    json_object_unref (modules);
+  g_object_unref (response);
+}
+
+gboolean
+cockpit_handler_index (CockpitWebServer *server,
+                       CockpitWebServerRequestType reqtype,
+                       const gchar *path,
+                       GHashTable *headers,
+                       GBytes *input,
+                       CockpitWebResponse *response,
+                       CockpitHandlerData *ws)
+{
+  CockpitWebService *service;
+
+  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
+    return FALSE;
+
+  /*
+   * In the future this code path should also be taken for GSSAPI
+   * single-sign-on authentication, where the user never sees a login
+   * screen.
+   */
+
+  service = cockpit_auth_check_cookie (ws->auth, headers);
+  if (service)
+    {
+      /* Already logged in, lookup modules and return full environment */
+      cockpit_web_service_modules (service, "localhost", on_index_modules,
+                                   g_object_ref (response));
+    }
+  else
+    {
+      /* Not logged in, include half-baked environment */
+      send_index_response (response, NULL, NULL);
+    }
+
   return TRUE;
 }

@@ -131,13 +131,16 @@ PageDashboard.prototype = {
                             dbus_iface: configured_machines[i]
                           };
 
+            /* TODO: This needs to be reworked once real module loading lands */
+            var prefix = cockpit.environment.localhost.modules.shell.prefix;
+
             var btn;
             var table =
                 $('<table/>', { style: "width:100%" }).append(
                     $('<tr/>').append(
                         $('<td/>', { 'style': "width:64px;height:64px;vertical-align:top" }).append(
                             $('<img/>', { 'class': "cockpit-avatar",
-                                          'src': "images/server-large.png",
+                                          'src': prefix + "/images/server-large.png",
                                           'Width': "64px",
                                           'style': "border-radius:5px"
                                         })),
@@ -155,7 +158,7 @@ PageDashboard.prototype = {
                                 $('<div/>', { 'class': "cockpit-graph-plot",
                                               'style': "width:100%;height:100%" })),
                             $('<div/>', { 'class': "cockpit-machine-spinner" }).append(
-                                $('<img/>', { 'src': "images/small-spinner.gif" })),
+                                $('<img/>', { 'src': prefix +  "/images/small-spinner.gif" })),
                             $('<div/>', { 'class': "cockpit-machine-error", 'style': "color:red" })),
                         $('<td/>', { style: "text-align:right;width:180px" }).append(
                             btn = cockpit_action_btn (machine_action_func (machine),

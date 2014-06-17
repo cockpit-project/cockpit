@@ -68,6 +68,7 @@ function cockpit_content_show ()
     $('#content').show();
     cockpit_content_is_shown = true;
     cockpit_go_hash (window.location.hash);
+    phantom_checkpoint();
 }
 
 function cockpit_content_leave ()

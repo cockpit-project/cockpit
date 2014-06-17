@@ -23,7 +23,9 @@
 #include "cockpitwstypes.h"
 
 #include "cockpitcreds.h"
+#include "cockpitwebresponse.h"
 
+#include "cockpit/cockpitjson.h"
 #include "cockpit/cockpitpipe.h"
 
 G_BEGIN_DECLS
@@ -46,6 +48,9 @@ void                 cockpit_web_service_socket      (CockpitWebService *self,
                                                       GHashTable *headers,
                                                       GByteArray *input_buffer);
 
+void                 cockpit_web_service_resource    (CockpitWebService *self,
+                                                      CockpitWebResponse *response);
+
 void                 cockpit_web_service_noauth      (GIOStream *io_stream,
                                                       GHashTable *headers,
                                                       GByteArray *input_buffer);
@@ -53,6 +58,15 @@ void                 cockpit_web_service_noauth      (GIOStream *io_stream,
 CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
 
 gboolean             cockpit_web_service_get_idling  (CockpitWebService *self);
+
+void                 cockpit_web_service_modules        (CockpitWebService *self,
+                                                         const gchar *host,
+                                                         GAsyncReadyCallback callback,
+                                                         gpointer user_data);
+
+JsonObject *         cockpit_web_service_modules_finish (CockpitWebService *self,
+                                                         GAsyncResult *result);
+
 
 G_END_DECLS
 

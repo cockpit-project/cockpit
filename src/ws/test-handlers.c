@@ -24,11 +24,14 @@
 
 #include "cockpitwebserver.h"
 #include "cockpithandlers.h"
+#include "cockpitws.h"
 
 #include "cockpit/cockpittest.h"
 
 #include <glib.h>
 
+#include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <sys/types.h>
@@ -296,8 +299,8 @@ test_login_post_accept (Test *test,
 }
 
 static void
-test_cockpitdyn (Test *test,
-                 gconstpointer data)
+test_index (Test *test,
+            gconstpointer data)
 {
   const gchar *output;
   gboolean ret;
@@ -306,20 +309,20 @@ test_cockpitdyn (Test *test,
   GBytes *input;
 
   input = g_bytes_new_static ("", 0);
-  ret = cockpit_handler_cockpitdyn (test->server,
-                                    COCKPIT_WEB_SERVER_REQUEST_GET, "/cockpitdyn.js",
-                                    test->headers, input, test->response, &test->data);
+  ret = cockpit_handler_index (test->server,
+                               COCKPIT_WEB_SERVER_REQUEST_GET, "/",
+                               test->headers, input, test->response, &test->data);
   g_bytes_unref (input);
 
   g_assert (ret == TRUE);
 
   g_assert (gethostname (hostname, sizeof (hostname)) == 0);
-  expected = g_strdup_printf ("HTTP/1.1 200 OK\r\n*cockpitdyn_hostname = \"%s\";\n*cockpitdyn_pretty_hostname*cockpitdyn_supported_languages*",
+  expected = g_strdup_printf ("HTTP/1.1 200 OK\r\n*\"hostname\":\"%s\"*",
                               hostname);
 
   output = output_as_string (test);
   cockpit_assert_strmatch (output, expected);
-  cockpit_assert_strmatch (output, "*Content-Type: application/javascript\r\n*");
+  cockpit_assert_strmatch (output, "*Content-Type: text/html; charset=utf8\r\n*");
   g_free (expected);
 }
 
@@ -343,10 +346,42 @@ test_logout (Test *test,
   cockpit_assert_strmatch (output, "HTTP/1.1 200 OK\r\n*Set-Cookie: CockpitAuth=blank;*Secure*Logged out*");
 }
 
+static void
+test_favicon_ico (Test *test,
+                  gconstpointer data)
+{
+  const gchar *output;
+  gboolean ret;
+  GBytes *input;
+
+  input = g_bytes_new_static ("", 0);
+  ret = cockpit_handler_root (test->server,
+                              COCKPIT_WEB_SERVER_REQUEST_GET, "/favicon.ico",
+                              test->headers, input, test->response, &test->data);
+
+  g_assert (ret == TRUE);
+
+  output = output_as_string (test);
+  cockpit_assert_strmatch (output,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Content-Length: 1150\r\n"
+                           "*");
+}
+
 int
 main (int argc,
       char *argv[])
 {
+  gchar *root;
+  gint ret;
+
+  root = realpath (SRCDIR "/src/static", NULL);
+  g_assert (root != NULL);
+
+  cockpit_ws_static_directory = root;
+  cockpit_ws_session_program = BUILDDIR "/cockpit-session";
+  cockpit_ws_agent_program = BUILDDIR "/cockpit-agent";
+
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/handlers/login/no-cookie", Test, NULL,
@@ -363,8 +398,15 @@ main (int argc,
   g_test_add ("/handlers/logout", Test, NULL,
               setup, test_logout, teardown);
 
-  g_test_add ("/handlers/cockpitdyn", Test, NULL,
-              setup, test_cockpitdyn, teardown);
+  g_test_add ("/handlers/index", Test, NULL,
+              setup, test_index, teardown);
 
-  return g_test_run ();
+  g_test_add ("/handlers/favicon", Test, NULL,
+              setup, test_favicon_ico, teardown);
+
+  ret = g_test_run ();
+
+  free (root);
+
+  return ret;
 }

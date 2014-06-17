@@ -22,6 +22,8 @@
 #ifndef __COCKPIT_TEST_H__
 #define __COCKPIT_TEST_H__
 
+#include <json-glib/json-glib.h>
+
 G_BEGIN_DECLS
 
 void     cockpit_test_init                  (int *argc,
@@ -60,6 +62,40 @@ void     _cockpit_assert_strmatch_msg       (const char *domain,
 
 #define cockpit_assert_strmatch(str, pattern) \
   (_cockpit_assert_strmatch_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (str), (pattern)))
+
+void     _cockpit_assert_json_eq_msg        (const char *domain,
+                                             const char *file,
+                                             int line,
+                                             const char *func,
+                                             JsonObject *object,
+                                             const gchar *json);
+
+#define cockpit_assert_json_eq(obj, json) \
+  (_cockpit_assert_json_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (obj), (json)))
+
+void     _cockpit_assert_data_eq_msg        (const char *domain,
+                                             const char *file,
+                                             int line,
+                                             const char *func,
+                                             gconstpointer data,
+                                             gssize len,
+                                             gconstpointer expect,
+                                             gssize exp_len);
+
+#define  cockpit_assert_data_eq(data, len, exp, elen) \
+  (_cockpit_assert_data_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (data), (len), (exp), (elen)))
+
+void     _cockpit_assert_bytes_eq_msg       (const char *domain,
+                                             const char *file,
+                                             int line,
+                                             const char *func,
+                                             GBytes *data,
+                                             gconstpointer expect,
+                                             gssize exp_len);
+
+#define  cockpit_assert_bytes_eq(data, exp, len) \
+  (_cockpit_assert_bytes_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (data), (exp), (len)))
+
 
 void     cockpit_test_skip                  (const gchar *reason);
 

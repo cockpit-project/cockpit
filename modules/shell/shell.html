@@ -1,74 +1,6 @@
-<!DOCTYPE html>
-<html>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
-  <head>
-    <title>Cockpit</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/static/patternfly.v0.css" rel="stylesheet">
-    <link href="cockpit.css" rel="stylesheet">
-    <script src="/static/jquery-min.v2.1.0.js"></script>
-    <script src="/static/jquery-flot.v1.1.js"></script>
-    <script src="/static/bootstrap-min.v3.0.3.js"></script>
-    <script src="/static/attrchange.v0.js"></script>
-    <script src="/static/term.v0.js"></script>
-    <script src="cockpitdyn.js"></script>
-    <script src="cockpit.js"></script>
-  </head>
-  <body>
+<div id="cockpit-shell">
 
     <div class="page" id="loading">
-    </div>
-
-    <div class="page login-pf" id="login" style="display:none">
-      <span id="badge">
-        <img src="/static/images/logo.v0.svg" alt="" />
-      </span>
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div id="brand">
-              <img src="/static/images/brand.v0.svg">
-            </div><!--/#brand-->
-          </div><!--/.col-*-->
-          <div class="col-sm-7 col-md-6 col-lg-5 login">
-            <div class="form-horizontal" role="form">
-              <div class="form-group login-form">
-                <label for="login-user-input" class="col-sm-2 col-md-2 control-label">Username</label>
-                <div class="col-sm-10 col-md-10">
-                  <input type="text" class="form-control" id="login-user-input" tabindex="1">
-                </div>
-              </div>
-              <div class="form-group login-form">
-                <label for="login-password-input" class="col-sm-2 col-md-2 control-label">Password</label>
-                <div class="col-sm-10 col-md-10">
-                  <input type="password" class="form-control" id="login-password-input" tabindex="2">
-                </div>
-              </div>
-              <div class="form-group login-form">
-                <div class=" col-xs-12 col-sm-offset-2 col-sm-7">
-                  <span class="help-block" id="login-error-message"></span>
-                </div>
-                <div class="col-sm-3">
-                  <button class="btn btn-primary btn-lg col-xs-12" id="login-button" tabindex="3">
-                    Log In
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div><!--/.col-*-->
-          <div class="col-sm-5 col-md-6 col-lg-7 details">
-            <p>
-              <strong>Welcome to Cockpit!</strong>
-              <div style="float: left; margin: 0 5px;">
-                <span class="pficon-layered" style="float: left; font-size: 200%;">
-                  <span class="pficon pficon-warning-triangle"></span>
-                  <span class="pficon pficon-warning-exclamation"></span>
-                </span>
-              </div>
-              This is pre-release software. Only use it on a system that you are willing to lose.
-          </div><!--/.col-*-->
-        </div><!--/.row-->
-      </div><!--/.container-->
     </div>
 
     <div class="page" id="content" style="display:none">
@@ -148,35 +80,35 @@
               <div id="server-avatar"></div>
            </div>
             <a class="list-group-item" onclick="cockpit_go_down('system_information')">
-              <img class="cockpit-category-icon" src="images/category-system.png">
+              <img class="cockpit-category-icon" src="@@module@@/images/category-system.png">
               System Information
             </a>
             <a class="list-group-item" onclick="cockpit_go_down('services')">
-              <img class="cockpit-category-icon" src="images/category-services.png">
+              <img class="cockpit-category-icon" src="@@module@@/images/category-services.png">
               System Services
             </a>
             <a class="list-group-item" onclick="cockpit_go_down('journal')">
-              <img class="cockpit-category-icon" src="images/category-journal.png">
+              <img class="cockpit-category-icon" src="@@module@@/images/category-journal.png">
               Journal
             </a>
             <a class="list-group-item"  onclick="cockpit_go_down('networking')">
-              <img class="cockpit-category-icon" src="images/category-networking.png">
+              <img class="cockpit-category-icon" src="@@module@@/images/category-networking.png">
               Networking
             </a>
             <a class="list-group-item" onclick="cockpit_go_down('storage')">
-              <img class="cockpit-category-icon" src="images/category-storage.png">
+              <img class="cockpit-category-icon" src="@@module@@/images/category-storage.png">
               Storage
             </a>
             <a class="list-group-item" onclick="cockpit_go_down('accounts')">
-              <img class="cockpit-category-icon" src="images/category-users.png">
+              <img class="cockpit-category-icon" src="@@module@@/images/category-users.png">
               User Accounts
             </a>
             <a class="list-group-item" onclick="cockpit_go_down('containers')">
-              <img class="cockpit-category-icon" src="images/category-containers.png">
+              <img class="cockpit-category-icon" src="@@module@@/images/category-containers.png">
               Containers
             </a>
             <a class="list-group-item" onclick="cockpit_go_down('shutdown')">
-              <img class="cockpit-category-icon" src="images/category-shutdown.png">
+              <img class="cockpit-category-icon" src="@@module@@/images/category-shutdown.png">
               Shutdown & Reboot
             </a>
           </div>
@@ -546,7 +478,7 @@
                          style="width:48%;display:inline;text-align:center"
                          value="00"/>
                   <img id="shutdown-exact-error"
-                       src="images/dialog-error.png"
+                       src="@@module@@/images/dialog-error.png"
                        style="width:16px;margin-right:-16px;margin-top:8px;padding-left:4px"/>
                 </center>
               </td>
@@ -715,7 +647,7 @@
       </div>
 
       <div id="internal" class="container-fluid">
-          <img src="images/hammer.gif" style="float: right;"
+          <img src="@@module@@/images/hammer.gif" style="float: right;"
               onclick="$(this).hide();">
           <div class="cockpit-internal-reauthorize">
               <button class="btn btn-default">Priveleged Action</button>
@@ -791,28 +723,30 @@
 
       <!-- Layout for container details page -->
       <div id="container-details" class="container-fluid">
-        <div class="panel-default panel">
-          <div class="panel-heading">
-            <div class="row">
-              <div class="col-sm-12">
-                Container:
-                <span id="container-details-names"></span>
-                <div class="pull-right" style="height:25px">
-                  <button class="btn btn-default" id="container-details-start">Start</button>
-                  <button class="btn btn-default" id="container-details-stop">Stop</button>
-                  <button class="btn btn-default" id="container-details-restart">Restart</button>
-                  <button class="btn btn-danger" id="container-details-delete">Delete</button>
-                  <button class="btn btn-default" id="container-details-commit"
-                    data-toggle="modal" data-target="#container-commit-dialog">
-                    Commit
-                  </button>
-                <div class="waiting" style="display: none;"></div>
-              </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="pull-right" style="height:25px">
+              <button class="btn btn-default" id="container-details-start">Start</button>
+              <button class="btn btn-default" id="container-details-stop">Stop</button>
+              <button class="btn btn-default" id="container-details-restart">Restart</button>
+              <button class="btn btn-danger" id="container-details-delete">Delete</button>
+              <button class="btn btn-default" id="container-details-commit"
+                  data-toggle="modal" data-target="#container-commit-dialog">
+                  Commit
+              </button>
+              <div class="waiting" style="display: none;"></div>
             </div>
           </div>
         </div>
+        <br/>
+	<div class="panel panel-default">
 	  <div class="panel-body">
 	    <table class="cockpit-info-table col-sm-5">
+	      <tr>
+                <td>Name:</td>
+                <td colspan="2" id="container-details-names" style="font-weight:bold"></td>
+              </tr>
+	      <tr>
                 <td>Id:</td>
                 <td colspan="2" id="container-details-id"></td>
               </tr>
@@ -876,24 +810,26 @@
 
       <!-- Layout for image details page-->
       <div id="image-details" class="container-fluid">
-        <div class="panel-default panel">
-          <div class="panel-heading">
-            <div class="row">
-              <div class="col-sm-12">
-                 Image: <span id="image-details-tags"></span>
-                <div class="pull-right" style="height:25px" id="image-details-buttons">
-                  <button class="btn btn-default" id="image-details-run">Run</button>
-                  <button class="btn btn-danger" id="image-details-delete">Delete</button>
-                  <div class="waiting" style="display: none;"></div>
-                </div>
-              </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="pull-right" style="height:25px" id="image-details-buttons">
+              <button class="btn btn-default" id="image-details-run">Run</button>
+              <button class="btn btn-danger" id="image-details-delete">Delete</button>
+              <div class="waiting" style="display: none;"></div>
             </div>
           </div>
+        </div>
+        <br/>
+        <div class="panel panel-default">
 	  <div class="panel-body">
 	    <table class="cockpit-info-table">
 	      <tr>
                 <td>Id:</td>
                 <td id="image-details-id"></td>
+              </tr>
+	      <tr>
+                <td>Tags:</td>
+                <td id="image-details-tags"></td>
               </tr>
 	      <tr>
                 <td>Entrypoint:</td>
@@ -1178,7 +1114,7 @@
             <h4 class="modal-title" id="realms-op-title"></h4>
           </div>
           <div class="modal-body">
-            <img src="images/small-spinner.gif"
+            <img src="@@module@@/images/small-spinner.gif"
                  id="realms-op-init-spinner"
                  style="display:block;position:absolute;left:50%;top:50%;margin-left:-16px;margin-top:-16px;z-index:100"/>
             <div id="realms-op-fields">
@@ -1191,10 +1127,10 @@
                   </td>
                   <td style="width:0px">
                     <img id="realms-op-address-spinner"
-                         src="images/small-spinner.gif"
+                         src="@@module@@/images/small-spinner.gif"
                          style="margin-left:-40px;margin-top:4px"/>
                     <img id="realms-op-address-error"
-                         src="images/dialog-error.png"
+                         src="@@module@@/images/dialog-error.png"
                          style="margin-left:-40px;margin-top:4px"/>
                   </td>
                 </tr>
@@ -1273,7 +1209,7 @@
             <button class="btn btn-default" id="realms-op-cancel">
               Cancel
             </button>
-            <img id="realms-op-spinner" src="images/spinner.gif"/>
+            <img id="realms-op-spinner" src="@@module@@/images/spinner.gif"/>
             <button class="btn btn-primary" id="realms-op-apply">
               Next
             </button>
@@ -2328,5 +2264,4 @@
       </div>
     </div>
 
-  </body>
-</html>
+</div>

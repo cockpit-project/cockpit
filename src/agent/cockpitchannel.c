@@ -23,6 +23,7 @@
 #include "cockpitdbusjson.h"
 #include "cockpitdbusjson1.h"
 #include "cockpitrestjson.h"
+#include "cockpitresource.h"
 #include "cockpittextstream.h"
 
 #include "cockpit/cockpitjson.h"
@@ -357,6 +358,8 @@ cockpit_channel_open (CockpitTransport *transport,
     channel_type = COCKPIT_TYPE_REST_JSON;
   else if (g_strcmp0 (payload, "text-stream") == 0)
     channel_type = COCKPIT_TYPE_TEXT_STREAM;
+  else if (g_strcmp0 (payload, "resource1") == 0)
+    channel_type = COCKPIT_TYPE_RESOURCE;
   else
     channel_type = COCKPIT_TYPE_CHANNEL;
 
@@ -601,6 +604,21 @@ cockpit_channel_close_int_option (CockpitChannel *self,
   if (!self->priv->close_options)
     self->priv->close_options = json_object_new ();
   json_object_set_int_member (self->priv->close_options, name, value);
+}
+
+void
+cockpit_channel_close_obj_option (CockpitChannel *self,
+                                  const gchar *name,
+                                  JsonObject *object)
+{
+  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
+  g_return_if_fail (name != NULL);
+  g_return_if_fail (object != NULL);
+
+  if (!self->priv->close_options)
+    self->priv->close_options = json_object_new ();
+  json_object_set_object_member (self->priv->close_options, name,
+                                 json_object_ref (object));
 }
 
 /**

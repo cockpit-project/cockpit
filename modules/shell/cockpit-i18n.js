@@ -56,7 +56,6 @@ function cockpit_localize_pages() {
             $(e).text(translated);
         });
     cockpit_content_refresh ();
-    cockpit_login_refresh ();
 }
 
 function F(format, args) {

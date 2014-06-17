@@ -27,6 +27,13 @@ G_BEGIN_DECLS
 #define COCKPIT_TYPE_WEB_RESPONSE         (cockpit_web_response_get_type ())
 #define COCKPIT_WEB_RESPONSE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_RESPONSE, CockpitWebResponse))
 
+typedef enum {
+  COCKPIT_WEB_RESPONSE_READY = 1,
+  COCKPIT_WEB_RESPONSE_QUEUING,
+  COCKPIT_WEB_RESPONSE_COMPLETE,
+  COCKPIT_WEB_RESPONSE_SENT,
+} CockpitWebResponding;
+
 typedef struct _CockpitWebResponse        CockpitWebResponse;
 
 GType                 cockpit_web_response_get_type      (void) G_GNUC_CONST;
@@ -37,6 +44,8 @@ CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
 const gchar *         cockpit_web_response_get_path      (CockpitWebResponse *self);
 
 GIOStream *           cockpit_web_response_get_stream    (CockpitWebResponse *self);
+
+CockpitWebResponding  cockpit_web_response_get_state     (CockpitWebResponse *self);
 
 void                  cockpit_web_response_headers       (CockpitWebResponse *self,
                                                           guint status,
@@ -54,6 +63,8 @@ gboolean              cockpit_web_response_queue         (CockpitWebResponse *se
                                                           GBytes *block);
 
 void                  cockpit_web_response_complete      (CockpitWebResponse *self);
+
+void                  cockpit_web_response_abort         (CockpitWebResponse *self);
 
 void                  cockpit_web_response_content       (CockpitWebResponse *self,
                                                           GHashTable *headers,

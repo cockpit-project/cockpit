@@ -132,7 +132,9 @@ on_pipe_close (CockpitPipe *pipe,
   /* This function is called by the base class when it is closed */
   if (cockpit_pipe_get_pid (pipe, NULL))
     {
-      if (problem == NULL)
+      if (problem == NULL ||
+          g_str_equal (problem, "") ||
+          g_str_equal (problem, "internal-error"))
         {
           status = cockpit_pipe_exit_status (pipe);
           if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)

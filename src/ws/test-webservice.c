@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "mock-auth.h"
+#include "mock-io-stream.h"
 #include "cockpitws.h"
 #include "cockpitcreds.h"
 #include "cockpitwebservice.h"
@@ -252,6 +253,17 @@ teardown_for_socket (TestCase *test,
 
   cockpit_assert_expected ();
   alarm (0);
+}
+
+static void
+on_ready_get_result (GObject *source,
+                     GAsyncResult *result,
+                     gpointer data)
+{
+  GAsyncResult **retval = data;
+  g_assert (retval != NULL);
+  g_assert (*retval == NULL);
+  *retval = g_object_ref (result);
 }
 
 static void
@@ -1030,11 +1042,333 @@ test_dispose (TestCase *test,
   g_object_unref (client);
 }
 
+typedef struct {
+  CockpitWebService *service;
+  GIOStream *io;
+  GMemoryOutputStream *output;
+  CockpitPipe *pipe;
+} TestResourceCase;
+
+static void
+setup_resource (TestResourceCase *tc,
+                gconstpointer data)
+{
+  GInputStream *input;
+  GOutputStream *output;
+  CockpitCreds *creds;
+  gchar **environ;
+  const gchar *user;
+
+  const gchar *argv[] = {
+    BUILDDIR "/cockpit-agent",
+    NULL
+  };
+
+  environ = g_get_environ ();
+  environ = g_environ_setenv (environ, "XDG_DATA_DIRS", SRCDIR "/src/agent/mock-resource/system", TRUE);
+  environ = g_environ_setenv (environ, "XDG_DATA_HOME", SRCDIR "/src/agent/mock-resource/home", TRUE);
+
+  /* Start up a cockpit-agent here */
+  tc->pipe = cockpit_pipe_spawn (argv, (const gchar **)environ, NULL);
+
+  user = g_get_user_name ();
+  creds = cockpit_creds_new (user, COCKPIT_CRED_PASSWORD, PASSWORD, NULL);
+
+  tc->service = cockpit_web_service_new (creds, tc->pipe);
+
+  cockpit_creds_unref (creds);
+
+  input = g_memory_input_stream_new_from_data ("", 0, NULL);
+  output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+  tc->io = mock_io_stream_new (input, output);
+  tc->output = G_MEMORY_OUTPUT_STREAM (output);
+  g_object_unref (input);
+}
+
+static void
+teardown_resource (TestResourceCase *tc,
+                   gconstpointer data)
+{
+  cockpit_assert_expected ();
+
+  g_object_add_weak_pointer (G_OBJECT (tc->service), (gpointer *)&tc->service);
+  g_object_unref (tc->service);
+  g_assert (tc->service == NULL);
+
+  g_object_unref (tc->io);
+  g_object_unref (tc->output);
+  g_object_unref (tc->pipe);
+}
+
+static void
+test_resource_simple (TestResourceCase *tc,
+                      gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GBytes *bytes;
+
+  response = cockpit_web_response_new (tc->io, "/res/localhost/another/test.html");
+
+  cockpit_web_service_resource (tc->service, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Content-Type: text/html\r\n"
+                           "Connection: close\r\n\r\n"
+                           "<html>\n"
+                           "<head>\n"
+                           "<title>In home dir</title>\n"
+                           "</head>\n"
+                           "<body>In home dir</body>\n"
+                           "</html>\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_not_found (TestResourceCase *tc,
+                         gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GBytes *bytes;
+
+  response = cockpit_web_response_new (tc->io, "/res/localhost/another/not-exist");
+
+  cockpit_web_service_resource (tc->service, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 404 Not Found\r\n"
+                           "Content-Length: 76\r\n"
+                           "Connection: close\r\n\r\n"
+                           "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_no_path (TestResourceCase *tc,
+                       gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GBytes *bytes;
+
+  /* Missing path after module */
+  response = cockpit_web_response_new (tc->io, "/res/localhost/another");
+
+  cockpit_web_service_resource (tc->service, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 404 Not Found\r\n"
+                           "Content-Length: 76\r\n"
+                           "Connection: close\r\n\r\n"
+                           "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+
+static void
+test_resource_failure (TestResourceCase *tc,
+                       gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GBytes *bytes;
+  GPid pid;
+
+  cockpit_expect_message ("*: failed to retrieve resource: terminated");
+
+  response = cockpit_web_response_new (tc->io, "/res/localhost/another/test.html");
+
+  /* Now kill the agent */
+  g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
+  g_assert_cmpint (pid, >, 0);
+  g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
+
+  cockpit_web_service_resource (tc->service, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 500 Internal Server Error\r\n"
+                           "Content-Length: 100\r\n"
+                           "Connection: close\r\n\r\n"
+                           "<html><head><title>500 Internal Server Error</title></head><body>Internal Server Error</body></html>", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_modules (TestResourceCase *tc,
+                       gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  JsonObject *modules;
+
+  cockpit_web_service_modules (tc->service, "localhost", on_ready_get_result, &result);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  modules = cockpit_web_service_modules_finish (tc->service, result);
+  g_object_unref (result);
+
+  g_assert (modules != NULL);
+  cockpit_assert_json_eq (modules,
+                          "{"
+                          " \"test\": {"
+                          "    \"checksum\": \"b0cb8eb96388a67047c60d48634172e72db50eaf\","
+                          "    \"manifest\" : { \"description\" : \"dummy\"}"
+                          " },"
+                          " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
+                          "}");
+
+  json_object_unref (modules);
+}
+
+static void
+test_resource_modules_failure (TestResourceCase *tc,
+                               gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  JsonObject *modules;
+  GPid pid;
+
+  cockpit_expect_message ("*: transport closed while listing cockpit modules: *");
+
+  /* Now kill the agent */
+  g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
+  g_assert_cmpint (pid, >, 0);
+  g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
+
+  cockpit_web_service_modules (tc->service, "localhost", on_ready_get_result, &result);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  modules = cockpit_web_service_modules_finish (tc->service, result);
+  g_object_unref (result);
+
+  g_assert (modules == NULL);
+}
+
+static void
+test_resource_checksum (TestResourceCase *tc,
+                        gconstpointer data)
+{
+  GAsyncResult *result = NULL;
+  CockpitWebResponse *response;
+  GBytes *bytes;
+
+  /* Do a module listing so that the web service knows the checksums for localhost */
+  cockpit_web_service_modules (tc->service, "localhost", on_ready_get_result, &result);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  json_object_unref (cockpit_web_service_modules_finish (tc->service, result));
+  g_object_unref (result);
+
+  response = cockpit_web_response_new (tc->io, "/cache/b0cb8eb96388a67047c60d48634172e72db50eaf/sub/file.ext");
+  cockpit_web_service_resource (tc->service, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Cache-Control: max-age=31556926, public\r\n"
+                           "Connection: close\r\n\r\n"
+                           "These are the contents of file.ext\n"
+                           "Oh marmalaaade\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_no_checksum (TestResourceCase *tc,
+                           gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GBytes *bytes;
+
+  /* Missing checksum */
+  response = cockpit_web_response_new (tc->io, "/cache/");
+
+  cockpit_web_service_resource (tc->service, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 404 Not Found\r\n"
+                           "Content-Length: 76\r\n"
+                           "Connection: close\r\n\r\n"
+                           "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_bad_checksum (TestResourceCase *tc,
+                           gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GBytes *bytes;
+
+  /* Missing checksum */
+  response = cockpit_web_response_new (tc->io, "/cache/09323094823029348/path");
+
+  cockpit_web_service_resource (tc->service, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 404 Not Found\r\n"
+                           "Content-Length: 76\r\n"
+                           "Connection: close\r\n\r\n"
+                           "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static gboolean
+on_hack_raise_sigchld (gpointer user_data)
+{
+  raise (SIGCHLD);
+  return TRUE;
+}
+
 int
 main (int argc,
       char *argv[])
 {
   cockpit_test_init (&argc, &argv);
+
+  signal (SIGPIPE, SIG_IGN);
+
+  /*
+   * HACK: Work around races in glib SIGCHLD handling.
+   *
+   * https://bugzilla.gnome.org/show_bug.cgi?id=731771
+   * https://bugzilla.gnome.org/show_bug.cgi?id=711090
+   */
+  g_timeout_add_seconds (1, on_hack_raise_sigchld, NULL);
 
   /* We don't want to test the ping functionality in these tests */
   cockpit_ws_ping_interval = G_MAXUINT;
@@ -1106,6 +1440,25 @@ main (int argc,
               setup_for_socket, test_idling, teardown_for_socket);
   g_test_add ("/web-service/force-dispose", TestCase, NULL,
               setup_for_socket, test_dispose, teardown_for_socket);
+
+  g_test_add ("/web-service/resource/simple", TestResourceCase, NULL,
+              setup_resource, test_resource_simple, teardown_resource);
+  g_test_add ("/web-service/resource/not-found", TestResourceCase, NULL,
+              setup_resource, test_resource_not_found, teardown_resource);
+  g_test_add ("/web-service/resource/no-path", TestResourceCase, NULL,
+              setup_resource, test_resource_no_path, teardown_resource);
+  g_test_add ("/web-service/resource/failure", TestResourceCase, NULL,
+              setup_resource, test_resource_failure, teardown_resource);
+  g_test_add ("/web-service/resource/modules", TestResourceCase, NULL,
+              setup_resource, test_resource_modules, teardown_resource);
+  g_test_add ("/web-service/resource/modules-failure", TestResourceCase, NULL,
+              setup_resource, test_resource_modules_failure, teardown_resource);
+  g_test_add ("/web-service/resource/checksum", TestResourceCase, NULL,
+              setup_resource, test_resource_checksum, teardown_resource);
+  g_test_add ("/web-service/resource/no-checksum", TestResourceCase, NULL,
+              setup_resource, test_resource_no_checksum, teardown_resource);
+  g_test_add ("/web-service/resource/bad-checksum", TestResourceCase, NULL,
+              setup_resource, test_resource_bad_checksum, teardown_resource);
 
   return g_test_run ();
 }

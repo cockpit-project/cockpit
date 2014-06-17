@@ -77,4 +77,12 @@ gboolean       cockpit_handler_static            (CockpitWebServer *server,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
+gboolean       cockpit_handler_resource          (CockpitWebService *server,
+                                                  CockpitWebServerRequestType reqtype,
+                                                  const gchar *path,
+                                                  GHashTable *headers,
+                                                  GBytes *input,
+                                                  CockpitWebResponse *response,
+                                                  CockpitHandlerData *ws);
+
 #endif /* __COCKPIT_HANDLERS_H__ */

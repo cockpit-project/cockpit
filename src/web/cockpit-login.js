@@ -65,6 +65,7 @@ function cockpit_login_init ()
                     cockpit_content_show();
                 } else {
                     $("#login-error-message").text(_("Sorry, wrong username or password."));
+                    console.log(("Authentification failed") + " (" + req.status + ")");
                     $("#login-password-input").focus();
                 }
 	    }

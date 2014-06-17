@@ -566,6 +566,7 @@ static GBytes *
 finish_headers (CockpitWebResponse *self,
                 GString *string,
                 gssize length,
+                gboolean success,
                 guint seen)
 {
   gint i;
@@ -591,7 +592,7 @@ finish_headers (CockpitWebResponse *self,
 
   /* Automatically figure out content type */
   if ((seen & HEADER_CONTENT_TYPE) == 0 &&
-      self->path != NULL)
+      self->path != NULL && success)
     {
       for (i = 0; i < G_N_ELEMENTS (content_types); i++)
         {
@@ -651,7 +652,9 @@ cockpit_web_response_headers (CockpitWebResponse *self,
   string = begin_headers (self, status, reason);
 
   va_start (va, length);
-  block = finish_headers (self, string, length, append_va (string, va));
+  block = finish_headers (self, string, length,
+                          status >= 200 && status <= 299,
+                          append_va (string, va));
   va_end (va);
 
   cockpit_web_response_queue (self, block);
@@ -694,7 +697,9 @@ cockpit_web_response_headers_full  (CockpitWebResponse *self,
 
   string = begin_headers (self, status, reason);
 
-  block = finish_headers (self, string, length, append_table (string, headers));
+  block = finish_headers (self, string, length,
+                          status >= 200 && status <= 299,
+                          append_table (string, headers));
 
   cockpit_web_response_queue (self, block);
   g_bytes_unref (block);

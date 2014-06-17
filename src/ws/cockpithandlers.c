@@ -380,6 +380,25 @@ cockpit_handler_static (CockpitWebServer *server,
 }
 
 gboolean
+cockpit_handler_root (CockpitWebServer *server,
+                      CockpitWebServerRequestType reqtype,
+                      const gchar *path,
+                      GHashTable *headers,
+                      GBytes *input,
+                      CockpitWebResponse *response,
+                      CockpitHandlerData *ws)
+{
+  const gchar *roots[] = { cockpit_ws_static_directory, NULL };
+
+  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
+    return FALSE;
+
+  /* Don't cache forever */
+  cockpit_web_response_file (response, path, FALSE, roots);
+  return TRUE;
+}
+
+gboolean
 cockpit_handler_index (CockpitWebServer *server,
                        CockpitWebServerRequestType reqtype,
                        const gchar *path,

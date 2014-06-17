@@ -346,6 +346,28 @@ test_logout (Test *test,
   cockpit_assert_strmatch (output, "HTTP/1.1 200 OK\r\n*Set-Cookie: CockpitAuth=blank;*Secure*Logged out*");
 }
 
+static void
+test_favicon_ico (Test *test,
+                  gconstpointer data)
+{
+  const gchar *output;
+  gboolean ret;
+  GBytes *input;
+
+  input = g_bytes_new_static ("", 0);
+  ret = cockpit_handler_root (test->server,
+                              COCKPIT_WEB_SERVER_REQUEST_GET, "/favicon.ico",
+                              test->headers, input, test->response, &test->data);
+
+  g_assert (ret == TRUE);
+
+  output = output_as_string (test);
+  cockpit_assert_strmatch (output,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Content-Length: 1150\r\n"
+                           "*");
+}
+
 int
 main (int argc,
       char *argv[])
@@ -379,6 +401,9 @@ main (int argc,
 
   g_test_add ("/handlers/index", Test, NULL,
               setup, test_index, teardown);
+
+  g_test_add ("/handlers/favicon", Test, NULL,
+              setup, test_favicon_ico, teardown);
 
   ret = g_test_run ();
 

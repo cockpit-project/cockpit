@@ -389,6 +389,12 @@ main (int argc,
   g_signal_connect (server, "handle-resource::/res/",
                     G_CALLBACK (cockpit_handler_resource), &data);
 
+  /* Files that cannot be cache-forever, because of well known names */
+  g_signal_connect (server, "handle-resource::/favicon.ico",
+                    G_CALLBACK (cockpit_handler_root), &data);
+  g_signal_connect (server, "handle-resource::/apple-touch-icon.png",
+                    G_CALLBACK (cockpit_handler_root), &data);
+
   g_info ("HTTP Server listening on port %d", opt_port);
 
   loop = g_main_loop_new (NULL, FALSE);

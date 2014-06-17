@@ -69,6 +69,14 @@ gboolean       cockpit_handler_index             (CockpitWebServer *server,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
+gboolean       cockpit_handler_root              (CockpitWebServer *server,
+                                                  CockpitWebServerRequestType reqtype,
+                                                  const gchar *path,
+                                                  GHashTable *headers,
+                                                  GBytes *input,
+                                                  CockpitWebResponse *response,
+                                                  CockpitHandlerData *ws);
+
 gboolean       cockpit_handler_static            (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
                                                   const gchar *path,

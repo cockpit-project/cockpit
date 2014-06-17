@@ -1,6 +1,12 @@
 
 staticdir = $(datadir)/cockpit/static
 static_DATA = \
+	src/static/favicon.ico \
+	src/static/apple-touch-icon.png \
+	$(NULL)
+
+staticcachedir = $(datadir)/cockpit/static
+staticcache_DATA = \
 	lib/jquery-min.v2.1.0.js \
 	lib/jquery-flot.v1.1.js \
 	lib/bootstrap-min.v3.0.3.js \
@@ -72,12 +78,13 @@ static_CHECKSUMS = $(srcdir)/src/static/checksums.txt
 
 all-local:: $(static_CHECKSUMS)
 
-$(static_CHECKSUMS): $(static_DATA) $(staticfonts_DATA) $(staticimages_DATA)
+$(static_CHECKSUMS): $(staticcache_DATA) $(staticfonts_DATA) $(staticimages_DATA)
 	$(AM_V_GEN) $(VERIFY_CHECKSUMS) -d $(srcdir) -o src/static/checksums.txt \
-		$(static_DATA) $(staticfonts_DATA) $(staticimages_DATA)
+		$(staticcache_DATA) $(staticfonts_DATA) $(staticimages_DATA)
 
 EXTRA_DIST += \
 	$(static_DATA) \
+	$(staticcache_DATA) \
 	$(staticfonts_DATA) \
 	$(staticimages_DATA) \
 	src/static/checksums.txt \

@@ -225,7 +225,7 @@ test_webserver_content_type (TestCase *tc,
   guint status;
   gssize off;
 
-  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\nHost:test\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -237,7 +237,6 @@ test_webserver_content_type (TestCase *tc,
   g_assert_cmpuint (off, >, 0);
 
   g_assert_cmpstr (g_hash_table_lookup (headers, "Content-Type"), ==, "text/html");
-
   g_hash_table_unref (headers);
   g_free (resp);
 }
@@ -251,7 +250,7 @@ test_webserver_not_found (TestCase *tc,
   guint status;
   gssize off;
 
-  resp = perform_http_request (tc->localport, "GET /non-existent HTTP/1.0\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /non-existent HTTP/1.0\r\nHost:test\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -272,7 +271,7 @@ test_webserver_not_authorized (TestCase *tc,
   gssize off;
 
   /* Listing a directory will result in 403 (except / -> index.html) */
-  resp = perform_http_request (tc->localport, "GET /po HTTP/1.0\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /po HTTP/1.0\r\nHost:test\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -299,7 +298,7 @@ test_webserver_redirect_notls (TestCase *tc,
       return;
     }
 
-  resp = perform_http_request (tc->hostport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
+  resp = perform_http_request (tc->hostport, "GET /dbus-test.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 301 *\r\nLocation: https://*");
   g_free (resp);
 }
@@ -310,8 +309,31 @@ test_webserver_noredirect_localhost (TestCase *tc,
 {
   gchar *resp;
 
-  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
+  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+  g_free (resp);
+}
+
+static void
+test_webserver_host_header (TestCase *tc,
+                            gconstpointer data)
+{
+  gsize length;
+  guint status;
+  gssize off;
+  gchar *resp;
+
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "received HTTP request without Host header");
+  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, >, 0);
+
+  off = web_socket_util_parse_status_line (resp, length, &status, NULL);
+  g_assert_cmpuint (off, >, 0);
+  g_assert_cmpint (status, ==, 400);
+
+  cockpit_assert_expected();
+  
   g_free (resp);
 }
 
@@ -329,6 +351,8 @@ main (int argc,
 
   g_test_add ("/web-server/content-type", TestCase, NULL,
               setup, test_webserver_content_type, teardown);
+  g_test_add ("/web-server/host-header", TestCase, NULL,
+              setup, test_webserver_host_header, teardown);
   g_test_add ("/web-server/not-found", TestCase, NULL,
               setup, test_webserver_not_found, teardown);
   g_test_add ("/web-server/not-authorized", TestCase, NULL,

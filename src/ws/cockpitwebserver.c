@@ -761,6 +761,13 @@ parse_and_process_request (CockpitRequest *request)
    *  * keep-alives
    */
 
+  str = g_hash_table_lookup (headers, "Host");
+  if (!str || g_str_equal (str, ""))
+    {
+      g_message ("received HTTP request without Host header");
+      request->delayed_reply = 400;
+    }
+
   g_byte_array_remove_range (request->buffer, 0, off1 + off2);
   process_request (request, reqtype, path, headers, length);
 

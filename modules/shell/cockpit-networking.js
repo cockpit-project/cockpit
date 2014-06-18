@@ -1015,16 +1015,6 @@ PageNetworkInterface.prototype = {
                 $('#network-ip-settings-dialog').modal('show');
             }
 
-            function toggle_onoff(event) {
-                $(this).find('.btn').toggleClass('active');
-                $(this).find('.btn').toggleClass('btn-primary');
-                $(this).find('.btn').toggleClass('btn-default');
-                if ($(this).find("button:first-child").hasClass('active'))
-                    activate_connection();
-                else
-                    deactivate_connection();
-            }
-
             var active_status = null;
             if (is_active && !con.Settings.connection.autoconnect) {
                 active_status =
@@ -1054,20 +1044,44 @@ PageNetworkInterface.prototype = {
                                 })));
             }
 
+            function onoffbox(val, on, off) {
+                function toggle(event) {
+                    $(this).find('.btn').toggleClass('active');
+                    $(this).find('.btn').toggleClass('btn-primary');
+                    $(this).find('.btn').toggleClass('btn-default');
+                    if ($(this).find("button:first-child").hasClass('active')) {
+                        if (off)
+                            on();
+                        else
+                            on(true);
+                    } else {
+                        if (off)
+                            off();
+                        else
+                            on(false);
+                    }
+                }
+
+                var box =
+                    $('<div class="btn-group btn-toggle">').append(
+                        $('<button class="btn">').
+                            text("On").
+                            addClass(!val? "btn-default" : "btn-primary active"),
+                        $('<button class="btn">').
+                            text("Off").
+                            addClass(val? "btn-default" : "btn-primary active")).
+                    click(toggle);
+                return box;
+            }
+
             var $panel =
                 $('<div class="panel panel-default">').append(
                     $('<div class="panel-heading">').append(
                         $('<input>').
                             val(con.Settings.connection.id).
                             change(change_id),
-                        $('<div class="btn-group btn-toggle" style="float:right">').append(
-                            $('<button class="btn">').
-                                text("On").
-                                addClass(!is_active? "btn-default" : "btn-primary active"),
-                            $('<button class="btn">').
-                                text("Off").
-                                addClass(is_active? "btn-default" : "btn-primary active")).
-                            click(toggle_onoff)),
+                        onoffbox(is_active, activate_connection, deactivate_connection).
+                            css("float", "right")),
                     $('<div class="panel-body">').append(
                         $('<table class="cockpit-form-table">').append(
                             active_status,

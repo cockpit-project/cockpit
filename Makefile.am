@@ -82,9 +82,9 @@ recheck-memory: valgrind-suppressions
 		$(AM_MAKEFLAGS) recheck
 
 if WITH_DEBUG
-MINIFY = cat
+MINIFY = $(top_srcdir)/tools/minify -n --
 else
-MINIFY = $(top_srcdir)/tools/minify
+MINIFY = $(top_srcdir)/tools/minify --
 endif
 
 JSLINT = $(top_srcdir)/tools/js-lint

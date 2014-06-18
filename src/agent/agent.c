@@ -233,7 +233,7 @@ main (int argc,
   int outfd;
 
   signal (SIGPIPE, SIG_IGN);
-  cockpit_set_journal_logging ();
+  cockpit_set_journal_logging (!isatty (2));
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write

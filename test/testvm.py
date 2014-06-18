@@ -798,6 +798,8 @@ SETUP_SCRIPT = """#!/bin/sh
 set -euf
 
 yes | yum update --enablerepo=updates-testing -y --skip-broken
+yum remove abrt
+echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
 
 export TEST_FLAVOR
 export TEST_OS

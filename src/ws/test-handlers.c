@@ -50,6 +50,7 @@ typedef struct {
   GMemoryInputStream *input;
   GByteArray *buffer;
   gchar *scratch;
+  gchar **roots;
 } Test;
 
 static void
@@ -79,8 +80,10 @@ setup (Test *test,
 
   user = g_get_user_name ();
   test->auth = mock_auth_new (user, PASSWORD);
+  test->roots = cockpit_web_server_resolve_roots (SRCDIR "/src/static", NULL);
 
   test->data.auth = test->auth;
+  test->data.static_roots = (const gchar **)test->roots;
 
   test->headers = cockpit_web_server_new_table ();
 
@@ -105,6 +108,7 @@ teardown (Test *test,
   g_hash_table_destroy (test->headers);
   g_free (test->scratch);
   g_object_unref (test->response);
+  g_strfreev (test->roots);
 
   cockpit_assert_expected ();
 }
@@ -372,13 +376,6 @@ int
 main (int argc,
       char *argv[])
 {
-  gchar *root;
-  gint ret;
-
-  root = realpath (SRCDIR "/src/static", NULL);
-  g_assert (root != NULL);
-
-  cockpit_ws_static_directory = root;
   cockpit_ws_session_program = BUILDDIR "/cockpit-session";
   cockpit_ws_agent_program = BUILDDIR "/cockpit-agent";
 
@@ -404,9 +401,5 @@ main (int argc,
   g_test_add ("/handlers/favicon", Test, NULL,
               setup, test_favicon_ico, teardown);
 
-  ret = g_test_run ();
-
-  free (root);
-
-  return ret;
+  return g_test_run ();
 }

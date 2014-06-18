@@ -54,6 +54,9 @@ gboolean           cockpit_web_server_parse_cookies (GHashTable *headers,
                                                      GHashTable **out_cookies,
                                                      GError **error);
 
+gchar **           cockpit_web_server_resolve_roots (const gchar *root,
+                                                     ...) G_GNUC_NULL_TERMINATED;
+
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVER_H__ */

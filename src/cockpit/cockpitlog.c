@@ -26,6 +26,12 @@
 
 #include <systemd/sd-journal.h>
 
+#include <errno.h>
+#include <unistd.h>
+
+static GPrintFunc old_printerr;
+static GLogFunc old_handler;
+
 void
 cockpit_null_log_handler (const gchar *log_domain,
                           GLogLevelFlags log_level,
@@ -41,6 +47,7 @@ cockpit_journal_log_handler (const gchar *log_domain,
                              const gchar *message,
                              gpointer user_data)
 {
+  gboolean to_journal = TRUE;
   int priority;
   const gchar *domains;
 
@@ -98,16 +105,25 @@ cockpit_journal_log_handler (const gchar *log_domain,
       domains = g_getenv ("G_MESSAGES_DEBUG");
       if (domains == NULL ||
           (strcmp (domains, "all") != 0 && (!log_domain || !strstr (domains, log_domain))))
-        return;
+        {
+          to_journal = FALSE;
+        }
 
       priority = LOG_INFO;
       break;
     }
 
-  sd_journal_send ("MESSAGE=%s", message,
-                   "PRIORITY=%d", (int)priority,
-                   "COCKPIT_DOMAIN=%s", log_domain ? log_domain : "",
-                   NULL);
+  if (to_journal)
+    {
+      sd_journal_send ("MESSAGE=%s", message,
+                       "PRIORITY=%d", (int)priority,
+                       "COCKPIT_DOMAIN=%s", log_domain ? log_domain : "",
+                       NULL);
+    }
+
+  /* After journal, since this may have side effects */
+  if (old_handler)
+    old_handler (log_domain, log_level, message, NULL);
 }
 
 static void
@@ -115,6 +131,9 @@ printerr_handler (const gchar *string)
 {
   /* We sanitize the strings produced by g_assert and friends a bit.
    */
+
+  if (old_printerr)
+    old_printerr (string);
 
   if (g_str_has_prefix (string, "**\n"))
     string += strlen("**\n");
@@ -125,9 +144,44 @@ printerr_handler (const gchar *string)
   sd_journal_print (LOG_ERR, "%.*s", len, string);
 }
 
-void
-cockpit_set_journal_logging (void)
+static void
+printerr_stderr (const gchar *string)
 {
-  g_log_set_default_handler (cockpit_journal_log_handler, NULL);
-  g_set_printerr_handler (printerr_handler);
+  gssize len;
+  gssize res;
+
+  len = strlen (string);
+  while (len > 0)
+    {
+      res = write (2, string, len);
+      if (res < 0)
+        {
+          if (errno != EAGAIN || errno != EINTR)
+            break;
+        }
+      else
+        {
+          g_assert (res <= len);
+          string += res;
+          len -= res;
+        }
+    }
+}
+
+void
+cockpit_set_journal_logging (gboolean only)
+{
+  old_handler = g_log_set_default_handler (cockpit_journal_log_handler, NULL);
+
+  old_printerr = g_set_printerr_handler (printerr_handler);
+
+  /* HACK: GLib doesn't currently return its original handler */
+  if (!old_printerr)
+    old_printerr = printerr_stderr;
+
+  if (only)
+    {
+      old_printerr = NULL;
+      old_handler = NULL;
+    }
 }

@@ -35,10 +35,15 @@
    * "object-paths": An array of object paths to start monitoring in
      the case of a non o.f.DBus.ObjectManager based service.
 
+   * "proxies": When set to false, the client will not construct any
+     proxy objects.  This is for advanced code that wants to construct
+     its own proxies.  You should normally not specify this option.
+
    A DBusClient has a local data structure that describes (a subset
    of) the objects of the service that it represents, the interfaces
    of those objects, and the properties of those interfaces.  This is
-   called the "object tree".
+   called the "object tree".  (When the "proxies" option is false, no
+   object tree will be constructed.)
 
    A client immediately starts to connect to the service in the
    background and lazily populates its object tree.  While that
@@ -207,29 +212,11 @@ DBusInterface.prototype = {
     },
 
     call_with_args: function(dbus_method_name, args, callback) {
-        if (this._client._channel && this._client._channel.valid) {
-            var cookie = this._client._register_call_reply(callback);
-
-            var call_obj = {command: "call",
-                            objpath: this._enclosing_object.objectPath,
-                            iface: this._iface_name,
-                            method: dbus_method_name,
-                            cookie: cookie,
-                            args: args
-            };
-            try {
-                this._client._channel.send(JSON.stringify(call_obj));
-            }
-            catch (e) {
-                delete this._client._call_reply_map[cookie];
-                var error = new DBusError ('NotConnected', "Can't send.");
-                callback.apply(null, [error]);
-            }
-        } else {
-            var err = new DBusError('NotConnected', "Not connected to server.");
-            callback.apply(null, [err]);
-        }
-
+        return this._client.call_with_args(this._enclosing_object.objectPath,
+                                           this._iface_name,
+                                           dbus_method_name,
+                                           args,
+                                           callback);
     },
 
     propertiesChanged: function(dict) {
@@ -315,6 +302,7 @@ DBusClient.prototype = {
         this._cookie_counter = 0;
         this._call_reply_map = {};
         this._last_error = null;
+        this._proxies = !options || options.proxies || options.proxies === undefined;
         this.error_details = {};
         this.byteorder = null;
         this.connect();
@@ -406,6 +394,12 @@ DBusClient.prototype = {
     _handle_seed : function(data, options) {
         if (options && options.byteorder)
             this.byteorder = options.byteorder;
+
+        $(this).trigger("seed", data);
+
+        if (!this._proxies)
+            return;
+
         for (var objpath in data) {
             if (objpath in this._objmap) {
                 this._objmap[objpath]._reseed(data[objpath], this);
@@ -429,6 +423,11 @@ DBusClient.prototype = {
     },
 
     _handle_properties_changed : function(data) {
+        $(this).trigger("properties-changed", [ data.objpath, data.iface_name, data.iface[iface_name] ]);
+
+        if (!this._proxies)
+            return;
+
         var objpath = data.objpath;
         var iface_name = data.iface_name;
         var existing_obj = this._objmap[objpath];
@@ -453,6 +452,11 @@ DBusClient.prototype = {
     },
 
     _handle_object_added : function(data) {
+        $(this).trigger("object-added", [ data.object.objpath, data.object.ifaces ]);
+
+        if (!this._proxies)
+            return;
+
         var objpath = data.object.objpath;
         var existing_obj = this._objmap[objpath];
         if (existing_obj) {
@@ -464,6 +468,11 @@ DBusClient.prototype = {
     },
 
     _handle_object_removed : function(data) {
+        $(this).trigger("object-removed", [ data[0] ]);
+
+        if (!this._proxies)
+            return;
+
         var objpath = data[0];
         var existing_obj = this._objmap[objpath];
         if (!existing_obj) {
@@ -476,6 +485,11 @@ DBusClient.prototype = {
     },
 
     _handle_interface_added : function(data) {
+        $(this).trigger("interface-added", [ data.objpath, data.iface_name, data.iface[data.iface_name] ]);
+
+        if (!this._proxies)
+            return;
+
         var objpath = data.objpath;
         var iface_name = data.iface_name;
         var existing_obj = this._objmap[objpath];
@@ -496,6 +510,11 @@ DBusClient.prototype = {
     },
 
     _handle_interface_removed : function(data) {
+        $(this).trigger("interface-removed", [ data.objpath, data.iface_name ]);
+
+        if (!this._proxies)
+            return;
+
         var objpath = data.objpath;
         var iface_name = data.iface_name;
         var existing_obj = this._objmap[objpath];
@@ -547,6 +566,11 @@ DBusClient.prototype = {
         var iface_name = data.iface_name;
         var signal_name = data.signal_name;
         var signal_args = data.args;
+
+        $(this).trigger('signal', [ objpath, iface_name, signal_name, signal_args ]);
+
+        if (!this._proxies)
+            return;
 
         var existing_obj = this._objmap[objpath];
         if (!existing_obj) {
@@ -630,6 +654,46 @@ DBusClient.prototype = {
             result.push(this._objmap[objpath]);
         }
         return result;
+    },
+
+    call: function() {
+        var args = [];
+        var path  = arguments[0];
+        var iface = arguments[1];
+        var method = arguments[2];
+        for (var n = 3; n < arguments.length - 1; n++) {
+            args.push(arguments[n]);
+        }
+        var callback = arguments[n];
+
+        return this.call_with_args(path, iface, method, args, callback);
+    },
+
+    call_with_args: function(path, iface, method, args, callback) {
+        var error;
+
+        if (this._channel && this._channel.valid) {
+            var cookie = this._register_call_reply(callback);
+
+            var call_obj = {command: "call",
+                            objpath: path,
+                            iface: iface,
+                            method: method,
+                            cookie: cookie,
+                            args: args
+            };
+            try {
+                this._channel.send(JSON.stringify(call_obj));
+            }
+            catch (e) {
+                delete this._call_reply_map[cookie];
+                error = new DBusError ('NotConnected', "Can't send.");
+                callback.apply(null, [error]);
+            }
+        } else {
+            error = new DBusError('NotConnected', "Not connected to server.");
+            callback.apply(null, [error]);
+        }
     },
 
     toString : function() {

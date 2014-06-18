@@ -1221,7 +1221,9 @@ PageNetworkIpSettings.prototype = {
         function render_ip_settings() {
             var body =
                 $('<div>').append(
-                    choicebox("method", (topic == "ipv4")? ipv4_method_choices : ipv6_method_choices),
+                    $('<div>').append(
+                        $('<span>').text(_("Method: ")),
+                        choicebox("method", (topic == "ipv4")? ipv4_method_choices : ipv6_method_choices)),
                     tablebox("addresses", [ "Address", "Netmask", "Gateway" ],
                              (topic == "ipv4")? [ "", "24", "" ] : [ "", "64", "" ]),
                     tablebox("dns", "DNS Server", ""),

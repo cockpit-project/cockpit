@@ -26,6 +26,7 @@
 
 typedef struct {
   CockpitAuth *auth;
+  const gchar **static_roots;
 } CockpitHandlerData;
 
 gboolean       cockpit_handler_socket            (CockpitWebServer *server,

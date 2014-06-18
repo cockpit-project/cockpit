@@ -39,17 +39,15 @@
 
 static gint      opt_port         = 1001;
 static gboolean  opt_no_tls       = FALSE;
-static gboolean  opt_disable_auth = FALSE;
 static gboolean  opt_debug = FALSE;
-static gchar    *opt_agent_program;
+static gboolean  opt_uninstalled = FALSE;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (1001 if unset)", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug, "Debug mode: log messages to output", NULL},
 #ifdef WITH_DEBUG
-  {"no-auth", 0, 0, G_OPTION_ARG_NONE, &opt_disable_auth, "Don't require authentication", NULL},
-  {"agent-path", 0, 0, G_OPTION_ARG_FILENAME, &opt_agent_program, "Change path to agent program", NULL},
+  {"uninstalled", 0, 0, G_OPTION_ARG_NONE, &opt_uninstalled, "Run from cockpit-ws from build directory", NULL},
 #endif
   {NULL}
 };
@@ -303,6 +301,7 @@ main (int argc,
   GTlsCertificate *certificate = NULL;
   GError *local_error = NULL;
   GError **error = &local_error;
+  gchar **roots = NULL;
   GMainLoop *loop;
 
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
@@ -335,11 +334,19 @@ main (int argc,
         goto out;
     }
 
-  if (!opt_disable_auth)
-    data.auth = cockpit_auth_new ();
+  if (opt_uninstalled)
+    {
+      roots = cockpit_web_server_resolve_roots (SRCDIR "/src/static", SRCDIR "/lib", NULL);
+      cockpit_ws_agent_program = BUILDDIR "/cockpit-agent";
+      cockpit_ws_session_program = BUILDDIR "/cockpit-session";
+    }
+  else
+    {
+      roots = cockpit_web_server_resolve_roots (PACKAGE_DATA_DIR "/static", NULL);
+    }
 
-  if (opt_agent_program)
-    cockpit_ws_agent_program = opt_agent_program;
+  data.auth = cockpit_auth_new ();
+  data.static_roots = (const gchar **)roots;
 
   server = cockpit_web_server_new (opt_port,
                                    certificate,
@@ -398,7 +405,6 @@ main (int argc,
   ret = 0;
 
 out:
-  g_free (opt_agent_program);
   if (local_error)
     {
       g_printerr ("%s (%s, %d)\n", local_error->message, g_quark_to_string (local_error->domain), local_error->code);
@@ -407,6 +413,7 @@ out:
   g_clear_object (&server);
   g_clear_object (&data.auth);
   g_clear_object (&certificate);
+  g_strfreev (roots);
   return ret;
 }
 

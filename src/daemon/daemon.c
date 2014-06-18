@@ -32,6 +32,7 @@
 #include "networkmonitor.h"
 #include "diskiomonitor.h"
 #include "cgroupmonitor.h"
+#include "netdevmonitor.h"
 #include "storageprovider.h"
 #include "storagemanager.h"
 #include "realms.h"
@@ -260,6 +261,14 @@ daemon_constructed (GObject *_object)
   /* /com/redhat/Cockpit/LxcMonitor */
   multi_monitor = cgroup_monitor_new (G_OBJECT (daemon));
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/LxcMonitor");
+  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
+  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (multi_monitor);
+  g_object_unref (object);
+
+  /* /com/redhat/Cockpit/NetdevMonitor */
+  multi_monitor = netdev_monitor_new (G_OBJECT (daemon));
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/NetdevMonitor");
   cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (multi_monitor);

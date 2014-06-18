@@ -31,13 +31,11 @@ static GMainLoop *loop = NULL;
 
 static gboolean  opt_replace = FALSE;
 static gboolean  opt_no_sigint = FALSE;
-static gboolean  opt_debug = FALSE;
 
 static GOptionEntry opt_entries[] =
 {
   {"replace", 'r', 0, G_OPTION_ARG_NONE, &opt_replace, "Replace existing daemon", NULL},
   {"no-sigint", 's', 0, G_OPTION_ARG_NONE, &opt_no_sigint, "Do not handle SIGINT for controlled shutdown", NULL},
-  {"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug, "Debug mode: log messages to output", NULL},
   {NULL }
 };
 
@@ -125,8 +123,7 @@ main (int argc,
   if (g_getenv ("PATH") == NULL)
     g_setenv ("PATH", "/usr/bin:/bin:/usr/sbin:/sbin", TRUE);
 
-  if (!opt_debug)
-    cockpit_set_journal_logging ();
+  cockpit_set_journal_logging (!isatty (2));
 
   g_info ("cockpit daemon version %s starting", PACKAGE_VERSION);
 

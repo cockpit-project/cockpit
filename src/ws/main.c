@@ -39,13 +39,11 @@
 
 static gint      opt_port         = 1001;
 static gboolean  opt_no_tls       = FALSE;
-static gboolean  opt_debug = FALSE;
 static gboolean  opt_uninstalled = FALSE;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (1001 if unset)", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
-  {"debug", 'd', 0, G_OPTION_ARG_NONE, &opt_debug, "Debug mode: log messages to output", NULL},
 #ifdef WITH_DEBUG
   {"uninstalled", 0, 0, G_OPTION_ARG_NONE, &opt_uninstalled, "Run from cockpit-ws from build directory", NULL},
 #endif
@@ -321,8 +319,7 @@ main (int argc,
       goto out;
     }
 
-  if (!opt_debug)
-    cockpit_set_journal_logging ();
+  cockpit_set_journal_logging (!isatty (2));
 
   if (opt_no_tls)
     {
@@ -407,7 +404,7 @@ main (int argc,
 out:
   if (local_error)
     {
-      g_printerr ("%s (%s, %d)\n", local_error->message, g_quark_to_string (local_error->domain), local_error->code);
+      g_printerr ("cockpit-ws: %s\n", local_error->message);
       g_error_free (local_error);
     }
   g_clear_object (&server);

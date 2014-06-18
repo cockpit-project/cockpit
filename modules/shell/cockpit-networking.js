@@ -100,37 +100,31 @@ function nm_debug() {
  * NetworkManager would use a standard o.fd.DBus.Properties API.
  */
 
-/* TODO
- *
- * We potentially do a lot of round trips when populating our data
- * structure.  When the Device.IPv4Config changes to a new object
- * path, for example, we first get the PropertiesChanges signal for
- * this, and then we issue a GetAll call to retrieve the contents for
- * the new object.  It would be better if the agent would send us the
- * properties of the new object together with the PropertiesChanged so
- * that we don't have to query them explicitly.
- *
- * During initialization, we can use a fake object manager and its
- * 'seed' message to avoid most round trips, but later on there isn't
- * any reliable mechanisms yet.  The fake object manager comes close,
- * but it doesn't make any guarantees that it sends information about
- * new object paths before the information that references them.
- *
- * Also, the fake object manager will start tracking the objects that
- * it knows about and our DBusClient will acquire a lot of state that
- * we don't want.  This is wasteful and might even interfere a bit
- * with us, such as when we have created a new proxy via client.get
- * and the fake object manager later sends a objectAdded signal for
- * it.
- */
-
 function NetworkManagerModel(address) {
+    /*
+     * The NetworkManager model doesn't need DBusObjects or
+     * DBusInterfaces in its DBusClient.  Instead, it uses the 'raw'
+     * events and method of DBusClient and constructs its own data
+     * structure.  This has the advantage of avoiding wasting
+     * resources for maintaining the unused proxies, avoids some code
+     * complexity, and allows to do the right thing with the
+     * pecularities of the NetworkManager API.
+     *
+     * However, we do use a fake object manager since that allows us
+     * to avoid a lot of 'GetAll' round trips during initialization
+     * and helps with removing obsolete objects.
+     *
+     * TODO - make sure that we receive information about new objects
+     *        before they are referenced.
+     */
+
     var self = this;
 
     var client = new DBusClient(address,
                                 { 'bus':          "system",
                                   'service':      "org.freedesktop.NetworkManager",
-                                  'object-paths': [ ]
+                                  'object-paths': [ "/org/freedesktop/NetworkManager" ],
+                                  'proxies':      false
                                 });
 
     self.client = client;
@@ -183,7 +177,8 @@ function NetworkManagerModel(address) {
             }
             constructor.prototype = type.prototype;
             objects[path] = new constructor();
-            refresh_object_properties(objects[path]);
+            if (type.refresh)
+                type.refresh(objects[path]);
         }
         return objects[path];
     }
@@ -192,12 +187,17 @@ function NetworkManagerModel(address) {
         return objects[path] || null;
     }
 
-    function set_object_properties(obj, props) {
+    function drop_object(path) {
+        delete objects[path];
+    }
+
+    function set_object_properties(obj, props, prefix) {
         var p, decl, val;
         decl = priv(obj).type.props;
+        prefix = prefix || "";
         for (p in decl) {
-            if(props[p]) {
-                val = props[p];
+            val = props[prefix + p];
+            if(val) {
                 if (decl[p].conv)
                     val = decl[p].conv(val);
                 if (val !== obj[p]) {
@@ -222,16 +222,15 @@ function NetworkManagerModel(address) {
     function refresh_object_properties(obj) {
         var type = priv(obj).type;
         var path = priv(obj).path;
-        var p = client.get(path, "org.freedesktop.DBus.Properties");
         push_refresh();
         type.interfaces.forEach(function (iface) {
             push_refresh();
-            p.call('GetAll', iface,
-                   function (error, result) {
-                       if (!error)
-                           set_object_properties(obj, remove_signatures(result));
-                       pop_refresh();
-                   });
+            client.call(path, "org.freedesktop.DBus.Properties", "GetAll", iface,
+                        function (error, result) {
+                            if (!error)
+                                set_object_properties(obj, remove_signatures(result));
+                            pop_refresh();
+                        });
         });
         if (type.refresh)
             type.refresh(obj);
@@ -247,23 +246,33 @@ function NetworkManagerModel(address) {
 
     function call_object_method(obj, iface, method) {
         var dfd = new $.Deferred();
-        var proxy = client.get(objpath(obj), iface);
 
         function slice_arguments(args, first, last) {
             return Array.prototype.slice.call(args, first, last);
         }
 
-        proxy.call_with_args(method, slice_arguments(arguments, 3), function (error) {
-            if (error)
-                dfd.reject(error);
-            else
-                dfd.resolve.apply(dfd, slice_arguments(arguments, 1));
-        });
+        client.call_with_args(objpath(obj), iface, method,
+                              slice_arguments(arguments, 3),
+                              function (error) {
+                                  if (error)
+                                      dfd.reject(error);
+                                  else
+                                      dfd.resolve.apply(dfd, slice_arguments(arguments, 1));
+                              });
         return dfd.promise();
     }
 
-    function signal_emitted (event, iface, signal, args) {
-        var path = iface.getObject().objectPath;
+    var interface_types = { };
+
+    function set_object_types(all_types) {
+        all_types.forEach(function (type) {
+            type.interfaces.forEach(function (iface) {
+                interface_types[iface] = type;
+            });
+        });
+    }
+
+    function signal_emitted (event, path, iface, signal, args) {
         var obj = peek_object(path);
 
         if (obj) {
@@ -278,10 +287,38 @@ function NetworkManagerModel(address) {
         }
     }
 
-    $(client).on("signalEmitted", signal_emitted);
+    function seed(event, data) {
+        for (var path in data)
+            object_added(event, path, data[path].ifaces);
+    }
+
+    function object_added(event, path, ifaces) {
+        for (var iface in ifaces)
+            interface_added(event, path, iface, ifaces[iface]);
+    }
+
+    function interface_added (event, path, iface, props) {
+        var type = interface_types[iface];
+        if (type)
+            set_object_properties (get_object(path, type), props, "dbus_prop_");
+    }
+
+    function object_removed(event, path) {
+        drop_object(path);
+    }
+
+    $(client).on("signal", signal_emitted);
+    $(client).on("seed", seed);
+    $(client).on("object-added", object_added);
+    $(client).on("interface-added", interface_added);
+    $(client).on("object-removed", object_removed);
 
     self.close = function close() {
-        $(client).off("signalEmitted", signal_emitted);
+        $(client).off("signal", signal_emitted);
+        $(client).off("seed", seed);
+        $(client).off("object-added", object_added);
+        $(client).off("interface-added", interface_added);
+        $(client).off("object-removed", object_removed);
         client.close("unused");
     };
 
@@ -496,19 +533,17 @@ function NetworkManagerModel(address) {
     }
 
     function refresh_settings(obj) {
-        var iface = client.get(objpath(obj), "org.freedesktop.NetworkManager.Settings.Connection");
         push_refresh();
-        iface.call('GetSettings', function (error, result) {
-            if (result) {
-                var path = iface.getObject().objectPath;
-                var obj = get_object(path, type_Connection);
-                priv(obj).orig = result;
-                if (!priv(obj).frozen) {
-                    obj.Settings = settings_from_nm(result);
-                }
-            }
-            pop_refresh();
-        });
+        client.call(objpath(obj), "org.freedesktop.NetworkManager.Settings.Connection", "GetSettings",
+                    function (error, result) {
+                        if (result) {
+                            priv(obj).orig = result;
+                            if (!priv(obj).frozen) {
+                                obj.Settings = settings_from_nm(result);
+                            }
+                        }
+                        pop_refresh();
+                    });
     }
 
     function refresh_udev(obj) {
@@ -708,6 +743,14 @@ function NetworkManagerModel(address) {
 
     /* Initialization.
      */
+
+    set_object_types([ type_Manager,
+                       type_Device,
+                       type_Ipv4Config,
+                       type_Ipv6Config,
+                       type_Connection,
+                       type_ActiveConnection
+                     ]);
 
     get_object("/org/freedesktop/NetworkManager", type_Manager);
     return self;

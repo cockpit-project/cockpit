@@ -37,8 +37,6 @@
 
 #include <string.h>
 
-const gchar *cockpit_ws_static_directory = PACKAGE_DATA_DIR "/static";
-
 /* Called by @server when handling HTTP requests to /socket - runs in a separate
  * thread dedicated to the request so it may do blocking I/O
  */
@@ -397,12 +395,12 @@ cockpit_handler_static (CockpitWebServer *server,
                         CockpitWebResponse *response,
                         CockpitHandlerData *ws)
 {
-  const gchar *roots[] = { cockpit_ws_static_directory, NULL };
 
   if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
     return FALSE;
 
-  cockpit_web_response_file (response, path + 8, TRUE, roots);
+  /* Cache forever */
+  cockpit_web_response_file (response, path + 8, TRUE, ws->static_roots);
   return TRUE;
 }
 
@@ -415,20 +413,19 @@ cockpit_handler_root (CockpitWebServer *server,
                       CockpitWebResponse *response,
                       CockpitHandlerData *ws)
 {
-  const gchar *roots[] = { cockpit_ws_static_directory, NULL };
-
   if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
     return FALSE;
 
   /* Don't cache forever */
-  cockpit_web_response_file (response, path, FALSE, roots);
+  cockpit_web_response_file (response, path, FALSE, ws->static_roots);
   return TRUE;
 }
 
 static void
 send_index_response (CockpitWebResponse *response,
                      CockpitWebService *service,
-                     JsonObject *modules)
+                     JsonObject *modules,
+                     CockpitHandlerData *ws)
 {
   GHashTable *out_headers;
   GError *error = NULL;
@@ -454,7 +451,7 @@ send_index_response (CockpitWebResponse *response,
    * environment.
    */
 
-  index_html = g_build_filename (cockpit_ws_static_directory, "index.html", NULL);
+  index_html = g_build_filename (ws->static_roots[0], "index.html", NULL);
   file = g_mapped_file_new (index_html, FALSE, &error);
   if (file == NULL)
     {
@@ -504,22 +501,28 @@ out:
     g_mapped_file_unref (file);
 }
 
+typedef struct {
+  CockpitWebResponse *response;
+  CockpitHandlerData *data;
+} IndexResponse;
+
 static void
 on_index_modules (GObject *source_object,
                   GAsyncResult *result,
                   gpointer user_data)
 {
-  CockpitWebResponse *response = user_data;
+  IndexResponse *ir = user_data;
   CockpitWebService *service = COCKPIT_WEB_SERVICE (source_object);
   JsonObject *modules;
 
   /* Failures printed elsewhere */
   modules = cockpit_web_service_modules_finish (service, result);
-  send_index_response (response, service, modules);
+  send_index_response (ir->response, service, modules, ir->data);
 
   if (modules)
     json_object_unref (modules);
-  g_object_unref (response);
+  g_object_unref (ir->response);
+  g_free (ir);
 }
 
 gboolean
@@ -532,6 +535,7 @@ cockpit_handler_index (CockpitWebServer *server,
                        CockpitHandlerData *ws)
 {
   CockpitWebService *service;
+  IndexResponse *ir;
 
   if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
     return FALSE;
@@ -546,13 +550,15 @@ cockpit_handler_index (CockpitWebServer *server,
   if (service)
     {
       /* Already logged in, lookup modules and return full environment */
-      cockpit_web_service_modules (service, "localhost", on_index_modules,
-                                   g_object_ref (response));
+      ir = g_new0 (IndexResponse, 1);
+      ir->response = g_object_ref (response);
+      ir->data = ws;
+      cockpit_web_service_modules (service, "localhost", on_index_modules, ir);
     }
   else
     {
       /* Not logged in, include half-baked environment */
-      send_index_response (response, NULL, NULL);
+      send_index_response (response, NULL, NULL, ws);
     }
 
   return TRUE;

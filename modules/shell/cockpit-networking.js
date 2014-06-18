@@ -946,20 +946,12 @@ PageNetworkInterface.prototype = {
 
             function activate_connection() {
                 con.activate(self.dev, null).
-                    done(function() {
-                        con.Settings.connection.autoconnect = true;
-                        apply();
-                    }).
                     fail(cockpit_show_unexpected_error);
             }
 
             function deactivate_connection() {
                 if (self.dev.ActiveConnection) {
                     self.dev.ActiveConnection.deactivate().
-                        done(function () {
-                            con.Settings.connection.autoconnect = false;
-                            apply();
-                        }).
                         fail(cockpit_show_unexpected_error);
                 }
             }
@@ -1015,35 +1007,6 @@ PageNetworkInterface.prototype = {
                 $('#network-ip-settings-dialog').modal('show');
             }
 
-            var active_status = null;
-            if (is_active && !con.Settings.connection.autoconnect) {
-                active_status =
-                    $('<tr>').append(
-                        $('<td>'),
-                        $('<td>').
-                            text(_("This connection is active now, but wont be active after next boot.")),
-                        $('<td style="text-align:right">').append(
-                            $('<button class="btn btn-default">').
-                                text(_("Activate on next boot")).
-                                click(function () {
-                                    con.Settings.connection.autoconnect = true;
-                                    apply();
-                                })));
-            } else if (!is_active && con.Settings.connection.autoconnect) {
-                active_status =
-                    $('<tr>').append(
-                        $('<td>'),
-                        $('<td>').
-                            text(_("This connection is not active now, but might be automatically activated.")),
-                        $('<td style="text-align:right">').append(
-                            $('<button class="btn btn-default">').
-                                text(_("Don't allow automatic activation")).
-                                click(function () {
-                                    con.Settings.connection.autoconnect = false;
-                                    apply();
-                                })));
-            }
-
             function onoffbox(val, on, off) {
                 function toggle(event) {
                     $(this).find('.btn').toggleClass('active');
@@ -1084,7 +1047,14 @@ PageNetworkInterface.prototype = {
                             css("float", "right")),
                     $('<div class="panel-body">').append(
                         $('<table class="cockpit-form-table">').append(
-                            active_status,
+                            $('<tr>').append(
+                                $('<td>').text("Connect automatically"),
+                                $('<td>').append(
+                                    onoffbox(con.Settings.connection.autoconnect,
+                                             function (val) {
+                                                 con.Settings.connection.autoconnect = val;
+                                                 apply();
+                                             }))),
                             $('<tr>').append(
                                 $('<td>').text("IPv4"),
                                 $('<td>').text(render_ip_settings("ipv4")),

@@ -104,7 +104,7 @@ on_phantomjs_exited (GPid pid,
 static void
 server_ready (void)
 {
-  const gchar *roots[] = { ".", NULL };
+  const gchar *roots[] = { ".", SRCDIR, NULL };
   GError *error = NULL;
   CockpitWebServer *server;
   gchar *args[5];
@@ -133,7 +133,7 @@ server_ready (void)
                     G_CALLBACK (on_handle_stream_socket), NULL);
 
   g_object_get (server, "port", &port, NULL);
-  url = g_strdup_printf("http://localhost:%d/dbus-test.html", port);
+  url = g_strdup_printf("http://localhost:%d/modules/shell/dbus-test.html", port);
 
   if (tap_mode)
     {
@@ -218,7 +218,7 @@ on_name_lost (GDBusConnection *connection,
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
-cd_srcdir (const char *argv0)
+cd_binarydir (const char *argv0)
 {
   gchar *dir = g_path_get_dirname (argv0);
   g_warn_if_fail (g_chdir (dir) == 0);
@@ -272,7 +272,7 @@ main (int argc,
       exit (2);
     }
 
-  cd_srcdir (argv[0]);
+  cd_binarydir (argv[0]);
 
   /* Just execute the agent, no session necessary */
   cockpit_ws_session_program = "./test-agent";

@@ -32,6 +32,8 @@
 
 #include <string.h>
 
+static gchar *srcdir;
+
 typedef struct {
     CockpitWebResponse *response;
     GOutputStream *output;
@@ -184,7 +186,7 @@ static void
 test_file_not_found (TestCase *tc,
                      gconstpointer user_data)
 {
-  const gchar *roots[] = { BUILDDIR, NULL };
+  const gchar *roots[] = { srcdir, NULL };
   cockpit_web_response_file (tc->response, "/non-existant", FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404 Not Found*");
 }
@@ -193,7 +195,7 @@ static void
 test_file_directory_denied (TestCase *tc,
                             gconstpointer user_data)
 {
-  const gchar *roots[] = { BUILDDIR, NULL };
+  const gchar *roots[] = { srcdir, NULL };
   cockpit_web_response_file (tc->response, "/src", FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 403 Directory Listing Denied*");
 }
@@ -218,37 +220,43 @@ static void
 test_file_breakout_denied (TestCase *tc,
                            gconstpointer user_data)
 {
-  const gchar *roots[] = { BUILDDIR "/src", NULL };
-  const gchar *breakout = "/../dbus-test.html";
+  gchar *root = realpath ( SRCDIR "/src", NULL);
+  const gchar *roots[] = { root, NULL };
+  const gchar *breakout = "/../Makefile.am";
   gchar *check = g_build_filename (roots[0], breakout, NULL);
+  g_assert (root);
   g_assert (g_file_test (check, G_FILE_TEST_EXISTS));
   g_free (check);
   cockpit_web_response_file (tc->response, breakout, FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404*");
+  free (root);
 }
 
 static void
 test_file_breakout_non_existant (TestCase *tc,
                                  gconstpointer user_data)
 {
-  const gchar *roots[] = { BUILDDIR "/src", NULL };
+  gchar *root = realpath ( SRCDIR "/src", NULL);
+  const gchar *roots[] = { root, NULL };
   const gchar *breakout = "/../non-existant";
   gchar *check = g_build_filename (roots[0], breakout, NULL);
+  g_assert (root);
   g_assert (!g_file_test (check, G_FILE_TEST_EXISTS));
   g_free (check);
   cockpit_web_response_file (tc->response, breakout, FALSE, roots);
   cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404*");
+  free (root);
 }
 
 static const TestFixture content_type_fixture = {
-  .path = "/dbus-test.html"
+  .path = "/modules/shell/dbus-test.html"
 };
 
 static void
 test_content_type (TestCase *tc,
                    gconstpointer user_data)
 {
-  const gchar *roots[] = { BUILDDIR, NULL };
+  const gchar *roots[] = { srcdir, NULL };
   GHashTable *headers;
   const gchar *resp;
   gsize length;
@@ -332,6 +340,11 @@ int
 main (int argc,
       char *argv[])
 {
+  gint ret;
+
+  srcdir = realpath (SRCDIR, NULL);
+  g_assert (srcdir != NULL);
+
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/web-response/return-content", TestCase, NULL,
@@ -361,5 +374,9 @@ main (int argc,
   g_test_add ("/web-response/abort", TestCase, NULL,
               setup, test_abort, teardown);
 
-  return g_test_run ();
+  ret = g_test_run ();
+
+  free (srcdir);
+
+  return ret;
 }

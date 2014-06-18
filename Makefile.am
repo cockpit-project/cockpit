@@ -103,7 +103,7 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 	for p in $(testassets_programs); do \
           $(INSTALL_PROGRAM) $$p $(DESTDIR)$(testassetsdir); \
         done
-	for d in $(testassets_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(testassetsdir); done
+	for d in $(testassets_data); do $(INSTALL_DATA) -D $$d $(DESTDIR)$(testassetsdir)/$$d; done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
 
 clean-local:

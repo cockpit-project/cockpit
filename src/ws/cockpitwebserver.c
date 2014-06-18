@@ -184,7 +184,7 @@ filter_document_roots (const gchar **input)
     {
       path = realpath (input[i], NULL);
       if (path == NULL)
-        g_warning ("couldn't resolve document root: %s: %m", input[i]);
+        g_debug ("couldn't resolve document root: %s: %m", input[i]);
       else
         g_ptr_array_add (roots, path);
     }

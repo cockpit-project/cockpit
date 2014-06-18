@@ -91,26 +91,14 @@ shellimages_DATA = \
 
 # -----------------------------------------------------------------------------
 
-CHECK_DEPS = \
-	polyfills.js \
-	cockpit-journal-renderer.js \
-	cockpit-util.js \
-	channel.js \
-	dbus.js \
-	rest.js \
-	spawn.js \
-	$(NULL)
-
 CHECK_HTML = \
-	test-dummy.html \
-	test-util.html \
-	test-chan.html \
-	test-journal-renderer.html \
-	test-rest.html \
-	test-spawn.html \
+	modules/shell/test-dummy.html \
+	modules/shell/test-util.html \
+	modules/shell/test-chan.html \
+	modules/shell/test-journal-renderer.html \
+	modules/shell/test-rest.html \
+	modules/shell/test-spawn.html \
 	$(NULL)
-
-CHECK_HTML_SRCS = $(addprefix modules/shell/,$(CHECK_HTML))
 
 TESTS += $(CHECK_HTML)
 
@@ -119,31 +107,15 @@ TESTS += $(CHECK_HTML)
 lang/%.json : $(top_srcdir)/po/%.po
 	$(AM_V_GEN) mkdir -p lang && $(PO2JSON) -p $(top_srcdir)/po/$*.po > lang/$*.json
 
-%.html : $(srcdir)/modules/shell/%.html $(QUNIT_DEPS)
-	$(AM_V_GEN) cp $(srcdir)/modules/shell/$*.html $*.html
-
-%.js : $(srcdir)/modules/shell/%.js
-	$(AM_V_GEN) cp $(srcdir)/modules/shell/$*.js $*.js
-
 CLEANFILES += \
-	$(CHECK_HTML) \
-	$(CHECK_DEPS) \
-	dbus-test.html \
 	cockpit.js \
-	$(shell_SCRIPTS) \
 	$(NULL)
 
 EXTRA_DIST += \
 	$(cockpit_js_PARTS) \
 	$(shell_DATA) \
 	$(shellimages_DATA) \
-	$(CHECK_HTML_SRCS) \
+	$(CHECK_HTML) \
 	modules/shell/dbus-test.html \
 	modules/shell/shell.html \
-	$(NULL)
-
-noinst_SCRIPTS += \
-	$(CHECK_HTML) \
-	$(CHECK_DEPS) \
-	dbus-test.html \
 	$(NULL)

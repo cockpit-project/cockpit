@@ -97,11 +97,15 @@ CLEANFILES += \
 noinst_PROGRAMS += test-server
 
 testassets_programs += test-server
-testassets_data += dbus-test.html \
-                   dbus.js  \
-                   channel.js \
-		   polyfills.js \
-                   $(QUNIT_DEPS) \
+testassets_data += modules/shell/dbus-test.html \
+                   modules/shell/dbus.js  \
+                   modules/shell/channel.js \
+		   modules/shell/polyfills.js \
+                   lib/qunit-1.14.0.css \
+                   lib/jquery-min.v2.1.0.js \
+                   lib/qunit-1.14.0.js \
+                   lib/qunit-tap.js \
+                   tools/qunit-config.js \
                    $(NULL)
 
 test_server_SOURCES = src/ws/test-server.c $(mock_dbus_sources)

@@ -85,7 +85,7 @@ static void
 setup (TestCase *tc,
        gconstpointer data)
 {
-  const gchar *roots[] = { BUILDDIR, NULL };
+  const gchar *roots[] = { SRCDIR, NULL };
   const TestFixture *fixture = data;
   GTlsCertificate *cert = NULL;
   GError *error = NULL;
@@ -226,7 +226,7 @@ test_webserver_content_type (TestCase *tc,
   guint status;
   gssize off;
 
-  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /modules/shell/dbus-test.html HTTP/1.0\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -250,7 +250,7 @@ test_with_query_string (TestCase *tc,
   gchar *resp;
   gsize length;
 
-  resp = perform_http_request (tc->localport, "GET /dbus-test.html?blah HTTP/1.0\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /modules/shell/dbus-test.html?blah HTTP/1.0\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -315,7 +315,7 @@ test_webserver_redirect_notls (TestCase *tc,
       return;
     }
 
-  resp = perform_http_request (tc->hostport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
+  resp = perform_http_request (tc->hostport, "GET /modules/shell/dbus-test.html HTTP/1.0\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 301 *\r\nLocation: https://*");
   g_free (resp);
 }
@@ -326,7 +326,7 @@ test_webserver_noredirect_localhost (TestCase *tc,
 {
   gchar *resp;
 
-  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", NULL);
+  resp = perform_http_request (tc->localport, "GET /modules/shell/dbus-test.html HTTP/1.0\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }

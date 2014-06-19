@@ -446,7 +446,9 @@ function NetworkManagerModel(address) {
         var result = {
             connection: {
                 id:          get("connection", "id", _("Unknown")),
-                autoconnect: get("connection", "autoconnect", true)
+                autoconnect: get("connection", "autoconnect", true),
+                slave_type:  get("connection", "slave-type"),
+                master:      get("connection", "master")
             }
         };
 
@@ -454,6 +456,9 @@ function NetworkManagerModel(address) {
             result.ipv4 = get_ip("ipv4", ip4_from_nm, ip4_to_text);
             result.ipv6 = get_ip("ipv6", ip6_from_nm, ip6_to_text);
         }
+
+        if (settings.bond)
+            result.bond = { all: JSON.stringify(settings.bond) };
 
         return result;
     }
@@ -671,7 +676,8 @@ function NetworkManagerModel(address) {
     var type_Device = {
         interfaces: [
             "org.freedesktop.NetworkManager.Device",
-            "org.freedesktop.NetworkManager.Device.Wired"
+            "org.freedesktop.NetworkManager.Device.Wired",
+            "org.freedesktop.NetworkManager.Device.Bond"
         ],
 
         props: {
@@ -686,6 +692,7 @@ function NetworkManagerModel(address) {
             IdVendor:             { def: "" },
             IdModel:              { def: "" },
             Driver:               { def: "" }
+            // See below for "Slaves"
         },
 
         prototype: {
@@ -709,6 +716,7 @@ function NetworkManagerModel(address) {
     /* Now create the cycle declarations.
      */
     type_ActiveConnection.props.Master = { conv: conv_Object(type_Device) };
+    type_Device.props.Slaves = { conv: conv_Array(conv_Object(type_Device)), def: [] };
 
     /* Exporting the model, called by the generic D-Bus code when
      * something has changed and everything has settled.
@@ -769,12 +777,34 @@ function network_log_box(client, elt)
                                       ], 10);
 }
 
+function render_interface_link(iface) {
+    return $('<a>').
+               text(iface).
+               click(function () {
+                   cockpit_go_sibling({ page: "network-interface",
+                                        dev: iface
+                                      });
+               });
+}
+
+function array_join(elts, sep) {
+    var result = [ ];
+    for (var i = 0; i < elts.length; i++) {
+        result.push(elts[i]);
+        if (i < elts.length-1)
+            result.push(sep);
+    }
+    return result;
+}
+
 function render_active_connection(dev) {
     var parts = [ ];
     var con = dev.ActiveConnection;
 
     if (con && con.Master) {
-        parts.push(F(_("Part of %{master}"), { master: con.Master.Interface }));
+        return $('<span>').append(
+                   $('<span>').text(_("Part of ")),
+                   render_interface_link(con.Master.Interface));
     }
 
     if (con && con.Ip4Config) {
@@ -789,7 +819,7 @@ function render_active_connection(dev) {
         });
     }
 
-    return parts.join(", ");
+    return $('<span>').text(parts.join(", "));
 }
 
 PageNetworking.prototype = {
@@ -897,8 +927,8 @@ PageNetworking.prototype = {
             if (!dev)
                 return;
 
-            // Skip everything that is not ethernet
-            if (dev.DeviceType != 1)
+            // Skip everything that is not ethernet or a bond
+            if (dev.DeviceType != 1 && dev.DeviceType != 10)
                 return;
 
             var is_active = (dev.State == 100);
@@ -1041,10 +1071,25 @@ PageNetworkInterface.prototype = {
 
         self.dev = dev;
 
+        var desc;
+        if (dev.DeviceType == 1)
+            desc = $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev));
+        else if (dev.DeviceType == 10) {
+            if (dev.Slaves.length === 0)
+                desc = $('<span>').text("Bond without active parts");
+            else {
+                desc = $('<span>').append(
+                           $('<span>').text("Bond of "),
+                           array_join(dev.Slaves.map(function (s) {
+                               return render_interface_link(s.Interface);
+                           }), ", "));
+            }
+        }
+
         $hw.html(
             $('<div class="panel-body">').append(
                 $('<div>').append(
-                    $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev)),
+                    desc,
                     $('<span style="float:right">').text(dev.HwAddress)),
                 $('<div>').append(
                     $('<span>').html(render_active_connection(dev)),
@@ -1171,6 +1216,25 @@ PageNetworkInterface.prototype = {
                             })));
             }
 
+            function render_master() {
+                if (con.Settings.connection.master) {
+                    return $('<tr>').append(
+                        $('<td>').text(_("Master")),
+                        $('<td>').append(
+                            render_interface_link(con.Settings.connection.master)));
+                } else
+                    return null;
+            }
+
+            function render_bond_settings_row() {
+                if (!con.Settings.bond)
+                    return null;
+
+                return $('<tr>').append(
+                    $('<td>').text(_("Bonding")),
+                    $('<td>').text(con.Settings.bond.all));
+            }
+
             var $panel =
                 $('<div class="panel panel-default">').append(
                     $('<div class="panel-heading">').append(
@@ -1181,6 +1245,7 @@ PageNetworkInterface.prototype = {
                             css("float", "right")),
                     $('<div class="panel-body">').append(
                         $('<table class="cockpit-form-table">').append(
+                            render_master(),
                             $('<tr>').append(
                                 $('<td>').text("Connect automatically"),
                                 $('<td>').append(
@@ -1190,7 +1255,8 @@ PageNetworkInterface.prototype = {
                                                  apply();
                                              }))),
                             render_ip_settings_row("ipv4", _("IPv4")),
-                            render_ip_settings_row("ipv6", _("IPv6")))));
+                            render_ip_settings_row("ipv6", _("IPv6")),
+                            render_bond_settings_row())));
 
             return $panel;
         }

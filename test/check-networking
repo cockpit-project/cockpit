@@ -86,4 +86,19 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-ip-settings-dialog")
         b.wait_in_text("#network-interface .panel:contains('Network hardware')", "1.2.3.4/24")
 
+        # Disconnect
+        #
+        b.click("button:contains('Disconnect')")
+        b.wait_in_text("#network-interface-hw", "Disconnected")
+
+        # Switch it back to "auto" from the command line and bring it
+        # up again
+        #
+        id = b.val("#network-interface-connections .panel-heading input")
+        m.execute("nmcli c m '%s' ipv4.method auto" % id)
+        m.execute("nmcli c m '%s' ipv4.addresses ''" % id)
+        b.wait_in_text("#network-interface-connections", "Automatic (DHCP)")
+        m.execute("nmcli c up '%s'" % id)
+        b.wait_in_text("#network-interface-hw", "Active")
+
 test_main()

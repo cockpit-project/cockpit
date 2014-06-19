@@ -443,14 +443,19 @@ function NetworkManagerModel(address) {
             };
         }
 
-        return {
+        var result = {
             connection: {
                 id:          get("connection", "id", _("Unknown")),
                 autoconnect: get("connection", "autoconnect", true)
-            },
-            ipv4: get_ip("ipv4", ip4_from_nm, ip4_to_text),
-            ipv6: get_ip("ipv6", ip6_from_nm, ip6_to_text)
+            }
         };
+
+        if (!settings.connection.master) {
+            result.ipv4 = get_ip("ipv4", ip4_from_nm, ip4_to_text);
+            result.ipv6 = get_ip("ipv6", ip6_from_nm, ip6_to_text);
+        }
+
+        return result;
     }
 
     function settings_to_nm(settings, orig) {
@@ -1155,6 +1160,21 @@ PageNetworkInterface.prototype = {
                 return box;
             }
 
+            function render_ip_settings_row(topic, title) {
+                if (!con.Settings[topic])
+                    return null;
+
+                return $('<tr>').append(
+                    $('<td>').text(title),
+                    $('<td>').text(render_ip_settings(topic)),
+                    $('<td style="text-align:right">').append(
+                        $('<button class="btn btn-default">').
+                            text(_("Configure")).
+                            click(function () {
+                                configure_ip_settings(topic);
+                            })));
+            }
+
             var $panel =
                 $('<div class="panel panel-default">').append(
                     $('<div class="panel-heading">').append(
@@ -1173,24 +1193,9 @@ PageNetworkInterface.prototype = {
                                                  con.Settings.connection.autoconnect = val;
                                                  apply();
                                              }))),
-                            $('<tr>').append(
-                                $('<td>').text("IPv4"),
-                                $('<td>').text(render_ip_settings("ipv4")),
-                                $('<td style="text-align:right">').append(
-                                    $('<button class="btn btn-default">').
-                                        text(_("Configure")).
-                                        click(function () {
-                                            configure_ip_settings("ipv4");
-                                        }))),
-                            $('<tr>').append(
-                                $('<td>').text("IPv6"),
-                                $('<td>').text(render_ip_settings("ipv6")),
-                                $('<td style="text-align:right">').append(
-                                    $('<button class="btn btn-default">').
-                                        text(_("Configure")).
-                                        click(function () {
-                                            configure_ip_settings("ipv6");
-                                        }))))));
+                            render_ip_settings_row("ipv4", _("IPv4")),
+                            render_ip_settings_row("ipv6", _("IPv6")))));
+
             return $panel;
         }
 

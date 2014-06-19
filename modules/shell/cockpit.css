@@ -423,25 +423,38 @@ a {
 
 /* Styling of logs embedded in pages outside the journal */
 
-#service-log,
-#storage-log,
-#storage-detail-log {
+.cockpit-log-panel .panel-heading {
+    background-color: #333;
+    color: #fff;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    height: auto;
+}
+
+.cockpit-log-panel .panel-body
+{
     padding: 0;
     border-bottom: 0;
 }
 
-#service-log .cockpit-loghead,
-#storage-log .cockpit-loghead,
-#storage-detail-log .cockpit-loghead {
-    padding: 10px;
+.cockpit-log-panel .cockpit-loghead
+{
+    border-left: 0;
+    border-right: 0;
+    background-color: transparent;
+    font-weight: bold;
+    padding-top: 2px;
+    padding-bottom: 2px;
     width: auto;
 }
 
-#service-log .cockpit-logline,
-#storage-log .cockpit-logline,
-#storage-detail-log .cockpit-logline {
+.cockpit-log-panel .cockpit-logline
+{
     border-left: 0;
     border-right: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 /*

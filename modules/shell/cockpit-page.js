@@ -175,6 +175,13 @@ function cockpit_go_down (loc)
     cockpit_go (cockpit_loc_trail.concat([ loc ]));
 }
 
+function cockpit_go_sibling (loc)
+{
+    if (loc.substr)
+        loc = { page: loc };
+    cockpit_go (cockpit_loc_trail.slice(0, cockpit_loc_trail.length-1).concat([ loc ]));
+}
+
 function cockpit_go_top (page, params)
 {
     var loc = $.extend({ page: page }, params);

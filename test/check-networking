@@ -25,16 +25,65 @@ class TestNetworking(MachineCase):
         b = self.browser
         m = self.machine
 
-        # HACK: Trick D-Bus into thinking that "admin" is logged in at
-        # the console.  Otherwise NetworkManager wont let us
-        # introspect it.
+        # Something strange is happening here.
         #
-        # https://bugzilla.gnome.org/show_bug.cgi?id=707983
+        # When hot-plugging the network interface below, it is
+        # automatically recognized and NM will create a connection
+        # settings object for it with path
+        # /org/freedesktop/NetworkManager/Settings/1.  No file in
+        # /etc/sysconfig/network-scripts exists for it.  The interface
+        # will be activated automatically with those default settings.
         #
-        m.execute("touch /var/run/console/admin")
+        # Calling 'Update' on that object will cause a file to be
+        # created in /etc/sysconfig/network-scripts, the connection is
+        # activated immediately (so that the actual IP address of the
+        # network interface changes), the settings object disappears
+        # from D-Bus, and a new object with the same id and uuid
+        # appears at /org/freedesktop/NetworkManager/Settings/2.
+        #
+        # We race against this when subsequently calling
+        # 'ActivateConnection'.  When 'Update' and
+        # 'ActivateConnection' were triggered by separate buttons, we
+        # lost that race reliably and used the old path when it wasn't
+        # any longer recognized by NM.  Now when clicking "Apply" does
+        # both back-to-back, we seem to win the race reliably.
+        #
+        # When calling 'Update' on a connection settings object for
+        # which a file exists in /e/s/ns, the above strangeness
+        # doesn't happen.  The interface is not automatically
+        # reactivated with those settings, and the object stays on
+        # D-Bus.
+
+        # TODO: Make this work with non-root
+        #
+        # See https://bugzilla.gnome.org/show_bug.cgi?id=707983 for
+        # one issue.
+
+        b.default_user = "root"
 
         self.login_and_go("networking")
-
         b.wait_in_text("#networking-interfaces", m.address)
+
+        # Add interface, wait for it to be recognized and activated by
+        # Network Manager, and switch to its page
+        #
+        mac = m.add_netiface('ff')
+        iface_row = "#networking-interfaces tr:contains('%s')" % mac.upper()
+        b.wait_in_text("#networking-interfaces", mac.upper())
+        b.wait_in_text(iface_row, "Active")
+        b.click(iface_row)
+        b.wait_page("network-interface")
+
+        # Configure a manual IP address
+        #
+        b.wait_in_text("#network-interface", "IPv4")
+        b.click("tr:contains('IPv4') button")
+        b.wait_popup("network-ip-settings-dialog")
+        b.click("#network-ip-settings-dialog a:contains('Manual')")
+        b.click("#network-ip-settings-dialog tr:contains('Address') button:contains('Add')")
+        b.set_val("#network-ip-settings-dialog table:contains('Address') td:first-child input", "1.2.3.4")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-ip-settings-dialog")
+        b.wait_in_text("#network-interface .panel:contains('Network hardware')", "1.2.3.4/24")
 
 test_main()

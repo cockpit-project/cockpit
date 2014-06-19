@@ -433,7 +433,7 @@
         <div class="panel panel-default"
              id="networking-interfaces">
           <div class="panel-heading" translatable="yes">Interfaces</div>
-          <table class="table">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>Name</th>
@@ -445,6 +445,23 @@
             <tbody>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div id="network-interface" class="container-fluid">
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <span translatable="yes">Network hardware</span>
+            <button class="btn btn-default" style="display:inline;float:right"
+                    id="network-interface-disconnect">
+              Disconnect
+            </button>
+          </div>
+          <div id="network-interface-hw">
+          </div>
+        </div>
+        <div id="network-interface-connections">
         </div>
       </div>
 
@@ -2258,6 +2275,32 @@
             </button>
             <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
               Commit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="network-ip-settings-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">IP Settings</h4>
+          </div>
+          <div class="modal-body">
+            <div id="network-ip-settings-body">
+            </div>
+            <center id="network-ip-settings-error">
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" id="network-ip-settings-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" id="network-ip-settings-apply">
+              Apply
             </button>
           </div>
         </div>

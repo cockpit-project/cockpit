@@ -460,7 +460,17 @@
       </div>
 
       <div id="network-interface" class="container-fluid">
-
+        <div class="row">
+          <div class="col-sm-6">
+            <div>Sending<span style="float:right" id="network-interface-tx-text"></span></div>
+            <div style="height:120px" id="network-interface-tx-graph"></div>
+          </div>
+          <div class="col-sm-6">
+            <div>Receiving<span style="float:right" id="network-interface-rx-text"></span></div>
+            <div style="height:120px" id="network-interface-rx-graph"></div>
+          </div>
+        </div>
+        <br/>
         <div class="panel panel-default">
           <div class="panel-heading">
             <span translatable="yes">Network hardware</span>

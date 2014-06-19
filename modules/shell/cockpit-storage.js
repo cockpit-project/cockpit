@@ -2067,7 +2067,7 @@ function cockpit_fill_free_devices_list(client, id, filter)
         return desc_a.localeCompare(desc_b);
     });
 
-    var list = $('<ul/>', { 'class': 'list-group' });
+    var list = $('<ul/>', { 'class': 'list-group available-disks-group' });
 
     for (var n = 0; n < blocks.length; n++) {
         var block = blocks[n];

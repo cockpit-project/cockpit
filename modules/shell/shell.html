@@ -430,6 +430,17 @@
       </div>
 
       <div id="networking" class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6">
+            <div>Sending<span style="float:right" id="networking-tx-text"></span></div>
+            <div style="height:120px" id="networking-tx-graph"></div>
+          </div>
+          <div class="col-sm-6">
+            <div>Receiving<span style="float:right" id="networking-rx-text"></span></div>
+            <div style="height:120px" id="networking-rx-graph"></div>
+          </div>
+        </div>
+        <br/>
         <div class="panel panel-default"
              id="networking-interfaces">
           <div class="panel-heading" translatable="yes">Interfaces</div>
@@ -438,8 +449,8 @@
               <tr>
                 <th>Name</th>
                 <th>IP Address</th>
-                <th>MAC</th>
-                <th>Status</th>
+                <th style="width:20%">Sending</th>
+                <th style="width:20%">Receiving</th>
               </tr>
             </thead>
             <tbody>

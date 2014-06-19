@@ -39,7 +39,7 @@ function nm_debug() {
  *
  * For example,
  *
- *    model.manager.Devices[0].Ipv4Config.Addresses[0][0]
+ *    model.manager.Devices[0].ActiveConnection.Ipv4Config.Addresses[0][0]
  *
  * is the first IPv4 address of the first device as a string.
  *
@@ -578,19 +578,7 @@ function NetworkManagerModel(address) {
     }
 
     function handle_updated(obj) {
-        push_refresh();
         refresh_settings(obj);
-
-        /* HACK
-         *
-         * Some versions of NetworkManager don't always send
-         * PropertyChanged notifications for the
-         * o.f.NM.Device.Ip4Config property.
-         *
-         * https://bugzilla.gnome.org/show_bug.cgi?id=729828
-         */
-        refresh_all_devices();
-        pop_refresh();
     }
 
     /* NetworkManager specific object types, used by the generic D-Bus
@@ -665,7 +653,10 @@ function NetworkManagerModel(address) {
         ],
 
         props: {
-            Connection:           { conv: conv_Object(type_Connection) }
+            Connection:           { conv: conv_Object(type_Connection) },
+            Ip4Config:            { conv: conv_Object(type_Ipv4Config) },
+            Ip6Config:            { conv: conv_Object(type_Ipv6Config) }
+            // See below for "Master"
         },
 
         prototype: {
@@ -686,8 +677,6 @@ function NetworkManagerModel(address) {
         props: {
             DeviceType:           { },
             Interface:            { },
-            Ip4Config:            { conv: conv_Object(type_Ipv4Config) },
-            Ip6Config:            { conv: conv_Object(type_Ipv6Config) },
             StateText:            { prop: "State", conv: device_state_to_text,        def: _("Unknown") },
             State:                { },
             HwAddress:            { },
@@ -716,6 +705,10 @@ function NetworkManagerModel(address) {
             ActiveConnections:  { conv: conv_Array(conv_Object(type_ActiveConnection)), def: [] }
         }
     };
+
+    /* Now create the cycle declarations.
+     */
+    type_ActiveConnection.props.Master = { conv: conv_Object(type_Device) };
 
     /* Exporting the model, called by the generic D-Bus code when
      * something has changed and everything has settled.
@@ -776,24 +769,27 @@ function network_log_box(client, elt)
                                       ], 10);
 }
 
-function render_device_addresses(dev) {
-    var addresses = [ ];
+function render_active_connection(dev) {
+    var parts = [ ];
+    var con = dev.ActiveConnection;
 
-    var ip4config = dev.Ip4Config;
-    if (ip4config && ip4config.Addresses) {
-        ip4config.Addresses.forEach(function (a) {
-            addresses.push(a[0] + "/" + a[1]);
+    if (con && con.Master) {
+        parts.push(F(_("Part of %{master}"), { master: con.Master.Interface }));
+    }
+
+    if (con && con.Ip4Config) {
+        con.Ip4Config.Addresses.forEach(function (a) {
+            parts.push(a[0] + "/" + a[1]);
         });
     }
 
-    var ip6config = dev.Ip6Config;
-    if (ip6config && ip6config.Addresses) {
-        ip6config.Addresses.forEach(function (a) {
-            addresses.push(a[0] + "/" + a[1]);
+    if (con && con.Ip6Config) {
+        con.Ip6Config.Addresses.forEach(function (a) {
+            parts.push(a[0] + "/" + a[1]);
         });
     }
 
-    return addresses.join(", ");
+    return parts.join(", ");
 }
 
 PageNetworking.prototype = {
@@ -911,7 +907,7 @@ PageNetworking.prototype = {
                                      "data-sample-id": is_active? dev.Interface : null
                                    }).
                          append($('<td>').text(dev.Interface),
-                                $('<td>').text(render_device_addresses(dev)),
+                                $('<td>').html(render_active_connection(dev)),
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
                                  $('<td colspan="2">').text(dev.StateText))).
@@ -1051,7 +1047,7 @@ PageNetworkInterface.prototype = {
                     $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev)),
                     $('<span style="float:right">').text(dev.HwAddress)),
                 $('<div>').append(
-                    $('<span>').text(render_device_addresses(dev)),
+                    $('<span>').html(render_active_connection(dev)),
                     $('<span style="float:right">').text(dev.StateText))));
 
         $('#network-interface-disconnect').prop('disabled', !dev.ActiveConnection);

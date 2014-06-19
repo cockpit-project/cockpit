@@ -100,12 +100,10 @@ function cockpit_render_service (name, desc, load_state, active_state, sub_state
     else
         color_style = '';
 
-    return ("<a class=\"list-group-item\" onclick=\"" + cockpit_esc(cockpit_go_down_cmd("service", { s: name })) + "\">" +
-            "<table style=\"width:100%\">" +
-            "<tr><td style=\"text-align:left\">" +
+    return ("<tr onclick=\"" + cockpit_esc(cockpit_go_down_cmd("service", { s: name })) + "\"><td>" +
             "<span style=\"font-weight:bold\">" +
             cockpit_esc(desc) +
-            "</span><br/><span>" +
+            "</span></td><td><span>" +
             cockpit_esc(name) +
             "</span></td>" +
             "<td style=\"text-align:right" + color_style + "\">" +
@@ -113,7 +111,7 @@ function cockpit_render_service (name, desc, load_state, active_state, sub_state
             '<td style="width:60px">' + cockpit_esc(_(active_state)) + "</td>" +
             '<td style="width:80px">' + cockpit_esc(_(sub_state)) + "</td>" +
             '<td style="width:60px">' + cockpit_esc(_(file_state)) + "</td>" +
-            "</tr></table>" +
+            "</tr>" +
             "</a>");
 }
 

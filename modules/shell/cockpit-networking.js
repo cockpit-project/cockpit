@@ -763,6 +763,14 @@ function get_nm_model(machine) {
     return nm_models.get(machine, function () { return new NetworkManagerModel(machine); });
 }
 
+function network_log_box(client, elt)
+{
+    return cockpit_simple_logbox(client,
+                                 elt, [ [ "_SYSTEMD_UNIT=NetworkManager.service" ],
+                                        [ "_SYSTEMD_UNIT=firewalld.service" ]
+                                      ], 10);
+}
+
 function render_device_addresses(dev) {
     var addresses = [ ];
 
@@ -848,6 +856,8 @@ PageNetworking.prototype = {
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
+        this.log_box = network_log_box(this.cockpitd, $('#networking-log'));
+
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
         this.update_devices();
     },
@@ -860,6 +870,7 @@ PageNetworking.prototype = {
     leave: function() {
         this.rx_plot.destroy();
         this.tx_plot.destroy();
+        this.log_box.stop();
 
         cockpit.set_watched_client(null);
         $(this.model).off(".networking");

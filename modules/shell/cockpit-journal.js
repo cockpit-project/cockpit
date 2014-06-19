@@ -350,7 +350,7 @@ function cockpit_journal_filler (journal, box, start, match, match_text, header,
         if (closest)
             $(day_box).text($(closest).text());
         else
-            $(day_box).text(_("Goto ..."));
+            $(day_box).text(_("Go to"));
     }
 
     box.empty();

@@ -196,7 +196,7 @@ function NetworkManagerModel(address) {
         decl = priv(obj).type.props;
         prefix = prefix || "";
         for (p in decl) {
-            val = props[prefix + p];
+            val = props[prefix + (decl[p].prop || p)];
             if(val) {
                 if (decl[p].conv)
                     val = decl[p].conv(val);
@@ -683,7 +683,8 @@ function NetworkManagerModel(address) {
             Interface:            { },
             Ip4Config:            { conv: conv_Object(type_Ipv4Config) },
             Ip6Config:            { conv: conv_Object(type_Ipv6Config) },
-            State:                { conv: device_state_to_text,                       def: _("Unknown") },
+            StateText:            { prop: "State", conv: device_state_to_text,        def: _("Unknown") },
+            State:                { },
             HwAddress:            { },
             AvailableConnections: { conv: conv_Array(conv_Object(type_Connection)),   def: [] },
             ActiveConnection:     { conv: conv_Object(type_ActiveConnection) },
@@ -831,7 +832,7 @@ PageNetworking.prototype = {
                          append($('<td>').text(dev.Interface),
                                 $('<td>').text(render_device_addresses(dev)),
                                 $('<td>').text(dev.HwAddress),
-                                $('<td>').text(dev.State)).
+                                $('<td>').text(dev.StateText)).
                          click(function () { cockpit_go_down ({ page: 'network-interface',
                                                                 dev: dev.Interface
                                                               });
@@ -929,7 +930,7 @@ PageNetworkInterface.prototype = {
                     $('<span style="float:right">').text(dev.HwAddress)),
                 $('<div>').append(
                     $('<span>').text(render_device_addresses(dev)),
-                    $('<span style="float:right">').text(dev.State))));
+                    $('<span style="float:right">').text(dev.StateText))));
 
         $('#network-interface-disconnect').prop('disabled', !dev.ActiveConnection);
 

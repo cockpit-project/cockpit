@@ -341,6 +341,7 @@ main (int argc,
   int i;
 
   /* Some initial preparation */
+  signal(SIGPIPE, SIG_IGN);
   reauthorize_logger (test_logger, 0);
 
   re_fixture (setup, teardown);

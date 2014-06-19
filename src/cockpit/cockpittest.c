@@ -173,6 +173,8 @@ cockpit_test_init (int *argc,
 {
   gchar *basename;
 
+  signal(SIGPIPE, SIG_IGN);
+
   g_type_init ();
 
   if (*argc > 0)

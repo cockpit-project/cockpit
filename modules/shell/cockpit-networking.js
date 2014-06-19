@@ -957,19 +957,59 @@ PageNetworkInterface.prototype = {
         cockpit.set_watched_client(self.model.client);
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
+        self.dev_name = cockpit_get_page_param('dev');
+
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
+
+        function is_interesting_netdev(netdev) {
+            return netdev == self.dev_name;
+        }
+
+        this.cockpitd = cockpit.dbus(this.address);
+        this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
+                                         "com.redhat.Cockpit.MultiResourceMonitor");
+
+        this.rx_plot = cockpit_setup_cgroups_plot ('#network-interface-rx-graph', this.monitor, 0,
+                                                   blues.concat(blues), is_interesting_netdev);
+        $(this.rx_plot).on('update-total', function (event, total) {
+            $('#network-interface-rx-text').text(cockpit_format_bytes_per_sec(total));
+        });
+
+        this.tx_plot = cockpit_setup_cgroups_plot ('#network-interface-tx-graph', this.monitor, 1,
+                                                   blues.concat(blues), is_interesting_netdev);
+        $(this.tx_plot).on('update-total', function (event, total) {
+            $('#network-interface-tx-text').text(cockpit_format_bytes_per_sec(total));
+        });
+
         self.dev = null;
         self.update();
     },
 
     show: function() {
+        this.rx_plot.start();
+        this.tx_plot.start();
     },
 
     leave: function() {
+        this.rx_plot.destroy();
+        this.tx_plot.destroy();
+
         cockpit.set_watched_client(null);
         $(this.model).off(".network-interface");
         this.model.release();
         this.model = null;
         this.dev = null;
+
+        this.cockpitd.release();
+        this.cockpitd = null;
     },
 
     disconnect: function() {
@@ -983,7 +1023,7 @@ PageNetworkInterface.prototype = {
         var $hw = $('#network-interface-hw');
         var $connections = $('#network-interface-connections');
 
-        var dev = self.model.find_device(cockpit_get_page_param('dev'));
+        var dev = self.model.find_device(self.dev_name);
         if (!dev)
             return;
 

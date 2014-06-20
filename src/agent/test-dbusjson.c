@@ -185,6 +185,21 @@ test_seed (TestCase *tc,
   json_object_unref (msg);
 }
 
+static void
+test_dispose_invalid (void)
+{
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+  int fd = GPOINTER_TO_INT (NULL);
+
+  cockpit_expect_warning ("agent got invalid dbus service");
+  transport = cockpit_pipe_transport_new_fds ("mock", fd, fd);
+  channel = cockpit_dbus_json_open (transport, "444", "", "/otree");
+
+  g_object_unref (transport);
+  g_object_unref (channel);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -195,6 +210,7 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/dbus-server/seed", TestCase, NULL, setup_dbus_server, test_seed, teardown_dbus_server);
+  g_test_add_func ("/dbus-server/dispose-invalid", test_dispose_invalid);
 
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);

@@ -368,7 +368,7 @@ test_favicon_ico (Test *test,
   output = output_as_string (test);
   cockpit_assert_strmatch (output,
                            "HTTP/1.1 200 OK\r\n"
-                           "Content-Length: 1150\r\n"
+                           "Content-Length: *\r\n"
                            "*");
 }
 

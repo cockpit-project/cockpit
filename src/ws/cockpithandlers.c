@@ -421,6 +421,44 @@ cockpit_handler_root (CockpitWebServer *server,
   return TRUE;
 }
 
+gboolean
+cockpit_handler_ping (CockpitWebServer *server,
+                      CockpitWebServerRequestType reqtype,
+                      const gchar *path,
+                      GHashTable *headers,
+                      GBytes *input,
+                      CockpitWebResponse *response,
+                      CockpitHandlerData *ws)
+{
+  GHashTable *out_headers;
+  const gchar *body;
+  GBytes *content;
+
+  out_headers = cockpit_web_server_new_table ();
+
+  /*
+   * The /ping request has unrestricted CORS enabled on it. This allows javascript
+   * in the browser on embedding websites to check if Cockpit is available. These
+   * websites could do this in another way (such as loading an image from Cockpit)
+   * but this does it in the correct manner.
+   *
+   * See: http://www.w3.org/TR/cors/
+   */
+  g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), g_strdup ("*"));
+
+  g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup ("application/json"));
+  body ="{ \"service\": \"cockpit\" }";
+  content = g_bytes_new_static (body, strlen (body));
+
+  cockpit_web_response_content (response, out_headers, content, NULL);
+
+  g_bytes_unref (content);
+  g_hash_table_unref (out_headers);
+
+  return TRUE;
+}
+
+
 static void
 send_index_response (CockpitWebResponse *response,
                      CockpitWebService *service,

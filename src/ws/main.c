@@ -375,6 +375,9 @@ main (int argc,
                     G_CALLBACK (cockpit_handler_deauthorize),
                     &data);
 
+  g_signal_connect (server, "handle-resource::/ping",
+                    G_CALLBACK (cockpit_handler_ping), &data);
+
   g_signal_connect (server,
                     "handle-resource::/",
                     G_CALLBACK (cockpit_handler_index),

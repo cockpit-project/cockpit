@@ -372,6 +372,28 @@ test_favicon_ico (Test *test,
                            "*");
 }
 
+static void
+test_ping (Test *test,
+           gconstpointer data)
+{
+  const gchar *output;
+  gboolean ret;
+  GBytes *input;
+
+  input = g_bytes_new_static ("", 0);
+  ret = cockpit_handler_ping (test->server,
+                              COCKPIT_WEB_SERVER_REQUEST_GET, "/ping",
+                              test->headers, input, test->response, &test->data);
+
+  g_assert (ret == TRUE);
+
+  output = output_as_string (test);
+  cockpit_assert_strmatch (output,
+                           "HTTP/1.1 200 OK\r\n*"
+                           "Access-Control-Allow-Origin: *\r\n*"
+                           "\"cockpit\"*");
+}
+
 int
 main (int argc,
       char *argv[])
@@ -394,6 +416,9 @@ main (int argc,
 
   g_test_add ("/handlers/logout", Test, NULL,
               setup, test_logout, teardown);
+
+  g_test_add ("/handlers/ping", Test, NULL,
+              setup, test_ping, teardown);
 
   g_test_add ("/handlers/index", Test, NULL,
               setup, test_index, teardown);

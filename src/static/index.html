@@ -90,10 +90,10 @@
                         phantom_checkpoint();
                     }).
                     fail(function(xhr, reason) {
-                        if (xhr.status == 401 || xhr.status == 413) {
+                        if (xhr.status == 401) {
                             console.log(xhr.statusText);
-                            $("#login-error-message").show().text(xhr.statusText);
-                        } else {
+                            $("#login-error-message").show().text("Wrong username or password");
+                        }else {
                             fatal(xhr.statusText);
                         }
                         phantom_checkpoint();

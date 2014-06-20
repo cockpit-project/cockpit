@@ -52,6 +52,7 @@
 typedef struct {
   CockpitChannel parent;
   GDBusObjectManager       *object_manager;
+  gint                      signal_id;
   GCancellable             *cancellable;
   GList                    *active_calls;
   GHashTable               *introspect_cache;
@@ -903,13 +904,13 @@ on_interface_proxy_properties_changed (GDBusObjectManager *manager,
 }
 
 static void
-on_interface_proxy_signal (GDBusObjectManager *manager,
-                           GDBusObjectProxy *object_proxy,
-                           GDBusProxy *interface_proxy,
-                           gchar *sender_name,
-                           gchar *signal_name,
-                           GVariant *parameters,
-                           gpointer user_data)
+on_connection_signal (GDBusConnection *connection,
+                      const gchar *sender_name,
+                      const gchar *object_path,
+                      const gchar *interface_name,
+                      const gchar *signal_name,
+                      GVariant *parameters,
+                      gpointer user_data)
 {
   CockpitDBusJson *self = user_data;
   gs_unref_object JsonBuilder *builder = prepare_builder ("interface-signal");
@@ -919,9 +920,9 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
 
   json_builder_begin_object (builder);
   json_builder_set_member_name (builder, "objpath");
-  json_builder_add_string_value (builder, g_dbus_object_get_object_path (G_DBUS_OBJECT (object_proxy)));
+  json_builder_add_string_value (builder, object_path);
   json_builder_set_member_name (builder, "iface_name");
-  json_builder_add_string_value (builder, g_dbus_proxy_get_interface_name (interface_proxy));
+  json_builder_add_string_value (builder, interface_name);
   json_builder_set_member_name (builder, "signal_name");
   json_builder_add_string_value (builder, signal_name);
 
@@ -1378,6 +1379,9 @@ on_object_manager_ready (GObject *source,
     }
   else
     {
+      GDBusConnection *connection;
+      gchar *dbus_service;
+
       g_signal_connect (self->object_manager,
                         "object-added",
                         G_CALLBACK (on_object_added),
@@ -1398,10 +1402,25 @@ on_object_manager_ready (GObject *source,
                         "interface-proxy-properties-changed",
                         G_CALLBACK (on_interface_proxy_properties_changed),
                         self);
-      g_signal_connect (self->object_manager,
-                        "interface-proxy-signal",
-                        G_CALLBACK (on_interface_proxy_signal),
-                        self);
+
+      g_object_get (self->object_manager,
+                    "connection", &connection,
+                    "name", &dbus_service,
+                    NULL);
+
+      self->signal_id = g_dbus_connection_signal_subscribe (connection,
+                                                            dbus_service,
+                                                            NULL,
+                                                            NULL,
+                                                            NULL,
+                                                            NULL,
+                                                            0,
+                                                            on_connection_signal,
+                                                            self,
+                                                            NULL);
+
+      g_free (dbus_service);
+      g_object_unref (connection);
 
       send_seed (self);
       cockpit_channel_ready (channel);
@@ -1512,6 +1531,7 @@ static void
 cockpit_dbus_json_dispose (GObject *object)
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
+  GDBusConnection *connection;
   GList *l;
 
   g_signal_handlers_disconnect_by_func (self->object_manager,
@@ -1529,9 +1549,11 @@ cockpit_dbus_json_dispose (GObject *object)
   g_signal_handlers_disconnect_by_func (self->object_manager,
                                         G_CALLBACK (on_interface_proxy_properties_changed),
                                         self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_interface_proxy_signal),
-                                        self);
+
+
+  g_object_get (self->object_manager, "connection", &connection, NULL);
+  g_dbus_connection_signal_unsubscribe (connection, self->signal_id);
+  g_object_unref (connection);
 
   /* Divorce ourselves the outstanding calls */
   for (l = self->active_calls; l != NULL; l = g_list_next (l))

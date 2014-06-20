@@ -383,7 +383,9 @@ function cockpit_select_btn (func, spec) {
     });
 
     btn =
-        $('<div>', { 'class': 'dropdown' }).append(
+        $('<div>', { 'class': 'dropdown',
+                     'style': "display:inline-block"
+                   }).append(
             direct_btn,
             $('<ul>', { 'class': 'dropdown-menu',
                         'style': 'right:0px;left:auto;min-width:0;text-align:left',

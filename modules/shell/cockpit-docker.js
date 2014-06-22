@@ -527,9 +527,6 @@ PageContainers.prototype = {
         $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024).join(" "));
 
         if (added) {
-            // Remove downloading row if it exists
-            $("#imagedl_" + image.RepoTags[0].split(':')[0].replace("/", "_")).remove();
-
             insert_table_sorted($('#containers-images table'), tr);
         }
     },
@@ -737,15 +734,6 @@ PageSearchImage.prototype = {
         this.client = get_docker_client();
 
         $(this.client).on("docker_download_fail", function(event, name, ex) {
-            var rowname = "#imagedl_" + name.split(':')[0].replace("/", "_");
-
-            $(rowname + " td").eq(1).text('Error');
-            $(rowname + " td").eq(2).text('Error downloading: '+ ex);
-
-            $(rowname).on('click', function() {
-                // Make the row be gone when clicking it
-                $(rowname).remove();
-            });
         });
 
         // Clear the previous results and search string from previous time
@@ -758,8 +746,8 @@ PageSearchImage.prototype = {
     input: function(event) {
         this.cancel_search();
 
-        // Only handle if the new value is at least 3 characters long
-        if(event.target.value.length < 3)
+        // Only handle if the new value is at least 3 characters long or return was pressed
+        if(event.target.value.length < 3 && event.which != 13)
             return;
 
         var self = this;
@@ -777,12 +765,6 @@ PageSearchImage.prototype = {
         $('#containers-search-download').data('repo', '');
         $('#containers-search-download').prop('disabled', true);
 
-        name = repo;
-        if(tag !== '')
-            name = name + ':' + tag;
-        
-        this.client.pull(name);
-
         var tr = $('<tr id="imagedl_' + repo.replace("/", "_") + '">').append(
             $('<td class="container-col-tags">').text(name),
             $('<td class="container-col-created">').text('Downloading'),
@@ -793,6 +775,45 @@ PageSearchImage.prototype = {
             $('<td class="cell-buttons">'));
 
         insert_table_sorted($('#containers-images table'), tr);
+
+        var created = tr.children('td').eq(1);
+        var size = tr.children('td').eq(2);
+
+        var failed = false;
+        var layers = {};
+
+        this.client.pull(repo, tag).
+            stream(function(progress) {
+                if ("error" in progress) {
+                    failed = true;
+                    created.text = 'Error downloading';
+                    size.text('Error downloading: ' + progress['errorDetail']['message']);
+                    tr.on('click', function() {
+                        // Make the row be gone when clicking it
+                        tr.remove();
+                    });
+                }
+                else if("status" in progress) {
+                    if("id" in progress) {
+                        var new_string = progress['status'];
+                        if("progress" in progress) {
+                            new_string += ': ' + progress['progress'];
+                        }
+                        layers[progress['id']] = new_string;
+                    }
+                    var full_status = '';
+                    for(var layer in layers) {
+                        full_status += layer + ': ' + layers[layer] + '<br />';
+                    }
+                    size.html(full_status);
+                }
+            }).
+            done(function(progress) {
+                // According to Docker, download was finished.
+                if(!failed) {
+                    tr.remove();
+                }
+            });
 
         $("#containers-search-image-dialog").modal('hide');
     },
@@ -1504,18 +1525,15 @@ function DockerClient(machine) {
 
     /* Pull an image from the central registry
      */
-    this.pull = function pull(name) {
-        docker_debug("pulling:", name);
+    this.pull = function pull(repo, tag) {
+        docker_debug("pulling: " + repo + ", tag: " + tag);
 
-        return rest.post("/images/create?fromImage=" + name).
-            stream(function(progress) {
-                // We do not get any useful progress, as we have no idea of how many layers we should expect in total
-            }).
-            fail(function(ex) {
-                $(me).trigger("docker_download_fail", [name, ex]);
+        var url = "/images/create?fromImage=" + repo;
+        if(tag !== '') {
+            url += "&tag=" + tag;
+        }
 
-                $(me).trigger("failure", [ex]);
-            });
+        return rest.post(url);
     };
 
     /* We listen to the resource monitor and include the measurements

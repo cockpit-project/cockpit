@@ -465,6 +465,8 @@ function NetworkManagerModel(address) {
 
         var result = {
             connection: {
+                type:        get("connection", "type"),
+                uuid:        get("connection", "uuid"),
                 id:          get("connection", "id", _("Unknown")),
                 autoconnect: get("connection", "autoconnect", true),
                 slave_type:  get("connection", "slave-type"),
@@ -606,6 +608,34 @@ function NetworkManagerModel(address) {
         refresh_settings(obj);
     }
 
+    function find_connection_by_uuid(uuid) {
+        // TODO - Use a hashtable for this
+        var manager = peek_object("/org/freedesktop/NetworkManager");
+        var devices = manager? manager.Devices : [ ];
+        var connections;
+        var i, j;
+        for (i = 0; i < devices.length; i++) {
+            connections = devices[i].AvailableConnections;
+            for (j = 0; j < connections.length; j++) {
+                if (connections[j].Settings.connection.uuid == uuid)
+                    return connections[j];
+            }
+        }
+        return null;
+    }
+
+    function find_device(iface) {
+        // TODO - Use a hashtable for this
+        var manager = peek_object("/org/freedesktop/NetworkManager");
+        var devices = manager? manager.Devices : [ ];
+        var i;
+        for (i = 0; i < devices.length; i++) {
+            if (devices[i].Interface == iface)
+                return devices[i];
+        }
+        return null;
+    }
+
     /* NetworkManager specific object types, used by the generic D-Bus
      * code and using the data conversion functions.
      */
@@ -669,7 +699,43 @@ function NetworkManagerModel(address) {
                                           "org.freedesktop.NetworkManager", "ActivateConnection",
                                           objpath(this), objpath(dev), objpath(specific_object));
             }
+        },
+
+        export_phase_0: function (obj) {
+            obj.Slaves = [ ];
+            obj.Devices = [ ];
+        },
+
+        export_phase_1: function (obj) {
+            var master, device;
+
+            // Most of the time, a connection has zero or one masters,
+            // but when a connection refers to its master by interface
+            // name, we might end up with more than one master
+            // connection so we just collect them all.
+            //
+            // TODO - Nail down how NM really handles this.
+
+            obj.Masters = [ ];
+            if (obj.Settings.connection.slave_type == "bond") {
+                master = find_connection_by_uuid(obj.Settings.connection.master);
+                if (master) {
+                    obj.Masters.push(master);
+                    master.Slaves.push(obj);
+                } else {
+                    device = find_device(obj.Settings.connection.master);
+                    if (device) {
+                        device.AvailableConnections.forEach(function (con) {
+                            if (con.Settings.connection.type == "bond") {
+                                obj.Masters.push(con);
+                                con.Slaves.push(obj);
+                            }
+                        });
+                    }
+                }
+            }
         }
+
     };
 
     var type_ActiveConnection = {
@@ -719,6 +785,12 @@ function NetworkManagerModel(address) {
             disconnect: function () {
                 return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect');
             }
+        },
+
+        export_phase_1: function (obj) {
+            obj.AvailableConnections.forEach(function (con) {
+                con.Devices.push(obj);
+            });
         }
     };
 
@@ -805,6 +877,24 @@ function render_interface_link(iface) {
                                         dev: iface
                                       });
                });
+}
+
+function render_connection_link(con) {
+    var res =
+        $('<span>').append(
+            F("Connection %{id} of ", { id: con.Settings.connection.id }),
+            array_join(
+                con.Devices.map(function (d) {
+                    return $('<a>').
+                        text(d.Interface).
+                        click(function () {
+                            cockpit_go_sibling({ page: "network-interface",
+                                                 dev: d.Interface
+                                               });
+                        });
+                }),
+                ", "));
+    return res;
 }
 
 function array_join(elts, sep) {
@@ -1237,11 +1327,11 @@ PageNetworkInterface.prototype = {
             }
 
             function render_master() {
-                if (con.Settings.connection.master) {
+                if (con.Masters.length > 0) {
                     return $('<tr>').append(
                         $('<td>').text(_("Master")),
                         $('<td>').append(
-                            render_interface_link(con.Settings.connection.master)));
+                            array_join(con.Masters.map(render_connection_link), ", ")));
                 } else
                     return null;
             }
@@ -1250,9 +1340,23 @@ PageNetworkInterface.prototype = {
                 if (!con.Settings.bond)
                     return null;
 
-                return $('<tr>').append(
-                    $('<td>').text(_("Bonding")),
-                    $('<td>').text(con.Settings.bond.all));
+                return [ $('<tr>').append(
+                             $('<td>').text(_("Bond")),
+                             $('<td>').text(con.Settings.bond.all),
+                             $('<td style="text-align:right">').append(
+                                 $('<button class="btn btn-default">').
+                                     text(_("Configure")).
+                                     click(function () {
+                                         // TODO
+                                     }))),
+                         $('<tr>').append(
+                             $('<td>'),
+                             $('<td>').html(array_join(
+                                 con.Slaves.map(function (con) {
+                                     return render_connection_link(con);
+                                 }),
+                                 ", ")))
+                       ];
             }
 
             var $panel =

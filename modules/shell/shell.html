@@ -731,6 +731,11 @@
         </div>
         <div class="panel panel-default" id="containers-images">
           <div class="panel-heading">
+            <span style="float:right">
+              <button class="btn btn-primary" id="containers-images-search" translatable="yes">
+                Get new image
+              </button>
+            </span>
             Images
           </div>
           <table class="table table-hover">
@@ -2174,6 +2179,42 @@
             </button>
             <button class="btn btn-primary" id="containers-run-image-run" translatable="yes">
               Run
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="containers-search-image-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Search Image</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <input type="search" class="form-control" id="containers-search-image-search"/>
+                <div id="containers-search-image-waiting" class=""></div>
+              </tr>
+              <tr>
+                <table class="table" id="containers-search-image-results">
+                  <tbody />
+                </table>
+                <div id="containers-search-image-no-results">
+                </div>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <input type="text" id="containers-search-tag" class="form-control" disabled="disabled" placeholder="Tag" />
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-default" translatable="yes" disabled="disabled" id="containers-search-download">
+              Download
             </button>
           </div>
         </div>

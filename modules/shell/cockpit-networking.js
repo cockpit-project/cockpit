@@ -161,7 +161,7 @@ function NetworkManagerModel(address) {
     function pop_refresh() {
         outstanding_refreshes -= 1;
         if (outstanding_refreshes === 0)
-            model_changed();
+            export_model();
     }
 
     function get_object(path, type) {
@@ -179,6 +179,8 @@ function NetworkManagerModel(address) {
             objects[path] = new constructor();
             if (type.refresh)
                 type.refresh(objects[path]);
+            if (type.export_phase_0)
+                type.export_phase_0(objects[path]);
         }
         return objects[path];
     }
@@ -305,6 +307,24 @@ function NetworkManagerModel(address) {
 
     function object_removed(event, path) {
         drop_object(path);
+    }
+
+    function export_model() {
+        var phase, path, obj, meth;
+        var again = true;
+        for (phase = 0; again; phase++) {
+            again = false;
+            meth = "export_phase_" + phase;
+            for (path in objects) {
+                obj = objects[path];
+                if (priv(obj).type[meth]) {
+                    again = true;
+                    priv(obj).type[meth](obj, phase);
+                }
+            }
+        }
+
+        model_changed();
     }
 
     $(client).on("signal", signal_emitted);

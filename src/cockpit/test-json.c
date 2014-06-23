@@ -435,6 +435,64 @@ test_string_encode (gconstpointer data)
   json_node_free (node);
 }
 
+static void
+test_skip_truncated_in_escape (void)
+{
+  const gchar *test_data = "[{\"Created\":1402070687,\"Id\":\"cef2fb693e75e40adf1f6f7527f87fea71caf82e1b"
+    "d537dbee39c0fda3411921\",\"ParentId\":\"ceb50fff53c1302b3a9ad26408278a251d68235a5ae2a01b23cede49d34"
+    "e866e\",\"RepoTags\":[\"\\u003cnone\\u003e:\\u003cnone\\u003e\"],\"Size\":0,\"VirtualSize\":7472734"
+    "75}\n,{\"Created\":1400665659,\"Id\":\"509fa7c0852e90a845448abd7eb2841db28f804945afffd5a32824c2f9ec"
+    "0d8a\",\"ParentId\":\"926be66cef7268afb34b4cf1b2b9c6ffcdfe31ab46b693403f230957f6f3daa2\",\"RepoTags"
+    "\":[\"docker:HEAD\"],\"Size\":55952500,\"VirtualSize\":1375678976}\n,{\"Created\":1400663579,\"Id\""
+    ":\"5b32b4e9704752be67cde7728d3f5c03a556bfa870389bbda861342e86fb560f\",\"ParentId\":\"e254744f8fa4dc"
+    "74c4ca5d26ae7768e2cb2b50243b7a8c1165a44d7b12c7c42b\",\"RepoTags\":[\"docker:master\"],\"Size\":3870"
+    "1691,\"VirtualSize\":1446111967}\n,{\"Created\":1400663532,\"Id\":\"9a68657408a0a2ff2a39713b8fa6858"
+    "abd86eb2c0b211db6b37d403c8190fb6c\",\"ParentId\":\"e254744f8fa4dc74c4ca5d26ae7768e2cb2b50243b7a8c11"
+    "65a44d7b12c7c42b\",\"RepoTags\":[\"\\u003cnone\\u003e:\\u003cnone\\u003e\"],\"Size\":38701679,\"Vir"
+    "tualSize\":1446111955}\n,{\"Created\":1400663441,\"Id\":\"73ee80db5f34021056658a9548712b879b2e3a476"
+    "44d9eadefe645724c52f7e3\",\"ParentId\":\"e254744f8fa4dc74c4ca5d26ae7768e2cb2b50243b7a8c1165a44d7b12"
+    "c7c42b\",\"RepoTags\":[\"\\u003cnone\\u003e:\\u003cnone\\u003e\"],\"Size\":56037289,\"VirtualSize\""
+    ":1463447565}\n,{\"Created\":1400651897,\"Id\":\"d3dc4f0900ddb9ffff061ed33b4932fff2b958216755cecc848"
+    "69c1004b3ff63\",\"ParentId\":\"e254744f8fa4dc74c4ca5d26ae7768e2cb2b50243b7a8c1165a44d7b12c7c42b\",\""
+    "RepoTags\":[\"\\u003cnone\\u003e:\\u003cnone\\u003e\"],\"Size\":52895116,\"VirtualSize\":1460305392"
+    "}\n,{\"Created\":1400499581,\"Id\":\"b7056496ef2e90f157de5ac540f28eb6a261e5ec310cefaacd9e619592451e"
+    "e0\",\"ParentId\":\"4e9e2401ad26a9e944f7682c1b7d9fd8081d6b815328dbc4518546fccad73de7\",\"RepoTags\""
+    ":[\"\\u003cnone\\u003e:\\u003cnone\\u003e\"],\"Size\":38535116,\"VirtualSize\":1445611408}\n,{\"Cre"
+    "ated\":1400455136,\"Id\":\"6927a389deb65faddfc9f72a909b03f60d8f51f1ed0f6cd9fca4e7919521a4c9\",\"Par"
+    "entId\":\"e91614297ac6eaf572b66ccc896b5ef986c4bd31bbb8517ae5b91891ae9a7de7\",\"RepoTags\":[\"fedora"
+    "/apache:latest\"],\"Size\":0,\"VirtualSize\":450607288}\n,{\"Created\":1398393838,\"Id\":\"5e019ab7"
+    "bf6deb75b211411ef7257d1e76bf7edee31d9da62a392df98d0529d6\",\"ParentId\":\"2209cbf9dcd35615211a2fdc6"
+    "762bb5e651b5c847537359f05b9ab1bc9a74614\",\"RepoTags\":[\"ubuntu:13.10\"],\"Size\":73660060,\"Virtu"
+    "alSize\":179957072}\n,{\"Created\":1398356275,\"Id\":\"99ec81b80c55d906afd8179560fdab0ee93e32c52053"
+    "816ca1d531597c1ff48f\",\"ParentId\":\"d4010efcfd86c7f59f6b83b90e9c66d4cc4d78cd2266e853b95d464ea0eb7"
+    "3e6\",\"RepoTags\":[\"ubuntu:14.04\"],\"Size\":73333288,\"VirtualSize\":266007088}\n,{\"Created\":1"
+    "396557724,\"Id\":\"6200c4cca7aecad6d78749a7866cee8a4d3b0f508f407d9ab9006e1f40db66c9\",\"ParentId\":"
+    "\"a5f9e852518a475dd667e3c18490cf4efb6d55194921adf078fba4930deee6dc\",\"RepoTags\":[\"mvollmer/memea"
+    "ter:latest\"],\"Size\":20,\"VirtualSize\":812020}\n,{\"Created\":1396557723,\"Id\":\"42c71324bbfc76"
+    "7572487df6c90e21041f79609a47687aeccfa1ab7286eaf01a\",\"ParentId\":\"a5f9e852518a475dd667e3c18490cf4"
+                                                               /* real data ends here ---v */
+    "efb6d55194921adf078fba4930deee6dc\",\"RepoTags\":[\"\\u003cnone\\u003e:\\u003cnone\\e\":\"\",\"Entr"
+    "ypoint\":null,\"Env\":[\"HOME=/\",\"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/b"
+    "in\"],\"ExposedPorts\":null,\"Hostname\":\"4afa84ed8809\",\"Image\":\"fedora:rawhide\",\"Memory\":0"
+    ",\"MemorySwap\":0,\"NetworkDisabled\":false,\"OnBuild\":null,\"OpenStdin\":true,\"PortSpecs\":null,"
+    "\"StdinOnce\":true,\"Tty\":false,\"User\":\"\",\"Volumes\":null,\"WorkingDir\":\"\"},\"Created\":\""
+    "2014-03-25T09:37:33.948365902Z\",\"Driver\":\"devicemapper\",\"ExecDriver\":\"native-0.1\",\"HostCo"
+    "nfig\":{\"Binds\":null,\"ContainerIDFile\":\"\",\"Dns\":null,\"DnsSearch\":null,\"Links\":null,\"Lx"
+    "cConf\":[],\"NetworkMode\":\"\",\"PortBindings\":{},\"Privileged\":false,\"PublishAllPorts\":false,"
+    "\"VolumesFrom\":null},\"HostnamePath\":\"/var/lib/docker/containers/4afa84ed8809253111a6d63433503af"
+    "525b577740293bf219e5ff8223a702cf7/hostname\",\"HostsPath\":\"/var/lib/docker/containers/4afa84ed880"
+    "9253111a6d63433503af525b577740293bf219e5ff8223a702cf7/hosts\",\"Id\":\"4afa84ed8809253111a6d6343350"
+    "3af525b577740293bf219e5ff8223a702cf7\",\"Image\":\"0d20aec6529d5d396b195182c0eaa82bfe014c3e82ab3902"
+    "03ed56a774d2c404\",\"MountLabel\":\"\",\"Name\":\"/silly_curie\",\"NetworkSettings\":{\"Bridge\":\""
+    "docker0\",\"Gateway\":\"172.17.42.1\",\001\276";
+  gsize limit = 2984;
+  gsize spaces = G_MAXSIZE;
+  gsize offset;
+
+  offset = cockpit_json_skip (test_data, limit, &spaces);
+  g_assert_cmpuint (offset, ==, 0);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -468,6 +526,7 @@ main (int argc,
       g_free (name);
     }
   g_test_add_func ("/json/skip/return-spaces", test_skip_whitespace);
+  g_test_add_func ("/json/skip/truncated-in-escape", test_skip_truncated_in_escape);
 
   for (i = 0; i < G_N_ELEMENTS (equal_fixtures); i++)
     {

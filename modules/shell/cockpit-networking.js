@@ -190,6 +190,9 @@ function NetworkManagerModel(address) {
     }
 
     function drop_object(path) {
+        var obj = objects[path];
+        if (obj && priv(obj).type.drop)
+            priv(obj).type.drop(obj);
         delete objects[path];
     }
 
@@ -566,6 +569,16 @@ function NetworkManagerModel(address) {
         }
     }
 
+    var connections_by_uuid = { };
+
+    function set_settings(obj, settings) {
+        if (obj.Settings && obj.Settings.connection && obj.Settings.connection.uuid)
+            delete connections_by_uuid[obj.Settings.connection.uuid];
+        obj.Settings = settings;
+        if (obj.Settings && obj.Settings.connection && obj.Settings.connection.uuid)
+            connections_by_uuid[obj.Settings.connection.uuid] = obj;
+    }
+
     function refresh_settings(obj) {
         push_refresh();
         client.call(objpath(obj), "org.freedesktop.NetworkManager.Settings.Connection", "GetSettings",
@@ -573,7 +586,7 @@ function NetworkManagerModel(address) {
                         if (result) {
                             priv(obj).orig = result;
                             if (!priv(obj).frozen) {
-                                obj.Settings = settings_from_nm(result);
+                                set_settings(obj, settings_from_nm(result));
                             }
                         }
                         pop_refresh();
@@ -608,25 +621,6 @@ function NetworkManagerModel(address) {
 
     function handle_updated(obj) {
         refresh_settings(obj);
-    }
-
-    function find_connection_by_uuid(uuid) {
-        // TODO - Use a hashtable for this
-        var path, iface, connections;
-        var i;
-        for (path in objects) {
-            if (path.startsWith(":interface:")) {
-                iface = objects[path];
-                connections = iface.Connections;
-                if (iface.Device)
-                    connections = connections.concat(iface.Device.AvailableConnections);
-                for (i = 0; i < connections.length; i++) {
-                    if (connections[i].Settings.connection.uuid == uuid)
-                        return connections[i];
-                }
-            }
-        }
-        return null;
     }
 
     /* NetworkManager specific object types, used by the generic D-Bus
@@ -668,6 +662,10 @@ function NetworkManagerModel(address) {
 
         refresh: refresh_settings,
 
+        drop: function (obj) {
+            set_settings(obj, null);
+        },
+
         prototype: {
             freeze: function () {
                 priv(this).frozen = true;
@@ -682,7 +680,7 @@ function NetworkManagerModel(address) {
             },
 
             reset:  function () {
-                this.Settings = settings_from_nm(priv(this).orig);
+                set_settings (this, settings_from_nm(priv(this).orig));
                 priv(this).frozen = false;
                 model_changed();
             },
@@ -726,7 +724,7 @@ function NetworkManagerModel(address) {
 
             obj.Masters = [ ];
             if (obj.Settings.connection.slave_type == "bond") {
-                master = find_connection_by_uuid(obj.Settings.connection.master);
+                master = connections_by_uuid[obj.Settings.connection.master];
                 if (master) {
                     obj.Masters.push(master);
                     master.Slaves.push(obj);

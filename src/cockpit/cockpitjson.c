@@ -390,8 +390,9 @@ cockpit_json_skip (const gchar *data,
           switch (*p)
             {
             case '\\':
-              if (p != end)
-                p++; /* skip char after bs */
+              if (p + 1 == end)
+                continue;
+              p++; /* skip char after bs */
               break;
             case '"':
               instr = FALSE;

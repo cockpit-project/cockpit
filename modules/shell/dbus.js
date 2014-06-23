@@ -574,11 +574,11 @@ DBusClient.prototype = {
 
         var existing_obj = this._objmap[objpath];
         if (!existing_obj) {
-            dbus_warning("Received interface-signal for non-existing object path " + objpath);
+            dbus_debug("Received interface-signal for non-existing object path " + objpath);
         } else {
             var existing_iface = existing_obj._ifaces[iface_name];
             if (!existing_iface) {
-                dbus_warning("Received interface-signal for existing object path " + objpath + " and non-existing interface " + iface_name);
+                dbus_debug("Received interface-signal for existing object path " + objpath + " and non-existing interface " + iface_name);
             } else {
                 // Emit the signal to listeners
                 $(existing_iface).trigger(signal_name, signal_args);

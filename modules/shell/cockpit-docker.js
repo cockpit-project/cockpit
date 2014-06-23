@@ -766,7 +766,7 @@ PageSearchImage.prototype = {
         $('#containers-search-download').prop('disabled', true);
 
         var tr = $('<tr id="imagedl_' + repo.replace("/", "_") + '">').append(
-            $('<td class="container-col-tags">').text(name),
+            $('<td class="container-col-tags">').text(repo + ':' + tag),
             $('<td class="container-col-created">').text('Downloading'),
             $('<td class="image-col-size-graph">').append(
                 $('<div class="progress progress-striped active">').append(
@@ -800,6 +800,11 @@ PageSearchImage.prototype = {
                             new_string += ': ' + progress['progress'];
                         }
                         layers[progress['id']] = new_string;
+                        if(new_string == 'Download complete') {
+                            // We probably don't care anymore about completed layers
+                            // This also keeps the size of the row to a minimum
+                            delete layers[progress['id']];
+                        }
                     }
                     var full_status = '';
                     for(var layer in layers) {

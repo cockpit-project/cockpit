@@ -406,7 +406,7 @@ PageJournal.prototype = {
         $('#content-header-extra').
             append('<div class="btn-group" id="journal-current-day-menu"> \
                       <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="padding-left:10px"><span id="journal-current-day"></span> <span class="caret"></span></button> \
-                      <ul class="dropdown-menu date-filter" role="menu"> \
+                      <ul class="dropdown-menu" role="menu"> \
                         <li><a data-op="recent">Recent</a></li> \
                         <li><a data-op="boot">Current boot</a></li> \
                         <li><a data-op="last-24h">24 hours ago</a></li> \

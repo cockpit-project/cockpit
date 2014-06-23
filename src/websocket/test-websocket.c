@@ -1386,6 +1386,8 @@ main (int argc,
       { test_close_clean_server, "close-clean-server" },
   };
 
+  signal(SIGPIPE, SIG_IGN);
+
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);

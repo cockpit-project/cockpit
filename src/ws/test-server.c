@@ -240,6 +240,8 @@ main (int argc,
     { NULL }
   };
 
+  signal(SIGPIPE, SIG_IGN);
+
   /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 

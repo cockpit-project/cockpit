@@ -93,6 +93,8 @@ main (int argc, char *argv[])
   uid_t uid;
   int res;
 
+  signal (SIGPIPE, SIG_IGN);
+
   if (clearenv () != 0)
     errx (1, "couldn't clear environment");
 

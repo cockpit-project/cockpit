@@ -136,6 +136,7 @@ main (int argc,
     { NULL }
   };
 
+  signal(SIGPIPE, SIG_IGN);
   options = g_option_context_new ("URL");
   g_option_context_add_main_entries (options, entries, NULL);
   if (!g_option_context_parse (options, &argc, &argv, &error))

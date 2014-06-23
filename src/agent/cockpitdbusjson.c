@@ -1374,8 +1374,15 @@ on_object_manager_ready (GObject *source,
 
   if (self->object_manager == NULL)
     {
-      g_warning ("%s", error->message);
-      cockpit_channel_close (channel, "internal-error");
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        {
+          g_debug ("%s", error->message);
+        }
+      else
+        {
+          g_warning ("%s", error->message);
+          cockpit_channel_close (channel, "internal-error");
+        }
     }
   else
     {
@@ -1517,7 +1524,8 @@ cockpit_dbus_json_constructed (GObject *object)
 
   /* Both GDBusObjectManager and CockpitFakeManager have similar props */
   g_async_initable_new_async (object_manager_type,
-                              G_PRIORITY_DEFAULT, NULL,
+                              G_PRIORITY_DEFAULT,
+                              self->cancellable,
                               on_object_manager_ready,
                               g_object_ref (self),
                               "bus-type", bus_type,

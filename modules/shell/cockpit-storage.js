@@ -2090,6 +2090,8 @@ function cockpit_fill_free_devices_list(client, id, filter)
                                   }),
                     $('<label/>', { "for": id_n }).text(
                         desc))));
+                    $('.selectpicker').selectpicker({
+                        'selectedText': 'initialize-selectpickers'});
     }
 
     element.html(list);

@@ -21,6 +21,7 @@
 
 #include "machine.h"
 #include "machines.h"
+#include "cockpit/cockpittest.h"
 
 #include <glib/gstdio.h>
 
@@ -209,10 +210,7 @@ int
 main (int argc,
       char *argv[])
 {
-  g_type_init ();
-
-  g_set_prgname ("test-machines");
-  g_test_init (&argc, &argv, NULL);
+  cockpit_test_init (&argc, &argv);
 
   g_test_add ("/machines/add", TestCase, NULL,
               setup, test_add, teardown);

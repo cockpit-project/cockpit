@@ -1360,8 +1360,6 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  signal (SIGPIPE, SIG_IGN);
-
   /*
    * HACK: Work around races in glib SIGCHLD handling.
    *

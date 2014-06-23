@@ -1534,26 +1534,28 @@ cockpit_dbus_json_dispose (GObject *object)
   GDBusConnection *connection;
   GList *l;
 
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_object_added),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_object_removed),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_interface_added),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_interface_removed),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_interface_proxy_properties_changed),
-                                        self);
+  if (self->object_manager)
+    {
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_object_added),
+                                            self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_object_removed),
+                                            self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_interface_added),
+                                            self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_interface_removed),
+                                            self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_interface_proxy_properties_changed),
+                                            self);
 
-
-  g_object_get (self->object_manager, "connection", &connection, NULL);
-  g_dbus_connection_signal_unsubscribe (connection, self->signal_id);
-  g_object_unref (connection);
+      g_object_get (self->object_manager, "connection", &connection, NULL);
+      g_dbus_connection_signal_unsubscribe (connection, self->signal_id);
+      g_object_unref (connection);
+    }
 
   /* Divorce ourselves the outstanding calls */
   for (l = self->active_calls; l != NULL; l = g_list_next (l))

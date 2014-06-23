@@ -733,9 +733,6 @@ PageSearchImage.prototype = {
     enter: function() {
         this.client = get_docker_client();
 
-        $(this.client).on("docker_download_fail", function(event, name, ex) {
-        });
-
         // Clear the previous results and search string from previous time
         $('#containers-search-image-results tbody tr').remove();
         $('#containers-search-image-results').hide();
@@ -796,11 +793,11 @@ PageSearchImage.prototype = {
                 else if("status" in progress) {
                     if("id" in progress) {
                         var new_string = progress['status'];
-                        if("progress" in progress) {
-                            new_string += ': ' + progress['progress'];
+                        if(progress['status'] == 'Downloading') {
+                            new_string += ': ' + progress['progressDetail']['current'] + '/' + progress['progressDetail']['total'];
                         }
                         layers[progress['id']] = new_string;
-                        if(new_string == 'Download complete') {
+                        if(progress['status'] == 'Download complete') {
                             // We probably don't care anymore about completed layers
                             // This also keeps the size of the row to a minimum
                             delete layers[progress['id']];
@@ -808,7 +805,7 @@ PageSearchImage.prototype = {
                     }
                     var full_status = '';
                     for(var layer in layers) {
-                        full_status += layer + ': ' + layers[layer] + '<br />';
+                        full_status += layer + ': ' + layers[layer] + '&nbsp;&nbsp;&nbsp;&nbsp;';
                     }
                     size.html(full_status);
                 }

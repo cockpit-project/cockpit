@@ -689,6 +689,10 @@ function NetworkManagerModel(address) {
                 return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                           "org.freedesktop.NetworkManager", "ActivateConnection",
                                           objpath(this), objpath(dev), objpath(specific_object));
+            },
+
+            delete_: function () {
+                return call_object_method(this, "org.freedesktop.NetworkManager.Settings.Connection", "Delete");
             }
         },
 

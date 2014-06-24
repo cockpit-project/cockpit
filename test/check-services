@@ -71,7 +71,7 @@ ExecStart=/usr/bin/test-service %I
         self.login_and_go("services")
 
         def svc_sel(service):
-            return 'a[onclick*="%s"]' % service
+            return 'tr[onclick*="%s"]' % service
 
         def wait_service_state(service, state):
             b.wait_in_text(svc_sel(service), state)

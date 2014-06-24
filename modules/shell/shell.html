@@ -133,7 +133,7 @@
               <div style="height:120px" id="server_disk_io_graph"></div>
             </a>
             <br/>
-            <a onclick="cockpit_go_down('network_traffic_status')">
+            <a onclick="cockpit_go_down('networking')">
               <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
               <div style="height:120px" id="server_network_traffic_graph"></div>
             </a>
@@ -152,10 +152,6 @@
 
       <div id="disk_io_status">
         <div id="disk_io_status_graph" style="height:400px;padding:20px"></div>
-      </div>
-
-      <div id="network_traffic_status">
-        <div id="network_traffic_status_graph" style="height:400px;padding:20px"></div>
       </div>
 
       <div id="system_information">
@@ -430,6 +426,17 @@
       </div>
 
       <div id="networking" class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6">
+            <div>Sending<span style="float:right" id="networking-tx-text"></span></div>
+            <div style="height:120px" id="networking-tx-graph"></div>
+          </div>
+          <div class="col-sm-6">
+            <div>Receiving<span style="float:right" id="networking-rx-text"></span></div>
+            <div style="height:120px" id="networking-rx-graph"></div>
+          </div>
+        </div>
+        <br/>
         <div class="panel panel-default"
              id="networking-interfaces">
           <div class="panel-heading" translatable="yes">Interfaces</div>
@@ -438,8 +445,8 @@
               <tr>
                 <th>Name</th>
                 <th>IP Address</th>
-                <th>MAC</th>
-                <th>Status</th>
+                <th style="width:20%">Sending</th>
+                <th style="width:20%">Receiving</th>
               </tr>
             </thead>
             <tbody>
@@ -449,7 +456,17 @@
       </div>
 
       <div id="network-interface" class="container-fluid">
-
+        <div class="row">
+          <div class="col-sm-6">
+            <div>Sending<span style="float:right" id="network-interface-tx-text"></span></div>
+            <div style="height:120px" id="network-interface-tx-graph"></div>
+          </div>
+          <div class="col-sm-6">
+            <div>Receiving<span style="float:right" id="network-interface-rx-text"></span></div>
+            <div style="height:120px" id="network-interface-rx-graph"></div>
+          </div>
+        </div>
+        <br/>
         <div class="panel panel-default">
           <div class="panel-heading">
             <span translatable="yes">Network hardware</span>

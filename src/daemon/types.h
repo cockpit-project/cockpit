@@ -62,6 +62,9 @@ typedef struct _DiskIOMonitor DiskIOMonitor;
 struct _CGroupMonitor;
 typedef struct _CGroupMonitor CGroupMonitor;
 
+struct _NetdevMonitor;
+typedef struct _NetdevMonitor NetdevMonitor;
+
 struct _StorageManager;
 typedef struct _StorageManager StorageManager;
 

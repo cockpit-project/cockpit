@@ -196,7 +196,7 @@ function NetworkManagerModel(address) {
         decl = priv(obj).type.props;
         prefix = prefix || "";
         for (p in decl) {
-            val = props[prefix + p];
+            val = props[prefix + (decl[p].prop || p)];
             if(val) {
                 if (decl[p].conv)
                     val = decl[p].conv(val);
@@ -683,7 +683,8 @@ function NetworkManagerModel(address) {
             Interface:            { },
             Ip4Config:            { conv: conv_Object(type_Ipv4Config) },
             Ip6Config:            { conv: conv_Object(type_Ipv6Config) },
-            State:                { conv: device_state_to_text,                       def: _("Unknown") },
+            StateText:            { prop: "State", conv: device_state_to_text,        def: _("Unknown") },
+            State:                { },
             HwAddress:            { },
             AvailableConnections: { conv: conv_Array(conv_Object(type_Connection)),   def: [] },
             ActiveConnection:     { conv: conv_Object(type_ActiveConnection) },
@@ -795,18 +796,79 @@ PageNetworking.prototype = {
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.model = get_nm_model(this.address);
         cockpit.set_watched_client(this.model.client);
+
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
+
+        function is_interesting_netdev(netdev) {
+            return netdev && netdev != "lo";
+        }
+
+        function highlight_netdev_row(event, id) {
+            $('#networking-interfaces tr').removeClass('highlight');
+            if (id) {
+                $('#networking-interfaces tr[data-interface="' + cockpit_esc(id) + '"]').addClass('highlight');
+            }
+        }
+
+        function render_samples(event, timestamp, samples) {
+            for (var id in samples) {
+                var row = $('#networking-interfaces tr[data-sample-id="' + cockpit_esc(id) + '"]');
+                if (row.length > 0) {
+                    row.find('td:nth-child(3)').text(cockpit_format_bytes_per_sec(samples[id][1]));
+                    row.find('td:nth-child(4)').text(cockpit_format_bytes_per_sec(samples[id][0]));
+                }
+            }
+        }
+
+        this.cockpitd = cockpit.dbus(this.address);
+        this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
+                                         "com.redhat.Cockpit.MultiResourceMonitor");
+
+        $(this.monitor).on('NewSample.networking', render_samples);
+
+        this.rx_plot = cockpit_setup_cgroups_plot ('#networking-rx-graph', this.monitor, 0, blues.concat(blues),
+                                                   is_interesting_netdev);
+        $(this.rx_plot).on('update-total', function (event, total) {
+            $('#networking-rx-text').text(cockpit_format_bytes_per_sec(total));
+        });
+        $(this.rx_plot).on('highlight', highlight_netdev_row);
+
+        this.tx_plot = cockpit_setup_cgroups_plot ('#networking-tx-graph', this.monitor, 1, blues.concat(blues),
+                                                   is_interesting_netdev);
+        $(this.tx_plot).on('update-total', function (event, total) {
+            $('#networking-tx-text').text(cockpit_format_bytes_per_sec(total));
+        });
+        $(this.tx_plot).on('highlight', highlight_netdev_row);
+
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
         this.update_devices();
     },
 
     show: function() {
+        this.rx_plot.start();
+        this.tx_plot.start();
     },
 
     leave: function() {
+        this.rx_plot.destroy();
+        this.tx_plot.destroy();
+
         cockpit.set_watched_client(null);
         $(this.model).off(".networking");
         this.model.release();
         this.model = null;
+
+        $(this.monitor).off(".networking");
+        this.cockpitd.release();
+        this.cockpitd = null;
     },
 
     update_devices: function() {
@@ -827,11 +889,16 @@ PageNetworking.prototype = {
             if (dev.DeviceType != 1)
                 return;
 
-            tbody.append($('<tr>').
+            var is_active = (dev.State == 100);
+
+            tbody.append($('<tr>', { "data-interface": dev.Interface,
+                                     "data-sample-id": is_active? dev.Interface : null
+                                   }).
                          append($('<td>').text(dev.Interface),
                                 $('<td>').text(render_device_addresses(dev)),
-                                $('<td>').text(dev.HwAddress),
-                                $('<td>').text(dev.State)).
+                                (is_active?
+                                 [ $('<td>').text(""), $('<td>').text("") ] :
+                                 $('<td colspan="2">').text(dev.StateText))).
                          click(function () { cockpit_go_down ({ page: 'network-interface',
                                                                 dev: dev.Interface
                                                               });
@@ -890,19 +957,59 @@ PageNetworkInterface.prototype = {
         cockpit.set_watched_client(self.model.client);
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
+        self.dev_name = cockpit_get_page_param('dev');
+
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
+
+        function is_interesting_netdev(netdev) {
+            return netdev == self.dev_name;
+        }
+
+        this.cockpitd = cockpit.dbus(this.address);
+        this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
+                                         "com.redhat.Cockpit.MultiResourceMonitor");
+
+        this.rx_plot = cockpit_setup_cgroups_plot ('#network-interface-rx-graph', this.monitor, 0,
+                                                   blues.concat(blues), is_interesting_netdev);
+        $(this.rx_plot).on('update-total', function (event, total) {
+            $('#network-interface-rx-text').text(cockpit_format_bytes_per_sec(total));
+        });
+
+        this.tx_plot = cockpit_setup_cgroups_plot ('#network-interface-tx-graph', this.monitor, 1,
+                                                   blues.concat(blues), is_interesting_netdev);
+        $(this.tx_plot).on('update-total', function (event, total) {
+            $('#network-interface-tx-text').text(cockpit_format_bytes_per_sec(total));
+        });
+
         self.dev = null;
         self.update();
     },
 
     show: function() {
+        this.rx_plot.start();
+        this.tx_plot.start();
     },
 
     leave: function() {
+        this.rx_plot.destroy();
+        this.tx_plot.destroy();
+
         cockpit.set_watched_client(null);
         $(this.model).off(".network-interface");
         this.model.release();
         this.model = null;
         this.dev = null;
+
+        this.cockpitd.release();
+        this.cockpitd = null;
     },
 
     disconnect: function() {
@@ -916,7 +1023,7 @@ PageNetworkInterface.prototype = {
         var $hw = $('#network-interface-hw');
         var $connections = $('#network-interface-connections');
 
-        var dev = self.model.find_device(cockpit_get_page_param('dev'));
+        var dev = self.model.find_device(self.dev_name);
         if (!dev)
             return;
 
@@ -929,7 +1036,7 @@ PageNetworkInterface.prototype = {
                     $('<span style="float:right">').text(dev.HwAddress)),
                 $('<div>').append(
                     $('<span>').text(render_device_addresses(dev)),
-                    $('<span style="float:right">').text(dev.State))));
+                    $('<span style="float:right">').text(dev.StateText))));
 
         $('#network-interface-disconnect').prop('disabled', !dev.ActiveConnection);
 

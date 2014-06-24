@@ -2194,19 +2194,15 @@
             <h4 class="modal-title">Search Image</h4>
           </div>
           <div class="modal-body">
-            <table class="cockpit-form-table">
-              <tr>
-                <input type="search" class="form-control" id="containers-search-image-search"/>
-                <div id="containers-search-image-waiting" class=""></div>
-              </tr>
-              <tr>
-                <table class="table" id="containers-search-image-results">
-                  <tbody />
-                </table>
-                <div id="containers-search-image-no-results">
-                </div>
-              </tr>
-            </table>
+            <input type="search" class="form-control" id="containers-search-image-search"/>
+            <div id="containers-search-image-waiting"></div>
+            <div id="containers-search-image-results">
+              <table class="table table-hover">
+                <tbody/>
+              </table>
+            </div>
+            <div id="containers-search-image-no-results">
+            </div>
           </div>
           <div class="modal-footer">
             <input type="text" id="containers-search-tag" class="form-control" disabled="disabled" placeholder="Tag" />

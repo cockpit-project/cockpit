@@ -401,12 +401,6 @@ test_close_problem (TestCase *tc,
 /* An ssh command that just kills itself with SIGTERM */
 static const TestFixture fixture_terminate_problem = {
   .ssh_command = "kill $$",
-
-  /*
-   * TODO: Trying to solve:
-   * https://travis-ci.org/cockpit-project/cockpit/jobs/25494752
-   */
-  .ssh_log_level = SSH_LOG_FUNCTIONS,
 };
 
 static void
@@ -616,12 +610,6 @@ test_expect_empty_key (TestCase *tc,
 
 static const TestFixture fixture_bad_command = {
   .ssh_command = "/nonexistant 2> /dev/null",
-
-  /*
-   * TODO: Trying to solve:
-   * https://travis-ci.org/cockpit-project/cockpit/jobs/25688198
-   */
-  .ssh_log_level = SSH_LOG_FUNCTIONS,
 };
 
 static void

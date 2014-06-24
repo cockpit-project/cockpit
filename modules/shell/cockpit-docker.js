@@ -731,7 +731,8 @@ PageSearchImage.prototype = {
     },
 
     enter: function() {
-        this.client = get_docker_client();
+        this.address = cockpit_get_page_param('machine') || "localhost";
+        this.client = get_docker_client(this.address);
 
         // Clear the previous results and search string from previous time
         $('#containers-search-image-results tbody tr').remove();

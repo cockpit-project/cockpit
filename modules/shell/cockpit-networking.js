@@ -1017,7 +1017,7 @@ function array_join(elts, sep) {
     return result;
 }
 
-function render_active_connection(dev) {
+function render_active_connection(dev, with_link) {
     var parts = [ ];
     var con;
 
@@ -1029,7 +1029,7 @@ function render_active_connection(dev) {
     if (con && con.Master) {
         return $('<span>').append(
                    $('<span>').text(_("Part of ")),
-                   render_interface_link(con.Master.Interface));
+                   (with_link? render_interface_link(con.Master.Interface) : con.Master.Interface));
     }
 
     if (con && con.Ip4Config) {
@@ -1161,7 +1161,7 @@ PageNetworking.prototype = {
                                      "data-sample-id": is_active? iface.Name : null
                                    }).
                          append($('<td>').text(iface.Name),
-                                $('<td>').html(render_active_connection(dev)),
+                                $('<td>').html(render_active_connection(dev, false)),
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
                                  $('<td colspan="2">').text(dev? dev.StateText : _("Inactive")))).
@@ -1368,7 +1368,7 @@ PageNetworkInterface.prototype = {
                         desc,
                         $('<span style="float:right">').text(dev.HwAddress)),
                     $('<div>').append(
-                        $('<span>').html(render_active_connection(dev)),
+                        $('<span>').html(render_active_connection(dev, true)),
                         $('<span style="float:right">').text(dev.StateText))));
 
             $('#network-interface-disconnect').prop('disabled', !dev.ActiveConnection);

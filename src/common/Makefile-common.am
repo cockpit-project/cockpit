@@ -1,26 +1,26 @@
 test_dbus_generated = test-dbus-generated.h test-dbus-generated.c
 
 test-dbus-generated.h: test-dbus-generated.c
-test-dbus-generated.c: Makefile.am $(srcdir)/src/cockpit/com.redhat.Cockpit.DBusTests.xml
+test-dbus-generated.c: Makefile.am $(srcdir)/src/common/com.redhat.Cockpit.DBusTests.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 		--interface-prefix com.redhat.Cockpit.DBusTests \
 		--c-namespace Test \
 		--c-generate-object-manager \
 		--generate-c-code test-dbus-generated \
-		$(srcdir)/src/cockpit/com.redhat.Cockpit.DBusTests.xml \
+		$(srcdir)/src/common/com.redhat.Cockpit.DBusTests.xml \
 		$(NULL)
 
 test_built_sources = $(test_dbus_generated)
 mock_dbus_sources = \
-	src/cockpit/mock-service.c \
-	src/cockpit/mock-service.h \
+	src/common/mock-service.c \
+	src/common/mock-service.h \
 	$(NULL)
 
 BUILT_SOURCES += $(test_built_sources)
 CLEANFILES += $(test_built_sources)
 
 EXTRA_DIST += \
-	src/cockpit/com.redhat.Cockpit.DBusTests.xml \
+	src/common/com.redhat.Cockpit.DBusTests.xml \
 	$(NULL)
 
 noinst_LIBRARIES += libcockpit.a
@@ -29,25 +29,24 @@ nodist_libcockpit_a_SOURCES = \
 	$(dbus_built_sources) \
 	$(NULL)
 libcockpit_a_SOURCES = \
-	src/cockpit/cockpit.h \
-	src/cockpit/cockpitenums.h \
-	src/cockpit/cockpiterror.h src/cockpit/cockpiterror.c \
-	src/cockpit/cockpitjson.c \
-	src/cockpit/cockpitjson.h \
-	src/cockpit/cockpitlog.h src/cockpit/cockpitlog.c \
-	src/cockpit/cockpitmemory.c \
-	src/cockpit/cockpitmemory.h \
-	src/cockpit/cockpittypes.h \
-	src/cockpit/cockpitpipe.c \
-	src/cockpit/cockpitpipe.h \
-	src/cockpit/cockpitpipetransport.c \
-	src/cockpit/cockpitpipetransport.h \
-	src/cockpit/cockpittest.c \
-	src/cockpit/cockpittest.h \
-	src/cockpit/cockpittransport.c \
-	src/cockpit/cockpittransport.h \
-	src/cockpit/cockpitunixfd.c \
-	src/cockpit/cockpitunixfd.h \
+	src/common/cockpitenums.h \
+	src/common/cockpiterror.h src/common/cockpiterror.c \
+	src/common/cockpitjson.c \
+	src/common/cockpitjson.h \
+	src/common/cockpitlog.h src/common/cockpitlog.c \
+	src/common/cockpitmemory.c \
+	src/common/cockpitmemory.h \
+	src/common/cockpittypes.h \
+	src/common/cockpitpipe.c \
+	src/common/cockpitpipe.h \
+	src/common/cockpitpipetransport.c \
+	src/common/cockpitpipetransport.h \
+	src/common/cockpittest.c \
+	src/common/cockpittest.h \
+	src/common/cockpittransport.c \
+	src/common/cockpittransport.h \
+	src/common/cockpitunixfd.c \
+	src/common/cockpitunixfd.h \
 	$(NULL)
 
 libcockpit_a_CFLAGS = \
@@ -70,15 +69,15 @@ COCKPIT_CHECKS = \
 	$(NULL)
 
 test_json_CFLAGS = $(libcockpit_a_CFLAGS)
-test_json_SOURCES = src/cockpit/test-json.c
+test_json_SOURCES = src/common/test-json.c
 test_json_LDADD = $(libcockpit_a_LIBS)
 
 test_pipe_CFLAGS = $(libcockpit_a_CFLAGS)
-test_pipe_SOURCES = src/cockpit/test-pipe.c
+test_pipe_SOURCES = src/common/test-pipe.c
 test_pipe_LDADD = $(libcockpit_a_LIBS)
 
 test_transport_CFLAGS = $(libcockpit_a_CFLAGS)
-test_transport_SOURCES = src/cockpit/test-transport.c
+test_transport_SOURCES = src/common/test-transport.c
 test_transport_LDADD = $(libcockpit_a_LIBS)
 
 noinst_PROGRAMS += $(COCKPIT_CHECKS)

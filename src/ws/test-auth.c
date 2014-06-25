@@ -21,9 +21,9 @@
 
 #include "mock-auth.h"
 
-#include "cockpit/cockpitenums.h"
-#include "cockpit/cockpiterror.h"
-#include "cockpit/cockpittest.h"
+#include "common/cockpitenums.h"
+#include "common/cockpiterror.h"
+#include "common/cockpittest.h"
 #include "ws/cockpitauth.h"
 #include "websocket/websocket.h"
 

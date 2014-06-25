@@ -27,7 +27,7 @@
 
 #include "cockpitsshtransport.h"
 
-#include "cockpit/cockpitpipe.h"
+#include "common/cockpitpipe.h"
 
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>

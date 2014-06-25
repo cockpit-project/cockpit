@@ -25,9 +25,9 @@
 
 #include "cockpitpolkitagent.h"
 
-#include "cockpit/cockpitjson.h"
-#include "cockpit/cockpitpipe.h"
-#include "cockpit/cockpitlog.h"
+#include "common/cockpitjson.h"
+#include "common/cockpitpipe.h"
+#include "common/cockpitlog.h"
 
 #define POLKIT_AGENT_I_KNOW_API_IS_SUBJECT_TO_CHANGE 1
 #include <polkitagent/polkitagent.h>

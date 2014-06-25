@@ -22,7 +22,7 @@
 #include "cockpitwebserver.h"
 #include "cockpitwebresponse.h"
 
-#include "cockpit/cockpittest.h"
+#include "common/cockpittest.h"
 
 #include "websocket/websocket.h"
 #include "websocket/websocketprivate.h"

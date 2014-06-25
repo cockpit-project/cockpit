@@ -23,10 +23,9 @@
 #include "cockpitwebservice.h"
 #include "cockpitws.h"
 
-#include "cockpit/cockpitjson.h"
+#include "common/cockpitjson.h"
 
 #include "websocket/websocket.h"
-#include <cockpit/cockpit.h>
 
 #include <gsystem-local-alloc.h>
 

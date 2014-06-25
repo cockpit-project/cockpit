@@ -20,7 +20,7 @@
 #ifndef __COCKPIT_SSH_TRANSPORT_H__
 #define __COCKPIT_SSH_TRANSPORT_H__
 
-#include "cockpit/cockpittransport.h"
+#include "common/cockpittransport.h"
 
 #include "cockpitcreds.h"
 

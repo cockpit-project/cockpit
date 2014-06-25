@@ -21,7 +21,7 @@
 
 #include "cgroupmonitor.h"
 
-#include "cockpit/cockpittest.h"
+#include "common/cockpittest.h"
 
 #include <glib/gstdio.h>
 

@@ -20,7 +20,8 @@
 #include "config.h"
 
 #include "cockpitcreds.h"
-#include "cockpit/cockpitmemory.h"
+
+#include "common/cockpitmemory.h"
 
 #include <string.h>
 

@@ -24,14 +24,15 @@
 #include <glib/gstdio.h>
 
 #include <dirent.h>
-
-#include <cockpit/cockpit.h>
-#include <cockpit/cockpitmemory.h>
+#include <string.h>
 
 #include <gsystem-local-alloc.h>
 
 #include "cockpitws.h"
 #include "cockpithandlers.h"
+
+#include "common/cockpitlog.h"
+#include "common/cockpitmemory.h"
 
 #include <libssh/libssh.h>
 

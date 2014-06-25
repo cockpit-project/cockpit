@@ -40,8 +40,6 @@
 #include "journal.h"
 #include "accounts.h"
 
-#include <cockpit/cockpit.h>
-
 /**
  * SECTION:daemon
  * @title: Daemon

@@ -22,8 +22,8 @@
 #include "cockpitchannel.h"
 #include "mock-transport.h"
 
-#include "cockpit/cockpitjson.h"
-#include "cockpit/cockpittest.h"
+#include "common/cockpitjson.h"
+#include "common/cockpittest.h"
 
 #include <json-glib/json-glib.h>
 

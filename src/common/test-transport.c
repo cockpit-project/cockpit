@@ -23,7 +23,7 @@
 #include "cockpitpipe.h"
 #include "cockpitpipetransport.h"
 
-#include "cockpit/cockpittest.h"
+#include "common/cockpittest.h"
 
 #include "websocket/websocket.h"
 

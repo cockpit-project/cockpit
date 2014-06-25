@@ -21,7 +21,7 @@
 
 #include "cockpittextstream.h"
 
-#include "cockpit/cockpitpipe.h"
+#include "common/cockpitpipe.h"
 
 #include <gio/gunixsocketaddress.h>
 

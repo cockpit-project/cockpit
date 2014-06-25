@@ -20,10 +20,11 @@
 #include "config.h"
 
 #include "cockpitdbusjson.h"
-#include "cockpit/mock-service.h"
-#include "cockpit/cockpitpipetransport.h"
-#include "cockpit/cockpitjson.h"
-#include "cockpit/cockpittest.h"
+
+#include "common/cockpitjson.h"
+#include "common/cockpitpipetransport.h"
+#include "common/cockpittest.h"
+#include "common/mock-service.h"
 
 #include <json-glib/json-glib.h>
 

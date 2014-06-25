@@ -24,7 +24,7 @@
 
 #include "cockpitsshtransport.h"
 
-#include "cockpit/cockpittest.h"
+#include "common/cockpittest.h"
 
 #include <libssh/libssh.h>
 

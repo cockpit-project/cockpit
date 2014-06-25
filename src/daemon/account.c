@@ -31,8 +31,6 @@
 #include "auth.h"
 #include "account.h"
 
-#include <cockpit/cockpit.h>
-
 #include <grp.h>
 #include <pwd.h>
 #include <shadow.h>

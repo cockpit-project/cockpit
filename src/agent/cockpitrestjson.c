@@ -21,8 +21,8 @@
 
 #include "cockpitrestjson.h"
 
-#include "cockpit/cockpitjson.h"
-#include "cockpit/cockpitpipe.h"
+#include "common/cockpitjson.h"
+#include "common/cockpitpipe.h"
 
 #include "websocket/websocket.h"
 

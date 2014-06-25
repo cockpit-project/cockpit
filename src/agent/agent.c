@@ -22,8 +22,8 @@
 #include "cockpitdbusjson.h"
 #include "cockpitpolkitagent.h"
 
-#include "cockpit/cockpitlog.h"
-#include "cockpit/cockpitpipetransport.h"
+#include "common/cockpitlog.h"
+#include "common/cockpitpipetransport.h"
 
 #include <sys/prctl.h>
 #include <errno.h>

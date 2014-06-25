@@ -19,8 +19,6 @@
 
 #include "config.h"
 
-#include <cockpit/cockpit.h>
-
 #include "utils.h"
 
 /**

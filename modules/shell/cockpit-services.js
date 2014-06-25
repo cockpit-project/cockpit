@@ -17,6 +17,21 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+var cockpit = cockpit || { };
+
+(function($, cockpit, cockpit_pages) {
+
+function resource_debug() {
+    if (cockpit.debugging == "all" || cockpit.debugging == "resource" || true)
+        console.debug.apply(console, arguments);
+}
+
+function format_cpu_usage(usage) {
+    if (usage === undefined || isNaN(usage))
+        return "";
+    return Math.round(usage) + "%";
+}
+
 function systemd_unit_name_esc(str) {
     var validchars = /[0-9a-zA-Z:-_.\\]/;
     var res = "";
@@ -66,6 +81,7 @@ function systemd_param_esc(str) {
 N_("loaded");
 N_("error");
 N_("masked");
+N_("not-found");
 // active_state
 N_("active");
 N_("reloading");
@@ -91,28 +107,95 @@ N_("static");
 N_("disabled");
 N_("invalid");
 
-function cockpit_render_service (name, desc, load_state, active_state, sub_state, file_state)
+function render_service (name, desc, load_state, active_state, sub_state, file_state,
+                         manager)
 {
-    var color_style;
+    var waiting, active, color_style;
+
+    if (!load_state)
+        load_state = "";
+
+    if (!active_state)
+        active_state = "";
+
+    if (!sub_state)
+        sub_state = "";
 
     if (active_state == 'failed' || load_state == 'error')
         color_style = ';color:red';
     else
         color_style = '';
 
-    return ("<tr onclick=\"" + cockpit_esc(cockpit_go_down_cmd("service", { s: name })) + "\"><td>" +
-            "<span style=\"font-weight:bold\">" +
-            cockpit_esc(desc) +
-            "</span></td><td><span>" +
-            cockpit_esc(name) +
-            "</span></td>" +
-            "<td style=\"text-align:right" + color_style + "\">" +
-            '<td style="width:60px">' + cockpit_esc(_(load_state)) + "</td>" +
-            '<td style="width:60px">' + cockpit_esc(_(active_state)) + "</td>" +
-            '<td style="width:80px">' + cockpit_esc(_(sub_state)) + "</td>" +
-            '<td style="width:60px">' + cockpit_esc(_(file_state)) + "</td>" +
-            "</tr>" +
-            "</a>");
+    if (load_state == "loaded")
+        load_state = "";
+
+    waiting = (active_state == "activating" || active_state == "deactivating" || active_state == "reloading");
+    active = (active_state == "active" || active_state == "reloading");
+
+    load_state = _(load_state);
+    active_state = _(active_state);
+    sub_state = _(sub_state);
+    file_state = _(file_state);
+
+    if (sub_state !== "" && sub_state != active_state)
+        active_state = active_state + " (" + sub_state + ")";
+
+    if (load_state !== "")
+        active_state = load_state + " / " + active_state;
+
+    var tr = ($('<tr>', { 'data-unit': name
+                        }).
+              click(function () { cockpit_go_down({page: "service", s: name }); }).
+              append(
+                  $('<td style="font-weight:bold">').text(desc),
+                  $('<td>').text(name),
+                  $('<td>', { style: "text-align:right;white-space:nowrap" + color_style }).text(active_state)));
+
+    if (manager) {
+        var img_waiting = $('<div class="waiting">');
+        var btn_play = $('<button class="btn btn-default btn-control btn-play">').
+            on("click", function() {
+                manager.call('ServiceAction', name, 'start', function (error) {
+                    if (error)
+                        cockpit_show_unexpected_error(error);
+                });
+                return false;
+            });
+        var btn_stop = $('<button class="btn btn-default btn-control btn-stop">').
+            on("click", function() {
+                manager.call('ServiceAction', name, 'stop', function (error) {
+                    if (error)
+                        cockpit_show_unexpected_error(error);
+                });
+                return false;
+            });
+
+        img_waiting.toggle(waiting);
+        btn_play.toggle(!waiting && !active);
+        btn_stop.toggle(!waiting && active);
+
+        tr.append(
+            $('<td class="cell-buttons" style="padding-left:20px;padding-right:5px">').append(
+                btn_play, btn_stop, img_waiting));
+
+        var address = manager._client.target; // XXX
+        var geard_match = name.match(/ctr-(.*)\.service/);
+
+        if (geard_match) {
+            var btn_eject = $('<button class="btn btn-default btn-control btn-eject">').
+                on("click", function() {
+                    cockpit.spawn([ "/usr/bin/gear", "delete", geard_match[1] ], { host: address }).
+                        fail(cockpit_show_unexpected_error);
+                    return false;
+                });
+
+            tr.append(
+                $('<td class="cell-buttons" style="padding-left:5px;padding-right:5px">').append(
+                    btn_eject));
+        }
+    }
+
+    return tr;
 }
 
 PageServices.prototype = {
@@ -121,7 +204,15 @@ PageServices.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "System Services");
+        return C_("page-title", "Services");
+    },
+
+    setup: function() {
+        var self = this;
+        $('#services-add').click(function () {
+            PageServiceAdd.address = self.address;
+            $('#service-add-dialog').modal('show');
+        });
     },
 
     enter: function() {
@@ -129,24 +220,33 @@ PageServices.prototype = {
 
         $('#content-header-extra').append(' \
             <div class="btn-group" data-toggle="buttons"> \
-              <label class="btn btn-default" translatable="yes">Targets \
-                <input type="radio" name="services-filter" id="services-filter-targets" value=".target"/> \
-              </label> \
               <label class="btn btn-default active" translatable="yes">Services \
-                <input type="radio" name="services-filter" id="services-filter-services" value=".service" checked="checked"/> \
+                <input type="radio" name="services-filter" id="services-filter-my-services" \
+                       value="^ctr-.*\\.service$"/ checked="checked" data-show-graphs data-include-buttons> \
+              </label> \
+              <label class="btn btn-default" translatable="yes">Targets \
+                <input type="radio" name="services-filter" id="services-filter-targets" \
+                       value="\\.target$"/> \
+              </label> \
+              <label class="btn btn-default" translatable="yes">System Services \
+                <input type="radio" name="services-filter" id="services-filter-services" \
+                       value="\\.service$"/> \
               </label> \
               <label class="btn btn-default" translatable="yes">Sockets \
-                <input type="radio" name="services-filter" id="services-filter-sockets" value=".socket"/> \
+                <input type="radio" name="services-filter" id="services-filter-sockets" \
+                       value="\\.socket$"/> \
               </label> \
               <label class="btn btn-default" translatable="yes">Timers \
-                <input type="radio" name="services-filter" id="services-filter-timers" value=".timer"/> \
+                <input type="radio" name="services-filter" id="services-filter-timers" \
+                       value="\\.timer$"/> \
               </label> \
               <label class="btn btn-default" translatable="yes">Paths \
-                <input type="radio" name="services-filter" id="services-filter-paths" value=".path"/> \
+                <input type="radio" name="services-filter" id="services-filter-paths" \
+                       value="\\.path$"/> \
               </label> \
             </div>');
 
-        $('#content-header-extra label').on('click', function (event) {
+        $('#content-header-extra input').on('change', function (event) {
             me.update();
         });
 
@@ -164,16 +264,61 @@ PageServices.prototype = {
             me.update();
         });
 
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
+
+        me.monitor = me.client.get ("/com/redhat/Cockpit/LxcMonitor",
+                                    "com.redhat.Cockpit.MultiResourceMonitor");
+
+        function is_interesting_cgroup(cgroup) {
+            return cgroup && !!cgroup.match("ctr-.*\\.service$");
+        }
+
+        function highlight_service_row(event, id) {
+            $('#services .list-group-item').removeClass('highlight');
+            if (id) {
+                id = id.split('/').pop();
+                $('[data-unit="' + cockpit_esc(id) + '"]').addClass('highlight');
+            }
+        }
+
+        this.cpu_plot = cockpit_setup_cgroups_plot ('#services-cpu-graph', me.monitor, 4, blues.concat(blues),
+                                                    is_interesting_cgroup);
+        $(this.cpu_plot).on('update-total', function (event, total) {
+            $('#services-cpu-text').text(format_cpu_usage(total));
+        });
+        $(this.cpu_plot).on('highlight', highlight_service_row);
+
+        this.mem_plot = cockpit_setup_cgroups_plot ('#services-mem-graph', me.monitor, 0, blues.concat(blues),
+                                                    is_interesting_cgroup);
+        $(this.mem_plot).on('update-total', function (event, total) {
+            $('#services-mem-text').text(cockpit_format_bytes_pow2 (total));
+        });
+        $(this.mem_plot).on('highlight', highlight_service_row);
+
         me.update();
     },
 
     show: function() {
+        if ($('#services-graphs').is(':visible')) {
+            this.cpu_plot.start();
+            this.mem_plot.start();
+        }
     },
 
     leave: function() {
         var self = this;
 
         cockpit.set_watched_client(null);
+        this.cpu_plot.destroy();
+        this.mem_plot.destroy();
         $(self.manager).off('.services');
         self.client.release();
         self.client = null;
@@ -181,26 +326,51 @@ PageServices.prototype = {
     },
 
     update_service: function (name, desc, load_state, active_state, sub_state, file_state) {
-        var suffix = $('input[name="services-filter"]:checked').val();
-        if (suffix && name.endsWith(suffix)) {
-            var item = $(cockpit_render_service(name, desc, load_state, active_state, sub_state, file_state));
-            if (this.items[name])
-                this.items[name].replaceWith(item);
-            else {
-                // XXX - sort it properly
-                if (file_state == 'enabled')
-                    item.appendTo($("#services-list-enabled"));
-                else if (file_state == 'disabled')
-                    item.appendTo($("#services-list-disabled"));
-                else
-                    item.appendTo($("#services-list-static"));
+        var pattern = $('input[name="services-filter"]:checked').val();
+        var include_buttons =
+            ($('input[name="services-filter"]:checked').attr('data-include-buttons') !== undefined);
+        if (pattern && name.match(pattern)) {
+            if (!include_buttons || load_state != "not-found") {
+                var item = $(render_service(name, desc, load_state, active_state, sub_state, file_state,
+                                            include_buttons? this.manager : null));
+                if (this.items[name])
+                    this.items[name].replaceWith(item);
+                else {
+                    // XXX - sort it properly
+                    if (file_state == 'enabled')
+                        item.appendTo($("#services-list-enabled"));
+                    else if (file_state == 'disabled')
+                        item.appendTo($("#services-list-disabled"));
+                    else
+                        item.appendTo($("#services-list-static"));
+                }
+                this.items[name] = item;
+            } else {
+                if (this.items[name])
+                    this.items[name].remove();
+                delete this.items[name];
             }
-            this.items[name] = item;
         }
     },
 
     update: function() {
         var me = this;
+
+        console.log("Update all");
+
+        if ($('input[name="services-filter"]:checked').attr('data-show-graphs') !== undefined) {
+            $('#services-graphs').show();
+            $('#services-add').show();
+            if ($('#services-graphs').is(':visible')) {
+                this.cpu_plot.start();
+                this.mem_plot.start();
+            }
+        } else {
+            $('#services-graphs').hide();
+            $('#services-add').hide();
+            this.cpu_plot.stop();
+            this.mem_plot.stop();
+        }
 
         function compare_service(a,b)
         {
@@ -208,8 +378,9 @@ PageServices.prototype = {
         }
 
         me.manager.call('ListServices', function(error, services) {
-            var suffix;
+            var pattern;
             var service;
+            var include_buttons;
 
             if (error) {
                 console.log ("error %s", error.message);
@@ -224,16 +395,19 @@ PageServices.prototype = {
                 list_static.empty();
                 me.items = { };
                 services.sort(compare_service);
-                suffix = $('input[name="services-filter"]:checked').val();
+                pattern = $('input[name="services-filter"]:checked').val();
+                include_buttons =
+                    ($('input[name="services-filter"]:checked').attr('data-include-buttons') !== undefined);
                 for (i = 0; i < services.length; i++) {
                     service = services[i];
-                    if (!suffix || service[0].endsWith(suffix)) {
-                        var item = $(cockpit_render_service (service[0],
-                                                          service[1],
-                                                          service[2],
-                                                          service[3],
-                                                          service[4],
-                                                          service[5]));
+                    if (!pattern || (service[0].match(pattern) && (service[2] != "not-found" || !include_buttons))) {
+                        var item = $(render_service (service[0],
+                                                     service[1],
+                                                     service[2],
+                                                     service[3],
+                                                     service[4],
+                                                     service[5],
+                                                     include_buttons? me.manager : null));
                         if (service[5] == 'enabled')
                             item.appendTo(list_enabled);
                         else if (service[5] == 'disabled')
@@ -247,6 +421,77 @@ PageServices.prototype = {
         });
     }
 };
+
+PageServiceAdd.prototype = {
+    _init: function() {
+        this.id = "service-add-dialog";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Add Service");
+    },
+
+    setup: function() {
+        $('#service-add-add').click($.proxy(this, "add"));
+    },
+
+    enter: function() {
+        this.docker = cockpit.docker(PageServiceAdd.address);
+        $(this.docker).on("image.services", $.proxy(this, "update"));
+
+        $('#service-add-image, #service-add-name').val("");
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+        $(cockpit.docker).off(".services");
+        this.docker.release();
+        this.docker = null;
+    },
+
+    update: function() {
+        var $images = $('#service-add-images');
+
+        var images = [];
+        for (var id in this.docker.images) {
+            var image = this.docker.images[id];
+            if (image && image.RepoTags && image.RepoTags[0] != "<none>:<none>")
+                images.push(image);
+        }
+
+        images.sort(function (a, b) {
+            var an = a.RepoTags[0];
+            var bn = b.RepoTags[0];
+
+            return (an > bn)? 1 : (an < bn)? -1 : 0;
+        });
+
+        $images.html(
+            images.map(function (image) {
+                return $('<a class="list-group-item">').
+                           text(image.RepoTags[0]).
+                           click(function () {
+                               $('#service-add-image').val(image.RepoTags[0]);
+                           });
+            }));
+    },
+
+    add: function() {
+        $('#service-add-dialog').modal('hide');
+        cockpit.spawn([ "/usr/bin/gear", "install", $('#service-add-image').val(), $('#service-add-name').val() ],
+                      { host: PageServiceAdd.address }).
+            fail(cockpit_show_unexpected_error);
+    }
+};
+
+function PageServiceAdd() {
+    this._init();
+}
+
+cockpit_pages.push(new PageServiceAdd());
 
 function PageServices() {
     this._init();
@@ -335,12 +580,45 @@ PageService.prototype = {
         me.service = cockpit_get_page_param('s') || "";
         me.update();
         me.watch_journal();
+
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
+
+        me.monitor = me.client.get ("/com/redhat/Cockpit/LxcMonitor",
+                                    "com.redhat.Cockpit.MultiResourceMonitor");
+
+        function is_interesting_cgroup(cgroup) {
+            return cgroup && cgroup.endsWith(me.service);
+        }
+
+        this.cpu_plot = cockpit_setup_cgroups_plot ('#service-cpu-graph', me.monitor, 4, blues.concat(blues),
+                                                    is_interesting_cgroup);
+        $(this.cpu_plot).on('update-total', function (event, total) {
+            $('#service-cpu-text').text(format_cpu_usage(total));
+        });
+
+        this.mem_plot = cockpit_setup_cgroups_plot ('#service-mem-graph', me.monitor, 0, blues.concat(blues),
+                                                    is_interesting_cgroup);
+        $(this.mem_plot).on('update-total', function (event, total) {
+            $('#service-mem-text').text(cockpit_format_bytes_pow2 (total));
+        });
     },
 
     show: function() {
+        this.cpu_plot.start();
+        this.mem_plot.start();
     },
 
     leave: function() {
+        this.cpu_plot.destroy();
+        this.mem_plot.destroy();
         cockpit.set_watched_client(null);
         this.journal_watcher.stop();
         this.client.release();
@@ -513,3 +791,5 @@ function PageService() {
 }
 
 cockpit_pages.push(new PageService());
+
+})($, cockpit, cockpit_pages);

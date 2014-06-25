@@ -85,7 +85,7 @@
             </a>
             <a class="list-group-item" onclick="cockpit_go_down('services')">
               <img class="cockpit-category-icon" src="@@module@@/images/category-services.png">
-              System Services
+              Services
             </a>
             <a class="list-group-item" onclick="cockpit_go_down('journal')">
               <img class="cockpit-category-icon" src="@@module@@/images/category-journal.png">
@@ -542,13 +542,24 @@
       </div>
 
       <div id="services" class="container-fluid">
+        <div class="row" id="services-graphs">
+          <div class="col-sm-6">
+            <div>Combined CPU usage<span style="float:right" id="services-cpu-text"></span></div>
+            <div style="height:120px" id="services-cpu-graph"></div>
+          </div>
+          <div class="col-sm-6">
+            <div>Combined memory usage<span style="float:right" id="services-mem-text"></span></div>
+            <div style="height:120px" id="services-mem-graph"></div>
+          </div>
+        </div>
+        <br/>
         <div class="panel panel-default">
           <div class="panel-heading">Enabled</div>
           <table class="table table-hover">
             <tbody id="services-list-enabled">
             </tbody>
           </table>
-        </div>      
+        </div>
         <div class="panel panel-default">
           <div class="panel-heading">Disabled</div>
           <table class="table table-hover">
@@ -563,9 +574,21 @@
             </tbody>
           </table>
         </div>
+        <button class="btn btn-default" id="services-add">Add Service</button>
       </div>
 
       <div id="service" class="container-fluid">
+        <div class="row" id="service-graphs">
+          <div class="col-sm-6">
+            <div>CPU usage<span style="float:right" id="service-cpu-text"></span></div>
+            <div style="height:120px" id="service-cpu-graph"></div>
+          </div>
+          <div class="col-sm-6">
+            <div>Memory usage<span style="float:right" id="service-mem-text"></span></div>
+            <div style="height:120px" id="service-mem-graph"></div>
+          </div>
+        </div>
+        <br/>
         <div class="panel panel-default">
           <div class="panel-heading" id="service-name"></div>
           <div id="service-unknown" translatable="yes">Unknown</div>
@@ -2366,6 +2389,44 @@
             </button>
             <button class="btn btn-primary" translatable="yes" id="network-ip-settings-apply">
               Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="service-add-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Service</h4>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group" id="service-add-images">
+            </ul>
+            <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Image</td>
+                <td>
+                  <input class="form-control" id="service-add-image">
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Name</td>
+                <td>
+                  <input class="form-control" id="service-add-name">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" id="service-add-add">
+              Add
             </button>
           </div>
         </div>

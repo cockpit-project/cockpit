@@ -1234,6 +1234,7 @@ PageNetworkInterface.prototype = {
     },
 
     setup: function () {
+        $('#network-interface-delete').click($.proxy(this, "delete_connections"));
         $('#network-interface-disconnect').click($.proxy(this, "disconnect"));
     },
 
@@ -1277,6 +1278,7 @@ PageNetworkInterface.prototype = {
             $('#network-interface-tx-text').text(cockpit_format_bytes_per_sec(total));
         });
 
+        $('#network-interface-delete').hide();
         self.dev = null;
         self.update();
     },
@@ -1300,6 +1302,33 @@ PageNetworkInterface.prototype = {
         this.cockpitd = null;
     },
 
+    delete_connections: function() {
+        function delete_connection_and_slaves(con) {
+            return $.when(con.delete_(),
+                          $.when.apply($, con.Slaves.map(function (s) {
+                              return s.delete_();
+                          })));
+        }
+
+        function delete_connections(cons) {
+            return $.when.apply($, cons.map(delete_connection_and_slaves));
+        }
+
+        function delete_iface_connections(iface) {
+            if (iface.Device)
+                return delete_connections(iface.Device.AvailableConnections);
+            else
+                return delete_connections(iface.Connections);
+        }
+
+        if (this.iface) {
+            var location = cockpit.location();
+            delete_iface_connections(this.iface).
+                done(location.go_up()).
+                fail(cockpit_show_unexpected_error);
+        }
+    },
+
     disconnect: function() {
         if (this.dev)
             this.dev.disconnect().fail(cockpit_show_unexpected_error);
@@ -1313,6 +1342,8 @@ PageNetworkInterface.prototype = {
 
         var iface = self.model.find_interface(self.dev_name);
         var dev = iface && iface.Device;
+
+        self.iface = iface;
         self.dev = dev;
 
         if (dev) {
@@ -1348,6 +1379,8 @@ PageNetworkInterface.prototype = {
             $('#network-interface-disconnect').prop('disabled', true);
         }
 
+        var is_deletable = !dev || dev.DeviceType == 10;
+        $('#network-interface-delete').toggle(is_deletable);
 
         function render_connection(con) {
 

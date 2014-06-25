@@ -477,10 +477,16 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <span translatable="yes">Network hardware</span>
-            <button class="btn btn-default" style="display:inline;float:right"
-                    id="network-interface-disconnect">
-              Disconnect
-            </button>
+            <div style="float:right">
+              <button class="btn btn-danger" style="margin-right:20px"
+                      id="network-interface-delete">
+                Delete
+              </button>
+              <button class="btn btn-default"
+                      id="network-interface-disconnect">
+                Disconnect
+              </button>
+            </div>
           </div>
           <div id="network-interface-hw">
           </div>

@@ -21,6 +21,12 @@
 from testlib import *
 
 class TestNetworking(MachineCase):
+
+    def get_iface(self, m, mac):
+        def getit():
+            return m.execute("for f in /sys/class/net/*; do a=$(cat $f/address); if test \"$a\" == %s; then echo $(basename $f); fi; done" % mac)
+        return wait(getit).strip();
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -64,14 +70,13 @@ class TestNetworking(MachineCase):
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)
 
-        # Add interface, wait for it to be recognized and activated by
-        # Network Manager, and switch to its page
-        #
-        mac = m.add_netiface('ff')
-        iface_row = "#networking-interfaces tr:contains('%s')" % mac.upper()
-        b.wait_in_text("#networking-interfaces", mac.upper())
-        b.wait_in_text(iface_row, "Active")
-        b.click(iface_row)
+        # Add interface, wait for it to be recognized by Network
+        # Manager, and switch to its page
+
+        iface = self.get_iface(m, m.add_netiface('ff'));
+
+        b.wait_in_text("#networking-interfaces", iface)
+        b.click("#networking-interfaces tr:contains('%s')" % iface)
         b.wait_page("network-interface")
 
         # Configure a manual IP address

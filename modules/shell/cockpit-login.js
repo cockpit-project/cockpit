@@ -48,8 +48,10 @@ function cockpit_logout (reason)
     var loc = window.location.protocol + "//" + window.location.host + "/logout";
     req.open("POST", loc, true);
     req.onreadystatechange = function (event) {
-	if (req.readyState == 4)
+	if (req.readyState == 4) {
+            cockpit.set_watched_client(null);
             window.location.reload(true);
+        }
     };
     req.send();
 }

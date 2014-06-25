@@ -110,7 +110,7 @@ cockpitd_CFLAGS = 					\
 
 cockpitd_LDADD = 					\
 	libcockpitd.a \
-	libcockpit.a \
+	libcockpit-common.a \
 	$(COCKPIT_DAEMON_LIBS) \
 	-lm 						\
 	$(NULL)

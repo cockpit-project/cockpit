@@ -23,12 +23,12 @@ EXTRA_DIST += \
 	src/common/com.redhat.Cockpit.DBusTests.xml \
 	$(NULL)
 
-noinst_LIBRARIES += libcockpit.a
+noinst_LIBRARIES += libcockpit-common.a
 
-nodist_libcockpit_a_SOURCES = \
+nodist_libcockpit_common_a_SOURCES = \
 	$(dbus_built_sources) \
 	$(NULL)
-libcockpit_a_SOURCES = \
+libcockpit_common_a_SOURCES = \
 	src/common/cockpitenums.h \
 	src/common/cockpiterror.h src/common/cockpiterror.c \
 	src/common/cockpitjson.c \
@@ -49,13 +49,13 @@ libcockpit_a_SOURCES = \
 	src/common/cockpitunixfd.h \
 	$(NULL)
 
-libcockpit_a_CFLAGS = \
+libcockpit_common_a_CFLAGS = \
 	-DG_LOG_DOMAIN=\"cockpit-protocol\" \
 	$(COCKPIT_CFLAGS) \
 	$(NULL)
 
-libcockpit_a_LIBS = \
-	libcockpit.a \
+libcockpit_common_a_LIBS = \
+	libcockpit-common.a \
 	$(COCKPIT_LIBS) \
 	$(NULL)
 
@@ -68,17 +68,17 @@ COCKPIT_CHECKS = \
 	test-transport \
 	$(NULL)
 
-test_json_CFLAGS = $(libcockpit_a_CFLAGS)
+test_json_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_json_SOURCES = src/common/test-json.c
-test_json_LDADD = $(libcockpit_a_LIBS)
+test_json_LDADD = $(libcockpit_common_a_LIBS)
 
-test_pipe_CFLAGS = $(libcockpit_a_CFLAGS)
+test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_pipe_SOURCES = src/common/test-pipe.c
-test_pipe_LDADD = $(libcockpit_a_LIBS)
+test_pipe_LDADD = $(libcockpit_common_a_LIBS)
 
-test_transport_CFLAGS = $(libcockpit_a_CFLAGS)
+test_transport_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_transport_SOURCES = src/common/test-transport.c
-test_transport_LDADD = $(libcockpit_a_LIBS)
+test_transport_LDADD = $(libcockpit_common_a_LIBS)
 
 noinst_PROGRAMS += $(COCKPIT_CHECKS)
 TESTS += $(COCKPIT_CHECKS)

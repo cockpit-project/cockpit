@@ -31,8 +31,6 @@
 #include "services.h"
 #include "cgroup-show.h"
 
-#include <cockpit/cockpit.h>
-
 /**
  * @title: Services
  */

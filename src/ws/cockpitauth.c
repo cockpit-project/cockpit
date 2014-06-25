@@ -19,8 +19,6 @@
 
 #include "config.h"
 
-#include <cockpit/cockpit.h>
-
 #include "cockpitauth.h"
 #include "cockpitwebserver.h"
 #include "cockpitws.h"
@@ -29,9 +27,11 @@
 
 #include "websocket/websocket.h"
 
-#include "cockpit/cockpitjson.h"
-#include "cockpit/cockpitpipe.h"
-#include "cockpit/cockpitmemory.h"
+#include "common/cockpiterror.h"
+#include "common/cockpitlog.h"
+#include "common/cockpitjson.h"
+#include "common/cockpitpipe.h"
+#include "common/cockpitmemory.h"
 
 #include <glib/gstdio.h>
 

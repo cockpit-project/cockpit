@@ -32,8 +32,6 @@
 
 #include <gsystem-local-alloc.h>
 
-#include <cockpit/cockpit.h>
-
 /**
  * SECTION:storageprovider
  * @title: StorageProvider

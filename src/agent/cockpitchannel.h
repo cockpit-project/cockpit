@@ -23,7 +23,7 @@
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
 
-#include "cockpit/cockpittransport.h"
+#include "common/cockpittransport.h"
 
 G_BEGIN_DECLS
 

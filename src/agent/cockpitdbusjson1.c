@@ -24,7 +24,7 @@
 #include "cockpitchannel.h"
 #include "cockpitfakemanager.h"
 
-#include "cockpit/cockpitjson.h"
+#include "common/cockpitjson.h"
 
 #include <unistd.h>
 #include <stdint.h>

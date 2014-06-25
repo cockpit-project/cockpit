@@ -17,10 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined (__COCKPIT_INSIDE_COCKPIT_H__) && !defined (COCKPIT_COMPILATION)
-#error "Only <cockpit/cockpit.h> can be included directly."
-#endif
-
 #ifndef __COCKPIT_ENUMS_H__
 #define __COCKPIT_ENUMS_H__
 

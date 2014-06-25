@@ -30,12 +30,10 @@
 #include <unistd.h>
 #include <systemd/sd-daemon.h>
 
-#include <cockpit/cockpit.h>
-
 #include "cockpitws.h"
 #include "cockpitwebresponse.h"
 
-#include "cockpit/cockpitmemory.h"
+#include "common/cockpitmemory.h"
 
 #include "websocket/websocket.h"
 

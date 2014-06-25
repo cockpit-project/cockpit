@@ -21,7 +21,7 @@
 
 #include "cockpitresource.h"
 
-#include "cockpit/cockpitjson.h"
+#include "common/cockpitjson.h"
 
 #include <glib.h>
 

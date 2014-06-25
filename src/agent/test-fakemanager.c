@@ -21,8 +21,8 @@
 
 #include "cockpitfakemanager.h"
 
-#include "cockpit/cockpittest.h"
-#include "cockpit/mock-service.h"
+#include "common/cockpittest.h"
+#include "common/mock-service.h"
 
 #include <sys/socket.h>
 #include <errno.h>

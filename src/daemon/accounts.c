@@ -31,8 +31,6 @@
 #include "accounts.h"
 #include "account.h"
 
-#include <cockpit/cockpit.h>
-
 typedef struct _AccountsClass AccountsClass;
 
 struct _Accounts {

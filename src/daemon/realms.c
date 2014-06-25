@@ -29,8 +29,6 @@
 #include "auth.h"
 #include "realms.h"
 
-#include <cockpit/cockpit.h>
-
 typedef struct _RealmData
 {
   Realms *owner;

@@ -25,9 +25,10 @@
 #include "cockpitcreds.h"
 #include "cockpitwebservice.h"
 #include "cockpitwebserver.h"
-#include "cockpit/cockpittransport.h"
-#include "cockpit/cockpitjson.h"
-#include "cockpit/cockpittest.h"
+
+#include "common/cockpittransport.h"
+#include "common/cockpitjson.h"
+#include "common/cockpittest.h"
 
 #include "websocket/websocket.h"
 

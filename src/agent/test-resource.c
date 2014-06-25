@@ -22,7 +22,7 @@
 #include "cockpitresource.h"
 #include "mock-transport.h"
 
-#include "cockpit/cockpittest.h"
+#include "common/cockpittest.h"
 
 typedef struct {
   MockTransport *transport;

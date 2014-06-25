@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpit/mock-service.h"
+#include "common/mock-service.h"
 #include "lib/valgrind.h"
 
 #include <gio/gio.h>

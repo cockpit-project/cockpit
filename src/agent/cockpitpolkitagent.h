@@ -27,7 +27,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include "cockpit/cockpittransport.h"
+#include "common/cockpittransport.h"
 
 G_BEGIN_DECLS
 

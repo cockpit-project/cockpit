@@ -45,7 +45,6 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_LIB_DIR=\""$(libdir)"\" \
 	-D_POSIX_PTHREAD_SEMANTICS -D_REENTRANT \
-	-DCOCKPIT_COMPILATION \
 	$(NULL)
 
 LOG_DRIVER = $(top_srcdir)/tools/tap-driver
@@ -113,7 +112,7 @@ clean-local:
 include doc/Makefile-doc.am
 include doc/man/Makefile-man.am
 include modules/shell/Makefile-shell.am
-include src/cockpit/Makefile-libcockpit.am
+include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
 include src/agent/Makefile-agent.am

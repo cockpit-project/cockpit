@@ -26,7 +26,7 @@
 #include "cockpitresource.h"
 #include "cockpittextstream.h"
 
-#include "cockpit/cockpitjson.h"
+#include "common/cockpitjson.h"
 
 #include <json-glib/json-glib.h>
 

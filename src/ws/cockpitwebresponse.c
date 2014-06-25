@@ -27,7 +27,7 @@
 
 #include "cockpitwebresponse.h"
 
-#include "cockpit/cockpiterror.h"
+#include "common/cockpiterror.h"
 
 #include <errno.h>
 #include <stdlib.h>

@@ -32,8 +32,6 @@
 #include "storageobject.h"
 #include "lvmutil.h"
 
-#include <cockpit/cockpit.h>
-
 typedef struct _StorageManagerClass StorageManagerClass;
 
 struct _StorageManager

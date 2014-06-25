@@ -21,7 +21,7 @@
 
 #include "ws/cockpitcreds.h"
 
-#include "cockpit/cockpittest.h"
+#include "common/cockpittest.h"
 
 static void
 test_password (void)

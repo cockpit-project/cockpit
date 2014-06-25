@@ -27,9 +27,9 @@
 #include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
 
-#include <cockpit/cockpit.h>
-#include "cockpit/cockpitjson.h"
-#include "cockpit/cockpitpipetransport.h"
+#include "common/cockpitjson.h"
+#include "common/cockpitlog.h"
+#include "common/cockpitpipetransport.h"
 
 #include "cockpitauth.h"
 #include "cockpitws.h"

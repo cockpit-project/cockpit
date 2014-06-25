@@ -26,8 +26,16 @@
 #define UDISKS_API_IS_SUBJECT_TO_CHANGE
 #include <udisks/udisks.h>
 
-#include <cockpit/cockpit.h>
+#include "common/cockpittypes.h"
+#include "common/cockpitenums.h"
+#include "common/cockpiterror.h"
+#include "common/cockpitlog.h"
+
+#include "cockpit-generated.h"
 #include "com.redhat.lvm2.h"
+
+#include <stdint.h>
+#include <string.h>
 
 struct _Daemon;
 typedef struct _Daemon Daemon;

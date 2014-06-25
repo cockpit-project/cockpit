@@ -26,7 +26,7 @@
 #include "cockpithandlers.h"
 #include "cockpitws.h"
 
-#include "cockpit/cockpittest.h"
+#include "common/cockpittest.h"
 
 #include <glib.h>
 

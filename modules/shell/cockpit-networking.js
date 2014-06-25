@@ -1178,25 +1178,36 @@ PageNetworking.prototype = {
     },
 
     add_bond: function () {
-        var iface, i;
+        var iface, i, uuid;
+
+        uuid = cockpit.util.uuid();
         for (i = 0; i < 100; i++) {
             iface = "bond" + i;
             if (!this.model.find_interface(iface))
                 break;
         }
 
-        var settings = this.model.get_settings();
-        var uuid = cockpit.util.uuid();
-        settings.add_connection(
-            { connection: { id: uuid,
-                            autoconnect: false,
-                            type: "bond",
-                            uuid: uuid,
-                            "interface-name": iface
-                          },
-              bond: { "interface-name": iface
-                    }
-            }).fail(cockpit_show_unexpected_error);
+        PageNetworkBondSettings.model = this.model;
+        PageNetworkBondSettings.done = null;
+        PageNetworkBondSettings.connection = null;
+        PageNetworkBondSettings.settings =
+            {
+                connection: {
+                    id: uuid,
+                    autoconnect: false,
+                    type: "bond",
+                    uuid: uuid,
+                    "interface-name": iface
+                },
+                bond: {
+                    options: {
+                        mode: "balance-rr"
+                    },
+                    "interface-name": iface
+                }
+            };
+
+        $('#network-bond-settings-dialog').modal('show');
     }
 
 };
@@ -1481,6 +1492,7 @@ PageNetworkInterface.prototype = {
             function configure_bond_settings(topic) {
                 PageNetworkBondSettings.model = self.model;
                 PageNetworkBondSettings.connection = con;
+                PageNetworkBondSettings.settings = con.Settings;
                 PageNetworkBondSettings.done = is_active? activate_connection : null;
                 $('#network-bond-settings-dialog').modal('show');
             }
@@ -1793,6 +1805,9 @@ PageNetworkBondSettings.prototype = {
     },
 
     find_slave_con: function(iface) {
+        if (!PageNetworkBondSettings.connection)
+            return null;
+
         return PageNetworkBondSettings.connection.Slaves.find(function (s) {
             return s.Interfaces.indexOf(iface) >= 0;
         }) || null;
@@ -1801,8 +1816,8 @@ PageNetworkBondSettings.prototype = {
     update: function() {
         var self = this;
         var model = PageNetworkBondSettings.model;
-        var con = PageNetworkBondSettings.connection;
-        var options = con.Settings.bond.options;
+        var settings = PageNetworkBondSettings.settings;
+        var options = settings.bond.options;
 
         var mode_btn, primary_input;
         var monitoring_btn, interval_input, targets_input, updelay_input, downdelay_input;
@@ -1849,11 +1864,11 @@ PageNetworkBondSettings.prototype = {
                     $('<td>').text(_("Interface")),
                     $('<td>').append(
                         $('<input class="form-control">').
-                            val(con.Settings.bond["interface-name"]).
+                            val(settings.bond["interface-name"]).
                             change(function (event) {
                                 var val = $(event.target).val();
-                                con.Settings.bond["interface-name"] = val;
-                                con.Settings.connection["interface-name"] = val;
+                                settings.bond["interface-name"] = val;
+                                settings.connection["interface-name"] = val;
                             }))),
                 $('<tr>').append(
                     $('<td>').text(_("Members")),
@@ -1915,15 +1930,16 @@ PageNetworkBondSettings.prototype = {
     },
 
     cancel: function() {
-        PageNetworkBondSettings.connection.reset();
+        if (PageNetworkBondSettings.connection)
+            PageNetworkBondSettings.connection.reset();
         $('#network-bond-settings-dialog').modal('hide');
     },
 
     apply: function() {
         var self = this;
         var model = PageNetworkBondSettings.model;
-        var master = PageNetworkBondSettings.connection;
-        var settings = model.get_settings();
+        var master_settings = PageNetworkBondSettings.settings;
+        var settings_manager = model.get_settings();
 
         function set_member(iface_name, val) {
             var iface, slave_con, uuid;
@@ -1937,19 +1953,19 @@ PageNetworkBondSettings.prototype = {
                 return slave_con.delete_();
             else if (!slave_con && val) {
                 uuid = cockpit.util.uuid();
-                return settings.add_connection({ connection:
-                                                 { id: uuid,
-                                                   uuid: uuid,
-                                                   autoconnect: false,
-                                                   type: "802-3-ethernet",
-                                                   "interface-name": iface.Name,
-                                                   "slave-type": "bond",
-                                                   "master": master.Settings.connection.uuid
-                                                 },
-                                                 "802-3-ethernet":
-                                                 {
-                                                 }
-                                               });
+                return settings_manager.add_connection({ connection:
+                                                         { id: uuid,
+                                                           uuid: uuid,
+                                                           autoconnect: true,
+                                                           type: "802-3-ethernet",
+                                                           "interface-name": iface.Name,
+                                                           "slave-type": "bond",
+                                                           "master": master_settings.connection.uuid
+                                                         },
+                                                         "802-3-ethernet":
+                                                         {
+                                                         }
+                                                       });
             }
 
             return true;
@@ -1959,7 +1975,6 @@ PageNetworkBondSettings.prototype = {
             var deferreds = $('#network-bond-settings-body input[data-iface]').map(function (i, elt) {
                 return set_member($(elt).attr("data-iface"), $(elt).prop('checked'));
             });
-            console.log(deferreds.get());
             return $.when.apply($, deferreds.get());
         }
 
@@ -1967,7 +1982,14 @@ PageNetworkBondSettings.prototype = {
             $('#network-bond-settings-error').text(error.message || error.toString());
         }
 
-        PageNetworkBondSettings.connection.apply().
+        function update_master() {
+            if (PageNetworkBondSettings.connection)
+                return PageNetworkBondSettings.connection.apply();
+            else
+                return settings_manager.add_connection(master_settings);
+        }
+
+        update_master().
             done(function () {
                 set_all_members().
                     done(function() {

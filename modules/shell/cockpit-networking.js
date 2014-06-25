@@ -495,10 +495,14 @@ function NetworkManagerModel(address) {
             result.ipv6 = get_ip("ipv6", ip6_from_nm, ip6_to_text);
         }
 
-        if (settings.bond)
-            result.bond = { all: JSON.stringify(settings.bond),
+        if (settings.bond) {
+            /* Options are documented as part of the Linux bonding driver.
+               https://www.kernel.org/doc/Documentation/networking/bonding.txt
+            */
+            result.bond = { options: $.extend({}, get("bond", "options", { })),
                             "interface-name": get("bond", "interface-name")
                           };
+        }
 
         return result;
     }
@@ -552,6 +556,7 @@ function NetworkManagerModel(address) {
         if (settings.ipv6)
             set_ip("ipv6", 'a(ayuay)', ip6_to_nm, 'aay', ip6_from_text);
         if (settings.bond) {
+            set("bond", "options", 'a{ss}', settings.bond.options);
             set("bond", "interface-name", 's', settings.bond["interface-name"]);
         }
         if (settings["802-3-ethernet"]) {
@@ -1223,6 +1228,31 @@ var ipv6_method_choices =
         { choice: 'ignore',       title: _("Ignore") }
     ];
 
+var bond_mode_choices =
+    [
+        { choice: 'balance-rr',    title: _("Round Robin") },
+        { choice: 'active-backup', title: _("Active Backup") },
+        { choice: 'balance-xor',   title: _("XOR") },
+        { choice: 'broadcast',     title: _("Broadcast") },
+        { choice: '802.3ad',       title: _("802.3ad") },
+        { choice: 'balance-tlb',   title: _("Adaptive transmit load balancing") },
+        { choice: 'balance-alb',   title: _("Adaptive load balancing") }
+    ];
+
+var bond_monitoring_choices =
+    [
+        { choice: 'mii',    title: _("MII (Recommended)") },
+        { choice: 'arp',    title: _("ARP") }
+    ];
+
+function choice_title(choices, choice, def) {
+    for (var i = 0; i < choices.length; i++) {
+        if (choices[i].choice == choice)
+            return choices[i].title;
+    }
+    return def;
+}
+
 PageNetworkInterface.prototype = {
     _init: function () {
         this.id = "network-interface";
@@ -1409,14 +1439,6 @@ PageNetworkInterface.prototype = {
                 var params = con.Settings[topic];
                 var parts = [];
 
-                function choice_title(choices, choice, def) {
-                    for (var i = 0; i < choices.length; i++) {
-                        if (choices[i].choice == choice)
-                            return choices[i].title;
-                    }
-                    return def;
-                }
-
                 if (params.method != "manual")
                     parts.push(choice_title((topic == "ipv4")? ipv4_method_choices : ipv6_method_choices,
                                             params.method, _("Unknown configuration")));
@@ -1519,12 +1541,21 @@ PageNetworkInterface.prototype = {
             }
 
             function render_bond_settings_row() {
+                var parts = [ ];
+                var options;
+
                 if (!con.Settings.bond)
                     return null;
 
+                options = con.Settings.bond.options;
+
+                parts.push(choice_title(bond_mode_choices, options.mode, options.mode));
+                if (options.arp_interval)
+                    parts.push(_("ARP Monitoring"));
+
                 return [ $('<tr>').append(
                              $('<td>').text(_("Bond")),
-                             $('<td>').text(con.Settings.bond.all),
+                             $('<td>').text(parts.join(", ")),
                              $('<td style="text-align:right">').append(
                                  $('<button class="btn btn-default">').
                                      text(_("Configure")).
@@ -1771,33 +1802,114 @@ PageNetworkBondSettings.prototype = {
         var self = this;
         var model = PageNetworkBondSettings.model;
         var con = PageNetworkBondSettings.connection;
+        var options = con.Settings.bond.options;
+
+        var mode_btn, primary_input;
+        var monitoring_btn, interval_input, targets_input, updelay_input, downdelay_input;
 
         function is_member(iface) {
             return self.find_slave_con(iface) !== null;
         }
 
-        var body =
-            $('<div>').append(
-                $('<div>').append(
-                    $('<span style="margin-right:10px">').text(_("Interface: ")),
-                    $('<input class="form-control" style="display:inline;width:400px">').
-                        val(con.Settings.bond["interface-name"]).
-                        change(function (event) {
-                            var val = $(event.target).val();
-                            con.Settings.bond["interface-name"] = val;
-                            con.Settings.connection["interface-name"] = val;
-                        })),
-                model.list_interfaces().map(function (iface) {
-                    if (!iface.Device || iface.Device.DeviceType != 1)
-                        return null;
-                    return $('<div>').append(
-                        $('<label>').append(
-                            $('<input>', { 'type': "checkbox",
-                                           'data-iface': iface.Name }).
-                                prop('checked', is_member(iface)),
-                            $('<span>').text(iface.Name)));
+        function change_mode() {
+            options.mode = cockpit_select_btn_selected(mode_btn);
 
-                }));
+            primary_input.parents("tr").toggle(options.mode == "active-backup");
+            if (options.mode == "active-backup")
+                options.primary = primary_input.val();
+            else
+                delete options.primary;
+        }
+
+        function change_monitoring() {
+            var use_mii = cockpit_select_btn_selected(monitoring_btn) == "mii";
+
+            targets_input.parents("tr").toggle(!use_mii);
+            updelay_input.parents("tr").toggle(use_mii);
+            downdelay_input.parents("tr").toggle(use_mii);
+
+            if (use_mii) {
+                options.miimon = interval_input.val();
+                options.updelay = updelay_input.val();
+                options.downdelay = downdelay_input.val();
+                delete options.arp_interval;
+                delete options.arp_ip_target;
+            } else {
+                delete options.miimon;
+                delete options.updelay;
+                delete options.downdelay;
+                options.arp_interval = interval_input.val();
+                options.arp_ip_target = targets_input.val();
+            }
+        }
+
+        var body =
+            $('<table class="cockpit-form-table">').append(
+                $('<tr>').append(
+                    $('<td>').text(_("Interface")),
+                    $('<td>').append(
+                        $('<input class="form-control">').
+                            val(con.Settings.bond["interface-name"]).
+                            change(function (event) {
+                                var val = $(event.target).val();
+                                con.Settings.bond["interface-name"] = val;
+                                con.Settings.connection["interface-name"] = val;
+                            }))),
+                $('<tr>').append(
+                    $('<td>').text(_("Members")),
+                    $('<td>').append(
+                        model.list_interfaces().map(function (iface) {
+                            if (!iface.Device || iface.Device.DeviceType != 1)
+                                return null;
+                            return $('<label>').append(
+                                $('<input>', { 'type': "checkbox",
+                                               'data-iface': iface.Name }).
+                                    prop('checked', is_member(iface)),
+                                $('<span>').text(iface.Name));
+                        }))),
+                $('<tr>').append(
+                    $('<td>').text(_("Mode")),
+                    $('<td>').append(
+                        mode_btn = cockpit_select_btn(change_mode, bond_mode_choices))),
+                $('<tr>').append(
+                    $('<td>').text(_("Primary")),
+                    $('<td>').append(
+                        primary_input = $('<input class="form-control">').
+                            val(options.primary || "").
+                            change(change_mode))),
+                $('<tr>').append(
+                    $('<td>').text(_("Link Monitoring")),
+                    $('<td>').append(
+                        monitoring_btn = cockpit_select_btn(change_monitoring, bond_monitoring_choices))),
+                $('<tr>').append(
+                    $('<td>').text(_("Monitoring Interval")),
+                    $('<td>').append(
+                        interval_input = $('<input class="form-control">').
+                            val(options.miimon || options.arp_interval || "100").
+                            change(change_monitoring))),
+                $('<tr>').append(
+                    $('<td>').text(_("Monitoring Targets")),
+                    $('<td>').append(
+                        targets_input = $('<input class="form-control">').
+                            val(options.arp_ip_targets).
+                            change(change_monitoring))),
+                $('<tr>').append(
+                    $('<td>').text(_("Link up delay")),
+                    $('<td>').append(
+                        updelay_input = $('<input class="form-control">').
+                            val(options.updelay || "0").
+                            change(change_monitoring))),
+                $('<tr>').append(
+                    $('<td>').text(_("Link down delay")),
+                    $('<td>').append(
+                        downdelay_input = $('<input class="form-control">').
+                            val(options.downdelay || "0").
+                            change(change_monitoring))));
+
+        cockpit_select_btn_select(mode_btn, options.mode);
+        cockpit_select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
+        change_mode();
+        change_monitoring();
 
         $('#network-bond-settings-body').html(body);
     },

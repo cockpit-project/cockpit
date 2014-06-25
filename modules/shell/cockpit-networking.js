@@ -191,9 +191,12 @@ function NetworkManagerModel(address) {
 
     function drop_object(path) {
         var obj = objects[path];
-        if (obj && priv(obj).type.drop)
-            priv(obj).type.drop(obj);
-        delete objects[path];
+        if (obj) {
+            if (priv(obj).type.drop)
+                priv(obj).type.drop(obj);
+            delete objects[path];
+            export_model();
+        }
     }
 
     function set_object_properties(obj, props, prefix) {
@@ -312,22 +315,31 @@ function NetworkManagerModel(address) {
         drop_object(path);
     }
 
+    var export_pending;
+
     function export_model() {
-        var phase, path, obj, meth;
-        var again = true;
-        for (phase = 0; again; phase++) {
-            again = false;
-            meth = "export_phase_" + phase;
-            for (path in objects) {
-                obj = objects[path];
-                if (priv(obj).type[meth]) {
-                    again = true;
-                    priv(obj).type[meth](obj, phase);
+        function doit() {
+            var phase, path, obj, meth;
+            var again = true;
+            for (phase = 0; again; phase++) {
+                again = false;
+                meth = "export_phase_" + phase;
+                for (path in objects) {
+                    obj = objects[path];
+                    if (priv(obj).type[meth]) {
+                        again = true;
+                        priv(obj).type[meth](obj, phase);
+                    }
                 }
             }
+
+            $(self).trigger('changed');
         }
 
-        model_changed();
+        if (!export_pending) {
+            export_pending = true;
+            setTimeout(function () { export_pending = false; doit(); }, 300);
+        }
     }
 
     $(client).on("signal", signal_emitted);
@@ -682,7 +694,7 @@ function NetworkManagerModel(address) {
             reset:  function () {
                 set_settings (this, settings_from_nm(priv(this).orig));
                 priv(this).frozen = false;
-                model_changed();
+                export_model();
             },
 
             activate: function (dev, specific_object) {
@@ -872,23 +884,6 @@ function NetworkManagerModel(address) {
      */
     type_ActiveConnection.props.Master = { conv: conv_Object(type_Device) };
     type_Device.props.Slaves = { conv: conv_Array(conv_Object(type_Device)), def: [] };
-
-    /* Exporting the model, called by the generic D-Bus code when
-     * something has changed and everything has settled.
-     */
-
-    self.manager = null;
-
-    var changed_pending;
-
-    function model_changed() {
-        self.manager = peek_object("/org/freedesktop/NetworkManager");
-
-        if (!changed_pending) {
-            changed_pending = true;
-            setTimeout(function () { changed_pending = false; $(self).trigger('changed'); }, 300);
-        }
-    }
 
     /* Accessing the model.
      */

@@ -442,7 +442,10 @@
         <br/>
         <div class="panel panel-default"
              id="networking-interfaces">
-          <div class="panel-heading" translatable="yes">Interfaces</div>
+          <div class="panel-heading">
+            <span translatable="yes">Interfaces</span>
+            <button style="float:right" class="btn btn-default">Add Bond</button>
+          </div>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -2417,6 +2420,32 @@
             </button>
             <button class="btn btn-primary" translatable="yes" id="service-add-add">
               Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="network-bond-settings-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Bond Settings</h4>
+          </div>
+          <div class="modal-body">
+            <div id="network-bond-settings-body">
+            </div>
+            <center id="network-bond-settings-error">
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" id="network-bond-settings-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" id="network-bond-settings-apply">
+              Apply
             </button>
           </div>
         </div>

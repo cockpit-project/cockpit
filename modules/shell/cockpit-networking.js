@@ -1423,6 +1423,13 @@ PageNetworkInterface.prototype = {
                 $('#network-ip-settings-dialog').modal('show');
             }
 
+            function configure_bond_settings(topic) {
+                PageNetworkBondSettings.model = self.model;
+                PageNetworkBondSettings.connection = con;
+                PageNetworkBondSettings.done = is_active? activate_connection : null;
+                $('#network-bond-settings-dialog').modal('show');
+            }
+
             function onoffbox(val, on, off) {
                 function toggle(event) {
                     $(this).find('.btn').toggleClass('active');
@@ -1488,9 +1495,7 @@ PageNetworkInterface.prototype = {
                              $('<td style="text-align:right">').append(
                                  $('<button class="btn btn-default">').
                                      text(_("Configure")).
-                                     click(function () {
-                                         // TODO
-                                     }))),
+                                     click(configure_bond_settings))),
                          $('<tr>').append(
                              $('<td>'),
                              $('<td>').html(array_join(
@@ -1541,6 +1546,12 @@ PageNetworkInterface.prototype = {
     }
 
 };
+
+function PageNetworkInterface() {
+    this._init();
+}
+
+cockpit_pages.push(new PageNetworkInterface());
 
 PageNetworkIpSettings.prototype = {
     _init: function () {
@@ -1686,17 +1697,150 @@ PageNetworkIpSettings.prototype = {
 
 };
 
-function PageNetworkInterface() {
-    this._init();
-}
-
-cockpit_pages.push(new PageNetworkInterface());
-
-
 function PageNetworkIpSettings() {
     this._init();
 }
 
 cockpit_pages.push(new PageNetworkIpSettings());
+
+PageNetworkBondSettings.prototype = {
+    _init: function () {
+        this.id = "network-bond-settings-dialog";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Network Bond Settings");
+    },
+
+    setup: function () {
+        $('#network-bond-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-bond-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-bond-settings-error').text("");
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    find_slave_con: function(iface) {
+        return PageNetworkBondSettings.connection.Slaves.find(function (s) {
+            return s.Interfaces.indexOf(iface) >= 0;
+        }) || null;
+    },
+
+    update: function() {
+        var self = this;
+        var model = PageNetworkBondSettings.model;
+        var con = PageNetworkBondSettings.connection;
+
+        function is_member(iface) {
+            return self.find_slave_con(iface) !== null;
+        }
+
+        var body =
+            $('<div>').append(
+                $('<div>').append(
+                    $('<span style="margin-right:10px">').text(_("Interface: ")),
+                    $('<input class="form-control" style="display:inline;width:400px">').
+                        val(con.Settings.bond["interface-name"]).
+                        change(function (event) {
+                            var val = $(event.target).val();
+                            con.Settings.bond["interface-name"] = val;
+                            con.Settings.connection["interface-name"] = val;
+                        })),
+                model.list_interfaces().map(function (iface) {
+                    if (!iface.Device || iface.Device.DeviceType != 1)
+                        return null;
+                    return $('<div>').append(
+                        $('<label>').append(
+                            $('<input>', { 'type': "checkbox",
+                                           'data-iface': iface.Name }).
+                                prop('checked', is_member(iface)),
+                            $('<span>').text(iface.Name)));
+
+                }));
+
+        $('#network-bond-settings-body').html(body);
+    },
+
+    cancel: function() {
+        PageNetworkBondSettings.connection.reset();
+        $('#network-bond-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkBondSettings.model;
+        var master = PageNetworkBondSettings.connection;
+        var settings = model.get_settings();
+
+        function set_member(iface_name, val) {
+            var iface, slave_con, uuid;
+
+            iface = model.find_interface(iface_name);
+            if (!iface)
+                return false;
+
+            slave_con = self.find_slave_con(iface);
+            if (slave_con && !val)
+                return slave_con.delete_();
+            else if (!slave_con && val) {
+                uuid = cockpit.util.uuid();
+                return settings.add_connection({ connection:
+                                                 { id: uuid,
+                                                   uuid: uuid,
+                                                   autoconnect: false,
+                                                   type: "802-3-ethernet",
+                                                   "interface-name": iface.Name,
+                                                   "slave-type": "bond",
+                                                   "master": master.Settings.connection.uuid
+                                                 },
+                                                 "802-3-ethernet":
+                                                 {
+                                                 }
+                                               });
+            }
+
+            return true;
+        }
+
+        function set_all_members() {
+            var deferreds = $('#network-bond-settings-body input[data-iface]').map(function (i, elt) {
+                return set_member($(elt).attr("data-iface"), $(elt).prop('checked'));
+            });
+            console.log(deferreds.get());
+            return $.when.apply($, deferreds.get());
+        }
+
+        function show_error(error) {
+            $('#network-bond-settings-error').text(error.message || error.toString());
+        }
+
+        PageNetworkBondSettings.connection.apply().
+            done(function () {
+                set_all_members().
+                    done(function() {
+                        $('#network-bond-settings-dialog').modal('hide');
+                        if (PageNetworkBondSettings.done)
+                            PageNetworkBondSettings.done();
+                    }).
+                    fail(show_error);
+            }).
+            fail(show_error);
+    }
+
+};
+
+function PageNetworkBondSettings() {
+    this._init();
+}
+
+cockpit_pages.push(new PageNetworkBondSettings());
 
 })($, cockpit, cockpit_pages);

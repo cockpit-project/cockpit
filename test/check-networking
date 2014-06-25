@@ -106,4 +106,48 @@ class TestNetworking(MachineCase):
         m.execute("nmcli c up '%s'" % id)
         b.wait_in_text("#network-interface-hw", "Active")
 
+    def testBond(self):
+        b = self.browser
+        m = self.machine
+
+        # TODO: Make this work with non-root
+
+        b.default_user = "root"
+
+        self.login_and_go("networking")
+        b.wait_in_text("#networking-interfaces", m.address)
+
+        # Add interfaces
+        iface1 = self.get_iface(m, m.add_netiface('f1'));
+        iface2 = self.get_iface(m, m.add_netiface('f2'));
+        b.wait_in_text("#networking-interfaces", iface1)
+        b.wait_in_text("#networking-interfaces", iface2)
+
+        # Bond them
+        b.click("button:contains('Add Bond')")
+        b.wait_popup("network-bond-settings-dialog")
+        b.set_val("tr:contains('Interface') input", "tbond")
+        b.set_checked("label:contains('%s') input" % iface1, True)
+        b.set_checked("label:contains('%s') input" % iface2, True)
+        b.click("#network-bond-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bond-settings-dialog")
+        b.wait_in_text("#networking-interfaces", "tbond")
+
+        # Activate the bond.  This will not activate any of the
+        # slaves.
+        b.click("#networking-interfaces tr:contains('tbond')")
+        b.wait_page("network-interface")
+        b.click(".panel-heading button:contains('On')")
+        b.wait_in_text("#network-interface-hw", "Bond without active parts")
+
+        # Activate iface1 externally and wait for the bond to become
+        # active.
+        m.execute("ifup %s" % iface1)
+        b.wait_in_text("#network-interface-hw", "Active")
+
+        # Delete the bond
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_page("networking")
+        b.wait_not_in_text("#networking-interfaces", "tbond")
+
 test_main()

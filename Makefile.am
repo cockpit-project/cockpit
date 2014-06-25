@@ -7,6 +7,7 @@ check_SCRIPTS =
 noinst_SCRIPTS =
 libexec_PROGRAMS =
 noinst_PROGRAMS =
+sbin_PROGRAMS =
 noinst_LIBRARIES =
 noinst_DATA =
 TESTS =
@@ -120,5 +121,6 @@ include src/agent/Makefile-agent.am
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am
 include src/static/Makefile-static.am
+include src/remotectl/Makefile-remotectl.am
 include src/reauthorize/Makefile-reauthorize.am
 include src/selinux/Makefile-selinux.am

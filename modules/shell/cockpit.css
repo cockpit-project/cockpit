@@ -423,8 +423,13 @@ a {
 
 /* Styling of logs embedded in pages outside the journal */
 
+.cockpit-log-panel {
+    border: 0;
+}
+
 .cockpit-log-panel .panel-heading {
     background-color: #333;
+    border-color: #333;
     color: #fff;
     padding-left: 10px;
     padding-top: 5px;
@@ -432,29 +437,31 @@ a {
     height: auto;
 }
 
-.cockpit-log-panel .panel-body
-{
+.cockpit-log-panel .panel-body {
     padding: 0;
     border-bottom: 0;
 }
 
-.cockpit-log-panel .cockpit-loghead
-{
-    border-left: 0;
-    border-right: 0;
-    background-color: transparent;
+.cockpit-log-panel .cockpit-loghead {
+    border-left: 1px #ddd solid;
+    border-right: 1px #ddd solid;
+    background-color: #f5f5f5;
     font-weight: bold;
     padding-top: 2px;
     padding-bottom: 2px;
     width: auto;
 }
 
-.cockpit-log-panel .cockpit-logline
-{
-    border-left: 0;
-    border-right: 0;
+.cockpit-log-panel .cockpit-logline {
+    border-left: 1px #ddd solid;
+    border-right: 1px #ddd solid;
+    background-color: #f5f5f5;
     padding-top: 2px;
     padding-bottom: 2px;
+}
+
+.cockpit-log-panel:last-child {
+    border-bottom: 1px #ddd solid;
 }
 
 /*

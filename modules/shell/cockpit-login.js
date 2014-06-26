@@ -38,6 +38,10 @@ $(function() {
         req.send();
         ev.preventDefault();
     });
+
+    var is_root = cockpit.connection_config.user == "root";
+    $('#cockpit-go-account').toggle(!is_root);
+    $('#cockpit-change-passwd').toggle(is_root);
 });
 
 }(cockpit, jQuery));

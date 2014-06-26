@@ -472,6 +472,7 @@ PageAccount.prototype = {
             return;
 
         PageAccountSetPassword.account = this.account;
+        PageAccountSetPassword.user_name = null;
         $('#account-set-password-dialog').modal('show');
     },
 
@@ -846,11 +847,17 @@ PageAccountSetPassword.prototype = {
 
     apply: function() {
         $('#account-set-password-dialog').modal('hide');
-        PageAccountSetPassword.account.call ('SetPassword', $('#account-set-password-pw1').val(),
-                                             function (error) {
-                                                 if (error)
-                                                     cockpit_show_unexpected_error (error);
-                                             });
+        if (PageAccountSetPassword.account) {
+            PageAccountSetPassword.account.call ('SetPassword', $('#account-set-password-pw1').val(),
+                                                 function (error) {
+                                                     if (error)
+                                                         cockpit_show_unexpected_error (error);
+                                                 });
+        } else if (PageAccountSetPassword.user_name) {
+            cockpit.spawn([ "/bin/passwd", "--stdin", PageAccountSetPassword.user_name ]).
+                write($('#account-set-password-pw1').val()).
+                fail(cockpit_show_unexpected_error);
+        }
     }
 };
 
@@ -859,3 +866,9 @@ function PageAccountSetPassword() {
 }
 
 cockpit_pages.push(new PageAccountSetPassword());
+
+function cockpit_change_password() {
+    PageAccountSetPassword.account = null;
+    PageAccountSetPassword.user_name = cockpit.connection_config.user;
+    $('#account-set-password-dialog').modal('show');
+}

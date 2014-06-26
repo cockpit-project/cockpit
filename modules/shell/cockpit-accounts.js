@@ -21,6 +21,9 @@ function cockpit_check_role (role, client)
 {
     var acc, i;
 
+    if (cockpit.connection_config.user == "root")
+        return true;
+
     acc = cockpit_find_account (cockpit.connection_config.user, client);
     if (acc) {
         for (i = 0; i < acc.Groups.length; i++) {

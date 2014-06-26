@@ -420,4 +420,33 @@ cockpit.location = function location() {
     return new Location(can_navigate);
 };
 
+cockpit.confirm = function confirm(title, body, action_text) {
+    var deferred = $.Deferred();
+
+    $('#confirmation-dialog-title').text(title);
+    if (typeof body == "string")
+        $('#confirmation-dialog-body').text(body);
+    else
+        $('#confirmation-dialog-body').html(body);
+    $('#confirmation-dialog-confirm').text(action_text);
+
+    function close() {
+        $('#confirmation-dialog button').off('click');
+        $('#confirmation-dialog').modal('hide');
+    }
+
+    $('#confirmation-dialog-confirm').click(function () {
+        close();
+        deferred.resolve();
+    });
+
+    $('#confirmation-dialog-cancel').click(function () {
+        close();
+        deferred.reject();
+    });
+
+    $('#confirmation-dialog').modal('show');
+    return deferred.promise();
+};
+
 })($, cockpit);

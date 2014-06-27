@@ -48,7 +48,6 @@
 
 const char *user;
 const char *rhost;
-const char *agent;
 char line[UT_LINESIZE + 1];
 static pid_t child;
 static char **env;
@@ -413,13 +412,13 @@ fork_session (struct passwd *pw,
 static int
 session (void)
 {
-  char *argv[] = { (char *)agent, NULL };
-  debug ("executing agent: %s", agent);
+  char *argv[] = { PACKAGE_LIBEXEC_DIR "/cockpit-agent", NULL };
+  debug ("executing agent: %s", argv[0]);
   if (env)
     execve (argv[0], argv, env);
   else
     execv (argv[0], argv);
-  warn ("can't exec %s", agent);
+  warn ("can't exec %s", argv[0]);
   return 127;
 }
 
@@ -489,12 +488,11 @@ main (int argc,
   argc -= optind;
   argv += optind;
 
-  if (argc != 3)
+  if (argc != 2)
     usage ();
 
   user = argv[0];
   rhost = argv[1];
-  agent = argv[2];
 
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);

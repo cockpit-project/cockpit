@@ -67,13 +67,6 @@ EXTRA_DIST += \
 # -----------------------------------------------------------------------------
 # TESTS
 
-noinst_PROGRAMS += test-agent
-testassets_programs += test-agent
-
-test_agent_SOURCES = src/agent/agent.c
-test_agent_CFLAGS = $(libcockpit_agent_a_CFLAGS)
-test_agent_LDADD = $(libcockpit_agent_LIBS)
-
 AGENT_CHECKS = \
 	test-channel \
 	test-fakemanager \

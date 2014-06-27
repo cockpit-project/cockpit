@@ -52,6 +52,7 @@ struct _CockpitWebServer {
   gint port;
   GTlsCertificate *certificate;
   gchar **document_roots;
+  GString *ssl_exception_prefix;
   gint request_timeout;
   gint request_max;
 
@@ -85,6 +86,7 @@ enum
   PROP_PORT,
   PROP_CERTIFICATE,
   PROP_DOCUMENT_ROOTS,
+  PROP_SSL_EXCEPTION_PREFIX,
 };
 
 static gint sig_handle_stream = 0;
@@ -105,6 +107,7 @@ cockpit_web_server_init (CockpitWebServer *server)
   server->requests = g_hash_table_new_full (g_direct_hash, g_direct_equal,
                                             cockpit_request_free, NULL);
   server->main_context = g_main_context_ref_thread_default ();
+  server->ssl_exception_prefix = g_string_new ("");
 }
 
 static void
@@ -139,6 +142,7 @@ cockpit_web_server_finalize (GObject *object)
   g_hash_table_destroy (server->requests);
   if (server->main_context)
     g_main_context_unref (server->main_context);
+  g_string_free (server->ssl_exception_prefix, TRUE);
   g_clear_object (&server->socket_service);
 
   G_OBJECT_CLASS (cockpit_web_server_parent_class)->finalize (object);
@@ -165,6 +169,9 @@ cockpit_web_server_get_property (GObject *object,
     case PROP_DOCUMENT_ROOTS:
       g_value_set_boxed (value, server->document_roots);
       break;
+
+    case PROP_SSL_EXCEPTION_PREFIX:
+      g_value_set_string (value, server->ssl_exception_prefix->str);
 
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -236,6 +243,10 @@ cockpit_web_server_set_property (GObject *object,
 
     case PROP_DOCUMENT_ROOTS:
       server->document_roots = filter_document_roots (g_value_get_boxed (value));
+      break;
+
+    case PROP_SSL_EXCEPTION_PREFIX:
+      g_string_assign (server->ssl_exception_prefix, g_value_get_string (value));
       break;
 
     default:
@@ -421,6 +432,10 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_SSL_EXCEPTION_PREFIX,
+                                   g_param_spec_string ("ssl-exception-prefix", NULL, NULL, "",
+                                                        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   sig_handle_stream = g_signal_new ("handle-stream",
                                     G_OBJECT_CLASS_TYPE (klass),
@@ -694,6 +709,15 @@ process_delayed_reply (CockpitRequest *request,
   g_object_unref (response);
 }
 
+static gboolean
+path_has_prefix (const gchar *path,
+                 GString *prefix)
+{
+  return prefix->len > 0 &&
+         strncmp (path, prefix->str, prefix->len) == 0 &&
+         (path[prefix->len] == '\0' || path[prefix->len] == '/');
+}
+
 static void
 process_request (CockpitRequest *request,
                  CockpitWebServerRequestType reqtype,
@@ -702,6 +726,16 @@ process_request (CockpitRequest *request,
                  guint length)
 {
   gboolean claimed = FALSE;
+
+  /*
+   * If redirecting to TLS, check the path. Certain paths
+   * don't require us to redirect.
+   */
+  if (request->delayed_reply == 301 &&
+      path_has_prefix (path, request->web_server->ssl_exception_prefix))
+    {
+      request->delayed_reply = 0;
+    }
 
   if (request->delayed_reply)
     {

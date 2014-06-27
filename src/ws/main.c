@@ -376,6 +376,8 @@ main (int argc,
                     G_CALLBACK (cockpit_handler_deauthorize),
                     &data);
 
+  /* Don't redirect to TLS for /ping */
+  g_object_set (server, "ssl-exception-prefix", "/ping", NULL);
   g_signal_connect (server, "handle-resource::/ping",
                     G_CALLBACK (cockpit_handler_ping), &data);
 

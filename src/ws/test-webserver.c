@@ -331,6 +331,18 @@ test_webserver_noredirect_localhost (TestCase *tc,
   g_free (resp);
 }
 
+static void
+test_webserver_noredirect_exception (TestCase *tc,
+                                     gconstpointer data)
+{
+  gchar *resp;
+
+  g_object_set (tc->web_server, "ssl-exception-prefix", "/modules", NULL);
+  resp = perform_http_request (tc->hostport, "GET /modules/shell/dbus-test.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+  g_free (resp);
+}
+
 static gboolean
 on_oh_resource (CockpitWebServer *server,
                 CockpitWebServerRequestType reqtype,
@@ -526,6 +538,8 @@ main (int argc,
               setup, test_webserver_redirect_notls, teardown);
   g_test_add ("/web-server/no-redirect-localhost", TestCase, &fixture_with_cert,
               setup, test_webserver_noredirect_localhost, teardown);
+  g_test_add ("/web-server/no-redirect-exception", TestCase, &fixture_with_cert,
+              setup, test_webserver_noredirect_exception, teardown);
 
   g_test_add ("/web-server/handle-resource", TestCase, NULL,
               setup, test_handle_resource, teardown);

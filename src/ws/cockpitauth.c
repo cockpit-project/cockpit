@@ -165,13 +165,12 @@ spawn_session_process (const gchar *user,
   CockpitPipe *pipe;
   int pwfds[2] = { -1, -1 };
   GError *error = NULL;
-  const gchar **argv;
   char autharg[32];
   GPid pid = 0;
   gint in_fd = -1;
   gint out_fd = -1;
 
-  const gchar *argv_password[] = {
+  const gchar *argv[] = {
       cockpit_ws_session_program,
       "-p", autharg,
       user ? user : "",
@@ -179,24 +178,11 @@ spawn_session_process (const gchar *user,
       NULL,
   };
 
-  const gchar *argv_noauth[] = {
-      cockpit_ws_session_program,
-      user ? user : "",
-      remote_peer ? remote_peer : "",
-      NULL,
-  };
+  g_return_val_if_fail (password != NULL, NULL);
 
-  if (password)
-    {
-      if (socketpair (PF_UNIX, SOCK_STREAM, 0, pwfds) < 0)
-        g_return_val_if_reached (NULL);
-      g_snprintf (autharg, sizeof (autharg), "%d", pwfds[1]);
-      argv = argv_password;
-    }
-  else
-    {
-      argv = argv_noauth;
-    }
+  if (socketpair (PF_UNIX, SOCK_STREAM, 0, pwfds) < 0)
+    g_return_val_if_reached (NULL);
+  g_snprintf (autharg, sizeof (autharg), "%d", pwfds[1]);
 
   if (!g_spawn_async_with_pipes (NULL, (gchar **)argv, NULL,
                                  G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,

@@ -69,7 +69,7 @@ on_handle_stream_socket (CockpitWebServer *server,
   CockpitPipe *pipe;
 
   const gchar *argv[] = {
-    "./test-agent",
+    "./cockpit-agent",
     NULL,
   };
 

@@ -76,6 +76,8 @@ chgrp wheel %{_sharedstatedir}/%{name}
 chmod 775 %{_sharedstatedir}/%{name}
 # Only for testing: in a distro we would ask sshd to ship the relevant lines
 cat %{_datadir}/%{name}/sshd-reauthorize.pam >> %{_sysconfdir}/pam.d/sshd
+# firewalld only partially picks up changes to its services files without this
+test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %prep
 %setup -q
@@ -102,6 +104,7 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %{_sysconfdir}/pam.d/cockpit
 /usr/lib/systemd/system/cockpit.socket
 /usr/lib/systemd/system/cockpit.service
+/usr/lib/firewalld/services/cockpit.xml
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
 %{_libexecdir}/cockpitd
 %{_libexecdir}/cockpit-ws

@@ -84,8 +84,9 @@ To run Cockpit without systemd, start the cockpit-ws daemon manually:
 Then you can connect to port 1001 of the virtual machine.  You might
 need to open the firewall for it.  On Fedora:
 
-    # firewall-cmd --add-port 1001/tcp
-    # firewall-cmd --permanent --add-port 1001/tcp
+    # firewall-cmd --reload
+    # firewall-cmd --add-service=cockpit
+    # firewall-cmd --add-service=cockpit --permanent
 
 Point your browser to `https://IP-OR-NAME-OF-YOUR-VM:1001`
 

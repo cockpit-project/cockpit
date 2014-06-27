@@ -1573,20 +1573,36 @@ PageNetworkInterface.prototype = {
         var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 10 || dev.DeviceType == 13));
         $('#network-interface-delete').toggle(!!is_deletable);
 
-        function render_connection(con) {
-
-            if (!con || !con.Settings)
+        function render_connection(con, settings) {
+            if (!settings)
                 return [ ];
 
             var is_active = dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con;
 
             function apply() {
-                con.apply().fail(cockpit_show_unexpected_error);
+                if (con)
+                    con.apply().fail(cockpit_show_unexpected_error);
+                else {
+                    var settings_manager = self.model.get_settings();
+                    settings_manager.add_connection(settings).fail(cockpit_show_unexpected_error);
+                }
             }
 
             function activate_connection() {
-                con.activate(dev, null).
-                    fail(cockpit_show_unexpected_error);
+                if (con) {
+                    con.activate(dev, null).
+                        fail(cockpit_show_unexpected_error);
+                } else {
+                    var settings_manager = self.model.get_settings();
+                    settings_manager.add_connection(settings).
+                        done(function (con) {
+                            console.log(con);
+                            con.activate(dev, null).
+                                fail(cockpit_show_unexpected_error);
+                        }).
+                        fail(cockpit_show_unexpected_error);
+                }
+
             }
 
             function deactivate_connection() {
@@ -1597,7 +1613,7 @@ PageNetworkInterface.prototype = {
             }
 
             function render_ip_settings(topic) {
-                var params = con.Settings[topic];
+                var params = settings[topic];
                 var parts = [];
 
                 if (params.method != "manual")
@@ -1628,12 +1644,14 @@ PageNetworkInterface.prototype = {
             }
 
             function change_id(event) {
-                con.Settings.connection.id = $(event.target).val();
+                settings.connection.id = $(event.target).val();
                 apply();
             }
 
             function configure_ip_settings(topic) {
+                PageNetworkIpSettings.model = self.model;
                 PageNetworkIpSettings.connection = con;
+                PageNetworkIpSettings.settings = $.extend({ }, settings);
                 PageNetworkIpSettings.topic = topic;
                 PageNetworkIpSettings.done = is_active? activate_connection : null;
                 $('#network-ip-settings-dialog').modal('show');
@@ -1642,7 +1660,7 @@ PageNetworkInterface.prototype = {
             function configure_bond_settings() {
                 PageNetworkBondSettings.model = self.model;
                 PageNetworkBondSettings.connection = con;
-                PageNetworkBondSettings.settings = con.Settings;
+                PageNetworkBondSettings.settings = settings;
                 PageNetworkBondSettings.done = is_active? activate_connection : null;
                 $('#network-bond-settings-dialog').modal('show');
             }
@@ -1706,7 +1724,7 @@ PageNetworkInterface.prototype = {
             }
 
             function render_ip_settings_row(topic, title) {
-                if (!con.Settings[topic])
+                if (!settings[topic])
                     return null;
 
                 return render_settings_row(title, render_ip_settings(topic),
@@ -1714,7 +1732,7 @@ PageNetworkInterface.prototype = {
             }
 
             function render_master() {
-                if (con.Masters.length > 0) {
+                if (con && con.Masters.length > 0) {
                     return $('<tr>').append(
                         $('<td>').text(_("Master")),
                         $('<td>').append(
@@ -1728,14 +1746,14 @@ PageNetworkInterface.prototype = {
                 var rows = [ ];
                 var options;
 
-                if (!con.Settings.bond)
+                if (!settings.bond)
                     return null;
 
                 con.Slaves.map(function (con) {
                     rows.push($('<div>').append(render_connection_link(con)));
                 });
 
-                options = con.Settings.bond.options;
+                options = settings.bond.options;
 
                 parts.push(choice_title(bond_mode_choices, options.mode, options.mode));
                 if (options.arp_interval)
@@ -1749,7 +1767,7 @@ PageNetworkInterface.prototype = {
 
             function render_bridge_settings_row() {
                 var rows = [ ];
-                var options = con.Settings.bridge;
+                var options = settings.bridge;
 
                 if (!options)
                     return null;
@@ -1780,7 +1798,7 @@ PageNetworkInterface.prototype = {
 
             function render_bridge_port_settings_row() {
                 var rows = [ ];
-                var options = con.Settings.bridge_port;
+                var options = settings.bridge_port;
 
                 if (!options)
                     return null;
@@ -1803,7 +1821,7 @@ PageNetworkInterface.prototype = {
                 $('<div class="panel panel-default">').append(
                     $('<div class="panel-heading">').append(
                         $('<input>').
-                            val(con.Settings.connection.id).
+                            val(settings.connection.id).
                             change(change_id),
                         onoffbox(is_active, activate_connection, deactivate_connection).
                             css("float", "right")),
@@ -1813,9 +1831,9 @@ PageNetworkInterface.prototype = {
                             $('<tr>').append(
                                 $('<td>').text("Connect automatically"),
                                 $('<td>').append(
-                                    onoffbox(con.Settings.connection.autoconnect,
+                                    onoffbox(settings.connection.autoconnect,
                                              function (val) {
-                                                 con.Settings.connection.autoconnect = val;
+                                                 settings.connection.autoconnect = val;
                                                  apply();
                                              }))),
                             render_ip_settings_row("ipv4", _("IPv4")),
@@ -1827,16 +1845,49 @@ PageNetworkInterface.prototype = {
             return $panel;
         }
 
+        function create_ghost_connection_settings() {
+            var uuid = cockpit.util.uuid();
+            return {
+                connection: {
+                    id: uuid,
+                    uuid: uuid,
+                    autoconnect: false,
+                    type: "802-3-ethernet",
+                    interface_name: iface.Name
+                },
+                "802-3-ethernet": {
+                },
+                ipv4: {
+                    method: "auto",
+                    addresses: [ ],
+                    dns: [ ],
+                    dns_search: [ ]
+                },
+                ipv6: {
+                    method: "auto",
+                    addresses: [ ],
+                    dns: [ ],
+                    dns_search: [ ]
+                }
+            };
+        }
+
         $connections.empty();
-        function append_connection(con) {
-            $connections.append(render_connection(con));
+        function append_connections(cons) {
+            if (cons.length > 0) {
+                cons.forEach(function (con) {
+                    $connections.append(render_connection(con, con.Settings));
+                });
+            } else {
+                $connections.append(render_connection(null, create_ghost_connection_settings()));
+            }
         }
 
         if (iface) {
             if (iface.Device)
-                iface.Device.AvailableConnections.forEach(append_connection);
+                append_connections(iface.Device.AvailableConnections);
             else
-                iface.Connections.forEach(append_connection);
+                append_connections(iface.Connections);
         }
     }
 
@@ -1878,8 +1929,9 @@ PageNetworkIpSettings.prototype = {
     update: function() {
         var self = this;
         var con = PageNetworkIpSettings.connection;
+        var settings = PageNetworkIpSettings.settings;
         var topic = PageNetworkIpSettings.topic;
-        var params = con.Settings[topic];
+        var params = settings[topic];
 
         function choicebox(p, choices) {
             var btn = cockpit_select_btn(
@@ -1976,12 +2028,22 @@ PageNetworkIpSettings.prototype = {
     },
 
     cancel: function() {
-        PageNetworkIpSettings.connection.reset();
+        if (PageNetworkIpSettings.connection)
+            PageNetworkIpSettings.connection.reset();
         $('#network-ip-settings-dialog').modal('hide');
     },
 
     apply: function() {
-        PageNetworkIpSettings.connection.apply().
+        function apply_or_create() {
+            if (PageNetworkIpSettings.connection)
+                return PageNetworkIpSettings.connection.apply();
+            else {
+                var settings_manager = PageNetworkIpSettings.model.get_settings();
+                return settings_manager.add_connection(PageNetworkIpSettings.settings);
+            }
+        }
+
+        apply_or_create().
             done(function () {
                 $('#network-ip-settings-dialog').modal('hide');
                 if (PageNetworkIpSettings.done)

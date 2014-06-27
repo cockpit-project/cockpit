@@ -176,7 +176,6 @@ spawn_session_process (const gchar *user,
       "-p", autharg,
       user ? user : "",
       remote_peer ? remote_peer : "",
-      cockpit_ws_agent_program,
       NULL,
   };
 
@@ -184,7 +183,6 @@ spawn_session_process (const gchar *user,
       cockpit_ws_session_program,
       user ? user : "",
       remote_peer ? remote_peer : "",
-      cockpit_ws_agent_program,
       NULL,
   };
 

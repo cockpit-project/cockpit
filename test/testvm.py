@@ -819,5 +819,7 @@ set -eu
 
 rpm -U --force $TEST_PACKAGES
 
+firewall-cmd --add-service=cockpit --permanent
+
 rm -rf /var/log/journal/*
 """

@@ -79,11 +79,15 @@ testassets_systemdunit_data += cockpit-testing.service
 cockpitconfdir = $(sysconfdir)/cockpit
 cockpitconf_DATA = src/ws/config
 
+firewalldir = $(prefix)/lib/firewalld/services
+firewall_DATA = src/ws/cockpit.xml
+
 EXTRA_DIST += \
 	src/ws/cockpit.service.in \
 	src/ws/cockpit-testing.service.in \
 	src/ws/test-server.service.in \
 	src/ws/config \
+	$(firewall_DATA) \
 	$(NULL)
 
 CLEANFILES += \

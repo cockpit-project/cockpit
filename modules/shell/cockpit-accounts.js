@@ -285,6 +285,15 @@ PageAccountsCreate.prototype = {
                     $('#accounts-create-pw2').val() == $('#accounts-create-pw1').val());
         }
 
+        if ($('#accounts-create-pw2').val() !== "" &&
+            $('#accounts-create-pw2').val() != $('#accounts-create-pw1').val()) {
+            $("#accounts-create-dialog .check-passwords").addClass("has-error");
+            $('#accounts-create-message-password-mismatch').css("visibility", "visible");
+        } else {
+            $("#accounts-create-dialog .check-passwords").removeClass("has-error");
+            $('#accounts-create-message-password-mismatch').css("visibility", "hidden");
+        }
+
         $('#accounts-create-create').prop('disabled', !check_params());
     },
 
@@ -845,6 +854,14 @@ PageAccountSetPassword.prototype = {
         {
             return ($('#account-set-password-pw1').val() !== "" &&
                     $('#account-set-password-pw2').val() == $('#account-set-password-pw1').val());
+        }
+
+        if (!check_params() && $('#account-set-password-pw2').val() !== "") {
+            $("#account-set-password-dialog .check-passwords").addClass("has-error");
+            $('#account-set-password-message-password-mismatch').css("visibility", "visible");
+        } else {
+            $("#account-set-password-dialog .check-passwords").removeClass("has-error");
+            $('#account-set-password-message-password-mismatch').css("visibility", "hidden");
         }
 
         $('#account-set-password-apply').prop('disabled', !check_params());

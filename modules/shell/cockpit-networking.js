@@ -1304,6 +1304,7 @@ PageNetworkInterface.prototype = {
 
     setup: function () {
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
+        $('#network-interface-add-connection').click($.proxy(this, "add_connection"));
         $('#network-interface-disconnect').click($.proxy(this, "disconnect"));
     },
 
@@ -1400,6 +1401,28 @@ PageNetworkInterface.prototype = {
         }
     },
 
+    add_connection: function() {
+        var uuid = cockpit.util.uuid();
+        var settings_manager = this.model.get_settings();
+
+        if (this.iface) {
+            if (this.ghost_settings)
+                settings_manager.add_connection(this.ghost_settings);
+            settings_manager.add_connection({ connection:
+                                              { id: uuid,
+                                                uuid: uuid,
+                                                autoconnect: false,
+                                                type: "802-3-ethernet",
+                                                "interface-name": this.iface.Name
+                                              },
+                                              "802-3-ethernet":
+                                              {
+                                              }
+                                            }).
+                fail(cockpit_show_unexpected_error);
+        }
+    },
+
     disconnect: function() {
         if (this.dev)
             this.dev.disconnect().fail(cockpit_show_unexpected_error);
@@ -1454,7 +1477,7 @@ PageNetworkInterface.prototype = {
         var is_deletable = (iface && !dev) || (dev && dev.DeviceType == 10);
         $('#network-interface-delete').toggle(!!is_deletable);
 
-        function render_connection(con, settings) {
+        function render_connection(con, settings, deletable) {
             if (!settings)
                 return [ ];
 
@@ -1491,6 +1514,11 @@ PageNetworkInterface.prototype = {
                     dev.ActiveConnection.deactivate().
                         fail(cockpit_show_unexpected_error);
                 }
+            }
+
+            function delete_connection() {
+                if (con)
+                    con.delete_().fail(cockpit_show_unexpected_error);
             }
 
             function render_ip_settings(topic) {
@@ -1631,14 +1659,22 @@ PageNetworkInterface.prototype = {
                        ];
             }
 
+            var delete_btn = null;
+            if (deletable) {
+                delete_btn = $('<button class="btn btn-danger" style="margin-right:20px">').
+                    text(_("Delete")).
+                    click(delete_connection);
+            }
+
             var $panel =
                 $('<div class="panel panel-default">').append(
                     $('<div class="panel-heading">').append(
                         $('<input>').
                             val(settings.connection.id).
                             change(change_id),
-                        onoffbox(is_active, activate_connection, deactivate_connection).
-                            css("float", "right")),
+                        $('<div style="float:right">').append(
+                            delete_btn,
+                            onoffbox(is_active, activate_connection, deactivate_connection))),
                     $('<div class="panel-body">').append(
                         $('<table class="cockpit-form-table">').append(
                             render_master(),
@@ -1685,13 +1721,15 @@ PageNetworkInterface.prototype = {
         }
 
         $connections.empty();
+        self.ghost_settings = null;
         function append_connections(cons) {
             if (cons.length > 0) {
                 cons.forEach(function (con) {
-                    $connections.append(render_connection(con, con.Settings));
+                    $connections.append(render_connection(con, con.Settings, cons.length > 1));
                 });
             } else {
-                $connections.append(render_connection(null, create_ghost_connection_settings()));
+                self.ghost_settings = create_ghost_connection_settings();
+                $connections.append(render_connection(null, self.ghost_settings, false));
             }
         }
 

@@ -66,13 +66,22 @@ on_handle_stream_socket (CockpitWebServer *server,
 {
   CockpitWebService *service;
   CockpitCreds *creds;
+  CockpitPipe *pipe;
+
+  const gchar *argv[] = {
+    "./test-agent",
+    NULL,
+  };
 
   if (!g_str_equal (resource, "/socket"))
     return FALSE;
 
-  creds = cockpit_creds_new (g_get_user_name (), NULL);
+  creds = cockpit_creds_new (g_get_user_name (),
+                             NULL);
 
-  service = cockpit_web_service_new (creds, NULL);
+  pipe = cockpit_pipe_spawn(argv, NULL, NULL);
+  service = cockpit_web_service_new (creds, pipe);
+  g_object_unref (pipe);
 
   cockpit_web_service_socket (service, io_stream, headers, input);
 
@@ -274,9 +283,6 @@ main (int argc,
     }
 
   cd_binarydir (argv[0]);
-
-  /* Just execute the agent, no session necessary */
-  cockpit_ws_session_program = "./test-agent";
 
   loop = g_main_loop_new (NULL, FALSE);
 

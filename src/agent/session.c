@@ -509,6 +509,10 @@ main (int argc,
       password = read_until_eof (pwfd);
       conv.appdata_ptr = &password;
     }
+  else
+    {
+      errx (2, "no password or authentication passed");
+    }
 
   check (pam_start ("cockpit", user, &conv, &pamh));
   check (pam_set_item (pamh, PAM_RHOST, rhost));
@@ -525,6 +529,10 @@ main (int argc,
           write_pam_result (pwfd, res, NULL);
           exit (5); /* auth failure */
         }
+    }
+  else
+    {
+      assert (0 && "not reached");
     }
 
   check (pam_get_item (pamh, PAM_USER, (const void **)&pam_user));

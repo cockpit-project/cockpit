@@ -832,6 +832,8 @@ PageAccountSetPassword.prototype = {
     },
 
     enter: function() {
+        $('#account-set-password-pw1').val("");
+        $('#account-set-password-pw2').val("");
         this.update ();
     },
 

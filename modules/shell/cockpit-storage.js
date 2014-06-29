@@ -1959,6 +1959,10 @@ PageCreateRaid.prototype = {
                                                       'create-raid-drives', null);
 
         $('#create-raid-drives input').on('change', $.proxy(this, "update"));
+        $('#create-raid-name').val("");
+        $('#create-raid-level').val("raid5");
+        $('#create-raid-chunk').val("512");
+        $('#accounts-create-locked').prop('checked', false);
         this.update();
     },
 
@@ -2132,6 +2136,8 @@ PageCreateVolumeGroup.prototype = {
         this.client = PageCreateVolumeGroup.client;
         this.blocks = cockpit_fill_free_devices_list (this.client,
                                                       'create-vg-drives', null);
+        $('#create-vg-name').val("");
+        $('#create-vg-drives').prop('checked', false);
     },
 
     create: function() {

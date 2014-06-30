@@ -21,6 +21,9 @@ function cockpit_check_role (role, client)
 {
     var acc, i;
 
+    if (cockpit.connection_config.user == "root")
+        return true;
+
     acc = cockpit_find_account (cockpit.connection_config.user, client);
     if (acc) {
         for (i = 0; i < acc.Groups.length; i++) {
@@ -472,6 +475,7 @@ PageAccount.prototype = {
             return;
 
         PageAccountSetPassword.account = this.account;
+        PageAccountSetPassword.user_name = null;
         $('#account-set-password-dialog').modal('show');
     },
 
@@ -828,6 +832,9 @@ PageAccountSetPassword.prototype = {
     },
 
     enter: function() {
+        var name = (PageAccountSetPassword.account ? PageAccountSetPassword.account.UserName:
+                    PageAccountSetPassword.user_name);
+        $('#account-set-password-dialog .modal-title').text(F(_("Change password for %{name}"), { name: name }));
         this.update ();
     },
 
@@ -846,11 +853,32 @@ PageAccountSetPassword.prototype = {
 
     apply: function() {
         $('#account-set-password-dialog').modal('hide');
-        PageAccountSetPassword.account.call ('SetPassword', $('#account-set-password-pw1').val(),
-                                             function (error) {
-                                                 if (error)
-                                                     cockpit_show_unexpected_error (error);
-                                             });
+        if (PageAccountSetPassword.account) {
+            PageAccountSetPassword.account.call ('SetPassword', $('#account-set-password-pw1').val(),
+                                                 function (error) {
+                                                     if (error)
+                                                         cockpit_show_unexpected_error (error);
+                                                 });
+        } else if (PageAccountSetPassword.user_name) {
+
+            // This is used to change the password for "root".  We can
+            // not use AccountsService for this because it doesn't
+            // handle system users well. It is possible to get a
+            // handle for "root" via FindUserByID, but this handle can
+            // spontaneously become invalid. AccountsService will
+            // remove system users from its database during reload.
+            // The symptom is that it is possible to change the
+            // password of "root" just once per session because the
+            // change triggers a reload in AccountsService which
+            // causes the object path that repesents "root" to
+            // disappear from D-Bus.
+            //
+            // See https://bugs.freedesktop.org/show_bug.cgi?id=70540
+
+            cockpit.spawn([ "/bin/passwd", "--stdin", PageAccountSetPassword.user_name ]).
+                write($('#account-set-password-pw1').val()).
+                fail(cockpit_show_unexpected_error);
+        }
     }
 };
 
@@ -859,3 +887,9 @@ function PageAccountSetPassword() {
 }
 
 cockpit_pages.push(new PageAccountSetPassword());
+
+function cockpit_change_password() {
+    PageAccountSetPassword.account = null;
+    PageAccountSetPassword.user_name = cockpit.connection_config.user;
+    $('#account-set-password-dialog').modal('show');
+}

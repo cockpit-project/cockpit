@@ -37,6 +37,9 @@
                 <li>
                   <a id="cockpit-go-account" onclick="cockpit_go_login_account();">Account Settings</a>
                 </li>
+                <li>
+                  <a id="cockpit-change-passwd" onclick="cockpit_change_password();">Change Password</a>
+                </li>
                 <li class="cockpit-deauthorize-item">
                   <a>Drop extra privileges</a>
                 </li>
@@ -617,7 +620,7 @@
       </div>
 
       <div id="accounts" class="container-fluid">
-        <button class="btn btn-default" id="accounts-create" translatable="yes">New Account</button>
+        <button class="btn btn-default" id="accounts-create" translatable="yes">Create New Account</button>
         <div id="accounts-list">
         </div>
       </div>
@@ -655,9 +658,9 @@
               </td>
             </tr>
           </table>
-          <button class="btn btn-default" id="account-set-password">Set Password</button>
-          <button class="btn btn-default" id="account-delete">Delete</button>
-          <button class="btn btn-default" id="account-logout">Logout</button>
+          <button class="btn btn-default" id="account-set-password">Change Password</button>
+          <button class="btn btn-default" id="account-delete">Delete Account</button>
+          <button class="btn btn-default" id="account-logout">Terminate sessions</button>
           <button class="btn btn-default" id="account-change-roles">Change Roles</button>
         </center>
 
@@ -1318,7 +1321,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">Set Password</h4>
+            <h4 class="modal-title">Change Password</h4>
           </div>
           <div class="modal-body">
             <table class="cockpit-form-table">
@@ -1337,7 +1340,7 @@
               Cancel
             </button>
             <button class="btn btn-primary" id="account-set-password-apply" translatable="yes">
-              Set
+              Change
             </button>
           </div>
         </div>

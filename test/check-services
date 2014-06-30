@@ -71,18 +71,22 @@ ExecStart=/usr/bin/test-service %I
         self.login_and_go("services")
 
         def svc_sel(service):
-            return 'tr[onclick*="%s"]' % service
+            return 'tr[data-unit="%s"]' % service
 
         def wait_service_state(service, state):
             b.wait_in_text(svc_sel(service), state)
 
+        def wait_service_in_panel(service, title):
+            b.wait_in_text(".panel:contains('%s') .panel-heading" % service, title)
+
+        b.click("#services-filter-services")
         b.wait_in_text("#services", "test.service")
-        wait_service_state("test.service", "disabled")
+        wait_service_in_panel("test.service", "Disabled")
 
         m.execute("systemctl start test.service")
         wait_service_state("test.service", "running")
         m.execute("systemctl stop test.service")
-        wait_service_state("test.service", "disabled")
+        wait_service_in_panel("test.service", "Disabled")
         m.execute("systemctl enable test.service")
         wait_service_state("test.service", "inactive")
 
@@ -102,6 +106,7 @@ ExecStart=/usr/bin/test-service %I
         b.wait_action_btn('#service-file-action-btn', "Enable")
 
         b.go("services")
+        b.click("#services-filter-services")
         b.wait_in_text("#services", "test-fail.service")
         b.click(svc_sel("test-fail.service"))
         b.wait_text('#service-active-state', "inactive")
@@ -110,6 +115,7 @@ ExecStart=/usr/bin/test-service %I
         b.wait_text('#service-active-state', "failed")
 
         b.go("services")
+        b.click("#services-filter-services")
         b.wait_in_text("#services", "test-fail.service")
         wait_service_state("test-fail.service", "failed")
 

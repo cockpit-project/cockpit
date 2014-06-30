@@ -84,16 +84,16 @@ function cockpit_unwatch_jobs (client)
     }
 }
 
-function cockpit_job_box (client, box, domain, role, descriptions, target_describer)
+function cockpit_job_box (client, tbody, domain, role, descriptions, target_describer)
 {
     function update ()
     {
         var objs = client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
         var i, j, t, tdesc;
-        var tbody, target_desc, desc, progress, remaining, cancel;
+        var target_desc, desc, progress, remaining, cancel;
         var some_added = false;
 
-        tbody = $('<tbody>');
+        tbody.empty();
         for (i = 0; i < objs.length; i++) {
             j = objs[i].lookup("com.redhat.Cockpit.Job");
             if (j && j.Domain == domain) {
@@ -117,13 +117,13 @@ function cockpit_job_box (client, box, domain, role, descriptions, target_descri
                 else
                     remaining = '';
                 if (j.Cancellable) {
-                    cancel = $('<button data-mini="true" data-inline="true">Cancel</button>');
+                    cancel = $('<button class="btn btn-default">').text(_("Cancel"));
                     cancel.on('click', function (event) {
-                        if (!cockpit_check_role (role))
+                        if (!cockpit_check_role (role, client))
                             return;
                         j.call('Cancel', function (error) {
-                        if (error)
-                            cockpit_show_unexpected_error (error);
+                            if (error)
+                                cockpit_show_unexpected_error (error);
                         });
                     });
                 } else
@@ -141,11 +141,7 @@ function cockpit_job_box (client, box, domain, role, descriptions, target_descri
                 some_added = true;
             }
         }
-        box.empty();
-        if (!some_added)
-            box.text(_("(No current jobs)"));
-        else
-            box.append($('<table>', { 'class': 'table' }).append(tbody));
+        tbody.parents(".panel").toggle(some_added);
     }
 
     function update_props (event, obj, iface)

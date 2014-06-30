@@ -1374,7 +1374,8 @@ on_object_manager_ready (GObject *source,
 
   if (self->object_manager == NULL)
     {
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED) ||
+          g_cancellable_is_cancelled (self->cancellable))
         {
           g_debug ("%s", error->message);
         }

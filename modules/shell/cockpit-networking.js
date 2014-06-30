@@ -1398,8 +1398,8 @@ PageNetworkInterface.prototype = {
         self.iface = iface;
         self.dev = dev;
 
+        var desc;
         if (dev) {
-            var desc;
             if (dev.DeviceType == 1) {
                 desc = $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev));
             } else if (dev.DeviceType == 10) {
@@ -1413,23 +1413,24 @@ PageNetworkInterface.prototype = {
                         }), ", "));
                 }
             }
+        } else if (iface) {
+            if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "bond")
+                desc = _("Bond");
+            else
+                desc = _("Unknown");
+        } else
+            desc = _("Unknown");
 
-            $hw.html(
-                $('<div class="panel-body">').append(
-                    $('<div>').append(
-                        desc,
-                        $('<span style="float:right">').text(dev.HwAddress)),
-                    $('<div>').append(
-                        $('<span>').html(render_active_connection(dev, true)),
-                        $('<span style="float:right">').text(dev.StateText))));
+        $hw.html(
+            $('<div class="panel-body">').append(
+                $('<div>').append(
+                    desc,
+                    $('<span style="float:right">').text(dev? dev.HwAddress : "")),
+                $('<div>').append(
+                    $('<span>').html(render_active_connection(dev, true)),
+                    $('<span style="float:right">').text(dev? dev.StateText : _("Inactive")))));
 
-            $('#network-interface-disconnect').prop('disabled', !dev.ActiveConnection);
-        } else {
-            $hw.html(
-                $('<div class="panel-body">').append(
-                    $('<div>').text("--")));
-            $('#network-interface-disconnect').prop('disabled', true);
-        }
+        $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 
         var is_deletable = !dev || dev.DeviceType == 10;
         $('#network-interface-delete').toggle(is_deletable);

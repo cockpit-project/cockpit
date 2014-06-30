@@ -1432,8 +1432,8 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 
-        var is_deletable = !dev || dev.DeviceType == 10;
-        $('#network-interface-delete').toggle(is_deletable);
+        var is_deletable = (iface && !dev) || (dev && dev.DeviceType == 10);
+        $('#network-interface-delete').toggle(!!is_deletable);
 
         function render_connection(con) {
 

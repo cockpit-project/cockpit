@@ -39,7 +39,8 @@ function nm_debug() {
  *
  * For example,
  *
- *    model.manager.Devices[0].ActiveConnection.Ipv4Config.Addresses[0][0]
+ *    var manager = model.get_manager();
+ *    manager.Devices[0].ActiveConnection.Ipv4Config.Addresses[0][0]
  *
  * is the first IPv4 address of the first device as a string.
  *
@@ -60,12 +61,12 @@ function nm_debug() {
  * Methods are invoked directly on the objects in the data structure.
  * For example,
  *
- *    model.manager.Devices[0].disconnect();
- *    model.manager.Devices[0].ActiveConnection.deactivate();
+ *    manager.Devices[0].disconnect();
+ *    manager.Devices[0].ActiveConnection.deactivate();
  *
  * Editing connection settings is supported directly:
  *
- *    connection = model.manager.Devices[0].AvailableConnections[0];
+ *    connection = manager.Devices[0].AvailableConnections[0];
  *    connection.freeze();
  *    connection.Settings.connection.autoconnect = false;
  *    connection.apply().fail(show_error);
@@ -505,7 +506,11 @@ function NetworkManagerModel(address) {
     function settings_to_nm(settings, orig) {
         var result = $.extend(true, {}, orig);
 
-        function set(first, second, sig, val) {
+        function set(first, second, sig, val, def) {
+            if (val === undefined)
+                val = def;
+            if (val === undefined)
+                return;
             if (!result[first])
                 result[first] = { };
             result[first][second] = new DBusVariant(sig, val);
@@ -536,8 +541,23 @@ function NetworkManagerModel(address) {
 
         set("connection", "id", 's', settings.connection.id);
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
-        set_ip("ipv4", 'aau', ip4_to_nm, 'au', ip4_from_text);
-        set_ip("ipv6", 'a(ayuay)', ip6_to_nm, 'aay', ip6_from_text);
+        set("connection", "uuid", 's', settings.connection.uuid);
+        set("connection", "interface-name", 's', settings.connection["interface-name"]);
+        set("connection", "type", 's', settings.connection.type);
+        set("connection", "slave-type", 's', settings.connection["slave-type"]);
+        set("connection", "master", 's', settings.connection.master);
+
+        if (settings.ipv4)
+            set_ip("ipv4", 'aau', ip4_to_nm, 'au', ip4_from_text);
+        if (settings.ipv6)
+            set_ip("ipv6", 'a(ayuay)', ip6_to_nm, 'aay', ip6_from_text);
+        if (settings.bond) {
+            set("bond", "interface-name", 's', settings.bond["interface-name"]);
+        }
+        if (settings["802-3-ethernet"]) {
+            if (!result["802-3-ethernet"])
+                result["802-3-ethernet"] = { };
+        }
 
         return result;
     }
@@ -869,6 +889,24 @@ function NetworkManagerModel(address) {
         return peek_object(":interface:" + iface);
     }
 
+    var type_Settings = {
+        interfaces: [
+            "org.freedesktop.NetworkManager.Settings"
+        ],
+
+        props: {
+        },
+
+        prototype: {
+            add_connection: function (conf) {
+                return call_object_method(this,
+                                          'org.freedesktop.NetworkManager.Settings',
+                                          'AddConnection',
+                                          settings_to_nm(conf, { }));
+            }
+        }
+    };
+
     var type_Manager = {
         interfaces: [
             "org.freedesktop.NetworkManager"
@@ -901,6 +939,16 @@ function NetworkManagerModel(address) {
 
     self.find_interface = peek_interface;
 
+    self.get_manager = function () {
+        return get_object("/org/freedesktop/NetworkManager",
+                          type_Manager);
+    };
+
+    self.get_settings = function () {
+        return get_object("/org/freedesktop/NetworkManager/Settings",
+                          type_Settings);
+    };
+
     /* Initialization.
      */
 
@@ -913,6 +961,7 @@ function NetworkManagerModel(address) {
                      ]);
 
     get_object("/org/freedesktop/NetworkManager", type_Manager);
+    get_object("/org/freedesktop/NetworkManager/Settings", type_Settings);
     return self;
 }
 
@@ -1005,6 +1054,10 @@ PageNetworking.prototype = {
 
     getTitle: function() {
         return C_("page-title", "Networking");
+    },
+
+    setup: function () {
+        $("#networking-interfaces .panel-heading button").click($.proxy(this, "add_bond"));
     },
 
     enter: function () {
@@ -1111,12 +1164,34 @@ PageNetworking.prototype = {
                                 $('<td>').html(render_active_connection(dev)),
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
-                                 $('<td colspan="2">').text(dev? dev.StateText : _("Not present")))).
+                                 $('<td colspan="2">').text(dev? dev.StateText : _("Inactive")))).
                          click(function () { cockpit_go_down ({ page: 'network-interface',
                                                                 dev: iface.Name
                                                               });
                                            }));
         });
+    },
+
+    add_bond: function () {
+        var iface, i;
+        for (i = 0; i < 100; i++) {
+            iface = "bond" + i;
+            if (!this.model.find_interface(iface))
+                break;
+        }
+
+        var settings = this.model.get_settings();
+        var uuid = cockpit.util.uuid();
+        settings.add_connection(
+            { connection: { id: uuid,
+                            autoconnect: false,
+                            type: "bond",
+                            uuid: uuid,
+                            "interface-name": iface
+                          },
+              bond: { "interface-name": iface
+                    }
+            }).fail(cockpit_show_unexpected_error);
     }
 
 };

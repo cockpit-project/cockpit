@@ -1128,13 +1128,17 @@ test_resource_simple (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
                            "Content-Type: text/html\r\n"
+                           "Transfer-Encoding: chunked\r\n"
                            "Connection: close\r\n\r\n"
+                           "52\r\n"
                            "<html>\n"
                            "<head>\n"
                            "<title>In home dir</title>\n"
                            "</head>\n"
                            "<body>In home dir</body>\n"
-                           "</html>\n", -1);
+                           "</html>\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -1300,9 +1304,13 @@ test_resource_checksum (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
+                           "Transfer-Encoding: chunked\r\n"
                            "Connection: close\r\n\r\n"
+                           "32\r\n"
                            "These are the contents of file.ext\n"
-                           "Oh marmalaaade\n", -1);
+                           "Oh marmalaaade\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }

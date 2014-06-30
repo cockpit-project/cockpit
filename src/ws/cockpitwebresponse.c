@@ -62,6 +62,7 @@ struct _CockpitWebResponse {
   gboolean complete;
   gboolean failed;
   gboolean done;
+  gboolean chunked;
 };
 
 typedef struct {
@@ -144,7 +145,7 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
  *
  * Create a new web response.
  *
- * The returned refference belongs to the caller. Additionally
+ * The returned reference belongs to the caller. Additionally
  * once cockpit_web_response_complete() is called, an additional
  * reference is held until the response is sent and flushed.
  *
@@ -348,6 +349,22 @@ on_response_output (GObject *pollable,
     }
 }
 
+static void
+queue_bytes (CockpitWebResponse *self,
+             GBytes *block)
+{
+  g_queue_push_tail (self->queue, g_bytes_ref (block));
+
+  self->count++;
+
+  if (!self->source)
+    {
+      self->source = g_pollable_output_stream_create_source (self->out, NULL);
+      g_source_set_callback (self->source, (GSourceFunc)on_response_output, self, NULL);
+      g_source_attach (self->source, NULL);
+    }
+}
+
 /**
  * cockpit_web_response_queue:
  * @self: the response
@@ -357,9 +374,9 @@ on_response_output (GObject *pollable,
  * during the main loop.
  *
  * See cockpit_web_response_content() for a simple way to
- * avoid queing individual blocks.
+ * avoid queueing individual blocks.
  *
- * If this function returns %FALSE, then the respones has failed
+ * If this function returns %FALSE, then the response has failed
  * or has been completed elsewhere. The block was ignored and
  * queuing more blocks doesn't makes sense.
  *
@@ -372,6 +389,9 @@ gboolean
 cockpit_web_response_queue (CockpitWebResponse *self,
                             GBytes *block)
 {
+  gchar *data;
+  GBytes *bytes;
+
   g_return_val_if_fail (block != NULL, FALSE);
   g_return_val_if_fail (self->complete == FALSE, FALSE);
 
@@ -381,15 +401,25 @@ cockpit_web_response_queue (CockpitWebResponse *self,
       return FALSE;
     }
 
-  self->count++;
   g_debug ("%s: queued %d bytes", self->logname, (int)g_bytes_get_size (block));
-  g_queue_push_tail (self->queue, g_bytes_ref (block));
 
-  if (!self->source)
+  if (!self->chunked)
     {
-      self->source = g_pollable_output_stream_create_source (self->out, NULL);
-      g_source_set_callback (self->source, (GSourceFunc)on_response_output, self, NULL);
-      g_source_attach (self->source, NULL);
+      queue_bytes (self, block);
+    }
+  else
+    {
+      /* Required for chunked transfer encoding. */
+      data = g_strdup_printf ("%x\r\n", (unsigned int)g_bytes_get_size (block));
+      bytes = g_bytes_new_take (data, strlen (data));
+      queue_bytes (self, bytes);
+      g_bytes_unref (bytes);
+
+      queue_bytes (self, block);
+
+      bytes = g_bytes_new_static ("\r\n", 2);
+      queue_bytes (self, bytes);
+      g_bytes_unref (bytes);
     }
 
   return TRUE;
@@ -408,6 +438,8 @@ cockpit_web_response_queue (CockpitWebResponse *self,
 void
 cockpit_web_response_complete (CockpitWebResponse *self)
 {
+  GBytes *bytes;
+
   g_return_if_fail (self->complete == FALSE);
 
   if (self->failed)
@@ -415,8 +447,14 @@ cockpit_web_response_complete (CockpitWebResponse *self)
 
   /* Hold a reference until cockpit_web_response_done() */
   g_object_ref (self);
-  self->failed = TRUE;
   self->complete = TRUE;
+
+  if (self->chunked)
+    {
+      bytes = g_bytes_new_static ("0\r\n\r\n", 5);
+      queue_bytes (self, bytes);
+      g_bytes_unref (bytes);
+    }
 
   if (self->source)
     {
@@ -605,7 +643,15 @@ finish_headers (CockpitWebResponse *self,
     }
 
   if (length >= 0)
-    g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
+    {
+      self->chunked = FALSE;
+      g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
+    }
+  else
+    {
+      self->chunked = TRUE;
+      g_string_append_printf (string, "Transfer-Encoding: chunked\r\n");
+    }
   g_string_append (string, "Connection: close\r\n");
   g_string_append (string, "\r\n");
 
@@ -657,7 +703,7 @@ cockpit_web_response_headers (CockpitWebResponse *self,
                           append_va (string, va));
   va_end (va);
 
-  cockpit_web_response_queue (self, block);
+  queue_bytes (self, block);
   g_bytes_unref (block);
 }
 
@@ -701,7 +747,7 @@ cockpit_web_response_headers_full  (CockpitWebResponse *self,
                           status >= 200 && status <= 299,
                           append_table (string, headers));
 
-  cockpit_web_response_queue (self, block);
+  queue_bytes (self, block);
   g_bytes_unref (block);
 }
 

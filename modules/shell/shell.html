@@ -1144,7 +1144,7 @@
             <h4 class="modal-title" id="realms-op-title"></h4>
           </div>
           <div class="modal-body">
-            <img src="@@module@@/images/small-spinner.gif"
+            <div class="waiting"
                  id="realms-op-init-spinner"
                  style="display:block;position:absolute;left:50%;top:50%;margin-left:-16px;margin-top:-16px;z-index:100"/>
             <div id="realms-op-fields">
@@ -1156,8 +1156,8 @@
                            id="realms-op-address" value=""/>
                   </td>
                   <td style="width:0px">
-                    <img id="realms-op-address-spinner"
-                         src="@@module@@/images/small-spinner.gif"
+                    <div id="realms-op-address-spinner"
+                         class="waiting"
                          style="margin-left:-40px;margin-top:4px"/>
                     <img id="realms-op-address-error"
                          src="@@module@@/images/dialog-error.png"
@@ -1239,7 +1239,7 @@
             <button class="btn btn-default" id="realms-op-cancel">
               Cancel
             </button>
-            <img id="realms-op-spinner" src="@@module@@/images/spinner.gif"/>
+            <div id="realms-op-spinner" class="waiting"/>
             <button class="btn btn-primary" id="realms-op-apply">
               Next
             </button>

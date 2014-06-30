@@ -159,7 +159,7 @@ PageSetupServer.prototype = {
     },
 
     next: function() {
-        $('#dashboard_setup_next').html('<img src="images/small-spinner.gif"/>');
+        $('#dashboard_setup_next').html('<div class="waiting"/>');
         $('#dashboard_setup_next').prop('disable', true);
         this.next_action();
     },
@@ -257,8 +257,7 @@ PageSetupServer.prototype = {
                     $('<td/>').text(
                         desc),
                     $('<td style="width:16px"/>').append(
-                        $('<img/>', { 'class': "cockpit-setup-task-spinner",
-                                      'src': "images/small-spinner.gif",
+                        $('<div>',  { 'class': "cockpit-setup-task-spinner waiting",
                                       'style': "display:none"
                                     }),
                         $('<img/>', { 'class': "cockpit-setup-task-error",

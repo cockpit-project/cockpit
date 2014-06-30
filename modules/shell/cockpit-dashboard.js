@@ -158,7 +158,7 @@ PageDashboard.prototype = {
                                 $('<div/>', { 'class': "cockpit-graph-plot",
                                               'style': "width:100%;height:100%" })),
                             $('<div/>', { 'class': "cockpit-machine-spinner" }).append(
-                                $('<img/>', { 'src': prefix +  "/images/small-spinner.gif" })),
+                                $('<div/>', { 'class': "waiting" })),
                             $('<div/>', { 'class': "cockpit-machine-error", 'style': "color:red" })),
                         $('<td/>', { style: "text-align:right;width:180px" }).append(
                             btn = cockpit_action_btn (machine_action_func (machine),

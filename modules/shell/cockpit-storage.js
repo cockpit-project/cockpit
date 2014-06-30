@@ -286,7 +286,7 @@ PageStorage.prototype = {
         }
         html += val;
         html += "</td>";
-        html += '<td style="width:20px"><img id="storage-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
+        html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
         // TODO: should show warning icon etc. if disk is failing
@@ -334,7 +334,7 @@ PageStorage.prototype = {
         } else
             html += C_("storage", "RAID Array");
         html += "</td>";
-        html += '<td style="width:20px"><img id="storage-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
+        html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
         // Insert sorted
@@ -380,7 +380,7 @@ PageStorage.prototype = {
         } else
             html += C_("storage", "Volume Group");
         html += "</td>";
-        html += '<td style="width:20px"><img id="storage-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
+        html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
         // Insert sorted
@@ -431,7 +431,7 @@ PageStorage.prototype = {
         var val = size_str + " " + C_("storage", "Block Device");
         html += val;
         html += "</td>";
-        html += '<td style="width:20px"><img id="storage-spinner-' +id+ '" src="images/small-spinner.gif"/></td>';
+        html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
         // Insert sorted
@@ -949,9 +949,9 @@ PageStorageDetail.prototype = {
             if (button)
                 tr.append($('<td>', { 'style': 'text-align:right' }).append(button));
             tr.append(
-                $('<td>', { 'style': 'width:20px' }).append(
-                    $('<img>', { 'id': 'entry-spinner-' +id,
-                                 'src': 'images/small-spinner.gif'
+                $('<td>', { 'style': 'width:28px' }).append(
+                    $('<div>', { 'id': 'entry-spinner-' +id,
+                                 'class': 'waiting'
                                })));
             list.append(
                 $('<li>', { 'class': 'list-group-item' }).append(

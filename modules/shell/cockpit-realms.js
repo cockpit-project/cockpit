@@ -92,7 +92,7 @@ PageRealms.prototype = {
                                           cockpit_esc(name) +
                                           '<button class="btn btn-default realms-leave-button" id="realms-leave-' + id + '" style="float:right">' +
                                           _("Leave") + '</button>' +
-                                          '<img class="realms-leave-spinner" id="realms-leave-spinner-' + id + '" src="images/small-spinner.gif" style="float:right"/>' +
+                                          '<div class="realms-leave-spinner waiting" id="realms-leave-spinner-' + id + '" style="float:right"/>' +
                                           '</li>'));
                 $("#realms-leave-" + id).off("click");
                 $("#realms-leave-" + id).on("click", function (e) {

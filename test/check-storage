@@ -498,8 +498,9 @@ class TestStorage(MachineCase):
         b.wait_popdown("storage_format_dialog")
 
         with b.wait_timeout(120):
+            b.wait_visible("#storage-detail-jobs")
             b.wait_in_text("#storage-detail-jobs", "Erasing")
-            b.wait_in_text("#storage-detail-jobs", "No current jobs")
+            b.wait_not_visible("#storage-detail-jobs")
             b.wait_in_text("#storage_detail_partition_list", "FILESYSTEM")
 
     def testLvm(self):

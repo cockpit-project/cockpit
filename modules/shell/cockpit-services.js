@@ -356,8 +356,6 @@ PageServices.prototype = {
     update: function() {
         var me = this;
 
-        console.log("Update all");
-
         if ($('input[name="services-filter"]:checked').attr('data-show-graphs') !== undefined) {
             $('#services-graphs').show();
             $('#services-add').show();

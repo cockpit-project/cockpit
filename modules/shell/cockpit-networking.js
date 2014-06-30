@@ -180,8 +180,8 @@ function NetworkManagerModel(address) {
             objects[path] = new constructor();
             if (type.refresh)
                 type.refresh(objects[path]);
-            if (type.export_phase_0)
-                type.export_phase_0(objects[path]);
+            if (type.exporters && type.exporters[0])
+                type.exporters[0](objects[path]);
         }
         return objects[path];
     }
@@ -275,6 +275,8 @@ function NetworkManagerModel(address) {
 
     function set_object_types(all_types) {
         all_types.forEach(function (type) {
+            if (type.exporters && type.exporters.length > max_export_phases)
+                max_export_phases = type.exporters.length;
             type.interfaces.forEach(function (iface) {
                 interface_types[iface] = type;
             });
@@ -316,21 +318,18 @@ function NetworkManagerModel(address) {
         drop_object(path);
     }
 
+    var max_export_phases = 0;
     var export_pending;
 
     function export_model() {
         function doit() {
-            var phase, path, obj, meth;
-            var again = true;
-            for (phase = 0; again; phase++) {
-                again = false;
-                meth = "export_phase_" + phase;
+            var phase, path, obj, exp;
+            for (phase = 0; phase < max_export_phases; phase++) {
                 for (path in objects) {
                     obj = objects[path];
-                    if (priv(obj).type[meth]) {
-                        again = true;
-                        priv(obj).type[meth](obj, phase);
-                    }
+                    exp = priv(obj).type.exporters;
+                    if (exp && exp[phase])
+                        exp[phase](obj);
                 }
             }
 
@@ -733,60 +732,62 @@ function NetworkManagerModel(address) {
             }
         },
 
-        export_phase_0: function (obj) {
-            obj.Slaves = [ ];
-            obj.Interfaces = [ ];
-        },
+        exporters: [
+            function (obj) {
+                obj.Slaves = [ ];
+                obj.Interfaces = [ ];
+            },
 
-        // Sets: type_Interface.Connections
-        //
-        export_phase_1: function (obj) {
-            if (obj.Settings.bond) {
-                var iface = get_interface(obj.Settings.bond["interface-name"]);
-                iface.Connections.push(obj);
-            }
-        },
-
-        // Needs: type_Interface.Device
-        //        type_Interface.Connections
-        //
-        // Sets:  type_Connection.Slaves
-        //        type_Connection.Masters
-        //
-        export_phase_2: function (obj) {
-            var master, iface;
-
-            // Most of the time, a connection has zero or one masters,
-            // but when a connection refers to its master by interface
-            // name, we might end up with more than one master
-            // connection so we just collect them all.
+            // Sets: type_Interface.Connections
             //
-            // TODO - Nail down how NM really handles this.
+            function (obj) {
+                if (obj.Settings.bond) {
+                    var iface = get_interface(obj.Settings.bond["interface-name"]);
+                    iface.Connections.push(obj);
+                }
+            },
 
-            obj.Masters = [ ];
-            if (obj.Settings.connection.slave_type == "bond") {
-                master = connections_by_uuid[obj.Settings.connection.master];
-                if (master) {
-                    obj.Masters.push(master);
-                    master.Slaves.push(obj);
-                } else {
-                    function check_con(con) {
-                        if (con.Settings.connection.type == "bond") {
-                            obj.Masters.push(con);
-                            con.Slaves.push(obj);
+            // Needs: type_Interface.Device
+            //        type_Interface.Connections
+            //
+            // Sets:  type_Connection.Slaves
+            //        type_Connection.Masters
+            //
+            function (obj) {
+                var master, iface;
+
+                // Most of the time, a connection has zero or one masters,
+                // but when a connection refers to its master by interface
+                // name, we might end up with more than one master
+                // connection so we just collect them all.
+                //
+                // TODO - Nail down how NM really handles this.
+
+                obj.Masters = [ ];
+                if (obj.Settings.connection.slave_type == "bond") {
+                    master = connections_by_uuid[obj.Settings.connection.master];
+                    if (master) {
+                        obj.Masters.push(master);
+                        master.Slaves.push(obj);
+                    } else {
+                        function check_con(con) {
+                            if (con.Settings.connection.type == "bond") {
+                                obj.Masters.push(con);
+                                con.Slaves.push(obj);
+                            }
                         }
-                    }
 
-                    iface = peek_interface(obj.Settings.connection.master);
-                    if (iface) {
-                        if (iface.Device)
-                            iface.Device.AvailableConnections.forEach(check_con);
-                        else
-                            iface.Connections.forEach(check_con);
+                        iface = peek_interface(obj.Settings.connection.master);
+                        if (iface) {
+                            if (iface.Device)
+                                iface.Device.AvailableConnections.forEach(check_con);
+                            else
+                                iface.Connections.forEach(check_con);
+                        }
                     }
                 }
             }
-        }
+        ]
 
     };
 
@@ -839,14 +840,18 @@ function NetworkManagerModel(address) {
             }
         },
 
-        // Sets: type_Interface.Device
-        //
-        export_phase_1: function (obj) {
-            if (obj.Interface) {
-                var iface = get_interface(obj.Interface);
-                iface.Device = obj;
+        exporters: [
+            null,
+
+            // Sets: type_Interface.Device
+            //
+            function (obj) {
+                if (obj.Interface) {
+                    var iface = get_interface(obj.Interface);
+                    iface.Device = obj;
+                }
             }
-        }
+        ]
     };
 
     // The 'Interface' type does not correspond to any NetworkManager
@@ -857,30 +862,36 @@ function NetworkManagerModel(address) {
     var type_Interface = {
         interfaces: [ ],
 
-        export_phase_0: function (obj) {
-            obj.Device = null;
-            obj.Connections = [ ];
-        },
+        exporters: [
+            function (obj) {
+                obj.Device = null;
+                obj.Connections = [ ];
+            },
 
-        // Needs: type_Interface.Device
-        //        type_Interface.Connections
-        //
-        export_phase_2: function (obj) {
-            if (!obj.Device && obj.Connections.length === 0) {
-                drop_object(priv(obj).path);
-                return;
-            }
+            null,
 
-            if (obj.Device) {
-                obj.Device.AvailableConnections.forEach(function (con) {
-                    con.Interfaces.push(obj);
-                });
-            } else {
-                obj.Connections.forEach(function (con) {
-                    con.Interfaces.push(obj);
-                });
+            // Needs: type_Interface.Device
+            //        type_Interface.Connections
+            //
+            // Sets:  type_Connection.Interfaces
+            //
+            function (obj) {
+                if (!obj.Device && obj.Connections.length === 0) {
+                    drop_object(priv(obj).path);
+                    return;
+                }
+
+                if (obj.Device) {
+                    obj.Device.AvailableConnections.forEach(function (con) {
+                        con.Interfaces.push(obj);
+                    });
+                } else {
+                    obj.Connections.forEach(function (con) {
+                        con.Interfaces.push(obj);
+                    });
+                }
             }
-        }
+        ]
 
     };
 

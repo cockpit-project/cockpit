@@ -834,7 +834,7 @@ PageAccountSetPassword.prototype = {
     enter: function() {
         var name = (PageAccountSetPassword.account ? PageAccountSetPassword.account.UserName:
                     PageAccountSetPassword.user_name);
-        $('#account-set-password-dialog .modal-title').text(F(_("Set password for %{name}"), { name: name }));
+        $('#account-set-password-dialog .modal-title').text(F(_("Change password for %{name}"), { name: name }));
         this.update ();
     },
 

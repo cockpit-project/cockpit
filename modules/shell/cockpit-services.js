@@ -303,6 +303,7 @@ PageServices.prototype = {
         });
         $(this.mem_plot).on('highlight', highlight_service_row);
 
+        $("#services-list-enabled, #services-list-disabled, #services-list-static").parents(".panel").hide();
         me.update();
     },
 
@@ -337,12 +338,16 @@ PageServices.prototype = {
                     this.items[name].replaceWith(item);
                 else {
                     // XXX - sort it properly
-                    if (file_state == 'enabled')
+                    if (file_state == 'enabled') {
                         item.appendTo($("#services-list-enabled"));
-                    else if (file_state == 'disabled')
+                        $("#services-list-enabled").parents(".panel").show();
+                    } else if (file_state == 'disabled') {
                         item.appendTo($("#services-list-disabled"));
-                    else
+                        $("#services-list-disabled").parents(".panel").show();
+                    } else {
                         item.appendTo($("#services-list-static"));
+                        $("#services-list-static").parents(".panel").show();
+                    }
                 }
                 this.items[name] = item;
             } else {
@@ -383,14 +388,14 @@ PageServices.prototype = {
             if (error) {
                 console.log ("error %s", error.message);
             } else {
-                var list_enabled = $("#services-list-enabled");
-                var list_disabled = $("#services-list-disabled");
-                var list_static = $("#services-list-static");
+                var list_enabled = $("#services-list-enabled"), enabled_added;
+                var list_disabled = $("#services-list-disabled"), disabled_added;
+                var list_static = $("#services-list-static"), static_added;
 
                 var i;
-                list_enabled.empty();
-                list_disabled.empty();
-                list_static.empty();
+                list_enabled.empty(); enabled_added = false;
+                list_disabled.empty(); disabled_added = false;
+                list_static.empty(); static_added = false;
                 me.items = { };
                 services.sort(compare_service);
                 pattern = $('input[name="services-filter"]:checked').val();
@@ -406,15 +411,22 @@ PageServices.prototype = {
                                                      service[4],
                                                      service[5],
                                                      include_buttons? me.manager : null));
-                        if (service[5] == 'enabled')
+                        if (service[5] == 'enabled') {
                             item.appendTo(list_enabled);
-                        else if (service[5] == 'disabled')
+                            enabled_added = true;
+                        } else if (service[5] == 'disabled') {
                             item.appendTo(list_disabled);
-                        else
+                            disabled_added = true;
+                        } else {
                             item.appendTo(list_static);
+                            static_added = true;
+                        }
                         me.items[service[0]] = item;
                     }
                 }
+                list_enabled.parents(".panel").toggle(enabled_added);
+                list_disabled.parents(".panel").toggle(disabled_added);
+                list_static.parents(".panel").toggle(static_added);
             }
         });
     }

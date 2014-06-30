@@ -480,7 +480,9 @@ function NetworkManagerModel(address) {
         }
 
         if (settings.bond)
-            result.bond = { all: JSON.stringify(settings.bond) };
+            result.bond = { all: JSON.stringify(settings.bond),
+                            "interface-name": get("bond", "interface-name")
+                          };
 
         return result;
     }
@@ -610,28 +612,19 @@ function NetworkManagerModel(address) {
 
     function find_connection_by_uuid(uuid) {
         // TODO - Use a hashtable for this
-        var manager = peek_object("/org/freedesktop/NetworkManager");
-        var devices = manager? manager.Devices : [ ];
-        var connections;
-        var i, j;
-        for (i = 0; i < devices.length; i++) {
-            connections = devices[i].AvailableConnections;
-            for (j = 0; j < connections.length; j++) {
-                if (connections[j].Settings.connection.uuid == uuid)
-                    return connections[j];
-            }
-        }
-        return null;
-    }
-
-    function find_device(iface) {
-        // TODO - Use a hashtable for this
-        var manager = peek_object("/org/freedesktop/NetworkManager");
-        var devices = manager? manager.Devices : [ ];
+        var path, iface, connections;
         var i;
-        for (i = 0; i < devices.length; i++) {
-            if (devices[i].Interface == iface)
-                return devices[i];
+        for (path in objects) {
+            if (path.startsWith(":interface:")) {
+                iface = objects[path];
+                connections = iface.Connections;
+                if (iface.Device)
+                    connections = connections.concat(iface.Device.AvailableConnections);
+                for (i = 0; i < connections.length; i++) {
+                    if (connections[i].Settings.connection.uuid == uuid)
+                        return connections[i];
+                }
+            }
         }
         return null;
     }
@@ -703,11 +696,26 @@ function NetworkManagerModel(address) {
 
         export_phase_0: function (obj) {
             obj.Slaves = [ ];
-            obj.Devices = [ ];
+            obj.Interfaces = [ ];
         },
 
+        // Sets: type_Interface.Connections
+        //
         export_phase_1: function (obj) {
-            var master, device;
+            if (obj.Settings.bond) {
+                var iface = get_interface(obj.Settings.bond["interface-name"]);
+                iface.Connections.push(obj);
+            }
+        },
+
+        // Needs: type_Interface.Device
+        //        type_Interface.Connections
+        //
+        // Sets:  type_Connection.Slaves
+        //        type_Connection.Masters
+        //
+        export_phase_2: function (obj) {
+            var master, iface;
 
             // Most of the time, a connection has zero or one masters,
             // but when a connection refers to its master by interface
@@ -723,14 +731,19 @@ function NetworkManagerModel(address) {
                     obj.Masters.push(master);
                     master.Slaves.push(obj);
                 } else {
-                    device = find_device(obj.Settings.connection.master);
-                    if (device) {
-                        device.AvailableConnections.forEach(function (con) {
-                            if (con.Settings.connection.type == "bond") {
-                                obj.Masters.push(con);
-                                con.Slaves.push(obj);
-                            }
-                        });
+                    function check_con(con) {
+                        if (con.Settings.connection.type == "bond") {
+                            obj.Masters.push(con);
+                            con.Slaves.push(obj);
+                        }
+                    }
+
+                    iface = peek_interface(obj.Settings.connection.master);
+                    if (iface) {
+                        if (iface.Device)
+                            iface.Device.AvailableConnections.forEach(check_con);
+                        else
+                            iface.Connections.forEach(check_con);
                     }
                 }
             }
@@ -787,12 +800,60 @@ function NetworkManagerModel(address) {
             }
         },
 
+        // Sets: type_Interface.Device
+        //
         export_phase_1: function (obj) {
-            obj.AvailableConnections.forEach(function (con) {
-                con.Devices.push(obj);
-            });
+            if (obj.Interface) {
+                var iface = get_interface(obj.Interface);
+                iface.Device = obj;
+            }
         }
     };
+
+    // The 'Interface' type does not correspond to any NetworkManager
+    // object or interface.  We use it to represent a network device
+    // that might or might not actually be known to the kernel, such
+    // as the interface of a bond that is currently down.
+
+    var type_Interface = {
+        interfaces: [ ],
+
+        export_phase_0: function (obj) {
+            obj.Device = null;
+            obj.Connections = [ ];
+        },
+
+        // Needs: type_Interface.Device
+        //        type_Interface.Connections
+        //
+        export_phase_2: function (obj) {
+            if (!obj.Device && obj.Connections.length === 0) {
+                drop_object(priv(obj).path);
+                return;
+            }
+
+            if (obj.Device) {
+                obj.Device.AvailableConnections.forEach(function (con) {
+                    con.Interfaces.push(obj);
+                });
+            } else {
+                obj.Connections.forEach(function (con) {
+                    con.Interfaces.push(obj);
+                });
+            }
+        }
+
+    };
+
+    function get_interface(iface) {
+        var obj = get_object(":interface:" + iface, type_Interface);
+        obj.Name = iface;
+        return obj;
+    }
+
+    function peek_interface(iface) {
+        return peek_object(":interface:" + iface);
+    }
 
     var type_Manager = {
         interfaces: [
@@ -827,18 +888,21 @@ function NetworkManagerModel(address) {
         }
     }
 
-    /* NetworkManager specific utility functions on the model.
+    /* Accessing the model.
      */
 
-    self.find_device = function find_device(iface) {
-        if (self.manager) {
-            for (var i = 0; i < self.manager.Devices.length; i++) {
-                if (self.manager.Devices[i].Interface == iface)
-                    return self.manager.Devices[i];
-            }
+    self.list_interfaces = function list_interfaces() {
+        var path, obj;
+        var result = [ ];
+        for (path in objects) {
+            obj = objects[path];
+            if (priv(obj).type === type_Interface)
+                result.push(obj);
         }
-        return null;
+        return result.sort(function (a, b) { return a.Name.localeCompare(b.Name); });
     };
+
+    self.find_interface = peek_interface;
 
     /* Initialization.
      */
@@ -884,12 +948,12 @@ function render_connection_link(con) {
         $('<span>').append(
             F("Connection %{id} of ", { id: con.Settings.connection.id }),
             array_join(
-                con.Devices.map(function (d) {
+                con.Interfaces.map(function (iface) {
                     return $('<a>').
-                        text(d.Interface).
+                        text(iface.Name).
                         click(function () {
                             cockpit_go_sibling({ page: "network-interface",
-                                                 dev: d.Interface
+                                                 dev: iface.Name
                                                });
                         });
                 }),
@@ -909,7 +973,12 @@ function array_join(elts, sep) {
 
 function render_active_connection(dev) {
     var parts = [ ];
-    var con = dev.ActiveConnection;
+    var con;
+
+    if (!dev)
+        return "";
+
+    con = dev.ActiveConnection;
 
     if (con && con.Master) {
         return $('<span>').append(
@@ -1030,29 +1099,24 @@ PageNetworking.prototype = {
         tbody = $('#networking-interfaces tbody');
         tbody.empty();
 
-        if (!self.model.manager)
-            return;
-
-        self.model.manager.Devices.forEach(function (dev) {
-            if (!dev)
-                return;
-
+        self.model.list_interfaces().forEach(function (iface) {
             // Skip everything that is not ethernet or a bond
-            if (dev.DeviceType != 1 && dev.DeviceType != 10)
+            if (iface.Device && iface.Device.DeviceType != 1 && iface.Device.DeviceType != 10)
                 return;
 
-            var is_active = (dev.State == 100);
+            var dev = iface.Device;
+            var is_active = (dev && dev.State == 100);
 
-            tbody.append($('<tr>', { "data-interface": dev.Interface,
-                                     "data-sample-id": is_active? dev.Interface : null
+            tbody.append($('<tr>', { "data-interface": iface.Name,
+                                     "data-sample-id": is_active? iface.Name : null
                                    }).
-                         append($('<td>').text(dev.Interface),
+                         append($('<td>').text(iface.Name),
                                 $('<td>').html(render_active_connection(dev)),
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
-                                 $('<td colspan="2">').text(dev.StateText))).
+                                 $('<td colspan="2">').text(dev? dev.StateText : _("Not present")))).
                          click(function () { cockpit_go_down ({ page: 'network-interface',
-                                                                dev: dev.Interface
+                                                                dev: iface.Name
                                                               });
                                            }));
         });
@@ -1175,57 +1239,63 @@ PageNetworkInterface.prototype = {
         var $hw = $('#network-interface-hw');
         var $connections = $('#network-interface-connections');
 
-        var dev = self.model.find_device(self.dev_name);
-        if (!dev)
-            return;
-
+        var iface = self.model.find_interface(self.dev_name);
+        var dev = iface && iface.Device;
         self.dev = dev;
 
-        var desc;
-        if (dev.DeviceType == 1)
-            desc = $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev));
-        else if (dev.DeviceType == 10) {
-            if (dev.Slaves.length === 0)
-                desc = $('<span>').text("Bond without active parts");
-            else {
-                desc = $('<span>').append(
-                           $('<span>').text("Bond of "),
-                           array_join(dev.Slaves.map(function (s) {
-                               return render_interface_link(s.Interface);
-                           }), ", "));
+        if (dev) {
+            var desc;
+            if (dev.DeviceType == 1) {
+                desc = $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev));
+            } else if (dev.DeviceType == 10) {
+                if (dev.Slaves.length === 0)
+                    desc = $('<span>').text("Bond without active parts");
+                else {
+                    desc = $('<span>').append(
+                        $('<span>').text("Bond of "),
+                        array_join(dev.Slaves.map(function (s) {
+                            return render_interface_link(s.Interface);
+                        }), ", "));
+                }
             }
+
+            $hw.html(
+                $('<div class="panel-body">').append(
+                    $('<div>').append(
+                        desc,
+                        $('<span style="float:right">').text(dev.HwAddress)),
+                    $('<div>').append(
+                        $('<span>').html(render_active_connection(dev)),
+                        $('<span style="float:right">').text(dev.StateText))));
+
+            $('#network-interface-disconnect').prop('disabled', !dev.ActiveConnection);
+        } else {
+            $hw.html(
+                $('<div class="panel-body">').append(
+                    $('<div>').text("--")));
+            $('#network-interface-disconnect').prop('disabled', true);
         }
 
-        $hw.html(
-            $('<div class="panel-body">').append(
-                $('<div>').append(
-                    desc,
-                    $('<span style="float:right">').text(dev.HwAddress)),
-                $('<div>').append(
-                    $('<span>').html(render_active_connection(dev)),
-                    $('<span style="float:right">').text(dev.StateText))));
-
-        $('#network-interface-disconnect').prop('disabled', !dev.ActiveConnection);
 
         function render_connection(con) {
 
             if (!con || !con.Settings)
                 return [ ];
 
-            var is_active = dev.ActiveConnection && dev.ActiveConnection.Connection === con;
+            var is_active = dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con;
 
             function apply() {
                 con.apply().fail(cockpit_show_unexpected_error);
             }
 
             function activate_connection() {
-                con.activate(self.dev, null).
+                con.activate(dev, null).
                     fail(cockpit_show_unexpected_error);
             }
 
             function deactivate_connection() {
-                if (self.dev.ActiveConnection) {
-                    self.dev.ActiveConnection.deactivate().
+                if (dev && dev.ActiveConnection) {
+                    dev.ActiveConnection.deactivate().
                         fail(cockpit_show_unexpected_error);
                 }
             }
@@ -1386,9 +1456,16 @@ PageNetworkInterface.prototype = {
         }
 
         $connections.empty();
-        (dev.AvailableConnections || []).forEach(function (con) {
+        function append_connection(con) {
             $connections.append(render_connection(con));
-        });
+        }
+
+        if (iface) {
+            if (iface.Device)
+                iface.Device.AvailableConnections.forEach(append_connection);
+            else
+                iface.Connections.forEach(append_connection);
+        }
     }
 
 };

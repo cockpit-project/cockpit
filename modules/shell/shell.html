@@ -1297,8 +1297,12 @@
               </tr>
               <tr>
                 <td translatable="yes">Password</td>
-                <td><input class="form-control" type="password"
-                           id="accounts-create-pw1" value=""/></td>
+                <td>
+                  <div class="check-passwords">
+                    <input class="form-control" type="password"
+                           id="accounts-create-pw1" value=""/>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td translatable="yes">Confirm</td>
@@ -1354,12 +1358,16 @@
             <table class="cockpit-form-table">
               <tr>
                 <td translatable="yes">Password</td>
-                <td><input class="form-control" type="password" id="account-set-password-pw1"></td>
+                <td>
+                  <div class="check-passwords">
+                    <input class="form-control" type="password"
+                           id="account-set-password-pw1"/>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td translatable="yes">Confirm</td>
                 <td>
-<!-- add has-error class if incorrect-->
                 <div class="check-passwords">
                 <input class="form-control" type="password"
                            id="account-set-password-pw2" value=""/>

@@ -51,7 +51,7 @@ struct _Services
 
   GDBusProxy *systemd;
 
-  GHashTable *objects_being_updated;
+  GHashTable *delayed_unit_news;
 };
 
 struct _ServicesClass
@@ -75,7 +75,7 @@ services_finalize (GObject *object)
 {
   Services *services = SERVICES (object);
 
-  g_hash_table_destroy (services->objects_being_updated);
+  g_hash_table_destroy (services->delayed_unit_news);
 
   if (G_OBJECT_CLASS (services_parent_class)->finalize != NULL)
     G_OBJECT_CLASS (services_parent_class)->finalize (object);
@@ -134,7 +134,6 @@ on_unit_proxy_ready (GObject *object,
 {
   Services *services = user_data;
   gs_unref_object GDBusProxy *unit = g_dbus_proxy_new_for_bus_finish (res, NULL);
-  g_hash_table_remove (services->objects_being_updated, g_dbus_proxy_get_object_path (unit));
   if (unit)
     {
       const gchar *name, *description, *load_state, *active_state, *sub_state, *file_state;
@@ -166,8 +165,6 @@ static void
 update_service (Services *services,
                 const gchar *object_path)
 {
-  g_hash_table_add (services->objects_being_updated, g_strdup (object_path));
-
   g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
                             0,
                             NULL,
@@ -208,6 +205,51 @@ on_systemd_properties_changed (GDBusConnection *connection,
     update_service (services, object_path);
 }
 
+/* HACK
+ *
+ * We need to listen to the UnitNew signal so that we can catch the
+ * first state change of a previously not-loaded unit.  Unfortunately,
+ * the UnitNew signal does not carry the properties of the new object,
+ * so we need to call GetAll on it (via the update_service function).
+ *
+ * Doubly unfortunately, systemd sometimes reacts to a GetAll call
+ * with another UnitNew signal.  This happens for units that systemd
+ * doesn't want to keep loaded.  Any action on them results in a
+ * UnitNew/UnitRemoved signal pair.  Thus, we can easily get into a
+ * tight and infinite loop.
+ *
+ * https://bugs.freedesktop.org/show_bug.cgi?id=69575
+ *
+ * To protect against this, we delay the GetAll calls when receiving a
+ * UnitNew signal.  If we get a UnitRemoved before the delay is over,
+ * GetAll is cancelled.
+ */
+
+typedef struct {
+  Services *services;
+  gchar *object_path;
+  guint delay_id;
+} DelayedUnitNewData;
+
+static void
+free_delayed_unit_new (gpointer user_data)
+{
+  DelayedUnitNewData *data = user_data;
+  if (data->delay_id > 0)
+    g_source_remove (data->delay_id);
+  g_free (data->object_path);
+  g_free (data);
+}
+
+static gboolean
+on_delayed_unit_new_timeout (gpointer user_data)
+{
+  DelayedUnitNewData *data = user_data;
+  update_service (data->services, data->object_path);
+  g_hash_table_remove (data->services->delayed_unit_news, data->object_path);
+  return FALSE;
+}
+
 static void
 on_unit_new_signal (GDBusConnection *connection,
                     const gchar *sender_name,
@@ -220,9 +262,29 @@ on_unit_new_signal (GDBusConnection *connection,
   Services *services = user_data;
   const gchar *new_object_path;
   g_variant_get (parameters, "(&s&o)", NULL, &new_object_path);
+  if (!g_hash_table_lookup (services->delayed_unit_news, new_object_path))
+    {
+      DelayedUnitNewData *data = g_new0 (DelayedUnitNewData, 1);
+      data->services = services;
+      data->object_path = g_strdup (new_object_path);
+      data->delay_id = g_timeout_add (100, on_delayed_unit_new_timeout, data);
+      g_hash_table_insert (services->delayed_unit_news, data->object_path, data);
+    }
+}
 
-  if (!g_hash_table_contains (services->objects_being_updated, new_object_path))
-    update_service (services, new_object_path);
+static void
+on_unit_removed_signal (GDBusConnection *connection,
+                        const gchar *sender_name,
+                        const gchar *object_path,
+                        const gchar *interface_name,
+                        const gchar *signal_name,
+                        GVariant *parameters,
+                        gpointer user_data)
+{
+  Services *services = user_data;
+  const gchar *old_object_path;
+  g_variant_get (parameters, "(&s&o)", NULL, &old_object_path);
+  g_hash_table_remove (services->delayed_unit_news, old_object_path);
 }
 
 static void
@@ -282,6 +344,13 @@ services_constructed (GObject *_object)
                                           "/org/freedesktop/systemd1",
                                           NULL, G_DBUS_SIGNAL_FLAGS_NONE,
                                           on_unit_new_signal, services, NULL);
+      g_dbus_connection_signal_subscribe (connection,
+                                          "org.freedesktop.systemd1",
+                                          "org.freedesktop.systemd1.Manager",
+                                          "UnitRemoved",
+                                          "/org/freedesktop/systemd1",
+                                          NULL, G_DBUS_SIGNAL_FLAGS_NONE,
+                                          on_unit_removed_signal, services, NULL);
     }
 
   if (services->systemd)
@@ -294,7 +363,7 @@ services_constructed (GObject *_object)
                        on_subscribe_done,
                        NULL);
 
-  services->objects_being_updated = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  services->delayed_unit_news = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, free_delayed_unit_new);
 
   if (G_OBJECT_CLASS (services_parent_class)->constructed != NULL)
     G_OBJECT_CLASS (services_parent_class)->constructed (_object);

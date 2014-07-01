@@ -421,6 +421,30 @@ PageServices.prototype = {
                 for (i = 0; i < services.length; i++) {
                     service = services[i];
                     if (!pattern || (service[0].match(pattern) && (service[2] != "not-found" || !include_buttons))) {
+                        /* HACK
+                         *
+                         * When description is not set, cockpitd
+                         * couldn't parse the unit file.  We fix that
+                         * up by getting the service info
+                         * asynchronously from systemd directly.
+                         *
+                         * https://github.com/cockpit-project/cockpit/issues/826
+                         */
+                        if (service[1] == "Unknown") {
+                            (function (name) {
+                                me.manager.call('GetServiceInfo', name, function (error, result) {
+                                    if (result) {
+                                        me.update_service(result.Id,
+                                                          result.Description,
+                                                          result.LoadState,
+                                                          result.ActiveState,
+                                                          result.SubState,
+                                                          result.UnitFileState);
+                                    }
+                                });
+                            })(service[0]);
+                        }
+
                         var item = $(render_service (service[0],
                                                      service[1],
                                                      service[2],

@@ -44,8 +44,32 @@ function cockpit_watch_journal (client,
                                  callback (null, error);
                              } else {
                                  callback (result, null);
+
+                                 /* If we have a cursor for the last
+                                  * entry, just follow from there.  If
+                                  * not, the query has probably timed
+                                  * out and we repeat it.
+                                  *
+                                  * However, if a query for 'tail'
+                                  * comes back without a 'last'
+                                  * cursor, it has returned immediatly
+                                  * and not timed out: The journal is
+                                  * completely empty and repeating
+                                  * that query would just put us in a
+                                  * tight loop.  In that case, we
+                                  * follow from 'head', which is
+                                  * correct since the journal is
+                                  * empty.
+                                  *
+                                  * TODO - This is all too
+                                  * complicated.  Replace this with
+                                  * cockpit.spawn("journalctl").
+                                  */
+
                                  if (last)
                                      get_entries (last, 1);
+                                 else if (seek == 'tail')
+                                     get_entries ('head', 0);
                                  else
                                      get_entries (seek, skip);
                              }

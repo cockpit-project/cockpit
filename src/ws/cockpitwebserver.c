@@ -92,6 +92,10 @@ static gint sig_handle_resource = 0;
 
 static void cockpit_request_free (gpointer data);
 
+static void cockpit_request_start (CockpitWebServer *self,
+                                   GIOStream *stream,
+                                   gboolean first);
+
 static void initable_iface_init (GInitableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitWebServer, cockpit_web_server, G_TYPE_OBJECT,
@@ -267,6 +271,44 @@ input_data_clear_and_free (gpointer data)
   g_free (id);
 }
 
+static void
+on_io_closed (GObject *stream,
+              GAsyncResult *result,
+              gpointer user_data)
+{
+  GError *error = NULL;
+
+  if (!g_io_stream_close_finish (G_IO_STREAM (stream), result, &error))
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
+        g_debug ("http close error: %s", error->message);
+      else
+        g_message ("http close error: %s", error->message);
+      g_error_free (error);
+    }
+}
+
+static void
+close_io_stream (GIOStream *io)
+{
+  g_io_stream_close_async (io, G_PRIORITY_DEFAULT, NULL, on_io_closed, NULL);
+}
+
+static void
+on_web_response_done (CockpitWebResponse *response,
+                      gboolean reusable,
+                      gpointer user_data)
+{
+  CockpitWebServer *self = user_data;
+  GIOStream *io;
+
+  io = cockpit_web_response_get_stream (response);
+  if (reusable)
+    cockpit_request_start (self, io, FALSE);
+  else
+    close_io_stream (io);
+}
+
 static gboolean
 cockpit_web_server_default_handle_stream (CockpitWebServer *self,
                                           CockpitWebServerRequestType reqtype,
@@ -324,7 +366,9 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
     *pos = '\0';
 
   /* TODO: Correct HTTP version for response */
-  response = cockpit_web_response_new (io_stream, path);
+  response = cockpit_web_response_new (io_stream, path, headers);
+  g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
+                         g_object_ref (self), (GClosureNotify)g_object_unref, 0);
 
   /*
    * If the path has more than one component, then we search
@@ -633,6 +677,7 @@ typedef struct {
   GByteArray *buffer;
   gint delayed_reply;
   CockpitWebServer *web_server;
+  gboolean eof_okay;
   GSource *source;
   GSource *timeout;
 } CockpitRequest;
@@ -681,7 +726,9 @@ process_delayed_reply (CockpitRequest *request,
 
   g_assert (request->delayed_reply > 299);
 
-  response = cockpit_web_response_new (request->io, NULL);
+  response = cockpit_web_response_new (request->io, NULL, headers);
+  g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
+                         g_object_ref (request->web_server), (GClosureNotify)g_object_unref, 0);
 
   if (request->delayed_reply == 301)
     {
@@ -700,10 +747,12 @@ process_delayed_reply (CockpitRequest *request,
       if (cockpit_web_response_queue (response, bytes))
         cockpit_web_response_complete (response);
       g_bytes_unref (bytes);
-      return;
+    }
+  else
+    {
+      cockpit_web_response_error (response, request->delayed_reply, NULL, NULL);
     }
 
-  cockpit_web_response_error (response, request->delayed_reply, NULL, NULL);
   g_object_unref (response);
 }
 
@@ -850,9 +899,6 @@ parse_and_process_request (CockpitRequest *request)
   /*
    * TODO: the following are not implemented and required by HTTP/1.1
    *  * Transfer-Encoding: chunked (for requests)
-   *
-   * TODO: The following would help speed up cockpit:
-   *  * keep-alives
    */
 
   str = g_hash_table_lookup (headers, "Host");
@@ -925,10 +971,16 @@ on_request_input (GObject *pollable_input,
 
   if (count == 0)
     {
-      g_debug ("caller closed connection early");
+      if (request->eof_okay)
+        close_io_stream (request->io);
+      else
+        g_debug ("caller closed connection early");
       cockpit_request_finish (request);
       return FALSE;
     }
+
+  /* Once we receive data EOF is unexpected (until possible next request) */
+  request->eof_okay = FALSE;
 
   return parse_and_process_request (request);
 }
@@ -1063,6 +1115,54 @@ on_request_timeout (gpointer data)
   return FALSE;
 }
 
+static void
+cockpit_request_start (CockpitWebServer *self,
+                       GIOStream *io,
+                       gboolean first)
+{
+  GSocketConnection *connection;
+  CockpitRequest *request;
+  gboolean input = TRUE;
+  GSocket *socket;
+
+  request = g_new0 (CockpitRequest, 1);
+  request->web_server = self;
+  request->io = g_object_ref (io);
+  request->buffer = g_byte_array_new ();
+
+  /* Right before a successive request, EOF is not unexpected */
+  request->eof_okay = !first;
+
+  request->timeout = g_timeout_source_new_seconds (cockpit_ws_request_timeout);
+  g_source_set_callback (request->timeout, on_request_timeout, request, NULL);
+  g_source_attach (request->timeout, self->main_context);
+
+  if (first)
+    {
+      connection = G_SOCKET_CONNECTION (io);
+      socket = g_socket_connection_get_socket (connection);
+      g_socket_set_blocking (socket, FALSE);
+
+      if (self->certificate)
+        {
+          request->source = g_socket_create_source (g_socket_connection_get_socket (connection),
+                                                    G_IO_IN, NULL);
+          g_source_set_callback (request->source, (GSourceFunc)on_socket_input, request, NULL);
+          g_source_attach (request->source, self->main_context);
+
+          /* Wait on reading input */
+          input = FALSE;
+        }
+
+    }
+
+  /* Owns the request */
+  g_hash_table_add (self->requests, request);
+
+  if (input)
+    start_request_input (request);
+}
+
 static gboolean
 on_incoming (GSocketService *service,
              GSocketConnection *connection,
@@ -1070,35 +1170,7 @@ on_incoming (GSocketService *service,
              gpointer user_data)
 {
   CockpitWebServer *self = COCKPIT_WEB_SERVER (user_data);
-  CockpitRequest *request;
-  GSocket *socket;
-
-  request = g_new0 (CockpitRequest, 1);
-  request->web_server = self;
-  request->io = g_object_ref (connection);
-  request->buffer = g_byte_array_new ();
-
-  request->timeout = g_timeout_source_new_seconds (cockpit_ws_request_timeout);
-  g_source_set_callback (request->timeout, on_request_timeout, request, NULL);
-  g_source_attach (request->timeout, self->main_context);
-
-  socket = g_socket_connection_get_socket (connection);
-  g_socket_set_blocking (socket, FALSE);
-
-  /* Owns the request */
-  g_hash_table_add (self->requests, request);
-
-  if (self->certificate)
-    {
-      request->source = g_socket_create_source (g_socket_connection_get_socket (connection),
-                                                G_IO_IN, NULL);
-      g_source_set_callback (request->source, (GSourceFunc)on_socket_input, request, NULL);
-      g_source_attach (request->source, self->main_context);
-    }
-  else
-    {
-      start_request_input (request);
-    }
+  cockpit_request_start (self, G_IO_STREAM (connection), TRUE);
 
   /* handled */
   return TRUE;

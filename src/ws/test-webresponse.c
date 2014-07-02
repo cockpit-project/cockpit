@@ -44,6 +44,8 @@ typedef struct {
 
 typedef struct {
     const gchar *path;
+    const gchar *header;
+    const gchar *value;
 } TestFixture;
 
 static void
@@ -63,6 +65,7 @@ setup (TestCase *tc,
 {
   const TestFixture *fixture = data;
   const gchar *path = NULL;
+  GHashTable *headers = NULL;
   GInputStream *input;
   GIOStream *io;
 
@@ -74,7 +77,16 @@ setup (TestCase *tc,
   io = mock_io_stream_new (input, tc->output);
   g_object_unref (input);
 
-  tc->response = cockpit_web_response_new (io, path);
+  if (fixture && fixture->header)
+    {
+      headers = cockpit_web_server_new_table ();
+      g_hash_table_insert (headers, g_strdup (fixture->header), g_strdup (fixture->value));
+    }
+
+  tc->response = cockpit_web_response_new (io, path, headers);
+
+  if (headers)
+    g_hash_table_unref (headers);
   g_object_unref (io);
 
   tc->sig_done = g_signal_connect (tc->response, "done",
@@ -98,7 +110,7 @@ teardown (TestCase *tc,
 static const gchar *
 output_as_string (TestCase *tc)
 {
-  while (!g_output_stream_is_closed (G_OUTPUT_STREAM (tc->output)))
+  while (!tc->response_done)
     g_main_context_iteration (NULL, TRUE);
 
   g_free (tc->scratch);
@@ -119,7 +131,7 @@ test_return_content (TestCase *tc,
   g_bytes_unref (content);
 
   resp = output_as_string (tc);
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nthe content");
 }
 
 static void
@@ -139,7 +151,7 @@ test_return_content_headers (TestCase *tc,
   g_hash_table_destroy (headers);
 
   resp = output_as_string (tc);
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nMy-header: my-value\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nMy-header: my-value\r\nContent-Length: 11\r\n\r\nthe content");
 }
 
 
@@ -155,7 +167,7 @@ test_return_error (TestCase *tc,
 
   resp = output_as_string (tc);
   g_assert_cmpstr (resp, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\nConnection: close\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+    "HTTP/1.1 500 Reason here: booyah\r\nContent-Length: 96\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
 }
 
 static void
@@ -176,7 +188,7 @@ test_return_error_headers (TestCase *tc,
 
   resp = output_as_string (tc);
   g_assert_cmpstr (resp, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nHeader1: value1\r\nContent-Length: 96\r\nConnection: close\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+    "HTTP/1.1 500 Reason here: booyah\r\nHeader1: value1\r\nContent-Length: 96\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
 }
 
 static void
@@ -200,7 +212,7 @@ test_return_gerror_headers (TestCase *tc,
 
   resp = output_as_string (tc);
   g_assert_cmpstr (resp, ==,
-    "HTTP/1.1 500 Reason here: booyah\r\nHeader1: value1\r\nContent-Length: 96\r\nConnection: close\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
+    "HTTP/1.1 500 Reason here: booyah\r\nHeader1: value1\r\nContent-Length: 96\r\n\r\n<html><head><title>500 Reason here: booyah</title></head><body>Reason here: booyah</body></html>");
 }
 
 static void
@@ -331,7 +343,7 @@ test_stream (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nthe content");
 }
 
 static void
@@ -370,10 +382,18 @@ test_chunked_transfer_encoding (TestCase *tc,
   resp = output_as_string (tc);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n"
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
                    "26\r\nCockpit is perfect for new sysadmins, \r\n"
                    "4d\r\nallowing them to easily perform simple tasks such as storage administration, \r\n"
                    "37\r\ninspecting journals and starting and stopping services.\r\n0\r\n\r\n");
+}
+
+static void
+on_response_done_not_resuable (CockpitWebResponse *response,
+                               gboolean reusable,
+                               gpointer user_data)
+{
+  g_assert (reusable == FALSE);
 }
 
 static void
@@ -384,6 +404,7 @@ test_abort (TestCase *tc,
   GBytes *content;
 
   cockpit_web_response_headers (tc->response, 200, "OK", 11, NULL);
+  g_signal_connect (tc->response, "done", G_CALLBACK (on_response_done_not_resuable), NULL);
 
   while (g_main_context_iteration (NULL, FALSE));
 
@@ -396,8 +417,33 @@ test_abort (TestCase *tc,
 
   resp = output_as_string (tc);
 
-  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\n");
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\n");
 }
+
+static const TestFixture fixture_connection_close = {
+  .header = "Connection",
+  .value = "close",
+};
+
+static void
+test_connection_close (TestCase *tc,
+                       gconstpointer data)
+{
+  const gchar *resp;
+  GBytes *content;
+
+  g_assert (data == &fixture_connection_close);
+
+  g_signal_connect (tc->response, "done", G_CALLBACK (on_response_done_not_resuable), NULL);
+
+  content = g_bytes_new_static ("the content", 11);
+  cockpit_web_response_content (tc->response, NULL, content, NULL);
+  g_bytes_unref (content);
+
+  resp = output_as_string (tc);
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
+}
+
 
 int
 main (int argc,
@@ -438,6 +484,8 @@ main (int argc,
               setup, test_chunked_transfer_encoding, teardown);
   g_test_add ("/web-response/abort", TestCase, NULL,
               setup, test_abort, teardown);
+  g_test_add ("/web-response/connection-close", TestCase, &fixture_connection_close,
+              setup, test_connection_close, teardown);
 
   ret = g_test_run ();
 

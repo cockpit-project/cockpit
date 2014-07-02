@@ -39,7 +39,8 @@ typedef struct _CockpitWebResponse        CockpitWebResponse;
 GType                 cockpit_web_response_get_type      (void) G_GNUC_CONST;
 
 CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
-                                                          const gchar *path);
+                                                          const gchar *path,
+                                                          GHashTable *in_headers);
 
 const gchar *         cockpit_web_response_get_path      (CockpitWebResponse *self);
 

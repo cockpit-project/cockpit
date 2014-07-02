@@ -135,19 +135,19 @@ Authorization Implementation
 
 Given that the goal of both polkit and sudo is to check whether the user is
 present at the machine, we provide that reauthorization from cockpit-ws, and
-verify it in the pam_authorize.so PAM module.
+verify it in the pam_reauthorize.so PAM module.
 
 At a high level here's what happens. First during initial authentication
 of the user:
 
- * The pam_authorize.so module is present late in "auth" stack.
+ * The pam_reauthorize.so module is present late in "auth" stack.
    * If root is being authenticated then bail
    * If ```geteuid() != 0``` then bail
    * If a PAM authtok password is present:
       * ```salt = "$6$" encode_alnum(read("/dev/urandom", 16))```
       * ```secret = crypt(authtok, salt)```
       * Save ```secret``` for session handler
- * The pam_authorize.so module is present late in "session" stack.
+ * The pam_reauthorize.so module is present late in "session" stack.
    * If ```secret``` was saved by "auth" handler, place this in the
      session kernel keyring, owned by root, and readable only
      by root.
@@ -265,7 +265,7 @@ GSSAPI, and as such will have similar replay prevention characteristics to GSSAP
 PAM usage
 ---------
 
-The pam_authorize.so PAM module is in the PAM auth and session stacks
+The pam_reauthorize.so PAM module is in the PAM auth and session stacks
 for the following (below some other PAM module that has authenticated
 the user):
 

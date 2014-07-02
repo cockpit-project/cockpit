@@ -578,9 +578,9 @@ PageRunImage.prototype = {
         var checked;
         var value;
 
-        PageRunImage.client.get_sys_memory().
-            done(function (max) {
-                page.memory_slider.max = max;
+        PageRunImage.client.machine_info().
+            done(function (info) {
+                page.memory_slider.max = info.memory;
             });
 
         /* Memory slider defaults */
@@ -1021,9 +1021,9 @@ PageContainerDetails.prototype = {
         this.container_id = cockpit_get_page_param('id');
         this.name = this.container_id.slice(0,12);
 
-        this.client.get_sys_memory().
-            done(function(max) {
-                self.memory_limit.max = max;
+        this.client.machine_info().
+            done(function(info) {
+                self.memory_limit.max = info.memory;
             });
 
         // Just for watching
@@ -1772,23 +1772,8 @@ function DockerClient(machine) {
                                           is_container);
     };
 
-    var sys_memory_dfd = null;
-
-    this.get_sys_memory = function get_sys_memory() {
-        if (!sys_memory_dfd) {
-            sys_memory_dfd = new $.Deferred();
-            cockpit.spawn(["/bin/cat", "/proc/meminfo"], { host: machine }).
-                done(function(meminfo) {
-                    var match = meminfo.match(/MemTotal:[^0-9]*([0-9]+) kB/);
-                    var total_kb = match && parseInt(match[1], 10);
-                    if (total_kb)
-                        sys_memory_dfd.resolve(total_kb*1024);
-                }).
-                fail(function(ex) {
-                    console.warn(ex);
-                });
-        }
-        return sys_memory_dfd.promise();
+    this.machine_info = function machine_info() {
+        return cockpit.util.machine_info(machine);
     };
 
     this.close = function close() {

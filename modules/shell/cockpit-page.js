@@ -404,6 +404,11 @@ Location.prototype = {
     go_up: function() {
         if (this.can_go())
             cockpit_go_up();
+    },
+
+    go: function(trail) {
+        if (this.can_go())
+            cockpit_go(trail);
     }
 };
 

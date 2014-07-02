@@ -633,7 +633,7 @@ function cockpit_get_free_block_devices(client, filter)
         var o = objs[n];
         var b = o.lookup("com.redhat.Cockpit.Storage.Block");
 
-        if (b && b.Size > 0 && !has_fs_label(b) && !b.PartitionTableType && !is_extended_partition(b) &&
+        if (b && !b.HintIgnore && b.Size > 0 && !has_fs_label(b) && !b.PartitionTableType && !is_extended_partition(b) &&
             !(filter && filter(b)))
             result.push(b);
     }

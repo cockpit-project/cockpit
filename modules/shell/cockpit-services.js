@@ -491,7 +491,7 @@ PageServiceAdd.prototype = {
 
     add: function() {
         $('#service-add-dialog').modal('hide');
-        cockpit.spawn([ "/usr/bin/gear", "install", $('#service-add-image').val(), $('#service-add-name').val() ],
+        cockpit.spawn([ "/usr/bin/gear", "install", "--has-foreground", $('#service-add-image').val(), $('#service-add-name').val() ],
                       { host: PageServiceAdd.address }).
             fail(cockpit_show_unexpected_error);
     }

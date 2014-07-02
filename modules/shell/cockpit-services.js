@@ -201,6 +201,8 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
 PageServices.prototype = {
     _init: function() {
         this.id = "services";
+        this.geard_check_done = false;
+        this.geard_present = false;
     },
 
     getTitle: function() {
@@ -218,6 +220,19 @@ PageServices.prototype = {
     enter: function() {
         var me = this;
 
+        me.address = cockpit_get_page_param('machine', 'server') || "localhost";
+
+        if (!me.geard_check_done) {
+            var location = cockpit.location();
+            me.geard_check_done = true;
+            cockpit.spawn([ "/bin/test", "-x", "/usr/bin/gear" ],
+                          { host: me.address }).
+                done(function () {
+                    me.geard_present = true;
+                    location.go(cockpit_loc_trail);
+                });
+        }
+
         function tabbtn(title, id, val, active, attrs) {
             var btn =
                 $('<label class="btn btn-default">').append(
@@ -233,21 +248,26 @@ PageServices.prototype = {
             return btn;
         }
 
+        var my_services_btn = null;
+        if (me.geard_present) {
+            my_services_btn =
+                tabbtn(_("Services"),        "services-filter-my-services", "^ctr-.*\\.service$", true,
+                       { "data-show-graphs": true, "data-include-buttons": true });
+        }
+
         $('#content-header-extra').append(
             $('<div class="btn-group" data-toggle="buttons">').append(
-                tabbtn(_("Services"),        "services-filter-my-services", "^ctr-.*\\.service$", true,
-                       { "data-show-graphs": true, "data-include-buttons": true }),
-                tabbtn(_("Targets"),         "services-filter-targets",     "\\.target$",         false),
-                tabbtn(_("System Services"), "services-filter-services",    "\\.service$",        false),
-                tabbtn(_("Sockets"),         "services-filter-sockets",     "\\.socket$",         false),
-                tabbtn(_("Timers"),          "services-filter-timers",      "\\.timer$",          false),
-                tabbtn(_("Paths"),           "services-filter-paths",       "\\.path$",           false)));
+                my_services_btn,
+                tabbtn(_("Targets"),         "services-filter-targets",     "\\.target$",  false),
+                tabbtn(_("System Services"), "services-filter-services",    "\\.service$", !my_services_btn),
+                tabbtn(_("Sockets"),         "services-filter-sockets",     "\\.socket$",  false),
+                tabbtn(_("Timers"),          "services-filter-timers",      "\\.timer$",   false),
+                tabbtn(_("Paths"),           "services-filter-paths",       "\\.path$",    false)));
 
         $('#content-header-extra input').on('change', function (event) {
             me.update();
         });
 
-        me.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(me.client);

@@ -188,6 +188,9 @@ perform_http_request (const gchar *hostport,
                              request, strlen (request), NULL, NULL, &error);
   g_assert_no_error (error);
 
+  g_socket_shutdown (g_socket_connection_get_socket (conn), FALSE, TRUE, &error);
+  g_assert_no_error (error);
+
   reply = g_string_new ("");
   input = g_io_stream_get_input_stream (G_IO_STREAM (conn));
   for (;;)

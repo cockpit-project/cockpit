@@ -581,6 +581,9 @@ function cockpit_find_cleartext_device(block)
 
 function cockpit_raid_get_desc(raid)
 {
+    if (!raid.Name)
+        return "";
+
     var parts = raid.Name.split(":");
 
     if (parts.length != 2)
@@ -1257,7 +1260,7 @@ PageStorageDetail.prototype = {
                      "raid5": _("RAID 5"),
                      "raid6": _("RAID 6"),
                      "raid10": _("RAID 10")
-                   }[str] || F(_("RAID (%{level})"), str);
+                   }[str] || F(_("RAID (%{level})"), { level: str });
         }
 
         var raid = this._mdraid;
@@ -1362,7 +1365,7 @@ PageStorageDetail.prototype = {
         }
 
         var disks = $("#raid-disks");
-        var info = this._mdraid.ActiveDevices;
+        var info = this._mdraid.ActiveDevices || [];
         var i, j, slot, drive, states, state_html, num_errors;
 
         disks.empty();
@@ -1394,7 +1397,7 @@ PageStorageDetail.prototype = {
                     $('<table style="width:100%">').append(
                         $('<tr>').append(
                             $('<td style="width:20px;text-align:center">').text((slot < 0)? "--" : slot),
-                            $('<td>').text(drive? drive.Name : block.Device),
+                            $('<td>').text(drive? drive.Name : (block? block.Device : "")),
                             $('<td style="width:100px;text-align:right">').html(state_html),
                             $('<td style="text-align:right">').append(
                                 $('<button>', { 'class': 'btn btn-default',

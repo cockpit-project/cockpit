@@ -623,4 +623,36 @@ function uuid() {
     });
 }
 
+/* - cockpit.util.machine_info(address).done(function (info) { })
+ *
+ * Get information about the machine at ADDRESS.  The returned object
+ * has these fields:
+ *
+ * memory  -  amount of physical memory
+ */
+
+var machine_info_promises = { };
+
+cockpit.util.machine_info = machine_info;
+function machine_info(address) {
+    var pr = machine_info_promises[address];
+    var dfd;
+    if (!pr) {
+        dfd = $.Deferred();
+        machine_info_promises[address] = pr = dfd.promise();
+
+        cockpit.spawn(["/bin/cat", "/proc/meminfo"], { host: address }).
+            done(function(meminfo) {
+                var match = meminfo.match(/MemTotal:[^0-9]*([0-9]+) kB/);
+                var total_kb = match && parseInt(match[1], 10);
+                if (total_kb)
+                    dfd.resolve({ memory: total_kb*1024 });
+            }).
+            fail(function() {
+                dfd.fail();
+            });
+    }
+    return pr;
+}
+
 })(cockpit);

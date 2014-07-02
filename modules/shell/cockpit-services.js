@@ -218,33 +218,30 @@ PageServices.prototype = {
     enter: function() {
         var me = this;
 
-        $('#content-header-extra').append(' \
-            <div class="btn-group" data-toggle="buttons"> \
-              <label class="btn btn-default active" translatable="yes">Services \
-                <input type="radio" name="services-filter" id="services-filter-my-services" \
-                       value="^ctr-.*\\.service$"/ checked="checked" data-show-graphs data-include-buttons> \
-              </label> \
-              <label class="btn btn-default" translatable="yes">Targets \
-                <input type="radio" name="services-filter" id="services-filter-targets" \
-                       value="\\.target$"/> \
-              </label> \
-              <label class="btn btn-default" translatable="yes">System Services \
-                <input type="radio" name="services-filter" id="services-filter-services" \
-                       value="\\.service$"/> \
-              </label> \
-              <label class="btn btn-default" translatable="yes">Sockets \
-                <input type="radio" name="services-filter" id="services-filter-sockets" \
-                       value="\\.socket$"/> \
-              </label> \
-              <label class="btn btn-default" translatable="yes">Timers \
-                <input type="radio" name="services-filter" id="services-filter-timers" \
-                       value="\\.timer$"/> \
-              </label> \
-              <label class="btn btn-default" translatable="yes">Paths \
-                <input type="radio" name="services-filter" id="services-filter-paths" \
-                       value="\\.path$"/> \
-              </label> \
-            </div>');
+        function tabbtn(title, id, val, active, attrs) {
+            var btn =
+                $('<label class="btn btn-default">').append(
+                    title,
+                    $('<input>', $.extend({ id: id,
+                                            type: "radio",
+                                            name: "services-filter",
+                                            value: val,
+                                            checked: active? "checked" : undefined
+                                          }, attrs)));
+            if (active)
+                btn.addClass("active");
+            return btn;
+        }
+
+        $('#content-header-extra').append(
+            $('<div class="btn-group" data-toggle="buttons">').append(
+                tabbtn(_("Services"),        "services-filter-my-services", "^ctr-.*\\.service$", true,
+                       { "data-show-graphs": true, "data-include-buttons": true }),
+                tabbtn(_("Targets"),         "services-filter-targets",     "\\.target$",         false),
+                tabbtn(_("System Services"), "services-filter-services",    "\\.service$",        false),
+                tabbtn(_("Sockets"),         "services-filter-sockets",     "\\.socket$",         false),
+                tabbtn(_("Timers"),          "services-filter-timers",      "\\.timer$",          false),
+                tabbtn(_("Paths"),           "services-filter-paths",       "\\.path$",           false)));
 
         $('#content-header-extra input').on('change', function (event) {
             me.update();

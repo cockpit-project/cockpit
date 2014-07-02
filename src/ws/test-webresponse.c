@@ -38,11 +38,24 @@ typedef struct {
     CockpitWebResponse *response;
     GOutputStream *output;
     gchar *scratch;
+    gboolean response_done;
+    gulong sig_done;
 } TestCase;
 
 typedef struct {
     const gchar *path;
 } TestFixture;
+
+static void
+on_response_done (CockpitWebResponse *response,
+                  gboolean reusable,
+                  gpointer user_data)
+{
+  gboolean *response_done = user_data;
+  g_assert (response_done != NULL);
+  g_assert (*response_done == FALSE);
+  *response_done = TRUE;
+}
 
 static void
 setup (TestCase *tc,
@@ -63,12 +76,20 @@ setup (TestCase *tc,
 
   tc->response = cockpit_web_response_new (io, path);
   g_object_unref (io);
+
+  tc->sig_done = g_signal_connect (tc->response, "done",
+                                   G_CALLBACK (on_response_done),
+                                   &tc->response_done);
 }
 
 static void
 teardown (TestCase *tc,
           gconstpointer data)
 {
+  while (g_main_context_iteration (NULL, FALSE));
+  g_assert (tc->response_done);
+
+  g_signal_handler_disconnect (tc->response, tc->sig_done);
   g_clear_object (&tc->output);
   g_clear_object (&tc->response);
   g_free (tc->scratch);

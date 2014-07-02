@@ -69,6 +69,8 @@ typedef struct {
   GObjectClass parent;
 } CockpitWebResponseClass;
 
+static guint signal__done;
+
 G_DEFINE_TYPE (CockpitWebResponse, cockpit_web_response, G_TYPE_OBJECT);
 
 static void
@@ -80,6 +82,10 @@ cockpit_web_response_init (CockpitWebResponse *self)
 static void
 cockpit_web_response_done (CockpitWebResponse *self)
 {
+  gboolean reusable = FALSE;
+
+  g_object_ref (self);
+
   g_assert (!self->done);
   self->done = TRUE;
 
@@ -96,6 +102,8 @@ cockpit_web_response_done (CockpitWebResponse *self)
 
   if (self->complete)
     {
+      /* TODO: This should depend on keep alive */
+      reusable = TRUE;
       g_object_unref (self);
     }
   else if (!self->failed)
@@ -103,6 +111,9 @@ cockpit_web_response_done (CockpitWebResponse *self)
       g_critical ("A CockpitWebResponse was freed without being completed properly. "
                   "This is a programming error.");
     }
+
+  g_signal_emit (self, signal__done, 0, reusable);
+  g_object_unref (self);
 }
 
 static void
@@ -136,6 +147,11 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
 
   gobject_class->dispose = cockpit_web_response_dispose;
   gobject_class->finalize = cockpit_web_response_finalize;
+
+  signal__done = g_signal_new ("done", COCKPIT_TYPE_WEB_RESPONSE,
+                               G_SIGNAL_RUN_LAST,
+                               0, NULL, NULL, NULL,
+                               G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
 }
 
 /**

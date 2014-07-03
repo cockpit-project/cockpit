@@ -140,6 +140,8 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     {
         if (plot && running) {
             plot.setData(data);
+            if (user_options.setup_hook)
+                user_options.setup_hook(plot);
             plot.setupGrid();
             plot.draw();
         }
@@ -281,7 +283,7 @@ function cockpit_setup_simple_plot (plot_id,
 // ----------------------------------------------------------------------------------------------------
 
 function cockpit_setup_cgroups_plot (element, monitor, sample_index, colors,
-                                     is_interesting)
+                                     is_interesting, setup_hook)
 {
     var self = this;
     var max_consumers = colors.length-1;
@@ -339,7 +341,8 @@ function cockpit_setup_cgroups_plot (element, monitor, sample_index, colors,
                                { colors: colors,
                                  grid: { hoverable: true,
                                          autoHighlight: false
-                                       }
+                                       },
+                                 setup_hook: setup_hook
                                },
                                store_samples);
     $(monitor).on("notify:Consumers", update_consumers);

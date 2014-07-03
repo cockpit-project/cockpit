@@ -65,7 +65,14 @@ PageServer.prototype = {
 
         $('#server-avatar').css('background-image', 'url(' + prefix + '/images/server-large.png)');
 
-        var plot_options = { };
+        function network_setup_hook(plot) {
+            var axes = plot.getAxes();
+            if (axes.yaxis.datamax < 100000)
+                axes.yaxis.options.max = 100000;
+            else
+                axes.yaxis.options.max = null;
+            axes.yaxis.options.min = 0;
+        }
 
         var monitor = self.client.get("/com/redhat/Cockpit/CpuMonitor",
                                       "com.redhat.Cockpit.ResourceMonitor");
@@ -73,7 +80,7 @@ PageServer.prototype = {
             cockpit_setup_simple_plot("#server_cpu_graph",
                                       "#server_cpu_text",
                                       monitor,
-                                      plot_options,
+                                      { },
                                       function(values) { // Combines the series into a single plot-value
                                           return values[1] + values[2] + values[3];
                                       },
@@ -88,7 +95,7 @@ PageServer.prototype = {
             cockpit_setup_simple_plot("#server_memory_graph",
                                       "#server_memory_text",
                                       monitor,
-                                      plot_options,
+                                      { },
                                       function(values) { // Combines the series into a single plot-value
                                           return values[1] + values[2] + values[3];
                                       },
@@ -103,7 +110,7 @@ PageServer.prototype = {
             cockpit_setup_simple_plot("#server_network_traffic_graph",
                                       "#server_network_traffic_text",
                                       monitor,
-                                      plot_options,
+                                      { setup_hook: network_setup_hook },
                                       function(values) { // Combines the series into a single plot-value
                                           return values[0] + values[1];
                                       },
@@ -118,7 +125,7 @@ PageServer.prototype = {
             cockpit_setup_simple_plot("#server_disk_io_graph",
                                       "#server_disk_io_text",
                                       monitor,
-                                      plot_options,
+                                      { },
                                       function(values) { // Combines the series into a single plot-value
                                           return values[0] + values[1];
                                       },

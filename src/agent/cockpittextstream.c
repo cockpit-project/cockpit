@@ -23,6 +23,8 @@
 
 #include "common/cockpitpipe.h"
 
+#include "common/cockpitunixsignal.h"
+
 #include <gio/gunixsocketaddress.h>
 
 #include <sys/wait.h>
@@ -159,6 +161,7 @@ on_pipe_close (CockpitPipe *pipe,
   CockpitTextStream *self = user_data;
   CockpitChannel *channel = user_data;
   gint status;
+  gchar *signal;
 
   self->open = FALSE;
 
@@ -168,7 +171,11 @@ on_pipe_close (CockpitPipe *pipe,
       if (WIFEXITED (status))
         cockpit_channel_close_int_option (channel, "exit-status", WEXITSTATUS (status));
       else if (WIFSIGNALED (status))
-        cockpit_channel_close_int_option (channel, "exit-signal", WTERMSIG (status));
+        {
+          signal = cockpit_strsignal (WTERMSIG (status));
+          cockpit_channel_close_option (channel, "exit-signal", signal);
+          g_free (signal);
+        }
       else if (status)
         cockpit_channel_close_int_option (channel, "exit-status", -1);
     }

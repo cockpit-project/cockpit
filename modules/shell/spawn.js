@@ -67,14 +67,13 @@ var cockpit = cockpit || { };
     "use strict";
 
     /* Translates HTTP error codes to Cockpit codes */
-    function ProcessError(arg0, arg1) {
+    function ProcessError(arg0, signal) {
         var status = parseInt(arg0, 10);
-        var signal = parseInt(arg1, 10);
-        if (isNaN(status) && isNaN(signal)) {
+        if (arg0 !== undefined && isNaN(status)) {
             this.problem = arg0;
             this.exit_status = NaN;
-            this.exit_signal = NaN;
-            this.message = arg1 || arg0;
+            this.exit_signal = null;
+            this.message = arg0;
         } else {
             this.exit_status = status;
             this.exit_signal = signal;

@@ -47,6 +47,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpittransport.h \
 	src/common/cockpitunixfd.c \
 	src/common/cockpitunixfd.h \
+	src/common/cockpitunixsignal.c \
+	src/common/cockpitunixsignal.h \
 	$(NULL)
 
 libcockpit_common_a_CFLAGS = \
@@ -66,6 +68,7 @@ COCKPIT_CHECKS = \
 	test-json \
 	test-pipe \
 	test-transport \
+	test-unixsignal \
 	$(NULL)
 
 test_json_CFLAGS = $(libcockpit_common_a_CFLAGS)
@@ -79,6 +82,10 @@ test_pipe_LDADD = $(libcockpit_common_a_LIBS)
 test_transport_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_transport_SOURCES = src/common/test-transport.c
 test_transport_LDADD = $(libcockpit_common_a_LIBS)
+
+test_unixsignal_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_unixsignal_SOURCES = src/common/test-unixsignal.c
+test_unixsignal_LDADD = $(libcockpit_common_a_LIBS)
 
 noinst_PROGRAMS += $(COCKPIT_CHECKS)
 TESTS += $(COCKPIT_CHECKS)

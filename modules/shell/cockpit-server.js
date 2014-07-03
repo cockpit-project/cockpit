@@ -128,6 +128,14 @@ PageServer.prototype = {
                                       });
 
 
+        cockpit.util.machine_info(this.address).
+            done(function (info) {
+                // TODO - round memory to something nice and/or adjust
+                //        the ticks.
+                self.cpu_plot.set_yaxis_max(info.cpus*100);
+                self.memory_plot.set_yaxis_max(info.memory);
+            });
+
         self.update_avatar ();
     },
 

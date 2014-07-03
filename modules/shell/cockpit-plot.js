@@ -282,8 +282,8 @@ function cockpit_setup_simple_plot (plot_id,
 
 // ----------------------------------------------------------------------------------------------------
 
-function cockpit_setup_cgroups_plot (element, monitor, sample_index, colors,
-                                     is_interesting, setup_hook)
+function cockpit_setup_multi_plot (element, monitor, sample_index, colors,
+                                   is_interesting, setup_hook)
 {
     var self = this;
     var max_consumers = colors.length-1;

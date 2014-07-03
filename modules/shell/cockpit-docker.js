@@ -1768,8 +1768,8 @@ function DockerClient(machine) {
             return !!container_from_cgroup(cgroup);
         }
 
-        return cockpit_setup_cgroups_plot(element, monitor, sample_index, colors,
-                                          is_container);
+        return cockpit_setup_multi_plot(element, monitor, sample_index, colors,
+                                        is_container);
     };
 
     this.machine_info = function machine_info() {

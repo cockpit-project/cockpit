@@ -1063,6 +1063,15 @@ function render_active_connection(dev, with_link) {
     return $('<span>').text(parts.join(", "));
 }
 
+function network_plot_setup_hook(plot) {
+    var axes = plot.getAxes();
+    if (axes.yaxis.datamax < 100000)
+        axes.yaxis.options.max = 100000;
+    else
+        axes.yaxis.options.max = null;
+    axes.yaxis.options.min = 0;
+}
+
 PageNetworking.prototype = {
     _init: function () {
         this.id = "networking";
@@ -1119,14 +1128,14 @@ PageNetworking.prototype = {
         $(this.monitor).on('NewSample.networking', render_samples);
 
         this.rx_plot = cockpit_setup_cgroups_plot ('#networking-rx-graph', this.monitor, 0, blues.concat(blues),
-                                                   is_interesting_netdev);
+                                                   is_interesting_netdev, network_plot_setup_hook);
         $(this.rx_plot).on('update-total', function (event, total) {
             $('#networking-rx-text').text(cockpit_format_bytes_per_sec(total));
         });
         $(this.rx_plot).on('highlight', highlight_netdev_row);
 
         this.tx_plot = cockpit_setup_cgroups_plot ('#networking-tx-graph', this.monitor, 1, blues.concat(blues),
-                                                   is_interesting_netdev);
+                                                   is_interesting_netdev, network_plot_setup_hook);
         $(this.tx_plot).on('update-total', function (event, total) {
             $('#networking-tx-text').text(cockpit_format_bytes_per_sec(total));
         });
@@ -1319,13 +1328,15 @@ PageNetworkInterface.prototype = {
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 
         this.rx_plot = cockpit_setup_cgroups_plot ('#network-interface-rx-graph', this.monitor, 0,
-                                                   blues.concat(blues), is_interesting_netdev);
+                                                   blues.concat(blues), is_interesting_netdev,
+                                                   network_plot_setup_hook);
         $(this.rx_plot).on('update-total', function (event, total) {
             $('#network-interface-rx-text').text(cockpit_format_bytes_per_sec(total));
         });
 
         this.tx_plot = cockpit_setup_cgroups_plot ('#network-interface-tx-graph', this.monitor, 1,
-                                                   blues.concat(blues), is_interesting_netdev);
+                                                   blues.concat(blues), is_interesting_netdev,
+                                                   network_plot_setup_hook);
         $(this.tx_plot).on('update-total', function (event, total) {
             $('#network-interface-tx-text').text(cockpit_format_bytes_per_sec(total));
         });

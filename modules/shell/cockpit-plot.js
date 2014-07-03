@@ -100,6 +100,20 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
         inner_div.height(outer_div.height());
     }
 
+    // Updating flot options is tricky and somewhat implementation
+    // defined.  Different options needs different approaches.  So we
+    // just have very specific functions for changing specific options
+    // until a pattern emerges.
+
+    function set_yaxis_max (max) {
+        if (plot) {
+            plot.getAxes().yaxis.options.max = max;
+            refresh ();
+        } else {
+            options.yaxis.max = max;
+        }
+    }
+
     function start ()
     {
         running = true;
@@ -189,6 +203,7 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
 
     self = { start: start, stop: stop,
              resize: resize, element: inner_div[0],
+             set_yaxis_max: set_yaxis_max,
              destroy: destroy
            };
     return self;

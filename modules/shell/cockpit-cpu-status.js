@@ -27,6 +27,7 @@ PageCpuStatus.prototype = {
     },
 
     enter: function() {
+        var self = this;
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
@@ -60,6 +61,11 @@ PageCpuStatus.prototype = {
                                                     {color: "rgb( 50, 50, 50)"}
                                                    ],
                                                    options);
+
+        cockpit.util.machine_info(this.address).
+            done(function (info) {
+                self.plot.set_yaxis_max(info.cpus * 100);
+            });
     },
 
     show: function() {

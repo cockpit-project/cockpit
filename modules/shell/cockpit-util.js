@@ -641,18 +641,17 @@ function machine_info(address) {
         dfd = $.Deferred();
         machine_info_promises[address] = pr = dfd.promise();
 
-        $.when(cockpit.spawn(["/bin/cat", "/proc/meminfo"], { host: address }),
-               cockpit.spawn(["/bin/cat", "/proc/cpuinfo"], { host: address })).
-            done(function(meminfo, cpuinfo) {
+        cockpit.spawn(["/bin/cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address }).
+            done(function(text) {
                 var info = { };
-                var match = meminfo.match(/MemTotal:[^0-9]*([0-9]+) kB/);
+                var match = text.match(/MemTotal:[^0-9]*([0-9]+) kB/);
                 var total_kb = match && parseInt(match[1], 10);
                 if (total_kb)
                     info.memory = total_kb*1024;
 
                 info.cpus = 0;
                 var re = new RegExp("^processor", "gm");
-                while (re.test(cpuinfo))
+                while (re.test(text))
                     info.cpus += 1;
                 dfd.resolve(info);
             }).

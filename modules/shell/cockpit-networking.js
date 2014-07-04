@@ -1398,6 +1398,43 @@ function choice_title(choices, choice, def) {
     return def;
 }
 
+function onoffbox(val, on, off) {
+    function toggle(event) {
+        $(this).find('.btn').toggleClass('active');
+        $(this).find('.btn').toggleClass('btn-primary');
+        $(this).find('.btn').toggleClass('btn-default');
+        if ($(this).find("button:first-child").hasClass('active')) {
+            if (off)
+                on();
+            else
+                on(true);
+        } else {
+            if (off)
+                off();
+            else
+                on(false);
+        }
+    }
+
+    var on_btn, off_btn;
+    var box =
+        $('<div class="btn-group btn-toggle">').append(
+            on_btn = $('<button class="btn">').
+                text("On").
+                addClass(!val? "btn-default" : "btn-primary active"),
+            off_btn = $('<button class="btn">').
+                text("Off").
+                addClass(val? "btn-default" : "btn-primary active")).
+        click(toggle);
+
+    box.set = function set(val) {
+        (val? on_btn : off_btn).addClass("btn-primary active").removeClass("btn-default");
+        (val? off_btn : on_btn).removeClass("btn-primary active").addClass("btn-default");
+    };
+
+    return box;
+}
+
 PageNetworkInterface.prototype = {
     _init: function () {
         this.id = "network-interface";
@@ -1679,36 +1716,6 @@ PageNetworkInterface.prototype = {
                 PageNetworkBridgePortSettings.settings = con.Settings;
                 PageNetworkBridgePortSettings.done = is_active? activate_connection : null;
                 $('#network-bridgeport-settings-dialog').modal('show');
-            }
-
-            function onoffbox(val, on, off) {
-                function toggle(event) {
-                    $(this).find('.btn').toggleClass('active');
-                    $(this).find('.btn').toggleClass('btn-primary');
-                    $(this).find('.btn').toggleClass('btn-default');
-                    if ($(this).find("button:first-child").hasClass('active')) {
-                        if (off)
-                            on();
-                        else
-                            on(true);
-                    } else {
-                        if (off)
-                            off();
-                        else
-                            on(false);
-                    }
-                }
-
-                var box =
-                    $('<div class="btn-group btn-toggle">').append(
-                        $('<button class="btn">').
-                            text("On").
-                            addClass(!val? "btn-default" : "btn-primary active"),
-                        $('<button class="btn">').
-                            text("Off").
-                            addClass(val? "btn-default" : "btn-primary active")).
-                    click(toggle);
-                return box;
             }
 
             function render_settings_row(title, rows, configure) {

@@ -80,7 +80,7 @@ PageServer.prototype = {
             cockpit_setup_simple_plot("#server_cpu_graph",
                                       "#server_cpu_text",
                                       monitor,
-                                      { },
+                                      { yaxis: { ticks: 5 } },
                                       function(values) { // Combines the series into a single plot-value
                                           return values[1] + values[2] + values[3];
                                       },

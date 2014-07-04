@@ -915,10 +915,18 @@ function NetworkManagerModel(address) {
 
         prototype: {
             add_connection: function (conf) {
-                return call_object_method(this,
-                                          'org.freedesktop.NetworkManager.Settings',
-                                          'AddConnection',
-                                          settings_to_nm(conf, { }));
+                var dfd = $.Deferred();
+                call_object_method(this,
+                                   'org.freedesktop.NetworkManager.Settings',
+                                   'AddConnection',
+                                   settings_to_nm(conf, { })).
+                    done(function (path) {
+                        dfd.resolve(get_object(path, type_Connection));
+                    }).
+                    fail(function (error) {
+                        dfd.reject(error);
+                    });
+                return dfd.promise();
             }
         }
     };

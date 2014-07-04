@@ -593,11 +593,11 @@ function cockpit_raid_get_desc(raid)
                                       "com.redhat.Cockpit.Manager");
 
     if (manager && parts[0] == manager.Hostname)
-        return cockpit_esc(parts[1]);
+        return parts[1];
     else
         return F(_("%{name} (on %{host})"),
-                 { name: cockpit_esc(parts[1]),
-                   host: cockpit_esc(parts[0])
+                 { name: parts[1],
+                   host: parts[0]
                  });
 }
 
@@ -708,9 +708,7 @@ PageStorageDetail.prototype = {
                                   { title: _("Format"),          action: 'format' },
                                   { title: _("Start Scrubbing"), action: 'start-scrub' },
                                   { title: _("Stop Scrubbing"),  action: 'stop-scrub' },
-                                  { title: _("Delete"),          action: 'delete',
-                                    danger: true
-                                  }
+                                  { title: _("Delete"),          action: 'delete' }
                                 ]);
         $('#raid_action_btn').html(self.raid_action_btn);
         $('#raid-disks-add').on('click', $.proxy(this, "raid_disk_add"));
@@ -725,8 +723,7 @@ PageStorageDetail.prototype = {
         var btn = cockpit_action_btn (function (op) { self.volume_group_action(op); },
                                       [ { title: _("Rename"), action: 'rename',
                                           is_default: true },
-                                        { title: _("Delete"), action: 'delete',
-                                          danger: true }
+                                        { title: _("Delete"), action: 'delete' }
                                       ]);
         $('#vg_action_btn').html(btn);
         $("#vg-pv-add").on('click', $.proxy(this, "add_physical_volume"));
@@ -866,7 +863,7 @@ PageStorageDetail.prototype = {
                 ];
 
             var delete_action_spec =
-                [ { title: _("Delete"),             action: "delete", danger: true }
+                [ { title: _("Delete"),             action: "delete" }
                 ];
 
             var is_filesystem         = (target.IdUsage == 'filesystem');
@@ -1277,7 +1274,7 @@ PageStorageDetail.prototype = {
 
         var val = raid.Size > 0 ? cockpit_fmt_size_long(raid.Size) : "--";
         $("#raid_detail_capacity").html(val);
-        $("#raid_detail_name").html(cockpit_raid_get_desc(raid));
+        $("#raid_detail_name").text(cockpit_raid_get_desc(raid));
         $("#raid_detail_uuid").html(cockpit_esc(raid.UUID));
 
         var level = format_level(raid.Level);
@@ -1573,12 +1570,20 @@ PageStorageDetail.prototype = {
     },
 
     delete_raid: function() {
-        this._mdraid.call("Delete", function (error, result) {
-            if (error)
-                cockpit_show_unexpected_error (error);
-            else
-                cockpit_go_up();
-        });
+        var self = this;
+        var location = cockpit.location();
+
+        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: cockpit_raid_get_desc(this._mdraid) }),
+                        _("Deleting a RAID Device will erase all data on it."),
+                        _("Delete")).
+            done(function () {
+                self._mdraid.call("Delete", function (error, result) {
+                    if (error)
+                        cockpit_show_unexpected_error (error);
+                    else
+                        location.go_up();
+                });
+            });
     },
 
     start_scrub: function() {
@@ -1638,11 +1643,16 @@ PageStorageDetail.prototype = {
     },
 
     delete_partition: function(block) {
-        block.call('DeletePartition',
-                   function (error) {
-                       if (error)
-                           cockpit_show_unexpected_error (error);
-                   });
+        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: block.Device }),
+                        _("Deleting a partition will delete all data in it."),
+                        _("Delete")).
+            done(function () {
+                block.call('DeletePartition',
+                           function (error) {
+                               if (error)
+                                   cockpit_show_unexpected_error (error);
+                           });
+            });
     },
 
     create_partition: function (block, start, size) {
@@ -1751,15 +1761,23 @@ PageStorageDetail.prototype = {
     },
 
     delete_volume_group: function() {
+        var self = this;
+        var location = cockpit.location();
+
         if (!cockpit_check_role ('cockpit-storage-admin', this.client))
             return;
 
-        this._vg.call("Delete", function (error, result) {
-            if (error)
-                cockpit_show_unexpected_error (error);
-            else
-                cockpit_go_up ();
-        });
+        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name }),
+                        _("Deleting a volume group will erase all data on it."),
+                        _("Delete")).
+            done(function() {
+                self._vg.call("Delete", function (error, result) {
+                    if (error)
+                        cockpit_show_unexpected_error (error);
+                    else
+                        location.go_up ();
+                });
+            });
     },
 
     physical_volume_action: function(target, op) {
@@ -1876,13 +1894,20 @@ PageStorageDetail.prototype = {
     },
 
     delete_logical_volume: function(lv) {
+        var self = this;
+
         if (!cockpit_check_role ('cockpit-storage-admin', this.client))
             return;
 
-        lv.call('Delete', function (error, result) {
-            if (error)
-                cockpit_show_unexpected_error (error);
-        });
+        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name + "/" + lv.Name }),
+                        _("Deleting a logical volume will erase all data in it."),
+                        _("Delete")).
+            done(function () {
+                lv.call('Delete', function (error, result) {
+                    if (error)
+                        cockpit_show_unexpected_error (error);
+                });
+            });
     },
 
     resize_logical_volume: function(lv) {
@@ -2187,6 +2212,8 @@ PageFormatDisk.prototype = {
     },
 
     enter: function() {
+        $("#format-disk-title").text(F(_("Format Disk %{name}"), { name: PageFormatDisk.block.Device }));
+
     },
 
     format: function() {
@@ -2235,13 +2262,20 @@ PageFormat.prototype = {
     },
 
     enter: function() {
-        $("#format-title").text(this.getTitle());
         $("#format-size-row").toggle(PageFormat.mode == "create-partition");
 
         if (PageFormat.mode == 'format') {
+            $("#format-title").text(F(_("Format %{name}"), { name: PageFormat.block.Device }));
+            $("#format-warning").text(_("Formatting a storage device will erase all data on it."));
+            $("#format-format").text(_("Format"));
+            $("#format-format").addClass("btn-danger").removeClass("btn-primary");
             $("#format-mount-point").val(PageFormat.block.MountPoint);
             $("#format-mount-options").val(PageFormat.block.MountOptions);
         } else {
+            $("#format-title").text(F(_("Create Partition on %{name}"), { name: PageFormat.block.Device }));
+            $("#format-warning").text("");
+            $("#format-format").text(_("Create partition"));
+            $("#format-format").addClass("btn-primary").removeClass("btn-danger");
             $("#format-mount-point").val("");
             $("#format-mount-options").val("");
         }

@@ -1555,7 +1555,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">Format Disk</h4>
+            <h4 class="modal-title" id="format-disk-title">Format Disk</h4>
           </div>
           <div class="modal-body">
             <table class="cockpit-form-table">
@@ -1589,6 +1589,7 @@
             </table>
           </div>
           <div class="modal-footer">
+            <div translatable="yes" style="margin-bottom:10px">Formatting a disk will erase all data on it.</div>
             <button class="btn btn-default" translatable="yes" data-dismiss="modal">
               Cancel
             </button>
@@ -1707,6 +1708,7 @@
             </table>
           </div>
           <div class="modal-footer">
+            <div id="format-warning" style="margin-bottom:10px"></div>
             <button class="btn btn-default" translatable="yes" data-dismiss="modal">
               Cancel
             </button>

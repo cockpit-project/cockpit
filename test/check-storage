@@ -61,6 +61,11 @@ class TestStorage(MachineCase):
         self.browser.wait_text (btn, action)
         self.browser.click (btn)
 
+    def confirm(self):
+        self.browser.wait_popup("confirmation-dialog")
+        self.browser.click("#confirmation-dialog-confirm")
+        self.browser.wait_popdown("confirmation-dialog")
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -286,6 +291,7 @@ class TestStorage(MachineCase):
 
         # Delete the partition
         self.content_action(1, "Delete")
+        self.confirm()
         b.wait_in_text("#storage_detail_partition_list", "Free Space")
         b.wait_not_in_text("#storage_detail_partition_list", "ENCRYPTED")
 
@@ -425,6 +431,7 @@ class TestStorage(MachineCase):
 
         # Delete first partition
         self.content_action(1, "Delete")
+        self.confirm()
         b.wait_in_text("#storage_detail_partition_list", "Free Space")
         b.wait_not_in_text("#storage_detail_partition_list", "One")
 
@@ -466,6 +473,7 @@ class TestStorage(MachineCase):
 
         # Delete the array.  We are back on the storage page.
         self.raid_action("Delete")
+        self.confirm()
 	with b.wait_timeout(120):
 	        b.wait_page("storage")
 	       	b.wait_not_in_text ("#storage_raids", "ARR")
@@ -628,6 +636,7 @@ class TestStorage(MachineCase):
 
         # delete it
         self.content_action(1, "Delete")
+        self.confirm()
         b.wait_not_in_text("#storage_detail_content", "Logical Volume \"one\"")
         check_eq(m.execute("grep /one /etc/fstab || true"), "")
 
@@ -683,6 +692,7 @@ class TestStorage(MachineCase):
 
         # remove volume group
         b.click_action_btn('#vg_action_btn', "Delete")
+        self.confirm()
         b.wait_page("storage")
         check_eq(m.execute("grep /thin /etc/fstab || true"), "")
 
@@ -725,12 +735,14 @@ class TestStorage(MachineCase):
         b.wait_popdown("error-popup")
 
         self.content_action(2, "Delete")
+        self.confirm()
         b.wait_popup("error-popup")
         b.wait_in_text("#error-popup-message", "Device or resource busy")
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
 
         self.content_action(1, "Delete")
+        self.confirm()
         b.wait_popup("error-popup")
         b.wait_in_text("#error-popup-message", "Device or resource busy")
         b.click("#error-popup button")
@@ -790,6 +802,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_vgs", "TEST")
         b.click('tr[onclick*="TEST"]')
         b.click_action_btn('#vg_action_btn', "Delete")
+        self.confirm()
         b.wait_page("storage")
         check_eq(m.execute("grep /mount /etc/fstab || true"), "")
 

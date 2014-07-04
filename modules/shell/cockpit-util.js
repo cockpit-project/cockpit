@@ -656,7 +656,7 @@ function machine_info(address) {
                 dfd.resolve(info);
             }).
             fail(function() {
-                dfd.fail();
+                dfd.reject();
             });
     }
     return pr;

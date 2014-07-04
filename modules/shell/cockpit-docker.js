@@ -1162,13 +1162,19 @@ PageContainerDetails.prototype = {
     },
 
     delete_container: function () {
+        var self = this;
         var location = cockpit.location();
-        this.client.rm(this.container_id).
-            fail(function(ex) {
-                cockpit_show_unexpected_error(ex);
-            }).
-            done(function() {
-                location.go_up();
+        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
+                        _("Deleting a container will erase all data in it."),
+                        _("Delete")).
+            done(function () {
+                self.client.rm(self.container_id).
+                    fail(function(ex) {
+                        cockpit_show_unexpected_error(ex);
+                    }).
+                    done(function() {
+                        location.go_up();
+                    });
             });
     }
 
@@ -1296,13 +1302,19 @@ PageImageDetails.prototype = {
     },
 
     delete_image: function () {
+        var self = this;
         var location = cockpit.location();
-        this.client.rmi(this.image_id).
-            fail(function(ex) {
-                cockpit_show_unexpected_error(ex);
-            }).
-            done(function() {
-                location.go_up();
+        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
+                        _("Deleting an image will delete it, but you can probably download it again if you need it later.  Unless this image has never been pushed to a repository, that is, in which case you probably can't download it again."),
+                        _("Delete")).
+            done(function () {
+                self.client.rmi(self.image_id).
+                    fail(function(ex) {
+                        cockpit_show_unexpected_error(ex);
+                    }).
+                    done(function() {
+                        location.go_up();
+                    });
             });
     }
 

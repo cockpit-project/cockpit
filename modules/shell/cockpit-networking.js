@@ -1347,11 +1347,11 @@ PageNetworkInterface.prototype = {
 
     setup: function () {
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
-        $('#network-interface-add-connection').click($.proxy(this, "add_connection"));
-        $('#network-interface-add-connection').parent('div').append(
+        $('#network-interface-delete').parent('div').append(
             this.device_onoff = onoffbox(false,
                                          $.proxy(this, "connect"),
                                          $.proxy(this, "disconnect")));
+        $('#network-interface-add-connection').click($.proxy(this, "add_connection"));
     },
 
     enter: function () {

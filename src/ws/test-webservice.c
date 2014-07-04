@@ -1115,21 +1115,25 @@ test_resource_simple (TestResourceCase *tc,
                       gconstpointer data)
 {
   CockpitWebResponse *response;
+  GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/res/localhost/another/test.html");
+  response = cockpit_web_response_new (tc->io, "/res/localhost/another/test.html", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
 
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
-                           "Connection: close\r\n\r\n"
+                           "\r\n"
                            "52\r\n"
                            "<html>\n"
                            "<head>\n"
@@ -1148,20 +1152,24 @@ test_resource_not_found (TestResourceCase *tc,
                          gconstpointer data)
 {
   CockpitWebResponse *response;
+  GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/res/localhost/another/not-exist");
+  response = cockpit_web_response_new (tc->io, "/res/localhost/another/not-exist", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
 
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 404 Not Found\r\n"
                            "Content-Length: 76\r\n"
-                           "Connection: close\r\n\r\n"
+                           "\r\n"
                            "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
@@ -1172,21 +1180,25 @@ test_resource_no_path (TestResourceCase *tc,
                        gconstpointer data)
 {
   CockpitWebResponse *response;
+  GError *error = NULL;
   GBytes *bytes;
 
   /* Missing path after module */
-  response = cockpit_web_response_new (tc->io, "/res/localhost/another");
+  response = cockpit_web_response_new (tc->io, "/res/localhost/another", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
 
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 404 Not Found\r\n"
                            "Content-Length: 76\r\n"
-                           "Connection: close\r\n\r\n"
+                           "\r\n"
                            "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
@@ -1198,12 +1210,13 @@ test_resource_failure (TestResourceCase *tc,
                        gconstpointer data)
 {
   CockpitWebResponse *response;
+  GError *error = NULL;
   GBytes *bytes;
   GPid pid;
 
   cockpit_expect_message ("*: failed to retrieve resource: terminated");
 
-  response = cockpit_web_response_new (tc->io, "/res/localhost/another/test.html");
+  response = cockpit_web_response_new (tc->io, "/res/localhost/another/test.html", NULL);
 
   /* Now kill the agent */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
@@ -1215,11 +1228,14 @@ test_resource_failure (TestResourceCase *tc,
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
 
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 500 Internal Server Error\r\n"
                            "Content-Length: 100\r\n"
-                           "Connection: close\r\n\r\n"
+                           "\r\n"
                            "<html><head><title>500 Internal Server Error</title></head><body>Internal Server Error</body></html>", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
@@ -1285,6 +1301,7 @@ test_resource_checksum (TestResourceCase *tc,
 {
   GAsyncResult *result = NULL;
   CockpitWebResponse *response;
+  GError *error = NULL;
   GBytes *bytes;
 
   /* Do a module listing so that the web service knows the checksums for localhost */
@@ -1294,18 +1311,21 @@ test_resource_checksum (TestResourceCase *tc,
   json_object_unref (cockpit_web_service_modules_finish (tc->service, result));
   g_object_unref (result);
 
-  response = cockpit_web_response_new (tc->io, "/cache/b0cb8eb96388a67047c60d48634172e72db50eaf/sub/file.ext");
+  response = cockpit_web_response_new (tc->io, "/cache/b0cb8eb96388a67047c60d48634172e72db50eaf/sub/file.ext", NULL);
   cockpit_web_service_resource (tc->service, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
                            "Transfer-Encoding: chunked\r\n"
-                           "Connection: close\r\n\r\n"
+                           "\r\n"
                            "32\r\n"
                            "These are the contents of file.ext\n"
                            "Oh marmalaaade\n"
@@ -1320,21 +1340,25 @@ test_resource_no_checksum (TestResourceCase *tc,
                            gconstpointer data)
 {
   CockpitWebResponse *response;
+  GError *error = NULL;
   GBytes *bytes;
 
   /* Missing checksum */
-  response = cockpit_web_response_new (tc->io, "/cache/");
+  response = cockpit_web_response_new (tc->io, "/cache/", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
 
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 404 Not Found\r\n"
                            "Content-Length: 76\r\n"
-                           "Connection: close\r\n\r\n"
+                           "\r\n"
                            "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
@@ -1345,21 +1369,25 @@ test_resource_bad_checksum (TestResourceCase *tc,
                            gconstpointer data)
 {
   CockpitWebResponse *response;
+  GError *error = NULL;
   GBytes *bytes;
 
   /* Missing checksum */
-  response = cockpit_web_response_new (tc->io, "/cache/09323094823029348/path");
+  response = cockpit_web_response_new (tc->io, "/cache/09323094823029348/path", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
 
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 404 Not Found\r\n"
                            "Content-Length: 76\r\n"
-                           "Connection: close\r\n\r\n"
+                           "\r\n"
                            "<html><head><title>404 Not Found</title></head><body>Not Found</body></html>", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);

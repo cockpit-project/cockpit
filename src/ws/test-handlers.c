@@ -46,6 +46,7 @@ typedef struct {
   GHashTable *headers;
   GIOStream *io;
   CockpitWebResponse *response;
+  gboolean response_done;
   GMemoryOutputStream *output;
   GMemoryInputStream *input;
   GByteArray *buffer;
@@ -62,6 +63,17 @@ on_ready_get_result (GObject *source,
   g_assert (retval != NULL);
   g_assert (*retval == NULL);
   *retval = g_object_ref (result);
+}
+
+static void
+on_web_response_done_set_flag (CockpitWebResponse *response,
+                               gboolean reuse,
+                               gpointer user_data)
+{
+  gboolean *flag = user_data;
+  g_assert (flag != NULL);
+  g_assert (*flag == FALSE);
+  *flag = TRUE;
 }
 
 static void
@@ -93,7 +105,10 @@ setup (Test *test,
   test->io = mock_io_stream_new (G_INPUT_STREAM (test->input),
                                  G_OUTPUT_STREAM (test->output));
 
-  test->response = cockpit_web_response_new (test->io, NULL);
+  test->response = cockpit_web_response_new (test->io, NULL, NULL);
+  g_signal_connect (test->response, "done",
+                    G_CALLBACK (on_web_response_done_set_flag),
+                    &test->response_done);
 }
 
 static void
@@ -116,7 +131,7 @@ teardown (Test *test,
 static const gchar *
 output_as_string (Test *test)
 {
-  while (!g_output_stream_is_closed (G_OUTPUT_STREAM (test->output)))
+  while (!test->response_done)
     g_main_context_iteration (NULL, TRUE);
 
   g_free (test->scratch);
@@ -232,7 +247,7 @@ test_login_post_fail (Test *test,
                                test->headers, input, test->response, &test->data);
   g_bytes_unref (input);
 
-  while (!g_output_stream_is_closed (G_OUTPUT_STREAM (test->output)))
+  while (!test->response_done)
     g_main_context_iteration (NULL, TRUE);
 
   g_assert (ret == TRUE);

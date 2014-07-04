@@ -63,11 +63,14 @@ struct _CockpitWebResponse {
   gboolean failed;
   gboolean done;
   gboolean chunked;
+  gboolean keep_alive;
 };
 
 typedef struct {
   GObjectClass parent;
 } CockpitWebResponseClass;
+
+static guint signal__done;
 
 G_DEFINE_TYPE (CockpitWebResponse, cockpit_web_response, G_TYPE_OBJECT);
 
@@ -80,12 +83,12 @@ cockpit_web_response_init (CockpitWebResponse *self)
 static void
 cockpit_web_response_done (CockpitWebResponse *self)
 {
+  gboolean reusable = FALSE;
+
+  g_object_ref (self);
+
   g_assert (!self->done);
   self->done = TRUE;
-
-  g_object_unref (self->io);
-  self->io = NULL;
-  self->out = NULL;
 
   if (self->source)
     {
@@ -96,6 +99,7 @@ cockpit_web_response_done (CockpitWebResponse *self)
 
   if (self->complete)
     {
+      reusable = !self->failed && self->keep_alive;
       g_object_unref (self);
     }
   else if (!self->failed)
@@ -103,6 +107,14 @@ cockpit_web_response_done (CockpitWebResponse *self)
       g_critical ("A CockpitWebResponse was freed without being completed properly. "
                   "This is a programming error.");
     }
+
+  g_signal_emit (self, signal__done, 0, reusable);
+
+  g_object_unref (self->io);
+  self->io = NULL;
+  self->out = NULL;
+
+  g_object_unref (self);
 }
 
 static void
@@ -136,12 +148,18 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
 
   gobject_class->dispose = cockpit_web_response_dispose;
   gobject_class->finalize = cockpit_web_response_finalize;
+
+  signal__done = g_signal_new ("done", COCKPIT_TYPE_WEB_RESPONSE,
+                               G_SIGNAL_RUN_LAST,
+                               0, NULL, NULL, NULL,
+                               G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
 }
 
 /**
  * cockpit_web_response_new:
  * @io: the stream to send on
  * @path: the path resource or NULL
+ * @in_haeders: input headers or NULL
  *
  * Create a new web response.
  *
@@ -153,10 +171,12 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
  */
 CockpitWebResponse *
 cockpit_web_response_new (GIOStream *io,
-                          const gchar *path)
+                          const gchar *path,
+                          GHashTable *in_headers)
 {
   CockpitWebResponse *self;
   GOutputStream *out;
+  const gchar *connection;
 
   /* Trying to be a somewhat performant here, avoiding properties */
   self = g_object_new (COCKPIT_TYPE_WEB_RESPONSE, NULL);
@@ -178,6 +198,14 @@ cockpit_web_response_new (GIOStream *io,
     self->logname = self->path;
   else
     self->logname = "response";
+
+  self->keep_alive = TRUE;
+  if (in_headers)
+    {
+      connection = g_hash_table_lookup (in_headers, "Connection");
+      if (connection)
+        self->keep_alive = g_str_equal (connection, "keep-alive");
+    }
 
   return self;
 }
@@ -220,30 +248,6 @@ should_suppress_output_error (CockpitWebResponse *self,
 }
 
 static void
-on_output_closed (GObject *stream,
-                  GAsyncResult *result,
-                  gpointer user_data)
-{
-  CockpitWebResponse *self = COCKPIT_WEB_RESPONSE (user_data);
-  GOutputStream *output = G_OUTPUT_STREAM (stream);
-  GError *error = NULL;
-
-  if (g_output_stream_close_finish (output, result, &error))
-    {
-      g_debug ("%s: closed output", self->logname);
-    }
-  else
-    {
-      if (!should_suppress_output_error (self, error))
-        g_warning ("%s: couldn't close web output: %s", self->logname, error->message);
-      g_error_free (error);
-    }
-
-  g_object_unref (self);
-  cockpit_web_response_done (self);
-}
-
-static void
 on_output_flushed (GObject *stream,
                    GAsyncResult *result,
                    gpointer user_data)
@@ -255,18 +259,16 @@ on_output_flushed (GObject *stream,
   if (g_output_stream_flush_finish (output, result, &error))
     {
       g_debug ("%s: flushed output", self->logname);
-
-      g_output_stream_close_async (output, G_PRIORITY_DEFAULT,
-                                   NULL, on_output_closed, g_object_ref (self));
     }
   else
     {
       if (!should_suppress_output_error (self, error))
         g_warning ("%s: couldn't flush web output: %s", self->logname, error->message);
+      self->failed = TRUE;
       g_error_free (error);
-      cockpit_web_response_done (self);
     }
 
+  cockpit_web_response_done (self);
   g_object_unref (self);
 }
 
@@ -557,7 +559,7 @@ append_header (GString *string,
   else if (g_ascii_strcasecmp ("Content-Length", name) == 0)
     g_critical ("Don't set Content-Length manually. This is a programmer error.");
   else if (g_ascii_strcasecmp ("Connection", name) == 0)
-    g_critical ("Don't set Content-Length manually. This is a programmer error.");
+    g_critical ("Don't set Connection header manually. This is a programmer error.");
   return 0;
 }
 
@@ -652,7 +654,8 @@ finish_headers (CockpitWebResponse *self,
       self->chunked = TRUE;
       g_string_append_printf (string, "Transfer-Encoding: chunked\r\n");
     }
-  g_string_append (string, "Connection: close\r\n");
+  if (!self->keep_alive)
+    g_string_append (string, "Connection: close\r\n");
   g_string_append (string, "\r\n");
 
   return g_string_free_to_bytes (string);

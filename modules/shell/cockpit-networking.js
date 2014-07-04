@@ -835,6 +835,12 @@ function NetworkManagerModel(address) {
         },
 
         prototype: {
+            activate: function(connection, specific_object) {
+                return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
+                                          "org.freedesktop.NetworkManager", "ActivateConnection",
+                                          objpath(connection), objpath(this), objpath(specific_object));
+            },
+
             disconnect: function () {
                 return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect');
             }
@@ -1342,7 +1348,10 @@ PageNetworkInterface.prototype = {
     setup: function () {
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
         $('#network-interface-add-connection').click($.proxy(this, "add_connection"));
-        $('#network-interface-disconnect').click($.proxy(this, "disconnect"));
+        $('#network-interface-add-connection').parent('div').append(
+            this.device_onoff = onoffbox(false,
+                                         $.proxy(this, "connect"),
+                                         $.proxy(this, "disconnect")));
     },
 
     enter: function () {
@@ -1460,9 +1469,39 @@ PageNetworkInterface.prototype = {
         }
     },
 
+    connect: function() {
+        var self = this;
+        var settings_manager = self.model.get_settings();
+
+        function fail(error) {
+            cockpit_show_unexpected_error(error);
+            self.update();
+        }
+
+        function activate() {
+            self.dev.activate(null, null).
+                fail(fail);
+        }
+
+        if (!self.dev)
+            return;
+
+        if (self.ghost_settings) {
+            settings_manager.add_connection(self.ghost_settings).
+                done(activate).
+                fail(fail);
+        } else
+            activate();
+    },
+
     disconnect: function() {
-        if (this.dev)
-            this.dev.disconnect().fail(cockpit_show_unexpected_error);
+        var self = this;
+        if (self.dev) {
+            self.dev.disconnect().fail(function (error) {
+                cockpit_show_unexpected_error(error);
+                self.update();
+            });
+        }
     },
 
     update: function() {
@@ -1508,6 +1547,9 @@ PageNetworkInterface.prototype = {
                 $('<div>').append(
                     $('<span>').html(render_active_connection(dev, true)),
                     $('<span style="float:right">').text(dev? dev.StateText : _("Inactive")))));
+
+        this.device_onoff.prop('disabled', !dev);
+        this.device_onoff.set(!!(dev && dev.ActiveConnection));
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 

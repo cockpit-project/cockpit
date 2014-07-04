@@ -198,13 +198,19 @@ on_child_reap (GPid pid,
   self->priv->exited = TRUE;
   self->priv->watch_arg = NULL;
 
+  /* Release our reference on watch handler */
+  g_source_unref (self->priv->child);
+  self->priv->child = NULL;
+
   /*
    * When a pid is present then this is the definitive way of
    * determining when the process has closed.
    */
 
-  g_debug ("%s: child process quit: closed: %d %d", self->priv->name, (int)pid, status);
-  g_signal_emit (self, cockpit_pipe_sig_close, 0, self->priv->problem);
+  g_debug ("%s: child process quit:%s  %d %d", self->priv->name,
+           self->priv->closed ? " closed:" : "", (int)pid, status);
+  if (self->priv->closed)
+    g_signal_emit (self, cockpit_pipe_sig_close, 0, self->priv->problem);
 }
 
 static gboolean

@@ -69,11 +69,18 @@ Requires: selinux-policy
 Cockpit.
 
 %post
+getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
 getent group cockpit-user-admin >/dev/null || groupadd -r cockpit-user-admin
 getent group cockpit-realm-admin >/dev/null || groupadd -r cockpit-realm-admin
 getent group cockpit-storage-admin >/dev/null || groupadd -r cockpit-storage-admin
+getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
+# We don't know the cockpit-ws gid in advance
+chown root:cockpit-ws %{_libexecdir}/cockpit-session
+# chown above resets the file mode
+chmod 4750 %{_libexecdir}/cockpit-session
 chgrp wheel %{_sharedstatedir}/%{name}
 chmod 775 %{_sharedstatedir}/%{name}
+chmod 755 %{_sysconfdir}/%{name} %{_sysconfdir}/%{name}/ws-certs.d
 # Only for testing: in a distro we would ask sshd to ship the relevant lines
 cat %{_datadir}/%{name}/sshd-reauthorize.pam >> %{_sysconfdir}/pam.d/sshd
 # firewalld only partially picks up changes to its services files without this
@@ -84,7 +91,7 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %build
 env NOCONFIGURE=1 ./autogen.sh
-%configure --disable-static --disable-silent-rules
+%configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws
 make %{?_smp_mflags} %{?extra_flags} all selinux
 
 %check
@@ -109,11 +116,11 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %{_sbindir}/remotectl
 %{_libexecdir}/cockpitd
 %{_libexecdir}/cockpit-ws
-%{_libexecdir}/cockpit-session
 %{_libexecdir}/cockpit-agent
 # HACK: We need to do attr because stripping debuginfo removes setuid
 # https://bugzilla.redhat.com/show_bug.cgi?id=117858
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
+%attr(4750, -, -) %{_libexecdir}/cockpit-session
 %{_libdir}/security/pam_reauthorize.so
 %{_datadir}/%{name}
 %{_mandir}/*

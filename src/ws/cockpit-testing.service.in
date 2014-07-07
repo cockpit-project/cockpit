@@ -7,3 +7,5 @@ Conflicts=cockpit.service
 [Service]
 Environment=G_MESSAGES_DEBUG=cockpit-ws
 ExecStart=@libexecdir@/cockpit-ws --no-tls
+User=@user@
+Group=@group@

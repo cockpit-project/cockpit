@@ -55,9 +55,15 @@ cockpit_polkit_LDADD = libreauthorize.a $(REAUTHORIZE_LIBS) $(COCKPIT_POLKIT_LIB
 
 # polkit-agent-helper-1 need to be setuid root because polkit wants
 # responses to come from a root process
+#
+# If running cockpit-ws as a non-standard user, we also set up
+# cockpit-session to be setuid root, but only runnable by cockpit-session
 install-data-hook:
-	-chown root $(DESTDIR)$(libexecdir)/cockpit-polkit
+	-chown root:0 $(DESTDIR)$(libexecdir)/cockpit-polkit
+	-chown root:0 $(DESTDIR)$(libexecdir)/cockpit-polkit
 	-chmod 4755 $(DESTDIR)$(libexecdir)/cockpit-polkit
+	-chown root:$(COCKPIT_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session
+	-test "$(COCKPIT_USER)" != "root" && chmod 4750 $(DESTDIR)$(libexecdir)/cockpit-session
 
 EXTRA_DIST += \
 	src/agent/cockpit.pam.insecure \

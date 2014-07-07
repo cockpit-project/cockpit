@@ -118,8 +118,8 @@ cockpitd_LDADD = 					\
 dbusservicedir = $(datadir)/dbus-1/services
 dbusservice_DATA = com.redhat.Cockpit.service
 
-com.redhat.Cockpit.service: src/daemon/com.redhat.Cockpit.service.in Makefile
-	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|" $< > $@
+com.redhat.Cockpit.service: src/daemon/com.redhat.Cockpit.service.in Makefile.am
+	$(AM_V_GEN) $(SED_SUBST) $< > $@
 
 EXTRA_DIST += \
 	src/daemon/com.redhat.Cockpit.xml \

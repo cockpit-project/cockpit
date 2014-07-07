@@ -81,6 +81,22 @@ recheck-memory: valgrind-suppressions
 		HTML_LOG_DRIVER_FLAGS="--missing=no-phantom-valgrind" \
 		$(AM_MAKEFLAGS) recheck
 
+SED_SUBST = sed \
+        -e 's,[@]datadir[@],$(datadir),g' \
+        -e 's,[@]libexecdir[@],$(libexecdir),g' \
+        -e 's,[@]libdir[@],$(libdir),g' \
+        -e 's,[@]includedir[@],$(includedir),g' \
+        -e 's,[@]bindir[@],$(bindir),g' \
+        -e 's,[@]sbindir[@],$(sbindir),g' \
+        -e 's,[@]prefix[@],$(prefix),g' \
+        -e 's,[@]exec_prefix[@],$(exec_prefix),g' \
+        -e 's,[@]prefix[@],$(prefix),g' \
+        -e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+        -e 's,[@]VERSION[@],$(VERSION),g' \
+        -e 's,[@]user[@],$(COCKPIT_USER),g' \
+        -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
+        $(NULL)
+
 if WITH_DEBUG
 MINIFY = $(top_srcdir)/tools/minify -n --
 else

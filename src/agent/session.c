@@ -491,6 +491,16 @@ main (int argc,
   if (argc != 2)
     usage ();
 
+  if (isatty (0))
+    errx (2, "this command is not meant to be run from the console");
+
+  /* When setuid root, make sure our group is also root */
+  if (geteuid () == 0)
+    {
+      if (setgid (0) != 0 || setuid (0) != 0)
+        err (1, "couldn't switch permissions correctly");
+    }
+
   user = argv[0];
   rhost = argv[1];
 
@@ -546,6 +556,7 @@ main (int argc,
    * unassociated from a terminal, we get a non-zero return value from
    * getlogin_r() in that case.
    */
+
   want_session = (getlogin_r (login, sizeof (login)) != 0 ||
                   strcmp (login, pam_user) != 0);
 

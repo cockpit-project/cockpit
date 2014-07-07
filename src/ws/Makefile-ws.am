@@ -67,12 +67,12 @@ cockpit_ws_LDADD = 					\
 
 dist_systemdunit_DATA += src/ws/cockpit.socket
 
-cockpit.service : src/ws/cockpit.service.in Makefile
-	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+cockpit.service : src/ws/cockpit.service.in Makefile.am
+	$(AM_V_GEN) $(SED_SUBST) $< > $@
 nodist_systemdunit_DATA += cockpit.service
 
 cockpit-testing.service : src/ws/cockpit-testing.service.in Makefile
-	$(AM_V_GEN) sed -e "s|\@libexecdir\@|$(libexecdir)|;s|\@datadir\@|$(datadir)|" $< > $@
+	$(AM_V_GEN) $(SED_SUBST) $< > $@
 noinst_DATA += cockpit-testing.service
 testassets_systemdunit_data += cockpit-testing.service
 
@@ -248,7 +248,7 @@ TESTS += $(WS_CHECKS)
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
-	-chmod 700 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
+	-chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
 	-chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit
 	-chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit

@@ -312,6 +312,7 @@ PageRealmsOp.prototype = {
         if (!have_one)
             sel.append('<option value="admin">' + _("Administrator Password") + '</option>');
 
+        $('#realms-op-auth').selectpicker();
         me.update_cred_fields();
     },
 

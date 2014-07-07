@@ -58,6 +58,7 @@ function cockpit_content_init ()
     cockpit_search_init ($('#content-search'));
 
     cockpit_content_refresh ();
+    $('.selectpicker').selectpicker();
 }
 
 function cockpit_content_show ()

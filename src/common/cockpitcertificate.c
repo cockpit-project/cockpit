@@ -207,12 +207,10 @@ out:
   return ret;
 }
 
-gboolean
-cockpit_certificate_locate (GTlsCertificate **out_cert,
+gchar *
+cockpit_certificate_locate (gboolean create_if_necessary,
                             GError **error)
 {
-  GTlsCertificate *cert = NULL;
-  gboolean ret = FALSE;
   gchar *cert_path = NULL;
   const gchar *cert_dir = PACKAGE_SYSCONF_DIR "/cockpit/ws-certs.d";
   GError *local_error;
@@ -224,7 +222,7 @@ cockpit_certificate_locate (GTlsCertificate **out_cert,
       g_propagate_prefixed_error (error, local_error,
                                   "Error loading certificates from %s: ",
                                   cert_dir);
-      goto out;
+      return NULL;
     }
 
   /* Could be there's no certicate at all, so cert_path can indeed be
@@ -233,30 +231,28 @@ cockpit_certificate_locate (GTlsCertificate **out_cert,
    */
   if (cert_path == NULL)
     {
-      cert_path = generate_temp_cert (error);
-      if (cert_path == NULL)
-        goto out;
+      if (create_if_necessary)
+        {
+          cert_path = generate_temp_cert (error);
+        }
+      else
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                       "No certificate found in dir: %s", cert_dir);
+        }
     }
+
+  return cert_path;
+}
+
+GTlsCertificate *
+cockpit_certificate_load (const gchar *cert_path,
+                          GError **error)
+{
+  GTlsCertificate *cert;
 
   cert = g_tls_certificate_new_from_file (cert_path, error);
   if (cert == NULL)
-    {
-      g_prefix_error (error, "%s: ", cert_path);
-      goto out;
-    }
-
-  g_info ("using certificate: %s", cert_path);
-
-  if (out_cert != NULL)
-    {
-      *out_cert = cert;
-      cert = NULL;
-    }
-
-  ret = TRUE;
-
-out:
-  g_clear_object (&cert);
-  g_free (cert_path);
-  return ret;
+    g_prefix_error (error, "%s: ", cert_path);
+  return cert;
 }

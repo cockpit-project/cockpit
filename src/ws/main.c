@@ -66,6 +66,7 @@ main (int argc,
   GError *local_error = NULL;
   GError **error = &local_error;
   gchar **roots = NULL;
+  gchar *cert_path = NULL;
   GMainLoop *loop;
 
   signal (SIGPIPE, SIG_IGN);
@@ -94,8 +95,12 @@ main (int argc,
     }
   else
     {
-      if (!cockpit_certificate_locate (&certificate, error))
+      cert_path = cockpit_certificate_locate (FALSE, error);
+      if (cert_path != NULL)
+        certificate = cockpit_certificate_load (cert_path, error);
+      if (certificate == NULL)
         goto out;
+      g_info ("Using certificate: %s", cert_path);
     }
 
   if (opt_uninstalled)
@@ -174,6 +179,7 @@ out:
   g_clear_object (&server);
   g_clear_object (&data.auth);
   g_clear_object (&certificate);
+  g_free (cert_path);
   g_strfreev (roots);
   return ret;
 }

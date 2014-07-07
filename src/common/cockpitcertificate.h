@@ -25,8 +25,11 @@
 
 G_BEGIN_DECLS
 
-gboolean          cockpit_certificate_locate    (GTlsCertificate **out_cert,
-                                                 GError **error);
+gchar *             cockpit_certificate_locate   (gboolean create_if_necessary,
+                                                  GError **error);
+
+GTlsCertificate *   cockpit_certificate_load     (const gchar *path,
+                                                  GError **error);
 
 G_END_DECLS
 

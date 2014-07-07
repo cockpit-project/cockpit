@@ -364,6 +364,7 @@ test_spawn_simple (void)
 
   g_object_unref (transport);
 }
+
 static void
 test_spawn_environ (void)
 {
@@ -461,6 +462,50 @@ test_spawn_status (void)
   control = mock_transport_pop_control (transport);
   expect_control_message (control, "close", "548", "reason", "", NULL);
   g_assert_cmpint (json_object_get_int_member (control, "exit-status"), ==, 5);
+
+  g_free (problem);
+
+  g_object_unref (channel);
+  g_object_unref (transport);
+}
+
+static void
+test_spawn_signal (void)
+{
+  MockTransport *transport;
+  CockpitChannel *channel;
+  gchar *problem = NULL;
+  JsonObject *options;
+  JsonArray *array;
+  JsonObject *control;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  options = json_object_new ();
+
+  array = json_array_new ();
+  json_array_add_string_element (array, "/bin/sh");
+  json_array_add_string_element (array, "-c");
+  json_array_add_string_element (array, "kill $$");
+  json_object_set_array_member (options, "spawn", array);
+
+  json_object_set_string_member (options, "payload", "text-stream");
+
+  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+                          "options", options,
+                          "id", "548",
+                          "transport", transport,
+                          NULL);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  cockpit_channel_close (channel, NULL);
+  json_object_unref (options);
+
+  while (!problem)
+    g_main_context_iteration (NULL, TRUE);
+
+  control = mock_transport_pop_control (transport);
+  expect_control_message (control, "close", "548", "reason", "", NULL);
+  g_assert_cmpstr (json_object_get_string_member (control, "exit-signal"), ==, "TERM");
 
   g_free (problem);
 
@@ -655,6 +700,7 @@ main (int argc,
   g_test_add ("/text-stream/invalid-recv", TestCase, NULL,
               setup_channel, test_recv_invalid, teardown);
 
+  g_test_add_func ("/text-stream/spawn/signal", test_spawn_signal);
   g_test_add_func ("/text-stream/spawn/simple", test_spawn_simple);
   g_test_add_func ("/text-stream/spawn/status", test_spawn_status);
   g_test_add_func ("/text-stream/spawn/environ", test_spawn_environ);

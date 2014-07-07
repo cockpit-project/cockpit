@@ -214,7 +214,7 @@ asyncTest("with problem", function() {
     cockpit.spawn("/unused").
         fail(function(ex) {
             equal(ex.problem, "not-found", "with problem got problem");
-            ok(isNaN(ex.exit_signal), "with problem got no signal");
+            strictEqual(ex.exit_signal, null, "with problem got no signal");
             ok(isNaN(ex.exit_status), "with problem got no status");
         }).
         always(function() {
@@ -248,13 +248,13 @@ asyncTest("with signal", function() {
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
-        peer.close(channel, {"exit-signal": 15});
+        peer.close(channel, {"exit-signal": "TERM"});
     });
 
     cockpit.spawn("/unused").
         fail(function(ex) {
             equal(ex.problem, "internal-error", "with signal got problem");
-            strictEqual(ex.exit_signal, 15, "with signal got signal");
+            strictEqual(ex.exit_signal, "TERM", "with signal got signal");
             ok(isNaN(ex.exit_status), "with signal got no status");
         }).
         always(function() {

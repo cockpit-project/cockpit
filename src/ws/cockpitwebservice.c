@@ -413,6 +413,7 @@ typedef struct {
 } CockpitWebServiceClass;
 
 static guint sig_idling = 0;
+static guint sig_destroy = 0;
 
 G_DEFINE_TYPE (CockpitWebService, cockpit_web_service, G_TYPE_OBJECT);
 
@@ -423,9 +424,13 @@ cockpit_web_service_dispose (GObject *object)
   CockpitSocket *socket;
   CockpitSession *session;
   GHashTableIter iter;
+  gboolean emit = FALSE;
 
   if (!self->closing)
-    g_debug ("web service closing");
+    {
+      g_debug ("web service closing");
+      emit = TRUE;
+    }
   self->closing = TRUE;
 
   g_hash_table_iter_init (&iter, self->sockets.by_scope);
@@ -444,6 +449,9 @@ cockpit_web_service_dispose (GObject *object)
           cockpit_transport_close (session->transport, NULL);
         }
     }
+
+  if (emit)
+    g_signal_emit (self, sig_destroy, 0);
 
   G_OBJECT_CLASS (cockpit_web_service_parent_class)->dispose (object);
 }
@@ -944,6 +952,38 @@ process_open (CockpitWebService *self,
   return TRUE;
 }
 
+static gboolean
+process_logout (CockpitWebService *self,
+                JsonObject *options)
+{
+  gboolean disconnect;
+
+  if (!cockpit_json_get_bool (options, "disconnect", FALSE, &disconnect))
+    {
+      g_warning ("received 'logout' command with invalid 'disconnect' field");
+      return FALSE;
+    }
+
+  /* Makes the credentials unusable */
+  cockpit_creds_poison (self->creds);
+
+  /* Destroys our web service, disconnects everything */
+  if (disconnect)
+    {
+      g_info ("Logging out user %s from %s",
+              cockpit_creds_get_user (self->creds),
+              cockpit_creds_get_rhost (self->creds));
+      g_object_run_dispose (G_OBJECT (self));
+    }
+  else
+    {
+      g_info ("Deauthorizing user %s",
+              cockpit_creds_get_rhost (self->creds));
+    }
+
+  return TRUE;
+}
+
 static void
 inbound_protocol_error (CockpitWebService *self,
                         WebSocketConnection *connection)
@@ -987,6 +1027,11 @@ dispatch_inbound_command (CockpitWebService *self,
 
   if (g_strcmp0 (command, "open") == 0)
     valid = process_open (self, channel, options);
+  else if (g_strcmp0 (command, "logout") == 0)
+    {
+      valid = process_logout (self, options);
+      forward = FALSE;
+    }
   else if (g_strcmp0 (command, "close") == 0)
     valid = TRUE;
   else if (g_strcmp0 (command, "ping") == 0)
@@ -1205,6 +1250,9 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
   sig_idling = g_signal_new ("idling", COCKPIT_TYPE_WEB_SERVICE,
                              G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
                              G_TYPE_NONE, 0);
+  sig_destroy = g_signal_new ("destroy", COCKPIT_TYPE_WEB_SERVICE,
+                              G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
+                              G_TYPE_NONE, 0);
 }
 
 /**

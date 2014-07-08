@@ -188,6 +188,23 @@ Example authorize challenge and response messages:
         "response": "crypt1:$6$r0oetn2039ntoen..."
     }
 
+Command: logout
+---------------
+
+The "logout" command is sent by the shell to cockpit-ws. It discards credentials
+for the logged in user. Optionally it disconnects the user.
+
+The following fields are defined:
+
+ * "disconnect": if set to true then disconnect the user
+
+Example logout message:
+
+    {
+        "command": "logout",
+        "disconnect": true
+    }
+
 Payload: null
 -------------
 

@@ -62,16 +62,23 @@ typedef struct {
   CockpitWebService *service;
   guint timeout_tag;
   gulong idling_sig;
+  gulong destroy_sig;
 } CockpitAuthenticated;
+
+static void
+cockpit_authenticated_destroy (CockpitAuthenticated *authenticated)
+{
+  CockpitAuth *self = authenticated->auth;
+  g_hash_table_remove (self->authenticated, authenticated->cookie);
+}
 
 static void
 on_web_service_gone (gpointer data,
                      GObject *where_the_object_was)
 {
   CockpitAuthenticated *authenticated = data;
-  CockpitAuth *self = authenticated->auth;
   authenticated->service = NULL;
-  g_hash_table_remove (self->authenticated, authenticated->cookie);
+  cockpit_authenticated_destroy (authenticated);
 }
 
 static void
@@ -91,6 +98,8 @@ cockpit_authenticated_free (gpointer data)
     {
       if (authenticated->idling_sig)
         g_signal_handler_disconnect (authenticated->service, authenticated->idling_sig);
+      if (authenticated->destroy_sig)
+        g_signal_handler_disconnect (authenticated->service, authenticated->destroy_sig);
       object = G_OBJECT (authenticated->service);
       g_object_weak_unref (object, on_web_service_gone, authenticated);
       g_object_run_dispose (object);
@@ -592,6 +601,13 @@ on_web_service_idling (CockpitWebService *service,
                                                       authenticated);
 }
 
+static void
+on_web_service_destroy (CockpitWebService *service,
+                        gpointer data)
+{
+  cockpit_authenticated_destroy (data);
+}
+
 CockpitWebService *
 cockpit_auth_login_finish (CockpitAuth *self,
                            GAsyncResult *result,
@@ -627,6 +643,8 @@ cockpit_auth_login_finish (CockpitAuth *self,
 
   authenticated->idling_sig = g_signal_connect (authenticated->service, "idling",
                                                 G_CALLBACK (on_web_service_idling), authenticated);
+  authenticated->destroy_sig = g_signal_connect (authenticated->service, "destroy",
+                                                G_CALLBACK (on_web_service_destroy), authenticated);
 
   if (session)
     g_object_unref (session);

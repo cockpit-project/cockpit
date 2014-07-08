@@ -1052,6 +1052,30 @@ test_dispose (TestCase *test,
   g_object_unref (client);
 }
 
+static void
+test_logout (TestCase *test,
+             gconstpointer data)
+{
+  WebSocketConnection *ws;
+  CockpitWebService *service;
+  GBytes *message = NULL;
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  /* Send the logout control message that starts the agent specify a specific host key. */
+  data = "\n{ \"command\": \"logout\", \"disconnect\": true }";
+  message = g_bytes_new_static (data, strlen (data));
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
+  g_bytes_unref (message);
+
+  while (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
+    g_main_context_iteration (NULL, TRUE);
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
 typedef struct {
   CockpitWebService *service;
   GIOStream *io;
@@ -1484,6 +1508,8 @@ main (int argc,
               setup_for_socket, test_idling, teardown_for_socket);
   g_test_add ("/web-service/force-dispose", TestCase, NULL,
               setup_for_socket, test_dispose, teardown_for_socket);
+  g_test_add ("/web-service/logout", TestCase, NULL,
+              setup_for_socket, test_logout, teardown_for_socket);
 
   g_test_add ("/web-service/resource/simple", TestResourceCase, NULL,
               setup_resource, test_resource_simple, teardown_resource);

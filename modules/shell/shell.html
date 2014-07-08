@@ -1301,13 +1301,29 @@
               </tr>
               <tr>
                 <td translatable="yes">Password</td>
-                <td><input class="form-control" type="password"
-                           id="accounts-create-pw1" value=""/></td>
+                <td>
+                  <div class="check-passwords">
+                    <input class="form-control" type="password"
+                           id="accounts-create-pw1" value=""/>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td translatable="yes">Confirm</td>
-                <td><input class="form-control" type="password"
-                           id="accounts-create-pw2" value=""/></td>
+                <td>
+                  <div class="check-passwords">
+                    <input class="form-control" type="password"
+                           id="accounts-create-pw2" value=""/>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>
+                  <div id="accounts-create-message-password-mismatch" class="has-error">
+                    <span class="help-block">The passwords do not match</span>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td></td>
@@ -1346,11 +1362,27 @@
             <table class="cockpit-form-table">
               <tr>
                 <td translatable="yes">Password</td>
-                <td><input class="form-control" type="password" id="account-set-password-pw1"></td>
+                <td>
+                  <div class="check-passwords">
+                    <input class="form-control" type="password"
+                           id="account-set-password-pw1"/>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td translatable="yes">Confirm</td>
-                <td><input class="form-control" type="password" id="account-set-password-pw2"></td>
+                <td>
+                <div class="check-passwords">
+                <input class="form-control" type="password"
+                           id="account-set-password-pw2" value=""/>
+                </div>
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td><div id="account-set-password-message-password-mismatch" class="has-error">
+                  <span class="help-block">The passwords do not match</span>
+                </div></td>
               </tr>
             </table>
           </div>

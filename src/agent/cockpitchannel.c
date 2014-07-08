@@ -22,6 +22,7 @@
 #include "cockpitchannel.h"
 #include "cockpitdbusjson.h"
 #include "cockpitdbusjson1.h"
+#include "cockpitnullchannel.h"
 #include "cockpitrestjson.h"
 #include "cockpitresource.h"
 #include "cockpittextstream.h"
@@ -360,6 +361,8 @@ cockpit_channel_open (CockpitTransport *transport,
     channel_type = COCKPIT_TYPE_TEXT_STREAM;
   else if (g_strcmp0 (payload, "resource1") == 0)
     channel_type = COCKPIT_TYPE_RESOURCE;
+  else if (g_strcmp0 (payload, "null") == 0)
+    channel_type = COCKPIT_TYPE_NULL_CHANNEL;
   else
     channel_type = COCKPIT_TYPE_CHANNEL;
 

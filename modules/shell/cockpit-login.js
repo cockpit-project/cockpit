@@ -23,19 +23,15 @@ var cockpit = cockpit || { };
 
 $(function() {
     $(".cockpit-deauthorize-item a").on("click", function(ev) {
-        var req = new XMLHttpRequest();
-        var loc = window.location.protocol + "//" + window.location.host + "/deauthorize";
-        req.open("POST", loc, true);
-        req.onreadystatechange = function (event) {
-            if (req.readyState == 4) {
-                $(".cockpit-deauthorize-item").addClass("disabled");
-                $(".cockpit-deauthorize-item a").off("click");
+        /* Ensure Channel.transport is not null */
+        var channel = new Channel({ "payload": "null" });
+        Channel.transport.logout(false);
+        channel.close();
+        $(".cockpit-deauthorize-item").addClass("disabled");
+        $(".cockpit-deauthorize-item a").off("click");
 
-                /* TODO: We need a better indicator for deauthorized state */
-                $(".cockpit-deauthorize-status").text("deauthorized");
-            }
-        };
-        req.send();
+        /* TODO: We need a better indicator for deauthorized state */
+        $(".cockpit-deauthorize-status").text("deauthorized");
         ev.preventDefault();
     });
 
@@ -48,16 +44,12 @@ $(function() {
 
 function cockpit_logout (reason)
 {
-    var req = new XMLHttpRequest();
-    var loc = window.location.protocol + "//" + window.location.host + "/logout";
-    req.open("POST", loc, true);
-    req.onreadystatechange = function (event) {
-	if (req.readyState == 4) {
-            cockpit.set_watched_client(null);
-            window.location.reload(true);
-        }
-    };
-    req.send();
+    var channel = new Channel({ "payload": "null" });
+    $(channel).on("close", function() {
+        window.location.reload(true);
+    });
+    cockpit.set_watched_client(null);
+    Channel.transport.logout(true);
 }
 
 function cockpit_go_login_account ()

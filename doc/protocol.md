@@ -188,6 +188,12 @@ Example authorize challenge and response messages:
         "response": "crypt1:$6$r0oetn2039ntoen..."
     }
 
+Payload: null
+-------------
+
+A channel opened with this payload type will never send data, and will
+ignore all data it receives.
+
 Payload: resource1
 ------------------
 

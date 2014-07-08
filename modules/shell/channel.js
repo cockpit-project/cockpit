@@ -68,6 +68,11 @@
  * Channel.transport.close()
  *   Explicitly close the underlying transport. This will close all open
  *   channels using this transport and Channel.transport will be cleared.
+ *
+ * Channel.transport.logout(disconnect)
+ *   Discard login credentials and prevent them from being used to perform
+ *   further actions that require credentials. If @disconnect is true, then
+ *   also disconnect all user sessions.
  */
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
@@ -165,6 +170,10 @@ function Channel(options) {
             if (ws)
                 ws.close();
             this._process_control({ "command": "close", "reason": reason });
+        };
+
+        this.logout = function(disconnect) {
+            this._send_control({ "command": "logout", "disconnect": !!disconnect });
         };
 
         this._process_control = function(data) {

@@ -346,26 +346,6 @@ test_index (Test *test,
 }
 
 static void
-test_logout (Test *test,
-             gconstpointer data)
-{
-  const gchar *output;
-  gboolean ret;
-  GBytes *input;
-
-  input = g_bytes_new_static ("", 0);
-  ret = cockpit_handler_logout (test->server,
-                                COCKPIT_WEB_SERVER_REQUEST_GET, "/logout",
-                                test->headers, input, test->response, &test->data);
-  g_bytes_unref (input);
-
-  g_assert (ret == TRUE);
-
-  output = output_as_string (test);
-  cockpit_assert_strmatch (output, "HTTP/1.1 200 OK\r\n*Set-Cookie: CockpitAuth=blank;*Secure*Logged out*");
-}
-
-static void
 test_favicon_ico (Test *test,
                   gconstpointer data)
 {
@@ -428,9 +408,6 @@ main (int argc,
               setup, test_login_post_fail, teardown);
   g_test_add ("/handlers/login/post-accept", Test, NULL,
               setup, test_login_post_accept, teardown);
-
-  g_test_add ("/handlers/logout", Test, NULL,
-              setup, test_logout, teardown);
 
   g_test_add ("/handlers/ping", Test, NULL,
               setup, test_ping, teardown);

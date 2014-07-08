@@ -1042,7 +1042,7 @@ test_dispose (TestCase *test,
     g_main_context_iteration (NULL, TRUE);
   g_assert (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_OPEN);
 
-  /* Dispose the WebSocket ... this is what happens on forceful /logout */
+  /* Dispose the WebSocket ... this is what happens on forceful logout */
   g_object_run_dispose (G_OBJECT (service));
 
   while (web_socket_connection_get_ready_state (client) != WEB_SOCKET_STATE_CLOSED)

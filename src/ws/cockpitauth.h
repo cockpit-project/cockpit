@@ -85,11 +85,6 @@ CockpitWebService *  cockpit_auth_login_finish    (CockpitAuth *self,
 CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
                                                    GHashTable *in_headers);
 
-void                 cockpit_auth_logout          (CockpitAuth *self,
-                                                   GHashTable *headers,
-                                                   gboolean secure_req,
-                                                   GHashTable *out_headers);
-
 CockpitPipe *   cockpit_auth_start_session   (CockpitCreds *creds);
 
 gboolean        cockpit_auth_parse_input     (GBytes *input,

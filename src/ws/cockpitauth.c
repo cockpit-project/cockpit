@@ -675,30 +675,6 @@ cockpit_auth_login_finish (CockpitAuth *self,
   return g_object_ref (authenticated->service);
 }
 
-void
-cockpit_auth_logout (CockpitAuth *self,
-                     GHashTable *headers,
-                     gboolean secure_req,
-                     GHashTable *out_headers)
-{
-  CockpitAuthenticated *authenticated;
-  gchar *cookie;
-
-  authenticated = authenticated_for_headers (self, headers);
-  if (authenticated)
-    {
-      g_info ("logged out user %s", cockpit_creds_get_user (authenticated->creds));
-      g_hash_table_remove (self->authenticated, authenticated->cookie);
-    }
-
-  if (out_headers)
-    {
-      cookie = g_strdup_printf ("CockpitAuth=blank; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
-                                secure_req ? " Secure;" : "");
-      g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), cookie);
-    }
-}
-
 CockpitAuth *
 cockpit_auth_new (void)
 {

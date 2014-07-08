@@ -46,22 +46,6 @@ gboolean       cockpit_handler_login             (CockpitWebServer *server,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
-gboolean       cockpit_handler_logout            (CockpitWebServer *server,
-                                                  CockpitWebServerRequestType reqtype,
-                                                  const gchar *path,
-                                                  GHashTable *headers,
-                                                  GBytes *input,
-                                                  CockpitWebResponse *response,
-                                                  CockpitHandlerData *data);
-
-gboolean       cockpit_handler_deauthorize       (CockpitWebServer *server,
-                                                  CockpitWebServerRequestType reqtype,
-                                                  const gchar *resource,
-                                                  GHashTable *headers,
-                                                  GBytes *input,
-                                                  CockpitWebResponse *response,
-                                                  CockpitHandlerData *data);
-
 gboolean       cockpit_handler_index             (CockpitWebServer *server,
                                                   CockpitWebServerRequestType reqtype,
                                                   const gchar *path,

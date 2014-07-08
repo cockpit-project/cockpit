@@ -181,7 +181,7 @@ start_dbus_daemon (void)
       if (ret < 0)
         {
           g_string_set_size (address, len);
-          if (errno != EAGAIN)
+          if (errno != EAGAIN && errno != EINTR)
             {
               g_warning ("couldn't read address from dbus-daemon: %s", g_strerror (errno));
               break;
@@ -189,6 +189,7 @@ start_dbus_daemon (void)
         }
       else if (ret == 0)
         {
+          g_string_set_size (address, len);
           break;
         }
       else

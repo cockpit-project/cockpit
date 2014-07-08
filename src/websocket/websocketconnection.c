@@ -958,7 +958,7 @@ process_text_hixie76 (WebSocketConnection *self,
 {
   GBytes *message;
 
-  g_debug ("received hikie76 text frame with %d payload", (int)len);
+  g_debug ("received hixie76 text frame with %d payload", (int)len);
   if (g_utf8_validate (data, len, NULL))
     {
       /* Guarantee that messages are null-terminated (outside of len) */
@@ -995,7 +995,7 @@ process_frame_hixie76 (WebSocketConnection *self)
         }
       else
         {
-          g_debug ("received hikie76 close frame");
+          g_debug ("received hixie76 close frame");
           receive_close_hixie76 (self);
         }
       g_byte_array_remove_range (pv->incoming, 0, 2);

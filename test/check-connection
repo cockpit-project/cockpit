@@ -27,8 +27,6 @@ class TestConnection(MachineCase):
 
         self.start_cockpit()
 
-        self.allow_journal_messages("peer did not close io when expected")
-
         # take cockpit-ws down on the login page
         b.open("server")
         b.wait_visible("#login")

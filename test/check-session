@@ -70,8 +70,7 @@ class TestSession(MachineCase):
         # b.click("#account-logout")
         # check_session(False)
 
-        self.allow_journal_messages("peer did not close io when expected",
-                                    "Error receiving data: Connection reset by peer",
+        self.allow_journal_messages("Error receiving data: Connection reset by peer",
                                     # Might happen when killing the agent.
                                     "localhost: dropping message while waiting for child to exit")
 

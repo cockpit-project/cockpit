@@ -314,7 +314,11 @@ on_timeout_close_io (gpointer user_data)
   WebSocketConnectionPrivate *pv = self->pv;
 
   pv->close_timeout = 0;
-  g_message ("peer did not close io when expected");
+
+  /* Previous flavors expected client to just disconnect */
+  if (pv->flavor == WEB_SOCKET_FLAVOR_RFC6455)
+    g_message ("peer did not close io when expected");
+
   close_io_stream (self);
 
   return FALSE;

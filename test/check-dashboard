@@ -182,7 +182,6 @@ class TestDashboard(MachineCase):
         self.assertIn ("cockpit-user-admin", groups(m2, "junior"))
         self.assertIn ("wheel", groups(m2, "senior"))
 
-        self.allow_journal_messages("peer did not close io when expected")
         self.allow_journal_messages('.*: .* host key for server is not known: .*')
 
 test_main()

@@ -48,12 +48,12 @@ function cockpit_debug(str) {
  * @factor: optional, either 1000, 1024 or a string suffix
  *
  * Formats bytes into a displayable string and suffix, such as
- * 'kB' or 'MiB'. Returns an array of the formatted number and
+ * 'KB' or 'MB'. Returns an array of the formatted number and
  * the suffix.
  *
  * If specifying 1000 or 1024 these will be used as the factors
  * to choose an appropriate suffix. By default the factor is
- * 1000.
+ * 1024.
  *
  * You can pass the suffix into the second argument in which
  * case the number will be formatted with that specific suffix.
@@ -68,13 +68,17 @@ function cockpit_debug(str) {
  * Examples:
  *    cockpit.format_bytes(1000000).join(" ");
  *    cockpit.format_bytes(1000000, 1024).join(" ");
- *    cockpit.format_bytes(1000000, "kB").join(" ");
+ *    cockpit.format_bytes(1000000, "KB").join(" ");
+ *
+ * The current policy is to use KB, MB, GB, etc. for both factors
+ * of 1000 and 1024.
  */
 (function(cockpit) {
 
 var suffixes = {
-    1000: [ null, "kB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
-    1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ]
+    1024: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
+    1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ]
+    /* 1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ] */
 };
 
 cockpit.format_bytes = function format_bytes(number, factor) {
@@ -82,7 +86,7 @@ cockpit.format_bytes = function format_bytes(number, factor) {
     var suffix = null;
 
     if (factor === undefined)
-        factor = 1000;
+        factor = 1024;
 
     /* Find that factor string */
     if (typeof (factor) === "string") {
@@ -119,6 +123,7 @@ cockpit.format_bytes = function format_bytes(number, factor) {
     if (number > 0 && number < 0.1)
         number = 0.1;
 
+    /* TODO: Make the decimal separator translatable */
     if (number === 0)
         return [number.toString(), suffix];
     else
@@ -167,11 +172,9 @@ function cockpit_add_thousands_separators(number)
 }
 
 function cockpit_format_bytes_long(num_bytes) {
-    var with_unit = cockpit_format_bytes(num_bytes);
-    var with_pow2_unit = cockpit_format_bytes_pow2(num_bytes);
-    var with_sep = cockpit_add_thousands_separators(num_bytes);
-    /* Translators: Used in "42.5 kB (42,399 bytes)" */
-    return with_unit + " (" + with_pow2_unit + ", " + with_sep + " " + C_("format-bytes", "bytes") + ")";
+    var with_unit = cockpit_format_bytes_pow2(num_bytes);
+    /* Translators: Used in "42.5 KB (42399 bytes)" */
+    return with_unit + " (" + num_bytes + " " + C_("format-bytes", "bytes") + ")";
 }
 
 function cockpit_format_bytes_per_sec(num_bytes) {
@@ -644,7 +647,7 @@ function machine_info(address) {
         cockpit.spawn(["/bin/cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address }).
             done(function(text) {
                 var info = { };
-                var match = text.match(/MemTotal:[^0-9]*([0-9]+) kB/);
+                var match = text.match(/MemTotal:[^0-9]*([0-9]+) KB/);
                 var total_kb = match && parseInt(match[1], 10);
                 if (total_kb)
                     info.memory = total_kb*1024;

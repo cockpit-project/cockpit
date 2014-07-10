@@ -81,6 +81,12 @@ function cockpit_debug(str) {
  * Format bytes into a displayable speed string.
  *
  *
+ * cockpit.format_bits_per_sec(number)
+ * @number: the number to format
+ *
+ * Format bits into a displayable speed string.
+ *
+ *
  * cockpit.format_delay(ms)
  * @ms: number of milli-seconds
  *
@@ -89,18 +95,10 @@ function cockpit_debug(str) {
 
 (function(cockpit) {
 
-var suffixes = {
-    1024: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
-    1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ]
-    /* 1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ] */
-};
-
-cockpit.format_bytes = function format_bytes(number, factor, separate) {
+function format_units(number, suffixes, factor, separate) {
+    var divided = false;
     var quotient;
     var suffix = null;
-
-    if (factor === undefined)
-        factor = 1024;
 
     /* Find that factor string */
     if (typeof (factor) === "string") {
@@ -114,6 +112,7 @@ cockpit.format_bytes = function format_bytes(number, factor, separate) {
                 if (factor == suffixes[keys[y]][x]) {
                     number = number / Math.pow(keys[y], x);
                     suffix = factor;
+                    divided = x > 0;
                     break;
                 }
             }
@@ -129,6 +128,7 @@ cockpit.format_bytes = function format_bytes(number, factor, separate) {
             if (quotient < factor) {
                 number = quotient;
                 suffix = suffixes[factor][i];
+                divided = divisor > 1;
                 break;
             }
             divisor *= factor;
@@ -149,17 +149,41 @@ cockpit.format_bytes = function format_bytes(number, factor, separate) {
         number = 0.1;
 
     /* TODO: Make the decimal separator translatable */
-    if (number === 0)
+    if (number === 0 || !divided)
         ret = [number.toString(), suffix];
     else
         ret = [number.toFixed(1), suffix];
     if (!separate)
         ret = ret.join(" ");
     return ret;
+}
+
+var byte_suffixes = {
+    1024: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
+    1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ]
+    /* 1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ] */
+};
+
+cockpit.format_bytes = function format_bytes(number, factor, separate) {
+    if (factor === undefined)
+        factor = 1024;
+    return format_units(number, byte_suffixes, factor, separate);
+};
+
+var byte_sec_suffixes = {
+    1024: [ "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ]
 };
 
 cockpit.format_bytes_per_sec = function format_bytes_per_sec(number) {
-    return cockpit.format_bytes(number) + "/s";
+    return format_units(number, byte_sec_suffixes, 1024, false) + "/s";
+};
+
+var bit_suffixes = {
+    1000: [ "bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps" ]
+};
+
+cockpit.format_bits_per_sec = function format_bits_per_sec(number) {
+    return format_units(number, bit_suffixes, 1000, false);
 };
 
 cockpit.format_delay = function format_delay(d) {

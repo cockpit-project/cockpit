@@ -1336,7 +1336,7 @@ PageStorageDetail.prototype = {
                 state = state + "<br/>" + action_state;
                 if (raid.SyncRemainingTime > 0) {
                     remaining = F(_("%{remaining} remaining"),
-                                  { remaining: cockpit_format_delay (raid.SyncRemainingTime / 1000) });
+                                  { remaining: cockpit.format_delay(raid.SyncRemainingTime / 1000) });
                     state = state + "<br/>" + remaining;
                 }
             }

@@ -79,6 +79,12 @@ function cockpit_debug(str) {
  * @number: the number to format
  *
  * Format bytes into a displayable speed string.
+ *
+ *
+ * cockpit.format_delay(ms)
+ * @ms: number of milli-seconds
+ *
+ * Format soconds into a string of "hours, minutes, seconds".
  */
 
 (function(cockpit) {
@@ -156,9 +162,7 @@ cockpit.format_bytes_per_sec = function format_bytes_per_sec(number) {
     return cockpit.format_bytes(number) + "/s";
 };
 
-})(cockpit);
-
-function cockpit_format_delay(d) {
+cockpit.format_delay = function format_delay(d) {
     var seconds = Math.round(d/1000);
     var minutes = Math.floor(seconds / 60);
     var hours = Math.floor(minutes / 60);
@@ -171,7 +175,9 @@ function cockpit_format_delay(d) {
     if (hours > 0)
         s = hours + " hours, " + s;
     return s;
-}
+};
+
+})(cockpit);
 
 function cockpit_add_thousands_separators(number)
 {

@@ -126,7 +126,7 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Change Hostname");
+        return C_("page-title", "Change Host Name");
     },
 
     setup: function() {
@@ -172,8 +172,8 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     _on_full_name_changed: function(event) {
-        /* Whenever the pretty hostname has changed (e.g. the user has edited it), we compute a new
-         * simple hostname (e.g. 7bit ASCII, no special chars/spaces, lower case) from it...
+        /* Whenever the pretty host name has changed (e.g. the user has edited it), we compute a new
+         * simple host name (e.g. 7bit ASCII, no special chars/spaces, lower case) from it...
          */
         var pretty_hostname = $("#sich-pretty-hostname").val();
         if (this._always_update_from_pretty || this._initial_pretty_hostname != pretty_hostname) {

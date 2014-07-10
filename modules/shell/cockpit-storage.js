@@ -26,7 +26,9 @@ function fmt_size(bytes)
 
 function fmt_size_long(bytes)
 {
-    return cockpit_format_bytes_long(bytes);
+    var with_unit = cockpit.format_bytes(bytes, 1024);
+    /* Translators: Used in "42.5 KB (42399 bytes)" */
+    return with_unit + " (" + bytes + " " + C_("format-bytes", "bytes") + ")";
 }
 
 function get_block_devices_for_drive(drive)

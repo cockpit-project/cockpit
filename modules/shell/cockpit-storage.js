@@ -19,7 +19,7 @@
 
 function cockpit_fmt_size(bytes)
 {
-    return cockpit_format_bytes_pow2(bytes);
+    return cockpit.format_bytes(bytes, 1024);
 }
 
 function cockpit_fmt_size_long(bytes)

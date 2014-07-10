@@ -40,7 +40,7 @@ PageMemoryStatus.prototype = {
             yaxis: {min: 0,
                     ticks: 5,
                     tickFormatter: function (v) {
-                        return cockpit_format_bytes(v);
+                        return cockpit.format_bytes(v);
                     }
                    },
             xaxis: {show: true,

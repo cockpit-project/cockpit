@@ -82,6 +82,19 @@ test("format_bytes_per_sec", function() {
     }
 });
 
+test("format_bits_per_sec", function() {
+    var checks = [
+        [ 555, "555 bps" ],
+        [ 2555, "2.6 Kbps" ]
+    ];
+
+    expect(checks.length);
+    for (var i = 0; i < checks.length; i++) {
+        strictEqual(cockpit.format_bits_per_sec(checks[i][0]), checks[i][1],
+                    "format_bits_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
+    }
+});
+
 test("format_delay", function() {
     var checks = [
         [ 15550000, "4 hours, 19 minutes, 10 seconds" ]

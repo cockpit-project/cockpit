@@ -48,7 +48,7 @@ PageSetupServer.prototype = {
         self.address = null;
         self.options = { "host-key": "", "payload": "dbus-json1" };
 
-        $("#dashboard_setup_address")[0].placeholder = _("Enter IP address or hostname");
+        $("#dashboard_setup_address")[0].placeholder = _("Enter IP address or host name");
         $("#dashboard_setup_login_user")[0].placeholder = C_("login-screen", "Enter user name");
         $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
         $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));

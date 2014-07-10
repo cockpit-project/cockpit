@@ -78,24 +78,24 @@ information about the login, cockpit itself, and the modules installed.
 Before login the environment contains the following information, and
 is included in HTML data served with the '/' request.
 
-{
-    "localhost": {
-        "hostname": "host.example.com",
-        "languages": { "de" : { "name": "German" } },
+    {
+        "localhost": {
+            "hostname": "host.example.com",
+            "languages": { "de" : { "name": "German" } },
+        }
     }
-}
 
 Once the user logs in, the environment is expanded to the following,
 and is returned from the '/login' request as JSON.
 
-{
-    "user": "scruffy",
-    "name": "Scruffy the Janitor",
-    "localhost": {
-        "hostname": "host.example.com",
-        "languages": { "de" : { "name": "German" } },
-        "version": "0.10",
-        "build-info": "Built at ...",
-        "modules": { ... }
+    {
+        "user": "scruffy",
+        "name": "Scruffy the Janitor",
+        "localhost": {
+            "hostname": "host.example.com",
+            "languages": { "de" : { "name": "German" } },
+            "version": "0.10",
+            "build-info": "Built at ...",
+            "modules": { ... }
+        }
     }
-}

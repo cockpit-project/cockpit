@@ -40,7 +40,7 @@ PageDiskIOStatus.prototype = {
             yaxes: [{min: 0,
                      ticks: 5,
                      tickFormatter: function (v) {
-                         return cockpit_format_bytes_per_sec(v);
+                         return cockpit.format_bytes_per_sec(v);
                      }},
                     {
                         min: 0,

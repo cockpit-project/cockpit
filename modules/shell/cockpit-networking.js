@@ -1115,8 +1115,8 @@ PageNetworking.prototype = {
             for (var id in samples) {
                 var row = $('#networking-interfaces tr[data-sample-id="' + cockpit_esc(id) + '"]');
                 if (row.length > 0) {
-                    row.find('td:nth-child(3)').text(cockpit_format_bytes_per_sec(samples[id][1]));
-                    row.find('td:nth-child(4)').text(cockpit_format_bytes_per_sec(samples[id][0]));
+                    row.find('td:nth-child(3)').text(cockpit.format_bytes_per_sec(samples[id][1]));
+                    row.find('td:nth-child(4)').text(cockpit.format_bytes_per_sec(samples[id][0]));
                 }
             }
         }
@@ -1130,14 +1130,14 @@ PageNetworking.prototype = {
         this.rx_plot = cockpit_setup_multi_plot ('#networking-rx-graph', this.monitor, 0, blues.concat(blues),
                                                  is_interesting_netdev, network_plot_setup_hook);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#networking-rx-text').text(cockpit_format_bytes_per_sec(total));
+            $('#networking-rx-text').text(cockpit.format_bytes_per_sec(total));
         });
         $(this.rx_plot).on('highlight', highlight_netdev_row);
 
         this.tx_plot = cockpit_setup_multi_plot ('#networking-tx-graph', this.monitor, 1, blues.concat(blues),
                                                  is_interesting_netdev, network_plot_setup_hook);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#networking-tx-text').text(cockpit_format_bytes_per_sec(total));
+            $('#networking-tx-text').text(cockpit.format_bytes_per_sec(total));
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
@@ -1331,14 +1331,14 @@ PageNetworkInterface.prototype = {
                                                  blues.concat(blues), is_interesting_netdev,
                                                  network_plot_setup_hook);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#network-interface-rx-text').text(cockpit_format_bytes_per_sec(total));
+            $('#network-interface-rx-text').text(cockpit.format_bytes_per_sec(total));
         });
 
         this.tx_plot = cockpit_setup_multi_plot ('#network-interface-tx-graph', this.monitor, 1,
                                                  blues.concat(blues), is_interesting_netdev,
                                                  network_plot_setup_hook);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#network-interface-tx-text').text(cockpit_format_bytes_per_sec(total));
+            $('#network-interface-tx-text').text(cockpit.format_bytes_per_sec(total));
         });
 
         $('#network-interface-delete').hide();

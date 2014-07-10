@@ -43,13 +43,14 @@ function cockpit_debug(str) {
 /*
  * Byte formatting
  *
- * cockpit.format_bytes(number, [factor])
+ * cockpit.format_bytes(number, [factor, separate])
  * @number: a normal number
  * @factor: optional, either 1000, 1024 or a string suffix
+ * @separate: optional, when true return pieces in an array rather than string
  *
  * Formats bytes into a displayable string and suffix, such as
  * 'KB' or 'MB'. Returns an array of the formatted number and
- * the suffix.
+ * the suffix if @separate is set.
  *
  * If specifying 1000 or 1024 these will be used as the factors
  * to choose an appropriate suffix. By default the factor is
@@ -62,8 +63,8 @@ function cockpit_debug(str) {
  * was passed in, then the formatted number is returned without
  * a suffix.
  *
- * Returns an array of [formatted_number, suffix], unless no
- * suffix is returned.
+ * If @separate is true, returns an array of [formatted_number, suffix]
+ * unless no suffix is returned.
  *
  * Examples:
  *    cockpit.format_bytes(1000000).join(" ");
@@ -73,6 +74,7 @@ function cockpit_debug(str) {
  * The current policy is to use KB, MB, GB, etc. for both factors
  * of 1000 and 1024.
  */
+
 (function(cockpit) {
 
 var suffixes = {
@@ -81,7 +83,7 @@ var suffixes = {
     /* 1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ] */
 };
 
-cockpit.format_bytes = function format_bytes(number, factor) {
+cockpit.format_bytes = function format_bytes(number, factor, separate) {
     var quotient;
     var suffix = null;
 
@@ -90,10 +92,15 @@ cockpit.format_bytes = function format_bytes(number, factor) {
 
     /* Find that factor string */
     if (typeof (factor) === "string") {
-        for (var key in suffixes) {
-            for (var x = 0; x < suffixes[key].length; x++) {
-                if (factor == suffixes[key][x]) {
-                    number = number / Math.pow(key, x);
+        /* Prefer larger factors */
+        var keys = [];
+        for (var key in suffixes)
+            keys.push(key);
+        keys.sort().reverse();
+        for (var y = 0; y < keys.length; y++) {
+            for (var x = 0; x < suffixes[keys[y]].length; x++) {
+                if (factor == suffixes[keys[y]][x]) {
+                    number = number / Math.pow(keys[y], x);
                     suffix = factor;
                     break;
                 }
@@ -116,8 +123,14 @@ cockpit.format_bytes = function format_bytes(number, factor) {
         }
     }
 
-    if (!suffix)
-        return [number.toString()];
+    var ret;
+
+    if (!suffix) {
+        ret = [number.toString()];
+        if (!separate)
+            ret = ret.join(" ");
+        return ret;
+    }
 
     /* non-zero values should never appear zero */
     if (number > 0 && number < 0.1)
@@ -125,21 +138,15 @@ cockpit.format_bytes = function format_bytes(number, factor) {
 
     /* TODO: Make the decimal separator translatable */
     if (number === 0)
-        return [number.toString(), suffix];
+        ret = [number.toString(), suffix];
     else
-        return [number.toFixed(1), suffix];
+        ret = [number.toFixed(1), suffix];
+    if (!separate)
+        ret = ret.join(" ");
+    return ret;
 };
 
 })(cockpit);
-
-function cockpit_format_bytes(num_bytes) {
-    return cockpit.format_bytes(num_bytes, 1000).join(" ");
-}
-
-function cockpit_format_bytes_pow2(num_bytes) {
-    return cockpit.format_bytes(num_bytes, 1024).join(" ");
-}
-
 
 function cockpit_format_delay(d) {
     var seconds = Math.round(d/1000);
@@ -172,13 +179,13 @@ function cockpit_add_thousands_separators(number)
 }
 
 function cockpit_format_bytes_long(num_bytes) {
-    var with_unit = cockpit_format_bytes_pow2(num_bytes);
     /* Translators: Used in "42.5 KB (42399 bytes)" */
+    var with_unit = cockpit.format_bytes(num_bytes, 1024);
     return with_unit + " (" + num_bytes + " " + C_("format-bytes", "bytes") + ")";
 }
 
 function cockpit_format_bytes_per_sec(num_bytes) {
-    return cockpit_format_bytes(num_bytes) + "/s";
+    return cockpit.format_bytes(num_bytes) + "/s";
 }
 
 function cockpit_format_temperature(kelvin) {

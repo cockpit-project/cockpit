@@ -102,13 +102,13 @@ function format_memory_and_limit(usage, limit) {
     var units = 1024;
     var parts;
     if (limit) {
-        parts = cockpit.format_bytes(limit, units);
+        parts = cockpit.format_bytes(limit, units, true);
         mtext = " / " + parts.join(" ");
         units = parts[1];
     }
 
     if (usage) {
-        parts = cockpit.format_bytes(usage, units);
+        parts = cockpit.format_bytes(usage, units, true);
         if (mtext)
             return parts[0] + mtext;
         else
@@ -151,7 +151,7 @@ function MemorySlider(sel, min, max) {
         limit = Math.round(slider.value * max);
         if (limit < min)
             limit = min;
-        return cockpit.format_bytes(limit, 1024).join(" ");
+        return cockpit.format_bytes(limit, 1024);
     }
 
     /* Slider to limit amount of memory */
@@ -418,7 +418,7 @@ PageContainers.prototype = {
 
         this.mem_plot = this.client.setup_cgroups_plot ('#containers-mem-graph', 0, blues.concat(blues));
         $(this.mem_plot).on('update-total', function (event, total) {
-            $('#containers-mem-text').text(cockpit_format_bytes_pow2 (total));
+            $('#containers-mem-text').text(cockpit.format_bytes(total, 1024));
         });
         $(this.mem_plot).on('highlight', highlight_container_row);
 
@@ -526,7 +526,7 @@ PageContainers.prototype = {
         $(row[0]).html(multi_line(image.RepoTags));
         $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
         $(row[2]).children("div").attr("value", image.VirtualSize);
-        $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024).join(" "));
+        $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024));
 
         if (added) {
             insert_table_sorted($('#containers-images table'), tr);

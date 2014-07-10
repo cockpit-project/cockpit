@@ -101,7 +101,7 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[1] + values[2] + values[3];
-                                          return cockpit_format_bytes(total);
+                                          return cockpit.format_bytes(total);
                                       });
 
         monitor = self.client.get("/com/redhat/Cockpit/NetworkMonitor",

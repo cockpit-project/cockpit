@@ -40,37 +40,34 @@
 
 test("format_bytes", function() {
     var checks = [
-        [ 999, 1000, ["999"] ],
-        [ 1934, undefined, ["1.9", "KB"] ],
-        [ 1934, 1000, ["1.9", "KB"] ],
-        [ 2000, 1024, ["2.0", "KB"] ],
-        [ 1999, 1000, ["2.0", "KB"] ],
-        [ 1999, 1024, ["2.0", "KB"] ],
-        [ 1000000, 1000, ["1.0", "MB"] ],
-        [ 1000000, 1024, ["976.6", "KB"] ],
-        [ 2000000, 1024, ["1.9", "MB"] ],
-        [ 2000000, 1000, ["2.0", "MB"] ],
-        [ 2000000, "MB", ["1.9", "MB"] ],
-        [ 2000000, "KB", ["1953.1", "KB"] ],
-        [ 1, "KB", ["0.1", "KB"] ],
-        [ 0, "KB", ["0", "KB"] ],
+        [ 999, 1000, "999" ],
+        [ 1934, undefined, "1.9 KB" ],
+        [ 1934, 1000, "1.9 KB" ],
+        [ 2000, 1024, "2.0 KB" ],
+        [ 1999, 1000, "2.0 KB" ],
+        [ 1999, 1024, "2.0 KB" ],
+        [ 1000000, 1000, "1.0 MB" ],
+        [ 1000000, 1024, "976.6 KB" ],
+        [ 2000000, 1024, "1.9 MB" ],
+        [ 2000000, 1000, "2.0 MB" ],
+        [ 2000000, "MB", "1.9 MB" ],
+        [ 2000000, "KB", "1953.1 KB" ],
+        [ 1, "KB", "0.1 KB" ],
+        [ 0, "KB", "0 KB" ],
     ];
 
-    expect(checks.length);
-    for (var i = 0; i < checks.length; i++) {
-       deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
-                 "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2].join(" "));
+    var i, split;
+
+    expect(checks.length * 2);
+    for (i = 0; i < checks.length; i++) {
+        strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
+                    "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
     }
-});
-
-test("cockpit_format_bytes", function() {
-    expect(1);
-    strictEqual(cockpit_format_bytes(5000), "5.0 KB", "cockpit_format_bytes(5000) = 5.0 KB");
-});
-
-test("cockpit_format_bytes_pow2", function() {
-    expect(1);
-    strictEqual(cockpit_format_bytes_pow2(5000), "4.9 KB", "cockpit_format_bytes(5000) = 4.9 KB");
+    for (i = 0; i < checks.length; i++) {
+        split = checks[i][2].split(" ");
+        deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], true), split,
+                   "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ", true) = " + split);
+    }
 });
 
 test("quote_words", function() {

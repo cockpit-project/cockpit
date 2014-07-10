@@ -316,7 +316,7 @@ PageServices.prototype = {
         this.mem_plot = cockpit_setup_multi_plot ('#services-mem-graph', me.monitor, 0, blues.concat(blues),
                                                   is_interesting_cgroup);
         $(this.mem_plot).on('update-total', function (event, total) {
-            $('#services-mem-text').text(cockpit_format_bytes_pow2 (total));
+            $('#services-mem-text').text(cockpit.format_bytes(total, 1024));
         });
         $(this.mem_plot).on('highlight', highlight_service_row);
 
@@ -658,7 +658,7 @@ PageService.prototype = {
         this.mem_plot = cockpit_setup_multi_plot ('#service-mem-graph', me.monitor, 0, blues.concat(blues),
                                                     is_interesting_cgroup);
         $(this.mem_plot).on('update-total', function (event, total) {
-            $('#service-mem-text').text(cockpit_format_bytes_pow2 (total));
+            $('#service-mem-text').text(cockpit.format_bytes(total, 1024));
         });
     },
 

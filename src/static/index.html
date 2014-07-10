@@ -64,6 +64,7 @@
                 }
 
                 /* Show the login screen */
+		$("#server-name").append($("<b>").text(initial_environment.hostname));
                 $("#login").css("visibility", "visible");
                 $("#login-user-input").focus();
                 $("#login-user-input").on("keydown", function (e) {
@@ -199,7 +200,7 @@
 
         <div class="col-sm-5 col-md-6 col-lg-7 details login-details">
           <p>
-            <strong>Welcome to Cockpit!</strong>
+            <label id="server-name">Server: </label>
             <div class="message-icon">
               <span class="pficon-layered">
                 <span class="pficon pficon-warning-triangle"></span>

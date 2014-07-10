@@ -179,21 +179,6 @@ cockpit.format_delay = function format_delay(d) {
 
 })(cockpit);
 
-function cockpit_add_thousands_separators(number)
-{
-    /* Translators: Thousands-separator ("," in en_US, "." in da_DK and so on) */
-    var separator_char = C_("thousands-separator", ",");
-    number += '';
-    var x = number.split('.');
-    var x1 = x[0];
-    var x2 = x.length > 1 ? '.' + x[1] : '';
-    var rgx = /(\d+)(\d{3})/;
-    while (rgx.test(x1)) {
-	x1 = x1.replace(rgx, "$1" + separator_char + "$2");
-    }
-    return x1 + x2;
-}
-
 function cockpit_format_temperature(kelvin) {
     var celcius = kelvin - 273.15;
     var fahrenheit = 9.0 * celcius / 5.0 + 32.0;

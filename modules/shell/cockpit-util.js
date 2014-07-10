@@ -73,6 +73,12 @@ function cockpit_debug(str) {
  *
  * The current policy is to use KB, MB, GB, etc. for both factors
  * of 1000 and 1024.
+ *
+ *
+ * cockpit.format_bytes_per_sec(number)
+ * @number: the number to format
+ *
+ * Format bytes into a displayable speed string.
  */
 
 (function(cockpit) {
@@ -146,6 +152,10 @@ cockpit.format_bytes = function format_bytes(number, factor, separate) {
     return ret;
 };
 
+cockpit.format_bytes_per_sec = function format_bytes_per_sec(number) {
+    return cockpit.format_bytes(number) + "/s";
+};
+
 })(cockpit);
 
 function cockpit_format_delay(d) {
@@ -176,10 +186,6 @@ function cockpit_add_thousands_separators(number)
 	x1 = x1.replace(rgx, "$1" + separator_char + "$2");
     }
     return x1 + x2;
-}
-
-function cockpit_format_bytes_per_sec(num_bytes) {
-    return cockpit.format_bytes(num_bytes) + "/s";
 }
 
 function cockpit_format_temperature(kelvin) {

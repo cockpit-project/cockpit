@@ -116,7 +116,7 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[0] + values[1];
-                                          return cockpit_format_bytes_per_sec(total);
+                                          return cockpit.format_bytes_per_sec(total);
                                       });
 
         monitor = self.client.get("/com/redhat/Cockpit/DiskIOMonitor",
@@ -131,7 +131,7 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[0] + values[1];
-                                          return cockpit_format_bytes_per_sec(total);
+                                          return cockpit.format_bytes_per_sec(total);
                                       });
 
 

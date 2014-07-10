@@ -179,12 +179,6 @@ cockpit.format_delay = function format_delay(d) {
 
 })(cockpit);
 
-function cockpit_format_temperature(kelvin) {
-    var celcius = kelvin - 273.15;
-    var fahrenheit = 9.0 * celcius / 5.0 + 32.0;
-    return celcius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
-}
-
 // ----------------------------------------------------------------------------------------------------
 
 function cockpit_array_remove(array, value)

@@ -178,12 +178,6 @@ function cockpit_add_thousands_separators(number)
     return x1 + x2;
 }
 
-function cockpit_format_bytes_long(num_bytes) {
-    /* Translators: Used in "42.5 KB (42399 bytes)" */
-    var with_unit = cockpit.format_bytes(num_bytes, 1024);
-    return with_unit + " (" + num_bytes + " " + C_("format-bytes", "bytes") + ")";
-}
-
 function cockpit_format_bytes_per_sec(num_bytes) {
     return cockpit.format_bytes(num_bytes) + "/s";
 }

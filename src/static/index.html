@@ -64,6 +64,7 @@
                 }
 
                 /* Show the login screen */
+                $("title").text(initial_environment["hostname"]);
                 $("#login").css("visibility", "visible");
                 $("#login-user-input").focus();
                 $("#login-user-input").on("keydown", function (e) {

@@ -31,6 +31,12 @@ function fmt_size_long(bytes)
     return with_unit + " (" + bytes + " " + C_("format-bytes", "bytes") + ")";
 }
 
+function format_temperature(kelvin) {
+    var celcius = kelvin - 273.15;
+    var fahrenheit = 9.0 * celcius / 5.0 + 32.0;
+    return celcius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
+}
+
 function get_block_devices_for_drive(drive)
 {
     var drive_obj = drive.getObject();
@@ -1238,7 +1244,7 @@ PageStorageDetail.prototype = {
             val = "—";
         }
         if (drive.Temperature > 0) {
-            val += " (" + cockpit_format_temperature(drive.Temperature) + ")";
+            val += " (" + format_temperature(drive.Temperature) + ")";
         }
         $("#disk_detail_assessment").html(val);
 

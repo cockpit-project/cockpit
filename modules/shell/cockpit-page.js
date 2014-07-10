@@ -55,8 +55,6 @@ function cockpit_content_init ()
         cockpit_content_header_changed ();
     });
 
-    cockpit_search_init ($('#content-search'));
-
     cockpit_content_refresh ();
     $('.selectpicker').selectpicker();
 }
@@ -84,7 +82,6 @@ function cockpit_content_leave ()
 
 function cockpit_content_refresh ()
 {
-    $('#content-search').attr('placeholder', _("Search"));
     if (cockpit_loc_trail.length > 0)
         cockpit_go (cockpit_loc_trail);
 }
@@ -148,7 +145,6 @@ function cockpit_go (trail)
         cockpit_loc_trail = trail;
         enter_breadcrumb(cockpit_loc_trail);
         $('#content-header-extra').empty();
-        $('#content-search').val("");
         cockpit_page_enter (new_loc.page);
     } else {
         var cur_loc = cockpit_loc_trail[cockpit_loc_trail.length-1];
@@ -157,7 +153,6 @@ function cockpit_go (trail)
         cockpit_loc_trail = trail;
         enter_breadcrumb(cockpit_loc_trail);
         $('#content-header-extra').empty();
-        $('#content-search').val("");
         cockpit_page_enter (new_loc.page);
         $('#' + cur_loc.page).hide();
     }

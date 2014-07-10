@@ -470,12 +470,6 @@ PageJournal.prototype = {
         this.query_search = cockpit_get_page_param('search') || "";
         this.query_start = cockpit_get_page_param('start') || "recent";
 
-        // XXX - hmm.
-        if (this.query_search)
-            $('#content-search').val(this.query_search);
-        else if (this.query_service)
-            $('#content-search').val('service:' + this.query_service);
-
         update_priority_buttons (this.query_prio);
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";

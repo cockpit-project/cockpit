@@ -113,7 +113,7 @@ function cockpit_job_box (client, tbody, domain, role, descriptions, target_desc
                 else
                     progress = '';
                 if (j.RemainingUSecs)
-                    remaining = cockpit_format_delay (j.RemainingUSecs / 1000);
+                    remaining = cockpit.format_delay(j.RemainingUSecs / 1000);
                 else
                     remaining = '';
                 if (j.Cancellable) {

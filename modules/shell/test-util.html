@@ -82,6 +82,18 @@ test("format_bytes_per_sec", function() {
     }
 });
 
+test("format_delay", function() {
+    var checks = [
+        [ 15550000, "4 hours, 19 minutes, 10 seconds" ]
+    ];
+
+    expect(checks.length);
+    for (var i = 0; i < checks.length; i++) {
+        strictEqual(cockpit.format_delay(checks[i][0]), checks[i][1],
+                    "format_delay(" + checks[i][0] + ") = " + checks[i][1]);
+    }
+});
+
 test("quote_words", function() {
     var checks = [
         [ [ "foo" ],          "foo" ],

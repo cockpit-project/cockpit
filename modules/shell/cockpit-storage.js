@@ -17,17 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_fmt_size(bytes)
+(function(cockpit) {
+
+function fmt_size(bytes)
 {
     return cockpit.format_bytes(bytes, 1024);
 }
 
-function cockpit_fmt_size_long(bytes)
+function fmt_size_long(bytes)
 {
     return cockpit_format_bytes_long(bytes);
 }
 
-function cockpit_get_block_devices_for_drive (drive)
+function get_block_devices_for_drive(drive)
 {
     var drive_obj = drive.getObject();
     var ret = [];
@@ -44,7 +46,7 @@ function cockpit_get_block_devices_for_drive (drive)
     return ret;
 }
 
-function cockpit_get_block_devices_for_mdraid(mdraid)
+function get_block_devices_for_mdraid(mdraid)
 {
     var mdraid_obj = mdraid.getObject();
     var ret = [];
@@ -61,35 +63,35 @@ function cockpit_get_block_devices_for_mdraid(mdraid)
     return ret;
 }
 
-function cockpit_find_block_device_for_drive(drive)
+function find_block_device_for_drive(drive)
 {
-    var blocks = cockpit_get_block_devices_for_drive(drive);
+    var blocks = get_block_devices_for_drive(drive);
     return (blocks.length > 0)? blocks[0] : undefined;
 }
 
-function cockpit_find_block_device_for_mdraid(mdraid)
+function find_block_device_for_mdraid(mdraid)
 {
-    var blocks = cockpit_get_block_devices_for_mdraid(mdraid);
+    var blocks = get_block_devices_for_mdraid(mdraid);
     return (blocks.length > 0)? blocks[0] : undefined;
 }
 
-function cockpit_mark_as_block_target (elt, block)
+function mark_as_block_target(elt, block)
 {
     cockpit_mark_as_target (elt, block.getObject().objectPath);
     for (var i = 0; i < block.Partitions.length; i++) {
         var b = block._client.lookup (block.Partitions[i][0],
                                       "com.redhat.Cockpit.Storage.Block");
         if (b)
-            cockpit_mark_as_block_target (elt, b);
+            mark_as_block_target(elt, b);
     }
     if (block.IdUsage == 'crypto') {
-        var cleartext_device = cockpit_find_cleartext_device (block);
+        var cleartext_device = find_cleartext_device(block);
         if (cleartext_device)
-            cockpit_mark_as_block_target (elt, cleartext_device);
+            mark_as_block_target(elt, cleartext_device);
     }
 }
 
-function cockpit_storage_job_box (client, elt)
+function storage_job_box(client, elt)
 {
     return cockpit_job_box (client,
                             elt, 'storage', 'cockpit-storage-admin',
@@ -104,7 +106,7 @@ function cockpit_storage_job_box (client, elt)
                             });
 }
 
-function cockpit_storage_log_box (client, elt)
+function storage_log_box(client, elt)
 {
     return cockpit_simple_logbox (client,
                                   elt, [ [ "_SYSTEMD_UNIT=udisks2.service" ],
@@ -159,8 +161,8 @@ PageStorage.prototype = {
         $(this.client).on("objectRemoved.storage", $.proxy(this._onObjectRemoved, this));
         $(this.client).on("propertiesChanged.storage", $.proxy(this._onPropertiesChanged, this));
 
-        this.job_box = cockpit_storage_job_box (this.client, $('#storage-jobs'));
-        this.log_box = cockpit_storage_log_box (this.client, $('#storage-log'));
+        this.job_box = storage_job_box(this.client, $('#storage-jobs'));
+        this.log_box = storage_log_box(this.client, $('#storage-log'));
     },
 
     show: function() {
@@ -246,7 +248,7 @@ PageStorage.prototype = {
         var n;
 
         var device_string = "";
-        var blocks = cockpit_get_block_devices_for_drive(drive);
+        var blocks = get_block_devices_for_drive(drive);
         var block;
 
         for (n = 0; n < blocks.length; n++) {
@@ -265,7 +267,7 @@ PageStorage.prototype = {
         html += "</td>";
         html += "<td>";
 
-        var size_str = cockpit_fmt_size(drive.Size);
+        var size_str = fmt_size(drive.Size);
         var val;
         if (drive.Classification == "hdd") {
             val = size_str + " " + C_("storage", "Hard Disk");
@@ -310,7 +312,7 @@ PageStorage.prototype = {
 
         cockpit_prepare_as_target ($('#storage-spinner-' + id));
         for (n = 0; n < blocks.length; n++)
-            cockpit_mark_as_block_target ($('#storage-spinner-' + id), blocks[n]);
+            mark_as_block_target($('#storage-spinner-' + id), blocks[n]);
     },
 
     _addRaid: function(obj) {
@@ -324,12 +326,12 @@ PageStorage.prototype = {
         html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
 
         html += "<td>";
-        html += cockpit_esc(cockpit_raid_get_desc(raid));
+        html += cockpit_esc(raid_get_desc(raid));
         html += "</td>";
         html += "<td>";
 
         if (raid.Size > 0) {
-            var size_str = cockpit_fmt_size(raid.Size);
+            var size_str = fmt_size(raid.Size);
             html += size_str + " " + C_("storage", "RAID Array");
         } else
             html += C_("storage", "RAID Array");
@@ -354,9 +356,9 @@ PageStorage.prototype = {
         this._raids.closest('.panel').show();
 
         cockpit_prepare_as_target ($('#storage-spinner-' + id));
-        var blocks = cockpit_get_block_devices_for_mdraid (raid);
+        var blocks = get_block_devices_for_mdraid(raid);
         for (n = 0; n < blocks.length; n++)
-            cockpit_mark_as_block_target ($('#storage-spinner-' + id), blocks[n]);
+            mark_as_block_target($('#storage-spinner-' + id), blocks[n]);
     },
 
     _addVG: function(obj) {
@@ -375,7 +377,7 @@ PageStorage.prototype = {
         html += "<td>";
 
         if (vg.Size > 0) {
-            var size_str = cockpit_fmt_size(vg.Size);
+            var size_str = fmt_size(vg.Size);
             html += size_str + " " + C_("storage", "Volume Group");
         } else
             html += C_("storage", "Volume Group");
@@ -427,7 +429,7 @@ PageStorage.prototype = {
         html += "</td>";
         html += "<td>";
 
-        var size_str = cockpit_fmt_size(block.Size);
+        var size_str = fmt_size(block.Size);
         var val = size_str + " " + C_("storage", "Block Device");
         html += val;
         html += "</td>";
@@ -452,7 +454,7 @@ PageStorage.prototype = {
         this._other_devices.closest('.panel').show();
 
         cockpit_prepare_as_target ($('#storage-spinner-' + id));
-        cockpit_mark_as_block_target ($('#storage-spinner-' + id), block);
+        mark_as_block_target($('#storage-spinner-' + id), block);
     }
 };
 
@@ -464,7 +466,7 @@ cockpit_pages.push(new PageStorage());
 
 // ----------------------------------------------------------------------------------------------------
 
-function cockpit_lvol_get_desc(lv)
+function lvol_get_desc(lv)
 {
     var type;
     if (lv.Type == "pool")
@@ -478,7 +480,7 @@ function cockpit_lvol_get_desc(lv)
     return F("%{type} \"%{name}\"", { type: type, name: cockpit_esc(lv.Name) });
 }
 
-function cockpit_block_get_desc(block, partition_label, cleartext_device)
+function block_get_desc(block, partition_label, cleartext_device)
 {
     var ret, lv;
 
@@ -510,7 +512,7 @@ function cockpit_block_get_desc(block, partition_label, cleartext_device)
 
     if (block.PartitionNumber > 0)
         ret = F(_("%{size} %{partition} (%{content})"),
-                { size: cockpit_fmt_size(block.Size),
+                { size: fmt_size(block.Size),
                   partition: partition_label,
                   content: ret
                 });
@@ -519,8 +521,8 @@ function cockpit_block_get_desc(block, partition_label, cleartext_device)
         lv = block._client.lookup(block.LogicalVolume,
                                   "com.redhat.Cockpit.Storage.LogicalVolume");
         ret = F(_("%{size} %{partition} (%{content})"),
-                { size: cockpit_fmt_size(block.Size),
-                  partition: cockpit_lvol_get_desc(lv),
+                { size: fmt_size(block.Size),
+                  partition: lvol_get_desc(lv),
                   content: ret
                 });
     }
@@ -548,14 +550,14 @@ function cockpit_block_get_desc(block, partition_label, cleartext_device)
     return ret;
 }
 
-function cockpit_block_get_short_desc(block)
+function block_get_short_desc(block)
 {
     if (block.PartitionNumber > 0)
         return "Partition";
     else if (block.LogicalVolume != "/") {
         var lv = block._client.lookup(block.LogicalVolume,
                                       "com.redhat.Cockpit.Storage.LogicalVolume");
-        return cockpit_lvol_get_desc(lv);
+        return lvol_get_desc(lv);
     } else if (block.Drive != "/") {
         var drive = block._client.lookup(block.Drive,
                                          "com.redhat.Cockpit.Storage.Drive");
@@ -564,7 +566,7 @@ function cockpit_block_get_short_desc(block)
         return "Block Device";
 }
 
-function cockpit_find_cleartext_device(block)
+function find_cleartext_device(block)
 {
     var objpath = block.getObject().objectPath;
 
@@ -579,7 +581,7 @@ function cockpit_find_cleartext_device(block)
     return null;
 }
 
-function cockpit_raid_get_desc(raid)
+function raid_get_desc(raid)
 {
     if (!raid.Name)
         return "";
@@ -601,7 +603,7 @@ function cockpit_raid_get_desc(raid)
                  });
 }
 
-function cockpit_get_free_block_devices(client, filter)
+function get_free_block_devices(client, filter)
 {
     function is_extended_partition(b)
     {
@@ -657,7 +659,7 @@ PageStorageDetail.prototype = {
             else
                 ret = this._drive.Model;
         } else if (this._mdraid) {
-            ret = cockpit_raid_get_desc(this._mdraid);
+            ret = raid_get_desc(this._mdraid);
         } else if (this._vg) {
             ret = this._vg.Name;
         } else
@@ -767,8 +769,8 @@ PageStorageDetail.prototype = {
             $("#block_detail_list").show();
         }
 
-        this.job_box = cockpit_storage_job_box (this.client, $('#storage-detail-jobs'));
-        this.log_box = cockpit_storage_log_box (this.client, $('#storage-detail-log'));
+        this.job_box = storage_job_box(this.client, $('#storage-detail-jobs'));
+        this.log_box = storage_log_box(this.client, $('#storage-detail-log'));
 
         this._update();
 
@@ -813,7 +815,7 @@ PageStorageDetail.prototype = {
 
         val = cockpit_esc(block.Device);
         $("#block_detail_device").html(val);
-        val = block.Size > 0 ? cockpit_fmt_size_long(block.Size) : C_("storage", "No Media Inserted");
+        val = block.Size > 0 ? fmt_size_long(block.Size) : C_("storage", "No Media Inserted");
         $("#block_detail_capacity").html(val);
     },
 
@@ -967,13 +969,13 @@ PageStorageDetail.prototype = {
             var cleartext_device;
 
             if (block.IdUsage == 'crypto')
-                cleartext_device = cockpit_find_cleartext_device (block);
+                cleartext_device = find_cleartext_device(block);
 
             if (block.IdLabel.length > 0)
                 name = cockpit_esc(block.IdLabel);
             else
                 name = "—";
-            desc = cockpit_block_get_desc(block, part_desc, cleartext_device);
+            desc = block_get_desc(block, part_desc, cleartext_device);
 
             id = append_entry (level, name, desc,
                                create_block_action_btn (block, !cleartext_device, !!part_desc));
@@ -1005,13 +1007,13 @@ PageStorageDetail.prototype = {
                     if (is_dos_partitioned) {
                         if (level > device_level)
                             desc = F(_("%{size} Free Space for Logical Partitions"),
-                                     { size: cockpit_fmt_size (size) });
+                                     { size: fmt_size(size) });
                         else
                             desc = F(_("%{size} Free Space for Primary Partitions"),
-                                     { size: cockpit_fmt_size (size) });
+                                     { size: fmt_size(size) });
                     } else
                         desc = F(_("%{size} Free Space"),
-                                 { size: cockpit_fmt_size (size) });
+                                 { size: fmt_size(size) });
 
                     append_entry (level, null, desc,
                                   create_simple_btn (_("Create Partition"),
@@ -1020,7 +1022,7 @@ PageStorageDetail.prototype = {
             }
 
             function append_extended_partition (level, block, start, size) {
-                var desc = F(_("%{size} Extended Partition"), { size: cockpit_fmt_size (size) });
+                var desc = F(_("%{size} Extended Partition"), { size: fmt_size(size) });
                 var btn = create_block_action_btn (block, false, true);
                 append_entry (level, null, desc, btn);
                 me.watch_object(block);
@@ -1089,8 +1091,8 @@ PageStorageDetail.prototype = {
                 var btn, id, desc;
                 if (block.PartitionTableType) {
                     desc = F(_("%{size} %{desc}"),
-                             { desc: cockpit_lvol_get_desc(lv),
-                               size: cockpit_fmt_size (block.Size) });
+                             { desc: lvol_get_desc(lv),
+                               size: fmt_size(block.Size) });
                     desc += "<br/>" + cockpit_esc(block.Device);
                     btn = create_block_action_btn (block, false, false);
                     id = append_entry (level, null, desc, btn);
@@ -1118,8 +1120,8 @@ PageStorageDetail.prototype = {
                 if (lv.Type == "pool") {
                     ratio = Math.max(lv.DataAllocatedRatio, lv.MetadataAllocatedRatio);
                     desc = F(_("%{size} %{desc}<br/>%{percent}% full"),
-                             { size: cockpit_fmt_size (lv.Size),
-                               desc: cockpit_lvol_get_desc(lv),
+                             { size: fmt_size(lv.Size),
+                               desc: lvol_get_desc(lv),
                                percent: (ratio*100).toFixed(0)
                              });
                     btn = create_block_action_btn (lv, false, false);
@@ -1144,8 +1146,8 @@ PageStorageDetail.prototype = {
                         // and we show it as "unsupported".
 
                         desc = F(_("%{size} %{desc}<br/>(%{state})"),
-                                 { size: cockpit_fmt_size (lv.Size),
-                                   desc: cockpit_lvol_get_desc(lv),
+                                 { size: fmt_size(lv.Size),
+                                   desc: lvol_get_desc(lv),
                                    state: lv.Active? _("active, but unsupported") : _("inactive")
                                  });
                         btn = create_block_action_btn (lv, false, false);
@@ -1166,7 +1168,7 @@ PageStorageDetail.prototype = {
             }
             if (vg.FreeSize > 0) {
                 desc = F(_("%{size} Free Space for Logical Volumes"),
-                         { size: cockpit_fmt_size (vg.FreeSize) });
+                         { size: fmt_size(vg.FreeSize) });
                 var btn = cockpit_action_btn (function (op) { me.volume_group_action (op); },
                                               [ { title: _("Create Plain Logical Volume"),
                                                   action: 'create-plain', is_default: true
@@ -1204,7 +1206,7 @@ PageStorageDetail.prototype = {
         var val;
 
         var drive = this._drive;
-        var blocks = cockpit_get_block_devices_for_drive (drive);
+        var blocks = get_block_devices_for_drive(drive);
         var block = (blocks.length > 0)? blocks[0] : undefined;
 
         this.watch_object (drive);
@@ -1222,7 +1224,7 @@ PageStorageDetail.prototype = {
         $("#disk_detail_serial_number").html(val);
         val = drive.WWN ? cockpit_esc(drive.WWN) : "—";
         $("#disk_detail_world_wide_name").html(val);
-        val = drive.Size > 0 ? cockpit_fmt_size_long(drive.Size) : C_("disk-drive", "No Media Inserted");
+        val = drive.Size > 0 ? fmt_size_long(drive.Size) : C_("disk-drive", "No Media Inserted");
         $("#disk_detail_capacity").html(val);
         if (drive.FailingValid) {
             if (drive.Failing) {
@@ -1261,7 +1263,7 @@ PageStorageDetail.prototype = {
         }
 
         var raid = this._mdraid;
-        var block = cockpit_find_block_device_for_mdraid (raid);
+        var block = find_block_device_for_mdraid(raid);
 
         this.watch_object (raid);
         this.watch_object (block);
@@ -1272,16 +1274,16 @@ PageStorageDetail.prototype = {
         else
             $("#raid_detail_device").html("--");
 
-        var val = raid.Size > 0 ? cockpit_fmt_size_long(raid.Size) : "--";
+        var val = raid.Size > 0 ? fmt_size_long(raid.Size) : "--";
         $("#raid_detail_capacity").html(val);
-        $("#raid_detail_name").text(cockpit_raid_get_desc(raid));
+        $("#raid_detail_name").text(raid_get_desc(raid));
         $("#raid_detail_uuid").html(cockpit_esc(raid.UUID));
 
         var level = format_level(raid.Level);
         if (raid.NumDevices > 0)
             level += ", " + F(_("%{n} Disks"), { n: raid.NumDevices });
         if (raid.ChunkSize > 0)
-            level += ", " + F(_("%{n} Chunk Size"), { n: cockpit_fmt_size(raid.ChunkSize) });
+            level += ", " + F(_("%{n} Chunk Size"), { n: fmt_size(raid.ChunkSize) });
         $("#raid_detail_level").html(cockpit_esc(level));
 
         var state, action_state = "", is_running;
@@ -1325,7 +1327,7 @@ PageStorageDetail.prototype = {
                 if (raid.SyncRate > 0)
                     action_state = F(_("%{action}, %{percent}% complete at %{rate}"),
                                     { action: action, percent: percent,
-                                      rate: cockpit_fmt_size (raid.SyncRate) + "/s" });
+                                      rate: fmt_size(raid.SyncRate) + "/s" });
                 else
                     action_state = F(_("%{action}, %{percent}% complete"),
                                     { action: action, percent: percent });
@@ -1416,7 +1418,7 @@ PageStorageDetail.prototype = {
         else
             this.stop_vg_polling();
 
-        val = vg.Size > 0 ? cockpit_fmt_size_long(vg.Size) : "--";
+        val = vg.Size > 0 ? fmt_size_long(vg.Size) : "--";
         $("#vg_detail_capacity").html(val);
         $("#vg_detail_name").text(vg.Name);
         $("#vg_detail_uuid").text(vg.UUID);
@@ -1432,8 +1434,8 @@ PageStorageDetail.prototype = {
         }
 
         pvs.sort(function (a, b) {
-            var desc_a = cockpit_block_get_short_desc (a);
-            var desc_b = cockpit_block_get_short_desc (b);
+            var desc_a = block_get_short_desc(a);
+            var desc_b = block_get_short_desc(b);
             return desc_a.localeCompare(desc_b);
         });
 
@@ -1455,10 +1457,10 @@ PageStorageDetail.prototype = {
                                          "com.redhat.Cockpit.Storage.Drive"));
 
             desc = "";
-            desc += cockpit_block_get_short_desc(block);
+            desc += block_get_short_desc(block);
             desc += "<br/>" + F(_("%{size}, %{free} free"),
-                                { size: cockpit_fmt_size (block.PvSize),
-                                  free: cockpit_fmt_size (block.PvFreeSize)
+                                { size: fmt_size(block.PvSize),
+                                  free: fmt_size(block.PvFreeSize)
                                 });
             pvs_list.append(
                 $('<li class="list-group-item">').append(
@@ -1573,7 +1575,7 @@ PageStorageDetail.prototype = {
         var self = this;
         var location = cockpit.location();
 
-        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: cockpit_raid_get_desc(this._mdraid) }),
+        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: raid_get_desc(this._mdraid) }),
                         _("Deleting a RAID Device will erase all data on it."),
                         _("Delete")).
             done(function () {
@@ -1626,9 +1628,9 @@ PageStorageDetail.prototype = {
 
         PageFormatDisk.block = null;
         if (this._drive)
-            PageFormatDisk.block = cockpit_find_block_device_for_drive (this._drive);
+            PageFormatDisk.block = find_block_device_for_drive(this._drive);
         else if (this._mdraid)
-            PageFormatDisk.block = cockpit_find_block_device_for_mdraid (this._mdraid);
+            PageFormatDisk.block = find_block_device_for_mdraid(this._mdraid);
         else if (this._block)
             PageFormatDisk.block = this._block;
 
@@ -1983,8 +1985,7 @@ PageCreateRaid.prototype = {
 
     enter: function() {
         this.client = PageCreateRaid.client;
-        this.blocks = cockpit_fill_free_devices_list (this.client,
-                                                      'create-raid-drives', null);
+        this.blocks = fill_free_devices_list(this.client, 'create-raid-drives', null);
 
         $('#create-raid-drives input').on('change', $.proxy(this, "update"));
         $('#create-raid-name').val("");
@@ -1999,7 +2000,7 @@ PageCreateRaid.prototype = {
         var n_disks, disk_size, raid_size, level, n_disks_needed;
         var n, b, i;
 
-        var blocks = cockpit_get_selected_devices_objpath ($('#create-raid-drives'), me.blocks);
+        var blocks = get_selected_devices_objpath($('#create-raid-drives'), me.blocks);
 
         n_disks = blocks.length;
         disk_size = Infinity;
@@ -2051,9 +2052,9 @@ PageCreateRaid.prototype = {
         if (n_disks >= n_disks_needed) {
             $("#create-raid-summary-drives").text(F(_("%{n} disks of %{size} each"),
                                                     { n: n_disks,
-                                                      size: cockpit_fmt_size (disk_size)
+                                                      size: fmt_size(disk_size)
                                                     }));
-            $("#create-raid-summary-size").text(cockpit_fmt_size (raid_size));
+            $("#create-raid-summary-size").text(fmt_size(raid_size));
             $("#create-raid-create").prop('disable', false);
         } else {
             $("#create-raid-summary-drives").text(F(_("%{n} more disks needed"),
@@ -2068,7 +2069,7 @@ PageCreateRaid.prototype = {
         var level = $('#create-raid-level').val();
         var chunk = $('#create-raid-chunk').val();
         var name = $('#create-raid-name').val();
-        var blocks = cockpit_get_selected_devices_objpath ($('#create-raid-drives'), me.blocks);
+        var blocks = get_selected_devices_objpath($('#create-raid-drives'), me.blocks);
 
         var manager = this.client.lookup("/com/redhat/Cockpit/Storage/Manager",
                                          "com.redhat.Cockpit.Storage.Manager");
@@ -2087,15 +2088,15 @@ function PageCreateRaid() {
 
 cockpit_pages.push(new PageCreateRaid());
 
-function cockpit_fill_free_devices_list(client, id, filter)
+function fill_free_devices_list(client, id, filter)
 {
     var blocks;
     var element = $('#' + id);
 
-    blocks = cockpit_get_free_block_devices(client, filter);
+    blocks = get_free_block_devices(client, filter);
     blocks.sort(function (a, b) {
-        var desc_a = cockpit_block_get_short_desc (a);
-        var desc_b = cockpit_block_get_short_desc (b);
+        var desc_a = block_get_short_desc(a);
+        var desc_b = block_get_short_desc(b);
         return desc_a.localeCompare(desc_b);
     });
 
@@ -2104,8 +2105,8 @@ function cockpit_fill_free_devices_list(client, id, filter)
     for (var n = 0; n < blocks.length; n++) {
         var block = blocks[n];
         var desc = F("%{size} %{desc} %{dev}",
-                     { size: cockpit_fmt_size(block.Size),
-                       desc: cockpit_block_get_short_desc(block),
+                     { size: fmt_size(block.Size),
+                       desc: block_get_short_desc(block),
                        dev: cockpit_esc(block.Device)
                      });
         var id_n = id + '-' + n;
@@ -2129,7 +2130,7 @@ function cockpit_fill_free_devices_list(client, id, filter)
     return blocks;
 }
 
-function cockpit_get_selected_devices_objpath(element, blocks)
+function get_selected_devices_objpath(element, blocks)
 {
     var selected = [ ];
     element.find('input').each(function (i, e) {
@@ -2162,8 +2163,7 @@ PageCreateVolumeGroup.prototype = {
 
     enter: function() {
         this.client = PageCreateVolumeGroup.client;
-        this.blocks = cockpit_fill_free_devices_list (this.client,
-                                                      'create-vg-drives', null);
+        this.blocks = fill_free_devices_list(this.client, 'create-vg-drives', null);
         $('#create-vg-name').val("");
         $('#create-vg-drives').prop('checked', false);
     },
@@ -2172,7 +2172,7 @@ PageCreateVolumeGroup.prototype = {
         var me = this;
         var name = $('#create-vg-name').val();
 
-        var blocks = cockpit_get_selected_devices_objpath ($('#create-vg-drives'), me.blocks);
+        var blocks = get_selected_devices_objpath($('#create-vg-drives'), me.blocks);
         var manager = this.client.lookup("/com/redhat/Cockpit/Storage/Manager",
                                          "com.redhat.Cockpit.Storage.Manager");
         manager.call ("VolumeGroupCreate", name, blocks,
@@ -2836,20 +2836,20 @@ PageRaidDiskAdd.prototype = {
             return b.MDRaid == PageRaidDiskAdd.mdraid.getObject().objectPath;
         }
 
-        this.blocks = cockpit_fill_free_devices_list (PageRaidDiskAdd.mdraid._client,
-                                                      'raid-disk-add-drives', is_us);
+        this.blocks = fill_free_devices_list(PageRaidDiskAdd.mdraid._client,
+                                             'raid-disk-add-drives', is_us);
         $('#raid-disk-add-drives input').on('change', $.proxy(this, "update"));
         this.update();
     },
 
     update: function() {
-        var n_disks = cockpit_get_selected_devices_objpath ($('#raid-disk-add-drives'), this.blocks).length;
+        var n_disks = get_selected_devices_objpath($('#raid-disk-add-drives'), this.blocks).length;
         $("#raid-disk-add-add").prop('disable', n_disks === 0);
     },
 
     add: function() {
         var me = this;
-        var blocks = cockpit_get_selected_devices_objpath ($('#raid-disk-add-drives'), this.blocks);
+        var blocks = get_selected_devices_objpath($('#raid-disk-add-drives'), this.blocks);
         PageRaidDiskAdd.mdraid.call('AddDevices', blocks,
                                     function (error) {
                                         $("#raid_disk_add_dialog").modal('hide');
@@ -2891,20 +2891,20 @@ PageVGDiskAdd.prototype = {
             return lv && lv.VolumeGroup == PageVGDiskAdd.volume_group.getObject().objectPath;
         }
 
-        this.blocks = cockpit_fill_free_devices_list (PageVGDiskAdd.volume_group._client,
-                                                      'vg-disk-add-drives', is_ours);
+        this.blocks = fill_free_devices_list(PageVGDiskAdd.volume_group._client,
+                                             'vg-disk-add-drives', is_ours);
         $('#vg-disk-add-drives input').on('change', $.proxy(this, "update"));
         this.update();
     },
 
     update: function() {
-        var n_disks = cockpit_get_selected_devices_objpath ($('#vg-disk-add-drives'), this.blocks).length;
+        var n_disks = get_selected_devices_objpath($('#vg-disk-add-drives'), this.blocks).length;
         $("#vg-disk-add-add").prop('disable', n_disks === 0);
     },
 
     add: function() {
         var me = this;
-        var blocks = cockpit_get_selected_devices_objpath ($('#vg-disk-add-drives'), this.blocks);
+        var blocks = get_selected_devices_objpath($('#vg-disk-add-drives'), this.blocks);
 
         function add_them(i) {
             if (i < blocks.length)
@@ -2930,3 +2930,5 @@ function PageVGDiskAdd() {
 }
 
 cockpit_pages.push(new PageVGDiskAdd());
+
+})(cockpit);

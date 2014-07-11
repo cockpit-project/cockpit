@@ -1922,7 +1922,7 @@ PageNetworkBondSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Monitoring Interval")),
                     $('<td>').append(
-                        interval_input = $('<input class="form-control">').
+                        interval_input = $('<input class="form-control network-number-field" type="text" maxlength="4">').
                             val(options.miimon || options.arp_interval || "100").
                             change(change_monitoring))),
                 $('<tr>').append(
@@ -1934,13 +1934,13 @@ PageNetworkBondSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Link up delay")),
                     $('<td>').append(
-                        updelay_input = $('<input class="form-control">').
+                        updelay_input = $('<input class="form-control network-number-field" type="text" maxlength="4">').
                             val(options.updelay || "0").
                             change(change_monitoring))),
                 $('<tr>').append(
                     $('<td>').text(_("Link down delay")),
                     $('<td>').append(
-                        downdelay_input = $('<input class="form-control">').
+                        downdelay_input = $('<input class="form-control network-number-field" type="text" maxlength="4">').
                             val(options.downdelay || "0").
                             change(change_monitoring))));
 

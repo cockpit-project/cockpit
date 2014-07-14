@@ -755,7 +755,7 @@ class TestStorage(MachineCase):
         b.click("#format-disk-format")
         b.wait_popdown("storage_format_disk_dialog")
 
-        b.wait_in_text("#storage_detail_content", "50.0 MiB Free Space")
+        b.wait_in_text("#storage_detail_content", "50.0 MB Free Space")
 
     def testHidden(self):
         m = self.machine

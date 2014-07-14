@@ -233,6 +233,34 @@ fi
 AM_CONDITIONAL(WITH_ASAN, test "$enable_asan" = "yes")
 AC_MSG_RESULT($asan_status)
 
+# User and group for running cockpit-ws
+
+AC_ARG_WITH(cockpit_user,
+	    AS_HELP_STRING([--with-cockpit-user=<user>],
+			   [User for running cockpit (root)]
+                          )
+           )
+AC_ARG_WITH(cockpit_group,
+	    AS_HELP_STRING([--with-cockpit-group=<group>],
+			   [Group for running cockpit]
+                          )
+           )
+
+if test -z "$with_cockpit_user"; then
+    COCKPIT_USER=root
+    COCKPIT_GROUP=
+else
+    COCKPIT_USER=$with_cockpit_user
+    if test -z "$with_cockpit_group"; then
+        COCKPIT_GROUP=$with_cockpit_user
+    else
+	COCKPIT_GROUP=$with_cockpit_group
+    fi
+fi
+
+AC_SUBST(COCKPIT_USER)
+AC_SUBST(COCKPIT_GROUP)
+
 # Debug
 
 AC_MSG_CHECKING([for debug mode])
@@ -322,6 +350,9 @@ echo "
         compiler:                   ${CC}
         cflags:                     ${CFLAGS}
         cppflags:                   ${CPPFLAGS}
+
+        cockpit-ws user:            ${COCKPIT_USER}
+        cockpit-ws group:           ${COCKPIT_GROUP}
 
         Maintainer mode:            ${USE_MAINTAINER_MODE}
         Building api docs:          ${enable_gtk_doc}

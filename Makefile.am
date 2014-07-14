@@ -7,6 +7,7 @@ check_SCRIPTS =
 noinst_SCRIPTS =
 libexec_PROGRAMS =
 noinst_PROGRAMS =
+sbin_PROGRAMS =
 noinst_LIBRARIES =
 noinst_DATA =
 TESTS =
@@ -80,6 +81,22 @@ recheck-memory: valgrind-suppressions
 		HTML_LOG_DRIVER_FLAGS="--missing=no-phantom-valgrind" \
 		$(AM_MAKEFLAGS) recheck
 
+SED_SUBST = sed \
+        -e 's,[@]datadir[@],$(datadir),g' \
+        -e 's,[@]libexecdir[@],$(libexecdir),g' \
+        -e 's,[@]libdir[@],$(libdir),g' \
+        -e 's,[@]includedir[@],$(includedir),g' \
+        -e 's,[@]bindir[@],$(bindir),g' \
+        -e 's,[@]sbindir[@],$(sbindir),g' \
+        -e 's,[@]prefix[@],$(prefix),g' \
+        -e 's,[@]exec_prefix[@],$(exec_prefix),g' \
+        -e 's,[@]prefix[@],$(prefix),g' \
+        -e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+        -e 's,[@]VERSION[@],$(VERSION),g' \
+        -e 's,[@]user[@],$(COCKPIT_USER),g' \
+        -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
+        $(NULL)
+
 if WITH_DEBUG
 MINIFY = $(top_srcdir)/tools/minify -n --
 else
@@ -120,5 +137,6 @@ include src/agent/Makefile-agent.am
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am
 include src/static/Makefile-static.am
+include src/remotectl/Makefile-remotectl.am
 include src/reauthorize/Makefile-reauthorize.am
 include src/selinux/Makefile-selinux.am

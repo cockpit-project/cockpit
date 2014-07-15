@@ -8,10 +8,17 @@ docker_DATA = \
 	pkg/docker/manifest.json \
 	$(NULL)
 
+docker_TESTS = \
+	pkg/docker/test-docker.html \
+	$(NULL)
+
+TESTS += $(docker_TESTS)
+
 CLEANFILES += \
 	pkg/docker/docker.min.js \
 	$(NULL)
 
 EXTRA_DIST += \
 	$(docker_DATA) \
+	$(docker_TESTS) \
 	$(NULL)

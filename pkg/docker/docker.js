@@ -294,5 +294,103 @@ define([
         return self;
     };
 
+    /*
+     * docker.json_skip(string, pos = 0)
+     * @string: the JSON string
+     * @pos: optionally, the starting position in string, or zero
+     *
+     * Sometimes docker returns multiple JSON strings concatenated.
+     *
+     * Skip over one item in a stream of JSON things, like objects,
+     * numbers, strings, etc... The things can be separated by whitespace
+     * or in some cases (strings, objects, arrays) be right next to
+     * each other.
+     *
+     * We do not validate the JSON. It's assumed that a later parse
+     * will check for validity.
+     *
+     * Returns: the number of characters to skip over next json block
+     * or zero if no complete json block found.
+     */
+
+    docker.json_skip = function(string, pos) {
+        var any = false;
+        var end = string.length;
+        var depth = 0;
+        var inword = false;
+        var instr = false;
+        var endword = " \t\n\r\v[{}]\"";
+        var spaces = " \t\n\r\v";
+        var ch;
+
+        if (pos === undefined)
+            pos = 0;
+
+        for (end = string.length; pos != end; pos++) {
+            if (any && depth <= 0)
+                break; /* skipped over one thing */
+
+            ch = string[pos];
+            if (inword) {
+                if (endword.indexOf(ch) != -1) {
+                    inword = false;
+                    depth--;
+                    pos--;
+                }
+                continue;
+            }
+
+            if (spaces.indexOf(ch) != -1)
+                continue;
+
+            if (instr) {
+                switch (ch) {
+                case '\\':
+                    if (pos + 1 == end)
+                        continue;
+                    pos++; /* skip char after bs */
+                    break;
+                case '"':
+                    instr = false;
+                    depth--;
+                    break;
+                default:
+                    break;
+                }
+                continue;
+            }
+
+            any = true;
+            switch(ch) {
+            case '[':
+            case '{':
+                depth++;
+                break;
+            case ']':
+            case '}':
+                depth--;
+                break;
+            case '"':
+                instr = true;
+                depth++;
+                break;
+            default:
+                inword = true;
+                depth++;
+                break;
+            }
+        }
+
+        if (inword && depth == 1)
+            depth = 0;
+
+        /* No complete JSON blocks found */
+        if (!any || depth > 0)
+            return 0;
+
+        /* The position at which we found th eend */
+        return pos;
+    };
+
     return docker;
 });

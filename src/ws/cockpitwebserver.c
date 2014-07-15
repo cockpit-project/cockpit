@@ -1110,7 +1110,10 @@ static gboolean
 on_request_timeout (gpointer data)
 {
   CockpitRequest *request = data;
-  g_message ("request timed out, closing");
+  if (request->eof_okay)
+    g_debug ("request timed out, closing");
+  else
+    g_message ("request timed out, closing");
   cockpit_request_finish (request);
   return FALSE;
 }

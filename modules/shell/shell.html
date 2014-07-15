@@ -175,15 +175,19 @@
                 <td id="system_information_hostname_text"></td>
                 <td>
                   <button class="btn btn-default" id="system_information_change_hostname_button">
-                    Change
+                    Change Host name
                   </button>
                 </td>
               </tr>
               <tr>
                 <td>Domain</td>
                 <td id="system_information_realms"></td>
+                <div id="realms-leave-error"></div></td>
                 <td>
-                  <button class="btn btn-default" onclick="cockpit_go_down('realms')">Change</button>
+                  <button class="btn btn-default" id="realms-join">Join Domain</button>
+                  <button class="btn btn-default realms-leave-button" translatable="yes" id="realms-leave" style="float:left">Leave Domain</button>
+
+<div class="realms-leave-spinner waiting" id="realms-leave-spinner" translatable="yes" style="float:left"/>
                 </td>
               </tr>
             </table>
@@ -199,7 +203,7 @@
             </center>
             <ul class="list-group" id="realms-list"></ul>
             <div id="realms-leave-error"></div>
-            <button class="btn btn-default" translatable="yes" id="realms-join">Join a domain</button>
+            <button class="btn btn-default" translatable="yes" id="">Join a domain</button>
           </div>
         </div>
       </div>

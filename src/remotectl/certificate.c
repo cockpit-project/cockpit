@@ -73,6 +73,8 @@ ensure_certificate (const gchar *user,
 
   if (!user)
     user = "root";
+  if (g_strcmp0 (group, "") == 0)
+    group = NULL;
 
   /* Resolve the user and group */
   pwd = getpwnam (user);

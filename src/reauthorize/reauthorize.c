@@ -809,7 +809,7 @@ reauthorize_crypt1 (const char *challenge,
   if (resp == NULL)
     {
       ret = -errno;
-      message ("coudln't hash secret via crypt: %m");
+      message ("couldn't hash secret via crypt: %m");
       goto out;
     }
 

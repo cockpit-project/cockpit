@@ -148,6 +148,7 @@ to code in the modules/ subdirectory.
 Run this command from your top level Cockpit checkout directory, and make
 sure to run it as the user that you will using to log into Cockpit.
 
+    $ mkdir -p ~/.local/share
     $ ln -s $(pwd)/modules ~/.local/share/cockpit
 
 This will cause cockpit to read UI files directly from the Cockpit code
@@ -202,13 +203,13 @@ for Cockpit to work (ie: PAM stack, UI files, etc.)
 
 This is how you would run cockpit-ws under gdb:
 
-   $ export G_DEBUG=fatal-criticals
-   $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
-   $ gdb --args ./cockpit-ws --port 10000 --no-tls --uninstalled
+    $ export G_DEBUG=fatal-criticals
+    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
+    $ gdb --args ./cockpit-ws --port 10000 --no-tls --uninstalled
 
 And you can run cockpit-ws and cockpit-agent under valgrind like this:
 
-   $ export G_DEBUG=fatal-criticals
-   $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
-   $ valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
-         ./cockpit-ws --port 10000 --no-tls --uninstalled
+    $ export G_DEBUG=fatal-criticals
+    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
+    $ valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
+          ./cockpit-ws --port 10000 --no-tls --uninstalled

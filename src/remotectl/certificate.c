@@ -86,7 +86,7 @@ ensure_certificate (const gchar *user,
       gr = getgrnam (group);
       if (gr == NULL)
         {
-          g_message ("coudln't lookup group: %s: %s", group, g_strerror (errno));
+          g_message ("couldn't lookup group: %s: %s", group, g_strerror (errno));
           goto out;
         }
     }

@@ -119,7 +119,7 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %{_libdir}/security/pam_reauthorize.so
 %{_datadir}/%{name}
 %{_mandir}/*
-%attr(755, -, wheel) %{_sharedstatedir}/%{name}
+%attr(775, -, wheel) %{_sharedstatedir}/%{name}
 
 %package test-assets
 Summary: Additional stuff for testing Cockpit

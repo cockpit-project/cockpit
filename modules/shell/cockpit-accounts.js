@@ -945,7 +945,7 @@ PageAccountSetPassword.prototype = {
                                                          cockpit_show_unexpected_error (error);
                                                  });
         } else if (PageAccountSetPassword.user_name) {
-            cockpit.spawn([ "/bin/passwd", "--stdin", PageAccountSetPassword.user_name ]).
+            cockpit.spawn([ "passwd", "--stdin", PageAccountSetPassword.user_name ]).
                 write($('#account-set-password-pw1').val()).
                 fail(cockpit_show_unexpected_error);
         }

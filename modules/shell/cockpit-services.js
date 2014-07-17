@@ -184,7 +184,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
         if (geard_match) {
             var btn_eject = $('<button class="btn btn-default btn-control btn-eject">').
                 on("click", function() {
-                    cockpit.spawn([ "/usr/bin/gear", "delete", geard_match[1] ], { host: address }).
+                    cockpit.spawn([ "gear", "delete", geard_match[1] ], { host: address }).
                         fail(cockpit_show_unexpected_error);
                     return false;
                 });
@@ -225,8 +225,7 @@ PageServices.prototype = {
         if (!me.geard_check_done) {
             var location = cockpit.location();
             me.geard_check_done = true;
-            cockpit.spawn([ "/bin/test", "-x", "/usr/bin/gear" ],
-                          { host: me.address }).
+            cockpit.spawn([ "which", "gear" ], { host: me.address }).
                 done(function () {
                     me.geard_present = true;
                     location.go(cockpit_loc_trail);
@@ -532,7 +531,7 @@ PageServiceAdd.prototype = {
 
     add: function() {
         $('#service-add-dialog').modal('hide');
-        cockpit.spawn([ "/usr/bin/gear", "install", "--has-foreground", $('#service-add-image').val(), $('#service-add-name').val() ],
+        cockpit.spawn([ "gear", "install", "--has-foreground", $('#service-add-image').val(), $('#service-add-name').val() ],
                       { host: PageServiceAdd.address }).
             fail(cockpit_show_unexpected_error);
     }

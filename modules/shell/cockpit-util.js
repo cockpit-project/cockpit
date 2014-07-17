@@ -660,7 +660,7 @@ function machine_info(address) {
         dfd = $.Deferred();
         machine_info_promises[address] = pr = dfd.promise();
 
-        cockpit.spawn(["/bin/cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address }).
+        cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address }).
             done(function(text) {
                 var info = { };
                 var match = text.match(/MemTotal:[^0-9]*([0-9]+) KB/);

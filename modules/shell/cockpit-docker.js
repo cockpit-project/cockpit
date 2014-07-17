@@ -1751,7 +1751,7 @@ function DockerClient(machine) {
         var options = {
             host: cockpit_get_page_param ("machine", "server")
         };
-        cockpit.spawn(["/bin/sh", "-c", command], options).
+        cockpit.spawn(["sh", "-c", command], options).
             fail(function(ex) {
                 console.warn(ex);
             });

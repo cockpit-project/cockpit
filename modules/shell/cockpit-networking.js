@@ -634,7 +634,7 @@ function NetworkManagerModel(address) {
             return;
 
         push_refresh();
-        cockpit.spawn(["/usr/bin/udevadm", "info", obj.Udi], { host: address }).
+        cockpit.spawn(["udevadm", "info", obj.Udi], { host: address }).
             done(function(res) {
                 var props = { };
                 function snarf_prop(line, env, prop) {

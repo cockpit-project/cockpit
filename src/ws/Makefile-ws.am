@@ -99,9 +99,10 @@ CLEANFILES += \
 # ----------------------------------------------------------------------------------------------------
 
 noinst_PROGRAMS += test-server
+check_PROGRAMS += test-server
 
 testassets_programs += test-server
-testassets_data += modules/shell/dbus-test.html \
+testassets_data += modules/shell/test-dbus.html \
                    modules/shell/dbus.js  \
                    modules/shell/channel.js \
 		   modules/shell/polyfills.js \
@@ -144,7 +145,6 @@ WS_CHECKS = \
 	test-sshtransport \
 	test-webservice \
 	test-handlers \
-	test-server \
 	$(NULL)
 
 test_auth_CFLAGS = $(cockpit_ws_CFLAGS)

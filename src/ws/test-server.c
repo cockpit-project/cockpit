@@ -31,7 +31,6 @@
 #include "cockpitwebserver.h"
 #include "cockpitwebservice.h"
 
-static gboolean tap_mode = FALSE;
 static GMainLoop *loop = NULL;
 static int exit_code = 0;
 
@@ -93,35 +92,15 @@ on_handle_stream_socket (CockpitWebServer *server,
 }
 
 static void
-on_phantomjs_exited (GPid pid,
-                     gint status,
-                     gpointer user_data)
-{
-  GError *error = NULL;
-
-  if (!g_spawn_check_exit_status (status, &error))
-    {
-      g_critical ("phantomjs: %s", error->message);
-      g_error_free (error);
-      exit_code = 1;
-    }
-
-  g_main_loop_quit (loop);
-  g_spawn_close_pid (pid);
-}
-
-static void
 server_ready (void)
 {
   const gchar *roots[] = { ".", SRCDIR, NULL };
   GError *error = NULL;
   CockpitWebServer *server;
-  gchar *args[5];
   gint port;
   gchar *url;
-  GPid pid;
 
-  if (tap_mode)
+  if (!isatty (1))
     port = 0; /* select one automatically */
   else
     port = 8765;
@@ -142,48 +121,18 @@ server_ready (void)
                     G_CALLBACK (on_handle_stream_socket), NULL);
 
   g_object_get (server, "port", &port, NULL);
-  url = g_strdup_printf("http://localhost:%d/modules/shell/dbus-test.html", port);
+  url = g_strdup_printf("http://localhost:%d", port);
 
-  if (tap_mode)
+  if (!isatty (1))
     {
-      /* When TAP, we run phantomjs on the tests, with qunit-tap */
-      args[0] = "phantomjs";
-      args[1] = SRCDIR "/tools/tap-phantom";
-      args[2] = url;
-      args[3] = NULL;
-      g_spawn_async (NULL, args, NULL, G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
-                     NULL, NULL, &pid, &error);
-
-      if (error == NULL)
-        {
-          g_child_watch_add (pid, on_phantomjs_exited, NULL);
-        }
-      else if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
-        {
-          /*
-           * No phantomjs available? Tell TAP harness we're bailing out.
-           *
-           * Unfortunately we can't tell TAP harness how many tests would
-           * have been run, because we don't know ... not even QUnit knows :S
-           * So this'll say we skipped one test, when we actually skipped
-           * many more.
-           */
-          g_print ("Bail out! - phantomjs is not available\n");
-          g_main_loop_quit (loop);
-          g_error_free (error);
-        }
-      else
-        {
-          g_warning ("Couldn't launch phantomjs: %s", error->message);
-          g_error_free (error);
-        }
+      g_print ("%s\n", url);
     }
   else
     {
       g_print ("**********************************************************************\n"
            "Please connect a supported web browser to\n"
            "\n"
-           " %s\n"
+           " %s/modules/shell/test-dbus.html\n"
            "\n"
            "and check that the test suite passes. Press Ctrl+C to exit.\n"
            "**********************************************************************\n"
@@ -245,7 +194,6 @@ main (int argc,
   guint id_b = -1;
 
   GOptionEntry entries[] = {
-    { "tap", 0, 0, G_OPTION_ARG_NONE, &tap_mode, "Automatically run tests in terminal", NULL },
     { NULL }
   };
 
@@ -257,16 +205,11 @@ main (int argc,
 
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR);
 
-  /* This is how tap-gtester runs us */
-  if (g_getenv ("HARNESS_ACTIVE"))
+  /* We don't run phantomjs under valgrind */
+  if (RUNNING_ON_VALGRIND)
     {
-      /* We don't run phantomjs under valgrind */
-      if (RUNNING_ON_VALGRIND)
-        {
-          g_print ("Bail out! - not running phantomjs under valgrind\n");
-          return 0;
-        }
-      tap_mode = TRUE;
+      g_print ("Bail out! - not running phantomjs under valgrind\n");
+      return 0;
     }
 
   /* This isolates us from affecting other processes during tests */

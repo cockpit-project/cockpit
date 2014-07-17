@@ -854,7 +854,7 @@ lookup_or_open_session_for_host (CockpitWebService *self,
             host = "127.0.0.1";
         }
 
-      if(host == NULL || g_strcmp0 (host, "") == 0)
+      if (host == NULL || g_strcmp0 (host, "") == 0)
         host = "localhost";
 
       if (g_strcmp0 (host, "localhost") == 0)

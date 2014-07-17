@@ -229,7 +229,7 @@ test_webserver_content_type (TestCase *tc,
   guint status;
   gssize off;
 
-  resp = perform_http_request (tc->localport, "GET /modules/shell/dbus-test.html HTTP/1.0\r\nHost:test\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /modules/shell/test-dbus.html HTTP/1.0\r\nHost:test\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -252,7 +252,7 @@ test_with_query_string (TestCase *tc,
   gchar *resp;
   gsize length;
 
-  resp = perform_http_request (tc->localport, "GET /modules/shell/dbus-test.html?blah HTTP/1.0\r\nHost:test\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /modules/shell/test-dbus.html?blah HTTP/1.0\r\nHost:test\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 
@@ -317,7 +317,7 @@ test_webserver_redirect_notls (TestCase *tc,
       return;
     }
 
-  resp = perform_http_request (tc->hostport, "GET /modules/shell/dbus-test.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  resp = perform_http_request (tc->hostport, "GET /modules/shell/test-dbus.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
 
   cockpit_assert_strmatch (resp, "HTTP/* 301 *\r\nLocation: https://*");
   g_free (resp);
@@ -329,7 +329,7 @@ test_webserver_noredirect_localhost (TestCase *tc,
 {
   gchar *resp;
 
-  resp = perform_http_request (tc->localport, "GET /modules/shell/dbus-test.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  resp = perform_http_request (tc->localport, "GET /modules/shell/test-dbus.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
@@ -341,7 +341,7 @@ test_webserver_noredirect_exception (TestCase *tc,
   gchar *resp;
 
   g_object_set (tc->web_server, "ssl-exception-prefix", "/modules", NULL);
-  resp = perform_http_request (tc->hostport, "GET /modules/shell/dbus-test.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  resp = perform_http_request (tc->hostport, "GET /modules/shell/test-dbus.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
@@ -503,7 +503,7 @@ test_webserver_host_header (TestCase *tc,
   gchar *resp;
 
   cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "received HTTP request without Host header");
-  resp = perform_http_request (tc->localport, "GET /dbus-test.html HTTP/1.0\r\n\r\n", &length);
+  resp = perform_http_request (tc->localport, "GET /test-dbus.html HTTP/1.0\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);
 

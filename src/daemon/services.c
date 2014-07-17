@@ -566,7 +566,8 @@ get_service_description (const gchar *file)
   return description;
 
 out:
-  g_warning ("Failed to load '%s': %s", file, error->message);
+  if (g_error_matches (error, G_KEY_FILE_ERROR, G_KEY_FILE_ERROR_GROUP_NOT_FOUND))
+    g_warning ("Failed to load '%s': %s", file, error->message);
   g_error_free (error);
   g_key_file_free (kf);
   return g_strdup ("Unknown");

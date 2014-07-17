@@ -140,7 +140,7 @@ PageSetupServer.prototype = {
         }
 
         $('#dashboard_setup_next').prop('disable', false);
-        $('#dashboard_setup_prev').prop('disable', !this.prev_tab);
+        $('#dashboard_setup_prev').prop('disabled', !this.prev_tab);
     },
 
     close: function() {

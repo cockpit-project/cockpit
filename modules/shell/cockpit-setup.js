@@ -20,6 +20,7 @@
 PageSetupServer.prototype = {
     _init: function() {
         this.id = "dashboard_setup_server_dialog";
+        this.focus_timeout = null;
     },
 
     getTitle: function() {
@@ -41,6 +42,17 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_next').on('click', $.proxy(this, 'next'));
     },
 
+    check_empty_address: function() {
+        var addr = $('#dashboard_setup_address').val();
+
+        if (addr === "")
+            $('#dashboard_setup_next').prop('disabled', true);
+        else
+            $('#dashboard_setup_next').prop('disabled', false);
+
+        $('#dashboard_setup_next').text(_("Next"));
+    },
+
     enter: function() {
         var self = this;
 
@@ -52,6 +64,8 @@ PageSetupServer.prototype = {
         $("#dashboard_setup_login_user")[0].placeholder = C_("login-screen", "Enter user name");
         $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
         $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));
+        $('#dashboard_setup_address').on('input change focus', $.proxy (this, 'check_empty_address'));
+        $('#dashboard_setup_address').on('blur', $.proxy (this, 'lose_focus'));
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.local_client = cockpit.dbus("localhost", { payload: 'dbus-json1' });
@@ -65,7 +79,6 @@ PageSetupServer.prototype = {
         });
 
         $('#dashboard_setup_address').val("");
-
         $('#dashboard_setup_login_user').val("");
         $('#dashboard_setup_login_password').val("");
         $('#dashboard_setup_login_error').text("");
@@ -75,6 +88,7 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_address_error').text("");
         this.show_tab ('address');
         self.update_discovered ();
+        $('#dashboard_setup_next').prop('disabled', true);
     },
 
     update_discovered: function() {
@@ -114,12 +128,25 @@ PageSetupServer.prototype = {
     discovered_clicked: function (iface) {
         $("#dashboard_setup_address").val(iface.Address);
         this.update_discovered();
+        this.get_focus("dashboard_setup_address");
+    },
+
+    get_focus: function(id) {
+        this.focus_timeout = setTimeout(function() { document.getElementById(id).focus(); }, 0);
+    },
+
+    lose_focus: function() {
+        if (this.focus_timeout !== null) {
+            clearTimeout(this.focus_timeout);
+            this.focus_timeout = null;
+        }
     },
 
     show_tab: function (tab) {
         $('.cockpit-setup-tab').hide();
         $('#dashboard_setup_next').text(_("Next"));
         if (tab == 'address') {
+            this.get_focus("dashboard_setup_address");
             $('#dashboard_setup_address_tab').show();
             this.next_action = this.next_select;
             this.prev_tab = null;
@@ -139,7 +166,7 @@ PageSetupServer.prototype = {
             this.prev_tab = null;
         }
 
-        $('#dashboard_setup_next').prop('disable', false);
+        $('#dashboard_setup_next').prop('disabled', false);
         $('#dashboard_setup_prev').prop('disabled', !this.prev_tab);
     },
 
@@ -160,7 +187,7 @@ PageSetupServer.prototype = {
 
     next: function() {
         $('#dashboard_setup_next').html('<div class="waiting"/>');
-        $('#dashboard_setup_next').prop('disable', true);
+        $('#dashboard_setup_next').prop('disabled', true);
         this.next_action();
     },
 

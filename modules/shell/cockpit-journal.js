@@ -17,10 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_watch_journal (client,
-                                match, fields,
-                                seek, skip,
-                                callback)
+(function(cockpit, $) {
+
+function watch_journal(client,
+                       match, fields,
+                       seek, skip,
+                       callback)
 {
     var journal = client.get ("/com/redhat/Cockpit/Journal",
                               "com.redhat.Cockpit.Journal");
@@ -82,7 +84,7 @@ function cockpit_watch_journal (client,
     return { stop: stop };
 }
 
-function cockpit_output_funcs_for_box (box)
+function output_funcs_for_box(box)
 {
     function render_line (ident, prio, message, count, time, cursor)
     {
@@ -127,12 +129,12 @@ function cockpit_output_funcs_for_box (box)
     };
 }
 
-function cockpit_simple_logbox (client, box, match, max_entries)
+cockpit.simple_logbox = function simple_logbox(client, box, match, max_entries)
 {
     var entries = [ ];
 
     function render() {
-        var renderer = cockpit_journal_renderer (cockpit_output_funcs_for_box (box));
+        var renderer = cockpit_journal_renderer(output_funcs_for_box (box));
         box.empty();
         for (var i = 0; i < entries.length; i++) {
             renderer.prepend (entries[i]);
@@ -162,13 +164,11 @@ function cockpit_simple_logbox (client, box, match, max_entries)
     }
 
     render();
-    return cockpit_watch_journal (client,
-                                  match,
-                                  cockpit_journal_fields,
-                                  'tail', -max_entries, callback);
-}
+    return watch_journal(client, match, cockpit_journal_fields,
+                         'tail', -max_entries, callback);
+};
 
-function cockpit_journal_filler (journal, box, start, match, match_text, header, day_box, start_box, end_box)
+function journal_filler(journal, box, start, match, match_text, header, day_box, start_box, end_box)
 {
     var query_count = 5000;
     var query_more = 1000;
@@ -179,7 +179,7 @@ function cockpit_journal_filler (journal, box, start, match, match_text, header,
     var bottom_scroll;
     var running = true;
 
-    var renderer = cockpit_journal_renderer (cockpit_output_funcs_for_box (box));
+    var renderer = cockpit_journal_renderer(output_funcs_for_box (box));
 
     function stop () {
         running = false;
@@ -547,10 +547,10 @@ PageJournal.prototype = {
         if (start_param == 'recent')
             $(window).scrollTop($(document).height());
 
-        this.filler = cockpit_journal_filler (this.journal,
-                                              $('#journal-box'), start_param, match, search_param,
-                                              '#content nav', '#journal-current-day',
-                                              $('#journal-start'), $('#journal-end'));
+        this.filler = journal_filler(this.journal,
+                                     $('#journal-box'), start_param, match, search_param,
+                                     '#content nav', '#journal-current-day',
+                                     $('#journal-start'), $('#journal-end'));
     },
 
     details: function (cursor) {
@@ -621,3 +621,5 @@ function PageJournalDetails() {
 }
 
 cockpit_pages.push(new PageJournalDetails());
+
+})(cockpit, jQuery);

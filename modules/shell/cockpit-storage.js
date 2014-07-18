@@ -116,7 +116,7 @@ function storage_job_box(client, elt)
 
 function storage_log_box(client, elt)
 {
-    return cockpit_simple_logbox (client,
+    return cockpit.simple_logbox(client,
                                   elt, [ [ "_SYSTEMD_UNIT=udisks2.service" ],
                                          [ "_SYSTEMD_UNIT=dm-event.service" ],
                                          [ "COCKPIT_DOMAIN=storage" ]

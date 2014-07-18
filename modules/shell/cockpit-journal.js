@@ -168,7 +168,7 @@ cockpit.simple_logbox = function simple_logbox(client, box, match, max_entries)
                          'tail', -max_entries, callback);
 };
 
-function journal_filler(journal, box, start, match, match_text, header, day_box, start_box, end_box)
+function journal_filler(journal, box, start, match, header, day_box, start_box, end_box)
 {
     var query_count = 5000;
     var query_more = 1000;
@@ -189,7 +189,7 @@ function journal_filler(journal, box, start, match, match_text, header, day_box,
     {
         // console.log("Q %s %s %s %s", seek, skip, count, wait);
         journal.call('Query',
-                     match, match_text,
+                     match, "",
                      seek, skip, count,
                      query_fields, query_max_length,
                      wait,
@@ -467,7 +467,7 @@ PageJournal.prototype = {
 
         this.query_prio = parseInt(cockpit_get_page_param('prio') || "0", 10);
         this.query_service = cockpit_get_page_param('service') || "";
-        this.query_search = cockpit_get_page_param('search') || "";
+        this.query_tag = cockpit_get_page_param('tag') || "";
         this.query_start = cockpit_get_page_param('start') || "recent";
 
         update_priority_buttons (this.query_prio);
@@ -481,7 +481,6 @@ PageJournal.prototype = {
         this.journal = this.client.get ("/com/redhat/Cockpit/Journal",
                                         "com.redhat.Cockpit.Journal");
 
-        this.reset_service_list ();
         this.reset_query ();
     },
 
@@ -495,37 +494,22 @@ PageJournal.prototype = {
         this.journal = null;
     },
 
-    reset_service_list: function () {
-        this.journal.call('QueryUnique', "_SYSTEMD_UNIT", 50, function (error, result) {
-            if (error)
-                console.log(error.message);
-            else {
-                var list = $('#journal-service-list');
-                list.empty();
-                result.sort();
-                for (var i = 0; i < result.length; i++)
-                    list.append('<option value="' + cockpit_esc (result[i]) + '"/>');
-            }
-        });
-    },
-
     reset_query: function () {
         if (this.filler)
             this.filler.stop();
 
         var prio_param = this.query_prio;
         var service_param = this.query_service;
-        var search_param = this.query_search;
         var start_param = this.query_start;
+        var tag_param = this.query_tag;
 
         cockpit_set_page_param ('prio', prio_param.toString());
         cockpit_set_page_param ('service', service_param);
-        cockpit_set_page_param ('search', search_param);
+        cockpit_set_page_param ('tag', tag_param);
         cockpit_set_page_param ('start', start_param);
 
         var match = [ ];
 
-        var prio_match = [ ];
         var prio_level = { "0": 3,
                            "1": 4,
                            "2": 5,
@@ -534,21 +518,19 @@ PageJournal.prototype = {
 
         if (prio_level) {
             for (var i = 0; i <= prio_level; i++)
-                prio_match.push ('PRIORITY=' + i.toString());
+                match.push('PRIORITY=' + i.toString());
         }
 
-        if (service_param) {
-            match.push ([ '_SYSTEMD_UNIT=' + service_param ].concat(prio_match));
-            match.push ([ 'COREDUMP_UNIT=' + service_param ].concat(prio_match));
-            match.push ([ 'UNIT=' + service_param ].concat(prio_match));
-        } else if (prio_match)
-            match.push (prio_match);
+        if (service_param)
+            match.push('_SYSTEMD_UNIT=' + service_param);
+        else if (tag_param)
+            match.push('SYSLOG_IDENTIFIER=' + tag_param);
 
         if (start_param == 'recent')
             $(window).scrollTop($(document).height());
 
         this.filler = journal_filler(this.journal,
-                                     $('#journal-box'), start_param, match, search_param,
+                                     $('#journal-box'), start_param, [ match ],
                                      '#content nav', '#journal-current-day',
                                      $('#journal-start'), $('#journal-end'));
     },

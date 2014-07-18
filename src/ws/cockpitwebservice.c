@@ -1171,7 +1171,7 @@ on_web_socket_closing (WebSocketConnection *connection,
   while (g_hash_table_iter_next (&iter, (gpointer *)&channel, (gpointer *)&session))
     {
       socket = cockpit_socket_lookup_by_channel (&self->sockets, channel);
-      if (socket->connection == connection)
+      if (socket && socket->connection == connection)
         g_hash_table_insert (snapshot, g_strdup (channel), session);
     }
 

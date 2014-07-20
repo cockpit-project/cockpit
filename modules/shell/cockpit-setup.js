@@ -158,7 +158,11 @@ PageSetupServer.prototype = {
             $('#dashboard_setup_action_tab').show();
             $('#dashboard_setup_next').text(_("Add server"));
             this.next_action = this.next_setup;
-            this.prev_tab = 'login';
+            var reuse = $('#dashboard_setup_address_reuse_creds').prop('checked');
+            if (reuse)
+                this.prev_tab = 'address';
+            else
+                this.prev_tab = 'login';
         } else if (tab == 'close') {
             $('#dashboard_setup_action_tab').show();
             $('#dashboard_setup_next').text(_("Close"));

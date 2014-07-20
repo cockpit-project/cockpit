@@ -130,12 +130,14 @@ PageSetupServer.prototype = {
             if (!cockpit_find_in_array (machines[i].Tags, "dashboard")) {
                 var rendered_address = render_address (machines[i].Address);
                 if (rendered_address) {
-                    var item =
-                        $('<li>', { 'class': 'list-group-item',
-                                    'on': { 'click': $.proxy(this, 'discovered_clicked', machines[i])
-                                          }
-                                  }).html(rendered_address);
-                    discovered.append(item);
+                    if (machines[i].Address.trim() !== "") {
+                        var item =
+                            $('<li>', { 'class': 'list-group-item',
+                                        'on': { 'click': $.proxy(this, 'discovered_clicked', machines[i])
+                                              }
+                                      }).html(rendered_address);
+                        discovered.append(item);
+                    }
                 }
             }
         }

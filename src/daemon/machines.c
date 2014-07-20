@@ -387,6 +387,14 @@ handle_add (CockpitMachines *object,
   Machines *machines = MACHINES (object);
   Machine *machine;
 
+  if (g_strcmp0 (arg_address, "") == 0)
+    {
+      error = g_error_new (G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+                           "IP address or host name cannot be empty.");
+      g_dbus_method_invocation_take_error (invocation, error);
+      return TRUE;
+    }
+
   machine = machines_add (machines, arg_address, arg_host_key, &error);
   if (machine)
     {

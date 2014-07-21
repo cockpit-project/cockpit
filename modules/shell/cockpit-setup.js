@@ -66,6 +66,22 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));
         $('#dashboard_setup_address').on('input change focus', $.proxy (this, 'check_empty_address'));
         $('#dashboard_setup_address').on('blur', $.proxy (this, 'lose_focus'));
+        $('#dashboard_setup_login_user').on('blur', $.proxy (this, 'lose_focus'));
+        $('#dashboard_setup_address').on('keyup', function(event) {
+            if (event.which === 13) {
+                var disable = $('#dashboard_setup_next').prop('disabled');
+                if (!disable)
+                    self.next();
+            }
+        });
+        $('#dashboard_setup_login_user').on('keyup', function(event) {
+            if (event.which === 13)
+                $("#dashboard_setup_login_password").focus();
+        });
+        $('#dashboard_setup_login_password').on('keyup', function(event) {
+            if (event.which === 13)
+                self.next();
+        });
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.local_client = cockpit.dbus("localhost", { payload: 'dbus-json1' });
@@ -151,12 +167,13 @@ PageSetupServer.prototype = {
             this.next_action = this.next_select;
             this.prev_tab = null;
         } else if (tab == 'login') {
+            this.get_focus('dashboard_setup_login_user');
             $('#dashboard_setup_login_tab').show();
             this.next_action = this.next_login;
             this.prev_tab = 'address';
         } else if (tab == 'action') {
             $('#dashboard_setup_action_tab').show();
-            $('#dashboard_setup_next').text(_("Add server"));
+            $('#dashboard_setup_next').text(_("Add Server"));
             this.next_action = this.next_setup;
             this.prev_tab = 'login';
         } else if (tab == 'close') {

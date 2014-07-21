@@ -461,6 +461,7 @@ PageRealmsOp.prototype = {
                     me.realm_manager.call("GetDiagnostics",
                                           function (error, result) {
                                               $("#realms-op-more-diagnostics").hide();
+                                              $("#realms-op-diagnostics").show();
                                               $("#realms-op-diagnostics").empty().append(result);
                                           });
                 });

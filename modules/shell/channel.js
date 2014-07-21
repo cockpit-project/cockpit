@@ -114,7 +114,6 @@ function Channel(options) {
         } else if ("MozWebSocket" in window) { // Firefox 6
             transport._ws = new MozWebSocket(ws_loc);
         } else {
-            /* TODO: This needs a much better display. Bug #212 */
             console.error("WebSocket not supported, application will not work!");
             return;
         }

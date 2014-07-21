@@ -24,7 +24,6 @@
 
 #include <glib-unix.h>
 
-#include <sys/resource.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <sys/wait.h>
@@ -984,88 +983,6 @@ cockpit_pipe_spawn (const gchar **argv,
   return pipe;
 }
 
-static int
-closefd (void *data,
-         gint fd)
-{
-  if (fd >= GPOINTER_TO_INT (data))
-    {
-      while (close (fd) < 0)
-        {
-          if (errno == EAGAIN || errno == EINTR)
-            continue;
-          if (errno == EBADF || errno == EINVAL)
-            break;
-          g_critical ("couldn't close fd in child process: %s", g_strerror (errno));
-          return -1;
-        }
-    }
-
-  return 0;
-}
-
-#ifndef HAVE_FDWALK
-static int
-fdwalk (int (*cb)(void *data, int fd), void *data)
-{
-  gint open_max;
-  gint fd;
-  gint res = 0;
-
-  struct rlimit rl;
-
-#ifdef __linux__
-  DIR *d;
-
-  if ((d = opendir("/proc/self/fd"))) {
-      struct dirent *de;
-
-      while ((de = readdir(d))) {
-          glong l;
-          gchar *e = NULL;
-
-          if (de->d_name[0] == '.')
-              continue;
-
-          errno = 0;
-          l = strtol(de->d_name, &e, 10);
-          if (errno != 0 || !e || *e)
-              continue;
-
-          fd = (gint) l;
-
-          if ((glong) fd != l)
-              continue;
-
-          if (fd == dirfd(d))
-              continue;
-
-          if ((res = cb (data, fd)) != 0)
-              break;
-        }
-
-      closedir(d);
-      return res;
-  }
-
-  /* If /proc is not mounted or not accessible we fall back to the old
-   * rlimit trick */
-
-#endif
-
-  if (getrlimit(RLIMIT_NOFILE, &rl) == 0 && rl.rlim_max != RLIM_INFINITY)
-      open_max = rl.rlim_max;
-  else
-      open_max = sysconf (_SC_OPEN_MAX);
-
-  for (fd = 0; fd < open_max; fd++)
-      if ((res = cb (data, fd)) != 0)
-          break;
-
-  return res;
-}
-
-#endif /* HAVE_FDWALK */
 
 /**
  * cockpit_pipe_pty:
@@ -1092,7 +1009,7 @@ cockpit_pipe_pty (const gchar **argv,
   pid = forkpty (&fd, NULL, NULL, NULL);
   if (pid == 0)
     {
-      if (fdwalk (closefd, GINT_TO_POINTER (3)) < 0)
+      if (cockpit_unix_fd_close_all (3, -1) < 0)
         {
           g_printerr ("couldn't close file descriptors");
           _exit (127);

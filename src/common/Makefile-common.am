@@ -91,3 +91,7 @@ test_unixsignal_LDADD = $(libcockpit_common_a_LIBS)
 
 noinst_PROGRAMS += $(COCKPIT_CHECKS)
 TESTS += $(COCKPIT_CHECKS)
+
+EXTRA_DIST += \
+	src/common/mock-stderr \
+	$(NULL)

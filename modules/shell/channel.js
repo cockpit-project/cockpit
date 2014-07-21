@@ -155,7 +155,7 @@ function Channel(options) {
                 transport_debug("recv control:", payload);
                 transport._process_control(JSON.parse(payload));
             } else {
-                transport_debug("recv payload:", channel);
+                transport_debug("recv " + channel + ":", payload);
                 transport._process_message(channel, payload);
             }
             phantom_checkpoint();
@@ -209,7 +209,7 @@ function Channel(options) {
                 return;
             }
             if (channel)
-                transport_debug("send payload:", channel);
+                transport_debug("send " + channel + ":", payload);
             else
                 transport_debug("send control:", payload);
             var msg = channel.toString() + "\n" + payload;

@@ -190,6 +190,18 @@ To revert the above logging changes:
     $ sudo systemctl daemon-reload
     $ sudo systemctl restart cockpit
 
+## Debug logging of Cockpit protocol
+
+Cockpit communicates with the system via a WebSocket. To log all
+communication to the Web Browser's console, run one of the following
+commands in the console:
+
+    > cockpit.debugging = "channel"
+
+Or in order to log starting at page reload:
+
+    > document.cookie = "debugging=channel;"
+
 ## Running Cockpit processes under a debugger
 
 You may want to run cockpit-ws under a debugger such as valgrind or gdb.

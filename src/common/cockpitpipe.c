@@ -900,6 +900,69 @@ cockpit_pipe_connect (const gchar *name,
   return pipe;
 }
 
+static void
+print_err_lines (GString *buffer)
+{
+  const gchar *at = buffer->str;
+  gsize length = buffer->len;
+  const gchar *line;
+
+  /* Print all stderr lines as messages */
+  while ((line = memchr (at, '\n', length)) != NULL)
+    {
+      g_printerr ("%.*s", (int)(line - at), at);
+      length -= (line - at) + 1;
+      at = line + 1;
+    }
+
+  if (length > 0)
+    g_string_erase (buffer, 0, buffer->len - length);
+  else
+    g_string_set_size (buffer, 0);
+}
+
+static gboolean
+on_pipe_stderr (gint fd,
+                GIOCondition cond,
+                gpointer user_data)
+{
+  GString *buffer = user_data;
+  gboolean keep = FALSE;
+  gsize len;
+  int ret;
+
+  if (cond & G_IO_IN)
+    {
+      len = buffer->len;
+      g_string_set_size (buffer, len + 1024);
+      ret = read (fd, buffer->str + len, 1024);
+      g_string_set_size (buffer, len + MAX (ret, 0));
+
+      if (ret < 0)
+        {
+          g_warning ("couldn't read from process stderr: %m");
+        }
+      else if (ret > 0)
+        {
+          keep = TRUE;
+        }
+    }
+
+  print_err_lines (buffer);
+  if (!keep)
+    {
+      if (buffer->len)
+        {
+          g_string_append_c (buffer, '\n');
+          print_err_lines (buffer);
+        }
+      close (fd);
+      g_string_free (buffer, TRUE);
+    }
+
+  return keep;
+}
+
 /**
  * cockpit_pipe_spawn:
  * @argv: null terminated string array of command arguments
@@ -908,7 +971,7 @@ cockpit_pipe_connect (const gchar *name,
  *
  * Launch a child process and create a CockpitPipe for it. Standard
  * in and standard out are connected to the pipe. Standard error
- * goes to the standard error output of parent process.
+ * goes to the g_printerr handler, usually to the journal.
  *
  * If the spawn fails, a pipe is still returned. It will
  * close once the main loop is run with an appropriate problem.
@@ -927,6 +990,7 @@ cockpit_pipe_spawn (const gchar **argv,
   CockpitPipe *pipe = NULL;
   int session_stdin = -1;
   int session_stdout = -1;
+  int session_stderr = -1;
   GError *error = NULL;
   const gchar *problem = NULL;
   gchar *name;
@@ -936,8 +1000,8 @@ cockpit_pipe_spawn (const gchar **argv,
 
   g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
                             flags, NULL, NULL,
-                            &pid, &session_stdin, &session_stdout, NULL,
-                            &error);
+                            &pid, &session_stdin, &session_stdout,
+                            &session_stderr, &error);
 
   name = g_path_get_basename (argv[0]);
   if (name == NULL)
@@ -977,6 +1041,12 @@ cockpit_pipe_spawn (const gchar **argv,
   else
     {
       g_debug ("%s: spawned: %s", name, argv[0]);
+    }
+
+  if (session_stderr >= 0)
+    {
+      cockpit_unix_fd_add (session_stderr, G_IO_IN | G_IO_HUP,
+                           on_pipe_stderr, g_string_new (""));
     }
 
   g_free (name);

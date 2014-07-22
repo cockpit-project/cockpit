@@ -29,6 +29,7 @@
 
 static GMainLoop *loop = NULL;
 
+static gboolean  name_acquired;
 static gboolean  opt_replace = FALSE;
 static gboolean  opt_no_sigint = FALSE;
 
@@ -58,9 +59,13 @@ on_name_lost (GDBusConnection *connection,
     {
       g_warning ("Failed to connect to the message bus");
     }
+  else if (name_acquired)
+    {
+      g_message ("Lost the name %s on the session message bus", name);
+    }
   else
     {
-      g_message ("Lost (or failed to acquire) the name %s on the system message bus", name);
+      g_message ("Failed to acquire the name %s on the session message bus", name);
     }
   g_main_loop_quit (loop);
 }
@@ -70,6 +75,8 @@ on_name_acquired (GDBusConnection *connection,
                   const gchar *name,
                   gpointer user_data)
 {
+  name_acquired = TRUE;
+  g_debug ("Acquired the name %s on the session message bus", name);
 }
 
 static gboolean

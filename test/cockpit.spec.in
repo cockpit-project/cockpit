@@ -47,7 +47,7 @@ BuildRequires: docbook-style-xsl
 BuildRequires: keyutils-libs-devel
 BuildRequires: dbus-devel
 BuildRequires: glib-networking
-
+BuildRequires: systemd
 
 BuildRequires: perl-JavaScript-Minifier-XS
 BuildRequires: perl-Locale-PO
@@ -65,6 +65,9 @@ Requires: mdadm
 Requires: lvm2
 Requires: storaged
 Requires: selinux-policy
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 
 %description
 Cockpit.
@@ -76,11 +79,18 @@ getent group cockpit-realm-admin >/dev/null || groupadd -r cockpit-realm-admin
 getent group cockpit-storage-admin >/dev/null || groupadd -r cockpit-storage-admin
 getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
 
+%preun
+%systemd_preun cockpit.socket
+
 %post
+%systemd_post cockpit.socket
 # Only for testing: in a distro we would ask sshd to ship the relevant lines
 cat %{_datadir}/%{name}/sshd-reauthorize.pam >> %{_sysconfdir}/pam.d/sshd
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
+
+%postun
+%systemd_postun_with_restart cockpit.socket
 
 %prep
 %setup -q

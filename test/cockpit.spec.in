@@ -137,7 +137,7 @@ pulls in some necessary packages via dependencies.
 /usr/lib/systemd/system/test-server.service
 /usr/lib/systemd/system/test-server.socket
 
-%package selinux
+%package selinux-policy
 Summary: SELinux policy for Cockpit testing
 Requires: %{name} = %{version}-%{release}
 Requires: %{name}-test-assets = %{version}-%{release}
@@ -145,24 +145,25 @@ Requires: selinux-policy
 Requires: selinux-policy-targeted
 Requires(post): /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
 Requires(postun): /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
+BuildArch: noarch
 
-%description selinux
+%description selinux-policy
 SELinux policy for Cockpit testing.
 
-%files selinux
+%files selinux-policy
 %defattr(-,root,root,0755)
 %{_datadir}/selinux/targeted/cockpit.pp
 
-%post selinux
+%post selinux-policy
 /usr/sbin/semodule -s targeted -i %{_datadir}/selinux/targeted/cockpit.pp &> /dev/null || :
 /sbin/fixfiles -R cockpit restore || :
 /sbin/fixfiles -R cockpit-test-assets restore || :
 /sbin/restorecon -R %{_sharedstatedir}/%{name} || :
 
-%postun selinux
+%postun selinux-policy
 if [ $1 -eq 0 ] ; then
   /usr/sbin/semodule -s targeted -r cockpit &> /dev/null || :
-  /sbin/fixfiles -R cockpit-selinux restore || :
+  /sbin/fixfiles -R cockpit-selinux-policy restore || :
   [ -d %{_sharedstatedir}/%{name} ]  && \
     /sbin/restorecon -R %{_sharedstatedir}/%{name} &> /dev/null || :
 fi

@@ -1149,7 +1149,10 @@ on_web_socket_error (WebSocketConnection *connection,
                      GError *error,
                      gpointer unused)
 {
-  g_message ("%s", error->message);
+  if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_EOF))
+    g_debug ("web socket error: %s", error->message);
+  else
+    g_message ("%s", error->message);
 }
 
 static gboolean

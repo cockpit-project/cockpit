@@ -81,7 +81,7 @@ var cockpit = cockpit || { };
             if (this.exit_signal)
                 this.message = "Process killed with signal " + this.exit_signal;
             else
-                this.message = "Process exited with code " + this.exit_code;
+                this.message = "Process exited with code " + this.exit_status;
         }
         this.toString = function() {
             return this.message;

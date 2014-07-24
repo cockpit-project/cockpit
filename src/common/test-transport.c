@@ -62,7 +62,8 @@ setup_with_child (TestCase *tc,
                            "name", "mock",
                            "in-fd", out,
                            "out-fd", in,
-                           "pid", pid);
+                           "pid", pid,
+                           NULL);
   tc->transport = cockpit_pipe_transport_new (tc->pipe);
 }
 

@@ -18,75 +18,184 @@
  */
 
 (function(cockpit, $) {
+"use strict";
 
-function watch_journal(client,
-                       match, fields,
-                       seek, skip,
-                       callback)
-{
-    var journal = client.get ("/com/redhat/Cockpit/Journal",
-                              "com.redhat.Cockpit.Journal");
+/**
+ * cockpit.journal([match, ...], [options])
+ * @match: any number of journal match strings
+ * @options: an object containing further options
+ *
+ * Load and (by default) stream journal entries as
+ * json objects. This function returns a jQuery deferred
+ * object which delivers the various journal entries.
+ *
+ * The various @match strings are journalctl matches.
+ * Zero, one or more can be specified. They must be in
+ * string format, or arrays of strings.
+ *
+ * The optional @options object can contain the following:
+ *  * "host": the host to load journal from
+ *  * "count": number of entries to load and/or pre-stream.
+ *    Default is 10
+ *  * "follow": if set to false just load entries and don't
+ *    stream further journal data. Default is true.
+ *  * "directory": optional directory to load journal files
+ *  * "boot": when set only list entries from this specific
+ *    boot id, or if null then the current boot.
+ *  * "since": if specified list entries since the date/time
+ *  * "until": if specified list entries until the date/time
+ *  * "cursor": a cursor to start listing entries from
+ *  * "after": a cursor to start listing entries after
+ *
+ * Returns a jQuery deferred promise. You can call these
+ * functions on the deferred to handle the responses. Note that
+ * there are additional non-jQuery methods.
+ *
+ *  .done(function(entries) { }): Called when done, @entries is
+ *         an array of all journal entries loaded. If .stream()
+ *         has been invoked then @entries will be empty.
+ *  .fail(funciton(ex) { }): called if the operation fails
+ *  .stream(function(entries) { }): called when we receive entries
+ *         entries. Called once per batch of journal @entries,
+ *         whether following or not.
+ *  .stop(): stop following or retrieving entries.
+ */
 
-    var running = true;
-
-    function stop () {
-        running = false;
+cockpit.journal = function journal(/* ... */) {
+    var matches = [];
+    var options = { follow: true };
+    for (var i = 0; i < arguments.length; i++) {
+        var arg = arguments[i];
+        if (typeof (arg) == "string") {
+            matches.push(arg);
+        } else if (typeof (arg) == "object") {
+            if (arg instanceof Array)
+                matches.push.apply(matches, arg);
+            else
+                jQuery.extend(options, arg);
+        } else {
+            console.warn("cockpit.journal called with invalid argument:", arg);
+        }
     }
 
-    function get_entries (seek, skip) {
-        journal.call('Query',
-                     match, "",
-                     seek, skip, 100,
-                     fields,
-                     512,
-                     true,
-                     function (error, result, first, last, eof) {
-                         if (running) {
-                             if (error) {
-                                 callback (null, error);
-                             } else {
-                                 callback (result, null);
-
-                                 /* If we have a cursor for the last
-                                  * entry, just follow from there.  If
-                                  * not, the query has probably timed
-                                  * out and we repeat it.
-                                  *
-                                  * However, if a query for 'tail'
-                                  * comes back without a 'last'
-                                  * cursor, it has returned immediatly
-                                  * and not timed out: The journal is
-                                  * completely empty and repeating
-                                  * that query would just put us in a
-                                  * tight loop.  In that case, we
-                                  * follow from 'head', which is
-                                  * correct since the journal is
-                                  * empty.
-                                  *
-                                  * TODO - This is all too
-                                  * complicated.  Replace this with
-                                  * cockpit.spawn("journalctl").
-                                  */
-
-                                 if (last)
-                                     get_entries (last, 1);
-                                 else if (seek == 'tail')
-                                     get_entries ('head', 0);
-                                 else
-                                     get_entries (seek, skip);
-                             }
-                         }
-                     });
+    if (options.count === undefined) {
+        if (options.follow)
+            options.count = 10;
+        else
+            options.count = null;
     }
 
-    get_entries (seek, skip);
+    var cmd = [ "journalctl", "-q", "--output=json" ];
+    if (!options.count)
+        cmd.push("--no-tail");
+    else
+        cmd.push("--lines=" + options.count);
+    if (options.directory)
+        cmd.push("--directory=" + options.directory);
+    if (options.boot)
+        cmd.push("--boot=" + options.boot);
+    else if (options.boot !== undefined)
+        cmd.push("--boot");
+    if (options.since)
+        cmd.push("--since=" + options.since);
+    if (options.until)
+        cmd.push("--until=" + options.until);
+    if (options.cursor)
+        cmd.push("--cursor=" + options.cursor);
+    if (options.after)
+        cmd.push("--after=" + options.after);
 
-    return { stop: stop };
-}
+    /* journalctl doesn't allow reverse and follow together */
+    if (options.reverse)
+        cmd.push("--reverse");
+    else if (options.follow)
+        cmd.push("--follow");
+
+    cmd.push("--");
+    cmd.push.apply(cmd, matches);
+
+    var dfd = new jQuery.Deferred();
+    var promise;
+    var buffer = "";
+    var entries = [];
+    var streamers = null;
+    var interval = null;
+    var entry;
+
+    function fire_streamers() {
+        if (streamers && entries.length > 0) {
+            var ents = entries;
+            entries = [];
+            streamers.fireWith(promise, [ents]);
+        } else {
+            clearInterval(interval);
+            interval = null;
+        }
+    }
+
+    var proc = cockpit.spawn(cmd, options.host, { "batch": 1152 }).
+        stream(function(data) {
+            var pos = 0;
+            var next;
+
+            if (buffer)
+                data = buffer + data;
+            buffer = "";
+
+            var lines = data.split("\n");
+            var last = lines.length - 1;
+            $.each(lines, function(i, line) {
+                if (i == last) {
+                    buffer = line;
+                } else if (line && !line.startsWith("-- ")) {
+                    try {
+                        entries.push(JSON.parse(line));
+                    } catch (e) {
+                        console.warn(e, line);
+                    }
+                }
+            });
+
+            if (streamers && interval === null)
+                interval = setInterval(fire_streamers, 300);
+        }).
+        done(function() {
+            fire_streamers();
+            dfd.resolve(entries);
+        }).
+        fail(function(ex) {
+            /* The journalctl command fails when no entries are matched
+             * so we just ignore this status code */
+            if (ex.problem == "cancelled" ||
+                ex.exit_status === 1) {
+                fire_streamers();
+                dfd.resolve(entries);
+            } else {
+                dfd.reject(ex);
+            }
+        }).
+        always(function() {
+            clearInterval(interval);
+        });
+
+    promise = dfd.promise();
+    promise.stream = function stream(callback) {
+        if (streamers === null)
+            streamers = $.Callbacks("" /* no flags */);
+        streamers.add(callback);
+        return this;
+    };
+
+    promise.stop = function stop() {
+        proc.close("cancelled");
+    };
+
+    return promise;
+};
 
 function output_funcs_for_box(box)
 {
-    function render_line (ident, prio, message, count, time, cursor)
+    function render_line(ident, prio, message, count, time, entry)
     {
         var html = ('<span class="cockpit-logident">' +
                     cockpit_esc(ident) + ': ' +
@@ -101,7 +210,7 @@ function output_funcs_for_box(box)
                     '</span>' +
                     '</span>');
         var elt = $('<div class="cockpit-logline">' + html + '</div>');
-        elt.data('cockpit-cursor', cursor);
+        elt.data('cockpit-entry', entry);
         return elt;
     }
 
@@ -129,7 +238,7 @@ function output_funcs_for_box(box)
     };
 }
 
-cockpit.simple_logbox = function simple_logbox(client, box, match, max_entries)
+cockpit.simple_logbox = function simple_logbox(machine, box, match, max_entries)
 {
     var entries = [ ];
 
@@ -143,69 +252,31 @@ cockpit.simple_logbox = function simple_logbox(client, box, match, max_entries)
         box.toggle(entries.length > 0);
     }
 
-    function callback (tail, error) {
-        if (error) {
-            if (error.name == "org.freedesktop.DBus.Error.AccessDenied")
-                box.append(cockpit_esc(_("You are not authorized.")));
-            else
-                box.append(cockpit_esc(error.message));
-            box.show();
-            return;
-        }
-
-        if (tail.length === 0)
-            return;
-
-        entries = entries.concat(tail);
-        if (entries.length > max_entries)
-            entries = entries.slice(-max_entries);
-
-        render ();
-    }
-
     render();
-    return watch_journal(client, match, cockpit_journal_fields,
-                         'tail', -max_entries, callback);
+
+    return cockpit.journal(match, { count: max_entries, host: machine }).
+        stream(function(tail) {
+            entries = entries.concat(tail);
+            if (entries.length > max_entries)
+                entries = entries.slice(-max_entries);
+            render();
+        }).
+        fail(function(error) {
+            box.append(cockpit_esc(error.message));
+            box.show();
+        });
 };
 
-function journal_filler(journal, box, start, match, header, day_box, start_box, end_box)
+function journal_filler(machine, box, start, match, header, day_box, start_box, end_box)
 {
     var query_count = 5000;
     var query_more = 1000;
-    var query_increment = 100;
-    var query_fields = cockpit_journal_fields;
-    var query_max_length = 512;
-
-    var bottom_scroll;
-    var running = true;
 
     var renderer = cockpit_journal_renderer(output_funcs_for_box (box));
 
-    function stop () {
-        running = false;
-    }
+    var procs = [];
 
-    function query (seek, skip, count, wait, callback)
-    {
-        // console.log("Q %s %s %s %s", seek, skip, count, wait);
-        journal.call('Query',
-                     match, "",
-                     seek, skip, count,
-                     query_fields, query_max_length,
-                     wait,
-                     function (error, result, first, last, eof) {
-                         if (running) {
-                             if (error) {
-                                 query_error (error);
-                             } else {
-                                 // console.log("R %s", result.length);
-                                 callback (result, first, last, eof);
-                             }
-                         }
-                     });
-    }
-
-    function query_error (error) {
+    function query_error(error) {
         if (error.name == "org.freedesktop.DBus.Error.AccessDenied")
             end_box.text(_("You are not authorized."));
         else
@@ -221,122 +292,16 @@ function journal_filler(journal, box, start, match, header, day_box, start_box, 
         for (var i = 0; i < entries.length; i++)
             renderer.prepend (entries[i]);
         renderer.prepend_flush ();
-        update_day_box ();
-    }
-
-    function get_entries_fwd (seek, skip, count)
-    {
-        if (count === 0)
-            return;
-
-        var increment = Math.min(count, query_increment);
-        query (seek, skip, increment, false,
-               function (result, first, last, eof)
-               {
-                   prepend_entries (result);
-
-                   if (eof) {
-                       if (last)
-                           reached_end (last, 1);
-                       else
-                           reached_end (seek, skip);
-                   } else if (count == increment) {
-                       didnt_reach_end (last);
-                   } else {
-                       /* 'last' is always valid here since 'eof ==
-                        * FALSE' implies valid cursors.
-                        */
-                       get_entries_fwd (last, 1, count - result.length);
-                   }
-               });
     }
 
     function reached_end (seek, skip) {
         end_box.text(_("-- End of Journal, waiting for more --"));
-
-        var $document = $(document);
-        var $window = $(window);
-
-        function follow (seek, skip) {
-            query (seek, skip, query_increment, true,
-                   function (result, first, last, eof)
-                   {
-                       if (result.length > 0) {
-                           var dh = $document.height();
-                           var at_bottom = $window.height() + $window.scrollTop() > dh - 10;
-                           prepend_entries (result);
-                           if (at_bottom)
-                               $window.scrollTop($window.scrollTop() + ($document.height() - dh));
-                       }
-
-                       if (last)
-                           follow (last, 1);
-                       else
-                           follow (seek, skip);
-                   });
-        }
-
-        follow (seek, skip);
     }
 
-    function didnt_reach_end (last) {
-        var button = $('<button data-inline="true" data-mini="true">' +
-                       _("Load more entries") +
-                       '</button><div/>');
-        end_box.html(button);
-        button.click (function () {
-            end_box.text(_("Loading..."));
-            get_entries_fwd (last, 1, query_more);
-        });
-    }
-
-    /* Going backwards.
-     */
-
-    function append_entries (entries)
-    {
-        for (var i = entries.length-1; i >= 0; i--)
-            renderer.append (entries[i]);
-        renderer.append_flush ();
-        update_day_box ();
-    }
-
-    function get_entries_bwd (seek, skip, count)
-    {
-        if (count === 0)
-            return;
-
-        var increment = Math.min(count, query_increment);
-        query (seek, -skip-increment, increment, false,
-               function (result, first, last, eof)
-               {
-                   append_entries (result);
-
-                   if (seek == 'tail') {
-                       /* If we got a valid cursor for the last entry,
-                        * follow from there.  Otherwise, the journal
-                        * is empty and in order not to miss any
-                        * entries that have been added since this
-                        * query returned, we start following from the
-                        * top.
-                        */
-                       if (last)
-                           reached_end (last, 1);
-                       else
-                           reached_end ('head', 0);
-                   }
-
-                   if (eof)
-                       reached_start ();
-                   else if (count == increment) {
-                       /* 'first' is always valid here since 'eof == FALSE' implies valid cursors.
-                        */
-                       didnt_reach_start (first);
-                   }
-
-                   if (!eof)
-                       get_entries_bwd (first, 1 , count - result.length);
-               });
+    function append_entries(entries) {
+        for (var i = 0; i < entries.length; i++)
+            renderer.append(entries[i]);
+        renderer.append_flush();
     }
 
     function reached_start () {
@@ -349,9 +314,38 @@ function journal_filler(journal, box, start, match, header, day_box, start_box, 
                        '</button>');
         start_box.html(button);
         button.click(function () {
+            var count = 0;
+            var stopped = null;
             start_box.text(_("Loading..."));
-            get_entries_bwd (first, 0, query_more);
+            procs.push(cockpit.journal(match, { follow: false, reverse: true, cursor: first, host: machine }).
+                fail(query_error).
+                stream(function(entries) {
+                    if (entries[0]["__CURSOR"] == first)
+                        entries.shift();
+                    count += entries.length;
+                    append_entries(entries);
+                    if (count >= query_more) {
+                        stopped = entries[entries.length - 1]["__CURSOR"];
+                        didnt_reach_start(stopped);
+                        this.stop();
+                    }
+                }).
+                done(function() {
+                    if (!stopped)
+                        reached_start();
+                }));
         });
+    }
+
+    function follow(cursor) {
+        procs.push(cockpit.journal(match, { follow: true, count: 0, cursor: cursor, host: machine }).
+            fail(query_error).
+            stream(function(entries) {
+                if (entries[0]["__CURSOR"] == cursor)
+                    entries.shift();
+                prepend_entries(entries);
+                update_day_box();
+            }));
     }
 
     function update_day_box ()
@@ -385,23 +379,67 @@ function journal_filler(journal, box, start, match, header, day_box, start_box, 
         $(window).on('scroll', update_day_box);
     }
 
-    if (start == 'recent')
-        get_entries_bwd ('tail', 0, query_count);
-    else if (start == 'boot') {
-        didnt_reach_start ('boot_id=current');
-        get_entries_fwd ('boot_id=current', 0, query_count);
+    var options = {
+        follow: false,
+        reverse: true,
+        host: machine
+    };
+
+    var all = false;
+    if (start == 'boot') {
+        options["boot"] = null;
     } else if (start == 'last-24h') {
-        didnt_reach_start ('rel_usecs=' + (-24*60*60*1000*1000).toFixed());
-        get_entries_fwd ('rel_usecs=' + (-24*60*60*1000*1000).toFixed(), 0, query_count);
+        options["since"] = "-1days";
     } else if (start == 'last-week') {
-        didnt_reach_start ('rel_usecs=' + (-7*24*60*60*1000*1000).toFixed());
-        get_entries_fwd ('rel_usecs=' + (-7*24*60*60*1000*1000).toFixed(), 0, query_count);
+        options["since"] = "-7days";
     } else {
-        reached_start ();
-        get_entries_fwd ('head', 0, query_count);
+        all = true;
     }
 
-    return { stop: stop };
+    var last = null;
+    var count = 0;
+    var stopped = null;
+
+    procs.push(cockpit.journal(match, options).
+        fail(query_error).
+        stream(function(entries) {
+            if (!last) {
+                reached_end();
+                last = entries[0]["__CURSOR"];
+                follow(last);
+                update_day_box();
+            }
+            count += entries.length;
+            append_entries(entries);
+            if (count >= query_count) {
+                stopped = entries[entries.length - 1]["__CURSOR"];
+                didnt_reach_start(stopped);
+                this.stop();
+            }
+        }).
+        done(function() {
+            if (!last) {
+                reached_end();
+                procs.push(cockpit.journal(match, { follow: true, count: 0, host: machine }).
+                    fail(query_error).
+                    stream(function(entries) {
+                        prepend_entries(entries);
+                        update_day_box();
+                    }));
+            }
+            if (all && !stopped)
+                reached_start();
+            else
+                didnt_reach_start();
+        }));
+
+    return {
+        stop: function stop() {
+            $.each(procs, function(i, proc) {
+                proc.stop();
+            });
+        }
+    };
 }
 
 PageJournal.prototype = {
@@ -420,7 +458,7 @@ PageJournal.prototype = {
         var self = this;
 
         $('#journal-box').on('click', '.cockpit-logline', function (event) {
-            self.details($(this).data('cockpit-cursor'));
+            self.details($(this).data('cockpit-entry'));
         });
     },
 
@@ -474,24 +512,12 @@ PageJournal.prototype = {
 
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
 
-        /* TODO: This code needs to be migrated away from dbus-json1 */
-        this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
-        cockpit.set_watched_client(this.client);
-
-        this.journal = this.client.get ("/com/redhat/Cockpit/Journal",
-                                        "com.redhat.Cockpit.Journal");
-
         this.reset_query ();
     },
 
     leave: function() {
         if (this.filler)
             this.filler.stop();
-
-        cockpit.set_watched_client(null);
-        this.client.release();
-        this.client = null;
-        this.journal = null;
     },
 
     reset_query: function () {
@@ -529,16 +555,15 @@ PageJournal.prototype = {
         if (start_param == 'recent')
             $(window).scrollTop($(document).height());
 
-        this.filler = journal_filler(this.journal,
-                                     $('#journal-box'), start_param, [ match ],
+        this.filler = journal_filler(this.address,
+                                     $('#journal-box'), start_param, match,
                                      '#content nav', '#journal-current-day',
                                      $('#journal-start'), $('#journal-end'));
     },
 
-    details: function (cursor) {
-        if (cursor) {
-            PageJournalDetails.journal = this.journal;
-            PageJournalDetails.cursor = cursor;
+    details: function(entry) {
+        if (entry) {
+            PageJournalDetails.entry = entry;
             $('#journal-details').modal('show');
         }
     }
@@ -548,7 +573,8 @@ function PageJournal() {
     this._init();
 }
 
-cockpit_pages.push(new PageJournal());
+if (window.cockpit_pages)
+    cockpit_pages.push(new PageJournal());
 
 
 PageJournalDetails.prototype = {
@@ -564,34 +590,18 @@ PageJournalDetails.prototype = {
     },
 
     enter: function() {
-        var journal = PageJournalDetails.journal;
-
+        var entry = PageJournalDetails.entry;
         var out = $('#journal-details-fields');
 
-        journal.call ('Query',
-                      [ ], "",
-                      'exact_cursor=' + PageJournalDetails.cursor, 0, 1,
-                      [ "*" ],
-                      512,
-                      false,
-                      function (error, result, first, last, eof)
-                      {
-                          if (error) {
-                              $('#journal-details').modal('hide');
-                              cockpit_show_unexpected_error (error);
-                          } else if (result.length != 1) {
-                              $('#journal-details').modal('hide');
-                              cockpit_show_unexpected_error ("No such entry");
-                          } else {
-                              out.empty();
-                              if (result.length == 1) {
-                                  var r = result[0];
-                                  for (var i = 0; i < r.length; i++) {
-                                      out.append('<li class="list-group-item">' + cockpit_esc(r[i]) + '</li>');
-                                  }
-                              }
-                          }
-                      });
+        out.empty();
+
+        var keys = Object.keys(entry).sort();
+        $.each(keys, function(i, key) {
+            if (!key.startsWith("__")) {
+                out.append('<li class="list-group-item">' + cockpit_esc(key) + " : " +
+                    cockpit_esc(entry[key]) + '</li>');
+            }
+        });
     },
 
     leave: function() {
@@ -602,6 +612,7 @@ function PageJournalDetails() {
     this._init();
 }
 
-cockpit_pages.push(new PageJournalDetails());
+if (window.cockpit_pages)
+    cockpit_pages.push(new PageJournalDetails());
 
 })(cockpit, jQuery);

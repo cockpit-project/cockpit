@@ -791,6 +791,58 @@ test_spawn_printerr (void)
 }
 
 static void
+test_spawn_close_terminate (TestCase *tc,
+                            gconstpointer unused)
+{
+  CockpitPipe *pipe;
+  gboolean closed = FALSE;
+  gint status;
+
+  const gchar *argv[] = { "/bin/sleep", "500", NULL };
+
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+  g_assert (pipe != NULL);
+
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
+  cockpit_pipe_close (pipe, "terminate");
+
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  status = cockpit_pipe_exit_status (pipe);
+  g_assert (WIFSIGNALED (status));
+  g_assert_cmpint (WTERMSIG (status), ==, SIGTERM);
+
+  g_object_unref (pipe);
+}
+
+static void
+test_spawn_close_clean (TestCase *tc,
+                        gconstpointer unused)
+{
+  CockpitPipe *pipe;
+  gboolean closed = FALSE;
+  gint status;
+
+  const gchar *argv[] = { "/bin/cat", NULL };
+
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+  g_assert (pipe != NULL);
+
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
+  cockpit_pipe_close (pipe, NULL);
+
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  status = cockpit_pipe_exit_status (pipe);
+  g_assert (!WIFSIGNALED (status));
+  g_assert_cmpint (WEXITSTATUS (status), ==, 0);
+
+  g_object_unref (pipe);
+}
+
+static void
 test_pty_shell (void)
 {
   gboolean closed = FALSE;
@@ -1133,6 +1185,11 @@ main (int argc,
   g_test_add_func ("/pipe/spawn/and-write", test_spawn_and_write);
   g_test_add_func ("/pipe/spawn/and-fail", test_spawn_and_fail);
   g_test_add_func ("/pipe/spawn/printerr", test_spawn_printerr);
+
+  g_test_add ("/pipe/spawn/close-clean", TestCase, NULL,
+              setup_timeout, test_spawn_close_clean, teardown);
+  g_test_add ("/pipe/spawn/close-terminate", TestCase, NULL,
+              setup_timeout, test_spawn_close_terminate, teardown);
 
   g_test_add_func ("/pipe/pty/shell", test_pty_shell);
 

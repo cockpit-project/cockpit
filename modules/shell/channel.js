@@ -294,13 +294,17 @@ Channel.prototype = {
 
     close: function(options) {
         this.valid = false;
-        var command = {
+        if (!options)
+            options = { };
+        else if (!$.isPlainObject(options))
+            options = { "reason" : options + "" };
+        $.extend(options, {
             "command" : "close",
             "channel": this.id
-        };
-        this._transport._send_control(command);
+        });
+        this._transport._send_control(options);
         this._transport._unregister(this.id);
-        $(this).triggerHandler("close", options || { });
+        $(this).triggerHandler("close", options);
     },
 
     toString : function() {

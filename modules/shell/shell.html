@@ -182,15 +182,17 @@
               <tr>
                 <td>Domain</td>
                 <td id="system_information_realms"></td>
-                <div id="realms-leave-error"></div></td>
                 <td>
                   <button class="btn btn-default" id="realms-join">Join Domain</button>
                   <button class="btn btn-default realms-leave-button" translatable="yes" id="realms-leave" style="float:left">Leave Domain</button>
-
-<div class="realms-leave-spinner waiting" id="realms-leave-spinner" translatable="yes" style="float:left"/>
+                  <div class="realms-leave-spinner waiting" id="realms-leave-spinner" translatable="yes" style="float:left"/>
                 </td>
               </tr>
             </table>
+            <br />
+            <div class="has-error">
+              <span id="realms-leave-error" class="help-block"></span>
+            </div>
           </div>
         </div>
       </div>

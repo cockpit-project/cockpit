@@ -97,11 +97,13 @@ var cockpit = cockpit || { };
     cockpit.spawn = function(command, machine, options) {
         var dfd = new $.Deferred();
 
-        var args = { "payload": "text-stream" };
-        if (command instanceof Array)
-            args["spawn"] = command;
-        else
-            args["spawn"] = String(command);
+        var args = { "payload": "text-stream", "spawn": [] };
+        if (command instanceof Array) {
+            for (var i = 0; i < command.length; i++)
+                args["spawn"].push(String(command[i]));
+        } else {
+            args["spawn"].push(String(command));
+        }
         if (machine !== undefined)
             args["host"] = machine;
         if (options !== undefined)

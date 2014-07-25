@@ -102,12 +102,30 @@ mock_echo_pipe_class_init (MockEchoPipeClass *klass)
 
 typedef struct {
   CockpitPipe *pipe;
+  guint timeout;
 } TestCase;
 
 typedef struct {
   const gchar *pipe_type_name;
   const gchar *command;
+  gboolean no_timeout;
 } TestFixture;
+
+static gboolean
+on_timeout_abort (gpointer unused)
+{
+  g_error ("timed out");
+  return FALSE;
+}
+
+static void
+setup_timeout (TestCase *tc,
+               gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  if (!fixture || !fixture->no_timeout)
+    tc->timeout = g_timeout_add_seconds (10, on_timeout_abort, tc);
+}
 
 static void
 setup_simple (TestCase *tc,
@@ -119,6 +137,8 @@ setup_simple (TestCase *tc,
   gchar **argv;
   int fds[2];
   GPid pid = 0;
+
+  setup_timeout (tc, data);
 
   pipe_type = "MockEchoPipe";
   if (fixture && fixture->pipe_type_name)
@@ -154,12 +174,18 @@ static void
 teardown (TestCase *tc,
           gconstpointer data)
 {
-  g_object_add_weak_pointer (G_OBJECT (tc->pipe),
-                             (gpointer *)&tc->pipe);
-  g_object_unref (tc->pipe);
+  if (tc->pipe)
+    {
+      g_object_add_weak_pointer (G_OBJECT (tc->pipe),
+                                 (gpointer *)&tc->pipe);
+      g_object_unref (tc->pipe);
 
-  /* If this asserts, outstanding references to transport */
-  g_assert (tc->pipe == NULL);
+      /* If this asserts, outstanding references to transport */
+      g_assert (tc->pipe == NULL);
+    }
+
+  if (tc->timeout)
+    g_source_remove (tc->timeout);
 }
 
 static void
@@ -210,6 +236,10 @@ test_echo_queue (TestCase *tc,
   g_assert_cmpint (echo_pipe->received->len, ==, 6);
   g_assert (memcmp (echo_pipe->received->data, "onetwo", 6) == 0);
 }
+
+static const TestFixture fixture_no_timeout = {
+    .no_timeout = TRUE
+};
 
 static void
 test_echo_large (TestCase *tc,
@@ -1023,7 +1053,7 @@ main (int argc,
               setup_simple, test_echo_and_close, teardown);
   g_test_add ("/pipe/echo-queue", TestCase, NULL,
               setup_simple, test_echo_queue, teardown);
-  g_test_add ("/pipe/echo-large", TestCase, NULL,
+  g_test_add ("/pipe/echo-large", TestCase, &fixture_no_timeout,
               setup_simple, test_echo_large, teardown);
   g_test_add ("/pipe/close-problem", TestCase, NULL,
               setup_simple, test_close_problem, teardown);

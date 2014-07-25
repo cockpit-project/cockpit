@@ -22,6 +22,7 @@
 #include "cockpitdbusjson.h"
 #include "cockpitpolkitagent.h"
 
+#include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitunixfd.h"
@@ -77,9 +78,11 @@ process_open (CockpitTransport *transport,
 
 static void
 process_close (CockpitTransport *transport,
-               const gchar *channel_id)
+               const gchar *channel_id,
+               JsonObject *options)
 {
   CockpitChannel *channel;
+  const gchar *reason;
 
   /*
    * The channel may no longer exist due to a race of the agent closing
@@ -96,12 +99,17 @@ process_close (CockpitTransport *transport,
   channel = g_hash_table_lookup (channels, channel_id);
   if (channel)
     {
-      g_debug ("Close channel %s", channel_id);
-      cockpit_channel_close (channel, NULL);
+      g_debug ("close channel %s %s", channel_id,
+               cockpit_channel_get_option (channel, "payload"));
+      if (!cockpit_json_get_string (options, "reason", NULL, &reason))
+        reason = NULL;
+      if (reason && g_str_equal (reason, ""))
+        reason = NULL;
+      cockpit_channel_close (channel, reason);
     }
   else
     {
-      g_debug ("Already closed channel %s", channel_id);
+      g_debug ("already closed channel %s", channel_id);
     }
 }
 
@@ -115,7 +123,7 @@ on_transport_control (CockpitTransport *transport,
   if (g_str_equal (command, "open"))
     process_open (transport, channel_id, options);
   else if (g_str_equal (command, "close"))
-    process_close (transport, channel_id);
+    process_close (transport, channel_id, options);
   else
     return FALSE;
   return TRUE; /* handled */

@@ -253,7 +253,7 @@ asyncTest("close channel", function() {
 });
 
 asyncTest("close problem", function() {
-    expect(4);
+    expect(5);
 
     var channel = new Channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -261,6 +261,7 @@ asyncTest("close problem", function() {
         if (cmd.command == "open")
             return; /* ignore the open command */
         equal(cmd.command, "close", "close problem: sent close command");
+        equal(cmd.reason, "problem", "close problem: sent reason");
         start();
     });
     $(channel).on("close", function(event, options) {
@@ -271,6 +272,28 @@ asyncTest("close problem", function() {
     channel.close({"reason": "problem"});
     strictEqual(channel.valid, false, "close problem: no longer valid");
 });
+
+asyncTest("close problem string", function() {
+    expect(5);
+
+    var channel = new Channel({ });
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        var cmd = JSON.parse(payload);
+        if (cmd.command == "open")
+            return; /* ignore the open command */
+        equal(cmd.command, "close", "close problem string: sent close command");
+        equal(cmd.reason, "testo", "close problem string: sent reason");
+        start();
+    });
+    $(channel).on("close", function(event, options) {
+        ok(true, "close problem string: triggered event");
+        equal(options.reason, "testo", "close problem string: set");
+    });
+
+    channel.close("testo");
+    strictEqual(channel.valid, false, "close problem string: no longer valid");
+});
+
 
 asyncTest("close peer", function() {
     expect(5);

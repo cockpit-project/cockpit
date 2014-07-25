@@ -163,6 +163,19 @@ asyncTest("simple request", function() {
         });
 });
 
+asyncTest("string command", function() {
+    expect(2);
+
+    var peer = new MockPeer();
+    $(peer).on("opened", function(event, channel, options) {
+        deepEqual(channel.options["spawn"], ["/the/path"], "string command: passed spawn correctly");
+        equal(channel.options["host"], "hostname", "string command: had host");
+        start();
+    });
+
+    cockpit.spawn("/the/path", "hostname");
+});
+
 asyncTest("channel options", function() {
     expect(1);
 

@@ -160,6 +160,12 @@ close_immediately (CockpitPipe *self,
       self->priv->out_fd = -1;
     }
 
+  if (problem && self->priv->pid && !self->priv->exited)
+    {
+      g_debug ("%s: killing child: %d", self->priv->name, (int)self->priv->pid);
+      kill (self->priv->pid, SIGTERM);
+    }
+
   /* If not tracking a pid, then we are now closed. */
   if (!self->priv->child)
     {

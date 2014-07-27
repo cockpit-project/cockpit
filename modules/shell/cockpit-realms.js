@@ -68,6 +68,7 @@ PageRealmsOp.prototype = {
     enter: function() {
         var me = this;
 
+        $("#realms-op-diagnostics").hide();
         me.realm_manager = PageRealmsOp.manager;
         me.op = PageRealmsOp.op;
         me.realm = PageRealmsOp.realm;

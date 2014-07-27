@@ -104,7 +104,7 @@ PageSystemInformation.prototype = {
                         'client-software': details['client-software']
                       };
         self.realm_manager.call("Leave", name, [ 'none', '', '' ], options, function (error, result) {
-            //$(".realms-leave-spinner").hide();
+            $(".realms-leave-spinner").hide();
             if (error) {
                 if (error.name == 'com.redhat.Cockpit.Error.AuthenticationFailed') {
                     cockpit_realms_op_set_parameters(self.realm_manager, 'leave', name, details);
@@ -191,6 +191,8 @@ PageSystemInformation.prototype = {
             else {
                 $("#realms-join").hide();
                 $("#realms-leave").show();
+                $(".realms-leave-button").prop('disabled', false);
+                $("#realms-op").modal('hide');
             }
 
         }

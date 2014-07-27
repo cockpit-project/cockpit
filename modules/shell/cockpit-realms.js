@@ -95,6 +95,7 @@ PageRealmsOp.prototype = {
         $("#realms-op-title").empty().append(me.title);
 
         $("#realms-op-spinner").hide();
+        $("#realms-op-wait-message").hide();
         $("#realms-op-address-spinner").hide();
         $("#realms-op-address-error").hide();
         $("#realms-op-error").empty();
@@ -227,12 +228,14 @@ PageRealmsOp.prototype = {
 
         if (busy && busy[0]) {
             $("#realms-op-spinner").show();
+            $("#realms-op-wait-message").show();
             $(".realms-op-field").prop('disabled', true);
             $("#realms-op-apply").prop('disabled', true);
             $("#realms-op-software").prop('disabled', true);
             $("#realms-op-auth").prop('disabled', true);
         } else {
             $("#realms-op-spinner").hide();
+            $("#realms-op-wait-message").hide();
             $(".realms-op-field").prop('disabled', false);
             if (me.initial_discovery)
                 $("#realms-op-apply").prop('disabled', true);

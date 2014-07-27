@@ -259,6 +259,7 @@ PageRealmsOp.prototype = {
         var me = this;
 
         $("#realms-op-form").css('opacity', 0.0);
+        $("#realms-op").modal('hide');
         $("#realms-op-init-spinner").show();
         $("#realms-op-apply").prop('disabled', true);
 
@@ -400,6 +401,8 @@ PageRealmsOp.prototype = {
         } else {
             $("#realms-op").modal('hide');
         }
+        $("#realms-op-spinner").hide();
+        $("#realms-op-wait-message").hide();
     }
 };
 

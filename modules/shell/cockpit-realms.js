@@ -232,17 +232,18 @@ PageRealmsOp.prototype = {
             $(".realms-op-field").prop('disabled', true);
             $("#realms-op-apply").prop('disabled', true);
             $("#realms-op-software").prop('disabled', true);
-            $("#realms-op-auth").prop('disabled', true);
+            $('[data-id="realms-op-auth"]').prop('disabled', true);
         } else {
             $("#realms-op-spinner").hide();
             $("#realms-op-wait-message").hide();
             $(".realms-op-field").prop('disabled', false);
+            $('[data-id="realms-op-auth"]').prop('disabled', false);
             if (me.initial_discovery)
                 $("#realms-op-apply").prop('disabled', true);
             else
                 $("#realms-op-apply").prop('disabled', false);
             $("#realms-op-software").prop('disabled', false);
-            $("#realms-op-auth").prop('disabled', false);
+
         }
     },
 

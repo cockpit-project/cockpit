@@ -94,6 +94,7 @@
             }
 
             function login(user, password) {
+                $("#login-button").prop('disabled', true);
                 var options = { url: "/login", dataType: "json" };
                 options.type = "POST";
                 options.data = user + "\n" + password;
@@ -110,6 +111,7 @@
                             fatal(xhr.statusText);
                         }
                         phantom_checkpoint();
+                        $("#login-button").prop('disabled', false);
                     });
             }
 

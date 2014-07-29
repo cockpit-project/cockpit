@@ -98,8 +98,6 @@ cockpit_json_get_string (JsonObject *options,
     {
       return FALSE;
     }
-
-  return TRUE;
 }
 
 /**

@@ -20,7 +20,6 @@
 PageSetupServer.prototype = {
     _init: function() {
         this.id = "dashboard_setup_server_dialog";
-        this.focus_timeout = null;
     },
 
     getTitle: function() {
@@ -28,6 +27,7 @@ PageSetupServer.prototype = {
     },
 
     show: function() {
+        $("#dashboard_setup_address").focus();
     },
 
     leave: function() {
@@ -42,13 +42,58 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_next').on('click', $.proxy(this, 'next'));
     },
 
+    highlight_error: function(id) {
+        $(id).addClass("has-error");
+    },
+
+    hide_error: function(id) {
+        $(id).removeClass("has-error");
+    },
+
+    check_input: function(input, pattern, rpattern) {
+        var match = input.match(pattern);
+
+        if (match) {
+            if (input.length === match[0].length) {
+                return null;
+            } else {
+                var replaced = input.replace(rpattern, "");
+                var index = replaced.indexOf(match[0]);
+
+                if (match.index > index)
+                    return input[index];
+                else
+                    return input[match[0].length];
+            }
+        } else {
+            return input[0];
+        }
+    },
+
     check_empty_address: function() {
         var addr = $('#dashboard_setup_address').val();
 
-        if (addr === "")
+        if (addr === "") {
             $('#dashboard_setup_next').prop('disabled', true);
-        else
-            $('#dashboard_setup_next').prop('disabled', false);
+            this.hide_error('#dashboard_setup_address_tab');
+            $('#dashboard_setup_address_error').text("");
+        } else {
+            var match = this.check_input(addr, /[a-zA-Z0-9._-]+/, /[^a-zA-Z0-9._-]+/);
+
+            if (!match) {
+                $('#dashboard_setup_next').prop('disabled', false);
+                this.hide_error('#dashboard_setup_address_tab');
+                $('#dashboard_setup_address_error').text("");
+            } else {
+                $('#dashboard_setup_next').prop('disabled', true);
+                this.highlight_error('#dashboard_setup_address_tab');
+
+                if (match.search(/\s+/) === -1)
+                    $('#dashboard_setup_address_error').text(_("IP address or host name cannot contain '" + match + "'."));
+                else
+                    $('#dashboard_setup_address_error').text(_("IP address or host name cannot contain whitespace."));
+            }
+        }
 
         $('#dashboard_setup_next').text(_("Next"));
     },
@@ -65,8 +110,6 @@ PageSetupServer.prototype = {
         $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
         $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));
         $('#dashboard_setup_address').on('input change focus', $.proxy (this, 'check_empty_address'));
-        $('#dashboard_setup_address').on('blur', $.proxy (this, 'lose_focus'));
-        $('#dashboard_setup_login_user').on('blur', $.proxy (this, 'lose_focus'));
         $('#dashboard_setup_address').on('keyup', function(event) {
             if (event.which === 13) {
                 var disable = $('#dashboard_setup_next').prop('disabled');
@@ -146,31 +189,20 @@ PageSetupServer.prototype = {
     discovered_clicked: function (iface) {
         $("#dashboard_setup_address").val(iface.Address);
         this.update_discovered();
-        this.get_focus("dashboard_setup_address");
-    },
-
-    get_focus: function(id) {
-        this.focus_timeout = setTimeout(function() { document.getElementById(id).focus(); }, 0);
-    },
-
-    lose_focus: function() {
-        if (this.focus_timeout !== null) {
-            clearTimeout(this.focus_timeout);
-            this.focus_timeout = null;
-        }
+        $("#dashboard_setup_address").focus();
     },
 
     show_tab: function (tab) {
         $('.cockpit-setup-tab').hide();
         $('#dashboard_setup_next').text(_("Next"));
         if (tab == 'address') {
-            this.get_focus("dashboard_setup_address");
             $('#dashboard_setup_address_tab').show();
+            $("#dashboard_setup_address").focus();
             this.next_action = this.next_select;
             this.prev_tab = null;
         } else if (tab == 'login') {
-            this.get_focus('dashboard_setup_login_user');
             $('#dashboard_setup_login_tab').show();
+            $('#dashboard_setup_login_user').focus();
             this.next_action = this.next_login;
             this.prev_tab = 'address';
         } else if (tab == 'action') {

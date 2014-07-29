@@ -298,14 +298,20 @@ PageSetupServer.prototype = {
         var reuse_creds;
 
         me.address = $('#dashboard_setup_address').val();
-        $('#dashboard_setup_login_address').text(this.address);
 
-        reuse_creds = $('#dashboard_setup_address_reuse_creds').prop('checked');
+        if (me.address.trim() !== "") {
+            $('#dashboard_setup_login_address').text(this.address);
 
-        if (!reuse_creds)
-            me.show_tab('login');
-        else
-            me.connect_server();
+            reuse_creds = $('#dashboard_setup_address_reuse_creds').prop('checked');
+
+            if (!reuse_creds)
+                me.show_tab('login');
+            else
+                me.connect_server();
+        } else {
+            $('#dashboard_setup_next').text(_("Next"));
+            $('#dashboard_setup_address_error').text(_("IP address or host name cannot be empty."));
+        }
     },
 
     next_login: function() {

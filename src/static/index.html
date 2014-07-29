@@ -80,8 +80,15 @@
                     }
                 });
                 $("#login-button").on("click", function() {
+                    $("#login-error-message").hide();
                     login($("#login-user-input").val(),
                           $("#login-password-input").val());
+                });
+                $("#login-password-input").on("keydown", function() {
+                    $("#login-error-message").hide();
+                });
+                $("#login-user-input").on("keydown", function() {
+                    $("#login-error-message").hide();
                 });
                 phantom_checkpoint();
             }

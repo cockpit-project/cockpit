@@ -30,6 +30,7 @@ var cockpit_page_navigation_count = 0;
 
 function cockpit_content_init ()
 {
+    var current_visible_dialog = null;
     var pages = $('#content > div');
     pages.each (function (i, p) {
         $(p).hide();
@@ -37,18 +38,24 @@ function cockpit_content_init ()
     cockpit_loc_trail = [ ];
 
     $('div[role="dialog"]').on('show.bs.modal', function() {
-	cockpit_page_enter($(this).attr("id"));
+        current_visible_dialog = $(this).attr("id");
+        cockpit_page_enter($(this).attr("id"));
     });
     $('div[role="dialog"]').on('shown.bs.modal', function() {
-	cockpit_page_show($(this).attr("id"));
+        cockpit_page_show($(this).attr("id"));
     });
     $('div[role="dialog"]').on('hidden.bs.modal', function() {
-	cockpit_page_leave($(this).attr("id"));
+        current_visible_dialog = null;
+        cockpit_page_leave($(this).attr("id"));
     });
 
     $(window).on('hashchange', function () {
-        if (window.location.hash != cockpit_current_hash)
+        if (window.location.hash != cockpit_current_hash) {
+            if (current_visible_dialog)
+                $('#' + current_visible_dialog).modal('hide');
+
             cockpit_go_hash (window.location.hash);
+        }
     });
 
     $(window).on('resize', function () {

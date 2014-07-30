@@ -212,8 +212,8 @@ PageRealmsOp.prototype = {
             } else {
                 admin = me.given_details['suggested-administrator'];
             }
-            if (admin)
-                $("#realms-op-admin").val(admin);
+            if (admin && !$("#realms-op-admin").val())
+                $("#realms-op-admin")[0].placeholder = _("e.g. \""+admin+"\"");
         } else if (a == "user") {
             $("#realms-op-user-row").show();
             $("#realms-op-user-password-row").show();

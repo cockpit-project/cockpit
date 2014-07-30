@@ -185,6 +185,10 @@ PageRealmsOp.prototype = {
         add_choice ('none', _('Automatic'));
         if (!have_one)
             sel.append('<option value="admin">' + _("Administrator Password") + '</option>');
+        if($('[data-id="realms-op-auth"]').length <= 1)
+            $("#realms-authentification-row").hide();
+        else
+            $("#realms-authentification-row").show();
 
         $('#realms-op-auth').selectpicker();
         me.update_cred_fields();
@@ -213,7 +217,7 @@ PageRealmsOp.prototype = {
                 admin = me.given_details['suggested-administrator'];
             }
             if (admin)
-                $("#realms-op-admin").val(admin);
+                $("#realms-op-admin")[0].placeholder = _("e.g. \""+admin+"\"");
         } else if (a == "user") {
             $("#realms-op-user-row").show();
             $("#realms-op-user-password-row").show();

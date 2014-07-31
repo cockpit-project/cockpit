@@ -926,7 +926,7 @@ process_open (CockpitWebService *self,
    */
   private = FALSE;
 
-  if (cockpit_json_get_string (options, "user", NULL, &specific_user) && specific_user)
+  if (cockpit_json_get_string (options, "user", NULL, &specific_user) && specific_user && !g_str_equal (specific_user, ""))
     {
       if (!cockpit_json_get_string (options, "password", NULL, &password))
         password = NULL;

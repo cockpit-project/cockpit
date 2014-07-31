@@ -254,7 +254,13 @@ cockpit_auth_parse_input (GBytes *input,
         }
     }
 
-  if (user && password)
+  if (!user)
+    {
+      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                   "Authentication failed");
+      ret = FALSE;
+    }
+  else if (user && password)
     {
       if (ret_user)
         {

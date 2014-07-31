@@ -78,25 +78,31 @@
                 $("#login").css("visibility", "visible");
                 $("#login-user-input").focus();
                 $("#login-user-input").on("keydown", function (e) {
+                    $("#login-error-message").hide();
                     if (e.which == 13)
                         $("#login-password-input").focus();
                 });
                 $("#login-password-input").on("keydown", function (e) {
+                    $("#login-error-message").hide();
                     if (e.which == 13) {
-                        login($("#login-user-input").val(),
-                              $("#login-password-input").val());
+                        if ($("#login-user-input").val().trim() === "") {
+                            $("#login-error-message").show().text("User name cannot be empty");
+                            return;
+                        } else {
+                            login($("#login-user-input").val(),
+                                  $("#login-password-input").val());
+                        }
                     }
                 });
                 $("#login-button").on("click", function() {
                     $("#login-error-message").hide();
-                    login($("#login-user-input").val(),
-                          $("#login-password-input").val());
-                });
-                $("#login-password-input").on("keydown", function() {
-                    $("#login-error-message").hide();
-                });
-                $("#login-user-input").on("keydown", function() {
-                    $("#login-error-message").hide();
+                    if ($("#login-user-input").val().trim() === "") {
+                        $("#login-error-message").show().text("User name cannot be empty");
+                        return;
+                    } else {
+                        login($("#login-user-input").val(),
+                              $("#login-password-input").val());
+                    }
                 });
                 phantom_checkpoint();
             }

@@ -20,7 +20,6 @@
 PageSetupServer.prototype = {
     _init: function() {
         this.id = "dashboard_setup_server_dialog";
-        this.focus_timeout = null;
     },
 
     getTitle: function() {
@@ -28,6 +27,7 @@ PageSetupServer.prototype = {
     },
 
     show: function() {
+        $("#dashboard_setup_address").focus();
     },
 
     leave: function() {
@@ -42,13 +42,40 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_next').on('click', $.proxy(this, 'next'));
     },
 
+    highlight_error: function(container) {
+        $(container).addClass("has-error");
+    },
+
+    hide_error: function(container) {
+        $(container).removeClass("has-error");
+    },
+
+    highlight_error_message: function(id, message) {
+        $(id).text(message);
+        $(id).css("visibility", "visible");
+    },
+
+    hide_error_message: function(id) {
+        $(id).css("visibility", "hidden");
+    },
+
     check_empty_address: function() {
         var addr = $('#dashboard_setup_address').val();
 
-        if (addr === "")
+        if (addr === "") {
             $('#dashboard_setup_next').prop('disabled', true);
-        else
+            this.hide_error('#dashboard_setup_address_tab');
+            this.hide_error_message('#dashboard_setup_address_error');
+        } else if (addr.search(/\s+/) === -1) {
             $('#dashboard_setup_next').prop('disabled', false);
+            this.hide_error('#dashboard_setup_address_tab');
+            this.hide_error_message('#dashboard_setup_address_error');
+        } else {
+            $('#dashboard_setup_next').prop('disabled', true);
+            this.highlight_error('#dashboard_setup_address_tab');
+            this.highlight_error_message('#dashboard_setup_address_error',
+                                         _("IP address or host name cannot contain whitespace."));
+        }
 
         $('#dashboard_setup_next').text(_("Next"));
     },
@@ -65,8 +92,6 @@ PageSetupServer.prototype = {
         $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
         $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));
         $('#dashboard_setup_address').on('input change focus', $.proxy (this, 'check_empty_address'));
-        $('#dashboard_setup_address').on('blur', $.proxy (this, 'lose_focus'));
-        $('#dashboard_setup_login_user').on('blur', $.proxy (this, 'lose_focus'));
         $('#dashboard_setup_address').on('keyup', function(event) {
             if (event.which === 13) {
                 var disable = $('#dashboard_setup_next').prop('disabled');
@@ -97,12 +122,10 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_address').val("");
         $('#dashboard_setup_login_user').val("");
         $('#dashboard_setup_login_password').val("");
-        $('#dashboard_setup_login_error').text("");
 
         $('#dashboard_setup_address_reuse_creds').prop('checked', true);
 
-        $('#dashboard_setup_address_error').text("");
-        this.show_tab ('address');
+        self.show_tab ('address');
         self.update_discovered ();
         $('#dashboard_setup_next').prop('disabled', true);
     },
@@ -146,31 +169,22 @@ PageSetupServer.prototype = {
     discovered_clicked: function (iface) {
         $("#dashboard_setup_address").val(iface.Address);
         this.update_discovered();
-        this.get_focus("dashboard_setup_address");
-    },
-
-    get_focus: function(id) {
-        this.focus_timeout = setTimeout(function() { document.getElementById(id).focus(); }, 0);
-    },
-
-    lose_focus: function() {
-        if (this.focus_timeout !== null) {
-            clearTimeout(this.focus_timeout);
-            this.focus_timeout = null;
-        }
+        $("#dashboard_setup_address").focus();
     },
 
     show_tab: function (tab) {
         $('.cockpit-setup-tab').hide();
         $('#dashboard_setup_next').text(_("Next"));
         if (tab == 'address') {
-            this.get_focus("dashboard_setup_address");
             $('#dashboard_setup_address_tab').show();
+            $("#dashboard_setup_address").focus();
+            this.hide_error_message('#dashboard_setup_address_error');
             this.next_action = this.next_select;
             this.prev_tab = null;
         } else if (tab == 'login') {
-            this.get_focus('dashboard_setup_login_user');
             $('#dashboard_setup_login_tab').show();
+            $('#dashboard_setup_login_user').focus();
+            this.hide_error_message('#dashboard_setup_login_error');
             this.next_action = this.next_login;
             this.prev_tab = 'address';
         } else if (tab == 'action') {
@@ -240,16 +254,23 @@ PageSetupServer.prototype = {
                     /* The given credentials didn't work.  Ask the
                      * user to try again.
                      */
-                    $('#dashboard_setup_login_error').text(cockpit.client_error_description(client.error));
                     self.show_tab('login');
+                    self.highlight_error_message('#dashboard_setup_login_error',
+                                                 cockpit.client_error_description(client.error));
                     return;
                 }
 
                 /* The connection has failed.  Show the error on every
                  * tab but stay on the current tab.
                  */
-                $('#dashboard_setup_address_error').text(cockpit.client_error_description(client.error));
-                $('#dashboard_setup_login_error').text(cockpit.client_error_description(client.error));
+                self.highlight_error_message('#dashboard_setup_address_error',
+                                             cockpit.client_error_description(client.error));
+                self.highlight_error_message('#dashboard_setup_login_error',
+                                             cockpit.client_error_description(client.error));
+
+                $('#dashboard_setup_next').prop('disabled', false);
+                $('#dashboard_setup_next').text(_("Next"));
+
                 return;
 
             } else if (client.state == "ready") {
@@ -265,15 +286,28 @@ PageSetupServer.prototype = {
         var me = this;
         var reuse_creds;
 
+        me.hide_error_message('#dashboard_setup_address_error');
+
         me.address = $('#dashboard_setup_address').val();
-        $('#dashboard_setup_login_address').text(this.address);
 
-        reuse_creds = $('#dashboard_setup_address_reuse_creds').prop('checked');
+        if (me.address.trim() !== "") {
+            $('#dashboard_setup_login_address').text(me.address);
 
-        if (!reuse_creds)
-            me.show_tab('login');
-        else
-            me.connect_server();
+            reuse_creds = $('#dashboard_setup_address_reuse_creds').prop('checked');
+
+            if (!reuse_creds)
+                me.show_tab('login');
+            else {
+                me.options.user = null;
+                me.options.password = null;
+                me.options.host_key = null;
+                me.connect_server();
+            }
+        } else {
+            $('#dashboard_setup_next').text(_("Next"));
+            me.highlight_error_message('#dashboard_setup_address_error',
+                                       _("IP address or host name cannot be empty."));
+        }
     },
 
     next_login: function() {
@@ -282,7 +316,7 @@ PageSetupServer.prototype = {
         var user = $('#dashboard_setup_login_user').val();
         var pass = $('#dashboard_setup_login_password').val();
 
-        $('#dashboard_setup_login_error').text("");
+        me.hide_error_message('#dashboard_setup_login_error');
 
         me.options.user = user;
         me.options.password = pass;
@@ -503,14 +537,15 @@ PageSetupServer.prototype = {
                                                  "com.redhat.Cockpit.Machines");
         machines.call('Add', me.address, me.options["host-key"], function (error, path) {
             if (error) {
-                $('#dashboard_setup_address_error').text(error.message);
+                me.highlight_error_message('#dashboard_setup_address_error', error.message);
                 me.show_tab('address');
                 return;
             }
 
             me.machine = me.local_client.lookup (path, "com.redhat.Cockpit.Machine");
             if (!me.machine) {
-                $('#dashboard_setup_address_error').text(_("New machine not found in list after adding."));
+                me.highlight_error_message('#dashboard_setup_address_error',
+                                           _("New machine not found in list after adding."));
                 me.show_tab('address');
                 return;
             }

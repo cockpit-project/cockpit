@@ -65,6 +65,9 @@ cockpit_creds_new (const gchar *user,
   const char *type;
   va_list va;
 
+  g_return_val_if_fail (user != NULL, NULL);
+  g_return_val_if_fail (!g_str_equal (user, ""), NULL);
+
   creds = g_new0 (CockpitCreds, 1);
   creds->user = g_strdup (user);
 

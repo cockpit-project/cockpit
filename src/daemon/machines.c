@@ -57,7 +57,7 @@ struct _Machines
   GDBusObjectManagerServer *object_manager;
 
   GMutex lock;
-  GArray *machines;  /* of Machine */
+  GPtrArray *machines;  /* of Machine */
   gchar *machines_file;
   gchar *known_hosts;
 };
@@ -88,7 +88,7 @@ machines_write_inlock (Machines *machines, GError **error)
   GKeyFile *file = g_key_file_new ();
 
   for (int i = 0; i < machines->machines->len; i++)
-    machine_write (g_array_index (machines->machines, Machine *, i), file);
+    machine_write (machines->machines->pdata[i], file);
 
   gs_free gchar *data = g_key_file_to_data (file, NULL, NULL);
   g_key_file_free (file);
@@ -112,8 +112,7 @@ machines_new_machine (Machines *machines)
 {
   gs_free gchar *id = g_strdup_printf ("%d", machines->machines->len);
   Machine *machine = MACHINE (machine_new (machines, id));
-  g_object_ref_sink (machine);
-  g_array_append_val (machines->machines, machine);
+  g_ptr_array_add (machines->machines, machine);
   return machine;
 }
 
@@ -126,7 +125,7 @@ machines_read (Machines *machines)
 
   g_mutex_lock (&machines->lock);
 
-  g_array_set_size (machines->machines, 0);
+  g_ptr_array_set_size (machines->machines, 0);
 
   file = g_key_file_new();
   if (!g_key_file_load_from_file (file, machines->machines_file, 0, &error))
@@ -173,6 +172,7 @@ machines_finalize (GObject *object)
 {
   Machines *machines = MACHINES (object);
 
+  g_ptr_array_free (machines->machines, TRUE);
   g_free (machines->machines_file);
   g_free (machines->known_hosts);
   g_mutex_clear (&machines->lock);
@@ -221,7 +221,7 @@ machines_constructed (GObject *object)
 {
   Machines *machines = MACHINES (object);
 
-  machines->machines = g_array_new (FALSE, FALSE, sizeof(Machine *));
+  machines->machines = g_ptr_array_new_with_free_func (g_object_unref);
   machines_read (machines);
 
   if (G_OBJECT_CLASS (machines_parent_class)->constructed != NULL)
@@ -355,7 +355,7 @@ machines_add (Machines *machines,
   /* Do we already have this machine? */
   for (int i = 0; i < machines->machines->len; i++)
     {
-      machine = g_array_index (machines->machines, Machine *, i);
+      machine = machines->machines->pdata[i];
       if (g_strcmp0 (cockpit_machine_get_address (COCKPIT_MACHINE (machine)), address) == 0)
         goto out;
     }

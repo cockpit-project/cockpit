@@ -479,6 +479,7 @@ parse_handshake_request (WebSocketServer *self,
 
   if (consumed > 0)
     g_byte_array_remove_range (incoming, 0, consumed);
+  g_hash_table_unref (headers);
   g_free (resource);
   g_free (method);
 

@@ -529,6 +529,7 @@ _web_socket_connection_error (WebSocketConnection *self,
       return TRUE;
     }
 
+  g_error_free (error);
   return FALSE;
 }
 

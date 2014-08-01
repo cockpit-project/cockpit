@@ -704,6 +704,7 @@ cockpit_request_free (gpointer data)
    */
   g_byte_array_unref (request->buffer);
   g_object_unref (request->io);
+  g_free (request);
 }
 
 static void

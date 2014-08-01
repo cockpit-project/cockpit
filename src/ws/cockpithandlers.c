@@ -174,6 +174,7 @@ build_environment (CockpitWebService *service,
   hostname[HOST_NAME_MAX] = '\0';
 
   json_object_set_string_member (env, "hostname", hostname);
+  g_free (hostname);
 
   /* Only include version info if logged in */
   if (service)
@@ -237,6 +238,8 @@ on_login_modules (GObject *source,
 
   if (modules)
     json_object_unref (modules);
+
+  login_response_free (lr);
 }
 
 static void

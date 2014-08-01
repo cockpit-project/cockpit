@@ -62,11 +62,13 @@ endif
 
 VALGRIND_ARGS = --trace-children=no --quiet --error-exitcode=33 \
 	--suppressions=valgrind-suppressions --gen-suppressions=all \
-	--num-callers=16
+	--num-callers=16 --leak-check=yes --show-leak-kinds=definite \
+	--errors-for-leak-kinds=definite
 VALGRIND_SUPPRESSIONS = \
 	tools/gcrypt.supp \
 	tools/glib.supp \
 	tools/pthread.supp \
+	tools/travis.supp \
 	tools/unknown.supp \
 	$(NULL)
 

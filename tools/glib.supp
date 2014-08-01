@@ -333,3 +333,93 @@
    ...
    fun:g_child_watch_finalize
 }
+{
+   gdbus_shared_thread_func
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:g_malloc
+   ...
+   fun:gdbus_shared_thread_func
+}
+{
+   g_task_start_task_thread
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   ...
+   fun:g_thread_pool_push
+   fun:g_task_start_task_thread
+}
+{
+   g_get_language_names
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:g_malloc0
+   fun:g_get_language_names
+}
+{
+   g_get_filename_charsets
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:g_get_filename_charsets
+   fun:g_filename_display_name
+}
+{
+   g_main_current_source
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   ...
+   fun:g_main_current_source
+   fun:g_task_return
+   fun:g_task_thread_pool_thread
+}
+{
+   g_once_init_enter
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:g_once_init_enter
+}
+{
+   g_child_watch_source_new
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:g_thread_new
+   ...
+   fun:g_child_watch_source_new
+}
+{
+   continue_writing_in_idle_cb
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:g_task_new
+   ...
+   fun:continue_writing_in_idle_cb
+   fun:g_main_context_dispatch
+}
+{
+   g_main_current_source
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:g_main_current_source
+}
+{
+   g_thread_pool_push
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:g_thread_pool_push
+}

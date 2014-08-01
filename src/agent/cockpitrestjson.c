@@ -1040,7 +1040,7 @@ cockpit_rest_json_init (CockpitRestJson *self)
                                            NULL, cockpit_rest_response_destroy);
 
   /* Table of gint64 -> GArray(gint64) */
-  self->watches = g_hash_table_new (cockpit_json_int_hash, cockpit_json_int_equal);
+  self->watches = g_hash_table_new_full (cockpit_json_int_hash, cockpit_json_int_equal, g_free, NULL);
 }
 
 static void

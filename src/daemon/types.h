@@ -106,9 +106,6 @@ typedef struct _Realms Realms;
 struct _Services;
 typedef struct _Services Services;
 
-struct _Journal;
-typedef struct _Journal Journal;
-
 struct _Accounts;
 typedef struct _Accounts Accounts;
 

@@ -183,6 +183,8 @@ teardown (TestCase *tc,
       g_assert (tc->channel == NULL);
     }
 
+  g_free (tc->channel_problem);
+
   cockpit_assert_expected ();
 }
 
@@ -362,6 +364,7 @@ test_spawn_simple (void)
   g_assert_cmpstr (problem, ==, "");
   g_object_unref (channel);
 
+  g_free (problem);
   g_object_unref (transport);
 }
 
@@ -566,6 +569,7 @@ test_spawn_pty (void)
   g_assert_cmpstr (problem, ==, "");
   g_object_unref (channel);
 
+  g_free (problem);
   g_object_unref (transport);
 }
 

@@ -178,7 +178,14 @@ mock_reauthorize (const char *mode,
 
   assert (WIFEXITED (status));
   if (WEXITSTATUS (status) == 77)
-    re_test_skip ("need to 'make enable-root-tests'");
+    {
+      if (output)
+        {
+          free (*output);
+          *output = NULL;
+        }
+      re_test_skip ("need to 'make enable-root-tests'");
+    }
 
   return WEXITSTATUS (status);
 }

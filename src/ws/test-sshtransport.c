@@ -246,6 +246,8 @@ on_recv_multiple (CockpitTransport *transport,
 
   (*state)++;
   g_assert (g_bytes_equal (message, check));
+  g_bytes_unref (check);
+
   return TRUE;
 }
 
@@ -547,6 +549,8 @@ test_expect_host_key (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (problem, ==, "");
+
+  g_free (problem);
 }
 
 static const TestFixture fixture_expect_bad_key = {
@@ -576,6 +580,8 @@ test_expect_bad_key (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (problem, ==, "unknown-hostkey");
+
+  g_free (problem);
 }
 
 static const TestFixture fixture_expect_empty_key = {
@@ -605,6 +611,8 @@ test_expect_empty_key (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (problem, ==, "unknown-hostkey");
+
+  g_free (problem);
 }
 
 

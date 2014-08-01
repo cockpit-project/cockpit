@@ -135,6 +135,7 @@ on_recv_multiple (CockpitTransport *transport,
 
   (*state)++;
   g_assert (g_bytes_equal (message, check));
+  g_bytes_unref (check);
   return TRUE;
 }
 

@@ -359,6 +359,7 @@ test_favicon_ico (Test *test,
                               test->headers, input, test->response, &test->data);
 
   g_assert (ret == TRUE);
+  g_bytes_unref (input);
 
   output = output_as_string (test);
   cockpit_assert_strmatch (output,
@@ -381,6 +382,7 @@ test_ping (Test *test,
                               test->headers, input, test->response, &test->data);
 
   g_assert (ret == TRUE);
+  g_bytes_unref (input);
 
   output = output_as_string (test);
   cockpit_assert_strmatch (output,

@@ -267,6 +267,7 @@ test_async_init_cancelled (TestCase *tc,
   manager =  cockpit_fake_manager_new_finish (result, &error);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CANCELLED);
   g_assert (manager == NULL);
+  g_error_free (error);
 
   g_object_add_weak_pointer (G_OBJECT (result), (gpointer *)&result);
   g_object_unref (result);
@@ -298,6 +299,7 @@ test_async_cancelled_after (TestCase *tc,
   manager =  cockpit_fake_manager_new_finish (result, &error);
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CANCELLED);
   g_assert (manager == NULL);
+  g_error_free (error);
 
   g_object_add_weak_pointer (G_OBJECT (result), (gpointer *)&result);
   g_object_unref (result);
@@ -879,6 +881,7 @@ main (int argc,
   ret = g_test_run ();
 
   g_test_dbus_down (bus);
+  g_object_unref (bus);
 
   return ret;
 }

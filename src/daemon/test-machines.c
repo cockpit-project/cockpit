@@ -125,6 +125,9 @@ teardown (TestCase *tc,
   g_assert (tc->machines == NULL);
 
   g_assert_cmpint (g_unlink (tc->machines_file), ==, 0);
+  g_free (tc->machines_file);
+
+  g_free (tc->known_hosts);
 }
 
 static void

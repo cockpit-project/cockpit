@@ -223,6 +223,7 @@ main (int argc,
 
   mock_service_stop ();
   g_test_dbus_down (bus);
+  g_object_unref (bus);
 
   return ret;
 }

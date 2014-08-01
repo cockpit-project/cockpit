@@ -266,6 +266,8 @@ test_close_transport (TestCase *tc,
 
   g_assert_cmpstr (problem, ==, "boooo");
   g_assert (mock_transport_pop_control (tc->transport) == NULL);
+
+  g_free (problem);
 }
 
 static void

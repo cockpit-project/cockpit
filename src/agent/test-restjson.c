@@ -180,11 +180,13 @@ mock_server_respond (MockServer *self,
   gchar *response = NULL;
   gsize length;
   GError *error = NULL;
+  gchar *data = NULL;
+  gboolean ret = FALSE;
 
   /* Do we have a response? */
   queue = g_hash_table_lookup (self->responses, what);
   if (queue)
-    response = g_queue_pop_head (queue);
+    data = response = g_queue_pop_head (queue);
 
   if (response == NULL)
     {
@@ -206,10 +208,7 @@ mock_server_respond (MockServer *self,
         {
           g_output_stream_write_all (out, response, 1, NULL, NULL, &error);
           if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
-            {
-              g_error_free (error);
-              return FALSE;
-            }
+            goto out;
           g_assert_no_error (error);
           response++;
           length--;
@@ -219,10 +218,7 @@ mock_server_respond (MockServer *self,
     {
       g_output_stream_write_all (out, response, length, NULL, NULL, &error);
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
-        {
-          g_error_free (error);
-          return FALSE;
-        }
+        goto out;
       g_assert_no_error (error);
     }
 
@@ -232,14 +228,16 @@ mock_server_respond (MockServer *self,
       g_usleep (100 * 1000); /* 100 ms */
       g_output_stream_write_all (out, response + length, 1, NULL, NULL, &error);
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
-        {
-          g_error_free (error);
-          return FALSE;
-        }
+        goto out;
       g_assert_no_error (error);
     }
 
-  return keep_alive;
+  ret = keep_alive;
+
+out:
+  g_clear_error (&error);
+  g_free (data);
+  return ret;
 }
 
 static gboolean
@@ -826,7 +824,7 @@ test_bad_status (TestCase *tc,
 
   cockpit_expect_message ("*received response with bad HTTP status line");
 
-  mock_server_push (tc->server, "GET", "/", "BLAH\r\n");
+  mock_server_push (tc->server, "GET", "/", g_strdup ("BLAH\r\n"));
 
   simple_request (tc, "GET", "/");
 
@@ -844,7 +842,7 @@ test_bad_truncated (TestCase *tc,
 
   cockpit_expect_message ("*received truncated HTTP response");
 
-  mock_server_push (tc->server, "GET", "/", "BL");
+  mock_server_push (tc->server, "GET", "/", g_strdup ("BL"));
 
   simple_request (tc, "GET", "/");
 
@@ -862,7 +860,7 @@ test_bad_version (TestCase *tc,
 
   cockpit_expect_message ("*received response with bad HTTP status line");
 
-  mock_server_push (tc->server, "GET", "/", "HTTP/2.0 200 OK\r\n\r\n");
+  mock_server_push (tc->server, "GET", "/", g_strdup ("HTTP/2.0 200 OK\r\n\r\n"));
 
   simple_request (tc, "GET", "/");
 
@@ -879,7 +877,7 @@ test_failure_message (TestCase *tc,
   tc->server->slowly = TRUE;
 
   mock_server_push (tc->server, "GET", "/",
-                    "HTTP/1.1 500 Internal Server Error\r\nContent-type: text/plain\r\n\r\nOh Marmallaaade!");
+                    g_strdup ("HTTP/1.1 500 Internal Server Error\r\nContent-type: text/plain\r\n\r\nOh Marmallaaade!"));
 
   simple_request (tc, "GET", "/");
 
@@ -900,7 +898,7 @@ test_skip_body_error_version (TestCase *tc,
   tc->server->slowly = TRUE;
 
   mock_server_push (tc->server, "GET", "/",
-                    "HTTP/1.1 400 Bad\r\nContent-type: application/json\r\n\r\n{ }");
+                    g_strdup ("HTTP/1.1 400 Bad\r\nContent-type: application/json\r\n\r\n{ }"));
 
   simple_request (tc, "GET", "/");
 
@@ -922,7 +920,7 @@ test_bad_content_length (TestCase *tc,
   cockpit_expect_message ("*received invalid Content-Length*");
 
   mock_server_push (tc->server, "GET", "/",
-                    "HTTP/1.0 200 OK\r\nContent-Length: blah\r\n\r\n");
+                    g_strdup ("HTTP/1.0 200 OK\r\nContent-Length: blah\r\n\r\n"));
 
   simple_request (tc, "GET", "/");
 
@@ -1203,6 +1201,7 @@ test_bad_unix_socket (void)
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (problem, ==, "not-found");
+  g_free (problem);
 
   g_object_add_weak_pointer (G_OBJECT (channel), (gpointer *)&channel);
   g_object_unref (channel);

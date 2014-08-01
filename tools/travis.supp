@@ -1,0 +1,86 @@
+{
+   ubuntu_specific_dispatch
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   fun:g_main_context_dispatch
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   fun:g_main_loop_run
+   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   fun:start_thread
+   fun:clone
+}
+{
+   g_bus_get_sync__old
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   ...
+   fun:g_bus_get_sync
+   ...
+   fun:g_test_run
+}
+{
+   g_main_context_push_thread_default__old
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:g_main_context_push_thread_default
+}
+{
+   ubuntu_leak_inside_of_address_sync_initable_new
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
+   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
+   fun:g_initable_new_valist
+   fun:g_initable_new
+   fun:g_dbus_connection_new_for_address_sync
+   fun:mock_service_thread
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   fun:start_thread
+   fun:clone
+}
+{
+   ubuntu_glib_thread_gio_leak
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:g_malloc0
+   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
+   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
+   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
+   obj:/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0.4000.0
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   fun:start_thread
+   fun:clone
+}
+{
+   ubuntu_leak_socket_client_connect_cancelled
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   fun:g_socket_client_connect_async
+   fun:g_socket_client_connect_to_uri_async
+   fun:web_socket_client_constructed
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.4000.0
+   fun:g_object_new_valist
+   fun:g_object_new
+   fun:web_socket_client_new
+   fun:test_close_immediately
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   fun:g_test_run_suite
+   fun:g_test_run
+}

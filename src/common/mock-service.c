@@ -505,6 +505,31 @@ on_name_lost (GDBusConnection *connection,
   *owned = FALSE;
 }
 
+typedef struct {
+    GMainContext *context;
+    gpointer *clear;
+} GoneContext;
+
+static void
+on_object_gone (gpointer data,
+                GObject *where_the_object_was)
+{
+  GoneContext *ctx = data;
+  g_atomic_pointer_set (ctx->clear, NULL);
+  g_main_context_wakeup (ctx->context);
+}
+
+static void
+wait_until_object_gone (GMainContext *context,
+                        gpointer object)
+{
+  GoneContext ctx = { context, &object };
+  g_object_weak_ref (object, on_object_gone, &ctx);
+  g_object_unref (object);
+  while (g_atomic_pointer_get (&object))
+    g_main_context_iteration (context, TRUE);
+}
+
 static gpointer
 mock_service_thread (gpointer unused)
 {
@@ -552,7 +577,8 @@ mock_service_thread (gpointer unused)
   g_mutex_unlock (&mock_mutex);
 
   g_object_unref (exported);
-  g_object_unref (conn);
+
+  wait_until_object_gone (main_ctx, conn);
 
   while (g_main_context_iteration (main_ctx, FALSE));
   g_main_context_pop_thread_default (main_ctx);

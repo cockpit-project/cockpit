@@ -389,3 +389,10 @@
    fun:call_destroy_notify
    fun:g_dbus_connection_signal_unsubscribe
 }
+{
+   gcov_exit
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:gcov_exit.part.5
+}

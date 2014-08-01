@@ -736,5 +736,8 @@ cockpit_auth_start_session (CockpitCreds *creds)
                            NULL);
     }
 
+  if (bytes)
+    g_bytes_unref (bytes);
+
   return pipe;
 }

@@ -152,6 +152,10 @@ machine_unexport (Machine *machine,
 static void
 machine_finalize (GObject *object)
 {
+  Machine *self = MACHINE (object);
+
+  g_free (self->id);
+
   G_OBJECT_CLASS (machine_parent_class)->finalize (object);
 }
 

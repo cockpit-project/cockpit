@@ -98,6 +98,7 @@ cockpit_session_free (gpointer data)
   g_hash_table_unref (session->channels);
   g_object_unref (session->transport);
   g_hash_table_unref (session->checksums);
+  cockpit_creds_unref (session->creds);
   g_free (session->host);
   g_free (session);
 }
@@ -1009,7 +1010,7 @@ dispatch_inbound_command (CockpitWebService *self,
 {
   const gchar *command;
   const gchar *channel;
-  gchar *agent_channel;
+  gchar *agent_channel = NULL;
   JsonObject *options = NULL;
   gboolean valid = FALSE;
   gboolean forward = TRUE;
@@ -1082,6 +1083,7 @@ out:
     inbound_protocol_error (self, socket->connection);
   if (options)
     json_object_unref (options);
+  g_free (agent_channel);
 }
 
 static void

@@ -352,7 +352,7 @@ static void
 test_header_equals (void)
 {
   GHashTable *headers = web_socket_util_new_headers ();
-  g_hash_table_insert (headers, g_strdup ("Blah"), "VALUE");
+  g_hash_table_insert (headers, g_strdup ("Blah"), g_strdup ("VALUE"));
 
   g_assert (_web_socket_util_header_equals (headers, "blah", "Value"));
 
@@ -363,13 +363,14 @@ test_header_equals (void)
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
                          "received invalid or missing Extra header*");
   g_assert (!_web_socket_util_header_equals (headers, "Extra", "test"));
+  g_hash_table_unref (headers);
 }
 
 static void
 test_header_contains (void)
 {
   GHashTable *headers = web_socket_util_new_headers ();
-  g_hash_table_insert (headers, g_strdup ("Blah"), "one two three");
+  g_hash_table_insert (headers, g_strdup ("Blah"), g_strdup ("one two three"));
 
   g_assert (_web_socket_util_header_contains (headers, "blah", "one"));
   g_assert (_web_socket_util_header_contains (headers, "blah", "two"));
@@ -386,14 +387,15 @@ test_header_contains (void)
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
                          "received invalid or missing Extra header*");
   g_assert (!_web_socket_util_header_contains (headers, "Extra", "test"));
+  g_hash_table_unref (headers);
 }
 
 static void
 test_header_empty (void)
 {
   GHashTable *headers = web_socket_util_new_headers ();
-  g_hash_table_insert (headers, g_strdup ("Empty"), "");
-  g_hash_table_insert (headers, g_strdup ("Blah"), "value");
+  g_hash_table_insert (headers, g_strdup ("Empty"), g_strdup (""));
+  g_hash_table_insert (headers, g_strdup ("Blah"), g_strdup ("value"));
 
   g_assert (_web_socket_util_header_empty (headers, "empty"));
   g_assert (_web_socket_util_header_empty (headers, "Another"));
@@ -401,6 +403,7 @@ test_header_empty (void)
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
                          "received unsupported Blah header*");
   g_assert (!_web_socket_util_header_empty (headers, "Blah"));
+  g_hash_table_unref (headers);
 }
 
 static void
@@ -758,6 +761,8 @@ test_protocol_server_any (Test *test,
   WAIT_UNTIL (web_socket_connection_get_ready_state (test->client) != WEB_SOCKET_STATE_CONNECTING);
   g_assert_cmpstr (web_socket_connection_get_protocol (test->client), ==, "aaa");
   g_assert_cmpstr (web_socket_connection_get_protocol (test->server), ==, "aaa");
+
+  g_clear_error (&error);
 }
 
 static void
@@ -779,6 +784,8 @@ test_protocol_client_any (Test *test,
   WAIT_UNTIL (web_socket_connection_get_ready_state (test->client) != WEB_SOCKET_STATE_CONNECTING);
   g_assert_cmpstr (web_socket_connection_get_protocol (test->client), ==, "aaa");
   g_assert_cmpstr (web_socket_connection_get_protocol (test->server), ==, "aaa");
+
+  g_clear_error (&error);
 }
 
 static void
@@ -1442,6 +1449,7 @@ main (int argc,
     {
       name = g_strdup_printf ("/web-socket/hixie76/bad-keys-%s", bad_hixie76_key_fixtures[i].name);
       g_test_add (name, Test, bad_hixie76_key_fixtures + i, NULL, test_bad_hixie76_keys, NULL);
+      g_free (name);
     }
 
   g_test_add_func ("/web-socket/hixie76/response-headers", test_hixie76_response_headers);

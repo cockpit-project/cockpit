@@ -134,7 +134,7 @@ setup_simple (TestCase *tc,
                                 &pid, fds + 1, fds + 0, NULL,
                                 &error);
       g_assert_no_error (error);
-      g_free (argv);
+      g_strfreev (argv);
     }
   else
     {

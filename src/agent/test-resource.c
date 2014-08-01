@@ -83,6 +83,8 @@ teardown (TestCase *tc,
   g_object_add_weak_pointer (G_OBJECT (tc->channel), (gpointer *)&tc->channel);
   g_object_unref (tc->channel);
   g_assert (tc->channel == NULL);
+
+  g_free (tc->problem);
 }
 
 static GBytes *

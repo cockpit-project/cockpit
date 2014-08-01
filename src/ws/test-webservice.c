@@ -683,6 +683,7 @@ test_specified_creds_fail (TestCase *test,
 
   /* Should have gotten a failure message, about the credentials */
   expect_control_message (received, "close", "4", "reason", "not-authorized", NULL);
+  g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, service);
 }
@@ -865,6 +866,7 @@ test_bad_origin (TestCase *test,
   g_assert_error (error, WEB_SOCKET_ERROR, WEB_SOCKET_CLOSE_PROTOCOL);
 
   close_client_and_stop_web_service (test, ws, service);
+  g_clear_error (&error);
 }
 
 static void
@@ -1104,6 +1106,8 @@ setup_resource (TestResourceCase *tc,
 
   /* Start up a cockpit-agent here */
   tc->pipe = cockpit_pipe_spawn (argv, (const gchar **)environ, NULL);
+
+  g_strfreev (environ);
 
   user = g_get_user_name ();
   creds = cockpit_creds_new (user, COCKPIT_CRED_PASSWORD, PASSWORD, NULL);

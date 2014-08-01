@@ -113,8 +113,9 @@
                         phantom_checkpoint();
                     }).
                     fail(function(xhr, reason) {
-                        if (xhr.status == 401) {
-                            console.log(xhr.statusText);
+                        if(!user)
+                            $("#login-error-message").show().text(xhr.statusText);
+                        else if (xhr.status == 401) {
                             $("#login-error-message").show().text("Wrong username or password");
                         }else {
                             fatal(xhr.statusText);

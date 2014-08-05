@@ -243,7 +243,7 @@ cockpit_auth_parse_input (GBytes *input,
     {
       post = g_bytes_get_data (input, &length);
       line = memchr (post, '\n', length);
-      if (line && line != post)
+      if (line)
         {
           user = g_strndup (post, line - post);
           offset = (line - post) + 1;
@@ -254,13 +254,7 @@ cockpit_auth_parse_input (GBytes *input,
         }
     }
 
-  if (!user)
-    {
-      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                   "Authentication failed");
-      ret = FALSE;
-    }
-  else if (user && password)
+  if (user && password)
     {
       if (ret_user)
         {

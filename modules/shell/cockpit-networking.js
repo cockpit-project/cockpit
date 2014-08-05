@@ -864,9 +864,30 @@ function NetworkManagerModel(address) {
     // object or interface.  We use it to represent a network device
     // that might or might not actually be known to the kernel, such
     // as the interface of a bond that is currently down.
+    //
+    // This is a HACK: NetworkManager should export Device nodes for
+    // these.
 
     var type_Interface = {
         interfaces: [ ],
+
+        prototype: {
+            activate: function(connection, specific_object) {
+                if (this.Device)
+                    return this.Device.activate(null, null);
+                else {
+                    if (!connection && this.Connections.length > 0)
+                        connection = this.Connections[0];
+                    if (connection)
+                        return connection.activate(null, specific_object);
+                    else  {
+                        var dfd = $.Deferred();
+                        dfd.reject("No connection");
+                        return dfd.promise();
+                    }
+                }
+            }
+        },
 
         exporters: [
             function (obj) {
@@ -1479,12 +1500,14 @@ PageNetworkInterface.prototype = {
         }
 
         function activate() {
-            self.dev.activate(null, null).
+            self.iface.activate(null, null).
                 fail(fail);
         }
 
-        if (!self.dev)
+        if (!self.iface) {
+            self.update();
             return;
+        }
 
         if (self.ghost_settings) {
             settings_manager.add_connection(self.ghost_settings).
@@ -1496,12 +1519,16 @@ PageNetworkInterface.prototype = {
 
     disconnect: function() {
         var self = this;
-        if (self.dev) {
-            self.dev.disconnect().fail(function (error) {
-                cockpit_show_unexpected_error(error);
-                self.update();
-            });
+
+        if (!self.dev) {
+            self.update();
+            return;
         }
+
+        self.dev.disconnect().fail(function (error) {
+            cockpit_show_unexpected_error(error);
+            self.update();
+        });
     },
 
     update: function() {

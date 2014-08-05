@@ -100,6 +100,8 @@ class TestLogin(MachineCase):
         self.assertEqual(self.curl_post_code ('/login', 'foo\nbar\n'), 400)
         self.assertEqual(self.curl_post_code ('/login', 'foo\nbar\nbaz'), 400)
         self.assertEqual(self.curl_post_code ('/login', '\n\n\n'), 400)
+        self.assertEqual(self.curl_post_code ('/login', '\n'), 401)
+        self.assertEqual(self.curl_post_code ('/login', '\nbar'), 401)
         self.assertEqual(self.curl_post_code ('/login', 'admin\nbar'), 401)
         self.assertEqual(self.curl_post_code ('/login', 'foo\nbar'), 401)
         self.assertEqual(self.curl_post_code ('/login', 'x' * 5000), 413)

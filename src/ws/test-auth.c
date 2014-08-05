@@ -178,7 +178,7 @@ test_userpass_invalid (Test *test,
   g_object_unref (result);
 
   g_assert (service == NULL);
-  g_assert_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA);
   g_clear_error (&error);
 
   g_hash_table_destroy (headers);

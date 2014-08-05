@@ -96,6 +96,8 @@ teardown_dbus_server(TestCase *tc,
   shutdown (tc->fd, SHUT_WR);
   g_thread_join (tc->thread);
   close (tc->fd);
+
+  while (g_main_context_iteration (NULL, FALSE));
 }
 
 static void

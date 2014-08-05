@@ -95,17 +95,17 @@ class TestLogin(MachineCase):
     def testRaw(self):
         self.start_cockpit()
         time.sleep(0.5)
-        self.assertEqual(self.curl_post_code ('/login', ''), 400)
-        self.assertEqual(self.curl_post_code ('/login', 'foo'), 400)
+        self.assertEqual(self.curl_post_code ('/login', ''), 401)
+        self.assertEqual(self.curl_post_code ('/login', 'foo'), 401)
         self.assertEqual(self.curl_post_code ('/login', 'foo\nbar\n'), 400)
         self.assertEqual(self.curl_post_code ('/login', 'foo\nbar\nbaz'), 400)
-        self.assertEqual(self.curl_post_code ('/login', '\n\n\n'), 400)
+        self.assertEqual(self.curl_post_code ('/login', '\n\n\n'), 401)
         self.assertEqual(self.curl_post_code ('/login', 'admin\nbar'), 401)
         self.assertEqual(self.curl_post_code ('/login', 'foo\nbar'), 401)
         self.assertEqual(self.curl_post_code ('/login', 'x' * 5000), 413)
         self.assertEqual(self.curl_post_code ('/login', 'admin\n' + 'x' * 4000), 401)
         self.assertEqual(self.curl_post_code ('/login', 'x' * 4000 + '\nbar'), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 ), 400)
+        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 ), 401)
         self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\n'), 401)
         self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc'), 400)
         self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc\n'), 400)
@@ -114,6 +114,7 @@ class TestLogin(MachineCase):
                             "pam_unix\(cockpit:auth\): authentication failure; .*",
                             "pam_unix\(cockpit:auth\): check pass; user unknown",
                             "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
-                            "couldn't parse login input: Malformed input")
+                            "couldn't parse login input: Malformed input",
+                            "couldn't parse login input: Authentication failed")
 
 test_main()

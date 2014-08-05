@@ -48,7 +48,7 @@ PageRealmsOp.prototype = {
         $("#realms-op-address").on("keyup", function (e) {
             self.maybe_check_realm();
         });
-        $("#realms-op-address").on("changed", function (e) {
+        $("#realms-op-address").on("change", function (e) {
             self.maybe_check_realm();
         });
         $(".realms-op-field").on("keydown", function (e) {
@@ -108,11 +108,9 @@ PageRealmsOp.prototype = {
         me.discovered_details = [ ];
 
         if (me.op == 'join') {
-            me.check_default_realm();
             me.maybe_check_realm();
             me.update_discovered_details();
         } else {
-            me.stop_initial_discovery();
             me.update_auth_methods();
         }
 
@@ -239,44 +237,10 @@ PageRealmsOp.prototype = {
             $("#realms-op-wait-message").hide();
             $(".realms-op-field").prop('disabled', false);
             $('[data-id="realms-op-auth"]').prop('disabled', false);
-            if (me.initial_discovery)
-                $("#realms-op-apply").prop('disabled', true);
-            else
-                $("#realms-op-apply").prop('disabled', false);
+            $("#realms-op-apply").prop('disabled', false);
             $("#realms-op-software").prop('disabled', false);
 
         }
-    },
-
-    stop_initial_discovery: function () {
-        this.initial_discovery = 0;
-        $("#realms-op-init-spinner").hide();
-        $("#realms-op-form").css('opacity', 1.0);
-        $("#realms-op-apply").prop('disabled', false);
-    },
-
-    check_default_realm: function () {
-        var me = this;
-
-        $("#realms-op-form").css('opacity', 0.0);
-        $("#realms-op").modal('hide');
-        $("#realms-op-init-spinner").show();
-        $("#realms-op-apply").prop('disabled', true);
-
-        me.initial_discovery = 1;
-
-        me.realm_manager.call("Discover", "", { },
-                              function (error, result, details) {
-                                  if (me.initial_discovery) {
-                                      me.stop_initial_discovery();
-                                      if (result) {
-                                          me.checked = result;
-                                          $("#realms-op-address").val(result);
-                                          me.discovered_details = details;
-                                          me.update_discovered_details();
-                                      }
-                                  }
-                              });
     },
 
     maybe_check_realm: function() {
@@ -394,9 +358,7 @@ PageRealmsOp.prototype = {
     cancel: function() {
         var me = this;
 
-        if (me.initial_discovery) {
-            me.stop_initial_discovery();
-        } else if (me.working) {
+        if (me.working) {
             me.realm_manager.call("Cancel", function (error, result) { });
         } else {
             $("#realms-op").modal('hide');

@@ -54,13 +54,11 @@ class TestRealms(MachineCase):
 
         wait_number_domains(0)
 
-        # Join the default one
+        # Join cockpit.lan
         b.click("#realms-join")
         b.wait_popup("realms-op")
-        b.wait_visible("#realms-op-form")
-
 	with b.wait_timeout(120):
-	        b.wait_val("#realms-op-address", "cockpit.lan")
+                b.set_val("#realms-op-address", "cockpit.lan")
 	        b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
 	        b.set_val("#realms-op-admin", "admin")
 	        b.set_val("#realms-op-admin-password", "foobarfoo")
@@ -77,8 +75,7 @@ class TestRealms(MachineCase):
         # Send a wrong password
         b.click("#realms-join")
         b.wait_popup("realms-op")
-        b.wait_visible("#realms-op-form")
-        b.wait_val("#realms-op-address", "cockpit.lan")
+        b.set_val("#realms-op-address", "cockpit.lan")
         b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
         b.set_val("#realms-op-admin", "admin")
         b.set_val("#realms-op-admin-password", "foo")
@@ -90,8 +87,6 @@ class TestRealms(MachineCase):
         # Try to join a non-existing domain
         b.click("#realms-join")
         b.wait_popup("realms-op")
-        b.wait_visible("#realms-op-form")
-        b.wait_val("#realms-op-address", "cockpit.lan")
         b.set_val("#realms-op-address", "NOPE")
         b.wait_js_cond("$('#realms-op-address-error').attr('title') != ''")
         b.click("#realms-op-cancel")
@@ -100,8 +95,7 @@ class TestRealms(MachineCase):
         # Cancel a join
         b.click("#realms-join")
         b.wait_popup("realms-op")
-        b.wait_visible("#realms-op-form")
-        b.wait_val("#realms-op-address", "cockpit.lan")
+        b.set_val("#realms-op-address", "cockpit.lan")
         b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
         b.set_val("#realms-op-admin", "admin")
         b.set_val("#realms-op-admin-password", "foobarfoo")

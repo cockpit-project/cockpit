@@ -872,6 +872,12 @@ function NetworkManagerModel(address) {
         },
 
         prototype: {
+            activate: function(connection, specific_object) {
+                return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
+                                          "org.freedesktop.NetworkManager", "ActivateConnection",
+                                          objpath(connection), objpath(this), objpath(specific_object));
+            },
+
             disconnect: function () {
                 return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect');
             }
@@ -895,9 +901,30 @@ function NetworkManagerModel(address) {
     // object or interface.  We use it to represent a network device
     // that might or might not actually be known to the kernel, such
     // as the interface of a bond that is currently down.
+    //
+    // This is a HACK: NetworkManager should export Device nodes for
+    // these.
 
     var type_Interface = {
         interfaces: [ ],
+
+        prototype: {
+            activate: function(connection, specific_object) {
+                if (this.Device)
+                    return this.Device.activate(null, null);
+                else {
+                    if (!connection && this.Connections.length > 0)
+                        connection = this.Connections[0];
+                    if (connection)
+                        return connection.activate(null, specific_object);
+                    else  {
+                        var dfd = $.Deferred();
+                        dfd.reject("No connection");
+                        return dfd.promise();
+                    }
+                }
+            }
+        },
 
         exporters: [
             function (obj) {
@@ -1447,7 +1474,10 @@ PageNetworkInterface.prototype = {
 
     setup: function () {
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
-        $('#network-interface-disconnect').click($.proxy(this, "disconnect"));
+        $('#network-interface-delete').parent('div').append(
+            this.device_onoff = onoffbox(false,
+                                         $.proxy(this, "connect"),
+                                         $.proxy(this, "disconnect")));
     },
 
     enter: function () {
@@ -1543,9 +1573,45 @@ PageNetworkInterface.prototype = {
         }
     },
 
+    connect: function() {
+        var self = this;
+        var settings_manager = self.model.get_settings();
+
+        function fail(error) {
+            cockpit_show_unexpected_error(error);
+            self.update();
+        }
+
+        function activate() {
+            self.iface.activate(null, null).
+                fail(fail);
+        }
+
+        if (!self.iface) {
+            self.update();
+            return;
+        }
+
+        if (self.ghost_settings) {
+            settings_manager.add_connection(self.ghost_settings).
+                done(activate).
+                fail(fail);
+        } else
+            activate();
+    },
+
     disconnect: function() {
-        if (this.dev)
-            this.dev.disconnect().fail(cockpit_show_unexpected_error);
+        var self = this;
+
+        if (!self.dev) {
+            self.update();
+            return;
+        }
+
+        self.dev.disconnect().fail(function (error) {
+            cockpit_show_unexpected_error(error);
+            self.update();
+        });
     },
 
     update: function() {
@@ -1604,6 +1670,9 @@ PageNetworkInterface.prototype = {
                 $('<div>').append(
                     $('<span>').html(render_active_connection(dev, true, false)),
                     $('<span style="float:right">').text(dev? dev.StateText : _("Inactive")))));
+
+        this.device_onoff.prop('disabled', !dev);
+        this.device_onoff.set(!!(dev && dev.ActiveConnection));
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 
@@ -1880,13 +1949,15 @@ PageNetworkInterface.prototype = {
         }
 
         $connections.empty();
+        self.ghost_settings = null;
         function append_connections(cons) {
             if (cons.length > 0) {
                 cons.forEach(function (con) {
                     $connections.append(render_connection(con, con.Settings));
                 });
             } else {
-                $connections.append(render_connection(null, create_ghost_connection_settings()));
+                self.ghost_settings = create_ghost_connection_settings();
+                $connections.append(render_connection(null, self.ghost_settings));
             }
         }
 

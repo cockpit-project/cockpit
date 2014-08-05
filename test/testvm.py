@@ -403,7 +403,7 @@ class QemuMachine(Machine):
         try:
             # Create a qcow2-format disk image
             self.message("Building disk:", self._image_root)
-            subprocess.check_call([ "qemu-img", "create", "-f", "qcow2", self._image_root, "4G" ])
+            subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2", self._image_root, "4G" ])
 
             # Attach the disk image to libguestfs.
             gf.add_drive_opts(self._image_root, format = "qcow2", readonly = 0)
@@ -533,7 +533,7 @@ class QemuMachine(Machine):
                 raise Failure("Kernel not found: %s" % backing_file)
             if not os.path.exists(initrd_file):
                 raise Failure("Initrd not found: %s" % backing_file)
-            subprocess.check_call([ "qemu-img", "create",
+            subprocess.check_call([ "qemu-img", "create", "-q",
                                     "-f", "qcow2",
                                     "-o", "backing_file=%s" % backing_file,
                                     self._image_root ])
@@ -738,7 +738,7 @@ class QemuMachine(Machine):
         if os.path.exists(path):
             os.unlink(path)
 
-        subprocess.check_call(["qemu-img", "create", path, str(size)])
+        subprocess.check_call(["qemu-img", "create", "-q", path, str(size)])
 
         if speed:
             (unused, nbd) = tempfile.mkstemp(suffix='.nbd', prefix="disk-", dir=self.run_dir)

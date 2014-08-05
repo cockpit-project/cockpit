@@ -44,6 +44,11 @@ function ph_set_attr (sel, attr, val)
     ph_find(sel).attr(attr, val).trigger('change');
 }
 
+function ph_has_attr (sel, attr, val)
+{
+    return ph_find(sel).attr(attr) == val;
+}
+
 function ph_click (sel)
 {
     ph_find(sel).click();

@@ -133,7 +133,6 @@ on_closed_set_flag (CockpitTransport *transport,
 static void
 setup_dbus_daemon (gpointer addrfd)
 {
-  prctl (PR_SET_PDEATHSIG, SIGTERM);
   cockpit_unix_fd_close_all (3, GPOINTER_TO_INT (addrfd));
 }
 

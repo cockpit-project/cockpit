@@ -915,6 +915,7 @@ on_poke_introspected (GObject *source_object,
   if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
     {
       poke_context_finish (self, poke);
+      g_error_free (error);
       return;
     }
 

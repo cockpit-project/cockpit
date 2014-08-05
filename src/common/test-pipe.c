@@ -102,12 +102,30 @@ mock_echo_pipe_class_init (MockEchoPipeClass *klass)
 
 typedef struct {
   CockpitPipe *pipe;
+  guint timeout;
 } TestCase;
 
 typedef struct {
   const gchar *pipe_type_name;
   const gchar *command;
+  gboolean no_timeout;
 } TestFixture;
+
+static gboolean
+on_timeout_abort (gpointer unused)
+{
+  g_error ("timed out");
+  return FALSE;
+}
+
+static void
+setup_timeout (TestCase *tc,
+               gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  if (!fixture || !fixture->no_timeout)
+    tc->timeout = g_timeout_add_seconds (10, on_timeout_abort, tc);
+}
 
 static void
 setup_simple (TestCase *tc,
@@ -119,6 +137,8 @@ setup_simple (TestCase *tc,
   gchar **argv;
   int fds[2];
   GPid pid = 0;
+
+  setup_timeout (tc, data);
 
   pipe_type = "MockEchoPipe";
   if (fixture && fixture->pipe_type_name)
@@ -154,12 +174,18 @@ static void
 teardown (TestCase *tc,
           gconstpointer data)
 {
-  g_object_add_weak_pointer (G_OBJECT (tc->pipe),
-                             (gpointer *)&tc->pipe);
-  g_object_unref (tc->pipe);
+  if (tc->pipe)
+    {
+      g_object_add_weak_pointer (G_OBJECT (tc->pipe),
+                                 (gpointer *)&tc->pipe);
+      g_object_unref (tc->pipe);
 
-  /* If this asserts, outstanding references to transport */
-  g_assert (tc->pipe == NULL);
+      /* If this asserts, outstanding references to transport */
+      g_assert (tc->pipe == NULL);
+    }
+
+  if (tc->timeout)
+    g_source_remove (tc->timeout);
 }
 
 static void
@@ -210,6 +236,10 @@ test_echo_queue (TestCase *tc,
   g_assert_cmpint (echo_pipe->received->len, ==, 6);
   g_assert (memcmp (echo_pipe->received->data, "onetwo", 6) == 0);
 }
+
+static const TestFixture fixture_no_timeout = {
+    .no_timeout = TRUE
+};
 
 static void
 test_echo_large (TestCase *tc,
@@ -761,6 +791,58 @@ test_spawn_printerr (void)
 }
 
 static void
+test_spawn_close_terminate (TestCase *tc,
+                            gconstpointer unused)
+{
+  CockpitPipe *pipe;
+  gboolean closed = FALSE;
+  gint status;
+
+  const gchar *argv[] = { "/bin/sleep", "500", NULL };
+
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+  g_assert (pipe != NULL);
+
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
+  cockpit_pipe_close (pipe, "terminate");
+
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  status = cockpit_pipe_exit_status (pipe);
+  g_assert (WIFSIGNALED (status));
+  g_assert_cmpint (WTERMSIG (status), ==, SIGTERM);
+
+  g_object_unref (pipe);
+}
+
+static void
+test_spawn_close_clean (TestCase *tc,
+                        gconstpointer unused)
+{
+  CockpitPipe *pipe;
+  gboolean closed = FALSE;
+  gint status;
+
+  const gchar *argv[] = { "/bin/cat", NULL };
+
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+  g_assert (pipe != NULL);
+
+  g_signal_connect (pipe, "close", G_CALLBACK (on_close_get_flag), &closed);
+  cockpit_pipe_close (pipe, NULL);
+
+  while (!closed)
+    g_main_context_iteration (NULL, TRUE);
+
+  status = cockpit_pipe_exit_status (pipe);
+  g_assert (!WIFSIGNALED (status));
+  g_assert_cmpint (WEXITSTATUS (status), ==, 0);
+
+  g_object_unref (pipe);
+}
+
+static void
 test_pty_shell (void)
 {
   gboolean closed = FALSE;
@@ -1077,7 +1159,7 @@ main (int argc,
               setup_simple, test_echo_and_close, teardown);
   g_test_add ("/pipe/echo-queue", TestCase, NULL,
               setup_simple, test_echo_queue, teardown);
-  g_test_add ("/pipe/echo-large", TestCase, NULL,
+  g_test_add ("/pipe/echo-large", TestCase, &fixture_no_timeout,
               setup_simple, test_echo_large, teardown);
   g_test_add ("/pipe/close-problem", TestCase, NULL,
               setup_simple, test_close_problem, teardown);
@@ -1103,6 +1185,11 @@ main (int argc,
   g_test_add_func ("/pipe/spawn/and-write", test_spawn_and_write);
   g_test_add_func ("/pipe/spawn/and-fail", test_spawn_and_fail);
   g_test_add_func ("/pipe/spawn/printerr", test_spawn_printerr);
+
+  g_test_add ("/pipe/spawn/close-clean", TestCase, NULL,
+              setup_timeout, test_spawn_close_clean, teardown);
+  g_test_add ("/pipe/spawn/close-terminate", TestCase, NULL,
+              setup_timeout, test_spawn_close_terminate, teardown);
 
   g_test_add_func ("/pipe/pty/shell", test_pty_shell);
 

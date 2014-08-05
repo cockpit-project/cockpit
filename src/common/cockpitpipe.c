@@ -900,6 +900,28 @@ cockpit_pipe_connect (const gchar *name,
   return pipe;
 }
 
+static GSpawnFlags
+calculate_spawn_flags (const gchar **env)
+{
+  GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
+  gboolean path_flag = FALSE;
+
+  for (; env && env[0]; env++)
+    {
+      if (g_str_has_prefix (env[0], "PATH="))
+        {
+          flags |= G_SPAWN_SEARCH_PATH_FROM_ENVP;
+          path_flag = TRUE;
+          break;
+        }
+    }
+
+  if (!path_flag)
+    flags |= G_SPAWN_SEARCH_PATH;
+
+  return flags;
+}
+
 /**
  * cockpit_pipe_spawn:
  * @argv: null terminated string array of command arguments
@@ -932,10 +954,8 @@ cockpit_pipe_spawn (const gchar **argv,
   gchar *name;
   GPid pid = 0;
 
-  GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
-
   g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
-                            flags, NULL, NULL,
+                            calculate_spawn_flags (env), NULL, NULL,
                             &pid, &session_stdin, &session_stdout, NULL,
                             &error);
 
@@ -1086,8 +1106,12 @@ cockpit_pipe_pty (const gchar **argv,
                   const gchar *directory)
 {
   CockpitPipe *pipe = NULL;
+  const gchar *path = NULL;
   GPid pid = 0;
   int fd;
+
+  if (env)
+    path = g_environ_getenv ((gchar **)env, "PATH");
 
   pid = forkpty (&fd, NULL, NULL, NULL);
   if (pid == 0)
@@ -1105,6 +1129,9 @@ cockpit_pipe_pty (const gchar **argv,
               _exit (127);
             }
         }
+      /* Allow the commands below to act on $PATH */
+      if (path)
+        putenv ((gchar *)path);
       if (env)
         execvpe (argv[0], (char *const *)argv, (char *const *)env);
       else

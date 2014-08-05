@@ -34,6 +34,8 @@ DEFAULT_ARCH = "x86_64"
 
 MEMORY_MB = 1024
 
+SSH_WARNING = re.compile(r'Warning: Permanently added .* to the list of known hosts.*\n')
+
 class Failure(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -188,29 +190,40 @@ class Machine:
             command = "<script>"
 
         output = ""
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        rset = [proc.stdout.fileno()]
-        wset = [proc.stdin.fileno()]
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdin_fd = proc.stdin.fileno()
+        stdout_fd = proc.stdout.fileno()
+        stderr_fd = proc.stderr.fileno()
+        rset = [stdout_fd, stderr_fd]
+        wset = [stdin_fd]
         while len(rset) > 0 or len(wset) > 0:
             ret = select.select(rset, wset, [], 10)
             for fd in ret[0]:
-                if fd == proc.stdout.fileno():
+                if fd == stdout_fd:
                     data = os.read(fd, 1024)
                     if data == "":
+                        rset.remove(stdout_fd)
                         proc.stdout.close()
-                        rset = []
                     else:
                         if self.verbose:
                             sys.stdout.write(data)
                         output += data
+                elif fd == stderr_fd:
+                    data = os.read(fd, 1024)
+                    if data == "":
+                        rset.remove(stderr_fd)
+                        proc.stderr.close()
+                    else:
+                        data = SSH_WARNING.sub("", data)
+                        sys.stderr.write(data)
             for fd in ret[1]:
-                if fd == proc.stdin.fileno():
+                if fd == stdin_fd:
                     if input:
                         num = os.write(fd, input)
                         input = input[num:]
                     if not input:
+                        wset.remove(stdin_fd)
                         proc.stdin.close()
-                        wset = []
         proc.wait()
 
         if proc.returncode != 0:

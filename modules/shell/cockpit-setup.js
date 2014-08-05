@@ -90,8 +90,8 @@ PageSetupServer.prototype = {
         $("#dashboard_setup_address")[0].placeholder = _("Enter IP address or host name");
         $("#dashboard_setup_login_user")[0].placeholder = C_("login-screen", "Enter user name");
         $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
-        $('#dashboard_setup_address').on('keyup change', $.proxy (this, 'update_discovered'));
-        $('#dashboard_setup_address').on('input change focus', $.proxy (this, 'check_empty_address'));
+        $('#dashboard_setup_address').on('keyup change', $.proxy(this, 'update_discovered'));
+        $('#dashboard_setup_address').on('input change focus', $.proxy(this, 'check_empty_address'));
         $('#dashboard_setup_address').on('keyup', function(event) {
             if (event.which === 13) {
                 var disable = $('#dashboard_setup_next').prop('disabled');
@@ -110,13 +110,13 @@ PageSetupServer.prototype = {
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.local_client = cockpit.dbus("localhost", { payload: 'dbus-json1' });
-        $(self.local_client).on('objectAdded.setup objectRemoved.setup', function (event, object) {
+        $(self.local_client).on('objectAdded.setup objectRemoved.setup', function(event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
-                self.update_discovered ();
+                self.update_discovered();
         });
-        $(self.local_client).on('propertiesChanged.setup', function (event, object, iface) {
+        $(self.local_client).on('propertiesChanged.setup', function(event, object, iface) {
             if (iface._iface_name == "com.redhat.Cockpit.Machine")
-                self.update_discovered ();
+                self.update_discovered();
         });
 
         $('#dashboard_setup_address').val("");
@@ -125,18 +125,18 @@ PageSetupServer.prototype = {
 
         $('#dashboard_setup_address_reuse_creds').prop('checked', true);
 
-        self.show_tab ('address');
-        self.update_discovered ();
+        self.show_tab('address');
+        self.update_discovered();
         $('#dashboard_setup_next').prop('disabled', true);
     },
 
     update_discovered: function() {
         var filter = $('#dashboard_setup_address').val();
         var discovered = $('#dashboard_setup_address_discovered');
-        var machines = this.local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
-                                                            "com.redhat.Cockpit.Machine");
+        var machines = this.local_client.getInterfacesFrom("/com/redhat/Cockpit/Machines",
+                                                           "com.redhat.Cockpit.Machine");
 
-        function render_address (address) {
+        function render_address(address) {
             if (!filter)
                 return $('<span/>').text(address);
             var index = address.indexOf(filter);
@@ -150,8 +150,8 @@ PageSetupServer.prototype = {
 
         discovered.empty();
         for (var i = 0; i < machines.length; i++) {
-            if (!cockpit_find_in_array (machines[i].Tags, "dashboard")) {
-                var rendered_address = render_address (machines[i].Address);
+            if (!cockpit_find_in_array(machines[i].Tags, "dashboard")) {
+                var rendered_address = render_address(machines[i].Address);
                 if (rendered_address) {
                     if (machines[i].Address.trim() !== "") {
                         var item =
@@ -166,13 +166,13 @@ PageSetupServer.prototype = {
         }
     },
 
-    discovered_clicked: function (iface) {
+    discovered_clicked: function(iface) {
         $("#dashboard_setup_address").val(iface.Address);
         this.update_discovered();
         $("#dashboard_setup_address").focus();
     },
 
-    show_tab: function (tab) {
+    show_tab: function(tab) {
         $('.cockpit-setup-tab').hide();
         $('#dashboard_setup_next').text(_("Next"));
         if (tab == 'address') {
@@ -209,7 +209,7 @@ PageSetupServer.prototype = {
 
     close: function() {
         if (this.client)
-            this.client.close ("cancelled");
+            this.client.close("cancelled");
         $("#dashboard_setup_server_dialog").modal('hide');
     },
 
@@ -237,8 +237,8 @@ PageSetupServer.prototype = {
         var self = this;
 
         /* TODO: This is using the old dbus-json1 protocol */
-        var client = new DBusClient (self.address, self.options);
-        $(client).on('state-change', function () {
+        var client = new DBusClient(self.address, self.options);
+        $(client).on('state-change', function() {
             if (client.state == "closed") {
                 if (!self.options["host_key"] && client.error == "unknown-hostkey") {
                     /* The host key is unknown.  Remember it and try
@@ -324,14 +324,14 @@ PageSetupServer.prototype = {
         me.connect_server();
     },
 
-    reset_tasks: function () {
+    reset_tasks: function() {
         var $tasks = $('#dashboard_setup_action_tasks');
 
         this.tasks = [];
         $tasks.empty();
     },
 
-    add_task: function (desc, func) {
+    add_task: function(desc, func) {
         var $tasks = $('#dashboard_setup_action_tasks');
 
         var $entry = $('<li/>', { 'class': 'list-group-item' }).append(
@@ -355,7 +355,7 @@ PageSetupServer.prototype = {
 
         var task = { entry: $entry,
                      func: func,
-                     error: function (msg) {
+                     error: function(msg) {
                          this.had_error = true;
                          this.entry.find(".cockpit-setup-task-table").append(
                              $('<tr/>').append(
@@ -363,11 +363,11 @@ PageSetupServer.prototype = {
                      }
                    };
 
-        this.tasks.push (task);
+        this.tasks.push(task);
         $tasks.append($entry);
     },
 
-    run_tasks: function (done) {
+    run_tasks: function(done) {
         var me = this;
 
         function run(i) {
@@ -376,7 +376,7 @@ PageSetupServer.prototype = {
             if (i < me.tasks.length) {
                 t = me.tasks[i];
                 t.entry.find(".cockpit-setup-task-spinner").show();
-                t.func (t, function () {
+                t.func(t, function() {
                     t.entry.find(".cockpit-setup-task-spinner").hide();
                     if (t.had_error)
                         t.entry.find(".cockpit-setup-task-error").show();
@@ -385,142 +385,142 @@ PageSetupServer.prototype = {
                     run(i+1);
                 });
             } else
-                done ();
+                done();
         }
 
-        run (0);
+        run(0);
     },
 
-    prepare_setup: function () {
+    prepare_setup: function() {
         var me = this;
 
-        function get_role_accounts (client, roles) {
+        function get_role_accounts(client, roles) {
             var i;
             var accounts = client.getInterfacesFrom("/com/redhat/Cockpit/Accounts/",
                                                     "com.redhat.Cockpit.Account");
             var map = { };
 
-            function groups_contain_roles (groups) {
+            function groups_contain_roles(groups) {
                 for (var i = 0; i < roles.length; i++) {
-                    if (cockpit_find_in_array (groups, roles[i][0]))
+                    if (cockpit_find_in_array(groups, roles[i][0]))
                         return true;
                 }
                 return false;
             }
 
             for (i = 0; i < accounts.length; i++) {
-                if (roles === null || groups_contain_roles (accounts[i].Groups))
+                if (roles === null || groups_contain_roles(accounts[i].Groups))
                     map[accounts[i].UserName] = accounts[i];
             }
             return map;
         }
 
-        var manager = this.local_client.lookup ("/com/redhat/Cockpit/Accounts",
-                                                "com.redhat.Cockpit.Accounts");
-        var local = get_role_accounts (this.local_client, manager.Roles);
-        var remote = get_role_accounts (this.client, null);
+        var manager = this.local_client.lookup("/com/redhat/Cockpit/Accounts",
+                                               "com.redhat.Cockpit.Accounts");
+        var local = get_role_accounts(this.local_client, manager.Roles);
+        var remote = get_role_accounts(this.client, null);
 
-        function needs_update (l) {
+        function needs_update(l) {
             // XXX
             return true;
         }
 
-        function update_account (templ, task, done) {
+        function update_account(templ, task, done) {
 
             var acc;
 
-            function std_cont (func) {
-                return function (error, result) {
+            function std_cont(func) {
+                return function(error, result) {
                     if (error) {
                         task.error(error.message);
-                        done ();
+                        done();
                     } else {
-                        func (result);
+                        func(result);
                     }
                 };
             }
 
-            function create () {
+            function create() {
                 var accounts = me.client.getInterfacesFrom("/com/redhat/Cockpit/Accounts",
                                                            "com.redhat.Cockpit.Account");
 
                 for (var i = 0; i < accounts.length; i++) {
                     if (accounts[i].UserName == templ.UserName) {
                         acc = accounts[i];
-                        set_groups ();
+                        set_groups();
                         return;
                     }
                 }
 
-                var manager = me.client.lookup ("/com/redhat/Cockpit/Accounts",
-                                                "com.redhat.Cockpit.Accounts");
+                var manager = me.client.lookup("/com/redhat/Cockpit/Accounts",
+                                               "com.redhat.Cockpit.Accounts");
                 manager.call("CreateAccount",
                              templ.UserName,
                              templ.RealName,
                              "",
                              false,
-                             std_cont (set_groups_path));
+                             std_cont(set_groups_path));
             }
 
-            function set_groups_path (path) {
-                acc = me.client.lookup (path, "com.redhat.Cockpit.Account");
+            function set_groups_path(path) {
+                acc = me.client.lookup(path, "com.redhat.Cockpit.Account");
                 if (!acc) {
                     task.error("Account object not found");
-                    done ();
+                    done();
                 } else
-                    set_groups ();
+                    set_groups();
             }
 
-            function set_groups () {
+            function set_groups() {
                 // XXX - filter out non-role groups and groups that
                 //       don't exist on the target
                 acc.call('ChangeGroups', templ.Groups, [ ],
-                         std_cont (get_avatar));
+                         std_cont(get_avatar));
             }
 
-            function get_avatar () {
+            function get_avatar() {
                 templ.call('GetIconDataURL',
-                           std_cont (set_avatar));
+                           std_cont(set_avatar));
             }
 
-            function set_avatar (dataurl) {
+            function set_avatar(dataurl) {
                 if (dataurl) {
                     acc.call('SetIconDataURL', dataurl,
-                             std_cont (get_password_hash));
+                             std_cont(get_password_hash));
                 } else
-                    get_password_hash ();
+                    get_password_hash();
             }
 
-            function get_password_hash () {
+            function get_password_hash() {
                 templ.call('GetPasswordHash',
-                           std_cont (set_password_hash));
+                           std_cont(set_password_hash));
             }
 
-            function set_password_hash (hash) {
+            function set_password_hash(hash) {
                 acc.call('SetPasswordHash', hash,
-                         std_cont (done));
+                         std_cont(done));
             }
 
-            create ();
+            create();
         }
 
-        this.reset_tasks ();
+        this.reset_tasks();
 
-        function create_update_task (templ) {
-            return function (task, done) {
-                update_account (templ, task, done);
+        function create_update_task(templ) {
+            return function(task, done) {
+                update_account(templ, task, done);
             };
         }
 
         for (var l in local) {
-            if (needs_update (l))
-                this.add_task ("Synchronize administrator " + local[l].UserName,
-                               create_update_task (local[l]));
+            if (needs_update(l))
+                this.add_task("Synchronize administrator " + local[l].UserName,
+                              create_update_task(local[l]));
         }
 
         $('#dashboard_setup_action_address').text(this.address);
 
-        this.show_tab ('action');
+        this.show_tab('action');
     },
 
     next_setup: function() {
@@ -533,16 +533,16 @@ PageSetupServer.prototype = {
          * TODO: Add a method to set only the key and use it here.
          */
 
-        var machines = this.local_client.lookup ("/com/redhat/Cockpit/Machines",
-                                                 "com.redhat.Cockpit.Machines");
-        machines.call('Add', me.address, me.options["host-key"], function (error, path) {
+        var machines = this.local_client.lookup("/com/redhat/Cockpit/Machines",
+                                                "com.redhat.Cockpit.Machines");
+        machines.call('Add', me.address, me.options["host-key"], function(error, path) {
             if (error) {
                 me.highlight_error_message('#dashboard_setup_address_error', error.message);
                 me.show_tab('address');
                 return;
             }
 
-            me.machine = me.local_client.lookup (path, "com.redhat.Cockpit.Machine");
+            me.machine = me.local_client.lookup(path, "com.redhat.Cockpit.Machine");
             if (!me.machine) {
                 me.highlight_error_message('#dashboard_setup_address_error',
                                            _("New machine not found in list after adding."));
@@ -550,17 +550,17 @@ PageSetupServer.prototype = {
                 return;
             }
 
-            me.run_tasks (function () {
-                me.machine.call('AddTag', "dashboard", function (error) {
+            me.run_tasks(function() {
+                me.machine.call('AddTag', "dashboard", function(error) {
                     if (error)
                         cockpit_show_unexpected_error(error);
-                    me.show_tab ('close');
+                    me.show_tab('close');
                 });
             });
         });
     },
 
-    next_close: function () {
+    next_close: function() {
         this.close();
     }
 

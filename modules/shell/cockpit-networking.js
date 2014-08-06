@@ -1033,7 +1033,7 @@ function array_join(elts, sep) {
     return result;
 }
 
-function render_active_connection(dev, with_link) {
+function render_active_connection(dev, with_link, hide_link_local) {
     var parts = [ ];
     var con;
 
@@ -1054,9 +1054,17 @@ function render_active_connection(dev, with_link) {
         });
     }
 
+    function is_ipv6_link_local(addr) {
+        return (addr.startsWith("fe8") ||
+                addr.startsWith("fe9") ||
+                addr.startsWith("fea") ||
+                addr.startsWith("feb"));
+    }
+
     if (con && con.Ip6Config) {
         con.Ip6Config.Addresses.forEach(function (a) {
-            parts.push(a[0] + "/" + a[1]);
+            if (!(hide_link_local && is_ipv6_link_local(a[0])))
+                parts.push(a[0] + "/" + a[1]);
         });
     }
 
@@ -1186,7 +1194,7 @@ PageNetworking.prototype = {
                                      "data-sample-id": is_active? iface.Name : null
                                    }).
                          append($('<td>').text(iface.Name),
-                                $('<td>').html(render_active_connection(dev, false)),
+                                $('<td>').html(render_active_connection(dev, false, true)),
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
                                  $('<td colspan="2">').text(dev? dev.StateText : _("Inactive")))).
@@ -1438,7 +1446,7 @@ PageNetworkInterface.prototype = {
                     desc,
                     $('<span style="float:right">').text(dev? dev.HwAddress : "")),
                 $('<div>').append(
-                    $('<span>').html(render_active_connection(dev, true)),
+                    $('<span>').html(render_active_connection(dev, true, false)),
                     $('<span style="float:right">').text(dev? dev.StateText : _("Inactive")))));
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);

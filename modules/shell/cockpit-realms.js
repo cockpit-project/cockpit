@@ -108,6 +108,7 @@ PageRealmsOp.prototype = {
         me.discovered_details = [ ];
 
         if (me.op == 'join') {
+            me.check_default_realm();
             me.maybe_check_realm();
             me.update_discovered_details();
         } else {
@@ -241,6 +242,18 @@ PageRealmsOp.prototype = {
             $("#realms-op-software").prop('disabled', false);
 
         }
+    },
+
+    check_default_realm: function () {
+        var me = this;
+
+        me.realm_manager.call("Discover", "", { },
+                              function (error, result, details) {
+                                  if (result) {
+                                      $("#realms-op-address")[0].placeholder =
+                                          F(_("e.g. %{address}"), { address: result });
+                                  }
+                              });
     },
 
     maybe_check_realm: function() {

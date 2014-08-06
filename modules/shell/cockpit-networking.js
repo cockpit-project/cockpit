@@ -1440,6 +1440,7 @@ PageNetworkInterface.prototype = {
         } else
             desc = _("Unknown");
 
+        $('#network-interface-name').text(self.dev_name);
         $hw.html(
             $('<div class="panel-body">').append(
                 $('<div>').append(

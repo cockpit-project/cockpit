@@ -89,7 +89,7 @@ class TestNetworking(MachineCase):
         b.set_val("#network-ip-settings-dialog table:contains('Address') td:first-child input", "1.2.3.4")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
-        b.wait_in_text("#network-interface .panel:contains('Network hardware')", "1.2.3.4/24")
+        b.wait_in_text("#network-interface .panel:contains('%s')" % iface, "1.2.3.4/24")
 
         # Disconnect
         #

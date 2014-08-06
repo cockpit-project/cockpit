@@ -298,7 +298,7 @@ function cockpit_setup_multi_plot (element, monitor, sample_index, colors,
     function update_consumers() {
         var mcons = monitor.Consumers || [ ];
         consumers.forEach(function (c, i) {
-            if (c && mcons.indexOf(c) < 0) {
+            if (c && mcons.indexOf(c) < 0 || !is_interesting(c)) {
                 consumers[i] = null;
             }
         });

@@ -1086,9 +1086,13 @@ PageNetworking.prototype = {
     },
 
     enter: function () {
+        var self = this;
+
         this.address = cockpit_get_page_param('machine', 'server') || "localhost";
         this.model = get_nm_model(this.address);
         cockpit.set_watched_client(this.model.client);
+
+        this.ifaces = { };
 
         var blues = [ "#006bb4",
                       "#008ff0",
@@ -1101,7 +1105,7 @@ PageNetworking.prototype = {
                     ];
 
         function is_interesting_netdev(netdev) {
-            return netdev && netdev != "lo";
+            return netdev && self.ifaces[netdev];
         }
 
         function highlight_netdev_row(event, id) {
@@ -1170,6 +1174,8 @@ PageNetworking.prototype = {
     update_devices: function() {
         var self = this;
         var tbody;
+        var new_ifaces = { };
+        var ifaces_changed = false;
 
         tbody = $('#networking-interfaces tbody');
         tbody.empty();
@@ -1181,6 +1187,10 @@ PageNetworking.prototype = {
 
             var dev = iface.Device;
             var is_active = (dev && dev.State == 100);
+
+            new_ifaces[iface.Name] = true;
+            if (!self.ifaces[iface.Name])
+                ifaces_changed = true;
 
             tbody.append($('<tr>', { "data-interface": iface.Name,
                                      "data-sample-id": is_active? iface.Name : null
@@ -1195,6 +1205,18 @@ PageNetworking.prototype = {
                                                               });
                                            }));
         });
+
+        if (!ifaces_changed) {
+            for (var name in self.ifaces) {
+                if (!new_ifaces[name])
+                    ifaces_changed = true;
+            }
+        }
+
+        if (ifaces_changed) {
+            self.ifaces = new_ifaces;
+            $(self.monitor).trigger('notify:Consumers');
+        }
     },
 
     add_bond: function () {

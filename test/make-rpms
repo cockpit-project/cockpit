@@ -88,7 +88,7 @@ touch -r /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
 if /usr/bin/mock $mock_opts $mock_clean_opts --configdir=mock/ \
 	--resultdir mock -r $os-$arch-cockpit $srpm \
 	--define="extra_flags $EXTRA_FLAGS"; then
-    grep "^Wrote: .*\.$arch\.rpm$" mock/build.log | while read l; do
+    grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" mock/build.log | while read l; do
         p=$(basename "$l") # knocks off the "Wrote:" part as well...
         echo $p
         mv mock/$p .

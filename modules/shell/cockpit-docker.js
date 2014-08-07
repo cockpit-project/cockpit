@@ -1328,9 +1328,9 @@ cockpit_pages.push(new PageImageDetails());
 
 function DockerClient(machine) {
     var me = this;
-    var rest = cockpit.rest("unix:///var/run/docker.sock", machine);
-
-    var events = rest.get("/events");
+    var events;
+    var rest;
+    var connected;
     var alive = true;
 
     /* This is a named function because we call it recursively */
@@ -1339,6 +1339,8 @@ function DockerClient(machine) {
         /* Trigger the event signal when JSON from /events */
         events.stream(function(resp) {
             docker_debug("event:", resp);
+            if (connected.state() == "pending")
+                connected.resolve();
             $(me).trigger("event");
         }).
 
@@ -1353,7 +1355,6 @@ function DockerClient(machine) {
             }, 1000);
         });
     }
-    connect_events();
 
     /* All active poll requests for containers/images indexed by Id */
     var polls = { };
@@ -1373,6 +1374,11 @@ function DockerClient(machine) {
 
     var containers_meta = { };
     var containers_by_name = { };
+
+    var images_meta = { };
+
+    var dbus_client;
+    var monitor;
 
     function container_to_name(container) {
         if (!container.Name)
@@ -1402,121 +1408,142 @@ function DockerClient(machine) {
            delete containers_by_name[name];
     }
 
-    /*
-     * Gets a list of the containers and details for each one.  We use
-     * /events for notification when something changes.  However, for
-     * extra robustness and to account for the fact that there are no
-     * events when new images appear, we also poll for changes.
-     */
-    rest.poll("/containers/json", 4000, events, { "all": 1 }).
-        stream(function(containers) {
-            alive = true;
+    function perform_connect() {
+        connected = $.Deferred();
+        rest = cockpit.rest("unix:///var/run/docker.sock", machine);
+        events = rest.get("/events");
 
-            /*
-             * The output we get from /containers/json is mostly useless
-             * conflicting with the information that we get about specific
-             * containers. So just use it to get a list of containers.
-             */
-            $(containers).each(function(i, item) {
-                var id = item.Id;
-                containers_meta[id] = item;
-                if (id && !polls[id]) {
-                    polls[id] = rest.poll("/containers/" + id + "/json", 5000, events).
-                        stream(function(container) {
-                            populate_container(id, container);
-                            me.containers[id] = container;
-                            $(me).trigger("container", [id, container]);
-                        }).
-                        fail(function(ex) {
-                            /*
-                             * A 404 is the way we determine when a container
-                             * actually goes away
-                             */
-                            if (ex.status == 404) {
-                                cleanup_container(id, me.containers[id]);
-                                delete me.containers[id];
-                                $(me).trigger("container", [id, undefined]);
-                            }
-                        }).
-                        always(function() {
-                            /*
-                             * This lets us start a new poll for this, if it failed
-                             * for a reason other than a 404
-                             */
-                            polls[id].cancel();
-                            delete polls[id];
-                        });
-                } else if (id && me.containers[id]) {
-                    populate_container(id, me.containers[id]);
-                    $(me).trigger("container", [id, me.containers[id]]);
-                }
+        connect_events();
+
+        /*
+         * Gets a list of the containers and details for each one.  We use
+         * /events for notification when something changes.  However, for
+         * extra robustness and to account for the fact that there are no
+         * events when new images appear, we also poll for changes.
+         */
+        rest.poll("/containers/json", 4000, events, { "all": 1 }).
+            stream(function(containers) {
+                if (connected.state() == "pending")
+                    connected.resolve();
+                alive = true;
+
+                /*
+                 * The output we get from /containers/json is mostly useless
+                 * conflicting with the information that we get about specific
+                 * containers. So just use it to get a list of containers.
+                 */
+                $(containers).each(function(i, item) {
+                    var id = item.Id;
+                    containers_meta[id] = item;
+                    if (id && !polls[id]) {
+                        polls[id] = rest.poll("/containers/" + id + "/json", 5000, events).
+                            stream(function(container) {
+                                populate_container(id, container);
+                                me.containers[id] = container;
+                                $(me).trigger("container", [id, container]);
+                            }).
+                            fail(function(ex) {
+                                /*
+                                 * A 404 is the way we determine when a container
+                                 * actually goes away
+                                 */
+                                if (ex.status == 404) {
+                                    cleanup_container(id, me.containers[id]);
+                                    delete me.containers[id];
+                                    $(me).trigger("container", [id, undefined]);
+                                }
+                            }).
+                            always(function() {
+                                /*
+                                 * This lets us start a new poll for this, if it failed
+                                 * for a reason other than a 404
+                                 */
+                                polls[id].cancel();
+                                delete polls[id];
+                            });
+                    } else if (id && me.containers[id]) {
+                        populate_container(id, me.containers[id]);
+                        $(me).trigger("container", [id, me.containers[id]]);
+                    }
+                });
+            }).
+            fail(function(ex) {
+                if (connected.state() == "pending")
+                    connected.reject(ex);
+                $(me).trigger("failure", [ex]);
             });
-        }).
-        fail(function(ex) {
-            $(me).trigger("failure", [ex]);
-        });
 
-    var images_meta = { };
-    function populate_image(id, image) {
-        if (image.config === undefined) {
-            if (image.container_config)
-                image.config = image.container_config;
-            else
-                image.config = { };
+        function populate_image(id, image) {
+            if (image.config === undefined) {
+                if (image.container_config)
+                    image.config = image.container_config;
+                else
+                    image.config = { };
+            }
+            $.extend(image, images_meta[id]);
+
+            /* HACK: TODO upstream bug */
+            if (image.RepoTags)
+                image.RepoTags.sort();
         }
-        $.extend(image, images_meta[id]);
 
-	/* HACK: TODO upstream bug */
-        if (image.RepoTags)
-            image.RepoTags.sort();
-    }
+        /*
+         * Gets a list of images and keeps it up to date. Again, the /images/json and
+         * /images/xxxx/json have completely inconsistent keys. So using the former
+         * is pretty useless here :S
+         */
+        var images_req = rest.poll("/images/json", 1000).
+            stream(function(images) {
+                if (connected.state() == "pending")
+                    connected.resolve();
+                alive = true;
 
-    /*
-     * Gets a list of images and keeps it up to date. Again, the /images/json and
-     * /images/xxxx/json have completely inconsistent keys. So using the former
-     * is pretty useless here :S
-     */
-    var images_req = rest.poll("/images/json", 1000).
-        stream(function(images) {
-            alive = true;
-
-            $(images).each(function(i, item) {
-                var id = item.Id;
-                images_meta[id] = item;
-                if (id && !polls[id]) {
-                    polls[id] = rest.poll("/images/" + id + "/json", 0, images_req).
-                        stream(function(image) {
-                            populate_image(id, image);
-                            me.images[id] = image;
-                            $(me).trigger("image", [id, image]);
-                        }).
-                        fail(function(ex) {
-                            /*
-                             * A 404 is the way we determine when a container
-                             * actually goes away
-                             */
-                            if (ex.status == 404) {
-                                delete me.images[id];
-                                $(me).trigger("image", [id, undefined]);
-                            }
-                        }).
-                        always(function() {
-                            /*
-                             * This lets us start a new poll for image, if it failed
-                             * for a reason other than a 404.
-                             */
-                            polls[id].cancel();
-                            delete polls[id];
-                        });
-                } else if (id && me.images[id]) {
-                    populate_image(id, me.images[id]);
-                    $(me).trigger("image", [id, me.images[id]]);
-                }
+                $(images).each(function(i, item) {
+                    var id = item.Id;
+                    images_meta[id] = item;
+                    if (id && !polls[id]) {
+                        polls[id] = rest.poll("/images/" + id + "/json", 0, images_req).
+                            stream(function(image) {
+                                populate_image(id, image);
+                                me.images[id] = image;
+                                $(me).trigger("image", [id, image]);
+                            }).
+                            fail(function(ex) {
+                                /*
+                                 * A 404 is the way we determine when a container
+                                 * actually goes away
+                                 */
+                                if (ex.status == 404) {
+                                    delete me.images[id];
+                                    $(me).trigger("image", [id, undefined]);
+                                }
+                            }).
+                            always(function() {
+                                /*
+                                 * This lets us start a new poll for image, if it failed
+                                 * for a reason other than a 404.
+                                 */
+                                polls[id].cancel();
+                                delete polls[id];
+                            });
+                    } else if (id && me.images[id]) {
+                        populate_image(id, me.images[id]);
+                        $(me).trigger("image", [id, me.images[id]]);
+                    }
+                });
+            }).
+            fail(function(ex) {
+                if (connected.state() == "pending")
+                    connected.reject(ex);
+                $(me).trigger("failure", [ex]);
             });
-        }).
-        fail(function(ex) {
-            $(me).trigger("failure", [ex]);
-        });
+
+        /* TODO: This code needs to be migrated away from dbus-json1 */
+        dbus_client = cockpit.dbus(machine, { payload: "dbus-json1" });
+        monitor = dbus_client.get("/com/redhat/Cockpit/LxcMonitor",
+                                  "com.redhat.Cockpit.MultiResourceMonitor");
+        $(monitor).on('NewSample', handle_new_samples);
+    }
 
     var regex_docker_cgroup = /docker-([A-Fa-f0-9]{64})\.scope/;
     var regex_geard_cgroup = /.*\/ctr-(.+).service/;
@@ -1559,11 +1586,6 @@ function DockerClient(machine) {
      * TODO: Call GetSamples for quicker initialization.
      */
 
-    /* TODO: This code needs to be migrated away from dbus-json1 */
-    var dbus_client = cockpit.dbus(machine, { payload: "dbus-json1" });
-    var monitor = dbus_client.get ("/com/redhat/Cockpit/LxcMonitor",
-                                   "com.redhat.Cockpit.MultiResourceMonitor");
-
     function handle_new_samples (event, timestampUsec, samples) {
         resource_debug("samples", timestampUsec, samples);
         for (var cgroup in samples) {
@@ -1592,8 +1614,6 @@ function DockerClient(machine) {
         }
     }
 
-    $(monitor).on('NewSample', handle_new_samples);
-
     function trigger_id(id) {
         if (id in me.containers)
             $(me).trigger("container", [id, me.containers[id]]);
@@ -1617,6 +1637,9 @@ function DockerClient(machine) {
             trigger_id(id);
         }
     }
+
+    /* Actually connect initially */
+    perform_connect();
 
     this.start = function start(id, options) {
         waiting(id);
@@ -1788,11 +1811,21 @@ function DockerClient(machine) {
         return cockpit.util.machine_info(machine);
     };
 
+
     this.close = function close() {
         $(monitor).off('NewSample', handle_new_samples);
         monitor = null;
+        rest.close();
+        rest = null;
         dbus_client.release();
         dbus_client = null;
+        connected = null;
+    };
+
+    this.connect = function connect() {
+        if(!connected)
+            perform_connect();
+        return connected.promise();
     };
 }
 

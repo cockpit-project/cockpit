@@ -1543,7 +1543,7 @@ PageNetworkInterface.prototype = {
                 $('#network-ip-settings-dialog').modal('show');
             }
 
-            function configure_bond_settings(topic) {
+            function configure_bond_settings() {
                 PageNetworkBondSettings.model = self.model;
                 PageNetworkBondSettings.connection = con;
                 PageNetworkBondSettings.settings = con.Settings;

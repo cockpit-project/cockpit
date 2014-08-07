@@ -258,6 +258,20 @@ function CpuSlider(sel, min, max) {
     return this;
 }
 
+function show_failure(ex) {
+    var msg;
+    console.warn(ex);
+
+    if (ex.problem == "not-found")
+        msg = _("Docker is not installed or activated on the system");
+    else if (ex.problem == "not-authorized")
+        msg = _("Not authorized to access Docker on this system");
+    else
+        msg = ex.toString();
+    $("#containers-failure").show();
+    $("#containers-failure span.alert-message").text(msg);
+}
+
 function render_container (client, $panel, filter_button, prefix, id, container) {
     var tr = $("#" + prefix + id);
 
@@ -437,24 +451,10 @@ PageContainers.prototype = {
 
         /* High level failures about the overall functionality of docker */
         $(this.client).on('failure.containers', function(event, ex) {
-            var msg;
-            console.warn(ex);
-
-            if (ex.problem == "disconnected") {
-                /* This error is handled via cockpit.set_watched_client
-                 * and we don't need to show it here.
-                 */
-                return;
-            }
-
-            if (ex.problem == "not-found")
-                msg = _("Docker is not installed or activated on the system");
-            else if (ex.problem == "not-authorized")
-                msg = _("Not authorized to access Docker on this system");
-            else
-                msg = ex.toString();
-            $("#containers-failure").show();
-            $("#containers-failure span.alert-message").text(msg);
+            /* This error is handled via cockpit.set_watched_client
+             * and we don't need to show it here. */
+            if (ex.problem != "disconnected")
+                show_failure(ex);
         });
 
         var id;
@@ -878,7 +878,7 @@ PageSearchImage.prototype = {
               }
           }).
           fail(function(ex){
-              $(this).trigger("failure", [ex]);
+              show_failure(ex);
          });
     },
 

@@ -712,6 +712,7 @@ PageSearchImage.prototype = {
     },
 
     show: function() {
+        $('#containers-search-image-search').focus();
     },
 
     leave: function() {

@@ -123,6 +123,23 @@ function storage_log_box(client, elt)
                                        ], 5);
 }
 
+function highlight_error(container) {
+    $(container).addClass("has-error");
+}
+
+function hide_error(container) {
+    $(container).removeClass("has-error");
+}
+
+function highlight_error_message(id, message) {
+    $(id).text(message);
+    $(id).css("visibility", "visible");
+}
+
+function hide_error_message(id) {
+    $(id).css("visibility", "hidden");
+}
+
 PageStorage.prototype = {
     _init: function() {
         this.id = "storage";
@@ -2160,6 +2177,12 @@ PageCreateVolumeGroup.prototype = {
     },
 
     show: function() {
+        if (this.blocks.length > 0) {
+            $('#create-vg-name').prop('disabled', false);
+            $('#create-vg-name').focus();
+        } else {
+            $('#create-vg-name').prop('disabled', true);
+        }
     },
 
     leave: function() {
@@ -2170,19 +2193,141 @@ PageCreateVolumeGroup.prototype = {
     },
 
     enter: function() {
+        var disk_count = -1;
+
         this.client = PageCreateVolumeGroup.client;
         this.blocks = fill_free_devices_list(this.client, 'create-vg-drives', null);
+        $("#disks-not-found .close").on('click', function() { $('#disks-not-found').hide(); });
+        $('#create-vg-name').on('input', change_disk_count);
+        $('#create-vg-name').on('input change focus', check_vg_condition);
+        $('#create-vg-drives [type = "checkbox"]').on('change', change_checkbox_count);
+        $('#create-vg-drives [type = "checkbox"]').on('click', check_vg_condition);
         $('#create-vg-name').val("");
+        $('#create-vg-create').prop('disabled', true);
         $('#create-vg-drives').prop('checked', false);
+        control_warning(this.blocks);
+
+        function check_vg_condition() {
+            hide_error_message('#create-vg-error');
+
+            if (check_vg_input()) {
+                if (check_checked_box()) {
+                    $('#create-vg-create').prop('disabled', false);
+                    hide_error_message('#create-vg-error');
+                } else {console.log("disk_count is " + disk_count);
+                    if (disk_count === -1)
+                        return;
+
+                    $('#create-vg-create').prop('disabled', true);
+                    highlight_error_message('#create-vg-error',
+                                            _("At least one disk needed."));
+                }
+            } else {
+                $('#create-vg-create').prop('disabled', true);
+            }
+        }
+
+        function change_disk_count() {
+            if (disk_count === 0)
+                disk_count = -1;
+        }
+
+        function check_vg_input() {
+
+            function check_input(input, exclusive_pattern) {
+                var match_array = input.match(exclusive_pattern);
+
+                if (match_array) {
+                    var last_subarray = match_array[match_array.length - 1];
+
+                    return last_subarray[last_subarray.length - 1];
+                } else {
+                    return null;
+                }
+            }
+
+            var addr = $('#create-vg-name').val();
+
+            if (addr === "") {
+                hide_error('#creat-vg-name-cell');
+                hide_error_message('#create-vg-error');
+                return false;
+            } else if (addr.length > 127) {
+                highlight_error('#creat-vg-name-cell');
+                highlight_error_message('#create-vg-error',
+                                        _("Name length cannot exceed 127 characters."));
+                return false;
+            } else {
+                var pattern = new RegExp("[^a-zA-Z0-9+._-]+", "g");
+                var match = check_input(addr, pattern);
+
+                if (!match) {
+                    hide_error('#creat-vg-name-cell');
+                    hide_error_message('#create-vg-error');
+                    return true;
+                } else {
+                    highlight_error('#creat-vg-name-cell');
+
+                    if (match.search(/\s+/) === -1)
+                        highlight_error_message('#create-vg-error',
+                                                _("Name cannot contain '" + match + "'."));
+                    else
+                        highlight_error_message('#create-vg-error',
+                                                _("Name cannot contain whitespace."));
+                    return false;
+                }
+            }
+        }
+
+        function count_checked_box(selector) {
+            var group = $(selector);
+            var count = 0;
+
+            for (var i = 0; i < group.length; i++) {
+                if (group[i].checked)
+                    count++;
+            }
+            return count;
+        }
+
+        function change_checkbox_count() {
+            disk_count = count_checked_box();
+        }
+
+        function check_checked_box() {
+            var count = count_checked_box('#create-vg-drives [type = "checkbox"]');
+
+            if (count > 0)
+                return true;
+            else
+                return false;
+        }
+
+        function control_warning(blocks) {
+            if (blocks.length > 0) {
+                $("#disks-not-found span.alert-message").text("");
+                $("#disks-not-found").hide();
+            } else {
+                $("#disks-not-found span.alert-message").text(_("No available disks"));
+                $("#disks-not-found").show();
+            }
+        }
     },
 
     create: function() {
         var me = this;
         var name = $('#create-vg-name').val();
 
+        if (name.trim() === "") {
+            highlight_error('#creat-vg-name-cell');
+            highlight_error_message('#create-vg-error',
+                                    _("Name cannot contain whitespace."));
+            return;
+        }
+
         var blocks = get_selected_devices_objpath($('#create-vg-drives'), me.blocks);
-        var manager = this.client.lookup("/com/redhat/Cockpit/Storage/Manager",
-                                         "com.redhat.Cockpit.Storage.Manager");
+        var manager = me.client.lookup("/com/redhat/Cockpit/Storage/Manager",
+                                       "com.redhat.Cockpit.Storage.Manager");
         manager.call ("VolumeGroupCreate", name, blocks,
                       function (error) {
                           $('#create-volume-group-dialog').modal('hide');

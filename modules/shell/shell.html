@@ -1539,14 +1539,30 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
+                <div class="alert alert-warning alert-dismissable" style="display: none;" id="disks-not-found">
+                  <span class="pficon-layered" style="float: left; font-size: 200%;">
+                    <span class="pficon pficon-warning-triangle"></span>
+                    <span class="pficon pficon-warning-exclamation"></span>
+                  </span>
+                  <button type="button" class="close" aria-hidden="true">&times;</button>
+                  <strong>Warning!</strong> <span class="alert-message"></span>
+                </div>
+              </tr>
+              <tr>
                 <td translatable="yes">Name</td>
-                <td>
+                <td id="creat-vg-name-cell">
                   <input class="form-control" id="create-vg-name" type="text">
                 </td>
               </tr>
               <tr>
                 <td class="top" translatable="yes">Disks</td>
                 <td id="create-vg-drives">
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="has-error">
+                  <div id="create-vg-error" class="help-block" style="visibility:hidden">Placeholder</div>
                 </td>
               </tr>
             </table>

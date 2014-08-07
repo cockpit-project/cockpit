@@ -1528,7 +1528,7 @@ PageNetworkInterface.prototype = {
                     parts.push(F(dns_is_extra? "Additional DNS Search Domains %{val}" : "DNS Search Domains %{val}",
                                  { val: params.dns_search.join(", ") }));
 
-                return parts.join(", ");
+                return parts.map(function (p) { return $('<div>').text(p); });
             }
 
             function change_id(event) {
@@ -1581,19 +1581,24 @@ PageNetworkInterface.prototype = {
                 return box;
             }
 
+            function render_settings_row(title, rows, configure) {
+                return $('<tr>').append(
+                    $('<td>').
+                        text(title).
+                        css('vertical-align', rows.length > 1 ? "top" : "center"),
+                    $('<td>').append(rows),
+                    $('<td style="text-align:right;vertical-align:top">').append(
+                        $('<button class="btn btn-default">').
+                            text(_("Configure")).
+                            click(configure)));
+            }
+
             function render_ip_settings_row(topic, title) {
                 if (!con.Settings[topic])
                     return null;
 
-                return $('<tr>').append(
-                    $('<td>').text(title),
-                    $('<td>').text(render_ip_settings(topic)),
-                    $('<td style="text-align:right">').append(
-                        $('<button class="btn btn-default">').
-                            text(_("Configure")).
-                            click(function () {
-                                configure_ip_settings(topic);
-                            })));
+                return render_settings_row(title, render_ip_settings(topic),
+                                           function () { configure_ip_settings(topic); });
             }
 
             function render_master() {
@@ -1608,10 +1613,15 @@ PageNetworkInterface.prototype = {
 
             function render_bond_settings_row() {
                 var parts = [ ];
+                var rows = [ ];
                 var options;
 
                 if (!con.Settings.bond)
                     return null;
+
+                con.Slaves.map(function (con) {
+                    rows.push($('<div>').append(render_connection_link(con)));
+                });
 
                 options = con.Settings.bond.options;
 
@@ -1619,21 +1629,10 @@ PageNetworkInterface.prototype = {
                 if (options.arp_interval)
                     parts.push(_("ARP Monitoring"));
 
-                return [ $('<tr>').append(
-                             $('<td>').text(_("Bond")),
-                             $('<td>').text(parts.join(", ")),
-                             $('<td style="text-align:right">').append(
-                                 $('<button class="btn btn-default">').
-                                     text(_("Configure")).
-                                     click(configure_bond_settings))),
-                         $('<tr>').append(
-                             $('<td>'),
-                             $('<td>').html(array_join(
-                                 con.Slaves.map(function (con) {
-                                     return render_connection_link(con);
-                                 }),
-                                 ", ")))
-                       ];
+                if (parts.length > 0)
+                    rows.push($('<div>').text(parts.join (", ")));
+
+                return render_settings_row(_("Bond"), rows, configure_bond_settings);
             }
 
             var $panel =

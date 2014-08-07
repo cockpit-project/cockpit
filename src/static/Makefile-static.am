@@ -95,3 +95,16 @@ EXTRA_DIST += \
 	$(staticimages_DATA) \
 	src/static/checksums.txt \
 	$(NULL)
+
+INKSCAPE_RENDER = inkscape --without-gui --export-area-page
+
+render-images::
+	$(INKSCAPE_RENDER) --export-height=10 \
+		--export-png=$(srcdir)/src/static/images/brand.v0.png \
+		$(srcdir)/src/static/images/brand.v0.svg
+	$(INKSCAPE_RENDER) --export-height=18 \
+		--export-png=$(srcdir)/src/static/images/brand-large.v0.png \
+		$(srcdir)/src/static/images/brand.v0.svg
+	$(INKSCAPE_RENDER) --export-height=69 \
+		--export-png=$(srcdir)/src/static/images/logo.v0.png \
+		$(srcdir)/src/static/images/logo.v0.svg

@@ -474,7 +474,7 @@ function NetworkManagerModel(address) {
                 method:       meth,
                 addresses:    get(first, "addresses", []).map(addr_from_nm),
                 dns:          get(first, "dns", []).map(ip_to_text),
-                "dns-search": get(first, "dns-search", []).map(ip_to_text)
+                dns_search:   get(first, "dns-search", []).map(ip_to_text)
             };
         }
 
@@ -498,8 +498,8 @@ function NetworkManagerModel(address) {
             /* Options are documented as part of the Linux bonding driver.
                https://www.kernel.org/doc/Documentation/networking/bonding.txt
             */
-            result.bond = { options: $.extend({}, get("bond", "options", { })),
-                            "interface-name": get("bond", "interface-name")
+            result.bond = { options:        $.extend({}, get("bond", "options", { })),
+                            interface_name: get("bond", "interface-name")
                           };
         }
 
@@ -539,15 +539,15 @@ function NetworkManagerModel(address) {
 
             set(first, "addresses", addrs_sig, settings[first].addresses.map(addr_to_nm));
             set(first, "dns", ips_sig, settings[first].dns.map(ip_from_text));
-            set(first, "dns-search", 'as', settings[first]["dns-search"]);
+            set(first, "dns-search", 'as', settings[first].dns_search);
         }
 
         set("connection", "id", 's', settings.connection.id);
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
         set("connection", "uuid", 's', settings.connection.uuid);
-        set("connection", "interface-name", 's', settings.connection["interface-name"]);
+        set("connection", "interface-name", 's', settings.connection.interface_name);
         set("connection", "type", 's', settings.connection.type);
-        set("connection", "slave-type", 's', settings.connection["slave-type"]);
+        set("connection", "slave-type", 's', settings.connection.slave_type);
         set("connection", "master", 's', settings.connection.master);
 
         if (settings.ipv4)
@@ -556,7 +556,7 @@ function NetworkManagerModel(address) {
             set_ip("ipv6", 'a(ayuay)', ip6_to_nm, 'aay', ip6_from_text);
         if (settings.bond) {
             set("bond", "options", 'a{ss}', settings.bond.options);
-            set("bond", "interface-name", 's', settings.bond["interface-name"]);
+            set("bond", "interface-name", 's', settings.bond.interface_name);
         }
         if (settings["802-3-ethernet"]) {
             if (!result["802-3-ethernet"])
@@ -742,7 +742,7 @@ function NetworkManagerModel(address) {
             //
             function (obj) {
                 if (obj.Settings.bond) {
-                    var iface = get_interface(obj.Settings.bond["interface-name"]);
+                    var iface = get_interface(obj.Settings.bond.interface_name);
                     iface.Connections.push(obj);
                 }
             },
@@ -1247,13 +1247,13 @@ PageNetworking.prototype = {
                     autoconnect: false,
                     type: "bond",
                     uuid: uuid,
-                    "interface-name": iface
+                    interface_name: iface
                 },
                 bond: {
                     options: {
                         mode: "balance-rr"
                     },
-                    "interface-name": iface
+                    interface_name: iface
                 }
             };
 
@@ -1524,9 +1524,9 @@ PageNetworkInterface.prototype = {
                 if (params.dns.length > 0)
                     parts.push(F(dns_is_extra? "Additional DNS %{val}" : "DNS %{val}",
                                  { val: params.dns.join(", ") }));
-                if (params["dns-search"].length > 0)
+                if (params.dns_search.length > 0)
                     parts.push(F(dns_is_extra? "Additional DNS Search Domains %{val}" : "DNS Search Domains %{val}",
-                                 { val: params["dns-search"].join(", ") }));
+                                 { val: params.dns_search.join(", ") }));
 
                 return parts.join(", ");
             }
@@ -1801,7 +1801,7 @@ PageNetworkIpSettings.prototype = {
                     tablebox("addresses", [ "Address", "Netmask", "Gateway" ],
                              (topic == "ipv4")? [ "", "24", "" ] : [ "", "64", "" ]),
                     tablebox("dns", "DNS Server", ""),
-                    tablebox("dns-search", "DNS Search Domains", ""));
+                    tablebox("dns_search", "DNS Search Domains", ""));
             return body;
         }
 
@@ -1922,11 +1922,11 @@ PageNetworkBondSettings.prototype = {
                     $('<td>').text(_("Name")),
                     $('<td>').append(
                         $('<input class="form-control">').
-                            val(settings.bond["interface-name"]).
+                            val(settings.bond.interface_name).
                             change(function (event) {
                                 var val = $(event.target).val();
-                                settings.bond["interface-name"] = val;
-                                settings.connection["interface-name"] = val;
+                                settings.bond.interface_name = val;
+                                settings.connection.interface_name = val;
                             }))),
                 $('<tr>').append(
                     $('<td>').text(_("Members")),
@@ -2016,9 +2016,9 @@ PageNetworkBondSettings.prototype = {
                                                            uuid: uuid,
                                                            autoconnect: true,
                                                            type: "802-3-ethernet",
-                                                           "interface-name": iface.Name,
-                                                           "slave-type": "bond",
-                                                           "master": master_settings.connection.uuid
+                                                           interface_name: iface.Name,
+                                                           slave_type: "bond",
+                                                           master: master_settings.connection.uuid
                                                          },
                                                          "802-3-ethernet":
                                                          {

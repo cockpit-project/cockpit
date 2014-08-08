@@ -2304,6 +2304,17 @@ PageNetworkBondSettings.prototype = {
         var master_settings = PageNetworkBondSettings.settings;
         var settings_manager = model.get_settings();
 
+        function delete_connections(cons) {
+            return $.when.apply($, cons.map(function (c) { return c.delete_(); }));
+        }
+
+        function delete_iface_connections(iface) {
+            if (iface.Device)
+                return delete_connections(iface.Device.AvailableConnections);
+            else
+                return delete_connections(iface.Connections);
+        }
+
         function set_member(iface_name, val) {
             var iface, slave_con, uuid;
 
@@ -2316,19 +2327,20 @@ PageNetworkBondSettings.prototype = {
                 return slave_con.delete_();
             else if (!slave_con && val) {
                 uuid = cockpit.util.uuid();
-                return settings_manager.add_connection({ connection:
-                                                         { id: uuid,
-                                                           uuid: uuid,
-                                                           autoconnect: true,
-                                                           type: "802-3-ethernet",
-                                                           interface_name: iface.Name,
-                                                           slave_type: "bond",
-                                                           master: master_settings.connection.uuid
-                                                         },
-                                                         "802-3-ethernet":
-                                                         {
-                                                         }
-                                                       });
+                return $.when(delete_iface_connections(iface),
+                              settings_manager.add_connection({ connection:
+                                                                { id: uuid,
+                                                                  uuid: uuid,
+                                                                  autoconnect: true,
+                                                                  type: "802-3-ethernet",
+                                                                  interface_name: iface.Name,
+                                                                  slave_type: "bond",
+                                                                  master: master_settings.connection.uuid
+                                                                },
+                                                                "802-3-ethernet":
+                                                                {
+                                                                }
+                                                              }));
             }
 
             return true;
@@ -2506,6 +2518,17 @@ PageNetworkBridgeSettings.prototype = {
         var master_settings = PageNetworkBridgeSettings.settings;
         var settings_manager = model.get_settings();
 
+        function delete_connections(cons) {
+            return $.when.apply($, cons.map(function (c) { return c.delete_(); }));
+        }
+
+        function delete_iface_connections(iface) {
+            if (iface.Device)
+                return delete_connections(iface.Device.AvailableConnections);
+            else
+                return delete_connections(iface.Connections);
+        }
+
         function set_member(iface_name, val) {
             var iface, slave_con, uuid;
 
@@ -2518,19 +2541,20 @@ PageNetworkBridgeSettings.prototype = {
                 return slave_con.delete_();
             else if (!slave_con && val) {
                 uuid = cockpit.util.uuid();
-                return settings_manager.add_connection({ connection:
-                                                         { id: uuid,
-                                                           uuid: uuid,
-                                                           autoconnect: true,
-                                                           type: "802-3-ethernet",
-                                                           interface_name: iface.Name,
-                                                           slave_type: "bridge",
-                                                           master: master_settings.connection.uuid
-                                                         },
-                                                         "802-3-ethernet":
-                                                         {
-                                                         }
-                                                       });
+                return $.when(delete_iface_connections(iface),
+                              settings_manager.add_connection({ connection:
+                                                                { id: uuid,
+                                                                  uuid: uuid,
+                                                                  autoconnect: true,
+                                                                  type: "802-3-ethernet",
+                                                                  interface_name: iface.Name,
+                                                                  slave_type: "bridge",
+                                                                  master: master_settings.connection.uuid
+                                                                },
+                                                                "802-3-ethernet":
+                                                                {
+                                                                }
+                                                              }));
             }
 
             return true;

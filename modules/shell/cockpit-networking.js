@@ -480,12 +480,14 @@ function NetworkManagerModel(address) {
 
         var result = {
             connection: {
-                type:        get("connection", "type"),
-                uuid:        get("connection", "uuid"),
-                id:          get("connection", "id", _("Unknown")),
-                autoconnect: get("connection", "autoconnect", true),
-                slave_type:  get("connection", "slave-type"),
-                master:      get("connection", "master")
+                type:           get("connection", "type"),
+                uuid:           get("connection", "uuid"),
+                interface_name: get("connection", "interface-name"),
+                timestamp:      get("connection", "timestamp"),
+                id:             get("connection", "id", _("Unknown")),
+                autoconnect:    get("connection", "autoconnect", true),
+                slave_type:     get("connection", "slave-type"),
+                master:         get("connection", "master")
             }
         };
 
@@ -907,24 +909,6 @@ function NetworkManagerModel(address) {
 
     var type_Interface = {
         interfaces: [ ],
-
-        prototype: {
-            activate: function(connection, specific_object) {
-                if (this.Device)
-                    return this.Device.activate(null, null);
-                else {
-                    if (!connection && this.Connections.length > 0)
-                        connection = this.Connections[0];
-                    if (connection)
-                        return connection.activate(null, specific_object);
-                    else  {
-                        var dfd = $.Deferred();
-                        dfd.reject("No connection");
-                        return dfd.promise();
-                    }
-                }
-            }
-        },
 
         exporters: [
             function (obj) {
@@ -1582,22 +1566,19 @@ PageNetworkInterface.prototype = {
             self.update();
         }
 
-        function activate() {
-            self.iface.activate(null, null).
+        function activate(con) {
+            con.activate(self.dev, null).
                 fail(fail);
-        }
-
-        if (!self.iface) {
-            self.update();
-            return;
         }
 
         if (self.ghost_settings) {
             settings_manager.add_connection(self.ghost_settings).
                 done(activate).
                 fail(fail);
+        } else if (self.main_connection) {
+            activate(self.main_connection);
         } else
-            activate();
+            self.update();
     },
 
     disconnect: function() {
@@ -1950,11 +1931,16 @@ PageNetworkInterface.prototype = {
 
         $connections.empty();
         self.ghost_settings = null;
+        self.main_connection = null;
+
         function append_connections(cons) {
-            if (cons.length > 0) {
-                cons.forEach(function (con) {
-                    $connections.append(render_connection(con, con.Settings));
-                });
+            cons.forEach(function(c) {
+                if (!self.main_connection ||
+                    self.main_connection.Settings.connection.timestamp < c.Settings.connection.timestamp)
+                    self.main_connection = c;
+            });
+            if (self.main_connection) {
+                $connections.append(render_connection(self.main_connection, self.main_connection.Settings));
             } else {
                 self.ghost_settings = create_ghost_connection_settings();
                 $connections.append(render_connection(null, self.ghost_settings));

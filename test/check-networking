@@ -47,18 +47,9 @@ class TestNetworking(MachineCase):
         # from D-Bus, and a new object with the same id and uuid
         # appears at /org/freedesktop/NetworkManager/Settings/2.
         #
-        # We race against this when subsequently calling
-        # 'ActivateConnection'.  When 'Update' and
-        # 'ActivateConnection' were triggered by separate buttons, we
-        # lost that race reliably and used the old path when it wasn't
-        # any longer recognized by NM.  Now when clicking "Apply" does
-        # both back-to-back, we seem to win the race reliably.
-        #
-        # When calling 'Update' on a connection settings object for
-        # which a file exists in /e/s/ns, the above strangeness
-        # doesn't happen.  The interface is not automatically
-        # reactivated with those settings, and the object stays on
-        # D-Bus.
+        # In order to avoid racing against this, we explicitly modify
+        # the connection with nmcli so that NetworkManager settles
+        # down.
 
         # TODO: Make this work with non-root
         #
@@ -70,12 +61,17 @@ class TestNetworking(MachineCase):
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)
 
-        # Add interface, wait for it to be recognized by Network
-        # Manager, and switch to its page
+        # Add interface, wait for it to be recognized and activated by
+        # Network Manager, and switch to its page
 
-        iface = self.get_iface(m, m.add_netiface('ff'));
+        mac = "52:54:00:9e:00:ff"
+        label = "test"
+        m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
+        m.execute("nmcli c reload")
+        iface = self.get_iface(m, m.add_netiface(mac));
 
         b.wait_in_text("#networking-interfaces", iface)
+        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface, "bps")
         b.click("#networking-interfaces tr:contains('%s')" % iface)
         b.wait_page("network-interface")
 
@@ -93,13 +89,13 @@ class TestNetworking(MachineCase):
 
         # Disconnect
         #
-        b.click("button:contains('Disconnect')")
+        b.click(".panel-heading:contains('%s') button:contains('Off')" % iface)
         b.wait_in_text("#network-interface-hw", "Disconnected")
 
         # Switch it back to "auto" from the command line and bring it
         # up again
         #
-        id = b.val("#network-interface-connections .panel-heading input")
+        id = "System %s" % label
         m.execute("nmcli c m '%s' ipv4.method auto" % id)
         m.execute("nmcli c m '%s' ipv4.addresses ''" % id)
         b.wait_in_text("#network-interface-connections", "Automatic (DHCP)")
@@ -189,7 +185,7 @@ class TestNetworking(MachineCase):
         m.execute("ifup %s" % iface1)
         b.wait_in_text("#network-interface-hw", "Active")
 
-        # Delete the bond
+        # Delete the bridge
         b.click("#network-interface button:contains('Delete')")
         b.wait_page("networking")
         b.wait_not_in_text("#networking-interfaces", "tbridge")

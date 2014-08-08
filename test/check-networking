@@ -70,12 +70,13 @@ class TestNetworking(MachineCase):
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)
 
-        # Add interface, wait for it to be recognized by Network
-        # Manager, and switch to its page
+        # Add interface, wait for it to be recognized and activated by
+        # Network Manager, and switch to its page
 
         iface = self.get_iface(m, m.add_netiface('ff'));
 
         b.wait_in_text("#networking-interfaces", iface)
+        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface, "Kbps")
         b.click("#networking-interfaces tr:contains('%s')" % iface)
         b.wait_page("network-interface")
 
@@ -93,7 +94,7 @@ class TestNetworking(MachineCase):
 
         # Disconnect
         #
-        b.click("button:contains('Disconnect')")
+        b.click(".panel-heading:contains('Network hardware') button:contains('Off')")
         b.wait_in_text("#network-interface-hw", "Disconnected")
 
         # Switch it back to "auto" from the command line and bring it
@@ -137,7 +138,7 @@ class TestNetworking(MachineCase):
         # slaves.
         b.click("#networking-interfaces tr:contains('tbond')")
         b.wait_page("network-interface")
-        b.click(".panel-heading button:contains('On')")
+        b.click(".panel-heading:contains('Network hardware') button:contains('On')")
         b.wait_in_text("#network-interface-hw", "Bond without active parts")
 
         # Activate iface1 externally and wait for the bond to become

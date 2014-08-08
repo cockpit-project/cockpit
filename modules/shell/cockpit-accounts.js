@@ -274,6 +274,7 @@ PageAccountsCreate.prototype = {
         $('#accounts-create-pw2').val("");
         $('#accounts-create-locked').prop('checked', false);
         $('#accounts-create-message-password-mismatch').css("visibility", "hidden");
+        $("#account-set-password-dialog .check-passwords").removeClass("has-error");
         this.update ();
     },
 
@@ -882,6 +883,7 @@ PageAccountSetPassword.prototype = {
         $('#account-set-password-pw1').val("");
         $('#account-set-password-pw2').val("");
         $('#account-set-password-message-password-mismatch').css("visibility", "hidden");
+        $("#account-set-password-dialog .check-passwords").removeClass("has-error");
         this.update ();
     },
 

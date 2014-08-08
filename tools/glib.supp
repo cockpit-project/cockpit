@@ -423,3 +423,12 @@
    ...
    fun:g_thread_pool_push
 }
+{
+   leak_test_dbus_dispose
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:g_main_loop_run
+   fun:g_test_dbus_down
+}

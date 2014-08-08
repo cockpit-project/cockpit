@@ -1064,7 +1064,6 @@ function render_interface_link(iface) {
 function render_connection_link(con) {
     var res =
         $('<span>').append(
-            F("Connection %{id} of ", { id: con.Settings.connection.id }),
             array_join(
                 con.Interfaces.map(function (iface) {
                     return $('<a>').
@@ -1664,8 +1663,6 @@ PageNetworkInterface.prototype = {
             if (!settings)
                 return [ ];
 
-            var is_active = dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con;
-
             function apply() {
                 if (con)
                     con.apply().fail(cockpit_show_unexpected_error);
@@ -1675,26 +1672,9 @@ PageNetworkInterface.prototype = {
                 }
             }
 
-            function activate_connection() {
-                if (con) {
+            function reactivate_connection() {
+                if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
                     con.activate(dev, null).
-                        fail(cockpit_show_unexpected_error);
-                } else {
-                    var settings_manager = self.model.get_settings();
-                    settings_manager.add_connection(settings).
-                        done(function (con) {
-                            console.log(con);
-                            con.activate(dev, null).
-                                fail(cockpit_show_unexpected_error);
-                        }).
-                        fail(cockpit_show_unexpected_error);
-                }
-
-            }
-
-            function deactivate_connection() {
-                if (dev && dev.ActiveConnection) {
-                    dev.ActiveConnection.deactivate().
                         fail(cockpit_show_unexpected_error);
                 }
             }
@@ -1730,17 +1710,12 @@ PageNetworkInterface.prototype = {
                 return parts.map(function (p) { return $('<div>').text(p); });
             }
 
-            function change_id(event) {
-                settings.connection.id = $(event.target).val();
-                apply();
-            }
-
             function configure_ip_settings(topic) {
                 PageNetworkIpSettings.model = self.model;
                 PageNetworkIpSettings.connection = con;
                 PageNetworkIpSettings.settings = $.extend({ }, settings);
                 PageNetworkIpSettings.topic = topic;
-                PageNetworkIpSettings.done = is_active? activate_connection : null;
+                PageNetworkIpSettings.done = reactivate_connection;
                 $('#network-ip-settings-dialog').modal('show');
             }
 
@@ -1748,7 +1723,7 @@ PageNetworkInterface.prototype = {
                 PageNetworkBondSettings.model = self.model;
                 PageNetworkBondSettings.connection = con;
                 PageNetworkBondSettings.settings = settings;
-                PageNetworkBondSettings.done = is_active? activate_connection : null;
+                PageNetworkBondSettings.done = reactivate_connection;
                 $('#network-bond-settings-dialog').modal('show');
             }
 
@@ -1756,7 +1731,7 @@ PageNetworkInterface.prototype = {
                 PageNetworkBridgeSettings.model = self.model;
                 PageNetworkBridgeSettings.connection = con;
                 PageNetworkBridgeSettings.settings = con.Settings;
-                PageNetworkBridgeSettings.done = is_active? activate_connection : null;
+                PageNetworkBridgeSettings.done = reactivate_connection;
                 $('#network-bridge-settings-dialog').modal('show');
             }
 
@@ -1764,7 +1739,7 @@ PageNetworkInterface.prototype = {
                 PageNetworkBridgePortSettings.model = self.model;
                 PageNetworkBridgePortSettings.connection = con;
                 PageNetworkBridgePortSettings.settings = con.Settings;
-                PageNetworkBridgePortSettings.done = is_active? activate_connection : null;
+                PageNetworkBridgePortSettings.done = reactivate_connection;
                 $('#network-bridgeport-settings-dialog').modal('show');
             }
 
@@ -1876,12 +1851,6 @@ PageNetworkInterface.prototype = {
 
             var $panel =
                 $('<div class="panel panel-default">').append(
-                    $('<div class="panel-heading">').append(
-                        $('<input>').
-                            val(settings.connection.id).
-                            change(change_id),
-                        onoffbox(is_active, activate_connection, deactivate_connection).
-                            css("float", "right")),
                     $('<div class="panel-body">').append(
                         $('<table class="cockpit-form-table">').append(
                             render_master(),

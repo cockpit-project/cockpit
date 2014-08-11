@@ -1,23 +1,28 @@
 
 @INTLTOOL_XML_RULE@
 appdatadir = $(datadir)/appdata
-appdata_DATA = $(appdata_in_files:.xml.in=.xml)
+appdata_DATA = $(srcdir)/$(appdata_in_files:.xml.in=.xml)
 appdata_in_files = doc/cockpit.appdata.xml.in
 
 @INTLTOOL_DESKTOP_RULE@
 desktopdir = $(datadir)/applications
-desktop_in_files = doc/cockpit.desktop.in
+desktop_in_files = $(srcdir)/doc/cockpit.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+
+pixmapdir = $(datadir)/pixmaps
+pixmap_DATA = $(srcdir)/doc/cockpit.png
 
 CLEANFILES += \
 	cockpit.desktop \
 	$(appdata_DATA) \
+	$(desktop_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
 	doc/cockpit-transport.svg \
 	doc/cockpit-transport.png \
 	$(appdata_in_files) \
+	$(desktop_in_files) \
 	$(NULL)
 
 render-images::

@@ -72,10 +72,10 @@ fd_data (socket_t fd,
   gint bytes = 0;
   gint status;
   gint written;
-  static pid_t p = 0;
+  pid_t pid = 0;
+  gboolean end = FALSE;
+  gint ret;
 
-  if (p != 0)
-    return -1;
   if (revents & POLLIN)
     {
       int ws;
@@ -83,7 +83,23 @@ fd_data (socket_t fd,
         {
           ws = ssh_channel_window_size (chan);
           ws = ws < BUFSIZE ? ws : BUFSIZE;
-          if (ws && (bytes = read (fd, buf, ws)) > 0)
+          if (ws == 0)
+            break;
+          bytes = read (fd, buf, ws);
+          if (bytes < 0)
+            {
+              if (errno == EAGAIN)
+                break;
+              if (errno != ECONNRESET && errno != EBADF)
+                g_critical ("couldn't read from process: %m");
+              end = TRUE;
+              break;
+            }
+          else if (bytes == 0)
+            {
+              end = TRUE;
+            }
+          else
             {
               sz += bytes;
               written = ssh_channel_write (chan, buf, bytes);
@@ -91,27 +107,9 @@ fd_data (socket_t fd,
                 g_assert_not_reached ();
             }
         }
-      while (ws > 0 && bytes == BUFSIZE);
+      while (bytes == ws);
     }
-  if (revents & (POLLHUP | POLLERR | POLLNVAL))
-    {
-      ssh_channel_send_eof (chan);
-      if ((p = waitpid (state.childpid, &status, 0)) > 0)
-        {
-          if (WIFSIGNALED (status))
-            ssh_channel_request_send_exit_signal (chan, strsignal (WTERMSIG (status)), 0, "", "");
-          else
-            ssh_channel_request_send_exit_status (chan, WEXITSTATUS (status));
-        }
-      g_assert_cmpint (ssh_blocking_flush (state.session, -1), >=, SSH_OK);
-      ssh_channel_close (chan);
-      ssh_channel_free (chan);
-      g_assert_cmpint (ssh_blocking_flush (state.session, -1), >=, SSH_OK);
-      state.channel = NULL;
-      ssh_event_remove_fd (state.event, fd);
-      sz = -1;
-    }
-  else if ((revents & POLLOUT))
+  if ((revents & POLLOUT))
     {
       if (state.buffer->len > 0)
         {
@@ -133,6 +131,33 @@ fd_data (socket_t fd,
               state.buffer_eof = FALSE;
             }
         }
+    }
+  if (end || (revents & (POLLHUP | POLLERR | POLLNVAL)))
+    {
+      ssh_channel_send_eof (chan);
+      pid = waitpid (state.childpid, &status, 0);
+      if (pid < 0)
+        {
+          g_critical ("couldn't wait on child process: %m");
+        }
+      else
+        {
+          if (WIFSIGNALED (status))
+            ssh_channel_request_send_exit_signal (chan, strsignal (WTERMSIG (status)), 0, "", "");
+          else
+            ssh_channel_request_send_exit_status (chan, WEXITSTATUS (status));
+        }
+      ret = ssh_blocking_flush (state.session, -1);
+      if (ret != SSH_OK && ret != SSH_CLOSED)
+        g_message ("ssh_blocking_flush() failed: %d", ret);
+      ssh_channel_close (chan);
+      ssh_channel_free (chan);
+      ret = ssh_blocking_flush (state.session, -1);
+      if (ret != SSH_OK && ret != SSH_CLOSED)
+        g_message ("ssh_blocking_flush() failed: %d", ret);
+      state.channel = NULL;
+      ssh_event_remove_fd (state.event, fd);
+      sz = -1;
     }
 
   return sz;

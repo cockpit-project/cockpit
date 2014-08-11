@@ -897,14 +897,9 @@ test_fail_spawn (TestCase *test,
   WebSocketConnection *ws;
   GBytes *received = NULL;
   CockpitWebService *service;
-  int old_level;
 
   /* Fail to spawn this program */
   cockpit_ws_agent_program = "/nonexistant";
-
-  /* TODO: Trying to solve travis failures */
-  old_level = ssh_get_log_level ();
-  ssh_set_log_level (SSH_LOG_FUNCTIONS);
 
   start_web_service_and_connect_client (test, data, &ws, &service);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
@@ -918,8 +913,6 @@ test_fail_spawn (TestCase *test,
   g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, service);
-
-  ssh_set_log_level (old_level);
 }
 
 static gboolean

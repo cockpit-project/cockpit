@@ -156,8 +156,24 @@ static void
 teardown_mock_sshd (TestCase *test,
                     gconstpointer data)
 {
-  kill (test->mock_sshd, SIGTERM);
-  g_spawn_close_pid (test->mock_sshd);
+  GPid pid;
+  int status;
+
+  if (test->mock_sshd)
+    {
+      pid = waitpid (test->mock_sshd, &status, WNOHANG);
+      g_assert_cmpint (pid, >=, 0);
+      if (pid == 0)
+        kill (test->mock_sshd, SIGTERM);
+      else if (status != 0)
+        {
+          if (WIFSIGNALED (status))
+            g_critical ("mock-sshd terminated: %d", WTERMSIG (status));
+          else
+            g_critical ("mock-sshd failed: %d", WEXITSTATUS (status));
+        }
+      g_spawn_close_pid (test->mock_sshd);
+    }
 }
 
 static void
@@ -614,6 +630,7 @@ test_close_error (TestCase *test,
 
   /* Trigger a failure message */
   kill (test->mock_sshd, SIGTERM);
+  test->mock_sshd = 0;
 
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);

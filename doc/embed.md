@@ -15,4 +15,4 @@ way to navigate to a different machine.
 
 To achieve this, use a URL like this:
 
-  https://IP:1001/#server
+  https://IP:9090/#server

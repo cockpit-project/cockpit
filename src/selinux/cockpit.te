@@ -45,7 +45,7 @@ dev_read_rand(cockpit_ws_t)  # for libssh
 # TODO: disable this until we have it in our f20 selinux-policy-targeted
 # corenet_tcp_bind_cockpit_port(cockpit_ws_t)
 allow cockpit_ws_t init_t:tcp_socket accept;
-corenet_tcp_bind_all_reserved_ports(cockpit_ws_t)
+corenet_tcp_bind_all_ports(cockpit_ws_t)
 
 # cockpit-ws can connect to other hosts via ssh
 corenet_tcp_connect_ssh_port(cockpit_ws_t)

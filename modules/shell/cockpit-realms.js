@@ -184,6 +184,11 @@ PageRealmsOp.prototype = {
         add_choice ('none', _('Automatic'));
         if (!have_one)
             sel.append('<option value="admin">' + _("Administrator Password") + '</option>');
+        if($('#realms-op-auth option').length == 1 && 
+           $('#realms-op-auth option')[0].innerHTML == _("Administrator Password"))
+            $("#realms-authentification-row").hide();
+        else
+            $("#realms-authentification-row").show();
 
         $('#realms-op-auth').selectpicker();
         me.update_cred_fields();

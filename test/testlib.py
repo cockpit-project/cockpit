@@ -78,7 +78,7 @@ class Browser:
     def title(self):
         return self.phantom.do('return document.title');
 
-    def open(self, page=None, url=None, port=1001):
+    def open(self, page=None, url=None, port=9090):
         """
         Load a page into the browser.
 

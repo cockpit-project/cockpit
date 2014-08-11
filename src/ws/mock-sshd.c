@@ -548,6 +548,9 @@ main (int argc,
   prctl (PR_SET_PDEATHSIG, 15);
 #endif
 
+  if (signal (SIGPIPE, SIG_IGN) == SIG_ERR)
+    g_assert_not_reached ();
+
   ssh_init ();
 
   context = g_option_context_new ("- mock ssh server");

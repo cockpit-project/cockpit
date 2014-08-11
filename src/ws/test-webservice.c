@@ -401,6 +401,7 @@ expect_control_message (GBytes *message,
   GBytes *payload;
   const gchar *expect_option;
   const gchar *expect_value;
+  const gchar *value;
   va_list va;
 
   payload = cockpit_transport_parse_frame (message, &outer_channel);
@@ -422,7 +423,10 @@ expect_control_message (GBytes *message,
         break;
       expect_value = va_arg (va, const gchar *);
       g_assert (expect_value != NULL);
-      g_assert_cmpstr (json_object_get_string_member (options, expect_option), ==, expect_value);
+      value = NULL;
+      if (json_object_has_member (options, expect_option))
+        value = json_object_get_string_member (options, expect_option);
+      g_assert_cmpstr (value, ==, expect_value);
   }
   va_end (va);
 

@@ -3,6 +3,8 @@
 SELF=vm-download
 . ./testlib.sh
 
+URL=http://files.cockpit-project.org/testdata/images
+
 TEST_DATA=${TEST_DATA:-$PWD}
 
 set -euf
@@ -43,7 +45,7 @@ fi
 
 cd "$TEST_DATA/images"
 
-curl -s "https://mvo.fedorapeople.org/cockpit/images/$checksum_file" >"$checksum_file.remote"
+curl -s "$URL/$checksum_file" >"$checksum_file.remote"
 
 if [ -f "$checksum_file" ] && cmp "$checksum_file.remote" "$checksum_file"; then
     rm -f "$checksum_file.remote"
@@ -53,7 +55,7 @@ fi
 cat "$checksum_file.remote" | while read sum file; do
   if [ ! -f "$file" ] || ! echo $sum "$file" | sha256sum --status --check; then
       echo Downloading $file
-      curl "https://mvo.fedorapeople.org/cockpit/images/$file.xz" | xz -d >"$file.partial" && mv "$file.partial" "$file"
+      curl "$URL/$file.xz" | xz -d >"$file.partial" && mv "$file.partial" "$file"
   fi
 done
 

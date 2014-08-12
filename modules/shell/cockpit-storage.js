@@ -957,9 +957,9 @@ PageStorageDetail.prototype = {
             if (name)
                 tr.append($('<td>', { 'style': 'text-align:left' }).html(name));
             if (button)
-                tr.append($('<td>', { 'style': 'text-align:right' }).append(button));
+                tr.append($('<td>', { 'style': 'float:right' }).append(button));
             tr.append(
-                $('<td>', { 'style': 'width:28px' }).append(
+                $('<td>', { 'style': 'float:right' }).append(
                     $('<div>', { 'id': 'entry-spinner-' +id,
                                  'class': 'waiting'
                                })));

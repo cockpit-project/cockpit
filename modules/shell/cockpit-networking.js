@@ -1699,6 +1699,8 @@ PageNetworkIpSettings.prototype = {
 
     enter: function () {
         $('#network-ip-settings-error').text("");
+        if (PageNetworkIpSettings.connection)
+            PageNetworkIpSettings.connection.freeze();
         this.update();
     },
 
@@ -1849,6 +1851,8 @@ PageNetworkBondSettings.prototype = {
 
     enter: function () {
         $('#network-bond-settings-error').text("");
+        if (PageNetworkBondSettings.connection)
+            PageNetworkBondSettings.connection.freeze();
         this.update();
     },
 

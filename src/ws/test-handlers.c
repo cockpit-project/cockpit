@@ -155,7 +155,7 @@ test_login_no_cookie (Test *test,
 
   g_assert (ret == TRUE);
 
-  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Not Authorized\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
 }
 
 static void
@@ -181,18 +181,17 @@ test_login_with_cookie (Test *test,
   GError *error = NULL;
   GAsyncResult *result = NULL;
   CockpitWebService *service;
+  GHashTable *headers;
+  GBytes *input;
   const gchar *user;
   gboolean ret;
-  gchar *userpass;
   gchar *expect;
-  GBytes *input;
 
   user = g_get_user_name ();
-  userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
+  headers = mock_auth_basic_header (user, PASSWORD);
 
-  input = g_bytes_new_take (userpass, strlen (userpass));
-  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
-  g_bytes_unref (input);
+  cockpit_auth_login_async (test->auth, headers, NULL, on_ready_get_result, &result);
+  g_hash_table_unref (headers);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
   service = cockpit_auth_login_finish (test->auth, result, TRUE, test->headers, &error);
@@ -218,16 +217,20 @@ test_login_with_cookie (Test *test,
 }
 
 static void
-test_login_post_bad (Test *test,
-                     gconstpointer data)
+test_login_bad (Test *test,
+                gconstpointer data)
 {
   gboolean ret;
+  GHashTable *headers;
   GBytes *input;
 
   input = g_bytes_new ("boooyah", 7);
 
-  ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->headers, input, test->response, &test->data);
+  headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup ("booyah"));
+  ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
+                               headers, input, test->response, &test->data);
+  g_hash_table_unref (headers);
   g_bytes_unref (input);
 
   g_assert (ret == TRUE);
@@ -235,16 +238,19 @@ test_login_post_bad (Test *test,
 }
 
 static void
-test_login_post_fail (Test *test,
-                      gconstpointer data)
+test_login_fail (Test *test,
+                 gconstpointer data)
 {
   gboolean ret;
   GBytes *input;
+  GHashTable *headers;
 
   input = g_bytes_new_static ("booo\nyah", 8);
 
-  ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->headers, input, test->response, &test->data);
+  headers = mock_auth_basic_header ("booo", "yah");
+  ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
+                               headers, input, test->response, &test->data);
+  g_hash_table_unref (headers);
   g_bytes_unref (input);
 
   while (!test->response_done)
@@ -276,12 +282,11 @@ split_headers (const gchar *output)
 }
 
 static void
-test_login_post_accept (Test *test,
-                        gconstpointer data)
+test_login_accept (Test *test,
+                   gconstpointer data)
 {
   CockpitWebService *service;
   gboolean ret;
-  gchar *userpass;
   const gchar *user;
   const gchar *output;
   GHashTable *headers;
@@ -289,12 +294,13 @@ test_login_post_accept (Test *test,
   GBytes *input;
 
   user = g_get_user_name ();
-  userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
-  input = g_bytes_new_take (userpass, strlen (userpass));
+  headers = mock_auth_basic_header (user, PASSWORD);
+  input = g_bytes_new_static ("", 0);
 
   ret = cockpit_handler_login (test->server,
-                               COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->headers, input, test->response, &test->data);
+                               COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
+                               headers, input, test->response, &test->data);
+  g_hash_table_unref (headers);
   g_bytes_unref (input);
 
   g_assert (ret == TRUE);
@@ -405,11 +411,11 @@ main (int argc,
   g_test_add ("/handlers/login/with-cookie", Test, NULL,
               setup, test_login_with_cookie, teardown);
   g_test_add ("/handlers/login/post-bad", Test, NULL,
-              setup, test_login_post_bad, teardown);
+              setup, test_login_bad, teardown);
   g_test_add ("/handlers/login/post-fail", Test, NULL,
-              setup, test_login_post_fail, teardown);
+              setup, test_login_fail, teardown);
   g_test_add ("/handlers/login/post-accept", Test, NULL,
-              setup, test_login_post_accept, teardown);
+              setup, test_login_accept, teardown);
 
   g_test_add ("/handlers/ping", Test, NULL,
               setup, test_ping, teardown);

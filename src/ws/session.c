@@ -44,6 +44,7 @@
  */
 
 #define DEBUG_SESSION 0
+#define AUTH_FD 3
 #define EX 127
 
 const char *user;
@@ -51,6 +52,7 @@ const char *rhost;
 char line[UT_LINESIZE + 1];
 static pid_t child;
 static char **env;
+static int want_session = 1;
 
 #if DEBUG_SESSION
 #define debug(fmt, ...) (fprintf (stderr, "cockpit-session: " fmt "\n", ##__VA_ARGS__))
@@ -59,7 +61,7 @@ static char **env;
 #endif
 
 static char *
-read_until_eof (int fd)
+read_auth_until_eof (void)
 {
   size_t len = 0;
   size_t alloc = 0;
@@ -76,7 +78,7 @@ read_until_eof (int fd)
             errx (EX, "couldn't allocate memory for password");
         }
 
-      r = read (fd, buf + len, alloc - len);
+      r = read (AUTH_FD, buf + len, alloc - len);
       if (r < 0)
         {
           if (errno == EAGAIN)
@@ -121,13 +123,12 @@ write_json_string (FILE *file,
 }
 
 static void
-write_pam_result (int fd,
-                  int pam_result,
-                  const char *user)
+write_auth_result (int result_code,
+                   const char *user)
 {
   FILE *file;
 
-  file = fdopen (fd, "w");
+  file = fdopen (AUTH_FD, "w");
   if (!file)
     err (EX, "couldn't write result to cockpit-ws");
 
@@ -141,7 +142,7 @@ write_pam_result (int fd,
    * identical and should all be understood by cockpit-ws.
    */
 
-  fprintf (file, "{ \"pam-result\": %d", pam_result);
+  fprintf (file, "{ \"result-code\": %d", result_code);
   if (user)
     {
       fprintf (file, ", \"user\": ");
@@ -152,7 +153,7 @@ write_pam_result (int fd,
   if (ferror (file) || fclose (file) != 0)
     err (EX, "couldn't write result to cockpit-ws");
 
-  debug ("wrote pam result %d/%s to cockpit-ws", pam_result, user);
+  debug ("wrote result %d/%s to cockpit-ws", result_code, user);
 }
 
 static int
@@ -197,7 +198,7 @@ pam_conv_func (int num_msg,
         }
       else
         {
-          warnx ("pam asked us for an unspported info: %s", msg[i]->msg);
+          warnx ("pam asked us for an unsupported info: %s", msg[i]->msg);
           success = 0;
         }
     }
@@ -214,18 +215,121 @@ pam_conv_func (int num_msg,
   return PAM_SUCCESS;
 }
 
-static void
-check (int r)
+static int
+open_session (pam_handle_t *pamh,
+              const char *user)
 {
-  if (r != PAM_SUCCESS)
-    errx (1, "%s", pam_strerror (NULL, r));
+  char login[256];
+  int res;
+
+  /*
+   * If we're already in the right session, then skip cockpit-session.
+   * This is used when testing, or running as your own user.
+   *
+   * This doesn't apply if this code is running as a service, or otherwise
+   * unassociated from a terminal, we get a non-zero return value from
+   * getlogin_r() in that case.
+   */
+
+  want_session = (getlogin_r (login, sizeof (login)) != 0 ||
+                  strcmp (login, user) != 0);
+
+  if (want_session)
+    {
+      debug ("checking access for %s", user);
+      res = pam_acct_mgmt (pamh, 0);
+      if (res != PAM_SUCCESS)
+        {
+          warnx ("user account access failed: %s: %s", user, pam_strerror (pamh, res));
+          return res;
+        }
+
+      debug ("opening pam session for %s", user);
+
+      res = pam_set_item (pamh, PAM_TTY, line);
+      if (res != PAM_SUCCESS)
+        {
+          warnx ("couldn't set tty: %s", pam_strerror (pamh, res));
+          return res;
+        }
+
+      res = pam_setcred (pamh, PAM_ESTABLISH_CRED);
+      if (res != PAM_SUCCESS)
+        {
+          warnx ("establishing credentials failed: %s: %s", user, pam_strerror (pamh, res));
+          return res;
+        }
+
+      res = pam_open_session (pamh, 0);
+      if (res != PAM_SUCCESS)
+        {
+          warnx ("couldn't open session: %s: %s", user, pam_strerror (pamh, res));
+          return res;
+        }
+
+      res = pam_setcred (pamh, PAM_REINITIALIZE_CRED);
+      if (res != PAM_SUCCESS)
+        {
+          warnx ("reinitializing credentials failed: %s: %s", user, pam_strerror (pamh, res));
+          return res;
+        }
+    }
+
+  return PAM_SUCCESS;
 }
 
-static void
-usage (void)
+static pam_handle_t *
+perform_basic (void)
 {
-  fprintf (stderr, "usage: cockpit-session [-p FD] USER REMOTE-HOST AGENT\n");
-  exit (2);
+  struct pam_conv conv = { pam_conv_func, };
+  pam_handle_t *pamh;
+  char *input = NULL;
+  char *password;
+  int res;
+
+  debug ("reading password from cockpit-ws");
+
+  /* The input should be a user:password */
+  input = read_auth_until_eof ();
+  password = strchr (input, ':');
+  if (password == NULL || strchr (password + 1, '\n'))
+    {
+      debug ("bad basic auth input");
+      write_auth_result (PAM_AUTH_ERR, NULL);
+      exit (5);
+    }
+
+  *password = '\0';
+  password++;
+  conv.appdata_ptr = &input;
+
+  res = pam_start ("cockpit", input, &conv, &pamh);
+  if (res != PAM_SUCCESS)
+    errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
+
+  /* Move the password into place for use during auth */
+  memmove (input, password, strlen (password) + 1);
+
+  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS ||
+      pam_get_item (pamh, PAM_USER, (const void **)&user) != PAM_SUCCESS)
+    errx (EX, "couldn't setup pam");
+
+  debug ("authenticating %s", user);
+  res = pam_authenticate (pamh, 0);
+  if (res == PAM_SUCCESS)
+    res = open_session (pamh, user);
+
+  write_auth_result (res, user);
+  if (res != PAM_SUCCESS)
+    exit (5);
+
+  if (input)
+    {
+      memset (input, 0, strlen (input));
+      free (input);
+    }
+
+  return pamh;
 }
 
 static void
@@ -459,40 +563,16 @@ main (int argc,
       char **argv)
 {
   pam_handle_t *pamh = NULL;
-  struct pam_conv conv = { pam_conv_func, };
-  const char *pam_user = NULL;
-  int want_session;
-  char *password = NULL;
   struct passwd *pw;
-  char login[256];
-  int pwfd = 0;
+  const char *auth;
   int status;
-  int opt;
   int res;
-
-  while ((opt = getopt (argc, argv, "p:")) != -1)
-    {
-      switch (opt)
-        {
-        case 'p':
-          pwfd = atoi (optarg);
-          if (pwfd == 0)
-            errx (2, "invalid password fd: %s\n", optarg);
-          break;
-        default:
-          usage ();
-          break;
-        }
-    }
-
-  argc -= optind;
-  argv += optind;
-
-  if (argc != 2)
-    usage ();
 
   if (isatty (0))
     errx (2, "this command is not meant to be run from the console");
+
+  if (argc != 3)
+    errx (2, "invalid arguments to cockpit-session");
 
   /* When setuid root, make sure our group is also root */
   if (geteuid () == 0)
@@ -501,8 +581,8 @@ main (int argc,
         err (1, "couldn't switch permissions correctly");
     }
 
-  user = argv[0];
-  rhost = argv[1];
+  auth = argv[1];
+  rhost = argv[2];
 
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
@@ -513,88 +593,26 @@ main (int argc,
   snprintf (line, UT_LINESIZE, "cockpit-%d", getpid ());
   line[UT_LINESIZE] = '\0';
 
-  if (pwfd)
-    {
-      debug ("reading password from cockpit-ws");
-      password = read_until_eof (pwfd);
-      conv.appdata_ptr = &password;
-    }
+  if (strcmp (auth, "basic") == 0)
+    pamh = perform_basic ();
   else
-    {
-      errx (2, "no password or authentication passed");
-    }
-
-  check (pam_start ("cockpit", user, &conv, &pamh));
-  check (pam_set_item (pamh, PAM_RHOST, rhost));
-
-  /* Let the G_MESSAGES_DEBUG leak through from parent as a default */
-  transfer_pam_env (pamh, "G_DEBUG", "G_MESSAGES_DEBUG", NULL);
-
-  if (pwfd)
-    {
-      debug ("authenticating %s", user);
-      res = pam_authenticate (pamh, 0);
-      if (res != PAM_SUCCESS)
-        {
-          write_pam_result (pwfd, res, NULL);
-          exit (5); /* auth failure */
-        }
-    }
-  else
-    {
-      assert (0 && "not reached");
-    }
-
-  check (pam_get_item (pamh, PAM_USER, (const void **)&pam_user));
-  debug ("user from pam is %s", user);
-
-  /*
-   * If we're already in the right session, then skip cockpit-session.
-   * This is used when testing, or running as your own user.
-   *
-   * This doesn't apply if this code is running as a service, or otherwise
-   * unassociated from a terminal, we get a non-zero return value from
-   * getlogin_r() in that case.
-   */
-
-  want_session = (getlogin_r (login, sizeof (login)) != 0 ||
-                  strcmp (login, pam_user) != 0);
+    errx (2, "unrecognized authentication method: %s", auth);
 
   if (want_session)
     {
-      debug ("checking access for %s", user);
-      check (pam_acct_mgmt (pamh, 0));
+      /* Let the G_MESSAGES_DEBUG leak through from parent as a default */
+      transfer_pam_env (pamh, "G_DEBUG", "G_MESSAGES_DEBUG", NULL);
 
-      debug ("opening pam session for %s", user);
-      check (pam_set_item (pamh, PAM_TTY, line));
-      check (pam_setcred (pamh, PAM_ESTABLISH_CRED));
-      check (pam_open_session (pamh, 0));
-      check (pam_setcred (pamh, PAM_REINITIALIZE_CRED));
-    }
-
-  if (pwfd)
-    {
-      write_pam_result (pwfd, res, pam_user);
-    }
-
-  if (password)
-    {
-      memset (password, 0, strlen (password));
-      free (password);
-    }
-
-  if (want_session)
-    {
       env = pam_getenvlist (pamh);
       if (env == NULL)
-        errx (1, "get pam environment failed");
+        errx (EX, "get pam environment failed");
 
       pw = getpwnam (user);
       if (pw == NULL)
-        errx (1, "invalid user: %s", user);
+        errx (EX, "%s: invalid user", user);
 
       if (initgroups (user, pw->pw_gid) < 0)
-        err (1, "can't init groups");
+        err (EX, "%s: can't init groups", user);
 
       signal (SIGTERM, pass_to_child);
       signal (SIGINT, pass_to_child);
@@ -610,8 +628,12 @@ main (int argc,
       signal (SIGINT, SIG_DFL);
       signal (SIGQUIT, SIG_DFL);
 
-      check (pam_setcred (pamh, PAM_DELETE_CRED));
-      check (pam_close_session (pamh, 0));
+      res = pam_setcred (pamh, PAM_DELETE_CRED);
+      if (res != PAM_SUCCESS)
+        err (EX, "%s: couldn't delete creds: %s", user, pam_strerror (pamh, res));
+      res = pam_close_session (pamh, 0);
+      if (res != PAM_SUCCESS)
+        err (EX, "%s: couldn't close session: %s", user, pam_strerror (pamh, res));
     }
   else
     {

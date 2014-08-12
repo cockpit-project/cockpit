@@ -440,7 +440,10 @@
              id="networking-interfaces">
           <div class="panel-heading">
             <span translatable="yes">Interfaces</span>
-            <button style="float:right" class="btn btn-default">Add Bond</button>
+            <div style="float:right">
+              <button id="networking-add-bond" class="btn btn-default">Add Bond</button>
+              <button id="networking-add-bridge" class="btn btn-default">Add Bridge</button>
+            </div>
           </div>
           <table class="table table-hover">
             <thead>
@@ -2480,6 +2483,58 @@
               Cancel
             </button>
             <button class="btn btn-primary" translatable="yes" id="network-bond-settings-apply">
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="network-bridge-settings-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Bridge Settings</h4>
+          </div>
+          <div class="modal-body">
+            <div id="network-bridge-settings-body">
+            </div>
+            <center id="network-bridge-settings-error">
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" id="network-bridge-settings-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" id="network-bridge-settings-apply">
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="network-bridgeport-settings-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Bridge Port Settings</h4>
+          </div>
+          <div class="modal-body">
+            <div id="network-bridgeport-settings-body">
+            </div>
+            <center id="network-bridgeport-settings-error">
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" id="network-bridgeport-settings-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" id="network-bridgeport-settings-apply">
               Apply
             </button>
           </div>

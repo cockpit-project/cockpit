@@ -503,6 +503,24 @@ function NetworkManagerModel(address) {
                           };
         }
 
+        if (settings.bridge) {
+            result.bridge = { interface_name: get("bridge", "interface-name"),
+                              stp:            get("bridge", "stp", true),
+                              priority:       get("bridge", "priority", 32768),
+                              forward_delay:  get("bridge", "forward-delay", 15),
+                              hello_time:     get("bridge", "hello-time", 2),
+                              max_age:        get("bridge", "max-age", 20),
+                              ageing_time:    get("bridge", "ageing-time", 300)
+                            };
+        }
+
+        if (settings["bridge-port"] || result.connection.slave_type == "bridge") {
+            result.bridge_port = { priority:       get("bridge-port", "priority", 32),
+                                   path_cost:      get("bridge-port", "path-cost", 100),
+                                   hairpin_mode:   get("bridge-port", "hairpin-mode", false)
+                                 };
+        }
+
         return result;
     }
 
@@ -557,6 +575,20 @@ function NetworkManagerModel(address) {
         if (settings.bond) {
             set("bond", "options", 'a{ss}', settings.bond.options);
             set("bond", "interface-name", 's', settings.bond.interface_name);
+        }
+        if (settings.bridge) {
+            set("bridge", "interface-name", 's', settings.bridge.interface_name);
+            set("bridge", "stp", 'b', settings.bridge.stp);
+            set("bridge", "priority", 'u', settings.bridge.priority);
+            set("bridge", "forward-delay", 'u', settings.bridge.forward_delay);
+            set("bridge", "hello-time", 'u', settings.bridge.hello_time);
+            set("bridge", "max-age", 'u', settings.bridge.max_age);
+            set("bridge", "ageing-time", 'u', settings.bridge.ageing_time);
+        }
+        if (settings["bridge-port"]) {
+            set("bridge-port", "priority", 'u', settings.bridge_port.priority);
+            set("bridge-port", "path-cost", 'u', settings.bridge_port.path_cost);
+            set("bridge-port", "hairpin-mode", 'b', settings.bridge_port.hairpin_mode);
         }
         if (settings["802-3-ethernet"]) {
             if (!result["802-3-ethernet"])
@@ -741,10 +773,14 @@ function NetworkManagerModel(address) {
             // Sets: type_Interface.Connections
             //
             function (obj) {
-                if (obj.Settings.bond) {
-                    var iface = get_interface(obj.Settings.bond.interface_name);
-                    iface.Connections.push(obj);
+                function add_to_interface(name) {
+                    get_interface(name).Connections.push(obj);
                 }
+
+                if (obj.Settings.bond)
+                    add_to_interface(obj.Settings.bond.interface_name);
+                if (obj.Settings.bridge)
+                    add_to_interface(obj.Settings.bridge.interface_name);
             },
 
             // Needs: type_Interface.Device
@@ -764,14 +800,14 @@ function NetworkManagerModel(address) {
                 // TODO - Nail down how NM really handles this.
 
                 obj.Masters = [ ];
-                if (obj.Settings.connection.slave_type == "bond") {
+                if (obj.Settings.connection.slave_type) {
                     master = connections_by_uuid[obj.Settings.connection.master];
                     if (master) {
                         obj.Masters.push(master);
                         master.Slaves.push(obj);
                     } else {
                         function check_con(con) {
-                            if (con.Settings.connection.type == "bond") {
+                            if (con.Settings.connection.type == obj.Settings.connection.slave_type) {
                                 obj.Masters.push(con);
                                 con.Slaves.push(obj);
                             }
@@ -816,7 +852,8 @@ function NetworkManagerModel(address) {
         interfaces: [
             "org.freedesktop.NetworkManager.Device",
             "org.freedesktop.NetworkManager.Device.Wired",
-            "org.freedesktop.NetworkManager.Device.Bond"
+            "org.freedesktop.NetworkManager.Device.Bond",
+            "org.freedesktop.NetworkManager.Device.Bridge"
         ],
 
         props: {
@@ -1090,7 +1127,8 @@ PageNetworking.prototype = {
     },
 
     setup: function () {
-        $("#networking-interfaces .panel-heading button").click($.proxy(this, "add_bond"));
+        $("#networking-add-bond").click($.proxy(this, "add_bond"));
+        $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
     },
 
     enter: function () {
@@ -1189,8 +1227,10 @@ PageNetworking.prototype = {
         tbody.empty();
 
         self.model.list_interfaces().forEach(function (iface) {
-            // Skip everything that is not ethernet or a bond
-            if (iface.Device && iface.Device.DeviceType != 1 && iface.Device.DeviceType != 10)
+            // Skip everything that is not ethernet, bond, or bridge
+            if (iface.Device && iface.Device.DeviceType != 1 &&
+                iface.Device.DeviceType != 10 &&
+                iface.Device.DeviceType != 13)
                 return;
 
             var dev = iface.Device;
@@ -1258,6 +1298,42 @@ PageNetworking.prototype = {
             };
 
         $('#network-bond-settings-dialog').modal('show');
+    },
+
+    add_bridge: function () {
+        var iface, i, uuid;
+
+        uuid = cockpit.util.uuid();
+        for (i = 0; i < 100; i++) {
+            iface = "bridge" + i;
+            if (!this.model.find_interface(iface))
+                break;
+        }
+
+        PageNetworkBridgeSettings.model = this.model;
+        PageNetworkBridgeSettings.done = null;
+        PageNetworkBridgeSettings.connection = null;
+        PageNetworkBridgeSettings.settings =
+            {
+                connection: {
+                    id: uuid,
+                    autoconnect: false,
+                    type: "bridge",
+                    uuid: uuid,
+                    interface_name: iface
+                },
+                bridge: {
+                    interface_name: iface,
+                    stp: true,
+                    priority: 32768,
+                    forward_delay: 15,
+                    hello_time: 2,
+                    max_age: 20,
+                    ageing_time: 300
+                }
+            };
+
+        $('#network-bridge-settings-dialog').modal('show');
     }
 
 };
@@ -1453,10 +1529,22 @@ PageNetworkInterface.prototype = {
                             return render_interface_link(s.Interface);
                         }), ", "));
                 }
+            } else if (dev.DeviceType == 13) {
+                if (dev.Slaves.length === 0)
+                    desc = $('<span>').text("Bridge without active ports");
+                else {
+                    desc = $('<span>').append(
+                        $('<span>').text("Bridge of "),
+                        array_join(dev.Slaves.map(function (s) {
+                            return render_interface_link(s.Interface);
+                        }), ", "));
+                }
             }
         } else if (iface) {
             if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "bond")
                 desc = _("Bond");
+            else if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "bridge")
+                desc = _("Bridge");
             else
                 desc = _("Unknown");
         } else
@@ -1474,7 +1562,7 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 
-        var is_deletable = (iface && !dev) || (dev && dev.DeviceType == 10);
+        var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 10 || dev.DeviceType == 13));
         $('#network-interface-delete').toggle(!!is_deletable);
 
         function render_connection(con) {
@@ -1549,6 +1637,22 @@ PageNetworkInterface.prototype = {
                 PageNetworkBondSettings.settings = con.Settings;
                 PageNetworkBondSettings.done = is_active? activate_connection : null;
                 $('#network-bond-settings-dialog').modal('show');
+            }
+
+            function configure_bridge_settings() {
+                PageNetworkBridgeSettings.model = self.model;
+                PageNetworkBridgeSettings.connection = con;
+                PageNetworkBridgeSettings.settings = con.Settings;
+                PageNetworkBridgeSettings.done = is_active? activate_connection : null;
+                $('#network-bridge-settings-dialog').modal('show');
+            }
+
+            function configure_bridge_port_settings() {
+                PageNetworkBridgePortSettings.model = self.model;
+                PageNetworkBridgePortSettings.connection = con;
+                PageNetworkBridgePortSettings.settings = con.Settings;
+                PageNetworkBridgePortSettings.done = is_active? activate_connection : null;
+                $('#network-bridgeport-settings-dialog').modal('show');
             }
 
             function onoffbox(val, on, off) {
@@ -1635,6 +1739,58 @@ PageNetworkInterface.prototype = {
                 return render_settings_row(_("Bond"), rows, configure_bond_settings);
             }
 
+            function render_bridge_settings_row() {
+                var rows = [ ];
+                var options = con.Settings.bridge;
+
+                if (!options)
+                    return null;
+
+                con.Slaves.map(function (con) {
+                    rows.push($('<div>').append(render_connection_link(con)));
+                });
+
+                function add_row(fmt, args) {
+                    rows.push($('<div>').text(F(_(fmt), args)));
+                }
+
+                if (!options.stp)
+                    add_row("No Spanning Tree Protocol");
+                else {
+                    if (options.priority != 32768)
+                        add_row("STP Priority %{priority}", options);
+                    if (options.forward_delay != 15)
+                        add_row("STP Forward delay %{forward_delay}", options);
+                    if (options.hello_time != 2)
+                        add_row("STP Hello time %{hello_time}", options);
+                    if (options.max_age != 20)
+                        add_row("STP Maximum message age %{max_age}", options);
+                }
+
+                return render_settings_row(_("Bridge"), rows, configure_bridge_settings);
+            }
+
+            function render_bridge_port_settings_row() {
+                var rows = [ ];
+                var options = con.Settings.bridge_port;
+
+                if (!options)
+                    return null;
+
+                function add_row(fmt, args) {
+                    rows.push($('<div>').text(F(_(fmt), args)));
+                }
+
+                if (options.priority != 32)
+                    add_row("Priority %{priority}", options);
+                if (options.path_cost != 100)
+                    add_row("Path cost %{path_cost}", options);
+                if (options.hairpin_mode)
+                    add_row("Hairpin mode");
+
+                return render_settings_row(_("Bridge port"), rows, configure_bridge_port_settings);
+            }
+
             var $panel =
                 $('<div class="panel panel-default">').append(
                     $('<div class="panel-heading">').append(
@@ -1656,6 +1812,8 @@ PageNetworkInterface.prototype = {
                                              }))),
                             render_ip_settings_row("ipv4", _("IPv4")),
                             render_ip_settings_row("ipv6", _("IPv6")),
+                            render_bridge_settings_row(),
+                            render_bridge_port_settings_row(),
                             render_bond_settings_row())));
 
             return $panel;
@@ -2066,5 +2224,314 @@ function PageNetworkBondSettings() {
 }
 
 cockpit_pages.push(new PageNetworkBondSettings());
+
+PageNetworkBridgeSettings.prototype = {
+    _init: function () {
+        this.id = "network-bridge-settings-dialog";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Network Bridge Settings");
+    },
+
+    setup: function () {
+        $('#network-bridge-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-bridge-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-bridge-settings-error').text("");
+        if (PageNetworkBridgeSettings.connection)
+            PageNetworkBridgeSettings.connection.freeze();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    find_slave_con: function(iface) {
+        if (!PageNetworkBridgeSettings.connection)
+            return null;
+
+        return PageNetworkBridgeSettings.connection.Slaves.find(function (s) {
+            return s.Interfaces.indexOf(iface) >= 0;
+        }) || null;
+    },
+
+    update: function() {
+        var self = this;
+        var model = PageNetworkBridgeSettings.model;
+        var settings = PageNetworkBridgeSettings.settings;
+        var options = settings.bridge;
+
+        var stp_input, priority_input, forward_delay_input, hello_time_input, max_age_input;
+
+        function is_member(iface) {
+            return self.find_slave_con(iface) !== null;
+        }
+
+        function change_stp() {
+            // XXX - handle parse errors
+            options.stp = stp_input.prop('checked');
+            options.priority = parseInt(priority_input.val(), 10);
+            options.forward_delay = parseInt(forward_delay_input.val(), 10);
+            options.hello_time = parseInt(hello_time_input.val(), 10);
+            options.max_age = parseInt(max_age_input.val(), 10);
+
+            priority_input.parents("tr").toggle(options.stp);
+            forward_delay_input.parents("tr").toggle(options.stp);
+            hello_time_input.parents("tr").toggle(options.stp);
+            max_age_input.parents("tr").toggle(options.stp);
+        }
+
+        var body =
+            $('<table class="cockpit-form-table">').append(
+                $('<tr>').append(
+                    $('<td>').text(_("Interface")),
+                    $('<td>').append(
+                        $('<input class="form-control">').
+                            val(options.interface_name).
+                            change(function (event) {
+                                var val = $(event.target).val();
+                                options.interface_name = val;
+                                settings.connection.interface_name = val;
+                            }))),
+                $('<tr>').append(
+                    $('<td>').text(_("Members")),
+                    $('<td>').append(
+                        model.list_interfaces().map(function (iface) {
+                            if (!iface.Device || iface.Device.DeviceType != 1)
+                                return null;
+                            return $('<label>').append(
+                                $('<input>', { 'type': "checkbox",
+                                               'data-iface': iface.Name }).
+                                    prop('checked', is_member(iface)),
+                                $('<span>').text(iface.Name));
+                        }))),
+                $('<tr>').append(
+                    $('<td>').text(_("Spanning Tree Protocol (STP)")),
+                    $('<td>').append(
+                        stp_input = $('<input type="checkbox">').
+                            prop('checked', options.stp).
+                            change(change_stp))),
+                $('<tr>').append(
+                    $('<td>').text(_("STP Priority")),
+                    $('<td>').append(
+                        priority_input = $('<input class="form-control" type="text">').
+                            val(options.priority).
+                            change(change_stp))),
+                $('<tr>').append(
+                    $('<td>').text(_("STP Forward delay")),
+                    $('<td>').append(
+                        forward_delay_input = $('<input class="form-control" type="text">').
+                            val(options.forward_delay).
+                            change(change_stp))),
+                $('<tr>').append(
+                    $('<td>').text(_("STP Hello time")),
+                    $('<td>').append(
+                        hello_time_input = $('<input class="form-control" type="text">').
+                            val(options.hello_time).
+                            change(change_stp))),
+                $('<tr>').append(
+                    $('<td>').text(_("STP Maximum message age")),
+                    $('<td>').append(
+                        max_age_input = $('<input class="form-control" type="text">').
+                            val(options.max_age).
+                            change(change_stp))));
+
+        change_stp();
+        $('#network-bridge-settings-body').html(body);
+    },
+
+    cancel: function() {
+        if (PageNetworkBridgeSettings.connection)
+            PageNetworkBridgeSettings.connection.reset();
+        $('#network-bridge-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkBridgeSettings.model;
+        var master_settings = PageNetworkBridgeSettings.settings;
+        var settings_manager = model.get_settings();
+
+        function set_member(iface_name, val) {
+            var iface, slave_con, uuid;
+
+            iface = model.find_interface(iface_name);
+            if (!iface)
+                return false;
+
+            slave_con = self.find_slave_con(iface);
+            if (slave_con && !val)
+                return slave_con.delete_();
+            else if (!slave_con && val) {
+                uuid = cockpit.util.uuid();
+                return settings_manager.add_connection({ connection:
+                                                         { id: uuid,
+                                                           uuid: uuid,
+                                                           autoconnect: true,
+                                                           type: "802-3-ethernet",
+                                                           interface_name: iface.Name,
+                                                           slave_type: "bridge",
+                                                           master: master_settings.connection.uuid
+                                                         },
+                                                         "802-3-ethernet":
+                                                         {
+                                                         }
+                                                       });
+            }
+
+            return true;
+        }
+
+        function set_all_members() {
+            var deferreds = $('#network-bridge-settings-body input[data-iface]').map(function (i, elt) {
+                return set_member($(elt).attr("data-iface"), $(elt).prop('checked'));
+            });
+            return $.when.apply($, deferreds.get());
+        }
+
+        function show_error(error) {
+            $('#network-bridge-settings-error').text(error.message || error.toString());
+        }
+
+        function update_master() {
+            if (PageNetworkBridgeSettings.connection)
+                return PageNetworkBridgeSettings.connection.apply();
+            else
+                return settings_manager.add_connection(master_settings);
+        }
+
+        update_master().
+            done(function () {
+                set_all_members().
+                    done(function() {
+                        $('#network-bridge-settings-dialog').modal('hide');
+                        if (PageNetworkBridgeSettings.done)
+                            PageNetworkBridgeSettings.done();
+                    }).
+                    fail(show_error);
+            }).
+            fail(show_error);
+    }
+
+};
+
+function PageNetworkBridgeSettings() {
+    this._init();
+}
+
+cockpit_pages.push(new PageNetworkBridgeSettings());
+
+PageNetworkBridgePortSettings.prototype = {
+    _init: function () {
+        this.id = "network-bridgeport-settings-dialog";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Network BridgePort Settings");
+    },
+
+    setup: function () {
+        $('#network-bridgeport-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-bridgeport-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-bridgeport-settings-error').text("");
+        if (PageNetworkBridgePortSettings.connection)
+            PageNetworkBridgePortSettings.connection.freeze();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var model = PageNetworkBridgePortSettings.model;
+        var settings = PageNetworkBridgePortSettings.settings;
+        var options = settings.bridge_port;
+
+        var priority_input, path_cost_input, hairpin_mode_input;
+
+        function change() {
+            // XXX - handle parse errors
+            options.priority = parseInt(priority_input.val(), 10);
+            options.path_cost = parseInt(path_cost_input.val(), 10);
+            options.hairpin_mode = hairpin_mode_input.prop('checked');
+        }
+
+        var body =
+            $('<table class="cockpit-form-table">').append(
+                $('<tr>').append(
+                    $('<td>').text(_("Priority")),
+                    $('<td>').append(
+                        priority_input = $('<input class="form-control network-number-field" type="text">').
+                            val(options.priority).
+                            change(change))),
+                $('<tr>').append(
+                    $('<td>').text(_("Path cost")),
+                    $('<td>').append(
+                        path_cost_input = $('<input class="form-control network-number-field" type="text">').
+                            val(options.path_cost).
+                            change(change))),
+                $('<tr>').append(
+                    $('<td>').text(_("Hair Pin mode")),
+                    $('<td>').append(
+                        hairpin_mode_input = $('<input type="checkbox">').
+                            prop('checked', options.hairpin_mode).
+                            change(change))));
+
+
+        $('#network-bridgeport-settings-body').html(body);
+    },
+
+    cancel: function() {
+        if (PageNetworkBridgePortSettings.connection)
+            PageNetworkBridgePortSettings.connection.reset();
+        $('#network-bridgeport-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkBridgePortSettings.model;
+        var master_settings = PageNetworkBridgePortSettings.settings;
+        var settings_manager = model.get_settings();
+
+        function show_error(error) {
+            $('#network-bridgeport-settings-error').text(error.message || error.toString());
+        }
+
+        function update_master() {
+            if (PageNetworkBridgePortSettings.connection)
+                return PageNetworkBridgePortSettings.connection.apply();
+            else
+                return settings_manager.add_connection(master_settings);
+        }
+
+        update_master().
+            done(function () {
+                $('#network-bridgeport-settings-dialog').modal('hide');
+                if (PageNetworkBridgePortSettings.done)
+                    PageNetworkBridgePortSettings.done();
+            }).
+            fail(show_error);
+    }
+
+};
+
+function PageNetworkBridgePortSettings() {
+    this._init();
+}
+
+cockpit_pages.push(new PageNetworkBridgePortSettings());
 
 })($, cockpit, cockpit_pages);

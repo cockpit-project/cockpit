@@ -443,6 +443,7 @@
             <div style="float:right">
               <button id="networking-add-bond" class="btn btn-default">Add Bond</button>
               <button id="networking-add-bridge" class="btn btn-default">Add Bridge</button>
+              <button id="networking-add-vlan" class="btn btn-default">Add VLAN</button>
             </div>
           </div>
           <table class="table table-hover">
@@ -2531,6 +2532,32 @@
               Cancel
             </button>
             <button class="btn btn-primary" translatable="yes" id="network-bridgeport-settings-apply">
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="network-vlan-settings-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">VLAN Settings</h4>
+          </div>
+          <div class="modal-body">
+            <div id="network-vlan-settings-body">
+            </div>
+            <center id="network-vlan-settings-error">
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" id="network-vlan-settings-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary" translatable="yes" id="network-vlan-settings-apply">
               Apply
             </button>
           </div>

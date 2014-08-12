@@ -23,6 +23,8 @@
 
 #include "common/cockpitmemory.h"
 
+#include <gssapi/gssapi_ext.h>
+
 #include <string.h>
 
 struct _CockpitCreds {
@@ -31,6 +33,7 @@ struct _CockpitCreds {
   gchar *user;
   gchar *password;
   gchar *rhost;
+  gchar *gssapi;
 };
 
 G_DEFINE_BOXED_TYPE (CockpitCreds, cockpit_creds, cockpit_creds_ref, cockpit_creds_unref);
@@ -39,10 +42,12 @@ static void
 cockpit_creds_free (gpointer data)
 {
   CockpitCreds *creds = data;
+
   g_free (creds->user);
   cockpit_secclear (creds->password, -1);
   g_free (creds->password);
   g_free (creds->rhost);
+  g_free (creds->gssapi);
   g_free (creds);
 }
 
@@ -81,6 +86,8 @@ cockpit_creds_new (const gchar *user,
         creds->password = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_RHOST))
         creds->rhost = g_strdup (va_arg (va, const char *));
+      else if (g_str_equal (type, COCKPIT_CRED_GSSAPI))
+        creds->gssapi = g_strdup (va_arg (va, const char *));
       else
         g_assert_not_reached ();
     }
@@ -147,6 +154,83 @@ cockpit_creds_get_rhost (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->rhost;
+}
+
+static gpointer
+hex_decode (const gchar *hex,
+            gsize *data_len)
+{
+  static const char HEX[] = "0123456789abcdef";
+  const gchar *hpos;
+  const gchar *lpos;
+  gsize len;
+  gchar *out;
+  gint i;
+
+  len = strlen (hex);
+  if (len % 2 != 0)
+    return NULL;
+
+  out = g_malloc (len * 2 + 1);
+  for (i = 0; i < len / 2; i++)
+    {
+      hpos = strchr (HEX, hex[i * 2]);
+      lpos = strchr (HEX, hex[i * 2 + 1]);
+      if (hpos == NULL || lpos == NULL)
+        {
+          g_free (out);
+          return NULL;
+        }
+      out[i] = ((hpos - HEX) << 4) | ((lpos - HEX) & 0xf);
+    }
+
+  /* A convenience null termination */
+  out[i] = '\0';
+
+  *data_len = i;
+  return out;
+}
+
+/**
+ * cockpit_creds_dup_gssapi:
+ * @creds: the credentials
+ *
+ * Get GSSAPI client credentials, or NULL if not present.
+ *
+ * Use gss_release_cred() on the returned value.
+ *
+ * Returns: (transfer full): the GSSAPI creds or GSS_C_NO_CREDENTIAL
+ */
+gss_cred_id_t
+cockpit_creds_dup_gssapi (CockpitCreds *creds)
+{
+  gss_cred_id_t cred = GSS_C_NO_CREDENTIAL;
+  gss_buffer_desc buf;
+  OM_uint32 minor;
+  OM_uint32 major;
+
+  g_return_val_if_fail (creds != NULL, NULL);
+
+  if (!creds->gssapi)
+    return GSS_C_NO_CREDENTIAL;
+
+  buf.value = hex_decode (creds->gssapi, &buf.length);
+  if (buf.value == NULL)
+    {
+      g_critical ("invalid gssapi credentials returned from session");
+      return GSS_C_NO_CREDENTIAL;
+    }
+
+  major = gss_import_cred (&minor, &buf, &cred);
+  g_free (buf.value);
+
+  if (GSS_ERROR (major))
+    {
+      g_critical ("couldn't parse gssapi credentials (%u)", major);
+      return GSS_C_NO_CREDENTIAL;
+    }
+
+  return cred;
 }
 
 gboolean

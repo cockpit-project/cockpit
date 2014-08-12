@@ -60,6 +60,7 @@ struct _CockpitAuthClass
 
   CockpitCreds * (* login_finish)        (CockpitAuth *auth,
                                           GAsyncResult *result,
+                                          GHashTable *out_headers,
                                           CockpitPipe **session,
                                           GError **error);
 };

@@ -97,6 +97,7 @@ mock_auth_login_async (CockpitAuth *auth,
 static CockpitCreds *
 mock_auth_login_finish (CockpitAuth *auth,
                         GAsyncResult *async,
+                        GHashTable *headers,
                         CockpitPipe **session,
                         GError **error)
 {

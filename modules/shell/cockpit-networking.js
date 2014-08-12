@@ -523,6 +523,13 @@ function NetworkManagerModel(address) {
                                  };
         }
 
+        if (settings.vlan) {
+            result.vlan = { parent:         get("vlan", "parent"),
+                            id:             get("vlan", "id"),
+                            interface_name: get("vlan", "interface-name")
+                          };
+        }
+
         return result;
     }
 
@@ -591,6 +598,11 @@ function NetworkManagerModel(address) {
             set("bridge-port", "priority", 'u', settings.bridge_port.priority);
             set("bridge-port", "path-cost", 'u', settings.bridge_port.path_cost);
             set("bridge-port", "hairpin-mode", 'b', settings.bridge_port.hairpin_mode);
+        }
+        if (settings.vlan) {
+            set("vlan", "parent",         's', settings.vlan.parent);
+            set("vlan", "id",             'u', settings.vlan.id);
+            set("vlan", "interface-name", 's', settings.vlan.interface_name);
         }
         if (settings["802-3-ethernet"]) {
             if (!result["802-3-ethernet"])
@@ -783,6 +795,8 @@ function NetworkManagerModel(address) {
                     add_to_interface(obj.Settings.bond.interface_name);
                 if (obj.Settings.bridge)
                     add_to_interface(obj.Settings.bridge.interface_name);
+                if (obj.Settings.vlan)
+                    add_to_interface(obj.Settings.vlan.interface_name);
             },
 
             // Needs: type_Interface.Device
@@ -855,7 +869,8 @@ function NetworkManagerModel(address) {
             "org.freedesktop.NetworkManager.Device",
             "org.freedesktop.NetworkManager.Device.Wired",
             "org.freedesktop.NetworkManager.Device.Bond",
-            "org.freedesktop.NetworkManager.Device.Bridge"
+            "org.freedesktop.NetworkManager.Device.Bridge",
+            "org.freedesktop.NetworkManager.Device.Vlan"
         ],
 
         props: {
@@ -1147,6 +1162,7 @@ PageNetworking.prototype = {
     setup: function () {
         $("#networking-add-bond").click($.proxy(this, "add_bond"));
         $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
+        $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
     },
 
     enter: function () {
@@ -1248,6 +1264,7 @@ PageNetworking.prototype = {
             // Skip everything that is not ethernet, bond, or bridge
             if (iface.Device && iface.Device.DeviceType != 1 &&
                 iface.Device.DeviceType != 10 &&
+                iface.Device.DeviceType != 11 &&
                 iface.Device.DeviceType != 13)
                 return;
 
@@ -1352,6 +1369,32 @@ PageNetworking.prototype = {
             };
 
         $('#network-bridge-settings-dialog').modal('show');
+    },
+
+    add_vlan: function () {
+        var iface, i, uuid;
+
+        uuid = cockpit.util.uuid();
+
+        PageNetworkVlanSettings.model = this.model;
+        PageNetworkVlanSettings.done = null;
+        PageNetworkVlanSettings.connection = null;
+        PageNetworkVlanSettings.settings =
+            {
+                connection: {
+                    id: uuid,
+                    autoconnect: false,
+                    type: "vlan",
+                    uuid: uuid,
+                    interface_name: ""
+                },
+                vlan: {
+                    interface_name: "",
+                    parent: ""
+                }
+            };
+
+        $('#network-vlan-settings-dialog').modal('show');
     }
 
 };
@@ -1620,6 +1663,8 @@ PageNetworkInterface.prototype = {
                             return render_interface_link(s.Interface);
                         }), ", "));
                 }
+            } else if (dev.DeviceType == 11) {
+                desc = $('<span>').text("VLAN");
             } else if (dev.DeviceType == 13) {
                 if (dev.Slaves.length === 0)
                     desc = $('<span>').text("Bridge without active ports");
@@ -1634,6 +1679,8 @@ PageNetworkInterface.prototype = {
         } else if (iface) {
             if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "bond")
                 desc = _("Bond");
+            else if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "vlan")
+                desc = _("VLAN");
             else if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "bridge")
                 desc = _("Bridge");
             else
@@ -1656,7 +1703,7 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 
-        var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 10 || dev.DeviceType == 13));
+        var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 10 || dev.DeviceType == 11 || dev.DeviceType == 13));
         $('#network-interface-delete').toggle(!!is_deletable);
 
         function render_connection(con, settings) {
@@ -1741,6 +1788,14 @@ PageNetworkInterface.prototype = {
                 PageNetworkBridgePortSettings.settings = con.Settings;
                 PageNetworkBridgePortSettings.done = reactivate_connection;
                 $('#network-bridgeport-settings-dialog').modal('show');
+            }
+
+            function configure_vlan_settings() {
+                PageNetworkVlanSettings.model = self.model;
+                PageNetworkVlanSettings.connection = con;
+                PageNetworkVlanSettings.settings = con.Settings;
+                PageNetworkVlanSettings.done = reactivate_connection;
+                $('#network-vlan-settings-dialog').modal('show');
             }
 
             function render_settings_row(title, rows, configure) {
@@ -1849,6 +1904,24 @@ PageNetworkInterface.prototype = {
                 return render_settings_row(_("Bridge port"), rows, configure_bridge_port_settings);
             }
 
+            function render_vlan_settings_row() {
+                var rows = [ ];
+                var options = settings.vlan;
+
+                if (!options)
+                    return null;
+
+                function add_row(fmt, args) {
+                    rows.push($('<div>').text(F(_(fmt), args)));
+                }
+
+                add_row("Parent %{parent}", options);
+                add_row("Id %{id}", options);
+
+                return render_settings_row(_("VLAN"), rows,
+                                           configure_vlan_settings);
+            }
+
             var $panel =
                 $('<div class="panel panel-default">').append(
                     $('<div class="panel-body">').append(
@@ -1864,6 +1937,7 @@ PageNetworkInterface.prototype = {
                                              }))),
                             render_ip_settings_row("ipv4", _("IPv4")),
                             render_ip_settings_row("ipv6", _("IPv6")),
+                            render_vlan_settings_row(),
                             render_bridge_settings_row(),
                             render_bridge_port_settings_row(),
                             render_bond_settings_row())));
@@ -2660,5 +2734,128 @@ function PageNetworkBridgePortSettings() {
 }
 
 cockpit_pages.push(new PageNetworkBridgePortSettings());
+
+PageNetworkVlanSettings.prototype = {
+    _init: function () {
+        this.id = "network-vlan-settings-dialog";
+    },
+
+    getTitle: function() {
+        return C_("page-title", "Network Vlan Settings");
+    },
+
+    setup: function () {
+        $('#network-vlan-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-vlan-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-vlan-settings-error').text("");
+        if (PageNetworkVlanSettings.connection)
+            PageNetworkVlanSettings.connection.freeze();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var model = PageNetworkVlanSettings.model;
+        var settings = PageNetworkVlanSettings.settings;
+        var options = settings.vlan;
+
+        var parent_btn, id_input, name_input;
+
+        function change() {
+            // XXX - parse errors
+            options.parent = cockpit_select_btn_selected(parent_btn);
+            options.id = parseInt(id_input.val(), 10);
+            options.interface_name = name_input.val();
+
+            if (options.parent && options.id) {
+                name_input[0].placeholder = options.parent + "." + options.id;
+                if (options.interface_name === "")
+                    options.interface_name = options.parent + "." + options.id;
+            }
+
+            settings.connection.interface_name = options.interface_name;
+        }
+
+        var parent_choices = [];
+        model.list_interfaces().forEach(function (i) {
+            if (!i.Device ||
+                i.Device.DeviceType == 1 ||
+                i.Device.DeviceType == 10 ||
+                i.Device.DeviceType == 13)
+                parent_choices.push({ title: i.Name, choice: i.Name });
+        });
+
+        var body =
+            $('<table class="cockpit-form-table">').append(
+                $('<tr>').append(
+                    $('<td>').text(_("Parent")),
+                    $('<td>').append(
+                        parent_btn = cockpit_select_btn(change, parent_choices))),
+                $('<tr>').append(
+                    $('<td>').text(_("VLAN Id")),
+                    $('<td>').append(
+                        id_input = $('<input class="form-control" type="text">').
+                            val(options.id).
+                            change(change))),
+                $('<tr>').append(
+                    $('<td>').text(_("Name")),
+                    $('<td>').append(
+                        name_input = $('<input class="form-control" type="text">').
+                            val(options.interface_name).
+                            change(change))));
+
+        cockpit_select_btn_select(parent_btn, options.parent);
+        change();
+        $('#network-vlan-settings-body').html(body);
+    },
+
+    cancel: function() {
+        if (PageNetworkVlanSettings.connection)
+            PageNetworkVlanSettings.connection.reset();
+        $('#network-vlan-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkVlanSettings.model;
+        var master_settings = PageNetworkVlanSettings.settings;
+        var settings_manager = model.get_settings();
+
+        function show_error(error) {
+            $('#network-vlan-settings-error').text(error.message || error.toString());
+        }
+
+        function update_master() {
+            if (PageNetworkVlanSettings.connection)
+                return PageNetworkVlanSettings.connection.apply();
+            else
+                return settings_manager.add_connection(master_settings);
+        }
+
+        update_master().
+            done(function () {
+                $('#network-vlan-settings-dialog').modal('hide');
+                if (PageNetworkVlanSettings.done)
+                    PageNetworkVlanSettings.done();
+            }).
+            fail(show_error);
+    }
+
+};
+
+function PageNetworkVlanSettings() {
+    this._init();
+}
+
+cockpit_pages.push(new PageNetworkVlanSettings());
 
 })($, cockpit, cockpit_pages);

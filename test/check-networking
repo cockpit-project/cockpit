@@ -150,4 +150,48 @@ class TestNetworking(MachineCase):
         b.wait_page("networking")
         b.wait_not_in_text("#networking-interfaces", "tbond")
 
+    def testBridge(self):
+        b = self.browser
+        m = self.machine
+
+        # TODO: Make this work with non-root
+
+        b.default_user = "root"
+
+        self.login_and_go("networking")
+        b.wait_in_text("#networking-interfaces", m.address)
+
+        # Add interfaces
+        iface1 = self.get_iface(m, m.add_netiface('f1'));
+        iface2 = self.get_iface(m, m.add_netiface('f2'));
+        b.wait_in_text("#networking-interfaces", iface1)
+        b.wait_in_text("#networking-interfaces", iface2)
+
+        # Bridge them
+        b.click("button:contains('Add Bridge')")
+        b.wait_popup("network-bridge-settings-dialog")
+        b.set_val("tr:contains('Interface') input", "tbridge")
+        b.set_checked("label:contains('%s') input" % iface1, True)
+        b.set_checked("label:contains('%s') input" % iface2, True)
+        b.click("#network-bridge-settings-dialog button:contains('Apply')")
+        b.wait_popdown("network-bridge-settings-dialog")
+        b.wait_in_text("#networking-interfaces", "tbridge")
+
+        # Activate the bridge.  This will not activate any of the
+        # slaves.
+        b.click("#networking-interfaces tr:contains('tbridge')")
+        b.wait_page("network-interface")
+        b.click(".panel-heading button:contains('On')")
+        b.wait_in_text("#network-interface-hw", "Bridge without active ports")
+
+        # Activate iface1 externally and wait for the bridge to become
+        # active.
+        m.execute("ifup %s" % iface1)
+        b.wait_in_text("#network-interface-hw", "Active")
+
+        # Delete the bond
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_page("networking")
+        b.wait_not_in_text("#networking-interfaces", "tbridge")
+
 test_main()

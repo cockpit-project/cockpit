@@ -39,6 +39,10 @@
 #include <sys/wait.h>
 #include <grp.h>
 
+#include <gssapi/gssapi.h>
+#include <gssapi/gssapi_generic.h>
+#include <gssapi/gssapi_krb5.h>
+
 /* This program opens a session for a given user and runs the agent in
  * it.  It is used to manage localhost; for remote hosts sshd does
  * this job.
@@ -62,7 +66,7 @@ static int want_session = 1;
 #endif
 
 static char *
-read_auth_until_eof (void)
+read_auth_until_eof (size_t *out_len)
 {
   size_t len = 0;
   size_t alloc = 0;
@@ -97,6 +101,8 @@ read_auth_until_eof (void)
     }
 
   buf[len] = '\0';
+  if (out_len)
+    *out_len = len;
   return buf;
 }
 
@@ -124,8 +130,27 @@ write_json_string (FILE *file,
 }
 
 static void
+write_json_hex (FILE *file,
+                const unsigned char *src,
+                size_t len)
+{
+  static const char hex[] = "0123456789abcdef";
+  size_t i;
+
+  fputc_unlocked ('\"', file);
+  for (i = 0; i < len; i++)
+    {
+      unsigned char byte = src[i];
+      fputc_unlocked (hex[byte >> 4], file);
+      fputc_unlocked (hex[byte & 0xf], file);
+    }
+  fputc_unlocked ('\"', file);
+}
+
+static void
 write_auth_result (int result_code,
-                   const char *user)
+                   const char *user,
+                   gss_buffer_desc *gsout)
 {
   FILE *file;
 
@@ -149,12 +174,105 @@ write_auth_result (int result_code,
       fprintf (file, ", \"user\": ");
       write_json_string (file, user);
     }
+  if (gsout && gsout->length)
+    {
+      fprintf (file, ", \"gssapi-output\": ");
+      write_json_hex (file, gsout->value, gsout->length);
+    }
   fprintf (file, " }\n");
 
   if (ferror (file) || fclose (file) != 0)
     err (EX, "couldn't write result to cockpit-ws");
 
   debug ("wrote result %d/%s to cockpit-ws", result_code, user);
+}
+
+static void
+build_string (char **buf,
+              size_t *size,
+              const char *str,
+              size_t len)
+{
+  if (*size == 0)
+    return;
+
+  if (len > *size - 1)
+    len = *size - 1;
+
+  memcpy (*buf, str, len);
+  (*buf)[len] = '\0';
+  *buf += len;
+  *size -= len;
+}
+
+static const char *
+gssapi_strerror (OM_uint32 major_status,
+                 OM_uint32 minor_status)
+{
+  static char buffer[1024];
+  OM_uint32 major, minor;
+  OM_uint32 ctx;
+  gss_buffer_desc status;
+  char *buf;
+  size_t len;
+  int had;
+
+  debug ("gssapi: major_status: %8.8x, minor_status: %8.8x",
+         major_status, minor_status);
+
+  buf = buffer;
+  len = sizeof (buffer);
+  buf[0] = '\0';
+  had = 0;
+  ctx = 0;
+
+  for (;;)
+    {
+      major = gss_display_status (&minor, major_status, GSS_C_GSS_CODE,
+                                  GSS_C_NO_OID, &ctx, &status);
+      if (GSS_ERROR (major))
+        break;
+
+      if (had)
+        build_string (&buf, &len, ": ", 2);
+      had = 1;
+
+      build_string (&buf, &len, status.value, status.length);
+      gss_release_buffer (&minor, &status);
+
+      if (!ctx)
+        break;
+    }
+
+   ctx = 0;
+   had = 0;
+   for (;;)
+     {
+       major = gss_display_status (&minor, minor_status, GSS_C_MECH_CODE,
+                                   GSS_C_NULL_OID, &ctx, &status);
+       if (GSS_ERROR (major))
+         break;
+
+       if (status.length)
+         {
+           if (!had)
+             build_string (&buf, &len, " (", 2);
+           else
+             build_string (&buf, &len, ", ", 2);
+           had = 1;
+           build_string (&buf, &len, status.value, status.length);
+         }
+
+       gss_release_buffer (&minor, &status);
+
+       if (!ctx)
+         break;
+     }
+
+   if (had)
+     build_string (&buf, &len, ")", 1);
+
+   return buffer;
 }
 
 static int
@@ -181,7 +299,7 @@ pam_conv_func (int num_msg,
         {
           if (*passwd == NULL)
             {
-              warnx ("pam asked us for more than one password");
+              warnx ("pam asked us for unexpected password");
               success = 0;
             }
           else
@@ -291,12 +409,12 @@ perform_basic (void)
   debug ("reading password from cockpit-ws");
 
   /* The input should be a user:password */
-  input = read_auth_until_eof ();
+  input = read_auth_until_eof (NULL);
   password = strchr (input, ':');
   if (password == NULL || strchr (password + 1, '\n'))
     {
       debug ("bad basic auth input");
-      write_auth_result (PAM_AUTH_ERR, NULL);
+      write_auth_result (PAM_AUTH_ERR, NULL, NULL);
       exit (5);
     }
 
@@ -320,7 +438,7 @@ perform_basic (void)
   if (res == PAM_SUCCESS)
     res = open_session (pamh, user);
 
-  write_auth_result (res, user);
+  write_auth_result (res, user, NULL);
   if (res != PAM_SUCCESS)
     exit (5);
 
@@ -329,6 +447,135 @@ perform_basic (void)
       memset (input, 0, strlen (input));
       free (input);
     }
+
+  return pamh;
+}
+
+static pam_handle_t *
+perform_kerberos (void)
+{
+  struct pam_conv conv = { pam_conv_func, };
+  OM_uint32 major, minor;
+  gss_cred_id_t server = GSS_C_NO_CREDENTIAL;
+  gss_cred_id_t client = GSS_C_NO_CREDENTIAL;
+  gss_buffer_desc input = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc output = GSS_C_EMPTY_BUFFER;
+  gss_name_t name = GSS_C_NO_NAME;
+  gss_ctx_id_t context = GSS_C_NO_CONTEXT;
+  gss_buffer_desc display = { 0, NULL };
+  krb5_principal principal = NULL;
+  krb5_context krb = NULL;
+  pam_handle_t *pamh = NULL;
+  krb5_error_code code;
+  OM_uint32 flags = 0;
+  char *local;
+  int res;
+
+  server = GSS_C_NO_CREDENTIAL;
+  res = PAM_AUTH_ERR;
+
+  debug ("reading kerberos auth from cockpit-ws");
+  input.value = read_auth_until_eof (&input.length);
+
+  major = gss_accept_sec_context (&minor, &context, server, &input,
+                                  GSS_C_NO_CHANNEL_BINDINGS, &name, NULL,
+                                  &output, &flags, NULL, &client);
+
+  if (GSS_ERROR (major))
+    {
+      warnx ("gssapi auth failed: %s", gssapi_strerror (major, minor));
+      goto out;
+    }
+
+  /*
+   * In general gssapi mechanisms can require multiple challenge response
+   * iterations keeping &context between each, however Kerberos doesn't
+   * require this, so we don't care :O
+   *
+   * If we ever want this to work with something other than Kerberos, then
+   * we'll have to have some sorta session that holds the context.
+   */
+  if (major & GSS_S_CONTINUE_NEEDED)
+    goto out;
+
+  major = gss_display_name (&minor, name, &display, NULL);
+  if (GSS_ERROR (major))
+    {
+      warnx ("couldn't get gssapi display name: %s", gssapi_strerror (major, minor));
+      goto out;
+    }
+
+  code = krb5_init_context (&krb);
+  if (code != 0)
+    {
+      warnx ("couldn't initialize krb5 context: %s", krb5_get_error_message (NULL, code));
+      goto out;
+    }
+
+  code = krb5_parse_name (krb, display.value, &principal);
+  if (code != 0)
+    {
+      warnx ("couldn't parse name as kerberos principal: %s: %s", (char *)display.value,
+             krb5_get_error_message (krb, code));
+      goto out;
+    }
+
+  local = malloc (LOGIN_NAME_MAX + 1);
+  if (local == NULL)
+    errx (EX, "couldn't allocate memory for user");
+
+  code = krb5_aname_to_localname (krb, principal, LOGIN_NAME_MAX, local);
+  if (code == KRB5_LNAME_NOTRANS)
+    {
+      warnx ("no local user mapping for kerberos principal '%s'", (char *)display.value);
+      res = pam_start ("cockpit", display.value, &conv, &pamh);
+    }
+  else if (code != 0)
+    {
+      warnx ("couldn't map kerberos principal '%s' to user: %s",
+             (char *)display.value, krb5_get_error_message (krb, code));
+      goto out;
+    }
+  else
+    {
+      debug ("mapped kerberos principal '%s' to user '%s'", (char *)display.value, local);
+      res = pam_start ("cockpit", local, &conv, &pamh);
+    }
+
+  if (res != PAM_SUCCESS)
+    errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
+
+  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS ||
+      pam_get_item (pamh, PAM_USER, (const void **)&user) != PAM_SUCCESS)
+    errx (EX, "couldn't setup pam");
+
+  assert (user != NULL);
+
+  res = open_session (pamh, user);
+
+out:
+  write_auth_result (res, user, &output);
+
+  if (krb)
+    krb5_free_context (krb);
+  if (principal)
+    krb5_free_principal (krb, principal);
+  if (display.value)
+    gss_release_buffer (&minor, &display);
+  if (output.value)
+    gss_release_buffer (&minor, &output);
+  if (client != GSS_C_NO_CREDENTIAL)
+    gss_release_cred (&minor, &client);
+  if (server != GSS_C_NO_CREDENTIAL)
+    gss_release_cred (&minor, &server);
+  if (name != GSS_C_NO_NAME)
+     gss_release_name (&minor, &name);
+  if (context != GSS_C_NO_CONTEXT)
+     gss_delete_sec_context (&minor, &context, GSS_C_NO_BUFFER);
+  free (input.value);
+
+  if (res != PAM_SUCCESS)
+    exit (5);
 
   return pamh;
 }
@@ -612,6 +859,8 @@ main (int argc,
 
   if (strcmp (auth, "basic") == 0)
     pamh = perform_basic ();
+  else if (strcmp (auth, "negotiate") == 0)
+    pamh = perform_kerberos ();
   else
     errx (2, "unrecognized authentication method: %s", auth);
 

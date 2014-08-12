@@ -28,6 +28,7 @@
 #include "websocket/websocket.h"
 
 #include "common/cockpiterror.h"
+#include "common/cockpithex.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
@@ -38,7 +39,6 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -330,7 +330,6 @@ cockpit_auth_parse_authorization (GHashTable *headers,
     }
 
   /* Null terminate for convenience, but null count not included in GBytes */
-  g_assert (strlen (contents) > length);
   contents[length] = '\0';
 
   if (type)
@@ -342,6 +341,45 @@ cockpit_auth_parse_authorization (GHashTable *headers,
 
   /* Avoid copying by using the line directly */
   return g_bytes_new_with_free_func (contents, length, clear_free_authorization, line);
+}
+
+static void
+build_gssapi_output_header (GHashTable *headers,
+                            JsonObject *results)
+{
+  gchar *encoded;
+  const gchar *output;
+  gpointer data;
+  gsize length;
+  gchar *value;
+
+  if (!cockpit_json_get_string (results, "gssapi-output", NULL, &output))
+    {
+      g_warning ("received invalid gssapi-output field from cockpit-session");
+      return;
+    }
+
+  if (output)
+    {
+      data = cockpit_hex_decode (output, &length);
+      if (!data)
+        {
+          g_warning ("received invalid gssapi-output from cockpit-session");
+          return;
+        }
+      encoded = g_base64_encode (data, length);
+      value = g_strdup_printf ("Negotiate %s", encoded);
+
+      g_free (data);
+      g_free (encoded);
+    }
+  else
+    {
+      value = g_strdup ("Negotiate");
+    }
+
+  g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"), value);
+  g_debug ("gssapi: WWW-Authenticate: %s", value);
 }
 
 static void
@@ -425,6 +463,7 @@ create_creds_for_authenticated (const char *user,
 
 static CockpitCreds *
 parse_auth_results (LoginData *login,
+                    GHashTable *headers,
                     GError **error)
 {
   CockpitCreds *creds = NULL;
@@ -486,6 +525,9 @@ parse_auth_results (LoginData *login,
     }
 
   if (results)
+    build_gssapi_output_header (headers, results);
+
+  if (results)
     json_object_unref (results);
   return creds;
 }
@@ -508,7 +550,7 @@ cockpit_auth_session_login_finish (CockpitAuth *self,
 
   login = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
 
-  creds = parse_auth_results (login, error);
+  creds = parse_auth_results (login, headers, error);
   if (!creds)
     return NULL;
 

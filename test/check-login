@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import base64
 import subprocess
 import time
 
@@ -80,13 +81,14 @@ class TestLogin(MachineCase):
         # Reloading might trigger this.
         self.allow_journal_messages("Error receiving data: Connection reset by peer")
 
-    def curl_post(self, url, data):
+    def curl_auth(self, url, userpass):
+        header = "Authorization: Basic " + base64.b64encode(userpass)
         return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',
-                                    'http://%s:9090%s' % (self.machine.address, url),
-                                    '--data-binary', data ])
+                                    '--header', header,
+                                    'http://%s:9090%s' % (self.machine.address, url) ])
 
-    def curl_post_code(self, url, data):
-        lines = self.curl_post(url, data).splitlines()
+    def curl_auth_code(self, url, userpass):
+        lines = self.curl_auth(url, userpass).splitlines()
         assert len(lines) > 0
         tokens = lines[0].split(' ', 2)
         assert len(tokens) == 3
@@ -95,20 +97,18 @@ class TestLogin(MachineCase):
     def testRaw(self):
         self.start_cockpit()
         time.sleep(0.5)
-        self.assertEqual(self.curl_post_code ('/login', ''), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'foo'), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'foo\nbar\n'), 400)
-        self.assertEqual(self.curl_post_code ('/login', 'foo\nbar\nbaz'), 400)
-        self.assertEqual(self.curl_post_code ('/login', '\n\n\n'), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'admin\nbar'), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'foo\nbar'), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'x' * 5000), 413)
-        self.assertEqual(self.curl_post_code ('/login', 'admin\n' + 'x' * 4000), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'x' * 4000 + '\nbar'), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 ), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\n'), 401)
-        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc'), 400)
-        self.assertEqual(self.curl_post_code ('/login', 'a' * 4000 + '\nb\nc\n'), 400)
+        self.assertEqual(self.curl_auth_code ('/login', ''), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'foo:'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'foo:bar\n'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'foo:bar:baz'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', ':\n\n'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'admin:bar'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'foo:bar'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'admin:' + 'x' * 4000), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'x' * 4000 + ':bar'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'a' * 4000 + ':'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'a' * 4000 + ':b\nc'), 401)
+        self.assertEqual(self.curl_auth_code ('/login', 'a' * 4000 + ':b\nc\n'), 401)
 
         self.allow_journal_messages ("Returning error-response ... with reason .*",
                             "pam_unix\(cockpit:auth\): authentication failure; .*",

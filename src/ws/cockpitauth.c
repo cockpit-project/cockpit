@@ -493,6 +493,7 @@ parse_auth_results (LoginData *login,
 static CockpitCreds *
 cockpit_auth_session_login_finish (CockpitAuth *self,
                                    GAsyncResult *result,
+                                   GHashTable *headers,
                                    CockpitPipe **session,
                                    GError **error)
 {
@@ -665,7 +666,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
   gchar *id;
 
   g_return_val_if_fail (klass->login_finish != NULL, FALSE);
-  creds = klass->login_finish (self, result, &session, error);
+  creds = klass->login_finish (self, result, out_headers, &session, error);
 
   if (creds == NULL)
     return NULL;

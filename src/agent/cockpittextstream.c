@@ -53,6 +53,8 @@ typedef struct {
   gboolean closing;
   guint sig_read;
   guint sig_close;
+  gint batch_size;
+  guint batch_timeout;
 } CockpitTextStream;
 
 typedef struct {
@@ -106,12 +108,39 @@ cockpit_text_stream_recv (CockpitChannel *channel,
 }
 
 static void
+process_pipe_buffer (CockpitTextStream *self,
+                     GByteArray *data)
+{
+  CockpitChannel *channel = (CockpitChannel *)self;
+  GBytes *message;
+  GBytes *clean;
+
+  if (self->batch_timeout)
+    {
+      g_source_remove (self->batch_timeout);
+      self->batch_timeout = 0;
+    }
+
+  if (data->len)
+    {
+      /* When array is reffed, this just clears byte array */
+      g_byte_array_ref (data);
+      message = g_byte_array_free_to_bytes (data);
+      clean = check_utf8_and_force_if_necessary (message);
+      cockpit_channel_send (channel, clean);
+      g_bytes_unref (message);
+      g_bytes_unref (clean);
+    }
+}
+
+static void
 cockpit_text_stream_close (CockpitChannel *channel,
                            const gchar *problem)
 {
   CockpitTextStream *self = COCKPIT_TEXT_STREAM (channel);
 
   self->closing = TRUE;
+  process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
 
   /*
    * If closed, call base class handler directly. Otherwise ask
@@ -123,6 +152,15 @@ cockpit_text_stream_close (CockpitChannel *channel,
     COCKPIT_CHANNEL_CLASS (cockpit_text_stream_parent_class)->close (channel, problem);
 }
 
+static gboolean
+on_batch_timeout (gpointer user_data)
+{
+  CockpitTextStream *self = user_data;
+  self->batch_timeout = 0;
+  process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
+  return FALSE;
+}
+
 static void
 on_pipe_read (CockpitPipe *pipe,
               GByteArray *data,
@@ -130,19 +168,18 @@ on_pipe_read (CockpitPipe *pipe,
               gpointer user_data)
 {
   CockpitTextStream *self = user_data;
-  CockpitChannel *channel = user_data;
-  GBytes *message;
-  GBytes *clean;
 
-  if (data->len || !end_of_data)
+  if (!end_of_data &&
+      self->batch_size > 0 &&
+      data->len < self->batch_size)
     {
-      /* When array is reffed, this just clears byte array */
-      g_byte_array_ref (data);
-      message = g_byte_array_free_to_bytes (data);
-      clean = check_utf8_and_force_if_necessary (message);
-      cockpit_channel_send (channel, clean);
-      g_bytes_unref (message);
-      g_bytes_unref (clean);
+      /* Delay the processing of this data */
+      if (!self->batch_timeout)
+        self->batch_timeout = g_timeout_add (75, on_batch_timeout, self);
+    }
+  else
+    {
+      process_pipe_buffer (self, data);
     }
 
   /* Close the pipe when writing is done */
@@ -162,6 +199,8 @@ on_pipe_close (CockpitPipe *pipe,
   CockpitChannel *channel = user_data;
   gint status;
   gchar *signal;
+
+  process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
 
   self->open = FALSE;
 
@@ -242,6 +281,8 @@ cockpit_text_stream_constructed (GObject *object)
       else
         self->pipe = cockpit_pipe_spawn (argv, env, NULL);
     }
+
+  self->batch_size = cockpit_channel_get_int_option (channel, "batch");
 
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);

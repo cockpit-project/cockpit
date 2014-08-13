@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageAbout.prototype = {
     _init: function() {
         this.id = "about";
@@ -49,3 +51,5 @@ function PageAbout() {
 }
 
 cockpit_pages.push(new PageAbout());
+
+})(cockpit, jQuery);

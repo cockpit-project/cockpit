@@ -112,27 +112,19 @@
 
         <div id="server-graph-columns">
           <div id="server-graph-column-1">
-            <a onclick="cockpit.go_down('cpu_status');">
               <div style="color:black">CPU<span style="float:right" id="server_cpu_text"></span></div>
-              <div style="height:120px" id="server_cpu_graph" class="server-graph"></div>
-            </a>
+              <div style="height:120px" id="server_cpu_graph" class="server-graph" onclick="cockpit.go_down('cpu_status');"></div>
             <br/>
-            <a onclick="cockpit.go_down('memory_status')">
               <div style="color:black">Memory<span style="float:right" id="server_memory_text"></span></div>
-              <div style="height:120px" id="server_memory_graph" class="server-graph"></div>
-            </a>
+              <div style="height:120px" id="server_memory_graph" class="server-graph" onclick="cockpit.go_down('memory_status')"></div>
             <br/>
           </div>
           <div id="server-graph-column-2">
-            <a onclick="cockpit.go_down('disk_io_status')">
               <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
-              <div style="height:120px" id="server_disk_io_graph" class="server-graph"></div>
-            </a>
+              <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.go_down('disk_io_status')"></div>
             <br/>
-            <a onclick="cockpit.go_down('networking')">
               <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
-              <div style="height:120px" id="server_network_traffic_graph" class="server-graph"></div>
-            </a>
+              <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.go_down('networking')"></div>
             <br/>
           </div>
         </div>

@@ -80,21 +80,50 @@ PageSetupServer.prototype = {
         $('#dashboard_setup_next').text(_("Next"));
     },
 
+    check_empty_name: function() {
+        var name = $('#dashboard_setup_login_user').val();
+
+        if (name === "") {
+            this.name_is_done = false;
+            $('#dashboard_setup_next').prop('disabled', true);
+            this.hide_error('#login_user_cell');
+            this.hide_error_message('#dashboard_setup_login_error');
+        } else if (name.search(/\s+/) === -1) {
+            this.name_is_done = true;
+            $('#dashboard_setup_next').prop('disabled', false);
+            this.hide_error('#login_user_cell');
+            this.hide_error_message('#dashboard_setup_login_error');
+        } else {
+            this.name_is_done = false;
+            $('#dashboard_setup_next').prop('disabled', true);
+            this.highlight_error('#login_user_cell');
+            this.highlight_error_message('#dashboard_setup_login_error',
+                                         _("User name cannot contain whitespace."));
+        }
+
+        $('#dashboard_setup_next').text(_("Next"));
+    },
+
     enter: function() {
         var self = this;
 
         self.client = null;
         self.address = null;
         self.options = { "host-key": "", "payload": "dbus-json1" };
+        self.name_is_done = false;
 
         $("#dashboard_setup_address")[0].placeholder = _("Enter IP address or host name");
-        $("#dashboard_setup_login_user")[0].placeholder = C_("login-screen", "Enter user name");
-        $("#dashboard_setup_login_password")[0].placeholder = C_("login-screen", "Enter password");
         $('#dashboard_setup_address').on('keyup change', $.proxy(this, 'update_discovered'));
         $('#dashboard_setup_address').on('input change focus', $.proxy(this, 'check_empty_address'));
+        $('#dashboard_setup_login_user').on('input change focus', $.proxy(this, 'check_empty_name'));
+        $('#dashboard_setup_login_password').on('input focus', function() {
+            if (self.name_is_done)
+                self.hide_error_message('#dashboard_setup_login_error');
+        });
         $('#dashboard_setup_address').on('keyup', function(event) {
             if (event.which === 13) {
                 var disable = $('#dashboard_setup_next').prop('disabled');
+
                 if (!disable)
                     self.next();
             }
@@ -104,8 +133,12 @@ PageSetupServer.prototype = {
                 $("#dashboard_setup_login_password").focus();
         });
         $('#dashboard_setup_login_password').on('keyup', function(event) {
-            if (event.which === 13)
-                self.next();
+            if (event.which === 13) {
+                var disable = $('#dashboard_setup_next').prop('disabled');
+
+                if (!disable)
+                    self.next();
+            }
         });
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
@@ -203,7 +236,10 @@ PageSetupServer.prototype = {
             this.prev_tab = null;
         }
 
-        $('#dashboard_setup_next').prop('disabled', false);
+        if (this.next_action === this.next_login)
+            this.check_empty_name();
+        else
+            $('#dashboard_setup_next').prop('disabled', false);
         $('#dashboard_setup_prev').prop('disabled', !this.prev_tab);
     },
 
@@ -321,7 +357,13 @@ PageSetupServer.prototype = {
         me.options.user = user;
         me.options.password = pass;
 
-        me.connect_server();
+        if (user.trim() !== "") {
+            me.connect_server();
+        } else {
+            $('#dashboard_setup_next').text(_("Next"));
+            me.highlight_error_message('#dashboard_setup_login_error',
+                                       _("User name cannot be empty."));
+        }
     },
 
     reset_tasks: function() {

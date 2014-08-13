@@ -1097,9 +1097,26 @@
             <div class="cockpit-setup-tab"
                  id="dashboard_setup_login_tab">
               <p>Login to <span id="dashboard_setup_login_address"></span>.</p>
-              <input type="text" class="form-control" id="dashboard_setup_login_user"/>
-              <input type="password" class="form-control" id="dashboard_setup_login_password"/>
-              <div id="dashboard_setup_login_error" class="help-block" style="visibility:hidden">Placeholder</div>
+              <table class="cockpit-form-table">
+                <tr>
+                  <td>User Name</td>
+                  <td id="login_user_cell">
+                    <input type="text" class="form-control" id="dashboard_setup_login_user"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Password</td>
+                  <td>
+                    <input type="password" class="form-control" id="dashboard_setup_login_password"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td class="has-error">
+                    <div id="dashboard_setup_login_error" class="help-block" style="visibility:hidden">Placeholder</div>
+                  </td>
+                </tr>
+              </table>
             </div>
 
             <div class="cockpit-setup-tab"

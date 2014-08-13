@@ -413,6 +413,9 @@ this payload type:
    spawned process. If unset, then the environment is inherited from the
    agent.
  * "pty": If "spawn" is set, then execute the command as a terminal pty.
+ * "batch": Batches data coming from the stream in blocks of at least this
+   size. This is not a guarantee. After a short timeout the data will be
+   sent even if the data doesn't match the batch size. Defaults to zero.
 
 You can't specify both "unix" and "spawn" together.
 

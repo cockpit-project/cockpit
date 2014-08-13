@@ -1816,9 +1816,11 @@ function DockerClient(machine) {
     this.close = function close() {
         $(monitor).off('NewSample', handle_new_samples);
         monitor = null;
-        rest.close();
+        if (rest)
+            rest.close();
         rest = null;
-        dbus_client.release();
+        if (dbus_client)
+            dbus_client.release();
         dbus_client = null;
         connected = null;
     };

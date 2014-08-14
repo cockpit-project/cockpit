@@ -55,7 +55,7 @@ PageCpuStatus.prototype = {
             x_rh_stack_graphs: true
         };
 
-        this.plot = cockpit_setup_complicated_plot("#cpu_status_graph",
+        this.plot = cockpit.setup_complicated_plot("#cpu_status_graph",
                                                    resmon,
                                                    [{color: "rgb(200,200,200)"},
                                                     {color: "rgb(150,150,150)"},

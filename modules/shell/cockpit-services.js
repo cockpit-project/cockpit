@@ -305,15 +305,15 @@ PageServices.prototype = {
             }
         }
 
-        this.cpu_plot = cockpit_setup_multi_plot ('#services-cpu-graph', me.monitor, 4, blues.concat(blues),
-                                                  is_interesting_cgroup);
+        this.cpu_plot = cockpit.setup_multi_plot('#services-cpu-graph', me.monitor, 4, blues.concat(blues),
+                                                 is_interesting_cgroup);
         $(this.cpu_plot).on('update-total', function (event, total) {
             $('#services-cpu-text').text(format_cpu_usage(total));
         });
         $(this.cpu_plot).on('highlight', highlight_service_row);
 
-        this.mem_plot = cockpit_setup_multi_plot ('#services-mem-graph', me.monitor, 0, blues.concat(blues),
-                                                  is_interesting_cgroup);
+        this.mem_plot = cockpit.setup_multi_plot('#services-mem-graph', me.monitor, 0, blues.concat(blues),
+                                                 is_interesting_cgroup);
         $(this.mem_plot).on('update-total', function (event, total) {
             $('#services-mem-text').text(cockpit.format_bytes(total, 1024));
         });
@@ -648,14 +648,14 @@ PageService.prototype = {
             return cgroup && cgroup.endsWith(me.service);
         }
 
-        this.cpu_plot = cockpit_setup_multi_plot ('#service-cpu-graph', me.monitor, 4, blues.concat(blues),
-                                                    is_interesting_cgroup);
+        this.cpu_plot = cockpit.setup_multi_plot('#service-cpu-graph', me.monitor, 4, blues.concat(blues),
+                                                 is_interesting_cgroup);
         $(this.cpu_plot).on('update-total', function (event, total) {
             $('#service-cpu-text').text(format_cpu_usage(total));
         });
 
-        this.mem_plot = cockpit_setup_multi_plot ('#service-mem-graph', me.monitor, 0, blues.concat(blues),
-                                                    is_interesting_cgroup);
+        this.mem_plot = cockpit.setup_multi_plot('#service-mem-graph', me.monitor, 0, blues.concat(blues),
+                                                 is_interesting_cgroup);
         $(this.mem_plot).on('update-total', function (event, total) {
             $('#service-mem-text').text(cockpit.format_bytes(total, 1024));
         });

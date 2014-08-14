@@ -66,7 +66,7 @@ var visited_pages = {};
 cockpit.dbus = dbus;
 cockpit.set_watched_client = set_watched_client;
 
-function init() {
+cockpit.init = function init() {
     cockpit.language_code = "";
     cockpit.language_po = null;
 
@@ -97,7 +97,7 @@ function init() {
     } else {
         init_done();
     }
-}
+};
 
 function init_load_lang(lang_code) {
     var jqxhr = $.getJSON("lang/" + lang_code + ".json");
@@ -625,7 +625,5 @@ function PageDisconnected() {
 }
 
 cockpit.pages.push(new PageDisconnected());
-
-$(init);
 
 })(jQuery, cockpit);

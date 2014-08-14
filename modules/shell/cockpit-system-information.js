@@ -308,33 +308,57 @@ PageSystemInformationChangeHostname.prototype = {
 
     _update: function() {
         var apply_button = $("#sich-apply-button");
-        var note = $("#sich-note");
+        var note1 = $("#sich-note-1");
+        var note2 = $("#sich-note-2");
         var changed = false;
         var valid = false;
         var can_apply = false;
 
+        var charError = "Real host name can only contain lower-case characters, digits, and dashes";
+        var lengthError = "Real host name must be 64 characters or less";
+
+        var validLength = $("#sich-hostname").val().length <= 64;
         var hostname = $("#sich-hostname").val();
+        var validName = (hostname.match(/[a-z0-9-]*/) == hostname);
         var pretty_hostname = $("#sich-pretty-hostname").val();
 
         if (hostname != this._initial_hostname ||
             pretty_hostname != this._initial_pretty_hostname)
             changed = true;
 
-        if (hostname.match(/[a-z0-9-]*/) == hostname)
+        if (validLength && validName)
             valid = true;
 
         if (changed && valid)
             can_apply = true;
 
-        if (valid)
-        {
-            $(note).css("visibility", "hidden");
+        if (valid) {
+            $(note1).css("visibility", "hidden");
+            $(note2).css("visibility", "hidden");
             $("#sich-hostname-error").removeClass("has-error");
-        }
-        else
-        {
+        } else if(!validLength && validName) {
             $("#sich-hostname-error").addClass("has-error");
-            $(note).css("visibility", "visible");
+            $(note1).text(lengthError);
+            $(note1).css("visibility", "visible");
+            $(note2).css("visibility", "hidden");
+        } else if(validLength && !validName) {
+            $("#sich-hostname-error").addClass("has-error");
+            $(note1).text(charError);
+            $(note1).css("visibility", "visible");
+            $(note2).css("visibility", "hidden");
+        } else {
+            $("#sich-hostname-error").addClass("has-error");
+            
+            if($(note1).text() === lengthError)
+               $(note2).text(charError);
+            else if($(note1).text() === charError)
+               $(note2).text(lengthError);
+            else {
+                $(note2).text(lengthError);
+                $(note2).text(charError);
+            }
+            $(note1).css("visibility", "visible");
+            $(note2).css("visibility", "visible");
         }
 
         apply_button.prop('disabled', !can_apply);

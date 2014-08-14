@@ -470,6 +470,11 @@ function quote_words(words) {
     return words.map(quote).join(' ');
 }
 
+function cache_debug() {
+    if (cockpit.debugging == "all" || cockpit.debugging == "dbus")
+        console.debug.apply(console, arguments);
+}
+
 /* - cache = cockpit.util.make_resource_cache()
  * - resource = cache.get(key, create)
  * - resource.release()
@@ -492,12 +497,12 @@ function make_resource_cache() {
         handle = resources[key];
 
         if (!handle) {
-            dbus_debug("Creating %s", key);
+            cache_debug("Creating %s", key);
             handle = { refcount: 1, resource: create() };
             resources[key] = handle;
 
             handle.resource.release = function() {
-                dbus_debug("Releasing %s", key);
+                cache_debug("Releasing %s", key);
                 // Only really release it after a delay
                 setTimeout(function () {
                     if (!handle.refcount) {
@@ -506,14 +511,14 @@ function make_resource_cache() {
                         handle.refcount -= 1;
                         if (handle.refcount === 0) {
                             delete resources[key];
-                            dbus_debug("Closing %s", key);
+                            cache_debug("Closing %s", key);
                             handle.resource.close("unused");
                         }
                     }
                 }, 10000);
             };
         } else {
-            dbus_debug("Getting %s", key);
+            cache_debug("Getting %s", key);
             handle.refcount += 1;
         }
 

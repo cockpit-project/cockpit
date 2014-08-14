@@ -127,7 +127,7 @@ function make_dict_key(dict) {
 
 function dbus(address, options) {
     return dbus_clients.get(make_dict_key($.extend({host: address}, options)),
-                            function () { return new DBusClient(address, options); });
+                            function () { return cockpit.dbus_client(address, options); });
 }
 
 var watched_client = null;

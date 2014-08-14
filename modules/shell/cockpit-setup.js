@@ -239,7 +239,7 @@ PageSetupServer.prototype = {
         var self = this;
 
         /* TODO: This is using the old dbus-json1 protocol */
-        var client = new DBusClient(self.address, self.options);
+        var client = cockpit.dbus(self.address, self.options);
         $(client).on('state-change', function() {
             if (client.state == "closed") {
                 if (!self.options["host_key"] && client.error == "unknown-hostkey") {

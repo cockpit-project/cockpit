@@ -61,7 +61,6 @@ cat <<EOF >$conf
 +define F
 
 EOF
-grep -h '^\(function\|var\) cockpit_' "$@" | sed -e 's/[a-z]\+ \([$a-zA-Z0-9_]\+\).*/+define \1/' >>$conf
 
 ret=0
 for f in "$@"; do

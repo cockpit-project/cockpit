@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_setup_plot (graph_id, resmon, data, user_options,
-                             store_samples)
-{
+(function(cockpit, $) {
+
+function setup_plot(graph_id, resmon, data, user_options, store_samples) {
     var options = {
         colors: [ "#0099d3" ],
         legend: { show: false },
@@ -211,8 +211,7 @@ function cockpit_setup_plot (graph_id, resmon, data, user_options,
     return self;
 }
 
-function cockpit_setup_complicated_plot (graph_id, resmon, data, options)
-{
+cockpit.setup_complicated_plot = function setup_complicated_plot(graph_id, resmon, data, options) {
     var i;
     var plot = null;
     var my_options = $.extend ({ legend: { show: true } },
@@ -252,20 +251,14 @@ function cockpit_setup_complicated_plot (graph_id, resmon, data, options)
     else
         $(resmon).on('notify:Legends', setup_legends);
 
-    plot = cockpit_setup_plot (graph_id, resmon, data, my_options,
-                               store_samples);
+    plot = setup_plot(graph_id, resmon, data, my_options, store_samples);
     return plot;
-}
+};
 
 // ----------------------------------------------------------------------------------------------------
 
-function cockpit_setup_simple_plot (plot_id,
-                                    text_id,
-                                    resmon,
-                                    options,
-                                    series_combine_func,
-                                    series_text_func)
-{
+cockpit.setup_simple_plot = function setup_simple_plot(plot_id, text_id, resmon, options,
+                                                       series_combine_func, series_text_func) {
     var data = [ {} ];
 
     function store_samples (samples, index)
@@ -276,15 +269,13 @@ function cockpit_setup_simple_plot (plot_id,
             $(text_id).html(series_text_func(samples));
     }
 
-    return cockpit_setup_plot (plot_id, resmon, data, options,
-                               store_samples);
-}
+    return setup_plot(plot_id, resmon, data, options, store_samples);
+};
 
 // ----------------------------------------------------------------------------------------------------
 
-function cockpit_setup_multi_plot (element, monitor, sample_index, colors,
-                                   is_interesting, setup_hook)
-{
+cockpit.setup_multi_plot = function setup_multi_plot(element, monitor, sample_index,
+                                                     colors, is_interesting, setup_hook) {
     var self = this;
     var max_consumers = colors.length-1;
     var data = new Array(max_consumers+1);       // max_consumers entries plus one for the total
@@ -337,7 +328,7 @@ function cockpit_setup_multi_plot (element, monitor, sample_index, colors,
             $(plot).trigger('update-total', [ total ]);
     }
 
-    plot = cockpit_setup_plot (element, monitor, data,
+    plot = setup_plot(element, monitor, data,
                                { colors: colors,
                                  grid: { hoverable: true,
                                          autoHighlight: false
@@ -390,4 +381,6 @@ function cockpit_setup_multi_plot (element, monitor, sample_index, colors,
 
     update_consumers();
     return plot;
-}
+};
+
+})(cockpit, jQuery);

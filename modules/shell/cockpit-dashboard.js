@@ -251,7 +251,7 @@ PageDashboard.prototype = {
                                             "com.redhat.Cockpit.ResourceMonitor");
                 var plot_options = { };
                 self.cpu_plots[i] =
-                    cockpit_setup_simple_plot($(e).find('.cockpit-graph-plot'),
+                    cockpit.setup_simple_plot($(e).find('.cockpit-graph-plot'),
                                               $(e).find('.cockpit-graph-text'),
                                               monitor, plot_options,
                                               function(values) { // Combines the series into a single plot-value

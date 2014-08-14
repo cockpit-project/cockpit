@@ -79,7 +79,7 @@ PageServer.prototype = {
         var monitor = self.client.get("/com/redhat/Cockpit/CpuMonitor",
                                       "com.redhat.Cockpit.ResourceMonitor");
         self.cpu_plot =
-            cockpit_setup_simple_plot("#server_cpu_graph",
+            cockpit.setup_simple_plot("#server_cpu_graph",
                                       "#server_cpu_text",
                                       monitor,
                                       { yaxis: { ticks: 5 } },
@@ -94,7 +94,7 @@ PageServer.prototype = {
         monitor = self.client.get("/com/redhat/Cockpit/MemoryMonitor",
                                   "com.redhat.Cockpit.ResourceMonitor");
         self.memory_plot =
-            cockpit_setup_simple_plot("#server_memory_graph",
+            cockpit.setup_simple_plot("#server_memory_graph",
                                       "#server_memory_text",
                                       monitor,
                                       { },
@@ -109,7 +109,7 @@ PageServer.prototype = {
         monitor = self.client.get("/com/redhat/Cockpit/NetworkMonitor",
                                   "com.redhat.Cockpit.ResourceMonitor");
         self.network_traffic_plot =
-            cockpit_setup_simple_plot("#server_network_traffic_graph",
+            cockpit.setup_simple_plot("#server_network_traffic_graph",
                                       "#server_network_traffic_text",
                                       monitor,
                                       { setup_hook: network_setup_hook },
@@ -124,7 +124,7 @@ PageServer.prototype = {
         monitor = self.client.get("/com/redhat/Cockpit/DiskIOMonitor",
                                   "com.redhat.Cockpit.ResourceMonitor");
         self.disk_io_plot =
-            cockpit_setup_simple_plot("#server_disk_io_graph",
+            cockpit.setup_simple_plot("#server_disk_io_graph",
                                       "#server_disk_io_text",
                                       monitor,
                                       { },

@@ -63,7 +63,7 @@ PageDiskIOStatus.prototype = {
             x_rh_stack_graphs: true
         };
 
-        this.plot = cockpit_setup_complicated_plot("#disk_io_status_graph",
+        this.plot = cockpit.setup_complicated_plot("#disk_io_status_graph",
                                                    resmon,
                                                    [{color: "rgb(  0,  0,255)"},
                                                     {color: "rgb(255,  0,255)"},

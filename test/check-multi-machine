@@ -36,7 +36,7 @@ def wait_for_port (addr, port):
 
 def get_webapp_machines(browser):
     wm = { }
-    cockpit = browser.eval_js("return cockpit_page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
+    cockpit = browser.eval_js("return cockpit.page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
     for i in range (0, len(cockpit)):
         wm[cockpit[i]] = i;
     return wm
@@ -86,7 +86,7 @@ class TestMultiMachine(MachineCase):
         def wait_dashboard_addresses(expected):
             b.wait_js_func(
                 """(function (expected) {
-                var page = cockpit_page_from_id('dashboard');
+                var page = cockpit.page_from_id('dashboard');
                 var actual = page.dbus_clients.map(function (c) { return c.target });
                 return expected.sort().toString() == actual.sort().toString();
                 })""", expected)

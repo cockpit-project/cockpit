@@ -135,7 +135,7 @@ function job_box(client, tbody, domain, role, descriptions, target_describer) {
                             return;
                         j.call('Cancel', function (error) {
                             if (error)
-                                cockpit_show_unexpected_error (error);
+                                cockpit.show_unexpected_error(error);
                         });
                     });
                 } else
@@ -293,7 +293,7 @@ PageStorage.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(this.client);
@@ -409,7 +409,7 @@ PageStorage.prototype = {
         }
 
         var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + sort_key + "\"";
-        html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
+        html += " onclick=\"" + cockpit_esc(cockpit.go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
 
         html += "<td>";
         html += cockpit_esc(drive.Name);
@@ -472,7 +472,7 @@ PageStorage.prototype = {
         var n;
 
         var html = "<tr id=\"storage-raid-" + id + "\" sort=\"" + sort_key + "\"";
-        html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
+        html += " onclick=\"" + cockpit_esc(cockpit.go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
 
         html += "<td>";
         html += cockpit_esc(raid_get_desc(raid));
@@ -518,7 +518,7 @@ PageStorage.prototype = {
         var n;
 
         var html = "<tr id=\"storage-vg-" + id + "\" sort=\"" + sort_key + "\"";
-        html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
+        html += " onclick=\"" + cockpit_esc(cockpit.go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
 
         html += "<td>";
         html += cockpit_esc(vg.Name);
@@ -571,7 +571,7 @@ PageStorage.prototype = {
         var sort_key = id; // for now
 
         var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key + "\"";
-        html += " onclick=\"" + cockpit_esc(cockpit_go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
+        html += " onclick=\"" + cockpit_esc(cockpit.go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
 
         html += "<td>";
         html += cockpit_esc(block.Device);
@@ -611,7 +611,7 @@ function PageStorage() {
     this._init();
 }
 
-cockpit_pages.push(new PageStorage());
+cockpit.pages.push(new PageStorage());
 
 // ----------------------------------------------------------------------------------------------------
 
@@ -882,10 +882,10 @@ PageStorageDetail.prototype = {
 
     enter: function() {
         var me = this;
-        var type = cockpit_get_page_param("type");
-        var id = cockpit_get_page_param("id");
+        var type = cockpit.get_page_param("type");
+        var id = cockpit.get_page_param("id");
 
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(this.client);
@@ -1709,14 +1709,14 @@ PageStorageDetail.prototype = {
     start: function() {
         this._mdraid.call("Start", function (error, result) {
             if (error)
-                cockpit_show_unexpected_error (error);
+                cockpit.show_unexpected_error(error);
         });
     },
 
     stop: function() {
         this._mdraid.call("Stop", function (error, result) {
             if (error)
-                cockpit_show_unexpected_error (error);
+                cockpit.show_unexpected_error(error);
         });
     },
 
@@ -1730,7 +1730,7 @@ PageStorageDetail.prototype = {
             done(function () {
                 self._mdraid.call("Delete", function (error, result) {
                     if (error)
-                        cockpit_show_unexpected_error (error);
+                        cockpit.show_unexpected_error(error);
                     else
                         location.go_up();
                 });
@@ -1740,14 +1740,14 @@ PageStorageDetail.prototype = {
     start_scrub: function() {
         this._mdraid.call("RequestSyncAction", "repair", function (error, result) {
             if (error)
-                cockpit_show_unexpected_error (error);
+                cockpit.show_unexpected_error(error);
         });
     },
 
     stop_scrub: function() {
         this._mdraid.call("RequestSyncAction", "idle", function (error, result) {
             if (error)
-                cockpit_show_unexpected_error (error);
+                cockpit.show_unexpected_error(error);
         });
     },
 
@@ -1757,7 +1757,7 @@ PageStorageDetail.prototype = {
 
         this._mdraid.call("SetBitmapLocation", "internal", function (error, result) {
             if (error)
-                cockpit_show_unexpected_error (error);
+                cockpit.show_unexpected_error(error);
         });
     },
 
@@ -1767,7 +1767,7 @@ PageStorageDetail.prototype = {
 
         this._mdraid.call("SetBitmapLocation", "none", function (error, result) {
             if (error)
-                cockpit_show_unexpected_error (error);
+                cockpit.show_unexpected_error(error);
         });
     },
 
@@ -1801,7 +1801,7 @@ PageStorageDetail.prototype = {
                 block.call('DeletePartition',
                            function (error) {
                                if (error)
-                                   cockpit_show_unexpected_error (error);
+                                   cockpit.show_unexpected_error(error);
                            });
             });
     },
@@ -1821,7 +1821,7 @@ PageStorageDetail.prototype = {
         block.call('Mount',
                    function (error) {
                        if (error)
-                           cockpit_show_unexpected_error (error);
+                           cockpit.show_unexpected_error(error);
                    });
     },
 
@@ -1829,7 +1829,7 @@ PageStorageDetail.prototype = {
         block.call('Unmount',
                    function (error) {
                        if (error)
-                           cockpit_show_unexpected_error (error);
+                           cockpit.show_unexpected_error(error);
                    });
     },
 
@@ -1837,7 +1837,7 @@ PageStorageDetail.prototype = {
         block.call('Lock',
                    function (error) {
                        if (error)
-                           cockpit_show_unexpected_error (error);
+                           cockpit.show_unexpected_error(error);
                    });
     },
 
@@ -1863,7 +1863,7 @@ PageStorageDetail.prototype = {
         this._mdraid.call('RemoveDevices', [ block.getObject().objectPath ],
                           function (error) {
                               if (error)
-                                  cockpit_show_unexpected_error (error);
+                                  cockpit.show_unexpected_error(error);
                           });
     },
 
@@ -1924,7 +1924,7 @@ PageStorageDetail.prototype = {
             done(function() {
                 self._vg.call("Delete", function (error, result) {
                     if (error)
-                        cockpit_show_unexpected_error (error);
+                        cockpit.show_unexpected_error(error);
                     else
                         location.go_up ();
                 });
@@ -1945,7 +1945,7 @@ PageStorageDetail.prototype = {
             return;
 
         if (block.PvFreeSize != block.PvSize) {
-            cockpit_show_error_dialog ("Error", "Volume is in use.");
+            cockpit.show_error_dialog("Error", "Volume is in use.");
             return;
         }
 
@@ -1959,14 +1959,14 @@ PageStorageDetail.prototype = {
         }
 
         if (n == 1) {
-            cockpit_show_error_dialog ("Error", "Can't remove the last physical volume.");
+            cockpit.show_error_dialog("Error", "Can't remove the last physical volume.");
             return;
         }
 
         this._vg.call('RemoveDevice', block.getObject().objectPath,
                       function (error) {
                           if (error)
-                              cockpit_show_unexpected_error (error);
+                              cockpit.show_unexpected_error (error);
                       });
     },
 
@@ -1976,19 +1976,19 @@ PageStorageDetail.prototype = {
 
         var used = block.PvSize - block.PvFreeSize;
         if (used === 0) {
-            cockpit_show_error_dialog ("Dude", "Volume is already empty.");
+            cockpit.show_error_dialog("Dude", "Volume is already empty.");
             return;
         }
 
         if (used > this._vg.FreeSize) {
-            cockpit_show_error_dialog ("Error", "Not enough free space.");
+            cockpit.show_error_dialog("Error", "Not enough free space.");
             return;
         }
 
         this._vg.call('EmptyDevice', block.getObject().objectPath,
                       function (error) {
                           if (error)
-                              cockpit_show_unexpected_error (error);
+                              cockpit.show_unexpected_error(error);
                       });
     },
 
@@ -2028,7 +2028,7 @@ PageStorageDetail.prototype = {
         if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
-        cockpit_show_error_dialog ("Sorry", "Not yet.");
+        cockpit.show_error_dialog("Sorry", "Not yet.");
     },
 
     create_snapshot: function (origin) {
@@ -2036,7 +2036,7 @@ PageStorageDetail.prototype = {
             return;
 
         if (origin.Origin != "/") {
-            cockpit_show_error_dialog ("Error", "Can't take a snapshot of a snapshot.");
+            cockpit.show_error_dialog("Error", "Can't take a snapshot of a snapshot.");
             return;
         }
 
@@ -2056,7 +2056,7 @@ PageStorageDetail.prototype = {
             done(function () {
                 lv.call('Delete', function (error, result) {
                     if (error)
-                        cockpit_show_unexpected_error (error);
+                        cockpit.show_unexpected_error(error);
                 });
             });
     },
@@ -2091,7 +2091,7 @@ PageStorageDetail.prototype = {
 
         lv.call('Activate', function (error, result) {
             if (error)
-                cockpit_show_unexpected_error (error);
+                cockpit.show_unexpected_error(error);
         });
     },
 
@@ -2101,7 +2101,7 @@ PageStorageDetail.prototype = {
 
         lv.call('Deactivate', function (error, result) {
             if (error)
-                cockpit_show_unexpected_error (error);
+                cockpit.show_unexpected_error(error);
         });
     }
 };
@@ -2110,7 +2110,7 @@ function PageStorageDetail() {
     this._init();
 }
 
-cockpit_pages.push(new PageStorageDetail());
+cockpit.pages.push(new PageStorageDetail());
 
 PageCreateRaid.prototype = {
     _init: function() {
@@ -2226,7 +2226,7 @@ PageCreateRaid.prototype = {
                       function (error) {
                           $('#create-raid-dialog').modal('hide');
                           if (error)
-                              cockpit_show_unexpected_error (error);
+                              cockpit.show_unexpected_error(error);
                       });
     }
 };
@@ -2235,7 +2235,7 @@ function PageCreateRaid() {
     this._init();
 }
 
-cockpit_pages.push(new PageCreateRaid());
+cockpit.pages.push(new PageCreateRaid());
 
 function fill_free_devices_list(client, id, filter)
 {
@@ -2328,7 +2328,7 @@ PageCreateVolumeGroup.prototype = {
                       function (error) {
                           $('#create-volume-group-dialog').modal('hide');
                           if (error)
-                              cockpit_show_unexpected_error (error);
+                              cockpit.show_unexpected_error(error);
                       });
     }
 };
@@ -2337,7 +2337,7 @@ function PageCreateVolumeGroup() {
     this._init();
 }
 
-cockpit_pages.push(new PageCreateVolumeGroup());
+cockpit.pages.push(new PageCreateVolumeGroup());
 
 PageFormatDisk.prototype = {
     _init: function() {
@@ -2371,7 +2371,7 @@ PageFormatDisk.prototype = {
                                    function (error) {
                                        $("#storage_format_disk_dialog").modal('hide');
                                        if (error)
-                                           cockpit_show_unexpected_error (error);
+                                           cockpit.show_unexpected_error(error);
                                    });
     }
 };
@@ -2380,7 +2380,7 @@ function PageFormatDisk() {
     this._init();
 }
 
-cockpit_pages.push(new PageFormatDisk());
+cockpit.pages.push(new PageFormatDisk());
 
 PageFormat.prototype = {
     _init: function() {
@@ -2487,7 +2487,7 @@ PageFormat.prototype = {
                                   function (error) {
                                       $("#storage_format_dialog").modal('hide');
                                       if (error)
-                                          cockpit_show_unexpected_error (error);
+                                          cockpit.show_unexpected_error(error);
                                   });
         else
             PageFormat.block.call('Format',
@@ -2497,7 +2497,7 @@ PageFormat.prototype = {
                                   function (error) {
                                       $("#storage_format_dialog").modal('hide');
                                       if (error)
-                                          cockpit_show_unexpected_error (error);
+                                          cockpit.show_unexpected_error(error);
                                   });
     }
 };
@@ -2506,7 +2506,7 @@ function PageFormat() {
     this._init();
 }
 
-cockpit_pages.push(new PageFormat());
+cockpit.pages.push(new PageFormat());
 
 PageCreatePlainVolume.prototype = {
     _init: function() {
@@ -2540,7 +2540,7 @@ PageCreatePlainVolume.prototype = {
                                                 function (error) {
                                                     $("#storage_create_plain_volume_dialog").modal('hide');
                                                     if (error)
-                                                        cockpit_show_unexpected_error (error);
+                                                        cockpit.show_unexpected_error(error);
                                                 });
     }
 
@@ -2550,7 +2550,7 @@ function PageCreatePlainVolume() {
     this._init();
 }
 
-cockpit_pages.push(new PageCreatePlainVolume());
+cockpit.pages.push(new PageCreatePlainVolume());
 
 PageCreateThinPool.prototype = {
     _init: function() {
@@ -2584,7 +2584,7 @@ PageCreateThinPool.prototype = {
                                              function (error) {
                                                  $("#storage_create_thin_pool_dialog").modal('hide');
                                                  if (error)
-                                                     cockpit_show_unexpected_error (error);
+                                                     cockpit.show_unexpected_error(error);
                                              });
     }
 
@@ -2594,7 +2594,7 @@ function PageCreateThinPool() {
     this._init();
 }
 
-cockpit_pages.push(new PageCreateThinPool());
+cockpit.pages.push(new PageCreateThinPool());
 
 PageCreateThinVolume.prototype = {
     _init: function() {
@@ -2632,7 +2632,7 @@ PageCreateThinVolume.prototype = {
                 function (error) {
                     $("#storage_create_thin_volume_dialog").modal('hide');
                     if (error)
-                        cockpit_show_unexpected_error (error);
+                        cockpit.show_unexpected_error(error);
                 });
     }
 
@@ -2642,7 +2642,7 @@ function PageCreateThinVolume() {
     this._init();
 }
 
-cockpit_pages.push(new PageCreateThinVolume());
+cockpit.pages.push(new PageCreateThinVolume());
 
 PageCreateSnapshot.prototype = {
     _init: function() {
@@ -2680,7 +2680,7 @@ PageCreateSnapshot.prototype = {
                                        function (error) {
                                            $("#storage_create_snapshot_dialog").modal('hide');
                                            if (error)
-                                               cockpit_show_unexpected_error (error);
+                                               cockpit.show_unexpected_error(error);
                                        });
     }
 
@@ -2690,7 +2690,7 @@ function PageCreateSnapshot() {
     this._init();
 }
 
-cockpit_pages.push(new PageCreateSnapshot());
+cockpit.pages.push(new PageCreateSnapshot());
 
 PageResizeVolume.prototype = {
     _init: function() {
@@ -2723,7 +2723,7 @@ PageResizeVolume.prototype = {
                                      function (error) {
                                          $("#storage_resize_volume_dialog").modal('hide');
                                          if (error)
-                                             cockpit_show_unexpected_error (error);
+                                             cockpit.show_unexpected_error(error);
                                      });
     }
 
@@ -2733,7 +2733,7 @@ function PageResizeVolume() {
     this._init();
 }
 
-cockpit_pages.push(new PageResizeVolume());
+cockpit.pages.push(new PageResizeVolume());
 
 PageRenameVolume.prototype = {
     _init: function() {
@@ -2766,7 +2766,7 @@ PageRenameVolume.prototype = {
                                      function (error) {
                                          $("#storage_rename_volume_dialog").modal('hide');
                                          if (error)
-                                             cockpit_show_unexpected_error (error);
+                                             cockpit.show_unexpected_error(error);
                                      });
     }
 
@@ -2776,7 +2776,7 @@ function PageRenameVolume() {
     this._init();
 }
 
-cockpit_pages.push(new PageRenameVolume());
+cockpit.pages.push(new PageRenameVolume());
 
 PageRenameGroup.prototype = {
     _init: function() {
@@ -2808,9 +2808,9 @@ PageRenameGroup.prototype = {
                                    name,
                                    function (error) {
                                        $("#storage_rename_group_dialog").modal('hide');
-                                       cockpit_go_up ();
+                                       cockpit.go_up();
                                        if (error)
-                                           cockpit_show_unexpected_error (error);
+                                           cockpit.show_unexpected_error(error);
                                    });
     }
 
@@ -2820,7 +2820,7 @@ function PageRenameGroup() {
     this._init();
 }
 
-cockpit_pages.push(new PageRenameGroup());
+cockpit.pages.push(new PageRenameGroup());
 
 PageFilesystemOptions.prototype = {
     _init: function() {
@@ -2857,7 +2857,7 @@ PageFilesystemOptions.prototype = {
                                          function (error) {
                                              $("#filesystem_options_dialog").modal('hide');
                                              if (error)
-                                                 cockpit_show_unexpected_error (error);
+                                                 cockpit.show_unexpected_error(error);
                                          });
     }
 };
@@ -2866,7 +2866,7 @@ function PageFilesystemOptions() {
     this._init();
 }
 
-cockpit_pages.push(new PageFilesystemOptions());
+cockpit.pages.push(new PageFilesystemOptions());
 
 PageCryptoOptions.prototype = {
     _init: function() {
@@ -2906,7 +2906,7 @@ PageCryptoOptions.prototype = {
                                      function (error) {
                                          $("#crypto_options_dialog").modal('hide');
                                          if (error)
-                                             cockpit_show_unexpected_error (error);
+                                             cockpit.show_unexpected_error(error);
                                      });
     }
 };
@@ -2915,7 +2915,7 @@ function PageCryptoOptions() {
     this._init();
 }
 
-cockpit_pages.push(new PageCryptoOptions());
+cockpit.pages.push(new PageCryptoOptions());
 
 PageUnlock.prototype = {
     _init: function() {
@@ -2948,7 +2948,7 @@ PageUnlock.prototype = {
                               function (error) {
                                   $("#storage_unlock_dialog").modal('hide');
                                   if (error)
-                                      cockpit_show_unexpected_error (error);
+                                      cockpit.unexpected_error(error);
                               });
     }
 };
@@ -2957,7 +2957,7 @@ function PageUnlock() {
     this._init();
 }
 
-cockpit_pages.push(new PageUnlock());
+cockpit.pages.push(new PageUnlock());
 
 PageRaidDiskAdd.prototype = {
     _init: function() {
@@ -3003,7 +3003,7 @@ PageRaidDiskAdd.prototype = {
                                     function (error) {
                                         $("#raid_disk_add_dialog").modal('hide');
                                         if (error)
-                                            cockpit_show_unexpected_error (error);
+                                            cockpit.show_unexpected_error(error);
                                     });
     }
 };
@@ -3012,7 +3012,7 @@ function PageRaidDiskAdd() {
     this._init();
 }
 
-cockpit_pages.push(new PageRaidDiskAdd());
+cockpit.pages.push(new PageRaidDiskAdd());
 
 PageVGDiskAdd.prototype = {
     _init: function() {
@@ -3061,7 +3061,7 @@ PageVGDiskAdd.prototype = {
                                                 function (error) {
                                                     if (error) {
                                                         $("#vg_disk_add_dialog").modal('hide');
-                                                        cockpit_show_unexpected_error (error);
+                                                        cockpit.show_unexpected_error(error);
                                                     } else {
                                                         add_them(i+1);
                                                     }
@@ -3078,6 +3078,6 @@ function PageVGDiskAdd() {
     this._init();
 }
 
-cockpit_pages.push(new PageVGDiskAdd());
+cockpit.pages.push(new PageVGDiskAdd());
 
 })(cockpit, jQuery);

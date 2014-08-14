@@ -19,7 +19,7 @@
 
 var cockpit = cockpit || { };
 
-(function($, cockpit, cockpit_pages) {
+(function($, cockpit) {
 
 function resource_debug() {
     if (cockpit.debugging == "all" || cockpit.debugging == "resource")
@@ -310,7 +310,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
                     siblings("div.waiting").show();
                 client.start(id).
                     fail(function(ex) {
-                        cockpit_show_unexpected_error(ex);
+                        cockpit.show_unexpected_error(ex);
                     });
                 return false;
             });
@@ -320,7 +320,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
                     siblings("div.waiting").show();
                 client.stop(id).
                     fail(function(ex) {
-                        cockpit_show_unexpected_error(ex);
+                        cockpit.show_unexpected_error(ex);
                     });
                 return false;
             });
@@ -333,7 +333,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
             $('<td class="container-col-memory-text">'),
             $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
         tr.on('click', function(event) {
-            cockpit_go_down ({ page: 'container-details',
+            cockpit.go_down({  page: 'container-details',
                                id: id
                              });
         });
@@ -391,7 +391,7 @@ PageContainers.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit_get_page_param('machine') || "localhost";
+        this.address = cockpit.get_page_param('machine') || "localhost";
         this.client = cockpit.docker(this.address);
 
         // Just for watching
@@ -514,7 +514,7 @@ PageContainers.prototype = {
                     $('<td class="image-col-size-text">'),
                     $('<td class="cell-buttons">').append(button));
             tr.on('click', function(event) {
-                cockpit_go_down ({ page: 'image-details',
+                cockpit.go_down({ page: 'image-details',
                     id: id
                 });
             });
@@ -544,7 +544,7 @@ function PageContainers() {
     this._init();
 }
 
-cockpit_pages.push(new PageContainers());
+cockpit.pages.push(new PageContainers());
 
 PageRunImage.prototype = {
     _init: function() {
@@ -679,12 +679,12 @@ PageRunImage.prototype = {
 
         PageRunImage.client.create(name, options).
             fail(function(ex) {
-                cockpit_show_unexpected_error(ex);
+                cockpit.show_unexpected_error(ex);
             }).
             done(function(result) {
                 PageRunImage.client.start(result.Id, { "PortBindings": port_bindings }).
                     fail(function(ex) {
-                        cockpit_show_unexpected_error(ex);
+                        cockpit.show_unexpected_error(ex);
                     });
             });
     }
@@ -700,7 +700,7 @@ function PageRunImage() {
     this._init();
 }
 
-cockpit_pages.push(new PageRunImage());
+cockpit.pages.push(new PageRunImage());
 
 PageSearchImage.prototype = {
     _init: function() {
@@ -734,7 +734,7 @@ PageSearchImage.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit_get_page_param('machine') || "localhost";
+        this.address = cockpit.get_page_param('machine') || "localhost";
         this.client = cockpit.docker(this.address);
 
         // Clear the previous results and search string from previous time
@@ -906,7 +906,7 @@ function PageSearchImage() {
     this._init();
 }
 
-cockpit_pages.push(new PageSearchImage());
+cockpit.pages.push(new PageSearchImage());
 
 PageContainerDetails.prototype = {
     _init: function() {
@@ -1010,16 +1010,16 @@ PageContainerDetails.prototype = {
                 var repository = $(commit).find(".container-repository").val();
                 self.client.commit(self.container_id, repository, options, run).
                     fail(function(ex) {
-                        cockpit_show_unexpected_error (ex);
+                        cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
                         location.go_up();
                     });
             });
 
-        this.address = cockpit_get_page_param('machine') || "localhost";
+        this.address = cockpit.get_page_param('machine') || "localhost";
         this.client = cockpit.docker(this.address);
-        this.container_id = cockpit_get_page_param('id');
+        this.container_id = cockpit.get_page_param('id');
         this.name = this.container_id.slice(0,12);
 
         this.client.machine_info().
@@ -1095,7 +1095,7 @@ PageContainerDetails.prototype = {
         var name = render_container_name(info.Name);
         if (name != this.name) {
             this.name = name;
-            cockpit_content_update_loc_trail();
+            cockpit.content_update_loc_trail();
         }
 
         var port_bindings = [ ];
@@ -1137,7 +1137,7 @@ PageContainerDetails.prototype = {
         var self = this;
         this.client.start(this.container_id).
                 fail(function(ex) {
-                    cockpit_show_unexpected_error (ex);
+                    cockpit.show_unexpected_error(ex);
                 }).
                 done(function() {
                     self.maybe_reconnect_terminal();
@@ -1147,7 +1147,7 @@ PageContainerDetails.prototype = {
     stop_container: function () {
         this.client.stop(this.container_id).
                 fail(function(ex) {
-                    cockpit_show_unexpected_error (ex);
+                    cockpit.show_unexpected_error(ex);
                 });
     },
 
@@ -1155,7 +1155,7 @@ PageContainerDetails.prototype = {
         var self = this;
         this.client.restart(this.container_id).
                 fail(function(ex) {
-                    cockpit_show_unexpected_error (ex);
+                    cockpit.show_unexpected_error(ex);
                 }).
                 done(function() {
                     self.maybe_reconnect_terminal();
@@ -1171,7 +1171,7 @@ PageContainerDetails.prototype = {
             done(function () {
                 self.client.rm(self.container_id).
                     fail(function(ex) {
-                        cockpit_show_unexpected_error(ex);
+                        cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
                         location.go_up();
@@ -1185,7 +1185,7 @@ function PageContainerDetails() {
     this._init();
 }
 
-cockpit_pages.push(new PageContainerDetails());
+cockpit.pages.push(new PageContainerDetails());
 
 PageImageDetails.prototype = {
     _init: function() {
@@ -1217,9 +1217,9 @@ PageImageDetails.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit_get_page_param('machine') || "localhost";
+        this.address = cockpit.get_page_param('machine') || "localhost";
         this.client = cockpit.docker(this.address);
-        this.image_id = cockpit_get_page_param('id');
+        this.image_id = cockpit.get_page_param('id');
         this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
 
         // Just for watching
@@ -1271,7 +1271,7 @@ PageImageDetails.prototype = {
             var name = info.RepoTags[0];
             if (name != this.name) {
                 this.name = name;
-                cockpit_content_update_loc_trail();
+                cockpit.content_update_loc_trail();
             }
         }
 
@@ -1311,7 +1311,7 @@ PageImageDetails.prototype = {
             done(function () {
                 self.client.rmi(self.image_id).
                     fail(function(ex) {
-                        cockpit_show_unexpected_error(ex);
+                        cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
                         location.go_up();
@@ -1325,7 +1325,7 @@ function PageImageDetails() {
     this._init();
 }
 
-cockpit_pages.push(new PageImageDetails());
+cockpit.pages.push(new PageImageDetails());
 
 function DockerClient(machine) {
     var me = this;
@@ -1773,7 +1773,7 @@ function DockerClient(machine) {
          * Showing unexpected error isn't it.
          */
         var options = {
-            host: cockpit_get_page_param ("machine", "server")
+            host: cockpit.get_page_param("machine", "server")
         };
         cockpit.spawn(["sh", "-c", command], options).
             fail(function(ex) {
@@ -1942,4 +1942,4 @@ function DockerTerminal(parent, machine, id) {
     return this;
 }
 
-})(jQuery, cockpit, cockpit_pages);
+})(jQuery, cockpit);

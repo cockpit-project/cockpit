@@ -19,7 +19,7 @@
 
 var cockpit = cockpit || { };
 
-(function($, cockpit, cockpit_pages) {
+(function($, cockpit) {
 
 PageDashboard.prototype = {
     _init: function() {
@@ -177,7 +177,7 @@ PageDashboard.prototype = {
                             if (!$.contains(btn[0], event.target)) {
                                 if (machine.client.state == "closed")
                                     machine.client.connect();
-                                cockpit_go_down ({ page: "server", machine: machine.address });
+                                cockpit.go_down({ page: "server", machine: machine.address });
                             }
                         };
                     })(machine, btn)));
@@ -275,10 +275,10 @@ PageDashboard.prototype = {
         } else if (op == "remove") {
             machine.dbus_iface.call('RemoveTag', "dashboard", function (error) {
                 if (error)
-                    cockpit_show_unexpected_error (error);
+                    cockpit.show_unexpected_error(error);
             });
         } else if (op == "rescue") {
-            cockpit_go ([ { page: "dashboard" },
+            cockpit.go([  { page: "dashboard" },
                           { page: "server", machine: machine.address },
                           { page: "terminal" } ]);
         } else
@@ -294,6 +294,6 @@ function PageDashboard() {
     this._init();
 }
 
-cockpit_pages.push(new PageDashboard());
+cockpit.pages.push(new PageDashboard());
 
-})(jQuery, cockpit, cockpit_pages);
+})(jQuery, cockpit);

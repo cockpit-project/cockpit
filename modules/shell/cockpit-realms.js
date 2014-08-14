@@ -389,4 +389,4 @@ function PageRealmsOp() {
     this._init();
 }
 
-cockpit_pages.push(new PageRealmsOp());
+cockpit.pages.push(new PageRealmsOp());

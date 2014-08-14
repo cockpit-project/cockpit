@@ -63,6 +63,6 @@ function PageInternal() {
     this._init();
 }
 
-cockpit_pages.push(new PageInternal());
+cockpit.pages.push(new PageInternal());
 
 })(cockpit, jQuery);

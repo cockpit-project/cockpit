@@ -45,7 +45,7 @@ PageTerminal.prototype = {
         self.term.open($("#rescue-terminal")[0]);
 
         self.channel = new Channel({
-            "host": cockpit_get_page_param ("machine", "server"),
+            "host": cockpit.get_page_param("machine", "server"),
             "payload": "text-stream",
             "spawn": ["/bin/bash", "-i"],
             "environ": [
@@ -95,4 +95,4 @@ function PageTerminal() {
     this._init();
 }
 
-cockpit_pages.push(new PageTerminal());
+cockpit.pages.push(new PageTerminal());

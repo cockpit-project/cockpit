@@ -54,7 +54,7 @@ function cockpit_logout (reason)
 
 function cockpit_go_login_account ()
 {
-    cockpit_go_server ("localhost",
+    cockpit.go_server("localhost",
                        [ { page: "accounts" },
                          { page: "account", id: cockpit.connection_config.user }
                        ]);

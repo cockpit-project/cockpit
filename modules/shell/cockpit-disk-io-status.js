@@ -29,7 +29,7 @@ PageDiskIOStatus.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.client);
@@ -88,6 +88,6 @@ function PageDiskIOStatus() {
     this._init();
 }
 
-cockpit_pages.push(new PageDiskIOStatus());
+cockpit.pages.push(new PageDiskIOStatus());
 
 })(cockpit, jQuery);

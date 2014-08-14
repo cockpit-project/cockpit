@@ -39,7 +39,7 @@ cockpit.check_role = function check_role(role, client)
             if (acc.Groups[i] == 'wheel' || acc.Groups[i] == role)
                 return true;
         }
-        cockpit_show_error_dialog (_("Not authorized"), _("You are not authorized for this operation."));
+        cockpit.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
         return false;
     }
     // When in doubt, just go ahead and let it fail later.
@@ -63,7 +63,7 @@ function fill_canvas(canvas, overlay, data, width, callback)
 {
     var img = new window.Image();
     img.onerror = function () {
-        cockpit_show_error_dialog (_("Can't use this file"), _("Can't read it."));
+        cockpit.show_error_dialog(_("Can't use this file"), _("Can't read it."));
     };
     img.onload = function () {
         canvas.width = width;
@@ -107,12 +107,12 @@ cockpit.show_change_avatar_dialog = function show_change_avatar_dialog(file_inpu
         return;
     file = files[0];
     if (!file.type.match("image.*")) {
-        cockpit_show_error_dialog (_("Can't upload this file"), _("It's not an image."));
+        cockpit.show_error_dialog(_("Can't upload this file"), _("It's not an image."));
         return;
     }
     reader = new window.FileReader();
     reader.onerror = function () {
-        cockpit_show_error_dialog (_("Can't upload this file"), _("Can't read it."));
+        cockpit.show_error_dialog(_("Can't upload this file"), _("Can't read it."));
     };
     reader.onload = function () {
         var canvas = $('#account-change-avatar-canvas')[0];
@@ -177,7 +177,7 @@ PageAccounts.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { "payload": "dbus-json1" });
         cockpit.set_watched_client(this.client);
@@ -245,7 +245,7 @@ PageAccounts.prototype = {
     },
 
     go: function (user) {
-        cockpit_go_down ({ page: 'account', id: user });
+        cockpit.go_down({ page: 'account', id: user });
     }
 };
 
@@ -253,7 +253,7 @@ function PageAccounts() {
     this._init();
 }
 
-cockpit_pages.push(new PageAccounts());
+cockpit.pages.push(new PageAccounts());
 
 PageAccountsCreate.prototype = {
     _init: function() {
@@ -355,7 +355,7 @@ PageAccountsCreate.prototype = {
                      $('#accounts-create-locked').prop('checked'),
                      function (error) {
                          if (error)
-                             cockpit_show_unexpected_error (error);
+                             cockpit.show_unexpected_error(error);
                      });
     }
 };
@@ -364,7 +364,7 @@ function PageAccountsCreate() {
     this._init();
 }
 
-cockpit_pages.push(new PageAccountsCreate());
+cockpit.pages.push(new PageAccountsCreate());
 
 PageAccount.prototype = {
     _init: function() {
@@ -391,7 +391,7 @@ PageAccount.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.client);
@@ -409,7 +409,7 @@ PageAccount.prototype = {
     },
 
     update: function() {
-        this.account = find_account(cockpit_get_page_param('id'), this.client);
+        this.account = find_account(cockpit.get_page_param('id'), this.client);
 
         if (this.account) {
             var manager = this.client.get ("/com/redhat/Cockpit/Accounts",
@@ -453,7 +453,7 @@ PageAccount.prototype = {
             $('#account-locked').prop('checked', false);
             $('#account-roles').text("");
         }
-        cockpit_content_update_loc_trail ();
+        cockpit.content_update_loc_trail();
     },
 
     trigger_change_avatar: function() {
@@ -471,7 +471,7 @@ PageAccount.prototype = {
                                             me.account.call('SetIconDataURL', data,
                                                             function (error) {
                                                                 if (error)
-                                                                    cockpit_show_unexpected_error (error);
+                                                                    cockpit.show_unexpected_error(error);
                                                             });
                                         });
     },
@@ -498,7 +498,7 @@ PageAccount.prototype = {
         this.account.call ('SetRealName', $('#account-real-name').val(),
                            function (error) {
                                if (error) {
-                                   cockpit_show_unexpected_error (error);
+                                   cockpit.show_unexpected_error(error);
                                    me.update ();
                                }
                            });
@@ -516,7 +516,7 @@ PageAccount.prototype = {
                            $('#account-locked').prop('checked'),
                            function (error) {
                                if (error) {
-                                   cockpit_show_unexpected_error (error);
+                                   cockpit.show_unexpected_error(error);
                                    me.update ();
                                }
                            });
@@ -548,7 +548,7 @@ PageAccount.prototype = {
         this.account.call('KillSessions',
                           function (error) {
                               if (error) {
-                                  cockpit_show_unexpected_error (error);
+                                  cockpit.show_unexpected_error(error);
                                   me.update ();
                               }
                           });
@@ -568,7 +568,7 @@ function PageAccount() {
     this._init();
 }
 
-cockpit_pages.push(new PageAccount());
+cockpit.pages.push(new PageAccount());
 
 var crop_handle_width = 20;
 
@@ -738,7 +738,7 @@ function PageAccountChangeAvatar() {
     this._init();
 }
 
-cockpit_pages.push(new PageAccountChangeAvatar());
+cockpit.pages.push(new PageAccountChangeAvatar());
 
 PageAccountChangeRoles.prototype = {
     _init: function() {
@@ -813,7 +813,7 @@ PageAccountChangeRoles.prototype = {
         PageAccountChangeRoles.account.call ('ChangeGroups', add, remove,
                                              function (error) {
                                                  if (error)
-                                                     cockpit_show_unexpected_error (error);
+                                                     cockpit.show_unexpected_error(error);
                                              });
         $('#account-change-roles-dialog').modal('hide');
     }
@@ -823,7 +823,7 @@ function PageAccountChangeRoles() {
     this._init();
 }
 
-cockpit_pages.push(new PageAccountChangeRoles());
+cockpit.pages.push(new PageAccountChangeRoles());
 
 PageAccountConfirmDelete.prototype = {
     _init: function() {
@@ -855,10 +855,10 @@ PageAccountConfirmDelete.prototype = {
                                                $('#account-confirm-delete-files').prop('checked'),
                                                function (error) {
                                                    if (error)
-                                                       cockpit_show_unexpected_error (error);
+                                                       cockpit.show_unexpected_error(error);
                                                });
         $('#account-confirm-delete-dialog').modal('hide');
-        cockpit_go_up ();
+        cockpit.go_up();
     }
 };
 
@@ -866,7 +866,7 @@ function PageAccountConfirmDelete() {
     this._init();
 }
 
-cockpit_pages.push(new PageAccountConfirmDelete());
+cockpit.pages.push(new PageAccountConfirmDelete());
 
 PageAccountSetPassword.prototype = {
     _init: function() {
@@ -953,12 +953,12 @@ PageAccountSetPassword.prototype = {
             PageAccountSetPassword.account.call ('SetPassword', $('#account-set-password-pw1').val(),
                                                  function (error) {
                                                      if (error)
-                                                         cockpit_show_unexpected_error (error);
+                                                         cockpit.show_unexpected_error(error);
                                                  });
         } else if (PageAccountSetPassword.user_name) {
             cockpit.spawn([ "passwd", "--stdin", PageAccountSetPassword.user_name ]).
                 write($('#account-set-password-pw1').val()).
-                fail(cockpit_show_unexpected_error);
+                fail(cockpit.show_unexpected_error);
         }
     }
 };
@@ -967,7 +967,7 @@ function PageAccountSetPassword() {
     this._init();
 }
 
-cockpit_pages.push(new PageAccountSetPassword());
+cockpit.pages.push(new PageAccountSetPassword());
 
 cockpit.change_password = function change_password() {
     PageAccountSetPassword.account = null;

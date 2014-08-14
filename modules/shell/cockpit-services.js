@@ -19,7 +19,7 @@
 
 var cockpit = cockpit || { };
 
-(function($, cockpit, cockpit_pages) {
+(function($, cockpit) {
 
 function resource_debug() {
     if (cockpit.debugging == "all" || cockpit.debugging == "resource" || true)
@@ -145,7 +145,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
 
     var tr = ($('<tr>', { 'data-unit': name
                         }).
-              click(function () { cockpit_go_down({page: "service", s: name }); }).
+              click(function () { cockpit.go_down({page: "service", s: name }); }).
               append(
                   $('<td style="font-weight:bold">').text(desc),
                   $('<td>').text(name),
@@ -157,7 +157,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
             on("click", function() {
                 manager.call('ServiceAction', name, 'start', function (error) {
                     if (error)
-                        cockpit_show_unexpected_error(error);
+                        cockpit.show_unexpected_error(error);
                 });
                 return false;
             });
@@ -165,7 +165,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
             on("click", function() {
                 manager.call('ServiceAction', name, 'stop', function (error) {
                     if (error)
-                        cockpit_show_unexpected_error(error);
+                        cockpit.show_unexpected_error(error);
                 });
                 return false;
             });
@@ -185,7 +185,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
             var btn_eject = $('<button class="btn btn-default btn-control btn-eject">').
                 on("click", function() {
                     cockpit.spawn([ "gear", "delete", geard_match[1] ], { host: address }).
-                        fail(cockpit_show_unexpected_error);
+                        fail(cockpit.show_unexpected_error);
                     return false;
                 });
 
@@ -220,7 +220,7 @@ PageServices.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        me.address = cockpit.get_page_param('machine', 'server') || "localhost";
 
         if (!me.geard_check_done) {
             var location = cockpit.location();
@@ -228,7 +228,7 @@ PageServices.prototype = {
             cockpit.spawn([ "which", "gear" ], { host: me.address }).
                 done(function () {
                     me.geard_present = true;
-                    location.go(cockpit_loc_trail);
+                    location.go(cockpit.loc_trail);
                 });
         }
 
@@ -533,7 +533,7 @@ PageServiceAdd.prototype = {
         $('#service-add-dialog').modal('hide');
         cockpit.spawn([ "gear", "install", "--has-foreground", $('#service-add-image').val(), $('#service-add-name').val() ],
                       { host: PageServiceAdd.address }).
-            fail(cockpit_show_unexpected_error);
+            fail(cockpit.show_unexpected_error);
     }
 };
 
@@ -541,13 +541,13 @@ function PageServiceAdd() {
     this._init();
 }
 
-cockpit_pages.push(new PageServiceAdd());
+cockpit.pages.push(new PageServiceAdd());
 
 function PageServices() {
     this._init();
 }
 
-cockpit_pages.push(new PageServices());
+cockpit.pages.push(new PageServices());
 
 PageService.prototype = {
     _init: function() {
@@ -603,7 +603,7 @@ PageService.prototype = {
                 s = s + systemd_param_esc($("#service-parameter").val());
                 if (sp != -1)
                     s = s + self.service.substring(sp);
-                cockpit_go_down ({ page: "service", s: s });
+                cockpit.go_down({ page: "service", s: s });
             }
         });
     },
@@ -611,7 +611,7 @@ PageService.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        me.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(me.client);
@@ -627,7 +627,7 @@ PageService.prototype = {
             me.update();
         });
 
-        me.service = cockpit_get_page_param('s') || "";
+        me.service = cockpit.get_page_param('s') || "";
         me.update();
         me.watch_journal();
 
@@ -748,7 +748,7 @@ PageService.prototype = {
                 $("#service-template-row").show();
                 var html = F(_("This service is an instance of the %{template} service template."),
                              { template: F('<a class="cockpit-link" onclick="%{cmd}">%{title}</a>',
-                                           { cmd: cockpit_esc(cockpit_go_down_cmd("service", { s: me.template })),
+                                           { cmd: cockpit_esc(cockpit.go_down_cmd("service", { s: me.template })),
                                              title: cockpit_esc(me.template)
                                            })
                              });
@@ -831,7 +831,7 @@ PageService.prototype = {
 
         this.manager.call('ServiceAction', this.service, op, function (error) {
             if (error)
-                cockpit_show_error_dialog(_("Error"), error.message);
+                cockpit.show_error_dialog(_("Error"), error.message);
         });
     }
 };
@@ -840,6 +840,6 @@ function PageService() {
     this._init();
 }
 
-cockpit_pages.push(new PageService());
+cockpit.pages.push(new PageService());
 
-})($, cockpit, cockpit_pages);
+})($, cockpit);

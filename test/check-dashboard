@@ -24,7 +24,7 @@ class TestDashboard(MachineCase):
     def wait_dashboard_addresses(self, b, expected):
         b.wait_js_func(
             """(function (expected) {
-            var page = cockpit_page_from_id('dashboard');
+            var page = cockpit.page_from_id('dashboard');
             var actual = page.dbus_clients.map(function (c) { return c.target });
             return expected.sort().toString() == actual.sort().toString();
             })""", expected)
@@ -38,7 +38,7 @@ class TestDashboard(MachineCase):
 
     def get_address_map(self, b):
         map = { }
-        dash = b.eval_js("return cockpit_page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
+        dash = b.eval_js("return cockpit.page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
         for i in range (0, len(dash)):
             map[dash[i]] = i;
         return map

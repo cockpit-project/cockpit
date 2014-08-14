@@ -327,9 +327,15 @@ PageSystemInformationChangeHostname.prototype = {
             can_apply = true;
 
         if (valid)
-            note.hide();
+        {
+            $(note).css("visibility", "hidden");
+            $("#sich-hostname-error").removeClass("has-error");
+        }
         else
-            note.show();
+        {
+            $("#sich-hostname-error").addClass("has-error");
+            $(note).css("visibility", "visible");
+        }
 
         apply_button.prop('disabled', !can_apply);
     }

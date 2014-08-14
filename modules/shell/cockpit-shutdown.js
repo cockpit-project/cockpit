@@ -45,7 +45,7 @@ PageShutdownDialog.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        cockpit.get_page_param('machine', 'server') || "localhost";
         this.cockpitd = cockpit.dbus(this.address);
         this.cockpitd_manager = this.cockpitd.get("/com/redhat/Cockpit/Manager",
                                                   "com.redhat.Cockpit.Manager");
@@ -106,7 +106,7 @@ PageShutdownDialog.prototype = {
         this.cockpitd_manager.call('Shutdown', op, when, message, function(error) {
             $('#shutdown-dialog').modal('hide');
             if (error && error.name != 'Disconnected')
-                cockpit_show_unexpected_error(error);
+                cockpit.show_unexpected_error(error);
         });
     },
 
@@ -123,4 +123,4 @@ function PageShutdownDialog() {
     this._init();
 }
 
-cockpit_pages.push(new PageShutdownDialog());
+cockpit.pages.push(new PageShutdownDialog());

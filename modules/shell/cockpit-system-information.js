@@ -118,12 +118,12 @@ PageSystemInformation.prototype = {
     enter: function() {
         var self = this;
 
-        self.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        self.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(self.client);
 
-        self.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        self.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(self.client);
@@ -234,7 +234,7 @@ function PageSystemInformation() {
     this._init();
 }
 
-cockpit_pages.push(new PageSystemInformation());
+cockpit.pages.push(new PageSystemInformation());
 
 PageSystemInformationChangeHostname.prototype = {
     _init: function() {
@@ -282,7 +282,7 @@ PageSystemInformationChangeHostname.prototype = {
                           function(error, reply) {
                               $("#system_information_change_hostname").modal('hide');
                               if(error) {
-                                  cockpit_show_unexpected_error(error);
+                                  cockpit.show_unexpected_error(error);
                               }
                           });
     },
@@ -337,4 +337,4 @@ function PageSystemInformationChangeHostname() {
     this._init();
 }
 
-cockpit_pages.push(new PageSystemInformationChangeHostname());
+cockpit.pages.push(new PageSystemInformationChangeHostname());

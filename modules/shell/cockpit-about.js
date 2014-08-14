@@ -50,6 +50,6 @@ function PageAbout() {
     this._init();
 }
 
-cockpit_pages.push(new PageAbout());
+cockpit.pages.push(new PageAbout());
 
 })(cockpit, jQuery);

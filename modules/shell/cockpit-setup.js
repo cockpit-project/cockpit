@@ -553,7 +553,7 @@ PageSetupServer.prototype = {
             me.run_tasks(function() {
                 me.machine.call('AddTag', "dashboard", function(error) {
                     if (error)
-                        cockpit_show_unexpected_error(error);
+                        cockpit.show_unexpected_error(error);
                     me.show_tab('close');
                 });
             });
@@ -570,4 +570,4 @@ function PageSetupServer() {
     this._init();
 }
 
-cockpit_pages.push(new PageSetupServer());
+cockpit.pages.push(new PageSetupServer());

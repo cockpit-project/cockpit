@@ -458,14 +458,14 @@ PageJournal.prototype = {
 
         $('#content-header-extra').append($('<div>', { 'class': 'btn-group' }).append(priority_buttons));
 
-        this.query_prio = parseInt(cockpit_get_page_param('prio') || "0", 10);
-        this.query_service = cockpit_get_page_param('service') || "";
-        this.query_search = cockpit_get_page_param('search') || "";
-        this.query_start = cockpit_get_page_param('start') || "recent";
+        this.query_prio = parseInt(cockpit.get_page_param('prio') || "0", 10);
+        this.query_service = cockpit.get_page_param('service') || "";
+        this.query_search = cockpit.get_page_param('search') || "";
+        this.query_start = cockpit.get_page_param('start') || "recent";
 
         update_priority_buttons (this.query_prio);
 
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
@@ -511,10 +511,10 @@ PageJournal.prototype = {
         var search_param = this.query_search;
         var start_param = this.query_start;
 
-        cockpit_set_page_param ('prio', prio_param.toString());
-        cockpit_set_page_param ('service', service_param);
-        cockpit_set_page_param ('search', search_param);
-        cockpit_set_page_param ('start', start_param);
+        cockpit.set_page_param('prio', prio_param.toString());
+        cockpit.set_page_param('service', service_param);
+        cockpit.set_page_param('search', search_param);
+        cockpit.set_page_param('start', start_param);
 
         var match = [ ];
 
@@ -559,7 +559,7 @@ function PageJournal() {
     this._init();
 }
 
-cockpit_pages.push(new PageJournal());
+cockpit.pages.push(new PageJournal());
 
 
 PageJournalDetails.prototype = {
@@ -589,10 +589,10 @@ PageJournalDetails.prototype = {
                       {
                           if (error) {
                               $('#journal-details').modal('hide');
-                              cockpit_show_unexpected_error (error);
+                              cockpit.show_unexpected_error(error);
                           } else if (result.length != 1) {
                               $('#journal-details').modal('hide');
-                              cockpit_show_unexpected_error ("No such entry");
+                              cockpit.show_unexpected_error("No such entry");
                           } else {
                               out.empty();
                               if (result.length == 1) {
@@ -613,6 +613,6 @@ function PageJournalDetails() {
     this._init();
 }
 
-cockpit_pages.push(new PageJournalDetails());
+cockpit.pages.push(new PageJournalDetails());
 
 })(cockpit, jQuery);

@@ -59,7 +59,9 @@
 
 var cockpit = cockpit || { };
 
-(function($, cockpit, cockpit_pages) {
+(function($, cockpit) {
+
+var visited_pages = {};
 
 cockpit.dbus = dbus;
 cockpit.set_watched_client = set_watched_client;
@@ -67,7 +69,6 @@ cockpit.set_watched_client = set_watched_client;
 function init() {
     cockpit.language_code = "";
     cockpit.language_po = null;
-    cockpit_visited_pages = {};
 
     var lang_code = null;
     var language, language_normalized, code, code_normalized;
@@ -113,9 +114,9 @@ function init_load_lang(lang_code) {
 }
 
 function init_done() {
-    cockpit_content_init ();
+    content_init();
     cockpit.localize_pages();
-    cockpit_content_show();
+    content_show();
 }
 
 var dbus_clients = cockpit.util.make_resource_cache();
@@ -148,6 +149,411 @@ function set_watched_client(client) {
     $(watched_client).on('state-change.client-watcher', update);
     update ();
 }
+
+cockpit.pages = [];
+
+cockpit.loc_trail = undefined;
+
+var current_hash;
+var content_is_shown = false;
+
+var page_navigation_count = 0;
+
+function content_init() {
+    var current_visible_dialog = null;
+    var pages = $('#content > div');
+    pages.each (function (i, p) {
+        $(p).hide();
+    });
+    cockpit.loc_trail = [ ];
+
+    $('div[role="dialog"]').on('show.bs.modal', function() {
+        current_visible_dialog = $(this).attr("id");
+        page_enter($(this).attr("id"));
+    });
+    $('div[role="dialog"]').on('shown.bs.modal', function() {
+        page_show($(this).attr("id"));
+    });
+    $('div[role="dialog"]').on('hidden.bs.modal', function() {
+        current_visible_dialog = null;
+        page_leave($(this).attr("id"));
+    });
+
+    $(window).on('hashchange', function () {
+        if (window.location.hash != current_hash) {
+            if (current_visible_dialog)
+                $('#' + current_visible_dialog).modal('hide');
+
+            go_hash(window.location.hash);
+        }
+    });
+
+    $(window).on('resize', function () {
+        content_header_changed();
+    });
+
+    cockpit.content_refresh();
+    $('.selectpicker').selectpicker();
+}
+
+function content_show() {
+    $('#content-user-name').text(cockpit.connection_config.name || cockpit.connection_config.user || "???");
+
+    $('.page').hide();
+    $('#content').show();
+    content_is_shown = true;
+    go_hash(window.location.hash);
+    phantom_checkpoint();
+}
+
+function content_leave() {
+    for (var i = 0; i < cockpit.loc_trail.length; i++)
+        page_leave_breadcrumb(cockpit.loc_trail[i].page);
+    if (cockpit.loc_trail.length > 0)
+        page_leave(cockpit.loc_trail[cockpit.loc_trail.length - 1].page);
+    cockpit.loc_trail = [ ];
+    content_is_shown = false;
+}
+
+cockpit.content_refresh = function content_refresh() {
+    if (cockpit.loc_trail.length > 0)
+        cockpit.go(cockpit.loc_trail);
+};
+
+function content_header_changed() {
+    $('body').css('padding-top', $('#content nav').height());
+}
+
+cockpit.content_update_loc_trail = function content_update_loc_trail() {
+    function go(t) {
+        return function () {
+            cockpit.go(t);
+        };
+    }
+
+    var i;
+    var box = $('#content-loc-trail');
+    box.empty();
+    for (i = 0; i < cockpit.loc_trail.length; i++) {
+        var p = cockpit.page_from_id(cockpit.loc_trail[i].page);
+        var title = p? (p.getTitleHtml? p.getTitleHtml() : cockpit_esc(p.getTitle())) : "??";
+        var btn = $('<button>', { 'class': 'btn btn-default' }).html(title);
+        box.append(btn);
+        btn.on('click', go(cockpit.loc_trail.slice(0, i+1)));
+    }
+
+    var doc_title = "";
+    if (cockpit.loc_trail.length == 1)
+        doc_title = get_page_title(cockpit.loc_trail[0].page);
+    else if (cockpit.loc_trail.length > 1) {
+        doc_title = get_page_title(cockpit.loc_trail[1].page);
+        if (cockpit.loc_trail.length > 2)
+            doc_title = doc_title + " — " + get_page_title(cockpit.loc_trail[cockpit.loc_trail.length - 1].page);
+    }
+    document.title = doc_title;
+};
+
+cockpit.go = function go(trail) {
+    var new_loc = trail[trail.length-1];
+
+    function leave_breadcrumb(trail) {
+        for (var i = 0; i < trail.length; i++)
+            page_leave_breadcrumb(trail[i].page);
+    }
+
+    function enter_breadcrumb(trail) {
+        for (var i = 0; i < trail.length; i++)
+            page_enter_breadcrumb(trail[i].page);
+    }
+
+    page_navigation_count += 1;
+
+    if ($('#' + new_loc.page).length === 0) {
+        cockpit.go(trail.slice(0, trail.length-1));
+        return;
+    } else if (cockpit.loc_trail.length === 0) {
+        leave_breadcrumb(cockpit.loc_trail);
+        cockpit.loc_trail = trail;
+        enter_breadcrumb(cockpit.loc_trail);
+        $('#content-header-extra').empty();
+        page_enter(new_loc.page);
+    } else {
+        var cur_loc = cockpit.loc_trail[cockpit.loc_trail.length - 1];
+        page_leave(cur_loc.page);
+        leave_breadcrumb(cockpit.loc_trail);
+        cockpit.loc_trail = trail;
+        enter_breadcrumb(cockpit.loc_trail);
+        $('#content-header-extra').empty();
+        page_enter(new_loc.page);
+        $('#' + cur_loc.page).hide();
+    }
+
+    $('#' + new_loc.page).show();
+    show_hash();
+    cockpit.content_update_loc_trail();
+    content_header_changed();
+    page_show(new_loc.page);
+};
+
+cockpit.go_down = function go_down(loc) {
+    if (loc.substr)
+        loc = { page: loc };
+    cockpit.go(cockpit.loc_trail.concat([ loc ]));
+};
+
+cockpit.go_sibling = function go_sibling(loc) {
+    if (loc.substr)
+        loc = { page: loc };
+    cockpit.go(cockpit.loc_trail.slice(0, cockpit.loc_trail.length - 1).concat([ loc ]));
+};
+
+cockpit.go_top = function go_top(page, params) {
+    var loc = $.extend({ page: page }, params);
+    cockpit.go([ cockpit.loc_trail[0], loc ]);
+};
+
+cockpit.go_down_cmd = function go_down_cmd(page, params)
+{
+    var loc = $.extend({ page: page }, params);
+    return "cockpit.go_down(" + JSON.stringify(loc) + ");";
+};
+
+cockpit.go_up = function go_up() {
+    if (cockpit.loc_trail.length > 1)
+        cockpit.go(cockpit.loc_trail.slice(0, cockpit.loc_trail.length - 1));
+};
+
+cockpit.go_server = function go_server(machine, extra) {
+    var loc = [ { page: "server",
+                  machine: machine
+                }
+              ];
+
+    if (extra)
+        loc = loc.concat(extra);
+
+    if (cockpit.loc_trail.length > 1 && cockpit.loc_trail[0].page == "dashboard")
+        loc =[ { page: "dashboard" } ].concat(loc);
+
+    cockpit.go(loc);
+};
+
+
+function encode_trail(trail) {
+    function encode (p)
+    {
+        var res = encodeURIComponent(p.page);
+        var param;
+        for (param in p) {
+            if (param != "page" && p.hasOwnProperty(param))
+                res += "?" + encodeURIComponent(param) + "=" + encodeURIComponent(p[param]);
+        }
+        return res;
+    }
+
+    var hash = '';
+    for (var i = 0; i < trail.length; i++) {
+        hash += encode(trail[i]);
+        if (i < trail.length-1)
+            hash += '&';
+    }
+
+    return '#' + hash;
+}
+
+function decode_trail(hash) {
+    var locs, params, vals, trail, p, i, j;
+
+    if (hash === "") {
+        return [ { page: "dashboard" } ];
+    }
+
+    if (hash[0] == '#')
+        hash = hash.substr(1);
+
+    locs = hash.split('&');
+    trail = [ ];
+
+    for (i = 0; i < locs.length; i++) {
+        params = locs[i].split('?');
+        p = { page: decodeURIComponent(params[0]) };
+        for (j = 1; j < params.length; j++) {
+            vals = params[j].split('=');
+            p[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
+        }
+        trail.push(p);
+    }
+
+    return trail;
+}
+
+function show_hash() {
+    current_hash = encode_trail(cockpit.loc_trail);
+    window.location.hash = current_hash;
+}
+
+function go_hash(hash) {
+    cockpit.go(decode_trail(hash));
+}
+
+cockpit.page_from_id = function page_from_id(id) {
+    var page = null;
+    for (var n = 0; n < cockpit.pages.length; n++) {
+        if (cockpit.pages[n].id == id) {
+            page = cockpit.pages[n];
+            break;
+        }
+    }
+    return page;
+};
+
+function page_enter(id) {
+    var page = cockpit.page_from_id(id);
+    var first_visit = true;
+    if (visited_pages[id])
+        first_visit = false;
+
+    if (page) {
+        // cockpit_debug("enter() for page with id " + id);
+        if (first_visit && page.setup)
+            page.setup();
+        page.enter();
+    }
+    visited_pages[id] = true;
+    phantom_checkpoint ();
+}
+
+function page_leave(id) {
+    var page = cockpit.page_from_id(id);
+    if (page) {
+        // cockpit_debug("leave() for page with id " + id);
+        page.leave();
+    }
+    phantom_checkpoint ();
+}
+
+function page_show(id) {
+    var page = cockpit.page_from_id(id);
+    if (page) {
+        // cockpit_debug("show() for page with id " + id);
+        if (content_is_shown) {
+            page.show();
+        }
+    }
+    phantom_checkpoint ();
+}
+
+function page_enter_breadcrumb(id) {
+    var page = cockpit.page_from_id(id);
+    if (page && page.enter_breadcrumb)
+        page.enter_breadcrumb();
+}
+
+function page_leave_breadcrumb(id) {
+    var page = cockpit.page_from_id(id);
+    if (page && page.leave_breadcrumb)
+        page.leave_breadcrumb();
+}
+
+function get_page_title(id) {
+    var page = cockpit.page_from_id(id);
+    return page? page.getTitle() : _("Unknown Page");
+}
+
+cockpit.get_page_param = function get_page_param(key, page) {
+    var index = cockpit.loc_trail.length-1;
+    if (page) {
+        while (index >= 0 && cockpit.loc_trail[index].page != page)
+            index--;
+    }
+    if (index >= 0)
+        return cockpit.loc_trail[index][key];
+    else
+        return undefined;
+};
+
+cockpit.set_page_param = function set_page_param(key, val) {
+    if (val)
+        cockpit.loc_trail[cockpit.loc_trail.length-1][key] = val;
+    else
+        delete cockpit.loc_trail[cockpit.loc_trail.length-1][key];
+    show_hash ();
+};
+
+cockpit.show_error_dialog = function show_error_dialog(title, message) {
+    if (message) {
+        $("#error-popup-title").text(title);
+        $("#error-popup-message").text(message);
+    } else {
+        $("#error-popup-title").text(_("Error"));
+        $("#error-popup-message").text(title);
+    }
+
+    $('.modal[role="dialog"]').modal('hide');
+    $('#error-popup').modal('show');
+};
+
+cockpit.show_unexpected_error = function show_unexpected_error(error) {
+    cockpit.show_error_dialog(_("Unexpected error"), error.message || error);
+};
+
+/* A Location object can navigate to a different page, but silently
+ * does nothing when some navigation has already happened since it was
+ * created.
+ */
+
+Location.prototype = {
+    go_up: function() {
+        if (this.can_go())
+            cockpit.go_up();
+    },
+
+    go: function(trail) {
+        if (this.can_go())
+            cockpit.go(trail);
+    }
+};
+
+function Location(can_go) {
+    this.can_go = can_go;
+}
+
+cockpit.location = function location() {
+    var navcount = page_navigation_count;
+    function can_navigate() {
+        return navcount === page_navigation_count;
+    }
+    return new Location(can_navigate);
+};
+
+cockpit.confirm = function confirm(title, body, action_text) {
+    var deferred = $.Deferred();
+
+    $('#confirmation-dialog-title').text(title);
+    if (typeof body == "string")
+        $('#confirmation-dialog-body').text(body);
+    else
+        $('#confirmation-dialog-body').html(body);
+    $('#confirmation-dialog-confirm').text(action_text);
+
+    function close() {
+        $('#confirmation-dialog button').off('click');
+        $('#confirmation-dialog').modal('hide');
+    }
+
+    $('#confirmation-dialog-confirm').click(function () {
+        close();
+        deferred.resolve();
+    });
+
+    $('#confirmation-dialog-cancel').click(function () {
+        close();
+        deferred.reject();
+    });
+
+    $('#confirmation-dialog').modal('show');
+    return deferred.promise();
+};
 
 PageDisconnected.prototype = {
     _init: function() {
@@ -186,8 +592,8 @@ function PageDisconnected() {
     this._init();
 }
 
-cockpit_pages.push(new PageDisconnected());
+cockpit.pages.push(new PageDisconnected());
 
 $(init);
 
-})(jQuery, cockpit, cockpit_pages);
+})(jQuery, cockpit);

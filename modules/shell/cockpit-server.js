@@ -23,12 +23,12 @@ PageServer.prototype = {
     },
 
     enter_breadcrumb: function() {
-        this.title_address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.title_address = cockpit.get_page_param('machine', 'server') || "localhost";
         this.title_client = cockpit.dbus(this.title_address);
         this.title_manager = this.title_client.get("/com/redhat/Cockpit/Manager",
                                                    "com.redhat.Cockpit.Manager");
-        $(this.title_manager).on('notify:PrettyHostname.server-title', cockpit_content_update_loc_trail);
-        $(this.title_manager).on('notify:Hostname.server-title', cockpit_content_update_loc_trail);
+        $(this.title_manager).on('notify:PrettyHostname.server-title', cockpit.content_update_loc_trail);
+        $(this.title_manager).on('notify:Hostname.server-title', cockpit.content_update_loc_trail);
     },
 
     leave_breadcrumb: function() {
@@ -52,7 +52,7 @@ PageServer.prototype = {
     enter: function() {
         var self = this;
 
-        self.address = cockpit_get_page_param('machine') || "localhost";
+        self.address = cockpit.get_page_param('machine') || "localhost";
         self.client = cockpit.dbus(self.address);
         cockpit.set_watched_client(self.client);
 
@@ -193,7 +193,7 @@ PageServer.prototype = {
                                                me.manager.call('SetAvatarDataURL', data,
                                                                function (error) {
                                                                    if (error)
-                                                                       cockpit_show_unexpected_error (error);
+                                                                       cockpit.show_unexpected_error(error);
                                                                });
                                            });
     }
@@ -204,4 +204,4 @@ function PageServer() {
     this._init();
 }
 
-cockpit_pages.push(new PageServer());
+cockpit.pages.push(new PageServer());

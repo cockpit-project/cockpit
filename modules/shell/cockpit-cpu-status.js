@@ -31,7 +31,7 @@ PageCpuStatus.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.client);
@@ -86,6 +86,6 @@ function PageCpuStatus() {
     this._init();
 }
 
-cockpit_pages.push(new PageCpuStatus());
+cockpit.pages.push(new PageCpuStatus());
 
 })(cockpit, jQuery);

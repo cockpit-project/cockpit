@@ -19,7 +19,7 @@
 
 var cockpit = cockpit || { };
 
-(function($, cockpit, cockpit_pages) {
+(function($, cockpit) {
 
 function nm_debug() {
     if (cockpit.debugging == "all" || cockpit.debugging == "nm")
@@ -1070,7 +1070,7 @@ function render_interface_link(iface) {
     return $('<a>').
                text(iface).
                click(function () {
-                   cockpit_go_sibling({ page: "network-interface",
+                   cockpit.go_sibling({ page: "network-interface",
                                         dev: iface
                                       });
                });
@@ -1084,7 +1084,7 @@ function render_connection_link(con) {
                     return $('<a>').
                         text(iface.Name).
                         click(function () {
-                            cockpit_go_sibling({ page: "network-interface",
+                            cockpit.go_sibling({ page: "network-interface",
                                                  dev: iface.Name
                                                });
                         });
@@ -1168,7 +1168,7 @@ PageNetworking.prototype = {
     enter: function () {
         var self = this;
 
-        this.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
         this.model = get_nm_model(this.address);
         cockpit.set_watched_client(this.model.client);
 
@@ -1283,7 +1283,7 @@ PageNetworking.prototype = {
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
                                  $('<td colspan="2">').text(dev? dev.StateText : _("Inactive")))).
-                         click(function () { cockpit_go_down ({ page: 'network-interface',
+                         click(function () { cockpit.go_down({  page: 'network-interface',
                                                                 dev: iface.Name
                                                               });
                                            }));
@@ -1403,7 +1403,7 @@ function PageNetworking() {
     this._init();
 }
 
-cockpit_pages.push(new PageNetworking());
+cockpit.pages.push(new PageNetworking());
 
 var ipv4_method_choices =
     [
@@ -1495,7 +1495,7 @@ PageNetworkInterface.prototype = {
     },
 
     getTitle: function() {
-        return cockpit_get_page_param ("dev", "network-interface") || "?";
+        return cockpit.get_page_param("dev", "network-interface") || "?";
     },
 
     setup: function () {
@@ -1509,12 +1509,12 @@ PageNetworkInterface.prototype = {
     enter: function () {
         var self = this;
 
-        self.address = cockpit_get_page_param('machine', 'server') || "localhost";
+        self.address = cockpit.get_page_param('machine', 'server') || "localhost";
         self.model = get_nm_model(self.address);
         cockpit.set_watched_client(self.model.client);
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
-        self.dev_name = cockpit_get_page_param('dev');
+        self.dev_name = cockpit.get_page_param('dev');
 
         var blues = [ "#006bb4",
                       "#008ff0",
@@ -1595,7 +1595,7 @@ PageNetworkInterface.prototype = {
             var location = cockpit.location();
             delete_iface_connections(this.iface).
                 done(location.go_up()).
-                fail(cockpit_show_unexpected_error);
+                fail(cockpit.show_unexpected_error);
         }
     },
 
@@ -1604,7 +1604,7 @@ PageNetworkInterface.prototype = {
         var settings_manager = self.model.get_settings();
 
         function fail(error) {
-            cockpit_show_unexpected_error(error);
+            cockpit.show_unexpected_error(error);
             self.update();
         }
 
@@ -1632,7 +1632,7 @@ PageNetworkInterface.prototype = {
         }
 
         self.dev.disconnect().fail(function (error) {
-            cockpit_show_unexpected_error(error);
+            cockpit.show_unexpected_error(error);
             self.update();
         });
     },
@@ -1712,17 +1712,17 @@ PageNetworkInterface.prototype = {
 
             function apply() {
                 if (con)
-                    con.apply().fail(cockpit_show_unexpected_error);
+                    con.apply().fail(cockpit.show_unexpected_error);
                 else {
                     var settings_manager = self.model.get_settings();
-                    settings_manager.add_connection(settings).fail(cockpit_show_unexpected_error);
+                    settings_manager.add_connection(settings).fail(cockpit.show_unexpected_error);
                 }
             }
 
             function reactivate_connection() {
                 if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
                     con.activate(dev, null).
-                        fail(cockpit_show_unexpected_error);
+                        fail(cockpit.show_unexpected_error);
                 }
             }
 
@@ -2004,7 +2004,7 @@ function PageNetworkInterface() {
     this._init();
 }
 
-cockpit_pages.push(new PageNetworkInterface());
+cockpit.pages.push(new PageNetworkInterface());
 
 PageNetworkIpSettings.prototype = {
     _init: function () {
@@ -2167,7 +2167,7 @@ function PageNetworkIpSettings() {
     this._init();
 }
 
-cockpit_pages.push(new PageNetworkIpSettings());
+cockpit.pages.push(new PageNetworkIpSettings());
 
 PageNetworkBondSettings.prototype = {
     _init: function () {
@@ -2412,7 +2412,7 @@ function PageNetworkBondSettings() {
     this._init();
 }
 
-cockpit_pages.push(new PageNetworkBondSettings());
+cockpit.pages.push(new PageNetworkBondSettings());
 
 PageNetworkBridgeSettings.prototype = {
     _init: function () {
@@ -2626,7 +2626,7 @@ function PageNetworkBridgeSettings() {
     this._init();
 }
 
-cockpit_pages.push(new PageNetworkBridgeSettings());
+cockpit.pages.push(new PageNetworkBridgeSettings());
 
 PageNetworkBridgePortSettings.prototype = {
     _init: function () {
@@ -2733,7 +2733,7 @@ function PageNetworkBridgePortSettings() {
     this._init();
 }
 
-cockpit_pages.push(new PageNetworkBridgePortSettings());
+cockpit.pages.push(new PageNetworkBridgePortSettings());
 
 PageNetworkVlanSettings.prototype = {
     _init: function () {
@@ -2856,6 +2856,6 @@ function PageNetworkVlanSettings() {
     this._init();
 }
 
-cockpit_pages.push(new PageNetworkVlanSettings());
+cockpit.pages.push(new PageNetworkVlanSettings());
 
-})($, cockpit, cockpit_pages);
+})($, cockpit);

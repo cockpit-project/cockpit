@@ -49,7 +49,7 @@ cockpit.localize_pages = function localize_pages() {
             var translated = cockpit.i18n(e._orig, e.getAttribute("context"));
             $(e).text(translated);
         });
-    cockpit_content_refresh ();
+    cockpit.content_refresh();
 };
 
 })(cockpit, jQuery);

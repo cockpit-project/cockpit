@@ -53,7 +53,7 @@ PageDisplayLanguageDialog.prototype = {
             if (code_to_select) {
                 var jqxhr = $.getJSON("lang/" + code_to_select + ".json");
                 jqxhr.error(function() {
-                    cockpit_show_error_dialog("Error loading language \"" + code_to_select + "\"");
+                    cockpit.show_error_dialog("Error loading language \"" + code_to_select + "\"");
                 });
                 jqxhr.success(function(data) {
                     cockpit.language_code = code_to_select;
@@ -90,6 +90,6 @@ function PageDisplayLanguageDialog() {
     this._init();
 }
 
-cockpit_pages.push(new PageDisplayLanguageDialog());
+cockpit.pages.push(new PageDisplayLanguageDialog());
 
 })(cockpit, jQuery);

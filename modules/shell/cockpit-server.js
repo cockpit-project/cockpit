@@ -188,7 +188,7 @@ PageServer.prototype = {
 
     change_avatar: function() {
         var me = this;
-        cockpit_show_change_avatar_dialog ('#server-avatar-uploader',
+        cockpit.show_change_avatar_dialog('#server-avatar-uploader',
                                            function (data) {
                                                me.manager.call('SetAvatarDataURL', data,
                                                                function (error) {

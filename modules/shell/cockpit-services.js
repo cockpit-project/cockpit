@@ -826,7 +826,7 @@ PageService.prototype = {
     },
 
     action: function(op) {
-        if (!cockpit_check_role ('wheel', this.client))
+        if (!cockpit.check_role('wheel', this.client))
             return;
 
         this.manager.call('ServiceAction', this.service, op, function (error) {

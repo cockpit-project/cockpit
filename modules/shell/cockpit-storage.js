@@ -136,13 +136,13 @@ PageStorage.prototype = {
         var self = this;
 
         $("#storage_create_raid").on('click', function() {
-            if (!cockpit_check_role ('cockpit-storage-admin', self.client))
+            if (!cockpit.check_role('cockpit-storage-admin', self.client))
                 return;
             PageCreateRaid.client = self.client;
             $('#create-raid-dialog').modal('show');
         });
         $("#storage_create_volume_group").on('click', function() {
-            if (!cockpit_check_role ('cockpit-storage-admin', self.client))
+            if (!cockpit.check_role('cockpit-storage-admin', self.client))
                 return;
             PageCreateVolumeGroup.client = self.client;
             $('#create-volume-group-dialog').modal('show');
@@ -1484,7 +1484,7 @@ PageStorageDetail.prototype = {
     },
 
     action: function(op) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         if (op == 'format')
@@ -1520,7 +1520,7 @@ PageStorageDetail.prototype = {
                                                    "com.redhat.Cockpit.Storage.LogicalVolume");
         }
 
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         if (op == 'format')
@@ -1559,7 +1559,7 @@ PageStorageDetail.prototype = {
     },
 
     raid_action: function() {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         this.action(this.raid_op);
@@ -1611,7 +1611,7 @@ PageStorageDetail.prototype = {
     },
 
     bitmap_enable: function() {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         this._mdraid.call("SetBitmapLocation", "internal", function (error, result) {
@@ -1621,7 +1621,7 @@ PageStorageDetail.prototype = {
     },
 
     bitmap_disable: function() {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         this._mdraid.call("SetBitmapLocation", "none", function (error, result) {
@@ -1631,7 +1631,7 @@ PageStorageDetail.prototype = {
     },
 
     format_disk: function (block) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageFormatDisk.block = null;
@@ -1666,7 +1666,7 @@ PageStorageDetail.prototype = {
     },
 
     create_partition: function (block, start, size) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageFormat.block = block;
@@ -1716,7 +1716,7 @@ PageStorageDetail.prototype = {
     },
 
     raid_disk_remove: function(block) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         this._mdraid.call('RemoveDevices', [ block.getObject().objectPath ],
@@ -1727,7 +1727,7 @@ PageStorageDetail.prototype = {
     },
 
     raid_disk_add: function() {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageRaidDiskAdd.mdraid = this._mdraid;
@@ -1774,7 +1774,7 @@ PageStorageDetail.prototype = {
         var self = this;
         var location = cockpit.location();
 
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name }),
@@ -1800,7 +1800,7 @@ PageStorageDetail.prototype = {
     },
 
     remove_physical_volume: function(block) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         if (block.PvFreeSize != block.PvSize) {
@@ -1830,7 +1830,7 @@ PageStorageDetail.prototype = {
     },
 
     empty_physical_volume: function(block) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         var used = block.PvSize - block.PvFreeSize;
@@ -1852,7 +1852,7 @@ PageStorageDetail.prototype = {
     },
 
     add_physical_volume: function() {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageVGDiskAdd.volume_group = this._vg;
@@ -1860,7 +1860,7 @@ PageStorageDetail.prototype = {
     },
 
     create_plain_volume: function (volume_group) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageCreatePlainVolume.volume_group = volume_group;
@@ -1868,7 +1868,7 @@ PageStorageDetail.prototype = {
     },
 
     create_thin_pool: function (volume_group) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageCreateThinPool.volume_group = volume_group;
@@ -1876,7 +1876,7 @@ PageStorageDetail.prototype = {
     },
 
     create_thin_volume: function (pool) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageCreateThinVolume.pool = pool;
@@ -1884,14 +1884,14 @@ PageStorageDetail.prototype = {
     },
 
     create_raid_volume: function (volume_group) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         cockpit_show_error_dialog ("Sorry", "Not yet.");
     },
 
     create_snapshot: function (origin) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         if (origin.Origin != "/") {
@@ -1906,7 +1906,7 @@ PageStorageDetail.prototype = {
     delete_logical_volume: function(lv) {
         var self = this;
 
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name + "/" + lv.Name }),
@@ -1921,7 +1921,7 @@ PageStorageDetail.prototype = {
     },
 
     resize_logical_volume: function(lv) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageResizeVolume.volume = lv;
@@ -1929,7 +1929,7 @@ PageStorageDetail.prototype = {
     },
 
     rename_volume_group: function() {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageRenameGroup.group = this._vg;
@@ -1937,7 +1937,7 @@ PageStorageDetail.prototype = {
     },
 
     rename_logical_volume: function(lv) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         PageRenameVolume.volume = lv;
@@ -1945,7 +1945,7 @@ PageStorageDetail.prototype = {
     },
 
     activate_logical_volume: function(lv) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         lv.call('Activate', function (error, result) {
@@ -1955,7 +1955,7 @@ PageStorageDetail.prototype = {
     },
 
     deactivate_logical_volume: function(lv) {
-        if (!cockpit_check_role ('cockpit-storage-admin', this.client))
+        if (!cockpit.check_role('cockpit-storage-admin', this.client))
             return;
 
         lv.call('Deactivate', function (error, result) {

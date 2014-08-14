@@ -119,7 +119,7 @@ function cockpit_job_box (client, tbody, domain, role, descriptions, target_desc
                 if (j.Cancellable) {
                     cancel = $('<button class="btn btn-default">').text(_("Cancel"));
                     cancel.on('click', function (event) {
-                        if (!cockpit_check_role (role, client))
+                        if (!cockpit.check_role(role, client))
                             return;
                         j.call('Cancel', function (error) {
                             if (error)

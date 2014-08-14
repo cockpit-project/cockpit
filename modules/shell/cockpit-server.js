@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageServer.prototype = {
     _init: function() {
         this.id = "server";
@@ -205,3 +207,5 @@ function PageServer() {
 }
 
 cockpit.pages.push(new PageServer());
+
+})(cockpit, $);

@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageShutdownDialog.prototype = {
     _init: function() {
         this.id = "shutdown-dialog";
@@ -124,3 +126,5 @@ function PageShutdownDialog() {
 }
 
 cockpit.pages.push(new PageShutdownDialog());
+
+})(cockpit, jQuery);

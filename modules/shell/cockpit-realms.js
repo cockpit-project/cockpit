@@ -131,7 +131,7 @@ PageRealmsOp.prototype = {
         for (var i = 0; i < me.discovered_details.length; i++) {
             var d = me.discovered_details[i];
             var txt = d['client-software'] + " / " + d['server-software'];
-            sel.append('<option value="' + i + '">' + cockpit_esc(txt) + '</option>');
+            sel.append('<option value="' + i + '">' + cockpit.esc(txt) + '</option>');
         }
         me.update_auth_methods();
 
@@ -174,7 +174,7 @@ PageRealmsOp.prototype = {
 
         function add_choice (tag, text) {
             if (tag in m) {
-                sel.append('<option value="' + tag + '">' + cockpit_esc(text) + '</option>');
+                sel.append('<option value="' + tag + '">' + cockpit.esc(text) + '</option>');
                 have_one = 1;
             }
         }
@@ -299,7 +299,7 @@ PageRealmsOp.prototype = {
                                       else if (!result) {
                                           $("#realms-op-address-error").show();
                                           $("#realms-op-address-error").attr('title',
-                                                                             F(_("Domain %{domain} could not be contacted"), { 'domain': cockpit_esc(name) }));
+                                                                             F(_("Domain %{domain} could not be contacted"), { 'domain': cockpit.esc(name) }));
                                       } else {
                                           me.discovered_details = details;
                                       }

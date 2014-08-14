@@ -19,26 +19,17 @@
 
 var cockpit = cockpit || { };
 
+(function(cockpit, $) {
+
 // Used for escaping things in HTML elements and attributes
-function cockpit_esc(str) {
+cockpit.esc = function esc(str) {
     if (str === null || str === undefined)
         return "";
     var pre = document.createElement('pre');
     var text = document.createTextNode(str);
     pre.appendChild(text);
     return pre.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-
-// Used for escaping things in HTML id attribute values
-//
-// http://www.w3.org/TR/html5/global-attributes.html#the-id-attribute
-function cockpit_esc_id_attr(str) {
-    return cockpit_esc(str).replace(/ /g, "&#20;").replace(/\x09/g, "&#09;").replace(/\x0a/g, "&#0a;").replace(/\x0c/g, "&#0c;").replace(/\x0d/g, "&#0d;");
-}
-
-function cockpit_debug(str) {
-    console.debug("DEBUG: " + str);
-}
+};
 
 /*
  * Byte formatting
@@ -93,7 +84,6 @@ function cockpit_debug(str) {
  * Format soconds into a string of "hours, minutes, seconds".
  */
 
-(function(cockpit) {
 
 function format_units(number, suffixes, factor, separate) {
     var divided = false;
@@ -201,96 +191,32 @@ cockpit.format_delay = function format_delay(d) {
     return s;
 };
 
-})(cockpit);
-
-// ----------------------------------------------------------------------------------------------------
-
-function cockpit_array_remove(array, value)
-{
-    /* not exactly idiomatic */
-    array.splice(array.indexOf(value), 1);
-}
-
-// ----------------------------------------------------------------------------------------------------
-
-function cockpit_diff_sorted_lists(existing, wanted, added, removed, unchanged)
-{
-    var n = 0, m = 0;
-
-    existing.sort();
-    wanted.sort();
-
-    while (n < existing.length && m < wanted.length) {
-        if (existing[n] < wanted[m]) {
-            if (removed)
-                removed.push(existing[n]);
-            n++;
-        } else if (existing[n] > wanted[m]) {
-            if (added)
-                added.push(wanted[n]);
-            m++;
-        } else {
-            if (unchanged)
-                unchanged.push(existing[n]);
-            n++;
-            m++;
-        }
-    }
-
-    while (n < existing.length) {
-        if (removed)
-            removed.push(existing[n]);
-        n++;
-    }
-
-    while (m < wanted.length) {
-        if (added)
-            added.push(wanted[m]);
-        m++;
-    }
-}
-
-function cockpit_settings_get(key) {
+cockpit.settings_get = function settings_get(key) {
     var ret = null;
     if (localStorage) {
         ret = localStorage.getItem(key);
     }
     return ret;
-}
+};
 
-function cockpit_settings_set(key, value) {
+cockpit.settings_set = function settings_set(key, value) {
     if (localStorage) {
         if (value)
             localStorage.setItem(key, value);
         else
             localStorage.removeItem(key);
     }
-}
+};
 
-function cockpit_settings_get_json(key) {
-    var val = cockpit_settings_get (key);
-    if (val)
-        val = JSON.parse (val);
-    return val;
-}
-
-function cockpit_settings_set_json(key, val) {
-    cockpit_settings_set (key, JSON.stringify (val));
-}
-
-function _is_non_blank(str) {
-    return str.search(/\S/) != -1;
-}
-
-function cockpit_find_in_array (array, elt) {
+cockpit.find_in_array = function find_in_array(array, elt) {
     for (var i = 0; i < array.length; i++) {
         if (array[i] == elt)
             return true;
     }
     return false;
-}
+};
 
-function cockpit_action_btn (func, spec) {
+cockpit.action_btn = function action_btn(func, spec) {
     var direct_btn, indirect_btns, btn;
     var direct_action, disabled;
 
@@ -356,17 +282,17 @@ function cockpit_action_btn (func, spec) {
 
     $.data(btn[0], 'cockpit-action-btn-funcs', { select: select, enable: enable });
     return btn;
-}
+};
 
-function cockpit_action_btn_select (btn, action) {
+cockpit.action_btn_select = function action_btn_select(btn, action) {
     $.data(btn[0], 'cockpit-action-btn-funcs').select(action);
-}
+};
 
-function cockpit_action_btn_enable (btn, action, val) {
+cockpit.action_btn_enable = function action_btn_enable(btn, action, val) {
     $.data(btn[0], 'cockpit-action-btn-funcs').enable(action, val);
-}
+};
 
-function cockpit_select_btn (func, spec) {
+cockpit.select_btn = function select_btn(func, spec) {
     var direct_btn, indirect_btns, btn;
     var selected_choice;
 
@@ -422,40 +348,15 @@ function cockpit_select_btn (func, spec) {
 
     $.data(btn[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
     return btn;
-}
+};
 
-function cockpit_select_btn_select (btn, choice) {
+cockpit.select_btn_select = function select_btn_select(btn, choice) {
     $.data(btn[0], 'cockpit-select-btn-funcs').select(choice);
-}
+};
 
-function cockpit_select_btn_selected (btn) {
+cockpit.select_btn_selected = function select_btn_selected(btn) {
     return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
-}
-
-function cockpit_parse_bytes (str, def) {
-    var factor = { '': 1,
-                   'k': 1024,
-                   'm': 1024*1024,
-                   'M': 1024*1024,
-                   'g': 1024*1024*1024,
-                   'G': 1024*1024*1024
-                 };
-
-    if (str.trim() === "")
-        return def;
-
-    var match = str.match('^([0-9.]+)([^0-9.]*)$');
-    var val = parseFloat(str);
-    var suffix;
-    if (!isNaN(val) && match) {
-        suffix = match[2].trim();
-        if (factor[suffix])
-            return val*factor[suffix];
-    }
-    return NaN;
-}
-
-(function (cockpit) {
+};
 
 cockpit.client_error_description = client_error_description;
 function client_error_description (error) {
@@ -674,4 +575,4 @@ function machine_info(address) {
     return pr;
 }
 
-})(cockpit);
+})(cockpit, jQuery);

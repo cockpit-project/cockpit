@@ -32,14 +32,10 @@ cockpit.i18n = function i18n(string, context) {
         }
     }
 
-    //cockpit_debug("`" + string + "' -> `" + ret + "' (ctx=" + context + ")");
-
     return ret;
 };
 
 cockpit.localize_pages = function localize_pages() {
-    //if (cockpit_language_po != null)
-    //    cockpit_debug("Localizing strings in DOM into " + (cockpit_language_po[""])["Language"]);
     $("[translatable=\"yes\"]").each(
         function(i, e) {
             // Save original string

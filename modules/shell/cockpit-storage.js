@@ -37,6 +37,13 @@ function format_temperature(kelvin) {
     return celcius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
 }
 
+// Used for escaping things in HTML id attribute values
+//
+// http://www.w3.org/TR/html5/global-attributes.html#the-id-attribute
+function esc_id_attr(str) {
+    return cockpit.esc(str).replace(/ /g, "&#20;").replace(/\x09/g, "&#09;").replace(/\x0a/g, "&#0a;").replace(/\x0c/g, "&#0c;").replace(/\x0d/g, "&#0d;");
+}
+
 var active_targets = [ ];
 
 function job_target_class(target) {
@@ -330,21 +337,18 @@ PageStorage.prototype = {
     _onObjectAdded: function (event, obj) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        //cockpit_debug("object added " + obj.objectPath);
         this._add(obj);
     },
 
     _onObjectRemoved: function (event, obj) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        //cockpit_debug("object removed " + obj.objectPath);
         this._remove(obj);
     },
 
     _onPropertiesChanged: function (event, obj, iface) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        //cockpit_debug("object changed " + obj.objectPath);
         this._remove(obj);
         this._add(obj);
     },
@@ -377,7 +381,7 @@ PageStorage.prototype = {
     },
 
     _remove: function(obj) {
-        var id = cockpit_esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
+        var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
         var elem;
         if (obj.lookup("com.redhat.Cockpit.Storage.Drive"))
             elem = $("#storage-drive-" + id);
@@ -392,8 +396,8 @@ PageStorage.prototype = {
 
     _addDrive: function(obj) {
         var drive = obj.lookup("com.redhat.Cockpit.Storage.Drive");
-        var id = cockpit_esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
-        var sort_key = cockpit_esc(drive.SortKey);
+        var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
+        var sort_key = cockpit.esc(drive.SortKey);
         var n;
 
         var device_string = "";
@@ -409,10 +413,10 @@ PageStorage.prototype = {
         }
 
         var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + sort_key + "\"";
-        html += " onclick=\"" + cockpit_esc(cockpit.go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
+        html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
 
         html += "<td>";
-        html += cockpit_esc(drive.Name);
+        html += cockpit.esc(drive.Name);
         html += "</td>";
         html += "<td>";
 
@@ -467,15 +471,15 @@ PageStorage.prototype = {
     _addRaid: function(obj) {
         var raid = obj.lookup("com.redhat.Cockpit.Storage.MDRaid");
 
-        var id = cockpit_esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
+        var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
         var sort_key = id; // for now
         var n;
 
         var html = "<tr id=\"storage-raid-" + id + "\" sort=\"" + sort_key + "\"";
-        html += " onclick=\"" + cockpit_esc(cockpit.go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
+        html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
 
         html += "<td>";
-        html += cockpit_esc(raid_get_desc(raid));
+        html += cockpit.esc(raid_get_desc(raid));
         html += "</td>";
         html += "<td>";
 
@@ -513,15 +517,15 @@ PageStorage.prototype = {
     _addVG: function(obj) {
         var vg = obj.lookup("com.redhat.Cockpit.Storage.VolumeGroup");
 
-        var id = cockpit_esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
+        var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
         var sort_key = id; // for now
         var n;
 
         var html = "<tr id=\"storage-vg-" + id + "\" sort=\"" + sort_key + "\"";
-        html += " onclick=\"" + cockpit_esc(cockpit.go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
+        html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
 
         html += "<td>";
-        html += cockpit_esc(vg.Name);
+        html += cockpit.esc(vg.Name);
         html += "</td>";
         html += "<td>";
 
@@ -567,14 +571,14 @@ PageStorage.prototype = {
             block.HintIgnore)
             return;
 
-        var id = cockpit_esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
+        var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
         var sort_key = id; // for now
 
         var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key + "\"";
-        html += " onclick=\"" + cockpit_esc(cockpit.go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
+        html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
 
         html += "<td>";
-        html += cockpit_esc(block.Device);
+        html += cockpit.esc(block.Device);
         html += "</td>";
         html += "<td>";
 
@@ -626,7 +630,7 @@ function lvol_get_desc(lv)
         type = _("Logical Volume (Snapshot)");
     else
         type = _("Logical Volume");
-    return F("%{type} \"%{name}\"", { type: type, name: cockpit_esc(lv.Name) });
+    return F("%{type} \"%{name}\"", { type: type, name: cockpit.esc(lv.Name) });
 }
 
 function block_get_desc(block, partition_label, cleartext_device)
@@ -634,7 +638,7 @@ function block_get_desc(block, partition_label, cleartext_device)
     var ret, lv;
 
     if (block.IdUsage == "filesystem") {
-        ret = F(C_("storage-id-desc", "%{type} File System"), { type: cockpit_esc(block.IdType) });
+        ret = F(C_("storage-id-desc", "%{type} File System"), { type: cockpit.esc(block.IdType) });
      } else if (block.IdUsage == "raid") {
         if (block.IdType == "linux_raid_member") {
             ret = C_("storage-id-desc", "Linux MD-RAID Component");
@@ -678,13 +682,13 @@ function block_get_desc(block, partition_label, cleartext_device)
 
     ret += "<br/>";
 
-    ret += cockpit_esc(block.Device);
+    ret += cockpit.esc(block.Device);
 
     if (block.IdUsage == "filesystem") {
         ret += ", ";
         if (block.MountedAt.length > 0)
             ret += F(_("mounted on %{mountpoint}"),
-                     { mountpoint: cockpit_esc(block.MountedAt[0])
+                     { mountpoint: cockpit.esc(block.MountedAt[0])
                      });
         else
             ret += _("not mounted");
@@ -710,7 +714,7 @@ function block_get_short_desc(block)
     } else if (block.Drive != "/") {
         var drive = block._client.lookup(block.Drive,
                                          "com.redhat.Cockpit.Storage.Drive");
-        return drive? cockpit_esc(drive.Name) : block.Device;
+        return drive? cockpit.esc(drive.Name) : block.Device;
     } else
         return "Block Device";
 }
@@ -853,7 +857,7 @@ PageStorageDetail.prototype = {
         var self = this;
 
         self.raid_action_btn =
-            cockpit_action_btn (function (op) { self.action(op); },
+            cockpit.action_btn(function (op) { self.action(op); },
                                 [ { title: _("Start"),           action: 'start' },
                                   { title: _("Stop"),            action: 'stop' },
                                   { title: _("Format"),          action: 'format' },
@@ -871,7 +875,7 @@ PageStorageDetail.prototype = {
             self.action('format');
         });
 
-        var btn = cockpit_action_btn (function (op) { self.volume_group_action(op); },
+        var btn = cockpit.action_btn(function (op) { self.volume_group_action(op); },
                                       [ { title: _("Rename"), action: 'rename',
                                           is_default: true },
                                         { title: _("Delete"), action: 'delete' }
@@ -962,7 +966,7 @@ PageStorageDetail.prototype = {
         this.watch_object(block);
         this._updateContent(block);
 
-        val = cockpit_esc(block.Device);
+        val = cockpit.esc(block.Device);
         $("#block_detail_device").html(val);
         val = block.Size > 0 ? fmt_size_long(block.Size) : C_("storage", "No Media Inserted");
         $("#block_detail_capacity").html(val);
@@ -1063,16 +1067,16 @@ PageStorageDetail.prototype = {
             }
 
             if (action_spec.length > 0) {
-                btn = cockpit_action_btn (function (op) { me.block_action (target, op); },
-                                          action_spec);
-                cockpit_action_btn_select (btn, default_op);
+                btn = cockpit.action_btn(function (op) { me.block_action (target, op); },
+                                         action_spec);
+                cockpit.action_btn_select(btn, default_op);
 
-                cockpit_action_btn_enable (btn, 'mount',              !is_filesystem_mounted);
-                cockpit_action_btn_enable (btn, 'unmount',            is_filesystem_mounted);
-                cockpit_action_btn_enable (btn, 'lock',               !is_crypto_locked);
-                cockpit_action_btn_enable (btn, 'unlock',             is_crypto_locked);
-                cockpit_action_btn_enable (btn, 'activate',           !is_lvol_active);
-                cockpit_action_btn_enable (btn, 'deactivate',         is_lvol_active);
+                cockpit.action_btn_enable(btn, 'mount',              !is_filesystem_mounted);
+                cockpit.action_btn_enable(btn, 'unmount',            is_filesystem_mounted);
+                cockpit.action_btn_enable(btn, 'lock',               !is_crypto_locked);
+                cockpit.action_btn_enable(btn, 'unlock',             is_crypto_locked);
+                cockpit.action_btn_enable(btn, 'activate',           !is_lvol_active);
+                cockpit.action_btn_enable(btn, 'deactivate',         is_lvol_active);
             }
 
             return btn;
@@ -1121,7 +1125,7 @@ PageStorageDetail.prototype = {
                 cleartext_device = find_cleartext_device(block);
 
             if (block.IdLabel.length > 0)
-                name = cockpit_esc(block.IdLabel);
+                name = cockpit.esc(block.IdLabel);
             else
                 name = "—";
             desc = block_get_desc(block, part_desc, cleartext_device);
@@ -1242,7 +1246,7 @@ PageStorageDetail.prototype = {
                     desc = F(_("%{size} %{desc}"),
                              { desc: lvol_get_desc(lv),
                                size: fmt_size(block.Size) });
-                    desc += "<br/>" + cockpit_esc(block.Device);
+                    desc += "<br/>" + cockpit.esc(block.Device);
                     btn = create_block_action_btn (block, false, false);
                     id = append_entry (level, null, desc, btn);
                     append_partitions (level+1, block);
@@ -1318,7 +1322,7 @@ PageStorageDetail.prototype = {
             if (vg.FreeSize > 0) {
                 desc = F(_("%{size} Free Space for Logical Volumes"),
                          { size: fmt_size(vg.FreeSize) });
-                var btn = cockpit_action_btn (function (op) { me.volume_group_action (op); },
+                var btn = cockpit.action_btn(function (op) { me.volume_group_action (op); },
                                               [ { title: _("Create Plain Logical Volume"),
                                                   action: 'create-plain', is_default: true
                                                 },
@@ -1363,15 +1367,15 @@ PageStorageDetail.prototype = {
         this._updateContent(block);
 
         if (drive.Vendor && drive.Vendor.length > 0)
-            val = cockpit_esc(drive.Vendor) + " " + cockpit_esc(drive.Model);
+            val = cockpit.esc(drive.Vendor) + " " + cockpit.esc(drive.Model);
         else
-            val = cockpit_esc(drive.Model);
+            val = cockpit.esc(drive.Model);
         $("#disk_detail_model").html(val);
-        val = drive.Revision ? cockpit_esc(drive.Revision) : "—";
+        val = drive.Revision ? cockpit.esc(drive.Revision) : "—";
         $("#disk_detail_firmware_version").html(val);
-        val = drive.Serial ? cockpit_esc(drive.Serial) : "—";
+        val = drive.Serial ? cockpit.esc(drive.Serial) : "—";
         $("#disk_detail_serial_number").html(val);
-        val = drive.WWN ? cockpit_esc(drive.WWN) : "—";
+        val = drive.WWN ? cockpit.esc(drive.WWN) : "—";
         $("#disk_detail_world_wide_name").html(val);
         val = drive.Size > 0 ? fmt_size_long(drive.Size) : C_("disk-drive", "No Media Inserted");
         $("#disk_detail_capacity").html(val);
@@ -1395,7 +1399,7 @@ PageStorageDetail.prototype = {
             if (n > 0) {
                 val += " ";
             }
-            val += cockpit_esc(b.Device);
+            val += cockpit.esc(b.Device);
         }
         $("#disk_detail_device_file").html(val);
     },
@@ -1419,21 +1423,21 @@ PageStorageDetail.prototype = {
         this._updateContent (block);
 
         if (block)
-            $("#raid_detail_device").html(cockpit_esc(block.Device));
+            $("#raid_detail_device").html(cockpit.esc(block.Device));
         else
             $("#raid_detail_device").html("--");
 
         var val = raid.Size > 0 ? fmt_size_long(raid.Size) : "--";
         $("#raid_detail_capacity").html(val);
         $("#raid_detail_name").text(raid_get_desc(raid));
-        $("#raid_detail_uuid").html(cockpit_esc(raid.UUID));
+        $("#raid_detail_uuid").html(cockpit.esc(raid.UUID));
 
         var level = format_level(raid.Level);
         if (raid.NumDevices > 0)
             level += ", " + F(_("%{n} Disks"), { n: raid.NumDevices });
         if (raid.ChunkSize > 0)
             level += ", " + F(_("%{n} Chunk Size"), { n: fmt_size(raid.ChunkSize) });
-        $("#raid_detail_level").html(cockpit_esc(level));
+        $("#raid_detail_level").html(cockpit.esc(level));
 
         var state, action_state = "", is_running;
         var action, percent, rate, remaining;
@@ -1490,9 +1494,9 @@ PageStorageDetail.prototype = {
         }
         $("#raid_detail_state").html(state);
 
-        cockpit_action_btn_select (this.raid_action_btn, is_running? 'stop' : 'start');
-        cockpit_action_btn_enable (this.raid_action_btn, 'stop', is_running);
-        cockpit_action_btn_enable (this.raid_action_btn, 'start', !is_running);
+        cockpit.action_btn_select(this.raid_action_btn, is_running? 'stop' : 'start');
+        cockpit.action_btn_enable(this.raid_action_btn, 'stop', is_running);
+        cockpit.action_btn_enable(this.raid_action_btn, 'start', !is_running);
 
         $("#raid-disks").closest('.panel').toggle(is_running);
 
@@ -1617,7 +1621,7 @@ PageStorageDetail.prototype = {
                         $('<tr>').append(
                             $('<td>').html(desc),
                             $('<td style="text-align:right">').html(
-                                cockpit_action_btn(physical_action_func (block),
+                                cockpit.action_btn(physical_action_func (block),
                                                    physical_action_spec))))));
         }
 
@@ -2256,7 +2260,7 @@ function fill_free_devices_list(client, id, filter)
         var desc = F("%{size} %{desc} %{dev}",
                      { size: fmt_size(block.Size),
                        desc: block_get_short_desc(block),
-                       dev: cockpit_esc(block.Device)
+                       dev: cockpit.esc(block.Device)
                      });
         var id_n = id + '-' + n;
 

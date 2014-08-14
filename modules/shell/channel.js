@@ -20,7 +20,7 @@
 /*
  * API:
  *
- * Channel(options)
+ * cockpit.channel(options)
  *   @options: a dict of options used to open the channel.
  *     'host': the host to open the channel to
  *     'payload': the type of payload the channel messages will contain.
@@ -31,7 +31,7 @@
  *   The underlying protocol id for the channel.
  *
  * channel.options
- *   The options used to open this channel. See Channel().
+ *   The options used to open this channel. See cockpit.channel().
  *
  * channel.valid
  *   Set to 'true' for an open channel. Set to 'false' when the channel
@@ -60,16 +60,16 @@
  *   contain various close information, including a 'reason' field which
  *   will indicate a problem closing.
  *
- * Channel.transport
+ * cockpit.transport
  *   This object represents the underlying transport. It will be defined
  *   when a channel is created and open. It will automatically be cleared
  *   if the transport closes. Multiple channels share a transport.
  *
- * Channel.transport.close()
+ * cockpit.transport.close()
  *   Explicitly close the underlying transport. This will close all open
- *   channels using this transport and Channel.transport will be cleared.
+ *   channels using this transport and cockpit.transport will be cleared.
  *
- * Channel.transport.logout(disconnect)
+ * cockpit.transport.logout(disconnect)
  *   Discard login credentials and prevent them from being used to perform
  *   further actions that require credentials. If @disconnect is true, then
  *   also disconnect all user sessions.
@@ -89,8 +89,8 @@ function Channel(options) {
     var id = last_channel.toString();
 
     /* Find a valid transport */
-    if (Channel.transport) {
-        this._init(id, Channel.transport, options);
+    if (cockpit.transport) {
+        this._init(id, cockpit.transport, options);
         return;
     }
 
@@ -103,7 +103,7 @@ function Channel(options) {
                 console.debug.apply(console, arguments);
         }
 
-        var ws_loc = Channel.calculate_url();
+        var ws_loc = cockpit.channel.calculate_url();
         if (!ws_loc)
             return;
 
@@ -161,8 +161,8 @@ function Channel(options) {
         };
 
         this.close = function(reason) {
-            if (this === Channel.transport)
-                Channel.transport = null;
+            if (this === cockpit.transport)
+                cockpit.transport = null;
             clearInterval(this._check_health_timer);
             var ws = this._ws;
             this._ws = null;
@@ -236,21 +236,9 @@ function Channel(options) {
     }
 
     /* Instantiate the transport singleton */
-    Channel.transport = new Transport();
-    this._init(id, Channel.transport, options);
+    cockpit.transport = new Transport();
+    this._init(id, cockpit.transport, options);
 }
-
-Channel.calculate_url = function() {
-    var window_loc = window.location.toString();
-    if (window_loc.indexOf('http:') === 0) {
-        return "ws://" + window.location.host + "/socket";
-    } else if (window_loc.indexOf('https:') === 0) {
-        return "wss://" + window.location.host + "/socket";
-    } else {
-        console.error("Cockpit must be used over http or https");
-        return null;
-    }
-};
 
 Channel.prototype = {
     _init: function(id, transport, options) {
@@ -312,7 +300,20 @@ Channel.prototype = {
     }
 };
 
-/* TODO: This needs to be namespaced properly */
-window.Channel = Channel;
+cockpit.channel = function channel(options) {
+    return new Channel(options);
+};
+
+cockpit.channel.calculate_url = function calculate_url() {
+    var window_loc = window.location.toString();
+    if (window_loc.indexOf('http:') === 0) {
+        return "ws://" + window.location.host + "/socket";
+    } else if (window_loc.indexOf('https:') === 0) {
+        return "wss://" + window.location.host + "/socket";
+    } else {
+        console.error("Cockpit must be used over http or https");
+        return null;
+    }
+};
 
 })(cockpit, jQuery);

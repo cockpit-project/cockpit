@@ -269,7 +269,7 @@ var cockpit = cockpit || { };
         var channel = null;
         function get_channel() {
             if (channel === null || channel.valid !== true) {
-                channel = new Channel(args);
+                channel = cockpit.channel(args);
 
                 /* Individual requests wait for 'result' event */
                 $(channel).on("message", function(event, payload) {

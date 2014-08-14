@@ -1857,7 +1857,7 @@ function DockerTerminal(parent, machine, id) {
      * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
      */
     function attach() {
-        channel = new Channel({
+        channel = cockpit.channel({
             "host": machine,
             "payload": "text-stream",
             "unix": "/var/run/docker.sock"

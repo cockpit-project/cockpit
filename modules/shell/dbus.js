@@ -324,7 +324,7 @@ DBusClient.prototype = {
         dbus_debug("Connecting DBusClient to " + channel_opts["service"] + " on " + this.target);
 
         /* Open a channel */
-        var channel = new Channel(channel_opts);
+        var channel = cockpit.channel(channel_opts);
 
         var client = this;
         client._channel = channel;

@@ -46,7 +46,7 @@ PageTerminal.prototype = {
         /* term.js wants the parent element to build its terminal inside of */
         self.term.open($("#rescue-terminal")[0]);
 
-        self.channel = new Channel({
+        self.channel = cockpit.channel({
             "host": cockpit.get_page_param("machine", "server"),
             "payload": "text-stream",
             "spawn": ["/bin/bash", "-i"],

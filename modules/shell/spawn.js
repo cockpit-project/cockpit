@@ -107,7 +107,7 @@ var cockpit = cockpit || { };
         if (options !== undefined)
             $.extend(args, options);
 
-        var channel = new Channel(args);
+        var channel = cockpit.channel(args);
 
         /* Callbacks that want to stream response, see below */
         var streamers = null;

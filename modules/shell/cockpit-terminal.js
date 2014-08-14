@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageTerminal.prototype = {
     _init: function() {
         this.id = "terminal";
@@ -96,3 +98,5 @@ function PageTerminal() {
 }
 
 cockpit.pages.push(new PageTerminal());
+
+}(cockpit, jQuery));

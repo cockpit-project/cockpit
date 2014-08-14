@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit) {
+(function(cockpit, $) {
 
 function fmt_size(bytes)
 {
@@ -35,6 +35,147 @@ function format_temperature(kelvin) {
     var celcius = kelvin - 273.15;
     var fahrenheit = 9.0 * celcius / 5.0 + 32.0;
     return celcius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
+}
+
+var active_targets = [ ];
+
+function job_target_class(target) {
+    return 'spinner-' + target.replace(/[^a-zA-Z0-9_-]/g, '-');
+}
+
+function prepare_as_target(elt) {
+    $(elt).hide();
+}
+
+function mark_as_target(elt, target) {
+    var i;
+    var cl = job_target_class(target);
+
+    elt = $(elt);
+    elt.addClass(cl);
+    for (i = 0; i < active_targets.length; i++) {
+        if (active_targets[i] == cl)
+            elt.show();
+    }
+}
+
+function watch_jobs(client) {
+    function update() {
+        var objs = client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
+        var job;
+        var i, j;
+
+        for (i = 0; i < active_targets.length; i++) {
+            $('.' + active_targets[i]).hide();
+        }
+        active_targets = [ ];
+
+        for (i = 0; i < objs.length; i++) {
+            job = objs[i].lookup("com.redhat.Cockpit.Job");
+            if (job) {
+                for (j = 0; j < job.Targets.length; j++) {
+                    var t = job_target_class(job.Targets[j]);
+                    active_targets.push(t);
+                    $('.' + t).show();
+                }
+            }
+        }
+    }
+
+    if (!client._job_watchers) {
+        client._job_watchers = 1;
+        $(client).on("objectAdded.watch-jobs", update);
+        $(client).on("objectRemoved.watch-jobs", update);
+        update();
+    }
+}
+
+function unwatch_jobs(client) {
+    client._job_watchers = client._job_watchers - 1;
+
+    if (!client._job_watchers) {
+        $(client).off(".watch-jobs");
+    }
+}
+
+function job_box(client, tbody, domain, role, descriptions, target_describer) {
+    function update() {
+        var objs = client.getObjectsFrom("/com/redhat/Cockpit/Jobs/");
+        var i, j, t, tdesc;
+        var target_desc, desc, progress, remaining, cancel;
+        var some_added = false;
+
+        tbody.empty();
+        for (i = 0; i < objs.length; i++) {
+            j = objs[i].lookup("com.redhat.Cockpit.Job");
+            if (j && j.Domain == domain) {
+                target_desc = "";
+                for (t = 0; t < j.Targets.length; t++) {
+                    tdesc = target_describer (j.Targets[t]);
+                    if (tdesc) {
+                        if (target_desc)
+                            target_desc += ", ";
+                        target_desc += tdesc;
+                    }
+                }
+                desc = F(descriptions[j.Operation] || _("Unknown operation on %{target}"),
+                         { target: target_desc });
+                if (j.ProgressValid)
+                    progress = (j.Progress*100).toFixed() + "%";
+                else
+                    progress = '';
+                if (j.RemainingUSecs)
+                    remaining = cockpit.format_delay(j.RemainingUSecs / 1000);
+                else
+                    remaining = '';
+                if (j.Cancellable) {
+                    cancel = $('<button class="btn btn-default">').text(_("Cancel"));
+                    cancel.on('click', function (event) {
+                        if (!cockpit.check_role(role, client))
+                            return;
+                        j.call('Cancel', function (error) {
+                            if (error)
+                                cockpit_show_unexpected_error (error);
+                        });
+                    });
+                } else
+                    cancel = "";
+                tbody.append(
+                    $('<tr>').append(
+                        $('<td style="width:50%"/>').text(
+                            desc),
+                        $('<td style="width:15%text-align:right"/>').text(
+                            progress),
+                        $('<td style="width:15%text-align:right"/>').text(
+                            remaining),
+                        $('<td style="text-align:right"/>').append(
+                            cancel)));
+                some_added = true;
+            }
+        }
+        tbody.parents(".panel").toggle(some_added);
+    }
+
+    function update_props(event, obj, iface) {
+        if (iface._iface_name == "com.redhat.Cockpit.Job")
+            update();
+    }
+
+    function stop() {
+        $(client).off("objectAdded", update);
+        $(client).off("objectRemoved", update);
+        $(client).off("propertiesChanged", update_props);
+    }
+
+    function start() {
+        $(client).on("objectAdded", update);
+        $(client).on("objectRemoved", update);
+        $(client).on("propertiesChanged", update_props);
+        update ();
+    }
+
+    start();
+    return { stop: stop };
 }
 
 function get_block_devices_for_drive(drive)
@@ -85,7 +226,7 @@ function find_block_device_for_mdraid(mdraid)
 
 function mark_as_block_target(elt, block)
 {
-    cockpit_mark_as_target (elt, block.getObject().objectPath);
+    mark_as_target(elt, block.getObject().objectPath);
     for (var i = 0; i < block.Partitions.length; i++) {
         var b = block._client.lookup (block.Partitions[i][0],
                                       "com.redhat.Cockpit.Storage.Block");
@@ -101,7 +242,7 @@ function mark_as_block_target(elt, block)
 
 function storage_job_box(client, elt)
 {
-    return cockpit_job_box (client,
+    return job_box(client,
                             elt, 'storage', 'cockpit-storage-admin',
                             { 'format-mkfs' : _("Creating filesystem on %{target}"),
                               'format-erase' : _("Erasing %{target}"),
@@ -156,7 +297,7 @@ PageStorage.prototype = {
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(this.client);
-        cockpit_watch_jobs(this.client);
+        watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
         this._raids = $("#storage_raids");
@@ -181,7 +322,7 @@ PageStorage.prototype = {
         $(this.client).off(".storage");
         this.job_box.stop();
         this.log_box.stop();
-        cockpit_unwatch_jobs(this.client);
+        unwatch_jobs(this.client);
         this.client.release();
         this.client = null;
     },
@@ -318,7 +459,7 @@ PageStorage.prototype = {
         (this._drives[0]).insertBefore(($(html))[0], insert_before);
         this._drives.closest('.panel').show();
 
-        cockpit_prepare_as_target ($('#storage-spinner-' + id));
+        prepare_as_target($('#storage-spinner-' + id));
         for (n = 0; n < blocks.length; n++)
             mark_as_block_target($('#storage-spinner-' + id), blocks[n]);
     },
@@ -363,7 +504,7 @@ PageStorage.prototype = {
         (this._raids[0]).insertBefore(($(html))[0], insert_before);
         this._raids.closest('.panel').show();
 
-        cockpit_prepare_as_target ($('#storage-spinner-' + id));
+        prepare_as_target($('#storage-spinner-' + id));
         var blocks = get_block_devices_for_mdraid(raid);
         for (n = 0; n < blocks.length; n++)
             mark_as_block_target($('#storage-spinner-' + id), blocks[n]);
@@ -409,7 +550,7 @@ PageStorage.prototype = {
         (this._vgs[0]).insertBefore(($(html))[0], insert_before);
         this._vgs.closest('.panel').show();
 
-        cockpit_prepare_as_target ($('#storage-spinner-' + id));
+        prepare_as_target($('#storage-spinner-' + id));
     },
 
     _addOtherDevice: function(obj) {
@@ -461,7 +602,7 @@ PageStorage.prototype = {
         (this._other_devices[0]).insertBefore(($(html))[0], insert_before);
         this._other_devices.closest('.panel').show();
 
-        cockpit_prepare_as_target ($('#storage-spinner-' + id));
+        prepare_as_target($('#storage-spinner-' + id));
         mark_as_block_target($('#storage-spinner-' + id), block);
     }
 };
@@ -702,7 +843,7 @@ PageStorageDetail.prototype = {
         this.job_box.stop();
         this.log_box.stop();
         this.stop_vg_polling();
-        cockpit_unwatch_jobs(this.client);
+        unwatch_jobs(this.client);
         $(this.client).off(".storage-details");
         this.client.release();
         this.client = null;
@@ -748,7 +889,7 @@ PageStorageDetail.prototype = {
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(this.client);
-        cockpit_watch_jobs(this.client);
+        watch_jobs(this.client);
 
         this._drive = null;
         this._mdraid = null;
@@ -968,7 +1109,7 @@ PageStorageDetail.prototype = {
                     $('<table>', { 'style': 'width:100%'
                                  }).append(tr)));
 
-            cockpit_prepare_as_target ('#entry-spinner-' + id);
+            prepare_as_target('#entry-spinner-' + id);
             return id;
         }
 
@@ -988,7 +1129,7 @@ PageStorageDetail.prototype = {
             id = append_entry (level, name, desc,
                                create_block_action_btn (block, !cleartext_device, !!part_desc));
 
-            cockpit_mark_as_target ('#entry-spinner-' + id, block.getObject().objectPath);
+            mark_as_target('#entry-spinner-' + id, block.getObject().objectPath);
 
             me.watch_object(block);
 
@@ -2939,4 +3080,4 @@ function PageVGDiskAdd() {
 
 cockpit_pages.push(new PageVGDiskAdd());
 
-})(cockpit);
+})(cockpit, jQuery);

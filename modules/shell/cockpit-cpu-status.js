@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageCpuStatus.prototype = {
     _init: function() {
         this.id = "cpu_status";
@@ -85,3 +87,5 @@ function PageCpuStatus() {
 }
 
 cockpit_pages.push(new PageCpuStatus());
+
+})(cockpit, jQuery);

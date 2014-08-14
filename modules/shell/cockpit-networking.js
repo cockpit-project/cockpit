@@ -1060,7 +1060,7 @@ function get_nm_model(machine) {
 
 function network_log_box(client, elt)
 {
-    return cockpit_simple_logbox(client,
+    return cockpit.simple_logbox(client,
                                  elt, [ [ "_SYSTEMD_UNIT=NetworkManager.service" ],
                                         [ "_SYSTEMD_UNIT=firewalld.service" ]
                                       ], 10);

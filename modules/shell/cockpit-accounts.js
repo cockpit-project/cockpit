@@ -879,6 +879,7 @@ PageAccountSetPassword.prototype = {
     },
 
     show: function() {
+        $('#account-set-password-pw1').focus();
     },
 
     setup: function() {

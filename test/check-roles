@@ -45,7 +45,7 @@ class TestRoles(MachineCase):
 
         # change its own name
         b.click('#content-user-name')
-        b.click('a[onclick*="cockpit_go_login_account"]')
+        b.click('a[onclick*="cockpit.go_login_account"]')
         b.wait_page("account")
         b.wait_text("#account-user-name", "user")
         b.set_val('#account-real-name', "Userrrr")

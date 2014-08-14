@@ -68,7 +68,7 @@ class TestLogin(MachineCase):
         b.wait_page("server")
         b.wait_text('#content-user-name', 'Barney Bär')
         b.click('#content-user-name')
-        b.click('a[onclick*="cockpit_go_login_account"]')
+        b.click('a[onclick*="cockpit.go_login_account"]')
         b.wait_page("account")
         b.wait_text ("#account-user-name", "user")
 

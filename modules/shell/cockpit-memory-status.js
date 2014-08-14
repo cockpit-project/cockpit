@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageMemoryStatus.prototype = {
     _init: function() {
         this.id = "memory_status";
@@ -79,3 +81,5 @@ function PageMemoryStatus() {
 }
 
 cockpit_pages.push(new PageMemoryStatus());
+
+})(cockpit, jQuery);

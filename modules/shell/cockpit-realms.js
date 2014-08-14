@@ -17,12 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_realms_op_set_parameters (manager, op, realm, details) {
+(function(cockpit, $) {
+
+cockpit.realms_op_set_parameters = function realms_op_set_parameters(manager, op, realm, details) {
     PageRealmsOp.manager = manager;
     PageRealmsOp.op = op;
     PageRealmsOp.realm = realm;
     PageRealmsOp.details = details;
-}
+};
 
 PageRealmsOp.prototype = {
     _init: function() {
@@ -390,3 +392,5 @@ function PageRealmsOp() {
 }
 
 cockpit.pages.push(new PageRealmsOp());
+
+})(cockpit, $);

@@ -39,7 +39,7 @@ PageDisplayLanguageDialog.prototype = {
         for (code in cockpitdyn_supported_languages) {
             var info = cockpitdyn_supported_languages[code];
             var name = info.name;
-            var display_name = cockpit_i18n(name, "display-language");
+            var display_name = cockpit.i18n(name, "display-language");
             if (code == cockpit.language_code)
                 list.append("<option selected=\"true\" value=\"" + code + "\">" + display_name + "</option>");
             else
@@ -61,7 +61,7 @@ PageDisplayLanguageDialog.prototype = {
                     $('#display-language-dialog').modal('hide');
                     // Cool, that worked, update setting
                     cockpit_settings_set("lang-code", code_to_select);
-                    cockpit_localize_pages();
+                    cockpit.localize_pages();
                 });
             } else {
                 // English
@@ -70,7 +70,7 @@ PageDisplayLanguageDialog.prototype = {
                 // update setting
                 cockpit_settings_set("lang-code", null);
                 $('#display-language-dialog').modal('hide');
-                cockpit_localize_pages();
+                cockpit.localize_pages();
             }
 
             return false;

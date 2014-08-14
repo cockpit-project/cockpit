@@ -114,7 +114,7 @@ function init_load_lang(lang_code) {
 
 function init_done() {
     cockpit_content_init ();
-    cockpit_localize_pages();
+    cockpit.localize_pages();
     cockpit_content_show();
 }
 

@@ -1048,14 +1048,15 @@
               </tr>
               <tr>
                 <td>Simple Name</td>
-                <td><input id="sich-hostname" class="form-control"></td>
+                <td><div id=sich-hostname-error>
+                  <input id="sich-hostname" class="form-control">
+                </div></td>
               </tr>
               <tr>
                 <td></td>
-                <td class="cockpit-note" id="sich-note" translatable="yes">
-                  Simple name can only contain lower-case characters, digits and
-                  dash
-                </td>
+                <td><div id="sich-note" class="has-error">
+                  <span class="help-block">Simple name can only contain lower-case characters, digits, and dashes</span>
+                </div></td>
               </tr>
             </table>
           </div>

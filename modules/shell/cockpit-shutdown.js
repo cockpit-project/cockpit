@@ -32,7 +32,7 @@ PageShutdownDialog.prototype = {
         $("#shutdown-restart").click($.proxy(this, "restart"));
         $("#shutdown-poweroff").click($.proxy(this, "poweroff"));
         $("#shutdown-delay").html(
-            this.delay_btn = cockpit_select_btn($.proxy(this, "update"),
+            this.delay_btn = cockpit.select_btn($.proxy(this, "update"),
                                                 [ { choice: "1",   title: _("1 Minute") },
                                                   { choice: "5",   title: _("5 Minutes") },
                                                   { choice: "20",  title: _("20 Minutes") },
@@ -57,7 +57,7 @@ PageShutdownDialog.prototype = {
             val("").
             attr("placeholder", _("Message to logged in users"));
 
-        cockpit_select_btn_select (this.delay_btn, "1");
+        cockpit.select_btn_select(this.delay_btn, "1");
 
         this.update();
     },
@@ -80,7 +80,7 @@ PageShutdownDialog.prototype = {
             $('#shutdown-dialog .modal-title').text(F(_("Shutdown %{host}"), { host: host }));
         }
 
-        var delay = cockpit_select_btn_selected(this.delay_btn);
+        var delay = cockpit.select_btn_selected(this.delay_btn);
         $("#shutdown-time").toggle(delay == "x");
         if (delay == "x") {
             var h = parseInt($("#shutdown-time input:nth-child(1)").val(), 10);
@@ -95,7 +95,7 @@ PageShutdownDialog.prototype = {
     },
 
     shutdown: function(op) {
-        var delay = cockpit_select_btn_selected(this.delay_btn);
+        var delay = cockpit.select_btn_selected(this.delay_btn);
         var message = $("#shutdown-message").val();
         var when;
 

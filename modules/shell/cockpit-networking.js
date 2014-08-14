@@ -1191,13 +1191,13 @@ PageNetworking.prototype = {
         function highlight_netdev_row(event, id) {
             $('#networking-interfaces tr').removeClass('highlight');
             if (id) {
-                $('#networking-interfaces tr[data-interface="' + cockpit_esc(id) + '"]').addClass('highlight');
+                $('#networking-interfaces tr[data-interface="' + cockpit.esc(id) + '"]').addClass('highlight');
             }
         }
 
         function render_samples(event, timestamp, samples) {
             for (var id in samples) {
-                var row = $('#networking-interfaces tr[data-sample-id="' + cockpit_esc(id) + '"]');
+                var row = $('#networking-interfaces tr[data-sample-id="' + cockpit.esc(id) + '"]');
                 if (row.length > 0) {
                     row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(samples[id][1] * 8));
                     row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(samples[id][0] * 8));
@@ -2041,12 +2041,12 @@ PageNetworkIpSettings.prototype = {
         var params = settings[topic];
 
         function choicebox(p, choices) {
-            var btn = cockpit_select_btn(
+            var btn = cockpit.select_btn(
                 function (choice) {
                     params[p] = choice;
                 },
                 choices);
-            cockpit_select_btn_select(btn, params[p]);
+            cockpit.select_btn_select(btn, params[p]);
             btn.css('margin-bottom', "19px");
             return btn;
         }
@@ -2219,7 +2219,7 @@ PageNetworkBondSettings.prototype = {
         }
 
         function change_mode() {
-            options.mode = cockpit_select_btn_selected(mode_btn);
+            options.mode = cockpit.select_btn_selected(mode_btn);
 
             primary_input.parents("tr").toggle(options.mode == "active-backup");
             if (options.mode == "active-backup")
@@ -2229,7 +2229,7 @@ PageNetworkBondSettings.prototype = {
         }
 
         function change_monitoring() {
-            var use_mii = cockpit_select_btn_selected(monitoring_btn) == "mii";
+            var use_mii = cockpit.select_btn_selected(monitoring_btn) == "mii";
 
             targets_input.parents("tr").toggle(!use_mii);
             updelay_input.parents("tr").toggle(use_mii);
@@ -2277,7 +2277,7 @@ PageNetworkBondSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Mode")),
                     $('<td>').append(
-                        mode_btn = cockpit_select_btn(change_mode, bond_mode_choices))),
+                        mode_btn = cockpit.select_btn(change_mode, bond_mode_choices))),
                 $('<tr>').append(
                     $('<td>').text(_("Primary")),
                     $('<td>').append(
@@ -2287,7 +2287,7 @@ PageNetworkBondSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Link Monitoring")),
                     $('<td>').append(
-                        monitoring_btn = cockpit_select_btn(change_monitoring, bond_monitoring_choices))),
+                        monitoring_btn = cockpit.select_btn(change_monitoring, bond_monitoring_choices))),
                 $('<tr>').append(
                     $('<td>').text(_("Monitoring Interval")),
                     $('<td>').append(
@@ -2313,8 +2313,8 @@ PageNetworkBondSettings.prototype = {
                             val(options.downdelay || "0").
                             change(change_monitoring))));
 
-        cockpit_select_btn_select(mode_btn, options.mode);
-        cockpit_select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
+        cockpit.select_btn_select(mode_btn, options.mode);
+        cockpit.select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
         change_mode();
         change_monitoring();
 
@@ -2772,7 +2772,7 @@ PageNetworkVlanSettings.prototype = {
 
         function change() {
             // XXX - parse errors
-            options.parent = cockpit_select_btn_selected(parent_btn);
+            options.parent = cockpit.select_btn_selected(parent_btn);
             options.id = parseInt(id_input.val(), 10);
             options.interface_name = name_input.val();
 
@@ -2799,7 +2799,7 @@ PageNetworkVlanSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Parent")),
                     $('<td>').append(
-                        parent_btn = cockpit_select_btn(change, parent_choices))),
+                        parent_btn = cockpit.select_btn(change, parent_choices))),
                 $('<tr>').append(
                     $('<td>').text(_("VLAN Id")),
                     $('<td>').append(
@@ -2813,7 +2813,7 @@ PageNetworkVlanSettings.prototype = {
                             val(options.interface_name).
                             change(change))));
 
-        cockpit_select_btn_select(parent_btn, options.parent);
+        cockpit.select_btn_select(parent_btn, options.parent);
         change();
         $('#network-vlan-settings-body').html(body);
     },

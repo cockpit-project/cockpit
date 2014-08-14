@@ -152,7 +152,7 @@ PageSetupServer.prototype = {
 
         discovered.empty();
         for (var i = 0; i < machines.length; i++) {
-            if (!cockpit_find_in_array(machines[i].Tags, "dashboard")) {
+            if (!cockpit.find_in_array(machines[i].Tags, "dashboard")) {
                 var rendered_address = render_address(machines[i].Address);
                 if (rendered_address) {
                     if (machines[i].Address.trim() !== "") {
@@ -404,7 +404,7 @@ PageSetupServer.prototype = {
 
             function groups_contain_roles(groups) {
                 for (var i = 0; i < roles.length; i++) {
-                    if (cockpit_find_in_array(groups, roles[i][0]))
+                    if (cockpit.find_in_array(groups, roles[i][0]))
                         return true;
                 }
                 return false;

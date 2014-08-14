@@ -74,7 +74,7 @@ function init() {
     var language, language_normalized, code, code_normalized;
 
     // First load translations, if any... first, check browser storage
-    lang_code = cockpit_settings_get("lang-code");
+    lang_code = cockpit.settings_get("lang-code");
 
     // If that didn't work, try inferring from whatever language the
     // browser is using... this is a language code from RFC4646, see
@@ -100,10 +100,9 @@ function init() {
 }
 
 function init_load_lang(lang_code) {
-    //cockpit_debug("Loading language `" + lang_code + "'");
     var jqxhr = $.getJSON("lang/" + lang_code + ".json");
     jqxhr.error(function() {
-        cockpit_debug("Error loading language \"" + lang_code + "\"");
+        console.warn("Error loading language \"" + lang_code + "\"");
         init_done();
     });
     jqxhr.success(function(data) {
@@ -236,7 +235,7 @@ cockpit.content_update_loc_trail = function content_update_loc_trail() {
     box.empty();
     for (i = 0; i < cockpit.loc_trail.length; i++) {
         var p = cockpit.page_from_id(cockpit.loc_trail[i].page);
-        var title = p? (p.getTitleHtml? p.getTitleHtml() : cockpit_esc(p.getTitle())) : "??";
+        var title = p? (p.getTitleHtml? p.getTitleHtml() : cockpit.esc(p.getTitle())) : "??";
         var btn = $('<button>', { 'class': 'btn btn-default' }).html(title);
         box.append(btn);
         btn.on('click', go(cockpit.loc_trail.slice(0, i+1)));
@@ -414,7 +413,7 @@ function page_enter(id) {
         first_visit = false;
 
     if (page) {
-        // cockpit_debug("enter() for page with id " + id);
+        // cockpit.debug("enter() for page with id " + id);
         if (first_visit && page.setup)
             page.setup();
         page.enter();
@@ -426,7 +425,6 @@ function page_enter(id) {
 function page_leave(id) {
     var page = cockpit.page_from_id(id);
     if (page) {
-        // cockpit_debug("leave() for page with id " + id);
         page.leave();
     }
     phantom_checkpoint ();
@@ -435,7 +433,6 @@ function page_leave(id) {
 function page_show(id) {
     var page = cockpit.page_from_id(id);
     if (page) {
-        // cockpit_debug("show() for page with id " + id);
         if (content_is_shown) {
             page.show();
         }

@@ -301,7 +301,7 @@ PageServices.prototype = {
             $('#services .list-group-item').removeClass('highlight');
             if (id) {
                 id = id.split('/').pop();
-                $('[data-unit="' + cockpit_esc(id) + '"]').addClass('highlight');
+                $('[data-unit="' + cockpit.esc(id) + '"]').addClass('highlight');
             }
         }
 
@@ -572,7 +572,7 @@ PageService.prototype = {
             { title: _("Isolate"),               action: 'isolate' }
         ];
 
-        self.unit_action_btn = cockpit_action_btn(function (op) { self.action(op); },
+        self.unit_action_btn = cockpit.action_btn(function (op) { self.action(op); },
                                                   unit_action_spec);
         $('#service-unit-action-btn').html(self.unit_action_btn);
 
@@ -587,7 +587,7 @@ PageService.prototype = {
             { title: _("Unmask"),                action: 'unmask' }
         ];
 
-        self.file_action_btn = cockpit_action_btn(function (op) { self.action(op); },
+        self.file_action_btn = cockpit.action_btn(function (op) { self.action(op); },
                                                   file_action_spec);
         $('#service-file-action-btn').html(self.file_action_btn);
 
@@ -748,8 +748,8 @@ PageService.prototype = {
                 $("#service-template-row").show();
                 var html = F(_("This service is an instance of the %{template} service template."),
                              { template: F('<a class="cockpit-link" onclick="%{cmd}">%{title}</a>',
-                                           { cmd: cockpit_esc(cockpit.go_down_cmd("service", { s: me.template })),
-                                             title: cockpit_esc(me.template)
+                                           { cmd: cockpit.esc(cockpit.go_down_cmd("service", { s: me.template })),
+                                             title: cockpit.esc(me.template)
                                            })
                              });
                 $("#service-template-link").html(html);
@@ -771,12 +771,12 @@ PageService.prototype = {
                 $("#service-template-state").text(_(file_state));
             } else if (load_state == "error") {
                 $("#service-load-error-box").show();
-                $("#service-load-error").text(cockpit_esc(info.LoadError[1]));
+                $("#service-load-error").text(cockpit.esc(info.LoadError[1]));
             } else {
                 var path = info.SourcePath || info.FragmentPath;
                 if (path || file_state) {
                     $("#service-file-box").show();
-                    $("#service-file").text(cockpit_esc(path));
+                    $("#service-file").text(cockpit.esc(path));
                     $("#service-file-state").text(_(file_state));
                 } else
                     $("#service-file-row").hide();
@@ -795,15 +795,15 @@ PageService.prototype = {
             if (info.Processes) {
                 procs.closest('.panel').show();
                 procs.empty();
-                procs.append("<div class=\"list-group-item\"> " + _("CGroup") + ": " + cockpit_esc(info.DefaultControlGroup) + "</div>");
+                procs.append("<div class=\"list-group-item\"> " + _("CGroup") + ": " + cockpit.esc(info.DefaultControlGroup) + "</div>");
 
                 function add_proc_info(info, level) {
                     var i;
                     if (level > 0)
-                        procs.append("<div class=\"list-group-item\">" + cockpit_esc(info[0]) + "</div>");
+                        procs.append("<div class=\"list-group-item\">" + cockpit.esc(info[0]) + "</div>");
                     for (i = 1; i < info.length; i++) {
                         if (true) {
-                            procs.append("<div class=\"list-group-item\">" + cockpit_esc(info[i].Pid) + " " + cockpit_esc(info[i].CmdLine) + "</div>");
+                            procs.append("<div class=\"list-group-item\">" + cockpit.esc(info[i].Pid) + " " + cockpit.esc(info[i].CmdLine) + "</div>");
                         } else {
                             add_proc_info(info[i], level+1);
                         }
@@ -818,11 +818,11 @@ PageService.prototype = {
     },
 
     set_unit_action: function(op) {
-        cockpit_action_btn_select (this.unit_action_btn, op);
+        cockpit.action_btn_select(this.unit_action_btn, op);
     },
 
     set_file_action: function(op) {
-        cockpit_action_btn_select (this.file_action_btn, op);
+        cockpit.action_btn_select(this.file_action_btn, op);
     },
 
     action: function(op) {

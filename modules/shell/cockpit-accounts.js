@@ -441,7 +441,7 @@ PageAccount.prototype = {
                 if (this.sys_roles[i][0] in groups) {
                     if (roles !== "")
                         roles += "<br/>";
-                    roles += cockpit_esc(this.sys_roles[i][1]);
+                    roles += cockpit.esc(this.sys_roles[i][1]);
                 }
             }
             $('#account-roles').html(roles);

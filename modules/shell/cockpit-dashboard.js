@@ -106,7 +106,7 @@ PageDashboard.prototype = {
         this.put_clients();
 
         configured_machines = configured_machines.filter(function (m) {
-            return cockpit_find_in_array(m.Tags, "dashboard");
+            return cockpit.find_in_array(m.Tags, "dashboard");
         });
 
         function machine_action_func (machine) {
@@ -161,8 +161,8 @@ PageDashboard.prototype = {
                                 $('<div/>', { 'class': "waiting" })),
                             $('<div/>', { 'class': "cockpit-machine-error", 'style': "color:red" })),
                         $('<td/>', { style: "text-align:right;width:180px" }).append(
-                            btn = cockpit_action_btn (machine_action_func (machine),
-                                                      machine_action_spec).addClass('cockpit-machine-action'))));
+                            btn = cockpit.action_btn(machine_action_func (machine),
+                                                     machine_action_spec).addClass('cockpit-machine-action'))));
 
             machines.append(
                 $('<a>', { 'class': 'list-group-item' }).
@@ -220,17 +220,17 @@ PageDashboard.prototype = {
                     $(manager).off('AvatarChanged.dashboard');
                     $(manager).on('AvatarChanged.dashboard', $.proxy (self, "update"));
                 }
-                cockpit_action_btn_enable (action_btn, 'connect', false);
-                cockpit_action_btn_enable (action_btn, 'disconnect', true);
-                cockpit_action_btn_select (action_btn, 'disconnect');
+                cockpit.action_btn_enable(action_btn, 'connect', false);
+                cockpit.action_btn_enable(action_btn, 'disconnect', true);
+                cockpit.action_btn_select(action_btn, 'disconnect');
                 error_div.text("");
                 error_div.hide();
                 spinner_div.hide();
                 plot_div.show();
             } else if (client.state == "closed") {
-                cockpit_action_btn_enable (action_btn, 'connect', true);
-                cockpit_action_btn_enable (action_btn, 'disconnect', false);
-                cockpit_action_btn_select (action_btn, 'connect');
+                cockpit.action_btn_enable(action_btn, 'connect', true);
+                cockpit.action_btn_enable(action_btn, 'disconnect', false);
+                cockpit.action_btn_select(action_btn, 'connect');
                 error_div.text(cockpit.client_error_description(client.error) || "Disconnected");
                 error_div.show();
                 spinner_div.hide();

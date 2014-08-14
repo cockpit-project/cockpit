@@ -84,15 +84,15 @@ function output_funcs_for_box(box) {
     function render_line (ident, prio, message, count, time, cursor)
     {
         var html = ('<span class="cockpit-logident">' +
-                    cockpit_esc(ident) + ': ' +
+                    cockpit.esc(ident) + ': ' +
                     '</span>' +
                     '<span class="cockpit-logmsg">' +
-                    '<span class="cockpit-logprio-' + prio + '">' + cockpit_esc(message) + '</span>' +
+                    '<span class="cockpit-logprio-' + prio + '">' + cockpit.esc(message) + '</span>' +
                     '<span class="cockpit-logtime">' +
                     ((count > 1)?
                      '<span class="badge">' + count + '</span>' :
                      '') +
-                    cockpit_esc(time) +
+                    cockpit.esc(time) +
                     '</span>' +
                     '</span>');
         var elt = $('<div class="cockpit-logline">' + html + '</div>');
@@ -140,9 +140,9 @@ cockpit.simple_logbox = function simple_logbox(client, box, match, max_entries) 
     function callback (tail, error) {
         if (error) {
             if (error.name == "org.freedesktop.DBus.Error.AccessDenied")
-                box.append(cockpit_esc(_("You are not authorized.")));
+                box.append(cockpit.esc(_("You are not authorized.")));
             else
-                box.append(cockpit_esc(error.message));
+                box.append(cockpit.esc(error.message));
             box.show();
             return;
         }
@@ -497,7 +497,7 @@ PageJournal.prototype = {
                 list.empty();
                 result.sort();
                 for (var i = 0; i < result.length; i++)
-                    list.append('<option value="' + cockpit_esc (result[i]) + '"/>');
+                    list.append('<option value="' + cockpit.esc(result[i]) + '"/>');
             }
         });
     },
@@ -598,7 +598,7 @@ PageJournalDetails.prototype = {
                               if (result.length == 1) {
                                   var r = result[0];
                                   for (var i = 0; i < r.length; i++) {
-                                      out.append('<li class="list-group-item">' + cockpit_esc(r[i]) + '</li>');
+                                      out.append('<li class="list-group-item">' + cockpit.esc(r[i]) + '</li>');
                                   }
                               }
                           }

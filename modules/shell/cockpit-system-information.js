@@ -70,7 +70,7 @@ PageSystemInformation.prototype = {
                 var name = joined[0][0];
                 var details = joined[0][1];
                 $("#realms-list").append(('<li class="list-group-item" id="domain-list">' +
-                                          cockpit_esc(name) +
+                                          cockpit.esc(name) +
                                           '<button class="btn btn-default realms-leave-button" id="realms-leave" style="float:right">' +
                                           _("Leave") + '</button>' +
                                           '<div class="realms-leave-spinner waiting" id="realms-leave-spinner style="float:right"/>' +

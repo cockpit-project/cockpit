@@ -73,7 +73,7 @@ function render_container_state (state) {
 }
 
 function multi_line(strings) {
-    return strings.map(cockpit_esc).join('<br/>');
+    return strings.map(cockpit.esc).join('<br/>');
 }
 
 function format_cpu_shares(priority) {
@@ -357,7 +357,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
     $(row[6]).children("button.btn-stop").toggle(!waiting && container.State.Running);
 
     if (filter_button) {
-        var filter = cockpit_select_btn_selected(filter_button);
+        var filter = cockpit.select_btn_selected(filter_button);
         tr.toggleClass("unimportant", !container.State.Running);
     }
 
@@ -376,7 +376,7 @@ PageContainers.prototype = {
 
     setup: function() {
         this.container_filter_btn =
-            cockpit_select_btn($.proxy(this, "filter"),
+            cockpit.select_btn($.proxy(this, "filter"),
                                [ { title: _("All"),                 choice: 'all',  is_default: true },
                                  { title: _("Running"),             choice: 'running' }
                                ]);
@@ -534,7 +534,7 @@ PageContainers.prototype = {
     },
 
     filter: function() {
-        var filter = cockpit_select_btn_selected(this.container_filter_btn);
+        var filter = cockpit.select_btn_selected(this.container_filter_btn);
         $("#containers-containers table").toggleClass("filter-unimportant", filter === "running");
     }
 
@@ -1122,7 +1122,7 @@ PageContainerDetails.prototype = {
         $('#container-details-state').text(render_container_state(info.State));
 
         $('#container-details-ports-row').toggle(port_bindings.length > 0);
-        $('#container-details-ports').html(port_bindings.map(cockpit_esc).join('<br/>'));
+        $('#container-details-ports').html(port_bindings.map(cockpit.esc).join('<br/>'));
 
         update_memory_bar(this.memory_usage, info.MemoryUsage, info.MemoryLimit);
         $('#container-details-memory-text').text(format_memory_and_limit(info.MemoryUsage, info.MemoryLimit));

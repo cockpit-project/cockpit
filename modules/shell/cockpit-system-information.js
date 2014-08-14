@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageSystemInformation.prototype = {
     _init: function() {
         this.id = "system_information";
@@ -338,3 +340,5 @@ function PageSystemInformationChangeHostname() {
 }
 
 cockpit.pages.push(new PageSystemInformationChangeHostname());
+
+}(cockpit, jQuery));

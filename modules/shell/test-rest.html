@@ -125,7 +125,7 @@ function MockPeer() {
     var peer = this;
     var last_channel = 0;
 
-    Channel = function MockChannel(options) {
+    function MockChannel(options) {
         this.number = last_channel++;
         this.options = options;
         this.valid = true;
@@ -155,6 +155,10 @@ function MockPeer() {
 
         $(peer).trigger("opened", [channel, options]);
     }
+
+    cockpit.channel = function(options) {
+        return new MockChannel(options);
+    };
 }
 
 test("public api", function() {

@@ -62,7 +62,7 @@ var mock_peer = new MockPeer();
 
 QUnit.testDone(function() {
     mock_peer = new MockPeer();
-    Channel.transport = null;
+    cockpit.transport = null;
 });
 
 /* Mock WebSocket */
@@ -134,29 +134,29 @@ function MockWebSocket(url, protocol) {
 }
 
 /* Override URL function */
-Channel.calculate_url = function() {
+cockpit.channel.calculate_url = function() {
     return "ws://url";
 };
 
 WebSocket = MockWebSocket;
 
 test("public api", function() {
-    var channel = new Channel({ "host": "host.example.com" });
-    equal(typeof channel, "object", "Channel() constructor");
+    var channel = cockpit.channel({ "host": "host.example.com" });
+    equal(typeof channel, "object", "cockpit.channel() constructor");
     equal(channel.options.host, "host.example.com", "channel.options is dict");
     equal(typeof channel.id, "string", "channel.id is valid");
     ok(channel.toString().indexOf("host.example.com") > 0, "channel.toString()");
     equal(typeof channel.send, "function", "channel.send() is a function");
     equal(typeof channel.close, "function", "channel.close() is a function");
-    strictEqual(channel.valid, true, "Channel.valid is set");
-    equal(typeof Channel.transport, "object", "Channel.transport is an object");
-    equal(typeof Channel.transport.close, "function", "Channel.transport is a function");
+    strictEqual(channel.valid, true, "channel.valid is set");
+    equal(typeof cockpit.transport, "object", "cockpit.transport is an object");
+    equal(typeof cockpit.transport.close, "function", "cockpit.transport is a function");
 });
 
 asyncTest("open channel", function() {
     expect(6);
 
-    var channel = new Channel({ "host": "scruffy" });
+    var channel = cockpit.channel({ "host": "scruffy" });
     $(mock_peer).on("open", function(event) {
         ok(true, "websocket connected");
     });
@@ -174,18 +174,18 @@ asyncTest("open channel", function() {
 test("multiple", function() {
     expect(2);
 
-    var channel = new Channel({ "host": "scruffy" });
-    var transport = Channel.transport;
+    var channel = cockpit.channel({ "host": "scruffy" });
+    var transport = cockpit.transport;
 
-    var channelb = new Channel({ "host": "amy" });
+    var channelb = cockpit.channel({ "host": "amy" });
     notStrictEqual(channel.id, channelb.id, "mulitple: channels have different ids");
-    strictEqual(Channel.transport, transport, "multiple: channels share a transport");
+    strictEqual(cockpit.transport, transport, "multiple: channels share a transport");
 });
 
 asyncTest("send message", function() {
     expect(2);
 
-    var channel = new Channel({ });
+    var channel = cockpit.channel({ });
     $(mock_peer).on("open", function(event) {
 	channel.send("Scruffy gonna die the way he lived");
     });
@@ -203,7 +203,7 @@ asyncTest("queue messages", function() {
     expect(1);
 
     var sentence = [];
-    var channel = new Channel({ });
+    var channel = cockpit.channel({ });
     channel.send("Scruffy");
     channel.send("knows");
     channel.send("he");
@@ -222,7 +222,7 @@ asyncTest("queue messages", function() {
 asyncTest("receive message", function() {
     expect(1);
 
-    var channel = new Channel({ });
+    var channel = cockpit.channel({ });
     $(channel).on("message", function(event, message) {
         equal(message, "Oh, marrrrmalade!", "receive: got right message in channel");
         start();
@@ -234,7 +234,7 @@ asyncTest("receive message", function() {
 asyncTest("close channel", function() {
     expect(5);
 
-    var channel = new Channel({ });
+    var channel = cockpit.channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
         if (cmd.command == "open")
@@ -255,7 +255,7 @@ asyncTest("close channel", function() {
 asyncTest("close problem", function() {
     expect(5);
 
-    var channel = new Channel({ });
+    var channel = cockpit.channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
         if (cmd.command == "open")
@@ -276,7 +276,7 @@ asyncTest("close problem", function() {
 asyncTest("close problem string", function() {
     expect(5);
 
-    var channel = new Channel({ });
+    var channel = cockpit.channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
         if (cmd.command == "open")
@@ -298,8 +298,8 @@ asyncTest("close problem string", function() {
 asyncTest("close peer", function() {
     expect(5);
 
-    var channel = new Channel({ });
-    var channelb = new Channel({ });
+    var channel = cockpit.channel({ });
+    var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
         ok(true, "close: triggered event");
@@ -322,8 +322,8 @@ asyncTest("close peer", function() {
 asyncTest("close broadcast", function() {
     expect(4);
 
-    var channel = new Channel({ });
-    var channelb = new Channel({ });
+    var channel = cockpit.channel({ });
+    var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
         equal(options.reason, "pizzazz", "close-broadcast: received reason");
@@ -350,8 +350,8 @@ asyncTest("close broadcast", function() {
 asyncTest("close socket", function() {
     expect(4);
 
-    var channel = new Channel({ });
-    var channelb = new Channel({ });
+    var channel = cockpit.channel({ });
+    var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
         equal(options.reason, "disconnected", "close-socket: received reason");
@@ -371,8 +371,8 @@ asyncTest("close socket", function() {
 });
 
 test("close transport", function() {
-    var channel = new Channel({ });
-    var channelb = new Channel({ });
+    var channel = cockpit.channel({ });
+    var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
         equal(options.reason, "disconnected", "close-transport: received reason");
@@ -382,8 +382,8 @@ test("close transport", function() {
         equal(options.reason, "disconnected", "close-transport: received reason");
     });
 
-    Channel.transport.close();
-    strictEqual(Channel.transport, null, "close-transport: clears transport");
+    cockpit.transport.close();
+    strictEqual(cockpit.transport, null, "close-transport: clears transport");
     strictEqual(channel.valid, false, "close-transport: channel is invalid");
     strictEqual(channelb.valid, false, "close-transport: other channel invalid");
 });
@@ -394,7 +394,7 @@ asyncTest("send after close", function() {
     console_ignore_log(/sending message on closed.*/);
 
     var received_message = false;
-    var channel = new Channel({ });
+    var channel = cockpit.channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
         if (chan != 0)
             received_message = true;
@@ -412,7 +412,7 @@ asyncTest("send after close", function() {
 asyncTest("ignore other commands", function() {
     expect(1);
 
-    var channel = new Channel({ });
+    var channel = cockpit.channel({ });
 
     console_ignore_log(/unhandled control message.*/);
 

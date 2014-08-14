@@ -554,9 +554,9 @@ cockpit.confirm = function confirm(title, body, action_text) {
 
 $(function() {
     $(".cockpit-deauthorize-item a").on("click", function(ev) {
-        /* Ensure Channel.transport is not null */
-        var channel = new Channel({ "payload": "null" });
-        Channel.transport.logout(false);
+        /* Ensure cockpit.transport is not null */
+        var channel = cockpit.channel({ "payload": "null" });
+        cockpit.transport.logout(false);
         channel.close();
         $(".cockpit-deauthorize-item").addClass("disabled");
         $(".cockpit-deauthorize-item a").off("click");
@@ -572,12 +572,12 @@ $(function() {
 });
 
 cockpit.logout = function logout(reason) {
-    var channel = new Channel({ "payload": "null" });
+    var channel = cockpit.channel({ "payload": "null" });
     $(channel).on("close", function() {
         window.location.reload(true);
     });
     cockpit.set_watched_client(null);
-    Channel.transport.logout(true);
+    cockpit.transport.logout(true);
 };
 
 cockpit.go_login_account = function go_login_account() {

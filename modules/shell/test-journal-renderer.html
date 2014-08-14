@@ -111,7 +111,7 @@ var funcs = {
 
 QUnit.testStart(function() {
     output = [ ];
-    renderer = cockpit_journal_renderer (funcs);
+    renderer = cockpit.journal_renderer(funcs);
 });
 
 function append(message)

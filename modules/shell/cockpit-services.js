@@ -676,7 +676,7 @@ PageService.prototype = {
     },
 
     watch_journal: function () {
-        this.journal_watcher = cockpit_simple_logbox (this.client,
+        this.journal_watcher = cockpit.simple_logbox(this.client,
                                                       $('#service-log'),
                                                       [ [ "_SYSTEMD_UNIT=" + this.service ],
                                                         [ "COREDUMP_UNIT=" + this.service ],

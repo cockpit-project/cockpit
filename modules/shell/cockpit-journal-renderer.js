@@ -17,7 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit_journal_fields = [ "__REALTIME_TIMESTAMP",
+var cockpit = cockpit || { };
+(function(cockpit, $) {
+
+cockpit.journal_fields = [ "__REALTIME_TIMESTAMP",
                                "__CURSOR",
                                "_BOOT_ID",
                                "_COMM", "_PID",
@@ -25,7 +28,7 @@ var cockpit_journal_fields = [ "__REALTIME_TIMESTAMP",
                                "PRIORITY", "MESSAGE"
                              ];
 
-var cockpit_month_names = [ 'January',
+var month_names = [         'January',
                             'February',
                             'March',
                             'April',
@@ -46,10 +49,10 @@ var cockpit_month_names = [ 'January',
    example, and collapse repeated lines.  You can extend the output at
    the bottom and also at the top.
 
-   A new renderer is created by calling 'cockpit_journal_renderer' like
+   A new renderer is created by calling 'cockpit.journal_renderer' like
    so:
 
-      var renderer = cockpit_journal_renderer (funcs);
+      var renderer = cockpit.journal_renderer(funcs);
 
    You can feed new entries into the renderer by calling various
    methods on the returned object:
@@ -60,7 +63,7 @@ var cockpit_month_names = [ 'January',
       - renderer.prepend_flush ()
 
    A 'journal_entry' is one element of the result array returned by a
-   call to 'Query' with the 'cockpit_journal_fields' as the fields to
+   call to 'Query' with the 'cockpit.journal_fields' as the fields to
    return.
 
    Calling 'append' will append the given entry to the end of the
@@ -102,7 +105,7 @@ var cockpit_month_names = [ 'January',
 
 */
 
-function cockpit_journal_renderer (output_funcs)
+cockpit.journal_renderer = function journal_renderer(output_funcs)
 {
     function copy_object (o)
     {
@@ -125,7 +128,7 @@ function cockpit_journal_renderer (output_funcs)
         var d = new Date(journal_entry[0]/1000);
         return {
             cursor: journal_entry[1],
-            day: C_("month-name", cockpit_month_names[d.getMonth()]) + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed(),
+            day: C_("month-name", month_names[d.getMonth()]) + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed(),
             time: pad(d.getHours()) + ':' + pad(d.getMinutes()),
             bootid: journal_entry[2],
             ident: journal_entry[5] || journal_entry[3],
@@ -286,4 +289,6 @@ function cockpit_journal_renderer (output_funcs)
              append: append,
              append_flush: append_flush
            };
-}
+};
+
+})(cockpit, jQuery);

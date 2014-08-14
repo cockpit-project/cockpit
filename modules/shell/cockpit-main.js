@@ -555,6 +555,41 @@ cockpit.confirm = function confirm(title, body, action_text) {
     return deferred.promise();
 };
 
+$(function() {
+    $(".cockpit-deauthorize-item a").on("click", function(ev) {
+        /* Ensure Channel.transport is not null */
+        var channel = new Channel({ "payload": "null" });
+        Channel.transport.logout(false);
+        channel.close();
+        $(".cockpit-deauthorize-item").addClass("disabled");
+        $(".cockpit-deauthorize-item a").off("click");
+
+        /* TODO: We need a better indicator for deauthorized state */
+        $(".cockpit-deauthorize-status").text("deauthorized");
+        ev.preventDefault();
+    });
+
+    var is_root = cockpit.connection_config.user == "root";
+    $('#cockpit-go-account').toggle(!is_root);
+    $('#cockpit-change-passwd').toggle(is_root);
+});
+
+cockpit.logout = function logout(reason) {
+    var channel = new Channel({ "payload": "null" });
+    $(channel).on("close", function() {
+        window.location.reload(true);
+    });
+    cockpit.set_watched_client(null);
+    Channel.transport.logout(true);
+};
+
+cockpit.go_login_account = function go_login_account() {
+    cockpit.go_server("localhost",
+                       [ { page: "accounts" },
+                         { page: "account", id: cockpit.connection_config.user }
+                       ]);
+};
+
 PageDisconnected.prototype = {
     _init: function() {
         this.id = "disconnected-dialog";
@@ -584,7 +619,7 @@ PageDisconnected.prototype = {
     },
 
     logout: function() {
-        cockpit_logout();
+        cockpit.logout();
     }
 };
 

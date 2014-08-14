@@ -271,7 +271,7 @@ class Browser:
         self.wait_page(page)
 
     def logout(self):
-        self.click('a[onclick*="cockpit_logout"]')
+        self.click('a[onclick*="cockpit.logout"]')
         self.expect_reload()
 
     def relogin(self, page, user=None):

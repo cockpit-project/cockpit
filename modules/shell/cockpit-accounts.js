@@ -17,14 +17,23 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function cockpit_check_role (role, client)
+(function(cockpit, $) {
+
+function make_set(array) {
+    var s = { };
+    for (var i = 0; i < array.length; i++)
+        s[array[i]] = true;
+    return s;
+}
+
+cockpit.check_role = function check_role(role, client)
 {
     var acc, i;
 
     if (cockpit.connection_config.user == "root")
         return true;
 
-    acc = cockpit_find_account (cockpit.connection_config.user, client);
+    acc = find_account(cockpit.connection_config.user, client);
     if (acc) {
         for (i = 0; i < acc.Groups.length; i++) {
             if (acc.Groups[i] == 'wheel' || acc.Groups[i] == role)
@@ -35,9 +44,9 @@ function cockpit_check_role (role, client)
     }
     // When in doubt, just go ahead and let it fail later.
     return true;
-}
+};
 
-function cockpit_find_account(user_name, client)
+function find_account(user_name, client)
 {
     var account_objs = client.getObjectsFrom("/com/redhat/Cockpit/Accounts/");
     var i, acc;
@@ -50,7 +59,7 @@ function cockpit_find_account(user_name, client)
     return null;
 }
 
-function cockpit_fill_canvas (canvas, overlay, data, width, callback)
+function fill_canvas(canvas, overlay, data, width, callback)
 {
     var img = new window.Image();
     img.onerror = function () {
@@ -69,7 +78,7 @@ function cockpit_fill_canvas (canvas, overlay, data, width, callback)
     img.src = data;
 }
 
-function cockpit_canvas_data (canvas, x1, y1, x2, y2, width, height, format)
+function canvas_data(canvas, x1, y1, x2, y2, width, height, format)
 {
     var dest = $('<canvas/>')[0];
     dest.width = width;
@@ -90,7 +99,7 @@ function cockpit_canvas_data (canvas, x1, y1, x2, y2, width, height, format)
     return dest.toDataURL(format);
 }
 
-function cockpit_show_change_avatar_dialog (file_input, callback)
+cockpit.show_change_avatar_dialog = function show_change_avatar_dialog(file_input, callback)
 {
     var files, file, reader;
     files = $(file_input)[0].files;
@@ -108,18 +117,18 @@ function cockpit_show_change_avatar_dialog (file_input, callback)
     reader.onload = function () {
         var canvas = $('#account-change-avatar-canvas')[0];
         var overlay = $('#account-change-avatar-overlay')[0];
-        cockpit_fill_canvas (canvas, overlay, reader.result, 256,
+        fill_canvas(canvas, overlay, reader.result, 256,
                           function () {
                               PageAccountChangeAvatar.callback = callback;
                               $('#account-change-avatar-dialog').modal('show');
                           });
     };
     reader.readAsDataURL(file);
-}
+};
 
 // XXX - make private
 
-function cockpit_on_account_changes(client, id, func) {
+function on_account_changes(client, id, func) {
     function object_added(event, obj) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Accounts/") === 0)
             func();
@@ -147,7 +156,7 @@ function cockpit_on_account_changes(client, id, func) {
     $(client).on("signalEmitted." + id, signal_emitted);
 }
 
-function cockpit_off_account_changes(client, id) {
+function off_account_changes(client, id) {
     $(client).off("." + id);
 }
 
@@ -173,13 +182,13 @@ PageAccounts.prototype = {
         this.client = cockpit.dbus(this.address, { "payload": "dbus-json1" });
         cockpit.set_watched_client(this.client);
 
-        cockpit_on_account_changes(this.client, "accounts", $.proxy(this, "update"));
+        on_account_changes(this.client, "accounts", $.proxy(this, "update"));
         this.update();
     },
 
     leave: function() {
         cockpit.set_watched_client(null);
-        cockpit_off_account_changes(this.client, "accounts");
+        off_account_changes(this.client, "accounts");
         this.client.release();
         this.client = null;
     },
@@ -229,7 +238,7 @@ PageAccounts.prototype = {
     },
 
     create: function () {
-        if (cockpit_check_role ('cockpit-user-admin', this.client)) {
+        if (cockpit.check_role('cockpit-user-admin', this.client)) {
             PageAccountsCreate.client = this.client;
             $('#accounts-create-dialog').modal('show');
         }
@@ -387,20 +396,20 @@ PageAccount.prototype = {
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.client);
 
-        cockpit_on_account_changes(this.client, "account", $.proxy(this, "update"));
+        on_account_changes(this.client, "account", $.proxy(this, "update"));
         this.real_name_dirty = false;
         this.update ();
     },
 
     leave: function() {
         cockpit.set_watched_client(null);
-        cockpit_off_account_changes(this.client, "account");
+        off_account_changes(this.client, "account");
         this.client.release();
         this.client = null;
     },
 
     update: function() {
-        this.account = cockpit_find_account(cockpit_get_page_param('id'), this.client);
+        this.account = find_account(cockpit_get_page_param('id'), this.client);
 
         if (this.account) {
             var manager = this.client.get ("/com/redhat/Cockpit/Accounts",
@@ -426,7 +435,7 @@ PageAccount.prototype = {
             else
                 $('#account-last-login').text((new Date(this.account.LastLogin*1000)).toLocaleString());
             $('#account-locked').prop('checked', this.account.Locked);
-            var groups = cockpit_make_set (this.account.Groups);
+            var groups = make_set(this.account.Groups);
             var roles = "";
             for (var i = 0; i < this.sys_roles.length; i++) {
                 if (this.sys_roles[i][0] in groups) {
@@ -457,7 +466,7 @@ PageAccount.prototype = {
 
     change_avatar: function() {
         var me = this;
-        cockpit_show_change_avatar_dialog ('#account-avatar-uploader',
+        cockpit.show_change_avatar_dialog('#account-avatar-uploader',
                                         function (data) {
                                             me.account.call('SetIconDataURL', data,
                                                             function (error) {
@@ -473,7 +482,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account.UserName == cockpit.connection_config.user ||
-                cockpit_check_role ('cockpit-user-admin', this.client));
+                cockpit.check_role('cockpit-user-admin', this.client));
     },
 
     change_real_name: function() {
@@ -498,7 +507,7 @@ PageAccount.prototype = {
     change_locked: function() {
         var me = this;
 
-        if (!cockpit_check_role ('cockpit-user-admin', this.client)) {
+        if (!cockpit.check_role('cockpit-user-admin', this.client)) {
             me.update ();
             return;
         }
@@ -523,7 +532,7 @@ PageAccount.prototype = {
     },
 
     delete_account: function() {
-        if (!cockpit_check_role ('cockpit-user-admin', this.client))
+        if (!cockpit.check_role('cockpit-user-admin', this.client))
             return;
 
         PageAccountConfirmDelete.account = this.account;
@@ -533,7 +542,7 @@ PageAccount.prototype = {
     logout_account: function() {
         var me = this;
 
-        if (!cockpit_check_role ('cockpit-user-admin', this.client))
+        if (!cockpit.check_role('cockpit-user-admin', this.client))
             return;
 
         this.account.call('KillSessions',
@@ -546,7 +555,7 @@ PageAccount.prototype = {
     },
 
     change_roles: function() {
-        if (!cockpit_check_role ('cockpit-user-admin', this.client))
+        if (!cockpit.check_role('cockpit-user-admin', this.client))
             return;
 
         PageAccountChangeRoles.account = this.account;
@@ -561,7 +570,7 @@ function PageAccount() {
 
 cockpit_pages.push(new PageAccount());
 
-var cockpit_crop_handle_width = 20;
+var crop_handle_width = 20;
 
 PageAccountChangeAvatar.prototype = {
     _init: function() {
@@ -596,7 +605,7 @@ PageAccountChangeAvatar.prototype = {
 
             var proj_sign, dx_sign, dy_sign, ds_sign;
 
-            var h_w = cockpit_crop_handle_width;
+            var h_w = crop_handle_width;
 
             if (xoff > 0 && yoff > 0 && xoff < self.crop_s && yoff < self.crop_s) {
                 if (xoff < h_w && yoff < h_w) {
@@ -669,7 +678,7 @@ PageAccountChangeAvatar.prototype = {
         y = Math.floor(y);
         s = Math.floor(s);
 
-        var min_s = 2*cockpit_crop_handle_width;
+        var min_s = 2 * crop_handle_width;
 
         if (fix) {
             // move it until it fits
@@ -703,7 +712,7 @@ PageAccountChangeAvatar.prototype = {
         ctxt.fillRect(0, 0, this.canvas.width, this.canvas.height);
         ctxt.clearRect(x1, y1, x2 - x1, y2 - y1);
 
-        var h_w = cockpit_crop_handle_width;
+        var h_w = crop_handle_width;
         draw_box (x1, y1, x1+h_w, y1+h_w);
         draw_box (x2-h_w, y1, x2, y1+h_w);
         draw_box (x1, y2-h_w, x1+h_w, y2);
@@ -716,7 +725,7 @@ PageAccountChangeAvatar.prototype = {
     },
 
     apply: function() {
-        var data = cockpit_canvas_data ($('#account-change-avatar-canvas')[0],
+        var data = canvas_data($('#account-change-avatar-canvas')[0],
                                      this.crop_x, this.crop_y,
                                      this.crop_x+this.crop_s, this.crop_y+this.crop_s,
                                      128, 128, "image/png");
@@ -775,7 +784,7 @@ PageAccountChangeRoles.prototype = {
         roles.empty();
         roles.append (list);
 
-        groups = cockpit_make_set (PageAccountChangeRoles.account.Groups);
+        groups = make_set(PageAccountChangeRoles.account.Groups);
         this.roles = { };
         for (i = 0; i < this.sys_roles.length; i++) {
             r = this.sys_roles[i][0];
@@ -960,8 +969,10 @@ function PageAccountSetPassword() {
 
 cockpit_pages.push(new PageAccountSetPassword());
 
-function cockpit_change_password() {
+cockpit.change_password = function change_password() {
     PageAccountSetPassword.account = null;
     PageAccountSetPassword.user_name = cockpit.connection_config.user;
     $('#account-set-password-dialog').modal('show');
-}
+};
+
+})(cockpit, jQuery);

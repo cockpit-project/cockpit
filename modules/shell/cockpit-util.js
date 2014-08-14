@@ -282,13 +282,6 @@ function _is_non_blank(str) {
     return str.search(/\S/) != -1;
 }
 
-function cockpit_make_set (array) {
-    var s = { };
-    for (var i = 0; i < array.length; i++)
-        s[array[i]] = true;
-    return s;
-}
-
 function cockpit_find_in_array (array, elt) {
     for (var i = 0; i < array.length; i++) {
         if (array[i] == elt)

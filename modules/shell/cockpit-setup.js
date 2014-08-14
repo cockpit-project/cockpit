@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageSetupServer.prototype = {
     _init: function() {
         this.id = "dashboard_setup_server_dialog";
@@ -571,3 +573,5 @@ function PageSetupServer() {
 }
 
 cockpit.pages.push(new PageSetupServer());
+
+})(cockpit, $);

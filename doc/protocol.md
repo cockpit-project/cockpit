@@ -259,6 +259,85 @@ type:
  * "object-paths": An array of object paths to start monitoring in the
    case of a non o.f.DBus.ObjectManager based service.
 
+Messages are encoded as JSON objects. Similar to control channel messages,
+each message has a "command" field. There are some obvious inefficiencies
+and issues with these encodings and there is ongoing work to streamline.
+
+ * "call": Make a DBus method call, sent by web front end.
+
+        {
+            "command": "call",
+            "cookie": "mycookie",
+            "objpath": "/object/path",
+            "iface": "org.example.Test",
+            "method": "MethodName",
+            "args": [ "invalue", 5 ]
+        }
+
+ * "call-reply": Reply from a "method-call", sent by cockpit-agent.
+
+        {
+            "command": "call-reply",
+            "data": {
+                "cookie": "mycookie",
+                "result": ["outvalue", 3 ]
+            }
+        }
+
+ * "interface-signal":
+
+        {
+            "command": "interface-signal",
+            "data": {
+                "objpath": "/object/path",
+                "iface_name": "org.example.Test",
+                "signal_name": "SignalName",
+                "args": [ "value", 3 ]
+            }
+        }
+
+ * "seed": A message received from cockpit-agent when the dbus channel is
+   ready. It looks like this:
+
+        {
+            "command": "seed",
+            "options": { "byteorder", "be" },
+            "data": {
+                "/object/path": {
+                    "objpath": "/object/path",
+                    "ifaces": {
+                        "org.example.Test": {
+                            "dbus_prop_Property": "value",
+                            "dbus_prop_Property2": 12,
+                        }
+                    }
+                }
+            }
+        }
+
+ * "interface-properties-changed": Sent by cockpit-agent when the Properties of an interface change.
+
+        {
+            "command": "interface-properties-changed",
+            "data": {
+                "objpath": "/object/path",
+                "iface_name": "org.example.Test",
+                "org.example.Test" : {
+                    "dbus_prop_Property": "value",
+                    "dbus_prop_Property2": 12,
+                }
+            }
+        }
+
+ * "object-added", "object-removed", "interface-added", "interface-removed": Sent by the backend
+   when an object or interfaces is added or removed.
+
+Payload: dbus-json2
+-------------------
+
+Identical to 'dbus-json1' payloads, except that variants are encoded as
+a JSON.
+
 Payload: rest-json1
 -------------------
 

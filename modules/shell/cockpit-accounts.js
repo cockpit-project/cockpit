@@ -870,6 +870,7 @@ PageAccountSetPassword.prototype = {
     },
 
     show: function() {
+        $('#account-set-password-pw1').focus();
     },
 
     setup: function() {
@@ -925,11 +926,11 @@ PageAccountSetPassword.prototype = {
             else
                 hide_error();
         } else if (behavior == "input") {
-              if ($('#account-set-password-pw2').val() !== "" &&
-                  !$('#account-set-password-pw1').val().startsWith($('#account-set-password-pw2').val()))
-                  highlight_error();
-              else
-                  hide_error();
+            if ($('#account-set-password-pw2').val() !== "" &&
+                !$('#account-set-password-pw1').val().startsWith($('#account-set-password-pw2').val()))
+                highlight_error();
+            else
+                hide_error();
 
             this.error_timeout = setTimeout(check_password_match, 2000);
             this.setTimeout = null;
@@ -948,8 +949,8 @@ PageAccountSetPassword.prototype = {
                                                  });
         } else if (PageAccountSetPassword.user_name) {
             cockpit.spawn([ "passwd", "--stdin", PageAccountSetPassword.user_name ]).
-                write($('#account-set-password-pw1').val()).
-                fail(cockpit_show_unexpected_error);
+                          write($('#account-set-password-pw1').val()).
+                          fail(cockpit_show_unexpected_error);
         }
     }
 };

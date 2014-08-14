@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageDiskIOStatus.prototype = {
     _init: function() {
         this.id = "disk_io_status";
@@ -87,3 +89,5 @@ function PageDiskIOStatus() {
 }
 
 cockpit_pages.push(new PageDiskIOStatus());
+
+})(cockpit, jQuery);

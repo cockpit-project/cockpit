@@ -34,7 +34,7 @@ PageSystemInformation.prototype = {
                 return;
 
             if(self.realms.Joined[0] === undefined) {
-                cockpit_realms_op_set_parameters (self.realm_manager, 'join', '', { });
+                cockpit.realms_op_set_parameters(self.realm_manager, 'join', '', { });
                 $('#realms-op').modal('show');
             }
         });
@@ -107,7 +107,7 @@ PageSystemInformation.prototype = {
             $(".realms-leave-spinner").hide();
             if (error) {
                 if (error.name == 'com.redhat.Cockpit.Error.AuthenticationFailed') {
-                    cockpit_realms_op_set_parameters(self.realm_manager, 'leave', name, details);
+                    cockpit.realms_op_set_parameters(self.realm_manager, 'leave', name, details);
                     $("#realms-op").modal('show');
                 } else
                     $("#realms-leave-error").text(error.message);

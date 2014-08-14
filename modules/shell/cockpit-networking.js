@@ -121,7 +121,7 @@ function NetworkManagerModel(address) {
 
     var self = this;
 
-    var client = new DBusClient(address,
+    var client = cockpit.dbus_client(address,
                                 { 'bus':          "system",
                                   'service':      "org.freedesktop.NetworkManager",
                                   'object-paths': [ "/org/freedesktop/NetworkManager" ],
@@ -543,7 +543,7 @@ function NetworkManagerModel(address) {
                 return;
             if (!result[first])
                 result[first] = { };
-            result[first][second] = new DBusVariant(sig, val);
+            result[first][second] = cockpit.variant(sig, val);
         }
 
         function set_ip(first, addrs_sig, addr_to_nm, ips_sig, ip_from_text) {

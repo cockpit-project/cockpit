@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function(cockpit, $) {
+
 PageDisplayLanguageDialog.prototype = {
     _init: function() {
         this.id = "display-language-dialog";
@@ -89,3 +91,5 @@ function PageDisplayLanguageDialog() {
 }
 
 cockpit_pages.push(new PageDisplayLanguageDialog());
+
+})(cockpit, jQuery);

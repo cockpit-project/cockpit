@@ -2172,6 +2172,18 @@ function PageNetworkIpSettings() {
 
 cockpit.pages.push(new PageNetworkIpSettings());
 
+function is_interface_connection(iface, connection) {
+    return connection && connection.Interfaces.indexOf(iface) != -1;
+}
+
+function is_interesting_interface(iface) {
+    return (!iface.Device ||
+            iface.Device.DeviceType == 1 ||
+            iface.Device.DeviceType == 10 ||
+            iface.Device.DeviceType == 11 ||
+            iface.Device.DeviceType == 13);
+}
+
 PageNetworkBondSettings.prototype = {
     _init: function () {
         this.id = "network-bond-settings-dialog";
@@ -2269,7 +2281,8 @@ PageNetworkBondSettings.prototype = {
                     $('<td>').text(_("Members")),
                     $('<td>').append(
                         model.list_interfaces().map(function (iface) {
-                            if (!iface.Device || iface.Device.DeviceType != 1)
+                            if (is_interface_connection(iface, PageNetworkBondSettings.connection) ||
+                                !is_interesting_interface(iface))
                                 return null;
                             return $('<label>').append(
                                 $('<input>', { 'type': "checkbox",
@@ -2495,7 +2508,8 @@ PageNetworkBridgeSettings.prototype = {
                     $('<td>').text(_("Members")),
                     $('<td>').append(
                         model.list_interfaces().map(function (iface) {
-                            if (!iface.Device || iface.Device.DeviceType != 1)
+                            if (is_interface_connection(iface, PageNetworkBridgeSettings.connection) ||
+                                !is_interesting_interface(iface))
                                 return null;
                             return $('<label>').append(
                                 $('<input>', { 'type': "checkbox",
@@ -2790,10 +2804,8 @@ PageNetworkVlanSettings.prototype = {
 
         var parent_choices = [];
         model.list_interfaces().forEach(function (i) {
-            if (!i.Device ||
-                i.Device.DeviceType == 1 ||
-                i.Device.DeviceType == 10 ||
-                i.Device.DeviceType == 13)
+            if (!is_interface_connection(i, PageNetworkVlanSettings.connection) &&
+                is_interesting_interface(i))
                 parent_choices.push({ title: i.Name, choice: i.Name });
         });
 

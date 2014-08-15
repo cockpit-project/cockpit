@@ -326,6 +326,11 @@ var cockpit = cockpit || { };
                 "path": path
             });
         };
+        this.close = function() {
+            if (channel)
+                channel.close();
+            channel = null;
+        };
     }
 
     /* public */

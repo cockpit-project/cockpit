@@ -200,13 +200,19 @@ a {
     margin: 8px;
 }
 
-.available-disks-group input[type='checkbox'] {
+.available-disks-group input[type='checkbox'],
+.available-interfaces-group input[type='checkbox'] {
     margin: 4px 4px 4px -20px;
 }
 
-.available-disks-group > .list-group-item {
+.available-disks-group > .list-group-item,
+.available-interfaces-group > .list-group-item {
     border: none;
     padding: 0px;
+}
+
+ul.available-interfaces-group {
+    margin-bottom: 0px;
 }
 
 /* Category icons for the sidebar */

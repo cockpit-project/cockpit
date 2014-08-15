@@ -321,8 +321,9 @@ PageSystemInformationChangeHostname.prototype = {
         var validName = (hostname.match(/[a-z0-9-]*/) == hostname);
         var pretty_hostname = $("#sich-pretty-hostname").val();
 
-        if (hostname != this._initial_hostname ||
-            pretty_hostname != this._initial_pretty_hostname)
+        if ((hostname != this._initial_hostname ||
+            pretty_hostname != this._initial_pretty_hostname) &&
+            (hostname != "" || pretty_hostname != ""))
             changed = true;
 
         if (validLength && validName)

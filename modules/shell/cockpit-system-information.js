@@ -246,8 +246,8 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     setup: function() {
-        $("#sich-pretty-hostname").on("keyup", $.proxy(this._on_full_name_changed, this));
-        $("#sich-hostname").on("keyup", $.proxy(this._on_name_changed, this));
+        $("#sich-pretty-hostname").on("input", $.proxy(this._on_full_name_changed, this));
+        $("#sich-hostname").on("input", $.proxy(this._on_name_changed, this));
         $("#sich-apply-button").on("click", $.proxy(this._on_apply_button, this));
     },
 
@@ -294,7 +294,8 @@ PageSystemInformationChangeHostname.prototype = {
         var pretty_hostname = $("#sich-pretty-hostname").val();
         if (this._always_update_from_pretty || this._initial_pretty_hostname != pretty_hostname) {
             var new_hostname = pretty_hostname.toLowerCase().replace(/['"]+/g, "").replace(/[^a-zA-Z0-9]+/g, "-");
-            $("#sich-hostname").val(new_hostname);
+            if(new_hostname.length <=64)
+                $("#sich-hostname").val(new_hostname);
             this._always_update_from_pretty = true; // make sure we always update it from now-on
         }
         this._update();
@@ -348,11 +349,11 @@ PageSystemInformationChangeHostname.prototype = {
             $("#sich-hostname-error").addClass("has-error");
             
             if($(note1).text() === lengthError)
-               $(note2).text(charError);
+                $(note2).text(charError);
             else if($(note1).text() === charError)
-               $(note2).text(lengthError);
-            else {
                 $(note2).text(lengthError);
+            else {
+                $(note1).text(lengthError);
                 $(note2).text(charError);
             }
             $(note1).css("visibility", "visible");

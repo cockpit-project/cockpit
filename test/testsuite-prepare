@@ -28,8 +28,8 @@ fi
 
 set -x
 
-./vm-download -f cockpit
-./vm-download -f ipa
+# ./vm-download -f cockpit
+# ./vm-download -f ipa
 
 rpms=$(EXTRA_FLAGS="CFLAGS='-O2 -Wall -Werror'" ./make-rpms)
 if [ -z "$rpms" ]; then

@@ -676,13 +676,12 @@ PageService.prototype = {
     },
 
     watch_journal: function () {
-        this.journal_watcher = cockpit_simple_logbox (this.client,
-                                                      $('#service-log'),
-                                                      [ [ "_SYSTEMD_UNIT=" + this.service ],
-                                                        [ "COREDUMP_UNIT=" + this.service ],
-                                                        [ "UNIT=" + this.service ]
-                                                      ],
-                                                      10);
+        this.journal_watcher = cockpit.simple_logbox(this.address, $('#service-log'),
+                                                     [
+                                                        "_SYSTEMD_UNIT=" + this.service, "+",
+                                                        "COREDUMP_UNIT=" + this.service, "+",
+                                                        "UNIT=" + this.service
+                                                     ], 10);
     },
 
     update: function () {

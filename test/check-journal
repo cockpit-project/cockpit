@@ -113,8 +113,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
           var seq = 123;
           var seen_day = false;
-          var seen_starting = false;
-          var seen_started = false;
 
           for (i = 2; i < lines.length-1; i++) {
             l = lines[i];
@@ -123,14 +121,8 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
               return false;
             }
             if (l[0] == "systemd: ") {
-              if (l[1] == "Starting 123 different log lines...")
-                seen_starting = true;
-              else if (l[1] == "Started 123 different log lines.")
-                seen_started = true;
-              else {
-                // console.log(l[1], "?");
-                return false;
-              }
+              // console.log(l[1], "?");
+              return false;
             } else if (l[0] == "sh: ") {
               if (l[1] != seq.toString()) {
                 // console.log(l[1], "?");
@@ -141,16 +133,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
               // console.log(l[0], "?");
               return false;
             }
-          }
-
-          if (!seen_starting) {
-            // console.log("Didn't see 'starting' entry.")
-            return false;
-          }
-
-          if (!seen_started) {
-            // console.log("Didn't see 'started' entry.")
-            return false;
           }
 
           if (seq != 0) {
@@ -181,8 +163,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
             wait_log_lines([ "-- End of Journal, waiting for more --",
                          "January 1, 2050",
                          [ "sh: ", "SLOW", "10" ],
-                         [ "systemd: ", "Started Slowly log 10 identical lines.", "" ],
-                         [ "systemd: ", "Starting Slowly log 10 identical lines...", "" ],
                          "-- Start of Journal --"
                        ])
 
@@ -194,45 +174,37 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.go("journal?prio=3?start=oldest?service=slow10.service")
         wait_slow10()
 
-        b.go("journal?prio=3?start=oldest?search=Slowly log 10 identical lines")
-        wait_log_lines([ "-- End of Journal, waiting for more --",
-                      "January 1, 2050",
-                      [ "systemd: ", "Started Slowly log 10 identical lines.", "" ],
-                      [ "systemd: ", "Starting Slowly log 10 identical lines...", "" ],
-                      "-- Start of Journal --"
-                    ])
-
-        m.execute("logger -p3 'check-journal: BEFORE BOOT'")
+        m.execute("logger -p3 --tag check-journal BEFORE BOOT");
         m.spawn("sleep 0.1 && reboot", "reboot")
         m.wait_boot()
-        m.execute("logger -p3 'check-journal: AFTER BOOT'")
+        m.execute("logger -p3 --tag check-journal AFTER BOOT");
 
         self.start_cockpit()
         b.relogin('journal')
         inject_extras()
 
-        b.go("journal?search=check-journal")
+        b.go("journal?tag=check-journal")
         wait_log_lines([ "-- End of Journal, waiting for more --",
                          "January 1, 2050",
-                         [ "root: ", "check-journal: AFTER BOOT", "" ],
+                         [ "check-journal: ", "AFTER BOOT", "" ],
                          [ "Reboot", "", "" ],
-                         [ "root: ", "check-journal: BEFORE BOOT", "" ],
+                         [ "check-journal: ", "BEFORE BOOT", "" ],
                          "-- Start of Journal --"
                      ])
 
-        b.go("journal?start=boot?search=check-journal")
+        b.go("journal?start=boot?tag=check-journal")
         wait_log_lines([ "-- End of Journal, waiting for more --",
                          "January 1, 2050",
-                         [ "root: ", "check-journal: AFTER BOOT", "" ],
+                         [ "check-journal: ", "AFTER BOOT", "" ],
                          "Load earlier entries",
                      ])
 
         b.click('#journal-load-earlier')
         wait_log_lines([ "-- End of Journal, waiting for more --",
                          "January 1, 2050",
-                         [ "root: ", "check-journal: AFTER BOOT", "" ],
+                         [ "check-journal: ", "AFTER BOOT", "2" ],
                          [ "Reboot", "", "" ],
-                         [ "root: ", "check-journal: BEFORE BOOT", "" ],
+                         [ "check-journal: ", "BEFORE BOOT", "" ],
                          "-- Start of Journal --"
                      ])
 

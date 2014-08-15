@@ -262,13 +262,13 @@ function storage_job_box(client, elt)
                             });
 }
 
-function storage_log_box(client, elt)
+function storage_log_box(machine, elt)
 {
-    return cockpit.simple_logbox(client,
-                                  elt, [ [ "_SYSTEMD_UNIT=udisks2.service" ],
-                                         [ "_SYSTEMD_UNIT=dm-event.service" ],
-                                         [ "COCKPIT_DOMAIN=storage" ]
-                                       ], 5);
+    return cockpit.simple_logbox(machine, elt, [
+                                    "_SYSTEMD_UNIT=udisks2.service", "+",
+                                    "_SYSTEMD_UNIT=dm-event.service", "+",
+                                    "COCKPIT_DOMAIN=storage"
+                                 ], 5);
 }
 
 function highlight_error(container) {
@@ -335,7 +335,7 @@ PageStorage.prototype = {
         $(this.client).on("propertiesChanged.storage", $.proxy(this._onPropertiesChanged, this));
 
         this.job_box = storage_job_box(this.client, $('#storage-jobs'));
-        this.log_box = storage_log_box(this.client, $('#storage-log'));
+        this.log_box = storage_log_box(this.address, $('#storage-log'));
     },
 
     show: function() {
@@ -940,7 +940,7 @@ PageStorageDetail.prototype = {
         }
 
         this.job_box = storage_job_box(this.client, $('#storage-detail-jobs'));
-        this.log_box = storage_log_box(this.client, $('#storage-detail-log'));
+        this.log_box = storage_log_box(this.address, $('#storage-detail-log'));
 
         this._update();
 

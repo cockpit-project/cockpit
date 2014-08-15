@@ -20,14 +20,6 @@
 var cockpit = cockpit || { };
 (function(cockpit, $) {
 
-cockpit.journal_fields = [ "__REALTIME_TIMESTAMP",
-                               "__CURSOR",
-                               "_BOOT_ID",
-                               "_COMM", "_PID",
-                               "SYSLOG_IDENTIFIER",
-                               "PRIORITY", "MESSAGE"
-                             ];
-
 var month_names = [         'January',
                             'February',
                             'March',
@@ -125,15 +117,16 @@ cockpit.journal_renderer = function journal_renderer(output_funcs)
             return str;
         }
 
-        var d = new Date(journal_entry[0]/1000);
+        var d = new Date(journal_entry["__REALTIME_TIMESTAMP"] / 1000);
         return {
-            cursor: journal_entry[1],
+            cursor: journal_entry["__CURSOR"],
+            full: journal_entry,
             day: C_("month-name", month_names[d.getMonth()]) + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed(),
             time: pad(d.getHours()) + ':' + pad(d.getMinutes()),
-            bootid: journal_entry[2],
-            ident: journal_entry[5] || journal_entry[3],
-            prio: journal_entry[6],
-            message: journal_entry[7]
+            bootid: journal_entry["_BOOT_ID"],
+            ident: journal_entry["SYSLOG_IDENTIFIER"] || journal_entry["_COMM"],
+            prio: journal_entry["PRIORITY"],
+            message: journal_entry["MESSAGE"]
         };
     }
 
@@ -164,12 +157,12 @@ cockpit.journal_renderer = function journal_renderer(output_funcs)
 
     function render_state_line (state)
     {
-        return output_funcs.render_line (state.entry.ident,
-                                         state.entry.prio,
-                                         state.entry.message,
-                                         state.count,
-                                         state.last_time,
-                                         state.entry.cursor);
+        return output_funcs.render_line(state.entry.ident,
+                                        state.entry.prio,
+                                        state.entry.message,
+                                        state.count,
+                                        state.last_time,
+                                        state.entry.full);
     }
 
     // We keep the state of the first and last journal lines,

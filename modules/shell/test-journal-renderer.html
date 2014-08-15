@@ -54,15 +54,16 @@ var bootid = 0;
 
 function make_entry(message)
 {
-    return [ time.toString(),
-             "fake",
-             bootid.toString(),
-             "fake",
-             "12",
-             "fake",
-             "3",
-             message
-           ];
+    return {
+        "__REALTIME_TIMESTAMP": time.toString(),
+        "__CURSOR": "fake",
+        "_BOOT_ID": bootid.toString(),
+        "_COMM": "fake",
+        "UNUSED_FIELD": "12",
+        "SYSLOG_IDENTIFIER": "fake",
+        "PRIORITY": "3",
+        "MESSAGE": message
+    };
 }
 
 function next_day ()

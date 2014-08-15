@@ -2197,13 +2197,17 @@ function slave_interface_choices(model, master) {
 }
 
 function render_slave_interface_choices(model, master) {
-    return $('<div>').append(
+    return $('<ul class="list-group available-interfaces-group">').append(
         slave_interface_choices(model, master).map(function (iface) {
-            return $('<label>').append(
-                $('<input>', { 'type': "checkbox",
-                               'data-iface': iface.Name }).
-                    prop('checked', !!slave_connection_for_interface(master, iface)),
-                $('<span>').text(iface.Name));
+            return $('<li class="list-group-item">').append(
+                $('<div class="checkbox">').
+                    css('margin', "0px").
+                    append(
+                        $('<label>').append(
+                            $('<input>', { 'type': "checkbox",
+                                           'data-iface': iface.Name }).
+                                prop('checked', !!slave_connection_for_interface(master, iface)),
+                            $('<span>').text(iface.Name))));
         }));
 }
 
@@ -2359,7 +2363,7 @@ PageNetworkBondSettings.prototype = {
                                 settings.connection.interface_name = val;
                             }))),
                 $('<tr>').append(
-                    $('<td>').text(_("Members")),
+                    $('<td class="top">').text(_("Members")),
                     $('<td>').append(render_slave_interface_choices(model,
                                                                     PageNetworkBondSettings.connection))),
                 $('<tr>').append(
@@ -2510,7 +2514,7 @@ PageNetworkBridgeSettings.prototype = {
                                 settings.connection.interface_name = val;
                             }))),
                 $('<tr>').append(
-                    $('<td>').text(_("Members")),
+                    $('<td class="top">').text(_("Members")),
                     $('<td>').append(render_slave_interface_choices(model,
                                                                     PageNetworkBridgeSettings.connection))),
                 $('<tr>').append(

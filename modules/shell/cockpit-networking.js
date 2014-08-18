@@ -1547,7 +1547,7 @@ PageNetworkInterface.prototype = {
 
     setup: function () {
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
-        $('#network-interface-delete').parent('div').append(
+        $('#network-interface-delete').parent().append(
             this.device_onoff = onoffbox(false,
                                          $.proxy(this, "connect"),
                                          $.proxy(this, "disconnect")));
@@ -1686,10 +1686,6 @@ PageNetworkInterface.prototype = {
 
     update: function() {
         var self = this;
-
-        var $hw = $('#network-interface-hw');
-        var $connections = $('#network-interface-connections');
-
         var iface = self.model.find_interface(self.dev_name);
         var dev = iface && iface.Device;
 
@@ -1699,29 +1695,13 @@ PageNetworkInterface.prototype = {
         var desc;
         if (dev) {
             if (dev.DeviceType == 'ethernet') {
-                desc = $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev));
+                desc = F("%{IdVendor} %{IdModel} (%{Driver})", dev);
             } else if (dev.DeviceType == 'bond') {
-                if (dev.Slaves.length === 0)
-                    desc = $('<span>').text("Bond without active parts");
-                else {
-                    desc = $('<span>').append(
-                        $('<span>').text("Bond of "),
-                        array_join(dev.Slaves.map(function (s) {
-                            return render_interface_link(s.Interface);
-                        }), ", "));
-                }
+                desc = _("Bond");
             } else if (dev.DeviceType == 'vlan') {
-                desc = $('<span>').text("VLAN");
+                desc = _("VLAN");
             } else if (dev.DeviceType == 'bridge') {
-                if (dev.Slaves.length === 0)
-                    desc = $('<span>').text("Bridge without active ports");
-                else {
-                    desc = $('<span>').append(
-                        $('<span>').text("Bridge of "),
-                        array_join(dev.Slaves.map(function (s) {
-                            return render_interface_link(s.Interface);
-                        }), ", "));
-                }
+                desc = _("Bridge");
             }
         } else if (iface) {
             if (iface.Connections[0] && iface.Connections[0].Settings.connection.type == "bond")
@@ -1736,14 +1716,8 @@ PageNetworkInterface.prototype = {
             desc = _("Unknown");
 
         $('#network-interface-name').text(self.dev_name);
-        $hw.html(
-            $('<div class="panel-body">').append(
-                $('<div>').append(
-                    desc,
-                    $('<span style="float:right">').text(dev? dev.HwAddress : "")),
-                $('<div>').append(
-                    $('<span>').html(render_active_connection(dev, true, false)),
-                    $('<span style="float:right">').text(dev? dev.StateText : _("Inactive")))));
+        $('#network-interface-hw').text(desc);
+        $('#network-interface-mac').text(dev? dev.HwAddress : "");
 
         this.device_onoff.prop('disabled', !dev);
         this.device_onoff.set(!!(dev && dev.ActiveConnection));
@@ -1753,7 +1727,24 @@ PageNetworkInterface.prototype = {
         var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' || dev.DeviceType == 'vlan' || dev.DeviceType == 'bridge'));
         $('#network-interface-delete').toggle(!!is_deletable);
 
-        function render_connection(con, settings) {
+        function render_active_status_row() {
+            var state;
+            if (!dev)
+                state = _("Inactive");
+            else if (dev.State != 100)
+                state = dev.StateText;
+            else
+                state = null;
+
+            return $('<tr>').append(
+                $('<td>').text(_("Status")),
+                $('<td>').append(
+                    render_active_connection(dev, true, false),
+                    " ",
+                    state? $('<span>').text(state) : null));
+        }
+
+        function render_connection_settings_rows(con, settings) {
             if (!settings)
                 return [ ];
 
@@ -1968,30 +1959,25 @@ PageNetworkInterface.prototype = {
                                            configure_vlan_settings);
             }
 
-            var $panel =
-                $('<div class="panel panel-default">').append(
-                    $('<div class="panel-body">').append(
-                        $('<table class="cockpit-form-table">').append(
-                            render_master(),
-                            $('<tr>').append(
-                                $('<td>').text("General"),
-                                $('<td>').append(
-                                    $('<label style="font-weight:inherit">').append(
-                                        $('<input type="checkbox" style="margin-left:0px">').
-                                            prop('checked', settings.connection.autoconnect).
-                                            change(function () {
-                                                settings.connection.autoconnect = $(this).prop('checked');
-                                                apply();
-                                            }),
-                                        "Connect automatically"))),
-                            render_ip_settings_row("ipv4", _("IPv4")),
-                            render_ip_settings_row("ipv6", _("IPv6")),
-                            render_vlan_settings_row(),
-                            render_bridge_settings_row(),
-                            render_bridge_port_settings_row(),
-                            render_bond_settings_row())));
-
-            return $panel;
+            return [ render_master(),
+                     $('<tr>').append(
+                         $('<td>').text("General"),
+                         $('<td>').append(
+                             $('<label style="font-weight:inherit">').append(
+                                 $('<input type="checkbox" style="margin-left:0px">').
+                                     prop('checked', settings.connection.autoconnect).
+                                     change(function () {
+                                         settings.connection.autoconnect = $(this).prop('checked');
+                                         apply();
+                                     }),
+                                 "Connect automatically"))),
+                     render_ip_settings_row("ipv4", _("IPv4")),
+                     render_ip_settings_row("ipv6", _("IPv6")),
+                     render_vlan_settings_row(),
+                     render_bridge_settings_row(),
+                     render_bridge_port_settings_row(),
+                     render_bond_settings_row()
+                   ];
         }
 
         function create_ghost_connection_settings() {
@@ -2021,30 +2007,35 @@ PageNetworkInterface.prototype = {
             };
         }
 
-        $connections.empty();
         self.ghost_settings = null;
         self.main_connection = null;
+        self.connection_settings = null;
 
-        function append_connections(cons) {
+        function find_main_connection(cons) {
             cons.forEach(function(c) {
                 if (!self.main_connection ||
                     self.main_connection.Settings.connection.timestamp < c.Settings.connection.timestamp)
                     self.main_connection = c;
             });
             if (self.main_connection) {
-                $connections.append(render_connection(self.main_connection, self.main_connection.Settings));
+                self.connection_settings = self.main_connection.Settings;
             } else {
                 self.ghost_settings = create_ghost_connection_settings();
-                $connections.append(render_connection(null, self.ghost_settings));
+                self.connection_settings = self.ghost_settings;
             }
         }
 
         if (iface) {
             if (iface.Device)
-                append_connections(iface.Device.AvailableConnections);
+                find_main_connection(iface.Device.AvailableConnections);
             else
-                append_connections(iface.Connections);
+                find_main_connection(iface.Connections);
         }
+
+        $('#network-interface-settings').
+            empty().
+            append(render_active_status_row()).
+            append(render_connection_settings_rows(self.main_connection, self.connection_settings));
     }
 
 };

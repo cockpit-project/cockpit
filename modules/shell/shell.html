@@ -1035,19 +1035,26 @@
           <div class="modal-body">
             <table class="cockpit-form-table">
               <tr>
-                <td>Full Name</td>
+                <td>Pretty Host Name</td>
                 <td><input id="sich-pretty-hostname" class="form-control"></td>
               </tr>
               <tr>
-                <td>Simple Name</td>
-                <td><input id="sich-hostname" class="form-control"></td>
+                <td>Real Host Name</td>
+                <td><div id=sich-hostname-error>
+                  <input id="sich-hostname" class="form-control">
+                </div></td>
               </tr>
               <tr>
                 <td></td>
-                <td class="cockpit-note" id="sich-note" translatable="yes">
-                  Simple name can only contain lower-case characters, digits and
-                  dash
-                </td>
+                <td><div  class="has-error">
+                  <span id="sich-note-1" class="help-block" style="margin: 0"></span>
+                </div></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td><div  class="has-error">
+                  <span id="sich-note-2" class="help-block" style="margin: 0"></span>
+                </div></td>
               </tr>
             </table>
           </div>

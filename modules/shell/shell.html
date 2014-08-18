@@ -472,6 +472,8 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <span id="network-interface-name"></span>
+            <span style="margin-left:20px;margin-right:20px" id="network-interface-hw"></span>
+            <span id="network-interface-mac"></span>
             <div style="float:right">
               <button class="btn btn-danger" style="margin-right:20px"
                       id="network-interface-delete">
@@ -479,10 +481,14 @@
               </button>
             </div>
           </div>
-          <div id="network-interface-hw">
-          </div>
         </div>
-        <div id="network-interface-connections">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <table class="cockpit-form-table">
+              <tbody id="network-interface-settings">
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

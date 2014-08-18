@@ -2211,6 +2211,16 @@ function render_slave_interface_choices(model, master) {
         }));
 }
 
+function slave_chooser_btn(change, slave_choices) {
+    var choices = [ { title: "-", choice: "", is_default: true } ];
+    slave_choices.find('input[data-iface]').each(function (i, elt) {
+        var name = $(elt).attr("data-iface");
+        if ($(elt).prop('checked'))
+            choices.push({ title: name, choice: name });
+    });
+    return cockpit.select_btn(change, choices);
+}
+
 function apply_master_slave(choices, model, master_connection, master_settings, slave_type) {
     var settings_manager = model.get_settings();
 
@@ -2312,18 +2322,28 @@ PageNetworkBondSettings.prototype = {
     update: function() {
         var self = this;
         var model = PageNetworkBondSettings.model;
+        var master =  PageNetworkBondSettings.connection;
         var settings = PageNetworkBondSettings.settings;
         var options = settings.bond.options;
 
-        var mode_btn, primary_input;
+        var slaves_element;
+        var mode_btn, primary_btn;
         var monitoring_btn, interval_input, targets_input, updelay_input, downdelay_input;
+
+        function change_slaves() {
+            var btn = slave_chooser_btn(change_mode, slaves_element);
+            primary_btn.replaceWith(btn);
+            primary_btn = btn;
+            cockpit.select_btn_select(primary_btn, options.primary);
+            change_mode();
+        }
 
         function change_mode() {
             options.mode = cockpit.select_btn_selected(mode_btn);
 
-            primary_input.parents("tr").toggle(options.mode == "active-backup");
+            primary_btn.parents("tr").toggle(options.mode == "active-backup");
             if (options.mode == "active-backup")
-                options.primary = primary_input.val();
+                options.primary = cockpit.select_btn_selected(primary_btn);
             else
                 delete options.primary;
         }
@@ -2364,8 +2384,9 @@ PageNetworkBondSettings.prototype = {
                             }))),
                 $('<tr>').append(
                     $('<td class="top">').text(_("Members")),
-                    $('<td>').append(render_slave_interface_choices(model,
-                                                                    PageNetworkBondSettings.connection))),
+                    $('<td>').append(
+                        slaves_element = render_slave_interface_choices(model, master).
+                            change(change_slaves))),
                 $('<tr>').append(
                     $('<td>').text(_("Mode")),
                     $('<td>').append(
@@ -2373,9 +2394,7 @@ PageNetworkBondSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Primary")),
                     $('<td>').append(
-                        primary_input = $('<input class="form-control">').
-                            val(options.primary || "").
-                            change(change_mode))),
+                        primary_btn = slave_chooser_btn(change_mode, slaves_element))),
                 $('<tr>').append(
                     $('<td>').text(_("Link Monitoring")),
                     $('<td>').append(
@@ -2407,6 +2426,7 @@ PageNetworkBondSettings.prototype = {
 
         cockpit.select_btn_select(mode_btn, options.mode);
         cockpit.select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
+        change_slaves();
         change_mode();
         change_monitoring();
 

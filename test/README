@@ -6,7 +6,7 @@ files for them.
 To run the tests, you need to install the following packages on
 Fedora:
 
-  # yum install trickle nbd-server npm python-libguestfs parallel
+  # yum install trickle nbd-server npm python-libguestfs
   # npm install phantomjs
 
 You also need a base tarball for the distribution you want to test
@@ -54,7 +54,8 @@ You can set these environment variables to configure the test suite:
              default is the same directory that this README file is in.
 
   TEST_JOBS  How many tests to run in parallel.  The default is 1.
-             (This only affects check-verify.)
+             (This only affects check-verify and you need to install
+             GNU parallel.)
 
 ## Quick start
 

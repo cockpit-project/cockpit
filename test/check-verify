@@ -18,7 +18,13 @@
 
 set -e
 
-parallel --gnu --progress -j ${TEST_JOBS:-1} <<EOF
+if which "parallel" >/dev/null 2>/dev/null; then
+  RUNNER="parallel --gnu --progress -j ${TEST_JOBS:-1}"
+else
+  RUNNER="sh -e"
+fi
+
+$RUNNER <<EOF
 ./check-dbus
 ./check-login
 ./check-dashboard TestDashboard.testBasic

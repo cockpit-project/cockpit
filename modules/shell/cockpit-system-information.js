@@ -323,8 +323,9 @@ PageSystemInformationChangeHostname.prototype = {
         var validName = (hostname.match(/[a-z0-9-]*/) == hostname);
         var pretty_hostname = $("#sich-pretty-hostname").val();
 
-        if (hostname != this._initial_hostname ||
-            pretty_hostname != this._initial_pretty_hostname)
+        if ((hostname != this._initial_hostname ||
+            pretty_hostname != this._initial_pretty_hostname) &&
+            (hostname !== "" || pretty_hostname !== ""))
             changed = true;
 
         if (validLength && validName)
@@ -349,7 +350,7 @@ PageSystemInformationChangeHostname.prototype = {
             $(note2).css("visibility", "hidden");
         } else {
             $("#sich-hostname-error").addClass("has-error");
-            
+
             if($(note1).text() === lengthError)
                 $(note2).text(charError);
             else if($(note1).text() === charError)

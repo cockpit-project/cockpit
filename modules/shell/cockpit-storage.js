@@ -1046,7 +1046,8 @@ PageStorageDetail.prototype = {
             var is_lvol_pool          = (target.Type == "pool");
             var is_lvol_active        = (target._iface_name == "com.redhat.Cockpit.Storage.Block" ||
                                          target.Active);
-            var is_formattable        = (target._iface_name == "com.redhat.Cockpit.Storage.Block");
+            var is_formattable        = (target._iface_name == "com.redhat.Cockpit.Storage.Block" &&
+                                         !target.ReadOnly);
 
             var default_op = null;
             var action_spec = [ ];
@@ -1141,14 +1142,17 @@ PageStorageDetail.prototype = {
             if (block.IdUsage == 'crypto')
                 cleartext_device = find_cleartext_device(block);
 
+            btn = create_block_action_btn (block, !cleartext_device, !!part_desc);
+
             if (block.IdLabel.length > 0)
                 name = cockpit.esc(block.IdLabel);
+            else if (!btn)
+                name = null;
             else
                 name = "—";
             desc = block_get_desc(block, part_desc, cleartext_device);
 
-            id = append_entry (level, name, desc,
-                               create_block_action_btn (block, !cleartext_device, !!part_desc));
+            id = append_entry (level, name, desc, btn);
 
             mark_as_target('#entry-spinner-' + id, block.getObject().objectPath);
 
@@ -1419,6 +1423,11 @@ PageStorageDetail.prototype = {
             val += cockpit.esc(b.Device);
         }
         $("#disk_detail_device_file").html(val);
+
+        if (drive.Classification === "optical")
+            $('#drive_format').hide();
+        else
+            $('#drive_format').show();
     },
 
     _updateMDRaid: function() {

@@ -2344,8 +2344,9 @@ function slave_chooser_btn(change, slave_choices) {
     return cockpit.select_btn(change, choices);
 }
 
-function apply_master_slave(choices, model, master_connection, master_settings, slave_type) {
-    var settings_manager = model.get_settings();
+function set_slave(model, master_connection, master_settings, slave_type,
+                   iface_name, val) {
+    var iface, slave_con, uuid;
 
     function delete_connections(cons) {
         return $.when.apply($, cons.map(function (c) { return c.delete_(); }));
@@ -2358,20 +2359,17 @@ function apply_master_slave(choices, model, master_connection, master_settings, 
             return delete_connections(iface.Connections);
     }
 
-    function set_slave(iface_name, val) {
-        var iface, slave_con, uuid;
+    iface = model.find_interface(iface_name);
+    if (!iface)
+        return false;
 
-        iface = model.find_interface(iface_name);
-        if (!iface)
-            return false;
-
-        slave_con = slave_connection_for_interface(master_connection, iface);
-        if (slave_con && !val)
-            return slave_con.delete_();
-        else if (!slave_con && val) {
-            uuid = cockpit.util.uuid();
-            return $.when(delete_iface_connections(iface),
-                          settings_manager.add_connection({ connection:
+    slave_con = slave_connection_for_interface(master_connection, iface);
+    if (slave_con && !val)
+        return slave_con.delete_();
+    else if (!slave_con && val) {
+        uuid = cockpit.util.uuid();
+        return $.when(delete_iface_connections(iface),
+                      model.get_settings().add_connection({ connection:
                                                             { id: uuid,
                                                               uuid: uuid,
                                                               autoconnect: true,
@@ -2384,14 +2382,18 @@ function apply_master_slave(choices, model, master_connection, master_settings, 
                                                             {
                                                             }
                                                           }));
-        }
-
-        return true;
     }
+
+    return true;
+}
+
+function apply_master_slave(choices, model, master_connection, master_settings, slave_type) {
+    var settings_manager = model.get_settings();
 
     function set_all_slaves() {
         var deferreds = choices.find('input[data-iface]').map(function (i, elt) {
-            return set_slave($(elt).attr("data-iface"), $(elt).prop('checked'));
+            return set_slave(model, master_connection, master_settings, slave_type,
+                             $(elt).attr("data-iface"), $(elt).prop('checked'));
         });
         return $.when.apply($, deferreds.get());
     }

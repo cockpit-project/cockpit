@@ -183,6 +183,7 @@ storage_block_update (StorageBlock *block)
   cockpit_storage_block_set_id_uuid    (iface, udisks_block_get_id_uuid    (udisks_block));
 
   cockpit_storage_block_set_hint_ignore (iface, udisks_block_get_hint_ignore (udisks_block));
+  cockpit_storage_block_set_read_only  (iface, udisks_block_get_read_only  (udisks_block));
 
   if (udisks_partition == NULL)
     {

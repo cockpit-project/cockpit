@@ -791,12 +791,14 @@ function NetworkManagerModel(address) {
                     get_interface(name).Connections.push(obj);
                 }
 
-                if (obj.Settings.bond)
-                    add_to_interface(obj.Settings.bond.interface_name);
-                if (obj.Settings.bridge)
-                    add_to_interface(obj.Settings.bridge.interface_name);
-                if (obj.Settings.vlan)
-                    add_to_interface(obj.Settings.vlan.interface_name);
+                if (obj.Settings) {
+                    if (obj.Settings.bond)
+                        add_to_interface(obj.Settings.bond.interface_name);
+                    if (obj.Settings.bridge)
+                        add_to_interface(obj.Settings.bridge.interface_name);
+                    if (obj.Settings.vlan)
+                        add_to_interface(obj.Settings.vlan.interface_name);
+                }
             },
 
             // Needs: type_Interface.Device

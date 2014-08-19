@@ -65,6 +65,7 @@ PageServer.prototype = {
         /* TODO: This needs to be reworked once real module loading lands */
         var prefix = cockpit.environment.localhost.modules.shell.prefix;
 
+        $('#server-avatar').css('background-size', 'cover');
         $('#server-avatar').css('background-image', 'url(' + prefix + '/images/server-large.png)');
 
         function network_setup_hook(plot) {
@@ -178,8 +179,10 @@ PageServer.prototype = {
 
     update_avatar: function () {
         this.manager.call('GetAvatarDataURL', function (error, result) {
-            if (result)
+            if (result) {
+                $('#server-avatar').css('background-size', 'cover');
                 $('#server-avatar').css('background-image', 'url(' + result + ')');
+            }
         });
     },
 

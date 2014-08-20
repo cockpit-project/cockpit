@@ -206,7 +206,7 @@ function NetworkManagerModel(address) {
         prefix = prefix || "";
         for (p in decl) {
             val = props[prefix + (decl[p].prop || p)];
-            if(val) {
+            if(val !== undefined) {
                 if (decl[p].conv)
                     val = decl[p].conv(val);
                 if (val !== obj[p]) {

@@ -89,7 +89,7 @@ class TestNetworking(MachineCase):
         # Disconnect
         #
         b.click(".panel-heading:contains('%s') button:contains('Off')" % iface)
-        b.wait_in_text("#network-interface-hw", "Disconnected")
+        b.wait_in_text("tr:contains('Status')", "Disconnected")
 
         # Switch it back to "auto" from the command line and bring it
         # up again
@@ -97,9 +97,9 @@ class TestNetworking(MachineCase):
         id = "System %s" % label
         m.execute("nmcli c m '%s' ipv4.method auto" % id)
         m.execute("nmcli c m '%s' ipv4.addresses ''" % id)
-        b.wait_in_text("#network-interface-connections", "Automatic (DHCP)")
+        b.wait_in_text("tr:contains('IPv4')", "Automatic (DHCP)")
         m.execute("nmcli c up '%s'" % id)
-        b.wait_in_text("#network-interface-hw", "Active")
+        b.wait_in_text("tr:contains('Status')", "10.111.111")
 
     def testBond(self):
         b = self.browser
@@ -133,12 +133,12 @@ class TestNetworking(MachineCase):
         b.click("#networking-interfaces tr:contains('tbond')")
         b.wait_page("network-interface")
         b.click(".panel-heading button:contains('On')")
-        b.wait_in_text("#network-interface-hw", "Bond without active parts")
+        b.wait_in_text("tr:contains('Status')", "Configuring IP")
 
         # Activate iface1 externally and wait for the bond to become
         # active.
         m.execute("ifup %s" % iface1)
-        b.wait_in_text("#network-interface-hw", "Active")
+        b.wait_in_text("tr:contains('Status')", "10.111.111")
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
@@ -177,12 +177,12 @@ class TestNetworking(MachineCase):
         b.click("#networking-interfaces tr:contains('tbridge')")
         b.wait_page("network-interface")
         b.click(".panel-heading button:contains('On')")
-        b.wait_in_text("#network-interface-hw", "Bridge without active ports")
+        b.wait_in_text("tr:contains('Status')", "Configuring IP")
 
         # Activate iface1 externally and wait for the bridge to become
         # active.
         m.execute("ifup %s" % iface1)
-        b.wait_in_text("#network-interface-hw", "Active")
+        b.wait_in_text("tr:contains('Status')", "10.111.111")
 
         # Delete the bridge
         b.click("#network-interface button:contains('Delete')")

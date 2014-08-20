@@ -1360,7 +1360,7 @@ PageNetworking.prototype = {
                 },
                 bridge: {
                     interface_name: iface,
-                    stp: true,
+                    stp: false,
                     priority: 32768,
                     forward_delay: 15,
                     hello_time: 2,
@@ -1868,17 +1868,16 @@ PageNetworkInterface.prototype = {
                     rows.push($('<div>').text(F(_(fmt), args)));
                 }
 
-                if (!options.stp)
-                    add_row("No Spanning Tree Protocol");
-                else {
+                if (options.stp) {
+                    add_row("Spanning Tree Protocol");
                     if (options.priority != 32768)
-                        add_row("STP Priority %{priority}", options);
+                        add_row("Priority %{priority}", options);
                     if (options.forward_delay != 15)
-                        add_row("STP Forward delay %{forward_delay}", options);
+                        add_row("Forward delay %{forward_delay}", options);
                     if (options.hello_time != 2)
-                        add_row("STP Hello time %{hello_time}", options);
+                        add_row("Hello time %{hello_time}", options);
                     if (options.max_age != 20)
-                        add_row("STP Maximum message age %{max_age}", options);
+                        add_row("Maximum message age %{max_age}", options);
                 }
 
                 return render_settings_row(_("Bridge"), rows, configure_bridge_settings);

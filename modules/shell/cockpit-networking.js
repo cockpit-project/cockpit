@@ -1763,6 +1763,10 @@ PageNetworkInterface.prototype = {
 
         function render_active_status_row() {
             var state;
+
+            if (self.main_connection && self.main_connection.Masters.length > 0)
+                return null;
+
             if (!dev)
                 state = _("Inactive");
             else if (dev.State != 100)

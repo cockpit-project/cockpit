@@ -2082,6 +2082,9 @@ PageNetworkInterface.prototype = {
                 return;
             }
 
+            $('#network-interface-slaves thead th:first-child').
+                text(con.Settings.connection.type == "bond"? _("Members") : _("Ports"));
+
             con.Slaves.forEach(function (slave_con) {
                 slave_con.Interfaces.forEach(function(iface) {
                     var dev = iface.Device;
@@ -2778,7 +2781,7 @@ PageNetworkBridgeSettings.prototype = {
                                 settings.connection.interface_name = val;
                             }))),
                 $('<tr>').append(
-                    $('<td class="top">').text(_("Members")),
+                    $('<td class="top">').text(_("Ports")),
                     $('<td>').append(render_slave_interface_choices(model,
                                                                     PageNetworkBridgeSettings.connection))).
                     toggle(!PageNetworkBridgeSettings.connection),

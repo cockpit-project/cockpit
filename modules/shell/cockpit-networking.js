@@ -662,7 +662,7 @@ function NetworkManagerModel(address) {
         // NM_DEVICE_STATE_UNAVAILABLE
         case 20: return _("Not available");
         // NM_DEVICE_STATE_DISCONNECTED
-        case 30: return _("Disconnected");
+        case 30: return _("Inactive");
         // NM_DEVICE_STATE_PREPARE
         case 40: return _("Preparing");
         // NM_DEVICE_STATE_CONFIG
@@ -927,7 +927,9 @@ function NetworkManagerModel(address) {
             Udi:                  { trigger: refresh_udev },
             IdVendor:             { def: "" },
             IdModel:              { def: "" },
-            Driver:               { def: "" }
+            Driver:               { def: "" },
+            Carrier:              { def: true },
+            Speed:                { }
             // See below for "Slaves"
         },
 
@@ -1118,6 +1120,14 @@ function render_interface_link(iface) {
                                         dev: iface
                                       });
                });
+}
+
+function device_state_text(dev) {
+    if (!dev)
+        return _("Inactive");
+    if (dev.State == 100 && dev.Carrier === false)
+        return _("No carrier");
+    return dev.StateText;
 }
 
 function render_connection_link(con) {
@@ -1324,7 +1334,7 @@ PageNetworking.prototype = {
                 return;
 
             var dev = iface.Device;
-            var is_active = (dev && dev.State == 100);
+            var is_active = (dev && dev.State == 100 && dev.Carrier === true);
 
             new_ifaces[iface.Name] = true;
             if (!self.ifaces[iface.Name])
@@ -1337,7 +1347,7 @@ PageNetworking.prototype = {
                                 $('<td>').html(render_active_connection(dev, false, true)),
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
-                                 $('<td colspan="2">').text(dev? dev.StateText : _("Inactive")))).
+                                 $('<td colspan="2">').text(device_state_text(dev)))).
                          click(function () { cockpit.go_down({  page: 'network-interface',
                                                                 dev: iface.Name
                                                               });
@@ -1761,6 +1771,18 @@ PageNetworkInterface.prototype = {
         var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' || dev.DeviceType == 'vlan' || dev.DeviceType == 'bridge'));
         $('#network-interface-delete').toggle(!!is_deletable);
 
+        function render_carrier_status_row() {
+            if (dev && dev.Carrier !== undefined) {
+                return $('<tr>').append(
+                    $('<td>').text(_("Carrier")),
+                    $('<td>').append(
+                        dev.Carrier ?
+                            (dev.Speed? cockpit.format_bits_per_sec(dev.Speed*1e6) :_("Yes")) :
+                        _("No")));
+            } else
+                return null;
+        }
+
         function render_active_status_row() {
             var state;
 
@@ -2065,6 +2087,7 @@ PageNetworkInterface.prototype = {
         $('#network-interface-settings').
             empty().
             append(render_active_status_row()).
+            append(render_carrier_status_row()).
             append(render_connection_settings_rows(self.main_connection, self.connection_settings));
 
         function update_connection_slaves(con) {
@@ -2088,7 +2111,7 @@ PageNetworkInterface.prototype = {
             con.Slaves.forEach(function (slave_con) {
                 slave_con.Interfaces.forEach(function(iface) {
                     var dev = iface.Device;
-                    var is_active = (dev && dev.State == 100);
+                    var is_active = (dev && dev.State == 100 && dev.Carrier === true);
 
                     self.graph_ifaces[iface.Name] = true;
 
@@ -2099,7 +2122,7 @@ PageNetworkInterface.prototype = {
                             append($('<td>').text(iface.Name),
                                    (is_active?
                                     [ $('<td>').text(""), $('<td>').text("") ] :
-                                    $('<td colspan="2">').text(dev? dev.StateText : _("Inactive"))),
+                                    $('<td colspan="2">').text(device_state_text(dev))),
                                    $('<td style="text-align:right">').append(
                                        onoffbox(is_active,
                                                 function () {

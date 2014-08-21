@@ -1441,10 +1441,10 @@ function choice_title(choices, choice, def) {
 
 function onoffbox(val, on, off) {
     function toggle(event) {
-        $(this).find('.btn').toggleClass('active');
-        $(this).find('.btn').toggleClass('btn-primary');
-        $(this).find('.btn').toggleClass('btn-default');
-        if ($(this).find("button:first-child").hasClass('active')) {
+        box.find('.btn').toggleClass('active');
+        box.find('.btn').toggleClass('btn-primary');
+        box.find('.btn').toggleClass('btn-default');
+        if (on_btn.hasClass('active')) {
             if (off)
                 on();
             else
@@ -1462,15 +1462,20 @@ function onoffbox(val, on, off) {
         $('<div class="btn-group btn-toggle">').append(
             on_btn = $('<button class="btn">').
                 text("On").
-                addClass(!val? "btn-default" : "btn-primary active"),
+                addClass(!val? "btn-default" : "btn-primary active").
+                click(toggle),
             off_btn = $('<button class="btn">').
                 text("Off").
-                addClass(val? "btn-default" : "btn-primary active")).
-        click(toggle);
+                addClass(val? "btn-default" : "btn-primary active").
+                click(toggle));
 
     box.set = function set(val) {
         (val? on_btn : off_btn).addClass("btn-primary active").removeClass("btn-default");
         (val? off_btn : on_btn).removeClass("btn-primary active").addClass("btn-default");
+    };
+
+    box.enable = function enable(val) {
+        box.find('button').prop('disabled', !val);
     };
 
     return box;

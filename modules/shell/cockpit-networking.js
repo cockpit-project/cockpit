@@ -2069,6 +2069,7 @@ PageNetworkIpSettings.prototype = {
         var method_btn, addresses_table;
         var auto_dns_btn, dns_table;
         var auto_dns_search_btn, dns_search_table;
+        var auto_routes_btn, routes_table;
 
         function choicebox(p, choices) {
             var btn = cockpit.select_btn(
@@ -2175,11 +2176,19 @@ PageNetworkIpSettings.prototype = {
                              method_btn = choicebox("method", (topic == "ipv4")?
                                                     ipv4_method_choices : ipv6_method_choices)),
                     $('<br>'),
-                    dns_table = tablebox(_("DNS"), "dns", "Server", "",
-                             auto_dns_btn = inverted_switchbox(_("Automatic"), "ignore_auto_dns")),
+                    dns_table =
+                        tablebox(_("DNS"), "dns", "Server", "",
+                                 auto_dns_btn = inverted_switchbox(_("Automatic"), "ignore_auto_dns")),
                     $('<br>'),
-                    dns_search_table = tablebox(_("DNS Search Domains"), "dns_search", "Search Domain", "",
-                             auto_dns_search_btn = inverted_switchbox(_("Automatic"), "ignore_auto_dns")));
+                    dns_search_table =
+                        tablebox(_("DNS Search Domains"), "dns_search", "Search Domain", "",
+                                 auto_dns_search_btn = inverted_switchbox(_("Automatic"),
+                                                                                         "ignore_auto_dns")),
+                    $('<br>'),
+                    routes_table =
+                        tablebox(_("Routes"), "routes",
+                                 [ "Address", "Netmask", "Gateway", "Metric" ], [ "", "", "", "" ],
+                                 auto_routes_btn = inverted_switchbox(_("Automatic"), "ignore_auto_routes")));
             return body;
         }
 
@@ -2189,16 +2198,25 @@ PageNetworkIpSettings.prototype = {
             params.addresses = [ [ "", "", "" ] ];
 
         // The link local, shared, and disabled methods can't take any
-        // addresses, dns servers, or dns search domains.
+        // addresses, dns servers, or dns search domains.  Routes,
+        // however, are ok, even for "disabled" and "ignored".  But
+        // since that doesn't make sense, we remove routes as well for
+        // these methods.
+
+        var is_off = (params.method == "disabled" ||
+                      params.method == "ignore");
 
         var can_have_extra = !(params.method == "link-local" ||
                                params.method == "shared" ||
-                               params.method == "disabled");
+                               is_off);
 
         if (!can_have_extra) {
             params.addresses = [ ];
             params.dns = [ ];
             params.dns_search = [ ];
+        }
+        if (is_off) {
+            params.routes = [ ];
         }
 
         $('#network-ip-settings-dialog .modal-title').text(
@@ -2211,10 +2229,12 @@ PageNetworkIpSettings.prototype = {
         var can_auto = (params.method == "auto" || params.method == "dhcp");
         auto_dns_btn.enable(can_auto);
         auto_dns_search_btn.enable(can_auto);
+        auto_routes_btn.enable(can_auto);
 
         addresses_table.enable_add(can_have_extra);
         dns_table.enable_add(can_have_extra);
         dns_search_table.enable_add(can_have_extra);
+        routes_table.enable_add(!is_off);
     },
 
     cancel: function() {

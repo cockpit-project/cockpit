@@ -548,6 +548,13 @@ function NetworkManagerModel(address) {
             set(first, "addresses", addrs_sig, settings[first].addresses.map(addr_to_nm));
             set(first, "dns", ips_sig, settings[first].dns.map(ip_from_text));
             set(first, "dns-search", 'as', settings[first].dns_search);
+
+            // Never pass "address-labels" back to NetworkManager.  It
+            // is documented as "internal only", but needs to somehow
+            // stay in sync with "addresses".  By not passing it back
+            // we don't have to worry about that.
+            //
+            delete result[first]["address-labels"];
         }
 
         set("connection", "id", 's', settings.connection.id);

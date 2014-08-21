@@ -1542,6 +1542,8 @@ PageStorageDetail.prototype = {
                 return F(_("Unknown (%{state})"), { state: state });
         }
 
+        $('#raid-disks-add').prop('disabled', raid.Level === "raid0");
+
         var disks = $("#raid-disks");
         var info = this._mdraid.ActiveDevices || [];
         var i, j, slot, drive, states, state_html, num_errors;
@@ -1580,7 +1582,7 @@ PageStorageDetail.prototype = {
                             $('<td style="text-align:right">').append(
                                 $('<button>', { 'class': 'btn btn-default',
                                                 'on': { 'click': $.proxy(this, "raid_disk_remove", block) }
-                                              }).text(_("Remove")))))));
+                                              }).text(_("Remove")).prop('disabled', raid.Level === "raid0"))))));
         }
     },
 

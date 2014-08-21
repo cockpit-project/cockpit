@@ -463,18 +463,13 @@ function NetworkManagerModel(address) {
         }
 
         function get_ip(first, addr_from_nm, ip_to_text) {
-            var meth = get(first, "method", "auto");
-            var ign_dns = get(first, "ignore-auto-dns", false);
-            if (meth == "auto" && ign_dns)
-                meth = "auto-addr";
-            if (meth == "dhcp" && ign_dns)
-                meth = "dhcp-addr";
-
             return {
-                method:       meth,
-                addresses:    get(first, "addresses", []).map(addr_from_nm),
-                dns:          get(first, "dns", []).map(ip_to_text),
-                dns_search:   get(first, "dns-search", [])
+                method:             get(first, "method", "auto"),
+                ignore_auto_dns:    get(first, "ignore-auto-dns", false),
+                ignore_auto_routes: get(first, "ignore-auto-routes", false),
+                addresses:          get(first, "addresses", []).map(addr_from_nm),
+                dns:                get(first, "dns", []).map(ip_to_text),
+                dns_search:         get(first, "dns-search", [])
             };
         }
 
@@ -547,23 +542,9 @@ function NetworkManagerModel(address) {
         }
 
         function set_ip(first, addrs_sig, addr_to_nm, ips_sig, ip_from_text) {
-            var meth = settings[first].method;
-            var ign_dns = undefined;
-
-            if (meth == "auto-addr") {
-                meth = "auto";
-                ign_dns = true;
-            } else if (meth == "dhcp-addr") {
-                meth = "dhcp";
-                ign_dns = true;
-            } else if (meth == "auto" || meth == "dhcp") {
-                ign_dns = false;
-            }
-
-            set(first, "method", 's', meth);
-            if (ign_dns !== undefined)
-                set(first, "ignore-auto-dns", 'b', ign_dns);
-
+            set(first, "method", 's', settings[first].method);
+            set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
+            set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
             set(first, "addresses", addrs_sig, settings[first].addresses.map(addr_to_nm));
             set(first, "dns", ips_sig, settings[first].dns.map(ip_from_text));
             set(first, "dns-search", 'as', settings[first].dns_search);
@@ -1411,7 +1392,6 @@ cockpit.pages.push(new PageNetworking());
 var ipv4_method_choices =
     [
         { choice: 'auto',         title: _("Automatic (DHCP)") },
-        { choice: 'auto-addr',    title: _("Automatic (DHCP), Addresses only") },
         { choice: 'link-local',   title: _("Link local") },
         { choice: 'manual',       title: _("Manual") },
         { choice: 'shared',       title: _("Shared") },
@@ -1421,9 +1401,7 @@ var ipv4_method_choices =
 var ipv6_method_choices =
     [
         { choice: 'auto',         title: _("Automatic") },
-        { choice: 'auto-addr',    title: _("Automatic, Addresses only") },
         { choice: 'dhcp',         title: _("Automatic (DHCP only)") },
-        { choice: 'dhcp-addr',    title: _("Automatic (DHCP only), Addresses only") },
         { choice: 'link-local',   title: _("Link local") },
         { choice: 'manual',       title: _("Manual") },
         { choice: 'ignore',       title: _("Ignore") }

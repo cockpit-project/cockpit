@@ -2035,19 +2035,38 @@ PageNetworkIpSettings.prototype = {
         var topic = PageNetworkIpSettings.topic;
         var params = settings[topic];
 
+        var method_btn, addresses_table;
+        var auto_dns_btn, dns_table;
+        var auto_dns_search_btn, dns_search_table;
+
         function choicebox(p, choices) {
             var btn = cockpit.select_btn(
                 function (choice) {
                     params[p] = choice;
+                    self.update();
                 },
                 choices);
             cockpit.select_btn_select(btn, params[p]);
-            btn.css('margin-bottom', "19px");
             return btn;
         }
 
-        function tablebox(p, columns, def) {
+        function inverted_switchbox(title, p) {
+            var onoff;
+            var btn = $('<span>').append(
+                $('<span style="margin-right:10px">').text(title),
+                onoff = onoffbox(!params[p], function (val) {
+                    params[p] = !val;
+                    self.update();
+                }));
+            btn.enable = function enable(val) {
+                onoff.enable(val);
+            };
+            return btn;
+        }
+
+        function tablebox(title, p, columns, def, header_buttons) {
             var direct = false;
+            var add_btn;
 
             if (typeof columns == "string") {
                 direct = true;
@@ -2083,50 +2102,88 @@ PageNetworkIpSettings.prototype = {
             }
 
             var panel =
-                $('<div class="panel panel-default">').append(
-                    $('<table class="table">').append(
-                        $('<tr>').append(
-                            columns.map(function (c) {
-                                return $('<th>').text(c);
-                            }),
-                            $('<th style="text-align:right">').append(
-                                $('<button class="btn btn-default">').
-                                    text(_("Add")).
-                                    click(add()))),
+                $('<div>').append(
+                    $('<div>').append(
+                        $('<span style="font-weight:bold">').text(title),
+                        $('<div style="float:right">').append(
+                            header_buttons,
+                            add_btn = $('<button class="btn btn-default" style="width:2em">').
+                                text("+").
+                                css("margin-left", "10px").
+                                click(add()))),
+                    $('<table width="100%">').append(
                         params[p].map(function (a, i) {
                             return ($('<tr>').append(
                                 columns.map(function (c, j) {
                                     return $('<td>').append(
                                         $('<input class="form-control">').
                                             val(get(i,j)).
+                                            attr('placeholder', c).
                                             change(function (event) {
                                                 set(i,j, $(event.target).val());
                                             }));
                                 }),
                                 $('<td style="text-align:right">').append(
-                                    $('<button class="btn btn-default">').
-                                        text(_("X")).
+                                    $('<button class="btn btn-default" style="width:2em">').
+                                        text(_("-")).
                                         click(remove(i)))));
                         })));
+
+            panel.enable_add = function enable_add(val) {
+                add_btn.prop('disabled', !val);
+            };
+
             return panel;
         }
 
         function render_ip_settings() {
             var body =
                 $('<div>').append(
-                    $('<div>').append(
-                        $('<span>').text(_("Method: ")),
-                        choicebox("method", (topic == "ipv4")? ipv4_method_choices : ipv6_method_choices)),
-                    tablebox("addresses", [ "Address", "Netmask", "Gateway" ],
-                             (topic == "ipv4")? [ "", "24", "" ] : [ "", "64", "" ]),
-                    tablebox("dns", "DNS Server", ""),
-                    tablebox("dns_search", "DNS Search Domains", ""));
+                    addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", "Netmask", "Gateway" ],
+                             [ "", "", "" ],
+                             method_btn = choicebox("method", (topic == "ipv4")?
+                                                    ipv4_method_choices : ipv6_method_choices)),
+                    $('<br>'),
+                    dns_table = tablebox(_("DNS"), "dns", "Server", "",
+                             auto_dns_btn = inverted_switchbox(_("Automatic"), "ignore_auto_dns")),
+                    $('<br>'),
+                    dns_search_table = tablebox(_("DNS Search Domains"), "dns_search", "Search Domain", "",
+                             auto_dns_search_btn = inverted_switchbox(_("Automatic"), "ignore_auto_dns")));
             return body;
+        }
+
+        // The manual method needs at least one address
+        //
+        if (params.method == "manual" && params.addresses.length === 0)
+            params.addresses = [ [ "", "", "" ] ];
+
+        // The link local, shared, and disabled methods can't take any
+        // addresses, dns servers, or dns search domains.
+
+        var can_have_extra = !(params.method == "link-local" ||
+                               params.method == "shared" ||
+                               params.method == "disabled");
+
+        if (!can_have_extra) {
+            params.addresses = [ ];
+            params.dns = [ ];
+            params.dns_search = [ ];
         }
 
         $('#network-ip-settings-dialog .modal-title').text(
             (topic == "ipv4")? _("IPv4 Settings") : _("IPv6 Settings"));
         $('#network-ip-settings-body').html(render_ip_settings());
+
+        // The auto_*_btns only make sense when the address method
+        // is "auto" or "dhcp".
+        //
+        var can_auto = (params.method == "auto" || params.method == "dhcp");
+        auto_dns_btn.enable(can_auto);
+        auto_dns_search_btn.enable(can_auto);
+
+        addresses_table.enable_add(can_have_extra);
+        dns_table.enable_add(can_have_extra);
+        dns_search_table.enable_add(can_have_extra);
     },
 
     cancel: function() {

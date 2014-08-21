@@ -474,7 +474,7 @@ function NetworkManagerModel(address) {
                 method:       meth,
                 addresses:    get(first, "addresses", []).map(addr_from_nm),
                 dns:          get(first, "dns", []).map(ip_to_text),
-                dns_search:   get(first, "dns-search", []).map(ip_to_text)
+                dns_search:   get(first, "dns-search", [])
             };
         }
 

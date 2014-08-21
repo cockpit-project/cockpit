@@ -1931,13 +1931,16 @@ PageNetworkInterface.prototype = {
                         $('<table class="cockpit-form-table">').append(
                             render_master(),
                             $('<tr>').append(
-                                $('<td>').text("Connect automatically"),
+                                $('<td>').text("General"),
                                 $('<td>').append(
-                                    onoffbox(settings.connection.autoconnect,
-                                             function (val) {
-                                                 settings.connection.autoconnect = val;
-                                                 apply();
-                                             }))),
+                                    $('<label style="font-weight:inherit">').append(
+                                        $('<input type="checkbox" style="margin-left:0px">').
+                                            prop('checked', settings.connection.autoconnect).
+                                            change(function () {
+                                                settings.connection.autoconnect = $(this).prop('checked');
+                                                apply();
+                                            }),
+                                        "Connect automatically"))),
                             render_ip_settings_row("ipv4", _("IPv4")),
                             render_ip_settings_row("ipv6", _("IPv6")),
                             render_vlan_settings_row(),

@@ -358,9 +358,21 @@ PageStorage.prototype = {
             }
         }
 
+        function render_samples(event, timestamp, samples) {
+            // TODO - handle multipath devices
+            for (var id in samples) {
+                var row = $('#storage tr[data-blockdev="' + cockpit.esc(id) + '"]');
+                if (row.length > 0) {
+                    row.find('td:nth-child(3)').text(cockpit.format_bytes_per_sec(samples[id][0]));
+                    row.find('td:nth-child(4)').text(cockpit.format_bytes_per_sec(samples[id][1]));
+                }
+            }
+        }
+
         this.cockpitd = cockpit.dbus(this.address);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/BlockdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
+        $(this.monitor).on('NewSample.networking', render_samples);
 
         this.rx_plot = cockpit.setup_multi_plot('#storage-reading-graph', this.monitor, 0, blues.concat(blues),
                                                 is_interesting_blockdev);
@@ -518,6 +530,8 @@ PageStorage.prototype = {
         }
         html += val;
         html += "</td>";
+        html += "<td></td>";
+        html += "<td></td>";
         html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
@@ -567,6 +581,8 @@ PageStorage.prototype = {
         } else
             html += C_("storage", "RAID Array");
         html += "</td>";
+        html += "<td></td>";
+        html += "<td></td>";
         html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
@@ -613,6 +629,8 @@ PageStorage.prototype = {
         } else
             html += C_("storage", "Volume Group");
         html += "</td>";
+        html += "<td></td>";
+        html += "<td></td>";
         html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
@@ -667,6 +685,8 @@ PageStorage.prototype = {
         var val = size_str + " " + C_("storage", "Block Device");
         html += val;
         html += "</td>";
+        html += "<td></td>";
+        html += "<td></td>";
         html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 

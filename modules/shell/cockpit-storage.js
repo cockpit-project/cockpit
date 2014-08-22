@@ -834,7 +834,7 @@ PageStorageDetail.prototype = {
             ret = this._vg.Name;
         } else
             ret = this._block.Device;
-        return ret;
+        return ret || "?";
     },
 
     show: function() {
@@ -974,6 +974,8 @@ PageStorageDetail.prototype = {
             this._updateVG();
         else if (this._block)
             this._updateBlock();
+
+        cockpit.content_update_loc_trail();
     },
 
     _updateBlock: function() {

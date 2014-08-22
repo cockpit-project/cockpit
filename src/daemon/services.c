@@ -429,10 +429,20 @@ end_invocation_take_gerror (GDBusMethodInvocation *invocation,
   if (remote_error)
     {
       g_dbus_error_strip_remote_error (error);
-      g_dbus_method_invocation_return_error (invocation,
-                                             COCKPIT_ERROR,
-                                             COCKPIT_ERROR_FAILED,
-                                             "%s (%s)", error->message, remote_error);
+      if (strcmp (remote_error, "org.freedesktop.DBus.Error.AccessDenied") == 0)
+        {
+          g_dbus_method_invocation_return_error (invocation,
+                                                 COCKPIT_ERROR,
+                                                 COCKPIT_ERROR_FAILED,
+                                                 "You are not authorized for this operation.");
+        }
+      else
+        {
+          g_dbus_method_invocation_return_error (invocation,
+                                                 COCKPIT_ERROR,
+                                                 COCKPIT_ERROR_FAILED,
+                                                 "%s (%s)", error->message, remote_error);
+        }
       g_free (remote_error);
       g_error_free (error);
     }

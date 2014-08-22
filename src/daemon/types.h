@@ -73,6 +73,9 @@ typedef struct _CGroupMonitor CGroupMonitor;
 struct _NetdevMonitor;
 typedef struct _NetdevMonitor NetdevMonitor;
 
+struct _BlockdevMonitor;
+typedef struct _BlockdevMonitor BlockdevMonitor;
+
 struct _StorageManager;
 typedef struct _StorageManager StorageManager;
 

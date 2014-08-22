@@ -336,12 +336,56 @@ PageStorage.prototype = {
 
         this.job_box = storage_job_box(this.client, $('#storage-jobs'));
         this.log_box = storage_log_box(this.address, $('#storage-log'));
+
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
+
+        function is_interesting_blockdev(dev) {
+            return dev && self.blockdevs[dev];
+        }
+
+        function highlight_blockdev_row(event, id) {
+            $('#storage tr').removeClass('highlight');
+            if (id) {
+                $('#storage tr[data-blockdev~="' + cockpit.esc(id) + '"]').addClass('highlight');
+            }
+        }
+
+        this.cockpitd = cockpit.dbus(this.address);
+        this.monitor = this.cockpitd.get("/com/redhat/Cockpit/BlockdevMonitor",
+                                         "com.redhat.Cockpit.MultiResourceMonitor");
+
+        this.rx_plot = cockpit.setup_multi_plot('#storage-reading-graph', this.monitor, 0, blues.concat(blues),
+                                                is_interesting_blockdev);
+        $(this.rx_plot).on('update-total', function (event, total) {
+            $('#storage-reading-text').text(cockpit.format_bits_per_sec(total * 8));
+        });
+        $(this.rx_plot).on('highlight', highlight_blockdev_row);
+
+        this.tx_plot = cockpit.setup_multi_plot('#storage-writing-graph', this.monitor, 1, blues.concat(blues),
+                                                is_interesting_blockdev);
+        $(this.tx_plot).on('update-total', function (event, total) {
+            $('#storage-writing-text').text(cockpit.format_bits_per_sec(total * 8));
+        });
+        $(this.tx_plot).on('highlight', highlight_blockdev_row);
     },
 
     show: function() {
+        this.rx_plot.start();
+        this.tx_plot.start();
     },
 
     leave: function() {
+        this.rx_plot.destroy();
+        this.tx_plot.destroy();
+
         cockpit.set_watched_client(null);
         $(this.client).off(".storage");
         this.job_box.stop();
@@ -379,10 +423,14 @@ PageStorage.prototype = {
         this._other_devices.empty();
         this._other_devices.closest('.panel').hide();
 
+        this.blockdevs = { };
+
         var objs = this.client.getObjectsFrom("/com/redhat/Cockpit/Storage/");
         for (var n = 0; n < objs.length; n++) {
             this._add(objs[n]);
         }
+
+        $(this.monitor).trigger('notify:Consumers');
     },
 
     _delayed_coldplug: function() {
@@ -394,6 +442,17 @@ PageStorage.prototype = {
                 self._coldplug();
             }, 0);
         }
+    },
+
+    _monitor_block: function(block) {
+        if (!block)
+            return "";
+
+        var blockdev = block.Device;
+        if (blockdev.startsWith("/dev/"))
+            blockdev = blockdev.substr(5);
+        this.blockdevs[blockdev] = true;
+        return blockdev;
     },
 
     _add: function(obj) {
@@ -427,19 +486,10 @@ PageStorage.prototype = {
         var sort_key = cockpit.esc(drive.SortKey);
         var n;
 
-        var device_string = "";
-        var blocks = get_block_devices_for_drive(drive);
-        var block;
-
-        for (n = 0; n < blocks.length; n++) {
-            block = blocks[n];
-            if (n > 0) {
-                device_string += " ";
-            }
-            device_string += block.Device;
-        }
+        var blockdev = this._monitor_block(find_block_device_for_drive(drive));
 
         var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + sort_key + "\"";
+        html += " data-blockdev=\"" + cockpit.esc(blockdev) + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
 
         html += "<td>";
@@ -491,6 +541,7 @@ PageStorage.prototype = {
         this._drives.closest('.panel').show();
 
         prepare_as_target($('#storage-spinner-' + id));
+        var blocks = get_block_devices_for_drive(drive);
         for (n = 0; n < blocks.length; n++)
             mark_as_block_target($('#storage-spinner-' + id), blocks[n]);
     },
@@ -598,10 +649,13 @@ PageStorage.prototype = {
             block.HintIgnore)
             return;
 
+        var blockdev = this._monitor_block(block);
+
         var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
         var sort_key = id; // for now
 
         var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key + "\"";
+        html += " data-blockdev=\"" + cockpit.esc(blockdev) + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
 
         html += "<td>";

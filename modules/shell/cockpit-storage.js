@@ -432,7 +432,7 @@ PageStorage.prototype = {
         var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + sort_key + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
 
-        html += "<td>";
+        html += "<td width=\"30%\">";
         html += cockpit.esc(drive.Name);
         html += "</td>";
         html += "<td>";
@@ -495,7 +495,7 @@ PageStorage.prototype = {
         var html = "<tr id=\"storage-raid-" + id + "\" sort=\"" + sort_key + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
 
-        html += "<td>";
+        html += "<td width=\"30%\">";
         html += cockpit.esc(raid_get_desc(raid));
         html += "</td>";
         html += "<td>";
@@ -541,7 +541,7 @@ PageStorage.prototype = {
         var html = "<tr id=\"storage-vg-" + id + "\" sort=\"" + sort_key + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
 
-        html += "<td>";
+        html += "<td width=\"30%\">";
         html += cockpit.esc(vg.Name);
         html += "</td>";
         html += "<td>";
@@ -594,7 +594,7 @@ PageStorage.prototype = {
         var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
 
-        html += "<td>";
+        html += "<td width=\"30%\">";
         html += cockpit.esc(block.Device);
         html += "</td>";
         html += "<td>";

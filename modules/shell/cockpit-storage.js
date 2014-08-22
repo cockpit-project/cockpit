@@ -354,20 +354,19 @@ PageStorage.prototype = {
     _onObjectAdded: function (event, obj) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        this._add(obj);
+        this._delayed_coldplug();
     },
 
     _onObjectRemoved: function (event, obj) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        this._remove(obj);
+        this._delayed_coldplug();
     },
 
     _onPropertiesChanged: function (event, obj, iface) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        this._remove(obj);
-        this._add(obj);
+        this._delayed_coldplug();
     },
 
     _coldplug: function() {
@@ -383,6 +382,17 @@ PageStorage.prototype = {
         var objs = this.client.getObjectsFrom("/com/redhat/Cockpit/Storage/");
         for (var n = 0; n < objs.length; n++) {
             this._add(objs[n]);
+        }
+    },
+
+    _delayed_coldplug: function() {
+        var self = this;
+        if (!self._coldplug_pending) {
+            self._coldplug_pending = true;
+            setTimeout(function () {
+                self._coldplug_pending = false;
+                self._coldplug();
+            }, 0);
         }
     },
 

@@ -739,66 +739,68 @@ function block_get_desc(block, partition_label, cleartext_device)
     var ret, lv;
 
     if (block.IdUsage == "filesystem") {
-        ret = F(C_("storage-id-desc", "%{type} File System"), { type: cockpit.esc(block.IdType) });
-     } else if (block.IdUsage == "raid") {
+        ret = $('<span>').text(
+            F(C_("storage-id-desc", "%{type} File System"), { type: block.IdType }));
+    } else if (block.IdUsage == "raid") {
         if (block.IdType == "linux_raid_member") {
-            ret = C_("storage-id-desc", "Linux MD-RAID Component");
+            ret = $('<span>').text(C_("storage-id-desc", "Linux MD-RAID Component"));
         } else if (block.IdType == "LVM2_member") {
-            ret = C_("storage-id-desc", "LVM2 Physical Volume");
+            ret = $('<span>').text(C_("storage-id-desc", "LVM2 Physical Volume"));
         } else {
-            ret = C_("storage-id-desc", "RAID Member");
+            ret = $('<span>').text(C_("storage-id-desc", "RAID Member"));
         }
     } else if (block.IdUsage == "crypto") {
         if (block.IdType == "crypto_LUKS") {
-            ret = C_("storage-id-desc", "LUKS Encrypted");
+            ret = $('<span>').text(C_("storage-id-desc", "LUKS Encrypted"));
         } else {
-            ret = C_("storage-id-desc", "Encrypted");
+            ret = $('<span>').text(C_("storage-id-desc", "Encrypted"));
         }
     } else if (block.IdUsage == "other") {
         if (block.IdType == "swap") {
-            ret = C_("storage-id-desc", "Swap Space");
+            ret = $('<span>').text(C_("storage-id-desc", "Swap Space"));
         } else {
-            ret = C_("storage-id-desc", "Other Data");
+            ret = $('<span>').text(C_("storage-id-desc", "Other Data"));
         }
     } else {
-        ret = C_("storage-id-desc", "Unrecognized Data");
+        ret = $('<span>').text(C_("storage-id-desc", "Unrecognized Data"));
     }
 
-    if (block.PartitionNumber > 0)
-        ret = F(_("%{size} %{partition} (%{content})"),
-                { size: fmt_size(block.Size),
-                  partition: partition_label,
-                  content: ret
-                });
+    if (block.PartitionNumber > 0) {
+        ret = $('<span>').append(
+            F(_("%{size} %{partition}"), { size: fmt_size(block.Size),
+                                           partition: partition_label
+                                         }),
+            " (", ret, ")");
+    }
 
     if (block.LogicalVolume != "/") {
         lv = block._client.lookup(block.LogicalVolume,
                                   "com.redhat.Cockpit.Storage.LogicalVolume");
-        ret = F(_("%{size} %{partition} (%{content})"),
-                { size: fmt_size(block.Size),
-                  partition: lvol_get_desc(lv),
-                  content: ret
-                });
+        ret = $('<span>').append(
+            F(_("%{size} %{partition}"), { size: fmt_size(block.Size),
+                                           partition: lvol_get_desc(lv)
+                                         }),
+            " (", ret, ")");
     }
 
-    ret += "<br/>";
-
-    ret += cockpit.esc(block.Device);
+    ret.append(
+        $('<br/>'),
+        cockpit.esc(block.Device));
 
     if (block.IdUsage == "filesystem") {
-        ret += ", ";
+        ret.append(", ");
         if (block.MountedAt.length > 0)
-            ret += F(_("mounted on %{mountpoint}"),
-                     { mountpoint: cockpit.esc(block.MountedAt[0])
-                     });
+            ret.append(F(_("mounted on %{mountpoint}"),
+                         { mountpoint: cockpit.esc(block.MountedAt[0])
+                         }));
         else
-            ret += _("not mounted");
+            ret.append(_("not mounted"));
     } else if (block.IdUsage == "crypto") {
-        ret += ", ";
+        ret.append(", ");
         if (cleartext_device)
-            ret += _("unlocked");
+            ret.append(_("unlocked"));
         else
-            ret += _("locked");
+            ret.append(_("locked"));
     }
 
     return ret;

@@ -1542,7 +1542,7 @@ PageStorageDetail.prototype = {
                 return F(_("Unknown (%{state})"), { state: state });
         }
 
-        $('#raid-disks-add').prop('disabled', raid.Level === "raid0");
+        $('#raid-disks-add').css('visibility', raid.Level === "raid0" ? 'hidden' : 'visible');
 
         var disks = $("#raid-disks");
         var info = this._mdraid.ActiveDevices || [];
@@ -1582,7 +1582,7 @@ PageStorageDetail.prototype = {
                             $('<td style="text-align:right">').append(
                                 $('<button>', { 'class': 'btn btn-default',
                                                 'on': { 'click': $.proxy(this, "raid_disk_remove", block) }
-                                              }).text(_("Remove")).prop('disabled', raid.Level === "raid0"))))));
+                                              }).text(_("Remove")).css('visibility', raid.Level === "raid0" ? 'hidden' : 'visible'))))));
         }
     },
 

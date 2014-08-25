@@ -749,6 +749,33 @@ function block_get_desc(block, partition_label, cleartext_device)
         } else {
             ret = $('<span>').text(C_("storage-id-desc", "RAID Member"));
         }
+        if (block.PvGroup != "/") {
+            var vg = block._client.get(block.PvGroup, "com.redhat.Cockpit.Storage.VolumeGroup");
+            ret.append(
+                " of ",
+                $('<a>').
+                    text(vg.Name).
+                    click(function () {
+                        cockpit.go_sibling({ page: 'storage-detail',
+                                             type: 'vg',
+                                             id: vg.Name
+                                           });
+                        }));
+        } else if (block.MDRaidMember != "/") {
+            var id = block.MDRaidMember.substr(block.MDRaidMember.lastIndexOf("/") + 1);
+            var raid = block._client.get(block.MDRaidMember, "com.redhat.Cockpit.Storage.MDRaid");
+            ret.append(
+                " of ",
+                $('<a>').
+                    text(raid_get_desc(raid)).
+                    click(function () {
+                        cockpit.go_sibling({ page: 'storage-detail',
+                                             type: 'mdraid',
+                                             id: id
+                                           });
+                        }));
+        }
+
     } else if (block.IdUsage == "crypto") {
         if (block.IdType == "crypto_LUKS") {
             ret = $('<span>').text(C_("storage-id-desc", "LUKS Encrypted"));

@@ -2482,7 +2482,7 @@ PageNetworkBridgeSettings.prototype = {
         var body =
             $('<table class="cockpit-form-table">').append(
                 $('<tr>').append(
-                    $('<td>').text(_("Interface")),
+                    $('<td>').text(_("Name")),
                     $('<td>').append(
                         $('<input class="form-control">').
                             val(options.interface_name).

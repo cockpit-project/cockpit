@@ -2172,8 +2172,6 @@ PageCreateRaid.prototype = {
 
         $('#create-raid-drives input').on('change', $.proxy(this, "update"));
         $('#create-raid-name').val("");
-        $('#create-raid-level').val("raid5");
-        $('#create-raid-chunk').val("512");
         $('#accounts-create-locked').prop('checked', false);
         this.update();
     },

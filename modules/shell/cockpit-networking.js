@@ -2157,7 +2157,7 @@ PageNetworkIpSettings.prototype = {
                                                 set(i,j, $(event.target).val());
                                             }));
                                 }),
-                                $('<td style="text-align:right">').append(
+                                $('<td style="text-align:right; padding-right: 0;">').append(
                                     $('<button class="btn btn-default" style="width:2em">').
                                         text(_("-")).
                                         click(remove(i)))));

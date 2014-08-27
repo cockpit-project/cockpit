@@ -361,6 +361,7 @@ PageStorage.prototype = {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
         this._remove(obj);
+        this._coldplug();
     },
 
     _onPropertiesChanged: function (event, obj, iface) {

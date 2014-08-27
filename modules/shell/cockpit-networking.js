@@ -2136,7 +2136,7 @@ PageNetworkIpSettings.prototype = {
             }
 
             var panel =
-                $('<div>').append(
+                $('<div class="network-ip-settings-row">').append(
                     $('<div>').append(
                         $('<span style="font-weight:bold">').text(title),
                         $('<div style="float:right">').append(

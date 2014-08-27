@@ -2172,8 +2172,6 @@ PageCreateRaid.prototype = {
 
         $('#create-raid-drives input').on('change', $.proxy(this, "update"));
         $('#create-raid-name').val("");
-        $('#create-raid-level').val("raid5");
-        $('#create-raid-chunk').val("512");
         $('#accounts-create-locked').prop('checked', false);
         this.update();
     },
@@ -2372,7 +2370,7 @@ PageCreateVolumeGroup.prototype = {
                 if (check_checked_box()) {
                     $('#create-vg-create').prop('disabled', false);
                     hide_error_message('#create-vg-error');
-                } else {console.log("disk_count is " + disk_count);
+                } else {
                     if (disk_count === -1)
                         return;
 

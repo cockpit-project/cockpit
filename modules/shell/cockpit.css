@@ -733,6 +733,14 @@ a {
     cursor: auto;
 }
 
+/* Ensure that btn-default is at least as wide as tall
+ * Avoids the problem with short labels */
+ 
+.btn-default {
+    min-height: 26px;
+    min-width: 26px;
+}
+
 /* Our terminal emulator */
 .terminal-emulator {
     max-width: 60em;

@@ -1305,6 +1305,17 @@ PageNetworking.prototype = {
         tbody.empty();
 
         self.model.list_interfaces().forEach(function (iface) {
+
+            function has_master(iface) {
+                var connections =
+                    (iface.Device ? iface.Device.AvailableConnections : iface.Connections);
+                return connections.some(function (c) { return c.Masters.length > 0; });
+            }
+
+            // Skip slaves
+            if (has_master(iface))
+                return;
+
             // Skip everything that is not ethernet, bond, or bridge
             if (iface.Device && iface.Device.DeviceType != 'ethernet' &&
                 iface.Device.DeviceType != 'bond' &&
@@ -1573,13 +1584,34 @@ PageNetworkInterface.prototype = {
                       "#004778"
                     ];
 
+        self.graph_ifaces = { };
+
         function is_interesting_netdev(netdev) {
-            return netdev == self.dev_name;
+            return netdev && self.graph_ifaces[netdev];
+        }
+
+        function highlight_netdev_row(event, id) {
+            $('#network-interface-slaves tr').removeClass('highlight');
+            if (id) {
+                $('#network-interface-slaves tr[data-interface="' + cockpit.esc(id) + '"]').addClass('highlight');
+            }
+        }
+
+        function render_samples(event, timestamp, samples) {
+            for (var id in samples) {
+                var row = $('#network-interface-slaves tr[data-sample-id="' + cockpit.esc(id) + '"]');
+                if (row.length > 0) {
+                    row.find('td:nth-child(2)').text(cockpit.format_bits_per_sec(samples[id][1] * 8));
+                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(samples[id][0] * 8));
+                }
+            }
         }
 
         this.cockpitd = cockpit.dbus(this.address);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
+
+        $(this.monitor).on('NewSample.networking', render_samples);
 
         this.rx_plot = cockpit.setup_multi_plot('#network-interface-rx-graph', this.monitor, 0,
                                                 blues.concat(blues), is_interesting_netdev,
@@ -1587,6 +1619,7 @@ PageNetworkInterface.prototype = {
         $(this.rx_plot).on('update-total', function (event, total) {
             $('#network-interface-rx-text').text(cockpit.format_bits_per_sec(total * 8));
         });
+        $(this.rx_plot).on('highlight', highlight_netdev_row);
 
         this.tx_plot = cockpit.setup_multi_plot('#network-interface-tx-graph', this.monitor, 1,
                                                 blues.concat(blues), is_interesting_netdev,
@@ -1594,6 +1627,7 @@ PageNetworkInterface.prototype = {
         $(this.tx_plot).on('update-total', function (event, total) {
             $('#network-interface-tx-text').text(cockpit.format_bits_per_sec(total * 8));
         });
+        $(this.tx_plot).on('highlight', highlight_netdev_row);
 
         $('#network-interface-delete').hide();
         self.dev = null;
@@ -1874,10 +1908,6 @@ PageNetworkInterface.prototype = {
                 if (!settings.bond)
                     return null;
 
-                con.Slaves.map(function (con) {
-                    rows.push($('<div>').append(render_connection_link(con)));
-                });
-
                 options = settings.bond.options;
 
                 parts.push(choice_title(bond_mode_choices, options.mode, options.mode));
@@ -1896,10 +1926,6 @@ PageNetworkInterface.prototype = {
 
                 if (!options)
                     return null;
-
-                con.Slaves.map(function (con) {
-                    rows.push($('<div>').append(render_connection_link(con)));
-                });
 
                 function add_row(fmt, args) {
                     rows.push($('<div>').text(F(_(fmt), args)));
@@ -2036,6 +2062,103 @@ PageNetworkInterface.prototype = {
             empty().
             append(render_active_status_row()).
             append(render_connection_settings_rows(self.main_connection, self.connection_settings));
+
+        function update_connection_slaves(con) {
+            var tbody = $('#network-interface-slaves tbody');
+            var rows = { };
+
+            self.graph_ifaces = { };
+            tbody.empty();
+
+            if (!con || (con.Settings.connection.type != "bond" &&
+                         con.Settings.connection.type != "bridge")) {
+                self.graph_ifaces[self.dev_name] = true;
+                $(self.monitor).trigger('notify:Consumers');
+                $('#network-interface-slaves').hide();
+                return;
+            }
+
+            con.Slaves.forEach(function (slave_con) {
+                slave_con.Interfaces.forEach(function(iface) {
+                    var dev = iface.Device;
+                    var is_active = (dev && dev.State == 100);
+
+                    self.graph_ifaces[iface.Name] = true;
+
+                    rows[iface.Name] =
+                        $('<tr>', { "data-interface": iface.Name,
+                                    "data-sample-id": is_active? iface.Name : null
+                                  }).
+                            append($('<td>').text(iface.Name),
+                                   (is_active?
+                                    [ $('<td>').text(""), $('<td>').text("") ] :
+                                    $('<td colspan="2">').text(dev? dev.StateText : _("Inactive"))),
+                                   $('<td style="text-align:right">').append(
+                                       onoffbox(is_active,
+                                                function () {
+                                                    slave_con.activate(iface.Device).
+                                                        fail(cockpit.show_unexpected_error);
+                                                },
+                                                function () {
+                                                    if (dev) {
+                                                        dev.disconnect().
+                                                            fail(cockpit.show_unexpected_error);
+                                                    }
+                                                })),
+                                   $('<td width="28px">').append(
+                                       $('<button class="btn btn-default btn-control">').
+                                           text("-").
+                                           click(function () {
+                                               slave_con.delete_().
+                                                   fail(cockpit.show_unexpected_error);
+                                               return false;
+                                           }))).
+                            click(function () { cockpit.go_sibling({  page: 'network-interface',
+                                                                      dev: iface.Name
+                                                                   });
+                                              });
+                });
+            });
+
+            Object.keys(rows).sort().forEach(function(name) {
+                tbody.append(rows[name]);
+            });
+
+            var add_btn =
+                $('<div>', { 'class': 'dropdown' }).append(
+                    $('<button>', { 'class': 'btn btn-default btn-control dropdown-toggle',
+                                    'data-toggle': 'dropdown'
+                                  }).
+                        text("+"),
+                    $('<ul>', { 'class': 'dropdown-menu',
+                                'style': 'right:0px;left:auto;min-width:0;text-align:left',
+                                'role': 'menu'
+                              }).
+                        append(
+                            self.model.list_interfaces().map(function (iface) {
+                                if (is_interesting_interface(iface) &&
+                                    !self.graph_ifaces[iface.Name] &&
+                                    iface != self.iface)
+                                    return $('<li role="presentation">').append(
+                                        $('<a role="menuitem">').
+                                            text(iface.Name).
+                                            click(function () {
+                                                set_slave(self.model, con, con.Settings,
+                                                          con.Settings.connection.type, iface.Name,
+                                                          true).
+                                                    fail(cockpit.show_unexpected_error);
+                                            }));
+                                else
+                                    return null;
+                            })));
+
+            $('#network-interface-slaves thead th:nth-child(5)').html(add_btn);
+
+            $(self.monitor).trigger('notify:Consumers');
+            $('#network-interface-slaves').show();
+        }
+
+        update_connection_slaves(self.main_connection);
     }
 
 };
@@ -2502,7 +2625,8 @@ PageNetworkBondSettings.prototype = {
                     $('<td class="top">').text(_("Members")),
                     $('<td>').append(
                         slaves_element = render_slave_interface_choices(model, master).
-                            change(change_slaves))),
+                            change(change_slaves))).
+                    toggle(!master),
                 $('<tr>').append(
                     $('<td>').text(_("Mode")),
                     $('<td>').append(
@@ -2652,7 +2776,8 @@ PageNetworkBridgeSettings.prototype = {
                 $('<tr>').append(
                     $('<td class="top">').text(_("Members")),
                     $('<td>').append(render_slave_interface_choices(model,
-                                                                    PageNetworkBridgeSettings.connection))),
+                                                                    PageNetworkBridgeSettings.connection))).
+                    toggle(!PageNetworkBridgeSettings.connection),
                 $('<tr>').append(
                     $('<td>').text(_("Spanning Tree Protocol (STP)")),
                     $('<td>').append(

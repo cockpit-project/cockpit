@@ -406,17 +406,33 @@ function NetworkManagerModel(address) {
             return 0;
     }
 
-    function ip4_from_nm(addr) {
+    function ip4_address_from_nm(addr) {
         return [ ip4_to_text(addr[0]),
                  addr[1],
                  ip4_to_text(addr[2])
                ];
     }
 
-    function ip4_to_nm(addr) {
+    function ip4_address_to_nm(addr) {
         return [ ip4_from_text(addr[0]),
                  parseInt(addr[1], 10) || 24,
                  ip4_from_text(addr[2])
+               ];
+    }
+
+    function ip4_route_from_nm(addr) {
+        return [ ip4_to_text(addr[0]),
+                 addr[1],
+                 ip4_to_text(addr[2]),
+                 addr[3]
+               ];
+    }
+
+    function ip4_route_to_nm(addr) {
+        return [ ip4_from_text(addr[0]),
+                 parseInt(addr[1], 10) || 24,
+                 ip4_from_text(addr[2]),
+                 parseInt(addr[3], 10) || 0
                ];
     }
 
@@ -438,20 +454,35 @@ function NetworkManagerModel(address) {
         return parts.join(':');
     }
 
-    function ip6_from_nm(addr) {
+    function ip6_address_from_nm(addr) {
         return [ ip6_to_text(addr[0]),
                  addr[1],
                  ip6_to_text(addr[2])
                ];
     }
 
-    function ip6_to_nm(addr) {
+    function ip6_address_to_nm(addr) {
         return [ ip6_from_text(addr[0]),
                  parseInt(addr[1], 10) || 64,
                  ip6_from_text(addr[2])
                ];
     }
 
+    function ip6_route_from_nm(addr) {
+        return [ ip6_to_text(addr[0]),
+                 addr[1],
+                 ip6_to_text(addr[2]),
+                 addr[3]
+               ];
+    }
+
+    function ip6_route_to_nm(addr) {
+        return [ ip6_from_text(addr[0]),
+                 parseInt(addr[1], 10) || 64,
+                 ip6_from_text(addr[2]),
+                 parseInt(addr[3], 10) || 0
+               ];
+    }
 
     function settings_from_nm(settings) {
 
@@ -462,14 +493,15 @@ function NetworkManagerModel(address) {
                 return def;
         }
 
-        function get_ip(first, addr_from_nm, ip_to_text) {
+        function get_ip(first, addr_from_nm, route_from_nm, ip_to_text) {
             return {
                 method:             get(first, "method", "auto"),
                 ignore_auto_dns:    get(first, "ignore-auto-dns", false),
                 ignore_auto_routes: get(first, "ignore-auto-routes", false),
                 addresses:          get(first, "addresses", []).map(addr_from_nm),
                 dns:                get(first, "dns", []).map(ip_to_text),
-                dns_search:         get(first, "dns-search", [])
+                dns_search:         get(first, "dns-search", []),
+                routes:             get(first, "routes", []).map(route_from_nm)
             };
         }
 
@@ -487,8 +519,8 @@ function NetworkManagerModel(address) {
         };
 
         if (!settings.connection.master) {
-            result.ipv4 = get_ip("ipv4", ip4_from_nm, ip4_to_text);
-            result.ipv6 = get_ip("ipv6", ip6_from_nm, ip6_to_text);
+            result.ipv4 = get_ip("ipv4", ip4_address_from_nm, ip4_route_from_nm, ip4_to_text);
+            result.ipv6 = get_ip("ipv6", ip6_address_from_nm, ip6_route_from_nm, ip6_to_text);
         }
 
         if (settings.bond) {
@@ -541,13 +573,14 @@ function NetworkManagerModel(address) {
             result[first][second] = cockpit.variant(sig, val);
         }
 
-        function set_ip(first, addrs_sig, addr_to_nm, ips_sig, ip_from_text) {
+        function set_ip(first, addrs_sig, addr_to_nm, routes_sig, route_to_nm, ips_sig, ip_from_text) {
             set(first, "method", 's', settings[first].method);
             set(first, "ignore-auto-dns", 'b', settings[first].ignore_auto_dns);
             set(first, "ignore-auto-routes", 'b', settings[first].ignore_auto_routes);
             set(first, "addresses", addrs_sig, settings[first].addresses.map(addr_to_nm));
             set(first, "dns", ips_sig, settings[first].dns.map(ip_from_text));
             set(first, "dns-search", 'as', settings[first].dns_search);
+            set(first, "routes", routes_sig, settings[first].routes.map(route_to_nm));
 
             // Never pass "address-labels" back to NetworkManager.  It
             // is documented as "internal only", but needs to somehow
@@ -566,9 +599,9 @@ function NetworkManagerModel(address) {
         set("connection", "master", 's', settings.connection.master);
 
         if (settings.ipv4)
-            set_ip("ipv4", 'aau', ip4_to_nm, 'au', ip4_from_text);
+            set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', ip4_from_text);
         if (settings.ipv6)
-            set_ip("ipv6", 'a(ayuay)', ip6_to_nm, 'aay', ip6_from_text);
+            set_ip("ipv6", 'a(ayuay)', ip6_address_to_nm, 'a(ayuayu)', ip6_route_to_nm, 'aay', ip6_from_text);
         if (settings.bond) {
             set("bond", "options", 'a{ss}', settings.bond.options);
             set("bond", "interface-name", 's', settings.bond.interface_name);
@@ -703,7 +736,7 @@ function NetworkManagerModel(address) {
         ],
 
         props: {
-            Addresses:            { conv: conv_Array(ip4_from_nm), def: [] }
+            Addresses:            { conv: conv_Array(ip4_address_from_nm), def: [] }
         }
     };
 
@@ -713,7 +746,7 @@ function NetworkManagerModel(address) {
         ],
 
         props: {
-            Addresses:            { conv: conv_Array(ip6_from_nm), def: [] }
+            Addresses:            { conv: conv_Array(ip6_address_from_nm), def: [] }
         }
     };
 

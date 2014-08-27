@@ -2370,7 +2370,7 @@ PageCreateVolumeGroup.prototype = {
                 if (check_checked_box()) {
                     $('#create-vg-create').prop('disabled', false);
                     hide_error_message('#create-vg-error');
-                } else {console.log("disk_count is " + disk_count);
+                } else {
                     if (disk_count === -1)
                         return;
 

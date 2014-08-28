@@ -398,6 +398,21 @@ class QemuMachine(Machine):
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
+    def _setup_fedora_21 (self, gf):
+        self._setup_fstab(gf)
+        self._setup_ssh_keys(gf)
+        self._setup_fedora_network(gf)
+
+        # systemctl disable sshd.service
+        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
+        # systemctl enable sshd.socket
+        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
+        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
+
+        # HACK: Tweak the repos until the mirrors are in good enough shape
+        repo = "[fedora]\nbaseurl=http://dl.fedoraproject.org/pub/fedora/linux/development/$releasever/$basearch/os/\nenabled=1\ngpgcheck=0"
+        gf.write("/etc/yum.repos.d/fedora.repo", repo)
+
     def unpack_base(self, modify_func=None):
         assert not self._process
 
@@ -477,6 +492,8 @@ class QemuMachine(Machine):
                 self._setup_fedora_18(gf)
             elif self.os == "fedora-20" or self.os == "f20":
                 self._setup_fedora_20(gf)
+            elif self.os == "fedora-21" or self.os == "f21":
+                self._setup_fedora_21(gf)
             else:
                 raise Failure("Unsupported OS %s" % self.os)
 

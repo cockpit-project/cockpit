@@ -26,6 +26,10 @@ class TestJournal(MachineCase):
         b = self.browser
         m = self.machine
 
+        # TODO: Make this work with non-root
+
+        b.default_user = "root"
+
         def inject_extras():
             b.eval_js("""
             ph_get_log_lines = function () {
@@ -208,6 +212,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                          "-- Start of Journal --"
                      ])
 
-        self.allow_journal_messages("Cannot make/remove an entry for the specified session")
+        self.allow_journal_messages("Cannot make/remove an entry for the specified session",
+                                    "localhost: agent program failed: Child process killed by signal 9")
 
 test_main()

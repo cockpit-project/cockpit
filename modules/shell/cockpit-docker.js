@@ -583,6 +583,8 @@ PageRunImage.prototype = {
                 page.memory_slider.max = info.memory;
             });
 
+        console.log(info);
+
         /* Memory slider defaults */
         if (info.container_config.Memory) {
             this.memory_slider.value = info.config_container.Memory;
@@ -1334,6 +1336,14 @@ function DockerClient(machine) {
     var connected;
     var alive = true;
 
+    /* We use the Docker API v1.10 as documented here:
+
+       https://docs.docker.com/reference/api/docker_remote_api/
+
+       TODO: We should update eventually.  Later versions have
+       incompatible changes, but they are also nicer.
+     */
+
     /* This is a named function because we call it recursively */
     function connect_events() {
 
@@ -1412,7 +1422,7 @@ function DockerClient(machine) {
     function perform_connect() {
         connected = $.Deferred();
         rest = cockpit.rest("unix:///var/run/docker.sock", machine);
-        events = rest.get("/events");
+        events = rest.get("/v1.10/events");
 
         connect_events();
 
@@ -1422,7 +1432,7 @@ function DockerClient(machine) {
          * extra robustness and to account for the fact that there are no
          * events when new images appear, we also poll for changes.
          */
-        rest.poll("/containers/json", 4000, events, { "all": 1 }).
+        rest.poll("/v1.10/containers/json", 4000, events, { "all": 1 }).
             stream(function(containers) {
                 if (connected.state() == "pending")
                     connected.resolve();
@@ -1437,7 +1447,7 @@ function DockerClient(machine) {
                     var id = item.Id;
                     containers_meta[id] = item;
                     if (id && !polls[id]) {
-                        polls[id] = rest.poll("/containers/" + id + "/json", 5000, events).
+                        polls[id] = rest.poll("/v1.10/containers/" + id + "/json", 5000, events).
                             stream(function(container) {
                                 populate_container(id, container);
                                 me.containers[id] = container;
@@ -1493,7 +1503,7 @@ function DockerClient(machine) {
          * /images/xxxx/json have completely inconsistent keys. So using the former
          * is pretty useless here :S
          */
-        var images_req = rest.poll("/images/json", 1000).
+        var images_req = rest.poll("/v1.10/images/json", 1000).
             stream(function(images) {
                 if (connected.state() == "pending")
                     connected.resolve();
@@ -1503,7 +1513,7 @@ function DockerClient(machine) {
                     var id = item.Id;
                     images_meta[id] = item;
                     if (id && !polls[id]) {
-                        polls[id] = rest.poll("/images/" + id + "/json", 0, images_req).
+                        polls[id] = rest.poll("/v1.10/images/" + id + "/json", 0, images_req).
                             stream(function(image) {
                                 populate_image(id, image);
                                 me.images[id] = image;
@@ -1573,7 +1583,7 @@ function DockerClient(machine) {
     this.pull = function pull(repo, tag) {
         docker_debug("pulling: " + repo + ", tag: " + tag);
 
-        var url = "/images/create?fromImage=" + repo;
+        var url = "/v1.10/images/create?fromImage=" + repo;
         if(tag !== '') {
             url += "&tag=" + tag;
         }
@@ -1645,7 +1655,7 @@ function DockerClient(machine) {
     this.start = function start(id, options) {
         waiting(id);
         docker_debug("starting:", id, options);
-        return rest.post("/containers/" + id + "/start", null, options).
+        return rest.post("/v1.10/containers/" + id + "/start", null, options).
             fail(function(ex) {
                 docker_debug("start failed:", id, ex);
             }).
@@ -1662,7 +1672,7 @@ function DockerClient(machine) {
         if (timeout === undefined)
             timeout = 10;
         docker_debug("stopping:", id, timeout);
-        return rest.post("/containers/" + id + "/stop", { 't': timeout }).
+        return rest.post("/v1.10/containers/" + id + "/stop", { 't': timeout }).
             fail(function(ex) {
                 docker_debug("stop failed:", id, ex);
             }).
@@ -1677,7 +1687,7 @@ function DockerClient(machine) {
     this.restart = function restart(id) {
         waiting(id);
         docker_debug("restarting:", id);
-        return rest.post("/containers/" + id + "/restart").
+        return rest.post("/v1.10/containers/" + id + "/restart").
             fail(function(ex) {
                 docker_debug("restart failed:", id, ex);
             }).
@@ -1691,7 +1701,7 @@ function DockerClient(machine) {
 
     this.create = function create(name, options) {
         docker_debug("creating:", name, options);
-        return rest.post("/containers/create", { "name": name }, options).
+        return rest.post("/v1.10/containers/create", { "name": name }, options).
             fail(function(ex) {
                 docker_debug("create failed:", name, ex);
             }).
@@ -1702,7 +1712,7 @@ function DockerClient(machine) {
 
     this.search = function search(term) {
         docker_debug("searching:", term);
-        return rest.get("/images/search", { "term": term }).
+        return rest.get("/v1.10/images/search", { "term": term }).
             fail(function(ex) {
                 docker_debug("search failed:", term, ex);
             }).
@@ -1720,7 +1730,7 @@ function DockerClient(machine) {
 
         waiting(id);
         docker_debug("committing:", id, repotag, options, run_config);
-        return rest.post("/commit", args, run_config).
+        return rest.post("/v1.10/commit", args, run_config).
             fail(function(ex) {
                 docker_debug("commit failed:", repotag, ex);
             }).
@@ -1735,7 +1745,7 @@ function DockerClient(machine) {
     this.rm = function rm(id) {
         waiting(id);
         docker_debug("deleting:", id);
-        return rest.del("/containers/" + id).
+        return rest.del("/v1.10/containers/" + id).
             fail(function(ex) {
                 docker_debug("delete failed:", id, ex);
             }).
@@ -1750,7 +1760,7 @@ function DockerClient(machine) {
     this.rmi = function rmi(id) {
         waiting(id);
         docker_debug("deleting:", id);
-        return rest.del("/images/" + id).
+        return rest.del("/v1.10/images/" + id).
             fail(function(ex) {
                 docker_debug("delete failed:", id, ex);
             }).
@@ -1894,7 +1904,7 @@ function DockerTerminal(parent, machine, id) {
             });
 
         var req =
-            "POST /containers/" + id + "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
+            "POST /v1.10/containers/" + id + "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
             "Content-Length: 0\r\n" +
             "\r\n";
         channel.send(req);

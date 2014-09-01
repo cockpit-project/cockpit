@@ -9,11 +9,6 @@ Fedora:
   # yum install trickle nbd-server npm python-libguestfs
   # npm install phantomjs
 
-You also need a base tarball for the distribution you want to test
-Cockpit on.  Try this one:
-
-    http://mvo.fedorapeople.org/cockpit/fedora-20-x86_64.tar.gz
-
 ## Quick list of tools
 
 For setting up the host:
@@ -97,6 +92,10 @@ to it, brings it up-to-date with respect to the upstream package
 repositories, and sets it up for the indicated flavor.  The magic base
 tarballs is looked for in $TEST_DATA, is currently lovingly made by
 hand, and changes almost never.
+
+You can find some magic base tarballs here:
+
+    http://files.cockpit-project.org/testdata
 
 The image will be created in the "./run" directory.
 

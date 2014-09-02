@@ -997,6 +997,12 @@ test_idling (TestCase *test,
   WebSocketConnection *client;
   CockpitWebService *service;
   gboolean flag = FALSE;
+  CockpitPipe *pipe;
+
+  const gchar *argv[] = {
+    BUILDDIR "/cockpit-agent",
+    NULL
+  };
 
   cockpit_ws_default_host_header = "127.0.0.1";
 
@@ -1008,7 +1014,10 @@ test_idling (TestCase *test,
                          "flavor", 0,
                          NULL);
 
-  service = cockpit_web_service_new (test->creds, NULL);
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+  service = cockpit_web_service_new (test->creds, pipe);
+  g_object_unref (pipe);
+
   g_signal_connect (service, "idling", G_CALLBACK (on_idling_set_flag), &flag);
   g_assert (cockpit_web_service_get_idling (service));
 
@@ -1039,6 +1048,12 @@ test_dispose (TestCase *test,
 {
   WebSocketConnection *client;
   CockpitWebService *service;
+  CockpitPipe *pipe;
+
+  const gchar *argv[] = {
+    BUILDDIR "/cockpit-agent",
+    NULL
+  };
 
   cockpit_ws_default_host_header = "127.0.0.1";
 
@@ -1050,7 +1065,9 @@ test_dispose (TestCase *test,
                          "flavor", 0,
                          NULL);
 
-  service = cockpit_web_service_new (test->creds, NULL);
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+  service = cockpit_web_service_new (test->creds, pipe);
+  g_object_unref (pipe);
 
   cockpit_web_service_socket (service, test->io_b, NULL, NULL);
 

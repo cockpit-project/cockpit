@@ -99,17 +99,25 @@ mock_auth_login_finish (CockpitAuth *auth,
 {
   MockAuth *self = MOCK_AUTH (auth);
   GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT (async);
+  CockpitCreds *creds;
+
+  const gchar *argv[] = {
+    BUILDDIR "/cockpit-agent",
+    NULL
+  };
 
   if (g_simple_async_result_propagate_error (result, error))
       return NULL;
 
-  if (session)
-    *session = NULL;
+  creds = cockpit_creds_new (self->expect_user,
+                             COCKPIT_CRED_PASSWORD, self->expect_password,
+                             COCKPIT_CRED_RHOST, g_simple_async_result_get_op_res_gpointer (result),
+                             NULL);
 
-  return cockpit_creds_new (self->expect_user,
-                            COCKPIT_CRED_PASSWORD, self->expect_password,
-                            COCKPIT_CRED_RHOST, g_simple_async_result_get_op_res_gpointer (result),
-                            NULL);
+  if (session)
+    *session = cockpit_pipe_spawn (argv, NULL, NULL);
+
+  return creds;
 }
 
 static void

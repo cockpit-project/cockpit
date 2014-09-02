@@ -158,6 +158,20 @@ var content_is_shown = false;
 
 var page_navigation_count = 0;
 
+/* HACK: Mozilla will unescape 'window.location.hash' before returning
+ * it, which is broken.
+ *
+ * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
+ */
+
+function get_window_location_hash() {
+    return '#' + (window.location.href.split('#')[1] || '');
+}
+
+function set_window_location_hash(hash) {
+    window.location.hash = hash;
+}
+
 function content_init() {
     var current_visible_dialog = null;
     var pages = $('#content > div');
@@ -179,11 +193,12 @@ function content_init() {
     });
 
     $(window).on('hashchange', function () {
-        if (window.location.hash != current_hash) {
+        var hash = get_window_location_hash();
+        if (hash != current_hash) {
             if (current_visible_dialog)
                 $('#' + current_visible_dialog).modal('hide');
 
-            go_hash(window.location.hash);
+            go_hash(hash);
         }
     });
 
@@ -201,7 +216,7 @@ function content_show() {
     $('.page').hide();
     $('#content').show();
     content_is_shown = true;
-    go_hash(window.location.hash);
+    go_hash(get_window_location_hash());
     phantom_checkpoint();
 }
 
@@ -363,7 +378,7 @@ function encode_trail(trail) {
 function decode_trail(hash) {
     var locs, params, vals, trail, p, i, j;
 
-    if (hash === "") {
+    if (hash === "" || hash === "#") {
         return [ { page: "dashboard" } ];
     }
 
@@ -388,7 +403,7 @@ function decode_trail(hash) {
 
 function show_hash() {
     current_hash = encode_trail(cockpit.loc_trail);
-    window.location.hash = current_hash;
+    set_window_location_hash(current_hash);
 }
 
 function go_hash(hash) {

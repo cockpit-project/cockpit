@@ -612,6 +612,26 @@ function NetworkManagerModel(address) {
         return result;
     }
 
+    function device_type_to_symbol(type) {
+        switch (type) {
+        case 0:  return 'unknown';
+        case 1:  return 'ethernet';
+        case 2:  return 'wifi';
+        case 3:  return 'unused1';
+        case 4:  return 'unused2';
+        case 5:  return 'bt';
+        case 6:  return 'olpc_mesh';
+        case 7:  return 'wimax';
+        case 8:  return 'modem';
+        case 9:  return 'infiniband';
+        case 10: return 'bond';
+        case 11: return 'vlan';
+        case 12: return 'adsl';
+        case 13: return 'bridge';
+        default: return '';
+        }
+    }
+
     function device_state_to_text(state) {
         switch (state) {
         // NM_DEVICE_STATE_UNKNOWN
@@ -876,7 +896,7 @@ function NetworkManagerModel(address) {
         ],
 
         props: {
-            DeviceType:           { },
+            DeviceType:           { conv: device_type_to_symbol },
             Interface:            { },
             StateText:            { prop: "State", conv: device_state_to_text,        def: _("Unknown") },
             State:                { },
@@ -1265,10 +1285,10 @@ PageNetworking.prototype = {
 
         self.model.list_interfaces().forEach(function (iface) {
             // Skip everything that is not ethernet, bond, or bridge
-            if (iface.Device && iface.Device.DeviceType != 1 &&
-                iface.Device.DeviceType != 10 &&
-                iface.Device.DeviceType != 11 &&
-                iface.Device.DeviceType != 13)
+            if (iface.Device && iface.Device.DeviceType != 'ethernet' &&
+                iface.Device.DeviceType != 'bond' &&
+                iface.Device.DeviceType != 'vlan' &&
+                iface.Device.DeviceType != 'bridge')
                 return;
 
             var dev = iface.Device;
@@ -1654,9 +1674,9 @@ PageNetworkInterface.prototype = {
 
         var desc;
         if (dev) {
-            if (dev.DeviceType == 1) {
+            if (dev.DeviceType == 'ethernet') {
                 desc = $('<span>').text(F("%{IdVendor} %{IdModel} (%{Driver})", dev));
-            } else if (dev.DeviceType == 10) {
+            } else if (dev.DeviceType == 'bond') {
                 if (dev.Slaves.length === 0)
                     desc = $('<span>').text("Bond without active parts");
                 else {
@@ -1666,9 +1686,9 @@ PageNetworkInterface.prototype = {
                             return render_interface_link(s.Interface);
                         }), ", "));
                 }
-            } else if (dev.DeviceType == 11) {
+            } else if (dev.DeviceType == 'vlan') {
                 desc = $('<span>').text("VLAN");
-            } else if (dev.DeviceType == 13) {
+            } else if (dev.DeviceType == 'bridge') {
                 if (dev.Slaves.length === 0)
                     desc = $('<span>').text("Bridge without active ports");
                 else {
@@ -1706,7 +1726,7 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-disconnect').prop('disabled', !dev || !dev.ActiveConnection);
 
-        var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 10 || dev.DeviceType == 11 || dev.DeviceType == 13));
+        var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' || dev.DeviceType == 'vlan' || dev.DeviceType == 'bridge'));
         $('#network-interface-delete').toggle(!!is_deletable);
 
         function render_connection(con, settings) {
@@ -2178,10 +2198,10 @@ function is_interface_connection(iface, connection) {
 
 function is_interesting_interface(iface) {
     return (!iface.Device ||
-            iface.Device.DeviceType == 1 ||
-            iface.Device.DeviceType == 10 ||
-            iface.Device.DeviceType == 11 ||
-            iface.Device.DeviceType == 13);
+            iface.Device.DeviceType == 'ethernet' ||
+            iface.Device.DeviceType == 'bond' ||
+            iface.Device.DeviceType == 'vlan' ||
+            iface.Device.DeviceType == 'bridge');
 }
 
 function slave_connection_for_interface(master, iface) {

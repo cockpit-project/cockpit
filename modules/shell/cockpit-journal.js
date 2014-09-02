@@ -210,7 +210,7 @@ function output_funcs_for_box(box)
                     '</span>' +
                     '</span>');
         var elt = $('<div class="cockpit-logline">' + html + '</div>');
-        elt.data('cockpit-entry', entry);
+        elt.data('cockpit-journal-cursor', entry["__CURSOR"]);
         return elt;
     }
 
@@ -458,7 +458,7 @@ PageJournal.prototype = {
         var self = this;
 
         $('#journal-box').on('click', '.cockpit-logline', function (event) {
-            self.details($(this).data('cockpit-entry'));
+            self.details($(this).data('cockpit-journal-cursor'));
         });
     },
 
@@ -561,11 +561,10 @@ PageJournal.prototype = {
                                      $('#journal-start'), $('#journal-end'));
     },
 
-    details: function(entry) {
-        if (entry) {
-            PageJournalDetails.entry = entry;
-            $('#journal-details').modal('show');
-        }
+    details: function(cursor) {
+        if (cursor)
+            cockpit.go_down({ page: 'journal-entry',
+                              c: cursor });
     }
 };
 
@@ -576,41 +575,79 @@ function PageJournal() {
 cockpit.pages.push(new PageJournal());
 
 
-PageJournalDetails.prototype = {
+PageJournalEntry.prototype = {
     _init: function() {
-        this.id = "journal-details";
+        this.id = "journal-entry";
     },
 
     getTitle: function() {
-        return C_("page-title", "Journal Details");
+        return C_("page-title", "Journal Entry");
     },
 
     show: function() {
     },
 
     enter: function() {
-        var entry = PageJournalDetails.entry;
-        var out = $('#journal-details-fields');
+        var cursor = cockpit.get_page_param('c');
+        var out = $('#journal-entry-fields');
 
         out.empty();
 
-        var keys = Object.keys(entry).sort();
-        $.each(keys, function(i, key) {
-            if (!key.startsWith("__")) {
-                out.append('<li class="list-group-item">' + cockpit.esc(key) + " : " +
-                    cockpit.esc(entry[key]) + '</li>');
-            }
-        });
+        function show_entry(entry) {
+            $('#journal-entry-message').text(entry["MESSAGE"]);
+
+            var d = new Date(entry["__REALTIME_TIMESTAMP"] / 1000);
+            $('#journal-entry-date').text(d.toString());
+
+            var id;
+            if (entry["SYSLOG_IDENTIFIER"])
+                id = entry["SYSLOG_IDENTIFIER"];
+            else if (entry["_SYSTEMD_UNIT"])
+                id = entry["_SYSTEMD_UNIT"];
+            else
+                id = _("Journal entry");
+            $('#journal-entry-id').text(id);
+
+            var keys = Object.keys(entry).sort();
+            $.each(keys, function(i, key) {
+                if (key != "MESSAGE") {
+                    out.append(
+                        $('<tr>').append(
+                            $('<td style="text-align:right">').
+                                text(key),
+                            $('<td style="text-align:left">').
+                                text(entry[key])));
+                }
+            });
+        }
+
+        function show_error(error) {
+            out.append(
+                $('<tr>').append(
+                    $('<td>').
+                        text(error)));
+        }
+
+        cockpit.journal({ cursor: cursor, count: 1, follow: false }).
+            done(function (entries) {
+                if (entries.length >= 1 && entries[0]["__CURSOR"] == cursor)
+                    show_entry(entries[0]);
+                else
+                    show_error(_("Journal entry not found"));
+            }).
+            fail(function (error) {
+                show_error(error);
+            });
     },
 
     leave: function() {
     }
 };
 
-function PageJournalDetails() {
+function PageJournalEntry() {
     this._init();
 }
 
-cockpit.pages.push(new PageJournalDetails());
+cockpit.pages.push(new PageJournalEntry());
 
 })(cockpit, jQuery);

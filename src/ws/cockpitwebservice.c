@@ -842,7 +842,6 @@ lookup_or_open_session_for_host (CockpitWebService *self,
 {
   CockpitSession *session = NULL;
   CockpitTransport *transport;
-  CockpitPipe *pipe;
 
   if (!private)
     session = cockpit_session_by_host (&self->sessions, host);
@@ -858,24 +857,14 @@ lookup_or_open_session_for_host (CockpitWebService *self,
       if (host == NULL || g_strcmp0 (host, "") == 0)
         host = "localhost";
 
-      if (g_strcmp0 (host, "localhost") == 0)
-        {
-          /* Any failures happen asyncronously */
-          pipe = cockpit_auth_start_session (self->creds);
-          transport = cockpit_pipe_transport_new (pipe);
-          g_object_unref (pipe);
-        }
-      else
-        {
-          transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                                    "host", host,
-                                    "port", cockpit_ws_specific_ssh_port,
-                                    "command", cockpit_ws_agent_program,
-                                    "creds", creds,
-                                    "known-hosts", cockpit_ws_known_hosts,
-                                    "host-key", host_key,
-                                    NULL);
-        }
+      transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
+                                "host", host,
+                                "port", cockpit_ws_specific_ssh_port,
+                                "command", cockpit_ws_agent_program,
+                                "creds", creds,
+                                "known-hosts", cockpit_ws_known_hosts,
+                                "host-key", host_key,
+                                NULL);
 
       g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
       g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
@@ -1266,7 +1255,7 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
 /**
  * cockpit_web_service_new:
  * @creds: credentials of user
- * @session: optional already open cockpit-session process, or NULL
+ * @session: optionally an open cockpit-session master process, or NULL
  *
  * Creates a new web service to serve web sockets and connect
  * to agents for the given user.

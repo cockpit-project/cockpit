@@ -119,6 +119,9 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 /usr/lib/systemd/system/cockpit.service
 /usr/lib/firewalld/services/cockpit.xml
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
+%{_datadir}/appdata/cockpit.appdata.xml
+%{_datadir}/applications/cockpit.desktop
+%{_datadir}/pixmaps/cockpit.png
 %{_sbindir}/remotectl
 %{_libexecdir}/cockpitd
 %{_libexecdir}/cockpit-ws

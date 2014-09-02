@@ -35,7 +35,11 @@
 
 static GType mock_echo_channel_get_type (void) G_GNUC_CONST;
 
-typedef CockpitChannel MockEchoChannel;
+typedef struct {
+    CockpitChannel parent;
+    gboolean close_called;
+} MockEchoChannel;
+
 typedef CockpitChannelClass MockEchoChannelClass;
 
 G_DEFINE_TYPE (MockEchoChannel, mock_echo_channel, COCKPIT_TYPE_CHANNEL);
@@ -45,6 +49,15 @@ mock_echo_channel_recv (CockpitChannel *channel,
                         GBytes *message)
 {
   cockpit_channel_send (channel, message);
+}
+
+static void
+mock_echo_channel_close (CockpitChannel *channel,
+                         const gchar *problem)
+{
+  MockEchoChannel *self = (MockEchoChannel *)channel;
+  self->close_called = TRUE;
+  COCKPIT_CHANNEL_CLASS (mock_echo_channel_parent_class)->close (channel, problem);
 }
 
 static void
@@ -58,6 +71,7 @@ mock_echo_channel_class_init (MockEchoChannelClass *klass)
 {
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
   channel_class->recv = mock_echo_channel_recv;
+  channel_class->close = mock_echo_channel_close;
 }
 
 static CockpitChannel *
@@ -252,17 +266,23 @@ static void
 test_close_transport (TestCase *tc,
                       gconstpointer unused)
 {
+  MockEchoChannel *chan;
   GBytes *sent;
   gchar *problem = NULL;
 
+  chan = (MockEchoChannel *)tc->channel;
   cockpit_channel_ready (tc->channel);
 
   sent = g_bytes_new ("Yeehaw!", 7);
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "554", sent);
   g_bytes_unref (sent);
 
+  g_assert (chan->close_called == FALSE);
+
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
   cockpit_transport_close (COCKPIT_TRANSPORT (tc->transport), "boooo");
+
+  g_assert (chan->close_called == TRUE);
 
   g_assert_cmpstr (problem, ==, "boooo");
   g_assert (mock_transport_pop_control (tc->transport) == NULL);

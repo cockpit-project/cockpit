@@ -616,6 +616,18 @@
         </div>
       </div>
 
+      <div id="journal-entry" class="container-fluid">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <span id="journal-entry-id"></span>
+            <span id="journal-entry-date" style="float:right"></span>
+          </div>
+          <div id="journal-entry-message" style="margin:10px"></div>
+          <table class="cockpit-info-table" style="margin-bottom:10px" id="journal-entry-fields">
+          </table>
+        </div>
+      </div>
+
       <div id="accounts" class="container-fluid">
         <button class="btn btn-default" id="accounts-create" translatable="yes">New Account</button>
         <div id="accounts-list">
@@ -1253,27 +1265,6 @@
             </button>
             <button class="btn btn-primary" id="realms-op-apply">
               Next
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="journal-details"
-         tabindex="-1" role="dialog"
-         data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Journal Details</h4>
-          </div>
-          <div class="modal-body">
-            <ul class="list-group" id="journal-details-fields">
-            </ul>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" translatable="yes" data-dismiss="modal">
-              Close
             </button>
           </div>
         </div>

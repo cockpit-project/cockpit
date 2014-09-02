@@ -67,6 +67,9 @@ struct _CockpitChannelPrivate {
   /* Whether we've sent a closed message */
   gboolean closed;
 
+  /* Whether the transport closed (before we did) */
+  gboolean transport_closed;
+
   /* Other state */
   JsonObject *close_options;
 };
@@ -123,11 +126,9 @@ on_transport_closed (CockpitTransport *transport,
                      gpointer user_data)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (user_data);
+  self->priv->transport_closed = TRUE;
   if (!self->priv->closed)
-    {
-      self->priv->closed = TRUE;
-      g_signal_emit (self, cockpit_channel_sig_closed, 0, problem);
-    }
+    cockpit_channel_close (self, problem);
 }
 
 static void
@@ -242,28 +243,31 @@ cockpit_channel_real_close (CockpitChannel *self,
 
   self->priv->closed = TRUE;
 
-  if (reason == NULL)
-    reason = "";
-
-  if (self->priv->close_options)
+  if (!self->priv->transport_closed)
     {
-      object = self->priv->close_options;
-      self->priv->close_options = NULL;
+      if (reason == NULL)
+        reason = "";
+
+      if (self->priv->close_options)
+        {
+          object = self->priv->close_options;
+          self->priv->close_options = NULL;
+        }
+      else
+        {
+          object = json_object_new ();
+        }
+
+      json_object_set_string_member (object, "command", "close");
+      json_object_set_string_member (object, "channel", self->priv->id);
+      json_object_set_string_member (object, "reason", reason);
+
+      message = cockpit_json_write_bytes (object);
+      json_object_unref (object);
+
+      cockpit_transport_send (self->priv->transport, 0, message);
+      g_bytes_unref (message);
     }
-  else
-    {
-      object = json_object_new ();
-    }
-
-  json_object_set_string_member (object, "command", "close");
-  json_object_set_string_member (object, "channel", self->priv->id);
-  json_object_set_string_member (object, "reason", reason);
-
-  message = cockpit_json_write_bytes (object);
-  json_object_unref (object);
-
-  cockpit_transport_send (self->priv->transport, 0, message);
-  g_bytes_unref (message);
 
   g_signal_emit (self, cockpit_channel_sig_closed, 0, problem);
 }

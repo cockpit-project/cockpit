@@ -89,7 +89,7 @@ class TestNetworking(MachineCase):
         # Disconnect
         #
         b.click(".panel-heading:contains('%s') button:contains('Off')" % iface)
-        b.wait_in_text("tr:contains('Status')", "Disconnected")
+        b.wait_in_text("tr:contains('Status')", "Inactive")
 
         # Switch it back to "auto" from the command line and bring it
         # up again

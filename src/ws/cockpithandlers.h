@@ -30,7 +30,6 @@ typedef struct {
 } CockpitHandlerData;
 
 gboolean       cockpit_handler_socket            (CockpitWebServer *server,
-                                                  CockpitWebServerRequestType reqtype,
                                                   const gchar *path,
                                                   GIOStream *io_stream,
                                                   GHashTable *headers,
@@ -39,50 +38,38 @@ gboolean       cockpit_handler_socket            (CockpitWebServer *server,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_login             (CockpitWebServer *server,
-                                                  CockpitWebServerRequestType reqtype,
                                                   const gchar *path,
                                                   GHashTable *headers,
-                                                  GBytes *input,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_index             (CockpitWebServer *server,
-                                                  CockpitWebServerRequestType reqtype,
                                                   const gchar *path,
                                                   GHashTable *headers,
-                                                  GBytes *input,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_root              (CockpitWebServer *server,
-                                                  CockpitWebServerRequestType reqtype,
                                                   const gchar *path,
                                                   GHashTable *headers,
-                                                  GBytes *input,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
 gboolean       cockpit_handler_static            (CockpitWebServer *server,
-                                                  CockpitWebServerRequestType reqtype,
                                                   const gchar *path,
                                                   GHashTable *headers,
-                                                  GBytes *input,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
 gboolean       cockpit_handler_resource          (CockpitWebService *server,
-                                                  CockpitWebServerRequestType reqtype,
                                                   const gchar *path,
                                                   GHashTable *headers,
-                                                  GBytes *input,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
 gboolean       cockpit_handler_ping              (CockpitWebServer *server,
-                                                  CockpitWebServerRequestType reqtype,
                                                   const gchar *path,
                                                   GHashTable *headers,
-                                                  GBytes *input,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 

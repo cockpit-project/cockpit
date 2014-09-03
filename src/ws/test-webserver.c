@@ -348,10 +348,8 @@ test_webserver_noredirect_exception (TestCase *tc,
 
 static gboolean
 on_oh_resource (CockpitWebServer *server,
-                CockpitWebServerRequestType reqtype,
                 const gchar *path,
                 GHashTable *headers,
-                GBytes *input,
                 CockpitWebResponse *response,
                 const gchar **invoked)
 {
@@ -370,10 +368,8 @@ on_oh_resource (CockpitWebServer *server,
 
 static gboolean
 on_scruffy_resource (CockpitWebServer *server,
-                     CockpitWebServerRequestType reqtype,
                      const gchar *path,
                      GHashTable *headers,
-                     GBytes *input,
                      CockpitWebResponse *response,
                      const gchar **invoked)
 {
@@ -392,10 +388,8 @@ on_scruffy_resource (CockpitWebServer *server,
 
 static gboolean
 on_index_resource (CockpitWebServer *server,
-                   CockpitWebServerRequestType reqtype,
                    const gchar *path,
                    GHashTable *headers,
-                   GBytes *input,
                    CockpitWebResponse *response,
                    const gchar **invoked)
 {
@@ -414,10 +408,8 @@ on_index_resource (CockpitWebServer *server,
 
 static gboolean
 on_default_resource (CockpitWebServer *server,
-                     CockpitWebServerRequestType reqtype,
                      const gchar *path,
                      GHashTable *headers,
-                     GBytes *input,
                      CockpitWebResponse *response,
                      const gchar **invoked)
 {

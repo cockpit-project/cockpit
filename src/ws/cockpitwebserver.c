@@ -63,7 +63,6 @@ struct _CockpitWebServerClass {
   GObjectClass parent_class;
 
   gboolean (* handle_stream)   (CockpitWebServer *server,
-                                CockpitWebServerRequestType reqtype,
                                 const gchar *path,
                                 GIOStream *io_stream,
                                 GHashTable *headers,
@@ -71,10 +70,8 @@ struct _CockpitWebServerClass {
                                 guint in_length);
 
   gboolean (* handle_resource) (CockpitWebServer *server,
-                                CockpitWebServerRequestType reqtype,
                                 const gchar *path,
                                 GHashTable *headers,
-                                GBytes *input,
                                 CockpitWebResponse *response);
 };
 
@@ -257,20 +254,6 @@ cockpit_web_server_set_property (GObject *object,
     }
 }
 
-typedef struct {
-  gpointer data;
-  gsize length;
-} InputData;
-
-static void
-input_data_clear_and_free (gpointer data)
-{
-  InputData *id = data;
-  cockpit_secclear (id->data, id->length);
-  g_free (id->data);
-  g_free (id);
-}
-
 static void
 on_io_closed (GObject *stream,
               GAsyncResult *result,
@@ -311,7 +294,6 @@ on_web_response_done (CockpitWebResponse *response,
 
 static gboolean
 cockpit_web_server_default_handle_stream (CockpitWebServer *self,
-                                          CockpitWebServerRequestType reqtype,
                                           const gchar *path,
                                           GIOStream *io_stream,
                                           GHashTable *headers,
@@ -320,42 +302,9 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
 {
   CockpitWebResponse *response;
   gboolean claimed = FALSE;
-  InputData *id = NULL;
   GQuark detail;
-  GBytes *bytes;
   gchar *pos;
   gchar bak;
-
-  /*
-   * A bit more complicated, so that we can guarantee clearing the
-   * input data. It might contain passwords.
-   */
-
-  if (in_length == 0)
-    {
-      bytes = g_bytes_new_static ("", 0);
-    }
-  else
-    {
-      id = g_new0 (InputData, 1);
-      id->length = in_length;
-
-      if (in_length == input->len)
-        {
-          /* preserve the byte array wrapper */
-          g_byte_array_ref (input);
-          id->data = g_byte_array_free (input, FALSE);
-        }
-      else
-        {
-          id->data = g_memdup (input->data, in_length);
-          cockpit_secclear (input->data, in_length);
-          g_byte_array_remove_range (input, 0, in_length);
-        }
-
-      bytes = g_bytes_new_with_free_func (id->data, id->length,
-                                          input_data_clear_and_free, id);
-    }
 
   /*
    * We have no use for query string right now, and yes we happen to know
@@ -401,14 +350,10 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   /* See if we have any takers... */
   g_signal_emit (self,
                  sig_handle_resource, detail,
-                 reqtype,  /* args */
                  path,
                  headers,
-                 bytes,
                  response,
                  &claimed);
-
-  g_bytes_unref (bytes);
 
   /* TODO: Here is where we would plug keep-alive into respnse */
   g_object_unref (response);
@@ -418,15 +363,11 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
 
 static gboolean
 cockpit_web_server_default_handle_resource (CockpitWebServer *self,
-                                            CockpitWebServerRequestType reqtype,
                                             const gchar *path,
                                             GHashTable *headers,
-                                            GBytes *input,
                                             CockpitWebResponse *response)
 {
-  if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
-    cockpit_web_response_error (response, 405, NULL, "POST not available for this path");
-  else if (self->document_roots)
+  if (self->document_roots)
     cockpit_web_response_file (response, path, FALSE, (const gchar **)self->document_roots);
   else
     cockpit_web_response_error (response, 404, NULL, NULL);
@@ -487,8 +428,7 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                     NULL, /* accu_data */
                                     g_cclosure_marshal_generic,
                                     G_TYPE_BOOLEAN,
-                                    6,
-                                    G_TYPE_INT,
+                                    5,
                                     G_TYPE_STRING,
                                     G_TYPE_IO_STREAM,
                                     G_TYPE_HASH_TABLE,
@@ -503,11 +443,9 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                       NULL, /* accu_data */
                                       g_cclosure_marshal_generic,
                                       G_TYPE_BOOLEAN,
-                                      5,
-                                      G_TYPE_INT,
+                                      3,
                                       G_TYPE_STRING,
                                       G_TYPE_HASH_TABLE,
-                                      G_TYPE_BYTES,
                                       COCKPIT_TYPE_WEB_RESPONSE);
 }
 
@@ -768,7 +706,6 @@ path_has_prefix (const gchar *path,
 
 static void
 process_request (CockpitRequest *request,
-                 CockpitWebServerRequestType reqtype,
                  const gchar *path,
                  GHashTable *headers,
                  guint length)
@@ -794,7 +731,6 @@ process_request (CockpitRequest *request,
   /* See if we have any takers... */
   g_signal_emit (request->web_server,
                  sig_handle_stream, 0,
-                 reqtype,  /* args */
                  path,
                  request->io,
                  headers,
@@ -809,7 +745,6 @@ process_request (CockpitRequest *request,
 static gboolean
 parse_and_process_request (CockpitRequest *request)
 {
-  CockpitWebServerRequestType reqtype = 0;
   gboolean again = FALSE;
   GHashTable *headers = NULL;
   gchar *method = NULL;
@@ -858,7 +793,7 @@ parse_and_process_request (CockpitRequest *request)
       goto out;
     }
 
-  /* If we get a Content-Length then we have to read that much data */
+  /* If we get a Content-Length then verify it is zero */
   length = 0;
   str = g_hash_table_lookup (headers, "Content-Length");
   if (str != NULL)
@@ -873,9 +808,9 @@ parse_and_process_request (CockpitRequest *request)
         }
 
       /* The soft limit, we return 413 */
-      if (length > cockpit_ws_request_maximum)
+      if (length != 0)
         {
-          g_debug ("received too large Content-Length");
+          g_debug ("received non-zero Content-Length");
           request->delayed_reply = 413;
         }
     }
@@ -887,11 +822,7 @@ parse_and_process_request (CockpitRequest *request)
       goto out;
     }
 
-  if (g_str_equal (method, "GET"))
-    reqtype = COCKPIT_WEB_SERVER_REQUEST_GET;
-  else if (g_str_equal (method, "POST"))
-    reqtype = COCKPIT_WEB_SERVER_REQUEST_POST;
-  else
+  if (!g_str_equal (method, "GET"))
     {
       g_message ("received unsupported HTTP method");
       request->delayed_reply = 405;
@@ -910,7 +841,7 @@ parse_and_process_request (CockpitRequest *request)
     }
 
   g_byte_array_remove_range (request->buffer, 0, off1 + off2);
-  process_request (request, reqtype, path, headers, length);
+  process_request (request, path, headers, length);
 
 out:
   if (headers)

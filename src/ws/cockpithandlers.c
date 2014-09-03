@@ -41,7 +41,6 @@
  */
 gboolean
 cockpit_handler_socket (CockpitWebServer *server,
-                        CockpitWebServerRequestType reqtype,
                         const gchar *path,
                         GIOStream *io_stream,
                         GHashTable *headers,
@@ -70,10 +69,8 @@ cockpit_handler_socket (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_resource (CockpitWebService *server,
-                          CockpitWebServerRequestType reqtype,
                           const gchar *path,
                           GHashTable *headers,
-                          GBytes *input,
                           CockpitWebResponse *response,
                           CockpitHandlerData *ws)
 {
@@ -272,10 +269,8 @@ on_login_complete (GObject *object,
 
 gboolean
 cockpit_handler_login (CockpitWebServer *server,
-                       CockpitWebServerRequestType reqtype,
                        const gchar *path,
                        GHashTable *headers,
-                       GBytes *input,
                        CockpitWebResponse *response,
                        CockpitHandlerData *ws)
 {
@@ -310,17 +305,11 @@ cockpit_handler_login (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_static (CockpitWebServer *server,
-                        CockpitWebServerRequestType reqtype,
                         const gchar *path,
                         GHashTable *headers,
-                        GBytes *input,
                         CockpitWebResponse *response,
                         CockpitHandlerData *ws)
 {
-
-  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
-    return FALSE;
-
   /* Cache forever */
   cockpit_web_response_file (response, path + 8, TRUE, ws->static_roots);
   return TRUE;
@@ -328,16 +317,11 @@ cockpit_handler_static (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_root (CockpitWebServer *server,
-                      CockpitWebServerRequestType reqtype,
                       const gchar *path,
                       GHashTable *headers,
-                      GBytes *input,
                       CockpitWebResponse *response,
                       CockpitHandlerData *ws)
 {
-  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
-    return FALSE;
-
   /* Don't cache forever */
   cockpit_web_response_file (response, path, FALSE, ws->static_roots);
   return TRUE;
@@ -345,10 +329,8 @@ cockpit_handler_root (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_ping (CockpitWebServer *server,
-                      CockpitWebServerRequestType reqtype,
                       const gchar *path,
                       GHashTable *headers,
-                      GBytes *input,
                       CockpitWebResponse *response,
                       CockpitHandlerData *ws)
 {
@@ -487,18 +469,13 @@ on_index_modules (GObject *source_object,
 
 gboolean
 cockpit_handler_index (CockpitWebServer *server,
-                       CockpitWebServerRequestType reqtype,
                        const gchar *path,
                        GHashTable *headers,
-                       GBytes *input,
                        CockpitWebResponse *response,
                        CockpitHandlerData *ws)
 {
   CockpitWebService *service;
   IndexResponse *ir;
-
-  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
-    return FALSE;
 
   /*
    * In the future this code path should also be taken for GSSAPI

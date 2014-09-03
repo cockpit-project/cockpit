@@ -816,10 +816,10 @@ class QemuMachine(Machine):
         if "proc" in disk and disk["proc"] and disk["proc"].poll() is not None:
             disk["proc"].terminate()
 
-    def add_netiface(self, mac):
+    def add_netiface(self, mac, vlan=0):
         if len(mac) == 2:
             mac = self.macaddr_prefix + ":" + mac
-        self._monitor_qemu("device_add e1000,vlan=0,mac=%s" % mac);
+        self._monitor_qemu("device_add e1000,vlan=%s,mac=%s" % (vlan,mac));
         return mac
 
 TestMachine = QemuMachine

@@ -109,8 +109,10 @@ rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 mkdir -p %{buildroot}/etc/pam.d/
 cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
 cp src/agent/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
+%if "%{?fedora}" == "20"
 install -d %{buildroot}%{_datadir}/selinux/targeted
 install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
+%endif
 
 %files
 %{_sysconfdir}/%{name}
@@ -150,6 +152,8 @@ pulls in some necessary packages via dependencies.
 /usr/lib/systemd/system/test-server.service
 /usr/lib/systemd/system/test-server.socket
 
+%if "%{?fedora}" == "20"
+
 %package selinux-policy
 Summary: SELinux policy for Cockpit testing
 Requires: %{name} = %{version}-%{release}
@@ -180,3 +184,5 @@ if [ $1 -eq 0 ] ; then
   [ -d %{_sharedstatedir}/%{name} ]  && \
     /sbin/restorecon -R %{_sharedstatedir}/%{name} &> /dev/null || :
 fi
+
+%endif

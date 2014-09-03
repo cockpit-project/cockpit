@@ -78,6 +78,8 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
         m3 = self.machine3
 
+        print m1.os
+
         def kill_user_admin(machine):
             # logind from systemd 208 is buggy, so we use systemd directly if it fails
             # https://bugs.freedesktop.org/show_bug.cgi?id=71092
@@ -141,7 +143,21 @@ class TestMultiMachine(MachineCase):
 
         b.wait_action_btn (action_btn_selector (m2_index), "Connect")
         b.click_action_btn (action_btn_selector (m2_index))
-        b.wait_visible (graph_selector (m2_index))
+
+        if m1.os == "fedora-21":
+            # HACK: SELinux prevents cockpit-ws from reading
+            # /var/lib/cockpit/known_hosts.  Without it, m1 will not trust
+            # the hostkey of m2, and we will not be able to connect.  Once
+            # that is fixed, this check will fail and we can change it
+            # back to expect the connection to succeed.
+            #
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1135444
+            #
+            self.allow_journal_messages('audit: .*name="known_hosts".*')
+            b.wait_visible (machine_error_selector (m2_index))
+            b.wait_text (machine_error_selector (m2_index), "Untrusted host")
+        else:
+            b.wait_visible (graph_selector (m2_index))
 
         self.allow_journal_messages(".*: .* host key for server is not known: .*",
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",

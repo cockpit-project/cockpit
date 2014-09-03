@@ -120,6 +120,17 @@ class TestDashboard(MachineCase):
 
         self.allow_journal_messages('.*: .* host key for server is not known: .*')
 
+        if m.os == "fedora-21":
+            # HACK: SELinux prevents cockpit-ws from reading
+            # /var/lib/cockpit/known_hosts.  Without it, we will not be
+            # able to connect and only get "Untrusted host" errors.  This
+            # test doesn't really check whether connections succeed, so
+            # this is luckily harmless.
+            #
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1135444
+            #
+            self.allow_journal_messages('audit: .*name="known_hosts".*')
+
     def testSetup(self):
         b = self.browser
 
@@ -183,5 +194,15 @@ class TestDashboard(MachineCase):
         self.assertIn ("wheel", groups(m2, "senior"))
 
         self.allow_journal_messages('.*: .* host key for server is not known: .*')
+
+        # HACK: SELinux prevents cockpit-ws from reading
+        # /var/lib/cockpit/known_hosts.  Without it, we will not be
+        # able to connect and only get "Untrusted host" errors.  This
+        # test doesn't really check whether connections succeed, so
+        # this is luckily harmless.
+        #
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1135444
+        #
+        self.allow_journal_messages('audit: .*name="known_hosts".*')
 
 test_main()

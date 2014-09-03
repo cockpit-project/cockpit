@@ -66,7 +66,7 @@ class TestNetworking(MachineCase):
 
         mac = "52:54:00:9e:00:ff"
         label = "test"
-        m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
+        m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s\nBOOTPROTO=dhcp\n' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
         m.execute("nmcli c reload")
         iface = self.get_iface(m, m.add_netiface(mac));
 
@@ -112,11 +112,13 @@ class TestNetworking(MachineCase):
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)
 
-        # Add interfaces
+        # Add interfaces and wait for them to active
         iface1 = self.get_iface(m, m.add_netiface('f1'));
         iface2 = self.get_iface(m, m.add_netiface('f2'));
         b.wait_in_text("#networking-interfaces", iface1)
         b.wait_in_text("#networking-interfaces", iface2)
+        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface1, "bps")
+        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface2, "bps")
 
         # Bond them
         b.click("button:contains('Add Bond')")
@@ -128,16 +130,9 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-bond-settings-dialog")
         b.wait_in_text("#networking-interfaces", "tbond")
 
-        # Activate the bond.  This will not activate any of the
-        # slaves.
-        b.click("#networking-interfaces tr:contains('tbond')")
+        # Wait for the bond to be active
+        b.click("#networking-interfaces td:first-child:contains('tbond')")
         b.wait_page("network-interface")
-        b.click(".panel-heading button:contains('On')")
-        b.wait_in_text("tr:contains('Status')", "Configuring IP")
-
-        # Activate iface1 externally and wait for the bond to become
-        # active.
-        m.execute("ifup %s" % iface1)
         b.wait_in_text("tr:contains('Status')", "10.111.111")
 
         # Delete the bond
@@ -156,11 +151,13 @@ class TestNetworking(MachineCase):
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)
 
-        # Add interfaces
+        # Add interfaces and wait for them to active
         iface1 = self.get_iface(m, m.add_netiface('f1'));
         iface2 = self.get_iface(m, m.add_netiface('f2'));
         b.wait_in_text("#networking-interfaces", iface1)
         b.wait_in_text("#networking-interfaces", iface2)
+        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface1, "bps")
+        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface2, "bps")
 
         # Bridge them
         b.click("button:contains('Add Bridge')")
@@ -172,16 +169,9 @@ class TestNetworking(MachineCase):
         b.wait_popdown("network-bridge-settings-dialog")
         b.wait_in_text("#networking-interfaces", "tbridge")
 
-        # Activate the bridge.  This will not activate any of the
-        # slaves.
-        b.click("#networking-interfaces tr:contains('tbridge')")
+        # Wait for the bridge to be active.
+        b.click("#networking-interfaces td:first-child:contains('tbridge')")
         b.wait_page("network-interface")
-        b.click(".panel-heading button:contains('On')")
-        b.wait_in_text("tr:contains('Status')", "Configuring IP")
-
-        # Activate iface1 externally and wait for the bridge to become
-        # active.
-        m.execute("ifup %s" % iface1)
         b.wait_in_text("tr:contains('Status')", "10.111.111")
 
         # Delete the bridge

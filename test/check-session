@@ -71,6 +71,8 @@ class TestSession(MachineCase):
         # check_session(False)
 
         self.allow_journal_messages("Error receiving data: Connection reset by peer",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Error sending message: Broken pipe \\(g-io-error-quark, 44\\). Exiting."
                                     # Might happen when killing the agent.
                                     "localhost: dropping message while waiting for child to exit")
 

@@ -38,7 +38,8 @@ WantedBy=default.target
 """)
 
         # Reloading might trigger this.
-        self.allow_journal_messages("Error receiving data: Connection reset by peer")
+        self.allow_journal_messages("Error receiving data: Connection reset by peer",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.")
 
         # login so that we have a cookie.
         self.login_and_go("server")

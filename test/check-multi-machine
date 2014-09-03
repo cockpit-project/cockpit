@@ -144,6 +144,7 @@ class TestMultiMachine(MachineCase):
         b.wait_visible (graph_selector (m2_index))
 
         self.allow_journal_messages(".*: .* host key for server is not known: .*",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
                                     # Might happen when killing the agent.
                                     "localhost: dropping message while waiting for child to exit",
                                     "Received message for unknown channel: .*",

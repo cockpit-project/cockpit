@@ -121,7 +121,7 @@
           </div>
           <div id="server-graph-column-2">
               <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
-              <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.go_down('disk_io_status')"></div>
+              <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.go_down('storage')"></div>
             <br/>
               <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
               <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.go_down('networking')"></div>
@@ -136,10 +136,6 @@
 
       <div id="memory_status">
         <div id="memory_status_graph" style="height:400px;padding:20px"></div>
-      </div>
-
-      <div id="disk_io_status">
-        <div id="disk_io_status_graph" style="height:400px;padding:20px"></div>
       </div>
 
       <div id="system_information">

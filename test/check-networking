@@ -151,13 +151,18 @@ class TestNetworking(MachineCase):
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)
 
-        # Add interfaces and wait for them to active
+        # Add interfaces and wait for them to active.  The second
+        # interface is connected to a different outside network than
+        # the first to avoid a cycle between the "cockpit0" bridge
+        # that all VMs are connected to, and the bridge we are
+        # creating here.
+
         iface1 = self.get_iface(m, m.add_netiface('f1'));
-        iface2 = self.get_iface(m, m.add_netiface('f2'));
+        iface2 = self.get_iface(m, m.add_netiface('f2', vlan=1));
         b.wait_in_text("#networking-interfaces", iface1)
         b.wait_in_text("#networking-interfaces", iface2)
         b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface1, "bps")
-        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface2, "bps")
+        b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface2, "Configuring IP")
 
         # Bridge them
         b.click("button:contains('Add Bridge')")

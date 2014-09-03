@@ -488,6 +488,11 @@ ul.available-interfaces-group {
     padding-bottom: 2px;
 }
 
+.cockpit-log-panel .cockpit-logline:hover {
+    cursor: default;
+    background-color: #f5f5f5;
+}
+
 /*
  * Control buttons such as play and stop
  * Used with .btn .btn-default
@@ -556,7 +561,8 @@ ul.available-interfaces-group {
  * Make the table row hover color match the list-group-item.
  */
 .table-hover > tbody > tr > td,
-.table-hover > tbody > tr > th {
+.table-hover > tbody > tr > th,
+.cockpit-logline:hover {
     cursor: pointer;
 }
 .table-hover > tbody > tr:hover > td,

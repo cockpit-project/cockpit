@@ -31,3 +31,6 @@ GType            mock_auth_get_type   (void);
 
 CockpitAuth *    mock_auth_new        (const char *expect_user,
                                        const char *expect_password);
+
+GHashTable *     mock_auth_basic_header  (const gchar *user,
+                                          const gchar *password);

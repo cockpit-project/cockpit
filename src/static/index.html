@@ -107,12 +107,20 @@
                 phantom_checkpoint();
             }
 
+            function utf8(str) {
+                return unescape(encodeURIComponent(str));
+            }
+
             function login(user, password) {
                 $("#login-button").prop('disabled', true);
                 $("#login-spinner").show();
-                var options = { url: "/login", dataType: "json" };
-                options.type = "POST";
-                options.data = user + "\n" + password;
+                var options = {
+                    url: "/login",
+                    dataType: "json",
+                    headers: { "Authorization": "Basic " + btoa(utf8(user + ":" + password)) },
+                    type: "GET",
+                    data: ""
+                };
                 $.ajax(options).
                     done(function(environment) {
                         shell(environment);

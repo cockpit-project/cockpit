@@ -24,18 +24,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * CockpitWebServerRequestType:
- * @COCKPIT_WEB_SERVER_REQUEST_GET: A HTTP GET request
- * @COCKPIT_WEB_SERVER_REQUEST_POST: A HTTP POST request
- *
- * Currently only supports GET/POST.
- */
-typedef enum {
-  COCKPIT_WEB_SERVER_REQUEST_GET,
-  COCKPIT_WEB_SERVER_REQUEST_POST
-} CockpitWebServerRequestType;
-
 #define COCKPIT_TYPE_WEB_SERVER  (cockpit_web_server_get_type ())
 #define COCKPIT_WEB_SERVER(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_SERVER, CockpitWebServer))
 #define COCKPIT_IS_WEB_SERVER(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_SERVER))

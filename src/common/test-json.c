@@ -303,6 +303,18 @@ test_parser_trims (void)
   json_node_free (node);
 }
 
+static void
+test_parser_empty (void)
+{
+  GError *error = NULL;
+  JsonNode *node;
+
+  node = cockpit_json_parse ("", 0, &error);
+  g_assert_error (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_PARSE);
+  g_error_free (error);
+  g_assert (node == NULL);
+}
+
 typedef struct {
     const gchar *name;
     gboolean equal;
@@ -518,6 +530,7 @@ main (int argc,
               setup, test_get_strv, teardown);
 
   g_test_add_func ("/json/parser-trims", test_parser_trims);
+  g_test_add_func ("/json/parser-empty", test_parser_empty);
 
   for (i = 0; i < G_N_ELEMENTS (skip_fixtures); i++)
     {

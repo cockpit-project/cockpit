@@ -144,18 +144,14 @@ static void
 test_login_no_cookie (Test *test,
                       gconstpointer data)
 {
-  GBytes *input;
   gboolean ret;
 
-  input = g_bytes_new_static ("", 0);
-  ret = cockpit_handler_login (test->server,
-                               COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
-                               test->headers, input, test->response, &test->data);
-  g_bytes_unref (input);
+  ret = cockpit_handler_login (test->server, "/login",
+                               test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
 
-  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Not Authorized\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
 }
 
 static void
@@ -181,18 +177,16 @@ test_login_with_cookie (Test *test,
   GError *error = NULL;
   GAsyncResult *result = NULL;
   CockpitWebService *service;
+  GHashTable *headers;
   const gchar *user;
   gboolean ret;
-  gchar *userpass;
   gchar *expect;
-  GBytes *input;
 
   user = g_get_user_name ();
-  userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
+  headers = mock_auth_basic_header (user, PASSWORD);
 
-  input = g_bytes_new_take (userpass, strlen (userpass));
-  cockpit_auth_login_async (test->auth, NULL, input, NULL, on_ready_get_result, &result);
-  g_bytes_unref (input);
+  cockpit_auth_login_async (test->auth, headers, NULL, on_ready_get_result, &result);
+  g_hash_table_unref (headers);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
   service = cockpit_auth_login_finish (test->auth, result, TRUE, test->headers, &error);
@@ -204,11 +198,8 @@ test_login_with_cookie (Test *test,
 
   include_cookie_as_if_client (test->headers, test->headers);
 
-  input = g_bytes_new_static ("", 0);
-  ret = cockpit_handler_login (test->server,
-                               COCKPIT_WEB_SERVER_REQUEST_GET, "/login",
-                               test->headers, input, test->response, &test->data);
-  g_bytes_unref (input);
+  ret = cockpit_handler_login (test->server, "/login",
+                               test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
 
@@ -218,34 +209,33 @@ test_login_with_cookie (Test *test,
 }
 
 static void
-test_login_post_bad (Test *test,
-                     gconstpointer data)
+test_login_bad (Test *test,
+                gconstpointer data)
 {
   gboolean ret;
-  GBytes *input;
+  GHashTable *headers;
 
-  input = g_bytes_new ("boooyah", 7);
-
-  ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->headers, input, test->response, &test->data);
-  g_bytes_unref (input);
+  headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup ("booyah"));
+  ret = cockpit_handler_login (test->server, "/login",
+                               headers, test->response, &test->data);
+  g_hash_table_unref (headers);
 
   g_assert (ret == TRUE);
   cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
 }
 
 static void
-test_login_post_fail (Test *test,
-                      gconstpointer data)
+test_login_fail (Test *test,
+                 gconstpointer data)
 {
   gboolean ret;
-  GBytes *input;
+  GHashTable *headers;
 
-  input = g_bytes_new_static ("booo\nyah", 8);
-
-  ret = cockpit_handler_login (test->server, COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->headers, input, test->response, &test->data);
-  g_bytes_unref (input);
+  headers = mock_auth_basic_header ("booo", "yah");
+  ret = cockpit_handler_login (test->server, "/login",
+                               test->headers, test->response, &test->data);
+  g_hash_table_unref (headers);
 
   while (!test->response_done)
     g_main_context_iteration (NULL, TRUE);
@@ -276,26 +266,22 @@ split_headers (const gchar *output)
 }
 
 static void
-test_login_post_accept (Test *test,
-                        gconstpointer data)
+test_login_accept (Test *test,
+                   gconstpointer data)
 {
   CockpitWebService *service;
   gboolean ret;
-  gchar *userpass;
   const gchar *user;
   const gchar *output;
   GHashTable *headers;
   CockpitCreds *creds;
-  GBytes *input;
 
   user = g_get_user_name ();
-  userpass = g_strdup_printf ("%s\n%s", user, PASSWORD);
-  input = g_bytes_new_take (userpass, strlen (userpass));
+  headers = mock_auth_basic_header (user, PASSWORD);
 
-  ret = cockpit_handler_login (test->server,
-                               COCKPIT_WEB_SERVER_REQUEST_POST, "/login",
-                               test->headers, input, test->response, &test->data);
-  g_bytes_unref (input);
+  ret = cockpit_handler_login (test->server, "/login",
+                               headers, test->response, &test->data);
+  g_hash_table_unref (headers);
 
   g_assert (ret == TRUE);
 
@@ -325,13 +311,9 @@ test_index (Test *test,
   gboolean ret;
   gchar hostname[256];
   gchar *expected;
-  GBytes *input;
 
-  input = g_bytes_new_static ("", 0);
-  ret = cockpit_handler_index (test->server,
-                               COCKPIT_WEB_SERVER_REQUEST_GET, "/",
-                               test->headers, input, test->response, &test->data);
-  g_bytes_unref (input);
+  ret = cockpit_handler_index (test->server, "/",
+                               test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
 
@@ -351,15 +333,11 @@ test_favicon_ico (Test *test,
 {
   const gchar *output;
   gboolean ret;
-  GBytes *input;
 
-  input = g_bytes_new_static ("", 0);
-  ret = cockpit_handler_root (test->server,
-                              COCKPIT_WEB_SERVER_REQUEST_GET, "/favicon.ico",
-                              test->headers, input, test->response, &test->data);
+  ret = cockpit_handler_root (test->server, "/favicon.ico",
+                              test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
-  g_bytes_unref (input);
 
   output = output_as_string (test);
   cockpit_assert_strmatch (output,
@@ -374,15 +352,11 @@ test_ping (Test *test,
 {
   const gchar *output;
   gboolean ret;
-  GBytes *input;
 
-  input = g_bytes_new_static ("", 0);
-  ret = cockpit_handler_ping (test->server,
-                              COCKPIT_WEB_SERVER_REQUEST_GET, "/ping",
-                              test->headers, input, test->response, &test->data);
+  ret = cockpit_handler_ping (test->server, "/ping",
+                              test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
-  g_bytes_unref (input);
 
   output = output_as_string (test);
   cockpit_assert_strmatch (output,
@@ -405,11 +379,11 @@ main (int argc,
   g_test_add ("/handlers/login/with-cookie", Test, NULL,
               setup, test_login_with_cookie, teardown);
   g_test_add ("/handlers/login/post-bad", Test, NULL,
-              setup, test_login_post_bad, teardown);
+              setup, test_login_bad, teardown);
   g_test_add ("/handlers/login/post-fail", Test, NULL,
-              setup, test_login_post_fail, teardown);
+              setup, test_login_fail, teardown);
   g_test_add ("/handlers/login/post-accept", Test, NULL,
-              setup, test_login_post_accept, teardown);
+              setup, test_login_accept, teardown);
 
   g_test_add ("/handlers/ping", Test, NULL,
               setup, test_ping, teardown);

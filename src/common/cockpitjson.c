@@ -493,16 +493,25 @@ cockpit_json_parse (const gchar *data,
   if (json_parser_load_from_data (parser, data, length, error))
     {
       root = json_parser_get_root (parser);
-      ret = json_node_copy (root);
+      if (root == NULL)
+        {
+          g_set_error (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_PARSE,
+                       "JSON data was empty");
+          ret = NULL;
+        }
+      else
+        {
+          ret = json_node_copy (root);
 
-      /*
-       * HACK: JsonParser doesn't give us a way to clear the parser
-       * and remove memory sitting around until the next parse, so
-       * we clear it like this.
-       *
-       * https://bugzilla.gnome.org/show_bug.cgi?id=728951
-       */
-      json_node_init_null (root);
+          /*
+           * HACK: JsonParser doesn't give us a way to clear the parser
+           * and remove memory sitting around until the next parse, so
+           * we clear it like this.
+           *
+           * https://bugzilla.gnome.org/show_bug.cgi?id=728951
+           */
+          json_node_init_null (root);
+        }
     }
   else
     {

@@ -54,13 +54,13 @@ struct _CockpitAuthClass
   /* vfunc */
   void           (* login_async)         (CockpitAuth *auth,
                                           GHashTable *headers,
-                                          GBytes *input,
                                           const gchar *remote_peer,
                                           GAsyncReadyCallback callback,
                                           gpointer user_data);
 
   CockpitCreds * (* login_finish)        (CockpitAuth *auth,
                                           GAsyncResult *result,
+                                          GHashTable *out_headers,
                                           CockpitPipe **session,
                                           GError **error);
 };
@@ -71,7 +71,6 @@ CockpitAuth *   cockpit_auth_new             (void);
 
 void            cockpit_auth_login_async     (CockpitAuth *self,
                                               GHashTable *headers,
-                                              GBytes *input,
                                               const gchar *remote_peer,
                                               GAsyncReadyCallback callback,
                                               gpointer user_data);
@@ -85,12 +84,8 @@ CockpitWebService *  cockpit_auth_login_finish    (CockpitAuth *self,
 CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
                                                    GHashTable *in_headers);
 
-CockpitPipe *   cockpit_auth_start_session   (CockpitCreds *creds);
-
-gboolean        cockpit_auth_parse_input     (GBytes *input,
-                                              gchar **user,
-                                              GBytes **password,
-                                              GError **error);
+GBytes *        cockpit_auth_parse_authorization  (GHashTable *headers,
+                                                   gchar **type);
 
 struct passwd * cockpit_getpwnam_a           (const gchar *user,
                                               int *errp);

@@ -55,7 +55,6 @@ on_bus_acquired (GDBusConnection *connection,
  */
 static gboolean
 on_handle_stream_socket (CockpitWebServer *server,
-                         CockpitWebServerRequestType reqtype,
                          const gchar *resource,
                          GIOStream *io_stream,
                          GHashTable *headers,

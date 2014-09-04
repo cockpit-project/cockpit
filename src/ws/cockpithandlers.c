@@ -41,7 +41,6 @@
  */
 gboolean
 cockpit_handler_socket (CockpitWebServer *server,
-                        CockpitWebServerRequestType reqtype,
                         const gchar *path,
                         GIOStream *io_stream,
                         GHashTable *headers,
@@ -70,10 +69,8 @@ cockpit_handler_socket (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_resource (CockpitWebService *server,
-                          CockpitWebServerRequestType reqtype,
                           const gchar *path,
                           GHashTable *headers,
-                          GBytes *input,
                           CockpitWebResponse *response,
                           CockpitHandlerData *ws)
 {
@@ -272,10 +269,8 @@ on_login_complete (GObject *object,
 
 gboolean
 cockpit_handler_login (CockpitWebServer *server,
-                       CockpitWebServerRequestType reqtype,
                        const gchar *path,
                        GHashTable *headers,
-                       GBytes *input,
                        CockpitWebResponse *response,
                        CockpitHandlerData *ws)
 {
@@ -288,31 +283,21 @@ cockpit_handler_login (CockpitWebServer *server,
   lr->response = g_object_ref (response);
   lr->headers = cockpit_web_server_new_table ();
 
-  if (reqtype == COCKPIT_WEB_SERVER_REQUEST_GET)
-    {
-      service = cockpit_auth_check_cookie (ws->auth, headers);
-      if (service == NULL)
-        {
-          cockpit_web_response_error (response, 401, NULL, NULL);
-          login_response_free (lr);
-        }
-      else
-        {
-          cockpit_web_service_modules (service, "localhost", on_login_modules, lr);
-          g_object_unref (service);
-          /* no response yet */
-        }
-    }
-  else if (reqtype == COCKPIT_WEB_SERVER_REQUEST_POST)
+  service = cockpit_auth_check_cookie (ws->auth, headers);
+  if (service == NULL)
     {
       io_stream = cockpit_web_response_get_stream (response);
       remote_peer = get_remote_address (io_stream);
-      cockpit_auth_login_async (ws->auth, headers, input, remote_peer,
-                                on_login_complete, lr);
+      cockpit_auth_login_async (ws->auth, headers, remote_peer, on_login_complete, lr);
       g_free (remote_peer);
-      /* no response yet */
+    }
+  else
+    {
+      cockpit_web_service_modules (service, "localhost", on_login_modules, lr);
+      g_object_unref (service);
     }
 
+  /* no response yet */
   return TRUE;
 }
 
@@ -320,17 +305,11 @@ cockpit_handler_login (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_static (CockpitWebServer *server,
-                        CockpitWebServerRequestType reqtype,
                         const gchar *path,
                         GHashTable *headers,
-                        GBytes *input,
                         CockpitWebResponse *response,
                         CockpitHandlerData *ws)
 {
-
-  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
-    return FALSE;
-
   /* Cache forever */
   cockpit_web_response_file (response, path + 8, TRUE, ws->static_roots);
   return TRUE;
@@ -338,16 +317,11 @@ cockpit_handler_static (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_root (CockpitWebServer *server,
-                      CockpitWebServerRequestType reqtype,
                       const gchar *path,
                       GHashTable *headers,
-                      GBytes *input,
                       CockpitWebResponse *response,
                       CockpitHandlerData *ws)
 {
-  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
-    return FALSE;
-
   /* Don't cache forever */
   cockpit_web_response_file (response, path, FALSE, ws->static_roots);
   return TRUE;
@@ -355,10 +329,8 @@ cockpit_handler_root (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_ping (CockpitWebServer *server,
-                      CockpitWebServerRequestType reqtype,
                       const gchar *path,
                       GHashTable *headers,
-                      GBytes *input,
                       CockpitWebResponse *response,
                       CockpitHandlerData *ws)
 {
@@ -497,18 +469,13 @@ on_index_modules (GObject *source_object,
 
 gboolean
 cockpit_handler_index (CockpitWebServer *server,
-                       CockpitWebServerRequestType reqtype,
                        const gchar *path,
                        GHashTable *headers,
-                       GBytes *input,
                        CockpitWebResponse *response,
                        CockpitHandlerData *ws)
 {
   CockpitWebService *service;
   IndexResponse *ir;
-
-  if (reqtype != COCKPIT_WEB_SERVER_REQUEST_GET)
-    return FALSE;
 
   /*
    * In the future this code path should also be taken for GSSAPI

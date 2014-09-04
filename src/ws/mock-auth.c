@@ -24,6 +24,8 @@
 #include "common/cockpitenums.h"
 #include "common/cockpiterror.h"
 
+#include "websocket/websocket.h"
+
 #include <string.h>
 
 struct _MockAuth {
@@ -54,29 +56,31 @@ mock_auth_finalize (GObject *obj)
 static void
 mock_auth_login_async (CockpitAuth *auth,
                        GHashTable *headers,
-                       GBytes *input,
                        const gchar *remote_peer,
                        GAsyncReadyCallback callback,
                        gpointer user_data)
 {
   MockAuth *self = MOCK_AUTH (auth);
   GSimpleAsyncResult *result;
-  gsize expect_len;
-  GBytes *password = NULL;
-  gchar *user = NULL;
-  GError *error = NULL;
+  GBytes *userpass;
+  gchar **split;
+  gboolean correct = FALSE;
+  gchar *type = NULL;
 
   result = g_simple_async_result_new (G_OBJECT (auth), callback, user_data, NULL);
   g_simple_async_result_set_op_res_gpointer (result, g_strdup (remote_peer), g_free);
 
-  expect_len = strlen (self->expect_password);
-  if (!cockpit_auth_parse_input (input, &user, &password, &error))
+  userpass = cockpit_auth_parse_authorization (headers, &type);
+  if (userpass && g_str_equal (type, "basic"))
     {
-      g_simple_async_result_take_error (result, error);
+      split = g_strsplit (g_bytes_get_data (userpass, NULL), ":", 2);
+      correct = split[0] && split[1] &&
+                g_str_equal (split[0], self->expect_user) &&
+                g_str_equal (split[1], self->expect_password);
+      g_strfreev (split);
     }
-  else if (!g_str_equal (user, self->expect_user) ||
-           g_bytes_get_size (password) != expect_len ||
-           memcmp (g_bytes_get_data (password, NULL), self->expect_password, expect_len) != 0)
+
+  if (!correct)
     {
       g_simple_async_result_set_error (result, COCKPIT_ERROR,
                                        COCKPIT_ERROR_AUTHENTICATION_FAILED,
@@ -86,30 +90,38 @@ mock_auth_login_async (CockpitAuth *auth,
   g_simple_async_result_complete_in_idle (result);
   g_object_unref (result);
 
-  g_free (user);
-  if (password)
-    g_bytes_unref (password);
+  g_free (type);
+  g_bytes_unref (userpass);
 }
 
 static CockpitCreds *
 mock_auth_login_finish (CockpitAuth *auth,
                         GAsyncResult *async,
+                        GHashTable *headers,
                         CockpitPipe **session,
                         GError **error)
 {
   MockAuth *self = MOCK_AUTH (auth);
   GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT (async);
+  CockpitCreds *creds;
+
+  const gchar *argv[] = {
+    BUILDDIR "/cockpit-agent",
+    NULL
+  };
 
   if (g_simple_async_result_propagate_error (result, error))
       return NULL;
 
-  if (session)
-    *session = NULL;
+  creds = cockpit_creds_new (self->expect_user,
+                             COCKPIT_CRED_PASSWORD, self->expect_password,
+                             COCKPIT_CRED_RHOST, g_simple_async_result_get_op_res_gpointer (result),
+                             NULL);
 
-  return cockpit_creds_new (self->expect_user,
-                            COCKPIT_CRED_PASSWORD, self->expect_password,
-                            COCKPIT_CRED_RHOST, g_simple_async_result_get_op_res_gpointer (result),
-                            NULL);
+  if (session)
+    *session = cockpit_pipe_spawn (argv, NULL, NULL);
+
+  return creds;
 }
 
 static void
@@ -136,4 +148,25 @@ mock_auth_new (const char *expect_user,
   self->expect_password = g_strdup (expect_password);
 
   return COCKPIT_AUTH (self);
+}
+
+GHashTable *
+mock_auth_basic_header (const gchar *user,
+                        const gchar *password)
+{
+  GHashTable *headers;
+  gchar *userpass;
+  gchar *encoded;
+  gchar *header;
+
+  userpass = g_strdup_printf ("%s:%s", user, password);
+  encoded = g_base64_encode ((guchar *)userpass, strlen (userpass));
+  header = g_strdup_printf ("Basic %s", encoded);
+
+  g_free (userpass);
+  g_free (encoded);
+
+  headers = web_socket_util_new_headers ();
+  g_hash_table_insert (headers, g_strdup ("Authorization"), header);
+  return headers;
 }

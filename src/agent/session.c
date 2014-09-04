@@ -497,6 +497,16 @@ main (int argc,
   /* When setuid root, make sure our group is also root */
   if (geteuid () == 0)
     {
+      /* Never trust the environment when running setuid() */
+      if (getuid() != 0)
+        {
+          if (clearenv () != 0)
+            err (1, "couldn't clear environment");
+
+          /* set a minimal environment */
+          setenv ("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", 1);
+        }
+
       if (setgid (0) != 0 || setuid (0) != 0)
         err (1, "couldn't switch permissions correctly");
     }

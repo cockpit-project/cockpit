@@ -171,7 +171,7 @@ enabled when trying to track down a problem. To turn it on add a file
 to your system like this:
 
     $ sudo mkdir -p /etc/systemd/system/cockpit.service.d
-    $ sudo printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent\n" > /etc/systemd/system/cockpit.service.d/debug.conf
+    $ sudo printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf
     $ sudo systemctl daemon-reload
     $ sudo systemctl restart cockpit
 

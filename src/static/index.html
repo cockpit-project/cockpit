@@ -60,6 +60,10 @@
                        ("XMLHttpRequest" in window);
             }
 
+            function trim(s) {
+                return s.replace(/^\s+|\s+$/g, '');
+            }
+
             function boot() {
                 if (!requisites()) {
                     fatal("This web browser is too old to run Cockpit");
@@ -82,27 +86,23 @@
                     if (e.which == 13)
                         $("#login-password-input").focus();
                 });
+
+                function call_login() {
+                    var user = trim($("#login-user-input").val());
+                    if (user === "")
+                        $("#login-error-message").show().text("User name cannot be empty");
+                    else
+                        login(user, $("#login-password-input").val());
+                }
+                    
                 $("#login-password-input").on("keydown", function (e) {
                     $("#login-error-message").hide();
-                    if (e.which == 13) {
-                        if ($("#login-user-input").val().trim() === "") {
-                            $("#login-error-message").show().text("User name cannot be empty");
-                            return;
-                        } else {
-                            login($("#login-user-input").val(),
-                                  $("#login-password-input").val());
-                        }
-                    }
+                    if (e.which == 13)
+                        call_login();
                 });
                 $("#login-button").on("click", function() {
                     $("#login-error-message").hide();
-                    if ($("#login-user-input").val().trim() === "") {
-                        $("#login-error-message").show().text("User name cannot be empty");
-                        return;
-                    } else {
-                        login($("#login-user-input").val(),
-                              $("#login-password-input").val());
-                    }
+                    call_login();
                 });
                 phantom_checkpoint();
             }

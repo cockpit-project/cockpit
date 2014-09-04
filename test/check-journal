@@ -26,6 +26,10 @@ class TestJournal(MachineCase):
         b = self.browser
         m = self.machine
 
+        # TODO: Make this work with non-root
+
+        b.default_user = "root"
+
         def inject_extras():
             b.eval_js("""
             ph_get_log_lines = function () {

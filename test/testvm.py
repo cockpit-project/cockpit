@@ -29,7 +29,7 @@ import sys
 import shutil
 
 DEFAULT_FLAVOR="cockpit"
-DEFAULT_OS = "fedora-20"
+DEFAULT_OS = "fedora-21"
 DEFAULT_ARCH = "x86_64"
 
 MEMORY_MB = 1024

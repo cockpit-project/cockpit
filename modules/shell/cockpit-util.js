@@ -293,61 +293,38 @@ cockpit.action_btn_enable = function action_btn_enable(btn, action, val) {
 };
 
 cockpit.select_btn = function select_btn(func, spec) {
-    var direct_btn, indirect_btns, btn;
-    var selected_choice;
+    var div, btn;
 
-    direct_btn =
-        $('<button>', { 'class': 'btn btn-default dropdown-toggle',
-                        'data-toggle': 'dropdown'
-                      }).append(
-            $('<span>'),
-            $('<span>', { 'style': 'margin-left:8px', 'class': 'caret' }));
+    btn = $('<select class="form-control">').append(
+        spec.map(function (opt) {
+            return $('<option>', { value: opt.choice }).text(opt.title);
+        }));
 
-
-    indirect_btns = [ ];
-    spec.forEach (function (s, i) {
-        indirect_btns[i] = $('<li>', { 'class': 'presentation' }).
-            append(
-                $('<a>', { 'role': 'menuitem',
-                           'on': { 'click':
-                                   function () {
-                                       direct_btn.find(':first-child').text(s.title);
-                                       selected_choice = s.choice;
-                                       func (s.choice);
-                                   }
-                                 }
-                         }).append(
-                             $('<span>').text(s.title)));
+    btn.on('change', function () {
+        func(btn.val());
     });
 
-    btn =
-        $('<div>', { 'class': 'dropdown',
-                     'style': "display:inline-block"
-                   }).append(
-            direct_btn,
-            $('<ul>', { 'class': 'dropdown-menu',
-                        'style': 'right:0px;left:auto;min-width:0;text-align:left',
-                        'role': 'menu'
-                      }).
-                append(indirect_btns));
-
     function select (a) {
-        spec.forEach(function (s, i) {
-            if (s.choice == a || (a == 'default' && s.is_default)) {
-                direct_btn.find(':first-child').text(s.title);
-                selected_choice = s.choice;
-            }
-        });
+        // Calling btn.selectpicker('val', a) would trigger the
+        // 'change' event, which we don't want.
+        btn.val(a);
+        btn.selectpicker('render');
     }
 
     function selected () {
-        return selected_choice;
+        return btn.val();
     }
 
-    select ('default');
+    // The selectpicker is implemented by hiding the <select> element
+    // and creating new HTML as a sibling of it.  A standalone element
+    // like 'btn' can't have siblings (since it doesn't have a
+    // parent), so we have to wrap it into a <div>.
 
-    $.data(btn[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
-    return btn;
+    div = $('<div>').append(btn);
+    btn.selectpicker();
+
+    $.data(div[0], 'cockpit-select-btn-funcs', { select: select, selected: selected });
+    return div;
 };
 
 cockpit.select_btn_select = function select_btn_select(btn, choice) {

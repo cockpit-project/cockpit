@@ -33,6 +33,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitcertificate.h \
 	src/common/cockpitenums.h \
 	src/common/cockpiterror.h src/common/cockpiterror.c \
+	src/common/cockpithex.c \
+	src/common/cockpithex.h \
 	src/common/cockpitjson.c \
 	src/common/cockpitjson.h \
 	src/common/cockpitlog.h src/common/cockpitlog.c \
@@ -67,11 +69,16 @@ libcockpit_common_a_LIBS = \
 # TESTS
 
 COCKPIT_CHECKS = \
+	test-hex \
 	test-json \
 	test-pipe \
 	test-transport \
 	test-unixsignal \
 	$(NULL)
+
+test_hex_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_hex_SOURCES = src/common/test-hex.c
+test_hex_LDADD = $(libcockpit_common_a_LIBS)
 
 test_json_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_json_SOURCES = src/common/test-json.c

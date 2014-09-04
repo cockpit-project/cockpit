@@ -336,12 +336,68 @@ PageStorage.prototype = {
 
         this.job_box = storage_job_box(this.client, $('#storage-jobs'));
         this.log_box = storage_log_box(this.address, $('#storage-log'));
+
+        var blues = [ "#006bb4",
+                      "#008ff0",
+                      "#2daaff",
+                      "#69c2ff",
+                      "#a5daff",
+                      "#e1f3ff",
+                      "#00243c",
+                      "#004778"
+                    ];
+
+        function is_interesting_blockdev(dev) {
+            return dev && self.blockdevs[dev];
+        }
+
+        function highlight_blockdev_row(event, id) {
+            $('#storage tr').removeClass('highlight');
+            if (id) {
+                $('#storage tr[data-blockdev~="' + cockpit.esc(id) + '"]').addClass('highlight');
+            }
+        }
+
+        function render_samples(event, timestamp, samples) {
+            // TODO - handle multipath devices
+            for (var id in samples) {
+                var row = $('#storage tr[data-blockdev="' + cockpit.esc(id) + '"]');
+                if (row.length > 0) {
+                    row.find('td:nth-child(3)').text(cockpit.format_bytes_per_sec(samples[id][0]));
+                    row.find('td:nth-child(4)').text(cockpit.format_bytes_per_sec(samples[id][1]));
+                }
+            }
+        }
+
+        this.cockpitd = cockpit.dbus(this.address);
+        this.monitor = this.cockpitd.get("/com/redhat/Cockpit/BlockdevMonitor",
+                                         "com.redhat.Cockpit.MultiResourceMonitor");
+        $(this.monitor).on('NewSample.networking', render_samples);
+
+        this.rx_plot = cockpit.setup_multi_plot('#storage-reading-graph', this.monitor, 0, blues.concat(blues),
+                                                is_interesting_blockdev);
+        $(this.rx_plot).on('update-total', function (event, total) {
+            $('#storage-reading-text').text(cockpit.format_bits_per_sec(total * 8));
+        });
+        $(this.rx_plot).on('highlight', highlight_blockdev_row);
+
+        this.tx_plot = cockpit.setup_multi_plot('#storage-writing-graph', this.monitor, 1, blues.concat(blues),
+                                                is_interesting_blockdev);
+        $(this.tx_plot).on('update-total', function (event, total) {
+            $('#storage-writing-text').text(cockpit.format_bits_per_sec(total * 8));
+        });
+        $(this.tx_plot).on('highlight', highlight_blockdev_row);
     },
 
     show: function() {
+        this.rx_plot.start();
+        this.tx_plot.start();
     },
 
     leave: function() {
+        this.rx_plot.destroy();
+        this.tx_plot.destroy();
+
         cockpit.set_watched_client(null);
         $(this.client).off(".storage");
         this.job_box.stop();
@@ -354,20 +410,19 @@ PageStorage.prototype = {
     _onObjectAdded: function (event, obj) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        this._add(obj);
+        this._delayed_coldplug();
     },
 
     _onObjectRemoved: function (event, obj) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        this._remove(obj);
+        this._delayed_coldplug();
     },
 
     _onPropertiesChanged: function (event, obj, iface) {
         if (obj.objectPath.indexOf("/com/redhat/Cockpit/Storage/") !== 0)
             return;
-        this._remove(obj);
-        this._add(obj);
+        this._delayed_coldplug();
     },
 
     _coldplug: function() {
@@ -380,10 +435,36 @@ PageStorage.prototype = {
         this._other_devices.empty();
         this._other_devices.closest('.panel').hide();
 
+        this.blockdevs = { };
+
         var objs = this.client.getObjectsFrom("/com/redhat/Cockpit/Storage/");
         for (var n = 0; n < objs.length; n++) {
             this._add(objs[n]);
         }
+
+        $(this.monitor).trigger('notify:Consumers');
+    },
+
+    _delayed_coldplug: function() {
+        var self = this;
+        if (!self._coldplug_pending) {
+            self._coldplug_pending = true;
+            setTimeout(function () {
+                self._coldplug_pending = false;
+                self._coldplug();
+            }, 0);
+        }
+    },
+
+    _monitor_block: function(block) {
+        if (!block)
+            return "";
+
+        var blockdev = block.Device;
+        if (blockdev.startsWith("/dev/"))
+            blockdev = blockdev.substr(5);
+        this.blockdevs[blockdev] = true;
+        return blockdev;
     },
 
     _add: function(obj) {
@@ -417,19 +498,10 @@ PageStorage.prototype = {
         var sort_key = cockpit.esc(drive.SortKey);
         var n;
 
-        var device_string = "";
-        var blocks = get_block_devices_for_drive(drive);
-        var block;
-
-        for (n = 0; n < blocks.length; n++) {
-            block = blocks[n];
-            if (n > 0) {
-                device_string += " ";
-            }
-            device_string += block.Device;
-        }
+        var blockdev = this._monitor_block(find_block_device_for_drive(drive));
 
         var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + sort_key + "\"";
+        html += " data-blockdev=\"" + cockpit.esc(blockdev) + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
 
         html += "<td width=\"30%\">";
@@ -458,6 +530,8 @@ PageStorage.prototype = {
         }
         html += val;
         html += "</td>";
+        html += "<td></td>";
+        html += "<td></td>";
         html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
@@ -481,6 +555,7 @@ PageStorage.prototype = {
         this._drives.closest('.panel').show();
 
         prepare_as_target($('#storage-spinner-' + id));
+        var blocks = get_block_devices_for_drive(drive);
         for (n = 0; n < blocks.length; n++)
             mark_as_block_target($('#storage-spinner-' + id), blocks[n]);
     },
@@ -506,6 +581,8 @@ PageStorage.prototype = {
         } else
             html += C_("storage", "RAID Array");
         html += "</td>";
+        html += "<td></td>";
+        html += "<td></td>";
         html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
@@ -552,6 +629,8 @@ PageStorage.prototype = {
         } else
             html += C_("storage", "Volume Group");
         html += "</td>";
+        html += "<td></td>";
+        html += "<td></td>";
         html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
@@ -588,10 +667,13 @@ PageStorage.prototype = {
             block.HintIgnore)
             return;
 
+        var blockdev = this._monitor_block(block);
+
         var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
         var sort_key = id; // for now
 
         var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key + "\"";
+        html += " data-blockdev=\"" + cockpit.esc(blockdev) + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
 
         html += "<td width=\"30%\">";
@@ -603,6 +685,8 @@ PageStorage.prototype = {
         var val = size_str + " " + C_("storage", "Block Device");
         html += val;
         html += "</td>";
+        html += "<td></td>";
+        html += "<td></td>";
         html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
         html += "</tr>";
 
@@ -655,66 +739,95 @@ function block_get_desc(block, partition_label, cleartext_device)
     var ret, lv;
 
     if (block.IdUsage == "filesystem") {
-        ret = F(C_("storage-id-desc", "%{type} File System"), { type: cockpit.esc(block.IdType) });
-     } else if (block.IdUsage == "raid") {
+        ret = $('<span>').text(
+            F(C_("storage-id-desc", "%{type} File System"), { type: block.IdType }));
+    } else if (block.IdUsage == "raid") {
         if (block.IdType == "linux_raid_member") {
-            ret = C_("storage-id-desc", "Linux MD-RAID Component");
+            ret = $('<span>').text(C_("storage-id-desc", "Linux MD-RAID Component"));
         } else if (block.IdType == "LVM2_member") {
-            ret = C_("storage-id-desc", "LVM2 Physical Volume");
+            ret = $('<span>').text(C_("storage-id-desc", "LVM2 Physical Volume"));
         } else {
-            ret = C_("storage-id-desc", "RAID Member");
+            ret = $('<span>').text(C_("storage-id-desc", "RAID Member"));
         }
+        if (block.PvGroup != "/") {
+            var vg = block._client.get(block.PvGroup, "com.redhat.Cockpit.Storage.VolumeGroup");
+            ret.append(
+                " of ",
+                $('<a>').
+                    text(vg.Name).
+                    click(function () {
+                        cockpit.go_sibling({ page: 'storage-detail',
+                                             type: 'vg',
+                                             id: vg.Name
+                                           });
+                        }));
+        } else if (block.MDRaidMember != "/") {
+            var id = block.MDRaidMember.substr(block.MDRaidMember.lastIndexOf("/") + 1);
+            var raid = block._client.get(block.MDRaidMember, "com.redhat.Cockpit.Storage.MDRaid");
+            ret.append(
+                " of ",
+                $('<a>').
+                    text(raid_get_desc(raid)).
+                    click(function () {
+                        cockpit.go_sibling({ page: 'storage-detail',
+                                             type: 'mdraid',
+                                             id: id
+                                           });
+                        }));
+        }
+
     } else if (block.IdUsage == "crypto") {
         if (block.IdType == "crypto_LUKS") {
-            ret = C_("storage-id-desc", "LUKS Encrypted");
+            ret = $('<span>').text(C_("storage-id-desc", "LUKS Encrypted"));
         } else {
-            ret = C_("storage-id-desc", "Encrypted");
+            ret = $('<span>').text(C_("storage-id-desc", "Encrypted"));
         }
     } else if (block.IdUsage == "other") {
         if (block.IdType == "swap") {
-            ret = C_("storage-id-desc", "Swap Space");
+            ret = $('<span>').text(C_("storage-id-desc", "Swap Space"));
         } else {
-            ret = C_("storage-id-desc", "Other Data");
+            ret = $('<span>').text(C_("storage-id-desc", "Other Data"));
         }
     } else {
-        ret = C_("storage-id-desc", "Unrecognized Data");
+        ret = $('<span>').text(C_("storage-id-desc", "Unrecognized Data"));
     }
 
-    if (block.PartitionNumber > 0)
-        ret = F(_("%{size} %{partition} (%{content})"),
-                { size: fmt_size(block.Size),
-                  partition: partition_label,
-                  content: ret
-                });
+    if (block.PartitionNumber > 0) {
+        ret = $('<span>').append(
+            F(_("%{size} %{partition}"), { size: fmt_size(block.Size),
+                                           partition: partition_label
+                                         }),
+            " (", ret, ")");
+    }
 
     if (block.LogicalVolume != "/") {
         lv = block._client.lookup(block.LogicalVolume,
                                   "com.redhat.Cockpit.Storage.LogicalVolume");
-        ret = F(_("%{size} %{partition} (%{content})"),
-                { size: fmt_size(block.Size),
-                  partition: lvol_get_desc(lv),
-                  content: ret
-                });
+        ret = $('<span>').append(
+            F(_("%{size} %{partition}"), { size: fmt_size(block.Size),
+                                           partition: lvol_get_desc(lv)
+                                         }),
+            " (", ret, ")");
     }
 
-    ret += "<br/>";
-
-    ret += cockpit.esc(block.Device);
+    ret.append(
+        $('<br/>'),
+        cockpit.esc(block.Device));
 
     if (block.IdUsage == "filesystem") {
-        ret += ", ";
+        ret.append(", ");
         if (block.MountedAt.length > 0)
-            ret += F(_("mounted on %{mountpoint}"),
-                     { mountpoint: cockpit.esc(block.MountedAt[0])
-                     });
+            ret.append(F(_("mounted on %{mountpoint}"),
+                         { mountpoint: cockpit.esc(block.MountedAt[0])
+                         }));
         else
-            ret += _("not mounted");
+            ret.append(_("not mounted"));
     } else if (block.IdUsage == "crypto") {
-        ret += ", ";
+        ret.append(", ");
         if (cleartext_device)
-            ret += _("unlocked");
+            ret.append(_("unlocked"));
         else
-            ret += _("locked");
+            ret.append(_("locked"));
     }
 
     return ret;
@@ -734,6 +847,81 @@ function block_get_short_desc(block)
         return drive? cockpit.esc(drive.Name) : block.Device;
     } else
         return "Block Device";
+}
+
+function block_get_link_desc(block)
+{
+    var orig = block;
+    var link = null;
+
+    while (block.PartitionTable && block.PartitionTable != "/")
+        block = block._client.get(block.PartitionTable, "com.redhat.Cockpit.Storage.Block");
+
+    if (block.Drive != "/") {
+        var drive = block._client.get(block.Drive,
+                                         "com.redhat.Cockpit.Storage.Drive");
+        link = $('<a>').
+            text(drive.Name || block.Device).
+            click(function () {
+                var id = block.Drive.substr(block.Drive.lastIndexOf("/") + 1);
+                cockpit.go_sibling({ page: "storage-detail",
+                                     type: "drive",
+                                     id: id
+                                   });
+            });
+    } else if (block.MDRaid != "/") {
+        var raid = block._client.get(block.MDRaid,
+                                     "com.redhat.Cockpit.Storage.MDRaid");
+        link = $('<span>').append(
+            _("RAID Device"),
+            " ",
+            $('<a>').
+                text(raid_get_desc(raid)).
+                click(function () {
+                    var id = block.MDRaid.substr(block.MDRaid.lastIndexOf("/") + 1);
+                    cockpit.go_sibling({ page: "storage-detail",
+                                         type: "mdraid",
+                                         id: id
+                                       });
+                }));
+    } else if (block.LogicalVolume != "/") {
+        var lv = block._client.get(block.LogicalVolume,
+                                   "com.redhat.Cockpit.Storage.LogicalVolume");
+        if (lv.VolumeGroup != "/") {
+            var vg = lv._client.get(lv.VolumeGroup,
+                                    "com.redhat.Cockpit.Storage.VolumeGroup");
+            link = $('<span>').append(
+                lvol_get_desc(lv),
+                " of ",
+                $('<a>').
+                    text(vg.Name).
+                    click(function () {
+                        cockpit.go_sibling({ page: "storage-detail",
+                                             type: "vg",
+                                             id: vg.Name
+                                           });
+                    }));
+        } else {
+            link = $('<span>').text(lvol_get_desc(lv));
+        }
+    } else {
+        link = $('<a>').
+            text(block.Device).
+            click(function () {
+                var id = block.objectPath.substr(block.objectPath.lastIndexOf("/") + 1);
+                cockpit.go_sibling({ page: "storage-detail",
+                                     type: "block",
+                                     id: id
+                                   });
+            });
+    }
+
+    if (block != orig)
+        return $('<span>').append(
+            _("Partition of "),
+            link);
+    else
+        return link;
 }
 
 function find_cleartext_device(block)
@@ -1553,10 +1741,7 @@ PageStorageDetail.prototype = {
         disks.empty();
         for (i = 0; i < info.length; i++) {
             slot = info[i][1];
-            block = this.client.lookup (info[i][0],
-                                        "com.redhat.Cockpit.Storage.Block");
-            drive = block && this.client.lookup (block.Drive,
-                                                 "com.redhat.Cockpit.Storage.Drive");
+            block = this.client.lookup (info[i][0], "com.redhat.Cockpit.Storage.Block");
             states = info[i][2];
             num_errors = info[i][3];
 
@@ -1579,7 +1764,8 @@ PageStorageDetail.prototype = {
                     $('<table style="width:100%">').append(
                         $('<tr>').append(
                             $('<td style="width:20px;text-align:center">').text((slot < 0)? "--" : slot),
-                            $('<td>').text(drive? drive.Name : (block? block.Device : "")),
+                            $('<td>').append(
+                                block_get_link_desc(block)),
                             $('<td style="width:100px;text-align:right">').html(state_html),
                             $('<td style="text-align:right">').append(
                                 $('<button>', { 'class': 'btn btn-default',
@@ -1639,17 +1825,16 @@ PageStorageDetail.prototype = {
                      this.client.lookup (block.Drive,
                                          "com.redhat.Cockpit.Storage.Drive"));
 
-            desc = "";
-            desc += block_get_short_desc(block);
-            desc += "<br/>" + F(_("%{size}, %{free} free"),
-                                { size: fmt_size(block.PvSize),
-                                  free: fmt_size(block.PvFreeSize)
-                                });
             pvs_list.append(
                 $('<li class="list-group-item">').append(
                     $('<table style="width:100%">').append(
                         $('<tr>').append(
-                            $('<td>').html(desc),
+                            $('<td>').append(block_get_link_desc(block),
+                                             $('<br>'),
+                                             F(_("%{size}, %{free} free"),
+                                               { size: fmt_size(block.PvSize),
+                                                 free: fmt_size(block.PvFreeSize)
+                                               })),
                             $('<td style="text-align:right">').html(
                                 cockpit.action_btn(physical_action_func (block),
                                                    physical_action_spec))))));

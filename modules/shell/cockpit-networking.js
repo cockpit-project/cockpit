@@ -2341,7 +2341,8 @@ PageNetworkIpSettings.prototype = {
                     addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", "Netmask", "Gateway" ],
                              [ "", "", "" ],
                              method_btn = choicebox("method", (topic == "ipv4")?
-                                                    ipv4_method_choices : ipv6_method_choices)),
+                                                    ipv4_method_choices : ipv6_method_choices).
+                                              css('display', 'inline-block')),
                     $('<br>'),
                     dns_table =
                         tablebox(_("DNS"), "dns", "Server", "",

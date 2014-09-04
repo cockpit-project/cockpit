@@ -432,3 +432,23 @@
    fun:g_main_loop_run
    fun:g_test_dbus_down
 }
+{
+   leak_test_dbus_down
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:g_malloc0
+   fun:g_main_loop_new
+   fun:g_test_dbus_down
+}
+{
+   leak_socket_client_connect
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   fun:g_socket_client_connect_async
+   fun:g_socket_client_connect_to_uri_async
+}

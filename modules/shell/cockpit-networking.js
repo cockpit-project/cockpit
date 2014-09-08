@@ -3047,13 +3047,13 @@ PageNetworkVlanSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("VLAN Id")),
                     $('<td>').append(
-                        id_input = $('<input class="form-control" type="text">').
+                        id_input = $('<input class="form-control" type="text" placeholder="optional">').
                             val(options.id).
                             change(change))),
                 $('<tr>').append(
                     $('<td>').text(_("Name")),
                     $('<td>').append(
-                        name_input = $('<input class="form-control" type="text">').
+                        name_input = $('<input class="form-control" type="text" placeholder="optional">').
                             val(options.interface_name).
                             change(change))));
 

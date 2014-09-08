@@ -322,7 +322,7 @@ class MachineCase(unittest.TestCase):
             if arg_sit_on_failure:
                 print >> sys.stderr, "ADDRESS: %s" % self.machine.address
                 sit()
-        if self.machine.address:
+        elif self.machine.address:
             self.check_journal_messages()
 
     def start_cockpit(self):

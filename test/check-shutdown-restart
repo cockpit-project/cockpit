@@ -42,6 +42,7 @@ class TestShutdownRestart(MachineCase):
         self.start_cockpit()
         b.relogin("server")
 
+        self.allow_restart_journal_messages()
         self.check_journal_messages()
 
         # Poweroff

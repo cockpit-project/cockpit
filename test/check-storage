@@ -795,7 +795,7 @@ class TestStorage(MachineCase):
         m.execute("lvchange TEST/lvol -a n")
 
         # Restart cockpitd by logging in again
-        self.allow_journal_messages("Error receiving data: Connection reset by peer")
+        self.allow_restart_journal_messages()
         b.relogin('storage')
 
         # Delete the volume group and check that fstab has been cleaned up

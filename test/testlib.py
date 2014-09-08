@@ -348,7 +348,6 @@ class MachineCase(unittest.TestCase):
         "Lost the name com.redhat.Cockpit on the session message bus",
         "GLib-GIO:ERROR:gdbusobjectmanagerserver\\.c:.*:g_dbus_object_manager_server_emit_interfaces_.*: assertion failed \\(error == NULL\\): The connection is closed \\(g-io-error-quark, 18\\)",
         "Error sending message: The connection is closed",
-        "Error receiving data: Connection reset by peer",
 
         ## Bugs
 
@@ -374,6 +373,12 @@ class MachineCase(unittest.TestCase):
         """Don't fail if the journal containes a entry matching the given regexp"""
         for p in patterns:
             self.allowed_messages.append(p)
+
+    def allow_restart_journal_messages(self):
+        self.allow_journal_messages("Error receiving data: Connection reset by peer",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Error sending message: Broken pipe \\(g-io-error-quark, 44\\). Exiting.",
+                                    "localhost: agent program failed: Child process killed by signal 9")
 
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""

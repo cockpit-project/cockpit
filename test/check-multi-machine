@@ -143,6 +143,7 @@ class TestMultiMachine(MachineCase):
         b.click_action_btn (action_btn_selector (m3_index))
         b.wait_visible (graph_selector (m3_index))
 
+        self.allow_restart_journal_messages()
         self.allow_journal_messages(".*: .* host key for server is not known: .*",
                                     # Might happen when killing the agent.
                                     "localhost: dropping message while waiting for child to exit",

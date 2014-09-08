@@ -78,8 +78,7 @@ class TestLogin(MachineCase):
                             "pam_unix\(cockpit:auth\): check pass; user unknown",
                             "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
 
-        # Reloading might trigger this.
-        self.allow_journal_messages("Error receiving data: Connection reset by peer")
+        self.allow_restart_journal_messages()
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass)

@@ -69,4 +69,6 @@ class TestConnection(MachineCase):
         b.click('#disconnected-reconnect')
         b.wait_popdown("disconnected-dialog")
 
+        self.allow_restart_journal_messages()
+
 test_main()

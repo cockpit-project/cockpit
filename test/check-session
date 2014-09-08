@@ -70,9 +70,8 @@ class TestSession(MachineCase):
         # b.click("#account-logout")
         # check_session(False)
 
-        self.allow_journal_messages("Error receiving data: Connection reset by peer",
-                                    # Might happen when killing the agent.
-                                    "localhost: dropping message while waiting for child to exit")
-
+        self.allow_restart_journal_messages()
+        # Might happen when killing the agent.
+        self.allow_journal_messages("localhost: dropping message while waiting for child to exit")
 
 test_main ()

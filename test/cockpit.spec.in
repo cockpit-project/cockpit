@@ -57,6 +57,7 @@ BuildRequires: perl-JSON
 BuildRequires: selinux-policy-devel
 BuildRequires: checkpolicy
 BuildRequires: /usr/share/selinux/devel/policyhelp
+BuildRequires: /usr/bin/sed
 
 Requires: glib-networking
 Requires: realmd
@@ -94,6 +95,9 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %prep
 %setup -q
+%if 0%{?fedora} == 20
+	sed -i s/unconfined_service_t/unconfined_t/g src/ws/test-server.service.in
+%endif
 
 %build
 env NOCONFIGURE=1 ./autogen.sh

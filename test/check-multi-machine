@@ -68,8 +68,9 @@ class TestMultiMachine(MachineCase):
         self.machine3.wait_boot()
 
     def tearDown(self):
-        self.check_journal_messages(self.machine2)
-        self.check_journal_messages(self.machine3)
+        if self.runner and self.runner.wasSuccessful():
+            self.check_journal_messages(self.machine2)
+            self.check_journal_messages(self.machine3)
         MachineCase.tearDown(self)
 
     def testBasic(self):

@@ -127,21 +127,21 @@ class TestMultiMachine(MachineCase):
         #
         # https://github.com/cockpit-project/cockpit/issues/606
 
-        kill_user_admin(m1)
-        b.wait_visible(machine_error_selector(m1_index))
-        print "Error for m1: %s" % b.text(machine_error_selector(m1_index))
-
         kill_user_admin(m2)
         b.wait_visible(machine_error_selector(m2_index))
         print "Error for m2: %s" % b.text(machine_error_selector(m2_index))
 
-        b.wait_action_btn (action_btn_selector (m1_index), "Connect")
-        b.click_action_btn (action_btn_selector (m1_index))
-        b.wait_visible (graph_selector (m1_index))
+        kill_user_admin(m3)
+        b.wait_visible(machine_error_selector(m3_index))
+        print "Error for m3: %s" % b.text(machine_error_selector(m3_index))
 
         b.wait_action_btn (action_btn_selector (m2_index), "Connect")
         b.click_action_btn (action_btn_selector (m2_index))
         b.wait_visible (graph_selector (m2_index))
+
+        b.wait_action_btn (action_btn_selector (m3_index), "Connect")
+        b.click_action_btn (action_btn_selector (m3_index))
+        b.wait_visible (graph_selector (m3_index))
 
         self.allow_journal_messages(".*: .* host key for server is not known: .*",
                                     # Might happen when killing the agent.

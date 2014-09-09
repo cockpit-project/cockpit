@@ -346,6 +346,7 @@ class QemuMachine(Machine):
         self._monitor = None
         self._disks = { }
         self._locks = [ ]
+        self._hack_power_off_via_reset = False
 
     def _setup_fstab(self,gf):
         gf.write("/etc/fstab", "/dev/vda / ext4 defaults\n")
@@ -722,6 +723,7 @@ class QemuMachine(Machine):
 
     def wait_poweroff(self):
         assert self._process
+        buffer = ""
         while self._process.poll() is None:
             fd = self._process.stdout.fileno()
             ret = select.select([fd], [], [], 1)
@@ -729,13 +731,27 @@ class QemuMachine(Machine):
                 data = os.read(fd, 1024)
                 if self.verbose:
                     sys.stdout.write(data)
+
+                # HACK: Work around for qemu exit not working
+                # https://bugzilla.redhat.com/show_bug.cgi?id=1139387
+                buffer += data
+                if self._hack_power_off_via_reset and "reboot: Restarting system" in buffer:
+                    self.kill()
+                    return
+                elif "reboot: System halted" in buffer:
+                    self.kill()
+                    return
+
         self._cleanup()
 
     def shutdown(self):
         assert self._process
         try:
             if self._process.poll() is None:
-                self._monitor_qemu("system_powerdown")
+                # HACK: Work around for qemu system_powerdown not working
+                # https://bugzilla.redhat.com/show_bug.cgi?id=1139387
+                self._monitor_qemu("sendkey ctrl-alt-delete")
+                self._hack_power_off_via_reset = True
                 self.wait_poweroff()
         except:
             self._cleanup()

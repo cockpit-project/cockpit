@@ -586,6 +586,8 @@ class QemuMachine(Machine):
         if monitor:
             cmd += "-monitor", monitor
 
+        self.message(*cmd)
+
         # Used by the qemu maintenance console
         if tty:
             return subprocess.Popen(cmd)

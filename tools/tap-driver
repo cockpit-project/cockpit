@@ -284,9 +284,12 @@ class TapDriver(Driver):
             if code != "SKIP":
                 skipped = False
 
-        if not self.errored and returncode:
-            self.report_error("process failed: %d" % returncode)
-            self.errored = True
+        if not self.errored:
+            if returncode == 77:
+                skipped = True
+            elif returncode:
+                self.report_error("process failed: %d" % returncode)
+                self.errored = True
 
         # Check the plan
         if not self.errored:

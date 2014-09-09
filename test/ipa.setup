@@ -5,6 +5,13 @@ set -eufx
 yes | yum --enablerepo=updates-testing install -y freeipa-server bind bind-dyndb-ldap
 
 hostnamectl set-hostname f0.cockpit.lan
+
+# Let's make sure that ipa-server-install doesn't block on
+# /dev/random.
+#
+rm /dev/random
+ln -s /dev/urandom /dev/random
+
 ipa-server-install -U -p foobarfoo -r foobarfoo -a foobarfoo -n cockpit.lan -r COCKPIT.LAN --setup-dns --no-forwarders
 firewall-cmd --permanent \
              --add-service http \

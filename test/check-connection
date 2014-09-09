@@ -69,4 +69,6 @@ class TestConnection(MachineCase):
         b.click('#disconnected-reconnect')
         b.wait_popdown("disconnected-dialog")
 
+        self.allow_journal_messages("g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.")
+
 test_main()

@@ -11,6 +11,12 @@ COCKPIT_DEPS="accountsservice-libs udisks2 libudisks2 json-glib realmd lvm2 mdad
 #
 IPA_CLIENT_PACKAGES="freeipa-client oddjob oddjob-mkhomedir sssd"
 
+# HACK: Remove this once the Fedora 21 bug below is fixed.
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1135516
+#
+IPA_CLIENT_PACKAGES="$IPA_CLIENT_PACKAGES python-backports-ssl_match_hostname"
+
 rm -rf /etc/sysconfig/iptables
 
 maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }

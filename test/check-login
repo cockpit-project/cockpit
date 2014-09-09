@@ -79,7 +79,8 @@ class TestLogin(MachineCase):
                             "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
 
         # Reloading might trigger this.
-        self.allow_journal_messages("Error receiving data: Connection reset by peer")
+        self.allow_journal_messages("Error receiving data: Connection reset by peer",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.")
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass)

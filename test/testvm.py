@@ -29,7 +29,7 @@ import sys
 import shutil
 
 DEFAULT_FLAVOR="cockpit"
-DEFAULT_OS = "fedora-20"
+DEFAULT_OS = "fedora-21"
 DEFAULT_ARCH = "x86_64"
 
 MEMORY_MB = 1024
@@ -397,6 +397,21 @@ class QemuMachine(Machine):
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
+    def _setup_fedora_21 (self, gf):
+        self._setup_fstab(gf)
+        self._setup_ssh_keys(gf)
+        self._setup_fedora_network(gf)
+
+        # systemctl disable sshd.service
+        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
+        # systemctl enable sshd.socket
+        gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
+        gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
+
+        # HACK: Tweak the repos until the mirrors are in good enough shape
+        repo = "[fedora]\nbaseurl=http://dl.fedoraproject.org/pub/fedora/linux/development/$releasever/$basearch/os/\nenabled=1\ngpgcheck=0"
+        gf.write("/etc/yum.repos.d/fedora.repo", repo)
+
     def unpack_base(self, modify_func=None):
         assert not self._process
 
@@ -476,6 +491,8 @@ class QemuMachine(Machine):
                 self._setup_fedora_18(gf)
             elif self.os == "fedora-20" or self.os == "f20":
                 self._setup_fedora_20(gf)
+            elif self.os == "fedora-21" or self.os == "f21":
+                self._setup_fedora_21(gf)
             else:
                 raise Failure("Unsupported OS %s" % self.os)
 
@@ -799,10 +816,10 @@ class QemuMachine(Machine):
         if "proc" in disk and disk["proc"] and disk["proc"].poll() is not None:
             disk["proc"].terminate()
 
-    def add_netiface(self, mac):
+    def add_netiface(self, mac, vlan=0):
         if len(mac) == 2:
             mac = self.macaddr_prefix + ":" + mac
-        self._monitor_qemu("device_add e1000,vlan=0,mac=%s" % mac);
+        self._monitor_qemu("device_add e1000,vlan=%s,mac=%s" % (vlan,mac));
         return mac
 
 TestMachine = QemuMachine

@@ -471,8 +471,8 @@ PageJournal.prototype = {
                       <ul class="dropdown-menu" role="menu"> \
                         <li><a data-op="recent">Recent</a></li> \
                         <li><a data-op="boot">Current boot</a></li> \
-                        <li><a data-op="last-24h">24 hours ago</a></li> \
-                        <li><a data-op="last-week">A week ago</a></li> \
+                        <li><a data-op="last-24h">Last 24 hours</a></li> \
+                        <li><a data-op="last-week">Last week</a></li> \
                       </ul> \
                     </div>');
 

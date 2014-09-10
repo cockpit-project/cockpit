@@ -472,7 +472,7 @@ PageJournal.prototype = {
                         <li><a data-op="recent">Recent</a></li> \
                         <li><a data-op="boot">Current boot</a></li> \
                         <li><a data-op="last-24h">Last 24 hours</a></li> \
-                        <li><a data-op="last-week">Last week</a></li> \
+                        <li><a data-op="last-week">Last 7 days</a></li> \
                       </ul> \
                     </div>');
 

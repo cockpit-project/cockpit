@@ -273,7 +273,8 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
     var query_more = 1000;
 
     var renderer = cockpit.journal_renderer(output_funcs_for_box (box));
-
+    /* cache to store offsets for days */
+    var renderitems_day_cache = null;
     var procs = [];
 
     function query_error(error) {
@@ -292,6 +293,8 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
         for (var i = 0; i < entries.length; i++)
             renderer.prepend (entries[i]);
         renderer.prepend_flush ();
+        /* empty cache for day offsets */
+        renderitems_day_cache = null;
     }
 
     function reached_end (seek, skip) {
@@ -302,6 +305,8 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
         for (var i = 0; i < entries.length; i++)
             renderer.append(entries[i]);
         renderer.append_flush();
+        /* empty cache for day offsets */
+        renderitems_day_cache = null;
     }
 
     function reached_start () {
@@ -348,27 +353,41 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
             }));
     }
 
-    function update_day_box ()
-    {
+    function update_day_box () {
         /* We work with document coordinates here and from that
          * viewpoint, the header slides down the document during
          * scrolling.
          */
         var border = $(header).offset().top + $(header).outerHeight();
-        var closest = null;
-        for (var d = box[0].firstChild; d; d = d.nextSibling) {
-            if ($(d).hasClass('cockpit-loghead')) {
-                if ($(d).offset().top > border)
-                    break;
-                closest = d;
+        /* Build cache if empty
+         */
+        if (renderitems_day_cache === null) {
+            renderitems_day_cache = [];
+            for (var d = box[0].firstChild; d; d = d.nextSibling) {
+                /* if not a day header, ignore
+                */
+                if (!$(d).hasClass('cockpit-loghead')) {
+                    continue;
+                }
+
+                renderitems_day_cache.push([$(d).offset().top, $(d).text()]);
             }
         }
-        if (!closest)
-            closest = d;
-        if (closest)
-            $(day_box).text($(closest).text());
-        else
+        if (renderitems_day_cache.length > 0) {
+            /* Find the last day that begins above border
+             */
+            var currentIndex = 0;
+            while ( (currentIndex+1) < renderitems_day_cache.length && 
+                    renderitems_day_cache[currentIndex+1][0] < border) {
+                currentIndex++;
+            }
+            $(day_box).text(renderitems_day_cache[currentIndex][1]);
+        }
+        else {
+            /* No visible day headers
+             */
             $(day_box).text(_("Go to"));
+        }
     }
 
     box.empty();

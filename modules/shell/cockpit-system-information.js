@@ -259,7 +259,7 @@ PageSystemInformationChangeHostname.prototype = {
         self.manager = PageSystemInformationChangeHostname.client.get("/com/redhat/Cockpit/Manager",
                                                                       "com.redhat.Cockpit.Manager");
         self._initial_hostname = self.manager.Hostname || "";
-        self._initial_pretty_hostname = self.manager.PrettyHostname || self._initial_hostname;
+        self._initial_pretty_hostname = self.manager.PrettyHostname || "";
         $("#sich-pretty-hostname").val(self._initial_pretty_hostname);
         $("#sich-hostname").val(self._initial_hostname);
 

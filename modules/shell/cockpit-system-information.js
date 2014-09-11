@@ -295,9 +295,13 @@ PageSystemInformationChangeHostname.prototype = {
          */
         var pretty_hostname = $("#sich-pretty-hostname").val();
         if (this._always_update_from_pretty || this._initial_pretty_hostname != pretty_hostname) {
-            var new_hostname = pretty_hostname.toLowerCase().replace(/['"]+/g, "").replace(/[^a-zA-Z0-9]+/g, "-");
-            if(new_hostname.length <=64)
-                $("#sich-hostname").val(new_hostname);
+            var old_hostname = $("#sich-hostname").val();
+            var first_dot = old_hostname.indexOf(".");
+            var new_hostname = pretty_hostname.toLowerCase().replace(/['".]+/g, "").replace(/[^a-zA-Z0-9]+/g, "-");
+            new_hostname = new_hostname.substr(0, 64);
+            if (first_dot >= 0)
+                new_hostname = new_hostname + old_hostname.substr(first_dot);
+            $("#sich-hostname").val(new_hostname);
             this._always_update_from_pretty = true; // make sure we always update it from now-on
         }
         this._update();

@@ -370,10 +370,9 @@ PageStorage.prototype = {
             }
         }
 
-        this.cockpitd = cockpit.dbus(this.address);
-        this.monitor = this.cockpitd.get("/com/redhat/Cockpit/BlockdevMonitor",
-                                         "com.redhat.Cockpit.MultiResourceMonitor");
-        $(this.monitor).on('NewSample.networking', render_samples);
+        this.monitor = this.client.get("/com/redhat/Cockpit/BlockdevMonitor",
+                                       "com.redhat.Cockpit.MultiResourceMonitor");
+        $(this.monitor).on('NewSample.storage', render_samples);
 
         this.rx_plot = cockpit.setup_multi_plot('#storage-reading-graph', this.monitor, 0, blues.concat(blues),
                                                 is_interesting_blockdev);
@@ -401,6 +400,7 @@ PageStorage.prototype = {
 
         cockpit.set_watched_client(null);
         $(this.client).off(".storage");
+        $(this.monitor).off(".storage");
         this.job_box.stop();
         this.log_box.stop();
         unwatch_jobs(this.client);

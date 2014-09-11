@@ -378,14 +378,14 @@ PageStorage.prototype = {
         this.rx_plot = cockpit.setup_multi_plot('#storage-reading-graph', this.monitor, 0, blues.concat(blues),
                                                 is_interesting_blockdev);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#storage-reading-text').text(cockpit.format_bits_per_sec(total * 8));
+            $('#storage-reading-text').text(cockpit.format_bytes_per_sec(total));
         });
         $(this.rx_plot).on('highlight', highlight_blockdev_row);
 
         this.tx_plot = cockpit.setup_multi_plot('#storage-writing-graph', this.monitor, 1, blues.concat(blues),
                                                 is_interesting_blockdev);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#storage-writing-text').text(cockpit.format_bits_per_sec(total * 8));
+            $('#storage-writing-text').text(cockpit.format_bytes_per_sec(total));
         });
         $(this.tx_plot).on('highlight', highlight_blockdev_row);
     },

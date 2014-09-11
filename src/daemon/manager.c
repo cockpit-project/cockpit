@@ -572,6 +572,20 @@ handle_set_hostname (CockpitManager *_manager,
           g_dbus_method_invocation_take_error (invocation, error);
           goto out;
         }
+
+      error = NULL;
+      if (!g_dbus_proxy_call_sync (manager->hostname1_proxy,
+                                   "SetStaticHostname",
+                                   g_variant_new ("(sb)", arg_hostname, FALSE),
+                                   G_DBUS_CALL_FLAGS_NONE,
+                                   -1, /* timeout_msec */
+                                   NULL, /* GCancellable* */
+                                   &error))
+        {
+          g_dbus_error_strip_remote_error (error);
+          g_dbus_method_invocation_take_error (invocation, error);
+          goto out;
+        }
     }
 
   cockpit_manager_complete_set_hostname (COCKPIT_MANAGER (manager), invocation);

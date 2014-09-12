@@ -11,6 +11,8 @@ COCKPIT_DEPS="accountsservice-libs udisks2 libudisks2 json-glib realmd lvm2 mdad
 #
 IPA_CLIENT_PACKAGES="freeipa-client oddjob oddjob-mkhomedir sssd"
 
+TEST_PACKAGES="systemtap-runtime-virtguest"
+
 rm -rf /etc/sysconfig/iptables
 
 maybe() { if type "$1" >/dev/null 2>&1; then "$@"; fi; }
@@ -27,7 +29,7 @@ echo foobar | passwd --stdin admin
 mkdir -p /var/log/journal
 
 yes | yum --enablerepo=updates-testing --skip-broken update -y
-yes | yum --enablerepo=updates-testing install -y $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
+yes | yum --enablerepo=updates-testing install -y $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # Stopping a user@.service at poweroff sometimes hangs and then times
 # out, but that seems to be harmless otherwise.  We reduce the timeout

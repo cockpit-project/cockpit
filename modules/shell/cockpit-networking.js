@@ -566,11 +566,12 @@ function NetworkManagerModel(address) {
         function set(first, second, sig, val, def) {
             if (val === undefined)
                 val = def;
-            if (val === undefined)
-                return;
             if (!result[first])
                 result[first] = { };
-            result[first][second] = cockpit.variant(sig, val);
+            if (val !== undefined)
+                result[first][second] = cockpit.variant(sig, val);
+            else
+                delete result[first][second];
         }
 
         function set_ip(first, addrs_sig, addr_to_nm, routes_sig, route_to_nm, ips_sig, ip_from_text) {
@@ -598,14 +599,21 @@ function NetworkManagerModel(address) {
         set("connection", "slave-type", 's', settings.connection.slave_type);
         set("connection", "master", 's', settings.connection.master);
 
+        delete result.ipv4;
         if (settings.ipv4)
             set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', ip4_from_text);
+
+        delete result.ipv6;
         if (settings.ipv6)
             set_ip("ipv6", 'a(ayuay)', ip6_address_to_nm, 'a(ayuayu)', ip6_route_to_nm, 'aay', ip6_from_text);
+
+        delete result.bond;
         if (settings.bond) {
             set("bond", "options", 'a{ss}', settings.bond.options);
             set("bond", "interface-name", 's', settings.bond.interface_name);
         }
+
+        delete result.bridge;
         if (settings.bridge) {
             set("bridge", "interface-name", 's', settings.bridge.interface_name);
             set("bridge", "stp", 'b', settings.bridge.stp);
@@ -615,16 +623,21 @@ function NetworkManagerModel(address) {
             set("bridge", "max-age", 'u', settings.bridge.max_age);
             set("bridge", "ageing-time", 'u', settings.bridge.ageing_time);
         }
-        if (settings["bridge-port"]) {
+
+        delete result["bridge-port"];
+        if (settings.bridge_port) {
             set("bridge-port", "priority", 'u', settings.bridge_port.priority);
             set("bridge-port", "path-cost", 'u', settings.bridge_port.path_cost);
             set("bridge-port", "hairpin-mode", 'b', settings.bridge_port.hairpin_mode);
         }
+
+        delete result.vlan;
         if (settings.vlan) {
             set("vlan", "parent",         's', settings.vlan.parent);
             set("vlan", "id",             'u', settings.vlan.id);
             set("vlan", "interface-name", 's', settings.vlan.interface_name);
         }
+
         if (settings["802-3-ethernet"]) {
             if (!result["802-3-ethernet"])
                 result["802-3-ethernet"] = { };

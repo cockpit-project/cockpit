@@ -2066,13 +2066,15 @@ PageNetworkInterface.prototype = {
                     method: "auto",
                     addresses: [ ],
                     dns: [ ],
-                    dns_search: [ ]
+                    dns_search: [ ],
+                    routes: [ ]
                 },
                 ipv6: {
                     method: "auto",
                     addresses: [ ],
                     dns: [ ],
-                    dns_search: [ ]
+                    dns_search: [ ],
+                    routes: [ ]
                 }
             };
         }

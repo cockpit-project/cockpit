@@ -812,7 +812,12 @@ function NetworkManagerModel(address) {
                 return call_object_method(this,
                                           "org.freedesktop.NetworkManager.Settings.Connection", "Update",
                                           settings_to_nm(this.Settings, priv(this).orig)).
-                    done(function () { priv(self).frozen = false; });
+                    done(function () {
+                        priv(self).frozen = false;
+                    }).
+                    fail(function () {
+                        self.reset();
+                    });
             },
 
             reset:  function () {

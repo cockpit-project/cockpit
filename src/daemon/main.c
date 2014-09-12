@@ -132,7 +132,7 @@ main (int argc,
 
   cockpit_set_journal_logging (!isatty (2));
 
-  g_info ("cockpit daemon version %s starting", PACKAGE_VERSION);
+  g_debug ("cockpit daemon version %s starting", PACKAGE_VERSION);
 
   loop = g_main_loop_new (NULL, FALSE);
 
@@ -172,7 +172,7 @@ out:
   if (opt_context != NULL)
     g_option_context_free (opt_context);
 
-  g_info ("cockpit daemon version %s exiting", PACKAGE_VERSION);
+  g_debug ("cockpit daemon version %s exiting", PACKAGE_VERSION);
 
   return ret;
 }

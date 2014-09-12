@@ -293,7 +293,7 @@ read_module_manifest (const gchar *directory,
     {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
         g_debug ("no manifest found: %s", filename);
-      else
+      else if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOTDIR))
         g_message ("%s: %s", module, error->message);
       g_clear_error (&error);
     }

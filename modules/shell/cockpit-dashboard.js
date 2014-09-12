@@ -30,7 +30,7 @@ PageDashboard.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "All");
+        return C_("page-title", "Hosts");
     },
 
     setup: function() {

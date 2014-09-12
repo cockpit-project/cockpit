@@ -223,7 +223,6 @@ start_dbus_daemon (void)
           line = strchr (address->str, '\n');
           if (line != NULL)
             {
-              g_printerr ("dbus-daemon output line: %s\n", address->str);
               *line = '\0';
               break;
             }

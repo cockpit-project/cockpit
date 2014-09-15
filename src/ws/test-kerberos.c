@@ -310,7 +310,7 @@ test_authenticate (TestCase *test,
   in_headers = cockpit_web_server_new_table ();
   out_headers = cockpit_web_server_new_table ();
 
-  input.value = "HTTP@localhost";
+  input.value = "host@localhost";
   input.length = strlen (input.value) + 1;
   status = gss_import_name (&minor, &input, GSS_C_NT_HOSTBASED_SERVICE, &name);
   assert_gss_status (status, ==, GSS_S_COMPLETE, minor);

@@ -315,13 +315,28 @@ PageSystemInformationChangeHostname.prototype = {
         var valid = false;
         var can_apply = false;
 
-        var charError = "Real host name can only contain lower-case characters, digits, and dashes";
+        var charError = "Real host name can only contain lower-case characters, digits, dashes, and periods (with populated subdomains)";
         var lengthError = "Real host name must be 64 characters or less";
 
         var validLength = $("#sich-hostname").val().length <= 64;
         var hostname = $("#sich-hostname").val();
-        var validName = (hostname.match(/[a-z0-9-]*/) == hostname);
         var pretty_hostname = $("#sich-pretty-hostname").val();
+        var validSubdomains = true;
+        var periodCount = 0;
+
+        for(var i=0; i<$("#sich-hostname").val().length; i++) {
+            if($("#sich-hostname").val()[i] == '.')
+                periodCount++;
+            else
+                periodCount = 0;
+
+            if(periodCount > 1) {
+                validSubdomains = false;
+                break;
+            }
+        }
+
+        var validName = (hostname.match(/[.a-z0-9-]*/) == hostname) && validSubdomains;
 
         if ((hostname != this._initial_hostname ||
             pretty_hostname != this._initial_pretty_hostname) &&

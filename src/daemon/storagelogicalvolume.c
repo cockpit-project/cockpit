@@ -322,7 +322,8 @@ handle_rename (CockpitStorageLogicalVolume *object,
 static gboolean
 handle_resize (CockpitStorageLogicalVolume *object,
                GDBusMethodInvocation *invocation,
-               guint64 arg_new_size)
+               guint64 arg_new_size,
+               GVariant *arg_options)
 {
   StorageLogicalVolume *volume = STORAGE_LOGICAL_VOLUME(object);
   GError *error = NULL;
@@ -332,7 +333,7 @@ handle_resize (CockpitStorageLogicalVolume *object,
 
   if (!lvm_logical_volume_call_resize_sync (volume->lvm_logical_volume,
                                             arg_new_size,
-                                            null_asv (),
+                                            arg_options,
                                             NULL,
                                             &error))
     {

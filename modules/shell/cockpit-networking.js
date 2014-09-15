@@ -3069,21 +3069,24 @@ PageNetworkVlanSettings.prototype = {
         var settings = PageNetworkVlanSettings.settings;
         var options = settings.vlan;
 
+        var auto_update_name = true;
         var parent_btn, id_input, name_input;
 
         function change() {
             // XXX - parse errors
             options.parent = cockpit.select_btn_selected(parent_btn);
             options.id = parseInt(id_input.val(), 10);
+
+            if (auto_update_name && options.parent && options.id)
+                name_input.val(options.parent + "." + options.id);
+
             options.interface_name = name_input.val();
-
-            if (options.parent && options.id) {
-                name_input[0].placeholder = options.parent + "." + options.id;
-                if (options.interface_name === "")
-                    options.interface_name = options.parent + "." + options.id;
-            }
-
             settings.connection.interface_name = options.interface_name;
+        }
+
+        function change_name() {
+            auto_update_name = false;
+            change();
         }
 
         var parent_choices = [];
@@ -3103,16 +3106,21 @@ PageNetworkVlanSettings.prototype = {
                     $('<td>').text(_("VLAN Id")),
                     $('<td>').append(
                         id_input = $('<input class="form-control" type="text">').
-                            val(options.id).
-                            change(change))),
+                            val(options.id || "1").
+                            change(change).
+                            on('input', change))),
                 $('<tr>').append(
                     $('<td>').text(_("Name")),
                     $('<td>').append(
                         name_input = $('<input class="form-control" type="text">').
                             val(options.interface_name).
-                            change(change))));
+                            change(change_name).
+                            on('input', change_name))));
 
-        cockpit.select_btn_select(parent_btn, options.parent);
+        cockpit.select_btn_select(parent_btn, (options.parent ||
+                                               (parent_choices[0] ?
+                                                parent_choices[0].choice :
+                                                "")));
         change();
         $('#network-vlan-settings-body').html(body);
     },

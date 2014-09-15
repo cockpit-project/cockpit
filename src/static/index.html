@@ -76,6 +76,22 @@
                     return;
                 }
 
+                /* Try automatic/kerberos authentication */
+                $.ajax({ url: "/login", dataType: "json", type: "GET" }).
+                    done(function(environment) {
+                        shell(environment);
+                        phantom_checkpoint();
+                    }).
+                    fail(function(xhr, reason) {
+                        if (xhr.status != 401)
+                            fatal(xhr.statusText);
+                        else
+                            show_login();
+                    });
+
+            }
+
+            function show_login() {
                 /* Show the login screen */
                 $("title").text(initial_environment.hostname);
                 $("#server-name").append($("<b>").text(initial_environment.hostname));

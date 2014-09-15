@@ -3063,14 +3063,19 @@ PageResizeVolume.prototype = {
     },
 
     enter: function() {
+        var block = find_logical_volume_block(PageResizeVolume.volume);
         $("#resize-lvol-size").val((PageResizeVolume.volume.Size / (1024*1024)).toFixed(0));
+        $("#resize-lvol-resize-fsys").prop('checked', block && block.IdUsage == "filesystem");
+        $("#resize-lvol-resize-fsys").parents('tr').toggle(PageResizeVolume.volume.Type == "block");
     },
 
     resize: function() {
         var size = $("#resize-lvol-size").val();
+        var resize_fsys = $("#resize-lvol-resize-fsys").prop('checked');
+
         size = size * 1024*1024;
 
-        PageResizeVolume.volume.call('Resize', size,
+        PageResizeVolume.volume.call('Resize', size, { 'resize_fsys': resize_fsys },
                                      function (error) {
                                          $("#storage_resize_volume_dialog").modal('hide');
                                          if (error)

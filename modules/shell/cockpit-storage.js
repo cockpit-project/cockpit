@@ -231,6 +231,19 @@ function find_block_device_for_mdraid(mdraid)
     return (blocks.length > 0)? blocks[0] : undefined;
 }
 
+function find_logical_volume_block(lv)
+{
+    var lv_obj = lv.getObject();
+    var objs = lv._client.getObjectsFrom("/com/redhat/Cockpit/Storage/block_devices/");
+    for (var n = 0; n < objs.length; n++) {
+        var obj = objs[n];
+        var block = obj.lookup("com.redhat.Cockpit.Storage.Block");
+        if (block.LogicalVolume == lv_obj.objectPath)
+            return block;
+    }
+    return null;
+}
+
 function mark_as_block_target(elt, block)
 {
     mark_as_target(elt, block.getObject().objectPath);
@@ -1464,18 +1477,6 @@ PageStorageDetail.prototype = {
                     append_partitions (level+1, block);
                 } else
                     append_non_partitioned_block (level, block, null);
-            }
-
-            function find_logical_volume_block (lv) {
-                var lv_obj = lv.getObject();
-                var objs = me.client.getObjectsFrom("/com/redhat/Cockpit/Storage/block_devices/");
-                for (var n = 0; n < objs.length; n++) {
-                    var obj = objs[n];
-                    var block = obj.lookup("com.redhat.Cockpit.Storage.Block");
-                    if (block.LogicalVolume == lv_obj.objectPath)
-                        return block;
-                }
-                return null;
             }
 
             function append_logical_volume (level, lv) {

@@ -348,15 +348,18 @@ build_gssapi_output_header (GHashTable *headers,
                             JsonObject *results)
 {
   gchar *encoded;
-  const gchar *output;
+  const gchar *output = NULL;
   gpointer data;
   gsize length;
   gchar *value;
 
-  if (!cockpit_json_get_string (results, "gssapi-output", NULL, &output))
+  if (results)
     {
-      g_warning ("received invalid gssapi-output field from cockpit-session");
-      return;
+      if (!cockpit_json_get_string (results, "gssapi-output", NULL, &output))
+        {
+          g_warning ("received invalid gssapi-output field from cockpit-session");
+          return;
+        }
     }
 
   if (output)
@@ -524,8 +527,7 @@ parse_auth_results (LoginData *login,
                    "%s", pam_strerror (NULL, code));
     }
 
-  if (results)
-    build_gssapi_output_header (headers, results);
+  build_gssapi_output_header (headers, results);
 
   if (results)
     json_object_unref (results);
@@ -546,7 +548,10 @@ cockpit_auth_session_login_finish (CockpitAuth *self,
                         cockpit_auth_session_login_async), NULL);
 
   if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
-    return NULL;
+    {
+      build_gssapi_output_header (headers, NULL);
+      return NULL;
+    }
 
   login = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
 

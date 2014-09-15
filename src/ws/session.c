@@ -524,9 +524,18 @@ perform_kerberos (void)
     errx (EX, "couldn't allocate memory for user");
 
   code = krb5_aname_to_localname (krb, principal, LOGIN_NAME_MAX, local);
+  if (code == 0)
+    {
+      debug ("mapped kerberos principal '%s' to user '%s'", (char *)display.value, local);
+      if (getpwnam (local))
+        res = pam_start ("cockpit", local, &conv, &pamh);
+      else
+        code = KRB5_LNAME_NOTRANS;
+    }
+
   if (code == KRB5_LNAME_NOTRANS)
     {
-      warnx ("no local user mapping for kerberos principal '%s'", (char *)display.value);
+      debug ("no local user mapping for kerberos principal '%s'", (char *)display.value);
       res = pam_start ("cockpit", display.value, &conv, &pamh);
     }
   else if (code != 0)
@@ -534,11 +543,6 @@ perform_kerberos (void)
       warnx ("couldn't map kerberos principal '%s' to user: %s",
              (char *)display.value, krb5_get_error_message (krb, code));
       goto out;
-    }
-  else
-    {
-      debug ("mapped kerberos principal '%s' to user '%s'", (char *)display.value, local);
-      res = pam_start ("cockpit", local, &conv, &pamh);
     }
 
   if (res != PAM_SUCCESS)

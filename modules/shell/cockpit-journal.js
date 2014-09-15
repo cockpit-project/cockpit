@@ -314,7 +314,7 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
     }
 
     function didnt_reach_start (first) {
-        var button = $('<button id="journal-load-earlier" data-inline="true" data-mini="true">' +
+        var button = $('<button id="journal-load-earlier" class="btn btn-default" data-inline="true" data-mini="true">' +
                        _("Load earlier entries") +
                        '</button>');
         start_box.html(button);

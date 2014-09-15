@@ -84,8 +84,8 @@ unique_localhosts()
 
 # Add the hosts
 unique_localhosts | while read name; do
-	$kadmin -q "addprinc -randkey -clearpolicy HTTP/$name@COCKPIT.MOCK" > /dev/null
-        $kadmin -q "ktadd -q -keytab $dir/localhost.keytab HTTP/$name@COCKPIT.MOCK" > /dev/null
+	$kadmin -q "addprinc -randkey -clearpolicy host/$name@COCKPIT.MOCK" > /dev/null
+        $kadmin -q "ktadd -q -keytab $dir/localhost.keytab host/$name@COCKPIT.MOCK" > /dev/null
 done
 
 # Run krb5kdc

@@ -57,7 +57,9 @@
 
             function requisites() {
                 return ("WebSocket" in window || "MozWebSocket" in window) &&
-                       ("XMLHttpRequest" in window) && ("localStorage" in window);
+                       ("XMLHttpRequest" in window) &&
+                       ("localStorage" in window) &&
+                       ("sessionStorage" in window);
             }
 
             function trim(s) {
@@ -76,7 +78,16 @@
                     return;
                 }
 
-                /* Try automatic/kerberos authentication */
+                /* Try automatic/kerberos authentication? */
+                if (sessionStorage.getItem("logout-intent") == "explicit") {
+                    sessionStorage.removeItem("logout-intent");
+                    show_login();
+                } else {
+                    auto_login();
+                }
+            }
+
+            function auto_login() {
                 $.ajax({ url: "/login", dataType: "json", type: "GET" }).
                     done(function(environment) {
                         shell(environment);

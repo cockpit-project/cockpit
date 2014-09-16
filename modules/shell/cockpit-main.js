@@ -74,7 +74,7 @@ cockpit.init = function init() {
     var language, language_normalized, code, code_normalized;
 
     // First load translations, if any... first, check browser storage
-    lang_code = cockpit.settings_get("lang-code");
+    lang_code = localStorage.getItem("lang-code");
 
     // If that didn't work, try inferring from whatever language the
     // browser is using... this is a language code from RFC4646, see

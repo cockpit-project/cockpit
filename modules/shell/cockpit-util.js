@@ -191,23 +191,6 @@ cockpit.format_delay = function format_delay(d) {
     return s;
 };
 
-cockpit.settings_get = function settings_get(key) {
-    var ret = null;
-    if (localStorage) {
-        ret = localStorage.getItem(key);
-    }
-    return ret;
-};
-
-cockpit.settings_set = function settings_set(key, value) {
-    if (localStorage) {
-        if (value)
-            localStorage.setItem(key, value);
-        else
-            localStorage.removeItem(key);
-    }
-};
-
 cockpit.find_in_array = function find_in_array(array, elt) {
     for (var i = 0; i < array.length; i++) {
         if (array[i] == elt)

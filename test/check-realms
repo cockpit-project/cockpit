@@ -20,6 +20,11 @@
 
 from testlib import *
 
+import os
+import shutil
+import subprocess
+import tempfile
+
 class TestRealms(MachineCase):
 
     def testIpa(self):
@@ -103,5 +108,88 @@ class TestRealms(MachineCase):
         b.wait_visible("#realms-op-spinner")
         b.click("#realms-op-cancel")
         b.wait_popdown("realms-op")
+
+KRB5_TEMPLATE = """
+[logging]
+ default = FILE:%(dir)s/krb5.log
+[libdefaults]
+ dns_lookup_realm = false
+ default_realm = COCKPIT.LAN
+ rdns = false
+[realms]
+ COCKPIT.LAN = {
+   kdc = %(addr)s
+   master_kdc = %(addr)s
+ }
+[domain_realm]
+ %(addr)s = COCKPIT.LAN
+"""
+
+JOIN_SCRIPT = """
+set -e
+hostnamectl set-hostname x0.cockpit.lan
+echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %(addr)s\n' > /etc/resolv.conf
+chattr +i /etc/resolv.conf
+# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
+for x in 1 2 3 4 5 6 7 8 9 10; do
+    if nslookup -type=SRV _ldap._tcp.cockpit.lan; then
+        break
+    else
+        sleep 1
+    fi
+done
+echo '%(password)s' | realm join -U admin cockpit.lan
+
+# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1144292
+echo '%(password)s' | kinit admin@COCKPIT.LAN
+curl -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
+ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/x0.cockpit.lan -k /etc/krb5.keytab
+"""
+
+# This is here because our test framework can't run ipa VM's twice
+class TestKerberos(MachineCase):
+    def setUp(self):
+        self.ipa = self.new_machine(flavor="ipa")
+        self.ipa.start()
+        self.ipa.wait_boot()
+
+        MachineCase.setUp(self)
+
+        # Setup a place for kerberos caches
+        self.tmpdir = tempfile.mkdtemp()
+        self.ccache = "%s/krb5cc" % self.tmpdir
+        os.environ['KRB5CCNAME'] = self.ccache
+        self.config = "%s/krb5.conf" % self.tmpdir
+
+        args = { "addr": self.ipa.address, "dir": self.tmpdir, "password": "foobarfoo" }
+
+        # Setup a kerberos config that doesn't require DNS
+        os.environ['KRB5_CONFIG'] = self.config
+        with open(self.config, "w") as f:
+            data = KRB5_TEMPLATE % args
+            f.write(data)
+
+        self.start_cockpit()
+
+        self.machine.execute(script=JOIN_SCRIPT % args)
+        env = os.environ.copy()
+        proc = subprocess.Popen(["kinit", "admin@COCKPIT.LAN"], env=env, stdin=subprocess.PIPE)
+        proc.communicate(args['password'])
+        self.assertEqual(proc.wait(), 0)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+
+        del os.environ['KRB5CCNAME']
+        del os.environ['KRB5_CONFIG']
+
+        MachineCase.tearDown(self)
+
+    def testNegotiate(self):
+        output = subprocess.check_output(['/usr/bin/curl', '-s', '--negotiate', '-u', ':', "-D", "-",
+                                          '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
+                                          'http://x0.cockpit.lan:9090/login'])
+        self.assertIn("HTTP/1.1 200 OK", output)
+        self.assertIn('"admin"', output)
 
 test_main()

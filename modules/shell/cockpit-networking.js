@@ -1682,10 +1682,12 @@ PageNetworkInterface.prototype = {
     },
 
     delete_connections: function() {
+        var self = this;
+
         function delete_connection_and_slaves(con) {
             return $.when(con.delete_(),
                           $.when.apply($, con.Slaves.map(function (s) {
-                              return s.delete_();
+                              return free_slave_connection(s);
                           })));
         }
 
@@ -2509,44 +2511,77 @@ function slave_chooser_btn(change, slave_choices) {
     return cockpit.select_btn(change, choices);
 }
 
+function free_slave_connection(con) {
+    if (con.Settings.connection.slave_type) {
+        con.freeze();
+        delete con.Settings.connection.slave_type;
+        delete con.Settings.connection.master;
+        return con.apply();
+    }
+}
+
 function set_slave(model, master_connection, master_settings, slave_type,
                    iface_name, val) {
-    var iface, slave_con, uuid;
-
-    function delete_connections(cons) {
-        return $.when.apply($, cons.map(function (c) { return c.delete_(); }));
-    }
-
-    function delete_iface_connections(iface) {
-        if (iface.Device)
-            return delete_connections(iface.Device.AvailableConnections);
-        else
-            return delete_connections(iface.Connections);
-    }
+    var iface, uuid;
+    var main_connection;
 
     iface = model.find_interface(iface_name);
     if (!iface)
         return false;
 
-    slave_con = slave_connection_for_interface(master_connection, iface);
-    if (slave_con && !val)
-        return slave_con.delete_();
-    else if (!slave_con && val) {
-        uuid = cockpit.util.uuid();
-        return $.when(delete_iface_connections(iface),
-                      model.get_settings().add_connection({ connection:
-                                                            { id: uuid,
-                                                              uuid: uuid,
-                                                              autoconnect: true,
-                                                              type: "802-3-ethernet",
-                                                              interface_name: iface.Name,
-                                                              slave_type: slave_type,
-                                                              master: master_settings.connection.uuid
-                                                            },
-                                                            "802-3-ethernet":
-                                                            {
-                                                            }
-                                                          }));
+    function find_main_connection(cons) {
+        cons.forEach(function(c) {
+            if (!main_connection ||
+                main_connection.Settings.connection.timestamp < c.Settings.connection.timestamp)
+                main_connection = c;
+        });
+    }
+
+    if (iface.Device)
+        find_main_connection(iface.Device.AvailableConnections);
+    else
+        find_main_connection(iface.Connections);
+
+    if (val) {
+        /* Turn the main_connection into a slave for master, if
+         * necessary.  If there is no main_connection, we assume that
+         * this is a ethernet device and create a suitable connection.
+         */
+
+        if (!main_connection) {
+            uuid = cockpit.util.uuid();
+            return model.get_settings().add_connection({ connection:
+                                                         { id: uuid,
+                                                           uuid: uuid,
+                                                           autoconnect: true,
+                                                           type: "802-3-ethernet",
+                                                           interface_name: iface.Name,
+                                                           slave_type: slave_type,
+                                                           master: master_settings.connection.uuid
+                                                         },
+                                                         "802-3-ethernet":
+                                                         {
+                                                         }
+                                                       });
+        } else if (main_connection.Settings.connection.master != master_settings.connection.uuid) {
+            main_connection.freeze();
+            main_connection.Settings.connection.slave_type = slave_type;
+            main_connection.Settings.connection.master = master_settings.connection.uuid;
+            delete main_connection.Settings.ipv4;
+            delete main_connection.Settings.ipv6;
+            return main_connection.apply().then(function () {
+                var dev = iface.Device;
+                if (dev && dev.ActiveConnection && dev.ActiveConnection.Connection === main_connection)
+                    return main_connection.activate(dev, null);
+            });
+        }
+    } else {
+        /* Free the main_connection from being a slave if it is our slave.  If there is
+         * no main_connection, we don't need to do anything.
+         */
+        if (main_connection && main_connection.Settings.connection.master == master_settings.connection.uuid) {
+            free_slave_connection(main_connection);
+        }
     }
 
     return true;

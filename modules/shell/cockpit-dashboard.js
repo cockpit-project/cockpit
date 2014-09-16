@@ -185,7 +185,7 @@ PageDashboard.prototype = {
             $(this.dbus_clients[i]).on('state-change.dashboard', $.proxy(this, "update"));
         }
         machines.append('<div class="panel-body" style="text-align:right">' +
-                        '<button class="btn btn-default" id="dashboard-add-server">' + _("Add Server") + '</button>' +
+                        '<button class="btn btn-default" id="dashboard-add-server">' + _("Add Host") + '</button>' +
                         '</div>');
 
         $("#dashboard-add-server").on('click', $.proxy(this, "add_server"));

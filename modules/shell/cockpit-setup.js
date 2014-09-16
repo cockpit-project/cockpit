@@ -25,7 +25,7 @@ PageSetupServer.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Setup Server");
+        return C_("page-title", "Setup Host");
     },
 
     show: function() {
@@ -224,7 +224,7 @@ PageSetupServer.prototype = {
             this.prev_tab = 'address';
         } else if (tab == 'action') {
             $('#dashboard_setup_action_tab').show();
-            $('#dashboard_setup_next').text(_("Add server"));
+            $('#dashboard_setup_next').text(_("Add host"));
             this.next_action = this.next_setup;
             var reuse = $('#dashboard_setup_address_reuse_creds').prop('checked');
             if (reuse)

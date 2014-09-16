@@ -589,6 +589,7 @@ $(function() {
 cockpit.logout = function logout(reason) {
     var channel = cockpit.channel({ "payload": "null" });
     $(channel).on("close", function() {
+        sessionStorage.setItem("logout-intent", "explicit");
         window.location.reload(true);
     });
     cockpit.set_watched_client(null);

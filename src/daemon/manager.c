@@ -282,12 +282,25 @@ on_hostname_proxy_ready (GObject *source,
 }
 
 static void
+update_hostname_from_kernel (Manager *manager)
+{
+  gchar hostname[HOST_NAME_MAX + 1];
+  if (gethostname (hostname, HOST_NAME_MAX) < 0)
+    {
+      g_message ("Error getting hostname: %m");
+      strncpy (hostname, "<unknown>", HOST_NAME_MAX);
+    }
+  hostname[HOST_NAME_MAX] = '\0';
+
+  cockpit_manager_set_hostname (COCKPIT_MANAGER (manager), hostname);
+}
+
+static void
 manager_constructed (GObject *object)
 {
   Manager *manager = MANAGER (object);
   GError *error = NULL;
   gs_unref_object GFile *etc_os_release = g_file_new_for_path ("/etc/os-release");
-  gs_free gchar *hostname;
 
   manager->etc_os_release_monitor = g_file_monitor (etc_os_release, G_FILE_MONITOR_NONE, NULL, &error);
   if (!manager->etc_os_release_monitor)
@@ -302,11 +315,7 @@ manager_constructed (GObject *object)
       reread_os_release (manager);
     }
 
-  hostname = g_malloc0 (HOST_NAME_MAX + 1);
-  gethostname (hostname, HOST_NAME_MAX);
-  hostname[HOST_NAME_MAX] = '\0';
-
-  cockpit_manager_set_hostname (COCKPIT_MANAGER (manager), hostname);
+  update_hostname_from_kernel (manager);
 
   g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
                             G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES,
@@ -431,7 +440,17 @@ update_hostname1 (Manager *manager)
   if (name_owner == NULL)
     goto out;
 
-  cockpit_manager_set_hostname (COCKPIT_MANAGER (manager), peek_str_prop (manager->hostname1_proxy, "Hostname"));
+  /* HACK: The "Hostname" property does not get change notifications,
+   * and thus our cache of its value will not be updated either.  So
+   * instead of using the property, we get the transient hostname
+   * directly from the kernel.  Of course, we might still miss changes
+   * since we only get here for change notifications of the other
+   * properties.
+   *
+   * https://bugs.freedesktop.org/show_bug.cgi?id=83930
+   */
+  update_hostname_from_kernel (manager);
+
   cockpit_manager_set_static_hostname (COCKPIT_MANAGER (manager), peek_str_prop (manager->hostname1_proxy, "StaticHostname"));
   cockpit_manager_set_pretty_hostname (COCKPIT_MANAGER (manager), peek_str_prop (manager->hostname1_proxy, "PrettyHostname"));
 

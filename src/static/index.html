@@ -57,7 +57,7 @@
 
             function requisites() {
                 return ("WebSocket" in window || "MozWebSocket" in window) &&
-                       ("XMLHttpRequest" in window);
+                       ("XMLHttpRequest" in window) && ("localStorage" in window);
             }
 
             function trim(s) {

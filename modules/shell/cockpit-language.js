@@ -60,7 +60,7 @@ PageDisplayLanguageDialog.prototype = {
                     cockpit.language_po = data[code_to_select];
                     $('#display-language-dialog').modal('hide');
                     // Cool, that worked, update setting
-                    cockpit.settings_set("lang-code", code_to_select);
+                    localStorage.setItem("lang-code", code_to_select);
                     cockpit.localize_pages();
                 });
             } else {
@@ -68,7 +68,7 @@ PageDisplayLanguageDialog.prototype = {
                 cockpit.language_code = "";
                 cockpit.language_po = null;
                 // update setting
-                cockpit.settings_set("lang-code", null);
+                localStorage.removeItem("lang-code");
                 $('#display-language-dialog').modal('hide');
                 cockpit.localize_pages();
             }

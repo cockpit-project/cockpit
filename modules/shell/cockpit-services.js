@@ -320,6 +320,9 @@ PageServices.prototype = {
         $(this.mem_plot).on('highlight', highlight_service_row);
 
         $("#services-list-enabled, #services-list-disabled, #services-list-static").parents(".panel").hide();
+        $("#services-list-enabled, #services-list-disabled, #services-list-static").empty();
+        me.items = { };
+
         me.update();
     },
 
@@ -429,7 +432,7 @@ PageServices.prototype = {
                          *
                          * https://github.com/cockpit-project/cockpit/issues/826
                          */
-                        if (service[1] == "Unknown") {
+                        if (service[1] == "Unknown" && me.manager) {
                             (function (name) {
                                 me.manager.call('GetServiceInfo', name, function (error, result) {
                                     if (result) {
@@ -451,7 +454,10 @@ PageServices.prototype = {
                                                      service[4],
                                                      service[5],
                                                      include_buttons? me.manager : null));
-                        if (service[5] == 'enabled') {
+
+                        if (me.items[service[0]]) {
+                            me.items[service[0]].replaceWith(item);
+                        } else if (service[5] == 'enabled') {
                             item.appendTo(list_enabled);
                             enabled_added = true;
                         } else if (service[5] == 'disabled') {

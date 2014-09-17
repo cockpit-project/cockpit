@@ -25,6 +25,8 @@
 
 #include <sys/resource.h>
 
+#include <dirent.h>
+
 typedef struct {
     GSource source;
     GPollFD pollfd;

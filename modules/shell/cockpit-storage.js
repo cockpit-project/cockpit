@@ -2425,12 +2425,12 @@ PageCreateRaid.prototype = {
                                                       size: fmt_size(disk_size)
                                                     }));
             $("#create-raid-summary-size").text(fmt_size(raid_size));
-            $("#create-raid-create").prop('disable', false);
+            $("#create-raid-create").prop('disabled', false);
         } else {
             $("#create-raid-summary-drives").text(F(_("%{n} more disks needed"),
                                                     { n: n_disks_needed - n_disks }));
             $("#create-raid-summary-size").text("--");
-            $("#create-raid-create").prop('disable', true);
+            $("#create-raid-create").prop('disabled', true);
         }
     },
 
@@ -2786,15 +2786,16 @@ PageFormat.prototype = {
     update: function() {
         var type = $("#format-type").val();
         var isLuks = (type == "luks+xfs" || type == "luks+ext4");
+
         $("#format-custom-row").toggle(type == "custom");
         $("#format-passphrase-row, #format-passphrase-row-2, #format-store-passphrase-row, #format-crypto-options-row").toggle(isLuks);
         if ((type == "custom" && !$("#format-custom").val()) ||
             (isLuks &&
              (!$("#format-passphrase").val() ||
               $("#format-passphrase").val() != $("#format-passphrase-2").val()))) {
-            $("#format-format").prop('disable', true);
+            $("#format-format").prop('disabled', true);
         } else {
-            $("#format-format").prop('disable', false);
+            $("#format-format").prop('disabled', false);
         }
     },
 
@@ -3342,7 +3343,7 @@ PageRaidDiskAdd.prototype = {
 
     update: function() {
         var n_disks = get_selected_devices_objpath($('#raid-disk-add-drives'), this.blocks).length;
-        $("#raid-disk-add-add").prop('disable', n_disks === 0);
+        $("#raid-disk-add-add").prop('disabled', n_disks === 0);
     },
 
     add: function() {
@@ -3397,7 +3398,7 @@ PageVGDiskAdd.prototype = {
 
     update: function() {
         var n_disks = get_selected_devices_objpath($('#vg-disk-add-drives'), this.blocks).length;
-        $("#vg-disk-add-add").prop('disable', n_disks === 0);
+        $("#vg-disk-add-add").prop('disabled', n_disks === 0);
     },
 
     add: function() {

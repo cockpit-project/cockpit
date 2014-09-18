@@ -378,6 +378,7 @@ PageSetupServer.prototype = {
     add_task: function(desc, func) {
         var $tasks = $('#dashboard_setup_action_tasks');
 
+        var prefix = cockpit.environment.localhost.modules.shell.prefix;
         var $entry = $('<li/>', { 'class': 'list-group-item' }).append(
             $('<table/>', { 'class': "cockpit-setup-task-table",
                             'style': "width:100%" }).append(
@@ -389,11 +390,11 @@ PageSetupServer.prototype = {
                                       'style': "display:none"
                                     }),
                         $('<img/>', { 'class': "cockpit-setup-task-error",
-                                      'src': "images/dialog-error.png",
+                                      'src': prefix + "/images/dialog-error.png",
                                       'style': "display:none"
                                     }),
                         $('<img/>', { 'class': "cockpit-setup-task-done",
-                                      'src': "images/face-smile.png",
+                                      'src': prefix + "/images/face-smile.png",
                                       'style': "display:none"
                                     })))));
 

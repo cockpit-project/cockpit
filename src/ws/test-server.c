@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "common/mock-service.h"
-#include "lib/valgrind.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>
@@ -203,13 +202,6 @@ main (int argc,
   g_type_init ();
 
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR);
-
-  /* We don't run phantomjs under valgrind */
-  if (RUNNING_ON_VALGRIND)
-    {
-      g_print ("Bail out! - not running phantomjs under valgrind\n");
-      return 0;
-    }
 
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);

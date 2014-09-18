@@ -1334,6 +1334,7 @@ function DockerClient(machine) {
     var events;
     var rest;
     var connected;
+    var got_failure;
     var alive = true;
 
     /* We use the Docker API v1.10 as documented here:
@@ -1420,6 +1421,7 @@ function DockerClient(machine) {
     }
 
     function perform_connect() {
+        got_failure = false;
         connected = $.Deferred();
         rest = cockpit.rest("unix:///var/run/docker.sock", machine);
         events = rest.get("/v1.10/events");
@@ -1481,6 +1483,7 @@ function DockerClient(machine) {
             fail(function(ex) {
                 if (connected.state() == "pending")
                     connected.reject(ex);
+                got_failure = true;
                 $(me).trigger("failure", [ex]);
             });
 
@@ -1546,6 +1549,7 @@ function DockerClient(machine) {
             fail(function(ex) {
                 if (connected.state() == "pending")
                     connected.reject(ex);
+                got_failure = true;
                 $(me).trigger("failure", [ex]);
             });
 
@@ -1838,6 +1842,14 @@ function DockerClient(machine) {
     this.connect = function connect() {
         if(!connected)
             perform_connect();
+        return connected.promise();
+    };
+
+    this.maybe_reconnect = function maybe_reconnect() {
+        if (got_failure) {
+            this.close();
+            perform_connect();
+        }
         return connected.promise();
     };
 }

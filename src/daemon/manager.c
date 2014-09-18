@@ -562,7 +562,7 @@ handle_set_hostname (CockpitManager *_manager,
   error = NULL;
   if (!g_dbus_proxy_call_sync (manager->hostname1_proxy,
                                "SetPrettyHostname",
-                               g_variant_new ("(sb)", arg_pretty_hostname, FALSE),
+                               g_variant_new ("(sb)", arg_pretty_hostname, TRUE),
                                G_DBUS_CALL_FLAGS_NONE,
                                -1, /* timeout_msec */
                                NULL, /* GCancellable* */
@@ -576,7 +576,7 @@ handle_set_hostname (CockpitManager *_manager,
   error = NULL;
   if (!g_dbus_proxy_call_sync (manager->hostname1_proxy,
                                "SetHostname",
-                               g_variant_new ("(sb)", arg_hostname, FALSE),
+                               g_variant_new ("(sb)", arg_hostname, TRUE),
                                G_DBUS_CALL_FLAGS_NONE,
                                -1, /* timeout_msec */
                                NULL, /* GCancellable* */
@@ -590,7 +590,7 @@ handle_set_hostname (CockpitManager *_manager,
   error = NULL;
   if (!g_dbus_proxy_call_sync (manager->hostname1_proxy,
                                "SetStaticHostname",
-                               g_variant_new ("(sb)", arg_hostname, FALSE),
+                               g_variant_new ("(sb)", arg_hostname, TRUE),
                                G_DBUS_CALL_FLAGS_NONE,
                                -1, /* timeout_msec */
                                NULL, /* GCancellable* */

@@ -47,7 +47,7 @@ PageShutdownDialog.prototype = {
     },
 
     enter: function() {
-        cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
         this.cockpitd = cockpit.dbus(this.address);
         this.cockpitd_manager = this.cockpitd.get("/com/redhat/Cockpit/Manager",
                                                   "com.redhat.Cockpit.Manager");

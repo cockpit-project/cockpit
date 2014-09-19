@@ -58,6 +58,7 @@ char line[UT_LINESIZE + 1];
 static pid_t child;
 static char **env;
 static int want_session = 1;
+static FILE *authf;
 
 #if DEBUG_SESSION
 #define debug(fmt, ...) (fprintf (stderr, "cockpit-session: " fmt "\n", ##__VA_ARGS__))
@@ -107,55 +108,51 @@ read_auth_until_eof (size_t *out_len)
 }
 
 static void
-write_json_string (FILE *file,
+write_auth_string (const char *field,
                    const char *str)
 {
   const unsigned char *at;
   char buf[8];
 
-  fputc_unlocked ('\"', file);
+  fprintf (authf, ", \"%s\": \"", field);
   for (at = (const unsigned char *)str; *at; at++)
     {
       if (*at == '\\' || *at == '\"' || *at < 0x1f)
         {
           snprintf (buf, sizeof (buf), "\\u%04x", (int)*at);
-          fputs_unlocked (buf, file);
+          fputs_unlocked (buf, authf);
         }
       else
         {
-          fputc_unlocked (*at, file);
+          fputc_unlocked (*at, authf);
         }
     }
-  fputc_unlocked ('\"', file);
+  fputc_unlocked ('\"', authf);
 }
 
 static void
-write_json_hex (FILE *file,
+write_auth_hex (const char *field,
                 const unsigned char *src,
                 size_t len)
 {
   static const char hex[] = "0123456789abcdef";
   size_t i;
 
-  fputc_unlocked ('\"', file);
+  fprintf (authf, ", \"%s\": \"", field);
   for (i = 0; i < len; i++)
     {
       unsigned char byte = src[i];
-      fputc_unlocked (hex[byte >> 4], file);
-      fputc_unlocked (hex[byte & 0xf], file);
+      fputc_unlocked (hex[byte >> 4], authf);
+      fputc_unlocked (hex[byte & 0xf], authf);
     }
-  fputc_unlocked ('\"', file);
+  fputc_unlocked ('\"', authf);
 }
 
 static void
-write_auth_result (int result_code,
-                   const char *user,
-                   gss_buffer_desc *gsout)
+write_auth_begin (int result_code)
 {
-  FILE *file;
-
-  file = fdopen (AUTH_FD, "w");
-  if (!file)
+  authf = fdopen (AUTH_FD, "w");
+  if (!authf)
     err (EX, "couldn't write result to cockpit-ws");
 
   /*
@@ -168,23 +165,18 @@ write_auth_result (int result_code,
    * identical and should all be understood by cockpit-ws.
    */
 
-  fprintf (file, "{ \"result-code\": %d", result_code);
-  if (user)
-    {
-      fprintf (file, ", \"user\": ");
-      write_json_string (file, user);
-    }
-  if (gsout && gsout->length)
-    {
-      fprintf (file, ", \"gssapi-output\": ");
-      write_json_hex (file, gsout->value, gsout->length);
-    }
-  fprintf (file, " }\n");
+  fprintf (authf, "{ \"result-code\": %d", result_code);
 
-  if (ferror (file) || fclose (file) != 0)
+  debug ("wrote result %d to cockpit-ws", result_code);
+}
+
+static void
+write_auth_end (void)
+{
+  fprintf (authf, " }\n");
+
+  if (ferror (authf) || fclose (authf) != 0)
     err (EX, "couldn't write result to cockpit-ws");
-
-  debug ("wrote result %d/%s to cockpit-ws", result_code, user);
 }
 
 static void
@@ -434,7 +426,8 @@ perform_basic (void)
   if (password == NULL || strchr (password + 1, '\n'))
     {
       debug ("bad basic auth input");
-      write_auth_result (PAM_AUTH_ERR, NULL, NULL);
+      write_auth_begin (PAM_AUTH_ERR);
+      write_auth_end ();
       exit (5);
     }
 
@@ -458,7 +451,11 @@ perform_basic (void)
   if (res == PAM_SUCCESS)
     res = open_session (pamh, user);
 
-  write_auth_result (res, user, NULL);
+  write_auth_begin (res);
+  if (res == PAM_SUCCESS && user)
+    write_auth_string ("user", user);
+  write_auth_end ();
+
   if (res != PAM_SUCCESS)
     exit (5);
 
@@ -573,7 +570,12 @@ perform_gssapi (void)
   res = open_session (pamh, user);
 
 out:
-  write_auth_result (res, user, &output);
+  write_auth_begin (res);
+  if (user)
+    write_auth_string ("user", user);
+  if (output.value)
+    write_auth_hex ("gssapi-output", output.value, output.length);
+  write_auth_end ();
 
   if (display.value)
     gss_release_buffer (&minor, &display);

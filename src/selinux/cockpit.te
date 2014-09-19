@@ -83,6 +83,9 @@ allow cockpit_session_t self:process { setexec setsched signal_perms };
 auth_login_pgm_domain(cockpit_session_t)
 auth_write_login_records(cockpit_session_t);
 
+# cockpit-session PAM stack wants to talk to systemd via a socket
+allow cockpit_session_t init_t:unix_stream_socket sendto;
+
 # cockpit-session can execute cockpit-agent as the user
 userdom_spec_domtrans_all_users(cockpit_session_t)
 

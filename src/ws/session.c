@@ -485,6 +485,7 @@ perform_gssapi (void)
   pam_handle_t *pamh = NULL;
   OM_uint32 flags = 0;
   char *str = NULL;
+  OM_uint32 caps = 0;
   int res;
 
   server = GSS_C_NO_CREDENTIAL;
@@ -495,7 +496,7 @@ perform_gssapi (void)
 
   major = gss_accept_sec_context (&minor, &context, server, &input,
                                   GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
-                                  &output, &flags, NULL, &client);
+                                  &output, &flags, &caps, &client);
 
   if (GSS_ERROR (major))
     {
@@ -575,6 +576,21 @@ out:
     write_auth_string ("user", user);
   if (output.value)
     write_auth_hex ("gssapi-output", output.value, output.length);
+
+  if (output.value)
+    gss_release_buffer (&minor, &output);
+  output.value = NULL;
+  output.length = 0;
+
+  if (caps & GSS_C_DELEG_FLAG && client != GSS_C_NO_CREDENTIAL)
+    {
+      major = gss_export_cred (&minor, client, &output);
+      if (GSS_ERROR (major))
+        warnx ("couldn't export gssapi credentials: %s", gssapi_strerror (major, minor));
+      else if (output.value)
+        write_auth_hex ("gssapi-creds", output.value, output.length);
+    }
+
   write_auth_end ();
 
   if (display.value)

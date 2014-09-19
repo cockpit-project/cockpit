@@ -258,18 +258,64 @@ function CpuSlider(sel, min, max) {
     return this;
 }
 
-function show_failure(ex) {
-    var msg;
-    console.warn(ex);
+function setup_for_failure(page, client) {
+    var $failure = $("#containers-failure");
+    var $page = $('#' + page.id);
 
-    if (ex.problem == "not-found")
-        msg = _("Docker is not installed or activated on the system");
-    else if (ex.problem == "not-authorized")
-        msg = _("Not authorized to access Docker on this system");
-    else
-        msg = ex.toString();
-    $("#containers-failure").show();
-    $("#containers-failure span.alert-message").text(msg);
+    function show_failure(ex) {
+        var msg;
+        console.warn(ex);
+
+        if (typeof ex == "string")
+            msg = ex;
+        else if (ex.problem == "not-found")
+            msg = _("Docker is not installed or activated on the system");
+        else if (ex.problem == "not-authorized")
+            msg = _("Not authorized to access Docker on this system");
+        else
+            msg = F(_("Can't connect to Docker: %{error}"), { error: ex.toString() });
+        $("#containers-failure-message").text(msg);
+
+        $page.children().hide();
+        $failure.show();
+    }
+
+    function hide_failure() {
+        $page.children().show();
+        $failure.hide();
+    }
+
+    /* High level failures about the overall functionality of docker */
+    $(client).on('failure.failure', function(event, ex) {
+        /* This error is handled via cockpit.set_watched_client
+         * and we don't need to show it here. */
+        if (ex.problem != "disconnected")
+            show_failure(ex, page);
+    });
+
+    $('#containers-failure-start').on('click.failure', function () {
+        cockpit.spawn([ "systemctl", "start", "docker.socket" ]).
+            done(function () {
+                client.close();
+                client.connect().
+                    done(function () {
+                        hide_failure();
+                        page.show();
+                    });
+            }).
+            fail(function (error) {
+                show_failure(F(_("Failed to start Docker: %{error}"), { error: error }));
+            });
+    });
+
+    $page.prepend($failure);
+    hide_failure();
+    client.maybe_reconnect();
+}
+
+function unsetup_for_failure(client) {
+    $(client).off('.failure');
+    $('#containers-failure-start').off('.failure');
 }
 
 function render_container (client, $panel, filter_button, prefix, id, container) {
@@ -449,14 +495,6 @@ PageContainers.prototype = {
             self.render_image(id, image);
         });
 
-        /* High level failures about the overall functionality of docker */
-        $(this.client).on('failure.containers', function(event, ex) {
-            /* This error is handled via cockpit.set_watched_client
-             * and we don't need to show it here. */
-            if (ex.problem != "disconnected")
-                show_failure(ex);
-        });
-
         var id;
         for (id in this.client.containers) {
             this.render_container(id, this.client.containers[id]);
@@ -465,6 +503,8 @@ PageContainers.prototype = {
         for (id in this.client.images) {
             this.render_image(id, this.client.images[id]);
         }
+
+        setup_for_failure(self, self.client);
     },
 
     show: function() {
@@ -473,6 +513,8 @@ PageContainers.prototype = {
     },
 
     leave: function() {
+        unsetup_for_failure(this.client);
+
         cockpit.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
@@ -878,10 +920,7 @@ PageSearchImage.prototype = {
                   $('#containers-search-image-no-results').html('No results for ' + term + "<br />Please try another term");
                   $('#containers-search-image-no-results').show();
               }
-          }).
-          fail(function(ex){
-              show_failure(ex);
-         });
+          });
     },
 
     cancel_search: function() {
@@ -924,6 +963,8 @@ PageContainerDetails.prototype = {
     },
 
     leave: function() {
+        unsetup_for_failure(this.client);
+
         cockpit.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
@@ -1038,6 +1079,7 @@ PageContainerDetails.prototype = {
                 self.update();
         });
 
+        setup_for_failure(this, this.client);
         this.update();
     },
 
@@ -1202,6 +1244,8 @@ PageImageDetails.prototype = {
     },
 
     leave: function() {
+        unsetup_for_failure(this.client);
+
         cockpit.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
@@ -1246,6 +1290,7 @@ PageImageDetails.prototype = {
                 self.render_container(c.Id, c);
         }
 
+        setup_for_failure(this, this.client);
         this.update();
     },
 

@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -566,6 +567,7 @@ main (int argc,
   struct passwd *pw;
   const char *auth;
   int status;
+  int flags;
   int res;
 
   if (isatty (0))
@@ -590,6 +592,11 @@ main (int argc,
       if (setgid (0) != 0 || setuid (0) != 0)
         err (1, "couldn't switch permissions correctly");
     }
+
+  /* We should never leak our auth fd to other processes */
+  flags = fcntl (AUTH_FD, F_GETFD);
+  if (flags < 0 || fcntl (AUTH_FD, F_SETFD, flags | FD_CLOEXEC))
+    err (1, "couldn't set auth fd flags");
 
   auth = argv[1];
   rhost = argv[2];

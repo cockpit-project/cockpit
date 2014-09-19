@@ -280,12 +280,124 @@ done:
 }
 
 static const gchar *
-cockpit_ssh_connect (CockpitSshData *data)
+cockpit_ssh_authenticate (CockpitSshData *data)
 {
-  const gchar *password;
+  gss_cred_id_t gsscreds = GSS_C_NO_CREDENTIAL;
+  const gchar *password = NULL;
   const gchar *problem;
+  gboolean tried = FALSE;
+  OM_uint32 minor;
   gchar *description;
   int methods;
+  int rc;
+
+  problem = "not-authorized";
+
+  rc = ssh_userauth_none (data->session, NULL);
+  if (rc == SSH_AUTH_ERROR)
+    {
+      if (g_atomic_int_get (data->connecting))
+        g_message ("%s: server authentication handshake failed: %s",
+                   data->logname, ssh_get_error (data->session));
+      problem = "internal-error";
+      goto out;
+    }
+
+  if (rc == SSH_AUTH_SUCCESS)
+    {
+      problem = NULL;
+      goto out;
+    }
+
+  methods = ssh_userauth_list (data->session, NULL);
+  if (methods & SSH_AUTH_METHOD_PASSWORD)
+    {
+      password = cockpit_creds_get_password (data->creds);
+      if (password)
+        {
+          tried = TRUE;
+          rc = ssh_userauth_password (data->session, NULL, password);
+          switch (rc)
+            {
+            case SSH_AUTH_SUCCESS:
+              g_debug ("%s: password auth succeeded", data->logname);
+              problem = NULL;
+              goto out;
+            case SSH_AUTH_DENIED:
+              g_debug ("%s: password auth failed", data->logname);
+              break;
+            case SSH_AUTH_PARTIAL:
+              g_message ("%s: password auth worked, but server wants more authentication",
+                         data->logname);
+              break;
+            default:
+              if (g_atomic_int_get (data->connecting))
+                g_message ("%s: couldn't authenticate: %s", data->logname,
+                           ssh_get_error (data->session));
+              problem = "internal-error";
+              goto out;
+            }
+        }
+    }
+
+  if (methods & SSH_AUTH_METHOD_GSSAPI_MIC)
+    {
+      tried = TRUE;
+
+      gsscreds = cockpit_creds_dup_gssapi (data->creds);
+      if (gsscreds != GSS_C_NO_CREDENTIAL)
+        ssh_gssapi_set_creds (data->session, gsscreds);
+
+      rc = ssh_userauth_gssapi (data->session);
+
+      if (gsscreds != GSS_C_NO_CREDENTIAL)
+        ssh_gssapi_set_creds (data->session, NULL);
+
+      switch (rc)
+        {
+        case SSH_AUTH_SUCCESS:
+          g_debug("%s: gssapi auth succeeded", data->logname);
+          problem = NULL;
+          goto out;
+        case SSH_AUTH_DENIED:
+          g_debug ("%s: gssapi auth failed", data->logname);
+          break;
+        case SSH_AUTH_PARTIAL:
+          g_message ("%s: gssapi auth worked, but server wants more authentication",
+                     data->logname);
+          break;
+        default:
+          if (g_atomic_int_get (data->connecting))
+            g_message ("%s: couldn't authenticate: %s", data->logname,
+                       ssh_get_error (data->session));
+          problem = "internal-error";
+          goto out;
+        }
+    }
+
+  if (!tried)
+    {
+      description = auth_method_description (methods);
+      g_message ("%s: server offered unsupported authentication methods: %s",
+                 data->logname, description);
+      g_free (description);
+      problem = "not-authorized";
+    }
+  else
+    {
+      problem = "not-authorized";
+    }
+
+out:
+  if (gsscreds != GSS_C_NO_CREDENTIAL)
+    gss_release_cred (&minor, &gsscreds);
+  return problem;
+}
+
+static const gchar *
+cockpit_ssh_connect (CockpitSshData *data)
+{
+  const gchar *problem;
   int rc;
 
   /*
@@ -308,50 +420,10 @@ cockpit_ssh_connect (CockpitSshData *data)
   if (problem != NULL)
     return problem;
 
-  rc = ssh_userauth_none (data->session, NULL);
-  if (rc == SSH_AUTH_ERROR)
-    {
-      if (g_atomic_int_get (data->connecting))
-        g_message ("%s: server authentication handshake failed: %s",
-                   data->logname, ssh_get_error (data->session));
-      return "internal-error";
-    }
-
-  if (rc != SSH_AUTH_SUCCESS)
-    {
-      methods = ssh_userauth_list (data->session, NULL);
-      if (methods & SSH_AUTH_METHOD_PASSWORD)
-        {
-          password = cockpit_creds_get_password (data->creds);
-          rc = ssh_userauth_password (data->session, NULL, password);
-          switch (rc)
-            {
-            case SSH_AUTH_SUCCESS:
-              g_debug ("%s: password auth succeeded", data->logname);
-              break;
-            case SSH_AUTH_DENIED:
-              g_debug ("%s: password auth failed", data->logname);
-              return "not-authorized";
-            case SSH_AUTH_PARTIAL:
-              g_message ("%s: password auth worked, but server wants more authentication",
-                         data->logname);
-              return "not-authorized";
-            default:
-              if (g_atomic_int_get (data->connecting))
-                g_message ("%s: couldn't authenticate: %s", data->logname,
-                           ssh_get_error (data->session));
-              return "internal-error";
-            }
-        }
-      else
-        {
-          description = auth_method_description (methods);
-          g_message ("%s: server offered unsupported authentication methods: %s",
-                     data->logname, description);
-          g_free (description);
-          return "not-authorized";
-        }
-    }
+  /* The problem returned when auth failure */
+  problem = cockpit_ssh_authenticate (data);
+  if (problem != NULL)
+    return problem;
 
   data->channel = ssh_channel_new (data->session);
   g_return_val_if_fail (data->channel != NULL, NULL);

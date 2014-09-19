@@ -443,6 +443,7 @@ create_creds_for_authenticated (const char *user,
 {
   const gchar *password = NULL;
   const gchar *data = NULL;
+  const gchar *gssapi_creds = NULL;
 
   /*
    * Dig the password out of the authorization header, rather than having
@@ -459,10 +460,17 @@ create_creds_for_authenticated (const char *user,
         password++;
     }
 
+  if (!cockpit_json_get_string (results, "gssapi-creds", NULL, &gssapi_creds))
+    {
+      g_warning ("received bad gssapi-creds from cockpit-session");
+      gssapi_creds = NULL;
+    }
+
   /* TODO: Try to avoid copying password */
   return cockpit_creds_new (user,
                             COCKPIT_CRED_PASSWORD, password,
                             COCKPIT_CRED_RHOST, login->remote_peer,
+                            COCKPIT_CRED_GSSAPI, gssapi_creds,
                             NULL);
 }
 

@@ -21,7 +21,14 @@ should work in a fresh Git clone:
 
     $ cd ./test
     $ srpm=$(./make-srpm)
-    # yum-builddep $srpm
+    $ sudo yum-builddep $srpm
+
+In addition for testing the following dependencies are required:
+
+    $ sudo yum install trickle nbd-server npm python-libguestfs qemu \
+         mock qemu-kvm python curl libvirt-client libvirtd qemu-nbd \
+         krb5-workstation krb5-server
+    $ npm install phantomjs
 
 ## Building and installing
 
@@ -225,3 +232,106 @@ And you can run cockpit-ws and cockpit-agent under valgrind like this:
     $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
     $ valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
           ./cockpit-ws --port 10000 --no-tls --uninstalled
+
+## Setting up a domain server
+
+Some features of Cockpit require a domain to test. Cockpit should work
+with either Active Directory or IPA.
+
+If you do not have a domain available that you can use, or don't have
+sufficient privileges on the domain to test Cockpit's features, you can
+use the IPA server that comes with from Cockpit's integration tests.
+The domain is called 'cockpit.lan'. On a physical machine, with the
+cockpit sources checked out, here's how you get it running:
+
+    $ cd /path/to/src/cockpit
+    $ cd ./test
+    $ ./vm-prep
+    $ ./vm-download -f ipa
+    $ ./vm-run -f ipa
+
+The IP address of the IPA server will be printed. The root password
+is `foobar`. The IPA admin password is `foobarfoo`.
+
+Your client machines (with your web browser) and your server machines
+(with cockpit running) need to be able to resolve DNS queries against
+the IPA server. You can do the following to make that happen:
+
+    $ sudo -s
+    # echo -e 'domain cockpit.lan\nnameserver 10.111.111.100\n' > \
+            /etc/resolv.conf
+
+To test your DNS, the following should succeed without any error messages
+on both your client machines, and your server with cockpit:
+
+    $ host cockpit.lan
+
+Now verify that you can authenticate against the IPA server. See password
+above.
+
+    $ kinit admin@COCKPIT.LAN
+    Password for admin@COCKPIT.LAN:
+
+**BUG:** IPA often fails to start up correctly on system boot. You may
+have to log into the IPA server and run `systemctl start ipa`.
+[ipa bug](https://bugzilla.redhat.com/show_bug.cgi?id=1071356)
+
+## Setting up Single Sign on
+
+Cockpit can perform single sign on authentication via Kerberos. To test and
+work on this feature, you must have a domain on your network. See section
+above if you do not.
+
+On the machine running Cockpit, make sure you can get a kerberos ticket for
+your domain, and check that everything is working.
+
+    $ kinit admin@COCKPIT.LAN
+    Password for admin@COCKPIT.LAN
+
+**BUG:** The host name of the computer Cockpit is running on should end with
+the domain name. If it does not, then rename the computer Cockpit is running on:
+[realmd bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144343)
+
+    $ sudo hostnamectl set-hostname my-server.domain.com
+
+To use single sign on, the computer that Cockpit is running on must be joined
+to the domain. To do this you can run a command like the following:
+
+    $ sudo realm join cockpit.lan
+
+**BUG:** If your domain is an IPA domain, then you need to explictly add a service
+before Cockpit can be used with Single Sign on. The following must be done on
+the computer running Cockpit.
+[realmd bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144292)
+
+    $ sudo -s
+    # kinit admin@COCKPIT.LAN
+    # curl -s --negotiate -u : https://f0.cockpit.lan/ipa/json \
+            --header 'Referer: https://f0.cockpit.lan/ipa' \
+            --header "Content-Type: application/json" \
+            --header "Accept: application/json" \
+            --data '{"params": [["HTTP/my-server.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
+    # ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/my-server.cockpit.lan \
+            -k /etc/krb5.keytab
+
+**BUG:** At this point you need to setup your client browser to perform Single Sign
+On against the domain. On your client machine, with your web browser.
+[firefox bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144358)
+
+For firefox, change the following setting in your `about:config` page:
+
+    network.negotiate-auth.trusted-uris       .cockpit.lan
+
+For chrome you need to quite your browser completely, and then run it like this:
+
+    $ google-chrome --auth-server-whitelist=*cockpit.lan
+
+Make sure you have a kerberos ticket:
+ 
+    $ kinit admin@COCKPIT.LAN
+
+Now when you go to your cockpit instance you should be able to log in without
+authenticating. Make sure to use the full hostname that you set above, the one
+that includes the domain name.
+
+If you thought that was nasty and tiresome, it's because it is at present :S

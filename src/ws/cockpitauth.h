@@ -35,6 +35,10 @@ G_BEGIN_DECLS
 #define COCKPIT_AUTH_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_AUTH, CockpitAuthClass))
 #define COCKPIT_IS_AUTH_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), COCKPIT_TYPE_AUTH))
 
+typedef enum {
+    COCKPIT_AUTH_COOKIE_INSECURE = 1 << 1
+} CockpitAuthFlags;
+
 typedef struct _CockpitAuth        CockpitAuth;
 typedef struct _CockpitAuthClass   CockpitAuthClass;
 
@@ -77,7 +81,7 @@ void            cockpit_auth_login_async     (CockpitAuth *self,
 
 CockpitWebService *  cockpit_auth_login_finish    (CockpitAuth *self,
                                                    GAsyncResult *result,
-                                                   gboolean secure_req,
+                                                   CockpitAuthFlags flags,
                                                    GHashTable *out_headers,
                                                    GError **error);
 

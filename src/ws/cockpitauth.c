@@ -652,7 +652,7 @@ on_web_service_destroy (CockpitWebService *service,
 CockpitWebService *
 cockpit_auth_login_finish (CockpitAuth *self,
                            GAsyncResult *result,
-                           gboolean force_secure,
+                           CockpitAuthFlags flags,
                            GHashTable *out_headers,
                            GError **error)
 {
@@ -705,6 +705,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
 
   if (out_headers)
     {
+      gboolean force_secure = !(flags & COCKPIT_AUTH_COOKIE_INSECURE);
       cookie_b64 = g_base64_encode ((guint8 *)authenticated->cookie, strlen (authenticated->cookie));
       header = g_strdup_printf ("CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
                                 cookie_b64, force_secure ? " Secure;" : "");

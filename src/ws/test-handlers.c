@@ -189,7 +189,7 @@ test_login_with_cookie (Test *test,
   g_hash_table_unref (headers);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
-  service = cockpit_auth_login_finish (test->auth, result, TRUE, test->headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, 0, test->headers, &error);
   g_object_unref (result);
 
   g_assert_no_error (error);

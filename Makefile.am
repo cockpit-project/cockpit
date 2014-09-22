@@ -174,6 +174,7 @@ endif
 
 include modules/base/Makefile-base.am
 include modules/shell/Makefile-shell.am
+include modules/terminal/Makefile-terminal.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am

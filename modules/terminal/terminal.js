@@ -19,35 +19,22 @@
 
 (function(cockpit, $) {
 
-PageTerminal.prototype = {
-    _init: function() {
-        this.id = "terminal";
-        this.history = [ "" ];
-        this.history_pos = 0;
-        this.term = null;
-        this.channel = null;
-    },
+    var term = null;
+    var channel = null;
 
-    getTitle: function() {
-        return C_("page-title", "Rescue Terminal");
-    },
-
-    show: function() {
-    },
-
-    enter: function() {
-        var self = this;
-        self.term = new Terminal({
+    function show() {
+        term = new Terminal({
             cols: 80,
             rows: 24,
             screenKeys: true
         });
 
         /* term.js wants the parent element to build its terminal inside of */
-        self.term.open($("#rescue-terminal")[0]);
+        term.open($("#rescue-terminal")[0]);
 
-        self.channel = cockpit.channel({
-            "host": cockpit.get_page_param("machine", "server"),
+        channel = cockpit.channel({
+            /* TODO: */
+            "host": "localhost",
             "payload": "text-stream",
             "spawn": ["/bin/bash", "-i"],
             "environ": [
@@ -57,46 +44,41 @@ PageTerminal.prototype = {
             "pty": true
         });
 
-        $(self.channel).
+        $(channel).
             on("close", function(ev, options) {
-                if (self.term) {
+                if (term) {
                     var problem = options.reason || "disconnected";
-                    self.term.write('\x1b[31m' + problem + '\x1b[m\r\n');
+                    term.write('\x1b[31m' + problem + '\x1b[m\r\n');
                     /* There's no term.hideCursor() function */
-                    self.term.cursorHidden = true;
-                    self.term.refresh(self.term.y, self.term.y);
+                    term.cursorHidden = true;
+                    term.refresh(term.y, term.y);
                 }
             }).
             on("message", function(ev, payload) {
                 /* Output from pty to terminal */
-                if (self.term)
-                    self.term.write(payload);
+                if (term)
+                    term.write(payload);
             });
 
-        self.term.on('data', function(data) {
+        term.on('data', function(data) {
             /* Output from terminal to pty */
-            if (self.channel && self.channel.valid)
-                self.channel.send(data);
+            if (channel && channel.valid)
+                channel.send(data);
         });
-    },
+    }
 
-    leave: function() {
-        if (this.term) {
-            this.term.destroy();
-            this.term = null;
+    function hide() {
+        if (term) {
+            term.destroy();
+            term = null;
         }
-        if (this.channel) {
-            if (this.channel.valid)
-                this.channel.close(null);
-            this.channel = null;
+        if (channel) {
+            if (channel.valid)
+                channel.close(null);
+            channel = null;
         }
     }
-};
 
-function PageTerminal() {
-    this._init();
-}
-
-cockpit.pages.push(new PageTerminal());
+    $(show);
 
 }(cockpit, jQuery));

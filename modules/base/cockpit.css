@@ -487,3 +487,37 @@ a {
 .cockpit-modal-sm {
     width: 300px;
 }
+
+/* Our terminal emulator */
+.terminal-emulator {
+    max-width: 60em;
+    font-family: monospace, courier new;
+    background-color: black;
+    padding: 1em;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    line-height: 1;
+    font-size: 10pt;
+}
+
+.terminal-emulator > .terminal {
+    display: inline-block; /* size DIV to contents */
+}
+
+.container-fluid .terminal-emulator {
+    margin-top: 0;
+    float: right;
+}
+
+@media (max-width: 1350px) {
+    .container-fluid .terminal-emulator {
+	font-size: 11px;
+    }
+}
+
+.terminal-cursor {
+    color: #000;
+    background: #f0f0f0;
+}

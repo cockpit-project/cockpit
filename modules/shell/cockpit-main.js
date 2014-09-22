@@ -642,4 +642,52 @@ function PageDisconnected() {
 
 cockpit.pages.push(new PageDisconnected());
 
+/*
+ * ----------------------------------------------------------------------------
+ * TODO: Temporary hack to register pages that live in modules
+ * The entireity of page building and componentizing needs reworking here.
+ */
+
+function PageExternal(id, module, path, title) {
+    this.id = id;
+    this.title = title;
+
+    this.iframe = document.createElement("iframe");
+    $(this.iframe).addClass("container-frame").attr("id", id).hide();
+    $("#content").append(this.iframe);
+
+    this.getTitle = function() { return this.title; };
+
+    this.show = function() {
+        var url = "";
+        /* TODO: This *still* only loads modules from localhost */
+        var mod = cockpit.environment.localhost.modules[module];
+        if (mod)
+            url = mod.prefix + path;
+        else
+            console.warn("no such module: " + module);
+
+        $(this.iframe).attr("src", url);
+    };
+
+    this.enter = function() { };
+    this.leave = function() { };
+}
+ 
+/* Resize all iframes to fill body */
+$(window).on('load resize', function() {
+    var $window = $(window);
+    $('iframe.container-frame').height(function() {
+        return $window.height() - $(this).offset().top;
+    });
+});
+
+/* TODO: for now bring in component module pages */
+var terminal = new PageExternal("terminal", "terminal", "/terminal.html",
+        C_("page-title", "Rescue Terminal"));
+terminal.history = [ "" ];
+terminal.history_pos = 0;
+cockpit.pages.push(terminal);
+
+
 })(jQuery, cockpit);

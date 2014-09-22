@@ -606,7 +606,7 @@ authenticated_for_headers (CockpitAuth *self,
   if (!cockpit_web_server_parse_cookies (in_headers, &cookies, NULL))
     return NULL;
 
-  cookie = base64_decode_string (g_hash_table_lookup (cookies, "CockpitAuth"));
+  cookie = base64_decode_string (g_hash_table_lookup (cookies, "cockpit"));
   if (cookie == NULL)
     return NULL;
 
@@ -754,7 +754,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
     {
       gboolean force_secure = !(flags & COCKPIT_AUTH_COOKIE_INSECURE);
       cookie_b64 = g_base64_encode ((guint8 *)authenticated->cookie, strlen (authenticated->cookie));
-      header = g_strdup_printf ("CockpitAuth=%s; Path=/; %s HttpOnly",
+      header = g_strdup_printf ("cockpit=%s; Path=/; %s HttpOnly",
                                 cookie_b64, force_secure ? " Secure;" : "");
       g_free (cookie_b64);
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);

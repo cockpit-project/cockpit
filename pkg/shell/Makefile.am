@@ -45,6 +45,8 @@ nodist_shell_DATA = \
 	shell.min.js \
 	$(NULL)
 shell_DATA = \
+	pkg/shell/attrchange.js \
+	pkg/shell/jquery-flot.js \
 	pkg/shell/cockpit.css \
 	pkg/shell/shell.html \
 	pkg/shell/manifest.json \

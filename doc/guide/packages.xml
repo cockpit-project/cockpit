@@ -105,14 +105,14 @@
       the path, use the <code>@@</code> syntax.</para>
 
     <para>For example here's how to include the base <code>cockpit.js</code> script in your HTML
-      from the <code>unstable</code> package:</para>
+      from the <code>latest</code> package:</para>
 
 <programlisting>
-  &lt;script src="../@@unstable@@"&gt;&lt;/script&gt;
+  &lt;script src="../@@latest@@"&gt;&lt;/script&gt;
 </programlisting>
 
     <para>Do not assume you can link to any file in any other package. Refer to the
-      <link linkend="api-listing">list of resources</link> for those that are
+      <link linkend="development">list of API packages</link> for those that are
       available for use.</para>
   </section>
 
@@ -131,6 +131,28 @@
 
     <para>To force Cockpit to use non-minified resources, link the package into your home directory
       as described in the section on <link linkend="package-layout">Package Layout</link>.</para>
+  </section>
+
+  <section id="package-api">
+    <title>Using Cockpit API</title>
+
+    <para>Cockpit has API available for writing packages. There is no API available
+      for external callers to invoke via HTTP, REST or otherwise.</para>
+
+    <warning>
+      <para>Unless an API is explicitly marked as stable, it is unstable and can
+        be changed when Cockpit is upgraded.</para>
+    </warning>
+
+    <para>API from various packages can be used to implement Cockpit packages. Each package
+      listed here has some API available for use. Only the API explicitly documented should
+      be used. In some cases even though the API is available it is not (yet) stable.</para>
+
+    <para>To include javascript from the API, simply load it into your HTML using
+      a script tag. Alternatively you can use an javascript loader. Always refer to
+      the package using the <code>@@package@@</code> syntax. This allows Cockpit to
+      optimize and cache multiple uses of the same resources.</para>
+
   </section>
 
 </chapter>

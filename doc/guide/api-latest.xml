@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<reference id="api-latest">
+  <title>API: latest</title>
+
+  <partintro>
+    <para>This package contains basic support API available to other packages.</para>
+
+    <warning>
+      <para>The plan is that most of this will become stable API. At that point
+        the package name will change to something like <code>cockpit1</code>. The
+        <code>latest</code> package will always track the latest version of these
+        APIs.</para>
+    </warning>
+  </partintro>
+
+  <refentry id="api-bootstrap">
+    <refmeta>
+      <refentrytitle>bootstrap.js</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>bootstrap.js</refname>
+      <refpurpose>Bootstrap javascript code</refpurpose>
+    </refnamediv>
+
+    <refsection>
+      <title>Description</title>
+<programlisting>
+  &lt;script src="../@@latest@@/jquery.js"&gt;&lt;/script&gt;
+  &lt;script src="../@@latest@@/bootstrap.js"&gt;&lt;/script&gt;
+</programlisting>
+
+      <para>Cockpit uses <ulink url="https://www.patternfly.org/">PatternFly</ulink> for its
+        user interface. PatternFly is built on the <ulink url="http://getbootstrap.com">Bootstrap</ulink>
+        user interface framework. The <code>bootstrap.js</code> includes code that enables
+        Bootstrap to run correctly. The <code>bootstrap.js</code> script also includes the
+        <ulink url="http://silviomoreto.github.io/bootstrap-select/">bootstrap-select</ulink> extension.</para>
+
+      <para>In the <code>latest</code> package we will track the version of Bootstrap that PatternFly
+        requires. Other packages may provide more stable versions of Boostrap in the future.</para>
+
+      <para>Bootstrap requires jQuery be available.</para>
+    </refsection>
+  </refentry>
+
+  <refentry id="api-latest-jquery">
+    <refmeta>
+      <refentrytitle>jquery.js</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>jquery.js</refname>
+      <refpurpose>jQuery library</refpurpose>
+    </refnamediv>
+
+    <refsection>
+      <title>Description</title>
+<programlisting>
+  &lt;script src="../@@latest@@/jquery.js"&gt;&lt;/script&gt;
+</programlisting>
+
+      <para>To use <ulink url="http://jquery.com">jQuery</ulink> in your package include
+        the above script. Other Cockpit and PatternFly code requires jQuery. You should
+        always load it, if you use any of the other Cockpit javascript code. It should be
+        the first javascript module loaded.</para>
+
+      <para>The current jQuery version is 2.x. In the <code>latest</code> package we may
+        track relatively recent versions of jQuery. Other packages may provide more stable versions
+        of jQuery in the future.</para>
+
+    </refsection>
+
+  </refentry>
+
+  <!-- term.js is not public API -->
+
+</reference>

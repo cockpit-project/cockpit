@@ -60,6 +60,8 @@ DIV.toc {
 DIV.book,
 DIV.refentry,
 DIV.chapter,
+DIV.article,
+DIV.reference,
 DIV.index,
 DIV.footer,
 DIV.section,
@@ -77,6 +79,8 @@ BODY > DIV.part {
 
 BODY > DIV.refentry,
 BODY > DIV.chapter,
+BODY > DIV.article,
+BODY > DIV.reference,
 BODY > DIV.index,
 BODY > DIV.section {
 	margin-left: 3em;
@@ -97,6 +101,15 @@ DIV.refsect2,
 DIV.refnamediv,
 DIV.refsynopsisdiv {
 	margin-bottom: 2em !important;
+}
+
+DIV.abstract > .title {
+	margin: 0.3em;
+	visibility: hidden;
+}
+
+H1 {
+	font-weight: normal !important;
 }
 
 H2 {

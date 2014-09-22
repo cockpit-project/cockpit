@@ -706,7 +706,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
   if (out_headers)
     {
       cookie_b64 = g_base64_encode ((guint8 *)authenticated->cookie, strlen (authenticated->cookie));
-      header = g_strdup_printf ("CockpitAuth=%s; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT;%s HttpOnly",
+      header = g_strdup_printf ("CockpitAuth=%s; Path=/; %s HttpOnly",
                                 cookie_b64, force_secure ? " Secure;" : "");
       g_free (cookie_b64);
       g_hash_table_insert (out_headers, g_strdup ("Set-Cookie"), header);

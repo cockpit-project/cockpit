@@ -133,7 +133,7 @@ cockpit.journal = function journal(/* ... */) {
         }
     }
 
-    var proc = cockpit.spawn(cmd, options.host).
+    var proc = cockpit.spawn(cmd, { host: options.host }).
         stream(function(data) {
             var pos = 0;
             var next;

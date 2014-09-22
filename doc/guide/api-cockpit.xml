@@ -1,0 +1,338 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="api-cockpit">
+  <refmeta>
+    <refentrytitle>cockpit.js</refentrytitle>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit.js</refname>
+    <refpurpose>Basic cockpit API to interact with the system</refpurpose>
+  </refnamediv>
+
+  <refsection>
+    <title>User Login</title>
+    <refsection id="latest-logout">
+      <title>cockpit.logout()</title>
+<programlisting>
+  cockpit.logout([reload])
+</programlisting>
+      <para>Logout of Cockpit. Unless <code>reload</code> is <code>false</code> this will also
+        cause the page to be reloaded, so that the user can see the logged out state.</para>
+    </refsection>
+
+  </refsection>
+
+  <refsection id="latest-spawn">
+    <title>Spawning Processes</title>
+
+    <para>This is the API for spawning a process and receiving its output, as well
+      as exit codes.</para>
+
+    <refsection id="latest-spawn-spawn">
+      <title>cockpit.spawn()</title>
+<programlisting>
+ process = cockpit.spawn(args, [options])
+</programlisting>
+
+      <para>Spawns a process on the system.</para>
+
+      <para>The <code>args</code> should be an array starting with the executable and
+        containing all the arguments to pass on the command line. If <code>args</code>
+        is a string then it is interpreted as an executable name. The optional
+        <code>options</code> argument is a javascript plain object and can contain
+        any of the following fields:
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>"host"</code></term>
+          <listitem><para>The remote host to spawn the process on. If no host is specified
+            then the correct one will be automatically selected based on the page
+            calling this function.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"environ"</code></term>
+          <listitem><para>A javascript plain object that contains strings to be used as
+            an environment for the new process.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"pty"</code></term>
+          <listitem><para>Launch the process in its own PTY terminal, and send/receive
+            terminal input and output.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"batch"</code></term>
+          <listitem><para>Batch data coming from the process in blocks of at least this
+              size. This is not a guarantee. After a short timeout the data will be sent
+              even if the data doesn't match the batch size. Defaults to zero.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The spawned process is a
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        that will complete if the process exits successfully, or fail if there's a problem.
+        Some additional methods besides the standard jQuery deferred methods are documented
+        below.</para>
+
+      <para>The standard output of the process is made available via the spawned process
+        object. Any non-UTF8 output from the process will be coerced into textual form.
+        It is highly recommended that only textual output be produced by the command.
+        The standard error is logged to the journal.</para>
+    </refsection>
+
+    <refsection id="latest-spawn-done">
+      <title>process.done()</title>
+<programlisting>
+ process.done(function(data) { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        method. It sets up a handler to be called when the process finishes successfully.</para>
+      <para>The <code>data</code> argument contains the standard output of the process.
+        If any <code><link linkend="latest-spawn-stream">process.stream()</link></code>
+        handlers are set up, then they will consume the standard output, and the
+        <code>data</code> argument will be <code>null</code>.</para>
+    </refsection>
+
+    <refsection id="latest-spawn-fail">
+      <title>process.fail()</title>
+<programlisting>
+ process.fail(function(exception) { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        It sets up a handler to be called when the process fails, terminates or exits.</para>
+
+      <para>The <code>exception</code> object passed to the handler can have the
+        following fields:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>problem</code></term>
+          <listitem><para>A <link linkend="latest-problems">problem code</link> string when
+            a problem occurred starting or communicating with the process. This is <code>null</code>
+            if the process exited or was terminated.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>exit_status</code></term>
+          <listitem><para>The numeric exit status of the process. This is <code>null</code> if
+            the process did not exit.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>exit_signal</code></term>
+          <listitem><para>A string representing a unix signal that caused the process to terminate.
+            This is <code>null</code> if the process did not terminate because of a signal.</para></listitem>
+        </varlistentry>
+      </variablelist>
+    </refsection>
+
+    <refsection id="latest-spawn-always">
+      <title>process.always()</title>
+<programlisting>
+ process.always(function() { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        It sets up a handler to be called when when the process completes, whether it exits successfully,
+        fails, terminates, or exits with a failure.</para>
+    </refsection>
+
+    <refsection id="latest-spawn-stream">
+      <title>process.stream()</title>
+<programlisting>
+ process.stream(function(data) { ... })
+</programlisting>
+      <para>This sets up a handler to be called when the process has standard output. The
+        handler will be called multiple times. The handler will be called regardless of
+        whether the process ends up exiting successfully or not.</para>
+      <para>If any <code>process.stream()</code> handlers are set up, then the
+        <code><link linkend="latest-spawn-done">process.done()</link></code> handlers will
+        get a <code>null</code> as their <code>data</code> argument. The stream handlers
+        consume the data.</para>
+    </refsection>
+
+    <refsection id="latest-spawn-write">
+      <title>process.write()</title>
+<programlisting>
+ process.write(data)
+</programlisting>
+      <para>This method writes string data to the standard input of the process.</para>
+    </refsection>
+
+    <refsection id="latest-spawn-close">
+      <title>process.close()</title>
+<programlisting>
+ process.close([problem])
+</programlisting>
+      <para>Close the proces. If <code>problem</code> is not specified, then just the standard
+        input of the process is closed. If <code>problem</code> is specified it should be a
+        standard <link linkend="latest-problems">problem code</link> string. In this case the
+        process will be terminated with a signal.</para>
+    </refsection>
+  </refsection>
+
+  <refsection id="latest-problems">
+    <title>Problem Codes</title>
+    <para>Cockpit represents problems with standardized problem string codes.</para>
+    <variablelist>
+      <varlistentry>
+        <term><code>"internal-error"</code></term>
+        <listitem><para>An unexpected internal error without further info. This should
+          not happen during the normal course of operations.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"no-agent"</code></term>
+        <listitem><para>The system does not have a compatible version of Cockpit installed
+          or installed properly.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"no-session"</code></term>
+        <listitem><para>Cockpit is not logged in.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"not-authorized"</code></term>
+        <listitem><para>The user is not permitted to perform the action in question.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"not-found"</code></term>
+        <listitem><para>Something specifically requested was not found, such as a file,
+          executable etc.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"terminated"</code></term>
+        <listitem><para>Something was terminated forcibly, such as a connection, process
+          session, etc.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"timeout"</code></term>
+        <listitem><para>Something timed out.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"unknown-hostkey"</code></term>
+        <listitem><para>The remote host had an unexpected or unknown key.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"no-forwarding"</code></term>
+        <listitem><para>Could not forward authentication credentials to the remote host.</para></listitem>
+      </varlistentry>
+    </variablelist>
+  </refsection>
+
+  <refsection id="latest-channels">
+    <title>Raw Channels</title>
+
+    <para>At a low level Cockpit communicates with the system via messages passed
+      through various channels. These are usually exposed via higher level APIs,
+      such as the <code><link linkend="latest-spawn">cockpit.spawn()</link></code> function.
+      It is rare to use raw channels directly.</para>
+
+    <refsection id="latest-channels-channel">
+      <title>cockpit.channel()</title>
+<programlisting>
+ channel = cockpit.channel(options)
+</programlisting>
+
+      <para>This function creates a new channel for communication with the system.
+        It returns a new channel object. The <code>options</code> argument is a
+        plain object. At least the <code>"payload"</code> option is required, and
+        based on the payload type, other options may be required.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>"host"</code></term>
+          <listitem><para>The host to open the channel to. If no host is specified
+            then the correct one will be automatically selected based on the page
+            calling this function.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"payload"</code></term>
+          <listitem><para>The payload type for the channel. Only specific payload
+            types are supported.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The channel object returned has the following fields and methods and
+        events. You should call the
+        <code><link linkend="latest-channels-close">channel.close()</link></code>
+        method when done with the channel.</para>
+
+      <para>A valid channel will always be returned and the is ready to
+        <code><link linkend="latest-channels-send">channel.send()</link></code>. The channel may
+        <link linkend="latest-channels-close-ev">close shortly afterword</link> due
+        to a failure.</para>
+    </refsection>
+
+    <refsection id="latest-channels-options">
+      <title>channel.options</title>
+      <para>The options used to open this channel. This should not be changed.</para>
+    </refsection>
+
+    <refsection id="latest-channels-valid">
+      <title>channel.valid</title>
+      <para>Will be <code>true</code> for an open channel. Will be set to <code>false</code> if the channel
+        closes.</para>
+    </refsection>
+
+    <refsection id="latest-channels-send">
+      <title>channel.send()</title>
+<programlisting>
+ channel.send(data)
+</programlisting>
+      <para>Send a message over the channel. The contents of the message depends on the
+        payload type of the channel. The <code>data</code> will be converted to a string if not already
+        a string.</para>
+    </refsection>
+
+    <refsection id="latest-channels-close">
+      <title>channel.close()</title>
+<programlisting>
+ channel.close([options])
+</programlisting>
+      <para>Close the channel.</para>
+      <para>If <code>options</code> is present it can be a plain javascript object
+        containing additional channel close options to send to the peer. If closing for
+        because of a problem, set the <code>"reason"</code> field to a
+        <link linkend="latest-problems">problem code</link>. If <code>options</code>
+        is not an object it will be treated as a <code>"reason"</code>.</para>
+      <para>The <link linkend="latest-channels-close-ev">close event</link> will fire.
+        A channel can also be closed by a peer or if the underlying transport closes.</para>
+    </refsection>
+
+    <refsection id="latest-channels-message">
+      <title>channel.onmessage</title>
+<programlisting>
+ $(channel).on("message", function(data) { ... })
+</programlisting>
+      <para>An event triggered when the channel receives a message. The message is
+        passed as a string to the handler in the <code>data</code>. The contents of
+        the message depends on the payload type of the channel.</para>
+    </refsection>
+
+    <refsection id="latest-channels-close-ev">
+      <title>channel.onclose</title>
+<programlisting>
+ $(channel).on("close", function(options) { ... })
+</programlisting>
+      <para>An event triggered when the channel closes. This can happen either because
+        <link linkend="latest-channels-close">channel.close()</link> function was called,
+        or if the peer closed the channel, or the underlying transport closes.</para>
+      <para>The <code>options</code> will contain various close information, including a
+        <code>"reason"</code> field which will be set if the channel was closed because
+        of a problem.</para>
+    </refsection>
+
+    <refsection id="latest-transport-close">
+      <title>cockpit.transport.close()</title>
+<programlisting>
+  cockpit.transport.close([reason])
+</programlisting>
+      <para>Close the underlying channel transport. All channels open channels will close.
+        The <code>reason</code> argument should be a problem code string. If not specified
+        it will default to <code>"disconnected"</code>.</para>
+    </refsection>
+  </refsection>
+
+
+</refentry>

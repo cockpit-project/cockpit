@@ -4,10 +4,8 @@ translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
 
 shell_js_PARTS = \
 	modules/shell/polyfills.js \
-	modules/shell/channel.js \
 	modules/shell/dbus.js \
 	modules/shell/rest.js \
-	modules/shell/spawn.js \
 	modules/shell/debug.js \
 	modules/shell/controls.js \
 	modules/shell/cockpit-util.js \
@@ -88,10 +86,8 @@ shellimages_DATA = \
 CHECK_HTML = \
 	modules/shell/test-dummy.html \
 	modules/shell/test-util.html \
-	modules/shell/test-chan.html \
 	modules/shell/test-journal-renderer.html \
 	modules/shell/test-rest.html \
-	modules/shell/test-spawn.html \
 	modules/shell/test-dbus.html \
 	$(NULL)
 

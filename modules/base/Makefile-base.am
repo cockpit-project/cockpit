@@ -1,5 +1,16 @@
+cockpit_js_PARTS = \
+	modules/base/channel.js \
+	modules/base/spawn.js \
+	$(NULL)
+
+cockpit.js: $(cockpit_js_PARTS)
+	$(AM_V_GEN) $(JSLINT) -o $@ $^
 
 unstabledir = $(pkgdatadir)/unstable
+nodist_unstable_DATA = \
+	cockpit.js \
+	cockpit.min.js \
+	$(NULL)
 unstable_DATA = \
 	modules/base/jquery.js \
 	modules/base/jquery.min.js \
@@ -9,6 +20,17 @@ unstable_DATA = \
 	modules/base/manifest.json \
 	$(NULL)
 
+TESTS += \
+	modules/unstable/test-chan.html \
+	modules/unstable/test-spawn.html \
+	$(NULL)
+
+CLEANFILES += \
+	cockpit.js \
+	cockpit.min.js \
+	$(NULL)
+
 EXTRA_DIST += \
+	$(cockpit_js_PARTS) \
 	$(unstable_DATA) \
 	$(NULL)

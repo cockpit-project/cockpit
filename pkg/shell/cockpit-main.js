@@ -630,4 +630,76 @@ function PageDisconnected() {
 
 cockpit.pages.push(new PageDisconnected());
 
+/*
+ * ----------------------------------------------------------------------------
+ * TODO: Temporary hack to register pages that live in packages
+ * The entireity of page building and componentizing needs reworking here.
+ *
+ * In particular, note that we have to squeeze in the concept of using
+ * multiple frames for different servers.
+ */
+
+function PageExternal(id, url, title) {
+    var self = this;
+    self.id = id;
+    self.title = title;
+    self.history = [ "" ];
+    self.history_pos = 0;
+
+    self.current = null;
+    self.frames = { };
+    self.body = $("<div>").attr("id", self.id).hide();
+    $("#content").append(self.body);
+
+    self.getTitle = function() { return self.title; };
+
+    /* Resize iframes to fill body */
+    function resize() {
+        if (self.current) {
+            self.current.height(function() {
+                return $(window).height() - $(this).offset().top;
+            });
+        }
+    }
+
+    $(window).on('resize', resize);
+
+    self.enter = function enter() {
+        /* TODO: This is total bullshit */
+        var server = cockpit.get_page_param('machine', 'server');
+        if (!server)
+            server = "localhost";
+        var frame = self.frames[server];
+        if (!frame) {
+            /* TODO: This *still* only loads packages from localhost */
+            frame = $(document.createElement("iframe"));
+            frame.addClass("container-frame").
+                attr("name", id + "-" + server).
+                hide().attr("src", url + "#server?machine=" + server);
+            self.body.append(frame);
+            self.frames[server] = frame;
+        }
+        if (frame != self.current) {
+            if (self.current)
+                self.current.hide();
+            self.current = frame;
+            self.current.show();
+        }
+        resize();
+    };
+
+    self.show = function show() {
+        if (self.current)
+            self.current.focus();
+        resize();
+    };
+
+    self.leave = function() { };
+}
+
+/* TODO: for now bring in component package pages */
+var terminal = new PageExternal("terminal", "/cockpit/@@server@@/terminal.html",
+        C_("page-title", "Rescue Terminal"));
+cockpit.pages.push(terminal);
+
 })(jQuery, cockpit);

@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <act/act.h>
+#include <grp.h>
 
 #include <gsystem-local-alloc.h>
 
@@ -169,6 +170,15 @@ um_is_loaded (Accounts *accounts)
 }
 
 static void
+add_role_if_exists (GVariantBuilder *bob,
+                    const char *group,
+                    const char *description)
+{
+  if (getgrnam (group))
+    g_variant_builder_add (bob, "(ss)", group, description);
+}
+
+static void
 accounts_init (Accounts *accounts)
 {
   accounts->act_user_to_account = g_hash_table_new_full (g_direct_hash,
@@ -194,14 +204,10 @@ accounts_init (Accounts *accounts)
 
   GVariantBuilder roles_builder;
   g_variant_builder_init (&roles_builder, G_VARIANT_TYPE ("a(ss)"));
-  g_variant_builder_add (&roles_builder, "(ss)",
-                         "wheel", "Server Administrator");
-  g_variant_builder_add (&roles_builder, "(ss)",
-                         "cockpit-user-admin", "User Account Administrator");
-  g_variant_builder_add (&roles_builder, "(ss)",
-                         "cockpit-realm-admin", "Realm Administrator");
-  g_variant_builder_add (&roles_builder, "(ss)",
-                         "cockpit-storage-admin", "Storage Administrator");
+  add_role_if_exists (&roles_builder, "wheel", "Server Administrator");
+  add_role_if_exists (&roles_builder, "cockpit-user-admin", "User Account Administrator");
+  add_role_if_exists (&roles_builder, "cockpit-realm-admin", "Realm Administrator");
+  add_role_if_exists (&roles_builder, "cockpit-storage-admin", "Storage Administrator");
   cockpit_accounts_set_roles (COCKPIT_ACCOUNTS (accounts), g_variant_builder_end (&roles_builder));
 }
 

@@ -1579,93 +1579,110 @@ resource_response_new (CockpitWebService *self,
   return rr;
 }
 
-static gboolean
-resource_respond_normal (CockpitWebService *self,
-                         CockpitWebResponse *response,
-                         const gchar *remaining_path)
+static gchar *
+pop_module_name (const gchar *path,
+                 const gchar **remaining_path)
 {
-  ResourceResponse *rr;
-  CockpitSession *session;
-  gboolean ret = FALSE;
-  GBytes *command;
-  gchar **parts;
+  /*
+   * Parses modules in this form:
+   *
+   * +host+module/+checksum/+module/path/to/file.ext
+   *
+   * For the above will return 'module', and set remaining_path
+   * to point to /path/to/file.ext
+   */
 
-  parts = g_strsplit (remaining_path, "/", 3);
-  if (!parts[0] || !parts[1] || !parts[2])
+  const gchar *beg = NULL;
+
+  while (path && path[0] == '/' && path[1] == '+')
     {
-      g_debug ("invalid resource path: %s", remaining_path);
-      goto out;
+      beg = path + 2;
+      path = strchr (beg, '/');
     }
 
-  session = lookup_or_open_session_for_host (self, parts[0], NULL, self->creds, FALSE);
-  rr = resource_response_new (self, session, response);
+  if (!beg)
+    return NULL;
 
-  command = build_control ("command", "open",
-                           "channel", rr->channel,
-                           "payload", "resource1",
-                           "module", parts[1],
-                           "path", parts[2],
-                           NULL);
+  if (remaining_path)
+    *remaining_path = path;
 
-  cockpit_transport_send (rr->transport, NULL, command);
-  g_bytes_unref (command);
-  ret = TRUE;
-
-out:
-  g_strfreev (parts);
-  return ret;
+  if (path)
+    return g_strndup (beg, path - beg);
+  else
+    return g_strdup (beg);
 }
 
-
 static gboolean
-resource_respond_checksum (CockpitWebService *self,
-                           CockpitWebResponse *response,
-                           const gchar *remaining_path)
+resource_respond (CockpitWebService *self,
+                  CockpitWebResponse *response,
+                  const gchar *remaining_path)
 {
   ResourceResponse *rr;
   CockpitSession *session;
   CockpitSession *found = NULL;
-  const gchar *module = NULL;
+  const gchar *checksum = NULL;
+  const gchar *host = NULL;
+  const gchar *name = NULL;
+  gchar *module = NULL;
   gboolean ret = FALSE;
+  gboolean cache = FALSE;
   GHashTableIter iter;
   GBytes *command;
-  gchar **parts;
+  gchar **parts = NULL;
 
-  parts = g_strsplit (remaining_path, "/", 2);
-  if (!parts[0] || !parts[1])
+  module = pop_module_name (remaining_path, &remaining_path);
+  if (!module || !remaining_path)
     {
       g_debug ("invalid checksum path: %s", remaining_path);
       goto out;
     }
 
-  g_hash_table_iter_init (&iter, self->sessions.by_transport);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
+  /* Split a module@host name */
+  parts = g_strsplit (module, "@", 2);
+
+  /* A checksum */
+  if (parts[1] == NULL)
     {
-      if (session->checksums)
+      cache = TRUE;
+      checksum = parts[0];
+      g_hash_table_iter_init (&iter, self->sessions.by_transport);
+      while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
         {
-          module = g_hash_table_lookup (session->checksums, parts[0]);
-          if (module != NULL)
+          if (session->checksums)
             {
-              found = session;
-              break;
+              name = g_hash_table_lookup (session->checksums, checksum);
+              if (name != NULL)
+                {
+                  host = session->host;
+                  found = session;
+                  break;
+                }
             }
+        }
+      if (!found)
+        {
+          g_debug ("no session found for resource checksum: %s", checksum);
+          goto out;
         }
     }
 
-  if (!found)
+  /* A host and module */
+  else
     {
-      g_debug ("no session found for resource checksum: %s", parts[0]);
-      goto out;
+      host = parts[1];
+      name = parts[0];
+      session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
     }
 
   rr = resource_response_new (self, session, response);
-  rr->cache_forever = TRUE;
+  rr->cache_forever = cache;
 
   command = build_control ("command", "open",
                            "channel", rr->channel,
                            "payload", "resource1",
-                           "module", module,
-                           "path", parts[1],
+                           "host", host,
+                           "module", name,
+                           "path", remaining_path,
                            NULL);
 
   cockpit_transport_send (rr->transport, NULL, command);
@@ -1674,6 +1691,7 @@ resource_respond_checksum (CockpitWebService *self,
 
 out:
   g_strfreev (parts);
+  g_free (module);
   return ret;
 }
 
@@ -1687,9 +1705,7 @@ cockpit_web_service_resource (CockpitWebService *self,
   path = cockpit_web_response_get_path (response);
 
   if (g_str_has_prefix (path, "/res/"))
-    handled = resource_respond_normal (self, response, path + 5);
-  if (g_str_has_prefix (path, "/cache/"))
-    handled = resource_respond_checksum (self, response, path + 7);
+    handled = resource_respond (self, response, path + 4);
 
   if (!handled)
     cockpit_web_response_error (response, 404, NULL, NULL);

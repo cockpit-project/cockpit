@@ -203,9 +203,9 @@
                     return;
                 }
                 if (module.checksum)
-                    module.prefix = "/cache/" + module.checksum;
+                    module.prefix = "/res/+" + module.checksum;
                 else
-                    module.prefix = "/res/localhost/shell";
+                    module.prefix = "/res/+shell@localhost";
 
                 function qualify(path) {
                     if (path.indexOf('/') === 0)

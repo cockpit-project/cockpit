@@ -70,9 +70,6 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        # TODO: Make this work with non-root
-        b.default_user = "root"
-
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
 
@@ -101,9 +98,6 @@ class TestStorage(MachineCase):
     def testMounting(self):
         m = self.machine
         b = self.browser
-
-        # TODO: Make this work with non-root
-        b.default_user = "root"
 
         self.login_and_go("storage")
 
@@ -155,7 +149,7 @@ class TestStorage(MachineCase):
         b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", "")
 
         self.content_default_action(1, "Mount");
-        b.wait_in_text("#storage_detail_partition_list", "mounted on /run/media/root/FILESYSTEM")
+        b.wait_in_text("#storage_detail_partition_list", "mounted on /run/media/admin/FILESYSTEM")
 
         self.content_default_action(1, "Unmount");
         b.wait_in_text("#storage_detail_partition_list", "not mounted")
@@ -177,9 +171,6 @@ class TestStorage(MachineCase):
         # https://bugzilla.redhat.com/show_bug.cgi?id=1135493
         #
         return
-
-        # TODO: Make this work with non-root
-        b.default_user = "root"
 
         self.login_and_go("storage")
 
@@ -252,9 +243,6 @@ class TestStorage(MachineCase):
     def testLuks(self):
         m = self.machine
         b = self.browser
-
-        # TODO: Make this work with non-root
-        b.default_user = "root"
 
         self.login_and_go("storage")
 
@@ -373,9 +361,6 @@ class TestStorage(MachineCase):
     def testRaid(self):
         m = self.machine
         b = self.browser
-
-        # TODO: Make this work with non-root
-        b.default_user = "root"
 
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
@@ -517,9 +502,6 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        # TODO: Make this work with non-root
-        b.default_user = "root"
-
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
 
@@ -550,9 +532,6 @@ class TestStorage(MachineCase):
     def testLvm(self):
         m = self.machine
         b = self.browser
-
-        # TODO: Make this work with non-root
-        b.default_user = "root"
 
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
@@ -779,9 +758,6 @@ class TestStorage(MachineCase):
     def testUsed(self):
         m = self.machine
         b = self.browser
-
-        # TODO: Make this work with non-root
-        b.default_user = "root"
 
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")

@@ -96,7 +96,7 @@ test_userpass_cookie_check (Test *test,
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
   g_object_unref (result);
   g_assert_no_error (error);
   g_assert (service != NULL);
@@ -144,7 +144,7 @@ test_userpass_bad (Test *test,
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
   g_object_unref (result);
 
   g_assert (service == NULL);
@@ -171,7 +171,7 @@ test_userpass_emptypass (Test *test,
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
   g_object_unref (result);
 
   g_assert (service == NULL);
@@ -233,7 +233,7 @@ test_idle_timeout (Test *test,
     g_main_context_iteration (NULL, TRUE);
 
   headers = web_socket_util_new_headers ();
-  service = cockpit_auth_login_finish (test->auth, result, TRUE, headers, &error);
+  service = cockpit_auth_login_finish (test->auth, result, 0, headers, &error);
   g_object_unref (result);
   g_assert_no_error (error);
 

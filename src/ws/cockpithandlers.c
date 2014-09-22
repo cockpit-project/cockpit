@@ -247,12 +247,14 @@ on_login_complete (GObject *object,
   LoginResponse *lr = user_data;
   GError *error = NULL;
   CockpitWebService *service;
+  CockpitAuthFlags flags = 0;
   GIOStream *io_stream;
 
   io_stream = cockpit_web_response_get_stream (lr->response);
-  service = cockpit_auth_login_finish (COCKPIT_AUTH (object), result,
-                                       !G_IS_SOCKET_CONNECTION (io_stream),
-                                       lr->headers, &error);
+  if (G_IS_SOCKET_CONNECTION (io_stream))
+    flags |= COCKPIT_AUTH_COOKIE_INSECURE;
+
+  service = cockpit_auth_login_finish (COCKPIT_AUTH (object), result, flags, lr->headers, &error);
 
   if (error)
     {

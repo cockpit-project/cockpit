@@ -277,6 +277,41 @@ fi
 AC_SUBST(COCKPIT_USER)
 AC_SUBST(COCKPIT_GROUP)
 
+# Documentation
+
+AC_MSG_CHECKING([whether to build documentation])
+AC_ARG_ENABLE(doc,
+              AC_HELP_STRING([--disable-doc],
+                             [Disable building documentation])
+             )
+
+if test "$enable_doc" = "no"; then
+        AC_MSG_RESULT($enable_doc)
+
+else
+        if test "$enable_doc" = ""; then
+                disable_msg="(perhaps --disable-doc)"
+        fi
+
+        enable_doc="yes"
+        AC_MSG_RESULT($enable_doc)
+
+        AC_PATH_PROG([XSLTPROC], [xsltproc], [no])
+        if test "$XSLTPROC" = "no"; then
+                AC_MSG_ERROR([the xsltproc command was not found $disable_msg])
+        fi
+
+        AC_PATH_PROG([XMLTO], [xmlto], [no])
+        if test "$XMLTO" = "no"; then
+                AC_MSG_ERROR([the xmlto command was not found $disable_msg])
+        fi
+
+        AC_SUBST(XSLTPROC)
+        AC_SUBST(XMLTO)
+fi
+
+AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])
+
 # Debug
 
 AC_MSG_CHECKING([for debug mode])
@@ -343,6 +378,7 @@ AC_SUBST(REAUTHORIZE_LIBS)
 
 AC_OUTPUT([
 Makefile
+doc/version
 po/Makefile.in
 ])
 
@@ -370,7 +406,7 @@ echo "
         cockpit-ws group:           ${COCKPIT_GROUP}
 
         Maintainer mode:            ${USE_MAINTAINER_MODE}
-        Building api docs:          ${enable_gtk_doc}
+        Building docs:              ${enable_doc}
         Debug mode:                 ${debug_status}
         With coverage:              ${enable_coverage}
         With address sanitizer:     ${asan_status}

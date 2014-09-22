@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+  <!ENTITY version SYSTEM "version">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Cockpit Guide</title>
+    <releaseinfo>for &version;</releaseinfo>
+  </bookinfo>
+
+  <part id="guide">
+    <title>Deployment Guide</title>
+    <chapter id="cockpit-manual">
+      <title>Manual pages</title>
+      <xi:include href="../man/cockpit.conf.xml"/>
+      <xi:include href="../man/cockpit-ws.xml"/>
+      <xi:include href="../man/cockpitd.xml"/>
+    </chapter>
+
+    <chapter>
+      <title>Certificates</title>
+      <para>Not written yet</para>
+    </chapter>
+  </part>
+
+  <part id="development">
+    <title>Developer Guide</title>
+
+    <chapter>
+      <title>Embedding Cockpit</title>
+      <para>Not written yet</para>
+    </chapter>
+  </part>
+</book>

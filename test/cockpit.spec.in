@@ -59,6 +59,9 @@ BuildRequires: checkpolicy
 BuildRequires: /usr/share/selinux/devel/policyhelp
 BuildRequires: /usr/bin/sed
 
+# For documentation
+BuildRequires: /usr/bin/xmlto
+
 Requires: glib-networking
 Requires: realmd
 Requires: udisks2 >= 2.1.0
@@ -138,6 +141,17 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %{_datadir}/%{name}
 %{_mandir}/*
 %attr(775, -, wheel) %{_sharedstatedir}/%{name}
+
+%package doc
+Summary: Cockpit deployment and developer guide
+
+%description doc
+The Cockpit Deployment and Developer Guide shows sysadmins how to
+deploy Cockpit on their machines as well as helps developers who want to
+embed or extend Cockpit.
+
+%files doc
+%{_docdir}/cockpit
 
 %package test-assets
 Summary: Additional stuff for testing Cockpit

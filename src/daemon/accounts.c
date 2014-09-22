@@ -208,6 +208,7 @@ accounts_init (Accounts *accounts)
   add_role_if_exists (&roles_builder, "cockpit-user-admin", "User Account Administrator");
   add_role_if_exists (&roles_builder, "cockpit-realm-admin", "Realm Administrator");
   add_role_if_exists (&roles_builder, "cockpit-storage-admin", "Storage Administrator");
+  add_role_if_exists (&roles_builder, "docker", "Container Administrator");
   cockpit_accounts_set_roles (COCKPIT_ACCOUNTS (accounts), g_variant_builder_end (&roles_builder));
 }
 

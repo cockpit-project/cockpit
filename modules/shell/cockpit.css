@@ -418,9 +418,14 @@ ul.available-interfaces-group {
 .cockpit-account > .cockpit-account-real-name {
     padding-top: 10px;
     font-weight: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .cockpit-account > .cockpit-account-user-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #account table {

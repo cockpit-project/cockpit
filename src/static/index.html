@@ -194,18 +194,37 @@
                 xhr.send();
             }
 
+            function prefix(modules, name, module) {
+                if (!module || !module.manifest)
+                    return null;
+
+                if (module.prefix)
+                    return module.prefix;
+                var base = "/res";
+                if (module.manifest.base) {
+                    base = prefix(modules, module.manifest.base, modules[module.manifest.base]);
+                    if (!base)
+                        return null;
+                }
+                if (module.checksum)
+                    module.prefix = base + "/+" + module.checksum;
+                else
+                    module.prefix = base + "/+" + name + "@localhost";
+                return module.prefix;
+            }
+
             function shell(environment) {
-                var module = null;
-                if (environment.localhost && environment.localhost.modules)
-                    module = environment.localhost.modules["shell"];
-                if (!module || !module.manifest) {
+                var i, module = null;
+                if (environment.localhost && environment.localhost.modules) {
+                    var modules = environment.localhost.modules;
+                    for (i in modules)
+                        prefix(modules, i, modules[i]);
+                    module = modules["shell"];
+                }
+                if (!module || !module.manifest || !module.prefix) {
                     fatal("Cockpit not available: shell not installed correctly");
                     return;
                 }
-                if (module.checksum)
-                    module.prefix = "/res/+" + module.checksum;
-                else
-                    module.prefix = "/res/+shell@localhost";
 
                 function qualify(path) {
                     if (path.indexOf('/') === 0)

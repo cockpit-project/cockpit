@@ -1,0 +1,14 @@
+
+unstabledir = $(pkgdatadir)/unstable
+unstable_DATA = \
+	modules/base/jquery.js \
+	modules/base/jquery.min.js \
+	modules/base/bootstrap.js \
+	modules/base/bootstrap.min.js \
+	modules/base/term.js \
+	modules/base/manifest.json \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(unstable_DATA) \
+	$(NULL)

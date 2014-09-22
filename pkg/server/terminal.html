@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cockpit terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/patternfly.x1.css" type="text/css" rel="stylesheet">
+    <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../@@latest@@/jquery.js"></script>
+    <script src="../@@latest@@/term.js"></script>
+    <script src="../@@latest@@/cockpit.js"></script>
+<script>
+(function(cockpit, $) {
+
+    var term = null;
+    var channel = null;
+
+    function show() {
+        term = new Terminal({
+            cols: 80,
+            rows: 24,
+            screenKeys: true
+        });
+
+        /* term.js wants the parent element to build its terminal inside of */
+        term.open($("#rescue-terminal")[0]);
+
+        channel = cockpit.channel({
+            "payload": "text-stream",
+            "spawn": ["/bin/bash", "-i"],
+            "environ": [
+                "TERM=xterm-256color",
+                "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
+            ],
+            "pty": true
+        });
+
+        $(channel).
+            on("close", function(ev, options) {
+                if (term) {
+                    var problem = options.reason || "disconnected";
+                    term.write('\x1b[31m' + problem + '\x1b[m\r\n');
+                    /* There's no term.hideCursor() function */
+                    term.cursorHidden = true;
+                    term.refresh(term.y, term.y);
+                }
+            }).
+            on("message", function(ev, payload) {
+                /* Output from pty to terminal */
+                if (term)
+                    term.write(payload);
+            });
+
+        term.on('data', function(data) {
+            /* Output from terminal to pty */
+            if (channel && channel.valid)
+                channel.send(data);
+        });
+    }
+
+    $(show);
+
+}(cockpit, jQuery));
+</script>
+</head>
+<body>
+    <div id="rescue-terminal" class="terminal-emulator"></div>
+</body>
+</html>

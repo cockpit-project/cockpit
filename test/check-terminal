@@ -27,6 +27,7 @@ class TestTerminal(MachineCase):
         b.default_user = "admin"
 
         self.login_and_go("terminal")
+        b.switch_to_frame("terminal-localhost")
 
         def line_sel(i):
             return '#rescue-terminal .terminal div:nth-child(%d)' % i

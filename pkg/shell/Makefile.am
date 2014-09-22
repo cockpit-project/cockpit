@@ -27,7 +27,6 @@ shell_js_PARTS = \
 	pkg/shell/cockpit-services.js \
 	pkg/shell/cockpit-journal.js \
 	pkg/shell/cockpit-journal-renderer.js \
-	pkg/shell/cockpit-terminal.js \
 	pkg/shell/cockpit-accounts.js \
 	pkg/shell/cockpit-docker.js \
 	pkg/shell/cockpit-internal.js \

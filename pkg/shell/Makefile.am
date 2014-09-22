@@ -4,10 +4,8 @@ translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
 
 shell_js_PARTS = \
 	pkg/shell/polyfills.js \
-	pkg/shell/channel.js \
 	pkg/shell/dbus.js \
 	pkg/shell/rest.js \
-	pkg/shell/spawn.js \
 	pkg/shell/debug.js \
 	pkg/shell/controls.js \
 	pkg/shell/cockpit-util.js \
@@ -88,10 +86,8 @@ shellimages_DATA = \
 CHECK_HTML = \
 	pkg/shell/test-dummy.html \
 	pkg/shell/test-util.html \
-	pkg/shell/test-chan.html \
 	pkg/shell/test-journal-renderer.html \
 	pkg/shell/test-rest.html \
-	pkg/shell/test-spawn.html \
 	pkg/shell/test-dbus.html \
 	$(NULL)
 

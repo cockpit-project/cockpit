@@ -26,7 +26,7 @@
     <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
     <script type="text/javascript" src="../../tools/qunit-config.js"></script>
 
-    <script type="text/javascript" src="channel.js"></script>
+    <script type="text/javascript" src="cockpit.js"></script>
   </head>
   <body>
     <h1 id="qunit-header">Channel Tests</h1>
@@ -58,11 +58,14 @@ function MockPeer() {
     this.close = function(options) { throw "not reached"; };
 }
 
+window.mock = { url: "ws://url", last_transport: true };
 var mock_peer = new MockPeer();
 
 QUnit.testDone(function() {
     mock_peer = new MockPeer();
-    cockpit.transport = null;
+    if (window.mock.last_transport)
+        window.mock.last_transport.close();
+    window.mock.last_transport = null;
 });
 
 /* Mock WebSocket */
@@ -133,11 +136,6 @@ function MockWebSocket(url, protocol) {
     }, 5);
 }
 
-/* Override URL function */
-cockpit.channel.calculate_url = function() {
-    return "ws://url";
-};
-
 WebSocket = MockWebSocket;
 
 test("public api", function() {
@@ -149,8 +147,9 @@ test("public api", function() {
     equal(typeof channel.send, "function", "channel.send() is a function");
     equal(typeof channel.close, "function", "channel.close() is a function");
     strictEqual(channel.valid, true, "channel.valid is set");
-    equal(typeof cockpit.transport, "object", "cockpit.transport is an object");
-    equal(typeof cockpit.transport.close, "function", "cockpit.transport is a function");
+    equal(typeof cockpit.logout, "function", "cockpit.logout is a function");
+    equal(typeof cockpit.transport, "object", "cockpit.transport is a function");
+    equal(typeof cockpit.transport.close, "function", "cockpit.transport.close is a function");
 });
 
 asyncTest("open channel", function() {
@@ -172,14 +171,43 @@ asyncTest("open channel", function() {
 });
 
 test("multiple", function() {
-    expect(2);
+    expect(1);
 
     var channel = cockpit.channel({ "host": "scruffy" });
-    var transport = cockpit.transport;
 
     var channelb = cockpit.channel({ "host": "amy" });
     notStrictEqual(channel.id, channelb.id, "mulitple: channels have different ids");
-    strictEqual(cockpit.transport, transport, "multiple: channels share a transport");
+});
+
+asyncTest("open no host", function() {
+    expect(2);
+
+    window.location.hash = "";
+    var channel = cockpit.channel({ });
+    $(mock_peer).on("open", function(event) {
+        ok(true, "websocket connected");
+    });
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        var command = JSON.parse(payload);
+        strictEqual(command.host, undefined, "open: host not included");
+        start();
+    });
+});
+
+asyncTest("open auto host", function() {
+    expect(2);
+
+    window.location.hash = "#server?machine=planetexpress";
+    var channel = cockpit.channel({ });
+    $(mock_peer).on("open", function(event) {
+        ok(true, "websocket connected");
+    });
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        var command = JSON.parse(payload);
+        strictEqual(command.host, "planetexpress", "open: host automatically chosen");
+        window.location.hash = "";
+        start();
+    });
 });
 
 asyncTest("send message", function() {
@@ -370,23 +398,50 @@ asyncTest("close socket", function() {
     mock_peer.close();
 });
 
-test("close transport", function() {
+asyncTest("logout", function() {
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        var cmd = JSON.parse(payload);
+        if (cmd.command == "logout") {
+            mock_peer.close("disconnected");
+            strictEqual(cmd.disconnect, true, "logout: disconnect set");
+        }
+    });
+
     var channel = cockpit.channel({ });
     var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
-        equal(options.reason, "disconnected", "close-transport: received reason");
+        equal(options.reason, "disconnected", "logout transport: received reason");
+        strictEqual(channel.valid, false, "logout transport: channel is invalid");
+        channel = null;
+        if (channel == null && channelb == null)
+            start();
     });
 
     $(channelb).on("close", function(event, options) {
-        equal(options.reason, "disconnected", "close-transport: received reason");
+        equal(options.reason, "disconnected", "logout transport: received reason");
+        strictEqual(channelb.valid, false, "logout transport: other channel invalid");
+        channelb = null;
+        if (channel == null && channelb == null)
+            start();
     });
 
-    cockpit.transport.close();
-    strictEqual(cockpit.transport, null, "close-transport: clears transport");
-    strictEqual(channel.valid, false, "close-transport: channel is invalid");
-    strictEqual(channelb.valid, false, "close-transport: other channel invalid");
+    cockpit.logout(false);
 });
+
+asyncTest("droppriv", function() {
+    expect(1);
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        var cmd = JSON.parse(payload);
+        if (cmd.command == "logout") {
+            strictEqual(cmd.disconnect, false, "droppriv: disconnect not set");
+            start();
+        }
+    });
+
+    cockpit.drop_privileges();
+});
+
 
 asyncTest("send after close", function() {
     expect(1);
@@ -425,6 +480,7 @@ asyncTest("ignore other commands", function() {
     }, 50);
 });
 
+window.location.hash = "";
 QUnit.start();
 
 </script>

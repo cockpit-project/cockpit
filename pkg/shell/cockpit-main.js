@@ -569,10 +569,7 @@ cockpit.confirm = function confirm(title, body, action_text) {
 
 $(function() {
     $(".cockpit-deauthorize-item a").on("click", function(ev) {
-        /* Ensure cockpit.transport is not null */
-        var channel = cockpit.channel({ "payload": "null" });
-        cockpit.transport.logout(false);
-        channel.close();
+        cockpit.drop_privileges(false);
         $(".cockpit-deauthorize-item").addClass("disabled");
         $(".cockpit-deauthorize-item a").off("click");
 
@@ -586,29 +583,6 @@ $(function() {
     $('#cockpit-change-passwd').toggle(is_root);
     $('.cockpit-deauthorize-item').toggle(!is_root);
 });
-
-var expecting_disconnect = false;
-
-function expect_disconnect() {
-    expecting_disconnect = true;
-    cockpit.set_watched_client(null);
-}
-
-cockpit.expecting_disconnect = function () {
-    return expecting_disconnect;
-};
-
-$(window).on('beforeunload', expect_disconnect);
-
-cockpit.logout = function logout(reason) {
-    var channel = cockpit.channel({ "payload": "null" });
-    $(channel).on("close", function() {
-        sessionStorage.setItem("logout-intent", "explicit");
-        window.location.reload(true);
-    });
-    expect_disconnect();
-    cockpit.transport.logout(true);
-};
 
 cockpit.go_login_account = function go_login_account() {
     cockpit.go_server("localhost",

@@ -26,7 +26,7 @@
     <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
     <script type="text/javascript" src="../../tools/qunit-config.js"></script>
 
-    <script type="text/javascript" src="spawn.js"></script>
+    <script type="text/javascript" src="cockpit.js"></script>
   </head>
   <body>
     <h1 id="qunit-header">Spawn Tests</h1>
@@ -173,7 +173,7 @@ asyncTest("string command", function() {
         start();
     });
 
-    cockpit.spawn("/the/path", "hostname");
+    cockpit.spawn("/the/path", { "host": "hostname" });
 });
 
 asyncTest("channel options", function() {
@@ -191,8 +191,8 @@ asyncTest("channel options", function() {
     });
 
     /* Don't care about the result ... */
-    var options = { "extra-option": "zerogjuggs" };
-    cockpit.spawn(["/the/path", "arg"], "the-other-host.example.com", options);
+    var options = { "extra-option": "zerogjuggs", "host": "the-other-host.example.com" };
+    cockpit.spawn(["/the/path", "arg"], options);
 });
 
 asyncTest("streaming", function() {
@@ -250,7 +250,7 @@ asyncTest("with status", function() {
 
     cockpit.spawn("/unused").
         fail(function(ex) {
-            equal(ex.problem, "internal-error", "with status got problem");
+            strictEqual(ex.problem, null, "with status got null problem");
             ok(isNaN(ex.exit_signal), "with status got no signal");
             strictEqual(ex.exit_status, 5, "with status got status");
         }).
@@ -270,7 +270,7 @@ asyncTest("with signal", function() {
 
     cockpit.spawn("/unused").
         fail(function(ex) {
-            equal(ex.problem, "internal-error", "with signal got problem");
+            strictEqual(ex.problem, null, "with signal got null problem");
             strictEqual(ex.exit_signal, "TERM", "with signal got signal");
             ok(isNaN(ex.exit_status), "with signal got no status");
         }).

@@ -12,10 +12,18 @@ base_DATA = \
 	pkg/base/manifest.json \
 	$(NULL)
 
+base_TESTS = \
+	 pkg/base/test-chan.html \
+	 pkg/base/test-spawn.html \
+	 $(NULL)
+
+TESTS += $(base_TESTS)
+
 CLEANFILES += \
 	pkg/base/cockpit.min.js \
 	$(NULL)
 
 EXTRA_DIST += \
 	$(base_DATA) \
+	$(base_TESTS) \
 	$(NULL)

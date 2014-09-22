@@ -25,7 +25,7 @@
  *   @machine: optional, a host name of the machine to connect to
  *   @options: optional, a plain object of additional channel options
  *   Opens a REST JSON client and can be used with the following operations. These
- *   requests travel over the channels provided by channel.js.
+ *   requests travel over the channels provided by cockpit.js.
  *   Returns: a new Rest() object, see below
  *
  * Rest.get(path, params)

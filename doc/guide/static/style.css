@@ -1,0 +1,127 @@
+@import url("gtk-doc.css");
+
+TABLE.navigation {
+	background-color: #238b49 !important;
+	border-width: 0 !important;
+	color: white;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	height: 4em !important;
+}
+
+TABLE.navigation TH {
+	font-size: 30pt !important;
+	font-weight: normal;
+	text-align: left !important;
+	padding-left: 10pt;
+}
+
+TABLE.navigation TH:first-child {
+	padding-left: 40pt;
+}
+
+.shortcuts {
+	color: white !important;
+}
+
+.shortcuts a {
+	color: white !important;
+	font-family: Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+}
+
+P.title {
+	font-size: 30pt !important;
+}
+
+.warning .title {
+	font-weight: bold !important;
+	left: 0px;
+}
+
+BODY {
+	padding-top: 5.5em !important;
+	margin: 0px;
+}
+
+
+/* Target all Firefox, since firefox has bug wrt TABLE + position: fixed */
+@-moz-document url-prefix() {
+	TABLE.navigation { position: static !important; }
+	BODY { padding-top: 0 !important; }
+}
+
+P.releaseinfo {
+	margin: 1em;
+}
+
+DIV.toc {
+	margin: 1em;
+}
+
+DIV.book,
+DIV.refentry,
+DIV.chapter,
+DIV.index,
+DIV.footer,
+DIV.section,
+DIV.part {
+	font-family: Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+	font-size: 9.5pt;
+	line-height: 150%;
+}
+
+BODY > DIV.footer,
+BODY > DIV.part {
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+BODY > DIV.refentry,
+BODY > DIV.chapter,
+BODY > DIV.index,
+BODY > DIV.section {
+	margin-left: 3em;
+	margin-right: 1em;
+}
+
+DIV.section {
+	margin-top: 3em;
+}
+
+DIV.variablelist TABLE {
+	font-size: 9.5pt;
+	line-height: 150%;
+}
+
+DIV.refsect1,
+DIV.refsect2,
+DIV.refnamediv,
+DIV.refsynopsisdiv {
+	margin-bottom: 2em !important;
+}
+
+H2 {
+	position: relative;
+	left: -1em;
+	font-weight: normal !important;
+}
+
+H3 {
+	position: relative;
+	left: -1em;
+	font-weight: normal !important;
+}
+
+DD > DL {
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+}
+
+PRE.screen {
+	border: solid 1px #729fcf;
+	padding: 0.5em;
+	background: #e6f3ff;
+}
+
+CODE.option {
+	white-space: nowrap;
+}

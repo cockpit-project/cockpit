@@ -130,8 +130,42 @@ clean-local:
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
 
+uninstall-local:: uninstall-doc-local
+	@true
+
+if ENABLE_DOC
+
 include doc/Makefile-doc.am
+include doc/guide/Makefile-guide.am
 include doc/man/Makefile-man.am
+
+dist-hook: guide/index.html
+	$(MKDIR_P) $(distdir)/guide
+	cp $(builddir)/guide/* $(distdir)/guide
+
+noinst_DATA += guide/index.html
+
+install-data-local:
+	$(MKDIR_P) $(DESTDIR)$(htmldir)
+	$(INSTALL_DATA) $(builddir)/guide/* $(DESTDIR)$(htmldir)
+
+uninstall-doc-local:
+	rm -rf $(DESTDIR)$(htmldir)
+
+distcheck-hook:
+	@true
+
+else
+
+uninstall-doc-local:
+	@true
+distcheck-hook:
+	@echo "*** doc must be enabled (ie: --enable-doc) in order to make distcheck"
+dist-hook:
+	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist"
+
+endif
+
 include modules/shell/Makefile-shell.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am

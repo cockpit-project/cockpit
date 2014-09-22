@@ -25,6 +25,7 @@ EXTRA_DIST += \
 	$(appdata_in_files) \
 	$(desktop_in_files) \
 	$(pixmap_DATA) \
+	doc/version.in \
 	$(NULL)
 
 # Require that this directory exists
@@ -32,7 +33,7 @@ BUILT_SOURCES += doc/.dirstamp
 doc/.dirstamp:
 	$(AM_V_GEN) $(MKDIR_P) doc && : > doc/.dirstamp
 
-render-images::
+render-doc-images:
 	 inkscape --without-gui --export-area-page \
 		--export-width=1280 --export-height=960 \
 		--export-png=$(srcdir)/doc/cockpit-transport.png \

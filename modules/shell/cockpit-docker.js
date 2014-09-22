@@ -264,17 +264,22 @@ function setup_for_failure(page, client) {
 
     function show_failure(ex) {
         var msg;
+        var show_start = false;
         console.warn(ex);
 
         if (typeof ex == "string")
             msg = ex;
-        else if (ex.problem == "not-found")
+        else if (ex.problem == "not-found") {
             msg = _("Docker is not installed or activated on the system");
-        else if (ex.problem == "not-authorized")
+            show_start = true;
+        } else if (ex.problem == "not-authorized")
             msg = _("Not authorized to access Docker on this system");
         else
             msg = F(_("Can't connect to Docker: %{error}"), { error: ex.toString() });
         $("#containers-failure-message").text(msg);
+
+        $("#containers-failure-start").toggle(show_start);
+        $("#containers-failure-retry").toggle(!show_start);
 
         $page.children().hide();
         $failure.show();
@@ -291,6 +296,15 @@ function setup_for_failure(page, client) {
          * and we don't need to show it here. */
         if (ex.problem != "disconnected")
             show_failure(ex, page);
+    });
+
+    $('#containers-failure-retry').on('click.failure', function () {
+        client.close();
+        client.connect().
+            done(function () {
+                hide_failure();
+                page.show();
+            });
     });
 
     $('#containers-failure-start').on('click.failure', function () {

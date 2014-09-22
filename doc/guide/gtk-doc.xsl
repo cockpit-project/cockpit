@@ -20,6 +20,7 @@
   <!-- change some parameters -->
   <!-- http://docbook.sourceforge.net/release/xsl/current/doc/html/index.html -->
   <xsl:param name="toc.section.depth">2</xsl:param>
+  <xsl:param name="generate.section.toc.level" select="0"></xsl:param>
   <xsl:param name="generate.toc">
     book	toc
     chapter toc
@@ -35,9 +36,11 @@
   <xsl:param name="chunk.fast" select="1"/>
   <xsl:param name="chunk.quietly" select="1"/>
   <xsl:param name="chunk.section.depth" select="0"/>
+  <xsl:param name="chunk.first.sections" select="1"/>
 
   <xsl:param name="default.encoding" select="'UTF-8'"/>
   <xsl:param name="chapter.autolabel" select="0"/>
+  <xsl:param name="reference.autolabel" select="0"/>
   <xsl:param name="use.id.as.filename" select="1"/>
   <xsl:param name="html.ext" select="'.html'"/>
   <xsl:param name="refentry.generate.name" select="0"/>

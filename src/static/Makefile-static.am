@@ -1,4 +1,14 @@
 
+lib_FILES = \
+	lib/jquery.v2.1.0.js \
+	lib/jquery.v2.1.0.min.js \
+	lib/jquery-flot.v1.1.js \
+	lib/bootstrap-with-select.v3.0.3.js \
+	lib/bootstrap-with-select.v3.0.3.min.js \
+	lib/attrchange.js \
+	lib/term.js \
+	$(NULL)
+
 staticdir = $(datadir)/cockpit/static
 static_DATA = \
 	src/static/index.html \
@@ -8,14 +18,7 @@ static_DATA = \
 
 staticcachedir = $(datadir)/cockpit/static
 staticcache_DATA = \
-	lib/jquery.v2.1.0.js \
-	lib/jquery.v2.1.0.min.js \
-	lib/jquery-flot.v1.1.js \
-	lib/bootstrap-with-select.v3.0.3.js \
-	lib/bootstrap-with-select.v3.0.3.min.js \
 	lib/patternfly.x1.css \
-	lib/attrchange.v0.js \
-	lib/term.v0.js \
 	$(NULL)
 
 staticfontsdir = $(staticdir)/fonts
@@ -91,6 +94,7 @@ $(static_CHECKSUMS): $(staticcache_DATA) $(staticfonts_DATA) $(staticimages_DATA
 		$(staticcache_DATA) $(staticfonts_DATA) $(staticimages_DATA)
 
 EXTRA_DIST += \
+	$(lib_FILES) \
 	$(static_DATA) \
 	$(staticcache_DATA) \
 	$(staticfonts_DATA) \

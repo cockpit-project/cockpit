@@ -282,22 +282,16 @@ Cockpit can perform single sign on authentication via Kerberos. To test and
 work on this feature, you must have a domain on your network. See section
 above if you do not.
 
-On the machine running Cockpit, make sure you can get a kerberos ticket for
-your domain, and check that everything is working.
+Use the following guide to configure things, with more troubleshooting advice
+below:
 
-    $ kinit admin@COCKPIT.LAN
-    Password for admin@COCKPIT.LAN
+http://files.cockpit-project.org/guide/sso.html
 
 **BUG:** The host name of the computer Cockpit is running on should end with
 the domain name. If it does not, then rename the computer Cockpit is running on:
 [realmd bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144343)
 
     $ sudo hostnamectl set-hostname my-server.domain.com
-
-To use single sign on, the computer that Cockpit is running on must be joined
-to the domain. To do this you can run a command like the following:
-
-    $ sudo realm join cockpit.lan
 
 **BUG:** If your domain is an IPA domain, then you need to explictly add a service
 before Cockpit can be used with Single Sign on. The following must be done on
@@ -313,22 +307,6 @@ the computer running Cockpit.
             --data '{"params": [["HTTP/my-server.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false}], "method": "service_add", "id": 0}'
     # ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/my-server.cockpit.lan \
             -k /etc/krb5.keytab
-
-**BUG:** At this point you need to setup your client browser to perform Single Sign
-On against the domain. On your client machine, with your web browser.
-[firefox bug](https://bugzilla.redhat.com/show_bug.cgi?id=1144358)
-
-For firefox, change the following setting in your `about:config` page:
-
-    network.negotiate-auth.trusted-uris       .cockpit.lan
-
-For chrome you need to quite your browser completely, and then run it like this:
-
-    $ google-chrome --auth-server-whitelist=*cockpit.lan
-
-Make sure you have a kerberos ticket:
- 
-    $ kinit admin@COCKPIT.LAN
 
 Now when you go to your cockpit instance you should be able to log in without
 authenticating. Make sure to use the full hostname that you set above, the one

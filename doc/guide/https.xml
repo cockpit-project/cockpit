@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="https">
+  <title>SSL/TLS Usage</title>
+
+  <para>Cockpit usually requires that web browsers communicate with it using HTTPS,
+    for security reasons.</para>
+
+  <section id="https-required">
+    <title>HTTPS Requirement</title>
+
+    <para>Cockpit listens for both HTTP and HTTPS connections on the same port, by
+      default 9090. If an HTTP connection is made, Cockpit will redirect that
+      connection to HTTPS. There are some exceptions:</para>
+
+    <itemizedlist>
+      <listitem><para>If an HTTP connection comes from <code>127.0.0.0/8</code>, then
+        Cockpit will allow communication without redirecting to HTTPS.</para></listitem>
+      <listitem><para>Certain URLs, like <code>/ping</code> are not required to use
+        HTTPS.</para></listitem>
+    </itemizedlist>
+  </section>
+    
+  <section id="https-certificates">
+    <title>Certificates</title>
+
+    <para>Cockpit will load a certificate from the <code>/etc/cockpit/ws-certs.d</code>
+      directory. It will use the first file with a <code>.cert</code> extension in
+      alphabetical order.</para>
+
+    <para>If no certificate is found, a self-signed certificate is created.</para>
+
+  </section>
+
+</chapter>

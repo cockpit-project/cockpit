@@ -383,6 +383,10 @@ cockpit_ssh_authenticate (CockpitSshData *data)
       g_free (description);
       problem = "not-authorized";
     }
+  else if (!password && gsscreds == GSS_C_NO_CREDENTIAL)
+    {
+      problem = "no-forwarding";
+    }
   else
     {
       problem = "not-authorized";

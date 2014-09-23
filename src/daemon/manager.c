@@ -831,6 +831,7 @@ handle_shutdown (CockpitManager *object,
     return TRUE;
 
   if (run_cmd_for_invocation (invocation, NULL,
+                              "pkexec",
                               "shutdown",
                               (strcmp (arg_kind, "shutdown") == 0 ? "--poweroff" : "--reboot"),
                               arg_when,
@@ -848,7 +849,7 @@ handle_cancel_shutdown (CockpitManager *object,
   if (!auth_check_sender_role (invocation, COCKPIT_ROLE_ADMIN))
     return TRUE;
 
-  if (run_cmd_for_invocation (invocation, NULL, "shutdown", "-c", NULL))
+  if (run_cmd_for_invocation (invocation, NULL, "pkexec", "shutdown", "-c", NULL))
     cockpit_manager_complete_cancel_shutdown (object, invocation);
 
   return TRUE;

@@ -155,6 +155,9 @@ uninstall-doc-local:
 distcheck-hook:
 	@true
 
+upload-doc: guide/index.html
+	rsync -Hvax guide/./ files.cockpit-project.org:/srv/guide/./
+
 else
 
 uninstall-doc-local:
@@ -163,6 +166,8 @@ distcheck-hook:
 	@echo "*** doc must be enabled (ie: --enable-doc) in order to make distcheck"
 dist-hook:
 	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist"
+upload-doc:
+	@echo "*** doc must be enabled (ie: --enable-doc) in order to make upload-doc"
 
 endif
 

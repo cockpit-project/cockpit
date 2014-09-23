@@ -51,13 +51,6 @@ class TestNetworking(MachineCase):
         # the connection with nmcli so that NetworkManager settles
         # down.
 
-        # TODO: Make this work with non-root
-        #
-        # See https://bugzilla.gnome.org/show_bug.cgi?id=707983 for
-        # one issue.
-
-        b.default_user = "root"
-
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)
 
@@ -105,10 +98,6 @@ class TestNetworking(MachineCase):
         b = self.browser
         m = self.machine
 
-        # TODO: Make this work with non-root
-
-        b.default_user = "root"
-
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)
 
@@ -143,10 +132,6 @@ class TestNetworking(MachineCase):
     def testBridge(self):
         b = self.browser
         m = self.machine
-
-        # TODO: Make this work with non-root
-
-        b.default_user = "root"
 
         self.login_and_go("networking")
         b.wait_in_text("#networking-interfaces", m.address)

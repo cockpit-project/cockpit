@@ -43,6 +43,11 @@ class TestRoles(MachineCase):
         b.wait_page("server")
         b.wait_text('#content-user-name', 'User')
 
+        # HACK: Logging in as "user" will try to create a default
+        # /var/lib/cockpit/machines file, but this will fail.
+        # https://github.com/cockpit-project/cockpit/issues/1248
+        self.allow_journal_messages("Can't write /var/lib/cockpit/machines: Failed to create file '/var/lib/cockpit/machines\\..*': Permission denied")
+
         # change its own name
         b.click('#content-user-name')
         b.click('a[onclick*="cockpit.go_login_account"]')
@@ -55,7 +60,7 @@ class TestRoles(MachineCase):
         b.go("accounts&account?id=admin")
         b.wait_page("account")
         b.wait_text("#account-user-name", "admin")
-        b.set_val('#account-real-name', "Administratorrrr\n")
+        b.set_val('#account-real-name', "Administratorrrr")
         b.wait_popup("error-popup")
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
@@ -63,15 +68,14 @@ class TestRoles(MachineCase):
         # Add role from the outside (and wait for it to stick)
         b.go("accounts&account?id=user")
         b.wait_page("account")
-        m.execute("usermod -a -G cockpit-user-admin user")
-        b.wait_text("#account-roles", "User Account Administrator")
+        m.execute("usermod -a -G wheel user")
+        b.wait_text("#account-roles", "Server Administrator")
 
         # Try to change admins name again
         b.go("accounts&account?id=admin")
         b.wait_page("account")
         b.wait_text("#account-user-name", "admin")
-        b.set_val('#account-real-name', "Administratorrrr\n")
+        b.set_val('#account-real-name', "Administratorrrr")
         b.wait_in_text('#content-loc-trail', "Administratorrr")
 
-# TODO: This doesn't work as non-root
-# test_main()
+test_main()

@@ -435,3 +435,4 @@ doubt use "internal-error".
  * "terminated"
  * "timeout"
  * "unknown-hostkey"
+ * "no-forwarding"

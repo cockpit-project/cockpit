@@ -334,6 +334,8 @@ function client_error_description (error) {
         return _("Connection has timed out.");
     else if (error == "no-agent")
         return _("The management agent is not installed.");
+    else if (error == "no-forwarding")
+        return _("Cannot forward login credentials");
     else
         return _("Server has closed the connection.");
 }

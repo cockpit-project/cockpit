@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="embedding">
+  <title>Embedding Cockpit</title>
+
+  <para>Cockpit can be embedded in other projects.</para>
+
+  <warning>
+    <para>None of the embedding APIs are completely stable at this time.</para>
+
+    <para>In addition, any APIs or behavior not explicitly documented here is an
+      internal API and can be changed at any time.</para>
+  </warning>
+
+  <section id="embedding-iframe">
+    <title>Using Frames</title>
+
+    <para>Cockpit can be embedded into a larger web page as a frame.  You can
+      control some aspects of Cockpit via the URL. Here's an example:</para>
+
+    <programlisting language="html"><![CDATA[
+<html>
+  <head>
+    <title>Embedded Cockpit</title>
+  </head>
+  <body>
+    This is Cockpit.
+    <br/>
+    <iframe width="800px" height="600px"
+            src="https://sunflower:9090/#server"/>
+  </body>
+</html>
+]]></programlisting>
+
+  </section>
+
+  <section id="embedding-urls">
+    <title>Cockpit URLs</title>
+
+    <para>To confine Cockpit to a single machine, you can omit the "Hosts" element in the
+      breadcrumb trail. The user then has no obvious way to navigate to a different machine.</para>
+
+    <para>To achieve this, use a URL like this:</para>
+
+<programlisting>
+https://server.example.com:9090/#server
+</programlisting>
+
+  </section>
+
+  <section id="embedding-cors">
+    <title>Pinging Cockpit</title>
+
+    <para>When embedding Cockpit, it may be necessary to check whether Cockpit is available on
+      a server before displaying the embedded Cockpit frame.</para>
+
+    <para>To do this perform a <code>/ping</code> requset to Cockpit. This is a simple HTTP
+      GET request. It returns the following:</para>
+
+<programlisting>
+GET: https://server.example.com:9090/ping
+200 OK: { "service": "cockpit" }
+</programlisting>
+
+    <para>The <code>/ping</code> request allows
+      <ulink url="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">Cross Origin Resource Sharing</ulink>
+      headers and as such can be performed from Javascript code with any origin. The reqeust can also be
+      made via plain HTTP without SSL.</para>
+
+    <para>It is by design that no further information is present in the response.</para>
+    
+  </section>
+
+</chapter>

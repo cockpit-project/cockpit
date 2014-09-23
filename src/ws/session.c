@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#include "config.h"
 
 #include <assert.h>
 #include <err.h>
@@ -584,11 +584,16 @@ out:
 
   if (caps & GSS_C_DELEG_FLAG && client != GSS_C_NO_CREDENTIAL)
     {
+#ifdef HAVE_GSS_IMPORT_CRED
       major = gss_export_cred (&minor, client, &output);
       if (GSS_ERROR (major))
         warnx ("couldn't export gssapi credentials: %s", gssapi_strerror (major, minor));
       else if (output.value)
         write_auth_hex ("gssapi-creds", output.value, output.length);
+#else
+      /* cockpit-ws will complain for us, if they're ever used */
+      write_auth_hex ("gssapi-creds", (void *)"", 0);
+#endif
     }
 
   write_auth_end ();

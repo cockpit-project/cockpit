@@ -445,3 +445,9 @@ daemon_get_object_manager (Daemon *daemon)
   g_return_val_if_fail (IS_DAEMON (daemon), NULL);
   return daemon->object_manager;
 }
+
+StorageProvider *
+daemon_get_storage_provider (Daemon *daemon)
+{
+  return daemon->storage_provider;
+}

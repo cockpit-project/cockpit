@@ -732,21 +732,62 @@ block_is_unused_walker (UDisksClient *client,
                         gpointer user_data,
                         GError **error)
 {
-  const gchar *device_file;
-  int fd;
-
   if (is_leaf)
     {
-      device_file = udisks_block_get_device (block);
-      fd = open (device_file, O_RDONLY | O_EXCL);
-      if (fd < 0)
+      Daemon *daemon = daemon_get ();
+      StorageProvider *provider = daemon_get_storage_provider (daemon);
+      GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (daemon);
+      GDBusObjectManager *object_manager = G_DBUS_OBJECT_MANAGER (object_manager_server);
+
+      CockpitObject *cockpit_object =
+        COCKPIT_OBJECT (storage_provider_lookup_for_udisks_block (provider, block));
+
+      if (cockpit_object)
         {
-          g_set_error (error, UDISKS_ERROR, UDISKS_ERROR_FAILED,
-                       "Error opening device %s: %m",
-                       device_file);
-          return FALSE;
+          CockpitStorageBlock *cockpit_block = cockpit_object_peek_storage_block (cockpit_object);
+          if (cockpit_block)
+            {
+              const gchar *const *mounted_at = cockpit_storage_block_get_mounted_at (cockpit_block);
+              if (mounted_at && mounted_at[0])
+                {
+                  g_set_error (error, UDISKS_ERROR, UDISKS_ERROR_FAILED,
+                               "Device %s is in use: mounted at %s",
+                               cockpit_storage_block_get_device (cockpit_block),
+                               mounted_at[0]);
+                  return FALSE;
+                }
+
+              const gchar *mdraid_member = cockpit_storage_block_get_mdraid_member (cockpit_block);
+              if (mdraid_member && strcmp (mdraid_member, "/") != 0)
+                {
+                  CockpitObject *raid_object =
+                    COCKPIT_OBJECT (g_dbus_object_manager_get_object (object_manager, mdraid_member));
+                  CockpitStorageMDRaid *raid =
+                    cockpit_object_peek_storage_mdraid (raid_object);
+
+                  g_set_error (error, UDISKS_ERROR, UDISKS_ERROR_FAILED,
+                               "Device %s is in use: member of RAID device %s",
+                               cockpit_storage_block_get_device (cockpit_block),
+                               cockpit_storage_mdraid_get_name (raid));
+                  return FALSE;
+                }
+
+              const gchar *pv_group = cockpit_storage_block_get_pv_group (cockpit_block);
+              if (pv_group && strcmp (pv_group, "/") != 0)
+                {
+                  CockpitObject *group_object =
+                    COCKPIT_OBJECT (g_dbus_object_manager_get_object (object_manager, pv_group));
+                  CockpitStorageVolumeGroup *group =
+                    cockpit_object_peek_storage_volume_group (group_object);
+
+                  g_set_error (error, UDISKS_ERROR, UDISKS_ERROR_FAILED,
+                               "Device %s is in use: physical volume of %s",
+                               cockpit_storage_block_get_device (cockpit_block),
+                               cockpit_storage_volume_group_get_name (group));
+                  return FALSE;
+                }
+            }
         }
-      close (fd);
     }
 
   return TRUE;

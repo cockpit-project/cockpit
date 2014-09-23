@@ -808,14 +808,14 @@ class TestStorage(MachineCase):
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
         b.wait_popup("error-popup")
-        b.wait_in_text("#error-popup-message", "Device or resource busy")
+        b.wait_in_text("#error-popup-message", "is in use: mounted at")
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
 
         self.content_action(1, "Delete")
         self.confirm()
         b.wait_popup("error-popup")
-        b.wait_in_text("#error-popup-message", "Device or resource busy")
+        b.wait_in_text("#error-popup-message", "is in use: mounted at")
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
 
@@ -824,7 +824,7 @@ class TestStorage(MachineCase):
         b.click("#format-disk-format")
         b.wait_popdown("storage_format_disk_dialog")
         b.wait_popup("error-popup")
-        b.wait_in_text("#error-popup-message", "Device or resource busy")
+        b.wait_in_text("#error-popup-message", "is in use: mounted at")
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
 

@@ -139,6 +139,33 @@ accounts_update_users (Accounts *accounts)
 }
 
 static void
+add_role_if_exists (GVariantBuilder *bob,
+                    const char *group,
+                    const char *description)
+{
+  if (getgrnam (group))
+    g_variant_builder_add (bob, "(ss)", group, description);
+}
+
+static void
+accounts_update_roles (Accounts *accounts)
+{
+  /* A "role" is a POSIX group plus localized descriptions.
+     Eventually, this will be configurable by dropping files into a
+     directory, but for now we just hard code some to get started.
+  */
+
+  GVariantBuilder roles_builder;
+  g_variant_builder_init (&roles_builder, G_VARIANT_TYPE ("a(ss)"));
+  add_role_if_exists (&roles_builder, "wheel", "Server Administrator");
+  add_role_if_exists (&roles_builder, "cockpit-user-admin", "User Account Administrator");
+  add_role_if_exists (&roles_builder, "cockpit-realm-admin", "Realm Administrator");
+  add_role_if_exists (&roles_builder, "cockpit-storage-admin", "Storage Administrator");
+  add_role_if_exists (&roles_builder, "docker", "Container Administrator");
+  cockpit_accounts_set_roles (COCKPIT_ACCOUNTS (accounts), g_variant_builder_end (&roles_builder));
+}
+
+static void
 on_etc_group_changed (GFileMonitor *monitor,
                       GFile *file,
                       GFile *other_file,
@@ -146,6 +173,7 @@ on_etc_group_changed (GFileMonitor *monitor,
                       gpointer user_data)
 {
   Accounts *accounts = user_data;
+  accounts_update_roles (accounts);
   accounts_update_users (accounts);
 }
 
@@ -170,15 +198,6 @@ um_is_loaded (Accounts *accounts)
 }
 
 static void
-add_role_if_exists (GVariantBuilder *bob,
-                    const char *group,
-                    const char *description)
-{
-  if (getgrnam (group))
-    g_variant_builder_add (bob, "(ss)", group, description);
-}
-
-static void
 accounts_init (Accounts *accounts)
 {
   accounts->act_user_to_account = g_hash_table_new_full (g_direct_hash,
@@ -197,19 +216,7 @@ accounts_init (Accounts *accounts)
     g_signal_connect (accounts->etc_group_monitor, "changed",
                       G_CALLBACK (on_etc_group_changed), accounts);
 
-  /* A "role" is a POSIX group plus localized descriptions.
-     Eventually, this will be configurable by dropping files into a
-     directory, but for now we just hard code some to get started.
-  */
-
-  GVariantBuilder roles_builder;
-  g_variant_builder_init (&roles_builder, G_VARIANT_TYPE ("a(ss)"));
-  add_role_if_exists (&roles_builder, "wheel", "Server Administrator");
-  add_role_if_exists (&roles_builder, "cockpit-user-admin", "User Account Administrator");
-  add_role_if_exists (&roles_builder, "cockpit-realm-admin", "Realm Administrator");
-  add_role_if_exists (&roles_builder, "cockpit-storage-admin", "Storage Administrator");
-  add_role_if_exists (&roles_builder, "docker", "Container Administrator");
-  cockpit_accounts_set_roles (COCKPIT_ACCOUNTS (accounts), g_variant_builder_end (&roles_builder));
+  accounts_update_roles (accounts);
 }
 
 static void

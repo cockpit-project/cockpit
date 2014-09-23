@@ -170,6 +170,10 @@ AC_CHECK_LIB(crypt, crypt_r, [ ],
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
 REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lcrypt"
 
+# gssapi
+AC_CHECK_LIB(gssapi_krb5, gss_import_cred,
+  [AC_DEFINE_UNQUOTED(HAVE_GSS_IMPORT_CRED, 1, Whether gss_import_cred is available)])
+
 # systemd
 AC_ARG_WITH([systemdsystemunitdir],
             AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),

@@ -206,8 +206,6 @@ cockpit_creds_dup_gssapi (CockpitCreds *creds)
 {
   gss_cred_id_t cred = GSS_C_NO_CREDENTIAL;
   gss_buffer_desc buf;
-  OM_uint32 minor;
-  OM_uint32 major;
 
   g_return_val_if_fail (creds != NULL, NULL);
 
@@ -221,15 +219,27 @@ cockpit_creds_dup_gssapi (CockpitCreds *creds)
       return GSS_C_NO_CREDENTIAL;
     }
 
-  major = gss_import_cred (&minor, &buf, &cred);
-  g_free (buf.value);
-
-  if (GSS_ERROR (major))
+#ifdef HAVE_GSS_IMPORT_CRED
     {
-      g_critical ("couldn't parse gssapi credentials (%u)", major);
-      return GSS_C_NO_CREDENTIAL;
+      OM_uint32 minor;
+      OM_uint32 major;
+      major = gss_import_cred (&minor, &buf, &cred);
+
+      if (GSS_ERROR (major))
+        {
+          g_critical ("couldn't parse gssapi credentials (%u)", major);
+          cred = GSS_C_NO_CREDENTIAL;
+        }
     }
 
+#else /* !HAVE_GSS_IMPORT_CRED */
+
+  g_message ("unable to forward delegated gssapi kerberos credentials because the "
+             "version of krb5 on this system does not support it.");
+
+#endif
+
+  g_free (buf.value);
   return cred;
 }
 

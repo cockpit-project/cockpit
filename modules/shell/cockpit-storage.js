@@ -2547,7 +2547,7 @@ PageCreateVolumeGroup.prototype = {
         $('#create-vg-name').on('input', change_disk_count);
         $('#create-vg-name').on('input change focus', check_vg_condition);
         $('#create-vg-drives [type = "checkbox"]').on('change', change_checkbox_count);
-        $('#create-vg-drives [type = "checkbox"]').on('click', check_vg_condition);
+        $('#create-vg-drives [type = "checkbox"]').on('click change', check_vg_condition);
         $('#create-vg-name').val("");
         $('#create-vg-create').prop('disabled', true);
         $('#create-vg-drives').prop('checked', false);
@@ -2753,9 +2753,9 @@ PageFormat.prototype = {
     setup: function() {
         $("#format-format").on('click', $.proxy(this, "format"));
         $("#format-type").on('change', $.proxy(this, "update"));
-        $("#format-custom").on('keyup', $.proxy(this, "update"));
-        $("#format-passphrase").on('keyup', $.proxy(this, "update"));
-        $("#format-passphrase-2").on('keyup', $.proxy(this, "update"));
+        $("#format-custom").on('keyup change', $.proxy(this, "update"));
+        $("#format-passphrase").on('keyup change', $.proxy(this, "update"));
+        $("#format-passphrase-2").on('keyup change', $.proxy(this, "update"));
     },
 
     enter: function() {

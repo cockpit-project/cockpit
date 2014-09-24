@@ -369,15 +369,15 @@ respond_module_listing (CockpitChannel *channel)
                   manifest = read_module_manifest (directory, modules[j]);
                   if (manifest)
                     {
-                      object = json_object_new ();
                       checksum = module_checksum (directory, modules[j]);
                       if (checksum)
                         {
+                          object = json_object_new ();
                           json_object_set_string_member (object, "checksum", checksum);
+                          json_object_set_object_member (object, "manifest", manifest);
+                          json_object_set_object_member (root, modules[j], object);
                           g_free (checksum);
                         }
-                      json_object_set_object_member (object, "manifest", manifest);
-                      json_object_set_object_member (root, modules[j], object);
                     }
                 }
             }

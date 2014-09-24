@@ -46,6 +46,15 @@ static gboolean   module_checksum_directory    (GChecksum *checksum,
                                                 const gchar *directory);
 
 static gboolean
+validate_name (const gchar *name)
+{
+  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.,"
+    /* We also pass paths to this function: */ "/";
+  gsize len = strspn (name, allowed);
+  return name[len] == '\0';
+}
+
+static gboolean
 module_checksum_file (GChecksum *checksum,
                       const gchar *root,
                       const gchar *filename)
@@ -56,6 +65,12 @@ module_checksum_file (GChecksum *checksum,
   GChecksum *inner = NULL;
   GMappedFile *mapped = NULL;
   gboolean ret = FALSE;
+
+  if (!validate_name (filename))
+    {
+      g_warning ("module has an invalid path name: %s", filename);
+      goto out;
+    }
 
   path = g_build_filename (root, filename, NULL);
   if (g_file_test (path, G_FILE_TEST_IS_DIR))
@@ -291,6 +306,12 @@ read_module_manifest (const gchar *directory,
   gchar *filename;
   gsize length;
 
+  if (!validate_name (module))
+    {
+      g_warning ("module has invalid name: %s", module);
+      return NULL;
+    }
+
   filename = g_build_filename (directory, module, "manifest.json", NULL);
   if (!g_file_get_contents (filename, &contents, &length, &error))
     {
@@ -434,9 +455,16 @@ on_prepare_channel (gpointer data)
    * What this does is prevent module authors from drawing outside the
    * lines. Keeps everyone honest.
    */
-  if (strstr (path, "../") || strstr (path, "/.."))
+  if (strstr (path, "../") || strstr (path, "/..") || !validate_name (path))
     {
       g_message ("invalid 'path' used as a resource: %s", path);
+      cockpit_channel_close (channel, "protocol-error");
+      goto out;
+    }
+
+  if (!validate_name (module))
+    {
+      g_message ("invalid 'module' name: %s", module);
       cockpit_channel_close (channel, "protocol-error");
       goto out;
     }

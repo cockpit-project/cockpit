@@ -228,16 +228,16 @@ test_not_found (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, "not-found");
 }
 
-static const Fixture fixture_bad_module = {
+static const Fixture fixture_unknown_module = {
   .module = "unknown-module",
   .path = "/sub/not-found",
 };
 
 static void
-test_bad_module (TestCase *tc,
-                 gconstpointer fixture)
+test_unknown_module (TestCase *tc,
+                     gconstpointer fixture)
 {
-  g_assert (fixture == &fixture_bad_module);
+  g_assert (fixture == &fixture_unknown_module);
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
@@ -296,6 +296,23 @@ test_no_module (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, "protocol-error");
 }
 
+static const Fixture fixture_bad_module = {
+  .module = "%%module",
+  .path = "test"
+};
+
+static void
+test_bad_module (TestCase *tc,
+                 gconstpointer fixture)
+{
+  g_assert (fixture == &fixture_bad_module);
+
+  cockpit_expect_message ("invalid 'module' name: %%module");
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, "protocol-error");
+}
 
 static void
 test_bad_receive (TestCase *tc,
@@ -316,6 +333,47 @@ test_bad_receive (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, "protocol-error");
 }
 
+static const Fixture fixture_list_bad_directory = {
+    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-directory", NULL }
+};
+
+static const Fixture fixture_list_bad_file = {
+    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-file", NULL }
+};
+
+static const Fixture fixture_list_bad_name = {
+    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-module", NULL }
+};
+
+static void
+test_list_bad_name (TestCase *tc,
+                    gconstpointer fixture)
+{
+  JsonObject *control;
+  GBytes *data;
+  guint count;
+
+  cockpit_expect_warning ("module * invalid *name*");
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = combine_output (tc, &count);
+  cockpit_assert_bytes_eq (data, "", 0);
+  g_assert_cmpuint (count, ==, 0);
+  g_bytes_unref (data);
+
+  control = mock_transport_pop_control (tc->transport);
+  cockpit_assert_json_eq (control,
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"resources\": {"
+                          " \"ok\": {"
+                          "    \"checksum\": \"4795165a5164bc1d254b04d7cc04282306c39777\","
+                          "    \"manifest\" : { }"
+                          " }"
+                          "} }");
+}
+
 int
 main (int argc,
       char *argv[])
@@ -333,8 +391,8 @@ main (int argc,
               setup, test_listing, teardown);
   g_test_add ("/resource/not-found", TestCase, &fixture_not_found,
               setup, test_not_found, teardown);
-  g_test_add ("/resource/bad-module", TestCase, &fixture_bad_module,
-              setup, test_bad_module, teardown);
+  g_test_add ("/resource/unknown-module", TestCase, &fixture_unknown_module,
+              setup, test_unknown_module, teardown);
   g_test_add ("/resource/bad-receive", TestCase, &fixture_large,
               setup, test_bad_receive, teardown);
   g_test_add ("/resource/no-path", TestCase, &fixture_no_path,
@@ -343,6 +401,15 @@ main (int argc,
               setup, test_bad_path, teardown);
   g_test_add ("/resource/no-module", TestCase, &fixture_no_module,
               setup, test_no_module, teardown);
+  g_test_add ("/resource/bad-module", TestCase, &fixture_bad_module,
+              setup, test_bad_module, teardown);
+
+  g_test_add ("/resource/listing-bad-directory", TestCase, &fixture_list_bad_directory,
+              setup, test_list_bad_name, teardown);
+  g_test_add ("/resource/listing-bad-file", TestCase, &fixture_list_bad_file,
+              setup, test_list_bad_name, teardown);
+  g_test_add ("/resource/listing-bad-name", TestCase, &fixture_list_bad_name,
+              setup, test_list_bad_name, teardown);
 
   return g_test_run ();
 }

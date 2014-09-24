@@ -369,15 +369,15 @@ respond_package_listing (CockpitChannel *channel)
                   manifest = read_package_manifest (directory, packages[j]);
                   if (manifest)
                     {
-                      object = json_object_new ();
                       checksum = package_checksum (directory, packages[j]);
                       if (checksum)
                         {
+                          object = json_object_new ();
                           json_object_set_string_member (object, "checksum", checksum);
+                          json_object_set_object_member (object, "manifest", manifest);
+                          json_object_set_object_member (root, packages[j], object);
                           g_free (checksum);
                         }
-                      json_object_set_object_member (object, "manifest", manifest);
-                      json_object_set_object_member (root, packages[j], object);
                     }
                 }
             }

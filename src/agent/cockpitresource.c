@@ -27,6 +27,9 @@
 
 #include <string.h>
 
+/* Overridable from tests */
+const gchar **cockpit_agent_data_dirs = NULL; /* default */
+
 /*
  * Note that the way we construct checksums is not a stable part of our ABI. It
  * can be changed, as long as it then produces a different set of checksums
@@ -316,8 +319,8 @@ static void
 respond_package_listing (CockpitChannel *channel)
 {
   const gchar *const *directories;
+  gchar *directory = NULL;
   gchar *checksum;
-  gchar *directory;
   gchar **packages;
   JsonObject *manifest;
   JsonObject *root;
@@ -327,8 +330,9 @@ respond_package_listing (CockpitChannel *channel)
   root = json_object_new ();
 
   /* User package directory: no checksums */
-  directory = g_build_filename (g_get_user_data_dir (), "cockpit", NULL);
-  if (g_file_test (directory, G_FILE_TEST_IS_DIR))
+  if (!cockpit_agent_data_dirs)
+    directory = g_build_filename (g_get_user_data_dir (), "cockpit", NULL);
+  if (directory && g_file_test (directory, G_FILE_TEST_IS_DIR))
     {
       packages = directory_filenames (directory);
       for (j = 0; packages[j] != NULL; j++)
@@ -346,7 +350,11 @@ respond_package_listing (CockpitChannel *channel)
   g_free (directory);
 
   /* System package directories */
-  directories = g_get_system_data_dirs();
+  if (cockpit_agent_data_dirs)
+    directories = cockpit_agent_data_dirs;
+  else
+    directories = g_get_system_data_dirs ();
+
   for (i = 0; directories[i] != NULL; i++)
     {
       directory = g_build_filename (directories[i], "cockpit", NULL);

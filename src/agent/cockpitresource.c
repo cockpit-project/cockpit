@@ -46,6 +46,22 @@ static gboolean   package_checksum_directory   (GChecksum *checksum,
                                                 const gchar *directory);
 
 static gboolean
+validate_package (const gchar *name)
+{
+  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+  gsize len = strspn (name, allowed);
+  return name[len] == '\0';
+}
+
+static gboolean
+validate_path (const gchar *name)
+{
+  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.,/";
+  gsize len = strspn (name, allowed);
+  return name[len] == '\0';
+}
+
+static gboolean
 package_checksum_file (GChecksum *checksum,
                        const gchar *root,
                        const gchar *filename)
@@ -56,6 +72,12 @@ package_checksum_file (GChecksum *checksum,
   GChecksum *inner = NULL;
   GMappedFile *mapped = NULL;
   gboolean ret = FALSE;
+
+  if (!validate_path (filename))
+    {
+      g_warning ("package has an invalid path name: %s", filename);
+      goto out;
+    }
 
   path = g_build_filename (root, filename, NULL);
   if (g_file_test (path, G_FILE_TEST_IS_DIR))
@@ -291,6 +313,12 @@ read_package_manifest (const gchar *directory,
   gchar *filename;
   gsize length;
 
+  if (!validate_package (package))
+    {
+      g_warning ("package has invalid name: %s", package);
+      return NULL;
+    }
+
   filename = g_build_filename (directory, package, "manifest.json", NULL);
   if (!g_file_get_contents (filename, &contents, &length, &error))
     {
@@ -378,6 +406,10 @@ respond_package_listing (CockpitChannel *channel)
                           json_object_set_object_member (root, packages[j], object);
                           g_free (checksum);
                         }
+                      else
+                        {
+                          json_object_unref (manifest);
+                        }
                     }
                 }
             }
@@ -434,9 +466,16 @@ on_prepare_channel (gpointer data)
    * What this does is prevent package authors from drawing outside the
    * lines. Keeps everyone honest.
    */
-  if (strstr (path, "../") || strstr (path, "/.."))
+  if (strstr (path, "../") || strstr (path, "/..") || !validate_path (path))
     {
       g_message ("invalid 'path' used as a resource: %s", path);
+      cockpit_channel_close (channel, "protocol-error");
+      goto out;
+    }
+
+  if (!validate_package (package))
+    {
+      g_message ("invalid 'package' name: %s", package);
       cockpit_channel_close (channel, "protocol-error");
       goto out;
     }

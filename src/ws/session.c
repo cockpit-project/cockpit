@@ -452,7 +452,7 @@ perform_basic (void)
 }
 
 static pam_handle_t *
-perform_kerberos (void)
+perform_gssapi (void)
 {
   struct pam_conv conv = { pam_conv_func, };
   OM_uint32 major, minor;
@@ -864,7 +864,7 @@ main (int argc,
   if (strcmp (auth, "basic") == 0)
     pamh = perform_basic ();
   else if (strcmp (auth, "negotiate") == 0)
-    pamh = perform_kerberos ();
+    pamh = perform_gssapi ();
   else
     errx (2, "unrecognized authentication method: %s", auth);
 

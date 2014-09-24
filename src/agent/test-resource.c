@@ -24,6 +24,8 @@
 
 #include "common/cockpittest.h"
 
+extern const gchar **cockpit_agent_data_dirs;
+
 typedef struct {
   MockTransport *transport;
   CockpitChannel *channel;
@@ -32,6 +34,7 @@ typedef struct {
 } TestCase;
 
 typedef struct {
+  const gchar *datadirs[8];
   const gchar *module;
   const gchar *path;
 } Fixture;
@@ -63,6 +66,9 @@ setup (TestCase *tc,
 
   g_assert (fixture != NULL);
 
+  if (fixture->datadirs[0])
+    cockpit_agent_data_dirs = (const gchar **)fixture->datadirs;
+
   tc->transport = mock_transport_new ();
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_transport_closed), NULL);
 
@@ -85,6 +91,8 @@ teardown (TestCase *tc,
   g_assert (tc->channel == NULL);
 
   g_free (tc->problem);
+
+  cockpit_agent_data_dirs = NULL;
 }
 
 static GBytes *

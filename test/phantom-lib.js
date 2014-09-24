@@ -1,84 +1,162 @@
-// No magic here.
+/*
+ * These are routines used by our testing code.
+ *
+ * jQuery is not necesarily present. Don't rely on it
+ * for routine operations.
+ */
 
 function ph_init ()
 {
 }
 
+function ph_select(sel)
+{
+    if (window.$)
+        return $(sel);
+
+    if (sel.indexOf(':') != -1 ||
+        sel.indexOf('(') != -1 ||
+        sel.indexOf(')') != -1 ||
+        sel.indexOf('"') != -1 ||
+        sel.indexOf("'") != -1)
+        throw "cannot use selector without jQuery: " + sel;
+
+    if (sel.indexOf('#') === 0) {
+        var el = document.getElementById(sel.substring(1));
+        if (!el)
+            return [ ];
+        return [ el ];
+    }
+
+    var els;
+    if (sel.indexOf('.'))
+        els = document.getElementsByClassName(sel.substring(1));
+    else
+        els = document.getElementsByTagName(sel);
+    return els;
+}
+
+function ph_only(els)
+{
+    if (els.length === 0)
+        throw sel + " not found";
+    if (els.length > 1)
+        throw sel + " is ambigous";
+    return els[0];
+}
+
 function ph_find (sel)
 {
-    var $sel = $(sel);
-    if ($sel.length == 0)
-        throw sel + " not found";
-    if ($sel.length > 1)
-        throw sel + " is ambigous";
-    return $sel;
+    var els = ph_select(sel);
+    return ph_only(els);
 }
 
 function ph_val (sel)
 {
-    return ph_find(sel).val();
+    var el = ph_find(sel);
+    if (el.value === undefined)
+        throw sel + " does not have a value";
+    return el.value;
 }
 
 function ph_set_val (sel, val)
 {
-    ph_find(sel).val(val).trigger('change');
+    var el = ph_find(sel);
+    if (el.value === undefined)
+        throw sel + " does not have a value";
+    el.value = val;
+    var ev = document.createEvent("Event");
+    ev.initEvent("change", true, false);
+    el.dispatchEvent(ev);
 }
 
 function ph_has_val (sel, val)
 {
-    return ph_find(sel).val() == val;
+    return ph_val(sel) == val;
 }
 
 function ph_text (sel)
 {
-    return ph_find(sel).text();
+    var el = ph_find(sel);
+    if (el.textContent === undefined)
+        throw sel + " can not have text";
+    return el.textContent;
 }
 
 function ph_attr (sel, attr)
 {
-    return ph_find(sel).attr(attr);
+    return ph_find(sel).getAttribute(attr);
 }
 
 function ph_set_attr (sel, attr, val)
 {
-    ph_find(sel).attr(attr, val).trigger('change');
+    var el = ph_find(sel);
+    if (val === null || val === undefined)
+        el.removeAttribute(attr);
+    else
+        el.setAttribute(attr, val);
+
+    var ev = document.createEvent("Event");
+    ev.initEvent("change", true, false);
+    el.dispatchEvent(ev);
 }
 
 function ph_has_attr (sel, attr, val)
 {
-    return ph_find(sel).attr(attr) == val;
+    return ph_attr(sel, attr) == val;
 }
 
 function ph_click (sel)
 {
-    ph_find(sel).click();
+    var ev = document.createEvent("MouseEvent");
+    ev.initMouseEvent(
+            "click",
+            true /* bubble */, true /* cancelable */,
+            window, null,
+            0, 0, 0, 0, /* coordinates */
+            false, false, false, false, /* modifier keys */
+            0 /*left*/, null);
+    ph_find(sel).dispatchEvent(ev);
 }
 
 function ph_set_checked (sel, val)
 {
-    ph_find(sel).attr('checked', val).trigger('change');
+    var el = ph_find(sel);
+    if (el.checked === undefined)
+        throw sel + " is not checkable";
+    el.checked = val;
+
+    var ev = document.createEvent("Event");
+    ev.initEvent("change", true, false);
+    el.dispatchEvent(ev);
 }
 
 function ph_is_visible (sel)
 {
-    var $sel = ph_find(sel);
-    return $sel.is(':visible') && !$sel.is(':animated');
+    if (window.$) {
+        var $sel = ph_select(sel);
+        ph_only($sel);
+        return $sel.is(':visible') && !$sel.is(':animated');
+    } else {
+        var el = ph_find(sel);
+        return (el.offsetParent !== null);
+    }
 }
 
 function ph_is_present(sel)
 {
-    var $sel = $(sel);
-    return $sel.length > 0;
+    var els = ph_select(sel);
+    return els.length > 0;
 }
 
 function ph_in_text (sel, text)
 {
-    return ph_find(sel).text().indexOf(text) != -1;
+    return ph_text(sel).indexOf(text) != -1;
 }
 
 function ph_text_is (sel, text)
 {
-    return ph_find(sel).text() == text;
+    return ph_text(sel) == text;
 }
 
 function ph_go (hash)

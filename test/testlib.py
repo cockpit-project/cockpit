@@ -153,7 +153,7 @@ class Browser:
         return self.call_js_func('ph_attr', selector, attr)
 
     def set_attr(self, selector, attr, val):
-        self.call_js_func('ph_set_attr', selector, attr, val)
+        self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
     def set_checked(self, selector, val):
         self.call_js_func('ph_set_checked', selector, val)

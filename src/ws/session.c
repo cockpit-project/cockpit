@@ -205,6 +205,18 @@ build_string (char **buf,
   *size -= len;
 }
 
+static char *
+dup_string (const char *str,
+            size_t len)
+{
+  char *buf = malloc (len + 1);
+  if (!buf)
+    err (EX, "couldn't allocate memory for string");
+  memcpy (buf, str, len);
+  buf[len] = '\0';
+  return buf;
+}
+
 static const char *
 gssapi_strerror (OM_uint32 major_status,
                  OM_uint32 minor_status)
@@ -460,15 +472,14 @@ perform_gssapi (void)
   gss_cred_id_t client = GSS_C_NO_CREDENTIAL;
   gss_buffer_desc input = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc output = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc local = GSS_C_EMPTY_BUFFER;
+  gss_buffer_desc display = GSS_C_EMPTY_BUFFER;
   gss_name_t name = GSS_C_NO_NAME;
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
-  gss_buffer_desc display = { 0, NULL };
-  krb5_principal principal = NULL;
-  krb5_context krb = NULL;
+  gss_OID mech_type = GSS_C_NO_OID;
   pam_handle_t *pamh = NULL;
-  krb5_error_code code;
   OM_uint32 flags = 0;
-  char *local;
+  char *str = NULL;
   int res;
 
   server = GSS_C_NO_CREDENTIAL;
@@ -478,7 +489,7 @@ perform_gssapi (void)
   input.value = read_auth_until_eof (&input.length);
 
   major = gss_accept_sec_context (&minor, &context, server, &input,
-                                  GSS_C_NO_CHANNEL_BINDINGS, &name, NULL,
+                                  GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
                                   &output, &flags, NULL, &client);
 
   if (GSS_ERROR (major))
@@ -498,52 +509,48 @@ perform_gssapi (void)
   if (major & GSS_S_CONTINUE_NEEDED)
     goto out;
 
-  major = gss_display_name (&minor, name, &display, NULL);
-  if (GSS_ERROR (major))
+  major = gss_localname (&minor, name, mech_type, &local);
+  if (major == GSS_S_COMPLETE)
     {
-      warnx ("couldn't get gssapi display name: %s", gssapi_strerror (major, minor));
-      goto out;
-    }
+      minor = 0;
+      str = dup_string (local.value, local.length);
+      debug ("mapped gssapi name to local user '%s'", str);
 
-  code = krb5_init_context (&krb);
-  if (code != 0)
-    {
-      warnx ("couldn't initialize krb5 context: %s", krb5_get_error_message (NULL, code));
-      goto out;
-    }
-
-  code = krb5_parse_name (krb, display.value, &principal);
-  if (code != 0)
-    {
-      warnx ("couldn't parse name as kerberos principal: %s: %s", (char *)display.value,
-             krb5_get_error_message (krb, code));
-      goto out;
-    }
-
-  local = malloc (LOGIN_NAME_MAX + 1);
-  if (local == NULL)
-    errx (EX, "couldn't allocate memory for user");
-
-  code = krb5_aname_to_localname (krb, principal, LOGIN_NAME_MAX, local);
-  if (code == 0)
-    {
-      debug ("mapped kerberos principal '%s' to user '%s'", (char *)display.value, local);
-      if (getpwnam (local))
-        res = pam_start ("cockpit", local, &conv, &pamh);
+      if (getpwnam (str))
+        {
+          res = pam_start ("cockpit", str, &conv, &pamh);
+        }
       else
-        code = KRB5_LNAME_NOTRANS;
+        {
+          /* If the local user doesn't exist, pretend gss_localname() failed */
+          free (str);
+          str = NULL;
+          major = GSS_S_FAILURE;
+          minor = KRB5_NO_LOCALNAME;
+        }
     }
 
-  if (code == KRB5_LNAME_NOTRANS)
+  if (major != GSS_S_COMPLETE)
     {
-      debug ("no local user mapping for kerberos principal '%s'", (char *)display.value);
-      res = pam_start ("cockpit", display.value, &conv, &pamh);
-    }
-  else if (code != 0)
-    {
-      warnx ("couldn't map kerberos principal '%s' to user: %s",
-             (char *)display.value, krb5_get_error_message (krb, code));
-      goto out;
+      if (minor == (OM_uint32)KRB5_NO_LOCALNAME || minor == (OM_uint32)KRB5_LNAME_NOTRANS)
+        {
+          major = gss_display_name (&minor, name, &display, NULL);
+          if (GSS_ERROR (major))
+            {
+              warnx ("couldn't get gssapi display name: %s", gssapi_strerror (major, minor));
+              goto out;
+            }
+
+          str = dup_string (display.value, display.length);
+          debug ("no local user mapping for gssapi name '%s'", str);
+
+          res = pam_start ("cockpit", str, &conv, &pamh);
+        }
+      else
+        {
+          warnx ("couldn't map gssapi name to local user: %s", gssapi_strerror (major, minor));
+          goto out;
+        }
     }
 
   if (res != PAM_SUCCESS)
@@ -560,14 +567,12 @@ perform_gssapi (void)
 out:
   write_auth_result (res, user, &output);
 
-  if (krb)
-    krb5_free_context (krb);
-  if (principal)
-    krb5_free_principal (krb, principal);
   if (display.value)
     gss_release_buffer (&minor, &display);
   if (output.value)
     gss_release_buffer (&minor, &output);
+  if (local.value)
+    gss_release_buffer (&minor, &local);
   if (client != GSS_C_NO_CREDENTIAL)
     gss_release_cred (&minor, &client);
   if (server != GSS_C_NO_CREDENTIAL)
@@ -577,6 +582,7 @@ out:
   if (context != GSS_C_NO_CONTEXT)
      gss_delete_sec_context (&minor, &context, GSS_C_NO_BUFFER);
   free (input.value);
+  free (str);
 
   if (res != PAM_SUCCESS)
     exit (5);

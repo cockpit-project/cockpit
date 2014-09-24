@@ -83,7 +83,7 @@ class TestAccounts(MachineCase):
         b.set_val('#accounts-create-locked', "no")
         b.click('#account-change-roles')
         b.wait_popup('account-change-roles-dialog')
-        b.set_checked('#account-role-checkbox-wheel', 'true')
+        b.set_checked('#account-role-checkbox-wheel', True)
         b.click('#account-change-roles-apply')
         b.wait_popdown('account-change-roles-dialog')
         check("jussi" in m.execute("grep wheel /etc/group"))

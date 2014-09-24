@@ -249,6 +249,7 @@ class TestStorage(MachineCase):
         # Format it with luks
         self.content_single_action(1, "Create Partition")
         b.wait_popup("storage_format_dialog")
+        b.set_val("#format-size", "10")
         b.set_val("#format-type", "luks+ext4")
         b.set_val("#format-name", "ENCRYPTED")
         b.set_val("#format-passphrase", "maisa-artu-keke-tellu")

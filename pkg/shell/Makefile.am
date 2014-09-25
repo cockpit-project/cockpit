@@ -2,7 +2,7 @@ LINGUAS =
 
 translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
 
-cockpit_js_PARTS = \
+shell_js_PARTS = \
 	pkg/shell/polyfills.js \
 	pkg/shell/channel.js \
 	pkg/shell/dbus.js \
@@ -36,18 +36,21 @@ cockpit_js_PARTS = \
 	pkg/shell/cockpit-init.js \
 	$(NULL)
 
-cockpit.js: $(cockpit_js_PARTS)
+shell.js: $(shell_js_PARTS)
 	$(AM_V_GEN) $(RCOMPILE) -o $@ $^
 
 shelldir = $(pkgdatadir)/shell
 nodist_shell_DATA = \
-	cockpit.js \
-	cockpit.min.js \
+	shell.js \
+	shell.min.js \
 	$(NULL)
 shell_DATA = \
 	pkg/shell/cockpit.css \
 	pkg/shell/shell.html \
-	pkg/shell/release/manifest.json \
+	pkg/shell/manifest.json \
+	$(NULL)
+noinst_DATA += \
+	pkg/shell/shell.min.html \
 	$(NULL)
 
 shelllangdir = $(pkgdatadir)/shell/lang
@@ -98,12 +101,12 @@ lang/%.json : $(top_srcdir)/po/%.po
 	$(AM_V_GEN) mkdir -p lang && $(PO2JSON) -p $(top_srcdir)/po/$*.po > lang/$*.json
 
 CLEANFILES += \
-	cockpit.js \
-	cockpit.min.js \
+	shell.js \
+	shell.min.js \
 	$(NULL)
 
 EXTRA_DIST += \
-	$(cockpit_js_PARTS) \
+	$(shell_js_PARTS) \
 	$(shell_DATA) \
 	$(shellimages_DATA) \
 	$(CHECK_HTML) \

@@ -18,7 +18,13 @@
  */
 
 /*
- * TODO: We need to generalize how packages can register a function
- * to be called when ready.
+ * TODO: The shell module is a bit of a special case because it loads
+ * jquery and bootstrap into an already loaded page. We emit another 'load'
+ * event because of this.
  */
-$(cockpit.init);
+
+var ev = document.createEvent('Event');
+ev.initEvent('load', false, false);
+window.dispatchEvent(ev);
+
+cockpit.init();

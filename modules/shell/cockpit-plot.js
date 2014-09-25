@@ -122,7 +122,7 @@ function setup_plot(graph_id, resmon, data, user_options, store_samples) {
 
     function maybe_start()
     {
-        if (ready && running) {
+        if (ready && running && outer_div.width() !== 0 && outer_div.height() !== 0) {
             if (!plot) {
                 sync_divs ();
                 plot = $.plot(inner_div, data, options);

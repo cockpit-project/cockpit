@@ -747,15 +747,18 @@
           </div>
       </div>
 
+      <!-- this will be moved into a page when it is shown. -->
+      <div id="containers-failure">
+        <center>
+          <br/>
+          <div id="containers-failure-message"></div>
+          <br/>
+          <button class="btn btn-primary" id="containers-failure-start">Start Docker</button>
+          <button class="btn btn-primary" id="containers-failure-retry">Try again</button>
+        </center>
+      </div>
+
       <div id="containers" class="container-fluid">
-        <div class="alert alert-warning alert-dismissable" style="display: none;" id="containers-failure">
-          <span class="pficon-layered" style="float: left; font-size: 200%;">
-            <span class="pficon pficon-warning-triangle"></span>
-            <span class="pficon pficon-warning-exclamation"></span>
-          </span>
-          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-          <strong>Warning!</strong> <span class="alert-message"></span>
-        </div>
         <div class="row">
           <div class="col-sm-6">
             <div>Combined CPU usage<span style="float:right" id="containers-cpu-text"></span></div>

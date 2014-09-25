@@ -1,0 +1,73 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2014 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+from testlib import *
+
+class TestDocker(MachineCase):
+    def testFailure(self):
+        b = self.browser
+        m = self.machine
+
+        # Make sure Docker isn't running and go to the containers page
+        # as "root".
+
+        m.execute("systemctl stop docker.service docker.socket")
+        b.default_user = "root"
+        self.login_and_go("containers")
+
+        # Docker isn't running, but we can start it.
+
+        b.wait_visible("#containers-failure")
+        b.wait_text("#containers-failure-message", "Docker is not installed or activated on the system")
+        b.wait_visible("#containers-failure-start")
+        b.click("#containers-failure-start")
+        b.wait_not_visible("#containers-failure")
+        b.wait_visible("#containers-containers")
+
+        # Stop it again from the outside and wait for the failure.
+        # This will be a semi-obscure internal error.  Retrying will
+        # give the real failure.
+
+        m.execute("systemctl stop docker.service docker.socket")
+        b.wait_visible("#containers-failure")
+        b.wait_visible("#containers-failure-retry")
+        b.click("#containers-failure-retry")
+        b.wait_text("#containers-failure-message", "Docker is not installed or activated on the system")
+        b.wait_visible("#containers-failure-start")
+        b.click("#containers-failure-start")
+        b.wait_not_visible("#containers-failure")
+        b.wait_visible("#containers-containers")
+
+        # Login as "admin", who can't access the socket.
+
+        self.allow_restart_journal_messages()
+        b.relogin("containers", "admin")
+        b.wait_visible("#containers-failure")
+        b.wait_text("#containers-failure-message", "Not authorized to access Docker on this system")
+        b.wait_visible("#containers-failure-retry")
+
+        # Give "admin" access via the wheel group and try again
+
+        m.execute("chown root:wheel /run/docker.sock")
+        b.click("#containers-failure-retry")
+        b.wait_not_visible("#containers-failure")
+        b.wait_visible("#containers-containers")
+
+test_main()

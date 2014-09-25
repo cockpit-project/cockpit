@@ -31,7 +31,6 @@
 #include <gudev/gudev.h>
 
 #include "daemon.h"
-#include "auth.h"
 #include "manager.h"
 #include "utils.h"
 
@@ -554,11 +553,6 @@ handle_set_hostname (CockpitManager *_manager,
   Manager *manager = MANAGER (_manager);
   GError *error;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_ADMIN))
-    return TRUE;
-
-  /* TODO: validate that passed @arg_hostname is not malformed (e.g. only ASCII etc.) */
-
   error = NULL;
   if (!g_dbus_proxy_call_sync (manager->hostname1_proxy,
                                "SetPrettyHostname",
@@ -642,9 +636,6 @@ handle_set_avatar_data_url (CockpitManager *object,
   GError *error = NULL;
   gsize raw_size;
   gs_free gchar *raw_data = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_ADMIN))
-    return TRUE;
 
   const gchar *base64_data = strstr (arg_data, "base64,");
   if (base64_data == NULL)
@@ -827,9 +818,6 @@ handle_shutdown (CockpitManager *object,
                  const gchar *arg_when,
                  const gchar *arg_message)
 {
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_ADMIN))
-    return TRUE;
-
   if (run_cmd_for_invocation (invocation, NULL,
                               "pkexec",
                               "shutdown",
@@ -846,9 +834,6 @@ static gboolean
 handle_cancel_shutdown (CockpitManager *object,
                         GDBusMethodInvocation *invocation)
 {
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_ADMIN))
-    return TRUE;
-
   if (run_cmd_for_invocation (invocation, NULL, "pkexec", "shutdown", "-c", NULL))
     cockpit_manager_complete_cancel_shutdown (object, invocation);
 

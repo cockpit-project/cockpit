@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include "daemon.h"
-#include "auth.h"
 #include "storagemanager.h"
 #include "storageprovider.h"
 #include "storageobject.h"
@@ -260,9 +259,6 @@ handle_delete (CockpitStorageVolumeGroup *object,
   StorageProvider *provider = storage_object_get_provider (group->object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   if (!storage_cleanup_volume_group (provider,
                                      group->lvm_volume_group,
                                      &error)
@@ -294,9 +290,6 @@ handle_rename (CockpitStorageVolumeGroup *object,
   GError *error = NULL;
   gs_free gchar *result = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   if (!lvm_volume_group_call_rename_sync (group->lvm_volume_group,
                                           arg_new_name,
                                           null_asv (),
@@ -325,9 +318,6 @@ handle_add_device (CockpitStorageVolumeGroup *object,
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
   const gchar *block_path = "/";
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   StorageProvider *provider = storage_object_get_provider (group->object);
   Daemon *daemon = storage_provider_get_daemon (provider);
@@ -369,9 +359,6 @@ handle_remove_device (CockpitStorageVolumeGroup *object,
   GError *error = NULL;
   const gchar *block_path = "/";
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   StorageProvider *provider = storage_object_get_provider (group->object);
   Daemon *daemon = storage_provider_get_daemon (provider);
   GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (daemon);
@@ -412,9 +399,6 @@ handle_empty_device (CockpitStorageVolumeGroup *object,
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
   const gchar *block_path = "/";
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   StorageProvider *provider = storage_object_get_provider (group->object);
   Daemon *daemon = storage_provider_get_daemon (provider);
@@ -463,9 +447,6 @@ handle_create_plain_volume (CockpitStorageVolumeGroup *object,
   GError *error = NULL;
   gs_free gchar *result = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   if (!lvm_volume_group_call_create_plain_volume_sync (group->lvm_volume_group,
                                                        arg_name,
                                                        arg_size,
@@ -496,9 +477,6 @@ handle_create_thin_pool_volume (CockpitStorageVolumeGroup *object,
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
   gs_free gchar *result = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   if (!lvm_volume_group_call_create_thin_pool_volume_sync (group->lvm_volume_group,
                                                            arg_name,
@@ -532,9 +510,6 @@ handle_create_thin_volume (CockpitStorageVolumeGroup *object,
   GError *error = NULL;
   gs_free gchar *result = NULL;
   const gchar *pool_path = "/";
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   StorageProvider *provider = storage_object_get_provider (group->object);
   Daemon *daemon = storage_provider_get_daemon (provider);

@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include "daemon.h"
-#include "auth.h"
 #include "storagemanager.h"
 #include "storageprovider.h"
 #include "storageobject.h"
@@ -263,9 +262,6 @@ handle_delete (CockpitStorageLogicalVolume *object,
   StorageProvider *provider = storage_object_get_provider (volume->object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   if (!storage_cleanup_logical_volume (provider,
                                        volume->lvm_logical_volume,
                                        &error)
@@ -296,9 +292,6 @@ handle_rename (CockpitStorageLogicalVolume *object,
   GError *error = NULL;
   gs_free gchar *result = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   if (!lvm_logical_volume_call_rename_sync (volume->lvm_logical_volume,
                                             arg_new_name,
                                             null_asv (),
@@ -328,9 +321,6 @@ handle_resize (CockpitStorageLogicalVolume *object,
   StorageLogicalVolume *volume = STORAGE_LOGICAL_VOLUME(object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   if (!lvm_logical_volume_call_resize_sync (volume->lvm_logical_volume,
                                             arg_new_size,
                                             arg_options,
@@ -358,9 +348,6 @@ handle_activate (CockpitStorageLogicalVolume *object,
   GError *error = NULL;
   gs_free gchar *result = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   if (!lvm_logical_volume_call_activate_sync (volume->lvm_logical_volume,
                                               null_asv (),
                                               &result,
@@ -386,9 +373,6 @@ handle_deactivate (CockpitStorageLogicalVolume *object,
 {
   StorageLogicalVolume *volume = STORAGE_LOGICAL_VOLUME(object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   if (!lvm_logical_volume_call_deactivate_sync (volume->lvm_logical_volume,
                                                 null_asv (),
@@ -417,9 +401,6 @@ handle_create_snapshot (CockpitStorageLogicalVolume *object,
   StorageLogicalVolume *volume = STORAGE_LOGICAL_VOLUME(object);
   GError *error = NULL;
   gs_free gchar *result = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   if (!lvm_logical_volume_call_create_snapshot_sync (volume->lvm_logical_volume,
                                                         arg_name,

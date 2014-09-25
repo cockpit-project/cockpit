@@ -38,13 +38,6 @@ GDBusConnection *          daemon_get_connection       (Daemon *daemon);
 
 GDBusObjectManagerServer * daemon_get_object_manager   (Daemon *daemon);
 
-gboolean                   daemon_authorize_method     (Daemon *daemon,
-                                                        GDBusMethodInvocation *invocation);
-
-gboolean                   daemon_get_sender_uid       (Daemon *daemon,
-                                                        GDBusMethodInvocation *invocation,
-                                                        uid_t *uid);
-
 Machines                  *daemon_get_machines         (Daemon *daemon);
 
 G_END_DECLS

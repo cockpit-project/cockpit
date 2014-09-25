@@ -26,7 +26,6 @@
 
 #include <gsystem-local-alloc.h>
 #include "daemon.h"
-#include "auth.h"
 #include "storagejob.h"
 #include "storageprovider.h"
 
@@ -93,9 +92,6 @@ handle_cancel (CockpitJob *object,
 {
   StorageJob *job = STORAGE_JOB (object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   if (!udisks_job_call_cancel_sync (job->udisks_job,
                                     g_variant_new ("a{sv}", NULL),

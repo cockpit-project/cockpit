@@ -27,7 +27,6 @@
 
 #include "utils.h"
 #include "daemon.h"
-#include "auth.h"
 #include "services.h"
 #include "cgroup-show.h"
 
@@ -936,9 +935,6 @@ handle_service_action (CockpitServices *object,
                        const gchar *arg_action)
 {
   Services *services = SERVICES (object);
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_ADMIN))
-    return TRUE;
 
   if (services->systemd == NULL)
     {

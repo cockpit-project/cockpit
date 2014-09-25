@@ -26,7 +26,6 @@
 
 #include "utils.h"
 #include "daemon.h"
-#include "auth.h"
 #include "realms.h"
 
 typedef struct _RealmData
@@ -772,9 +771,6 @@ handle_join (CockpitRealms *object,
              GVariant *arg_creds,
              GVariant *arg_options)
 {
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_REALM_ADMIN))
-    return TRUE;
-
   return handle_op (object, invocation, "Join", arg_name, arg_creds, arg_options);
 }
 
@@ -785,9 +781,6 @@ handle_leave (CockpitRealms *object,
               GVariant *arg_creds,
               GVariant *arg_options)
 {
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_REALM_ADMIN))
-    return TRUE;
-
   return handle_op (object, invocation, "Leave", arg_name, arg_creds, arg_options);
 }
 
@@ -1054,9 +1047,6 @@ handle_discover (CockpitRealms *object,
 {
   Realms *realms = REALMS (object);
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_REALM_ADMIN))
-    return TRUE;
-
   GVariantBuilder discover_options;
   g_variant_builder_init (&discover_options, G_VARIANT_TYPE ("a{sv}"));
 
@@ -1107,9 +1097,6 @@ handle_cancel (CockpitRealms *object,
   Realms *realms = REALMS (object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_REALM_ADMIN))
-    return TRUE;
-
   if (realms->op_invocation)
     {
       realms->op_cancelled = TRUE;
@@ -1151,9 +1138,6 @@ handle_get_diagnostics (CockpitRealms *object,
                         GDBusMethodInvocation *invocation)
 {
   Realms *realms = REALMS (object);
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_REALM_ADMIN))
-    return TRUE;
 
   cockpit_realms_complete_get_diagnostics (object, invocation, realms->diagnostics->str);
   return TRUE;

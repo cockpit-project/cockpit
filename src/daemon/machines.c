@@ -29,7 +29,6 @@
 #include <gsystem-local-alloc.h>
 
 #include "daemon.h"
-#include "auth.h"
 #include "machines.h"
 #include "machine.h"
 #include "utils.h"

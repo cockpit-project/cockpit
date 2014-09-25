@@ -23,7 +23,6 @@
 #include <stdio.h>
 
 #include "daemon.h"
-#include "auth.h"
 #include "storagemanager.h"
 #include "storageprovider.h"
 #include "storageobject.h"
@@ -810,9 +809,6 @@ handle_format (CockpitStorageBlock *object,
 {
   StorageBlock *block = STORAGE_BLOCK(object);
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   start_format_and_configure_block (storage_object_get_provider (block->object),
                                     block->udisks_block,
                                     invocation,
@@ -844,9 +840,6 @@ handle_create_partition (CockpitStorageBlock *object,
   StorageBlock *block = STORAGE_BLOCK(object);
   GError *error = NULL;
   gboolean is_extended = (g_strcmp0 (arg_type, "dos-extended") == 0);
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   UDisksBlock *partition_block = create_partition (block,
                                                    arg_offset,
@@ -894,9 +887,6 @@ handle_delete_partition (CockpitStorageBlock *object,
   StorageProvider *provider = storage_object_get_provider (block->object);
 
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   UDisksObject *udisks_object =
     (UDisksObject *) g_dbus_interface_get_object(G_DBUS_INTERFACE (block->udisks_block));
@@ -951,9 +941,6 @@ handle_mount (CockpitStorageBlock *object,
   StorageBlock *block = STORAGE_BLOCK(object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   UDisksObject *udisks_object =
     (UDisksObject *) g_dbus_interface_get_object(G_DBUS_INTERFACE (block->udisks_block));
   if (udisks_object == NULL)
@@ -1002,9 +989,6 @@ handle_unmount (CockpitStorageBlock *object,
 {
   StorageBlock *block = STORAGE_BLOCK(object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   UDisksObject *udisks_object =
     (UDisksObject *) g_dbus_interface_get_object(G_DBUS_INTERFACE (block->udisks_block));
@@ -1055,9 +1039,6 @@ handle_lock (CockpitStorageBlock *object,
   StorageBlock *block = STORAGE_BLOCK(object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   UDisksObject *udisks_object =
     (UDisksObject *) g_dbus_interface_get_object(G_DBUS_INTERFACE (block->udisks_block));
   if (udisks_object == NULL)
@@ -1106,9 +1087,6 @@ handle_unlock (CockpitStorageBlock *object,
 {
   StorageBlock *block = STORAGE_BLOCK(object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   UDisksObject *udisks_object =
     (UDisksObject *) g_dbus_interface_get_object(G_DBUS_INTERFACE (block->udisks_block));
@@ -1164,9 +1142,6 @@ handle_set_filesystem_options (CockpitStorageBlock *object,
 {
   StorageBlock *block = STORAGE_BLOCK(object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   UDisksObject *udisks_object =
     (UDisksObject *) g_dbus_interface_get_object(G_DBUS_INTERFACE (block->udisks_block));
@@ -1241,9 +1216,6 @@ handle_set_crypto_options (CockpitStorageBlock *object,
   StorageBlock *block = STORAGE_BLOCK(object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   if (!(storage_remove_crypto_config (block->udisks_block,
                                       &error)
         && set_crypto_config (block->udisks_block,
@@ -1272,9 +1244,6 @@ handle_get_crypto_passphrase (CockpitStorageBlock *object,
 {
   StorageBlock *block = STORAGE_BLOCK(object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   GVariantBuilder options;
   g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));

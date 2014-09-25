@@ -26,7 +26,6 @@
 
 #include "utils.h"
 #include "daemon.h"
-#include "auth.h"
 #include "storagemanager.h"
 #include "storageprovider.h"
 #include "storageobject.h"
@@ -224,9 +223,6 @@ handle_mdraid_create (CockpitStorageManager *object,
   GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (storage_manager->daemon);
   GDBusObjectManager *object_manager = G_DBUS_OBJECT_MANAGER (object_manager_server);
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   GError *error = NULL;
 
   int n_blocks = 0;
@@ -293,9 +289,6 @@ handle_volume_group_create (CockpitStorageManager *object,
   StorageManager *storage_manager = STORAGE_MANAGER(object);
   GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (storage_manager->daemon);
   GDBusObjectManager *object_manager = G_DBUS_OBJECT_MANAGER (object_manager_server);
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   GError *error = NULL;
 

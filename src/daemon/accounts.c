@@ -27,7 +27,6 @@
 
 #include "utils.h"
 #include "daemon.h"
-#include "auth.h"
 #include "accounts.h"
 #include "account.h"
 
@@ -196,34 +195,23 @@ accounts_init (Accounts *accounts)
   GVariantBuilder roles_builder;
   g_variant_builder_init (&roles_builder, G_VARIANT_TYPE ("a(ss)"));
   g_variant_builder_add (&roles_builder, "(ss)",
-                         COCKPIT_ROLE_ADMIN, "Server Administrator");
+                         "wheel", "Server Administrator");
   g_variant_builder_add (&roles_builder, "(ss)",
-                         COCKPIT_ROLE_USER_ADMIN, "User Account Administrator");
+                         "cockpit-user-admin", "User Account Administrator");
   g_variant_builder_add (&roles_builder, "(ss)",
-                         COCKPIT_ROLE_REALM_ADMIN, "Realm Administrator");
+                         "cockpit-realm-admin", "Realm Administrator");
   g_variant_builder_add (&roles_builder, "(ss)",
-                         COCKPIT_ROLE_STORAGE_ADMIN, "Storage Administrator");
+                         "cockpit-storage-admin", "Storage Administrator");
   cockpit_accounts_set_roles (COCKPIT_ACCOUNTS (accounts), g_variant_builder_end (&roles_builder));
-}
-
-static gboolean
-accounts_authorize_method (GDBusInterfaceSkeleton *interface,
-                           GDBusMethodInvocation *invocation)
-{
-  return daemon_authorize_method (daemon_get (), invocation);
 }
 
 static void
 accounts_class_init (AccountsClass *klass)
 {
   GObjectClass *gobject_class;
-  GDBusInterfaceSkeletonClass *skeleton_class;
 
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = accounts_finalize;
-
-  skeleton_class = G_DBUS_INTERFACE_SKELETON_CLASS (klass);
-  skeleton_class->g_authorize_method = accounts_authorize_method;
 }
 
 CockpitAccounts *
@@ -299,9 +287,6 @@ handle_create_account (CockpitAccounts *object,
                        gboolean arg_locked)
 {
   Accounts *accounts = ACCOUNTS (object);
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_USER_ADMIN))
-    return TRUE;
 
   CallData *data = g_new0 (CallData, 1);
   data->object = object;

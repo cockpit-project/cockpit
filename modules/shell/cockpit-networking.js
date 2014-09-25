@@ -1388,6 +1388,9 @@ PageNetworking.prototype = {
     add_bond: function () {
         var iface, i, uuid;
 
+        if (!cockpit.check_role('cockpit-network-admin', this.cockpitd))
+            return;
+
         uuid = cockpit.util.uuid();
         for (i = 0; i < 100; i++) {
             iface = "bond" + i;
@@ -1420,6 +1423,9 @@ PageNetworking.prototype = {
 
     add_bridge: function () {
         var iface, i, uuid;
+
+        if (!cockpit.check_role('cockpit-network-admin', this.cockpitd))
+            return;
 
         uuid = cockpit.util.uuid();
         for (i = 0; i < 100; i++) {
@@ -1456,6 +1462,9 @@ PageNetworking.prototype = {
 
     add_vlan: function () {
         var iface, i, uuid;
+
+        if (!cockpit.check_role('cockpit-network-admin', this.cockpitd))
+            return;
 
         uuid = cockpit.util.uuid();
 
@@ -1531,8 +1540,11 @@ function choice_title(choices, choice, def) {
     return def;
 }
 
-function onoffbox(val, on, off) {
+function onoffbox(val, on, off, role_check) {
     function toggle(event) {
+        if (role_check && !role_check())
+            return false;
+
         box.find('.btn').toggleClass('active');
         box.find('.btn').toggleClass('btn-primary');
         box.find('.btn').toggleClass('btn-default');
@@ -1585,11 +1597,15 @@ PageNetworkInterface.prototype = {
     },
 
     setup: function () {
+        var self = this;
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
         $('#network-interface-delete').parent().append(
             this.device_onoff = onoffbox(false,
                                          $.proxy(this, "connect"),
-                                         $.proxy(this, "disconnect")));
+                                         $.proxy(this, "disconnect"),
+                                         function () {
+                                             return cockpit.check_role('cockpit-network-admin', self.cockpitd);
+                                         }));
     },
 
     enter: function () {
@@ -1683,6 +1699,9 @@ PageNetworkInterface.prototype = {
 
     delete_connections: function() {
         var self = this;
+
+        if (!cockpit.check_role('cockpit-network-admin', self.cockpitd))
+            return;
 
         function delete_connection_and_slaves(con) {
             return $.when(con.delete_(),
@@ -1925,7 +1944,11 @@ PageNetworkInterface.prototype = {
                     $('<td style="text-align:right;vertical-align:top">').append(
                         $('<button class="btn btn-default">').
                             text(_("Configure")).
-                            click(configure)));
+                            click(function () {
+                                if (!cockpit.check_role('cockpit-network-admin', self.cockpitd))
+                                    return;
+                                configure();
+                            })));
             }
 
             function render_ip_settings_row(topic, title) {
@@ -2156,11 +2179,17 @@ PageNetworkInterface.prototype = {
                                                         dev.disconnect().
                                                             fail(cockpit.show_unexpected_error);
                                                     }
+                                                },
+                                                function () {
+                                                    return cockpit.check_role('cockpit-network-admin',
+                                                                              self.cockpitd);
                                                 })),
                                    $('<td width="28px">').append(
                                        $('<button class="btn btn-default btn-control">').
                                            text("-").
                                            click(function () {
+                                               if (!cockpit.check_role('cockpit-network-admin', self.cockpitd))
+                                                   return false;
                                                slave_con.delete_().
                                                    fail(cockpit.show_unexpected_error);
                                                return false;
@@ -2195,6 +2224,8 @@ PageNetworkInterface.prototype = {
                                         $('<a role="menuitem">').
                                             text(iface.Name).
                                             click(function () {
+                                                if (!cockpit.check_role('cockpit-network-admin', self.cockpitd))
+                                                    return;
                                                 set_slave(self.model, con, con.Settings,
                                                           con.Settings.connection.type, iface.Name,
                                                           true).

@@ -40,9 +40,12 @@ GType                 cockpit_web_response_get_type      (void) G_GNUC_CONST;
 
 CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
                                                           const gchar *path,
+                                                          const gchar *query,
                                                           GHashTable *in_headers);
 
 const gchar *         cockpit_web_response_get_path      (CockpitWebResponse *self);
+
+const gchar *         cockpit_web_response_get_query     (CockpitWebResponse *self);
 
 GIOStream *           cockpit_web_response_get_stream    (CockpitWebResponse *self);
 

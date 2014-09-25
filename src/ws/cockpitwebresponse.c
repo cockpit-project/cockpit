@@ -50,6 +50,7 @@ struct _CockpitWebResponse {
   GIOStream *io;
   const gchar *logname;
   gchar *path;
+  gchar *query;
 
   /* The output queue */
   GPollableOutputStream *out;
@@ -134,6 +135,7 @@ cockpit_web_response_finalize (GObject *object)
   CockpitWebResponse *self = COCKPIT_WEB_RESPONSE (object);
 
   g_free (self->path);
+  g_free (self->query);
   g_assert (self->io == NULL);
   g_assert (self->out == NULL);
   g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
@@ -159,6 +161,7 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
  * cockpit_web_response_new:
  * @io: the stream to send on
  * @path: the path resource or NULL
+ * @query: the query string or NULL
  * @in_headers: input headers or NULL
  *
  * Create a new web response.
@@ -172,6 +175,7 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
 CockpitWebResponse *
 cockpit_web_response_new (GIOStream *io,
                           const gchar *path,
+                          const gchar *query,
                           GHashTable *in_headers)
 {
   CockpitWebResponse *self;
@@ -194,6 +198,7 @@ cockpit_web_response_new (GIOStream *io,
     }
 
   self->path = g_strdup (path);
+  self->query = g_strdup (query);
   if (self->path)
     self->logname = self->path;
   else
@@ -220,6 +225,18 @@ const gchar *
 cockpit_web_response_get_path (CockpitWebResponse *self)
 {
   return self->path;
+}
+
+/**
+ * cockpit_web_response_get_query:
+ * @self: the response
+ *
+ * Returns: the resource path for response
+ */
+const gchar *
+cockpit_web_response_get_query (CockpitWebResponse *self)
+{
+  return self->query;
 }
 
 /**

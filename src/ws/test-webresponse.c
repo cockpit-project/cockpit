@@ -83,7 +83,7 @@ setup (TestCase *tc,
       g_hash_table_insert (headers, g_strdup (fixture->header), g_strdup (fixture->value));
     }
 
-  tc->response = cockpit_web_response_new (io, path, headers);
+  tc->response = cockpit_web_response_new (io, path, NULL, headers);
 
   if (headers)
     g_hash_table_unref (headers);

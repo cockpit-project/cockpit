@@ -287,7 +287,7 @@ on_response_output (GObject *pollable,
   if (block)
     {
       data = g_bytes_get_data (block, &len);
-      g_assert (self->partial_offset < len);
+      g_assert (len == 0 || self->partial_offset < len);
       data += self->partial_offset;
       len -= self->partial_offset;
 

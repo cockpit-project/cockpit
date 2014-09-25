@@ -36,14 +36,13 @@ cockpit_js_PARTS = \
 	pkg/shell/cockpit-init.js \
 	$(NULL)
 
-cockpit_js_FILES = cockpit.js
 cockpit.js: $(cockpit_js_PARTS)
-	$(AM_V_GEN) JSL=$(JSL) $(JSLINT) $^
-	$(AM_V_GEN) $(MINIFY) $^ >$@.tmp && mv $@.tmp $@
+	$(AM_V_GEN) $(RCOMPILE) -o $@ $^
 
 shelldir = $(pkgdatadir)/shell
 nodist_shell_DATA = \
-	$(cockpit_js_FILES) \
+	cockpit.js \
+	cockpit.min.js \
 	$(NULL)
 shell_DATA = \
 	pkg/shell/cockpit.css \
@@ -100,6 +99,7 @@ lang/%.json : $(top_srcdir)/po/%.po
 
 CLEANFILES += \
 	cockpit.js \
+	cockpit.min.js \
 	$(NULL)
 
 EXTRA_DIST += \

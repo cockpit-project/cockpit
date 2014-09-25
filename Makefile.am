@@ -2,7 +2,7 @@ NULL =
 man_MANS =
 BUILT_SOURCES =
 EXTRA_DIST = README.md
-CLEANFILES =
+CLEANFILES = *.js *.min.js *.html *.min.html *.css *.min.css
 check_SCRIPTS =
 check_PROGRAMS =
 noinst_SCRIPTS =
@@ -15,6 +15,16 @@ TESTS =
 
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
+
+SUFFIXES = .js .min.js .css .min.css .html .min.html
+
+.js.min.js:
+	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
+.html.min.html:
+	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
+.css.min.css:
+	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
+
 
 if HAVE_SYSTEMD
 systemdunitdir          = $(systemdsystemunitdir)
@@ -31,6 +41,7 @@ DISTCHECK_CONFIGURE_FLAGS=						        \
 	--with-pamdir=$$dc_install_base/$(pamdir) \
 	--disable-debug \
 	--disable-coverage \
+	--disable-silent-rules \
 	$(NULL)
 
 AM_CPPFLAGS = \
@@ -100,13 +111,7 @@ SED_SUBST = sed \
         -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
         $(NULL)
 
-if WITH_DEBUG
-MINIFY = $(top_srcdir)/tools/minify -n --
-else
-MINIFY = $(top_srcdir)/tools/minify --
-endif
-
-JSLINT = $(top_srcdir)/tools/js-lint
+RCOMPILE = JSL=$(JSL) $(top_srcdir)/tools/rcompile
 PO2JSON = $(top_srcdir)/tools/po2json
 GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
 VERIFY_CHECKSUMS = $(top_srcdir)/tools/verify-checksums

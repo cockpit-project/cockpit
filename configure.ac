@@ -396,6 +396,9 @@ doc/version
 po/Makefile.in
 ])
 
+# TODO: Hack around the fact that shell.js is composed of multiple files
+ln -sf $(pwd)/shell.js $srcdir/pkg/shell/shell.js
+
 dnl ==========================================================================
 echo "
                Cockpit $VERSION

@@ -218,7 +218,7 @@
             }
 
             function shell(environment) {
-                var package = null;
+                var i, package = null;
                 if (environment.localhost && environment.localhost.packages)
                     package = find_package(environment.localhost.packages, "shell");
                 if (!package || !package.manifest) {
@@ -245,16 +245,14 @@
                 cockpit.connection_config = environment;
 
                 /* Simplistic package loader good enough for shell */
-                if (package.manifest.css) {
-                    var css = document.createElement("link");
-                    css.setAttribute("rel", "stylesheet");
-                    css.setAttribute("type", "text/css");
-                    css.setAttribute("href", qualify(package.manifest.css));
-                    document.head.appendChild(css);
-                }
+                var css = document.createElement("link");
+                css.setAttribute("rel", "stylesheet");
+                css.setAttribute("type", "text/css");
+                css.setAttribute("href", qualify("cockpit.css"));
+                document.head.appendChild(css);
 
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", qualify(package.manifest.html), true);
+                xhr.open("GET", qualify("shell.html"), true);
                 xhr.onreadystatechange = function(e) {
                     if (xhr.readyState != 4) {
                         return;
@@ -263,32 +261,22 @@
                         document.body.removeAttribute("class");
                         document.body.innerHTML = content;
 
-                        var i;
-                        var scripts = package.manifest.scripts;
-                        var length = scripts ? scripts.length : 0;
-
-                        var outstanding = length;
-                        function script_loaded() {
-                            outstanding--;
-                            if (outstanding === 0) {
-                                /* Emit another load event for any handlers */
-                                var ev = document.createEvent('Event');
-                                ev.initEvent('load', false, false);
-                                window.dispatchEvent(ev);
-                            }
-                        }
-
+                        var tags = document.getElementsByTagName("script");
+                        var i, length = tags.length;
                         for (i = 0; i < length; i++) {
-                            var script = document.createElement("script");
-                            script.async = false;
-                            script.src = qualify(scripts[i]);
-                            script.onload = script_loaded;
-                            document.head.appendChild(script);
+                            var src = tags[i].getAttribute("src");
+                            if (src) {
+                                tags[i].parentNode.removeChild(tags[i]);
+                                var script = document.createElement("script");
+                                script.async = false;
+                                script.src = src;
+                                document.head.appendChild(script);
+                            }
                         }
                     } else {
                         if (window.console)
                             console.log(xhr.statusText);
-                        fatal("Cockpit not available: cannot load shell");
+                        fatal("Cockpit not available: shell not installed correctly");
                     }
 
                     phantom_checkpoint();

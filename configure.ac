@@ -213,6 +213,14 @@ AC_CHECK_FILE($LVM2_INTERFACE, ,
 )
 AC_SUBST(LVM2_INTERFACE)
 
+# usermod
+#
+# usermod might not be world-executable, so AC_PATH_PROG might not
+# find it.  In that case, we fall back to /usr/sbin/usermod.
+
+AC_PATH_PROG([USERMOD], [usermod], [/usr/sbin/usermod], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
+AC_DEFINE_UNQUOTED([PATH_USERMOD],["$USERMOD"],[Location of usermod binary])
+
 # Config
 
 AC_DEFINE_UNQUOTED([COCKPIT_CONFIG_FILE],["$sysconfdir/cockpit/config"],[Configuration file])

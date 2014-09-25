@@ -350,7 +350,7 @@ handle_set_password_hash (CockpitAccount *object,
 {
   GError *error;
   Account *acc = ACCOUNT (object);
-  const gchar *argv[6];
+  const gchar *argv[7];
   gint status;
 
   if (acc->u == NULL)
@@ -359,15 +359,23 @@ handle_set_password_hash (CockpitAccount *object,
       return TRUE;
     }
 
-  argv[0] = "/usr/sbin/usermod";
-  argv[1] = "-p";
-  argv[2] = arg_hash;
-  argv[3] = "--";
-  argv[4] = act_user_get_user_name (acc->u);
-  argv[5] = NULL;
+  /* HACK: Finding usermod in $PATH at run-time would be better, but
+   * we have to use a configure-time path for usermod since pkexec has
+   * trouble finding it itself.
+   *
+   * https://bugzilla.redhat.com/show_bug.cgi?id=1146473
+   */
+
+  argv[0] = "pkexec";
+  argv[1] = PATH_USERMOD;
+  argv[2] = "-p";
+  argv[3] = arg_hash;
+  argv[4] = "--";
+  argv[5] = act_user_get_user_name (acc->u);
+  argv[6] = NULL;
 
   error = NULL;
-  if (g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, NULL, &status, &error))
+  if (g_spawn_sync (NULL, (gchar**)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &status, &error))
     g_spawn_check_exit_status (status, &error);
 
   if (error)
@@ -417,7 +425,7 @@ handle_change_groups (CockpitAccount *object,
   gid_t *groups;
   GString *str;
   struct group *gr;
-  const gchar *argv[6];
+  const gchar *argv[7];
   gint status;
 
   ngroups = get_user_groups (acc->u, &primary, &groups);
@@ -449,15 +457,23 @@ handle_change_groups (CockpitAccount *object,
 
   g_free (groups);
 
-  argv[0] = "/usr/sbin/usermod";
-  argv[1] = "-G";
-  argv[2] = str->str;
-  argv[3] = "--";
-  argv[4] = act_user_get_user_name (acc->u);
-  argv[5] = NULL;
+  /* HACK: Finding usermod in $PATH at run-time would be better, but
+   * we have to use a configure-time path for usermod since pkexec has
+   * trouble finding it itself.
+   *
+   * https://bugzilla.redhat.com/show_bug.cgi?id=1146473
+   */
+
+  argv[0] = "pkexec";
+  argv[1] = PATH_USERMOD;
+  argv[2] = "-G";
+  argv[3] = str->str;
+  argv[4] = "--";
+  argv[5] = act_user_get_user_name (acc->u);
+  argv[6] = NULL;
 
   error = NULL;
-  if (g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, NULL, &status, &error))
+  if (g_spawn_sync (NULL, (gchar**)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &status, &error))
     g_spawn_check_exit_status (status, &error);
 
   if (error)

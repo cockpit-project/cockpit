@@ -239,7 +239,7 @@
                 cockpit.environment = environment;
                 cockpit.connection_config = environment;
 
-                /* Simplistic module loader good enough for shell */
+                /* TODO: Shell specific module loading */
                 if (module.manifest.css) {
                     var css = document.createElement("link");
                     css.setAttribute("rel", "stylesheet");
@@ -249,7 +249,7 @@
                 }
 
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", qualify(module.manifest.html), true);
+                xhr.open("GET", qualify("shell.html"), true);
                 xhr.onreadystatechange = function(e) {
                     if (xhr.readyState != 4) {
                         return;

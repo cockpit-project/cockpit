@@ -49,7 +49,7 @@ fi
 
 AC_PATH_PROG([JSL], [jsl])
 if test -z "$JSL"; then
-  AC_MSG_WARN([jsl is needed to run js-lint])
+  AC_MSG_WARN([jsl is needed to check javascript])
 fi
 
 GLIB_VERSION="2.34"

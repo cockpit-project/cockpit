@@ -116,4 +116,21 @@
       available for use.</para>
   </section>
 
+  <section id="package-minified">
+    <title>Minified Resources</title>
+
+    <para>If minified resources are provided, they should be provided along with the non-minified
+      file. This allows developers to debug package code when necessary.</para>
+
+    <para>Minified files should contain a <code>.min</code> suffix before their usual file
+      extension. They will automatically be used in place of the unminified file, when your
+      the package is installed. This applies for HTML, JS, CSS or other types of resources.</para>
+
+    <para>For example if you have a javascript file called <code>test.js</code> its minified
+      version should be placed in a file called <code>test.min.js</code> in the same directory.</para>
+
+    <para>To force Cockpit to use non-minified resources, link the package into your home directory
+      as described in the section on <link linkend="package-layout">Package Layout</link>.</para>
+  </section>
+
 </chapter>

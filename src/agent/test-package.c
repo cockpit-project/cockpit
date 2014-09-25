@@ -82,10 +82,10 @@ test_listing (TestCase *tc,
   cockpit_assert_json_eq (json,
                           "["
                           " {"
-                          "  \"id\": [\"$279d9f5b572e7f59b8c9117b1f8ebfa079611c17\",\"one\",\"second\",\"two\"],"
+                          "  \"id\": [\"$2362deb82fad54aca51092c505a5660ac6c45a9f\",\"one\",\"second\",\"two\"],"
                           "  \"manifest\": { \"description\": \"second dummy description\"}"
                           " },{"
-                          "  \"id\": [ \"$4784b8b983691a87886ce8325bda5f0ed748f058\", \"test\" ],"
+                          "  \"id\": [ \"$fec489a692ee808950f34f6c519803aed65e1849\", \"test\" ],"
                           "  \"manifest\" : { \"description\" : \"dummy\"}"
                           " },{"
                           "  \"id\": [ \"another\", \"marmalade\" ],"
@@ -114,7 +114,7 @@ test_resolve_checksum (TestCase *tc,
 {
   gchar *path;
 
-  path = cockpit_package_resolve (tc->listing, "$4784b8b983691a87886ce8325bda5f0ed748f058", "/sub/file.ext");
+  path = cockpit_package_resolve (tc->listing, "$fec489a692ee808950f34f6c519803aed65e1849", "/sub/file.ext");
   g_assert_cmpstr (SRCDIR "/src/agent/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
   g_free (path);
 }
@@ -179,7 +179,7 @@ test_expand (TestCase *tc,
   g_bytes_unref (bytes);
 
   cockpit_assert_bytes_eq (queue.head->data, "Depend on ", -1);
-  cockpit_assert_bytes_eq (queue.head->next->data, "$4784b8b983691a87886ce8325bda5f0ed748f058", -1);
+  cockpit_assert_bytes_eq (queue.head->next->data, "$fec489a692ee808950f34f6c519803aed65e1849", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->data, " here ", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->data, "another", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->next->data, " and ", -1);
@@ -203,7 +203,7 @@ test_expand_with_host (TestCase *tc,
   g_bytes_unref (bytes);
 
   cockpit_assert_bytes_eq (queue.head->data, "Depend on ", -1);
-  cockpit_assert_bytes_eq (queue.head->next->data, "$4784b8b983691a87886ce8325bda5f0ed748f058", -1);
+  cockpit_assert_bytes_eq (queue.head->next->data, "$fec489a692ee808950f34f6c519803aed65e1849", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->data, " here ", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->data, "another@host", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->next->data, " and ", -1);

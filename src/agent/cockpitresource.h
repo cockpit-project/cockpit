@@ -33,6 +33,7 @@ GType              cockpit_resource_get_type     (void) G_GNUC_CONST;
 CockpitChannel *   cockpit_resource_open         (CockpitTransport *transport,
                                                   const gchar *channel,
                                                   const gchar *package,
-                                                  const gchar *path);
+                                                  const gchar *path,
+                                                  const gchar *accept);
 
 #endif /* COCKPIT_RESOURCE_H__ */

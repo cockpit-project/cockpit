@@ -22,7 +22,6 @@
 #include <string.h>
 
 #include "daemon.h"
-#include "auth.h"
 #include "storageprovider.h"
 #include "storageobject.h"
 #include "storagemdraid.h"
@@ -272,9 +271,6 @@ handle_start (CockpitStorageMDRaid *object,
   StorageMDRaid *mdraid = STORAGE_MDRAID(object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   GVariantBuilder options;
   g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
   g_variant_builder_add (&options, "{sv}", "start-degraded", g_variant_new_boolean (TRUE));
@@ -303,9 +299,6 @@ handle_stop (CockpitStorageMDRaid *object,
 {
   StorageMDRaid *mdraid = STORAGE_MDRAID(object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   GVariantBuilder options;
   g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
@@ -338,9 +331,6 @@ handle_delete (CockpitStorageMDRaid *object,
 
   /* Delete is Stop followed by wiping of all member devices.
    */
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   GVariantBuilder options;
   g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
@@ -392,9 +382,6 @@ handle_request_sync_action (CockpitStorageMDRaid *object,
   StorageMDRaid *mdraid = STORAGE_MDRAID(object);
   GError *error = NULL;
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
-
   GVariantBuilder options;
   g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
 
@@ -426,9 +413,6 @@ handle_set_bitmap_location (CockpitStorageMDRaid *object,
 {
   StorageMDRaid *mdraid = STORAGE_MDRAID(object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   GVariantBuilder options;
   g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
@@ -465,9 +449,6 @@ handle_remove_devices (CockpitStorageMDRaid *object,
   GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (daemon);
   GDBusObjectManager *object_manager = G_DBUS_OBJECT_MANAGER (object_manager_server);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   int n_devices = 0;
   for (int i = 0; arg_devices[i]; i++)
@@ -526,9 +507,6 @@ handle_add_devices (CockpitStorageMDRaid *object,
   GDBusObjectManagerServer *object_manager_server = daemon_get_object_manager (daemon);
   GDBusObjectManager *object_manager = G_DBUS_OBJECT_MANAGER (object_manager_server);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_STORAGE_ADMIN))
-    return TRUE;
 
   int n_devices = 0;
   for (int i = 0; arg_devices[i]; i++)

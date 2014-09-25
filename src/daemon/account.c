@@ -28,7 +28,6 @@
 #include <gsystem-local-alloc.h>
 
 #include "daemon.h"
-#include "auth.h"
 #include "account.h"
 
 #include <grp.h>
@@ -218,21 +217,6 @@ account_update (Account *acc,
 }
 
 static gboolean
-account_auth_check (CockpitAccount *object,
-                    GDBusMethodInvocation *invocation,
-                    Account *acc)
-{
-  uid_t peer;
-  if (!daemon_get_sender_uid (daemon_get (), invocation, &peer))
-    return FALSE;
-  if (acc->u && act_user_get_uid (acc->u) == peer)
-    return TRUE;
-  if (!auth_check_uid_role (invocation, peer, COCKPIT_ROLE_USER_ADMIN))
-    return FALSE;
-  return TRUE;
-}
-
-static gboolean
 handle_get_icon_data_url (CockpitAccount *object,
                           GDBusMethodInvocation *invocation)
 {
@@ -267,9 +251,6 @@ handle_set_icon_data_url (CockpitAccount *object,
 {
   GError *error = NULL;
   Account *acc = ACCOUNT (object);
-
-  if (!account_auth_check (object, invocation, acc))
-    return TRUE;
 
   if (acc->u)
     {
@@ -320,9 +301,6 @@ handle_set_real_name (CockpitAccount *object,
 {
   Account *acc = ACCOUNT (object);
 
-  if (!account_auth_check (object, invocation, acc))
-    return TRUE;
-
   if (acc->u)
     act_user_set_real_name (acc->u, arg_value);
 
@@ -336,9 +314,6 @@ handle_set_password (CockpitAccount *object,
                      const gchar *arg_password)
 {
   Account *acc = ACCOUNT (object);
-
-  if (!account_auth_check (object, invocation, acc))
-    return TRUE;
 
   if (acc->u)
     {
@@ -356,9 +331,6 @@ handle_get_password_hash (CockpitAccount *object,
 {
   Account *acc = ACCOUNT (object);
   const gchar *hash = "";
-
-  if (!account_auth_check (object, invocation, acc))
-    return TRUE;
 
   if (acc->u)
     {
@@ -380,9 +352,6 @@ handle_set_password_hash (CockpitAccount *object,
   Account *acc = ACCOUNT (object);
   const gchar *argv[6];
   gint status;
-
-  if (!account_auth_check (object, invocation, acc))
-    return TRUE;
 
   if (acc->u == NULL)
     {
@@ -423,9 +392,6 @@ handle_set_locked (CockpitAccount *object,
 {
   Account *acc = ACCOUNT (object);
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_USER_ADMIN))
-    return TRUE;
-
   if (acc->u)
     act_user_set_locked (acc->u, arg_locked);
 
@@ -453,9 +419,6 @@ handle_change_groups (CockpitAccount *object,
   struct group *gr;
   const gchar *argv[6];
   gint status;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_USER_ADMIN))
-    return TRUE;
 
   ngroups = get_user_groups (acc->u, &primary, &groups);
 
@@ -548,9 +511,6 @@ handle_delete (CockpitAccount *object,
 {
   Account *acc = ACCOUNT (object);
 
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_USER_ADMIN))
-    return TRUE;
-
   if (acc->u)
     {
       CallData *data = g_new0 (CallData, 1);
@@ -576,9 +536,6 @@ handle_kill_sessions (CockpitAccount *object,
 {
   Account *acc = ACCOUNT (object);
   GError *error = NULL;
-
-  if (!auth_check_sender_role (invocation, COCKPIT_ROLE_USER_ADMIN))
-    return TRUE;
 
   if (acc->u)
     {

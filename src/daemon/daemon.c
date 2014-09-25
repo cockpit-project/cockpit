@@ -24,7 +24,6 @@
 #include <gsystem-local-alloc.h>
 
 #include "daemon.h"
-#include "auth.h"
 #include "manager.h"
 #include "machines.h"
 #include "cpumonitor.h"
@@ -445,99 +444,4 @@ daemon_get_object_manager (Daemon *daemon)
 {
   g_return_val_if_fail (IS_DAEMON (daemon), NULL);
   return daemon->object_manager;
-}
-
-static gboolean
-authorize_method (Daemon *daemon,
-                  GDBusMethodInvocation *invocation,
-                  gboolean *out_is_authorized,
-                  GCancellable *cancellable,
-                  GError **error)
-{
-  const char *sender = g_dbus_method_invocation_get_sender (invocation);
-  gs_unref_variant GVariant *reply = NULL;
-  guint32 uid = 42;
-
-  reply = g_dbus_proxy_call_sync (daemon->system_bus_proxy, "org.freedesktop.DBus.GetConnectionUnixUser",
-                                  g_variant_new ("(s)", sender), 0, -1,
-                                  cancellable, error);
-  if (reply == NULL)
-    return FALSE;
-
-  g_variant_get (reply, "(u)", &uid);
-
-  *out_is_authorized = (uid == 0 || auth_uid_is_wheel (uid));
-  return TRUE;
-}
-
-/**
- * daemon_authorize_method:
- * @daemon: a #Daemon
- * @invocation: method invocation handle
- *
- * Global hook used to authorize DBus methods.  We restrict them to
- * root at the moment (but this forces the bridge to run as root).
- *
- * Possibly a better long term fix is that the bridge actually starts
- * cockpitd as root, opens a private socketpair between them to speak
- * DBus, then drops privileges.
- *
- * Returns: %TRUE if call should be authorized, %FALSE otherwise
- */
-gboolean
-daemon_authorize_method (Daemon *daemon,
-                         GDBusMethodInvocation *invocation)
-{
-  GError *error = NULL;
-  gboolean is_authorized = FALSE;
-
-  if (!authorize_method (daemon, invocation, &is_authorized, NULL, &error))
-    {
-      g_warning ("Error while authorizing method %s.%s: %s",
-                 g_dbus_method_invocation_get_interface_name (invocation),
-                 g_dbus_method_invocation_get_method_name (invocation),
-                 error->message);
-      g_clear_error (&error);
-      return FALSE;
-    }
-  if (!is_authorized)
-    {
-      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                             G_DBUS_ERROR_ACCESS_DENIED,
-                                             "Method %s.%s cannot be invoked by non-root",
-                                             g_dbus_method_invocation_get_interface_name (invocation),
-                                             g_dbus_method_invocation_get_method_name (invocation));
-    }
-  return is_authorized;
-}
-
-gboolean
-daemon_get_sender_uid (Daemon *daemon,
-                       GDBusMethodInvocation *invocation,
-                       uid_t *uid)
-{
-  GError *error = NULL;
-  const char *sender = g_dbus_method_invocation_get_sender (invocation);
-  gs_unref_variant GVariant *reply = NULL;
-
-  reply = g_dbus_proxy_call_sync (daemon->system_bus_proxy, "org.freedesktop.DBus.GetConnectionUnixUser",
-                                  g_variant_new ("(s)", sender), 0, -1,
-                                  NULL, &error);
-  if (reply == NULL)
-    {
-      g_dbus_method_invocation_take_error (invocation, error);
-      return FALSE;
-    }
-
-  if (g_variant_is_of_type (reply, G_VARIANT_TYPE("(u)")))
-    g_variant_get (reply, "(u)", uid);
-  else
-    {
-      g_dbus_method_invocation_return_error (invocation,
-                                             COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                             "DBus is broken");
-      return FALSE;
-    }
-
-  return TRUE;
 }

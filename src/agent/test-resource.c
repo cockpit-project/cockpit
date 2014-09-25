@@ -272,7 +272,7 @@ test_bad_path (TestCase *tc,
 {
   g_assert (fixture == &fixture_bad_path);
 
-  cockpit_expect_message ("invalid 'path' used as a resource:*");
+  cockpit_expect_message ("invalid path used as a resource:*");
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);

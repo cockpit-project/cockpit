@@ -105,7 +105,7 @@ setup (Test *test,
   test->io = mock_io_stream_new (G_INPUT_STREAM (test->input),
                                  G_OUTPUT_STREAM (test->output));
 
-  test->response = cockpit_web_response_new (test->io, NULL, NULL);
+  test->response = cockpit_web_response_new (test->io, NULL, NULL, NULL);
   g_signal_connect (test->response, "done",
                     G_CALLBACK (on_web_response_done_set_flag),
                     &test->response_done);

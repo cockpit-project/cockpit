@@ -311,16 +311,16 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   gchar *pos;
   gchar bak;
 
-  /*
-   * We have no use for query string right now, and yes we happen to know
-   * that we can modify this string safely.
-   */
+  /* Yes, we happen to know that we can modify this string safely. */
   pos = strchr (path, '?');
   if (pos != NULL)
-    *pos = '\0';
+    {
+      *pos = '\0';
+      pos++;
+    }
 
   /* TODO: Correct HTTP version for response */
-  response = cockpit_web_response_new (io_stream, path, headers);
+  response = cockpit_web_response_new (io_stream, path, pos, headers);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (self), (GClosureNotify)g_object_unref, 0);
 
@@ -709,7 +709,7 @@ process_delayed_reply (CockpitRequest *request,
 
   g_assert (request->delayed_reply > 299);
 
-  response = cockpit_web_response_new (request->io, NULL, headers);
+  response = cockpit_web_response_new (request->io, NULL, NULL, headers);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (request->web_server), (GClosureNotify)g_object_unref, 0);
 

@@ -1373,7 +1373,7 @@ test_resource_simple (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL, NULL);
 
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
@@ -1410,7 +1410,7 @@ test_resource_host (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost/test.html", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost/test.html", NULL, NULL);
 
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
@@ -1447,7 +1447,7 @@ test_resource_not_found (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost/not-exist", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost/not-exist", NULL, NULL);
 
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
@@ -1476,7 +1476,7 @@ test_resource_no_path (TestResourceCase *tc,
   GBytes *bytes;
 
   /* Missing path after package */
-  response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost", NULL, NULL);
 
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
@@ -1508,7 +1508,7 @@ test_resource_failure (TestResourceCase *tc,
 
   cockpit_expect_message ("*: failed to retrieve resource: terminated");
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL, NULL);
 
   /* Now kill the bridge */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
@@ -1541,7 +1541,8 @@ test_resource_checksum (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/$fec489a692ee808950f34f6c519803aed65e1849/sub/file.ext", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/$fec489a692ee808950f34f6c519803aed65e1849/sub/file.ext",
+                                       NULL, NULL);
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -1573,7 +1574,7 @@ test_resource_no_checksum (TestResourceCase *tc,
   GBytes *bytes;
 
   /* Missing checksum */
-  response = cockpit_web_response_new (tc->io, "/cockpit/", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/", NULL, NULL);
 
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
@@ -1602,7 +1603,7 @@ test_resource_bad_checksum (TestResourceCase *tc,
   GBytes *bytes;
 
   /* Missing checksum */
-  response = cockpit_web_response_new (tc->io, "/cockpit/09323094823029348/path", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/09323094823029348/path", NULL, NULL);
 
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
@@ -1630,7 +1631,7 @@ test_resource_accept_language (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL, NULL);
 
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("pig;q=0.1,de;q=0.9"));
   cockpit_web_service_resource (tc->service, tc->headers, response);
@@ -1669,7 +1670,7 @@ test_resource_override_language (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL, NULL);
 
   /* Language cookie overrides */
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de;q=0.9"));

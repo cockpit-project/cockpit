@@ -1640,6 +1640,7 @@ resource_respond (CockpitWebService *self,
   GHashTableIter iter;
   GBytes *command;
   gchar **parts = NULL;
+  const gchar *accept = NULL;
 
   package = pop_package_name (remaining_path, &path);
   if (!package || !path)
@@ -1693,6 +1694,14 @@ resource_respond (CockpitWebService *self,
 
   rr = resource_response_new (self, session, response);
   rr->cache_forever = (name[0] == '$');
+  if (rr->cache_forever)
+    {
+      /*
+       * We can look up minified resource if a package is checksumed, which means
+       * that it isn't supposed to change out underneath us.
+       */
+      accept = "minified";
+    }
 
   command = build_control ("command", "open",
                            "channel", rr->channel,
@@ -1700,6 +1709,7 @@ resource_respond (CockpitWebService *self,
                            "host", host,
                            "package", name,
                            "path", path,
+                           "accept", accept,
                            NULL);
 
   cockpit_transport_send (rr->transport, NULL, command);

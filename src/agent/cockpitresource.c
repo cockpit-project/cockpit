@@ -137,6 +137,61 @@ respond_package_listing (CockpitChannel *channel)
   cockpit_channel_close (channel, NULL);
 }
 
+static gchar *
+calculate_minified_path (const gchar *path)
+{
+  const gchar *dot;
+  const gchar *slash;
+
+  dot = strrchr (path, '.');
+  slash = strrchr (path, '/');
+
+  if (dot == NULL)
+    return NULL;
+  if (slash != NULL && dot < slash)
+    return NULL;
+
+  return g_strdup_printf ("%.*s.min%s",
+                          (int)(dot - path), path, dot);
+}
+
+static GMappedFile *
+open_file (CockpitChannel *channel,
+           const gchar *filename,
+           gboolean *retry)
+{
+  GMappedFile *mapped = NULL;
+  GError *error = NULL;
+
+  g_assert (retry);
+  *retry = FALSE;
+
+  mapped = g_mapped_file_new (filename, FALSE, &error);
+  if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
+      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ISDIR) ||
+      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NAMETOOLONG) ||
+      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_LOOP) ||
+      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL))
+    {
+      g_debug ("resource file was not found: %s", error->message);
+      *retry = TRUE;
+    }
+  else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
+           g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
+    {
+      g_message ("%s", error->message);
+      cockpit_channel_close (channel, "not-authorized");
+    }
+  else if (error)
+    {
+      g_message ("%s", error->message);
+      cockpit_channel_close (channel, "internal-error");
+    }
+
+  g_clear_error (&error);
+  return mapped;
+}
+
 static gboolean
 on_prepare_channel (gpointer data)
 {
@@ -148,15 +203,19 @@ on_prepare_channel (gpointer data)
   GError *error = NULL;
   const gchar *path;
   const gchar *package;
+  const gchar *accept;
+  gchar *alternate = NULL;
   GMappedFile *mapped = NULL;
   gchar *string = NULL;
   const gchar *pos;
   GBytes *bytes;
+  gboolean retry;
 
   self->idler = 0;
 
   package = cockpit_channel_get_option (channel, "package");
   path = cockpit_channel_get_option (channel, "path");
+  accept = cockpit_channel_get_option (channel, "accept");
 
   if (!package && !path)
     {
@@ -194,28 +253,20 @@ on_prepare_channel (gpointer data)
       goto out;
     }
 
-  mapped = g_mapped_file_new (filename, FALSE, &error);
-  if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ISDIR) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NAMETOOLONG) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_LOOP) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL))
+  retry = TRUE;
+  if (accept && g_str_equal (accept, "minified"))
     {
-      g_debug ("resource file was not found: %s", error->message);
+      alternate = calculate_minified_path (filename);
+      if (alternate)
+        mapped = open_file (channel, alternate, &retry);
+    }
+
+  if (!mapped && retry)
+    mapped = open_file (channel, filename, &retry);
+
+  if (!mapped && retry)
+    {
       cockpit_channel_close (channel, "not-found");
-      goto out;
-    }
-  else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
-           g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
-    {
-      g_message ("%s", error->message);
-      cockpit_channel_close (channel, "not-authorized");
-      goto out;
-    }
-  else if (error)
-    {
-      g_message ("%s", error->message);
-      cockpit_channel_close (channel, "internal-error");
       goto out;
     }
 
@@ -236,6 +287,7 @@ out:
   g_free (string);
   g_clear_error (&error);
   g_free (filename);
+  g_free (alternate);
   return FALSE;
 }
 
@@ -295,7 +347,8 @@ CockpitChannel *
 cockpit_resource_open (CockpitTransport *transport,
                        const gchar *channel_id,
                        const gchar *package,
-                       const gchar *path)
+                       const gchar *path,
+                       const gchar *accept)
 {
   CockpitChannel *channel;
   JsonObject *options;
@@ -306,6 +359,8 @@ cockpit_resource_open (CockpitTransport *transport,
     json_object_set_string_member (options, "package", package);
   if (path)
     json_object_set_string_member (options, "path", path);
+  if (accept)
+    json_object_set_string_member (options, "accept", accept);
 
   channel = g_object_new (COCKPIT_TYPE_RESOURCE,
                           "transport", transport,

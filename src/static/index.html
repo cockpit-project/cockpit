@@ -240,11 +240,11 @@
                 cockpit.connection_config = environment;
 
                 /* TODO: Shell specific module loading */
-                if (module.manifest.css) {
+                for (i = 0; i < module.manifest.css.length; i++) {
                     var css = document.createElement("link");
                     css.setAttribute("rel", "stylesheet");
                     css.setAttribute("type", "text/css");
-                    css.setAttribute("href", qualify(module.manifest.css));
+                    css.setAttribute("href", qualify(module.manifest.css[i]));
                     document.head.appendChild(css);
                 }
 

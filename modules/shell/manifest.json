@@ -3,12 +3,15 @@
     "base": "unstable",
 
     "TODO": "Attriributes below are shell specific",
-	"css": "cockpit.css",
+	"css": [
+            "../cockpit.css",
+            "shell.css"
+        ],
 	"scripts": [
 		"../jquery.js",
 		"../bootstrap.js",
 		"jquery-flot.js",
-		"attrchange.js",
+		"../attrchange.js",
 		"../term.js",
 		"polyfills.js",
 		"../channel.js",
@@ -16,7 +19,7 @@
 		"rest.js",
 		"../spawn.js",
 		"debug.js",
-		"controls.js",
+		"../controls.js",
 		"cockpit-util.js",
 		"cockpit-i18n.js",
 		"cockpit-main.js",

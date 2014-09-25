@@ -1,6 +1,8 @@
 cockpit_js_PARTS = \
 	modules/base/channel.js \
 	modules/base/spawn.js \
+	modules/base/attrchange.js \
+	modules/base/controls.js \
 	$(NULL)
 
 cockpit.js: $(cockpit_js_PARTS)
@@ -17,12 +19,20 @@ unstable_DATA = \
 	modules/base/bootstrap.js \
 	modules/base/bootstrap.min.js \
 	modules/base/term.js \
+	modules/base/cockpit.css \
 	modules/base/manifest.json \
 	$(NULL)
 
+unstableimagesdir = $(pkgdatadir)/unstable/images
+unstableimages_DATA = \
+	modules/base/images/play.png \
+	modules/base/images/eject.png \
+	modules/base/images/stop.png \
+	$(NULL)
+
 TESTS += \
-	modules/unstable/test-chan.html \
-	modules/unstable/test-spawn.html \
+	modules/base/test-chan.html \
+	modules/base/test-spawn.html \
 	$(NULL)
 
 CLEANFILES += \

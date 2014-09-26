@@ -918,6 +918,9 @@ cockpit_web_response_gerror (CockpitWebResponse *self,
                        COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED))
     code = 401;
   else if (g_error_matches (error,
+                       COCKPIT_ERROR, COCKPIT_ERROR_PERMISSION_DENIED))
+    code = 403;
+  else if (g_error_matches (error,
                             G_IO_ERROR, G_IO_ERROR_INVALID_DATA))
     code = 400;
   else if (g_error_matches (error,

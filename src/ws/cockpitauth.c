@@ -520,6 +520,12 @@ parse_auth_results (LoginData *login,
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Authentication failed");
     }
+  else if (code == PAM_PERM_DENIED)
+    {
+      g_debug ("permission denied: %d", (int)code);
+      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_PERMISSION_DENIED,
+                   "Permission denied");
+    }
   else
     {
       g_debug ("pam error: %d", (int)code);

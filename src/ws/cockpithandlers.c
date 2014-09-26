@@ -142,9 +142,7 @@ build_environment (CockpitWebService *service,
     const gchar *name;
     const gchar *code;
   } supported_languages[] = {
-    { NC_("display-language", "English"), "" },
-    { NC_("display-language", "Danish"),  "da" },
-    { NC_("display-language", "German"),  "de" },
+    { NC_("display-language", "English"), "" }
   };
 
   env = json_object_new ();

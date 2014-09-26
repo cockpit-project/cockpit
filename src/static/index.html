@@ -121,7 +121,7 @@
                     else
                         login(user, $("#login-password-input").val());
                 }
-                    
+
                 $("#login-password-input").on("keydown", function (e) {
                     $("#login-error-message").hide();
                     if (e.which == 13)
@@ -157,8 +157,11 @@
                         if (xhr.status == 401) {
                             console.log(xhr.statusText);
                             $("#login-error-message").show().text("Wrong username or password");
-                        }else {
-                            fatal(xhr.statusText);
+                        } else if (xhr.status == 403) {
+                            console.log(xhr.statusText);
+                            $("#login-error-message").show().text("Permission denied");
+                        } else {
+                            fatal(xhr.status + " " + xhr.statusText);
                         }
                         phantom_checkpoint();
                         $("#login-button").prop('disabled', false);

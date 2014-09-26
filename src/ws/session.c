@@ -372,6 +372,14 @@ open_session (pam_handle_t *pamh,
       if (res != PAM_SUCCESS)
         {
           warnx ("user account access failed: %s: %s", user, pam_strerror (pamh, res));
+
+          /* We change PAM_AUTH_ERR to PAM_PERM_DENIED so that we can
+           * distinguish between failures here and in *
+           * pam_authenticate.
+           */
+          if (res == PAM_AUTH_ERR)
+            res = PAM_PERM_DENIED;
+
           return res;
         }
 

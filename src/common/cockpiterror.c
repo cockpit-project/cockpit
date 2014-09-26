@@ -33,6 +33,7 @@ static const GDBusErrorEntry dbus_error_entries[] =
 {
   {COCKPIT_ERROR_NO_SUCH_REALM,                "com.redhat.Cockpit.Error.NoSuchRealm"},
   {COCKPIT_ERROR_AUTHENTICATION_FAILED,        "com.redhat.Cockpit.Error.AuthenticationFailed"},
+  {COCKPIT_ERROR_PERMISSION_DENIED,            "com.redhat.Cockpit.Error.PermissionDenied"},
   {COCKPIT_ERROR_CANCELLED,                    "com.redhat.Cockpit.Error.Cancelled"},
   {COCKPIT_ERROR_FAILED,                       "com.redhat.Cockpit.Error.Failed"},
 };

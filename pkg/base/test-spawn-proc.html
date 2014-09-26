@@ -49,6 +49,27 @@ asyncTest("simple process", function() {
         });
 });
 
+asyncTest("path", function() {
+    expect(1);
+    cockpit.spawn(["true"]).
+        always(function() {
+            equal(this.state(), "resolved", "path found executable");
+            start();
+        });
+});
+
+asyncTest("directory", function() {
+    expect(2);
+    cockpit.spawn(["pwd"], { directory: "/tmp" }).
+        done(function(resp) {
+            equal(resp, "/tmp\n", "directory was right");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "directory didn't fail");
+            start();
+        });
+});
+
 QUnit.start();
 
 </script>

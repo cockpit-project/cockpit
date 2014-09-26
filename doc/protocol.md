@@ -432,18 +432,21 @@ Additional "open" command options should be specified with a channel of
 this payload type:
 
  * "unix": Open a channel with the given unix socket.
- * "spawn": Spawn a process and connect standard input and standard output
-   to the channel. Should be an array of strings which is the process
-   file path and arguments.
- * "environ": If "spawn" is set, then this is the environment for the new
-   spawned process. If unset, then the environment is inherited from the
-   cockpit-bridge.
- * "pty": If "spawn" is set, then execute the command as a terminal pty.
  * "batch": Batches data coming from the stream in blocks of at least this
    size. This is not a guarantee. After a short timeout the data will be
    sent even if the data doesn't match the batch size. Defaults to zero.
+ * "spawn": Spawn a process and connect standard input and standard output
+   to the channel. Should be an array of strings which is the process
+   file path and arguments.
 
-You can't specify both "unix" and "spawn" together.
+You can't specify both "unix" and "spawn" together. When "spawn" is set the
+following options can be specified:
+
+ * "directory": The directory to spawn the process in.
+ * "environ": This is the environment for the new spawned process. If unset,
+   then the environment is inherited from the cockpit-bridge.
+ * "pty": Execute the command as a terminal pty.
+
 
 Problem codes
 -------------

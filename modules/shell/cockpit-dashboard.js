@@ -273,6 +273,8 @@ PageDashboard.prototype = {
         } else if (op == "disconnect") {
             machine.client.close();
         } else if (op == "remove") {
+            if (!cockpit.check_role("wheel", this.local_client))
+                return;
             machine.dbus_iface.call('RemoveTag', "dashboard", function (error) {
                 if (error)
                     cockpit.show_unexpected_error(error);
@@ -286,6 +288,9 @@ PageDashboard.prototype = {
     },
 
     add_server: function () {
+        if (!cockpit.check_role("wheel", this.local_client))
+            return;
+
         $('#dashboard_setup_server_dialog').modal('show');
     }
 };

@@ -1,12 +1,18 @@
 {
-	"html": "shell.html",
+    "version": 0,
+    "base": "unstable",
 
-	"css": "cockpit.css",
-
+    "TODO": "Attriributes below are shell specific",
+	"css": [
+            "../cockpit.css",
+            "shell.css"
+        ],
 	"scripts": [
-		"/static/jquery-flot.v1.1.js",
-    		"/static/attrchange.v0.js",
-		"/static/term.v0.js",
-		"cockpit.js"
+		"../jquery.js",
+		"../bootstrap.js",
+                "../cockpit.js",
+		"jquery-flot.js",
+		"../term.js",
+		"shell.js"
 	]
 }

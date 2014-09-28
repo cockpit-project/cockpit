@@ -1,0 +1,21 @@
+terminal_js_PARTS = \
+	modules/unstable/terminal.js \
+	$(NULL)
+
+terminal_js_FILE = terminal.min.js
+$(terminal_js_FILE): $(cockpit_js_PARTS)
+	$(AM_V_GEN) JSL=$(JSL) $(JSLINT) $^
+	$(AM_V_GEN) $(MINIFY) $^ >$@.tmp && mv $@.tmp $@
+
+
+terminaldir = $(pkgdatadir)/terminal
+nodist_terminal_DATA = $(terminal_js_FILE)
+terminal_DATA = \
+	modules/terminal/terminal.js \
+	modules/terminal/terminal.html \
+	modules/terminal/manifest.json \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(terminal_DATA) \
+	$(NULL)

@@ -16,6 +16,12 @@ TESTS =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
+SUFFIXES = .js .min.js
+
+.js.min.js: 
+	$(AM_V_GEN) $(MINIFY) -o $@ -- $^
+
+
 if HAVE_SYSTEMD
 systemdunitdir          = $(systemdsystemunitdir)
 else
@@ -100,13 +106,8 @@ SED_SUBST = sed \
         -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
         $(NULL)
 
-if WITH_DEBUG
-MINIFY = $(top_srcdir)/tools/minify -n --
-else
-MINIFY = $(top_srcdir)/tools/minify --
-endif
-
-JSLINT = $(top_srcdir)/tools/js-lint
+MINIFY = $(top_srcdir)/tools/minify
+JSLINT = JSL=$(JSL) $(top_srcdir)/tools/js-lint
 PO2JSON = $(top_srcdir)/tools/po2json
 GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
 VERIFY_CHECKSUMS = $(top_srcdir)/tools/verify-checksums
@@ -171,7 +172,9 @@ upload-doc:
 
 endif
 
+include modules/base/Makefile-base.am
 include modules/shell/Makefile-shell.am
+include modules/terminal/Makefile-terminal.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am

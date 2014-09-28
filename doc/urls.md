@@ -9,10 +9,18 @@ and their characteristics:
    are cached for as long as possible, and names *must* change when the
    contents of the file changes.
 
- * ```/cache/xxxxxxxxxxxxxxx/path/to/file.ext``` are files which are
-   cached by modules for as long as possible. The checksum changes when
-   any of the contents of the given module change. Only available after
-   authentication and retrieving a resource1 listing.
+ * ```/res/+module3/+module2/+module/path/to/file.ext``` are files which
+   are part of various modules. Only available after authenticating.
+   See below for information on how modules are described and how that
+   affects caching of files. The last module is the one being referred
+   to, and from which the file will be loaded.
 
- * ```/res/host/module/path/to/file.ext``` are files from modules that
-   are not cached. Only available after authentication.
+Cockpit module descriptions
+===========================
+
+ * +xxxxxxxxxxxxxxxxxxxxxxxx the checksum of a module can be used to
+   refer to the module. When referring to a module in this form the
+   will be cached indefinitely.
+
+ * +module@host is a fully qualified module loaded from the given host.
+   The resources are not cached.

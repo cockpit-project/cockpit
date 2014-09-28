@@ -1,19 +1,25 @@
 {
-	"html": "shell.html",
+    "version": 0,
+    "base": "unstable",
 
-	"css": "cockpit.css",
-
+    "TODO": "Attriributes below are shell specific",
+	"css": [
+            "../cockpit.css",
+            "shell.css"
+        ],
 	"scripts": [
-		"/static/jquery-flot.v1.1.js",
-    		"/static/attrchange.v0.js",
-		"/static/term.v0.js",
+		"../jquery.js",
+		"../bootstrap.js",
+		"jquery-flot.js",
+		"../attrchange.js",
+		"../term.js",
 		"polyfills.js",
-		"channel.js",
+		"../channel.js",
 		"dbus.js",
 		"rest.js",
-		"spawn.js",
+		"../spawn.js",
 		"debug.js",
-		"controls.js",
+		"../controls.js",
 		"cockpit-util.js",
 		"cockpit-i18n.js",
 		"cockpit-main.js",
@@ -33,7 +39,6 @@
 		"cockpit-services.js",
 		"cockpit-journal.js",
 		"cockpit-journal-renderer.js",
-		"cockpit-terminal.js",
 		"cockpit-accounts.js",
 		"cockpit-docker.js",
 		"cockpit-internal.js",

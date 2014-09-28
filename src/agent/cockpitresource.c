@@ -27,6 +27,9 @@
 
 #include <string.h>
 
+/* Overridable from tests */
+const gchar **cockpit_agent_data_dirs = NULL; /* default */
+
 /*
  * Note that the way we construct checksums is not a stable part of our ABI. It
  * can be changed, as long as it then produces a different set of checksums
@@ -43,6 +46,15 @@ static gboolean   module_checksum_directory    (GChecksum *checksum,
                                                 const gchar *directory);
 
 static gboolean
+validate_name (const gchar *name)
+{
+  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.,"
+    /* We also pass paths to this function: */ "/";
+  gsize len = strspn (name, allowed);
+  return name[len] == '\0';
+}
+
+static gboolean
 module_checksum_file (GChecksum *checksum,
                       const gchar *root,
                       const gchar *filename)
@@ -53,6 +65,12 @@ module_checksum_file (GChecksum *checksum,
   GChecksum *inner = NULL;
   GMappedFile *mapped = NULL;
   gboolean ret = FALSE;
+
+  if (!validate_name (filename))
+    {
+      g_warning ("module has an invalid path name: %s", filename);
+      goto out;
+    }
 
   path = g_build_filename (root, filename, NULL);
   if (g_file_test (path, G_FILE_TEST_IS_DIR))
@@ -288,6 +306,12 @@ read_module_manifest (const gchar *directory,
   gchar *filename;
   gsize length;
 
+  if (!validate_name (module))
+    {
+      g_warning ("module has invalid name: %s", module);
+      return NULL;
+    }
+
   filename = g_build_filename (directory, module, "manifest.json", NULL);
   if (!g_file_get_contents (filename, &contents, &length, &error))
     {
@@ -316,8 +340,8 @@ static void
 respond_module_listing (CockpitChannel *channel)
 {
   const gchar *const *directories;
+  gchar *directory = NULL;
   gchar *checksum;
-  gchar *directory;
   gchar **modules;
   JsonObject *manifest;
   JsonObject *root;
@@ -327,8 +351,9 @@ respond_module_listing (CockpitChannel *channel)
   root = json_object_new ();
 
   /* User module directory: no checksums */
-  directory = g_build_filename (g_get_user_data_dir (), "cockpit", NULL);
-  if (g_file_test (directory, G_FILE_TEST_IS_DIR))
+  if (!cockpit_agent_data_dirs)
+    directory = g_build_filename (g_get_user_data_dir (), "cockpit", NULL);
+  if (directory && g_file_test (directory, G_FILE_TEST_IS_DIR))
     {
       modules = directory_filenames (directory);
       for (j = 0; modules[j] != NULL; j++)
@@ -346,7 +371,11 @@ respond_module_listing (CockpitChannel *channel)
   g_free (directory);
 
   /* System module directories */
-  directories = g_get_system_data_dirs();
+  if (cockpit_agent_data_dirs)
+    directories = cockpit_agent_data_dirs;
+  else
+    directories = g_get_system_data_dirs ();
+
   for (i = 0; directories[i] != NULL; i++)
     {
       directory = g_build_filename (directories[i], "cockpit", NULL);
@@ -361,15 +390,15 @@ respond_module_listing (CockpitChannel *channel)
                   manifest = read_module_manifest (directory, modules[j]);
                   if (manifest)
                     {
-                      object = json_object_new ();
                       checksum = module_checksum (directory, modules[j]);
                       if (checksum)
                         {
+                          object = json_object_new ();
                           json_object_set_string_member (object, "checksum", checksum);
+                          json_object_set_object_member (object, "manifest", manifest);
+                          json_object_set_object_member (root, modules[j], object);
                           g_free (checksum);
                         }
-                      json_object_set_object_member (object, "manifest", manifest);
-                      json_object_set_object_member (root, modules[j], object);
                     }
                 }
             }
@@ -385,23 +414,96 @@ respond_module_listing (CockpitChannel *channel)
   cockpit_channel_close (channel, NULL);
 }
 
+static gchar *
+calculate_minified_path (const gchar *path)
+{
+  const gchar *dot;
+  const gchar *slash;
+
+  dot = strrchr (path, '.');
+  slash = strrchr (path, '/');
+
+  if (dot == NULL)
+    return NULL;
+  if (slash != NULL && dot < slash)
+    return NULL;
+
+  return g_strdup_printf ("%.*s.min%s",
+                          (int)(dot - path), path, dot);
+}
+
+static GMappedFile *
+open_file (CockpitChannel *channel,
+           const gchar *base,
+           const gchar *path,
+           gboolean *retry)
+{
+  GMappedFile *mapped = NULL;
+  GError *error = NULL;
+  gchar *filename;
+
+  g_assert (retry);
+  *retry = FALSE;
+
+  /*
+   * This is *not* a security check. We're accessing files as the user.
+   * What this does is prevent module authors from drawing outside the
+   * lines. Keeps everyone honest.
+   */
+  if (strstr (path, "../") || strstr (path, "/..") || !validate_name (path))
+    {
+      g_message ("invalid path used as a resource: %s", path);
+      cockpit_channel_close (channel, "protocol-error");
+      return NULL;
+    }
+
+  filename = g_build_filename (base, path, NULL);
+  mapped = g_mapped_file_new (filename, FALSE, &error);
+  if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
+      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ISDIR) ||
+      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NAMETOOLONG) ||
+      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_LOOP) ||
+      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL))
+    {
+      g_debug ("resource file was not found: %s", error->message);
+      *retry = TRUE;
+    }
+  else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
+           g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
+    {
+      g_message ("%s", error->message);
+      cockpit_channel_close (channel, "not-authorized");
+    }
+  else if (error)
+    {
+      g_message ("%s", error->message);
+      cockpit_channel_close (channel, "internal-error");
+    }
+
+  g_clear_error (&error);
+  g_free (filename);
+  return mapped;
+}
+
 static gboolean
 on_prepare_channel (gpointer data)
 {
   CockpitResource *self = COCKPIT_RESOURCE (data);
   CockpitChannel *channel = COCKPIT_CHANNEL (data);
   const gchar *const *directories;
-  gchar *filename = NULL;
   gchar *base = NULL;
-  GError *error = NULL;
   const gchar *path;
   const gchar *module;
+  const gchar *accept;
+  gchar *alternate = NULL;
+  gboolean retry;
   gint i;
 
   self->idler = 0;
 
   module = cockpit_channel_get_option (channel, "module");
   path = cockpit_channel_get_option (channel, "path");
+  accept = cockpit_channel_get_option (channel, "accept");
 
   if (!module && !path)
     {
@@ -421,14 +523,9 @@ on_prepare_channel (gpointer data)
       goto out;
     }
 
-  /*
-   * This is *not* a security check. We're accessing files as the user.
-   * What this does is prevent module authors from drawing outside the
-   * lines. Keeps everyone honest.
-   */
-  if (strstr (path, "../") || strstr (path, "/.."))
+  if (!validate_name (module))
     {
-      g_message ("invalid 'path' used as a resource: %s", path);
+      g_message ("invalid 'module' name: %s", module);
       cockpit_channel_close (channel, "protocol-error");
       goto out;
     }
@@ -456,29 +553,22 @@ on_prepare_channel (gpointer data)
       goto out;
     }
 
-  filename = g_build_filename (base, path, NULL);
-  self->mapped = g_mapped_file_new (filename, FALSE, &error);
-  if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ISDIR) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NAMETOOLONG) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_LOOP) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL))
+  retry = TRUE;
+  if (accept && g_str_equal (accept, "minified"))
     {
-      g_debug ("resource file was not found: %s", error->message);
+      alternate = calculate_minified_path (path);
+      if (alternate)
+        self->mapped = open_file (channel, base, alternate, &retry);
+    }
+
+  if (!self->mapped && retry)
+    self->mapped = open_file (channel, base, path, &retry);
+
+  if (!self->mapped && retry)
+    {
       cockpit_channel_close (channel, "not-found");
     }
-  else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
-           g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
-    {
-      g_message ("%s", error->message);
-      cockpit_channel_close (channel, "not-authorized");
-    }
-  else if (error)
-    {
-      g_message ("%s", error->message);
-      cockpit_channel_close (channel, "internal-error");
-    }
-  else
+  else if (self->mapped)
     {
       /* Start sending resource data */
       self->offset = 0;
@@ -489,8 +579,7 @@ on_prepare_channel (gpointer data)
     }
 
 out:
-  g_clear_error (&error);
-  g_free (filename);
+  g_free (alternate);
   g_free (base);
   return FALSE;
 }

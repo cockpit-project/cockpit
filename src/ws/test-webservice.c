@@ -1177,7 +1177,7 @@ test_resource_simple (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/res/localhost/another/test.html", NULL);
+  response = cockpit_web_response_new (tc->io, "/res/+another@localhost/test.html", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
@@ -1214,7 +1214,7 @@ test_resource_not_found (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/res/localhost/another/not-exist", NULL);
+  response = cockpit_web_response_new (tc->io, "/res/+another@localhost/not-exist", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
@@ -1243,7 +1243,7 @@ test_resource_no_path (TestResourceCase *tc,
   GBytes *bytes;
 
   /* Missing path after module */
-  response = cockpit_web_response_new (tc->io, "/res/localhost/another", NULL);
+  response = cockpit_web_response_new (tc->io, "/res/+another@localhost", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
@@ -1275,7 +1275,7 @@ test_resource_failure (TestResourceCase *tc,
 
   cockpit_expect_message ("*: failed to retrieve resource: terminated");
 
-  response = cockpit_web_response_new (tc->io, "/res/localhost/another/test.html", NULL);
+  response = cockpit_web_response_new (tc->io, "/res/+another@localhost/test.html", NULL);
 
   /* Now kill the agent */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
@@ -1370,7 +1370,7 @@ test_resource_checksum (TestResourceCase *tc,
   json_object_unref (cockpit_web_service_modules_finish (tc->service, result));
   g_object_unref (result);
 
-  response = cockpit_web_response_new (tc->io, "/cache/b0cb8eb96388a67047c60d48634172e72db50eaf/sub/file.ext", NULL);
+  response = cockpit_web_response_new (tc->io, "/res/+b0cb8eb96388a67047c60d48634172e72db50eaf/sub/file.ext", NULL);
   cockpit_web_service_resource (tc->service, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -1403,7 +1403,7 @@ test_resource_no_checksum (TestResourceCase *tc,
   GBytes *bytes;
 
   /* Missing checksum */
-  response = cockpit_web_response_new (tc->io, "/cache/", NULL);
+  response = cockpit_web_response_new (tc->io, "/res/", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 
@@ -1432,7 +1432,7 @@ test_resource_bad_checksum (TestResourceCase *tc,
   GBytes *bytes;
 
   /* Missing checksum */
-  response = cockpit_web_response_new (tc->io, "/cache/09323094823029348/path", NULL);
+  response = cockpit_web_response_new (tc->io, "/res/+09323094823029348/path", NULL);
 
   cockpit_web_service_resource (tc->service, response);
 

@@ -76,6 +76,7 @@
               <img id="server-avatar">
            </div>
             <a class="list-group-item" onclick="cockpit.go_down('system_information')">
+              <!-- @@module@@ is a shell specific construct --> 
               <img class="cockpit-category-icon" src="@@module@@/images/category-system.png">
               System Information
             </a>
@@ -734,11 +735,8 @@
 
       </div>
 
-      <div id="terminal">
-          <div id="rescue-terminal" class="terminal-emulator"></div>
-      </div>
-
       <div id="internal" class="container-fluid">
+          <!-- @@module@@ is a shell specific construct --> 
           <img src="@@module@@/images/hammer.gif" style="float: right;"
               onclick="$(this).hide();">
           <div class="cockpit-internal-reauthorize">
@@ -1243,6 +1241,7 @@
                     <div id="realms-op-address-spinner"
                          class="waiting"
                          style="margin-left:-40px;margin-top:4px"></div>
+                    <!-- @@module@@ is a shell specific construct --> 
                     <img id="realms-op-address-error"
                          src="@@module@@/images/dialog-error.png"
                          style="margin-left:-40px;margin-top:4px"/>

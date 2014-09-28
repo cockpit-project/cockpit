@@ -24,6 +24,7 @@
 #include "cockpitws.h"
 
 #include "common/cockpitjson.h"
+#include "common/cockpittemplate.h"
 
 #include "websocket/websocket.h"
 
@@ -362,6 +363,21 @@ cockpit_handler_ping (CockpitWebServer *server,
   return TRUE;
 }
 
+static GBytes *
+substitute_environment (const gchar *variable,
+                        gpointer user_data)
+{
+  GBytes **environ = user_data;
+  GBytes *ret = NULL;
+
+  if (g_str_equal (variable, "environment"))
+    {
+      ret = *environ;
+      *environ = NULL;
+    }
+
+  return ret;
+}
 
 static void
 send_index_response (CockpitWebResponse *response,
@@ -369,20 +385,15 @@ send_index_response (CockpitWebResponse *response,
                      JsonObject *packages,
                      CockpitHandlerData *ws)
 {
-  GHashTable *out_headers;
+  GHashTable *out_headers = NULL;
   GError *error = NULL;
   GMappedFile *file = NULL;
   GBytes *body = NULL;
-  GBytes *prefix = NULL;
   GBytes *environ = NULL;
-  GBytes *suffix = NULL;
+  GList *output = NULL;
   gchar *index_html;
-  const gchar *needle;
-  const gchar *data;
-  const gchar *pos;
-  gsize needle_len;
   gsize length;
-  gsize offset;
+  GList *l;
 
   /*
    * Since the index file cannot be properly cached, it can change on
@@ -404,41 +415,43 @@ send_index_response (CockpitWebResponse *response,
     }
 
   body = g_mapped_file_get_bytes (file);
-  data = g_bytes_get_data (body, &length);
 
-  needle = "cockpit_environment_info";
-  pos = g_strstr_len (data, length, needle);
-  if (!pos)
+  environ = build_environment (service, packages);
+  output = cockpit_template_expand (body, substitute_environment, &environ);
+
+  if (environ != NULL)
     {
-      g_warning ("couldn't find 'cockpit_environment_info' string in index.html");
+      g_warning ("couldn't find '@@environment@@' string in index.html");
       cockpit_web_response_error (response, 500, NULL, NULL);
       goto out;
     }
 
-  environ = build_environment (service, packages);
-
-  offset = (pos - data);
-  prefix = g_bytes_new_from_bytes (body, 0, offset);
-
-  needle_len = strlen (needle);
-  suffix = g_bytes_new_from_bytes (body, offset + needle_len,
-                                   length - (offset + needle_len));
+  length = 0;
+  for (l = output; l != NULL; l = g_list_next (l))
+    length += g_bytes_get_size (l->data);
 
   out_headers = cockpit_web_server_new_table ();
   g_hash_table_insert (out_headers, g_strdup ("Content-Type"), g_strdup ("text/html; charset=utf8"));
-  cockpit_web_response_content (response, out_headers, prefix, environ, suffix, NULL);
-  g_hash_table_unref (out_headers);
+
+  cockpit_web_response_headers_full (response, 200, "OK", length, out_headers);
+
+  for (l = output; l != NULL; l = g_list_next (l))
+    {
+      if (!cockpit_web_response_queue (response, l->data))
+        break;
+    }
+  if (l == NULL)
+    cockpit_web_response_complete (response);
 
 out:
+  g_list_free_full (output, (GDestroyNotify)g_bytes_unref);
+  if (out_headers)
+    g_hash_table_unref (out_headers);
   g_free (index_html);
-  if (prefix)
-    g_bytes_unref (prefix);
   if (body)
     g_bytes_unref (body);
   if (environ)
     g_bytes_unref (environ);
-  if (suffix)
-    g_bytes_unref (suffix);
   if (file)
     g_mapped_file_unref (file);
 }

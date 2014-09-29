@@ -609,6 +609,11 @@ ul.available-interfaces-group {
     padding-left: 15px;
 }
 
+.table tbody tr td:last-child,
+.table thead tr th:last-child {
+    padding-right: 15px;
+}
+
 .panel-heading {
    height: 44px;
 }
@@ -634,9 +639,10 @@ ul.available-interfaces-group {
  */
 .progress {
     background-color: #e7e7e7;
-    box-shadow: none;
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25) inset;
     font-size: 11px;
     font-weight: bold;
+    margin-bottom: 0;
 }
 
 .progress-bar {
@@ -644,6 +650,10 @@ ul.available-interfaces-group {
     font-size: 11px;
     font-weight: bold;
     box-shadow: none;
+}
+
+.progress-bar-danger {
+    background-color: #af151a;
 }
 
 /*
@@ -861,4 +871,10 @@ ul.available-interfaces-group {
     padding:0px;
     padding-top:15px;
     border: none;
+}
+
+/* Storage */
+
+.storage-mount-size {
+    text-align: right;
 }

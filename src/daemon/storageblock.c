@@ -293,6 +293,11 @@ storage_block_update (StorageBlock *block)
   const gchar *type;
   GVariant *details;
   gboolean got_fstab = FALSE, got_crypttab = FALSE;
+
+  gs_free gchar *mount_point = NULL;
+  gs_free gchar *mount_opts = NULL;
+  gs_free gchar *crypt_opts = NULL;
+
   while (g_variant_iter_next (&iter, "(&s*)", &type, &details))
     {
       if (strcmp (type, "fstab") == 0 && !got_fstab)
@@ -300,17 +305,12 @@ storage_block_update (StorageBlock *block)
           got_fstab = TRUE;
           const gchar *dir = variant_lookup (details, "dir");
           if (dir)
-            {
-              gs_free gchar *dir_display = g_filename_display_name (dir);
-              cockpit_storage_block_set_mount_point (iface, dir_display);
-            }
+            mount_point = g_filename_display_name (dir);
           const gchar *opts = variant_lookup (details, "opts");
           if (opts)
             {
-              gs_free gchar *opts_locale = g_locale_to_utf8 (opts, -1, NULL, NULL, NULL);
-              if (opts_locale)
-                cockpit_storage_block_set_mount_options (iface, opts_locale);
-              else
+              mount_opts = g_locale_to_utf8 (opts, -1, NULL, NULL, NULL);
+              if (!mount_opts)
                 g_warning ("Can't convert fstab options into UTF8");
             }
         }
@@ -320,15 +320,17 @@ storage_block_update (StorageBlock *block)
           const gchar *opts = variant_lookup (details, "options");
           if (opts)
             {
-              gs_free gchar *opts_locale = g_locale_to_utf8 (opts, -1, NULL, NULL, NULL);
-              if (opts_locale)
-                cockpit_storage_block_set_crypto_options (iface, opts_locale);
-              else
+              crypt_opts = g_locale_to_utf8 (opts, -1, NULL, NULL, NULL);
+              if (!crypt_opts)
                 g_warning ("Can't convert crypttab options into UTF8");
             }
         }
       g_variant_unref (details);
     }
+
+  cockpit_storage_block_set_mount_point (iface, mount_point);
+  cockpit_storage_block_set_mount_options (iface, mount_opts);
+  cockpit_storage_block_set_crypto_options (iface, crypt_opts);
 
   /* Now the com.redhat.lvm2 overlays.  The StorageProvider makes sure
      that we are called whenever something changes about them.

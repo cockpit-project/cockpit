@@ -182,3 +182,4 @@ include src/static/Makefile-static.am
 include src/remotectl/Makefile-remotectl.am
 include src/reauthorize/Makefile-reauthorize.am
 include src/selinux/Makefile-selinux.am
+include src/polkit/Makefile-polkit.am

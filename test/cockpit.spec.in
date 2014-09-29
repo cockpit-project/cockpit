@@ -116,6 +116,8 @@ rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 mkdir -p %{buildroot}/etc/pam.d/
 cp test/cockpit.pam %{buildroot}/etc/pam.d/cockpit
 cp src/agent/sshd-reauthorize.pam %{buildroot}/%{_datadir}/%{name}
+mkdir -p %{buildroot}/%{_datadir}/polkit-1/rules.d
+cp src/agent/polkit-workarounds.rules %{buildroot}/%{_datadir}/polkit-1/rules.d
 install -d %{buildroot}%{_datadir}/selinux/targeted
 install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 
@@ -163,6 +165,7 @@ pulls in some necessary packages via dependencies.
 
 %files test-assets
 %{_datadir}/cockpit-test-assets
+%{_datadir}/polkit-1/rules.d
 /usr/lib/systemd/system/cockpit-testing.service
 /usr/lib/systemd/system/cockpit-testing.socket
 /usr/lib/systemd/system/test-server.service

@@ -186,101 +186,163 @@
       </div>
 
       <div id="storage" class="container-fluid">
+        <div class="col-sm-9">
 
-        <p>
-          <button id="storage_create_raid" class="btn btn-default" translatable="yes">Create RAID Device</button>
-          <button id="storage_create_volume_group" class="btn btn-default" translatable="yes">Create Volume Group</button>
-        </p>
-
-        <div class="row">
-          <div class="col-sm-6">
-            <div>Reading<span style="float:right" id="storage-reading-text"></span></div>
-            <div style="height:120px" id="storage-reading-graph"></div>
+          <div class="row">
+            <div class="col-sm-6">
+              <div>Reading<span style="float:right" id="storage-reading-text"></span></div>
+              <div style="height:120px" id="storage-reading-graph"></div>
+            </div>
+            <div class="col-sm-6">
+              <div>Writing<span style="float:right" id="storage-writing-text"></span></div>
+              <div style="height:120px" id="storage-writing-graph"></div>
+            </div>
           </div>
-          <div class="col-sm-6">
-            <div>Writing<span style="float:right" id="storage-writing-text"></span></div>
-            <div style="height:120px" id="storage-writing-graph"></div>
-          </div>
-        </div>
-        <br/>
+          <br/>
 
-        <div class="panel panel-default">
+          <div class="panel panel-default">
+          <div class="panel-heading">
+            <span translatable="yes">Mounts</span>
+          </div>
           <table class="table table-hover">
             <thead>
-              <tr class="panel-heading-tr">
-                <th width="30%">Drives</th>
-                <th></th>
-                <th width="20%">Reading</th>
-                <th width="20%">Writing</th>
-                <th></th>
+              <tr>
+                <th>Name</th>
+                <th>Mount Point</th>
+                <th style="width: 55%;">Size</th>
+                <th style="width: 10%;">&nbsp;</th>
               </tr>
             </thead>
-            <tbody id="storage_drives">
-            </tbody>
-          </table>
-        </div>
-
-        <div class="panel panel-default">
-          <table class="table table-hover">
-            <thead>
-              <tr class="panel-heading-tr">
-                <th width="30%">RAID Devices</th>
-                <th></th>
-                <th width="20%"></th>
-                <th width="20%"></th>
-                <th></th>
+            <tbody>
               <tr>
-            </thead>
-            <tbody id="storage_raids">
-            </tbody>
-          </table>
-        </div>
-
-        <div class="panel panel-default">
-          <table class="table table-hover">
-            <thead>
-              <tr class="panel-heading-tr">
-                <th width="30%">Volume Groups</th>
-                <th></th>
-                <th width="20%"></th>
-                <th width="20%"></th>
-                <th></th>
+                <td>Storage</td>
+                <td>/media/storage</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                      <span class="sr-only">60% Complete</span>
+                   </div>
+                  </div>
+                </td>
+                <td class="storage-mount-size">3/5 TB</td>
+              </tr>
               <tr>
-            </thead>
-            <tbody id="storage_vgs">
-            </tbody>
-          </table>
-        </div>
-
-        <div class="panel panel-default">
-          <table class="table table-hover">
-            <thead>
-              <tr class="panel-heading-tr">
-                <th width="30%">Other Devices</th>
-                <th></th>
-                <th width="20%">Reading</th>
-                <th width="20%">Writing</th>
-                <th></th>
+                <td>Root</td>
+                <td>/</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar  progress-bar-danger" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100" style="width: 95%;">
+                      <span class="sr-only">95% Complete</span>
+                   </div>
+                  </div>
+                </td>
+                <td class="storage-mount-size">475/500 GB</td>
+              </tr>
               <tr>
-            </thead>
-            <tbody id="storage_other_devices">
+                <td>Home</td>
+                <td>/home</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                      <span class="sr-only">60% Complete</span>
+                   </div>
+                  </div>
+                </td>
+                <td class="storage-mount-size">1.2/2 TB</td>
+              </tr>
             </tbody>
           </table>
         </div>
 
-        <div class="panel panel-default">
-          <div class="panel-heading" translatable="yes">Storage Jobs</div>
-          <table class="table">
-            <tbody id="storage-jobs">
-            </tbody>
-          </table>
+          <div class="panel panel-default cockpit-log-panel">
+            <div class="panel-heading" translatable="yes">Storage Journal</div>
+            <div class="panel-body" id="storage-log"></div>
+          </div>
+
         </div>
 
-        <div class="panel panel-default cockpit-log-panel">
-          <div class="panel-heading" translatable="yes">Storage Journal</div>
-          <div class="panel-body" id="storage-log"></div>
-        </div>
+        <div class="col-sm-3">
 
+          <p>
+            <button id="storage_create_raid" class="btn btn-default" translatable="yes">Create RAID Device</button>
+            <button id="storage_create_volume_group" class="btn btn-default" translatable="yes">Create Volume Group</button>
+          </p>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">Volume Groups</div>
+            <table class="table table-hover">
+              <tbody id="storage_vgs">
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">RAID Devices</div>
+            <table class="table table-hover">
+              <tbody id="storage_raids">
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel panel-default">
+            <table class="table table-hover">
+              <thead>
+                <tr class="panel-heading-tr">
+                  <th width="50%">Other Devices</th>
+                  <th></th>
+                  <th width="10%">Reading</th>
+                  <th width="10%">Writing</th>
+                  <th></th>
+                <tr>
+              </thead>
+              <tbody id="storage_other_devices">
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel panel-default">
+            <table class="table table-hover">
+              <thead>
+                <tr class="panel-heading-tr">
+                  <th width="50%">Drives</th>
+                  <th></th>
+                  <th width="10%">Reading</th>
+                  <th width="10%">Writing</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="storage_drives">
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel panel-default">
+          <div class="panel-heading" translatable="yes">Drives</div>
+            <table class="table table-hover">
+              <tbody>
+              <tr><td style="width: 48px;"><img src="@@module@@/images/storage-disk.png"></td><td>
+                OCZ-VERTEX4 (OCZ-489ICLW11D73DTI1)<br>
+                238.5 GB Solid-State Disk<br>
+               Reading: 0 B/s &nbsp;&nbsp;&nbsp;&nbsp; Writing: 0 B/s<br>
+                </td></tr>
+              <tr><td style="width: 48px;"><img src="@@module@@/images/storage-disk.png"></td><td>
+                WDC WD30EFRX-68EUZN0 (WD-WCC4NE52EF9Z)<br>
+                	2.7 TB Hard Disk<br>
+               Reading: 0 B/s &nbsp;&nbsp;&nbsp;&nbsp; Writing: 0 B/s<br>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading" translatable="yes">Storage Jobs</div>
+            <table class="table">
+              <tbody id="storage-jobs">
+              </tbody>
+            </table>
+          </div>
+
+        </div>
       </div>
 
       <div id="storage-detail" class="container-fluid">

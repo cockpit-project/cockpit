@@ -118,11 +118,12 @@ class TestStorage(MachineCase):
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-type", "ext4")
         b.set_val("#format-name", "FILESYSTEM")
+        b.set_val("#format-mounting", "custom")
         b.set_val("#format-mount-point", "/foo")
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
         b.wait_in_text("#storage_detail_partition_list", "FILESYSTEM")
-        b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/foo")
+        path = b.wait_dbus_prop("com.redhat.Cockpit.Storage.Block", "MountPoint", "/foo")
 
         self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /foo")
@@ -137,9 +138,24 @@ class TestStorage(MachineCase):
         b.set_val("#fsysopts-mount-point", "/bar");
         b.click("#fsysopts-apply")
         b.wait_popdown("filesystem_options_dialog")
+        b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", "/bar")
 
         self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /bar")
+
+        self.content_default_action(1, "Unmount");
+        b.wait_in_text("#storage_detail_partition_list", "not mounted")
+
+        self.content_action(1, "Filesystem Options");
+        b.wait_popup("filesystem_options_dialog")
+        b.wait_val("#fsysopts-name", "FILESYSTEM")
+        b.set_val("#fsysopts-mounting", "default");
+        b.click("#fsysopts-apply")
+        b.wait_popdown("filesystem_options_dialog")
+        b.wait_dbus_object_prop(path, "com.redhat.Cockpit.Storage.Block", "MountPoint", "")
+
+        self.content_default_action(1, "Mount");
+        b.wait_in_text("#storage_detail_partition_list", "mounted on /run/media/root/FILESYSTEM")
 
     def testDosParts(self):
         m = self.machine
@@ -255,6 +271,7 @@ class TestStorage(MachineCase):
         b.set_val("#format-passphrase", "maisa-artu-keke-tellu")
         b.set_val("#format-passphrase-2", "maisa-artu-keke-tellu")
         b.set_checked("#format-store-passphrase", True)
+        b.set_val("#format-mounting", "custom")
         b.set_val("#format-mount-point", "/secret")
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
@@ -509,6 +526,7 @@ class TestStorage(MachineCase):
         b.set_val("#format-erase", "zero")
         b.set_val("#format-type", "ext4")
         b.set_val("#format-name", "FILESYSTEM");
+        b.set_val("#format-mounting", "custom")
         b.set_val("#format-mount-point", "/foo");
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
@@ -630,6 +648,7 @@ class TestStorage(MachineCase):
         self.content_default_action(1, "Format")
         b.wait_popup('storage_format_dialog')
         b.set_val('#format-type', "ext4")
+        b.set_val("#format-mounting", "custom")
         b.set_val('#format-mount-point', "/one");
         b.click('#format-format')
         b.wait_popdown('storage_format_dialog')
@@ -676,6 +695,7 @@ class TestStorage(MachineCase):
         b.wait_popup('storage_format_dialog')
         b.set_val('#format-erase', "zero")
         b.set_val('#format-type', "ext4")
+        b.set_val("#format-mounting", "custom")
         b.set_val('#format-mount-point', "/thin");
         b.click('#format-format')
         with b.wait_timeout(20):

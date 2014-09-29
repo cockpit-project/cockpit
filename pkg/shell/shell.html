@@ -65,12 +65,48 @@
               </ul>
             </li>
           </ul>
-          <div class="nav navbar-nav navbar-primary">
-            <div class="col-md-10">
-              <div class="btn-group" id="content-global-breadcrumb">
-              </div>
-            </div>
-          </div>
+          <ul class="nav navbar-nav navbar-primary">
+            <li>
+              <a onclick="cockpit.go({page:'dashboard'})">
+                <img src="images/switcher.png">Server One
+              </a>
+            </li>
+            <li>
+              <a onclick="cockpit.go_rel('server')">Dashboard</a>
+            </li>
+            <li>
+              <a onclick="cockpit.go_rel('services')">Services</a>
+            </li>
+            <li>
+              <a onclick="cockpit.go_rel('journal')">Journal</a>
+            </li>
+            <li>
+              <a onclick="cockpit.go_rel('networking')">Networking</a>
+            </li>
+            <li>
+              <a onclick="cockpit.go_rel('storage')">Storage</a>
+            </li>
+            <li>
+              <a onclick="cockpit.go_rel('containers')">Containers</a>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              System
+              <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a onclick="cockpit.go_rel('accounts')">Administrator accounts</a>
+                </li>
+                <li>
+                  <a onclick="cockpit.go_rel('terminal')">Terminal</a>
+                </li>
+                <li>
+                  <a data-toggle="modal" data-target="#shutdown-dialog">Shutdown and Reboot</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
           <div class="nav navbar-nav" style="width: 100%;">
             <div class="col-md-12" id="content-header-extra">
             </div>
@@ -84,63 +120,64 @@
       </div>
 
       <div id="server" class="container-fluid">
-        <div id="server-nav-column">
-          <div class="list-group">
-            <div class="list-group-item" id="system-picture">
-              <input data-role="none" type="file"
-                     id="server-avatar-uploader" style="display:none"/>
-              <img id="server-avatar">
-           </div>
-            <a class="list-group-item" onclick="cockpit.go_rel('system_information')">
-              <img class="cockpit-category-icon" src="images/category-system.png">
-              System Information
-            </a>
-            <a class="list-group-item" onclick="cockpit.go_rel('services')">
-              <img class="cockpit-category-icon" src="images/category-services.png">
-              Services
-            </a>
-            <a class="list-group-item" onclick="cockpit.go_rel('journal')">
-              <img class="cockpit-category-icon" src="images/category-journal.png">
-              Journal
-            </a>
-            <a class="list-group-item"  onclick="cockpit.go_rel('networking')">
-              <img class="cockpit-category-icon" src="images/category-networking.png">
-              Networking
-            </a>
-            <a class="list-group-item" onclick="cockpit.go_rel('storage')">
-              <img class="cockpit-category-icon" src="images/category-storage.png">
-              Storage
-            </a>
-            <a class="list-group-item" onclick="cockpit.go_rel('accounts')">
-              <img class="cockpit-category-icon" src="images/category-users.png">
-              User Accounts
-            </a>
-            <a class="list-group-item" onclick="cockpit.go_rel('containers')">
-              <img class="cockpit-category-icon" src="images/category-containers.png">
-              Containers
-            </a>
-            <a class="list-group-item" data-toggle="modal" data-target="#shutdown-dialog">
-              <img class="cockpit-category-icon" src="images/category-shutdown.png">
-              Shutdown & Reboot
-            </a>
-          </div>
+        <div class="col-md-2">
+          <table class="cockpit-info-table">
+            <tr>
+              <td>Hardware</td>
+              <td id="system_information_hardware_text"></td>
+            </tr>
+            <tr>
+              <td>Asset Tag</td>
+              <td id="system_information_asset_tag_text"></td>
+            </tr>
+            <tr>
+              <td>BIOS</td>
+              <td id="system_information_bios_text"></td>
+            </tr>
+            <tr>
+              <td>Operating System</td>
+              <td id="system_information_os_text"></td>
+            </tr>
+            <tr>
+              <td>Host Name</td>
+              <td id="system_information_hostname_text"></td>
+              <td>
+                <button class="btn btn-default" id="system_information_change_hostname_button">
+                  Change Host name
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>Domain</td>
+              <td id="system_information_realms"></td>
+              <td>
+                <button class="btn btn-default" id="realms-join">Join Domain</button>
+                <button class="btn btn-default realms-leave-button" translatable="yes" id="realms-leave" style="float:left">Leave Domain</button>
+                <div class="realms-leave-spinner waiting" id="realms-leave-spinner" translatable="yes" style="float:left"/>
+              </td>
+            </tr>
+            <br/>
+            <div class="has-error">
+              <span id="realms-leave-error" class="help-block"></span>
+            </div>
+          </table>
         </div>
 
-        <div id="server-graph-columns">
-          <div id="server-graph-column-1">
-              <div style="color:black">CPU<span style="float:right" id="server_cpu_text"></span></div>
-              <div style="height:120px" id="server_cpu_graph" class="server-graph" onclick="cockpit.go_rel('cpu_status');"></div>
+        <div id="server-graph-columns" class="col-md-10">
+          <div id="server-graph-column-1" class="col-md-6">
+            <div style="color:black">CPU<span style="float:right" id="server_cpu_text"></span></div>
+            <div style="height:120px" id="server_cpu_graph" class="server-graph" onclick="cockpit.go_rel('cpu_status');"></div>
             <br/>
-              <div style="color:black">Memory<span style="float:right" id="server_memory_text"></span></div>
-              <div style="height:120px" id="server_memory_graph" class="server-graph" onclick="cockpit.go_rel('memory_status')"></div>
+            <div style="color:black">Memory<span style="float:right" id="server_memory_text"></span></div>
+            <div style="height:120px" id="server_memory_graph" class="server-graph" onclick="cockpit.go_rel('memory_status')"></div>
             <br/>
           </div>
-          <div id="server-graph-column-2">
-              <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
-              <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.go_rel('storage')"></div>
+          <div id="server-graph-column-2" class="col-md-6">
+            <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
+            <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.go_rel('storage')"></div>
             <br/>
-              <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
-              <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.go_rel('networking')"></div>
+            <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
+            <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.go_rel('networking')"></div>
             <br/>
           </div>
         </div>
@@ -152,53 +189,6 @@
 
       <div id="memory_status">
         <div id="memory_status_graph" style="height:400px;padding:20px"></div>
-      </div>
-
-      <div id="system_information">
-        <div class="panel panel-default" style="margin:20px">
-          <div class="panel-body">
-            <table class="cockpit-info-table">
-              <tr>
-                <td>Hardware</td>
-                <td id="system_information_hardware_text"></td>
-              </tr>
-              <tr>
-                <td>Asset Tag</td>
-                <td id="system_information_asset_tag_text"></td>
-              </tr>
-              <tr>
-                <td>BIOS</td>
-                <td id="system_information_bios_text"></td>
-              </tr>
-              <tr>
-                <td>Operating System</td>
-                <td id="system_information_os_text"></td>
-              </tr>
-              <tr>
-                <td>Host Name</td>
-                <td id="system_information_hostname_text"></td>
-                <td>
-                  <button class="btn btn-default" id="system_information_change_hostname_button">
-                    Change Host name
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>Domain</td>
-                <td id="system_information_realms"></td>
-                <td>
-                  <button class="btn btn-default" id="realms-join">Join Domain</button>
-                  <button class="btn btn-default" translatable="yes" id="realms-leave" style="float:left">Leave Domain</button>
-                  <div class="waiting" id="realms-leave-spinner" translatable="yes" style="float:left"/>
-                </td>
-              </tr>
-            </table>
-            <br />
-            <div class="has-error">
-              <span id="realms-leave-error" class="help-block"></span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div id="storage">

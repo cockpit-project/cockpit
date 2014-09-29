@@ -10,6 +10,8 @@ libcockpit_agent_a_SOURCES = \
 	src/agent/cockpitdbusjson1.h \
 	src/agent/cockpitfakemanager.c \
 	src/agent/cockpitfakemanager.h \
+	src/agent/cockpitpackage.c \
+	src/agent/cockpitpackage.h \
 	src/agent/cockpitpolkitagent.c \
 	src/agent/cockpitpolkitagent.h \
 	src/agent/cockpitnullchannel.c \
@@ -73,6 +75,7 @@ AGENT_CHECKS = \
 	test-dbusjson \
 	test-restjson \
 	test-textstream \
+	test-package \
 	test-resource \
 	$(NULL)
 
@@ -86,6 +89,10 @@ test_dbusjson_SOURCES = src/agent/test-dbusjson.c $(mock_dbus_sources)
 nodist_test_dbusjson_SOURCES = $(test_built_sources)
 test_dbusjson_CFLAGS = $(libcockpit_agent_a_CFLAGS)
 test_dbusjson_LDADD = $(libcockpit_agent_LIBS)
+
+test_package_SOURCES = src/agent/test-package.c
+test_package_CFLAGS = $(libcockpit_agent_a_CFLAGS)
+test_package_LDADD = $(libcockpit_agent_LIBS)
 
 test_restjson_SOURCES = src/agent/test-restjson.c
 test_restjson_CFLAGS = $(libcockpit_agent_a_CFLAGS)

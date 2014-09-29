@@ -82,4 +82,32 @@
     </variablelist>
   </section>
 
+  <section id="package-links">
+    <title>Package Links and Paths</title>
+
+    <para>When referring to files in your package, such as in a hyperlink or a <code>&lt;style&gt;</code>
+      tag or <code>&lt;script&gt;</code> tag, simply use a relative path, and refer to the files
+      in the same directory.</para>
+
+    <para>However often the need arises to refer from one package to another, for example when
+      loading the base <code>cockpit.js</code> javascript. To do this the path must be
+      crafted in a specific way: <code>../@@package@@/path</code></para>
+
+    <para>The <code>@@package@@</code> is replaced by the relevant path component to address the
+      the package. Put the package name between the <code>@@</code> signs. It will be replaced with
+      a cacheable checksum of the package, or qualified package name at the given host. Don't hardcode
+      the path, use the <code>@@</code> syntax.</para>
+
+    <para>For example here's how to include the base <code>cockpit.js</code> script in your HTML
+      from the <code>unstable</code> package:</para>
+
+<programlisting>
+  &lt;script src="../@@unstable@@"&gt;&lt;/script&gt;
+</programlisting>
+
+    <para>Do not assume you can link to any file in any other package. Refer to the
+      <link linkend="api-listing">list of resources</link> for those that are
+      available for use.</para>
+  </section>
+
 </chapter>

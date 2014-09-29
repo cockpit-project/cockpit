@@ -205,15 +205,16 @@
                     fatal("Cockpit not available: shell not installed correctly");
                     return;
                 }
+                var prefix;
                 if (package.checksum)
-                    package.prefix = "/cache/" + package.checksum;
+                    prefix = "/cockpit/" + package.checksum;
                 else
-                    package.prefix = "/res/localhost/shell";
+                    prefix = "/cockpit/shell";
 
                 function qualify(path) {
                     if (path.indexOf('/') === 0)
                         return path;
-                    return package.prefix + '/' + path;
+                    return prefix + '/' + path;
                 }
 
                 /* TODO: Compatibility ... rework these later */
@@ -239,7 +240,6 @@
                         return;
                     } else if (xhr.status == 200) {
                         var content = xhr.responseText;
-                        content = content.replace(/@@package@@/g, package.prefix);
                         document.body.removeAttribute("class");
                         document.body.innerHTML = content;
 

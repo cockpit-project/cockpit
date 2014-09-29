@@ -1789,22 +1789,31 @@
                   </div>
                 </td>
               </tr>
+              <tr id="format-crypto-options-row">
+                <td translatable="yes">Encryption Options</td>
+                <td>
+                  <input class="form-control" type="text" id="format-crypto-options">
+                </td>
+              </tr>
               <tr>
+                <td>Mounting</td>
+                <td>
+                  <select class="form-control selectpicker" id="format-mounting">
+                    <option translatable="yes" value="default">Default</option>
+                    <option translatable="yes" value="custom">Custom</option>
+                  </select>
+                </td>
+              </tr>
+              <tr id="format-mount-point-row">
                 <td translatable="yes">Mount Point</td>
                 <td>
                   <input class="form-control" type="text" id="format-mount-point">
                 </td>
               </tr>
-              <tr>
+              <tr id="format-mount-options-row">
                 <td translatable="yes">Mount Options</td>
                 <td>
                   <input class="form-control" type="text" id="format-mount-options">
-                </td>
-              </tr>
-              <tr id="format-crypto-options-row">
-                <td translatable="yes">Encryption Options</td>
-                <td>
-                  <input class="form-control" type="text" id="format-crypto-options">
                 </td>
               </tr>
             </table>
@@ -1839,12 +1848,21 @@
                 </td>
               </tr>
               <tr>
+                <td>Mounting</td>
+                <td>
+                  <select class="form-control selectpicker" id="fsysopts-mounting">
+                    <option translatable="yes" value="default">Default</option>
+                    <option translatable="yes" value="custom">Custom</option>
+                  </select>
+                </td>
+              </tr>
+              <tr id="fsysopts-mount-point-row">
                 <td translatable="yes">Mount Point</td>
                 <td>
                   <input class="form-control" type="text" id="fsysopts-mount-point">
                 </td>
               </tr>
-              <tr>
+              <tr id="fsysopts-mount-options-row">
                 <td translatable="yes">Mount Options</td>
                 <td>
                   <input class="form-control" type="text" id="fsysopts-mount-options">

@@ -2757,6 +2757,8 @@ PageFormat.prototype = {
         $("#format-custom").on('keyup change', $.proxy(this, "update"));
         $("#format-passphrase").on('keyup change', $.proxy(this, "update"));
         $("#format-passphrase-2").on('keyup change', $.proxy(this, "update"));
+        $("#format-mounting").on('change', $.proxy(this, "update"));
+        $("#format-mount-point").on('keyup change', $.proxy(this, "update"));
     },
 
     enter: function() {
@@ -2767,6 +2769,7 @@ PageFormat.prototype = {
             $("#format-warning").text(_("Formatting a storage device will erase all data on it."));
             $("#format-format").text(_("Format"));
             $("#format-format").addClass("btn-danger").removeClass("btn-primary");
+            $("#format-mounting").selectpicker('val', PageFormat.block.MountPoint? "custom" : "default");
             $("#format-mount-point").val(PageFormat.block.MountPoint);
             $("#format-mount-options").val(PageFormat.block.MountOptions);
         } else {
@@ -2774,6 +2777,7 @@ PageFormat.prototype = {
             $("#format-warning").text("");
             $("#format-format").text(_("Create partition"));
             $("#format-format").addClass("btn-primary").removeClass("btn-danger");
+            $("#format-mounting").selectpicker('val', "default");
             $("#format-mount-point").val("");
             $("#format-mount-options").val("");
         }
@@ -2793,13 +2797,17 @@ PageFormat.prototype = {
     update: function() {
         var type = $("#format-type").val();
         var isLuks = (type == "luks+xfs" || type == "luks+ext4");
+        var isDefaultMount = $("#format-mounting").val() == "default";
 
         $("#format-custom-row").toggle(type == "custom");
         $("#format-passphrase-row, #format-passphrase-row-2, #format-store-passphrase-row, #format-crypto-options-row").toggle(isLuks);
+        $("#format-mount-point-row, #format-mount-options-row").toggle(!isDefaultMount);
         if ((type == "custom" && !$("#format-custom").val()) ||
             (isLuks &&
              (!$("#format-passphrase").val() ||
-              $("#format-passphrase").val() != $("#format-passphrase-2").val()))) {
+              $("#format-passphrase").val() != $("#format-passphrase-2").val())) ||
+            (!isDefaultMount &&
+             !$("#format-mount-point").val())) {
             $("#format-format").prop('disabled', true);
         } else {
             $("#format-format").prop('disabled', false);
@@ -2818,6 +2826,7 @@ PageFormat.prototype = {
             type = $("#format-custom").val();
         var erase = $("#format-erase").val();
         var label = $("#format-name").val();
+        var isDefaultMount = $("#format-mounting").val() == "default";
         var passphrase = "";
         var stored_passphrase = "";
         if (isLuks) {
@@ -2831,8 +2840,12 @@ PageFormat.prototype = {
             if ($("#format-store-passphrase").prop('checked'))
                 stored_passphrase = passphrase;
         }
-        var mount_point = $("#format-mount-point").val();
-        var mount_options = $("#format-mount-options").val();
+        var mount_point = "";
+        var mount_options = "";
+        if (!isDefaultMount) {
+            mount_point = $("#format-mount-point").val();
+            mount_options = $("#format-mount-options").val();
+        }
         var crypto_options = $("#format-crypto-options").val();
 
         if (PageFormat.mode == 'create-partition')
@@ -3209,18 +3222,33 @@ PageFilesystemOptions.prototype = {
 
     setup: function() {
         $("#fsysopts-apply").on('click', $.proxy(this, "apply"));
+        $("#fsysopts-mounting").on('change', $.proxy(this, "update"));
+        $("#fsysopts-mount-point").on('change keyup', $.proxy(this, "update"));
     },
 
     enter: function() {
         $("#fsysopts-name").val(PageFilesystemOptions.block.IdLabel);
+        $("#fsysopts-mounting").selectpicker('val', PageFilesystemOptions.block.MountPoint? "custom" : "default");
         $("#fsysopts-mount-point").val(PageFilesystemOptions.block.MountPoint);
         $("#fsysopts-mount-options").val(PageFilesystemOptions.block.MountOptions);
+        this.update();
+    },
+
+    update: function() {
+        var isDefaultMount = $("#fsysopts-mounting").val() == "default";
+        $("#fsysopts-mount-point-row, #fsysopts-mount-options-row").toggle(!isDefaultMount);
+        $("#fsysopts-apply").prop('disabled', !isDefaultMount && !$("#fsysopts-mount-point").val());
     },
 
     apply:  function() {
         var name = $("#fsysopts-name").val();
-        var mount_point = $("#fsysopts-mount-point").val();
-        var mount_options = $("#fsysopts-mount-options").val();
+        var isDefaultMount = $("#fsysopts-mounting").val() == "default";
+        var mount_point = "";
+        var mount_options = "";
+        if (!isDefaultMount) {
+            mount_point = $("#fsysopts-mount-point").val();
+            mount_options = $("#fsysopts-mount-options").val();
+        }
 
         PageFilesystemOptions.block.call('SetFilesystemOptions',
                                          name, mount_point, mount_options,

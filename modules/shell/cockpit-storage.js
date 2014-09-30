@@ -2710,7 +2710,8 @@ PageFormatDisk.prototype = {
 
     enter: function() {
         $("#format-disk-title").text(F(_("Format Disk %{name}"), { name: PageFormatDisk.block.Device }));
-
+        $("#format-disk-type").val("gpt");
+        $("#format-disk-erase").val("no");
     },
 
     format: function() {
@@ -2776,6 +2777,11 @@ PageFormat.prototype = {
             $("#format-mount-point").val("");
             $("#format-mount-options").val("");
         }
+        $("#format-size").val("");
+        $("#format-erase").val("no");
+        $("#format-type").val("xfs");
+        $("#format-name").val("");
+        $("#format-custom").val("");
         $("#format-crpyto-options").val("");
         $("#format-passphrase").val("");
         $("#format-passphrase-2").val("");
@@ -2879,6 +2885,8 @@ PageCreatePlainVolume.prototype = {
     },
 
     enter: function() {
+        $("#create-pvol-name").val("");
+        $("#create-pvol-size").val("");
     },
 
     create: function() {
@@ -2923,6 +2931,8 @@ PageCreateThinPool.prototype = {
     },
 
     enter: function() {
+        $("#create-tpool-name").val("");
+        $("#create-tpool-size").val("");
     },
 
     create: function() {
@@ -2967,6 +2977,8 @@ PageCreateThinVolume.prototype = {
     },
 
     enter: function() {
+        $("#create-tvol-name").val("");
+        $("#create-tvol-size").val("");
     },
 
     create: function() {
@@ -3015,6 +3027,8 @@ PageCreateSnapshot.prototype = {
     },
 
     enter: function() {
+        $("#create-svol-name").val("");
+        $("#create-svol-size").val("");
         $("#create-svol-size-row").toggle(PageCreateSnapshot.origin.ThinPool == "/");
     },
 

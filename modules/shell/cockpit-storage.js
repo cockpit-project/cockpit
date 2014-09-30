@@ -922,7 +922,8 @@ function block_get_link_desc(block)
         link = $('<a>').
             text(block.Device).
             click(function () {
-                var id = block.objectPath.substr(block.objectPath.lastIndexOf("/") + 1);
+                var path = block.getObject().objectPath;
+                var id = path.substr(path.lastIndexOf("/") + 1);
                 cockpit.go_sibling({ page: "storage-detail",
                                      type: "block",
                                      id: id

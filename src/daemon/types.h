@@ -76,6 +76,9 @@ typedef struct _NetdevMonitor NetdevMonitor;
 struct _BlockdevMonitor;
 typedef struct _BlockdevMonitor BlockdevMonitor;
 
+struct _MountMonitor;
+typedef struct _MountMonitor MountMonitor;
+
 struct _StorageManager;
 typedef struct _StorageManager StorageManager;
 

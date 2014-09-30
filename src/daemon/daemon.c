@@ -33,6 +33,7 @@
 #include "cgroupmonitor.h"
 #include "netdevmonitor.h"
 #include "blockdevmonitor.h"
+#include "mountmonitor.h"
 #include "storageprovider.h"
 #include "storagemanager.h"
 #include "realms.h"
@@ -273,6 +274,14 @@ daemon_constructed (GObject *_object)
   /* /com/redhat/Cockpit/BlockdevMonitor */
   multi_monitor = blockdev_monitor_new (G_OBJECT (daemon));
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/BlockdevMonitor");
+  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
+  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (multi_monitor);
+  g_object_unref (object);
+
+  /* /com/redhat/Cockpit/MountMonitor */
+  multi_monitor = mount_monitor_new (G_OBJECT (daemon));
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/MountMonitor");
   cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (multi_monitor);

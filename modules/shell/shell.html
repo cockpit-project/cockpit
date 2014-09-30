@@ -1749,12 +1749,13 @@
                       Compatible with most systems</option>
                     <option translatable="yes"
                             value="dos-extended">Extended Partition</option>
+                    <option translatable="yes" value="empty">No Filesystem</option>
                     <option translatable="yes" value="custom">Custom
                       (Enter filesystem type)</option>
                   </select>
                 </td>
               </tr>
-              <tr>
+              <tr id="format-name-row">
                 <td translatable="yes">Name</td>
                 <td>
                   <input class="form-control" type="text" id="format-name">
@@ -1795,7 +1796,7 @@
                   <input class="form-control" type="text" id="format-crypto-options">
                 </td>
               </tr>
-              <tr>
+              <tr id="format-mounting-row">
                 <td>Mounting</td>
                 <td>
                   <select class="form-control selectpicker" id="format-mounting">

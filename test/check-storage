@@ -157,6 +157,16 @@ class TestStorage(MachineCase):
         self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /run/media/root/FILESYSTEM")
 
+        self.content_default_action(1, "Unmount");
+        b.wait_in_text("#storage_detail_partition_list", "not mounted")
+
+        self.content_action(1, "Format")
+        b.wait_popup("storage_format_dialog")
+        b.set_val("#format-type", "empty")
+        b.click("#format-format")
+        b.wait_popdown("storage_format_dialog")
+        b.wait_in_text("#storage_detail_partition_list", "Unrecognized Data")
+
     def testDosParts(self):
         m = self.machine
         b = self.browser

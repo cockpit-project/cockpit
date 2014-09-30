@@ -2797,11 +2797,14 @@ PageFormat.prototype = {
 
     update: function() {
         var type = $("#format-type").val();
+        var isEmpty = (type == "empty");
         var isLuks = (type == "luks+xfs" || type == "luks+ext4");
-        var isDefaultMount = $("#format-mounting").val() == "default";
+        var isDefaultMount = isEmpty || $("#format-mounting").val() == "default";
 
         $("#format-custom-row").toggle(type == "custom");
+        $("#format-name-row").toggle(!isEmpty);
         $("#format-passphrase-row, #format-passphrase-row-2, #format-store-passphrase-row, #format-crypto-options-row").toggle(isLuks);
+        $("#format-mounting-row").toggle(!isEmpty);
         $("#format-mount-point-row, #format-mount-options-row").toggle(!isDefaultMount);
         if ((type == "custom" && !$("#format-custom").val()) ||
             (isLuks &&
@@ -2827,7 +2830,8 @@ PageFormat.prototype = {
             type = $("#format-custom").val();
         var erase = $("#format-erase").val();
         var label = $("#format-name").val();
-        var isDefaultMount = $("#format-mounting").val() == "default";
+        var isEmpty = (type == "empty");
+        var isDefaultMount = isEmpty || $("#format-mounting").val() == "default";
         var passphrase = "";
         var stored_passphrase = "";
         if (isLuks) {

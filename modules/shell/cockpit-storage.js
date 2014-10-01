@@ -967,7 +967,7 @@ function raid_get_desc(raid)
     var manager = raid._client.lookup("/com/redhat/Cockpit/Manager",
                                       "com.redhat.Cockpit.Manager");
 
-    if (manager && parts[0] == manager.Hostname)
+    if (manager && parts[0] == manager.StaticHostname)
         return parts[1];
     else
         return F(_("%{name} (on %{host})"),

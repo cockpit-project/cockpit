@@ -159,16 +159,16 @@ PageSystemInformation.prototype = {
 
         function hostname_text() {
             var pretty_hostname = self.manager.PrettyHostname;
-            var hostname = self.manager.Hostname;
+            var static_hostname = self.manager.StaticHostname;
             var str;
-            if (!pretty_hostname || pretty_hostname == hostname)
-                str = hostname;
+            if (!pretty_hostname || pretty_hostname == static_hostname)
+                str = static_hostname;
             else
-                str = pretty_hostname + " (" + hostname + ")";
+                str = pretty_hostname + " (" + static_hostname + ")";
 	    return str;
         }
 
-        bindf("#system_information_hostname_text", self.manager, "Hostname", hostname_text);
+        bindf("#system_information_hostname_text", self.manager, "StaticHostname", hostname_text);
         bindf("#system_information_hostname_text", self.manager, "PrettyHostname", hostname_text);
 
         function realms_text(val) {
@@ -258,7 +258,7 @@ PageSystemInformationChangeHostname.prototype = {
 
         self.manager = PageSystemInformationChangeHostname.client.get("/com/redhat/Cockpit/Manager",
                                                                       "com.redhat.Cockpit.Manager");
-        self._initial_hostname = self.manager.Hostname || "";
+        self._initial_hostname = self.manager.StaticHostname || "";
         self._initial_pretty_hostname = self.manager.PrettyHostname || "";
         $("#sich-pretty-hostname").val(self._initial_pretty_hostname);
         $("#sich-hostname").val(self._initial_hostname);

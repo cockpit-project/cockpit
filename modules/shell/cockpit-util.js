@@ -540,4 +540,25 @@ function machine_info(address) {
     return pr;
 }
 
+/* - name = cockpit.util.hostname_for_display(interface)
+ *
+ * Return the name of the machine that INTERFACE is connected to.
+ * INTERFACE should be a DBusInterface with PrettyHostname and
+ * StaticHostname properties.
+ */
+
+cockpit.util.hostname_for_display = hostname_for_display;
+function hostname_for_display(iface) {
+    if (iface.PrettyHostname)
+        return iface.PrettyHostname;
+    else if (iface.StaticHostname &&
+        iface.StaticHostname != "localhost" &&
+        iface.StaticHostname != "localhost.localdomain")
+        return iface.StaticHostname;
+    else if (iface._client.target != "localhost")
+        return iface._client.target;
+    else
+        return window.location.hostname;
+}
+
 })(cockpit, jQuery);

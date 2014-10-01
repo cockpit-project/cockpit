@@ -76,7 +76,7 @@ PageShutdownDialog.prototype = {
         var disabled = false;
 
         if (this.cockpitd) {
-            var host = this.cockpitd_manager.PrettyHostname || this.cockpitd_manager.Hostname || this.address;
+            var host = cockpit.util.hostname_for_display(this.cockpitd_manager);
             $('#shutdown-dialog .modal-title').text(F(_("Shutdown %{host}"), { host: host }));
         }
 

@@ -343,4 +343,67 @@ cockpit.Slider = function Slider() {
 
 $(document).ready(setup_sliders);
 
+/* ----------------------------------------------------------------------------
+
+   On/Off button.
+
+   XXX - not via HTML markup yet, only via JavaScript.
+   XXX - Use events, not explicit callbacks.
+
+   When both ON and OFF are given, they are called without arguments
+   after the button has changed to the corresponding state.
+
+   When only ON is given, it is called with the new state as the only
+   parameter.
+
+   When ROLE_CHECK is specified, it is called before the button
+   changes state.  If it returns 'false', the change is declined.
+ */
+
+cockpit.OnOff = function OnOff(val, on, off, role_check) {
+    function toggle(event) {
+        if (role_check && !role_check())
+            return false;
+
+        box.find('.btn').toggleClass('active');
+        box.find('.btn').toggleClass('btn-primary');
+        box.find('.btn').toggleClass('btn-default');
+        if (on_btn.hasClass('active')) {
+            if (off)
+                on();
+            else
+                on(true);
+        } else {
+            if (off)
+                off();
+            else
+                on(false);
+        }
+        return false;
+    }
+
+    var on_btn, off_btn;
+    var box =
+        $('<div class="btn-group btn-toggle">').append(
+            on_btn = $('<button class="btn">').
+                text("On").
+                addClass(!val? "btn-default" : "btn-primary active").
+                click(toggle),
+            off_btn = $('<button class="btn">').
+                text("Off").
+                addClass(val? "btn-default" : "btn-primary active").
+                click(toggle));
+
+    box.set = function set(val) {
+        (val? on_btn : off_btn).addClass("btn-primary active").removeClass("btn-default");
+        (val? off_btn : on_btn).removeClass("btn-primary active").addClass("btn-default");
+    };
+
+    box.enable = function enable(val) {
+        box.find('button').prop('disabled', !val);
+    };
+
+    return box;
+};
+
 })(jQuery, cockpit);

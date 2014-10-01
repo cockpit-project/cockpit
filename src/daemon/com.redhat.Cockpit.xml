@@ -80,7 +80,7 @@
     <!-- BIOS: Human-readable string describing the BIOS of the system  -->
     <property name="BIOS" type="s" access="read"/>
 
-    <!-- Hostname: The currently configured host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
+    <!-- Hostname: The transient host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
     <property name="Hostname" type="s" access="read"/>
 
     <!-- StaticHostname: The statically configured host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
@@ -92,20 +92,20 @@
     <!--
         SetHostname:
         @pretty_hostname: Pretty Host Name to set
-        @hostname: Regular host name to set
+        @static_hostname: Regular host name to set
         @options: Currently unused.
 
         Sets the host names.
     -->
     <method name="SetHostname">
       <arg name="pretty_hostname" type="s" direction="in"/>
-      <arg name="hostname" type="s" direction="in"/>
+      <arg name="static_hostname" type="s" direction="in"/>
       <arg name="options" type="a{sv}" direction="in"/>
     </method>
 
     <!--
 	Shutdown:
-        Initiate a shutdoen or restart of the system.
+        Initiate a shutdown or restart of the system.
 
 	@kind: What to do, either "shutdown" or "restart".
 	@when: When to shutdown, either "HH:MM" or "+MINUTES", as for the "shutdown" command.

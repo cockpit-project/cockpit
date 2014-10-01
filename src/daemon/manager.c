@@ -537,7 +537,7 @@ static gboolean
 handle_set_hostname (CockpitManager *_manager,
                      GDBusMethodInvocation *invocation,
                      const gchar *arg_pretty_hostname,
-                     const gchar *arg_hostname,
+                     const gchar *arg_static_hostname,
                      GVariant *arg_options)
 {
   Manager *manager = MANAGER (_manager);
@@ -559,22 +559,8 @@ handle_set_hostname (CockpitManager *_manager,
 
   error = NULL;
   if (!g_dbus_proxy_call_sync (manager->hostname1_proxy,
-                               "SetHostname",
-                               g_variant_new ("(sb)", arg_hostname, TRUE),
-                               G_DBUS_CALL_FLAGS_NONE,
-                               -1, /* timeout_msec */
-                               NULL, /* GCancellable* */
-                               &error))
-    {
-      g_dbus_error_strip_remote_error (error);
-      g_dbus_method_invocation_take_error (invocation, error);
-      goto out;
-    }
-
-  error = NULL;
-  if (!g_dbus_proxy_call_sync (manager->hostname1_proxy,
                                "SetStaticHostname",
-                               g_variant_new ("(sb)", arg_hostname, TRUE),
+                               g_variant_new ("(sb)", arg_static_hostname, TRUE),
                                G_DBUS_CALL_FLAGS_NONE,
                                -1, /* timeout_msec */
                                NULL, /* GCancellable* */

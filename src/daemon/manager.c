@@ -439,17 +439,7 @@ update_hostname1 (Manager *manager)
   if (name_owner == NULL)
     goto out;
 
-  /* HACK: The "Hostname" property does not get change notifications,
-   * and thus our cache of its value will not be updated either.  So
-   * instead of using the property, we get the transient hostname
-   * directly from the kernel.  Of course, we might still miss changes
-   * since we only get here for change notifications of the other
-   * properties.
-   *
-   * https://bugs.freedesktop.org/show_bug.cgi?id=83930
-   */
-  update_hostname_from_kernel (manager);
-
+  cockpit_manager_set_hostname (COCKPIT_MANAGER (manager), peek_str_prop (manager->hostname1_proxy, "Hostname"));
   cockpit_manager_set_static_hostname (COCKPIT_MANAGER (manager), peek_str_prop (manager->hostname1_proxy, "StaticHostname"));
   cockpit_manager_set_pretty_hostname (COCKPIT_MANAGER (manager), peek_str_prop (manager->hostname1_proxy, "PrettyHostname"));
 

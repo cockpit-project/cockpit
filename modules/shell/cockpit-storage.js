@@ -1101,8 +1101,23 @@ PageStorageDetail.prototype = {
         $('#raid_action_btn').html(self.raid_action_btn);
         $('#raid-disks-add').on('click', $.proxy(this, "raid_disk_add"));
 
-        $("#raid_detail_bitmap_enable").on('click', $.proxy (this, "bitmap_enable"));
-        $("#raid_detail_bitmap_disable").on('click', $.proxy (this, "bitmap_disable"));
+        function change_bitmap(val) {
+            self._mdraid.call("SetBitmapLocation", val? "internal" : "none", function (error, result) {
+                if (error) {
+                    self._update();
+                    cockpit.show_unexpected_error(error);
+                }
+            });
+        }
+
+        this.bitmap_onoff = cockpit.OnOff(false,
+                                          change_bitmap,
+                                          undefined,
+                                          function () {
+                                              return cockpit.check_role('cockpit-storage-admin', self.client);
+                                          });
+
+        $("#raid_detail_bitmap").append(this.bitmap_onoff);
 
         $("#drive_format").on('click', function () {
             self.action('format');
@@ -1677,7 +1692,7 @@ PageStorageDetail.prototype = {
 
         var loc = raid.BitmapLocation;
         if (loc) {
-            $("#raid_detail_bitmap").text(loc == "none"? _("Off") : _("On"));
+            this.bitmap_onoff.set(loc != "none");
             $("#raid_detail_bitmap_row").show();
         } else {
             $("#raid_detail_bitmap_row").hide();
@@ -1979,26 +1994,6 @@ PageStorageDetail.prototype = {
 
     stop_scrub: function() {
         this._mdraid.call("RequestSyncAction", "idle", function (error, result) {
-            if (error)
-                cockpit.show_unexpected_error(error);
-        });
-    },
-
-    bitmap_enable: function() {
-        if (!cockpit.check_role('cockpit-storage-admin', this.client))
-            return;
-
-        this._mdraid.call("SetBitmapLocation", "internal", function (error, result) {
-            if (error)
-                cockpit.show_unexpected_error(error);
-        });
-    },
-
-    bitmap_disable: function() {
-        if (!cockpit.check_role('cockpit-storage-admin', this.client))
-            return;
-
-        this._mdraid.call("SetBitmapLocation", "none", function (error, result) {
             if (error)
                 cockpit.show_unexpected_error(error);
         });

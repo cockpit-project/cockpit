@@ -877,7 +877,7 @@ function NetworkManagerModel(address) {
                 // TODO - Nail down how NM really handles this.
 
                 obj.Masters = [ ];
-                if (obj.Settings.connection.slave_type) {
+                if (obj.Settings && obj.Settings.connection && obj.Settings.connection.slave_type) {
                     master = connections_by_uuid[obj.Settings.connection.master];
                     if (master) {
                         obj.Masters.push(master);

@@ -866,11 +866,20 @@ function block_get_short_desc(block)
 
 function block_get_link_desc(block)
 {
-    var orig = block;
+    var is_part = false;
+    var is_crypt = false;
     var link = null;
 
-    while (block.PartitionTable && block.PartitionTable != "/")
-        block = block._client.get(block.PartitionTable, "com.redhat.Cockpit.Storage.Block");
+    while (true) {
+        if (block.PartitionTable && block.PartitionTable != "/") {
+            block = block._client.get(block.PartitionTable, "com.redhat.Cockpit.Storage.Block");
+            is_part = true;
+        } else if (block.CryptoBackingDevice && block.CryptoBackingDevice != "/") {
+            block = block._client.get(block.CryptoBackingDevice, "com.redhat.Cockpit.Storage.Block");
+            is_crypt = true;
+        } else
+            break;
+    }
 
     if (block.Drive != "/") {
         var drive = block._client.get(block.Drive,
@@ -932,12 +941,14 @@ function block_get_link_desc(block)
             });
     }
 
-    if (block != orig)
-        return $('<span>').append(
-            _("Partition of "),
-            link);
-    else
-        return link;
+    var res = link;
+
+    if (is_part)
+        res = $('<span>').append(_("Partition of "), res);
+    if (is_crypt)
+        res = $('<span>').append(res, _(", encrypted"));
+    return res;
+
 }
 
 function find_cleartext_device(block)

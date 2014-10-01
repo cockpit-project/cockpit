@@ -30,7 +30,7 @@ PageServer.prototype = {
         this.title_manager = this.title_client.get("/com/redhat/Cockpit/Manager",
                                                    "com.redhat.Cockpit.Manager");
         $(this.title_manager).on('notify:PrettyHostname.server-title', cockpit.content_update_loc_trail);
-        $(this.title_manager).on('notify:Hostname.server-title', cockpit.content_update_loc_trail);
+        $(this.title_manager).on('notify:StaticHostname.server-title', cockpit.content_update_loc_trail);
     },
 
     leave_breadcrumb: function() {
@@ -39,11 +39,7 @@ PageServer.prototype = {
     },
 
     getTitle: function() {
-        var fallback = this.title_address || "?";
-        if (this.title_manager)
-            return this.title_manager.PrettyHostname || this.title_manager.Hostname || fallback;
-        else
-            return fallback;
+        return cockpit.util.hostname_for_display(this.title_manager);
     },
 
     setup: function() {

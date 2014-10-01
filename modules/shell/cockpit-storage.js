@@ -465,7 +465,8 @@ PageStorage.prototype = {
             self._coldplug_pending = true;
             setTimeout(function () {
                 self._coldplug_pending = false;
-                self._coldplug();
+                if (self.client)
+                    self._coldplug();
             }, 0);
         }
     },

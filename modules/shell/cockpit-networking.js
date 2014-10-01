@@ -1540,52 +1540,6 @@ function choice_title(choices, choice, def) {
     return def;
 }
 
-function onoffbox(val, on, off, role_check) {
-    function toggle(event) {
-        if (role_check && !role_check())
-            return false;
-
-        box.find('.btn').toggleClass('active');
-        box.find('.btn').toggleClass('btn-primary');
-        box.find('.btn').toggleClass('btn-default');
-        if (on_btn.hasClass('active')) {
-            if (off)
-                on();
-            else
-                on(true);
-        } else {
-            if (off)
-                off();
-            else
-                on(false);
-        }
-        return false;
-    }
-
-    var on_btn, off_btn;
-    var box =
-        $('<div class="btn-group btn-toggle">').append(
-            on_btn = $('<button class="btn">').
-                text("On").
-                addClass(!val? "btn-default" : "btn-primary active").
-                click(toggle),
-            off_btn = $('<button class="btn">').
-                text("Off").
-                addClass(val? "btn-default" : "btn-primary active").
-                click(toggle));
-
-    box.set = function set(val) {
-        (val? on_btn : off_btn).addClass("btn-primary active").removeClass("btn-default");
-        (val? off_btn : on_btn).removeClass("btn-primary active").addClass("btn-default");
-    };
-
-    box.enable = function enable(val) {
-        box.find('button').prop('disabled', !val);
-    };
-
-    return box;
-}
-
 PageNetworkInterface.prototype = {
     _init: function () {
         this.id = "network-interface";
@@ -1600,12 +1554,13 @@ PageNetworkInterface.prototype = {
         var self = this;
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
         $('#network-interface-delete').parent().append(
-            this.device_onoff = onoffbox(false,
-                                         $.proxy(this, "connect"),
-                                         $.proxy(this, "disconnect"),
-                                         function () {
-                                             return cockpit.check_role('cockpit-network-admin', self.cockpitd);
-                                         }));
+            this.device_onoff = cockpit.OnOff(false,
+                                              $.proxy(this, "connect"),
+                                              $.proxy(this, "disconnect"),
+                                              function () {
+                                                  return cockpit.check_role('cockpit-network-admin',
+                                                                            self.cockpitd);
+                                              }));
     },
 
     enter: function () {
@@ -2169,21 +2124,21 @@ PageNetworkInterface.prototype = {
                                     [ $('<td>').text(""), $('<td>').text("") ] :
                                     $('<td colspan="2">').text(device_state_text(dev))),
                                    $('<td style="text-align:right">').append(
-                                       onoffbox(is_active,
-                                                function () {
-                                                    slave_con.activate(iface.Device).
-                                                        fail(cockpit.show_unexpected_error);
-                                                },
-                                                function () {
-                                                    if (dev) {
-                                                        dev.disconnect().
-                                                            fail(cockpit.show_unexpected_error);
-                                                    }
-                                                },
-                                                function () {
-                                                    return cockpit.check_role('cockpit-network-admin',
-                                                                              self.cockpitd);
-                                                })),
+                                       cockpit.OnOff(is_active,
+                                                     function () {
+                                                         slave_con.activate(iface.Device).
+                                                             fail(cockpit.show_unexpected_error);
+                                                     },
+                                                     function () {
+                                                         if (dev) {
+                                                             dev.disconnect().
+                                                                 fail(cockpit.show_unexpected_error);
+                                                         }
+                                                     },
+                                                     function () {
+                                                         return cockpit.check_role('cockpit-network-admin',
+                                                                                   self.cockpitd);
+                                                     })),
                                    $('<td width="28px">').append(
                                        $('<button class="btn btn-default btn-control">').
                                            text("-").
@@ -2306,7 +2261,7 @@ PageNetworkIpSettings.prototype = {
             var onoff;
             var btn = $('<span>').append(
                 $('<span style="margin-right:10px">').text(title),
-                onoff = onoffbox(!params[p], function (val) {
+                onoff = cockpit.OnOff(!params[p], function (val) {
                     params[p] = !val;
                     self.update();
                 }));

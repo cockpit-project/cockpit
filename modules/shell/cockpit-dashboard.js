@@ -228,16 +228,18 @@ PageDashboard.prototype = {
                 spinner_div.hide();
                 plot_div.show();
             } else if (client.state == "closed") {
-                cockpit.action_btn_enable(action_btn, 'connect', true);
-                cockpit.action_btn_enable(action_btn, 'disconnect', false);
-                cockpit.action_btn_select(action_btn, 'connect');
-                error_div.text(cockpit.client_error_description(client.error) || "Disconnected");
-                error_div.show();
-                spinner_div.hide();
-                plot_div.hide();
-                if (self.cpu_plots[i]) {
-                    self.cpu_plots[i].stop();
-                    self.cpu_plots[i] = null;
+                if (!cockpit.expecting_disconnect()) {
+                    cockpit.action_btn_enable(action_btn, 'connect', true);
+                    cockpit.action_btn_enable(action_btn, 'disconnect', false);
+                    cockpit.action_btn_select(action_btn, 'connect');
+                    error_div.text(cockpit.client_error_description(client.error) || "Disconnected");
+                    error_div.show();
+                    spinner_div.hide();
+                    plot_div.hide();
+                    if (self.cpu_plots[i]) {
+                        self.cpu_plots[i].stop();
+                        self.cpu_plots[i] = null;
+                    }
                 }
             } else {
                 error_div.text("");

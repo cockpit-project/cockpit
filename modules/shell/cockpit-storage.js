@@ -509,12 +509,12 @@ PageStorage.prototype = {
     _addDrive: function(obj) {
         var drive = obj.lookup("com.redhat.Cockpit.Storage.Drive");
         var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
-        var sort_key = cockpit.esc(drive.SortKey);
+        var sort_key = drive.SortKey;
         var n;
 
         var blockdev = this._monitor_block(find_block_device_for_drive(drive));
 
-        var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + sort_key + "\"";
+        var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + cockpit.esc(sort_key) + "\"";
         html += " data-blockdev=\"" + cockpit.esc(blockdev) + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
 
@@ -578,14 +578,15 @@ PageStorage.prototype = {
         var raid = obj.lookup("com.redhat.Cockpit.Storage.MDRaid");
 
         var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
-        var sort_key = id; // for now
+        var desc = raid_get_desc(raid);
+        var sort_key = desc;
         var n;
 
-        var html = "<tr id=\"storage-raid-" + id + "\" sort=\"" + sort_key + "\"";
+        var html = "<tr id=\"storage-raid-" + id + "\" sort=\"" + cockpit.esc(sort_key) + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
 
         html += "<td width=\"30%\">";
-        html += cockpit.esc(raid_get_desc(raid));
+        html += cockpit.esc(desc);
         html += "</td>";
         html += "<td>";
 
@@ -607,7 +608,7 @@ PageStorage.prototype = {
         for (n = 0; n < children.length; n++) {
             child = children[n];
             child_sort_key = child.getAttribute("sort");
-            if (child_sort_key > sort_key) {
+            if (child_sort_key.localeCompare(sort_key) > 0) {
                 insert_before = child;
                 break;
             }
@@ -626,10 +627,10 @@ PageStorage.prototype = {
         var vg = obj.lookup("com.redhat.Cockpit.Storage.VolumeGroup");
 
         var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
-        var sort_key = id; // for now
+        var sort_key = vg.Name;
         var n;
 
-        var html = "<tr id=\"storage-vg-" + id + "\" sort=\"" + sort_key + "\"";
+        var html = "<tr id=\"storage-vg-" + id + "\" sort=\"" + cockpit.esc(sort_key) + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
 
         html += "<td width=\"30%\">";
@@ -655,7 +656,7 @@ PageStorage.prototype = {
         for (n = 0; n < children.length; n++) {
             child = children[n];
             child_sort_key = child.getAttribute("sort");
-            if (child_sort_key > sort_key) {
+            if (child_sort_key.localeCompare(sort_key) > 0) {
                 insert_before = child;
                 break;
             }
@@ -684,9 +685,9 @@ PageStorage.prototype = {
         var blockdev = this._monitor_block(block);
 
         var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
-        var sort_key = id; // for now
+        var sort_key = block.DeviceNumber;
 
-        var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key + "\"";
+        var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key.toString() + "\"";
         html += " data-blockdev=\"" + cockpit.esc(blockdev) + "\"";
         html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
 
@@ -712,7 +713,7 @@ PageStorage.prototype = {
         for (var n = 0; n < children.length; n++) {
             child = children[n];
             child_sort_key = child.getAttribute("sort");
-            if (child_sort_key > sort_key) {
+            if (parseInt(child_sort_key, 10) > sort_key) {
                 insert_before = child;
                 break;
             }
@@ -1805,9 +1806,7 @@ PageStorageDetail.prototype = {
         }
 
         pvs.sort(function (a, b) {
-            var desc_a = block_get_short_desc(a);
-            var desc_b = block_get_short_desc(b);
-            return desc_a.localeCompare(desc_b);
+            return a.DeviceNumber - b.DeviceNumber;
         });
 
         function physical_action_func (block) {
@@ -2466,9 +2465,7 @@ function fill_free_devices_list(client, id, filter)
 
     blocks = get_free_block_devices(client, filter);
     blocks.sort(function (a, b) {
-        var desc_a = block_get_short_desc(a);
-        var desc_b = block_get_short_desc(b);
-        return desc_a.localeCompare(desc_b);
+        return a.DeviceNumber - b.DeviceNumber;
     });
 
     var list = $('<ul/>', { 'class': 'list-group available-disks-group' });
@@ -2478,7 +2475,7 @@ function fill_free_devices_list(client, id, filter)
         var desc = F("%{size} %{desc} %{dev}",
                      { size: fmt_size(block.Size),
                        desc: block_get_short_desc(block),
-                       dev: cockpit.esc(block.Device)
+                       dev: block.Device
                      });
         var id_n = id + '-' + n;
 

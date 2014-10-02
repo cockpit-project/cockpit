@@ -23,6 +23,7 @@
 
 #include "daemon.h"
 #include "storageprovider.h"
+#include "storagemanager.h"
 #include "storageobject.h"
 #include "storagemdraid.h"
 
@@ -326,11 +327,21 @@ handle_delete (CockpitStorageMDRaid *object,
                GDBusMethodInvocation *invocation)
 {
   StorageMDRaid *mdraid = STORAGE_MDRAID(object);
+  StorageProvider *provider = storage_object_get_provider (mdraid->object);
+  UDisksClient *udisks_client = storage_provider_get_udisks_client (provider);
+  gs_unref_object UDisksBlock *block = NULL;
   GList *members = NULL;
   GError *error = NULL;
 
   /* Delete is Stop followed by wiping of all member devices.
    */
+
+  block = udisks_client_get_block_for_mdraid (udisks_client, mdraid->udisks_mdraid);
+  if (block)
+    {
+      if (!storage_cleanup_block (provider, block, &error))
+        goto out;
+    }
 
   GVariantBuilder options;
   g_variant_builder_init (&options, G_VARIANT_TYPE("a{sv}"));
@@ -341,8 +352,6 @@ handle_delete (CockpitStorageMDRaid *object,
                                      &error))
     goto out;
 
-  StorageProvider *provider = storage_object_get_provider (mdraid->object);
-  UDisksClient *udisks_client = storage_provider_get_udisks_client (provider);
   members = udisks_client_get_members_for_mdraid (udisks_client,
                                                   mdraid->udisks_mdraid);
   for (GList *m = members; m; m = m->next)

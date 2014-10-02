@@ -377,8 +377,10 @@ PageStorage.prototype = {
             for (var id in samples) {
                 var row = $('#storage tr[data-blockdev="' + cockpit.esc(id) + '"]');
                 if (row.length > 0) {
-                    row.find('td:nth-child(3)').text(cockpit.format_bytes_per_sec(samples[id][0]));
-                    row.find('td:nth-child(4)').text(cockpit.format_bytes_per_sec(samples[id][1]));
+                    row.find('span.reading').text(
+                        "R: " + cockpit.format_bytes_per_sec(samples[id][0]));
+                    row.find('span.writing').text(
+                        "W: " + cockpit.format_bytes_per_sec(samples[id][1]));
                 }
             }
         }
@@ -515,40 +517,55 @@ PageStorage.prototype = {
 
         var blockdev = this._monitor_block(find_block_device_for_drive(drive));
 
-        var html = "<tr id=\"storage-drive-" + id + "\" sort=\"" + cockpit.esc(sort_key) + "\"";
-        html += " data-blockdev=\"" + cockpit.esc(blockdev) + "\"";
-        html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'drive', id: id })) + "\">";
-
-        html += "<td width=\"30%\">";
-        html += cockpit.esc(drive.Name);
-        html += "</td>";
-        html += "<td>";
-
         var size_str = fmt_size(drive.Size);
-        var val;
+        var desc;
         if (drive.Classification == "hdd") {
-            val = size_str + " " + C_("storage", "Hard Disk");
+            desc = size_str + " " + C_("storage", "Hard Disk");
         } else if (drive.Classification == "ssd") {
-            val = size_str + " " + C_("storage", "Solid-State Disk");
+            desc = size_str + " " + C_("storage", "Solid-State Disk");
         } else if (drive.Classification == "removable") {
             if (drive.Size === 0)
-                val = C_("storage", "Removable Drive");
+                desc = C_("storage", "Removable Drive");
             else
-                val = size_str + " " + C_("storage", "Removable Drive");
+                desc = size_str + " " + C_("storage", "Removable Drive");
         } else if (drive.Classification == "optical") {
-            val = C_("storage", "Optical Drive");
+            desc = C_("storage", "Optical Drive");
         } else {
             if (drive.Size === 0)
-                val = C_("storage", "Drive");
+                desc = C_("storage", "Drive");
             else
-                val = size_str + " " + C_("storage", "Drive");
+                desc = size_str + " " + C_("storage", "Drive");
         }
-        html += val;
-        html += "</td>";
-        html += "<td></td>";
-        html += "<td></td>";
-        html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
-        html += "</tr>";
+
+        /* TODO: This needs to be reworked once real module loading lands */
+        var prefix = cockpit.environment.localhost.modules.shell.prefix;
+
+        var tr =
+            $('<tr>', { id: "storage-drive-" + id,
+                        Sort: sort_key,
+                        "data-blockdev": blockdev
+                      }).
+            click(function () {
+                cockpit.go_down({ page: "storage-detail",
+                                  type: "drive",
+                                  id: id
+                                });
+            }).
+            append(
+                $('<td style="width: 48px">').append(
+                    $('<img>', { src: prefix + "/images/storage-disk.png" })),
+                $('<td>').append(
+                    $('<span>').text(drive.Name),
+                    $('<br>'),
+                    $('<span>').text(desc),
+                    $('<span class="pull-right">').append(
+                        $('<span class="reading">').text(""),
+                        $('<span style="display:inline-block;width:2em">'),
+                        $('<span class="writing">').text(""))),
+                $('<td style="width:28px">').append(
+                    $('<div>', { id: "storage-spinner-" + id,
+                                 "class": "waiting"
+                               })));
 
         // TODO: should show warning icon etc. if disk is failing
 
@@ -566,7 +583,7 @@ PageStorage.prototype = {
             }
         }
 
-        (this._drives[0]).insertBefore(($(html))[0], insert_before);
+        (this._drives[0]).insertBefore(tr[0], insert_before);
         this._drives.closest('.panel').show();
 
         prepare_as_target($('#storage-spinner-' + id));
@@ -583,24 +600,24 @@ PageStorage.prototype = {
         var sort_key = desc;
         var n;
 
-        var html = "<tr id=\"storage-raid-" + id + "\" sort=\"" + cockpit.esc(sort_key) + "\"";
-        html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'mdraid', id: id })) + "\">";
-
-        html += "<td width=\"30%\">";
-        html += cockpit.esc(desc);
-        html += "</td>";
-        html += "<td>";
-
-        if (raid.Size > 0) {
-            var size_str = fmt_size(raid.Size);
-            html += size_str + " " + C_("storage", "RAID Array");
-        } else
-            html += C_("storage", "RAID Array");
-        html += "</td>";
-        html += "<td></td>";
-        html += "<td></td>";
-        html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
-        html += "</tr>";
+        var tr =
+            $('<tr>', { id: "storage-raid-" + id,
+                        Sort: sort_key
+                      }).
+            click(function () {
+                cockpit.go_down({ page: "storage-detail",
+                                  type: "mdraid",
+                                  id: id
+                                });
+            }).
+            append(
+                $('<td>').append(
+                    $('<span style="float:right">').text(fmt_size(raid.Size)),
+                    $('<span>').text(raid_get_desc(raid))),
+                $('<td style="width:28px">').append(
+                    $('<div>', { id: "storage-spinner-" + id,
+                                 "class": "waiting"
+                               })));
 
         // Insert sorted
         var children = this._raids[0].childNodes;
@@ -615,7 +632,7 @@ PageStorage.prototype = {
             }
         }
 
-        (this._raids[0]).insertBefore(($(html))[0], insert_before);
+        (this._raids[0]).insertBefore(tr[0], insert_before);
         this._raids.closest('.panel').show();
 
         prepare_as_target($('#storage-spinner-' + id));
@@ -631,24 +648,24 @@ PageStorage.prototype = {
         var sort_key = vg.Name;
         var n;
 
-        var html = "<tr id=\"storage-vg-" + id + "\" sort=\"" + cockpit.esc(sort_key) + "\"";
-        html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'vg', id: id })) + "\">";
-
-        html += "<td width=\"30%\">";
-        html += cockpit.esc(vg.Name);
-        html += "</td>";
-        html += "<td>";
-
-        if (vg.Size > 0) {
-            var size_str = fmt_size(vg.Size);
-            html += size_str + " " + C_("storage", "Volume Group");
-        } else
-            html += C_("storage", "Volume Group");
-        html += "</td>";
-        html += "<td></td>";
-        html += "<td></td>";
-        html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
-        html += "</tr>";
+        var tr =
+            $('<tr>', { id: "storage-vg-" + id,
+                        Sort: sort_key
+                      }).
+            click(function () {
+                cockpit.go_down({ page: "storage-detail",
+                                  type: "vg",
+                                  id: id
+                                });
+            }).
+            append(
+                $('<td>').append(
+                    $('<span style="float:right">').text(fmt_size(vg.Size)),
+                    $('<span>').text(vg.Name)),
+                $('<td style="width:28px">').append(
+                    $('<div>', { id: "storage-spinner-" + id,
+                                 "class": "waiting"
+                               })));
 
         // Insert sorted
         var children = this._vgs[0].childNodes;
@@ -663,7 +680,7 @@ PageStorage.prototype = {
             }
         }
 
-        (this._vgs[0]).insertBefore(($(html))[0], insert_before);
+        (this._vgs[0]).insertBefore(tr[0], insert_before);
         this._vgs.closest('.panel').show();
 
         prepare_as_target($('#storage-spinner-' + id));
@@ -688,23 +705,30 @@ PageStorage.prototype = {
         var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
         var sort_key = block.DeviceNumber;
 
-        var html = "<tr id=\"storage-block-" + id + "\" sort=\"" + sort_key.toString() + "\"";
-        html += " data-blockdev=\"" + cockpit.esc(blockdev) + "\"";
-        html += " onclick=\"" + cockpit.esc(cockpit.go_down_cmd("storage-detail", { type: 'block', id: id })) + "\">";
-
-        html += "<td width=\"30%\">";
-        html += cockpit.esc(block.Device);
-        html += "</td>";
-        html += "<td>";
-
-        var size_str = fmt_size(block.Size);
-        var val = size_str + " " + C_("storage", "Block Device");
-        html += val;
-        html += "</td>";
-        html += "<td></td>";
-        html += "<td></td>";
-        html += '<td style="width:28px"><div id="storage-spinner-' +id+ '" class="waiting"/></td>';
-        html += "</tr>";
+        var tr =
+            $('<tr>', { id: "storage-block-" + id,
+                        Sort: sort_key,
+                        "data-blockdev": blockdev
+                      }).
+            click(function () {
+                cockpit.go_down({ page: "storage-detail",
+                                  type: "block",
+                                  id: id
+                                });
+            }).
+            append(
+                $('<td>').append(
+                    $('<span>').text(block.Device),
+                    $('<br>'),
+                    $('<span>').text(fmt_size(block.Size) + " " + C_("storage", "Block Device")),
+                    $('<br>'),
+                    $('<span class="reading">').text(""),
+                    $('<span style="display:inline-block;width:2em">'),
+                    $('<span class="writing">').text("")),
+                $('<td style="width:28px">').append(
+                    $('<div>', { id: "storage-spinner-" + id,
+                                 "class": "waiting"
+                               })));
 
         // Insert sorted
         var children = this._other_devices[0].childNodes;
@@ -720,7 +744,7 @@ PageStorage.prototype = {
             }
         }
 
-        (this._other_devices[0]).insertBefore(($(html))[0], insert_before);
+        (this._other_devices[0]).insertBefore(tr[0], insert_before);
         this._other_devices.closest('.panel').show();
 
         prepare_as_target($('#storage-spinner-' + id));

@@ -77,7 +77,7 @@ class TestStorage(MachineCase):
         disk1 = self.add_disk("10M", serial="MYSERIAL")
 
         b.wait_in_text("#storage_drives", "MYSERIAL")
-        b.click('tr[onclick*="MYSERIAL"]')
+        b.click('tr:contains("MYSERIAL")')
         b.wait_page("storage-detail")
         b.wait_in_text('#storage_detail_partition_list', "Unrecognized Data")
         b.wait_not_in_text('#storage_detail_partition_list', "Partition")
@@ -104,7 +104,7 @@ class TestStorage(MachineCase):
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
-        b.click('tr[onclick*="MYDISK"]')
+        b.click('tr:contains("MYDISK")')
         b.wait_page("storage-detail")
 
         # Format it
@@ -177,7 +177,7 @@ class TestStorage(MachineCase):
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
-        b.click('tr[onclick*="MYDISK"]')
+        b.click('tr:contains("MYDISK")')
         b.wait_page("storage-detail")
 
         # Format it with a DOS partition table
@@ -249,7 +249,7 @@ class TestStorage(MachineCase):
         # Add a disk and partition it
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
-        b.click('tr[onclick*="MYDISK"]')
+        b.click('tr:contains("MYDISK")')
         b.wait_page("storage-detail")
         b.click("#drive_format")
         b.wait_popup("storage_format_disk_dialog")
@@ -392,7 +392,7 @@ class TestStorage(MachineCase):
         b.wait_popdown("create-raid-dialog")
         b.wait_in_text("#storage_raids", "ARR")
 
-        b.click('tr[onclick*="mdraid"]')
+        b.click('tr:contains("ARR")')
         b.wait_page("storage-detail")
 
         # The array might resync, so let's give it some extra time
@@ -509,7 +509,7 @@ class TestStorage(MachineCase):
         self.add_disk("10M", serial="SLOW", speed=800)
         b.wait_in_text("#storage_drives", "SLOW")
 
-        b.click('tr[onclick*="SLOW"]')
+        b.click('tr:contains("SLOW")')
         b.wait_page("storage-detail")
 
         # Format it
@@ -546,7 +546,7 @@ class TestStorage(MachineCase):
         # Create volume group out of two disks
         m.execute("vgcreate TEST1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
         b.wait_in_text("#storage_vgs", "TEST1")
-        b.click('tr[onclick*="TEST1"]')
+        b.click('tr:contains("TEST1")')
         b.wait_page("storage-detail")
         b.wait_in_text("#vg-physical-volumes", "DISK1")
         b.wait_in_text("#vg-physical-volumes", "DISK2")
@@ -616,13 +616,13 @@ class TestStorage(MachineCase):
         # create volume group in the UI
         b.click('#storage_create_volume_group')
         b.wait_popup('create-volume-group-dialog')
-        b.set_val('#create-vg-name', "TEST");
+        b.set_val('#create-vg-name', "TEST2");
         self.select_disk('create-vg-drives', "DISK1")
         self.select_disk('create-vg-drives', "DISK2")
         b.click('#create-vg-create')
         b.wait_popdown('create-volume-group-dialog')
-        b.wait_in_text("#storage_vgs", "TEST")
-        b.click('tr[onclick*="TEST"]')
+        b.wait_in_text("#storage_vgs", "TEST2")
+        b.click('tr:contains("TEST2")')
 
         # create a logical volume
         self.content_default_action(1, "Create Plain Logical Volume")
@@ -726,7 +726,7 @@ class TestStorage(MachineCase):
         m.execute("mkfs.ext4 -L FSYS /dev/TEST/vol")
 
         b.wait_in_text("#storage_vgs", "TEST")
-        b.click('tr[onclick*="TEST"]')
+        b.click('tr:contains("TEST")')
         b.wait_page("storage-detail")
         b.wait_in_text("#storage_detail_partition_list", "FSYS")
 
@@ -775,7 +775,7 @@ class TestStorage(MachineCase):
 
         # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda should be 'in use'.
 
-        b.click('tr[onclick*="DISK1"]')
+        b.click('tr:contains("DISK1")')
         b.wait_page("storage-detail")
         b.wait_in_text("#storage_detail_content", "/mnt")
 
@@ -847,7 +847,7 @@ class TestStorage(MachineCase):
 
         # Delete the volume group and check that fstab has been cleaned up
         b.wait_in_text("#storage_vgs", "TEST")
-        b.click('tr[onclick*="TEST"]')
+        b.click('tr:contains("TEST")')
         b.click_action_btn('#vg_action_btn', "Delete")
         self.confirm()
         b.wait_page("storage")

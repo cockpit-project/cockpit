@@ -172,6 +172,7 @@ storage_block_update (StorageBlock *block)
     gs_free gchar *d =
       g_filename_display_name (udisks_block_get_preferred_device (udisks_block));
     cockpit_storage_block_set_device (iface, d);
+    cockpit_storage_block_set_device_number (iface, udisks_block_get_device_number (udisks_block));
   }
 
   cockpit_storage_block_set_size       (iface, udisks_block_get_size (udisks_block));

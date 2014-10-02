@@ -1115,6 +1115,10 @@ PageStorageDetail.prototype = {
                                       ]);
         $('#vg_action_btn').html(btn);
         $("#vg-pv-add").on('click', $.proxy(this, "add_physical_volume"));
+
+        $("#block_format").on('click', function () {
+            self.action('format');
+        });
     },
 
     enter: function() {

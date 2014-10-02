@@ -814,9 +814,6 @@ function NetworkManagerModel(address) {
                                           settings_to_nm(this.Settings, priv(this).orig)).
                     done(function () {
                         priv(self).frozen = false;
-                    }).
-                    fail(function () {
-                        self.reset();
                     });
             },
 
@@ -2499,7 +2496,6 @@ function slave_chooser_btn(change, slave_choices) {
 
 function free_slave_connection(con) {
     if (con.Settings.connection.slave_type) {
-        con.freeze();
         delete con.Settings.connection.slave_type;
         delete con.Settings.connection.master;
         return con.apply();
@@ -2550,7 +2546,6 @@ function set_slave(model, master_connection, master_settings, slave_type,
                                                          }
                                                        });
         } else if (main_connection.Settings.connection.master != master_settings.connection.uuid) {
-            main_connection.freeze();
             main_connection.Settings.connection.slave_type = slave_type;
             main_connection.Settings.connection.master = master_settings.connection.uuid;
             delete main_connection.Settings.ipv4;

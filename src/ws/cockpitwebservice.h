@@ -64,7 +64,7 @@ void                 cockpit_web_service_packages        (CockpitWebService *sel
                                                           GAsyncReadyCallback callback,
                                                           gpointer user_data);
 
-JsonObject *         cockpit_web_service_packages_finish (CockpitWebService *self,
+JsonArray *          cockpit_web_service_packages_finish (CockpitWebService *self,
                                                           GAsyncResult *result);
 
 

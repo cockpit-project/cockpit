@@ -481,14 +481,16 @@ resolve_depends (GHashTable *listing)
 }
 
 GHashTable *
-cockpit_package_listing (JsonObject **json)
+cockpit_package_listing (JsonArray **json)
 {
-  JsonObject *root = NULL;
+  JsonArray *root = NULL;
   GHashTable *listing;
-  GHashTableIter iter;
-  gpointer value;
   CockpitPackage *package;
+  GHashTable *ids;
   JsonObject *object;
+  JsonArray *id;
+  GList *names, *l;
+  const gchar *name;
 
   listing = g_hash_table_new_full (g_str_hash, g_str_equal,
                                    NULL, cockpit_package_unref);
@@ -496,22 +498,43 @@ cockpit_package_listing (JsonObject **json)
   build_package_listing (listing);
   resolve_depends (listing);
 
-  /* Build JSON resources block */
+  /* Add checksums to listing, for easy lookup */
+  names = g_hash_table_get_keys (listing);
+  for (l = names; l != NULL; l = g_list_next (l))
+    {
+      package = g_hash_table_lookup (listing, l->data);
+      if (package->checksum && !g_hash_table_contains (listing, package->checksum))
+        g_hash_table_replace (listing, package->checksum, cockpit_package_ref (package));
+    }
+  g_list_free (names);
+
+  /* Build JSON packages block */
   if (json)
     {
-      *json = root = json_object_new ();
+      *json = root = json_array_new ();
+      ids = g_hash_table_new (g_direct_hash, g_direct_equal);
+      names = g_hash_table_get_keys (listing);
+      names = g_list_sort (names, (GCompareFunc)strcmp);
 
-      g_hash_table_iter_init (&iter, listing);
-      while (g_hash_table_iter_next (&iter, NULL, &value))
+      for (l = names; l != NULL; l = g_list_next (l))
         {
-          package = value;
-
-          object = json_object_new ();
-          if (package->checksum)
-            json_object_set_string_member (object, "checksum", package->checksum);
-          json_object_set_object_member (object, "manifest", json_object_ref (package->manifest));
-          json_object_set_object_member (root, package->name, object);
+          name = l->data;
+          package = g_hash_table_lookup (listing, name);
+          id = g_hash_table_lookup (ids, package);
+          if (!id)
+            {
+              object = json_object_new ();
+              id = json_array_new();
+              json_object_set_array_member (object, "id", id);
+              json_object_set_object_member (object, "manifest", json_object_ref (package->manifest));
+              json_array_add_object_element (root, object);
+              g_hash_table_insert (ids, package, id);
+            }
+          json_array_add_string_element (id, name);
         }
+
+      g_list_free (names);
+      g_hash_table_destroy (ids);
     }
 
   return listing;

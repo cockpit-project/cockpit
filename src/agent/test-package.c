@@ -29,7 +29,7 @@ extern const gchar **cockpit_agent_data_dirs;
 
 typedef struct {
   GHashTable *listing;
-  JsonObject *json;
+  JsonArray *json;
 } TestCase;
 
 typedef struct {
@@ -59,7 +59,7 @@ teardown (TestCase *tc,
   if (tc->listing)
     g_hash_table_unref (tc->listing);
   if (tc->json)
-    json_object_unref (tc->json);
+    json_array_unref (tc->json);
 
   cockpit_agent_data_dirs = NULL;
 }
@@ -73,27 +73,28 @@ test_listing (TestCase *tc,
               gconstpointer fixture)
 {
   GHashTable *listing;
-  JsonObject *json;
+  JsonArray *json;
 
   g_assert (fixture == &fixture_listing);
 
   listing = cockpit_package_listing (&json);
 
   cockpit_assert_json_eq (json,
-                          "{"
-                          " \"test\": {"
-                          "    \"checksum\": \"$4784b8b983691a87886ce8325bda5f0ed748f058\","
-                          "    \"manifest\" : { \"description\" : \"dummy\"}"
-                          " },"
-                          " \"second\": {"
-                          "    \"checksum\": \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
-                          "    \"manifest\": { \"description\": \"second dummy description\"}"
-                          " },"
-                          " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
-                          "}");
+                          "["
+                          " {"
+                          "  \"id\": [ \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\", \"second\" ],"
+                          "  \"manifest\": { \"description\": \"second dummy description\"}"
+                          " },{"
+                          "  \"id\": [ \"$4784b8b983691a87886ce8325bda5f0ed748f058\", \"test\" ],"
+                          "  \"manifest\" : { \"description\" : \"dummy\"}"
+                          " },{"
+                          "  \"id\": [ \"another\" ],"
+                          "  \"manifest\" : { \"description\" : \"another\"}"
+                          " }"
+                          "]");
 
   g_hash_table_unref (listing);
-  json_object_unref (json);
+  json_array_unref (json);
 }
 
 static void
@@ -106,6 +107,18 @@ test_resolve (TestCase *tc,
   g_assert_cmpstr (SRCDIR "/src/agent/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
   g_free (path);
 }
+
+static void
+test_resolve_checksum (TestCase *tc,
+                       gconstpointer fixture)
+{
+  gchar *path;
+
+  path = cockpit_package_resolve (tc->listing, "$4784b8b983691a87886ce8325bda5f0ed748f058", "/sub/file.ext");
+  g_assert_cmpstr (SRCDIR "/src/agent/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
+  g_free (path);
+}
+
 
 static void
 test_resolve_bad_dots (TestCase *tc,
@@ -239,22 +252,22 @@ test_list_bad_name (TestCase *tc,
                     gconstpointer fixture)
 {
   GHashTable *listing;
-  JsonObject *json;
+  JsonArray *json;
 
   cockpit_expect_warning ("package * invalid *name*");
 
   listing = cockpit_package_listing (&json);
 
   cockpit_assert_json_eq (json,
-                          "{"
-                          " \"ok\": {"
-                          "    \"checksum\": \"$248b261c112455057b51827f3f63380159e27338\","
-                          "    \"manifest\" : { }"
+                          "["
+                          " {"
+                          "  \"id\": [ \"$248b261c112455057b51827f3f63380159e27338\", \"ok\" ],"
+                          "  \"manifest\": { }"
                           " }"
-                          "}");
+                          "]");
 
   g_hash_table_unref (listing);
-  json_object_unref (json);
+  json_array_unref (json);
 }
 
 int
@@ -277,6 +290,8 @@ main (int argc,
 
   g_test_add ("/package/resolve/simple", TestCase, NULL,
               setup, test_resolve, teardown);
+  g_test_add ("/package/resolve/checksum", TestCase, NULL,
+              setup, test_resolve_checksum, teardown);
   g_test_add ("/package/resolve/bad-dots", TestCase, NULL,
               setup, test_resolve_bad_dots, teardown);
   g_test_add ("/package/resolve/bad-path", TestCase, NULL,

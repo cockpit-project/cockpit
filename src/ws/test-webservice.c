@@ -1342,7 +1342,7 @@ test_resource_packages (TestResourceCase *tc,
                         gconstpointer data)
 {
   GAsyncResult *result = NULL;
-  JsonObject *packages;
+  JsonArray *packages;
 
   cockpit_web_service_packages (tc->service, "localhost", on_ready_get_result, &result);
 
@@ -1354,19 +1354,20 @@ test_resource_packages (TestResourceCase *tc,
 
   g_assert (packages != NULL);
   cockpit_assert_json_eq (packages,
-                          "{"
-                          " \"test\": {"
-                          "    \"checksum\": \"$4784b8b983691a87886ce8325bda5f0ed748f058\","
-                          "    \"manifest\" : { \"description\" : \"dummy\"}"
-                          " },"
-                          " \"second\": {"
-                          "    \"checksum\": \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
-                          "    \"manifest\": { \"description\" : \"second dummy description\"}"
-                          " },"
-                          " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
-                          "}");
+                          "["
+                          " {"
+                          "  \"id\": [ \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\", \"second\" ],"
+                          "  \"manifest\": { \"description\": \"second dummy description\"}"
+                          " },{"
+                          "  \"id\": [ \"$4784b8b983691a87886ce8325bda5f0ed748f058\", \"test\" ],"
+                          "  \"manifest\" : { \"description\" : \"dummy\"}"
+                          " },{"
+                          "  \"id\": [ \"another\" ],"
+                          "  \"manifest\" : { \"description\" : \"another\"}"
+                          " }"
+                          "]");
 
-  json_object_unref (packages);
+  json_array_unref (packages);
 }
 
 static void
@@ -1374,7 +1375,7 @@ test_resource_packages_failure (TestResourceCase *tc,
                                 gconstpointer data)
 {
   GAsyncResult *result = NULL;
-  JsonObject *packages;
+  JsonArray *packages;
   GPid pid;
 
   cockpit_expect_message ("*: transport closed while listing cockpit packages: *");
@@ -1408,7 +1409,7 @@ test_resource_checksum (TestResourceCase *tc,
   cockpit_web_service_packages (tc->service, "localhost", on_ready_get_result, &result);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
-  json_object_unref (cockpit_web_service_packages_finish (tc->service, result));
+  json_array_unref (cockpit_web_service_packages_finish (tc->service, result));
   g_object_unref (result);
 
   response = cockpit_web_response_new (tc->io, "/cockpit/$4784b8b983691a87886ce8325bda5f0ed748f058/sub/file.ext", NULL);

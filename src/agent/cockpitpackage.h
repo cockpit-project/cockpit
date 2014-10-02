@@ -24,7 +24,7 @@
 
 #include <json-glib/json-glib.h>
 
-GHashTable *      cockpit_package_listing            (JsonObject **listing);
+GHashTable *      cockpit_package_listing            (JsonArray **listing);
 
 gchar *           cockpit_package_resolve            (GHashTable *mapping,
                                                       const gchar *package,

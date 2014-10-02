@@ -408,7 +408,7 @@ function NetworkManagerModel(address) {
 
     function ip4_address_from_nm(addr) {
         return [ ip4_to_text(addr[0]),
-                 addr[1],
+                 addr[1].toString(),
                  ip4_to_text(addr[2])
                ];
     }
@@ -422,9 +422,9 @@ function NetworkManagerModel(address) {
 
     function ip4_route_from_nm(addr) {
         return [ ip4_to_text(addr[0]),
-                 addr[1],
+                 addr[1].toString(),
                  ip4_to_text(addr[2]),
-                 addr[3]
+                 addr[3].toString()
                ];
     }
 
@@ -456,7 +456,7 @@ function NetworkManagerModel(address) {
 
     function ip6_address_from_nm(addr) {
         return [ ip6_to_text(addr[0]),
-                 addr[1],
+                 addr[1].toString(),
                  ip6_to_text(addr[2])
                ];
     }
@@ -470,9 +470,9 @@ function NetworkManagerModel(address) {
 
     function ip6_route_from_nm(addr) {
         return [ ip6_to_text(addr[0]),
-                 addr[1],
+                 addr[1].toString(),
                  ip6_to_text(addr[2]),
-                 addr[3]
+                 addr[3].toString()
                ];
     }
 

@@ -406,6 +406,34 @@ function NetworkManagerModel(address) {
             return 0;
     }
 
+    var text_to_prefix_bits = {
+        "255": 8, "254": 7, "252": 6, "248": 5, "240": 4, "224": 3, "192": 2, "128": 1, "0": 0
+    };
+
+    function ip4_prefix_from_text(text) {
+        if (/^[0-9]+$/.test(text.trim()))
+            return parseInt(text, 10);
+        var parts = text.split('.');
+        if (parts.length != 4)
+            return -1;
+        var prefix = 0;
+        var i;
+        for (i = 0; i < 4; i++) {
+            var p = text_to_prefix_bits[parts[i].trim()];
+            if (p !== undefined) {
+                prefix += p;
+                if (p < 8)
+                    break;
+            } else
+                return -1;
+        }
+        for (i += 1; i < 4; i++) {
+            if (/^0+$/.test(parts[i].trim()) === false)
+                return -1;
+        }
+        return prefix;
+    }
+
     function ip4_address_from_nm(addr) {
         return [ ip4_to_text(addr[0]),
                  addr[1].toString(),
@@ -415,7 +443,7 @@ function NetworkManagerModel(address) {
 
     function ip4_address_to_nm(addr) {
         return [ ip4_from_text(addr[0]),
-                 parseInt(addr[1], 10) || 24,
+                 ip4_prefix_from_text(addr[1]),
                  ip4_from_text(addr[2])
                ];
     }
@@ -430,7 +458,7 @@ function NetworkManagerModel(address) {
 
     function ip4_route_to_nm(addr) {
         return [ ip4_from_text(addr[0]),
-                 parseInt(addr[1], 10) || 24,
+                 ip4_prefix_from_text(addr[1]),
                  ip4_from_text(addr[2]),
                  parseInt(addr[3], 10) || 0
                ];
@@ -2341,9 +2369,10 @@ PageNetworkIpSettings.prototype = {
         }
 
         function render_ip_settings() {
+            var prefix_text = (topic == "ipv4")? "Prefix length or Netmask" : "Prefix length";
             var body =
                 $('<div>').append(
-                    addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", "Netmask", "Gateway" ],
+                    addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", prefix_text, "Gateway" ],
                              [ "", "", "" ],
                              method_btn = choicebox("method", (topic == "ipv4")?
                                                     ipv4_method_choices : ipv6_method_choices).
@@ -2360,7 +2389,7 @@ PageNetworkIpSettings.prototype = {
                     $('<br>'),
                     routes_table =
                         tablebox(_("Routes"), "routes",
-                                 [ "Address", "Netmask", "Gateway", "Metric" ], [ "", "", "", "" ],
+                                 [ "Address", prefix_text, "Gateway", "Metric" ], [ "", "", "", "" ],
                                  auto_routes_btn = inverted_switchbox(_("Automatic"), "ignore_auto_routes")));
             return body;
         }

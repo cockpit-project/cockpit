@@ -75,9 +75,13 @@ class TestNetworking(MachineCase):
         b.wait_popup("network-ip-settings-dialog")
         b.click("#network-ip-settings-dialog a:contains('Manual')")
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
+        b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.0.8")
+        b.click("#network-ip-settings-dialog button:contains('Apply')")
+        b.wait_in_text("#network-ip-settings-error", "invalid prefix")
+        b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.192.0")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
-        b.wait_in_text("#network-interface .panel:contains('%s')" % iface, "1.2.3.4/24")
+        b.wait_in_text("#network-interface .panel:contains('%s')" % iface, "1.2.3.4/18")
 
         # Disconnect
         #

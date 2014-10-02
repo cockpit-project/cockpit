@@ -104,7 +104,7 @@ class TestStorage(MachineCase):
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
-        b.click('tr:contains("MYDISK")')
+        b.click('#storage_drives tr:contains("MYDISK")')
         b.wait_page("storage-detail")
 
         # Format it
@@ -137,7 +137,32 @@ class TestStorage(MachineCase):
         self.content_default_action(1, "Mount");
         b.wait_in_text("#storage_detail_partition_list", "mounted on /bar")
 
-        self.content_default_action(1, "Unmount");
+        # Go to overview page and check that the filesystem usage is
+        # displayed correctly.
+
+        def wait_ratio_in_range(sel, low, high):
+            b.wait_js_func("""(function (sel, low, high) {
+              var text = ph_text(sel);
+              var match = text.match('([0-9.]+) / ([0-9]+)');
+              if (!match)
+                return false;
+              var ratio = parseFloat(match[1]) / parseFloat(match[2]);
+              return low <= ratio && ratio <= high;
+            })""", sel, low, high)
+
+        b.go("storage")
+        b.wait_in_text("#storage_mounts", "/bar")
+        wait_ratio_in_range('#storage_mounts tr:contains("/bar") td:nth-child(4)', 0.0, 0.1)
+        m.execute("dd if=/dev/zero of=/bar/zero bs=1M count=30")
+        wait_ratio_in_range('#storage_mounts tr:contains("/bar") td:nth-child(4)', 0.5, 1.0)
+        m.execute("rm /bar/zero")
+        wait_ratio_in_range('#storage_mounts tr:contains("/bar") td:nth-child(4)', 0.0, 0.1)
+        m.execute("umount /bar")
+        b.wait_not_in_text("#storage_mounts", "/bar")
+        b.click('#storage_mounts tr:contains("FILESYSTEM")')
+        b.wait_page("storage-detail")
+        b.wait_text("#disk_detail_serial_number", "MYDISK")
+
         b.wait_in_text("#storage_detail_partition_list", "not mounted")
 
         self.content_action(1, "Filesystem Options");

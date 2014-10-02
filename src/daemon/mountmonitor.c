@@ -339,7 +339,7 @@ read_proc_mounts (CollectData *data)
   for (n = 0; lines != NULL && lines[n] != NULL; n++)
     {
       gchar *line = lines[n];
-      gchar *dir;
+      gchar *esc_dir, *dir;
       struct statvfs buf;
       Consumer *consumer;
       Sample *sample;
@@ -356,12 +356,13 @@ read_proc_mounts (CollectData *data)
         line++;
       while (*line && isspace (*line))
         line++;
-      dir = line;
+      esc_dir = line;
       while (*line && !isspace (*line))
         line++;
       *line = '\0';
 
-      // XXX - unescape spaces, such as \040.
+      dir = g_strcompress (esc_dir);
+
       if (statvfs (dir, &buf) >= 0)
         {
           consumer = get_consumer (data, dir);
@@ -370,6 +371,8 @@ read_proc_mounts (CollectData *data)
           sample->bytes_total = buf.f_frsize*buf.f_blocks;
           sample->bytes_used = sample->bytes_total - buf.f_frsize*buf.f_bfree;
         }
+
+      g_free (dir);
     }
 
  out:

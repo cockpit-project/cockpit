@@ -302,6 +302,17 @@ function hide_error_message(id) {
     $(id).css("visibility", "hidden");
 }
 
+function format_fsys_usage(used, total) {
+    var text = "";
+    var units = 1000;
+    var parts = cockpit.format_bytes(total, units, true);
+    text = " / " + parts.join(" ");
+    units = parts[1];
+
+    parts = cockpit.format_bytes(used, units, true);
+    return parts[0] + text;
+}
+
 PageStorage.prototype = {
     _init: function() {
         this.id = "storage";
@@ -341,6 +352,7 @@ PageStorage.prototype = {
         this._raids = $("#storage_raids");
         this._vgs = $("#storage_vgs");
         this._other_devices = $("#storage_other_devices");
+        this._mounts = $("#storage_mounts");
 
         this._coldplug();
 
@@ -402,6 +414,25 @@ PageStorage.prototype = {
             $('#storage-writing-text').text(cockpit.format_bytes_per_sec(total));
         });
         $(this.tx_plot).on('highlight', highlight_blockdev_row);
+
+        function render_mount_samples(event, timestamp, samples) {
+            for (var id in samples) {
+                var used = samples[id][0];
+                var total = samples[id][1];
+                var row = self.mount_bar_rows[id];
+                if (row) {
+                    row.attr("value", used + "/" + total);
+                    row.toggleClass("bar-row-danger", used > 0.95 * total);
+                }
+                var text= self.mount_texts[id];
+                if (text)
+                    text.text(format_fsys_usage(samples[id][0], samples[id][1]));
+            }
+        }
+
+        this.mount_monitor = this.client.get("/com/redhat/Cockpit/MountMonitor",
+                                             "com.redhat.Cockpit.MultiResourceMonitor");
+        $(this.mount_monitor).on('NewSample.storage', render_mount_samples);
     },
 
     show: function() {
@@ -416,6 +447,7 @@ PageStorage.prototype = {
         cockpit.set_watched_client(null);
         $(this.client).off(".storage");
         $(this.monitor).off(".storage");
+        $(this.mount_monitor).off(".storage");
         this.job_box.stop();
         this.log_box.stop();
         unwatch_jobs(this.client);
@@ -450,8 +482,11 @@ PageStorage.prototype = {
         this._vgs.closest('.panel').hide();
         this._other_devices.empty();
         this._other_devices.closest('.panel').hide();
+        this._mounts.empty();
 
         this.blockdevs = { };
+        this.mount_bar_rows = { };
+        this.mount_texts = { };
 
         var objs = this.client.getObjectsFrom("/com/redhat/Cockpit/Storage/");
         for (var n = 0; n < objs.length; n++) {
@@ -491,22 +526,10 @@ PageStorage.prototype = {
             this._addRaid(obj);
         else if (obj.lookup("com.redhat.Cockpit.Storage.VolumeGroup"))
             this._addVG(obj);
-        else if (obj.lookup("com.redhat.Cockpit.Storage.Block"))
+        else if (obj.lookup("com.redhat.Cockpit.Storage.Block")) {
             this._addOtherDevice(obj);
-    },
-
-    _remove: function(obj) {
-        var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
-        var elem;
-        if (obj.lookup("com.redhat.Cockpit.Storage.Drive"))
-            elem = $("#storage-drive-" + id);
-        else if (obj.lookup("com.redhat.Cockpit.Storage.MDRaid"))
-            elem = $("#storage-raid-" + id);
-        else if (obj.lookup("com.redhat.Cockpit.Storage.VolumeGroup"))
-            elem = $("#storage-vg-" + id);
-        else
-            elem = $("#storage-block-" + id);
-        elem.remove();
+            this._addMount(obj);
+        }
     },
 
     _addDrive: function(obj) {
@@ -749,6 +772,55 @@ PageStorage.prototype = {
 
         prepare_as_target($('#storage-spinner-' + id));
         mark_as_block_target($('#storage-spinner-' + id), block);
+    },
+
+    _addMount: function(obj) {
+        var block = obj.lookup("com.redhat.Cockpit.Storage.Block");
+
+        if (block.IdUsage != "filesystem")
+            return;
+
+        var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));
+        var sort_key = id; // for now
+
+        var bar_row = null;
+        var text = $('<td style="text-align:right">');
+
+        if (block.MountedAt && block.MountedAt.length > 0) {
+            bar_row = cockpit.BarRow();
+            for (var i = 0; i < block.MountedAt.length; i++) {
+                this.mount_bar_rows[block.MountedAt[i]] = bar_row;
+                this.mount_texts[block.MountedAt[i]] = text;
+            }
+        } else
+            text.text(cockpit.format_bytes(block.Size, 1000));
+
+        var tr =
+            $('<tr>', { Sort: sort_key }).
+            click(function () {
+                block_go_down(block);
+            }).
+            append(
+                $('<td>').text(block.IdLabel || block.Device),
+                $('<td>').text(block.MountedAt || "-"),
+                $('<td>').append(bar_row),
+                text);
+
+        // Insert sorted
+        var children = this._mounts[0].childNodes;
+        var insert_before = null;
+        var child, child_sort_key;
+
+        for (var n = 0; n < children.length; n++) {
+            child = children[n];
+            child_sort_key = child.getAttribute("sort");
+            if (child_sort_key > sort_key) {
+                insert_before = child;
+                break;
+            }
+        }
+
+        (this._mounts[0]).insertBefore(tr[0], insert_before);
     }
 };
 
@@ -887,6 +959,52 @@ function block_get_short_desc(block)
         return drive? cockpit.esc(drive.Name) : block.Device;
     } else
         return "Block Device";
+}
+
+function block_go_down(block)
+{
+    var id, lv, vg, path;
+
+    while (true) {
+        if (block.PartitionTable && block.PartitionTable != "/")
+            block = block._client.get(block.PartitionTable, "com.redhat.Cockpit.Storage.Block");
+        else if (block.CryptoBackingDevice && block.CryptoBackingDevice != "/")
+            block = block._client.get(block.CryptoBackingDevice, "com.redhat.Cockpit.Storage.Block");
+        else
+            break;
+    }
+
+    if (block.Drive != "/") {
+        id = block.Drive.substr(block.Drive.lastIndexOf("/") + 1);
+        cockpit.go_down({ page: "storage-detail",
+                          type: "drive",
+                          id: id
+                        });
+    } else if (block.MDRaid != "/") {
+        id = block.MDRaid.substr(block.MDRaid.lastIndexOf("/") + 1);
+        cockpit.go_down({ page: "storage-detail",
+                          type: "mdraid",
+                          id: id
+                        });
+    } else if (block.LogicalVolume != "/") {
+        lv = block._client.get(block.LogicalVolume,
+                               "com.redhat.Cockpit.Storage.LogicalVolume");
+        if (lv.VolumeGroup != "/") {
+            vg = lv._client.get(lv.VolumeGroup,
+                                "com.redhat.Cockpit.Storage.VolumeGroup");
+            cockpit.go_down({ page: "storage-detail",
+                              type: "vg",
+                              id: vg.Name
+                            });
+        }
+    } else {
+        path = block.getObject().objectPath;
+        id = path.substr(path.lastIndexOf("/") + 1);
+        cockpit.go_down({ page: "storage-detail",
+                          type: "block",
+                          id: id
+                        });
+    }
 }
 
 function block_get_link_desc(block)

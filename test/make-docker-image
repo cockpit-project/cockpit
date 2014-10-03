@@ -1,0 +1,24 @@
+#! /bin/bash
+
+set -e
+
+if [ $# != 2 ]; then
+  echo >&2 "Usage: [fakeroot] make-docker-image NAME.tar.gz PROGRAM"
+  exit 1
+fi
+
+out=$1
+probe=$2
+
+gcc -o $probe $probe.c -static
+
+dir=$out.root
+rm -rf $dir
+mkdir $dir
+mkdir $dir/dev
+mknod $dir/dev/console c 5 1
+mkdir $dir/bin/
+cp $probe $dir/bin/
+
+(cd $dir && tar czf - .) > $out
+rm -rf $dir

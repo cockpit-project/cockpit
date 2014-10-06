@@ -885,188 +885,46 @@ on_get_unit_file_state_done (GObject *object,
 
 /* SERVICE ACTION */
 
-enum {
-  FOR_FILES = 1,
-  NO_FORCE = 2,
-  FORCE = 4,
-  INSTALL_INFO = 8,
-  ISOLATE = 16
-};
-
-static struct {
-  const gchar *action;
-  const gchar *method;
-  int flags;
-} action_methods[] = {
-  { "start",                 "StartUnit",              0 },
-  { "stop",                  "StopUnit",               0 },
-  { "restart",               "RestartUnit",            0 },
-  { "reload",                "ReloadUnit",             0 },
-  { "reload-or-restart",     "ReloadOrRestartUnit",    0 },
-  { "try-restart",           "TryRestartUnit",         0 },
-  { "reload-or-try-restart", "ReloadOrTryRestartUnit", 0 },
-  { "isolate",               "StartUnit",              ISOLATE },
-
-  { "enable",                "EnableUnitFiles",        FOR_FILES | NO_FORCE | INSTALL_INFO },
-  { "force-enable",          "EnableUnitFiles",        FOR_FILES | FORCE | INSTALL_INFO },
-  { "disable",               "DisableUnitFiles",       FOR_FILES },
-  { "preset",                "PresetUnitFiles",        FOR_FILES | NO_FORCE | INSTALL_INFO },
-  { "force-preset",          "PresetUnitFiles",        FOR_FILES | FORCE | INSTALL_INFO },
-  { "mask",                  "MaskUnitFiles",          FOR_FILES | NO_FORCE },
-  { "force-mask",            "MaskUnitFiles",          FOR_FILES | FORCE },
-  { "unmask",                "UnmaskUnitFiles",        FOR_FILES },
-
-  { NULL }
-};
-
-typedef struct {
-  Services *services;
-  GDBusMethodInvocation *invocation;
-  int flags;
-} ServiceActionData;
-
-static void on_service_action_done (GObject *object, GAsyncResult *res, gpointer user_data);
-static void on_reload_done (GObject *object, GAsyncResult *res, gpointer user_data);
-
 static gboolean
 handle_service_action (CockpitServices *object,
                        GDBusMethodInvocation *invocation,
                        const gchar *arg_name,
                        const gchar *arg_action)
 {
+  GError *error;
   Services *services = SERVICES (object);
+  const gchar *argv[6];
+  int i;
+  gint status;
 
-  if (services->systemd == NULL)
+  const gchar *method = arg_action;
+  gboolean force = FALSE;
+
+  if (g_str_has_prefix (arg_action, "force-"))
     {
-      g_dbus_method_invocation_return_error (invocation,
-                                             COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                             "systemd not running");
-      return TRUE;
+      force = TRUE;
+      method = arg_action + strlen ("force-");
     }
 
-  const gchar *method = NULL;
-  int flags = 0;
+  i = 0;
+  argv[i++] = "pkexec";
+  argv[i++] = "systemctl";
+  if (force)
+    argv[i++] = "--force";
+  argv[i++] = method;
+  argv[i++] = arg_name;
+  argv[i++] = NULL;
 
-  for (int i = 0; action_methods[i].action; i++)
-    {
-      if (strcmp (action_methods[i].action, arg_action) == 0)
-        {
-          method = action_methods[i].method;
-          flags = action_methods[i].flags;
-          break;
-        }
-    }
+  error = NULL;
+  if (g_spawn_sync (NULL, (gchar**)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &status, &error))
+    g_spawn_check_exit_status (status, &error);
 
-  if (method == NULL)
-    {
-      g_dbus_method_invocation_return_error (invocation,
-                                             COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                             "Unsupported action: %s",
-                                             arg_action);
-      return TRUE;
-    }
-
-  const gchar *mode = (flags & ISOLATE) ? "isolate" : "replace";
-
-  ServiceActionData *data = g_new0(ServiceActionData, 1);
-  data->services = services;
-  data->invocation = invocation;
-  data->flags = flags;
-
-  GVariant *args;
-  if (flags & FOR_FILES)
-    {
-      const gchar *files[] = { arg_name, NULL };
-      if ((flags & FORCE) || (flags & NO_FORCE))
-        args = g_variant_new ("(^asbb)", files, FALSE, flags & FORCE);
-      else
-        args = g_variant_new ("(^asb)", files, FALSE);
-    }
+  if (error)
+    end_invocation_take_gerror (invocation, error);
   else
-    args = g_variant_new ("(ss)", arg_name, mode);
+    cockpit_services_complete_service_action (COCKPIT_SERVICES (services), invocation);
 
-  g_dbus_proxy_call (services->systemd,
-                     method,
-                     args,
-                     G_DBUS_CALL_FLAGS_NONE,
-                     G_MAXINT,
-                     NULL,
-                     on_service_action_done,
-                     data);
   return TRUE;
-}
-
-static void
-on_service_action_done (GObject *object,
-                        GAsyncResult *res,
-                        gpointer user_data)
-{
-  ServiceActionData *data = user_data;
-  GError *error = NULL;
-
-  gs_unref_variant GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
-  if (error)
-    {
-      end_invocation_take_gerror (data->invocation, error);
-      g_free (data);
-      return;
-    }
-
-  if (data->flags & FOR_FILES)
-    {
-      gboolean carries_install_info;
-      gs_unref_variant GVariant *changes;
-      if (data->flags & INSTALL_INFO)
-        g_variant_get (result, "(b@a(sss))", &carries_install_info, &changes);
-      else
-        g_variant_get (result, "(@a(sss))", &changes);
-
-      if ((data->flags & INSTALL_INFO) && !carries_install_info)
-        {
-          g_dbus_method_invocation_return_error (data->invocation,
-                                                 COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                                 "Service has not been designed to be enabled or disabled.");
-          g_free (data);
-          return;
-        }
-
-      g_dbus_proxy_call (data->services->systemd,
-                         "Reload",
-                         NULL,
-                         G_DBUS_CALL_FLAGS_NONE,
-                         G_MAXINT,
-                         NULL,
-                         on_reload_done,
-                         data);
-    }
-  else
-    {
-      cockpit_services_complete_service_action (COCKPIT_SERVICES (data->services),
-                                                data->invocation);
-      g_free (data);
-    }
-}
-
-static void
-on_reload_done (GObject *object,
-                GAsyncResult *res,
-                gpointer user_data)
-{
-  ServiceActionData *data = user_data;
-  GError *error = NULL;
-
-  GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
-  if (error)
-    {
-      end_invocation_take_gerror (data->invocation, error);
-      g_free (data);
-      return;
-    }
-
-  g_variant_unref (result);
-  cockpit_services_complete_service_action (COCKPIT_SERVICES (data->services),
-                                            data->invocation);
-  g_free (data);
 }
 
 /* INTERFACE */

@@ -248,7 +248,7 @@ on_signal_done (gpointer data)
 {
   gboolean *closed = data;
   *closed = TRUE;
-  return FALSE;
+  return TRUE;
 }
 
 int

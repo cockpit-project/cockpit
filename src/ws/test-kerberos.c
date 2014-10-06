@@ -468,6 +468,10 @@ mock_kdc_start (void)
           *pos = '\0';
           g_hash_table_replace (mock_kdc.environ, vars[i], pos + 1);
         }
+      else
+        {
+          g_free (vars[i]);
+        }
     }
 
   g_string_free (input, TRUE);

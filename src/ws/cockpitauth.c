@@ -258,6 +258,7 @@ login_data_free (gpointer data)
     g_object_unref (login->auth_pipe);
   if (login->authorization)
     g_bytes_unref (login->authorization);
+  g_free (login->auth_type);
   g_free (login->remote_peer);
   g_free (login);
 }
@@ -395,7 +396,7 @@ cockpit_auth_session_login_async (CockpitAuth *self,
   GSimpleAsyncResult *result;
   LoginData *login;
   GBytes *input;
-  gchar *type;
+  gchar *type = NULL;
 
   result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
                                       cockpit_auth_session_login_async);
@@ -426,6 +427,7 @@ cockpit_auth_session_login_async (CockpitAuth *self,
     }
   else
     {
+      g_free (type);
       g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                                        "Authentication required");
       g_simple_async_result_complete_in_idle (result);

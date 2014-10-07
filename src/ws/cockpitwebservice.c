@@ -237,7 +237,7 @@ cockpit_session_destroy (CockpitSessions *sessions,
   GHashTableIter iter;
   const gchar *chan;
 
-  g_debug ("%s: destroy %ssession", session->primary ? "primary " : "", session->host);
+  g_debug ("%s: destroy %ssession", session->host, session->primary ? "primary " : "");
 
   g_hash_table_iter_init (&iter, session->channels);
   while (g_hash_table_iter_next (&iter, (gpointer *)&chan, NULL))

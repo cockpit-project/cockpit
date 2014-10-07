@@ -19,6 +19,12 @@
 
 #include "config.h"
 
+/* This gets logged as part of the (more verbose) protocol logging */
+#ifdef G_LOG_DOMAIN
+#undef G_LOG_DOMAIN
+#endif
+#define G_LOG_DOMAIN "cockpit-protocol"
+
 #include "cockpitsshtransport.h"
 
 #include "common/cockpitpipe.h"
@@ -30,12 +36,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-/* This gets logged as part of the (more verbose) protocol logging */
-#ifdef G_LOG_DOMAIN
-#undef G_LOG_DOMAIN
-#endif
-#define G_LOG_DOMAIN "cockpit-protocol"
 
 /**
  * CockpitSshTransport:

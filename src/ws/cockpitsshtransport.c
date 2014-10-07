@@ -17,12 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* This gets logged as part of the (more verbose) protocol logging */
-#ifdef G_LOG_DOMAIN
-#undef G_LOG_DOMAIN
-#endif
-#define G_LOG_DOMAIN "cockpit-protocol"
-
 #include "config.h"
 
 #include "cockpitsshtransport.h"

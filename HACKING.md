@@ -312,4 +312,10 @@ Now when you go to your cockpit instance you should be able to log in without
 authenticating. Make sure to use the full hostname that you set above, the one
 that includes the domain name.
 
+If you want to use Cockpit to connect to a second server. Make sure that second
+server is joined to a domain, and that you can ssh into it using GSSAPI authentication
+with the domain user:
+
+    $ ssh -o PreferredAuthentications=gssapi-with-mic admin@my-server2.domain.com
+
 If you thought that was nasty and tiresome, it's because it is at present :S

@@ -88,6 +88,24 @@ Password for user@EXAMPLE.COM:
 
     <para>Use a fully qualified server name (with the domain name at the end) to access
       Cockpit in your web browser.</para>
+
+    <para>If you wish to connect from one server to another in Cockpit using kerberos SSO,
+      then you have to explicitly enable this in your web browsers.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Mozilla Firefox</term>
+        <listitem><para>Go to <code>about:config</code> and set the
+          <code>network.negotiate-auth.delegation-uris</code> setting to your domain name
+          preceeded by a dot, ie: <code>.example.com</code></para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Google Chrome</term>
+        <listitem><para>Exit your browser completely, and start it with a command line
+          like this: <code>google-chrome --auth-server-whitelist=*example.com --auth-server-delegate-whitelist=*example.com</code></para></listitem>
+      </varlistentry>
+    </variablelist>
+
   </section>
 
 </chapter>

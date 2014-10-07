@@ -173,6 +173,8 @@ REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lcrypt"
 # gssapi
 AC_CHECK_LIB(gssapi_krb5, gss_import_cred,
   [AC_DEFINE_UNQUOTED(HAVE_GSS_IMPORT_CRED, 1, Whether gss_import_cred is available)])
+AC_CHECK_LIB(ssh, ssh_gssapi_set_creds,
+  [AC_DEFINE_UNQUOTED(HAVE_SSH_GSSAPI_SET_CREDS, 1, Whether ssh_gssapi_set_creds is available)])
 
 # systemd
 AC_ARG_WITH([systemdsystemunitdir],

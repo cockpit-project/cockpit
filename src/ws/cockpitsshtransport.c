@@ -346,12 +346,22 @@ cockpit_ssh_authenticate (CockpitSshData *data)
 
       gsscreds = cockpit_creds_dup_gssapi (data->creds);
       if (gsscreds != GSS_C_NO_CREDENTIAL)
-        ssh_gssapi_set_creds (data->session, gsscreds);
+        {
+          /* HACK: Work around for https://red.libssh.org/issues/173 on ubuntu. */
+#ifdef HAVE_SSH_GSSAPI_SET_CREDS
+          ssh_gssapi_set_creds (data->session, gsscreds);
+#else
+          g_warning ("unable to forward delegated gssapi kerberos credentials because the "
+                     "version of libssh on this system does not support it.");
+#endif
+        }
 
       rc = ssh_userauth_gssapi (data->session);
 
+#ifdef HAVE_SSH_GSSAPI_SET_CREDS
       if (gsscreds != GSS_C_NO_CREDENTIAL)
         ssh_gssapi_set_creds (data->session, NULL);
+#endif
 
       switch (rc)
         {

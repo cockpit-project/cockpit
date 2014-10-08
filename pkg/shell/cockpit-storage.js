@@ -560,8 +560,8 @@ PageStorage.prototype = {
                 desc = size_str + " " + C_("storage", "Drive");
         }
 
-        /* TODO: This needs to be reworked once real module loading lands */
-        var prefix = cockpit.environment.localhost.modules.shell.prefix;
+        /* TODO: This needs to be reworked once real package loading lands */
+        var prefix = cockpit.environment.localhost.packages.shell.prefix;
 
         var tr =
             $('<tr>', { id: "storage-drive-" + id,

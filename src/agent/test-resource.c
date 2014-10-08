@@ -32,7 +32,7 @@ typedef struct {
 } TestCase;
 
 typedef struct {
-  const gchar *module;
+  const gchar *package;
   const gchar *path;
 } Fixture;
 
@@ -67,7 +67,7 @@ setup (TestCase *tc,
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_transport_closed), NULL);
 
   tc->channel = cockpit_resource_open (COCKPIT_TRANSPORT (tc->transport), "444",
-                                       fixture->module,
+                                       fixture->package,
                                        fixture->path);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
 }
@@ -112,7 +112,7 @@ combine_output (TestCase *tc,
 }
 
 static const Fixture fixture_simple = {
-  .module = "test",
+  .package = "test",
   .path = "/sub/file.ext",
 };
 
@@ -136,7 +136,7 @@ test_simple (TestCase *tc,
 }
 
 static const Fixture fixture_large = {
-  .module = "test",
+  .package = "test",
   .path = "/sub/COPYING",
 };
 
@@ -170,7 +170,7 @@ test_large (TestCase *tc,
 }
 
 static const Fixture fixture_listing = {
-  .module = NULL,
+  .package = NULL,
   .path = NULL,
 };
 
@@ -205,7 +205,7 @@ test_listing (TestCase *tc,
 }
 
 static const Fixture fixture_not_found = {
-  .module = "test",
+  .package = "test",
   .path = "/sub/not-found",
 };
 
@@ -220,16 +220,16 @@ test_not_found (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, "not-found");
 }
 
-static const Fixture fixture_bad_module = {
-  .module = "unknown-module",
+static const Fixture fixture_bad_package = {
+  .package = "unknown-package",
   .path = "/sub/not-found",
 };
 
 static void
-test_bad_module (TestCase *tc,
-                 gconstpointer fixture)
+test_bad_package (TestCase *tc,
+                  gconstpointer fixture)
 {
-  g_assert (fixture == &fixture_bad_module);
+  g_assert (fixture == &fixture_bad_package);
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
@@ -237,7 +237,7 @@ test_bad_module (TestCase *tc,
 }
 
 static const Fixture fixture_no_path = {
-  .module = "test"
+  .package = "test"
 };
 
 static void
@@ -254,7 +254,7 @@ test_no_path (TestCase *tc,
 }
 
 static const Fixture fixture_bad_path = {
-  .module = "test",
+  .package = "test",
   .path = "../test/sub/file.ext"
 };
 
@@ -271,17 +271,17 @@ test_bad_path (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, "protocol-error");
 }
 
-static const Fixture fixture_no_module = {
+static const Fixture fixture_no_package = {
   .path = "test"
 };
 
 static void
-test_no_module (TestCase *tc,
-                gconstpointer fixture)
+test_no_package (TestCase *tc,
+                 gconstpointer fixture)
 {
-  g_assert (fixture == &fixture_no_module);
+  g_assert (fixture == &fixture_no_package);
 
-  cockpit_expect_message ("no 'module' specified for resource channel");
+  cockpit_expect_message ("no 'package' specified for resource channel");
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
@@ -325,16 +325,16 @@ main (int argc,
               setup, test_listing, teardown);
   g_test_add ("/resource/not-found", TestCase, &fixture_not_found,
               setup, test_not_found, teardown);
-  g_test_add ("/resource/bad-module", TestCase, &fixture_bad_module,
-              setup, test_bad_module, teardown);
+  g_test_add ("/resource/bad-package", TestCase, &fixture_bad_package,
+              setup, test_bad_package, teardown);
   g_test_add ("/resource/bad-receive", TestCase, &fixture_large,
               setup, test_bad_receive, teardown);
   g_test_add ("/resource/no-path", TestCase, &fixture_no_path,
               setup, test_no_path, teardown);
   g_test_add ("/resource/bad-path", TestCase, &fixture_bad_path,
               setup, test_bad_path, teardown);
-  g_test_add ("/resource/no-module", TestCase, &fixture_no_module,
-              setup, test_no_module, teardown);
+  g_test_add ("/resource/no-package", TestCase, &fixture_no_package,
+              setup, test_no_package, teardown);
 
   return g_test_run ();
 }

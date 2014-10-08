@@ -219,7 +219,8 @@ gssapi_strerror (OM_uint32 major_status,
   gss_buffer_desc status;
   char *buf;
   size_t len;
-  int had;
+  int had_major;
+  int had_minor;
 
   debug ("gssapi: major_status: %8.8x, minor_status: %8.8x",
          major_status, minor_status);
@@ -227,29 +228,32 @@ gssapi_strerror (OM_uint32 major_status,
   buf = buffer;
   len = sizeof (buffer);
   buf[0] = '\0';
-  had = 0;
+  had_major = 0;
   ctx = 0;
 
-  for (;;)
+  if (major_status != GSS_S_FAILURE || minor_status == 0)
     {
-      major = gss_display_status (&minor, major_status, GSS_C_GSS_CODE,
-                                  GSS_C_NO_OID, &ctx, &status);
-      if (GSS_ERROR (major))
-        break;
+      for (;;)
+        {
+          major = gss_display_status (&minor, major_status, GSS_C_GSS_CODE,
+                                      GSS_C_NO_OID, &ctx, &status);
+          if (GSS_ERROR (major))
+            break;
 
-      if (had)
-        build_string (&buf, &len, ": ", 2);
-      had = 1;
+          if (had_major)
+            build_string (&buf, &len, ": ", 2);
+          had_major = 1;
 
-      build_string (&buf, &len, status.value, status.length);
-      gss_release_buffer (&minor, &status);
+          build_string (&buf, &len, status.value, status.length);
+          gss_release_buffer (&minor, &status);
 
-      if (!ctx)
-        break;
+          if (!ctx)
+            break;
+        }
     }
 
    ctx = 0;
-   had = 0;
+   had_minor = 0;
    for (;;)
      {
        major = gss_display_status (&minor, minor_status, GSS_C_MECH_CODE,
@@ -257,15 +261,12 @@ gssapi_strerror (OM_uint32 major_status,
        if (GSS_ERROR (major))
          break;
 
-       if (status.length)
-         {
-           if (!had)
-             build_string (&buf, &len, " (", 2);
-           else
-             build_string (&buf, &len, ", ", 2);
-           had = 1;
-           build_string (&buf, &len, status.value, status.length);
-         }
+       if (had_minor)
+         build_string (&buf, &len, ", ", 2);
+       else if (had_major)
+         build_string (&buf, &len, " (", 2);
+       had_minor = 1;
+       build_string (&buf, &len, status.value, status.length);
 
        gss_release_buffer (&minor, &status);
 
@@ -273,7 +274,7 @@ gssapi_strerror (OM_uint32 major_status,
          break;
      }
 
-   if (had)
+   if (had_major && had_minor)
      build_string (&buf, &len, ")", 1);
 
    return buffer;

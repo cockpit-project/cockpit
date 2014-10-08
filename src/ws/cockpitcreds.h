@@ -52,12 +52,15 @@ const gchar *   cockpit_creds_get_password   (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
 
-gss_cred_id_t   cockpit_creds_dup_gssapi     (CockpitCreds *creds);
-
 gboolean        cockpit_creds_equal          (gconstpointer v1,
                                               gconstpointer v2);
 
 guint           cockpit_creds_hash           (gconstpointer v);
+
+gss_cred_id_t   cockpit_creds_push_thread_default_gssapi (CockpitCreds *creds);
+
+gboolean        cockpit_creds_pop_thread_default_gssapi  (CockpitCreds *creds,
+                                                          gss_cred_id_t gss_cred);
 
 G_END_DECLS
 

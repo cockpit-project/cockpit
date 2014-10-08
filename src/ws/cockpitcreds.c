@@ -23,6 +23,9 @@
 
 #include "common/cockpitmemory.h"
 
+#include <krb5/krb5.h>
+#include <gssapi/gssapi.h>
+#include <gssapi/gssapi_krb5.h>
 #include <gssapi/gssapi_ext.h>
 
 #include <string.h>
@@ -33,7 +36,10 @@ struct _CockpitCreds {
   gchar *user;
   gchar *password;
   gchar *rhost;
-  gchar *gssapi;
+  gchar *gssapi_creds;
+  krb5_context krb5_ctx;
+  krb5_ccache krb5_ccache;
+  gchar *krb5_ccache_name;
 };
 
 G_DEFINE_BOXED_TYPE (CockpitCreds, cockpit_creds, cockpit_creds_ref, cockpit_creds_unref);
@@ -47,7 +53,17 @@ cockpit_creds_free (gpointer data)
   cockpit_secclear (creds->password, -1);
   g_free (creds->password);
   g_free (creds->rhost);
-  g_free (creds->gssapi);
+  g_free (creds->gssapi_creds);
+
+  if (creds->krb5_ctx)
+    {
+      if (creds->krb5_ccache)
+        krb5_cc_destroy (creds->krb5_ctx, creds->krb5_ccache);
+      if (creds->krb5_ccache_name)
+        krb5_free_string (creds->krb5_ctx, creds->krb5_ccache_name);
+      krb5_free_context (creds->krb5_ctx);
+    }
+
   g_free (creds);
 }
 
@@ -66,6 +82,7 @@ CockpitCreds *
 cockpit_creds_new (const gchar *user,
                    ...)
 {
+  krb5_error_code code;
   CockpitCreds *creds;
   const char *type;
   va_list va;
@@ -87,11 +104,36 @@ cockpit_creds_new (const gchar *user,
       else if (g_str_equal (type, COCKPIT_CRED_RHOST))
         creds->rhost = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_GSSAPI))
-        creds->gssapi = g_strdup (va_arg (va, const char *));
+        creds->gssapi_creds = g_strdup (va_arg (va, const char *));
       else
         g_assert_not_reached ();
     }
   va_end (va);
+
+  if (creds->gssapi_creds)
+    {
+      /*
+       * All use of krb5_ctx happen in one thread at a time, either
+       * while creating the CockpitCreds, or destroying it.
+       */
+      code = krb5_init_context (&creds->krb5_ctx);
+      if (code != 0)
+        {
+          g_critical ("couldn't initialize krb5: %s",
+                      krb5_get_error_message (NULL, code));
+        }
+      else
+        {
+          code = krb5_cc_new_unique (creds->krb5_ctx, "MEMORY", NULL, &creds->krb5_ccache);
+          if (code == 0)
+            code = krb5_cc_get_full_name (creds->krb5_ctx, creds->krb5_ccache, &creds->krb5_ccache_name);
+          if (code != 0)
+            {
+              g_critical ("couldn't create krb5 ticket cache: %s",
+                          krb5_get_error_message (creds->krb5_ctx, code));
+            }
+        }
+    }
 
   creds->refs = 1;
   creds->poisoned = 0;
@@ -192,55 +234,98 @@ hex_decode (const gchar *hex,
 }
 
 /**
- * cockpit_creds_dup_gssapi:
+ * cockpit_creds_push_thread_default_gssapi:
  * @creds: the credentials
  *
- * Get GSSAPI client credentials, or NULL if not present.
+ * Setup GSSAPI client credentials to be used in the calling
+ * thread. Call cockpit_creds_pop_thread_default_creds() once
+ * done.
  *
- * Use gss_release_cred() on the returned value.
- *
- * Returns: (transfer full): the GSSAPI creds or GSS_C_NO_CREDENTIAL
+ * Returns: (transfer full): the gssapi credentials or GSS_C_NO_CREDENTIAL
  */
 gss_cred_id_t
-cockpit_creds_dup_gssapi (CockpitCreds *creds)
+cockpit_creds_push_thread_default_gssapi (CockpitCreds *creds)
 {
   gss_cred_id_t cred = GSS_C_NO_CREDENTIAL;
-  gss_buffer_desc buf;
+  gss_buffer_desc buf = GSS_C_EMPTY_BUFFER;
+  OM_uint32 minor;
+  OM_uint32 major;
 
   g_return_val_if_fail (creds != NULL, NULL);
 
-  if (!creds->gssapi)
-    return GSS_C_NO_CREDENTIAL;
+  if (g_atomic_int_get (&creds->poisoned))
+    goto out;
 
-  buf.value = hex_decode (creds->gssapi, &buf.length);
+  if (!creds->gssapi_creds || !creds->krb5_ccache_name)
+    goto out;
+
+  buf.value = hex_decode (creds->gssapi_creds, &buf.length);
   if (buf.value == NULL)
     {
       g_critical ("invalid gssapi credentials returned from session");
-      return GSS_C_NO_CREDENTIAL;
+      goto out;
     }
+
+    major = gss_krb5_ccache_name (&minor, creds->krb5_ccache_name, NULL);
+    if (GSS_ERROR (major))
+      {
+        g_critical ("couldn't setup kerberos thread ccache (%u.%u)", major, minor);
+        goto out;
+      }
 
 #ifdef HAVE_GSS_IMPORT_CRED
-    {
-      OM_uint32 minor;
-      OM_uint32 major;
-      major = gss_import_cred (&minor, &buf, &cred);
+    major = gss_import_cred (&minor, &buf, &cred);
+    if (GSS_ERROR (major))
+      {
+        g_critical ("couldn't parse gssapi credentials (%u.%u)", major, minor);
+        cred = GSS_C_NO_CREDENTIAL;
+        goto out;
+      }
 
-      if (GSS_ERROR (major))
-        {
-          g_critical ("couldn't parse gssapi credentials (%u)", major);
-          cred = GSS_C_NO_CREDENTIAL;
-        }
-    }
+    g_debug ("setup thread kerberos credentials in ccache: %s", creds->krb5_ccache_name);
 
 #else /* !HAVE_GSS_IMPORT_CRED */
 
   g_message ("unable to forward delegated gssapi kerberos credentials because the "
              "version of krb5 on this system does not support it.");
+  goto out;
 
 #endif
 
+out:
   g_free (buf.value);
   return cred;
+}
+
+/**
+ * cockpit_creds_pop_thread_default_gssapi:
+ * @creds: the credentials
+ * @gss_creds: the GSSAPI credentials to free
+ *
+ * Clear GSSPI client credentials that were setup for the
+ * current thread.
+ *
+ * Returns: Whether successful
+ */
+gboolean
+cockpit_creds_pop_thread_default_gssapi (CockpitCreds *creds,
+                                         gss_cred_id_t gss_creds)
+{
+  OM_uint32 major;
+  OM_uint32 minor;
+
+  if (gss_creds != GSS_C_NO_CREDENTIAL)
+    gss_release_cred (&minor, &gss_creds);
+
+  major = gss_krb5_ccache_name (&minor, NULL, NULL);
+  if (GSS_ERROR (major))
+    {
+      g_critical ("couldn't clear kerberos thread ccache (%u.%u)", major, minor);
+      return FALSE;
+    }
+
+  g_debug ("cleared thread kerberos credentials");
+  return TRUE;
 }
 
 gboolean

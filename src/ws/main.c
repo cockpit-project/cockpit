@@ -74,6 +74,9 @@ main (int argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
+  /* Any interaction with a krb5 ccache should be explicit */
+  g_setenv ("KRB5CCNAME", "FILE:/dev/null", TRUE);
+
   g_type_init ();
   ssh_init ();
 

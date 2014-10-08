@@ -26,7 +26,7 @@ function make_set(array) {
     return s;
 }
 
-cockpit.check_role = function check_role(role, client)
+cockpit.check_admin = function check_admin(client)
 {
     var acc, i;
 
@@ -36,7 +36,7 @@ cockpit.check_role = function check_role(role, client)
     acc = find_account(cockpit.connection_config.user, client);
     if (acc) {
         for (i = 0; i < acc.Groups.length; i++) {
-            if (acc.Groups[i] == 'wheel' || acc.Groups[i] == role)
+            if (acc.Groups[i] == 'wheel')
                 return true;
         }
         cockpit.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
@@ -238,7 +238,7 @@ PageAccounts.prototype = {
     },
 
     create: function () {
-        if (cockpit.check_role('cockpit-user-admin', this.client)) {
+        if (cockpit.check_admin(this.client)) {
             PageAccountsCreate.client = this.client;
             $('#accounts-create-dialog').modal('show');
         }
@@ -482,7 +482,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account.UserName == cockpit.connection_config.user ||
-                cockpit.check_role('cockpit-user-admin', this.client));
+                cockpit.check_admin(this.client));
     },
 
     change_real_name: function() {
@@ -507,7 +507,7 @@ PageAccount.prototype = {
     change_locked: function() {
         var me = this;
 
-        if (!cockpit.check_role('cockpit-user-admin', this.client)) {
+        if (!cockpit.check_admin(this.client)) {
             me.update ();
             return;
         }
@@ -532,7 +532,7 @@ PageAccount.prototype = {
     },
 
     delete_account: function() {
-        if (!cockpit.check_role('cockpit-user-admin', this.client))
+        if (!cockpit.check_admin(this.client))
             return;
 
         PageAccountConfirmDelete.account = this.account;
@@ -542,7 +542,7 @@ PageAccount.prototype = {
     logout_account: function() {
         var me = this;
 
-        if (!cockpit.check_role('cockpit-user-admin', this.client))
+        if (!cockpit.check_admin(this.client))
             return;
 
         this.account.call('KillSessions',
@@ -555,7 +555,7 @@ PageAccount.prototype = {
     },
 
     change_roles: function() {
-        if (!cockpit.check_role('cockpit-user-admin', this.client))
+        if (!cockpit.check_admin(this.client))
             return;
 
         PageAccountChangeRoles.account = this.account;

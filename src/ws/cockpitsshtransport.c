@@ -286,7 +286,6 @@ cockpit_ssh_authenticate (CockpitSshData *data)
   const gchar *password = NULL;
   const gchar *problem;
   gboolean tried = FALSE;
-  OM_uint32 minor;
   gchar *description;
   int methods;
   int rc;
@@ -344,44 +343,42 @@ cockpit_ssh_authenticate (CockpitSshData *data)
     {
       tried = TRUE;
 
-      gsscreds = cockpit_creds_dup_gssapi (data->creds);
+      gsscreds = cockpit_creds_push_thread_default_gssapi (data->creds);
       if (gsscreds != GSS_C_NO_CREDENTIAL)
         {
-          /* HACK: Work around for https://red.libssh.org/issues/173 on ubuntu. */
 #ifdef HAVE_SSH_GSSAPI_SET_CREDS
           ssh_gssapi_set_creds (data->session, gsscreds);
 #else
           g_warning ("unable to forward delegated gssapi kerberos credentials because the "
                      "version of libssh on this system does not support it.");
 #endif
-        }
 
-      rc = ssh_userauth_gssapi (data->session);
+          rc = ssh_userauth_gssapi (data->session);
 
 #ifdef HAVE_SSH_GSSAPI_SET_CREDS
-      if (gsscreds != GSS_C_NO_CREDENTIAL)
-        ssh_gssapi_set_creds (data->session, NULL);
+          ssh_gssapi_set_creds (data->session, NULL);
 #endif
 
-      switch (rc)
-        {
-        case SSH_AUTH_SUCCESS:
-          g_debug("%s: gssapi auth succeeded", data->logname);
-          problem = NULL;
-          goto out;
-        case SSH_AUTH_DENIED:
-          g_debug ("%s: gssapi auth failed", data->logname);
-          break;
-        case SSH_AUTH_PARTIAL:
-          g_message ("%s: gssapi auth worked, but server wants more authentication",
-                     data->logname);
-          break;
-        default:
-          if (g_atomic_int_get (data->connecting))
-            g_message ("%s: couldn't authenticate: %s", data->logname,
-                       ssh_get_error (data->session));
-          problem = "internal-error";
-          goto out;
+          switch (rc)
+            {
+            case SSH_AUTH_SUCCESS:
+              g_debug("%s: gssapi auth succeeded", data->logname);
+              problem = NULL;
+              goto out;
+            case SSH_AUTH_DENIED:
+              g_debug ("%s: gssapi auth failed", data->logname);
+              break;
+            case SSH_AUTH_PARTIAL:
+              g_message ("%s: gssapi auth worked, but server wants more authentication",
+                         data->logname);
+              break;
+            default:
+              if (g_atomic_int_get (data->connecting))
+                g_message ("%s: couldn't authenticate: %s", data->logname,
+                           ssh_get_error (data->session));
+              problem = "internal-error";
+              goto out;
+            }
         }
     }
 
@@ -403,8 +400,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
     }
 
 out:
-  if (gsscreds != GSS_C_NO_CREDENTIAL)
-    gss_release_cred (&minor, &gsscreds);
+  cockpit_creds_pop_thread_default_gssapi (data->creds, gsscreds);
   return problem;
 }
 

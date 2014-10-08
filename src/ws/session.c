@@ -492,6 +492,9 @@ perform_gssapi (void)
   server = GSS_C_NO_CREDENTIAL;
   res = PAM_AUTH_ERR;
 
+  /* We shouldn't be writing to kerberos caches here */
+  setenv ("KRB5CCNAME", "FILE:/dev/null", 1);
+
   debug ("reading kerberos auth from cockpit-ws");
   input.value = read_auth_until_eof (&input.length);
 
@@ -615,6 +618,8 @@ out:
      gss_delete_sec_context (&minor, &context, GSS_C_NO_BUFFER);
   free (input.value);
   free (str);
+
+  unsetenv ("KRB5CCNAME");
 
   if (res != PAM_SUCCESS)
     exit (5);

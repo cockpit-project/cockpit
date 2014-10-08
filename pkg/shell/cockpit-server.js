@@ -58,8 +58,8 @@ PageServer.prototype = {
                                        "com.redhat.Cockpit.Manager");
         $(self.manager).on('AvatarChanged.server', $.proxy (this, "update_avatar"));
 
-        /* TODO: This needs to be reworked once real module loading lands */
-        var prefix = cockpit.environment.localhost.modules.shell.prefix;
+        /* TODO: This needs to be reworked once real package loading lands */
+        var prefix = cockpit.environment.localhost.packages.shell.prefix;
 
         $('#server-avatar').attr('src', prefix + "/images/server-large.png");
 

@@ -38,14 +38,14 @@
  * So we use the fastest, good ol' SHA1.
  */
 
-static gboolean   module_checksum_directory    (GChecksum *checksum,
+static gboolean   package_checksum_directory   (GChecksum *checksum,
                                                 const gchar *root,
                                                 const gchar *directory);
 
 static gboolean
-module_checksum_file (GChecksum *checksum,
-                      const gchar *root,
-                      const gchar *filename)
+package_checksum_file (GChecksum *checksum,
+                       const gchar *root,
+                       const gchar *filename)
 {
   gchar *path = NULL;
   const gchar *string;
@@ -57,7 +57,7 @@ module_checksum_file (GChecksum *checksum,
   path = g_build_filename (root, filename, NULL);
   if (g_file_test (path, G_FILE_TEST_IS_DIR))
     {
-      ret = module_checksum_directory (checksum, root, filename);
+      ret = package_checksum_directory (checksum, root, filename);
       goto out;
     }
 
@@ -139,9 +139,9 @@ directory_filenames (const char *directory)
 }
 
 static gboolean
-module_checksum_directory (GChecksum *checksum,
-                           const gchar *root,
-                           const gchar *directory)
+package_checksum_directory (GChecksum *checksum,
+                            const gchar *root,
+                            const gchar *directory)
 {
   gboolean ret = FALSE;
   gchar *path = NULL;
@@ -161,7 +161,7 @@ module_checksum_directory (GChecksum *checksum,
         filename = g_build_filename (directory, names[i], NULL);
       else
         filename = g_strdup (names[i]);
-      ret = module_checksum_file (checksum, root, filename);
+      ret = package_checksum_file (checksum, root, filename);
       g_free (filename);
       if (!ret)
         goto out;
@@ -174,17 +174,17 @@ out:
 }
 
 static gchar *
-module_checksum (const gchar *root,
-                 const gchar *module)
+package_checksum (const gchar *root,
+                  const gchar *package)
 {
   GChecksum *checksum;
   gchar *string = NULL;
 
   checksum = g_checksum_new (G_CHECKSUM_SHA1);
-  if (module_checksum_directory (checksum, root, module))
+  if (package_checksum_directory (checksum, root, package))
     {
       string = g_strdup (g_checksum_get_string (checksum));
-      g_debug ("checksum for module %s is %s", module, string);
+      g_debug ("checksum for package %s is %s", package, string);
     }
   g_checksum_free (checksum);
 
@@ -279,8 +279,8 @@ cockpit_resource_init (CockpitResource *self)
 }
 
 static JsonObject *
-read_module_manifest (const gchar *directory,
-                      const gchar *module)
+read_package_manifest (const gchar *directory,
+                       const gchar *package)
 {
   JsonObject *manifest = NULL;
   GError *error = NULL;
@@ -288,13 +288,13 @@ read_module_manifest (const gchar *directory,
   gchar *filename;
   gsize length;
 
-  filename = g_build_filename (directory, module, "manifest.json", NULL);
+  filename = g_build_filename (directory, package, "manifest.json", NULL);
   if (!g_file_get_contents (filename, &contents, &length, &error))
     {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
         g_debug ("no manifest found: %s", filename);
       else if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOTDIR))
-        g_message ("%s: %s", module, error->message);
+        g_message ("%s: %s", package, error->message);
       g_clear_error (&error);
     }
   else
@@ -302,7 +302,7 @@ read_module_manifest (const gchar *directory,
       manifest = cockpit_json_parse_object (contents, length, &error);
       if (!manifest)
         {
-          g_message ("%s: invalid manifest: %s", module, error->message);
+          g_message ("%s: invalid manifest: %s", package, error->message);
           g_clear_error (&error);
         }
     }
@@ -313,12 +313,12 @@ read_module_manifest (const gchar *directory,
 }
 
 static void
-respond_module_listing (CockpitChannel *channel)
+respond_package_listing (CockpitChannel *channel)
 {
   const gchar *const *directories;
   gchar *checksum;
   gchar *directory;
-  gchar **modules;
+  gchar **packages;
   JsonObject *manifest;
   JsonObject *root;
   JsonObject *object;
@@ -326,54 +326,54 @@ respond_module_listing (CockpitChannel *channel)
 
   root = json_object_new ();
 
-  /* User module directory: no checksums */
+  /* User package directory: no checksums */
   directory = g_build_filename (g_get_user_data_dir (), "cockpit", NULL);
   if (g_file_test (directory, G_FILE_TEST_IS_DIR))
     {
-      modules = directory_filenames (directory);
-      for (j = 0; modules[j] != NULL; j++)
+      packages = directory_filenames (directory);
+      for (j = 0; packages[j] != NULL; j++)
         {
-          manifest = read_module_manifest (directory, modules[j]);
+          manifest = read_package_manifest (directory, packages[j]);
           if (manifest)
             {
               object = json_object_new ();
               json_object_set_object_member (object, "manifest", manifest);
-              json_object_set_object_member (root, modules[j], object);
+              json_object_set_object_member (root, packages[j], object);
             }
         }
-      g_strfreev (modules);
+      g_strfreev (packages);
     }
   g_free (directory);
 
-  /* System module directories */
+  /* System package directories */
   directories = g_get_system_data_dirs();
   for (i = 0; directories[i] != NULL; i++)
     {
       directory = g_build_filename (directories[i], "cockpit", NULL);
       if (g_file_test (directory, G_FILE_TEST_IS_DIR))
         {
-          modules = directory_filenames (directory);
-          for (j = 0; modules && modules[j] != NULL; j++)
+          packages = directory_filenames (directory);
+          for (j = 0; packages && packages[j] != NULL; j++)
             {
               /* $XDG_DATA_DIRS is preference ordered, ascending */
-              if (!json_object_has_member (root, modules[j]))
+              if (!json_object_has_member (root, packages[j]))
                 {
-                  manifest = read_module_manifest (directory, modules[j]);
+                  manifest = read_package_manifest (directory, packages[j]);
                   if (manifest)
                     {
                       object = json_object_new ();
-                      checksum = module_checksum (directory, modules[j]);
+                      checksum = package_checksum (directory, packages[j]);
                       if (checksum)
                         {
                           json_object_set_string_member (object, "checksum", checksum);
                           g_free (checksum);
                         }
                       json_object_set_object_member (object, "manifest", manifest);
-                      json_object_set_object_member (root, modules[j], object);
+                      json_object_set_object_member (root, packages[j], object);
                     }
                 }
             }
-          g_strfreev (modules);
+          g_strfreev (packages);
         }
       g_free (directory);
     }
@@ -395,17 +395,17 @@ on_prepare_channel (gpointer data)
   gchar *base = NULL;
   GError *error = NULL;
   const gchar *path;
-  const gchar *module;
+  const gchar *package;
   gint i;
 
   self->idler = 0;
 
-  module = cockpit_channel_get_option (channel, "module");
+  package = cockpit_channel_get_option (channel, "package");
   path = cockpit_channel_get_option (channel, "path");
 
-  if (!module && !path)
+  if (!package && !path)
     {
-      respond_module_listing (channel);
+      respond_package_listing (channel);
       goto out;
     }
   else if (!path)
@@ -414,16 +414,16 @@ on_prepare_channel (gpointer data)
       cockpit_channel_close (channel, "protocol-error");
       goto out;
     }
-  else if (!module)
+  else if (!package)
     {
-      g_message ("no 'module' specified for resource channel");
+      g_message ("no 'package' specified for resource channel");
       cockpit_channel_close (channel, "protocol-error");
       goto out;
     }
 
   /*
    * This is *not* a security check. We're accessing files as the user.
-   * What this does is prevent module authors from drawing outside the
+   * What this does is prevent package authors from drawing outside the
    * lines. Keeps everyone honest.
    */
   if (strstr (path, "../") || strstr (path, "/.."))
@@ -433,7 +433,7 @@ on_prepare_channel (gpointer data)
       goto out;
     }
 
-  base = g_build_filename (g_get_user_data_dir (), "cockpit", module, NULL);
+  base = g_build_filename (g_get_user_data_dir (), "cockpit", package, NULL);
   if (!g_file_test (base, G_FILE_TEST_IS_DIR))
     {
       g_free (base);
@@ -442,7 +442,7 @@ on_prepare_channel (gpointer data)
       directories = g_get_system_data_dirs ();
       for (i = 0; directories && directories[i]; i++)
         {
-          base = g_build_filename (directories[i], "cockpit", module, NULL);
+          base = g_build_filename (directories[i], "cockpit", package, NULL);
           if (g_file_test (base, G_FILE_TEST_IS_DIR))
             break;
           g_free (base);
@@ -451,7 +451,7 @@ on_prepare_channel (gpointer data)
     }
   if (base == NULL)
     {
-      g_debug ("resource module was not found: %s", module);
+      g_debug ("resource package was not found: %s", package);
       cockpit_channel_close (channel, "not-found");
       goto out;
     }
@@ -535,7 +535,7 @@ cockpit_resource_class_init (CockpitResourceClass *klass)
  * cockpit_resource_open:
  * @transport: the transport to send/receive messages on
  * @channel_id: the channel id
- * @module: the optional module of resource
+ * @package: the optional package of resource
  * @path: the optional path
  *
  * This function is mainly used by tests. The usual way
@@ -546,7 +546,7 @@ cockpit_resource_class_init (CockpitResourceClass *klass)
 CockpitChannel *
 cockpit_resource_open (CockpitTransport *transport,
                        const gchar *channel_id,
-                       const gchar *module,
+                       const gchar *package,
                        const gchar *path)
 {
   CockpitChannel *channel;
@@ -554,8 +554,8 @@ cockpit_resource_open (CockpitTransport *transport,
 
   options = json_object_new ();
   json_object_set_string_member (options, "payload", "resource1");
-  if (module)
-    json_object_set_string_member (options, "module", module);
+  if (package)
+    json_object_set_string_member (options, "package", package);
   if (path)
     json_object_set_string_member (options, "path", path);
 

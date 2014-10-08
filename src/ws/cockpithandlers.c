@@ -125,7 +125,7 @@ get_remote_address (GIOStream *io)
 
 static GBytes *
 build_environment (CockpitWebService *service,
-                   JsonObject *modules)
+                   JsonObject *packages)
 {
   const gchar *user;
   CockpitCreds *creds;
@@ -190,8 +190,8 @@ build_environment (CockpitWebService *service,
       json_object_set_string_member (language, "name", supported_languages[n].name);
     }
 
-  if (modules)
-    json_object_set_object_member (localhost, "modules", json_object_ref (modules));
+  if (packages)
+    json_object_set_object_member (localhost, "packages", json_object_ref (packages));
 
   bytes = cockpit_json_write_bytes (env);
   json_object_unref (env);
@@ -214,25 +214,25 @@ login_response_free (gpointer data)
 }
 
 static void
-on_login_modules (GObject *source,
-                  GAsyncResult *result,
-                  gpointer user_data)
+on_login_packages (GObject *source,
+                   GAsyncResult *result,
+                   gpointer user_data)
 {
   LoginResponse *lr = user_data;
   CockpitWebService *service;
-  JsonObject *modules;
+  JsonObject *packages;
   GBytes *content;
 
   service = COCKPIT_WEB_SERVICE (source);
-  modules = cockpit_web_service_modules_finish (service, result);
+  packages = cockpit_web_service_packages_finish (service, result);
 
-  content = build_environment (service, modules);
+  content = build_environment (service, packages);
   g_hash_table_replace (lr->headers, g_strdup ("Content-Type"), g_strdup ("application/json"));
   cockpit_web_response_content (lr->response, lr->headers, content, NULL);
   g_bytes_unref (content);
 
-  if (modules)
-    json_object_unref (modules);
+  if (packages)
+    json_object_unref (packages);
 
   login_response_free (lr);
 }
@@ -262,7 +262,7 @@ on_login_complete (GObject *object,
     }
   else
     {
-      cockpit_web_service_modules (service, "localhost", on_login_modules, lr);
+      cockpit_web_service_packages (service, "localhost", on_login_packages, lr);
       g_object_unref (service);
     }
 }
@@ -293,7 +293,7 @@ cockpit_handler_login (CockpitWebServer *server,
     }
   else
     {
-      cockpit_web_service_modules (service, "localhost", on_login_modules, lr);
+      cockpit_web_service_packages (service, "localhost", on_login_packages, lr);
       g_object_unref (service);
     }
 
@@ -366,7 +366,7 @@ cockpit_handler_ping (CockpitWebServer *server,
 static void
 send_index_response (CockpitWebResponse *response,
                      CockpitWebService *service,
-                     JsonObject *modules,
+                     JsonObject *packages,
                      CockpitHandlerData *ws)
 {
   GHashTable *out_headers;
@@ -415,7 +415,7 @@ send_index_response (CockpitWebResponse *response,
       goto out;
     }
 
-  environ = build_environment (service, modules);
+  environ = build_environment (service, packages);
 
   offset = (pos - data);
   prefix = g_bytes_new_from_bytes (body, 0, offset);
@@ -449,20 +449,20 @@ typedef struct {
 } IndexResponse;
 
 static void
-on_index_modules (GObject *source_object,
-                  GAsyncResult *result,
-                  gpointer user_data)
+on_index_packages (GObject *source_object,
+                   GAsyncResult *result,
+                   gpointer user_data)
 {
   IndexResponse *ir = user_data;
   CockpitWebService *service = COCKPIT_WEB_SERVICE (source_object);
-  JsonObject *modules;
+  JsonObject *packages;
 
   /* Failures printed elsewhere */
-  modules = cockpit_web_service_modules_finish (service, result);
-  send_index_response (ir->response, service, modules, ir->data);
+  packages = cockpit_web_service_packages_finish (service, result);
+  send_index_response (ir->response, service, packages, ir->data);
 
-  if (modules)
-    json_object_unref (modules);
+  if (packages)
+    json_object_unref (packages);
   g_object_unref (ir->response);
   g_free (ir);
 }
@@ -486,11 +486,11 @@ cockpit_handler_index (CockpitWebServer *server,
   service = cockpit_auth_check_cookie (ws->auth, headers);
   if (service)
     {
-      /* Already logged in, lookup modules and return full environment */
+      /* Already logged in, lookup packages and return full environment */
       ir = g_new0 (IndexResponse, 1);
       ir->response = g_object_ref (response);
       ir->data = ws;
-      cockpit_web_service_modules (service, "localhost", on_index_modules, ir);
+      cockpit_web_service_packages (service, "localhost", on_index_packages, ir);
     }
   else
     {

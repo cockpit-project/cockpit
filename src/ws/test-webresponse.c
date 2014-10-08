@@ -282,7 +282,7 @@ test_file_breakout_non_existant (TestCase *tc,
 }
 
 static const TestFixture content_type_fixture = {
-  .path = "/modules/shell/test-dbus.html"
+  .path = "/pkg/shell/test-dbus.html"
 };
 
 static void

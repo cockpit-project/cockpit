@@ -145,21 +145,21 @@ before your change gets in.
 ## Making Changes in the UI Code
 
 The Cockpit UI code is comprised of HTML, javascript and CSS. Almost all of
-this code is found in the modules in the modules/ subdirectory of
+this code is found in the packages in the pkg/ subdirectory of
 the Cockpit code.
 
 You can setup a system for rapid development of Cockpit UI code. This will
 allow you to simply refresh your browser and see any changes you've made
-to code in the modules/ subdirectory.
+to code in the pkg/ subdirectory.
 
 Run this command from your top level Cockpit checkout directory, and make
 sure to run it as the user that you will using to log into Cockpit.
 
     $ mkdir -p ~/.local/share
-    $ ln -s $(pwd)/modules ~/.local/share/cockpit
+    $ ln -s $(pwd)/pkg ~/.local/share/cockpit
 
 This will cause cockpit to read UI files directly from the Cockpit code
-modules/ directory instead of using the installed Cockpit UI files. But
+pkg/ directory instead of using the installed Cockpit UI files. But
 only for the user which ran the above command.
 
 To revert the above change, run:

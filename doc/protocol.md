@@ -215,21 +215,21 @@ Payload: resource1
 ------------------
 
 These payloads contain resource data, such as javascript and html files that
-make up cockpit modules. Typically, channels of this type are opened between
-cockpit-ws and cockpit-agent. See doc/modules.md
+make up cockpit packages. Typically, channels of this type are opened between
+cockpit-ws and cockpit-agent. See doc/packages.md
 
 Additional "open" command options are available to open a channel of this
 type:
 
- * "module": the short module name to retrieve resource from
- * "path": path of the resource within the module.
+ * "package": the short package name to retrieve resource from
+ * "path": path of the resource within the package.
 
 The channel payload will be the raw (possibly binary) byte data of the
 resource being retrieved.
 
-If "module" and "path" are missing, then the channel will be immediately
-closed without a "reason", and a combined manifest of all modules, including
-checksums for system modules will be returned in the "close" message under
+If "package" and "path" are missing, then the channel will be immediately
+closed without a "reason", and a combined manifest of all packages, including
+checksums for system packages will be returned in the "close" message under
 the "resources" option:
 
     {

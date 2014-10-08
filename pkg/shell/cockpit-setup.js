@@ -378,7 +378,7 @@ PageSetupServer.prototype = {
     add_task: function(desc, func) {
         var $tasks = $('#dashboard_setup_action_tasks');
 
-        var prefix = cockpit.environment.localhost.modules.shell.prefix;
+        var prefix = cockpit.environment.localhost.packages.shell.prefix;
         var $entry = $('<li/>', { 'class': 'list-group-item' }).append(
             $('<table/>', { 'class': "cockpit-setup-task-table",
                             'style': "width:100%" }).append(

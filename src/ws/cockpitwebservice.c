@@ -534,26 +534,26 @@ process_resources (JsonObject *resources,
 {
   const gchar *checksum;
   JsonObject *details;
-  GList *modules;
+  GList *packages;
   GList *l;
 
   g_hash_table_remove_all (checksums);
 
-  /* Build a table mapping checksum to module for resources on this session */
-  modules = json_object_get_members (resources);
-  for (l = modules; l != NULL; l = g_list_next (l))
+  /* Build a table mapping checksum to package for resources on this session */
+  packages = json_object_get_members (resources);
+  for (l = packages; l != NULL; l = g_list_next (l))
     {
       details = json_object_get_object_member (resources, l->data);
       if (details)
         {
           if (cockpit_json_get_string (details, "checksum", NULL, &checksum) && checksum)
             {
-              g_debug ("%s: module %s has checksum %s", logname, (gchar *)l->data, checksum);
+              g_debug ("%s: package %s has checksum %s", logname, (gchar *)l->data, checksum);
               g_hash_table_insert (checksums, g_strdup (checksum), g_strdup (l->data));
             }
         }
     }
-  g_list_free (modules);
+  g_list_free (packages);
 }
 
 static gboolean
@@ -1603,7 +1603,7 @@ resource_respond_normal (CockpitWebService *self,
   command = build_control ("command", "open",
                            "channel", rr->channel,
                            "payload", "resource1",
-                           "module", parts[1],
+                           "package", parts[1],
                            "path", parts[2],
                            NULL);
 
@@ -1625,7 +1625,7 @@ resource_respond_checksum (CockpitWebService *self,
   ResourceResponse *rr;
   CockpitSession *session;
   CockpitSession *found = NULL;
-  const gchar *module = NULL;
+  const gchar *package = NULL;
   gboolean ret = FALSE;
   GHashTableIter iter;
   GBytes *command;
@@ -1643,8 +1643,8 @@ resource_respond_checksum (CockpitWebService *self,
     {
       if (session->checksums)
         {
-          module = g_hash_table_lookup (session->checksums, parts[0]);
-          if (module != NULL)
+          package = g_hash_table_lookup (session->checksums, parts[0]);
+          if (package != NULL)
             {
               found = session;
               break;
@@ -1664,7 +1664,7 @@ resource_respond_checksum (CockpitWebService *self,
   command = build_control ("command", "open",
                            "channel", rr->channel,
                            "payload", "resource1",
-                           "module", module,
+                           "package", package,
                            "path", parts[1],
                            NULL);
 
@@ -1701,14 +1701,14 @@ typedef struct {
   CockpitTransport *transport;
   gulong closed_sig;
   gulong control_sig;
-  JsonObject *modules;
+  JsonObject *packages;
   GHashTable *checksums;
-} ListModules;
+} ListPackages;
 
 static void
-list_modules_free (gpointer data)
+list_packages_free (gpointer data)
 {
-  ListModules *lm = data;
+  ListPackages *lm = data;
   g_free (lm->logname);
   g_free (lm->channel);
 
@@ -1716,8 +1716,8 @@ list_modules_free (gpointer data)
   g_signal_handler_disconnect (lm->transport, lm->control_sig);
   g_hash_table_unref (lm->checksums);
   g_object_unref (lm->transport);
-  if (lm->modules)
-    json_object_unref (lm->modules);
+  if (lm->packages)
+    json_object_unref (lm->packages);
   g_free (lm);
 }
 
@@ -1730,7 +1730,7 @@ on_listing_control (CockpitTransport *transport,
 {
   GSimpleAsyncResult *async = user_data;
   const gchar *problem = NULL;
-  ListModules *lm;
+  ListPackages *lm;
 
   lm = g_simple_async_result_get_op_res_gpointer (async);
 
@@ -1750,15 +1750,15 @@ on_listing_control (CockpitTransport *transport,
     }
   if (problem && problem[0])
     {
-      g_message ("%s: couldn't list cockpit modules: %s", lm->logname, problem);
+      g_message ("%s: couldn't list cockpit packages: %s", lm->logname, problem);
     }
   else
     {
-      lm->modules = json_object_get_object_member (options, "resources");
-      if (lm->modules)
+      lm->packages = json_object_get_object_member (options, "resources");
+      if (lm->packages)
         {
-          json_object_ref (lm->modules);
-          process_resources (lm->modules, lm->logname, lm->checksums);
+          json_object_ref (lm->packages);
+          process_resources (lm->packages, lm->logname, lm->checksums);
         }
     }
 
@@ -1773,39 +1773,39 @@ on_listing_closed (CockpitTransport *transport,
                    gpointer user_data)
 {
   GSimpleAsyncResult *async = user_data;
-  ListModules *lm;
+  ListPackages *lm;
 
   lm = g_simple_async_result_get_op_res_gpointer (async);
-  g_message ("%s: transport closed while listing cockpit modules: %s", lm->logname, problem);
+  g_message ("%s: transport closed while listing cockpit packages: %s", lm->logname, problem);
 
   g_simple_async_result_complete (async);
   g_object_unref (async);
 }
 
 void
-cockpit_web_service_modules (CockpitWebService *self,
-                             const gchar *host,
-                             GAsyncReadyCallback callback,
-                             gpointer user_data)
+cockpit_web_service_packages (CockpitWebService *self,
+                              const gchar *host,
+                              GAsyncReadyCallback callback,
+                              gpointer user_data)
 {
   GSimpleAsyncResult *async;
   CockpitSession *session;
-  ListModules *lm;
+  ListPackages *lm;
   GBytes *command;
 
   async = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                     cockpit_web_service_modules);
+                                     cockpit_web_service_packages);
 
   session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
 
-  lm = g_new0 (ListModules, 1);
+  lm = g_new0 (ListPackages, 1);
   lm->logname = g_strdup (host);
   lm->transport = g_object_ref (session->transport);
   lm->checksums = g_hash_table_ref (session->checksums);
   lm->channel = g_strdup_printf ("0:%d", self->next_resource_id++);
   lm->closed_sig = g_signal_connect (lm->transport, "closed", G_CALLBACK (on_listing_closed), async);
   lm->control_sig = g_signal_connect (lm->transport, "control", G_CALLBACK (on_listing_control), async);
-  g_simple_async_result_set_op_res_gpointer (async, lm, list_modules_free);
+  g_simple_async_result_set_op_res_gpointer (async, lm, list_packages_free);
 
   command = build_control ("command", "open",
                            "channel", lm->channel,
@@ -1816,17 +1816,17 @@ cockpit_web_service_modules (CockpitWebService *self,
 }
 
 JsonObject *
-cockpit_web_service_modules_finish (CockpitWebService *self,
-                                    GAsyncResult *result)
+cockpit_web_service_packages_finish (CockpitWebService *self,
+                                     GAsyncResult *result)
 {
-  ListModules *lm;
+  ListPackages *lm;
 
   g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
-                                                        cockpit_web_service_modules), NULL);
+                                                        cockpit_web_service_packages), NULL);
 
   lm = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
-  if (lm->modules)
-    return json_object_ref (lm->modules);
+  if (lm->packages)
+    return json_object_ref (lm->packages);
 
   return NULL;
 }

@@ -18,7 +18,7 @@
  */
 
 /*
- * TODO: We need to generalize how modules can register a function
+ * TODO: We need to generalize how packages can register a function
  * to be called when ready.
  */
 $(cockpit.init);

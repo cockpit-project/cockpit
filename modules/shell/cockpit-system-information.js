@@ -32,7 +32,7 @@ PageSystemInformation.prototype = {
         var self = this;
 
         $("#realms-join").click (function (e) {
-            if (!cockpit.check_role('cockpit-realm-admin', self.client))
+            if (!cockpit.check_admin(self.client))
                 return;
 
             if(self.realms.Joined[0] === undefined) {
@@ -42,7 +42,7 @@ PageSystemInformation.prototype = {
         });
 
         $('#system_information_change_hostname_button').on('click', function () {
-            if (!cockpit.check_role('wheel', self.client))
+            if (!cockpit.check_admin(self.client))
                 return;
             PageSystemInformationChangeHostname.client = self.client;
             $('#system_information_change_hostname').modal('show');
@@ -77,7 +77,7 @@ PageSystemInformation.prototype = {
                                           '</li>'));
                 $("#realms-leave").off("click");
                 $("#realms-leave").on("click", function (e) {
-                    if (!cockpit.check_role('cockpit-realm-admin', self.client))
+                    if (!cockpit.check_admin(self.client))
                         return;
                     $("#realms-leave-spinner" ).show();
                     self.leave_realm(name, details);

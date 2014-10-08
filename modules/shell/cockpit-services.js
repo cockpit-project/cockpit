@@ -831,7 +831,7 @@ PageService.prototype = {
     },
 
     action: function(op) {
-        if (!cockpit.check_role('wheel', this.client))
+        if (!cockpit.check_admin(this.client))
             return;
 
         this.manager.call('ServiceAction', this.service, op, function (error) {

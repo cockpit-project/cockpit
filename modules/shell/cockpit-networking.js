@@ -1413,7 +1413,7 @@ PageNetworking.prototype = {
     add_bond: function () {
         var iface, i, uuid;
 
-        if (!cockpit.check_role('cockpit-network-admin', this.cockpitd))
+        if (!cockpit.check_admin(this.cockpitd))
             return;
 
         uuid = cockpit.util.uuid();
@@ -1449,7 +1449,7 @@ PageNetworking.prototype = {
     add_bridge: function () {
         var iface, i, uuid;
 
-        if (!cockpit.check_role('cockpit-network-admin', this.cockpitd))
+        if (!cockpit.check_admin(this.cockpitd))
             return;
 
         uuid = cockpit.util.uuid();
@@ -1488,7 +1488,7 @@ PageNetworking.prototype = {
     add_vlan: function () {
         var iface, i, uuid;
 
-        if (!cockpit.check_role('cockpit-network-admin', this.cockpitd))
+        if (!cockpit.check_admin(this.cockpitd))
             return;
 
         uuid = cockpit.util.uuid();
@@ -1583,8 +1583,7 @@ PageNetworkInterface.prototype = {
                                               $.proxy(this, "connect"),
                                               $.proxy(this, "disconnect"),
                                               function () {
-                                                  return cockpit.check_role('cockpit-network-admin',
-                                                                            self.cockpitd);
+                                                  return cockpit.check_admin(self.cockpitd);
                                               }));
     },
 
@@ -1680,7 +1679,7 @@ PageNetworkInterface.prototype = {
     delete_connections: function() {
         var self = this;
 
-        if (!cockpit.check_role('cockpit-network-admin', self.cockpitd))
+        if (!cockpit.check_admin(self.cockpitd))
             return;
 
         function delete_connection_and_slaves(con) {
@@ -1925,7 +1924,7 @@ PageNetworkInterface.prototype = {
                         $('<button class="btn btn-default">').
                             text(_("Configure")).
                             click(function () {
-                                if (!cockpit.check_role('cockpit-network-admin', self.cockpitd))
+                                if (!cockpit.check_admin(self.cockpitd))
                                     return;
                                 configure();
                             })));
@@ -2161,14 +2160,13 @@ PageNetworkInterface.prototype = {
                                                          }
                                                      },
                                                      function () {
-                                                         return cockpit.check_role('cockpit-network-admin',
-                                                                                   self.cockpitd);
+                                                         return cockpit.check_admin(self.cockpitd);
                                                      })),
                                    $('<td width="28px">').append(
                                        $('<button class="btn btn-default btn-control">').
                                            text("-").
                                            click(function () {
-                                               if (!cockpit.check_role('cockpit-network-admin', self.cockpitd))
+                                               if (!cockpit.check_admin(self.cockpitd))
                                                    return false;
                                                slave_con.delete_().
                                                    fail(cockpit.show_unexpected_error);
@@ -2204,7 +2202,7 @@ PageNetworkInterface.prototype = {
                                         $('<a role="menuitem">').
                                             text(iface.Name).
                                             click(function () {
-                                                if (!cockpit.check_role('cockpit-network-admin', self.cockpitd))
+                                                if (!cockpit.check_admin(self.cockpitd))
                                                     return;
                                                 set_slave(self.model, con, con.Settings,
                                                           con.Settings.connection.type, iface.Name,

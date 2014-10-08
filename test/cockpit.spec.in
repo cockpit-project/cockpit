@@ -78,9 +78,6 @@ Cockpit.
 
 %pre
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
-getent group cockpit-user-admin >/dev/null || groupadd -r cockpit-user-admin
-getent group cockpit-realm-admin >/dev/null || groupadd -r cockpit-realm-admin
-getent group cockpit-storage-admin >/dev/null || groupadd -r cockpit-storage-admin
 getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
 
 %preun

@@ -151,16 +151,15 @@ static void
 accounts_update_roles (Accounts *accounts)
 {
   /* A "role" is a POSIX group plus localized descriptions.
-     Eventually, this will be configurable by dropping files into a
-     directory, but for now we just hard code some to get started.
+
+     TODO - Eventually, this will be configurable by dropping files
+     into a directory, but for now we just hard code some to get
+     started.
   */
 
   GVariantBuilder roles_builder;
   g_variant_builder_init (&roles_builder, G_VARIANT_TYPE ("a(ss)"));
   add_role_if_exists (&roles_builder, "wheel", "Server Administrator");
-  add_role_if_exists (&roles_builder, "cockpit-user-admin", "User Account Administrator");
-  add_role_if_exists (&roles_builder, "cockpit-realm-admin", "Realm Administrator");
-  add_role_if_exists (&roles_builder, "cockpit-storage-admin", "Storage Administrator");
   add_role_if_exists (&roles_builder, "docker", "Container Administrator");
   cockpit_accounts_set_roles (COCKPIT_ACCOUNTS (accounts), g_variant_builder_end (&roles_builder));
 }

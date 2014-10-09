@@ -2861,8 +2861,8 @@ PageFormatDisk.prototype = {
 
     enter: function() {
         $("#format-disk-title").text(F(_("Format Disk %{name}"), { name: PageFormatDisk.block.Device }));
-        $("#format-disk-type").val("gpt");
-        $("#format-disk-erase").val("no");
+        $("#format-disk-type").selectpicker('val', "gpt");
+        $("#format-disk-erase").selectpicker('val', "no");
     },
 
     format: function() {
@@ -2933,8 +2933,8 @@ PageFormat.prototype = {
             $("#format-mount-options").val("");
         }
         $("#format-size").val("");
-        $("#format-erase").val("no");
-        $("#format-type").val("xfs");
+        $("#format-erase").selectpicker('val', "no");
+        $("#format-type").selectpicker('val', "xfs");
         $("#format-name").val("");
         $("#format-custom").val("");
         $("#format-crpyto-options").val("");

@@ -233,7 +233,10 @@ class TestStorage(MachineCase):
         b.wait_popup("storage_format_dialog")
         b.set_val("#format-size", "");
         b.set_val("#format-type", "dos-extended")
-        b.set_val("#format-name", "")
+        b.wait_not_visible("#format-name")
+        b.wait_not_visible("#format-mounting")
+        b.wait_not_visible("#format-mount-point")
+        b.wait_not_visible("#format-mount-options")
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
         b.wait_in_text("#storage_detail_partition_list", "Extended Partition")

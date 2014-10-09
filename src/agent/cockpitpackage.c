@@ -54,6 +54,7 @@ typedef struct {
   gchar *directory;
   GHashTable *depends;
   JsonObject *manifest;
+  JsonNode *alias;
 } CockpitPackage;
 
 static void
@@ -70,6 +71,8 @@ cockpit_package_unref (gpointer data)
         json_object_unref (package->manifest);
       if (package->depends)
         g_hash_table_unref (package->depends);
+      if (package->alias)
+        json_node_free (package->alias);
       g_free (package);
     }
 }
@@ -480,6 +483,31 @@ resolve_depends (GHashTable *listing)
   g_list_free (names);
 }
 
+static void
+add_alias_to_listing (GHashTable *listing,
+                      CockpitPackage *package,
+                      JsonNode *node)
+{
+  const gchar *value;
+
+  if (JSON_NODE_HOLDS_VALUE (node) && json_node_get_value_type (node) == G_TYPE_STRING)
+    {
+      value = json_node_get_string (node);
+      if (validate_package (value))
+        {
+          g_hash_table_replace (listing, (gchar *)value, cockpit_package_ref (package));
+        }
+      else
+        {
+          g_message ("invalid \"alias\" package name: \"%s\"", value);
+        }
+    }
+  else
+    {
+      g_message ("invalid \"alias\" value type: \"%s\"", json_node_type_name (node));
+    }
+}
+
 GHashTable *
 cockpit_package_listing (JsonArray **json)
 {
@@ -491,6 +519,9 @@ cockpit_package_listing (JsonArray **json)
   JsonArray *id;
   GList *names, *l;
   const gchar *name;
+  JsonNode *node;
+  JsonArray *array;
+  guint i, length;
 
   listing = g_hash_table_new_full (g_str_hash, g_str_equal,
                                    NULL, cockpit_package_unref);
@@ -498,13 +529,39 @@ cockpit_package_listing (JsonArray **json)
   build_package_listing (listing);
   resolve_depends (listing);
 
-  /* Add checksums to listing, for easy lookup */
+  /* Add alias and checksums to listing, for easy lookup */
   names = g_hash_table_get_keys (listing);
+  names = g_list_sort (names, (GCompareFunc)strcmp);
   for (l = names; l != NULL; l = g_list_next (l))
     {
       package = g_hash_table_lookup (listing, l->data);
+
+      /* Add the checksum as another name for the module */
       if (package->checksum && !g_hash_table_contains (listing, package->checksum))
         g_hash_table_replace (listing, package->checksum, cockpit_package_ref (package));
+
+      node = json_object_get_member (package->manifest, "alias");
+      if (node)
+        {
+          /*
+           * Process and remove "alias" from the manifest, as it results in
+           * confusing and duplicated information for the front end.
+           */
+          package->alias = node = json_node_copy (node);
+          json_object_remove_member (package->manifest, "alias");
+
+          if (JSON_NODE_HOLDS_ARRAY (node))
+            {
+              array = json_node_get_array (node);
+              length = json_array_get_length (array);
+              for (i = 0; i < length; i++)
+                add_alias_to_listing (listing, package, json_array_get_element (array, i));
+            }
+          else
+            {
+              add_alias_to_listing (listing, package, node);
+            }
+        }
     }
   g_list_free (names);
 

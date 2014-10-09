@@ -205,13 +205,13 @@ test_listing (TestCase *tc,
   cockpit_assert_json_eq (control,
                           "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"packages\": ["
                           " {"
-                          "  \"id\": [ \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\", \"second\" ],"
+                          "  \"id\": [\"$279d9f5b572e7f59b8c9117b1f8ebfa079611c17\",\"one\",\"second\",\"two\"],"
                           "  \"manifest\": { \"description\": \"second dummy description\"}"
                           " },{"
                           "  \"id\": [ \"$4784b8b983691a87886ce8325bda5f0ed748f058\", \"test\" ],"
                           "  \"manifest\" : { \"description\" : \"dummy\"}"
                           " },{"
-                          "  \"id\": [ \"another\" ],"
+                          "  \"id\": [ \"another\", \"marmalade\" ],"
                           "  \"manifest\" : { \"description\" : \"another\"}"
                           " }"
                           "] }");

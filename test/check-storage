@@ -191,11 +191,14 @@ class TestStorage(MachineCase):
         b = self.browser
 
         # HACK: DOS Extended Partitions are broken on Fedora 21 with
-        # no known reliable workaround.
+        # no known reasonable workaround.
         #
         # https://bugzilla.redhat.com/show_bug.cgi?id=1135493
         #
-        return
+        # The thing that seems to be broken is creating other
+        # partitions while a extended partition also exists, so we
+        # don't do that for now.  A workaround would be to reboot the
+        # machine.
 
         self.login_and_go("storage")
 
@@ -223,47 +226,19 @@ class TestStorage(MachineCase):
         b.wait_popdown("storage_format_dialog")
         b.wait_in_text("#storage_detail_partition_list", "FIRST")
 
-        # Create a extended partition
+        b.wait_in_text("#storage_detail_partition_list", "Free Space for Primary Partitions")
+
+        # Create a extended partition to fill the rest of the disk
         self.content_single_action(2, "Create Partition")
         b.wait_popup("storage_format_dialog")
-        b.set_val("#format-size", "20")
+        b.set_val("#format-size", "");
         b.set_val("#format-type", "dos-extended")
         b.set_val("#format-name", "")
         b.click("#format-format")
         b.wait_popdown("storage_format_dialog")
         b.wait_in_text("#storage_detail_partition_list", "Extended Partition")
 
-        # Create a second primary partition to fill the rest of the disk
-        self.content_single_action(4, "Create Partition")
-        b.wait_popup("storage_format_dialog")
-        b.set_val("#format-size", "");
-        b.set_val("#format-type", "ext4")
-        b.set_val("#format-name", "SECOND")
-        b.click("#format-format")
-        b.wait_popdown("storage_format_dialog")
-        b.wait_in_text("#storage_detail_partition_list", "SECOND")
-
-        # Create a logical partition
-        self.content_single_action(3, "Create Partition")
-        b.wait_popup("storage_format_dialog")
-        b.set_val("#format-size", "10");
-        b.set_val("#format-type", "ext4")
-        b.set_val("#format-name", "LOGICAL")
-        b.click("#format-format")
-        b.wait_popdown("storage_format_dialog")
-        b.wait_in_text("#storage_detail_partition_list", "LOGICAL")
-
-        # Create a second logical partition to fill the extended partition
-        self.content_single_action(4, "Create Partition")
-        b.wait_popup("storage_format_dialog")
-        b.set_val("#format-size", "");
-        b.set_val("#format-type", "ext4")
-        b.set_val("#format-name", "LOGICAL2")
-        b.click("#format-format")
-        b.wait_popdown("storage_format_dialog")
-        b.wait_in_text("#storage_detail_partition_list", "LOGICAL2")
-
-        b.wait_not_in_text("#storage_detail_partition_list", "Free Space")
+        b.wait_not_in_text("#storage_detail_partition_list", "Free Space for Primary Partitions")
 
     def testLuks(self):
         m = self.machine

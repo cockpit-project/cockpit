@@ -206,7 +206,7 @@ class TestStorage(MachineCase):
         b.wait_page("storage-detail")
 
         # Format it with a DOS partition table
-        b.click("#drive_format")
+        b.click("#storage_format_disk")
         b.wait_popup("storage_format_disk_dialog")
         b.set_val("#format-disk-type", "dos")
         b.click("#format-disk-format")
@@ -276,7 +276,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_drives", "MYDISK")
         b.click('tr:contains("MYDISK")')
         b.wait_page("storage-detail")
-        b.click("#drive_format")
+        b.click("#storage_format_disk")
         b.wait_popup("storage_format_disk_dialog")
         b.set_val("#format-disk-type", "gpt")
         b.click("#format-disk-format")
@@ -446,7 +446,7 @@ class TestStorage(MachineCase):
         b.wait_text_not("#raid_detail_device", "--")
 
         # Create partition table
-        self.raid_action("Format")
+        b.click("#storage_format_disk")
         b.wait_popup("storage_format_disk_dialog")
         b.set_val("#format-disk-type", "gpt")
         b.click("#format-disk-format")
@@ -820,7 +820,7 @@ class TestStorage(MachineCase):
         b.click("#error-popup button")
         b.wait_popdown("error-popup")
 
-        b.click('#drive_format')
+        b.click("#storage_format_disk")
         b.wait_popup("storage_format_disk_dialog")
         b.click("#format-disk-format")
         b.wait_popdown("storage_format_disk_dialog")
@@ -834,7 +834,7 @@ class TestStorage(MachineCase):
         m.execute("umount /mnt")
         b.wait_in_text("#storage_detail_content", "not mounted")
 
-        b.click('#drive_format')
+        b.click("#storage_format_disk")
         b.wait_popup("storage_format_disk_dialog")
         b.click("#format-disk-format")
         b.wait_popdown("storage_format_disk_dialog")

@@ -921,4 +921,33 @@ class TestStorage(MachineCase):
         check_in (blocks[0], "/dev/sda6");
         check_in (blocks[1], "/dev/sdb");
 
+    def testIgnored(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("storage")
+        b.wait_in_text("#storage_drives", "VirtIO")
+
+        self.add_disk("50M", "DISK1")
+        m.execute("mke2fs -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        b.wait_in_text("#storage_drives", "DISK1")
+        b.wait_in_text("#storage_mounts", "TEST")
+
+        # Hide it via a udev rule
+
+        m.write("/etc/udev/rules.d/99-ignore.rules",
+                'SUBSYSTEM=="block", ENV{ID_SERIAL_SHORT}=="DISK1", ENV{UDISKS_IGNORE}="1"\n')
+
+        # XXX - One trigger doesn't seem to be enough so we loop until
+        #       UDisks2 picks up the change.
+
+        def is_ignored():
+            m.execute("udevadm trigger")
+            text = m.execute("gdbus introspect -y -d org.freedesktop.UDisks2 -o /org/freedesktop/UDisks2/block_devices/sda | grep HintIgnore")
+            return "true" in text
+
+        wait(is_ignored)
+
+        b.wait_not_in_text("#storage_mounts", "TEST")
+
 test_main()

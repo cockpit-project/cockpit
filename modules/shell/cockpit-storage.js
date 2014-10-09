@@ -777,7 +777,7 @@ PageStorage.prototype = {
     _addMount: function(obj) {
         var block = obj.lookup("com.redhat.Cockpit.Storage.Block");
 
-        if (block.IdUsage != "filesystem")
+        if (block.IdUsage != "filesystem" || block.HintIgnore)
             return;
 
         var id = esc_id_attr(obj.objectPath.substr(obj.objectPath.lastIndexOf("/") + 1));

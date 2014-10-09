@@ -1,37 +1,8 @@
-
-@INTLTOOL_XML_RULE@
-appdatadir = $(datadir)/appdata
-appdata_DATA = doc/cockpit.appdata.xml
-appdata_in_files = doc/cockpit.appdata.xml.in
-
-@INTLTOOL_DESKTOP_RULE@
-desktopdir = $(datadir)/applications
-desktop_in_files = doc/cockpit.desktop.in
-desktop_DATA = doc/cockpit.desktop
-
-pixmapdir = $(datadir)/pixmaps
-pixmap_DATA = doc/cockpit.png
-
-CLEANFILES += \
-	cockpit.desktop \
-	$(appdata_DATA) \
-	$(desktop_DATA) \
-	doc/.dirstamp \
-	$(NULL)
-
 EXTRA_DIST += \
 	doc/cockpit-transport.svg \
 	doc/cockpit-transport.png \
-	$(appdata_in_files) \
-	$(desktop_in_files) \
-	$(pixmap_DATA) \
 	doc/version.in \
 	$(NULL)
-
-# Require that this directory exists
-BUILT_SOURCES += doc/.dirstamp
-doc/.dirstamp:
-	$(AM_V_GEN) $(MKDIR_P) doc && : > doc/.dirstamp
 
 render-doc-images:
 	 inkscape --without-gui --export-area-page \

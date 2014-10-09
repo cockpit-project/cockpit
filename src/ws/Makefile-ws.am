@@ -108,6 +108,30 @@ CLEANFILES += \
 	cockpit.service \
 	$(NULL)
 
+@INTLTOOL_XML_RULE@
+appdatadir = $(datadir)/appdata
+appdata_DATA = src/ws/cockpit.appdata.xml
+appdata_in_files = src/ws/cockpit.appdata.xml.in
+
+@INTLTOOL_DESKTOP_RULE@
+desktopdir = $(datadir)/applications
+desktop_in_files = src/ws/cockpit.desktop.in
+desktop_DATA = src/ws/cockpit.desktop
+
+pixmapdir = $(datadir)/pixmaps
+pixmap_DATA = src/ws/cockpit.png
+
+CLEANFILES += \
+	$(appdata_DATA) \
+	$(desktop_DATA) \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(appdata_in_files) \
+	$(desktop_in_files) \
+	$(pixmap_DATA) \
+	$(NULL)
+
 # ----------------------------------------------------------------------------------------------------
 
 noinst_PROGRAMS += test-server

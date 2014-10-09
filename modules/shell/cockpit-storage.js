@@ -1556,21 +1556,25 @@ PageStorageDetail.prototype = {
                 // and will really 'round' start == 1 MiB to 2 MiB, for example.)
 
                 var real_start = (Math.floor(start / (1024*1024)) + 1) * 1024*1024;
+                var enable_dos_extended = false;
                 if (start + size - real_start >= 1024*1024) {
                     if (is_dos_partitioned) {
                         if (level > device_level)
                             desc = F(_("%{size} Free Space for Logical Partitions"),
                                      { size: fmt_size(size) });
-                        else
+                        else {
                             desc = F(_("%{size} Free Space for Primary Partitions"),
                                      { size: fmt_size(size) });
+                            enable_dos_extended = true;
+                        }
                     } else
                         desc = F(_("%{size} Free Space"),
                                  { size: fmt_size(size) });
 
                     append_entry (level, null, desc,
                                   create_simple_btn (_("Create Partition"),
-                                                     $.proxy(me, "create_partition", block, start, size)));
+                                                     $.proxy(me, "create_partition", block, start, size,
+                                                             enable_dos_extended)));
                 }
             }
 
@@ -2180,7 +2184,7 @@ PageStorageDetail.prototype = {
             });
     },
 
-    create_partition: function (block, start, size) {
+    create_partition: function (block, start, size, enable_dos_extended) {
         if (!cockpit.check_admin(this.client))
             return;
 
@@ -2188,6 +2192,7 @@ PageStorageDetail.prototype = {
         PageFormat.mode = 'create-partition';
         PageFormat.start = start;
         PageFormat.size = size;
+        PageFormat.enable_dos_extended = enable_dos_extended;
         $('#storage_format_dialog').modal('show');
     },
 
@@ -2915,6 +2920,11 @@ PageFormat.prototype = {
     enter: function() {
         $("#format-size-row").toggle(PageFormat.mode == "create-partition");
 
+        function enable_dos_extended(flag) {
+            $('#format-type option[value="dos-extended"]').toggle(flag);
+            $('#format-type').selectpicker('refresh');
+        }
+
         if (PageFormat.mode == 'format') {
             $("#format-title").text(F(_("Format %{name}"), { name: PageFormat.block.Device }));
             $("#format-warning").text(_("Formatting a storage device will erase all data on it."));
@@ -2923,6 +2933,7 @@ PageFormat.prototype = {
             $("#format-mounting").selectpicker('val', PageFormat.block.MountPoint? "custom" : "default");
             $("#format-mount-point").val(PageFormat.block.MountPoint);
             $("#format-mount-options").val(PageFormat.block.MountOptions);
+            enable_dos_extended(false);
         } else {
             $("#format-title").text(F(_("Create Partition on %{name}"), { name: PageFormat.block.Device }));
             $("#format-warning").text("");
@@ -2931,6 +2942,7 @@ PageFormat.prototype = {
             $("#format-mounting").selectpicker('val', "default");
             $("#format-mount-point").val("");
             $("#format-mount-options").val("");
+            enable_dos_extended(PageFormat.enable_dos_extended);
         }
         $("#format-size").val("");
         $("#format-erase").selectpicker('val', "no");

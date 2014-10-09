@@ -82,11 +82,11 @@ test_listing (TestCase *tc,
   cockpit_assert_json_eq (json,
                           "{"
                           " \"test\": {"
-                          "    \"checksum\": \"4784b8b983691a87886ce8325bda5f0ed748f058\","
+                          "    \"checksum\": \"$4784b8b983691a87886ce8325bda5f0ed748f058\","
                           "    \"manifest\" : { \"description\" : \"dummy\"}"
                           " },"
                           " \"second\": {"
-                          "    \"checksum\": \"420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
+                          "    \"checksum\": \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
                           "    \"manifest\": { \"description\": \"second dummy description\"}"
                           " },"
                           " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
@@ -166,7 +166,7 @@ test_expand (TestCase *tc,
   g_bytes_unref (bytes);
 
   cockpit_assert_bytes_eq (queue.head->data, "Depend on ", -1);
-  cockpit_assert_bytes_eq (queue.head->next->data, "4784b8b983691a87886ce8325bda5f0ed748f058", -1);
+  cockpit_assert_bytes_eq (queue.head->next->data, "$4784b8b983691a87886ce8325bda5f0ed748f058", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->data, " here ", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->data, "another", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->next->data, " and ", -1);
@@ -190,7 +190,7 @@ test_expand_with_host (TestCase *tc,
   g_bytes_unref (bytes);
 
   cockpit_assert_bytes_eq (queue.head->data, "Depend on ", -1);
-  cockpit_assert_bytes_eq (queue.head->next->data, "4784b8b983691a87886ce8325bda5f0ed748f058", -1);
+  cockpit_assert_bytes_eq (queue.head->next->data, "$4784b8b983691a87886ce8325bda5f0ed748f058", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->data, " here ", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->data, "another@host", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->next->data, " and ", -1);
@@ -248,7 +248,7 @@ test_list_bad_name (TestCase *tc,
   cockpit_assert_json_eq (json,
                           "{"
                           " \"ok\": {"
-                          "    \"checksum\": \"248b261c112455057b51827f3f63380159e27338\","
+                          "    \"checksum\": \"$248b261c112455057b51827f3f63380159e27338\","
                           "    \"manifest\" : { }"
                           " }"
                           "}");

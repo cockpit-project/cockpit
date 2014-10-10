@@ -19,39 +19,14 @@
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+@import url(/cockpit/@@latest@@/cockpit.css);
+
 /* Hacks on top for now */
 
 html, body {
     height: 100%;
 }
 
-a {
-    cursor: pointer;
-}
-
-.dropdown-menu > .disabled > a:hover {
-    cursor: default;
-}
-
-/* Panels don't draw borders between them */
-.panel > .table > tbody:first-child td {
-    border-top: 1px solid rgb(221, 221, 221);
-}
-
-/* Table headers should not generate a double border */
-.panel .table thead tr th {
-    border-bottom: none;
-}
-
-.panel-heading-tr {
-    background: #F5F5F5;
-}
-
-/* Contatiner is glued to the navigation and sides */
-
-.container-fluid {
-    margin: 20px;
-}
 
 /* Style a button group */
 
@@ -128,70 +103,6 @@ a {
     border-radius: 5px;
 }
 
-/* Break up sidebar in columns in smaller sizes*/
-
-.cockpit-info-table td {
-    padding-left: 0.75em;
-    padding-top: 0.25em;
-}
-
-.cockpit-info-table td:first-child {
-    text-align: right;
-    white-space:nowrap;
-    color: #888888;
-}
-
-.cockpit-info-table td:not(:first-child) {
-    color: black;
-}
-
-/* For table rows containing interactive controls like bars */
-.cockpit-info-table tr.interactive td {
-    line-height: 26px;
-    padding-top: 0px;
-    vertical-align: center;
-}
-
-.cockpit-form-table {
-    width: 100%;
-}
-
-.cockpit-form-table td {
-    padding-left: 0.75em;
-    padding-top: 0.25em;
-    vertical-align: middle;
-}
-
-.cockpit-form-table td.top {
-    vertical-align: top;
-}
-
-.cockpit-form-table td:first-child {
-    text-align: right;
-    white-space: nowrap;
-    color: #888888;
-    width: 5px; /* will be expanded by nowrap */
-}
-
-.cockpit-form-table td {
-    height: 26px;
-}
-
-.cockpit-info-table .shrink,
-.cockpit-form-table .shrink {
-    white-space: nowrap;
-    width: 5px;
-}
-
-.cockpit-form-table td.header {
-    font-weight: bold;
-    text-align: left;
-}
-
-.cockpit-form-table input[type='checkbox'] {
-    margin: 8px;
-}
-
 .available-disks-group input[type='checkbox'],
 .available-interfaces-group input[type='checkbox'] {
     margin: 4px 4px 4px -20px;
@@ -230,87 +141,12 @@ ul.available-interfaces-group {
     padding: 10px;
 }
 
-/* Journal logs */
-/* Logprio, keep?
-.cockpit-logprio-0,
-.cockpit-logprio-1,
-.cockpit-logprio-2
-{
-    color: red;
-    font-weight: bold;
-}
-
-.cockpit-logprio-3
-{
-    color: red;
-}
-
-.cockpit-logprio-4
-{
-    font-weight: bold;
-}
-
-.cockpit-logprio-7
-{
-    color: grey;
-}
-*/
-
-.cockpit-loghead {
-    background-color: #f5f5f5;
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px transparent none;
-    padding: 10px;
-}
-
-.cockpit-logline {
-    border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px transparent none;
-    padding: 10px;
-}
-
 #journal-box .cockpit-logline:last-child {
     border-bottom: 1px solid #ddd;
 }
 
 #journal-box .cockpit-logline:hover {
     cursor: pointer;
-}
-
-.cockpit-logident {
-    display: inline-block;
-    vertical-align: top;
-    width: 10%;
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cockpit-logmsg {
-    display: inline-block;
-    width: 90%;
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    padding-right: 10px;
-}
-
-.cockpit-logtime {
-    float: right;
-}
-
-.cockpit-logtime .badge {
-    margin-right: 10px;
-}
-
-.cockpit-logmsg-reboot {
-    font-style: italic;
 }
 
 /* Responsive column layout for Server page */
@@ -358,26 +194,6 @@ ul.available-interfaces-group {
 .server-graph:hover {
     cursor: pointer;
     background-color: #d4edfa;
-}
-
-.cockpit-graph {
-    position: relative;
-    height: 70px;
-    margin-top: 20px;
-}
-
-.cockpit-graph-label {
-    position: absolute;
-    left: 0px;
-    top: -20px;
-    text-align: left;
-}
-
-.cockpit-graph-text {
-    position: absolute;
-    right: 0px;
-    top: -20px;
-    text-align: right;
 }
 
 .cockpit-account {
@@ -429,137 +245,14 @@ ul.available-interfaces-group {
     padding: 10px;
 }
 
+#dashboard_setup_address_discovered li:hover {
+    background-color: #d4edfa;
+}
+
 #account-pic {
     background: #d3d7cf;
     border-radius: 5px;
     cursor: pointer;
-}
-
-/*
- * For showing and filtering disabled unimportant rows in a table
- *
- * Set .unimportant on things, and then .filter-unimportant on
- * ancestor when you want to filter them.
- */
-.filter-unimportant .unimportant {
-    display: none;
-}
-
-/* Styling of logs embedded in pages outside the journal */
-
-.cockpit-log-panel {
-    border: 0;
-}
-
-.cockpit-log-panel .panel-heading {
-    background-color: #333;
-    border-color: #333;
-    color: #fff;
-    padding-left: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    height: auto;
-}
-
-.cockpit-log-panel .panel-body {
-    padding: 0;
-    border-bottom: 1px #ddd solid;
-}
-
-.cockpit-log-panel .cockpit-loghead {
-    border-left: 1px #ddd solid;
-    border-right: 1px #ddd solid;
-    background-color: #f5f5f5;
-    font-weight: bold;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    width: auto;
-}
-
-.cockpit-log-panel .cockpit-logline {
-    border-left: 1px #ddd solid;
-    border-right: 1px #ddd solid;
-    background-color: #f5f5f5;
-    padding-top: 2px;
-    padding-bottom: 2px;
-}
-
-/*
- * Control buttons such as play and stop
- * Used with .btn .btn-default
- */
-
-.btn-control,
-.btn-control:hover {
-    background-position: center center;
-    background-size: 16px 16px;
-    background-repeat: no-repeat;
-    background-image: none;
-    -webkit-border-radius: 2;
-    -moz-border-radius: 2;
-    border-radius: 2px;
-    height: 28px;
-    width: 28px;
-    box-shadow: none;
-}
-
-.btn-control {
-    background-color: #eeeeee;
-}
-
-.btn-control:hover {
-   background-color: #e0e0e0;
-}
-
-.btn-play,
-.btn-play:hover,
-.btn-play:active,
-.btn-play:focus {
-    background-image: url(images/play.png);
-}
-
-.btn-stop,
-.btn-stop:hover,
-.btn-stop:active,
-.btn-stop:focus {
-    background-image: url(images/stop.png);
-}
-
-.btn-eject,
-.btn-eject:hover,
-.btn-eject:active,
-.btn-eject:focus {
-    background-image: url(images/eject.png);
-}
-
-.waiting {
-    background-color: transparent;
-    background-image: url(/static/images/waiting.gif);
-    background-repeat: no-repeat;
-    background-position: 6px 9px;
-    height: 28px;
-    width: 28px;
-}
-
-.highlight {
-    background-color: #d4edfa;
-}
-
-/*
- * Fix up table row hovering.
- *
- * When you hover over table rows it's because they're clickable.
- * Make the table row hover color match the list-group-item.
- */
-.table-hover > tbody > tr > td,
-.table-hover > tbody > tr > th {
-    cursor: pointer;
-}
-.table-hover > tbody > tr:hover > td,
-.table-hover > tbody > tr:hover > th,
-.cockpit-logline:hover,
-#dashboard_setup_address_discovered li:hover {
-    background-color: #d4edfa;
 }
 
 .container-col-name {
@@ -592,38 +285,6 @@ ul.available-interfaces-group {
 }
 
 /*
- * Used to make a table cell that containts buttons have less padding
- * HACK: Because CSS has no parant selector.
- */
-.cell-buttons,
-.table > tbody > tr > .cell-buttons {
-    padding-top: 4px;
-    padding-bottom: 4px;
-    width: 30px;
-    padding-right: 15px;
-}
-
-/* Make things line up */
-.table tbody tr td:first-child,
-.table thead tr th:first-child {
-    padding-left: 15px;
-}
-
-.table tbody tr td:last-child,
-.table thead tr th:last-child {
-    padding-right: 15px;
-}
-
-.panel-heading {
-   height: 44px;
-}
-
-/* Vertically center dropdown buttons in panel headers */
-.panel-heading .btn {
-    margin-top: -3px;
-}
-
-/*
  * The oops status in the navbar, used when an unhandled exception
  * occurs.
  */
@@ -632,30 +293,6 @@ ul.available-interfaces-group {
     color: red;
     font-weight: bold;
 }
-
-/*
- * Styling of progress bars. Patternfly ignores this completely
- * so we pick up the slack.
- */
-.progress {
-    background-color: #e7e7e7;
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25) inset;
-    font-size: 11px;
-    font-weight: bold;
-    margin-bottom: 0;
-}
-
-.progress-bar {
-    background-color: #0099d3;
-    font-size: 11px;
-    font-weight: bold;
-    box-shadow: none;
-}
-
-.progress-bar-danger {
-    background-color: #af151a;
-}
-
 /*
  * Styling of bar graphs. See controls.js for more details
  */
@@ -746,48 +383,6 @@ ul.available-interfaces-group {
     cursor: auto;
 }
 
-/* Ensure that btn-default is at least as wide as tall
- * Avoids the problem with short labels */
- 
-.btn-default {
-    min-height: 26px;
-    min-width: 26px;
-}
-
-/* Our terminal emulator */
-.terminal-emulator {
-    max-width: 60em;
-    font-family: monospace, courier new;
-    background-color: black;
-    padding: 1em;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 2em;
-    margin-bottom: 2em;
-    line-height: 1;
-    font-size: 10pt;
-}
-
-.terminal-emulator > .terminal {
-    display: inline-block; /* size DIV to contents */
-}
-
-.container-fluid .terminal-emulator {
-    margin-top: 0;
-    float: right;
-}
-
-@media (max-width: 1350px) {
-    .container-fluid .terminal-emulator {
-	font-size: 11px;
-    }
-}
-
-.terminal-cursor {
-    color: #000;
-    background: #f0f0f0;
-}
-
 .ipv4-address {
   display: inline;
 }
@@ -835,13 +430,6 @@ ul.available-interfaces-group {
     float: left;
 }
 
-/* Patternfly doesn't have modal-sm
-*/
-
-.cockpit-modal-sm {
-    width: 300px;
-}
-
 /* networking */
 
 .network-number-field {
@@ -871,10 +459,4 @@ ul.available-interfaces-group {
     padding:0px;
     padding-top:15px;
     border: none;
-}
-
-/* Storage */
-
-.storage-mount-size {
-    text-align: right;
 }

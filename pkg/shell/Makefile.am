@@ -45,7 +45,7 @@ nodist_shell_DATA = \
 shell_DATA = \
 	pkg/shell/attrchange.js \
 	pkg/shell/jquery-flot.js \
-	pkg/shell/cockpit.css \
+	pkg/shell/shell.css \
 	pkg/shell/shell.html \
 	pkg/shell/manifest.json \
 	$(NULL)
@@ -71,10 +71,7 @@ shellimages_DATA = \
 	pkg/shell/images/category-users.png \
 	pkg/shell/images/avatar-default-48.png \
 	pkg/shell/images/avatar-default-128.png \
-	pkg/shell/images/play.png \
-	pkg/shell/images/eject.png \
 	pkg/shell/images/server-large.png \
-	pkg/shell/images/stop.png \
 	pkg/shell/images/dialog-error.png \
 	pkg/shell/images/face-smile.png \
 	pkg/shell/images/hammer.gif \

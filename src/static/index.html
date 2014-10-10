@@ -170,22 +170,22 @@
             }
 
             function shell(environment) {
-                var module = null;
-                if (environment.localhost && environment.localhost.modules)
-                    module = environment.localhost.modules["shell"];
-                if (!module || !module.manifest) {
+                var package = null;
+                if (environment.localhost && environment.localhost.packages)
+                    package = environment.localhost.packages["shell"];
+                if (!package || !package.manifest) {
                     fatal("Cockpit not available: shell not installed correctly");
                     return;
                 }
-                if (module.checksum)
-                    module.prefix = "/cache/" + module.checksum;
+                if (package.checksum)
+                    package.prefix = "/cache/" + package.checksum;
                 else
-                    module.prefix = "/res/localhost/shell";
+                    package.prefix = "/res/localhost/shell";
 
                 function qualify(path) {
                     if (path.indexOf('/') === 0)
                         return path;
-                    return module.prefix + '/' + path;
+                    return package.prefix + '/' + path;
                 }
 
                 /* TODO: Compatibility ... rework these later */
@@ -195,22 +195,22 @@
                 cockpit.environment = environment;
                 cockpit.connection_config = environment;
 
-                /* Simplistic module loader good enough for shell */
-                if (module.manifest.css) {
+                /* Simplistic package loader good enough for shell */
+                if (package.manifest.css) {
                     $('head').append($('<link rel="stylesheet" type="text/css" />')
-                                        .attr("href", qualify(module.manifest.css)));
+                                        .attr("href", qualify(package.manifest.css)));
                 }
 
                 /* Load all the html */
                 $.ajax({
-                    url: qualify(module.manifest.html),
+                    url: qualify(package.manifest.html),
                     dataType: "html",
                 }).done(function(content) {
-                    content = content.replace(/@@module@@/g, module.prefix);
+                    content = content.replace(/@@package@@/g, package.prefix);
                     $("body")
                         .removeClass()
                         .html(content);
-                    $.each(module.manifest.scripts, function(i, file) {
+                    $.each(package.manifest.scripts, function(i, file) {
                         var script = document.createElement("script");
                         script.async = false;
                         script.src = qualify(file);

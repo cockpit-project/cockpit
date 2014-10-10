@@ -28,7 +28,7 @@ class TestDbus(MachineCase):
         b = self.browser
 
         m.execute("systemctl start test-server.socket")
-        b.open(url="/modules/shell/test-dbus.html", port=8765)
+        b.open(url="/pkg/shell/test-dbus.html", port=8765)
         b.wait_js_cond("test_details && test_details.passed == test_details.total");
 
 test_main()

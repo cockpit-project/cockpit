@@ -215,8 +215,8 @@ PageAccounts.prototype = {
                      });
         }
 
-        /* TODO: This needs to be reworked once real module loading lands */
-        var prefix = cockpit.environment.localhost.modules.shell.prefix;
+        /* TODO: This needs to be reworked once real package loading lands */
+        var prefix = cockpit.environment.localhost.packages.shell.prefix;
 
         list.empty();
         for (i = 0; i < this.accounts.length; i++) {
@@ -416,8 +416,8 @@ PageAccount.prototype = {
                                            "com.redhat.Cockpit.Accounts");
             this.sys_roles = manager.Roles || [ ];
 
-            /* TODO: This needs to be reworked once real module loading lands */
-            var prefix = cockpit.environment.localhost.modules.shell.prefix;
+            /* TODO: This needs to be reworked once real package loading lands */
+            var prefix = cockpit.environment.localhost.packages.shell.prefix;
 
             this.account.call('GetIconDataURL',
                               function (error, result) {

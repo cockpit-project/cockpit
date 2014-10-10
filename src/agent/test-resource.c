@@ -24,6 +24,8 @@
 
 #include "common/cockpittest.h"
 
+extern const gchar **cockpit_agent_data_dirs;
+
 typedef struct {
   MockTransport *transport;
   CockpitChannel *channel;
@@ -32,7 +34,8 @@ typedef struct {
 } TestCase;
 
 typedef struct {
-  const gchar *module;
+  const gchar *datadirs[8];
+  const gchar *package;
   const gchar *path;
 } Fixture;
 
@@ -63,11 +66,14 @@ setup (TestCase *tc,
 
   g_assert (fixture != NULL);
 
+  if (fixture->datadirs[0])
+    cockpit_agent_data_dirs = (const gchar **)fixture->datadirs;
+
   tc->transport = mock_transport_new ();
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_transport_closed), NULL);
 
   tc->channel = cockpit_resource_open (COCKPIT_TRANSPORT (tc->transport), "444",
-                                       fixture->module,
+                                       fixture->package,
                                        fixture->path);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
 }
@@ -85,6 +91,8 @@ teardown (TestCase *tc,
   g_assert (tc->channel == NULL);
 
   g_free (tc->problem);
+
+  cockpit_agent_data_dirs = NULL;
 }
 
 static GBytes *
@@ -112,7 +120,7 @@ combine_output (TestCase *tc,
 }
 
 static const Fixture fixture_simple = {
-  .module = "test",
+  .package = "test",
   .path = "/sub/file.ext",
 };
 
@@ -136,7 +144,7 @@ test_simple (TestCase *tc,
 }
 
 static const Fixture fixture_large = {
-  .module = "test",
+  .package = "test",
   .path = "/sub/COPYING",
 };
 
@@ -170,7 +178,7 @@ test_large (TestCase *tc,
 }
 
 static const Fixture fixture_listing = {
-  .module = NULL,
+  .package = NULL,
   .path = NULL,
 };
 
@@ -195,17 +203,22 @@ test_listing (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   cockpit_assert_json_eq (control,
-                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"resources\": {"
-                          " \"test\": {"
-                          "    \"checksum\": \"b0cb8eb96388a67047c60d48634172e72db50eaf\","
-                          "    \"manifest\" : { \"description\" : \"dummy\"}"
-                          " },"
-                          " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
-                          "} }");
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"packages\": ["
+                          " {"
+                          "  \"id\": [\"$279d9f5b572e7f59b8c9117b1f8ebfa079611c17\",\"one\",\"second\",\"two\"],"
+                          "  \"manifest\": { \"description\": \"second dummy description\"}"
+                          " },{"
+                          "  \"id\": [ \"$4784b8b983691a87886ce8325bda5f0ed748f058\", \"test\" ],"
+                          "  \"manifest\" : { \"description\" : \"dummy\"}"
+                          " },{"
+                          "  \"id\": [ \"another\", \"marmalade\" ],"
+                          "  \"manifest\" : { \"description\" : \"another\"}"
+                          " }"
+                          "] }");
 }
 
 static const Fixture fixture_not_found = {
-  .module = "test",
+  .package = "test",
   .path = "/sub/not-found",
 };
 
@@ -220,16 +233,16 @@ test_not_found (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, "not-found");
 }
 
-static const Fixture fixture_bad_module = {
-  .module = "unknown-module",
+static const Fixture fixture_unknown_package = {
+  .package = "unknownpackage",
   .path = "/sub/not-found",
 };
 
 static void
-test_bad_module (TestCase *tc,
-                 gconstpointer fixture)
+test_unknown_package (TestCase *tc,
+                      gconstpointer fixture)
 {
-  g_assert (fixture == &fixture_bad_module);
+  g_assert (fixture == &fixture_unknown_package);
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
@@ -237,7 +250,7 @@ test_bad_module (TestCase *tc,
 }
 
 static const Fixture fixture_no_path = {
-  .module = "test"
+  .package = "test"
 };
 
 static void
@@ -254,7 +267,7 @@ test_no_path (TestCase *tc,
 }
 
 static const Fixture fixture_bad_path = {
-  .module = "test",
+  .package = "test",
   .path = "../test/sub/file.ext"
 };
 
@@ -268,26 +281,43 @@ test_bad_path (TestCase *tc,
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
-  g_assert_cmpstr (tc->problem, ==, "protocol-error");
+  g_assert_cmpstr (tc->problem, ==, "not-found");
 }
 
-static const Fixture fixture_no_module = {
+static const Fixture fixture_no_package = {
   .path = "test"
 };
 
 static void
-test_no_module (TestCase *tc,
-                gconstpointer fixture)
+test_no_package (TestCase *tc,
+                 gconstpointer fixture)
 {
-  g_assert (fixture == &fixture_no_module);
+  g_assert (fixture == &fixture_no_package);
 
-  cockpit_expect_message ("no 'module' specified for resource channel");
+  cockpit_expect_message ("no 'package' specified for resource channel");
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, "protocol-error");
 }
 
+static const Fixture fixture_bad_package = {
+  .package = "%%package",
+  .path = "test"
+};
+
+static void
+test_bad_package (TestCase *tc,
+                  gconstpointer fixture)
+{
+  g_assert (fixture == &fixture_bad_package);
+
+  cockpit_expect_message ("invalid 'package' name: %%package");
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, "not-found");
+}
 
 static void
 test_bad_receive (TestCase *tc,
@@ -308,6 +338,47 @@ test_bad_receive (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, "protocol-error");
 }
 
+static const Fixture fixture_list_bad_directory = {
+    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-directory", NULL }
+};
+
+static const Fixture fixture_list_bad_file = {
+    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-file", NULL }
+};
+
+static const Fixture fixture_list_bad_name = {
+    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-package", NULL }
+};
+
+static void
+test_list_bad_name (TestCase *tc,
+                    gconstpointer fixture)
+{
+  JsonObject *control;
+  GBytes *data;
+  guint count;
+
+  cockpit_expect_warning ("package * invalid *name*");
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  data = combine_output (tc, &count);
+  cockpit_assert_bytes_eq (data, "", 0);
+  g_assert_cmpuint (count, ==, 0);
+  g_bytes_unref (data);
+
+  control = mock_transport_pop_control (tc->transport);
+  cockpit_assert_json_eq (control,
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"packages\": ["
+                          " {"
+                          "  \"id\": [ \"$248b261c112455057b51827f3f63380159e27338\", \"ok\" ],"
+                          "  \"manifest\": { }"
+                          " }"
+                          "] }");
+}
+
 int
 main (int argc,
       char *argv[])
@@ -325,16 +396,25 @@ main (int argc,
               setup, test_listing, teardown);
   g_test_add ("/resource/not-found", TestCase, &fixture_not_found,
               setup, test_not_found, teardown);
-  g_test_add ("/resource/bad-module", TestCase, &fixture_bad_module,
-              setup, test_bad_module, teardown);
+  g_test_add ("/resource/unknown-package", TestCase, &fixture_unknown_package,
+              setup, test_unknown_package, teardown);
   g_test_add ("/resource/bad-receive", TestCase, &fixture_large,
               setup, test_bad_receive, teardown);
   g_test_add ("/resource/no-path", TestCase, &fixture_no_path,
               setup, test_no_path, teardown);
   g_test_add ("/resource/bad-path", TestCase, &fixture_bad_path,
               setup, test_bad_path, teardown);
-  g_test_add ("/resource/no-module", TestCase, &fixture_no_module,
-              setup, test_no_module, teardown);
+  g_test_add ("/resource/no-package", TestCase, &fixture_no_package,
+              setup, test_no_package, teardown);
+  g_test_add ("/resource/bad-package", TestCase, &fixture_bad_package,
+              setup, test_bad_package, teardown);
+
+  g_test_add ("/resource/listing-bad-directory", TestCase, &fixture_list_bad_directory,
+              setup, test_list_bad_name, teardown);
+  g_test_add ("/resource/listing-bad-file", TestCase, &fixture_list_bad_file,
+              setup, test_list_bad_name, teardown);
+  g_test_add ("/resource/listing-bad-name", TestCase, &fixture_list_bad_name,
+              setup, test_list_bad_name, teardown);
 
   return g_test_run ();
 }

@@ -76,7 +76,7 @@ typedef struct
   gboolean sent_eof;
   guint timeout;
   CockpitCreds *creds;
-  GHashTable *checksums;
+  GHashTable *packages;
 } CockpitSession;
 
 typedef struct
@@ -98,7 +98,7 @@ cockpit_session_free (gpointer data)
     g_source_remove (session->timeout);
   g_hash_table_unref (session->channels);
   g_object_unref (session->transport);
-  g_hash_table_unref (session->checksums);
+  g_hash_table_unref (session->packages);
   cockpit_creds_unref (session->creds);
   g_free (session->host);
   g_free (session);
@@ -219,7 +219,7 @@ cockpit_session_track (CockpitSessions *sessions,
   session->host = g_strdup (host);
   session->private = private;
   session->creds = cockpit_creds_ref (creds);
-  session->checksums = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  session->packages = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   if (!private)
     g_hash_table_insert (sessions->by_host, session->host, session);
@@ -528,32 +528,45 @@ outbound_protocol_error (CockpitWebService *self,
 }
 
 static void
-process_resources (JsonObject *resources,
-                   const gchar *logname,
-                   GHashTable *checksums)
+process_packages (JsonArray *input,
+                  const gchar *logname,
+                  GHashTable *packages)
 {
-  const gchar *checksum;
-  JsonObject *details;
-  GList *modules;
-  GList *l;
+  const gchar *name;
+  JsonObject *object;
+  gint i, j, length, count;
+  JsonNode *node;
+  JsonArray *names;
 
-  g_hash_table_remove_all (checksums);
+  g_hash_table_remove_all (packages);
 
-  /* Build a table mapping checksum to module for resources on this session */
-  modules = json_object_get_members (resources);
-  for (l = modules; l != NULL; l = g_list_next (l))
+  /* Build a table mapping checksum to package for resources on this session */
+  length = json_array_get_length (input);
+  for (i = 0; i < length; i++)
     {
-      details = json_object_get_object_member (resources, l->data);
-      if (details)
+      node = json_array_get_element (input, i);
+      if (JSON_NODE_HOLDS_OBJECT(node))
         {
-          if (cockpit_json_get_string (details, "checksum", NULL, &checksum) && checksum)
+          object = json_node_get_object (node);
+          node = json_object_get_member (object, "id");
+          if (JSON_NODE_HOLDS_ARRAY (node))
             {
-              g_debug ("%s: module %s has checksum %s", logname, (gchar *)l->data, checksum);
-              g_hash_table_insert (checksums, g_strdup (checksum), g_strdup (l->data));
+              names = json_node_get_array (node);
+              count = json_array_get_length (names);
+              for (j = 0; j < count; j++)
+                {
+                  node = json_array_get_element (names, j);
+                  if (JSON_NODE_HOLDS_VALUE (node) &&
+                      json_node_get_value_type (node) == G_TYPE_STRING)
+                    {
+                      name = json_node_get_string (node);
+                      g_hash_table_add (packages, g_strdup (name));
+                      g_debug ("%s: package %s", logname, name);
+                    }
+                }
             }
         }
     }
-  g_list_free (modules);
 }
 
 static gboolean
@@ -564,9 +577,9 @@ process_close (CockpitWebService *self,
 {
   JsonNode *node;
 
-  node = json_object_get_member (options, "resources");
-  if (node != NULL && json_node_get_node_type (node) == JSON_NODE_OBJECT)
-    process_resources (json_node_get_object (node), session->host, session->checksums);
+  node = json_object_get_member (options, "packages");
+  if (node != NULL && json_node_get_node_type (node) == JSON_NODE_ARRAY)
+    process_packages (json_node_get_array (node), session->host, session->packages);
 
   cockpit_session_remove_channel (&self->sessions, session, channel);
   return TRUE;
@@ -850,6 +863,9 @@ lookup_or_open_session_for_host (CockpitWebService *self,
   CockpitSession *session = NULL;
   CockpitTransport *transport;
 
+  if (host == NULL || g_strcmp0 (host, "") == 0)
+    host = "localhost";
+
   if (!private)
     session = cockpit_session_by_host (&self->sessions, host);
   if (!session)
@@ -860,9 +876,6 @@ lookup_or_open_session_for_host (CockpitWebService *self,
           if (cockpit_ws_specific_ssh_port != 0)
             host = "127.0.0.1";
         }
-
-      if (host == NULL || g_strcmp0 (host, "") == 0)
-        host = "localhost";
 
       transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", host,
@@ -1579,93 +1592,114 @@ resource_response_new (CockpitWebService *self,
   return rr;
 }
 
-static gboolean
-resource_respond_normal (CockpitWebService *self,
-                         CockpitWebResponse *response,
-                         const gchar *remaining_path)
+static gchar *
+pop_package_name (const gchar *path,
+                  const gchar **remaining_path)
 {
-  ResourceResponse *rr;
-  CockpitSession *session;
-  gboolean ret = FALSE;
-  GBytes *command;
-  gchar **parts;
+  /*
+   * Parses packages in this form:
+   *
+   * /package/path/to/file.ext
+   *
+   * For the above will return 'package', and set remaining_path
+   * to point to /path/to/file.ext
+   */
 
-  parts = g_strsplit (remaining_path, "/", 3);
-  if (!parts[0] || !parts[1] || !parts[2])
+  const gchar *beg = NULL;
+
+  if (path && path[0] == '/')
     {
-      g_debug ("invalid resource path: %s", remaining_path);
-      goto out;
+      beg = path + 1;
+      path = strchr (beg, '/');
     }
 
-  session = lookup_or_open_session_for_host (self, parts[0], NULL, self->creds, FALSE);
-  rr = resource_response_new (self, session, response);
+  if (!beg)
+    return NULL;
 
-  command = build_control ("command", "open",
-                           "channel", rr->channel,
-                           "payload", "resource1",
-                           "module", parts[1],
-                           "path", parts[2],
-                           NULL);
+  if (remaining_path)
+    *remaining_path = path;
 
-  cockpit_transport_send (rr->transport, NULL, command);
-  g_bytes_unref (command);
-  ret = TRUE;
-
-out:
-  g_strfreev (parts);
-  return ret;
+  if (path)
+    return g_strndup (beg, path - beg);
+  else
+    return g_strdup (beg);
 }
 
-
 static gboolean
-resource_respond_checksum (CockpitWebService *self,
-                           CockpitWebResponse *response,
-                           const gchar *remaining_path)
+resource_respond (CockpitWebService *self,
+                  CockpitWebResponse *response,
+                  const gchar *remaining_path)
 {
   ResourceResponse *rr;
-  CockpitSession *session;
-  CockpitSession *found = NULL;
-  const gchar *module = NULL;
+  CockpitSession *session = NULL;
+  const gchar *host = NULL;
+  const gchar *name = NULL;
+  const gchar *path = NULL;
+  gchar *package = NULL;
   gboolean ret = FALSE;
   GHashTableIter iter;
   GBytes *command;
-  gchar **parts;
+  gchar **parts = NULL;
 
-  parts = g_strsplit (remaining_path, "/", 2);
-  if (!parts[0] || !parts[1])
+  package = pop_package_name (remaining_path, &path);
+  if (!package || !path)
     {
-      g_debug ("invalid checksum path: %s", remaining_path);
+      g_debug ("invalid path: %s", remaining_path);
       goto out;
     }
 
-  g_hash_table_iter_init (&iter, self->sessions.by_transport);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
+  /* Split a package@host name */
+  parts = g_strsplit (package, "@", 2);
+  name = parts[0];
+  host = parts[1];
+
+  /* No host specified? Always ask local first, faster */
+  if (host == NULL)
     {
-      if (session->checksums)
+      session = g_hash_table_lookup (self->sessions.by_host, "localhost");
+      if (session && session->packages)
         {
-          module = g_hash_table_lookup (session->checksums, parts[0]);
-          if (module != NULL)
+          if (g_hash_table_lookup (session->packages, name))
+            host = session->host;
+        }
+    }
+
+  /* Now look through all the other hosts */
+  if (host == NULL)
+    {
+      g_hash_table_iter_init (&iter, self->sessions.by_transport);
+      while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
+        {
+          if (session->packages)
             {
-              found = session;
-              break;
+              if (g_hash_table_lookup (session->packages, name))
+                {
+                  host = session->host;
+                  break;
+                }
             }
         }
     }
 
-  if (!found)
+  /* Default to local if we can't find it */
+  if (host == NULL)
     {
-      g_debug ("no session found for resource checksum: %s", parts[0]);
-      goto out;
+      host = "localhost";
+      session = NULL;
     }
 
+  if (!session)
+    session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
+
   rr = resource_response_new (self, session, response);
-  rr->cache_forever = TRUE;
+  rr->cache_forever = (name[0] == '$');
 
   command = build_control ("command", "open",
                            "channel", rr->channel,
                            "payload", "resource1",
-                           "module", module,
-                           "path", parts[1],
+                           "host", host,
+                           "package", name,
+                           "path", path,
                            NULL);
 
   cockpit_transport_send (rr->transport, NULL, command);
@@ -1674,6 +1708,7 @@ resource_respond_checksum (CockpitWebService *self,
 
 out:
   g_strfreev (parts);
+  g_free (package);
   return ret;
 }
 
@@ -1686,10 +1721,8 @@ cockpit_web_service_resource (CockpitWebService *self,
 
   path = cockpit_web_response_get_path (response);
 
-  if (g_str_has_prefix (path, "/res/"))
-    handled = resource_respond_normal (self, response, path + 5);
-  if (g_str_has_prefix (path, "/cache/"))
-    handled = resource_respond_checksum (self, response, path + 7);
+  if (g_str_has_prefix (path, "/cockpit/"))
+    handled = resource_respond (self, response, path + 8);
 
   if (!handled)
     cockpit_web_response_error (response, 404, NULL, NULL);
@@ -1701,23 +1734,23 @@ typedef struct {
   CockpitTransport *transport;
   gulong closed_sig;
   gulong control_sig;
-  JsonObject *modules;
-  GHashTable *checksums;
-} ListModules;
+  JsonArray *resources;
+  GHashTable *packages;
+} ListPackages;
 
 static void
-list_modules_free (gpointer data)
+list_packages_free (gpointer data)
 {
-  ListModules *lm = data;
+  ListPackages *lm = data;
   g_free (lm->logname);
   g_free (lm->channel);
 
   g_signal_handler_disconnect (lm->transport, lm->closed_sig);
   g_signal_handler_disconnect (lm->transport, lm->control_sig);
-  g_hash_table_unref (lm->checksums);
+  g_hash_table_unref (lm->packages);
   g_object_unref (lm->transport);
-  if (lm->modules)
-    json_object_unref (lm->modules);
+  if (lm->resources)
+    json_array_unref (lm->resources);
   g_free (lm);
 }
 
@@ -1730,7 +1763,7 @@ on_listing_control (CockpitTransport *transport,
 {
   GSimpleAsyncResult *async = user_data;
   const gchar *problem = NULL;
-  ListModules *lm;
+  ListPackages *lm;
 
   lm = g_simple_async_result_get_op_res_gpointer (async);
 
@@ -1750,15 +1783,18 @@ on_listing_control (CockpitTransport *transport,
     }
   if (problem && problem[0])
     {
-      g_message ("%s: couldn't list cockpit modules: %s", lm->logname, problem);
+      g_message ("%s: couldn't list cockpit packages: %s", lm->logname, problem);
     }
   else
     {
-      lm->modules = json_object_get_object_member (options, "resources");
-      if (lm->modules)
+      if (json_object_has_member (options, "packages"))
         {
-          json_object_ref (lm->modules);
-          process_resources (lm->modules, lm->logname, lm->checksums);
+          lm->resources = json_object_get_array_member (options, "packages");
+          if (lm->resources)
+            {
+              json_array_ref (lm->resources);
+              process_packages (lm->resources, lm->logname, lm->packages);
+            }
         }
     }
 
@@ -1773,39 +1809,39 @@ on_listing_closed (CockpitTransport *transport,
                    gpointer user_data)
 {
   GSimpleAsyncResult *async = user_data;
-  ListModules *lm;
+  ListPackages *lm;
 
   lm = g_simple_async_result_get_op_res_gpointer (async);
-  g_message ("%s: transport closed while listing cockpit modules: %s", lm->logname, problem);
+  g_message ("%s: transport closed while listing cockpit packages: %s", lm->logname, problem);
 
   g_simple_async_result_complete (async);
   g_object_unref (async);
 }
 
 void
-cockpit_web_service_modules (CockpitWebService *self,
-                             const gchar *host,
-                             GAsyncReadyCallback callback,
-                             gpointer user_data)
+cockpit_web_service_packages (CockpitWebService *self,
+                              const gchar *host,
+                              GAsyncReadyCallback callback,
+                              gpointer user_data)
 {
   GSimpleAsyncResult *async;
   CockpitSession *session;
-  ListModules *lm;
+  ListPackages *lm;
   GBytes *command;
 
   async = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                     cockpit_web_service_modules);
+                                     cockpit_web_service_packages);
 
   session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
 
-  lm = g_new0 (ListModules, 1);
+  lm = g_new0 (ListPackages, 1);
   lm->logname = g_strdup (host);
   lm->transport = g_object_ref (session->transport);
-  lm->checksums = g_hash_table_ref (session->checksums);
+  lm->packages = g_hash_table_ref (session->packages);
   lm->channel = g_strdup_printf ("0:%d", self->next_resource_id++);
   lm->closed_sig = g_signal_connect (lm->transport, "closed", G_CALLBACK (on_listing_closed), async);
   lm->control_sig = g_signal_connect (lm->transport, "control", G_CALLBACK (on_listing_control), async);
-  g_simple_async_result_set_op_res_gpointer (async, lm, list_modules_free);
+  g_simple_async_result_set_op_res_gpointer (async, lm, list_packages_free);
 
   command = build_control ("command", "open",
                            "channel", lm->channel,
@@ -1815,18 +1851,18 @@ cockpit_web_service_modules (CockpitWebService *self,
   g_bytes_unref (command);
 }
 
-JsonObject *
-cockpit_web_service_modules_finish (CockpitWebService *self,
-                                    GAsyncResult *result)
+JsonArray *
+cockpit_web_service_packages_finish (CockpitWebService *self,
+                                     GAsyncResult *result)
 {
-  ListModules *lm;
+  ListPackages *lm;
 
   g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
-                                                        cockpit_web_service_modules), NULL);
+                                                        cockpit_web_service_packages), NULL);
 
   lm = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
-  if (lm->modules)
-    return json_object_ref (lm->modules);
+  if (lm->resources)
+    return json_array_ref (lm->resources);
 
   return NULL;
 }

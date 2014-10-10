@@ -131,16 +131,13 @@ PageDashboard.prototype = {
                             dbus_iface: configured_machines[i]
                           };
 
-            /* TODO: This needs to be reworked once real module loading lands */
-            var prefix = cockpit.environment.localhost.modules.shell.prefix;
-
             var btn;
             var table =
                 $('<table/>', { style: "width:100%" }).append(
                     $('<tr/>').append(
                         $('<td/>', { 'style': "width:64px;height:64px;vertical-align:top" }).append(
                             $('<img/>', { 'class': "cockpit-avatar",
-                                          'src': prefix + "/images/server-large.png",
+                                          'src': "/cockpit/@@shell@@/images/server-large.png",
                                           'Width': "64px",
                                           'style': "border-radius:5px"
                                         })),

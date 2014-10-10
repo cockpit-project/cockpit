@@ -560,9 +560,6 @@ PageStorage.prototype = {
                 desc = size_str + " " + C_("storage", "Drive");
         }
 
-        /* TODO: This needs to be reworked once real module loading lands */
-        var prefix = cockpit.environment.localhost.modules.shell.prefix;
-
         var tr =
             $('<tr>', { id: "storage-drive-" + id,
                         Sort: sort_key,
@@ -576,7 +573,7 @@ PageStorage.prototype = {
             }).
             append(
                 $('<td style="width: 48px">').append(
-                    $('<img>', { src: prefix + "/images/storage-disk.png" })),
+                    $('<img>', { src: "/cockpit/@@shell@@/images/storage-disk.png" })),
                 $('<td>').append(
                     $('<span>').text(drive.Name),
                     $('<br>'),

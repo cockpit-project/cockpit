@@ -99,9 +99,9 @@ void                cockpit_channel_close_int_option  (CockpitChannel *self,
                                                        const gchar *name,
                                                        gint64 value);
 
-void                cockpit_channel_close_obj_option  (CockpitChannel *self,
+void                cockpit_channel_close_json_option (CockpitChannel *self,
                                                        const gchar *name,
-                                                       JsonObject *object);
+                                                       JsonNode *node);
 
 G_END_DECLS
 

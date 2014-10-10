@@ -59,13 +59,13 @@ CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
 
 gboolean             cockpit_web_service_get_idling  (CockpitWebService *self);
 
-void                 cockpit_web_service_modules        (CockpitWebService *self,
-                                                         const gchar *host,
-                                                         GAsyncReadyCallback callback,
-                                                         gpointer user_data);
+void                 cockpit_web_service_packages        (CockpitWebService *self,
+                                                          const gchar *host,
+                                                          GAsyncReadyCallback callback,
+                                                          gpointer user_data);
 
-JsonObject *         cockpit_web_service_modules_finish (CockpitWebService *self,
-                                                         GAsyncResult *result);
+JsonArray *          cockpit_web_service_packages_finish (CockpitWebService *self,
+                                                          GAsyncResult *result);
 
 
 G_END_DECLS

@@ -613,19 +613,29 @@ cockpit_channel_close_int_option (CockpitChannel *self,
   json_object_set_int_member (self->priv->close_options, name, value);
 }
 
+/**
+ * cockpit_channel_close_json_option:
+ * @self: a channel
+ * @name: the option name
+ * @value: the value to add
+ *
+ * Add a JSON value to the close message for this channel. This must
+ * be called befor ethe cockpit_channel_close base class
+ * implementation.
+ */
 void
-cockpit_channel_close_obj_option (CockpitChannel *self,
-                                  const gchar *name,
-                                  JsonObject *object)
+cockpit_channel_close_json_option (CockpitChannel *self,
+                                   const gchar *name,
+                                   JsonNode *node)
 {
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
   g_return_if_fail (name != NULL);
-  g_return_if_fail (object != NULL);
+  g_return_if_fail (node != NULL);
 
   if (!self->priv->close_options)
     self->priv->close_options = json_object_new ();
-  json_object_set_object_member (self->priv->close_options, name,
-                                 json_object_ref (object));
+  json_object_set_member (self->priv->close_options, name,
+                          json_node_copy (node));
 }
 
 /**

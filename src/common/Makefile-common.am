@@ -45,6 +45,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitpipe.h \
 	src/common/cockpitpipetransport.c \
 	src/common/cockpitpipetransport.h \
+	src/common/cockpittemplate.c \
+	src/common/cockpittemplate.h \
 	src/common/cockpittest.c \
 	src/common/cockpittest.h \
 	src/common/cockpittransport.c \
@@ -74,6 +76,7 @@ COCKPIT_CHECKS = \
 	test-pipe \
 	test-transport \
 	test-unixsignal \
+	test-template \
 	$(NULL)
 
 test_hex_CFLAGS = $(libcockpit_common_a_CFLAGS)
@@ -87,6 +90,10 @@ test_json_LDADD = $(libcockpit_common_a_LIBS)
 test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_pipe_SOURCES = src/common/test-pipe.c
 test_pipe_LDADD = $(libcockpit_common_a_LIBS)
+
+test_template_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_template_SOURCES = src/common/test-template.c
+test_template_LDADD = $(libcockpit_common_a_LIBS)
 
 test_transport_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_transport_SOURCES = src/common/test-transport.c

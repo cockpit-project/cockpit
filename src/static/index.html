@@ -4,8 +4,6 @@
     <title>Cockpit starting...</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/static/patternfly.x1.css" rel="stylesheet">
-    <script src="/static/jquery-min.v2.1.0.js"></script>
-    <script src="/static/bootstrap-with-select.v3.0.3.js"></script>
     <style>
         /* Login page specific overrides */
         .login-pf {
@@ -42,24 +40,36 @@
         var cockpit = { };
         var phantom_checkpoint = phantom_checkpoint || function () { };
 
-        (function($, cockpit) {
+        /* Login page does not use jQuery */
+
+        (function(cockpit) {
 
             /* Filled in by cockpit-ws handler */
             var initial_environment = cockpit_environment_info;
 
+            function id(name) {
+                return document.getElementById(name);
+            }
+
             function fatal(msg) {
-                console.warn("fatal:", msg);
-                $("#login").hide();
-                $(".login-details").hide();
-                $(".login-fatal").show();
-                $("#login-fatal-message").text(msg);
+                if (window.console)
+                    console.warn("fatal:", msg);
+
+                id("login").style.display = 'none';
+                id("login-details").style.display = 'none';
+                id("login-fatal").style.display = 'block';
+
+                var el = id("login-fatal-message");
+                el.innerHTML = "";
+                el.appendChild(document.createTextNode(msg));
             }
 
             function requisites() {
                 return ("WebSocket" in window || "MozWebSocket" in window) &&
                        ("XMLHttpRequest" in window) &&
                        ("localStorage" in window) &&
-                       ("sessionStorage" in window);
+                       ("sessionStorage" in window) &&
+                       ("JSON" in window);
             }
 
             function trim(s) {
@@ -67,6 +77,8 @@
             }
 
             function boot() {
+                window.onload = null;
+
                 if (!requisites()) {
                     fatal("This web browser is too old to run Cockpit");
                     return;
@@ -88,47 +100,63 @@
             }
 
             function auto_login() {
-                $.ajax({ url: "/login", dataType: "json", type: "GET" }).
-                    done(function(environment) {
-                        shell(environment);
-                        phantom_checkpoint();
-                    }).
-                    fail(function(xhr, reason) {
-                        if (xhr.status != 401)
-                            fatal(xhr.statusText);
-                        else
-                            show_login();
-                    });
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "/login", true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState != 4) {
+                        return;
+                    } else if (xhr.status == 200) {
+                        shell(JSON.parse(xhr.responseText));
+                    } else if (xhr.status == 401) {
+                        show_login();
+                    } else if (xhr.statusText) {
+                        fatal(xhr.statusText);
+                    } else {
+                        fatal(xhr.status + " error");
+                    }
+                };
+                xhr.send();
+            }
 
+            function login_failure(msg) {
+                var el = id("login-error-message");
+                if (msg) {
+                    el.style.display = 'block';
+                    el.innerHTML = msg;
+                } else {
+                    el.style.display = 'none';
+                    el.innerHTML = '';
+                }
             }
 
             function show_login() {
                 /* Show the login screen */
-                $("title").text(initial_environment.hostname);
-                $("#server-name").append($("<b>").text(initial_environment.hostname));
-                $("#login").css("visibility", "visible");
-                $("#login-user-input").focus();
-                $("#login-user-input").on("keydown", function (e) {
-                    $("#login-error-message").hide();
+                document.title = initial_environment.hostname;
+                var b = document.createElement("b");
+                b.appendChild(document.createTextNode(initial_environment.hostname));
+                id("server-name").appendChild(b);
+                id("login").style.visibility = 'visible';
+                id("login-user-input").focus();
+                id("login-user-input").addEventListener("keydown", function(e) {
+                    login_failure(null);
                     if (e.which == 13)
-                        $("#login-password-input").focus();
-                });
+                        id("login-password-input").focus();
+                }, false);
 
                 function call_login() {
-                    var user = trim($("#login-user-input").val());
+                    var user = trim(id("login-user-input").value);
                     if (user === "")
-                        $("#login-error-message").show().text("User name cannot be empty");
+                        login_failure("User name cannot be empty");
                     else
-                        login(user, $("#login-password-input").val());
+                        login(user, id("login-password-input").value);
                 }
-
-                $("#login-password-input").on("keydown", function (e) {
-                    $("#login-error-message").hide();
+                id("login-password-input").addEventListener("keydown", function(e) {
+                    login_failure(null);
                     if (e.which == 13)
                         call_login();
                 });
-                $("#login-button").on("click", function() {
-                    $("#login-error-message").hide();
+                id("login-button").addEventListener("click", function(e) {
+                    login_failure(null);
                     call_login();
                 });
                 phantom_checkpoint();
@@ -139,53 +167,53 @@
             }
 
             function login(user, password) {
-                $("#login-button").prop('disabled', true);
-                $("#login-spinner").show();
-                var options = {
-                    url: "/login",
-                    dataType: "json",
-                    headers: { "Authorization": "Basic " + btoa(utf8(user + ":" + password)) },
-                    type: "GET",
-                    data: ""
+                id("login-button").setAttribute('disabled', "true");
+                id("login-spinner").style.display = 'block';
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "/login", true);
+                xhr.setRequestHeader("Authorization", "Basic " + btoa(utf8(user + ":" + password)));
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState != 4) {
+                        return;
+                    } else if (xhr.status == 200) {
+                        shell(JSON.parse(xhr.responseText));
+                    } else if (xhr.status == 401) {
+                        if (window.console)
+                            console.log(xhr.statusText);
+                        login_failure("Wrong user name or password");
+                    } else if (xhr.status == 403) {
+                        if (window.console)
+                            console.log(xhr.statusText);
+                        login_failure("Permission denied");
+                    } else if (xhr.statusText) {
+                        fatal(xhr.statusText);
+                    } else {
+                        fatal(xhr.status + " error");
+                    }
+                    phantom_checkpoint();
+                    id("login-button").removeAttribute('disabled');
+                    id("login-spinner").style.display = 'none';
                 };
-                $.ajax(options).
-                    done(function(environment) {
-                        shell(environment);
-                        phantom_checkpoint();
-                    }).
-                    fail(function(xhr, reason) {
-                        if (xhr.status == 401) {
-                            console.log(xhr.statusText);
-                            $("#login-error-message").show().text("Wrong username or password");
-                        } else if (xhr.status == 403) {
-                            console.log(xhr.statusText);
-                            $("#login-error-message").show().text("Permission denied");
-                        } else {
-                            fatal(xhr.status + " " + xhr.statusText);
-                        }
-                        phantom_checkpoint();
-                        $("#login-button").prop('disabled', false);
-                        $("#login-spinner").hide();
-                    });
+                xhr.send();
             }
 
             function shell(environment) {
-                var module = null;
-                if (environment.localhost && environment.localhost.modules)
-                    module = environment.localhost.modules["shell"];
-                if (!module || !module.manifest) {
+                var package = null;
+                if (environment.localhost && environment.localhost.packages)
+                    package = environment.localhost.packages["shell"];
+                if (!package || !package.manifest) {
                     fatal("Cockpit not available: shell not installed correctly");
                     return;
                 }
-                if (module.checksum)
-                    module.prefix = "/cache/" + module.checksum;
+                if (package.checksum)
+                    package.prefix = "/cache/" + package.checksum;
                 else
-                    module.prefix = "/res/localhost/shell";
+                    package.prefix = "/res/localhost/shell";
 
                 function qualify(path) {
                     if (path.indexOf('/') === 0)
                         return path;
-                    return module.prefix + '/' + path;
+                    return package.prefix + '/' + path;
                 }
 
                 /* TODO: Compatibility ... rework these later */
@@ -195,33 +223,61 @@
                 cockpit.environment = environment;
                 cockpit.connection_config = environment;
 
-                /* Simplistic module loader good enough for shell */
-                if (module.manifest.css) {
-                    $('head').append($('<link rel="stylesheet" type="text/css" />')
-                                        .attr("href", qualify(module.manifest.css)));
+                /* Simplistic package loader good enough for shell */
+                if (package.manifest.css) {
+                    var css = document.createElement("link");
+                    css.setAttribute("rel", "stylesheet");
+                    css.setAttribute("type", "text/css");
+                    css.setAttribute("href", qualify(package.manifest.css));
+                    document.head.appendChild(css);
                 }
 
-                /* Load all the html */
-                $.ajax({
-                    url: qualify(module.manifest.html),
-                    dataType: "html",
-                }).done(function(content) {
-                    content = content.replace(/@@module@@/g, module.prefix);
-                    $("body")
-                        .removeClass()
-                        .html(content);
-                    $.each(module.manifest.scripts, function(i, file) {
-                        var script = document.createElement("script");
-                        script.async = false;
-                        script.src = qualify(file);
-                        document.head.appendChild(script);
-                    });
-                    phantom_checkpoint();
-                });
-         }
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", qualify(package.manifest.html), true);
+                xhr.onreadystatechange = function(e) {
+                    if (xhr.readyState != 4) {
+                        return;
+                    } else if (xhr.status == 200) {
+                        var content = xhr.responseText;
+                        content = content.replace(/@@package@@/g, package.prefix);
+                        document.body.removeAttribute("class");
+                        document.body.innerHTML = content;
 
-         $(boot);
-        })(jQuery, cockpit);
+                        var i;
+                        var scripts = package.manifest.scripts;
+                        var length = scripts ? scripts.length : 0;
+
+                        var outstanding = length;
+                        function script_loaded() {
+                            outstanding--;
+                            if (outstanding === 0) {
+                                /* Emit another load event for any handlers */
+                                var ev = document.createEvent('Event');
+                                ev.initEvent('load', false, false);
+                                window.dispatchEvent(ev);
+                            }
+                        }
+
+                        for (i = 0; i < length; i++) {
+                            var script = document.createElement("script");
+                            script.async = false;
+                            script.src = qualify(scripts[i]);
+                            script.onload = script_loaded;
+                            document.head.appendChild(script);
+                        }
+                    } else {
+                        if (window.console)
+                            console.log(xhr.statusText);
+                        fatal("Cockpit not available: cannot load shell");
+                    }
+
+                    phantom_checkpoint();
+                };
+                xhr.send();
+            }
+
+            window.onload = boot;
+        })(cockpit);
     </script>
   </head>
   <body class="login-pf">
@@ -267,7 +323,7 @@
           </div>
         </div><!--/.col-*-->
 
-        <div class="col-sm-5 col-md-6 col-lg-7 details login-details">
+        <div class="col-sm-5 col-md-6 col-lg-7 details" id="login-details">
           <p>
             <label id="server-name" class="control-label">Server: </label>
             <div class="message-icon">
@@ -280,7 +336,7 @@
           </p>
         </div><!--/.col-*-->
 
-        <div class="login-fatal" style="display: none;">
+        <div id="login-fatal" style="display: none;">
           <div class="message-icon">
             <span class="pficon-layered">
               <span class="pficon pficon-error-octagon"></span>

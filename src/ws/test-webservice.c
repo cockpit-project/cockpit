@@ -1242,7 +1242,7 @@ test_resource_no_path (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  /* Missing path after module */
+  /* Missing path after package */
   response = cockpit_web_response_new (tc->io, "/res/localhost/another", NULL);
 
   cockpit_web_service_resource (tc->service, response);
@@ -1301,22 +1301,22 @@ test_resource_failure (TestResourceCase *tc,
 }
 
 static void
-test_resource_modules (TestResourceCase *tc,
-                       gconstpointer data)
+test_resource_packages (TestResourceCase *tc,
+                        gconstpointer data)
 {
   GAsyncResult *result = NULL;
-  JsonObject *modules;
+  JsonObject *packages;
 
-  cockpit_web_service_modules (tc->service, "localhost", on_ready_get_result, &result);
+  cockpit_web_service_packages (tc->service, "localhost", on_ready_get_result, &result);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  modules = cockpit_web_service_modules_finish (tc->service, result);
+  packages = cockpit_web_service_packages_finish (tc->service, result);
   g_object_unref (result);
 
-  g_assert (modules != NULL);
-  cockpit_assert_json_eq (modules,
+  g_assert (packages != NULL);
+  cockpit_assert_json_eq (packages,
                           "{"
                           " \"test\": {"
                           "    \"checksum\": \"b0cb8eb96388a67047c60d48634172e72db50eaf\","
@@ -1325,33 +1325,33 @@ test_resource_modules (TestResourceCase *tc,
                           " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
                           "}");
 
-  json_object_unref (modules);
+  json_object_unref (packages);
 }
 
 static void
-test_resource_modules_failure (TestResourceCase *tc,
-                               gconstpointer data)
+test_resource_packages_failure (TestResourceCase *tc,
+                                gconstpointer data)
 {
   GAsyncResult *result = NULL;
-  JsonObject *modules;
+  JsonObject *packages;
   GPid pid;
 
-  cockpit_expect_message ("*: transport closed while listing cockpit modules: *");
+  cockpit_expect_message ("*: transport closed while listing cockpit packages: *");
 
   /* Now kill the agent */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert_cmpint (pid, >, 0);
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
 
-  cockpit_web_service_modules (tc->service, "localhost", on_ready_get_result, &result);
+  cockpit_web_service_packages (tc->service, "localhost", on_ready_get_result, &result);
 
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  modules = cockpit_web_service_modules_finish (tc->service, result);
+  packages = cockpit_web_service_packages_finish (tc->service, result);
   g_object_unref (result);
 
-  g_assert (modules == NULL);
+  g_assert (packages == NULL);
 }
 
 static void
@@ -1363,11 +1363,11 @@ test_resource_checksum (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  /* Do a module listing so that the web service knows the checksums for localhost */
-  cockpit_web_service_modules (tc->service, "localhost", on_ready_get_result, &result);
+  /* Do a package listing so that the web service knows the checksums for localhost */
+  cockpit_web_service_packages (tc->service, "localhost", on_ready_get_result, &result);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
-  json_object_unref (cockpit_web_service_modules_finish (tc->service, result));
+  json_object_unref (cockpit_web_service_packages_finish (tc->service, result));
   g_object_unref (result);
 
   response = cockpit_web_response_new (tc->io, "/cache/b0cb8eb96388a67047c60d48634172e72db50eaf/sub/file.ext", NULL);
@@ -1554,10 +1554,10 @@ main (int argc,
               setup_resource, test_resource_no_path, teardown_resource);
   g_test_add ("/web-service/resource/failure", TestResourceCase, NULL,
               setup_resource, test_resource_failure, teardown_resource);
-  g_test_add ("/web-service/resource/modules", TestResourceCase, NULL,
-              setup_resource, test_resource_modules, teardown_resource);
-  g_test_add ("/web-service/resource/modules-failure", TestResourceCase, NULL,
-              setup_resource, test_resource_modules_failure, teardown_resource);
+  g_test_add ("/web-service/resource/packages", TestResourceCase, NULL,
+              setup_resource, test_resource_packages, teardown_resource);
+  g_test_add ("/web-service/resource/packages-failure", TestResourceCase, NULL,
+              setup_resource, test_resource_packages_failure, teardown_resource);
   g_test_add ("/web-service/resource/checksum", TestResourceCase, NULL,
               setup_resource, test_resource_checksum, teardown_resource);
   g_test_add ("/web-service/resource/no-checksum", TestResourceCase, NULL,

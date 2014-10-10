@@ -131,8 +131,8 @@ PageDashboard.prototype = {
                             dbus_iface: configured_machines[i]
                           };
 
-            /* TODO: This needs to be reworked once real module loading lands */
-            var prefix = cockpit.environment.localhost.modules.shell.prefix;
+            /* TODO: This needs to be reworked once real package loading lands */
+            var prefix = cockpit.environment.localhost.packages.shell.prefix;
 
             var btn;
             var table =

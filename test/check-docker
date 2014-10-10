@@ -73,46 +73,32 @@ class TestDocker(MachineCase):
         m = self.machine
 
         # Make sure Docker isn't running and go to the containers page
-        # as "root".
+        # as "admin".
 
         m.execute("systemctl stop docker.service docker.socket")
-        b.default_user = "root"
         self.login_and_go("containers")
 
         # Docker isn't running, but we can start it.
-
         b.wait_visible("#containers-failure")
         b.wait_text("#containers-failure-message", "Docker is not installed or activated on the system")
         b.wait_visible("#containers-failure-start")
         b.click("#containers-failure-start")
-        b.wait_not_visible("#containers-failure")
-        b.wait_visible("#containers-containers")
 
-        # Stop it again from the outside and wait for the failure.
-        # This will be a semi-obscure internal error.  Retrying will
-        # give the real failure.
-
-        m.execute("systemctl stop docker.service docker.socket")
-        b.wait_visible("#containers-failure")
-        b.wait_visible("#containers-failure-retry")
-        b.click("#containers-failure-retry")
-        b.wait_text("#containers-failure-message", "Docker is not installed or activated on the system")
-        b.wait_visible("#containers-failure-start")
-        b.click("#containers-failure-start")
-        b.wait_not_visible("#containers-failure")
-        b.wait_visible("#containers-containers")
-
-        # Login as "admin", who can't access the socket.
-
-        self.allow_restart_journal_messages()
-        b.relogin("containers", "admin")
+        # However, we can't access the socket
         b.wait_visible("#containers-failure")
         b.wait_text("#containers-failure-message", "Not authorized to access Docker on this system")
         b.wait_visible("#containers-failure-retry")
 
         # Give "admin" access via the wheel group and try again
-
         m.execute("chown root:wheel /run/docker.sock")
+        b.click("#containers-failure-retry")
+        b.wait_not_visible("#containers-failure")
+        b.wait_visible("#containers-containers")
+
+        # Stop the daemon, wait for the failure, and reconnect.
+        m.execute("systemctl stop docker.service")
+        b.wait_visible("#containers-failure")
+        b.wait_visible("#containers-failure-retry")
         b.click("#containers-failure-retry")
         b.wait_not_visible("#containers-failure")
         b.wait_visible("#containers-containers")

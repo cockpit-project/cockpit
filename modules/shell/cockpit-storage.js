@@ -1235,7 +1235,6 @@ PageStorageDetail.prototype = {
             cockpit.action_btn(function (op) { self.action(op); },
                                 [ { title: _("Start"),           action: 'start' },
                                   { title: _("Stop"),            action: 'stop' },
-                                  { title: _("Format"),          action: 'format' },
                                   { title: _("Start Scrubbing"), action: 'start-scrub' },
                                   { title: _("Stop Scrubbing"),  action: 'stop-scrub' },
                                   { title: _("Delete"),          action: 'delete' }
@@ -1261,7 +1260,7 @@ PageStorageDetail.prototype = {
 
         $("#raid_detail_bitmap").append(this.bitmap_onoff);
 
-        $("#drive_format").on('click', function () {
+        $("#storage_format_disk").on('click', function () {
             self.action('format');
         });
 
@@ -1272,10 +1271,6 @@ PageStorageDetail.prototype = {
                                       ]);
         $('#vg_action_btn').html(btn);
         $("#vg-pv-add").on('click', $.proxy(this, "add_physical_volume"));
-
-        $("#block_format").on('click', function () {
-            self.action('format');
-        });
     },
 
     enter: function() {
@@ -1366,6 +1361,7 @@ PageStorageDetail.prototype = {
         $("#block_detail_device").html(val);
         val = block.Size > 0 ? fmt_size_long(block.Size) : C_("storage", "No Media Inserted");
         $("#block_detail_capacity").html(val);
+        $('#storage_format_disk').show();
     },
 
     _updateContent: function (block_or_vg) {
@@ -1795,10 +1791,7 @@ PageStorageDetail.prototype = {
         }
         $("#disk_detail_device_file").html(val);
 
-        if (drive.Classification === "optical")
-            $('#drive_format').hide();
-        else
-            $('#drive_format').show();
+        $('#storage_format_disk').toggle(drive.Classification !== "optical");
     },
 
     _updateMDRaid: function() {
@@ -1953,6 +1946,8 @@ PageStorageDetail.prototype = {
                                                 'on': { 'click': $.proxy(this, "raid_disk_remove", block) }
                                               }).text(_("Remove")).css('visibility', raid.Level === "raid0" ? 'hidden' : 'visible'))))));
         }
+
+        $('#storage_format_disk').show();
     },
 
     _updateVG: function() {
@@ -2019,6 +2014,7 @@ PageStorageDetail.prototype = {
                                                    physical_action_spec))))));
         }
 
+        $('#storage_format_disk').hide();
         this._updateContent (vg);
     },
 

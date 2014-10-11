@@ -280,9 +280,6 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <span translatable="yes">Drive</span>
-              <button class="btn btn-default" style="float:right" id="drive_format" translatable="yes">
-                Format
-              </button>
             </div>
             <div class="panel-body">
               <table class="cockpit-info-table">
@@ -406,9 +403,6 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <span translatable="yes">Block Device</span>
-              <button class="btn btn-default" style="float:right" id="block_format" translatable="yes">
-                Format
-              </button>
             </div>
             <table class="cockpit-info-table">
               <tr>
@@ -424,7 +418,12 @@
         </div>
 
         <div class="panel panel-default" id="storage_detail_content">
-          <div class="panel-heading" id="storage_detail_content_title"></div>
+          <div class="panel-heading">
+            <span id="storage_detail_content_title"></span>
+            <button class="btn btn-default" style="float:right" id="storage_format_disk" translatable="yes">
+              Format
+            </button>
+          </div>
           <ul class="list-group" id="storage_detail_partition_list">
           </ul>
         </div>

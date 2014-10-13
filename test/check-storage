@@ -226,11 +226,19 @@ class TestStorage(MachineCase):
         b.wait_popdown("storage_format_dialog")
         b.wait_in_text("#storage_detail_partition_list", "FIRST")
 
+        # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
+        self.content_action(1, "Format")
+        b.wait_popup("storage_format_dialog")
+        self.assertIn("display: none", b.attr("option[value='dos-extended']", "style"))
+        b.click("#storage_format_dialog button:contains(Cancel)")
+        b.wait_popdown("storage_format_dialog")
+
         b.wait_in_text("#storage_detail_partition_list", "Free Space for Primary Partitions")
 
         # Create a extended partition to fill the rest of the disk
         self.content_single_action(2, "Create Partition")
         b.wait_popup("storage_format_dialog")
+        self.assertIn("display: inline", b.attr("option[value='dos-extended']", "style"))
         b.set_val("#format-size", "");
         b.set_val("#format-type", "dos-extended")
         b.wait_not_visible("#format-name")
@@ -242,6 +250,14 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_detail_partition_list", "Extended Partition")
 
         b.wait_not_in_text("#storage_detail_partition_list", "Free Space for Primary Partitions")
+
+        # Open dialog for creating logical partitions and check that
+        # "dos-extended" is not offered.
+        self.content_single_action(3, "Create Partition")
+        b.wait_popup("storage_format_dialog")
+        self.assertIn("display: none", b.attr("option[value='dos-extended']", "style"))
+        b.click("#storage_format_dialog button:contains(Cancel)")
+        b.wait_popdown("storage_format_dialog")
 
     def testLuks(self):
         m = self.machine

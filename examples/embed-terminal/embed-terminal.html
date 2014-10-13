@@ -1,0 +1,32 @@
+<html>
+<head>
+    <title>Example: Cockpit Terminal Embedded</title>
+</head>
+<body>
+    <h2>Example: Cockpit Terminal Embedded</h2>
+
+    <p>This example brings a web-based terminal from the server into another web
+        based GUI. It uses simple embedding and lets the terminal component
+        establish a connection to the server directly.</p>
+
+    <p>If you have kerberos based SSO configured, or if the user has already logged
+        into cockpit, then you'll see the terminal immediately without additional
+        authentication prompts.</p>
+
+    <p>Server: <input type="text" id="address" value="127.0.0.1"> <button id="button">Go</button></p>
+
+    <iframe width="700" height="400" style="display:none" id="terminal" src=""></iframe>
+
+    <script>
+        var button = document.getElementById("button");
+        button.onclick = function() {
+            var address = document.getElementById("address");
+            var iframe = document.getElementById("terminal");
+            iframe.setAttribute("src", "https://" + address.value + ":9090/cockpit/terminal/terminal.html");
+            iframe.setAttribute("style", "display: block;");
+            return false;
+        };
+    </script>
+</body>
+</html>
+

@@ -30,7 +30,6 @@ shell_js_PARTS = \
 	pkg/shell/cockpit-accounts.js \
 	pkg/shell/cockpit-docker.js \
 	pkg/shell/cockpit-internal.js \
-	pkg/shell/cockpit-init.js \
 	$(NULL)
 
 shell.js: $(shell_js_PARTS)

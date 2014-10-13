@@ -154,9 +154,7 @@ main (int argc,
 
   g_signal_connect (server, "handle-resource::/static/",
                     G_CALLBACK (cockpit_handler_static), &data);
-  g_signal_connect (server, "handle-resource::/cache/",
-                    G_CALLBACK (cockpit_handler_resource), &data);
-  g_signal_connect (server, "handle-resource::/res/",
+  g_signal_connect (server, "handle-resource::/cockpit/",
                     G_CALLBACK (cockpit_handler_resource), &data);
 
   /* Files that cannot be cache-forever, because of well known names */

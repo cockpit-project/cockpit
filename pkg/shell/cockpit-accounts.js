@@ -215,9 +215,6 @@ PageAccounts.prototype = {
                      });
         }
 
-        /* TODO: This needs to be reworked once real package loading lands */
-        var prefix = cockpit.environment.localhost.packages.shell.prefix;
-
         list.empty();
         for (i = 0; i < this.accounts.length; i++) {
             acc = this.accounts[i];
@@ -225,7 +222,7 @@ PageAccounts.prototype = {
                 $('<img/>', { 'class': "cockpit-account-pic",
                               'width': "48",
                               'height': "48",
-                              'src': prefix + "/images/avatar-default-48.png" });
+                              'src': "/cockpit/@@shell@@/images/avatar-default-48.png" });
             var div =
                 $('<div/>', { 'class': "cockpit-account" }).append(
                     img,
@@ -416,15 +413,12 @@ PageAccount.prototype = {
                                            "com.redhat.Cockpit.Accounts");
             this.sys_roles = manager.Roles || [ ];
 
-            /* TODO: This needs to be reworked once real package loading lands */
-            var prefix = cockpit.environment.localhost.packages.shell.prefix;
-
             this.account.call('GetIconDataURL',
                               function (error, result) {
                                   if (result)
                                       $('#account-pic').attr('src', result);
                               });
-            $('#account-pic').attr('src', prefix + "/images/avatar-default-128.png");
+            $('#account-pic').attr('src', "/cockpit/@@shell@@/images/avatar-default-128.png");
             if (!this.real_name_dirty)
                 $('#account-real-name').val(this.account.RealName);
             $('#account-user-name').text(this.account.UserName);

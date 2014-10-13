@@ -58,10 +58,7 @@ PageServer.prototype = {
                                        "com.redhat.Cockpit.Manager");
         $(self.manager).on('AvatarChanged.server', $.proxy (this, "update_avatar"));
 
-        /* TODO: This needs to be reworked once real package loading lands */
-        var prefix = cockpit.environment.localhost.packages.shell.prefix;
-
-        $('#server-avatar').attr('src', prefix + "/images/server-large.png");
+        $('#server-avatar').attr('src', "/cockpit/@@shell@@/images/server-large.png");
 
         function network_setup_hook(plot) {
             var axes = plot.getAxes();

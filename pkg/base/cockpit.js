@@ -123,6 +123,7 @@ function Transport() {
     var control_cbs = { };
     var message_cbs = { };
     var got_message = false;
+    var is_inited = false;
 
     var check_health_timer = window.setInterval(function () {
         if (!got_message) {
@@ -133,8 +134,11 @@ function Transport() {
     }, 10000);
 
     ws.onopen = function() {
-        while(queue.length > 0 && ws)
-            ws.send(queue.shift());
+        if (ws) {
+            ws.send("\n{ \"command\": \"init\", \"version\": 0 }");
+            while(queue.length > 0)
+                ws.send(queue.shift());
+        }
     };
 
     ws.onclose = function(event) {
@@ -183,6 +187,23 @@ function Transport() {
     function process_control(data) {
         var channel = data.channel;
         var func;
+
+        /* Init message received */
+        if (data.command == "init") {
+            if (data.version !== 0) {
+                console.error("received invalid version in init message");
+                self.close("protocol-error");
+            } else {
+                is_inited = true;
+            }
+            return;
+        }
+
+        if (!is_inited && data.command != "close") {
+            console.error ("received message before init");
+            self.close("protocol-error");
+            return;
+        }
 
         /* 'ping' messages are ignored */
         if (data.command == "ping")

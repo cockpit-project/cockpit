@@ -61,6 +61,22 @@ guint cockpit_ws_ping_interval = 5;
 
 gint cockpit_ws_session_timeout = 30;
 
+/*
+ * How to use:
+ *
+ * bytes = build_control ("command", "open",
+ *                        "name", "value",
+ *                        "blah", NULL, // not set
+ *                        "another", "test",
+ *                        BUILD_INTS,   // ints follow
+ *                        "version", 5,
+ *                        NULL);
+ */
+
+#define BUILD_INTS GINT_TO_POINTER (1)
+
+static GBytes *   build_control (const gchar *name, ...) G_GNUC_NULL_TERMINATED;
+
 /* ----------------------------------------------------------------------------
  * CockpitSession
  */
@@ -76,6 +92,7 @@ typedef struct
   guint timeout;
   CockpitCreds *creds;
   GHashTable *packages;
+  gboolean init_received;
 } CockpitSession;
 
 typedef struct
@@ -209,6 +226,7 @@ cockpit_session_track (CockpitSessions *sessions,
                        CockpitTransport *transport)
 {
   CockpitSession *session;
+  GBytes *command;
 
   g_debug ("%s: new session", host);
 
@@ -225,6 +243,14 @@ cockpit_session_track (CockpitSessions *sessions,
 
   /* This owns the session */
   g_hash_table_insert (sessions->by_transport, transport, session);
+
+  /* Always send an init message down the new transport */
+  command = build_control ("command", "init",
+                           BUILD_INTS,
+                           "version", 0,
+                           NULL);
+  cockpit_transport_send (transport, NULL, command);
+  g_bytes_unref (command);
 
   return session;
 }
@@ -265,6 +291,7 @@ cockpit_sessions_cleanup (CockpitSessions *sessions)
 typedef struct {
   gchar *scope;
   WebSocketConnection *connection;
+  gboolean init_received;
 } CockpitSocket;
 
 typedef struct {
@@ -474,15 +501,13 @@ cockpit_web_service_finalize (GObject *object)
 
 static GBytes *
 build_control (const gchar *name,
-               ...) G_GNUC_NULL_TERMINATED;
-
-static GBytes *
-build_control (const gchar *name,
                ...)
 {
+  gboolean strings = TRUE;
   JsonObject *object;
   GBytes *message;
   const gchar *value;
+  gint number;
   va_list va;
 
   object = json_object_new ();
@@ -490,10 +515,24 @@ build_control (const gchar *name,
   va_start (va, name);
   while (name)
     {
-      value = va_arg (va, const gchar *);
-      if (value)
-        json_object_set_string_member (object, name, value);
+      if (strings)
+        {
+          value = va_arg (va, const gchar *);
+          if (value)
+            json_object_set_string_member (object, name, value);
+        }
+      else
+        {
+          number = va_arg (va, gint);
+          json_object_set_int_member (object, name, number);
+        }
       name = va_arg (va, const gchar *);
+      if (name == BUILD_INTS)
+        {
+          g_assert (strings == TRUE);
+          strings = FALSE;
+          name = va_arg (va, const gchar *);
+        }
     }
   va_end (va);
 
@@ -658,6 +697,30 @@ out:
 }
 
 static gboolean
+process_session_init (CockpitWebService *self,
+                      CockpitSession *session,
+                      JsonObject *options)
+{
+  gint64 version;
+
+  if (!cockpit_json_get_int (options, "version", -1, &version))
+    version = -1;
+
+  if (version == 0)
+    {
+      g_debug ("%s: received init message", session->host);
+      session->init_received = TRUE;
+      return TRUE;
+    }
+  else
+    {
+      g_message ("%s: unsupported version of cockpit protocol: %" G_GINT64_FORMAT,
+                 session->host, version);
+      return FALSE;
+    }
+}
+
+static gboolean
 on_session_control (CockpitTransport *transport,
                     const gchar *command,
                     const gchar *channel,
@@ -677,6 +740,15 @@ on_session_control (CockpitTransport *transport,
       if (!session)
         {
           g_critical ("received control command for transport that isn't present");
+          valid = FALSE;
+        }
+      else if (g_strcmp0 (command, "init") == 0)
+        {
+          valid = process_session_init (self, session, options);
+        }
+      else if (!session->init_received)
+        {
+          g_message ("%s: did not send 'init' message first", session->host);
           valid = FALSE;
         }
       else if (g_strcmp0 (command, "authorize") == 0)
@@ -996,6 +1068,30 @@ process_logout (CockpitWebService *self,
   return TRUE;
 }
 
+static gboolean
+process_socket_init (CockpitWebService *self,
+                     CockpitSocket *socket,
+                     JsonObject *options)
+{
+  gint64 version;
+
+  if (!cockpit_json_get_int (options, "version", -1, &version))
+    version = -1;
+
+  if (version == 0)
+    {
+      g_debug ("received web socket init message");
+      socket->init_received = TRUE;
+      return TRUE;
+    }
+  else
+    {
+      g_message ("web socket used unsupported version of cockpit protocol: %"
+                 G_GINT64_FORMAT, version);
+      return FALSE;
+    }
+}
+
 static void
 inbound_protocol_error (CockpitWebService *self,
                         WebSocketConnection *connection)
@@ -1037,19 +1133,32 @@ dispatch_inbound_command (CockpitWebService *self,
       channel = agent_channel;
     }
 
+  if (g_strcmp0 (command, "init") == 0)
+    {
+      valid = process_socket_init (self, socket, options);
+      goto out;
+    }
+
+  if (!socket->init_received)
+    {
+      g_message ("web socket did not send 'init' message first");
+      valid = FALSE;
+      goto out;
+    }
+
   if (g_strcmp0 (command, "open") == 0)
     valid = process_open (self, channel, options);
   else if (g_strcmp0 (command, "logout") == 0)
     {
       valid = process_logout (self, options);
-      forward = FALSE;
+      goto out;
     }
   else if (g_strcmp0 (command, "close") == 0)
     valid = TRUE;
   else if (g_strcmp0 (command, "ping") == 0)
     {
       valid = TRUE;
-      forward = FALSE;
+      goto out;
     }
   else
     valid = TRUE; /* forward other messages */
@@ -1147,9 +1256,20 @@ static void
 on_web_socket_open (WebSocketConnection *connection,
                     CockpitWebService *self)
 {
+  GBytes *command;
+
   g_info ("New connection from %s for %s",
           cockpit_creds_get_rhost (self->creds),
           cockpit_creds_get_user (self->creds));
+
+  /* Always send an init message down the new web socket */
+  command = build_control ("command", "init",
+                           BUILD_INTS,
+                           "version", 0,
+                           NULL);
+  web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, command);
+  g_bytes_unref (command);
+
   g_signal_connect (connection, "message",
                     G_CALLBACK (on_web_socket_message), self);
 }

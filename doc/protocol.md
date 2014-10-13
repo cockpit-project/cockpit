@@ -70,6 +70,22 @@ containing the id of the channel. It is invalid to have a present but empty
 
 Unknown command messages are ignored, and forwarded as appropriate.
 
+Command: init
+-------------
+
+The "init" command is the first message sent over a new transport. It is
+an error if any other message is received first. The transport is not considered
+open until the "init" message has been received.
+
+The following fields are defined:
+
+ * "version": The version of the protocol. Currently zero, and unstable.
+
+This is a single hop message. It is never forwarded.
+
+The "init" command message may be sent multiple times across an already open
+transport, if certain parameters need to be renegotiated.
+
 Command: open
 -------------
 

@@ -248,8 +248,8 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     setup: function() {
-        $("#sich-pretty-hostname").on("input", $.proxy(this._on_full_name_changed, this));
-        $("#sich-hostname").on("input", $.proxy(this._on_name_changed, this));
+        $("#sich-pretty-hostname").on("input change", $.proxy(this._on_full_name_changed, this));
+        $("#sich-hostname").on("input change", $.proxy(this._on_name_changed, this));
         $("#sich-apply-button").on("click", $.proxy(this._on_apply_button, this));
     },
 

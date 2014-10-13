@@ -1226,6 +1226,9 @@ on_web_socket_open (WebSocketConnection *connection,
 {
   CockpitSocket *socket;
   GBytes *command;
+  JsonObject *object;
+  JsonObject *info;
+  const gchar *name;
 
   g_info ("New connection from %s for %s",
           cockpit_creds_get_rhost (self->creds),
@@ -1234,12 +1237,26 @@ on_web_socket_open (WebSocketConnection *connection,
   socket = cockpit_socket_lookup_by_connection (&self->sockets, connection);
   g_return_if_fail (socket != NULL);
 
-  /* Always send an init message down the new web socket */
-  command = build_control ("command", "init",
-                           "channel-seed", socket->id,
-                           BUILD_INTS,
-                           "version", 0,
-                           NULL);
+  object = json_object_new ();
+  json_object_set_string_member (object, "command", "init");
+  json_object_set_int_member (object, "version", 0);
+  json_object_set_string_member (object, "channel-seed", socket->id);
+
+  info = json_object_new ();
+  json_object_set_string_member (info, "user", cockpit_creds_get_user (self->creds));
+  name = cockpit_creds_get_fullname (self->creds);
+  if (name)
+      json_object_set_string_member (info, "name", name);
+  json_object_set_object_member (object, "user", info);
+
+  info = json_object_new ();
+  json_object_set_string_member (info, "version", PACKAGE_VERSION);
+  json_object_set_string_member (info, "build", COCKPIT_BUILD_INFO);
+  json_object_set_object_member (object, "system", info);
+
+  command = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+
   web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, command);
   g_bytes_unref (command);
 

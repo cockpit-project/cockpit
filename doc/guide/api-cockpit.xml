@@ -13,6 +13,7 @@
 
   <refsection>
     <title>User Login</title>
+
     <refsection id="latest-logout">
       <title>cockpit.logout()</title>
 <programlisting>
@@ -20,6 +21,38 @@
 </programlisting>
       <para>Logout of Cockpit. Unless <code>reload</code> is <code>false</code> this will also
         cause the page to be reloaded, so that the user can see the logged out state.</para>
+    </refsection>
+
+    <refsection id="latest-user">
+      <title>cockpit.user</title>
+<programlisting>
+  cockpit.user["user"]
+  cockpit.user["name"]
+</programlisting>
+      <para>This object contains information about the user that's currently logged into cockpit.
+        The following fields are defined:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>"user"</code></term>
+          <listitem><para>This is the unix user like <code>"root"</code>.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"name"</code></term>
+          <listitem><para>This is a readable name for the user.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The fields will be <code>undefined</code> until a connection is made to the
+        cockpit server.</para>
+    </refsection>
+
+    <refsection id="latest-info-changed">
+      <title>cockpit.user.onchanged</title>
+<programlisting>
+  $(cockpit.user).on("changed", function() { ... })
+</programlisting>
+      <para>This event is fired when the user info changes or first becomes available.</para>
     </refsection>
 
   </refsection>
@@ -334,5 +367,32 @@
     </refsection>
   </refsection>
 
+  <refsection>
+    <title>Cockpit Version Info</title>
+
+    <refsection id="latest-info">
+      <title>cockpit.info</title>
+<programlisting>
+  cockpit.info["version"]
+  cockpit.info["build"]
+</programlisting>
+      <para>This object contains information about cockpit itself. Note that when cockpit is
+        running on multiple servers, this only reflects the server that was connected to.
+        The following fields are defined:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>"build"</code></term>
+          <listitem><para>A string containing build details.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"version"</code></term>
+          <listitem><para>A string containing the cockpit version number. It is almost always
+            incorrect to use this to make a decision in code.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+    </refsection>
+  </refsection>
 
 </refentry>

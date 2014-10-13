@@ -29,14 +29,10 @@ PageAbout.prototype = {
     },
 
     enter: function() {
-        // Note: we may not have D-Bus connection available (could be invoked from
-        // the login page) so we need to use the cockpitdyn.js mechanism to obtain
-        // info to display
-
         $("#about-version").empty();
-        $("#about-version").append(document.createTextNode(cockpitdyn_version));
+        $("#about-version").append(document.createTextNode(cockpit.info["version"]));
         $("#about-build-info").empty();
-        $("#about-build-info").append(document.createTextNode(cockpitdyn_build_info));
+        $("#about-build-info").append(document.createTextNode(cockpit.info["build"]));
     },
 
     show: function() {

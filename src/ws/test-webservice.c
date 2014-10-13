@@ -1356,11 +1356,11 @@ test_resource_packages (TestResourceCase *tc,
   cockpit_assert_json_eq (packages,
                           "{"
                           " \"test\": {"
-                          "    \"checksum\": \"4784b8b983691a87886ce8325bda5f0ed748f058\","
+                          "    \"checksum\": \"$4784b8b983691a87886ce8325bda5f0ed748f058\","
                           "    \"manifest\" : { \"description\" : \"dummy\"}"
                           " },"
                           " \"second\": {"
-                          "    \"checksum\": \"420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
+                          "    \"checksum\": \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
                           "    \"manifest\": { \"description\" : \"second dummy description\"}"
                           " },"
                           " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
@@ -1411,7 +1411,7 @@ test_resource_checksum (TestResourceCase *tc,
   json_object_unref (cockpit_web_service_packages_finish (tc->service, result));
   g_object_unref (result);
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/4784b8b983691a87886ce8325bda5f0ed748f058/sub/file.ext", NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/$4784b8b983691a87886ce8325bda5f0ed748f058/sub/file.ext", NULL);
   cockpit_web_service_resource (tc->service, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)

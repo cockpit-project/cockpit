@@ -205,11 +205,11 @@ test_listing (TestCase *tc,
   cockpit_assert_json_eq (control,
                           "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"resources\": {"
                           " \"test\": {"
-                          "    \"checksum\": \"4784b8b983691a87886ce8325bda5f0ed748f058\","
+                          "    \"checksum\": \"$4784b8b983691a87886ce8325bda5f0ed748f058\","
                           "    \"manifest\" : { \"description\" : \"dummy\"}"
                           " },"
                           " \"second\": {"
-                          "    \"checksum\": \"420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
+                          "    \"checksum\": \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
                           "    \"manifest\": { \"description\" : \"second dummy description\"}"
                           " },"
                           " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
@@ -372,7 +372,7 @@ test_list_bad_name (TestCase *tc,
   cockpit_assert_json_eq (control,
                           "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"resources\": {"
                           " \"ok\": {"
-                          "    \"checksum\": \"248b261c112455057b51827f3f63380159e27338\","
+                          "    \"checksum\": \"$248b261c112455057b51827f3f63380159e27338\","
                           "    \"manifest\" : { }"
                           " }"
                           "} }");

@@ -99,6 +99,21 @@ validate_package (const gchar *name)
 }
 
 static gboolean
+validate_checksum (const gchar *name)
+{
+  static const gchar *allowed = "abcdef0123456789";
+  gsize len;
+
+  if (name[0] != '$')
+    return FALSE;
+
+  name++;
+  len = strspn (name, allowed);
+  return len && name[len] == '\0';
+}
+
+
+static gboolean
 validate_path (const gchar *name)
 {
   static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.,/";
@@ -433,6 +448,8 @@ resolve_depends (GHashTable *listing)
    * package, so that when the dependencies change their checksum, then this package
    * gets a new checksum, which causes it to be reloaded and templates to kick in
    * again.
+   *
+   * All checksums are prefixed with '$'. We add this here.
    */
 
   names = g_hash_table_get_keys (listing);
@@ -457,7 +474,7 @@ resolve_depends (GHashTable *listing)
       g_list_free (depends);
 
       g_free (package->checksum);
-      package->checksum = g_strdup (g_checksum_get_string (checksum));
+      package->checksum = g_strdup_printf ("$%s", g_checksum_get_string (checksum));
       g_checksum_free (checksum);
     }
   g_list_free (names);
@@ -518,7 +535,7 @@ cockpit_package_resolve (GHashTable *listing,
       return NULL;
     }
 
-  if (!validate_package (package))
+  if (!validate_checksum (package) && !validate_package (package))
     {
       g_message ("invalid 'package' name: %s", package);
       return NULL;

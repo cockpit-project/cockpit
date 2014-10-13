@@ -1107,7 +1107,7 @@ test_timeout_session (TestCase *test,
 
   /* Queue channel open/close, so we can guarantee having a session */
   send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
-  send_control_message (ws, "open", "x", "payload", "test-text", NULL);
+  send_control_message (ws, "open", "11x", "payload", "test-text", NULL);
 
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -1132,7 +1132,7 @@ test_timeout_session (TestCase *test,
 
   g_signal_handler_disconnect (ws, sig);
 
-  send_control_message (ws, "close", "x", NULL);
+  send_control_message (ws, "close", "11x", NULL);
 
   /* The process should exit shortly */
   tag = g_timeout_add_seconds (1, on_timeout_dummy, NULL);

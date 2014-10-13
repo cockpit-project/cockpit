@@ -80,6 +80,7 @@ open until the "init" message has been received.
 The following fields are defined:
 
  * "version": The version of the protocol. Currently zero, and unstable.
+ * "channel-seed": A seed to be used when generating new channel ids.
 
 This is a single hop message. It is never forwarded.
 

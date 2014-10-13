@@ -54,6 +54,7 @@ class TestDocker(MachineCase):
         b.wait_page("container-details")
         # The terminal uses NO-BREAK SPACE so we check for that here
         b.wait_in_text("#container-terminal", "Hello from container-probe.")
+        b.wait_in_text("#container-details-state", "Exited")
 
         # Delete container
         b.click("#container-details-delete")

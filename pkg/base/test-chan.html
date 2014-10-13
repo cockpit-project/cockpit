@@ -153,20 +153,27 @@ test("public api", function() {
 });
 
 asyncTest("open channel", function() {
-    expect(6);
+    expect(8);
 
     var channel = cockpit.channel({ "host": "scruffy" });
+    var is_inited = false;
     $(mock_peer).on("open", function(event) {
         ok(true, "websocket connected");
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
-        strictEqual(chan, "", "open: sent with empty channel");
         var command = JSON.parse(payload);
-        equal(typeof command, "object", "open: valid json");
-        equal(command.command, "open", "open: right command");
-        strictEqual(command.channel, channel.id, "open: contains right channel");
-        equal(command.host, "scruffy", "open: host as expected");
-        start();
+        if (!is_inited) {
+            equal(typeof command, "object", "open: valid json");
+            strictEqual(chan, "", "open: sent with empty channel");
+            equal (command.command, "init", "open: got init");
+            equal (command.version, 0, "open: got init version");
+            is_inited = true;
+        } else {
+            equal(command.command, "open", "open: right command");
+            strictEqual(command.channel, channel.id, "open: contains right channel");
+            equal(command.host, "scruffy", "open: host as expected");
+            start();
+        }
     });
 });
 
@@ -189,8 +196,10 @@ asyncTest("open no host", function() {
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
         var command = JSON.parse(payload);
-        strictEqual(command.host, undefined, "open: host not included");
-        start();
+        if (command.command == "open") {
+            strictEqual(command.host, undefined, "open: host not included");
+            start();
+        }
     });
 });
 
@@ -204,9 +213,11 @@ asyncTest("open auto host", function() {
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
         var command = JSON.parse(payload);
-        strictEqual(command.host, "planetexpress", "open: host automatically chosen");
-        window.location.hash = "";
-        start();
+        if (command.command == "open") {
+            strictEqual(command.host, "planetexpress", "open: host automatically chosen");
+            window.location.hash = "";
+            start();
+        }
     });
 });
 
@@ -218,7 +229,7 @@ asyncTest("send message", function() {
 	channel.send("Scruffy gonna die the way he lived");
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
-        /* Ignore the open message */
+        /* Ignore the open and init messages */
         if (!chan)
             return;
         strictEqual(chan, channel.id, "send: sent with correct channel");
@@ -265,8 +276,8 @@ asyncTest("close channel", function() {
     var channel = cockpit.channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
-        if (cmd.command == "open")
-            return; /* ignore the open command */
+        if (cmd.command == "open" || cmd.command == "init")
+            return; /* ignore the open and init commands */
         equal(cmd.command, "close", "close: sent close command");
         strictEqual(cmd.channel, channel.id, "close: correct channel");
         start();
@@ -286,8 +297,8 @@ asyncTest("close problem", function() {
     var channel = cockpit.channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
-        if (cmd.command == "open")
-            return; /* ignore the open command */
+        if (cmd.command == "open" || cmd.command == "init")
+            return; /* ignore the open or init commands */
         equal(cmd.command, "close", "close problem: sent close command");
         equal(cmd.reason, "problem", "close problem: sent reason");
         start();
@@ -307,8 +318,8 @@ asyncTest("close problem string", function() {
     var channel = cockpit.channel({ });
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
-        if (cmd.command == "open")
-            return; /* ignore the open command */
+        if (cmd.command == "open" || cmd.command == "init")
+            return; /* ignore the open or init commands */
         equal(cmd.command, "close", "close problem string: sent close command");
         equal(cmd.reason, "testo", "close problem string: sent reason");
         start();

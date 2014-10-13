@@ -42,6 +42,7 @@
 */
 
 static GHashTable *channels;
+static gboolean init_received;
 
 static void
 on_channel_closed (CockpitChannel *channel,
@@ -49,6 +50,27 @@ on_channel_closed (CockpitChannel *channel,
                    gpointer user_data)
 {
   g_hash_table_remove (channels, cockpit_channel_get_id (channel));
+}
+
+static void
+process_init (CockpitTransport *transport,
+              JsonObject *options)
+{
+  gint64 version;
+
+  if (!cockpit_json_get_int (options, "version", -1, &version))
+    version = -1;
+
+  if (version == 0)
+    {
+      g_debug ("received init message");
+      init_received = TRUE;
+    }
+  else
+    {
+      g_message ("unsupported version of cockpit protocol: %" G_GINT64_FORMAT, version);
+      cockpit_transport_close (transport, "protocol-error");
+    }
 }
 
 static void
@@ -120,6 +142,19 @@ on_transport_control (CockpitTransport *transport,
                       JsonObject *options,
                       gpointer user_data)
 {
+  if (g_str_equal (command, "init"))
+    {
+      process_init (transport, options);
+      return TRUE;
+    }
+
+  if (!init_received)
+    {
+      g_warning ("caller did not send 'init' message first");
+      cockpit_transport_close (transport, "protocol-error");
+      return TRUE;
+    }
+
   if (g_str_equal (command, "open"))
     process_open (transport, channel_id, options);
   else if (g_str_equal (command, "close"))
@@ -136,6 +171,15 @@ on_closed_set_flag (CockpitTransport *transport,
 {
   gboolean *flag = user_data;
   *flag = TRUE;
+}
+
+static void
+send_init_command (CockpitTransport *transport)
+{
+  const gchar *response = "\n{ \"command\": \"init\", \"version\": 0 }";
+  GBytes *bytes = g_bytes_new_static (response, strlen (response));
+  cockpit_transport_send (transport, NULL, bytes);
+  g_bytes_unref (bytes);
 }
 
 static void
@@ -305,6 +349,7 @@ main (int argc,
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+  send_init_command (transport);
 
   connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
   if (connection == NULL)

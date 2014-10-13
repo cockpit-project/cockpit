@@ -133,6 +133,8 @@ clean-local:
 uninstall-local:: uninstall-doc-local
 	@true
 
+LATEST = latest/
+
 if ENABLE_DOC
 
 include doc/Makefile-doc.am
@@ -156,7 +158,7 @@ distcheck-hook:
 	@true
 
 upload-doc: guide/index.html
-	rsync -Hvax guide/./ files.cockpit-project.org:/srv/guide/./
+	rsync -Hvax guide/./ files.cockpit-project.org:/srv/guide/$(LATEST)./
 
 else
 

@@ -103,7 +103,7 @@ cockpit_resource_init (CockpitResource *self)
 }
 
 static GHashTable *
-load_package_listing (JsonObject **json)
+load_package_listing (JsonArray **json)
 {
   static GHashTable *package_listing;
   GHashTable *listing;
@@ -122,13 +122,16 @@ load_package_listing (JsonObject **json)
 static void
 respond_package_listing (CockpitChannel *channel)
 {
-  JsonObject *root;
+  JsonArray *root;
   GHashTable *listing;
+  JsonNode *node;
 
   listing = load_package_listing (&root);
-  cockpit_channel_close_obj_option (channel, "resources", root);
+  node = json_node_init_array (json_node_alloc (), root);
+  cockpit_channel_close_json_option (channel, "packages", node);
   g_hash_table_unref (listing);
-  json_object_unref (root);
+  json_node_free (node);
+  json_array_unref (root);
 
   /* All done */
   cockpit_channel_close (channel, NULL);

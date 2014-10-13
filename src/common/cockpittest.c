@@ -332,7 +332,7 @@ _cockpit_assert_json_eq_msg (const char *domain,
                              const char *file,
                              int line,
                              const char *func,
-                             JsonObject *object,
+                             gpointer object_or_array,
                              const gchar *expect)
 {
   GError *error = NULL;
@@ -341,7 +341,10 @@ _cockpit_assert_json_eq_msg (const char *domain,
   gchar *escaped;
   gchar *msg;
 
-  node = json_node_init_object (json_node_alloc (), object);
+  if (expect[0] == '[')
+    node = json_node_init_array (json_node_alloc (), object_or_array);
+  else
+    node = json_node_init_object (json_node_alloc (), object_or_array);
 
   exnode = cockpit_json_parse (expect, -1, &error);
   if (error)

@@ -203,17 +203,18 @@ test_listing (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   cockpit_assert_json_eq (control,
-                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"resources\": {"
-                          " \"test\": {"
-                          "    \"checksum\": \"$4784b8b983691a87886ce8325bda5f0ed748f058\","
-                          "    \"manifest\" : { \"description\" : \"dummy\"}"
-                          " },"
-                          " \"second\": {"
-                          "    \"checksum\": \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\","
-                          "    \"manifest\": { \"description\" : \"second dummy description\"}"
-                          " },"
-                          " \"another\": {\"manifest\" : { \"description\" : \"another\"} }"
-                          "} }");
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"packages\": ["
+                          " {"
+                          "  \"id\": [ \"$420ea8a56bfe14d15e11204da97704ae35ad0ad0\", \"second\" ],"
+                          "  \"manifest\": { \"description\": \"second dummy description\"}"
+                          " },{"
+                          "  \"id\": [ \"$4784b8b983691a87886ce8325bda5f0ed748f058\", \"test\" ],"
+                          "  \"manifest\" : { \"description\" : \"dummy\"}"
+                          " },{"
+                          "  \"id\": [ \"another\" ],"
+                          "  \"manifest\" : { \"description\" : \"another\"}"
+                          " }"
+                          "] }");
 }
 
 static const Fixture fixture_not_found = {
@@ -370,12 +371,12 @@ test_list_bad_name (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   cockpit_assert_json_eq (control,
-                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"resources\": {"
-                          " \"ok\": {"
-                          "    \"checksum\": \"$248b261c112455057b51827f3f63380159e27338\","
-                          "    \"manifest\" : { }"
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"packages\": ["
+                          " {"
+                          "  \"id\": [ \"$248b261c112455057b51827f3f63380159e27338\", \"ok\" ],"
+                          "  \"manifest\": { }"
                           " }"
-                          "} }");
+                          "] }");
 }
 
 int

@@ -126,7 +126,7 @@ get_remote_address (GIOStream *io)
 
 static GBytes *
 build_environment (CockpitWebService *service,
-                   JsonObject *packages)
+                   JsonArray *packages)
 {
   const gchar *user;
   CockpitCreds *creds;
@@ -192,7 +192,7 @@ build_environment (CockpitWebService *service,
     }
 
   if (packages)
-    json_object_set_object_member (localhost, "packages", json_object_ref (packages));
+    json_object_set_array_member (localhost, "packages", json_array_ref (packages));
 
   bytes = cockpit_json_write_bytes (env);
   json_object_unref (env);
@@ -221,7 +221,7 @@ on_login_packages (GObject *source,
 {
   LoginResponse *lr = user_data;
   CockpitWebService *service;
-  JsonObject *packages;
+  JsonArray *packages;
   GBytes *content;
 
   service = COCKPIT_WEB_SERVICE (source);
@@ -233,7 +233,7 @@ on_login_packages (GObject *source,
   g_bytes_unref (content);
 
   if (packages)
-    json_object_unref (packages);
+    json_array_unref (packages);
 
   login_response_free (lr);
 }
@@ -382,7 +382,7 @@ substitute_environment (const gchar *variable,
 static void
 send_index_response (CockpitWebResponse *response,
                      CockpitWebService *service,
-                     JsonObject *packages,
+                     JsonArray *packages,
                      CockpitHandlerData *ws)
 {
   GHashTable *out_headers = NULL;
@@ -468,14 +468,14 @@ on_index_packages (GObject *source_object,
 {
   IndexResponse *ir = user_data;
   CockpitWebService *service = COCKPIT_WEB_SERVICE (source_object);
-  JsonObject *packages;
+  JsonArray *packages;
 
   /* Failures printed elsewhere */
   packages = cockpit_web_service_packages_finish (service, result);
   send_index_response (ir->response, service, packages, ir->data);
 
   if (packages)
-    json_object_unref (packages);
+    json_array_unref (packages);
   g_object_unref (ir->response);
   g_free (ir);
 }

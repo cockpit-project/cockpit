@@ -230,15 +230,18 @@ test_close_int_option (TestCase *tc,
 }
 
 static void
-test_close_obj_option (TestCase *tc,
-                       gconstpointer unused)
+test_close_json_option (TestCase *tc,
+                        gconstpointer unused)
 {
   JsonObject *sent;
   JsonObject *obj;
+  JsonNode *node;
 
   obj = json_object_new ();
   json_object_set_string_member (obj, "test", "value");
-  cockpit_channel_close_obj_option (tc->channel, "option", obj);
+  node = json_node_init_object (json_node_alloc (), obj);
+  cockpit_channel_close_json_option (tc->channel, "option", node);
+  json_node_free (node);
   json_object_unref (obj);
 
   cockpit_channel_close (tc->channel, "bad-boy");
@@ -362,8 +365,8 @@ main (int argc,
               setup, test_close_immediately, teardown);
   g_test_add ("/channel/close-option", TestCase, NULL,
               setup, test_close_option, teardown);
-  g_test_add ("/channel/close-obj-option", TestCase, NULL,
-              setup, test_close_obj_option, teardown);
+  g_test_add ("/channel/close-json-option", TestCase, NULL,
+              setup, test_close_json_option, teardown);
   g_test_add ("/channel/close-int-option", TestCase, NULL,
               setup, test_close_int_option, teardown);
   g_test_add ("/channel/close-transport", TestCase, NULL,

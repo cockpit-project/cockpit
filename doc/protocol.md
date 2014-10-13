@@ -221,8 +221,12 @@ cockpit-ws and cockpit-agent. See doc/packages.md
 Additional "open" command options are available to open a channel of this
 type:
 
- * "package": the short package name to retrieve resource from
+ * "package": the package to retrieve resource from
  * "path": path of the resource within the package.
+
+The package may either be fully qualified (ie: package@host), although the
+host part is not used for routing, and the usual "open" command "host"
+option should be used. The package may also be a package checksum.
 
 The channel payload will be the raw (possibly binary) byte data of the
 resource being retrieved.
@@ -230,18 +234,18 @@ resource being retrieved.
 If "package" and "path" are missing, then the channel will be immediately
 closed without a "reason", and a combined manifest of all packages, including
 checksums for system packages will be returned in the "close" message under
-the "resources" option:
+the "packages" option:
 
     {
         "command": "close",
         "channel": -5,
-        "resources": {
-            "app1" : {
-                "checksum" : "0d599f0ec05c3bda8c3b8a68c32a1b47",
+        "packages": [
+            {
+                "id": ["app1", "$0d599f0ec05c3bda8c3b8a68c32a1b47"],
                 "manifest" : { ... }
             },
             ...
-        }
+        ]
     }
 
 Payload: dbus-json1

@@ -197,10 +197,30 @@
                 xhr.send();
             }
 
+            function find_package(packages, name) {
+                var i, j, id, package, found;
+                for (i = 0; i < packages.length; i++) {
+                    package = packages[i];
+                    found = false
+                    if (package.id) {
+                        for (j = 0; j < package.id.length; j++) {
+                            id = package.id[j];
+                            if (id.indexOf('$') === 0)
+                                package.checksum = id;
+                            else if (id === name)
+                                found = true;
+                        }
+                    }
+                    if (found)
+                        return package;
+                }
+                return null;
+            }
+
             function shell(environment) {
                 var package = null;
                 if (environment.localhost && environment.localhost.packages)
-                    package = environment.localhost.packages["shell"];
+                    package = find_package(environment.localhost.packages, "shell");
                 if (!package || !package.manifest) {
                     fatal("Cockpit not available: shell not installed correctly");
                     return;

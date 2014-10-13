@@ -128,7 +128,6 @@ static GBytes *
 build_environment (CockpitWebService *service,
                    JsonArray *packages)
 {
-  const gchar *name;
   CockpitCreds *creds;
   JsonObject *env;
   JsonObject *localhost;
@@ -150,11 +149,7 @@ build_environment (CockpitWebService *service,
     {
       creds = cockpit_web_service_get_creds (service);
       json_object_set_string_member (env, "user", cockpit_creds_get_user (creds));
-      name = cockpit_creds_get_fullname (creds);
-      if (name != NULL)
-        json_object_set_string_member (env, "name", name);
     }
-
   localhost = json_object_new ();
 
   /* This awkwardly takes the localhost reference */
@@ -166,13 +161,6 @@ build_environment (CockpitWebService *service,
 
   json_object_set_string_member (env, "hostname", hostname);
   g_free (hostname);
-
-  /* Only include version info if logged in */
-  if (service)
-    {
-      json_object_set_string_member (localhost, "version", PACKAGE_VERSION);
-      json_object_set_string_member (localhost, "build_info", COCKPIT_BUILD_INFO);
-    }
 
   languages = json_object_new ();
 

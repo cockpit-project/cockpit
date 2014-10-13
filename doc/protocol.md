@@ -81,6 +81,7 @@ The following fields are defined:
 
  * "version": The version of the protocol. Currently zero, and unstable.
  * "channel-seed": A seed to be used when generating new channel ids.
+ * "user": An object containing information about the logged in user.
 
 This is a single hop message. It is never forwarded.
 

@@ -19,12 +19,6 @@
 
 /* MAIN
 
-   - cockpit.connection_config
-
-   An object with information about the current connection to the
-   interface server when we are logged in.  It has 'user' and 'name'
-   fields describing the user account of the logged in user.
-
    - cockpit.language_code
    - cockpit.language_po
 
@@ -211,7 +205,11 @@ function content_init() {
 }
 
 function content_show() {
-    $('#content-user-name').text(cockpit.connection_config.name || cockpit.connection_config.user || "???");
+    function update_name() {
+        var str = cockpit.user["name"] || cockpit.user["user"] || "???";
+        $('#content-user-name').text(str);
+    }
+    $(cockpit.info).on("changed", update_name);
 
     $('.page').hide();
     $('#content').show();
@@ -578,7 +576,7 @@ $(function() {
         ev.preventDefault();
     });
 
-    var is_root = cockpit.connection_config.user == "root";
+    var is_root = (cockpit.user["user"] == "root");
     $('#cockpit-go-account').toggle(!is_root);
     $('#cockpit-change-passwd').toggle(is_root);
     $('.cockpit-deauthorize-item').toggle(!is_root);
@@ -587,7 +585,7 @@ $(function() {
 cockpit.go_login_account = function go_login_account() {
     cockpit.go_server("localhost",
                        [ { page: "accounts" },
-                         { page: "account", id: cockpit.connection_config.user }
+                         { page: "account", id: cockpit.user["user"] }
                        ]);
 };
 

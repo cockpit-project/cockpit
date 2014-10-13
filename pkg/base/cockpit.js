@@ -26,6 +26,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 "use strict";
 
 /*
+ * User and system information
+ */
+
+cockpit.user = { };
+cockpit.info = { };
+
+/*
  * TODO: We will expose standard client side url composability
  * utilities soon, for now this is private.
  */
@@ -208,11 +215,20 @@ function Transport() {
 
         if (options["channel-seed"])
             channel_seed = ":" + String(options["channel-seed"]);
+        if (options.user)
+            $.extend(cockpit.user, options.user);
+        if (options.system)
+            $.extend(cockpit.info, options.system);
 
         if (waiting_for_init) {
             waiting_for_init = false;
             ready_for_channels();
         }
+
+        if (options.user)
+            $(cockpit.user).trigger("changed");
+        if (options.system)
+            $(cockpit.info).trigger("changed");
     }
 
     function process_control(data) {

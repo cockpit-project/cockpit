@@ -85,7 +85,7 @@
                 }
 
                 /* Already logged in */
-                if (initial_environment.user) {
+                if (initial_environment.localhost && initial_environment.localhost.packages) {
                     shell(initial_environment);
                     return;
                 }
@@ -240,10 +240,6 @@
 
                 /* TODO: Compatibility ... rework these later */
                 window.cockpitdyn_supported_languages = environment.localhost.languages;
-                window.cockpitdyn_version = environment.localhost.version;
-                window.cockpitdyn_build_info = environment.localhost.build_info;
-                cockpit.environment = environment;
-                cockpit.connection_config = environment;
 
                 /* Simplistic package loader good enough for shell */
                 var css = document.createElement("link");

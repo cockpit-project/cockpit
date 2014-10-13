@@ -133,7 +133,20 @@ function MockWebSocket(url, protocol) {
         ws.readyState = 1;
         $(mock).triggerHandler("open");
         ws.onopen({"name": "open"});
-        ws.onmessage({"data": '{"command": "init", "version": 0, "channel-seed": "test"}'});
+        var init = {
+            "command": "init",
+            "version": 0,
+            "channel-seed": "test",
+            "user": {
+                "user": "scruffy",
+                "name": "Scruffy the Janitor"
+            },
+            "system": {
+                "version": "zero.point.zero",
+                "build": "nasty stuff",
+            }
+        }
+        ws.onmessage({"data": JSON.stringify(init)});
     }, 5);
 }
 
@@ -485,6 +498,39 @@ asyncTest("droppriv", function() {
     });
 
     cockpit.drop_privileges();
+});
+
+asyncTest("info", function() {
+    expect(6);
+
+    var user_changed = false;
+    var info_changed = false;
+
+    $(cockpit.user).on("changed", function() {
+        strictEqual(cockpit.user.user, "scruffy", "info: cockpit.user.user");
+        strictEqual(cockpit.user.name, "Scruffy the Janitor", "info: cockpit.user.name");
+        user_changed = true;
+    });
+
+    $(cockpit.info).on("changed", function() {
+        strictEqual(cockpit.info.version, "zero.point.zero", "info: cockpit.user.user");
+        strictEqual(cockpit.info.build, "nasty stuff", "info: cockpit.user.name");
+        info_changed = true;
+    });
+
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        var cmd = JSON.parse(payload);
+        if (cmd.command == "open") {
+            $(mock_peer).off("recv");
+            $(cockpit.user).off("changed");
+            $(cockpit.info).off("changed");
+            strictEqual(user_changed, true, "info: user changed event was called");
+            strictEqual(info_changed, true, "info: info changed event was called");
+            start();
+        }
+    });
+
+    var channel = cockpit.channel({ "host": "scruffy" });
 });
 
 

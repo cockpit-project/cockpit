@@ -1045,7 +1045,7 @@ PageContainerDetails.prototype = {
 
                 $(commit).find(".container-tag").attr('value', "");
 
-                var author = cockpit.connection_config.name || cockpit.connection_config.user;
+                var author = cockpit.user["name"] || cockpit.user["user"];
                 $(commit).find(".container-author").attr('value', author);
 
                 var command = "";

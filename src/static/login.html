@@ -6,7 +6,7 @@
     <link href="/static/patternfly.x1.css" rel="stylesheet">
     <style>
         /* Login page specific overrides */
-        .login-pf {
+        body {
             background: url("/static/images/bg-login.x0.jpg") no-repeat 50% 0;
             background-size: auto;
             background-color: #101010;
@@ -35,6 +35,21 @@
             height: 28px;
             width: 28px;
         }
+
+        /* Inline login screen */
+        .inline #badge,
+        .inline #brand,
+        .inline #login-details {
+            display: none;
+        }
+
+        .inline body {
+            background: none;
+            color: #000;
+        }
+        .inline .container .help-block {
+            color: #000;
+        }
     </style>
     <script>
         var phantom_checkpoint = phantom_checkpoint || function () { };
@@ -45,6 +60,10 @@
 
             /* Filled in by cockpit-ws handler */
             var initial_environment = @@environment@@;
+
+            /* Determine if we are nested or not, and switch styles */
+            if (window.location.pathname.indexOf("/cockpit") === 0)
+                document.documentElement.setAttribute("class", "inline");
 
             function id(name) {
                 return document.getElementById(name);

@@ -40,6 +40,7 @@ class TestRoles(MachineCase):
         b.open("server")
         b.wait_visible("#login")
         login("user", "foobar")
+        b.expect_reload()
         b.wait_page("server")
         b.wait_text('#content-user-name', 'User')
 

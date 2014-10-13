@@ -1,12 +1,22 @@
-<div id="cockpit-shell">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cockpit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/patternfly.x1.css" rel="stylesheet">
+    <base href="/cockpit/@@shell@@/shell.html">
+    <link href="shell.css" rel="stylesheet">
+    <script src="../@@latest@@/jquery.js"></script>
+    <script src="../@@latest@@/bootstrap.js"></script>
+    <script src="../@@latest@@/term.js"></script>
+    <script src="../@@latest@@/cockpit.js"></script>
+    <script src="jquery-flot.js"></script>
+    <script src="attrchange.js"></script>
+    <script src="shell.js"></script>
+</head>
+<body>
+  <div id="cockpit-shell">
 
-    <script src="/cockpit/@@latest@@/jquery.js"></script>
-    <script src="/cockpit/@@latest@@/bootstrap.js"></script>
-    <script src="/cockpit/@@latest@@/term.js"></script>
-    <script src="/cockpit/@@latest@@/cockpit.js"></script>
-    <script src="/cockpit/@@shell@@/jquery-flot.js"></script>
-    <script src="/cockpit/@@shell@@/attrchange.js"></script>
-    <script src="/cockpit/@@shell@@/shell.js"></script>
     <div class="page" id="loading">
     </div>
 
@@ -83,35 +93,35 @@
               <img id="server-avatar">
            </div>
             <a class="list-group-item" onclick="cockpit.go_down('system_information')">
-              <img class="cockpit-category-icon" src="/cockpit/@@shell@@/images/category-system.png">
+              <img class="cockpit-category-icon" src="images/category-system.png">
               System Information
             </a>
             <a class="list-group-item" onclick="cockpit.go_down('services')">
-              <img class="cockpit-category-icon" src="/cockpit/@@shell@@/images/category-services.png">
+              <img class="cockpit-category-icon" src="images/category-services.png">
               Services
             </a>
             <a class="list-group-item" onclick="cockpit.go_down('journal')">
-              <img class="cockpit-category-icon" src="/cockpit/@@shell@@/images/category-journal.png">
+              <img class="cockpit-category-icon" src="images/category-journal.png">
               Journal
             </a>
             <a class="list-group-item"  onclick="cockpit.go_down('networking')">
-              <img class="cockpit-category-icon" src="/cockpit/@@shell@@/images/category-networking.png">
+              <img class="cockpit-category-icon" src="images/category-networking.png">
               Networking
             </a>
             <a class="list-group-item" onclick="cockpit.go_down('storage')">
-              <img class="cockpit-category-icon" src="/cockpit/@@shell@@/images/category-storage.png">
+              <img class="cockpit-category-icon" src="images/category-storage.png">
               Storage
             </a>
             <a class="list-group-item" onclick="cockpit.go_down('accounts')">
-              <img class="cockpit-category-icon" src="/cockpit/@@shell@@/images/category-users.png">
+              <img class="cockpit-category-icon" src="images/category-users.png">
               User Accounts
             </a>
             <a class="list-group-item" onclick="cockpit.go_down('containers')">
-              <img class="cockpit-category-icon" src="/cockpit/@@shell@@/images/category-containers.png">
+              <img class="cockpit-category-icon" src="images/category-containers.png">
               Containers
             </a>
             <a class="list-group-item" data-toggle="modal" data-target="#shutdown-dialog">
-              <img class="cockpit-category-icon" src="/cockpit/@@shell@@/images/category-shutdown.png">
+              <img class="cockpit-category-icon" src="images/category-shutdown.png">
               Shutdown & Reboot
             </a>
           </div>
@@ -728,7 +738,7 @@
       </div>
 
       <div id="internal" class="container-fluid">
-          <img src="/cockpit/@@shell@@/images/hammer.gif" style="float: right;"
+          <img src="images/hammer.gif" style="float: right;"
               onclick="$(this).hide();">
           <div class="cockpit-internal-reauthorize">
               <button class="btn btn-default">Priveleged Action</button>
@@ -1233,7 +1243,7 @@
                          class="waiting"
                          style="margin-left:-40px;margin-top:4px"></div>
                     <img id="realms-op-address-error"
-                         src="/cockpit/@@shell@@/images/dialog-error.png"
+                         src="images/dialog-error.png"
                          style="margin-left:-40px;margin-top:4px"/>
                   </td>
                 </tr>
@@ -2689,3 +2699,5 @@
     </div>
 
 </div>
+  </body>
+</html>

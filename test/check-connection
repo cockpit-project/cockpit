@@ -37,6 +37,7 @@ class TestConnection(MachineCase):
         b.wait_text_not('#login-fatal-message', "")
         m.execute("systemctl start cockpit-testing.socket")
         b.click('#login-button')
+        b.expect_reload()
         b.wait_page("server")
 
         # take cockpit-ws down on the server page
@@ -58,6 +59,7 @@ class TestConnection(MachineCase):
             b.wait_text_not('#login-fatal-message', "")
         m.execute("iptables -D INPUT 1")
         b.click('#login-button')
+        b.expect_reload()
         b.wait_page("server")
 
         # severe the connection on the server page

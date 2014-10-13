@@ -81,6 +81,7 @@ class TestLogin(MachineCase):
 
         # Login as admin
         login("admin", "foobar")
+        b.expect_reload()
         b.wait_page("server")
         b.wait_text('#content-user-name', 'Administrator')
 

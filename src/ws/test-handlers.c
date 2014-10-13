@@ -202,7 +202,7 @@ test_login_with_cookie (Test *test,
 
   g_assert (ret == TRUE);
 
-  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 200 OK\r\n*\r\n\r\n{*\"packages\"*}");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 200 OK\r\n*\r\n\r\n{*");
 }
 
 static void
@@ -309,8 +309,8 @@ test_index (Test *test,
   gchar hostname[256];
   gchar *expected;
 
-  ret = cockpit_handler_index (test->server, "/",
-                               test->headers, test->response, &test->data);
+  ret = cockpit_handler_resource (test->server, "/",
+                                  test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
 
@@ -322,31 +322,6 @@ test_index (Test *test,
   cockpit_assert_strmatch (output, expected);
   cockpit_assert_strmatch (output, "*Content-Type: text/html; charset=utf8\r\n*");
   g_free (expected);
-}
-
-static void
-test_index_invalid (Test *test,
-                    gconstpointer data)
-{
-  const gchar *output;
-  gboolean ret;
-  gchar **roots;
-
-  roots = cockpit_web_server_resolve_roots (SRCDIR "/src/ws/mock-static", NULL);
-  test->data.static_roots = (const gchar **)roots;
-
-  cockpit_expect_warning ("couldn't find '@@environment@@' string in index.html");
-
-  ret = cockpit_handler_index (test->server, "/",
-                               test->headers, test->response, &test->data);
-
-  g_assert (ret == TRUE);
-
-  output = output_as_string (test);
-  cockpit_assert_strmatch (output, "HTTP/1.1 500*");
-
-  test->data.static_roots = NULL;
-  g_strfreev (roots);
 }
 
 static void
@@ -412,8 +387,6 @@ main (int argc,
 
   g_test_add ("/handlers/index", Test, NULL,
               setup, test_index, teardown);
-  g_test_add ("/handlers/index-invalid", Test, NULL,
-              setup, test_index_invalid, teardown);
 
   g_test_add ("/handlers/favicon", Test, NULL,
               setup, test_favicon_ico, teardown);

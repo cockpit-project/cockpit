@@ -289,7 +289,7 @@ test_webserver_not_authorized (TestCase *tc,
   guint status;
   gssize off;
 
-  /* Listing a directory will result in 403 (except / -> index.html) */
+  /* Listing a directory will result in 403 (except / -> /cockpit/shell/shell.html) */
   resp = perform_http_request (tc->localport, "GET /po HTTP/1.0\r\nHost:test\r\n\r\n", &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, >, 0);

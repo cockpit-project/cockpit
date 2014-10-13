@@ -60,7 +60,7 @@ var visited_pages = {};
 cockpit.dbus = dbus;
 cockpit.set_watched_client = set_watched_client;
 
-cockpit.init = function init() {
+function init() {
     cockpit.language_code = "";
     cockpit.language_po = null;
 
@@ -76,7 +76,8 @@ cockpit.init = function init() {
     if (!lang_code) {
         language = window.navigator.userLanguage || window.navigator.language;
         language_normalized = language.toLowerCase().replace("_", "-");
-        for (code in cockpitdyn_supported_languages) {
+        /* TODO: Get the list of languages from packages */
+        for (code in { }) {
             if (code.length > 0) {
                 code_normalized = code.toLowerCase().replace("_", "-");
                 if (language_normalized.indexOf(code_normalized) === 0) {
@@ -91,7 +92,7 @@ cockpit.init = function init() {
     } else {
         init_done();
     }
-};
+}
 
 function init_load_lang(lang_code) {
     var jqxhr = $.getJSON("lang/" + lang_code + ".json");
@@ -695,9 +696,16 @@ function PageExternal(id, url, title) {
     self.leave = function() { };
 }
 
-/* TODO: for now bring in component package pages */
-var terminal = new PageExternal("terminal", "/cockpit/@@server@@/terminal.html",
-        C_("page-title", "Rescue Terminal"));
-cockpit.pages.push(terminal);
+
+/* Initialize cockpit when page is loaded */
+$(function() {
+    /* TODO: for now bring in component package pages */
+    var terminal = new PageExternal("terminal", "/cockpit/@@server@@/terminal.html",
+            C_("page-title", "Rescue Terminal"));
+    cockpit.pages.push(terminal);
+
+    /* Initialize the rest of Cockpit */
+    init();
+});
 
 })(jQuery, cockpit);

@@ -1840,6 +1840,9 @@ cockpit_web_service_resource (CockpitWebService *self,
 
   path = cockpit_web_response_get_path (response);
 
+  if (g_str_equal (path, "/"))
+    path = "/cockpit/shell/shell.html";
+
   if (g_str_has_prefix (path, "/cockpit/"))
     handled = resource_respond (self, response, path + 8);
 

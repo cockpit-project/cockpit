@@ -13,11 +13,12 @@
       internal API and can be changed at any time.</para>
   </warning>
 
-  <section id="embedding-iframe">
-    <title>Using Frames</title>
+  <section id="embedding-full">
+    <title>Embedding the Cockpit Interface</title>
 
-    <para>Cockpit can be embedded into a larger web page as a frame.  You can
-      control some aspects of Cockpit via the URL. Here's an example:</para>
+    <para>Cockpit can be embedded into a larger web page as a frame. To embed
+      the entire Cockpit Window use the URI:
+      <code>https://server.example.com:9090/</code></para>
 
     <programlisting language="html"><![CDATA[
 <html>
@@ -28,25 +29,61 @@
     This is Cockpit.
     <br/>
     <iframe width="800px" height="600px"
-            src="https://sunflower:9090/#server"/>
+            src="https://server.example.com:9090/"/>
   </body>
 </html>
 ]]></programlisting>
 
   </section>
 
-  <section id="embedding-urls">
-    <title>Cockpit URLs</title>
+  <section id="embedding-components">
+    <title>Embedding Components</title>
 
-    <para>To confine Cockpit to a single machine, you can omit the "Hosts" element in the
-      breadcrumb trail. The user then has no obvious way to navigate to a different machine.</para>
+    <para>Instead of embedding the entirety of Cockpit, you can embed specific components.
+      Only those components explictly documented as API should be embedded. Other components
+      can and will change regularly.</para>
 
-    <para>To achieve this, use a URL like this:</para>
+    <para>The component will load from the server in question and establish a WebSocket connection
+      will be established with the server to relay the component's message stream.</para>
 
-<programlisting>
-https://server.example.com:9090/#server
-</programlisting>
+    <para>Cockpit components are HTML files contained in
+      <link linkend="packages">packages</link>. These can be placed in an iframe or web browser
+      window. Each documented and stable component has a well-known URL and these are documented
+      in the <link linkend="development">API reference</link>. Each component URL begins with the string
+      <code>/cockpit/</code> followed a package name, and then the component itself.</para>
 
+    <para>For example the
+      <link linkend="api-terminal-html">terminal.html</link> in the
+      <link linkend="api-terminal">terminal</link> package, has this URL:
+      <code>/cockpit/terminal/terminal.html</code></para>
+
+    <programlisting language="html"><![CDATA[
+<html>
+  <head>
+    <title>Embedded Terminal</title>
+  </head>
+  <body>
+    This is a terminal.
+    <br/>
+    <iframe width="800px" height="600px"
+      src="https://server.example.com:9090/cockpit/terminal/terminal.html"/>
+  </body>
+</html>
+]]></programlisting>
+
+  </section>
+
+  <section id="embedding-deep">
+    <title>Deep Embedding</title>
+
+    <para>Most embedders will use <link linkend="embedding-components">simple embedding</link> of
+      components. However it is also possible to do deep embedding for embedders who wish to
+      perform non-standard authentication with the server, and relay the component's message
+      stream to the server themselves.</para>
+
+    <warning>
+      <para>Deep embedding capability is in heavy flux and is not yet documented.</para>
+    </warning>
   </section>
 
   <section id="embedding-cors">
@@ -69,7 +106,7 @@ GET: https://server.example.com:9090/ping
       made via plain HTTP without SSL.</para>
 
     <para>It is by design that no further information is present in the response.</para>
-    
+
   </section>
 
 </chapter>

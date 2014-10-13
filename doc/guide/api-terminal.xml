@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<reference id="api-terminal">
+  <title>API: terminal</title>
+
+  <partintro>
+    <para>This package contains an embeddable system terminal.</para>
+  </partintro>
+
+  <refentry id="api-terminal-html">
+    <refmeta>
+      <refentrytitle>terminal.html</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>terminal.html</refname>
+      <refpurpose>System terminal component</refpurpose>
+    </refnamediv>
+
+    <refsection>
+      <title>Description</title>
+<programlisting>
+ &lt;iframe src="http://server:9090/cockpit/terminal/terminal.html"
+     width="600" height="400"&gt;&lt;/iframe&gt;
+</programlisting>
+
+      <para>This is an embeddable Cockpit component that brings up a web-based terminal for
+        the logged in user.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Component URL</term>
+          <listitem><para><code>/cockpit/terminal/terminal.html</code></para></listitem>
+        </varlistentry>
+      </variablelist>
+
+    </refsection>
+  </refentry>
+
+</reference>

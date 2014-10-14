@@ -128,6 +128,13 @@ class Browser:
         self.phantom.expect_reload()
         self.init_after_load()
 
+    def switch_to_frame(self, name):
+        self.phantom.switch_to_frame(name)
+        self.init_after_load()
+
+    def switch_to_parent_frame(self):
+        self.phantom.switch_to_parent_frame()
+
     def eval_js(self, code):
         return self.phantom.do(code)
 
@@ -465,6 +472,12 @@ class Phantom:
     def inject(self, file):
         if not self.run({'cmd': 'inject', 'file': file}):
             raise Error("failed")
+
+    def switch_to_frame(self, name):
+        return self.run({'cmd': 'switch', 'name': name})
+
+    def switch_to_parent_frame(self):
+        return self.run({'cmd': 'switch_parent'})
 
     def do(self, code):
         return self.run({'cmd': 'do', 'code': code})

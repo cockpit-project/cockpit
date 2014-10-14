@@ -269,6 +269,14 @@ main (int argc,
   cockpit_set_journal_logging (!isatty (2));
 
   /*
+   * We have to tell GLib about an alternate default location for XDG_DATA_DIRS
+   * if we've been compiled with a different prefix. GLib caches that, so need
+   * to do this very early.
+   */
+  if (!g_getenv ("XDG_DATA_DIRS") && !g_str_equal (DATADIR, "/usr/share"))
+    g_setenv ("XDG_DATA_DIRS", DATADIR, TRUE);
+
+  /*
    * This process talks on stdin/stdout. However lots of stuff wants to write
    * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
    * it goes to stderr, and use another fd for stdout.

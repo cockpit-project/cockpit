@@ -114,7 +114,7 @@ main (int argc,
     }
   else
     {
-      roots = cockpit_web_server_resolve_roots (PACKAGE_DATA_DIR "/static", NULL);
+      roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static", NULL);
     }
 
   data.auth = cockpit_auth_new ();

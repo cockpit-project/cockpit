@@ -32,7 +32,9 @@
         Specification</ulink>
       to locate packages. The <code>$XDG_DATA_DIRS</code> represents a colon separate list of system data
       directories, and <code>$XDG_DATA_HOME</code> is a user specific data directory. If the environment
-      variables are not set, defaults are used, according to the spec.</para>
+      variables are not set, defaults are used, according to the spec. If cockpit has been built with an
+      alternate <code>--prefix=/path</code> then the <code>$prefix/share/cockpit</code> is used by
+      default.</para>
 
     <para>A <code>cockpit/</code> subdirectories in any of these data directories is the location where
       packages are loaded by Cockpit. If Cockpit finds a package with the same name, in multiple data

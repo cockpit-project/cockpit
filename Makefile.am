@@ -50,9 +50,9 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
 	-DSRCDIR=\"$(abs_srcdir)\" \
 	-DBUILDDIR=\"$(abs_builddir)\" \
+	-DDATADIR=\"$(datadir)\" \
 	-DPACKAGE_LIBEXEC_DIR=\""$(libexecdir)"\" \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
-	-DPACKAGE_DATA_DIR=\""$(datadir)/cockpit"\" \
 	-DPACKAGE_BIN_DIR=\""$(bindir)"\" \
 	-DPACKAGE_LOCALSTATE_DIR=\""$(localstatedir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \

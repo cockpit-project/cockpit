@@ -26,22 +26,15 @@ SUFFIXES = .js .min.js .css .min.css .html .min.html
 	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
 
 
-if HAVE_SYSTEMD
-systemdunitdir          = $(systemdsystemunitdir)
-else
-systemdunitdir          = /tmp
-endif
-
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
 SUBDIRS = . po
 
 DISTCHECK_CONFIGURE_FLAGS=						        \
-	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)   \
-	--with-pamdir=$$dc_install_base/$(pamdir) \
 	--disable-debug \
 	--disable-coverage \
 	--disable-silent-rules \
+	--enable-prefix-only \
 	$(NULL)
 
 AM_CPPFLAGS = \

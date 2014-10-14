@@ -39,6 +39,12 @@ AC_HEADER_STDC
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
+AC_MSG_CHECKING([whether to install to prefix only])
+AC_ARG_ENABLE([prefix-only],
+              [AS_HELP_STRING([--enable-prefix-only], [Whether to install to prefix only])],
+              [], [enable_prefix_only=no])
+AC_MSG_RESULT($enable_prefix_only)
+
 # Initialization
 #
 
@@ -131,6 +137,19 @@ else
     AC_SUBST(interfacesdir)
 fi
 
+# dbus session dir
+AC_MSG_CHECKING(for dbus session services directory)
+if test "$enable_prefix_only" = "yes"; then
+  dbusservicedir='${datadir}/dbus-1/services'
+else
+  dbusservicedir=$($PKG_CONFIG dbus-1 --variable=session_bus_services_dir)
+  if test "$dbusservicedir" = ""; then
+    AC_MSG_ERROR(Couldn't find dbus services directory. Try installing dbus-devel)
+  fi
+fi
+AC_SUBST([dbusservicedir], [$dbusservicedir])
+AC_MSG_RESULT(dbusservicedir)
+
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], [ ],
   [AC_MSG_ERROR([Couldn't find PAM headers. Try installing pam-devel])]
@@ -177,14 +196,17 @@ AC_CHECK_LIB(ssh, ssh_gssapi_set_creds,
   [AC_DEFINE_UNQUOTED(HAVE_SSH_GSSAPI_SET_CREDS, 1, Whether ssh_gssapi_set_creds is available)])
 
 # systemd
-AC_ARG_WITH([systemdsystemunitdir],
-            AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),
-            [],
-            [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
-if test "x$with_systemdsystemunitdir" != "xno"; then
-  AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
+AC_MSG_CHECKING(for systemd unit dir)
+if test "$enable_prefix_only" = "yes"; then
+  systemdunitdir='${prefix}/lib/systemd/system'
+else
+  systemdunitdir=$($PKG_CONFIG systemd --variable=systemdsystemunitdir)
+  if test "$systemdunitdir" = ""; then
+    systemdunitdir="/tmp"
+  fi
 fi
-AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$systemdsystemunitdir"])
+AC_SUBST([systemdunitdir], [$systemdunitdir])
+AC_MSG_RESULT(systemdunitdir)
 
 # Internationalization
 
@@ -405,14 +427,17 @@ echo "
              ================
 
         prefix:                     ${prefix}
+        exec_prefix:                ${exec_prefix}
         libdir:                     ${libdir}
         libexecdir:                 ${libexecdir}
         bindir:                     ${bindir}
         sbindir:                    ${sbindir}
+        datarootdir:                ${datarootdir}
         datadir:                    ${datadir}
         sysconfdir:                 ${sysconfdir}
         localstatedir:              ${localstatedir}
-        systemdsystemunitdir:       ${systemdsystemunitdir}
+        systemdsystemunitdir:       ${systemdunitdir}
+        dbusservicedir:             ${dbusservicedir}
         pamdir:                     ${pamdir}
 
         compiler:                   ${CC}

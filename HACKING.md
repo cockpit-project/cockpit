@@ -40,7 +40,7 @@ them by running autogen.sh.  Maybe like so:
 
     $ mkdir build
     $ cd build
-    $ ../autogen.sh --prefix /usr --enable-maintainer-mode --enable-debug
+    $ ../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug
 
 As shown, autogen.sh also runs 'configure' with the given options.
 When working with a Git clone, it is therefore best to simply always
@@ -61,6 +61,12 @@ simplistic PAM configuration.
 
 Cockpit has a single non-recursive Makefile.  You can only run `make`
 from the top-level and it will always rebuild the whole project.
+
+If you prefer to install to a different `--prefix` and would prefer
+that `make install` not write outside that prefix, then specify the
+`--enable-prefix-only` option to `autogen.sh`. This will result in an
+installation of Cockpit that does not work without further tweaking.
+For advanced users only.
 
 ## Checking
 

@@ -115,7 +115,6 @@ cockpitd_LDADD = 					\
 	-lm 						\
 	$(NULL)
 
-dbusservicedir = $(datadir)/dbus-1/services
 dbusservice_DATA = com.redhat.Cockpit.service
 
 com.redhat.Cockpit.service: src/daemon/com.redhat.Cockpit.service.in Makefile.am

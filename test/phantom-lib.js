@@ -36,7 +36,7 @@ function ph_select(sel)
     return els;
 }
 
-function ph_only(els)
+function ph_only(els, sel)
 {
     if (els.length === 0)
         throw sel + " not found";
@@ -48,7 +48,7 @@ function ph_only(els)
 function ph_find (sel)
 {
     var els = ph_select(sel);
-    return ph_only(els);
+    return ph_only(els, sel);
 }
 
 function ph_val (sel)
@@ -135,7 +135,7 @@ function ph_is_visible (sel)
 {
     if (window.$) {
         var $sel = ph_select(sel);
-        ph_only($sel);
+        ph_only($sel, sel);
         return $sel.is(':visible') && !$sel.is(':animated');
     } else {
         var el = ph_find(sel);

@@ -97,6 +97,18 @@ function step ()
             page.injectJs(cmd.file);
             sys.stdout.writeLine(JSON.stringify({result: true}));
             step();
+        } else if (cmd.cmd == "switch") {
+            if (page.switchToFrame(cmd.name))
+                sys.stdout.writeLine(JSON.stringify({result: true}));
+            else
+                sys.stdout.writeLine(JSON.stringify({error: "Can't switch to frame"}));
+            step();
+        } else if (cmd.cmd == "switch_parent") {
+            if (page.switchToParentFrame())
+                sys.stdout.writeLine(JSON.stringify({result: true}));
+            else
+                sys.stdout.writeLine(JSON.stringify({error: "Can't switch to parent frame"}));
+            step();
         } else if (cmd.cmd == "show") {
             page.render(cmd.file || "page.png");
             sys.stdout.writeLine(JSON.stringify({result: true}));

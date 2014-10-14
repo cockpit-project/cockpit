@@ -103,6 +103,7 @@ lang/%.json : $(top_srcdir)/po/%.po
 CLEANFILES += \
 	shell.js \
 	shell.min.js \
+	pkg/shell/shell.min.html \
 	$(NULL)
 
 EXTRA_DIST += \

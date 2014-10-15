@@ -286,7 +286,7 @@ pam_conv_func (int num_msg,
                struct pam_response **ret_resp,
                void *appdata_ptr)
 {
-  char **passwd = (char **)appdata_ptr;
+  char **password = (char **)appdata_ptr;
   struct pam_response *resp;
   int success = 1;
   int i;
@@ -302,17 +302,17 @@ pam_conv_func (int num_msg,
     {
       if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF)
         {
-          if (*passwd == NULL)
+          if (*password == NULL)
             {
               warnx ("pam asked us for unexpected password");
               success = 0;
             }
           else
             {
-              debug ("answered pam passwd prompt");
-              resp[i].resp = *passwd;
+              debug ("answered pam password prompt");
+              resp[i].resp = *password;
               resp[i].resp_retcode = 0;
-              *passwd = NULL;
+              *password = NULL;
             }
         }
       else if (msg[i]->msg_style == PAM_ERROR_MSG ||

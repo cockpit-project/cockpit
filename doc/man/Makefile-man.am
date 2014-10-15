@@ -1,5 +1,6 @@
 man_MANS += \
 	doc/man/cockpitd.8 \
+	doc/man/cockpit-bridge.1 \
 	doc/man/cockpit-ws.8 \
 	doc/man/cockpit.conf.5	\
 	$(NULL)
@@ -16,6 +17,7 @@ MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 
 
 EXTRA_DIST += 				\
 	doc/man/cockpitd.xml		\
+	doc/man/cockpit-bridge.xml \
 	doc/man/cockpit-ws.xml		\
 	doc/man/cockpit.conf.xml		\
 	$(NULL)

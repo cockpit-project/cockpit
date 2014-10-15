@@ -60,7 +60,7 @@ gint cockpit_ws_specific_ssh_port = 0;
 
 guint cockpit_ws_ping_interval = 5;
 
-gint cockpit_ws_agent_timeout = 30;
+gint cockpit_ws_session_timeout = 30;
 
 /* ----------------------------------------------------------------------------
  * CockpitSession
@@ -173,7 +173,7 @@ cockpit_session_remove_channel (CockpitSessions *sessions,
        * of them being that way.
        */
       g_debug ("%s: removed last channel %s for session", session->host, channel);
-      session->timeout = g_timeout_add_seconds (cockpit_ws_agent_timeout,
+      session->timeout = g_timeout_add_seconds (cockpit_ws_session_timeout,
                                                 on_timeout_cleanup_session, session);
     }
   else

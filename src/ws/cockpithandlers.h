@@ -43,12 +43,6 @@ gboolean       cockpit_handler_login             (CockpitWebServer *server,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *data);
 
-gboolean       cockpit_handler_index             (CockpitWebServer *server,
-                                                  const gchar *path,
-                                                  GHashTable *headers,
-                                                  CockpitWebResponse *response,
-                                                  CockpitHandlerData *data);
-
 gboolean       cockpit_handler_root              (CockpitWebServer *server,
                                                   const gchar *path,
                                                   GHashTable *headers,
@@ -61,7 +55,7 @@ gboolean       cockpit_handler_static            (CockpitWebServer *server,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
-gboolean       cockpit_handler_resource          (CockpitWebService *server,
+gboolean       cockpit_handler_resource          (CockpitWebServer *server,
                                                   const gchar *path,
                                                   GHashTable *headers,
                                                   CockpitWebResponse *response,

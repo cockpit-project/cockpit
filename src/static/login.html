@@ -6,7 +6,7 @@
     <link href="/static/patternfly.x1.css" rel="stylesheet">
     <style>
         /* Login page specific overrides */
-        .login-pf {
+        body {
             background: url("/static/images/bg-login.x0.jpg") no-repeat 50% 0;
             background-size: auto;
             background-color: #101010;
@@ -35,17 +35,35 @@
             height: 28px;
             width: 28px;
         }
+
+        /* Inline login screen */
+        .inline #badge,
+        .inline #brand,
+        .inline #login-details {
+            display: none;
+        }
+
+        .inline body {
+            background: none;
+            color: #000;
+        }
+        .inline .container .help-block {
+            color: #000;
+        }
     </style>
     <script>
-        var cockpit = { };
         var phantom_checkpoint = phantom_checkpoint || function () { };
 
         /* Login page does not use jQuery */
 
-        (function(cockpit) {
+        (function() {
 
             /* Filled in by cockpit-ws handler */
             var initial_environment = @@environment@@;
+
+            /* Determine if we are nested or not, and switch styles */
+            if (window.location.pathname.indexOf("/cockpit") === 0)
+                document.documentElement.setAttribute("class", "inline");
 
             function id(name) {
                 return document.getElementById(name);
@@ -84,12 +102,6 @@
                     return;
                 }
 
-                /* Already logged in */
-                if (initial_environment.localhost && initial_environment.localhost.packages) {
-                    shell(initial_environment);
-                    return;
-                }
-
                 /* Try automatic/kerberos authentication? */
                 if (sessionStorage.getItem("logout-intent") == "explicit") {
                     sessionStorage.removeItem("logout-intent");
@@ -106,7 +118,7 @@
                     if (xhr.readyState != 4) {
                         return;
                     } else if (xhr.status == 200) {
-                        shell(JSON.parse(xhr.responseText));
+                        run(JSON.parse(xhr.responseText));
                     } else if (xhr.status == 401) {
                         show_login();
                     } else if (xhr.statusText) {
@@ -176,7 +188,7 @@
                     if (xhr.readyState != 4) {
                         return;
                     } else if (xhr.status == 200) {
-                        shell(JSON.parse(xhr.responseText));
+                        run(JSON.parse(xhr.responseText));
                     } else if (xhr.status == 401) {
                         if (window.console)
                             console.log(xhr.statusText);
@@ -197,92 +209,12 @@
                 xhr.send();
             }
 
-            function find_package(packages, name) {
-                var i, j, id, package, found;
-                for (i = 0; i < packages.length; i++) {
-                    package = packages[i];
-                    found = false
-                    if (package.id) {
-                        for (j = 0; j < package.id.length; j++) {
-                            id = package.id[j];
-                            if (id.indexOf('$') === 0)
-                                package.checksum = id;
-                            else if (id === name)
-                                found = true;
-                        }
-                    }
-                    if (found)
-                        return package;
-                }
-                return null;
-            }
-
-            function shell(environment) {
-                var i, package = null;
-                if (environment.localhost && environment.localhost.packages)
-                    package = find_package(environment.localhost.packages, "shell");
-                if (!package || !package.manifest) {
-                    fatal("Cockpit not available: shell not installed correctly");
-                    return;
-                }
-
-                var prefix;
-                if (package.checksum)
-                    prefix = "/cockpit/" + package.checksum;
-                else
-                    prefix = "/cockpit/shell";
-
-                function qualify(path) {
-                    if (path.indexOf('/') === 0)
-                        return path;
-                    return prefix + '/' + path;
-                }
-
-                /* TODO: Compatibility ... rework these later */
-                window.cockpitdyn_supported_languages = environment.localhost.languages;
-
-                /* Simplistic package loader good enough for shell */
-                var css = document.createElement("link");
-                css.setAttribute("rel", "stylesheet");
-                css.setAttribute("type", "text/css");
-                css.setAttribute("href", qualify("shell.css"));
-                document.head.appendChild(css);
-
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", qualify("shell.html"), true);
-                xhr.onreadystatechange = function(e) {
-                    if (xhr.readyState != 4) {
-                        return;
-                    } else if (xhr.status == 200) {
-                        var content = xhr.responseText;
-                        document.body.removeAttribute("class");
-                        document.body.innerHTML = content;
-
-                        var tags = document.getElementsByTagName("script");
-                        var i, length = tags.length;
-                        for (i = 0; i < length; i++) {
-                            var src = tags[i].getAttribute("src");
-                            if (src) {
-                                tags[i].parentNode.removeChild(tags[i]);
-                                var script = document.createElement("script");
-                                script.async = false;
-                                script.src = src;
-                                document.head.appendChild(script);
-                            }
-                        }
-                    } else {
-                        if (window.console)
-                            console.log(xhr.statusText);
-                        fatal("Cockpit not available: shell not installed correctly");
-                    }
-
-                    phantom_checkpoint();
-                };
-                xhr.send();
+            function run(response) {
+                window.location.reload(true);
             }
 
             window.onload = boot;
-        })(cockpit);
+        })();
     </script>
   </head>
   <body class="login-pf">

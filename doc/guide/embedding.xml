@@ -103,9 +103,11 @@ GET: https://server.example.com:9090/ping
     <para>The <code>/ping</code> request allows
       <ulink url="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">Cross Origin Resource Sharing</ulink>
       headers and as such can be performed from Javascript code with any origin. The reqeust can also be
-      made via plain HTTP without SSL.</para>
+      made via plain HTTP without SSL. It is by design that no further information is present in the
+      response.</para>
 
-    <para>It is by design that no further information is present in the response.</para>
+    <para>A complete example of using <code>/ping</code> is available in the Cockpit sources in the
+      <code>/examples/ping-server/</code> directory.</para>
 
   </section>
 

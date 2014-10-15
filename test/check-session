@@ -52,6 +52,7 @@ class TestSession(MachineCase):
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
+        b.expect_reload()
         b.wait_page("server")
         check_session(True)
 

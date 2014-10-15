@@ -36,8 +36,10 @@ PageDisplayLanguageDialog.prototype = {
         var list = $("#display-language-list");
         var code;
         list.empty();
-        for (code in cockpitdyn_supported_languages) {
-            var info = cockpitdyn_supported_languages[code];
+        /* TODO: This needs to be reworked */
+        var languages = { };
+        for (code in languages) {
+            var info = languages[code];
             var name = info.name;
             var display_name = cockpit.i18n(name, "display-language");
             if (code == cockpit.language_code)

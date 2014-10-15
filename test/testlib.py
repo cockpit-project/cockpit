@@ -275,6 +275,7 @@ class Browser:
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', "foobar")
         self.click('#login-button')
+        self.expect_reload()
         self.wait_page(page)
 
     def logout(self):
@@ -289,6 +290,7 @@ class Browser:
         self.set_val("#login-user-input", user)
         self.set_val("#login-password-input", "foobar")
         self.click('#login-button')
+        self.expect_reload()
         self.wait_page(page)
 
     def snapshot(self, title, label=None):

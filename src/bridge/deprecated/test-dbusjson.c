@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpitdbusjson.h"
+#include "cockpitdbusjson2.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
@@ -61,8 +61,8 @@ dbus_server_thread (gpointer data)
 
   transport = cockpit_pipe_transport_new_fds ("mock", fd, fd);
 
-  channel = cockpit_dbus_json_open (transport, "444",
-                                    "com.redhat.Cockpit.DBusTests.Test", "/otree");
+  channel = cockpit_dbus_json2_open (transport, "444",
+                                     "com.redhat.Cockpit.DBusTests.Test", "/otree");
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_set_flag), &closed);
 
   /* Channel keeps itself alive until done */
@@ -197,7 +197,7 @@ test_dispose_invalid (void)
 
   cockpit_expect_warning ("bridge got invalid dbus service");
   transport = cockpit_pipe_transport_new_fds ("mock", fd, fd);
-  channel = cockpit_dbus_json_open (transport, "444", "", "/otree");
+  channel = cockpit_dbus_json2_open (transport, "444", "", "/otree");
 
   g_object_unref (transport);
   g_object_unref (channel);

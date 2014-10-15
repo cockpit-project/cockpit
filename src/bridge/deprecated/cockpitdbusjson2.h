@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_DBUS_JSON_H__
-#define COCKPIT_DBUS_JSON_H__
+#ifndef COCKPIT_DBUS_JSON2_H__
+#define COCKPIT_DBUS_JSON2_H__
 
 #include <gio/gio.h>
 
@@ -26,13 +26,13 @@
 
 G_BEGIN_DECLS
 
-#define COCKPIT_TYPE_DBUS_JSON         (cockpit_dbus_json_get_type ())
+#define COCKPIT_TYPE_DBUS_JSON2         (cockpit_dbus_json2_get_type ())
 
-GType              cockpit_dbus_json_get_type   (void) G_GNUC_CONST;
+GType              cockpit_dbus_json2_get_type  (void) G_GNUC_CONST;
 
-CockpitChannel *   cockpit_dbus_json_open       (CockpitTransport *transport,
+CockpitChannel *   cockpit_dbus_json2_open      (CockpitTransport *transport,
                                                  const gchar *channel_id,
                                                  const gchar *dbus_service,
                                                  const gchar *dbus_path);
 
-#endif /* COCKPIT_DBUS_JSON_H__ */
+#endif /* COCKPIT_DBUS_JSON2_H__ */

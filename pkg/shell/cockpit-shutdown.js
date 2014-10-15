@@ -44,7 +44,8 @@ PageShutdownDialog.prototype = {
 
     enter: function() {
         this.address = cockpit.get_page_machine();
-        this.cockpitd = cockpit.dbus(this.address);
+        /* TODO: This needs to be migrated away from the old dbus */
+        this.cockpitd = cockpit.dbusx(this.address);
         this.cockpitd_manager = this.cockpitd.get("/com/redhat/Cockpit/Manager",
                                                   "com.redhat.Cockpit.Manager");
         $(this.cockpitd_manager).on("notify.shutdown", $.proxy(this, "update"));

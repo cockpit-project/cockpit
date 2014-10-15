@@ -408,7 +408,10 @@ main (int argc,
                                     "cockpit-bridge is run automatically inside of a Cockpit session. When\n"
                                     "run from the command line one of the options above must be specified.\n");
 
-  if (!g_option_context_parse (context, &argc, &argv, &error))
+  g_option_context_parse (context, &argc, &argv, &error);
+  g_option_context_free (context);
+
+  if (error)
     {
       g_printerr ("cockpit-bridge: %s\n", error->message);
       g_error_free (error);

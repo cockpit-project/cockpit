@@ -35,4 +35,6 @@ void              cockpit_package_expand             (GHashTable *mapping,
                                                       GBytes *input,
                                                       GQueue *output);
 
+void              cockpit_package_dump               (void);
+
 #endif /* COCKPIT_PACKAGE_H_ */

@@ -38,6 +38,8 @@
   <refsynopsisdiv>
     <cmdsynopsis>
       <command>cockpit-bridge</command>
+      <arg><option>--help</option></arg>
+      <arg><option>--packages</option></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -48,9 +50,31 @@
       relay messages and commands from the Web front end to the server. Among
       other things it relays DBus, and spawns processes on behalf of the
       Web user interface.</para>
-    <para>This program is not meant to be run by users or administrators. It
+    <para>This program is not routinely run by users or administrators. It
       is in the <code>$PATH</code> so that Cockpit can find it when connecting
-      between hosts.</para>
+      between hosts. However there are some diagnostics available when running
+      from the command line.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>OPTIONS</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>--help</option></term>
+        <listitem>
+          <para>
+            Show help options.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--packages</option></term>
+        <listitem>
+          <para>List all available Cockpit packages and exit. Note this includes packages
+            available to the user running this command.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
   </refsect1>
 
   <refsect1><title>AUTHOR</title>

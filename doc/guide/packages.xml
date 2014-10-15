@@ -54,6 +54,15 @@
       Other packages are cached agressively, and are accessed using a checksum of the files in
       the packages and their names.</para>
 
+    <para>You can use the following command to list the packages installed on a server. You'll note that
+      it's output may change when you run the command as different users, if there are packages installed
+      in the user's home directory.</para>
+
+<programlisting>
+ $ cockpit-bridge --packages
+ ...
+</programlisting>
+
     <para>To further clarify things, here is an example package called "my-package" and its file layout:</para>
 
 <programlisting>

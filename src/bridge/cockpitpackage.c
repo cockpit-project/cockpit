@@ -722,3 +722,54 @@ cockpit_package_expand (GHashTable *listing,
 
   g_list_free (blocks);
 }
+
+void
+cockpit_package_dump (void)
+{
+  GHashTable *listing;
+  GHashTable *by_name;
+  GHashTableIter iter;
+  CockpitPackage *package;
+  GList *names, *l;
+  const gchar *prefix;
+  JsonArray *array;
+  guint i;
+
+  listing = cockpit_package_listing (NULL);
+  by_name = g_hash_table_new (g_str_hash, g_str_equal);
+
+  g_hash_table_iter_init (&iter, listing);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&package))
+    g_hash_table_replace (by_name, package->name, package);
+
+  names = g_hash_table_get_keys (by_name);
+  names = g_list_sort (names, (GCompareFunc)strcmp);
+  for (l = names; l != NULL; l = g_list_next (l))
+    {
+      package = g_hash_table_lookup (by_name, l->data);
+      g_print ("%s: %s\n", package->name, package->directory);
+      if (package->checksum)
+        g_print ("    checksum: %s\n", package->checksum);
+
+      if (package->alias)
+        {
+          prefix = "    alias: ";
+          if (JSON_NODE_HOLDS_ARRAY (package->alias))
+            {
+              array = json_node_get_array (package->alias);
+              for (i = 0; i < json_array_get_length (array); i++)
+                {
+                  g_print ("%s%s\n", prefix, json_array_get_string_element (array, i));
+                  prefix = "           ";
+                }
+            }
+          else
+            {
+              g_print ("%s%s\n", prefix, json_node_get_string (package->alias));
+            }
+        }
+    }
+
+  g_list_free (names);
+  g_hash_table_unref (by_name);
+}

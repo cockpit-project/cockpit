@@ -706,7 +706,7 @@ on_channel_exit_status (ssh_session session,
   if (exit_status == 127)
     {
       g_debug ("%s: received exit status %d", self->logname, exit_status);
-      problem = "no-agent";        /* cockpit-agent not installed */
+      problem = "no-cockpit";        /* cockpit-bridge not installed */
     }
   else if (exit_status)
     {

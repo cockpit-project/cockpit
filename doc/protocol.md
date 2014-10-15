@@ -436,7 +436,7 @@ codes. Instead the web needs to be ready to react to these problems. When in
 doubt use "internal-error".
 
  * "internal-error"
- * "no-agent"
+ * "no-cockpit"
  * "no-session"
  * "not-authorized"
  * "not-found"

@@ -909,7 +909,7 @@ test_fail_spawn (TestCase *test,
   WAIT_UNTIL (received != NULL);
 
   /* But we should have gotten failure message, about the spawn */
-  expect_control_message (received, "close", "4", "reason", "no-agent", NULL);
+  expect_control_message (received, "close", "4", "reason", "no-cockpit", NULL);
   g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, service);

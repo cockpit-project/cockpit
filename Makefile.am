@@ -17,7 +17,7 @@ TESTS =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-SUFFIXES = .js .min.js .css .min.css .html .min.html
+SUFFIXES = .js .min.js .css .min.css .html .min.html .1 .8 .5
 
 .js.min.js:
 	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
@@ -142,13 +142,13 @@ include doc/man/Makefile-man.am
 
 dist-hook: guide/index.html
 	$(MKDIR_P) $(distdir)/guide
-	cp $(builddir)/guide/* $(distdir)/guide
+	cp `dirname $<`/* $(distdir)/guide
 
 noinst_DATA += guide/index.html
 
-install-data-local:
+install-data-local: guide/index.html
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
-	$(INSTALL_DATA) $(builddir)/guide/* $(DESTDIR)$(htmldir)
+	$(INSTALL_DATA) `dirname $<`/* $(DESTDIR)$(htmldir)
 
 uninstall-doc-local:
 	rm -rf $(DESTDIR)$(htmldir)

@@ -38,7 +38,7 @@ CLEANFILES += \
 	$(NULL)
 
 guide/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT)
-	$(AM_V_GEN) mkdir -p guide && cp $(srcdir)/doc/guide/static/* guide/ && \
+	$(AM_V_GEN) mkdir -p guide/ && rm -rf guide/* && cp $(srcdir)/doc/guide/static/* guide/ && \
 		$(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o guide/ \
 			--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc \
 			$(srcdir)/$(GUIDE_DOCBOOK)

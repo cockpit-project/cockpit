@@ -24,7 +24,7 @@
 
 #include "common/cockpittest.h"
 
-extern const gchar **cockpit_agent_data_dirs;
+extern const gchar **cockpit_bridge_data_dirs;
 
 typedef struct {
   MockTransport *transport;
@@ -68,7 +68,7 @@ setup (TestCase *tc,
   g_assert (fixture != NULL);
 
   if (fixture->datadirs[0])
-    cockpit_agent_data_dirs = (const gchar **)fixture->datadirs;
+    cockpit_bridge_data_dirs = (const gchar **)fixture->datadirs;
 
   tc->transport = mock_transport_new ();
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_transport_closed), NULL);
@@ -94,7 +94,7 @@ teardown (TestCase *tc,
 
   g_free (tc->problem);
 
-  cockpit_agent_data_dirs = NULL;
+  cockpit_bridge_data_dirs = NULL;
 }
 
 static GBytes *
@@ -191,7 +191,7 @@ test_large (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
-  g_file_get_contents (SRCDIR "/src/agent/mock-resource/system/cockpit/test/sub/COPYING",
+  g_file_get_contents (SRCDIR "/src/bridge/mock-resource/system/cockpit/test/sub/COPYING",
                        &contents, &length, &error);
   g_assert_no_error (error);
 
@@ -366,15 +366,15 @@ test_bad_receive (TestCase *tc,
 }
 
 static const Fixture fixture_list_bad_directory = {
-    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-directory", NULL }
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-directory", NULL }
 };
 
 static const Fixture fixture_list_bad_file = {
-    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-file", NULL }
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-file", NULL }
 };
 
 static const Fixture fixture_list_bad_name = {
-    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-package", NULL }
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-package", NULL }
 };
 
 static void
@@ -410,8 +410,8 @@ int
 main (int argc,
       char *argv[])
 {
-  g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/agent/mock-resource/system", TRUE);
-  g_setenv ("XDG_DATA_HOME", SRCDIR "/src/agent/mock-resource/home", TRUE);
+  g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  g_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
 
   cockpit_test_init (&argc, &argv);
 

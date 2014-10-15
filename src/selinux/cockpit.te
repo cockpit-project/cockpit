@@ -89,7 +89,7 @@ allow cockpit_session_t init_t:unix_stream_socket sendto;
 # cockpit-session does these when authenticating via GSSAPI
 allow cockpit_session_t tmp_t:file { create write open unlink };
 
-# cockpit-session can execute cockpit-agent as the user
+# cockpit-session can execute cockpit-bridge as the user
 userdom_spec_domtrans_all_users(cockpit_session_t)
 
 optional_policy(`

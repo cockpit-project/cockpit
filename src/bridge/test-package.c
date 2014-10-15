@@ -25,7 +25,7 @@
 
 #include <string.h>
 
-extern const gchar **cockpit_agent_data_dirs;
+extern const gchar **cockpit_bridge_data_dirs;
 
 typedef struct {
   GHashTable *listing;
@@ -44,7 +44,7 @@ setup (TestCase *tc,
   const Fixture *fixture = data;
 
   if (fixture && fixture->datadirs[0])
-    cockpit_agent_data_dirs = (const gchar **)fixture->datadirs;
+    cockpit_bridge_data_dirs = (const gchar **)fixture->datadirs;
 
   if (!fixture || !fixture->no_listing)
     tc->listing = cockpit_package_listing (&tc->json);
@@ -61,7 +61,7 @@ teardown (TestCase *tc,
   if (tc->json)
     json_array_unref (tc->json);
 
-  cockpit_agent_data_dirs = NULL;
+  cockpit_bridge_data_dirs = NULL;
 }
 
 static const Fixture fixture_listing = {
@@ -104,7 +104,7 @@ test_resolve (TestCase *tc,
   gchar *path;
 
   path = cockpit_package_resolve (tc->listing, "test", "/sub/file.ext");
-  g_assert_cmpstr (SRCDIR "/src/agent/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
+  g_assert_cmpstr (SRCDIR "/src/bridge/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
   g_free (path);
 }
 
@@ -115,7 +115,7 @@ test_resolve_checksum (TestCase *tc,
   gchar *path;
 
   path = cockpit_package_resolve (tc->listing, "$fec489a692ee808950f34f6c519803aed65e1849", "/sub/file.ext");
-  g_assert_cmpstr (SRCDIR "/src/agent/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
+  g_assert_cmpstr (SRCDIR "/src/bridge/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
   g_free (path);
 }
 
@@ -233,17 +233,17 @@ test_expand_binary (TestCase *tc,
 }
 
 static const Fixture fixture_list_bad_directory = {
-    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-directory", NULL },
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-directory", NULL },
     .no_listing = TRUE
 };
 
 static const Fixture fixture_list_bad_file = {
-    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-file", NULL },
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-file", NULL },
     .no_listing = TRUE
 };
 
 static const Fixture fixture_list_bad_name = {
-    .datadirs = { SRCDIR "/src/agent/mock-resource/bad-package", NULL },
+    .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-package", NULL },
     .no_listing = TRUE
 };
 
@@ -274,8 +274,8 @@ int
 main (int argc,
       char *argv[])
 {
-  g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/agent/mock-resource/system", TRUE);
-  g_setenv ("XDG_DATA_HOME", SRCDIR "/src/agent/mock-resource/home", TRUE);
+  g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  g_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
 
   cockpit_test_init (&argc, &argv);
 

@@ -59,7 +59,7 @@
  *   @interval: interval in milliseconds or zero
  *   @watch: another request to watch for changes on, or undefined
  *   @params: optional, a plain object of query params
- *   Asks REST JSON agent to check the result of the given GET request
+ *   Asks REST JSON bridge to check the result of the given GET request
  *   every @interval milliseconds. Any changes in the results are sent.
  *   If @watch is specified, watch another request for output, and when
  *   that request has output, perform the poll request.

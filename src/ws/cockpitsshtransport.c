@@ -1209,7 +1209,7 @@ cockpit_ssh_transport_set_property (GObject *obj,
     case PROP_COMMAND:
       string = g_value_get_string (value);
       if (string == NULL)
-        string = PACKAGE_LIBEXEC_DIR "/cockpit-agent";
+        string = "cockpit-bridge";
       self->data->command = g_strdup (string);
       break;
     case PROP_HOST_KEY:

@@ -109,7 +109,7 @@ main (int argc,
   if (opt_uninstalled)
     {
       roots = cockpit_web_server_resolve_roots (SRCDIR "/src/static", SRCDIR "/lib", NULL);
-      cockpit_ws_agent_program = BUILDDIR "/cockpit-agent";
+      cockpit_ws_bridge_program = BUILDDIR "/cockpit-bridge";
       cockpit_ws_session_program = BUILDDIR "/cockpit-session";
     }
   else

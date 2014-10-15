@@ -23,7 +23,7 @@
 
 /*
  * MT: This is not thread safe at all. It doesn't need to be for
- * running in cockpit-agent
+ * running in cockpit-bridge
  *
  * TODO: One big lack is solving the races between looking up objects and
  * them changing during lookup. Have some ideas for how to solve this involving

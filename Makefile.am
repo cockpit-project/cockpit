@@ -3,6 +3,7 @@ man_MANS =
 BUILT_SOURCES =
 EXTRA_DIST = README.md
 CLEANFILES = *.js *.min.js *.html *.min.html *.css *.min.css
+bin_PROGRAMS =
 check_SCRIPTS =
 check_PROGRAMS =
 noinst_SCRIPTS =
@@ -122,7 +123,7 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
         done
 	cd $(srcdir); for d in $(testassets_data); do $(INSTALL_DATA) -D $$d $(DESTDIR)$(testassetsdir)/$$d; done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
-	ln -sn $(libexecdir)/cockpit-agent $(DESTDIR)$(testassetsdir)/cockpit-agent
+	ln -sn $(libexecdir)/cockpit-bridge $(DESTDIR)$(testassetsdir)/cockpit-bridge
 
 clean-local:
 	find $(builddir) -name '*.gc??' -delete
@@ -174,10 +175,10 @@ endif
 include pkg/base/Makefile.am
 include pkg/server/Makefile.am
 include pkg/shell/Makefile.am
+include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
-include src/agent/Makefile-agent.am
 include src/ws/Makefile-ws.am
 include src/daemon/Makefile-daemon.am
 include src/static/Makefile-static.am

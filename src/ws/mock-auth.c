@@ -106,7 +106,7 @@ mock_auth_login_finish (CockpitAuth *auth,
   CockpitCreds *creds;
 
   const gchar *argv[] = {
-    BUILDDIR "/cockpit-agent",
+    BUILDDIR "/cockpit-bridge",
     NULL
   };
 

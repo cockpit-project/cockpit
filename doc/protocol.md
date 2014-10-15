@@ -52,7 +52,7 @@ Command Messages
 ----------------
 
 Command messages let the various components such as cockpit-web, cockpit-ws and
-cockpit-agent communicate about what's going on.
+cockpit-bridge communicate about what's going on.
 
 Command messages are always sent in the control channel. They always have a
 channel number of zero. The payload of a control message is always a json
@@ -127,7 +127,7 @@ An example of a close:
         "reason": "not-authorized"
     }
 
-Any protocol participant can send this message. The cockpit-agent and cockpit-ws
+Any protocol participant can send this message. The cockpit-bridge and cockpit-ws
 backends will send this message when a channel closes whether because of an
 error or a normal closure. The frontend cockpit-web will send this when it
 wants to close a channel normally.
@@ -160,16 +160,16 @@ Command: authorize
 ------------------
 
 The "authorize" command is for communication of reauthorization challenges
-and responses between cockpit-agent and cockpit-ws.
+and responses between cockpit-bridge and cockpit-ws.
 
 The following fields are defined:
 
  * "cookie": an string sent with a challenge, that must be present in
    the corresponding response.
  * "challenge": a challenge string from the reauthorize component, present
-   in messages from cockpit-agent to cockpit-ws
+   in messages from cockpit-bridge to cockpit-ws
  * "response": a response string from the reauthorize component, present
-   in messages from cockpit-ws to cockpit-agent
+   in messages from cockpit-ws to cockpit-bridge
 
 The contents of the "challenge" and "response" fields are defined and
 documented in the reauthorize component.
@@ -216,7 +216,7 @@ Payload: resource1
 
 These payloads contain resource data, such as javascript and html files that
 make up cockpit packages. Typically, channels of this type are opened between
-cockpit-ws and cockpit-agent. See doc/packages.md
+cockpit-ws and cockpit-bridge. See doc/packages.md
 
 Additional "open" command options are available to open a channel of this
 type:
@@ -256,7 +256,7 @@ Payload: dbus-json1
 -------------------
 
 DBus messages are encoded in JSON payloads by cockpit-web, and decoded in
-cockpit-agent. Contents not yet documented. See cockpitdbusjson.c or dbus.js.
+cockpit-bridge. Contents not yet documented. See cockpitdbusjson.c or dbus.js.
 
 Additional "open" command options are needed to open a channel of this
 type:
@@ -282,7 +282,7 @@ and issues with these encodings and there is ongoing work to streamline.
             "args": [ "invalue", 5 ]
         }
 
- * "call-reply": Reply from a "method-call", sent by cockpit-agent.
+ * "call-reply": Reply from a "method-call", sent by cockpit-bridge.
 
         {
             "command": "call-reply",
@@ -304,7 +304,7 @@ and issues with these encodings and there is ongoing work to streamline.
             }
         }
 
- * "seed": A message received from cockpit-agent when the dbus channel is
+ * "seed": A message received from cockpit-bridge when the dbus channel is
    ready. It looks like this:
 
         {
@@ -323,7 +323,7 @@ and issues with these encodings and there is ongoing work to streamline.
             }
         }
 
- * "interface-properties-changed": Sent by cockpit-agent when the Properties of an interface change.
+ * "interface-properties-changed": Sent by cockpit-bridge when the Properties of an interface change.
 
         {
             "command": "interface-properties-changed",
@@ -419,7 +419,7 @@ this payload type:
    file path and arguments.
  * "environ": If "spawn" is set, then this is the environment for the new
    spawned process. If unset, then the environment is inherited from the
-   agent.
+   cockpit-bridge.
  * "pty": If "spawn" is set, then execute the command as a terminal pty.
  * "batch": Batches data coming from the stream in blocks of at least this
    size. This is not a guarantee. After a short timeout the data will be

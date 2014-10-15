@@ -71,7 +71,7 @@ class TestSession(MachineCase):
         # check_session(False)
 
         self.allow_restart_journal_messages()
-        # Might happen when killing the agent.
+        # Might happen when killing the bridge.
         self.allow_journal_messages("localhost: dropping message while waiting for child to exit")
 
 test_main ()

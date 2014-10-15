@@ -195,7 +195,7 @@ test_dispose_invalid (void)
   CockpitChannel *channel;
   int fd = GPOINTER_TO_INT (NULL);
 
-  cockpit_expect_warning ("agent got invalid dbus service");
+  cockpit_expect_warning ("bridge got invalid dbus service");
   transport = cockpit_pipe_transport_new_fds ("mock", fd, fd);
   channel = cockpit_dbus_json_open (transport, "444", "", "/otree");
 

@@ -47,8 +47,7 @@
 const gchar *cockpit_ws_session_program =
     PACKAGE_LIBEXEC_DIR "/cockpit-session";
 
-const gchar *cockpit_ws_agent_program =
-    PACKAGE_LIBEXEC_DIR "/cockpit-agent";
+const gchar *cockpit_ws_bridge_program = NULL;
 
 const gchar *cockpit_ws_known_hosts =
     PACKAGE_LOCALSTATE_DIR "/lib/cockpit/known_hosts";
@@ -880,7 +879,7 @@ lookup_or_open_session_for_host (CockpitWebService *self,
       transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", host,
                                 "port", cockpit_ws_specific_ssh_port,
-                                "command", cockpit_ws_agent_program,
+                                "command", cockpit_ws_bridge_program,
                                 "creds", creds,
                                 "known-hosts", cockpit_ws_known_hosts,
                                 "host-key", host_key,
@@ -1278,7 +1277,7 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
  * @session: optionally an open cockpit-session master process, or NULL
  *
  * Creates a new web service to serve web sockets and connect
- * to agents for the given user.
+ * to bridges for the given user.
  *
  * Returns: (transfer full): the new web service
  */

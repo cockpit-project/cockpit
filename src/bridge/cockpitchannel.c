@@ -20,12 +20,14 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
-#include "deprecated/cockpitdbusjson1.h"
-#include "deprecated/cockpitdbusjson2.h"
+#include "cockpitdbusjson.h"
 #include "cockpitnullchannel.h"
 #include "cockpitrestjson.h"
 #include "cockpitresource.h"
 #include "cockpittextstream.h"
+
+#include "deprecated/cockpitdbusjson1.h"
+#include "deprecated/cockpitdbusjson2.h"
 
 #include "common/cockpitjson.h"
 
@@ -359,6 +361,8 @@ cockpit_channel_open (CockpitTransport *transport,
     channel_type = COCKPIT_TYPE_DBUS_JSON1;
   else if (g_strcmp0 (payload, "dbus-json2") == 0)
     channel_type = COCKPIT_TYPE_DBUS_JSON2;
+  else if (g_strcmp0 (payload, "dbus-json3") == 0)
+    channel_type = COCKPIT_TYPE_DBUS_JSON;
   else if (g_strcmp0 (payload, "rest-json1") == 0)
     channel_type = COCKPIT_TYPE_REST_JSON;
   else if (g_strcmp0 (payload, "text-stream") == 0)

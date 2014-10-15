@@ -268,7 +268,7 @@ teardown_for_socket (TestCase *test,
   teardown_io_streams (test, data);
 
   /* Reset this if changed by a test */
-  cockpit_ws_agent_timeout = 30;
+  cockpit_ws_session_timeout = 30;
 
   cockpit_assert_expected ();
   alarm (0);
@@ -936,7 +936,7 @@ test_timeout_session (TestCase *test,
   guint sig;
   guint tag;
 
-  cockpit_ws_agent_timeout = 1;
+  cockpit_ws_session_timeout = 1;
 
   /* This sends us a mesage with a pid in it on channel ' ' */
   cockpit_ws_agent_program = SRCDIR "/src/ws/mock-pid-cat";

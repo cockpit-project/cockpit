@@ -271,99 +271,132 @@ the "packages" option:
         ]
     }
 
-Payload: dbus-json1
+Payload: dbus-json3
 -------------------
 
 DBus messages are encoded in JSON payloads by cockpit-web, and decoded in
-cockpit-bridge. Contents not yet documented. See cockpitdbusjson.c or dbus.js.
+cockpit-bridge. The 'dbus-json1' and 'dbus-json2' protocols are deprecated
+and not documented.
 
 Additional "open" command options are needed to open a channel of this
 type:
 
- * "service": A service name of the DBus service to communicate with.
- * "object-manager": The object path of a o.f.DBus.ObjectManager whose
-   interfaces and properties will be relayed.
- * "object-paths": An array of object paths to start monitoring in the
-   case of a non o.f.DBus.ObjectManager based service.
+ * "bus": The DBus bus to connect to either "session" or "system",
+   defaults to "session" if not present.
+ * "name": A service name of the DBus service to communicate with.
 
-Messages are encoded as JSON objects. Similar to control channel messages,
-each message has a "command" field. There are some obvious inefficiencies
-and issues with these encodings and there is ongoing work to streamline.
+The DBus bus name is started on the bus if it is not already running. If it
+could not be started the channel is closed with a "not-found". If the DBus
+connection closes, the channel closes with "disconnected". The channel will
+also close, without a problem, if the bus name goes away (ie: the service
+exits).
 
- * "call": Make a DBus method call, sent by web front end.
+DBus messages are encoded as JSON objects. If an unrecognized JSON object
+is received, then the channel is closed with a "protocol-error".
 
-        {
-            "command": "call",
-            "cookie": "mycookie",
-            "objpath": "/object/path",
-            "iface": "org.example.Test",
-            "method": "MethodName",
-            "args": [ "invalue", 5 ]
+Method calls are a JSON object with a "call" field, whose value is an array,
+with parameters in this order: path, interface, method, in arguments.
+
+    {
+        "call": [ "/path", "org.Interface", "Method", [ "arg0", 1, "arg2" ] ],
+        "id": "cookie"
+    }
+
+All the various parameters must be valid for their use. arguments may be
+null if no DBus method call body is expected.
+
+If a DBus method call fails an "error" message will be sent back. An error
+will also be sent back in parameters or arguments in the "call" message are
+invalid.
+
+An optional "id" field indicates that a response is desired, which will be
+sent back in a "reply" or "error" message with the same "id" field.
+
+Method reply messages are JSON objects with a "reply" field whose value is
+an array, the array contains another array of out arguments, or null if
+the DBus reply had no body.
+
+    {
+        "reply": [ [ "arg0", 1, 2 ] ],
+        "id": "cookie"
+    }
+
+An error message is JSON object with an "error" field whose value is an
+array. The array contains: error name, error arguments
+
+    {
+        "error": [ "org.Error", [ "Usually a message" ] ]
+	"id": "cookie"
+    }
+
+To receive signals you must subscribe to them. This is done by sending a
+"add-match" message. It contains various fields to match on. If a field
+is missing then it is treated as a wildcard.
+
+"path" limits the signals to those sent by that DBus object path, it must
+be a valid object path according to the specification. "path_namespace"
+limits signals to the subtree of DBus object paths. It must be a valid
+object path according to the specification, and may not be specified
+together with "path".
+
+"interface" limits the signals to those sent on the given DBus interface,
+and must be a valid interface name. "member" limits the signal to those
+of that signal name. "arg0" limits the signals to those that have the
+given string as their first argument. If any of the values are not
+valid according to the dbus specification, the channel will close with
+a "protocol-error".
+
+    {
+        "add-match": {
+            "path": "/the/path",
+            "interface": "org.Interface",
+            "member": "SignalName",
+            "arg0": "first argument",
         }
+    }
 
- * "call-reply": Reply from a "method-call", sent by cockpit-bridge.
+To unsubscribe from DBus signals, use the "remove-match" message. If a
+match was added more than once, it must be removed the same number of
+times before the signals are actually unsubscribed.
 
-        {
-            "command": "call-reply",
-            "data": {
-                "cookie": "mycookie",
-                "result": ["outvalue", 3 ]
-            }
+The form of "remove-match" is identical to "add-match".
+
+    {
+        "remove-match": {
+            "path": "/the/path",
+            "interface": "org.Interface",
+            "member": "SignalName",
+            "arg0": "first argument",
         }
+    }
 
- * "interface-signal":
+Signals are sent in JSON objects that have a "signal" field, which is an
+array of parameters: path, interface, signal name, and arguments. arguments
+may be null if the DBus signal had no body.
 
-        {
-            "command": "interface-signal",
-            "data": {
-                "objpath": "/object/path",
-                "iface_name": "org.example.Test",
-                "signal_name": "SignalName",
-                "args": [ "value", 3 ]
-            }
-        }
+    {
+        "signal": [ "/the/path", "org.Interface", "SignalName", [ "arg0", 1, 2 ] ]
+    }
 
- * "seed": A message received from cockpit-bridge when the dbus channel is
-   ready. It looks like this:
+DBus types are encoded in various places in these messages, such as the
+arguments. These types are encoded as follows:
 
-        {
-            "command": "seed",
-            "options": { "byteorder", "be" },
-            "data": {
-                "/object/path": {
-                    "objpath": "/object/path",
-                    "ifaces": {
-                        "org.example.Test": {
-                            "dbus_prop_Property": "value",
-                            "dbus_prop_Property2": 12,
-                        }
-                    }
-                }
-            }
-        }
+ * byte, int16, uint16, int32, uint32, int64, uint64, double: encoded
+   as a JSON number
+ * boolean: encoded as a JSON boolean
+ * string, object-path, signature: encoded as JSON strings
+ * array of bytes: encoded as a base64 string
+ * other arrays, struct/tuple: encoded as JSON arrays
+ * dict: encoded as a JSON object, if the dict has string keys then those
+   are used as property names directly, otherwise the keys are JSON encoded and
+   the resulting string is used as a property name.
+ * variant: encoded as a JSON object with a "v" field containing a value
+   and a "t" field containing a DBus type signature.
 
- * "interface-properties-changed": Sent by cockpit-bridge when the Properties of an interface change.
-
-        {
-            "command": "interface-properties-changed",
-            "data": {
-                "objpath": "/object/path",
-                "iface_name": "org.example.Test",
-                "org.example.Test" : {
-                    "dbus_prop_Property": "value",
-                    "dbus_prop_Property2": 12,
-                }
-            }
-        }
-
- * "object-added", "object-removed", "interface-added", "interface-removed": Sent by the backend
-   when an object or interfaces is added or removed.
-
-Payload: dbus-json2
--------------------
-
-Identical to 'dbus-json1' payloads, except that variants are encoded as
-a JSON.
+   {
+       "v": "value",
+       "t": "s"
+   }
 
 Payload: rest-json1
 -------------------

@@ -128,13 +128,12 @@ static GBytes *
 build_environment (CockpitWebService *service,
                    JsonArray *packages)
 {
-  const gchar *user;
+  const gchar *name;
   CockpitCreds *creds;
   JsonObject *env;
   JsonObject *localhost;
   JsonObject *languages;
   JsonObject *language;
-  struct passwd *pwd;
   gchar *hostname;
   GBytes *bytes;
   guint n;
@@ -150,14 +149,10 @@ build_environment (CockpitWebService *service,
   if (service)
     {
       creds = cockpit_web_service_get_creds (service);
-      user = cockpit_creds_get_user (creds);
-      json_object_set_string_member (env, "user", user);
-      pwd = cockpit_getpwnam_a (user, NULL);
-      if (pwd)
-        {
-          json_object_set_string_member (env, "name", pwd->pw_gecos);
-          free (pwd);
-        }
+      json_object_set_string_member (env, "user", cockpit_creds_get_user (creds));
+      name = cockpit_creds_get_fullname (creds);
+      if (name != NULL)
+        json_object_set_string_member (env, "name", name);
     }
 
   localhost = json_object_new ();

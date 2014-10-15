@@ -478,7 +478,11 @@ perform_basic (void)
 
   write_auth_begin (res);
   if (res == PAM_SUCCESS && pwd)
-    write_auth_string ("user", pwd->pw_name);
+    {
+      write_auth_string ("user", pwd->pw_name);
+      if (pwd->pw_gecos)
+        write_auth_string ("full-name", pwd->pw_gecos);
+    }
   write_auth_end ();
 
   if (res != PAM_SUCCESS)
@@ -598,7 +602,11 @@ perform_gssapi (void)
 out:
   write_auth_begin (res);
   if (pwd)
-    write_auth_string ("user", pwd->pw_name);
+    {
+      write_auth_string ("user", pwd->pw_name);
+      if (pwd->pw_gecos)
+        write_auth_string ("full-name", pwd->pw_gecos);
+    }
   if (output.value)
     write_auth_hex ("gssapi-output", output.value, output.length);
 

@@ -19,7 +19,7 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
-#include "cockpitdbusjson.h"
+#include "cockpitpackage.h"
 #include "cockpitpolkitagent.h"
 
 #include "common/cockpitjson.h"
@@ -295,9 +295,8 @@ on_signal_done (gpointer data)
   return TRUE;
 }
 
-int
-main (int argc,
-      char **argv)
+static int
+run_bridge (void)
 {
   CockpitTransport *transport;
   GDBusConnection *connection;
@@ -309,16 +308,7 @@ main (int argc,
   guint sig_term;
   int outfd;
 
-  signal (SIGPIPE, SIG_IGN);
   cockpit_set_journal_logging (!isatty (2));
-
-  /*
-   * We have to tell GLib about an alternate default location for XDG_DATA_DIRS
-   * if we've been compiled with a different prefix. GLib caches that, so need
-   * to do this very early.
-   */
-  if (!g_getenv ("XDG_DATA_DIRS") && !g_str_equal (DATADIR, "/usr/share"))
-    g_setenv ("XDG_DATA_DIRS", DATADIR, TRUE);
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write
@@ -336,10 +326,6 @@ main (int argc,
   sig_term = g_unix_signal_add_full (G_PRIORITY_DEFAULT,
                                      SIGTERM, on_signal_done,
                                      &terminated, NULL);
-
-  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
 
   /* Start a session daemon if necessary */
   daemon_pid = start_dbus_daemon ();
@@ -386,5 +372,60 @@ main (int argc,
   if (terminated)
     raise (SIGTERM);
 
-  exit (0);
+  return 0;
+}
+
+int
+main (int argc,
+      char **argv)
+{
+  GOptionContext *context;
+  GError *error = NULL;
+
+  static gboolean opt_packages = FALSE;
+  static GOptionEntry entries[] = {
+    { "packages", 0, 0, G_OPTION_ARG_NONE, &opt_packages, "Show Cockpit package information", NULL },
+    { NULL }
+  };
+
+  signal (SIGPIPE, SIG_IGN);
+
+  /*
+   * We have to tell GLib about an alternate default location for XDG_DATA_DIRS
+   * if we've been compiled with a different prefix. GLib caches that, so need
+   * to do this very early.
+   */
+  if (!g_getenv ("XDG_DATA_DIRS") && !g_str_equal (DATADIR, "/usr/share"))
+    g_setenv ("XDG_DATA_DIRS", DATADIR, TRUE);
+
+  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
+  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  g_setenv ("GIO_USE_VFS", "local", TRUE);
+
+  context = g_option_context_new (NULL);
+  g_option_context_add_main_entries (context, entries, NULL);
+  g_option_context_set_description (context,
+                                    "cockpit-bridge is run automatically inside of a Cockpit session. When\n"
+                                    "run from the command line one of the options above must be specified.\n");
+
+  if (!g_option_context_parse (context, &argc, &argv, &error))
+    {
+      g_printerr ("cockpit-bridge: %s\n", error->message);
+      g_error_free (error);
+      return 1;
+    }
+
+  if (opt_packages)
+    {
+      cockpit_package_dump ();
+      return 0;
+    }
+
+  if (isatty (1))
+    {
+      g_printerr ("cockpit-bridge: no option specified\n");
+      return 2;
+    }
+
+  return run_bridge ();
 }

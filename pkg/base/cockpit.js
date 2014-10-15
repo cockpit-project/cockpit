@@ -26,6 +26,13 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 "use strict";
 
 /*
+ * User and system information
+ */
+
+cockpit.user = { };
+cockpit.info = { };
+
+/*
  * TODO: We will expose standard client side url composability
  * utilities soon, for now this is private.
  */
@@ -70,7 +77,6 @@ function get_page_param(key, page) {
  * Public: https://files.cockpit-project.org/guide/api-cockpit.html
  */
 
-var last_channel = 10;
 var default_transport = null;
 var reload_after_disconnect = false;
 var expect_disconnect = false;
@@ -100,6 +106,9 @@ function calculate_url() {
 function Transport() {
     var self = this;
 
+    var last_channel = 0;
+    var channel_seed = "";
+
     var ws_loc = calculate_url();
     if (!ws_loc)
         return;
@@ -119,22 +128,32 @@ function Transport() {
         return;
     }
 
-    var queue = [];
     var control_cbs = { };
     var message_cbs = { };
     var got_message = false;
+    var waiting_for_init = true;
+    self.ready = false;
 
     var check_health_timer = window.setInterval(function () {
         if (!got_message) {
             console.log("health check failed");
-            self.close("timeout");
+            self.close({ "reason": "timeout" });
         }
         got_message = false;
     }, 10000);
 
+    /* Called when ready for channels to interact */
+    function ready_for_channels() {
+        if (!self.ready) {
+            self.ready = true;
+            $(self).triggerHandler("ready");
+        }
+    }
+
     ws.onopen = function() {
-        while(queue.length > 0 && ws)
-            ws.send(queue.shift());
+        if (ws) {
+            ws.send("\n{ \"command\": \"init\", \"version\": 0 }");
+        }
     };
 
     ws.onclose = function(event) {
@@ -146,7 +165,7 @@ function Transport() {
         }
         if (expect_disconnect)
             return;
-        self.close("disconnected");
+        self.close();
     };
 
     ws.onmessage = function(event) {
@@ -167,22 +186,70 @@ function Transport() {
         phantom_checkpoint();
     };
 
-    self.close = function close(reason) {
+    self.close = function close(options) {
         if (self === default_transport)
             default_transport = null;
-        if (!reason)
-            reason = "disconnected";
+        if (!options)
+            options = { "reason": "disconnected" };
+        options.command = "close";
         clearInterval(check_health_timer);
         var ows = ws;
         ws = null;
         if (ows)
             ows.close();
-        process_control({ "command": "close", "reason": reason });
+        ready_for_channels(); /* ready to fail */
+        process_control(options);
     };
+
+    self.next_channel = function next_channel() {
+        last_channel++;
+        return String(last_channel) + channel_seed;
+    };
+
+    function process_init(options) {
+        if (options.version !== 0) {
+            console.error("received invalid version in init message");
+            self.close({"reason": "protocol-error"});
+            return;
+        }
+
+        if (options["channel-seed"])
+            channel_seed = ":" + String(options["channel-seed"]);
+        if (options.user)
+            $.extend(cockpit.user, options.user);
+        if (options.system)
+            $.extend(cockpit.info, options.system);
+
+        if (waiting_for_init) {
+            waiting_for_init = false;
+            ready_for_channels();
+        }
+
+        if (options.user)
+            $(cockpit.user).trigger("changed");
+        if (options.system)
+            $(cockpit.info).trigger("changed");
+    }
 
     function process_control(data) {
         var channel = data.channel;
         var func;
+
+        /* Init message received */
+        if (data.command == "init") {
+            process_init(data);
+            return;
+        }
+
+        if (waiting_for_init) {
+            waiting_for_init = false;
+            if (data.command != "close" || data.channel) {
+                console.error ("received message before init");
+                data = { "reason": "protocol-error" };
+            }
+            self.close(data);
+            return;
+        }
 
         /* 'ping' messages are ignored */
         if (data.command == "ping")
@@ -217,10 +284,7 @@ function Transport() {
         else
             transport_debug("send control:", payload);
         var msg = channel.toString() + "\n" + payload;
-        if (ws.readyState == 1)
-            ws.send(msg);
-        else
-            queue.push(msg);
+        ws.send(msg);
     };
 
     self.send_control = function send_control(data) {
@@ -240,29 +304,37 @@ function Transport() {
     };
 }
 
+function ensure_transport(callback) {
+    var transport;
+    if (!default_transport)
+        default_transport = new Transport();
+    transport = default_transport;
+    if (transport.ready) {
+        callback(transport);
+    } else {
+        $(default_transport).on("ready", function() {
+            callback(transport);
+        });
+    }
+}
+
 function Channel(options) {
     var self = this;
 
-    /* Choose a new channel id */
-    last_channel++;
-    var id = last_channel.toString();
-
-    /* Find a valid transport */
-    if (!default_transport)
-        default_transport = new Transport();
-
-    var transport = default_transport;
+    var transport;
     var valid = true;
+    var queue = [ ];
+    var id = null;
 
     /* Handy for callers, but not used by us */
     self.valid = valid;
     self.options = options;
     self.id = id;
 
-    /* Register channel handlers */
     function on_message(payload) {
         $(self).triggerHandler("message", payload);
     }
+
     function on_control(data) {
         if (data.command == "close") {
             self.valid = valid = false;
@@ -272,23 +344,40 @@ function Channel(options) {
             console.log("unhandled control message: '" + data.command + "'");
         }
     }
-    transport.register(id, on_control, on_message);
 
-    /* Now open the channel */
-    var command = {
-        "command" : "open",
-        "channel": id
-    };
-    $.extend(command, options);
-    if (command.host === undefined)
-        command.host = get_page_param('machine', 'server');
-    transport.send_control(command);
+    ensure_transport(function(trans) {
+        transport = trans;
+        if (!valid)
+            return;
+
+        id = transport.next_channel();
+        self.id = id;
+
+        /* Register channel handlers */
+        transport.register(id, on_control, on_message);
+
+        /* Now open the channel */
+        var command = {
+            "command" : "open",
+            "channel": id
+        };
+        $.extend(command, options);
+        if (command.host === undefined)
+            command.host = get_page_param('machine', 'server');
+        transport.send_control(command);
+
+        /* Now drain the queue */
+        while(queue.length > 0)
+            transport.send_message(id, queue.shift());
+    });
 
     self.send = function send(message) {
-        if (valid)
-            transport.send_message(id, message);
+        if (!valid)
+            console.log("sending message on closed channel: " + self);
+        else if (!transport)
+            queue.push(message);
         else
-            console.log("sending message on closed channel: " + this);
+            transport.send_message(id, message);
     };
 
     self.close = function close(options) {
@@ -301,8 +390,10 @@ function Channel(options) {
             "command" : "close",
             "channel": id
         });
-        transport.send_control(options);
-        transport.unregister(id);
+        if (transport) {
+            transport.send_control(options);
+            transport.unregister(id);
+        }
         $(self).triggerHandler("close", options);
     };
 
@@ -317,28 +408,28 @@ cockpit.channel = function channel(options) {
 };
 
 cockpit.logout = function logout(reload) {
-    var channel = cockpit.channel({"payload": "null"});
     if (reload !== false)
         reload_after_disconnect = true;
-    else
-        channel.close();
-    default_transport.send_control({ "command": "logout", "disconnect": true });
+    ensure_transport(function(transport) {
+        transport.send_control({ "command": "logout", "disconnect": true });
+    });
 };
 
 /* Not public API ... yet? */
 cockpit.drop_privileges = function drop_privileges() {
-    var channel;
-    if (!default_transport)
-        channel = cockpit.channel({"payload": "null"});
-    default_transport.send_control({ "command": "logout", "disconnect": false });
-    if (channel)
-        channel.close();
+    ensure_transport(function(transport) {
+        transport.send_control({ "command": "logout", "disconnect": false });
+    });
 };
 
 cockpit.transport = {
     close: function close(reason) {
-        if (default_transport)
-            default_transport.close(reason);
+        if (!default_transport)
+            return;
+        var options;
+        if (reason)
+            options = {"reason": reason };
+        default_transport.close(options);
     }
 };
 

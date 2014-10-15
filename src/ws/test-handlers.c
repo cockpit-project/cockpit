@@ -180,7 +180,6 @@ test_login_with_cookie (Test *test,
   GHashTable *headers;
   const gchar *user;
   gboolean ret;
-  gchar *expect;
 
   user = g_get_user_name ();
   headers = mock_auth_basic_header (user, PASSWORD);
@@ -203,9 +202,7 @@ test_login_with_cookie (Test *test,
 
   g_assert (ret == TRUE);
 
-  expect = g_strdup_printf ("HTTP/1.1 200 OK\r\n*\r\n\r\n{\"user\"*:*\"%s\"*,*\"name\"*:*}", user);
-  cockpit_assert_strmatch (output_as_string (test), expect);
-  g_free (expect);
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 200 OK\r\n*\r\n\r\n{*\"packages\"*}");
 }
 
 static void

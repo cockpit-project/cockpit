@@ -29,6 +29,7 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitCreds       CockpitCreds;
 
+#define COCKPIT_CRED_FULLNAME "full-name"
 #define COCKPIT_CRED_PASSWORD "password"
 #define COCKPIT_CRED_RHOST    "rhost"
 #define COCKPIT_CRED_GSSAPI   "gssapi"
@@ -47,6 +48,8 @@ void            cockpit_creds_unref          (gpointer creds);
 void            cockpit_creds_poison         (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_user       (CockpitCreds *creds);
+
+const gchar *   cockpit_creds_get_fullname   (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_password   (CockpitCreds *creds);
 

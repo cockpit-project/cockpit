@@ -52,7 +52,7 @@
 #define AUTH_FD 3
 #define EX 127
 
-const char *user;
+static struct passwd *pwd;
 const char *rhost;
 char line[UT_LINESIZE + 1];
 static pid_t child;
@@ -286,7 +286,7 @@ pam_conv_func (int num_msg,
                struct pam_response **ret_resp,
                void *appdata_ptr)
 {
-  char **passwd = (char **)appdata_ptr;
+  char **password = (char **)appdata_ptr;
   struct pam_response *resp;
   int success = 1;
   int i;
@@ -302,17 +302,17 @@ pam_conv_func (int num_msg,
     {
       if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF)
         {
-          if (*passwd == NULL)
+          if (*password == NULL)
             {
               warnx ("pam asked us for unexpected password");
               success = 0;
             }
           else
             {
-              debug ("answered pam passwd prompt");
-              resp[i].resp = *passwd;
+              debug ("answered pam password prompt");
+              resp[i].resp = *password;
               resp[i].resp_retcode = 0;
-              *passwd = NULL;
+              *password = NULL;
             }
         }
       else if (msg[i]->msg_style == PAM_ERROR_MSG ||
@@ -340,11 +340,35 @@ pam_conv_func (int num_msg,
 }
 
 static int
-open_session (pam_handle_t *pamh,
-              const char *user)
+open_session (pam_handle_t *pamh)
 {
+  struct passwd *buf = NULL;
+  const char *name;
   char login[256];
   int res;
+
+  name = NULL;
+  pwd = NULL;
+
+  res = pam_get_item (pamh, PAM_USER, (const void **)&name);
+  if (res != PAM_SUCCESS)
+    {
+      warnx ("couldn't load user from pam");
+      return res;
+    }
+
+  /* Yes, buf "leaks" */
+  buf = malloc (sizeof (struct passwd) + 8192);
+  if (buf == NULL)
+    res = ENOMEM;
+  else
+    res = getpwnam_r (name, buf, (char *)(buf + 1), 8192, &pwd);
+  if (pwd == NULL)
+    {
+      warnx ("couldn't load user info for: %s: %s", name,
+             res == 0 ? "not found" : strerror (res));
+      return PAM_SYSTEM_ERR;
+    }
 
   /*
    * If we're already in the right session, then skip cockpit-session.
@@ -356,7 +380,7 @@ open_session (pam_handle_t *pamh,
    */
 
   want_session = (getlogin_r (login, sizeof (login)) != 0 ||
-                  strcmp (login, user) != 0);
+                  strcmp (login, pwd->pw_name) != 0);
 
   if (want_session)
     {
@@ -364,7 +388,7 @@ open_session (pam_handle_t *pamh,
       res = pam_acct_mgmt (pamh, 0);
       if (res != PAM_SUCCESS)
         {
-          warnx ("user account access failed: %s: %s", user, pam_strerror (pamh, res));
+          warnx ("user account access failed: %s: %s", name, pam_strerror (pamh, res));
 
           /* We change PAM_AUTH_ERR to PAM_PERM_DENIED so that we can
            * distinguish between failures here and in *
@@ -376,7 +400,7 @@ open_session (pam_handle_t *pamh,
           return res;
         }
 
-      debug ("opening pam session for %s", user);
+      debug ("opening pam session for %s", name);
 
       res = pam_set_item (pamh, PAM_TTY, line);
       if (res != PAM_SUCCESS)
@@ -388,21 +412,21 @@ open_session (pam_handle_t *pamh,
       res = pam_setcred (pamh, PAM_ESTABLISH_CRED);
       if (res != PAM_SUCCESS)
         {
-          warnx ("establishing credentials failed: %s: %s", user, pam_strerror (pamh, res));
+          warnx ("establishing credentials failed: %s: %s", name, pam_strerror (pamh, res));
           return res;
         }
 
       res = pam_open_session (pamh, 0);
       if (res != PAM_SUCCESS)
         {
-          warnx ("couldn't open session: %s: %s", user, pam_strerror (pamh, res));
+          warnx ("couldn't open session: %s: %s", name, pam_strerror (pamh, res));
           return res;
         }
 
       res = pam_setcred (pamh, PAM_REINITIALIZE_CRED);
       if (res != PAM_SUCCESS)
         {
-          warnx ("reinitializing credentials failed: %s: %s", user, pam_strerror (pamh, res));
+          warnx ("reinitializing credentials failed: %s: %s", name, pam_strerror (pamh, res));
           return res;
         }
     }
@@ -443,18 +467,22 @@ perform_basic (void)
   /* Move the password into place for use during auth */
   memmove (input, password, strlen (password) + 1);
 
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS ||
-      pam_get_item (pamh, PAM_USER, (const void **)&user) != PAM_SUCCESS)
+  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
     errx (EX, "couldn't setup pam");
 
-  debug ("authenticating %s", user);
+  debug ("authenticating");
+
   res = pam_authenticate (pamh, 0);
   if (res == PAM_SUCCESS)
-    res = open_session (pamh, user);
+    res = open_session (pamh);
 
   write_auth_begin (res);
-  if (res == PAM_SUCCESS && user)
-    write_auth_string ("user", user);
+  if (res == PAM_SUCCESS && pwd)
+    {
+      write_auth_string ("user", pwd->pw_name);
+      if (pwd->pw_gecos)
+        write_auth_string ("full-name", pwd->pw_gecos);
+    }
   write_auth_end ();
 
   if (res != PAM_SUCCESS)
@@ -566,18 +594,19 @@ perform_gssapi (void)
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
 
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS ||
-      pam_get_item (pamh, PAM_USER, (const void **)&user) != PAM_SUCCESS)
+  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
     errx (EX, "couldn't setup pam");
 
-  assert (user != NULL);
-
-  res = open_session (pamh, user);
+  res = open_session (pamh);
 
 out:
   write_auth_begin (res);
-  if (user)
-    write_auth_string ("user", user);
+  if (pwd)
+    {
+      write_auth_string ("user", pwd->pw_name);
+      if (pwd->pw_gecos)
+        write_auth_string ("full-name", pwd->pw_gecos);
+    }
   if (output.value)
     write_auth_hex ("gssapi-output", output.value, output.length);
 
@@ -636,6 +665,7 @@ utmp_log (int login)
   int pid = getpid ();
   const char *id = line + strlen (line) - sizeof(ut.ut_id);
 
+  assert (pwd != NULL);
   utmpname (_PATH_UTMP);
   setutent ();
 
@@ -648,7 +678,7 @@ utmp_log (int login)
 
   if (login)
     {
-      strncpy (ut.ut_user, user, sizeof(ut.ut_user));
+      strncpy (ut.ut_user, pwd->pw_name, sizeof(ut.ut_user));
       ut.ut_user[sizeof (ut.ut_user) - 1] = 0;
       strncpy (ut.ut_host, rhost, sizeof(ut.ut_host));
       ut.ut_host[sizeof (ut.ut_host) - 1] = 0;
@@ -754,13 +784,13 @@ fdwalk (int (*cb)(void *data, int fd),
 #endif /* HAVE_FDWALK */
 
 static int
-fork_session (struct passwd *pw,
-              int (*func) (void))
+fork_session (int (*func) (void))
 {
   int status;
   int from;
 
   fflush (stderr);
+  assert (pwd != NULL);
 
   child = fork ();
   if (child < 0)
@@ -771,13 +801,13 @@ fork_session (struct passwd *pw,
 
   if (child == 0)
     {
-      if (setgid (pw->pw_gid) < 0)
+      if (setgid (pwd->pw_gid) < 0)
         {
           warn ("setgid() failed");
           _exit (42);
         }
 
-      if (setuid (pw->pw_uid) < 0)
+      if (setuid (pwd->pw_uid) < 0)
         {
           warn ("setuid() failed");
           _exit (42);
@@ -858,7 +888,6 @@ main (int argc,
       char **argv)
 {
   pam_handle_t *pamh = NULL;
-  struct passwd *pw;
   const char *auth;
   int status;
   int flags;
@@ -920,12 +949,10 @@ main (int argc,
       if (env == NULL)
         errx (EX, "get pam environment failed");
 
-      pw = getpwnam (user);
-      if (pw == NULL)
-        errx (EX, "%s: invalid user", user);
+      assert (pwd != NULL);
 
-      if (initgroups (user, pw->pw_gid) < 0)
-        err (EX, "%s: can't init groups", user);
+      if (initgroups (pwd->pw_name, pwd->pw_gid) < 0)
+        err (EX, "%s: can't init groups", pwd->pw_name);
 
       signal (SIGTERM, pass_to_child);
       signal (SIGINT, pass_to_child);
@@ -933,7 +960,7 @@ main (int argc,
 
       utmp_log (1);
 
-      status = fork_session (pw, session);
+      status = fork_session (session);
 
       utmp_log (0);
 
@@ -943,10 +970,10 @@ main (int argc,
 
       res = pam_setcred (pamh, PAM_DELETE_CRED);
       if (res != PAM_SUCCESS)
-        err (EX, "%s: couldn't delete creds: %s", user, pam_strerror (pamh, res));
+        err (EX, "%s: couldn't delete creds: %s", pwd->pw_name, pam_strerror (pamh, res));
       res = pam_close_session (pamh, 0);
       if (res != PAM_SUCCESS)
-        err (EX, "%s: couldn't close session: %s", user, pam_strerror (pamh, res));
+        err (EX, "%s: couldn't close session: %s", pwd->pw_name, pam_strerror (pamh, res));
     }
   else
     {

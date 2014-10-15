@@ -315,6 +315,8 @@ on_timeout_fail (gpointer data)
   return FALSE;
 }
 
+#define BUILD_INTS GINT_TO_POINTER(1)
+
 static GBytes *
 build_control_va (const gchar *command,
                   const gchar *channel,
@@ -326,6 +328,7 @@ build_control_va (const gchar *command,
   const gchar *option;
   GBytes *bytes;
   JsonNode *node;
+  gboolean strings = TRUE;
 
   builder = json_builder_new ();
   json_builder_begin_object (builder);
@@ -340,10 +343,18 @@ build_control_va (const gchar *command,
   for (;;)
     {
       option = va_arg (va, const gchar *);
+      if (option == BUILD_INTS)
+        {
+          strings = FALSE;
+          option = va_arg (va, const gchar *);
+        }
       if (!option)
         break;
       json_builder_set_member_name (builder, option);
-      json_builder_add_string_value (builder, va_arg (va, const gchar *));
+      if (strings)
+        json_builder_add_string_value (builder, va_arg (va, const gchar *));
+      else
+        json_builder_add_int_value (builder, va_arg (va, gint));
     }
 
   json_builder_end_object (builder);
@@ -474,6 +485,7 @@ start_web_service_and_connect_client (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the open control message that starts the bridge. */
+  send_control_message (*ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
   send_control_message (*ws, "open", "4", "payload", "test-text", NULL);
 }
 
@@ -626,7 +638,11 @@ test_close_error (TestCase *test,
   start_web_service_and_connect_client (test, data, &ws, &service);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
-  /* Send something through to ensure it's open */
+  WAIT_UNTIL (received != NULL);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
   WAIT_UNTIL (received != NULL);
   expect_control_message (received, "open", "4", NULL);
   g_bytes_unref (received);
@@ -639,6 +655,118 @@ test_close_error (TestCase *test,
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);
   expect_control_message (received, "close", "4", "reason", "terminated", NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
+static void
+test_no_init (TestCase *test,
+              gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  cockpit_expect_message ("*socket did not send*init*");
+  cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "connection unexpectedly closed*");
+
+  /* Sending an open message before init, should cause problems */
+  send_control_message (ws, "ping", NULL, NULL);
+
+  /* The init from the other end */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  /* We should now get a failure */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "close", NULL, "reason", "protocol-error", NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
+static void
+test_wrong_init_version (TestCase *test,
+                         gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  cockpit_expect_message ("*socket used unsupported*");
+  cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "connection unexpectedly closed*");
+
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 888, NULL);
+
+  /* The init from the other end */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  /* We should now get a failure */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "close", NULL, "reason", "protocol-error", NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  close_client_and_stop_web_service (test, ws, service);
+}
+
+static void
+test_bad_init_version (TestCase *test,
+                       gconstpointer data)
+{
+  WebSocketConnection *ws;
+  GBytes *received = NULL;
+  CockpitWebService *service;
+
+  start_web_service_and_create_client (test, data, &ws, &service);
+  g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  cockpit_expect_message ("*socket used unsupported*");
+  cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "connection unexpectedly closed*");
+
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", "blah", NULL);
+
+  /* The init from the other end */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
+  /* We should now get a failure */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "close", NULL, "reason", "protocol-error", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -659,6 +787,7 @@ test_specified_creds (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Open a channel with a non-standard command */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
   send_control_message (ws, "open", "4",
                         "payload", "test-text",
                         "user", "user", "password",
@@ -693,11 +822,18 @@ test_specified_creds_fail (TestCase *test,
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Open a channel with a non-standard command, but a bad password */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
   send_control_message (ws, "open", "4",
                         "payload", "test-text",
                         "user", "user",
                         "password", "Wrong password",
                         NULL);
+
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
 
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);
@@ -798,6 +934,13 @@ test_unknown_host_key (TestCase *test,
   start_web_service_and_connect_client (test, data, &ws, &service);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
+  /* Should get an init message */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
   /* Should close right after opening */
   while (received == NULL && web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
     g_main_context_iteration (NULL, TRUE);
@@ -831,13 +974,20 @@ test_expect_host_key (TestCase *test,
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
-  /* Send the open control message that starts the bridge specify a specific host key. */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
   send_control_message (ws, "open", "4",
                         "payload", "test-text",
                         "host-key", knownhosts,
                         NULL);
 
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
+
+  /* Should get an init message */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
 
   /* Should close right after opening */
   while (received == NULL && web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
@@ -905,6 +1055,13 @@ test_fail_spawn (TestCase *test,
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
   g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
 
+  /* Should get an init message */
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
   /* Channel should close immediately */
   WAIT_UNTIL (received != NULL);
 
@@ -949,7 +1106,14 @@ test_timeout_session (TestCase *test,
   sig = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Queue channel open/close, so we can guarantee having a session */
-  send_control_message (ws, "open", "x", "payload", "test-text", NULL);
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (ws, "open", "11x", "payload", "test-text", NULL);
+
+  while (received == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  expect_control_message (received, "init", NULL, NULL);
+  g_bytes_unref (received);
+  received = NULL;
 
   /* First we should receive the pid message from mock-pid-cat */
   while (received == NULL)
@@ -968,7 +1132,7 @@ test_timeout_session (TestCase *test,
 
   g_signal_handler_disconnect (ws, sig);
 
-  send_control_message (ws, "close", "x", NULL);
+  send_control_message (ws, "close", "11x", NULL);
 
   /* The process should exit shortly */
   tag = g_timeout_add_seconds (1, on_timeout_dummy, NULL);
@@ -1098,6 +1262,8 @@ test_logout (TestCase *test,
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
   /* Send the logout control message */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+
   data = "\n{ \"command\": \"logout\", \"disconnect\": true }";
   message = g_bytes_new_static (data, strlen (data));
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
@@ -1556,6 +1722,12 @@ main (int argc,
   g_test_add ("/web-service/expect-host-key", TestCase,
               NULL, setup_for_socket,
               test_expect_host_key, teardown_for_socket);
+  g_test_add ("/web-service/no-init", TestCase, NULL,
+              setup_for_socket, test_no_init, teardown_for_socket);
+  g_test_add ("/web-service/wrong-init-version", TestCase, NULL,
+              setup_for_socket, test_wrong_init_version, teardown_for_socket);
+  g_test_add ("/web-service/bad-init-version", TestCase, NULL,
+              setup_for_socket, test_bad_init_version, teardown_for_socket);
 
   g_test_add ("/web-service/bad-origin/rfc6455", TestCase,
               &fixture_bad_origin_rfc6455, setup_for_socket,

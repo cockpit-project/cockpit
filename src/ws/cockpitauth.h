@@ -91,9 +91,6 @@ CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
 GBytes *        cockpit_auth_parse_authorization  (GHashTable *headers,
                                                    gchar **type);
 
-struct passwd * cockpit_getpwnam_a           (const gchar *user,
-                                              int *errp);
-
 G_END_DECLS
 
 #endif

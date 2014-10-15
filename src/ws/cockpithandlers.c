@@ -128,13 +128,11 @@ static GBytes *
 build_environment (CockpitWebService *service,
                    JsonArray *packages)
 {
-  const gchar *user;
   CockpitCreds *creds;
   JsonObject *env;
   JsonObject *localhost;
   JsonObject *languages;
   JsonObject *language;
-  struct passwd *pwd;
   gchar *hostname;
   GBytes *bytes;
   guint n;
@@ -150,16 +148,8 @@ build_environment (CockpitWebService *service,
   if (service)
     {
       creds = cockpit_web_service_get_creds (service);
-      user = cockpit_creds_get_user (creds);
-      json_object_set_string_member (env, "user", user);
-      pwd = cockpit_getpwnam_a (user, NULL);
-      if (pwd)
-        {
-          json_object_set_string_member (env, "name", pwd->pw_gecos);
-          free (pwd);
-        }
+      json_object_set_string_member (env, "user", cockpit_creds_get_user (creds));
     }
-
   localhost = json_object_new ();
 
   /* This awkwardly takes the localhost reference */
@@ -171,13 +161,6 @@ build_environment (CockpitWebService *service,
 
   json_object_set_string_member (env, "hostname", hostname);
   g_free (hostname);
-
-  /* Only include version info if logged in */
-  if (service)
-    {
-      json_object_set_string_member (localhost, "version", PACKAGE_VERSION);
-      json_object_set_string_member (localhost, "build_info", COCKPIT_BUILD_INFO);
-    }
 
   languages = json_object_new ();
 

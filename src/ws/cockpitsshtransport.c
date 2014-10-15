@@ -868,9 +868,18 @@ dispatch_close (CockpitSshTransport *self)
       self->sent_close = TRUE;
       break;
     default:
-      g_warning ("%s: couldn't send close: %s", self->logname,
-                 ssh_get_error (self->data->session));
-      close_immediately (self, "internal-error");
+      if (ssh_get_error_code (self->data->session) == SSH_REQUEST_DENIED)
+        {
+          g_debug ("%s: couldn't send close: %s", self->logname,
+                   ssh_get_error (self->data->session));
+          self->sent_close = TRUE; /* channel is already closed */
+        }
+      else
+        {
+          g_warning ("%s: couldn't send close: %s", self->logname,
+                     ssh_get_error (self->data->session));
+          close_immediately (self, "internal-error");
+        }
       break;
     }
 }
@@ -890,9 +899,18 @@ dispatch_eof (CockpitSshTransport *self)
       self->sent_eof = TRUE;
       break;
     default:
-      g_warning ("%s: couldn't send eof: %s", self->logname,
-                 ssh_get_error (self->data->session));
-      close_immediately (self, "internal-error");
+      if (ssh_get_error_code (self->data->session) == SSH_REQUEST_DENIED)
+        {
+          g_debug ("%s: couldn't send eof: %s", self->logname,
+                   ssh_get_error (self->data->session));
+          self->sent_eof = TRUE; /* channel is already closed */
+        }
+      else
+        {
+          g_warning ("%s: couldn't send eof: %s", self->logname,
+                     ssh_get_error (self->data->session));
+          close_immediately (self, "internal-error");
+        }
       break;
     }
 }
@@ -924,9 +942,18 @@ dispatch_queue (CockpitSshTransport *self)
       rc = ssh_channel_write (self->data->channel, data + self->partial, want);
       if (rc < 0)
         {
-          g_warning ("%s: couldn't write: %s", self->logname,
-                     ssh_get_error (self->data->session));
-          close_immediately (self, "internal-error");
+          if (ssh_get_error_code (self->data->session) == SSH_REQUEST_DENIED)
+            {
+              g_debug ("%s: couldn't write: %s", self->logname,
+                       ssh_get_error (self->data->session));
+              return FALSE;
+            }
+          else
+            {
+              g_warning ("%s: couldn't write: %s", self->logname,
+                         ssh_get_error (self->data->session));
+              close_immediately (self, "internal-error");
+            }
           break;
         }
 

@@ -30,10 +30,10 @@ cockpit.check_admin = function check_admin(client)
 {
     var acc, i;
 
-    if (cockpit.connection_config.user == "root")
+    if (cockpit.user["user"] == "root")
         return true;
 
-    acc = find_account(cockpit.connection_config.user, client);
+    acc = find_account(cockpit.user["user"], client);
     if (acc) {
         for (i = 0; i < acc.Groups.length; i++) {
             if (acc.Groups[i] == 'wheel')
@@ -475,7 +475,7 @@ PageAccount.prototype = {
     },
 
     check_role_for_self_mod: function () {
-        return (this.account.UserName == cockpit.connection_config.user ||
+        return (this.account.UserName == cockpit.user["user"] ||
                 cockpit.check_admin(this.client));
     },
 
@@ -966,7 +966,7 @@ cockpit.pages.push(new PageAccountSetPassword());
 
 cockpit.change_password = function change_password() {
     PageAccountSetPassword.account = null;
-    PageAccountSetPassword.user_name = cockpit.connection_config.user;
+    PageAccountSetPassword.user_name = cockpit.user["user"];
     $('#account-set-password-dialog').modal('show');
 };
 

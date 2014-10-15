@@ -630,7 +630,7 @@ test_bad_command (TestCase *tc,
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "no-agent");
+  g_assert_cmpstr (problem, ==, "no-cockpit");
   g_free (problem);
 }
 

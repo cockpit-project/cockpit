@@ -144,7 +144,7 @@ on_pipe_close (CockpitPipe *pipe,
           else if (WIFEXITED (status) && WEXITSTATUS (status) == 6)
             problem = "unknown-hostkey";
           else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
-            problem = "no-agent";        // cockpit-agent not installed
+            problem = "no-cockpit";      // cockpit-bridge not installed
           else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
             problem = "terminated";      // ssh failed or got a signal, etc.
           else if (!g_spawn_check_exit_status (status, &error))
@@ -156,8 +156,8 @@ on_pipe_close (CockpitPipe *pipe,
         }
       else if (g_str_equal (problem, "not-found"))
         {
-          g_message ("%s: failed to execute agent: not found", self->name);
-          problem = "no-agent";
+          g_message ("%s: failed to execute bridge: not found", self->name);
+          problem = "no-cockpit";
         }
     }
 

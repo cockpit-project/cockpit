@@ -1,0 +1,68 @@
+<refentry id="cockpit-bridge.8">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>cockpit-bridge</title>
+    <productname>cockpit</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>cockpit-bridge</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class="version"></refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit-bridge</refname>
+    <refpurpose>Cockpit Host Bridge</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>cockpit-bridge</command>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para>The <command>cockpit-bridge</command> program is used by Cockpit to
+      relay messages and commands from the Web front end to the server. Among
+      other things it relays DBus, and spawns processes on behalf of the
+      Web user interface.</para>
+    <para>This program is not meant to be run by users or administrators. It
+      is in the <code>$PATH</code> so that Cockpit can find it when connecting
+      between hosts.</para>
+  </refsect1>
+
+  <refsect1><title>AUTHOR</title>
+    <para>Written by the Cockpit Developers.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>cockpit-ws</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

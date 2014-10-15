@@ -150,7 +150,7 @@ on_pipe_close (CockpitPipe *pipe,
           else if (!g_spawn_check_exit_status (status, &error))
             {
               problem = "internal-error";
-              g_warning ("%s: agent program failed: %s", self->name, error->message);
+              g_warning ("%s: bridge program failed: %s", self->name, error->message);
               g_error_free (error);
             }
         }

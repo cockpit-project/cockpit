@@ -85,7 +85,7 @@ process_close (CockpitTransport *transport,
   const gchar *reason;
 
   /*
-   * The channel may no longer exist due to a race of the agent closing
+   * The channel may no longer exist due to a race of the bridge closing
    * a channel and the web closing it at the same time.
    */
 
@@ -285,7 +285,7 @@ main (int argc,
   outfd = dup (1);
   if (outfd < 0 || dup2 (2, 1) < 1)
     {
-      g_warning ("agent couldn't redirect stdout to stderr");
+      g_warning ("bridge couldn't redirect stdout to stderr");
       outfd = 1;
     }
 

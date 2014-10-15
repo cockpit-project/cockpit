@@ -121,7 +121,7 @@ class TestMultiMachine(MachineCase):
         m2_index = wm[m2.address]
         m3_index = wm[m3.address]
 
-        # TODO: The concrete error message when killing the agent
+        # TODO: The concrete error message when killing the bridge and
         # session is not predictable.  So we just wait for any error
         # to appear without checking the precise text.  We print the
         # error message, to help with issue #606.
@@ -146,10 +146,10 @@ class TestMultiMachine(MachineCase):
 
         self.allow_restart_journal_messages()
         self.allow_journal_messages(".*: .* host key for server is not known: .*",
-                                    # Might happen when killing the agent.
+                                    # Might happen when killing the bridge.
                                     "localhost: dropping message while waiting for child to exit",
                                     "Received message for unknown channel: .*",
                                     ".*: error reading from ssh",
-                                    ".*: agent program failed: Child process exited with code .*")
+                                    ".*: bridge program failed: Child process exited with code .*")
 
 test_main()

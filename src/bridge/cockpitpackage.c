@@ -29,7 +29,7 @@
 #include <string.h>
 
 /* Overridable from tests */
-const gchar **cockpit_agent_data_dirs = NULL; /* default */
+const gchar **cockpit_bridge_data_dirs = NULL; /* default */
 
 /*
  * Note that the way we construct checksums is not a stable part of our ABI. It
@@ -406,7 +406,7 @@ build_package_listing (GHashTable *listing)
   gint i, j;
 
   /* User package directory: no checksums */
-  if (!cockpit_agent_data_dirs)
+  if (!cockpit_bridge_data_dirs)
     directory = g_build_filename (g_get_user_data_dir (), "cockpit", NULL);
   if (directory && g_file_test (directory, G_FILE_TEST_IS_DIR))
     {
@@ -418,8 +418,8 @@ build_package_listing (GHashTable *listing)
   g_free (directory);
 
   /* System package directories */
-  if (cockpit_agent_data_dirs)
-    directories = cockpit_agent_data_dirs;
+  if (cockpit_bridge_data_dirs)
+    directories = cockpit_bridge_data_dirs;
   else
     directories = g_get_system_data_dirs ();
 

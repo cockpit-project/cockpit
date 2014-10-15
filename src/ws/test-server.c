@@ -66,7 +66,7 @@ on_handle_stream_socket (CockpitWebServer *server,
   CockpitPipe *pipe;
 
   const gchar *argv[] = {
-    "./cockpit-agent",
+    "cockpit-bridge",
     NULL,
   };
 
@@ -76,7 +76,7 @@ on_handle_stream_socket (CockpitWebServer *server,
   creds = cockpit_creds_new (g_get_user_name (),
                              NULL);
 
-  pipe = cockpit_pipe_spawn(argv, NULL, NULL);
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
   service = cockpit_web_service_new (creds, pipe);
   g_object_unref (pipe);
 
@@ -174,10 +174,22 @@ on_name_lost (GDBusConnection *connection,
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
-cd_binarydir (const char *argv0)
+setup_path (const char *argv0)
 {
+  const gchar *old = g_getenv ("PATH");
   gchar *dir = g_path_get_dirname (argv0);
-  g_warn_if_fail (g_chdir (dir) == 0);
+  gchar *path;
+
+  if (old == NULL)
+    old = "";
+
+  path = g_strdup_printf ("%s%s%s", dir,
+                          old ? ":" : "",
+                          old ? old : NULL);
+
+  g_setenv ("PATH", path, TRUE);
+
+  g_free (path);
   g_free (dir);
 }
 
@@ -199,6 +211,8 @@ main (int argc,
   /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
+  setup_path (argv[0]);
+
   g_type_init ();
 
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR);
@@ -215,8 +229,6 @@ main (int argc,
       g_printerr ("test-server: %s\n", error->message);
       exit (2);
     }
-
-  cd_binarydir (argv[0]);
 
   loop = g_main_loop_new (NULL, FALSE);
 

@@ -43,7 +43,7 @@
 #include <gssapi/gssapi_generic.h>
 #include <gssapi/gssapi_krb5.h>
 
-/* This program opens a session for a given user and runs the agent in
+/* This program opens a session for a given user and runs the bridge in
  * it.  It is used to manage localhost; for remote hosts sshd does
  * this job.
  */
@@ -680,7 +680,7 @@ closefd (void *data,
             continue;
           if (errno == EBADF || errno == EINVAL)
             break;
-          warnx ("couldn't close fd in agent process: %m");
+          warnx ("couldn't close fd in bridge process: %m");
           return -1;
         }
     }
@@ -811,8 +811,8 @@ fork_session (struct passwd *pw,
 static int
 session (void)
 {
-  char *argv[] = { PACKAGE_LIBEXEC_DIR "/cockpit-agent", NULL };
-  debug ("executing agent: %s", argv[0]);
+  char *argv[] = { PACKAGE_BIN_DIR "/cockpit-bridge", NULL };
+  debug ("executing bridge: %s", argv[0]);
   if (env)
     execve (argv[0], argv, env);
   else

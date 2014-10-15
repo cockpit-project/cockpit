@@ -228,7 +228,7 @@ setup_io_streams (TestCase *test,
   g_object_unref (socket1);
   g_object_unref (socket2);
 
-  cockpit_ws_agent_program = BUILDDIR "/mock-echo";
+  cockpit_ws_bridge_program = BUILDDIR "/mock-echo";
 }
 
 static void
@@ -473,7 +473,7 @@ start_web_service_and_connect_client (TestCase *test,
   WAIT_UNTIL (web_socket_connection_get_ready_state (*ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
-  /* Send the open control message that starts the agent. */
+  /* Send the open control message that starts the bridge. */
   send_control_message (*ws, "open", "4", "payload", "test-text", NULL);
 }
 
@@ -831,7 +831,7 @@ test_expect_host_key (TestCase *test,
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
-  /* Send the open control message that starts the agent specify a specific host key. */
+  /* Send the open control message that starts the bridge specify a specific host key. */
   send_control_message (ws, "open", "4",
                         "payload", "test-text",
                         "host-key", knownhosts,
@@ -899,7 +899,7 @@ test_fail_spawn (TestCase *test,
   CockpitWebService *service;
 
   /* Fail to spawn this program */
-  cockpit_ws_agent_program = "/nonexistant";
+  cockpit_ws_bridge_program = "/nonexistant";
 
   start_web_service_and_connect_client (test, data, &ws, &service);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
@@ -939,7 +939,7 @@ test_timeout_session (TestCase *test,
   cockpit_ws_session_timeout = 1;
 
   /* This sends us a mesage with a pid in it on channel ' ' */
-  cockpit_ws_agent_program = SRCDIR "/src/ws/mock-pid-cat";
+  cockpit_ws_bridge_program = SRCDIR "/src/ws/mock-pid-cat";
 
   /* Start the client */
   start_web_service_and_create_client (test, data, &ws, &service);
@@ -1000,7 +1000,7 @@ test_idling (TestCase *test,
   CockpitPipe *pipe;
 
   const gchar *argv[] = {
-    BUILDDIR "/cockpit-agent",
+    BUILDDIR "/cockpit-bridge",
     NULL
   };
 
@@ -1051,7 +1051,7 @@ test_dispose (TestCase *test,
   CockpitPipe *pipe;
 
   const gchar *argv[] = {
-    BUILDDIR "/cockpit-agent",
+    BUILDDIR "/cockpit-bridge",
     NULL
   };
 
@@ -1097,7 +1097,7 @@ test_logout (TestCase *test,
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
-  /* Send the logout control message that starts the agent specify a specific host key. */
+  /* Send the logout control message */
   data = "\n{ \"command\": \"logout\", \"disconnect\": true }";
   message = g_bytes_new_static (data, strlen (data));
   web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
@@ -1127,15 +1127,15 @@ setup_resource (TestResourceCase *tc,
   const gchar *user;
 
   const gchar *argv[] = {
-    BUILDDIR "/cockpit-agent",
+    BUILDDIR "/cockpit-bridge",
     NULL
   };
 
   environ = g_get_environ ();
-  environ = g_environ_setenv (environ, "XDG_DATA_DIRS", SRCDIR "/src/agent/mock-resource/system", TRUE);
-  environ = g_environ_setenv (environ, "XDG_DATA_HOME", SRCDIR "/src/agent/mock-resource/home", TRUE);
+  environ = g_environ_setenv (environ, "XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
+  environ = g_environ_setenv (environ, "XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
 
-  /* Start up a cockpit-agent here */
+  /* Start up a cockpit-bridge here */
   tc->pipe = cockpit_pipe_spawn (argv, (const gchar **)environ, NULL);
 
   g_strfreev (environ);
@@ -1314,7 +1314,7 @@ test_resource_failure (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL);
 
-  /* Now kill the agent */
+  /* Now kill the bridge */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert_cmpint (pid, >, 0);
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
@@ -1380,7 +1380,7 @@ test_resource_packages_failure (TestResourceCase *tc,
 
   cockpit_expect_message ("*: transport closed while listing cockpit packages: *");
 
-  /* Now kill the agent */
+  /* Now kill the bridge */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert_cmpint (pid, >, 0);
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);

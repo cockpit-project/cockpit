@@ -53,8 +53,8 @@ Then you can build the sources and install them, as usual:
 
     $ make
     $ sudo make install
-    $ sudo cp ../src/agent/cockpit.pam.insecure /etc/pam.d/cockpit
-    $ sudo sh -c "cat ../src/agent/sshd-reauthorize.pam >> /etc/pam.d/sshd"
+    $ sudo cp ../src/bridge/cockpit.pam.insecure /etc/pam.d/cockpit
+    $ sudo sh -c "cat ../src/bridge/sshd-reauthorize.pam >> /etc/pam.d/sshd"
 
 This will install Cockpit and all support files, and will install a
 simplistic PAM configuration.
@@ -184,14 +184,14 @@ enabled when trying to track down a problem. To turn it on add a file
 to your system like this:
 
     $ sudo mkdir -p /etc/systemd/system/cockpit.service.d
-    $ sudo printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf
+    $ sudo printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf
     $ sudo systemctl daemon-reload
     $ sudo systemctl restart cockpit
 
 In the above command you'll notice the string "cockpit-ws". This is a log
 domain. There are various log domains you can enable:
 
- * cockpit-agent: Cockpit agent daemon detailed debug messages
+ * cockpit-bridge: Cockpit bridge detailed debug messages
  * cockpit-daemon: Cockpit DBus daemon detailed debug messages
  * cockpit-protocol: Very verbose low level traffic logging
  * cockpit-ws: Cockpit Web Service detailed debug messages
@@ -222,20 +222,20 @@ You can run these processes as your own user, although you won't be able
 to debug all the authentication logic in those cases.
 
 First of all make sure Cockpit is installed correctly. Even though we
-will be running cockpit-ws and cockpit-agent from the built sources
+will be running cockpit-ws and cockpit-bridge from the built sources
 this still relies on some of the right bits being installed in order
 for Cockpit to work (ie: PAM stack, UI files, etc.)
 
 This is how you would run cockpit-ws under gdb:
 
     $ export G_DEBUG=fatal-criticals
-    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
+    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-bridge
     $ gdb --args ./cockpit-ws --port 10000 --no-tls --uninstalled
 
-And you can run cockpit-ws and cockpit-agent under valgrind like this:
+And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 
     $ export G_DEBUG=fatal-criticals
-    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-agent
+    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-bridge
     $ valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
           ./cockpit-ws --port 10000 --no-tls --uninstalled
 

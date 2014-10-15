@@ -37,7 +37,7 @@
 /**
  * CockpitChannel:
  *
- * A base class for the server (ie: agent) side of a channel. Derived
+ * A base class for the server (ie: bridge) side of a channel. Derived
  * classes implement the actual payload contents, opening the channel
  * etc...
  *
@@ -380,7 +380,7 @@ cockpit_channel_open (CockpitTransport *transport,
     {
       if (payload)
         {
-          g_warning ("agent doesn't support payloads of type: %s", payload);
+          g_warning ("bridge doesn't support payloads of type: %s", payload);
           cockpit_channel_close (channel, "not-supported");
         }
       else

@@ -9,13 +9,14 @@
 
 # HACK: Work around upstream selinux-policy-targetted bug
 #
-# selinux-policy-targetted puts the cockpit-agent file context in the
+# selinux-policy-targetted puts the cockpit-bridge file context in the
 # wrong selinux module, so we cannot replace it. For now just rely on
 # that definition to be correct and comment this out here.
 #
 # https://bugzilla.redhat.com/show_bug.cgi?id=1139138
 #
-# /usr/libexec/cockpit-agent	--	gen_context(system_u:object_r:shell_exec_t,s0)
+# Leave this uncommented until upstream updates
+/usr/bin/cockpit-bridge         --	gen_context(system_u:object_r:shell_exec_t,s0)
 
 /var/lib/cockpit(/.*)?		gen_context(system_u:object_r:cockpit_var_lib_t,s0)
 

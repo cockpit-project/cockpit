@@ -4,7 +4,7 @@ Cockpit Re-Authorization Documentation
 This document is about authorization which is the means by which an already
 authenticated user is checked to see if they are valid/allowed in some context.
 
-cockpit-agent runs as the authenticated user. Like many other programs, when
+cockpit-bridge runs as the authenticated user. Like many other programs, when
 it needs to perform a privileged action, it does this either via DBus + Polkit
 or sudo.
 
@@ -104,15 +104,15 @@ cockpit-ws is the web service which serves the HTML and javascript to the
 browser, holds user credentials, validates cookies, and through which the
 javascript connects back to Cockpit via a WebSocket.
 
-cockpit-agent is the process performs various actions on behalf of the user.
+cockpit-bridge is the process performs various actions on behalf of the user.
 It is run in a real PAM, selinux, and unix session. It processes the DBus
 or REST or commands on behalf of Cockpit.
 
-To launch cockpit-agent, locally a small wrapper called cockpit-session
-sets up the session and changes to the right user, and executes cockpit-agent
+To launch cockpit-bridge, locally a small wrapper called cockpit-session
+sets up the session and changes to the right user, and executes cockpit-bridge
 inside it.
 
-When connecting to a remote machine cockpit-agent is launched via ssh, and
+When connecting to a remote machine cockpit-bridge is launched via ssh, and
 ssh takes care of setting up the session.
 
 See [doc/cockpit-transport.png](cockpit-transport.png) for more on how the
@@ -155,18 +155,18 @@ of the user:
 Note that if GSSAPI was used to authenticate then nothing happens
 above. In fact the "auth" PAM stack is not called (eg: sshd).
 
-When cockpit-agent starts it does:
+When cockpit-bridge starts it does:
 
  * Registers itself as a polkit agent for its own session.
- * Like all other polkit agents, cockpit-agent's polkit agent
+ * Like all other polkit agents, cockpit-bridge's polkit agent
    has a privileged helper: cockpit-polkit
 
 When Polkit needs to reauthorize the user, it connects to the
-cockpit-agent polkit agent:
+cockpit-bridge polkit agent:
 
- * cockpit-agent checks that polkit is trying to reauthorize
+ * cockpit-bridge checks that polkit is trying to reauthorize
    the current user and bails if not.
- * Via its privileged helper, cockpit-agent performs the following:
+ * Via its privileged helper, cockpit-bridge performs the following:
    * If ```getuid() == 0``` then bail
    * If ```geteuid() != 0``` then bail
    * If ```secret``` is present in session kernel keyring.
@@ -191,7 +191,7 @@ its PAM stack so it does this reauthorization via a polkit action with
 a policy of ```auth_self```.
 
 See [doc/protocol.md](protocol.md) for the exact syntax the messages that
-carry the challenge and response between cockpit-agent and cockpit-ws.
+carry the challenge and response between cockpit-bridge and cockpit-ws.
 
 Before cokcpit-ws returns the response back, it checks that various criteria
 are met. See below.

@@ -386,7 +386,7 @@ class MachineCase(unittest.TestCase):
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Error sending message: Broken pipe \\(g-io-error-quark, 44\\). Exiting.",
                                     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1141137
-                                    "localhost: agent program failed: Child process killed by signal 9")
+                                    "localhost: bridge program failed: Child process killed by signal 9")
 
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""

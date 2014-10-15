@@ -136,35 +136,6 @@ cockpit_auth_init (CockpitAuth *self)
                                                NULL, cockpit_authenticated_free);
 }
 
-struct passwd *
-cockpit_getpwnam_a (const gchar *user,
-                    int *errp)
-{
-  int err;
-  long bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
-  struct passwd *ret = NULL;
-  struct passwd *buf;
-
-  g_return_val_if_fail (bufsize >= 0, NULL);
-
-  buf = malloc (sizeof(struct passwd) + bufsize);
-  if (buf == NULL)
-    err = ENOMEM;
-  else
-    err = getpwnam_r (user, buf, (char *)(buf + 1), bufsize, &ret);
-
-  if (ret == NULL)
-    {
-      free (buf);
-      if (err == 0)
-        err = ENOENT;
-    }
-
-  if (errp)
-    *errp = err;
-  return ret;
-}
-
 static void
 session_child_setup (gpointer data)
 {
@@ -441,6 +412,7 @@ create_creds_for_authenticated (const char *user,
                                 LoginData *login,
                                 JsonObject *results)
 {
+  const gchar *fullname = NULL;
   const gchar *password = NULL;
   const gchar *data = NULL;
   const gchar *gssapi_creds = NULL;
@@ -466,8 +438,15 @@ create_creds_for_authenticated (const char *user,
       gssapi_creds = NULL;
     }
 
+  if (!cockpit_json_get_string (results, "full-name", NULL, &fullname))
+    {
+      g_warning ("received bad full-name from cockpit-session");
+      fullname = NULL;
+    }
+
   /* TODO: Try to avoid copying password */
   return cockpit_creds_new (user,
+                            COCKPIT_CRED_FULLNAME, fullname,
                             COCKPIT_CRED_PASSWORD, password,
                             COCKPIT_CRED_RHOST, login->remote_peer,
                             COCKPIT_CRED_GSSAPI, gssapi_creds,

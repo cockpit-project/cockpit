@@ -109,12 +109,6 @@
    only need to use this function for interfaces that don't support
    that signal.
 
-   - client.byteorder
-
-   Indicates the byte order of the machine that the service runs on.
-   The value is one of the strings "le" (for little endian) or "be"
-   (for big endian).
-
  */
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
@@ -305,7 +299,6 @@ DBusClient.prototype = {
         this._last_error = null;
         this._proxies = !options || options.proxies || options.proxies === undefined;
         this.error_details = {};
-        this.byteorder = null;
         this.connect();
     },
 
@@ -393,9 +386,6 @@ DBusClient.prototype = {
     },
 
     _handle_seed : function(data, options) {
-        if (options && options.byteorder)
-            this.byteorder = options.byteorder;
-
         $(this).trigger("seed", data);
 
         if (!this._proxies)

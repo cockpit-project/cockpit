@@ -327,7 +327,7 @@ and issues with these encodings and there is ongoing work to streamline.
 
         {
             "command": "seed",
-            "options": { "byteorder", "be" },
+            "options": { },
             "data": {
                 "/object/path": {
                     "objpath": "/object/path",

@@ -2,12 +2,13 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="embedding">
-  <title>Embedding Cockpit</title>
+  <title>Embedding and Integrating Cockpit</title>
 
-  <para>Cockpit can be embedded in other projects.</para>
+  <para>Cockpit can be embedded in other web applications either as a whole or specific
+    Cockpit components can be integrated.</para>
 
   <warning>
-    <para>None of the embedding APIs are completely stable at this time.</para>
+    <para>None of the the following is stable at this time.</para>
 
     <para>In addition, any APIs or behavior not explicitly documented here is an
       internal API and can be changed at any time.</para>
@@ -37,10 +38,10 @@
   </section>
 
   <section id="embedding-components">
-    <title>Embedding Components</title>
+    <title>Integrating Cockpit Components into Web Applications</title>
 
-    <para>Instead of embedding the entirety of Cockpit, you can embed specific components.
-      Only those components explictly documented as API should be embedded. Other components
+    <para>Instead of embedding the entirety of Cockpit, you can integrate specific components.
+      Only those components explictly documented as API should be integrated. Other components
       can and will change regularly.</para>
 
     <para>The component will load from the server in question and establish a WebSocket connection
@@ -74,23 +75,23 @@
   </section>
 
   <section id="embedding-deep">
-    <title>Deep Embedding</title>
+    <title>Deep Integration</title>
 
-    <para>Most embedders will use <link linkend="embedding-components">simple embedding</link> of
-      components. However it is also possible to do deep embedding for embedders who wish to
-      perform non-standard authentication with the server, and relay the component's message
-      stream to the server themselves.</para>
+    <para>Most often <link linkend="embedding-components">simple integration</link> will be used
+      to bring Cockpit components into web applications. However it is also possible to do deep
+      integration for embedders who wish to perform non-standard authentication with the server,
+      and relay the component's message stream to the server themselves.</para>
 
     <warning>
-      <para>Deep embedding capability is in heavy flux and is not yet documented.</para>
+      <para>Deep integration capability is in heavy flux and is not yet documented.</para>
     </warning>
   </section>
 
   <section id="embedding-cors">
     <title>Pinging Cockpit</title>
 
-    <para>When embedding Cockpit, it may be necessary to check whether Cockpit is available on
-      a server before displaying the embedded Cockpit frame.</para>
+    <para>When embedding Cockpit or integrating Cockpit components, it may be necessary to check
+      whether Cockpit is available on a server before proceeding.</para>
 
     <para>To do this perform a <code>/ping</code> requset to Cockpit. This is a simple HTTP
       GET request. It returns the following:</para>

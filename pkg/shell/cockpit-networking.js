@@ -364,44 +364,30 @@ function NetworkManagerModel(address) {
         return n.toString(10);
     }
 
-    function bytes_from_nm32(num) {
+    function bytes_from_network_long(num) {
         var bytes = [], i;
-        if (client.byteorder == "be") {
-            for (i = 3; i >= 0; i--) {
-                bytes[i] = num & 0xFF;
-                num = num >>> 8;
-            }
-        } else {
-            for (i = 0; i < 4; i++) {
-                bytes[i] = num & 0xFF;
-                num = num >>> 8;
-            }
+        for (i = 0; i < 4; i++) {
+            bytes[i] = num & 0xFF;
+            num = num >>> 8;
         }
         return bytes;
     }
 
-    function bytes_to_nm32(bytes) {
+    function bytes_to_network_long(bytes) {
         var num = 0, i;
-        if (client.byteorder == "be") {
-            for (i = 0; i < 4; i++) {
-                num = 256*num + bytes[i];
-            }
-        } else {
-            for (i = 3; i >= 0; i--) {
-                num = 256*num + bytes[i];
-            }
-        }
+        for (i = 3; i >= 0; i--)
+            num = 256 * num + bytes[i];
         return num;
     }
 
     function ip4_to_text(num) {
-        return bytes_from_nm32(num).map(toDec).join('.');
+        return bytes_from_network_long(num).map(toDec).join('.');
     }
 
     function ip4_from_text(text) {
         var parts = text.split('.');
         if (parts.length == 4)
-            return bytes_to_nm32(parts.map(function(s) { return parseInt(s, 10); }));
+            return bytes_to_network_long(parts.map(function(s) { return parseInt(s, 10); }));
         else // XXX - error
             return 0;
     }

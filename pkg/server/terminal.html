@@ -22,7 +22,7 @@
         });
 
         /* term.js wants the parent element to build its terminal inside of */
-        term.open($("#rescue-terminal")[0]);
+        term.open($("#terminal")[0]);
 
         channel = cockpit.channel({
             "payload": "text-stream",
@@ -63,6 +63,6 @@
 </script>
 </head>
 <body>
-    <div id="rescue-terminal" class="terminal-emulator"></div>
+    <div id="terminal" class="terminal-emulator"></div>
 </body>
 </html>

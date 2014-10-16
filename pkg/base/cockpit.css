@@ -397,19 +397,20 @@ a {
 
 /* Our terminal emulator */
 .terminal-emulator {
-    max-width: 60em;
     font-family: monospace, courier new;
-    background-color: black;
-    padding: 1em;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 2em;
-    margin-bottom: 2em;
+    margin-top: 1em;
+    margin-bottom: 1em;
     line-height: 1;
     font-size: 10pt;
+    text-align: center;
 }
 
 .terminal-emulator > .terminal {
+    background-color: black;
+    padding: 1em;
+    margin: 1em;
     display: inline-block; /* size DIV to contents */
 }
 

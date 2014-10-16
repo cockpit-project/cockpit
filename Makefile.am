@@ -12,6 +12,7 @@ noinst_PROGRAMS =
 sbin_PROGRAMS =
 noinst_LIBRARIES =
 noinst_DATA =
+nodist_noinst_DATA =
 TESTS =
 
 dist_systemdunit_DATA   =
@@ -140,11 +141,7 @@ include doc/Makefile-doc.am
 include doc/guide/Makefile-guide.am
 include doc/man/Makefile-man.am
 
-dist-hook: guide/index.html
-	$(MKDIR_P) $(distdir)/guide
-	cp `dirname $<`/* $(distdir)/guide
-
-noinst_DATA += guide/index.html
+nodist_noinst_DATA += guide/index.html
 
 install-data-local: guide/index.html
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
@@ -153,11 +150,14 @@ install-data-local: guide/index.html
 uninstall-doc-local:
 	rm -rf $(DESTDIR)$(htmldir)
 
-distcheck-hook:
-	@true
-
 upload-doc: guide/index.html
 	rsync -Hvax guide/./ files.cockpit-project.org:/srv/guide/$(LATEST)./
+
+dist-hook:
+	@true
+
+distcheck-hook:
+	@true
 
 else
 

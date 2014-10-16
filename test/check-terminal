@@ -30,7 +30,7 @@ class TestTerminal(MachineCase):
         b.switch_to_frame("terminal-localhost")
 
         def line_sel(i):
-            return '#rescue-terminal .terminal div:nth-child(%d)' % i
+            return '#terminal .terminal div:nth-child(%d)' % i
 
         def line_text(t):
             return t + u'\xa0'*(80-len(t))
@@ -38,7 +38,7 @@ class TestTerminal(MachineCase):
         def wait_line(i,t):
             b.wait_text(line_sel(i), line_text(t))
 
-        b.focus('#rescue-terminal .terminal')
+        b.focus('#terminal .terminal')
 
         # wait for prompt in first line and remember it
         b.wait_text_not(line_sel(1), line_text(""))

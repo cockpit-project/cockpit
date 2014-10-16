@@ -28,6 +28,7 @@ base_TESTS = \
         pkg/base/test-amdjs.html \
 	pkg/base/test-spawn.html \
 	pkg/base/test-spawn-proc.html \
+	pkg/base/test-dbus.html \
 	$(NULL)
 
 TESTS += $(base_TESTS)

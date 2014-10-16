@@ -762,6 +762,175 @@ function full_scope(cockpit, $) {
         return promise;
     };
 
+    function dbus_debug() {
+        if (window.debugging == "all" || window.debugging == "dbus")
+            console.debug.apply(console, arguments);
+    }
+
+    function DBusError(arg) {
+        if (typeof(arg) == "string") {
+            this.problem = arg;
+            this.name = null;
+            this.message = arg;
+        } else {
+            this.problem = null;
+            this.name = arg[0];
+            this.message = arg[1][0] || arg[0];
+        }
+        this.toString = function() {
+            return this.message;
+        };
+    }
+
+    function DBusClient(name, options) {
+        var self = this;
+        var args = { };
+        if (options)
+            $.extend(args, options);
+        args.payload = "dbus-json3";
+        args.name = name;
+
+        var channel = cockpit.channel(args);
+        var subscribers = { };
+        var calls = { };
+
+        function matches(signal, match) {
+            if (match.path && signal[0] !== match.path)
+                return false;
+            if (match.path_namespace && signal[0].indexOf(match.path_namespace) !== 0)
+                return false;
+            if (match["interface"] && signal[1] !== match["interface"])
+                return false;
+            if (match.member && signal[2] !== match.member)
+                return false;
+            if (match.arg0 && signal[3] !== match.arg0)
+                return false;
+            return true;
+        }
+
+        $(channel).on("message", function(event, payload) {
+            dbus_debug("dbus:", payload);
+            var msg = undefined;
+            try {
+                msg = JSON.parse(payload);
+            } catch(ex) {
+                console.warn("received invalid dbus json message:", ex);
+            }
+            if (msg === undefined) {
+                channel.close({"reason": "protocol-error"});
+                return;
+            }
+            var dfd;
+            if (msg.id !== undefined)
+                dfd = calls[msg.id];
+            if (msg.reply) {
+                if (dfd) {
+                    dfd.resolve(msg.reply[0]);
+                    delete calls[msg.id];
+                }
+            } else if (msg.error) {
+                if (dfd) {
+                    dfd.reject(new DBusError(msg.error));
+                    delete calls[msg.id];
+                }
+            } else if (msg.signal) {
+                $.each(subscribers, function(id, subscription) {
+                    if (subscription.callback) {
+                        if (matches(msg.signal, subscription.match))
+                            subscription.callback.apply(self, msg.signal);
+                    }
+                });
+            } else {
+                console.warn("received unexpected dbus json message:", payload);
+                channel.close({"reason": "protocol-error"});
+            }
+        });
+
+        this.close = function close(options) {
+            var problem;
+            if (typeof options == "string") {
+                problem = options;
+                options = { "reason": problem };
+            } else if (options) {
+                problem = options.reason;
+            }
+            if (!problem)
+                problem = "disconnected";
+            if (channel)
+                channel.close(options);
+            var outstanding = calls;
+            calls = { };
+            $.each(outstanding, function(id, dfd) {
+                dfd.reject(new DBusError(problem));
+            });
+            $(self).triggerHandler("close", problem);
+        };
+
+        $(channel).on("close", function(event, options) {
+            dbus_debug("dbus close:", options);
+            $(channel).off();
+            channel = null;
+            self.close(options);
+        });
+
+        var last_cookie = 1;
+
+        this.call = function call(path, iface, method, args, options) {
+            var dfd = $.Deferred();
+            var id = String(last_cookie);
+            last_cookie++;
+            var msg = JSON.stringify({
+                "call": [ path, iface, method, args ],
+                "id": id
+            });
+
+            dbus_debug("dbus:", msg);
+            channel.send(msg);
+            calls[id] = dfd;
+
+            return dfd.promise();
+        };
+
+        this.subscribe = function subscribe(match, callback) {
+            var subscription = {
+                match: match || { },
+                callback: callback
+            };
+            var msg = JSON.stringify({ "add-match": subscription.match });
+            dbus_debug("dbus:", msg);
+            channel.send(msg);
+
+            var id = String(last_cookie);
+            last_cookie++;
+            subscribers[id] = subscription;
+
+            return {
+                remove: function() {
+                    var prev = subscribers[id];
+                    if (prev) {
+                        delete subscribers[id];
+                        var msg = JSON.stringify({ "remove-match": prev.match });
+                        dbus_debug("dbus:", msg);
+                        channel.send(msg);
+                    }
+                }
+            };
+        };
+    }
+
+    /* public */
+    cockpit.dbus = function dbus(name, options) {
+        return new DBusClient(name, options);
+    };
+
+    cockpit.variant = function variant(type, value) {
+        return { 'v': value, 't': type };
+    };
+
+    cockpit.byte_array = function byte_array(string) {
+        return window.btoa(string);
+    };
+
 } /* full_scope */
 
 /* ----------------------------------------------------------------------------

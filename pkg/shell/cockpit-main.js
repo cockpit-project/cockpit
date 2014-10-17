@@ -566,6 +566,14 @@ cockpit.confirm = function confirm(title, body, action_text) {
     return deferred.promise();
 };
 
+function update_user_menu() {
+    var is_root = (cockpit.user["user"] == "root");
+    var is_not_root = (cockpit.user["user"] && !is_root);
+    $('#cockpit-go-account').toggle(is_not_root);
+    $('#cockpit-change-passwd').toggle(is_root);
+    $('.cockpit-deauthorize-item').toggle(is_not_root);
+}
+
 $(function() {
     $(".cockpit-deauthorize-item a").on("click", function(ev) {
         cockpit.drop_privileges(false);
@@ -577,10 +585,8 @@ $(function() {
         ev.preventDefault();
     });
 
-    var is_root = (cockpit.user["user"] == "root");
-    $('#cockpit-go-account').toggle(!is_root);
-    $('#cockpit-change-passwd').toggle(is_root);
-    $('.cockpit-deauthorize-item').toggle(!is_root);
+    update_user_menu();
+    $(cockpit.user).on("changed", update_user_menu);
 });
 
 cockpit.go_login_account = function go_login_account() {

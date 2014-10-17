@@ -365,7 +365,7 @@ PageAccount.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", this.account? this.account.RealName : "??");
+        return C_("page-title", "Accounts");
     },
 
     show: function() {
@@ -435,6 +435,7 @@ PageAccount.prototype = {
                 }
             }
             $('#account-roles').html(roles);
+            $('#account .breadcrumb .active').text(this.account.RealName);
         } else {
             $('#account-pic').attr('src', null);
             $('#account-real-name').val("");
@@ -442,8 +443,8 @@ PageAccount.prototype = {
             $('#account-last-login').text("");
             $('#account-locked').prop('checked', false);
             $('#account-roles').text("");
+            $('#account .breadcrumb .active').text("?");
         }
-        cockpit.content_update_loc_trail();
     },
 
     trigger_change_avatar: function() {

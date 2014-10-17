@@ -557,7 +557,7 @@ PageService.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Service");
+        return C_("page-title", "Services");
     },
 
     setup: function() {
@@ -698,6 +698,8 @@ PageService.prototype = {
             if (sp != -1)
                 me.template = me.template + me.service.substring(sp);
         }
+
+        $('#service .breadcrumb .active').text(me.service);
 
         me.manager.call('GetServiceInfo', me.service, function (error, info) {
             if (error) {

@@ -2493,10 +2493,6 @@ PageCreateRaid.prototype = {
         this.id = "create-raid-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create RAID Array");
-    },
-
     show: function() {
     },
 
@@ -2671,10 +2667,6 @@ PageCreateVolumeGroup.prototype = {
         this.id = "create-volume-group-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Volume Group");
-    },
-
     show: function() {
         if (this.blocks.length > 0) {
             $('#create-vg-name').prop('disabled', false);
@@ -2847,10 +2839,6 @@ PageFormatDisk.prototype = {
         this.id = "storage_format_disk_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Format Disk");
-    },
-
     show: function() {
     },
 
@@ -2889,13 +2877,6 @@ cockpit.pages.push(new PageFormatDisk());
 PageFormat.prototype = {
     _init: function() {
         this.id = "storage_format_dialog";
-    },
-
-    getTitle: function() {
-        if (PageFormat.mode == 'create-partition')
-            return C_("page-title", "Create Partition");
-        else
-            return C_("page-title", "Format");
     },
 
     show: function() {
@@ -3047,10 +3028,6 @@ PageCreatePlainVolume.prototype = {
         this.id = "storage_create_plain_volume_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Logical Volume");
-    },
-
     show: function() {
     },
 
@@ -3093,10 +3070,6 @@ PageCreateThinPool.prototype = {
         this.id = "storage_create_thin_pool_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Pool for Thin Volumes");
-    },
-
     show: function() {
     },
 
@@ -3137,10 +3110,6 @@ cockpit.pages.push(new PageCreateThinPool());
 PageCreateThinVolume.prototype = {
     _init: function() {
         this.id = "storage_create_thin_volume_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Create Thin Logical Volume");
     },
 
     show: function() {
@@ -3189,10 +3158,6 @@ PageCreateSnapshot.prototype = {
         this.id = "storage_create_snapshot_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Snapshot");
-    },
-
     show: function() {
     },
 
@@ -3239,10 +3204,6 @@ PageResizeVolume.prototype = {
         this.id = "storage_resize_volume_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Resize Logical Volume");
-    },
-
     show: function() {
     },
 
@@ -3287,10 +3248,6 @@ PageRenameVolume.prototype = {
         this.id = "storage_rename_volume_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Rename Logical Volume");
-    },
-
     show: function() {
     },
 
@@ -3328,10 +3285,6 @@ cockpit.pages.push(new PageRenameVolume());
 PageRenameGroup.prototype = {
     _init: function() {
         this.id = "storage_rename_group_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Rename Volume Group");
     },
 
     show: function() {
@@ -3372,10 +3325,6 @@ cockpit.pages.push(new PageRenameGroup());
 PageFilesystemOptions.prototype = {
     _init: function() {
         this.id = "filesystem_options_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Filesystem Options");
     },
 
     show: function() {
@@ -3435,10 +3384,6 @@ PageCryptoOptions.prototype = {
         this.id = "crypto_options_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Encryption Options");
-    },
-
     show: function() {
     },
 
@@ -3484,10 +3429,6 @@ PageUnlock.prototype = {
         this.id = "storage_unlock_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Unlock");
-    },
-
     show: function() {
     },
 
@@ -3524,10 +3465,6 @@ cockpit.pages.push(new PageUnlock());
 PageRaidDiskAdd.prototype = {
     _init: function() {
         this.id = "raid_disk_add_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Add Disks");
     },
 
     show: function() {
@@ -3579,10 +3516,6 @@ cockpit.pages.push(new PageRaidDiskAdd());
 PageVGDiskAdd.prototype = {
     _init: function() {
         this.id = "vg_disk_add_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Add Disks");
     },
 
     show: function() {

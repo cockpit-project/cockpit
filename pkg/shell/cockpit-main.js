@@ -601,10 +601,6 @@ PageDisconnected.prototype = {
         this.id = "disconnected-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Disconnected");
-    },
-
     setup: function() {
         $('#disconnected-reconnect').click($.proxy(this, "reconnect"));
         $('#disconnected-logout').click($.proxy(this, "logout"));

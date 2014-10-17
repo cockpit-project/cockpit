@@ -24,10 +24,6 @@ PageAbout.prototype = {
         this.id = "about";
     },
 
-    getTitle: function() {
-        return C_("page-title", "About Cockpit");
-    },
-
     enter: function() {
         $("#about-version").empty();
         $("#about-version").append(document.createTextNode(cockpit.info["version"]));

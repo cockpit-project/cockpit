@@ -2235,10 +2235,6 @@ PageNetworkIpSettings.prototype = {
         this.id = "network-ip-settings-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Network Ip Settings");
-    },
-
     setup: function () {
         $('#network-ip-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-ip-settings-apply').click($.proxy(this, "apply"));
@@ -2621,10 +2617,6 @@ PageNetworkBondSettings.prototype = {
         this.id = "network-bond-settings-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Network Bond Settings");
-    },
-
     setup: function () {
         $('#network-bond-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bond-settings-apply').click($.proxy(this, "apply"));
@@ -2802,10 +2794,6 @@ PageNetworkBridgeSettings.prototype = {
         this.id = "network-bridge-settings-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Network Bridge Settings");
-    },
-
     setup: function () {
         $('#network-bridge-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bridge-settings-apply').click($.proxy(this, "apply"));
@@ -2942,10 +2930,6 @@ PageNetworkBridgePortSettings.prototype = {
         this.id = "network-bridgeport-settings-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Network BridgePort Settings");
-    },
-
     setup: function () {
         $('#network-bridgeport-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bridgeport-settings-apply').click($.proxy(this, "apply"));
@@ -3047,10 +3031,6 @@ cockpit.pages.push(new PageNetworkBridgePortSettings());
 PageNetworkVlanSettings.prototype = {
     _init: function () {
         this.id = "network-vlan-settings-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Network Vlan Settings");
     },
 
     setup: function () {

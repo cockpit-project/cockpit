@@ -31,10 +31,6 @@ PageRealmsOp.prototype = {
         this.id = "realms-op";
     },
 
-    getTitle: function() {
-        return this.title;
-    },
-
     show: function() {
     },
 

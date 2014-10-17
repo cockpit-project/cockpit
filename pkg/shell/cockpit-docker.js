@@ -607,10 +607,6 @@ PageRunImage.prototype = {
         this.id = "containers_run_image_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Run Image");
-    },
-
     show: function() {
     },
 
@@ -763,10 +759,6 @@ cockpit.pages.push(new PageRunImage());
 PageSearchImage.prototype = {
     _init: function() {
         this.id = "containers-search-image-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Get new image");
     },
 
     show: function() {

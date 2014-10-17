@@ -24,10 +24,6 @@ PageShutdownDialog.prototype = {
         this.id = "shutdown-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Shutdown");
-    },
-
     setup: function() {
         $("#shutdown-restart").click($.proxy(this, "restart"));
         $("#shutdown-poweroff").click($.proxy(this, "poweroff"));

@@ -31,14 +31,21 @@ PageSystemInformation.prototype = {
     setup: function() {
         var self = this;
 
-        $("#realms-join").click (function (e) {
+        $("#realms-join").click (function () {
             if (!cockpit.check_admin(self.client))
                 return;
 
             if(self.realms.Joined[0] === undefined) {
-                cockpit.realms_op_set_parameters(self.realm_manager, 'join', '', { });
+                cockpit.realms_op_set_parameters(self.realms, 'join', '', { });
                 $('#realms-op').modal('show');
             }
+        });
+
+        $("#realms-leave").click(function () {
+            if (!cockpit.check_admin(self.client))
+                return;
+
+            self.leave_realm();
         });
 
         $('#system_information_change_hostname_button').on('click', function () {
@@ -49,72 +56,59 @@ PageSystemInformation.prototype = {
         });
     },
 
-    update: function() {
+    update_realms: function() {
         var self = this;
-        var joined = self.realm_manager.Joined;
+        var joined = self.realms.Joined;
 
-        $("#realms-list").empty();
+        function realms_text(val) {
+            if (!val)
+                return "?";
 
-        if (joined === undefined) {
-            $("#realms-empty-text").hide();
-            return;
+            var res = [ ];
+            for (var i = 0; i < val.length; i++)
+                res.push(val[i][0]);
+            return res.join (", ");
         }
 
-        if (joined.length === 0) {
-            $("#realms-empty-text").show();
+        $('#system_information_realms').text(realms_text(joined));
+
+        $("#realms-leave").toggle(joined && joined.length > 0);
+        $("#realms-join").toggle(joined && joined.length === 0);
+
+        /* Never show the spinner together with the Join button.
+         */
+        if (joined && joined.length === 0)
+            $("#realms-leave-spinner").hide();
+    },
+
+    leave_realm: function () {
+        var self = this;
+
+        var joined = self.realms.Joined;
+        if (joined.length < 1)
             return;
-        } else
-            $("#realms-empty-text").hide();
 
-            (function () {
-                var name = joined[0][0];
-                var details = joined[0][1];
-                $("#realms-list").append(('<li class="list-group-item" id="domain-list">' +
-                                          cockpit.esc(name) +
-                                          '<button class="btn btn-default realms-leave-button" id="realms-leave" style="float:right">' +
-                                          _("Leave") + '</button>' +
-                                          '<div class="realms-leave-spinner waiting" id="realms-leave-spinner style="float:right"/>' +
-                                          '</li>'));
-                $("#realms-leave").off("click");
-                $("#realms-leave").on("click", function (e) {
-                    if (!cockpit.check_admin(self.client))
-                        return;
-                    $("#realms-leave-spinner" ).show();
-                    self.leave_realm(name, details);
-                });
-            })();
-    },
+        $("#realms-leave-spinner").show();
 
-    update_busy: function () {
-        var self = this;
-
-        var busy = self.realm_manager.Busy;
-
-        if (busy && busy[0])
-            $(".realms-leave-button").prop('disabled', true);
-        else {
-            $(".realms-leave-button").prop('disabled', false);
-            $(".realms-leave-spinner").hide();
-        }
-    },
-
-    leave_realm: function (name, details) {
-        var self = this;
+        var name = joined[0][0];
+        var details = joined[0][1];
 
         $("#realms-leave-error").text("");
         var options = { 'server-software': details['server-software'],
                         'client-software': details['client-software']
                       };
-        self.realm_manager.call("Leave", name, [ 'none', '', '' ], options, function (error, result) {
-            $(".realms-leave-spinner").hide();
-            if (error) {
-                if (error.name == 'com.redhat.Cockpit.Error.AuthenticationFailed') {
-                    cockpit.realms_op_set_parameters(self.realm_manager, 'leave', name, details);
-                    $("#realms-op").modal('show');
-                } else
-                    $("#realms-leave-error").text(error.message);
-            }
-        });
+
+        self.realms.call("Leave", name, [ 'none', '', '' ], options,
+                         function (error, result) {
+                             $("#realms-leave-spinner").hide();
+                             if (error) {
+                                 if (error.name == 'com.redhat.Cockpit.Error.AuthenticationFailed') {
+                                     cockpit.realms_op_set_parameters(self.realms, 'leave', name, details);
+                                     $("#realms-op").modal('show');
+                                 } else
+                                     $("#realms-leave-error").text(error.message);
+                             }
+                         });
     },
 
     enter: function() {
@@ -125,18 +119,6 @@ PageSystemInformation.prototype = {
         self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(self.client);
 
-        self.address = cockpit.get_page_param('machine', 'server') || "localhost";
-        /* TODO: This code needs to be migrated away from dbus-json1 */
-        self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
-        cockpit.set_watched_client(self.client);
-        self.realm_manager = self.client.get("/com/redhat/Cockpit/Realms",
-                                             "com.redhat.Cockpit.Realms");
-        $(self.realm_manager).on("notify:Joined.realms", $.proxy(self, "update"));
-        $(self.realm_manager).on("notify:Busy.realms", $.proxy(self, "update_busy"));
-
-        $("#realms-leave-error").text("");
-        self.update();
-        self.update_busy();
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");
 
@@ -171,42 +153,14 @@ PageSystemInformation.prototype = {
         bindf("#system_information_hostname_text", self.manager, "StaticHostname", hostname_text);
         bindf("#system_information_hostname_text", self.manager, "PrettyHostname", hostname_text);
 
-        function realms_text(val) {
-            if (!val)
-                return "?";
-
-            var res = [ ];
-            for (var i = 0; i < val.length; i++)
-                res.push(val[i][0]);
-            return res.join (", ");
-        }
-
-        function hide_buttons(val) {
-            if (!val)
-                return;
-
-            if(val[0] === undefined){
-                $(".realms-leave-spinner").hide();
-                $("#realms-leave").hide();
-                $("#realms-join").show();
-            }
-            else {
-                $("#realms-join").hide();
-                $("#realms-leave").show();
-                $(".realms-leave-button").prop('disabled', false);
-                $("#realms-op").modal('hide');
-            }
-
-        }
-
         self.realms = self.client.get("/com/redhat/Cockpit/Realms", "com.redhat.Cockpit.Realms");
-        bindf("#system_information_realms", self.realms, "Joined", realms_text);
 
-        $(self.realms).on('notify:Joined.system-information', function() {
-            hide_buttons(self.realms['Joined']);
-        });
+        $(self.realms).on('notify:Joined.system-information',
+                          $.proxy(self, "update_realms"));
 
-        hide_buttons(self.realms['Joined']);
+        $("#realms-leave-error").text("");
+        $("#realms-leave-spinner").hide();
+        self.update_realms();
     },
 
     show: function() {
@@ -227,8 +181,6 @@ PageSystemInformation.prototype = {
         self.client = null;
         self.manager = null;
         self.realms = null;
-        $(self.realm_manager).off('.realms');
-        self.realm_manager = null;
     }
 };
 

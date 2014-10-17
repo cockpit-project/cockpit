@@ -483,10 +483,6 @@ PageServiceAdd.prototype = {
         this.id = "service-add-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Add Service");
-    },
-
     setup: function() {
         $('#service-add-add').click($.proxy(this, "add"));
     },

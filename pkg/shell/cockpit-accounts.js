@@ -258,10 +258,6 @@ PageAccountsCreate.prototype = {
         this.id = "accounts-create-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Account");
-    },
-
     show: function() {
     },
 
@@ -571,10 +567,6 @@ PageAccountChangeAvatar.prototype = {
         this.id = "account-change-avatar-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Change Picture");
-    },
-
     show: function() {
     },
 
@@ -739,10 +731,6 @@ PageAccountChangeRoles.prototype = {
         this.id = "account-change-roles-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Change Roles");
-    },
-
     show: function() {
     },
 
@@ -824,10 +812,6 @@ PageAccountConfirmDelete.prototype = {
         this.id = "account-confirm-delete-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Delete Account?");
-    },
-
     show: function() {
     },
 
@@ -866,10 +850,6 @@ PageAccountSetPassword.prototype = {
     _init: function() {
         this.error_timeout = null;
         this.id = "account-set-password-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Set Password");
     },
 
     show: function() {

@@ -195,10 +195,6 @@ PageSystemInformationChangeHostname.prototype = {
         this.id = "system_information_change_hostname";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Change Host Name");
-    },
-
     setup: function() {
         $("#sich-pretty-hostname").on("input change", $.proxy(this._on_full_name_changed, this));
         $("#sich-hostname").on("input change", $.proxy(this._on_name_changed, this));

@@ -24,10 +24,6 @@ PageSetupServer.prototype = {
         this.id = "dashboard_setup_server_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Setup Host");
-    },
-
     show: function() {
         $("#dashboard_setup_address").focus();
     },

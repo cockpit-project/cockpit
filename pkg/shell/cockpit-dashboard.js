@@ -118,8 +118,7 @@ PageDashboard.prototype = {
         var machine_action_spec = [
             { title: _("Connect"),         action: 'connect' },
             { title: _("Disconnect"),      action: 'disconnect' },
-            { title: _("Remove"),          action: 'remove' },
-            { title: _("Rescue Terminal"), action: 'rescue' }
+            { title: _("Remove"),          action: 'remove' }
         ];
 
         machines.empty ();
@@ -278,8 +277,6 @@ PageDashboard.prototype = {
                 if (error)
                     cockpit.show_unexpected_error(error);
             });
-        } else if (op == "rescue") {
-            cockpit.go({ page: "terminal", machine: machine.address });
         } else
             console.log ("unsupported server op %s", op);
     },

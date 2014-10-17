@@ -84,6 +84,8 @@ void               cockpit_pipe_close        (CockpitPipe *self,
 
 gint               cockpit_pipe_exit_status  (CockpitPipe *self);
 
+const gchar *      cockpit_pipe_get_name     (CockpitPipe *self);
+
 GByteArray *       cockpit_pipe_get_buffer   (CockpitPipe *self);
 
 gboolean           cockpit_pipe_get_pid      (CockpitPipe *self,

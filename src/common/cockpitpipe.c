@@ -1187,6 +1187,23 @@ cockpit_pipe_get_pid (CockpitPipe *self,
 }
 
 /**
+ * cockpit_pipe_get_name:
+ * @self: a pipe
+ *
+ * Get the name of the pipe.
+ *
+ * This is used for logging.
+ *
+ * Returns: (transfer none): the name
+ */
+const gchar *
+cockpit_pipe_get_name (CockpitPipe *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_PIPE (self), NULL);
+  return self->priv->name;
+}
+
+/**
  * cockpit_pipe_get_buffer:
  * @self: a pipe
  *

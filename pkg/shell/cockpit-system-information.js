@@ -114,7 +114,7 @@ PageSystemInformation.prototype = {
     enter: function() {
         var self = this;
 
-        self.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        self.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(self.client);

@@ -1265,7 +1265,7 @@ PageNetworking.prototype = {
     enter: function () {
         var self = this;
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.model = get_nm_model(this.address);
         cockpit.set_watched_client(this.model.client);
 
@@ -1590,7 +1590,7 @@ PageNetworkInterface.prototype = {
     enter: function () {
         var self = this;
 
-        self.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        self.address = cockpit.get_page_machine();
         self.model = get_nm_model(self.address);
         cockpit.set_watched_client(self.model.client);
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));

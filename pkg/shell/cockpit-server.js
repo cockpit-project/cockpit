@@ -50,7 +50,7 @@ PageServer.prototype = {
     enter: function() {
         var self = this;
 
-        self.address = cockpit.get_page_param('machine') || "localhost";
+        self.address = cockpit.get_page_machine();
         self.client = cockpit.dbus(self.address);
         cockpit.set_watched_client(self.client);
 

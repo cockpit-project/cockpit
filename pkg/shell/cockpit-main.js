@@ -483,6 +483,10 @@ cockpit.get_page_param = function get_page_param(key, page) {
         return undefined;
 };
 
+cockpit.get_page_machine = function get_page_machine() {
+    return cockpit.get_page_param('machine', 'server') || "localhost";
+};
+
 cockpit.set_page_param = function set_page_param(key, val) {
     if (val)
         cockpit.loc_trail[cockpit.loc_trail.length-1][key] = val;
@@ -667,7 +671,7 @@ function PageExternal(id, url, title) {
 
     self.enter = function enter() {
         /* TODO: This is total bullshit */
-        var server = cockpit.get_page_param('machine', 'server');
+        var server = cockpit.get_page_machine();
         if (!server)
             server = "localhost";
         var frame = self.frames[server];

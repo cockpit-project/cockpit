@@ -342,7 +342,7 @@ PageStorage.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(this.client);
@@ -1280,7 +1280,7 @@ PageStorageDetail.prototype = {
         var type = cockpit.get_page_param("type");
         var id = cockpit.get_page_param("id");
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(this.client);

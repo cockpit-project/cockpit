@@ -529,7 +529,7 @@ PageJournal.prototype = {
 
         update_priority_buttons (this.query_prio);
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
 
         this.reset_query ();
     },

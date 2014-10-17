@@ -377,7 +377,7 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
             /* Find the last day that begins above border
              */
             var currentIndex = 0;
-            while ( (currentIndex+1) < renderitems_day_cache.length && 
+            while ( (currentIndex+1) < renderitems_day_cache.length &&
                     renderitems_day_cache[currentIndex+1][0] < border) {
                 currentIndex++;
             }
@@ -600,7 +600,7 @@ PageJournalEntry.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Journal Entry");
+        return C_("page-title", "Journal");
     },
 
     show: function() {

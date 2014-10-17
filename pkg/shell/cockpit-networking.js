@@ -1572,7 +1572,7 @@ PageNetworkInterface.prototype = {
     },
 
     getTitle: function() {
-        return cockpit.get_page_param("dev", "network-interface") || "?";
+        return C_("page-title", "Networking");
     },
 
     setup: function () {
@@ -1596,6 +1596,8 @@ PageNetworkInterface.prototype = {
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
         self.dev_name = cockpit.get_page_param('dev');
+
+        $('#network-interface .breadcrumb .active').text(self.dev_name);
 
         var blues = [ "#006bb4",
                       "#008ff0",

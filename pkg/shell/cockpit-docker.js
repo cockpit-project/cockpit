@@ -962,7 +962,7 @@ PageContainerDetails.prototype = {
     },
 
     getTitle: function() {
-        return this.name;
+        return C_("page-title", "Containers");
     },
 
     show: function() {
@@ -1142,11 +1142,8 @@ PageContainerDetails.prototype = {
         $('#container-details-cpu-row').toggle(!!info.State.Running);
         $('#container-details-resource-row').toggle(!!info.State.Running);
 
-        var name = render_container_name(info.Name);
-        if (name != this.name) {
-            this.name = name;
-            cockpit.content_update_loc_trail();
-        }
+        this.name = render_container_name(info.Name);
+        $('#container-details .breadcrumb .active').text(this.name);
 
         var port_bindings = [ ];
         if (info.NetworkSettings) {
@@ -1243,7 +1240,7 @@ PageImageDetails.prototype = {
     },
 
     getTitle: function() {
-        return this.name;
+        return C_("page-title", "Containers");
     },
 
     show: function() {
@@ -1320,13 +1317,10 @@ PageImageDetails.prototype = {
         $('#image-details-buttons div.waiting').toggle(waiting);
         $('#image-details-buttons button').toggle(!waiting);
 
-        if (info.RepoTags && info.RepoTags.length > 0) {
-            var name = info.RepoTags[0];
-            if (name != this.name) {
-                this.name = name;
-                cockpit.content_update_loc_trail();
-            }
-        }
+        if (info.RepoTags && info.RepoTags.length > 0)
+            this.name = info.RepoTags[0];
+
+        $('#image-details .breadcrumb .active').text(this.name);
 
         $('#image-details-id').text(info.id);
         $('#image-details-tags').html(multi_line(info.RepoTags));

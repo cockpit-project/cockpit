@@ -1177,6 +1177,10 @@ PageStorageDetail.prototype = {
     },
 
     getTitle: function() {
+        return C_("page-title", "Storage");
+    },
+
+    get_page_title: function() {
         var ret;
         if (this._drive) {
             if (this._drive.Vendor && this._drive.Vendor.length > 0)
@@ -1318,7 +1322,7 @@ PageStorageDetail.prototype = {
 
         this._update();
 
-        $("#storage-detail-title").text(this.getTitle());
+        $("#storage-detail-title").text(this.get_page_title());
 
         $(this.client).on("objectAdded.storage-details", $.proxy(this._update, this));
         $(this.client).on("objectRemoved.storage-details", $.proxy(this._update, this));
@@ -1349,7 +1353,7 @@ PageStorageDetail.prototype = {
         else if (this._block)
             this._updateBlock();
 
-        cockpit.content_update_loc_trail();
+        $('#storage-detail .breadcrumb .active').text(this.get_page_title());
     },
 
     _updateBlock: function() {

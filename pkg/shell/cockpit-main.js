@@ -318,9 +318,6 @@ function update_global_nav() {
     document.title = doc_title;
 }
 
-// TODO - remove this
-cockpit.content_update_loc_trail = update_global_breadcrumb;
-
 cockpit.go = function go(loc) {
     page_navigation_count += 1;
 

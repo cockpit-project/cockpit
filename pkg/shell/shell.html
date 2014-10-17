@@ -292,6 +292,10 @@
       </div>
 
       <div id="storage-detail" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('storage')">Storage</a></li>
+          <li class="active"></li>
+        </ol>
         <div id="disk_detail_list">
           <div class="panel panel-default">
             <div class="panel-heading">
@@ -502,6 +506,10 @@
       </div>
 
       <div id="network-interface" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('networking')">Networking</a></li>
+          <li class="active"></li>
+        </ol>
         <div class="row">
           <div class="col-sm-6">
             <div>Sending<span style="float:right" id="network-interface-tx-text"></span></div>
@@ -584,6 +592,10 @@
       </div>
 
       <div id="service" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('services')">Services</a></li>
+          <li class="active"></li>
+        </ol>
         <div class="row" id="service-graphs">
           <div class="col-sm-6">
             <div>CPU usage<span style="float:right" id="service-cpu-text"></span></div>
@@ -678,6 +690,10 @@
       </div>
 
       <div id="journal-entry" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('journal')">Journal</a></li>
+          <li class="active">Entry</li>
+        </ol>
         <div class="panel panel-default">
           <div class="panel-heading">
             <span id="journal-entry-id"></span>
@@ -695,7 +711,11 @@
         </div>
       </div>
 
-      <div id="account">
+      <div id="account" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('accounts')">Accounts</a></li>
+          <li class="active"></li>
+        </ol>
         <center>
           <table>
             <tr>
@@ -821,6 +841,10 @@
 
       <!-- Layout for container details page -->
       <div id="container-details" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('containers')">Containers</a></li>
+          <li class="active"></li>
+        </ol>
         <div class="panel-default panel">
           <div class="panel-heading" style="height:44px">
             <div class="col-sm-12">
@@ -904,6 +928,10 @@
 
       <!-- Layout for image details page-->
       <div id="image-details" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('containers')">Containers</a></li>
+          <li class="active"></li>
+        </ol>
         <div class="panel-default panel">
           <div class="panel-heading" style="height:44px">
             <div class="col-sm-12">

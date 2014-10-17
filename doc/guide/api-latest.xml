@@ -48,6 +48,34 @@
     </refsection>
   </refentry>
 
+  <refentry id="api-latest-cockpit-css">
+    <refmeta>
+      <refentrytitle>cockpit.css</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>cockpit.css</refname>
+      <refpurpose>Cockpit standard style sheets</refpurpose>
+    </refnamediv>
+
+    <refsection>
+      <title>Description</title>
+
+<programlisting>
+  &lt;link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet"&gt;
+  @import url('../@@latest@@/cockpit.css');
+</programlisting>
+
+      <para>These are the standard Cockpit CSS stylesheets. They automatically pull in the PatternFly
+        and Bootstrap styles that they depend on. When you bring these into your component, do not
+        include <code>patternfly.css</code> explicitly as well.</para>
+
+      <para>The exact styles available beyond what's in PatternFly is not yet documented or public
+        API.</para>
+
+    </refsection>
+  </refentry>
+
   <xi:include href="api-cockpit.xml"/>
 
   <refentry id="api-latest-jquery">
@@ -77,6 +105,35 @@
 
     </refsection>
 
+  </refentry>
+
+  <refentry id="api-latest-patternfly">
+    <refmeta>
+      <refentrytitle>patternfly.css</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>patternfly.css</refname>
+      <refpurpose>PatternFly standard style sheets</refpurpose>
+    </refnamediv>
+
+    <refsection>
+      <title>Description</title>
+
+<programlisting>
+  &lt;link href="../@@latest@@/patternfly.css" type="text/css" rel="stylesheet"&gt;
+  @import url('../@@latest@@/patternfly.css');
+</programlisting>
+
+      <para>The standard <ulink url="https://www.patternfly.org/">PatternFly</ulink> stylesheets.
+        If you include <code>cockpit.css</code> then don't include this directly. It is firmly
+        recommended to use PatternFly as the feel for your Cockpit component.</para>
+
+      <para>The version of PatternFly is an early prototype, and will be updated soon. See the
+        <ulink url="https://www.patternfly.org/">PatternFly documentation</ulink> for information
+        on the widgets and classes available.</para>
+
+    </refsection>
   </refentry>
 
   <!-- term.js is not public API -->

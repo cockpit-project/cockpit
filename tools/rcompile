@@ -111,7 +111,56 @@ guess()
     esac
 }
 
+minify_javascript()
+{
+    perl -e \
+'use strict;
+use JavaScript::Minifier::XS qw(minify);
+for my $f (@ARGV) {
+    local ($/);
+    open my $in, "<", $f or die "$f: $!\n";
+    print minify(<$in>);
+    close $in;
+}' "$@" \
+    || (
+        warning "no worries, using cat instead"
+        echo "/* Auto-generated; DO NOT EDIT; No minify tool available on build system */"
+        cat "$@"
+       )
+}
+
+output_javascript()
+{
+    echo "/* Auto-generated; DO NOT EDIT */"
+    echo "/*jsl:ignoreall*/"
+    cat "$@"
+}
+
 jslint()
+{
+    failed=no
+    for f in "$@"; do
+        jsl -conf $base/jsl.conf -nologo -nofilelisting -nosummary -process "$f" || failed=yes
+    done
+    if is_yes $failed; then
+        exit 1
+    fi
+}
+
+process_javascript()
+{
+    jslint "$@"
+
+    if ! empty $output; then
+        if is_yes $minify; then
+            minify_javascript "$@"
+        else
+            output_javascript "$@"
+        fi
+    fi
+}
+
+html_jslint()
 {
     # Resolving external dependencies for jsl is a royal pain. We change directory
     # and preprocess all the input files so that it can find scripts. We assume:
@@ -142,44 +191,6 @@ jslint()
     fi
 }
 
-minify_javascript()
-{
-    perl -e \
-'use strict;
-use JavaScript::Minifier::XS qw(minify);
-for my $f (@ARGV) {
-    local ($/);
-    open my $in, "<", $f or die "$f: $!\n";
-    print minify(<$in>);
-    close $in;
-}' "$@" \
-    || (
-        warning "no worries, using cat instead"
-        echo "/* Auto-generated; DO NOT EDIT; No minify tool available on build system */"
-        cat "$@"
-       )
-}
-
-output_javascript()
-{
-    echo "/* Auto-generated; DO NOT EDIT */"
-    echo "/*jsl:ignoreall*/"
-    cat "$@"
-}
-
-process_javascript()
-{
-    jslint "$@"
-
-    if ! empty $output; then
-        if is_yes $minify; then
-            minify_javascript "$@"
-        else
-            output_javascript "$@"
-        fi
-    fi
-}
-
 process_html()
 {
     if [ $# -ne 1 ]; then
@@ -187,7 +198,7 @@ process_html()
     fi
 
     # TODO: Currently we don't validate HTML only javascript in html
-    jslint "$1"
+    html_jslint "$1"
 
     # TODO: Currently we don't support HTML minify
     if ! empty $output; then

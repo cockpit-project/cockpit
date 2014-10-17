@@ -451,7 +451,7 @@ PageContainers.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
 
         // Just for watching
@@ -784,7 +784,7 @@ PageSearchImage.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
 
         // Clear the previous results and search string from previous time
@@ -1066,7 +1066,7 @@ PageContainerDetails.prototype = {
                     });
             });
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
         this.container_id = cockpit.get_page_param('id');
         this.name = this.container_id.slice(0,12);
@@ -1269,7 +1269,7 @@ PageImageDetails.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
         this.image_id = cockpit.get_page_param('id');
         this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
@@ -1838,7 +1838,7 @@ function DockerClient(machine) {
          * Showing unexpected error isn't it.
          */
         var options = {
-            host: cockpit.get_page_param("machine", "server")
+            host: cockpit.get_page_machine()
         };
         cockpit.spawn(["sh", "-c", command], options).
             fail(function(ex) {

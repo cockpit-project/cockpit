@@ -220,7 +220,7 @@ PageServices.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        me.address = cockpit.get_page_machine();
 
         if (!me.geard_check_done) {
             var location = cockpit.location();
@@ -613,7 +613,7 @@ PageService.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        me.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(me.client);

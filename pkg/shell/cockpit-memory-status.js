@@ -29,7 +29,7 @@ PageMemoryStatus.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.client);

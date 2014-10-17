@@ -3,6 +3,7 @@ basedir = $(pkgdatadir)/base
 nodist_base_DATA = \
 	pkg/base/cockpit.min.js
 base_DATA = \
+	pkg/base/patternfly.css \
 	pkg/base/cockpit.css \
 	pkg/base/cockpit.js \
 	pkg/base/jquery.js \

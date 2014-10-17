@@ -5,6 +5,7 @@ lib_FILES = \
 	lib/jquery-flot.v1.1.js \
 	lib/bootstrap-with-select.v3.0.3.js \
 	lib/bootstrap-with-select.v3.0.3.min.js \
+	lib/patternfly.css \
 	lib/attrchange.js \
 	lib/term.js \
 	$(NULL)
@@ -17,9 +18,7 @@ static_DATA = \
 	$(NULL)
 
 staticcachedir = $(datadir)/cockpit/static
-staticcache_DATA = \
-	lib/patternfly.x1.css \
-	$(NULL)
+staticcache_DATA = $(NULL)
 
 staticfontsdir = $(staticdir)/fonts
 staticfonts_DATA = \

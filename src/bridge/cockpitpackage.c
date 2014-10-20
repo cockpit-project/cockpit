@@ -66,6 +66,7 @@ cockpit_package_unref (gpointer data)
   package->refs--;
   if (package->refs == 0)
     {
+      g_debug ("%s: freeing package", package->name);
       g_free (package->name);
       g_free (package->checksum);
       g_free (package->raw_checksum);
@@ -375,8 +376,6 @@ maybe_add_package (GHashTable *listing,
       checksum = package_checksum (depends, path);
       if (!checksum)
         goto out;
-
-      g_debug ("checksum for package %s is %s", name, checksum);
     }
 
   package = cockpit_package_new (name);
@@ -387,6 +386,7 @@ maybe_add_package (GHashTable *listing,
   package->raw_checksum = checksum;
 
   g_hash_table_insert (listing, package->name, package);
+  g_debug ("%s: added package at %s", package->name, package->directory);
 
 out:
   if (!package)
@@ -501,7 +501,6 @@ finish_checksums (GHashTable *listing)
       if (checksum)
         {
           package->checksum = g_strdup_printf ("$%s", g_checksum_get_string (checksum));
-          g_debug ("checksum for %s is %s", package->name, package->checksum);
           g_checksum_free (checksum);
         }
 
@@ -523,6 +522,7 @@ add_alias_to_listing (GHashTable *listing,
       if (validate_package (value))
         {
           g_hash_table_replace (listing, (gchar *)value, cockpit_package_ref (package));
+          g_debug ("%s: package has alias: %s", package->name, value);
         }
       else
         {
@@ -596,7 +596,10 @@ cockpit_package_listing (JsonArray **json)
     {
       package = g_hash_table_lookup (listing, l->data);
       if (package->checksum && !g_hash_table_contains (listing, package->checksum))
-        g_hash_table_replace (listing, package->checksum, cockpit_package_ref (package));
+        {
+          g_hash_table_replace (listing, package->checksum, cockpit_package_ref (package));
+          g_debug ("%s: package has checksum: %s", package->name, package->checksum);
+        }
     }
   g_list_free (names);
 

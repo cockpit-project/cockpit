@@ -249,24 +249,20 @@ var nav_cockpitd;
 var nav_manager;
 
 function enter_global_nav() {
-    if (cockpit.loc.machine) {
-        nav_cockpitd = cockpit.dbus(cockpit.get_page_machine());
-        nav_manager = nav_cockpitd.get("/com/redhat/Cockpit/Manager",
-                                       "com.redhat.Cockpit.Manager");
-        $(nav_manager).on('notify:PrettyHostname.main',
-                          update_global_nav);
-        $(nav_manager).on('notify:StaticHostname.main',
-                          update_global_nav);
-    }
+    nav_cockpitd = cockpit.dbus(cockpit.get_page_machine());
+    nav_manager = nav_cockpitd.get("/com/redhat/Cockpit/Manager",
+                                   "com.redhat.Cockpit.Manager");
+    $(nav_manager).on('notify:PrettyHostname.main',
+                      update_global_nav);
+    $(nav_manager).on('notify:StaticHostname.main',
+                      update_global_nav);
 }
 
 function leave_global_nav() {
-    if (nav_manager) {
-        $(nav_manager).off('.main');
-        nav_cockpitd.release();
-        nav_manager = null;
-        nav_cockpitd = null;
-    }
+    $(nav_manager).off('.main');
+    nav_cockpitd.release();
+    nav_manager = null;
+    nav_cockpitd = null;
 }
 
 function update_global_nav() {
@@ -279,31 +275,7 @@ function update_global_nav() {
     if (cockpit.loc)
         page_title = get_page_title(cockpit.loc.page);
 
-    var global = $('#content-global-breadcrumb');
-    global.empty();
-    global.append(
-        $('<button>', { 'class': 'btn btn-default' }).
-            text(_("Hosts")).
-            click(function () {
-                cockpit.go({ page: "dashboard" });
-            }));
-
-    if (hostname) {
-        global.append(
-            $('<button>', { 'class': 'btn btn-default' }).
-                text(cockpit.util.hostname_for_display(nav_manager)).
-                click(function () {
-                    cockpit.go({ page: "server",
-                                 machine: cockpit.loc.machine });
-                }));
-    }
-
-    if (page_title) {
-        global.append(
-            $('<button>', { 'class': 'btn btn-default' }).
-                text(page_title).
-                click(cockpit.content_refresh));
-    }
+    $('#nav-hostname').text(hostname);
 
     var doc_title;
     if (hostname && page_title)

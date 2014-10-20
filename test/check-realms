@@ -52,15 +52,15 @@ class TestRealms(MachineCase):
 
         def wait_number_domains(n):
             if n == 0:
-                b.wait_js_cond('$("#system_information_realms").text() == ""')
+                b.wait_text("#system_information_realms_button", "Join Domain")
             else:
-                b.wait_js_cond('$("#system_information_realms").text() != ""')
+                b.wait_text_not("#system_information_realms_button", "Join Domain")
             b.wait_dbus_prop('com.redhat.Cockpit.Realms', 'Busy', ",")
 
         wait_number_domains(0)
 
         # Join cockpit.lan
-        b.click("#realms-join")
+        b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
 	with b.wait_timeout(120):
                 b.set_val("#realms-op-address", "cockpit.lan")
@@ -74,11 +74,14 @@ class TestRealms(MachineCase):
 	        wait_number_domains(1)
 
         # Leave the domain
-        b.click("#realms-leave")
+        b.click("#system_information_realms_button")
+        b.wait_popup("realms-op")
+        b.click("#realms-op-apply")
+        b.wait_popdown("realms-op")
         wait_number_domains(0)
 
         # Send a wrong password
-        b.click("#realms-join")
+        b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
         b.set_val("#realms-op-address", "cockpit.lan")
         b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
@@ -90,7 +93,7 @@ class TestRealms(MachineCase):
         b.wait_popdown("realms-op")
 
         # Try to join a non-existing domain
-        b.click("#realms-join")
+        b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
         b.set_val("#realms-op-address", "NOPE")
         b.wait_js_cond("$('#realms-op-address-error').attr('title') != ''")
@@ -98,7 +101,7 @@ class TestRealms(MachineCase):
         b.wait_popdown("realms-op")
 
         # Cancel a join
-        b.click("#realms-join")
+        b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
         b.set_val("#realms-op-address", "cockpit.lan")
         b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')

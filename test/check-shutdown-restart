@@ -31,7 +31,7 @@ class TestShutdownRestart(MachineCase):
         self.login_and_go("server")
 
         # Reboot
-        b.click("#server a:contains('Shutdown')")
+        b.click("#content-navbar a:contains('Shutdown')")
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog button:contains('Restart')")
         b.wait_popdown("shutdown-dialog")
@@ -43,7 +43,7 @@ class TestShutdownRestart(MachineCase):
         self.check_journal_messages()
 
         # Poweroff
-        b.click("#server a:contains('Shutdown')")
+        b.click("#content-navbar a:contains('Shutdown')")
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog button:contains('Power Off')")
         b.wait_popdown("shutdown-dialog")

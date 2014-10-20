@@ -67,8 +67,9 @@
           </ul>
           <ul class="nav navbar-nav navbar-primary">
             <li>
-              <a onclick="cockpit.go({page:'dashboard'})">
-                <img src="images/switcher.png">Server One
+              <a onclick="cockpit.go_rel('dashboard')">
+                <img src="images/switcher.png">
+                <span style="margin-left:1em" id="nav-hostname"></span>
               </a>
             </li>
             <li>

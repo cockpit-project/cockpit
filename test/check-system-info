@@ -44,16 +44,16 @@ class TestSystemInfo(MachineCase):
                     "Foobar Adventure Linux Server 2.1 (A New Morning)")
 
         m.execute("hostnamectl set-hostname --pretty 'Adventure Box'")
-        b.wait_in_text('#system_information_hostname_text', "Adventure Box")
+        b.wait_in_text('#system_information_hostname_button', "Adventure Box")
 
-        b.click('button:contains("Change Host name")')
+        b.click('#system_information_hostname_button')
         b.wait_popup("system_information_change_hostname")
         b.wait_val("#sich-pretty-hostname", "Adventure Box")
         b.set_val("#sich-hostname", "host1.cockpit.lan")
         b.click("#system_information_change_hostname button:contains('Change')")
         b.wait_popdown("system_information_change_hostname")
 
-        b.wait_text('#system_information_hostname_text', "Adventure Box (host1.cockpit.lan)")
+        b.wait_text('#system_information_hostname_button', "Adventure Box (host1.cockpit.lan)")
         check_eq(m.execute("hostname"), "host1.cockpit.lan\n")
 
 test_main()

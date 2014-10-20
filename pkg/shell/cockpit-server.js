@@ -34,28 +34,26 @@ PageServer.prototype = {
         $('#server-avatar').on('click', $.proxy (this, "trigger_change_avatar"));
         $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
 
-        $("#realms-join").click (function () {
-            if (!cockpit.check_admin(self.client))
-                return;
-
-            if(self.realms.Joined[0] === undefined) {
-                cockpit.realms_op_set_parameters(self.realms, 'join', '', { });
-                $('#realms-op').modal('show');
-            }
-        });
-
-        $("#realms-leave").click(function () {
-            if (!cockpit.check_admin(self.client))
-                return;
-
-            self.leave_realm();
-        });
-
-        $('#system_information_change_hostname_button').on('click', function () {
+        $('#system_information_hostname_button').on('click', function () {
             if (!cockpit.check_admin(self.client))
                 return;
             PageSystemInformationChangeHostname.client = self.client;
             $('#system_information_change_hostname').modal('show');
+        });
+
+        $('#system_information_realms_button').on('click', function () {
+            if (!cockpit.check_admin(self.client))
+                return;
+
+            if (self.realms.Joined && self.realms.Joined.length > 0) {
+                var name = self.realms.Joined[0][0];
+                var details = self.realms.Joined[0][1];
+                cockpit.realms_op_set_parameters(self.realms, 'leave', name, details);
+                $('#realms-op').modal('show');
+            } else {
+                cockpit.realms_op_set_parameters(self.realms, 'join', '', { });
+                $('#realms-op').modal('show');
+            }
         });
     },
 
@@ -178,19 +176,18 @@ PageServer.prototype = {
                 str = static_hostname;
             else
                 str = pretty_hostname + " (" + static_hostname + ")";
+            if (str === "")
+                str = _("Set Host name");
 	    return str;
         }
 
-        bindf("#system_information_hostname_text", self.manager, "StaticHostname", hostname_text);
-        bindf("#system_information_hostname_text", self.manager, "PrettyHostname", hostname_text);
+        bindf("#system_information_hostname_button", self.manager, "StaticHostname", hostname_text);
+        bindf("#system_information_hostname_button", self.manager, "PrettyHostname", hostname_text);
 
         self.realms = self.client.get("/com/redhat/Cockpit/Realms", "com.redhat.Cockpit.Realms");
 
         $(self.realms).on('notify:Joined.server',
                           $.proxy(self, "update_realms"));
-
-        $("#realms-leave-error").text("");
-        $("#realms-leave-spinner").hide();
         self.update_realms();
     },
 
@@ -253,8 +250,8 @@ PageServer.prototype = {
         var joined = self.realms.Joined;
 
         function realms_text(val) {
-            if (!val)
-                return "?";
+            if (!val || val.length === 0)
+                return _("Join Domain");
 
             var res = [ ];
             for (var i = 0; i < val.length; i++)
@@ -262,45 +259,7 @@ PageServer.prototype = {
             return res.join (", ");
         }
 
-        $('#system_information_realms').text(realms_text(joined));
-
-        $("#realms-leave").toggle(joined && joined.length > 0);
-        $("#realms-join").toggle(joined && joined.length === 0);
-
-        /* Never show the spinner together with the Join button.
-         */
-        if (joined && joined.length === 0)
-            $("#realms-leave-spinner").hide();
-    },
-
-    leave_realm: function () {
-        var self = this;
-
-        var joined = self.realms.Joined;
-        if (joined.length < 1)
-            return;
-
-        $("#realms-leave-spinner").show();
-
-        var name = joined[0][0];
-        var details = joined[0][1];
-
-        $("#realms-leave-error").text("");
-        var options = { 'server-software': details['server-software'],
-                        'client-software': details['client-software']
-                      };
-
-        self.realms.call("Leave", name, [ 'none', '', '' ], options,
-                         function (error, result) {
-                             $("#realms-leave-spinner").hide();
-                             if (error) {
-                                 if (error.name == 'com.redhat.Cockpit.Error.AuthenticationFailed') {
-                                     cockpit.realms_op_set_parameters(self.realms, 'leave', name, details);
-                                     $("#realms-op").modal('show');
-                                 } else
-                                     $("#realms-leave-error").text(error.message);
-                             }
-                         });
+        $('#system_information_realms_button').text(realms_text(joined));
     }
 };
 

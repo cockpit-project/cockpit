@@ -121,7 +121,7 @@
       </div>
 
       <div id="server" class="container-fluid">
-        <div class="col-md-5">
+        <div class="col-md-3">
           <table class="cockpit-info-table">
             <tr>
               <td>Hardware</td>
@@ -141,30 +141,17 @@
             </tr>
             <tr>
               <td>Host Name</td>
-              <td id="system_information_hostname_text"></td>
-              <td>
-                <button class="btn btn-default" id="system_information_change_hostname_button">
-                  Change Host name
-                </button>
-              </td>
+              <td><button class="btn btn-default" id="system_information_hostname_button"></button></td>
             </tr>
             <tr>
               <td>Domain</td>
-              <td id="system_information_realms"></td>
               <td>
-                <button class="btn btn-default" id="realms-join">Join Domain</button>
-                <button class="btn btn-default realms-leave-button" translatable="yes" id="realms-leave" style="float:left">Leave Domain</button>
-                <div class="realms-leave-spinner waiting" id="realms-leave-spinner" translatable="yes" style="float:left"/>
+                <button class="btn btn-default" id="system_information_realms_button"></button>
               </td>
             </tr>
-            <br/>
-            <div class="has-error">
-              <span id="realms-leave-error" class="help-block"></span>
-            </div>
           </table>
         </div>
-
-        <div id="server-graph-columns" class="col-md-7">
+        <div id="server-graph-columns" class="col-md-9">
           <div id="server-graph-column-1" class="col-md-6">
             <div style="color:black">CPU<span style="float:right" id="server_cpu_text"></span></div>
             <div style="height:120px" id="server_cpu_graph" class="server-graph" onclick="cockpit.go_rel('cpu_status');"></div>

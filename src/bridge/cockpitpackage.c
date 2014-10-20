@@ -535,6 +535,14 @@ add_alias_to_listing (GHashTable *listing,
     }
 }
 
+static gint
+compar_packages (gconstpointer v1,
+                 gconstpointer v2)
+{
+  return strcmp (((CockpitPackage *)v1)->name,
+                 ((CockpitPackage *)v2)->name);
+}
+
 GHashTable *
 cockpit_package_listing (JsonArray **json)
 {
@@ -545,6 +553,7 @@ cockpit_package_listing (JsonArray **json)
   JsonObject *object;
   JsonArray *id;
   GList *names, *l;
+  GList *packages;
   const gchar *name;
   JsonNode *node;
   JsonArray *array;
@@ -556,11 +565,12 @@ cockpit_package_listing (JsonArray **json)
   build_package_listing (listing);
 
   /* Add aliases to the listing */
-  names = g_hash_table_get_keys (listing);
-  names = g_list_sort (names, (GCompareFunc)strcmp);
-  for (l = names; l != NULL; l = g_list_next (l))
+  packages = g_hash_table_get_values (listing);
+  packages = g_list_sort (packages, compar_packages);
+  g_list_foreach (packages, (GFunc)cockpit_package_ref, NULL);
+  for (l = packages; l != NULL; l = g_list_next (l))
     {
-      package = g_hash_table_lookup (listing, l->data);
+      package = l->data;
 
       node = json_object_get_member (package->manifest, "alias");
       if (node)
@@ -585,23 +595,24 @@ cockpit_package_listing (JsonArray **json)
             }
         }
     }
-  g_list_free (names);
+  g_list_free_full (packages, (GDestroyNotify)cockpit_package_unref);
 
   /* Now wrap up the checksums */
   finish_checksums (listing);
 
   /* Add checksums to the listing */
-  names = g_hash_table_get_keys (listing);
-  for (l = names; l != NULL; l = g_list_next (l))
+  packages = g_hash_table_get_values (listing);
+  g_list_foreach (packages, (GFunc)cockpit_package_ref, NULL);
+  for (l = packages; l != NULL; l = g_list_next (l))
     {
-      package = g_hash_table_lookup (listing, l->data);
+      package = l->data;
       if (package->checksum && !g_hash_table_contains (listing, package->checksum))
         {
           g_hash_table_replace (listing, package->checksum, cockpit_package_ref (package));
           g_debug ("%s: package has checksum: %s", package->name, package->checksum);
         }
     }
-  g_list_free (names);
+  g_list_free_full (packages, (GDestroyNotify)cockpit_package_unref);
 
   /* Build JSON packages block */
   if (json)

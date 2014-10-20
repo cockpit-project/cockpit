@@ -48,7 +48,7 @@ class TestRealms(MachineCase):
         #
         wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
 
-        self.login_and_go("system_information")
+        self.login_and_go("server")
 
         def wait_number_domains(n):
             if n == 0:

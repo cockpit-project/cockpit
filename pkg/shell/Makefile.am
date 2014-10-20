@@ -19,7 +19,6 @@ shell_js_PARTS = \
 	pkg/shell/cockpit-server.js \
 	pkg/shell/cockpit-cpu-status.js \
 	pkg/shell/cockpit-memory-status.js \
-	pkg/shell/cockpit-system-information.js \
 	pkg/shell/cockpit-networking.js \
 	pkg/shell/cockpit-storage.js \
 	pkg/shell/cockpit-realms.js \

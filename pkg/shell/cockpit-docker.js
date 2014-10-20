@@ -393,9 +393,9 @@ function render_container (client, $panel, filter_button, prefix, id, container)
             $('<td class="container-col-memory-text">'),
             $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
         tr.on('click', function(event) {
-            cockpit.go_down({  page: 'container-details',
-                               id: id
-                             });
+            cockpit.go_rel({  page: 'container-details',
+                              id: id
+                           });
         });
 
         added = true;
@@ -570,9 +570,9 @@ PageContainers.prototype = {
                     $('<td class="image-col-size-text">'),
                     $('<td class="cell-buttons">').append(button));
             tr.on('click', function(event) {
-                cockpit.go_down({ page: 'image-details',
-                    id: id
-                });
+                cockpit.go_rel({ page: 'image-details',
+                                 id: id
+                               });
             });
 
             added = true;
@@ -1062,7 +1062,7 @@ PageContainerDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_up();
+                        location.go_rel({ page: "containers" });
                     });
             });
 
@@ -1224,7 +1224,7 @@ PageContainerDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_up();
+                        location.go_rel({ page: "containers" });
                     });
             });
     }
@@ -1367,7 +1367,7 @@ PageImageDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_up();
+                        location.go_rel({ page: "containers" });
                     });
             });
     }

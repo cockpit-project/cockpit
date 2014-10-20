@@ -145,7 +145,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
 
     var tr = ($('<tr>', { 'data-unit': name
                         }).
-              click(function () { cockpit.go_down({page: "service", s: name }); }).
+              click(function () { cockpit.go_rel({page: "service", s: name }); }).
               append(
                   $('<td style="font-weight:bold">').text(desc),
                   $('<td>').text(name),
@@ -228,7 +228,7 @@ PageServices.prototype = {
             cockpit.spawn([ "which", "gear" ], { host: me.address }).
                 done(function () {
                     me.geard_present = true;
-                    location.go(cockpit.loc_trail);
+                    cockpit.content_refresh();
                 });
         }
 
@@ -605,7 +605,7 @@ PageService.prototype = {
                 s = s + systemd_param_esc($("#service-parameter").val());
                 if (sp != -1)
                     s = s + self.service.substring(sp);
-                cockpit.go_down({ page: "service", s: s });
+                cockpit.go_rel({ page: "service", s: s });
             }
         });
     },
@@ -749,7 +749,7 @@ PageService.prototype = {
                 $("#service-template-row").show();
                 var html = F(_("This service is an instance of the %{template} service template."),
                              { template: F('<a class="cockpit-link" onclick="%{cmd}">%{title}</a>',
-                                           { cmd: cockpit.esc(cockpit.go_down_cmd("service", { s: me.template })),
+                                           { cmd: cockpit.esc(cockpit.go_rel_cmd("service", { s: me.template })),
                                              title: cockpit.esc(me.template)
                                            })
                              });

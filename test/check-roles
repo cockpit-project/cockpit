@@ -55,10 +55,9 @@ class TestRoles(MachineCase):
         b.wait_page("account")
         b.wait_text("#account-user-name", "user")
         b.set_val('#account-real-name', "Userrrr")
-        b.wait_in_text('#content-loc-trail', "Userrrr")
 
         # Try to change admins name
-        b.go("accounts&account?id=admin")
+        b.go("account?id=admin")
         b.wait_page("account")
         b.wait_text("#account-user-name", "admin")
         b.set_val('#account-real-name', "Administratorrrr")
@@ -67,17 +66,16 @@ class TestRoles(MachineCase):
         b.wait_popdown("error-popup")
 
         # Add role from the outside (and wait for it to stick)
-        b.go("accounts&account?id=user")
+        b.go("account?id=user")
         b.wait_page("account")
         m.execute("usermod -a -G wheel user")
         b.wait_text("#account-roles", "Server Administrator")
 
         # Try to change admins name again
-        b.go("accounts&account?id=admin")
+        b.go("account?id=admin")
         b.wait_page("account")
         b.wait_text("#account-user-name", "admin")
         b.set_val('#account-real-name', "Administratorrrr")
-        b.wait_in_text('#content-loc-trail', "Administratorrr")
 
     def testDynamic(self):
         m = self.machine

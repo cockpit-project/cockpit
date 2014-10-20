@@ -30,7 +30,7 @@ PageDashboard.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Hosts");
+        return null;
     },
 
     setup: function() {
@@ -174,7 +174,7 @@ PageDashboard.prototype = {
                             if (!$.contains(btn[0], event.target)) {
                                 if (machine.client.state == "closed")
                                     machine.client.connect();
-                                cockpit.go_down({ page: "server", machine: machine.address });
+                                cockpit.go({ page: "server", machine: machine.address });
                             }
                         };
                     })(machine, btn)));
@@ -279,9 +279,7 @@ PageDashboard.prototype = {
                     cockpit.show_unexpected_error(error);
             });
         } else if (op == "rescue") {
-            cockpit.go([  { page: "dashboard" },
-                          { page: "server", machine: machine.address },
-                          { page: "terminal" } ]);
+            cockpit.go({ page: "terminal", machine: machine.address });
         } else
             console.log ("unsupported server op %s", op);
     },

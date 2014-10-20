@@ -385,7 +385,7 @@ maybe_add_package (GHashTable *listing,
   package->depends = depends;
   package->raw_checksum = checksum;
 
-  g_hash_table_insert (listing, package->name, package);
+  g_hash_table_replace (listing, package->name, package);
   g_debug ("%s: added package at %s", package->name, package->directory);
 
 out:

@@ -64,10 +64,10 @@ function run(url) {
 
     page.onConsoleMessage = function(msg, lineNum, sourceId) {
         /* All done with testing */
-        if (msg === "qunit-tap-done")
+        if (msg === "phantom-tap-done")
             setTimeout(function() { phantom.exit(0); }, 0);
 
-        else if (msg == "qunit-tap-error")
+        else if (msg == "phantom-tap-error")
             setTimeout(function() { phantom.exit(1); }, 0);
 
         /* TAP lines go to stdout */
@@ -105,8 +105,8 @@ function run(url) {
         }
 
         page.evaluate(function() {
-            if (typeof qunit_included === "undefined") {
-                console.log("QUnit not properly included in test case");
+            if (typeof tests_included === "undefined") {
+                console.log("Tests not properly included");
                 phantom.exit(1);
             }
         });

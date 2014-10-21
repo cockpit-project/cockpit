@@ -18,7 +18,6 @@
  */
 
 var qunit_started = false;
-var qunit_included = true;
 
 /* Always use explicit start */
 QUnit.config.autostart = false;
@@ -71,11 +70,13 @@ QUnit.moduleStart(function() {
     qunit_started = true;
 });
 QUnit.done(function() {
-    console.log("qunit-tap-done");
+    console.log("phantom-tap-done");
 });
 window.setTimeout(function() {
     if (!qunit_started) {
         console.log("QUnit not started by test");
-        console.log("qunit-tap-error");
+        console.log("phantom-tap-error");
     }
 }, 5000);
+
+var tests_included = true;

@@ -2470,7 +2470,7 @@ function PageNetworkIpSettings() {
     this._init();
 }
 
-cockpit.pages.push(new PageNetworkIpSettings());
+cockpit.dialogs.push(new PageNetworkIpSettings());
 
 function is_interface_connection(iface, connection) {
     return connection && connection.Interfaces.indexOf(iface) != -1;
@@ -2791,7 +2791,7 @@ function PageNetworkBondSettings() {
     this._init();
 }
 
-cockpit.pages.push(new PageNetworkBondSettings());
+cockpit.dialogs.push(new PageNetworkBondSettings());
 
 PageNetworkBridgeSettings.prototype = {
     _init: function () {
@@ -2927,7 +2927,7 @@ function PageNetworkBridgeSettings() {
     this._init();
 }
 
-cockpit.pages.push(new PageNetworkBridgeSettings());
+cockpit.dialogs.push(new PageNetworkBridgeSettings());
 
 PageNetworkBridgePortSettings.prototype = {
     _init: function () {
@@ -3030,7 +3030,7 @@ function PageNetworkBridgePortSettings() {
     this._init();
 }
 
-cockpit.pages.push(new PageNetworkBridgePortSettings());
+cockpit.dialogs.push(new PageNetworkBridgePortSettings());
 
 PageNetworkVlanSettings.prototype = {
     _init: function () {
@@ -3155,6 +3155,6 @@ function PageNetworkVlanSettings() {
     this._init();
 }
 
-cockpit.pages.push(new PageNetworkVlanSettings());
+cockpit.dialogs.push(new PageNetworkVlanSettings());
 
 })($, cockpit);

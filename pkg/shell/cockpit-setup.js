@@ -610,6 +610,6 @@ function PageSetupServer() {
     this._init();
 }
 
-cockpit.pages.push(new PageSetupServer());
+cockpit.dialogs.push(new PageSetupServer());
 
 })(cockpit, $);

@@ -121,6 +121,6 @@ function PageShutdownDialog() {
     this._init();
 }
 
-cockpit.pages.push(new PageShutdownDialog());
+cockpit.dialogs.push(new PageShutdownDialog());
 
 })(cockpit, jQuery);

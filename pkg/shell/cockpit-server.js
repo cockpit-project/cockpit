@@ -417,6 +417,6 @@ function PageSystemInformationChangeHostname() {
     this._init();
 }
 
-cockpit.pages.push(new PageSystemInformationChangeHostname());
+cockpit.dialogs.push(new PageSystemInformationChangeHostname());
 
 })(cockpit, $);

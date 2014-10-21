@@ -88,6 +88,6 @@ function PageDisplayLanguageDialog() {
     this._init();
 }
 
-cockpit.pages.push(new PageDisplayLanguageDialog());
+cockpit.dialogs.push(new PageDisplayLanguageDialog());
 
 })(cockpit, jQuery);

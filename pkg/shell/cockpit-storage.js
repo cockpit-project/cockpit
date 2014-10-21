@@ -2613,7 +2613,7 @@ function PageCreateRaid() {
     this._init();
 }
 
-cockpit.pages.push(new PageCreateRaid());
+cockpit.dialogs.push(new PageCreateRaid());
 
 function fill_free_devices_list(client, id, filter)
 {
@@ -2837,7 +2837,7 @@ function PageCreateVolumeGroup() {
     this._init();
 }
 
-cockpit.pages.push(new PageCreateVolumeGroup());
+cockpit.dialogs.push(new PageCreateVolumeGroup());
 
 PageFormatDisk.prototype = {
     _init: function() {
@@ -2877,7 +2877,7 @@ function PageFormatDisk() {
     this._init();
 }
 
-cockpit.pages.push(new PageFormatDisk());
+cockpit.dialogs.push(new PageFormatDisk());
 
 PageFormat.prototype = {
     _init: function() {
@@ -3026,7 +3026,7 @@ function PageFormat() {
     this._init();
 }
 
-cockpit.pages.push(new PageFormat());
+cockpit.dialogs.push(new PageFormat());
 
 PageCreatePlainVolume.prototype = {
     _init: function() {
@@ -3068,7 +3068,7 @@ function PageCreatePlainVolume() {
     this._init();
 }
 
-cockpit.pages.push(new PageCreatePlainVolume());
+cockpit.dialogs.push(new PageCreatePlainVolume());
 
 PageCreateThinPool.prototype = {
     _init: function() {
@@ -3110,7 +3110,7 @@ function PageCreateThinPool() {
     this._init();
 }
 
-cockpit.pages.push(new PageCreateThinPool());
+cockpit.dialogs.push(new PageCreateThinPool());
 
 PageCreateThinVolume.prototype = {
     _init: function() {
@@ -3156,7 +3156,7 @@ function PageCreateThinVolume() {
     this._init();
 }
 
-cockpit.pages.push(new PageCreateThinVolume());
+cockpit.dialogs.push(new PageCreateThinVolume());
 
 PageCreateSnapshot.prototype = {
     _init: function() {
@@ -3202,7 +3202,7 @@ function PageCreateSnapshot() {
     this._init();
 }
 
-cockpit.pages.push(new PageCreateSnapshot());
+cockpit.dialogs.push(new PageCreateSnapshot());
 
 PageResizeVolume.prototype = {
     _init: function() {
@@ -3246,7 +3246,7 @@ function PageResizeVolume() {
     this._init();
 }
 
-cockpit.pages.push(new PageResizeVolume());
+cockpit.dialogs.push(new PageResizeVolume());
 
 PageRenameVolume.prototype = {
     _init: function() {
@@ -3285,7 +3285,7 @@ function PageRenameVolume() {
     this._init();
 }
 
-cockpit.pages.push(new PageRenameVolume());
+cockpit.dialogs.push(new PageRenameVolume());
 
 PageRenameGroup.prototype = {
     _init: function() {
@@ -3325,7 +3325,7 @@ function PageRenameGroup() {
     this._init();
 }
 
-cockpit.pages.push(new PageRenameGroup());
+cockpit.dialogs.push(new PageRenameGroup());
 
 PageFilesystemOptions.prototype = {
     _init: function() {
@@ -3382,7 +3382,7 @@ function PageFilesystemOptions() {
     this._init();
 }
 
-cockpit.pages.push(new PageFilesystemOptions());
+cockpit.dialogs.push(new PageFilesystemOptions());
 
 PageCryptoOptions.prototype = {
     _init: function() {
@@ -3427,7 +3427,7 @@ function PageCryptoOptions() {
     this._init();
 }
 
-cockpit.pages.push(new PageCryptoOptions());
+cockpit.dialogs.push(new PageCryptoOptions());
 
 PageUnlock.prototype = {
     _init: function() {
@@ -3465,7 +3465,7 @@ function PageUnlock() {
     this._init();
 }
 
-cockpit.pages.push(new PageUnlock());
+cockpit.dialogs.push(new PageUnlock());
 
 PageRaidDiskAdd.prototype = {
     _init: function() {
@@ -3516,7 +3516,7 @@ function PageRaidDiskAdd() {
     this._init();
 }
 
-cockpit.pages.push(new PageRaidDiskAdd());
+cockpit.dialogs.push(new PageRaidDiskAdd());
 
 PageVGDiskAdd.prototype = {
     _init: function() {
@@ -3578,6 +3578,6 @@ function PageVGDiskAdd() {
     this._init();
 }
 
-cockpit.pages.push(new PageVGDiskAdd());
+cockpit.dialogs.push(new PageVGDiskAdd());
 
 })(cockpit, jQuery);

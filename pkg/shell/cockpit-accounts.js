@@ -357,7 +357,7 @@ function PageAccountsCreate() {
     this._init();
 }
 
-cockpit.pages.push(new PageAccountsCreate());
+cockpit.dialogs.push(new PageAccountsCreate());
 
 PageAccount.prototype = {
     _init: function() {
@@ -726,7 +726,7 @@ function PageAccountChangeAvatar() {
     this._init();
 }
 
-cockpit.pages.push(new PageAccountChangeAvatar());
+cockpit.dialogs.push(new PageAccountChangeAvatar());
 
 PageAccountChangeRoles.prototype = {
     _init: function() {
@@ -807,7 +807,7 @@ function PageAccountChangeRoles() {
     this._init();
 }
 
-cockpit.pages.push(new PageAccountChangeRoles());
+cockpit.dialogs.push(new PageAccountChangeRoles());
 
 PageAccountConfirmDelete.prototype = {
     _init: function() {
@@ -846,7 +846,7 @@ function PageAccountConfirmDelete() {
     this._init();
 }
 
-cockpit.pages.push(new PageAccountConfirmDelete());
+cockpit.dialogs.push(new PageAccountConfirmDelete());
 
 PageAccountSetPassword.prototype = {
     _init: function() {
@@ -944,7 +944,7 @@ function PageAccountSetPassword() {
     this._init();
 }
 
-cockpit.pages.push(new PageAccountSetPassword());
+cockpit.dialogs.push(new PageAccountSetPassword());
 
 cockpit.change_password = function change_password() {
     PageAccountSetPassword.account = null;

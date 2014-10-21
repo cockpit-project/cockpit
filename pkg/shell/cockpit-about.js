@@ -42,6 +42,6 @@ function PageAbout() {
     this._init();
 }
 
-cockpit.pages.push(new PageAbout());
+cockpit.dialogs.push(new PageAbout());
 
 })(cockpit, jQuery);

@@ -387,6 +387,6 @@ function PageRealmsOp() {
     this._init();
 }
 
-cockpit.pages.push(new PageRealmsOp());
+cockpit.dialogs.push(new PageRealmsOp());
 
 })(cockpit, $);

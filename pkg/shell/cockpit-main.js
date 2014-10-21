@@ -146,6 +146,8 @@ function set_watched_client(client) {
 
 cockpit.pages = [];
 
+cockpit.dialogs = [];
+
 /* cockpit.loc is a dict with the parameters of the current page.  The
  * page itself is stored as the "page" parameter.  For example
  *
@@ -382,14 +384,16 @@ function go_hash(hash) {
 }
 
 cockpit.page_from_id = function page_from_id(id) {
-    var page = null;
-    for (var n = 0; n < cockpit.pages.length; n++) {
-        if (cockpit.pages[n].id == id) {
-            page = cockpit.pages[n];
-            break;
-        }
+    var n;
+    for (n = 0; n < cockpit.pages.length; n++) {
+        if (cockpit.pages[n].id == id)
+            return cockpit.pages[n];
     }
-    return page;
+    for (n = 0; n < cockpit.dialogs.length; n++) {
+        if (cockpit.dialogs[n].id == id)
+            return cockpit.dialogs[n];
+    }
+    return null;
 };
 
 function page_enter(id) {
@@ -578,7 +582,7 @@ function PageDisconnected() {
     this._init();
 }
 
-cockpit.pages.push(new PageDisconnected());
+cockpit.dialogs.push(new PageDisconnected());
 
 /*
  * ----------------------------------------------------------------------------

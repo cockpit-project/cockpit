@@ -478,6 +478,12 @@ PageServices.prototype = {
     }
 };
 
+function PageServices() {
+    this._init();
+}
+
+cockpit.pages.push(new PageServices());
+
 PageServiceAdd.prototype = {
     _init: function() {
         this.id = "service-add-dialog";
@@ -543,13 +549,7 @@ function PageServiceAdd() {
     this._init();
 }
 
-cockpit.pages.push(new PageServiceAdd());
-
-function PageServices() {
-    this._init();
-}
-
-cockpit.pages.push(new PageServices());
+cockpit.dialogs.push(new PageServiceAdd());
 
 PageService.prototype = {
     _init: function() {

@@ -754,7 +754,7 @@ function PageRunImage() {
     this._init();
 }
 
-cockpit.pages.push(new PageRunImage());
+cockpit.dialogs.push(new PageRunImage());
 
 PageSearchImage.prototype = {
     _init: function() {
@@ -953,7 +953,7 @@ function PageSearchImage() {
     this._init();
 }
 
-cockpit.pages.push(new PageSearchImage());
+cockpit.dialogs.push(new PageSearchImage());
 
 PageContainerDetails.prototype = {
     _init: function() {

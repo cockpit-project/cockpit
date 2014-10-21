@@ -1103,7 +1103,7 @@ PageContainerDetails.prototype = {
 
         if (!this.terminal) {
             this.terminal = new DockerTerminal($("#container-terminal")[0],
-                                               this.client.machine,
+                                               this.address,
                                                this.container_id);
         }
 

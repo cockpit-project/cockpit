@@ -41,14 +41,10 @@
 
 static gint      opt_port         = 9090;
 static gboolean  opt_no_tls       = FALSE;
-static gboolean  opt_uninstalled = FALSE;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
-#ifdef WITH_DEBUG
-  {"uninstalled", 0, 0, G_OPTION_ARG_NONE, &opt_uninstalled, "Run from cockpit-ws from build directory", NULL},
-#endif
   {NULL}
 };
 
@@ -106,16 +102,7 @@ main (int argc,
       g_info ("Using certificate: %s", cert_path);
     }
 
-  if (opt_uninstalled)
-    {
-      roots = cockpit_web_server_resolve_roots (SRCDIR "/src/static", SRCDIR "/lib", NULL);
-      cockpit_ws_bridge_program = BUILDDIR "/cockpit-bridge";
-      cockpit_ws_session_program = BUILDDIR "/cockpit-session";
-    }
-  else
-    {
-      roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static", NULL);
-    }
+  roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static", NULL);
 
   data.auth = cockpit_auth_new ();
   data.static_roots = (const gchar **)roots;

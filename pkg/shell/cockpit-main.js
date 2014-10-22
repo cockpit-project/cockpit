@@ -148,15 +148,14 @@ cockpit.pages = [];
 
 cockpit.dialogs = [];
 
-/* cockpit.loc is a dict with the parameters of the current page.  The
- * page itself is stored as the "page" parameter.  For example
+/* current_params are the navigation parameters of the current page,
+ * for example:
  *
  *   { page: "storage-details", type: "block", id: "/dev/vda",
  *     machine: "localhost"
  *   }
  */
-
-cockpit.loc = undefined;
+var current_params;
 
 var current_hash;
 var content_is_shown = false;
@@ -183,7 +182,7 @@ function content_init() {
     pages.each (function (i, p) {
         $(p).hide();
     });
-    cockpit.loc = null;
+    current_params = null;
 
     $('div[role="dialog"]').on('show.bs.modal', function() {
         current_visible_dialog = $(this).attr("id");
@@ -234,17 +233,17 @@ function content_show() {
 }
 
 function content_leave() {
-    if (cockpit.loc) {
-        page_leave(cockpit.loc.page);
+    if (current_params) {
+        page_leave(current_params.page);
         leave_global_nav();
     }
-    cockpit.loc = null;
+    current_params = null;
     content_is_shown = false;
 }
 
 cockpit.content_refresh = function content_refresh() {
-    if (cockpit.loc)
-        cockpit.go(cockpit.loc);
+    if (current_params)
+        cockpit.go(current_params);
 };
 
 function content_header_changed() {
@@ -281,8 +280,8 @@ function update_global_nav() {
     $('#content-navbar-hostname').text(hostname);
 
     $('#content-navbar > li').removeClass('active');
-    if (cockpit.loc) {
-        var page = cockpit.page_from_id(cockpit.loc.page);
+    if (current_params) {
+        var page = cockpit.page_from_id(current_params.page);
         var section_id = page.section_id || page.id;
         page_title = page.getTitle();
         $('#content-navbar > li').has('a[data-page-id="' + section_id + '"]').addClass('active');
@@ -301,48 +300,48 @@ function update_global_nav() {
     document.title = doc_title;
 }
 
-cockpit.go = function go(loc) {
+cockpit.go = function go(params) {
     page_navigation_count += 1;
 
-    if ($('#' + loc.page).length === 0) {
+    if ($('#' + params.page).length === 0) {
         cockpit.go({ page: "dashboard" });
         return;
     }
 
-    var old_loc = cockpit.loc;
+    var old_params = current_params;
 
-    if (old_loc) {
-        page_leave(old_loc.page);
+    if (old_params) {
+        page_leave(old_params.page);
         leave_global_nav();
     }
 
     $('#content-header-extra').empty();
-    cockpit.loc = loc;
+    current_params = params;
     show_hash();
     enter_global_nav();
-    page_enter(loc.page);
+    page_enter(params.page);
 
-    if (old_loc)
-        $('#' + old_loc.page).hide();
-    $('#' + loc.page).show();
+    if (old_params)
+        $('#' + old_params.page).hide();
+    $('#' + params.page).show();
     update_global_nav();
     content_header_changed();
-    page_show(loc.page);
+    page_show(params.page);
 };
 
-cockpit.go_rel = function go_rel(loc) {
-    if (loc.substr)
-        loc = { page: loc };
-    delete loc.machine;
-    if (cockpit.loc && cockpit.loc.machine)
-        loc.machine = cockpit.loc.machine;
-    return cockpit.go(loc);
+cockpit.go_rel = function go_rel(params) {
+    if (params.substr)
+        params = { page: params };
+    delete params.machine;
+    if (current_params && current_params.machine)
+        params.machine = current_params.machine;
+    return cockpit.go(params);
 };
 
-cockpit.go_rel_cmd = function go_cmd(page, params)
+cockpit.go_rel_cmd = function go_cmd(page, options)
 {
-    var loc = $.extend({ page: page }, params);
-    return "cockpit.go_rel(" + JSON.stringify(loc) + ");";
+    var params = $.extend({ page: page }, options);
+    return "cockpit.go_rel(" + JSON.stringify(params) + ");";
 };
 
 function encode_loc(loc) {
@@ -375,7 +374,7 @@ function decode_loc(hash) {
 }
 
 function show_hash() {
-    current_hash = encode_loc(cockpit.loc);
+    current_hash = encode_loc(current_params);
     set_window_location_hash(current_hash);
 }
 
@@ -431,7 +430,7 @@ function page_show(id) {
 }
 
 cockpit.get_page_param = function get_page_param(key) {
-    return cockpit.loc[key];
+    return current_params[key];
 };
 
 cockpit.get_page_machine = function get_page_machine() {
@@ -440,9 +439,9 @@ cockpit.get_page_machine = function get_page_machine() {
 
 cockpit.set_page_param = function set_page_param(key, val) {
     if (val)
-        cockpit.loc[key] = val;
+        current_params[key] = val;
     else
-        delete cockpit.loc[key];
+        delete current_params[key];
     show_hash ();
 };
 
@@ -469,14 +468,14 @@ cockpit.show_unexpected_error = function show_unexpected_error(error) {
  */
 
 Location.prototype = {
-    go_rel: function(loc) {
+    go_rel: function(params) {
         if (this.can_go())
-            cockpit.go_rel(loc);
+            cockpit.go_rel(params);
     },
 
-    go: function(loc) {
+    go: function(params) {
         if (this.can_go())
-            cockpit.go(loc);
+            cockpit.go(params);
     }
 };
 

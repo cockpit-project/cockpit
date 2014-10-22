@@ -342,7 +342,7 @@ PageStorage.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(this.client);
@@ -566,10 +566,10 @@ PageStorage.prototype = {
                         "data-blockdev": blockdev
                       }).
             click(function () {
-                cockpit.go_down({ page: "storage-detail",
-                                  type: "drive",
-                                  id: id
-                                });
+                cockpit.go_rel({ page: "storage-detail",
+                                 type: "drive",
+                                 id: id
+                               });
             }).
             append(
                 $('<td style="width: 48px">').append(
@@ -625,10 +625,10 @@ PageStorage.prototype = {
                         Sort: sort_key
                       }).
             click(function () {
-                cockpit.go_down({ page: "storage-detail",
-                                  type: "mdraid",
-                                  id: id
-                                });
+                cockpit.go_rel({ page: "storage-detail",
+                                 type: "mdraid",
+                                 id: id
+                               });
             }).
             append(
                 $('<td>').append(
@@ -673,10 +673,10 @@ PageStorage.prototype = {
                         Sort: sort_key
                       }).
             click(function () {
-                cockpit.go_down({ page: "storage-detail",
-                                  type: "vg",
-                                  id: id
-                                });
+                cockpit.go_rel({ page: "storage-detail",
+                                 type: "vg",
+                                 id: id
+                               });
             }).
             append(
                 $('<td>').append(
@@ -731,10 +731,10 @@ PageStorage.prototype = {
                         "data-blockdev": blockdev
                       }).
             click(function () {
-                cockpit.go_down({ page: "storage-detail",
-                                  type: "block",
-                                  id: id
-                                });
+                cockpit.go_rel({ page: "storage-detail",
+                                 type: "block",
+                                 id: id
+                               });
             }).
             append(
                 $('<td>').append(
@@ -795,7 +795,7 @@ PageStorage.prototype = {
         var tr =
             $('<tr>', { Sort: sort_key }).
             click(function () {
-                block_go_down(block);
+                block_go(block);
             }).
             append(
                 $('<td>').text(block.IdLabel || block.Device),
@@ -865,11 +865,11 @@ function block_get_desc(block, partition_label, cleartext_device)
                 $('<a>').
                     text(vg.Name).
                     click(function () {
-                        cockpit.go_sibling({ page: 'storage-detail',
-                                             type: 'vg',
-                                             id: vg.Name
-                                           });
-                        }));
+                        cockpit.go_rel({ page: 'storage-detail',
+                                         type: 'vg',
+                                         id: vg.Name
+                                       });
+                    }));
         } else if (block.MDRaidMember != "/") {
             var id = block.MDRaidMember.substr(block.MDRaidMember.lastIndexOf("/") + 1);
             var raid = block._client.get(block.MDRaidMember, "com.redhat.Cockpit.Storage.MDRaid");
@@ -878,11 +878,11 @@ function block_get_desc(block, partition_label, cleartext_device)
                 $('<a>').
                     text(raid_get_desc(raid)).
                     click(function () {
-                        cockpit.go_sibling({ page: 'storage-detail',
-                                             type: 'mdraid',
-                                             id: id
-                                           });
-                        }));
+                        cockpit.go_rel({ page: 'storage-detail',
+                                         type: 'mdraid',
+                                         id: id
+                                       });
+                    }));
         }
 
     } else if (block.IdUsage == "crypto") {
@@ -958,7 +958,7 @@ function block_get_short_desc(block)
         return "Block Device";
 }
 
-function block_go_down(block)
+function block_go(block)
 {
     var id, lv, vg, path;
 
@@ -973,34 +973,34 @@ function block_go_down(block)
 
     if (block.Drive != "/") {
         id = block.Drive.substr(block.Drive.lastIndexOf("/") + 1);
-        cockpit.go_down({ page: "storage-detail",
-                          type: "drive",
-                          id: id
-                        });
+        cockpit.go_rel({ page: "storage-detail",
+                         type: "drive",
+                         id: id
+                       });
     } else if (block.MDRaid != "/") {
         id = block.MDRaid.substr(block.MDRaid.lastIndexOf("/") + 1);
-        cockpit.go_down({ page: "storage-detail",
-                          type: "mdraid",
-                          id: id
-                        });
+        cockpit.go_rel({ page: "storage-detail",
+                         type: "mdraid",
+                         id: id
+                       });
     } else if (block.LogicalVolume != "/") {
         lv = block._client.get(block.LogicalVolume,
                                "com.redhat.Cockpit.Storage.LogicalVolume");
         if (lv.VolumeGroup != "/") {
             vg = lv._client.get(lv.VolumeGroup,
                                 "com.redhat.Cockpit.Storage.VolumeGroup");
-            cockpit.go_down({ page: "storage-detail",
-                              type: "vg",
-                              id: vg.Name
-                            });
+            cockpit.go_rel({ page: "storage-detail",
+                             type: "vg",
+                             id: vg.Name
+                           });
         }
     } else {
         path = block.getObject().objectPath;
         id = path.substr(path.lastIndexOf("/") + 1);
-        cockpit.go_down({ page: "storage-detail",
-                          type: "block",
-                          id: id
-                        });
+        cockpit.go_rel({ page: "storage-detail",
+                         type: "block",
+                         id: id
+                       });
     }
 }
 
@@ -1028,10 +1028,10 @@ function block_get_link_desc(block)
             text(drive.Name || block.Device).
             click(function () {
                 var id = block.Drive.substr(block.Drive.lastIndexOf("/") + 1);
-                cockpit.go_sibling({ page: "storage-detail",
-                                     type: "drive",
-                                     id: id
-                                   });
+                cockpit.go_rel({ page: "storage-detail",
+                                 type: "drive",
+                                 id: id
+                               });
             });
     } else if (block.MDRaid != "/") {
         var raid = block._client.get(block.MDRaid,
@@ -1043,10 +1043,10 @@ function block_get_link_desc(block)
                 text(raid_get_desc(raid)).
                 click(function () {
                     var id = block.MDRaid.substr(block.MDRaid.lastIndexOf("/") + 1);
-                    cockpit.go_sibling({ page: "storage-detail",
-                                         type: "mdraid",
-                                         id: id
-                                       });
+                    cockpit.go_rel({ page: "storage-detail",
+                                     type: "mdraid",
+                                     id: id
+                                   });
                 }));
     } else if (block.LogicalVolume != "/") {
         var lv = block._client.get(block.LogicalVolume,
@@ -1060,10 +1060,10 @@ function block_get_link_desc(block)
                 $('<a>').
                     text(vg.Name).
                     click(function () {
-                        cockpit.go_sibling({ page: "storage-detail",
-                                             type: "vg",
-                                             id: vg.Name
-                                           });
+                        cockpit.go_rel({ page: "storage-detail",
+                                         type: "vg",
+                                         id: vg.Name
+                                       });
                     }));
         } else {
             link = $('<span>').text(lvol_get_desc(lv));
@@ -1074,10 +1074,10 @@ function block_get_link_desc(block)
             click(function () {
                 var path = block.getObject().objectPath;
                 var id = path.substr(path.lastIndexOf("/") + 1);
-                cockpit.go_sibling({ page: "storage-detail",
-                                     type: "block",
-                                     id: id
-                                   });
+                cockpit.go_rel({ page: "storage-detail",
+                                 type: "block",
+                                 id: id
+                               });
             });
     }
 
@@ -1177,6 +1177,10 @@ PageStorageDetail.prototype = {
     },
 
     getTitle: function() {
+        return C_("page-title", "Storage");
+    },
+
+    get_page_title: function() {
         var ret;
         if (this._drive) {
             if (this._drive.Vendor && this._drive.Vendor.length > 0)
@@ -1280,7 +1284,7 @@ PageStorageDetail.prototype = {
         var type = cockpit.get_page_param("type");
         var id = cockpit.get_page_param("id");
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(this.client);
@@ -1318,7 +1322,7 @@ PageStorageDetail.prototype = {
 
         this._update();
 
-        $("#storage-detail-title").text(this.getTitle());
+        $("#storage-detail-title").text(this.get_page_title());
 
         $(this.client).on("objectAdded.storage-details", $.proxy(this._update, this));
         $(this.client).on("objectRemoved.storage-details", $.proxy(this._update, this));
@@ -1349,7 +1353,7 @@ PageStorageDetail.prototype = {
         else if (this._block)
             this._updateBlock();
 
-        cockpit.content_update_loc_trail();
+        $('#storage-detail .breadcrumb .active').text(this.get_page_title());
     },
 
     _updateBlock: function() {
@@ -2127,7 +2131,7 @@ PageStorageDetail.prototype = {
                     if (error)
                         cockpit.show_unexpected_error(error);
                     else
-                        location.go_up();
+                        location.go_rel({ page: "storage" });
                 });
             });
     },
@@ -2302,7 +2306,7 @@ PageStorageDetail.prototype = {
                     if (error)
                         cockpit.show_unexpected_error(error);
                     else
-                        location.go_up ();
+                        location.go_rel({ page: "storage" });
                 });
             });
     },
@@ -2493,10 +2497,6 @@ PageCreateRaid.prototype = {
         this.id = "create-raid-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create RAID Array");
-    },
-
     show: function() {
     },
 
@@ -2671,10 +2671,6 @@ PageCreateVolumeGroup.prototype = {
         this.id = "create-volume-group-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Volume Group");
-    },
-
     show: function() {
         if (this.blocks.length > 0) {
             $('#create-vg-name').prop('disabled', false);
@@ -2847,10 +2843,6 @@ PageFormatDisk.prototype = {
         this.id = "storage_format_disk_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Format Disk");
-    },
-
     show: function() {
     },
 
@@ -2889,13 +2881,6 @@ cockpit.pages.push(new PageFormatDisk());
 PageFormat.prototype = {
     _init: function() {
         this.id = "storage_format_dialog";
-    },
-
-    getTitle: function() {
-        if (PageFormat.mode == 'create-partition')
-            return C_("page-title", "Create Partition");
-        else
-            return C_("page-title", "Format");
     },
 
     show: function() {
@@ -3047,10 +3032,6 @@ PageCreatePlainVolume.prototype = {
         this.id = "storage_create_plain_volume_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Logical Volume");
-    },
-
     show: function() {
     },
 
@@ -3093,10 +3074,6 @@ PageCreateThinPool.prototype = {
         this.id = "storage_create_thin_pool_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Pool for Thin Volumes");
-    },
-
     show: function() {
     },
 
@@ -3137,10 +3114,6 @@ cockpit.pages.push(new PageCreateThinPool());
 PageCreateThinVolume.prototype = {
     _init: function() {
         this.id = "storage_create_thin_volume_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Create Thin Logical Volume");
     },
 
     show: function() {
@@ -3189,10 +3162,6 @@ PageCreateSnapshot.prototype = {
         this.id = "storage_create_snapshot_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Create Snapshot");
-    },
-
     show: function() {
     },
 
@@ -3239,10 +3208,6 @@ PageResizeVolume.prototype = {
         this.id = "storage_resize_volume_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Resize Logical Volume");
-    },
-
     show: function() {
     },
 
@@ -3287,10 +3252,6 @@ PageRenameVolume.prototype = {
         this.id = "storage_rename_volume_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Rename Logical Volume");
-    },
-
     show: function() {
     },
 
@@ -3330,10 +3291,6 @@ PageRenameGroup.prototype = {
         this.id = "storage_rename_group_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Rename Volume Group");
-    },
-
     show: function() {
     },
 
@@ -3355,7 +3312,7 @@ PageRenameGroup.prototype = {
                                    name,
                                    function (error) {
                                        $("#storage_rename_group_dialog").modal('hide');
-                                       cockpit.go_up();
+                                       cockpit.go_rel({ page: "storage" });
                                        if (error)
                                            cockpit.show_unexpected_error(error);
                                    });
@@ -3372,10 +3329,6 @@ cockpit.pages.push(new PageRenameGroup());
 PageFilesystemOptions.prototype = {
     _init: function() {
         this.id = "filesystem_options_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Filesystem Options");
     },
 
     show: function() {
@@ -3435,10 +3388,6 @@ PageCryptoOptions.prototype = {
         this.id = "crypto_options_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Encryption Options");
-    },
-
     show: function() {
     },
 
@@ -3484,10 +3433,6 @@ PageUnlock.prototype = {
         this.id = "storage_unlock_dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Unlock");
-    },
-
     show: function() {
     },
 
@@ -3524,10 +3469,6 @@ cockpit.pages.push(new PageUnlock());
 PageRaidDiskAdd.prototype = {
     _init: function() {
         this.id = "raid_disk_add_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Add Disks");
     },
 
     show: function() {
@@ -3579,10 +3520,6 @@ cockpit.pages.push(new PageRaidDiskAdd());
 PageVGDiskAdd.prototype = {
     _init: function() {
         this.id = "vg_disk_add_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Add Disks");
     },
 
     show: function() {

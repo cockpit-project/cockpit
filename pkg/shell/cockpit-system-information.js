@@ -114,7 +114,7 @@ PageSystemInformation.prototype = {
     enter: function() {
         var self = this;
 
-        self.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        self.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         self.client = cockpit.dbus(self.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(self.client);
@@ -193,10 +193,6 @@ cockpit.pages.push(new PageSystemInformation());
 PageSystemInformationChangeHostname.prototype = {
     _init: function() {
         this.id = "system_information_change_hostname";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Change Host Name");
     },
 
     setup: function() {

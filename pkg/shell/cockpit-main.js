@@ -146,7 +146,15 @@ function set_watched_client(client) {
 
 cockpit.pages = [];
 
-cockpit.loc_trail = undefined;
+/* cockpit.loc is a dict with the parameters of the current page.  The
+ * page itself is stored as the "page" parameter.  For example
+ *
+ *   { page: "storage-details", type: "block", id: "/dev/vda",
+ *     machine: "localhost"
+ *   }
+ */
+
+cockpit.loc = undefined;
 
 var current_hash;
 var content_is_shown = false;
@@ -173,7 +181,7 @@ function content_init() {
     pages.each (function (i, p) {
         $(p).hide();
     });
-    cockpit.loc_trail = [ ];
+    cockpit.loc = null;
 
     $('div[role="dialog"]').on('show.bs.modal', function() {
         current_visible_dialog = $(this).attr("id");
@@ -220,193 +228,176 @@ function content_show() {
 }
 
 function content_leave() {
-    for (var i = 0; i < cockpit.loc_trail.length; i++)
-        page_leave_breadcrumb(cockpit.loc_trail[i].page);
-    if (cockpit.loc_trail.length > 0)
-        page_leave(cockpit.loc_trail[cockpit.loc_trail.length - 1].page);
-    cockpit.loc_trail = [ ];
+    if (cockpit.loc) {
+        page_leave(cockpit.loc.page);
+        leave_global_nav();
+    }
+    cockpit.loc = null;
     content_is_shown = false;
 }
 
 cockpit.content_refresh = function content_refresh() {
-    if (cockpit.loc_trail.length > 0)
-        cockpit.go(cockpit.loc_trail);
+    if (cockpit.loc)
+        cockpit.go(cockpit.loc);
 };
 
 function content_header_changed() {
     $('body').css('padding-top', $('#content nav').height());
 }
 
-cockpit.content_update_loc_trail = function content_update_loc_trail() {
-    function go(t) {
-        return function () {
-            cockpit.go(t);
-        };
+var nav_cockpitd;
+var nav_manager;
+
+function enter_global_nav() {
+    if (cockpit.loc.machine) {
+        nav_cockpitd = cockpit.dbus(cockpit.get_page_machine());
+        nav_manager = nav_cockpitd.get("/com/redhat/Cockpit/Manager",
+                                       "com.redhat.Cockpit.Manager");
+        $(nav_manager).on('notify:PrettyHostname.main',
+                          update_global_nav);
+        $(nav_manager).on('notify:StaticHostname.main',
+                          update_global_nav);
     }
-
-    var i;
-    var box = $('#content-loc-trail');
-    box.empty();
-    for (i = 0; i < cockpit.loc_trail.length; i++) {
-        var p = cockpit.page_from_id(cockpit.loc_trail[i].page);
-        var title = p? (p.getTitleHtml? p.getTitleHtml() : cockpit.esc(p.getTitle())) : "??";
-        var btn = $('<button>', { 'class': 'btn btn-default' }).html(title);
-        box.append(btn);
-        btn.on('click', go(cockpit.loc_trail.slice(0, i+1)));
-    }
-
-    var doc_title = "";
-    if (cockpit.loc_trail.length == 1)
-        doc_title = get_page_title(cockpit.loc_trail[0].page);
-    else if (cockpit.loc_trail.length > 1) {
-        doc_title = get_page_title(cockpit.loc_trail[1].page);
-        if (cockpit.loc_trail.length > 2)
-            doc_title = doc_title + " — " + get_page_title(cockpit.loc_trail[cockpit.loc_trail.length - 1].page);
-    }
-    document.title = doc_title;
-};
-
-cockpit.go = function go(trail) {
-    var new_loc = trail[trail.length-1];
-
-    function leave_breadcrumb(trail) {
-        for (var i = 0; i < trail.length; i++)
-            page_leave_breadcrumb(trail[i].page);
-    }
-
-    function enter_breadcrumb(trail) {
-        for (var i = 0; i < trail.length; i++)
-            page_enter_breadcrumb(trail[i].page);
-    }
-
-    page_navigation_count += 1;
-
-    if ($('#' + new_loc.page).length === 0) {
-        cockpit.go(trail.slice(0, trail.length-1));
-        return;
-    } else if (cockpit.loc_trail.length === 0) {
-        leave_breadcrumb(cockpit.loc_trail);
-        cockpit.loc_trail = trail;
-        enter_breadcrumb(cockpit.loc_trail);
-        $('#content-header-extra').empty();
-        page_enter(new_loc.page);
-    } else {
-        var cur_loc = cockpit.loc_trail[cockpit.loc_trail.length - 1];
-        page_leave(cur_loc.page);
-        leave_breadcrumb(cockpit.loc_trail);
-        cockpit.loc_trail = trail;
-        enter_breadcrumb(cockpit.loc_trail);
-        $('#content-header-extra').empty();
-        page_enter(new_loc.page);
-        $('#' + cur_loc.page).hide();
-    }
-
-    $('#' + new_loc.page).show();
-    show_hash();
-    cockpit.content_update_loc_trail();
-    content_header_changed();
-    page_show(new_loc.page);
-};
-
-cockpit.go_down = function go_down(loc) {
-    if (loc.substr)
-        loc = { page: loc };
-    cockpit.go(cockpit.loc_trail.concat([ loc ]));
-};
-
-cockpit.go_sibling = function go_sibling(loc) {
-    if (loc.substr)
-        loc = { page: loc };
-    cockpit.go(cockpit.loc_trail.slice(0, cockpit.loc_trail.length - 1).concat([ loc ]));
-};
-
-cockpit.go_top = function go_top(page, params) {
-    var loc = $.extend({ page: page }, params);
-    cockpit.go([ cockpit.loc_trail[0], loc ]);
-};
-
-cockpit.go_down_cmd = function go_down_cmd(page, params)
-{
-    var loc = $.extend({ page: page }, params);
-    return "cockpit.go_down(" + JSON.stringify(loc) + ");";
-};
-
-cockpit.go_up = function go_up() {
-    if (cockpit.loc_trail.length > 1)
-        cockpit.go(cockpit.loc_trail.slice(0, cockpit.loc_trail.length - 1));
-};
-
-cockpit.go_server = function go_server(machine, extra) {
-    var loc = [ { page: "server",
-                  machine: machine
-                }
-              ];
-
-    if (extra)
-        loc = loc.concat(extra);
-
-    if (cockpit.loc_trail.length > 1 && cockpit.loc_trail[0].page == "dashboard")
-        loc =[ { page: "dashboard" } ].concat(loc);
-
-    cockpit.go(loc);
-};
-
-
-function encode_trail(trail) {
-    function encode (p)
-    {
-        var res = encodeURIComponent(p.page);
-        var param;
-        for (param in p) {
-            if (param != "page" && p.hasOwnProperty(param))
-                res += "?" + encodeURIComponent(param) + "=" + encodeURIComponent(p[param]);
-        }
-        return res;
-    }
-
-    var hash = '';
-    for (var i = 0; i < trail.length; i++) {
-        hash += encode(trail[i]);
-        if (i < trail.length-1)
-            hash += '&';
-    }
-
-    return '#' + hash;
 }
 
-function decode_trail(hash) {
-    var locs, params, vals, trail, p, i, j;
+function leave_global_nav() {
+    if (nav_manager) {
+        $(nav_manager).off('.main');
+        nav_cockpitd.release();
+        nav_manager = null;
+        nav_cockpitd = null;
+    }
+}
+
+function update_global_nav() {
+    var hostname = null;
+    var page_title = null;
+
+    if (nav_manager)
+        hostname = cockpit.util.hostname_for_display(nav_manager);
+
+    if (cockpit.loc)
+        page_title = get_page_title(cockpit.loc.page);
+
+    var global = $('#content-global-breadcrumb');
+    global.empty();
+    global.append(
+        $('<button>', { 'class': 'btn btn-default' }).
+            text(_("Hosts")).
+            click(function () {
+                cockpit.go({ page: "dashboard" });
+            }));
+
+    if (hostname) {
+        global.append(
+            $('<button>', { 'class': 'btn btn-default' }).
+                text(cockpit.util.hostname_for_display(nav_manager)).
+                click(function () {
+                    cockpit.go({ page: "server",
+                                 machine: cockpit.loc.machine });
+                }));
+    }
+
+    if (page_title) {
+        global.append(
+            $('<button>', { 'class': 'btn btn-default' }).
+                text(page_title).
+                click(cockpit.content_refresh));
+    }
+
+    var doc_title;
+    if (hostname && page_title)
+        doc_title = hostname + " — " + page_title;
+    else if (page_title)
+        doc_title = page_title;
+    else if (hostname)
+        doc_title = hostname;
+    else
+        doc_title = _("Cockpit");
+
+    document.title = doc_title;
+}
+
+cockpit.go = function go(loc) {
+    page_navigation_count += 1;
+
+    if ($('#' + loc.page).length === 0) {
+        cockpit.go({ page: "dashboard" });
+        return;
+    }
+
+    var old_loc = cockpit.loc;
+
+    if (old_loc) {
+        page_leave(old_loc.page);
+        leave_global_nav();
+    }
+
+    $('#content-header-extra').empty();
+    cockpit.loc = loc;
+    show_hash();
+    enter_global_nav();
+    page_enter(loc.page);
+
+    if (old_loc)
+        $('#' + old_loc.page).hide();
+    $('#' + loc.page).show();
+    update_global_nav();
+    content_header_changed();
+    page_show(loc.page);
+};
+
+cockpit.go_rel = function go_rel(loc) {
+    if (loc.substr)
+        loc = { page: loc };
+    delete loc.machine;
+    if (cockpit.loc && cockpit.loc.machine)
+        loc.machine = cockpit.loc.machine;
+    return cockpit.go(loc);
+};
+
+cockpit.go_rel_cmd = function go_cmd(page, params)
+{
+    var loc = $.extend({ page: page }, params);
+    return "cockpit.go_rel(" + JSON.stringify(loc) + ");";
+};
+
+function encode_loc(loc) {
+    var res = encodeURIComponent(loc.page);
+    var param;
+    for (param in loc) {
+        if (param != "page" && loc.hasOwnProperty(param))
+            res += "?" + encodeURIComponent(param) + "=" + encodeURIComponent(loc[param]);
+    }
+    return "#" + res;
+}
+
+function decode_loc(hash) {
+    var params, vals, loc, i;
 
     if (hash === "" || hash === "#") {
-        return [ { page: "dashboard" } ];
+        return { page: "dashboard" };
     }
 
     if (hash[0] == '#')
         hash = hash.substr(1);
 
-    locs = hash.split('&');
-    trail = [ ];
-
-    for (i = 0; i < locs.length; i++) {
-        params = locs[i].split('?');
-        p = { page: decodeURIComponent(params[0]) };
-        for (j = 1; j < params.length; j++) {
-            vals = params[j].split('=');
-            p[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
-        }
-        trail.push(p);
+    params = hash.split('?');
+    loc = { page: decodeURIComponent(params[0]) };
+    for (i = 1; i < params.length; i++) {
+        vals = params[i].split('=');
+        loc[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
     }
-
-    return trail;
+    return loc;
 }
 
 function show_hash() {
-    current_hash = encode_trail(cockpit.loc_trail);
+    current_hash = encode_loc(cockpit.loc);
     set_window_location_hash(current_hash);
 }
 
 function go_hash(hash) {
-    cockpit.go(decode_trail(hash));
+    cockpit.go(decode_loc(hash));
 }
 
 cockpit.page_from_id = function page_from_id(id) {
@@ -454,40 +445,24 @@ function page_show(id) {
     phantom_checkpoint ();
 }
 
-function page_enter_breadcrumb(id) {
-    var page = cockpit.page_from_id(id);
-    if (page && page.enter_breadcrumb)
-        page.enter_breadcrumb();
-}
-
-function page_leave_breadcrumb(id) {
-    var page = cockpit.page_from_id(id);
-    if (page && page.leave_breadcrumb)
-        page.leave_breadcrumb();
-}
-
 function get_page_title(id) {
     var page = cockpit.page_from_id(id);
     return page? page.getTitle() : _("Unknown Page");
 }
 
-cockpit.get_page_param = function get_page_param(key, page) {
-    var index = cockpit.loc_trail.length-1;
-    if (page) {
-        while (index >= 0 && cockpit.loc_trail[index].page != page)
-            index--;
-    }
-    if (index >= 0)
-        return cockpit.loc_trail[index][key];
-    else
-        return undefined;
+cockpit.get_page_param = function get_page_param(key) {
+    return cockpit.loc[key];
+};
+
+cockpit.get_page_machine = function get_page_machine() {
+    return cockpit.get_page_param('machine') || "localhost";
 };
 
 cockpit.set_page_param = function set_page_param(key, val) {
     if (val)
-        cockpit.loc_trail[cockpit.loc_trail.length-1][key] = val;
+        cockpit.loc[key] = val;
     else
-        delete cockpit.loc_trail[cockpit.loc_trail.length-1][key];
+        delete cockpit.loc[key];
     show_hash ();
 };
 
@@ -514,14 +489,14 @@ cockpit.show_unexpected_error = function show_unexpected_error(error) {
  */
 
 Location.prototype = {
-    go_up: function() {
+    go_rel: function(loc) {
         if (this.can_go())
-            cockpit.go_up();
+            cockpit.go_rel(loc);
     },
 
-    go: function(trail) {
+    go: function(loc) {
         if (this.can_go())
-            cockpit.go(trail);
+            cockpit.go(loc);
     }
 };
 
@@ -590,19 +565,13 @@ $(function() {
 });
 
 cockpit.go_login_account = function go_login_account() {
-    cockpit.go_server("localhost",
-                       [ { page: "accounts" },
-                         { page: "account", id: cockpit.user["user"] }
-                       ]);
+    cockpit.go({ page: "account", id: cockpit.user["user"],
+                 machine: "localhost" });
 };
 
 PageDisconnected.prototype = {
     _init: function() {
         this.id = "disconnected-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Disconnected");
     },
 
     setup: function() {
@@ -671,7 +640,7 @@ function PageExternal(id, url, title) {
 
     self.enter = function enter() {
         /* TODO: This is total bullshit */
-        var server = cockpit.get_page_param('machine', 'server');
+        var server = cockpit.get_page_machine();
         if (!server)
             server = "localhost";
         var frame = self.frames[server];
@@ -680,7 +649,7 @@ function PageExternal(id, url, title) {
             frame = $(document.createElement("iframe"));
             frame.addClass("container-frame").
                 attr("name", id + "-" + server).
-                hide().attr("src", url + "#server?machine=" + server);
+                hide().attr("src", url + current_hash);
             self.body.append(frame);
             self.frames[server] = frame;
         }

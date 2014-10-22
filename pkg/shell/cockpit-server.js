@@ -24,22 +24,8 @@ PageServer.prototype = {
         this.id = "server";
     },
 
-    enter_breadcrumb: function() {
-        this.title_address = cockpit.get_page_param('machine', 'server') || "localhost";
-        this.title_client = cockpit.dbus(this.title_address);
-        this.title_manager = this.title_client.get("/com/redhat/Cockpit/Manager",
-                                                   "com.redhat.Cockpit.Manager");
-        $(this.title_manager).on('notify:PrettyHostname.server-title', cockpit.content_update_loc_trail);
-        $(this.title_manager).on('notify:StaticHostname.server-title', cockpit.content_update_loc_trail);
-    },
-
-    leave_breadcrumb: function() {
-        $(this.title_manager).off('.server-title');
-        this.title_client.release();
-    },
-
     getTitle: function() {
-        return cockpit.util.hostname_for_display(this.title_manager);
+        return null;
     },
 
     setup: function() {
@@ -50,7 +36,7 @@ PageServer.prototype = {
     enter: function() {
         var self = this;
 
-        self.address = cockpit.get_page_param('machine') || "localhost";
+        self.address = cockpit.get_page_machine();
         self.client = cockpit.dbus(self.address);
         cockpit.set_watched_client(self.client);
 

@@ -1159,9 +1159,9 @@ function render_interface_link(iface) {
     return $('<a>').
                text(iface).
                click(function () {
-                   cockpit.go_sibling({ page: "network-interface",
-                                        dev: iface
-                                      });
+                   cockpit.go_rel({ page: "network-interface",
+                                    dev: iface
+                                  });
                });
 }
 
@@ -1181,9 +1181,9 @@ function render_connection_link(con) {
                     return $('<a>').
                         text(iface.Name).
                         click(function () {
-                            cockpit.go_sibling({ page: "network-interface",
-                                                 dev: iface.Name
-                                               });
+                            cockpit.go_rel({ page: "network-interface",
+                                             dev: iface.Name
+                                           });
                         });
                 }),
                 ", "));
@@ -1265,7 +1265,7 @@ PageNetworking.prototype = {
     enter: function () {
         var self = this;
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.model = get_nm_model(this.address);
         cockpit.set_watched_client(this.model.client);
 
@@ -1391,9 +1391,9 @@ PageNetworking.prototype = {
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
                                  $('<td colspan="2">').text(device_state_text(dev)))).
-                         click(function () { cockpit.go_down({  page: 'network-interface',
-                                                                dev: iface.Name
-                                                              });
+                         click(function () { cockpit.go_rel({  page: 'network-interface',
+                                                               dev: iface.Name
+                                                            });
                                            }));
         });
 
@@ -1572,7 +1572,7 @@ PageNetworkInterface.prototype = {
     },
 
     getTitle: function() {
-        return cockpit.get_page_param("dev", "network-interface") || "?";
+        return C_("page-title", "Networking");
     },
 
     setup: function () {
@@ -1590,12 +1590,14 @@ PageNetworkInterface.prototype = {
     enter: function () {
         var self = this;
 
-        self.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        self.address = cockpit.get_page_machine();
         self.model = get_nm_model(self.address);
         cockpit.set_watched_client(self.model.client);
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
         self.dev_name = cockpit.get_page_param('dev');
+
+        $('#network-interface .breadcrumb .active').text(self.dev_name);
 
         var blues = [ "#006bb4",
                       "#008ff0",
@@ -1703,7 +1705,9 @@ PageNetworkInterface.prototype = {
         if (this.iface) {
             var location = cockpit.location();
             delete_iface_connections(this.iface).
-                done(location.go_up()).
+                done(function () {
+                    location.go_rel({ page: "networking" });
+                }).
                 fail(cockpit.show_unexpected_error);
         }
     },
@@ -2172,10 +2176,10 @@ PageNetworkInterface.prototype = {
                                                    fail(cockpit.show_unexpected_error);
                                                return false;
                                            }))).
-                            click(function () { cockpit.go_sibling({  page: 'network-interface',
-                                                                      dev: iface.Name
-                                                                   });
-                                              });
+                        click(function () { cockpit.go_rel({  page: 'network-interface',
+                                                              dev: iface.Name
+                                                           });
+                                          });
                 });
             });
 
@@ -2233,10 +2237,6 @@ cockpit.pages.push(new PageNetworkInterface());
 PageNetworkIpSettings.prototype = {
     _init: function () {
         this.id = "network-ip-settings-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Network Ip Settings");
     },
 
     setup: function () {
@@ -2621,10 +2621,6 @@ PageNetworkBondSettings.prototype = {
         this.id = "network-bond-settings-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Network Bond Settings");
-    },
-
     setup: function () {
         $('#network-bond-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bond-settings-apply').click($.proxy(this, "apply"));
@@ -2802,10 +2798,6 @@ PageNetworkBridgeSettings.prototype = {
         this.id = "network-bridge-settings-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Network Bridge Settings");
-    },
-
     setup: function () {
         $('#network-bridge-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bridge-settings-apply').click($.proxy(this, "apply"));
@@ -2942,10 +2934,6 @@ PageNetworkBridgePortSettings.prototype = {
         this.id = "network-bridgeport-settings-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Network BridgePort Settings");
-    },
-
     setup: function () {
         $('#network-bridgeport-settings-cancel').click($.proxy(this, "cancel"));
         $('#network-bridgeport-settings-apply').click($.proxy(this, "apply"));
@@ -3047,10 +3035,6 @@ cockpit.pages.push(new PageNetworkBridgePortSettings());
 PageNetworkVlanSettings.prototype = {
     _init: function () {
         this.id = "network-vlan-settings-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Network Vlan Settings");
     },
 
     setup: function () {

@@ -377,7 +377,7 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
             /* Find the last day that begins above border
              */
             var currentIndex = 0;
-            while ( (currentIndex+1) < renderitems_day_cache.length && 
+            while ( (currentIndex+1) < renderitems_day_cache.length &&
                     renderitems_day_cache[currentIndex+1][0] < border) {
                 currentIndex++;
             }
@@ -529,7 +529,7 @@ PageJournal.prototype = {
 
         update_priority_buttons (this.query_prio);
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
 
         this.reset_query ();
     },
@@ -582,8 +582,8 @@ PageJournal.prototype = {
 
     details: function(cursor) {
         if (cursor)
-            cockpit.go_down({ page: 'journal-entry',
-                              c: cursor });
+            cockpit.go_rel({ page: 'journal-entry',
+                             c: cursor });
     }
 };
 
@@ -600,7 +600,7 @@ PageJournalEntry.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Journal Entry");
+        return C_("page-title", "Journal");
     },
 
     show: function() {

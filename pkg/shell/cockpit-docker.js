@@ -393,9 +393,9 @@ function render_container (client, $panel, filter_button, prefix, id, container)
             $('<td class="container-col-memory-text">'),
             $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
         tr.on('click', function(event) {
-            cockpit.go_down({  page: 'container-details',
-                               id: id
-                             });
+            cockpit.go_rel({  page: 'container-details',
+                              id: id
+                           });
         });
 
         added = true;
@@ -451,7 +451,7 @@ PageContainers.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
 
         // Just for watching
@@ -570,9 +570,9 @@ PageContainers.prototype = {
                     $('<td class="image-col-size-text">'),
                     $('<td class="cell-buttons">').append(button));
             tr.on('click', function(event) {
-                cockpit.go_down({ page: 'image-details',
-                    id: id
-                });
+                cockpit.go_rel({ page: 'image-details',
+                                 id: id
+                               });
             });
 
             added = true;
@@ -605,10 +605,6 @@ cockpit.pages.push(new PageContainers());
 PageRunImage.prototype = {
     _init: function() {
         this.id = "containers_run_image_dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Run Image");
     },
 
     show: function() {
@@ -765,10 +761,6 @@ PageSearchImage.prototype = {
         this.id = "containers-search-image-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Get new image");
-    },
-
     show: function() {
         $('#containers-search-image-search').focus();
     },
@@ -792,7 +784,7 @@ PageSearchImage.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
 
         // Clear the previous results and search string from previous time
@@ -970,7 +962,7 @@ PageContainerDetails.prototype = {
     },
 
     getTitle: function() {
-        return this.name;
+        return C_("page-title", "Containers");
     },
 
     show: function() {
@@ -1070,11 +1062,11 @@ PageContainerDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_up();
+                        location.go_rel({ page: "containers" });
                     });
             });
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
         this.container_id = cockpit.get_page_param('id');
         this.name = this.container_id.slice(0,12);
@@ -1150,11 +1142,8 @@ PageContainerDetails.prototype = {
         $('#container-details-cpu-row').toggle(!!info.State.Running);
         $('#container-details-resource-row').toggle(!!info.State.Running);
 
-        var name = render_container_name(info.Name);
-        if (name != this.name) {
-            this.name = name;
-            cockpit.content_update_loc_trail();
-        }
+        this.name = render_container_name(info.Name);
+        $('#container-details .breadcrumb .active').text(this.name);
 
         var port_bindings = [ ];
         if (info.NetworkSettings) {
@@ -1232,7 +1221,7 @@ PageContainerDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_up();
+                        location.go_rel({ page: "containers" });
                     });
             });
     }
@@ -1251,7 +1240,7 @@ PageImageDetails.prototype = {
     },
 
     getTitle: function() {
-        return this.name;
+        return C_("page-title", "Containers");
     },
 
     show: function() {
@@ -1277,7 +1266,7 @@ PageImageDetails.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
         this.image_id = cockpit.get_page_param('id');
         this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
@@ -1328,13 +1317,10 @@ PageImageDetails.prototype = {
         $('#image-details-buttons div.waiting').toggle(waiting);
         $('#image-details-buttons button').toggle(!waiting);
 
-        if (info.RepoTags && info.RepoTags.length > 0) {
-            var name = info.RepoTags[0];
-            if (name != this.name) {
-                this.name = name;
-                cockpit.content_update_loc_trail();
-            }
-        }
+        if (info.RepoTags && info.RepoTags.length > 0)
+            this.name = info.RepoTags[0];
+
+        $('#image-details .breadcrumb .active').text(this.name);
 
         $('#image-details-id').text(info.id);
         $('#image-details-tags').html(multi_line(info.RepoTags));
@@ -1375,7 +1361,7 @@ PageImageDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_up();
+                        location.go_rel({ page: "containers" });
                     });
             });
     }
@@ -1846,7 +1832,7 @@ function DockerClient(machine) {
          * Showing unexpected error isn't it.
          */
         var options = {
-            host: cockpit.get_page_param("machine", "server")
+            host: cockpit.get_page_machine()
         };
         cockpit.spawn(["sh", "-c", command], options).
             fail(function(ex) {

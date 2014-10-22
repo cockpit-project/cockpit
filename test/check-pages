@@ -43,7 +43,7 @@ WantedBy=default.target
         self.login_and_go("server")
 
         # check that reloading a page with parameters works
-        b.go("services&service?s=test.service")
+        b.go("service?s=test.service")
         b.wait_page("service")
         b.reload()
         b.wait_page("service")

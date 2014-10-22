@@ -67,7 +67,7 @@
           </ul>
           <div class="nav navbar-nav navbar-primary">
             <div class="col-md-10">
-              <div class="btn-group" id="content-loc-trail">
+              <div class="btn-group" id="content-global-breadcrumb">
               </div>
             </div>
           </div>
@@ -91,31 +91,31 @@
                      id="server-avatar-uploader" style="display:none"/>
               <img id="server-avatar">
            </div>
-            <a class="list-group-item" onclick="cockpit.go_down('system_information')">
+            <a class="list-group-item" onclick="cockpit.go_rel('system_information')">
               <img class="cockpit-category-icon" src="images/category-system.png">
               System Information
             </a>
-            <a class="list-group-item" onclick="cockpit.go_down('services')">
+            <a class="list-group-item" onclick="cockpit.go_rel('services')">
               <img class="cockpit-category-icon" src="images/category-services.png">
               Services
             </a>
-            <a class="list-group-item" onclick="cockpit.go_down('journal')">
+            <a class="list-group-item" onclick="cockpit.go_rel('journal')">
               <img class="cockpit-category-icon" src="images/category-journal.png">
               Journal
             </a>
-            <a class="list-group-item"  onclick="cockpit.go_down('networking')">
+            <a class="list-group-item"  onclick="cockpit.go_rel('networking')">
               <img class="cockpit-category-icon" src="images/category-networking.png">
               Networking
             </a>
-            <a class="list-group-item" onclick="cockpit.go_down('storage')">
+            <a class="list-group-item" onclick="cockpit.go_rel('storage')">
               <img class="cockpit-category-icon" src="images/category-storage.png">
               Storage
             </a>
-            <a class="list-group-item" onclick="cockpit.go_down('accounts')">
+            <a class="list-group-item" onclick="cockpit.go_rel('accounts')">
               <img class="cockpit-category-icon" src="images/category-users.png">
               User Accounts
             </a>
-            <a class="list-group-item" onclick="cockpit.go_down('containers')">
+            <a class="list-group-item" onclick="cockpit.go_rel('containers')">
               <img class="cockpit-category-icon" src="images/category-containers.png">
               Containers
             </a>
@@ -129,18 +129,18 @@
         <div id="server-graph-columns">
           <div id="server-graph-column-1">
               <div style="color:black">CPU<span style="float:right" id="server_cpu_text"></span></div>
-              <div style="height:120px" id="server_cpu_graph" class="server-graph" onclick="cockpit.go_down('cpu_status');"></div>
+              <div style="height:120px" id="server_cpu_graph" class="server-graph" onclick="cockpit.go_rel('cpu_status');"></div>
             <br/>
               <div style="color:black">Memory<span style="float:right" id="server_memory_text"></span></div>
-              <div style="height:120px" id="server_memory_graph" class="server-graph" onclick="cockpit.go_down('memory_status')"></div>
+              <div style="height:120px" id="server_memory_graph" class="server-graph" onclick="cockpit.go_rel('memory_status')"></div>
             <br/>
           </div>
           <div id="server-graph-column-2">
               <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
-              <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.go_down('storage')"></div>
+              <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.go_rel('storage')"></div>
             <br/>
               <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
-              <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.go_down('networking')"></div>
+              <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.go_rel('networking')"></div>
             <br/>
           </div>
         </div>
@@ -292,6 +292,10 @@
       </div>
 
       <div id="storage-detail" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('storage')">Storage</a></li>
+          <li class="active"></li>
+        </ol>
         <div id="disk_detail_list">
           <div class="panel panel-default">
             <div class="panel-heading">
@@ -502,6 +506,10 @@
       </div>
 
       <div id="network-interface" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('networking')">Networking</a></li>
+          <li class="active"></li>
+        </ol>
         <div class="row">
           <div class="col-sm-6">
             <div>Sending<span style="float:right" id="network-interface-tx-text"></span></div>
@@ -584,6 +592,10 @@
       </div>
 
       <div id="service" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('services')">Services</a></li>
+          <li class="active"></li>
+        </ol>
         <div class="row" id="service-graphs">
           <div class="col-sm-6">
             <div>CPU usage<span style="float:right" id="service-cpu-text"></span></div>
@@ -678,6 +690,10 @@
       </div>
 
       <div id="journal-entry" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('journal')">Journal</a></li>
+          <li class="active">Entry</li>
+        </ol>
         <div class="panel panel-default">
           <div class="panel-heading">
             <span id="journal-entry-id"></span>
@@ -695,7 +711,11 @@
         </div>
       </div>
 
-      <div id="account">
+      <div id="account" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('accounts')">Accounts</a></li>
+          <li class="active"></li>
+        </ol>
         <center>
           <table>
             <tr>
@@ -821,6 +841,10 @@
 
       <!-- Layout for container details page -->
       <div id="container-details" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('containers')">Containers</a></li>
+          <li class="active"></li>
+        </ol>
         <div class="panel-default panel">
           <div class="panel-heading" style="height:44px">
             <div class="col-sm-12">
@@ -904,6 +928,10 @@
 
       <!-- Layout for image details page-->
       <div id="image-details" class="container-fluid">
+        <ol class="breadcrumb">
+          <li><a onclick="cockpit.go_rel('containers')">Containers</a></li>
+          <li class="active"></li>
+        </ol>
         <div class="panel-default panel">
           <div class="panel-heading" style="height:44px">
             <div class="col-sm-12">

@@ -37,7 +37,26 @@ cockpit.info = { };
  * utilities soon, for now this is private.
  */
 
-function get_page_param(key, page) {
+function decode_loc(hash) {
+    var params, vals, loc, i;
+
+    if (hash === "" || hash === "#") {
+        return { page: "dashboard" };
+    }
+
+    if (hash[0] == '#')
+        hash = hash.substr(1);
+
+    params = hash.split('?');
+    loc = { page: decodeURIComponent(params[0]) };
+    for (i = 1; i < params.length; i++) {
+        vals = params[i].split('=');
+        loc[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
+    }
+    return loc;
+}
+
+function get_page_param(key) {
 
     /*
      * HACK: Mozilla will unescape 'window.location.hash' before returning
@@ -46,29 +65,9 @@ function get_page_param(key, page) {
      * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
      */
     var hash = (window.location.href.split('#')[1] || '');
+    var loc = decode_loc(hash);
 
-    var trail = [ ];
-    var locs = hash.split('&');
-    var params, i, j, p, vals;
-    for (i = 0; i < locs.length; i++) {
-        params = locs[i].split('?');
-        p = { page: decodeURIComponent(params[0]) };
-        for (j = 1; j < params.length; j++) {
-            vals = params[j].split('=');
-            p[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
-        }
-        trail.push(p);
-    }
-
-    var index = trail.length - 1;
-    if (page) {
-        while (index >= 0 && trail[index].page != page)
-            index--;
-    }
-    if (index >= 0)
-        return trail[index][key];
-    else
-        return undefined;
+    return loc[key];
 }
 
 /*
@@ -363,7 +362,7 @@ function Channel(options) {
         };
         $.extend(command, options);
         if (command.host === undefined)
-            command.host = get_page_param('machine', 'server');
+            command.host = get_page_param('machine');
         transport.send_control(command);
 
         /* Now drain the queue */

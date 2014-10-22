@@ -24,10 +24,6 @@ PageShutdownDialog.prototype = {
         this.id = "shutdown-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Shutdown");
-    },
-
     setup: function() {
         $("#shutdown-restart").click($.proxy(this, "restart"));
         $("#shutdown-poweroff").click($.proxy(this, "poweroff"));
@@ -47,7 +43,7 @@ PageShutdownDialog.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         this.cockpitd = cockpit.dbus(this.address);
         this.cockpitd_manager = this.cockpitd.get("/com/redhat/Cockpit/Manager",
                                                   "com.redhat.Cockpit.Manager");

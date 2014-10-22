@@ -145,7 +145,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
 
     var tr = ($('<tr>', { 'data-unit': name
                         }).
-              click(function () { cockpit.go_down({page: "service", s: name }); }).
+              click(function () { cockpit.go_rel({page: "service", s: name }); }).
               append(
                   $('<td style="font-weight:bold">').text(desc),
                   $('<td>').text(name),
@@ -220,7 +220,7 @@ PageServices.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        me.address = cockpit.get_page_machine();
 
         if (!me.geard_check_done) {
             var location = cockpit.location();
@@ -228,7 +228,7 @@ PageServices.prototype = {
             cockpit.spawn([ "which", "gear" ], { host: me.address }).
                 done(function () {
                     me.geard_present = true;
-                    location.go(cockpit.loc_trail);
+                    cockpit.content_refresh();
                 });
         }
 
@@ -483,10 +483,6 @@ PageServiceAdd.prototype = {
         this.id = "service-add-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Add Service");
-    },
-
     setup: function() {
         $('#service-add-add').click($.proxy(this, "add"));
     },
@@ -561,7 +557,7 @@ PageService.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", "Service");
+        return C_("page-title", "Services");
     },
 
     setup: function() {
@@ -609,7 +605,7 @@ PageService.prototype = {
                 s = s + systemd_param_esc($("#service-parameter").val());
                 if (sp != -1)
                     s = s + self.service.substring(sp);
-                cockpit.go_down({ page: "service", s: s });
+                cockpit.go_rel({ page: "service", s: s });
             }
         });
     },
@@ -617,7 +613,7 @@ PageService.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        me.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(me.client);
@@ -703,6 +699,8 @@ PageService.prototype = {
                 me.template = me.template + me.service.substring(sp);
         }
 
+        $('#service .breadcrumb .active').text(me.service);
+
         me.manager.call('GetServiceInfo', me.service, function (error, info) {
             if (error) {
                 $("#service-unknown").show();
@@ -753,7 +751,7 @@ PageService.prototype = {
                 $("#service-template-row").show();
                 var html = F(_("This service is an instance of the %{template} service template."),
                              { template: F('<a class="cockpit-link" onclick="%{cmd}">%{title}</a>',
-                                           { cmd: cockpit.esc(cockpit.go_down_cmd("service", { s: me.template })),
+                                           { cmd: cockpit.esc(cockpit.go_rel_cmd("service", { s: me.template })),
                                              title: cockpit.esc(me.template)
                                            })
                              });

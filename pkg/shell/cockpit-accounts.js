@@ -177,7 +177,7 @@ PageAccounts.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { "payload": "dbus-json1" });
         cockpit.set_watched_client(this.client);
@@ -242,7 +242,7 @@ PageAccounts.prototype = {
     },
 
     go: function (user) {
-        cockpit.go_down({ page: 'account', id: user });
+        cockpit.go_rel({ page: 'account', id: user });
     }
 };
 
@@ -256,10 +256,6 @@ PageAccountsCreate.prototype = {
     _init: function() {
         this.error_timeout = null;
         this.id = "accounts-create-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Create Account");
     },
 
     show: function() {
@@ -369,7 +365,7 @@ PageAccount.prototype = {
     },
 
     getTitle: function() {
-        return C_("page-title", this.account? this.account.RealName : "??");
+        return C_("page-title", "Accounts");
     },
 
     show: function() {
@@ -388,7 +384,7 @@ PageAccount.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_param('machine', 'server') || "localhost";
+        this.address = cockpit.get_page_machine();
         /* TODO: This code needs to be migrated away from dbus-json1 */
         this.client = cockpit.dbus(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.client);
@@ -439,6 +435,7 @@ PageAccount.prototype = {
                 }
             }
             $('#account-roles').html(roles);
+            $('#account .breadcrumb .active').text(this.account.RealName);
         } else {
             $('#account-pic').attr('src', null);
             $('#account-real-name').val("");
@@ -446,8 +443,8 @@ PageAccount.prototype = {
             $('#account-last-login').text("");
             $('#account-locked').prop('checked', false);
             $('#account-roles').text("");
+            $('#account .breadcrumb .active').text("?");
         }
-        cockpit.content_update_loc_trail();
     },
 
     trigger_change_avatar: function() {
@@ -569,10 +566,6 @@ var crop_handle_width = 20;
 PageAccountChangeAvatar.prototype = {
     _init: function() {
         this.id = "account-change-avatar-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Change Picture");
     },
 
     show: function() {
@@ -739,10 +732,6 @@ PageAccountChangeRoles.prototype = {
         this.id = "account-change-roles-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Change Roles");
-    },
-
     show: function() {
     },
 
@@ -824,10 +813,6 @@ PageAccountConfirmDelete.prototype = {
         this.id = "account-confirm-delete-dialog";
     },
 
-    getTitle: function() {
-        return C_("page-title", "Delete Account?");
-    },
-
     show: function() {
     },
 
@@ -852,7 +837,7 @@ PageAccountConfirmDelete.prototype = {
                                                        cockpit.show_unexpected_error(error);
                                                });
         $('#account-confirm-delete-dialog').modal('hide');
-        cockpit.go_up();
+        cockpit.go_rel({ page: "accounts" });
     }
 };
 
@@ -866,10 +851,6 @@ PageAccountSetPassword.prototype = {
     _init: function() {
         this.error_timeout = null;
         this.id = "account-set-password-dialog";
-    },
-
-    getTitle: function() {
-        return C_("page-title", "Set Password");
     },
 
     show: function() {

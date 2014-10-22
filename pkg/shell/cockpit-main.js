@@ -350,7 +350,8 @@ cockpit.go = function go(loc) {
 cockpit.go_rel = function go_rel(loc) {
     if (loc.substr)
         loc = { page: loc };
-    if (cockpit.loc)
+    delete loc.machine;
+    if (cockpit.loc && cockpit.loc.machine)
         loc.machine = cockpit.loc.machine;
     return cockpit.go(loc);
 };

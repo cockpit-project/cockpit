@@ -145,7 +145,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
 
     var tr = ($('<tr>', { 'data-unit': name
                         }).
-              click(function () { cockpit.go_rel({page: "service", s: name }); }).
+              click(function () { cockpit.go_rel("service", { s: name }); }).
               append(
                   $('<td style="font-weight:bold">').text(desc),
                   $('<td>').text(name),
@@ -606,7 +606,7 @@ PageService.prototype = {
                 s = s + systemd_param_esc($("#service-parameter").val());
                 if (sp != -1)
                     s = s + self.service.substring(sp);
-                cockpit.go_rel({ page: "service", s: s });
+                cockpit.go_rel("service", { s: s });
             }
         });
     },

@@ -234,7 +234,7 @@ function content_show() {
 
 function content_leave() {
     if (current_params) {
-        page_leave(current_params.page);
+        page_leave(current_params.path[0]);
         leave_global_nav();
     }
     current_params = null;
@@ -243,7 +243,7 @@ function content_leave() {
 
 cockpit.content_refresh = function content_refresh() {
     if (current_params)
-        cockpit.go(current_params);
+        go_params(current_params);
 };
 
 function content_header_changed() {
@@ -281,7 +281,7 @@ function update_global_nav() {
 
     $('#content-navbar > li').removeClass('active');
     if (current_params) {
-        var page = cockpit.page_from_id(current_params.page);
+        var page = cockpit.page_from_id(current_params.path[0]);
         var section_id = page.section_id || page.id;
         page_title = page.getTitle();
         $('#content-navbar > li').has('a[data-page-id="' + section_id + '"]').addClass('active');
@@ -300,18 +300,25 @@ function update_global_nav() {
     document.title = doc_title;
 }
 
-cockpit.go = function go(params) {
+function go_params(params) {
     page_navigation_count += 1;
 
-    if ($('#' + params.page).length === 0) {
-        cockpit.go({ page: "dashboard" });
+    /* We support only legacy pages for now.  For them, params.path[0]
+     * is the old page id and the rest of path is ignored.  Everything
+     * else is in options.
+     */
+
+    var page_id = params.path[0];
+
+    if ($('#' + page_id).length === 0) {
+        cockpit.go("localhost", [ "dashboard" ]);
         return;
     }
 
-    var old_params = current_params;
+    var old_page_id = current_params && current_params.path[0];
 
-    if (old_params) {
-        page_leave(old_params.page);
+    if (old_page_id) {
+        page_leave(old_page_id);
         leave_global_nav();
     }
 
@@ -319,40 +326,79 @@ cockpit.go = function go(params) {
     current_params = params;
     show_hash();
     enter_global_nav();
-    page_enter(params.page);
+    page_enter(page_id);
 
-    if (old_params)
-        $('#' + old_params.page).hide();
-    $('#' + params.page).show();
+    if (old_page_id)
+        $('#' + old_page_id).hide();
+    $('#' + page_id).show();
     update_global_nav();
     content_header_changed();
-    page_show(params.page);
+    page_show(page_id);
+}
+
+cockpit.go = function go(host, path, options) {
+    if (!host)
+        host = "localhost";
+    if (!options)
+        options = { };
+    if (path && path.substr)
+        path = [ path ];
+    if (!path || !path.length)
+        path = [ "dashboard" ];
+
+    go_params({ host: host, path: path, options: options });
 };
 
-cockpit.go_rel = function go_rel(params) {
-    if (params.substr)
-        params = { page: params };
-    delete params.machine;
-    if (current_params && current_params.machine)
-        params.machine = current_params.machine;
-    return cockpit.go(params);
+cockpit.go_rel = function go_rel(path, options) {
+    cockpit.go(current_params && current_params.host, path, options);
 };
 
-cockpit.go_rel_cmd = function go_cmd(page, options)
+// TODO: Get rid of this
+cockpit.go_rel_cmd = function go_rel_cmd(path, options)
 {
-    var params = $.extend({ page: page }, options);
-    return "cockpit.go_rel(" + JSON.stringify(params) + ");";
+    return "cockpit.go_rel(" + JSON.stringify(path) + "," + JSON.stringify(options) + ");";
 };
 
-function encode_page_hash(loc) {
-    var host = loc.machine;
-    if (!host || host == "localhost")
-        host = "local";
-    var res = "/" + encodeURIComponent(host) + "/" + encodeURIComponent(loc.page);
+/* Page navigation parameters
+
+   The parameters of the current page are stored in a dict with these
+   fields:
+
+   - host (string)
+
+   The address of the default host to connect to.
+
+   - path (array of strings)
+
+   The path to the page, such as [ "storage", "block", "vda" ].
+
+   - options (dict of strings to strings)
+
+   The display options of the page, such as { collapse: "all" }.
+
+   'host' and 'path' are constant for the life-time of a page, but
+   'options' might change.  A page will be notified about this in some
+   to-be-specified way.  (Legacy pages will get a leave/enter
+   sequence.)  A page can also change the options.
+
+   Guarantees: 'host' is always a non-empty string.  'path' has always
+   at least length 1.  'options' is always a dict.
+*/
+
+function encode_page_hash(params) {
+    var full_path = params.path;
+    var host = params.host;
+    if (host !== false) {
+        if (!host || host == "localhost")
+            host = "local";
+        full_path = [ host ].concat(full_path);
+    }
+
+    var res = "/" + full_path.map(encodeURIComponent).join("/");
     var query = [];
-    for (var param in loc) {
-        if (param != "page" && param != "machine" && loc.hasOwnProperty(param))
-            query.push(encodeURIComponent(param) + "=" + encodeURIComponent(loc[param]));
+    for (var opt in params.options) {
+        if (params.options.hasOwnProperty(opt))
+            query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(params.options[opt]));
     }
     if (query.length > 0)
         res += "?" + query.join("&");
@@ -360,34 +406,37 @@ function encode_page_hash(loc) {
 }
 
 function decode_page_hash(hash) {
-    var query, params, path, loc, vals, i;
-
-    loc = { page: "dashboard", machine: "localhost" };
+    var params = { host: "localhost", path: [ "dashboard" ], options: { } };
 
     if (hash[0] == '#')
         hash = hash.substr(1);
 
-    query = hash.split('?');
-    path = query[0].split('/');
+    var query = hash.split('?');
 
+    var path = query[0].split('/').map(decodeURIComponent);
     if (path[0] === "")
         path.shift();
+    if (path[path.length-1] === "")
+        path.length--;
+
     if (path.length > 0) {
-        loc.machine = decodeURIComponent(path[0]);
-        if (loc.machine == "local")
-            loc.machine = "localhost";
+        params.host = path.shift();
+        if (params.host === "" || params.host == "local")
+            params.host = "localhost";
     }
-    if (path.length > 1)
-        loc.page = decodeURIComponent(path[1]);
+
+    if (path.length > 0)
+        params.path = path;
 
     if (query.length > 1) {
-        params = query[1].split("&");
-        for (i = 0; i < params.length; i++) {
-            vals = params[i].split('=');
-            loc[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
+        var opts = query[1].split("&");
+        for (var i = 0; i < opts.length; i++) {
+            var parts = opts[i].split('=');
+            params.options[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
         }
     }
-    return loc;
+
+    return params;
 }
 
 function show_hash() {
@@ -396,7 +445,7 @@ function show_hash() {
 }
 
 function go_hash(hash) {
-    cockpit.go(decode_page_hash(hash));
+    go_params(decode_page_hash(hash));
 }
 
 cockpit.page_from_id = function page_from_id(id) {
@@ -447,18 +496,18 @@ function page_show(id) {
 }
 
 cockpit.get_page_param = function get_page_param(key) {
-    return current_params[key];
+    return current_params.options[key];
 };
 
 cockpit.get_page_machine = function get_page_machine() {
-    return cockpit.get_page_param('machine') || "localhost";
+    return current_params.host;
 };
 
 cockpit.set_page_param = function set_page_param(key, val) {
     if (val)
-        current_params[key] = val;
+        current_params.options[key] = val;
     else
-        delete current_params[key];
+        delete current_params.options[key];
     show_hash ();
 };
 
@@ -485,14 +534,14 @@ cockpit.show_unexpected_error = function show_unexpected_error(error) {
  */
 
 Location.prototype = {
-    go_rel: function(params) {
+    go_rel: function(path, options) {
         if (this.can_go())
-            cockpit.go_rel(params);
+            cockpit.go_rel(path, options);
     },
 
-    go: function(params) {
+    go: function(host, path, options) {
         if (this.can_go())
-            cockpit.go(params);
+            cockpit.go(host, path, options);
     }
 };
 
@@ -561,8 +610,7 @@ $(function() {
 });
 
 cockpit.go_login_account = function go_login_account() {
-    cockpit.go({ page: "account", id: cockpit.user["user"],
-                 machine: "localhost" });
+    cockpit.go("localhost", "account", { id: cockpit.user["user"] });
 };
 
 PageDisconnected.prototype = {
@@ -641,12 +689,16 @@ function PageExternal(id, url, title) {
             server = "localhost";
         var frame = self.frames[server];
         if (!frame) {
-            var hash = encode_page_hash($.extend({'_host_': server}, current_params));
+            /* TODO: This assumes a prefix of length 1. */
+            var params = { host: false,
+                           path: current_params.path.slice(1),
+                           options: $.extend({ '_host_': server }, current_params.options)
+                         };
             /* TODO: This *still* only loads packages from localhost */
             frame = $(document.createElement("iframe"));
             frame.addClass("container-frame").
                 attr("name", id + "-" + server).
-                hide().attr("src", url + hash);
+                hide().attr("src", url + encode_page_hash(params));
             self.body.append(frame);
             self.frames[server] = frame;
         }

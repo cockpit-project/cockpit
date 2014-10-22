@@ -566,10 +566,7 @@ PageStorage.prototype = {
                         "data-blockdev": blockdev
                       }).
             click(function () {
-                cockpit.go_rel({ page: "storage-detail",
-                                 type: "drive",
-                                 id: id
-                               });
+                cockpit.go_rel("storage-detail", { type: "drive", id: id });
             }).
             append(
                 $('<td style="width: 48px">').append(
@@ -625,10 +622,7 @@ PageStorage.prototype = {
                         Sort: sort_key
                       }).
             click(function () {
-                cockpit.go_rel({ page: "storage-detail",
-                                 type: "mdraid",
-                                 id: id
-                               });
+                cockpit.go_rel("storage-detail", { type: "mdraid", id: id });
             }).
             append(
                 $('<td>').append(
@@ -673,10 +667,7 @@ PageStorage.prototype = {
                         Sort: sort_key
                       }).
             click(function () {
-                cockpit.go_rel({ page: "storage-detail",
-                                 type: "vg",
-                                 id: id
-                               });
+                cockpit.go_rel("storage-detail", { type: "vg", id: id });
             }).
             append(
                 $('<td>').append(
@@ -731,10 +722,7 @@ PageStorage.prototype = {
                         "data-blockdev": blockdev
                       }).
             click(function () {
-                cockpit.go_rel({ page: "storage-detail",
-                                 type: "block",
-                                 id: id
-                               });
+                cockpit.go_rel("storage-detail", { type: "block", id: id });
             }).
             append(
                 $('<td>').append(
@@ -865,10 +853,7 @@ function block_get_desc(block, partition_label, cleartext_device)
                 $('<a>').
                     text(vg.Name).
                     click(function () {
-                        cockpit.go_rel({ page: 'storage-detail',
-                                         type: 'vg',
-                                         id: vg.Name
-                                       });
+                        cockpit.go_rel('storage-detail', { type: 'vg', id: vg.Name });
                     }));
         } else if (block.MDRaidMember != "/") {
             var id = block.MDRaidMember.substr(block.MDRaidMember.lastIndexOf("/") + 1);
@@ -878,10 +863,7 @@ function block_get_desc(block, partition_label, cleartext_device)
                 $('<a>').
                     text(raid_get_desc(raid)).
                     click(function () {
-                        cockpit.go_rel({ page: 'storage-detail',
-                                         type: 'mdraid',
-                                         id: id
-                                       });
+                        cockpit.go_rel('storage-detail', { type: 'mdraid', id: id });
                     }));
         }
 
@@ -973,34 +955,22 @@ function block_go(block)
 
     if (block.Drive != "/") {
         id = block.Drive.substr(block.Drive.lastIndexOf("/") + 1);
-        cockpit.go_rel({ page: "storage-detail",
-                         type: "drive",
-                         id: id
-                       });
+        cockpit.go_rel("storage-detail", { type: "drive", id: id });
     } else if (block.MDRaid != "/") {
         id = block.MDRaid.substr(block.MDRaid.lastIndexOf("/") + 1);
-        cockpit.go_rel({ page: "storage-detail",
-                         type: "mdraid",
-                         id: id
-                       });
+        cockpit.go_rel("storage-detail", { type: "mdraid", id: id });
     } else if (block.LogicalVolume != "/") {
         lv = block._client.get(block.LogicalVolume,
                                "com.redhat.Cockpit.Storage.LogicalVolume");
         if (lv.VolumeGroup != "/") {
             vg = lv._client.get(lv.VolumeGroup,
                                 "com.redhat.Cockpit.Storage.VolumeGroup");
-            cockpit.go_rel({ page: "storage-detail",
-                             type: "vg",
-                             id: vg.Name
-                           });
+            cockpit.go_rel("storage-detail", { type: "vg", id: vg.Name });
         }
     } else {
         path = block.getObject().objectPath;
         id = path.substr(path.lastIndexOf("/") + 1);
-        cockpit.go_rel({ page: "storage-detail",
-                         type: "block",
-                         id: id
-                       });
+        cockpit.go_rel("storage-detail", { type: "block", id: id });
     }
 }
 
@@ -1028,10 +998,7 @@ function block_get_link_desc(block)
             text(drive.Name || block.Device).
             click(function () {
                 var id = block.Drive.substr(block.Drive.lastIndexOf("/") + 1);
-                cockpit.go_rel({ page: "storage-detail",
-                                 type: "drive",
-                                 id: id
-                               });
+                cockpit.go_rel("storage-detail", { type: "drive", id: id });
             });
     } else if (block.MDRaid != "/") {
         var raid = block._client.get(block.MDRaid,
@@ -1043,10 +1010,7 @@ function block_get_link_desc(block)
                 text(raid_get_desc(raid)).
                 click(function () {
                     var id = block.MDRaid.substr(block.MDRaid.lastIndexOf("/") + 1);
-                    cockpit.go_rel({ page: "storage-detail",
-                                     type: "mdraid",
-                                     id: id
-                                   });
+                    cockpit.go_rel("storage-detail", { type: "mdraid", id: id });
                 }));
     } else if (block.LogicalVolume != "/") {
         var lv = block._client.get(block.LogicalVolume,
@@ -1060,10 +1024,7 @@ function block_get_link_desc(block)
                 $('<a>').
                     text(vg.Name).
                     click(function () {
-                        cockpit.go_rel({ page: "storage-detail",
-                                         type: "vg",
-                                         id: vg.Name
-                                       });
+                        cockpit.go_rel("storage-detail", { type: "vg", id: vg.Name });
                     }));
         } else {
             link = $('<span>').text(lvol_get_desc(lv));
@@ -1074,10 +1035,7 @@ function block_get_link_desc(block)
             click(function () {
                 var path = block.getObject().objectPath;
                 var id = path.substr(path.lastIndexOf("/") + 1);
-                cockpit.go_rel({ page: "storage-detail",
-                                 type: "block",
-                                 id: id
-                               });
+                cockpit.go_rel("storage-detail", { type: "block", id: id });
             });
     }
 
@@ -2132,7 +2090,7 @@ PageStorageDetail.prototype = {
                     if (error)
                         cockpit.show_unexpected_error(error);
                     else
-                        location.go_rel({ page: "storage" });
+                        location.go_rel("storage");
                 });
             });
     },
@@ -2307,7 +2265,7 @@ PageStorageDetail.prototype = {
                     if (error)
                         cockpit.show_unexpected_error(error);
                     else
-                        location.go_rel({ page: "storage" });
+                        location.go_rel("storage");
                 });
             });
     },
@@ -3313,7 +3271,7 @@ PageRenameGroup.prototype = {
                                    name,
                                    function (error) {
                                        $("#storage_rename_group_dialog").modal('hide');
-                                       cockpit.go_rel({ page: "storage" });
+                                       cockpit.go_rel("storage");
                                        if (error)
                                            cockpit.show_unexpected_error(error);
                                    });

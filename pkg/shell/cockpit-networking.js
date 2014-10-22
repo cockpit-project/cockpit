@@ -1159,9 +1159,7 @@ function render_interface_link(iface) {
     return $('<a>').
                text(iface).
                click(function () {
-                   cockpit.go_rel({ page: "network-interface",
-                                    dev: iface
-                                  });
+                   cockpit.go_rel("network-interface", { dev: iface });
                });
 }
 
@@ -1181,9 +1179,7 @@ function render_connection_link(con) {
                     return $('<a>').
                         text(iface.Name).
                         click(function () {
-                            cockpit.go_rel({ page: "network-interface",
-                                             dev: iface.Name
-                                           });
+                            cockpit.go_rel("network-interface", { dev: iface.Name });
                         });
                 }),
                 ", "));
@@ -1391,10 +1387,9 @@ PageNetworking.prototype = {
                                 (is_active?
                                  [ $('<td>').text(""), $('<td>').text("") ] :
                                  $('<td colspan="2">').text(device_state_text(dev)))).
-                         click(function () { cockpit.go_rel({  page: 'network-interface',
-                                                               dev: iface.Name
-                                                            });
-                                           }));
+                         click(function () {
+                             cockpit.go_rel('network-interface', { dev: iface.Name });
+                         }));
         });
 
         if (!ifaces_changed) {
@@ -1706,7 +1701,7 @@ PageNetworkInterface.prototype = {
             var location = cockpit.location();
             delete_iface_connections(this.iface).
                 done(function () {
-                    location.go_rel({ page: "networking" });
+                    location.go_rel("networking");
                 }).
                 fail(cockpit.show_unexpected_error);
         }
@@ -2176,10 +2171,9 @@ PageNetworkInterface.prototype = {
                                                    fail(cockpit.show_unexpected_error);
                                                return false;
                                            }))).
-                        click(function () { cockpit.go_rel({  page: 'network-interface',
-                                                              dev: iface.Name
-                                                           });
-                                          });
+                        click(function () {
+                            cockpit.go_rel('network-interface', { dev: iface.Name });
+                        });
                 });
             });
 

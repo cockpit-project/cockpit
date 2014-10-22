@@ -222,22 +222,25 @@ You can run these processes as your own user, although you won't be able
 to debug all the authentication logic in those cases.
 
 First of all make sure Cockpit is installed correctly. Even though we
-will be running cockpit-ws and cockpit-bridge from the built sources
-this still relies on some of the right bits being installed in order
-for Cockpit to work (ie: PAM stack, UI files, etc.)
+will be running cockpit-ws from the built sources this still relies on
+some of the right bits being installed in order for Cockpit to work
+(ie: PAM stack, UI files, cockpit-bridge, etc.)
 
 This is how you would run cockpit-ws under gdb:
 
     $ export G_DEBUG=fatal-criticals
     $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-bridge
-    $ gdb --args ./cockpit-ws --port 10000 --no-tls --uninstalled
+    $ gdb --args ./cockpit-ws --port 10000 --no-tls
 
 And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 
     $ export G_DEBUG=fatal-criticals
     $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-daemon,cockpit-bridge
     $ valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
-          ./cockpit-ws --port 10000 --no-tls --uninstalled
+          ./cockpit-ws --port 10000 --no-tls
+
+Note that cockpit-session and cockpit-bridge will run from the installed
+prefix, rather than your build tree.
 
 ## Setting up a domain server
 

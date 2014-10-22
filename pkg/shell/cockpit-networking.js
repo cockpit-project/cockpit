@@ -1568,7 +1568,7 @@ function choice_title(choices, choice, def) {
 PageNetworkInterface.prototype = {
     _init: function () {
         this.id = "network-interface";
-        this.connection_mods = { };
+        this.section_id = "networking";
     },
 
     getTitle: function() {

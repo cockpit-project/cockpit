@@ -597,6 +597,7 @@ cockpit.pages.push(new PageJournal());
 PageJournalEntry.prototype = {
     _init: function() {
         this.id = "journal-entry";
+        this.section_id = "journal";
     },
 
     getTitle: function() {

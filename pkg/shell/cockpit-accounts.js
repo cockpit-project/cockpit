@@ -362,6 +362,7 @@ cockpit.pages.push(new PageAccountsCreate());
 PageAccount.prototype = {
     _init: function() {
         this.id = "account";
+        this.section_id = "accounts";
     },
 
     getTitle: function() {

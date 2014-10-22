@@ -582,8 +582,7 @@ PageJournal.prototype = {
 
     details: function(cursor) {
         if (cursor)
-            cockpit.go_rel({ page: 'journal-entry',
-                             c: cursor });
+            cockpit.go_rel('journal-entry', { c: cursor });
     }
 };
 

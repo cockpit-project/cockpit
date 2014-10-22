@@ -242,7 +242,7 @@ PageAccounts.prototype = {
     },
 
     go: function (user) {
-        cockpit.go_rel({ page: 'account', id: user });
+        cockpit.go_rel('account', { id: user });
     }
 };
 
@@ -838,7 +838,7 @@ PageAccountConfirmDelete.prototype = {
                                                        cockpit.show_unexpected_error(error);
                                                });
         $('#account-confirm-delete-dialog').modal('hide');
-        cockpit.go_rel({ page: "accounts" });
+        cockpit.go_rel("accounts");
     }
 };
 

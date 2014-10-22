@@ -91,7 +91,7 @@ EOF
 sed -i -e 's/gpgcheck=1/gpgcheck=0/' mock/$os-$arch-cockpit.cfg
 touch -r /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
 
-if /usr/bin/mock $mock_opts $mock_clean_opts --configdir=mock/ \
+if LANG=C /usr/bin/mock $mock_opts $mock_clean_opts --configdir=mock/ \
 	--resultdir mock -r $os-$arch-cockpit $srpm \
 	--define="extra_flags $EXTRA_FLAGS"; then
     grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" mock/build.log | while read l; do

@@ -18,6 +18,9 @@
 
 set -e
 
+LANG=C
+export LANG
+
 if which "parallel" >/dev/null 2>/dev/null; then
   RUNNER="parallel --gnu --progress -j ${TEST_JOBS:-1}"
 else

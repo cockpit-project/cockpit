@@ -554,6 +554,7 @@ cockpit.pages.push(new PageServices());
 PageService.prototype = {
     _init: function() {
         this.id = "service";
+        this.section_id = "services";
     },
 
     getTitle: function() {

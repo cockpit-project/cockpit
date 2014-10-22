@@ -958,6 +958,7 @@ cockpit.pages.push(new PageSearchImage());
 PageContainerDetails.prototype = {
     _init: function() {
         this.id = "container-details";
+        this.section_id = "containers";
         this.terminal = null;
     },
 
@@ -1237,6 +1238,7 @@ cockpit.pages.push(new PageContainerDetails());
 PageImageDetails.prototype = {
     _init: function() {
         this.id = "image-details";
+        this.section_id = "containers";
     },
 
     getTitle: function() {

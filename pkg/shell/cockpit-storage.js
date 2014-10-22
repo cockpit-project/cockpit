@@ -1173,6 +1173,7 @@ function get_free_block_devices(client, filter)
 PageStorageDetail.prototype = {
     _init: function() {
         this.id = "storage-detail";
+        this.section_id = "storage";
         this.watched_objects = [ ];
     },
 

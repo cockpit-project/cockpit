@@ -65,30 +65,30 @@
               </ul>
             </li>
           </ul>
-          <ul class="nav navbar-nav navbar-primary">
+          <ul class="nav navbar-nav navbar-primary" id="content-navbar">
             <li>
-              <a onclick="cockpit.go_rel('dashboard')">
+              <a data-page-id="dashboard">
                 <img src="images/switcher.png">
-                <span style="margin-left:1em" id="nav-hostname"></span>
+                <span style="margin-left:1em" id="content-navbar-hostname"></span>
               </a>
             </li>
             <li>
-              <a onclick="cockpit.go_rel('server')">Dashboard</a>
+              <a data-page-id="server">Dashboard</a>
             </li>
             <li>
-              <a onclick="cockpit.go_rel('services')">Services</a>
+              <a data-page-id="services">Services</a>
             </li>
             <li>
-              <a onclick="cockpit.go_rel('journal')">Journal</a>
+              <a data-page-id="journal">Journal</a>
             </li>
             <li>
-              <a onclick="cockpit.go_rel('networking')">Networking</a>
+              <a data-page-id="networking">Networking</a>
             </li>
             <li>
-              <a onclick="cockpit.go_rel('storage')">Storage</a>
+              <a data-page-id="storage">Storage</a>
             </li>
             <li>
-              <a onclick="cockpit.go_rel('containers')">Containers</a>
+              <a data-page-id="containers">Containers</a>
             </li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -97,10 +97,10 @@
               </a>
               <ul class="dropdown-menu">
                 <li>
-                  <a onclick="cockpit.go_rel('accounts')">Administrator accounts</a>
+                  <a data-page-id="accounts">Administrator accounts</a>
                 </li>
                 <li>
-                  <a onclick="cockpit.go_rel('terminal')">Terminal</a>
+                  <a data-page-id="terminal">Terminal</a>
                 </li>
                 <li>
                   <a data-toggle="modal" data-target="#shutdown-dialog">Shutdown and Reboot</a>

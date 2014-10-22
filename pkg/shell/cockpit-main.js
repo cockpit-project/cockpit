@@ -195,6 +195,10 @@ function content_init() {
         page_leave($(this).attr("id"));
     });
 
+    $('#content-navbar a[data-page-id]').click(function () {
+        cockpit.go_rel($(this).attr('data-page-id'));
+    });
+
     $(window).on('hashchange', function () {
         var hash = get_window_location_hash();
         if (hash != current_hash) {
@@ -272,10 +276,15 @@ function update_global_nav() {
     if (nav_manager)
         hostname = cockpit.util.hostname_for_display(nav_manager);
 
-    if (cockpit.loc)
-        page_title = get_page_title(cockpit.loc.page);
+    $('#content-navbar-hostname').text(hostname);
 
-    $('#nav-hostname').text(hostname);
+    $('#content-navbar > li').removeClass('active');
+    if (cockpit.loc) {
+        var page = cockpit.page_from_id(cockpit.loc.page);
+        var section_id = page.section_id || page.id;
+        page_title = page.getTitle();
+        $('#content-navbar > li').has('a[data-page-id="' + section_id + '"]').addClass('active');
+    }
 
     var doc_title;
     if (hostname && page_title)
@@ -415,11 +424,6 @@ function page_show(id) {
         }
     }
     phantom_checkpoint ();
-}
-
-function get_page_title(id) {
-    var page = cockpit.page_from_id(id);
-    return page? page.getTitle() : _("Unknown Page");
 }
 
 cockpit.get_page_param = function get_page_param(key) {

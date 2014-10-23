@@ -1580,7 +1580,6 @@ resource_response_done (ResourceResponse *rr,
 
   /* The web response should not yet be complete */
   state = cockpit_web_response_get_state (rr->response);
-  g_return_if_fail (state < COCKPIT_WEB_RESPONSE_COMPLETE);
 
   if (problem == NULL)
     {

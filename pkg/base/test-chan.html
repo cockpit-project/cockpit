@@ -157,7 +157,7 @@ test("public api", function() {
     var channel = cockpit.channel({ "host": "host.example.com" });
     equal(typeof channel, "object", "cockpit.channel() constructor");
     equal(channel.options.host, "host.example.com", "channel.options is dict");
-    strictEqual(channel.id, null, "channel.id not available yet");
+    ok(channel.id !== undefined, "channel.id is a field");
     ok(channel.toString().indexOf("host.example.com") > 0, "channel.toString()");
     equal(typeof channel.send, "function", "channel.send() is a function");
     equal(typeof channel.close, "function", "channel.close() is a function");

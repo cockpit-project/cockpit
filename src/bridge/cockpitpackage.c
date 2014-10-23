@@ -632,12 +632,19 @@ cockpit_package_listing (JsonArray **json)
             {
               object = json_object_new ();
               id = json_array_new();
+
+              /* The actual package name always comes first */
               json_object_set_array_member (object, "id", id);
+              json_array_add_string_element (id, package->name);
+              g_hash_table_insert (ids, package, id);
+
               json_object_set_object_member (object, "manifest", json_object_ref (package->manifest));
               json_array_add_object_element (root, object);
-              g_hash_table_insert (ids, package, id);
             }
-          json_array_add_string_element (id, name);
+
+          /* Other ways to refer to the package */
+          if (!g_str_equal (name, package->name))
+              json_array_add_string_element (id, name);
         }
 
       g_list_free (names);

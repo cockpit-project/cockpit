@@ -714,7 +714,7 @@ expand_variables (const gchar *variable,
     }
   else
     {
-      return g_bytes_new_static ("", 0);
+      return g_bytes_new (variable, strlen (variable));
     }
 }
 

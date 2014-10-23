@@ -23,6 +23,7 @@ baseimages_DATA = \
 
 base_TESTS = \
 	 pkg/base/test-chan.html \
+	 pkg/base/test-no-jquery.html \
 	 pkg/base/test-spawn.html \
 	 pkg/base/test-spawn-proc.html \
 	 $(NULL)

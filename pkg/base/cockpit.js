@@ -22,7 +22,7 @@ var mock = mock || { };
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
-(function(cockpit, $) {
+(function(cockpit) {
 "use strict";
 
 if (typeof window.debugging === "undefined") {
@@ -31,12 +31,9 @@ if (typeof window.debugging === "undefined") {
         window.debugging = match[1];
 }
 
-/*
- * User and system information
+/* -------------------------------------------------------------------------
+ * Host discovery
  */
-
-cockpit.user = { };
-cockpit.info = { };
 
 /*
  * TODO: We will expose standard client side url composability
@@ -76,7 +73,7 @@ function get_page_param(key) {
     return loc[key];
 }
 
-/*
+/* -------------------------------------------------------------------------
  * Channels
  *
  * Public: https://files.cockpit-project.org/guide/api-cockpit.html
@@ -85,12 +82,42 @@ function get_page_param(key) {
 var default_transport = null;
 var reload_after_disconnect = false;
 var expect_disconnect = false;
+var init_callback = null;
 
-$(window).on('beforeunload', function() { expect_disconnect = true; });
+window.addEventListener('beforeunload', function() {
+    expect_disconnect = true;
+}, false);
 
 function transport_debug() {
     if (window.debugging == "all" || window.debugging == "channel")
         console.debug.apply(console, arguments);
+}
+
+function event_mixin(obj, handlers) {
+    obj.addEventListener = function addEventListener(type, handler) {
+        if (handlers[type] === undefined)
+            handlers[type] = [ ];
+        handlers[type].push(handler);
+    };
+    obj.removeEventListener = function removeEventListener(type, handler) {
+        var length = handlers[type] ? handlers[type].length : 0;
+        for (var i = 0; i < length; i++) {
+            if (handlers[type][i] == handler) {
+                handlers[type][i] = null;
+                break;
+            }
+        }
+    };
+    obj.dispatchEvent = function dispatchEvent(event) {
+        var type = event.type;
+        if (typeof obj['on' + type] === "function")
+            obj['on' + type].apply(obj, arguments);
+        var length = handlers[type] ? handlers[type].length : 0;
+        for (var i = 0; i < length; i++) {
+            if (handlers[type][i])
+                handlers[type][i].apply(obj, arguments);
+        }
+    };
 }
 
 function calculate_url() {
@@ -111,26 +138,35 @@ function calculate_url() {
 function Transport() {
     var self = this;
 
+    /* We can trigger events */
+    event_mixin(self, { });
+
     var last_channel = 0;
     var channel_seed = "";
-
-    var ws_loc = calculate_url();
-    if (!ws_loc)
-        return;
 
     if (window.mock)
         window.mock.last_transport = self;
 
+    var ws_loc = calculate_url();
+
     transport_debug("Connecting to " + ws_loc);
 
     var ws;
-    if ("WebSocket" in window) {
-        ws = new WebSocket(ws_loc, "cockpit1");
-    } else if ("MozWebSocket" in window) { // Firefox 6
-        ws = new MozWebSocket(ws_loc);
-    } else {
-        console.error("WebSocket not supported, application will not work!");
-        return;
+    if (ws_loc) {
+        if ("WebSocket" in window) {
+            ws = new WebSocket(ws_loc, "cockpit1");
+        } else if ("MozWebSocket" in window) { // Firefox 6
+            ws = new MozWebSocket(ws_loc);
+        } else {
+            console.error("WebSocket not supported, application will not work!");
+        }
+    }
+
+    if (!ws) {
+        ws = { close: function() { } };
+        window.setTimeout(function() {
+            self.close({"reason": "no-cockpit"});
+        }, 50);
     }
 
     var control_cbs = { };
@@ -151,7 +187,9 @@ function Transport() {
     function ready_for_channels() {
         if (!self.ready) {
             self.ready = true;
-            $(self).triggerHandler("ready");
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent("ready", false, false, null);
+            self.dispatchEvent(event);
         }
     }
 
@@ -220,20 +258,14 @@ function Transport() {
 
         if (options["channel-seed"])
             channel_seed = ":" + String(options["channel-seed"]);
-        if (options.user)
-            $.extend(cockpit.user, options.user);
-        if (options.system)
-            $.extend(cockpit.info, options.system);
 
         if (waiting_for_init) {
             waiting_for_init = false;
             ready_for_channels();
         }
 
-        if (options.user)
-            $(cockpit.user).trigger("changed");
-        if (options.system)
-            $(cockpit.info).trigger("changed");
+        if (init_callback)
+            init_callback(options);
     }
 
     function process_control(data) {
@@ -317,7 +349,7 @@ function ensure_transport(callback) {
     if (transport.ready) {
         callback(transport);
     } else {
-        $(default_transport).on("ready", function() {
+        transport.addEventListener("ready", function() {
             callback(transport);
         });
     }
@@ -325,6 +357,9 @@ function ensure_transport(callback) {
 
 function Channel(options) {
     var self = this;
+
+    /* We can trigger events */
+    event_mixin(self, { });
 
     var transport;
     var valid = true;
@@ -337,17 +372,25 @@ function Channel(options) {
     self.id = id;
 
     function on_message(payload) {
-        $(self).triggerHandler("message", payload);
+        var event = document.createEvent("CustomEvent");
+        event.initCustomEvent("message", false, false, payload);
+        self.dispatchEvent(event, payload);
+    }
+
+    function on_close(data) {
+        self.valid = valid = false;
+        if (transport && id)
+            transport.unregister(id);
+        var event = document.createEvent("CustomEvent");
+        event.initCustomEvent("close", false, false, data);
+        self.dispatchEvent(event, data);
     }
 
     function on_control(data) {
-        if (data.command == "close") {
-            self.valid = valid = false;
-            transport.unregister(id);
-            $(self).triggerHandler("close", data);
-        } else {
+        if (data.command == "close")
+            on_close(data);
+        else
             console.log("unhandled control message: '" + data.command + "'");
-        }
     }
 
     ensure_transport(function(trans) {
@@ -366,7 +409,10 @@ function Channel(options) {
             "command" : "open",
             "channel": id
         };
-        $.extend(command, options);
+        for (var i in options) {
+            if (options.hasOwnProperty(i) && command[i] === undefined)
+                command[i] = options[i];
+        }
         if (command.host === undefined)
             command.host = get_page_param('machine');
         transport.send_control(command);
@@ -389,17 +435,15 @@ function Channel(options) {
         self.valid = valid = false;
         if (!options)
             options = { };
-        else if (!$.isPlainObject(options))
+        else if (typeof options == "string")
             options = { "reason" : options + "" };
-        $.extend(options, {
-            "command" : "close",
-            "channel": id
-        });
+        options["command"] = "close";
+        options["channel"] = id;
         if (transport) {
             transport.send_control(options);
             transport.unregister(id);
         }
-        $(self).triggerHandler("close", options);
+        on_close(options);
     };
 
     self.toString = function toString() {
@@ -438,99 +482,124 @@ cockpit.transport = {
     }
 };
 
-/*
- * Spawning
- *
- * Public: https://files.cockpit-project.org/guide/api-cockpit.html
- */
+function full_scope(cockpit, $) {
 
-function ProcessError(arg0, signal) {
-    var status = parseInt(arg0, 10);
-    if (arg0 !== undefined && isNaN(status)) {
-        this.problem = arg0;
-        this.exit_status = NaN;
-        this.exit_signal = null;
-        this.message = arg0;
-    } else {
-        this.exit_status = status;
-        this.exit_signal = signal;
-        this.problem = null;
-        if (this.exit_signal)
-            this.message = "Process killed with signal " + this.exit_signal;
-        else
-            this.message = "Process exited with code " + this.exit_status;
-    }
-    this.toString = function() {
-        return this.message;
+    /* ---------------------------------------------------------------------
+     * User and system information
+     */
+
+    cockpit.user = { };
+    cockpit.info = { };
+    init_callback = function(options) {
+        if (options.user)
+            $.extend(cockpit.user, options.user);
+        if (options.system)
+            $.extend(cockpit.info, options.system);
+        if (options.user)
+            $(cockpit.user).trigger("changed");
+        if (options.system)
+            $(cockpit.info).trigger("changed");
     };
-}
 
-function spawn_debug() {
-    if (window.debugging == "all" || window.debugging == "spawn")
-        console.debug.apply(console, arguments);
-}
 
-/* public */
-cockpit.spawn = function(command, options) {
-    var dfd = new $.Deferred();
+    /* ---------------------------------------------------------------------
+     * Spawning
+     *
+     * Public: https://files.cockpit-project.org/guide/api-cockpit.html
+     */
 
-    var args = { "payload": "text-stream", "spawn": [] };
-    if (command instanceof Array) {
-        for (var i = 0; i < command.length; i++)
-            args["spawn"].push(String(command[i]));
-    } else {
-        args["spawn"].push(String(command));
-    }
-    if (options !== undefined)
-        $.extend(args, options);
-
-    var channel = cockpit.channel(args);
-
-    /* Callbacks that want to stream response, see below */
-    var streamers = null;
-
-    var buffer = "";
-    $(channel).
-        on("message", function(event, payload) {
-            spawn_debug("process output:", payload);
-            buffer += payload;
-            if (streamers && buffer) {
-                streamers.fire(buffer);
-                buffer = "";
-            }
-        }).
-        on("close", function(event, options) {
-            spawn_debug("process closed:", JSON.stringify(options));
-            if (options.reason)
-                dfd.reject(new ProcessError(options.reason));
-            else if (options["exit-status"] || options["exit-signal"])
-                dfd.reject(new ProcessError(options["exit-status"], options["exit-signal"]));
+    function ProcessError(arg0, signal) {
+        var status = parseInt(arg0, 10);
+        if (arg0 !== undefined && isNaN(status)) {
+            this.problem = arg0;
+            this.exit_status = NaN;
+            this.exit_signal = null;
+            this.message = arg0;
+        } else {
+            this.exit_status = status;
+            this.exit_signal = signal;
+            this.problem = null;
+            if (this.exit_signal)
+                this.message = "Process killed with signal " + this.exit_signal;
             else
-                dfd.resolve(buffer);
-        });
+                this.message = "Process exited with code " + this.exit_status;
+        }
+        this.toString = function() {
+            return this.message;
+        };
+    }
 
-    var promise = dfd.promise();
-    promise.stream = function(callback) {
-        if (streamers === null)
-           streamers = $.Callbacks("" /* no flags */);
-        streamers.add(callback);
-        return this;
+    function spawn_debug() {
+        if (window.debugging == "all" || window.debugging == "spawn")
+            console.debug.apply(console, arguments);
+    }
+
+    /* public */
+    cockpit.spawn = function(command, options) {
+        var dfd = new $.Deferred();
+
+        var args = { "payload": "text-stream", "spawn": [] };
+        if (command instanceof Array) {
+            for (var i = 0; i < command.length; i++)
+                args["spawn"].push(String(command[i]));
+        } else {
+            args["spawn"].push(String(command));
+        }
+        if (options !== undefined)
+            $.extend(args, options);
+
+        var channel = cockpit.channel(args);
+
+        /* Callbacks that want to stream response, see below */
+        var streamers = null;
+
+        var buffer = "";
+        $(channel).
+            on("message", function(event, payload) {
+                spawn_debug("process output:", payload);
+                buffer += payload;
+                if (streamers && buffer) {
+                    streamers.fire(buffer);
+                    buffer = "";
+                }
+            }).
+            on("close", function(event, options) {
+                spawn_debug("process closed:", JSON.stringify(options));
+                if (options.reason)
+                    dfd.reject(new ProcessError(options.reason));
+                else if (options["exit-status"] || options["exit-signal"])
+                    dfd.reject(new ProcessError(options["exit-status"], options["exit-signal"]));
+                else
+                    dfd.resolve(buffer);
+            });
+
+        var promise = dfd.promise();
+        promise.stream = function(callback) {
+            if (streamers === null)
+               streamers = $.Callbacks("" /* no flags */);
+            streamers.add(callback);
+            return this;
+        };
+
+        promise.write = function(message) {
+            spawn_debug("process input:", message);
+            channel.send(message);
+            return this;
+        };
+
+        promise.close = function(reason) {
+            spawn_debug("process closing:", reason);
+            if (channel.valid)
+                channel.close(reason);
+            return this;
+        };
+
+        return promise;
     };
 
-    promise.write = function(message) {
-        spawn_debug("process input:", message);
-        channel.send(message);
-        return this;
-    };
+} /* full_scope */
 
-    promise.close = function(reason) {
-        spawn_debug("process closing:", reason);
-        if (channel.valid)
-            channel.close(reason);
-        return this;
-    };
+if (typeof jQuery !== "undefined")
+    full_scope(cockpit, jQuery);
 
-    return promise;
-};
-
-}(cockpit, jQuery));
+}(cockpit));

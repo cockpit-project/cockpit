@@ -70,6 +70,30 @@ asyncTest("directory", function() {
         });
 });
 
+asyncTest("error log", function() {
+    expect(2);
+    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"]).
+        done(function(resp) {
+            equal(resp, "hi\n", "error log produced no output");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "error log didn't fail");
+            start();
+        });
+});
+
+asyncTest("error output", function() {
+    expect(2);
+    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { error: "output" }).
+        done(function(resp) {
+            equal(resp, "hi\nyo\n", "error output showed up");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "error output didn't fail");
+            start();
+        });
+});
+
 QUnit.start();
 
 </script>

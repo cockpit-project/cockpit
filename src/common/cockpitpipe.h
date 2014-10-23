@@ -60,7 +60,8 @@ CockpitPipe *      cockpit_pipe_new          (const gchar *name,
 
 CockpitPipe *      cockpit_pipe_spawn        (const gchar **argv,
                                               const gchar **env,
-                                              const gchar *directory);
+                                              const gchar *directory,
+                                              gboolean output_stderr);
 
 CockpitPipe *      cockpit_pipe_pty          (const gchar **argv,
                                               const gchar **env,

@@ -990,11 +990,18 @@ on_pipe_stderr (gint fd,
   return keep;
 }
 
+static void
+stderr_to_stdout (gpointer data)
+{
+  dup2 (1, 2);
+}
+
 /**
  * cockpit_pipe_spawn:
  * @argv: null terminated string array of command arguments
  * @env: optional null terminated string array of child environment
  * @directory: optional working directory of child process
+ * @output_stderr: include stderr in the output stream
  *
  * Launch a child process and create a CockpitPipe for it. Standard
  * in and standard out are connected to the pipe. Standard error
@@ -1012,7 +1019,8 @@ on_pipe_stderr (gint fd,
 CockpitPipe *
 cockpit_pipe_spawn (const gchar **argv,
                     const gchar **env,
-                    const gchar *directory)
+                    const gchar *directory,
+                    gboolean output_stderr)
 {
   CockpitPipe *pipe = NULL;
   int session_stdin = -1;
@@ -1024,9 +1032,10 @@ cockpit_pipe_spawn (const gchar **argv,
   GPid pid = 0;
 
   g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
-                            calculate_spawn_flags (env), NULL, NULL,
+                            calculate_spawn_flags (env),
+                            output_stderr ? stderr_to_stdout : NULL, NULL,
                             &pid, &session_stdin, &session_stdout,
-                            &session_stderr, &error);
+                            output_stderr ? NULL : &session_stderr, &error);
 
   name = g_path_get_basename (argv[0]);
   if (name == NULL)

@@ -161,8 +161,8 @@ to code in the pkg/ subdirectory.
 Run this command from your top level Cockpit checkout directory, and make
 sure to run it as the user that you will using to log into Cockpit.
 
-    $ mkdir -p ~/.local/share
-    $ ln -s $(pwd)/pkg ~/.local/share/cockpit
+    $ mkdir -p ~/.local/share/cockpit
+    $ ln -s $(pwd)/pkg/* ~/.local/share/cockpit
 
 This will cause cockpit to read UI files directly from the Cockpit code
 pkg/ directory instead of using the installed Cockpit UI files. But

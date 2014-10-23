@@ -564,7 +564,7 @@ PageContainers.prototype = {
             tr = $('<tr id="' + id + '">').append(
                     $('<td class="image-col-tags">'),
                     $('<td class="image-col-created">'),
-                    $('<td class="image-col-size-graph">').append(cockpit.BarRow("container-images")),
+                    $('<td class="image-col-size-graph">'),
                     $('<td class="image-col-size-text">'),
                     $('<td class="cell-buttons">').append(button));
             tr.on('click', function(event) {

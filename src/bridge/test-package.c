@@ -82,10 +82,10 @@ test_listing (TestCase *tc,
   cockpit_assert_json_eq (json,
                           "["
                           " {"
-                          "  \"id\": [\"$2362deb82fad54aca51092c505a5660ac6c45a9f\",\"one\",\"second\",\"two\"],"
+                          "  \"id\": [\"second\", \"$2362deb82fad54aca51092c505a5660ac6c45a9f\",\"one\",\"two\"],"
                           "  \"manifest\": { \"description\": \"second dummy description\"}"
                           " },{"
-                          "  \"id\": [ \"$fec489a692ee808950f34f6c519803aed65e1849\", \"test\" ],"
+                          "  \"id\": [ \"test\", \"$fec489a692ee808950f34f6c519803aed65e1849\" ],"
                           "  \"manifest\" : { \"description\" : \"dummy\"}"
                           " },{"
                           "  \"id\": [ \"another\", \"marmalade\" ],"
@@ -261,7 +261,7 @@ test_list_bad_name (TestCase *tc,
   cockpit_assert_json_eq (json,
                           "["
                           " {"
-                          "  \"id\": [ \"$248b261c112455057b51827f3f63380159e27338\", \"ok\" ],"
+                          "  \"id\": [ \"ok\", \"$248b261c112455057b51827f3f63380159e27338\" ],"
                           "  \"manifest\": { }"
                           " }"
                           "]");

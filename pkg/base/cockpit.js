@@ -31,6 +31,14 @@ if (typeof window.debugging === "undefined") {
         window.debugging = match[1];
 }
 
+function BasicError(problem) {
+    this.problem = problem;
+    this.message = problem;
+    this.toString = function() {
+        return this.message;
+    };
+}
+
 /* -------------------------------------------------------------------------
  * Host discovery
  */
@@ -482,6 +490,79 @@ cockpit.transport = {
     }
 };
 
+/* ----------------------------------------------------------------------------------
+ * Package Lookup
+ */
+
+var host_packages = { };
+
+function Package(names, pkg) {
+    this.name = names[0] || null;
+    this.checksum = null;
+    this.manifest = pkg.manifest || { };
+    this.manifest.alias = [];
+
+    var i, length = names.length;
+    for (i = 1; i < length; i++) {
+        if (names[i].indexOf("$") === 0)
+            this.checksum = names[i];
+        else
+            this.manifest.alias.push(names[i]);
+    }
+}
+
+function package_debug() {
+    if (window.debugging == "all" || window.debugging == "package")
+        console.debug.apply(console, arguments);
+}
+
+function build_packages(packages) {
+    var result = { };
+    package_debug("packages: ", packages);
+    for (var i = 0; i < packages.length; i++) {
+        var pkg = packages[i];
+        var names = pkg.id || [ ];
+        pkg = new Package(names, packages[i]);
+        for (var j = 0; j < names.length; j++)
+            result[names[j]] = pkg;
+        package_debug("package: ", pkg.name, pkg);
+    }
+    return result;
+}
+
+function package_table(host, callback) {
+    if (!host)
+        host = get_page_param('machine', 'server') || "localhost";
+    var table = host_packages[host];
+    if (table) {
+        callback(table, null);
+        return;
+    }
+    var channel = new Channel({ "host": host, "payload": "resource1" });
+    channel.onclose = function(event, options) {
+        if (options.reason) {
+            package_debug("package listing failed: " + options.reason);
+            callback(null, options.reason);
+        } else {
+            host_packages[host] = table = build_packages(options.packages || []);
+            callback(table, null);
+        }
+    };
+}
+
+function package_info(name, callback) {
+    var parts = name.split('@');
+    name = parts[0];
+    var host = parts[1];
+
+    package_table(host, function(table, problem) {
+        if (table && name in table)
+            callback(table[name], null);
+        else
+            callback(null, problem || "not-found");
+    });
+}
+
 function full_scope(cockpit, $) {
 
     /* ---------------------------------------------------------------------
@@ -501,6 +582,27 @@ function full_scope(cockpit, $) {
             $(cockpit.info).trigger("changed");
     };
 
+    /* ----------------------------------------------------------------------------
+     * Packages
+     *
+     * Public: XXXXXXXXX
+     */
+
+    cockpit.packages = {
+        lookup: function(name) {
+            var dfd = $.Deferred();
+            package_info(name, function(pkg, problem) {
+                if (problem) {
+                    package_debug("lookup failed: " + problem);
+                    dfd.reject(new BasicError(problem));
+                } else {
+                    package_debug("lookup succeeded: " + pkg.name);
+                    dfd.resolve(pkg);
+                }
+            });
+            return dfd.promise();
+        }
+    };
 
     /* ---------------------------------------------------------------------
      * Spawning

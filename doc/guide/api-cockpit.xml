@@ -275,6 +275,94 @@
     </variablelist>
   </refsection>
 
+  <refsection id="latest-packages">
+    <title>Package Info</title>
+
+    <para>Package information is available via this API, including access to package
+      manifest data.</para>
+
+    <refsection id="latest-packages-lookup">
+      <title>cockpit.packages.lookup()</title>
+<programlisting>
+ lookup = cockpit.packages.lookup(name)
+</programlisting>
+
+      <para>This function starts a lookup for information about the package called
+        <code>name</code>. The <code>name</code> argument may be a package name,
+        an alias, or a checksum. The information may be retrieved from a cache.</para>
+
+      <para>The return value is a
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        that will complete if the lookup happens successfully, or fail if there's a
+        problem.</para>
+    </refsection>
+
+    <refsection id="latest-packages-done">
+      <title>lookup.done()</title>
+<programlisting>
+ lookup.done(function(pkg) { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        method. It sets up a handler to be called when the package lookup finishes
+        successfully.</para>
+
+      <para>The <code>pkg</code> argument contains an object with package information,
+        containing the following fields.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>checksum</code></term>
+          <listitem><para>Checksum of the package or <code>null</code></para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>manifest</code></term>
+          <listitem><para>The package manifest as a javascript object.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>name</code></term>
+          <listitem><para>The canonical package name.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+    </refsection>
+
+    <refsection id="latest-packages-fail">
+      <title>lookup.fail()</title>
+<programlisting>
+ lookup.fail(function(exception) { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        It sets up a handler to be called when the package lookup fails.</para>
+
+      <para>The <code>exception</code> object passed to the handler will have the
+        following fields:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>problem</code></term>
+          <listitem><para>A <link linkend="latest-problems">problem code</link> string when
+            a problem occurred starting or communicating with the process. This is <code>null</code>
+            if the process exited or was terminated.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>If a package is not found, the <code>problem</code> code will be <code>"not-found"</code>.</para>
+    </refsection>
+
+    <refsection id="latest-packages-always">
+      <title>lookup.always()</title>
+<programlisting>
+ lookup.always(function() { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        It sets up a handler to be called when when the lookup completes, whether successfully or not.</para>
+    </refsection>
+
+  </refsection>
+
   <refsection id="latest-channels">
     <title>Raw Channels</title>
 

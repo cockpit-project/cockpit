@@ -72,7 +72,7 @@ static const Fixture expand_fixtures[] = {
   { "extra-at-after", "Test @@oh@@ su@@ff@ix", { "Test ", "marmalade", " su@@ff@ix", NULL } },
   { "unknown", "Test @@unknown@@ suffix", { "Test ", "@@unknown@@", " suffix", NULL } },
   { "lots", "Oh @@oh@@ says Scruffy @@empty@@ the @@Scruffy@@",
-      { "Oh ", "marmalade", " says Scruffy ", "", " the ", "janitor", NULL }
+      { "Oh ", "marmalade", " says Scruffy ", " the ", "janitor", NULL }
   },
 };
 

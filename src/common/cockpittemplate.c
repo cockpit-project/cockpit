@@ -120,7 +120,10 @@ cockpit_template_expand (GBytes *input,
                                               (GDestroyNotify)g_bytes_unref,
                                               g_bytes_ref (input));
         }
-      output = g_list_prepend (output, bytes);
+      if (g_bytes_get_size (bytes) > 0)
+        output = g_list_prepend (output, bytes);
+      else
+        g_bytes_unref (bytes);
 
       g_assert (after <= end);
       data = after;

@@ -183,7 +183,7 @@ test_expand (TestCase *tc,
   cockpit_assert_bytes_eq (queue.head->next->next->data, " here ", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->data, "another", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->next->data, " and ", -1);
-  cockpit_assert_bytes_eq (queue.head->next->next->next->next->next->data, "", -1);
+  cockpit_assert_bytes_eq (queue.head->next->next->next->next->next->data, "invalid", -1);
   g_assert (queue.head->next->next->next->next->next->next == NULL);
 
   while (!g_queue_is_empty (&queue))
@@ -207,7 +207,7 @@ test_expand_with_host (TestCase *tc,
   cockpit_assert_bytes_eq (queue.head->next->next->data, " here ", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->data, "another@host", -1);
   cockpit_assert_bytes_eq (queue.head->next->next->next->next->data, " and ", -1);
-  cockpit_assert_bytes_eq (queue.head->next->next->next->next->next->data, "", -1);
+  cockpit_assert_bytes_eq (queue.head->next->next->next->next->next->data, "invalid", -1);
   g_assert (queue.head->next->next->next->next->next->next == NULL);
 
   while (!g_queue_is_empty (&queue))

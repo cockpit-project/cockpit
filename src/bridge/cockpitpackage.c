@@ -314,12 +314,6 @@ read_package_manifest (const gchar *directory,
   gchar *filename;
   GBytes *bytes;
 
-  if (!validate_package (package))
-    {
-      g_warning ("package has invalid name: %s", package);
-      return NULL;
-    }
-
   filename = g_build_filename (directory, "manifest.json", NULL);
   mapped = g_mapped_file_new (filename, FALSE, &error);
   if (!mapped)
@@ -332,15 +326,22 @@ read_package_manifest (const gchar *directory,
     }
   else
     {
-      bytes = g_mapped_file_get_bytes (mapped);
-      manifest = cockpit_json_parse_bytes (bytes, &error);
-      g_bytes_unref (bytes);
+     if (!validate_package (package))
+       {
+         g_warning ("package has invalid name: %s", package);
+       }
+     else
+       {
+         bytes = g_mapped_file_get_bytes (mapped);
+         manifest = cockpit_json_parse_bytes (bytes, &error);
+         g_bytes_unref (bytes);
 
-      if (!manifest)
-        {
-          g_message ("%s: invalid manifest: %s", package, error->message);
-          g_clear_error (&error);
-        }
+         if (!manifest)
+           {
+             g_message ("%s: invalid manifest: %s", package, error->message);
+             g_clear_error (&error);
+           }
+       }
 
       g_mapped_file_unref (mapped);
     }

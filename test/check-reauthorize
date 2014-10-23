@@ -30,26 +30,24 @@ class TestReauthorize(MachineCase):
 
         self.start_cockpit()
 
-	self.login_and_go("internal")
-	b.wait_visible("#internal")
+	self.login_and_go("playground")
+	b.switch_to_frame("playground-localhost")
+
 	b.click(".cockpit-internal-reauthorize .btn")
 	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
 
 	self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
 
 	# Deauthorize
+	b.switch_to_parent_frame()
 	b.click(".cockpit-deauthorize-item a")
 	b.wait_in_text(".cockpit-deauthorize-status", 'deauthorized')
+
+	b.switch_to_frame("playground-localhost")
 
 	b.click(".cockpit-internal-reauthorize .btn")
 	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
 
 	self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: not-authorized')
-
-        # self.allow_journal_messages ("Returning error-response ... with reason .*",
-        #                     "pam_unix\(cockpit:auth\): authentication failure; .*",
-        #                     "pam_unix\(cockpit:auth\): check pass; user unknown",
-        #                     "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
-
 
 test_main()

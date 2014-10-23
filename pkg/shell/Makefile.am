@@ -28,7 +28,6 @@ shell_js_PARTS = \
 	pkg/shell/cockpit-journal-renderer.js \
 	pkg/shell/cockpit-accounts.js \
 	pkg/shell/cockpit-docker.js \
-	pkg/shell/cockpit-internal.js \
 	$(NULL)
 
 shell.js: $(shell_js_PARTS)
@@ -71,7 +70,6 @@ shellimages_DATA = \
 	pkg/shell/images/server-large.png \
 	pkg/shell/images/dialog-error.png \
 	pkg/shell/images/face-smile.png \
-	pkg/shell/images/hammer.gif \
 	pkg/shell/images/storage-disk.png \
 	pkg/shell/images/switcher.png \
 	$(NULL)

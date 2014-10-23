@@ -55,7 +55,7 @@ var cockpit = cockpit || { };
 
 (function($, cockpit) {
 
-var visited_pages = {};
+var visited_dialogs = {};
 
 cockpit.dbus = dbus;
 cockpit.set_watched_client = set_watched_client;
@@ -155,8 +155,17 @@ cockpit.dialogs = [];
  *     path: [ "storage-details" ],
  *     options: { type: "block", id: "/dev/vda" }
  *   }
+ *
+ * current_page_element is the HTML element for the current page.  For
+ * modern pages, it is a iframe.
+ *
+ * current_legacy_page is the Page object for the current page if it
+ * is a legacy page.  TODO: Remove this once there are no legacy pages
+ * anymore.
  */
 var current_params;
+var current_page_element;
+var current_legacy_page;
 
 var current_hash;
 var content_is_shown = false;
@@ -187,18 +196,26 @@ function content_init() {
 
     $('div[role="dialog"]').on('show.bs.modal', function() {
         current_visible_dialog = $(this).attr("id");
-        page_enter($(this).attr("id"));
+        dialog_enter($(this).attr("id"));
     });
     $('div[role="dialog"]').on('shown.bs.modal', function() {
-        page_show($(this).attr("id"));
+        dialog_show($(this).attr("id"));
     });
     $('div[role="dialog"]').on('hidden.bs.modal', function() {
         current_visible_dialog = null;
-        page_leave($(this).attr("id"));
+        dialog_leave($(this).attr("id"));
     });
 
+    /* For legacy pages
+     */
     $('#content-navbar a[data-page-id]').click(function () {
         cockpit.go_rel($(this).attr('data-page-id'));
+    });
+
+    /* For statically registered components
+     */
+    $('#content-navbar a[data-task-id]').click(function () {
+        cockpit.go_rel($(this).attr('data-task-id'));
     });
 
     $(window).on('hashchange', function () {
@@ -213,6 +230,7 @@ function content_init() {
 
     $(window).on('resize', function () {
         content_header_changed();
+        resize_current_iframe();
     });
 
     cockpit.content_refresh();
@@ -234,8 +252,8 @@ function content_show() {
 }
 
 function content_leave() {
-    if (current_params) {
-        page_leave(current_params.path[0]);
+    if (current_legacy_page) {
+        current_legacy_page.leave();
         leave_global_nav();
     }
     current_params = null;
@@ -281,11 +299,17 @@ function update_global_nav() {
     $('#content-navbar-hostname').text(hostname);
 
     $('#content-navbar > li').removeClass('active');
-    if (current_params) {
-        var page = cockpit.page_from_id(current_params.path[0]);
-        var section_id = page.section_id || page.id;
-        page_title = page.getTitle();
+    if (current_legacy_page) {
+        var section_id = current_legacy_page.section_id || current_legacy_page.id;
+        page_title = current_legacy_page.getTitle();
         $('#content-navbar > li').has('a[data-page-id="' + section_id + '"]').addClass('active');
+    } else if (current_page_element) {
+        // TODO: change notification
+        if (current_page_element[0].contentDocument)
+            page_title = current_page_element[0].contentDocument.title;
+        // TODO: hmm...
+        var task_id = current_params.path[0];
+        $('#content-navbar > li').has('a[data-task-id="' + task_id + '"]').addClass('active');
     }
 
     var doc_title;
@@ -301,40 +325,156 @@ function update_global_nav() {
     document.title = doc_title;
 }
 
+/* A map from path prefixes such as [ "tools" "terminal" ] to
+ * component description objects.  Such an object has the following
+ * fields:
+ *
+ * - pkg
+ * - entry
+ *
+ * The package to load and the file of that package to use as the
+ * entry point.
+ */
+var components = { };
+
+/* A map from host-plus-path-prefixes to page <iframe> objects.
+ */
+var page_iframes = { };
+
+/* A map from id to the page object, for legacy pages that
+ * have been visited already.
+ */
+var visited_legacy_pages = { };
+
+cockpit.register_component = function register_component(prefix, pkg, entry) {
+    var key = JSON.stringify(prefix);
+    components[key] = { pkg: pkg, entry: entry };
+};
+
+function get_page_iframe(params) {
+    /* Find the component that matches the longest prefix.  This
+     * determines the prefix we will use.
+     */
+    var prefix, key, comp;
+    for (var i = params.path.length; i >= 0; i--) {
+        prefix = params.path.slice(0,i);
+        key = JSON.stringify(prefix);
+        if (components[key]) {
+            comp = components[key];
+            break;
+        }
+    }
+
+    if (!comp)
+        return null;
+
+    /* Now find or create the iframe for it.
+     */
+
+    key = params.host + ":" + key;
+
+    var iframe = page_iframes[key];
+    if (!iframe) {
+        var host = params.host;
+        if (host == "localhost")
+            host = "local";
+        var name = "/" + encodeURIComponent(host) + "/" + prefix.map(encodeURIComponent).join("/");
+        iframe = $('<iframe class="container-frame">').
+            hide().
+            attr('name', name);
+        $('#content').append(iframe);
+        page_iframes[key] = iframe;
+        iframe.on('load', function () {
+            update_global_nav();
+        });
+    }
+
+    /* TODO: Load this from 'host'
+     */
+
+    var inner_params = { path: params.path.slice(prefix.length),
+                         options: $.extend({ '_host_': params.host }, params.options)
+                       };
+    iframe.attr('src', ("/cockpit/" + comp.pkg +
+                        "/" + comp.entry + cockpit.hash.encode(inner_params)));
+
+    return iframe;
+}
+
+function resize_current_iframe() {
+    if (current_page_element && !current_legacy_page) {
+        current_page_element.height(function() {
+            return $(window).height() - $(this).offset().top;
+        });
+    }
+}
+
+function legacy_page_from_id(id) {
+    var n;
+    for (n = 0; n < cockpit.pages.length; n++) {
+        if (cockpit.pages[n].id == id)
+            return cockpit.pages[n];
+    }
+    return null;
+}
+
+/* The go_params function is the main place where we deal with legacy
+ * pages.  TODO: Remove that.
+ */
+
 function go_params(params) {
     page_navigation_count += 1;
 
-    /* We support only legacy pages for now.  For them, params.path[0]
-     * is the old page id and the rest of path is ignored.  Everything
-     * else is in options.
+    var element = get_page_iframe(params);
+    var legacy_page = null;
+
+    /* Try to find a legacy page for path[0].
      */
+    if (!element) {
+        var id = params.path[0];
+        legacy_page = visited_legacy_pages[id];
+        if (!legacy_page) {
+            legacy_page = legacy_page_from_id(id);
+            if (legacy_page) {
+                legacy_page.setup();
+                visited_legacy_pages[id] = legacy_page;
+            }
+        }
+        if (legacy_page)
+            element = $('#' + id);
+    }
 
-    var page_id = params.path[0];
-
-    if ($('#' + page_id).length === 0) {
+    if (!element) {
         cockpit.go("localhost", [ "dashboard" ]);
         return;
     }
 
-    var old_page_id = current_params && current_params.path[0];
+    var old_element = current_page_element;
+    var old_legacy_page = current_legacy_page;
 
-    if (old_page_id) {
-        page_leave(old_page_id);
+    if (old_legacy_page)
+        old_legacy_page.leave();
+
+    if (old_element)
         leave_global_nav();
-    }
 
     $('#content-header-extra').empty();
     current_params = params;
+    current_page_element = element;
+    current_legacy_page = legacy_page;
+    resize_current_iframe();
     show_hash();
     enter_global_nav();
-    page_enter(page_id);
+    if (legacy_page)
+        legacy_page.enter();
 
-    if (old_page_id)
-        $('#' + old_page_id).hide();
-    $('#' + page_id).show();
+    if (old_element)
+        old_element.hide();
+    element.show();
     update_global_nav();
     content_header_changed();
-    page_show(page_id);
+    if (legacy_page)
+        legacy_page.show();
 }
 
 cockpit.go = function go(host, path, options) {
@@ -377,48 +517,44 @@ function go_hash(hash) {
     cockpit.go(host, params.path.slice(1), params.options);
 }
 
-cockpit.page_from_id = function page_from_id(id) {
+function dialog_from_id(id) {
     var n;
-    for (n = 0; n < cockpit.pages.length; n++) {
-        if (cockpit.pages[n].id == id)
-            return cockpit.pages[n];
-    }
     for (n = 0; n < cockpit.dialogs.length; n++) {
         if (cockpit.dialogs[n].id == id)
             return cockpit.dialogs[n];
     }
     return null;
-};
+}
 
-function page_enter(id) {
-    var page = cockpit.page_from_id(id);
+function dialog_enter(id) {
+    var dialog = dialog_from_id(id);
     var first_visit = true;
-    if (visited_pages[id])
+    if (visited_dialogs[id])
         first_visit = false;
 
-    if (page) {
-        // cockpit.debug("enter() for page with id " + id);
-        if (first_visit && page.setup)
-            page.setup();
-        page.enter();
+    if (dialog) {
+        // cockpit.debug("enter() for dialog with id " + id);
+        if (first_visit && dialog.setup)
+            dialog.setup();
+        dialog.enter();
     }
-    visited_pages[id] = true;
+    visited_dialogs[id] = true;
     phantom_checkpoint ();
 }
 
-function page_leave(id) {
-    var page = cockpit.page_from_id(id);
-    if (page) {
-        page.leave();
+function dialog_leave(id) {
+    var dialog = dialog_from_id(id);
+    if (dialog) {
+        dialog.leave();
     }
     phantom_checkpoint ();
 }
 
-function page_show(id) {
-    var page = cockpit.page_from_id(id);
-    if (page) {
+function dialog_show(id) {
+    var dialog = dialog_from_id(id);
+    if (dialog) {
         if (content_is_shown) {
-            page.show();
+            dialog.show();
         }
     }
     phantom_checkpoint ();
@@ -577,88 +713,10 @@ function PageDisconnected() {
 
 cockpit.dialogs.push(new PageDisconnected());
 
-/*
- * ----------------------------------------------------------------------------
- * TODO: Temporary hack to register pages that live in packages
- * The entireity of page building and componentizing needs reworking here.
- *
- * In particular, note that we have to squeeze in the concept of using
- * multiple frames for different servers.
- */
-
-function PageExternal(id, url, title) {
-    var self = this;
-    self.id = id;
-    self.title = title;
-    self.history = [ "" ];
-    self.history_pos = 0;
-
-    self.current = null;
-    self.frames = { };
-    self.body = $("<div>").attr("id", self.id).hide();
-    $("#content").append(self.body);
-
-    self.getTitle = function() { return self.title; };
-
-    /* Resize iframes to fill body */
-    function resize() {
-        if (self.current) {
-            self.current.height(function() {
-                return $(window).height() - $(this).offset().top;
-            });
-        }
-    }
-
-    $(window).on('resize', resize);
-
-    self.enter = function enter() {
-        /* TODO: This is total bullshit */
-        var server = cockpit.get_page_machine();
-        if (!server)
-            server = "localhost";
-        var frame = self.frames[server];
-        if (!frame) {
-            /* TODO: This assumes a prefix of length 1. */
-            var params = { path: current_params.path.slice(1),
-                           options: $.extend({ '_host_': server }, current_params.options)
-                         };
-            /* TODO: This *still* only loads packages from localhost */
-            frame = $(document.createElement("iframe"));
-            frame.addClass("container-frame").
-                attr("name", id + "-" + server).
-                hide().attr("src", url + cockpit.hash.encode(params));
-            self.body.append(frame);
-            self.frames[server] = frame;
-        }
-        if (frame != self.current) {
-            if (self.current)
-                self.current.hide();
-            self.current = frame;
-            self.current.show();
-        }
-        resize();
-    };
-
-    self.show = function show() {
-        if (self.current)
-            self.current.focus();
-        resize();
-    };
-
-    self.leave = function() { };
-}
-
-
 /* Initialize cockpit when page is loaded */
 $(function() {
-    /* TODO: for now bring in component package pages */
-    var terminal = new PageExternal("terminal", "/cockpit/@@server@@/terminal.html",
-            C_("page-title", "Rescue Terminal"));
-    cockpit.pages.push(terminal);
-
-    var playground = new PageExternal("playground", "/cockpit/@@playground@@/test.html",
-            C_("page-title", "Playground"));
-    cockpit.pages.push(playground);
+    cockpit.register_component([ "terminal" ], "terminal", "terminal.html");
+    cockpit.register_component([ "playground" ], "playground", "test.html");
 
     /* Initialize the rest of Cockpit */
     init();

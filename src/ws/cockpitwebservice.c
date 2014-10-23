@@ -93,6 +93,9 @@ typedef struct
   CockpitCreds *creds;
   GHashTable *packages;
   gboolean init_received;
+  gulong control_sig;
+  gulong recv_sig;
+  gulong closed_sig;
 } CockpitSession;
 
 typedef struct
@@ -113,6 +116,12 @@ cockpit_session_free (gpointer data)
   if (session->timeout)
     g_source_remove (session->timeout);
   g_hash_table_unref (session->channels);
+  if (session->control_sig)
+    g_signal_handler_disconnect (session->transport, session->control_sig);
+  if (session->recv_sig)
+    g_signal_handler_disconnect (session->transport, session->recv_sig);
+  if (session->closed_sig)
+    g_signal_handler_disconnect (session->transport, session->closed_sig);
   g_object_unref (session->transport);
   g_hash_table_unref (session->packages);
   cockpit_creds_unref (session->creds);
@@ -894,10 +903,6 @@ on_session_closed (CockpitTransport *transport,
             }
         }
 
-      g_signal_handlers_disconnect_by_func (transport, on_session_control, self);
-      g_signal_handlers_disconnect_by_func (transport, on_session_recv, self);
-      g_signal_handlers_disconnect_by_func (transport, on_session_closed, self);
-
       primary = session->primary;
       cockpit_session_destroy (&self->sessions, session);
 
@@ -940,10 +945,10 @@ lookup_or_open_session_for_host (CockpitWebService *self,
                                 "host-key", host_key,
                                 NULL);
 
-      g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
-      g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
-      g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
       session = cockpit_session_track (&self->sessions, host, private, creds, transport);
+      session->control_sig = g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
+      session->recv_sig = g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
+      session->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
       g_object_unref (transport);
     }
 
@@ -1408,10 +1413,10 @@ cockpit_web_service_new (CockpitCreds *creds,
     {
       /* Any failures happen asyncronously */
       transport = cockpit_pipe_transport_new (pipe);
-      g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
-      g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
-      g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
       session = cockpit_session_track (&self->sessions, "localhost", FALSE, creds, transport);
+      session->control_sig = g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
+      session->recv_sig = g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
+      session->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
       session->primary = TRUE;
       g_object_unref (transport);
     }

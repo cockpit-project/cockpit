@@ -34,9 +34,21 @@ def wait_for_port (addr, port):
         tries += 1
     assert False
 
+def inject_extras(browser):
+    browser.eval_js("""
+    legacy_page_from_id = function (id) {
+      var n;
+      for (n = 0; n < cockpit.pages.length; n++) {
+        if (cockpit.pages[n].id == id)
+          return cockpit.pages[n];
+      }
+      return null;
+    }
+    """)
+
 def get_webapp_machines(browser):
     wm = { }
-    cockpit = browser.eval_js("return cockpit.page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
+    cockpit = browser.eval_js("return legacy_page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
     for i in range (0, len(cockpit)):
         wm[cockpit[i]] = i;
     return wm
@@ -87,7 +99,7 @@ class TestMultiMachine(MachineCase):
         def wait_dashboard_addresses(expected):
             b.wait_js_func(
                 """(function (expected) {
-                var page = cockpit.page_from_id('dashboard');
+                var page = legacy_page_from_id('dashboard');
                 var actual = page.dbus_clients.map(function (c) { return c.target });
                 return expected.sort().toString() == actual.sort().toString();
                 })""", expected)
@@ -108,6 +120,7 @@ class TestMultiMachine(MachineCase):
         wait_for_port(m3.address, 22)
 
         self.login_and_go("dashboard")
+        inject_extras(b)
         wait_dashboard_addresses ([ "localhost" ])
 
         add_machine(m2.address)

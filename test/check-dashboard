@@ -21,10 +21,22 @@
 from testlib import *
 
 class TestDashboard(MachineCase):
+    def inject_extras(self, b):
+        b.eval_js("""
+        legacy_page_from_id = function (id) {
+          var n;
+          for (n = 0; n < cockpit.pages.length; n++) {
+            if (cockpit.pages[n].id == id)
+              return cockpit.pages[n];
+          }
+          return null;
+        }
+        """)
+
     def wait_dashboard_addresses(self, b, expected):
         b.wait_js_func(
             """(function (expected) {
-            var page = cockpit.page_from_id('dashboard');
+            var page = legacy_page_from_id('dashboard');
             var actual = page.dbus_clients.map(function (c) { return c.target });
             return expected.sort().toString() == actual.sort().toString();
             })""", expected)
@@ -38,7 +50,7 @@ class TestDashboard(MachineCase):
 
     def get_address_map(self, b):
         map = { }
-        dash = b.eval_js("return cockpit.page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
+        dash = b.eval_js("return legacy_page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
         for i in range (0, len(dash)):
             map[dash[i]] = i;
         return map
@@ -71,6 +83,8 @@ class TestDashboard(MachineCase):
         b.default_user = "root"
 
         self.login_and_go("dashboard")
+        self.inject_extras(b)
+
         self.wait_dashboard_addresses (b, [ "localhost" ])
 
         # We don't bother to start multiple machines.  Instead, we add
@@ -93,6 +107,7 @@ class TestDashboard(MachineCase):
         b2 = self.new_browser()
         b2.default_user = "root"
         b2.login_and_go("dashboard")
+        self.inject_extras(b2)
         self.wait_dashboard_addresses (b2, [ m.address ])
 
         # Check that the two removed machines are listed in "Add Host"
@@ -144,6 +159,8 @@ class TestDashboard(MachineCase):
         # Sync them via Setup.
 
         self.login_and_go("dashboard")
+        self.inject_extras(b)
+
         self.wait_dashboard_addresses (b, [ "localhost" ])
         b.click('#dashboard-add-server')
         b.wait_popup('dashboard_setup_server_dialog')

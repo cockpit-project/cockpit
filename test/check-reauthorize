@@ -28,10 +28,7 @@ class TestReauthorize(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.start_cockpit()
-
-	self.login_and_go("playground")
-	b.switch_to_frame("playground-localhost")
+	self.login_and_go("/local/playground")
 
 	b.click(".cockpit-internal-reauthorize .btn")
 	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
@@ -43,7 +40,7 @@ class TestReauthorize(MachineCase):
 	b.click(".cockpit-deauthorize-item a")
 	b.wait_in_text(".cockpit-deauthorize-status", 'deauthorized')
 
-	b.switch_to_frame("playground-localhost")
+	b.switch_to_frame("/local/playground")
 
 	b.click(".cockpit-internal-reauthorize .btn")
 	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')

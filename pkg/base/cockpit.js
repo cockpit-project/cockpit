@@ -17,18 +17,31 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
 var mock = mock || { };
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
-(function(cockpit) {
+(function() {
 "use strict";
 
 if (typeof window.debugging === "undefined") {
     var match = /debugging=([^;]*)/.exec(document.cookie);
     if (match)
         window.debugging = match[1];
+}
+
+function in_array(array, val) {
+    var length = array.length;
+    for (var i = 0; i < length; i++) {
+        if (val === array[i])
+            return true;
+    }
+    return false;
+}
+
+/* HACK: http://web.mit.edu/jwalden/www/isArray.html */
+function is_array(it) {
+    return Object.prototype.toString.call(it) === '[object Array]';
 }
 
 function BasicError(problem) {
@@ -460,36 +473,6 @@ function Channel(options) {
     };
 }
 
-cockpit.channel = function channel(options) {
-    return new Channel(options);
-};
-
-cockpit.logout = function logout(reload) {
-    if (reload !== false)
-        reload_after_disconnect = true;
-    ensure_transport(function(transport) {
-        transport.send_control({ "command": "logout", "disconnect": true });
-    });
-};
-
-/* Not public API ... yet? */
-cockpit.drop_privileges = function drop_privileges() {
-    ensure_transport(function(transport) {
-        transport.send_control({ "command": "logout", "disconnect": false });
-    });
-};
-
-cockpit.transport = {
-    close: function close(reason) {
-        if (!default_transport)
-            return;
-        var options;
-        if (reason)
-            options = {"reason": reason };
-        default_transport.close(options);
-    }
-};
-
 /* ----------------------------------------------------------------------------------
  * Package Lookup
  */
@@ -562,6 +545,39 @@ function package_info(name, callback) {
             callback(null, problem || "not-found");
     });
 }
+
+function basic_scope(cockpit) {
+    cockpit.channel = function channel(options) {
+        return new Channel(options);
+    };
+
+    cockpit.logout = function logout(reload) {
+        if (reload !== false)
+            reload_after_disconnect = true;
+        ensure_transport(function(transport) {
+            transport.send_control({ "command": "logout", "disconnect": true });
+        });
+    };
+
+    /* Not public API ... yet? */
+    cockpit.drop_privileges = function drop_privileges() {
+        ensure_transport(function(transport) {
+            transport.send_control({ "command": "logout", "disconnect": false });
+        });
+    };
+
+    cockpit.transport = {
+        close: function close(reason) {
+            if (!default_transport)
+                return;
+            var options;
+            if (reason)
+                options = {"reason": reason };
+            default_transport.close(options);
+        }
+    };
+}
+
 
 function full_scope(cockpit, $) {
 
@@ -701,7 +717,474 @@ function full_scope(cockpit, $) {
 
 } /* full_scope */
 
-if (typeof jQuery !== "undefined")
-    full_scope(cockpit, jQuery);
+/* ----------------------------------------------------------------------------
+ * A simple AMD javascript loader
+ * - Used if no other AMD loader is available
+ */
 
-}(cockpit));
+(function(){
+
+    function loader_debug() {
+        if (window.debugging == "all" || window.debugging == "loader")
+            console.debug.apply(console, arguments);
+    }
+
+    var loader = {
+        /* A list of define() Module queued until a script or block has loaded */
+        defined: [ ],
+
+        /* Modules waiting for deps */
+        waiting: [ ],
+
+        /* defined id -> Module whether waiting or not */
+        modules: { },
+
+        /* requested id -> script tag */
+        scripts: { },
+
+        /* Cockpit specific packages */
+        packages: null,
+
+        /* Base url to load against */
+        base: undefined
+    };
+
+    function Module(id, dependencies, factory) {
+        this.id = id; /* module identifier or null if require() */
+        this.dependencies = dependencies; /* array of dependencies */
+
+        /* The factory function or exported value */
+        if (typeof factory == "function") {
+            this.factory = factory;   /* module callback function */
+            this.exports = undefined; /* what the module exports */
+            this.ready = false;       /* this.exports is valid? */
+        } else {
+            this.factory = undefined; /* no callback function */
+            this.exports = factory;   /* explicit prepared value */
+            this.ready = true;        /* already ready */
+        }
+    }
+
+    function canonicalize(id) {
+        if (id.indexOf("cockpit/") !== 0)
+            return id;
+        var parts = id.split("/");
+        var pkg = loader.packages[parts[1]];
+        if (pkg && pkg.name)
+            parts[1] = pkg.name;
+        return parts.join("/");
+    }
+
+    /* Qualify a possibly relative path with base */
+    function qualify(path, base) {
+        if (!path)
+            return null;
+
+        /* Add to base if necessary */
+        if (path[0] == '.') {
+            if (!base)
+                return null;
+            var pos = base.lastIndexOf('/');
+            if (pos != -1)
+                path = base.substring(0, pos + 1) + path;
+        }
+
+        /* Resolve dots and double dots */
+        var out = [ ];
+        var parts = path.split("/");
+        var length = parts.length;
+        for (var i = 0; i < length; i++) {
+            var part = parts[i];
+            if (part === "" || part == ".") {
+                continue;
+            } else if (part == "..") {
+                if (out.length === 0)
+                    return null;
+                out.pop();
+            } else {
+                out.push(part);
+            }
+        }
+
+        return out.join("/");
+    }
+
+    /* Qualify an array of possibly relative paths */
+    function qualify_all(ids, base) {
+        return ids.map(function(id) {
+            var out = qualify(id, base);
+            if (!out)
+                throw "failed to qualify relative module id: " + id;
+            return out;
+        });
+    }
+
+    function resolve_url(id) {
+        var base = loader.base;
+        if (window.mock && window.mock.loader_base)
+            base = window.mock.loader_base;
+
+        /* Special jquery path, go figure */
+        if (id == "jquery")
+            id = "cockpit/base/jquery";
+
+        /* Not a cockpit path */
+        if (id.indexOf("cockpit/") !== 0) {
+            return base + id + ".js";
+
+        } else {
+            var parts = id.split("/");
+            var pkg = loader.packages[parts[1]];
+            if (pkg) {
+                if (pkg.checksum)
+                    parts[1] = pkg.checksum;
+                else if (pkg.name)
+                    parts[1] = pkg.name;
+            }
+            return base + parts.join("/") + ".js";
+        }
+    }
+
+    /* Create a script tag for the given module id */
+    function load_script(id) {
+        var url = resolve_url(id);
+        var script = loader.scripts[id];
+        if (!script)
+            script = loader.scripts[url];
+        if (script) {
+            if (script.loaded)
+                throw "script loaded but didn't define module " + id + ": " + script.src;
+            return;
+        }
+
+        loader_debug("loading " + url + " for " + id);
+        script = document.createElement("script");
+        script.loaded = false;
+        script.async = true;
+        script.type = 'text/javascript';
+        script.src = url;
+
+        var timeout;
+        script.onload = function() {
+            process_defined(id, url);
+            script.loaded = true;
+            window.clearTimeout(timeout);
+            timeout = null;
+        };
+        script.onerror = function() {
+            if (!script.loaded)
+                console.warn("script loading failed: " + url);
+            window.clearTimeout(timeout);
+            timeout = null;
+        };
+        timeout = window.setTimeout(function() {
+            if (!script.loaded)
+                console.warn("script loading timed out: " + url);
+            timeout = null;
+        }, 7000);
+
+        document.head.appendChild(script);
+        loader.scripts[id] = loader.scripts[url] = script;
+    }
+
+    /* Load dependencies if necessary */
+    function check_dependencies(dependencies, loadable, seen) {
+        var present = true;
+        var length = dependencies.length;
+        for (var i = 0; i < length; i++) {
+            var id = dependencies[i] = canonicalize(dependencies[i]);
+            if (id == "require" || id == "exports" || id == "module")
+                continue;
+
+            if (id in seen)
+                continue;
+            seen[id] = id;
+
+            var dependency = loader.modules[id];
+            if (dependency) {
+                if (!check_dependencies(dependency.dependencies, loadable, seen))
+                    present = false;
+            } else {
+                present = false;
+                if (loadable)
+                    load_script(id);
+            }
+        }
+        return present;
+    }
+
+    /* Load dependencies if necessary */
+    function ensure_dependencies(module, dependencies, number, seen, loadable) {
+        if (!loader.packages)
+            return null;
+
+        if (!check_dependencies(dependencies, loadable, { }))
+            return null;
+
+        var result = [ ];
+        var length = dependencies.length;
+        var had_require = false;
+
+        /* First make sure we can resolve everything */
+        for (var i = 0; i < length; i++) {
+            var id = dependencies[i];
+
+            /* A bad id, already warned */
+            if (!id) {
+                result.push(null);
+
+            /* Special id 'require' defined by AMD */
+            } else if (id == "require") {
+                var func = function require_local(arg0, arg1) {
+                    return require_with_context(module, arg0, arg1);
+                };
+                func.toUrl = function(str) {
+                    return qualify(str, module.id);
+                };
+                result.push(func);
+                had_require = true;
+
+            /* Special id 'exports' defined by AMD */
+            } else if (id == "exports") {
+                module.exports = { };
+                result.push(module.exports);
+
+            /* Special id 'module' defined by AMD */
+            } else if (id == "module") {
+                result.push({ id: module.id });
+
+            /* A circular dependency */
+            } else if (in_array(seen, id)) {
+                loader_debug("circular dependency with " + module.id + " and " + id);
+                result.push(null);
+
+            /* A normal module dependency */
+            } else {
+                var dependency = loader.modules[id];
+
+                /* A dependency that is called using another require('module') */
+                if (had_require && i >= number) {
+                    result.push(null);
+
+                /* A dependency passed in as an argument */
+                } else {
+                    var exports = ensure_module(dependency, seen);
+                    result.push.apply(result, exports);
+                }
+            }
+        }
+
+        /* If we return null, then dependencies not ready yet */
+        return result;
+    }
+
+    function ensure_module(module, seen) {
+        if (module.id)
+            seen.push(module.id);
+
+        /* Already have a value for this module */
+        if (module.ready)
+            return [ module.exports ];
+
+        /* The number of arguments required? */
+        var number = module.factory.length;
+
+        /* Try to figure out dependency arguments */
+        var args = ensure_dependencies(module, module.dependencies, number, seen, true);
+        if (args === null) {
+            loader.waiting.push(module);
+            return null;
+        }
+
+        /* Ready to run the module factory */
+        var factory = module.factory;
+        module.factory = null;
+        module.ready = true;
+
+        /* This may throw an exception */
+        var exports = factory.apply(window, args);
+        if (exports !== undefined)
+            module.exports = exports;
+
+        if (typeof module.exports == "function")
+            loader_debug("executed " + module.id + " = function " + module.exports.name);
+        else if (typeof module.exports == "undefined")
+            loader_debug("executed " + module.id);
+        else
+            loader_debug("executed " + module.id + " = " + module.exports);
+
+        if (module.id)
+            seen.pop();
+
+        /* Anything that this module factory did require() or define()? */
+        process_defined(module.id, module.url);
+
+        return [ module.exports ];
+    }
+
+    function process_waiting() {
+        var waiting = loader.waiting;
+        loader.waiting = [];
+        var length = waiting.length;
+        for (var i = 0; i < length; i++)
+            ensure_module(waiting[i], [ ]);
+    }
+
+    function process_defined(id, url) {
+        var modules = loader.defined;
+        loader.defined = [];
+
+        var i, module, length = modules.length;
+        for (i = 0; i < length; i++) {
+            module = modules[i];
+
+            /* We now know the id of the anonymous define() module */
+            if (module.id === undefined)
+                module.id = id;
+
+            module.id = canonicalize(module.id);
+            if (loader.modules[module.id]) {
+                console.warn("module " + module.id + " is a duplicate");
+                continue;
+            }
+
+            module.url = url;
+            if (url)
+                loader_debug("module " + module.id + " in " + url);
+            else
+                loader_debug("module " + module.id);
+
+            module.dependencies = qualify_all(module.dependencies, module.id);
+            loader.modules[module.id] = module;
+        }
+
+        process_waiting();
+    }
+
+    function require_with_context(context, arg0, arg1) {
+        if (context === null)
+            context = new Module(null, null, []);
+
+        /* require('string') */
+        if (typeof arg0 === "string") {
+            if (typeof arg1 !== "undefined")
+                throw "invalid require call";
+            var result = ensure_dependencies(context, [qualify(arg0, context.id)], undefined, [ ], false);
+            if (result === null)
+                throw "cannot syncronously require module: " + arg0;
+            return result[0];
+
+        /* require([dependencies], function callback() { }) */
+        } else {
+            if (!is_array(arg0) || typeof arg1 !== "function")
+                throw "invalid require call";
+            ensure_module(new Module(null, qualify_all(arg0, context.id), arg1), [ ]);
+            return undefined;
+        }
+    }
+
+    function define_module(id, dependencies, factory) {
+        if (typeof id !== 'string') {
+            factory = dependencies;
+            dependencies = id;
+            id = undefined;
+        }
+        if (!is_array(dependencies)) {
+            factory = dependencies;
+            dependencies = undefined;
+        }
+        if (typeof dependencies === "undefined")
+            dependencies = [ "require", "exports", "module" ];
+        loader.defined.push(new Module(id, dependencies, factory));
+    }
+
+    function prepare_startup() {
+        var id = null;
+        var path = window.location.pathname;
+        var pos = path.lastIndexOf("/");
+        if (path.indexOf("/cockpit") === 0 || pos <= 0) {
+            loader.base = "/";
+            id = path.substring(1, path.lastIndexOf("."));
+        } else {
+            loader.base = path.substring(0, pos + 1);
+        }
+
+        var started = false;
+        function process_start() {
+            if (!started) {
+                started = true;
+                package_table(null, function(packages, problem) {
+                    if (problem)
+                        console.warn("couldn't load cockpit package info: " + problem);
+                    loader.packages = packages || { };
+                    process_defined(id, null);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', process_start, false);
+        document.addEventListener('load', process_start, false);
+    }
+
+    if (!window.require && !window.define) {
+        prepare_startup();
+
+        window.require = function(arg0, arg1) {
+            require_with_context(null, arg0, arg1);
+        };
+
+        window.define = define_module;
+        window.define.amd = { "implementation": "cockpit" };
+    }
+
+}()); /* end AMD loader */
+
+/*
+ * Register this script as a module and/or with globals
+ */
+
+function loading_via_tag() {
+    var last = document.scripts[document.scripts.length - 1].src || "";
+    return (last.indexOf("/cockpit.js") !== -1 || last.indexOf("/cockpit.min.js") !== -1);
+}
+
+var cockpit = { };
+var basics = false;
+var extra = false;
+function factory(require) {
+    if (!basics) {
+        basic_scope(cockpit);
+        basics = true;
+    }
+    if (!extra) {
+        var jq = null;
+        if (typeof jQuery !== "undefined") {
+            jq = jQuery;
+        } else if (require) {
+            try {
+                jq = require("jquery");
+            } catch(ex) {
+                console.log("ignoring jquery dependency");
+                jq = null;
+            }
+        }
+        if (jq) {
+            full_scope(cockpit, jq);
+            extra = true;
+        }
+    }
+    return cockpit;
+}
+
+var module_id = null;
+if (loading_via_tag()) {
+    module_id = "cockpit/base/cockpit";
+
+    /* Traditional tags, we register the global */
+    window.cockpit = factory();
+}
+
+if (typeof define === 'function' && define.amd)
+    define(module_id, factory);
+
+})();

@@ -76,7 +76,7 @@ on_handle_stream_socket (CockpitWebServer *server,
   creds = cockpit_creds_new (g_get_user_name (),
                              NULL);
 
-  pipe = cockpit_pipe_spawn (argv, NULL, NULL);
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, FALSE);
   service = cockpit_web_service_new (creds, pipe);
   g_object_unref (pipe);
 

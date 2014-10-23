@@ -25,6 +25,11 @@ a {
     cursor: pointer;
 }
 
+/* HACK: https://github.com/patternfly/patternfly/issues/39 */
+code, kbd, pre, samp {
+  font-family: monospace, Menlo, Monaco, Consolas, "Courier New";
+}
+
 .dropdown-menu > .disabled > a:hover {
     cursor: default;
 }

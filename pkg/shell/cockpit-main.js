@@ -655,6 +655,10 @@ $(function() {
             C_("page-title", "Rescue Terminal"));
     cockpit.pages.push(terminal);
 
+    var playground = new PageExternal("playground", "/cockpit/@@playground@@/test.html",
+            C_("page-title", "Playground"));
+    cockpit.pages.push(playground);
+
     /* Initialize the rest of Cockpit */
     init();
 });

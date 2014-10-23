@@ -173,6 +173,7 @@ upload-doc:
 endif
 
 include pkg/base/Makefile.am
+include pkg/playground/Makefile.am
 include pkg/server/Makefile.am
 include pkg/shell/Makefile.am
 include src/bridge/Makefile.am

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cockpit terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../@@latest@@/jquery.js"></script>
+    <script src="../@@latest@@/cockpit.js"></script>
+</head>
+<body>
+    <div id="internal" class="container-fluid">
+        <img src="hammer.gif" style="float: right;" onclick="$(this).hide();">
+        <div class="cockpit-internal-reauthorize">
+            <button class="btn btn-default">Priveleged Action</button>
+            <span></span>
+        </div>
+    </div>
+<script>
+(function(cockpit, $) {
+    $(".cockpit-internal-reauthorize .btn").on("click", function() {
+         $(".cockpit-internal-reauthorize span").text("checking...");
+         var cmd = "pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1";
+         cockpit.spawn(["sh", "-c", cmd]).
+             stream(function(data) {
+                 console.debug(data);
+             }).
+             done(function() {
+                 $(".cockpit-internal-reauthorize span").text("result: authorized");
+             }).
+             fail(function() {
+                 $(".cockpit-internal-reauthorize span").text("result: not-authorized");
+             });
+         });
+}(cockpit, jQuery));
+</script>
+</body>
+</html>

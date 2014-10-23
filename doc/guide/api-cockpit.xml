@@ -12,6 +12,18 @@
   </refnamediv>
 
   <refsection>
+    <title>Loading cockpit.js</title>
+    <para><code>cockpit.js</code> should be loaded via a script tag. In general jQuery should
+      be loaded before <code>cockpit.js</code> as in the example below. If jQuery is not loaded
+      then only the <link linkend="latest-channels">raw channel API</link> will be defined.</para>
+
+<programlisting><![CDATA[
+  <script src="../@@latest@@/jquery.js">
+  <script src="../@@latest@@/cockpit.js">
+]]></programlisting>
+  </refsection>
+
+  <refsection>
     <title>User Login</title>
 
     <refsection id="latest-logout">
@@ -346,7 +358,8 @@
     <refsection id="latest-channels-message">
       <title>channel.onmessage</title>
 <programlisting>
- $(channel).on("message", function(data) { ... })
+ $(channel).on("message", function(event, data) { ... })
+ channel.addEventListener("message", function(event, data) { ... })
 </programlisting>
       <para>An event triggered when the channel receives a message. The message is
         passed as a string to the handler in the <code>data</code>. The contents of
@@ -357,6 +370,7 @@
       <title>channel.onclose</title>
 <programlisting>
  $(channel).on("close", function(options) { ... })
+ channel.addEventListener("close", function(event, options) { ... })
 </programlisting>
       <para>An event triggered when the channel closes. This can happen either because
         <link linkend="latest-channels-close">channel.close()</link> function was called,

@@ -25,6 +25,12 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 (function(cockpit, $) {
 "use strict";
 
+if (typeof window.debugging === "undefined") {
+    var match = /debugging=([^;]*)/.exec(document.cookie);
+    if (match)
+        window.debugging = match[1];
+}
+
 /*
  * User and system information
  */
@@ -83,7 +89,7 @@ var expect_disconnect = false;
 $(window).on('beforeunload', function() { expect_disconnect = true; });
 
 function transport_debug() {
-    if (cockpit.debugging == "all" || cockpit.debugging == "channel")
+    if (window.debugging == "all" || window.debugging == "channel")
         console.debug.apply(console, arguments);
 }
 
@@ -460,7 +466,7 @@ function ProcessError(arg0, signal) {
 }
 
 function spawn_debug() {
-    if (cockpit.debugging == "all" || cockpit.debugging == "spawn")
+    if (window.debugging == "all" || window.debugging == "spawn")
         console.debug.apply(console, arguments);
 }
 

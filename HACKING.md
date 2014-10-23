@@ -209,7 +209,7 @@ Cockpit communicates with the system via a WebSocket. To log all
 communication to the Web Browser's console, run one of the following
 commands in the console:
 
-    > cockpit.debugging = "channel"
+    > window.debugging = "channel"
 
 Or in order to log starting at page reload:
 

@@ -433,7 +433,7 @@ function quote_words(words) {
 }
 
 function cache_debug() {
-    if (cockpit.debugging == "all" || cockpit.debugging == "dbus")
+    if (window.debugging == "all" || window.debugging == "dbus")
         console.debug.apply(console, arguments);
 }
 

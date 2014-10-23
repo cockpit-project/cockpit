@@ -152,7 +152,7 @@ var cockpit = cockpit || { };
     }
 
     function rest_debug() {
-        if (cockpit.debugging == "all" || cockpit.debugging == "rest")
+        if (window.debugging == "all" || window.debugging == "rest")
             console.debug.apply(console, arguments);
     }
 

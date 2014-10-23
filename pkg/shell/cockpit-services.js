@@ -22,7 +22,7 @@ var cockpit = cockpit || { };
 (function($, cockpit) {
 
 function resource_debug() {
-    if (cockpit.debugging == "all" || cockpit.debugging == "resource" || true)
+    if (window.debugging == "all" || window.debugging == "resource" || true)
         console.debug.apply(console, arguments);
 }
 

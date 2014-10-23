@@ -56,15 +56,4 @@ if (window.navigator.userAgent.indexOf("PhantomJS") == -1) {
     };
 }
 
-function lookup_debugging_cookie() {
-    var match = /debugging=([^;]*)/.exec(document.cookie);
-    return match && match[1] || null;
-}
-
-/*
- * Set this from the javascript console to get debugging or use
- * document.cookie = "debugging=all; " + document.cookie;
- */
-cockpit.debugging = lookup_debugging_cookie();
-
 })(jQuery, cockpit);

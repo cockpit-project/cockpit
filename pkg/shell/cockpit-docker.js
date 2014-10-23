@@ -22,12 +22,12 @@ var cockpit = cockpit || { };
 (function($, cockpit) {
 
 function resource_debug() {
-    if (cockpit.debugging == "all" || cockpit.debugging == "resource")
+    if (window.debugging == "all" || window.debugging == "resource")
         console.debug.apply(console, arguments);
 }
 
 function docker_debug() {
-    if (cockpit.debugging == "all" || cockpit.debugging == "docker")
+    if (window.debugging == "all" || window.debugging == "docker")
         console.debug.apply(console, arguments);
 }
 

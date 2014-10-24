@@ -225,7 +225,7 @@ asyncTest("open no host", function() {
 asyncTest("open auto host", function() {
     expect(2);
 
-    window.location.hash = "#server?machine=planetexpress";
+    window.location.hash = "#?_host_=planetexpress";
     var channel = cockpit.channel({ });
     $(mock_peer).on("open", function(event) {
         ok(true, "websocket connected");

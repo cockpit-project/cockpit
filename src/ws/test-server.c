@@ -89,6 +89,39 @@ on_handle_stream_socket (CockpitWebServer *server,
   return TRUE;
 }
 
+static gboolean
+on_handle_resource (CockpitWebServer *server,
+                    const gchar *path,
+                    GHashTable *headers,
+                    CockpitWebResponse *response,
+                    gpointer user_data)
+{
+  GError *error = NULL;
+  GMappedFile *file;
+  GBytes *bytes;
+  gchar *name;
+
+  g_assert (g_str_has_prefix (path, "/cockpit"));
+  name = g_build_filename (SRCDIR "/pkg", path + 8, NULL);
+
+  file = g_mapped_file_new (name, FALSE, &error);
+  if (file == NULL)
+    {
+      cockpit_web_response_gerror (response, headers, error);
+      g_error_free (error);
+    }
+  else
+    {
+      bytes = g_mapped_file_get_bytes (file);
+      cockpit_web_response_content (response, NULL, bytes, NULL);
+      g_bytes_unref (bytes);
+    }
+
+  g_free (name);
+  g_mapped_file_unref (file);
+  return TRUE;
+}
+
 static void
 server_ready (void)
 {
@@ -117,6 +150,9 @@ server_ready (void)
   g_signal_connect (server,
                     "handle-stream",
                     G_CALLBACK (on_handle_stream_socket), NULL);
+  g_signal_connect (server,
+                    "handle-resource::/cockpit/",
+                    G_CALLBACK (on_handle_resource), NULL);
 
   g_object_get (server, "port", &port, NULL);
   url = g_strdup_printf("http://localhost:%d", port);

@@ -67,8 +67,7 @@ function decode_loc(hash) {
     return loc;
 }
 
-function get_page_param(key) {
-
+function get_page_host() {
     /*
      * HACK: Mozilla will unescape 'window.location.hash' before returning
      * it, which is broken.
@@ -76,9 +75,12 @@ function get_page_param(key) {
      * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
      */
     var hash = (window.location.href.split('#')[1] || '');
-    var loc = decode_loc(hash);
 
-    return loc[key];
+    /* This is a temporary HACK to pass the default host into embedded
+     * components.
+     */
+    var loc = decode_loc(hash);
+    return loc["_host_"];
 }
 
 /* -------------------------------------------------------------------------
@@ -422,7 +424,7 @@ function Channel(options) {
                 command[i] = options[i];
         }
         if (command.host === undefined)
-            command.host = get_page_param('machine');
+            command.host = get_page_host();
         transport.send_control(command);
 
         /* Now drain the queue */
@@ -532,7 +534,7 @@ function build_packages(packages) {
 
 function package_table(host, callback) {
     if (!host)
-        host = get_page_param('machine', 'server') || "localhost";
+        host = get_page_host();
     var table = host_packages[host];
     if (table) {
         callback(table, null);

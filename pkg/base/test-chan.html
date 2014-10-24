@@ -147,7 +147,7 @@ function MockWebSocket(url, protocol) {
                 "build": "nasty stuff",
             }
         }
-        ws.onmessage({"data": JSON.stringify(init)});
+        ws.onmessage({"data": "\n" + JSON.stringify(init)});
     }, 5);
 }
 
@@ -576,6 +576,68 @@ asyncTest("ignore other commands", function() {
         start();
     }, 50);
 });
+
+asyncTest("filter message", function() {
+    expect(2);
+
+    var filtered = 0;
+    cockpit.transport.filter(function(message) {
+        if (message[0] != '\n') {
+            filtered += 1;
+            return (filtered != 1);
+        }
+    });
+
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        if (chan)
+            mock_peer.send(chan, "blah");
+    });
+
+    var received = 0;
+    var channel = cockpit.channel({ });
+    $(channel).on("message", function(data) {
+        received += 1;
+
+        if (received == 2) {
+            equal(filtered, 3, "filter message: filtered right amount");
+            equal(received, 2, "filter message: let through right amount");
+            channel.close();
+            start();
+        }
+    });
+
+    channel.send("one");
+    channel.send("two");
+    channel.send("three");
+});
+
+asyncTest("inject message", function() {
+    expect(4);
+
+    var ret = cockpit.transport.inject("bree\nyellow");
+    equal(ret, false, "inject message: failure returns false");
+
+    var first = true;
+    var channel;
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        if (first) {
+            var ret = cockpit.transport.inject("bree\nyellow");
+            equal(ret, true, "inject message: returned true");
+            first = false;
+            return;
+        }
+
+        if (chan) {
+            equal(chan, "bree", "inject message: right channel");
+            equal(payload, "yellow", "inject message: right payload");
+            channel.close();
+            start();
+        }
+    });
+
+    channel = cockpit.channel({ });
+});
+
 
 window.location.hash = "";
 QUnit.start();

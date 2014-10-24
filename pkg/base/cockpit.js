@@ -121,6 +121,42 @@ function calculate_url() {
     }
 }
 
+/*
+ * A WebSocket that connects to parent frame. The mechanism
+ * for doing this will eventually be documented publicly,
+ * but for now:
+ *
+ *  * Forward raw cockpit1 string protocol messages via window.postMessage
+ *  * Listen for cockpit1 string protocol messages via window.onmessage
+ *  * Never accept or send messages to another origin
+ *  * An empty string message means "close" (not completely used yet)
+ */
+function ParentWebSocket(parent) {
+    var self = this;
+
+    window.addEventListener("message", function receive(event) {
+        if (event.origin !== origin || event.source !== parent)
+            return;
+        var data = event.data;
+        if (typeof data !== "string")
+            return;
+        if (data === "")
+            self.onclose();
+        else
+            self.onmessage(event);
+    }, false);
+
+    self.send = function send(message) {
+        parent.postMessage(message, origin);
+    };
+
+    self.close = function close() {
+        parent.postMessage("", origin);
+    };
+
+    window.setTimeout(function() { self.onopen(); }, 10);
+}
+
 /* Private Transport class */
 function Transport() {
     var self = this;
@@ -134,19 +170,37 @@ function Transport() {
     if (window.mock)
         window.mock.last_transport = self;
 
-    var ws_loc = calculate_url();
-
-    transport_debug("Connecting to " + ws_loc);
-
     var ws;
-    if (ws_loc) {
-        if ("WebSocket" in window) {
-            ws = new WebSocket(ws_loc, "cockpit1");
-        } else if ("MozWebSocket" in window) { // Firefox 6
-            ws = new MozWebSocket(ws_loc);
-        } else {
-            console.error("WebSocket not supported, application will not work!");
+    var check_health_timer;
+    var got_message = false;
+
+    /* See if we should communicate via parent */
+    if (window.parent !== window &&
+        window.parent.options && window.parent.options.sink &&
+        window.parent.options.protocol == "cockpit1") {
+        ws = new ParentWebSocket(window.parent);
+
+    } else {
+        var ws_loc = calculate_url();
+        transport_debug("connecting to " + ws_loc);
+
+        if (ws_loc) {
+            if ("WebSocket" in window) {
+                ws = new WebSocket(ws_loc, "cockpit1");
+            } else if ("MozWebSocket" in window) { // Firefox 6
+                ws = new MozWebSocket(ws_loc);
+            } else {
+                console.error("WebSocket not supported, application will not work!");
+            }
         }
+
+        check_health_timer = window.setInterval(function () {
+            if (!got_message) {
+                console.log("health check failed");
+                self.close({ "reason": "timeout" });
+            }
+            got_message = false;
+        }, 10000);
     }
 
     if (!ws) {
@@ -158,17 +212,8 @@ function Transport() {
 
     var control_cbs = { };
     var message_cbs = { };
-    var got_message = false;
     var waiting_for_init = true;
     self.ready = false;
-
-    var check_health_timer = window.setInterval(function () {
-        if (!got_message) {
-            console.log("health check failed");
-            self.close({ "reason": "timeout" });
-        }
-        got_message = false;
-    }, 10000);
 
     /* Called when ready for channels to interact */
     function ready_for_channels() {
@@ -186,7 +231,7 @@ function Transport() {
         }
     };
 
-    ws.onclose = function(event) {
+    ws.onclose = function() {
         transport_debug("WebSocket onclose");
         ws = null;
         if (reload_after_disconnect) {

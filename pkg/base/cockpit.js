@@ -105,6 +105,7 @@ var default_transport = null;
 var reload_after_disconnect = false;
 var expect_disconnect = false;
 var init_callback = null;
+var filters = [ ];
 
 var origin = window.location.origin;
 if (!origin) {
@@ -242,11 +243,20 @@ function Transport() {
     ws.onmessage = function(event) {
         got_message = true;
 
-        /* The first line of a message is the channel */
         var data = event.data;
+
+        /* Call all the filters */
+        var length = filters.length;
+        for (var i = 0; i < length; i++) {
+            if (filters[i](data) === false)
+                return;
+        }
+
+        /* The first line of a message is the channel */
         var pos = data.indexOf("\n");
         var channel = data.substring(0, pos);
         var payload = data.substring(pos + 1);
+
         if (!channel) {
             transport_debug("recv control:", payload);
             process_control(JSON.parse(payload));
@@ -254,6 +264,7 @@ function Transport() {
             transport_debug("recv " + channel + ":", payload);
             process_message(channel, payload);
         }
+
         phantom_checkpoint();
     };
 
@@ -339,17 +350,21 @@ function Transport() {
             func.apply(null, [payload]);
     }
 
-    self.send_message = function send_message(channel, payload) {
+    self.send_data = function send_data(data) {
         if (!ws) {
-            console.log("transport closed, dropped message: " + payload);
-            return;
+            console.log("transport closed, dropped message: " + data);
+            return false;
         }
+        ws.send(data);
+        return true;
+    };
+
+    self.send_message = function send_message(channel, payload) {
         if (channel)
             transport_debug("send " + channel + ":", payload);
         else
             transport_debug("send control:", payload);
-        var msg = channel.toString() + "\n" + payload;
-        ws.send(msg);
+        return self.send_data(channel.toString() + "\n" + payload);
     };
 
     self.send_control = function send_control(data) {
@@ -574,6 +589,14 @@ function basic_scope(cockpit) {
     };
 
     cockpit.transport = {
+        inject: function inject(message) {
+            if (!default_transport)
+                return false;
+            return default_transport.send_data(message);
+        },
+        filter: function filter(callback) {
+            filters.push(callback);
+        },
         close: function close(reason) {
             if (!default_transport)
                 return;

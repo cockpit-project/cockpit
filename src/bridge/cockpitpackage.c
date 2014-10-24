@@ -712,12 +712,14 @@ expand_variables (const gchar *variable,
         }
       else if (expand->host)
         {
-          val = g_strdup_printf ("%s@%s", variable, expand->host);
+          val = g_strdup_printf ("%s@%s", package->name, expand->host);
           return g_bytes_new_take (val, strlen (val));
         }
       else
         {
-          return g_bytes_new (variable, strlen (variable));
+          return g_bytes_new_with_free_func (package->name, strlen (package->name),
+                                             cockpit_package_unref,
+                                             cockpit_package_ref (package));
         }
     }
   else

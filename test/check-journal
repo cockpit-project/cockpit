@@ -99,7 +99,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                          "-- Start of Journal --"
                        ])
 
-        b.go("journal?prio=3?service=log123.service")
+        b.go("journal?prio=3&service=log123.service")
         wait_journal_empty()
 
         def wait_log123():
@@ -150,17 +150,17 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("systemctl start log123")
         wait_log123()
 
-        b.go("journal?prio=3?start=oldest?service=nonexisting.service")
+        b.go("journal?prio=3&start=oldest&service=nonexisting.service")
         wait_journal_empty()
-        b.go("journal?prio=3?start=oldest?service=log123.service")
+        b.go("journal?prio=3&start=oldest&service=log123.service")
         wait_log123()
 
-        b.go("journal?prio=3?start=recent?service=nonexisting.service")
+        b.go("journal?prio=3&start=recent&service=nonexisting.service")
         wait_journal_empty()
-        b.go("journal?prio=3?start=recent?service=log123.service")
+        b.go("journal?prio=3&start=recent&service=log123.service")
         wait_log123()
 
-        b.go("journal?prio=3?start=recent?service=slow10.service")
+        b.go("journal?prio=3&start=recent&service=slow10.service")
         wait_journal_empty()
 
         def wait_slow10():
@@ -173,9 +173,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("systemctl start slow10")
         wait_slow10()
 
-        b.go("journal?prio=3?start=oldest?service=nonexisting.service")
+        b.go("journal?prio=3&start=oldest&service=nonexisting.service")
         wait_journal_empty()
-        b.go("journal?prio=3?start=oldest?service=slow10.service")
+        b.go("journal?prio=3&start=oldest&service=slow10.service")
         wait_slow10()
 
         m.execute("logger -p3 --tag check-journal BEFORE BOOT");
@@ -196,7 +196,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                          "-- Start of Journal --"
                      ])
 
-        b.go("journal?start=boot?tag=check-journal")
+        b.go("journal?start=boot&tag=check-journal")
         wait_log_lines([ "-- End of Journal, waiting for more --",
                          "January 1, 2050",
                          [ "check-journal: ", "AFTER BOOT", "" ],

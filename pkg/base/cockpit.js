@@ -61,23 +61,22 @@ function BasicError(problem) {
  * utilities soon, for now this is private.
  */
 
-function decode_loc(hash) {
-    var params, vals, loc, i;
-
-    if (hash === "" || hash === "#") {
-        return { page: "dashboard" };
-    }
+function decode_options(hash) {
+    var opts = { };
 
     if (hash[0] == '#')
         hash = hash.substr(1);
 
-    params = hash.split('?');
-    loc = { page: decodeURIComponent(params[0]) };
-    for (i = 1; i < params.length; i++) {
-        vals = params[i].split('=');
-        loc[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
+    var query = hash.split('?');
+    if (query.length > 1) {
+        var params = query[1].split("&");
+        for (var i = 0; i < params.length; i++) {
+            var vals = params[i].split('=');
+            opts[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
+        }
     }
-    return loc;
+
+    return opts;
 }
 
 function get_page_host() {
@@ -92,8 +91,8 @@ function get_page_host() {
     /* This is a temporary HACK to pass the default host into embedded
      * components.
      */
-    var loc = decode_loc(hash);
-    return loc["_host_"];
+    var opts = decode_options(hash);
+    return opts["_host_"];
 }
 
 /* -------------------------------------------------------------------------

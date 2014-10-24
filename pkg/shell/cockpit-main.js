@@ -344,42 +344,59 @@ cockpit.go_rel_cmd = function go_cmd(page, options)
     return "cockpit.go_rel(" + JSON.stringify(params) + ");";
 };
 
-function encode_loc(loc) {
-    var res = encodeURIComponent(loc.page);
-    var param;
-    for (param in loc) {
-        if (param != "page" && loc.hasOwnProperty(param))
-            res += "?" + encodeURIComponent(param) + "=" + encodeURIComponent(loc[param]);
+function encode_page_hash(loc) {
+    var host = loc.machine;
+    if (!host || host == "localhost")
+        host = "local";
+    var res = "/" + encodeURIComponent(host) + "/" + encodeURIComponent(loc.page);
+    var query = [];
+    for (var param in loc) {
+        if (param != "page" && param != "machine" && loc.hasOwnProperty(param))
+            query.push(encodeURIComponent(param) + "=" + encodeURIComponent(loc[param]));
     }
+    if (query.length > 0)
+        res += "?" + query.join("&");
     return "#" + res;
 }
 
-function decode_loc(hash) {
-    var params, vals, loc, i;
+function decode_page_hash(hash) {
+    var query, params, path, loc, vals, i;
 
-    if (hash === "" || hash === "#") {
-        return { page: "dashboard" };
-    }
+    loc = { page: "dashboard", machine: "localhost" };
 
     if (hash[0] == '#')
         hash = hash.substr(1);
 
-    params = hash.split('?');
-    loc = { page: decodeURIComponent(params[0]) };
-    for (i = 1; i < params.length; i++) {
-        vals = params[i].split('=');
-        loc[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
+    query = hash.split('?');
+    path = query[0].split('/');
+
+    if (path[0] === "")
+        path.shift();
+    if (path.length > 0) {
+        loc.machine = decodeURIComponent(path[0]);
+        if (loc.machine == "local")
+            loc.machine = "localhost";
+    }
+    if (path.length > 1)
+        loc.page = decodeURIComponent(path[1]);
+
+    if (query.length > 1) {
+        params = query[1].split("&");
+        for (i = 0; i < params.length; i++) {
+            vals = params[i].split('=');
+            loc[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
+        }
     }
     return loc;
 }
 
 function show_hash() {
-    current_hash = encode_loc(current_params);
+    current_hash = encode_page_hash(current_params);
     set_window_location_hash(current_hash);
 }
 
 function go_hash(hash) {
-    cockpit.go(decode_loc(hash));
+    cockpit.go(decode_page_hash(hash));
 }
 
 cockpit.page_from_id = function page_from_id(id) {

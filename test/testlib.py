@@ -92,6 +92,8 @@ class Browser:
           Error: When a timeout occurs waiting for the page to load.
         """
         if page:
+            if not page.startswith("/"):
+                page = "/local/" + page;
             url = "/#%s" % (page, )
         if url.startswith("/"):
             url = "http://%s:%d%s" % (self.address, port, url)
@@ -142,6 +144,8 @@ class Browser:
         return self.phantom.do("return %s(%s);" % (func, ','.join(map(jsquote, args))))
 
     def go(self, hash):
+        if not hash.startswith("/"):
+            hash = "/local/" + hash;
         self.call_js_func('ph_go', hash)
 
     def click(self, selector):

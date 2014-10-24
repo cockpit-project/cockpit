@@ -285,7 +285,7 @@ function Transport() {
 
     self.next_channel = function next_channel() {
         last_channel++;
-        return String(last_channel) + channel_seed;
+        return channel_seed + String(last_channel);
     };
 
     function process_init(options) {
@@ -296,7 +296,7 @@ function Transport() {
         }
 
         if (options["channel-seed"])
-            channel_seed = ":" + String(options["channel-seed"]);
+            channel_seed = String(options["channel-seed"]);
 
         if (waiting_for_init) {
             waiting_for_init = false;

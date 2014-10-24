@@ -351,7 +351,7 @@ cockpit_socket_remove_channel (CockpitSockets *sockets,
                                CockpitSocket *socket,
                                const gchar *channel)
 {
-  g_debug ("%s: remove channel %s for socket", socket->id, channel);
+  g_debug ("%s remove channel %s for socket", socket->id, channel);
   g_hash_table_remove (sockets->by_channel, channel);
   g_hash_table_remove (socket->channels, channel);
 }
@@ -367,7 +367,7 @@ cockpit_socket_add_channel (CockpitSockets *sockets,
   g_hash_table_insert (sockets->by_channel, chan, socket);
   g_hash_table_add (socket->channels, chan);
 
-  g_debug ("%s: added channel %s to socket", socket->id, channel);
+  g_debug ("%s added channel %s to socket", socket->id, channel);
 }
 
 static CockpitSocket *
@@ -377,7 +377,7 @@ cockpit_socket_track (CockpitSockets *sockets,
   CockpitSocket *socket;
 
   socket = g_new0 (CockpitSocket, 1);
-  socket->id = g_strdup_printf ("%u", sockets->next_socket_id++);
+  socket->id = g_strdup_printf ("%u:", sockets->next_socket_id++);
   socket->connection = g_object_ref (connection);
   socket->channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 

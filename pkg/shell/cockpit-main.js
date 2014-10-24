@@ -624,11 +624,12 @@ function PageExternal(id, url, title) {
             server = "localhost";
         var frame = self.frames[server];
         if (!frame) {
+            var hash = encode_page_hash($.extend({'_host_': server}, current_params));
             /* TODO: This *still* only loads packages from localhost */
             frame = $(document.createElement("iframe"));
             frame.addClass("container-frame").
                 attr("name", id + "-" + server).
-                hide().attr("src", url + current_hash);
+                hide().attr("src", url + hash);
             self.body.append(frame);
             self.frames[server] = frame;
         }

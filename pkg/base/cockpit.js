@@ -297,6 +297,7 @@ function Transport() {
 
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
+        cockpit.transport.options = options;
 
         if (waiting_for_init) {
             waiting_for_init = false;
@@ -605,7 +606,8 @@ function basic_scope(cockpit) {
                 options = {"reason": reason };
             default_transport.close(options);
         },
-        origin: origin
+        origin: origin,
+        options: { }
     };
 }
 

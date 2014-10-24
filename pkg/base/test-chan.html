@@ -165,6 +165,11 @@ test("public api", function() {
     equal(typeof cockpit.logout, "function", "cockpit.logout is a function");
     equal(typeof cockpit.transport, "object", "cockpit.transport is a function");
     equal(typeof cockpit.transport.close, "function", "cockpit.transport.close is a function");
+
+    if (window.location.origin)
+        equal(cockpit.transport.origin, window.location.origin, "cockpit.transport.origin is correct");
+    else
+        equal(typeof cockpit.transport.origin, "string", "cockpit.transport.origin is present");
 });
 
 asyncTest("open channel", function() {

@@ -106,6 +106,12 @@ var reload_after_disconnect = false;
 var expect_disconnect = false;
 var init_callback = null;
 
+var origin = window.location.origin;
+if (!origin) {
+    origin = window.location.protocol + "//" + window.location.hostname +
+        (window.location.port ? ':' + window.location.port: '');
+}
+
 window.addEventListener('beforeunload', function() {
     expect_disconnect = true;
 }, false);
@@ -575,7 +581,8 @@ function basic_scope(cockpit) {
             if (reason)
                 options = {"reason": reason };
             default_transport.close(options);
-        }
+        },
+        origin: origin
     };
 }
 

@@ -468,6 +468,16 @@
         of a problem.</para>
     </refsection>
 
+    <refsection id="latest-transport-origin">
+      <title>cockpit.transport.origin</title>
+<programlisting>
+  cockpit.transport.origin
+</programlisting>
+      <para>The HTTP origin that is being used by the underlying channel transport. This is
+        read-only, you should not assign a value. If the browser supports
+        <code>window.location.origin</code> then this will be identical to that value.</para>
+    </refsection>
+
     <refsection id="latest-transport-close">
       <title>cockpit.transport.close()</title>
 <programlisting>

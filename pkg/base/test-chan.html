@@ -165,6 +165,7 @@ test("public api", function() {
     equal(typeof cockpit.logout, "function", "cockpit.logout is a function");
     equal(typeof cockpit.transport, "object", "cockpit.transport is a function");
     equal(typeof cockpit.transport.close, "function", "cockpit.transport.close is a function");
+    equal(typeof cockpit.transport.options, "object", "cockpit.transport.options is a object");
 
     if (window.location.origin)
         equal(cockpit.transport.origin, window.location.origin, "cockpit.transport.origin is correct");
@@ -636,6 +637,35 @@ asyncTest("inject message", function() {
     });
 
     channel = cockpit.channel({ });
+});
+
+asyncTest("transport options", function() {
+    expect(2);
+
+    var channel;
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        if (chan) {
+            equal(typeof cockpit.transport.options, "object", "transport options: is an object");
+            deepEqual(cockpit.transport.options, {
+                "command": "init",
+                "version": 0,
+                "channel-seed": "test",
+                "user": {
+                    "user": "scruffy",
+                    "name": "Scruffy the Janitor"
+                },
+                "system": {
+                    "version": "zero.point.zero",
+                    "build": "nasty stuff",
+                }
+            }, "transport options: is correct");
+            channel.close();
+            start();
+        }
+    });
+
+    channel = cockpit.channel({ });
+    channel.send("blah");
 });
 
 

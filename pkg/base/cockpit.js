@@ -150,7 +150,7 @@ function calculate_url() {
     } else if (window_loc.indexOf('https:') === 0) {
         return "wss://" + window.location.host + "/socket";
     } else {
-        console.error("Cockpit must be used over http or https");
+        transport_debug("Cockpit must be used over http or https");
         return null;
     }
 }

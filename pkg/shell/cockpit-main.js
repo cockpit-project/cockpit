@@ -393,8 +393,7 @@ function get_page_iframe(params) {
      */
 
     var inner_params = { path: params.path.slice(prefix.length),
-                         options: $.extend({ '_host_': params.host }, params.options)
-                       };
+                         options: params.options };
     iframe.attr('src', ("/cockpit/" + comp.pkg +
                         "/" + comp.entry + cockpit.hash.encode(inner_params)));
 

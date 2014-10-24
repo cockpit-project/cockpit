@@ -60,6 +60,7 @@ function MockPeer() {
 }
 
 window.mock = { url: "ws://url", last_transport: true };
+var force_default_host = null;
 var mock_peer = new MockPeer();
 
 QUnit.testDone(function() {
@@ -147,6 +148,9 @@ function MockWebSocket(url, protocol) {
                 "build": "nasty stuff",
             }
         }
+        if (force_default_host)
+            init["default-host"] = force_default_host;
+        force_default_host = null;
         ws.onmessage({"data": "\n" + JSON.stringify(init)});
     }, 5);
 }
@@ -214,7 +218,6 @@ asyncTest("multiple", function() {
 asyncTest("open no host", function() {
     expect(2);
 
-    window.location.hash = "";
     var channel = cockpit.channel({ });
     $(mock_peer).on("open", function(event) {
         ok(true, "websocket connected");
@@ -231,7 +234,7 @@ asyncTest("open no host", function() {
 asyncTest("open auto host", function() {
     expect(2);
 
-    window.location.hash = "#?_host_=planetexpress";
+    force_default_host = "planetexpress";
     var channel = cockpit.channel({ });
     $(mock_peer).on("open", function(event) {
         ok(true, "websocket connected");
@@ -240,7 +243,6 @@ asyncTest("open auto host", function() {
         var command = JSON.parse(payload);
         if (command.command == "open") {
             strictEqual(command.host, "planetexpress", "open: host automatically chosen");
-            window.location.hash = "";
             start();
         }
     });

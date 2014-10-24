@@ -53,49 +53,6 @@ function BasicError(problem) {
 }
 
 /* -------------------------------------------------------------------------
- * Host discovery
- */
-
-/*
- * TODO: We will expose standard client side url composability
- * utilities soon, for now this is private.
- */
-
-function decode_options(hash) {
-    var opts = { };
-
-    if (hash[0] == '#')
-        hash = hash.substr(1);
-
-    var query = hash.split('?');
-    if (query.length > 1) {
-        var params = query[1].split("&");
-        for (var i = 0; i < params.length; i++) {
-            var vals = params[i].split('=');
-            opts[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
-        }
-    }
-
-    return opts;
-}
-
-function get_page_host() {
-    /*
-     * HACK: Mozilla will unescape 'window.location.hash' before returning
-     * it, which is broken.
-     *
-     * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
-     */
-    var hash = (window.location.href.split('#')[1] || '');
-
-    /* This is a temporary HACK to pass the default host into embedded
-     * components.
-     */
-    var opts = decode_options(hash);
-    return opts["_host_"];
-}
-
-/* -------------------------------------------------------------------------
  * Channels
  *
  * Public: https://files.cockpit-project.org/guide/api-cockpit.html
@@ -105,6 +62,7 @@ var default_transport = null;
 var reload_after_disconnect = false;
 var expect_disconnect = false;
 var init_callback = null;
+var default_host = null;
 var filters = [ ];
 
 var origin = window.location.origin;
@@ -297,6 +255,8 @@ function Transport() {
 
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
+        if (options["default-host"])
+            default_host = options["default-host"];
         cockpit.transport.options = options;
 
         if (waiting_for_init) {
@@ -457,8 +417,8 @@ function Channel(options) {
             if (options.hasOwnProperty(i) && command[i] === undefined)
                 command[i] = options[i];
         }
-        if (command.host === undefined)
-            command.host = get_page_host();
+        if (command.host === undefined && default_host)
+            command.host = default_host;
         transport.send_control(command);
 
         /* Now drain the queue */
@@ -538,7 +498,7 @@ function build_packages(packages) {
 
 function package_table(host, callback) {
     if (!host)
-        host = get_page_host();
+        host = default_host;
     var table = host_packages[host];
     if (table) {
         callback(table, null);

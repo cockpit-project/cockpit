@@ -1246,6 +1246,7 @@ on_web_socket_open (WebSocketConnection *connection,
   json_object_set_string_member (object, "command", "init");
   json_object_set_int_member (object, "version", 0);
   json_object_set_string_member (object, "channel-seed", socket->id);
+  json_object_set_string_member (object, "default-host", "localhost");
 
   info = json_object_new ();
   json_object_set_string_member (info, "user", cockpit_creds_get_user (self->creds));

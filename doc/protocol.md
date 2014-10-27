@@ -304,7 +304,9 @@ with parameters in this order: path, interface, method, in arguments.
 
 All the various parameters must be valid for their use. arguments may be
 null if no DBus method call body is expected. If a "type" field is specified
-then it is expected to be the DBus method type signature (no tuple).
+then it is expected to be the DBus method type signature (no tuple). If a
+"flags" field is a string, then this includes message flags. None are
+defined yet.
 
 If a DBus method call fails an "error" message will be sent back. An error
 will also be sent back in parameters or arguments in the "call" message are
@@ -315,13 +317,19 @@ sent back in a "reply" or "error" message with the same "id" field.
 
 Method reply messages are JSON objects with a "reply" field whose value is
 an array, the array contains another array of out arguments, or null if
-the DBus reply had no body. If the call had a "type" field, then the reply
-will have one too containing the DBus type signature of the arguments.
-
+the DBus reply had no body. 
     {
         "reply": [ [ "arg0", 1, 2 ] ],
         "id": "cookie"
     }
+
+If the call had a "type" field, then the reply will have one too containing
+the DBus type signature of the arguments. If a "flags" field was present on
+the call, then "flags" will also be present on the reply. Valid out flags
+are:
+
+ * ">": Big endian message
+ * "<": Little endian message
 
 An error message is JSON object with an "error" field whose value is an
 array. The array contains: error name, error arguments

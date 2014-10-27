@@ -428,6 +428,11 @@
 
       <variablelist>
         <varlistentry>
+          <term><code>flags</code></term>
+          <listitem><para>A string containing DBus message flags. No flags are defined at
+            this time.</para></listitem>
+        </varlistentry>
+        <varlistentry>
           <term><code>type</code></term>
           <listitem><para>A valid DBus type signature to use when calling the method. In the
               absence of this, the DBus service will be introspected (and the result cached) to
@@ -451,7 +456,21 @@
       <para>The <code>options</code> argument may contain additional information about the
         reply. If the <code>type</code> option was specified when performing the method call,
         then the <code>options</code> in the reply here will also contain a <code>type</code>
-        field containing the DBus type signature of the output.</para>
+        field containing the DBus type signature of the output. If the <code>flags</code> option
+        was specified when performing the call then the <code>options</code> in the reply here
+        will contain message flags. Possible out message flags are:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>&gt;</code></term>
+          <listitem><para>A big endian message.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>&lt;</code></term>
+          <listitem><para>A little endian message.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
     </refsection>
 
     <refsection id="latest-dbus-fail">

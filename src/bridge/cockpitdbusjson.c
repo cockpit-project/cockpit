@@ -861,6 +861,7 @@ typedef struct {
   const gchar *method;
   const gchar *path;
   const gchar *type;
+  const gchar *flags;
   JsonNode *args;
 } CallData;
 
@@ -889,11 +890,24 @@ send_dbus_reply (CockpitDBusJson *self,
                  GDBusMessage *message)
 {
   JsonObject *object;
+  GString *flags;
 
   g_return_if_fail (call->cookie != NULL);
 
   object = build_json_reply (message, call->type != NULL);
   json_object_set_string_member (object, "id", call->cookie);
+
+  if (call->flags)
+    {
+      flags = g_string_new ("");
+      if (g_dbus_message_get_byte_order (message) == G_DBUS_MESSAGE_BYTE_ORDER_BIG_ENDIAN)
+        g_string_append_c (flags, '>');
+      else
+        g_string_append_c (flags, '<');
+      json_object_set_string_member (object, "flags", flags->str);
+      g_string_free (flags, TRUE);
+    }
+
   send_json_object (self, object);
   json_object_unref (object);
 }
@@ -1190,6 +1204,7 @@ handle_dbus_call (CockpitDBusJson *self,
 
   cockpit_json_get_string (object, "id", NULL, &call->cookie);
   cockpit_json_get_string (object, "type", NULL, &call->type);
+  cockpit_json_get_string (object, "flags", NULL, &call->flags);
 
   if (!call->path || !g_variant_is_object_path (call->path))
     {

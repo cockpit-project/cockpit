@@ -828,6 +828,8 @@ function full_scope(cockpit, $) {
                     var options = { };
                     if (msg.type)
                         options.type = msg.type;
+                    if (msg.flags)
+                        options.flags = msg.flags;
                     dfd.resolve(msg.reply[0], options);
                     delete calls[msg.id];
                 }
@@ -889,6 +891,8 @@ function full_scope(cockpit, $) {
             if (options) {
                 if (options.type)
                     call.type = options.type;
+                if (options.flags !== undefined)
+                    call.flags = options.flags;
             }
 
             var msg = JSON.stringify(call);

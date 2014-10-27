@@ -394,6 +394,23 @@ asyncTest("bad signature", function() {
         });
 });
 
+asyncTest("flags", function() {
+    expect(3);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", [ "test" ], { flags: "" }).
+        done(function(reply, options) {
+            equal(typeof options.flags, "string", "flags: is string");
+            ok(options.flags.indexOf(">") !== -1 || options.flags.indexOf("<") !== -1, "flags: has byte order");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "call method: finished successfuly");
+            start();
+        });
+});
+
+
 QUnit.start();
 </script>
 </body>

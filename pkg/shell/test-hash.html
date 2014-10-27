@@ -41,68 +41,55 @@
 
 test("decode", function() {
     var checks = [
-        [ "#/host/path/sub?a=1&b=2", { host: "host",
-                                       path: [ "path", "sub" ],
+        [ "#/host/path/sub?a=1&b=2", { path: [ "host", "path", "sub" ],
                                        options: { a: "1", b: "2" }
                                      }
         ],
-        [ "" , { host: "localhost",
-                 path: [ "dashboard" ],
+        [ "" , { path: [ ],
                  options: { }
                }
         ],
-        [ "#", { host: "localhost",
-                 path: [ "dashboard" ],
+        [ "#", { path: [ ],
                  options: { }
                }
         ],
-        [ "#/", { host: "localhost",
-                  path: [ "dashboard" ],
+        [ "#/", { path: [ ],
                   options: { }
                 }
         ],
-        [ "#/horst", { host: "horst",
-                      path: [ "dashboard" ],
-                      options: { }
-                    }
-        ],
-        [ "#//one", { host: "localhost",
-                      path: [ "one" ],
-                      options: { }
-                    }
-        ],
-        [ "#//one/", { host: "localhost",
-                       path: [ "one" ],
+        [ "#/horst", { path: [ "horst" ],
                        options: { }
                      }
         ],
-        [ "#///two", { host: "localhost",
-                       path: [ "", "two" ],
+        [ "#//one", { path: [ "", "one" ],
+                      options: { }
+                    }
+        ],
+        [ "#//one/", { path: [ "", "one" ],
                        options: { }
                      }
         ],
-        [ "#/h/slash/%2f", { host: "h",
-                             path: [ "slash", "/" ],
-                             options: { }
-                           }
+        [ "#///two", { path: [ "", "", "two" ],
+                       options: { }
+                     }
         ],
-        [ "#?a=1", { host: "localhost",
-                     path: [ "dashboard" ],
+        [ "#/slash/%2f", { path: [ "slash", "/" ],
+                           options: { }
+                         }
+        ],
+        [ "#?a=1", { path: [ ],
                      options: { a: "1" }
                    }
         ],
-        [ "#?a=1&a=2", { host: "localhost",
-                         path: [ "dashboard" ],
+        [ "#?a=1&a=2", { path: [ ],
                          options: { a: "2" }
                        }
         ],
-        [ "#?%3f=%3d", { host: "localhost",
-                         path: [ "dashboard" ],
+        [ "#?%3f=%3d", { path: [ ],
                          options: { "?": "=" }
                        }
         ],
-        [ "#?=", { host: "localhost",
-                   path: [ "dashboard" ],
+        [ "#?=", { path: [ ],
                    options: { "": "" }
                  }
         ]
@@ -112,8 +99,8 @@ test("decode", function() {
 
     expect(checks.length);
     for (i = 0; i < checks.length; i++) {
-        var decoded = cockpit.hash.decode_page_hash(checks[i][0]);
-        deepEqual(decoded, checks[i][1], "decode_page_hash(\"" + checks[i][0]+ "\")");
+        var decoded = cockpit.hash.decode(checks[i][0]);
+        deepEqual(decoded, checks[i][1], "decode(\"" + checks[i][0]+ "\")");
     }
 });
 
@@ -123,45 +110,33 @@ test("encode", function() {
        in the "roundtrip" test.
     */
     var checks = [
-        [ "#/host/path/sub?a=1&b=2", { host: "host",
-                                       path: [ "path", "sub" ],
+        [ "#/host/path/sub?a=1&b=2", { path: [ "host", "path", "sub" ],
                                        options: { a: "1", b: "2" }
                                      }
         ],
-        [ "#/local/dashboard" , { host: "localhost",
-                                  path: [ "dashboard" ],
-                                  options: { }
-                                }
+        [ "#/one", { path: [ "one" ],
+                     options: { }
+                   }
         ],
-        [ "#/host/one", { host: "host",
-                          path: [ "one" ],
-                          options: { }
-                        }
+        [ "#//two", { path: [ "", "two" ],
+                      options: { }
+                    }
         ],
-        [ "#/host//two", { host: "host",
-                           path: [ "", "two" ],
+        [ "#/slash/%2F", { path: [ "slash", "/" ],
                            options: { }
                          }
         ],
-        [ "#/h/slash/%2F", { host: "h",
-                             path: [ "slash", "/" ],
-                             options: { }
-                           }
-        ],
-        [ "#/h/p?a=1", { host: "h",
-                         path: [ "p" ],
-                         options: { a: "1" }
-                       }
-        ],
-        [ "#/h/p?%3F=%3D", { host: "h",
-                             path: [ "p" ],
-                             options: { "?": "=" }
-                           }
-        ],
-        [ "#/h/p?=", { host: "h",
-                       path: [ "p" ],
-                       options: { "": "" }
+        [ "#/p?a=1", { path: [ "p" ],
+                       options: { a: "1" }
                      }
+        ],
+        [ "#/p?%3F=%3D", { path: [ "p" ],
+                           options: { "?": "=" }
+                         }
+        ],
+        [ "#/p?=", { path: [ "p" ],
+                     options: { "": "" }
+                   }
         ]
     ];
 
@@ -169,23 +144,20 @@ test("encode", function() {
 
     expect(checks.length);
     for (i = 0; i < checks.length; i++) {
-        var encoded = cockpit.hash.encode_page_hash(checks[i][1]);
-        strictEqual(encoded, checks[i][0], "encode_page_hash(" + JSON.stringify(checks[i][1])+ ")");
+        var encoded = cockpit.hash.encode(checks[i][1]);
+        strictEqual(encoded, checks[i][0], "encode(" + JSON.stringify(checks[i][1])+ ")");
     }
 });
 
 test("roundtrip", function() {
     var checks = [
-        { host: "host",
-          path: [ "path", "sub" ],
+        { path: [ "path", "sub" ],
           options: { a: "1", b: "2" }
         },
-        { host: "höst",
-          path: [ "path", "sub" ],
+        { path: [ "päth", "süb" ],
           options: { a: "1", b: "2" }
         },
-        { host: "höst",
-          path: [ "/=()?", "$%&/" ],
+        { path: [ "/=()?", "$%&/" ],
           options: { "": "=$&%", b: "=2%34" }
         },
     ];
@@ -194,26 +166,10 @@ test("roundtrip", function() {
 
     expect(checks.length);
     for (i = 0; i < checks.length; i++) {
-        var encoded = cockpit.hash.encode_page_hash(checks[i]);
-        var decoded = cockpit.hash.decode_page_hash(encoded);
+        var encoded = cockpit.hash.encode(checks[i]);
+        var decoded = cockpit.hash.decode(encoded);
         deepEqual(decoded, checks[i], "roundtrip(" + JSON.stringify(checks[i])+ ")");
     }
-});
-
-test("host", function() {
-    expect(2);
-
-    /* The special value 'false' for host should omit it from the hash.
-     */
-    strictEqual(cockpit.hash.encode_page_hash({ host: false, path: [ "a" ], options: { }}),
-                "#/a",
-                "no host");
-
-    /* No host should default to local.
-     */
-    strictEqual(cockpit.hash.encode_page_hash({ host: undefined, path: [ "a" ], options: { }}),
-                "#/local/a",
-                "default host");
 });
 
 QUnit.start();

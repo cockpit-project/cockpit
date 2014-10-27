@@ -28,37 +28,17 @@ cockpit.hash = cockpit.hash || { };
    The parameters of the current page are stored in a dict with these
    fields:
 
-   - host (string)
-
-   The address of the default host to connect to.
-
    - path (array of strings)
 
-   The path to the page, such as [ "storage", "block", "vda" ].
+   The path to the page, such as [ "f21", "storage", "block", "vda" ].
 
    - options (dict of strings to strings)
 
    The display options of the page, such as { collapse: "all" }.
-
-   'host' and 'path' are constant for the life-time of a page, but
-   'options' might change.  A page will be notified about this in some
-   to-be-specified way.  (Legacy pages will get a leave/enter
-   sequence.)  A page can also change the options.
-
-   Guarantees: 'host' is always a non-empty string.  'path' has always
-   at least length 1.  'options' is always a dict.
 */
 
-cockpit.hash.encode_page_hash = function encode_page_hash(params) {
-    var full_path = params.path;
-    var host = params.host;
-    if (host !== false) {
-        if (!host || host == "localhost")
-            host = "local";
-        full_path = [ host ].concat(full_path);
-    }
-
-    var res = "/" + full_path.map(encodeURIComponent).join("/");
+cockpit.hash.encode = function encode(params) {
+    var res = "/" + params.path.map(encodeURIComponent).join("/");
     var query = [];
     for (var opt in params.options) {
         if (params.options.hasOwnProperty(opt))
@@ -69,8 +49,8 @@ cockpit.hash.encode_page_hash = function encode_page_hash(params) {
     return "#" + res;
 };
 
-cockpit.hash.decode_page_hash = function decode_page_hash(hash) {
-    var params = { host: "localhost", path: [ "dashboard" ], options: { } };
+cockpit.hash.decode = function decode(hash) {
+    var params = { };
 
     if (hash[0] == '#')
         hash = hash.substr(1);
@@ -83,15 +63,9 @@ cockpit.hash.decode_page_hash = function decode_page_hash(hash) {
     if (path[path.length-1] === "")
         path.length--;
 
-    if (path.length > 0) {
-        params.host = path.shift();
-        if (params.host === "" || params.host == "local")
-            params.host = "localhost";
-    }
+    params.path = path;
 
-    if (path.length > 0)
-        params.path = path;
-
+    params.options = { };
     if (query.length > 1) {
         var opts = query[1].split("&");
         for (var i = 0; i < opts.length; i++) {

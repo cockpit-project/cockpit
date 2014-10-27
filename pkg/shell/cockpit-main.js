@@ -151,8 +151,9 @@ cockpit.dialogs = [];
 /* current_params are the navigation parameters of the current page,
  * for example:
  *
- *   { page: "storage-details", type: "block", id: "/dev/vda",
- *     machine: "localhost"
+ *   { host: "localhost",
+ *     path: [ "storage-details" ],
+ *     options: { type: "block", id: "/dev/vda" }
  *   }
  */
 var current_params;
@@ -360,12 +361,20 @@ cockpit.go_rel_cmd = function go_rel_cmd(path, options)
 };
 
 function show_hash() {
-    current_hash = cockpit.hash.encode_page_hash(current_params);
+    var host = current_params.host;
+    if (host == "localhost")
+        host = "local";
+    var path = [ host ].concat(current_params.path);
+    current_hash = cockpit.hash.encode({ path: path, options: current_params.options });
     set_window_location_hash(current_hash);
 }
 
 function go_hash(hash) {
-    go_params(cockpit.hash.decode_page_hash(hash));
+    var params = cockpit.hash.decode(hash);
+    var host = params.path[0];
+    if (host == "local")
+        host = "localhost";
+    cockpit.go(host, params.path.slice(1), params.options);
 }
 
 cockpit.page_from_id = function page_from_id(id) {
@@ -610,15 +619,14 @@ function PageExternal(id, url, title) {
         var frame = self.frames[server];
         if (!frame) {
             /* TODO: This assumes a prefix of length 1. */
-            var params = { host: false,
-                           path: current_params.path.slice(1),
+            var params = { path: current_params.path.slice(1),
                            options: $.extend({ '_host_': server }, current_params.options)
                          };
             /* TODO: This *still* only loads packages from localhost */
             frame = $(document.createElement("iframe"));
             frame.addClass("container-frame").
                 attr("name", id + "-" + server).
-                hide().attr("src", url + cockpit.hash.encode_page_hash(params));
+                hide().attr("src", url + cockpit.hash.encode(params));
             self.body.append(frame);
             self.frames[server] = frame;
         }

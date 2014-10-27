@@ -755,21 +755,50 @@ build_json_error (GError *error)
   return object;
 }
 
+static gchar *
+build_signature (GVariant *variant)
+{
+  const GVariantType *type;
+  GString *sig;
+
+  sig = g_string_new ("");
+  type = g_variant_get_type (variant);
+  for (type = g_variant_type_first (type);
+       type != NULL;
+       type = g_variant_type_next (type))
+    {
+      g_string_append_len (sig, g_variant_type_peek_string (type),
+                           g_variant_type_get_string_length (type));
+    }
+  return g_string_free (sig, FALSE);
+}
+
 static JsonNode *
-build_json_body (GDBusMessage *message)
+build_json_body (GDBusMessage *message,
+                 gchar **type)
 {
   GVariant *body = g_dbus_message_get_body (message);
   if (body)
-    return build_json (body);
+    {
+      if (type)
+        *type = build_signature (body);
+      return build_json (body);
+    }
   else
-    return json_node_init_null (json_node_alloc ());
+    {
+      if (type)
+        *type = NULL;
+      return json_node_init_null (json_node_alloc ());
+    }
 }
 
 static JsonObject *
-build_json_reply (GDBusMessage *message)
+build_json_reply (GDBusMessage *message,
+                  gboolean with_type)
 {
   JsonObject *object;
   JsonArray *reply;
+  gchar *type = NULL;
 
   object = json_object_new ();
   reply = json_array_new ();
@@ -783,7 +812,13 @@ build_json_reply (GDBusMessage *message)
       json_object_set_array_member (object, "reply", reply);
     }
 
-  json_array_add_element (reply, build_json_body (message));
+  json_array_add_element (reply, build_json_body (message, with_type ? &type : NULL));
+
+  if (type)
+    {
+      json_object_set_string_member (object, "type", type);
+      g_free (type);
+    }
   return object;
 }
 
@@ -798,7 +833,7 @@ build_json_signal (GDBusMessage *message)
   json_array_add_string_element (signal, g_dbus_message_get_path (message));
   json_array_add_string_element (signal, g_dbus_message_get_interface (message));
   json_array_add_string_element (signal, g_dbus_message_get_member (message));
-  json_array_add_element (signal, build_json_body (message));
+  json_array_add_element (signal, build_json_body (message, FALSE));
   json_object_set_array_member (object, "signal", signal);
 
   return object;
@@ -806,47 +841,84 @@ build_json_signal (GDBusMessage *message)
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+typedef struct {
+  /* Cleared by dispose */
+  GList *link;
+  CockpitDBusJson *dbus_json;
+
+  /* Request data */
+  JsonObject *request;
+
+  /* Owned here */
+  GVariantType *param_type;
+
+  /* Owned by cache */
+  GDBusInterfaceInfo *info;
+
+  /* Owned by request */
+  const gchar *cookie;
+  const gchar *interface;
+  const gchar *method;
+  const gchar *path;
+  const gchar *type;
+  JsonNode *args;
+} CallData;
+
 static void
 send_dbus_error (CockpitDBusJson *self,
-                 const gchar *cookie,
+                 CallData *call,
                  GError *error)
 {
   JsonObject *object;
 
-  if (!cookie)
+  if (!call->cookie)
     {
       g_debug ("%s: dropping error without cookie: %s", self->name, error->message);
       return;
     }
 
   object = build_json_error (error);
-  json_object_set_string_member (object, "id", cookie);
+  json_object_set_string_member (object, "id", call->cookie);
   send_json_object (self, object);
   json_object_unref (object);
 }
 
 static void
 send_dbus_reply (CockpitDBusJson *self,
-                 const gchar *cookie,
+                 CallData *call,
                  GDBusMessage *message)
 {
   JsonObject *object;
 
-  object = build_json_reply (message);
-  json_object_set_string_member (object, "id", cookie);
+  g_return_if_fail (call->cookie != NULL);
+
+  object = build_json_reply (message, call->type != NULL);
+  json_object_set_string_member (object, "id", call->cookie);
   send_json_object (self, object);
   json_object_unref (object);
 }
 
 static GVariantType *
-compute_complete_signature (GDBusArgInfo **args)
+calculate_param_type (GDBusInterfaceInfo *info,
+                      const gchar *method,
+                      GError **error)
 {
   const GVariantType *arg_types[256];
+  GDBusMethodInfo *method_info = NULL;
   guint n;
 
-  if (args)
+  if (info)
+    method_info = g_dbus_interface_info_lookup_method (info, method);
+  if (method_info == NULL)
     {
-      for (n = 0; args[n] != NULL; n++)
+      g_set_error (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD,
+                   "Introspection data for method %s on D-Bus interface %s not available",
+                   info->name, method);
+      return NULL;
+    }
+  else if (method_info->in_args)
+    {
+      for (n = 0; method_info->in_args[n] != NULL; n++)
         {
           /* DBus places a hard limit of 255 on signature length.
            * therefore number of args must be less than 256.
@@ -854,7 +926,7 @@ compute_complete_signature (GDBusArgInfo **args)
           if (n >= G_N_ELEMENTS (arg_types))
             return NULL;
 
-          arg_types[n] = G_VARIANT_TYPE (args[n]->signature);
+          arg_types[n] = G_VARIANT_TYPE (method_info->in_args[n]->signature);
 
           if G_UNLIKELY (arg_types[n] == NULL)
             return NULL;
@@ -867,25 +939,6 @@ compute_complete_signature (GDBusArgInfo **args)
   return g_variant_type_new_tuple (arg_types, n);
 }
 
-typedef struct {
-  /* Cleared by dispose */
-  GList *link;
-  CockpitDBusJson *dbus_json;
-
-  /* Request data */
-  JsonObject *request;
-
-  /* Owned by cache */
-  GDBusInterfaceInfo *info;
-
-  /* Owned by request */
-  const gchar *cookie;
-  const gchar *interface;
-  const gchar *method;
-  const gchar *path;
-  JsonNode *args;
-} CallData;
-
 static void
 call_data_free (CallData *call)
 {
@@ -893,6 +946,8 @@ call_data_free (CallData *call)
     call->dbus_json->active_calls = g_list_delete_link (call->dbus_json->active_calls, call->link);
   if (call->request)
     json_object_unref (call->request);
+  if (call->param_type)
+    g_variant_type_free (call->param_type);
   g_slice_free (CallData, call);
 }
 
@@ -911,9 +966,9 @@ on_send_message_reply (GObject *source,
   if (call->dbus_json)
     {
       if (error)
-        send_dbus_error (call->dbus_json, call->cookie, error);
+        send_dbus_error (call->dbus_json, call, error);
       else
-        send_dbus_reply (call->dbus_json, call->cookie, message);
+        send_dbus_reply (call->dbus_json, call, message);
     }
 
   g_clear_error (&error);
@@ -926,24 +981,12 @@ static void
 handle_dbus_call_on_interface (CockpitDBusJson *self,
                                CallData *call)
 {
-  GDBusMethodInfo *method_info = NULL;
-  GVariantType *param_type;
   GVariant *parameters = NULL;
   GError *error = NULL;
   GDBusMessage *message;
 
-  if (call->info)
-    method_info = g_dbus_interface_info_lookup_method (call->info, call->method);
-  if (method_info == NULL)
-    {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD,
-                   "Introspection data for method %s on D-Bus interface %s not available",
-                   call->interface, call->method);
-      goto out;
-    }
-  param_type = compute_complete_signature (method_info->in_args);
-  parameters = parse_json (call->args, param_type, &error);
-  g_variant_type_free (param_type);
+  g_return_if_fail (call->param_type != NULL);
+  parameters = parse_json (call->args, call->param_type, &error);
 
   if (!parameters)
     goto out;
@@ -971,7 +1014,7 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
 out:
   if (error)
     {
-      send_dbus_error (self, call->cookie, error);
+      send_dbus_error (self, call, error);
       g_error_free (error);
     }
   if (call)
@@ -988,9 +1031,9 @@ on_introspect_ready (GObject *source,
   GVariant *val = NULL;
   GDBusNodeInfo *node = NULL;
   GDBusInterfaceInfo *iface = NULL;
+  GDBusInterfaceInfo *found = NULL;
   const gchar *xml = NULL;
   GError *error = NULL;
-  gboolean not_found;
   gboolean expected;
   gchar *remote;
   gint i;
@@ -1001,8 +1044,6 @@ on_introspect_ready (GObject *source,
       call_data_free (call);
       return;
     }
-
-  not_found = FALSE;
 
   val = g_dbus_connection_call_finish (G_DBUS_CONNECTION (source), result, &error);
   if (error)
@@ -1029,7 +1070,6 @@ on_introspect_ready (GObject *source,
           expected = (g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownMethod") ||
                       g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownObject") ||
                       g_str_equal (remote, "org.freedesktop.DBus.Error.UnknownInterface"));
-          not_found = TRUE;
           g_free (remote);
         }
 
@@ -1059,7 +1099,6 @@ on_introspect_ready (GObject *source,
         }
       else if (node)
         {
-          not_found = TRUE;
           for (i = 0; node->interfaces && node->interfaces[i] != NULL; i++)
             {
               iface = node->interfaces[i];
@@ -1068,7 +1107,7 @@ on_introspect_ready (GObject *source,
                   g_hash_table_replace (self->introspect_cache, iface->name,
                                         g_dbus_interface_info_ref (iface));
                   if (g_str_equal (iface->name, call->interface))
-                    not_found = FALSE;
+                    found = iface;
                 }
             }
           g_dbus_node_info_unref (node);
@@ -1084,19 +1123,27 @@ on_introspect_ready (GObject *source,
    *
    * So return an intelligent error message here.
    */
-  if (not_found)
+  if (!found)
     {
       g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_INTERFACE,
-                   "No interface %s at path %s while calling %s",
+                   "no interface %s at path %s while calling %s",
                    call->path, call->interface, call->method);
-      send_dbus_error (self, call->cookie, error);
-      g_error_free (error);
-      call_data_free (call);
-      return;
+    }
+  else
+    {
+      call->param_type = calculate_param_type (found, call->method, &error);
     }
 
-  call->info = g_hash_table_lookup (self->introspect_cache, call->interface);
-  handle_dbus_call_on_interface (self, call);
+  if (error)
+    {
+      send_dbus_error (self, call, error);
+      g_error_free (error);
+      call_data_free (call);
+    }
+  else
+    {
+      handle_dbus_call_on_interface (self, call);
+    }
 }
 
 static const gchar *
@@ -1119,6 +1166,7 @@ handle_dbus_call (CockpitDBusJson *self,
   CallData *call;
   JsonArray *array;
   JsonNode *node;
+  gchar *type;
 
   node = json_object_get_member (object, "call");
   g_return_if_fail (node != NULL);
@@ -1141,6 +1189,7 @@ handle_dbus_call (CockpitDBusJson *self,
     call->args = node;
 
   cockpit_json_get_string (object, "id", NULL, &call->cookie);
+  cockpit_json_get_string (object, "type", NULL, &call->type);
 
   if (!call->path || !g_variant_is_object_path (call->path))
     {
@@ -1162,12 +1211,36 @@ handle_dbus_call (CockpitDBusJson *self,
       g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
                    "Missing arguments in method call");
     }
+  else if (call->type)
+    {
+      if (!g_variant_is_signature (call->type))
+        {
+          g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+                       "Type signature is not valid: %s", call->type);
+        }
+      else
+        {
+          type = g_strdup_printf ("(%s)", call->type);
+          call->param_type = g_variant_type_new (type);
+          g_free (type);
+        }
+    }
+
+  if (!error && !call->param_type)
+    {
+      call->info = g_hash_table_lookup (self->introspect_cache, call->interface);
+      if (call->info)
+        {
+          g_debug ("%s: found introspect data for %s in cache", self->name, call->interface);
+          call->param_type = calculate_param_type (call->info, call->method, &error);
+        }
+    }
 
   if (error)
     {
-      send_dbus_error (self, call->cookie, error);
+      send_dbus_error (self, call, error);
       g_error_free (error);
-      g_slice_free (CallData, call);
+      call_data_free (call);
       return;
     }
 
@@ -1175,11 +1248,8 @@ handle_dbus_call (CockpitDBusJson *self,
   call->request = json_object_ref (object);
   self->active_calls = g_list_prepend (self->active_calls, call);
   call->link = g_list_find (self->active_calls, call);
-  call->info = g_hash_table_lookup (self->introspect_cache, call->interface);
-  if (call->info)
-    g_debug ("%s: found introspect data for %s in cache", self->name, call->interface);
 
-  if (call->info != NULL)
+  if (call->param_type)
     {
       /* Frees call data when done */
       handle_dbus_call_on_interface (self, call);

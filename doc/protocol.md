@@ -303,7 +303,8 @@ with parameters in this order: path, interface, method, in arguments.
     }
 
 All the various parameters must be valid for their use. arguments may be
-null if no DBus method call body is expected.
+null if no DBus method call body is expected. If a "type" field is specified
+then it is expected to be the DBus method type signature (no tuple).
 
 If a DBus method call fails an "error" message will be sent back. An error
 will also be sent back in parameters or arguments in the "call" message are
@@ -314,7 +315,8 @@ sent back in a "reply" or "error" message with the same "id" field.
 
 Method reply messages are JSON objects with a "reply" field whose value is
 an array, the array contains another array of out arguments, or null if
-the DBus reply had no body.
+the DBus reply had no body. If the call had a "type" field, then the reply
+will have one too containing the DBus type signature of the arguments.
 
     {
         "reply": [ [ "arg0", 1, 2 ] ],

@@ -38,6 +38,37 @@ static int exit_code = 0;
 static GObject *exported = NULL;
 static GObject *exported_b = NULL;
 
+static GDBusMessage *
+on_filter_func (GDBusConnection *connection,
+                GDBusMessage *message,
+                gboolean incoming,
+                gpointer user_data)
+{
+  GError *error = NULL;
+  GDBusMessage *reply;
+
+  if (incoming &&
+      g_dbus_message_get_message_type (message) == G_DBUS_MESSAGE_TYPE_METHOD_CALL &&
+      g_str_equal (g_dbus_message_get_path (message), "/bork") &&
+      g_str_equal (g_dbus_message_get_interface (message), "borkety.Bork") &&
+      g_str_equal (g_dbus_message_get_member (message), "Echo"))
+    {
+      reply = g_dbus_message_new_method_reply (message);
+      g_dbus_message_set_body (reply, g_dbus_message_get_body (message));
+      g_dbus_connection_send_message (connection, reply, G_DBUS_SEND_MESSAGE_FLAGS_NONE, NULL, &error);
+      if (error != NULL)
+        {
+          g_warning ("Couldn't send DBus message: %s", error->message);
+          g_error_free (error);
+        }
+      g_object_unref (reply);
+      g_object_unref (message);
+      return NULL;
+    }
+
+  return message;
+}
+
 static void
 on_bus_acquired (GDBusConnection *connection,
                  const gchar *name,
@@ -45,7 +76,9 @@ on_bus_acquired (GDBusConnection *connection,
 {
   exported = mock_service_create_and_export (connection, "/otree");
   exported_b = mock_service_create_and_export (connection, "/different");
+  g_dbus_connection_add_filter (connection, on_filter_func, NULL, NULL);
 }
+
 
 /* ---------------------------------------------------------------------------------------------------- */
 

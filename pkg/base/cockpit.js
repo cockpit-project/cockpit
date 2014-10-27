@@ -825,7 +825,10 @@ function full_scope(cockpit, $) {
                 dfd = calls[msg.id];
             if (msg.reply) {
                 if (dfd) {
-                    dfd.resolve(msg.reply[0]);
+                    var options = { };
+                    if (msg.type)
+                        options.type = msg.type;
+                    dfd.resolve(msg.reply[0], options);
                     delete calls[msg.id];
                 }
             } else if (msg.error) {
@@ -879,11 +882,16 @@ function full_scope(cockpit, $) {
             var dfd = $.Deferred();
             var id = String(last_cookie);
             last_cookie++;
-            var msg = JSON.stringify({
+            var call = {
                 "call": [ path, iface, method, args ],
                 "id": id
-            });
+            };
+            if (options) {
+                if (options.type)
+                    call.type = options.type;
+            }
 
+            var msg = JSON.stringify(call);
             dbus_debug("dbus:", msg);
             channel.send(msg);
             calls[id] = dfd;

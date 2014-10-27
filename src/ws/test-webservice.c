@@ -1178,7 +1178,7 @@ test_idling (TestCase *test,
                          "flavor", 0,
                          NULL);
 
-  pipe = cockpit_pipe_spawn (argv, NULL, NULL, FALSE);
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
   service = cockpit_web_service_new (test->creds, pipe);
   g_object_unref (pipe);
 
@@ -1229,7 +1229,7 @@ test_dispose (TestCase *test,
                          "flavor", 0,
                          NULL);
 
-  pipe = cockpit_pipe_spawn (argv, NULL, NULL, FALSE);
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
   service = cockpit_web_service_new (test->creds, pipe);
   g_object_unref (pipe);
 
@@ -1302,7 +1302,7 @@ setup_resource (TestResourceCase *tc,
   environ = g_environ_setenv (environ, "XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
 
   /* Start up a cockpit-bridge here */
-  tc->pipe = cockpit_pipe_spawn (argv, (const gchar **)environ, NULL, FALSE);
+  tc->pipe = cockpit_pipe_spawn (argv, (const gchar **)environ, NULL, COCKPIT_PIPE_FLAGS_NONE);
 
   g_strfreev (environ);
 

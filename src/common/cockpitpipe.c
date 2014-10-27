@@ -1001,11 +1001,12 @@ stderr_to_stdout (gpointer data)
  * @argv: null terminated string array of command arguments
  * @env: optional null terminated string array of child environment
  * @directory: optional working directory of child process
- * @output_stderr: include stderr in the output stream
+ * @flags: flags pertaining to stderr
  *
  * Launch a child process and create a CockpitPipe for it. Standard
- * in and standard out are connected to the pipe. Standard error
- * goes to the g_printerr handler, usually to the journal.
+ * in and standard out are connected to the pipe. If flags includes
+ * COCKPIT_PIPE_STDERR_TO_LOG then standard error
+ * goes to the g_printerr handler, sually to the journal.
  *
  * If the spawn fails, a pipe is still returned. It will
  * close once the main loop is run with an appropriate problem.
@@ -1020,7 +1021,7 @@ CockpitPipe *
 cockpit_pipe_spawn (const gchar **argv,
                     const gchar **env,
                     const gchar *directory,
-                    gboolean output_stderr)
+                    CockpitPipeFlags flags)
 {
   CockpitPipe *pipe = NULL;
   int session_stdin = -1;
@@ -1033,9 +1034,9 @@ cockpit_pipe_spawn (const gchar **argv,
 
   g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
                             calculate_spawn_flags (env),
-                            output_stderr ? stderr_to_stdout : NULL, NULL,
+                            (flags & COCKPIT_PIPE_STDERR_TO_STDOUT) ? stderr_to_stdout : NULL, NULL,
                             &pid, &session_stdin, &session_stdout,
-                            output_stderr ? NULL : &session_stderr, &error);
+                            (flags & COCKPIT_PIPE_STDERR_TO_LOG) ? &session_stderr : NULL, &error);
 
   name = g_path_get_basename (argv[0]);
   if (name == NULL)

@@ -375,7 +375,7 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
 
   caller = g_new0 (ReauthorizeCaller, 1);
   caller->cookie = g_strdup (cookie);
-  caller->helper = cockpit_pipe_spawn (argv, NULL, NULL, FALSE);
+  caller->helper = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_STDERR_TO_LOG);
   caller->read_sig = g_signal_connect (caller->helper, "read", G_CALLBACK (on_helper_read), caller);
   caller->close_sig = g_signal_connect (caller->helper, "close", G_CALLBACK (on_helper_close), caller);
 

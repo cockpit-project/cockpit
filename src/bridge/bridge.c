@@ -301,11 +301,13 @@ run_bridge (void)
   CockpitTransport *transport;
   GDBusConnection *connection;
   gboolean terminated = FALSE;
+  gboolean interupted = FALSE;
   gboolean closed = FALSE;
   GError *error = NULL;
   gpointer polkit_agent;
   GPid daemon_pid;
   guint sig_term;
+  guint sig_int;
   int outfd;
 
   cockpit_set_journal_logging (!isatty (2));
@@ -323,9 +325,8 @@ run_bridge (void)
       outfd = 1;
     }
 
-  sig_term = g_unix_signal_add_full (G_PRIORITY_DEFAULT,
-                                     SIGTERM, on_signal_done,
-                                     &terminated, NULL);
+  sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
+  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
 
   /* Start a session daemon if necessary */
   daemon_pid = start_dbus_daemon ();
@@ -367,6 +368,7 @@ run_bridge (void)
     kill (daemon_pid, SIGTERM);
 
   g_source_remove (sig_term);
+  g_source_remove (sig_int);
 
   /* So the caller gets the right signal */
   if (terminated)

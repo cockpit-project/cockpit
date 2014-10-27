@@ -2080,7 +2080,7 @@ PageStorageDetail.prototype = {
 
     delete_raid: function() {
         var self = this;
-        var location = cockpit.location();
+        var location = cockpit._location();
 
         cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: raid_get_desc(this._mdraid) }),
                         _("Deleting a RAID Device will erase all data on it."),
@@ -2252,7 +2252,7 @@ PageStorageDetail.prototype = {
 
     delete_volume_group: function() {
         var self = this;
-        var location = cockpit.location();
+        var location = cockpit._location();
 
         if (!cockpit.check_admin(this.client))
             return;

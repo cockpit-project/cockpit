@@ -1045,7 +1045,7 @@ PageContainerDetails.prototype = {
                 $(commit).find(".container-command").attr('value', command);
             }).
             find(".btn-primary").on("click", function() {
-                var location = cockpit.location();
+                var location = cockpit._location();
                 var run = { "Cmd": unquote_cmdline($(commit).find(".container-command").val()) };
                 var options = {
                     "author": $(commit).find(".container-author").val()
@@ -1208,7 +1208,7 @@ PageContainerDetails.prototype = {
 
     delete_container: function () {
         var self = this;
-        var location = cockpit.location();
+        var location = cockpit._location();
         cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
                         _("Deleting a container will erase all data in it."),
                         _("Delete")).
@@ -1349,7 +1349,7 @@ PageImageDetails.prototype = {
 
     delete_image: function () {
         var self = this;
-        var location = cockpit.location();
+        var location = cockpit._location();
         cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
                         _("Deleting an image will delete it, but you can probably download it again if you need it later.  Unless this image has never been pushed to a repository, that is, in which case you probably can't download it again."),
                         _("Delete")).

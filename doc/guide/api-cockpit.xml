@@ -69,6 +69,125 @@
 
   </refsection>
 
+  <refsection id="latest-location">
+    <title>Page Location</title>
+
+<programlisting>
+  location = cockpit.location
+  cockpit.location = "/path"
+</programlisting>
+
+    <para>Cockpit components often have different views, without changing the HTML file that is
+      being viewed. These are known as pages. <code>cockpit.location</code> is an object that can
+      be used to read the current page and to navigate to a different page location. It works by
+      updating <code>window.location.hash</code>.</para>
+
+    <para>The <code>cockpit.location</code> looks like a HTTP path with a possible query
+      string:</para>
+
+<programlisting>
+ /path/sub/page?option=value,option2
+</programlisting>
+
+    <para>The <link linkend="latest-location-path"><code>location.path</code></link> and
+      <link linkend="latest-location-options"><code>location.options</code></link> contain a parsed
+      form of the location. While the location cannot be modified in place, a new one can be
+      created by assigning a string to <code>cockpit.location</code> or by calling the
+      <link linkend="latest-location-go"><code>location.go()</code></link> function.</para>
+
+    <para><code>cockpit.location</code> is designed similarly to <code>window.location</code>
+      in that the location object is preplaced whenever the current page location changes. To be
+      aware of when the page location changes listen for the
+      <link linkend="latest-location-changed"><code>cockpit.onlocationchanged</code></link>
+      event.</para>
+
+    <para>Using the location object as a string will result in the
+      <link linkend="latest-location-href"><code>location.href</code></link>.</para>
+
+    <refsection id="latest-location-href">
+      <title>location.href</title>
+      <para>The string representation of this page location, including any options.</para>
+    </refsection>
+
+    <refsection id="latest-location-path">
+      <title>location.path</title>
+      <para>An array of path segments, parsed and decoded appropriately. An empty array denotes
+        the root path.</para>
+    </refsection>
+
+    <refsection id="latest-location-options">
+      <title>location.options</title>
+      <para>A javascript object containing the various options present in the location.</para>
+    </refsection>
+
+    <refsection id="latest-location-go">
+      <title>location.go()</title>
+<programlisting>
+  location.go(path, [options])
+</programlisting>
+      <para>Changes the current location to the given <code>path</code> and <code>options</code>.
+        If the <code>path</code> argument is a string, it will be parsed into a path. If it is
+        a relative path, then the result will be relative to the current <code>location.path</code>.
+        If the <code>path</code> argument is an array of path segments, it will be treated as a
+        full parsed absolute path.</para>
+
+      <para>Any options found in a <code>path</code> will be added to those in the optional
+        <code>options</code> argument, and used in the result.</para>
+
+      <para>The location change will only take effect if the location has not changed in the
+        meantime. This can be to good effect by saving a <code>cockpit.location</code> object
+        and doing a conditional navigation, by calling the saved <code>location.go()</code>
+        method later. This will only navigate if the user or other code has not navigated in
+        the meantime.</para>
+    </refsection>
+
+    <refsection id="latest-location-replace">
+      <title>location.replace()</title>
+<programlisting>
+  location.replace(path, [options])
+</programlisting>
+      <para>Similar to <link linkend="latest-location-go"><code>location.go()</code></link>
+        except the location change will not result in a navigation change in the browser's
+        history.</para>
+    </refsection>
+
+    <refsection id="latest-location-decode">
+      <title>location.decode()</title>
+<programlisting>
+  path = location.decode(href, [options])
+</programlisting>
+      <para>Decode a cockpit href into its <code>path</code> array. If the <code>options</code>
+        argument is specified, then it will be populated with options found in the href.</para>
+
+      <para>If href is a relative path it will be resolved relative to
+        <code>location.href</code>.</para>
+    </refsection>
+
+    <refsection id="latest-location-encode">
+      <title>location.encode()</title>
+<programlisting>
+  href = location.encode(path, [options])
+</programlisting>
+      <para>Encode the given <code>path</code> and <code>options</code> into a cockpit href.
+        The <code>path</code> argument may be an array of path segments, or a string path. If
+        a relative path is passed, it will be resolved relative to <code>location.href</code>.</para>
+    </refsection>
+
+    <refsection id="latest-location-changed">
+      <title>cockpit.onlocationchanged</title>
+<programlisting>
+ $(cockpit).on("locationchanged", function() { ... })
+</programlisting>
+      <para>An event emitted when over the <code>cockpit.location</code> changes. Typically a
+        component reacts to this event by updating its interface to reflect the new
+        <link linkend="latest-location-path"><code>cockpit.location.path</code></link> and
+        <link linkend="latest-location-options"><code>cockpit.location.options</code></link>.</para>
+
+      <para>This event is not triggered immediately during a <code>location.go()</code> or
+        similar call. It will be triggered asynchronously at a later time.</para>
+    </refsection>
+  </refsection>
+
   <refsection id="latest-spawn">
     <title>Spawning Processes</title>
 

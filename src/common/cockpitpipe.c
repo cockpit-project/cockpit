@@ -937,7 +937,7 @@ print_err_lines (GString *buffer)
   /* Print all stderr lines as messages */
   while ((line = memchr (at, '\n', length)) != NULL)
     {
-      g_printerr ("%.*s", (int)(line - at), at);
+      g_printerr ("%.*s\n", (int)(line - at), at);
       length -= (line - at) + 1;
       at = line + 1;
     }

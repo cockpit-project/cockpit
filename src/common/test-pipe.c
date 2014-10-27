@@ -756,12 +756,12 @@ test_spawn_printerr (void)
   const gchar *argv[] = { SRCDIR "/src/common/mock-stderr", NULL };
 
   const gchar *expected[] = {
-    "line one",
-    "line two",
-    "line three",
-    "line four",
-    "line five",
-    "line six",
+    "line one\n",
+    "line two\n",
+    "line three\n",
+    "line four\n",
+    "line five\n",
+    "line six\n",
     NULL
   };
 

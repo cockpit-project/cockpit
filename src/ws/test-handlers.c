@@ -367,7 +367,7 @@ main (int argc,
       char *argv[])
 {
   cockpit_ws_session_program = BUILDDIR "/cockpit-session";
-  cockpit_ws_bridge_program = BUILDDIR "/cockpit-bridge";
+  cockpit_ws_bridge_program = "/bin/cat";
 
   cockpit_test_init (&argc, &argv);
 

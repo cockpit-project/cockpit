@@ -268,6 +268,8 @@ int
 main (int argc,
       char *argv[])
 {
+  cockpit_ws_bridge_program = "/bin/cat";
+
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/auth/userpass-header-check", Test, NULL, setup, test_userpass_cookie_check, teardown);

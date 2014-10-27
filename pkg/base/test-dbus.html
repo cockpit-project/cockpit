@@ -241,7 +241,6 @@ asyncTest("call unknown", function() {
     expect(3);
 
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
             "UnknownBlahMethod", [ 1 ]).
         fail(function(ex) {
@@ -311,6 +310,87 @@ asyncTest("signal unsubscribe", function() {
                     equal(received, false, "signals: signal not received");
                     start();
                 });
+        });
+});
+
+asyncTest("with types", function() {
+    expect(3);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    dbus.call("/bork", "borkety.Bork", "Echo",
+              [ {one: "red", two: "blue"}, 55, 66, 32 ],
+              { type: "a{ss}uit" }).
+        done(function(reply, options) {
+            deepEqual(reply, [ {one: "red", two: "blue"}, 55, 66, 32 ], "with types: round trip");
+            equal(options.type, "a{ss}uit", "with types: got back type");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "with types: finished successfuly");
+            start();
+        });
+});
+
+asyncTest("bad types", function() {
+    expect(3);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ],
+              { type: "!!%%" }).
+        fail(function(ex) {
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad types: error name");
+            equal(ex.message, "Type signature is not valid: !!%%", "bad types: error message");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "bad types: should fail");
+            start();
+        });
+});
+
+asyncTest("bad dict type", function() {
+    expect(3);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "Nobody", [ { "!!!": "value" } ], { type: "a{is}" }).
+        fail(function(ex) {
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad dict type: error name");
+            equal(ex.message, "Unexpected key '!!!' in dict entry", "bad dict type: error message");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "bad dict type: should fail");
+            start();
+        });
+});
+
+asyncTest("bad object path", function() {
+    expect(3);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "Nobody", [ "not/a/path" ], { type: "o" }).
+        fail(function(ex) {
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad object path: error name");
+            equal(ex.message, "Invalid object path 'not/a/path'", "bad object path: error message");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "bad object path: should fail");
+            start();
+        });
+});
+
+asyncTest("bad signature", function() {
+    expect(3);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "Nobody", [ "bad signature" ], { type: "g" }).
+        fail(function(ex) {
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad signature: error name");
+            equal(ex.message, "Invalid signature 'bad signature'", "bad signature: error message");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "bad signature: should fail");
+            start();
         });
 });
 

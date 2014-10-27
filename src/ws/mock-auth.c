@@ -24,6 +24,8 @@
 #include "common/cockpitenums.h"
 #include "common/cockpiterror.h"
 
+#include "ws/cockpitws.h"
+
 #include "websocket/websocket.h"
 
 #include <string.h>
@@ -106,7 +108,7 @@ mock_auth_login_finish (CockpitAuth *auth,
   CockpitCreds *creds;
 
   const gchar *argv[] = {
-    BUILDDIR "/cockpit-bridge",
+    cockpit_ws_bridge_program ? cockpit_ws_bridge_program : BUILDDIR "/cockpit-bridge",
     NULL
   };
 

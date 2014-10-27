@@ -226,10 +226,8 @@ cockpit_pipe_transport_finalize (GObject *object)
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (object);
 
-  if (self->read_sig)
-    g_signal_handler_disconnect (self->pipe, self->read_sig);
-  if (self->close_sig)
-    g_signal_handler_disconnect (self->pipe, self->close_sig);
+  g_signal_handler_disconnect (self->pipe, self->read_sig);
+  g_signal_handler_disconnect (self->pipe, self->close_sig);
 
   g_free (self->name);
   g_clear_object (&self->pipe);

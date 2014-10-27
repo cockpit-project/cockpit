@@ -438,6 +438,7 @@ cockpit_polkit_agent_register (CockpitTransport *transport,
   PolkitAuthority *authority = NULL;
   PolkitSubject *subject = NULL;
   GVariant *options;
+  GLogLevelFlags fatal;
   GError *error = NULL;
   gpointer handle = NULL;
   guint handler = 0;
@@ -468,12 +469,14 @@ cockpit_polkit_agent_register (CockpitTransport *transport,
    * https://bugs.freedesktop.org/show_bug.cgi?id=78193
    */
 
+  fatal = g_log_set_always_fatal (0);
   handler = g_log_set_handler (NULL, G_LOG_LEVEL_WARNING, cockpit_null_log_handler, NULL);
 
   handle = polkit_agent_listener_register_with_options (listener,
                                                         POLKIT_AGENT_REGISTER_FLAGS_NONE,
                                                         subject, NULL, options, cancellable, &error);
 
+  g_log_set_always_fatal (fatal);
   g_log_remove_handler (NULL, handler);
 
   if (error != NULL)

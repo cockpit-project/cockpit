@@ -167,24 +167,9 @@ var current_params;
 var current_page_element;
 var current_legacy_page;
 
-var current_hash;
 var content_is_shown = false;
 
 var page_navigation_count = 0;
-
-/* HACK: Mozilla will unescape 'window.location.hash' before returning
- * it, which is broken.
- *
- * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
- */
-
-function get_window_location_hash() {
-    return '#' + (window.location.href.split('#')[1] || '');
-}
-
-function set_window_location_hash(hash) {
-    window.location.hash = hash;
-}
 
 function content_init() {
     var current_visible_dialog = null;
@@ -218,14 +203,10 @@ function content_init() {
         cockpit.go_rel($(this).attr('data-task-id'));
     });
 
-    $(window).on('hashchange', function () {
-        var hash = get_window_location_hash();
-        if (hash != current_hash) {
-            if (current_visible_dialog)
-                $('#' + current_visible_dialog).modal('hide');
-
-            go_hash(hash);
-        }
+    $(cockpit.location).on('change', function () {
+        if (current_visible_dialog)
+            $('#' + current_visible_dialog).modal('hide');
+        go_location();
     });
 
     $(window).on('resize', function () {
@@ -247,7 +228,7 @@ function content_show() {
     $('.page').hide();
     $('#content').show();
     content_is_shown = true;
-    go_hash(get_window_location_hash());
+    go_location();
     phantom_checkpoint();
 }
 
@@ -463,7 +444,6 @@ function go_params(params) {
     current_page_element = element;
     current_legacy_page = legacy_page;
     resize_current_iframe();
-    show_hash();
     enter_global_nav();
     if (legacy_page)
         legacy_page.enter();
@@ -477,21 +457,44 @@ function go_params(params) {
         legacy_page.show();
 }
 
-cockpit.go = function go(host, path, options) {
-    if (!host)
+function go_location() {
+    var host = cockpit.location.path()[0];
+    var path = cockpit.location.path().slice(1);
+    var options = cockpit.location.options();
+
+    if (!host || host == "local")
         host = "localhost";
-    if (!options)
-        options = { };
-    if (path && path.substr)
-        path = [ path ];
-    if (!path || !path.length)
+    if (path.length < 1)
         path = [ "dashboard" ];
 
     go_params({ host: host, path: path, options: options });
+}
+
+cockpit.delayed_go = function delayed_go() {
+    var go = cockpit.location.delayed_go();
+    return function (host, path, options) {
+        if (!host || host == "localhost")
+            host = "local";
+        if (path && path.substr)
+            path = [ path ];
+        go([ host ].concat(path), options || { });
+    };
+};
+
+cockpit.go = function go(host, path, options) {
+    cockpit.delayed_go()(host, path, options);
+};
+
+cockpit.delayed_go_rel = function delayed_go_rel() {
+    var go = cockpit.delayed_go();
+    var host = current_params && current_params.host;
+    return function (path, options) {
+        go(host, path, options);
+    };
 };
 
 cockpit.go_rel = function go_rel(path, options) {
-    cockpit.go(current_params && current_params.host, path, options);
+    cockpit.delayed_go_rel()(path, options);
 };
 
 // TODO: Get rid of this
@@ -499,23 +502,6 @@ cockpit.go_rel_cmd = function go_rel_cmd(path, options)
 {
     return "cockpit.go_rel(" + JSON.stringify(path) + "," + JSON.stringify(options) + ");";
 };
-
-function show_hash() {
-    var host = current_params.host;
-    if (host == "localhost")
-        host = "local";
-    var path = [ host ].concat(current_params.path);
-    current_hash = cockpit.hash.encode({ path: path, options: current_params.options });
-    set_window_location_hash(current_hash);
-}
-
-function go_hash(hash) {
-    var params = cockpit.hash.decode(hash);
-    var host = params.path[0];
-    if (host == "local")
-        host = "localhost";
-    cockpit.go(host, params.path.slice(1), params.options);
-}
 
 function dialog_from_id(id) {
     var n;
@@ -570,10 +556,10 @@ cockpit.get_page_machine = function get_page_machine() {
 
 cockpit.set_page_param = function set_page_param(key, val) {
     if (val)
-        current_params.options[key] = val;
+        cockpit.location.option(key, val);
     else
-        delete current_params.options[key];
-    show_hash ();
+        delete cockpit.location.options()[key];
+    current_params.options = cockpit.location.options();
 };
 
 cockpit.show_error_dialog = function show_error_dialog(title, message) {
@@ -591,35 +577,6 @@ cockpit.show_error_dialog = function show_error_dialog(title, message) {
 
 cockpit.show_unexpected_error = function show_unexpected_error(error) {
     cockpit.show_error_dialog(_("Unexpected error"), error.message || error);
-};
-
-/* A Location object can navigate to a different page, but silently
- * does nothing when some navigation has already happened since it was
- * created.
- */
-
-Location.prototype = {
-    go_rel: function(path, options) {
-        if (this.can_go())
-            cockpit.go_rel(path, options);
-    },
-
-    go: function(host, path, options) {
-        if (this.can_go())
-            cockpit.go(host, path, options);
-    }
-};
-
-function Location(can_go) {
-    this.can_go = can_go;
-}
-
-cockpit._location = function location() {
-    var navcount = page_navigation_count;
-    function can_navigate() {
-        return navcount === page_navigation_count;
-    }
-    return new Location(can_navigate);
 };
 
 cockpit.confirm = function confirm(title, body, action_text) {

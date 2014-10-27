@@ -223,7 +223,6 @@ PageServices.prototype = {
         me.address = cockpit.get_page_machine();
 
         if (!me.geard_check_done) {
-            var location = cockpit._location();
             me.geard_check_done = true;
             cockpit.spawn([ "which", "gear" ], { host: me.address }).
                 done(function () {

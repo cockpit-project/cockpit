@@ -1698,10 +1698,10 @@ PageNetworkInterface.prototype = {
         }
 
         if (this.iface) {
-            var location = cockpit._location();
+            var go_rel = cockpit.delayed_go_rel();
             delete_iface_connections(this.iface).
                 done(function () {
-                    location.go_rel("networking");
+                    go_rel("networking");
                 }).
                 fail(cockpit.show_unexpected_error);
         }

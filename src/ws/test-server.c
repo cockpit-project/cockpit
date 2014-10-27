@@ -229,6 +229,13 @@ setup_path (const char *argv0)
   g_free (dir);
 }
 
+static gboolean
+on_signal_done (gpointer data)
+{
+  g_main_loop_quit (loop);
+  return TRUE;
+}
+
 int
 main (int argc,
       char *argv[])
@@ -236,8 +243,8 @@ main (int argc,
   GTestDBus *bus;
   GError *error = NULL;
   GOptionContext *context;
-  guint id = -1;
-  guint id_b = -1;
+  guint sig_term;
+  guint sig_int;
 
   GOptionEntry entries[] = {
     { NULL }
@@ -256,6 +263,9 @@ main (int argc,
 
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR);
 
+  sig_term = g_unix_signal_add (SIGTERM, on_signal_done, NULL);
+  sig_int = g_unix_signal_add (SIGINT, on_signal_done, NULL);
+
   /* This isolates us from affecting other processes during tests */
   bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (bus);
@@ -271,7 +281,7 @@ main (int argc,
 
   loop = g_main_loop_new (NULL, FALSE);
 
-  id = g_bus_own_name (G_BUS_TYPE_SESSION,
+  g_bus_own_name (G_BUS_TYPE_SESSION,
                        "com.redhat.Cockpit.DBusTests.Test",
                        G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_REPLACE,
                        on_bus_acquired,
@@ -280,7 +290,7 @@ main (int argc,
                        loop,
                        NULL);
 
-  id_b = g_bus_own_name (G_BUS_TYPE_SESSION,
+  g_bus_own_name (G_BUS_TYPE_SESSION,
                          "com.redhat.Cockpit.DBusTests.Second",
                          G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_REPLACE,
                          NULL,
@@ -291,10 +301,11 @@ main (int argc,
 
   g_main_loop_run (loop);
 
+  g_source_remove (sig_term);
+  g_source_remove (sig_int);
+
   g_clear_object (&exported);
   g_clear_object (&exported_b);
-  g_bus_unown_name (id);
-  g_bus_unown_name (id_b);
   g_main_loop_unref (loop);
 
   g_test_dbus_down (bus);

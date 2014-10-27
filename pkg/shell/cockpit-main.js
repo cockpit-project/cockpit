@@ -615,7 +615,7 @@ function Location(can_go) {
     this.can_go = can_go;
 }
 
-cockpit.location = function location() {
+cockpit._location = function location() {
     var navcount = page_navigation_count;
     function can_navigate() {
         return navcount === page_navigation_count;

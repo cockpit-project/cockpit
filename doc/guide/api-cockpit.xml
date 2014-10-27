@@ -275,6 +275,292 @@
     </variablelist>
   </refsection>
 
+  <refsection id="latest-dbus">
+    <title>DBus Access</title>
+
+    <para>Cockpit allows access to DBus services via this API.</para>
+
+    <para>DBus values are represented as javascript values and objects as follows:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>BYTE 'y'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>BOOLEAN 'b'</code></term>
+        <listitem><para>Javascript boolean.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT16 'n'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT16 'q'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT32 'i'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT32 'u'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT64 'x'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT64 't'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>DOUBLE 'd'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>STRING 's'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>OBJECT_PATH 'o'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>SIGNATURE 'g'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of BYTE 'ay'</code></term>
+        <listitem><para>A string containing base64 encoded data.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of DICT_ENTRY with STRING keys 'a{s?}'</code></term>
+        <listitem><para>A javascript plain object with the keys as property names.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of DICT_ENTRY with other keys 'a{??}'</code></term>
+        <listitem><para>A javascript plain object each key JSON encoded into a string property name.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of other</code></term>
+        <listitem><para>A javascript array.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>VARIANT</code></term>
+        <listitem><para>A javascript plain object with the <code>"t"</code> property set to a DBus type string,
+            and the <code>"v"</code> property set to a value.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <refsection id="latest-dbus-dbus">
+      <title>cockpit.dbus()</title>
+<programlisting>
+ client = cockpit.dbus(name, [options])
+</programlisting>
+
+      <para>Create a DBus client for the given bus <code>name</code> (eg: service name). Use the
+        following functions to make DBus method calls, watch for events, etc. The optional
+        <code>options</code> argument is a javascript plain object, and may include:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>"bus"</code></term>
+          <listitem><para>The DBus bus to connect to. Specifying <code>"session"</code> will
+              connect to the DBus user session bus, <code>"user"</code> will connect to the
+              user bus (on some systems this is identical to the session bus), and <code>"system"</code>
+              will connect to the DBus system bus. This defaults to "user" if not
+              present.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"host"</code></term>
+          <listitem><para>The host to open the channel to. If no host is specified
+            then the correct one will be automatically selected based on the page
+            calling this function.</para></listitem>
+        </varlistentry>
+      </variablelist>
+    </refsection>
+
+    <refsection id="latest-dbus-close">
+      <title>client.close()</title>
+<programlisting>
+ client.close([problem])
+</programlisting>
+      <para>Close the DBus client. If <code>problem</code> is specified it should be a
+        <link linkend="latest-problems">problem code</link> string.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-onclose">
+      <title>client.onclose</title>
+<programlisting>
+ $(client).on("close", function(options) { ... })
+</programlisting>
+      <para>An event triggered when the DBus client closes. This can happen either because
+        <link linkend="latest-dbus-close">client.close()</link> function was called,
+        or the DBus service went away, or some other problem or disconnection.</para>
+      <para>The <code>options</code> will contain various close information, including a
+        <code>"reason"</code> field which will be set if the channel was closed because
+        of a problem.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-call">
+      <title>client.call()</title>
+<programlisting>
+  invocation = client.call(path, interface, method, args)
+</programlisting>
+
+      <para>Make a DBus method call.</para>
+
+      <para>The <code>path</code> is the DBus object path to make
+        the call on, <code>interface</code> is the DBus interface for the method and
+        <code>method</code> is the name of the method to call. The <code>args</code> is an
+        array of arguments to pass to the method, each of which must be appropriate for the
+        expected <link linkend="latest-dbus">DBus type</link> of that argument. The
+        <code>args</code> may be <code>null</code> if no arguments are to be sent.</para>
+
+      <para>The returned value is a
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        that will complete sucessfully when the method returns, or fail if an error occurs.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-done">
+      <title>invocation.done()</title>
+<programlisting>
+ invocation.done(function(args) { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        method. It sets up a handler to be called when the DBus method call finishes
+        successfully.</para>
+      <para>The <code>args</code> argument is an array of return values from the DBus method.
+        Each of them will be converted to an appropriate
+        <link linkend="latest-dbus">javascript type</link>.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-fail">
+      <title>invocation.fail()</title>
+<programlisting>
+ invocation.fail(function(exception) { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        It sets up a handler to be called when the DBus method call fails.</para>
+
+      <para>The <code>exception</code> object passed to the handler can have the
+        following properties:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>problem</code></term>
+          <listitem><para>A <link linkend="latest-problems">problem code</link> string when
+              a problem occurred starting or communicating with the DBus service. This is
+              <code>null</code> in the cases where an actual DBus error was occurred.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>name</code></term>
+          <listitem><para>The DBus error name. This will be <code>null</code> in cases where the
+            failure was not due to a DBus error.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>message</code></term>
+          <listitem><para>A DBus error message. This will be <code>null</code> in cases where the
+            failure was not due to a DBus error.</para></listitem>
+        </varlistentry>
+      </variablelist>
+    </refsection>
+
+    <refsection id="latest-dbus-always">
+      <title>invocation.always()</title>
+<programlisting>
+ invocation.always(function() { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        It sets up a handler to be called when when the DBus method call finishes whether successfully,
+        or fails.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-subscribe">
+      <title>client.subscribe()</title>
+<programlisting>
+ subscription = client.subscribe(match, function(path, interface, signal, args) { ... })
+</programlisting>
+      <para>Subscribe to signals. The <code>match</code> argument is a javascript plain object which
+        defines what signals to subscribe to. Each property in the <code>match</code> argument restricts
+        signals subscribed to. If a property is not present then it is treated as a wildcard, matching
+        anything. If an empty object is specified as <code>match</code> then all signals will be
+        subscribed to. The <code>match</code> argument may contain the following properties:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>interface</code></term>
+          <listitem><para>A DBus interface to match.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>path</code></term>
+          <listitem><para>A DBus object path to match. May not be used together with the
+            <code>path_namespace</code> property. It should be a valid DBus object path,
+            that is, it should have no trailing slash.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>path_namespace</code></term>
+          <listitem><para>A DBus object path prefix to match. Any paths in the hierarchy below this
+            top path will match. May not be used together with the <code>path</code>
+            property.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>member</code></term>
+          <listitem><para>The DBus signal name to match.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>arg0</code></term>
+          <listitem><para>Matches the first argument of a DBus message, which must be a
+             string.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The handler passed as the second argument will be invoked when the signal is received.
+        A <code>subscription</code> is returned which can be used to remove the subscription by
+        calling its <code>subscription.remove()</code> method.</para>
+
+      <para>It is not a problem to subscribe to the same signals more than once, with identical
+        or slightly different <code>match</code> arguments.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-remove">
+      <title>subscription.remove()</title>
+<programlisting>
+ subscription.remove()
+</programlisting>
+
+      <para>Unsubscribe from the DBus signal subscription.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-variant">
+      <title>cockpit.variant()</title>
+<programlisting>
+ variant = cockpit.variant(type, value)
+</programlisting>
+
+      <para>A DBus variant is represented as a plain javascript object with a
+        <code>"t"</code> property represesting the full DBus type of the variant,
+        and a <code>"v"</code> property containting the variant value.</para>
+
+      <para>This is a helper function for creating such a variant object.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-byte-array">
+      <title>cockpit.byte_array()</title>
+<programlisting>
+ byte_array = cockpit.byte_array(type, value)
+</programlisting>
+
+      <para>A DBus byte array is represnted as base64 data encoded in a string. This
+        is a helper function for creating such a byte array.</para>
+    </refsection>
+  </refsection>
+
   <refsection id="latest-packages">
     <title>Package Info</title>
 

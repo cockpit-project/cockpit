@@ -173,7 +173,7 @@ PageDashboard.prototype = {
                             if (!$.contains(btn[0], event.target)) {
                                 if (machine.client.state == "closed")
                                     machine.client.connect();
-                                cockpit.go(machine.address, "server");
+                                cockpit.location.go([machine.address, "server"]);
                             }
                         };
                     })(machine, btn)));

@@ -119,7 +119,7 @@ mock_auth_login_finish (CockpitAuth *auth,
                              NULL);
 
   if (session)
-    *session = cockpit_pipe_spawn (argv, NULL, NULL, FALSE);
+    *session = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
 
   return creds;
 }

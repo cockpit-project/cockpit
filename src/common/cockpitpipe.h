@@ -24,6 +24,12 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+  COCKPIT_PIPE_FLAGS_NONE = 0,
+  COCKPIT_PIPE_STDERR_TO_LOG = 1 << 0,
+  COCKPIT_PIPE_STDERR_TO_STDOUT = 1 << 1,
+} CockpitPipeFlags;
+
 #define COCKPIT_TYPE_PIPE         (cockpit_pipe_get_type ())
 #define COCKPIT_PIPE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_PIPE, CockpitPipe))
 #define COCKPIT_IS_PIPE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_PIPE))
@@ -61,7 +67,7 @@ CockpitPipe *      cockpit_pipe_new          (const gchar *name,
 CockpitPipe *      cockpit_pipe_spawn        (const gchar **argv,
                                               const gchar **env,
                                               const gchar *directory,
-                                              gboolean output_stderr);
+                                              CockpitPipeFlags flags);
 
 CockpitPipe *      cockpit_pipe_pty          (const gchar **argv,
                                               const gchar **env,

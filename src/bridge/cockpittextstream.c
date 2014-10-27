@@ -241,8 +241,8 @@ cockpit_text_stream_constructed (GObject *object)
 {
   CockpitTextStream *self = COCKPIT_TEXT_STREAM (object);
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
-  gboolean with_error = FALSE;
   GSocketAddress *address;
+  CockpitPipeFlags flags;
   const gchar *unix_path;
   const gchar **argv;
   const gchar **env;
@@ -277,9 +277,10 @@ cockpit_text_stream_constructed (GObject *object)
     }
   else if (argv)
     {
+      flags = COCKPIT_PIPE_STDERR_TO_LOG;
       error = cockpit_channel_get_option (channel, "error");
       if (error && g_str_equal (error, "output"))
-        with_error = TRUE;
+        flags = COCKPIT_PIPE_STDERR_TO_STDOUT;
 
       self->name = argv[0];
       env = cockpit_channel_get_strv_option (channel, "environ");
@@ -287,7 +288,7 @@ cockpit_text_stream_constructed (GObject *object)
       if (cockpit_channel_get_bool_option (channel, "pty"))
         self->pipe = cockpit_pipe_pty (argv, env, dir);
       else
-        self->pipe = cockpit_pipe_spawn (argv, env, dir, with_error);
+        self->pipe = cockpit_pipe_spawn (argv, env, dir, flags);
     }
 
   self->batch_size = cockpit_channel_get_int_option (channel, "batch");

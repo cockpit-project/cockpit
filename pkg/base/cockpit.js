@@ -53,6 +53,66 @@ function BasicError(problem) {
 }
 
 /* -------------------------------------------------------------------------
+ * Hash parsing.
+ */
+
+var hash = hash || { };
+
+/* Page navigation parameters
+
+   The parameters of the current page are stored in a dict with these
+   fields:
+
+   - path (array of strings)
+
+   The path to the page, such as [ "f21", "storage", "block", "vda" ].
+
+   - options (dict of strings to strings)
+
+   The display options of the page, such as { collapse: "all" }.
+*/
+
+hash.encode = function encode(params) {
+    var res = "/" + params.path.map(encodeURIComponent).join("/");
+    var query = [];
+    for (var opt in params.options) {
+        if (params.options.hasOwnProperty(opt))
+            query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(params.options[opt]));
+    }
+    if (query.length > 0)
+        res += "?" + query.join("&");
+    return "#" + res;
+};
+
+hash.decode = function decode(hash) {
+    var params = { };
+
+    if (hash[0] == '#')
+        hash = hash.substr(1);
+
+    var query = hash.split('?');
+
+    var path = query[0].split('/').map(decodeURIComponent);
+    if (path[0] === "")
+        path.shift();
+    if (path[path.length-1] === "")
+        path.length--;
+
+    params.path = path;
+
+    params.options = { };
+    if (query.length > 1) {
+        var opts = query[1].split("&");
+        for (var i = 0; i < opts.length; i++) {
+            var parts = opts[i].split('=');
+            params.options[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+        }
+    }
+
+    return params;
+};
+
+/* -------------------------------------------------------------------------
  * Channels
  *
  * Public: https://files.cockpit-project.org/guide/api-cockpit.html
@@ -575,6 +635,8 @@ function package_info(name, callback) {
 }
 
 function basic_scope(cockpit) {
+    cockpit.hash = hash;
+
     cockpit.channel = function channel(options) {
         return new Channel(options);
     };

@@ -376,13 +376,30 @@ function get_page_iframe(params) {
         });
     }
 
-    /* TODO: Load this from 'host'
+    /* We get a package listing so that we can load the entry point
+     * via checksums (which enables caching), but most importantly so
+     * that cockpit-ws will learn all the checksums and can load other
+     * pieces that the entry point refers to via checksums.
      */
 
     var inner_params = { path: params.path.slice(prefix.length),
                          options: params.options };
-    iframe.attr('src', ("/cockpit/" + comp.pkg +
-                        "/" + comp.entry + cockpit.hash.encode(inner_params)));
+    var inner_hash = cockpit.hash.encode(inner_params);
+
+    var pkg = comp.pkg + "@" + params.host;
+    cockpit.packages.lookup(pkg).
+        done(function (info) {
+            var url = "/cockpit/";
+            if (info.checksum)
+                url += info.checksum;
+            else
+                url += pkg;
+            iframe.attr('src', url + "/" + comp.entry + inner_hash);
+        }).
+        fail(function (error) {
+            console.log("Error loading package " + pkg, error.toString());
+            iframe.attr('src', "/cockpit/" + pkg + "/" + comp.entry + inner_hash);
+        });
 
     return iframe;
 }

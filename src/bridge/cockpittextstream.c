@@ -285,7 +285,7 @@ cockpit_text_stream_constructed (GObject *object)
       self->name = argv[0];
       env = cockpit_channel_get_strv_option (channel, "environ");
       dir = cockpit_channel_get_option (channel, "directory");
-      if (cockpit_channel_get_bool_option (channel, "pty"))
+      if (cockpit_channel_get_bool_option (channel, "pty", FALSE))
         self->pipe = cockpit_pipe_pty (argv, env, dir);
       else
         self->pipe = cockpit_pipe_spawn (argv, env, dir, flags);

@@ -367,6 +367,11 @@ function get_page_iframe(params) {
         register_child(name, params.host);
         page_iframes[key] = iframe;
         iframe.on('load', function () {
+            /* Setting the "data-loaded" attribute helps the testsuite
+             * to know when it can switch into the frame and inject
+             * its own additions.
+             */
+            iframe.attr('data-loaded', true);
             update_global_nav();
         });
     }

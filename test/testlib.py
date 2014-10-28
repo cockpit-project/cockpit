@@ -261,10 +261,8 @@ class Browser:
         self.wait_present('#content')
         self.wait_visible('#content')
         if id.startswith("/"):
-            self.wait_visible("iframe.container-frame[name='%s']" % id)
+            self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % id)
             self.switch_to_frame(id)
-            self.wait_present('body')
-            self.wait_visible('body')
         else:
             self.wait_visible('#' + id)
             self.wait_dbus_ready()

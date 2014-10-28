@@ -68,6 +68,27 @@ def hostname_selector(machine):
 def machine_error_selector(machine):
     return machine_selector(machine) + ' .cockpit-machine-error'
 
+def wait_dashboard_addresses(b, expected):
+    b.wait_js_func(
+        """(function (expected) {
+        var page = legacy_page_from_id('dashboard');
+        var actual = page.dbus_clients.map(function (c) { return c.target });
+        return expected.sort().toString() == actual.sort().toString();
+        })""", expected)
+
+def add_machine(b, address):
+    b.click('#dashboard-add-server')
+    b.wait_popup('dashboard_setup_server_dialog')
+    b.set_val('#dashboard_setup_address', address)
+    b.wait_text('#dashboard_setup_next', "Next")
+    b.click('#dashboard_setup_next')
+    b.wait_text('#dashboard_setup_next', "Add host")
+    b.click('#dashboard_setup_next')
+    b.wait_text('#dashboard_setup_next', "Close")
+    b.click('#dashboard_setup_next')
+    b.wait_popdown('dashboard_setup_server_dialog')
+
+
 class TestMultiMachine(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
@@ -96,38 +117,18 @@ class TestMultiMachine(MachineCase):
             # https://bugs.freedesktop.org/show_bug.cgi?id=71092
             machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
 
-        def wait_dashboard_addresses(expected):
-            b.wait_js_func(
-                """(function (expected) {
-                var page = legacy_page_from_id('dashboard');
-                var actual = page.dbus_clients.map(function (c) { return c.target });
-                return expected.sort().toString() == actual.sort().toString();
-                })""", expected)
-
-        def add_machine(address):
-            b.click('#dashboard-add-server')
-            b.wait_popup('dashboard_setup_server_dialog')
-            b.set_val('#dashboard_setup_address', address)
-            b.wait_text('#dashboard_setup_next', "Next")
-            b.click('#dashboard_setup_next')
-            b.wait_text('#dashboard_setup_next', "Add host")
-            b.click('#dashboard_setup_next')
-            b.wait_text('#dashboard_setup_next', "Close")
-            b.click('#dashboard_setup_next')
-            b.wait_popdown('dashboard_setup_server_dialog')
-
         wait_for_port(m2.address, 22)
         wait_for_port(m3.address, 22)
 
         self.login_and_go("dashboard")
         inject_extras(b)
-        wait_dashboard_addresses ([ "localhost" ])
+        wait_dashboard_addresses (b, [ "localhost" ])
 
-        add_machine(m2.address)
-        wait_dashboard_addresses ([ "localhost", m2.address ])
+        add_machine(b, m2.address)
+        wait_dashboard_addresses (b, [ "localhost", m2.address ])
 
-        add_machine(m3.address)
-        wait_dashboard_addresses ([ "localhost", m2.address, m3.address ])
+        add_machine(b, m3.address)
+        wait_dashboard_addresses (b, [ "localhost", m2.address, m3.address ])
 
         wm = get_webapp_machines(b)
         m1_index = wm["localhost"]
@@ -164,5 +165,30 @@ class TestMultiMachine(MachineCase):
                                     "Received message for unknown channel: .*",
                                     ".*: error reading from ssh",
                                     ".*: bridge program failed: Child process exited with code .*")
+
+    def testExternalPage(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        # Modify the terminals to be different on the two machines.
+        m1.execute("sed -i -e 's/<body>/<body>magic-m1-token/' /usr/share/cockpit/server/terminal.html")
+        m2.execute("sed -i -e 's/<body>/<body>magic-m2-token/' /usr/share/cockpit/server/terminal.html")
+
+        self.login_and_go("dashboard")
+        inject_extras(b)
+        add_machine(b, m2.address)
+        wait_dashboard_addresses (b, [ "localhost", m2.address ])
+
+        b.go("/%s/terminal" % m2.address)
+        b.wait_page("/%s/terminal" % m2.address)
+        b.wait_present("body")
+        b.wait_in_text("body", "magic-m2-token")
+
+        b.switch_to_parent_frame()
+        b.go("/local/terminal")
+        b.wait_page("/local/terminal")
+        b.wait_present("body")
+        b.wait_in_text("body", "magic-m1-token")
 
 test_main()

@@ -69,6 +69,88 @@
 
   </refsection>
 
+  <refsection>
+    <title>Navigation</title>
+
+    <para><code>cockpit.location</code> is an object that can be used
+    to read the current location and to navigate to a different
+    location.
+    </para>
+
+    <!-- - $(cockpit.location).on('change', ...) -->
+
+    <refsection id="latest-location-onchange">
+      <title>cockpit.location.onchange</title>
+<programlisting>
+  $(cockpit.location).on('change', ...)
+</programlisting>
+      <para>The <code>change</code> event is emitted when the current
+      location changes.</para>
+    </refsection>
+
+    <refsection id="latest-location-path">
+      <title>cockpit.location.path()</title>
+<programlisting>
+  cockpit.location.path()
+</programlisting>
+      <para>Returns the current path as an array of strings.</para>
+    </refsection>
+
+    <refsection id="latest-location-options">
+      <title>cockpit.location.options()</title>
+<programlisting>
+  cockpit.location.options()
+</programlisting>
+      <para>Returns the current options as a map of strings to strings.</para>
+    </refsection>
+
+    <refsection id="latest-location-option">
+      <title>cockpit.location.option()</title>
+<programlisting>
+  cockpit.location.option(name)
+</programlisting>
+      <para>Returns the value of option <code>name</code>.</para>
+<programlisting>
+  cockpit.location.option(name, value)
+</programlisting>
+      <para>Sets the option <code>name</code> to value
+      <code>value</code>.  This will update the location bar in the
+      browser, but it will not cause a <code>change</code> event to be
+      emitted.</para>
+    </refsection>
+
+    <refsection id="latest-location-delete-option">
+      <title>cockpit.location.delete_option()</title>
+<programlisting>
+  cockpit.location.delete_option(name)
+</programlisting>
+      <para>Deletes option <code>name</code>.</para>
+    </refsection>
+
+    <refsection id="latest-location-go">
+      <title>cockpit.location.go()</title>
+<programlisting>
+  cockpit.location.go(path [, options])
+</programlisting>
+      <para> Navigate to the given <code>path</code> with the given
+      <code>options</code>.  When <code>options</code> is omitted, it
+      defaults to <code>{ }</code>.  A <code>change</code> event is
+      emitted, even if <code>path</code> and <code>options</code> are
+      the same as the old values.</para>
+    </refsection>
+
+    <refsection id="latest-location-delayed-go">
+      <title>cockpit.location.delayed_go()</title>
+<programlisting>
+  var go = cockpit.location.delayed_go()
+  go (path [,options])
+</programlisting>
+      <para>Returns a function that can be used to perform a
+      navigation after a delay, but only if the user hasn't navigated
+      away explicitly already.</para>
+    </refsection>
+  </refsection>
+
   <refsection id="latest-spawn">
     <title>Spawning Processes</title>
 

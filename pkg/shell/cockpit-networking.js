@@ -1698,7 +1698,7 @@ PageNetworkInterface.prototype = {
         }
 
         if (this.iface) {
-            var location = cockpit.location();
+            var location = cockpit._location();
             delete_iface_connections(this.iface).
                 done(function () {
                     location.go_rel("networking");

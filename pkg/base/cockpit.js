@@ -53,6 +53,37 @@ function BasicError(problem) {
 }
 
 /* -------------------------------------------------------------------------
+ * Event handling without jQuery
+ */
+
+function event_mixin(obj, handlers) {
+    obj.addEventListener = function addEventListener(type, handler) {
+        if (handlers[type] === undefined)
+            handlers[type] = [ ];
+        handlers[type].push(handler);
+    };
+    obj.removeEventListener = function removeEventListener(type, handler) {
+        var length = handlers[type] ? handlers[type].length : 0;
+        for (var i = 0; i < length; i++) {
+            if (handlers[type][i] == handler) {
+                handlers[type][i] = null;
+                break;
+            }
+        }
+    };
+    obj.dispatchEvent = function dispatchEvent(event) {
+        var type = event.type;
+        if (typeof obj['on' + type] === "function")
+            obj['on' + type].apply(obj, arguments);
+        var length = handlers[type] ? handlers[type].length : 0;
+        for (var i = 0; i < length; i++) {
+            if (handlers[type][i])
+                handlers[type][i].apply(obj, arguments);
+        }
+    };
+}
+
+/* -------------------------------------------------------------------------
  * Hash parsing.
  */
 
@@ -113,6 +144,95 @@ hash.decode = function decode(hash) {
 };
 
 /* -------------------------------------------------------------------------
+ * Hash tracking and navigation
+ */
+
+/* HACK: Mozilla will unescape 'window.location.hash' before returning
+ * it, which is broken.
+ *
+ * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
+ */
+
+function get_window_location_hash() {
+    return '#' + (window.location.href.split('#')[1] || '');
+}
+
+function set_window_location_hash(hash) {
+    window.location.hash = hash;
+}
+
+function Location() {
+    var self = this;
+    var cur_hash;
+    var cur_params;
+    var go_count = 0;
+
+    function trigger_change_event() {
+        var ev = document.createEvent("Event");
+        ev.initEvent("change", true, false);
+        self.dispatchEvent(ev);
+    }
+
+    function update_from_location_hash() {
+        var hash = get_window_location_hash();
+        if (hash != cur_hash) {
+            cur_hash = hash;
+            cur_params = cockpit.hash.decode(hash);
+            trigger_change_event();
+        }
+    }
+
+    function show_hash() {
+        cur_hash = cockpit.hash.encode(cur_params);
+        set_window_location_hash(cur_hash);
+    }
+
+    self.path = function path() {
+        return cur_params.path;
+    };
+
+    self.options = function options() {
+        return cur_params.options;
+    };
+
+    self.option = function option(key, value) {
+        if (value === undefined)
+            return cur_params.options[key];
+        else {
+            cur_params.options[key] = value;
+            show_hash();
+            return undefined;
+        }
+    };
+
+    self.delete_option = function delete_option(key) {
+        delete cur_params.options[key];
+        show_hash();
+    };
+
+    self.go = function go(path, options) {
+        go_count += 1;
+        cur_params = { path: path, options: options || { } };
+        show_hash();
+        trigger_change_event();
+    };
+
+    self.delayed_go = function delayed_go() {
+        var initial_go_count = go_count;
+        return function (path, options) {
+            if (go_count == initial_go_count)
+                self.go(path, options);
+        };
+    };
+
+    event_mixin(self, { });
+    update_from_location_hash();
+    window.addEventListener("hashchange", update_from_location_hash);
+
+    return self;
+}
+
+/* -------------------------------------------------------------------------
  * Channels
  *
  * Public: https://files.cockpit-project.org/guide/api-cockpit.html
@@ -138,33 +258,6 @@ window.addEventListener('beforeunload', function() {
 function transport_debug() {
     if (window.debugging == "all" || window.debugging == "channel")
         console.debug.apply(console, arguments);
-}
-
-function event_mixin(obj, handlers) {
-    obj.addEventListener = function addEventListener(type, handler) {
-        if (handlers[type] === undefined)
-            handlers[type] = [ ];
-        handlers[type].push(handler);
-    };
-    obj.removeEventListener = function removeEventListener(type, handler) {
-        var length = handlers[type] ? handlers[type].length : 0;
-        for (var i = 0; i < length; i++) {
-            if (handlers[type][i] == handler) {
-                handlers[type][i] = null;
-                break;
-            }
-        }
-    };
-    obj.dispatchEvent = function dispatchEvent(event) {
-        var type = event.type;
-        if (typeof obj['on' + type] === "function")
-            obj['on' + type].apply(obj, arguments);
-        var length = handlers[type] ? handlers[type].length : 0;
-        for (var i = 0; i < length; i++) {
-            if (handlers[type][i])
-                handlers[type][i].apply(obj, arguments);
-        }
-    };
 }
 
 function calculate_url() {
@@ -636,6 +729,8 @@ function package_info(name, callback) {
 
 function basic_scope(cockpit) {
     cockpit.hash = hash;
+
+    cockpit.location = new Location();
 
     cockpit.channel = function channel(options) {
         return new Channel(options);

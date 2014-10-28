@@ -86,7 +86,8 @@ gint64              cockpit_channel_get_int_option    (CockpitChannel *self,
                                                        const gchar *name);
 
 gboolean            cockpit_channel_get_bool_option   (CockpitChannel *self,
-                                                       const gchar *name);
+                                                       const gchar *name,
+                                                       gboolean defawlt);
 
 const gchar **      cockpit_channel_get_strv_option   (CockpitChannel *self,
                                                        const gchar *name);

@@ -521,19 +521,21 @@ cockpit_channel_get_int_option (CockpitChannel *self,
  * cockpit_channel_get_bool_option:
  * @self: a channel
  * @name: the option name
+ * @defawlt: default value
  *
  * Called by implementations to get an int value from the
  * channel's options.
  *
- * Returns: TRUE of option set, FALSE if missing or set to false
+ * Returns: TRUE or FALSE if option set, @defauwlt if not set
  */
 gboolean
 cockpit_channel_get_bool_option (CockpitChannel *self,
-                                 const gchar *name)
+                                 const gchar *name,
+                                 gboolean defawlt)
 {
   gboolean value;
-  if (!cockpit_json_get_bool (self->priv->open_options, name, FALSE, &value))
-    value = FALSE;
+  if (!cockpit_json_get_bool (self->priv->open_options, name, defawlt, &value))
+    value = defawlt;
   return value;
 }
 

@@ -53,67 +53,8 @@ function BasicError(problem) {
 }
 
 /* -------------------------------------------------------------------------
- * Host discovery
+ * Event handling without jQuery
  */
-
-/*
- * TODO: We will expose standard client side url composability
- * utilities soon, for now this is private.
- */
-
-function decode_options(hash) {
-    var opts = { };
-
-    if (hash[0] == '#')
-        hash = hash.substr(1);
-
-    var query = hash.split('?');
-    if (query.length > 1) {
-        var params = query[1].split("&");
-        for (var i = 0; i < params.length; i++) {
-            var vals = params[i].split('=');
-            opts[decodeURIComponent(vals[0])] = decodeURIComponent(vals[1]);
-        }
-    }
-
-    return opts;
-}
-
-function get_page_host() {
-    /*
-     * HACK: Mozilla will unescape 'window.location.hash' before returning
-     * it, which is broken.
-     *
-     * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
-     */
-    var hash = (window.location.href.split('#')[1] || '');
-
-    /* This is a temporary HACK to pass the default host into embedded
-     * components.
-     */
-    var opts = decode_options(hash);
-    return opts["_host_"];
-}
-
-/* -------------------------------------------------------------------------
- * Channels
- *
- * Public: https://files.cockpit-project.org/guide/api-cockpit.html
- */
-
-var default_transport = null;
-var reload_after_disconnect = false;
-var expect_disconnect = false;
-var init_callback = null;
-
-window.addEventListener('beforeunload', function() {
-    expect_disconnect = true;
-}, false);
-
-function transport_debug() {
-    if (window.debugging == "all" || window.debugging == "channel")
-        console.debug.apply(console, arguments);
-}
 
 function event_mixin(obj, handlers) {
     obj.addEventListener = function addEventListener(type, handler) {
@@ -142,6 +83,183 @@ function event_mixin(obj, handlers) {
     };
 }
 
+/* -------------------------------------------------------------------------
+ * Hash parsing.
+ */
+
+var hash = hash || { };
+
+/* Page navigation parameters
+
+   The parameters of the current page are stored in a dict with these
+   fields:
+
+   - path (array of strings)
+
+   The path to the page, such as [ "f21", "storage", "block", "vda" ].
+
+   - options (dict of strings to strings)
+
+   The display options of the page, such as { collapse: "all" }.
+*/
+
+hash.encode = function encode(params) {
+    var res = "/" + params.path.map(encodeURIComponent).join("/");
+    var query = [];
+    for (var opt in params.options) {
+        if (params.options.hasOwnProperty(opt))
+            query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(params.options[opt]));
+    }
+    if (query.length > 0)
+        res += "?" + query.join("&");
+    return "#" + res;
+};
+
+hash.decode = function decode(hash) {
+    var params = { };
+
+    if (hash[0] == '#')
+        hash = hash.substr(1);
+
+    var query = hash.split('?');
+
+    var path = query[0].split('/').map(decodeURIComponent);
+    if (path[0] === "")
+        path.shift();
+    if (path[path.length-1] === "")
+        path.length--;
+
+    params.path = path;
+
+    params.options = { };
+    if (query.length > 1) {
+        var opts = query[1].split("&");
+        for (var i = 0; i < opts.length; i++) {
+            var parts = opts[i].split('=');
+            params.options[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+        }
+    }
+
+    return params;
+};
+
+/* -------------------------------------------------------------------------
+ * Hash tracking and navigation
+ */
+
+/* HACK: Mozilla will unescape 'window.location.hash' before returning
+ * it, which is broken.
+ *
+ * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
+ */
+
+function get_window_location_hash() {
+    return '#' + (window.location.href.split('#')[1] || '');
+}
+
+function set_window_location_hash(hash) {
+    window.location.hash = hash;
+}
+
+function Location() {
+    var self = this;
+    var cur_hash;
+    var cur_params;
+    var go_count = 0;
+
+    function trigger_change_event() {
+        var ev = document.createEvent("Event");
+        ev.initEvent("change", true, false);
+        self.dispatchEvent(ev);
+    }
+
+    function update_from_location_hash() {
+        var hash = get_window_location_hash();
+        if (hash != cur_hash) {
+            cur_hash = hash;
+            cur_params = cockpit.hash.decode(hash);
+            trigger_change_event();
+        }
+    }
+
+    function show_hash() {
+        cur_hash = cockpit.hash.encode(cur_params);
+        set_window_location_hash(cur_hash);
+    }
+
+    self.path = function path() {
+        return cur_params.path;
+    };
+
+    self.options = function options() {
+        return cur_params.options;
+    };
+
+    self.option = function option(key, value) {
+        if (value === undefined)
+            return cur_params.options[key];
+        else {
+            cur_params.options[key] = value;
+            show_hash();
+            return undefined;
+        }
+    };
+
+    self.delete_option = function delete_option(key) {
+        delete cur_params.options[key];
+        show_hash();
+    };
+
+    self.go = function go(path, options) {
+        go_count += 1;
+        cur_params = { path: path, options: options || { } };
+        show_hash();
+        trigger_change_event();
+    };
+
+    self.delayed_go = function delayed_go() {
+        var initial_go_count = go_count;
+        return function (path, options) {
+            if (go_count == initial_go_count)
+                self.go(path, options);
+        };
+    };
+
+    event_mixin(self, { });
+    update_from_location_hash();
+    window.addEventListener("hashchange", update_from_location_hash);
+
+    return self;
+}
+
+/* -------------------------------------------------------------------------
+ * Channels
+ *
+ * Public: https://files.cockpit-project.org/guide/api-cockpit.html
+ */
+
+var default_transport = null;
+var reload_after_disconnect = false;
+var expect_disconnect = false;
+var init_callback = null;
+var default_host = null;
+var filters = [ ];
+
+var origin = window.location.origin;
+if (!origin) {
+    origin = window.location.protocol + "//" + window.location.hostname +
+        (window.location.port ? ':' + window.location.port: '');
+}
+
+window.addEventListener('beforeunload', function() {
+    expect_disconnect = true;
+}, false);
+
+function transport_debug() {
+    if (window.debugging == "all" || window.debugging == "channel")
+        console.debug.apply(console, arguments);
+}
+
 function calculate_url() {
     if (window.mock && window.mock.url)
         return window.mock.url;
@@ -154,6 +272,42 @@ function calculate_url() {
         transport_debug("Cockpit must be used over http or https");
         return null;
     }
+}
+
+/*
+ * A WebSocket that connects to parent frame. The mechanism
+ * for doing this will eventually be documented publicly,
+ * but for now:
+ *
+ *  * Forward raw cockpit1 string protocol messages via window.postMessage
+ *  * Listen for cockpit1 string protocol messages via window.onmessage
+ *  * Never accept or send messages to another origin
+ *  * An empty string message means "close" (not completely used yet)
+ */
+function ParentWebSocket(parent) {
+    var self = this;
+
+    window.addEventListener("message", function receive(event) {
+        if (event.origin !== origin || event.source !== parent)
+            return;
+        var data = event.data;
+        if (typeof data !== "string")
+            return;
+        if (data === "")
+            self.onclose();
+        else
+            self.onmessage(event);
+    }, false);
+
+    self.send = function send(message) {
+        parent.postMessage(message, origin);
+    };
+
+    self.close = function close() {
+        parent.postMessage("", origin);
+    };
+
+    window.setTimeout(function() { self.onopen(); }, 10);
 }
 
 /* Private Transport class */
@@ -169,19 +323,37 @@ function Transport() {
     if (window.mock)
         window.mock.last_transport = self;
 
-    var ws_loc = calculate_url();
-
-    transport_debug("Connecting to " + ws_loc);
-
     var ws;
-    if (ws_loc) {
-        if ("WebSocket" in window) {
-            ws = new WebSocket(ws_loc, "cockpit1");
-        } else if ("MozWebSocket" in window) { // Firefox 6
-            ws = new MozWebSocket(ws_loc);
-        } else {
-            console.error("WebSocket not supported, application will not work!");
+    var check_health_timer;
+    var got_message = false;
+
+    /* See if we should communicate via parent */
+    if (window.parent !== window &&
+        window.parent.options && window.parent.options.sink &&
+        window.parent.options.protocol == "cockpit1") {
+        ws = new ParentWebSocket(window.parent);
+
+    } else {
+        var ws_loc = calculate_url();
+        transport_debug("connecting to " + ws_loc);
+
+        if (ws_loc) {
+            if ("WebSocket" in window) {
+                ws = new WebSocket(ws_loc, "cockpit1");
+            } else if ("MozWebSocket" in window) { // Firefox 6
+                ws = new MozWebSocket(ws_loc);
+            } else {
+                console.error("WebSocket not supported, application will not work!");
+            }
         }
+
+        check_health_timer = window.setInterval(function () {
+            if (!got_message) {
+                console.log("health check failed");
+                self.close({ "reason": "timeout" });
+            }
+            got_message = false;
+        }, 10000);
     }
 
     if (!ws) {
@@ -193,17 +365,8 @@ function Transport() {
 
     var control_cbs = { };
     var message_cbs = { };
-    var got_message = false;
     var waiting_for_init = true;
     self.ready = false;
-
-    var check_health_timer = window.setInterval(function () {
-        if (!got_message) {
-            console.log("health check failed");
-            self.close({ "reason": "timeout" });
-        }
-        got_message = false;
-    }, 10000);
 
     /* Called when ready for channels to interact */
     function ready_for_channels() {
@@ -221,7 +384,7 @@ function Transport() {
         }
     };
 
-    ws.onclose = function(event) {
+    ws.onclose = function() {
         transport_debug("WebSocket onclose");
         ws = null;
         if (reload_after_disconnect) {
@@ -236,11 +399,20 @@ function Transport() {
     ws.onmessage = function(event) {
         got_message = true;
 
-        /* The first line of a message is the channel */
         var data = event.data;
+
+        /* Call all the filters */
+        var length = filters.length;
+        for (var i = 0; i < length; i++) {
+            if (filters[i](data) === false)
+                return;
+        }
+
+        /* The first line of a message is the channel */
         var pos = data.indexOf("\n");
         var channel = data.substring(0, pos);
         var payload = data.substring(pos + 1);
+
         if (!channel) {
             transport_debug("recv control:", payload);
             process_control(JSON.parse(payload));
@@ -248,6 +420,7 @@ function Transport() {
             transport_debug("recv " + channel + ":", payload);
             process_message(channel, payload);
         }
+
         phantom_checkpoint();
     };
 
@@ -268,7 +441,7 @@ function Transport() {
 
     self.next_channel = function next_channel() {
         last_channel++;
-        return String(last_channel) + channel_seed;
+        return channel_seed + String(last_channel);
     };
 
     function process_init(options) {
@@ -279,7 +452,10 @@ function Transport() {
         }
 
         if (options["channel-seed"])
-            channel_seed = ":" + String(options["channel-seed"]);
+            channel_seed = String(options["channel-seed"]);
+        if (options["default-host"])
+            default_host = options["default-host"];
+        cockpit.transport.options = options;
 
         if (waiting_for_init) {
             waiting_for_init = false;
@@ -333,17 +509,21 @@ function Transport() {
             func.apply(null, [payload]);
     }
 
-    self.send_message = function send_message(channel, payload) {
+    self.send_data = function send_data(data) {
         if (!ws) {
-            console.log("transport closed, dropped message: " + payload);
-            return;
+            console.log("transport closed, dropped message: " + data);
+            return false;
         }
+        ws.send(data);
+        return true;
+    };
+
+    self.send_message = function send_message(channel, payload) {
         if (channel)
             transport_debug("send " + channel + ":", payload);
         else
             transport_debug("send control:", payload);
-        var msg = channel.toString() + "\n" + payload;
-        ws.send(msg);
+        return self.send_data(channel.toString() + "\n" + payload);
     };
 
     self.send_control = function send_control(data) {
@@ -435,8 +615,8 @@ function Channel(options) {
             if (options.hasOwnProperty(i) && command[i] === undefined)
                 command[i] = options[i];
         }
-        if (command.host === undefined)
-            command.host = get_page_host();
+        if (command.host === undefined && default_host)
+            command.host = default_host;
         transport.send_control(command);
 
         /* Now drain the queue */
@@ -516,7 +696,7 @@ function build_packages(packages) {
 
 function package_table(host, callback) {
     if (!host)
-        host = get_page_host();
+        host = default_host;
     var table = host_packages[host];
     if (table) {
         callback(table, null);
@@ -548,6 +728,10 @@ function package_info(name, callback) {
 }
 
 function basic_scope(cockpit) {
+    cockpit.hash = hash;
+
+    cockpit.location = new Location();
+
     cockpit.channel = function channel(options) {
         return new Channel(options);
     };
@@ -568,6 +752,14 @@ function basic_scope(cockpit) {
     };
 
     cockpit.transport = {
+        inject: function inject(message) {
+            if (!default_transport)
+                return false;
+            return default_transport.send_data(message);
+        },
+        filter: function filter(callback) {
+            filters.push(callback);
+        },
         close: function close(reason) {
             if (!default_transport)
                 return;
@@ -575,7 +767,9 @@ function basic_scope(cockpit) {
             if (reason)
                 options = {"reason": reason };
             default_transport.close(options);
-        }
+        },
+        origin: origin,
+        options: { }
     };
 }
 

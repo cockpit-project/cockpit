@@ -60,6 +60,7 @@ function MockPeer() {
 }
 
 window.mock = { url: "ws://url", last_transport: true };
+var force_default_host = null;
 var mock_peer = new MockPeer();
 
 QUnit.testDone(function() {
@@ -147,7 +148,10 @@ function MockWebSocket(url, protocol) {
                 "build": "nasty stuff",
             }
         }
-        ws.onmessage({"data": JSON.stringify(init)});
+        if (force_default_host)
+            init["default-host"] = force_default_host;
+        force_default_host = null;
+        ws.onmessage({"data": "\n" + JSON.stringify(init)});
     }, 5);
 }
 
@@ -165,6 +169,12 @@ test("public api", function() {
     equal(typeof cockpit.logout, "function", "cockpit.logout is a function");
     equal(typeof cockpit.transport, "object", "cockpit.transport is a function");
     equal(typeof cockpit.transport.close, "function", "cockpit.transport.close is a function");
+    equal(typeof cockpit.transport.options, "object", "cockpit.transport.options is a object");
+
+    if (window.location.origin)
+        equal(cockpit.transport.origin, window.location.origin, "cockpit.transport.origin is correct");
+    else
+        equal(typeof cockpit.transport.origin, "string", "cockpit.transport.origin is present");
 });
 
 asyncTest("open channel", function() {
@@ -208,7 +218,6 @@ asyncTest("multiple", function() {
 asyncTest("open no host", function() {
     expect(2);
 
-    window.location.hash = "";
     var channel = cockpit.channel({ });
     $(mock_peer).on("open", function(event) {
         ok(true, "websocket connected");
@@ -225,7 +234,7 @@ asyncTest("open no host", function() {
 asyncTest("open auto host", function() {
     expect(2);
 
-    window.location.hash = "#?_host_=planetexpress";
+    force_default_host = "planetexpress";
     var channel = cockpit.channel({ });
     $(mock_peer).on("open", function(event) {
         ok(true, "websocket connected");
@@ -234,7 +243,6 @@ asyncTest("open auto host", function() {
         var command = JSON.parse(payload);
         if (command.command == "open") {
             strictEqual(command.host, "planetexpress", "open: host automatically chosen");
-            window.location.hash = "";
             start();
         }
     });
@@ -571,6 +579,97 @@ asyncTest("ignore other commands", function() {
         start();
     }, 50);
 });
+
+asyncTest("filter message", function() {
+    expect(2);
+
+    var filtered = 0;
+    cockpit.transport.filter(function(message) {
+        if (message[0] != '\n') {
+            filtered += 1;
+            return (filtered != 1);
+        }
+    });
+
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        if (chan)
+            mock_peer.send(chan, "blah");
+    });
+
+    var received = 0;
+    var channel = cockpit.channel({ });
+    $(channel).on("message", function(data) {
+        received += 1;
+
+        if (received == 2) {
+            equal(filtered, 3, "filter message: filtered right amount");
+            equal(received, 2, "filter message: let through right amount");
+            channel.close();
+            start();
+        }
+    });
+
+    channel.send("one");
+    channel.send("two");
+    channel.send("three");
+});
+
+asyncTest("inject message", function() {
+    expect(4);
+
+    var ret = cockpit.transport.inject("bree\nyellow");
+    equal(ret, false, "inject message: failure returns false");
+
+    var first = true;
+    var channel;
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        if (first) {
+            var ret = cockpit.transport.inject("bree\nyellow");
+            equal(ret, true, "inject message: returned true");
+            first = false;
+            return;
+        }
+
+        if (chan) {
+            equal(chan, "bree", "inject message: right channel");
+            equal(payload, "yellow", "inject message: right payload");
+            channel.close();
+            start();
+        }
+    });
+
+    channel = cockpit.channel({ });
+});
+
+asyncTest("transport options", function() {
+    expect(2);
+
+    var channel;
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        if (chan) {
+            equal(typeof cockpit.transport.options, "object", "transport options: is an object");
+            deepEqual(cockpit.transport.options, {
+                "command": "init",
+                "version": 0,
+                "channel-seed": "test",
+                "user": {
+                    "user": "scruffy",
+                    "name": "Scruffy the Janitor"
+                },
+                "system": {
+                    "version": "zero.point.zero",
+                    "build": "nasty stuff",
+                }
+            }, "transport options: is correct");
+            channel.close();
+            start();
+        }
+    });
+
+    channel = cockpit.channel({ });
+    channel.send("blah");
+});
+
 
 window.location.hash = "";
 QUnit.start();

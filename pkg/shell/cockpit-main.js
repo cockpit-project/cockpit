@@ -383,7 +383,7 @@ function get_page_iframe(params) {
             hide().
             attr('name', name);
         $('#content').append(iframe);
-        register_child(name, params.host);
+        register_child(iframe[0].contentWindow, params.host);
         page_iframes[key] = iframe;
         iframe.on('load', function () {
             update_global_nav();
@@ -718,22 +718,22 @@ var origin = cockpit.transport.origin;
 var frame_peers_by_seed = { };
 var frame_peers_by_name = { };
 
-function register_child(name, host) {
-    var frame = window.frames[name];
-    if (!frame) {
-        console.warn("invalid child frame", name);
+function register_child(child_window, host) {
+    if (!child_window.name) {
+        console.warn("invalid child window", child_window);
         return;
     }
+
     unique_id += 1;
     var seed = cockpit.transport.options["channel-seed"] + unique_id + "!";
     var peer = {
-        window: frame,
+        window: child_window,
         channel_seed: seed,
         default_host: host,
         initialized: false
     };
     frame_peers_by_seed[seed] = peer;
-    frame_peers_by_name[name] = peer;
+    frame_peers_by_name[child_window.name] = peer;
 }
 
 function parse_init(data) {

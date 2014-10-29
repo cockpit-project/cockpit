@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<html>
+  <head>
+    <title>Location Tracking Tests</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../../lib/jquery.v2.1.0.js"></script>
+    <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
+    <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
+    <script type="text/javascript" src="../../tools/qunit-config.js"></script>
+
+    <script type="text/javascript" src="cockpit.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">Location Tracking Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+  </body>
+<script type="text/javascript">
+
+test("basic", function() {
+    ok(cockpit.location, "cockpit.location exists");
+    ok(cockpit.location.path, "cockpit.location.path exists");
+    ok(cockpit.location.options, "cockpit.location.options exists");
+    ok(cockpit.location.option, "cockpit.location.option exists");
+    ok(cockpit.location.go, "cockpit.location.go exists");
+    ok(cockpit.location.delayed_go, "cockpit.location.delayed_go exists");
+
+    deepEqual(cockpit.location.path(), [ ], "path is empty");
+    deepEqual(cockpit.location.options(), { }, "options are empty");
+    strictEqual(cockpit.location.option("foo"), undefined, "option foo is undefined");
+});
+
+asyncTest("external change", function() {
+    $(cockpit.location).on("change", function () {
+        deepEqual(cockpit.location.path(), [ "a", "b", "c" ], "path is correct");
+        strictEqual(cockpit.location.option("x"), "1", "option x is correct");
+        strictEqual(cockpit.location.option("y"), "2", "option y is correct");
+        $(cockpit.location).off("change");
+        start();
+    });
+
+    window.location.hash = "#/a/b/c?x=1&y=2";
+});
+
+asyncTest("internal change", function() {
+    $(cockpit.location).on("change", function () {
+        strictEqual(window.location.hash, "#/x/y/z", "hash is correct");
+        deepEqual(cockpit.location.path(), [ "x", "y", "z" ], "path is correct");
+        deepEqual(cockpit.location.options(), { }, "options are empty");
+        $(cockpit.location).off("change");
+        start();
+    });
+
+    cockpit.location.go([ "x", "y", "z" ]);
+});
+
+asyncTest("change options", function() {
+    $(cockpit.location).on("change", function () {
+        deepEqual(cockpit.location.path(), [ ], "path is empty");
+        deepEqual(cockpit.location.options(), { }, "options are empty");
+        cockpit.location.option("x", "1");
+        deepEqual(cockpit.location.options(), { x: "1" }, "options are correct");
+        strictEqual(window.location.hash, "#/?x=1", "hash is correct");
+
+        cockpit.location.delete_option("x");
+        deepEqual(cockpit.location.options(), { }, "options are empty");
+        strictEqual(window.location.hash, "#/", "hash is correct");
+
+        start();
+    });
+
+    window.location.hash = "";
+});
+
+QUnit.start();
+
+</script>
+</html>

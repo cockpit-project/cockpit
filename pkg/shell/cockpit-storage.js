@@ -2080,7 +2080,7 @@ PageStorageDetail.prototype = {
 
     delete_raid: function() {
         var self = this;
-        var location = cockpit.location();
+        var go_rel = cockpit.delayed_go_rel();
 
         cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: raid_get_desc(this._mdraid) }),
                         _("Deleting a RAID Device will erase all data on it."),
@@ -2090,7 +2090,7 @@ PageStorageDetail.prototype = {
                     if (error)
                         cockpit.show_unexpected_error(error);
                     else
-                        location.go_rel("storage");
+                        go_rel("storage");
                 });
             });
     },
@@ -2252,7 +2252,7 @@ PageStorageDetail.prototype = {
 
     delete_volume_group: function() {
         var self = this;
-        var location = cockpit.location();
+        var go_rel = cockpit.delayed_go_rel();
 
         if (!cockpit.check_admin(this.client))
             return;
@@ -2265,7 +2265,7 @@ PageStorageDetail.prototype = {
                     if (error)
                         cockpit.show_unexpected_error(error);
                     else
-                        location.go_rel("storage");
+                        go_rel("storage");
                 });
             });
     },

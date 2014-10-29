@@ -1045,7 +1045,7 @@ PageContainerDetails.prototype = {
                 $(commit).find(".container-command").attr('value', command);
             }).
             find(".btn-primary").on("click", function() {
-                var location = cockpit.location();
+                var go_rel = cockpit.delayed_go_rel();
                 var run = { "Cmd": unquote_cmdline($(commit).find(".container-command").val()) };
                 var options = {
                     "author": $(commit).find(".container-author").val()
@@ -1059,7 +1059,7 @@ PageContainerDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_rel("containers");
+                        go_rel("containers");
                     });
             });
 
@@ -1208,7 +1208,7 @@ PageContainerDetails.prototype = {
 
     delete_container: function () {
         var self = this;
-        var location = cockpit.location();
+        var go_rel = cockpit.delayed_go_rel();
         cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
                         _("Deleting a container will erase all data in it."),
                         _("Delete")).
@@ -1218,7 +1218,7 @@ PageContainerDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_rel("containers");
+                        go_rel("containers");
                     });
             });
     }
@@ -1349,7 +1349,7 @@ PageImageDetails.prototype = {
 
     delete_image: function () {
         var self = this;
-        var location = cockpit.location();
+        var go_rel = cockpit.delayed_go_rel();
         cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
                         _("Deleting an image will delete it, but you can probably download it again if you need it later.  Unless this image has never been pushed to a repository, that is, in which case you probably can't download it again."),
                         _("Delete")).
@@ -1359,7 +1359,7 @@ PageImageDetails.prototype = {
                         cockpit.show_unexpected_error(ex);
                     }).
                     done(function() {
-                        location.go_rel("containers");
+                        go_rel("containers");
                     });
             });
     }

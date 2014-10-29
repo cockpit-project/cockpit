@@ -383,6 +383,7 @@ function get_page_iframe(params) {
             hide().
             attr('name', name);
         $('#content').append(iframe);
+        register_child(name, params.host);
         page_iframes[key] = iframe;
         iframe.on('load', function () {
             update_global_nav();
@@ -393,8 +394,7 @@ function get_page_iframe(params) {
      */
 
     var inner_params = { path: params.path.slice(prefix.length),
-                         options: $.extend({ '_host_': params.host }, params.options)
-                       };
+                         options: params.options };
     iframe.attr('src', ("/cockpit/" + comp.pkg +
                         "/" + comp.entry + cockpit.hash.encode(inner_params)));
 
@@ -712,6 +712,110 @@ function PageDisconnected() {
 }
 
 cockpit.dialogs.push(new PageDisconnected());
+
+var unique_id = 0;
+var origin = cockpit.transport.origin;
+var frames = { };
+
+function register_child(name, host) {
+    var frame = window.frames[name];
+    if (!frame) {
+        console.warn("invalid child frame", name);
+        return;
+    }
+    unique_id += 1;
+    var seed = cockpit.transport.options["channel-seed"] + unique_id + "!";
+    frame.peer = {
+        channel_seed: seed,
+        default_host: host,
+        initialized: false
+    };
+    frames[seed] = frame;
+}
+
+function parse_init(data) {
+    if (data[0] == '\n' && data.indexOf('"init"') !== -1) {
+        var control = JSON.parse(data.substring(1));
+        if (control.command === "init")
+            return control;
+    }
+    return null;
+}
+
+cockpit.transport.filter(function(message) {
+
+    /* Control messages get forwarded to everyone */
+    if (message[0] == '\n') {
+        $.each(frames, function(i, frame) {
+            if (frame.peer.initialized)
+                frame.postMessage(message, origin);
+        });
+
+    /* Forward message to relevant frame */
+    } else {
+        var pos = message.indexOf('!');
+        if (pos !== -1) {
+            var seed = message.substring(0, pos + 1);
+            var frame = frames[seed];
+            if (frame) {
+                if (frame && frame.peer.initialized)
+                    frame.postMessage(message, origin);
+                return false; /* Stop delivery */
+            }
+        }
+    }
+
+    /* Still deliver the message locally */
+    return true;
+});
+
+window.addEventListener("message", function(event) {
+    if (event.origin !== origin)
+        return;
+
+    var data = event.data;
+    if (typeof data !== "string")
+        return;
+
+    var frame = event.source;
+    var peer = frame.peer;
+    if (!peer)
+        return;
+
+    /* Closing the transport */
+    if (data.length === 0) {
+        peer.initialized = false;
+        return;
+    }
+
+    /*
+     * init messages are a single hop. We know the client is
+     * loaded when it sends one. We reply with our own.
+     * A bit of optimization here.
+     */
+    var init = parse_init(data);
+    if (init) {
+        peer.initialized = true;
+        var reply = $.extend({ }, cockpit.transport.options,
+            { "default-host": peer.default_host, "channel-seed": peer.channel_seed }
+        );
+        frame.postMessage("\n" + JSON.stringify(reply), origin);
+        return;
+    }
+
+    if (!peer.initialized) {
+        console.warn("child frame " + frame.name + " sending data without init");
+        return;
+    }
+
+    /* Everything else gets forwarded */
+    cockpit.transport.inject(data);
+}, false);
+
+/* This tells child frames we are a parent wants to accept messages */
+if (!window.options)
+    window.options = { };
+$.extend(window.options, { sink: true, protocol: "cockpit1" });
 
 /* Initialize cockpit when page is loaded */
 $(function() {

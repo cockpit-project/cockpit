@@ -468,6 +468,25 @@
         of a problem.</para>
     </refsection>
 
+    <refsection id="latest-transport-origin">
+      <title>cockpit.transport.origin</title>
+<programlisting>
+  cockpit.transport.origin
+</programlisting>
+      <para>The HTTP origin that is being used by the underlying channel transport. This is
+        read-only, you should not assign a value. If the browser supports
+        <code>window.location.origin</code> then this will be identical to that value.</para>
+    </refsection>
+
+    <refsection id="latest-transport-options">
+      <title>cockpit.transport.options</title>
+<programlisting>
+  cockpit.transport.options
+</programlisting>
+      <para>Initialization options received over the underlying channel transport. These
+        will be empty until connection is properly established.</para>
+    </refsection>
+
     <refsection id="latest-transport-close">
       <title>cockpit.transport.close()</title>
 <programlisting>
@@ -476,6 +495,31 @@
       <para>Close the underlying channel transport. All channels open channels will close.
         The <code>reason</code> argument should be a problem code string. If not specified
         it will default to <code>"disconnected"</code>.</para>
+    </refsection>
+
+    <refsection id="latest-transport-filter">
+      <title>cockpit.transport.filter()</title>
+<programlisting>
+  cockpit.transport.filter(function(message) { ... })
+</programlisting>
+      <para>Add a filter to the underlying channel transport. All incoming messages will be
+        passed to each of the filter callbacks that are registered.</para>
+      <para>This function is rarely used.</para>
+      <para>Filter callbacks are called in the order they are registered. If a filter
+        callback returns <code>false</code> then the message will not be dispatched
+        further, whether to other filters, or to channels, etc. The <code>message</code>
+        is a string.</para>
+    </refsection>
+
+    <refsection id="latest-transport-inject">
+      <title>cockpit.transport.inject()</title>
+<programlisting>
+  cockpit.transport.inject(message)
+</programlisting>
+      <para>Inject a message into the underlying channel transport. The <code>message</code>
+        should be a string, and should be valid according to the Cockpit message protocol.</para>
+      <para>This function is rarely used. In general you should only <code>inject()</code>
+        messages you got from a <code><link linkend="latest-transport-filter">filter()</link></code>.</para>
     </refsection>
   </refsection>
 

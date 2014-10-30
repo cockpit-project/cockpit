@@ -715,7 +715,8 @@ cockpit.dialogs.push(new PageDisconnected());
 
 var unique_id = 0;
 var origin = cockpit.transport.origin;
-var frames = { };
+var frame_peers_by_seed = { };
+var frame_peers_by_name = { };
 
 function register_child(name, host) {
     var frame = window.frames[name];
@@ -725,12 +726,14 @@ function register_child(name, host) {
     }
     unique_id += 1;
     var seed = cockpit.transport.options["channel-seed"] + unique_id + "!";
-    frame.peer = {
+    var peer = {
+        window: frame,
         channel_seed: seed,
         default_host: host,
         initialized: false
     };
-    frames[seed] = frame;
+    frame_peers_by_seed[seed] = peer;
+    frame_peers_by_name[name] = peer;
 }
 
 function parse_init(data) {
@@ -746,9 +749,9 @@ cockpit.transport.filter(function(message) {
 
     /* Control messages get forwarded to everyone */
     if (message[0] == '\n') {
-        $.each(frames, function(i, frame) {
-            if (frame.peer.initialized)
-                frame.postMessage(message, origin);
+        $.each(frame_peers_by_seed, function(seed, peer) {
+            if (peer.initialized)
+                peer.window.postMessage(message, origin);
         });
 
     /* Forward message to relevant frame */
@@ -756,10 +759,9 @@ cockpit.transport.filter(function(message) {
         var pos = message.indexOf('!');
         if (pos !== -1) {
             var seed = message.substring(0, pos + 1);
-            var frame = frames[seed];
-            if (frame) {
-                if (frame && frame.peer.initialized)
-                    frame.postMessage(message, origin);
+            var peer = frame_peers_by_seed[seed];
+            if (peer && peer.initialized) {
+                peer.window.postMessage(message, origin);
                 return false; /* Stop delivery */
             }
         }
@@ -778,8 +780,8 @@ window.addEventListener("message", function(event) {
         return;
 
     var frame = event.source;
-    var peer = frame.peer;
-    if (!peer)
+    var peer = frame_peers_by_name[frame.name];
+    if (!peer || peer.window != frame)
         return;
 
     /* Closing the transport */

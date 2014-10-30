@@ -167,8 +167,6 @@ var current_params;
 var current_page_element;
 var current_legacy_page;
 
-var content_is_shown = false;
-
 var page_navigation_count = 0;
 
 function content_init() {
@@ -225,9 +223,6 @@ function content_show() {
     }
     $(cockpit.info).on("changed", update_name);
 
-    $('.page').hide();
-    $('#content').show();
-    content_is_shown = true;
     display_location();
     phantom_checkpoint();
 }
@@ -247,7 +242,7 @@ cockpit.content_refresh = function content_refresh() {
 };
 
 function content_header_changed() {
-    $('body').css('padding-top', $('#content nav').height());
+    $('body').css('padding-top', $('#topnav').height());
 }
 
 var nav_cockpitd;
@@ -528,9 +523,7 @@ function dialog_leave(id) {
 function dialog_show(id) {
     var dialog = dialog_from_id(id);
     if (dialog) {
-        if (content_is_shown) {
-            dialog.show();
-        }
+        dialog.show();
     }
     phantom_checkpoint ();
 }

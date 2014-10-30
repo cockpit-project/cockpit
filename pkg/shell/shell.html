@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Cockpit</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,108 +13,103 @@
     <script src="jquery-flot.js"></script>
     <script src="attrchange.js"></script>
     <script src="shell.js"></script>
-</head>
-<body>
-  <div id="cockpit-shell">
-
-    <div class="page" id="loading">
-    </div>
-
-    <div class="page" id="content" style="display:none">
-
-      <nav class="navbar navbar-default navbar-pf navbar-fixed-top" role="navigation">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <img class="navbar-brand" src="/static/images/brand.v0.png" alt="Cockpit" />
-        </div>
-        <div class="collapse navbar-collapse navbar-collapse-1">
-          <ul class="nav navbar-nav navbar-utility">
-            <li id="navbar-oops" style="display: none;">
-              <a><span class="oops-status">Ooops!</span></a>
-            </li>
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown">
-                <span class="pficon pficon-user"></span>
-                <span id="content-user-name"></span><b class="caret"></b>
-              </a>
-              <ul class="dropdown-menu">
-                <li>
-                  <a data-toggle="modal" data-target="#display-language-dialog">Display Language</a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                  <a data-toggle="modal" data-target="#about">About Cockpit</a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                  <a id="cockpit-go-account" onclick="cockpit.go_login_account();">Account Settings</a>
-                </li>
-                <li>
-                  <a id="cockpit-change-passwd" onclick="cockpit.change_password();">Set password</a>
-                </li>
-                <li class="cockpit-deauthorize-item">
-                  <a>Drop extra privileges</a>
-                </li>
-                <li>
-                  <a id="cockpit-go-logout" onclick="cockpit.logout();">Log out</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-          <ul class="nav navbar-nav navbar-primary" id="content-navbar">
-            <li>
-              <a data-page-id="dashboard">
-                <img src="images/switcher.png">
-                <span style="margin-left:1em" id="content-navbar-hostname"></span>
-              </a>
-            </li>
-            <li>
-              <a data-page-id="server">Dashboard</a>
-            </li>
-            <li>
-              <a data-page-id="services">Services</a>
-            </li>
-            <li>
-              <a data-page-id="journal">Journal</a>
-            </li>
-            <li>
-              <a data-page-id="networking">Networking</a>
-            </li>
-            <li>
-              <a data-page-id="storage">Storage</a>
-            </li>
-            <li>
-              <a data-page-id="containers">Containers</a>
-            </li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+  </head>
+  <body>
+    <nav id="topnav" class="navbar navbar-default navbar-pf navbar-fixed-top" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <img class="navbar-brand" src="/static/images/brand.v0.png" alt="Cockpit" />
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-utility">
+          <li id="navbar-oops" style="display: none;">
+            <a><span class="oops-status">Ooops!</span></a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown">
+              <span class="pficon pficon-user"></span>
+              <span id="content-user-name"></span><b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a data-toggle="modal" data-target="#display-language-dialog">Display Language</a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <a data-toggle="modal" data-target="#about">About Cockpit</a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <a id="cockpit-go-account" onclick="cockpit.go_login_account();">Account Settings</a>
+              </li>
+              <li>
+                <a id="cockpit-change-passwd" onclick="cockpit.change_password();">Set password</a>
+              </li>
+              <li class="cockpit-deauthorize-item">
+                <a>Drop extra privileges</a>
+              </li>
+              <li>
+                <a id="cockpit-go-logout" onclick="cockpit.logout();">Log out</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-primary" id="content-navbar">
+          <li>
+            <a data-page-id="dashboard">
+              <img src="images/switcher.png">
+              <span style="margin-left:1em" id="content-navbar-hostname"></span>
+            </a>
+          </li>
+          <li>
+            <a data-page-id="server">Dashboard</a>
+          </li>
+          <li>
+            <a data-page-id="services">Services</a>
+          </li>
+          <li>
+            <a data-page-id="journal">Journal</a>
+          </li>
+          <li>
+            <a data-page-id="networking">Networking</a>
+          </li>
+          <li>
+            <a data-page-id="storage">Storage</a>
+          </li>
+          <li>
+            <a data-page-id="containers">Containers</a>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               System
               <b class="caret"></b>
-              </a>
-              <ul class="dropdown-menu">
-                <li>
-                  <a data-page-id="accounts">Administrator accounts</a>
-                </li>
-                <li>
-                  <a data-task-id="terminal">Terminal</a>
-                </li>
-                <li>
-                  <a data-toggle="modal" data-target="#shutdown-dialog">Shutdown and Reboot</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-          <div class="nav navbar-nav" style="width: 100%;">
-            <div class="col-md-12" id="content-header-extra">
-            </div>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a data-page-id="accounts">Administrator accounts</a>
+              </li>
+              <li>
+                <a data-task-id="terminal">Terminal</a>
+              </li>
+              <li>
+                <a data-toggle="modal" data-target="#shutdown-dialog">Shutdown and Reboot</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <div class="nav navbar-nav" style="width: 100%;">
+          <div class="col-md-12" id="content-header-extra">
           </div>
         </div>
-      </nav>
+      </div>
+    </nav>
+
+    <div id="content">
 
       <div id="dashboard">
         <div class="list-group" id="dashboard-machines">
@@ -196,22 +191,22 @@
           <br/>
 
           <div class="panel panel-default">
-          <div class="panel-heading">
-            <span translatable="yes">Filesystems</span>
+            <div class="panel-heading">
+              <span translatable="yes">Filesystems</span>
+            </div>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Mount Point</th>
+                  <th style="width: 55%;">Size</th>
+                  <th style="width: 20%;">&nbsp;</th>
+                </tr>
+              </thead>
+              <tbody id="storage_mounts">
+              </tbody>
+            </table>
           </div>
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Mount Point</th>
-                <th style="width: 55%;">Size</th>
-                <th style="width: 20%;">&nbsp;</th>
-              </tr>
-            </thead>
-            <tbody id="storage_mounts">
-            </tbody>
-          </table>
-        </div>
 
           <div class="panel panel-default cockpit-log-panel">
             <div class="panel-heading" translatable="yes">Storage Journal</div>
@@ -745,10 +740,8 @@
           <button class="btn btn-primary" id="containers-failure-retry">Try again</button>
         </center>
       </div>
-      
-      
 
-        <div id="containers" class="container-fluid">
+      <div id="containers" class="container-fluid">
         <div class="col-md-8 col-lg-9">
           <div class="row">
             <div class="col-sm-6">
@@ -801,13 +794,13 @@
                   <th class="image-col-created">Created</th>
                   <th class="image-col-size-text">Size</th>
                   <th class="cell-buttons"><!-- Action --></th>
-                </td>
+                </tr>
               </thead>
               <tbody>
               </tbody>
             </table>
           </div>
-        </div>  
+        </div>
       </div>
 
       <!-- hidden bar-row to help set a minimum limit for container memory and image space-->
@@ -831,73 +824,74 @@
                 <button class="btn btn-default" id="container-details-restart">Restart</button>
                 <button class="btn btn-default" id="container-details-delete">Delete</button>
                 <button class="btn btn-default" id="container-details-commit"
-                    data-toggle="modal" data-target="#container-commit-dialog">
-                    Commit
+                        data-toggle="modal" data-target="#container-commit-dialog">
+                  Commit
                 </button>
                 <div class="waiting" style="display: none;"></div>
               </div>
             </div>
           </div>
-	  <div class="panel-body">
-	    <table class="cockpit-info-table col-sm-5">
+          <div class="panel-body">
+            <table class="cockpit-info-table col-sm-5">
+              <tr>
                 <td>Id:</td>
                 <td colspan="2" id="container-details-id"></td>
               </tr>
-	      <tr>
+              <tr>
                 <td>Created:</td>
                 <td colspan="2" id="container-details-created"></td>
               </tr>
-	      <tr>
+              <tr>
                 <td>Image:</td>
                 <td colspan="2" id="container-details-image"></td>
               </tr>
-	      <tr>
+              <tr>
                 <td>Command:</td>
                 <td colspan="2" id="container-details-command"></td>
               </tr>
-	      <tr>
+              <tr>
                 <td>State:</td>
                 <td colspan="2" id="container-details-state"></td>
               </tr>
-	      <tr id="container-details-ports-row" style="display: none;">
+              <tr id="container-details-ports-row" style="display: none;">
                 <td>Ports:</td>
                 <td colspan="2" id="container-details-ports"></td>
               </tr>
               <tr>
                 <td>&nbsp;</td>
                 <td>
-                    <!-- hidden bar-row to help set a minimum limit for memory -->
-                    <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
+                  <!-- hidden bar-row to help set a minimum limit for memory -->
+                  <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
                 </td>
               </tr>
-	      <tr id="container-details-memory-row" class="interactive" style="display: none;">
+              <tr id="container-details-memory-row" class="interactive" style="display: none;">
                 <td>Memory usage:</td>
                 <td colspan="2" id="container-details-memory">
-                    <div class="bar-row" graph="container-details"></div>
+                  <div class="bar-row" graph="container-details"></div>
                 </td>
                 <td class="shrink" id="container-details-memory-text" style="min-width: 8em; text-align: right;"></td>
               </tr>
-	      <tr id="container-details-cpu-row" class="interactive" style="display: none;">
+              <tr id="container-details-cpu-row" class="interactive" style="display: none;">
                 <td>CPU usage:</td>
                 <td colspan="2">
-                    <span class="cpu-usage"></span>
+                  <span class="cpu-usage"></span>
                 </td>
                 <td class="shrink" style="min-width: 8em; text-align: right;">
-                    <span class="cpu-shares"></span>
+                  <span class="cpu-shares"></span>
                 </td>
               </tr>
               <tr id="container-details-resource-row" style="display: none;">
                 <td></td>
                 <td>
                   <button class="btn btn-default resource-button" data-toggle="modal"
-                      data-target="#container-resources-dialog">
-                      Change resource limits
+                          data-target="#container-resources-dialog">
+                    Change resource limits
                   </button>
                 </td>
               </tr>
-	    </table>
+            </table>
             <div id="container-terminal" class="terminal-emulator" style="display: none;"></div>
-	  </div>
+          </div>
         </div>
       </div>
 
@@ -910,7 +904,7 @@
         <div class="panel-default panel">
           <div class="panel-heading" style="height:44px">
             <div class="col-sm-12">
-               Image: <span id="image-details-tags"></span>
+              Image: <span id="image-details-tags"></span>
               <div class="pull-right" style="height:25px" id="image-details-buttons">
                 <button class="btn btn-default" id="image-details-run">Run</button>
                 <button class="btn btn-default" id="image-details-delete">Delete</button>
@@ -918,8 +912,8 @@
               </div>
             </div>
           </div>
-	  <div class="panel-body">
-	    <table class="cockpit-info-table">
+          <div class="panel-body">
+            <table class="cockpit-info-table">
 	      <tr>
                 <td>Id:</td>
                 <td id="image-details-id"></td>
@@ -944,8 +938,8 @@
                 <td>Ports:</td>
                 <td id="image-details-ports"></td>
               </tr>
-	    </table>
-	  </div>
+            </table>
+          </div>
         </div>
 
         <div class="panel panel-default" id="image-details-containers">
@@ -971,7 +965,7 @@
 
       </div>
 
-    </div>
+    </div>  <!-- id="content" -->
 
     <div class="modal" id="display-language-dialog"
          tabindex="-1" role="dialog"
@@ -1116,19 +1110,19 @@
               <tr>
                 <td>Real Host Name</td>
                 <td><div id=sich-hostname-error>
-                  <input id="sich-hostname" class="form-control">
+                    <input id="sich-hostname" class="form-control">
                 </div></td>
               </tr>
               <tr>
                 <td></td>
                 <td><div  class="has-error">
-                  <span id="sich-note-1" class="help-block" style="margin: 0"></span>
+                    <span id="sich-note-1" class="help-block" style="margin: 0"></span>
                 </div></td>
               </tr>
               <tr>
                 <td></td>
                 <td><div  class="has-error">
-                  <span id="sich-note-2" class="help-block" style="margin: 0"></span>
+                    <span id="sich-note-2" class="help-block" style="margin: 0"></span>
                 </div></td>
               </tr>
             </table>
@@ -1427,16 +1421,16 @@
               <tr>
                 <td translatable="yes">Confirm New Password</td>
                 <td>
-                <div class="check-passwords">
-                <input class="form-control" type="password"
+                  <div class="check-passwords">
+                    <input class="form-control" type="password"
                            id="account-set-password-pw2" value=""/>
-                </div>
+                  </div>
                 </td>
               </tr>
               <tr>
                 <td></td>
                 <td><div id="account-set-password-message-password-mismatch" class="has-error">
-                  <span class="help-block">The passwords do not match</span>
+                    <span class="help-block">The passwords do not match</span>
                 </div></td>
               </tr>
             </table>
@@ -2072,8 +2066,8 @@
                 <td translatable="yes">Options</td>
                 <td>
                   <label>
-                     <input type="checkbox" id="resize-lvol-resize-fsys"/>
-                     Resize Filesystem
+                    <input type="checkbox" id="resize-lvol-resize-fsys"/>
+                    Resize Filesystem
                   </label>
                 </td>
               </tr>
@@ -2282,7 +2276,7 @@
                   </div>
                 </td>
                 <td class="shrink" style="min-width: 8em; text-align: right;">
-                    <span>unlimited</span>
+                  <span>unlimited</span>
                 </td>
               </tr>
               <tr id="containers-run-image-cpu">
@@ -2382,7 +2376,7 @@
                   </div>
                 </td>
                 <td class="shrink" style="min-width: 8em; text-align: right;">
-                    <span>unlimited</span>
+                  <span>unlimited</span>
                 </td>
               </tr>
               <tr class="cpu-slider">
@@ -2701,7 +2695,6 @@
     </div>
 
     <div class="cockpit-deauthorize-status" style="display: none;"></div>
-</div>
 
   </body>
 </html>

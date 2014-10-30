@@ -576,7 +576,7 @@ PageJournal.prototype = {
 
         this.filler = journal_filler(this.address,
                                      $('#journal-box'), start_param, match,
-                                     '#content nav', '#journal-current-day',
+                                     '#topnav', '#journal-current-day',
                                      $('#journal-start'), $('#journal-end'));
     },
 

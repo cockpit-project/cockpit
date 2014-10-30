@@ -725,7 +725,7 @@ function register_child(child_window, host) {
     }
 
     unique_id += 1;
-    var seed = cockpit.transport.options["channel-seed"] + unique_id + "!";
+    var seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
     var peer = {
         window: child_window,
         channel_seed: seed,

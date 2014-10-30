@@ -154,7 +154,7 @@ function ParentWebSocket(parent) {
         parent.postMessage("", origin);
     };
 
-    window.setTimeout(function() { self.onopen(); }, 10);
+    window.setTimeout(function() { self.onopen(); }, 0);
 }
 
 /* Private Transport class */

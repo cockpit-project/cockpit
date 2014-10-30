@@ -745,30 +745,31 @@ function parse_init(data) {
     return null;
 }
 
-cockpit.transport.filter(function(message) {
+cockpit.transport.filter(function(channel, message) {
 
     /* Control messages get forwarded to everyone */
-    if (message[0] == '\n') {
+    if (!channel) {
         $.each(frame_peers_by_seed, function(seed, peer) {
             if (peer.initialized)
                 peer.window.postMessage(message, origin);
         });
+        return true;
 
     /* Forward message to relevant frame */
     } else {
-        var pos = message.indexOf('!');
+        var pos = channel.indexOf('!');
         if (pos !== -1) {
-            var seed = message.substring(0, pos + 1);
+            var seed = channel.substring(0, pos + 1);
             var peer = frame_peers_by_seed[seed];
             if (peer && peer.initialized) {
                 peer.window.postMessage(message, origin);
                 return false; /* Stop delivery */
             }
         }
+        /* Still deliver the message locally */
+        return true;
     }
 
-    /* Still deliver the message locally */
-    return true;
 });
 
 window.addEventListener("message", function(event) {

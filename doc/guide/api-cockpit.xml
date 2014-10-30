@@ -500,15 +500,19 @@
     <refsection id="latest-transport-filter">
       <title>cockpit.transport.filter()</title>
 <programlisting>
-  cockpit.transport.filter(function(message) { ... })
+  cockpit.transport.filter(function(channel, message) { ... })
 </programlisting>
       <para>Add a filter to the underlying channel transport. All incoming messages will be
         passed to each of the filter callbacks that are registered.</para>
       <para>This function is rarely used.</para>
       <para>Filter callbacks are called in the order they are registered. If a filter
         callback returns <code>false</code> then the message will not be dispatched
-        further, whether to other filters, or to channels, etc. The <code>message</code>
-        is a string.</para>
+        further, whether to other filters, or to channels, etc.</para>
+       <para>The <code>channel</code> is a string with the intended
+       destination of the message, and is either the frame channel for
+       regular payload messages , or the value of the "channel" field
+       for messages in the control channel.  The <code>message</code>
+       is a string with the raw message, including all framing.</para>
     </refsection>
 
     <refsection id="latest-transport-inject">

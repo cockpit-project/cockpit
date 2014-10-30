@@ -248,24 +248,21 @@ function Transport() {
 
         var data = event.data;
 
-        /* Call all the filters */
-        var length = filters.length;
-        for (var i = 0; i < length; i++) {
-            if (filters[i](data) === false)
-                return;
-        }
-
         /* The first line of a message is the channel */
         var pos = data.indexOf("\n");
         var channel = data.substring(0, pos);
-        var payload = data.substring(pos + 1);
+        var payload;
 
         if (!channel) {
+            payload = data.substring(pos + 1);
             transport_debug("recv control:", payload);
-            process_control(JSON.parse(payload));
+            process_control(JSON.parse(payload), data);
         } else {
-            transport_debug("recv " + channel + ":", payload);
-            process_message(channel, payload);
+            if (call_filters(channel, data)) {
+                payload = data.substring(pos + 1);
+                transport_debug("recv " + channel + ":", payload);
+                process_message(channel, payload);
+            }
         }
 
         phantom_checkpoint();
@@ -283,13 +280,22 @@ function Transport() {
         if (ows)
             ows.close();
         ready_for_channels(); /* ready to fail */
-        process_control(options);
+        process_control(options, null);
     };
 
     self.next_channel = function next_channel() {
         last_channel++;
         return channel_seed + String(last_channel);
     };
+
+    function call_filters(channel, message) {
+        var length = filters.length;
+        for (var i = 0; i < length; i++) {
+            if (filters[i](channel, message) === false)
+                return false;
+        }
+        return true;
+    }
 
     function process_init(options) {
         if (options.version !== 0) {
@@ -313,7 +319,7 @@ function Transport() {
             init_callback(options);
     }
 
-    function process_control(data) {
+    function process_control(data, message) {
         var channel = data.channel;
         var func;
 
@@ -332,6 +338,9 @@ function Transport() {
             self.close(data);
             return;
         }
+
+        if (message && !call_filters(channel, message))
+            return;
 
         /* 'ping' messages are ignored */
         if (data.command == "ping")

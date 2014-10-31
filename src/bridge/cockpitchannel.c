@@ -21,11 +21,13 @@
 
 #include "cockpitchannel.h"
 #include "cockpitdbusjson.h"
-#include "cockpitdbusjson1.h"
 #include "cockpitnullchannel.h"
 #include "cockpitrestjson.h"
 #include "cockpitresource.h"
 #include "cockpittextstream.h"
+
+#include "deprecated/cockpitdbusjson1.h"
+#include "deprecated/cockpitdbusjson2.h"
 
 #include "common/cockpitjson.h"
 
@@ -358,6 +360,8 @@ cockpit_channel_open (CockpitTransport *transport,
   if (g_strcmp0 (payload, "dbus-json1") == 0)
     channel_type = COCKPIT_TYPE_DBUS_JSON1;
   else if (g_strcmp0 (payload, "dbus-json2") == 0)
+    channel_type = COCKPIT_TYPE_DBUS_JSON2;
+  else if (g_strcmp0 (payload, "dbus-json3") == 0)
     channel_type = COCKPIT_TYPE_DBUS_JSON;
   else if (g_strcmp0 (payload, "rest-json1") == 0)
     channel_type = COCKPIT_TYPE_REST_JSON;
@@ -519,19 +523,21 @@ cockpit_channel_get_int_option (CockpitChannel *self,
  * cockpit_channel_get_bool_option:
  * @self: a channel
  * @name: the option name
+ * @defawlt: default value
  *
  * Called by implementations to get an int value from the
  * channel's options.
  *
- * Returns: TRUE of option set, FALSE if missing or set to false
+ * Returns: TRUE or FALSE if option set, @defauwlt if not set
  */
 gboolean
 cockpit_channel_get_bool_option (CockpitChannel *self,
-                                 const gchar *name)
+                                 const gchar *name,
+                                 gboolean defawlt)
 {
   gboolean value;
-  if (!cockpit_json_get_bool (self->priv->open_options, name, FALSE, &value))
-    value = FALSE;
+  if (!cockpit_json_get_bool (self->priv->open_options, name, defawlt, &value))
+    value = defawlt;
   return value;
 }
 

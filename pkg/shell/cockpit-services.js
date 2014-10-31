@@ -267,8 +267,8 @@ PageServices.prototype = {
             me.update();
         });
 
-        /* TODO: This code needs to be migrated away from dbus-json1 */
-        me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
+        /* TODO: This code needs to be migrated away from old dbus */
+        me.client = cockpit.dbusx(me.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(me.client);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
@@ -615,8 +615,8 @@ PageService.prototype = {
         var me = this;
 
         me.address = cockpit.get_page_machine();
-        /* TODO: This code needs to be migrated away from dbus-json1 */
-        me.client = cockpit.dbus(me.address, { payload: 'dbus-json1' });
+        /* TODO: This code needs to be migrated away from old dbus */
+        me.client = cockpit.dbusx(me.address, { payload: 'dbus-json1' });
         cockpit.set_watched_client(me.client);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",

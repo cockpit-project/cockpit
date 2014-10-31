@@ -121,6 +121,7 @@ function NetworkManagerModel(address) {
 
     var self = this;
 
+    /* TODO: This code needs to be migrated away from old dbus */
     var client = cockpit.dbus_client(address,
                                 { 'bus':          "system",
                                   'service':      "org.freedesktop.NetworkManager",
@@ -1298,7 +1299,8 @@ PageNetworking.prototype = {
             }
         }
 
-        this.cockpitd = cockpit.dbus(this.address);
+        /* TODO: This code needs to be migrated away from old dbus */
+        this.cockpitd = cockpit.dbusx(this.address);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 
@@ -1627,7 +1629,8 @@ PageNetworkInterface.prototype = {
             }
         }
 
-        this.cockpitd = cockpit.dbus(this.address);
+        /* TODO: This code needs to be migrated away from old dbus */
+        this.cockpitd = cockpit.dbusx(this.address);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 

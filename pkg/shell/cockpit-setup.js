@@ -139,8 +139,8 @@ PageSetupServer.prototype = {
             }
         });
 
-        /* TODO: This code needs to be migrated away from dbus-json1 */
-        self.local_client = cockpit.dbus("localhost", { payload: 'dbus-json1' });
+        /* TODO: This code needs to be migrated away from old dbus */
+        self.local_client = cockpit.dbusx("localhost", { payload: 'dbus-json1' });
         $(self.local_client).on('objectAdded.setup objectRemoved.setup', function(event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
                 self.update_discovered();
@@ -270,8 +270,8 @@ PageSetupServer.prototype = {
 
         var self = this;
 
-        /* TODO: This is using the old dbus-json1 protocol */
-        var client = cockpit.dbus(self.address, self.options);
+        /* TODO: This needs to be migrated away from the old dbus */
+        var client = cockpit.dbusx(self.address, self.options);
         $(client).on('state-change', function() {
             if (client.state == "closed") {
                 if (!self.options["host_key"] && client.error == "unknown-hostkey") {

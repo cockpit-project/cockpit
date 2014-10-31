@@ -275,6 +275,716 @@
     </variablelist>
   </refsection>
 
+  <refsection id="latest-dbus">
+    <title>DBus Access</title>
+
+    <para>Cockpit allows access to DBus services via this API.</para>
+
+    <para>DBus values are represented as javascript values and objects as follows:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>BYTE 'y'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>BOOLEAN 'b'</code></term>
+        <listitem><para>Javascript boolean.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT16 'n'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT16 'q'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT32 'i'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT32 'u'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT64 'x'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT64 't'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>DOUBLE 'd'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>STRING 's'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>OBJECT_PATH 'o'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>SIGNATURE 'g'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of BYTE 'ay'</code></term>
+        <listitem><para>A string containing base64 encoded data.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of DICT_ENTRY with STRING keys 'a{s?}'</code></term>
+        <listitem><para>A javascript plain object with the keys as property names.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of DICT_ENTRY with other keys 'a{??}'</code></term>
+        <listitem><para>A javascript plain object each key JSON encoded into a string property name.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of other</code></term>
+        <listitem><para>A javascript array.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>VARIANT</code></term>
+        <listitem><para>A javascript plain object with the <code>"t"</code> property set to a DBus type string,
+            and the <code>"v"</code> property set to a value.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <refsection id="latest-dbus-dbus">
+      <title>cockpit.dbus()</title>
+<programlisting>
+ client = cockpit.dbus(name, [options])
+</programlisting>
+
+      <para>Create a DBus client for the given bus <code>name</code> (eg: service name). Use the
+        following functions to make DBus method calls, watch for events, etc. The optional
+        <code>options</code> argument is a javascript plain object, and may include:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>"bus"</code></term>
+          <listitem><para>The DBus bus to connect to. Specifying <code>"session"</code> will
+              connect to the DBus user session bus, <code>"user"</code> will connect to the
+              user bus (on some systems this is identical to the session bus), and <code>"system"</code>
+              will connect to the DBus system bus. This defaults to "user" if not
+              present.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"host"</code></term>
+          <listitem><para>The host to open the channel to. If no host is specified
+            then the correct one will be automatically selected based on the page
+            calling this function.</para></listitem>
+        </varlistentry>
+      </variablelist>
+    </refsection>
+
+    <refsection id="latest-dbus-close">
+      <title>client.close()</title>
+<programlisting>
+ client.close([problem])
+</programlisting>
+      <para>Close the DBus client. If <code>problem</code> is specified it should be a
+        <link linkend="latest-problems">problem code</link> string.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-onclose">
+      <title>client.onclose</title>
+<programlisting>
+ $(client).on("close", function(options) { ... })
+</programlisting>
+      <para>An event triggered when the DBus client closes. This can happen either because
+        <link linkend="latest-dbus-close">client.close()</link> function was called,
+        or the DBus service went away, or some other problem or disconnection.</para>
+      <para>The <code>options</code> will contain various close information, including a
+        <code>"reason"</code> field which will be set if the channel was closed because
+        of a problem.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy">
+      <title>client.proxy</title>
+<programlisting>
+ proxy = client.proxy(interface, path)
+</programlisting>
+
+      <para>Create proxy javascript object for a DBus interface. The proxy will have
+        properties, methods and signals from to the DBus interface, and allows for
+        natural interaction.</para>
+
+      <para>If creating lots of proxies for a given <code>interface</code> it is more
+        efficient to use the
+        <link linkend="latest-dbus-proxies"><code>client.proxies()</code></link>
+        function.</para>
+
+      <para>The proxy is loaded when the
+        <link linkend="latest-dbus-proxy-valid"><code>proxy.valid</code></link> field is
+        <code>true</code>, and it is set to <code>false</code> if the underlying
+        <code>interface</code> and/or <code>path</code> don't or no longer exist, or
+        the <code>client</code> has closed. You can wait for proxy to become valid
+        by passing a callback to its
+        <link linkend="latest-dbus-proxy-wait"><code>proxy.wait()</code></link> function.
+        The <link linkend="latest-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+        event will also fire when the proxy becomes valid or invalid. DBus properties and
+        methods on the proxy are not defined until the proxy becomes valid.</para>
+
+<programlisting>
+ value = proxy.Prop1
+ proxy.WritableProp = value
+</programlisting>
+
+      <para>All DBus properties on the <code>interface</code> that start with an upper case
+        letter (as is convention) will be automatically defined on this proxy, and will update
+        their values as the DBus property values change. In addition the
+        <link linkend="latest-dbus-proxy-onchanged"><code>proxy.onchanged</code></link> event
+        will fire every time the properties change.</para>
+
+      <para>If you assign a value to a writable property on the proxy, the proxy will try to set
+        that property on the DBus <code>interface</code> at <code>path</code>. The actual proxy
+        property value will not update until the DBus service has notified the proxy of the
+        change. If setting a property fails a warning will be logged. In order to have more
+        reliable setting of properties, or track when they have been set, or if setting fails,
+        use the <link linkend="latest-dbus-call"><code>client.call()</code></link> directly.
+        It should be noted that DBus service implementations may also be inconsistent in
+        their behavior when setting a property fails.</para>
+
+      <para>You can access the raw property data using the
+        <link linkend="latest-dbus-proxy-data"><code>proxy.data</code></link> field, including
+        data for properties that do not start with an upper case letter.</para>
+
+<programlisting>
+  proxy.Method(arg1, arg2)
+     .done(function(retval1, retval2) {
+        ...
+     })
+     .fail(function(ex) {
+        ...
+     });
+</programlisting>
+      <para>All DBus methods on the <code>interface</code> that start with an upper case
+        letter (as is convention) will be automatically defined on this proxy. These
+        methods are called with arguments as normal javascript arguments. A
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        that will complete sucessfully when the method returns, or fail if an error occurs.
+        The return values from the DBus method will be passed to the <code>done</code> handler
+        function directly.</para>
+
+      <para>Methods that do not start with an upper case letter can be invoked by using
+        the usual <link linkend="latest-dbus-call"><code>client.call()</code></link> directly.</para>
+
+<programlisting>
+  $(proxy).on("Signal", function(event, arg1, arg2) {
+      ...
+  }(;
+</programlisting>
+
+      <para>All DBus signals on the <code>interface</code> that start with an upper case
+        letter (as is convention) will be automatically emit events on this proxy. These
+        events will contain the signal arguments after the standard <code>event</code>
+        argument.</para>
+
+      <para>Signals that do not start with an upper case letter can be subscribed to by
+        using <link linkend="latest-dbus-subscribe"><code>client.subscribe()</code></link>
+        directly.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy-path">
+      <title>proxy.path</title>
+      <para>Set to the DBus object path of the proxy. Will not change for the life of
+        the proxy.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy-iface">
+      <title>proxy.iface</title>
+      <para>Set to the DBus interface name of the proxy. Will not change for the life
+        of the proxy.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy-valid">
+      <title>proxy.valid</title>
+      <para>Set to <code>true</code> when the proxy's DBus interface is present at its
+        DBus path, and all information for the proxy has loaded. Is set to <code>false</code>
+        while loading, and after the proxy no longer refers a DBus interface and path.
+        Also set to <code>false</code> if the <code>client</code> closes.</para>
+      <para>Use the by <link linkend="latest-dbus-proxy-wait"><code>proxy.wait()</code></link>
+        function to wait for a proxy to load. The
+        <link linkend="latest-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+        event will also be emitted when the proxy becomes valid or invalid. DBus properties and
+        methods on the proxy are not defined until the proxy becomes valid.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy-data">
+      <title>proxy.data</title>
+      <para>A plain javascript object containing all the raw property data that this
+        proxy has loaded. This will be updated automatically as the proxy is notified
+        of property changes from the DBus service. The
+        <link linkend="latest-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+        event will be emitted when it changes.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy-wait">
+      <title>proxy.wait()</title>
+<programlisting>
+ proxy.wait(function() {
+   ...
+ });
+</programlisting>
+      <para>Wait for a proxy to finish loading, and invoke the callback function when ready.
+        If this method is called after a proxy has already loaded, then the callback will
+        be invoked immediately. Use <code>proxy.valid</code> to determine whether the proxy
+        loading resulting in a valid proxy.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy-onchanged">
+      <title>proxy.onchanged</title>
+<programlisting>
+ $(proxy).on("changed", function(data) {
+   ...
+ });
+</programlisting>
+      <para>This event is emitted when the proxy's properties change.</para>
+
+      <para>The <code>data</code> has the following form, and will only include
+        properties that have changed:</para>
+
+<programlisting>
+  {
+    "Prop1": "value",
+    "Prop2": 5
+  }
+</programlisting>
+    </refsection>
+
+    <refsection id="latest-dbus-proxies">
+      <title>client.proxies</title>
+<programlisting>
+  proxies = client.proxies(interface, [path_namespace])
+</programlisting>
+
+      <para>Create <link linkend="latest-dbus-proxy">proxy javascript objects</link> for
+        a DBus interfaces. The proxes will have properties, methods and signals from
+        the DBus interface, and allow for natural interaction.</para>
+
+      <para>Proxies will be automatically created for instances of the
+        <code>interface</code> available at the DBus service. The optional
+        <code>path_namespace</code> argument can be used to restrict the proxies for
+        instances that have DBus paths which have the namespace path prefix.</para>
+
+<programlisting>
+  proxy1 = proxies["/dbus/path1"];
+  proxy2 = proxies["/dbus/path2"];
+  for (proxy in proxies) {
+    ...
+  }
+</programlisting>
+      <para>The returned <code>proxies</code> object will is used as a dictionary,
+        and will have values containing proxies for DBus interface instances, with the
+        keys being the DBus paths of those instances. It is possible to enumerate over
+        the returned <code>proxies</code>.</para>
+
+      <para>Proxies will be automatically added and removed from the <code>proxies</code>
+        object as they appear and disappear in the service. The
+        <link linkend="latest-dbus-proxies-onadded"><code>proxies.onadded</code></link>
+        and <link linkend="latest-dbus-proxies-onremoved"><code>proxies.onremoved</code></link>
+        events will be emitted. DBus services may not support notifications of paths
+        disappearing.</para>
+
+      <para>Use the <code>proxies.wait()</code> function to be notified when the initial
+        set of proxies has been populated.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxies-wait">
+      <title>proxies.wait()</title>
+<programlisting>
+ proxies.wait(function() {
+   ...
+ });
+</programlisting>
+      <para>Wait for a <code>proxies</code> object to populate its initial set of proxies.
+        If this method is called after the proxies have populated, the callback will be
+        invoked immediately.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxies-iface">
+      <title>proxies.iface</title>
+      <para>Set to the DBus interface name of the proxies. Will not change.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxies-path_namespace">
+      <title>proxies.path_namespace</title>
+      <para>Set to the DBus path namespace used which the proxies must have as a DBus
+        path prefix. Will not change.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxies-onadded">
+      <title>proxies.onadded</title>
+<programlisting>
+ $(proxies).on("added", function(event, proxy) {
+   ...
+ })
+</programlisting>
+      <para>This event is emitted when a proxy is added to the <code>proxies</code> object.
+        The proxy will already have loaded.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxies-onchanged">
+      <title>proxies.onchanged</title>
+<programlisting>
+ $(proxies).on("changed", function(event, proxy) {
+   ...
+ })
+</programlisting>
+      <para>This event is emitted when one of the proxy in the <code>proxies</code> object
+        changes its properties.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxies-onremoved">
+      <title>proxies.onremoved</title>
+<programlisting>
+ $(proxies).on("removed", function(event, proxy) {
+   ...
+ })
+</programlisting>
+      <para>This event is emitted when a proxy is removed to the <code>proxies</code> object.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-call">
+      <title>client.call()</title>
+<programlisting>
+  invocation = client.call(path, interface, method, args, [options])
+</programlisting>
+
+      <para>Make a DBus method call.</para>
+
+      <para>The <code>path</code> is the DBus object path to make
+        the call on, <code>interface</code> is the DBus interface for the method and
+        <code>method</code> is the name of the method to call. The <code>args</code> is an
+        array of arguments to pass to the method, each of which must be appropriate for the
+        expected <link linkend="latest-dbus">DBus type</link> of that argument. The
+        <code>args</code> may be <code>null</code> if no arguments are to be sent.</para>
+
+      <para>The returned value is a
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        that will complete sucessfully when the method returns, or fail if an error occurs.</para>
+
+      <para>If <code>options</code> is specified it should be a plain javascript object,
+        which may contain the following properties:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>flags</code></term>
+          <listitem><para>A string containing DBus message flags. No flags are defined at
+            this time.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>type</code></term>
+          <listitem><para>A valid DBus type signature to use when calling the method. In the
+              absence of this, the DBus service will be introspected (and the result cached) to
+              ask what the method type signature is.</para></listitem>
+        </varlistentry>
+      </variablelist>
+    </refsection>
+
+    <refsection id="latest-dbus-done">
+      <title>invocation.done()</title>
+<programlisting>
+ invocation.done(function(args, options) { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        method. It sets up a handler to be called when the DBus method call finishes
+        successfully.</para>
+      <para>The <code>args</code> argument is an array of return values from the DBus method.
+        Each of them will be converted to an appropriate
+        <link linkend="latest-dbus">javascript type</link>.</para>
+      <para>The <code>options</code> argument may contain additional information about the
+        reply. If the <code>type</code> option was specified when performing the method call,
+        then the <code>options</code> in the reply here will also contain a <code>type</code>
+        field containing the DBus type signature of the output. If the <code>flags</code> option
+        was specified when performing the call then the <code>options</code> in the reply here
+        will contain message flags. Possible out message flags are:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>&gt;</code></term>
+          <listitem><para>A big endian message.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>&lt;</code></term>
+          <listitem><para>A little endian message.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+    </refsection>
+
+    <refsection id="latest-dbus-fail">
+      <title>invocation.fail()</title>
+<programlisting>
+ invocation.fail(function(exception) { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        It sets up a handler to be called when the DBus method call fails.</para>
+
+      <para>The <code>exception</code> object passed to the handler can have the
+        following properties:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>problem</code></term>
+          <listitem><para>A <link linkend="latest-problems">problem code</link> string when
+              a problem occurred starting or communicating with the DBus service. This is
+              <code>null</code> in the cases where an actual DBus error was occurred.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>name</code></term>
+          <listitem><para>The DBus error name. This will be <code>null</code> in cases where the
+            failure was not due to a DBus error.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>message</code></term>
+          <listitem><para>A DBus error message. This will be <code>null</code> in cases where the
+            failure was not due to a DBus error.</para></listitem>
+        </varlistentry>
+      </variablelist>
+    </refsection>
+
+    <refsection id="latest-dbus-always">
+      <title>invocation.always()</title>
+<programlisting>
+ invocation.always(function() { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        It sets up a handler to be called when when the DBus method call finishes whether successfully,
+        or fails.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-subscribe">
+      <title>client.subscribe()</title>
+<programlisting>
+ subscription = client.subscribe(match, function(path, interface, signal, args) { ... })
+</programlisting>
+      <para>Subscribe to signals. The <code>match</code> argument is a javascript plain object which
+        defines what signals to subscribe to. Each property in the <code>match</code> argument restricts
+        signals subscribed to. If a property is not present then it is treated as a wildcard, matching
+        anything. If an empty object is specified as <code>match</code> then all signals will be
+        subscribed to. The <code>match</code> argument may contain the following properties:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>interface</code></term>
+          <listitem><para>A DBus interface to match.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>path</code></term>
+          <listitem><para>A DBus object path to match. May not be used together with the
+            <code>path_namespace</code> property. It should be a valid DBus object path,
+            that is, it should have no trailing slash.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>path_namespace</code></term>
+          <listitem><para>A DBus object path prefix to match. Any paths in the hierarchy below this
+            top path will match. May not be used together with the <code>path</code>
+            property.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>member</code></term>
+          <listitem><para>The DBus signal name to match.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>arg0</code></term>
+          <listitem><para>Matches the first argument of a DBus message, which must be a
+             string.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The handler passed as the second argument will be invoked when the signal is received.
+        A <code>subscription</code> is returned which can be used to remove the subscription by
+        calling its <code>subscription.remove()</code> method.</para>
+
+      <para>It is not a problem to subscribe to the same signals more than once, with identical
+        or slightly different <code>match</code> arguments.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-remove">
+      <title>subscription.remove()</title>
+<programlisting>
+ subscription.remove()
+</programlisting>
+
+      <para>Unsubscribe from the DBus signal subscription.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-watch">
+      <title>client.watch</title>
+<programlisting>
+ watch = client.watch(path)
+ watch = client.watch({ "path_namespace": path_namespace, "interface": interface })
+</programlisting>
+      <para>Watch for property and interface changes on the given DBus object
+        <code>path</code> DBus <code>path_namespace</code>. If <code>interface</code> is
+        specified only properties on that DBus interface will be watched.</para>
+
+      <para>The <link linkend="latest-dbus-proxy"><code>client.proxy()</code></link> and
+          <link linkend="latest-dbus-proxies"><code>client.proxies()</code></link> functions and
+        the objects they return are high level wrappers around <code>client.watch()</code>.</para>
+
+      <para>The property and interface changes will be available in raw form on the
+        <link linkend="latest-dbus-onnotify"><code>client.onnotify</code></link> event.</para>
+
+      <para>Property and interface changes that are caused by a method call or signal will
+        show up before that method call reply is received, or signal event is triggered.
+        It should be possible to rely on this guarantee, unless the DBus service in question
+        behaves incorrectly. Internally these watches work well with code that implements the
+        <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-objectmanager">ObjectManager</ulink>
+        portion of the DBus specification. If no ObjectManager implementation is available, the
+        watch falls back to using DBus
+        <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-introspectable">Introspection</ulink> along with the usual
+        <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties">PropertiesChanged</ulink> signal. If the DBus service implements none of these, or implements them in an
+        inconsistent manner, then this function will provide inconsistent or unexpected
+        results.</para>
+
+      <para>The parameter is either a DBus <code>path</code> or a plain javascript object
+        with zero or more of the following fields. If an empty javascript object is used as
+        an argument, then all paths, interfaces and properties will be watched.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><code>interface</code></term>
+          <listitem><para>Watch properties on this DBus interface.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>path</code></term>
+          <listitem><para>Watch interfaces and properties at this DBus path. May not be
+              used together with the <code>path_namespace</code> property.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>path_namespace</code></term>
+          <listitem><para>Watch interfaces and properties under this DBus path. It should
+              be a valid DBus object path, that is, it should have no trailing slash.
+              If an ObjectManager implementation is available at this interface, then it
+              is used. May not be used together with the <code>path</code> property.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The returned value is a
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        that will complete sucessfully when the watch has populated its initial set of properties
+        and interfaces, and these have been notified via
+        <link linkend="latest-dbus-onnotify"><code>client.onnotify</code></link>.</para>
+
+      <para>A watch can be removed by calling the
+        <link linkend="latest-dbus-watch-remove"><code>watch.remove()</code></link> method on
+        the returned value. If identical watches are added more than once, then they must
+        also be removed the same number of times before the removal takes effect.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-watch-done">
+      <title>watch.done()</title>
+<programlisting>
+ watch.done(function() { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        method. It sets up a handler to be called when the watch has populated its initial
+        properties and interfaces.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-watch-fail">
+      <title>watch.fail()</title>
+<programlisting>
+ watch.fail(function() { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        method. It sets up a handler to be called if the watch fails to populate its initial
+        properties and interfaces. Note that a watch will only fail if the DBus client
+        closes or is somehow disconnected. It does not fail in the case of missing
+        interfaces or properties.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-watch-always">
+      <title>watch.always()</title>
+<programlisting>
+ watch.always(function() { ... })
+</programlisting>
+      <para>This is a standard
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        method. It sets up a handler to be called when the watch has populated its initial
+        properties and interfaces or has failed to do so.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-watch-remove">
+      <title>watch.remove()</title>
+<programlisting>
+ watch.remove()
+</programlisting>
+      <para>Remove the watch. This may not have any immediate effect if other watches are in
+        place. In particular, if identical watches are added more than once, then they must
+        also be removed the same number of times before the removal takes effect.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-onnotify">
+      <title>client.onnotify</title>
+<programlisting>
+ $(client).on("notify", function(data) { ... })
+</programlisting>
+      <para>An event triggered when
+        <link linkend="latest-dbus-watch">watched</link> properties or interfaces change.</para>
+
+      <para>The <link linkend="latest-dbus-proxy"><code>client.proxy()</code></link> and
+          <link linkend="latest-dbus-proxies"><code>client.proxies()</code></link> functions and
+          the objects they return are high level wrappers around the <code>data</code> provided
+          by this event.</para>
+
+      <para>The <code>data</code> has the following form:</para>
+
+<programlisting>
+  {
+      "/path1": {
+         "org.Interface1": {
+            "Prop1": "value",
+            "Prop2": 5
+         },
+         "org.Interface2": null
+      }
+  }
+</programlisting>
+
+      <para>Multiple paths may be present, each of which may have multiple interfaces, each
+        of which may have multiple properties. The first time a given path and interface is
+        emitted from this signal, it will have all its properties and interfaces. Thereafter
+        only changes are noted. If an interface is set to <code>null</code>, then that
+        interface has disappeared.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-variant">
+      <title>cockpit.variant()</title>
+<programlisting>
+ variant = cockpit.variant(type, value)
+</programlisting>
+
+      <para>A DBus variant is represented as a plain javascript object with a
+        <code>"t"</code> property represesting the full DBus type of the variant,
+        and a <code>"v"</code> property containting the variant value.</para>
+
+      <para>This is a helper function for creating such a variant object.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-byte-array">
+      <title>cockpit.byte_array()</title>
+<programlisting>
+ byte_array = cockpit.byte_array(type, value)
+</programlisting>
+
+      <para>A DBus byte array is represnted as base64 data encoded in a string. This
+        is a helper function for creating such a byte array.</para>
+    </refsection>
+  </refsection>
+
   <refsection id="latest-packages">
     <title>Package Info</title>
 

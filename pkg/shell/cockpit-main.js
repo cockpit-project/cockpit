@@ -26,7 +26,7 @@
    contains the symbol identifying the language, such as "de" or "fi".
    'language_po' is a dictionary with the actual translations.
 
-   - client = cockpit.dbus(address, [options])
+   - client = cockpit.dbusx(address, [options])
    - client.release()
 
    Manage the active D-Bus clients.  The 'dbus' function returns a
@@ -57,7 +57,7 @@ var cockpit = cockpit || { };
 
 var visited_dialogs = {};
 
-cockpit.dbus = dbus;
+cockpit.dbusx = dbusx;
 cockpit.set_watched_client = set_watched_client;
 
 function init() {
@@ -120,7 +120,7 @@ function make_dict_key(dict) {
     return Object.keys(dict).sort().map(stringify_elt).join(";");
 }
 
-function dbus(address, options) {
+function dbusx(address, options) {
     return dbus_clients.get(make_dict_key($.extend({host: address}, options)),
                             function () { return cockpit.dbus_client(address, options); });
 }
@@ -273,7 +273,8 @@ var nav_cockpitd;
 var nav_manager;
 
 function enter_global_nav() {
-    nav_cockpitd = cockpit.dbus(cockpit.get_page_machine());
+    /* TODO: This code needs to be migrated away from old dbus */
+    nav_cockpitd = cockpit.dbusx(cockpit.get_page_machine());
     nav_manager = nav_cockpitd.get("/com/redhat/Cockpit/Manager",
                                    "com.redhat.Cockpit.Manager");
     $(nav_manager).on('notify:PrettyHostname.main',

@@ -452,8 +452,8 @@ PageContainers.prototype = {
         this.address = cockpit.get_page_machine();
         this.client = cockpit.docker(this.address);
 
-        // Just for watching
-        this.dbus_client = cockpit.dbus(this.address, { payload: "dbus-json1" });
+        /* TODO: This code needs to be migrated away from old dbus */
+        this.dbus_client = cockpit.dbusx(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.dbus_client);
 
         var reds = [ "#250304",
@@ -1073,8 +1073,8 @@ PageContainerDetails.prototype = {
                 self.memory_limit.max = info.memory;
             });
 
-        // Just for watching
-        this.dbus_client = cockpit.dbus(this.address, { payload: "dbus-json1" });
+        /* TODO: This code needs to be migrated away from old dbus */
+        this.dbus_client = cockpit.dbusx(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.dbus_client);
 
         $(this.client).on('container.container-details', function (event, id, container) {
@@ -1269,8 +1269,8 @@ PageImageDetails.prototype = {
         this.image_id = cockpit.get_page_param('id');
         this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
 
-        // Just for watching
-        this.dbus_client = cockpit.dbus(this.address, { payload: "dbus-json1" });
+        /* TODO: migrate this code away from old dbus */
+        this.dbus_client = cockpit.dbusx(this.address, { payload: "dbus-json1" });
         cockpit.set_watched_client(this.dbus_client);
 
         $('#image-details-containers table tbody tr').remove();
@@ -1597,7 +1597,7 @@ function DockerClient(machine) {
             });
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        dbus_client = cockpit.dbus(machine, { payload: "dbus-json1" });
+        dbus_client = cockpit.dbusx(machine, { payload: "dbus-json1" });
         monitor = dbus_client.get("/com/redhat/Cockpit/LxcMonitor",
                                   "com.redhat.Cockpit.MultiResourceMonitor");
         $(monitor).on('NewSample', handle_new_samples);

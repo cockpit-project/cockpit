@@ -83,7 +83,7 @@ CHECK_HTML = \
 	pkg/shell/test-hash.html \
 	pkg/shell/test-journal-renderer.html \
 	pkg/shell/test-rest.html \
-	pkg/shell/test-dbus.html \
+	pkg/shell/test-dbusx.html \
 	$(NULL)
 
 TESTS += $(CHECK_HTML)

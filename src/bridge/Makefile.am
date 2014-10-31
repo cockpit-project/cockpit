@@ -4,12 +4,6 @@ noinst_LIBRARIES += libcockpit-bridge.a
 libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitchannel.c \
 	src/bridge/cockpitchannel.h \
-	src/bridge/cockpitdbusjson.c \
-	src/bridge/cockpitdbusjson.h \
-	src/bridge/cockpitdbusjson1.c \
-	src/bridge/cockpitdbusjson1.h \
-	src/bridge/cockpitfakemanager.c \
-	src/bridge/cockpitfakemanager.h \
 	src/bridge/cockpitpackage.c \
 	src/bridge/cockpitpackage.h \
 	src/bridge/cockpitpolkitagent.c \
@@ -22,9 +16,16 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitrestjson.h \
 	src/bridge/cockpittextstream.c \
 	src/bridge/cockpittextstream.h \
+	src/bridge/deprecated/cockpitdbusjson1.c \
+	src/bridge/deprecated/cockpitdbusjson1.h \
+	src/bridge/deprecated/cockpitdbusjson2.c \
+	src/bridge/deprecated/cockpitdbusjson2.h \
+	src/bridge/deprecated/cockpitfakemanager.c \
+	src/bridge/deprecated/cockpitfakemanager.h \
 	$(NULL)
 
 libcockpit_bridge_a_CFLAGS = \
+	-I$(srcdir)/src/bridge \
 	$(cockpit_cppflags_common) \
 	$(cockpit_cppflags_glib_version) \
 	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
@@ -86,7 +87,7 @@ test_channel_SOURCES = \
 test_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_channel_LDADD = $(libcockpit_bridge_LIBS)
 
-test_dbusjson_SOURCES = src/bridge/test-dbusjson.c $(mock_dbus_sources)
+test_dbusjson_SOURCES = src/bridge/deprecated/test-dbusjson.c $(mock_dbus_sources)
 nodist_test_dbusjson_SOURCES = $(test_built_sources)
 test_dbusjson_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_dbusjson_LDADD = $(libcockpit_bridge_LIBS)
@@ -113,7 +114,7 @@ test_resource_LDADD = $(libcockpit_bridge_LIBS)
 
 nodist_test_fakemanager_SOURCES = $(test_dbus_generated)
 test_fakemanager_SOURCES = \
-	src/bridge/test-fakemanager.c \
+	src/bridge/deprecated/test-fakemanager.c \
 	$(mock_dbus_sources)
 test_fakemanager_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_fakemanager_LDADD = $(libcockpit_bridge_LIBS)

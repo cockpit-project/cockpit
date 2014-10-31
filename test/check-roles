@@ -93,9 +93,10 @@ class TestRoles(MachineCase):
         m.execute("groupdel docker")
 
         # Wait for the D-Bus client to have caught up with this change
+        # TODO: This needs to be migrated away from the old dbus
         b.wait_js_func(
             """(function () {
-            var client = cockpit.dbus();
+            var client = cockpit.dbusx();
             var roles = client.get("/com/redhat/Cockpit/Accounts", "com.redhat.Cockpit.Accounts").Roles;
             var has_docker = roles && roles.some(function (r) { return r[0] == "docker" });
             client.release();

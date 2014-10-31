@@ -523,6 +523,12 @@
         of a problem.</para>
     </refsection>
 
+    <refsection id="latest-dbus-options">
+      <title>client.options</title>
+      <para>Set to the options used when creating the client. Will not change for the life of
+        the client.</para>
+    </refsection>
+
     <refsection id="latest-dbus-proxy">
       <title>client.proxy</title>
 <programlisting>
@@ -607,6 +613,12 @@
       <para>Signals that do not start with an upper case letter can be subscribed to by
         using <link linkend="latest-dbus-subscribe"><code>client.subscribe()</code></link>
         directly.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy-client">
+      <title>proxy.client</title>
+      <para>Set to the DBus client of the proxy. Will not change for the life of
+        the proxy.</para>
     </refsection>
 
     <refsection id="latest-dbus-proxy-path">
@@ -724,6 +736,11 @@
       <para>Wait for a <code>proxies</code> object to populate its initial set of proxies.
         If this method is called after the proxies have populated, the callback will be
         invoked immediately.</para>
+    </refsection>
+
+    <refsection id="latest-dbus-proxies-client">
+      <title>proxies.client</title>
+      <para>Set to the DBus client of the proxies. Will not change.</para>
     </refsection>
 
     <refsection id="latest-dbus-proxies-iface">

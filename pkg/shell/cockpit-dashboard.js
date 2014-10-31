@@ -57,6 +57,10 @@ PageDashboard.prototype = {
                 self.update_machines ();
         });
         self.update_machines ();
+
+        self.old_sidebar_state = $('#cockpit-sidebar').is(':visible');
+        $('#content-navbar').hide();
+        $('#cockpit-sidebar').hide();
     },
 
     show: function() {
@@ -71,6 +75,9 @@ PageDashboard.prototype = {
         $(this.local_client).off('.dashboard-local');
         this.local_client.release();
         this.local_client = null;
+
+        $('#content-navbar').show();
+        $('#cockpit-sidebar').toggle(this.old_sidebar_state);
     },
 
     destroy_plots: function () {

@@ -440,6 +440,7 @@ cockpit_channel_ready (CockpitChannel *self)
   klass = COCKPIT_CHANNEL_GET_CLASS (self);
   g_assert (klass->recv != NULL);
 
+  g_object_ref (self);
   while (self->priv->received)
     {
       queue = self->priv->received;
@@ -456,6 +457,7 @@ cockpit_channel_ready (CockpitChannel *self)
     }
 
   self->priv->ready = TRUE;
+  g_object_unref (self);
 }
 
 /**

@@ -109,6 +109,15 @@
     <method name="AddAlpha"/>
     <method name="RemoveAlpha"/>
 
+    <method name="CreateClique">
+      <arg direction="in" type="s" name="name" />
+      <arg direction="out" type="o" name="member" />
+    </method>
+
+    <method name="EmitHidden">
+      <arg direction="in" type="s" name="name" />
+    </method>
+
     <property name="y" type="y" access="readwrite"/>
     <property name="b" type="b" access="readwrite"/>
     <property name="n" type="n" access="readwrite"/>
@@ -129,6 +138,14 @@
     <property name="FinallyNormalName" type="s" access="readwrite"/>
     <property name="ReadonlyProperty" type="s" access="read"/>
     <property name="WriteonlyProperty" type="s" access="write"/>
+  </interface>
+
+  <interface name="com.redhat.Cockpit.DBusTests.Clique">
+    <property name="Friend" type="o" access="read"/>
+  </interface>
+
+  <interface name="com.redhat.Cockpit.DBusTests.Hidden">
+    <property name="Name" type="s" access="read"/>
   </interface>
 
 </node>

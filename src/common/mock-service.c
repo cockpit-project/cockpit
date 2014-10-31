@@ -224,6 +224,10 @@ on_handle_create_object (TestFrobber *object,
       g_object_unref (frobber);
       g_object_unref (new_object);
 
+      g_signal_connect (frobber,
+                        "handle-request-property-mods",
+                        G_CALLBACK (on_handle_request_property_mods),
+                        NULL);
       test_frobber_complete_create_object (object, invocation);
     }
   return TRUE;
@@ -322,6 +326,121 @@ on_handle_remove_alpha (TestFrobber *frobber,
   if (test_object_peek_alpha (TEST_OBJECT (enclosing)) != NULL)
     test_object_skeleton_set_alpha (enclosing, NULL);
   test_frobber_complete_add_alpha (frobber, invocation);
+  return TRUE;
+}
+
+/* ------------------------------------------------------------------------
+ * Non object manager stuff
+ */
+
+static GVariant *
+clique_get_property (GDBusConnection *connection,
+                     const gchar *sender,
+                     const gchar *object_path,
+                     const gchar *interface_name,
+                     const gchar *property_name,
+                     GError **error,
+                     gpointer user_data)
+{
+  /* The only property is Friend */
+  gchar *friend = user_data;
+  return g_variant_new_object_path (friend);
+}
+
+static gboolean
+on_create_clique (TestFrobber *frobber,
+                  GDBusMethodInvocation *invocation,
+                  const gchar *name,
+                  gpointer user_data)
+{
+  GDBusConnection *connection = g_dbus_method_invocation_get_connection (invocation);
+  GError *error = NULL;
+  gchar *path = NULL;
+  gchar *friend;
+  gint i;
+
+  static const GDBusInterfaceVTable vtable = {
+    .method_call = NULL,
+    .get_property = clique_get_property,
+    .set_property = NULL,
+  };
+
+  for (i = 0; i < 3; i++)
+    {
+      g_free (path);
+      path = g_strdup_printf ("/cliques/%s/%d", name, i);
+
+      friend = g_strdup_printf ("/cliques/%s/%d", name, (i + 1) % 3);
+
+      g_dbus_connection_register_object (connection, path,
+                                         test_clique_interface_info (),
+                                         &vtable, friend, g_free, &error);
+      if (error)
+        {
+          g_critical ("Couldn't register new clique: %s", error->message);
+          g_clear_error (&error);
+        }
+    }
+
+  test_frobber_complete_create_clique (frobber, invocation, path);
+  g_free (path);
+  return TRUE;
+}
+
+static GVariant *
+hidden_get_property (GDBusConnection *connection,
+                     const gchar *sender,
+                     const gchar *object_path,
+                     const gchar *interface_name,
+                     const gchar *property_name,
+                     GError **error,
+                     gpointer user_data)
+{
+  /* The only property is Name */
+  gchar *name = user_data;
+  return g_variant_new_string (name);
+}
+
+static gboolean
+on_emit_hidden (TestFrobber *frobber,
+                GDBusMethodInvocation *invocation,
+                const gchar *name,
+                gpointer user_data)
+{
+  GDBusConnection *connection = g_dbus_method_invocation_get_connection (invocation);
+  GError *error = NULL;
+  gchar *path = NULL;
+
+  static const GDBusInterfaceVTable vtable = {
+    .method_call = NULL,
+    .get_property = hidden_get_property,
+    .set_property = NULL,
+  };
+
+  path = g_strdup_printf ("/hidden/%s", name);
+
+  g_dbus_connection_register_object (connection, path,
+                                     test_hidden_interface_info (),
+                                     &vtable, g_strdup (name), g_free, &error);
+  if (error)
+    {
+      g_critical ("Couldn't register new hidden: %s", error->message);
+      g_clear_error (&error);
+    }
+
+  g_dbus_connection_emit_signal (connection, NULL, path,
+                                 "com.redhat.Cockpit.DBusTests.Hidden", "Yooohooo",
+                                 g_variant_new ("()"), &error);
+
+  if (error)
+    {
+      g_critical ("Couldn't emit signal on hidden: %s", error->message);
+      g_clear_error (&error);
+    }
+
+  /* Now emit a signal from it */
+  test_frobber_complete_emit_hidden (frobber, invocation);
+  g_free (path);
   return TRUE;
 }
 
@@ -443,7 +562,7 @@ mock_service_create_and_export (GDBusConnection *connection,
   g_signal_connect (exported_frobber,
                     "handle-request-property-mods",
                     G_CALLBACK (on_handle_request_property_mods),
-                    object_manager);
+                    NULL);
   g_signal_connect (exported_frobber,
                     "handle-request-multi-property-mods",
                     G_CALLBACK (on_handle_request_multi_property_mods),
@@ -476,6 +595,10 @@ mock_service_create_and_export (GDBusConnection *connection,
                     "handle-remove-alpha",
                     G_CALLBACK (on_handle_remove_alpha),
                     object_manager);
+  g_signal_connect (exported_frobber, "handle-create-clique",
+                    G_CALLBACK (on_create_clique), NULL);
+  g_signal_connect (exported_frobber, "handle-emit-hidden",
+                    G_CALLBACK (on_emit_hidden), NULL);
 
   g_object_unref (exported_frobber);
   mock_service_create_introspect_fail (connection);

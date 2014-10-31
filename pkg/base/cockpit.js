@@ -782,6 +782,239 @@ function full_scope(cockpit, $) {
         };
     }
 
+    function DBusCache() {
+        var self = this;
+
+        var callbacks = [ ];
+        self.data = { };
+        self.meta = { };
+
+        self.connect = function connect(path, iface, callback, first) {
+            var cb = [path, iface, callback];
+            if (first)
+                callbacks.unshift(cb);
+            else
+                callbacks.push(cb);
+            return {
+                remove: function remove() {
+                    var i, length = callbacks.length;
+                    for (i = 0; i < length; i++) {
+                        var cb = callbacks[i];
+                        if (cb[0] === path && cb[1] === iface && cb[2] === callback) {
+                            delete cb[i];
+                            break;
+                        }
+                    }
+                }
+            };
+        };
+
+        function emit(path, iface, props) {
+            var copy = callbacks.slice();
+            var i, length = copy.length;
+            for (i = 0; i < length; i++) {
+                var cb = copy[i];
+                if ((!cb[0] || cb[0] === path) &&
+                    (!cb[1] || cb[1] === iface)) {
+                    cb[2](props, path);
+                }
+            }
+        }
+
+        self.update = function update(path, iface, props) {
+            if (!self.data[path])
+                self.data[path] = { };
+            if (!self.data[path][iface])
+                self.data[path][iface] = props;
+            else
+                props = $.extend(self.data[path][iface], props);
+            emit(path, iface, props);
+        };
+
+        self.remove = function remove(path, iface) {
+            if (self.data[path]) {
+                delete self.data[path][iface];
+                emit(path, iface, null);
+            }
+        };
+
+        self.lookup = function lookup(path, iface) {
+            if (self.data[path])
+                return self.data[path][iface];
+            return undefined;
+        };
+
+        self.each = function each(iface, callback) {
+            $.each(self.data, function(path, ifaces) {
+                $.each(ifaces, function(iface, props) {
+                    callback(props, path);
+                });
+            });
+        };
+
+        self.close = function close() {
+            self.data = { };
+            var copy = callbacks;
+            callbacks = [ ];
+            var i, length = copy.length;
+            for (i = 0; i < length; i++)
+                copy[i].callback();
+        };
+    }
+
+    function DBusProxy(client, cache, iface, path, options) {
+        var self = this;
+
+        var valid = false;
+        var defined = false;
+        var waits = $.Callbacks("once memory");
+
+        /* No enumeration on these properties */
+        Object.defineProperties(self, {
+            "path": { value: path, enumerable: false, writable: false },
+            "iface": { value: iface, enumerable: false, writable: false },
+            "valid": { get: function() { return valid; }, enumerable: false },
+            "wait": { value: function(func) { waits.add(func); return this; },
+                      enumerable: false, writable: false },
+            "data": { value: { }, enumerable: false }
+        });
+
+        Object.defineProperty(self, jQuery.expando, {
+            value: { }, writable: true, enumerable: false
+        });
+
+        if (!options)
+            options = { };
+
+        function define() {
+            if (!cache.meta[iface])
+                return;
+
+            var meta = cache.meta[iface];
+            defined = true;
+
+            $.each(meta.methods || { }, function(name) {
+                if (name[0].toLowerCase() == name[0])
+                    return; /* Only map upper case */
+
+                /* Again, make sure these don't show up in enumerations */
+                Object.defineProperty(self, name, {
+                    enumerable: false,
+                    value: function() {
+                        var dfd = $.Deferred();
+                        client.call(path, iface, name, Array.prototype.slice.call(arguments)).
+                            done(function(reply) { dfd.resolve.apply(dfd, reply); }).
+                            fail(function(ex) { dfd.reject(ex); });
+                        return dfd.promise();
+                    }
+                });
+            });
+
+            $.each(meta.properties || { }, function(name, prop) {
+                if (name[0].toLowerCase() == name[0])
+                    return; /* Only map upper case */
+
+                var config = {
+                    enumerable: true,
+                    get: function() { return self.data[name]; },
+                    set: function(v) { throw name + "is not writable"; }
+                };
+
+                if (prop.flags && prop.flags.indexOf('w') !== -1) {
+                    config.set = function(v) {
+                        client.call(path, "org.freedesktop.DBus.Properties", "Set",
+                                [ iface, name, cockpit.variant(prop.type, v) ]).
+                            fail(function(ex) {
+                                console.log("Couldn't set " + iface + " " + name +
+                                            " at " + path + ": " + ex);
+                            });
+                    };
+                }
+
+                /* Again, make sure these don't show up in enumerations */
+                Object.defineProperty(self, name, config);
+            });
+        }
+
+        function update(props) {
+            if (props) {
+                $.extend(self.data, props);
+                if (!defined)
+                    define();
+                valid = true;
+            } else {
+                valid = false;
+            }
+            $(self).triggerHandler("changed", [ props ]);
+        }
+
+        cache.connect(path, iface, update, true);
+        update(cache.lookup(path, iface));
+
+        function signal(path, iface, name, args) {
+            if (name[0].toLowerCase() != name[0])
+                $(self).triggerHandler(name, args);
+        }
+
+        client.subscribe({ "path": path, "interface": iface }, signal, options.subscribe !== false);
+
+        /* If watching then do a proper watch, otherwise object is done */
+        if (options.watch !== false)
+            client.watch(path).always(function() { waits.fire(); });
+        else
+            waits.fire();
+    }
+
+    function DBusProxies(client, cache, iface, path_namespace) {
+        var self = this;
+
+        var waits = $.Callbacks("once memory");
+
+        Object.defineProperties(self, {
+            "iface": { value: iface, enumerable: false },
+            "path_namespace": { value: path_namespace, enumerable: false },
+            "wait": { value: function(func) { waits.add(func); return this; },
+                      enumerable: false, writable: false }
+        });
+
+        Object.defineProperty(self, jQuery.expando, {
+            value: { }, writable: true, enumerable: false
+        });
+
+        /* Subscribe to signals once for all proxies */
+        var match = { "interface": iface };
+        if (path_namespace)
+            match["path_namespace"] = path_namespace;
+
+        /* Callbacks added by proxies */
+        client.subscribe(match);
+
+        /* Watch for property changes */
+        client.watch(match).always(function() { waits.fire(); });
+
+        /* Already added watch/subscribe, tell proxies not to */
+        var options = { watch: false, subscribe: false };
+
+        function update(props, path) {
+            var proxy = self[path];
+            if (!path) {
+                return;
+            } else if (!props && proxy) {
+                delete self[path];
+                $(self).triggerHandler("removed", [ proxy ]);
+            } else if (props) {
+                if (!proxy) {
+                    proxy = self[path] = client.proxy(iface, path, options);
+                    $(self).triggerHandler("added", [ proxy ]);
+                }
+                $(self).triggerHandler("changed", [ proxy ]);
+            }
+        }
+
+        cache.connect(null, iface, update, false);
+        cache.each(iface, update);
+    }
+
     function DBusClient(name, options) {
         var self = this;
         var args = { };
@@ -793,6 +1026,14 @@ function full_scope(cockpit, $) {
         var channel = cockpit.channel(args);
         var subscribers = { };
         var calls = { };
+        var cache;
+
+        self.constructors = { "*": DBusProxy };
+
+        function ensure_cache() {
+            if (!cache)
+                cache = new DBusCache();
+        }
 
         function matches(signal, match) {
             if (match.path && signal[0] !== match.path)
@@ -845,6 +1086,20 @@ function full_scope(cockpit, $) {
                             subscription.callback.apply(self, msg.signal);
                     }
                 });
+            } else if (msg.notify) {
+                ensure_cache();
+                $.each(msg.notify, function(path, ifaces) {
+                    $.each(ifaces, function(iface, props) {
+                        if (!props)
+                            cache.remove(path, iface);
+                        else
+                            cache.update(path, iface, props);
+                    });
+                });
+                $(self).triggerHandler("notify", [ msg.notify ]);
+            } else if (msg.meta) {
+                ensure_cache();
+                $.extend(cache.meta, msg.meta);
             } else {
                 console.warn("received unexpected dbus json message:", payload);
                 channel.close({"reason": "protocol-error"});
@@ -868,7 +1123,7 @@ function full_scope(cockpit, $) {
             $.each(outstanding, function(id, dfd) {
                 dfd.reject(new DBusError(problem));
             });
-            $(self).triggerHandler("close", problem);
+            $(self).triggerHandler("close", [ problem ]);
         };
 
         $(channel).on("close", function(event, options) {
@@ -903,30 +1158,82 @@ function full_scope(cockpit, $) {
             return dfd.promise();
         };
 
-        this.subscribe = function subscribe(match, callback) {
+        this.subscribe = function subscribe(match, callback, rule) {
             var subscription = {
                 match: match || { },
                 callback: callback
             };
-            var msg = JSON.stringify({ "add-match": subscription.match });
-            dbus_debug("dbus:", msg);
-            channel.send(msg);
 
-            var id = String(last_cookie);
-            last_cookie++;
-            subscribers[id] = subscription;
+            if (rule !== false) {
+                var msg = JSON.stringify({ "add-match": subscription.match });
+                dbus_debug("dbus:", msg);
+                channel.send(msg);
+            }
+
+            var id;
+            if (callback) {
+                id = String(last_cookie);
+                last_cookie++;
+                subscribers[id] = subscription;
+            }
 
             return {
                 remove: function() {
-                    var prev = subscribers[id];
-                    if (prev) {
-                        delete subscribers[id];
+                    if (id) {
+                        var prev = subscribers[id];
+                        if (prev)
+                            delete subscribers[id];
+                    }
+                    if (rule !== false && channel.valid) {
                         var msg = JSON.stringify({ "remove-match": prev.match });
                         dbus_debug("dbus:", msg);
                         channel.send(msg);
                     }
                 }
             };
+        };
+
+        self.watch = function watch(path) {
+            var match;
+            if ($.isPlainObject(path))
+                match = path;
+            else
+                match = { path: String(path) };
+
+            var id = String(last_cookie);
+            last_cookie++;
+            var dfd = $.Deferred();
+            calls[id] = dfd;
+
+            var msg = JSON.stringify({ "watch": match, "id": id });
+            dbus_debug("dbus:", msg);
+            channel.send(msg);
+
+            var promise = dfd.promise();
+            promise.remove = function remove() {
+                delete calls[id];
+                if (channel.valid) {
+                    msg = JSON.stringify({ "unwatch": match });
+                    dbus_debug("dbus:", msg);
+                    channel.send(msg);
+                }
+            };
+            return promise;
+        };
+
+        self.proxy = function proxy(iface, path, options) {
+            var ctor = self.constructors[iface];
+            if (!ctor)
+                ctor = self.constructors["*"];
+            if (!options)
+                options = { };
+            ensure_cache();
+            return new ctor(self, cache, iface, path, options);
+        };
+
+        self.proxies = function proxies(iface, path_namespace) {
+            ensure_cache();
+            return new DBusProxies(self, cache, iface, path_namespace);
         };
     }
 

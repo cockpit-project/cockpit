@@ -388,6 +388,71 @@ may be null if the DBus signal had no body.
         "signal": [ "/the/path", "org.Interface", "SignalName", [ "arg0", 1, 2 ] ]
     }
 
+Properties can be watched with the "watch" request. Either a "path" or
+"path_namespace" can be watched. Property changes are listened for with
+DBus PropertiesChanged signals.  If a "path_namespace" is watched and
+path is a DBus ObjectManager, then it is used to watch for new DBus
+interfaces, otherwise DBus introspection is used. The "id" field is
+optional, if present a "reply" will be sent with this same "id" when
+the watch has sent "notify" messages about the things being watched.
+
+    {
+        "watch": {
+	    "path": "/the/path/to/watch",
+            "interface": org.Interface
+        }
+	"id": 5
+    }
+
+To remove a watch, pass the identical parameters with an "unwatch"
+request.
+
+    {
+        "unwatch": {
+            "path": "/the/path/to/watch"
+        }
+    }
+
+Property changes will be sent using a "notify" message. This includes
+addition of interfaces without properties, which will be an empty
+interface object, or interfaces removed, which will be null. Only the
+changes since the last "notify" message will be sent.
+
+    {
+	"notify": {
+            "/a/path": {
+                "org.Interface1": {
+                    "Prop1": x,
+                    "Prop2": y
+                },
+		"org.Interface2": { }
+            },
+            "/another/path": {
+                "org.Removed": null
+            }
+        }
+    }
+
+Interface introspection data is sent using "meta" message. Before the
+first time an interface is sent using a "notify" message, a "meta"
+will be sent with that interface introspection info. Additional fields
+will be defined here, but this is it for now.
+
+    {
+        "meta": {
+            "org.Interface": {
+                "methods": {
+                    "Method1": { },
+                    "Method2": { }
+                },
+                "properties": {
+                    "Prop1": { "flags": "rw" },
+                    "Prop2": { "flags": "r" }
+                }
+            }
+        }
+    }
+
 DBus types are encoded in various places in these messages, such as the
 arguments. These types are encoded as follows:
 

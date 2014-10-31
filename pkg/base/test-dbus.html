@@ -731,6 +731,17 @@ asyncTest("path signal", function() {
         });
 });
 
+test("exposed client and options", function() {
+    var options = { host: "localhost" };
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", options);
+    var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+    var proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
+
+    deepEqual(dbus.options, options, "client object exposes options");
+    strictEqual(proxy.client, dbus, "proxy object exposes client");
+    strictEqual(proxies.client, dbus, "proxies object exposes client");
+});
+
 QUnit.start();
 </script>
 </body>

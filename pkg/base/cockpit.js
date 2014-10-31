@@ -1029,6 +1029,7 @@ function full_scope(cockpit, $) {
 
         /* No enumeration on these properties */
         Object.defineProperties(self, {
+            "client": { value: client, enumerable: false, writable: false },
             "path": { value: path, enumerable: false, writable: false },
             "iface": { value: iface, enumerable: false, writable: false },
             "valid": { get: function() { return valid; }, enumerable: false },
@@ -1129,6 +1130,7 @@ function full_scope(cockpit, $) {
         var waits = $.Callbacks("once memory");
 
         Object.defineProperties(self, {
+            "client": { value: client, enumerable: false, writable: false },
             "iface": { value: iface, enumerable: false, writable: false },
             "path_namespace": { value: path_namespace, enumerable: false, writable: false },
             "wait": { value: function(func) { waits.add(func); return this; },
@@ -1180,8 +1182,10 @@ function full_scope(cockpit, $) {
             $.extend(args, options);
         args.payload = "dbus-json3";
         args.name = name;
+        self.options = options;
 
         dbus_debug("dbus open: ", args);
+
         var channel = cockpit.channel(args);
         var subscribers = { };
         var calls = { };

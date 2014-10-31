@@ -557,8 +557,10 @@ function hostname_for_display(iface) {
         iface.StaticHostname != "localhost" &&
         iface.StaticHostname != "localhost.localdomain")
         return iface.StaticHostname;
-    else if (iface._client.target != "localhost")
+    else if (iface._client && iface._client.target != "localhost")
         return iface._client.target;
+    else if (iface.client && iface.client.options.host && iface.client.options.host != "localhost")
+        return iface.client.options.host;
     else
         return window.location.hostname;
 }

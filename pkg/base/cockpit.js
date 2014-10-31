@@ -1023,6 +1023,7 @@ function full_scope(cockpit, $) {
         args.payload = "dbus-json3";
         args.name = name;
 
+        dbus_debug("dbus open: ", args);
         var channel = cockpit.channel(args);
         var subscribers = { };
         var calls = { };

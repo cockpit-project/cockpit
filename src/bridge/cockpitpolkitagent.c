@@ -245,7 +245,7 @@ on_helper_read (CockpitPipe *pipe,
   /* Consume from buffer, including null termination */
   cockpit_pipe_skip (buffer, lf - buffer->data);
 
-  cockpit_transport_send (caller->self->transport, 0, bytes);
+  cockpit_transport_send (caller->self->transport, NULL, bytes);
   g_bytes_unref (bytes);
 }
 

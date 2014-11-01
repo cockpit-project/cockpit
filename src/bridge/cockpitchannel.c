@@ -267,7 +267,7 @@ cockpit_channel_real_close (CockpitChannel *self,
       message = cockpit_json_write_bytes (object);
       json_object_unref (object);
 
-      cockpit_transport_send (self->priv->transport, 0, message);
+      cockpit_transport_send (self->priv->transport, NULL, message);
       g_bytes_unref (message);
     }
 

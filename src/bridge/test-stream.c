@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include "cockpittextstream.h"
+#include "cockpitstream.h"
 
 #include "mock-transport.h"
 
@@ -150,7 +150,7 @@ setup_channel (TestCase *tc,
                gconstpointer data)
 {
   setup (tc, data);
-  tc->channel = cockpit_text_stream_open (COCKPIT_TRANSPORT (tc->transport), "548", tc->unix_path);
+  tc->channel = cockpit_stream_open (COCKPIT_TRANSPORT (tc->transport), "548", tc->unix_path);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_closed_get_problem), &tc->channel_problem);
 }
 
@@ -347,9 +347,9 @@ test_spawn_simple (void)
   array = json_array_new ();
   json_array_add_string_element (array, "/bin/cat");
   json_object_set_array_member (options, "spawn", array);
-  json_object_set_string_member (options, "payload", "text-stream");
+  json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_STREAM,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -404,9 +404,9 @@ test_spawn_environ (void)
   json_array_add_string_element (array, "ENVIRON=Marmalaade");
   json_object_set_array_member (options, "environ", array);
 
-  json_object_set_string_member (options, "payload", "text-stream");
+  json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_STREAM,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -457,9 +457,9 @@ test_spawn_status (void)
   json_array_add_string_element (array, "exit 5");
   json_object_set_array_member (options, "spawn", array);
 
-  json_object_set_string_member (options, "payload", "text-stream");
+  json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_STREAM,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -501,9 +501,9 @@ test_spawn_signal (void)
   json_array_add_string_element (array, "kill $$");
   json_object_set_array_member (options, "spawn", array);
 
-  json_object_set_string_member (options, "payload", "text-stream");
+  json_object_set_string_member (options, "payload", "stream");
 
-  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_STREAM,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -545,10 +545,10 @@ test_spawn_pty (void)
   json_array_add_string_element (array, "/bin/bash");
   json_array_add_string_element (array, "-i");
   json_object_set_array_member (options, "spawn", array);
-  json_object_set_string_member (options, "payload", "text-stream");
+  json_object_set_string_member (options, "payload", "stream");
   json_object_set_boolean_member (options, "pty", TRUE);
 
-  channel = g_object_new (COCKPIT_TYPE_TEXT_STREAM,
+  channel = g_object_new (COCKPIT_TYPE_STREAM,
                           "options", options,
                           "id", "548",
                           "transport", transport,
@@ -633,7 +633,7 @@ test_fail_not_found (void)
   cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "*couldn't connect*");
 
   transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = cockpit_text_stream_open (transport, "1", "/non-existent");
+  channel = cockpit_stream_open (transport, "1", "/non-existent");
   g_assert (channel != NULL);
 
   /* Even through failure is on open, should not have closed yet */
@@ -675,7 +675,7 @@ test_fail_not_authorized (void)
   g_assert_cmpint (fchmod (fd, 0000), ==, 0);
 
   transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = cockpit_text_stream_open (transport, "1", unix_path);
+  channel = cockpit_stream_open (transport, "1", unix_path);
   g_assert (channel != NULL);
 
   /* Even through failure is on open, should not have closed yet */
@@ -700,24 +700,24 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/text-stream/echo", TestCase, NULL,
+  g_test_add ("/stream/echo", TestCase, NULL,
               setup_channel, test_echo, teardown);
-  g_test_add ("/text-stream/shutdown", TestCase, NULL,
+  g_test_add ("/stream/shutdown", TestCase, NULL,
               setup_channel, test_shutdown, teardown);
-  g_test_add ("/text-stream/close-normal", TestCase, NULL,
+  g_test_add ("/stream/close-normal", TestCase, NULL,
               setup_channel, test_close_normal, teardown);
-  g_test_add ("/text-stream/close-problem", TestCase, NULL,
+  g_test_add ("/stream/close-problem", TestCase, NULL,
               setup_channel, test_close_problem, teardown);
-  g_test_add ("/text-stream/invalid-send", TestCase, NULL,
+  g_test_add ("/stream/invalid-send", TestCase, NULL,
               setup_channel, test_send_invalid, teardown);
-  g_test_add ("/text-stream/invalid-recv", TestCase, NULL,
+  g_test_add ("/stream/invalid-recv", TestCase, NULL,
               setup_channel, test_recv_invalid, teardown);
 
-  g_test_add_func ("/text-stream/spawn/signal", test_spawn_signal);
-  g_test_add_func ("/text-stream/spawn/simple", test_spawn_simple);
-  g_test_add_func ("/text-stream/spawn/status", test_spawn_status);
-  g_test_add_func ("/text-stream/spawn/environ", test_spawn_environ);
-  g_test_add_func ("/text-stream/spawn/pty", test_spawn_pty);
+  g_test_add_func ("/stream/spawn/signal", test_spawn_signal);
+  g_test_add_func ("/stream/spawn/simple", test_spawn_simple);
+  g_test_add_func ("/stream/spawn/status", test_spawn_status);
+  g_test_add_func ("/stream/spawn/environ", test_spawn_environ);
+  g_test_add_func ("/stream/spawn/pty", test_spawn_pty);
 
   g_test_add_func ("/test-stream/fail/not-found", test_fail_not_found);
   g_test_add_func ("/test-stream/fail/not-authorized", test_fail_not_authorized);

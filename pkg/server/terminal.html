@@ -26,7 +26,7 @@ require([
         term.open($("#terminal")[0]);
 
         channel = cockpit.channel({
-            "payload": "text-stream",
+            "payload": "stream",
             "spawn": ["/bin/bash", "-i"],
             "environ": [
                 "TERM=xterm-256color",

@@ -861,7 +861,7 @@ function full_scope(cockpit, $) {
     cockpit.spawn = function(command, options) {
         var dfd = new $.Deferred();
 
-        var args = { "payload": "text-stream", "spawn": [] };
+        var args = { "payload": "stream", "spawn": [] };
         if (command instanceof Array) {
             for (var i = 0; i < command.length; i++)
                 args["spawn"].push(String(command[i]));

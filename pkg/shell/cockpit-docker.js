@@ -1918,14 +1918,14 @@ function DockerTerminal(parent, machine, id) {
      *
      * We only support the tty stream. The other framed stream
      * contains embedded nulls in the framing and doesn't work
-     * with our text-stream channels.
+     * with our stream channels.
      *
      * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
      */
     function attach() {
         channel = cockpit.channel({
             "host": machine,
-            "payload": "text-stream",
+            "payload": "stream",
             "unix": "/var/run/docker.sock"
         });
 

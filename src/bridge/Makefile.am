@@ -24,8 +24,8 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitresource.h \
 	src/bridge/cockpitrestjson.c \
 	src/bridge/cockpitrestjson.h \
-	src/bridge/cockpittextstream.c \
-	src/bridge/cockpittextstream.h \
+	src/bridge/cockpitstream.c \
+	src/bridge/cockpitstream.h \
 	src/bridge/deprecated/cockpitdbusjson1.c \
 	src/bridge/deprecated/cockpitdbusjson1.h \
 	src/bridge/deprecated/cockpitdbusjson2.c \
@@ -88,7 +88,7 @@ BRIDGE_CHECKS = \
 	test-fakemanager \
 	test-dbusjson \
 	test-restjson \
-	test-textstream \
+	test-stream \
 	test-package \
 	test-resource \
 	$(NULL)
@@ -120,11 +120,11 @@ test_rules_SOURCES = src/bridge/test-rules.c
 test_rules_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_rules_LDADD = $(libcockpit_bridge_LIBS)
 
-test_textstream_SOURCES = \
-	src/bridge/test-textstream.c \
+test_stream_SOURCES = \
+	src/bridge/test-stream.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_textstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_textstream_LDADD = $(libcockpit_bridge_LIBS)
+test_stream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_stream_LDADD = $(libcockpit_bridge_LIBS)
 
 test_resource_SOURCES = \
 	src/bridge/test-resource.c \

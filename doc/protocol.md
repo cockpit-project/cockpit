@@ -124,7 +124,7 @@ An example of an open:
     {
         "command": "open",
         "channel": "a4",
-        "payload": "text-stream",
+        "payload": "stream",
         "host": "localhost"
     }
 
@@ -539,14 +539,15 @@ request will be closed.  A cancelled request will not receive any
 further responses, not even one to indicate that it has been
 cancelled.
 
-Payload: text-stream
---------------------
+Payload: stream
+---------------
 
-Raw text is sent back and forth to a socket. See cockpittextstream.c. The
+Raw data is sent back and forth to a socket. See cockpitstream.c. The
 boundaries of the messages are arbitrary, and depend on how the kernel
 and socket buffer things.
 
-Non-UTF8 data is forced into UTF8 with a replacement character.
+If the channel is not binary, then non-UTF-8 data is forced into UTF-8
+with a replacement character.
 
 Additional "open" command options should be specified with a channel of
 this payload type:

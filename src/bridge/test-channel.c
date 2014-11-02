@@ -48,7 +48,7 @@ static void
 mock_echo_channel_recv (CockpitChannel *channel,
                         GBytes *message)
 {
-  cockpit_channel_send (channel, message);
+  cockpit_channel_send (channel, message, FALSE);
 }
 
 static void

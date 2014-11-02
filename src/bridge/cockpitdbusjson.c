@@ -722,7 +722,7 @@ send_json_object (CockpitDBusJson *self,
   GBytes *bytes;
 
   bytes = cockpit_json_write_bytes (object);
-  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
+  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes, TRUE);
   g_bytes_unref (bytes);
 }
 

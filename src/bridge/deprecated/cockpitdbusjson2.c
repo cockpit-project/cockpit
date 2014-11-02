@@ -669,7 +669,7 @@ write_builder (CockpitDBusJson2 *self,
   json_node_free (root);
 
   bytes = g_bytes_new_take (ret, length);
-  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
+  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes, TRUE);
   g_bytes_unref (bytes);
 }
 

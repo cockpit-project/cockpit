@@ -335,7 +335,7 @@ write_builder (CockpitDBusJson1 *self,
 
   json_builder_end_object (builder);
   bytes = _json_builder_to_bytes (self, builder);
-  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
+  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes, TRUE);
   g_bytes_unref (bytes);
 }
 

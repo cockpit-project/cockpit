@@ -77,7 +77,8 @@ const gchar *       cockpit_channel_get_id            (CockpitChannel *self);
 void                cockpit_channel_ready             (CockpitChannel *self);
 
 void                cockpit_channel_send              (CockpitChannel *self,
-                                                       GBytes *payload);
+                                                       GBytes *payload,
+                                                       gboolean valid_utf8);
 
 const gchar *       cockpit_channel_get_option        (CockpitChannel *self,
                                                        const gchar *name);

@@ -67,7 +67,7 @@ on_idle_send_block (gpointer data)
     }
   else
     {
-      cockpit_channel_send (channel, payload);
+      cockpit_channel_send (channel, payload, FALSE);
       g_bytes_unref (payload);
       return TRUE;
     }

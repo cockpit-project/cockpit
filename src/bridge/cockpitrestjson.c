@@ -407,7 +407,7 @@ cockpit_rest_response_reply (CockpitRestJson *self,
   g_object_unref (builder);
 
   bytes = g_bytes_new_take (data, length);
-  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes);
+  cockpit_channel_send (COCKPIT_CHANNEL (self), bytes, TRUE);
   g_bytes_unref (bytes);
 }
 

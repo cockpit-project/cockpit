@@ -35,7 +35,7 @@ struct _WebSocketServer
 {
   WebSocketConnection parent;
 
-  gboolean handshake_started;
+  gboolean protocol_chosen;
   gchar **allowed_protocols;
   GHashTable *request_headers;
 };
@@ -176,6 +176,7 @@ respond_handshake_hixie76 (WebSocketServer *self,
       return FALSE;
     }
 
+  self->protocol_chosen = TRUE;
   keystr1 = g_hash_table_lookup (headers, "Sec-WebSocket-Key1");
   keystr2 = g_hash_table_lookup (headers, "Sec-WebSocket-Key2");
 
@@ -301,6 +302,8 @@ respond_handshake_rfc6455 (WebSocketServer *self,
       respond_handshake_bad (conn);
       return FALSE;
     }
+
+  self->protocol_chosen = TRUE;
 
   key = g_hash_table_lookup (headers, "Sec-WebSocket-Key");
   if (key == NULL)
@@ -491,7 +494,6 @@ web_socket_server_handshake (WebSocketConnection *conn,
                              GByteArray *incoming)
 {
   WebSocketServer *self = WEB_SOCKET_SERVER (conn);
-  self->handshake_started = TRUE;
   return parse_handshake_request (self, conn, incoming);
 }
 
@@ -522,7 +524,7 @@ web_socket_server_set_property (GObject *object,
   switch (prop_id)
     {
     case PROP_PROTOCOLS:
-      g_return_if_fail (self->handshake_started == FALSE);
+      g_return_if_fail (self->protocol_chosen == FALSE);
       g_strfreev (self->allowed_protocols);
       self->allowed_protocols = g_value_dup_boxed (value);
       break;

@@ -9,10 +9,13 @@
 
         var phantom_checkpoint = phantom_checkpoint || function () { };
 
-        (function() {
+        (function(console) {
 
             /* Filled in by cockpit-ws handler */
             var initial_environment = @@environment@@;
+
+            if (!console)
+                console = function() { };
 
             /* Determine if we are nested or not, and switch styles */
             if (window.location.pathname.indexOf("/cockpit") === 0)
@@ -36,11 +39,19 @@
             }
 
             function requisites() {
-                return ("WebSocket" in window || "MozWebSocket" in window) &&
-                       ("XMLHttpRequest" in window) &&
-                       ("localStorage" in window) &&
-                       ("sessionStorage" in window) &&
-                       ("JSON" in window);
+                function req(name, obj) {
+                    var ret = (obj[name]);
+                    if (!ret)
+                        fatal("This web browser is too old to run Cockpit (missing " + name + ")");
+                    return ret;
+                }
+                return ("MozWebSocket" in window || req("WebSocket", window)) &&
+                       req("XMLHttpRequest", window) &&
+                       req("localStorage", window) &&
+                       req("sessionStorage", window) &&
+                       req("JSON", window) &&
+                       req("defineProperty", Object) &&
+                       req("console", window);
             }
 
             function trim(s) {
@@ -50,10 +61,8 @@
             function boot() {
                 window.onload = null;
 
-                if (!requisites()) {
-                    fatal("This web browser is too old to run Cockpit");
+                if (!requisites())
                     return;
-                }
 
                 /* Try automatic/kerberos authentication? */
                 if (sessionStorage.getItem("logout-intent") == "explicit") {
@@ -167,7 +176,7 @@
             }
 
             window.onload = boot;
-        })();
+        })(window.console);
     </script>
     <style>
 html {

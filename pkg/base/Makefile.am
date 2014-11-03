@@ -30,6 +30,7 @@ baseimages_DATA = \
 
 base_TESTS = \
 	pkg/base/test-base64.html \
+	pkg/base/test-utf8.html \
 	pkg/base/test-chan.html \
 	pkg/base/test-echo.html \
 	pkg/base/test-async.html \

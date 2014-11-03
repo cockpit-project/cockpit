@@ -1412,9 +1412,8 @@
       <variablelist>
         <varlistentry>
           <term><code>"binary"</code></term>
-          <listitem><para>Set to <code>true</code> to transfer payloads encoded in
-            base64 strings. Both messages sent
-            via <link linkend="latest-channels-send"><code>channel.send()</code></link>
+          <listitem><para>Set to <code>true</code> to transfer binary payloads. Both messages
+            sent via <link linkend="latest-channels-send"><code>channel.send()</code></link>
             and those received via
             <link linkend="latest-channels-message"><code>channel.onmessage</code></link>
             should be arrays of bytes, either <code>Uint8Array</code> or <code>Array</code>
@@ -1619,7 +1618,56 @@
         <code>String</code> for the decoded data, then you must guarantee that the data
         does not contain bytes that would be invalid for a string.</para>
     </refsection>
+
+    <refsection id="latest-utf8-encoder">
+      <title>cockpit.utf8_encoder()</title>
+<programlisting>
+  encoder = cockpit.utf8_encoder([constructor])
+</programlisting>
+      <para>Create an encoder for encoding a string into a UTF8 sequence of bytes.</para>
+      <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
+        as an alternate <code>contstructor</code> if you want the decoded data in an
+        alternate form. The default is to return an <code>Array</code>.</para>
+    </refsection>
+
+    <refsection id="latest-utf8-encoder-encode">
+      <title>encoder.encode()</title>
+<programlisting>
+  data = encoder.encode(string)
+</programlisting>
+      <para>Encode a <code>string</code> into a UTF8 sequence of bytes.</para>
+      <para>The resulting <code>data</code> is an array of bytes, but it's type may be
+        modified by passing an alternate <code>constructor</code> to
+        <link linkend="latest-utf8-encoder">cockpit.utf8_encoder()</link>.</para>
+    </refsection>
+
+    <refsection id="latest-utf8-decoder">
+      <title>cockpit.utf8_decoder()</title>
+<programlisting>
+  decoder = cockpit.utf8_decoder([fatal])
+</programlisting>
+      <para>Creates a decodker to decode a UTF8 sequence of bytes data into a string.</para>
+      <para>If the <code>fatal</code> is set to <code>true</code> then the <code>decoder</code>
+        will throw an exception when it encounters invalid UTF8 data. By default invalid data
+        will be substituted with special UTF8 characters.</para>
+    </refsection>
   </refsection>
+
+    <refsection id="latest-utf8-decoder-decode">
+      <title>decoder.decode()</title>
+<programlisting>
+  string = decoder.decode(data, [options])
+</programlisting>
+      <para>Decode an array of UTF8 bytes into a <code>string</code>. The <code>data</code>
+        argument may be an <code>Array</code>, a <code>Uint8Array</code> or a string containing
+        binary data.</para>
+      <para>If <code>options</code> is passed it should be a plain javascript object. If
+        <code>options</code> has a <code>stream</code> property equal to <code>true</code>,
+        then multiple invocations of this function can be made with parts of the UTF8 sequence
+        of bytes. Any trailing bytes that don't yet build a complete unicode character, will be
+        cached until the next invocation. To drain the last data, call this function without
+        the <code>stream</code> property set.</para>
+    </refsection>
 
   <refsection>
     <title>Cockpit Version Info</title>

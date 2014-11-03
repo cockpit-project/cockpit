@@ -30,6 +30,7 @@ base_TESTS = \
 	pkg/base/test-spawn-proc.html \
 	pkg/base/test-dbus.html \
 	pkg/base/test-location.html \
+	pkg/base/test-framed.html \
 	$(NULL)
 
 TESTS += $(base_TESTS)

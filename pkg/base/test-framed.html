@@ -38,7 +38,7 @@
             var initialized = false;
             var frame;
 
-            cockpit.transport.filter(function(message) {
+            cockpit.transport.filter(function(channel, message) {
                 if (initialized)
                     frame.postMessage(message, cockpit.transport.origin);
             });
@@ -57,7 +57,7 @@
             }, false);
 
             /* This keeps coming up in tests ... how to open the transport */
-            var chan = cockpit.channel({ "payload": "unknown" });
+            var chan = cockpit.channel({ "payload": "resource1" });
             $(chan).on("close", function() {
                  $(document.body).append($("<iframe>").attr("name", "blah").
                          attr("src", window.location.href + "?sub"));

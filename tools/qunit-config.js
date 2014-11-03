@@ -17,6 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+(function(QUnit, qunitTap) {
+
 var qunit_started = false;
 
 /* Always use explicit start */
@@ -49,7 +52,13 @@ QUnit.begin(function() {
         return ret;
     }
 });
+
+QUnit.moduleStart(function() {
+    qunit_started = true;
+});
+
 QUnit.done(function() {
+    console.log("phantom-tap-done");
     window.onerror = null;
 });
 
@@ -62,21 +71,28 @@ QUnit.done(function() {
  *
  * In addition double check for a test file that doesn't properly call
  * QUnit.start() after its done setting up its tests.
+ *
+ * We also want to insert the current test name into all tap lines.
  */
+var tap_regex = /^((not )?ok [0-9]+ (- )?)(.*)$/;
 qunitTap(QUnit, function() {
+    if (arguments.length == 1 && QUnit.config.current) {
+        var match = tap_regex.exec(arguments[0]);
+        if (match) {
+            console.log(match[1] + QUnit.config.current.testName + ": " + match[4]);
+            return;
+        }
+    }
     console.log.apply(console, arguments);
 });
-QUnit.moduleStart(function() {
-    qunit_started = true;
-});
-QUnit.done(function() {
-    console.log("phantom-tap-done");
-});
+
 window.setTimeout(function() {
     if (!qunit_started) {
         console.log("QUnit not started by test");
         console.log("phantom-tap-error");
     }
 }, 5000);
+
+}(QUnit, qunitTap));
 
 var tests_included = true;

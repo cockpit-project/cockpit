@@ -43,15 +43,14 @@ asyncTest("call method", function() {
     expect(3);
 
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
-    equal(typeof dbus.call, "function", "call method: is a function");
+    equal(typeof dbus.call, "function", "is a function");
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "HelloWorld", [ "Browser-side JS" ]).
         done(function(reply) {
-            deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ],
-                      "call method: reply");
+            deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ], "reply");
         }).
         always(function() {
-            equal(this.state(), "resolved", "call method: finished successfuly");
+            equal(this.state(), "resolved", "finished successfuly");
             start();
         });
 });
@@ -70,10 +69,10 @@ asyncTest("primitive types", function() {
                 20, false, 111, 1012, 10013, 100014, 1000015, 10000016, 17.0 / Math.PI,
                 "Word! You said `a string'. Rock'n'roll!", "/modified/a/path", "assgitasig",
                 "Ynl0ZXN0cmluZyH/AA=="
-            ], "primitive types: round trip");
+            ], "round trip");
         }).
         always(function() {
-            equal(this.state(), "resolved", "primitive types: finished successfuly");
+            equal(this.state(), "resolved", "finished successfuly");
             start();
         });
 });
@@ -94,10 +93,10 @@ asyncTest("non-primitive types", function() {
         done(function(reply) {
             deepEqual(reply, [
                     "{'one': 'red', 'two': 'blue'}{'first': (42, 42), 'second': (43, 43)}(42, 'foo', 'bar')array_of_strings: [one, two] array_of_objpaths: [/one, /one/two] array_of_signatures: [signature 'ass', 'git'] array_of_bytestrings: [AB, BC] "
-            ] , "non-primitive types: round trip");
+            ] , "round trip");
         }).
         always(function() {
-            equal(this.state(), "resolved", "non-primitive types: finished successfuly");
+            equal(this.state(), "resolved", "finished successfuly");
             start();
         });
 });
@@ -117,10 +116,10 @@ asyncTest("variants", function() {
         done(function(reply) {
             deepEqual(reply, [
                     "{'one': <'foo'>, 'two': <objectpath '/bar'>, 'three': <signature 'assgit'>, 'four': <byte 0x2a>, 'five': <1000.0>}"
-            ] , "variants: round trip");
+            ] , "round trip");
         }).
         always(function() {
-            equal(this.state(), "resolved", "variants: finished successfuly");
+            equal(this.state(), "resolved", "finished successfuly");
             start();
         });
 });
@@ -138,11 +137,11 @@ asyncTest("bad variants", function() {
                     five: 1000.0
                 } ]).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad variants: error name");
-            equal(ex.message, "Unexpected type 'string' in argument", "bad variants: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            equal(ex.message, "Unexpected type 'string' in argument", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "bad variants: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -160,11 +159,11 @@ asyncTest("bad variants", function() {
                     five: 1000.0
                 } ]).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad variants: error name");
-            equal(ex.message, "Unexpected type 'string' in argument", "bad variants: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            equal(ex.message, "Unexpected type 'string' in argument", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "bad variants: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -196,10 +195,10 @@ asyncTest("get all", function() {
                 "u": { "t": "u", "v": 0 },
                 "x": { "t": "x", "v": 0 },
                 "y": { "t": "y", "v": 42 }
-           } ], "get all: reply");
+           } ], "reply");
         }).
         always(function() {
-            equal(this.state(), "resolved", "call method: finished successfuly");
+            equal(this.state(), "resolved", "finished successfuly");
             start();
         });
 });
@@ -211,11 +210,11 @@ asyncTest("call unimplemented", function() {
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "UnimplementedMethod", [ ]).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "call unimplemented: error name");
-            equal(ex.message, "Method UnimplementedMethod is not implemented on interface com.redhat.Cockpit.DBusTests.Frobber", "call unimplemented: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
+            equal(ex.message, "Method UnimplementedMethod is not implemented on interface com.redhat.Cockpit.DBusTests.Frobber", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "call unimplemented: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -228,11 +227,11 @@ asyncTest("call bad base64", function() {
               "TestPrimitiveTypes", [ 10, true, 11, 12, 13, 14, 15, 16, 17, "a string", "/a/path", "asig",
                     "Yooohooo!~ bad base64" ]).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "call bad base64: error name");
-            equal(ex.message, "Invalid base64 in argument", "call bad base64: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            equal(ex.message, "Invalid base64 in argument", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "call bad base64: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -244,11 +243,11 @@ asyncTest("call unknown", function() {
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
             "UnknownBlahMethod", [ 1 ]).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "unknown method: error name");
-            equal(ex.message, "Introspection data for method com.redhat.Cockpit.DBusTests.Frobber on D-Bus interface UnknownBlahMethod not available", "unknown method: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
+            equal(ex.message, "Introspection data for method com.redhat.Cockpit.DBusTests.Frobber on D-Bus interface UnknownBlahMethod not available", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "unknown method: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -264,19 +263,19 @@ asyncTest("signals", function() {
         }, function(path, iface, signal, args) {
             if (received)
                 return;
-            equal(path, "/otree/frobber", "signals: got right path");
-            equal(iface, "com.redhat.Cockpit.DBusTests.Frobber", "signals: got right path");
+            equal(path, "/otree/frobber", "got right path");
+            equal(iface, "com.redhat.Cockpit.DBusTests.Frobber", "got right path");
             equal(signal, "TestSignal", "signals: got right path");
             deepEqual(args, [
                     43, [ "foo", "frobber" ], [ "/foo", "/foo/bar" ],
-                    { "first": [ 42, 42 ], "second": [ 43, 43 ] } ], "signals: got right arguments");
+                    { "first": [ 42, 42 ], "second": [ 43, 43 ] } ], "got right arguments");
             received = true;
         });
 
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [ 0 ]).
         always(function() {
-            equal(this.state(), "resolved", "signals: emmision requested");
-            equal(received, true, "signals: signal received");
+            equal(this.state(), "resolved", "emmision requested");
+            equal(received, true, "signal received");
             start();
         });
 });
@@ -298,16 +297,16 @@ asyncTest("signal unsubscribe", function() {
 
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [ 0 ]).
         always(function() {
-            equal(this.state(), "resolved", "signals: emmision requested");
-            equal(received, true, "signals: signal received");
+            equal(this.state(), "resolved", "emmision requested");
+            equal(received, true, "signal received");
         }).then(function() {
             subscription.remove();
             received = false;
 
             dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [ 0 ]).
                 always(function() {
-                    equal(this.state(), "resolved", "signals: second emmision requested");
-                    equal(received, false, "signals: signal not received");
+                    equal(this.state(), "resolved", "second emmision requested");
+                    equal(received, false, "signal not received");
                     start();
                 });
         });
@@ -321,11 +320,11 @@ asyncTest("with types", function() {
               [ {one: "red", two: "blue"}, 55, 66, 32 ],
               { type: "a{ss}uit" }).
         done(function(reply, options) {
-            deepEqual(reply, [ {one: "red", two: "blue"}, 55, 66, 32 ], "with types: round trip");
-            equal(options.type, "a{ss}uit", "with types: got back type");
+            deepEqual(reply, [ {one: "red", two: "blue"}, 55, 66, 32 ], "round trip");
+            equal(options.type, "a{ss}uit", "got back type");
         }).
         always(function() {
-            equal(this.state(), "resolved", "with types: finished successfuly");
+            equal(this.state(), "resolved", "finished successfuly");
             start();
         });
 });
@@ -337,11 +336,11 @@ asyncTest("bad types", function() {
     dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ],
               { type: "!!%%" }).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad types: error name");
-            equal(ex.message, "Type signature is not valid: !!%%", "bad types: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            equal(ex.message, "Type signature is not valid: !!%%", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "bad types: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -353,11 +352,11 @@ asyncTest("bad dict type", function() {
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "Nobody", [ { "!!!": "value" } ], { type: "a{is}" }).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad dict type: error name");
-            equal(ex.message, "Unexpected key '!!!' in dict entry", "bad dict type: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            equal(ex.message, "Unexpected key '!!!' in dict entry", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "bad dict type: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -369,11 +368,11 @@ asyncTest("bad object path", function() {
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "Nobody", [ "not/a/path" ], { type: "o" }).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad object path: error name");
-            equal(ex.message, "Invalid object path 'not/a/path'", "bad object path: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            equal(ex.message, "Invalid object path 'not/a/path'", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "bad object path: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -385,11 +384,11 @@ asyncTest("bad signature", function() {
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "Nobody", [ "bad signature" ], { type: "g" }).
         fail(function(ex) {
-            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "bad signature: error name");
-            equal(ex.message, "Invalid signature 'bad signature'", "bad signature: error message");
+            equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
+            equal(ex.message, "Invalid signature 'bad signature'", "error message");
         }).
         always(function() {
-            equal(this.state(), "rejected", "bad signature: should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -401,11 +400,11 @@ asyncTest("flags", function() {
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "HelloWorld", [ "test" ], { flags: "" }).
         done(function(reply, options) {
-            equal(typeof options.flags, "string", "flags: is string");
-            ok(options.flags.indexOf(">") !== -1 || options.flags.indexOf("<") !== -1, "flags: has byte order");
+            equal(typeof options.flags, "string", "is string");
+            ok(options.flags.indexOf(">") !== -1 || options.flags.indexOf("<") !== -1, "has byte order");
         }).
         always(function() {
-            equal(this.state(), "resolved", "call method: finished successfuly");
+            equal(this.state(), "resolved", "finished successfuly");
             start();
         });
 });
@@ -422,7 +421,7 @@ asyncTest("watch path", function() {
 
     dbus.watch("/otree/frobber").
         done(function() {
-            equal(typeof cache["/otree/frobber"], "object", "watch path: has path");
+            equal(typeof cache["/otree/frobber"], "object", "has path");
             deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
                       { "FinallyNormalName": "There aint no place like home",
                         "ReadonlyProperty": "blah",
@@ -430,7 +429,7 @@ asyncTest("watch path", function() {
                         "ay": "QUJDYWJjAA==",
                         "b": false, "d": 43, "g": "", "i": 0, "n": 0,
                         "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                        "y": 42 }, "watch path: correct data");
+                        "y": 42 }, "correct data");
             $(dbus).off();
             start();
         });
@@ -455,7 +454,7 @@ asyncTest("watch object manager", function() {
                         "ay": "QUJDYWJjAA==",
                         "b": false, "d": 43, "g": "", "i": 0, "n": 0,
                         "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                        "y": 42 } } }, "watch object manager: correct data");
+                        "y": 42 } } }, "correct data");
             $(dbus).off();
             start();
         });
@@ -474,7 +473,7 @@ asyncTest("watch change", function() {
 
     dbus.watch("/otree/frobber");
     $(dbus).on("notify", function(event, data) {
-        equal(typeof cache["/otree/frobber"], "object", "watch change: has path");
+        equal(typeof cache["/otree/frobber"], "object", "has path");
         deepEqual(cache, {"/otree/frobber": {
                 "com.redhat.Cockpit.DBusTests.Frobber": {
                       "FinallyNormalName": "There aint no place like home",
@@ -484,7 +483,7 @@ asyncTest("watch change", function() {
                       "b": false, "d": 43, "g": "", "i": 0, "n": 0,
                       "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
                       "y": 42 }
-                    } }, "watch seed: correct data");
+                    } }, "correct data");
         $(dbus).off();
         start();
     });
@@ -512,10 +511,10 @@ asyncTest("watch barrier", function() {
                         "ay": "QUJDYWJjAA==",
                         "b": false, "d": 43, "g": "", "i": 0, "n": 0,
                         "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                        "y": 42 }, "watch seed: correct data");
+                        "y": 42 }, "correct data");
         }).
         always(function() {
-            equal(this.state(), "resolved", "watch barrier: finished successfuly");
+            equal(this.state(), "resolved", "finished successfuly");
             $(dbus).off();
             start();
         });
@@ -540,7 +539,7 @@ asyncTest("watch interfaces", function() {
                         "ay": "QUJDYWJjAA==",
                         "b": false, "d": 43, "g": "", "i": 0, "n": 0,
                         "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                        "y": 42 } } }, "watch interfaces: correct data");
+                        "y": 42 } } }, "correct data");
             dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "AddAlpha", []).
                 done (function () {
                     deepEqual(cache, {"/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
@@ -552,7 +551,7 @@ asyncTest("watch interfaces", function() {
                                 "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
                                 "y": 42 },
                             "com.redhat.Cockpit.DBusTests.Alpha": {}
-                        } }, "watch interfaces: correct data");
+                        } }, "correct data");
                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RemoveAlpha", []).
                     done (function () {
                         deepEqual(cache, {"/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
@@ -564,7 +563,7 @@ asyncTest("watch interfaces", function() {
                                     "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
                                     "y": 42 },
                             "com.redhat.Cockpit.DBusTests.Alpha": null
-                        } }, "watch interfaces: correct data");
+                        } }, "correct data");
                         $(dbus).off();
                         start();
                     });
@@ -587,18 +586,18 @@ asyncTest("proxy", function() {
             "b": false, "d": 43, "g": "", "i": 0, "n": 0,
             "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
             "y": 42
-        }, "proxy: correct data");
+        }, "correct data");
 
-        strictEqual(proxy.FinallyNormalName, "There aint no place like home", "proxy: property value");
-        strictEqual(proxy.ReadonlyProperty, "blah", "proxy: another property value");
+        strictEqual(proxy.FinallyNormalName, "There aint no place like home", "property value");
+        strictEqual(proxy.ReadonlyProperty, "blah", "another property value");
 
-        equal(typeof proxy.HelloWorld, "function", "proxy: has function defined");
+        equal(typeof proxy.HelloWorld, "function", "has function defined");
         proxy.HelloWorld("From a proxy").
             done(function(message) {
-                equal(message, "Word! You said `From a proxy'. I'm Skeleton, btw!", "proxy: method args");
+                equal(message, "Word! You said `From a proxy'. I'm Skeleton, btw!", "method args");
             }).
             always(function() {
-                equal(this.state(), "resolved", "proxy: method called");
+                equal(this.state(), "resolved", "method called");
                 $(dbus).off();
                 start();
             });
@@ -613,14 +612,14 @@ asyncTest("proxies", function() {
     /* Just some cleanup */
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "DeleteAllObjects", []).
         always(function() {
-            equal(this.state(), "resolved", "proxies: deleted stray objects");
+            equal(this.state(), "resolved", "deleted stray objects");
 
             var proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
             proxies.wait(function() {
                 var added;
                 $(proxies).on("added", function(event, proxy) {
                     added = proxy;
-                    strictEqual(added.valid, true, "proxy: added objects valid");
+                    strictEqual(added.valid, true, "added objects valid");
                 });
 
                 var changed;
@@ -636,27 +635,27 @@ asyncTest("proxies", function() {
                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                         "CreateObject", [ "/otree/other" ]).
                     always(function() {
-                        equal(this.state(), "resolved", "proxies: create objects done");
+                        equal(this.state(), "resolved", "create objects done");
 
-                        equal(typeof added, "object", "proxies: got added object");
-                        equal(typeof changed, "object", "proxies: no changed object yet");
-                        equal(typeof removed, "undefined", "proxies: no removed object yet");
-                        equal(added.path, "/otree/other", "proxies: added object correct");
-                        strictEqual(added, changed, "proxies: added fires changed");
+                        equal(typeof added, "object", "got added object");
+                        equal(typeof changed, "object", "no changed object yet");
+                        equal(typeof removed, "undefined", "no removed object yet");
+                        equal(added.path, "/otree/other", "added object correct");
+                        strictEqual(added, changed, "added fires changed");
 
                         changed = null;
 
                         dbus.call(added.path, added.iface, "RequestPropertyMods", []).
                             always(function() {
-                                equal(this.state(), "resolved", "proxies: changed object");
-                                strictEqual(changed, added, "proxies: change fired");
+                                equal(this.state(), "resolved", "changed object");
+                                strictEqual(changed, added, "change fired");
 
                                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                                         "DeleteObject", [ "/otree/other" ]).
                                     always(function() {
-                                        equal(this.state(), "resolved", "proxies: removed object");
-                                        strictEqual(removed, added, "proxies: removed fired");
-                                        strictEqual(removed.valid, false, "proxies: removed is invalid");
+                                        equal(this.state(), "resolved", "removed object");
+                                        strictEqual(removed, added, "removed fired");
+                                        strictEqual(removed.valid, false, "removed is invalid");
                                         $(dbus).off();
                                         start();
                                     });
@@ -691,10 +690,10 @@ asyncTest("path loop", function() {
                             }
                         };
                     }
-                    deepEqual(cache, expect, "path loop: got all data before method reply");
+                    deepEqual(cache, expect, "got all data before method reply");
                 }).
                 always(function() {
-                    equal(this.state(), "resolved", "path loop: method called");
+                    equal(this.state(), "resolved", "method called");
                     $(dbus).off();
                     start();
                 });
@@ -714,20 +713,20 @@ asyncTest("path signal", function() {
 
     dbus.watch({ "path": "/hidden/" + name }).
         done(function() {
-            deepEqual(cache, { }, "path loop: no data yet");
+            deepEqual(cache, { }, "no data yet");
 
             dbus.subscribe({ "path": "/hidden/" + name }, function(path, iface, args) {
-                equal(typeof cache[path], "object", "path signal: have object");
+                equal(typeof cache[path], "object", "have object");
                 deepEqual(cache[path], {
                         "com.redhat.Cockpit.DBusTests.Hidden": { "Name": name }
-                    }, "path signal: got data before signal");
+                    }, "got data before signal");
                 $(dbus).off();
                 start();
             });
             dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                       "EmitHidden", [ name ]).
                 always(function() {
-                    equal(this.state(), "resolved", "path signal: method called");
+                    equal(this.state(), "resolved", "method called");
                 });
         });
 });

@@ -41,10 +41,10 @@ asyncTest("simple process", function() {
     expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi"]).
         done(function(resp) {
-            equal(resp, "hi\n", "simple process returned output");
+            equal(resp, "hi\n", "returned output");
         }).
         always(function() {
-            equal(this.state(), "resolved", "simple process didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -53,7 +53,7 @@ asyncTest("path", function() {
     expect(1);
     cockpit.spawn(["true"]).
         always(function() {
-            equal(this.state(), "resolved", "path found executable");
+            equal(this.state(), "resolved", "found executable");
             start();
         });
 });
@@ -62,10 +62,10 @@ asyncTest("directory", function() {
     expect(2);
     cockpit.spawn(["pwd"], { directory: "/tmp" }).
         done(function(resp) {
-            equal(resp, "/tmp\n", "directory was right");
+            equal(resp, "/tmp\n", "was right");
         }).
         always(function() {
-            equal(this.state(), "resolved", "directory didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -74,10 +74,10 @@ asyncTest("error log", function() {
     expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"]).
         done(function(resp) {
-            equal(resp, "hi\n", "error log produced no output");
+            equal(resp, "hi\n", "produced no output");
         }).
         always(function() {
-            equal(this.state(), "resolved", "error log didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -86,10 +86,10 @@ asyncTest("error output", function() {
     expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { error: "output" }).
         done(function(resp) {
-            equal(resp, "hi\nyo\n", "error output showed up");
+            equal(resp, "hi\nyo\n", "showed up");
         }).
         always(function() {
-            equal(this.state(), "resolved", "error output didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });

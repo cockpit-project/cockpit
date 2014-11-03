@@ -145,10 +145,10 @@ asyncTest("simple request", function() {
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel, options) {
         deepEqual(channel.options["spawn"], ["/the/path", "arg1", "arg2"], "passed spawn correctly");
-        equal(channel.options["host"], undefined, "simple request had no host");
+        equal(channel.options["host"], undefined, "had no host");
     });
     $(peer).on("recv", function(event, channel, payload) {
-        equal(payload, "input", "simple request had input");
+        equal(payload, "input", "had input");
         this.send(channel, "output");
         this.close(channel);
     });
@@ -156,10 +156,10 @@ asyncTest("simple request", function() {
     cockpit.spawn(["/the/path", "arg1", "arg2"]).
         write("input").
         done(function(resp) {
-            deepEqual(resp, "output", "simple request returned right json");
+            deepEqual(resp, "output", "returned right json");
         })
         .always(function() {
-            equal(this.state(), "resolved", "simple request didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -169,8 +169,8 @@ asyncTest("string command", function() {
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel, options) {
-        deepEqual(channel.options["spawn"], ["/the/path"], "string command: passed spawn correctly");
-        equal(channel.options["host"], "hostname", "string command: had host");
+        deepEqual(channel.options["spawn"], ["/the/path"], "passed spawn correctly");
+        equal(channel.options["host"], "hostname", "had host");
         start();
     });
 
@@ -187,7 +187,7 @@ asyncTest("channel options", function() {
             "host": "the-other-host.example.com",
             "extra-option": "zerogjuggs",
             "payload": "text-stream"
-            }, "channel options sent correctly");
+            }, "sent correctly");
         start();
     });
 
@@ -231,12 +231,12 @@ asyncTest("with problem", function() {
 
     cockpit.spawn("/unused").
         fail(function(ex) {
-            equal(ex.problem, "not-found", "with problem got problem");
-            strictEqual(ex.exit_signal, null, "with problem got no signal");
-            ok(isNaN(ex.exit_status), "with problem got no status");
+            equal(ex.problem, "not-found", "got problem");
+            strictEqual(ex.exit_signal, null, "got no signal");
+            ok(isNaN(ex.exit_status), "got no status");
         }).
         always(function() {
-            equal(this.state(), "rejected", "with problem should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -251,12 +251,12 @@ asyncTest("with status", function() {
 
     cockpit.spawn("/unused").
         fail(function(ex) {
-            strictEqual(ex.problem, null, "with status got null problem");
-            ok(isNaN(ex.exit_signal), "with status got no signal");
-            strictEqual(ex.exit_status, 5, "with status got status");
+            strictEqual(ex.problem, null, "got null problem");
+            ok(isNaN(ex.exit_signal), "got no signal");
+            strictEqual(ex.exit_status, 5, "got status");
         }).
         always(function() {
-            equal(this.state(), "rejected", "with status should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -271,12 +271,12 @@ asyncTest("with signal", function() {
 
     cockpit.spawn("/unused").
         fail(function(ex) {
-            strictEqual(ex.problem, null, "with signal got null problem");
-            strictEqual(ex.exit_signal, "TERM", "with signal got signal");
-            ok(isNaN(ex.exit_status), "with signal got no status");
+            strictEqual(ex.problem, null, "got null problem");
+            strictEqual(ex.exit_signal, "TERM", "got signal");
+            ok(isNaN(ex.exit_status), "got no status");
         }).
         always(function() {
-            equal(this.state(), "rejected", "with signal should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });

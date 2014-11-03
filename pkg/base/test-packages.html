@@ -50,14 +50,14 @@ asyncTest("lookup", function() {
 
     cockpit.packages.lookup("test").
         done(function(pkg) {
-            equal(pkg.name, "test", "lookup: package name");
-            equal(pkg.checksum, "$fec489a692ee808950f34f6c519803aed65e1849", "lookup: package checksum");
-            equal(typeof pkg.manifest, "object", "lookup: package manifest");
-            equal(pkg.manifest.description, "dummy", "lookup: package manifest contents");
-            deepEqual(pkg.manifest.alias, [ ], "lookup: package alias");
+            equal(pkg.name, "test", "package name");
+            equal(pkg.checksum, "$fec489a692ee808950f34f6c519803aed65e1849", "package checksum");
+            equal(typeof pkg.manifest, "object", "package manifest");
+            equal(pkg.manifest.description, "dummy", "package manifest contents");
+            deepEqual(pkg.manifest.alias, [ ], "package alias");
         }).
         always(function() {
-            equal(this.state(), "resolved", "lookup: succeeded");
+            equal(this.state(), "resolved", "succeeded");
             start();
         });
 });
@@ -67,10 +67,10 @@ asyncTest("not found", function() {
 
     cockpit.packages.lookup("invalid").
         fail(function(ex) {
-            equal(ex.problem, "not-found", "not found: right problem");
+            equal(ex.problem, "not-found", "right problem");
         }).
         always(function() {
-            equal(this.state(), "rejected", "not found: failed");
+            equal(this.state(), "rejected", "failed");
             start();
         });
 });
@@ -80,11 +80,11 @@ asyncTest("aliases", function() {
 
     cockpit.packages.lookup("one").
         done(function(pkg) {
-            equal(pkg.name, "second", "aliases: package name");
-            deepEqual(pkg.manifest.alias, [ "one", "two", ], "aliases: listed");
+            equal(pkg.name, "second", "package name");
+            deepEqual(pkg.manifest.alias, [ "one", "two", ], "listed");
         }).
         always(function() {
-            equal(this.state(), "resolved", "aliases: succeeded");
+            equal(this.state(), "resolved", "succeeded");
             start();
         });
 });

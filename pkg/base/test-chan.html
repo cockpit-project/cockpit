@@ -188,15 +188,15 @@ asyncTest("open channel", function() {
     $(mock_peer).on("recv", function(event, chan, payload) {
         var command = JSON.parse(payload);
         if (!is_inited) {
-            equal(typeof command, "object", "open: valid json");
-            strictEqual(chan, "", "open: sent with empty channel");
-            equal (command.command, "init", "open: got init");
-            equal (command.version, 0, "open: got init version");
+            equal(typeof command, "object", "valid json");
+            strictEqual(chan, "", "sent with empty channel");
+            equal (command.command, "init", "got init");
+            equal (command.version, 0, "got init version");
             is_inited = true;
         } else {
-            equal(command.command, "open", "open: right command");
-            strictEqual(command.channel, channel.id, "open: contains right channel");
-            equal(command.host, "scruffy", "open: host as expected");
+            equal(command.command, "open", "right command");
+            strictEqual(command.channel, channel.id, "contains right channel");
+            equal(command.host, "scruffy", "host as expected");
             start();
         }
     });
@@ -210,7 +210,7 @@ asyncTest("multiple", function() {
 
     $(mock_peer).on("recv", function(event) {
         $(mock_peer).off("recv");
-        notStrictEqual(channel.id, channelb.id, "mulitple: channels have different ids");
+        notStrictEqual(channel.id, channelb.id, "channels have different ids");
         start();
     });
 });
@@ -225,7 +225,7 @@ asyncTest("open no host", function() {
     $(mock_peer).on("recv", function(event, chan, payload) {
         var command = JSON.parse(payload);
         if (command.command == "open") {
-            strictEqual(command.host, undefined, "open: host not included");
+            strictEqual(command.host, undefined, "host not included");
             start();
         }
     });
@@ -242,7 +242,7 @@ asyncTest("open auto host", function() {
     $(mock_peer).on("recv", function(event, chan, payload) {
         var command = JSON.parse(payload);
         if (command.command == "open") {
-            strictEqual(command.host, "planetexpress", "open: host automatically chosen");
+            strictEqual(command.host, "planetexpress", "host automatically chosen");
             start();
         }
     });
@@ -259,8 +259,8 @@ asyncTest("send message", function() {
         /* Ignore the open and init messages */
         if (!chan)
             return;
-        strictEqual(chan, channel.id, "send: sent with correct channel");
-        equal(payload, "Scruffy gonna die the way he lived", "send: sent the right payload");
+        strictEqual(chan, channel.id, "sent with correct channel");
+        equal(payload, "Scruffy gonna die the way he lived", "sent the right payload");
         start();
     });
 });
@@ -279,7 +279,7 @@ asyncTest("queue messages", function() {
             return; /* ignore control messages */
         sentence.push(payload);
         if (sentence.length == 4) {
-            equal(sentence.join(" "), "Scruffy knows he rules", "queue: messages queued and sent correctly");
+            equal(sentence.join(" "), "Scruffy knows he rules", "messages queued and sent correctly");
             start();
         }
     });
@@ -298,7 +298,7 @@ asyncTest("receive message", function() {
 
     var channel = cockpit.channel({ });
     $(channel).on("message", function(event, message) {
-        equal(message, "Oh, marrrrmalade!", "receive: got right message in channel");
+        equal(message, "Oh, marrrrmalade!", "got right message in channel");
         start();
     });
 });
@@ -312,17 +312,17 @@ asyncTest("close channel", function() {
             return;
         } else if (cmd.command == "open") {
             channel.close();
-            strictEqual(channel.valid, false, "close: no longer valid");
+            strictEqual(channel.valid, false, "no longer valid");
             return;
         }
-        equal(cmd.command, "close", "close: sent close command");
-        strictEqual(cmd.channel, channel.id, "close: correct channel");
+        equal(cmd.command, "close", "sent close command");
+        strictEqual(cmd.channel, channel.id, "correct channel");
         start();
     });
     var channel = cockpit.channel({ });
     $(channel).on("close", function(event, options) {
-        ok(true, "close: triggered event");
-        ok(!options.reason, "close: no reason");
+        ok(true, "triggered event");
+        ok(!options.reason, "no reason");
     });
 });
 
@@ -331,12 +331,12 @@ asyncTest("close early", function() {
 
     var channel = cockpit.channel({ });
     $(channel).on("close", function(event, options) {
-        ok(true, "close: triggered event");
-        ok(!options.reason, "close: no reason");
+        ok(true, "triggered event");
+        ok(!options.reason, "no reason");
         start();
     });
     channel.close();
-    strictEqual(channel.valid, false, "close problem: no longer valid");
+    strictEqual(channel.valid, false, "no longer valid");
 });
 
 asyncTest("close problem", function() {
@@ -348,17 +348,17 @@ asyncTest("close problem", function() {
             return;
         } else if (cmd.command == "open") {
             channel.close({"reason": "problem"});
-            strictEqual(channel.valid, false, "close problem: no longer valid");
+            strictEqual(channel.valid, false, "no longer valid");
             return;
         }
-        equal(cmd.command, "close", "close problem: sent close command");
-        equal(cmd.reason, "problem", "close problem: sent reason");
+        equal(cmd.command, "close", "sent close command");
+        equal(cmd.reason, "problem", "sent reason");
         start();
     });
     var channel = cockpit.channel({ });
     $(channel).on("close", function(event, options) {
-        ok(true, "close problem: triggered event");
-        equal(options.reason, "problem", "close problem: set");
+        ok(true, "triggered event");
+        equal(options.reason, "problem", "set");
     });
 });
 
@@ -372,16 +372,16 @@ asyncTest("close problem string", function() {
             return;
         } else if (cmd.command == "open") {
             channel.close("testo");
-            strictEqual(channel.valid, false, "close problem string: no longer valid");
+            strictEqual(channel.valid, false, "no longer valid");
             return;
         }
-        equal(cmd.command, "close", "close problem string: sent close command");
-        equal(cmd.reason, "testo", "close problem string: sent reason");
+        equal(cmd.command, "close", "sent close command");
+        equal(cmd.reason, "testo", "sent reason");
         start();
     });
     $(channel).on("close", function(event, options) {
-        ok(true, "close problem string: triggered event");
-        equal(options.reason, "testo", "close problem string: set");
+        ok(true, "triggered event");
+        equal(options.reason, "testo", "set");
     });
 });
 
@@ -405,11 +405,11 @@ asyncTest("close peer", function() {
     var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
-        ok(true, "close: triggered event");
-        equal(options.reason, "marmalade", "close peer: received reason");
-        equal(options.extra, 5, "close peer: received extra");
-        strictEqual(channel.valid, false, "close peer: became invalid");
-        strictEqual(channelb.valid, true, "close peer: correct channel");
+        ok(true, "triggered event");
+        equal(options.reason, "marmalade", "received reason");
+        equal(options.extra, 5, "received extra");
+        strictEqual(channel.valid, false, "became invalid");
+        strictEqual(channelb.valid, true, "correct channel");
         start();
     });
 });
@@ -421,15 +421,15 @@ asyncTest("close broadcast", function() {
     var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
-        equal(options.reason, "pizzazz", "close-broadcast: received reason");
-        strictEqual(channel.valid, false, "close-broadcast: channel is invalid");
+        equal(options.reason, "pizzazz", "received reason");
+        strictEqual(channel.valid, false, "channel is invalid");
         if (!channel.valid && !channelb.valid)
             start();
     });
 
     $(channelb).on("close", function(event, options) {
-        equal(options.reason, "pizzazz", "close-broadcast: received reason");
-        strictEqual(channelb.valid, false, "close-broadcast: other channel invalid");
+        equal(options.reason, "pizzazz", "received reason");
+        strictEqual(channelb.valid, false, "other channel invalid");
         if (!channel.valid && !channelb.valid)
             start();
     });
@@ -449,15 +449,15 @@ asyncTest("close socket", function() {
     var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
-        equal(options.reason, "disconnected", "close-socket: received reason");
-        strictEqual(channel.valid, false, "close-socket: channel is invalid");
+        equal(options.reason, "disconnected", "received reason");
+        strictEqual(channel.valid, false, "channel is invalid");
         if (!channel.valid && !channelb.valid)
             start();
     });
 
     $(channelb).on("close", function(event, options) {
-        equal(options.reason, "disconnected", "close-socket: received reason");
-        strictEqual(channelb.valid, false, "close-socket: other channel invalid");
+        equal(options.reason, "disconnected", "received reason");
+        strictEqual(channelb.valid, false, "other channel invalid");
         if (!channel.valid && !channelb.valid)
             start();
     });
@@ -470,7 +470,7 @@ asyncTest("logout", function() {
         var cmd = JSON.parse(payload);
         if (cmd.command == "logout") {
             mock_peer.close("disconnected");
-            strictEqual(cmd.disconnect, true, "logout: disconnect set");
+            strictEqual(cmd.disconnect, true, "disconnect set");
         }
     });
 
@@ -478,16 +478,16 @@ asyncTest("logout", function() {
     var channelb = cockpit.channel({ });
 
     $(channel).on("close", function(event, options) {
-        equal(options.reason, "disconnected", "logout transport: received reason");
-        strictEqual(channel.valid, false, "logout transport: channel is invalid");
+        equal(options.reason, "disconnected", "received reason");
+        strictEqual(channel.valid, false, "channel is invalid");
         channel = null;
         if (channel == null && channelb == null)
             start();
     });
 
     $(channelb).on("close", function(event, options) {
-        equal(options.reason, "disconnected", "logout transport: received reason");
-        strictEqual(channelb.valid, false, "logout transport: other channel invalid");
+        equal(options.reason, "disconnected", "received reason");
+        strictEqual(channelb.valid, false, "other channel invalid");
         channelb = null;
         if (channel == null && channelb == null)
             start();
@@ -501,7 +501,7 @@ asyncTest("droppriv", function() {
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
         if (cmd.command == "logout") {
-            strictEqual(cmd.disconnect, false, "droppriv: disconnect not set");
+            strictEqual(cmd.disconnect, false, "disconnect not set");
             start();
         }
     });
@@ -516,14 +516,14 @@ asyncTest("info", function() {
     var info_changed = false;
 
     $(cockpit.user).on("changed", function() {
-        strictEqual(cockpit.user.user, "scruffy", "info: cockpit.user.user");
-        strictEqual(cockpit.user.name, "Scruffy the Janitor", "info: cockpit.user.name");
+        strictEqual(cockpit.user.user, "scruffy", "cockpit.user.user");
+        strictEqual(cockpit.user.name, "Scruffy the Janitor", "cockpit.user.name");
         user_changed = true;
     });
 
     $(cockpit.info).on("changed", function() {
-        strictEqual(cockpit.info.version, "zero.point.zero", "info: cockpit.user.user");
-        strictEqual(cockpit.info.build, "nasty stuff", "info: cockpit.user.name");
+        strictEqual(cockpit.info.version, "zero.point.zero", "cockpit.user.user");
+        strictEqual(cockpit.info.build, "nasty stuff", "cockpit.user.name");
         info_changed = true;
     });
 
@@ -533,8 +533,8 @@ asyncTest("info", function() {
             $(mock_peer).off("recv");
             $(cockpit.user).off("changed");
             $(cockpit.info).off("changed");
-            strictEqual(user_changed, true, "info: user changed event was called");
-            strictEqual(info_changed, true, "info: info changed event was called");
+            strictEqual(user_changed, true, "user changed event was called");
+            strictEqual(info_changed, true, "info changed event was called");
             start();
         }
     });
@@ -559,7 +559,7 @@ asyncTest("send after close", function() {
     channel.send("Dern it.");
 
     window.setTimeout(function() {
-        ok(!received_message, "after-close: didn't send message");
+        ok(!received_message, "didn't send message");
         start();
     }, 50);
 });
@@ -575,7 +575,7 @@ asyncTest("ignore other commands", function() {
     mock_peer.send(0, JSON.stringify({ "command": "unexpected"}));
 
     window.setTimeout(function() {
-        ok(channel.valid, "ignore: other messages didn't screw up channel");
+        ok(channel.valid, "other messages didn't screw up channel");
         start();
     }, 50);
 });
@@ -602,8 +602,8 @@ asyncTest("filter message", function() {
         received += 1;
 
         if (received == 2) {
-            equal(filtered, 3, "filter message: filtered right amount");
-            equal(received, 2, "filter message: let through right amount");
+            equal(filtered, 3, "filtered right amount");
+            equal(received, 2, "let through right amount");
             channel.close();
             start();
         }
@@ -618,21 +618,21 @@ asyncTest("inject message", function() {
     expect(4);
 
     var ret = cockpit.transport.inject("bree\nyellow");
-    equal(ret, false, "inject message: failure returns false");
+    equal(ret, false, "failure returns false");
 
     var first = true;
     var channel;
     $(mock_peer).on("recv", function(event, chan, payload) {
         if (first) {
             var ret = cockpit.transport.inject("bree\nyellow");
-            equal(ret, true, "inject message: returned true");
+            equal(ret, true, "returned true");
             first = false;
             return;
         }
 
         if (chan) {
-            equal(chan, "bree", "inject message: right channel");
-            equal(payload, "yellow", "inject message: right payload");
+            equal(chan, "bree", "right channel");
+            equal(payload, "yellow", "right payload");
             channel.close();
             start();
         }
@@ -647,7 +647,7 @@ asyncTest("transport options", function() {
     var channel;
     $(mock_peer).on("recv", function(event, chan, payload) {
         if (chan) {
-            equal(typeof cockpit.transport.options, "object", "transport options: is an object");
+            equal(typeof cockpit.transport.options, "object", "is an object");
             deepEqual(cockpit.transport.options, {
                 "command": "init",
                 "version": 0,
@@ -660,7 +660,7 @@ asyncTest("transport options", function() {
                     "version": "zero.point.zero",
                     "build": "nasty stuff",
                 }
-            }, "transport options: is correct");
+            }, "is correct");
             channel.close();
             start();
         }

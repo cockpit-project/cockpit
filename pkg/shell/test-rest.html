@@ -176,21 +176,20 @@ asyncTest("simple request", function() {
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
         equal(channel.options["unix"], "/test", "passed unix: endpoint correctly");
-        equal(channel.options["host"], undefined, "simple request had no host");
+        equal(channel.options["host"], undefined, "no host");
     });
     $(peer).on("recv", function(event, channel, payload) {
         var request = JSON.parse(payload);
-        equal(typeof(request.cookie), "number", "simple request has cookie");
-        deepEqual(request, { "method": "GET", "path": "/", "cookie": request.cookie },
-            "simple request looks correct");
+        equal(typeof(request.cookie), "number", "has cookie");
+        deepEqual(request, { "method": "GET", "path": "/", "cookie": request.cookie }, "looks correct");
     });
 
     cockpit.rest("unix:///test").get("/")
         .done(function(resp) {
-            deepEqual(resp, { key: "value" }, "simple request returned right json");
+            deepEqual(resp, { key: "value" }, "returned right json");
         })
         .always(function() {
-            equal(this.state(), "resolved", "simple request didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -205,7 +204,7 @@ asyncTest("channel options", function() {
             "host": "the-other-host.example.com",
             "extra-option": "zerogjuggs",
             "payload": "rest-json1"
-            }, "channel options sent correctly");
+            }, "sent correctly");
         start();
     });
 
@@ -221,16 +220,16 @@ asyncTest("with params", function() {
     $(peer).on("get", function(event, channel, request) {
         var parts = request.path.split("?");
         equal(parts[0], "/test/here", "with params constructed path right");
-        equal(parts[1], "key=value&name=Scruffy+the+Janitor", "with params has correct query");
+        equal(parts[1], "key=value&name=Scruffy+the+Janitor", "has correct query");
         this.reply(channel, request, [ "zerog", "juggs" ]);
     });
 
     cockpit.rest("unix:///test").get("/test/here", { "key": "value", "name": "Scruffy the Janitor" })
         .done(function(resp) {
-            deepEqual(resp, [ "zerog", "juggs"], "with params returned right json");
+            deepEqual(resp, [ "zerog", "juggs"], "returned right json");
         })
         .always(function() {
-            equal(this.state(), "resolved", "with params didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -252,12 +251,12 @@ asyncTest("not found", function() {
 
     cockpit.rest("unix:///test").get("/not/found")
         .fail(function(ex) {
-            equal(ex.problem, "internal-error", "not found mapped to cockpit code");
-            strictEqual(ex.status, 404, "not found has status code");
-            equal(ex.message, "Not found", "not found has message");
+            equal(ex.problem, "internal-error", "mapped to cockpit code");
+            strictEqual(ex.status, 404, "has status code");
+            equal(ex.message, "Not found", "has message");
         })
         .always(function() {
-            equal(this.state(), "rejected", "not found should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });
@@ -342,22 +341,22 @@ asyncTest("restart", function() {
         if (cookie == 0)
             cookie = request.cookie;
         else
-            equal(cookie, request.cookie, "restart sent with same cookie");
+            equal(cookie, request.cookie, "sent with same cookie");
         count++;
         this.reply(channel, request, count);
     });
 
     function on_restart_done(resp) {
-        strictEqual(resp, 2, "restart responded with right data");
+        strictEqual(resp, 2, "responded with right data");
         start();
     }
 
     var req = cockpit.rest("unix:///test").get("/restart")
         .done(function(resp) {
-            strictEqual(resp, 1, "restart responded with right initial");
+            strictEqual(resp, 1, "responded with right initial");
             var next = req.restart();
-            notStrictEqual(next, req, "restart returned a new req");
-            equal(typeof(next.done), "function", "restart returned a deferred");
+            notStrictEqual(next, req, "returned a new req");
+            equal(typeof(next.done), "function", "returned a deferred");
             next.done(on_restart_done);
             req = next;
         });
@@ -368,17 +367,17 @@ asyncTest("post json", function() {
 
     var peer = new MockPeer();
     $(peer).on("post", function(event, channel, request) {
-        equal(request.path, "/scruffy?param=true", "post json correct path");
-        deepEqual(request.body, { "request": "oh?" }, "post json got request");
+        equal(request.path, "/scruffy?param=true", "correct path");
+        deepEqual(request.body, { "request": "oh?" }, "got request");
         this.reply(channel, request, { "reply": "Marmallaaade!" });
     });
 
     cockpit.rest("unix:///test").post("/scruffy", { "param" : true }, { "request": "oh?" })
         .done(function(resp) {
-            deepEqual(resp, { "reply": "Marmallaaade!" }, "post json got reply");
+            deepEqual(resp, { "reply": "Marmallaaade!" }, "got reply");
         })
         .always(function() {
-            equal(this.state(), "resolved", "post json didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -388,18 +387,18 @@ asyncTest("post nothing", function() {
 
     var peer = new MockPeer();
     $(peer).on("post", function(event, channel, request) {
-        equal(request.path, "/nothing", "post nothing correct path");
-        strictEqual(request.body, undefined, "post nothing sent nothing");
+        equal(request.path, "/nothing", "correct path");
+        strictEqual(request.body, undefined, "sent nothing");
         this.reply(channel, request, null)
         return false;
     });
 
     cockpit.rest("unix:///test").post("/nothing")
         .done(function(resp) {
-            equal(resp, null, "post nothing got null back");
+            equal(resp, null, "got null back");
         })
         .always(function() {
-            equal(this.state(), "resolved", "post nothing didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -409,16 +408,16 @@ asyncTest("delete method", function() {
 
     var peer = new MockPeer();
     $(peer).on("delete", function(event, channel, request) {
-        equal(request.path, "/undead?param=1", "delete method correct path");
+        equal(request.path, "/undead?param=1", "correct path");
         this.reply(channel, request, [ "one", "two", "three", "boom" ]);
     });
 
     cockpit.rest("unix:///test").del("/undead", { "param": 1 })
         .done(function(resp) {
-            deepEqual(resp, [ "one", "two", "three", "boom" ], "delete method right response");
+            deepEqual(resp, [ "one", "two", "three", "boom" ], "right response");
         })
         .always(function() {
-            equal(this.state(), "resolved", "delete method didn't fail");
+            equal(this.state(), "resolved", "didn't fail");
             start();
         });
 });
@@ -435,10 +434,10 @@ asyncTest("immediate close", function() {
 
     cockpit.rest("unix:///test").get("/")
         .fail(function(ex) {
-            equal(ex.problem, "disconnected", "immediate close got disconnected error");
+            equal(ex.problem, "disconnected", "got disconnected error");
         })
         .always(function() {
-            equal(this.state(), "rejected", "immediate close should fail");
+            equal(this.state(), "rejected", "should fail");
             start();
         });
 });

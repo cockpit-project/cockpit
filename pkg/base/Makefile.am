@@ -23,6 +23,7 @@ baseimages_DATA = \
 
 base_TESTS = \
 	pkg/base/test-chan.html \
+	pkg/base/test-echo.html \
 	pkg/base/test-async.html \
 	pkg/base/test-no-jquery.html \
         pkg/base/test-amdjs.html \

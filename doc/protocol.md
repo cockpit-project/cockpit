@@ -230,6 +230,12 @@ Payload: null
 A channel opened with this payload type will never send data, and will
 ignore all data it receives.
 
+Payload: echo
+-------------
+
+A channel opened with this payload type will send back all data that
+it receives.
+
 Payload: resource1
 ------------------
 

@@ -437,7 +437,8 @@ function go_params(params) {
         if (!legacy_page) {
             legacy_page = legacy_page_from_id(id);
             if (legacy_page) {
-                legacy_page.setup();
+                if (legacy_page.setup)
+                    legacy_page.setup();
                 visited_legacy_pages[id] = legacy_page;
             }
         }

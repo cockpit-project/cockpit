@@ -1327,7 +1327,7 @@ function full_scope(cockpit, $) {
                 callback: callback
             };
 
-            if (rule !== false) {
+            if (rule !== false && channel && channel.valid) {
                 var msg = JSON.stringify({ "add-match": subscription.match });
                 dbus_debug("dbus:", msg);
                 channel.send(msg);
@@ -1347,7 +1347,7 @@ function full_scope(cockpit, $) {
                         if (prev)
                             delete subscribers[id];
                     }
-                    if (rule !== false && channel.valid) {
+                    if (rule !== false && channel && channel.valid) {
                         var msg = JSON.stringify({ "remove-match": prev.match });
                         dbus_debug("dbus:", msg);
                         channel.send(msg);

@@ -742,6 +742,23 @@ test("exposed client and options", function() {
     strictEqual(proxies.client, dbus, "proxies object exposes client");
 });
 
+test("subscriptions on closed client", function() {
+    function on_signal() {
+    }
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    dbus.close();
+
+    var subscription = dbus.subscribe({
+        "interface": "com.redhat.Cockpit.DBusTests.Frobber",
+        "path": "/otree/frobber"
+    }, on_signal);
+    ok(subscription, "can subscribe");
+
+    subscription.remove();
+    ok(true, "can unsubscribe");
+});
+
 QUnit.start();
 </script>
 </body>

@@ -29,10 +29,13 @@
 #
 
 import argparse
+import fcntl
 import os
 import select
+import struct
 import subprocess
 import sys
+import termios
 
 def out(data, stream=None, flush=False):
     if not stream:
@@ -51,6 +54,16 @@ def out(data, stream=None, flush=False):
                 continue
             raise
 
+def terminal_width():
+    try:
+        h, w, hp, wp = struct.unpack('HHHH',
+            fcntl.ioctl(1, termios.TIOCGWINSZ,
+            struct.pack('HHHH', 0, 0, 0, 0)))
+        return w
+    except:
+        print >> sys.stderr, sys.exc_info()
+        return sys.maxint;
+
 class Driver:
     def __init__(self, args):
         self.argv = args.command
@@ -60,6 +73,7 @@ class Driver:
         self.trs = open(args.trs_file, "w")
         self.color_tests = args.color_tests
         self.expect_failure = args.expect_failure
+        self.width = terminal_width() - 9
 
     def report(self, code, *args):
         CODES = {
@@ -79,10 +93,12 @@ class Driver:
         if self.color_tests:
             out('\x1b[m')
         out(": ")
-        out(self.test_name)
-        out(" ")
-        for arg in args:
-            out(str(arg))
+        msg = "".join([ self.test_name + " " ] + map(str, args))
+        if code == "PASS" and len(msg) > self.width:
+            out(msg[:self.width])
+            out("...")
+        else:
+            out(msg)
         out("\n", flush=True)
 
         # Book keeping

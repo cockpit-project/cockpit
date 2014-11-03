@@ -38,7 +38,6 @@
   </body>
 <script type="text/javascript">
 
-window.debugging = "channel";
 asyncTest("basic", function() {
     expect(2);
 
@@ -80,6 +79,42 @@ asyncTest("base64", function() {
         $(channel).off();
         start();
     });
+});
+
+asyncTest("binary", function() {
+    expect(2);
+
+    var channel = cockpit.channel({ "payload": "echo", "binary": true });
+
+    $(channel).on("message", function(ev, payload) {
+        if (window.Uint8Array)
+            ok(payload instanceof window.Uint8Array, "got a byte array");
+        else
+            ok($.isArray(payload), "got a byte array");
+
+        var array = [];
+        for (var i = 0; i < payload.length; i++)
+            array.push(payload[i]);
+        deepEqual(array, [ 0, 1, 2, 3, 4, 5, 6, 7 ], "got back right data");
+
+        channel.close();
+        $(channel).off();
+        start();
+    });
+
+    var i, buffer;
+
+    if (window.ArrayBuffer) {
+        buffer = new ArrayBuffer(8);
+        var view = new Uint8Array(buffer);
+        for (i = 0; i < 8; i++)
+            view[i] = i;
+    } else {
+        var buffer = new Array(8);
+        for (i = 0; i < 8; i++)
+            buffer[i] = i;
+    }
+    channel.send(buffer);
 });
 
 QUnit.start();

@@ -65,10 +65,87 @@ var init_callback = null;
 var default_host = null;
 var filters = [ ];
 
+var have_array_buffer = !!window.ArrayBuffer;
+
 var origin = window.location.origin;
 if (!origin) {
     origin = window.location.protocol + "//" + window.location.hostname +
         (window.location.port ? ':' + window.location.port: '');
+}
+
+function array_from_raw_string(str, constructor) {
+    var length = str.length;
+    var data = new (constructor || Array)(length);
+    for (var i = 0; i < length; i++)
+        data[i] = str.charCodeAt(i) & 0xFF;
+    return data;
+}
+
+function array_to_raw_string(data) {
+    var length = data.length, str = "";
+    for (var i = 0; i < length; i++)
+        str += String.fromCharCode(data[i]);
+    return str;
+}
+
+/*
+ * These are the polyfills from Mozilla. It's pretty nasty that
+ * these weren't in the typed array standardization.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
+ */
+
+function uint6_to_b64 (x) {
+    return x < 26 ? x + 65 : x < 52 ? x + 71 : x < 62 ? x - 4 : x === 62 ? 43 : x === 63 ? 47 : 65;
+}
+
+function base64_encode(data) {
+    if (typeof data === "string")
+        return window.btoa(data);
+    /* For when the caller has chosen to use ArrayBuffer */
+    if (have_array_buffer && data instanceof window.ArrayBuffer)
+        data = new window.Uint8Array(data);
+    var length = data.length, mod3 = 2, str = "";
+    for (var uint24 = 0, i = 0; i < length; i++) {
+        mod3 = i % 3;
+        uint24 |= data[i] << (16 >>> mod3 & 24);
+        if (mod3 === 2 || length - i === 1) {
+            str += String.fromCharCode(uint6_to_b64(uint24 >>> 18 & 63),
+                                       uint6_to_b64(uint24 >>> 12 & 63),
+                                       uint6_to_b64(uint24 >>> 6 & 63),
+                                       uint6_to_b64(uint24 & 63));
+            uint24 = 0;
+        }
+    }
+
+    return str.substr(0, str.length - 2 + mod3) + (mod3 === 2 ? '' : mod3 === 1 ? '=' : '==');
+}
+
+function b64_to_uint6 (x) {
+    return x > 64 && x < 91 ? x - 65 : x > 96 && x < 123 ?
+        x - 71 : x > 47 && x < 58 ? x + 4 : x === 43 ? 62 : x === 47 ? 63 : 0;
+}
+
+function base64_decode(str, constructor) {
+    if (constructor === String)
+        return window.atob(str);
+    var ilen = str.length;
+    for (var eq = 0; eq < 3; eq++) {
+        if (str[ilen - (eq + 1)] != '=')
+            break;
+    }
+    var olen = (ilen * 3 + 1 >> 2) - eq;
+    var data = new (constructor || Array)(olen);
+    for (var mod3, mod4, uint24 = 0, oi = 0, ii = 0; ii < ilen; ii++) {
+        mod4 = ii & 3;
+        uint24 |= b64_to_uint6(str.charCodeAt(ii)) << 18 - 6 * mod4;
+        if (mod4 === 3 || ilen - ii === 1) {
+            for (mod3 = 0; mod3 < 3 && oi < olen; mod3++, oi++)
+                data[oi] = uint24 >>> (16 >>> mod3 & 24) & 255;
+            uint24 = 0;
+        }
+    }
+    return data;
 }
 
 window.addEventListener('beforeunload', function() {
@@ -138,9 +215,9 @@ function ParentWebSocket(parent) {
         if (event.origin !== origin || event.source !== parent)
             return;
         var data = event.data;
-        if (typeof data !== "string")
+        if (data === undefined || data.length === undefined)
             return;
-        if (data === "")
+        if (data.length === 0)
             self.onclose();
         else
             self.onmessage(event);
@@ -213,7 +290,9 @@ function Transport() {
     var control_cbs = { };
     var message_cbs = { };
     var waiting_for_init = true;
+    var binary_type_available = false;
     self.ready = false;
+    self.binary = false;
 
     /* Called when ready for channels to interact */
     function ready_for_channels() {
@@ -227,6 +306,10 @@ function Transport() {
 
     ws.onopen = function() {
         if (ws) {
+            if (typeof ws.binaryType !== "undefined" && have_array_buffer) {
+                ws.binaryType = "arraybuffer";
+                binary_type_available = true;
+            }
             ws.send("\n{ \"command\": \"init\", \"version\": 0 }");
         }
     };
@@ -246,24 +329,56 @@ function Transport() {
     ws.onmessage = function(event) {
         got_message = true;
 
-        var data = event.data;
-
         /* The first line of a message is the channel */
-        var pos = data.indexOf("\n");
-        var channel = data.substring(0, pos);
-        var payload;
-        var control;
+        var data = event.data;
+        var binary = null;
+        var length;
+        var channel;
+        var pos;
 
-        if (!channel) {
+        /* A binary message, split out the channel */
+        if (have_array_buffer && data instanceof window.ArrayBuffer) {
+            binary = window.Uint8Array(data);
+            length = binary.length;
+            for (pos = 0; pos < length; pos++) {
+                if (binary[pos] == 10) /* new line */
+                    break;
+            }
+            if (pos === length) {
+                console.warn("binary message without channel");
+                return;
+            } else if (pos === 0) {
+                console.warn("binary control message");
+                return;
+            } else {
+                channel = String.fromCharCode.apply(null, binary.subarray(0, pos));
+            }
+
+        /* A textual message */
+        } else {
+            pos = data.indexOf('\n');
+            if (pos === -1) {
+                console.warn("text message without channel");
+                return;
+            }
+            channel = data.substring(0, pos);
+        }
+
+        var payload, control;
+        if (binary)
+            payload = new window.Uint8Array(binary.buffer, pos + 1);
+        else
             payload = data.substring(pos + 1);
+
+        /* A control message, always string */
+        if (!channel) {
             transport_debug("recv control:", payload);
             control = JSON.parse(payload);
-        } else {
-            payload = data.substring(pos + 1);
+        } else  {
             transport_debug("recv " + channel + ":", payload);
         }
 
-        var length = filters.length;
+        length = filters.length;
         for (var i = 0; i < length; i++) {
             if (filters[i](data, channel, control) === false)
                 return;
@@ -312,6 +427,8 @@ function Transport() {
             return;
         }
 
+        if (in_array(options["capabilities"] || [], "binary"))
+            self.binary = binary_type_available;
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
         if (options["default-host"])
@@ -366,7 +483,7 @@ function Transport() {
 
     self.send_data = function send_data(data) {
         if (!ws) {
-            console.log("transport closed, dropped message: " + data);
+            console.log("transport closed, dropped message: ", data);
             return false;
         }
         ws.send(data);
@@ -375,10 +492,30 @@ function Transport() {
 
     self.send_message = function send_message(channel, payload) {
         if (channel)
-            transport_debug("send " + channel + ":", payload);
+            transport_debug("send " + channel, payload);
         else
             transport_debug("send control:", payload);
-        return self.send_data(channel.toString() + "\n" + payload);
+
+        /* A binary message */
+        if (payload.byteLength || is_array(payload)) {
+            if (payload instanceof window.ArrayBuffer)
+                payload = new window.Uint8Array(payload);
+            var i;
+            var channel_length = channel.length;
+            var payload_length = payload.length;
+            var output = new window.Uint8Array(channel_length + 1 + payload_length);
+            for (i = 0; i < channel_length; i++)
+                output[i] = channel.charCodeAt(i) & 0xFF;
+            output[i] = 10; /* new line */
+            i += 1;
+            for (var x = 0; x < payload_length; x++, i++)
+                output[i] = payload[x];
+            return self.send_data(output.buffer);
+
+        /* A string message */
+        } else {
+            return self.send_data(channel.toString() + "\n" + payload);
+        }
     };
 
     self.send_control = function send_control(data) {
@@ -422,8 +559,15 @@ function Channel(options) {
     var valid = true;
     var received_eof = false;
     var sent_eof = false;
-    var queue = [ ];
     var id = null;
+    var base64 = false;
+    var binary = false;
+
+    /*
+     * Queue while waiting for transport, items are tuples:
+     * [is_control ? true : false, payload]
+     */
+    var queue = [ ];
 
     /* Handy for callers, but not used by us */
     self.valid = valid;
@@ -435,6 +579,8 @@ function Channel(options) {
             console.warn("received message after eof");
             self.close("protocol-error");
         } else {
+            if (base64)
+                payload = base64_decode(payload, window.Uint8Array || Array);
             var event = document.createEvent("CustomEvent");
             event.initCustomEvent("message", false, false, payload);
             self.dispatchEvent(event, payload);
@@ -471,6 +617,16 @@ function Channel(options) {
             console.log("unhandled control message: '" + data.command + "'");
     }
 
+    function send_payload(payload) {
+        if (binary && base64) {
+            payload = base64_encode(payload);
+        } else if (!binary) {
+            if (typeof payload !== "string")
+                payload = new String(payload);
+        }
+        transport.send_message(id, payload);
+    }
+
     ensure_transport(function(trans) {
         transport = trans;
         if (!valid)
@@ -501,30 +657,39 @@ function Channel(options) {
                 command.host = host;
         }
 
+        if (options.binary === true) {
+            binary = true;
+            if (transport.binary) {
+                command.binary = "raw";
+            } else {
+                command.binary = "base64";
+                base64 = true;
+            }
+        }
+
         transport.send_control(command);
 
         /* Now drain the queue */
         while(queue.length > 0) {
             var item = queue.shift();
-            if (typeof item === "string") {
-                transport.send_message(id, item);
+            if (item[0]) {
+                item[1]["channel"] = id;
+                transport.send_control(item[1]);
             } else {
-                item["channel"] = id;
-                transport.send_control(item);
+                send_payload(item[1]);
             }
         }
     });
 
     self.send = function send(message) {
-        message = String(message);
         if (!valid)
             console.warn("sending message on closed channel");
         else if (sent_eof)
             console.warn("sending message after eof");
         else if (!transport)
-            queue.push(message);
+            queue.push([false, message]);
         else
-            transport.send_message(id, message);
+            send_payload(message);
     };
 
     self.eof = function eof() {
@@ -532,7 +697,7 @@ function Channel(options) {
         if (sent_eof)
             console.warn("already sent eof");
         else if (!transport)
-            queue.push(message);
+            queue.push([true, message]);
         else
             transport.send_control(message);
     };
@@ -549,7 +714,7 @@ function Channel(options) {
         options["channel"] = id;
 
         if (!transport)
-            queue.push(options);
+            queue.push([true, options]);
         else
             transport.send_control(options);
         on_close(options);
@@ -657,6 +822,9 @@ function basic_scope(cockpit) {
     cockpit.channel = function channel(options) {
         return new Channel(options);
     };
+
+    cockpit.base64_encode = base64_encode;
+    cockpit.base64_decode = base64_decode;
 
     cockpit.logout = function logout(reload) {
         if (reload !== false)

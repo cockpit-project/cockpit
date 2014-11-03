@@ -1591,7 +1591,7 @@ web_socket_connection_class_init (WebSocketConnectionClass *klass)
    */
   g_object_class_install_property (gobject_class, PROP_FLAVOR,
                                    g_param_spec_int ("flavor", "WebSocket flavor", "Flavor of WebSockets to speak with peer",
-                                                     0, G_MAXINT, 0, G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+                                                     0, G_MAXINT, 0, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * WebSocketConnection::open:
@@ -2067,6 +2067,7 @@ _web_socket_connection_set_flavor (WebSocketConnection *self,
       g_critical ("unsupported value %d provided for flavor", flavor);
       break;
     }
+  g_object_notify (G_OBJECT (self), "flavor");
 }
 
 GMainContext *

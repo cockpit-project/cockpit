@@ -823,6 +823,88 @@ function basic_scope(cockpit) {
         return new Channel(options);
     };
 
+    function Utf8TextEncoder(constructor) {
+        var self = this;
+        self.encoding = "utf-8";
+
+        self.encode = function encode(string, options) {
+            var data = unescape(encodeURIComponent(string));
+            if (constructor === String)
+                return data;
+            return array_from_raw_string(data, constructor);
+        };
+    }
+
+    function Utf8TextDecoder(fatal) {
+        var self = this;
+        var buffer = null;
+        self.encoding = "utf-8";
+
+        self.decode = function decode(data, options) {
+            var stream = options && options.stream;
+
+            if (data === null || data === undefined)
+                data = "";
+            if (typeof data !== "string")
+                data = array_to_raw_string(data);
+            if (buffer) {
+                data = buffer + data;
+                buffer = null;
+            }
+
+            /* We have to scan to do non-fatal and streaming */
+            var beg = 0, i = 0, len = data.length;
+            var p, x, j, ok;
+            var str = "";
+
+            while (i < len) {
+                p = data.charCodeAt(i);
+                x = p == 255 ? 0 :
+                    p > 251 && p < 254 ? 6 :
+                    p > 247 && p < 252 ? 5 :
+                    p > 239 && p < 248 ? 4 :
+                    p > 223 && p < 240 ? 3 :
+                    p > 191 && p < 224 ? 2 :
+                    p < 128 ? 1 : 0;
+
+                ok = (i + x <= len);
+                if (!ok && stream) {
+                    buffer = data.substring(i);
+                    break;
+                }
+                if (x === 0)
+                    ok = false;
+                for (j = 1; ok && j < x; j++)
+                    ok = (data.charCodeAt(i + j) & 0x80) !== 0;
+
+                if (!ok) {
+                    if (fatal) {
+                        i = len;
+                        break;
+                    }
+
+                    str += decodeURIComponent(escape(data.substring(beg, i)));
+                    str += "\ufffd";
+                    i++;
+                    beg = i;
+                } else {
+                    i += x;
+                }
+            }
+
+            str += decodeURIComponent(escape(data.substring(beg, i)));
+            return str;
+        };
+    }
+
+    cockpit.utf8_encoder = function utf8_encoder(constructor) {
+        return new Utf8TextEncoder(constructor);
+    };
+
+    cockpit.utf8_decoder = function utf8_decoder(fatal) {
+        return new Utf8TextDecoder(!!fatal);
+    };
+
     cockpit.base64_encode = base64_encode;
     cockpit.base64_decode = base64_decode;
 

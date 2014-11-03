@@ -775,7 +775,6 @@ function full_scope(cockpit, $) {
             if (self !== last_loc)
                 return;
             var href = href_for_go_or_replace.apply(self, arguments);
-console.log(window.location.path);
             window.location.replace(window.location.pathname + '#' + href);
         }
 

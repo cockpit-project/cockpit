@@ -1181,7 +1181,7 @@
     <refsection id="latest-dbus-byte-array">
       <title>cockpit.byte_array()</title>
 <programlisting>
- byte_array = cockpit.byte_array(type, value)
+ byte_array = cockpit.byte_array(value)
 </programlisting>
 
       <para>A DBus byte array is represnted as base64 data encoded in a string. This
@@ -1567,6 +1567,31 @@
         should be a string, and should be valid according to the Cockpit message protocol.</para>
       <para>This function is rarely used. In general you should only <code>inject()</code>
         messages you got from a <code><link linkend="latest-transport-filter">filter()</link></code>.</para>
+    </refsection>
+
+    <refsection id="latest-base64-encode">
+      <title>cockpit.base64_encode()</title>
+<programlisting>
+  string = cockpit.base64_encode(data)
+</programlisting>
+      <para>Encode binary data into a string using the Base64 encoding. The <code>data</code>
+        argument can either be a <code>string</code>, an <code>Array</code>, an <code>ArrayBuffer</code>
+        or a <code>Uint8Array</code>. The return value is a string.</para>
+    </refsection>
+
+    <refsection id="latest-base64-decode">
+      <title>cockpit.base64_decode()</title>
+<programlisting>
+  data = cockpit.base64_decode(string, [constructor])
+</programlisting>
+      <para>Decode binary data from a Base64 encoded string. The <code>string</code>
+        argument should be a javascript string. The returned <code>data</code>> will be an
+        array of bytes.</para>
+      <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
+        as an alternate <code>contstructor</code> if you want the decoded data in an
+        alternate form. The default is to return an <code>Array</code>. Note that if you use a
+        <code>String</code> for the decoded data, then you must guarantee that the data
+        does not contain bytes that would be invalid for a string.</para>
     </refsection>
   </refsection>
 

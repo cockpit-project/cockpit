@@ -971,8 +971,8 @@ function full_scope(cockpit, $) {
         var waits = $.Callbacks("once memory");
 
         Object.defineProperties(self, {
-            "iface": { value: iface, enumerable: false },
-            "path_namespace": { value: path_namespace, enumerable: false },
+            "iface": { value: iface, enumerable: false, writable: false },
+            "path_namespace": { value: path_namespace, enumerable: false, writable: false },
             "wait": { value: function(func) { waits.add(func); return this; },
                       enumerable: false, writable: false }
         });

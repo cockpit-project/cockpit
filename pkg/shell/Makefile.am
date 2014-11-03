@@ -9,7 +9,6 @@ shell_js_PARTS = \
 	pkg/shell/debug.js \
 	pkg/shell/controls.js \
 	pkg/shell/cockpit-util.js \
-	pkg/shell/cockpit-hash.js \
 	pkg/shell/cockpit-i18n.js \
 	pkg/shell/cockpit-main.js \
 	pkg/shell/cockpit-plot.js \
@@ -80,7 +79,6 @@ shellimages_DATA = \
 CHECK_HTML = \
 	pkg/shell/test-dummy.html \
 	pkg/shell/test-util.html \
-	pkg/shell/test-hash.html \
 	pkg/shell/test-journal-renderer.html \
 	pkg/shell/test-rest.html \
 	pkg/shell/test-dbusx.html \

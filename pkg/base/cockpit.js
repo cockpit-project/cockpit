@@ -583,6 +583,25 @@ function package_info(name, callback) {
     });
 }
 
+/* Resolve dots and double dots */
+function resolve_path_dots(parts) {
+    var out = [ ];
+    var length = parts.length;
+    for (var i = 0; i < length; i++) {
+        var part = parts[i];
+        if (part === "" || part == ".") {
+            continue;
+        } else if (part == "..") {
+            if (out.length === 0)
+                return null;
+            out.pop();
+        } else {
+            out.push(part);
+        }
+    }
+    return out;
+}
+
 function basic_scope(cockpit) {
     cockpit.channel = function channel(options) {
         return new Channel(options);
@@ -666,6 +685,146 @@ function full_scope(cockpit, $) {
             return dfd.promise();
         }
     };
+
+    /* ------------------------------------------------------------------------
+     * Cockpit location
+     */
+
+    /* HACK: Mozilla will unescape 'window.location.hash' before returning
+     * it, which is broken.
+     *
+     * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
+     */
+
+    var last_loc = null;
+
+    function get_window_location_hash() {
+        return (window.location.href.split('#')[1] || '');
+    }
+
+    function Location() {
+        var self = this;
+
+        var href = get_window_location_hash();
+        var options = { };
+        var path = decode(href, options);
+
+        function decode_path(input) {
+            var parts = input.split('/').map(decodeURIComponent);
+            var result;
+            if (input && input[0] !== "/") {
+                result = [].concat(path);
+                result.pop();
+                result = result.concat(parts);
+            } else {
+                result = parts;
+            }
+            return resolve_path_dots(result);
+        }
+
+        function encode(path, options) {
+            if (typeof path == "string")
+                path = decode_path(path, self.path);
+            var href = "/" + path.map(encodeURIComponent).join("/");
+            if (options) {
+                var query = [];
+                $.each(options, function(opt, value) {
+                    query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(value));
+                });
+                if (query.length > 0)
+                    href += "?" + query.join("&");
+            }
+            return href;
+        }
+
+        function decode(href, options) {
+            if (href[0] == '#')
+                href = href.substr(1);
+
+            var pos = href.indexOf('?');
+            var first = href;
+            if (pos === -1)
+                first = href;
+            else
+                first = href.substr(0, pos);
+            var path = decode_path(first);
+            if (pos !== -1 && options) {
+                $.each(href.substring(pos + 1).split("&"), function(i, opt) {
+                    var parts = opt.split('=');
+                    options[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+                });
+            }
+
+            return path;
+        }
+
+        function href_for_go_or_replace(/* ... */) {
+            var href;
+            if (arguments.length == 1 && arguments[0] instanceof Location) {
+                href = String(arguments[0]);
+            } else if (typeof arguments[0] == "string") {
+                var options = arguments[1] || { };
+                href = encode(decode(arguments[0], options), options);
+            } else {
+                href = encode.apply(self, arguments);
+            }
+            return href;
+        }
+
+        function replace(/* ... */) {
+            if (self !== last_loc)
+                return;
+            var href = href_for_go_or_replace.apply(self, arguments);
+console.log(window.location.path);
+            window.location.replace(window.location.pathname + '#' + href);
+        }
+
+        function go(/* ... */) {
+            if (self !== last_loc)
+                return;
+            var href = href_for_go_or_replace.apply(self, arguments);
+            window.location.hash = '#' + href;
+        }
+
+        Object.defineProperties(self, {
+            path: {
+                enumerable: true,
+                writable: false,
+                value: path
+            },
+            options: {
+                enumerable: true,
+                writable: false,
+                value: options
+            },
+            href: {
+                enumerable: true,
+                value: href
+            },
+            go: { value: go },
+            replace: { value: replace },
+            encode: { value: encode },
+            decode: { value: decode },
+            toString: { value: function() { return href; } }
+        });
+    }
+
+    Object.defineProperty(cockpit, "location", {
+        enumerable: true,
+        get: function() {
+            if (!last_loc || last_loc.href !== get_window_location_hash())
+                last_loc = new Location();
+            return last_loc;
+        },
+        set: function(v) {
+            cockpit.location.go(v);
+        }
+    });
+
+    $(window).on("hashchange", function() {
+        last_loc = null;
+        $(cockpit).triggerHandler("locationchanged");
+    });
 
     /* ---------------------------------------------------------------------
      * Spawning
@@ -1326,23 +1485,7 @@ function full_scope(cockpit, $) {
         }
 
         /* Resolve dots and double dots */
-        var out = [ ];
-        var parts = path.split("/");
-        var length = parts.length;
-        for (var i = 0; i < length; i++) {
-            var part = parts[i];
-            if (part === "" || part == ".") {
-                continue;
-            } else if (part == "..") {
-                if (out.length === 0)
-                    return null;
-                out.pop();
-            } else {
-                out.push(part);
-            }
-        }
-
-        return out.join("/");
+        return resolve_path_dots(path.split("/")).join("/");
     }
 
     /* Qualify an array of possibly relative paths */

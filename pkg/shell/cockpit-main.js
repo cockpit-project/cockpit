@@ -167,24 +167,9 @@ var current_params;
 var current_page_element;
 var current_legacy_page;
 
-var current_hash;
 var content_is_shown = false;
 
 var page_navigation_count = 0;
-
-/* HACK: Mozilla will unescape 'window.location.hash' before returning
- * it, which is broken.
- *
- * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
- */
-
-function get_window_location_hash() {
-    return '#' + (window.location.href.split('#')[1] || '');
-}
-
-function set_window_location_hash(hash) {
-    window.location.hash = hash;
-}
 
 function content_init() {
     var current_visible_dialog = null;
@@ -209,23 +194,19 @@ function content_init() {
     /* For legacy pages
      */
     $('#content-navbar a[data-page-id]').click(function () {
-        cockpit.go_rel($(this).attr('data-page-id'));
+        cockpit.location = $(this).attr('data-page-id');
     });
 
     /* For statically registered components
      */
     $('#content-navbar a[data-task-id]').click(function () {
-        cockpit.go_rel($(this).attr('data-task-id'));
+        cockpit.location = $(this).attr('data-task-id');
     });
 
-    $(window).on('hashchange', function () {
-        var hash = get_window_location_hash();
-        if (hash != current_hash) {
-            if (current_visible_dialog)
-                $('#' + current_visible_dialog).modal('hide');
-
-            go_hash(hash);
-        }
+    $(cockpit).on('locationchanged', function () {
+        if (current_visible_dialog)
+            $('#' + current_visible_dialog).modal('hide');
+        display_location();
     });
 
     $(window).on('resize', function () {
@@ -247,7 +228,7 @@ function content_show() {
     $('.page').hide();
     $('#content').show();
     content_is_shown = true;
-    go_hash(get_window_location_hash());
+    display_location();
     phantom_checkpoint();
 }
 
@@ -262,7 +243,7 @@ function content_leave() {
 
 cockpit.content_refresh = function content_refresh() {
     if (current_params)
-        go_params(current_params);
+        display_params(current_params);
 };
 
 function content_header_changed() {
@@ -387,17 +368,37 @@ function get_page_iframe(params) {
         register_child(iframe[0].contentWindow, params.host);
         page_iframes[key] = iframe;
         iframe.on('load', function () {
+            /* Setting the "data-loaded" attribute helps the testsuite
+             * to know when it can switch into the frame and inject
+             * its own additions.
+             */
+            iframe.attr('data-loaded', true);
             update_global_nav();
         });
     }
 
-    /* TODO: Load this from 'host'
+    /* We get a package listing so that we can load the entry point
+     * via checksums (which enables caching), but most importantly so
+     * that cockpit-ws will learn all the checksums and can load other
+     * pieces that the entry point refers to via checksums.
      */
 
-    var inner_params = { path: params.path.slice(prefix.length),
-                         options: params.options };
-    iframe.attr('src', ("/cockpit/" + comp.pkg +
-                        "/" + comp.entry + cockpit.hash.encode(inner_params)));
+    var href = cockpit.location.encode(params.path.slice(prefix.length), params.options);
+
+    var pkg = comp.pkg + "@" + params.host;
+    cockpit.packages.lookup(pkg).
+        done(function (info) {
+            var url = "/cockpit/";
+            if (info.checksum)
+                url += info.checksum;
+            else
+                url += pkg;
+            iframe.attr('src', url + "/" + comp.entry + '#' + href);
+        }).
+        fail(function (error) {
+            console.log("Error loading package " + pkg, error.toString());
+            iframe.attr('src', "/cockpit/" + pkg + "/" + comp.entry + '#' + href);
+        });
 
     return iframe;
 }
@@ -419,11 +420,11 @@ function legacy_page_from_id(id) {
     return null;
 }
 
-/* The go_params function is the main place where we deal with legacy
+/* The display_params function is the main place where we deal with legacy
  * pages.  TODO: Remove that.
  */
 
-function go_params(params) {
+function display_params(params) {
     page_navigation_count += 1;
 
     var element = get_page_iframe(params);
@@ -447,7 +448,7 @@ function go_params(params) {
     }
 
     if (!element) {
-        cockpit.go("localhost", [ "dashboard" ]);
+        cockpit.location.go([ "local", "dashboard" ]);
         return;
     }
 
@@ -465,7 +466,6 @@ function go_params(params) {
     current_page_element = element;
     current_legacy_page = legacy_page;
     resize_current_iframe();
-    show_hash();
     enter_global_nav();
     if (legacy_page)
         legacy_page.enter();
@@ -479,44 +479,17 @@ function go_params(params) {
         legacy_page.show();
 }
 
-cockpit.go = function go(host, path, options) {
-    if (!host)
+function display_location() {
+    var host = cockpit.location.path[0];
+    var path = cockpit.location.path.slice(1);
+    var options = cockpit.location.options;
+
+    if (!host || host == "local")
         host = "localhost";
-    if (!options)
-        options = { };
-    if (path && path.substr)
-        path = [ path ];
-    if (!path || !path.length)
+    if (path.length < 1)
         path = [ "dashboard" ];
 
-    go_params({ host: host, path: path, options: options });
-};
-
-cockpit.go_rel = function go_rel(path, options) {
-    cockpit.go(current_params && current_params.host, path, options);
-};
-
-// TODO: Get rid of this
-cockpit.go_rel_cmd = function go_rel_cmd(path, options)
-{
-    return "cockpit.go_rel(" + JSON.stringify(path) + "," + JSON.stringify(options) + ");";
-};
-
-function show_hash() {
-    var host = current_params.host;
-    if (host == "localhost")
-        host = "local";
-    var path = [ host ].concat(current_params.path);
-    current_hash = cockpit.hash.encode({ path: path, options: current_params.options });
-    set_window_location_hash(current_hash);
-}
-
-function go_hash(hash) {
-    var params = cockpit.hash.decode(hash);
-    var host = params.path[0];
-    if (host == "local")
-        host = "localhost";
-    cockpit.go(host, params.path.slice(1), params.options);
+    display_params({ host: host, path: path, options: options });
 }
 
 function dialog_from_id(id) {
@@ -571,11 +544,17 @@ cockpit.get_page_machine = function get_page_machine() {
 };
 
 cockpit.set_page_param = function set_page_param(key, val) {
-    if (val)
+    if (val) {
+        if (val == current_params.options[key])
+            return;
         current_params.options[key] = val;
-    else
+    } else {
+        if (current_params.options[key] === undefined)
+            return;
         delete current_params.options[key];
-    show_hash ();
+    }
+    cockpit.location.replace(cockpit.location.path, current_params.options);
+    current_params.options = cockpit.location.options;
 };
 
 cockpit.show_error_dialog = function show_error_dialog(title, message) {
@@ -593,35 +572,6 @@ cockpit.show_error_dialog = function show_error_dialog(title, message) {
 
 cockpit.show_unexpected_error = function show_unexpected_error(error) {
     cockpit.show_error_dialog(_("Unexpected error"), error.message || error);
-};
-
-/* A Location object can navigate to a different page, but silently
- * does nothing when some navigation has already happened since it was
- * created.
- */
-
-Location.prototype = {
-    go_rel: function(path, options) {
-        if (this.can_go())
-            cockpit.go_rel(path, options);
-    },
-
-    go: function(host, path, options) {
-        if (this.can_go())
-            cockpit.go(host, path, options);
-    }
-};
-
-function Location(can_go) {
-    this.can_go = can_go;
-}
-
-cockpit.location = function location() {
-    var navcount = page_navigation_count;
-    function can_navigate() {
-        return navcount === page_navigation_count;
-    }
-    return new Location(can_navigate);
 };
 
 cockpit.confirm = function confirm(title, body, action_text) {
@@ -677,7 +627,7 @@ $(function() {
 });
 
 cockpit.go_login_account = function go_login_account() {
-    cockpit.go("localhost", "account", { id: cockpit.user["user"] });
+    cockpit.location.go([ "local", "account" ], { id: cockpit.user["user"] });
 };
 
 PageDisconnected.prototype = {

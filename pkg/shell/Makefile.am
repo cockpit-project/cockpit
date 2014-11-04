@@ -1,7 +1,6 @@
 shell_js_PARTS = \
 	pkg/shell/polyfills.js \
 	pkg/shell/dbus.js \
-	pkg/shell/rest.js \
 	pkg/shell/debug.js \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
@@ -78,7 +77,6 @@ shellimages_DATA = \
 CHECK_HTML = \
 	pkg/shell/test-dummy.html \
 	pkg/shell/test-util.html \
-	pkg/shell/test-rest.html \
 	pkg/shell/test-dbusx.html \
 	$(NULL)
 

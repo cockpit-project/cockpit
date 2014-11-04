@@ -24,8 +24,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitnullchannel.h \
 	src/bridge/cockpitresource.c \
 	src/bridge/cockpitresource.h \
-	src/bridge/cockpitrestjson.c \
-	src/bridge/cockpitrestjson.h \
 	src/bridge/cockpitstream.c \
 	src/bridge/cockpitstream.h \
 	src/bridge/cockpitsuperchannels.c \
@@ -94,7 +92,6 @@ BRIDGE_CHECKS = \
 	test-rules \
 	test-channel \
 	test-dbusjson \
-	test-restjson \
 	test-stream \
 	test-package \
 	test-resource \
@@ -119,10 +116,6 @@ test_package_LDADD = $(libcockpit_bridge_LIBS)
 test_paths_SOURCES = src/bridge/test-paths.c
 test_paths_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_paths_LDADD = $(libcockpit_bridge_LIBS)
-
-test_restjson_SOURCES = src/bridge/test-restjson.c
-test_restjson_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_restjson_LDADD = $(libcockpit_bridge_LIBS)
 
 test_rules_SOURCES = src/bridge/test-rules.c
 test_rules_CFLAGS = $(libcockpit_bridge_a_CFLAGS)

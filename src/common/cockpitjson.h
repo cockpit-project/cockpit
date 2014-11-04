@@ -50,10 +50,6 @@ gchar *        cockpit_json_write_object      (JsonObject *object,
 
 GBytes *       cockpit_json_write_bytes       (JsonObject *object);
 
-gsize          cockpit_json_skip              (const gchar *data,
-                                               gsize length,
-                                               gsize *spaces);
-
 gboolean       cockpit_json_equal             (JsonNode *previous,
                                                JsonNode *current);
 

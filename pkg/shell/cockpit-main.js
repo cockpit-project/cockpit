@@ -192,13 +192,13 @@ function content_init() {
     /* For legacy pages
      */
     $('#content-navbar a[data-page-id]').click(function () {
-        cockpit.location = $(this).attr('data-page-id');
+        cockpit.location.go([ cockpit.location.path[0], $(this).attr('data-page-id') ]);
     });
 
     /* For statically registered components
      */
     $('#content-navbar a[data-task-id]').click(function () {
-        cockpit.location = $(this).attr('data-task-id');
+        cockpit.location.go([ cockpit.location.path[0], $(this).attr('data-task-id') ]);
     });
 
     $(cockpit).on('locationchanged', function () {
@@ -208,12 +208,13 @@ function content_init() {
     });
 
     $(window).on('resize', function () {
-        content_header_changed();
-        resize_current_iframe();
+        recalculate_layout();
     });
 
     cockpit.content_refresh();
     $('.selectpicker').selectpicker();
+
+    hosts_init();
 }
 
 function content_show() {
@@ -227,51 +228,213 @@ function content_show() {
     phantom_checkpoint();
 }
 
-function content_leave() {
-    if (current_legacy_page) {
-        current_legacy_page.leave();
-        leave_global_nav();
-    }
-    current_params = null;
-    content_is_shown = false;
-}
-
 cockpit.content_refresh = function content_refresh() {
     if (current_params)
         display_params(current_params);
 };
 
-function content_header_changed() {
-    $('body').css('padding-top', $('#topnav').height());
+function recalculate_layout() {
+    var $topnav = $('#topnav');
+    var $sidebar = $('#cockpit-sidebar');
+    var $extra = $('#content-header-extra');
+    var $body = $('body');
+
+    var window_height = $(window).height();
+    var topnav_width = $topnav.width();
+    var topnav_height = $topnav.height()+2;
+    var sidebar_width = $sidebar.is(':visible')? $sidebar.width() : 0;
+    var extra_height = $extra.height();
+
+    $sidebar.css('top', topnav_height);
+    $sidebar.css('height', window_height - topnav_height);
+    $extra.css('top', topnav_height);
+    $extra.css('left', sidebar_width);
+    $extra.css('width', topnav_width - sidebar_width);
+
+    $body.css('padding-top', topnav_height + extra_height);
+    $body.css('padding-left', sidebar_width);
+
+    if (current_page_element && !current_legacy_page)
+        current_page_element.height(window_height - topnav_height - extra_height);
 }
 
-var nav_cockpitd;
-var nav_manager;
+var local_account_proxies;
 
-function enter_global_nav() {
-    /* TODO: This code needs to be migrated away from old dbus */
-    nav_cockpitd = cockpit.dbusx(cockpit.get_page_machine());
-    nav_manager = nav_cockpitd.get("/com/redhat/Cockpit/Manager",
-                                   "com.redhat.Cockpit.Manager");
-    $(nav_manager).on('notify:PrettyHostname.main',
-                      update_global_nav);
-    $(nav_manager).on('notify:StaticHostname.main',
-                      update_global_nav);
+function check_admin() {
+    var acc;
+
+    if (cockpit.user["user"] == "root")
+        return true;
+
+    for (var path in local_account_proxies) {
+        var a = local_account_proxies[path];
+        if (a.UserName == cockpit.user["user"]) {
+            acc = a;
+            break;
+        }
+    }
+
+    if (acc && acc.Groups) {
+        if (cockpit.find_in_array(acc.Groups, "wheel"))
+            return true;
+        cockpit.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
+        return false;
+    }
+
+    // When in doubt, just go ahead and let it fail later.
+    return true;
 }
 
-function leave_global_nav() {
-    $(nav_manager).off('.main');
-    nav_cockpitd.release();
-    nav_manager = null;
-    nav_cockpitd = null;
+/* Information for each host, keyed by address.  This is an object
+ * with at least these fields:
+ *
+ * - display_name
+ * - set_active()
+ */
+var host_info = { };
+
+function hosts_init() {
+
+    var host_proxies;
+
+    function update() {
+        var want = { };
+        for (var path in host_proxies) {
+            var h = host_proxies[path];
+            if (cockpit.find_in_array(h.Tags, "dashboard")) {
+                want[h.Address] = h;
+                if (!host_info[h.Address])
+                    add_host(h.Address);
+            }
+        }
+        for (var addr in host_info) {
+            if (!want[addr]) {
+                host_info[addr].remove();
+                delete host_info[addr];
+            }
+        }
+    }
+
+    function remember_last_path() {
+        var old_info = host_info[current_params.host];
+        if (old_info && current_params.path[0] != "dashboard")
+            old_info.last_path = current_params.path;
+    }
+
+    function add_host(addr) {
+        var client = cockpit.dbus("com.redhat.Cockpit", { host: addr });
+        var manager = client.proxy("com.redhat.Cockpit.Manager",
+                                   "/com/redhat/Cockpit/Manager");
+
+        var link, hostname_span, avatar_img;
+
+        var info = { display_name: addr,
+                     set_active: set_active,
+                     remove: remove
+                   };
+
+        link = $('<a class="list-group-item">').
+            append(
+                avatar_img = $('<img width="32" height="32" class="host-avatar">').
+                    attr('src', "images/server-small.png"),
+                hostname_span = $('<span>').
+                    text(addr)).
+            click(function () {
+                remember_last_path();
+                cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]));
+            });
+
+        $('#hosts').append(link);
+
+        function update() {
+            info.display_name = cockpit.util.hostname_for_display(manager);
+            hostname_span.text(info.display_name);
+
+            if (manager.GetAvatarDataURL) {
+                manager.GetAvatarDataURL().
+                    done(function (result) {
+                        if (result)
+                            avatar_img.attr('src', result);
+                    });
+            }
+
+            update_global_nav();
+        }
+
+        function set_active() {
+            $('#hosts > a').removeClass("active");
+            link.addClass("active");
+        }
+
+        function remove() {
+            link.remove();
+            $(manager).off('.hosts');
+            client.close();
+        }
+
+        host_info[addr] = info;
+
+        manager.wait(function () {
+            $(manager).on('changed.hosts', function (event, props) {
+                if ("PrettyHostname" in props || "StaticHostname" in props)
+                    update();
+            });
+            $(manager).on('AvatarChanged.hosts', update);
+            update();
+        });
+    }
+
+    function host_setup() {
+        if (!check_admin())
+            return;
+
+        $('#dashboard_setup_server_dialog').modal('show');
+    }
+
+    $('#hosts').append(
+        $('<a class="list-group-item">').
+            append(
+                $('<button class="btn btn-primary" style="float:right">').
+                    text("+").
+                    click(function () {
+                        host_setup();
+                        return false;
+                    }),
+                $('<span>').
+                    text("All Servers")).
+            click(function () {
+                remember_last_path();
+                cockpit.location.go([]);
+            }));
+
+    $('#hosts-button').click(function () {
+        $('#cockpit-sidebar').toggle();
+        recalculate_layout();
+    });
+
+    local_account_proxies = null;
+
+    var cockpitd = cockpit.dbus("com.redhat.Cockpit");
+    local_account_proxies = cockpitd.proxies("com.redhat.Cockpit.Account",
+                                             "/com/redhat/Cockpit/Accounts");
+    host_proxies = cockpitd.proxies("com.redhat.Cockpit.Machine",
+                                    "/com/redhat/Cockpit/Machines");
+    host_proxies.wait(function () {
+        $(host_proxies).on('added removed changed', update);
+        update();
+    });
 }
 
 function update_global_nav() {
+    var info;
     var hostname = null;
     var page_title = null;
 
-    if (nav_manager)
-        hostname = cockpit.util.hostname_for_display(nav_manager);
+    info = host_info[current_params.host];
+    if (info) {
+        hostname = info.display_name;
+        info.set_active();
+    }
 
     $('#content-navbar-hostname').text(hostname);
 
@@ -300,6 +463,8 @@ function update_global_nav() {
         doc_title = _("Cockpit");
 
     document.title = doc_title;
+
+    recalculate_layout();
 }
 
 /* A map from path prefixes such as [ "tools" "terminal" ] to
@@ -398,14 +563,6 @@ function get_page_iframe(params) {
     return iframe;
 }
 
-function resize_current_iframe() {
-    if (current_page_element && !current_legacy_page) {
-        current_page_element.height(function() {
-            return $(window).height() - $(this).offset().top;
-        });
-    }
-}
-
 function legacy_page_from_id(id) {
     var n;
     for (n = 0; n < cockpit.pages.length; n++) {
@@ -453,23 +610,17 @@ function display_params(params) {
     if (old_legacy_page)
         old_legacy_page.leave();
 
-    if (old_element)
-        leave_global_nav();
-
     $('#content-header-extra').empty();
     current_params = params;
     current_page_element = element;
     current_legacy_page = legacy_page;
-    resize_current_iframe();
-    enter_global_nav();
     if (legacy_page)
         legacy_page.enter();
 
     if (old_element)
         old_element.hide();
-    element.show();
     update_global_nav();
-    content_header_changed();
+    element.show();
     if (legacy_page)
         legacy_page.show();
 }

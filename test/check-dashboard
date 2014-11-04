@@ -135,6 +135,28 @@ class TestDashboard(MachineCase):
 
         self.allow_journal_messages('.*: .* host key for server is not known: .*')
 
+    def testHostSwitcher(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("server")
+        self.inject_extras(b)
+
+        b.click('#hosts a:first-child button')
+        b.wait_popup('dashboard_setup_server_dialog')
+        b.set_val('#dashboard_setup_address', "127.0.0.1")
+        self.add_machine_finish(b)
+
+        b.wait_js_cond('$("#hosts > a").length == 3')
+        b.click('#hosts a:nth-child(2)')
+        b.wait_js_cond('cockpit.location.href == "/localhost/server"')
+        b.click('#topnav a[data-page-id=storage]')
+        b.wait_js_cond('cockpit.location.href == "/localhost/storage"')
+        b.click('#hosts a:nth-child(3)')
+        b.wait_js_cond('cockpit.location.href == "/127.0.0.1/server"')
+        b.click('#hosts a:nth-child(2)')
+        b.wait_js_cond('cockpit.location.href == "/localhost/storage"')
+
     def testSetup(self):
         b = self.browser
 

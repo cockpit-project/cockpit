@@ -50,6 +50,7 @@ struct _CockpitAuth
   GHashTable *authenticated;
   guint64 nonce_seed;
   gboolean login_loopback;
+  gulong timeout_tag;
 };
 
 struct _CockpitAuthClass

@@ -223,7 +223,7 @@ test_idle_timeout (Test *test,
   gboolean flag = FALSE;
 
   /* The idle timeout is one second */
-  cockpit_ws_idle_timeout = 1;
+  g_assert (cockpit_ws_service_idle == 1);
 
   headers = mock_auth_basic_header ("me", "this is the password");
   cockpit_auth_login_async (test->auth, headers, NULL, on_ready_get_result, &result);
@@ -264,11 +264,37 @@ test_idle_timeout (Test *test,
   g_hash_table_destroy (headers);
 }
 
+static gboolean
+on_idling_set_flag (CockpitAuth *auth,
+                    gpointer data)
+{
+  gboolean *flag = data;
+  g_assert (*flag == FALSE);
+  *flag = TRUE;
+  return FALSE;
+}
+
+static void
+test_process_timeout (Test *test,
+                      gconstpointer data)
+{
+  gboolean idling = FALSE;
+
+  g_assert (cockpit_ws_process_idle == 2);
+
+  g_signal_connect (test->auth, "idling", G_CALLBACK (on_idling_set_flag), &idling);
+
+  while (!idling)
+    g_main_context_iteration (NULL, TRUE);
+}
+
 int
 main (int argc,
       char *argv[])
 {
   cockpit_ws_bridge_program = "/bin/cat";
+  cockpit_ws_service_idle = 1;
+  cockpit_ws_process_idle = 2;
 
   cockpit_test_init (&argc, &argv);
 
@@ -277,6 +303,7 @@ main (int argc,
   g_test_add ("/auth/userpass-emptypass", Test, NULL, setup, test_userpass_emptypass, teardown);
   g_test_add ("/auth/headers-bad", Test, NULL, setup, test_headers_bad, teardown);
   g_test_add ("/auth/idle-timeout", Test, NULL, setup, test_idle_timeout, teardown);
+  g_test_add ("/auth/process-timeout", Test, NULL, setup, test_process_timeout, teardown);
 
   return g_test_run ();
 }

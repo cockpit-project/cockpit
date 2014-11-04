@@ -52,8 +52,13 @@
 #include <security/pam_appl.h>
 #include <stdlib.h>
 
-/* Timeout of authentication when no connections */
-guint cockpit_ws_idle_timeout = 15;
+/* Timeout of authenticated session when no connections */
+guint cockpit_ws_service_idle = 15;
+
+/* Timeout of everything when noone is connected */
+guint cockpit_ws_process_idle = 600;
+
+static guint sig__idling = 0;
 
 G_DEFINE_TYPE (CockpitAuth, cockpit_auth, G_TYPE_OBJECT)
 
@@ -115,11 +120,28 @@ static void
 cockpit_auth_finalize (GObject *object)
 {
   CockpitAuth *self = COCKPIT_AUTH (object);
-
+g_printerr ("finalizing auth\n");
+  if (self->timeout_tag)
+    g_source_remove (self->timeout_tag);
   g_byte_array_unref (self->key);
   g_hash_table_destroy (self->authenticated);
 
   G_OBJECT_CLASS (cockpit_auth_parent_class)->finalize (object);
+}
+
+static gboolean
+on_process_timeout (gpointer data)
+{
+  CockpitAuth *self = COCKPIT_AUTH (data);
+
+  self->timeout_tag = 0;
+  if (g_hash_table_size (self->authenticated) == 0)
+    {
+      g_debug ("web service is idle");
+      g_signal_emit (self, sig__idling, 0);
+    }
+
+  return FALSE;
 }
 
 static void
@@ -136,6 +158,9 @@ cockpit_auth_init (CockpitAuth *self)
 
   self->authenticated = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                NULL, cockpit_authenticated_free);
+
+  self->timeout_tag = g_timeout_add_seconds (cockpit_ws_process_idle,
+                                             on_process_timeout, self);
 }
 
 static inline gchar *
@@ -750,6 +775,9 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
 
   klass->login_async = cockpit_auth_choose_login_async;
   klass->login_finish = cockpit_auth_choose_login_finish;
+
+  sig__idling = g_signal_new ("idling", COCKPIT_TYPE_AUTH, G_SIGNAL_RUN_FIRST,
+                              0, NULL, NULL, NULL, G_TYPE_NONE, 0);
 }
 
 static char *
@@ -859,9 +887,19 @@ on_web_service_idling (CockpitWebService *service,
    * The minimum amount of time before a request uses this new web service,
    * otherwise it will just go away.
    */
-  authenticated->timeout_tag = g_timeout_add_seconds (cockpit_ws_idle_timeout,
+  authenticated->timeout_tag = g_timeout_add_seconds (cockpit_ws_service_idle,
                                                       on_authenticated_timeout,
                                                       authenticated);
+
+  /*
+   * Also reset the timer which checks whether anything is going on in the
+   * entire process or not.
+   */
+  if (authenticated->auth->timeout_tag)
+    g_source_remove (authenticated->auth->timeout_tag);
+
+  authenticated->auth->timeout_tag = g_timeout_add_seconds (cockpit_ws_process_idle,
+                                                            on_process_timeout, authenticated->auth);
 }
 
 static void

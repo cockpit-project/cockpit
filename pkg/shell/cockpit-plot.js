@@ -87,7 +87,7 @@ function setup_plot(graph_id, resmon, data, user_options, store_samples) {
                             }
                         });
 
-            $(window).on('resize', resize);
+            $(cockpit).on('resize', resize);
 
             ready = true;
             maybe_start();

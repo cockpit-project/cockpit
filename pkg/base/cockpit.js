@@ -1900,6 +1900,238 @@ function full_scope(cockpit, $) {
         return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
     };
 
+    function HttpError(arg0, arg1, message) {
+        var status = parseInt(arg0, 10);
+        if (isNaN(status)) {
+            this.problem = arg0;
+            this.message = arg1 || arg0;
+        } else {
+            this.status = status;
+            this.reason = arg1;
+            this.message = message || arg1;
+            this.problem = null;
+        }
+
+        this.valueOf = function() {
+            if (this.status === 0)
+                return this.problem;
+            else
+                return this.status;
+        };
+        this.toString = function() {
+            if (this.status === 0)
+                return this.problem;
+            else
+                return this.status + " " + this.message;
+        };
+    }
+
+    function http_debug() {
+        if (window.debugging == "all" || window.debugging == "http")
+            console.debug.apply(console, arguments);
+    }
+
+    function find_header(headers, name) {
+        if (!headers)
+            return undefined;
+        name = name.toLowerCase();
+        for (var head in headers) {
+            if (head.toLowerCase() == name)
+                return headers[head];
+        }
+        return undefined;
+    }
+
+    function HttpClient(endpoint, options) {
+        var self = this;
+
+        options.payload = "http-stream1";
+
+        if (endpoint !== undefined) {
+            if (endpoint.indexOf && endpoint.indexOf("/") === 0) {
+                options.unix = endpoint;
+            } else {
+                var port = parseInt(endpoint, 10);
+                if (!isNaN(port))
+                    options.port = port;
+                else
+                    throw "The endpoint must be either a unix path or port number";
+            }
+        }
+
+        self.request = function request(req) {
+            var dfd = new $.Deferred();
+
+            if (!req.path)
+                req.path = "/";
+            if (!req.method)
+                req.method = "GET";
+            if (req.params) {
+                if (req.path.indexOf("?") === -1)
+                    req.path += "?" + $.param(req.params);
+                else
+                    req.path += "&" + $.param(req.params);
+            }
+            delete req.params;
+
+            var input = req.body;
+            delete req.body;
+
+            if (!req.headers)
+                delete req.headers;
+
+            $.extend(req, options);
+            http_debug("http request:", req);
+
+            /* We need a channel for the request */
+            var channel = cockpit.channel(req);
+
+            if (input !== undefined) {
+                if (input !== "") {
+                    http_debug("http input:", input);
+                    channel.send(input);
+                }
+                http_debug("http eof:", input);
+                channel.eof();
+            }
+
+            /* Callbacks that want to stream or get headers */
+            var streamer = null;
+            var responsers = null;
+
+            var count = 0;
+            var resp = null;
+
+            var buffer = channel.buffer(function(data) {
+                count += 1;
+
+                if (count === 1) {
+                    if (channel.binary)
+                        data = cockpit.utf8_decoder().decode(data);
+                    resp = JSON.parse(data);
+
+                    /* Anyone looking for response details? */
+                    if (responsers) {
+                        resp.headers = resp.headers || { };
+                        responsers.fire(resp.status, resp.headers);
+                    }
+                    return true;
+                }
+
+                /* Fire any streamers */
+                if (resp.status >= 200 && resp.status <= 299 && streamer)
+                    return streamer(data);
+
+                return 0;
+            });
+
+            $(channel).on("close", function(event, options) {
+                if (options.problem) {
+                    http_debug("http problem: ", options.problem);
+                    dfd.reject(new HttpError(options.problem));
+
+                } else {
+                    var body = buffer.squash();
+
+                    /* An error, fail here */
+                    if (resp && (resp.status < 200 || resp.status > 299)) {
+                        var message;
+                        var type = find_header(resp.headers, "Content-Type");
+                        if (type && !channel.binary) {
+                            if (type.indexOf("text/plain") === 0)
+                                message = body;
+                        }
+                        http_debug("http status: ", resp.status);
+                        dfd.reject(new HttpError(resp.status, resp.reason, message));
+
+                    } else {
+                        http_debug("http done");
+                        dfd.resolve(body);
+                    }
+                }
+
+                $(channel).off();
+            });
+
+            var jpromise = dfd.promise;
+            dfd.promise = function mypromise() {
+                var ret = $.extend(jpromise.apply(this, arguments), {
+                    stream: function(callback) {
+                        streamer = callback;
+                        return this;
+                    },
+                    response: function(callback) {
+                        if (responsers === null)
+                            responsers = $.Callbacks("" /* no flags */);
+                        responsers.add(callback);
+                        return this;
+                    },
+                    input: function(message, stream) {
+                        if (message !== null && message !== undefined) {
+                            http_debug("http input:", message);
+                            channel.send(message);
+                        }
+                        if (!stream) {
+                            http_debug("http eof");
+                            channel.eof();
+                        }
+                        return this;
+                    },
+                    close: function(problem) {
+                        http_debug("http closing:", problem);
+                        channel.close(problem);
+                        $(channel).off("message");
+                        return this;
+                    },
+                    promise: this.promise
+                });
+                return ret;
+            };
+
+            return dfd.promise();
+        };
+
+        self.get = function get(path, params, headers) {
+            return self.request({
+                "method": "GET",
+                "params": params,
+                "path": path,
+                "body": "",
+                "headers": headers
+            });
+        };
+
+        self.post = function post(path, body, headers) {
+            headers = headers || { };
+
+            if ($.isPlainObject(body) || $.isArray(body)) {
+                body = JSON.stringify(body);
+                if (find_header(headers, "Content-Type") === undefined)
+                    headers["Content-Type"] = "application/json";
+            } else if (body === undefined || body === null) {
+                body = "";
+            } else if (typeof body !== "string") {
+                body = String(body);
+            }
+
+            return self.request({
+                "method": "POST",
+                "path": path,
+                "body": body,
+                "headers": headers
+            });
+        };
+    }
+
+    /* public */
+    cockpit.http = function(endpoint, options) {
+        if ($.isPlainObject(endpoint) && options === undefined) {
+            options = endpoint;
+            endpoint = undefined;
+        }
+        return new HttpClient(endpoint, options || { });
+    };
+
 } /* full_scope */
 
 /* ----------------------------------------------------------------------------

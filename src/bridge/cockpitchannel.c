@@ -22,6 +22,7 @@
 #include "cockpitchannel.h"
 #include "cockpitdbusjson.h"
 #include "cockpitechochannel.h"
+#include "cockpithttpstream.h"
 #include "cockpitnullchannel.h"
 #include "cockpitrestjson.h"
 #include "cockpitresource.h"
@@ -545,6 +546,8 @@ CockpitChannel *
     channel_type = COCKPIT_TYPE_DBUS_JSON1;
   else if (g_strcmp0 (payload, "dbus-json3") == 0)
     channel_type = COCKPIT_TYPE_DBUS_JSON;
+  else if (g_strcmp0 (payload, "http-stream1") == 0)
+    channel_type = COCKPIT_TYPE_HTTP_STREAM;
   else if (g_strcmp0 (payload, "rest-json1") == 0)
     channel_type = COCKPIT_TYPE_REST_JSON;
   else if (g_strcmp0 (payload, "stream") == 0)

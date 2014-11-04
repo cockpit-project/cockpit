@@ -27,6 +27,53 @@ html, body {
     height: 100%;
 }
 
+/* Host switcher sidebar styling */
+
+#cockpit-sidebar {
+    background: #fafafa;
+    border-right: 1px solid #d0d0d0;
+}
+
+#cockpit-sidebar .list-group .list-group-item {
+    background: transparent;
+    border-color: transparent;
+}
+
+#cockpit-sidebar .list-group .list-group-item.active,
+#cockpit-sidebar .list-group .list-group-item.active:hover {
+    background: #0099d3;
+    border-color: #0076b7;
+    color: #fff;
+}
+
+#cockpit-sidebar .list-group .list-group-item:first-child {
+    background: #e4e4e4;
+    border-bottom: 1px solid #cbcbcb;
+    padding-bottom: 10px;
+}
+
+#cockpit-sidebar .list-group .list-group-item:first-child span {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#cockpit-sidebar .list-group .list-group-item:hover {
+    background: #d4edfa;
+    border-color: #b3d3e7;
+    border-right-color: transparent;
+}
+
+#cockpit-sidebar .list-group .list-group-item .btn {
+    height: 28px;
+    width: 28px;
+}
+
+#cockpit-sidebar .host-avatar {
+    margin: 5px;
+    margin-right: 10px;
+    margin-left: 0px;
+    border-radius: 3px;
+}
 
 /* Style a button group */
 

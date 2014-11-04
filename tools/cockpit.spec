@@ -41,7 +41,6 @@ BuildRequires: storaged >= 0.3.1
 
 BuildRequires: autoconf automake
 BuildRequires: intltool
-BuildRequires: jsl
 BuildRequires: libssh-devel >= 0.6.0
 BuildRequires: openssl-devel
 BuildRequires: zlib-devel
@@ -57,6 +56,11 @@ BuildRequires: systemd
 BuildRequires: perl-JavaScript-Minifier-XS
 BuildRequires: perl-Locale-PO
 BuildRequires: perl-JSON
+
+# jsl hangs on arm on html files
+%ifnarch %{arm}
+BuildRequires: jsl
+%endif
 
 # For selinux
 BuildRequires: selinux-policy-devel

@@ -56,6 +56,7 @@ fi
 AC_PATH_PROG([JSL], [jsl])
 if test -z "$JSL"; then
   AC_MSG_WARN([jsl is needed to check javascript])
+  JSL=/bin/true
 fi
 
 GLIB_VERSION="2.34"

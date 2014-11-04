@@ -140,7 +140,7 @@ jslint()
 {
     failed=no
     for f in "$@"; do
-        jsl -conf $base/jsl.conf -nologo -nofilelisting -nosummary -process "$f" >&2 || failed=yes
+        $jsl -conf $base/jsl.conf -nologo -nofilelisting -nosummary -process "$f" >&2 || failed=yes
     done
     if is_yes $failed; then
         exit 1

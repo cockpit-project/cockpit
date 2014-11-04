@@ -36,7 +36,7 @@ class TestDocker(MachineCase):
         self.login_and_go("containers")
 
         # Import the container-probe image and wait for it to appear
-        m.upload("container-probe.tar.gz", "/var/tmp/container-probe.tar.gz")
+        m.upload(["container-probe.tar.gz"], "/var/tmp/container-probe.tar.gz")
         m.execute("docker import - test/container-probe </var/tmp/container-probe.tar.gz")
         b.wait_in_text("#containers-images", "container-probe")
 

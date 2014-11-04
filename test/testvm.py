@@ -105,7 +105,7 @@ class Machine:
         self.start(maintain=True)
         try:
             self.wait_boot()
-            self.upload(script, "/var/tmp/SETUP")
+            self.upload([script], "/var/tmp/SETUP")
             env = {
                 "TEST_OS": self.os,
                 "TEST_ARCH": self.arch,
@@ -133,11 +133,11 @@ class Machine:
         self.start(maintain=True)
         try:
             self.wait_boot()
+            self.upload(rpms, "/tmp")
             uploaded = []
             for rpm in rpms:
                 base = os.path.basename(rpm)
                 dest = os.path.join("/tmp", base)
-                self.upload(rpm, dest)
                 uploaded.append(dest)
             env = {
                 "TEST_OS": self.os,
@@ -230,14 +230,14 @@ class Machine:
             raise subprocess.CalledProcessError(proc.returncode, command)
         return output
 
-    def upload(self, source, dest):
+    def upload(self, sources, dest):
         """Upload a file into the test machine
 
         Arguments:
-            source: the path of the file to upload
+            sources: the array of paths of the file to upload
             dest: the file path in the machine to upload to
         """
-        assert source and dest
+        assert sources and dest
         assert self.address
 
         cmd = [
@@ -245,10 +245,9 @@ class Machine:
             "-i", self._calc_identity(),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
-            source, "root@%s:%s" % (self.address, dest),
-        ]
+        ] + sources + [ "root@%s:%s" % (self.address, dest), ]
 
-        self.message("Uploading", source)
+        self.message("Uploading", " ,".join(sources))
         self.message(" ".join(cmd))
         subprocess.check_call(cmd)
 

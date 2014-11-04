@@ -256,6 +256,9 @@ function recalculate_layout() {
 
     if (current_page_element && !current_legacy_page)
         current_page_element.height(window_height - topnav_height - extra_height);
+
+    // This is mostly for the plots.
+    $(cockpit).trigger('resize');
 }
 
 var local_account_proxies;

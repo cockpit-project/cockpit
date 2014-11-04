@@ -163,7 +163,7 @@ A test machine image created by vm-create doesn't contain any Cockpit
 code in it yet.  You can build and install the currently checked out
 working copy of Cockpit like this:
 
-  $ ./vm-install $(./make-rpms)
+  $ ./vm-install $(../tools/make-rpms)
 
 This will modify the test machine image in ./run, but will not modify
 the saved version in $TEST_DATA/images.

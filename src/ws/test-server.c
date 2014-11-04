@@ -82,6 +82,109 @@ on_bus_acquired (GDBusConnection *connection,
   g_dbus_connection_add_filter (connection, on_filter_func, NULL, NULL);
 }
 
+/* ---------------------------------------------------------------------------------------------------- */
+
+static gboolean
+mock_http_qs (CockpitWebResponse *response)
+{
+  const gchar *qs;
+  GBytes *bytes;
+
+  qs = cockpit_web_response_get_query (response);
+  if (!qs)
+    {
+      cockpit_web_response_error (response, 400, NULL, "No query string");
+    }
+  else
+    {
+      bytes = g_bytes_new (qs, strlen (qs));
+      cockpit_web_response_content (response, NULL, bytes, NULL);
+      g_bytes_unref (bytes);
+    }
+
+  return TRUE;
+}
+
+static gboolean
+on_timeout_send (gpointer data)
+{
+  CockpitWebResponse *response = data;
+  gint *at = g_object_get_data (data, "at");
+  gchar *string;
+  GBytes *bytes;
+
+  string = g_strdup_printf ("%d ", *at);
+  (*at) += 1;
+
+  bytes = g_bytes_new_take (string, strlen (string));
+  cockpit_web_response_queue (response, bytes);
+  g_bytes_unref (bytes);
+
+  if (*at == 10)
+    {
+      cockpit_web_response_complete (response);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+mock_http_stream (CockpitWebResponse *response)
+{
+  cockpit_web_response_headers (response, 200, "OK", -1, NULL);
+  g_object_set_data_full (G_OBJECT (response), "at", g_new0 (gint, 1), g_free);
+  g_timeout_add_full (G_PRIORITY_DEFAULT, 100, on_timeout_send,
+                      g_object_ref (response), g_object_unref);
+
+  return TRUE;
+}
+
+static gboolean
+mock_http_headers (CockpitWebResponse *response,
+                   GHashTable *in_headers)
+{
+  GHashTableIter iter;
+  GHashTable *headers;
+  gpointer name, value;
+
+  headers = cockpit_web_server_new_table();
+  g_hash_table_iter_init (&iter, in_headers);
+  while (g_hash_table_iter_next (&iter, &name, &value))
+    {
+      if (g_str_has_prefix (name, "Header"))
+        g_hash_table_insert (headers, g_strdup (name), g_strdup (value));
+    }
+  g_hash_table_replace (headers, g_strdup ("Header3"), g_strdup ("three"));
+  g_hash_table_replace (headers, g_strdup ("Header4"), g_strdup ("marmalade"));
+
+  cockpit_web_response_headers_full (response, 201, "Yoo Hoo", -1, headers);
+  cockpit_web_response_complete (response);
+
+  g_hash_table_unref (headers);
+
+  return TRUE;
+}
+
+static gboolean
+on_handle_mock (CockpitWebServer *server,
+                const gchar *path,
+                GHashTable *headers,
+                CockpitWebResponse *response,
+                gpointer data)
+{
+  g_assert (g_str_has_prefix (path, "/mock/"));
+  path += 5;
+
+  if (g_str_equal (path, "/qs"))
+    return mock_http_qs (response);
+  if (g_str_equal (path, "/stream"))
+    return mock_http_stream (response);
+  if (g_str_equal (path, "/headers"))
+    return mock_http_headers (response, headers);
+  else
+    return FALSE;
+}
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -187,6 +290,8 @@ server_ready (void)
   g_signal_connect (server,
                     "handle-resource::/pkg/",
                     G_CALLBACK (on_handle_resource), NULL);
+  g_signal_connect (server, "handle-resource::/mock/",
+                    G_CALLBACK (on_handle_mock), NULL);
 
   g_object_get (server, "port", &server_port, NULL);
   url = g_strdup_printf("http://localhost:%d", server_port);

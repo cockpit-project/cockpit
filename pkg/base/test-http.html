@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <title>HTTP Channel Tests</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="../../lib/jquery.v2.1.0.js"></script>
+    <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
+    <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
+    <script type="text/javascript" src="../../tools/qunit-config.js"></script>
+
+    <script type="text/javascript" src="../base/cockpit.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">HTTP Channel Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+  </body>
+<script type="text/javascript">
+
+/* Set this to a regexp to ignore that warning once */
+function console_ignore_warning(exp) {
+    var console_warn = console.warn;
+    console.warn = function() {
+        if (!exp.exec(arguments[0]))
+            console_warn.apply(console, arguments);
+        console.warn = console_warn;
+    }
+}
+
+test("public api", function() {
+    var client = cockpit.http("/test");
+    equal(typeof client, "object", "http is an object");
+    equal(typeof client.get, "function", "http.get() is a function");
+    equal(typeof client.post, "function", "http.post() is a function");
+});
+
+asyncTest("simple request", function() {
+    expect(2);
+
+    cockpit.http({ "internal": "test-server" }).get("/pkg/playground/manifest.json")
+        .done(function(data) {
+            deepEqual(JSON.parse(data), { version: 0 }, "returned right data");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
+asyncTest("with params", function() {
+    expect(2);
+
+    cockpit.http({ "internal": "test-server" })
+        .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
+        .done(function(resp) {
+            equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
+asyncTest("not found", function() {
+    expect(5);
+
+    cockpit.http({ "internal": "test-server" })
+        .get("/not/found")
+        .response(function(status, headers) {
+            equal(status, 404, "status code");
+        })
+        .fail(function(ex) {
+            strictEqual(ex.problem, null, "mapped to cockpit code");
+            strictEqual(ex.status, 404, "has status code");
+            equal(ex.message, "Not Found", "has reason");
+        })
+        .always(function() {
+            equal(this.state(), "rejected", "should fail");
+            start();
+        });
+});
+
+asyncTest("streaming", function() {
+    expect(2);
+
+    var at = 0;
+    var got = "";
+    cockpit.http({ "internal": "test-server" })
+        .get("/mock/stream")
+        .stream(function(resp) {
+            got += resp;
+            at++;
+        })
+        .always(function() {
+            var expected = "";
+            for (var i = 0; i < at; i++)
+                expected += String(i) + " ";
+            equal(got, expected, "stream got right data");
+            equal(this.state(), "resolved", "split response didn't fail");
+            start();
+        });
+});
+
+asyncTest("close", function() {
+    expect(4);
+
+    var req = cockpit.http({ "internal": "test-server" }).get("/mock/stream");
+
+    var at = 0;
+    req.stream(function(resp) {
+            at += 1;
+            equal(resp, "0 ", "first stream part");
+            req.close("bad-boy");
+        })
+        .fail(function(ex) {
+            equal(ex.problem, "bad-boy", "right problem");
+        })
+        .always(function() {
+            equal(at, 1, "stream got cancelled");
+            equal(this.state(), "rejected", "cancelling a response rejects it");
+            start();
+        });
+});
+
+asyncTest("headers", function() {
+    expect(3);
+
+    cockpit.http({ "internal": "test-server" })
+        .get("/mock/headers", null, { "Header1": "booo", "Header2": "yay" })
+        .response(function(status, headers) {
+            equal(status, 201, "status code");
+            deepEqual(headers, {
+                    "Header1": "booo",
+                    "Header2": "yay",
+                    "Header3": "three",
+                    "Header4": "marmalade"
+            }, "got back headers");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "split response didn't fail");
+            start();
+        });
+});
+
+test("http promise recursive", function() {
+    expect(7);
+
+    var promise = cockpit.http({ "internal": "test-server" }).get("/")
+
+    var target = { };
+    var promise2 = promise.promise(target);
+    strictEqual(promise2, target, "used target");
+    equal(typeof promise2.done, "function", "promise2.done()");
+    equal(typeof promise2.promise, "function", "promise2.promise()");
+    equal(typeof promise2.input, "function", "promise2.input()");
+
+    var promise3 = promise2.promise();
+    equal(typeof promise3.done, "function", "promise3.done()");
+    equal(typeof promise3.promise, "function", "promise3.promise()");
+    equal(typeof promise3.input, "function", "promise3.input()");
+});
+
+
+QUnit.start();
+</script>
+
+</html>

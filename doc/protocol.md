@@ -519,13 +519,35 @@ arguments. These types are encoded as follows:
        "t": "s"
    }
 
-Payload: rest-json1
--------------------
+Payload: http-stream1
+---------------------
 
-REST as application/json requests and responses.
+This channel replesents a single HTTP request and response. The first payload
+message in each direction are the HTTP headers. The remaining messages make up
+the HTTP request and response bodies. When the channel is in text mode, the
+response body is automatically coerced to UTF-8.
 
-What normally would be an HTTP request is encoded in a JSON wrapper. See
-cockpitrestjson.c or rest.js.
+The following HTTP methods are not permitted:
+
+ * 'CONNECT'
+
+The following headers are not permitted on requests, some of these
+are added automatically as appropriate, and others are stripped from
+the response, in particular 'Content-Length':
+
+ * 'Accept-Charset'
+ * 'Accept-Encoding'
+ * 'Accept-Ranges'
+ * 'Connection'
+ * 'Content-Encoding'
+ * 'Content-Length'
+ * 'Content-MD5'
+ * 'Content-Range'
+ * 'Range'
+ * 'TE'
+ * 'Trailer'
+ * 'Transfer-Encoding'
+ * 'Upgrade'
 
 Additional "open" command options are needed to open a channel of this
 payload type:
@@ -533,46 +555,8 @@ payload type:
  * "unix": Open a channel with the given unix socket.
  * "port": Open a channel with the given TCP port on localhost.
 
-Requests are encoded as JSON objects. These objects have the following
-fields:
-
- * "cookie": A unique integer which identifies this request. It will
-   be included in the response. Defaults to zero. If a cookie is
-   reused, then a previous request with that cookie will be cancelled.
-   See below for more information about cancelling of requests.
- * "method": The HTTP method. If omitted, the request does nothing
-   (and no responses will be sent) except maybe cancelling a previous
-   request with the same cookie.
- * "path": The HTTP path or resource. Required if "method" is given.
- * "body": JSON to be sent as the body of the HTTP request. It will
-   be sent with the Content-Type application/json.
- * "poll": An optional JSON object which turns this request into
-   a JSON poll. Currently it has an "interval" field, which is an
-   integer of how often in milliseconds to poll. It also has a "watch"
-   field with contains a cookie value of another (usually streaming)
-   request to watch, when the other request changes, polls again.
-
-Responses are encoded as JSON objects. These objects have the following
-fields:
-
- * "cookie": The cookie number of the request.
- * "status": The HTTP status number.
- * "message" HTTP status message.
- * "complete": true when this is the last response for the request.
-   If not present, or set to false, then more responses will follow
-   at some point.
- * "body": JSON returned as the body of the response. If this is
-   missing then no JSON was returned.
-
-If the HTTP response body contains multiple JSON results, then these will
-be returned as separate response messages.
-
-To cancel a previous request, send a new request with the same
-"cookie" value but without a "method" field.  The connection to the
-unix socket or port on localhost that was used for the previous
-request will be closed.  A cancelled request will not receive any
-further responses, not even one to indicate that it has been
-cancelled.
+Any data to be sent should be sent via the channel, and then the channel
+should be closed without a problem.
 
 Payload: stream
 ---------------

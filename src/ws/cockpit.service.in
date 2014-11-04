@@ -1,7 +1,6 @@
 [Unit]
 Description=Cockpit Web Server
 Documentation=man:cockpit-ws(8)
-Requires=cockpit.socket
 
 [Service]
 ExecStartPre=@sbindir@/remotectl certificate --ensure --user=root --group=@group@

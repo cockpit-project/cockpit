@@ -1,0 +1,64 @@
+#!/bin/bash
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+# make-srpm  --  Create a srpm out of a Git repository.
+#
+# Usage: make-srpm SPEC [COMMIT]
+#
+# SPEC is the spec file template and must be provided.
+# COMMIT is the Git commit to use.  When omitted, the current working
+# tree is used.
+
+set -eu
+
+if [ $# != 0 ]; then
+	echo "usage: make-srpm" >&2
+    exit 2
+fi
+
+base=$(cd $(dirname $0); pwd -P)
+rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
+
+# First make a .tar.gz with all the files tracked by Git
+(
+    cd $base/..
+    git archive HEAD --prefix cockpit-wip/ --output $rpm_tmpdir/cockpit-wip.tar.gz
+    cp test/cockpit.pam $rpm_tmpdir
+)
+
+(
+    cd ${rpm_tmpdir}
+    rpmbuild -bs \
+        --quiet \
+        --define "_sourcedir `pwd`" \
+        --define "_specdir `pwd`" \
+        --define "_builddir `pwd`" \
+        --define "_srcrpmdir `pwd`" \
+        --define "_rpmdir `pwd`" \
+        --define "_buildrootdir `pwd`/.build" \
+        --define "optflags -ggdb3 -O0" \
+        --define "gitcommit wip" \
+        $base/cockpit.spec
+)
+
+for f in "${rpm_tmpdir}"/*.src.rpm; do
+    echo $(basename $f)
+    mv "$f" .
+done
+
+rm -rf "${rpm_tmpdir}"

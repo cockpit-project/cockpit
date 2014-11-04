@@ -29,7 +29,7 @@ unset TEST_DATA
 # Test them.
 
 ./vm-reset
-./vm-install -f cockpit $(./make-rpms)
+./vm-install -f cockpit $(../tools/make-rpms)
 ./check-verify
 
 echo "New images are available in ./images"

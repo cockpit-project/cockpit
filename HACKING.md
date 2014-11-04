@@ -16,11 +16,10 @@ disks or network adapters.
 Currently the x86_64 architectures of Fedora 20 and Rawhide are most
 often used for development.
 
-Check `test/cockpit.spec.in` for the concrete build dependencies.  The following
-should work in a fresh Git clone:
+Check `tools/cockpit.spec` for the concrete Fedora build dependencies.
+The following should work in a fresh Git clone:
 
-    $ cd ./test
-    $ srpm=$(./make-srpm)
+    $ srpm=$(tools/make-srpm)
     $ sudo yum-builddep $srpm
 
 In addition for testing the following dependencies are required:

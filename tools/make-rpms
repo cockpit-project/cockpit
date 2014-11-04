@@ -16,14 +16,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-set -e
+set -eu
 
-SELF="make-rpms"
-. ./testlib.sh
+base=$(cd $(dirname $0); pwd -P)
+
+# For the TEST_OS defines
+. $base/../test/testlib.sh
 
 usage()
 {
-	echo >&2 "usage: $SELF"
+	echo "usage: make-rpms [--clean] [--verbose]"
 }
 
 mock_opts=""
@@ -33,9 +35,9 @@ eval set -- "$args"
 while [ $# -gt 0 ]; do
 	case $1 in
 	--clean)
-                # We always use --no-cleanup-after because a
-                # --no-clean build can not start with a chroot that
-                # has been cleaned previously.
+        # We always use --no-cleanup-after because a
+        # --no-clean build can not start with a chroot that
+        # has been cleaned previously.
 		mock_clean_opts="--no-cleanup-after"
 		;;
 	-v|--verbose)
@@ -63,14 +65,10 @@ if test $(id -u) = 0; then
     exit 1
 fi
 
-make_srpm=$(dirname "$0")/make-srpm
-if [ ! -x "$make_srpm" ]; then
-  make_srpm=make-srpm
-fi
+make_srpm=$base/make-srpm
 
-os=$TEST_OS
-arch=$TEST_ARCH
-EXTRA_FLAGS=${EXTRA_FLAGS:-}
+os=${TEST_OS:-}
+arch=${TEST_ARCH:-}
 
 srpm=$("$make_srpm" "$@")
 rm -rf mock
@@ -93,7 +91,7 @@ touch -r /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
 
 if LANG=C /usr/bin/mock $mock_opts $mock_clean_opts --configdir=mock/ \
 	--resultdir mock -r $os-$arch-cockpit $srpm \
-	--define="extra_flags $EXTRA_FLAGS"; then
+    --define="gitcommit wip"; then
     grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" mock/build.log | while read l; do
         p=$(basename "$l") # knocks off the "Wrote:" part as well...
         echo $p

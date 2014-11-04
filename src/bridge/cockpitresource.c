@@ -67,7 +67,11 @@ on_idle_send_block (gpointer data)
     }
   else
     {
-      cockpit_channel_send (channel, payload, FALSE);
+      /*
+       * TODO: These should be binary channels, change to FALSE
+       * when binary stuff is merged
+       */
+      cockpit_channel_send (channel, payload, TRUE);
       g_bytes_unref (payload);
       return TRUE;
     }

@@ -25,6 +25,8 @@
 #include "cockpitlog.h"
 
 #include <systemd/sd-journal.h>
+#include <syslog.h>
+#include <string.h>
 
 #include <errno.h>
 #include <unistd.h>

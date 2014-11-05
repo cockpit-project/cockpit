@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include "cockpitauth.h"
+
+#include "cockpitsshtransport.h"
 #include "cockpitwebserver.h"
 #include "cockpitws.h"
 
@@ -577,6 +579,166 @@ cockpit_auth_session_login_finish (CockpitAuth *self,
   return creds;
 }
 
+
+/* ------------------------------------------------------------------------
+ * Remote login without cockpit-session by using ssh even locally
+ */
+
+typedef struct {
+  CockpitCreds *creds;
+  CockpitTransport *transport;
+} RemoteLoginData;
+
+static void
+remote_login_data_free (gpointer data)
+{
+  RemoteLoginData *rl = data;
+  if (rl->creds)
+    cockpit_creds_unref (rl->creds);
+  if (rl->transport)
+    g_object_unref (rl->transport);
+  g_free (rl);
+}
+
+static void
+on_remote_login_done (CockpitSshTransport *transport,
+                      const gchar *problem,
+                      gpointer user_data)
+{
+  CockpitAuth *self = COCKPIT_AUTH (g_async_result_get_source_object (user_data));
+  GSimpleAsyncResult *task = user_data;
+
+  if (problem)
+    {
+      if (g_str_equal (problem, "not-authorized"))
+        {
+          g_simple_async_result_set_error (task, COCKPIT_ERROR,
+                                           COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                           "Authentication failed");
+        }
+      else
+        {
+          g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                                           "Couldn't connect or authenticate: %s", problem);
+        }
+    }
+
+  g_simple_async_result_complete (task);
+  g_object_unref (self);
+  g_object_unref (task);
+}
+
+static void
+cockpit_auth_remote_login_async (CockpitAuth *self,
+                                 GHashTable *headers,
+                                 const gchar *remote_peer,
+                                 GAsyncReadyCallback callback,
+                                 gpointer user_data)
+{
+  GSimpleAsyncResult *task;
+  CockpitCreds *creds = NULL;
+  RemoteLoginData *rl;
+  const gchar *password;
+  GBytes *input;
+  gchar *type = NULL;
+  gchar *user = NULL;
+
+  task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
+                                    cockpit_auth_remote_login_async);
+
+  input = cockpit_auth_parse_authorization (headers, &type);
+
+  if (type && input && g_str_equal (type, "basic"))
+    {
+      password = parse_basic_auth_password (input, &user);
+      if (password && user)
+        {
+          creds = cockpit_creds_new (user,
+                                     COCKPIT_CRED_PASSWORD, password,
+                                     COCKPIT_CRED_RHOST, remote_peer,
+                                     NULL);
+        }
+      g_free (user);
+    }
+
+  if (creds)
+    {
+      rl = g_new0 (RemoteLoginData, 1);
+      rl->creds = creds;
+      rl->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
+                                    "host", "127.0.0.1",
+                                    "port", cockpit_ws_specific_ssh_port,
+                                    "command", cockpit_ws_bridge_program,
+                                    "creds", creds,
+                                    "ignore-key", TRUE,
+                                    NULL);
+
+      g_simple_async_result_set_op_res_gpointer (task, rl, remote_login_data_free);
+      g_signal_connect (rl->transport, "result", G_CALLBACK (on_remote_login_done), g_object_ref (task));
+    }
+  else
+    {
+      g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                       "Basic authentication required");
+      g_simple_async_result_complete_in_idle (task);
+    }
+
+  g_free (type);
+  g_object_unref (task);
+}
+
+static CockpitCreds *
+cockpit_auth_remote_login_finish (CockpitAuth *self,
+                                  GAsyncResult *result,
+                                  GHashTable *headers,
+                                  CockpitTransport **transport,
+                                  GError **error)
+{
+  RemoteLoginData *rl;
+
+  g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
+                        cockpit_auth_remote_login_async), NULL);
+
+  if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
+    return NULL;
+
+  rl = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+
+  if (transport)
+    *transport = g_object_ref (rl->transport);
+
+  return cockpit_creds_ref (rl->creds);
+}
+
+
+/* ---------------------------------------------------------------------- */
+
+static void
+cockpit_auth_choose_login_async (CockpitAuth *self,
+                                 GHashTable *headers,
+                                 const gchar *remote_peer,
+                                 GAsyncReadyCallback callback,
+                                 gpointer user_data)
+{
+  if (self->login_loopback)
+    cockpit_auth_remote_login_async (self, headers, remote_peer, callback, user_data);
+  else
+    cockpit_auth_session_login_async (self, headers, remote_peer, callback, user_data);
+}
+
+static CockpitCreds *
+cockpit_auth_choose_login_finish (CockpitAuth *self,
+                                  GAsyncResult *result,
+                                  GHashTable *headers,
+                                  CockpitTransport **transport,
+                                  GError **error)
+{
+  if (self->login_loopback)
+    return cockpit_auth_remote_login_finish (self, result, headers, transport, error);
+  else
+    return cockpit_auth_session_login_finish (self, result, headers, transport, error);
+}
+
 static void
 cockpit_auth_class_init (CockpitAuthClass *klass)
 {
@@ -584,8 +746,8 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
 
   gobject_class->finalize = cockpit_auth_finalize;
 
-  klass->login_async = cockpit_auth_session_login_async;
-  klass->login_finish = cockpit_auth_session_login_finish;
+  klass->login_async = cockpit_auth_choose_login_async;
+  klass->login_finish = cockpit_auth_choose_login_finish;
 }
 
 static char *
@@ -776,7 +938,9 @@ cockpit_auth_login_finish (CockpitAuth *self,
 }
 
 CockpitAuth *
-cockpit_auth_new (void)
+cockpit_auth_new (gboolean login_loopback)
 {
-  return (CockpitAuth *)g_object_new (COCKPIT_TYPE_AUTH, NULL);
+  CockpitAuth *self = g_object_new (COCKPIT_TYPE_AUTH, NULL);
+  self->login_loopback = login_loopback;
+  return self;
 }

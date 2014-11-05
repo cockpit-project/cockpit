@@ -42,7 +42,7 @@
       <arg><option>--help</option></arg>
       <arg><option>--port</option> <replaceable>PORT</replaceable></arg>
       <arg><option>--no-tls</option></arg>
-      <arg><option>--no-auth</option></arg>
+      <arg><option>--local-ssh</option></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -98,6 +98,17 @@
         <listitem>
           <para>
             Show help options.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--local-ssh</option></term>
+        <listitem>
+          <para>
+            Normally <command>cockpit-ws</command> uses
+            <command>cockpit-session</command> and PAM to authenticate the user and start a
+            user session. With this option enabled, it will instead authenticate via SSH at
+            <literal>127.0.0.1</literal> port <literal>22</literal>.
           </para>
         </listitem>
       </varlistentry>

@@ -18,13 +18,13 @@ CLEANFILES += cockpit-generated*
 lvm_dbus_built_sources = com.redhat.lvm2.h com.redhat.lvm2.c
 
 com.redhat.lvm2.h : com.redhat.lvm2.c
-com.redhat.lvm2.c : Makefile.am $(LVM2_INTERFACE)
+com.redhat.lvm2.c : Makefile.am src/daemon/com.redhat.lvm2.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN)  \
 		--interface-prefix com.redhat.lvm2 	\
 		--c-namespace Lvm 			\
 		--c-generate-object-manager 		\
 		--generate-c-code com.redhat.lvm2 	\
-		$(LVM2_INTERFACE) \
+		$(srcdir)/src/daemon/com.redhat.lvm2.xml \
 		$(NULL)
 
 BUILT_SOURCES += $(lvm_dbus_built_sources)
@@ -123,6 +123,7 @@ com.redhat.Cockpit.service: src/daemon/com.redhat.Cockpit.service.in Makefile.am
 EXTRA_DIST += \
 	src/daemon/com.redhat.Cockpit.xml \
 	src/daemon/com.redhat.Cockpit.service.in \
+	src/daemon/com.redhat.lvm2.xml \
 	$(NULL)
 
 CLEANFILES += \

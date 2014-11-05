@@ -37,7 +37,6 @@ BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pkgconfig(accountsservice) >= 0.6.35
 BuildRequires: pam-devel
-BuildRequires: storaged >= 0.3.1
 
 BuildRequires: autoconf automake
 BuildRequires: intltool

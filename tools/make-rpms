@@ -18,10 +18,10 @@
 
 set -eu
 
-base=$(cd $(dirname $0); pwd -P)
+base=$(cd $(dirname $0)/../; pwd -P)
 
 # For the TEST_OS defines
-. $base/../test/testlib.sh
+. $base/test/testlib.sh
 
 usage()
 {
@@ -65,20 +65,20 @@ if test $(id -u) = 0; then
     exit 1
 fi
 
-make_srpm=$base/make-srpm
+make_srpm=$base/tools/make-srpm
 
 os=${TEST_OS:-}
 arch=${TEST_ARCH:-}
 
 srpm=$("$make_srpm" "$@")
-rm -rf mock
+rm -rf $base/mock/*
 
 # Create our custom config
-mkdir mock
-cp --preserve=timestamps /etc/mock/site-defaults.cfg mock/
-cp --preserve=timestamps /etc/mock/logging.ini mock/
-cp --preserve=timestamps /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
-cat >>mock/$os-$arch-cockpit.cfg <<EOF
+mkdir -p $base/mock
+cp --preserve=timestamps /etc/mock/site-defaults.cfg $base/mock/
+cp --preserve=timestamps /etc/mock/logging.ini $base/mock/
+cp --preserve=timestamps /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
+cat >>$base/mock/$os-$arch-cockpit.cfg <<EOF
 config_opts['root'] = "$os-$arch-cockpit"
 config_opts['yum.conf'] += """
 [updates-testing]
@@ -86,16 +86,16 @@ enabled=1
 """
 EOF
 # HACK: Signatures seem to be unreliable in Fedora 21 right now
-sed -i -e 's/gpgcheck=1/gpgcheck=0/' mock/$os-$arch-cockpit.cfg
-touch -r /etc/mock/$os-$arch.cfg mock/$os-$arch-cockpit.cfg
+sed -i -e 's/gpgcheck=1/gpgcheck=0/' $base/mock/$os-$arch-cockpit.cfg
+touch -r /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
 
-if LANG=C /usr/bin/mock $mock_opts $mock_clean_opts --configdir=mock/ \
-	--resultdir mock -r $os-$arch-cockpit $srpm \
+if LANG=C /usr/bin/mock $mock_opts $mock_clean_opts --configdir=$base/mock/ \
+	--resultdir $base/mock -r $os-$arch-cockpit $srpm \
     --define="gitcommit wip"; then
-    grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" mock/build.log | while read l; do
+    grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" $base/mock/build.log | while read l; do
         p=$(basename "$l") # knocks off the "Wrote:" part as well...
         echo $p
-        mv mock/$p .
+        mv $base/mock/$p .
     done
     exit 0
 else

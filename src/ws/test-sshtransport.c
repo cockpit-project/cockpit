@@ -59,6 +59,7 @@ typedef struct {
     const char *known_hosts;
     const char *client_password;
     const char *expect_key;
+    gboolean ignore_key;
     int ssh_log_level;
 } TestFixture;
 
@@ -149,6 +150,7 @@ setup_transport (TestCase *tc,
   const gchar *known_hosts;
   const gchar *command;
   gchar *expect_knownhosts = NULL;
+  gboolean ignore_key = FALSE;
 
   tc->old_log_level = ssh_get_log_level ();
   if (fixture->ssh_log_level)
@@ -176,6 +178,9 @@ setup_transport (TestCase *tc,
   if (fixture->expect_key)
     expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
 
+  if (fixture)
+    ignore_key = fixture->ignore_key;
+
   tc->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", "127.0.0.1",
 #if WITH_MOCK
@@ -187,6 +192,7 @@ setup_transport (TestCase *tc,
                                 "known-hosts", known_hosts,
                                 "creds", creds,
                                 "host-key", expect_knownhosts,
+                                "ignore-key", ignore_key,
                                 NULL);
 
   cockpit_creds_unref (creds);
@@ -483,6 +489,32 @@ test_unknown_hostkey (TestCase *tc,
   g_free (problem);
 }
 
+static const TestFixture fixture_ignore_hostkey = {
+  .known_hosts = "/dev/null",
+  .ignore_key = TRUE
+};
+
+static void
+test_ignore_hostkey (TestCase *tc,
+                      gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  gchar *problem = NULL;
+
+  /* This test should validate in spite of not having known_hosts */
+  g_assert (fixture->ignore_key == TRUE);
+
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  cockpit_transport_close (tc->transport, NULL);
+
+  while (!problem)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpstr (problem, ==, "");
+
+  g_free (problem);
+}
+
 static const gchar MOCK_RSA_KEY[] = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v";
 
 static const gchar MOCK_RSA_FP[] = "0e:6a:c8:b1:07:72:e2:04:95:9f:0e:b3:56:af:48:e2";
@@ -704,6 +736,8 @@ main (int argc,
 
   g_test_add ("/ssh-transport/unknown-hostkey", TestCase, &fixture_unknown_hostkey,
               setup_transport, test_unknown_hostkey, teardown);
+  g_test_add ("/ssh-transport/ignore-hostkey", TestCase, &fixture_ignore_hostkey,
+              setup_transport, test_ignore_hostkey, teardown);
   g_test_add ("/ssh-transport/get-host-key", TestCase, &fixture_cat,
               setup_transport, test_get_host_key, teardown);
   g_test_add ("/ssh-transport/expect-host-key", TestCase, &fixture_expect_host_key,

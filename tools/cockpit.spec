@@ -47,7 +47,6 @@ BuildRequires: libssh-devel >= 0.6.0
 BuildRequires: openssl-devel
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel
-BuildRequires: libgsystem-devel
 BuildRequires: libxslt-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: keyutils-libs-devel

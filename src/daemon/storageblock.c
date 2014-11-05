@@ -28,7 +28,7 @@
 #include "storageobject.h"
 #include "storageblock.h"
 
-#include <gsystem-local-alloc.h>
+#include "common/cockpitmemory.h"
 
 /**
  * SECTION:storageblock
@@ -169,7 +169,7 @@ storage_block_update (StorageBlock *block)
     }
 
   {
-    gs_free gchar *d =
+    cleanup_free gchar *d =
       g_filename_display_name (udisks_block_get_preferred_device (udisks_block));
     cockpit_storage_block_set_device (iface, d);
     cockpit_storage_block_set_device_number (iface, udisks_block_get_device_number (udisks_block));
@@ -295,9 +295,9 @@ storage_block_update (StorageBlock *block)
   GVariant *details;
   gboolean got_fstab = FALSE, got_crypttab = FALSE;
 
-  gs_free gchar *mount_point = NULL;
-  gs_free gchar *mount_opts = NULL;
-  gs_free gchar *crypt_opts = NULL;
+  cleanup_free gchar *mount_point = NULL;
+  cleanup_free gchar *mount_opts = NULL;
+  cleanup_free gchar *crypt_opts = NULL;
 
   while (g_variant_iter_next (&iter, "(&s*)", &type, &details))
     {
@@ -482,7 +482,7 @@ create_partition (StorageBlock *block,
       return NULL;
     }
 
-  gs_free gchar *part_object_path = NULL;
+  cleanup_free gchar *part_object_path = NULL;
 
   if (!udisks_partition_table_call_create_partition_sync (table,
                                                           offset,
@@ -499,7 +499,7 @@ create_partition (StorageBlock *block,
   UDisksClient *client = storage_provider_get_udisks_client (provider);
   udisks_client_settle (client);
 
-  gs_unref_object UDisksObject *partition_object =
+  cleanup_unref_object UDisksObject *partition_object =
       udisks_client_get_object (client, part_object_path);
   UDisksBlock *partition_block = udisks_object_peek_block (partition_object);
   if (partition_block == NULL)
@@ -520,7 +520,7 @@ set_fstab_config (UDisksBlock *block,
 {
   if (mount_point && *mount_point)
     {
-      gs_unref_object UDisksClient *client = udisks_client_new_sync (NULL, error);
+      cleanup_unref_object UDisksClient *client = udisks_client_new_sync (NULL, error);
       if (client == NULL)
         return FALSE;
 
@@ -531,7 +531,7 @@ set_fstab_config (UDisksBlock *block,
       GVariantBuilder item;
       g_variant_builder_init (&item, G_VARIANT_TYPE("a{sv}"));
 
-      gs_free gchar *fsname = NULL;
+      cleanup_free gchar *fsname = NULL;
       const gchar *uuid = udisks_block_get_id_uuid (block);
       if (uuid && *uuid)
         fsname = g_strdup_printf ("UUID=%s", uuid);
@@ -542,14 +542,14 @@ set_fstab_config (UDisksBlock *block,
         }
       g_variant_builder_add (&item, "{sv}", "fsname", g_variant_new_bytestring (fsname));
 
-      gs_free gchar *dir = g_filename_from_utf8 (mount_point, -1, NULL, NULL, error);
+      cleanup_free gchar *dir = g_filename_from_utf8 (mount_point, -1, NULL, NULL, error);
       if (dir == NULL)
         return FALSE;
       g_variant_builder_add (&item, "{sv}", "dir", g_variant_new_bytestring (dir));
 
       if (mount_options && *mount_options)
         {
-          gs_free gchar *opts = g_locale_from_utf8 (mount_options, -1, NULL, NULL, error);
+          cleanup_free gchar *opts = g_locale_from_utf8 (mount_options, -1, NULL, NULL, error);
           if (opts == NULL)
             return FALSE;
           g_variant_builder_add (&item, "{sv}", "opts", g_variant_new_bytestring (opts));
@@ -587,7 +587,7 @@ set_crypto_config (UDisksBlock *block,
   g_variant_builder_init (&item, G_VARIANT_TYPE("a{sv}"));
 
   const gchar *uuid = udisks_block_get_id_uuid (block);
-  gs_free gchar *name = NULL;
+  cleanup_free gchar *name = NULL;
   if (uuid && *uuid)
     name = g_strdup_printf ("luks-%s", uuid);
   else
@@ -597,7 +597,7 @@ set_crypto_config (UDisksBlock *block,
     }
   g_variant_builder_add (&item, "{sv}", "name", g_variant_new_bytestring (name));
 
-  gs_free gchar *device = NULL;
+  cleanup_free gchar *device = NULL;
   if (uuid && *uuid)
     device = g_strdup_printf ("UUID=%s", uuid);
   else
@@ -607,14 +607,14 @@ set_crypto_config (UDisksBlock *block,
     }
   g_variant_builder_add (&item, "{sv}", "device", g_variant_new_bytestring (device));
 
-  gs_free gchar *opts = g_locale_from_utf8 (crypto_options, -1, NULL, NULL, error);
+  cleanup_free gchar *opts = g_locale_from_utf8 (crypto_options, -1, NULL, NULL, error);
   if (opts == NULL)
     return FALSE;
   g_variant_builder_add (&item, "{sv}", "options", g_variant_new_bytestring (opts));
 
   if (crypto_passphrase && *crypto_passphrase)
     {
-      gs_free gchar *path = g_strdup_printf ("/etc/luks-keys/%s", name);
+      cleanup_free gchar *path = g_strdup_printf ("/etc/luks-keys/%s", name);
       g_variant_builder_add (&item, "{sv}", "passphrase-path",
                              g_variant_new_bytestring (path));
       g_variant_builder_add (&item, "{sv}", "passphrase-contents",
@@ -1278,7 +1278,7 @@ handle_get_crypto_passphrase (CockpitStorageBlock *object,
           const gchar *phrase = variant_lookup (details, "passphrase-contents");
           if (phrase)
             {
-              gs_free gchar *phrase_locale = g_locale_to_utf8 (phrase, -1, NULL, NULL, NULL);
+              cleanup_free gchar *phrase_locale = g_locale_to_utf8 (phrase, -1, NULL, NULL, NULL);
               if (phrase_locale)
                 cockpit_storage_block_complete_get_crypto_passphrase (object, invocation,
                                                                       phrase_locale);

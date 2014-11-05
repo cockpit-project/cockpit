@@ -22,14 +22,14 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <gsystem-local-alloc.h>
-
 #include "utils.h"
 #include "daemon.h"
 #include "storagemanager.h"
 #include "storageprovider.h"
 #include "storageobject.h"
 #include "lvmutil.h"
+
+#include "common/cockpitmemory.h"
 
 typedef struct _StorageManagerClass StorageManagerClass;
 
@@ -360,7 +360,7 @@ storage_remove_config (StorageProvider *provider,
   GVariantIter iter;
   GVariant *item;
   GError *error = NULL;
-  gs_unref_object UDisksBlock *block_to_use = NULL;
+  cleanup_unref_object UDisksBlock *block_to_use = NULL;
 
   if (block == NULL)
     {
@@ -401,7 +401,7 @@ storage_remove_config (StorageProvider *provider,
                                                              NULL,
                                                              &error))
         {
-          gs_free gchar *config_text = g_variant_print (config, FALSE);
+          cleanup_free gchar *config_text = g_variant_print (config, FALSE);
           g_warning ("Can't remove storage configuration '%s': %s",
                      config_text, error->message);
           g_clear_error (&error);
@@ -529,7 +529,7 @@ walk_block (UDisksClient *client,
         }
     }
 
-  gs_unref_object UDisksBlock *cleartext = udisks_client_get_cleartext_block (client, block);
+  cleanup_unref_object UDisksBlock *cleartext = udisks_client_get_cleartext_block (client, block);
   if (cleartext)
     {
       is_leaf = FALSE;
@@ -905,7 +905,7 @@ walk_block_parents (UDisksClient *client,
 
       if (g_strcmp0 (logical_volume_path, "/") != 0)
         {
-          gs_unref_object LvmObject *logical_volume_object =
+          cleanup_unref_object LvmObject *logical_volume_object =
             LVM_OBJECT (g_dbus_object_manager_get_object (objman, logical_volume_path));
 
           if (logical_volume_object)

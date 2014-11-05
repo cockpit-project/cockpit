@@ -38,8 +38,6 @@
 
 #include "websocket/websocket.h"
 
-#include <gsystem-local-alloc.h>
-
 guint cockpit_ws_request_timeout = 30;
 gsize cockpit_ws_request_maximum = 4096;
 
@@ -534,8 +532,8 @@ parse_cookie_pair (const gchar *header_value,
   gboolean ret = FALSE;
   const gchar *equals;
   const gchar *cookie_raw;
-  gs_free gchar *ret_cookie_name = NULL;
-  gs_free gchar *ret_cookie_value = NULL;
+  gchar *ret_cookie_name = NULL;
+  gchar *ret_cookie_value = NULL;
 
   equals = strchr (header_value, '=');
   if (!equals)
@@ -558,6 +556,8 @@ parse_cookie_pair (const gchar *header_value,
   *out_cookie_value = ret_cookie_value;
   ret_cookie_value = NULL;
 out:
+  g_free (ret_cookie_name);
+  g_free (ret_cookie_value);
   return ret;
 }
 
@@ -576,7 +576,7 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
   GHashTableIter hash_iter;
   const gchar *key;
   const gchar *value;
-  gs_unref_hashtable GHashTable *ret_cookies = NULL;
+  GHashTable *ret_cookies = NULL;
 
   ret_cookies = cockpit_web_server_new_table ();
 
@@ -585,7 +585,7 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
     {
       if (g_ascii_strcasecmp (key, "Cookie") == 0)
         {
-          gs_strfreev gchar** elements = NULL;
+          gchar** elements = NULL;
           guint n;
           elements = g_strsplit (value, ";", 0);
           for (n = 0; elements[n] != NULL; n++)
@@ -594,10 +594,14 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
               gchar *cookie_value;
               g_strstrip(elements[n]);
               if (!parse_cookie_pair (elements[n], &cookie_name, &cookie_value, error))
-		goto out;
+                {
+                  g_strfreev (elements);
+                  goto out;
+                }
               /* adopt strings */
               g_hash_table_replace (ret_cookies, cookie_name, cookie_value);
             }
+          g_strfreev (elements);
         }
     }
 
@@ -605,6 +609,8 @@ cockpit_web_server_parse_cookies (GHashTable *headers,
   *out_cookies = ret_cookies;
   ret_cookies = NULL;
 out:
+  if (ret_cookies)
+    g_hash_table_unref (ret_cookies);
   return ret;
 }
 
@@ -1133,7 +1139,7 @@ cockpit_web_server_initable_init (GInitable *initable,
 
       for (fd = SD_LISTEN_FDS_START; fd < SD_LISTEN_FDS_START + n; fd++)
         {
-          gs_unref_object GSocket *s = NULL;
+          GSocket *s = NULL;
           gboolean b;
 
           s = g_socket_new_from_fd (fd, error);
@@ -1147,6 +1153,9 @@ cockpit_web_server_initable_init (GInitable *initable,
                                             s,
                                             NULL,
                                             error);
+
+          g_object_unref (s);
+
           if (!b)
             {
               g_prefix_error (error, "Failed to add listener for socket %i: ", fd);

@@ -26,13 +26,13 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
-#include <gsystem-local-alloc.h>
-
 #include <gudev/gudev.h>
 
 #include "daemon.h"
 #include "manager.h"
 #include "utils.h"
+
+#include "common/cockpitmemory.h"
 
 /**
  * SECTION:manager
@@ -182,14 +182,14 @@ on_systemd_shutdown_scheduled_changed (GFileMonitor *monitor,
 static void
 reread_os_release (Manager *manager)
 {
-  gs_unref_object GFile *etc_os_release = g_file_new_for_path ("/etc/os-release");
-  gs_free char *contents = NULL;
+  cleanup_unref_object GFile *etc_os_release = g_file_new_for_path ("/etc/os-release");
+  cleanup_free char *contents = NULL;
   const char *operating_system_value = NULL;
   char **lines = NULL;
   char **iter = NULL;
   gsize len;
   GError *local_error = NULL;
-  gs_unref_hashtable GHashTable *os_release_keys =
+  cleanup_unref_hashtable GHashTable *os_release_keys =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
   if (!g_file_load_contents (etc_os_release, NULL, &contents, &len, NULL, &local_error))
@@ -299,7 +299,7 @@ manager_constructed (GObject *object)
 {
   Manager *manager = MANAGER (object);
   GError *error = NULL;
-  gs_unref_object GFile *etc_os_release = g_file_new_for_path ("/etc/os-release");
+  cleanup_unref_object GFile *etc_os_release = g_file_new_for_path ("/etc/os-release");
 
   manager->etc_os_release_monitor = g_file_monitor (etc_os_release, G_FILE_MONITOR_NONE, NULL, &error);
   if (!manager->etc_os_release_monitor)
@@ -329,7 +329,7 @@ manager_constructed (GObject *object)
   update_dmi (manager);
 
   error = NULL;
-  gs_unref_object GFile *f = g_file_new_for_path ("/run/systemd/shutdown/scheduled");
+  cleanup_unref_object GFile *f = g_file_new_for_path ("/run/systemd/shutdown/scheduled");
   manager->systemd_shutdown_schedule_monitor = g_file_monitor_file (f, 0, NULL, &error);
   if (error)
     {
@@ -584,9 +584,9 @@ get_avatar_data_url (void)
 {
   const gchar *file = PACKAGE_SYSCONF_DIR "/cockpit/avatar.png";
 
-  gs_free gchar *raw_data = NULL;
+  cleanup_free gchar *raw_data = NULL;
   gsize raw_size;
-  gs_free gchar *base64_data = NULL;
+  cleanup_free gchar *base64_data = NULL;
 
   if (!g_file_get_contents (file, &raw_data, &raw_size, NULL))
     return NULL;
@@ -599,7 +599,7 @@ static gboolean
 handle_get_avatar_data_url (CockpitManager *_manager,
                             GDBusMethodInvocation *invocation)
 {
-  gs_free gchar *data = get_avatar_data_url ();
+  cleanup_free gchar *data = get_avatar_data_url ();
   cockpit_manager_complete_get_avatar_data_url (_manager, invocation, data? data : "");
   return TRUE;
 }
@@ -611,7 +611,7 @@ handle_set_avatar_data_url (CockpitManager *object,
 {
   GError *error = NULL;
   gsize raw_size;
-  gs_free gchar *raw_data = NULL;
+  cleanup_free gchar *raw_data = NULL;
 
   const gchar *base64_data = strstr (arg_data, "base64,");
   if (base64_data == NULL)
@@ -717,7 +717,7 @@ on_systemd_shutdown_scheduled_changed (GFileMonitor *monitor,
 {
   Manager *manager = user_data;
   GError *error = NULL;
-  gs_free char *scheduled_contents = NULL;
+  cleanup_free char *scheduled_contents = NULL;
 
   if (!g_file_load_contents (file, NULL,
                              &scheduled_contents, NULL,

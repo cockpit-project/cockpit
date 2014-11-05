@@ -28,7 +28,7 @@
 #include "storageblock.h"
 #include "storagelogicalvolume.h"
 
-#include <gsystem-local-alloc.h>
+#include "common/cockpitmemory.h"
 
 /**
  * SECTION:storagelogicalvolume
@@ -290,7 +290,7 @@ handle_rename (CockpitStorageLogicalVolume *object,
 {
   StorageLogicalVolume *volume = STORAGE_LOGICAL_VOLUME(object);
   GError *error = NULL;
-  gs_free gchar *result = NULL;
+  cleanup_free gchar *result = NULL;
 
   if (!lvm_logical_volume_call_rename_sync (volume->lvm_logical_volume,
                                             arg_new_name,
@@ -346,7 +346,7 @@ handle_activate (CockpitStorageLogicalVolume *object,
 {
   StorageLogicalVolume *volume = STORAGE_LOGICAL_VOLUME(object);
   GError *error = NULL;
-  gs_free gchar *result = NULL;
+  cleanup_free gchar *result = NULL;
 
   if (!lvm_logical_volume_call_activate_sync (volume->lvm_logical_volume,
                                               null_asv (),
@@ -400,7 +400,7 @@ handle_create_snapshot (CockpitStorageLogicalVolume *object,
 {
   StorageLogicalVolume *volume = STORAGE_LOGICAL_VOLUME(object);
   GError *error = NULL;
-  gs_free gchar *result = NULL;
+  cleanup_free gchar *result = NULL;
 
   if (!lvm_logical_volume_call_create_snapshot_sync (volume->lvm_logical_volume,
                                                         arg_name,

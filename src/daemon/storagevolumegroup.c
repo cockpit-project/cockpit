@@ -27,7 +27,7 @@
 #include "storageobject.h"
 #include "storagevolumegroup.h"
 
-#include <gsystem-local-alloc.h>
+#include "common/cockpitmemory.h"
 
 /**
  * SECTION:storagevolume_group
@@ -288,7 +288,7 @@ handle_rename (CockpitStorageVolumeGroup *object,
 {
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
-  gs_free gchar *result = NULL;
+  cleanup_free gchar *result = NULL;
 
   if (!lvm_volume_group_call_rename_sync (group->lvm_volume_group,
                                           arg_new_name,
@@ -445,7 +445,7 @@ handle_create_plain_volume (CockpitStorageVolumeGroup *object,
 {
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
-  gs_free gchar *result = NULL;
+  cleanup_free gchar *result = NULL;
 
   if (!lvm_volume_group_call_create_plain_volume_sync (group->lvm_volume_group,
                                                        arg_name,
@@ -476,7 +476,7 @@ handle_create_thin_pool_volume (CockpitStorageVolumeGroup *object,
 {
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
-  gs_free gchar *result = NULL;
+  cleanup_free gchar *result = NULL;
 
   if (!lvm_volume_group_call_create_thin_pool_volume_sync (group->lvm_volume_group,
                                                            arg_name,
@@ -508,7 +508,7 @@ handle_create_thin_volume (CockpitStorageVolumeGroup *object,
 {
   StorageVolumeGroup *group = STORAGE_VOLUME_GROUP(object);
   GError *error = NULL;
-  gs_free gchar *result = NULL;
+  cleanup_free gchar *result = NULL;
   const gchar *pool_path = "/";
 
   StorageProvider *provider = storage_object_get_provider (group->object);

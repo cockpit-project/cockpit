@@ -23,8 +23,6 @@
 #include "cockpitwebserver.h"
 #include "cockpitws.h"
 
-#include <gsystem-local-alloc.h>
-
 #include "websocket/websocket.h"
 
 #include "common/cockpiterror.h"
@@ -592,27 +590,29 @@ static CockpitAuthenticated *
 authenticated_for_headers (CockpitAuth *self,
                            GHashTable *in_headers)
 {
-  gs_unref_hashtable GHashTable *cookies = NULL;
-  gs_free gchar *cookie = NULL;
+  GHashTable *cookies = NULL;
+  gchar *cookie = NULL;
   const char *prefix = "v=2;k=";
+  CockpitAuthenticated *ret = NULL;
 
   g_return_val_if_fail (self != NULL, FALSE);
   g_return_val_if_fail (in_headers != NULL, FALSE);
 
-  if (!cockpit_web_server_parse_cookies (in_headers, &cookies, NULL))
-    return NULL;
-
-  cookie = base64_decode_string (g_hash_table_lookup (cookies, "cockpit"));
-  if (cookie == NULL)
-    return NULL;
-
-  if (!g_str_has_prefix (cookie, prefix))
+  if (cockpit_web_server_parse_cookies (in_headers, &cookies, NULL))
     {
-      g_debug ("invalid or unsupported cookie: %s", cookie);
-      return NULL;
+      cookie = base64_decode_string (g_hash_table_lookup (cookies, "cockpit"));
+      if (cookie != NULL)
+        {
+          if (g_str_has_prefix (cookie, prefix))
+            ret = g_hash_table_lookup (self->authenticated, cookie);
+          else
+            g_debug ("invalid or unsupported cookie: %s", cookie);
+          g_free (cookie);
+        }
+      g_hash_table_unref (cookies);
     }
 
-  return g_hash_table_lookup (self->authenticated, cookie);
+  return ret;
 }
 
 CockpitWebService *

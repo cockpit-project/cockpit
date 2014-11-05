@@ -21,8 +21,6 @@
 
 #include <string.h>
 
-#include <gsystem-local-alloc.h>
-
 #include "daemon.h"
 #include "manager.h"
 #include "machines.h"

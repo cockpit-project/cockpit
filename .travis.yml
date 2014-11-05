@@ -19,9 +19,5 @@ before_install:
   - tar -xzvf jsl-0.3.0-src.tar.gz
   - ( cd jsl-0.3.0/src && make -f Makefile.ref )
   - sudo cp jsl-0.3.0/src/Linux_All_DBG.OBJ/jsl /usr/local/bin/jsl
-  - "printf 'Name: libgsystem\nDescription: libgsystem\nVersion: 2014.2\nRequires: gio-unix-2.0\nCflags: -I/usr/include/libgsystem\n' > /tmp/libgsystem.pc"
-  - sudo mv /tmp/libgsystem.pc /usr/lib/pkgconfig/
-  - sudo mkdir /usr/include/libgsystem
-  - sudo wget -O /usr/include/libgsystem/gsystem-local-alloc.h https://git.gnome.org/browse/libgsystem/plain/src/gsystem-local-alloc.h
 script:
   - ./autogen.sh --prefix=/usr --enable-strict && make V=1 all && sudo make enable-root-tests && make distcheck && make -j8 check-memory

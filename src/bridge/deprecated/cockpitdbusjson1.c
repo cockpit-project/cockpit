@@ -25,6 +25,7 @@
 #include "cockpitfakemanager.h"
 
 #include "common/cockpitjson.h"
+#include "common/cockpitmemory.h"
 
 #include <unistd.h>
 #include <stdint.h>
@@ -35,8 +36,6 @@
 #include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
 #include <json-glib/json-glib.h>
-
-#include <gsystem-local-alloc.h>
 
 #include <string.h>
 
@@ -426,7 +425,7 @@ add_object (JsonBuilder *builder,
 static void
 send_seed (CockpitDBusJson1 *self)
 {
-  gs_unref_object JsonBuilder *builder = json_builder_new ();
+  cleanup_unref_object JsonBuilder *builder = json_builder_new ();
 
   json_builder_begin_object (builder);
   json_builder_set_member_name (builder, "command");
@@ -470,7 +469,7 @@ on_object_added (GDBusObjectManager *manager,
                  gpointer user_data)
 {
   CockpitDBusJson1 *self = user_data;
-  gs_unref_object JsonBuilder *builder = prepare_builder ("object-added");
+  cleanup_unref_object JsonBuilder *builder = prepare_builder ("object-added");
 
   json_builder_begin_object (builder);
   json_builder_set_member_name (builder, "object");
@@ -488,7 +487,7 @@ on_object_removed (GDBusObjectManager *manager,
                    gpointer user_data)
 {
   CockpitDBusJson1 *self = user_data;
-  gs_unref_object JsonBuilder *builder = prepare_builder ("object-removed");
+  cleanup_unref_object JsonBuilder *builder = prepare_builder ("object-removed");
 
   json_builder_begin_array (builder);
   json_builder_add_string_value (builder, g_dbus_object_get_object_path (object));
@@ -506,7 +505,7 @@ on_interface_added (GDBusObjectManager *manager,
                     gpointer user_data)
 {
   CockpitDBusJson1 *self = user_data;
-  gs_unref_object JsonBuilder *builder = prepare_builder ("interface-added");
+  cleanup_unref_object JsonBuilder *builder = prepare_builder ("interface-added");
 
   json_builder_begin_object (builder);
   json_builder_set_member_name (builder, "objpath");
@@ -529,7 +528,7 @@ on_interface_removed (GDBusObjectManager *manager,
                       gpointer user_data)
 {
   CockpitDBusJson1 *self = user_data;
-  gs_unref_object JsonBuilder *builder = prepare_builder ("interface-removed");
+  cleanup_unref_object JsonBuilder *builder = prepare_builder ("interface-removed");
 
   json_builder_begin_object (builder);
   json_builder_set_member_name (builder, "objpath");
@@ -550,7 +549,7 @@ on_interface_proxy_properties_changed (GDBusObjectManager *manager,
                                        gpointer user_data)
 {
   CockpitDBusJson1 *self = user_data;
-  gs_unref_object JsonBuilder *builder = prepare_builder ("interface-properties-changed");
+  cleanup_unref_object JsonBuilder *builder = prepare_builder ("interface-properties-changed");
 
   json_builder_begin_object (builder);
   json_builder_set_member_name (builder, "objpath");
@@ -579,7 +578,7 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
                            gpointer user_data)
 {
   CockpitDBusJson1 *self = user_data;
-  gs_unref_object JsonBuilder *builder = prepare_builder ("interface-signal");
+  cleanup_unref_object JsonBuilder *builder = prepare_builder ("interface-signal");
 
   GVariantIter iter;
   GVariant *child;
@@ -612,7 +611,7 @@ on_interface_proxy_signal (GDBusObjectManager *manager,
 static void
 send_dbus_reply (CockpitDBusJson1 *self, const gchar *cookie, GVariant *result, GError *error)
 {
-  gs_unref_object JsonBuilder *builder = NULL;
+  cleanup_unref_object JsonBuilder *builder = NULL;
   builder = prepare_builder ("call-reply");
 
   json_builder_begin_object (builder);
@@ -1039,7 +1038,7 @@ cockpit_dbus_json1_recv (CockpitChannel *channel,
 {
   CockpitDBusJson1 *self = COCKPIT_DBUS_JSON1 (channel);
   GError *error = NULL;
-  gs_free gchar *buf = NULL;
+  cleanup_free gchar *buf = NULL;
   JsonObject *root = NULL;
 
   root = cockpit_json_parse_bytes (message, &error);

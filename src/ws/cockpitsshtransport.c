@@ -74,6 +74,7 @@ typedef struct {
   gchar *command;
   gchar *expect_key;
   gchar *knownhosts_file;
+  gboolean ignore_key;
 
   /* Output from the connect thread */
   ssh_channel channel;
@@ -426,9 +427,12 @@ cockpit_ssh_connect (CockpitSshData *data)
 
   g_debug ("%s: connected", data->logname);
 
-  problem = verify_knownhost (data);
-  if (problem != NULL)
-    return problem;
+  if (!data->ignore_key)
+    {
+      problem = verify_knownhost (data);
+      if (problem != NULL)
+        return problem;
+    }
 
   /* The problem returned when auth failure */
   problem = cockpit_ssh_authenticate (data);
@@ -503,6 +507,7 @@ enum {
   PROP_HOST_KEY,
   PROP_HOST_FINGERPRINT,
   PROP_KNOWN_HOSTS,
+  PROP_IGNORE_KEY,
 };
 
 struct _CockpitSshTransport {
@@ -1242,6 +1247,9 @@ cockpit_ssh_transport_set_property (GObject *obj,
     case PROP_HOST_KEY:
       self->data->expect_key = g_value_dup_string (value);
       break;
+    case PROP_IGNORE_KEY:
+      self->data->ignore_key = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
       break;
@@ -1383,6 +1391,10 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
   g_object_class_install_property (object_class, PROP_HOST_FINGERPRINT,
          g_param_spec_string ("host-fingerprint", NULL, NULL, NULL,
                               G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_IGNORE_KEY,
+         g_param_spec_boolean ("ignore-key", NULL, NULL, FALSE,
+                               G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class, PROP_CREDS,
          g_param_spec_boxed ("creds", NULL, NULL, COCKPIT_TYPE_CREDS,

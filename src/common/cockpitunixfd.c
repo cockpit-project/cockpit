@@ -26,6 +26,9 @@
 #include <sys/resource.h>
 
 #include <dirent.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 typedef struct {
     GSource source;

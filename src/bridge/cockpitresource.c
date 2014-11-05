@@ -131,7 +131,8 @@ respond_package_listing (CockpitChannel *channel)
   JsonNode *node;
 
   listing = load_package_listing (&root);
-  node = json_node_init_array (json_node_alloc (), root);
+  node = json_node_new (JSON_NODE_ARRAY);
+  json_node_set_array (node, root);
   cockpit_channel_close_json_option (channel, "packages", node);
   g_hash_table_unref (listing);
   json_node_free (node);

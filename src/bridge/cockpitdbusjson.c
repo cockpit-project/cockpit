@@ -324,7 +324,8 @@ parse_json_dictionary (JsonNode *node,
     {
       if (is_string)
         {
-          key_node = json_node_init_string (json_node_alloc (), l->data);
+          key_node = json_node_new (JSON_NODE_VALUE);
+          json_node_set_string (key_node, l->data);
         }
       else
         {
@@ -559,7 +560,8 @@ build_json_byte_array (GVariant *value)
 
   data = g_variant_get_fixed_array (value, &length, 1);
   string = g_base64_encode (data, length);
-  node = json_node_init_string (json_node_alloc (), string);
+  node = json_node_new (JSON_NODE_VALUE);
+  json_node_set_string (node, string);
   g_free (string); /* unfortunately :S */
 
   return node;
@@ -640,44 +642,66 @@ build_json (GVariant *value)
   switch (g_variant_classify (value))
     {
     case G_VARIANT_CLASS_BOOLEAN:
-      return json_node_init_boolean (json_node_alloc (), g_variant_get_boolean (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_boolean (node, g_variant_get_boolean (value));
+      return node;
 
     case G_VARIANT_CLASS_BYTE:
-      return json_node_init_int (json_node_alloc (), g_variant_get_byte (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_int (node, g_variant_get_byte (value));
+      return node;
 
     case G_VARIANT_CLASS_INT16:
-      return json_node_init_int (json_node_alloc (), g_variant_get_int16 (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_int (node, g_variant_get_int16 (value));
+      return node;
 
     case G_VARIANT_CLASS_UINT16:
-      return json_node_init_int (json_node_alloc (), g_variant_get_uint16 (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_int (node, g_variant_get_uint16 (value));
+      return node;
 
     case G_VARIANT_CLASS_INT32:
-      return json_node_init_int (json_node_alloc (), g_variant_get_int32 (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_int (node, g_variant_get_int32 (value));
+      return node;
 
     case G_VARIANT_CLASS_UINT32:
-      return json_node_init_int (json_node_alloc (), g_variant_get_uint32 (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_int (node, g_variant_get_uint32 (value));
+      return node;
 
     case G_VARIANT_CLASS_INT64:
-      return json_node_init_int (json_node_alloc (), g_variant_get_int64 (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_int (node, g_variant_get_int64 (value));
+      return node;
 
     case G_VARIANT_CLASS_UINT64:
-      return json_node_init_int (json_node_alloc (), g_variant_get_uint64 (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_int (node, g_variant_get_uint64 (value));
+      return node;
 
     case G_VARIANT_CLASS_HANDLE:
-      return json_node_init_int (json_node_alloc (), g_variant_get_handle (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_int (node, g_variant_get_handle (value));
+      return node;
 
     case G_VARIANT_CLASS_DOUBLE:
-      return json_node_init_double (json_node_alloc (), g_variant_get_double (value));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_double (node, g_variant_get_double (value));
+      return node;
 
     case G_VARIANT_CLASS_STRING:      /* explicit fall-through */
     case G_VARIANT_CLASS_OBJECT_PATH: /* explicit fall-through */
     case G_VARIANT_CLASS_SIGNATURE:
-      return json_node_init_string (json_node_alloc (), g_variant_get_string (value, NULL));
+      node = json_node_new (JSON_NODE_VALUE);
+      json_node_set_string (node, g_variant_get_string (value, NULL));
+      return node;
 
     case G_VARIANT_CLASS_VARIANT:
       object = build_json_variant (value);
-      node = json_node_init_object (json_node_alloc (), object);
-      json_object_unref (object);
+      node = json_node_new (JSON_NODE_OBJECT);
+      json_node_take_object (node, object);
       return node;
 
     case G_VARIANT_CLASS_ARRAY:
@@ -686,8 +710,8 @@ build_json (GVariant *value)
       if (g_variant_type_is_dict_entry (element_type))
         {
           object = build_json_dictionary (element_type, value);
-          node = json_node_init_object (json_node_alloc (), object);
-          json_object_unref (object);
+          node = json_node_new (JSON_NODE_OBJECT);
+          json_node_take_object (node, object);
         }
       else if (g_variant_type_equal (element_type, G_VARIANT_TYPE_BYTE))
         {
@@ -696,14 +720,16 @@ build_json (GVariant *value)
       else
         {
           array = build_json_array_or_tuple (value);
-          node = json_node_init_array (json_node_alloc (), array);
+          node = json_node_new (JSON_NODE_ARRAY);
+          json_node_set_array (node, array);
           json_array_unref (array);
         }
       return node;
 
     case G_VARIANT_CLASS_TUPLE:
       array = build_json_array_or_tuple (value);
-      node = json_node_init_array (json_node_alloc (), array);
+      node = json_node_new (JSON_NODE_ARRAY);
+      json_node_set_array (node, array);
       json_array_unref (array);
       return node;
 
@@ -783,7 +809,7 @@ build_json_body (GVariant *body,
     {
       if (type)
         *type = NULL;
-      return json_node_init_null (json_node_alloc ());
+      return json_node_new (JSON_NODE_NULL);
     }
 }
 

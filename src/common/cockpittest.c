@@ -342,9 +342,15 @@ _cockpit_assert_json_eq_msg (const char *domain,
   gchar *msg;
 
   if (expect[0] == '[')
-    node = json_node_init_array (json_node_alloc (), object_or_array);
+    {
+      node = json_node_new (JSON_NODE_ARRAY);
+      json_node_set_array (node, object_or_array);
+    }
   else
-    node = json_node_init_object (json_node_alloc (), object_or_array);
+    {
+      node = json_node_new (JSON_NODE_OBJECT);
+      json_node_set_object (node, object_or_array);
+    }
 
   exnode = cockpit_json_parse (expect, -1, &error);
   if (error)

@@ -30,6 +30,7 @@
 #include "common/cockpitlog.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
+#include "common/cockpitpipetransport.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitunixfd.h"
 
@@ -534,7 +535,7 @@ static CockpitCreds *
 cockpit_auth_session_login_finish (CockpitAuth *self,
                                    GAsyncResult *result,
                                    GHashTable *headers,
-                                   CockpitPipe **session,
+                                   CockpitTransport **transport,
                                    GError **error)
 {
   CockpitCreds *creds;
@@ -555,11 +556,8 @@ cockpit_auth_session_login_finish (CockpitAuth *self,
   if (!creds)
     return NULL;
 
-  if (session)
-    {
-      *session = login->session_pipe;
-      login->session_pipe = NULL;
-    }
+  if (transport)
+    *transport = cockpit_pipe_transport_new (login->session_pipe);
 
   return creds;
 }
@@ -703,7 +701,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
 {
   CockpitAuthClass *klass = COCKPIT_AUTH_GET_CLASS (self);
   CockpitAuthenticated *authenticated;
-  CockpitPipe *session = NULL;
+  CockpitTransport *transport = NULL;
   CockpitCreds *creds;
   gchar *cookie_b64 = NULL;
   gchar *header;
@@ -711,7 +709,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
   gchar *id;
 
   g_return_val_if_fail (klass->login_finish != NULL, FALSE);
-  creds = klass->login_finish (self, result, out_headers, &session, error);
+  creds = klass->login_finish (self, result, out_headers, &transport, error);
 
   if (creds == NULL)
     return NULL;
@@ -724,7 +722,7 @@ cockpit_auth_login_finish (CockpitAuth *self,
   authenticated = g_new0 (CockpitAuthenticated, 1);
   authenticated->cookie = g_strdup_printf ("v=2;k=%s", id);
   authenticated->creds = creds;
-  authenticated->service = cockpit_web_service_new (creds, session);
+  authenticated->service = cockpit_web_service_new (creds, transport);
   authenticated->auth = self;
 
   authenticated->idling_sig = g_signal_connect (authenticated->service, "idling",
@@ -732,8 +730,8 @@ cockpit_auth_login_finish (CockpitAuth *self,
   authenticated->destroy_sig = g_signal_connect (authenticated->service, "destroy",
                                                 G_CALLBACK (on_web_service_destroy), authenticated);
 
-  if (session)
-    g_object_unref (session);
+  if (transport)
+    g_object_unref (transport);
 
   g_object_weak_ref (G_OBJECT (authenticated->service),
                      on_web_service_gone, authenticated);

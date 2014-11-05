@@ -23,6 +23,7 @@
 
 #include "common/cockpitenums.h"
 #include "common/cockpiterror.h"
+#include "common/cockpitpipetransport.h"
 
 #include "ws/cockpitws.h"
 
@@ -100,12 +101,13 @@ static CockpitCreds *
 mock_auth_login_finish (CockpitAuth *auth,
                         GAsyncResult *async,
                         GHashTable *headers,
-                        CockpitPipe **session,
+                        CockpitTransport **transport,
                         GError **error)
 {
   MockAuth *self = MOCK_AUTH (auth);
   GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT (async);
   CockpitCreds *creds;
+  CockpitPipe *pipe;
 
   const gchar *argv[] = {
     cockpit_ws_bridge_program ? cockpit_ws_bridge_program : BUILDDIR "/cockpit-bridge",
@@ -120,8 +122,12 @@ mock_auth_login_finish (CockpitAuth *auth,
                              COCKPIT_CRED_RHOST, g_simple_async_result_get_op_res_gpointer (result),
                              NULL);
 
-  if (session)
-    *session = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+  if (transport)
+    {
+      pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+      *transport = cockpit_pipe_transport_new (pipe);
+      g_object_unref (pipe);
+    }
 
   return creds;
 }

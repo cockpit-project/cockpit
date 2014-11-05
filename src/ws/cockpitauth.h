@@ -49,6 +49,7 @@ struct _CockpitAuth
   GByteArray *key;
   GHashTable *authenticated;
   guint64 nonce_seed;
+  gboolean login_loopback;
 };
 
 struct _CockpitAuthClass
@@ -71,7 +72,7 @@ struct _CockpitAuthClass
 
 GType           cockpit_auth_get_type        (void) G_GNUC_CONST;
 
-CockpitAuth *   cockpit_auth_new             (void);
+CockpitAuth *   cockpit_auth_new             (gboolean login_loopback);
 
 void            cockpit_auth_login_async     (CockpitAuth *self,
                                               GHashTable *headers,

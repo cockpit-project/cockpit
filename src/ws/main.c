@@ -39,10 +39,12 @@
 
 static gint      opt_port         = 9090;
 static gboolean  opt_no_tls       = FALSE;
+static gboolean  opt_local_ssh    = FALSE;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
+  {"local-ssh", 0, 0, G_OPTION_ARG_NONE, &opt_local_ssh, "Log in locally via SSH", NULL },
   {NULL}
 };
 
@@ -102,7 +104,7 @@ main (int argc,
 
   roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static", NULL);
 
-  data.auth = cockpit_auth_new ();
+  data.auth = cockpit_auth_new (opt_local_ssh);
   data.static_roots = (const gchar **)roots;
 
   server = cockpit_web_server_new (opt_port,

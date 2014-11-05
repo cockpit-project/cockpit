@@ -64,7 +64,7 @@ setup (TestCase *test,
   if (!mock_kdc_available)
     return;
 
-  test->auth = cockpit_auth_new ();
+  test->auth = cockpit_auth_new (FALSE);
 
   mock_kdc_up ();
 

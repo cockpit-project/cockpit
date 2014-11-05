@@ -1,0 +1,52 @@
+#!/bin/sh -eux
+
+# This is the startup script for Cockpit when run in a privileged
+# We copy cockpit-bridge and related stuff into the host, so that
+# they work correctly there.
+#
+# The host file system must be mounted at /host
+#
+
+cd /
+PATH="/bin:/sbin"
+
+libraries()
+{
+    ldd $1 | sed -n 's|.*/\(lib64/[^ ]\+\).*|\1|p' |
+        grep -Ev 'libc|libpthread|ld-linux|libm|librt'
+}
+
+files()
+{
+    echo bin/cockpit-bridge
+    libraries bin/cockpit-bridge
+    echo libexec/cockpitd
+    libraries usr/libexec/cockpitd
+    echo share/cockpit
+}
+
+/bin/umount /etc || true 2> /dev/null
+/bin/umount /var || true 2> /dev/null
+
+rm -rf /stage
+mkdir -p /stage/opt/cockpit /stage/etc /stage/var/lib /stage/opt/cockpit/lib64/gio/modules
+/usr/bin/tar -chf - -C /usr $(files) | tar -xf - -C /stage/opt/cockpit
+mkdir -p /stage/usr/local/bin /stage/usr/local/libexec /stage/usr/local/share/dbus-1/services
+sed 's|/usr/|/usr/local/|' /usr/share/dbus-1/services/com.redhat.Cockpit.service \
+    > /stage/usr/local/share/dbus-1/services/com.redhat.Cockpit.service
+cp -p /container/cockpit-bridge /stage/usr/local/bin
+cp -p /container/cockpitd /stage/usr/local/libexec
+if [ ! -f /host/etc/cockpit/ws-certs.d/~self-signed.cert ]; then
+    /usr/sbin/remotectl certificate --ensure
+    cp -rp /etc/cockpit /stage/etc/cockpit
+fi
+if [ ! -e /host/var/lib/cockpit ]; then
+    cp -rp /var/lib/cockpit /stage/var/lib/cockpit
+fi
+
+/usr/bin/tar -C /stage -cf - . |
+    /usr/bin/nsenter --mount=/host/proc/1/ns/mnt /usr/bin/tar --no-overwrite-dir -C / -xvf -
+
+/bin/mount --bind /host/etc /etc
+/bin/mount --bind /host/var /var
+exec /usr/bin/nsenter --net=/host/proc/1/ns/net /usr/libexec/cockpit-ws --local-ssh

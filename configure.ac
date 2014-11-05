@@ -152,10 +152,10 @@ AC_SUBST([dbusservicedir], [$dbusservicedir])
 AC_MSG_RESULT(dbusservicedir)
 
 # pam
-AC_CHECK_HEADER([security/pam_appl.h], [ ],
+AC_CHECK_HEADER([security/pam_appl.h], ,
   [AC_MSG_ERROR([Couldn't find PAM headers. Try installing pam-devel])]
 )
-AC_CHECK_LIB(pam, pam_open_session, [ ],
+AC_CHECK_LIB(pam, pam_open_session, ,
   [AC_MSG_ERROR([Couldn't find PAM library. Try installing pam-devel])]
 )
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lpam"
@@ -171,20 +171,20 @@ pamdir=$with_pamdir
 AC_SUBST(pamdir)
 
 # keyutils
-AC_CHECK_HEADER([keyutils.h], [ ],
+AC_CHECK_HEADER([keyutils.h], ,
   [AC_MSG_ERROR([Couldn't find keyutils headers. Try installing keyutils-libs-devel])]
 )
-AC_CHECK_LIB(keyutils, keyctl_join_session_keyring, [ ],
+AC_CHECK_LIB(keyutils, keyctl_join_session_keyring, [ true ],
   [AC_MSG_ERROR([Couldn't find keyutils library. Try installing keyutils-libs-devel])]
 )
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lkeyutils"
 REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lkeyutils"
 
 # crypt
-AC_CHECK_HEADER([crypt.h], [ ],
+AC_CHECK_HEADER([crypt.h], ,
   [AC_MSG_ERROR([Couldn't find crypt headers. Try installing glibc-headers])]
 )
-AC_CHECK_LIB(crypt, crypt_r, [ ],
+AC_CHECK_LIB(crypt, crypt_r, ,
   [AC_MSG_ERROR([Couldn't find crypt library. Try installing glibc-devel])]
 )
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"

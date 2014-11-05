@@ -27,7 +27,7 @@
 #include "storageobject.h"
 #include "storagemdraid.h"
 
-#include <gsystem-local-alloc.h>
+#include "common/cockpitmemory.h"
 
 /**
  * SECTION:storagemdraid
@@ -149,7 +149,7 @@ storage_mdraid_update (StorageMDRaid *mdraid)
   cockpit_storage_mdraid_set_sync_remaining_time (iface, udisks_mdraid_get_sync_remaining_time (udisks_mdraid));
   cockpit_storage_mdraid_set_degraded (iface, udisks_mdraid_get_degraded (udisks_mdraid));
   {
-    gs_free gchar *loc = g_locale_to_utf8 (udisks_mdraid_get_bitmap_location (udisks_mdraid),
+    cleanup_free gchar *loc = g_locale_to_utf8 (udisks_mdraid_get_bitmap_location (udisks_mdraid),
                                             -1, NULL, NULL, NULL);
     cockpit_storage_mdraid_set_bitmap_location (iface, loc);
   }
@@ -161,7 +161,7 @@ storage_mdraid_update (StorageMDRaid *mdraid)
   GVariantIter iter;
   gint disk_slot;
   const gchar *disk_block_objpath;
-  gs_unref_variant GVariant *disk_states = NULL;
+  cleanup_unref_variant GVariant *disk_states = NULL;
   guint64 disk_num_errors;
   g_variant_iter_init (&iter, udisks_mdraid_get_active_devices (udisks_mdraid));
   while (g_variant_iter_next (&iter, "(&oi@asta{sv})",
@@ -329,7 +329,7 @@ handle_delete (CockpitStorageMDRaid *object,
   StorageMDRaid *mdraid = STORAGE_MDRAID(object);
   StorageProvider *provider = storage_object_get_provider (mdraid->object);
   UDisksClient *udisks_client = storage_provider_get_udisks_client (provider);
-  gs_unref_object UDisksBlock *block = NULL;
+  cleanup_unref_object UDisksBlock *block = NULL;
   GList *members = NULL;
   GError *error = NULL;
 

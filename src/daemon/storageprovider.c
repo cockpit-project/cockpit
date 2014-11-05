@@ -30,7 +30,7 @@
 #include "storageblock.h"
 #include "com.redhat.lvm2.h"
 
-#include <gsystem-local-alloc.h>
+#include "common/cockpitmemory.h"
 
 /**
  * SECTION:storageprovider
@@ -354,7 +354,7 @@ provider_update_objects (StorageProvider *provider)
                            g_object_ref (iface),
                            object);
 
-      gs_free gchar *object_path = storage_object_make_object_path (object);
+      cleanup_free gchar *object_path = storage_object_make_object_path (object);
       g_dbus_object_skeleton_set_object_path (G_DBUS_OBJECT_SKELETON (object), object_path);
       g_dbus_object_manager_server_export_uniquely (object_manager, G_DBUS_OBJECT_SKELETON (object));
 
@@ -848,7 +848,7 @@ storage_provider_translate_path (StorageProvider *provider,
   if (udisks_or_lvm_path == NULL)
     udisks_or_lvm_path = "/";
 
-  gs_unref_object UDisksObject *udisks_object = udisks_client_get_object (provider->udisks_client,
+  cleanup_unref_object UDisksObject *udisks_object = udisks_client_get_object (provider->udisks_client,
                                                                           udisks_or_lvm_path);
   if (udisks_object != NULL)
     {
@@ -866,7 +866,7 @@ storage_provider_translate_path (StorageProvider *provider,
         object = storage_provider_lookup_for_udisks_mdraid (provider, udisks_raid);
     }
 
-  gs_unref_object LvmObject *lvm_object = LVM_OBJECT (g_dbus_object_manager_get_object (provider->lvm_objman,
+  cleanup_unref_object LvmObject *lvm_object = LVM_OBJECT (g_dbus_object_manager_get_object (provider->lvm_objman,
                                                                                         udisks_or_lvm_path));
   if (lvm_object)
     {
@@ -961,7 +961,7 @@ storage_provider_save_remembered_configs (StorageProvider *provider)
       g_variant_builder_add (&parent_builder, "{sa{sv}}", parent_path, &child_builder);
     }
 
-  gs_unref_variant GVariant *info = g_variant_builder_end (&parent_builder);
+  cleanup_unref_variant GVariant *info = g_variant_builder_end (&parent_builder);
   gconstpointer info_data = g_variant_get_data (info);
   gsize info_size = g_variant_get_size (info);
   GError *error = NULL;
@@ -997,7 +997,7 @@ storage_provider_load_remembered_configs (StorageProvider *provider)
       return;
     }
 
-  gs_unref_variant GVariant *info = g_variant_new_from_data (G_VARIANT_TYPE ("a{sa{sv}}"),
+  cleanup_unref_variant GVariant *info = g_variant_new_from_data (G_VARIANT_TYPE ("a{sa{sv}}"),
                                                              info_data, info_size, TRUE,
                                                              g_free, NULL);
 

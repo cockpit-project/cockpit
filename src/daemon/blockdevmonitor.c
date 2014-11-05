@@ -27,8 +27,6 @@
 #include "daemon.h"
 #include "blockdevmonitor.h"
 
-#include <gsystem-local-alloc.h>
-
 #define SAMPLES_MAX 300
 
 /**

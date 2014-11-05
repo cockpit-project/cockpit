@@ -23,12 +23,12 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include <gsystem-local-alloc.h>
-
 #include "utils.h"
 #include "daemon.h"
 #include "services.h"
 #include "cgroup-show.h"
+
+#include "common/cockpitmemory.h"
 
 /**
  * @title: Services
@@ -132,16 +132,16 @@ on_unit_proxy_ready (GObject *object,
                      gpointer user_data)
 {
   Services *services = user_data;
-  gs_unref_object GDBusProxy *unit = g_dbus_proxy_new_for_bus_finish (res, NULL);
+  cleanup_unref_object GDBusProxy *unit = g_dbus_proxy_new_for_bus_finish (res, NULL);
   if (unit)
     {
       const gchar *name, *description, *load_state, *active_state, *sub_state, *file_state;
-      gs_unref_variant GVariant *n = g_dbus_proxy_get_cached_property (unit, "Id");
-      gs_unref_variant GVariant *d = g_dbus_proxy_get_cached_property (unit, "Description");
-      gs_unref_variant GVariant *l = g_dbus_proxy_get_cached_property (unit, "LoadState");
-      gs_unref_variant GVariant *a = g_dbus_proxy_get_cached_property (unit, "ActiveState");
-      gs_unref_variant GVariant *s = g_dbus_proxy_get_cached_property (unit, "SubState");
-      gs_unref_variant GVariant *f = g_dbus_proxy_get_cached_property (unit, "UnitFileState");
+      cleanup_unref_variant GVariant *n = g_dbus_proxy_get_cached_property (unit, "Id");
+      cleanup_unref_variant GVariant *d = g_dbus_proxy_get_cached_property (unit, "Description");
+      cleanup_unref_variant GVariant *l = g_dbus_proxy_get_cached_property (unit, "LoadState");
+      cleanup_unref_variant GVariant *a = g_dbus_proxy_get_cached_property (unit, "ActiveState");
+      cleanup_unref_variant GVariant *s = g_dbus_proxy_get_cached_property (unit, "SubState");
+      cleanup_unref_variant GVariant *f = g_dbus_proxy_get_cached_property (unit, "UnitFileState");
       g_variant_get (n, "&s", &name);
       g_variant_get (d, "&s", &description);
       g_variant_get (l, "&s", &load_state);
@@ -601,7 +601,7 @@ on_list_files_done (GObject *object,
 
   data->result = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, listed_service_free);
 
-  gs_free_variant_iter GVariantIter *unit_iter = NULL;
+  cleanup_free_variant_iter GVariantIter *unit_iter = NULL;
   const gchar *name, *description, *load_state, *active_state, *sub_state, *file_state;
 
   g_variant_get (data->units, "(a*)", &unit_iter);
@@ -630,7 +630,7 @@ on_list_files_done (GObject *object,
         }
     }
 
-  gs_free_variant_iter GVariantIter *file_iter = NULL;
+  cleanup_free_variant_iter GVariantIter *file_iter = NULL;
 
   g_variant_get (data->files, "(a*)", &file_iter);
   while (g_variant_iter_next (file_iter, "(&s&s)", &name, &file_state))
@@ -734,7 +734,7 @@ on_load_unit_done (GObject *object,
   GetServiceInfoData *data = user_data;
   GError *error = NULL;
 
-  gs_unref_variant GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY(object), res, &error);
+  cleanup_unref_variant GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY(object), res, &error);
   if (error)
     {
       end_invocation_take_gerror (data->invocation, error);
@@ -774,7 +774,7 @@ copy_entry (GVariantBuilder *dest,
             GVariant *src,
             const gchar *key)
 {
-  gs_unref_variant GVariant *val = g_variant_lookup_value (src, key, NULL);
+  cleanup_unref_variant GVariant *val = g_variant_lookup_value (src, key, NULL);
   if (val)
     g_variant_builder_add (dest, "{sv}", key, val);
 }
@@ -786,7 +786,7 @@ on_get_all_done_for_info (GObject *object,
 {
   GetServiceInfoData *data = user_data;
   GError *error = NULL;
-  gs_unref_variant GVariant *reply = g_dbus_connection_call_finish (G_DBUS_CONNECTION (object), res, &error);
+  cleanup_unref_variant GVariant *reply = g_dbus_connection_call_finish (G_DBUS_CONNECTION (object), res, &error);
 
   if (error)
     {
@@ -795,7 +795,7 @@ on_get_all_done_for_info (GObject *object,
       return;
     }
 
-  gs_unref_variant GVariant *props;
+  cleanup_unref_variant GVariant *props;
   g_variant_get (reply, "(@a{sv})", &props);
 
   GVariantBuilder bob;
@@ -859,7 +859,7 @@ on_get_unit_file_state_done (GObject *object,
   GetServiceInfoData *data = user_data;
   GError *error = NULL;
 
-  gs_unref_variant GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
+  cleanup_unref_variant GVariant *result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
   if (error)
     {
       end_invocation_take_gerror (data->invocation, error);

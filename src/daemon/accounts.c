@@ -24,12 +24,12 @@
 #include <act/act.h>
 #include <grp.h>
 
-#include <gsystem-local-alloc.h>
-
 #include "utils.h"
 #include "daemon.h"
 #include "accounts.h"
 #include "account.h"
+
+#include "common/cockpitmemory.h"
 
 typedef struct _AccountsClass AccountsClass;
 
@@ -64,10 +64,10 @@ user_added (ActUserManager *um,
   CockpitAccount *acc = account_new ();
   account_update (ACCOUNT (acc), user);
 
-  gs_free gchar *path =
+  cleanup_free gchar *path =
     utils_generate_object_path ("/com/redhat/Cockpit/Accounts",
                                 cockpit_account_get_user_name (acc));
-  gs_unref_object CockpitObjectSkeleton *obj = cockpit_object_skeleton_new (path);
+  cleanup_unref_object CockpitObjectSkeleton *obj = cockpit_object_skeleton_new (path);
   cockpit_object_skeleton_set_account (obj, acc);
   g_dbus_object_manager_server_export_uniquely (object_manager_server,
                                                 G_DBUS_OBJECT_SKELETON (obj));
@@ -209,7 +209,7 @@ accounts_init (Accounts *accounts)
     g_main_context_iteration (NULL, TRUE);
   users_loaded (accounts);
 
-  gs_unref_object GFile *etc_group = g_file_new_for_path ("/etc/group");
+  cleanup_unref_object GFile *etc_group = g_file_new_for_path ("/etc/group");
   accounts->etc_group_monitor = g_file_monitor (etc_group, G_FILE_MONITOR_NONE, NULL, NULL);
   if (accounts->etc_group_monitor)
     g_signal_connect (accounts->etc_group_monitor, "changed",
@@ -248,7 +248,7 @@ create_account_done (ActUserManager *manager,
   CockpitAccounts *object = data->object;
   Accounts *accounts = ACCOUNTS (object);
   GDBusMethodInvocation *invocation = data->invocation;
-  gs_free gchar *password = data->password;
+  cleanup_free gchar *password = data->password;
   gboolean locked = data->locked;
   g_free (data);
 

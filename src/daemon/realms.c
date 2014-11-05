@@ -22,11 +22,11 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <gsystem-local-alloc.h>
-
 #include "utils.h"
 #include "daemon.h"
 #include "realms.h"
+
+#include "common/cockpitmemory.h"
 
 typedef struct _RealmData
 {
@@ -407,24 +407,24 @@ get_realm_details (GDBusProxy *realm,
 
   if (realm)
     {
-      gs_unref_variant GVariant *d = g_dbus_proxy_get_cached_property (realm, "Details");
+      cleanup_unref_variant GVariant *d = g_dbus_proxy_get_cached_property (realm, "Details");
       copy_ass_option (&details, d, "server-software");
       copy_ass_option (&details, d, "client-software");
     }
 
   if (kerberos)
     {
-      gs_unref_variant GVariant *j = g_dbus_proxy_get_cached_property (kerberos, "SupportedJoinCredentials");
+      cleanup_unref_variant GVariant *j = g_dbus_proxy_get_cached_property (kerberos, "SupportedJoinCredentials");
       if (j)
         g_variant_builder_add (&details, "{sv}", "supported-join-credentials",
                                translate_kerberos_credential_types (j));
 
-      gs_unref_variant GVariant *l = g_dbus_proxy_get_cached_property (kerberos, "SupportedLeaveCredentials");
+      cleanup_unref_variant GVariant *l = g_dbus_proxy_get_cached_property (kerberos, "SupportedLeaveCredentials");
       if (l)
         g_variant_builder_add (&details, "{sv}", "supported-leave-credentials",
                                translate_kerberos_credential_types (l));
 
-      gs_unref_variant GVariant *a = g_dbus_proxy_get_cached_property (kerberos, "SuggestedAdministrator");
+      cleanup_unref_variant GVariant *a = g_dbus_proxy_get_cached_property (kerberos, "SuggestedAdministrator");
       if (a)
         g_variant_builder_add (&details, "{sv}", "suggested-administrator", a);
     }
@@ -457,7 +457,7 @@ set_joined_prop (Realms *realms)
 static void
 update_realm_configured (RealmData *data)
 {
-  gs_unref_variant GVariant *c = g_dbus_proxy_get_cached_property (data->realmd_object, "Configured");
+  cleanup_unref_variant GVariant *c = g_dbus_proxy_get_cached_property (data->realmd_object, "Configured");
   if (c && g_variant_is_of_type (c, G_VARIANT_TYPE ("s")))
     {
       const gchar *configured = "";
@@ -549,7 +549,7 @@ on_realm_proxy_ready (GObject *object,
 
   data->realmd_object = proxy;
 
-  gs_unref_variant GVariant *n = g_dbus_proxy_get_cached_property (proxy, "Name");
+  cleanup_unref_variant GVariant *n = g_dbus_proxy_get_cached_property (proxy, "Name");
 
   if (n && g_variant_is_of_type (n, G_VARIANT_TYPE ("s")))
     {
@@ -581,7 +581,7 @@ update_realms (Realms *realms)
       return;
     }
 
-  gs_unref_variant GVariant *r = g_dbus_proxy_get_cached_property (realms->realmd, "Realms");
+  cleanup_unref_variant GVariant *r = g_dbus_proxy_get_cached_property (realms->realmd, "Realms");
 
   if (r && g_variant_is_of_type (r, G_VARIANT_TYPE("ao")))
     {
@@ -832,14 +832,14 @@ on_discover_for_op_done (GObject *object,
     }
 
   GError *error = NULL;
-  gs_unref_variant GVariant *discover_result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
+  cleanup_unref_variant GVariant *discover_result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
   if (error)
     {
       end_invocation_take_gerror (realms, error);
       return;
     }
 
-  gs_free_variant_iter GVariantIter *object_paths = NULL;
+  cleanup_free_variant_iter GVariantIter *object_paths = NULL;
   g_variant_get (discover_result, "(iao)", NULL, &object_paths);
 
   const gchar *first_object = NULL;
@@ -850,7 +850,7 @@ on_discover_for_op_done (GObject *object,
       return;
     }
 
-  gs_unref_object GDBusProxy *kerberos =
+  cleanup_unref_object GDBusProxy *kerberos =
     g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                    (G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES
                                     | G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS),
@@ -932,7 +932,7 @@ on_discover_done (GObject *object,
   struct DiscoverData *data = (struct DiscoverData *)user_data;
 
   GError *error = NULL;
-  gs_unref_variant GVariant *discover_result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
+  cleanup_unref_variant GVariant *discover_result = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
   if (error)
     {
       g_dbus_error_strip_remote_error (error);
@@ -963,7 +963,7 @@ on_kerberos_ready_for_discover_info (GObject *object,
   GDBusProxy *kerberos = g_dbus_proxy_new_for_bus_finish (res, &error);
   if (kerberos)
     {
-      gs_unref_variant GVariant *n = g_dbus_proxy_get_cached_property (data->cur_proxy, "Name");
+      cleanup_unref_variant GVariant *n = g_dbus_proxy_get_cached_property (data->cur_proxy, "Name");
 
       if (n == NULL)
         {
@@ -1100,7 +1100,7 @@ handle_cancel (CockpitRealms *object,
   if (realms->op_invocation)
     {
       realms->op_cancelled = TRUE;
-      gs_unref_object GDBusProxy *service =
+      cleanup_unref_object GDBusProxy *service =
         g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                        (G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES
                                         | G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS),

@@ -27,7 +27,7 @@
 #include "daemon.h"
 #include "cgroupmonitor.h"
 
-#include <gsystem-local-alloc.h>
+#include "common/cockpitmemory.h"
 
 #define SAMPLES_MAX 300
 
@@ -265,8 +265,8 @@ static double
 read_double (const gchar *prefix,
              const gchar *suffix)
 {
-  gs_free gchar *path = NULL;
-  gs_free gchar *file_contents = NULL;
+  cleanup_free gchar *path = NULL;
+  cleanup_free gchar *file_contents = NULL;
   gsize len;
   GError *error = NULL;
 
@@ -385,8 +385,8 @@ collect_cgroup (gpointer key,
   if (consumer->last_timestamp > 0)
     return;
 
-  gs_free gchar *mem_dir = g_build_filename (monitor->memory_root, cgroup, NULL);
-  gs_free gchar *cpu_dir = g_build_filename (monitor->cpuacct_root, cgroup, NULL);
+  cleanup_free gchar *mem_dir = g_build_filename (monitor->memory_root, cgroup, NULL);
+  cleanup_free gchar *cpu_dir = g_build_filename (monitor->cpuacct_root, cgroup, NULL);
 
   have_mem = access (mem_dir, F_OK) == 0;
   have_cpu = access (cpu_dir, F_OK) == 0;

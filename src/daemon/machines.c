@@ -26,12 +26,12 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
-#include <gsystem-local-alloc.h>
-
 #include "daemon.h"
 #include "machines.h"
 #include "machine.h"
 #include "utils.h"
+
+#include "common/cockpitmemory.h"
 
 /**
  * SECTION:machines
@@ -89,7 +89,7 @@ machines_write_inlock (Machines *machines, GError **error)
   for (int i = 0; i < machines->machines->len; i++)
     machine_write (machines->machines->pdata[i], file);
 
-  gs_free gchar *data = g_key_file_to_data (file, NULL, NULL);
+  cleanup_free gchar *data = g_key_file_to_data (file, NULL, NULL);
   g_key_file_free (file);
 
   return g_file_set_contents (machines->machines_file, data, -1, error);
@@ -109,7 +109,7 @@ machines_write (Machines *machines, GError **error)
 static Machine *
 machines_new_machine (Machines *machines)
 {
-  gs_free gchar *id = g_strdup_printf ("%d", machines->machines->len);
+  cleanup_free gchar *id = g_strdup_printf ("%d", machines->machines->len);
   Machine *machine = MACHINE (machine_new (machines, id));
   g_ptr_array_add (machines->machines, machine);
   return machine;
@@ -120,7 +120,7 @@ machines_read (Machines *machines)
 {
   GError *error = NULL;
   GKeyFile *file = NULL;
-  gs_strfreev gchar **groups = NULL;
+  cleanup_strfreev gchar **groups = NULL;
 
   g_mutex_lock (&machines->lock);
 

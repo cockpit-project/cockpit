@@ -27,8 +27,6 @@
 #include "daemon.h"
 #include "netdevmonitor.h"
 
-#include <gsystem-local-alloc.h>
-
 #define SAMPLES_MAX 300
 
 /**

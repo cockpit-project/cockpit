@@ -34,7 +34,6 @@
 #include <string.h>
 
 #include <glib-unix.h>
-#include <gsystem-local-alloc.h>
 
 
 /* This program is run on each managed server, with the credentials

@@ -24,7 +24,6 @@
 
 #include <glib.h>
 
-#include <gsystem-local-alloc.h>
 #include "daemon.h"
 #include "storagejob.h"
 #include "storageprovider.h"

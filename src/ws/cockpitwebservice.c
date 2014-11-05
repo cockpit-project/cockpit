@@ -37,8 +37,6 @@
 #include "cockpitsshtransport.h"
 #include "cockpitwebresponse.h"
 
-#include <gsystem-local-alloc.h>
-
 #include "websocket/websocket.h"
 
 #include "reauthorize/reauthorize.h"

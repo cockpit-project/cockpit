@@ -26,12 +26,12 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
-#include <gsystem-local-alloc.h>
-
 #include "daemon.h"
 #include "machine.h"
 #include "machines.h"
 #include "utils.h"
+
+#include "common/cockpitmemory.h"
 
 /**
  * SECTION:machine
@@ -105,10 +105,10 @@ count_tags (const gchar *const *tags)
 void
 machine_read (Machine *machine, GKeyFile *file, const gchar *group)
 {
-  gs_free gchar *address = g_key_file_get_string (file, group, "address", NULL);
+  cleanup_free gchar *address = g_key_file_get_string (file, group, "address", NULL);
   cockpit_machine_set_address (COCKPIT_MACHINE (machine), address? address : "");
 
-  gs_strfreev gchar **tags = g_key_file_get_string_list (file, group, "tags", NULL, NULL);
+  cleanup_strfreev gchar **tags = g_key_file_get_string_list (file, group, "tags", NULL, NULL);
   cockpit_machine_set_tags (COCKPIT_MACHINE (machine), (const gchar *const *)tags);
 }
 
@@ -129,7 +129,7 @@ machine_export (Machine *machine,
   if (g_dbus_interface_get_object (G_DBUS_INTERFACE (machine)) == NULL)
     {
       CockpitObjectSkeleton *object = NULL;
-      gs_free gchar *object_path = NULL;
+      cleanup_free gchar *object_path = NULL;
 
       object_path = utils_generate_object_path ("/com/redhat/Cockpit/Machines", machine->id);
       object = cockpit_object_skeleton_new (object_path);
@@ -272,7 +272,7 @@ handle_add_tag (CockpitMachine *object,
   if (!find_tag (tags, tag))
     {
       int n = count_tags (tags);
-      gs_free const gchar **new_tags = g_new0 (const gchar *, n+2);
+      cleanup_free const gchar **new_tags = g_new0 (const gchar *, n+2);
       for (int i = 0; i < n; i++)
         new_tags[i] = tags[i];
       new_tags[n] = tag;
@@ -302,7 +302,7 @@ handle_remove_tag (CockpitMachine *object,
   if (find_tag (tags, tag))
     {
       int n = count_tags (tags);
-      gs_free const gchar **new_tags = g_new0 (const gchar *, n);
+      cleanup_free const gchar **new_tags = g_new0 (const gchar *, n);
       for (int i = 0, j = 0; i < n; i++)
         {
           if (g_strcmp0 (tags[i], tag) != 0)

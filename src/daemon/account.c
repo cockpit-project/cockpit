@@ -25,14 +25,14 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <gsystem-local-alloc.h>
-
 #include "daemon.h"
 #include "account.h"
 
 #include <grp.h>
 #include <pwd.h>
 #include <shadow.h>
+
+#include "common/cockpitmemory.h"
 
 typedef struct _AccountClass AccountClass;
 
@@ -221,10 +221,10 @@ handle_get_icon_data_url (CockpitAccount *object,
                           GDBusMethodInvocation *invocation)
 {
   Account *acc = ACCOUNT (object);
-  gs_free gchar *raw_data = NULL;
+  cleanup_free gchar *raw_data = NULL;
   gsize raw_size;
-  gs_free gchar *base64_data = NULL;
-  gs_free gchar *data = NULL;
+  cleanup_free gchar *base64_data = NULL;
+  cleanup_free gchar *data = NULL;
 
   if (acc->u == NULL)
     goto out;
@@ -261,10 +261,10 @@ handle_set_icon_data_url (CockpitAccount *object,
       base64_data += strlen ("base64,");
 
       gsize raw_size;
-      gs_free gchar *raw_data = (gchar *)g_base64_decode (base64_data, &raw_size);
+      cleanup_free gchar *raw_data = (gchar *)g_base64_decode (base64_data, &raw_size);
 
-      gs_unref_object GFileIOStream *tmp_stream = NULL;
-      gs_unref_object GFile *tmp_file = g_file_new_tmp ("cockpit-user-icon-XXXXXX", &tmp_stream, &error);
+      cleanup_unref_object GFileIOStream *tmp_stream = NULL;
+      cleanup_unref_object GFile *tmp_file = g_file_new_tmp ("cockpit-user-icon-XXXXXX", &tmp_stream, &error);
 
       if (tmp_file == NULL)
         goto out;
@@ -276,7 +276,7 @@ handle_set_icon_data_url (CockpitAccount *object,
       if (!g_io_stream_close (G_IO_STREAM (tmp_stream), NULL, &error))
         goto out;
 
-      gs_free gchar *tmp_path = g_file_get_path (tmp_file);
+      cleanup_free gchar *tmp_path = g_file_get_path (tmp_file);
       act_user_set_icon_file (acc->u, tmp_path);
       g_file_delete (tmp_file, NULL, NULL);
     }
@@ -555,7 +555,7 @@ handle_kill_sessions (CockpitAccount *object,
 
   if (acc->u)
     {
-      gs_unref_object GDBusConnection *bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM,
+      cleanup_unref_object GDBusConnection *bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM,
                                                              NULL,
                                                              &error);
       if (bus == NULL)
@@ -588,7 +588,7 @@ handle_kill_sessions (CockpitAccount *object,
           g_dbus_error_strip_remote_error (error);
           g_warning ("logind.KillUser failed (%s), trying systemd.KillUnit", error->message);
           g_clear_error (&error);
-          gs_free gchar *unit = g_strdup_printf ("user-%d.slice", act_user_get_uid (acc->u));
+          cleanup_free gchar *unit = g_strdup_printf ("user-%d.slice", act_user_get_uid (acc->u));
           GVariant *result =
             g_dbus_connection_call_sync (bus,
                                          "org.freedesktop.systemd1",

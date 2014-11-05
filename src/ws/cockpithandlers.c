@@ -28,8 +28,6 @@
 
 #include "websocket/websocket.h"
 
-#include <gsystem-local-alloc.h>
-
 #include <json-glib/json-glib.h>
 
 #include <gio/gio.h>

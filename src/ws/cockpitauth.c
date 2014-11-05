@@ -181,6 +181,8 @@ spawn_session_process (const gchar *type,
   if (socketpair (PF_UNIX, SOCK_STREAM, 0, pwfds) < 0)
     g_return_val_if_reached (NULL);
 
+  g_debug ("spawning %s", cockpit_ws_session_program);
+
   if (!g_spawn_async_with_pipes (NULL, (gchar **)argv, NULL,
                                  G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
                                  session_child_setup, GINT_TO_POINTER (pwfds[1]),

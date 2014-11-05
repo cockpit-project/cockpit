@@ -211,7 +211,10 @@ start_dbus_daemon (void)
   /* Automatically start a DBus session if necessary */
   env = g_getenv ("DBUS_SESSION_BUS_ADDRESS");
   if (env != NULL && env[0] != '\0')
-    goto out;
+    {
+      g_debug ("already have session bus: %s", env);
+      goto out;
+    }
 
   if (pipe (addrfd))
     {
@@ -234,11 +237,13 @@ start_dbus_daemon (void)
 
   if (error != NULL)
     {
-      g_warning ("couldn't start DBus session bus: %s", error->message);
+      g_warning ("couldn't start %s: %s", dbus_argv[0], error->message);
       g_error_free (error);
       pid = 0;
       goto out;
     }
+
+  g_debug ("launched %s", dbus_argv[0]);
 
   address = g_string_new ("");
   for (;;)
@@ -273,9 +278,14 @@ start_dbus_daemon (void)
     }
 
   if (address->str[0] == '\0')
-    g_warning ("dbus-daemon didn't send us a dbus address");
+    {
+      g_warning ("dbus-daemon didn't send us a dbus address");
+    }
   else
-    g_setenv ("DBUS_SESSION_BUS_ADDRESS", address->str, TRUE);
+    {
+      g_setenv ("DBUS_SESSION_BUS_ADDRESS", address->str, TRUE);
+      g_debug ("session bus address: %s", address->str);
+    }
 
 out:
   if (addrfd[0] >= 0)

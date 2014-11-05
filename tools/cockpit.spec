@@ -6,7 +6,10 @@
 %define extra_flags CFLAGS='-O2 -Wall -Werror'
 %define selinux 1
 %endif
-%if 0%{fedora} <= 21
+%if 0%{?fedora} <= 21
+%define selinux 1
+%endif
+%if 0%{?rhel}
 %define selinux 1
 %endif
 
@@ -79,6 +82,9 @@ Requires: lvm2
 Requires: storaged
 
 Requires: cockpit-assets
+%if %{defined selinux}
+Requires: cockpit-selinux-policy
+%endif
 
 Requires(post): systemd
 Requires(preun): systemd
@@ -214,7 +220,6 @@ pulls in some necessary packages via dependencies.
 %package selinux-policy
 Summary: SELinux policy for Cockpit testing
 Requires: %{name} = %{version}-%{release}
-Requires: %{name}-test-assets = %{version}-%{release}
 Requires: selinux-policy
 Requires: selinux-policy-targeted
 Requires(post): /usr/sbin/semodule, /sbin/restorecon, /sbin/fixfiles
@@ -245,6 +250,16 @@ fi
 %endif
 
 %changelog
+* Wed Nov 05 2014 Stef Walter <stefw@redhat.com> - 0.29-3
+- Don't require test-assets from selinux-policy
+- Other minor tweaks and fixes
+
+* Wed Nov 05 2014 Stef Walter <stefw@redhat.com> - 0.29-2
+- Include selinux policy as a dep where required
+
+* Wed Nov 05 2014 Stef Walter <stefw@redhat.com> - 0.29-1
+- Update to 0.29 release
+
 * Thu Oct 16 2014 Stef Walter <stefw@redhat.com> - 0.28-1
 - Update to 0.28 release
 - cockpit-agent was renamed to cockpit-bridge

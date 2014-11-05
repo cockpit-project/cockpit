@@ -26,7 +26,7 @@
 #include "cockpitcreds.h"
 #include "cockpitwebservice.h"
 
-#include "common/cockpitpipe.h"
+#include "common/cockpittransport.h"
 
 G_BEGIN_DECLS
 
@@ -65,7 +65,7 @@ struct _CockpitAuthClass
   CockpitCreds * (* login_finish)        (CockpitAuth *auth,
                                           GAsyncResult *result,
                                           GHashTable *out_headers,
-                                          CockpitPipe **session,
+                                          CockpitTransport **transport,
                                           GError **error);
 };
 

@@ -26,7 +26,7 @@
 #include "cockpitwebresponse.h"
 
 #include "common/cockpitjson.h"
-#include "common/cockpitpipe.h"
+#include "common/cockpittransport.h"
 
 G_BEGIN_DECLS
 
@@ -39,7 +39,7 @@ typedef struct _CockpitWebService   CockpitWebService;
 GType                cockpit_web_service_get_type    (void);
 
 CockpitWebService *  cockpit_web_service_new         (CockpitCreds *creds,
-                                                      CockpitPipe *local_session);
+                                                      CockpitTransport *local_session);
 
 void                 cockpit_web_service_disconnect  (CockpitWebService *self);
 

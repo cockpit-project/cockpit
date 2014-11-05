@@ -26,6 +26,7 @@
 #include "cockpitwebservice.h"
 #include "cockpitwebserver.h"
 
+#include "common/cockpitpipetransport.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
@@ -850,7 +851,7 @@ test_socket_null_creds (TestCase *test,
                         gconstpointer data)
 {
   CockpitWebService *service;
-  CockpitPipe *session;
+  CockpitTransport *session;
   int pair[2];
 
   /*
@@ -869,7 +870,7 @@ test_socket_null_creds (TestCase *test,
   cockpit_expect_critical ("*assertion*failed*");
 
   g_assert (pipe(pair) >= 0);
-  session = cockpit_pipe_new ("dummy", pair[0], pair[1]);
+  session = cockpit_pipe_transport_new_fds ("dummy", pair[0], pair[1]);
   service = cockpit_web_service_new (NULL, session);
   g_assert (service == NULL);
   g_object_unref (session);
@@ -1161,6 +1162,7 @@ test_idling (TestCase *test,
   WebSocketConnection *client;
   CockpitWebService *service;
   gboolean flag = FALSE;
+  CockpitTransport *transport;
   CockpitPipe *pipe;
 
   const gchar *argv[] = {
@@ -1179,7 +1181,9 @@ test_idling (TestCase *test,
                          NULL);
 
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
-  service = cockpit_web_service_new (test->creds, pipe);
+  transport = cockpit_pipe_transport_new (pipe);
+  service = cockpit_web_service_new (test->creds, transport);
+  g_object_unref (transport);
   g_object_unref (pipe);
 
   g_signal_connect (service, "idling", G_CALLBACK (on_idling_set_flag), &flag);
@@ -1212,6 +1216,7 @@ test_dispose (TestCase *test,
 {
   WebSocketConnection *client;
   CockpitWebService *service;
+  CockpitTransport *transport;
   CockpitPipe *pipe;
 
   const gchar *argv[] = {
@@ -1230,7 +1235,9 @@ test_dispose (TestCase *test,
                          NULL);
 
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
-  service = cockpit_web_service_new (test->creds, pipe);
+  transport = cockpit_pipe_transport_new (pipe);
+  service = cockpit_web_service_new (test->creds, transport);
+  g_object_unref (transport);
   g_object_unref (pipe);
 
   cockpit_web_service_socket (service, test->io_b, NULL, NULL);
@@ -1286,6 +1293,7 @@ static void
 setup_resource (TestResourceCase *tc,
                 gconstpointer data)
 {
+  CockpitTransport *transport;
   GInputStream *input;
   GOutputStream *output;
   CockpitCreds *creds;
@@ -1309,7 +1317,9 @@ setup_resource (TestResourceCase *tc,
   user = g_get_user_name ();
   creds = cockpit_creds_new (user, COCKPIT_CRED_PASSWORD, PASSWORD, NULL);
 
-  tc->service = cockpit_web_service_new (creds, tc->pipe);
+  transport = cockpit_pipe_transport_new (tc->pipe);
+  tc->service = cockpit_web_service_new (creds, transport);
+  g_object_unref (transport);
 
   cockpit_creds_unref (creds);
 

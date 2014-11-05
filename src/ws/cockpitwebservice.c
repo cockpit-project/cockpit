@@ -1399,10 +1399,9 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
  */
 CockpitWebService *
 cockpit_web_service_new (CockpitCreds *creds,
-                         CockpitPipe *pipe)
+                         CockpitTransport *transport)
 {
   CockpitWebService *self;
-  CockpitTransport *transport;
   CockpitSession *session;
 
   g_return_val_if_fail (creds != NULL, NULL);
@@ -1410,16 +1409,14 @@ cockpit_web_service_new (CockpitCreds *creds,
   self = g_object_new (COCKPIT_TYPE_WEB_SERVICE, NULL);
   self->creds = cockpit_creds_ref (creds);
 
-  if (pipe)
+  if (transport)
     {
       /* Any failures happen asyncronously */
-      transport = cockpit_pipe_transport_new (pipe);
       session = cockpit_session_track (&self->sessions, "localhost", FALSE, creds, transport);
       session->control_sig = g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
       session->recv_sig = g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
       session->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
       session->primary = TRUE;
-      g_object_unref (transport);
     }
 
   return self;

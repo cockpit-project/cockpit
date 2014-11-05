@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include "common/cockpitpipe.h"
+#include "common/cockpitpipetransport.h"
 #include "common/mock-service.h"
 
 #include <gio/gio.h>
@@ -95,6 +97,7 @@ on_handle_stream_socket (CockpitWebServer *server,
                          gpointer user_data)
 {
   CockpitWebService *service;
+  CockpitTransport *transport;
   CockpitCreds *creds;
   CockpitPipe *pipe;
 
@@ -110,7 +113,9 @@ on_handle_stream_socket (CockpitWebServer *server,
                              NULL);
 
   pipe = cockpit_pipe_spawn (argv, NULL, NULL, FALSE);
-  service = cockpit_web_service_new (creds, pipe);
+  transport = cockpit_pipe_transport_new (pipe);
+  service = cockpit_web_service_new (creds, transport);
+  g_object_unref (transport);
   g_object_unref (pipe);
 
   cockpit_web_service_socket (service, io_stream, headers, input);

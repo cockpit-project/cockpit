@@ -284,11 +284,20 @@ test_echo_and_close (TestCase *tc,
   GBytes *received = NULL;
   GBytes *sent;
   gboolean closed = FALSE;
+  gboolean result = FALSE;
 
   sent = g_bytes_new_static ("the message", 11);
+  g_signal_connect (tc->transport, "result", G_CALLBACK (on_closed_set_flag), &result);
   g_signal_connect (tc->transport, "recv", G_CALLBACK (on_recv_get_payload), &received);
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
   cockpit_transport_send (tc->transport, "546", sent);
+
+  /* The result should always be fired first */
+  while (!result)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert (received == NULL);
+  g_assert (closed == FALSE);
 
   while (received == NULL && !closed)
     g_main_context_iteration (NULL, TRUE);
@@ -437,15 +446,21 @@ test_unsupported_auth (TestCase *tc,
                        gconstpointer data)
 {
   gchar *problem = NULL;
+  gchar *result = NULL;
 
   cockpit_expect_message ("*server offered unsupported authentication methods*");
 
+  g_signal_connect (tc->transport, "result", G_CALLBACK (on_closed_get_problem), &result);
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  /* Gets fired first */
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
 
+  g_assert_cmpstr (result, ==, problem);
   g_assert_cmpstr (problem, ==, "not-authorized");
   g_free (problem);
+  g_free (result);
 }
 
 

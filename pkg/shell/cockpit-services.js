@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
+var shell = shell || { };
 
-(function($, cockpit) {
+(function($, cockpit, shell) {
 
 function resource_debug() {
     if (window.debugging == "all" || window.debugging == "resource" || true)
@@ -157,7 +157,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
             on("click", function() {
                 manager.call('ServiceAction', name, 'start', function (error) {
                     if (error)
-                        cockpit.show_unexpected_error(error);
+                        shell.show_unexpected_error(error);
                 });
                 return false;
             });
@@ -165,7 +165,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
             on("click", function() {
                 manager.call('ServiceAction', name, 'stop', function (error) {
                     if (error)
-                        cockpit.show_unexpected_error(error);
+                        shell.show_unexpected_error(error);
                 });
                 return false;
             });
@@ -185,7 +185,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
             var btn_eject = $('<button class="btn btn-default btn-control btn-eject">').
                 on("click", function() {
                     cockpit.spawn([ "gear", "delete", geard_match[1] ], { host: address }).
-                        fail(cockpit.show_unexpected_error);
+                        fail(shell.show_unexpected_error);
                     return false;
                 });
 
@@ -220,14 +220,14 @@ PageServices.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = cockpit.get_page_machine();
+        me.address = shell.get_page_machine();
 
         if (!me.geard_check_done) {
             me.geard_check_done = true;
             cockpit.spawn([ "which", "gear" ], { host: me.address }).
                 done(function () {
                     me.geard_present = true;
-                    cockpit.content_refresh();
+                    shell.content_refresh();
                 });
         }
 
@@ -267,8 +267,8 @@ PageServices.prototype = {
         });
 
         /* TODO: This code needs to be migrated away from old dbus */
-        me.client = cockpit.dbusx(me.address, { payload: 'dbus-json1' });
-        cockpit.set_watched_client(me.client);
+        me.client = shell.dbus(me.address, { payload: 'dbus-json1' });
+        shell.set_watched_client(me.client);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -300,21 +300,21 @@ PageServices.prototype = {
             $('#services .list-group-item').removeClass('highlight');
             if (id) {
                 id = id.split('/').pop();
-                $('[data-unit="' + cockpit.esc(id) + '"]').addClass('highlight');
+                $('[data-unit="' + shell.esc(id) + '"]').addClass('highlight');
             }
         }
 
-        this.cpu_plot = cockpit.setup_multi_plot('#services-cpu-graph', me.monitor, 4, blues.concat(blues),
+        this.cpu_plot = shell.setup_multi_plot('#services-cpu-graph', me.monitor, 4, blues.concat(blues),
                                                  is_interesting_cgroup);
         $(this.cpu_plot).on('update-total', function (event, total) {
             $('#services-cpu-text').text(format_cpu_usage(total));
         });
         $(this.cpu_plot).on('highlight', highlight_service_row);
 
-        this.mem_plot = cockpit.setup_multi_plot('#services-mem-graph', me.monitor, 0, blues.concat(blues),
+        this.mem_plot = shell.setup_multi_plot('#services-mem-graph', me.monitor, 0, blues.concat(blues),
                                                  is_interesting_cgroup);
         $(this.mem_plot).on('update-total', function (event, total) {
-            $('#services-mem-text').text(cockpit.format_bytes(total, 1024));
+            $('#services-mem-text').text(shell.format_bytes(total, 1024));
         });
         $(this.mem_plot).on('highlight', highlight_service_row);
 
@@ -335,7 +335,7 @@ PageServices.prototype = {
     leave: function() {
         var self = this;
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         this.cpu_plot.destroy();
         this.mem_plot.destroy();
         $(self.manager).off('.services');
@@ -481,7 +481,7 @@ function PageServices() {
     this._init();
 }
 
-cockpit.pages.push(new PageServices());
+shell.pages.push(new PageServices());
 
 PageServiceAdd.prototype = {
     _init: function() {
@@ -493,7 +493,7 @@ PageServiceAdd.prototype = {
     },
 
     enter: function() {
-        this.docker = cockpit.docker(PageServiceAdd.address);
+        this.docker = shell.docker(PageServiceAdd.address);
         $(this.docker).on("image.services", $.proxy(this, "update"));
 
         $('#service-add-image, #service-add-name').val("");
@@ -504,7 +504,7 @@ PageServiceAdd.prototype = {
     },
 
     leave: function() {
-        $(cockpit.docker).off(".services");
+        $(shell.docker).off(".services");
         this.docker.release();
         this.docker = null;
     },
@@ -540,7 +540,7 @@ PageServiceAdd.prototype = {
         $('#service-add-dialog').modal('hide');
         cockpit.spawn([ "gear", "install", "--has-foreground", $('#service-add-image').val(), $('#service-add-name').val() ],
                       { host: PageServiceAdd.address }).
-            fail(cockpit.show_unexpected_error);
+            fail(shell.show_unexpected_error);
     }
 };
 
@@ -548,7 +548,7 @@ function PageServiceAdd() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageServiceAdd());
+shell.dialogs.push(new PageServiceAdd());
 
 PageService.prototype = {
     _init: function() {
@@ -574,7 +574,7 @@ PageService.prototype = {
             { title: _("Isolate"),               action: 'isolate' }
         ];
 
-        self.unit_action_btn = cockpit.action_btn(function (op) { self.action(op); },
+        self.unit_action_btn = shell.action_btn(function (op) { self.action(op); },
                                                   unit_action_spec);
         $('#service-unit-action-btn').html(self.unit_action_btn);
 
@@ -589,7 +589,7 @@ PageService.prototype = {
             { title: _("Unmask"),                action: 'unmask' }
         ];
 
-        self.file_action_btn = cockpit.action_btn(function (op) { self.action(op); },
+        self.file_action_btn = shell.action_btn(function (op) { self.action(op); },
                                                   file_action_spec);
         $('#service-file-action-btn').html(self.file_action_btn);
 
@@ -613,10 +613,10 @@ PageService.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = cockpit.get_page_machine();
+        me.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        me.client = cockpit.dbusx(me.address, { payload: 'dbus-json1' });
-        cockpit.set_watched_client(me.client);
+        me.client = shell.dbus(me.address, { payload: 'dbus-json1' });
+        shell.set_watched_client(me.client);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -629,7 +629,7 @@ PageService.prototype = {
             me.update();
         });
 
-        me.service = cockpit.get_page_param('s') || "";
+        me.service = shell.get_page_param('s') || "";
         me.update();
         me.watch_journal();
 
@@ -650,16 +650,16 @@ PageService.prototype = {
             return cgroup && cgroup.endsWith(me.service);
         }
 
-        this.cpu_plot = cockpit.setup_multi_plot('#service-cpu-graph', me.monitor, 4, blues.concat(blues),
+        this.cpu_plot = shell.setup_multi_plot('#service-cpu-graph', me.monitor, 4, blues.concat(blues),
                                                  is_interesting_cgroup);
         $(this.cpu_plot).on('update-total', function (event, total) {
             $('#service-cpu-text').text(format_cpu_usage(total));
         });
 
-        this.mem_plot = cockpit.setup_multi_plot('#service-mem-graph', me.monitor, 0, blues.concat(blues),
+        this.mem_plot = shell.setup_multi_plot('#service-mem-graph', me.monitor, 0, blues.concat(blues),
                                                  is_interesting_cgroup);
         $(this.mem_plot).on('update-total', function (event, total) {
-            $('#service-mem-text').text(cockpit.format_bytes(total, 1024));
+            $('#service-mem-text').text(shell.format_bytes(total, 1024));
         });
     },
 
@@ -671,14 +671,14 @@ PageService.prototype = {
     leave: function() {
         this.cpu_plot.destroy();
         this.mem_plot.destroy();
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         this.journal_watcher.stop();
         this.client.release();
         this.client = null;
     },
 
     watch_journal: function () {
-        this.journal_watcher = cockpit.simple_logbox(this.address, $('#service-log'),
+        this.journal_watcher = shell.simple_logbox(this.address, $('#service-log'),
                                                      [
                                                         "_SYSTEMD_UNIT=" + this.service, "+",
                                                         "COREDUMP_UNIT=" + this.service, "+",
@@ -751,9 +751,9 @@ PageService.prototype = {
                 $("#service-template-row").show();
                 var html = F(_("This service is an instance of the %{template} service template."),
                              { template: F('<a class="cockpit-link" onclick="%{cmd}">%{title}</a>',
-                                           { cmd: cockpit.esc("cockpit.location.go('service', " +
+                                           { cmd: shell.esc("cockpit.location.go('service', " +
                                                               JSON.stringify({ s: me.template }) + ");"),
-                                             title: cockpit.esc(me.template)
+                                             title: shell.esc(me.template)
                                            })
                              });
                 $("#service-template-link").html(html);
@@ -775,12 +775,12 @@ PageService.prototype = {
                 $("#service-template-state").text(_(file_state));
             } else if (load_state == "error") {
                 $("#service-load-error-box").show();
-                $("#service-load-error").text(cockpit.esc(info.LoadError[1]));
+                $("#service-load-error").text(shell.esc(info.LoadError[1]));
             } else {
                 var path = info.SourcePath || info.FragmentPath;
                 if (path || file_state) {
                     $("#service-file-box").show();
-                    $("#service-file").text(cockpit.esc(path));
+                    $("#service-file").text(shell.esc(path));
                     $("#service-file-state").text(_(file_state));
                 } else
                     $("#service-file-row").hide();
@@ -799,15 +799,15 @@ PageService.prototype = {
             if (info.Processes) {
                 procs.closest('.panel').show();
                 procs.empty();
-                procs.append("<div class=\"list-group-item\"> " + _("CGroup") + ": " + cockpit.esc(info.DefaultControlGroup) + "</div>");
+                procs.append("<div class=\"list-group-item\"> " + _("CGroup") + ": " + shell.esc(info.DefaultControlGroup) + "</div>");
 
                 function add_proc_info(info, level) {
                     var i;
                     if (level > 0)
-                        procs.append("<div class=\"list-group-item\">" + cockpit.esc(info[0]) + "</div>");
+                        procs.append("<div class=\"list-group-item\">" + shell.esc(info[0]) + "</div>");
                     for (i = 1; i < info.length; i++) {
                         if (true) {
-                            procs.append("<div class=\"list-group-item\">" + cockpit.esc(info[i].Pid) + " " + cockpit.esc(info[i].CmdLine) + "</div>");
+                            procs.append("<div class=\"list-group-item\">" + shell.esc(info[i].Pid) + " " + shell.esc(info[i].CmdLine) + "</div>");
                         } else {
                             add_proc_info(info[i], level+1);
                         }
@@ -822,20 +822,20 @@ PageService.prototype = {
     },
 
     set_unit_action: function(op) {
-        cockpit.action_btn_select(this.unit_action_btn, op);
+        shell.action_btn_select(this.unit_action_btn, op);
     },
 
     set_file_action: function(op) {
-        cockpit.action_btn_select(this.file_action_btn, op);
+        shell.action_btn_select(this.file_action_btn, op);
     },
 
     action: function(op) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         this.manager.call('ServiceAction', this.service, op, function (error) {
             if (error)
-                cockpit.show_error_dialog(_("Error"), error.message);
+                shell.show_error_dialog(_("Error"), error.message);
         });
     }
 };
@@ -844,6 +844,6 @@ function PageService() {
     this._init();
 }
 
-cockpit.pages.push(new PageService());
+shell.pages.push(new PageService());
 
-})($, cockpit);
+})($, cockpit, shell);

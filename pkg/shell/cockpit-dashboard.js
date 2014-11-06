@@ -17,9 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
-
-(function($, cockpit) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 PageDashboard.prototype = {
     _init: function() {
@@ -46,8 +45,8 @@ PageDashboard.prototype = {
         var self = this;
 
         /* TODO: This code needs to be migrated away from old dbus */
-        self.local_client = cockpit.dbusx("localhost", { payload: "dbus-json1" });
-        cockpit.set_watched_client(self.local_client);
+        self.local_client = shell.dbus("localhost", { payload: "dbus-json1" });
+        shell.set_watched_client(self.local_client);
         $(self.local_client).on('objectAdded.dashboard-local objectRemoved.dashboard-local', function (event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
                 self.update_machines ();
@@ -71,7 +70,7 @@ PageDashboard.prototype = {
         this.destroy_plots();
         this.put_clients();
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         $(this.local_client).off('.dashboard-local');
         this.local_client.release();
         this.local_client = null;
@@ -113,7 +112,7 @@ PageDashboard.prototype = {
         this.put_clients();
 
         configured_machines = configured_machines.filter(function (m) {
-            return cockpit.find_in_array(m.Tags, "dashboard");
+            return shell.find_in_array(m.Tags, "dashboard");
         });
 
         function machine_action_func (machine) {
@@ -133,7 +132,7 @@ PageDashboard.prototype = {
             var address = configured_machines[i].Address;
             /* TODO: This code needs to be migrated away from old dbus */
             var machine = { address: address,
-                            client: cockpit.dbusx(address, { payload: "dbus-json1" }),
+                            client: shell.dbus(address, { payload: "dbus-json1" }),
                             dbus_iface: configured_machines[i]
                           };
 
@@ -164,7 +163,7 @@ PageDashboard.prototype = {
                                 $('<div/>', { 'class': "waiting" })),
                             $('<div/>', { 'class': "cockpit-machine-error", 'style': "color:red" })),
                         $('<td/>', { style: "text-align:right;width:180px" }).append(
-                            btn = cockpit.action_btn(machine_action_func (machine),
+                            btn = shell.action_btn(machine_action_func (machine),
                                                      machine_action_spec).addClass('cockpit-machine-action'))));
 
             machines.append(
@@ -213,7 +212,7 @@ PageDashboard.prototype = {
                 var manager = client.lookup("/com/redhat/Cockpit/Manager",
                                             "com.redhat.Cockpit.Manager");
                 if (manager) {
-                    $(info_divs[0]).text(cockpit.util.hostname_for_display(manager));
+                    $(info_divs[0]).text(shell.util.hostname_for_display(manager));
                     $(info_divs[1]).text(manager.System || "--");
                     $(info_divs[2]).text(manager.OperatingSystem || "--");
                     manager.call('GetAvatarDataURL', function (error, result) {
@@ -225,18 +224,18 @@ PageDashboard.prototype = {
                     $(manager).off('notify.dashboard');
                     $(manager).on('notify.dashboard', $.proxy (self, "update"));
                 }
-                cockpit.action_btn_enable(action_btn, 'connect', false);
-                cockpit.action_btn_enable(action_btn, 'disconnect', true);
-                cockpit.action_btn_select(action_btn, 'disconnect');
+                shell.action_btn_enable(action_btn, 'connect', false);
+                shell.action_btn_enable(action_btn, 'disconnect', true);
+                shell.action_btn_select(action_btn, 'disconnect');
                 error_div.text("");
                 error_div.hide();
                 spinner_div.hide();
                 plot_div.show();
             } else if (client.state == "closed") {
-                cockpit.action_btn_enable(action_btn, 'connect', true);
-                cockpit.action_btn_enable(action_btn, 'disconnect', false);
-                cockpit.action_btn_select(action_btn, 'connect');
-                error_div.text(cockpit.client_error_description(client.error) || "Disconnected");
+                shell.action_btn_enable(action_btn, 'connect', true);
+                shell.action_btn_enable(action_btn, 'disconnect', false);
+                shell.action_btn_select(action_btn, 'connect');
+                error_div.text(shell.client_error_description(client.error) || "Disconnected");
                 error_div.show();
                 spinner_div.hide();
                 plot_div.hide();
@@ -256,7 +255,7 @@ PageDashboard.prototype = {
                                             "com.redhat.Cockpit.ResourceMonitor");
                 var plot_options = { };
                 self.cpu_plots[i] =
-                    cockpit.setup_simple_plot($(e).find('.cockpit-graph-plot'),
+                    shell.setup_simple_plot($(e).find('.cockpit-graph-plot'),
                                               $(e).find('.cockpit-graph-text'),
                                               monitor, plot_options,
                                               function(values) { // Combines the series into a single plot-value
@@ -278,18 +277,18 @@ PageDashboard.prototype = {
         } else if (op == "disconnect") {
             machine.client.close();
         } else if (op == "remove") {
-            if (!cockpit.check_admin(this.local_client))
+            if (!shell.check_admin(this.local_client))
                 return;
             machine.dbus_iface.call('RemoveTag', "dashboard", function (error) {
                 if (error)
-                    cockpit.show_unexpected_error(error);
+                    shell.show_unexpected_error(error);
             });
         } else
             console.log ("unsupported server op %s", op);
     },
 
     add_server: function () {
-        if (!cockpit.check_admin(this.local_client))
+        if (!shell.check_admin(this.local_client))
             return;
 
         $('#dashboard_setup_server_dialog').modal('show');
@@ -300,6 +299,6 @@ function PageDashboard() {
     this._init();
 }
 
-cockpit.pages.push(new PageDashboard());
+shell.pages.push(new PageDashboard());
 
-})(jQuery, cockpit);
+})(jQuery, cockpit, shell);

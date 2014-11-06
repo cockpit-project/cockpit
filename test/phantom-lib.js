@@ -173,7 +173,7 @@ function ph_dbus_ready (client_address, client_options)
 {
     client_options.payload = "dbus-json1";
     /* TODO: This needs to be migrated away from the old dbus */
-    var client = cockpit.dbusx(client_address, client_options);
+    var client = shell.dbus(client_address, client_options);
     var result = client && client.state == "ready";
     client.release();
     return result;
@@ -187,7 +187,7 @@ function ph_dbus_prop (client_address, client_options, iface, prop, text)
     var result = false;
     client_options.protocol = "dbus-json1";
     /* TODO: This needs to be migrated away from the old dbus */
-    var client = cockpit.dbusx(client_address, client_options);
+    var client = shell.dbus(client_address, client_options);
     var objs = client.getObjectsFrom("/");
     for (var i = 0; i < objs.length; i++) {
         var obj_iface = objs[i].lookup(iface);
@@ -206,7 +206,7 @@ function ph_dbus_object_prop (client_address, client_options, path, iface, prop,
 
     client_options.protocol = "dbus-json1";
     /* TODO: This needs to be migrated away from the old dbus */
-    var client = cockpit.dbusx(client_address, client_options);
+    var client = shell.dbus(client_address, client_options);
     var proxy = client.lookup(path, iface);
     var result = proxy && proxy[prop] == text;
     client.release()

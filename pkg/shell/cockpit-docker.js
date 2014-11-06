@@ -17,9 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
-
-(function($, cockpit) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 function resource_debug() {
     if (window.debugging == "all" || window.debugging == "resource")
@@ -31,19 +30,19 @@ function docker_debug() {
         console.debug.apply(console, arguments);
 }
 
-var docker_clients = cockpit.util.make_resource_cache();
+var docker_clients = shell.util.make_resource_cache();
 
-cockpit.docker = docker;
+shell.docker = docker;
 function docker(machine) {
     return docker_clients.get(machine, function () { return new DockerClient(machine); });
 }
 
 function quote_cmdline (cmds) {
-    return cockpit.util.quote_words(cmds || []);
+    return shell.util.quote_words(cmds || []);
 }
 
 function unquote_cmdline (string) {
-    return cockpit.util.parse_words(string);
+    return shell.util.parse_words(string);
 }
 
 function render_container_cmdline (container) {
@@ -73,7 +72,7 @@ function render_container_state (state) {
 }
 
 function multi_line(strings) {
-    return strings.map(cockpit.esc).join('<br/>');
+    return strings.map(shell.esc).join('<br/>');
 }
 
 function format_cpu_shares(priority) {
@@ -102,13 +101,13 @@ function format_memory_and_limit(usage, limit) {
     var units = 1024;
     var parts;
     if (limit) {
-        parts = cockpit.format_bytes(limit, units, true);
+        parts = shell.format_bytes(limit, units, true);
         mtext = " / " + parts.join(" ");
         units = parts[1];
     }
 
     if (usage) {
-        parts = cockpit.format_bytes(usage, units, true);
+        parts = shell.format_bytes(usage, units, true);
         if (mtext)
             return parts[0] + mtext;
         else
@@ -151,7 +150,7 @@ function MemorySlider(sel, min, max) {
         limit = Math.round(slider.value * max);
         if (limit < min)
             limit = min;
-        return cockpit.format_bytes(limit, 1024);
+        return shell.format_bytes(limit, 1024);
     }
 
     /* Slider to limit amount of memory */
@@ -292,7 +291,7 @@ function setup_for_failure(page, client, address) {
 
     /* High level failures about the overall functionality of docker */
     $(client).on('failure.failure', function(event, ex) {
-        /* This error is handled via cockpit.set_watched_client
+        /* This error is handled via shell.set_watched_client
          * and we don't need to show it here. */
         if (ex.problem != "disconnected")
             show_failure(ex, page);
@@ -370,7 +369,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
                     siblings("div.waiting").show();
                 client.start(id).
                     fail(function(ex) {
-                        cockpit.show_unexpected_error(ex);
+                        shell.show_unexpected_error(ex);
                     });
                 return false;
             });
@@ -380,7 +379,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
                     siblings("div.waiting").show();
                 client.stop(id).
                     fail(function(ex) {
-                        cockpit.show_unexpected_error(ex);
+                        shell.show_unexpected_error(ex);
                     });
                 return false;
             });
@@ -389,7 +388,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
             $('<td class="container-col-image">'),
             $('<td class="container-col-command">'),
             $('<td class="container-col-cpu">'),
-            $('<td class="container-col-memory-graph">').append(cockpit.BarRow("containers-containers")),
+            $('<td class="container-col-memory-graph">').append(shell.BarRow("containers-containers")),
             $('<td class="container-col-memory-text">'),
             $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
         tr.on('click', function(event) {
@@ -415,7 +414,7 @@ function render_container (client, $panel, filter_button, prefix, id, container)
     $(row[6]).children("button.btn-stop").toggle(!waiting && container.State.Running);
 
     if (filter_button) {
-        var filter = cockpit.select_btn_selected(filter_button);
+        var filter = shell.select_btn_selected(filter_button);
         tr.toggleClass("unimportant", !container.State.Running);
     }
 
@@ -434,7 +433,7 @@ PageContainers.prototype = {
 
     setup: function() {
         this.container_filter_btn =
-            cockpit.select_btn($.proxy(this, "filter"),
+            shell.select_btn($.proxy(this, "filter"),
                                [ { title: _("All"),                 choice: 'all',  is_default: true },
                                  { title: _("Running"),             choice: 'running' }
                                ]);
@@ -449,12 +448,12 @@ PageContainers.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_machine();
-        this.client = cockpit.docker(this.address);
+        this.address = shell.get_page_machine();
+        this.client = shell.docker(this.address);
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.dbus_client = cockpit.dbusx(this.address, { payload: "dbus-json1" });
-        cockpit.set_watched_client(this.dbus_client);
+        this.dbus_client = shell.dbus(this.address, { payload: "dbus-json1" });
+        shell.set_watched_client(this.dbus_client);
 
         var reds = [ "#250304",
                      "#5c080c",
@@ -490,7 +489,7 @@ PageContainers.prototype = {
 
         this.mem_plot = this.client.setup_cgroups_plot ('#containers-mem-graph', 0, blues.concat(blues));
         $(this.mem_plot).on('update-total', function (event, total) {
-            $('#containers-mem-text').text(cockpit.format_bytes(total, 1024));
+            $('#containers-mem-text').text(shell.format_bytes(total, 1024));
         });
         $(this.mem_plot).on('highlight', highlight_container_row);
 
@@ -527,7 +526,7 @@ PageContainers.prototype = {
     leave: function() {
         unsetup_for_failure(this.client);
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
 
@@ -578,7 +577,7 @@ PageContainers.prototype = {
         $(row[0]).html(multi_line(image.RepoTags));
         $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
         $(row[2]).children("div").attr("value", image.VirtualSize);
-        $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024));
+        $(row[3]).text(shell.format_bytes(image.VirtualSize, 1024));
 
         if (added) {
             insert_table_sorted($('#containers-images table'), tr);
@@ -586,7 +585,7 @@ PageContainers.prototype = {
     },
 
     filter: function() {
-        var filter = cockpit.select_btn_selected(this.container_filter_btn);
+        var filter = shell.select_btn_selected(this.container_filter_btn);
         $("#containers-containers table").toggleClass("filter-unimportant", filter === "running");
     }
 
@@ -596,7 +595,7 @@ function PageContainers() {
     this._init();
 }
 
-cockpit.pages.push(new PageContainers());
+shell.pages.push(new PageContainers());
 
 PageRunImage.prototype = {
     _init: function() {
@@ -729,12 +728,12 @@ PageRunImage.prototype = {
 
         PageRunImage.client.create(name, options).
             fail(function(ex) {
-                cockpit.show_unexpected_error(ex);
+                shell.show_unexpected_error(ex);
             }).
             done(function(result) {
                 PageRunImage.client.start(result.Id, { "PortBindings": port_bindings }).
                     fail(function(ex) {
-                        cockpit.show_unexpected_error(ex);
+                        shell.show_unexpected_error(ex);
                     });
             });
     }
@@ -750,7 +749,7 @@ function PageRunImage() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageRunImage());
+shell.dialogs.push(new PageRunImage());
 
 PageSearchImage.prototype = {
     _init: function() {
@@ -780,8 +779,8 @@ PageSearchImage.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_machine();
-        this.client = cockpit.docker(this.address);
+        this.address = shell.get_page_machine();
+        this.client = shell.docker(this.address);
 
         // Clear the previous results and search string from previous time
         $('#containers-search-image-results tbody tr').remove();
@@ -949,7 +948,7 @@ function PageSearchImage() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageSearchImage());
+shell.dialogs.push(new PageSearchImage());
 
 PageContainerDetails.prototype = {
     _init: function() {
@@ -968,7 +967,7 @@ PageContainerDetails.prototype = {
     leave: function() {
         unsetup_for_failure(this.client);
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
 
@@ -1056,16 +1055,16 @@ PageContainerDetails.prototype = {
                 var repository = $(commit).find(".container-repository").val();
                 self.client.commit(self.container_id, repository, options, run).
                     fail(function(ex) {
-                        cockpit.show_unexpected_error(ex);
+                        shell.show_unexpected_error(ex);
                     }).
                     done(function() {
                         location.go("containers");
                     });
             });
 
-        this.address = cockpit.get_page_machine();
-        this.client = cockpit.docker(this.address);
-        this.container_id = cockpit.get_page_param('id');
+        this.address = shell.get_page_machine();
+        this.client = shell.docker(this.address);
+        this.container_id = shell.get_page_param('id');
         this.name = this.container_id.slice(0,12);
 
         this.client.machine_info().
@@ -1074,8 +1073,8 @@ PageContainerDetails.prototype = {
             });
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.dbus_client = cockpit.dbusx(this.address, { payload: "dbus-json1" });
-        cockpit.set_watched_client(this.dbus_client);
+        this.dbus_client = shell.dbus(this.address, { payload: "dbus-json1" });
+        shell.set_watched_client(this.dbus_client);
 
         $(this.client).on('container.container-details', function (event, id, container) {
             if (id == self.container_id)
@@ -1166,7 +1165,7 @@ PageContainerDetails.prototype = {
         $('#container-details-state').text(render_container_state(info.State));
 
         $('#container-details-ports-row').toggle(port_bindings.length > 0);
-        $('#container-details-ports').html(port_bindings.map(cockpit.esc).join('<br/>'));
+        $('#container-details-ports').html(port_bindings.map(shell.esc).join('<br/>'));
 
         update_memory_bar(this.memory_usage, info.MemoryUsage, info.MemoryLimit);
         $('#container-details-memory-text').text(format_memory_and_limit(info.MemoryUsage, info.MemoryLimit));
@@ -1181,7 +1180,7 @@ PageContainerDetails.prototype = {
         var self = this;
         this.client.start(this.container_id).
                 fail(function(ex) {
-                    cockpit.show_unexpected_error(ex);
+                    shell.show_unexpected_error(ex);
                 }).
                 done(function() {
                     self.maybe_reconnect_terminal();
@@ -1191,7 +1190,7 @@ PageContainerDetails.prototype = {
     stop_container: function () {
         this.client.stop(this.container_id).
                 fail(function(ex) {
-                    cockpit.show_unexpected_error(ex);
+                    shell.show_unexpected_error(ex);
                 });
     },
 
@@ -1199,7 +1198,7 @@ PageContainerDetails.prototype = {
         var self = this;
         this.client.restart(this.container_id).
                 fail(function(ex) {
-                    cockpit.show_unexpected_error(ex);
+                    shell.show_unexpected_error(ex);
                 }).
                 done(function() {
                     self.maybe_reconnect_terminal();
@@ -1209,13 +1208,13 @@ PageContainerDetails.prototype = {
     delete_container: function () {
         var self = this;
         var location = cockpit.location;
-        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
+        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
                         _("Deleting a container will erase all data in it."),
                         _("Delete")).
             done(function () {
                 self.client.rm(self.container_id).
                     fail(function(ex) {
-                        cockpit.show_unexpected_error(ex);
+                        shell.show_unexpected_error(ex);
                     }).
                     done(function() {
                         location.go("containers");
@@ -1229,7 +1228,7 @@ function PageContainerDetails() {
     this._init();
 }
 
-cockpit.pages.push(new PageContainerDetails());
+shell.pages.push(new PageContainerDetails());
 
 PageImageDetails.prototype = {
     _init: function() {
@@ -1247,7 +1246,7 @@ PageImageDetails.prototype = {
     leave: function() {
         unsetup_for_failure(this.client);
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
 
@@ -1264,14 +1263,14 @@ PageImageDetails.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_machine();
-        this.client = cockpit.docker(this.address);
-        this.image_id = cockpit.get_page_param('id');
+        this.address = shell.get_page_machine();
+        this.client = shell.docker(this.address);
+        this.image_id = shell.get_page_param('id');
         this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
 
         /* TODO: migrate this code away from old dbus */
-        this.dbus_client = cockpit.dbusx(this.address, { payload: "dbus-json1" });
-        cockpit.set_watched_client(this.dbus_client);
+        this.dbus_client = shell.dbus(this.address, { payload: "dbus-json1" });
+        shell.set_watched_client(this.dbus_client);
 
         $('#image-details-containers table tbody tr').remove();
 
@@ -1350,13 +1349,13 @@ PageImageDetails.prototype = {
     delete_image: function () {
         var self = this;
         var location = cockpit.location;
-        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
+        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
                         _("Deleting an image will delete it, but you can probably download it again if you need it later.  Unless this image has never been pushed to a repository, that is, in which case you probably can't download it again."),
                         _("Delete")).
             done(function () {
                 self.client.rmi(self.image_id).
                     fail(function(ex) {
-                        cockpit.show_unexpected_error(ex);
+                        shell.show_unexpected_error(ex);
                     }).
                     done(function() {
                         location.go("containers");
@@ -1370,7 +1369,7 @@ function PageImageDetails() {
     this._init();
 }
 
-cockpit.pages.push(new PageImageDetails());
+shell.pages.push(new PageImageDetails());
 
 function DockerClient(machine) {
     var me = this;
@@ -1466,7 +1465,7 @@ function DockerClient(machine) {
     function perform_connect() {
         got_failure = false;
         connected = $.Deferred();
-        rest = cockpit.rest("unix:///var/run/docker.sock", machine);
+        rest = shell.rest("unix:///var/run/docker.sock", machine);
         events = rest.get("/v1.10/events");
 
         connect_events();
@@ -1597,7 +1596,7 @@ function DockerClient(machine) {
             });
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        dbus_client = cockpit.dbusx(machine, { payload: "dbus-json1" });
+        dbus_client = shell.dbus(machine, { payload: "dbus-json1" });
         monitor = dbus_client.get("/com/redhat/Cockpit/LxcMonitor",
                                   "com.redhat.Cockpit.MultiResourceMonitor");
         $(monitor).on('NewSample', handle_new_samples);
@@ -1830,7 +1829,7 @@ function DockerClient(machine) {
          * Showing unexpected error isn't it.
          */
         var options = {
-            host: cockpit.get_page_machine()
+            host: shell.get_page_machine()
         };
         cockpit.spawn(["sh", "-c", command], options).
             fail(function(ex) {
@@ -1861,12 +1860,12 @@ function DockerClient(machine) {
             return !!container_from_cgroup(cgroup);
         }
 
-        return cockpit.setup_multi_plot(element, monitor, sample_index, colors,
+        return shell.setup_multi_plot(element, monitor, sample_index, colors,
                                         is_container);
     };
 
     this.machine_info = function machine_info() {
-        return cockpit.util.machine_info(machine);
+        return shell.util.machine_info(machine);
     };
 
 
@@ -2009,4 +2008,4 @@ function DockerTerminal(parent, machine, id) {
     return this;
 }
 
-})(jQuery, cockpit);
+})(jQuery, cockpit, shell);

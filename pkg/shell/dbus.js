@@ -119,8 +119,8 @@
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
-var cockpit = cockpit || { };
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 function dbus_debug() {
     if (window.debugging == "all" || window.debugging == "dbus")
@@ -144,7 +144,7 @@ DBusVariant.prototype = {
     }
 };
 
-cockpit.variant = function variant(signature, value) {
+shell.variant = function variant(signature, value) {
     return new DBusVariant(signature, value);
 };
 
@@ -702,8 +702,8 @@ DBusClient.prototype = {
     }
 };
 
-cockpit.dbus_client = function dbus_client(target, options) {
+shell.dbus_client = function dbus_client(target, options) {
     return new DBusClient(target, options);
 };
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

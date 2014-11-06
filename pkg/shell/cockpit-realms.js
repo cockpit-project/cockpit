@@ -17,9 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
-cockpit.realms_op_set_parameters = function realms_op_set_parameters(manager, op, realm, details) {
+shell.realms_op_set_parameters = function realms_op_set_parameters(manager, op, realm, details) {
     PageRealmsOp.manager = manager;
     PageRealmsOp.op = op;
     PageRealmsOp.realm = realm;
@@ -127,7 +128,7 @@ PageRealmsOp.prototype = {
         for (var i = 0; i < me.discovered_details.length; i++) {
             var d = me.discovered_details[i];
             var txt = d['client-software'] + " / " + d['server-software'];
-            sel.append('<option value="' + i + '">' + cockpit.esc(txt) + '</option>');
+            sel.append('<option value="' + i + '">' + shell.esc(txt) + '</option>');
         }
         me.update_auth_methods();
 
@@ -170,7 +171,7 @@ PageRealmsOp.prototype = {
 
         function add_choice (tag, text) {
             if (tag in m) {
-                sel.append('<option value="' + tag + '">' + cockpit.esc(text) + '</option>');
+                sel.append('<option value="' + tag + '">' + shell.esc(text) + '</option>');
                 have_one = 1;
             }
         }
@@ -295,7 +296,7 @@ PageRealmsOp.prototype = {
                                       else if (!result) {
                                           $("#realms-op-address-error").show();
                                           $("#realms-op-address-error").attr('title',
-                                                                             F(_("Domain %{domain} could not be contacted"), { 'domain': cockpit.esc(name) }));
+                                                                             F(_("Domain %{domain} could not be contacted"), { 'domain': shell.esc(name) }));
                                       } else {
                                           me.discovered_details = details;
                                       }
@@ -387,6 +388,6 @@ function PageRealmsOp() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageRealmsOp());
+shell.dialogs.push(new PageRealmsOp());
 
-})(cockpit, $);
+})($, cockpit, shell);

@@ -25,9 +25,9 @@ class TestDashboard(MachineCase):
         b.eval_js("""
         legacy_page_from_id = function (id) {
           var n;
-          for (n = 0; n < cockpit.pages.length; n++) {
-            if (cockpit.pages[n].id == id)
-              return cockpit.pages[n];
+          for (n = 0; n < shell.pages.length; n++) {
+            if (shell.pages[n].id == id)
+              return shell.pages[n];
           }
           return null;
         }

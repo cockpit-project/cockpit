@@ -19,14 +19,14 @@
 
 /* MAIN
 
-   - cockpit.language_code
-   - cockpit.language_po
+   - shell.language_code
+   - shell.language_po
 
    Information about the selected display language.  'language_code'
    contains the symbol identifying the language, such as "de" or "fi".
    'language_po' is a dictionary with the actual translations.
 
-   - client = cockpit.dbusx(address, [options])
+   - client = shell.dbus(address, [options])
    - client.release()
 
    Manage the active D-Bus clients.  The 'dbus' function returns a
@@ -40,7 +40,7 @@
    Clients stay around a while after they have been released by its
    last user.
 
-   - cockpit.set_watched_client(client)
+   - shell.set_watched_client(client)
 
    Start watching the state of the given D-Bus client.  When it is
    closed, a modal dialog will pop up that prevents interaction with
@@ -51,18 +51,18 @@
    'null' to this function to stop watching any client.
 */
 
-var cockpit = cockpit || { };
+var shell = shell || { };
 
-(function($, cockpit) {
+(function($, cockpit, shell) {
 
 var visited_dialogs = {};
 
-cockpit.dbusx = dbusx;
-cockpit.set_watched_client = set_watched_client;
+shell.dbus = dbus;
+shell.set_watched_client = set_watched_client;
 
 function init() {
-    cockpit.language_code = "";
-    cockpit.language_po = null;
+    shell.language_code = "";
+    shell.language_po = null;
 
     var lang_code = null;
     var language, language_normalized, code, code_normalized;
@@ -101,28 +101,28 @@ function init_load_lang(lang_code) {
         init_done();
     });
     jqxhr.success(function(data) {
-        cockpit.language_code = lang_code;
-        cockpit.language_po = data[lang_code];
+        shell.language_code = lang_code;
+        shell.language_po = data[lang_code];
         init_done();
     });
 }
 
 function init_done() {
     content_init();
-    cockpit.localize_pages();
+    shell.localize_pages();
     content_show();
 }
 
-var dbus_clients = cockpit.util.make_resource_cache();
+var dbus_clients = shell.util.make_resource_cache();
 
 function make_dict_key(dict) {
     function stringify_elt(k) { return JSON.stringify(k) + ':' + JSON.stringify(dict[k]); }
     return Object.keys(dict).sort().map(stringify_elt).join(";");
 }
 
-function dbusx(address, options) {
+function dbus(address, options) {
     return dbus_clients.get(make_dict_key($.extend({host: address}, options)),
-                            function () { return cockpit.dbus_client(address, options); });
+                            function () { return shell.dbus_client(address, options); });
 }
 
 var watched_client = null;
@@ -144,9 +144,9 @@ function set_watched_client(client) {
     update ();
 }
 
-cockpit.pages = [];
+shell.pages = [];
 
-cockpit.dialogs = [];
+shell.dialogs = [];
 
 /* current_params are the navigation parameters of the current page,
  * for example:
@@ -211,7 +211,7 @@ function content_init() {
         recalculate_layout();
     });
 
-    cockpit.content_refresh();
+    shell.content_refresh();
     $('.selectpicker').selectpicker();
 
     hosts_init();
@@ -228,7 +228,7 @@ function content_show() {
     phantom_checkpoint();
 }
 
-cockpit.content_refresh = function content_refresh() {
+shell.content_refresh = function content_refresh() {
     if (current_params)
         display_params(current_params);
 };
@@ -278,9 +278,9 @@ function check_admin() {
     }
 
     if (acc && acc.Groups) {
-        if (cockpit.find_in_array(acc.Groups, "wheel"))
+        if (shell.find_in_array(acc.Groups, "wheel"))
             return true;
-        cockpit.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
+        shell.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
         return false;
     }
 
@@ -304,7 +304,7 @@ function hosts_init() {
         var want = { };
         for (var path in host_proxies) {
             var h = host_proxies[path];
-            if (cockpit.find_in_array(h.Tags, "dashboard")) {
+            if (shell.find_in_array(h.Tags, "dashboard")) {
                 want[h.Address] = h;
                 if (!host_info[h.Address])
                     add_host(h.Address);
@@ -350,7 +350,7 @@ function hosts_init() {
         $('#hosts').append(link);
 
         function update() {
-            info.display_name = cockpit.util.hostname_for_display(manager);
+            info.display_name = shell.util.hostname_for_display(manager);
             hostname_span.text(info.display_name);
 
             if (manager.GetAvatarDataURL) {
@@ -491,7 +491,7 @@ var page_iframes = { };
  */
 var visited_legacy_pages = { };
 
-cockpit.register_component = function register_component(prefix, pkg, entry) {
+shell.register_component = function register_component(prefix, pkg, entry) {
     var key = JSON.stringify(prefix);
     components[key] = { pkg: pkg, entry: entry };
 };
@@ -568,9 +568,9 @@ function get_page_iframe(params) {
 
 function legacy_page_from_id(id) {
     var n;
-    for (n = 0; n < cockpit.pages.length; n++) {
-        if (cockpit.pages[n].id == id)
-            return cockpit.pages[n];
+    for (n = 0; n < shell.pages.length; n++) {
+        if (shell.pages[n].id == id)
+            return shell.pages[n];
     }
     return null;
 }
@@ -643,9 +643,9 @@ function display_location() {
 
 function dialog_from_id(id) {
     var n;
-    for (n = 0; n < cockpit.dialogs.length; n++) {
-        if (cockpit.dialogs[n].id == id)
-            return cockpit.dialogs[n];
+    for (n = 0; n < shell.dialogs.length; n++) {
+        if (shell.dialogs[n].id == id)
+            return shell.dialogs[n];
     }
     return null;
 }
@@ -657,7 +657,6 @@ function dialog_enter(id) {
         first_visit = false;
 
     if (dialog) {
-        // cockpit.debug("enter() for dialog with id " + id);
         if (first_visit && dialog.setup)
             dialog.setup();
         dialog.enter();
@@ -682,15 +681,15 @@ function dialog_show(id) {
     phantom_checkpoint ();
 }
 
-cockpit.get_page_param = function get_page_param(key) {
+shell.get_page_param = function get_page_param(key) {
     return current_params.options[key];
 };
 
-cockpit.get_page_machine = function get_page_machine() {
+shell.get_page_machine = function get_page_machine() {
     return current_params.host;
 };
 
-cockpit.set_page_param = function set_page_param(key, val) {
+shell.set_page_param = function set_page_param(key, val) {
     if (val) {
         if (val == current_params.options[key])
             return;
@@ -704,7 +703,7 @@ cockpit.set_page_param = function set_page_param(key, val) {
     current_params.options = cockpit.location.options;
 };
 
-cockpit.show_error_dialog = function show_error_dialog(title, message) {
+shell.show_error_dialog = function show_error_dialog(title, message) {
     if (message) {
         $("#error-popup-title").text(title);
         $("#error-popup-message").text(message);
@@ -717,11 +716,11 @@ cockpit.show_error_dialog = function show_error_dialog(title, message) {
     $('#error-popup').modal('show');
 };
 
-cockpit.show_unexpected_error = function show_unexpected_error(error) {
-    cockpit.show_error_dialog(_("Unexpected error"), error.message || error);
+shell.show_unexpected_error = function show_unexpected_error(error) {
+    shell.show_error_dialog(_("Unexpected error"), error.message || error);
 };
 
-cockpit.confirm = function confirm(title, body, action_text) {
+shell.confirm = function confirm(title, body, action_text) {
     var deferred = $.Deferred();
 
     $('#confirmation-dialog-title').text(title);
@@ -773,7 +772,7 @@ $(function() {
     $(cockpit.user).on("changed", update_user_menu);
 });
 
-cockpit.go_login_account = function go_login_account() {
+shell.go_login_account = function go_login_account() {
     cockpit.location.go([ "local", "account" ], { id: cockpit.user["user"] });
 };
 
@@ -788,7 +787,7 @@ PageDisconnected.prototype = {
     },
 
     enter: function() {
-        $('#disconnected-error').text(cockpit.client_error_description(watched_client.error));
+        $('#disconnected-error').text(shell.client_error_description(watched_client.error));
     },
 
     show: function() {
@@ -810,7 +809,7 @@ function PageDisconnected() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageDisconnected());
+shell.dialogs.push(new PageDisconnected());
 
 var unique_id = 0;
 var origin = cockpit.transport.origin;
@@ -921,11 +920,11 @@ $.extend(window.options, { sink: true, protocol: "cockpit1" });
 
 /* Initialize cockpit when page is loaded */
 $(function() {
-    cockpit.register_component([ "terminal" ], "terminal", "terminal.html");
-    cockpit.register_component([ "playground" ], "playground", "test.html");
+    shell.register_component([ "terminal" ], "terminal", "terminal.html");
+    shell.register_component([ "playground" ], "playground", "test.html");
 
     /* Initialize the rest of Cockpit */
     init();
 });
 
-})(jQuery, cockpit);
+})(jQuery, cockpit, shell);

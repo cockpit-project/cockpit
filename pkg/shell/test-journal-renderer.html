@@ -113,7 +113,7 @@ var funcs = {
 
 QUnit.testStart(function() {
     output = [ ];
-    renderer = cockpit.journal_renderer(funcs);
+    renderer = shell.journal_renderer(funcs);
 });
 
 function append(message)

@@ -27,6 +27,7 @@
     <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
     <script type="text/javascript" src="../../tools/qunit-config.js"></script>
 
+    <script type="text/javascript" src="../base/cockpit.js"></script>
     <script type="text/javascript" src="rest.js"></script>
   </head>
   <body>
@@ -163,7 +164,7 @@ function MockPeer() {
 }
 
 test("public api", function() {
-    var rest = cockpit.rest("unix://test");
+    var rest = shell.rest("unix://test");
     equal(typeof rest, "object", "rest is an object");
     equal(typeof rest.get, "function", "rest.get() is a function");
     equal(typeof rest.post, "function", "rest.post() is a function");
@@ -184,7 +185,7 @@ asyncTest("simple request", function() {
         deepEqual(request, { "method": "GET", "path": "/", "cookie": request.cookie }, "looks correct");
     });
 
-    cockpit.rest("unix:///test").get("/")
+    shell.rest("unix:///test").get("/")
         .done(function(resp) {
             deepEqual(resp, { key: "value" }, "returned right json");
         })
@@ -210,7 +211,7 @@ asyncTest("channel options", function() {
 
     /* Don't care about the result ... */
     var options = { "extra-option": "zerogjuggs" };
-    cockpit.rest("unix:///my/test/path", "the-other-host.example.com", options).get("/");
+    shell.rest("unix:///my/test/path", "the-other-host.example.com", options).get("/");
 });
 
 asyncTest("with params", function() {
@@ -224,7 +225,7 @@ asyncTest("with params", function() {
         this.reply(channel, request, [ "zerog", "juggs" ]);
     });
 
-    cockpit.rest("unix:///test").get("/test/here", { "key": "value", "name": "Scruffy the Janitor" })
+    shell.rest("unix:///test").get("/test/here", { "key": "value", "name": "Scruffy the Janitor" })
         .done(function(resp) {
             deepEqual(resp, [ "zerog", "juggs"], "returned right json");
         })
@@ -249,7 +250,7 @@ asyncTest("not found", function() {
         return false;
     });
 
-    cockpit.rest("unix:///test").get("/not/found")
+    shell.rest("unix:///test").get("/not/found")
         .fail(function(ex) {
             equal(ex.problem, "internal-error", "mapped to cockpit code");
             strictEqual(ex.status, 404, "has status code");
@@ -281,7 +282,7 @@ asyncTest("streaming", function() {
     });
 
     var at = 0;
-    cockpit.rest("unix:///test").get("/split")
+    shell.rest("unix:///test").get("/split")
         .stream(function(resp) {
             var match = { };
             match[at.toString()] = at;
@@ -314,7 +315,7 @@ asyncTest("cancel", function() {
     });
 
     var at = 0;
-    var req = cockpit.rest("unix:///test").get("/split")
+    var req = shell.rest("unix:///test").get("/split")
         .stream(function(resp) {
             var match = { };
             match[at.toString()] = at;
@@ -351,7 +352,7 @@ asyncTest("restart", function() {
         start();
     }
 
-    var req = cockpit.rest("unix:///test").get("/restart")
+    var req = shell.rest("unix:///test").get("/restart")
         .done(function(resp) {
             strictEqual(resp, 1, "responded with right initial");
             var next = req.restart();
@@ -372,7 +373,7 @@ asyncTest("post json", function() {
         this.reply(channel, request, { "reply": "Marmallaaade!" });
     });
 
-    cockpit.rest("unix:///test").post("/scruffy", { "param" : true }, { "request": "oh?" })
+    shell.rest("unix:///test").post("/scruffy", { "param" : true }, { "request": "oh?" })
         .done(function(resp) {
             deepEqual(resp, { "reply": "Marmallaaade!" }, "got reply");
         })
@@ -393,7 +394,7 @@ asyncTest("post nothing", function() {
         return false;
     });
 
-    cockpit.rest("unix:///test").post("/nothing")
+    shell.rest("unix:///test").post("/nothing")
         .done(function(resp) {
             equal(resp, null, "got null back");
         })
@@ -412,7 +413,7 @@ asyncTest("delete method", function() {
         this.reply(channel, request, [ "one", "two", "three", "boom" ]);
     });
 
-    cockpit.rest("unix:///test").del("/undead", { "param": 1 })
+    shell.rest("unix:///test").del("/undead", { "param": 1 })
         .done(function(resp) {
             deepEqual(resp, [ "one", "two", "three", "boom" ], "right response");
         })
@@ -432,7 +433,7 @@ asyncTest("immediate close", function() {
         return false;
     });
 
-    cockpit.rest("unix:///test").get("/")
+    shell.rest("unix:///test").get("/")
         .fail(function(ex) {
             equal(ex.problem, "disconnected", "got disconnected error");
         })
@@ -458,7 +459,7 @@ function failureTest(test_name, reason, response) {
             return false;
         });
 
-        cockpit.rest("unix:///test").get("/")
+        shell.rest("unix:///test").get("/")
             .fail(function(ex) {
                 equal(ex.problem, reason, test_name + " should cause " + reason);
             })

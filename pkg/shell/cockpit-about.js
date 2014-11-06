@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 PageAbout.prototype = {
     _init: function() {
@@ -42,6 +43,6 @@ function PageAbout() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageAbout());
+shell.dialogs.push(new PageAbout());
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

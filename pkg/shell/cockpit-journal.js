@@ -17,11 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 "use strict";
 
 /**
- * cockpit.journal([match, ...], [options])
+ * shell.journal([match, ...], [options])
  * @match: any number of journal match strings
  * @options: an object containing further options
  *
@@ -61,7 +62,7 @@
  *  .stop(): stop following or retrieving entries.
  */
 
-cockpit.journal = function journal(/* ... */) {
+shell.journal = function journal(/* ... */) {
     var matches = [];
     var options = { follow: true };
     for (var i = 0; i < arguments.length; i++) {
@@ -74,7 +75,7 @@ cockpit.journal = function journal(/* ... */) {
             else
                 jQuery.extend(options, arg);
         } else {
-            console.warn("cockpit.journal called with invalid argument:", arg);
+            console.warn("shell.journal called with invalid argument:", arg);
         }
     }
 
@@ -198,15 +199,15 @@ function output_funcs_for_box(box)
     function render_line(ident, prio, message, count, time, entry)
     {
         var html = ('<span class="cockpit-logident">' +
-                    cockpit.esc(ident) + ': ' +
+                    shell.esc(ident) + ': ' +
                     '</span>' +
                     '<span class="cockpit-logmsg">' +
-                    '<span class="cockpit-logprio-' + prio + '">' + cockpit.esc(message) + '</span>' +
+                    '<span class="cockpit-logprio-' + prio + '">' + shell.esc(message) + '</span>' +
                     '<span class="cockpit-logtime">' +
                     ((count > 1)?
                      '<span class="badge">' + count + '</span>' :
                      '') +
-                    cockpit.esc(time) +
+                    shell.esc(time) +
                     '</span>' +
                     '</span>');
         var elt = $('<div class="cockpit-logline">' + html + '</div>');
@@ -238,12 +239,12 @@ function output_funcs_for_box(box)
     };
 }
 
-cockpit.simple_logbox = function simple_logbox(machine, box, match, max_entries)
+shell.simple_logbox = function simple_logbox(machine, box, match, max_entries)
 {
     var entries = [ ];
 
     function render() {
-        var renderer = cockpit.journal_renderer(output_funcs_for_box (box));
+        var renderer = shell.journal_renderer(output_funcs_for_box (box));
         box.empty();
         for (var i = 0; i < entries.length; i++) {
             renderer.prepend (entries[i]);
@@ -254,7 +255,7 @@ cockpit.simple_logbox = function simple_logbox(machine, box, match, max_entries)
 
     render();
 
-    return cockpit.journal(match, { count: max_entries, host: machine }).
+    return shell.journal(match, { count: max_entries, host: machine }).
         stream(function(tail) {
             entries = entries.concat(tail);
             if (entries.length > max_entries)
@@ -262,7 +263,7 @@ cockpit.simple_logbox = function simple_logbox(machine, box, match, max_entries)
             render();
         }).
         fail(function(error) {
-            box.append(cockpit.esc(error.message));
+            box.append(shell.esc(error.message));
             box.show();
         });
 };
@@ -272,7 +273,7 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
     var query_count = 5000;
     var query_more = 1000;
 
-    var renderer = cockpit.journal_renderer(output_funcs_for_box (box));
+    var renderer = shell.journal_renderer(output_funcs_for_box (box));
     /* cache to store offsets for days */
     var renderitems_day_cache = null;
     var procs = [];
@@ -322,7 +323,7 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
             var count = 0;
             var stopped = null;
             start_box.text(_("Loading..."));
-            procs.push(cockpit.journal(match, { follow: false, reverse: true, cursor: first, host: machine }).
+            procs.push(shell.journal(match, { follow: false, reverse: true, cursor: first, host: machine }).
                 fail(query_error).
                 stream(function(entries) {
                     if (entries[0]["__CURSOR"] == first)
@@ -343,7 +344,7 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
     }
 
     function follow(cursor) {
-        procs.push(cockpit.journal(match, { follow: true, count: 0, cursor: cursor, host: machine }).
+        procs.push(shell.journal(match, { follow: true, count: 0, cursor: cursor, host: machine }).
             fail(query_error).
             stream(function(entries) {
                 if (entries[0]["__CURSOR"] == cursor)
@@ -419,7 +420,7 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
     var count = 0;
     var stopped = null;
 
-    procs.push(cockpit.journal(match, options).
+    procs.push(shell.journal(match, options).
         fail(query_error).
         stream(function(entries) {
             if (!last) {
@@ -439,7 +440,7 @@ function journal_filler(machine, box, start, match, header, day_box, start_box, 
         done(function() {
             if (!last) {
                 reached_end();
-                procs.push(cockpit.journal(match, { follow: true, count: 0, host: machine }).
+                procs.push(shell.journal(match, { follow: true, count: 0, host: machine }).
                     fail(query_error).
                     stream(function(entries) {
                         prepend_entries(entries);
@@ -522,14 +523,14 @@ PageJournal.prototype = {
 
         $('#content-header-extra').append($('<div>', { 'class': 'btn-group' }).append(priority_buttons));
 
-        this.query_prio = parseInt(cockpit.get_page_param('prio') || "0", 10);
-        this.query_service = cockpit.get_page_param('service') || "";
-        this.query_tag = cockpit.get_page_param('tag') || "";
-        this.query_start = cockpit.get_page_param('start') || "recent";
+        this.query_prio = parseInt(shell.get_page_param('prio') || "0", 10);
+        this.query_service = shell.get_page_param('service') || "";
+        this.query_tag = shell.get_page_param('tag') || "";
+        this.query_start = shell.get_page_param('start') || "recent";
 
         update_priority_buttons (this.query_prio);
 
-        this.address = cockpit.get_page_machine();
+        this.address = shell.get_page_machine();
 
         this.reset_query ();
     },
@@ -548,10 +549,10 @@ PageJournal.prototype = {
         var start_param = this.query_start;
         var tag_param = this.query_tag;
 
-        cockpit.set_page_param('prio', prio_param.toString());
-        cockpit.set_page_param('service', service_param);
-        cockpit.set_page_param('tag', tag_param);
-        cockpit.set_page_param('start', start_param);
+        shell.set_page_param('prio', prio_param.toString());
+        shell.set_page_param('service', service_param);
+        shell.set_page_param('tag', tag_param);
+        shell.set_page_param('start', start_param);
 
         var match = [ ];
 
@@ -590,7 +591,7 @@ function PageJournal() {
     this._init();
 }
 
-cockpit.pages.push(new PageJournal());
+shell.pages.push(new PageJournal());
 
 
 PageJournalEntry.prototype = {
@@ -607,7 +608,7 @@ PageJournalEntry.prototype = {
     },
 
     enter: function() {
-        var cursor = cockpit.get_page_param('c');
+        var cursor = shell.get_page_param('c');
         var out = $('#journal-entry-fields');
 
         out.empty();
@@ -647,7 +648,7 @@ PageJournalEntry.prototype = {
                         text(error)));
         }
 
-        cockpit.journal({ cursor: cursor, count: 1, follow: false }).
+        shell.journal({ cursor: cursor, count: 1, follow: false }).
             done(function (entries) {
                 if (entries.length >= 1 && entries[0]["__CURSOR"] == cursor)
                     show_entry(entries[0]);
@@ -667,6 +668,6 @@ function PageJournalEntry() {
     this._init();
 }
 
-cockpit.pages.push(new PageJournalEntry());
+shell.pages.push(new PageJournalEntry());
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

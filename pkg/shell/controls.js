@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-var cockpit = cockpit || { };
+var shell = shell || { };
 
 /* ----------------------------------------------------------------------------
  * Bar Graphs (in table rows)
@@ -41,13 +41,13 @@ var cockpit = cockpit || { };
  * graph should update a short while later.
  *
  * On document creation any div.bar-row are automatically turned into
- * Bar graphs. Or use cockpit.BarRow('name') constructor.
+ * Bar graphs. Or use shell.BarRow('name') constructor.
  *
  * You can also use the el.reflow() function on the element to reflow
  * the corresponding graph.
  */
 
-(function($, cockpit) {
+(function($, cockpit, shell) {
 
 function reflow_bar_graph(graph, div) {
     var parts;
@@ -182,7 +182,7 @@ function setup_bar_graphs() {
 }
 
 /* Public API */
-cockpit.BarRow = function BarRow(graph) {
+shell.BarRow = function BarRow(graph) {
     var div = $("<div>").addClass('bar-row').attr('graph', graph);
     setup_bar_graph(div);
     return div;
@@ -190,7 +190,7 @@ cockpit.BarRow = function BarRow(graph) {
 
 $(document).ready(setup_bar_graphs);
 
-})(jQuery, cockpit);
+})(jQuery, cockpit, shell);
 
 /* ----------------------------------------------------------------------------
  * Sliders
@@ -216,7 +216,7 @@ $(document).ready(setup_bar_graphs);
  * it will get the .slider-warning class and go a bit red.
  *
  * On document creation any div.slider are automatically turned into
- * Bar graphs. Or use cockpit.Slider() constructor.
+ * Bar graphs. Or use shell.Slider() constructor.
  *
  * Slider has the following extra read/write properties:
  *
@@ -228,7 +228,7 @@ $(document).ready(setup_bar_graphs);
  * on('change'): fired when the slider changes, passes value as additional arg.
  */
 
-(function($, cockpit) {
+(function($, cockpit, shell) {
 
 function resize_flex(slider, flex, total, part) {
     var value = 0;
@@ -336,7 +336,7 @@ function setup_sliders() {
 }
 
 /* Public API */
-cockpit.Slider = function Slider() {
+shell.Slider = function Slider() {
     var div = $("<div class='slider'>").
         append($("<div class='slider-bar'>").
             append($("<div class='slider-thumb'>")));
@@ -363,7 +363,7 @@ $(document).ready(setup_sliders);
    changes state.  If it returns 'false', the change is declined.
  */
 
-cockpit.OnOff = function OnOff(val, on, off, role_check) {
+shell.OnOff = function OnOff(val, on, off, role_check) {
     function toggle(event) {
         if (role_check && !role_check())
             return false;
@@ -409,4 +409,4 @@ cockpit.OnOff = function OnOff(val, on, off, role_check) {
     return box;
 };
 
-})(jQuery, cockpit);
+})(jQuery, cockpit, shell);

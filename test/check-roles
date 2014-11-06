@@ -51,7 +51,7 @@ class TestRoles(MachineCase):
 
         # change its own name
         b.click('#content-user-name')
-        b.click('a[onclick*="cockpit.go_login_account"]')
+        b.click('a[onclick*="shell.go_login_account"]')
         b.wait_page("account")
         b.wait_text("#account-user-name", "user")
         b.set_val('#account-real-name', "Userrrr")
@@ -96,7 +96,7 @@ class TestRoles(MachineCase):
         # TODO: This needs to be migrated away from the old dbus
         b.wait_js_func(
             """(function () {
-            var client = cockpit.dbusx();
+            var client = shell.dbus();
             var roles = client.get("/com/redhat/Cockpit/Accounts", "com.redhat.Cockpit.Accounts").Roles;
             var has_docker = roles && roles.some(function (r) { return r[0] == "docker" });
             client.release();

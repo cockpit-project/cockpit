@@ -100,7 +100,7 @@ cockpit_package_new (const gchar *name)
 static gboolean
 validate_package (const gchar *name)
 {
-  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+  static const gchar *allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
   gsize len = strspn (name, allowed);
   return len && name[len] == '\0';
 }

@@ -477,6 +477,25 @@ failureTest("http 401 error", "not-authorized", {
     "message": "Not Authorized",
 });
 
+test("rest promise recursive", function() {
+    expect(7);
+
+    var peer = new MockPeer();
+    var promise = shell.rest("unix:///test").get("/")
+
+    var target = { };
+    var promise2 = promise.promise(target);
+    strictEqual(promise2, target, "used target");
+    equal(typeof promise2.done, "function", "promise2.done()");
+    equal(typeof promise2.promise, "function", "promise2.promise()");
+    equal(typeof promise2.restart, "function", "promise2.restart()");
+
+    var promise3 = promise2.promise();
+    equal(typeof promise3.done, "function", "promise3.done()");
+    equal(typeof promise3.promise, "function", "promise3.promise()");
+    equal(typeof promise3.restart, "function", "promise3.restart()");
+});
+
 QUnit.start();
 
 </script>

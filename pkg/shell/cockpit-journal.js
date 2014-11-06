@@ -179,18 +179,24 @@ shell.journal = function journal(/* ... */) {
             clearInterval(interval);
         });
 
+    var jpromise = dfd.promise;
+    dfd.promise = function() {
+        return $.extend(jpromise.apply(this, arguments), {
+            stream: function stream(callback) {
+                if (streamers === null)
+                    streamers = $.Callbacks("" /* no flags */);
+                streamers.add(callback);
+                return this;
+            },
+            stop: function stop() {
+                proc.close("cancelled");
+            },
+            promise: this.promise
+        });
+    };
+
+    /* Used above so save a ref */
     promise = dfd.promise();
-    promise.stream = function stream(callback) {
-        if (streamers === null)
-            streamers = $.Callbacks("" /* no flags */);
-        streamers.add(callback);
-        return this;
-    };
-
-    promise.stop = function stop() {
-        proc.close("cancelled");
-    };
-
     return promise;
 };
 

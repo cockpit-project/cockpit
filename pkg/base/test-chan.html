@@ -670,6 +670,25 @@ asyncTest("transport options", function() {
     channel.send("blah");
 });
 
+var shell = shell || { };
+
+asyncTest("auto host shell hack", function() {
+    expect(1);
+
+    shell.get_page_machine = function() {
+        return "marmalade";
+    };
+
+    var channel = cockpit.channel({ });
+    $(mock_peer).on("recv", function(event, chan, payload) {
+        var command = JSON.parse(payload);
+        if (command.command == "open") {
+            strictEqual(command.host, "marmalade", "host automatically chosen");
+            delete shell.get_page_machine;
+            start();
+        }
+    });
+});
 
 window.location.hash = "";
 QUnit.start();

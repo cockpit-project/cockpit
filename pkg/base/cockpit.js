@@ -471,8 +471,16 @@ function Channel(options) {
             if (options.hasOwnProperty(i) && command[i] === undefined)
                 command[i] = options[i];
         }
-        if (command.host === undefined && default_host)
-            command.host = default_host;
+
+        if (command.host === undefined) {
+            var host = default_host;
+            /* HACK until we migrate all the pages from shell */
+            if ("shell" in window && typeof window['shell'].get_page_machine == "function")
+                host = window["shell"].get_page_machine();
+            if (host)
+                command.host = host;
+        }
+
         transport.send_control(command);
 
         /* Now drain the queue */

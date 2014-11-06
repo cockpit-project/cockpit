@@ -96,10 +96,15 @@ The "open" command opens a new channel for payload.
 
 The following fields are defined:
 
+ * "binary": If present, either "base64" or "raw"
  * "channel": A uniquely chosen channel id
  * "payload": A payload type, see below
  * "host": The destination host for the channel, defaults to "localhost"
  * "user": Optional alternate user for authenticating with host
+
+If "binary" is set then this channel transfers binary messages. If "binary"
+is set to "base64" then messages in the channel are encoded using "base64",
+otherwise if it's set to "raw" they are transferred directly.
 
 These optional fields are used when establishing a channel over a new
 connection with a host. If a connection is already open for the given

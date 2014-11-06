@@ -59,6 +59,23 @@ asyncTest("basic", function() {
     channel.send("the payload");
 });
 
+asyncTest("base64", function() {
+    expect(1);
+
+    var channel = cockpit.channel({
+        "payload": "resource1",
+        "path": "test.html",
+        "package": "another",
+        "binary": "base64"
+    });
+
+    $(channel).on("message", function(ev, payload) {
+        strictEqual(payload, "PGh0bWw+CjxoZWFkPgo8dGl0bGU+SW4gaG9tZSBkaXI8L3RpdGxlPgo8L2hlYWQ+Cjxib2R5PkluIGhvbWUgZGlyPC9ib2R5Pgo8L2h0bWw+Cg==", "got the right payload");
+        $(channel).off();
+        start();
+    });
+});
+
 QUnit.start();
 
 </script>

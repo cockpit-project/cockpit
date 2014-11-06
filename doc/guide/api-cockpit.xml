@@ -1230,6 +1230,15 @@
 
       <variablelist>
         <varlistentry>
+          <term><code>"binary"</code></term>
+          <listitem><para>Set to <code>"base64"</code> to transfer payloads encoded in
+            base64 strings. Full binary support will come later. Both messages sent
+            via <link linkend="latest-channels-send"><code>channel.send()</code></link>
+            and those received via
+            <link linkend="latest-channels-message"><code>channel.onmessage</code></link>
+            should and will be base64 encoded.</para></listitem>
+        </varlistentry>
+        <varlistentry>
           <term><code>"host"</code></term>
           <listitem><para>The host to open the channel to. If no host is specified
             then the correct one will be automatically selected based on the page

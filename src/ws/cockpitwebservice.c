@@ -359,13 +359,14 @@ cockpit_socket_remove_channel (CockpitSockets *sockets,
 static void
 cockpit_socket_add_channel (CockpitSockets *sockets,
                             CockpitSocket *socket,
-                            const gchar *channel)
+                            const gchar *channel,
+                            WebSocketDataType data_type)
 {
   gchar *chan;
 
   chan = g_strdup (channel);
   g_hash_table_insert (sockets->by_channel, chan, socket);
-  g_hash_table_add (socket->channels, chan);
+  g_hash_table_replace (socket->channels, chan, GINT_TO_POINTER (data_type));
 
   g_debug ("%s added channel %s to socket", socket->id, channel);
 }
@@ -820,6 +821,7 @@ on_session_recv (CockpitTransport *transport,
                  gpointer user_data)
 {
   CockpitWebService *self = user_data;
+  WebSocketDataType data_type;
   CockpitSession *session;
   CockpitSocket *socket;
   gchar *string;
@@ -848,7 +850,8 @@ on_session_recv (CockpitTransport *transport,
     {
       string = g_strdup_printf ("%s\n", channel);
       prefix = g_bytes_new_take (string, strlen (string));
-      web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT, prefix, payload);
+      data_type = GPOINTER_TO_INT (g_hash_table_lookup (socket->channels, channel));
+      web_socket_connection_send (socket->connection, data_type, prefix, payload);
       g_bytes_unref (prefix);
     }
 
@@ -963,10 +966,12 @@ process_open (CockpitWebService *self,
 {
   CockpitSession *session = NULL;
   CockpitCreds *creds;
+  WebSocketDataType data_type;
   const gchar *specific_user;
   const gchar *password;
   const gchar *host;
   const gchar *host_key;
+  const gchar *binary;
   gboolean private;
 
   if (self->closing)
@@ -980,6 +985,17 @@ process_open (CockpitWebService *self,
       g_warning ("cannot open a channel %s with the same id as another channel", channel);
       return FALSE;
     }
+
+  if (!cockpit_json_get_string (options, "binary", NULL, &binary))
+    {
+      g_warning ("%s: invalid binary option", socket->id);
+      return FALSE;
+    }
+
+  if (binary && g_str_equal (binary, "raw"))
+    data_type = WEB_SOCKET_DATA_BINARY;
+  else
+    data_type = WEB_SOCKET_DATA_TEXT;
 
   if (!cockpit_json_get_string (options, "host", "localhost", &host))
     host = "localhost";
@@ -1022,7 +1038,7 @@ process_open (CockpitWebService *self,
 
   cockpit_creds_unref (creds);
   cockpit_session_add_channel (&self->sessions, session, channel);
-  cockpit_socket_add_channel (&self->sockets, socket, channel);
+  cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
   return TRUE;
 }
 
@@ -1821,6 +1837,7 @@ resource_respond (CockpitWebService *self,
                            "package", name,
                            "path", path,
                            "accept", accept,
+                           "binary", "raw",
                            NULL);
 
   cockpit_transport_send (rr->transport, NULL, command);

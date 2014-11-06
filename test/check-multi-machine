@@ -172,8 +172,8 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
 
         # Modify the terminals to be different on the two machines.
-        m1.execute("sed -i -e 's/<body>/<body>magic-m1-token/' /usr/share/cockpit/server/terminal.html")
-        m2.execute("sed -i -e 's/<body>/<body>magic-m2-token/' /usr/share/cockpit/server/terminal.html")
+        m1.execute("sed -i -e 's/<body>/<body>magic-m1-token/' /usr/share/cockpit/server-systemd/terminal.html")
+        m2.execute("sed -i -e 's/<body>/<body>magic-m2-token/' /usr/share/cockpit/server-systemd/terminal.html")
 
         self.login_and_go("dashboard")
         inject_extras(b)

@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
+var shell = shell || { };
 
-(function($, cockpit) {
+(function($, cockpit, shell) {
 
 /*
  * HACK: Don't touch window.onerror in phantomjs, once it's non-null
@@ -56,4 +56,4 @@ if (window.navigator.userAgent.indexOf("PhantomJS") == -1) {
     };
 }
 
-})(jQuery, cockpit);
+})(jQuery, cockpit, shell);

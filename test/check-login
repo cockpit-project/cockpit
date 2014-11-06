@@ -89,7 +89,7 @@ class TestLogin(MachineCase):
         b.reload()
         b.wait_page("server")
         b.wait_text('#content-user-name', 'Administrator')
-        b.click('a[onclick*="cockpit.go_login_account"]')
+        b.click('a[onclick*="shell.go_login_account"]')
         b.wait_page("account")
         b.wait_text ("#account-user-name", "admin")
 

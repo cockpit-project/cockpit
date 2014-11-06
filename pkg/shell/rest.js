@@ -20,7 +20,7 @@
 /*
  * API: defined in cockpit namespace
  *
- * cockpit.rest(endpoint, [machine], [options])
+ * shell.rest(endpoint, [machine], [options])
  *   @endpoint: a unix socket that looks like 'unix:///path/to/sock'
  *   @machine: optional, a host name of the machine to connect to
  *   @options: optional, a plain object of additional channel options
@@ -34,7 +34,7 @@
  *   Makes a REST JSON GET request to the specified HTTP path.
  *   Returns: a jQuery deferred promise. See below.
  *
- *     cockpit.rest("unix:///var/run/docker.sock")
+ *     shell.rest("unix:///var/run/docker.sock")
  *          .get("/containers/json")
  *              .done(function(resp) {
  *                  console.log(resp);
@@ -69,7 +69,7 @@
  *
  *   Example:
  *
- *      var rest = cockpit.rest("unix:///var/run/docker.sock");
+ *      var rest = shell.rest("unix:///var/run/docker.sock");
  *      var events = rest.get("/events")
  *          .done(function on_done(resp) {
  *              setTimeout(function() {
@@ -114,9 +114,9 @@
  *             status where possible.
  */
 
-var cockpit = cockpit || { };
+var shell = shell || { };
 
-(function(cockpit, $) {
+(function($, cockpit, shell) {
     "use strict";
 
     /* Translates HTTP error codes to Cockpit codes */
@@ -334,8 +334,8 @@ var cockpit = cockpit || { };
     }
 
     /* public */
-    cockpit.rest = function(endpoint, machine, options) {
+    shell.rest = function(endpoint, machine, options) {
         return new Rest(endpoint, machine, options);
     };
 
-}(cockpit, jQuery));
+}(jQuery, cockpit, shell));

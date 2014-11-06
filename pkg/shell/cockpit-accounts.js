@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 function make_set(array) {
     var s = { };
@@ -26,7 +27,7 @@ function make_set(array) {
     return s;
 }
 
-cockpit.check_admin = function check_admin(client)
+shell.check_admin = function check_admin(client)
 {
     var acc, i;
 
@@ -39,7 +40,7 @@ cockpit.check_admin = function check_admin(client)
             if (acc.Groups[i] == 'wheel')
                 return true;
         }
-        cockpit.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
+        shell.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
         return false;
     }
     // When in doubt, just go ahead and let it fail later.
@@ -63,7 +64,7 @@ function fill_canvas(canvas, overlay, data, width, callback)
 {
     var img = new window.Image();
     img.onerror = function () {
-        cockpit.show_error_dialog(_("Can't use this file"), _("Can't read it."));
+        shell.show_error_dialog(_("Can't use this file"), _("Can't read it."));
     };
     img.onload = function () {
         canvas.width = width;
@@ -99,7 +100,7 @@ function canvas_data(canvas, x1, y1, x2, y2, width, height, format)
     return dest.toDataURL(format);
 }
 
-cockpit.show_change_avatar_dialog = function show_change_avatar_dialog(file_input, callback)
+shell.show_change_avatar_dialog = function show_change_avatar_dialog(file_input, callback)
 {
     var files, file, reader;
     files = $(file_input)[0].files;
@@ -107,12 +108,12 @@ cockpit.show_change_avatar_dialog = function show_change_avatar_dialog(file_inpu
         return;
     file = files[0];
     if (!file.type.match("image.*")) {
-        cockpit.show_error_dialog(_("Can't upload this file"), _("It's not an image."));
+        shell.show_error_dialog(_("Can't upload this file"), _("It's not an image."));
         return;
     }
     reader = new window.FileReader();
     reader.onerror = function () {
-        cockpit.show_error_dialog(_("Can't upload this file"), _("Can't read it."));
+        shell.show_error_dialog(_("Can't upload this file"), _("Can't read it."));
     };
     reader.onload = function () {
         var canvas = $('#account-change-avatar-canvas')[0];
@@ -177,17 +178,17 @@ PageAccounts.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_machine();
+        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = cockpit.dbusx(this.address, { "payload": "dbus-json1" });
-        cockpit.set_watched_client(this.client);
+        this.client = shell.dbus(this.address, { "payload": "dbus-json1" });
+        shell.set_watched_client(this.client);
 
         on_account_changes(this.client, "accounts", $.proxy(this, "update"));
         this.update();
     },
 
     leave: function() {
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         off_account_changes(this.client, "accounts");
         this.client.release();
         this.client = null;
@@ -235,7 +236,7 @@ PageAccounts.prototype = {
     },
 
     create: function () {
-        if (cockpit.check_admin(this.client)) {
+        if (shell.check_admin(this.client)) {
             PageAccountsCreate.client = this.client;
             $('#accounts-create-dialog').modal('show');
         }
@@ -250,7 +251,7 @@ function PageAccounts() {
     this._init();
 }
 
-cockpit.pages.push(new PageAccounts());
+shell.pages.push(new PageAccounts());
 
 PageAccountsCreate.prototype = {
     _init: function() {
@@ -348,7 +349,7 @@ PageAccountsCreate.prototype = {
                      $('#accounts-create-locked').prop('checked'),
                      function (error) {
                          if (error)
-                             cockpit.show_unexpected_error(error);
+                             shell.show_unexpected_error(error);
                      });
     }
 };
@@ -357,7 +358,7 @@ function PageAccountsCreate() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageAccountsCreate());
+shell.dialogs.push(new PageAccountsCreate());
 
 PageAccount.prototype = {
     _init: function() {
@@ -385,10 +386,10 @@ PageAccount.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_machine();
+        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = cockpit.dbusx(this.address, { payload: "dbus-json1" });
-        cockpit.set_watched_client(this.client);
+        this.client = shell.dbus(this.address, { payload: "dbus-json1" });
+        shell.set_watched_client(this.client);
 
         on_account_changes(this.client, "account", $.proxy(this, "update"));
         this.real_name_dirty = false;
@@ -396,14 +397,14 @@ PageAccount.prototype = {
     },
 
     leave: function() {
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         off_account_changes(this.client, "account");
         this.client.release();
         this.client = null;
     },
 
     update: function() {
-        this.account = find_account(cockpit.get_page_param('id'), this.client);
+        this.account = find_account(shell.get_page_param('id'), this.client);
 
         if (this.account) {
             var manager = this.client.get ("/com/redhat/Cockpit/Accounts",
@@ -432,7 +433,7 @@ PageAccount.prototype = {
                 if (this.sys_roles[i][0] in groups) {
                     if (roles !== "")
                         roles += "<br/>";
-                    roles += cockpit.esc(this.sys_roles[i][1]);
+                    roles += shell.esc(this.sys_roles[i][1]);
                 }
             }
             $('#account-roles').html(roles);
@@ -458,12 +459,12 @@ PageAccount.prototype = {
 
     change_avatar: function() {
         var me = this;
-        cockpit.show_change_avatar_dialog('#account-avatar-uploader',
+        shell.show_change_avatar_dialog('#account-avatar-uploader',
                                         function (data) {
                                             me.account.call('SetIconDataURL', data,
                                                             function (error) {
                                                                 if (error)
-                                                                    cockpit.show_unexpected_error(error);
+                                                                    shell.show_unexpected_error(error);
                                                             });
                                         });
     },
@@ -474,7 +475,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account.UserName == cockpit.user["user"] ||
-                cockpit.check_admin(this.client));
+                shell.check_admin(this.client));
     },
 
     change_real_name: function() {
@@ -490,7 +491,7 @@ PageAccount.prototype = {
         this.account.call ('SetRealName', $('#account-real-name').val(),
                            function (error) {
                                if (error) {
-                                   cockpit.show_unexpected_error(error);
+                                   shell.show_unexpected_error(error);
                                    me.update ();
                                }
                            });
@@ -499,7 +500,7 @@ PageAccount.prototype = {
     change_locked: function() {
         var me = this;
 
-        if (!cockpit.check_admin(this.client)) {
+        if (!shell.check_admin(this.client)) {
             me.update ();
             return;
         }
@@ -508,7 +509,7 @@ PageAccount.prototype = {
                            $('#account-locked').prop('checked'),
                            function (error) {
                                if (error) {
-                                   cockpit.show_unexpected_error(error);
+                                   shell.show_unexpected_error(error);
                                    me.update ();
                                }
                            });
@@ -524,7 +525,7 @@ PageAccount.prototype = {
     },
 
     delete_account: function() {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageAccountConfirmDelete.account = this.account;
@@ -534,20 +535,20 @@ PageAccount.prototype = {
     logout_account: function() {
         var me = this;
 
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         this.account.call('KillSessions',
                           function (error) {
                               if (error) {
-                                  cockpit.show_unexpected_error(error);
+                                  shell.show_unexpected_error(error);
                                   me.update ();
                               }
                           });
     },
 
     change_roles: function() {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageAccountChangeRoles.account = this.account;
@@ -560,7 +561,7 @@ function PageAccount() {
     this._init();
 }
 
-cockpit.pages.push(new PageAccount());
+shell.pages.push(new PageAccount());
 
 var crop_handle_width = 20;
 
@@ -726,7 +727,7 @@ function PageAccountChangeAvatar() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageAccountChangeAvatar());
+shell.dialogs.push(new PageAccountChangeAvatar());
 
 PageAccountChangeRoles.prototype = {
     _init: function() {
@@ -797,7 +798,7 @@ PageAccountChangeRoles.prototype = {
         PageAccountChangeRoles.account.call ('ChangeGroups', add, remove,
                                              function (error) {
                                                  if (error)
-                                                     cockpit.show_unexpected_error(error);
+                                                     shell.show_unexpected_error(error);
                                              });
         $('#account-change-roles-dialog').modal('hide');
     }
@@ -807,7 +808,7 @@ function PageAccountChangeRoles() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageAccountChangeRoles());
+shell.dialogs.push(new PageAccountChangeRoles());
 
 PageAccountConfirmDelete.prototype = {
     _init: function() {
@@ -835,7 +836,7 @@ PageAccountConfirmDelete.prototype = {
                                                $('#account-confirm-delete-files').prop('checked'),
                                                function (error) {
                                                    if (error)
-                                                       cockpit.show_unexpected_error(error);
+                                                       shell.show_unexpected_error(error);
                                                });
         $('#account-confirm-delete-dialog').modal('hide');
         cockpit.location = "accounts";
@@ -846,7 +847,7 @@ function PageAccountConfirmDelete() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageAccountConfirmDelete());
+shell.dialogs.push(new PageAccountConfirmDelete());
 
 PageAccountSetPassword.prototype = {
     _init: function() {
@@ -930,12 +931,12 @@ PageAccountSetPassword.prototype = {
             PageAccountSetPassword.account.call ('SetPassword', $('#account-set-password-pw1').val(),
                                                  function (error) {
                                                      if (error)
-                                                         cockpit.show_unexpected_error(error);
+                                                         shell.show_unexpected_error(error);
                                                  });
         } else if (PageAccountSetPassword.user_name) {
             cockpit.spawn([ "passwd", "--stdin", PageAccountSetPassword.user_name ]).
                           write($('#account-set-password-pw1').val()).
-                          fail(cockpit.show_unexpected_error);
+                          fail(shell.show_unexpected_error);
         }
     }
 };
@@ -944,12 +945,12 @@ function PageAccountSetPassword() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageAccountSetPassword());
+shell.dialogs.push(new PageAccountSetPassword());
 
-cockpit.change_password = function change_password() {
+shell.change_password = function change_password() {
     PageAccountSetPassword.account = null;
     PageAccountSetPassword.user_name = cockpit.user["user"];
     $('#account-set-password-dialog').modal('show');
 };
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

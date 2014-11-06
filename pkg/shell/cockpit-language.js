@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 PageDisplayLanguageDialog.prototype = {
     _init: function() {
@@ -37,8 +38,8 @@ PageDisplayLanguageDialog.prototype = {
         for (code in languages) {
             var info = languages[code];
             var name = info.name;
-            var display_name = cockpit.i18n(name, "display-language");
-            if (code == cockpit.language_code)
+            var display_name = shell.i18n(name, "display-language");
+            if (code == shell.language_code)
                 list.append("<option selected=\"true\" value=\"" + code + "\">" + display_name + "</option>");
             else
                 list.append("<option value=\"" + code + "\">" + display_name + "</option>");
@@ -51,24 +52,24 @@ PageDisplayLanguageDialog.prototype = {
             if (code_to_select) {
                 var jqxhr = $.getJSON("lang/" + code_to_select + ".json");
                 jqxhr.error(function() {
-                    cockpit.show_error_dialog("Error loading language \"" + code_to_select + "\"");
+                    shell.show_error_dialog("Error loading language \"" + code_to_select + "\"");
                 });
                 jqxhr.success(function(data) {
-                    cockpit.language_code = code_to_select;
-                    cockpit.language_po = data[code_to_select];
+                    shell.language_code = code_to_select;
+                    shell.language_po = data[code_to_select];
                     $('#display-language-dialog').modal('hide');
                     // Cool, that worked, update setting
                     localStorage.setItem("lang-code", code_to_select);
-                    cockpit.localize_pages();
+                    shell.localize_pages();
                 });
             } else {
                 // English
-                cockpit.language_code = "";
-                cockpit.language_po = null;
+                shell.language_code = "";
+                shell.language_po = null;
                 // update setting
                 localStorage.removeItem("lang-code");
                 $('#display-language-dialog').modal('hide');
-                cockpit.localize_pages();
+                shell.localize_pages();
             }
 
             return false;
@@ -88,6 +89,6 @@ function PageDisplayLanguageDialog() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageDisplayLanguageDialog());
+shell.dialogs.push(new PageDisplayLanguageDialog());
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

@@ -319,11 +319,11 @@ function basic_tests(client)
 
         frobber = client.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
         frobber.call("TestAsv",
-                     {one: cockpit.variant("s", "foo"),
-                      two: cockpit.variant("o", "/bar"),
-                      three: cockpit.variant("g", "assgit"),
-                      four: cockpit.variant("y", 42),
-                      five: cockpit.variant("d", 1000.0)},
+                     {one: shell.variant("s", "foo"),
+                      two: shell.variant("o", "/bar"),
+                      three: shell.variant("g", "assgit"),
+                      four: shell.variant("y", 42),
+                      five: shell.variant("d", 1000.0)},
                      function (error, reply) {
                          ok(!error, "Error is not set");
                          equal(reply,
@@ -339,7 +339,7 @@ function basic_tests(client)
             "service": "com.redhat.Cockpit.DBusTests.Second",
             "object-manager": "/different"
         };
-        var second = cockpit.dbus_client("localhost", options);
+        var second = shell.dbus_client("localhost", options);
         $(second).on("state-change", function(event) {
             equal(second.state, "ready", "Second DBus client is ready");
             $(second).off("state-change");
@@ -356,7 +356,7 @@ function basic_tests(client)
             "service": "com.redhat.Cockpit.DBusTests.Test",
             "object-paths": [ "/otree" ]
         };
-        var cli = cockpit.dbus_client("localhost", options);
+        var cli = shell.dbus_client("localhost", options);
         $(cli).on("state-change", function(event) {
             equal(cli.state, "ready", "non-objectmanager DBus client is ready");
             $(cli).off("state-change");
@@ -379,7 +379,7 @@ function basic_tests(client)
             "object-manager": "/otree"
         };
 
-        var second = cockpit.dbus_client("localhost", options);
+        var second = shell.dbus_client("localhost", options);
         equal(second.state, null, "DBus client is not ready yet");
 
         frobber = second.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
@@ -402,7 +402,7 @@ function basic_tests(client)
             "object-manager": "/otree"
         };
 
-        var second = cockpit.dbus_client("localhost", options);
+        var second = shell.dbus_client("localhost", options);
         equal(second.state, null, "DBus client is not ready yet");
 
         frobber = second.get("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
@@ -428,7 +428,7 @@ function basic_tests(client)
             "object-manager": "/otree"
         };
 
-        var second = cockpit.dbus_client("localhost", options);
+        var second = shell.dbus_client("localhost", options);
         equal(second.state, null, "DBus client is not ready yet");
 
         frobber = second.get("/otree/nonexisting", "com.redhat.Cockpit.DBusTests.Frobber");
@@ -451,7 +451,7 @@ function basic_tests(client)
             "object-manager": "/otree"
         };
 
-        var second = cockpit.dbus_client("localhost", options);
+        var second = shell.dbus_client("localhost", options);
         equal(second.state, null, "DBus client is not ready yet");
 
         frobber = second.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
@@ -482,7 +482,7 @@ function dbus_test()
         "object-manager": "/otree"
     };
 
-    var client = cockpit.dbus_client("localhost", options);
+    var client = shell.dbus_client("localhost", options);
     $(client).on("state-change", function(event) {
         if (client.state == "closed")
             throw "DBusClient closed before we could start tests";

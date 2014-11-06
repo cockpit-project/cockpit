@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
+var shell = shell || { };
 
-(function(cockpit, $) {
+(function($, shell) {
 
 // Used for escaping things in HTML elements and attributes
-cockpit.esc = function esc(str) {
+shell.esc = function esc(str) {
     if (str === null || str === undefined)
         return "";
     var pre = document.createElement('pre');
@@ -34,7 +34,7 @@ cockpit.esc = function esc(str) {
 /*
  * Byte formatting
  *
- * cockpit.format_bytes(number, [factor, separate])
+ * shell.format_bytes(number, [factor, separate])
  * @number: a normal number
  * @factor: optional, either 1000, 1024 or a string suffix
  * @separate: optional, when true return pieces in an array rather than string
@@ -58,27 +58,27 @@ cockpit.esc = function esc(str) {
  * unless no suffix is returned.
  *
  * Examples:
- *    cockpit.format_bytes(1000000).join(" ");
- *    cockpit.format_bytes(1000000, 1024).join(" ");
- *    cockpit.format_bytes(1000000, "KB").join(" ");
+ *    shell.format_bytes(1000000).join(" ");
+ *    shell.format_bytes(1000000, 1024).join(" ");
+ *    shell.format_bytes(1000000, "KB").join(" ");
  *
  * The current policy is to use KB, MB, GB, etc. for both factors
  * of 1000 and 1024.
  *
  *
- * cockpit.format_bytes_per_sec(number)
+ * shell.format_bytes_per_sec(number)
  * @number: the number to format
  *
  * Format bytes into a displayable speed string.
  *
  *
- * cockpit.format_bits_per_sec(number)
+ * shell.format_bits_per_sec(number)
  * @number: the number to format
  *
  * Format bits into a displayable speed string.
  *
  *
- * cockpit.format_delay(ms)
+ * shell.format_delay(ms)
  * @ms: number of milli-seconds
  *
  * Format soconds into a string of "hours, minutes, seconds".
@@ -154,7 +154,7 @@ var byte_suffixes = {
     /* 1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ] */
 };
 
-cockpit.format_bytes = function format_bytes(number, factor, separate) {
+shell.format_bytes = function format_bytes(number, factor, separate) {
     if (factor === undefined)
         factor = 1024;
     return format_units(number, byte_suffixes, factor, separate);
@@ -164,7 +164,7 @@ var byte_sec_suffixes = {
     1024: [ "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ]
 };
 
-cockpit.format_bytes_per_sec = function format_bytes_per_sec(number) {
+shell.format_bytes_per_sec = function format_bytes_per_sec(number) {
     return format_units(number, byte_sec_suffixes, 1024, false) + "/s";
 };
 
@@ -172,11 +172,11 @@ var bit_suffixes = {
     1000: [ "bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps" ]
 };
 
-cockpit.format_bits_per_sec = function format_bits_per_sec(number) {
+shell.format_bits_per_sec = function format_bits_per_sec(number) {
     return format_units(number, bit_suffixes, 1000, false);
 };
 
-cockpit.format_delay = function format_delay(d) {
+shell.format_delay = function format_delay(d) {
     var seconds = Math.round(d/1000);
     var minutes = Math.floor(seconds / 60);
     var hours = Math.floor(minutes / 60);
@@ -191,7 +191,7 @@ cockpit.format_delay = function format_delay(d) {
     return s;
 };
 
-cockpit.find_in_array = function find_in_array(array, elt) {
+shell.find_in_array = function find_in_array(array, elt) {
     for (var i = 0; i < array.length; i++) {
         if (array[i] == elt)
             return true;
@@ -199,7 +199,7 @@ cockpit.find_in_array = function find_in_array(array, elt) {
     return false;
 };
 
-cockpit.action_btn = function action_btn(func, spec) {
+shell.action_btn = function action_btn(func, spec) {
     var direct_btn, indirect_btns, btn;
     var direct_action, disabled;
 
@@ -267,15 +267,15 @@ cockpit.action_btn = function action_btn(func, spec) {
     return btn;
 };
 
-cockpit.action_btn_select = function action_btn_select(btn, action) {
+shell.action_btn_select = function action_btn_select(btn, action) {
     $.data(btn[0], 'cockpit-action-btn-funcs').select(action);
 };
 
-cockpit.action_btn_enable = function action_btn_enable(btn, action, val) {
+shell.action_btn_enable = function action_btn_enable(btn, action, val) {
     $.data(btn[0], 'cockpit-action-btn-funcs').enable(action, val);
 };
 
-cockpit.select_btn = function select_btn(func, spec) {
+shell.select_btn = function select_btn(func, spec) {
     var div, btn;
 
     btn = $('<select class="form-control">').append(
@@ -310,15 +310,15 @@ cockpit.select_btn = function select_btn(func, spec) {
     return div;
 };
 
-cockpit.select_btn_select = function select_btn_select(btn, choice) {
+shell.select_btn_select = function select_btn_select(btn, choice) {
     $.data(btn[0], 'cockpit-select-btn-funcs').select(choice);
 };
 
-cockpit.select_btn_selected = function select_btn_selected(btn) {
+shell.select_btn_selected = function select_btn_selected(btn) {
     return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
 };
 
-cockpit.client_error_description = client_error_description;
+shell.client_error_description = client_error_description;
 function client_error_description (error) {
     if (error == "terminated")
         return _("Your session has been terminated.");
@@ -340,7 +340,7 @@ function client_error_description (error) {
         return _("Server has closed the connection.");
 }
 
-cockpit.util = cockpit.util || { };
+shell.util = shell.util || { };
 
 /* The functions cockpit_quote_words and cockpit_parse_words implement
  * a simple shell-like quoting syntax.  They are used when letting the
@@ -353,7 +353,7 @@ cockpit.util = cockpit.util || { };
  * of a word.
  */
 
-cockpit.util.parse_words = parse_words;
+shell.util.parse_words = parse_words;
 function parse_words(text) {
     var words = [ ];
     var next;
@@ -402,7 +402,7 @@ function parse_words(text) {
     return words;
 }
 
-cockpit.util.quote_words = quote_words;
+shell.util.quote_words = quote_words;
 function quote_words(words) {
     var text;
 
@@ -437,7 +437,7 @@ function cache_debug() {
         console.debug.apply(console, arguments);
 }
 
-/* - cache = cockpit.util.make_resource_cache()
+/* - cache = shell.util.make_resource_cache()
  * - resource = cache.get(key, create)
  * - resource.release()
  *
@@ -449,7 +449,7 @@ function cache_debug() {
  * with it.  After the last user has released an object, 'close' will
  * be called on that object after a delay.
  */
-cockpit.util.make_resource_cache = make_resource_cache;
+shell.util.make_resource_cache = make_resource_cache;
 function make_resource_cache() {
     var resources = { };
 
@@ -490,12 +490,12 @@ function make_resource_cache() {
     return { get: get };
 }
 
-/* - uuid = cockpit.util.uuid()
+/* - uuid = shell.util.uuid()
  *
  * Create a new random UUID.
  */
 
-cockpit.util.uuid = uuid;
+shell.util.uuid = uuid;
 function uuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
@@ -503,7 +503,7 @@ function uuid() {
     });
 }
 
-/* - cockpit.util.machine_info(address).done(function (info) { })
+/* - shell.util.machine_info(address).done(function (info) { })
  *
  * Get information about the machine at ADDRESS.  The returned object
  * has these fields:
@@ -513,7 +513,7 @@ function uuid() {
 
 var machine_info_promises = { };
 
-cockpit.util.machine_info = machine_info;
+shell.util.machine_info = machine_info;
 function machine_info(address) {
     var pr = machine_info_promises[address];
     var dfd;
@@ -542,14 +542,14 @@ function machine_info(address) {
     return pr;
 }
 
-/* - name = cockpit.util.hostname_for_display(interface)
+/* - name = shell.util.hostname_for_display(interface)
  *
  * Return the name of the machine that INTERFACE is connected to.
  * INTERFACE should be a DBusInterface with PrettyHostname and
  * StaticHostname properties.
  */
 
-cockpit.util.hostname_for_display = hostname_for_display;
+shell.util.hostname_for_display = hostname_for_display;
 function hostname_for_display(iface) {
     if (iface.PrettyHostname)
         return iface.PrettyHostname;
@@ -565,4 +565,4 @@ function hostname_for_display(iface) {
         return window.location.hostname;
 }
 
-})(cockpit, jQuery);
+})(jQuery, shell);

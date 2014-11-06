@@ -53,6 +53,12 @@
  * See doc/protocol.md for information about channels.
  */
 
+typedef struct {
+  gboolean ready;
+  gboolean close;
+  gchar *problem;
+} LaterData;
+
 struct _CockpitChannelPrivate {
   gulong recv_sig;
   gulong close_sig;
@@ -74,6 +80,10 @@ struct _CockpitChannelPrivate {
 
   /* Other state */
   JsonObject *close_options;
+
+  /* If we've gotten to the main-loop yet */
+  guint later_tag;
+  LaterData *later_data;
 };
 
 enum {
@@ -87,11 +97,34 @@ static guint cockpit_channel_sig_closed;
 
 G_DEFINE_TYPE (CockpitChannel, cockpit_channel, G_TYPE_OBJECT);
 
+static gboolean
+on_idle_later (gpointer data)
+{
+  CockpitChannel *self = data;
+  LaterData *later = self->priv->later_data;
+
+  self->priv->later_tag = 0;
+
+  if (later)
+    {
+      self->priv->later_data = NULL;
+      if (later->close)
+        cockpit_channel_close (self, later->problem);
+      else if (later->ready)
+        cockpit_channel_ready (self);
+      g_free (later->problem);
+      g_slice_free (LaterData, later);
+    }
+
+  return FALSE;
+}
 static void
 cockpit_channel_init (CockpitChannel *self)
 {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_CHANNEL,
                                             CockpitChannelPrivate);
+
+  self->priv->later_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_later, self, NULL);
 }
 
 static gboolean
@@ -199,6 +232,16 @@ static void
 cockpit_channel_dispose (GObject *object)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (object);
+
+  /*
+   * This object was destroyed before going to the main loop
+   * no need to wait until later before we fire various signals.
+   */
+  if (self->priv->later_tag)
+    {
+      g_source_remove (self->priv->later_tag);
+      on_idle_later (self);
+    }
 
   if (self->priv->recv_sig)
     g_signal_handler_disconnect (self->priv->transport, self->priv->recv_sig);
@@ -408,6 +451,10 @@ cockpit_channel_open (CockpitTransport *transport,
  * The channel will emit the CockpitChannel::closed signal when the
  * channel actually closes.
  *
+ * If this is called immediately after or during construction then
+ * the closing will happen after the main loop so that handlers
+ * can connect appropriately.
+ *
  * A @reason of NULL represents an orderly close.
  */
 void
@@ -418,9 +465,20 @@ cockpit_channel_close (CockpitChannel *self,
 
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
 
-  klass = COCKPIT_CHANNEL_GET_CLASS (self);
-  g_assert (klass->close != NULL);
-  (klass->close) (self, reason);
+  if (self->priv->later_tag)
+    {
+      if (!self->priv->later_data)
+        self->priv->later_data = g_slice_new0 (LaterData);
+      self->priv->later_data->close = TRUE;
+      if (!self->priv->later_data->problem)
+        self->priv->later_data->problem = g_strdup (reason);
+    }
+  else
+    {
+      klass = COCKPIT_CHANNEL_GET_CLASS (self);
+      g_assert (klass->close != NULL);
+      (klass->close) (self, reason);
+    }
 }
 
 /* Used by implementations */
@@ -433,6 +491,10 @@ cockpit_channel_close (CockpitChannel *self,
  * ready. Any messages received before the channel was ready
  * will be delivered to the channel's recv() vfunc in the order
  * that they were received.
+ *
+ * If this is called immediately after or during construction then
+ * the closing will happen after the main loop so that handlers
+ * can connect appropriately.
  */
 void
 cockpit_channel_ready (CockpitChannel *self)
@@ -440,6 +502,14 @@ cockpit_channel_ready (CockpitChannel *self)
   CockpitChannelClass *klass;
   GBytes *payload;
   GQueue *queue;
+
+  if (self->priv->later_tag)
+    {
+      if (!self->priv->later_data)
+        self->priv->later_data = g_slice_new0 (LaterData);
+      self->priv->later_data->ready = TRUE;
+      return;
+    }
 
   klass = COCKPIT_CHANNEL_GET_CLASS (self);
   g_assert (klass->recv != NULL);

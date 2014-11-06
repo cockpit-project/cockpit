@@ -109,6 +109,7 @@ setup (TestCase *tc,
 {
   tc->transport = g_object_new (mock_transport_get_type (), NULL);
   tc->channel = mock_echo_channel_open (COCKPIT_TRANSPORT (tc->transport), "554");
+  while (g_main_context_iteration (NULL, FALSE));
 }
 
 static void
@@ -348,6 +349,65 @@ test_properties (void)
   g_object_unref (channel);
 }
 
+static void
+test_later_close (void)
+{
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+  gchar *problem = NULL;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+  channel = mock_echo_channel_open (transport, "554");
+
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  cockpit_channel_close (channel, "first");
+  cockpit_channel_close (channel, "meh");
+
+  /* No signal emitted yet */
+  g_assert (problem == NULL);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  /* After main loop */
+  g_assert_cmpstr (problem, ==, "first");
+
+  g_free (problem);
+  g_object_unref (transport);
+  g_object_unref (channel);
+}
+
+static void
+test_later_ready (void)
+{
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+  GBytes *payload;
+  GBytes *sent;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+  channel = mock_echo_channel_open (transport, "554");
+
+  cockpit_channel_ready (channel);
+
+  payload = g_bytes_new ("Yeehaw!", 7);
+  cockpit_transport_emit_recv (transport, "554", payload);
+  g_bytes_unref (payload);
+
+  /* Not actually ready yet */
+  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
+  g_assert (sent == NULL);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  /* Now we're ready */
+  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
+  g_assert (sent != NULL);
+
+  g_object_unref (transport);
+  g_object_unref (channel);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -356,6 +416,9 @@ main (int argc,
 
   g_test_add_func ("/channel/get-option", test_get_option);
   g_test_add_func ("/channel/properties", test_properties);
+
+  g_test_add_func ("/channel/later-close", test_later_close);
+  g_test_add_func ("/channel/later-ready", test_later_ready);
 
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);

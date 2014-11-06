@@ -1070,19 +1070,21 @@ on_socket_address_ready (GObject *source,
   g_object_unref (self);
 }
 
-static gboolean
-initialize_in_idle (gpointer user_data)
+static void
+cockpit_rest_json_constructed (GObject *object)
 {
-  CockpitRestJson *self = COCKPIT_REST_JSON (user_data);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitChannel *channel = COCKPIT_CHANNEL (object);
+  CockpitRestJson *self = COCKPIT_REST_JSON (object);
   GSocketAddressEnumerator *enumerator;
   GSocketConnectable *connectable;
   GError *error = NULL;
   const gchar *unix_path;
   gint64 port;
 
+  G_OBJECT_CLASS (cockpit_rest_json_parent_class)->constructed (object);
+
   if (self->closed)
-    return FALSE;
+    return;
 
   port = cockpit_channel_get_int_option (channel, "port");
   unix_path = cockpit_channel_get_option (channel, "unix");
@@ -1122,18 +1124,6 @@ initialize_in_idle (gpointer user_data)
       g_warning ("received neither a port or unix option");
       cockpit_channel_close (channel, "protocol-error");
     }
-
-  return FALSE; /* don't run again */
-}
-
-static void
-cockpit_rest_json_constructed (GObject *object)
-{
-  G_OBJECT_CLASS (cockpit_rest_json_parent_class)->constructed (object);
-
-  /* Guarantee not to close immediately */
-  g_idle_add_full (G_PRIORITY_DEFAULT, initialize_in_idle,
-                   g_object_ref (object), g_object_unref);
 }
 
 static void

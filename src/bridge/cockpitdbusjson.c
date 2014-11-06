@@ -1853,22 +1853,6 @@ on_bus_ready (GObject *source,
   g_object_unref (self);
 }
 
-static gboolean
-on_idle_protocol_error (gpointer user_data)
-{
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
-  if (!g_cancellable_is_cancelled (self->cancellable))
-    cockpit_channel_close (user_data, "protocol-error");
-  return FALSE;
-}
-
-static void
-protocol_error_later (CockpitDBusJson *self)
-{
-  g_idle_add_full (G_PRIORITY_DEFAULT, on_idle_protocol_error,
-                   g_object_ref (self), g_object_unref);
-}
-
 static void
 cockpit_dbus_json_constructed (GObject *object)
 {
@@ -1889,7 +1873,7 @@ cockpit_dbus_json_constructed (GObject *object)
   if (self->name == NULL || !g_dbus_is_name (self->name))
     {
       g_warning ("bridge got invalid dbus name: %s", self->name);
-      protocol_error_later (self);
+      cockpit_channel_close (channel, "protocol-error");
       return;
     }
 
@@ -1911,7 +1895,7 @@ cockpit_dbus_json_constructed (GObject *object)
   else
     {
       g_warning ("bridge got an invalid bus type: %s", bus);
-      protocol_error_later (self);
+      cockpit_channel_close (channel, "protocol-error");
       return;
     }
 

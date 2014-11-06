@@ -1444,24 +1444,6 @@ cockpit_dbus_json2_init (CockpitDBusJson2 *self)
                                                   (GDestroyNotify)g_dbus_interface_info_unref);
 }
 
-static gboolean
-on_idle_protocol_error (gpointer user_data)
-{
-  CockpitDBusJson2 *self = COCKPIT_DBUS_JSON2 (user_data);
-  if (!g_cancellable_is_cancelled (self->cancellable))
-    cockpit_channel_close (user_data, "protocol-error");
-  return FALSE;
-}
-
-static void
-protocol_error_later (CockpitDBusJson2 *self)
-{
-  g_idle_add_full (G_PRIORITY_DEFAULT,
-                   on_idle_protocol_error,
-                   g_object_ref (self),
-                   g_object_unref);
-}
-
 static void
 cockpit_dbus_json2_constructed (GObject *object)
 {
@@ -1487,7 +1469,7 @@ cockpit_dbus_json2_constructed (GObject *object)
   if (dbus_service == NULL || !g_dbus_is_name (dbus_service))
     {
       g_warning ("bridge got invalid dbus service");
-      protocol_error_later (self);
+      cockpit_channel_close (channel, "protocol-error");
       return;
     }
 
@@ -1501,7 +1483,7 @@ cockpit_dbus_json2_constructed (GObject *object)
   else if (!g_variant_is_object_path (dbus_path))
     {
       g_warning ("bridge got invalid object-manager path");
-      protocol_error_later (self);
+      cockpit_channel_close (channel, "protocol-error");
       return;
     }
   else
@@ -1529,7 +1511,7 @@ cockpit_dbus_json2_constructed (GObject *object)
   else
     {
       g_warning ("bridge got an invalid bus type");
-      protocol_error_later (self);
+      cockpit_channel_close (channel, "protocol-error");
       return;
     }
 

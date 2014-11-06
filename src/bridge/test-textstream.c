@@ -202,6 +202,8 @@ expect_control_message (JsonObject *options,
 {
   const gchar *expect_option;
   const gchar *expect_value;
+  const gchar *value;
+  JsonNode *node;
   va_list va;
 
   g_assert (options != NULL);
@@ -215,7 +217,13 @@ expect_control_message (JsonObject *options,
         break;
       expect_value = va_arg (va, const gchar *);
       g_assert (expect_value != NULL);
-      g_assert_cmpstr (json_object_get_string_member (options, expect_option), ==, expect_value);
+
+      value = NULL;
+      node = json_object_get_member (options, expect_option);
+      if (node && JSON_NODE_HOLDS_VALUE (node) && json_node_get_value_type (node) == G_TYPE_STRING)
+        value = json_node_get_string (node);
+
+      g_assert_cmpstr (value, ==, expect_value);
   }
   va_end (va);
 }
@@ -347,6 +355,7 @@ test_spawn_simple (void)
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+  while (g_main_context_iteration (NULL, FALSE));
   json_object_unref (options);
 
   sent = g_bytes_new ("Marmalaade!", 11);
@@ -507,8 +516,8 @@ test_spawn_signal (void)
     g_main_context_iteration (NULL, TRUE);
 
   control = mock_transport_pop_control (transport);
-  expect_control_message (control, "close", "548", "reason", "", NULL);
-  g_assert_cmpstr (json_object_get_string_member (control, "exit-signal"), ==, "TERM");
+  cockpit_assert_json_eq (control, "{ \"command\": \"close\", \"channel\": \"548\", \"reason\": \"\","
+                                   "  \"exit-signal\": \"TERM\"}");
 
   g_free (problem);
 

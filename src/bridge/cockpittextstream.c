@@ -101,7 +101,8 @@ cockpit_text_stream_close (CockpitChannel *channel,
   CockpitTextStream *self = COCKPIT_TEXT_STREAM (channel);
 
   self->closing = TRUE;
-  process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
+  if (self->pipe)
+    process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
 
   /*
    * If closed, call base class handler directly. Otherwise ask
@@ -183,14 +184,6 @@ on_pipe_close (CockpitPipe *pipe,
   cockpit_channel_close (channel, problem);
 }
 
-static gboolean
-on_idle_protocol_error (gpointer user_data)
-{
-  CockpitChannel *channel = COCKPIT_CHANNEL (user_data);
-  cockpit_channel_close (channel, "protocol-error");
-  return FALSE;
-}
-
 static void
 cockpit_text_stream_init (CockpitTextStream *self)
 {
@@ -218,15 +211,13 @@ cockpit_text_stream_constructed (GObject *object)
   if (argv == NULL && unix_path == NULL)
     {
       g_warning ("did not receive a unix or spawn option");
-      g_idle_add_full (G_PRIORITY_DEFAULT, on_idle_protocol_error,
-                       g_object_ref (channel), g_object_unref);
+      cockpit_channel_close (channel, "protocol-error");
       return;
     }
   else if (argv != NULL && unix_path != NULL)
     {
       g_warning ("received both a unix and spawn option");
-      g_idle_add_full (G_PRIORITY_DEFAULT, on_idle_protocol_error,
-                       g_object_ref (channel), g_object_unref);
+      cockpit_channel_close (channel, "protocol-error");
       return;
     }
   else if (unix_path)

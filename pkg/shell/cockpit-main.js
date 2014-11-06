@@ -430,7 +430,7 @@ function hosts_init() {
 
     local_account_proxies = null;
 
-    var cockpitd = cockpit.dbus("com.redhat.Cockpit");
+    var cockpitd = cockpit.dbus("com.redhat.Cockpit", { "host": "localhost" });
     local_account_proxies = cockpitd.proxies("com.redhat.Cockpit.Account",
                                              "/com/redhat/Cockpit/Accounts");
     host_proxies = cockpitd.proxies("com.redhat.Cockpit.Machine",

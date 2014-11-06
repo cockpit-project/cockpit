@@ -17,16 +17,17 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 function fmt_size(bytes)
 {
-    return cockpit.format_bytes(bytes, 1024);
+    return shell.format_bytes(bytes, 1024);
 }
 
 function fmt_size_long(bytes)
 {
-    var with_unit = cockpit.format_bytes(bytes, 1024);
+    var with_unit = shell.format_bytes(bytes, 1024);
     /* Translators: Used in "42.5 KB (42399 bytes)" */
     return with_unit + " (" + bytes + " " + C_("format-bytes", "bytes") + ")";
 }
@@ -41,7 +42,7 @@ function format_temperature(kelvin) {
 //
 // http://www.w3.org/TR/html5/global-attributes.html#the-id-attribute
 function esc_id_attr(str) {
-    return cockpit.esc(str).replace(/ /g, "&#20;").replace(/\x09/g, "&#09;").replace(/\x0a/g, "&#0a;").replace(/\x0c/g, "&#0c;").replace(/\x0d/g, "&#0d;");
+    return shell.esc(str).replace(/ /g, "&#20;").replace(/\x09/g, "&#09;").replace(/\x0a/g, "&#0a;").replace(/\x0c/g, "&#0c;").replace(/\x0d/g, "&#0d;");
 }
 
 var active_targets = [ ];
@@ -132,17 +133,17 @@ function job_box(client, tbody, domain, descriptions, target_describer) {
                 else
                     progress = '';
                 if (j.RemainingUSecs)
-                    remaining = cockpit.format_delay(j.RemainingUSecs / 1000);
+                    remaining = shell.format_delay(j.RemainingUSecs / 1000);
                 else
                     remaining = '';
                 if (j.Cancellable) {
                     cancel = $('<button class="btn btn-default">').text(_("Cancel"));
                     cancel.on('click', function (event) {
-                        if (!cockpit.check_admin(client))
+                        if (!shell.check_admin(client))
                             return;
                         j.call('Cancel', function (error) {
                             if (error)
-                                cockpit.show_unexpected_error(error);
+                                shell.show_unexpected_error(error);
                         });
                     });
                 } else
@@ -277,7 +278,7 @@ function storage_job_box(client, elt)
 
 function storage_log_box(machine, elt)
 {
-    return cockpit.simple_logbox(machine, elt,
+    return shell.simple_logbox(machine, elt,
                                  [ "_SYSTEMD_UNIT=udisks2.service", "+",
                                    "_SYSTEMD_UNIT=dm-event.service", "+",
                                    "_SYSTEMD_UNIT=smartd.service", "+",
@@ -305,11 +306,11 @@ function hide_error_message(id) {
 function format_fsys_usage(used, total) {
     var text = "";
     var units = 1000;
-    var parts = cockpit.format_bytes(total, units, true);
+    var parts = shell.format_bytes(total, units, true);
     text = " / " + parts.join(" ");
     units = parts[1];
 
-    parts = cockpit.format_bytes(used, units, true);
+    parts = shell.format_bytes(used, units, true);
     return parts[0] + text;
 }
 
@@ -326,13 +327,13 @@ PageStorage.prototype = {
         var self = this;
 
         $("#storage_create_raid").on('click', function() {
-            if (!cockpit.check_admin(self.client))
+            if (!shell.check_admin(self.client))
                 return;
             PageCreateRaid.client = self.client;
             $('#create-raid-dialog').modal('show');
         });
         $("#storage_create_volume_group").on('click', function() {
-            if (!cockpit.check_admin(self.client))
+            if (!shell.check_admin(self.client))
                 return;
             PageCreateVolumeGroup.client = self.client;
             $('#create-volume-group-dialog').modal('show');
@@ -342,10 +343,10 @@ PageStorage.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = cockpit.get_page_machine();
+        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from the old dbus */
-        this.client = cockpit.dbusx(this.address, { payload: 'dbus-json1' });
-        cockpit.set_watched_client(this.client);
+        this.client = shell.dbus(this.address, { payload: 'dbus-json1' });
+        shell.set_watched_client(this.client);
         watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
@@ -380,19 +381,19 @@ PageStorage.prototype = {
         function highlight_blockdev_row(event, id) {
             $('#storage tr').removeClass('highlight');
             if (id) {
-                $('#storage tr[data-blockdev~="' + cockpit.esc(id) + '"]').addClass('highlight');
+                $('#storage tr[data-blockdev~="' + shell.esc(id) + '"]').addClass('highlight');
             }
         }
 
         function render_samples(event, timestamp, samples) {
             // TODO - handle multipath devices
             for (var id in samples) {
-                var row = $('#storage tr[data-blockdev="' + cockpit.esc(id) + '"]');
+                var row = $('#storage tr[data-blockdev="' + shell.esc(id) + '"]');
                 if (row.length > 0) {
                     row.find('span.reading').text(
-                        "R: " + cockpit.format_bytes_per_sec(samples[id][0]));
+                        "R: " + shell.format_bytes_per_sec(samples[id][0]));
                     row.find('span.writing').text(
-                        "W: " + cockpit.format_bytes_per_sec(samples[id][1]));
+                        "W: " + shell.format_bytes_per_sec(samples[id][1]));
                 }
             }
         }
@@ -401,17 +402,17 @@ PageStorage.prototype = {
                                        "com.redhat.Cockpit.MultiResourceMonitor");
         $(this.monitor).on('NewSample.storage', render_samples);
 
-        this.rx_plot = cockpit.setup_multi_plot('#storage-reading-graph', this.monitor, 0, blues.concat(blues),
+        this.rx_plot = shell.setup_multi_plot('#storage-reading-graph', this.monitor, 0, blues.concat(blues),
                                                 is_interesting_blockdev);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#storage-reading-text').text(cockpit.format_bytes_per_sec(total));
+            $('#storage-reading-text').text(shell.format_bytes_per_sec(total));
         });
         $(this.rx_plot).on('highlight', highlight_blockdev_row);
 
-        this.tx_plot = cockpit.setup_multi_plot('#storage-writing-graph', this.monitor, 1, blues.concat(blues),
+        this.tx_plot = shell.setup_multi_plot('#storage-writing-graph', this.monitor, 1, blues.concat(blues),
                                                 is_interesting_blockdev);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#storage-writing-text').text(cockpit.format_bytes_per_sec(total));
+            $('#storage-writing-text').text(shell.format_bytes_per_sec(total));
         });
         $(this.tx_plot).on('highlight', highlight_blockdev_row);
 
@@ -444,7 +445,7 @@ PageStorage.prototype = {
         this.rx_plot.destroy();
         this.tx_plot.destroy();
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         $(this.client).off(".storage");
         $(this.monitor).off(".storage");
         $(this.mount_monitor).off(".storage");
@@ -772,13 +773,13 @@ PageStorage.prototype = {
         var text = $('<td style="text-align:right">');
 
         if (block.MountedAt && block.MountedAt.length > 0) {
-            bar_row = cockpit.BarRow();
+            bar_row = shell.BarRow();
             for (var i = 0; i < block.MountedAt.length; i++) {
                 this.mount_bar_rows[block.MountedAt[i]] = bar_row;
                 this.mount_texts[block.MountedAt[i]] = text;
             }
         } else
-            text.text(cockpit.format_bytes(block.Size, 1000));
+            text.text(shell.format_bytes(block.Size, 1000));
 
         var tr =
             $('<tr>', { Sort: sort_key }).
@@ -813,7 +814,7 @@ function PageStorage() {
     this._init();
 }
 
-cockpit.pages.push(new PageStorage());
+shell.pages.push(new PageStorage());
 
 // ----------------------------------------------------------------------------------------------------
 
@@ -828,7 +829,7 @@ function lvol_get_desc(lv)
         type = _("Logical Volume (Snapshot)");
     else
         type = _("Logical Volume");
-    return F("%{type} \"%{name}\"", { type: type, name: cockpit.esc(lv.Name) });
+    return F("%{type} \"%{name}\"", { type: type, name: shell.esc(lv.Name) });
 }
 
 function block_get_desc(block, partition_label, cleartext_device)
@@ -903,13 +904,13 @@ function block_get_desc(block, partition_label, cleartext_device)
 
     ret.append(
         $('<br/>'),
-        cockpit.esc(block.Device));
+        shell.esc(block.Device));
 
     if (block.IdUsage == "filesystem") {
         ret.append(", ");
         if (block.MountedAt.length > 0)
             ret.append(F(_("mounted on %{mountpoint}"),
-                         { mountpoint: cockpit.esc(block.MountedAt[0])
+                         { mountpoint: shell.esc(block.MountedAt[0])
                          }));
         else
             ret.append(_("not mounted"));
@@ -935,7 +936,7 @@ function block_get_short_desc(block)
     } else if (block.Drive != "/") {
         var drive = block._client.lookup(block.Drive,
                                          "com.redhat.Cockpit.Storage.Drive");
-        return drive? cockpit.esc(drive.Name) : block.Device;
+        return drive? shell.esc(drive.Name) : block.Device;
     } else
         return "Block Device";
 }
@@ -1177,7 +1178,7 @@ PageStorageDetail.prototype = {
     },
 
     leave: function() {
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         this.unwatch_all_objects();
         this.job_box.stop();
         this.log_box.stop();
@@ -1192,7 +1193,7 @@ PageStorageDetail.prototype = {
         var self = this;
 
         self.raid_action_btn =
-            cockpit.action_btn(function (op) { self.action(op); },
+            shell.action_btn(function (op) { self.action(op); },
                                 [ { title: _("Start"),           action: 'start' },
                                   { title: _("Stop"),            action: 'stop' },
                                   { title: _("Format"),          action: 'format' },
@@ -1207,16 +1208,16 @@ PageStorageDetail.prototype = {
             self._mdraid.call("SetBitmapLocation", val? "internal" : "none", function (error, result) {
                 if (error) {
                     self._update();
-                    cockpit.show_unexpected_error(error);
+                    shell.show_unexpected_error(error);
                 }
             });
         }
 
-        this.bitmap_onoff = cockpit.OnOff(false,
+        this.bitmap_onoff = shell.OnOff(false,
                                           change_bitmap,
                                           undefined,
                                           function () {
-                                              return cockpit.check_admin(self.client);
+                                              return shell.check_admin(self.client);
                                           });
 
         $("#raid_detail_bitmap").append(this.bitmap_onoff);
@@ -1225,7 +1226,7 @@ PageStorageDetail.prototype = {
             self.action('format');
         });
 
-        var btn = cockpit.action_btn(function (op) { self.volume_group_action(op); },
+        var btn = shell.action_btn(function (op) { self.volume_group_action(op); },
                                       [ { title: _("Rename"), action: 'rename',
                                           is_default: true },
                                         { title: _("Delete"), action: 'delete' }
@@ -1240,13 +1241,13 @@ PageStorageDetail.prototype = {
 
     enter: function() {
         var me = this;
-        var type = cockpit.get_page_param("type");
-        var id = cockpit.get_page_param("id");
+        var type = shell.get_page_param("type");
+        var id = shell.get_page_param("id");
 
-        this.address = cockpit.get_page_machine();
+        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = cockpit.dbusx(this.address, { payload: 'dbus-json1' });
-        cockpit.set_watched_client(this.client);
+        this.client = shell.dbus(this.address, { payload: 'dbus-json1' });
+        shell.set_watched_client(this.client);
         watch_jobs(this.client);
 
         this._drive = null;
@@ -1322,7 +1323,7 @@ PageStorageDetail.prototype = {
         this.watch_object(block);
         this._updateContent(block);
 
-        val = cockpit.esc(block.Device);
+        val = shell.esc(block.Device);
         $("#block_detail_device").html(val);
         val = block.Size > 0 ? fmt_size_long(block.Size) : C_("storage", "No Media Inserted");
         $("#block_detail_capacity").html(val);
@@ -1424,16 +1425,16 @@ PageStorageDetail.prototype = {
             }
 
             if (action_spec.length > 0) {
-                btn = cockpit.action_btn(function (op) { me.block_action (target, op); },
+                btn = shell.action_btn(function (op) { me.block_action (target, op); },
                                          action_spec);
-                cockpit.action_btn_select(btn, default_op);
+                shell.action_btn_select(btn, default_op);
 
-                cockpit.action_btn_enable(btn, 'mount',              !is_filesystem_mounted);
-                cockpit.action_btn_enable(btn, 'unmount',            is_filesystem_mounted);
-                cockpit.action_btn_enable(btn, 'lock',               !is_crypto_locked);
-                cockpit.action_btn_enable(btn, 'unlock',             is_crypto_locked);
-                cockpit.action_btn_enable(btn, 'activate',           !is_lvol_active);
-                cockpit.action_btn_enable(btn, 'deactivate',         is_lvol_active);
+                shell.action_btn_enable(btn, 'mount',              !is_filesystem_mounted);
+                shell.action_btn_enable(btn, 'unmount',            is_filesystem_mounted);
+                shell.action_btn_enable(btn, 'lock',               !is_crypto_locked);
+                shell.action_btn_enable(btn, 'unlock',             is_crypto_locked);
+                shell.action_btn_enable(btn, 'activate',           !is_lvol_active);
+                shell.action_btn_enable(btn, 'deactivate',         is_lvol_active);
             }
 
             return btn;
@@ -1484,7 +1485,7 @@ PageStorageDetail.prototype = {
             btn = create_block_action_btn (block, !cleartext_device, !!part_desc);
 
             if (block.IdLabel.length > 0)
-                name = cockpit.esc(block.IdLabel);
+                name = shell.esc(block.IdLabel);
             else if (!btn)
                 name = null;
             else
@@ -1610,7 +1611,7 @@ PageStorageDetail.prototype = {
                     desc = F(_("%{size} %{desc}"),
                              { desc: lvol_get_desc(lv),
                                size: fmt_size(block.Size) });
-                    desc += "<br/>" + cockpit.esc(block.Device);
+                    desc += "<br/>" + shell.esc(block.Device);
                     btn = create_block_action_btn (block, false, false);
                     id = append_entry (level, null, desc, btn);
                     append_partitions (level+1, block);
@@ -1674,7 +1675,7 @@ PageStorageDetail.prototype = {
             if (vg.FreeSize > 0) {
                 desc = F(_("%{size} Free Space for Logical Volumes"),
                          { size: fmt_size(vg.FreeSize) });
-                var btn = cockpit.action_btn(function (op) { me.volume_group_action (op); },
+                var btn = shell.action_btn(function (op) { me.volume_group_action (op); },
                                               [ { title: _("Create Plain Logical Volume"),
                                                   action: 'create-plain', is_default: true
                                                 },
@@ -1719,15 +1720,15 @@ PageStorageDetail.prototype = {
         this._updateContent(block);
 
         if (drive.Vendor && drive.Vendor.length > 0)
-            val = cockpit.esc(drive.Vendor) + " " + cockpit.esc(drive.Model);
+            val = shell.esc(drive.Vendor) + " " + shell.esc(drive.Model);
         else
-            val = cockpit.esc(drive.Model);
+            val = shell.esc(drive.Model);
         $("#disk_detail_model").html(val);
-        val = drive.Revision ? cockpit.esc(drive.Revision) : "—";
+        val = drive.Revision ? shell.esc(drive.Revision) : "—";
         $("#disk_detail_firmware_version").html(val);
-        val = drive.Serial ? cockpit.esc(drive.Serial) : "—";
+        val = drive.Serial ? shell.esc(drive.Serial) : "—";
         $("#disk_detail_serial_number").html(val);
-        val = drive.WWN ? cockpit.esc(drive.WWN) : "—";
+        val = drive.WWN ? shell.esc(drive.WWN) : "—";
         $("#disk_detail_world_wide_name").html(val);
         val = drive.Size > 0 ? fmt_size_long(drive.Size) : C_("disk-drive", "No Media Inserted");
         $("#disk_detail_capacity").html(val);
@@ -1751,7 +1752,7 @@ PageStorageDetail.prototype = {
             if (n > 0) {
                 val += " ";
             }
-            val += cockpit.esc(b.Device);
+            val += shell.esc(b.Device);
         }
         $("#disk_detail_device_file").html(val);
 
@@ -1780,21 +1781,21 @@ PageStorageDetail.prototype = {
         this._updateContent (block);
 
         if (block)
-            $("#raid_detail_device").html(cockpit.esc(block.Device));
+            $("#raid_detail_device").html(shell.esc(block.Device));
         else
             $("#raid_detail_device").html("--");
 
         var val = raid.Size > 0 ? fmt_size_long(raid.Size) : "--";
         $("#raid_detail_capacity").html(val);
         $("#raid_detail_name").text(raid_get_desc(raid));
-        $("#raid_detail_uuid").html(cockpit.esc(raid.UUID));
+        $("#raid_detail_uuid").html(shell.esc(raid.UUID));
 
         var level = format_level(raid.Level);
         if (raid.NumDevices > 0)
             level += ", " + F(_("%{n} Disks"), { n: raid.NumDevices });
         if (raid.ChunkSize > 0)
             level += ", " + F(_("%{n} Chunk Size"), { n: fmt_size(raid.ChunkSize) });
-        $("#raid_detail_level").html(cockpit.esc(level));
+        $("#raid_detail_level").html(shell.esc(level));
 
         var state, action_state = "", is_running;
         var action, percent, rate, remaining;
@@ -1844,16 +1845,16 @@ PageStorageDetail.prototype = {
                 state = state + "<br/>" + action_state;
                 if (raid.SyncRemainingTime > 0) {
                     remaining = F(_("%{remaining} remaining"),
-                                  { remaining: cockpit.format_delay(raid.SyncRemainingTime / 1000) });
+                                  { remaining: shell.format_delay(raid.SyncRemainingTime / 1000) });
                     state = state + "<br/>" + remaining;
                 }
             }
         }
         $("#raid_detail_state").html(state);
 
-        cockpit.action_btn_select(this.raid_action_btn, is_running? 'stop' : 'start');
-        cockpit.action_btn_enable(this.raid_action_btn, 'stop', is_running);
-        cockpit.action_btn_enable(this.raid_action_btn, 'start', !is_running);
+        shell.action_btn_select(this.raid_action_btn, is_running? 'stop' : 'start');
+        shell.action_btn_enable(this.raid_action_btn, 'stop', is_running);
+        shell.action_btn_enable(this.raid_action_btn, 'start', !is_running);
 
         $("#raid-disks").closest('.panel').toggle(is_running);
 
@@ -1975,7 +1976,7 @@ PageStorageDetail.prototype = {
                                                  free: fmt_size(block.PvFreeSize)
                                                })),
                             $('<td style="text-align:right">').html(
-                                cockpit.action_btn(physical_action_func (block),
+                                shell.action_btn(physical_action_func (block),
                                                    physical_action_spec))))));
         }
 
@@ -1983,7 +1984,7 @@ PageStorageDetail.prototype = {
     },
 
     action: function(op) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         if (op == 'format')
@@ -2019,7 +2020,7 @@ PageStorageDetail.prototype = {
                                                    "com.redhat.Cockpit.Storage.LogicalVolume");
         }
 
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         if (op == 'format')
@@ -2058,7 +2059,7 @@ PageStorageDetail.prototype = {
     },
 
     raid_action: function() {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         this.action(this.raid_op);
@@ -2067,14 +2068,14 @@ PageStorageDetail.prototype = {
     start: function() {
         this._mdraid.call("Start", function (error, result) {
             if (error)
-                cockpit.show_unexpected_error(error);
+                shell.show_unexpected_error(error);
         });
     },
 
     stop: function() {
         this._mdraid.call("Stop", function (error, result) {
             if (error)
-                cockpit.show_unexpected_error(error);
+                shell.show_unexpected_error(error);
         });
     },
 
@@ -2082,13 +2083,13 @@ PageStorageDetail.prototype = {
         var self = this;
         var location = cockpit.location;
 
-        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: raid_get_desc(this._mdraid) }),
+        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: raid_get_desc(this._mdraid) }),
                         _("Deleting a RAID Device will erase all data on it."),
                         _("Delete")).
             done(function () {
                 self._mdraid.call("Delete", function (error, result) {
                     if (error)
-                        cockpit.show_unexpected_error(error);
+                        shell.show_unexpected_error(error);
                     else
                         location.go("storage");
                 });
@@ -2098,19 +2099,19 @@ PageStorageDetail.prototype = {
     start_scrub: function() {
         this._mdraid.call("RequestSyncAction", "repair", function (error, result) {
             if (error)
-                cockpit.show_unexpected_error(error);
+                shell.show_unexpected_error(error);
         });
     },
 
     stop_scrub: function() {
         this._mdraid.call("RequestSyncAction", "idle", function (error, result) {
             if (error)
-                cockpit.show_unexpected_error(error);
+                shell.show_unexpected_error(error);
         });
     },
 
     format_disk: function (block) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageFormatDisk.block = null;
@@ -2132,20 +2133,20 @@ PageStorageDetail.prototype = {
     },
 
     delete_partition: function(block) {
-        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: block.Device }),
+        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: block.Device }),
                         _("Deleting a partition will delete all data in it."),
                         _("Delete")).
             done(function () {
                 block.call('DeletePartition',
                            function (error) {
                                if (error)
-                                   cockpit.show_unexpected_error(error);
+                                   shell.show_unexpected_error(error);
                            });
             });
     },
 
     create_partition: function (block, start, size, enable_dos_extended) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageFormat.block = block;
@@ -2160,7 +2161,7 @@ PageStorageDetail.prototype = {
         block.call('Mount',
                    function (error) {
                        if (error)
-                           cockpit.show_unexpected_error(error);
+                           shell.show_unexpected_error(error);
                    });
     },
 
@@ -2168,7 +2169,7 @@ PageStorageDetail.prototype = {
         block.call('Unmount',
                    function (error) {
                        if (error)
-                           cockpit.show_unexpected_error(error);
+                           shell.show_unexpected_error(error);
                    });
     },
 
@@ -2176,7 +2177,7 @@ PageStorageDetail.prototype = {
         block.call('Lock',
                    function (error) {
                        if (error)
-                           cockpit.show_unexpected_error(error);
+                           shell.show_unexpected_error(error);
                    });
     },
 
@@ -2196,18 +2197,18 @@ PageStorageDetail.prototype = {
     },
 
     raid_disk_remove: function(block) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         this._mdraid.call('RemoveDevices', [ block.getObject().objectPath ],
                           function (error) {
                               if (error)
-                                  cockpit.show_unexpected_error(error);
+                                  shell.show_unexpected_error(error);
                           });
     },
 
     raid_disk_add: function() {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageRaidDiskAdd.mdraid = this._mdraid;
@@ -2254,16 +2255,16 @@ PageStorageDetail.prototype = {
         var self = this;
         var location = cockpit.location;
 
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
-        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name }),
+        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name }),
                         _("Deleting a volume group will erase all data on it."),
                         _("Delete")).
             done(function() {
                 self._vg.call("Delete", function (error, result) {
                     if (error)
-                        cockpit.show_unexpected_error(error);
+                        shell.show_unexpected_error(error);
                     else
                         location.go("storage");
                 });
@@ -2280,11 +2281,11 @@ PageStorageDetail.prototype = {
     },
 
     remove_physical_volume: function(block) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         if (block.PvFreeSize != block.PvSize) {
-            cockpit.show_error_dialog("Error", "Volume is in use.");
+            shell.show_error_dialog("Error", "Volume is in use.");
             return;
         }
 
@@ -2298,41 +2299,41 @@ PageStorageDetail.prototype = {
         }
 
         if (n == 1) {
-            cockpit.show_error_dialog("Error", "Can't remove the last physical volume.");
+            shell.show_error_dialog("Error", "Can't remove the last physical volume.");
             return;
         }
 
         this._vg.call('RemoveDevice', block.getObject().objectPath,
                       function (error) {
                           if (error)
-                              cockpit.show_unexpected_error (error);
+                              shell.show_unexpected_error (error);
                       });
     },
 
     empty_physical_volume: function(block) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         var used = block.PvSize - block.PvFreeSize;
         if (used === 0) {
-            cockpit.show_error_dialog("Dude", "Volume is already empty.");
+            shell.show_error_dialog("Dude", "Volume is already empty.");
             return;
         }
 
         if (used > this._vg.FreeSize) {
-            cockpit.show_error_dialog("Error", "Not enough free space.");
+            shell.show_error_dialog("Error", "Not enough free space.");
             return;
         }
 
         this._vg.call('EmptyDevice', block.getObject().objectPath,
                       function (error) {
                           if (error)
-                              cockpit.show_unexpected_error(error);
+                              shell.show_unexpected_error(error);
                       });
     },
 
     add_physical_volume: function() {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageVGDiskAdd.volume_group = this._vg;
@@ -2340,7 +2341,7 @@ PageStorageDetail.prototype = {
     },
 
     create_plain_volume: function (volume_group) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageCreatePlainVolume.volume_group = volume_group;
@@ -2348,7 +2349,7 @@ PageStorageDetail.prototype = {
     },
 
     create_thin_pool: function (volume_group) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageCreateThinPool.volume_group = volume_group;
@@ -2356,7 +2357,7 @@ PageStorageDetail.prototype = {
     },
 
     create_thin_volume: function (pool) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageCreateThinVolume.pool = pool;
@@ -2364,18 +2365,18 @@ PageStorageDetail.prototype = {
     },
 
     create_raid_volume: function (volume_group) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
-        cockpit.show_error_dialog("Sorry", "Not yet.");
+        shell.show_error_dialog("Sorry", "Not yet.");
     },
 
     create_snapshot: function (origin) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         if (origin.Origin != "/") {
-            cockpit.show_error_dialog("Error", "Can't take a snapshot of a snapshot.");
+            shell.show_error_dialog("Error", "Can't take a snapshot of a snapshot.");
             return;
         }
 
@@ -2386,22 +2387,22 @@ PageStorageDetail.prototype = {
     delete_logical_volume: function(lv) {
         var self = this;
 
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
-        cockpit.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name + "/" + lv.Name }),
+        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name + "/" + lv.Name }),
                         _("Deleting a logical volume will erase all data in it."),
                         _("Delete")).
             done(function () {
                 lv.call('Delete', function (error, result) {
                     if (error)
-                        cockpit.show_unexpected_error(error);
+                        shell.show_unexpected_error(error);
                 });
             });
     },
 
     resize_logical_volume: function(lv) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageResizeVolume.volume = lv;
@@ -2409,7 +2410,7 @@ PageStorageDetail.prototype = {
     },
 
     rename_volume_group: function() {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageRenameGroup.group = this._vg;
@@ -2417,7 +2418,7 @@ PageStorageDetail.prototype = {
     },
 
     rename_logical_volume: function(lv) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         PageRenameVolume.volume = lv;
@@ -2425,22 +2426,22 @@ PageStorageDetail.prototype = {
     },
 
     activate_logical_volume: function(lv) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         lv.call('Activate', function (error, result) {
             if (error)
-                cockpit.show_unexpected_error(error);
+                shell.show_unexpected_error(error);
         });
     },
 
     deactivate_logical_volume: function(lv) {
-        if (!cockpit.check_admin(this.client))
+        if (!shell.check_admin(this.client))
             return;
 
         lv.call('Deactivate', function (error, result) {
             if (error)
-                cockpit.show_unexpected_error(error);
+                shell.show_unexpected_error(error);
         });
     }
 };
@@ -2449,7 +2450,7 @@ function PageStorageDetail() {
     this._init();
 }
 
-cockpit.pages.push(new PageStorageDetail());
+shell.pages.push(new PageStorageDetail());
 
 PageCreateRaid.prototype = {
     _init: function() {
@@ -2562,7 +2563,7 @@ PageCreateRaid.prototype = {
                       function (error) {
                           $('#create-raid-dialog').modal('hide');
                           if (error)
-                              cockpit.show_unexpected_error(error);
+                              shell.show_unexpected_error(error);
                       });
     }
 };
@@ -2571,7 +2572,7 @@ function PageCreateRaid() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageCreateRaid());
+shell.dialogs.push(new PageCreateRaid());
 
 function fill_free_devices_list(client, id, filter)
 {
@@ -2786,7 +2787,7 @@ PageCreateVolumeGroup.prototype = {
                       function (error) {
                           $('#create-volume-group-dialog').modal('hide');
                           if (error)
-                              cockpit.show_unexpected_error(error);
+                              shell.show_unexpected_error(error);
                       });
     }
 };
@@ -2795,7 +2796,7 @@ function PageCreateVolumeGroup() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageCreateVolumeGroup());
+shell.dialogs.push(new PageCreateVolumeGroup());
 
 PageFormatDisk.prototype = {
     _init: function() {
@@ -2826,7 +2827,7 @@ PageFormatDisk.prototype = {
                                    function (error) {
                                        $("#storage_format_disk_dialog").modal('hide');
                                        if (error)
-                                           cockpit.show_unexpected_error(error);
+                                           shell.show_unexpected_error(error);
                                    });
     }
 };
@@ -2835,7 +2836,7 @@ function PageFormatDisk() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageFormatDisk());
+shell.dialogs.push(new PageFormatDisk());
 
 PageFormat.prototype = {
     _init: function() {
@@ -2965,7 +2966,7 @@ PageFormat.prototype = {
                                   function (error) {
                                       $("#storage_format_dialog").modal('hide');
                                       if (error)
-                                          cockpit.show_unexpected_error(error);
+                                          shell.show_unexpected_error(error);
                                   });
         else
             PageFormat.block.call('Format',
@@ -2975,7 +2976,7 @@ PageFormat.prototype = {
                                   function (error) {
                                       $("#storage_format_dialog").modal('hide');
                                       if (error)
-                                          cockpit.show_unexpected_error(error);
+                                          shell.show_unexpected_error(error);
                                   });
     }
 };
@@ -2984,7 +2985,7 @@ function PageFormat() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageFormat());
+shell.dialogs.push(new PageFormat());
 
 PageCreatePlainVolume.prototype = {
     _init: function() {
@@ -3016,7 +3017,7 @@ PageCreatePlainVolume.prototype = {
                                                 function (error) {
                                                     $("#storage_create_plain_volume_dialog").modal('hide');
                                                     if (error)
-                                                        cockpit.show_unexpected_error(error);
+                                                        shell.show_unexpected_error(error);
                                                 });
     }
 
@@ -3026,7 +3027,7 @@ function PageCreatePlainVolume() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageCreatePlainVolume());
+shell.dialogs.push(new PageCreatePlainVolume());
 
 PageCreateThinPool.prototype = {
     _init: function() {
@@ -3058,7 +3059,7 @@ PageCreateThinPool.prototype = {
                                              function (error) {
                                                  $("#storage_create_thin_pool_dialog").modal('hide');
                                                  if (error)
-                                                     cockpit.show_unexpected_error(error);
+                                                     shell.show_unexpected_error(error);
                                              });
     }
 
@@ -3068,7 +3069,7 @@ function PageCreateThinPool() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageCreateThinPool());
+shell.dialogs.push(new PageCreateThinPool());
 
 PageCreateThinVolume.prototype = {
     _init: function() {
@@ -3104,7 +3105,7 @@ PageCreateThinVolume.prototype = {
                 function (error) {
                     $("#storage_create_thin_volume_dialog").modal('hide');
                     if (error)
-                        cockpit.show_unexpected_error(error);
+                        shell.show_unexpected_error(error);
                 });
     }
 
@@ -3114,7 +3115,7 @@ function PageCreateThinVolume() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageCreateThinVolume());
+shell.dialogs.push(new PageCreateThinVolume());
 
 PageCreateSnapshot.prototype = {
     _init: function() {
@@ -3150,7 +3151,7 @@ PageCreateSnapshot.prototype = {
                                        function (error) {
                                            $("#storage_create_snapshot_dialog").modal('hide');
                                            if (error)
-                                               cockpit.show_unexpected_error(error);
+                                               shell.show_unexpected_error(error);
                                        });
     }
 
@@ -3160,7 +3161,7 @@ function PageCreateSnapshot() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageCreateSnapshot());
+shell.dialogs.push(new PageCreateSnapshot());
 
 PageResizeVolume.prototype = {
     _init: function() {
@@ -3194,7 +3195,7 @@ PageResizeVolume.prototype = {
                                      function (error) {
                                          $("#storage_resize_volume_dialog").modal('hide');
                                          if (error)
-                                             cockpit.show_unexpected_error(error);
+                                             shell.show_unexpected_error(error);
                                      });
     }
 
@@ -3204,7 +3205,7 @@ function PageResizeVolume() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageResizeVolume());
+shell.dialogs.push(new PageResizeVolume());
 
 PageRenameVolume.prototype = {
     _init: function() {
@@ -3233,7 +3234,7 @@ PageRenameVolume.prototype = {
                                      function (error) {
                                          $("#storage_rename_volume_dialog").modal('hide');
                                          if (error)
-                                             cockpit.show_unexpected_error(error);
+                                             shell.show_unexpected_error(error);
                                      });
     }
 
@@ -3243,7 +3244,7 @@ function PageRenameVolume() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageRenameVolume());
+shell.dialogs.push(new PageRenameVolume());
 
 PageRenameGroup.prototype = {
     _init: function() {
@@ -3273,7 +3274,7 @@ PageRenameGroup.prototype = {
                                        $("#storage_rename_group_dialog").modal('hide');
                                        cockpit.location = "storage";
                                        if (error)
-                                           cockpit.show_unexpected_error(error);
+                                           shell.show_unexpected_error(error);
                                    });
     }
 
@@ -3283,7 +3284,7 @@ function PageRenameGroup() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageRenameGroup());
+shell.dialogs.push(new PageRenameGroup());
 
 PageFilesystemOptions.prototype = {
     _init: function() {
@@ -3331,7 +3332,7 @@ PageFilesystemOptions.prototype = {
                                          function (error) {
                                              $("#filesystem_options_dialog").modal('hide');
                                              if (error)
-                                                 cockpit.show_unexpected_error(error);
+                                                 shell.show_unexpected_error(error);
                                          });
     }
 };
@@ -3340,7 +3341,7 @@ function PageFilesystemOptions() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageFilesystemOptions());
+shell.dialogs.push(new PageFilesystemOptions());
 
 PageCryptoOptions.prototype = {
     _init: function() {
@@ -3376,7 +3377,7 @@ PageCryptoOptions.prototype = {
                                      function (error) {
                                          $("#crypto_options_dialog").modal('hide');
                                          if (error)
-                                             cockpit.show_unexpected_error(error);
+                                             shell.show_unexpected_error(error);
                                      });
     }
 };
@@ -3385,7 +3386,7 @@ function PageCryptoOptions() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageCryptoOptions());
+shell.dialogs.push(new PageCryptoOptions());
 
 PageUnlock.prototype = {
     _init: function() {
@@ -3414,7 +3415,7 @@ PageUnlock.prototype = {
                               function (error) {
                                   $("#storage_unlock_dialog").modal('hide');
                                   if (error)
-                                      cockpit.unexpected_error(error);
+                                      shell.unexpected_error(error);
                               });
     }
 };
@@ -3423,7 +3424,7 @@ function PageUnlock() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageUnlock());
+shell.dialogs.push(new PageUnlock());
 
 PageRaidDiskAdd.prototype = {
     _init: function() {
@@ -3465,7 +3466,7 @@ PageRaidDiskAdd.prototype = {
                                     function (error) {
                                         $("#raid_disk_add_dialog").modal('hide');
                                         if (error)
-                                            cockpit.show_unexpected_error(error);
+                                            shell.show_unexpected_error(error);
                                     });
     }
 };
@@ -3474,7 +3475,7 @@ function PageRaidDiskAdd() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageRaidDiskAdd());
+shell.dialogs.push(new PageRaidDiskAdd());
 
 PageVGDiskAdd.prototype = {
     _init: function() {
@@ -3519,7 +3520,7 @@ PageVGDiskAdd.prototype = {
                                                 function (error) {
                                                     if (error) {
                                                         $("#vg_disk_add_dialog").modal('hide');
-                                                        cockpit.show_unexpected_error(error);
+                                                        shell.show_unexpected_error(error);
                                                     } else {
                                                         add_them(i+1);
                                                     }
@@ -3536,6 +3537,6 @@ function PageVGDiskAdd() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageVGDiskAdd());
+shell.dialogs.push(new PageVGDiskAdd());
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

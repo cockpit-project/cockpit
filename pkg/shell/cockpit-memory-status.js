@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 PageMemoryStatus.prototype = {
     _init: function() {
@@ -29,10 +30,10 @@ PageMemoryStatus.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_machine();
+        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = cockpit.dbusx(this.address, { payload: "dbus-json1" });
-        cockpit.set_watched_client(this.client);
+        this.client = shell.dbus(this.address, { payload: "dbus-json1" });
+        shell.set_watched_client(this.client);
 
         var resmon = this.client.get("/com/redhat/Cockpit/MemoryMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {
@@ -42,7 +43,7 @@ PageMemoryStatus.prototype = {
             yaxis: {min: 0,
                     ticks: 5,
                     tickFormatter: function (v) {
-                        return cockpit.format_bytes(v);
+                        return shell.format_bytes(v);
                     }
                    },
             xaxis: {show: true,
@@ -54,7 +55,7 @@ PageMemoryStatus.prototype = {
             x_rh_stack_graphs: true
         };
 
-        this.plot = cockpit.setup_complicated_plot("#memory_status_graph",
+        this.plot = shell.setup_complicated_plot("#memory_status_graph",
                                                    resmon,
                                                    [{color: "rgb(200,200,200)"},
                                                     {color: "rgb(150,150,150)"},
@@ -69,7 +70,7 @@ PageMemoryStatus.prototype = {
     },
 
     leave: function() {
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         this.plot.destroy();
         this.client.release();
         this.client = null;
@@ -80,6 +81,6 @@ function PageMemoryStatus() {
     this._init();
 }
 
-cockpit.pages.push(new PageMemoryStatus());
+shell.pages.push(new PageMemoryStatus());
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

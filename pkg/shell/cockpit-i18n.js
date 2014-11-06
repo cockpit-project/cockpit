@@ -17,16 +17,17 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
-cockpit.i18n = function i18n(string, context) {
+shell.i18n = function i18n(string, context) {
     var lookup_key = string;
     if (context)
         lookup_key = context + "\u0004" + string;
 
     var ret = string;
-    if (cockpit.language_po) {
-        var translated = cockpit.language_po[lookup_key];
+    if (shell.language_po) {
+        var translated = shell.language_po[lookup_key];
         if (translated && translated.length >= 1 && translated[1].length > 0) {
             ret = translated[1];
         }
@@ -35,20 +36,20 @@ cockpit.i18n = function i18n(string, context) {
     return ret;
 };
 
-cockpit.localize_pages = function localize_pages() {
+shell.localize_pages = function localize_pages() {
     $("[translatable=\"yes\"]").each(
         function(i, e) {
             // Save original string
             if (!e._orig)
                 e._orig = $(e).text();
 
-            var translated = cockpit.i18n(e._orig, e.getAttribute("context"));
+            var translated = shell.i18n(e._orig, e.getAttribute("context"));
             $(e).text(translated);
         });
-    cockpit.content_refresh();
+    shell.content_refresh();
 };
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);
 
 function F(format, args) {
     return format.replace(/%\{([^}]+)\}/g, function(_, key) { return args[key] || ""; });
@@ -58,11 +59,11 @@ function N_(str) {
     return str;
 }
 function _(string) {
-    return cockpit.i18n(string);
+    return shell.i18n(string);
 }
 
 function C_(context, string) {
-    return cockpit.i18n(string, context);
+    return shell.i18n(string, context);
 }
 
 

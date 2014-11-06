@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 PageShutdownDialog.prototype = {
     _init: function() {
@@ -28,7 +29,7 @@ PageShutdownDialog.prototype = {
         $("#shutdown-restart").click($.proxy(this, "restart"));
         $("#shutdown-poweroff").click($.proxy(this, "poweroff"));
         $("#shutdown-delay").html(
-            this.delay_btn = cockpit.select_btn($.proxy(this, "update"),
+            this.delay_btn = shell.select_btn($.proxy(this, "update"),
                                                 [ { choice: "1",   title: _("1 Minute") },
                                                   { choice: "5",   title: _("5 Minutes") },
                                                   { choice: "20",  title: _("20 Minutes") },
@@ -43,9 +44,9 @@ PageShutdownDialog.prototype = {
     },
 
     enter: function() {
-        this.address = cockpit.get_page_machine();
+        this.address = shell.get_page_machine();
         /* TODO: This needs to be migrated away from the old dbus */
-        this.cockpitd = cockpit.dbusx(this.address);
+        this.cockpitd = shell.dbus(this.address);
         this.cockpitd_manager = this.cockpitd.get("/com/redhat/Cockpit/Manager",
                                                   "com.redhat.Cockpit.Manager");
         $(this.cockpitd_manager).on("notify.shutdown", $.proxy(this, "update"));
@@ -54,7 +55,7 @@ PageShutdownDialog.prototype = {
             val("").
             attr("placeholder", _("Message to logged in users"));
 
-        cockpit.select_btn_select(this.delay_btn, "1");
+        shell.select_btn_select(this.delay_btn, "1");
 
         this.update();
     },
@@ -73,11 +74,11 @@ PageShutdownDialog.prototype = {
         var disabled = false;
 
         if (this.cockpitd) {
-            var host = cockpit.util.hostname_for_display(this.cockpitd_manager);
+            var host = shell.util.hostname_for_display(this.cockpitd_manager);
             $('#shutdown-dialog .modal-title').text(F(_("Shutdown %{host}"), { host: host }));
         }
 
-        var delay = cockpit.select_btn_selected(this.delay_btn);
+        var delay = shell.select_btn_selected(this.delay_btn);
         $("#shutdown-time").toggle(delay == "x");
         if (delay == "x") {
             var h = parseInt($("#shutdown-time input:nth-child(1)").val(), 10);
@@ -92,7 +93,7 @@ PageShutdownDialog.prototype = {
     },
 
     shutdown: function(op) {
-        var delay = cockpit.select_btn_selected(this.delay_btn);
+        var delay = shell.select_btn_selected(this.delay_btn);
         var message = $("#shutdown-message").val();
         var when;
 
@@ -105,7 +106,7 @@ PageShutdownDialog.prototype = {
         this.cockpitd_manager.call('Shutdown', op, when, message, function(error) {
             $('#shutdown-dialog').modal('hide');
             if (error && error.name != 'Disconnected')
-                cockpit.show_unexpected_error(error);
+                shell.show_unexpected_error(error);
         });
     },
 
@@ -122,6 +123,6 @@ function PageShutdownDialog() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageShutdownDialog());
+shell.dialogs.push(new PageShutdownDialog());
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

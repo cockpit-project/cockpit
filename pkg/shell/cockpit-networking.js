@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
+var shell = shell || { };
 
-(function($, cockpit) {
+(function($, cockpit, shell) {
 
 function nm_debug() {
     if (window.debugging == "all" || window.debugging == "nm")
@@ -122,7 +122,7 @@ function NetworkManagerModel(address) {
     var self = this;
 
     /* TODO: This code needs to be migrated away from old dbus */
-    var client = cockpit.dbus_client(address,
+    var client = shell.dbus_client(address,
                                 { 'bus':          "system",
                                   'service':      "org.freedesktop.NetworkManager",
                                   'object-paths': [ "/org/freedesktop/NetworkManager" ],
@@ -598,7 +598,7 @@ function NetworkManagerModel(address) {
             if (!result[first])
                 result[first] = { };
             if (val !== undefined)
-                result[first][second] = cockpit.variant(sig, val);
+                result[first][second] = shell.variant(sig, val);
             else
                 delete result[first][second];
         }
@@ -1141,7 +1141,7 @@ function NetworkManagerModel(address) {
     return self;
 }
 
-var nm_models = cockpit.util.make_resource_cache();
+var nm_models = shell.util.make_resource_cache();
 
 function get_nm_model(machine) {
     return nm_models.get(machine, function () { return new NetworkManagerModel(machine); });
@@ -1149,7 +1149,7 @@ function get_nm_model(machine) {
 
 function network_log_box(machine, elt)
 {
-    return cockpit.simple_logbox(machine, elt,
+    return shell.simple_logbox(machine, elt,
                                  [
                                      "_SYSTEMD_UNIT=NetworkManager.service",
                                      "_SYSTEMD_UNIT=firewalld.service"
@@ -1262,9 +1262,9 @@ PageNetworking.prototype = {
     enter: function () {
         var self = this;
 
-        this.address = cockpit.get_page_machine();
+        this.address = shell.get_page_machine();
         this.model = get_nm_model(this.address);
-        cockpit.set_watched_client(this.model.client);
+        shell.set_watched_client(this.model.client);
 
         this.ifaces = { };
 
@@ -1285,38 +1285,38 @@ PageNetworking.prototype = {
         function highlight_netdev_row(event, id) {
             $('#networking-interfaces tr').removeClass('highlight');
             if (id) {
-                $('#networking-interfaces tr[data-interface="' + cockpit.esc(id) + '"]').addClass('highlight');
+                $('#networking-interfaces tr[data-interface="' + shell.esc(id) + '"]').addClass('highlight');
             }
         }
 
         function render_samples(event, timestamp, samples) {
             for (var id in samples) {
-                var row = $('#networking-interfaces tr[data-sample-id="' + cockpit.esc(id) + '"]');
+                var row = $('#networking-interfaces tr[data-sample-id="' + shell.esc(id) + '"]');
                 if (row.length > 0) {
-                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(samples[id][1] * 8));
-                    row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(samples[id][0] * 8));
+                    row.find('td:nth-child(3)').text(shell.format_bits_per_sec(samples[id][1] * 8));
+                    row.find('td:nth-child(4)').text(shell.format_bits_per_sec(samples[id][0] * 8));
                 }
             }
         }
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.cockpitd = cockpit.dbusx(this.address);
+        this.cockpitd = shell.dbus(this.address);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 
         $(this.monitor).on('NewSample.networking', render_samples);
 
-        this.rx_plot = cockpit.setup_multi_plot('#networking-rx-graph', this.monitor, 0, blues.concat(blues),
+        this.rx_plot = shell.setup_multi_plot('#networking-rx-graph', this.monitor, 0, blues.concat(blues),
                                                 is_interesting_netdev, network_plot_setup_hook);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#networking-rx-text').text(cockpit.format_bits_per_sec(total * 8));
+            $('#networking-rx-text').text(shell.format_bits_per_sec(total * 8));
         });
         $(this.rx_plot).on('highlight', highlight_netdev_row);
 
-        this.tx_plot = cockpit.setup_multi_plot('#networking-tx-graph', this.monitor, 1, blues.concat(blues),
+        this.tx_plot = shell.setup_multi_plot('#networking-tx-graph', this.monitor, 1, blues.concat(blues),
                                                 is_interesting_netdev, network_plot_setup_hook);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#networking-tx-text').text(cockpit.format_bits_per_sec(total * 8));
+            $('#networking-tx-text').text(shell.format_bits_per_sec(total * 8));
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
@@ -1336,7 +1336,7 @@ PageNetworking.prototype = {
         this.tx_plot.destroy();
         this.log_box.stop();
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         $(this.model).off(".networking");
         this.model.release();
         this.model = null;
@@ -1410,10 +1410,10 @@ PageNetworking.prototype = {
     add_bond: function () {
         var iface, i, uuid;
 
-        if (!cockpit.check_admin(this.cockpitd))
+        if (!shell.check_admin(this.cockpitd))
             return;
 
-        uuid = cockpit.util.uuid();
+        uuid = shell.util.uuid();
         for (i = 0; i < 100; i++) {
             iface = "bond" + i;
             if (!this.model.find_interface(iface))
@@ -1446,10 +1446,10 @@ PageNetworking.prototype = {
     add_bridge: function () {
         var iface, i, uuid;
 
-        if (!cockpit.check_admin(this.cockpitd))
+        if (!shell.check_admin(this.cockpitd))
             return;
 
-        uuid = cockpit.util.uuid();
+        uuid = shell.util.uuid();
         for (i = 0; i < 100; i++) {
             iface = "bridge" + i;
             if (!this.model.find_interface(iface))
@@ -1485,10 +1485,10 @@ PageNetworking.prototype = {
     add_vlan: function () {
         var iface, i, uuid;
 
-        if (!cockpit.check_admin(this.cockpitd))
+        if (!shell.check_admin(this.cockpitd))
             return;
 
-        uuid = cockpit.util.uuid();
+        uuid = shell.util.uuid();
 
         PageNetworkVlanSettings.model = this.model;
         PageNetworkVlanSettings.done = null;
@@ -1517,7 +1517,7 @@ function PageNetworking() {
     this._init();
 }
 
-cockpit.pages.push(new PageNetworking());
+shell.pages.push(new PageNetworking());
 
 var ipv4_method_choices =
     [
@@ -1576,23 +1576,23 @@ PageNetworkInterface.prototype = {
         var self = this;
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
         $('#network-interface-delete').parent().append(
-            this.device_onoff = cockpit.OnOff(false,
+            this.device_onoff = shell.OnOff(false,
                                               $.proxy(this, "connect"),
                                               $.proxy(this, "disconnect"),
                                               function () {
-                                                  return cockpit.check_admin(self.cockpitd);
+                                                  return shell.check_admin(self.cockpitd);
                                               }));
     },
 
     enter: function () {
         var self = this;
 
-        self.address = cockpit.get_page_machine();
+        self.address = shell.get_page_machine();
         self.model = get_nm_model(self.address);
-        cockpit.set_watched_client(self.model.client);
+        shell.set_watched_client(self.model.client);
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
-        self.dev_name = cockpit.get_page_param('dev');
+        self.dev_name = shell.get_page_param('dev');
 
         $('#network-interface .breadcrumb .active').text(self.dev_name);
 
@@ -1615,40 +1615,40 @@ PageNetworkInterface.prototype = {
         function highlight_netdev_row(event, id) {
             $('#network-interface-slaves tr').removeClass('highlight');
             if (id) {
-                $('#network-interface-slaves tr[data-interface="' + cockpit.esc(id) + '"]').addClass('highlight');
+                $('#network-interface-slaves tr[data-interface="' + shell.esc(id) + '"]').addClass('highlight');
             }
         }
 
         function render_samples(event, timestamp, samples) {
             for (var id in samples) {
-                var row = $('#network-interface-slaves tr[data-sample-id="' + cockpit.esc(id) + '"]');
+                var row = $('#network-interface-slaves tr[data-sample-id="' + shell.esc(id) + '"]');
                 if (row.length > 0) {
-                    row.find('td:nth-child(2)').text(cockpit.format_bits_per_sec(samples[id][1] * 8));
-                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(samples[id][0] * 8));
+                    row.find('td:nth-child(2)').text(shell.format_bits_per_sec(samples[id][1] * 8));
+                    row.find('td:nth-child(3)').text(shell.format_bits_per_sec(samples[id][0] * 8));
                 }
             }
         }
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.cockpitd = cockpit.dbusx(this.address);
+        this.cockpitd = shell.dbus(this.address);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 
         $(this.monitor).on('NewSample.networking', render_samples);
 
-        this.rx_plot = cockpit.setup_multi_plot('#network-interface-rx-graph', this.monitor, 0,
+        this.rx_plot = shell.setup_multi_plot('#network-interface-rx-graph', this.monitor, 0,
                                                 blues.concat(blues), is_interesting_netdev,
                                                 network_plot_setup_hook);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#network-interface-rx-text').text(cockpit.format_bits_per_sec(total * 8));
+            $('#network-interface-rx-text').text(shell.format_bits_per_sec(total * 8));
         });
         $(this.rx_plot).on('highlight', highlight_netdev_row);
 
-        this.tx_plot = cockpit.setup_multi_plot('#network-interface-tx-graph', this.monitor, 1,
+        this.tx_plot = shell.setup_multi_plot('#network-interface-tx-graph', this.monitor, 1,
                                                 blues.concat(blues), is_interesting_netdev,
                                                 network_plot_setup_hook);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#network-interface-tx-text').text(cockpit.format_bits_per_sec(total * 8));
+            $('#network-interface-tx-text').text(shell.format_bits_per_sec(total * 8));
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
@@ -1666,7 +1666,7 @@ PageNetworkInterface.prototype = {
         this.rx_plot.destroy();
         this.tx_plot.destroy();
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         $(this.model).off(".network-interface");
         this.model.release();
         this.model = null;
@@ -1679,7 +1679,7 @@ PageNetworkInterface.prototype = {
     delete_connections: function() {
         var self = this;
 
-        if (!cockpit.check_admin(self.cockpitd))
+        if (!shell.check_admin(self.cockpitd))
             return;
 
         function delete_connection_and_slaves(con) {
@@ -1706,7 +1706,7 @@ PageNetworkInterface.prototype = {
                 done(function () {
                     location.go("networking");
                 }).
-                fail(cockpit.show_unexpected_error);
+                fail(shell.show_unexpected_error);
         }
     },
 
@@ -1715,7 +1715,7 @@ PageNetworkInterface.prototype = {
         var settings_manager = self.model.get_settings();
 
         function fail(error) {
-            cockpit.show_unexpected_error(error);
+            shell.show_unexpected_error(error);
             self.update();
         }
 
@@ -1743,7 +1743,7 @@ PageNetworkInterface.prototype = {
         }
 
         self.dev.disconnect().fail(function (error) {
-            cockpit.show_unexpected_error(error);
+            shell.show_unexpected_error(error);
             self.update();
         });
     },
@@ -1797,7 +1797,7 @@ PageNetworkInterface.prototype = {
                     $('<td>').text(_("Carrier")),
                     $('<td>').append(
                         dev.Carrier ?
-                            (dev.Speed? cockpit.format_bits_per_sec(dev.Speed*1e6) :_("Yes")) :
+                            (dev.Speed? shell.format_bits_per_sec(dev.Speed*1e6) :_("Yes")) :
                         _("No")));
             } else
                 return null;
@@ -1830,17 +1830,17 @@ PageNetworkInterface.prototype = {
 
             function apply() {
                 if (con)
-                    con.apply().fail(cockpit.show_unexpected_error);
+                    con.apply().fail(shell.show_unexpected_error);
                 else {
                     var settings_manager = self.model.get_settings();
-                    settings_manager.add_connection(settings).fail(cockpit.show_unexpected_error);
+                    settings_manager.add_connection(settings).fail(shell.show_unexpected_error);
                 }
             }
 
             function reactivate_connection() {
                 if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
                     con.activate(dev, null).
-                        fail(cockpit.show_unexpected_error);
+                        fail(shell.show_unexpected_error);
                 }
             }
 
@@ -1926,7 +1926,7 @@ PageNetworkInterface.prototype = {
                         $('<button class="btn btn-default">').
                             text(_("Configure")).
                             click(function () {
-                                if (!cockpit.check_admin(self.cockpitd))
+                                if (!shell.check_admin(self.cockpitd))
                                     return;
                                 configure();
                             })));
@@ -2057,7 +2057,7 @@ PageNetworkInterface.prototype = {
         }
 
         function create_ghost_connection_settings() {
-            var uuid = cockpit.util.uuid();
+            var uuid = shell.util.uuid();
             return {
                 connection: {
                     id: uuid,
@@ -2150,28 +2150,28 @@ PageNetworkInterface.prototype = {
                                     [ $('<td>').text(""), $('<td>').text("") ] :
                                     $('<td colspan="2">').text(device_state_text(dev))),
                                    $('<td style="text-align:right">').append(
-                                       cockpit.OnOff(is_active,
+                                       shell.OnOff(is_active,
                                                      function () {
                                                          slave_con.activate(iface.Device).
-                                                             fail(cockpit.show_unexpected_error);
+                                                             fail(shell.show_unexpected_error);
                                                      },
                                                      function () {
                                                          if (dev) {
                                                              dev.disconnect().
-                                                                 fail(cockpit.show_unexpected_error);
+                                                                 fail(shell.show_unexpected_error);
                                                          }
                                                      },
                                                      function () {
-                                                         return cockpit.check_admin(self.cockpitd);
+                                                         return shell.check_admin(self.cockpitd);
                                                      })),
                                    $('<td width="28px">').append(
                                        $('<button class="btn btn-default btn-control">').
                                            text("-").
                                            click(function () {
-                                               if (!cockpit.check_admin(self.cockpitd))
+                                               if (!shell.check_admin(self.cockpitd))
                                                    return false;
                                                slave_con.delete_().
-                                                   fail(cockpit.show_unexpected_error);
+                                                   fail(shell.show_unexpected_error);
                                                return false;
                                            }))).
                         click(function () {
@@ -2203,12 +2203,12 @@ PageNetworkInterface.prototype = {
                                         $('<a role="menuitem">').
                                             text(iface.Name).
                                             click(function () {
-                                                if (!cockpit.check_admin(self.cockpitd))
+                                                if (!shell.check_admin(self.cockpitd))
                                                     return;
                                                 set_slave(self.model, con, con.Settings,
                                                           con.Settings.connection.type, iface.Name,
                                                           true).
-                                                    fail(cockpit.show_unexpected_error);
+                                                    fail(shell.show_unexpected_error);
                                             }));
                                 else
                                     return null;
@@ -2229,7 +2229,7 @@ function PageNetworkInterface() {
     this._init();
 }
 
-cockpit.pages.push(new PageNetworkInterface());
+shell.pages.push(new PageNetworkInterface());
 
 PageNetworkIpSettings.prototype = {
     _init: function () {
@@ -2267,13 +2267,13 @@ PageNetworkIpSettings.prototype = {
         var auto_routes_btn, routes_table;
 
         function choicebox(p, choices) {
-            var btn = cockpit.select_btn(
+            var btn = shell.select_btn(
                 function (choice) {
                     params[p] = choice;
                     self.update();
                 },
                 choices);
-            cockpit.select_btn_select(btn, params[p]);
+            shell.select_btn_select(btn, params[p]);
             return btn;
         }
 
@@ -2281,7 +2281,7 @@ PageNetworkIpSettings.prototype = {
             var onoff;
             var btn = $('<span>').append(
                 $('<span style="margin-right:10px">').text(title),
-                onoff = cockpit.OnOff(!params[p], function (val) {
+                onoff = shell.OnOff(!params[p], function (val) {
                     params[p] = !val;
                     self.update();
                 }));
@@ -2467,7 +2467,7 @@ function PageNetworkIpSettings() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageNetworkIpSettings());
+shell.dialogs.push(new PageNetworkIpSettings());
 
 function is_interface_connection(iface, connection) {
     return connection && connection.Interfaces.indexOf(iface) != -1;
@@ -2515,7 +2515,7 @@ function slave_chooser_btn(change, slave_choices) {
         if ($(elt).prop('checked'))
             choices.push({ title: name, choice: name });
     });
-    return cockpit.select_btn(change, choices);
+    return shell.select_btn(change, choices);
 }
 
 function free_slave_connection(con) {
@@ -2555,7 +2555,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
          */
 
         if (!main_connection) {
-            uuid = cockpit.util.uuid();
+            uuid = shell.util.uuid();
             return model.get_settings().add_connection({ connection:
                                                          { id: uuid,
                                                            uuid: uuid,
@@ -2660,22 +2660,22 @@ PageNetworkBondSettings.prototype = {
             var btn = slave_chooser_btn(change_mode, slaves_element);
             primary_btn.replaceWith(btn);
             primary_btn = btn;
-            cockpit.select_btn_select(primary_btn, options.primary);
+            shell.select_btn_select(primary_btn, options.primary);
             change_mode();
         }
 
         function change_mode() {
-            options.mode = cockpit.select_btn_selected(mode_btn);
+            options.mode = shell.select_btn_selected(mode_btn);
 
             primary_btn.parents("tr").toggle(options.mode == "active-backup");
             if (options.mode == "active-backup")
-                options.primary = cockpit.select_btn_selected(primary_btn);
+                options.primary = shell.select_btn_selected(primary_btn);
             else
                 delete options.primary;
         }
 
         function change_monitoring() {
-            var use_mii = cockpit.select_btn_selected(monitoring_btn) == "mii";
+            var use_mii = shell.select_btn_selected(monitoring_btn) == "mii";
 
             targets_input.parents("tr").toggle(!use_mii);
             updelay_input.parents("tr").toggle(use_mii);
@@ -2717,7 +2717,7 @@ PageNetworkBondSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Mode")),
                     $('<td>').append(
-                        mode_btn = cockpit.select_btn(change_mode, bond_mode_choices))),
+                        mode_btn = shell.select_btn(change_mode, bond_mode_choices))),
                 $('<tr>').append(
                     $('<td>').text(_("Primary")),
                     $('<td>').append(
@@ -2725,7 +2725,7 @@ PageNetworkBondSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Link Monitoring")),
                     $('<td>').append(
-                        monitoring_btn = cockpit.select_btn(change_monitoring, bond_monitoring_choices))),
+                        monitoring_btn = shell.select_btn(change_monitoring, bond_monitoring_choices))),
                 $('<tr>').append(
                     $('<td>').text(_("Monitoring Interval")),
                     $('<td>').append(
@@ -2751,8 +2751,8 @@ PageNetworkBondSettings.prototype = {
                             val(options.downdelay || "0").
                             change(change_monitoring))));
 
-        cockpit.select_btn_select(mode_btn, options.mode);
-        cockpit.select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
+        shell.select_btn_select(mode_btn, options.mode);
+        shell.select_btn_select(monitoring_btn, (options.miimon !== 0)? "mii" : "arp");
         change_slaves();
         change_mode();
         change_monitoring();
@@ -2788,7 +2788,7 @@ function PageNetworkBondSettings() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageNetworkBondSettings());
+shell.dialogs.push(new PageNetworkBondSettings());
 
 PageNetworkBridgeSettings.prototype = {
     _init: function () {
@@ -2924,7 +2924,7 @@ function PageNetworkBridgeSettings() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageNetworkBridgeSettings());
+shell.dialogs.push(new PageNetworkBridgeSettings());
 
 PageNetworkBridgePortSettings.prototype = {
     _init: function () {
@@ -3027,7 +3027,7 @@ function PageNetworkBridgePortSettings() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageNetworkBridgePortSettings());
+shell.dialogs.push(new PageNetworkBridgePortSettings());
 
 PageNetworkVlanSettings.prototype = {
     _init: function () {
@@ -3063,7 +3063,7 @@ PageNetworkVlanSettings.prototype = {
 
         function change() {
             // XXX - parse errors
-            options.parent = cockpit.select_btn_selected(parent_btn);
+            options.parent = shell.select_btn_selected(parent_btn);
             options.id = parseInt(id_input.val(), 10);
 
             if (auto_update_name && options.parent && options.id)
@@ -3090,7 +3090,7 @@ PageNetworkVlanSettings.prototype = {
                 $('<tr>').append(
                     $('<td>').text(_("Parent")),
                     $('<td>').append(
-                        parent_btn = cockpit.select_btn(change, parent_choices))),
+                        parent_btn = shell.select_btn(change, parent_choices))),
                 $('<tr>').append(
                     $('<td>').text(_("VLAN Id")),
                     $('<td>').append(
@@ -3106,7 +3106,7 @@ PageNetworkVlanSettings.prototype = {
                             change(change_name).
                             on('input', change_name))));
 
-        cockpit.select_btn_select(parent_btn, (options.parent ||
+        shell.select_btn_select(parent_btn, (options.parent ||
                                                (parent_choices[0] ?
                                                 parent_choices[0].choice :
                                                 "")));
@@ -3152,6 +3152,6 @@ function PageNetworkVlanSettings() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageNetworkVlanSettings());
+shell.dialogs.push(new PageNetworkVlanSettings());
 
-})($, cockpit);
+})($, cockpit, shell);

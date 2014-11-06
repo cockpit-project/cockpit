@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 PageServer.prototype = {
     _init: function() {
@@ -35,23 +36,23 @@ PageServer.prototype = {
         $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
 
         $('#system_information_hostname_button').on('click', function () {
-            if (!cockpit.check_admin(self.client))
+            if (!shell.check_admin(self.client))
                 return;
             PageSystemInformationChangeHostname.client = self.client;
             $('#system_information_change_hostname').modal('show');
         });
 
         $('#system_information_realms_button').on('click', function () {
-            if (!cockpit.check_admin(self.client))
+            if (!shell.check_admin(self.client))
                 return;
 
             if (self.realms.Joined && self.realms.Joined.length > 0) {
                 var name = self.realms.Joined[0][0];
                 var details = self.realms.Joined[0][1];
-                cockpit.realms_op_set_parameters(self.realms, 'leave', name, details);
+                shell.realms_op_set_parameters(self.realms, 'leave', name, details);
                 $('#realms-op').modal('show');
             } else {
-                cockpit.realms_op_set_parameters(self.realms, 'join', '', { });
+                shell.realms_op_set_parameters(self.realms, 'join', '', { });
                 $('#realms-op').modal('show');
             }
         });
@@ -60,10 +61,10 @@ PageServer.prototype = {
     enter: function() {
         var self = this;
 
-        self.address = cockpit.get_page_machine();
+        self.address = shell.get_page_machine();
         /* TODO: Need to migrate away from old dbus */
-        self.client = cockpit.dbusx(self.address, { payload: 'dbus-json1' });
-        cockpit.set_watched_client(self.client);
+        self.client = shell.dbus(self.address, { payload: 'dbus-json1' });
+        shell.set_watched_client(self.client);
 
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");
@@ -83,7 +84,7 @@ PageServer.prototype = {
         var monitor = self.client.get("/com/redhat/Cockpit/CpuMonitor",
                                       "com.redhat.Cockpit.ResourceMonitor");
         self.cpu_plot =
-            cockpit.setup_simple_plot("#server_cpu_graph",
+            shell.setup_simple_plot("#server_cpu_graph",
                                       "#server_cpu_text",
                                       monitor,
                                       { yaxis: { ticks: 5 } },
@@ -98,7 +99,7 @@ PageServer.prototype = {
         monitor = self.client.get("/com/redhat/Cockpit/MemoryMonitor",
                                   "com.redhat.Cockpit.ResourceMonitor");
         self.memory_plot =
-            cockpit.setup_simple_plot("#server_memory_graph",
+            shell.setup_simple_plot("#server_memory_graph",
                                       "#server_memory_text",
                                       monitor,
                                       { },
@@ -107,13 +108,13 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[1] + values[2] + values[3];
-                                          return cockpit.format_bytes(total);
+                                          return shell.format_bytes(total);
                                       });
 
         monitor = self.client.get("/com/redhat/Cockpit/NetworkMonitor",
                                   "com.redhat.Cockpit.ResourceMonitor");
         self.network_traffic_plot =
-            cockpit.setup_simple_plot("#server_network_traffic_graph",
+            shell.setup_simple_plot("#server_network_traffic_graph",
                                       "#server_network_traffic_text",
                                       monitor,
                                       { setup_hook: network_setup_hook },
@@ -122,13 +123,13 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[0] + values[1];
-                                          return cockpit.format_bits_per_sec(total * 8);
+                                          return shell.format_bits_per_sec(total * 8);
                                       });
 
         monitor = self.client.get("/com/redhat/Cockpit/DiskIOMonitor",
                                   "com.redhat.Cockpit.ResourceMonitor");
         self.disk_io_plot =
-            cockpit.setup_simple_plot("#server_disk_io_graph",
+            shell.setup_simple_plot("#server_disk_io_graph",
                                       "#server_disk_io_text",
                                       monitor,
                                       { },
@@ -137,11 +138,11 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[0] + values[1];
-                                          return cockpit.format_bytes_per_sec(total);
+                                          return shell.format_bytes_per_sec(total);
                                       });
 
 
-        cockpit.util.machine_info(this.address).
+        shell.util.machine_info(this.address).
             done(function (info) {
                 // TODO - round memory to something nice and/or adjust
                 //        the ticks.
@@ -206,7 +207,7 @@ PageServer.prototype = {
         self.disk_io_plot.destroy();
         self.network_traffic_plot.destroy();
 
-        cockpit.set_watched_client(null);
+        shell.set_watched_client(null);
         $(self.manager).off('.server');
         self.manager = null;
         $(self.realms).off('.server');
@@ -235,12 +236,12 @@ PageServer.prototype = {
 
     change_avatar: function() {
         var me = this;
-        cockpit.show_change_avatar_dialog('#server-avatar-uploader',
+        shell.show_change_avatar_dialog('#server-avatar-uploader',
                                            function (data) {
                                                me.manager.call('SetAvatarDataURL', data,
                                                                function (error) {
                                                                    if (error)
-                                                                       cockpit.show_unexpected_error(error);
+                                                                       shell.show_unexpected_error(error);
                                                                });
                                            });
     },
@@ -267,7 +268,7 @@ function PageServer() {
     this._init();
 }
 
-cockpit.pages.push(new PageServer());
+shell.pages.push(new PageServer());
 
 PageSystemInformationChangeHostname.prototype = {
     _init: function() {
@@ -311,7 +312,7 @@ PageSystemInformationChangeHostname.prototype = {
                           function(error, reply) {
                               $("#system_information_change_hostname").modal('hide');
                               if(error) {
-                                  cockpit.show_unexpected_error(error);
+                                  shell.show_unexpected_error(error);
                               }
                           });
     },
@@ -417,6 +418,6 @@ function PageSystemInformationChangeHostname() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageSystemInformationChangeHostname());
+shell.dialogs.push(new PageSystemInformationChangeHostname());
 
-})(cockpit, $);
+})(jQuery, cockpit, shell);

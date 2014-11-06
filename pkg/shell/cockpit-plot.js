@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 function setup_plot(graph_id, resmon, data, user_options, store_samples) {
     var options = {
@@ -211,7 +212,7 @@ function setup_plot(graph_id, resmon, data, user_options, store_samples) {
     return self;
 }
 
-cockpit.setup_complicated_plot = function setup_complicated_plot(graph_id, resmon, data, options) {
+shell.setup_complicated_plot = function setup_complicated_plot(graph_id, resmon, data, options) {
     var i;
     var plot = null;
     var my_options = $.extend ({ legend: { show: true } },
@@ -257,7 +258,7 @@ cockpit.setup_complicated_plot = function setup_complicated_plot(graph_id, resmo
 
 // ----------------------------------------------------------------------------------------------------
 
-cockpit.setup_simple_plot = function setup_simple_plot(plot_id, text_id, resmon, options,
+shell.setup_simple_plot = function setup_simple_plot(plot_id, text_id, resmon, options,
                                                        series_combine_func, series_text_func) {
     var data = [ {} ];
 
@@ -274,7 +275,7 @@ cockpit.setup_simple_plot = function setup_simple_plot(plot_id, text_id, resmon,
 
 // ----------------------------------------------------------------------------------------------------
 
-cockpit.setup_multi_plot = function setup_multi_plot(element, monitor, sample_index,
+shell.setup_multi_plot = function setup_multi_plot(element, monitor, sample_index,
                                                      colors, is_interesting, setup_hook) {
     var self = this;
     var max_consumers = colors.length-1;
@@ -383,4 +384,4 @@ cockpit.setup_multi_plot = function setup_multi_plot(element, monitor, sample_in
     return plot;
 };
 
-})(cockpit, jQuery);
+})(jQuery, cockpit, shell);

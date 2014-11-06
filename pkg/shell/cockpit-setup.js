@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, cockpit, shell) {
 
 PageSetupServer.prototype = {
     _init: function() {
@@ -140,7 +141,7 @@ PageSetupServer.prototype = {
         });
 
         /* TODO: This code needs to be migrated away from old dbus */
-        self.local_client = cockpit.dbusx("localhost", { payload: 'dbus-json1' });
+        self.local_client = shell.dbus("localhost", { payload: 'dbus-json1' });
         $(self.local_client).on('objectAdded.setup objectRemoved.setup', function(event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
                 self.update_discovered();
@@ -181,7 +182,7 @@ PageSetupServer.prototype = {
 
         discovered.empty();
         for (var i = 0; i < machines.length; i++) {
-            if (!cockpit.find_in_array(machines[i].Tags, "dashboard")) {
+            if (!shell.find_in_array(machines[i].Tags, "dashboard")) {
                 var rendered_address = render_address(machines[i].Address);
                 if (rendered_address) {
                     if (machines[i].Address.trim() !== "") {
@@ -271,7 +272,7 @@ PageSetupServer.prototype = {
         var self = this;
 
         /* TODO: This needs to be migrated away from the old dbus */
-        var client = cockpit.dbusx(self.address, self.options);
+        var client = shell.dbus(self.address, self.options);
         $(client).on('state-change', function() {
             if (client.state == "closed") {
                 if (!self.options["host_key"] && client.error == "unknown-hostkey") {
@@ -290,7 +291,7 @@ PageSetupServer.prototype = {
                      */
                     self.show_tab('login');
                     self.highlight_error_message('#dashboard_setup_login_error',
-                                                 cockpit.client_error_description(client.error));
+                                                 shell.client_error_description(client.error));
                     return;
                 }
 
@@ -298,9 +299,9 @@ PageSetupServer.prototype = {
                  * tab but stay on the current tab.
                  */
                 self.highlight_error_message('#dashboard_setup_address_error',
-                                             cockpit.client_error_description(client.error));
+                                             shell.client_error_description(client.error));
                 self.highlight_error_message('#dashboard_setup_login_error',
-                                             cockpit.client_error_description(client.error));
+                                             shell.client_error_description(client.error));
 
                 $('#dashboard_setup_next').prop('disabled', false);
                 $('#dashboard_setup_next').text(_("Next"));
@@ -442,7 +443,7 @@ PageSetupServer.prototype = {
 
             function groups_contain_roles(groups) {
                 for (var i = 0; i < roles.length; i++) {
-                    if (cockpit.find_in_array(groups, roles[i][0]))
+                    if (shell.find_in_array(groups, roles[i][0]))
                         return true;
                 }
                 return false;
@@ -593,7 +594,7 @@ PageSetupServer.prototype = {
             me.run_tasks(function() {
                 me.machine.call('AddTag', "dashboard", function(error) {
                     if (error)
-                        cockpit.show_unexpected_error(error);
+                        shell.show_unexpected_error(error);
                     me.show_tab('close');
                 });
             });
@@ -610,6 +611,6 @@ function PageSetupServer() {
     this._init();
 }
 
-cockpit.dialogs.push(new PageSetupServer());
+shell.dialogs.push(new PageSetupServer());
 
-})(cockpit, $);
+})(jQuery, cockpit, shell);

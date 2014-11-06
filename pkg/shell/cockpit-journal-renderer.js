@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
-(function(cockpit, $) {
+var shell = shell || { };
+(function($, shell) {
 
 var month_names = [         'January',
                             'February',
@@ -41,10 +41,10 @@ var month_names = [         'January',
    example, and collapse repeated lines.  You can extend the output at
    the bottom and also at the top.
 
-   A new renderer is created by calling 'cockpit.journal_renderer' like
+   A new renderer is created by calling 'shell.journal_renderer' like
    so:
 
-      var renderer = cockpit.journal_renderer(funcs);
+      var renderer = shell.journal_renderer(funcs);
 
    You can feed new entries into the renderer by calling various
    methods on the returned object:
@@ -55,7 +55,7 @@ var month_names = [         'January',
       - renderer.prepend_flush ()
 
    A 'journal_entry' is one element of the result array returned by a
-   call to 'Query' with the 'cockpit.journal_fields' as the fields to
+   call to 'Query' with the 'shell.journal_fields' as the fields to
    return.
 
    Calling 'append' will append the given entry to the end of the
@@ -97,7 +97,7 @@ var month_names = [         'January',
 
 */
 
-cockpit.journal_renderer = function journal_renderer(output_funcs)
+shell.journal_renderer = function journal_renderer(output_funcs)
 {
     function copy_object (o)
     {
@@ -284,4 +284,4 @@ cockpit.journal_renderer = function journal_renderer(output_funcs)
            };
 };
 
-})(cockpit, jQuery);
+})(jQuery, shell);

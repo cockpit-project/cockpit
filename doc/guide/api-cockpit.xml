@@ -245,9 +245,9 @@
       </variablelist>
 
       <para>The spawned process is a
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         that will complete if the process exits successfully, or fail if there's a problem.
-        Some additional methods besides the standard jQuery deferred methods are documented
+        Some additional methods besides the standard jQuery promise methods are documented
         below.</para>
 
       <para>The standard output of the process is made available via the spawned process
@@ -262,7 +262,7 @@
  process.done(function(data) { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         method. It sets up a handler to be called when the process finishes successfully.</para>
       <para>The <code>data</code> argument contains the standard output of the process.
         If any <code><link linkend="latest-spawn-stream">process.stream()</link></code>
@@ -276,7 +276,7 @@
  process.fail(function(exception) { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
         It sets up a handler to be called when the process fails, terminates or exits.</para>
 
       <para>The <code>exception</code> object passed to the handler can have the
@@ -308,7 +308,7 @@
  process.always(function() { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
         It sets up a handler to be called when when the process completes, whether it exits successfully,
         fails, terminates, or exits with a failure.</para>
     </refsection>
@@ -591,7 +591,7 @@
       <para>All DBus methods on the <code>interface</code> that start with an upper case
         letter (as is convention) will be automatically defined on this proxy. These
         methods are called with arguments as normal javascript arguments. A
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         that will complete sucessfully when the method returns, or fail if an error occurs.
         The return values from the DBus method will be passed to the <code>done</code> handler
         function directly.</para>
@@ -802,7 +802,7 @@
         <code>args</code> may be <code>null</code> if no arguments are to be sent.</para>
 
       <para>The returned value is a
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         that will complete sucessfully when the method returns, or fail if an error occurs.</para>
 
       <para>If <code>options</code> is specified it should be a plain javascript object,
@@ -829,7 +829,7 @@
  invocation.done(function(args, options) { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         method. It sets up a handler to be called when the DBus method call finishes
         successfully.</para>
       <para>The <code>args</code> argument is an array of return values from the DBus method.
@@ -861,7 +861,7 @@
  invocation.fail(function(exception) { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
         It sets up a handler to be called when the DBus method call fails.</para>
 
       <para>The <code>exception</code> object passed to the handler can have the
@@ -893,7 +893,7 @@
  invocation.always(function() { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
         It sets up a handler to be called when when the DBus method call finishes whether successfully,
         or fails.</para>
     </refsection>
@@ -1007,7 +1007,7 @@
       </variablelist>
 
       <para>The returned value is a
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         that will complete sucessfully when the watch has populated its initial set of properties
         and interfaces, and these have been notified via
         <link linkend="latest-dbus-onnotify"><code>client.onnotify</code></link>.</para>
@@ -1024,7 +1024,7 @@
  watch.done(function() { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         method. It sets up a handler to be called when the watch has populated its initial
         properties and interfaces.</para>
     </refsection>
@@ -1035,7 +1035,7 @@
  watch.fail(function() { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         method. It sets up a handler to be called if the watch fails to populate its initial
         properties and interfaces. Note that a watch will only fail if the DBus client
         closes or is somehow disconnected. It does not fail in the case of missing
@@ -1048,7 +1048,7 @@
  watch.always(function() { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         method. It sets up a handler to be called when the watch has populated its initial
         properties and interfaces or has failed to do so.</para>
     </refsection>
@@ -1138,7 +1138,7 @@
         an alias, or a checksum. The information may be retrieved from a cache.</para>
 
       <para>The return value is a
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         that will complete if the lookup happens successfully, or fail if there's a
         problem.</para>
     </refsection>
@@ -1149,7 +1149,7 @@
  lookup.done(function(pkg) { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink>
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         method. It sets up a handler to be called when the package lookup finishes
         successfully.</para>
 
@@ -1179,7 +1179,7 @@
  lookup.fail(function(exception) { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
         It sets up a handler to be called when the package lookup fails.</para>
 
       <para>The <code>exception</code> object passed to the handler will have the
@@ -1203,7 +1203,7 @@
  lookup.always(function() { ... })
 </programlisting>
       <para>This is a standard
-        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery deferred</ulink> method.
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
         It sets up a handler to be called when when the lookup completes, whether successfully or not.</para>
     </refsection>
 

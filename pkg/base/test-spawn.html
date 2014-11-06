@@ -281,6 +281,25 @@ asyncTest("with signal", function() {
         });
 });
 
+test("spawn promise recursive", function() {
+    expect(7);
+
+    var peer = new MockPeer();
+    var promise = cockpit.spawn(["/the/path", "arg1", "arg2"]);
+
+    var target = { };
+    var promise2 = promise.promise(target);
+    strictEqual(promise2, target, "used target");
+    equal(typeof promise2.done, "function", "promise2.done()");
+    equal(typeof promise2.promise, "function", "promise2.promise()");
+    equal(typeof promise2.write, "function", "promise2.write()");
+
+    var promise3 = promise2.promise();
+    equal(typeof promise3.done, "function", "promise3.done()");
+    equal(typeof promise3.promise, "function", "promise3.promise()");
+    equal(typeof promise3.write, "function", "promise3.write()");
+});
+
 QUnit.start();
 
 </script>

@@ -228,33 +228,38 @@ var shell = shell || { };
             $(channel).off("close", on_close);
         });
 
-        var promise = dfd.promise();
-        promise.cookie = cookie;
+        var jpromise = dfd.promise;
+        dfd.promise = function mypromise() {
+            return $.extend(jpromise.apply(this, arguments), {
+                cookie: cookie,
 
-        /*
-         * An additional method on our deferred promise, which enables
-         * streaming of the resulting data.
-         */
-        promise.stream = function(callback) {
-            if (streamers === null)
-               streamers = $.Callbacks("" /* no flags */);
-            streamers.add(callback);
-            return this;
+                /*
+                 * An additional method on our deferred promise, which enables
+                 * streaming of the resulting data.
+                 */
+                stream: function(callback) {
+                    if (streamers === null)
+                        streamers = $.Callbacks("" /* no flags */);
+                    streamers.add(callback);
+                    return this;
+                },
+
+                restart: function(callback) {
+                    this.cancel();
+                    return rest_perform(channel_get, req, cookie);
+                },
+
+                cancel: function(callback) {
+                    if (this.state() == "pending") {
+                        channel.send(JSON.stringify({ 'cookie': cookie }));
+                        dfd.reject(null);
+                    }
+                },
+                promise: this.promise
+            });
         };
 
-        promise.restart = function(callback) {
-            this.cancel();
-            return rest_perform(channel_get, req, cookie);
-        };
-
-        promise.cancel = function(callback) {
-            if (this.state() == "pending") {
-                channel.send(JSON.stringify({ 'cookie': cookie }));
-                dfd.reject(null);
-            }
-        };
-
-        return promise;
+        return dfd.promise();
     }
 
     function Rest(endpoint, machine, options) {

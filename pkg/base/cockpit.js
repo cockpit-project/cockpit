@@ -896,28 +896,31 @@ function full_scope(cockpit, $) {
                     dfd.resolve(buffer);
             });
 
-        var promise = dfd.promise();
-        promise.stream = function(callback) {
-            if (streamers === null)
-               streamers = $.Callbacks("" /* no flags */);
-            streamers.add(callback);
-            return this;
+        var jpromise = dfd.promise;
+        dfd.promise = function() {
+            return $.extend(jpromise.apply(this, arguments), {
+                stream: function(callback) {
+                    if (streamers === null)
+                        streamers = $.Callbacks("" /* no flags */);
+                    streamers.add(callback);
+                    return this;
+                },
+                write: function(message) {
+                    spawn_debug("process input:", message);
+                    channel.send(message);
+                    return this;
+                },
+                close: function(reason) {
+                    spawn_debug("process closing:", reason);
+                    if (channel.valid)
+                        channel.close(reason);
+                    return this;
+                },
+                promise: this.promise
+            });
         };
 
-        promise.write = function(message) {
-            spawn_debug("process input:", message);
-            channel.send(message);
-            return this;
-        };
-
-        promise.close = function(reason) {
-            spawn_debug("process closing:", reason);
-            if (channel.valid)
-                channel.close(reason);
-            return this;
-        };
-
-        return promise;
+        return dfd.promise();
     };
 
     function dbus_debug() {
@@ -1372,16 +1375,22 @@ function full_scope(cockpit, $) {
             dbus_debug("dbus:", msg);
             channel.send(msg);
 
-            var promise = dfd.promise();
-            promise.remove = function remove() {
-                delete calls[id];
-                if (channel.valid) {
-                    msg = JSON.stringify({ "unwatch": match });
-                    dbus_debug("dbus:", msg);
-                    channel.send(msg);
-                }
+            var jpromise = dfd.promise;
+            dfd.promise = function() {
+                return $.extend(jpromise.apply(this, arguments), {
+                    remove: function remove() {
+                        delete calls[id];
+                        if (channel.valid) {
+                            msg = JSON.stringify({ "unwatch": match });
+                            dbus_debug("dbus:", msg);
+                            channel.send(msg);
+                        }
+                    },
+                    promise: this.promise
+                });
             };
-            return promise;
+
+            return dfd.promise();
         };
 
         self.proxy = function proxy(iface, path, options) {

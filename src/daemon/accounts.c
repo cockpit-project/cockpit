@@ -38,6 +38,7 @@ struct _Accounts {
 
   ActUserManager *um;
   GHashTable *act_user_to_account;
+  gboolean valid;
 
   GFileMonitor *etc_group_monitor;
 };
@@ -205,8 +206,16 @@ accounts_init (Accounts *accounts)
                                                          g_object_unref);
   accounts->um = act_user_manager_get_default ();
 
+  /* This is a hack, so add one more. This code should die soon anyway. */
   while (!um_is_loaded (accounts))
-    g_main_context_iteration (NULL, TRUE);
+    {
+      if (act_user_manager_no_service (accounts->um))
+        {
+          accounts->valid = FALSE;
+          return;
+        }
+      g_main_context_iteration (NULL, TRUE);
+    }
   users_loaded (accounts);
 
   cleanup_unref_object GFile *etc_group = g_file_new_for_path ("/etc/group");
@@ -216,6 +225,7 @@ accounts_init (Accounts *accounts)
                       G_CALLBACK (on_etc_group_changed), accounts);
 
   accounts_update_roles (accounts);
+  accounts->valid = TRUE;
 }
 
 static void
@@ -321,4 +331,10 @@ static void
 accounts_iface_init (CockpitAccountsIface *iface)
 {
   iface->handle_create_account = handle_create_account;
+}
+
+gboolean
+accounts_is_valid (Accounts *accounts)
+{
+  return accounts->valid;
 }

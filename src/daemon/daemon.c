@@ -331,12 +331,16 @@ daemon_constructed (GObject *_object)
 
   /* /com/redhat/Cockpit/Accounts */
   accounts = accounts_new ();
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Accounts");
-  cockpit_object_skeleton_set_accounts (object, accounts);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (accounts);
+  if (accounts_is_valid (ACCOUNTS (accounts)))
+    {
+      object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Accounts");
+      cockpit_object_skeleton_set_accounts (object, accounts);
+      g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
+      g_object_unref (object);
 
-  g_object_unref (object);
+      g_debug ("exported accounts");
+    }
+  g_object_unref (accounts);
 
   /* /com/redhat/Cockpit/Storage/Manager */
   storage_manager = storage_manager_new (daemon);

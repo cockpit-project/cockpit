@@ -10,6 +10,10 @@
 <body>
     <div id="internal" class="container-fluid">
         <img src="hammer.gif" style="float: right;" onclick="$(this).hide();">
+        <div id="nav"></div>
+        <button class="btn btn-default" id="go-down">Go down</button>
+        <br/>
+        <br/>
         <div class="cockpit-internal-reauthorize">
             <button class="btn btn-default">Priveleged Action</button>
             <span></span>
@@ -31,6 +35,34 @@
                  $(".cockpit-internal-reauthorize span").text("result: not-authorized");
              });
          });
+
+    function update_nav() {
+        $('#nav').empty();
+        var path = [ "top" ].concat(cockpit.location.path);
+        $(path).each(function (i, p) {
+            if (i < path.length-1) {
+                $('#nav').append(
+                    $('<a>').
+                        text(p).
+                        click(function () {
+                            cockpit.location.go(path.slice(1,i+1));
+                        }),
+                    " >> ");
+            } else {
+                $('#nav').append(
+                    $('<span>').text(p));
+            }
+        });
+    }
+
+    $(cockpit).on('locationchanged', update_nav);
+    update_nav();
+
+    $('#go-down').click(function () {
+        var len = cockpit.location.path.length;
+        cockpit.location.go(cockpit.location.path.concat(len.toString()), { length: len.toString() });
+    });
+
 }(cockpit, jQuery));
 </script>
 </body>

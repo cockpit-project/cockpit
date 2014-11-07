@@ -54,4 +54,12 @@ WantedBy=default.target
         b.relogin("service")
         b.wait_text("#service-name", "Test Service")
 
+        # Navigate inside an iframe
+        b.go("/local/playground")
+        b.wait_page("/local/playground")
+        b.click("button:contains('Go down')")
+        b.click("button:contains('Go down')")
+        b.switch_to_parent_frame()
+        b.wait_js_cond("cockpit.location.href == '/local/playground/0/1?length=1'")
+
 test_main()

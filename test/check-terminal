@@ -37,6 +37,7 @@ class TestTerminal(MachineCase):
         def wait_line(i,t):
             b.wait_text(line_sel(i), line_text(t))
 
+        b.wait_present('#terminal .terminal')
         b.focus('#terminal .terminal')
 
         # wait for prompt in first line and remember it

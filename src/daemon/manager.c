@@ -284,6 +284,9 @@ static void
 update_hostname_from_kernel (Manager *manager)
 {
   gchar hostname[HOST_NAME_MAX + 1];
+
+  g_debug ("updating host name from kernel");
+
   if (gethostname (hostname, HOST_NAME_MAX) < 0)
     {
       g_message ("Error getting hostname: %m");
@@ -312,6 +315,8 @@ manager_constructed (GObject *object)
       g_signal_connect (manager->etc_os_release_monitor, "changed",
                         G_CALLBACK (on_etc_os_release_changed), manager);
       reread_os_release (manager);
+
+      g_debug ("read /etc/os-release");
     }
 
   update_hostname_from_kernel (manager);
@@ -342,6 +347,7 @@ manager_constructed (GObject *object)
                         "changed",
                         G_CALLBACK (on_systemd_shutdown_scheduled_changed),
                         manager);
+      g_debug ("created shutdown schedule monitor");
     }
 
   if (G_OBJECT_CLASS (manager_parent_class)->constructed != NULL)
@@ -493,6 +499,8 @@ update_dmi (Manager *manager)
   /* TODO: Probably need some other and/or better heuristics to yield
    * useful info on as many systems as possible
    */
+
+  g_debug ("updating dmi");
 
   client = g_udev_client_new (NULL);
   device = g_udev_client_query_by_sysfs_path (client, "/sys/devices/virtual/dmi/id");

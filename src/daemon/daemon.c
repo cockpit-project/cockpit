@@ -196,11 +196,15 @@ daemon_constructed (GObject *_object)
   g_assert (_daemon_instance == NULL);
   _daemon_instance = daemon;
 
+  g_debug ("creating bus proxy");
+
   daemon->system_bus_proxy = g_dbus_proxy_new_sync (daemon->connection, G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES,
                                                     NULL, "org.freedesktop.DBus",
                                                     "/org/freedesktop/DBus",
                                                     "org.freedesktop.DBus", NULL, NULL);
   g_assert (daemon->system_bus_proxy != NULL);
+
+  g_debug ("creating object manager");
 
   daemon->object_manager = g_dbus_object_manager_server_new ("/com/redhat/Cockpit");
 
@@ -213,6 +217,8 @@ daemon_constructed (GObject *_object)
   g_object_unref (machines);
   g_object_unref (object);
 
+  g_debug ("exported machines object");
+
   /* /com/redhat/Cockpit/Manager */
   manager = manager_new (daemon);
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Manager");
@@ -220,6 +226,8 @@ daemon_constructed (GObject *_object)
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (manager);
   g_object_unref (object);
+
+  g_debug ("exported manager");
 
   /* /com/redhat/Cockpit/CpuMonitor */
   monitor = cpu_monitor_new (daemon);
@@ -229,6 +237,8 @@ daemon_constructed (GObject *_object)
   g_object_unref (monitor);
   g_object_unref (object);
 
+  g_debug ("exported cpu monitor");
+
   /* /com/redhat/Cockpit/MemoryMonitor */
   monitor = memory_monitor_new (daemon);
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/MemoryMonitor");
@@ -236,6 +246,8 @@ daemon_constructed (GObject *_object)
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (monitor);
   g_object_unref (object);
+
+  g_debug ("exported memory monitor");
 
   /* /com/redhat/Cockpit/NetworkMonitor */
   monitor = network_monitor_new (daemon);
@@ -245,6 +257,8 @@ daemon_constructed (GObject *_object)
   g_object_unref (monitor);
   g_object_unref (object);
 
+  g_debug ("exported network monitor");
+
   /* /com/redhat/Cockpit/DiskIOMonitor */
   monitor = disk_io_monitor_new (daemon);
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/DiskIOMonitor");
@@ -252,6 +266,8 @@ daemon_constructed (GObject *_object)
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (monitor);
   g_object_unref (object);
+
+  g_debug ("exported disk io monitor");
 
   /* /com/redhat/Cockpit/LxcMonitor */
   multi_monitor = cgroup_monitor_new (G_OBJECT (daemon));
@@ -261,6 +277,8 @@ daemon_constructed (GObject *_object)
   g_object_unref (multi_monitor);
   g_object_unref (object);
 
+  g_debug ("exported lxc monitor");
+
   /* /com/redhat/Cockpit/NetdevMonitor */
   multi_monitor = netdev_monitor_new (G_OBJECT (daemon));
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/NetdevMonitor");
@@ -268,6 +286,8 @@ daemon_constructed (GObject *_object)
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (multi_monitor);
   g_object_unref (object);
+
+  g_debug ("exported net dev monitor");
 
   /* /com/redhat/Cockpit/BlockdevMonitor */
   multi_monitor = blockdev_monitor_new (G_OBJECT (daemon));
@@ -277,6 +297,8 @@ daemon_constructed (GObject *_object)
   g_object_unref (multi_monitor);
   g_object_unref (object);
 
+  g_debug ("exported block dev monitor");
+
   /* /com/redhat/Cockpit/MountMonitor */
   multi_monitor = mount_monitor_new (G_OBJECT (daemon));
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/MountMonitor");
@@ -284,6 +306,8 @@ daemon_constructed (GObject *_object)
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (multi_monitor);
   g_object_unref (object);
+
+  g_debug ("exported mount monitor");
 
   /* /com/redhat/Cockpit/Realms */
   realms = realms_new (daemon);
@@ -293,6 +317,8 @@ daemon_constructed (GObject *_object)
   g_object_unref (realms);
   g_object_unref (object);
 
+  g_debug ("exported realms");
+
   /* /com/redhat/Cockpit/Services */
   services = services_new (daemon);
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Services");
@@ -300,6 +326,8 @@ daemon_constructed (GObject *_object)
   g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
   g_object_unref (services);
   g_object_unref (object);
+
+  g_debug ("exported services");
 
   /* /com/redhat/Cockpit/Accounts */
   accounts = accounts_new ();
@@ -318,12 +346,16 @@ daemon_constructed (GObject *_object)
   g_object_unref (storage_manager);
   g_object_unref (object);
 
+  g_debug ("exported storage manager");
+
   daemon->storage_provider = storage_provider_new (daemon);
 
   /* Export the ObjectManager */
   g_dbus_object_manager_server_set_connection (daemon->object_manager, daemon->connection);
 
   daemon->tick_timeout_id = g_timeout_add_seconds (1, on_timeout, daemon);
+
+  g_debug ("daemon constructed");
 
   if (G_OBJECT_CLASS (daemon_parent_class)->constructed != NULL)
     G_OBJECT_CLASS (daemon_parent_class)->constructed (_object);

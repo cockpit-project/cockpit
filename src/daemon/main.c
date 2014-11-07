@@ -47,6 +47,7 @@ on_bus_acquired (GDBusConnection *connection,
                  const gchar *name,
                  gpointer user_data)
 {
+  g_debug ("acquired message bus");
   the_daemon = daemon_new (connection);
 }
 
@@ -109,6 +110,7 @@ main (int argc,
   g_type_init ();
 
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
 
   /* avoid gvfs (http://bugzilla.gnome.org/show_bug.cgi?id=526454) */
   if (!g_setenv ("GIO_USE_VFS", "local", TRUE))

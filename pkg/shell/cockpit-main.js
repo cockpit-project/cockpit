@@ -318,10 +318,12 @@ function hosts_init() {
         }
     }
 
-    function remember_last_path() {
+    function remember_last_params() {
         var old_info = host_info[current_params.host];
-        if (old_info && current_params.path[0] != "dashboard")
+        if (old_info && current_params.path[0] != "dashboard") {
             old_info.last_path = current_params.path;
+            old_info.last_options = current_params.options;
+        }
     }
 
     function add_host(addr) {
@@ -343,8 +345,8 @@ function hosts_init() {
                 hostname_span = $('<span>').
                     text(addr)).
             click(function () {
-                remember_last_path();
-                cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]));
+                remember_last_params();
+                cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]), info.last_options);
             });
 
         $('#hosts').append(link);
@@ -406,7 +408,7 @@ function hosts_init() {
                 $('<span>').
                     text("All Servers")).
             click(function () {
-                remember_last_path();
+                remember_last_params();
                 cockpit.location.go([]);
             }));
 

@@ -152,10 +152,14 @@ class TestDashboard(MachineCase):
         b.wait_js_cond('cockpit.location.href == "/localhost/server"')
         b.click('#topnav a[data-page-id=storage]')
         b.wait_js_cond('cockpit.location.href == "/localhost/storage"')
+        b.wait_present('#storage_drives tr:first-child')
+        b.click('#storage_drives tr:first-child')
+        b.wait_js_cond('cockpit.location.href.startsWith("/localhost/storage-detail")')
+        last_href = b.eval_js('return cockpit.location.href;')
         b.click('#hosts a:nth-child(3)')
         b.wait_js_cond('cockpit.location.href == "/127.0.0.1/server"')
         b.click('#hosts a:nth-child(2)')
-        b.wait_js_cond('cockpit.location.href == "/localhost/storage"')
+        b.wait_js_func('(function (expected) { return cockpit.location.href == expected })', last_href)
 
     def testSetup(self):
         b = self.browser

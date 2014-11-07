@@ -496,6 +496,15 @@ shell.register_component = function register_component(prefix, pkg, entry) {
     components[key] = { pkg: pkg, entry: entry };
 };
 
+/* HACK: Mozilla will unescape 'location.hash' before returning
+ * it, which is broken.
+ *
+ * https://bugzilla.mozilla.org/show_bug.cgi?id=135309
+ */
+function get_location_hash(location) {
+    return location.href.split('#')[1] || '';
+}
+
 function get_page_iframe(params) {
     /* Find the component that matches the longest prefix.  This
      * determines the prefix we will use.
@@ -537,6 +546,16 @@ function get_page_iframe(params) {
              */
             iframe.attr('data-loaded', true);
             update_global_nav();
+
+            $(iframe[0].contentWindow).on('hashchange', function () {
+                if (current_page_element == iframe) {
+                    var options = { };
+                    var inner_hash = get_location_hash(iframe[0].contentWindow.location);
+                    var inner_path = cockpit.location.decode(inner_hash, options);
+                    var outer_path = [ host ].concat(prefix, inner_path);
+                    cockpit.location.go(outer_path, options);
+                }
+            });
         });
     }
 

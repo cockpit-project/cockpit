@@ -32,6 +32,8 @@ GType             accounts_get_type          (void) G_GNUC_CONST;
 
 CockpitAccounts * accounts_new               (void);
 
+gboolean          accounts_is_valid          (Accounts *accounts);
+
 G_END_DECLS
 
 #endif /* COCKPIT_ACCOUNTS_H__ */

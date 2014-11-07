@@ -860,13 +860,18 @@ process_properties_barrier (CockpitDBusCache *self,
   PropertiesChangedData *pcd = user_data;
   const gchar *interface;
   GVariant *changed;
+  BatchData *batch;
 
   g_variant_get (pcd->body, "(&s@a{sv}@as)", &interface, &changed, NULL);
 
-  pcd->batch = batch_create (self);
+  batch = batch_create (self);
+
+  pcd->batch = batch_ref (batch);
   introspect_maybe (self, pcd->batch, pcd->path, interface, process_properties_changed, pcd);
 
-  scrape_variant (self, pcd->batch, changed);
+  scrape_variant (self, batch, changed);
+  batch_unref (self, batch);
+
   g_variant_unref (changed);
 }
 

@@ -1276,6 +1276,7 @@ typedef struct {
   GIOStream *io;
   GMemoryOutputStream *output;
   CockpitPipe *pipe;
+  GHashTable *headers;
 } TestResourceCase;
 
 static void
@@ -1317,6 +1318,8 @@ setup_resource (TestResourceCase *tc,
   tc->io = mock_io_stream_new (input, output);
   tc->output = G_MEMORY_OUTPUT_STREAM (output);
   g_object_unref (input);
+
+  tc->headers = cockpit_web_server_new_table ();
 }
 
 static void
@@ -1324,6 +1327,8 @@ teardown_resource (TestResourceCase *tc,
                    gconstpointer data)
 {
   cockpit_assert_expected ();
+
+  g_hash_table_unref (tc->headers);
 
   g_object_add_weak_pointer (G_OBJECT (tc->service), (gpointer *)&tc->service);
   g_object_unref (tc->service);
@@ -1344,7 +1349,7 @@ test_resource_simple (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL);
 
-  cockpit_web_service_resource (tc->service, response);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
@@ -1381,7 +1386,7 @@ test_resource_host (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost/test.html", NULL);
 
-  cockpit_web_service_resource (tc->service, response);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
@@ -1418,7 +1423,7 @@ test_resource_not_found (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost/not-exist", NULL);
 
-  cockpit_web_service_resource (tc->service, response);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
@@ -1447,7 +1452,7 @@ test_resource_no_path (TestResourceCase *tc,
   /* Missing path after package */
   response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost", NULL);
 
-  cockpit_web_service_resource (tc->service, response);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
@@ -1484,7 +1489,7 @@ test_resource_failure (TestResourceCase *tc,
   g_assert_cmpint (pid, >, 0);
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
 
-  cockpit_web_service_resource (tc->service, response);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
@@ -1511,7 +1516,7 @@ test_resource_checksum (TestResourceCase *tc,
   GBytes *bytes;
 
   response = cockpit_web_response_new (tc->io, "/cockpit/$fec489a692ee808950f34f6c519803aed65e1849/sub/file.ext", NULL);
-  cockpit_web_service_resource (tc->service, response);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
@@ -1544,7 +1549,7 @@ test_resource_no_checksum (TestResourceCase *tc,
   /* Missing checksum */
   response = cockpit_web_response_new (tc->io, "/cockpit/", NULL);
 
-  cockpit_web_service_resource (tc->service, response);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
@@ -1573,7 +1578,7 @@ test_resource_bad_checksum (TestResourceCase *tc,
   /* Missing checksum */
   response = cockpit_web_response_new (tc->io, "/cockpit/09323094823029348/path", NULL);
 
-  cockpit_web_service_resource (tc->service, response);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
@@ -1590,6 +1595,87 @@ test_resource_bad_checksum (TestResourceCase *tc,
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
+
+static void
+test_resource_accept_language (TestResourceCase *tc,
+                               gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL);
+
+  g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("pig;q=0.1,de;q=0.9"));
+  cockpit_web_service_resource (tc->service, tc->headers, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Vary: Cookie, Accept-Language\r\n"
+                           "Content-Type: text/html\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "\r\n"
+                           "62\r\n"
+                           "<html>\n"
+                           "<head>\n"
+                           "<title>Im Home-Verzeichnis</title>\n"
+                           "</head>\n"
+                           "<body>Im Home-Verzeichnis</body>\n"
+                           "</html>\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_override_language (TestResourceCase *tc,
+                                 gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL);
+
+  /* Language cookie overrides */
+  g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de;q=0.9"));
+  g_hash_table_insert (tc->headers, g_strdup ("Cookie"), g_strdup ("cockpitlang=pig"));
+  cockpit_web_service_resource (tc->service, tc->headers, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Vary: Cookie, Accept-Language\r\n"
+                           "Content-Type: text/html\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "\r\n"
+                           "60\r\n"
+                           "<html>\n"
+                           "<head>\n"
+                           "<title>Inlay omehay irday</title>\n"
+                           "</head>\n"
+                           "<body>Inlay omehay irday</body>\n"
+                           "</html>\n"
+                           "\r\n"
+                           "0\r\n\r\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
 
 static gboolean
 on_hack_raise_sigchld (gpointer user_data)
@@ -1707,6 +1793,10 @@ main (int argc,
               setup_resource, test_resource_no_checksum, teardown_resource);
   g_test_add ("/web-service/resource/bad-checksum", TestResourceCase, NULL,
               setup_resource, test_resource_bad_checksum, teardown_resource);
+  g_test_add ("/web-service/resource/accept-language", TestResourceCase, NULL,
+              setup_resource, test_resource_accept_language, teardown_resource);
+  g_test_add ("/web-service/resource/override-language", TestResourceCase, NULL,
+              setup_resource, test_resource_override_language, teardown_resource);
 
   return g_test_run ();
 }

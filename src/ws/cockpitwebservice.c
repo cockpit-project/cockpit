@@ -1634,18 +1634,9 @@ on_resource_recv (CockpitTransport *transport,
                   gpointer user_data)
 {
   ResourceResponse *rr = user_data;
-  const gchar *cache_control;
 
   if (g_strcmp0 (channel, rr->channel) != 0)
     return FALSE;
-
-  if (cockpit_web_response_get_state (rr->response) == COCKPIT_WEB_RESPONSE_READY)
-    {
-      cache_control = rr->cache_forever ? "max-age=31556926, public" : NULL;
-      cockpit_web_response_headers (rr->response, 200, "OK", -1,
-                                    "Cache-Control", cache_control,
-                                    NULL);
-    }
 
   cockpit_web_response_queue (rr->response, payload);
   return TRUE;
@@ -1654,7 +1645,8 @@ on_resource_recv (CockpitTransport *transport,
 static void
 parse_resource2_headers (ResourceResponse *rr,
                          GBytes *payload,
-                         const gchar **cache)
+                         const gchar **cache,
+                         const gchar **vary)
 {
   JsonObject *object = NULL;
   const gchar *accepted;
@@ -1677,6 +1669,9 @@ parse_resource2_headers (ResourceResponse *rr,
       goto out;
     }
 
+  if (accepted && !g_str_equal (accepted, "min"))
+    *vary = "Cookie, Accept-Language";
+
 out:
   if (object)
     json_object_unref (object);
@@ -1690,6 +1685,7 @@ on_resource_recv_first (CockpitTransport *transport,
 {
   ResourceResponse *rr = user_data;
   const gchar *cache_control = NULL;
+  const gchar *vary = NULL;
 
   if (g_strcmp0 (channel, rr->channel) != 0)
     return FALSE;
@@ -1700,9 +1696,10 @@ on_resource_recv_first (CockpitTransport *transport,
   g_signal_handler_disconnect (transport, rr->recv_sig);
   rr->recv_sig = g_signal_connect (transport, "recv", G_CALLBACK (on_resource_recv), rr);
 
-  parse_resource2_headers (rr, payload, &cache_control);
+  parse_resource2_headers (rr, payload, &cache_control, &vary);
   cockpit_web_response_headers (rr->response, 200, "OK", -1,
                                 "Cache-Control", cache_control,
+                                "Vary", vary,
                                 NULL);
 
   return TRUE;
@@ -1811,6 +1808,7 @@ pop_package_name (const gchar *path,
 
 static gboolean
 resource_respond (CockpitWebService *self,
+                  GHashTable *headers,
                   CockpitWebResponse *response,
                   const gchar *remaining_path)
 {
@@ -1824,8 +1822,10 @@ resource_respond (CockpitWebService *self,
   GHashTableIter iter;
   GBytes *command;
   gchar **parts = NULL;
+  gchar **languages;
   JsonObject *object;
   JsonArray *accept;
+  guint i;
 
   package = pop_package_name (remaining_path, &path);
   if (!package || !path)
@@ -1889,15 +1889,21 @@ resource_respond (CockpitWebService *self,
                        "binary", "raw",
                        NULL);
 
-  if (rr->cache_forever)
+  languages = cockpit_web_server_parse_languages (headers, "cockpitlang");
+  if (languages || rr->cache_forever)
     {
       /*
        * We can look up minified resource if a package is checksumed, which means
        * that it isn't supposed to change out underneath us.
        */
       accept = json_array_new ();
-      json_array_add_string_element (accept, "min");
+      if (rr->cache_forever)
+        json_array_add_string_element (accept, "min");
+      for (i = 0; languages && languages[i] != NULL; i++)
+        json_array_add_string_element (accept, languages[i]);
       json_object_set_array_member (object, "accept", accept);
+
+      g_strfreev (languages);
     }
 
   command = cockpit_json_write_bytes (object);
@@ -1915,6 +1921,7 @@ out:
 
 void
 cockpit_web_service_resource (CockpitWebService *self,
+                              GHashTable *headers,
                               CockpitWebResponse *response)
 {
   gboolean handled = FALSE;
@@ -1926,7 +1933,7 @@ cockpit_web_service_resource (CockpitWebService *self,
     path = "/cockpit/shell/shell.html";
 
   if (g_str_has_prefix (path, "/cockpit/"))
-    handled = resource_respond (self, response, path + 8);
+    handled = resource_respond (self, headers, response, path + 8);
 
   if (!handled)
     cockpit_web_response_error (response, 404, NULL, NULL);

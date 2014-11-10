@@ -49,6 +49,7 @@ void                 cockpit_web_service_socket      (CockpitWebService *self,
                                                       GByteArray *input_buffer);
 
 void                 cockpit_web_service_resource    (CockpitWebService *self,
+                                                      GHashTable *headers,
                                                       CockpitWebResponse *response);
 
 void                 cockpit_web_service_noauth      (GIOStream *io_stream,

@@ -155,7 +155,7 @@ cockpit_handler_resource (CockpitWebServer *server,
   service = cockpit_auth_check_cookie (ws->auth, headers);
   if (service)
     {
-      cockpit_web_service_resource (service, response);
+      cockpit_web_service_resource (service, headers, response);
       g_object_unref (service);
     }
   else if (g_str_equal (path, "/") || g_str_has_suffix (path, ".html"))

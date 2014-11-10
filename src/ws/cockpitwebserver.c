@@ -481,96 +481,6 @@ cockpit_web_server_new (gint port,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static gboolean
-validate_token (const gchar *token,
-                GError **error)
-{
-  const guchar *p;
-  for (p = (guchar*)token; *p; p++)
-    {
-      guchar c = *p;
-
-      /* http://tools.ietf.org/html/rfc2616#section-2.2 */
-      switch (c)
-        {
-        case '(':
-        case ')':
-        case '<':
-        case '>':
-        case '@':
-        case ',':
-        case ';':
-        case ':':
-        case '\'':
-        case '"':
-        case '/':
-        case '[':
-        case ']':
-        case '?':
-        case '=':
-        case '{':
-        case '}':
-        case ' ':
-        case '\t':
-          {
-            g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                         "Invalid token '%u' in cookie name", c);
-            return FALSE;
-          }
-        default:
-          {
-            if (!(c >= 32 && c <= 127))
-              {
-                g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                             "Invalid token '%u' in cookie name", c);
-                return FALSE;
-              }
-            else
-              break;
-          }
-        }
-    }
-  return TRUE;
-}
-
-static gboolean
-parse_cookie_pair (const gchar *header_value,
-                   gchar **out_cookie_name,
-                   gchar **out_cookie_value,
-                   GError **error)
-{
-  gboolean ret = FALSE;
-  const gchar *equals;
-  const gchar *cookie_raw;
-  gchar *ret_cookie_name = NULL;
-  gchar *ret_cookie_value = NULL;
-
-  equals = strchr (header_value, '=');
-  if (!equals)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Invalid cookie; missing '='");
-      goto out;
-    }
-  ret_cookie_name = g_strndup (header_value, equals - header_value);
-
-  if (!validate_token (ret_cookie_name, error))
-    goto out;
-
-  cookie_raw = equals + 1;
-  ret_cookie_value = g_uri_unescape_segment (cookie_raw, NULL, NULL);
-
-  ret = TRUE;
-  *out_cookie_name = ret_cookie_name;
-  ret_cookie_name = NULL;
-  *out_cookie_value = ret_cookie_value;
-  ret_cookie_value = NULL;
-out:
-  g_free (ret_cookie_name);
-  g_free (ret_cookie_value);
-  return ret;
-}
-
 gboolean
 cockpit_web_server_get_socket_activated (CockpitWebServer *self)
 {
@@ -583,51 +493,43 @@ cockpit_web_server_new_table (void)
   return web_socket_util_new_headers ();
 }
 
-gboolean
-cockpit_web_server_parse_cookies (GHashTable *headers,
-                                  GHashTable **out_cookies,
-                                  GError **error)
+gchar *
+cockpit_web_server_parse_cookie (GHashTable *headers,
+                                 const gchar *name)
 {
-  gboolean ret = FALSE;
-  GHashTableIter hash_iter;
-  const gchar *key;
+  const gchar *header;
+  const gchar *pos;
   const gchar *value;
-  GHashTable *ret_cookies = NULL;
+  const gchar *end;
+  gchar *decoded;
 
-  ret_cookies = cockpit_web_server_new_table ();
+  header = g_hash_table_lookup (headers, "Cookie");
+  if (!header)
+    return NULL;
 
-  g_hash_table_iter_init (&hash_iter, headers);
-  while (g_hash_table_iter_next (&hash_iter, (gpointer)&key, (gpointer)&value))
+  for (;;)
     {
-      if (g_ascii_strcasecmp (key, "Cookie") == 0)
-        {
-          gchar** elements = NULL;
-          guint n;
-          elements = g_strsplit (value, ";", 0);
-          for (n = 0; elements[n] != NULL; n++)
-            {
-              gchar *cookie_name;
-              gchar *cookie_value;
-              g_strstrip(elements[n]);
-              if (!parse_cookie_pair (elements[n], &cookie_name, &cookie_value, error))
-                {
-                  g_strfreev (elements);
-                  goto out;
-                }
-              /* adopt strings */
-              g_hash_table_replace (ret_cookies, cookie_name, cookie_value);
-            }
-          g_strfreev (elements);
-        }
-    }
+      pos = strstr (header, name);
+      if (!pos || (pos != header && *(pos - 1) != ';' && !g_ascii_isspace (*(pos - 1))))
+        return NULL;
 
-  ret = TRUE;
-  *out_cookies = ret_cookies;
-  ret_cookies = NULL;
-out:
-  if (ret_cookies)
-    g_hash_table_unref (ret_cookies);
-  return ret;
+      pos += strlen (name);
+      if (*pos == '=')
+        {
+          value = pos + 1;
+          end = strchr (value, ';');
+          if (end == NULL)
+            end = value + strlen (value);
+
+          decoded = g_uri_unescape_segment (value, end, NULL);
+          if (!decoded)
+            g_debug ("invalid cookie encoding");
+
+          return decoded;
+        }
+
+      header = pos;
+    }
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

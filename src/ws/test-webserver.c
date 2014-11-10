@@ -151,6 +151,105 @@ test_table (void)
 }
 
 static void
+test_cookie_simple (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar *result;
+
+  g_hash_table_insert (table, g_strdup ("Cookie"), g_strdup ("cookie1=value"));
+
+  result = cockpit_web_server_parse_cookie (table, "cookie1");
+  g_assert_cmpstr (result, ==, "value");
+
+  g_free (result);
+  g_hash_table_unref (table);
+}
+
+static void
+test_cookie_multiple (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar *result;
+
+  g_hash_table_insert (table, g_strdup ("Cookie"), g_strdup ("cookie1=value;cookie2=value2; cookie23=value3"));
+
+  result = cockpit_web_server_parse_cookie (table, "cookie1");
+  g_assert_cmpstr (result, ==, "value");
+  g_free (result);
+
+  result = cockpit_web_server_parse_cookie (table, "cookie2");
+  g_assert_cmpstr (result, ==, "value2");
+  g_free (result);
+
+  result = cockpit_web_server_parse_cookie (table, "cookie23");
+  g_assert_cmpstr (result, ==, "value3");
+  g_free (result);
+
+  g_hash_table_unref (table);
+}
+
+static void
+test_cookie_no_header (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar *result;
+
+  result = cockpit_web_server_parse_cookie (table, "cookie2");
+  g_assert_cmpstr (result, ==, NULL);
+
+  g_hash_table_unref (table);
+}
+
+static void
+test_cookie_substring (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar *result;
+
+  g_hash_table_insert (table, g_strdup ("Cookie"), g_strdup ("cookie1=value; cookie2=value2; cookie23=value3"));
+
+  result = cockpit_web_server_parse_cookie (table, "okie2");
+  g_assert_cmpstr (result, ==, NULL);
+
+  result = cockpit_web_server_parse_cookie (table, "cookie");
+  g_assert_cmpstr (result, ==, NULL);
+
+  result = cockpit_web_server_parse_cookie (table, "ook");
+  g_assert_cmpstr (result, ==, NULL);
+
+  g_hash_table_unref (table);
+}
+
+static void
+test_cookie_decode (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar *result;
+
+  g_hash_table_insert (table, g_strdup ("Cookie"), g_strdup ("cookie1=val%20ue"));
+
+  result = cockpit_web_server_parse_cookie (table, "cookie1");
+  g_assert_cmpstr (result, ==, "val ue");
+  g_free (result);
+
+  g_hash_table_unref (table);
+}
+
+static void
+test_cookie_decode_bad (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar *result;
+
+  g_hash_table_insert (table, g_strdup ("Cookie"), g_strdup ("cookie1=val%"));
+
+  result = cockpit_web_server_parse_cookie (table, "cookie1");
+  g_assert_cmpstr (result, ==, NULL);
+
+  g_hash_table_unref (table);
+}
+
+static void
 on_ready_get_result (GObject *source,
                      GAsyncResult *result,
                      gpointer user_data)
@@ -517,6 +616,13 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/web-server/table", test_table);
+
+  g_test_add_func ("/web-server/cookie/simple", test_cookie_simple);
+  g_test_add_func ("/web-server/cookie/multiple", test_cookie_multiple);
+  g_test_add_func ("/web-server/cookie/no-header", test_cookie_no_header);
+  g_test_add_func ("/web-server/cookie/substring", test_cookie_substring);
+  g_test_add_func ("/web-server/cookie/decode", test_cookie_decode);
+  g_test_add_func ("/web-server/cookie/decode-bad", test_cookie_decode_bad);
 
   g_test_add ("/web-server/content-type", TestCase, NULL,
               setup, test_webserver_content_type, teardown);

@@ -271,6 +271,7 @@ function check_admin() {
  * - color
  * - state
  * - cockpitd
+ * - compare(other_host_object)
  * - set_active()
  * - remove()
  *
@@ -373,11 +374,16 @@ function hosts_init() {
                      color: null,
                      state: "connecting",
                      cockpitd: client,
+                     compare: compare,
                      set_active: set_active,
                      remove: remove,
 
                      _removed: _removed
                    };
+
+        function compare(other) {
+            return info.display_name.localeCompare(other.display_name);
+        }
 
         function remove() {
             if (proxy.valid) {
@@ -388,7 +394,7 @@ function hosts_init() {
             }
         }
 
-        link = $('<a class="list-group-item">').
+        link = info._element = $('<a class="list-group-item">').
             append(
                 avatar_img = $('<img width="32" height="32" class="host-avatar">').
                     attr('src', "images/server-small.png"),
@@ -399,8 +405,6 @@ function hosts_init() {
                 cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]), info.last_options);
             });
 
-        $('#hosts').append(link);
-
         function update_hostname() {
             info.display_name = shell.util.hostname_for_display(manager);
             hostname_span.text(info.display_name);
@@ -409,6 +413,7 @@ function hosts_init() {
             else if (!info.color)
                 info.color = pick_color();
             update_global_nav();
+            show_hosts();
             $(shell.hosts).trigger('changed', [ addr ]);
         }
 
@@ -451,23 +456,35 @@ function hosts_init() {
                 $(shell.hosts).trigger('changed', [ addr ]);
             }
         });
+
+        show_hosts();
     }
 
-    $('#hosts').append(
-        $('<a class="list-group-item">').
-            append(
-                $('<button class="btn btn-primary" style="float:right">').
-                    text("+").
-                    click(function () {
-                        shell.host_setup();
-                        return false;
-                    }),
-                $('<span>').
-                    text("All Servers")).
-            click(function () {
-                remember_last_params();
-                cockpit.location.go([]);
-            }));
+    var all_hosts = $('<a class="list-group-item">').
+        append(
+            $('<button class="btn btn-primary" style="float:right">').
+                text("+").
+                click(function () {
+                    shell.host_setup();
+                    return false;
+                }),
+            $('<span>').
+                text("All Servers")).
+        click(function () {
+            remember_last_params();
+            cockpit.location.go([]);
+        });
+
+    function show_hosts() {
+        var sorted_hosts = (Object.keys(host_info).
+                            map(function (addr) { return host_info[addr]; }).
+                            sort(function (h1, h2) {
+                                return h1.compare(h2);
+                            }));
+        $('#hosts').append(
+            all_hosts,
+            sorted_hosts.map(function (h) { return h._element; }));
+    }
 
     $('#hosts-button').click(function () {
         $('#cockpit-sidebar').toggle();

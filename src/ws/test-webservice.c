@@ -276,17 +276,6 @@ teardown_for_socket (TestCase *test,
 }
 
 static void
-on_ready_get_result (GObject *source,
-                     GAsyncResult *result,
-                     gpointer data)
-{
-  GAsyncResult **retval = data;
-  g_assert (retval != NULL);
-  g_assert (*retval == NULL);
-  *retval = g_object_ref (result);
-}
-
-static void
 on_error_not_reached (WebSocketConnection *ws,
                       GError *error,
                       gpointer user_data)
@@ -1514,79 +1503,12 @@ test_resource_failure (TestResourceCase *tc,
 }
 
 static void
-test_resource_packages (TestResourceCase *tc,
-                        gconstpointer data)
-{
-  GAsyncResult *result = NULL;
-  JsonArray *packages;
-
-  cockpit_web_service_packages (tc->service, "localhost", on_ready_get_result, &result);
-
-  while (result == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  packages = cockpit_web_service_packages_finish (tc->service, result);
-  g_object_unref (result);
-
-  g_assert (packages != NULL);
-  cockpit_assert_json_eq (packages,
-                          "["
-                          " {"
-                          "  \"id\": [\"second\",\"$2362deb82fad54aca51092c505a5660ac6c45a9f\",\"one\",\"two\"],"
-                          "  \"manifest\": { \"description\": \"second dummy description\"}"
-                          " },{"
-                          "  \"id\": [ \"test\", \"$fec489a692ee808950f34f6c519803aed65e1849\" ],"
-                          "  \"manifest\" : { \"description\" : \"dummy\"}"
-                          " },{"
-                          "  \"id\": [ \"another\", \"marmalade\" ],"
-                          "  \"manifest\" : { \"description\" : \"another\"}"
-                          " }"
-                          "]");
-
-  json_array_unref (packages);
-}
-
-static void
-test_resource_packages_failure (TestResourceCase *tc,
-                                gconstpointer data)
-{
-  GAsyncResult *result = NULL;
-  JsonArray *packages;
-  GPid pid;
-
-  cockpit_expect_message ("*: transport closed while listing cockpit packages: *");
-
-  /* Now kill the bridge */
-  g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
-  g_assert_cmpint (pid, >, 0);
-  g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
-
-  cockpit_web_service_packages (tc->service, "localhost", on_ready_get_result, &result);
-
-  while (result == NULL)
-    g_main_context_iteration (NULL, TRUE);
-
-  packages = cockpit_web_service_packages_finish (tc->service, result);
-  g_object_unref (result);
-
-  g_assert (packages == NULL);
-}
-
-static void
 test_resource_checksum (TestResourceCase *tc,
                         gconstpointer data)
 {
-  GAsyncResult *result = NULL;
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
-
-  /* Do a package listing so that the web service knows the checksums for localhost */
-  cockpit_web_service_packages (tc->service, "localhost", on_ready_get_result, &result);
-  while (result == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  json_array_unref (cockpit_web_service_packages_finish (tc->service, result));
-  g_object_unref (result);
 
   response = cockpit_web_response_new (tc->io, "/cockpit/$fec489a692ee808950f34f6c519803aed65e1849/sub/file.ext", NULL);
   cockpit_web_service_resource (tc->service, response);
@@ -1779,10 +1701,6 @@ main (int argc,
               setup_resource, test_resource_no_path, teardown_resource);
   g_test_add ("/web-service/resource/failure", TestResourceCase, NULL,
               setup_resource, test_resource_failure, teardown_resource);
-  g_test_add ("/web-service/resource/packages", TestResourceCase, NULL,
-              setup_resource, test_resource_packages, teardown_resource);
-  g_test_add ("/web-service/resource/packages-failure", TestResourceCase, NULL,
-              setup_resource, test_resource_packages_failure, teardown_resource);
   g_test_add ("/web-service/resource/checksum", TestResourceCase, NULL,
               setup_resource, test_resource_checksum, teardown_resource);
   g_test_add ("/web-service/resource/no-checksum", TestResourceCase, NULL,

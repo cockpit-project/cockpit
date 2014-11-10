@@ -59,15 +59,6 @@ CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
 
 gboolean             cockpit_web_service_get_idling  (CockpitWebService *self);
 
-void                 cockpit_web_service_packages        (CockpitWebService *self,
-                                                          const gchar *host,
-                                                          GAsyncReadyCallback callback,
-                                                          gpointer user_data);
-
-JsonArray *          cockpit_web_service_packages_finish (CockpitWebService *self,
-                                                          GAsyncResult *result);
-
-
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVICE_H__ */

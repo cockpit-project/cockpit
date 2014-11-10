@@ -35,6 +35,11 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
+(
+	cd tools
+	npm install po2json jed
+)
+
 rm -rf autom4te.cache
 
 autoreconf -f -i -I tools

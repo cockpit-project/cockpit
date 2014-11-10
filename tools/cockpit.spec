@@ -55,12 +55,15 @@ BuildRequires: glib-networking
 BuildRequires: systemd
 
 BuildRequires: perl-JavaScript-Minifier-XS
-BuildRequires: perl-Locale-PO
-BuildRequires: perl-JSON
 
 # jsl hangs on arm on html files
 %ifnarch %{arm}
 BuildRequires: jsl
+%endif
+
+%if %{defined gitcommit}
+BuildRequires: npm
+BuildRequires: nodejs
 %endif
 
 # For selinux

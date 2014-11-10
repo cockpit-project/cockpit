@@ -21,10 +21,11 @@ The following should work in a fresh Git clone:
 
     $ srpm=$(tools/make-srpm)
     $ sudo yum-builddep $srpm
+    $ sudo yum install nodejs npm
 
 In addition for testing the following dependencies are required:
 
-    $ sudo yum install trickle nbd-server npm python-libguestfs qemu \
+    $ sudo yum install trickle nbd-server python-libguestfs qemu \
          mock qemu-kvm python curl libvirt-client libvirtd qemu-nbd \
          krb5-workstation krb5-server
     $ npm install phantomjs
@@ -41,7 +42,9 @@ them by running autogen.sh.  Maybe like so:
     $ cd build
     $ ../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug
 
-As shown, autogen.sh also runs 'configure' with the given options.
+As shown, autogen.sh also runs 'configure' with the given options, and it
+also prepares the build tree by downloading various nodejs dependencies.
+
 When working with a Git clone, it is therefore best to simply always
 run ../autogen.sh instead of `../configure`.
 

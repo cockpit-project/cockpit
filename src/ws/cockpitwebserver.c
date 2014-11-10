@@ -532,6 +532,119 @@ cockpit_web_server_parse_cookie (GHashTable *headers,
     }
 }
 
+typedef struct {
+  double qvalue;
+  const gchar *value;
+} Language;
+
+static gint
+sort_qvalue (gconstpointer a,
+             gconstpointer b)
+{
+  const Language *la = *((Language **)a);
+  const Language *lb = *((Language **)b);
+  if (lb->qvalue == la->qvalue)
+    return 0;
+  return lb->qvalue < la->qvalue ? -1 : 1;
+}
+
+gchar **
+cockpit_web_server_parse_languages (GHashTable *headers,
+                                    const gchar *cookie)
+{
+  const gchar *accept;
+  Language *lang;
+  GPtrArray *langs;
+  GPtrArray *ret;
+  gchar *copy;
+  gchar *value;
+  gchar *next;
+  gchar *pos;
+  guint i;
+
+  if (cookie)
+    {
+      value = cockpit_web_server_parse_cookie (headers, cookie);
+      if (value)
+        {
+          ret = g_ptr_array_new ();
+          g_ptr_array_add (ret, value);
+          g_ptr_array_add (ret, NULL);
+          return (gchar **)g_ptr_array_free (ret, FALSE);
+        }
+    }
+
+  accept = g_hash_table_lookup (headers, "Accept-Language");
+  if (!accept)
+    return NULL;
+
+  /* First build up an array we can sort */
+  langs = g_ptr_array_new_with_free_func (g_free);
+  accept = copy = g_strdup (accept);
+
+  while (accept)
+    {
+      next = strchr (accept, ',');
+      if (next)
+        {
+          *next = '\0';
+          next++;
+        }
+
+      lang = g_new0 (Language, 1);
+      lang->qvalue = 1;
+
+      pos = strchr (accept, ';');
+      if (pos)
+        {
+          *pos = '\0';
+          if (strncmp (pos + 1, "q=", 2) == 0)
+            {
+              lang->qvalue = g_ascii_strtod (pos + 3, NULL);
+              if (lang->qvalue < 0)
+                lang->qvalue = 0;
+            }
+        }
+
+      lang->value = accept;
+      g_ptr_array_add (langs, lang);
+      accept = next;
+    }
+
+  g_ptr_array_sort (langs, sort_qvalue);
+
+  /* Now in the right order add all the prefs */
+  ret = g_ptr_array_new ();
+  for (i = 0; i < langs->len; i++)
+    {
+      lang = langs->pdata[i];
+      if (lang->qvalue > 0)
+        {
+          value = g_strstrip (g_ascii_strdown (lang->value, -1));
+          g_ptr_array_add (ret, value);
+        }
+    }
+
+  /* Add base languages after that */
+  for (i = 0; i < langs->len; i++)
+    {
+      lang = langs->pdata[i];
+      if (lang->qvalue > 0)
+        {
+          pos = strchr (lang->value, '-');
+          if (pos)
+            {
+              value = g_strstrip (g_ascii_strdown (lang->value, pos - lang->value));
+              g_ptr_array_add (ret, value);
+            }
+        }
+    }
+
+  g_free (copy);
+  g_ptr_array_add (ret, NULL);
+  g_ptr_array_free (langs, TRUE);
+  return (gchar **)g_ptr_array_free (ret, FALSE);
+}
 /* ---------------------------------------------------------------------------------------------------- */
 
 typedef struct {

@@ -250,6 +250,79 @@ test_cookie_decode_bad (void)
 }
 
 static void
+test_languages_simple (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar **result;
+  gchar *string;
+
+  g_hash_table_insert (table, g_strdup ("Accept-Language"), g_strdup ("en-us,en, de"));
+
+  result = cockpit_web_server_parse_languages (table, NULL);
+  g_assert (result != NULL);
+
+  string = g_strjoinv (", ", result);
+  g_assert_cmpstr (string, ==, "en-us, en, de, en");
+
+  g_free (string);
+  g_strfreev (result);
+  g_hash_table_unref (table);
+}
+
+static void
+test_languages_cookie (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar **result;
+  gchar *string;
+
+  g_hash_table_insert (table, g_strdup ("Cookie"), g_strdup ("cockpitlang=pig"));
+  g_hash_table_insert (table, g_strdup ("Accept-Language"), g_strdup ("en-us,en, de"));
+
+  result = cockpit_web_server_parse_languages (table, "cockpitlang");
+  g_assert (result != NULL);
+
+  string = g_strjoinv (", ", result);
+  g_assert_cmpstr (string, ==, "pig");
+
+  g_free (string);
+  g_strfreev (result);
+  g_hash_table_unref (table);
+}
+
+static void
+test_languages_no_header (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar **result;
+
+  result = cockpit_web_server_parse_languages (table, NULL);
+  g_assert (result == NULL);
+
+  g_hash_table_unref (table);
+}
+
+static void
+test_languages_order (void)
+{
+  GHashTable *table = cockpit_web_server_new_table ();
+  gchar **result;
+  gchar *string;
+
+  g_hash_table_insert (table, g_strdup ("Accept-Language"), g_strdup ("de;q=xx, en-us;q=0.1,en;q=1,in;q=5"));
+
+  result = cockpit_web_server_parse_languages (table, NULL);
+  g_assert (result != NULL);
+
+  string = g_strjoinv (", ", result);
+  g_assert_cmpstr (string, ==, "in, en, en-us, en");
+
+  g_free (string);
+  g_strfreev (result);
+  g_hash_table_unref (table);
+}
+
+static void
 on_ready_get_result (GObject *source,
                      GAsyncResult *result,
                      gpointer user_data)
@@ -623,6 +696,11 @@ main (int argc,
   g_test_add_func ("/web-server/cookie/substring", test_cookie_substring);
   g_test_add_func ("/web-server/cookie/decode", test_cookie_decode);
   g_test_add_func ("/web-server/cookie/decode-bad", test_cookie_decode_bad);
+
+  g_test_add_func ("/web-server/languages/simple", test_languages_simple);
+  g_test_add_func ("/web-server/languages/cookie", test_languages_cookie);
+  g_test_add_func ("/web-server/languages/no-header", test_languages_no_header);
+  g_test_add_func ("/web-server/languages/order", test_languages_order);
 
   g_test_add ("/web-server/content-type", TestCase, NULL,
               setup, test_webserver_content_type, teardown);

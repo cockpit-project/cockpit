@@ -796,17 +796,18 @@ static CockpitAuthenticated *
 authenticated_for_headers (CockpitAuth *self,
                            GHashTable *in_headers)
 {
-  GHashTable *cookies = NULL;
   gchar *cookie = NULL;
+  gchar *raw = NULL;
   const char *prefix = "v=2;k=";
   CockpitAuthenticated *ret = NULL;
 
   g_return_val_if_fail (self != NULL, FALSE);
   g_return_val_if_fail (in_headers != NULL, FALSE);
 
-  if (cockpit_web_server_parse_cookies (in_headers, &cookies, NULL))
+  raw = cockpit_web_server_parse_cookie (in_headers, "cockpit");
+  if (raw)
     {
-      cookie = base64_decode_string (g_hash_table_lookup (cookies, "cockpit"));
+      cookie = base64_decode_string (raw);
       if (cookie != NULL)
         {
           if (g_str_has_prefix (cookie, prefix))
@@ -815,7 +816,7 @@ authenticated_for_headers (CockpitAuth *self,
             g_debug ("invalid or unsupported cookie: %s", cookie);
           g_free (cookie);
         }
-      g_hash_table_unref (cookies);
+      g_free (raw);
     }
 
   return ret;

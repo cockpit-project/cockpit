@@ -38,9 +38,8 @@ CockpitWebServer * cockpit_web_server_new           (gint port,
 
 GHashTable *       cockpit_web_server_new_table     (void);
 
-gboolean           cockpit_web_server_parse_cookies (GHashTable *headers,
-                                                     GHashTable **out_cookies,
-                                                     GError **error);
+gchar *            cockpit_web_server_parse_cookie    (GHashTable *headers,
+                                                       const gchar *name);
 
 gchar **           cockpit_web_server_resolve_roots (const gchar *root,
                                                      ...) G_GNUC_NULL_TERMINATED;

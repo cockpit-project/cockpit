@@ -295,8 +295,11 @@ function check_admin() {
  * - avatar
  * - color
  * - state
+ * - problem
  * - cockpitd
  * - compare(other_host_object)
+ * - reconnect()
+ * - show_problem_dialog()
  * - set_active()
  * - remove()
  *
@@ -400,6 +403,8 @@ function hosts_init() {
                      state: "connecting",
                      cockpitd: client,
                      compare: compare,
+                     reconnect: reconnect,
+                     show_problem_dialog: show_problem_dialog,
                      set_active: set_active,
                      remove: remove,
 
@@ -426,8 +431,12 @@ function hosts_init() {
                 hostname_span = $('<span>').
                     text(addr)).
             click(function () {
-                remember_last_params();
-                cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]), info.last_options);
+                if (info.state == "failed")
+                    show_problem_dialog();
+                else {
+                    remember_last_params();
+                    cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]), info.last_options);
+                }
             });
 
         function update_hostname() {
@@ -460,6 +469,27 @@ function hosts_init() {
             link.addClass("active");
         }
 
+        function reconnect() {
+            _removed();
+            delete host_info[addr];
+            $(shell.hosts).trigger('removed', [ addr ]);
+            add_host(addr, proxy);
+            $(shell.hosts).trigger('added', [ addr ]);
+        }
+
+        function show_problem_dialog() {
+            $('#reconnect-dialog-summary').text(
+                F(_("Couldn't establish connection to %{name}."), { name: info.display_name }));
+            $('#reconnect-dialog-problem').text(
+                shell.client_error_description(info.problem));
+            $('#reconnect-dialog-reconnect').off('click');
+            $('#reconnect-dialog-reconnect').on('click', function () {
+                $('#reconnect-dialog').modal('hide');
+                reconnect();
+            });
+            $('#reconnect-dialog').modal('show');
+        }
+
         function _removed() {
             link.remove();
             $(manager).off('.hosts');
@@ -467,6 +497,13 @@ function hosts_init() {
         }
 
         host_info[addr] = info;
+
+        $(client).on("close", function (event, problem) {
+            info.state = "failed";
+            info.problem = problem;
+            avatar_img.attr('src', "images/server-error.png");
+            $(shell.hosts).trigger('changed', [ addr ]);
+        });
 
         manager.wait(function () {
             if (manager.valid) {
@@ -478,9 +515,6 @@ function hosts_init() {
                 $(manager).on('AvatarChanged.hosts', update_avatar);
                 update_hostname();
                 update_avatar();
-            } else {
-                info.state = "failed";
-                $(shell.hosts).trigger('changed', [ addr ]);
             }
         });
 

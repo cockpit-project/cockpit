@@ -1121,6 +1121,95 @@
     </refsection>
   </refsection>
 
+  <refsection id="latest-locale">
+    <title>Localization</title>
+
+    <para>Cockpit provides a
+      <ulink url="https://www.gnu.org/software/gettext/"><code>gettext()</code></ulink> like
+      API for easy translation of strings.</para>
+
+    <refsection id="latest-locale-locale">
+      <title>cockpit.locale()</title>
+<programlisting>
+ locale = cockpit.locale(po, [translate])
+</programlisting>
+
+      <para>Load locale information for a given <code>po</code> data. The data should
+        be JSON data in the <ulink url="https://www.npmjs.org/package/po2json">po2json</ulink>
+        format. If <code>translate</code> is set to <code>true</code> then the
+        document will be scanned for translatable tags and they will be translated according
+        to the strings in <code>po</code>.</para>
+
+      <para>The returned object has various methods below, in particular the
+        <link linkend="latest-locale-gettext"><code>locale.gettext()</code></link> function
+        can be used to translate strings.</para>
+    </refsection>
+
+    <refsection id="latest-locale-gettext">
+      <title>locale.gettext()</title>
+<programlisting>
+ translated = locale.gettext([context], string)
+ var _ = locale.gettext
+ var C_ = locale.gettext
+ translated = _("string")
+ translated = C_("context", "string")
+</programlisting>
+
+      <para>Lookup <code>string</code> for translation in the bundle. The translated string will
+        be returned, or <code>string</code> will be returned if no such translated string is
+        present. The <code>context</code> argument is an optional string used to qualify the
+        string.</para>
+
+      <para>This function can be assigned to a variable called <code>_</code> (underscore) which
+        will make your code work with the typical <code>_("string")</code> syntax.</para>
+    </refsection>
+
+    <refsection id="latest-locale-noop">
+      <title>locale.noop()</title>
+<programlisting>
+  var N_ = locale.noop
+  var NC_ = locale.noop
+</programlisting>
+
+      <para>A noop function suitable for assigning to <code>N_</code> or <code>NC_</code> so that
+        gettext scanners will be able to find translatable strings.</para>
+    </refsection>
+
+    <refsection id="latest-locale-ngettext">
+      <title>locale.ngettext()</title>
+<programlisting>
+ translated = locale.ngettext([context], string1, stringN, number)
+</programlisting>
+
+      <para>Lookup a string appropriate for a pluralization form of the <code>number</code>.
+        Various languages have complex pluralization forms that go far between the singular
+        and plural forms speakers of English are familiar with. If no such translated
+        string is found then either one of <code>string1</code> or <code>stringN</code> is
+        returned according to simple pluralization rules.</para>
+
+      <para>The <code>context</code> argument is an optional string used to qualify the string.</para>
+    </refsection>
+  </refsection>
+
+  <refsection>
+    <title>Utilities</title>
+
+    <para>Various utility functions.</para>
+
+    <refsection id="latest-locale-format">
+      <title>cockpit.format()</title>
+<programlisting>
+ string = cockpit.format(template, args)
+</programlisting>
+
+      <para>Format a string interpolating <code>args</code> into <code>template</code> using
+        shell like syntax. The <code>args</code> may be either an array or javascript object.
+        The <code>template</code> can contain fields that look like <code>$name</code> or
+        <code>${name}</code> or <code>$1</code>. Numeric fields are used with array
+        <code>args</code>.</para>
+    </refsection>
+  </refsection>
+
   <refsection id="latest-packages">
     <title>Package Info</title>
 

@@ -1598,8 +1598,9 @@ resource_response_done (ResourceResponse *rr,
     {
       g_debug ("%s: completed serving resource", rr->logname);
       if (state == COCKPIT_WEB_RESPONSE_READY)
-        cockpit_web_response_headers (rr->response, 200, "OK", 0, NULL);
-      cockpit_web_response_complete (rr->response);
+        cockpit_web_response_abort (rr->response);
+      else
+        cockpit_web_response_complete (rr->response);
     }
   else if (state == COCKPIT_WEB_RESPONSE_READY)
     {
@@ -1647,6 +1648,63 @@ on_resource_recv (CockpitTransport *transport,
     }
 
   cockpit_web_response_queue (rr->response, payload);
+  return TRUE;
+}
+
+static void
+parse_resource2_headers (ResourceResponse *rr,
+                         GBytes *payload,
+                         const gchar **cache)
+{
+  JsonObject *object = NULL;
+  const gchar *accepted;
+  GError *error = NULL;
+
+  *cache = rr->cache_forever ? "max-age=31556926, public" : NULL;
+
+  object = cockpit_json_parse_bytes (payload, &error);
+  if (error)
+    {
+      g_warning ("%s: couldn't parse resource2 header payload: %s", rr->logname, error->message);
+      g_error_free (error);
+      goto out;
+    }
+
+  /* If a langage based response was selected, then Vary header is needed */
+  if (!cockpit_json_get_string (object, "accept", NULL, &accepted))
+    {
+      g_warning ("%s: bad \"accept\" field in resource2 header payload", rr->logname);
+      goto out;
+    }
+
+out:
+  if (object)
+    json_object_unref (object);
+}
+
+static gboolean
+on_resource_recv_first (CockpitTransport *transport,
+                        const gchar *channel,
+                        GBytes *payload,
+                        gpointer user_data)
+{
+  ResourceResponse *rr = user_data;
+  const gchar *cache_control = NULL;
+
+  if (g_strcmp0 (channel, rr->channel) != 0)
+    return FALSE;
+
+  g_return_val_if_fail (cockpit_web_response_get_state (rr->response) == COCKPIT_WEB_RESPONSE_READY, FALSE);
+
+  /* First response payload message is meta data, then switch to actual data */
+  g_signal_handler_disconnect (transport, rr->recv_sig);
+  rr->recv_sig = g_signal_connect (transport, "recv", G_CALLBACK (on_resource_recv), rr);
+
+  parse_resource2_headers (rr, payload, &cache_control);
+  cockpit_web_response_headers (rr->response, 200, "OK", -1,
+                                "Cache-Control", cache_control,
+                                NULL);
+
   return TRUE;
 }
 
@@ -1711,7 +1769,7 @@ resource_response_new (CockpitWebService *self,
   rr->channel = g_strdup_printf ("%d0", self->next_resource_id++);
   rr->logname = cockpit_web_response_get_path (response);
 
-  rr->recv_sig = g_signal_connect (rr->transport, "recv", G_CALLBACK (on_resource_recv), rr);
+  rr->recv_sig = g_signal_connect (rr->transport, "recv", G_CALLBACK (on_resource_recv_first), rr);
   rr->closed_sig = g_signal_connect (rr->transport, "closed", G_CALLBACK (on_resource_closed), rr);
   rr->control_sig = g_signal_connect (rr->transport, "control", G_CALLBACK (on_resource_control), rr);
 
@@ -1766,7 +1824,8 @@ resource_respond (CockpitWebService *self,
   GHashTableIter iter;
   GBytes *command;
   gchar **parts = NULL;
-  const gchar *accept = NULL;
+  JsonObject *object;
+  JsonArray *accept;
 
   package = pop_package_name (remaining_path, &path);
   if (!package || !path)
@@ -1820,24 +1879,29 @@ resource_respond (CockpitWebService *self,
 
   rr = resource_response_new (self, session, response);
   rr->cache_forever = (name[0] == '$');
+
+  object = build_json ("command", "open",
+                       "channel", rr->channel,
+                       "payload", "resource2",
+                       "host", host,
+                       "package", name,
+                       "path", path,
+                       "binary", "raw",
+                       NULL);
+
   if (rr->cache_forever)
     {
       /*
        * We can look up minified resource if a package is checksumed, which means
        * that it isn't supposed to change out underneath us.
        */
-      accept = "minified";
+      accept = json_array_new ();
+      json_array_add_string_element (accept, "min");
+      json_object_set_array_member (object, "accept", accept);
     }
 
-  command = build_control ("command", "open",
-                           "channel", rr->channel,
-                           "payload", "resource1",
-                           "host", host,
-                           "package", name,
-                           "path", path,
-                           "accept", accept,
-                           "binary", "raw",
-                           NULL);
+  command = cockpit_json_write_bytes (object);
+  json_object_unref (object);
 
   cockpit_transport_send (rr->transport, NULL, command);
   g_bytes_unref (command);

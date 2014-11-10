@@ -566,7 +566,7 @@ function package_table(host, callback) {
         callback(table, null);
         return;
     }
-    var channel = new Channel({ "host": host, "payload": "resource1" });
+    var channel = new Channel({ "host": host, "payload": "resource2" });
     channel.onclose = function(event, options) {
         if (options.reason) {
             package_debug("package listing failed: " + options.reason);

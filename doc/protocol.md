@@ -241,7 +241,8 @@ Payload: echo
 A channel opened with this payload type will send back all data that
 it receives.
 
-Payload: resource1
+
+Payload: resource2
 ------------------
 
 These payloads contain resource data, such as javascript and html files that
@@ -253,7 +254,7 @@ type:
 
  * "package": the package to retrieve resource from
  * "path": path of the resource within the package.
- * "accept": various options for choosing the resource file
+ * "accept": array of various file extensions for content negotation
 
 The "package" may either be fully qualified (ie: package@host), although the
 host part is not used for routing, and the usual "open" command "host"
@@ -262,8 +263,13 @@ option should be used. The package may also be a package checksum.
 If "accept" includes "minified" then a minified form of the file will
 be selected, if it is available.
 
-The channel payload will be the raw (possibly binary) byte data of the
-resource being retrieved.
+The first channel payload will be a JSON object, containing the following
+options, related to headers.
+
+ * "accept": the content negotiation option accepted
+
+The remaining channel payloads will be the raw (possibly binary) byte data
+of the resource being retrieved.
 
 If "package" and "path" are missing, then the channel will be immediately
 closed without a "reason", and a combined manifest of all packages, including
@@ -272,7 +278,7 @@ the "packages" option:
 
     {
         "command": "close",
-        "channel": -5,
+        "channel": "5",
         "packages": [
             {
                 "id": ["app1", "$0d599f0ec05c3bda8c3b8a68c32a1b47"],
@@ -281,6 +287,9 @@ the "packages" option:
             ...
         ]
     }
+
+The resource1 payload is no longer supported.
+
 
 Payload: dbus-json3
 -------------------

@@ -24,6 +24,8 @@
 
 #include "common/cockpittest.h"
 
+#include <string.h>
+
 extern const gchar **cockpit_bridge_data_dirs;
 
 typedef struct {
@@ -37,7 +39,7 @@ typedef struct {
   const gchar *datadirs[8];
   const gchar *package;
   const gchar *path;
-  const gchar *accept;
+  const gchar *accept[8];
 } Fixture;
 
 static void
@@ -76,7 +78,7 @@ setup (TestCase *tc,
   tc->channel = cockpit_resource_open (COCKPIT_TRANSPORT (tc->transport), "444",
                                        fixture->package,
                                        fixture->path,
-                                       fixture->accept);
+                                       (const gchar **)fixture->accept);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
 }
 
@@ -140,13 +142,13 @@ test_simple (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, NULL);
 
   data = combine_output (tc, &count);
-  cockpit_assert_bytes_eq (data, "These are the contents of file.ext\nOh marmalaaade\n", -1);
-  g_assert_cmpuint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "{}These are the contents of file.ext\nOh marmalaaade\n", -1);
+  g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }
 
 static const Fixture fixture_minified = {
-  .accept = "minified",
+  .accept = { "min", NULL },
   .package = "test",
   .path = "/sub/file.ext",
 };
@@ -165,8 +167,8 @@ test_minified (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, NULL);
 
   data = combine_output (tc, &count);
-  cockpit_assert_bytes_eq (data, "This is the minified file.ext Oh marmalaaade\n", -1);
-  g_assert_cmpuint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "{\"accept\":\"min\"}This is the minified file.ext Oh marmalaaade\n", -1);
+  g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }
 
@@ -183,6 +185,7 @@ test_large (TestCase *tc,
   gchar *contents;
   gsize length;
   GBytes *data;
+  GBytes *sub;
   guint count;
 
   g_assert (fixture == &fixture_large);
@@ -198,8 +201,12 @@ test_large (TestCase *tc,
   data = combine_output (tc, &count);
 
   /* Should not have been sent as one block */
-  g_assert_cmpuint (count, ==, 7);
-  cockpit_assert_bytes_eq (data, contents, length);
+  g_assert_cmpuint (count, ==, 8);
+  g_assert_cmpuint (g_bytes_get_size (data), >, 2);
+  g_assert (strncmp (g_bytes_get_data (data, NULL), "{}", 2) == 0);
+  sub = g_bytes_new_from_bytes (data, 2, g_bytes_get_size (data) - 2);
+  cockpit_assert_bytes_eq (sub, contents, length);
+  g_bytes_unref (sub);
   g_bytes_unref (data);
   g_free (contents);
 }
@@ -354,7 +361,7 @@ test_bad_receive (TestCase *tc,
 
   cockpit_expect_message ("received unexpected message in resource channel");
 
-  /* A resource1 channel should never have payload sent to it */
+  /* A resource2 channel should never have payload sent to it */
   bad = g_bytes_new_static ("bad", 3);
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "444", bad);
   g_bytes_unref (bad);

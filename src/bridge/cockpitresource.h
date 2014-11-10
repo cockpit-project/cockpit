@@ -34,6 +34,6 @@ CockpitChannel *   cockpit_resource_open         (CockpitTransport *transport,
                                                   const gchar *channel,
                                                   const gchar *package,
                                                   const gchar *path,
-                                                  const gchar *accept);
+                                                  const gchar **accept);
 
 #endif /* COCKPIT_RESOURCE_H__ */

@@ -1447,6 +1447,92 @@ function full_scope(cockpit, $) {
         return window.btoa(string);
     };
 
+    /* ---------------------------------------------------------------------
+     * Localization
+     */
+
+    function Locale(po) {
+        var self = this;
+
+        function imply( val ) {
+            return (val === true ? 1 : val ? val : 0);
+        }
+
+        var plural;
+        var lang = "en";
+        var header = po[""];
+
+        if (header) {
+            if (header["plural-forms"]) {
+                plural = new Function("n", "var nplurals, plural; " +
+                                      header["plural-forms"] + "; return plural;");
+            }
+            if (header["language"])
+                lang = header["language"];
+        }
+
+        self.lang = lang;
+
+        self.gettext = function gettext(context, string) {
+            /* Missing first parameter */
+            if (arguments.length == 1) {
+                string = context;
+                context = undefined;
+            }
+
+            var key = context ? context + '\u0004' + string : string;
+            if (po) {
+                var translated = po[key];
+                if (translated && translated[1])
+                    return translated[1];
+            }
+            return string;
+        };
+
+        self.ngettext = function ngettext(context, string1, stringN, num) {
+            /* Missing first parameter */
+            if (arguments.length == 3) {
+                num = stringN;
+                stringN = string1;
+                string1 = context;
+                context = undefined;
+            }
+
+            var key = context ? context + '\u0004' + string1 : string1;
+            if (po && plural) {
+                var translated = po[key];
+                if (translated) {
+                    var i = imply(plural(num)) + 1;
+                    if (translated[i])
+                        return translated[i];
+                }
+            }
+            if (num == 1)
+                return string1;
+            return stringN;
+        };
+    }
+
+    function translate_page(locale) {
+        $("[translatable=\"yes\"]").each(function(i, e) {
+            var $e = $(e);
+            var translated = locale.gettext(e.getAttribute("context"), $e.text());
+            $(e).removeAttr("translatable").text(translated);
+        });
+    }
+
+    cockpit.locale = function locale(po, translate) {
+        var locale = new Locale(po);
+        if (translate)
+            $(function() {translate_page(locale); });
+        return locale;
+    };
+
+    var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
+    cockpit.format = function format(fmt, args) {
+        return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
+    };
+
 } /* full_scope */
 
 /* ----------------------------------------------------------------------------

@@ -34,7 +34,7 @@
  * A #CockpitChannel that sends resources as messages. The resource
  * is automatically chunked so it doesn't overwhelm the transport
  *
- * The payload type for this channel is 'resource1'.
+ * The payload type for this channel is 'resource2'.
  */
 
 #define COCKPIT_RESOURCE(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_RESOURCE, CockpitResource))
@@ -139,7 +139,8 @@ respond_package_listing (CockpitChannel *channel)
 }
 
 static gchar *
-calculate_minified_path (const gchar *path)
+calculate_accept_path (const gchar *path,
+                       const gchar *accept)
 {
   const gchar *dot;
   const gchar *slash;
@@ -152,8 +153,8 @@ calculate_minified_path (const gchar *path)
   if (slash != NULL && dot < slash)
     return NULL;
 
-  return g_strdup_printf ("%.*s.min%s",
-                          (int)(dot - path), path, dot);
+  return g_strdup_printf ("%.*s.%s%s",
+                          (int)(dot - path), path, accept, dot);
 }
 
 static GMappedFile *
@@ -204,19 +205,22 @@ on_prepare_channel (gpointer data)
   GError *error = NULL;
   const gchar *path;
   const gchar *package;
-  const gchar *accept;
-  gchar *alternate = NULL;
+  const gchar **accept;
+  const gchar *accepted;
+  gchar *alternate;
   GMappedFile *mapped = NULL;
+  JsonObject *object;
   gchar *string = NULL;
   const gchar *pos;
   GBytes *bytes;
   gboolean retry;
+  guint i;
 
   self->idler = 0;
 
   package = cockpit_channel_get_option (channel, "package");
   path = cockpit_channel_get_option (channel, "path");
-  accept = cockpit_channel_get_option (channel, "accept");
+  accept = cockpit_channel_get_strv_option (channel, "accept");
 
   if (!package && !path)
     {
@@ -255,11 +259,17 @@ on_prepare_channel (gpointer data)
     }
 
   retry = TRUE;
-  if (accept && g_str_equal (accept, "minified"))
+  accepted = NULL;
+  for (i = 0; !mapped && retry && accept && accept[i] != NULL; i++)
     {
-      alternate = calculate_minified_path (filename);
+      alternate = calculate_accept_path (filename, accept[i]);
       if (alternate)
-        mapped = open_file (channel, alternate, &retry);
+        {
+          mapped = open_file (channel, alternate, &retry);
+          if (mapped)
+            accepted = accept[i];
+        }
+      g_free (alternate);
     }
 
   if (!mapped && retry)
@@ -271,8 +281,16 @@ on_prepare_channel (gpointer data)
       goto out;
     }
 
-  /* Expand the data */
   self->queue = g_queue_new ();
+
+  /* The first reply payload is meta info */
+  object = json_object_new ();
+  if (accepted)
+    json_object_set_string_member (object, "accept", accepted);
+  g_queue_push_head (self->queue, cockpit_json_write_bytes (object));
+  json_object_unref (object);
+
+  /* Expand the data */
   bytes = g_mapped_file_get_bytes (mapped);
   cockpit_package_expand (listing, host, bytes, self->queue);
   g_bytes_unref (bytes);
@@ -288,7 +306,6 @@ out:
   g_free (string);
   g_clear_error (&error);
   g_free (filename);
-  g_free (alternate);
   return FALSE;
 }
 
@@ -338,6 +355,7 @@ cockpit_resource_class_init (CockpitResourceClass *klass)
  * @channel_id: the channel id
  * @package: the optional package of resource
  * @path: the optional path
+ * @accept: various content negotiation options
  *
  * This function is mainly used by tests. The usual way
  * to get a #CockpitResource is via cockpit_channel_open()
@@ -349,19 +367,26 @@ cockpit_resource_open (CockpitTransport *transport,
                        const gchar *channel_id,
                        const gchar *package,
                        const gchar *path,
-                       const gchar *accept)
+                       const gchar **accept)
 {
   CockpitChannel *channel;
   JsonObject *options;
+  JsonArray *array;
+  guint i;
 
   options = json_object_new ();
-  json_object_set_string_member (options, "payload", "resource1");
+  json_object_set_string_member (options, "payload", "resource2");
   if (package)
     json_object_set_string_member (options, "package", package);
   if (path)
     json_object_set_string_member (options, "path", path);
   if (accept)
-    json_object_set_string_member (options, "accept", accept);
+    {
+      array = json_array_new ();
+      for (i = 0; accept[i] != NULL; i++)
+        json_array_add_string_element (array, accept[i]);
+      json_object_set_array_member (options, "accept", array);
+    }
 
   channel = g_object_new (COCKPIT_TYPE_RESOURCE,
                           "transport", transport,

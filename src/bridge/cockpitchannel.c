@@ -480,7 +480,7 @@ cockpit_channel_open (CockpitTransport *transport,
     channel_type = COCKPIT_TYPE_REST_JSON;
   else if (g_strcmp0 (payload, "stream") == 0)
     channel_type = COCKPIT_TYPE_STREAM;
-  else if (g_strcmp0 (payload, "resource1") == 0)
+  else if (g_strcmp0 (payload, "resource2") == 0)
     channel_type = COCKPIT_TYPE_RESOURCE;
   else if (g_strcmp0 (payload, "null") == 0)
     channel_type = COCKPIT_TYPE_NULL_CHANNEL;

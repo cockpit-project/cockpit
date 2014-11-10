@@ -2694,6 +2694,30 @@
       </div>
     </div>
 
+    <div class="modal" id="reconnect-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Couldn't establish connection</h4>
+          </div>
+          <div class="modal-body">
+            <div id="reconnect-dialog-summary"></div>
+            <div id="reconnect-dialog-problem"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="reconnect-dialog-reconnect">
+              Try reconnecting
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="cockpit-deauthorize-status" style="display: none;"></div>
 
   </body>

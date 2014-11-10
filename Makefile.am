@@ -27,6 +27,8 @@ SUFFIXES = .js .min.js .css .min.css .html .min.html .1 .8 .5
 .css.min.css:
 	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
 
+po/po.%.js: po/%.po
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/po2json --module $^ $@
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
@@ -50,7 +52,6 @@ AM_CPPFLAGS = \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
 	-DPACKAGE_BIN_DIR=\""$(bindir)"\" \
 	-DPACKAGE_LOCALSTATE_DIR=\""$(localstatedir)"\" \
-	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_LIB_DIR=\""$(libdir)"\" \
 	-D_POSIX_PTHREAD_SEMANTICS -D_REENTRANT \
 	$(NULL)
@@ -107,7 +108,6 @@ SED_SUBST = sed \
         $(NULL)
 
 RCOMPILE = JSL=$(JSL) $(top_srcdir)/tools/rcompile
-PO2JSON = $(top_srcdir)/tools/po2json
 GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
 VERIFY_CHECKSUMS = $(top_srcdir)/tools/verify-checksums
 

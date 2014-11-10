@@ -203,17 +203,6 @@ AC_SUBST([GETTEXT_PACKAGE])
 AM_GLIB_GNU_GETTEXT
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[gettext domain])
 
-# For po2json
-
-for mod in JSON Locale::PO; do
-  AC_MSG_CHECKING([for CPAN perl module $mod])
-  if perl -e "use $mod;"; then
-    AC_MSG_RESULT([yes])
-  else
-    AC_MSG_ERROR([The CPAN perl module $mod is required])
-  fi
-done
-
 # phantomjs
 
 AC_PATH_PROG([PHANTOMJS], [phantomjs])

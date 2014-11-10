@@ -1,7 +1,3 @@
-LINGUAS =
-
-translations_json = $(addprefix lang/,$(addsuffix .json,$(LINGUAS)))
-
 shell_js_PARTS = \
 	pkg/shell/polyfills.js \
 	pkg/shell/dbus.js \

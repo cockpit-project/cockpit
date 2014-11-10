@@ -1,7 +1,14 @@
+LINGUAS = de da
+
+po/po.en.js: pkg/base/po.js
+	$(AM_V_GEN) cp $^ $@
 
 basedir = $(pkgdatadir)/base
 nodist_base_DATA = \
 	pkg/base/cockpit.min.js
+base_GEN = \
+	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
+	$(NULL)
 base_DATA = \
 	pkg/base/patternfly.css \
 	pkg/base/cockpit.css \
@@ -12,6 +19,8 @@ base_DATA = \
 	pkg/base/bootstrap.min.js \
 	pkg/base/term.js \
 	pkg/base/manifest.json \
+	po/po.en.js \
+	$(base_GEN) \
 	$(NULL)
 
 baseimagesdir = $(pkgdatadir)/base/images
@@ -39,9 +48,12 @@ TESTS += $(base_TESTS)
 
 CLEANFILES += \
 	pkg/base/cockpit.min.js \
+	po/po.en.js \
+	$(base_GEN) \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/base/po.js \
 	$(base_DATA) \
 	$(base_TESTS) \
 	$(baseimages_DATA) \

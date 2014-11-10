@@ -4,11 +4,11 @@
 [
   <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 ]>
-<reference id="api-terminal">
-  <title>API: terminal</title>
+<reference id="api-server">
+  <title>API: server</title>
 
   <partintro>
-    <para>This package contains a system terminal.</para>
+    <para>This package contains general components for basic control of a server.</para>
   </partintro>
 
   <refentry id="api-terminal-html">
@@ -18,13 +18,13 @@
 
     <refnamediv>
       <refname>terminal.html</refname>
-      <refpurpose>System terminal component</refpurpose>
+      <refpurpose>Server terminal component</refpurpose>
     </refnamediv>
 
     <refsection>
       <title>Description</title>
 <programlisting>
- &lt;iframe src="http://server:9090/cockpit/terminal/terminal.html"
+ &lt;iframe src="http://server:9090/cockpit/server/terminal.html"
      width="600" height="400"&gt;&lt;/iframe&gt;
 </programlisting>
 
@@ -34,7 +34,7 @@
       <variablelist>
         <varlistentry>
           <term>Component URL</term>
-          <listitem><para><code>/cockpit/terminal/terminal.html</code></para></listitem>
+          <listitem><para><code>/cockpit/server/terminal.html</code></para></listitem>
         </varlistentry>
       </variablelist>
 

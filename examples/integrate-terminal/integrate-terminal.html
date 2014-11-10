@@ -23,7 +23,7 @@
         button.onclick = function() {
             var address = document.getElementById("address");
             var iframe = document.getElementById("terminal");
-            iframe.setAttribute("src", "https://" + address.value + ":9090/cockpit/terminal/terminal.html");
+            iframe.setAttribute("src", "https://" + address.value + ":9090/cockpit/server/terminal.html");
             iframe.setAttribute("style", "display: block;");
             return false;
         };

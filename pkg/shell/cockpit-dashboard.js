@@ -20,12 +20,57 @@
 var shell = shell || { };
 (function($, cockpit, shell) {
 
+var common_plot_options = {
+    legend: { show: false },
+    series: { shadowSize: 0 },
+    xaxis: { tickColor: "#d1d1d1", tickFormatter: function() { return ""; } },
+    // The point radius influences the margin around the grid even if
+    // no points are plotted.  We don't want any margin, so we set the
+    // radius to zero.
+    points: { radius: 0 },
+    grid: { borderWidth: 1,
+            borderColor: "#e1e6ed",
+            hoverable: true,
+            autoHighlight: false
+          }
+};
+
+var resource_monitors = [
+    { path: "/com/redhat/Cockpit/CpuMonitor",
+      get: function (s) { return s[0]+s[1]+s[2]; },
+      options: { yaxis: { tickColor: "#e1e6ed",
+                          tickFormatter: function(v) { return v + "%"; }} },
+      ymax_unit: 100
+    },
+    { path: "/com/redhat/Cockpit/MemoryMonitor",
+      get: function (s) { return s[1]+s[2]+s[3]; },
+      options: { yaxis: { tickColor: "#e1e6ed",
+                          tickSize: 1024*1024*256,
+                          tickFormatter:  function (v) { return shell.format_bytes(v); }
+                        }
+               },
+      ymax_unit: 1024*1024*256
+    },
+    { path: "/com/redhat/Cockpit/NetworkMonitor",
+      get: function (s) { return s[0]+s[1]; },
+      options: { yaxis: { tickColor: "#e1e6ed",
+                          tickFormatter:  function (v) { return shell.format_bits_per_sec(v*8); }
+                        }
+               },
+      ymax_min: 100000
+    },
+    { path: "/com/redhat/Cockpit/DiskIOMonitor",
+      get: function (s) { return s[0]+s[1]; },
+      options: { yaxis: { tickColor: "#e1e6ed",
+                          tickFormatter:  function (v) { return shell.format_bytes_per_sec(v); }
+                        }
+               }
+    }
+];
+
 PageDashboard.prototype = {
     _init: function() {
         this.id = "dashboard";
-        this.cpu_plots = [ ];
-        this.local_client = null;
-        this.dbus_clients = [ ];
     },
 
     getTitle: function() {
@@ -33,29 +78,183 @@ PageDashboard.prototype = {
     },
 
     setup: function() {
-        var self = this;
-
-        $('#dashboard-local-reconnect').on('click', function() {
-            if (self.local_client)
-                self.local_client.connect();
+        $('#dashboard-add').click(function () {
+            shell.host_setup();
         });
+        this.plot = shell.plot($('#dashboard-plot'));
     },
 
     enter: function() {
         var self = this;
 
-        /* TODO: This code needs to be migrated away from old dbus */
-        self.local_client = shell.dbus("localhost", { payload: "dbus-json1" });
-        shell.set_watched_client(self.local_client);
-        $(self.local_client).on('objectAdded.dashboard-local objectRemoved.dashboard-local', function (event, object) {
-            if (object.lookup('com.redhat.Cockpit.Machine'))
-                self.update_machines ();
+        var hosts = self.hosts = { };
+
+        $('#dashboard-hosts').empty();
+
+        $(shell.hosts).on("added.dashboard", added);
+        $(shell.hosts).on("removed.dashboard", removed);
+        $(shell.hosts).on("changed.dashboard", changed);
+
+        var current_monitor = parseInt(shell.get_page_param('m'), 10) || 0;
+
+        $('#dashboard .nav-tabs li').click(function () {
+            set_monitor(parseInt($(this).attr('data-monitor-id'), 10));
         });
-        $(self.local_client).on('propertiesChanged.dashboard-local', function (event, object, iface) {
-            if (iface._iface_name == "com.redhat.Cockpit.Machine")
-                self.update_machines ();
+
+        function set_monitor(id) {
+            $('#dashboard .nav-tabs li').removeClass("active");
+            $('#dashboard .nav-tabs li[data-monitor-id=' + id + ']').addClass("active");
+            current_monitor = id;
+            plot_reset();
+            shell.set_page_param('m', id.toString());
+        }
+
+        set_monitor(current_monitor);
+
+        function added (event, addr) {
+            var info = hosts[addr] = { };
+            info.link = $('<a class="list-group-item">').append(
+                $('<button class="btn btn-default" style="float:right">').
+                    text("-").
+                    click(function () {
+                        var h = shell.hosts[addr];
+                        if (h)
+                            h.remove();
+                        return false;
+                    }),
+                info.avatar_img = $('<img width="32" height="32" class="host-avatar">').
+                    attr('src', "images/server-small.png"),
+                info.hostname_span = $('<span>')).
+                click(function () {
+                    var h = shell.hosts[addr];
+                    if (h.state == "failed")
+                        h.show_problem_dialog();
+                    else
+                        cockpit.location.go([ addr, "server" ]);
+                }).
+                mouseenter(function () {
+                    highlight (true);
+                }).
+                mouseleave(function () {
+                    highlight (false);
+                });
+
+            changed (event, addr);
+
+            function highlight(val) {
+                info.link.toggleClass("highlight", val);
+                if (info.plot_series) {
+                    info.plot_series.options.lines.lineWidth = val? 3 : 2;
+                    info.plot_series.move_to_front();
+                    self.plot.refresh();
+                }
+            }
+
+            info.plot_series = plot_add(addr);
+            $(info.plot_series).on('hover', function (event, val) { highlight(val); });
+
+            info.remove = function () {
+                info.link.remove();
+                if (info.plot_series)
+                    info.plot_series.remove();
+            };
+
+            show_hosts();
+        }
+
+        function removed (event, addr) {
+            hosts[addr].remove();
+            delete hosts[addr];
+        }
+
+        function changed (event, addr) {
+            var shell_info = shell.hosts[addr];
+            var dash_info = hosts[addr];
+            dash_info.hostname_span.text(shell_info.display_name);
+            if (shell_info.state == "failed") {
+                dash_info.avatar_img.attr('src', "images/server-error.png");
+                dash_info.avatar_img.
+                    css('border', "none");
+                if (dash_info.plot_series) {
+                    dash_info.plot_series.remove();
+                    dash_info.plot_series = null;
+                }
+            } else {
+                if (shell_info.avatar)
+                    dash_info.avatar_img.attr('src', shell_info.avatar);
+                if (shell_info.color && shell_info.color != dash_info.color) {
+                    dash_info.color = shell_info.color;
+                    dash_info.avatar_img.
+                        css('border-width', 2).
+                        css('border-style', "solid").
+                        css('border-color', shell_info.color);
+                    if (dash_info.plot_series) {
+                        dash_info.plot_series.options.color = shell_info.color;
+                        self.plot.refresh();
+                    }
+                }
+            }
+            show_hosts();
+        }
+
+        function show_hosts() {
+            var sorted_hosts = (Object.keys(hosts).
+                                sort(function (a1, a2) {
+                                    return shell.hosts[a1].compare(shell.hosts[a2]);
+                                }));
+            $('#dashboard-hosts').append(
+                sorted_hosts.map(function (addr) { return hosts[addr].link; }));
+        }
+
+        function plot_add(addr) {
+            var shell_info = shell.hosts[addr];
+
+            if (shell_info.state == "failed")
+                return null;
+
+            return self.plot.add_cockpitd_resource_monitor(shell_info.cockpitd,
+                                                           resource_monitors[current_monitor].path,
+                                                           resource_monitors[current_monitor].get,
+                                                           { color: shell_info.color,
+                                                             lines: {
+                                                                 lineWidth: 2
+                                                             }
+                                                           });
+        }
+
+        function plot_setup_hook(flot) {
+            var axes = flot.getAxes();
+            var config = resource_monitors[current_monitor];
+
+            if (config.ymax_unit)
+                axes.yaxis.options.max = Math.ceil(axes.yaxis.datamax / config.ymax_unit) * config.ymax_unit;
+
+            if (config.ymax_min) {
+                if (axes.yaxis.datamax < config.ymax_min)
+                    axes.yaxis.options.max = config.ymax_min;
+                else
+                    axes.yaxis.options.max = null;
+            }
+
+            axes.yaxis.options.min = 0;
+        }
+
+        function plot_reset() {
+            var options = $.extend({ setup_hook: plot_setup_hook },
+                                   common_plot_options,
+                                   resource_monitors[current_monitor].options);
+            self.plot.reset();
+            self.plot.set_options(options);
+            for (addr in hosts)
+                plot_add(addr);
+        }
+
+        $(cockpit).on('resize.dashboard', function () {
+            self.plot.resize();
         });
-        self.update_machines ();
+
+        for (var addr in shell.hosts)
+            added (null, addr);
 
         self.old_sidebar_state = $('#cockpit-sidebar').is(':visible');
         $('#content-navbar').hide();
@@ -63,235 +262,22 @@ PageDashboard.prototype = {
     },
 
     show: function() {
-        this.start_plots();
+        this.plot.resize();
     },
 
     leave: function() {
-        this.destroy_plots();
-        this.put_clients();
+        var self = this;
 
-        shell.set_watched_client(null);
-        $(this.local_client).off('.dashboard-local');
-        this.local_client.release();
-        this.local_client = null;
+        self.plot.reset();
+
+        for (var addr in self.hosts)
+            self.hosts[addr].remove();
+
+        $(shell.hosts).off(".dashboard");
+        $(cockpit).off('.dashboard');
 
         $('#content-navbar').show();
         $('#cockpit-sidebar').toggle(this.old_sidebar_state);
-    },
-
-    destroy_plots: function () {
-        this.cpu_plots.forEach(function(p) {
-            if (p)
-                p.destroy();
-        });
-        this.cpu_plots = [ ];
-    },
-
-    put_clients: function () {
-        this.dbus_clients.forEach(function (c) {
-            $(c).off('.dashboard');
-            c.release();
-        });
-        this.dbus_clients = [ ];
-    },
-
-    start_plots: function () {
-        this.cpu_plots.forEach(function(p) {
-            if (p)
-                p.start();
-        });
-    },
-
-    update_machines: function () {
-
-        var self = this;
-        var machines = $('#dashboard-machines'), i;
-        var configured_machines = this.local_client.getInterfacesFrom ("/com/redhat/Cockpit/Machines",
-                                                                       "com.redhat.Cockpit.Machine");
-        this.destroy_plots();
-        this.put_clients();
-
-        configured_machines = configured_machines.filter(function (m) {
-            return shell.find_in_array(m.Tags, "dashboard");
-        });
-
-        function machine_action_func (machine) {
-            return function (action) {
-                self.server_action (machine, action);
-            };
-        }
-
-        var machine_action_spec = [
-            { title: _("Connect"),         action: 'connect' },
-            { title: _("Disconnect"),      action: 'disconnect' },
-            { title: _("Remove"),          action: 'remove' }
-        ];
-
-        machines.empty ();
-        for (i = 0; i < configured_machines.length; i++) {
-            var address = configured_machines[i].Address;
-            /* TODO: This code needs to be migrated away from old dbus */
-            var machine = { address: address,
-                            client: shell.dbus(address, { payload: "dbus-json1" }),
-                            dbus_iface: configured_machines[i]
-                          };
-
-            var btn;
-            var table =
-                $('<table/>', { style: "width:100%" }).append(
-                    $('<tr/>').append(
-                        $('<td/>', { 'style': "width:64px;height:64px;vertical-align:top" }).append(
-                            $('<img/>', { 'class': "cockpit-avatar",
-                                          'src': "/cockpit/@@shell@@/images/server-large.png",
-                                          'Width': "64px",
-                                          'style': "border-radius:5px"
-                                        })),
-                        $('<td/>', { 'class': "cockpit-machine-info",
-                                     'style': "vertical-align:top;padding-left:10px" }).
-                            append(
-                                $('<div/>', { 'style': "font-weight:bold" }).text(address),
-                                $('<div/>'),
-                                $('<div/>')),
-                        $('<td/>', { style: "width:200px" }).append(
-                            $('<div/>', { 'class': "cockpit-graph", 'style': "height:50px" }).append(
-                                $('<div/>', { 'class': "cockpit-graph-label" }).
-                                    text(_("CPU")),
-                                $('<div/>', { 'class': "cockpit-graph-text" } ),
-                                $('<div/>', { 'class': "cockpit-graph-plot",
-                                              'style': "width:100%;height:100%" })),
-                            $('<div/>', { 'class': "cockpit-machine-spinner" }).append(
-                                $('<div/>', { 'class': "waiting" })),
-                            $('<div/>', { 'class': "cockpit-machine-error", 'style': "color:red" })),
-                        $('<td/>', { style: "text-align:right;width:180px" }).append(
-                            btn = shell.action_btn(machine_action_func (machine),
-                                                     machine_action_spec).addClass('cockpit-machine-action'))));
-
-            machines.append(
-                $('<a>', { 'class': 'list-group-item' }).
-                    append(table).
-                    click((function (machine, btn) {
-                        return function (event) {
-                            // The click events that open and close
-                            // the action button dropdown bubble up to
-                            // here and we can't seem to stop them
-                            // earlier without breaking the dropdown
-                            // itself.  So we ignore them here.
-                            if (!$.contains(btn[0], event.target)) {
-                                if (machine.client.state == "closed")
-                                    machine.client.connect();
-                                cockpit.location.go([machine.address, "server"]);
-                            }
-                        };
-                    })(machine, btn)));
-            this.dbus_clients[i] = machine.client;
-            $(this.dbus_clients[i]).on('state-change.dashboard', $.proxy(this, "update"));
-        }
-        machines.append('<div class="panel-body" style="text-align:right">' +
-                        '<button class="btn btn-default" id="dashboard-add-server">' + _("Add Host") + '</button>' +
-                        '</div>');
-
-        $("#dashboard-add-server").on('click', $.proxy(this, "add_server"));
-
-        this.update ();
-    },
-
-    update: function () {
-        var self = this;
-
-        $('#dashboard-machines > a').each (function (i, e) {
-            var info_divs = $(e).find('.cockpit-machine-info > div');
-            var action_btn = $(e).find('.cockpit-machine-action');
-            var error_div = $(e).find('.cockpit-machine-error');
-            var spinner_div = $(e).find('.cockpit-machine-spinner');
-            var plot_div = $(e).find('.cockpit-graph');
-            var avatar_img = $(e).find('.cockpit-avatar');
-
-            var client = self.dbus_clients[i];
-
-            if (client.state == "ready") {
-                var manager = client.lookup("/com/redhat/Cockpit/Manager",
-                                            "com.redhat.Cockpit.Manager");
-                if (manager) {
-                    $(info_divs[0]).text(shell.util.hostname_for_display(manager));
-                    $(info_divs[1]).text(manager.System || "--");
-                    $(info_divs[2]).text(manager.OperatingSystem || "--");
-                    manager.call('GetAvatarDataURL', function (error, result) {
-                        if (result)
-                            avatar_img.attr('src', result);
-                    });
-                    $(manager).off('AvatarChanged.dashboard');
-                    $(manager).on('AvatarChanged.dashboard', $.proxy (self, "update"));
-                    $(manager).off('notify.dashboard');
-                    $(manager).on('notify.dashboard', $.proxy (self, "update"));
-                }
-                shell.action_btn_enable(action_btn, 'connect', false);
-                shell.action_btn_enable(action_btn, 'disconnect', true);
-                shell.action_btn_select(action_btn, 'disconnect');
-                error_div.text("");
-                error_div.hide();
-                spinner_div.hide();
-                plot_div.show();
-            } else if (client.state == "closed") {
-                shell.action_btn_enable(action_btn, 'connect', true);
-                shell.action_btn_enable(action_btn, 'disconnect', false);
-                shell.action_btn_select(action_btn, 'connect');
-                error_div.text(shell.client_error_description(client.error) || "Disconnected");
-                error_div.show();
-                spinner_div.hide();
-                plot_div.hide();
-                if (self.cpu_plots[i]) {
-                    self.cpu_plots[i].stop();
-                    self.cpu_plots[i] = null;
-                }
-            } else {
-                error_div.text("");
-                error_div.hide();
-                spinner_div.show();
-                plot_div.hide();
-            }
-
-            if (client.state == "ready" && !self.cpu_plots[i]) {
-                var monitor = client.lookup("/com/redhat/Cockpit/CpuMonitor",
-                                            "com.redhat.Cockpit.ResourceMonitor");
-                var plot_options = { };
-                self.cpu_plots[i] =
-                    shell.setup_simple_plot($(e).find('.cockpit-graph-plot'),
-                                              $(e).find('.cockpit-graph-text'),
-                                              monitor, plot_options,
-                                              function(values) { // Combines the series into a single plot-value
-                                                  return values[1] + values[2] + values[3];
-                                              },
-                                              function(values) { // Combines the series into a textual string
-                                                  var total = values[1] + values[2] + values[3];
-                                                  return total.toFixed(1) + "%";
-                                              });
-                self.cpu_plots[i].start();
-            }
-        });
-
-    },
-
-    server_action: function (machine, op) {
-        if (op == "connect") {
-            machine.client.connect();
-        } else if (op == "disconnect") {
-            machine.client.close();
-        } else if (op == "remove") {
-            if (!shell.check_admin(this.local_client))
-                return;
-            machine.dbus_iface.call('RemoveTag', "dashboard", function (error) {
-                if (error)
-                    shell.show_unexpected_error(error);
-            });
-        } else
-            console.log ("unsupported server op %s", op);
-    },
-
-    add_server: function () {
-        if (!shell.check_admin(this.local_client))
-            return;
-
-        $('#dashboard_setup_server_dialog').modal('show');
     }
 };
 

@@ -116,7 +116,40 @@
     <div id="content">
 
       <div id="dashboard" class="container-fluid">
-        <div class="list-group" id="dashboard-machines">
+        <div class="row">
+          <div class="col-md-12">
+            <ul class="nav nav-tabs">
+              <li data-monitor-id="0"><a>CPU</a></li>
+              <li data-monitor-id="1"><a>Memory</a></li>
+              <li data-monitor-id="2"><a>Network</a></li>
+              <li data-monitor-id="3"><a>Disk I/O</a></li>
+            </ul>
+            <br>
+            <div id="dashboard-plot" style="height:250px"></div>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <button class="btn btn-primary" style="float:right" id="dashboard-add">+</button>
+                <span>Servers</span>
+              </div>
+              <div class="list-group" id="dashboard-hosts">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="panel panel-default cockpit-log-panel">
+              <div class="panel-heading">
+                Events
+              </div>
+              <div class="panel-body">
+                <div class="cockpit-logline">(Coming soon...)</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

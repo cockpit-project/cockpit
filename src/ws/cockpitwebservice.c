@@ -61,21 +61,9 @@ guint cockpit_ws_ping_interval = 5;
 
 gint cockpit_ws_session_timeout = 30;
 
-/*
- * How to use:
- *
- * bytes = build_control ("command", "open",
- *                        "name", "value",
- *                        "blah", NULL, // not set
- *                        "another", "test",
- *                        BUILD_INTS,   // ints follow
- *                        "version", 5,
- *                        NULL);
- */
+static JsonObject * build_json    (const gchar *name, ...) G_GNUC_NULL_TERMINATED;
 
-#define BUILD_INTS GINT_TO_POINTER (1)
-
-static GBytes *   build_control (const gchar *name, ...) G_GNUC_NULL_TERMINATED;
+static GBytes *     build_control (const gchar *name, ...) G_GNUC_NULL_TERMINATED;
 
 /* ----------------------------------------------------------------------------
  * CockpitSession
@@ -235,6 +223,7 @@ cockpit_session_track (CockpitSessions *sessions,
                        CockpitTransport *transport)
 {
   CockpitSession *session;
+  JsonObject *object;
   GBytes *command;
 
   g_debug ("%s: new session", host);
@@ -254,10 +243,11 @@ cockpit_session_track (CockpitSessions *sessions,
   g_hash_table_insert (sessions->by_transport, transport, session);
 
   /* Always send an init message down the new transport */
-  command = build_control ("command", "init",
-                           BUILD_INTS,
-                           "version", 0,
-                           NULL);
+  object = build_json ("command", "init", NULL);
+  json_object_set_int_member (object, "version", 0);
+  command = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+
   cockpit_transport_send (transport, NULL, command);
   g_bytes_unref (command);
 
@@ -495,41 +485,50 @@ cockpit_web_service_finalize (GObject *object)
   G_OBJECT_CLASS (cockpit_web_service_parent_class)->finalize (object);
 }
 
+static JsonObject *
+build_json_va (const gchar *name,
+               va_list va)
+{
+  JsonObject *object;
+  const gchar *value;
+
+  object = json_object_new ();
+
+  while (name)
+    {
+      value = va_arg (va, const gchar *);
+      if (value)
+        json_object_set_string_member (object, name, value);
+      name = va_arg (va, const gchar *);
+    }
+
+  return object;
+}
+
+static JsonObject *
+build_json (const gchar *name,
+            ...)
+{
+  JsonObject *object;
+  va_list va;
+
+  va_start (va, name);
+  object = build_json_va (name, va);
+  va_end (va);
+
+  return object;
+}
+
 static GBytes *
 build_control (const gchar *name,
                ...)
 {
-  gboolean strings = TRUE;
   JsonObject *object;
   GBytes *message;
-  const gchar *value;
-  gint number;
   va_list va;
 
-  object = json_object_new ();
-
   va_start (va, name);
-  while (name)
-    {
-      if (strings)
-        {
-          value = va_arg (va, const gchar *);
-          if (value)
-            json_object_set_string_member (object, name, value);
-        }
-      else
-        {
-          number = va_arg (va, gint);
-          json_object_set_int_member (object, name, number);
-        }
-      name = va_arg (va, const gchar *);
-      if (name == BUILD_INTS)
-        {
-          g_assert (strings == TRUE);
-          strings = FALSE;
-          name = va_arg (va, const gchar *);
-        }
-    }
+  object = build_json_va (name, va);
   va_end (va);
 
   message = cockpit_json_write_bytes (object);

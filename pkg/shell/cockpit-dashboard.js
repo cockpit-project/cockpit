@@ -123,7 +123,7 @@ PageDashboard.prototype = {
         function added (event, addr) {
             var info = hosts[addr] = { };
             info.link = $('<a class="list-group-item">').append(
-                $('<button class="btn btn-default edit-button" style="float:right">').
+                $('<button class="btn btn-danger edit-button" style="float:right">').
                     toggle(self.edit_enabled).
                     text("-").
                     click(function () {

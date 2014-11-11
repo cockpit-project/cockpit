@@ -2756,6 +2756,37 @@
       </div>
     </div>
 
+    <div class="modal" id="change-avatar-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change Picture</h4>
+          </div>
+          <div class="modal-body">
+            <input data-role="none" type="file"
+                   id="change-avatar-file-input" style="display:none"/>
+            <center>
+              <div style="position:relative;width:256px;height:256px">
+                <canvas id="change-avatar-canvas"></canvas>
+                <canvas id="change-avatar-overlay"
+                        style="position:absolute;top:0px;left:0px;z-index:10"></canvas>
+              </div>
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" id="change-avatar-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="change-avatar-apply">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="cockpit-deauthorize-status" style="display: none;"></div>
 
   </body>

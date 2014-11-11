@@ -5,6 +5,7 @@ shell_js_PARTS = \
 	pkg/shell/debug.js \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
+	pkg/shell/avatar.js \
 	pkg/shell/cockpit-util.js \
 	pkg/shell/cockpit-main.js \
 	pkg/shell/cockpit-plot.js \

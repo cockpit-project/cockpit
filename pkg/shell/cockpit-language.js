@@ -20,58 +20,42 @@
 var shell = shell || { };
 (function($, cockpit, shell) {
 
+/*
+ * Note that we don't go ahead and load all the po files in order
+ * to produce this list. Perhaps we would include it somewhere in a
+ * separate automatically generated file. Need to see.
+ */
+var names = {
+    "da": "Dansk",
+    "de": "Deutsch",
+    "en": "English"
+};
+
 PageDisplayLanguageDialog.prototype = {
     _init: function() {
         this.id = "display-language-dialog";
     },
 
     enter: function() {
-        // Note: we may not have D-Bus connection available (could be invoked from
-        // the login page) so we need to use the cockpitdyn.js mechanism to obtain
-        // info to display
-
-        var list = $("#display-language-list");
-        var code;
-        list.empty();
-        /* TODO: This needs to be reworked */
-        var languages = { };
-        for (code in languages) {
-            var info = languages[code];
-            var name = info.name;
-            var display_name = shell.i18n(name, "display-language");
-            if (code == shell.language_code)
-                list.append("<option selected=\"true\" value=\"" + code + "\">" + display_name + "</option>");
-            else
-                list.append("<option value=\"" + code + "\">" + display_name + "</option>");
-        }
+        $("#display-language-list").empty();
+        cockpit.packages.lookup("shell").
+            done(function(pkg) {
+                $.each(pkg.manifest.linguas, function(i, code) {
+                    var name = names[code] || code;
+                    var $el = $("<option>").text(name).val(code);
+                    if (code == shell.language_code)
+                        $el.attr("selected", "true");
+                    $("#display-language-list").append($el);
+                });
+            }).
+            fail(function(ex) {
+                console.warn("Couldn't load languages: " + ex);
+            });
 
         $("#display-language-select-button").on("click", function(event) {
-            var code_to_select = list.val();
-
-            // Load via AJAX
-            if (code_to_select) {
-                var jqxhr = $.getJSON("lang/" + code_to_select + ".json");
-                jqxhr.error(function() {
-                    shell.show_error_dialog("Error loading language \"" + code_to_select + "\"");
-                });
-                jqxhr.success(function(data) {
-                    shell.language_code = code_to_select;
-                    shell.language_po = data[code_to_select];
-                    $('#display-language-dialog').modal('hide');
-                    // Cool, that worked, update setting
-                    localStorage.setItem("lang-code", code_to_select);
-                    shell.localize_pages();
-                });
-            } else {
-                // English
-                shell.language_code = "";
-                shell.language_po = null;
-                // update setting
-                localStorage.removeItem("lang-code");
-                $('#display-language-dialog').modal('hide');
-                shell.localize_pages();
-            }
-
+            var code_to_select = $("#display-language-list").val();
+            document.cookie = "cockpitlang=" + code_to_select;
+            window.location.reload(true);
             return false;
         });
     },

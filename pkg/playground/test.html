@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Cockpit terminal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../@@latest@@/jquery.js"></script>
     <script src="../@@latest@@/cockpit.js"></script>
 </head>
 <body>
@@ -18,9 +18,22 @@
             <button class="btn btn-default">Priveleged Action</button>
             <span></span>
         </div>
+        <p>Translated text: <span translatable="yes">Networking</span></p>
+        <p>On the fly: <span id="translation"></span> <span id="reverse"></span></p>
     </div>
 <script>
-(function(cockpit, $) {
+require([
+    'jquery',
+    'cockpit/latest/cockpit',
+    'cockpit/playground/po'
+], function($, cockpit, po) {
+    var loc = cockpit.locale(po);
+    var _ = loc.gettext;
+    var C_ = loc.gettext;
+
+    $("#translation").text(_("Translation"));
+    $("#reverse").text(C_("reverse", "Translation"));
+
     $(".cockpit-internal-reauthorize .btn").on("click", function() {
          $(".cockpit-internal-reauthorize span").text("checking...");
          var cmd = "pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1";
@@ -63,7 +76,7 @@
         cockpit.location.go(cockpit.location.path.concat(len.toString()), { length: len.toString() });
     });
 
-}(cockpit, jQuery));
+});
 </script>
 </body>
 </html>

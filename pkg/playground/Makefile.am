@@ -3,6 +3,8 @@ playground_DATA = \
 	pkg/playground/test.html \
 	pkg/playground/manifest.json \
 	pkg/playground/hammer.gif \
+	pkg/playground/po.de.js \
+	pkg/playground/po.en.js \
 	$(NULL)
 
 noinst_DATA += \

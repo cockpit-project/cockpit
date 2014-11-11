@@ -20,11 +20,9 @@
 /* MAIN
 
    - shell.language_code
-   - shell.language_po
 
    Information about the selected display language.  'language_code'
    contains the symbol identifying the language, such as "de" or "fi".
-   'language_po' is a dictionary with the actual translations.
 
    - client = shell.dbus(address, [options])
    - client.release()
@@ -55,6 +53,10 @@ var shell = shell || { };
 
 (function($, cockpit, shell) {
 
+shell.language_code = null;
+shell.pages = [];
+shell.dialogs = [];
+
 var visited_dialogs = {};
 
 shell.dbus = dbus;
@@ -70,57 +72,23 @@ function maybe_init() {
 }
 
 function init() {
-    shell.language_code = "";
-    shell.language_po = null;
-
-    var lang_code = null;
-    var language, language_normalized, code, code_normalized;
-
-    // First load translations, if any... first, check browser storage
-    lang_code = localStorage.getItem("lang-code");
-
-    // If that didn't work, try inferring from whatever language the
-    // browser is using... this is a language code from RFC4646, see
-    // http://tools.ietf.org/html/rfc4646
-    if (!lang_code) {
-        language = window.navigator.userLanguage || window.navigator.language;
-        language_normalized = language.toLowerCase().replace("_", "-");
-        /* TODO: Get the list of languages from packages */
-        for (code in { }) {
-            if (code.length > 0) {
-                code_normalized = code.toLowerCase().replace("_", "-");
-                if (language_normalized.indexOf(code_normalized) === 0) {
-                    lang_code = code;
-                }
-            }
-        }
-    }
-
-    if (lang_code) {
-        init_load_lang(lang_code);
-    } else {
-        init_done();
-    }
-}
-
-function init_load_lang(lang_code) {
-    var jqxhr = $.getJSON("lang/" + lang_code + ".json");
-    jqxhr.error(function() {
-        console.warn("Error loading language \"" + lang_code + "\"");
-        init_done();
-    });
-    jqxhr.success(function(data) {
-        shell.language_code = lang_code;
-        shell.language_po = data[lang_code];
-        init_done();
-    });
-}
-
-function init_done() {
     content_init();
-    shell.localize_pages();
     content_show();
 }
+
+/*
+ * TODO: Translations are disabled in the shell for now.
+ * But we still want to know the language code, so load the locale po
+ */
+
+var locale = cockpit.locale({ }, false);
+require(["cockpit/latest/po"], function(po) {
+    shell.language_code = (po[""] ? po[""]["language"] : null);
+});
+shell.i18n = function i18n(string, context) {
+    return string;
+};
+
 
 var dbus_clients = shell.util.make_resource_cache();
 
@@ -152,10 +120,6 @@ function set_watched_client(client) {
     $(watched_client).on('state-change.client-watcher', update);
     update ();
 }
-
-shell.pages = [];
-
-shell.dialogs = [];
 
 /* current_params are the navigation parameters of the current page,
  * for example:
@@ -995,3 +959,18 @@ $(function() {
 });
 
 })(jQuery, cockpit, shell);
+
+function F(format, args) {
+    return format.replace(/%\{([^}]+)\}/g, function(_, key) { return args[key] || ""; });
+}
+
+function N_(str) {
+    return str;
+}
+function _(string) {
+    return shell.i18n(string);
+}
+
+function C_(context, string) {
+    return shell.i18n(string, context);
+}

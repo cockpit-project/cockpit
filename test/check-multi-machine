@@ -44,40 +44,29 @@ def inject_extras(browser):
       }
       return null;
     }
+    dashboard_addresses = function () {
+      var page = legacy_page_from_id('dashboard');
+      var addresses = Object.keys(page.hosts);
+      addresses.sort(function (a1, a2) { return shell.hosts[a1].compare(shell.hosts[a2]); });
+      return addresses;
+    }
     """)
 
 def get_webapp_machines(browser):
     wm = { }
-    cockpit = browser.eval_js("return legacy_page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
+    cockpit = browser.eval_js("return dashboard_addresses();")
     for i in range (0, len(cockpit)):
         wm[cockpit[i]] = i;
     return wm
 
-def machine_selector(machine):
-    return '#dashboard-machines a:nth-child(%d)' % (machine+1)
-
-def action_btn_selector(machine):
-    return machine_selector(machine) + ' .cockpit-machine-action'
-
-def graph_selector(machine):
-    return machine_selector(machine) + ' .cockpit-graph'
-
-def hostname_selector(machine):
-    return machine_selector(machine) + ' .cockpit-machine-info > div:nth-child(1)'
-
-def machine_error_selector(machine):
-    return machine_selector(machine) + ' .cockpit-machine-error'
-
 def wait_dashboard_addresses(b, expected):
     b.wait_js_func(
         """(function (expected) {
-        var page = legacy_page_from_id('dashboard');
-        var actual = page.dbus_clients.map(function (c) { return c.target });
-        return expected.sort().toString() == actual.sort().toString();
+        return expected.sort().toString() == dashboard_addresses().sort().toString();
         })""", expected)
 
 def add_machine(b, address):
-    b.click('#dashboard-add-server')
+    b.click('#dashboard-add')
     b.wait_popup('dashboard_setup_server_dialog')
     b.set_val('#dashboard_setup_address', address)
     b.wait_text('#dashboard_setup_next', "Next")
@@ -131,9 +120,9 @@ class TestMultiMachine(MachineCase):
         wait_dashboard_addresses (b, [ "localhost", m2.address, m3.address ])
 
         wm = get_webapp_machines(b)
-        m1_index = wm["localhost"]
-        m2_index = wm[m2.address]
-        m3_index = wm[m3.address]
+        m1_index = wm["localhost"]+1
+        m2_index = wm[m2.address]+1
+        m3_index = wm[m3.address]+1
 
         # TODO: The concrete error message when killing the bridge and
         # session is not predictable.  So we just wait for any error
@@ -143,20 +132,24 @@ class TestMultiMachine(MachineCase):
         # https://github.com/cockpit-project/cockpit/issues/606
 
         kill_user_admin(m2)
-        b.wait_visible(machine_error_selector(m2_index))
-        print "Error for m2: %s" % b.text(machine_error_selector(m2_index))
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', 'images/server-error.png')
 
         kill_user_admin(m3)
-        b.wait_visible(machine_error_selector(m3_index))
-        print "Error for m3: %s" % b.text(machine_error_selector(m3_index))
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m3_index, 'src', 'images/server-error.png')
 
-        b.wait_action_btn (action_btn_selector (m2_index), "Connect")
-        b.click_action_btn (action_btn_selector (m2_index))
-        b.wait_visible (graph_selector (m2_index))
+        b.click('#dashboard-hosts a:nth-child(%d)' % m2_index)
+        b.wait_popup('reconnect-dialog')
+        print b.text('#reconnect-dialog-problem')
+        b.click('#reconnect-dialog-reconnect')
+        b.wait_popdown('reconnect-dialog')
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m2_index, 'src', 'images/server-small.png')
 
-        b.wait_action_btn (action_btn_selector (m3_index), "Connect")
-        b.click_action_btn (action_btn_selector (m3_index))
-        b.wait_visible (graph_selector (m3_index))
+        b.click('#dashboard-hosts a:nth-child(%d)' % m3_index)
+        b.wait_popup('reconnect-dialog')
+        print b.text('#reconnect-dialog-problem')
+        b.click('#reconnect-dialog-reconnect')
+        b.wait_popdown('reconnect-dialog')
+        b.wait_attr('#dashboard-hosts a:nth-child(%d) img' % m3_index, 'src', 'images/server-small.png')
 
         self.allow_restart_journal_messages()
         self.allow_journal_messages(".*: .* host key for server is not known: .*",

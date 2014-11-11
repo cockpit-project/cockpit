@@ -288,17 +288,80 @@ function check_admin() {
     return true;
 }
 
-/* Information for each host, keyed by address.  This is an object
- * with at least these fields:
+/* Information for each host, keyed by address.  hosts[addr] is an
+ * object with at least these fields:
  *
  * - display_name
+ * - avatar
+ * - color
+ * - state
+ * - problem
+ * - cockpitd
+ * - compare(other_host_object)
+ * - set_avatar(avatar)
+ * - set_color(color)
+ * - reconnect()
+ * - show_problem_dialog()
  * - set_active()
+ * - remove()
+ *
+ * $(shell.hosts).on("added" "removed" "changed", function (addr) { });
  */
-var host_info = { };
+shell.hosts = { };
+
+shell.host_setup = function host_setup() {
+    if (!check_admin())
+        return;
+
+    $('#dashboard_setup_server_dialog').modal('show');
+};
 
 function hosts_init() {
 
+    var host_info = shell.hosts;
     var host_proxies;
+
+    var host_colors = [
+        "#0099d3",
+        "#67d300",
+        "#d39e00",
+        "#d3007c",
+        "#00d39f",
+        "#00d1d3",
+        "#00618a",
+        "#4c8a00",
+        "#8a6600",
+        "#9b005b",
+        "#008a55",
+        "#008a8a",
+        "#00b9ff",
+        "#7dff00",
+        "#ffbe00",
+        "#ff0096",
+        "#00ffc0",
+        "#00fdff",
+        "#023448",
+        "#264802",
+        "#483602",
+        "#590034",
+        "#024830",
+        "#024848"
+    ];
+
+    function pick_color() {
+        for (var i = 0; i < host_colors.length; i++) {
+            var found = false;
+            for (var addr in host_info) {
+                if (host_info[addr].color == host_colors[i]) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                return host_colors[i];
+        }
+        return "grey";
+    }
 
     function update() {
         var want = { };
@@ -306,14 +369,17 @@ function hosts_init() {
             var h = host_proxies[path];
             if (shell.find_in_array(h.Tags, "dashboard")) {
                 want[h.Address] = h;
-                if (!host_info[h.Address])
-                    add_host(h.Address);
+                if (!host_info[h.Address]) {
+                    add_host(h.Address, h);
+                    $(shell.hosts).trigger('added', [ h.Address ]);
+                }
             }
         }
         for (var addr in host_info) {
             if (!want[addr]) {
-                host_info[addr].remove();
+                host_info[addr]._removed();
                 delete host_info[addr];
+                $(shell.hosts).trigger('removed', [ addr ]);
             }
         }
     }
@@ -326,7 +392,7 @@ function hosts_init() {
         }
     }
 
-    function add_host(addr) {
+    function add_host(addr, proxy) {
         var client = cockpit.dbus("com.redhat.Cockpit", { host: addr });
         var manager = client.proxy("com.redhat.Cockpit.Manager",
                                    "/com/redhat/Cockpit/Manager");
@@ -334,36 +400,72 @@ function hosts_init() {
         var link, hostname_span, avatar_img;
 
         var info = { display_name: addr,
+                     avatar: "",
+                     color: null,
+                     state: "connecting",
+                     cockpitd: client,
+                     compare: compare,
+                     set_avatar: set_avatar,
+                     set_color: set_color,
+                     reconnect: reconnect,
+                     show_problem_dialog: show_problem_dialog,
                      set_active: set_active,
-                     remove: remove
+                     remove: remove,
+
+                     _removed: _removed
                    };
 
-        link = $('<a class="list-group-item">').
+        function compare(other) {
+            return info.display_name.localeCompare(other.display_name);
+        }
+
+        function remove() {
+            if (proxy.RemoveTag) {
+                proxy.RemoveTag("dashboard").
+                    fail(function (error) {
+                        cockpit.show_unexpected_error(error);
+                    });
+            }
+        }
+
+        link = info._element = $('<a class="list-group-item">').
             append(
                 avatar_img = $('<img width="32" height="32" class="host-avatar">').
                     attr('src', "images/server-small.png"),
                 hostname_span = $('<span>').
                     text(addr)).
             click(function () {
-                remember_last_params();
-                cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]), info.last_options);
+                if (info.state == "failed")
+                    show_problem_dialog();
+                else {
+                    remember_last_params();
+                    cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]), info.last_options);
+                }
             });
 
-        $('#hosts').append(link);
-
-        function update() {
+        function update_hostname() {
             info.display_name = shell.util.hostname_for_display(manager);
             hostname_span.text(info.display_name);
+            if (manager.Hostcolor)
+                info.color = manager.Hostcolor;
+            else if (!info.color)
+                info.color = pick_color();
+            update_global_nav();
+            show_hosts();
+            $(shell.hosts).trigger('changed', [ addr ]);
+        }
 
+        function update_avatar() {
             if (manager.GetAvatarDataURL) {
                 manager.GetAvatarDataURL().
                     done(function (result) {
-                        if (result)
+                        if (result) {
+                            info.avatar = result;
                             avatar_img.attr('src', result);
+                            $(shell.hosts).trigger('changed', [ addr ]);
+                        }
                     });
             }
-
-            update_global_nav();
         }
 
         function set_active() {
@@ -371,7 +473,40 @@ function hosts_init() {
             link.addClass("active");
         }
 
-        function remove() {
+        function set_avatar(data) {
+            console.log(data);
+            manager.SetAvatarDataURL(data);
+        }
+
+        function set_color(color) {
+            /* TODO: Make permanent
+             */
+            info.color = color;
+            $(shell.hosts).trigger('changed', [ addr ]);
+        }
+
+        function reconnect() {
+            _removed();
+            delete host_info[addr];
+            $(shell.hosts).trigger('removed', [ addr ]);
+            add_host(addr, proxy);
+            $(shell.hosts).trigger('added', [ addr ]);
+        }
+
+        function show_problem_dialog() {
+            $('#reconnect-dialog-summary').text(
+                F(_("Couldn't establish connection to %{name}."), { name: info.display_name }));
+            $('#reconnect-dialog-problem').text(
+                shell.client_error_description(info.problem));
+            $('#reconnect-dialog-reconnect').off('click');
+            $('#reconnect-dialog-reconnect').on('click', function () {
+                $('#reconnect-dialog').modal('hide');
+                reconnect();
+            });
+            $('#reconnect-dialog').modal('show');
+        }
+
+        function _removed() {
             link.remove();
             $(manager).off('.hosts');
             client.close();
@@ -379,38 +514,54 @@ function hosts_init() {
 
         host_info[addr] = info;
 
-        manager.wait(function () {
-            $(manager).on('changed.hosts', function (event, props) {
-                if ("PrettyHostname" in props || "StaticHostname" in props)
-                    update();
-            });
-            $(manager).on('AvatarChanged.hosts', update);
-            update();
+        $(client).on("close", function (event, problem) {
+            info.state = "failed";
+            info.problem = problem;
+            avatar_img.attr('src', "images/server-error.png");
+            $(shell.hosts).trigger('changed', [ addr ]);
         });
+
+        manager.wait(function () {
+            if (manager.valid) {
+                info.state = "connected";
+                $(manager).on('changed.hosts', function (event, props) {
+                    if ("PrettyHostname" in props || "StaticHostname" in props)
+                        update_hostname();
+                });
+                $(manager).on('AvatarChanged.hosts', update_avatar);
+                update_hostname();
+                update_avatar();
+            }
+        });
+
+        show_hosts();
     }
 
-    function host_setup() {
-        if (!check_admin())
-            return;
+    var all_hosts = $('<a class="list-group-item">').
+        append(
+            $('<button class="btn btn-primary" style="float:right">').
+                text("+").
+                click(function () {
+                    shell.host_setup();
+                    return false;
+                }),
+            $('<span>').
+                text("All Servers")).
+        click(function () {
+            remember_last_params();
+            cockpit.location.go([]);
+        });
 
-        $('#dashboard_setup_server_dialog').modal('show');
+    function show_hosts() {
+        var sorted_hosts = (Object.keys(host_info).
+                            map(function (addr) { return host_info[addr]; }).
+                            sort(function (h1, h2) {
+                                return h1.compare(h2);
+                            }));
+        $('#hosts').append(
+            all_hosts,
+            sorted_hosts.map(function (h) { return h._element; }));
     }
-
-    $('#hosts').append(
-        $('<a class="list-group-item">').
-            append(
-                $('<button class="btn btn-primary" style="float:right">').
-                    text("+").
-                    click(function () {
-                        host_setup();
-                        return false;
-                    }),
-                $('<span>').
-                    text("All Servers")).
-            click(function () {
-                remember_last_params();
-                cockpit.location.go([]);
-            }));
 
     $('#hosts-button').click(function () {
         $('#cockpit-sidebar').toggle();
@@ -435,7 +586,7 @@ function update_global_nav() {
     var hostname = null;
     var page_title = null;
 
-    info = host_info[current_params.host];
+    info = shell.hosts[current_params.host];
     if (info) {
         hostname = info.display_name;
         info.set_active();

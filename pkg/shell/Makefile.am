@@ -8,6 +8,8 @@ shell_js_PARTS = \
 	pkg/shell/rest.js \
 	pkg/shell/debug.js \
 	pkg/shell/controls.js \
+	pkg/shell/plot.js \
+	pkg/shell/canvas.js \
 	pkg/shell/cockpit-util.js \
 	pkg/shell/cockpit-i18n.js \
 	pkg/shell/cockpit-main.js \
@@ -69,6 +71,7 @@ shellimages_DATA = \
 	pkg/shell/images/avatar-default-128.png \
 	pkg/shell/images/server-large.png \
 	pkg/shell/images/server-small.png \
+	pkg/shell/images/server-error.png \
 	pkg/shell/images/dialog-error.png \
 	pkg/shell/images/face-smile.png \
 	pkg/shell/images/storage-disk.png \

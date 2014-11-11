@@ -1670,13 +1670,12 @@ function full_scope(cockpit, $) {
     }
 
     function ensure_module(module, seen) {
-        if (module.id)
-            seen.push(module.id);
-
-        /* Already have a value for this module */
         if (module.ready)
             return [ module.exports ];
 
+        if (module.id)
+            seen.push(module.id);
+ 
         /* The number of arguments required? */
         var number = module.factory.length;
 
@@ -1684,6 +1683,8 @@ function full_scope(cockpit, $) {
         var args = ensure_dependencies(module, module.dependencies, number, seen, true);
         if (args === null) {
             loader.waiting.push(module);
+            if (module.id)
+                seen.pop();
             return null;
         }
 

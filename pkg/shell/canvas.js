@@ -25,22 +25,34 @@ var shell = shell || { };
  *
  * - editor = shell.image_editor(element, width, height)
  *
- * - editor.load_data(data)
+ * - editor.load_data(data).done(...).fail(...)
  *
- * - editor.get_data()
+ * - editor.select_file().done(...).fail(...)
+ *
+ * - editor.get_data(width, height)
+ *
+ * - editor.changed
+ *
+ * - editor.start_crop()
  */
 
 shell.image_editor = function image_editor(element, width, height) {
     var self = {
-        load_data: load_data
+        load_data: load_data,
+        get_data: get_data,
+        start_cropping: start_cropping,
+        stop_cropping: stop_cropping,
+        select_file: select_file,
+        changed: false
     };
 
     var square_size = Math.min (width, height);
-    var $image_canvas, $overlay_canvas;
+    var crop_handle_width = 20;
+
+    var $image_canvas, $overlay_canvas, $file_input;
     var image_canvas, overlay_canvas;
     var image_2d, overlay_2d;
 
-    var crop_handle_width = 20;
 
     function setup() {
         element.empty().
@@ -54,6 +66,9 @@ shell.image_editor = function image_editor(element, width, height) {
                     css('top', 0).
                     css('left', 0).
                     css('z-index', 10));
+        $('body').append(
+            $file_input = $('<input data-role="none" type="file">').hide());
+
         image_canvas = $image_canvas[0];
         image_2d = image_canvas.getContext("2d");
         overlay_canvas = $overlay_canvas[0];
@@ -61,11 +76,23 @@ shell.image_editor = function image_editor(element, width, height) {
         image_canvas.width = overlay_canvas.width = width;
         image_canvas.height = overlay_canvas.height = height;
 
+        $file_input.on('change', load_file);
+    }
+
+    var cropping = false;
+    var crop_x, crop_y, crop_s;
+
+    function start_cropping() {
+        cropping = true;
         set_crop ((width - square_size) / 2, (height - square_size) / 2, square_size, true);
         $overlay_canvas.on('mousedown', mousedown);
     }
 
-    var crop_x, crop_y, crop_s;
+    function stop_cropping() {
+        cropping = false;
+        overlay_2d.clearRect(0, 0, width, height);
+        $overlay_canvas.off('mousedown', mousedown);
+    }
 
     function set_crop(x, y, s, fix) {
         function clamp (low, val, high) {
@@ -172,6 +199,7 @@ shell.image_editor = function image_editor(element, width, height) {
                     var d = Math.floor((x - orig_x + proj_sign * (y - orig_y)) / 2);
                     set_crop (orig_x + dx_sign*d, orig_y + dy_sign*d, orig_s + ds_sign*d, false);
                 }
+                self.changed = true;
             }
 
             function mouseup(ev) {
@@ -185,15 +213,75 @@ shell.image_editor = function image_editor(element, width, height) {
     }
 
     function load_data(data) {
+        var dfd = $.Deferred();
         var img = new window.Image();
         img.onerror = function () {
-            console.log("failed to load image into canvas");
+            dfd.reject();
         };
         img.onload = function () {
             image_2d.clearRect(0, 0, width, height);
             image_2d.drawImage(img, 0, 0, width, height);
+            dfd.resolve();
         };
         img.src = data;
+        return dfd.promise();
+    }
+
+    function get_data(width, height, format) {
+        var dest = $('<canvas/>')[0];
+        dest.width = width;
+        dest.height = height;
+        var ctxt = dest.getContext("2d");
+        if (cropping) {
+            ctxt.drawImage (image_canvas,
+                            crop_x, crop_y, crop_s, crop_s,
+                            0, 0, width, height);
+        } else {
+            ctxt.drawImage (image_canvas,
+                            0, 0, square_size, square_size,
+                            0, 0, width, height);
+        }
+        return dest.toDataURL(format);
+    }
+
+    var select_dfd;
+
+    function load_file()
+    {
+        var files, file, reader;
+        files = $file_input[0].files;
+        if (files.length != 1) {
+            select_dfd.reject();
+            return;
+        }
+        file = files[0];
+        if (!file.type.match("image.*")) {
+            select_dfd.reject();
+            return;
+        }
+        reader = new window.FileReader();
+        reader.onerror = function () {
+            select_dfd.reject();
+        };
+        reader.onload = function () {
+            load_data(reader.result).
+                done(function () {
+                    select_dfd.resolve();
+                }).
+                fail(function () {
+                    select_dfd.reject();
+                });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function select_file() {
+        select_dfd = $.Deferred();
+        if (window.File && window.FileReader)
+            $file_input.trigger('click');
+        else
+            select_dfd.reject();
+        return select_dfd.promise();
     }
 
     setup();

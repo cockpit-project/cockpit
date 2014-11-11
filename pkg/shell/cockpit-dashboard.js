@@ -81,14 +81,96 @@ var resource_monitors = [
 var avatar_editor;
 
 $(function () {
+    var colors = [
+        "#0099d3",
+        "#67d300",
+        "#d39e00",
+        "#d3007c",
+        "#00d39f",
+        "#00d1d3",
+        "#00618a",
+        "#4c8a00",
+        "#8a6600",
+        "#9b005b",
+        "#008a55",
+        "#008a8a",
+        "#00b9ff",
+        "#7dff00",
+        "#ffbe00",
+        "#ff0096",
+        "#00ffc0",
+        "#00fdff",
+        "#023448",
+        "#264802",
+        "#483602",
+        "#590034",
+        "#024830",
+        "#024848"
+    ];
+
+    var rows = [ ];
+    while (colors.length > 0) {
+        var part = colors.splice(0, 6);
+        rows.push(
+            $('<div>').
+                append(
+                    part.map(function (c) {
+                        return $('<div class="color-cell">').
+                            css('background-color', c);
+                    })));
+    }
+
+    $('#host-edit-color-popover .popover-content').append(rows);
+    $('#host-edit-color-popover .popover-content .color-cell').click(function () {
+        $('#host-edit-color').css('background-color', $(this).css('background-color'));
+        $('#host-edit-color-popover').hide();
+    });
+
     avatar_editor = shell.image_editor($('#host-edit-avatar'), 256, 256);
+    $('#host-edit-color').click(function () {
+        var $div = $('#host-edit-color');
+        var $pop = $('#host-edit-color-popover');
+        var div_pos = $div.position();
+        var div_width = $div.width();
+        var div_height = $div.height();
+        var pop_width = $pop.width();
+        var pop_height = $pop.height();
+
+        $('#host-edit-color-popover').css('left', div_pos.left + (div_width - pop_width) / 2);
+        $('#host-edit-color-popover').css('top', div_pos.top - pop_height + 10);
+        $('#host-edit-color-popover').toggle();
+    });
 });
 
 function host_edit_dialog(addr) {
     var info = shell.hosts[addr];
-    avatar_editor.load_data(info.avatar);
-    $('#host-edit-color').css('background', info.color);
+
+    $('#host-edit-fail').text("").hide();
+    $('#host-edit-color').css('background-color', info.color);
+    $('#host-edit-apply').off('click');
+    $('#host-edit-apply').on('click', function () {
+        if (avatar_editor.changed)
+            info.set_avatar(avatar_editor.get_data(128, 128, "image/png"));
+        info.set_color($('#host-edit-color').css('background-color'));
+        $('#host-edit-dialog').modal('hide');
+    });
+    $('#host-edit-avatar').off('click');
+    $('#host-edit-avatar').on('click', function () {
+        $('#host-edit-fail').text("").hide();
+        avatar_editor.select_file().
+            done(function () {
+                $('#host-edit-avatar').off('click');
+                avatar_editor.changed = true;
+                avatar_editor.start_cropping();
+            });
+    });
     $('#host-edit-dialog').modal('show');
+
+    avatar_editor.stop_cropping();
+    avatar_editor.load_data(info.avatar || "images/server-small.png").
+        fail(function () {
+            $('#host-edit-fail').text("Can't load image").show();
+        });
 }
 
 PageDashboard.prototype = {

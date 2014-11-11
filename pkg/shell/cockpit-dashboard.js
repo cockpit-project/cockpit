@@ -88,8 +88,15 @@ PageDashboard.prototype = {
     },
 
     setup: function() {
+        var self = this;
+
         $('#dashboard-add').click(function () {
             shell.host_setup();
+        });
+        $('#dashboard-enable-edit').click(function () {
+            self.edit_enabled = !self.edit_enabled;
+            $(this).toggleClass('active', self.edit_enabled);
+            $('#dashboard-hosts .edit-button').toggle(self.edit_enabled);
         });
         this.plot = shell.plot($('#dashboard-plot'), 300, 1);
     },
@@ -99,6 +106,8 @@ PageDashboard.prototype = {
 
         var hosts = self.hosts = { };
 
+        $('#dashboard-enable-edit').removeClass('active');
+        self.edit_enabled = false;
         $('#dashboard-hosts').empty();
 
         $(shell.hosts).on("added.dashboard", added);
@@ -124,12 +133,20 @@ PageDashboard.prototype = {
         function added(event, addr) {
             var info = hosts[addr] = { };
             info.link = $('<a class="list-group-item">').append(
-                $('<button class="btn btn-default" style="float:right">').
+                $('<button class="btn btn-default edit-button" style="float:right">').
+                    toggle(self.edit_enabled).
                     text("-").
                     click(function () {
                         var h = shell.hosts[addr];
                         if (h)
                             h.remove();
+                        return false;
+                    }),
+                $('<button class="btn btn-default edit-button" style="float:right;margin-right:10px">').
+                    toggle(self.edit_enabled).
+                    text("e").
+                    click(function () {
+                        console.log("edit", addr);
                         return false;
                     }),
                 info.avatar_img = $('<img width="32" height="32" class="host-avatar">').

@@ -298,6 +298,8 @@ function check_admin() {
  * - problem
  * - cockpitd
  * - compare(other_host_object)
+ * - set_avatar(avatar)
+ * - set_color(color)
  * - reconnect()
  * - show_problem_dialog()
  * - set_active()
@@ -403,6 +405,8 @@ function hosts_init() {
                      state: "connecting",
                      cockpitd: client,
                      compare: compare,
+                     set_avatar: set_avatar,
+                     set_color: set_color,
                      reconnect: reconnect,
                      show_problem_dialog: show_problem_dialog,
                      set_active: set_active,
@@ -467,6 +471,18 @@ function hosts_init() {
         function set_active() {
             $('#hosts > a').removeClass("active");
             link.addClass("active");
+        }
+
+        function set_avatar(data) {
+            console.log(data);
+            manager.SetAvatarDataURL(data);
+        }
+
+        function set_color(color) {
+            /* TODO: Make permanent
+             */
+            info.color = color;
+            $(shell.hosts).trigger('changed', [ addr ]);
         }
 
         function reconnect() {

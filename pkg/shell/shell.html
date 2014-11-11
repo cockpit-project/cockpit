@@ -2783,6 +2783,36 @@
       </div>
     </div>
 
+    <div class="modal" id="host-edit-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog cockpit-modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Server avatar and color</h4>
+          </div>
+          <div class="modal-body">
+            <input data-role="none" type="file"
+                   id="host-edit-file-input" style="display:none"/>
+            <center>
+              <div id="host-edit-avatar"></div>
+              <div id="host-edit-color"
+                   style="width:256px;height:32px;margin-top:10px">
+              </div>
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" id="host-edit-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="host-edit-apply">
+              Set
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="cockpit-deauthorize-status" style="display: none;"></div>
 
   </body>

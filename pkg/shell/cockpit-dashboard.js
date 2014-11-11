@@ -78,6 +78,19 @@ var resource_monitors = [
     }
 ];
 
+var avatar_editor;
+
+$(function () {
+    avatar_editor = shell.image_editor($('#host-edit-avatar'), 256, 256);
+});
+
+function host_edit_dialog(addr) {
+    var info = shell.hosts[addr];
+    avatar_editor.load_data(info.avatar);
+    $('#host-edit-color').css('background', info.color);
+    $('#host-edit-dialog').modal('show');
+}
+
 PageDashboard.prototype = {
     _init: function() {
         this.id = "dashboard";
@@ -146,7 +159,7 @@ PageDashboard.prototype = {
                     toggle(self.edit_enabled).
                     text("e").
                     click(function () {
-                        console.log("edit", addr);
+                        host_edit_dialog(addr);
                         return false;
                     }),
                 info.avatar_img = $('<img width="32" height="32" class="host-avatar">').

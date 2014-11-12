@@ -223,6 +223,8 @@ function content_show() {
         $('#content-user-name').text(str);
     }
     $(cockpit.info).on("changed", update_name);
+    if (cockpit.user["name"])
+        update_name();
 
     display_location();
     phantom_checkpoint();

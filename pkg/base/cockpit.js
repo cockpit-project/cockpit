@@ -1859,25 +1859,14 @@ function loading_via_tag() {
 var cockpit = { };
 var basics = false;
 var extra = false;
-function factory(require) {
+function factory(jquery) {
     if (!basics) {
         basic_scope(cockpit);
         basics = true;
     }
     if (!extra) {
-        var jq = null;
-        if (typeof jQuery !== "undefined") {
-            jq = jQuery;
-        } else if (require) {
-            try {
-                jq = require("jquery");
-            } catch(ex) {
-                console.log("ignoring jquery dependency");
-                jq = null;
-            }
-        }
-        if (jq) {
-            full_scope(cockpit, jq);
+        if (jquery) {
+            full_scope(cockpit, jquery);
             extra = true;
         }
     }
@@ -1889,10 +1878,10 @@ if (loading_via_tag()) {
     module_id = "cockpit/base/cockpit";
 
     /* Traditional tags, we register the global */
-    window.cockpit = factory();
+    window.cockpit = factory(window.jQuery);
 }
 
 if (typeof define === 'function' && define.amd)
-    define(module_id, factory);
+    define(module_id, ['jquery'], factory);
 
 })();

@@ -327,3 +327,19 @@ with the domain user:
     $ ssh -o PreferredAuthentications=gssapi-with-mic admin@my-server2.domain.com
 
 If you thought that was nasty and tiresome, it's because it is at present :S
+
+
+## Experimental Privileged Container
+
+It is possible, although not recommended, to run Cockpit in a privileged container.
+There is experimental support for this in tools/Dockerfile
+
+To build the privileged container:
+
+ $ cd tools/
+ $ rm -f *.rpm
+ $ ./make-rpms # optional
+ $ docker build .
+
+By running make-rpms first, the latest Cockpit from git HEAD will be built instead
+of downloading the latest release into the privileged container.

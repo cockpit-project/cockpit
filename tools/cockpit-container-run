@@ -1,4 +1,4 @@
-#!/bin/sh -eux
+#!/bin/sh -eu
 
 # This is the startup script for Cockpit when run in a privileged
 # We copy cockpit-bridge and related stuff into the host, so that
@@ -9,6 +9,18 @@
 
 cd /
 PATH="/bin:/sbin"
+
+if [ ! -f /host/etc/os-release ]; then
+    echo "cockpit-run: host file system is not mounted at /host" >&2
+    exit 1
+fi
+
+if [ -f /host/usr/bin/cockpit-bridge ]; then
+    echo "cockpit-run: refusing to run on host with Cockpit already installed" >&2
+    exit 1
+fi
+
+set -x
 
 libraries()
 {

@@ -21,7 +21,6 @@
 
   <refentryinfo>
     <title>cockpit-ws</title>
-    <date>February 2012</date>
     <productname>cockpit</productname>
   </refentryinfo>
 
@@ -87,6 +86,18 @@
       <command>/etc/pki/tls/certs/make-dummy-cert</command> command
       and stored in
       <filename>/etc/cockpit/ws-certs.d/~self-signed.cert</filename>.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>TIMEOUT</title>
+    <para>
+      When started via
+      <citerefentry>
+        <refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum>
+      </citerefentry>
+      then <command>cockpit-ws</command> will exit after 10 minutes
+      if nobody logs in, or after the last user is disconnected.
     </para>
   </refsect1>
 

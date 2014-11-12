@@ -45,6 +45,8 @@ gboolean           cockpit_web_server_parse_cookies (GHashTable *headers,
 gchar **           cockpit_web_server_resolve_roots (const gchar *root,
                                                      ...) G_GNUC_NULL_TERMINATED;
 
+gboolean           cockpit_web_server_get_socket_activated (CockpitWebServer *self);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVER_H__ */

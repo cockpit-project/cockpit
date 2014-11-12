@@ -63,7 +63,7 @@ main (int argc,
   GError **error = &local_error;
   gchar **roots = NULL;
   gchar *cert_path = NULL;
-  GMainLoop *loop;
+  GMainLoop *loop = NULL;
 
   signal (SIGPIPE, SIG_IGN);
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
@@ -103,6 +103,7 @@ main (int argc,
     }
 
   roots = cockpit_web_server_resolve_roots (DATADIR "/cockpit/static", NULL);
+  loop = g_main_loop_new (NULL, FALSE);
 
   data.auth = cockpit_auth_new (opt_local_ssh);
   data.static_roots = (const gchar **)roots;
@@ -117,6 +118,9 @@ main (int argc,
       g_prefix_error (error, "Error starting web server: ");
       goto out;
     }
+
+  if (cockpit_web_server_get_socket_activated (server))
+    g_signal_connect_swapped (data.auth, "idling", G_CALLBACK (g_main_loop_quit), loop);
 
   /* Ignores stuff it shouldn't handle */
   g_signal_connect (server,
@@ -149,13 +153,13 @@ main (int argc,
 
   g_info ("HTTP Server listening on port %d", opt_port);
 
-  loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (loop);
-  g_main_loop_unref (loop);
 
   ret = 0;
 
 out:
+  if (loop)
+    g_main_loop_unref (loop);
   if (local_error)
     {
       g_printerr ("cockpit-ws: %s\n", local_error->message);

@@ -47,6 +47,7 @@ struct _CockpitWebServer {
   GObject parent_instance;
 
   gint port;
+  gboolean socket_activated;
   GTlsCertificate *certificate;
   gchar **document_roots;
   GString *ssl_exception_prefix;
@@ -81,6 +82,7 @@ enum
   PROP_CERTIFICATE,
   PROP_DOCUMENT_ROOTS,
   PROP_SSL_EXCEPTION_PREFIX,
+  PROP_SOCKET_ACTIVATED
 };
 
 static gint sig_handle_stream = 0;
@@ -170,6 +172,10 @@ cockpit_web_server_get_property (GObject *object,
 
     case PROP_SSL_EXCEPTION_PREFIX:
       g_value_set_string (value, server->ssl_exception_prefix->str);
+
+    case PROP_SOCKET_ACTIVATED:
+      g_value_set_boolean (value, server->socket_activated);
+      break;
 
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -419,6 +425,10 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                    g_param_spec_string ("ssl-exception-prefix", NULL, NULL, "",
                                                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, PROP_SOCKET_ACTIVATED,
+                                   g_param_spec_boolean ("socket-activated", NULL, NULL, FALSE,
+                                                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
   sig_handle_stream = g_signal_new ("handle-stream",
                                     G_OBJECT_CLASS_TYPE (klass),
                                     G_SIGNAL_RUN_LAST,
@@ -559,6 +569,12 @@ out:
   g_free (ret_cookie_name);
   g_free (ret_cookie_value);
   return ret;
+}
+
+gboolean
+cockpit_web_server_get_socket_activated (CockpitWebServer *self)
+{
+  return self->socket_activated;
 }
 
 GHashTable *
@@ -1162,6 +1178,8 @@ cockpit_web_server_initable_init (GInitable *initable,
               goto out;
             }
         }
+
+      server->socket_activated = TRUE;
     }
   else
     {

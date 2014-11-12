@@ -56,13 +56,6 @@ BuildRequires: glib-networking
 BuildRequires: systemd
 BuildRequires: polkit
 
-BuildRequires: perl-JavaScript-Minifier-XS
-
-# jsl hangs on arm on html files
-%ifnarch %{arm}
-BuildRequires: jsl
-%endif
-
 %if %{defined gitcommit}
 BuildRequires: npm
 BuildRequires: nodejs
@@ -138,7 +131,6 @@ The Cockpit Web Service listens on the network, and authenticates users.
 
 %build
 %if %{defined gitcommit}
-ls
 env NOCONFIGURE=1 ./autogen.sh
 %endif
 %configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws

@@ -586,18 +586,19 @@ function get_page_iframe(params) {
     var href = cockpit.location.encode(params.path.slice(prefix.length), params.options);
 
     var pkg = comp.pkg + "@" + params.host;
-    var info = packages[comp.pkg];
-    if (info) {
-        var url = "/cockpit/";
-        if (info.checksum)
-            url += info.checksum;
-        else
-            url += pkg;
-        iframe.attr('src', url + "/" + comp.entry + '#' + href);
-    } else {
-        console.log("No such package " + pkg);
-        iframe.attr('src', "/cockpit/" + pkg + "/" + comp.entry + '#' + href);
-    }
+    cockpit.packages.lookup(pkg).
+        done(function (info) {
+            var url = "/cockpit/";
+            if (info.checksum)
+                url += info.checksum;
+            else
+                url += pkg;
+            iframe.attr('src', url + "/" + comp.entry + '#' + href);
+        }).
+        fail(function (error) {
+            console.log("Error loading package " + pkg, error.toString());
+            iframe.attr('src', "/cockpit/" + pkg + "/" + comp.entry + '#' + href);
+        });
 
     return iframe;
 }

@@ -69,17 +69,36 @@ html, body {
     width: 28px;
 }
 
-#dashboard-hosts .btn {
-    margin-top: 7px;
+#dashboard-hosts .btn,
+#dashboard-enable-edit,
+#dashboard-add {
     height: 28px;
     width: 28px;
+    padding: 8px;
 }
 
-.host-avatar {
-    margin: 5px;
-    margin-right: 10px;
-    margin-left: 0px;
+#dashboard-hosts .btn {
+    margin-top: 2px;
+}
+
+#dashboard-hosts .list-group-item .host-avatar,
+#hosts .list-group-item .host-avatar {
     border-radius: 3px;
+    margin-right: 10px;
+}
+
+#dashboard-hosts .list-group-item .host-avatar {
+    float: left;
+}
+
+#dashboard-hosts .list-group-item span {
+    margin-right: 76px;
+    display: block;
+    padding-top: 6px;
+    padding-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 #content-navbar-hostname {
@@ -101,6 +120,18 @@ html, body {
     height: 25px;
     margin: 2px;
 }
+
+#host-edit-avatar canvas:hover,
+#host-edit-color:hover,
+#host-edit-color-popover .color-cell:hover {
+    cursor: pointer;
+    box-shadow: inset 0px 0px 0px 1px #7BB2DD;
+}
+
+#host-edit-apply {
+    min-width: 55px;
+}
+
 
 /* Style a button group */
 

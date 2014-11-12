@@ -212,9 +212,8 @@ PageDashboard.prototype = {
         function added(event, addr) {
             var info = hosts[addr] = { };
             info.link = $('<a class="list-group-item">').append(
-                $('<button class="btn btn-default edit-button" style="float:right">').
+                $('<button class="btn btn-danger edit-button pficon pficon-close" style="float:right">').
                     toggle(self.edit_enabled).
-                    text("-").
                     click(function () {
                         self.toggle_edit(false);
                         var h = shell.hosts[addr];
@@ -222,9 +221,8 @@ PageDashboard.prototype = {
                             h.remove();
                         return false;
                     }),
-                $('<button class="btn btn-default edit-button" style="float:right;margin-right:10px">').
+                $('<button class="btn btn-default edit-button pficon pficon-edit" style="float:right;margin-right:10px">').
                     toggle(self.edit_enabled).
-                    text("e").
                     click(function () {
                         self.toggle_edit(false);
                         host_edit_dialog(addr);

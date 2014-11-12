@@ -2,7 +2,7 @@ NULL =
 man_MANS =
 BUILT_SOURCES =
 EXTRA_DIST = README.md
-CLEANFILES = *.js *.min.js *.html *.min.html *.css *.min.css
+CLEANFILES = *.js *.min.js *.ok */*.ok */*/*.ok *.html *.css
 bin_PROGRAMS =
 check_SCRIPTS =
 check_PROGRAMS =
@@ -18,16 +18,24 @@ TESTS =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-SUFFIXES = .js .min.js .css .min.css .html .min.html .1 .8 .5
+SUFFIXES = .js .min.js .css .html .min.html .1 .8 .5
+
+V_CHECK = $(V_CHECK_$(V))
+V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
+V_CHECK_0 = @echo "  CHECK   " $@;
 
 .js.min.js:
-	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
+	@$(MKDIR_P) $(dir $@)
+	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
+
 .html.min.html:
-	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
-.css.min.css:
-	$(AM_V_GEN) $(RCOMPILE) -p -m -o $@ -- $^
+	@$(MKDIR_P) $(dir $@)
+	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/html-minifier --output $@ $<
 
 po/po.%.js: po/%.po
+	@$(MKDIR_P) $(dir $@)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/po2json --module $^ $@
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
@@ -107,7 +115,6 @@ SED_SUBST = sed \
         -e 's,[@]group[@],$(COCKPIT_GROUP),g' \
         $(NULL)
 
-RCOMPILE = JSL=$(JSL) $(top_srcdir)/tools/rcompile
 GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
 VERIFY_CHECKSUMS = $(top_srcdir)/tools/verify-checksums
 

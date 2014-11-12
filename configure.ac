@@ -53,12 +53,6 @@ if test -z "$XSLTPROC"; then
   AC_MSG_ERROR([xsltproc is needed])
 fi
 
-AC_PATH_PROG([JSL], [jsl])
-if test -z "$JSL"; then
-  AC_MSG_WARN([jsl is needed to check javascript])
-  JSL=/bin/true
-fi
-
 GLIB_VERSION="2.34"
 
 GIO_REQUIREMENT="gio-unix-2.0 >= $GLIB_VERSION"

@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+base=$(dirname $0)
+exec $base/node_modules/.bin/html-minifier --config-file=$base/htmlmin.conf "$@"

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+base=$(dirname $0)
+$base/node_modules/.bin/jshint --config=$base/jshint.conf --reporter=$base/reporter.js "$@"

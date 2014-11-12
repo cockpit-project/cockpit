@@ -4,8 +4,6 @@ po/po.en.js: pkg/base/po.js
 	$(AM_V_GEN) cp $^ $@
 
 basedir = $(pkgdatadir)/base
-nodist_base_DATA = \
-	pkg/base/cockpit.min.js
 base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
@@ -13,6 +11,7 @@ base_DATA = \
 	pkg/base/patternfly.css \
 	pkg/base/cockpit.css \
 	pkg/base/cockpit.js \
+	pkg/base/cockpit.min.js \
 	pkg/base/jquery.js \
 	pkg/base/jquery.min.js \
 	pkg/base/term.js \

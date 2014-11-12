@@ -26,22 +26,24 @@ shell_js_PARTS = \
 	$(NULL)
 
 shell.js: $(shell_js_PARTS)
-	$(AM_V_GEN) $(RCOMPILE) -o $@ $^
+	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $^
+	$(AM_V_GEN) cat $^ > $@.tmp && mv $@.tmp $@
+
+shell.min.js: shell.js
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
 
 shelldir = $(pkgdatadir)/shell
-nodist_shell_DATA = \
+shell_DATA = \
 	shell.js \
 	shell.min.js \
-	$(NULL)
-shell_DATA = \
 	pkg/shell/attrchange.js \
 	pkg/shell/jquery-flot.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
+	pkg/shell/shell.min.html \
 	pkg/shell/manifest.json \
 	$(NULL)
 noinst_DATA += \
-	pkg/shell/shell.min.html \
 	$(NULL)
 
 shelllangdir = $(pkgdatadir)/shell/lang

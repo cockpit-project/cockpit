@@ -15,9 +15,5 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install automake autoconf intltool xsltproc libglib2.0-dev libgudev-1.0-dev libpolkit-gobject-1-dev libpolkit-agent-1-dev phantomjs gtk-doc-tools libjson-glib-dev libnm-glib-dev libaccountsservice-dev libpam0g-dev libssh-dev libsystemd-daemon-dev libsystemd-journal-dev libudisks2-dev libjson-perl libjavascript-minifier-xs-perl pkg-config glib-networking valgrind libkeyutils-dev xmlto xsltproc
 
-  - wget http://www.javascriptlint.com/download/jsl-0.3.0-src.tar.gz
-  - tar -xzvf jsl-0.3.0-src.tar.gz
-  - ( cd jsl-0.3.0/src && make -f Makefile.ref )
-  - sudo cp jsl-0.3.0/src/Linux_All_DBG.OBJ/jsl /usr/local/bin/jsl
 script:
   - ./autogen.sh --prefix=/usr --enable-strict && make V=1 all && sudo make enable-root-tests && make distcheck && make -j8 check-memory

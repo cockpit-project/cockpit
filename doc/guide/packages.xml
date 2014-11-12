@@ -93,10 +93,51 @@
           that the package should provide resources for.</para></listitem>
       </varlistentry>
       <varlistentry>
+        <term>tools</term>
+        <listitem><para>An optional JSON object containing all the tools that this package
+          provides. These will be added into the Cockpit user interface under the 'Tools' menu.
+          Each property on this object is named for the identifier of such a tool, and the
+          property value is a JSON object described below.</para></listitem>
+      </varlistentry>
+      <varlistentry>
         <term>version</term>
         <listitem><para>An informational version number for the package.</para></listitem>
       </varlistentry>
     </variablelist>
+
+    <para>Tools are registered using JSON objects that have the following properties:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>label</term>
+        <listitem><para>The label for the tool.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>path</term>
+        <listitem><para>The relative path to the HTML file within the package that implements
+          the tool.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>version</term>
+        <listitem><para>An informational version number for the package.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>An example manifest.json with some optional properties set:</para>
+
+<programlisting>
+  {
+    "version": 0,
+    "alias": ["other"],
+    "tools": {
+       "mytool": {
+          "label": "My Tool",
+          "path": "tool.html"
+       }
+    }
+  }
+</programlisting>
+
   </section>
 
   <section id="package-links">

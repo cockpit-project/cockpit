@@ -60,6 +60,15 @@ var visited_dialogs = {};
 shell.dbus = dbus;
 shell.set_watched_client = set_watched_client;
 
+/* Initialize cockpit when page is loaded and packages available */
+var packages;
+var loaded = false;
+
+function maybe_init() {
+    if (packages && loaded)
+        init();
+}
+
 function init() {
     shell.language_code = "";
     shell.language_po = null;
@@ -495,10 +504,15 @@ var page_iframes = { };
  */
 var visited_legacy_pages = { };
 
-shell.register_component = function register_component(prefix, pkg, entry) {
+function register_component(prefix, package_name, entry) {
     var key = JSON.stringify(prefix);
-    components[key] = { pkg: pkg, entry: entry };
-};
+    components[key] = { pkg: package_name, entry: entry };
+}
+
+function register_tool(ident, label) {
+    var link = $("<a>").attr("data-task-id", ident).text(label);
+    $("<li>").append(link).appendTo("#tools-menu");
+}
 
 /* HACK: Mozilla will unescape 'location.hash' before returning
  * it, which is broken.
@@ -572,19 +586,18 @@ function get_page_iframe(params) {
     var href = cockpit.location.encode(params.path.slice(prefix.length), params.options);
 
     var pkg = comp.pkg + "@" + params.host;
-    cockpit.packages.lookup(pkg).
-        done(function (info) {
-            var url = "/cockpit/";
-            if (info.checksum)
-                url += info.checksum;
-            else
-                url += pkg;
-            iframe.attr('src', url + "/" + comp.entry + '#' + href);
-        }).
-        fail(function (error) {
-            console.log("Error loading package " + pkg, error.toString());
-            iframe.attr('src', "/cockpit/" + pkg + "/" + comp.entry + '#' + href);
-        });
+    var info = packages[comp.pkg];
+    if (info) {
+        var url = "/cockpit/";
+        if (info.checksum)
+            url += info.checksum;
+        else
+            url += pkg;
+        iframe.attr('src', url + "/" + comp.entry + '#' + href);
+    } else {
+        console.log("No such package " + pkg);
+        iframe.attr('src', "/cockpit/" + pkg + "/" + comp.entry + '#' + href);
+    }
 
     return iframe;
 }
@@ -941,13 +954,43 @@ if (!window.options)
     window.options = { };
 $.extend(window.options, { sink: true, protocol: "cockpit1" });
 
-/* Initialize cockpit when page is loaded */
-$(function() {
-    shell.register_component([ "terminal" ], "terminal", "terminal.html");
-    shell.register_component([ "playground" ], "playground", "test.html");
+cockpit.packages.all(true).
+    done(function(pkgs) {
+        packages = pkgs;
 
-    /* Initialize the rest of Cockpit */
-    init();
+        var list = $.map(pkgs, function(pkg) { return pkg; });
+        list.sort(function(a, b) {
+            return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
+        });
+
+        var seen = { };
+        $.each(list, function(i, pkg) {
+            var tools = pkg.manifest.tools;
+            if (!tools)
+                return;
+            $.each(tools, function(ident, info) {
+                if (seen[ident])
+                    return;
+                seen[ident] = ident;
+                register_component([ ident ], pkg.name, info.path);
+                register_tool(ident, info.label);
+            });
+        });
+
+        maybe_init();
+    }).
+    fail(function(ex) {
+        packages = { };
+        maybe_init();
+
+        throw ex; /* should show an oops */
+    });
+
+/* Run when jQuery thinks page is loaded */
+$(function() {
+    register_component([ "playground" ], "playground", "test.html");
+    loaded = true;
+    maybe_init();
 });
 
 })(jQuery, cockpit, shell);

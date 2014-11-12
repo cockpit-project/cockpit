@@ -1143,10 +1143,28 @@
         problem.</para>
     </refsection>
 
+    <refsection id="latest-packages-list">
+      <title>cockpit.packages.all()</title>
+<programlisting>
+ lookup = cockpit.packages.all([expand])
+</programlisting>
+
+      <para>This function starts a lookup for information about all the packages for
+        the host that this page is connected to. If <code>expand</code> is set to <code>true</code>
+        then the there will be a key in the results for each possible name, alias, or checksum
+        for the package. Otherwise only a distinct set of packages will be returned.</para>
+
+      <para>The return value is a
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+        that will complete if the lookup happens successfully, or fail if there's a
+        problem.</para>
+    </refsection>
+
     <refsection id="latest-packages-done">
       <title>lookup.done()</title>
 <programlisting>
  lookup.done(function(pkg) { ... })
+ lookup.done(function(pkgs) { ... })
 </programlisting>
       <para>This is a standard
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -1170,6 +1188,12 @@
           <listitem><para>The canonical package name.</para></listitem>
         </varlistentry>
       </variablelist>
+
+      <para>The second form of the callback with a <code>pkgs</code> argument is invoked
+        by the promise from a
+        <link linkend="latest-packages-list"><code>cockpit.packages.all()</code></link>
+        operation. In this case <code>pkgs</code> contains an object containing package
+        information objects as properties, with package names as property names.</para>
 
     </refsection>
 

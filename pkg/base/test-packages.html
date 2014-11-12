@@ -89,6 +89,98 @@ asyncTest("aliases", function() {
         });
 });
 
+asyncTest("all", function() {
+    expect(2);
+
+    cockpit.packages.all().
+        done(function(pkgs) {
+            /* These are custom objects, deepEqual will fail */
+            var keys = jQuery.map(pkgs, function(pkg, key) { return key; });
+            for (var i = 0; i < keys.length; i++)
+                pkgs[keys[i]] = $.extend({ }, pkgs[keys[i]]);
+
+            deepEqual(pkgs, {
+                another: {
+                  "checksum": null,
+                  "manifest": { "alias": [ "marmalade" ], "description": "another" },
+                  "name": "another"
+                },
+                second: {
+                  "checksum": "$2362deb82fad54aca51092c505a5660ac6c45a9f",
+                  "manifest": { "alias": [ "one", "two" ], "description": "second dummy description" },
+                  "name": "second"
+                },
+                test: {
+                  "checksum": "$fec489a692ee808950f34f6c519803aed65e1849",
+                  "manifest": { "alias": [], "description": "dummy" },
+                  "name": "test"
+                }
+            }, "package listing");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "succeeded");
+            start();
+        });
+});
+
+asyncTest("all expand", function() {
+    expect(2);
+
+    cockpit.packages.all(true).
+        done(function(pkgs) {
+            /* These are custom objects, deepEqual will fail */
+            var keys = jQuery.map(pkgs, function(pkg, key) { return key; });
+            for (var i = 0; i < keys.length; i++)
+                pkgs[keys[i]] = $.extend({ }, pkgs[keys[i]]);
+
+            deepEqual(pkgs, {
+                "$2362deb82fad54aca51092c505a5660ac6c45a9f": {
+                  "checksum": "$2362deb82fad54aca51092c505a5660ac6c45a9f",
+                  "manifest": { "alias": [ "one", "two" ], "description": "second dummy description" },
+                  "name": "second"
+                },
+                another: {
+                  "checksum": null,
+                  "manifest": { "alias": [ "marmalade" ], "description": "another" },
+                  "name": "another"
+                },
+                marmalade: {
+                  "checksum": null,
+                  "manifest": { "alias": [ "marmalade" ], "description": "another" },
+                  "name": "another"
+                },
+                second: {
+                  "checksum": "$2362deb82fad54aca51092c505a5660ac6c45a9f",
+                  "manifest": { "alias": [ "one", "two" ], "description": "second dummy description" },
+                  "name": "second"
+                },
+                one: {
+                  "checksum": "$2362deb82fad54aca51092c505a5660ac6c45a9f",
+                  "manifest": { "alias": [ "one", "two" ], "description": "second dummy description" },
+                  "name": "second"
+                },
+                two: {
+                  "checksum": "$2362deb82fad54aca51092c505a5660ac6c45a9f",
+                  "manifest": { "alias": [ "one", "two" ], "description": "second dummy description" },
+                  "name": "second"
+                },
+                "$fec489a692ee808950f34f6c519803aed65e1849": {
+                  "checksum": "$fec489a692ee808950f34f6c519803aed65e1849",
+                  "manifest": { "alias": [], "description": "dummy" },
+                  "name": "test"
+                },
+                test: {
+                  "checksum": "$fec489a692ee808950f34f6c519803aed65e1849",
+                  "manifest": { "alias": [], "description": "dummy" },
+                  "name": "test"
+                }
+            }, "package listing");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "succeeded");
+            start();
+        });
+});
 
 QUnit.start();
 

@@ -1772,8 +1772,12 @@ function full_scope(cockpit, $) {
             factory = dependencies;
             dependencies = undefined;
         }
-        if (typeof dependencies === "undefined")
-            dependencies = [ "require", "exports", "module" ];
+        if (typeof dependencies === "undefined") {
+            if (typeof factory === "function")
+                dependencies = [ "require", "exports", "module" ];
+            else
+                dependencies = [ ];
+        }
         loader.defined.push(new Module(id, dependencies, factory));
     }
 

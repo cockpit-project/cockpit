@@ -683,6 +683,23 @@ function full_scope(cockpit, $) {
                 }
             });
             return dfd.promise();
+        },
+        all: function(expand) {
+            var dfd = $.Deferred();
+            package_table(null, function(packages, problem) {
+                if (problem) {
+                    package_debug("lookup failed: " + problem);
+                    dfd.reject(new BasicError(problem));
+                } else {
+                    var res = { };
+                    $.each(packages, function(name, pkg) {
+                        if (expand || pkg.name === name)
+                            res[name] = pkg;
+                    });
+                    dfd.resolve(res);
+                }
+            });
+            return dfd.promise();
         }
     };
 

@@ -1605,7 +1605,7 @@ function full_scope(cockpit, $) {
     }
 
     /* Load dependencies if necessary */
-    function ensure_dependencies(module, dependencies, number, seen, loadable) {
+    function ensure_dependencies(module, dependencies, seen, loadable) {
         if (!loader.packages)
             return null;
 
@@ -1614,7 +1614,6 @@ function full_scope(cockpit, $) {
 
         var result = [ ];
         var length = dependencies.length;
-        var had_require = false;
 
         /* First make sure we can resolve everything */
         for (var i = 0; i < length; i++) {
@@ -1633,7 +1632,6 @@ function full_scope(cockpit, $) {
                     return qualify(str, module.id);
                 };
                 result.push(func);
-                had_require = true;
 
             /* Special id 'exports' defined by AMD */
             } else if (id == "exports") {
@@ -1652,16 +1650,8 @@ function full_scope(cockpit, $) {
             /* A normal module dependency */
             } else {
                 var dependency = loader.modules[id];
-
-                /* A dependency that is called using another require('module') */
-                if (had_require && i >= number) {
-                    result.push(null);
-
-                /* A dependency passed in as an argument */
-                } else {
-                    var exports = ensure_module(dependency, seen);
-                    result.push.apply(result, exports);
-                }
+                var exports = ensure_module(dependency, seen);
+                result.push.apply(result, exports);
             }
         }
 
@@ -1676,11 +1666,8 @@ function full_scope(cockpit, $) {
         if (module.id)
             seen.push(module.id);
  
-        /* The number of arguments required? */
-        var number = module.factory.length;
-
         /* Try to figure out dependency arguments */
-        var args = ensure_dependencies(module, module.dependencies, number, seen, true);
+        var args = ensure_dependencies(module, module.dependencies, seen, true);
         if (args === null) {
             loader.waiting.push(module);
             if (module.id)
@@ -1761,7 +1748,7 @@ function full_scope(cockpit, $) {
         if (typeof arg0 === "string") {
             if (typeof arg1 !== "undefined")
                 throw "invalid require call";
-            var result = ensure_dependencies(context, [qualify(arg0, context.id)], undefined, [ ], false);
+            var result = ensure_dependencies(context, [qualify(arg0, context.id)], [ ], false);
             if (result === null)
                 throw "cannot syncronously require module: " + arg0;
             return result[0];

@@ -18,36 +18,6 @@
     </warning>
   </partintro>
 
-  <refentry id="api-bootstrap">
-    <refmeta>
-      <refentrytitle>bootstrap.js</refentrytitle>
-    </refmeta>
-
-    <refnamediv>
-      <refname>bootstrap.js</refname>
-      <refpurpose>Bootstrap javascript code</refpurpose>
-    </refnamediv>
-
-    <refsection>
-      <title>Description</title>
-<programlisting>
-  &lt;script src="../@@latest@@/jquery.js"&gt;&lt;/script&gt;
-  &lt;script src="../@@latest@@/bootstrap.js"&gt;&lt;/script&gt;
-</programlisting>
-
-      <para>Cockpit uses <ulink url="https://www.patternfly.org/">PatternFly</ulink> for its
-        user interface. PatternFly is built on the <ulink url="http://getbootstrap.com">Bootstrap</ulink>
-        user interface framework. The <code>bootstrap.js</code> includes code that enables
-        Bootstrap to run correctly. The <code>bootstrap.js</code> script also includes the
-        <ulink url="http://silviomoreto.github.io/bootstrap-select/">bootstrap-select</ulink> extension.</para>
-
-      <para>In the <code>latest</code> package we will track the version of Bootstrap that PatternFly
-        requires. Other packages may provide more stable versions of Boostrap in the future.</para>
-
-      <para>Bootstrap requires jQuery be available.</para>
-    </refsection>
-  </refentry>
-
   <refentry id="api-latest-cockpit-css">
     <refmeta>
       <refentrytitle>cockpit.css</refentrytitle>
@@ -102,6 +72,11 @@
       <para>The current jQuery version is 2.x. In the <code>latest</code> package we may
         track relatively recent versions of jQuery. Other packages may provide more stable versions
         of jQuery in the future.</para>
+
+      <para>Also included in this file are the jQuery plugins used. For this package these
+        these are: <ulink url="http://getbootstrap.com">Bootstrap 3.0.3</ulink>,
+        <ulink url="http://silviomoreto.github.io/bootstrap-select/">bootstrap-select 1.6.3</ulink>,
+        and <ulink url="http://www.flotcharts.org/">Flot 0.7</ulink>.</para>
 
     </refsection>
 

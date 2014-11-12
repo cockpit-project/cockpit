@@ -15,8 +15,6 @@ base_DATA = \
 	pkg/base/cockpit.js \
 	pkg/base/jquery.js \
 	pkg/base/jquery.min.js \
-	pkg/base/bootstrap.js \
-	pkg/base/bootstrap.min.js \
 	pkg/base/term.js \
 	pkg/base/manifest.json \
 	po/po.en.js \
@@ -58,3 +56,15 @@ EXTRA_DIST += \
 	$(base_TESTS) \
 	$(baseimages_DATA) \
 	$(NULL)
+
+update-jquery:
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.js \
+	    $(srcdir)/lib/jquery.v2.1.0.js \
+	    $(srcdir)/lib/bootstrap.v3.0.3.js \
+	    $(srcdir)/lib/bootstrap-select.v1.6.3.js \
+	    $(srcdir)/lib/jquery-flot.v0.7.js
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.min.js \
+	    $(srcdir)/lib/jquery.v2.1.0.min.js \
+	    $(srcdir)/lib/bootstrap.v3.0.3.min.js \
+	    $(srcdir)/lib/bootstrap-select.v1.6.3.min.js \
+	    $(srcdir)/lib/jquery-flot.v0.7.min.js

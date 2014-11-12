@@ -1,1 +1,1 @@
-../../lib/jquery-flot.v1.1.js
+../../lib/jquery-flot.v0.7.js

@@ -532,12 +532,15 @@
     <refsection id="latest-dbus-proxy">
       <title>client.proxy</title>
 <programlisting>
- proxy = client.proxy(interface, path)
+ proxy = client.proxy([interface, path])
 </programlisting>
 
-      <para>Create proxy javascript object for a DBus interface. The proxy will have
+      <para>Create proxy javascript object for a DBus <code>interface</code>. At the
+        specified DBus object <code>path</code>. The proxy will have
         properties, methods and signals from to the DBus interface, and allows for
-        natural interaction.</para>
+        natural interaction. If no <code>interface</code> is specified then the DBus
+        bus name of the client is used. If no <code>path</code> is specified, then
+        the DBus name of the client is converted to a path.</para>
 
       <para>If creating lots of proxies for a given <code>interface</code> it is more
         efficient to use the
@@ -691,12 +694,14 @@
     <refsection id="latest-dbus-proxies">
       <title>client.proxies</title>
 <programlisting>
-  proxies = client.proxies(interface, [path_namespace])
+  proxies = client.proxies([interface], [path_namespace])
 </programlisting>
 
       <para>Create <link linkend="latest-dbus-proxy">proxy javascript objects</link> for
         a DBus interfaces. The proxes will have properties, methods and signals from
-        the DBus interface, and allow for natural interaction.</para>
+        the DBus <code>interface</code>, and allow for natural interaction. If no
+        <code>interface</code> is specified then the DBus bus name of the client is used.
+        If no <code>path_namespace</code> is provided then <code>"/"</code> will be used.</para>
 
       <para>Proxies will be automatically created for instances of the
         <code>interface</code> available at the DBus service. The optional

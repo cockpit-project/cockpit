@@ -1170,9 +1170,7 @@ function full_scope(cockpit, $) {
         });
 
         /* Subscribe to signals once for all proxies */
-        var match = { "interface": iface };
-        if (path_namespace)
-            match["path_namespace"] = path_namespace;
+        var match = { "interface": iface, "path_namespace": path_namespace };
 
         /* Callbacks added by proxies */
         client.subscribe(match);
@@ -1419,18 +1417,27 @@ function full_scope(cockpit, $) {
         };
 
         self.proxy = function proxy(iface, path, options) {
+            if (!iface)
+                iface = name;
+            iface = String(iface);
+            if (!path)
+                path = "/" + iface.replace(/\./g, "/");
             var ctor = self.constructors[iface];
             if (!ctor)
                 ctor = self.constructors["*"];
             if (!options)
                 options = { };
             ensure_cache();
-            return new ctor(self, cache, iface, path, options);
+            return new ctor(self, cache, iface, String(path), options);
         };
 
         self.proxies = function proxies(iface, path_namespace) {
+            if (!iface)
+                iface = name;
+            if (!path_namespace)
+                path_namespace = "/";
             ensure_cache();
-            return new DBusProxies(self, cache, iface, path_namespace);
+            return new DBusProxies(self, cache, String(iface), String(path_namespace));
         };
     }
 

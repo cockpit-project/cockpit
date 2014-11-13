@@ -604,6 +604,14 @@ asyncTest("proxy", function() {
    });
 });
 
+test("proxy no stutter", function() {
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+
+    var proxy = dbus.proxy();
+    equal(proxy.iface, "com.redhat.Cockpit.DBusTests.Test", "interface auto chosen");
+    equal(proxy.path, "/com/redhat/Cockpit/DBusTests/Test", "path auto chosen");
+});
+
 asyncTest("proxies", function() {
     expect(13);
 
@@ -664,6 +672,14 @@ asyncTest("proxies", function() {
             });
         });
 });
+test("proxies no stutter", function() {
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+
+    var proxies = dbus.proxies();
+    equal(proxies.iface, "com.redhat.Cockpit.DBusTests.Test", "interface auto chosen");
+    equal(proxies.path_namespace, "/", "path auto chosen");
+});
+
 
 asyncTest("path loop", function() {
     expect(2);

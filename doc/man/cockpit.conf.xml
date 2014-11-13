@@ -37,35 +37,31 @@
 
   <refsect1><title>DESCRIPTION</title>
   <para>
-    Cockpit can be configured via /etc/cockpit.conf.  That file has a INI
-    file syntax and thus contains key / value pairs, grouped into
-    topical groups.
+    Cockpit can be configured via /etc/cockpit/config.  That file has a INI
+    file syntax and thus contains key / value pairs, grouped into topical groups.
 
     For example, to set the "group" key in the "login" group to the
-    value "adm", place this into /etc/cockpit.conf:
+    value "adm", place this into /etc/cockpit/config:
 
     <programlisting>
       [login]
       group = adm
     </programlisting>
 
-    No configuration options are defined at the moment.  How
-    disappointing.
+    No configuration options are defined at the moment. To change the port that
+    Cockpit listens change the systemd <filename>cockpit.socket</filename> file:
   </para>
   </refsect1>
 
   <refsect1><title>AUTHOR</title>
-    <para>
-      Written by Marius Vollmer <email>&lt;marius.vollmer@redhat.com&gt;</email>.
-    </para>
+    <para>Written by the Cockpit Developers.</para>
   </refsect1>
 
   <refsect1>
     <title>BUGS</title>
     <para>
-      Please send bug reports to either the distribution bug tracker
-      or the upstream bug tracker at
-      <ulink url="https://redhat.com/TODO"/>.
+      Please send bug reports to either the distribution bug tracker or the
+      <ulink url="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</ulink>.
     </para>
   </refsect1>
 

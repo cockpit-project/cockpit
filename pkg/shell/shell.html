@@ -112,7 +112,41 @@
     <div id="content">
 
       <div id="dashboard" class="container-fluid">
-        <div class="list-group" id="dashboard-machines">
+        <div class="row">
+          <div class="col-md-12">
+            <ul class="nav nav-tabs">
+              <li data-monitor-id="0"><a>CPU</a></li>
+              <li data-monitor-id="1"><a>Memory</a></li>
+              <li data-monitor-id="2"><a>Network</a></li>
+              <li data-monitor-id="3"><a>Disk I/O</a></li>
+            </ul>
+            <br>
+            <div id="dashboard-plot" style="height:250px"></div>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <button class="btn btn-primary fa fa-plus" style="float:right" id="dashboard-add"></button>
+                <button class="btn btn-default fa fa-check" style="float:right;margin-right:10px" id="dashboard-enable-edit"></button>
+                <span>Servers</span>
+              </div>
+              <div class="list-group" id="dashboard-hosts">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="panel panel-default cockpit-log-panel">
+              <div class="panel-heading">
+                Events
+              </div>
+              <div class="panel-body">
+                <div class="cockpit-logline">(Coming soon...)</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2688,6 +2722,97 @@
               Cancel
             </button>
             <button class="btn btn-danger" id="confirmation-dialog-confirm">
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="reconnect-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Couldn't establish connection</h4>
+          </div>
+          <div class="modal-body">
+            <div id="reconnect-dialog-summary"></div>
+            <div id="reconnect-dialog-problem"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="reconnect-dialog-reconnect">
+              Try reconnecting
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="change-avatar-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change Picture</h4>
+          </div>
+          <div class="modal-body">
+            <input data-role="none" type="file"
+                   id="change-avatar-file-input" style="display:none"/>
+            <center>
+              <div style="position:relative;width:256px;height:256px">
+                <canvas id="change-avatar-canvas"></canvas>
+                <canvas id="change-avatar-overlay"
+                        style="position:absolute;top:0px;left:0px;z-index:10"></canvas>
+              </div>
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" id="change-avatar-cancel">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="change-avatar-apply">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="host-edit-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog cockpit-modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Server avatar and color</h4>
+          </div>
+          <div class="modal-body">
+            <input data-role="none" type="file"
+                   id="host-edit-file-input" style="display:none"/>
+            <center>
+              <div id="host-edit-avatar"></div>
+              <div id="host-edit-color"
+                   style="width:256px;height:32px;margin-top:10px">
+              </div>
+              <div id="host-edit-color-popover" class="popover top in" style="top:246px;left:0px">
+                <div class="arrow"></div>
+                <div class="popover-content">
+                </div>
+              </div>
+            </center>
+            <div id="host-edit-fail"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="host-edit-apply">
+              Set
             </button>
           </div>
         </div>

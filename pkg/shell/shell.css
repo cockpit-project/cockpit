@@ -63,12 +63,25 @@ html, body {
     border-right-color: transparent;
 }
 
-#cockpit-sidebar .list-group .list-group-item .btn {
+#cockpit-sidebar .list-group .list-group-item .btn,
+#dashboard-add {
     height: 28px;
     width: 28px;
 }
 
-#cockpit-sidebar .host-avatar {
+#dashboard-hosts .btn {
+    margin-top: 7px;
+    height: 28px;
+    width: 28px;
+}
+
+#dashboard-hosts .list-group-item {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.host-avatar {
     margin: 5px;
     margin-right: 10px;
     margin-left: 0px;
@@ -87,6 +100,24 @@ html, body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+#host-edit-avatar:hover,
+#host-edit-color:hover {
+    cursor: pointer;
+}
+
+#host-edit-color-popover .color-cell {
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    margin: 2px;
+    border: 1px solid transparent;
+}
+
+#host-edit-color-popover .color-cell:hover {
+    border: 1px solid #000;
+}
+
 
 /* Style a button group */
 

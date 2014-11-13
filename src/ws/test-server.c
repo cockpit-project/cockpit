@@ -254,9 +254,6 @@ setup_path (const char *argv0)
   gchar *dir = g_path_get_dirname (argv0);
   gchar *path;
 
-  if (old == NULL)
-    old = "";
-
   path = g_strdup_printf ("%s%s%s", dir,
                           old ? ":" : "",
                           old ? old : NULL);

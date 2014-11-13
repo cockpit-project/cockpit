@@ -1429,7 +1429,7 @@ build_dbus_match (CockpitDBusJson *self,
   g_string_append_printf (string, ",sender='%s'", self->name_owner);
   if (path)
     g_string_append_printf (string, ",path='%s'", path);
-  if (path_namespace)
+  if (path_namespace && !g_str_equal (path_namespace, "/"))
     g_string_append_printf (string, ",path_namespace='%s'", path_namespace);
   if (interface)
     g_string_append_printf (string, ",interface='%s'", interface);

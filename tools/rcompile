@@ -123,9 +123,9 @@ for my $f (@ARGV) {
     close $in;
 }' "$@" \
     || (
-        warning "no worries, using cat instead"
+        warning "no worries, simply combining instead"
         echo "/* Auto-generated; DO NOT EDIT; No minify tool available on build system */"
-        cat "$@"
+        $base/jsmerge "$@"
        )
 }
 
@@ -133,7 +133,7 @@ output_javascript()
 {
     echo "/* Auto-generated; DO NOT EDIT */"
     echo "/*jsl:ignoreall*/"
-    cat "$@"
+    $base/jsmerge "$@"
 }
 
 jslint()

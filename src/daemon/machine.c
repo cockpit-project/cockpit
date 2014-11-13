@@ -110,6 +110,12 @@ machine_read (Machine *machine, GKeyFile *file, const gchar *group)
 
   cleanup_strfreev gchar **tags = g_key_file_get_string_list (file, group, "tags", NULL, NULL);
   cockpit_machine_set_tags (COCKPIT_MACHINE (machine), (const gchar *const *)tags);
+
+  cleanup_free gchar *name = g_key_file_get_string (file, group, "name", NULL);
+  cockpit_machine_set_name (COCKPIT_MACHINE (machine), name? name : "");
+
+  cleanup_free gchar *color = g_key_file_get_string (file, group, "color", NULL);
+  cockpit_machine_set_color (COCKPIT_MACHINE (machine), color? color : "");
 }
 
 void
@@ -120,6 +126,12 @@ machine_write (Machine *machine, GKeyFile *file)
 
   const gchar *const *tags = cockpit_machine_get_tags (COCKPIT_MACHINE (machine));
   g_key_file_set_string_list (file, machine->id, "tags", tags, count_tags(tags));
+
+  const gchar *name = cockpit_machine_get_name (COCKPIT_MACHINE (machine));
+  g_key_file_set_string (file, machine->id, "name", name);
+
+  const gchar *color = cockpit_machine_get_color (COCKPIT_MACHINE (machine));
+  g_key_file_set_string (file, machine->id, "color", color);
 }
 
 void
@@ -321,6 +333,44 @@ handle_remove_tag (CockpitMachine *object,
   return TRUE;
 }
 
+static gboolean
+handle_set_name (CockpitMachine *object,
+                 GDBusMethodInvocation *invocation,
+                 const gchar *name)
+{
+  GError *error = NULL;
+  Machine *machine = MACHINE (object);
+
+  cockpit_machine_set_name (object, name);
+  if (!machines_write (machine->machines, &error))
+    {
+      g_dbus_method_invocation_take_error (invocation, error);
+      return TRUE;
+    }
+
+  cockpit_machine_complete_set_name (object, invocation);
+  return TRUE;
+}
+
+static gboolean
+handle_set_color (CockpitMachine *object,
+                  GDBusMethodInvocation *invocation,
+                  const gchar *color)
+{
+  GError *error = NULL;
+  Machine *machine = MACHINE (object);
+
+  cockpit_machine_set_color (object, color);
+  if (!machines_write (machine->machines, &error))
+    {
+      g_dbus_method_invocation_take_error (invocation, error);
+      return TRUE;
+    }
+
+  cockpit_machine_complete_set_color (object, invocation);
+  return TRUE;
+}
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
@@ -328,4 +378,6 @@ machine_iface_init (CockpitMachineIface *iface)
 {
   iface->handle_add_tag = handle_add_tag;
   iface->handle_remove_tag = handle_remove_tag;
+  iface->handle_set_name = handle_set_name;
+  iface->handle_set_color = handle_set_color;
 }

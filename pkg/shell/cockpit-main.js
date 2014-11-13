@@ -376,7 +376,7 @@ function hosts_init() {
 
         var info = { display_name: addr,
                      avatar: "",
-                     color: null,
+                     color: proxy.Color || pick_color(),
                      state: "connecting",
                      cockpitd: client,
                      compare: compare,
@@ -418,13 +418,14 @@ function hosts_init() {
                 }
             });
 
+        function update_color() {
+            info.color = proxy.Color;
+            $(shell.hosts).trigger('changed', [ addr ]);
+        }
+
         function update_hostname() {
             info.display_name = shell.util.hostname_for_display(manager);
             hostname_span.text(info.display_name);
-            if (manager.Hostcolor)
-                info.color = manager.Hostcolor;
-            else if (!info.color)
-                info.color = pick_color();
             update_global_nav();
             show_hosts();
             $(shell.hosts).trigger('changed', [ addr ]);
@@ -447,15 +448,11 @@ function hosts_init() {
         }
 
         function set_avatar(data) {
-            console.log(data);
             manager.SetAvatarDataURL(data);
         }
 
         function set_color(color) {
-            /* TODO: Make permanent
-             */
-            info.color = color;
-            $(shell.hosts).trigger('changed', [ addr ]);
+            proxy.SetColor(color);
         }
 
         function reconnect() {
@@ -492,6 +489,11 @@ function hosts_init() {
             info.problem = problem;
             avatar_img.attr('src', "images/server-error.png");
             $(shell.hosts).trigger('changed', [ addr ]);
+        });
+
+        $(proxy).on('changed', function (event, props) {
+            if ("Color" in props)
+                update_color();
         });
 
         manager.wait(function () {

@@ -263,17 +263,74 @@ function check_admin() {
     return true;
 }
 
-/* Information for each host, keyed by address.  This is an object
- * with at least these fields:
+/* Information for each host, keyed by address.  hosts[addr] is an
+ * object with at least these fields:
  *
  * - display_name
+ * - avatar
+ * - color
+ * - state
+ * - cockpitd
  * - set_active()
+ * - remove()
+ *
+ * $(shell.hosts).on("added removed changed", function (addr) { });
  */
-var host_info = { };
+shell.hosts = { };
+
+shell.host_setup = function host_setup() {
+    if (!check_admin())
+        return;
+
+    $('#dashboard_setup_server_dialog').modal('show');
+};
 
 function hosts_init() {
 
+    var host_info = shell.hosts;
     var host_proxies;
+
+    var host_colors = [
+        "#0099d3",
+        "#67d300",
+        "#d39e00",
+        "#d3007c",
+        "#00d39f",
+        "#00d1d3",
+        "#00618a",
+        "#4c8a00",
+        "#8a6600",
+        "#9b005b",
+        "#008a55",
+        "#008a8a",
+        "#00b9ff",
+        "#7dff00",
+        "#ffbe00",
+        "#ff0096",
+        "#00ffc0",
+        "#00fdff",
+        "#023448",
+        "#264802",
+        "#483602",
+        "#590034",
+        "#024830",
+        "#024848"
+    ];
+
+    function pick_color() {
+        for (var i = 0; i < host_colors.length; i++) {
+            var found = false;
+            for (var addr in host_info) {
+                if (host_info[addr].color == host_colors[i]) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                return host_colors[i];
+        }
+        return "grey";
+    }
 
     function update() {
         var want = { };
@@ -281,14 +338,17 @@ function hosts_init() {
             var h = host_proxies[path];
             if (shell.find_in_array(h.Tags, "dashboard")) {
                 want[h.Address] = h;
-                if (!host_info[h.Address])
-                    add_host(h.Address);
+                if (!host_info[h.Address]) {
+                    add_host(h.Address, h);
+                    $(shell.hosts).trigger('added', [ h.Address ]);
+                }
             }
         }
         for (var addr in host_info) {
             if (!want[addr]) {
-                host_info[addr].remove();
+                host_info[addr]._removed();
                 delete host_info[addr];
+                $(shell.hosts).trigger('removed', [ addr ]);
             }
         }
     }
@@ -301,7 +361,7 @@ function hosts_init() {
         }
     }
 
-    function add_host(addr) {
+    function add_host(addr, proxy) {
         var client = cockpit.dbus("com.redhat.Cockpit", { host: addr, bus: "session" });
         var manager = client.proxy("com.redhat.Cockpit.Manager",
                                    "/com/redhat/Cockpit/Manager");
@@ -309,9 +369,24 @@ function hosts_init() {
         var link, hostname_span, avatar_img;
 
         var info = { display_name: addr,
+                     avatar: "",
+                     color: null,
+                     state: "connecting",
+                     cockpitd: client,
                      set_active: set_active,
-                     remove: remove
+                     remove: remove,
+
+                     _removed: _removed
                    };
+
+        function remove() {
+            if (proxy.valid) {
+                proxy.RemoveTag("dashboard").
+                    fail(function (error) {
+                        cockpit.show_unexpected_error(error);
+                    });
+            }
+        }
 
         link = $('<a class="list-group-item">').
             append(
@@ -326,19 +401,26 @@ function hosts_init() {
 
         $('#hosts').append(link);
 
-        function update() {
+        function update_hostname() {
             info.display_name = shell.util.hostname_for_display(manager);
             hostname_span.text(info.display_name);
-
-            if (manager.GetAvatarDataURL) {
-                manager.GetAvatarDataURL().
-                    done(function (result) {
-                        if (result)
-                            avatar_img.attr('src', result);
-                    });
-            }
-
+            if (manager.Hostcolor)
+                info.color = manager.Hostcolor;
+            else if (!info.color)
+                info.color = pick_color();
             update_global_nav();
+            $(shell.hosts).trigger('changed', [ addr ]);
+        }
+
+        function update_avatar() {
+            manager.GetAvatarDataURL().
+                done(function (result) {
+                    if (result) {
+                        info.avatar = result;
+                        avatar_img.attr('src', result);
+                        $(shell.hosts).trigger('changed', [ addr ]);
+                    }
+                });
         }
 
         function set_active() {
@@ -346,7 +428,7 @@ function hosts_init() {
             link.addClass("active");
         }
 
-        function remove() {
+        function _removed() {
             link.remove();
             $(manager).off('.hosts');
             client.close();
@@ -355,20 +437,20 @@ function hosts_init() {
         host_info[addr] = info;
 
         manager.wait(function () {
-            $(manager).on('changed.hosts', function (event, props) {
-                if ("PrettyHostname" in props || "StaticHostname" in props)
-                    update();
-            });
-            $(manager).on('AvatarChanged.hosts', update);
-            update();
+            if (manager.valid) {
+                info.state = "connected";
+                $(manager).on('changed.hosts', function (event, props) {
+                    if ("PrettyHostname" in props || "StaticHostname" in props)
+                        update_hostname();
+                });
+                $(manager).on('AvatarChanged.hosts', update_avatar);
+                update_hostname();
+                update_avatar();
+            } else {
+                info.state = "failed";
+                $(shell.hosts).trigger('changed', [ addr ]);
+            }
         });
-    }
-
-    function host_setup() {
-        if (!check_admin())
-            return;
-
-        $('#dashboard_setup_server_dialog').modal('show');
     }
 
     $('#hosts').append(
@@ -377,7 +459,7 @@ function hosts_init() {
                 $('<button class="btn btn-primary" style="float:right">').
                     text("+").
                     click(function () {
-                        host_setup();
+                        shell.host_setup();
                         return false;
                     }),
                 $('<span>').
@@ -410,7 +492,7 @@ function update_global_nav() {
     var hostname = null;
     var page_title = null;
 
-    info = host_info[current_params.host];
+    info = shell.hosts[current_params.host];
     if (info) {
         hostname = info.display_name;
         info.set_active();

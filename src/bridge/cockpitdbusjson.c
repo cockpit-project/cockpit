@@ -1156,7 +1156,8 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
 out:
   if (error)
     {
-      send_dbus_error (self, call, error);
+      if (call)
+        send_dbus_error (self, call, error);
       g_error_free (error);
     }
   if (call)

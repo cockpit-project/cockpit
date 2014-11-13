@@ -1901,14 +1901,14 @@ cockpit_dbus_json_constructed (GObject *object)
    */
   bus_type = G_BUS_TYPE_SESSION;
   bus = cockpit_channel_get_option (channel, "bus");
-  if (bus == NULL || g_str_equal (bus, "session") ||
-      g_str_equal (bus, "user"))
-    {
-      bus_type = G_BUS_TYPE_SESSION;
-    }
-  else if (g_str_equal (bus, "system"))
+  if (bus == NULL || g_str_equal (bus, "system"))
     {
       bus_type = G_BUS_TYPE_SYSTEM;
+    }
+  else if (g_str_equal (bus, "session") ||
+           g_str_equal (bus, "user"))
+    {
+      bus_type = G_BUS_TYPE_SESSION;
     }
   else
     {

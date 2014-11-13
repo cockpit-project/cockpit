@@ -302,7 +302,7 @@ Additional "open" command options are needed to open a channel of this
 type:
 
  * "bus": The DBus bus to connect to either "session" or "system",
-   defaults to "session" if not present.
+   defaults to "system" if not present.
  * "name": A service name of the DBus service to communicate with.
 
 The DBus bus name is started on the bus if it is not already running. If it

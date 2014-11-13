@@ -1539,7 +1539,7 @@ handle_dbus_remove_match (CockpitDBusJson *self,
                               "RemoveMatch",
                               g_variant_new ("(s)", match),
                               NULL, G_DBUS_CALL_FLAGS_NO_AUTO_START, -1,
-                              self->cancellable,
+                              NULL, /* don't cancel removes */
                               on_remove_match_ready,
                               g_object_ref (self));
       g_free (match);

@@ -1042,6 +1042,7 @@ send_dbus_reply (CockpitDBusJson *self,
 
 static GVariantType *
 calculate_param_type (GDBusInterfaceInfo *info,
+                      const gchar *iface,
                       const gchar *method,
                       GError **error)
 {
@@ -1054,8 +1055,7 @@ calculate_param_type (GDBusInterfaceInfo *info,
   if (method_info == NULL)
     {
       g_set_error (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD,
-                   "Introspection data for method %s on D-Bus interface %s not available",
-                   info->name, method);
+                   "Introspection data for method %s %s not available", iface, method);
       return NULL;
     }
   else if (method_info->in_args)
@@ -1179,7 +1179,7 @@ on_introspect_ready (CockpitDBusCache *cache,
       return;
     }
 
-  call->param_type = calculate_param_type (iface, call->method, &error);
+  call->param_type = calculate_param_type (iface, call->interface, call->method, &error);
 
   if (error)
     {

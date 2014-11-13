@@ -244,7 +244,7 @@ asyncTest("call unknown", function() {
             "UnknownBlahMethod", [ 1 ]).
         fail(function(ex) {
             equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
-            equal(ex.message, "Introspection data for method com.redhat.Cockpit.DBusTests.Frobber on D-Bus interface UnknownBlahMethod not available", "error message");
+            equal(ex.message, "Introspection data for method com.redhat.Cockpit.DBusTests.Frobber UnknownBlahMethod not available", "error message");
         }).
         always(function() {
             equal(this.state(), "rejected", "should fail");

@@ -42,7 +42,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 asyncTest("call method", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     equal(typeof dbus.call, "function", "is a function");
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "HelloWorld", [ "Browser-side JS" ]).
@@ -58,7 +58,7 @@ asyncTest("call method", function() {
 asyncTest("primitive types", function() {
     expect(2);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "TestPrimitiveTypes", [
                     10, true, 11, 12, 13, 14, 15, 16, 17,
@@ -80,7 +80,7 @@ asyncTest("primitive types", function() {
 asyncTest("non-primitive types", function() {
     expect(2);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "TestNonPrimitiveTypes", [
                     {one: "red", two: "blue"},
@@ -104,7 +104,7 @@ asyncTest("non-primitive types", function() {
 asyncTest("variants", function() {
     expect(2);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                 "TestAsv", [ {
                    one: cockpit.variant("s", "foo"),
@@ -127,7 +127,7 @@ asyncTest("variants", function() {
 asyncTest("bad variants", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                 "TestAsv", [ {
                     one: "foo",
@@ -149,7 +149,7 @@ asyncTest("bad variants", function() {
 asyncTest("bad variants", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                 "TestAsv", [ {
                     one: "foo",
@@ -169,9 +169,9 @@ asyncTest("bad variants", function() {
 });
 
 asyncTest("get all", function() {
-   expect(2);
+    expect(2);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "org.freedesktop.DBus.Properties",
               "GetAll", [ "com.redhat.Cockpit.DBusTests.Frobber" ]).
         done(function(reply) {
@@ -206,7 +206,7 @@ asyncTest("get all", function() {
 asyncTest("call unimplemented", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "UnimplementedMethod", [ ]).
         fail(function(ex) {
@@ -222,7 +222,7 @@ asyncTest("call unimplemented", function() {
 asyncTest("call bad base64", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "TestPrimitiveTypes", [ 10, true, 11, 12, 13, 14, 15, 16, 17, "a string", "/a/path", "asig",
                     "Yooohooo!~ bad base64" ]).
@@ -239,7 +239,7 @@ asyncTest("call bad base64", function() {
 asyncTest("call unknown", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
             "UnknownBlahMethod", [ 1 ]).
         fail(function(ex) {
@@ -256,7 +256,7 @@ asyncTest("signals", function() {
     expect(6);
 
     var received = false;
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     var id = dbus.subscribe({
         "interface": "com.redhat.Cockpit.DBusTests.Frobber",
         "path": "/otree/frobber"
@@ -284,7 +284,7 @@ asyncTest("signal unsubscribe", function() {
     expect(4);
 
     var received = true;
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
 
     function on_signal() {
         received = true;
@@ -315,7 +315,7 @@ asyncTest("signal unsubscribe", function() {
 asyncTest("with types", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/bork", "borkety.Bork", "Echo",
               [ {one: "red", two: "blue"}, 55, 66, 32 ],
               { type: "a{ss}uit" }).
@@ -332,7 +332,7 @@ asyncTest("with types", function() {
 asyncTest("bad types", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ],
               { type: "!!%%" }).
         fail(function(ex) {
@@ -348,7 +348,7 @@ asyncTest("bad types", function() {
 asyncTest("bad dict type", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "Nobody", [ { "!!!": "value" } ], { type: "a{is}" }).
         fail(function(ex) {
@@ -364,7 +364,7 @@ asyncTest("bad dict type", function() {
 asyncTest("bad object path", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "Nobody", [ "not/a/path" ], { type: "o" }).
         fail(function(ex) {
@@ -380,7 +380,7 @@ asyncTest("bad object path", function() {
 asyncTest("bad signature", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "Nobody", [ "bad signature" ], { type: "g" }).
         fail(function(ex) {
@@ -396,7 +396,7 @@ asyncTest("bad signature", function() {
 asyncTest("flags", function() {
     expect(3);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "HelloWorld", [ "test" ], { flags: "" }).
         done(function(reply, options) {
@@ -414,7 +414,7 @@ asyncTest("watch path", function() {
 
     var cache = { };
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     $(dbus).on("notify", function(event, data) {
         $.extend(cache, data);
     });
@@ -440,7 +440,7 @@ asyncTest("watch object manager", function() {
 
     var cache = { };
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     $(dbus).on("notify", function(event, data) {
         $.extend(cache, data);
     });
@@ -466,7 +466,7 @@ asyncTest("watch change", function() {
 
     var cache = { };
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     $(dbus).on("notify", function(event, data) {
         $.extend(cache, data);
     });
@@ -494,7 +494,7 @@ asyncTest("watch barrier", function() {
 
     var cache = { };
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     $(dbus).on("notify", function(event, data) {
         $.extend(cache, data);
     });
@@ -525,7 +525,7 @@ asyncTest("watch interfaces", function() {
 
     var cache = { };
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     $(dbus).on("notify", function(event, data) {
         $.extend(true, cache, data);
     });
@@ -574,7 +574,7 @@ asyncTest("watch interfaces", function() {
 asyncTest("proxy", function() {
     expect(7);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
     proxy.wait(function() {
         strictEqual(proxy.valid, true, "proxy: is valid");
@@ -615,7 +615,7 @@ test("proxy no stutter", function() {
 asyncTest("proxies", function() {
     expect(13);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
 
     /* Just some cleanup */
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "DeleteAllObjects", []).
@@ -687,7 +687,7 @@ asyncTest("path loop", function() {
     var name = "yo" + new Date().getTime();
     var cache = { };
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     $(dbus).on("notify", function(event, data) {
         $.extend(cache, data);
     });
@@ -722,7 +722,7 @@ asyncTest("path signal", function() {
     var name = "yo" + new Date().getTime();
     var cache = { };
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     $(dbus).on("notify", function(event, data) {
         $.extend(cache, data);
     });
@@ -748,7 +748,7 @@ asyncTest("path signal", function() {
 });
 
 test("exposed client and options", function() {
-    var options = { host: "localhost" };
+    var options = { host: "localhost", "bus": "session" };
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", options);
     var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
     var proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
@@ -762,7 +762,7 @@ test("subscriptions on closed client", function() {
     function on_signal() {
     }
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     dbus.close();
 
     var subscription = dbus.subscribe({
@@ -778,7 +778,7 @@ test("subscriptions on closed client", function() {
 test("watch promise recursive", function() {
     expect(7);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test");
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     var promise = dbus.watch("/otree/frobber");
 
     var target = { };

@@ -1242,11 +1242,22 @@ handle_dbus_call (CockpitDBusJson *self,
   if (node && JSON_NODE_HOLDS_ARRAY (node))
     call->args = node;
 
-  cockpit_json_get_string (object, "id", NULL, &call->cookie);
-  cockpit_json_get_string (object, "type", NULL, &call->type);
-  cockpit_json_get_string (object, "flags", NULL, &call->flags);
-
-  if (!call->path || !g_variant_is_object_path (call->path))
+  if (!cockpit_json_get_string (object, "id", NULL, &call->cookie))
+    {
+      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+                   "The 'id' field is invalid in call");
+    }
+  else if (!cockpit_json_get_string (object, "type", NULL, &call->type))
+    {
+      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+                   "The 'type' field is invalid in call");
+    }
+  else if (!cockpit_json_get_string (object, "flags", NULL, &call->flags))
+    {
+      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+                   "The 'flags' field is invalid in call");
+    }
+  else if (!call->path || !g_variant_is_object_path (call->path))
     {
       g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_OBJECT,
                    "Object path is not valid: %s", call->path);

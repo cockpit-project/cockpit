@@ -11,29 +11,8 @@ function ph_init ()
 
 function ph_select(sel)
 {
-    if (window.$)
-        return $(sel);
-
-    if (sel.indexOf(':') != -1 ||
-        sel.indexOf('(') != -1 ||
-        sel.indexOf(')') != -1 ||
-        sel.indexOf('"') != -1 ||
-        sel.indexOf("'") != -1)
-        throw "cannot use selector without jQuery: " + sel;
-
-    if (sel.indexOf('#') === 0) {
-        var el = document.getElementById(sel.substring(1));
-        if (!el)
-            return [ ];
-        return [ el ];
-    }
-
-    var els;
-    if (sel.indexOf('.'))
-        els = document.getElementsByClassName(sel.substring(1));
-    else
-        els = document.getElementsByTagName(sel);
-    return els;
+    /* Sizzle loaded in testlib.py */
+    return Sizzle(sel);
 }
 
 function ph_only(els, sel)
@@ -133,14 +112,8 @@ function ph_set_checked (sel, val)
 
 function ph_is_visible (sel)
 {
-    if (window.$) {
-        var $sel = ph_select(sel);
-        ph_only($sel, sel);
-        return $sel.is(':visible') && !$sel.is(':animated');
-    } else {
-        var el = ph_find(sel);
-        return (el.offsetParent !== null);
-    }
+    var el = ph_find(sel);
+    return !(el.offsetWidth <= 0 || el.offsetHeight <= 0);
 }
 
 function ph_is_present(sel)

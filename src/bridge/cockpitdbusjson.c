@@ -45,6 +45,7 @@ typedef struct {
   GDBusConnection *connection;
   gboolean subscribed;
   guint subscribe_id;
+  guint ping_id;
 
   /* Talking to */
   const gchar *name;
@@ -1779,6 +1780,40 @@ cockpit_dbus_json_init (CockpitDBusJson *self)
   self->rules = cockpit_dbus_rules_new ();
 }
 
+static gboolean
+on_timeout_ping (gpointer data)
+{
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (data);
+  GDBusMessage *message;
+  GError *error = NULL;
+
+  if (g_cancellable_is_cancelled (self->cancellable))
+    {
+      self->ping_id = 0;
+      return FALSE;
+    }
+
+  message = g_dbus_message_new_method_call (self->name_owner, "/",
+                                            "org.freedesktop.DBus.Peer", "Ping");
+
+  g_dbus_connection_send_message (self->connection, message,
+                                  G_DBUS_SEND_MESSAGE_FLAGS_NONE,
+                                  NULL, &error);
+
+  g_object_unref (message);
+
+  if (error)
+    {
+      g_warning ("%s: couldn't send ping to %s: %s",
+                 self->name, self->name_owner, error->message);
+      g_error_free (error);
+      self->ping_id = 0;
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 on_name_appeared (GDBusConnection *connection,
                   const gchar *name,
@@ -1810,6 +1845,9 @@ on_name_appeared (GDBusConnection *connection,
                                                            G_DBUS_SIGNAL_FLAGS_NO_MATCH_RULE,
                                                            on_signal_message, self, NULL);
   self->subscribed = TRUE;
+
+  self->ping_id = g_timeout_add_seconds (10, on_timeout_ping, self);
+
   cockpit_channel_ready (COCKPIT_CHANNEL (self));
 }
 
@@ -1927,6 +1965,12 @@ cockpit_dbus_json_dispose (GObject *object)
   GList *l;
 
   g_cancellable_cancel (self->cancellable);
+
+  if (self->ping_id)
+    {
+      g_source_remove (self->ping_id);
+      self->ping_id = 0;
+    }
 
   if (self->name_watched)
     {

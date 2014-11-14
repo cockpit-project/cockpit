@@ -70,22 +70,29 @@ html, body {
 }
 
 #dashboard-hosts .btn {
-    margin-top: 7px;
     height: 28px;
     width: 28px;
+    margin-top: 2px;
 }
 
-#dashboard-hosts .list-group-item {
+#dashboard-hosts .list-group-item .host-avatar,
+#hosts .list-group-item .host-avatar {
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+#dashboard-hosts .list-group-item .host-avatar {
+    float: left;
+}
+
+#dashboard-hosts .list-group-item span {
+    margin-right: 76px;
+    display: block;
+    padding-top: 6px;
+    padding-bottom: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.host-avatar {
-    margin: 5px;
-    margin-right: 10px;
-    margin-left: 0px;
-    border-radius: 3px;
 }
 
 #content-navbar-hostname {

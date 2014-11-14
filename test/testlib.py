@@ -119,6 +119,10 @@ class Browser:
         self.init_after_load()
 
     def init_after_load(self):
+        # Prevent sizzle from registering with AMD loader, and also claiming the usual global name
+        with open("%s/lib/sizzle.v2.1.0.js" % topdir) as file:
+            js = "var define = null; " + file.read()
+            self.phantom.do(js)
         self.phantom.inject("%s/test/phantom-lib.js" % topdir)
         self.phantom.do("ph_init()")
 

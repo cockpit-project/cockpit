@@ -90,14 +90,14 @@ class TestDocker(MachineCase):
         b.wait_text("#containers-failure-message", "Not authorized to access Docker on this system")
         b.wait_visible("#containers-failure-retry")
 
-        # Give "admin" access via the wheel group and try again
-        m.execute("chown root:wheel /run/docker.sock")
-        b.click("#containers-failure-retry")
-        b.wait_not_visible("#containers-failure")
+        # Give "admin" access via the docker group and login again
+        m.execute("usermod -G wheel,docker admin")
+        b.relogin("containers")
+        self.allow_restart_journal_messages()
         b.wait_visible("#containers-containers")
 
-        # Stop the daemon, wait for the failure, and reconnect.
-        m.execute("systemctl stop docker.service")
+        # Restart the daemon, wait for the failure, and reconnect.
+        m.execute("systemctl restart docker.service")
         b.wait_visible("#containers-failure")
         b.wait_visible("#containers-failure-retry")
         b.click("#containers-failure-retry")

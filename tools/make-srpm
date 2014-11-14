@@ -39,6 +39,8 @@ rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
     cd $base/..
     git archive HEAD --prefix cockpit-wip/ --output $rpm_tmpdir/cockpit-wip.tar.gz
     cp test/cockpit.pam $rpm_tmpdir
+    sed '1i\
+%define gitcommit wip' tools/cockpit.spec > $rpm_tmpdir/cockpit.spec
 )
 
 (
@@ -52,8 +54,7 @@ rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
         --define "_rpmdir `pwd`" \
         --define "_buildrootdir `pwd`/.build" \
         --define "optflags -ggdb3 -O0" \
-        --define "gitcommit wip" \
-        $base/cockpit.spec
+        cockpit.spec
 )
 
 for f in "${rpm_tmpdir}"/*.src.rpm; do

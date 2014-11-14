@@ -1,5 +1,6 @@
-# This global is defined by test builders like make-rpms
-# global gitcommit blah
+# Globals that might be defined elsewhere
+#  * gitcommit xxxx
+#  * selinux 1
 
 # Our SELinux policy gets built in tests and f21 and lower
 %if %{defined gitcommit}

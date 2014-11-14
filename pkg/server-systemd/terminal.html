@@ -56,13 +56,15 @@ require([
             if (channel && channel.valid)
                 channel.send(data);
         });
+
+        $("body").show();
     }
 
     $(show);
 });
 </script>
 </head>
-<body>
+<body style="display: none;">
     <div id="terminal" class="terminal-emulator"></div>
 </body>
 </html>

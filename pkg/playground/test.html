@@ -7,7 +7,7 @@
     <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
     <script src="../@@latest@@/cockpit.js"></script>
 </head>
-<body>
+<body style="display: none;">
     <div id="internal" class="container-fluid">
         <img src="hammer.gif" style="float: right;" onclick="$(this).hide();">
         <div id="nav"></div>
@@ -76,6 +76,7 @@ require([
         cockpit.location.go(cockpit.location.path.concat(len.toString()), { length: len.toString() });
     });
 
+    $("body").show();
 });
 </script>
 </body>

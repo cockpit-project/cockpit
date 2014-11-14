@@ -31,14 +31,18 @@ class TestDashboard(MachineCase):
           }
           return null;
         }
+        dashboard_addresses = function () {
+          var page = legacy_page_from_id('dashboard');
+          var addresses = Object.keys(page.hosts);
+          addresses.sort(function (a1, a2) { return shell.hosts[a1].compare(shell.hosts[a2]); });
+          return addresses;
+        }
         """)
 
     def wait_dashboard_addresses(self, b, expected):
         b.wait_js_func(
             """(function (expected) {
-            var page = legacy_page_from_id('dashboard');
-            var actual = page.dbus_clients.map(function (c) { return c.target });
-            return expected.sort().toString() == actual.sort().toString();
+            return expected.sort().toString() == dashboard_addresses().sort().toString();
             })""", expected)
 
     def wait_discovered_addresses(self, b, expected):
@@ -50,18 +54,17 @@ class TestDashboard(MachineCase):
 
     def get_address_map(self, b):
         map = { }
-        dash = b.eval_js("return legacy_page_from_id('dashboard').dbus_clients.map(function (c) { return c.target });")
+        dash = b.eval_js("return dashboard_addresses();")
         for i in range (0, len(dash)):
             map[dash[i]] = i;
         return map
 
-    def machine_action(self, b, address, action):
+    def machine_remove(self, b, address):
         map = self.get_address_map(b)
-        b.click_action_btn('#dashboard-machines a:nth-child(%d) .cockpit-machine-action' % (map[address]+1),
-                           action)
+        b.click('#dashboard-hosts a:nth-child(%d) button' % (map[address]+1))
 
     def add_machine(self, b, address):
-        b.click('#dashboard-add-server')
+        b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#dashboard_setup_address', address)
         self.add_machine_finish(b)
@@ -98,9 +101,9 @@ class TestDashboard(MachineCase):
         self.wait_dashboard_addresses (b, [ "localhost", "127.0.0.1", m.address ])
 
         # Remove two
-        self.machine_action (b, "127.0.0.1", "Remove")
+        self.machine_remove (b, "127.0.0.1")
         self.wait_dashboard_addresses (b, [ "localhost", m.address ])
-        self.machine_action (b, "localhost", "Remove")
+        self.machine_remove (b, "localhost")
         self.wait_dashboard_addresses (b, [ m.address ])
 
         # Start second browser and check that it is in sync
@@ -111,7 +114,7 @@ class TestDashboard(MachineCase):
         self.wait_dashboard_addresses (b2, [ m.address ])
 
         # Check that the two removed machines are listed in "Add Host"
-        b.click('#dashboard-add-server')
+        b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         self.wait_discovered_addresses (b, [ "127.0.0.1", "localhost" ])
 
@@ -121,13 +124,13 @@ class TestDashboard(MachineCase):
         self.wait_dashboard_addresses (b, [ "localhost", m.address ])
 
         # Open "Add Host" on second browser
-        b2.click('#dashboard-add-server')
+        b2.click('#dashboard-add')
         b2.wait_popup('dashboard_setup_server_dialog')
         self.wait_discovered_addresses (b2, [ "127.0.0.1", "localhost" ])
 
         # Remove one from dashboard of first browser and check that it
         # appears in dialog of second
-        self.machine_action (b, m.address, "Remove")
+        self.machine_remove (b, m.address)
         self.wait_discovered_addresses (b2, [ "127.0.0.1", "localhost" ])
 
         b2.click('#dashboard_setup_server_dialog button.close')
@@ -188,7 +191,7 @@ class TestDashboard(MachineCase):
         self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])
-        b.click('#dashboard-add-server')
+        b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#dashboard_setup_address', m2.address)
         b.set_checked('#dashboard_setup_address_reuse_creds', False)

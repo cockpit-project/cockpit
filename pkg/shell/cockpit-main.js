@@ -257,6 +257,9 @@ function check_admin() {
  * - problem
  * - cockpitd
  * - compare(other_host_object)
+ * - set_display_name(name)
+ * - set_avatar(avatar)
+ * - set_color(color)
  * - reconnect()
  * - show_problem_dialog()
  * - set_active()
@@ -273,52 +276,55 @@ shell.host_setup = function host_setup() {
     $('#dashboard_setup_server_dialog').modal('show');
 };
 
+shell.host_colors = [
+    "#0099d3",
+    "#67d300",
+    "#d39e00",
+    "#d3007c",
+    "#00d39f",
+    "#00d1d3",
+    "#00618a",
+    "#4c8a00",
+    "#8a6600",
+    "#9b005b",
+    "#008a55",
+    "#008a8a",
+    "#00b9ff",
+    "#7dff00",
+    "#ffbe00",
+    "#ff0096",
+    "#00ffc0",
+    "#00fdff",
+    "#023448",
+    "#264802",
+    "#483602",
+    "#590034",
+    "#024830",
+    "#024848"
+];
+
+function pick_unused_host_color() {
+    function in_use(color) {
+        var norm = $.color.parse(color).toString();
+        for (var a in shell.hosts) {
+            var h = shell.hosts[a];
+            if (h.color && $.color.parse(h.color).toString() == norm)
+                return true;
+        }
+        return false;
+    }
+
+    for (var i = 0; i < shell.host_colors.length; i++) {
+        if (!in_use(shell.host_colors[i]))
+            return shell.host_colors[i];
+    }
+    return "gray";
+}
+
 function hosts_init() {
 
     var host_info = shell.hosts;
     var host_proxies;
-
-    var host_colors = [
-        "#0099d3",
-        "#67d300",
-        "#d39e00",
-        "#d3007c",
-        "#00d39f",
-        "#00d1d3",
-        "#00618a",
-        "#4c8a00",
-        "#8a6600",
-        "#9b005b",
-        "#008a55",
-        "#008a8a",
-        "#00b9ff",
-        "#7dff00",
-        "#ffbe00",
-        "#ff0096",
-        "#00ffc0",
-        "#00fdff",
-        "#023448",
-        "#264802",
-        "#483602",
-        "#590034",
-        "#024830",
-        "#024848"
-    ];
-
-    function pick_color() {
-        for (var i = 0; i < host_colors.length; i++) {
-            var found = false;
-            for (var addr in host_info) {
-                if (host_info[addr].color == host_colors[i]) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                return host_colors[i];
-        }
-        return "grey";
-    }
 
     function update() {
         var want = { };
@@ -356,12 +362,16 @@ function hosts_init() {
 
         var link, hostname_span, avatar_img;
 
-        var info = { display_name: addr,
-                     avatar: "",
+        var info = { display_name: null,
+                     avatar: null,
                      color: null,
                      state: "connecting",
                      cockpitd: client,
+
                      compare: compare,
+                     set_display_name: set_display_name,
+                     set_avatar: set_avatar,
+                     set_color: set_color,
                      reconnect: reconnect,
                      show_problem_dialog: show_problem_dialog,
                      set_active: set_active,
@@ -375,20 +385,16 @@ function hosts_init() {
         }
 
         function remove() {
-            if (proxy.valid) {
-                proxy.RemoveTag("dashboard").
-                    fail(function (error) {
-                        cockpit.show_unexpected_error(error);
-                    });
-            }
+            proxy.RemoveTag("dashboard").
+                fail(function (error) {
+                    cockpit.show_unexpected_error(error);
+                });
         }
 
         link = info._element = $('<a class="list-group-item">').
             append(
-                avatar_img = $('<img width="32" height="32" class="host-avatar">').
-                    attr('src', "images/server-small.png"),
-                hostname_span = $('<span>').
-                    text(addr)).
+                avatar_img = $('<img width="32" height="32" class="host-avatar">'),
+                hostname_span = $('<span>')).
             click(function () {
                 if (info.state == "failed")
                     show_problem_dialog();
@@ -399,31 +405,63 @@ function hosts_init() {
             });
 
         function update_hostname() {
-            info.display_name = shell.util.hostname_for_display(manager);
-            hostname_span.text(info.display_name);
-            if (manager.Hostcolor)
-                info.color = manager.Hostcolor;
-            else if (!info.color)
-                info.color = pick_color();
-            update_global_nav();
-            show_hosts();
-            $(shell.hosts).trigger('changed', [ addr ]);
+            var name;
+            if (manager.valid)
+                name = shell.util.hostname_for_display(manager);
+            else if (proxy.Name)
+                name = proxy.Name;
+            else
+                name = addr;
+            if (name != info.display_name) {
+                info.display_name = name;
+                hostname_span.text(info.display_name);
+                update_global_nav();
+                show_hosts();
+            }
         }
 
-        function update_avatar() {
-            manager.GetAvatarDataURL().
-                done(function (result) {
-                    if (result) {
-                        info.avatar = result;
-                        avatar_img.attr('src', result);
-                        $(shell.hosts).trigger('changed', [ addr ]);
-                    }
-                });
+        function update_from_proxy() {
+            if (proxy.Color)
+                info.color = proxy.Color;
+            else if (info.color === null) {
+                info.color = pick_unused_host_color();
+                proxy.SetColor(info.color).
+                    fail(function (error) {
+                        console.warn(error);
+                    });
+            }
+
+            info.avatar = proxy.Avatar;
+            if (info.state != "failed")
+                avatar_img.attr('src', info.avatar || "images/server-small.png");
+            update_hostname();
+        }
+
+        function update_from_manager() {
+            var name = shell.util.hostname_for_display(manager);
+            if (name != proxy.Name)
+                proxy.SetName(name);
+            update_hostname();
         }
 
         function set_active() {
             $('#hosts > a').removeClass("active");
             link.addClass("active");
+        }
+
+        function set_display_name(name) {
+            if (manager.valid)
+                return manager.SetHostname(name, manager.StaticHostname, {});
+            else
+                return $.Deferred().reject("not connected").promise();
+        }
+
+        function set_avatar(data) {
+            return proxy.SetAvatar(data);
+        }
+
+        function set_color(color) {
+            return proxy.SetColor(color);
         }
 
         function reconnect() {
@@ -462,16 +500,24 @@ function hosts_init() {
             $(shell.hosts).trigger('changed', [ addr ]);
         });
 
+        $(proxy).on('changed', function (event, props) {
+            if ("Color" in props || "Avatar" in props || "Name" in props) {
+                update_from_proxy();
+                $(shell.hosts).trigger('changed', [ addr ]);
+            }
+        });
+        update_from_proxy();
+
         manager.wait(function () {
             if (manager.valid) {
                 info.state = "connected";
                 $(manager).on('changed.hosts', function (event, props) {
-                    if ("PrettyHostname" in props || "StaticHostname" in props)
-                        update_hostname();
+                    if ("PrettyHostname" in props || "StaticHostname" in props) {
+                        update_from_manager();
+                        $(shell.hosts).trigger('changed', [ addr ]);
+                    }
                 });
-                $(manager).on('AvatarChanged.hosts', update_avatar);
-                update_hostname();
-                update_avatar();
+                update_from_manager();
             }
         });
 

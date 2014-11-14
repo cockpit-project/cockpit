@@ -587,69 +587,6 @@ out:
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static gchar *
-get_avatar_data_url (void)
-{
-  const gchar *file = PACKAGE_SYSCONF_DIR "/cockpit/avatar.png";
-
-  cleanup_free gchar *raw_data = NULL;
-  gsize raw_size;
-  cleanup_free gchar *base64_data = NULL;
-
-  if (!g_file_get_contents (file, &raw_data, &raw_size, NULL))
-    return NULL;
-
-  base64_data = g_base64_encode ((guchar *)raw_data, raw_size);
-  return g_strdup_printf ("data:image/png;base64,%s", base64_data);
-}
-
-static gboolean
-handle_get_avatar_data_url (CockpitManager *_manager,
-                            GDBusMethodInvocation *invocation)
-{
-  cleanup_free gchar *data = get_avatar_data_url ();
-  cockpit_manager_complete_get_avatar_data_url (_manager, invocation, data? data : "");
-  return TRUE;
-}
-
-static gboolean
-handle_set_avatar_data_url (CockpitManager *object,
-                            GDBusMethodInvocation *invocation,
-                            const gchar *arg_data)
-{
-  GError *error = NULL;
-  gsize raw_size;
-  cleanup_free gchar *raw_data = NULL;
-
-  const gchar *base64_data = strstr (arg_data, "base64,");
-  if (base64_data == NULL)
-    goto out;
-
-  base64_data += strlen ("base64,");
-
-  raw_data = (gchar *)g_base64_decode (base64_data, &raw_size);
-
-  const gchar *file = PACKAGE_SYSCONF_DIR "/cockpit/avatar.png";
-  if (!g_file_set_contents (file, raw_data, raw_size, &error))
-    goto out;
-
-  cockpit_manager_emit_avatar_changed (object);
-
-out:
-  if (error)
-    {
-      g_dbus_method_invocation_return_error (invocation,
-                                             COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                             "%s", error->message);
-      g_clear_error (&error);
-    }
-  else
-    cockpit_manager_complete_set_avatar_data_url (object, invocation);
-  return TRUE;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
 /* SHUTDOWN & RESTART
  */
 
@@ -830,8 +767,6 @@ static void
 manager_iface_init (CockpitManagerIface *iface)
 {
   iface->handle_set_hostname = handle_set_hostname;
-  iface->handle_get_avatar_data_url = handle_get_avatar_data_url;
-  iface->handle_set_avatar_data_url = handle_set_avatar_data_url;
 
   iface->handle_get_server_time = handle_get_server_time;
   iface->handle_shutdown = handle_shutdown;

@@ -175,29 +175,6 @@
       <arg name="tz_offset_seconds" type="d" direction="out"/>
     </signal>
 
-    <!--
-        GetAvatarDataURL:
-
-        Get the avatar for the machine that this service is running
-        on.
-    -->
-    <method name="GetAvatarDataURL">
-      <arg name="result" type="s" direction="out"/>
-    </method>
-
-    <!--
-        SetAvatarDataURL:
-
-        Set the avatar for the machine that this service is running
-        on.
-    -->
-    <method name="SetAvatarDataURL">
-      <arg name="data" type="s" direction="in"/>
-    </method>
-
-    <signal name="AvatarChanged">
-    </signal>
-
   </interface>
 
   <!--

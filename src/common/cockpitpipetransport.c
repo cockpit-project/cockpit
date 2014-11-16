@@ -194,7 +194,7 @@ cockpit_pipe_transport_get_property (GObject *object,
       g_value_set_string (value, self->name);
       break;
     case PROP_PIPE:
-      g_value_set_object (value, self->pipe);
+      g_value_set_object (value, cockpit_pipe_transport_get_pipe (self));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -332,4 +332,11 @@ cockpit_pipe_transport_new_fds (const gchar *name,
   g_object_unref (pipe);
 
   return transport;
+}
+
+CockpitPipe *
+cockpit_pipe_transport_get_pipe (CockpitPipeTransport *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_PIPE_TRANSPORT (self), NULL);
+  return self->pipe;
 }

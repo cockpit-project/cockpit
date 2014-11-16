@@ -414,34 +414,6 @@ asyncTest("close peer", function() {
     });
 });
 
-asyncTest("close broadcast", function() {
-    expect(4);
-
-    var channel = cockpit.channel({ });
-    var channelb = cockpit.channel({ });
-
-    $(channel).on("close", function(event, options) {
-        equal(options.problem, "pizzazz", "received reason");
-        strictEqual(channel.valid, false, "channel is invalid");
-        if (!channel.valid && !channelb.valid)
-            start();
-    });
-
-    $(channelb).on("close", function(event, options) {
-        equal(options.problem, "pizzazz", "received reason");
-        strictEqual(channelb.valid, false, "other channel invalid");
-        if (!channel.valid && !channelb.valid)
-            start();
-    });
-
-    var cmd = {
-        "command": "close",
-        /* no channel */
-        "problem" : "pizzazz"
-    };
-    mock_peer.send("", JSON.stringify(cmd));
-});
-
 asyncTest("close socket", function() {
     expect(4);
 

@@ -137,17 +137,14 @@ the cockpit-web frontend or cockit-ws.
 Command: close
 --------------
 
-The "close" command closes a channel or more channels.
+The "close" command closes a channel.
 
 The following fields are defined:
 
  * "channel": The id of the channel to close
  * "problem": A short problem code for closure, or empty for a normal close
 
-If the channel is not set, then all channels (that the recipient of the message
-is aware of) will be closed.
-
-An example of a close:
+The channel id must be set.  An example of a close:
 
     {
         "command": "close",

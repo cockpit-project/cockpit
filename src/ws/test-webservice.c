@@ -906,7 +906,7 @@ test_socket_unauthenticated (TestCase *test,
 
   /* And we should have received a message */
   g_assert (received != NULL);
-  expect_control_message (received, "close", "4", "problem", "no-session", NULL);
+  expect_control_message (received, "init", NULL, "problem", "no-session", NULL);
   g_bytes_unref (received);
   received = NULL;
 

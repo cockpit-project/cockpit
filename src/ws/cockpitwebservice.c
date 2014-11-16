@@ -1543,7 +1543,7 @@ on_web_socket_noauth (WebSocketConnection *connection,
 
   g_debug ("closing unauthenticated web socket");
 
-  payload = build_control ("command", "close", "problem", "no-session", NULL);
+  payload = build_control ("command", "init", "problem", "no-session", NULL);
   prefix = g_bytes_new_static ("\n", 1);
 
   web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, prefix, payload);

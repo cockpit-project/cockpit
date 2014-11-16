@@ -298,6 +298,11 @@ function Transport() {
     };
 
     function process_init(options) {
+        if (options.problem){
+            self.close({ "problem": options.problem });
+            return;
+        }
+
         if (options.version !== 0) {
             console.error("received invalid version in init message");
             self.close({"problem": "protocol-error"});

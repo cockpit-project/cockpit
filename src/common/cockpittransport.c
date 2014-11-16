@@ -56,7 +56,7 @@ cockpit_transport_get_property (GObject *object,
 static gboolean
 cockpit_transport_default_recv (CockpitTransport *transport,
                                 const gchar *channel,
-                                GBytes *data)
+                                GBytes *payload)
 {
   gboolean ret = FALSE;
   const gchar *inner_channel;
@@ -68,14 +68,14 @@ cockpit_transport_default_recv (CockpitTransport *transport,
     return FALSE;
 
   /* Read out the actual command and channel this message is about */
-  if (!cockpit_transport_parse_command (data, &command, &inner_channel, &options))
+  if (!cockpit_transport_parse_command (payload, &command, &inner_channel, &options))
     {
       /* Warning already logged */
       cockpit_transport_close (transport, "protocol-error");
       return TRUE;
     }
 
-  g_signal_emit (transport, signals[CONTROL], 0, command, inner_channel, options, &ret);
+  g_signal_emit (transport, signals[CONTROL], 0, command, inner_channel, options, payload, &ret);
   json_object_unref (options);
 
   if (!ret)
@@ -108,7 +108,8 @@ cockpit_transport_class_init (CockpitTransportClass *klass)
                                    G_STRUCT_OFFSET (CockpitTransportClass, control),
                                    g_signal_accumulator_true_handled, NULL,
                                    g_cclosure_marshal_generic,
-                                   G_TYPE_BOOLEAN, 3, G_TYPE_STRING, G_TYPE_STRING, JSON_TYPE_OBJECT);
+                                   G_TYPE_BOOLEAN, 4,
+                                   G_TYPE_STRING, G_TYPE_STRING, JSON_TYPE_OBJECT, G_TYPE_BYTES);
 
   signals[CLOSED] = g_signal_new ("closed", COCKPIT_TYPE_TRANSPORT, G_SIGNAL_RUN_FIRST,
                                   G_STRUCT_OFFSET (CockpitTransportClass, closed),

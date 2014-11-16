@@ -729,6 +729,7 @@ on_session_control (CockpitTransport *transport,
   CockpitSession *session = NULL;
   CockpitSocket *socket = NULL;
   gboolean valid = FALSE;
+  gboolean forward = FALSE;
   GBytes *payload;
 
   if (!channel)
@@ -785,14 +786,14 @@ on_session_control (CockpitTransport *transport,
       else if (g_strcmp0 (command, "close") == 0)
         {
           valid = process_close (self, socket, session, channel, options);
+          forward = TRUE;
         }
       else
         {
-          g_debug ("forwarding a '%s' control command", command);
-          valid = TRUE; /* forward other messages */
+          valid = TRUE;
         }
 
-      if (valid)
+      if (forward)
         {
           /* Forward this message to the right websocket */
           if (socket && web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
@@ -1121,7 +1122,7 @@ dispatch_inbound_command (CockpitWebService *self,
   const gchar *channel;
   JsonObject *options = NULL;
   gboolean valid = FALSE;
-  gboolean forward = TRUE;
+  gboolean forward = FALSE;
   CockpitSession *session;
   GHashTableIter iter;
   GBytes *bytes;
@@ -1144,14 +1145,20 @@ dispatch_inbound_command (CockpitWebService *self,
     }
 
   if (g_strcmp0 (command, "open") == 0)
-    valid = process_open (self, socket, channel, options);
+    {
+      valid = process_open (self, socket, channel, options);
+      forward = TRUE;
+    }
   else if (g_strcmp0 (command, "logout") == 0)
     {
       valid = process_logout (self, options);
       goto out;
     }
   else if (g_strcmp0 (command, "close") == 0)
-    valid = TRUE;
+    {
+      valid = TRUE;
+      forward = TRUE;
+    }
   else if (g_strcmp0 (command, "ping") == 0)
     {
       valid = TRUE;
@@ -1163,7 +1170,7 @@ dispatch_inbound_command (CockpitWebService *self,
   if (!valid)
     goto out;
 
-  if (forward && channel == 0)
+  if (forward && !channel)
     {
       /* Control messages without a channel get sent to all sessions */
       g_hash_table_iter_init (&iter, self->sessions.by_transport);

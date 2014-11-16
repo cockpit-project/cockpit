@@ -584,7 +584,7 @@ asyncTest("filter message", function() {
     expect(2);
 
     var filtered = 0;
-    cockpit.transport.filter(function(channel, message) {
+    cockpit.transport.filter(function(message, channel, control) {
         if (message[0] != '\n') {
             filtered += 1;
             return (filtered != 1);

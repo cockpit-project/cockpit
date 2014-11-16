@@ -470,6 +470,8 @@ start_web_service_and_connect_client (TestCase *test,
                                       WebSocketConnection **ws,
                                       CockpitWebService **service)
 {
+  GBytes *message;
+
   start_web_service_and_create_client (test, fixture, ws, service);
   WAIT_UNTIL (web_socket_connection_get_ready_state (*ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
@@ -477,6 +479,11 @@ start_web_service_and_connect_client (TestCase *test,
   /* Send the open control message that starts the bridge. */
   send_control_message (*ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
   send_control_message (*ws, "open", "4", "payload", "test-text", NULL);
+
+  /* This message should be echoed */
+  message = g_bytes_new ("4\ntest", 6);
+  web_socket_connection_send (*ws, WEB_SOCKET_DATA_TEXT, NULL, message);
+  g_bytes_unref (message);
 }
 
 static void
@@ -557,11 +564,11 @@ test_handshake_and_echo (TestCase *test,
   GBytes *sent;
   gulong handler;
 
+  /* Sends a "test" message in channel "4" */
   start_web_service_and_connect_client (test, data, &ws, &service);
 
-  sent = g_bytes_new_static ("4\nthe message", 13);
+  sent = g_bytes_new_static ("4\ntest", 6);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
-  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, sent);
 
   WAIT_UNTIL (received != NULL);
 
@@ -586,7 +593,14 @@ test_echo_large (TestCase *test,
   GBytes *sent;
   gulong handler;
 
-  start_web_service_and_connect_client (test, data, &ws, &service);
+  start_web_service_and_create_client (test, data, &ws, &service);
+  while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
+
+  /* Send the open control message that starts the bridge. */
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 0, NULL);
+  send_control_message (ws, "open", "4", "payload", "test-text", NULL);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
   /* Medium length */
@@ -634,7 +648,6 @@ test_close_error (TestCase *test,
   received = NULL;
 
   WAIT_UNTIL (received != NULL);
-  expect_control_message (received, "open", "4", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -955,6 +968,8 @@ test_expect_host_key (TestCase *test,
   WebSocketConnection *ws;
   CockpitWebService *service;
   GBytes *received = NULL;
+  GBytes *message;
+
   gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)test->ssh_port, MOCK_RSA_KEY);
 
   /* No known hosts */
@@ -970,6 +985,10 @@ test_expect_host_key (TestCase *test,
                         "host-key", knownhosts,
                         NULL);
 
+  message = g_bytes_new ("4\ntest", 6);
+  web_socket_connection_send (ws, WEB_SOCKET_DATA_TEXT, NULL, message);
+  g_bytes_unref (message);
+
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Should get an init message */
@@ -983,9 +1002,8 @@ test_expect_host_key (TestCase *test,
   while (received == NULL && web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
     g_main_context_iteration (NULL, TRUE);
 
-  /* And we should have received an open message even though no known hosts */
+  /* And we should have received the echo even though no known hosts */
   g_assert (received != NULL);
-  expect_control_message (received, "open", "4", "payload", "test-text", NULL);
   g_bytes_unref (received);
   received = NULL;
 

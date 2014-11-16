@@ -1473,7 +1473,7 @@
     <refsection id="latest-transport-filter">
       <title>cockpit.transport.filter()</title>
 <programlisting>
-  cockpit.transport.filter(function(channel, message) { ... })
+  cockpit.transport.filter(function(message, channel, control) { ... })
 </programlisting>
       <para>Add a filter to the underlying channel transport. All incoming messages will be
         passed to each of the filter callbacks that are registered.</para>
@@ -1481,11 +1481,11 @@
       <para>Filter callbacks are called in the order they are registered. If a filter
         callback returns <code>false</code> then the message will not be dispatched
         further, whether to other filters, or to channels, etc.</para>
-       <para>The <code>channel</code> is a string with the intended
-       destination of the message, and is either the frame channel for
-       regular payload messages , or the value of the "channel" field
-       for messages in the control channel.  The <code>message</code>
-       is a string with the raw message, including all framing.</para>
+      <para>The <code>message</code> is the string with the raw message including,
+	the framing. If <code>channel</code> is set to a string this is a payload
+	message in the specified channel. If <code>control</code> is set then this is
+	a control message, and the <code>control</code> argument contains the parsed
+	JSON object of the control message.</para>
     </refsection>
 
     <refsection id="latest-transport-inject">

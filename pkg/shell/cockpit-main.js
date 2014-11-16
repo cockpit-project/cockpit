@@ -968,27 +968,20 @@ function register_child(child_window, host) {
     frame_peers_by_name[child_window.name] = peer;
 }
 
-function parse_init(data) {
-    if (data[0] == '\n' && data.indexOf('"init"') !== -1) {
-        var control = JSON.parse(data.substring(1));
-        if (control.command === "init")
-            return control;
-    }
-    return null;
-}
+cockpit.transport.filter(function(message, channel, control) {
 
-cockpit.transport.filter(function(channel, message) {
-
-    /* Control messages get forwarded to everyone */
-    if (!channel) {
-        $.each(frame_peers_by_seed, function(seed, peer) {
-            if (peer.initialized)
-                peer.window.postMessage(message, origin);
-        });
-        return true;
+    /* "close" control messages get forwarded to everyone */
+    if (control) {
+        if (control.command == "close") {
+            $.each(frame_peers_by_seed, function(seed, peer) {
+                if (peer.initialized)
+                    peer.window.postMessage(message, origin);
+            });
+        }
+        return true; /* still deliver locally */
 
     /* Forward message to relevant frame */
-    } else {
+    } else if (channel) {
         var pos = channel.indexOf('!');
         if (pos !== -1) {
             var seed = channel.substring(0, pos + 1);
@@ -1023,19 +1016,20 @@ window.addEventListener("message", function(event) {
         return;
     }
 
-    /*
-     * init messages are a single hop. We know the client is
-     * loaded when it sends one. We reply with our own.
-     * A bit of optimization here.
-     */
-    var init = parse_init(data);
-    if (init) {
-        peer.initialized = true;
-        var reply = $.extend({ }, cockpit.transport.options,
-            { "default-host": peer.default_host, "channel-seed": peer.channel_seed }
-        );
-        frame.postMessage("\n" + JSON.stringify(reply), origin);
-        return;
+    /* A control message */
+    if (data[0] == '\n') {
+        var control = JSON.parse(data.substring(1));
+        if (control.command === "init") {
+            peer.initialized = true;
+            var reply = $.extend({ }, cockpit.transport.options,
+                { "default-host": peer.default_host, "channel-seed": peer.channel_seed }
+            );
+            frame.postMessage("\n" + JSON.stringify(reply), origin);
+
+        /* Only open and close are forwardable */
+        } else if (control.command !== "open" && control.command !== "close") {
+            return;
+        }
     }
 
     if (!peer.initialized) {

@@ -151,6 +151,19 @@ on_closed_set_flag (CockpitTransport *transport,
 }
 
 static void
+test_properties (TestCase *tc,
+                 gconstpointer data)
+{
+  CockpitPipe *pipe;
+
+  g_assert (cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (tc->transport)) == tc->pipe);
+
+  g_object_get (tc->transport, "pipe", &pipe, NULL);
+  g_assert (pipe == tc->pipe);
+  g_object_unref (pipe);
+}
+
+static void
 test_echo_and_close (TestCase *tc,
                      gconstpointer data)
 {
@@ -573,6 +586,9 @@ main (int argc,
       g_test_add_data_func (name, bad_command_payloads[i].json, test_parse_command_bad);
       g_free (name);
     }
+
+  g_test_add ("/transport/properties", TestCase, NULL,
+              setup_no_child, test_properties, teardown_transport);
 
   g_test_add ("/transport/echo-message/child", TestCase,
               BUILDDIR "/mock-echo", setup_with_child,

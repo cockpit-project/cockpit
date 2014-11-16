@@ -29,6 +29,7 @@ G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_PIPE_TRANSPORT         (cockpit_pipe_transport_get_type ())
 #define COCKPIT_PIPE_TRANSPORT(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_PIPE_TRANSPORT, CockpitPipeTransport))
+#define COCKPIT_IS_PIPE_TRANSPORT(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_PIPE_TRANSPORT))
 #define COCKPIT_PIPE_TRANSPORT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_PIPE_TRANSPORT, CockpitPipeTransportClass))
 #define COCKPIT_IS_PIPE_TRANSPORT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), COCKPIT_TYPE_PIPE_TRANSPORT))
 
@@ -42,6 +43,8 @@ CockpitTransport * cockpit_pipe_transport_new        (CockpitPipe *pipe);
 CockpitTransport * cockpit_pipe_transport_new_fds    (const gchar *name,
                                                       gint in_fd,
                                                       gint out_fd);
+
+CockpitPipe *      cockpit_pipe_transport_get_pipe   (CockpitPipeTransport *self);
 
 G_END_DECLS
 

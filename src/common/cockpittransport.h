@@ -55,7 +55,8 @@ struct _CockpitTransportClass
   gboolean    (* control)     (CockpitTransport *transport,
                                const char *command,
                                const gchar *channel,
-                               JsonObject *options);
+                               JsonObject *options,
+                               GBytes *payload);
 
   void        (* closed)      (CockpitTransport *transport,
                                const gchar *problem);

@@ -113,6 +113,7 @@ on_transport_control (CockpitTransport *transport,
                       const char *command,
                       guint channel,
                       JsonObject *options,
+                      GBytes *message,
                       gpointer user_data)
 {
   CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (user_data);

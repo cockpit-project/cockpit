@@ -139,6 +139,7 @@ on_transport_control (CockpitTransport *transport,
                       const char *command,
                       const gchar *channel_id,
                       JsonObject *options,
+                      GBytes *message,
                       gpointer user_data)
 {
   if (g_str_equal (command, "init"))

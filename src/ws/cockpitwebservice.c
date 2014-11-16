@@ -723,6 +723,7 @@ on_session_control (CockpitTransport *transport,
                     const gchar *command,
                     const gchar *channel,
                     JsonObject *options,
+                    GBytes *payload,
                     gpointer user_data)
 {
   CockpitWebService *self = user_data;
@@ -730,7 +731,6 @@ on_session_control (CockpitTransport *transport,
   CockpitSocket *socket = NULL;
   gboolean valid = FALSE;
   gboolean forward = FALSE;
-  GBytes *payload;
 
   if (!channel)
     {
@@ -798,10 +798,8 @@ on_session_control (CockpitTransport *transport,
           /* Forward this message to the right websocket */
           if (socket && web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
             {
-              payload = cockpit_json_write_bytes (options);
               web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT,
                                           self->control_prefix, payload);
-              g_bytes_unref (payload);
             }
         }
     }
@@ -1159,13 +1157,10 @@ dispatch_inbound_command (CockpitWebService *self,
       valid = TRUE;
       forward = TRUE;
     }
-  else if (g_strcmp0 (command, "ping") == 0)
+  else
     {
       valid = TRUE;
-      goto out;
     }
-  else
-    valid = TRUE; /* forward other messages */
 
   if (!valid)
     goto out;
@@ -1717,6 +1712,7 @@ on_resource_control (CockpitTransport *transport,
                      const gchar *command,
                      const gchar *channel,
                      JsonObject *options,
+                     GBytes *message,
                      gpointer user_data)
 {
   ResourceResponse *rr = user_data;

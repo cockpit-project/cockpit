@@ -38,7 +38,7 @@
             var initialized = false;
             var frame;
 
-            cockpit.transport.filter(function(channel, message) {
+            cockpit.transport.filter(function(message, channel, control) {
                 if (initialized)
                     frame.postMessage(message, cockpit.transport.origin);
             });

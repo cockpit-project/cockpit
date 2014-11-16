@@ -48,14 +48,14 @@ this on the wire:
     |----msb length---| |----chan----| |---payload--|
     0x00 0x00 0x00 0x06 0x61 0x35 0x0A 0x61 0x62 0x63
 
-Command Messages
+Control Messages
 ----------------
 
-Command messages let the various components such as cockpit-web, cockpit-ws and
+Control messages let the various components such as cockpit-web, cockpit-ws and
 cockpit-bridge communicate about what's going on.
 
-Command messages are always sent in the control channel. They always have a
-channel number of zero. The payload of a control message is always a json
+Control messages are always sent in the control channel. They always have an
+empty channel. The payload of a control message is always a json
 object. There is always a "command" field:
 
     {
@@ -64,11 +64,12 @@ object. There is always a "command" field:
         ...
     }
 
-If a command message pertains to a specific channel it has a "channel" field
+If a control message pertains to a specific channel it has a "channel" field
 containing the id of the channel. It is invalid to have a present but empty
 "channel" field.
 
-Unknown command messages are ignored, and forwarded as appropriate.
+Unknown control messages are ignored. Unlike payload messages, control messages
+are not forwarded unless explicitly for the specific command below.
 
 Command: init
 -------------
@@ -83,8 +84,6 @@ The following fields are defined:
  * "channel-seed": A seed to be used when generating new channel ids.
  * "default-host": The default host to put in "open" messages.
  * "user": An object containing information about the logged in user.
-
-This is a single hop message. It is never forwarded.
 
 The "init" command message may be sent multiple times across an already open
 transport, if certain parameters need to be renegotiated.
@@ -128,7 +127,8 @@ An example of an open:
         "host": "localhost"
     }
 
-This message is sent from the cockpit-web frontend.
+This message is forwarded on to the cockpit-bridge. This message is sent from
+the cockpit-web frontend or cockit-ws.
 
 Command: close
 --------------
@@ -164,6 +164,8 @@ In the case of a connection that fails wiwh the problem "unknown-hostkey" the
 host key for the server will be included in a "host-key" field in the close
 message.
 
+This message is forwarded on to the cockpit-bridge.
+
 Command: ping
 -------------
 
@@ -177,8 +179,7 @@ An example of a ping:
         "command": "ping",
     }
 
-Any protocol participant can send this message, but it is not responded to or
-forwarded.
+Any protocol participant can send this message, but it is not responded to.
 
 Command: authorize
 ------------------

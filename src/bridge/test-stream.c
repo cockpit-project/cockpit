@@ -271,7 +271,7 @@ test_shutdown (TestCase *tc,
   g_assert_cmpstr (tc->channel_problem, ==, "");
   sent = mock_transport_pop_control (tc->transport);
 
-  expect_control_message (sent, "close", "548", "reason", "", NULL);
+  expect_control_message (sent, "close", "548", "problem", "", NULL);
 }
 
 static void
@@ -302,7 +302,7 @@ test_close_normal (TestCase *tc,
   g_bytes_unref (payload);
 
   control = mock_transport_pop_control (tc->transport);
-  expect_control_message (control, "close", "548", "reason", "", NULL);
+  expect_control_message (control, "close", "548", "problem", "", NULL);
 }
 
 static void
@@ -328,7 +328,7 @@ test_close_problem (TestCase *tc,
   g_assert_cmpstr (tc->channel_problem, ==, "boooyah");
   g_assert (mock_transport_pop_channel (tc->transport, "548") == NULL);
   expect_control_message (mock_transport_pop_control (tc->transport),
-                          "close", "548", "reason", "boooyah", NULL);
+                          "close", "548", "problem", "boooyah", NULL);
 }
 
 static void
@@ -472,7 +472,7 @@ test_spawn_status (void)
     g_main_context_iteration (NULL, TRUE);
 
   control = mock_transport_pop_control (transport);
-  expect_control_message (control, "close", "548", "reason", "", NULL);
+  expect_control_message (control, "close", "548", "problem", "", NULL);
   g_assert_cmpint (json_object_get_int_member (control, "exit-status"), ==, 5);
 
   g_free (problem);
@@ -516,7 +516,7 @@ test_spawn_signal (void)
     g_main_context_iteration (NULL, TRUE);
 
   control = mock_transport_pop_control (transport);
-  cockpit_assert_json_eq (control, "{ \"command\": \"close\", \"channel\": \"548\", \"reason\": \"\","
+  cockpit_assert_json_eq (control, "{ \"command\": \"close\", \"channel\": \"548\", \"problem\": \"\","
                                    "  \"exit-signal\": \"TERM\"}");
 
   g_free (problem);

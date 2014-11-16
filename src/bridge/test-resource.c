@@ -237,7 +237,7 @@ test_listing (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   cockpit_assert_json_eq (control,
-                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"packages\": ["
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"problem\": \"\", \"packages\": ["
                           " {"
                           "  \"id\": [\"second\",\"$2362deb82fad54aca51092c505a5660ac6c45a9f\",\"one\",\"two\"],"
                           "  \"manifest\": { \"description\": \"second dummy description\"}"
@@ -405,7 +405,7 @@ test_list_bad_name (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   cockpit_assert_json_eq (control,
-                          "{ \"command\": \"close\", \"channel\": \"444\", \"reason\": \"\", \"packages\": ["
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"problem\": \"\", \"packages\": ["
                           " {"
                           "  \"id\": [ \"ok\", \"$248b261c112455057b51827f3f63380159e27338\" ],"
                           "  \"manifest\": { }"

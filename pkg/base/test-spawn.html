@@ -51,7 +51,7 @@ function MockPeer() {
      * Events triggered here:
      * open(event, args)
      * recv(event, payload)
-     * close(event, reason)
+     * close(event, problem)
      * get(event, path)
      */
 
@@ -107,7 +107,7 @@ function MockPeer() {
         var channel = this;
 
         this.transport = new function() {
-            this.close = function(reason) { console.assert(arguments.length == 1); }
+            this.close = function(problem) { console.assert(arguments.length == 1); }
         };
 
         this.send = function(payload) {
@@ -226,7 +226,7 @@ asyncTest("with problem", function() {
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
-        peer.close(channel, {"reason": "not-found"});
+        peer.close(channel, {"problem": "not-found"});
     });
 
     cockpit.spawn("/unused").

@@ -103,7 +103,7 @@ process_close (CockpitTransport *transport,
                JsonObject *options)
 {
   CockpitChannel *channel;
-  const gchar *reason;
+  const gchar *problem;
 
   /*
    * The channel may no longer exist due to a race of the bridge closing
@@ -122,11 +122,11 @@ process_close (CockpitTransport *transport,
     {
       g_debug ("close channel %s %s", channel_id,
                cockpit_channel_get_option (channel, "payload"));
-      if (!cockpit_json_get_string (options, "reason", NULL, &reason))
-        reason = NULL;
-      if (reason && g_str_equal (reason, ""))
-        reason = NULL;
-      cockpit_channel_close (channel, reason);
+      if (!cockpit_json_get_string (options, "problem", NULL, &problem))
+        problem = NULL;
+      if (problem && g_str_equal (problem, ""))
+        problem = NULL;
+      cockpit_channel_close (channel, problem);
     }
   else
     {

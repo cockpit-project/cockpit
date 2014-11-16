@@ -55,47 +55,47 @@
  */
 
 typedef struct {
-  gboolean ready;
-  gboolean close;
-  gchar *problem;
+    gboolean ready;
+    gboolean close;
+    gchar *problem;
 } LaterData;
 
 struct _CockpitChannelPrivate {
-  gulong recv_sig;
-  gulong close_sig;
+    gulong recv_sig;
+    gulong close_sig;
 
-  /* Construct arguments */
-  CockpitTransport *transport;
-  gchar *id;
-  JsonObject *open_options;
+    /* Construct arguments */
+    CockpitTransport *transport;
+    gchar *id;
+    JsonObject *open_options;
 
-  /* Queued messages before channel is ready */
-  gboolean ready;
-  GQueue *received;
+    /* Queued messages before channel is ready */
+    gboolean ready;
+    GQueue *received;
 
-  /* Whether we've sent a closed message */
-  gboolean closed;
+    /* Whether we've sent a closed message */
+    gboolean closed;
 
-  /* Whether the transport closed (before we did) */
-  gboolean transport_closed;
+    /* Whether the transport closed (before we did) */
+    gboolean transport_closed;
 
-  /* Binary options */
-  gboolean binary_ok;
-  gboolean base64_encoding;
+    /* Binary options */
+    gboolean binary_ok;
+    gboolean base64_encoding;
 
-  /* Other state */
-  JsonObject *close_options;
+    /* Other state */
+    JsonObject *close_options;
 
-  /* If we've gotten to the main-loop yet */
-  guint later_tag;
-  LaterData *later_data;
+    /* If we've gotten to the main-loop yet */
+    guint later_tag;
+    LaterData *later_data;
 };
 
 enum {
-  PROP_0,
-  PROP_TRANSPORT,
-  PROP_ID,
-  PROP_OPTIONS,
+    PROP_0,
+    PROP_TRANSPORT,
+    PROP_ID,
+    PROP_OPTIONS,
 };
 
 static guint cockpit_channel_sig_closed;
@@ -233,7 +233,7 @@ cockpit_channel_constructed (GObject *object)
   self->priv->recv_sig = g_signal_connect (self->priv->transport, "recv",
                                            G_CALLBACK (on_transport_recv), self);
   self->priv->close_sig = g_signal_connect (self->priv->transport, "closed",
-                                           G_CALLBACK (on_transport_closed), self);
+                                            G_CALLBACK (on_transport_closed), self);
 
   binary = cockpit_channel_get_option (self, "binary");
   if (binary != NULL)
@@ -261,15 +261,15 @@ cockpit_channel_get_property (GObject *object,
 
   switch (prop_id)
     {
-      case PROP_TRANSPORT:
-        g_value_set_object (value, self->priv->transport);
-        break;
-      case PROP_ID:
-        g_value_set_string (value, self->priv->id);
-        break;
-      default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-        break;
+    case PROP_TRANSPORT:
+      g_value_set_object (value, self->priv->transport);
+      break;
+    case PROP_ID:
+      g_value_set_string (value, self->priv->id);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
     }
 }
 
@@ -283,18 +283,18 @@ cockpit_channel_set_property (GObject *object,
 
   switch (prop_id)
     {
-      case PROP_TRANSPORT:
-        self->priv->transport = g_value_dup_object (value);
-        break;
-      case PROP_ID:
-        self->priv->id = g_value_dup_string (value);
-        break;
-      case PROP_OPTIONS:
-        self->priv->open_options = g_value_dup_boxed (value);
-        break;
-      default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-        break;
+    case PROP_TRANSPORT:
+      self->priv->transport = g_value_dup_object (value);
+      break;
+    case PROP_ID:
+      self->priv->id = g_value_dup_string (value);
+      break;
+    case PROP_OPTIONS:
+      self->priv->open_options = g_value_dup_boxed (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
     }
 }
 
@@ -349,7 +349,7 @@ static void
 cockpit_channel_real_close (CockpitChannel *self,
                             const gchar *problem)
 {
-  const gchar *reason = problem;
+  const gchar *overridden = problem;
   JsonObject *object;
   GBytes *message;
 
@@ -360,8 +360,8 @@ cockpit_channel_real_close (CockpitChannel *self,
 
   if (!self->priv->transport_closed)
     {
-      if (reason == NULL)
-        reason = "";
+      if (overridden == NULL)
+        overridden = "";
 
       if (self->priv->close_options)
         {
@@ -375,7 +375,7 @@ cockpit_channel_real_close (CockpitChannel *self,
 
       json_object_set_string_member (object, "command", "close");
       json_object_set_string_member (object, "channel", self->priv->id);
-      json_object_set_string_member (object, "reason", reason);
+      json_object_set_string_member (object, "problem", overridden);
 
       message = cockpit_json_write_bytes (object);
       json_object_unref (object);
@@ -406,8 +406,8 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
    * The transport to send and receive messages over.
    */
   g_object_class_install_property (gobject_class, PROP_TRANSPORT,
-             g_param_spec_object ("transport", "transport", "transport", COCKPIT_TYPE_TRANSPORT,
-                                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+                                   g_param_spec_object ("transport", "transport", "transport", COCKPIT_TYPE_TRANSPORT,
+                                                        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * CockpitChannel:channel:
@@ -415,8 +415,8 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
    * The numeric channel to receive and send messages on.
    */
   g_object_class_install_property (gobject_class, PROP_ID,
-             g_param_spec_string ("id", "id", "id", NULL,
-                                  G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+                                   g_param_spec_string ("id", "id", "id", NULL,
+                                                        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * CockpitChannel:options:
@@ -427,8 +427,8 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
    * this should be.
    */
   g_object_class_install_property (gobject_class, PROP_OPTIONS,
-             g_param_spec_boxed ("options", "options", "options", JSON_TYPE_OBJECT,
-                                  G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+                                   g_param_spec_boxed ("options", "options", "options", JSON_TYPE_OBJECT,
+                                                       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * CockpitChannel::closed:
@@ -459,9 +459,9 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
  * Returns: (transfer full): the new channel
  */
 CockpitChannel *
-cockpit_channel_open (CockpitTransport *transport,
-                      const gchar *id,
-                      JsonObject *options)
+                cockpit_channel_open (CockpitTransport *transport,
+                                      const gchar *id,
+                                      JsonObject *options)
 {
   CockpitChannel *channel;
   GType channel_type;
@@ -527,11 +527,11 @@ cockpit_channel_open (CockpitTransport *transport,
  * the closing will happen after the main loop so that handlers
  * can connect appropriately.
  *
- * A @reason of NULL represents an orderly close.
+ * A @problem of NULL represents an orderly close.
  */
 void
 cockpit_channel_close (CockpitChannel *self,
-                       const gchar *reason)
+                       const gchar *problem)
 {
   CockpitChannelClass *klass;
 
@@ -543,13 +543,13 @@ cockpit_channel_close (CockpitChannel *self,
         self->priv->later_data = g_slice_new0 (LaterData);
       self->priv->later_data->close = TRUE;
       if (!self->priv->later_data->problem)
-        self->priv->later_data->problem = g_strdup (reason);
+        self->priv->later_data->problem = g_strdup (problem);
     }
   else
     {
       klass = COCKPIT_CHANNEL_GET_CLASS (self);
       g_assert (klass->close != NULL);
-      (klass->close) (self, reason);
+      (klass->close) (self, problem);
     }
 }
 

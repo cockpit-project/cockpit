@@ -68,7 +68,7 @@ CockpitChannel *    cockpit_channel_open              (CockpitTransport *transpo
                                                        JsonObject *options);
 
 void                cockpit_channel_close             (CockpitChannel *self,
-                                                       const gchar *reason);
+                                                       const gchar *problem);
 
 const gchar *       cockpit_channel_get_id            (CockpitChannel *self);
 

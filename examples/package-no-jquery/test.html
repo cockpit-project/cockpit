@@ -72,8 +72,8 @@ $ sudo systemctl restart cockpit</pre>
             };
             channel.onclose = function(ev, options) {
                 console.log("close", ev, options);
-                if (options.reason)
-                    failure.innerHTML = options.reason;
+                if (options.problem)
+                    failure.innerHTML = options.problem;
             };
             stop.removeAttribute("disabled");
         };

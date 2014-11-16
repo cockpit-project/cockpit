@@ -366,7 +366,7 @@ DBusClient.prototype = {
         });
 
         $(client._channel).on("close", function(event, options) {
-            client.error = options.reason;
+            client.error = options.problem;
             client.error_details = options;
             client.state = "closed";
             client._state_change();
@@ -590,7 +590,7 @@ DBusClient.prototype = {
 
     // ----------------------------------------------------------------------------------------------------
 
-    close : function(reason) {
+    close : function(problem) {
         var chan = this._channel;
         this._channel = null;
         if (chan)

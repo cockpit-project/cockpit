@@ -197,7 +197,7 @@ function Transport() {
         check_health_timer = window.setInterval(function () {
             if (!got_message) {
                 console.log("health check failed");
-                self.close({ "reason": "timeout" });
+                self.close({ "problem": "timeout" });
             }
             got_message = false;
         }, 10000);
@@ -206,7 +206,7 @@ function Transport() {
     if (!ws) {
         ws = { close: function() { } };
         window.setTimeout(function() {
-            self.close({"reason": "no-cockpit"});
+            self.close({"problem": "no-cockpit"});
         }, 50);
     }
 
@@ -272,7 +272,7 @@ function Transport() {
         if (self === default_transport)
             default_transport = null;
         if (!options)
-            options = { "reason": "disconnected" };
+            options = { "problem": "disconnected" };
         options.command = "close";
         clearInterval(check_health_timer);
         var ows = ws;
@@ -300,7 +300,7 @@ function Transport() {
     function process_init(options) {
         if (options.version !== 0) {
             console.error("received invalid version in init message");
-            self.close({"reason": "protocol-error"});
+            self.close({"problem": "protocol-error"});
             return;
         }
 
@@ -333,7 +333,7 @@ function Transport() {
             waiting_for_init = false;
             if (data.command != "close" || data.channel) {
                 console.error ("received message before init");
-                data = { "reason": "protocol-error" };
+                data = { "problem": "protocol-error" };
             }
             self.close(data);
             return;
@@ -502,7 +502,7 @@ function Channel(options) {
         if (!options)
             options = { };
         else if (typeof options == "string")
-            options = { "reason" : options + "" };
+            options = { "problem" : options + "" };
         options["command"] = "close";
         options["channel"] = id;
         if (transport) {
@@ -568,9 +568,9 @@ function package_table(host, callback) {
     }
     var channel = new Channel({ "host": host, "payload": "resource2" });
     channel.onclose = function(event, options) {
-        if (options.reason) {
-            package_debug("package listing failed: " + options.reason);
-            callback(null, options.reason);
+        if (options.problem) {
+            package_debug("package listing failed: " + options.problem);
+            callback(null, options.problem);
         } else {
             host_packages[host] = table = build_packages(options.packages || []);
             callback(table, null);
@@ -639,12 +639,12 @@ function basic_scope(cockpit) {
         filter: function filter(callback) {
             filters.push(callback);
         },
-        close: function close(reason) {
+        close: function close(problem) {
             if (!default_transport)
                 return;
             var options;
-            if (reason)
-                options = {"reason": reason };
+            if (problem)
+                options = {"problem": problem };
             default_transport.close(options);
         },
         origin: origin,
@@ -913,8 +913,8 @@ function full_scope(cockpit, $) {
             }).
             on("close", function(event, options) {
                 spawn_debug("process closed:", JSON.stringify(options));
-                if (options.reason)
-                    dfd.reject(new ProcessError(options.reason));
+                if (options.problem)
+                    dfd.reject(new ProcessError(options.problem));
                 else if (options["exit-status"] || options["exit-signal"])
                     dfd.reject(new ProcessError(options["exit-status"], options["exit-signal"]));
                 else
@@ -935,10 +935,10 @@ function full_scope(cockpit, $) {
                     channel.send(message);
                     return this;
                 },
-                close: function(reason) {
-                    spawn_debug("process closing:", reason);
+                close: function(problem) {
+                    spawn_debug("process closing:", problem);
                     if (channel.valid)
-                        channel.close(reason);
+                        channel.close(problem);
                     return this;
                 },
                 promise: this.promise
@@ -1247,7 +1247,7 @@ function full_scope(cockpit, $) {
                 console.warn("received invalid dbus json message:", ex);
             }
             if (msg === undefined) {
-                channel.close({"reason": "protocol-error"});
+                channel.close({"problem": "protocol-error"});
                 return;
             }
             var dfd;
@@ -1291,7 +1291,7 @@ function full_scope(cockpit, $) {
                 $.extend(cache.meta, msg.meta);
             } else {
                 console.warn("received unexpected dbus json message:", payload);
-                channel.close({"reason": "protocol-error"});
+                channel.close({"problem": "protocol-error"});
             }
         });
 
@@ -1299,9 +1299,9 @@ function full_scope(cockpit, $) {
             var problem;
             if (typeof options == "string") {
                 problem = options;
-                options = { "reason": problem };
+                options = { "problem": problem };
             } else if (options) {
-                problem = options.reason;
+                problem = options.problem;
             }
             if (!problem)
                 problem = "disconnected";

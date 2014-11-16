@@ -519,7 +519,7 @@
         <link linkend="latest-dbus-close">client.close()</link> function was called,
         or the DBus service went away, or some other problem or disconnection.</para>
       <para>The <code>options</code> will contain various close information, including a
-        <code>"reason"</code> field which will be set if the channel was closed because
+        <code>"problem"</code> field which will be set if the channel was closed because
         of a problem.</para>
     </refsection>
 
@@ -1409,9 +1409,9 @@
       <para>Close the channel.</para>
       <para>If <code>options</code> is present it can be a plain javascript object
         containing additional channel close options to send to the peer. If closing for
-        because of a problem, set the <code>"reason"</code> field to a
+        because of a problem, set the <code>"problem"</code> field to a
         <link linkend="latest-problems">problem code</link>. If <code>options</code>
-        is not an object it will be treated as a <code>"reason"</code>.</para>
+        is not an object it will be treated as a <code>"problem"</code>.</para>
       <para>The <link linkend="latest-channels-close-ev">close event</link> will fire.
         A channel can also be closed by a peer or if the underlying transport closes.</para>
     </refsection>
@@ -1437,7 +1437,7 @@
         <link linkend="latest-channels-close">channel.close()</link> function was called,
         or if the peer closed the channel, or the underlying transport closes.</para>
       <para>The <code>options</code> will contain various close information, including a
-        <code>"reason"</code> field which will be set if the channel was closed because
+        <code>"problem"</code> field which will be set if the channel was closed because
         of a problem.</para>
     </refsection>
 
@@ -1463,10 +1463,10 @@
     <refsection id="latest-transport-close">
       <title>cockpit.transport.close()</title>
 <programlisting>
-  cockpit.transport.close([reason])
+  cockpit.transport.close([problem])
 </programlisting>
       <para>Close the underlying channel transport. All channels open channels will close.
-        The <code>reason</code> argument should be a problem code string. If not specified
+        The <code>problem</code> argument should be a problem code string. If not specified
         it will default to <code>"disconnected"</code>.</para>
     </refsection>
 

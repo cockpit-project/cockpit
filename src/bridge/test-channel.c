@@ -191,7 +191,7 @@ test_close_immediately (TestCase *tc,
   g_assert (sent != NULL);
 
   cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\"}");
+                  "{ \"command\": \"close\", \"channel\": \"554\", \"problem\": \"bad-boy\"}");
 }
 
 static void
@@ -209,7 +209,7 @@ test_close_option (TestCase *tc,
   g_assert (sent != NULL);
 
   cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\", \"option\": \"four\" }");
+                  "{ \"command\": \"close\", \"channel\": \"554\", \"problem\": \"bad-boy\", \"option\": \"four\" }");
 }
 
 static void
@@ -227,7 +227,7 @@ test_close_int_option (TestCase *tc,
   g_assert (sent != NULL);
 
   cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\", \"option\": 4 }");
+                  "{ \"command\": \"close\", \"channel\": \"554\", \"problem\": \"bad-boy\", \"option\": 4 }");
 }
 
 static void
@@ -253,7 +253,7 @@ test_close_json_option (TestCase *tc,
   g_assert (sent != NULL);
 
   cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"554\", \"reason\": \"bad-boy\", \"option\": { \"test\": \"value\" } }");
+                  "{ \"command\": \"close\", \"channel\": \"554\", \"problem\": \"bad-boy\", \"option\": { \"test\": \"value\" } }");
 }
 
 static void

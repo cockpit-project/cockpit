@@ -215,7 +215,7 @@ var shell = shell || { };
 
         function on_close(event, options) {
             rest_debug("rest close:", options);
-            dfd.reject(new RestError(options.reason || "disconnected"));
+            dfd.reject(new RestError(options.problem || "disconnected"));
         }
 
         /* result event is triggered below */
@@ -287,7 +287,7 @@ var shell = shell || { };
                         console.warn("received invalid rest-json1:", ex);
                     }
                     if (result === undefined)
-                        channel.close({"reason": "protocol-error"});
+                        channel.close({"problem": "protocol-error"});
                     else
                         $(channel).trigger("result", [result]);
                 });

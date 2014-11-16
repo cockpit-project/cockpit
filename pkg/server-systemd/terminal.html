@@ -38,7 +38,7 @@ require([
         $(channel).
             on("close", function(ev, options) {
                 if (term) {
-                    var problem = options.reason || "disconnected";
+                    var problem = options.problem || "disconnected";
                     term.write('\x1b[31m' + problem + '\x1b[m\r\n');
                     /* There's no term.hideCursor() function */
                     term.cursorHidden = true;

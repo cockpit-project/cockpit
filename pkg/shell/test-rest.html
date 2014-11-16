@@ -62,7 +62,7 @@ function MockPeer() {
      * Events triggered here:
      * open(event, args)
      * recv(event, payload)
-     * close(event, reason)
+     * close(event, problem)
      * get(event, path)
      */
 
@@ -135,7 +135,7 @@ function MockPeer() {
         var channel = this;
 
         this.transport = new function() {
-            this.close = function(reason) { console.assert(arguments.length == 1); }
+            this.close = function(problem) { console.assert(arguments.length == 1); }
         };
 
         this.send = function(payload) {
@@ -443,7 +443,7 @@ asyncTest("immediate close", function() {
         });
 });
 
-function failureTest(test_name, reason, response) {
+function failureTest(test_name, problem, response) {
     asyncTest(test_name, function() {
         expect(2);
 
@@ -461,7 +461,7 @@ function failureTest(test_name, reason, response) {
 
         shell.rest("unix:///test").get("/")
             .fail(function(ex) {
-                equal(ex.problem, reason, test_name + " should cause " + reason);
+                equal(ex.problem, problem, test_name + " should cause " + problem);
             })
             .always(function() {
                 equal(this.state(), "rejected", test_name + " should fail");

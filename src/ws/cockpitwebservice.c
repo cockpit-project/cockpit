@@ -894,7 +894,7 @@ on_session_closed (CockpitTransport *transport,
                 {
                   payload = build_control ("command", "close",
                                            "channel", channel,
-                                           "reason", problem,
+                                           "problem", problem,
                                            "host-key", key,
                                            "host-fingerprint", fp,
                                            NULL);
@@ -1105,7 +1105,7 @@ inbound_protocol_error (CockpitWebService *self,
 
   if (web_socket_connection_get_ready_state (connection) == WEB_SOCKET_STATE_OPEN)
     {
-      payload = build_control ("command", "close", "reason", "protocol-error", NULL);
+      payload = build_control ("command", "close", "problem", "protocol-error", NULL);
       web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, payload);
       g_bytes_unref (payload);
       web_socket_connection_close (connection, WEB_SOCKET_CLOSE_SERVER_ERROR, "protocol-error");
@@ -1324,7 +1324,7 @@ on_web_socket_closing (WebSocketConnection *connection,
     {
       payload = build_control ("command", "close",
                                "channel", channel,
-                               "reason", "disconnected",
+                               "problem", "disconnected",
                                NULL);
       cockpit_transport_send (session->transport, NULL, payload);
       g_bytes_unref (payload);
@@ -1536,7 +1536,7 @@ on_web_socket_noauth (WebSocketConnection *connection,
 
   g_debug ("closing unauthenticated web socket");
 
-  payload = build_control ("command", "close", "reason", "no-session", NULL);
+  payload = build_control ("command", "close", "problem", "no-session", NULL);
   prefix = g_bytes_new_static ("\n", 1);
 
   web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, prefix, payload);
@@ -1725,9 +1725,9 @@ on_resource_control (CockpitTransport *transport,
       return TRUE; /* but handled */
     }
 
-  if (!cockpit_json_get_string (options, "reason", NULL, &problem))
+  if (!cockpit_json_get_string (options, "problem", NULL, &problem))
     {
-      g_message ("%s: received close command with invalid reason", rr->logname);
+      g_message ("%s: received close command with invalid problem", rr->logname);
       problem = "unknown";
     }
 

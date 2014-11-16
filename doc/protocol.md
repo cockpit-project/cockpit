@@ -138,7 +138,7 @@ The "close" command closes a channel or more channels.
 The following fields are defined:
 
  * "channel": The id of the channel to close
- * "reason": A short reason code for closure, or empty for a normal close
+ * "problem": A short problem code for closure, or empty for a normal close
 
 If the channel is not set, then all channels (that the recipient of the message
 is aware of) will be closed.
@@ -148,7 +148,7 @@ An example of a close:
     {
         "command": "close",
         "channel" : "5x",
-        "reason": "not-authorized"
+        "problem": "not-authorized"
     }
 
 Any protocol participant can send this message. The cockpit-bridge and cockpit-ws
@@ -160,7 +160,7 @@ See below for a list of problem codes.
 
 Other fields may be present in a close message.
 
-In the case of a connection that fails wiwh the reason "unknown-hostkey" the
+In the case of a connection that fails wiwh the problem "unknown-hostkey" the
 host key for the server will be included in a "host-key" field in the close
 message.
 
@@ -272,7 +272,7 @@ The remaining channel payloads will be the raw (possibly binary) byte data
 of the resource being retrieved.
 
 If "package" and "path" are missing, then the channel will be immediately
-closed without a "reason", and a combined manifest of all packages, including
+closed without a "problem", and a combined manifest of all packages, including
 checksums for system packages will be returned in the "close" message under
 the "packages" option:
 

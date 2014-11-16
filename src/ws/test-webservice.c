@@ -644,7 +644,7 @@ test_close_error (TestCase *test,
 
   /* We should now get a close command */
   WAIT_UNTIL (received != NULL);
-  expect_control_message (received, "close", "4", "reason", "terminated", NULL);
+  expect_control_message (received, "close", "4", "problem", "terminated", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -682,7 +682,7 @@ test_no_init (TestCase *test,
   /* We should now get a failure */
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "close", NULL, "reason", "protocol-error", NULL);
+  expect_control_message (received, "close", NULL, "problem", "protocol-error", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -719,7 +719,7 @@ test_wrong_init_version (TestCase *test,
   /* We should now get a failure */
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "close", NULL, "reason", "protocol-error", NULL);
+  expect_control_message (received, "close", NULL, "problem", "protocol-error", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -756,7 +756,7 @@ test_bad_init_version (TestCase *test,
   /* We should now get a failure */
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
-  expect_control_message (received, "close", NULL, "reason", "protocol-error", NULL);
+  expect_control_message (received, "close", NULL, "problem", "protocol-error", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -829,7 +829,7 @@ test_specified_creds_fail (TestCase *test,
   WAIT_UNTIL (received != NULL);
 
   /* Should have gotten a failure message, about the credentials */
-  expect_control_message (received, "close", "4", "reason", "not-authorized", NULL);
+  expect_control_message (received, "close", "4", "problem", "not-authorized", NULL);
   g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, service);
@@ -893,7 +893,7 @@ test_socket_unauthenticated (TestCase *test,
 
   /* And we should have received a message */
   g_assert (received != NULL);
-  expect_control_message (received, "close", "4", "reason", "no-session", NULL);
+  expect_control_message (received, "close", "4", "problem", "no-session", NULL);
   g_bytes_unref (received);
   received = NULL;
 
@@ -937,7 +937,7 @@ test_unknown_host_key (TestCase *test,
 
   /* And we should have received a close message */
   g_assert (received != NULL);
-  expect_control_message (received, "close", "4", "reason", "unknown-hostkey",
+  expect_control_message (received, "close", "4", "problem", "unknown-hostkey",
                           "host-key", knownhosts,
                           "host-fingerprint", MOCK_RSA_FP,
                           NULL);
@@ -1056,7 +1056,7 @@ test_fail_spawn (TestCase *test,
   WAIT_UNTIL (received != NULL);
 
   /* But we should have gotten failure message, about the spawn */
-  expect_control_message (received, "close", "4", "reason", "no-cockpit", NULL);
+  expect_control_message (received, "close", "4", "problem", "no-cockpit", NULL);
   g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, service);

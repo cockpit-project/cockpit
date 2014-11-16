@@ -44,7 +44,7 @@
         };
         channel.onclose = function(ev) {
             test.assert(ev.detail.command === "close", "channel close data correct");
-            if (ev.detail.reason == "no-cockpit") {
+            if (ev.detail.problem == "no-cockpit") {
                 test.skip("not running with a server");
                 test.done(7);
             } else {

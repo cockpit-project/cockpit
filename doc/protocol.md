@@ -84,6 +84,10 @@ The following fields are defined:
  * "channel-seed": A seed to be used when generating new channel ids.
  * "default-host": The default host to put in "open" messages.
  * "user": An object containing information about the logged in user.
+ * "problem": A problem occurred during init.
+
+If a problem occurs that requires shutdown of a transport, then the "problem"
+field can be set to indicate why the shutdown will be shortly occurring.
 
 The "init" command message may be sent multiple times across an already open
 transport, if certain parameters need to be renegotiated.

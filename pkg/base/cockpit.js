@@ -289,7 +289,10 @@ function Transport() {
         if (ows)
             ows.close();
         ready_for_channels(); /* ready to fail */
-        process_control(options);
+
+        /* Broadcast to everyone */
+        for (var chan in control_cbs)
+            control_cbs[chan].apply(null, [options]);
     };
 
     self.next_channel = function next_channel() {
@@ -348,13 +351,7 @@ function Transport() {
         if (data.command == "ping")
             return;
 
-        /* Broadcast to everyone if no channel */
-        if (channel === undefined) {
-            for (var chan in control_cbs) {
-                func = control_cbs[chan];
-                func.apply(null, [data]);
-            }
-        } else {
+        if (channel !== undefined) {
             func = control_cbs[channel];
             if (func)
                 func.apply(null, [data]);

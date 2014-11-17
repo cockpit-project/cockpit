@@ -82,9 +82,6 @@ class TestDashboard(MachineCase):
         b = self.browser
         m = self.machine
 
-        # TODO: Make this work with non-root
-        b.default_user = "root"
-
         self.login_and_go("dashboard")
         self.inject_extras(b)
 

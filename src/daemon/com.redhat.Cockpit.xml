@@ -47,11 +47,23 @@
   <interface name="com.redhat.Cockpit.Machine">
     <property name="Address" type="s" access="read"/>
     <property name="Tags" type="as" access="read"/>
+    <property name="Color" type="s" access="read"/>
+    <property name="Name" type="s" access="read"/>
+    <property name="Avatar" type="s" access="read"/>
     <method name="AddTag">
       <arg name="tag" type="s" direction="in"/>
     </method>
     <method name="RemoveTag">
       <arg name="tag" type="s" direction="in"/>
+    </method>
+    <method name="SetColor">
+      <arg name="color" type="s" direction="in"/>
+    </method>
+    <method name="SetName">
+      <arg name="name" type="s" direction="in"/>
+    </method>
+    <method name="SetAvatar">
+      <arg name="avatar" type="s" direction="in"/>
     </method>
   </interface>
 

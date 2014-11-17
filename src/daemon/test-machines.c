@@ -151,7 +151,7 @@ test_add (TestCase *tc,
 
   g_file_get_contents (tc->machines_file, &contents, NULL, &error);
   g_assert_no_error (error);
-  g_assert_cmpstr (contents, ==, "[0]\naddress=blah\ntags=\n");
+  g_assert_cmpstr (contents, ==, "[0]\naddress=blah\ntags=\nname=\ncolor=\navatar=\n");
   g_free (contents);
 }
 

@@ -78,6 +78,81 @@ var resource_monitors = [
     }
 ];
 
+var avatar_editor;
+
+$(function () {
+    var rows = [ ];
+    for (var i = 0; i < shell.host_colors.length; i += 6) {
+        var part = shell.host_colors.slice(i, i+6);
+        rows.push(
+            $('<div>').
+                append(
+                    part.map(function (c) {
+                        return $('<div class="color-cell">').
+                            css('background-color', c);
+                    })));
+    }
+
+    $('#host-edit-color-popover .popover-content').append(rows);
+    $('#host-edit-color-popover .popover-content .color-cell').click(function () {
+        $('#host-edit-color').css('background-color', $(this).css('background-color'));
+    });
+
+    avatar_editor = shell.image_editor($('#host-edit-avatar'), 256, 256);
+
+    $('#host-edit-color').parent().
+        on('show.bs.dropdown', function () {
+            var $div = $('#host-edit-color');
+            var $pop = $('#host-edit-color-popover');
+            var div_pos = $div.position();
+            var div_width = $div.width();
+            var div_height = $div.height();
+            var pop_width = $pop.width();
+            var pop_height = $pop.height();
+
+            $pop.css('left', div_pos.left + (div_width - pop_width) / 2);
+            $pop.css('top', div_pos.top - pop_height + 10);
+            $pop.show();
+        }).
+        on('hide.bs.dropdown', function () {
+            $('#host-edit-color-popover').hide();
+        });
+});
+
+function host_edit_dialog(addr) {
+    var info = shell.hosts[addr];
+
+    $('#host-edit-fail').text("").hide();
+    $('#host-edit-name').val(info.display_name);
+    $('#host-edit-name').prop('disabled', info.state == "failed");
+    $('#host-edit-color').css('background-color', info.color);
+    $('#host-edit-apply').off('click');
+    $('#host-edit-apply').on('click', function () {
+        $('#host-edit-dialog').modal('hide');
+        $.when(avatar_editor.changed? info.set_avatar(avatar_editor.get_data(128, 128, "image/png")) : null,
+               info.set_color($('#host-edit-color').css('background-color')),
+               info.state != "failed"? info.set_display_name($('#host-edit-name').val()) : null).
+            fail(shell.show_unexpected_error);
+    });
+    $('#host-edit-avatar').off('click');
+    $('#host-edit-avatar').on('click', function () {
+        $('#host-edit-fail').text("").hide();
+        avatar_editor.select_file().
+            done(function () {
+                $('#host-edit-avatar').off('click');
+                avatar_editor.changed = true;
+                avatar_editor.start_cropping();
+            });
+    });
+    $('#host-edit-dialog').modal('show');
+
+    avatar_editor.stop_cropping();
+    avatar_editor.load_data(info.avatar || "images/server-large.png").
+        fail(function () {
+            $('#host-edit-fail').text("Can't load image").show();
+        });
+}
+
 PageDashboard.prototype = {
     _init: function() {
         this.id = "dashboard";
@@ -88,10 +163,22 @@ PageDashboard.prototype = {
     },
 
     setup: function() {
+        var self = this;
+
         $('#dashboard-add').click(function () {
             shell.host_setup();
         });
+        $('#dashboard-enable-edit').click(function () {
+            self.toggle_edit(!self.edit_enabled);
+        });
         this.plot = shell.plot($('#dashboard-plot'), 300, 1);
+    },
+
+    toggle_edit: function(val) {
+        var self = this;
+        self.edit_enabled = val;
+        $('#dashboard-enable-edit').toggleClass('active', self.edit_enabled);
+        $('#dashboard-hosts .edit-button').toggle(self.edit_enabled);
     },
 
     enter: function() {
@@ -100,6 +187,7 @@ PageDashboard.prototype = {
         var hosts = self.hosts = { };
 
         $('#dashboard-hosts').empty();
+        self.toggle_edit(false);
 
         $(shell.hosts).on("added.dashboard", added);
         $(shell.hosts).on("removed.dashboard", removed);
@@ -124,12 +212,22 @@ PageDashboard.prototype = {
         function added(event, addr) {
             var info = hosts[addr] = { };
             info.link = $('<a class="list-group-item">').append(
-                $('<button class="btn btn-default" style="float:right">').
+                $('<button class="btn btn-default edit-button" style="float:right">').
+                    toggle(self.edit_enabled).
                     text("-").
                     click(function () {
+                        self.toggle_edit(false);
                         var h = shell.hosts[addr];
                         if (h)
                             h.remove();
+                        return false;
+                    }),
+                $('<button class="btn btn-default edit-button" style="float:right;margin-right:10px">').
+                    toggle(self.edit_enabled).
+                    text("e").
+                    click(function () {
+                        self.toggle_edit(false);
+                        host_edit_dialog(addr);
                         return false;
                     }),
                 info.avatar_img = $('<img width="32" height="32" class="host-avatar">').

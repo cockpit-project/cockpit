@@ -18,7 +18,7 @@ Name:           cockpit
 %if %{defined gitcommit}
 Version:        %{gitcommit}
 %else
-Version:        0.31
+Version:        0.30
 %endif
 Release:        1%{?dist}
 Summary:        A user interface for Linux servers
@@ -68,42 +68,39 @@ BuildRequires: nodejs
 %endif
 
 # For selinux
+%if %{defined selinux}
 BuildRequires: selinux-policy-devel
 BuildRequires: checkpolicy
 BuildRequires: /usr/share/selinux/devel/policyhelp
 BuildRequires: sed
+%endif
 
 # For documentation
 BuildRequires: /usr/bin/xmlto
 
-Requires: dbus
-Requires: glib-networking
 Requires: realmd
 Requires: udisks2 >= 2.1.0
 Requires: mdadm
 Requires: lvm2
 Requires: storaged
 
-Requires: cockpit-assets
+Requires: %{name}-bridge = %{version}-%{release}
+Requires: %{name}-ws = %{version}-%{release}
+Requires: %{name}-shell = %{version}-%{release}
 %if %{defined selinux}
-Requires: cockpit-selinux-policy
+Requires: %{name}-selinux-policy = %{version}-%{release}
 %endif
-
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
 
 %description
 Cockpit runs in a browser and can manage your network of GNU/Linux
 machines.
 
-%package assets
-Summary: Web assets for Cockpit
-Requires: %{name} = %{version}-%{release}
-BuildArch: noarch
+%package bridge
+Summary: Cockpit bridge server-side component
 
-%description assets
-This package contains the web assets used by Cockpit.
+%description bridge
+The Cockpit bridge component installed server side and runs commands on the
+system on behalf of the web based user interface.
 
 %package doc
 Summary: Cockpit deployment and developer guide
@@ -112,6 +109,25 @@ Summary: Cockpit deployment and developer guide
 The Cockpit Deployment and Developer Guide shows sysadmins how to
 deploy Cockpit on their machines as well as helps developers who want to
 embed or extend Cockpit.
+
+%package shell
+Summary: Cockpit Shell user interface package
+Requires: %{name}-bridge = %{version}-%{release}
+Obsoletes: %{name}-assets
+BuildArch: noarch
+
+%description shell
+This package contains the Cockpit shell UI assets.
+
+%package ws
+Summary: Cockpit Web Service
+Requires: glib-networking
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
+
+%description ws
+The Cockpit Web Service listens on the network, and authenticates users.
 
 %prep
 %setup -q
@@ -144,56 +160,65 @@ cp src/bridge/polkit-workarounds.rules %{buildroot}/%{_datadir}/polkit-1/rules.d
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
+install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 %if %{defined selinux}
 install -d %{buildroot}%{_datadir}/selinux/targeted
 install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %endif
 
 %files
-%doc AUTHORS COPYING README.md
+%{_docdir}/%{name}/AUTHORS
+%{_docdir}/%{name}/COPYING
+%{_docdir}/%{name}/README.md
+%{_datadir}/appdata
+%{_datadir}/applications
+%{_datadir}/pixmaps
+
+%files bridge
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
+%doc %{_mandir}/man8/cockpitd.8.gz
+%{_datadir}/dbus-1/services/com.redhat.Cockpit.service
+%{_libexecdir}/cockpitd
+%{_bindir}/cockpit-bridge
+%attr(4755, -, -) %{_libexecdir}/cockpit-polkit
+%{_libdir}/security/pam_reauthorize.so
+
+%files doc
+%{_docdir}/%{name}
+
+%files shell
+%{_datadir}/%{name}/base
+%{_datadir}/%{name}/shell
+%{_datadir}/%{name}/playground
+%{_datadir}/%{name}/server
+
+%files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
-%doc %{_mandir}/man8/cockpitd.8.gz
 %config(noreplace) %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit.socket
 %{_prefix}/lib/firewalld/services/cockpit.xml
-%{_datadir}/dbus-1/services/com.redhat.Cockpit.service
-%{_datadir}/appdata
-%{_datadir}/applications
-%{_datadir}/pixmaps
 %{_sbindir}/remotectl
-%{_libexecdir}/cockpitd
 %{_libexecdir}/cockpit-ws
-%{_bindir}/cockpit-bridge
-# HACK: We need to do attr because stripping debuginfo removes setuid
-# https://bugzilla.redhat.com/show_bug.cgi?id=117858
-%attr(4755, -, -) %{_libexecdir}/cockpit-polkit
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
-%{_libdir}/security/pam_reauthorize.so
 %attr(775, -, wheel) %{_sharedstatedir}/%{name}
+%{_datadir}/%{name}/static
 
-%files assets
-%{_datadir}/%{name}
-
-%files doc
-%{_docdir}/cockpit
-
-%pre
+%pre ws
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
 getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
 
-%post
+%post ws
 %systemd_post cockpit.socket
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
-%preun
+%preun ws
 %systemd_preun cockpit.socket
 
-%postun
+%postun ws
 %systemd_postun_with_restart cockpit.socket
 
 # Conditionally built packages below
@@ -253,6 +278,10 @@ fi
 %endif
 
 %changelog
+* Wed Nov 12 2014 Stef Walter <stefw@redhat.com> - 0.30-1
+- Update to 0.30 release
+- Split Cockpit into various sub packages
+
 * Wed Nov 05 2014 Stef Walter <stefw@redhat.com> - 0.29-3
 - Don't require test-assets from selinux-policy
 - Other minor tweaks and fixes

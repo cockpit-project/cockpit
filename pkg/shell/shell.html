@@ -130,6 +130,7 @@
             <div class="panel panel-default">
               <div class="panel-heading">
                 <button class="btn btn-primary" style="float:right" id="dashboard-add">+</button>
+                <button class="btn btn-default" style="float:right;margin-right:10px" id="dashboard-enable-edit">v</button>
                 <span>Servers</span>
               </div>
               <div class="list-group" id="dashboard-hosts">
@@ -2721,6 +2722,47 @@
             </button>
             <button class="btn btn-primary" id="reconnect-dialog-reconnect">
               Try reconnecting
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="host-edit-dialog"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog cockpit-modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change server appearance</h4>
+          </div>
+          <div class="modal-body">
+            <input data-role="none" type="file"
+                   id="host-edit-file-input" style="display:none"/>
+            <center>
+              <div>
+                <input class="form-control" id="host-edit-name"/>
+              </div>
+              <div id="host-edit-avatar" style="margin-top:10px"></div>
+              <div>
+                <div id="host-edit-color" data-toggle="dropdown"
+                     style="width:256px;height:32px;margin-top:10px">
+                </div>
+                <div id="host-edit-color-popover" class="popover top in" tabindex="-1">
+                  <div class="arrow"></div>
+                  <div class="popover-content">
+                  </div>
+                </div>
+              </div>
+            </center>
+            <div id="host-edit-fail"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="host-edit-apply">
+              Set
             </button>
           </div>
         </div>

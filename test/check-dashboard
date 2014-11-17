@@ -61,7 +61,7 @@ class TestDashboard(MachineCase):
 
     def machine_remove(self, b, address):
         map = self.get_address_map(b)
-        b.click('#dashboard-hosts a:nth-child(%d) button' % (map[address]+1))
+        b.click('#dashboard-hosts a:nth-child(%d) button.pficon-close' % (map[address]+1))
 
     def add_machine(self, b, address):
         b.click('#dashboard-add')
@@ -160,6 +160,36 @@ class TestDashboard(MachineCase):
         b.wait_js_cond('cockpit.location.href == "/127.0.0.1/server"')
         b.click('#hosts a:nth-child(2)')
         b.wait_js_func('(function (expected) { return cockpit.location.href == expected })', last_href)
+
+    def testEdit(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("dashboard")
+        self.inject_extras(b)
+        self.wait_dashboard_addresses (b, [ "localhost" ])
+
+        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
+        b.click('#dashboard-enable-edit')
+        b.wait_visible('#dashboard-hosts a:first-child button.pficon-edit')
+
+        b.click('#dashboard-hosts a:first-child button.pficon-edit')
+        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
+
+        b.wait_js_cond('shell.hosts["localhost"].color == "gray"')
+
+        b.wait_popup('host-edit-dialog')
+        b.set_val('#host-edit-name', "Horst")
+        b.click('#host-edit-color')
+        b.wait_visible('#host-edit-color-popover')
+        b.click('#host-edit-color-popover div.popover-content > div:first-child > div:first-child')
+        b.wait_not_visible('#host-edit-color-popover')
+        b.click('#host-edit-apply')
+        b.wait_popdown('host-edit-dialog')
+
+        b.wait_text('#dashboard-hosts a:first-child span', "Horst")
+        b.wait_js_cond('shell.hosts["localhost"].color != "gray"')
+        self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
 
     def testSetup(self):
         b = self.browser

@@ -307,7 +307,7 @@ function setup_for_failure(page, client, address) {
     });
 
     $('#containers-failure-start').on('click.failure', function () {
-        cockpit.spawn([ "pkexec", "systemctl", "start", "docker.socket" ], { "host": address }).
+        cockpit.spawn([ "systemctl", "start", "docker.socket" ], { "host": address, "superuser": true }).
             done(function () {
                 client.close();
                 client.connect().

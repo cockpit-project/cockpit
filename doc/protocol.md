@@ -104,6 +104,7 @@ The following fields are defined:
  * "payload": A payload type, see below
  * "host": The destination host for the channel, defaults to "localhost"
  * "user": Optional alternate user for authenticating with host
+ * "superuser": When true, try to run this channel as root.
 
 If "binary" is set then this channel transfers binary messages. If "binary"
 is set to "base64" then messages in the channel are encoded using "base64",

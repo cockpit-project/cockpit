@@ -21,6 +21,7 @@
 #include "cockpitchannel.h"
 #include "cockpitpackage.h"
 #include "cockpitpolkitagent.h"
+#include "cockpitsuperchannels.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
@@ -313,8 +314,9 @@ run_bridge (void)
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
+  CockpitSuperChannels *super = NULL;
   GError *error = NULL;
-  gpointer polkit_agent;
+  gpointer polkit_agent = NULL;
   GPid daemon_pid;
   guint sig_term;
   guint sig_int;
@@ -343,11 +345,6 @@ run_bridge (void)
 
   g_type_init ();
 
-  transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
-  g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
-  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
-  send_init_command (transport);
-
   connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
   if (connection == NULL)
     {
@@ -359,7 +356,17 @@ run_bridge (void)
       g_dbus_connection_set_exit_on_close (connection, FALSE);
     }
 
-  polkit_agent = cockpit_polkit_agent_register (transport, NULL);
+  transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
+
+  if (geteuid () != 0)
+    {
+      polkit_agent = cockpit_polkit_agent_register (transport, NULL);
+      super = cockpit_super_channels_new (transport);
+    }
+
+  g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
+  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);
+  send_init_command (transport);
 
   /* Owns the channels */
   channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
@@ -369,6 +376,8 @@ run_bridge (void)
 
   if (polkit_agent)
     cockpit_polkit_agent_unregister (polkit_agent);
+  if (super)
+    g_object_unref (super);
   if (connection)
     g_object_unref (connection);
   g_object_unref (transport);

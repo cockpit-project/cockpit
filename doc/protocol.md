@@ -231,6 +231,8 @@ Example logout message:
         "disconnect": true
     }
 
+The "logout" command is forwarded to all bridge instances.
+
 Payload: null
 -------------
 

@@ -1150,7 +1150,7 @@ dispatch_inbound_command (CockpitWebService *self,
   else if (g_strcmp0 (command, "logout") == 0)
     {
       valid = process_logout (self, options);
-      goto out;
+      forward = TRUE;
     }
   else if (g_strcmp0 (command, "close") == 0)
     {

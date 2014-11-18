@@ -113,10 +113,10 @@ on_idle_later (gpointer data)
   if (later)
     {
       self->priv->later_data = NULL;
+      if (later->ready && !(later->close && later->problem != NULL))
+        cockpit_channel_ready (self);
       if (later->close)
         cockpit_channel_close (self, later->problem);
-      else if (later->ready)
-        cockpit_channel_ready (self);
       g_free (later->problem);
       g_slice_free (LaterData, later);
     }

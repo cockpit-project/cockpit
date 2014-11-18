@@ -18,6 +18,10 @@
             <button class="btn btn-default">Priveleged Action</button>
             <span></span>
         </div>
+        <div class="super-channel">
+            <button class="btn btn-default">Superuser</button>
+            <span></span>
+        </div>
         <p>Translated text: <span translatable="yes">Networking</span></p>
         <p>On the fly: <span id="translation"></span> <span id="reverse"></span></p>
     </div>
@@ -46,6 +50,19 @@ require([
              }).
              fail(function() {
                  $(".cockpit-internal-reauthorize span").text("result: not-authorized");
+             });
+         });
+
+    $(".super-channel .btn").on("click", function() {
+         $(".super-channel span").text("checking...");
+         cockpit.spawn(["id"], { "superuser": true }).
+             done(function(data) {
+                 console.log("done");
+                 $(".super-channel span").text("result: " + data);
+             }).
+             fail(function(ex) {
+                 console.log("fail");
+                 $(".super-channel span").text("result: " + ex.problem);
              });
          });
 

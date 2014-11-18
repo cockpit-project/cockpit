@@ -26,6 +26,8 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitrestjson.h \
 	src/bridge/cockpitstream.c \
 	src/bridge/cockpitstream.h \
+	src/bridge/cockpitsuperchannels.c \
+	src/bridge/cockpitsuperchannels.h \
 	src/bridge/deprecated/cockpitdbusjson1.c \
 	src/bridge/deprecated/cockpitdbusjson1.h \
 	src/bridge/deprecated/cockpitdbusjson2.c \

@@ -54,6 +54,7 @@ BuildRequires: keyutils-libs-devel
 BuildRequires: dbus-devel
 BuildRequires: glib-networking
 BuildRequires: systemd
+BuildRequires: polkit
 
 BuildRequires: perl-JavaScript-Minifier-XS
 

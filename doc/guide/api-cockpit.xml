@@ -242,6 +242,14 @@
               size. This is not a guarantee. After a short timeout the data will be sent
               even if the data doesn't match the batch size. Defaults to zero.</para></listitem>
         </varlistentry>
+	<varlistentry>
+	  <term><code>"superuser"</code></term>
+	  <listitem><para>Try to spawn the process as root instead of the logged in user. If the
+            currently logged in user is not permitted to become root (eg: via <code>pkexec</code>)
+	    then the <code>client</code> will immediately be
+	    <link linkend="latest-dbus-onclose">closed</link> with a <code>"not-authorized"</code>
+            problem code.</para></listitem>
+	</varlistentry>
       </variablelist>
 
       <para>The spawned process is a
@@ -497,6 +505,17 @@
           <listitem><para>The host to open the channel to. If no host is specified
             then the correct one will be automatically selected based on the page
             calling this function.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"superuser"</code></term>
+          <listitem><para>Try to become root before talking to this service. The DBus service
+            will see the DBus method calls and accesses as coming from root, rather than the
+            logged in user. This is useful for talking to services that do not correctly use
+            <ulink url="http://www.freedesktop.org/software/polkit">polkit</ulink> to authorize
+            administrative users. If the currently logged in user is not
+            permitted to become root (eg: via <code>pkexec</code>) then the <code>client</code> will
+            immediately be <link linkend="latest-dbus-onclose">closed</link> with a
+            <code>"not-authorized"</code> problem code.</para></listitem>
         </varlistentry>
       </variablelist>
     </refsection>
@@ -1366,6 +1385,13 @@
           <term><code>"payload"</code></term>
           <listitem><para>The payload type for the channel. Only specific payload
             types are supported.</para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><code>"superuser"</code></term>
+          <listitem><para>Try to open this channel as root. If the currently logged in user is not
+	    permitted to become root (eg: via <code>pkexec</code>) then the <code>channel</code> will
+            immediately be <link linkend="latest-channels-close-ev">closed</link> with a
+            <code>"not-authorized"</code> problem code.</para></listitem>
         </varlistentry>
       </variablelist>
 

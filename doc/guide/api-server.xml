@@ -11,6 +11,80 @@
     <para>This package contains general components for basic control of a server.</para>
   </partintro>
 
+  <refentry id="api-log-html">
+    <refmeta>
+      <refentrytitle>log.html</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>log.html</refname>
+      <refpurpose>System log component</refpurpose>
+    </refnamediv>
+
+    <refsection>
+      <title>Description</title>
+<programlisting>
+ &lt;iframe src="http://server:9090/cockpit/server/log.html"
+     width="600" height="400"&gt;&lt;/iframe&gt;
+</programlisting>
+
+      <para>This is a Cockpit component that brings up system log viewer, with filtering
+        capabilities. On systemd based systems this displays the entries from journal.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Component URL</term>
+          <listitem><para><code>/cockpit/server/log.html</code></para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Filter by priority</term>
+          <listitem>
+            <para><code>#?prio=5</code></para>
+            <para>Filters the log to show entries below the specific priority, inclusive. These
+              <ulink url="http://en.wikipedia.org/wiki/Syslog#Severity_levels">prorities are syslog levels</ulink>.
+              Specifying <code>*</code> as a priority will show all available entries. The default
+              priority is <code>3</code>.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Filter by service</term>
+          <listitem>
+            <para><code>#?service=sshd.service</code></para>
+            <para>Filters the log to show entries related to the specific service. The format of
+              the service is specific to the logging implementation. For journald these are systemd
+              service unit names.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Filter by tag</term>
+          <listitem>
+            <para><code>#?tag=kernel</code></para>
+            <para>Filters the log to show entries related to the specific syslog identifier.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Start at point</term>
+          <listitem>
+            <para><code>#?start=boot</code></para>
+            <para>Filters the log to show entries after the specific point in time. Valid values
+              are <code>boot</code> (since last boot), <code>last-24h</code> (last 24 hours),
+              <code>last-week</code> (last seven days).</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Show log entry</term>
+          <listitem>
+            <para><code>#/6e272d82993c4e0d...</code></para>
+            <para>To show a specific log entry, put the log entry cursor in a path after
+              the hash above. Note that cursors are logging system specific, and journal
+              cursors are subject to change.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+    </refsection>
+  </refentry>
+
   <refentry id="api-terminal-html">
     <refmeta>
       <refentrytitle>terminal.html</refentrytitle>
@@ -40,5 +114,6 @@
 
     </refsection>
   </refentry>
+
 
 </reference>

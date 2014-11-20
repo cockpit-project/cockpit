@@ -253,7 +253,7 @@ PageServices.prototype = {
                        { "data-show-graphs": true, "data-include-buttons": true });
         }
 
-        $('#content-header-extra').append(
+        $('#shell-header-extra').append(
             $('<div class="btn-group" data-toggle="buttons">').append(
                 my_services_btn,
                 tabbtn(_("Targets"),         "services-filter-targets",     "\\.target$",  false),
@@ -262,7 +262,7 @@ PageServices.prototype = {
                 tabbtn(_("Timers"),          "services-filter-timers",      "\\.timer$",   false),
                 tabbtn(_("Paths"),           "services-filter-paths",       "\\.path$",    false)));
 
-        $('#content-header-extra input').on('change', function (event) {
+        $('#shell-header-extra input').on('change', function (event) {
             me.update();
         });
 
@@ -668,18 +668,18 @@ PageService.prototype = {
     leave: function() {
         this.cpu_plot.destroy();
         this.mem_plot.destroy();
-        this.journal_watcher.stop();
+        if (this.journal_watcher)
+            this.journal_watcher.stop();
+        delete this.journal_watcher;
         this.client.release();
         this.client = null;
     },
 
     watch_journal: function () {
-        this.journal_watcher = shell.simple_logbox(this.address, $('#service-log'),
-                                                     [
-                                                        "_SYSTEMD_UNIT=" + this.service, "+",
-                                                        "COREDUMP_UNIT=" + this.service, "+",
-                                                        "UNIT=" + this.service
-                                                     ], 10);
+        this.journal_watcher = shell.server.logbox([ "_SYSTEMD_UNIT=" + this.service, "+",
+                                                     "COREDUMP_UNIT=" + this.service, "+",
+                                                     "UNIT=" + this.service ], 10);
+        $('#service-log').empty().append(this.journal_watcher);
     },
 
     update: function () {

@@ -56,9 +56,15 @@ var packages;
 var loaded = false;
 
 function maybe_init() {
-    if (packages && loaded)
+    if (packages && loaded && shell.server)
         init();
 }
+
+/* HACK: Until all of the shell is loaded via AMD */
+require([ "server/server" ], function(module) {
+    shell.server = module;
+    maybe_init();
+});
 
 function init() {
     $('.dropdown-toggle').dropdown();
@@ -189,7 +195,7 @@ shell.content_refresh = function content_refresh() {
 function recalculate_layout() {
     var $topnav = $('#topnav');
     var $sidebar = $('#cockpit-sidebar');
-    var $extra = $('#content-header-extra');
+    var $extra = $('#shell-header-extra');
     var $body = $('body');
 
     var window_height = $(window).height();
@@ -725,7 +731,7 @@ function display_params(params) {
     if (old_legacy_page)
         old_legacy_page.leave();
 
-    $('#content-header-extra').empty();
+    $('#shell-header-extra').empty();
     current_params = params;
     current_page_element = element;
     current_legacy_page = legacy_page;
@@ -1081,6 +1087,7 @@ cockpit.packages.all(true).
 /* Run when jQuery thinks page is loaded */
 $(function() {
     register_component([ "playground" ], "playground", "test.html");
+    register_component([ "journal" ], "server", "log.html");
     loaded = true;
     maybe_init();
 });

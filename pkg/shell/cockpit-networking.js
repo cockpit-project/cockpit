@@ -1147,15 +1147,6 @@ function get_nm_model(machine) {
     return nm_models.get(machine, function () { return new NetworkManagerModel(machine); });
 }
 
-function network_log_box(machine, elt)
-{
-    return shell.simple_logbox(machine, elt,
-                                 [
-                                     "_SYSTEMD_UNIT=NetworkManager.service",
-                                     "_SYSTEMD_UNIT=firewalld.service"
-                                 ], 10);
-}
-
 function render_interface_link(iface) {
     return $('<a>').
                text(iface).
@@ -1319,7 +1310,9 @@ PageNetworking.prototype = {
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
-        this.log_box = network_log_box(this.address, $('#networking-log'));
+        this.log_box = shell.server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
+                                             "_SYSTEMD_UNIT=firewalld.service" ], 10);
+        $('#networking-log').empty().append(this.log_box);
 
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
         this.update_devices();
@@ -1333,7 +1326,8 @@ PageNetworking.prototype = {
     leave: function() {
         this.rx_plot.destroy();
         this.tx_plot.destroy();
-        this.log_box.stop();
+        if (this.log_box)
+            this.log_box.stop();
 
         $(this.model).off(".networking");
         this.model.release();

@@ -101,7 +101,7 @@
       </div>
     </nav>
 
-    <div id="content-header-extra" style="position:fixed;z-index:900;padding-left:10px">
+    <div id="shell-header-extra" style="position:fixed;z-index:900;padding-left:10px">
     </div>
 
     <div id="cockpit-sidebar" style="position:fixed;left:0px;width:300px;z-index:900">
@@ -686,30 +686,6 @@
         </div>
 
         <button class="btn btn-default" translatable="yes" id="service-refresh">Refresh</button>
-      </div>
-
-      <div id="journal" class="container-fluid" hidden>
-        <div>
-          <div id="journal-end"></div>
-          <div id="journal-box"></div>
-          <div id="journal-start"></div>
-        </div>
-      </div>
-
-      <div id="journal-entry" class="container-fluid" hidden>
-        <ol class="breadcrumb">
-          <li><a onclick="cockpit.location.go('journal')">Journal</a></li>
-          <li class="active">Entry</li>
-        </ol>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <span id="journal-entry-id"></span>
-            <span id="journal-entry-date" style="float:right"></span>
-          </div>
-          <div id="journal-entry-message" style="margin:10px"></div>
-          <table class="cockpit-info-table" style="margin-bottom:10px" id="journal-entry-fields">
-          </table>
-        </div>
       </div>
 
       <div id="accounts" class="container-fluid" hidden>

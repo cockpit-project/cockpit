@@ -34,8 +34,8 @@ class TestJournal(MachineCase):
             b.eval_js("""
             ph_get_log_lines = function () {
               var lines = [ ], i;
-              lines.push($('#journal-end').text());
-              $('#journal-box').children().each(function (i, e) {
+              lines.push($('.journal-end').text());
+              $('.journal-lines').children().each(function (i, e) {
                 var $e = $(e);
                 if ($e.is('.cockpit-loghead'))
                   lines.push ($e.text());
@@ -48,7 +48,7 @@ class TestJournal(MachineCase):
                   lines.push ([ ident, msg, count ]);
                 }
               });
-              lines.push($('#journal-start').text());
+              lines.push($('.journal-start').text());
               // console.log(JSON.stringify(lines));
               return lines;
             }
@@ -80,7 +80,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         m.execute("systemctl stop chronyd; date 010112002050; hwclock -w")
 
-        self.login_and_go("journal")
+        self.login_and_go("/local/journal")
         inject_extras()
 
         def wait_log_lines(expected):
@@ -99,7 +99,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                          "-- Start of Journal --"
                        ])
 
-        b.go("journal?prio=3&service=log123.service")
+        b.go("/?prio=*&service=log123.service")
         wait_journal_empty()
 
         def wait_log123():
@@ -150,17 +150,17 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("systemctl start log123")
         wait_log123()
 
-        b.go("journal?prio=3&start=oldest&service=nonexisting.service")
+        b.go("/?prio=*&start=oldest&service=nonexisting.service")
         wait_journal_empty()
-        b.go("journal?prio=3&start=oldest&service=log123.service")
+        b.go("/?prio=*&start=oldest&service=log123.service")
         wait_log123()
 
-        b.go("journal?prio=3&start=recent&service=nonexisting.service")
+        b.go("/?prio=*&start=recent&service=nonexisting.service")
         wait_journal_empty()
-        b.go("journal?prio=3&start=recent&service=log123.service")
+        b.go("/?prio=*&start=recent&service=log123.service")
         wait_log123()
 
-        b.go("journal?prio=3&start=recent&service=slow10.service")
+        b.go("/?prio=*&start=recent&service=slow10.service")
         wait_journal_empty()
 
         def wait_slow10():
@@ -173,9 +173,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("systemctl start slow10")
         wait_slow10()
 
-        b.go("journal?prio=3&start=oldest&service=nonexisting.service")
+        b.go("/?prio=*&start=oldest&service=nonexisting.service")
         wait_journal_empty()
-        b.go("journal?prio=3&start=oldest&service=slow10.service")
+        b.go("/?prio=*&start=oldest&service=slow10.service")
         wait_slow10()
 
         m.execute("logger -p3 --tag check-journal BEFORE BOOT");
@@ -184,10 +184,11 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("logger -p3 --tag check-journal AFTER BOOT");
 
         self.start_cockpit()
-        b.relogin('journal')
+        b.switch_to_parent_frame()
+        b.relogin('/local/journal')
         inject_extras()
 
-        b.go("journal?tag=check-journal")
+        b.go("/?tag=check-journal")
         wait_log_lines([ "-- End of Journal, waiting for more --",
                          "January 1, 2050",
                          [ "check-journal: ", "AFTER BOOT", "" ],
@@ -196,7 +197,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                          "-- Start of Journal --"
                      ])
 
-        b.go("journal?start=boot&tag=check-journal")
+        b.go("/?start=boot&tag=check-journal")
         wait_log_lines([ "-- End of Journal, waiting for more --",
                          "January 1, 2050",
                          [ "check-journal: ", "AFTER BOOT", "" ],

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Journal</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../@@latest@@/cockpit.js"></script>
+<script>
+require([
+    "jquery",
+    "latest/cockpit",
+    "server-systemd/server"
+], function($, cockpit, server) {
+    var filler;
+
+    function stop_query() {
+        if (filler)
+            filler.stop();
+    }
+
+    function update_query() {
+        stop_query();
+
+        var match = [ ];
+
+        var query_prio = cockpit.location.options['prio'] || "3";
+        var prio_level = parseInt(query_prio, 10);
+        $("#journal-prio button").each(function() {
+            var num = parseInt($(this).attr("data-prio"), 10);
+            $(this).toggleClass('active', isNaN(prio_level) || num <= prio_level);
+        });
+
+        if (prio_level) {
+            for (var i = 0; i <= prio_level; i++)
+                match.push('PRIORITY=' + i.toString());
+        }
+
+        var options = cockpit.location.options;
+        if (options['service'])
+            match.push('_SYSTEMD_UNIT=' + options['service']);
+        else if (options['tag'])
+            match.push('SYSLOG_IDENTIFIER=' + options['tag']);
+
+        var query_start = cockpit.location.options['start'] || "recent";
+        if (query_start == 'recent')
+            $(window).scrollTop($(document).height());
+
+        filler = server.journalbox(query_start, match, $('#journal-current-day'));
+        $("#journal-box").empty().append(filler);
+    }
+
+    function update_entry() {
+        var cursor = cockpit.location.path[0];
+        var out = $('#journal-entry-fields');
+
+        out.empty();
+
+        function show_entry(entry) {
+            $('#journal-entry-message').text(entry["MESSAGE"]);
+
+            var d = new Date(entry["__REALTIME_TIMESTAMP"] / 1000);
+            $('#journal-entry-date').text(d.toString());
+
+            var id;
+            if (entry["SYSLOG_IDENTIFIER"])
+                id = entry["SYSLOG_IDENTIFIER"];
+            else if (entry["_SYSTEMD_UNIT"])
+                id = entry["_SYSTEMD_UNIT"];
+            else
+                id = _("Journal entry");
+            $('#journal-entry-id').text(id);
+
+            var keys = Object.keys(entry).sort();
+            $.each(keys, function(i, key) {
+                if (key != "MESSAGE") {
+                    out.append(
+                        $('<tr>').append(
+                            $('<td style="text-align:right">').
+                                text(key),
+                            $('<td style="text-align:left">').
+                                text(entry[key])));
+                }
+            });
+        }
+
+        function show_error(error) {
+            out.append(
+                $('<tr>').append(
+                    $('<td>').
+                        text(error)));
+        }
+
+        server.journal({ cursor: cursor, count: 1, follow: false }).
+            done(function (entries) {
+                if (entries.length >= 1 && entries[0]["__CURSOR"] == cursor)
+                    show_entry(entries[0]);
+                else
+                    show_error(_("Journal entry not found"));
+            }).
+            fail(function (error) {
+                show_error(error);
+            });
+    }
+
+    function update() {
+        var path = cockpit.location.path;
+        if (path.length === 0) {
+            $("#journal-entry").hide();
+            update_query();
+            $("#journal").show();
+        } else if (path.length == 1) {
+            stop_query();
+            $("#journal").hide();
+            update_entry();
+            $("#journal-entry").show();
+        } else { /* redirect */
+            console.warn("not a journal location: " + path);
+            cockpit.location = '';
+        }
+        $("body").show();
+    }
+
+    $(cockpit).on("locationchanged", update);
+
+    $('#journal-current-day-menu a').on('click', function() {
+        cockpit.location.go([], $.extend(cockpit.location.options, { start: $(this).attr("data-op") }));
+    });
+
+    $('#journal-box').on('click', '.cockpit-logline', function() {
+         var cursor = $(this).attr('data-cursor');
+         if (cursor)
+            cockpit.location.go([ cursor ]);
+    });
+
+    $('#journal-prio button').on("click", function() {
+        var options = cockpit.location.options;
+        var prio = $(this).attr('data-prio');
+        if (prio)
+            options.prio = prio;
+        else
+            delete options.prio;
+        cockpit.location.go([], options);
+    });
+
+    $(update);
+});
+</script>
+</head>
+<body>
+    <div id="journal">
+        <div class="content-header-extra">
+            <div class="btn-group" id="journal-current-day-menu">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="padding-left:10px">
+                    <span id="journal-current-day"></span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a data-op="recent" translatable="yes">Recent</a></li>
+                    <li><a data-op="boot" translatable="yes">Current boot</a></li>
+                    <li><a data-op="last-24h" translatable="yes">Last 24 hours</a></li>
+                    <li><a data-op="last-week" translatable="yes">Last 7 days</a></li>
+                </ul>
+            </div>
+            <div id="journal-prio" class="btn-group">
+                <button class="btn btn-default" data-prio="3" translatable="yes">Errors</button>
+                <button class="btn btn-default" data-prio="4" translatable="yes">Warnings</button>
+                <button class="btn btn-default" data-prio="5" translatable="yes">Notices</button>
+                <button class="btn btn-default" data-prio="*" translatable="yes">All</button>
+            </div>
+        </div>
+
+        <div id="journal-box" class="container-fluid" style="margin-top: 5em;"></div>
+  </div>
+
+  <div id="journal-entry" class="container-fluid" hidden>
+    <ol class="breadcrumb">
+      <li><a onclick="cockpit.location.go('/')" translatable="yes">Journal</a></li>
+      <li class="active" translatable="yes">Entry</li>
+    </ol>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <span id="journal-entry-id"></span>
+        <span id="journal-entry-date" style="float:right"></span>
+      </div>
+      <div id="journal-entry-message" style="margin:10px"></div>
+      <table class="cockpit-info-table" style="margin-bottom:10px" id="journal-entry-fields">
+      </table>
+    </div>
+  </div>
+</body>
+</html>

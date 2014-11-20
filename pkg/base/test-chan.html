@@ -304,7 +304,7 @@ asyncTest("receive message", function() {
 });
 
 asyncTest("close channel", function() {
-    expect(5);
+    expect(4);
 
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
@@ -312,17 +312,17 @@ asyncTest("close channel", function() {
             return;
         } else if (cmd.command == "open") {
             channel.close();
-            strictEqual(channel.valid, false, "no longer valid");
             return;
         }
         equal(cmd.command, "close", "sent close command");
         strictEqual(cmd.channel, channel.id, "correct channel");
-        start();
+        mock_peer.send("", payload);
     });
     var channel = cockpit.channel({ });
     $(channel).on("close", function(event, options) {
         ok(true, "triggered event");
         ok(!options.problem, "no problem");
+        start();
     });
 });
 
@@ -332,10 +332,10 @@ asyncTest("close early", function() {
     var channel = cockpit.channel({ });
     $(channel).on("close", function(event, options) {
         ok(true, "triggered event");
-        ok(!options.problem, "no problem");
+        equal(options.problem, "yo", "got problem");
         start();
     });
-    channel.close();
+    channel.close("yo");
     strictEqual(channel.valid, false, "no longer valid");
 });
 

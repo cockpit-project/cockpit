@@ -49,6 +49,8 @@ gchar **           cockpit_web_server_resolve_roots (const gchar *root,
 
 gboolean           cockpit_web_server_get_socket_activated (CockpitWebServer *self);
 
+const gchar **     cockpit_web_server_get_document_roots   (CockpitWebServer *self);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVER_H__ */

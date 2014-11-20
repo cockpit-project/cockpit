@@ -167,7 +167,7 @@ cockpit_web_server_get_property (GObject *object,
       break;
 
     case PROP_DOCUMENT_ROOTS:
-      g_value_set_boxed (value, server->document_roots);
+      g_value_set_boxed (value, cockpit_web_server_get_document_roots (server));
       break;
 
     case PROP_SSL_EXCEPTION_PREFIX:
@@ -485,6 +485,12 @@ gboolean
 cockpit_web_server_get_socket_activated (CockpitWebServer *self)
 {
   return self->socket_activated;
+}
+
+const gchar **
+cockpit_web_server_get_document_roots (CockpitWebServer *self)
+{
+  return (const gchar **)self->document_roots;
 }
 
 GHashTable *

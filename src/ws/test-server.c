@@ -134,29 +134,17 @@ on_handle_resource (CockpitWebServer *server,
                     CockpitWebResponse *response,
                     gpointer user_data)
 {
-  GError *error = NULL;
-  GMappedFile *file;
-  GBytes *bytes;
-  gchar *name;
+  gchar *alloc = NULL;;
 
-  g_assert (g_str_has_prefix (path, "/cockpit"));
-  name = g_build_filename (SRCDIR "/pkg", path + 8, NULL);
+  g_assert (g_str_has_prefix (path, "/pkg"));
 
-  file = g_mapped_file_new (name, FALSE, &error);
-  if (file == NULL)
-    {
-      cockpit_web_response_gerror (response, headers, error);
-      g_error_free (error);
-    }
-  else
-    {
-      bytes = g_mapped_file_get_bytes (file);
-      cockpit_web_response_content (response, NULL, bytes, NULL);
-      g_bytes_unref (bytes);
-    }
+  if (g_str_has_prefix (path, "/pkg/latest"))
+    path = alloc = g_build_filename ("/pkg/base", path + 11, NULL);
 
-  g_free (name);
-  g_mapped_file_unref (file);
+  cockpit_web_response_file (response, path, FALSE,
+                             cockpit_web_server_get_document_roots (server));
+  g_free (alloc);
+
   return TRUE;
 }
 
@@ -189,7 +177,7 @@ server_ready (void)
                     "handle-stream",
                     G_CALLBACK (on_handle_stream_socket), NULL);
   g_signal_connect (server,
-                    "handle-resource::/cockpit/",
+                    "handle-resource::/pkg/",
                     G_CALLBACK (on_handle_resource), NULL);
 
   g_object_get (server, "port", &port, NULL);

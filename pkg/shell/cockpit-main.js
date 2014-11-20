@@ -37,16 +37,6 @@
 
    Clients stay around a while after they have been released by its
    last user.
-
-   - shell.set_watched_client(client)
-
-   Start watching the state of the given D-Bus client.  When it is
-   closed, a modal dialog will pop up that prevents interaction with
-   the current page (which is broken now because of the closed
-   client).
-
-   There can be at most one watched client at any given time.  Pass
-   'null' to this function to stop watching any client.
 */
 
 var shell = shell || { };
@@ -60,7 +50,6 @@ shell.dialogs = [];
 var visited_dialogs = {};
 
 shell.dbus = dbus;
-shell.set_watched_client = set_watched_client;
 
 /* Initialize cockpit when page is loaded and packages available */
 var packages;
@@ -72,6 +61,7 @@ function maybe_init() {
 }
 
 function init() {
+    setup_watchdog();
     content_init();
     content_show();
 }
@@ -102,23 +92,16 @@ function dbus(address, options) {
                             function () { return shell.dbus_client(address, options); });
 }
 
-var watched_client = null;
+var watchdog_problem = null;
 
-function set_watched_client(client) {
-    $(watched_client).off('.client-watcher');
-    $('#disconnected-dialog').modal('hide');
-
-    function update() {
-        if (watched_client && watched_client.state == "closed") {
-            $('.modal[role="dialog"]').modal('hide');
-            $('#disconnected-dialog').modal('show');
-        } else
-            $('#disconnected-dialog').modal('hide');
-    }
-
-    watched_client = client;
-    $(watched_client).on('state-change.client-watcher', update);
-    update ();
+function setup_watchdog() {
+    var watchdog = cockpit.channel({ "payload": "null" });
+    $(watchdog).on("close", function(event, options) {
+        console.warn("transport closed: " + options.problem);
+        watchdog_problem = options.problem;
+        $('.modal[role="dialog"]').modal('hide');
+        $('#disconnected-dialog').modal('show');
+    });
 }
 
 /* current_params are the navigation parameters of the current page,
@@ -820,7 +803,9 @@ shell.get_page_param = function get_page_param(key) {
 };
 
 shell.get_page_machine = function get_page_machine() {
-    return current_params.host;
+    if (current_params)
+        return current_params.host;
+    return null;
 };
 
 shell.set_page_param = function set_page_param(key, val) {
@@ -921,7 +906,9 @@ PageDisconnected.prototype = {
     },
 
     enter: function() {
-        $('#disconnected-error').text(shell.client_error_description(watched_client.error));
+        /* Try to reconnect right away ... so that reconnect button has a chance */
+        cockpit.channel({ payload: "null" });
+        $('#disconnected-error').text(shell.client_error_description(watchdog_problem));
     },
 
     show: function() {
@@ -931,7 +918,16 @@ PageDisconnected.prototype = {
     },
 
     reconnect: function() {
-        watched_client.connect();
+        /*
+         * If the connection was interrupted, but cockpit-ws is still running,
+         * then it still has our session. The dummy cockpit.channel() above tried
+         * to reestablish a connection with the same credentials.
+         *
+         * So if that works, this should reload the current page and get back to
+         * where the user was right away. Otherwise this sends the user back
+         * to the login screen.
+         */
+        window.location.reload(false);
     },
 
     logout: function() {

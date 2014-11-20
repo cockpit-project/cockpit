@@ -64,7 +64,6 @@ PageServer.prototype = {
         self.address = shell.get_page_machine();
         /* TODO: Need to migrate away from old dbus */
         self.client = shell.dbus(self.address, { payload: 'dbus-json1' });
-        shell.set_watched_client(self.client);
 
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");
@@ -207,7 +206,6 @@ PageServer.prototype = {
         self.disk_io_plot.destroy();
         self.network_traffic_plot.destroy();
 
-        shell.set_watched_client(null);
         $(self.manager).off('.server');
         self.manager = null;
         $(self.realms).off('.server');

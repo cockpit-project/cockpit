@@ -18,24 +18,33 @@
   along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 -->
 <html>
-  <head>
-    <title>Journal Renderer Tests</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="../../lib/jquery.v2.1.0.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
-    <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
-    <script type="text/javascript" src="../../tools/qunit-config.js"></script>
+<head>
+  <title>Journal Renderer Tests</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
+  <script type="text/javascript" src="../../lib/jquery.v2.1.0.js"></script>
+  <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
+  <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
+  <script type="text/javascript" src="../../tools/qunit-config.js"></script>
+  <script type="text/javascript" src="../latest/cockpit.js"></script>
+</head>
+<body>
+  <h1 id="qunit-header">Journal Renderer Tests</h1>
 
-    <script type="text/javascript" src="cockpit-journal-renderer.js"></script>
+  <h2 id="qunit-banner"></h2>
+  <div id="qunit-testrunner-toolbar"></div>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>
+  <div id="qunit-fixture">test markup, will be hidden</div>
+  <div id="done-flag" style="display:none">Done</div>
+</body>
 <script type="text/javascript">
 
 var debug = false;
 
 function C_(ctxt, str) { return str; }
 
-function pk(label, obj)
-{
+function pk(label, obj) {
     putstr(label);
     if (obj) {
         putstr(": ");
@@ -44,8 +53,7 @@ function pk(label, obj)
     putstr("\n");
 }
 
-function dbg(label, obj)
-{
+function dbg(label, obj) {
     if (debug)
         pk(label, obj);
 }
@@ -53,8 +61,7 @@ function dbg(label, obj)
 var time = 0;
 var bootid = 0;
 
-function make_entry(message)
-{
+function make_entry(message) {
     return {
         "__REALTIME_TIMESTAMP": time.toString(),
         "__CURSOR": "fake",
@@ -67,13 +74,11 @@ function make_entry(message)
     };
 }
 
-function next_day ()
-{
+function next_day() {
     time += 24*60*60*1e6;
 }
 
-function reboot()
-{
+function reboot() {
     bootid += 1;
 }
 
@@ -111,37 +116,24 @@ var funcs = {
     }
 };
 
-QUnit.testStart(function() {
-    output = [ ];
-    renderer = shell.journal_renderer(funcs);
-});
-
-function append(message)
-{
+function append(message) {
     renderer.append(make_entry(message));
 }
 
-function append_flush()
-{
+function append_flush() {
     renderer.append_flush();
 }
 
-function prepend(message)
-{
+function prepend(message) {
     renderer.prepend(make_entry (message));
 }
 
-function prepend_flush()
-{
+function prepend_flush() {
     renderer.prepend_flush();
 }
 
-function jexpect(label, expected)
-{
-    // pk (label, output);
-
-    function jequal(a, b)
-    {
+function jexpect(label, expected) {
+    function jequal(a, b) {
         if (a.day)
             return a.day == b.day;
         else if (a.message)
@@ -152,8 +144,7 @@ function jexpect(label, expected)
             return false;
     }
 
-    function check(expected)
-    {
+    function check(expected) {
         var i;
         if (output.length != expected.length)
             return false;
@@ -166,7 +157,15 @@ function jexpect(label, expected)
     ok(check(expected), label);
 }
 
-function run_tests() {
+require([
+  'server-systemd/server'
+], function(server) {
+
+    QUnit.testStart(function() {
+        output = [ ];
+        renderer = server.journal_renderer(funcs);
+    });
+
     test("append", function() {
         append('foo');
         append('foo');
@@ -182,7 +181,7 @@ function run_tests() {
                   { message: 'foo', count: 3 }
                 ])
     });
-    
+
     test('prepend', function() {
             prepend('foo');
         prepend('foo');
@@ -198,7 +197,7 @@ function run_tests() {
               { message: 'foo', count: 3 }
             ])
     });
-    
+
     test('prepend after append', function() {
         append('foo');
         append_flush();
@@ -209,7 +208,7 @@ function run_tests() {
               { message: 'foo', count: 2 }
             ])
     });
-    
+
     test('prepend after append', function() {
         append('foo');
         append_flush();
@@ -221,7 +220,7 @@ function run_tests() {
               { message: 'foo', count: 1 }
             ])
     });
-    
+
     test('append after prepend', function() {
         prepend('foo');
         prepend_flush();
@@ -232,7 +231,7 @@ function run_tests() {
               { message: 'foo', count: 2 }
             ])
     });
-    
+
     test('append after split', function() {
         prepend('bar');
         prepend('baz');
@@ -246,7 +245,7 @@ function run_tests() {
               { message: 'foo', count: 1 }
             ])
     });
-    
+
     test('append after split', function() {
         prepend('bar');
         prepend('baz');
@@ -259,7 +258,7 @@ function run_tests() {
               { message: 'bar', count: 2 },
             ])
     });
-    
+
     test('prepend after split', function() {
         append('foo');
         append('bar');
@@ -273,7 +272,7 @@ function run_tests() {
               { message: 'bar', count: 1 },
             ])
     });
-    
+
     test('prepend after split', function() {
         append('foo');
         append('bar');
@@ -286,7 +285,7 @@ function run_tests() {
               { message: 'bar', count: 1 },
             ])
     });
-    
+
     test('reboot', function() {
         append('foo');
         append('foo');
@@ -334,17 +333,6 @@ function run_tests() {
     });
 
     QUnit.start();
-}
+});
 </script>
-  </head>
-  <body onload="$(document).ready(function(){run_tests();})">
-    <h1 id="qunit-header">Journal Renderer Tests</h1>
-
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
-    <div id="qunit-fixture">test markup, will be hidden</div>
-    <div id="done-flag" style="display:none">Done</div>
-  </body>
 </html>

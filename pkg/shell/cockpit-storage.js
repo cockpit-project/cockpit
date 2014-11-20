@@ -276,14 +276,13 @@ function storage_job_box(client, elt)
                             });
 }
 
-function storage_log_box(machine, elt)
-{
-    return shell.simple_logbox(machine, elt,
-                                 [ "_SYSTEMD_UNIT=udisks2.service", "+",
-                                   "_SYSTEMD_UNIT=dm-event.service", "+",
-                                   "_SYSTEMD_UNIT=smartd.service", "+",
-                                   "COCKPIT_DOMAIN=storage"
-                                 ], 10);
+function storage_log_box(elt) {
+    var logbox = shell.server.logbox([ "_SYSTEMD_UNIT=udisks2.service", "+",
+                                       "_SYSTEMD_UNIT=dm-event.service", "+",
+                                       "_SYSTEMD_UNIT=smartd.service", "+",
+                                       "COCKPIT_DOMAIN=storage" ], 10);
+    elt.empty().append(logbox);
+    return logbox;
 }
 
 function highlight_error(container) {
@@ -361,7 +360,8 @@ PageStorage.prototype = {
         $(this.client).on("propertiesChanged.storage", $.proxy(this._onPropertiesChanged, this));
 
         this.job_box = storage_job_box(this.client, $('#storage-jobs'));
-        this.log_box = storage_log_box(this.address, $('#storage-log'));
+
+        this.log_box = storage_log_box($('#storage-log'));
 
         var blues = [ "#006bb4",
                       "#008ff0",
@@ -448,7 +448,9 @@ PageStorage.prototype = {
         $(this.monitor).off(".storage");
         $(this.mount_monitor).off(".storage");
         this.job_box.stop();
-        this.log_box.stop();
+        if (this.log_box)
+            this.log_box.stop();
+        this.log_box = null;
         unwatch_jobs(this.client);
         this.client.release();
         this.client = null;
@@ -1178,7 +1180,9 @@ PageStorageDetail.prototype = {
     leave: function() {
         this.unwatch_all_objects();
         this.job_box.stop();
-        this.log_box.stop();
+        if (this.log_box)
+            this.log_box.stop();
+        this.log_box = null;
         this.stop_vg_polling();
         unwatch_jobs(this.client);
         $(this.client).off(".storage-details");
@@ -1274,7 +1278,7 @@ PageStorageDetail.prototype = {
         }
 
         this.job_box = storage_job_box(this.client, $('#storage-detail-jobs'));
-        this.log_box = storage_log_box(this.address, $('#storage-detail-log'));
+        this.log_box = storage_log_box($('#storage-detail-log'));
 
         this._update();
 

@@ -94,6 +94,26 @@ asyncTest("error output", function() {
         });
 });
 
+asyncTest("write close read", function() {
+    expect(2);
+
+    var proc = cockpit.spawn(["/usr/bin/sort"]);
+
+    proc.done(function(resp) {
+        equal(resp, "1\n2\n3\n", "output");
+    });
+
+    proc.always(function() {
+        equal(this.state(), "resolved", "didn't fail");
+        start();
+    });
+
+    proc.write("2\n");
+    proc.write("3\n1\n");
+    proc.close();
+});
+
+
 QUnit.start();
 
 </script>

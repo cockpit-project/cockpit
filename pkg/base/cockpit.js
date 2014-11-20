@@ -420,6 +420,7 @@ function Channel(options) {
 
     var transport;
     var valid = true;
+    var shut = false;
     var queue = [ ];
     var id = null;
 
@@ -436,6 +437,7 @@ function Channel(options) {
 
     function on_close(data) {
         self.valid = valid = false;
+        shut = true;
         if (transport && id)
             transport.unregister(id);
         var event = document.createEvent("CustomEvent");
@@ -483,12 +485,20 @@ function Channel(options) {
         transport.send_control(command);
 
         /* Now drain the queue */
-        while(queue.length > 0)
-            transport.send_message(id, queue.shift());
+        while(queue.length > 0) {
+            var item = queue.shift();
+            if (typeof item === "string") {
+                transport.send_message(id, item);
+            } else {
+                item["channel"] = id;
+                transport.send_control(item);
+            }
+        }
     });
 
     self.send = function send(message) {
-        if (!valid)
+        message = String(message);
+        if (shut)
             console.log("sending message on closed channel: " + self);
         else if (!transport)
             queue.push(message);
@@ -497,18 +507,26 @@ function Channel(options) {
     };
 
     self.close = function close(options) {
-        self.valid = valid = false;
+        if (!valid || shut) {
+            console.log("closing closed channel: " + self);
+            return;
+        }
+
+        shut = true;
         if (!options)
             options = { };
         else if (typeof options == "string")
-            options = { "problem" : options + "" };
+            options = { "problem" : options };
         options["command"] = "close";
         options["channel"] = id;
-        if (transport) {
+
+        if (!transport)
+            queue.push(options);
+        else
             transport.send_control(options);
-            transport.unregister(id);
-        }
-        on_close(options);
+
+        if (options.problem)
+            on_close(options);
     };
 
     self.toString = function toString() {

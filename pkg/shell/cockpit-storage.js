@@ -346,7 +346,6 @@ PageStorage.prototype = {
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from the old dbus */
         this.client = shell.dbus(this.address, { payload: 'dbus-json1' });
-        shell.set_watched_client(this.client);
         watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
@@ -445,7 +444,6 @@ PageStorage.prototype = {
         this.rx_plot.destroy();
         this.tx_plot.destroy();
 
-        shell.set_watched_client(null);
         $(this.client).off(".storage");
         $(this.monitor).off(".storage");
         $(this.mount_monitor).off(".storage");
@@ -1178,7 +1176,6 @@ PageStorageDetail.prototype = {
     },
 
     leave: function() {
-        shell.set_watched_client(null);
         this.unwatch_all_objects();
         this.job_box.stop();
         this.log_box.stop();
@@ -1247,7 +1244,6 @@ PageStorageDetail.prototype = {
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
         this.client = shell.dbus(this.address, { payload: 'dbus-json1' });
-        shell.set_watched_client(this.client);
         watch_jobs(this.client);
 
         this._drive = null;

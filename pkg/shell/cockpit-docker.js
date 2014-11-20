@@ -291,7 +291,7 @@ function setup_for_failure(page, client, address) {
 
     /* High level failures about the overall functionality of docker */
     $(client).on('failure.failure', function(event, ex) {
-        /* This error is handled via shell.set_watched_client
+        /* This error is handled via the watchdog
          * and we don't need to show it here. */
         if (ex.problem != "disconnected")
             show_failure(ex, page);
@@ -453,7 +453,6 @@ PageContainers.prototype = {
 
         /* TODO: This code needs to be migrated away from old dbus */
         this.dbus_client = shell.dbus(this.address, { payload: "dbus-json1" });
-        shell.set_watched_client(this.dbus_client);
 
         var reds = [ "#250304",
                      "#5c080c",
@@ -526,7 +525,6 @@ PageContainers.prototype = {
     leave: function() {
         unsetup_for_failure(this.client);
 
-        shell.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
 
@@ -967,7 +965,6 @@ PageContainerDetails.prototype = {
     leave: function() {
         unsetup_for_failure(this.client);
 
-        shell.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
 
@@ -1074,7 +1071,6 @@ PageContainerDetails.prototype = {
 
         /* TODO: This code needs to be migrated away from old dbus */
         this.dbus_client = shell.dbus(this.address, { payload: "dbus-json1" });
-        shell.set_watched_client(this.dbus_client);
 
         $(this.client).on('container.container-details', function (event, id, container) {
             if (id == self.container_id)
@@ -1246,7 +1242,6 @@ PageImageDetails.prototype = {
     leave: function() {
         unsetup_for_failure(this.client);
 
-        shell.set_watched_client(null);
         this.dbus_client.release();
         this.dbus_client = null;
 
@@ -1270,7 +1265,6 @@ PageImageDetails.prototype = {
 
         /* TODO: migrate this code away from old dbus */
         this.dbus_client = shell.dbus(this.address, { payload: "dbus-json1" });
-        shell.set_watched_client(this.dbus_client);
 
         $('#image-details-containers table tbody tr').remove();
 

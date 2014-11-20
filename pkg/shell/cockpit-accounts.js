@@ -181,14 +181,12 @@ PageAccounts.prototype = {
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
         this.client = shell.dbus(this.address, { "payload": "dbus-json1" });
-        shell.set_watched_client(this.client);
 
         on_account_changes(this.client, "accounts", $.proxy(this, "update"));
         this.update();
     },
 
     leave: function() {
-        shell.set_watched_client(null);
         off_account_changes(this.client, "accounts");
         this.client.release();
         this.client = null;
@@ -389,7 +387,6 @@ PageAccount.prototype = {
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
         this.client = shell.dbus(this.address, { payload: "dbus-json1" });
-        shell.set_watched_client(this.client);
 
         on_account_changes(this.client, "account", $.proxy(this, "update"));
         this.real_name_dirty = false;
@@ -397,7 +394,6 @@ PageAccount.prototype = {
     },
 
     leave: function() {
-        shell.set_watched_client(null);
         off_account_changes(this.client, "account");
         this.client.release();
         this.client = null;

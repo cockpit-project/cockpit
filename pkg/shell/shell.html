@@ -58,7 +58,7 @@
             </ul>
           </li>
         </ul>
-        <ul class="nav navbar-nav navbar-primary" id="content-navbar">
+        <ul class="nav navbar-nav navbar-primary" id="content-navbar" hidden>
           <li>
             <a id="hosts-button">
               <img height="10" src="images/switcher.png">
@@ -111,7 +111,7 @@
 
     <div id="content">
 
-      <div id="dashboard" class="container-fluid">
+      <div id="dashboard" class="container-fluid" hidden>
         <div class="row">
           <div class="col-md-12">
             <ul class="nav nav-tabs">
@@ -149,7 +149,7 @@
         </div>
       </div>
 
-      <div id="server" class="container-fluid">
+      <div id="server" class="container-fluid" hidden>
         <div class="col-md-3">
           <table class="cockpit-info-table">
             <tr>
@@ -200,15 +200,15 @@
         </div>
       </div>
 
-      <div id="cpu_status">
+      <div id="cpu_status" hidden>
         <div id="cpu_status_graph" style="height:400px;padding:20px"></div>
       </div>
 
-      <div id="memory_status">
+      <div id="memory_status" hidden>
         <div id="memory_status_graph" style="height:400px;padding:20px"></div>
       </div>
 
-      <div id="storage">
+      <div id="storage" hidden>
         <div class="col-sm-9">
 
           <div class="row">
@@ -298,7 +298,7 @@
         </div>
       </div>
 
-      <div id="storage-detail" class="container-fluid">
+      <div id="storage-detail" class="container-fluid" hidden>
         <ol class="breadcrumb">
           <li><a onclick="cockpit.location.go('storage')">Storage</a></li>
           <li class="active"></li>
@@ -471,7 +471,7 @@
 
       </div>
 
-      <div id="networking" class="container-fluid">
+      <div id="networking" class="container-fluid" hidden>
         <div class="row">
           <div class="col-sm-6">
             <div>Sending<span style="float:right" id="networking-tx-text"></span></div>
@@ -512,7 +512,7 @@
         </div>
       </div>
 
-      <div id="network-interface" class="container-fluid">
+      <div id="network-interface" class="container-fluid" hidden>
         <ol class="breadcrumb">
           <li><a onclick="cockpit.location.go('networking')">Networking</a></li>
           <li class="active"></li>
@@ -562,7 +562,7 @@
         </div>
       </div>
 
-      <div id="services" class="container-fluid">
+      <div id="services" class="container-fluid" hidden>
         <div class="row" id="services-graphs">
           <div class="col-sm-6">
             <div>Combined CPU usage<span style="float:right" id="services-cpu-text"></span></div>
@@ -598,7 +598,7 @@
         <button class="btn btn-default" id="services-add">Add Service</button>
       </div>
 
-      <div id="service" class="container-fluid">
+      <div id="service" class="container-fluid" hidden>
         <ol class="breadcrumb">
           <li><a onclick="cockpit.location.go('services')">Services</a></li>
           <li class="active"></li>
@@ -688,7 +688,7 @@
         <button class="btn btn-default" translatable="yes" id="service-refresh">Refresh</button>
       </div>
 
-      <div id="journal" class="container-fluid">
+      <div id="journal" class="container-fluid" hidden>
         <div>
           <div id="journal-end"></div>
           <div id="journal-box"></div>
@@ -696,7 +696,7 @@
         </div>
       </div>
 
-      <div id="journal-entry" class="container-fluid">
+      <div id="journal-entry" class="container-fluid" hidden>
         <ol class="breadcrumb">
           <li><a onclick="cockpit.location.go('journal')">Journal</a></li>
           <li class="active">Entry</li>
@@ -712,13 +712,13 @@
         </div>
       </div>
 
-      <div id="accounts" class="container-fluid">
+      <div id="accounts" class="container-fluid" hidden>
         <button class="btn btn-default" id="accounts-create" translatable="yes">Create New Account</button>
         <div id="accounts-list">
         </div>
       </div>
 
-      <div id="account" class="container-fluid">
+      <div id="account" class="container-fluid" hidden>
         <ol class="breadcrumb">
           <li><a onclick="cockpit.location.go('accounts')">Accounts</a></li>
           <li class="active"></li>
@@ -764,7 +764,7 @@
       </div>
 
       <!-- this will be moved into a page when it is shown. -->
-      <div id="containers-failure">
+      <div id="containers-failure" hidden>
         <center>
           <br/>
           <div id="containers-failure-message"></div>
@@ -774,7 +774,7 @@
         </center>
       </div>
 
-      <div id="containers" class="container-fluid">
+      <div id="containers" class="container-fluid" hidden>
         <div class="col-md-8 col-lg-9">
           <div class="row">
             <div class="col-sm-6">
@@ -841,7 +841,7 @@
       <div class="bar-row hidden" graph="containers-images" value="0/100000000"></div>
 
       <!-- Layout for container details page -->
-      <div id="container-details" class="container-fluid">
+      <div id="container-details" class="container-fluid" hidden>
         <ol class="breadcrumb">
           <li><a onclick="cockpit.location.go('containers')">Containers</a></li>
           <li class="active"></li>
@@ -929,7 +929,7 @@
       </div>
 
       <!-- Layout for image details page-->
-      <div id="image-details" class="container-fluid">
+      <div id="image-details" class="container-fluid" hidden>
         <ol class="breadcrumb">
           <li><a onclick="cockpit.location.go('containers')">Containers</a></li>
           <li class="active"></li>

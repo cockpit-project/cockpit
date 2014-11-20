@@ -72,6 +72,8 @@ function maybe_init() {
 }
 
 function init() {
+    $('.dropdown-toggle').dropdown();
+    setup_user_menu();
     content_init();
     content_show();
 }
@@ -191,14 +193,7 @@ function content_init() {
 }
 
 function content_show() {
-    function update_name() {
-        var str = cockpit.user["name"] || cockpit.user["user"] || "???";
-        $('#content-user-name').text(str);
-    }
-    $(cockpit.info).on("changed", update_name);
-    if (cockpit.user["name"])
-        update_name();
-
+    $("#content-navbar").show();
     display_location();
     phantom_checkpoint();
 }
@@ -883,15 +878,24 @@ shell.confirm = function confirm(title, body, action_text) {
     return deferred.promise();
 };
 
-function update_user_menu() {
-    var is_root = (cockpit.user["user"] == "root");
-    var is_not_root = (cockpit.user["user"] && !is_root);
-    $('#cockpit-go-account').toggle(is_not_root);
-    $('#cockpit-change-passwd').toggle(is_root);
-    $('.cockpit-deauthorize-item').toggle(is_not_root);
-}
+function setup_user_menu() {
+    function update_name() {
+        var str = cockpit.user["name"] || cockpit.user["user"] || "???";
+        $('#content-user-name').text(str);
+    }
 
-$(function() {
+    function update_user_menu() {
+        var is_root = (cockpit.user["user"] == "root");
+        var is_not_root = (cockpit.user["user"] && !is_root);
+        $('#cockpit-go-account').toggle(is_not_root);
+        $('#cockpit-change-passwd').toggle(is_root);
+        $('.cockpit-deauthorize-item').toggle(is_not_root);
+    }
+
+    $(cockpit.info).on("changed", update_name);
+    if (cockpit.user["name"])
+        update_name();
+
     $(".cockpit-deauthorize-item a").on("click", function(ev) {
         cockpit.drop_privileges(false);
         $(".cockpit-deauthorize-item").addClass("disabled");
@@ -904,7 +908,7 @@ $(function() {
 
     update_user_menu();
     $(cockpit.user).on("changed", update_user_menu);
-});
+}
 
 shell.go_login_account = function go_login_account() {
     cockpit.location.go([ "local", "account" ], { id: cockpit.user["user"] });

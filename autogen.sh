@@ -37,7 +37,7 @@ cd $srcdir
 
 (
 	cd tools
-	npm install po2json jed
+	npm install # see tools/package.json
 )
 
 rm -rf autom4te.cache

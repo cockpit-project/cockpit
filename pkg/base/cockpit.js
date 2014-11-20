@@ -1635,7 +1635,10 @@ function full_scope(cockpit, $) {
         }
 
         /* Resolve dots and double dots */
-        return resolve_path_dots(path.split("/")).join("/");
+        path = resolve_path_dots(path.split("/"));
+        if (path)
+            path = path.join("/");
+        return path;
     }
 
     /* Qualify an array of possibly relative paths */

@@ -268,7 +268,6 @@ PageServices.prototype = {
 
         /* TODO: This code needs to be migrated away from old dbus */
         me.client = shell.dbus(me.address, { payload: 'dbus-json1' });
-        shell.set_watched_client(me.client);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -335,7 +334,6 @@ PageServices.prototype = {
     leave: function() {
         var self = this;
 
-        shell.set_watched_client(null);
         this.cpu_plot.destroy();
         this.mem_plot.destroy();
         $(self.manager).off('.services');
@@ -616,7 +614,6 @@ PageService.prototype = {
         me.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
         me.client = shell.dbus(me.address, { payload: 'dbus-json1' });
-        shell.set_watched_client(me.client);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -671,7 +668,6 @@ PageService.prototype = {
     leave: function() {
         this.cpu_plot.destroy();
         this.mem_plot.destroy();
-        shell.set_watched_client(null);
         this.journal_watcher.stop();
         this.client.release();
         this.client = null;

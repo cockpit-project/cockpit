@@ -45,8 +45,6 @@ class TestConnection(MachineCase):
         b.wait_popup("disconnected-dialog")
         m.execute("systemctl start cockpit-testing.socket")
         b.click('#disconnected-reconnect')
-        b.wait_in_text('#disconnected-error', "Your session has expired.")
-        b.click('#disconnected-logout')
         b.expect_reload()
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
@@ -69,7 +67,8 @@ class TestConnection(MachineCase):
         b.wait_in_text('#disconnected-error', "Connection has timed out.")
         m.execute("iptables -D INPUT 1")
         b.click('#disconnected-reconnect')
-        b.wait_popdown("disconnected-dialog")
+        b.expect_reload()
+        b.wait_page("server")
 
         self.allow_restart_journal_messages()
 

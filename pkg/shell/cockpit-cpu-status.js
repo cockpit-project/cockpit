@@ -35,7 +35,6 @@ PageCpuStatus.prototype = {
         this.address = shell.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from old dbus */
         this.client = shell.dbus(this.address, { payload: "dbus-json1" });
-        shell.set_watched_client(this.client);
 
         var resmon = this.client.get("/com/redhat/Cockpit/CpuMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {
@@ -76,7 +75,6 @@ PageCpuStatus.prototype = {
     },
 
     leave: function() {
-        shell.set_watched_client(null);
         this.plot.destroy();
         this.client.release();
         this.client = null;

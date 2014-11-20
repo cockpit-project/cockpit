@@ -1264,7 +1264,6 @@ PageNetworking.prototype = {
 
         this.address = shell.get_page_machine();
         this.model = get_nm_model(this.address);
-        shell.set_watched_client(this.model.client);
 
         this.ifaces = { };
 
@@ -1336,7 +1335,6 @@ PageNetworking.prototype = {
         this.tx_plot.destroy();
         this.log_box.stop();
 
-        shell.set_watched_client(null);
         $(this.model).off(".networking");
         this.model.release();
         this.model = null;
@@ -1589,7 +1587,6 @@ PageNetworkInterface.prototype = {
 
         self.address = shell.get_page_machine();
         self.model = get_nm_model(self.address);
-        shell.set_watched_client(self.model.client);
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
         self.dev_name = shell.get_page_param('dev');
@@ -1666,7 +1663,6 @@ PageNetworkInterface.prototype = {
         this.rx_plot.destroy();
         this.tx_plot.destroy();
 
-        shell.set_watched_client(null);
         $(this.model).off(".network-interface");
         this.model.release();
         this.model = null;

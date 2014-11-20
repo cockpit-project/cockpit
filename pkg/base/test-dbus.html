@@ -612,6 +612,50 @@ test("proxy no stutter", function() {
     equal(proxy.path, "/com/redhat/Cockpit/DBusTests/Test", "path auto chosen");
 });
 
+asyncTest("proxy call", function() {
+    expect(2);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+
+    /* No wait */
+    proxy.call("HelloWorld", ["From a proxy"]).
+        done(function(args) {
+            equal(args[0], "Word! You said `From a proxy'. I'm Skeleton, btw!", "method args");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "method called");
+            $(dbus).off();
+            start();
+        });
+});
+
+asyncTest("proxy signal", function() {
+    expect(4);
+
+    var received = false;
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+
+    $(proxy).on("signal", function(event, name, args) {
+        equal(name, "TestSignal", "signals: got right name");
+        deepEqual(args, [
+                  43, [ "foo", "frobber" ], [ "/foo", "/foo/bar" ],
+                  { "first": [ 42, 42 ], "second": [ 43, 43 ] } ], "got right arguments");
+        received = true;
+    });
+
+    proxy.call("RequestSignalEmission", [ 0 ]).
+        always(function() {
+            equal(this.state(), "resolved", "emmision requested");
+            equal(received, true, "signal received");
+            $(dbus).off();
+            $(proxy).off();
+            start();
+        });
+});
+
 asyncTest("proxies", function() {
     expect(13);
 

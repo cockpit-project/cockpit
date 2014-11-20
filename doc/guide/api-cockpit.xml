@@ -619,7 +619,7 @@
         function directly.</para>
 
       <para>Methods that do not start with an upper case letter can be invoked by using
-        the usual <link linkend="latest-dbus-call"><code>client.call()</code></link> directly.</para>
+        the usual <link linkend="latest-dbus-proxy-call"><code>proxy.call()</code></link> directly.</para>
 
 <programlisting>
   $(proxy).on("Signal", function(event, arg1, arg2) {
@@ -633,7 +633,7 @@
         argument.</para>
 
       <para>Signals that do not start with an upper case letter can be subscribed to by
-        using <link linkend="latest-dbus-subscribe"><code>client.subscribe()</code></link>
+        using <link linkend="latest-dbus-proxy-signal"><code>proxy.onsignal</code></link>
         directly.</para>
     </refsection>
 
@@ -677,6 +677,32 @@
         event will be emitted when it changes.</para>
     </refsection>
 
+    <refsection id="latest-dbus-proxy-call">
+      <title>proxy.call()</title>
+<programlisting>
+ invocation = proxy.call(method, args, [options])
+</programlisting>
+      <para>Make a DBus method call on this proxy.</para>
+
+      <para>For DBus methods that start with an upper case letter, is usually more convenient
+        <link linkend="latest-dbus-proxy">to call the method directly on the proxy</link>.
+        However if methods that do not follow the usual DBus convention,
+        or specify additional options, or the caller cannot be sure that the method actually
+        exists, you can use this method.</para>
+
+      <para>This function also works on proxies that have are still loading and have not
+        become valid yet.</para>
+
+      <para>The <code>method</code> should be a DBus method name, and the <code>args</code>
+        should be an array of arguments to pass to the method. The <code>options</code>
+        are <link linkend="latest-dbus-call">described elsewhere</link>.</para>
+
+      <para>The returned value is identical to the one returned from
+        <link linkend="latest-dbus-call">client.call()</link>. It is a
+        <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+        that will complete sucessfully when the method returns, or fail if an error occurs.</para>
+    </refsection>
+
     <refsection id="latest-dbus-proxy-wait">
       <title>proxy.wait()</title>
 <programlisting>
@@ -708,6 +734,24 @@
     "Prop2": 5
   }
 </programlisting>
+    </refsection>
+
+    <refsection id="latest-dbus-proxy-signal">
+      <title>proxy.onsignal</title>
+<programlisting>
+ $(proxy).on("signal", function(event, name, args) {
+   ...
+ });
+</programlisting>
+      <para>This event is emitted when the proxy's emits an event.</para>
+
+      <para>For most events, that have names which start with an upper case letter, you can
+        just <link linkend="latest-dbus-proxy">connect to that event as a signal directly</link>.
+        However if you wish to be notified when any signal is emitted, or for signals that do not
+        follow the usual DBus convention, you can connect to this event.</para>
+
+      <para>The <code>name</code> is the DBus signal name, and the <code>args</code> is an array
+        of arguments that were emitted with the signal.</para>
     </refsection>
 
     <refsection id="latest-dbus-proxies">

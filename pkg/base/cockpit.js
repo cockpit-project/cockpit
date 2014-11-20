@@ -1062,6 +1062,8 @@ function full_scope(cockpit, $) {
             "valid": { get: function() { return valid; }, enumerable: false },
             "wait": { value: function(func) { waits.add(func); return this; },
                       enumerable: false, writable: false },
+            "call": { value: function(name, args) { return client.call(path, iface, name, args); },
+                      enumerable: false, writable: false },
             "data": { value: { }, enumerable: false }
         });
 
@@ -1138,6 +1140,7 @@ function full_scope(cockpit, $) {
         update(cache.lookup(path, iface));
 
         function signal(path, iface, name, args) {
+            $(self).triggerHandler("signal", [name, args]);
             if (name[0].toLowerCase() != name[0])
                 $(self).triggerHandler(name, args);
         }

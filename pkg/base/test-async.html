@@ -19,7 +19,7 @@
 -->
 <html>
 <head>
-    <title>Cockpti Loading: Async</title>
+    <title>Cockpit Loading: Async</title>
     <meta charset="utf-8">
     <script src="../../tools/simple-tap.js"></script>
     <script src="cockpit.js"></script>
@@ -28,10 +28,6 @@
     <h2>Test Async Loading</h2>
     <pre id="output"></pre>
     <script>
-        window.mock = {
-            loader_base: "/"
-        };
-
         define('blah', [], function() {
             return "blah";
         });
@@ -39,7 +35,7 @@
         require([
             'blah',
             'jquery',
-            'cockpit/base/cockpit'
+            'base/cockpit'
         ], function(blah, jQuery, cockpit) {
             test.assert(blah == "blah", "blah is right");
             test.assert(typeof jQuery === "function", "jQuery defined");

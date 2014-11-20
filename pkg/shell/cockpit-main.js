@@ -82,7 +82,7 @@ function init() {
  */
 
 var locale = cockpit.locale({ }, false);
-require(["cockpit/latest/po"], function(po) {
+require(["latest/po"], function(po) {
     shell.language_code = (po[""] ? po[""]["language"] : null);
 });
 shell.i18n = function i18n(string, context) {

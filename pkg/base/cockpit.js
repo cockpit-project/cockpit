@@ -1546,6 +1546,8 @@ function full_scope(cockpit, $) {
  * - Used if no other AMD loader is available
  */
 
+var self_module_id = null;
+
 (function(){
 
     function loader_debug() {
@@ -1590,12 +1592,12 @@ function full_scope(cockpit, $) {
     }
 
     function canonicalize(id) {
-        if (id.indexOf("cockpit/") !== 0)
+        if (window.mock && window.mock.loader_base)
             return id;
         var parts = id.split("/");
-        var pkg = loader.packages[parts[1]];
+        var pkg = loader.packages[parts[0]];
         if (pkg && pkg.name)
-            parts[1] = pkg.name;
+            parts[0] = pkg.name;
         return parts.join("/");
     }
 
@@ -1628,29 +1630,25 @@ function full_scope(cockpit, $) {
     }
 
     function resolve_url(id) {
-        var base = loader.base;
-        if (window.mock && window.mock.loader_base)
-            base = window.mock.loader_base;
 
         /* Special jquery path, go figure */
         if (id == "jquery")
-            id = "cockpit/base/jquery";
+            id = "base/jquery";
 
-        /* Not a cockpit path */
-        if (id.indexOf("cockpit/") !== 0) {
-            return base + id + ".js";
+        /* Overridden base, just be simple */
+        if (window.mock && window.mock.loader_base)
+            return window.mock.loader_base + id + ".js";
 
-        } else {
-            var parts = id.split("/");
-            var pkg = loader.packages[parts[1]];
-            if (pkg) {
-                if (pkg.checksum)
-                    parts[1] = pkg.checksum;
-                else if (pkg.name)
-                    parts[1] = pkg.name;
-            }
-            return base + parts.join("/") + ".js";
+        /* Resolve packages here */
+        var parts = id.split("/");
+        var pkg = loader.packages[parts[0]];
+        if (pkg) {
+            if (pkg.checksum)
+                parts[0] = pkg.checksum;
+            else if (pkg.name)
+                parts[0] = pkg.name;
         }
+        return loader.base + parts.join("/") + ".js";
     }
 
     /* Create a script tag for the given module id */
@@ -1898,36 +1896,39 @@ function full_scope(cockpit, $) {
         loader.defined.push(new Module(id, dependencies, factory));
     }
 
-    function prepare_startup() {
-        var id = null;
-        var path = window.location.pathname;
-        var pos = path.lastIndexOf("/");
-        if (path.indexOf("/cockpit") === 0 || pos <= 0) {
-            loader.base = "/";
-            id = path.substring(1, path.lastIndexOf("."));
-        } else {
-            loader.base = path.substring(0, pos + 1);
-        }
+    var started = false;
 
-        var started = false;
-        function process_start() {
-            if (!started) {
-                started = true;
-                package_table(null, function(packages, problem) {
-                    if (problem)
-                        console.warn("couldn't load cockpit package info: " + problem);
-                    loader.packages = packages || { };
-                    process_defined(id, null);
-                });
-            }
-        }
+    function process_start() {
+        if (started)
+            return;
+        started = true;
+        package_table(null, function(packages, problem) {
+            if (problem)
+                console.warn("couldn't load cockpit package info: " + problem);
+            loader.packages = packages || { };
+            process_defined(null, null);
+        });
+    }
+
+    /* Check how we're being loaded */
+    var last = document.scripts[document.scripts.length - 1].src || "";
+    var pos = last.indexOf("/cockpit.js");
+    if (pos === -1)
+        pos = last.indexOf("/cockpit.min.js");
+    if (pos !== -1)
+        pos = last.substring(0, pos).lastIndexOf("/");
+
+    /* cockpit.js is being loaded as a <script>  and no other loader around? */
+    if (pos !== -1 && !window.define && !window.require) {
+        loader.base = last.substring(0, pos + 1);
+        loader_debug("loader base: " + loader.base);
+
+        self_module_id = last.substring(pos + 1, last.indexOf(".", pos + 1));
+        loader_debug("loader cockpit id: " + self_module_id);
+
 
         document.addEventListener('DOMContentLoaded', process_start, false);
         document.addEventListener('load', process_start, false);
-    }
-
-    if (!window.require && !window.define) {
-        prepare_startup();
 
         window.require = function(arg0, arg1) {
             require_with_context(null, arg0, arg1);
@@ -1942,11 +1943,6 @@ function full_scope(cockpit, $) {
 /*
  * Register this script as a module and/or with globals
  */
-
-function loading_via_tag() {
-    var last = document.scripts[document.scripts.length - 1].src || "";
-    return (last.indexOf("/cockpit.js") !== -1 || last.indexOf("/cockpit.min.js") !== -1);
-}
 
 var cockpit = { };
 var basics = false;
@@ -1965,15 +1961,14 @@ function factory(jquery) {
     return cockpit;
 }
 
-var module_id = null;
-if (loading_via_tag()) {
-    module_id = "cockpit/base/cockpit";
-
-    /* Traditional tags, we register the global */
+/* Cockpit loader with a <script> tag we register the global */
+if (self_module_id) {
     window.cockpit = factory(window.jQuery);
-}
+    define(self_module_id, ['jquery'], factory);
 
-if (typeof define === 'function' && define.amd)
-    define(module_id, ['jquery'], factory);
+/* Cockpit loaded via another AMD loader */
+} else if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+}
 
 })();

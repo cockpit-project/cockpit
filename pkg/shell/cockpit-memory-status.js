@@ -32,7 +32,7 @@ PageMemoryStatus.prototype = {
     enter: function() {
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address, { payload: "dbus-json1" });
+        this.client = shell.dbus(this.address);
 
         var resmon = this.client.get("/com/redhat/Cockpit/MemoryMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {

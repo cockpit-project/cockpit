@@ -2062,7 +2062,7 @@ cockpit_dbus_json_open (CockpitTransport *transport,
   options = json_object_new ();
   json_object_set_string_member (options, "bus", "session");
   json_object_set_string_member (options, "service", dbus_service);
-  json_object_set_string_member (options, "payload", "dbus-json");
+  json_object_set_string_member (options, "payload", "dbus-json3");
 
   channel = g_object_new (COCKPIT_TYPE_DBUS_JSON,
                           "transport", transport,

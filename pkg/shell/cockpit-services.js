@@ -268,7 +268,7 @@ PageServices.prototype = {
         });
 
         /* TODO: This code needs to be migrated away from old dbus */
-        me.client = shell.dbus(me.address, { payload: 'dbus-json1' });
+        me.client = shell.dbus(me.address);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -614,7 +614,7 @@ PageService.prototype = {
 
         me.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        me.client = shell.dbus(me.address, { payload: 'dbus-json1' });
+        me.client = shell.dbus(me.address);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");

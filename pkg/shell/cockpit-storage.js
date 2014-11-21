@@ -346,7 +346,7 @@ PageStorage.prototype = {
 
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from the old dbus */
-        this.client = shell.dbus(this.address, { payload: 'dbus-json1' });
+        this.client = shell.dbus(this.address);
         watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
@@ -1249,7 +1249,7 @@ PageStorageDetail.prototype = {
 
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address, { payload: 'dbus-json1' });
+        this.client = shell.dbus(this.address);
         watch_jobs(this.client);
 
         this._drive = null;

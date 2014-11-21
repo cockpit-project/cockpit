@@ -66,9 +66,9 @@ function render_container_name (name) {
 
 function render_container_state (state) {
     if (state.Running)
-        return F(_("Up since %{StartedAt}"), state);
+        return cockpit.format(_("Up since $StartedAt"), state);
     else
-        return F(_("Exited %{ExitCode}"), state);
+        return cockpit.format(_("Exited $ExitCode"), state);
 }
 
 function multi_line(strings) {
@@ -78,7 +78,7 @@ function multi_line(strings) {
 function format_cpu_shares(priority) {
     if (!priority)
         return _("default");
-    return F(_("%{shares} shares"), { shares: Math.round(priority) });
+    return cockpit.format(_("$0 shares"), Math.round(priority));
 }
 
 function format_cpu_usage(usage) {
@@ -274,7 +274,7 @@ function setup_for_failure(page, client, address) {
         } else if (ex.problem == "not-authorized")
             msg = _("Not authorized to access Docker on this system");
         else
-            msg = F(_("Can't connect to Docker: %{error}"), { error: ex.toString() });
+            msg = cockpit.format(_("Can't connect to Docker: $0"), ex.toString());
         $("#containers-failure-message").text(msg);
 
         $("#containers-failure-start").toggle(show_start);
@@ -317,7 +317,7 @@ function setup_for_failure(page, client, address) {
                     });
             }).
             fail(function (error) {
-                show_failure(F(_("Failed to start Docker: %{error}"), { error: error }));
+                show_failure(cockpit.format(_("Failed to start Docker: $0"), error));
             });
     });
 
@@ -669,10 +669,8 @@ PageRunImage.prototype = {
             var tr =
                 $('<tr class="port-map">').append(
                     $('<td>').text(
-                        F(_("Bind port %{port} to "),
-                          { port: p })),
-                    $('<td colspan="2">').append(
-                        port_input));
+                        cockpit.format(_("Bind port $0 to "), p)),
+                    $('<td colspan="2">').append(port_input));
 
             port_input.attr('placeholder', _("none"));
             return tr;
@@ -1144,7 +1142,7 @@ PageContainerDetails.prototype = {
                 if (!h)
                     continue;
                 for (var i = 0; i < h.length; i++) {
-                    port_bindings.push(F(_("%{hip}:%{hport} -> %{cport}"),
+                    port_bindings.push(cockpit.format(_("${hip}:${hport} -> $cport"),
                                          { hip: h[i].HostIp,
                                            hport: h[i].HostPort,
                                            cport: p
@@ -1204,7 +1202,7 @@ PageContainerDetails.prototype = {
     delete_container: function () {
         var self = this;
         var location = cockpit.location;
-        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
+        shell.confirm(cockpit.format(_("Please confirm deletion of $0"), self.name),
                         _("Deleting a container will erase all data in it."),
                         _("Delete")).
             done(function () {
@@ -1261,7 +1259,7 @@ PageImageDetails.prototype = {
         this.address = shell.get_page_machine();
         this.client = shell.docker(this.address);
         this.image_id = shell.get_page_param('id');
-        this.name = F(_("Image %{id}"), { id: this.image_id.slice(0,12) });
+        this.name = cockpit.format(_("Image $0"), this.image_id.slice(0,12));
 
         /* TODO: migrate this code away from old dbus */
         this.dbus_client = shell.dbus(this.address, { payload: "dbus-json1" });
@@ -1343,7 +1341,7 @@ PageImageDetails.prototype = {
     delete_image: function () {
         var self = this;
         var location = cockpit.location;
-        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: self.name }),
+        shell.confirm(cockpit.format(_("Please confirm deletion of $0"), self.name),
                         _("Deleting an image will delete it, but you can probably download it again if you need it later.  Unless this image has never been pushed to a repository, that is, in which case you probably can't download it again."),
                         _("Delete")).
             done(function () {

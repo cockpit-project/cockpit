@@ -691,17 +691,9 @@ msgctxt "page-title"
 msgid "Disk I/O"
 msgstr "Disk I/O"
 
-#: ../src/web/cockpit-jobs.js:86
-msgid "Unknown operation on %{target}"
-msgstr "Unbekannte Operation mit %{target}"
-
 #: ../src/web/cockpit-jobs.js:122
 msgid "(No current jobs)"
 msgstr "(Keine laufenden Jobs)"
-
-#: ../src/web/cockpit-journal.js:60
-msgid "(repeated %{count} more times)"
-msgstr "(noch %{count} mal wiederholt)"
 
 #: ../src/web/cockpit-journal.js:94
 msgid "-- Reboot --"
@@ -858,10 +850,6 @@ msgstr "Bereich Verlassen"
 msgid "Administrator Password"
 msgstr "Bereichsverwalter Passwort"
 
-#: ../src/web/cockpit-realms.js:441
-msgid "Domain %{domain} could not be contacted"
-msgstr "Bereich %{domain} konnte nicht erreicht werden"
-
 #: ../src/web/cockpit-realms.js:463
 msgid "More"
 msgstr "Mehr"
@@ -973,10 +961,6 @@ msgctxt "page-title"
 msgid "Service"
 msgstr "Dienst"
 
-#: ../src/web/cockpit-services.js:365
-msgid "This service is an instance of the %{template} service template."
-msgstr "Dieser Dienst ist eine Instanz des %{template} Dienste-Schemas."
-
 #: ../src/web/cockpit-services.js:414
 msgid "Processes"
 msgstr "Prozesse"
@@ -1006,22 +990,6 @@ msgstr "Abschaltung ist im Gange."
 msgid "A restart is in progress."
 msgstr "Neustart ist im Gange."
 
-#: ../src/web/cockpit-shutdown.js:153
-msgid "The system is set to shutdown in %{delay}"
-msgstr "Die Maschine wird in %{delay} abgeschaltet"
-
-#: ../src/web/cockpit-shutdown.js:156
-msgid "The system is set to restart in %{delay}"
-msgstr "Die Maschine wird in %{delay} neu gestarted"
-
-#: ../src/web/cockpit-shutdown.js:162
-msgid "The system is set to shutdown at %{time}"
-msgstr "Die Maschine wird um %{time} abgeschaltet"
-
-#: ../src/web/cockpit-shutdown.js:165
-msgid "The system is set to restart at %{time}"
-msgstr "Die Maschine wird um %{time} neu gestartet"
-
 #: ../src/web/cockpit-shutdown.js:218
 msgid "Proceed with System Shutdown?"
 msgstr "Mit Abschaltung fortfahren?"
@@ -1042,37 +1010,17 @@ msgstr "Mit Neustart fortfahren?"
 msgid "All services will be halted while the system is restarted."
 msgstr "Alle Dienste werden angehalten während die Maschine neu startet."
 
-#: ../src/web/cockpit-shutdown.js:243
-msgid "%{hostname} has been shutdown."
-msgstr "%{hostname} ist abgeschaltet."
-
 #: ../src/web/cockpit-shutdown.js:271
 msgid "System Shutdown"
 msgstr "Abschaltung"
-
-#: ../src/web/cockpit-shutdown.js:272
-msgid "%{hostname} is being shutdown."
-msgstr "%{hostname} wird abgeschaltet."
 
 #: ../src/web/cockpit-shutdown.js:275
 msgid "System Restart"
 msgstr "Neustart"
 
-#: ../src/web/cockpit-shutdown.js:276
-msgid "Please wait while %{hostname} is restarted."
-msgstr "Bitte warten Sie während %{hostname} neu gestartet wird."
-
 #: ../src/web/cockpit-storage.js:55
 msgid "Storage Jobs"
 msgstr "Speicherjobs"
-
-#: ../src/web/cockpit-storage.js:56
-msgid "Creating filesystem on %{target}"
-msgstr "Erstelle Dateisystem auf %{target}"
-
-#: ../src/web/cockpit-storage.js:57
-msgid "Erasing %{target}"
-msgstr "Lösche %{target}"
 
 #: ../src/web/cockpit-storage.js:80
 msgctxt "page-title"
@@ -1126,11 +1074,6 @@ msgctxt "storage"
 msgid "Block Device"
 msgstr "Block Gerät"
 
-#: ../src/web/cockpit-storage.js:378
-msgctxt "storage-id-desc"
-msgid "%{type} File System"
-msgstr "%{type} Dateisystem"
-
 #: ../src/web/cockpit-storage.js:381
 msgctxt "storage-id-desc"
 msgid "Linux MD-RAID Component"
@@ -1171,14 +1114,6 @@ msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "Unerkannte Daten"
 
-#: ../src/web/cockpit-storage.js:404
-msgid "%{size} %{partition} (%{content})"
-msgstr "%{size} %{partition} (%{content})"
-
-#: ../src/web/cockpit-storage.js:417
-msgid "mounted on %{mountpoint}"
-msgstr "eingehängt auf %{mountpoint}"
-
 #: ../src/web/cockpit-storage.js:421
 msgid "not mounted"
 msgstr "nicht eingehängt"
@@ -1190,10 +1125,6 @@ msgstr "offen"
 #: ../src/web/cockpit-storage.js:427
 msgid "locked"
 msgstr "verschlossen"
-
-#: ../src/web/cockpit-storage.js:461
-msgid "%{name} (on %{host})"
-msgstr "%{name} (auf %{host})"
 
 #: ../src/web/cockpit-storage.js:610
 msgctxt "storage"
@@ -1221,22 +1152,6 @@ msgstr "Primäre Partition"
 #: ../src/web/cockpit-storage.js:664
 msgid "Partition"
 msgstr "Partition"
-
-#: ../src/web/cockpit-storage.js:742
-msgid "%{size} Free Space for Logical Partitions"
-msgstr "%{size} Freier Platz für Logische Partitionen"
-
-#: ../src/web/cockpit-storage.js:745
-msgid "%{size} Free Space for Primary Partitions"
-msgstr "%{size} Freier Platz für Primäre Partitionen"
-
-#: ../src/web/cockpit-storage.js:748
-msgid "%{size} Free Space"
-msgstr "%{size} Freier Platz"
-
-#: ../src/web/cockpit-storage.js:770
-msgid "%{size} Extended Partition"
-msgstr "%{size} Erweiterte Partition"
 
 #: ../src/web/cockpit-storage.js:855
 msgctxt "disk-drive"
@@ -1277,18 +1192,6 @@ msgstr "RAID 6"
 msgid "RAID 10"
 msgstr "RAID 10"
 
-#: ../src/web/cockpit-storage.js:890
-msgid "RAID (%{level})"
-msgstr "RAID (%{level})"
-
-#: ../src/web/cockpit-storage.js:913
-msgid "%{n} Disks"
-msgstr "%{n} Platten"
-
-#: ../src/web/cockpit-storage.js:915
-msgid "%{n} Chunk Size"
-msgstr "%{n} Happengröße"
-
 #: ../src/web/cockpit-storage.js:924
 msgid "Off"
 msgstr "Aus"
@@ -1300,10 +1203,6 @@ msgstr "An"
 #: ../src/web/cockpit-storage.js:933
 msgid "ARRAY IS DEGRADED"
 msgstr "ANORDNUNG IST DEGRADIERT"
-
-#: ../src/web/cockpit-storage.js:934
-msgid "%{n} disks are missing"
-msgstr "%{n} Platten fehlen noch"
 
 #: ../src/web/cockpit-storage.js:938 ../src/web/cockpit-storage.js:946
 msgid "Running"
@@ -1333,18 +1232,6 @@ msgstr "Am Erholen"
 msgid "Frozen"
 msgstr "Eingefroren"
 
-#: ../src/web/cockpit-storage.js:957
-msgid "%{action}, %{percent}% complete at %{rate}"
-msgstr "%{action}, %{percent}% erledigt mit %{rate}"
-
-#: ../src/web/cockpit-storage.js:961
-msgid "%{action}, %{percent}% complete"
-msgstr "%{action}, %{percent}% erledigt"
-
-#: ../src/web/cockpit-storage.js:965
-msgid "%{remaining} remaining"
-msgstr "%{remaining} bleiben noch"
-
 #: ../src/web/cockpit-storage.js:988
 msgid "FAILED"
 msgstr "KAPUTT"
@@ -1369,14 +1256,6 @@ msgstr "Hauptsächlich Schreiben"
 msgid "Blocked"
 msgstr "Gesperrt"
 
-#: ../src/web/cockpit-storage.js:998
-msgid "Unknown (%{state})"
-msgstr "Unbekannt (%{state})"
-
-#: ../src/web/cockpit-storage.js:1027
-msgid "%{n} Read Errors"
-msgstr "%{n} Lesefehler"
-
 #: ../src/web/cockpit-storage.js:1038
 msgid "Remove"
 msgstr "Entfernen"
@@ -1385,14 +1264,6 @@ msgstr "Entfernen"
 msgctxt "page-title"
 msgid "Create RAID Array"
 msgstr "RAID Anordnung Erstellen"
-
-#: ../src/web/cockpit-storage.js:1344
-msgid "%{n} disks of %{size} each"
-msgstr "%{n} Platten mit je %{size}"
-
-#: ../src/web/cockpit-storage.js:1351
-msgid "%{n} more disks needed"
-msgstr "%{n} Platten fehlen noch"
 
 #: ../src/web/cockpit-storage.js:1397
 msgctxt "page-title"
@@ -1545,9 +1416,6 @@ msgstr "Deutsch"
 
 #~ msgid "Create RAID"
 #~ msgstr "RAID Anordnung Erstellen"
-
-#~ msgid "%{n} Chunk"
-#~ msgstr "%{n} Happen"
 
 #~ msgid "Change Host Name"
 #~ msgstr "Hostnamen ändern"

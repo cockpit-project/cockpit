@@ -139,8 +139,7 @@ function job_box(client, tbody, domain, descriptions, target_describer) {
                         target_desc += tdesc;
                     }
                 }
-                desc = F(descriptions[j.Operation] || _("Unknown operation on %{target}"),
-                         { target: target_desc });
+                desc = cockpit.format(descriptions[j.Operation] || _("Unknown operation on $0"), target_desc);
                 if (j.ProgressValid)
                     progress = (j.Progress*100).toFixed() + "%";
                 else
@@ -271,9 +270,9 @@ function storage_job_box(client, elt)
 {
     return job_box(client,
                             elt, 'storage',
-                            { 'format-mkfs' : _("Creating filesystem on %{target}"),
-                              'format-erase' : _("Erasing %{target}"),
-                              'lvm-vg-empty-device': _("Emptying %{target}")
+                            { 'format-mkfs' : _("Creating filesystem on $target"),
+                              'format-erase' : _("Erasing $target"),
+                              'lvm-vg-empty-device': _("Emptying $target")
                             },
                             function (target) {
                                 var block = client.lookup (target,
@@ -835,7 +834,7 @@ function lvol_get_desc(lv)
         type = _("Logical Volume (Snapshot)");
     else
         type = _("Logical Volume");
-    return F("%{type} \"%{name}\"", { type: type, name: shell.esc(lv.Name) });
+    return cockpit.format("$type \"$name\"", { type: type, name: shell.esc(lv.Name) });
 }
 
 function block_get_desc(block, partition_label, cleartext_device)
@@ -844,7 +843,7 @@ function block_get_desc(block, partition_label, cleartext_device)
 
     if (block.IdUsage == "filesystem") {
         ret = $('<span>').text(
-            F(C_("storage-id-desc", "%{type} File System"), { type: block.IdType }));
+            cockpit.format(C_("storage-id-desc", "$0 File System"), block.IdType));
     } else if (block.IdUsage == "raid") {
         if (block.IdType == "linux_raid_member") {
             ret = $('<span>').text(C_("storage-id-desc", "Linux MD-RAID Component"));
@@ -892,9 +891,8 @@ function block_get_desc(block, partition_label, cleartext_device)
 
     if (block.PartitionNumber > 0) {
         ret = $('<span>').append(
-            F(_("%{size} %{partition}"), { size: fmt_size(block.Size),
-                                           partition: partition_label
-                                         }),
+            cockpit.format(_("$size $partition"), { size: fmt_size(block.Size),
+                                                    partition: partition_label }),
             " (", ret, ")");
     }
 
@@ -902,9 +900,8 @@ function block_get_desc(block, partition_label, cleartext_device)
         lv = block._client.lookup(block.LogicalVolume,
                                   "com.redhat.Cockpit.Storage.LogicalVolume");
         ret = $('<span>').append(
-            F(_("%{size} %{partition}"), { size: fmt_size(block.Size),
-                                           partition: lvol_get_desc(lv)
-                                         }),
+            cockpit.format(_("$size $partition"), { size: fmt_size(block.Size),
+                                                    partition: lvol_get_desc(lv) }),
             " (", ret, ")");
     }
 
@@ -915,9 +912,7 @@ function block_get_desc(block, partition_label, cleartext_device)
     if (block.IdUsage == "filesystem") {
         ret.append(", ");
         if (block.MountedAt.length > 0)
-            ret.append(F(_("mounted on %{mountpoint}"),
-                         { mountpoint: shell.esc(block.MountedAt[0])
-                         }));
+            ret.append(cockpit.format(_("mounted on $0"), shell.esc(block.MountedAt[0])));
         else
             ret.append(_("not mounted"));
     } else if (block.IdUsage == "crypto") {
@@ -1087,7 +1082,7 @@ function raid_get_desc(raid)
     if (manager && parts[0] == manager.StaticHostname)
         return parts[1];
     else
-        return F(_("%{name} (on %{host})"),
+        return cockpit.format(_("$name (on $host)"),
                  { name: parts[1],
                    host: parts[0]
                  });
@@ -1526,17 +1521,17 @@ PageStorageDetail.prototype = {
                 var enable_dos_extended = false;
                 if (start + size - real_start >= 1024*1024) {
                     if (is_dos_partitioned) {
-                        if (level > device_level)
-                            desc = F(_("%{size} Free Space for Logical Partitions"),
-                                     { size: fmt_size(size) });
-                        else {
-                            desc = F(_("%{size} Free Space for Primary Partitions"),
-                                     { size: fmt_size(size) });
+                        if (level > device_level) {
+                            desc = cockpit.format(_("$0 Free Space for Logical Partitions"),
+                                                  fmt_size(size));
+                        } else {
+                            desc = cockpit.format(_("$0 Free Space for Primary Partitions"),
+                                                  fmt_size(size));
                             enable_dos_extended = true;
                         }
-                    } else
-                        desc = F(_("%{size} Free Space"),
-                                 { size: fmt_size(size) });
+                    } else {
+                        desc = cockpit.format(_("$0 Free Space"), fmt_size(size));
+                    }
 
                     append_entry (level, null, desc,
                                   create_simple_btn (_("Create Partition"),
@@ -1546,7 +1541,7 @@ PageStorageDetail.prototype = {
             }
 
             function append_extended_partition (level, block, start, size) {
-                var desc = F(_("%{size} Extended Partition"), { size: fmt_size(size) });
+                var desc = cockpit.format(_("$0 Extended Partition"), fmt_size(size));
                 var btn = create_block_action_btn (block, false, true);
                 append_entry (level, null, desc, btn);
                 me.watch_object(block);
@@ -1614,7 +1609,7 @@ PageStorageDetail.prototype = {
             function append_logical_volume_block (level, block, lv) {
                 var btn, id, desc;
                 if (block.PartitionTableType) {
-                    desc = F(_("%{size} %{desc}"),
+                    desc = cockpit.format(_("$size $desc"),
                              { desc: lvol_get_desc(lv),
                                size: fmt_size(block.Size) });
                     desc += "<br/>" + shell.esc(block.Device);
@@ -1631,7 +1626,7 @@ PageStorageDetail.prototype = {
 
                 if (lv.Type == "pool") {
                     ratio = Math.max(lv.DataAllocatedRatio, lv.MetadataAllocatedRatio);
-                    desc = F(_("%{size} %{desc}<br/>%{percent}% full"),
+                    desc = cockpit.format(_("$size $desc<br/>${percent}% full"),
                              { size: fmt_size(lv.Size),
                                desc: lvol_get_desc(lv),
                                percent: (ratio*100).toFixed(0)
@@ -1657,7 +1652,7 @@ PageStorageDetail.prototype = {
                         // volume, UDisks2 is probably misbehaving,
                         // and we show it as "unsupported".
 
-                        desc = F(_("%{size} %{desc}<br/>(%{state})"),
+                        desc = cockpit.format(_("$size $desc<br/>($state)"),
                                  { size: fmt_size(lv.Size),
                                    desc: lvol_get_desc(lv),
                                    state: lv.Active? _("active, but unsupported") : _("inactive")
@@ -1679,8 +1674,7 @@ PageStorageDetail.prototype = {
                 }
             }
             if (vg.FreeSize > 0) {
-                desc = F(_("%{size} Free Space for Logical Volumes"),
-                         { size: fmt_size(vg.FreeSize) });
+                desc = cockpit.format(_("$0 Free Space for Logical Volumes"), fmt_size(vg.FreeSize));
                 var btn = shell.action_btn(function (op) { me.volume_group_action (op); },
                                               [ { title: _("Create Plain Logical Volume"),
                                                   action: 'create-plain', is_default: true
@@ -1776,7 +1770,7 @@ PageStorageDetail.prototype = {
                      "raid5": _("RAID 5"),
                      "raid6": _("RAID 6"),
                      "raid10": _("RAID 10")
-                   }[str] || F(_("RAID (%{level})"), { level: str });
+                   }[str] || cockpit.format(_("RAID ($level)"), str);
         }
 
         var raid = this._mdraid;
@@ -1798,9 +1792,9 @@ PageStorageDetail.prototype = {
 
         var level = format_level(raid.Level);
         if (raid.NumDevices > 0)
-            level += ", " + F(_("%{n} Disks"), { n: raid.NumDevices });
+            level += ", " + cockpit.format(_("$0 Disks"), raid.NumDevices);
         if (raid.ChunkSize > 0)
-            level += ", " + F(_("%{n} Chunk Size"), { n: fmt_size(raid.ChunkSize) });
+            level += ", " + cockpit.format(_("%0 Chunk Size"), fmt_size(raid.ChunkSize));
         $("#raid_detail_level").html(shell.esc(level));
 
         var state, action_state = "", is_running;
@@ -1819,7 +1813,7 @@ PageStorageDetail.prototype = {
 
         if (raid.Degraded > 0) {
             degraded = ('<span style="color:red">' + _("ARRAY IS DEGRADED") + '</span> -- ' +
-                        F(_("%{n} disks are missing"), { n: raid.Degraded }));
+                        cockpit.format(_("%0 disks are missing"), raid.Degraded));
         }
         if (!raid.SyncAction) {
             if (block) {
@@ -1841,17 +1835,18 @@ PageStorageDetail.prototype = {
                      }[raid.SyncAction] || raid.SyncAction;
             if (action && action != "idle") {
                 percent = Math.round(raid.SyncCompleted * 100).toString();
-                if (raid.SyncRate > 0)
-                    action_state = F(_("%{action}, %{percent}% complete at %{rate}"),
+                if (raid.SyncRate > 0) {
+                    action_state = cockpit.format(_("$action, ${percent}% complete at $rate"),
                                     { action: action, percent: percent,
                                       rate: fmt_size(raid.SyncRate) + "/s" });
-                else
-                    action_state = F(_("%{action}, %{percent}% complete"),
+                } else {
+                    action_state = cockpit.format(_("$action, ${percent}% complete"),
                                     { action: action, percent: percent });
+                }
                 state = state + "<br/>" + action_state;
                 if (raid.SyncRemainingTime > 0) {
-                    remaining = F(_("%{remaining} remaining"),
-                                  { remaining: shell.format_delay(raid.SyncRemainingTime / 1000) });
+                    remaining = cockpit.format(_("$0 remaining"),
+                                               shell.format_delay(raid.SyncRemainingTime / 1000));
                     state = state + "<br/>" + remaining;
                 }
             }
@@ -1877,7 +1872,7 @@ PageStorageDetail.prototype = {
             else if (state == 'blocked')
                 return _("Blocked");
             else
-                return F(_("Unknown (%{state})"), { state: state });
+                return cockpit.format(_("Unknown ($0)"), state);
         }
 
         $('#raid-disks-add').css('visibility', raid.Level === "raid0" ? 'hidden' : 'visible');
@@ -1903,7 +1898,7 @@ PageStorageDetail.prototype = {
                 if (states.length > 0)
                     state_html += '<br/>';
                 state_html += ('<span style="color:red">' +
-                               F(_("%{n} Read Errors"), { n: num_errors } ) +
+                               cockpit.format(_("$0 Read Errors"), num_errors) +
                                '</span>');
             }
 
@@ -1977,7 +1972,7 @@ PageStorageDetail.prototype = {
                         $('<tr>').append(
                             $('<td>').append(block_get_link_desc(block),
                                              $('<br>'),
-                                             F(_("%{size}, %{free} free"),
+                                             cockpit.format(_("$size, $free free"),
                                                { size: fmt_size(block.PvSize),
                                                  free: fmt_size(block.PvFreeSize)
                                                })),
@@ -2089,7 +2084,7 @@ PageStorageDetail.prototype = {
         var self = this;
         var location = cockpit.location;
 
-        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: raid_get_desc(this._mdraid) }),
+        shell.confirm(cockpit.format(_("Please confirm deletion of $0"), raid_get_desc(this._mdraid)),
                         _("Deleting a RAID Device will erase all data on it."),
                         _("Delete")).
             done(function () {
@@ -2139,7 +2134,7 @@ PageStorageDetail.prototype = {
     },
 
     delete_partition: function(block) {
-        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: block.Device }),
+        shell.confirm(cockpit.format(_("Please confirm deletion of $0"), block.Device),
                         _("Deleting a partition will delete all data in it."),
                         _("Delete")).
             done(function () {
@@ -2264,7 +2259,7 @@ PageStorageDetail.prototype = {
         if (!shell.check_admin(this.client))
             return;
 
-        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name }),
+        shell.confirm(cockpit.format(_("Please confirm deletion of $0"), self._vg.Name),
                         _("Deleting a volume group will erase all data on it."),
                         _("Delete")).
             done(function() {
@@ -2396,7 +2391,7 @@ PageStorageDetail.prototype = {
         if (!shell.check_admin(this.client))
             return;
 
-        shell.confirm(F(_("Please confirm deletion of %{name}"), { name: self._vg.Name + "/" + lv.Name }),
+        shell.confirm(cockpit.format(_("Please confirm deletion of $0"), self._vg.Name + "/" + lv.Name),
                         _("Deleting a logical volume will erase all data in it."),
                         _("Delete")).
             done(function () {
@@ -2542,15 +2537,15 @@ PageCreateRaid.prototype = {
         }
 
         if (n_disks >= n_disks_needed) {
-            $("#create-raid-summary-drives").text(F(_("%{n} disks of %{size} each"),
+            $("#create-raid-summary-drives").text(cockpit.format(_("$n disks of $size each"),
                                                     { n: n_disks,
                                                       size: fmt_size(disk_size)
                                                     }));
             $("#create-raid-summary-size").text(fmt_size(raid_size));
             $("#create-raid-create").prop('disabled', false);
         } else {
-            $("#create-raid-summary-drives").text(F(_("%{n} more disks needed"),
-                                                    { n: n_disks_needed - n_disks }));
+            $("#create-raid-summary-drives").text(cockpit.format(_("$0 more disks needed"),
+                                                                 n_disks_needed - n_disks));
             $("#create-raid-summary-size").text("--");
             $("#create-raid-create").prop('disabled', true);
         }
@@ -2594,7 +2589,7 @@ function fill_free_devices_list(client, id, filter)
 
     for (var n = 0; n < blocks.length; n++) {
         var block = blocks[n];
-        var desc = F("%{size} %{desc} %{dev}",
+        var desc = cockpit.format("$size $desc $dev",
                      { size: fmt_size(block.Size),
                        desc: block_get_short_desc(block),
                        dev: block.Device
@@ -2820,7 +2815,7 @@ PageFormatDisk.prototype = {
     },
 
     enter: function() {
-        $("#format-disk-title").text(F(_("Format Disk %{name}"), { name: PageFormatDisk.block.Device }));
+        $("#format-disk-title").text(cockpit.format(_("Format Disk $0"), PageFormatDisk.block.Device));
         $("#format-disk-type").selectpicker('val', "gpt");
         $("#format-disk-erase").selectpicker('val', "no");
     },
@@ -2874,7 +2869,7 @@ PageFormat.prototype = {
         }
 
         if (PageFormat.mode == 'format') {
-            $("#format-title").text(F(_("Format %{name}"), { name: PageFormat.block.Device }));
+            $("#format-title").text(cockpit.format(_("Format $0"), PageFormat.block.Device));
             $("#format-warning").text(_("Formatting a storage device will erase all data on it."));
             $("#format-format").text(_("Format"));
             $("#format-format").addClass("btn-danger").removeClass("btn-primary");
@@ -2883,7 +2878,7 @@ PageFormat.prototype = {
             $("#format-mount-options").val(PageFormat.block.MountOptions);
             enable_dos_extended(false);
         } else {
-            $("#format-title").text(F(_("Create Partition on %{name}"), { name: PageFormat.block.Device }));
+            $("#format-title").text(cockpit.format(_("Create Partition on $0"), PageFormat.block.Device));
             $("#format-warning").text("");
             $("#format-format").text(_("Create partition"));
             $("#format-format").addClass("btn-primary").removeClass("btn-danger");

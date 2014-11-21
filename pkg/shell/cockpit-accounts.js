@@ -820,8 +820,7 @@ PageAccountConfirmDelete.prototype = {
 
     enter: function() {
         $('#account-confirm-delete-files').prop('checked', false);
-        $('#account-confirm-delete-title').text(F(_("Delete %{name}"),
-                                                  { name: PageAccountConfirmDelete.account.UserName }));
+        $('#account-confirm-delete-title').text(cockpit.format(_("Delete $0"), PageAccountConfirmDelete.account.UserName));
     },
 
     leave: function() {

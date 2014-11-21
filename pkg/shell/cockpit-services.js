@@ -760,8 +760,8 @@ PageService.prototype = {
 
             if (me.template) {
                 $("#service-template-row").show();
-                var html = F(_("This service is an instance of the %{template} service template."),
-                             { template: F('<a class="cockpit-link" onclick="%{cmd}">%{title}</a>',
+                var html = cockpit.format(_("This service is an instance of the $template service template."),
+                             { template: cockpit.format('<a class="cockpit-link" onclick="${cmd}">$title</a>',
                                            { cmd: shell.esc("cockpit.location.go('service', " +
                                                               JSON.stringify({ s: me.template }) + ");"),
                                              title: shell.esc(me.template)

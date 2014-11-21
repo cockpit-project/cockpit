@@ -254,7 +254,7 @@ PageRealmsOp.prototype = {
                               function (error, result, details) {
                                   if (result) {
                                       $("#realms-op-address")[0].placeholder =
-                                          F(_("e.g. %{address}"), { address: result });
+                                          cockpit.format(_("e.g. $0"), result);
                                   }
                               });
     },
@@ -296,7 +296,7 @@ PageRealmsOp.prototype = {
                                       else if (!result) {
                                           $("#realms-op-address-error").show();
                                           $("#realms-op-address-error").attr('title',
-                                                                             F(_("Domain %{domain} could not be contacted"), { 'domain': shell.esc(name) }));
+                                                                             cockpit.format(_("Domain $0 could not be contacted"), shell.esc(name)));
                                       } else {
                                           me.discovered_details = details;
                                       }

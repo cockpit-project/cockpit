@@ -481,7 +481,7 @@ function hosts_init() {
 
         function show_problem_dialog() {
             $('#reconnect-dialog-summary').text(
-                F(_("Couldn't establish connection to %{name}."), { name: info.display_name }));
+                cockpit.format(_("Couldn't establish connection to $0."), info.display_name));
             $('#reconnect-dialog-problem').text(
                 shell.client_error_description(info.problem));
             $('#reconnect-dialog-reconnect').off('click');
@@ -1148,10 +1148,6 @@ $(function() {
 });
 
 })(jQuery, cockpit, shell, modules);
-
-function F(format, args) {
-    return format.replace(/%\{([^}]+)\}/g, function(_, key) { return args[key] || ""; });
-}
 
 function N_(str) {
     return str;

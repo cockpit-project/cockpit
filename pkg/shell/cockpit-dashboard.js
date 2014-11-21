@@ -180,6 +180,10 @@ PageDashboard.prototype = {
         function changed(event, addr) {
             var shell_info = shell.hosts[addr];
             var dash_info = hosts[addr];
+
+            if (!dash_info || !shell_info)
+                return;
+
             dash_info.hostname_span.text(shell_info.display_name);
             if (shell_info.state == "failed") {
                 dash_info.avatar_img.attr('src', "images/server-error.png");

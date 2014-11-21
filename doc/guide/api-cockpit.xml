@@ -1268,13 +1268,17 @@
       <title>cockpit.format()</title>
 <programlisting>
  string = cockpit.format(template, args)
+ string = cockpit.format(template, [arg, ...])
 </programlisting>
 
       <para>Format a string interpolating <code>args</code> into <code>template</code> using
         shell like syntax. The <code>args</code> may be either an array or javascript object.
         The <code>template</code> can contain fields that look like <code>$name</code> or
-        <code>${name}</code> or <code>$1</code>. Numeric fields are used with array
-        <code>args</code>.</para>
+        <code>${name}</code> or <code>$0</code>. Numeric fields are used with array
+        <code>args</code> and start at zero.</para>
+
+      <para>In the second form, multiple <code>arg</code> arguments may be passed directly,
+        and interpolated as as numeric fields in the <code>template</code>.</para>
     </refsection>
   </refsection>
 

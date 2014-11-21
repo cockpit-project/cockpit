@@ -320,8 +320,8 @@ Payload: dbus-json3
 -------------------
 
 DBus messages are encoded in JSON payloads by cockpit-web, and decoded in
-cockpit-bridge. The 'dbus-json1' and 'dbus-json2' protocols are deprecated
-and not documented.
+cockpit-bridge. The 'dbus-json1' is deprecated. The 'dbus-json2' protocol
+is no longer supported.
 
 Additional "open" command options are needed to open a channel of this
 type:

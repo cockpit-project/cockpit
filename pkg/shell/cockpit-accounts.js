@@ -180,7 +180,7 @@ PageAccounts.prototype = {
     enter: function() {
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address, { "payload": "dbus-json1" });
+        this.client = shell.dbus(this.address);
 
         on_account_changes(this.client, "accounts", $.proxy(this, "update"));
         this.update();
@@ -386,7 +386,7 @@ PageAccount.prototype = {
     enter: function() {
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address, { payload: "dbus-json1" });
+        this.client = shell.dbus(this.address);
 
         on_account_changes(this.client, "account", $.proxy(this, "update"));
         this.real_name_dirty = false;

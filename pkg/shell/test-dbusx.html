@@ -294,45 +294,6 @@ function basic_tests(client)
                      });
     });
 
-    asyncTest("Passing of non-annotated variants", function() {
-        var frobber;
-
-        expect(1);
-
-        frobber = client.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
-        frobber.call("TestAsv",
-                     {one: "foo",
-                      two: "/bar",
-                      three: "assgit",
-                      four: 42,
-                      five: 1000.0},
-                     function (error, reply) {
-                         ok(error, "Error is set");
-                         start();
-                     });
-    });
-
-    asyncTest("Passing of annotated variants", function() {
-        var frobber;
-
-        expect(2);
-
-        frobber = client.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
-        frobber.call("TestAsv",
-                     {one: shell.variant("s", "foo"),
-                      two: shell.variant("o", "/bar"),
-                      three: shell.variant("g", "assgit"),
-                      four: shell.variant("y", 42),
-                      five: shell.variant("d", 1000.0)},
-                     function (error, reply) {
-                         ok(!error, "Error is not set");
-                         equal(reply,
-                               "{'one': <'foo'>, 'two': <objectpath '/bar'>, 'three': <signature 'assgit'>, 'four': <byte 0x2a>, 'five': <1000.0>}",
-                               "Check HelloWorld() reply");
-                         start();
-                     });
-    });
-
     asyncTest("Multiple DBus services", function() {
         expect(2);
         var options = {
@@ -346,27 +307,6 @@ function basic_tests(client)
 
             frobber = second.lookup("/different/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
             ok(frobber, "Make sure other frobber is present");
-            start();
-        });
-    });
-
-    asyncTest("Non-Objectmanager Service", function() {
-        expect(6);
-        var options = {
-            "service": "com.redhat.Cockpit.DBusTests.Test",
-            "object-paths": [ "/otree" ]
-        };
-        var cli = shell.dbus_client("localhost", options);
-        $(cli).on("state-change", function(event) {
-            equal(cli.state, "ready", "non-objectmanager DBus client is ready");
-            $(cli).off("state-change");
-
-            frobber = cli.lookup("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber");
-            ok(frobber, "non-objectmanager frobber is present");
-            equal(frobber.y, 42, "non-objectmanager Property");
-            equal(frobber.d, 43.0, "non-objectmanager Property 2");
-            equal(frobber.FinallyNormalName, "There aint no place like home", "non-objectmanager String");
-            equal(frobber.ReadonlyProperty, "blah", "non-objectmanager ReadonlyProperty Property");
             start();
         });
     });

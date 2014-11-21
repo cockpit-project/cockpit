@@ -108,7 +108,7 @@ PageSetupServer.prototype = {
 
         self.client = null;
         self.address = null;
-        self.options = { "host-key": "", "payload": "dbus-json1" };
+        self.options = { "host-key": "" };
         self.name_is_done = false;
 
         $("#dashboard_setup_address")[0].placeholder = _("Enter IP address or host name");
@@ -141,7 +141,7 @@ PageSetupServer.prototype = {
         });
 
         /* TODO: This code needs to be migrated away from old dbus */
-        self.local_client = shell.dbus("localhost", { payload: 'dbus-json1' });
+        self.local_client = shell.dbus("localhost");
         $(self.local_client).on('objectAdded.setup objectRemoved.setup', function(event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
                 self.update_discovered();

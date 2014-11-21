@@ -1239,9 +1239,15 @@ handle_dbus_call (CockpitDBusJson *self,
   call->path = array_string_element (array, 0);
   call->interface = array_string_element (array, 1);
   call->method = array_string_element (array, 2);
-  node = json_array_get_element (array, 3);
-  if (node && JSON_NODE_HOLDS_ARRAY (node))
-    call->args = node;
+
+  call->args = json_array_get_element (array, 3);
+  if (!call->args || !JSON_NODE_HOLDS_ARRAY (call->args))
+    {
+      g_warning ("incorrect arguments field in dbus call");
+      cockpit_channel_close (COCKPIT_CHANNEL (self), "protocol-error");
+      call_data_free (call);
+      return;
+    }
 
   if (!cockpit_json_get_string (object, "id", NULL, &call->cookie))
     {
@@ -1273,11 +1279,6 @@ handle_dbus_call (CockpitDBusJson *self,
       g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD,
                    "Method name is not valid: %s", call->method);
     }
-  else if (!call->args)
-    {
-      g_set_error (&error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                   "Missing arguments in method call");
-    }
   else if (call->type)
     {
       if (!g_variant_is_signature (call->type))
@@ -1301,6 +1302,12 @@ handle_dbus_call (CockpitDBusJson *self,
       return;
     }
 
+  /* No arguments or zero arguments, can make call without introspecting */
+  if (!call->param_type)
+    {
+      if (json_array_get_length (json_node_get_array (call->args)) == 0)
+        call->param_type = g_variant_type_new ("()");
+    }
 
   call->dbus_json = self;
   call->request = json_object_ref (object);

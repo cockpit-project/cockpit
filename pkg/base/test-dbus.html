@@ -409,6 +409,21 @@ asyncTest("flags", function() {
         });
 });
 
+asyncTest("without introspection", function() {
+    expect(2);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    dbus.call("/bork", "borkety.Bork", "Echo").
+        done(function(reply) {
+            deepEqual(reply, [], "round trip");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "finished successfuly");
+            start();
+        });
+});
+
+
 asyncTest("watch path", function() {
     expect(2);
 

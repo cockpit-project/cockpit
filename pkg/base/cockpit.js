@@ -1280,7 +1280,7 @@ function full_scope(cockpit, $) {
                         options.type = msg.type;
                     if (msg.flags)
                         options.flags = msg.flags;
-                    dfd.resolve(msg.reply[0], options);
+                    dfd.resolve(msg.reply[0] || [], options);
                     delete calls[msg.id];
                 }
             } else if (msg.error) {
@@ -1349,7 +1349,7 @@ function full_scope(cockpit, $) {
             var id = String(last_cookie);
             last_cookie++;
             var call = {
-                "call": [ path, iface, method, args ],
+                "call": [ path, iface, method, args || [] ],
                 "id": id
             };
             if (options) {

@@ -215,9 +215,9 @@ function ParentWebSocket(parent) {
         if (event.origin !== origin || event.source !== parent)
             return;
         var data = event.data;
-        if (typeof data !== "string")
+        if (data === undefined || data.length === undefined)
             return;
-        if (data === "")
+        if (data.length === 0)
             self.onclose();
         else
             self.onmessage(event);
@@ -290,7 +290,9 @@ function Transport() {
     var control_cbs = { };
     var message_cbs = { };
     var waiting_for_init = true;
+    var binary_type_available = false;
     self.ready = false;
+    self.binary = false;
 
     /* Called when ready for channels to interact */
     function ready_for_channels() {
@@ -304,6 +306,10 @@ function Transport() {
 
     ws.onopen = function() {
         if (ws) {
+            if (typeof ws.binaryType !== "undefined" && have_array_buffer) {
+                ws.binaryType = "arraybuffer";
+                binary_type_available = true;
+            }
             ws.send("\n{ \"command\": \"init\", \"version\": 0 }");
         }
     };
@@ -323,24 +329,56 @@ function Transport() {
     ws.onmessage = function(event) {
         got_message = true;
 
-        var data = event.data;
-
         /* The first line of a message is the channel */
-        var pos = data.indexOf("\n");
-        var channel = data.substring(0, pos);
-        var payload;
-        var control;
+        var data = event.data;
+        var binary = null;
+        var length;
+        var channel;
+        var pos;
 
-        if (!channel) {
+        /* A binary message, split out the channel */
+        if (have_array_buffer && data instanceof window.ArrayBuffer) {
+            binary = window.Uint8Array(data);
+            length = binary.length;
+            for (pos = 0; pos < length; pos++) {
+                if (binary[pos] == 10) /* new line */
+                    break;
+            }
+            if (pos === length) {
+                console.warn("binary message without channel");
+                return;
+            } else if (pos === 0) {
+                console.warn("binary control message");
+                return;
+            } else {
+                channel = String.fromCharCode.apply(null, binary.subarray(0, pos));
+            }
+
+        /* A textual message */
+        } else {
+            pos = data.indexOf('\n');
+            if (pos === -1) {
+                console.warn("text message without channel");
+                return;
+            }
+            channel = data.substring(0, pos);
+        }
+
+        var payload, control;
+        if (binary)
+            payload = new window.Uint8Array(binary.buffer, pos + 1);
+        else
             payload = data.substring(pos + 1);
+
+        /* A control message, always string */
+        if (!channel) {
             transport_debug("recv control:", payload);
             control = JSON.parse(payload);
-        } else {
-            payload = data.substring(pos + 1);
+        } else  {
             transport_debug("recv " + channel + ":", payload);
         }
 
-        var length = filters.length;
+        length = filters.length;
         for (var i = 0; i < length; i++) {
             if (filters[i](data, channel, control) === false)
                 return;
@@ -389,6 +427,8 @@ function Transport() {
             return;
         }
 
+        if (in_array(options["capabilities"] || [], "binary"))
+            self.binary = binary_type_available;
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
         if (options["default-host"])
@@ -443,7 +483,7 @@ function Transport() {
 
     self.send_data = function send_data(data) {
         if (!ws) {
-            console.log("transport closed, dropped message: " + data);
+            console.log("transport closed, dropped message: ", data);
             return false;
         }
         ws.send(data);
@@ -452,10 +492,30 @@ function Transport() {
 
     self.send_message = function send_message(channel, payload) {
         if (channel)
-            transport_debug("send " + channel + ":", payload);
+            transport_debug("send " + channel, payload);
         else
             transport_debug("send control:", payload);
-        return self.send_data(channel.toString() + "\n" + payload);
+
+        /* A binary message */
+        if (payload.byteLength || is_array(payload)) {
+            if (payload instanceof window.ArrayBuffer)
+                payload = new window.Uint8Array(payload);
+            var i;
+            var channel_length = channel.length;
+            var payload_length = payload.length;
+            var output = new window.Uint8Array(channel_length + 1 + payload_length);
+            for (i = 0; i < channel_length; i++)
+                output[i] = channel.charCodeAt(i) & 0xFF;
+            output[i] = 10; /* new line */
+            i += 1;
+            for (var x = 0; x < payload_length; x++, i++)
+                output[i] = payload[x];
+            return self.send_data(output.buffer);
+
+        /* A string message */
+        } else {
+            return self.send_data(channel.toString() + "\n" + payload);
+        }
     };
 
     self.send_control = function send_control(data) {
@@ -498,8 +558,15 @@ function Channel(options) {
     var transport;
     var valid = true;
     var shut = false;
-    var queue = [ ];
     var id = null;
+    var base64 = false;
+    var binary = false;
+
+    /*
+     * Queue while waiting for transport, items are tuples:
+     * [is_control ? true : false, payload]
+     */
+    var queue = [ ];
 
     /* Handy for callers, but not used by us */
     self.valid = valid;
@@ -507,6 +574,8 @@ function Channel(options) {
     self.id = id;
 
     function on_message(payload) {
+        if (base64)
+            payload = base64_decode(payload, window.Uint8Array || Array);
         var event = document.createEvent("CustomEvent");
         event.initCustomEvent("message", false, false, payload);
         self.dispatchEvent(event, payload);
@@ -527,6 +596,16 @@ function Channel(options) {
             on_close(data);
         else
             console.log("unhandled control message: '" + data.command + "'");
+    }
+
+    function send_payload(payload) {
+        if (binary && base64) {
+            payload = base64_encode(payload);
+        } else if (!binary) {
+            if (typeof payload !== "string")
+                payload = new String(payload);
+        }
+        transport.send_message(id, payload);
     }
 
     ensure_transport(function(trans) {
@@ -559,28 +638,37 @@ function Channel(options) {
                 command.host = host;
         }
 
+        if (options.binary === true) {
+            binary = true;
+            if (transport.binary) {
+                command.binary = "raw";
+            } else {
+                command.binary = "base64";
+                base64 = true;
+            }
+        }
+
         transport.send_control(command);
 
         /* Now drain the queue */
         while(queue.length > 0) {
             var item = queue.shift();
-            if (typeof item === "string") {
-                transport.send_message(id, item);
+            if (item[0]) {
+                item[1]["channel"] = id;
+                transport.send_control(item[1]);
             } else {
-                item["channel"] = id;
-                transport.send_control(item);
+                send_payload(item[1]);
             }
         }
     });
 
     self.send = function send(message) {
-        message = String(message);
         if (shut)
             console.log("sending message on closed channel: " + self);
         else if (!transport)
-            queue.push(message);
+            queue.push([false, message]);
         else
-            transport.send_message(id, message);
+            send_payload(message);
     };
 
     self.close = function close(options) {
@@ -598,7 +686,7 @@ function Channel(options) {
         options["channel"] = id;
 
         if (!transport)
-            queue.push(options);
+            queue.push([true, options]);
         else
             transport.send_control(options);
 

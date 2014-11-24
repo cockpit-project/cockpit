@@ -1412,12 +1412,13 @@
       <variablelist>
         <varlistentry>
           <term><code>"binary"</code></term>
-          <listitem><para>Set to <code>"base64"</code> to transfer payloads encoded in
-            base64 strings. Full binary support will come later. Both messages sent
+          <listitem><para>Set to <code>true</code> to transfer payloads encoded in
+            base64 strings. Both messages sent
             via <link linkend="latest-channels-send"><code>channel.send()</code></link>
             and those received via
             <link linkend="latest-channels-message"><code>channel.onmessage</code></link>
-            should and will be base64 encoded.</para></listitem>
+            should be arrays of bytes, either <code>Uint8Array</code> or <code>Array</code>
+            depending on browser support.</para></listitem>
         </varlistentry>
         <varlistentry>
           <term><code>"host"</code></term>
@@ -1467,8 +1468,9 @@
  channel.send(data)
 </programlisting>
       <para>Send a message over the channel. The contents of the message depends on the
-        payload type of the channel. The <code>data</code> will be converted to a string if not already
-        a string.</para>
+        payload type of the channel. If a binary channel, then <code>data</code> is expected
+        to be an <code>Array</code> of bytes or a <code>Uint8Array</code>. If not binary,
+        then the <code>data</code> will be converted to a string if not already a string.</para>
     </refsection>
 
     <refsection id="latest-channels-close">
@@ -1493,7 +1495,9 @@
  channel.addEventListener("message", function(event, data) { ... })
 </programlisting>
       <para>An event triggered when the channel receives a message. The message is
-        passed as a string to the handler in the <code>data</code>. The contents of
+        passed as a string to the handler in the <code>data</code>. In the case of binary
+        channels <code>data</code> is an <code>Uint8Array</code> or an <code>Array</code>
+        of bytes if the former is not supported by the browser. The contents of
         the message depends on the payload type of the channel.</para>
     </refsection>
 
@@ -1551,7 +1555,8 @@
       <para>Filter callbacks are called in the order they are registered. If a filter
         callback returns <code>false</code> then the message will not be dispatched
         further, whether to other filters, or to channels, etc.</para>
-      <para>The <code>message</code> is the string with the raw message including,
+
+      <para>The <code>message</code> is the string or array with the raw message including,
 	the framing. If <code>channel</code> is set to a string this is a payload
 	message in the specified channel. If <code>control</code> is set then this is
 	a control message, and the <code>control</code> argument contains the parsed
@@ -1564,7 +1569,8 @@
   cockpit.transport.inject(message)
 </programlisting>
       <para>Inject a message into the underlying channel transport. The <code>message</code>
-        should be a string, and should be valid according to the Cockpit message protocol.</para>
+        should be a <code>string</code> or an array of bytes, and should be valid
+        according to the Cockpit message protocol.</para>
       <para>This function is rarely used. In general you should only <code>inject()</code>
         messages you got from a <code><link linkend="latest-transport-filter">filter()</link></code>.</para>
     </refsection>

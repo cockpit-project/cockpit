@@ -46,7 +46,7 @@
             window.addEventListener("message", function(event) {
                 var message = event.data;
                 if (message.length === 0) {
-                    test.done(2);
+                    test.done(5);
                 } else if (message.indexOf('"init"') !== -1) {
                     initialized = true;
                     frame.postMessage('\n{ "command": "init", "version": 0, "a": "b" }', cockpit.transport.origin);
@@ -66,6 +66,9 @@
         }
 
         function child_frame() {
+            var spawn_done = false;
+            var binary_done = false;
+
             $("#title").text("Cockpit Child Frame");
             cockpit.spawn(["/bin/sh", "-c", "echo hi"]).
                 done(function(resp) {
@@ -73,8 +76,34 @@
                 }).
                 always(function() {
                     test.assert(this.state() == "resolved", "framed channel closed");
-                    cockpit.transport.close();
+                    spawn_done = true;
+                    if (spawn_done && binary_done)
+                        cockpit.transport.close();
                 });
+
+            var channel = cockpit.channel({ "payload": "echo", "binary": true });
+            $(channel).on("message", function(ev, payload) {
+                test.assert(typeof payload[0] == "number", "binary channel got a byte array");
+
+                var match = true;
+                for (var i = 0; i < payload.length; i++) {
+                    if (payload[i] !== i)
+                        match = false;
+                }
+                test.assert(match === true, "binary channel got back right data");
+                channel.close();
+            });
+            $(channel).on("close", function(ev, options) {
+                test.assert(!options.reason, "binary channel close cleanly");
+                binary_done = true;
+                if (spawn_done && binary_done)
+                    cockpit.transport.close();
+            });
+
+            var view = new Array(8);
+            for (var i = 0; i < 8; i++)
+                view[i] = i;
+            channel.send(view);
         }
 
         if (window.parent === window)

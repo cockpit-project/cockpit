@@ -149,7 +149,7 @@ base64_decode (GBytes *bytes)
 
   /* We can use a smaller limit here, since we know the saved state is 0,
      +1 used to avoid calling g_malloc0(0), and hence returning NULL */
-  decoded = g_malloc0 ((length / 4) * 3 + 1);
+  decoded = g_malloc0 ((length / 4) * 3 + 3);
   length = g_base64_decode_step (data, length, decoded, &state, &save);
 
   return g_bytes_new_take (decoded, length);
@@ -172,7 +172,7 @@ base64_encode (GBytes *bytes)
   if (length >= ((G_MAXSIZE - 1) / 4 - 1) * 3)
     g_error ("%s: input too large for Base64 encoding (%"G_GSIZE_FORMAT" chars)", G_STRLOC, length);
 
-  encoded = g_malloc ((length / 3 + 1) * 4 + 1);
+  encoded = g_malloc ((length / 3 + 1) * 4 + 4);
   length = g_base64_encode_step (data, length, FALSE, encoded, &state, &save);
   length += g_base64_encode_close (FALSE, encoded + length, &state, &save);
 

@@ -279,6 +279,12 @@ fi
 %endif
 
 %changelog
+* Mon Nov 24 2014 Stef Walter <stefw@redhat.com> - 0.32-1
+- Update to 0.32 release
+
+* Fri Nov 14 2014 Stef Walter <stefw@redhat.com> - 0.31-1
+- Update to 0.31 release
+
 * Wed Nov 12 2014 Stef Walter <stefw@redhat.com> - 0.30-1
 - Update to 0.30 release
 - Split Cockpit into various sub packages

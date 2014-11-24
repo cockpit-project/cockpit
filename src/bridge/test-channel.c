@@ -94,6 +94,27 @@ mock_echo_channel_open (CockpitTransport *transport,
   return channel;
 }
 
+static CockpitChannel *
+mock_echo_channel_open_base64 (CockpitTransport *transport,
+                               const gchar *channel_id)
+{
+  CockpitChannel *channel;
+  JsonObject *options;
+
+  g_assert (channel_id != NULL);
+
+  options = json_object_new ();
+  json_object_set_string_member (options, "binary", "base64");
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", channel_id,
+                          "options", options,
+                          NULL);
+
+  json_object_unref (options);
+  return channel;
+}
+
 /* ----------------------------------------------------------------------------
  * Testing
  */
@@ -419,6 +440,37 @@ test_later_ready (void)
 }
 
 static void
+test_later_ready_base64 (void)
+{
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+  GBytes *payload;
+  GBytes *sent;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+  channel = mock_echo_channel_open_base64 (transport, "554");
+
+  payload = g_bytes_new ("WWVlZWhhdyE=", 12);
+  cockpit_transport_emit_recv (transport, "554", payload);
+  g_bytes_unref (payload);
+
+  cockpit_channel_ready (channel);
+
+  /* Not actually ready yet */
+  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
+  g_assert (sent == NULL);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  /* Now we're ready */
+  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
+  g_assert (sent != NULL);
+
+  g_object_unref (transport);
+  g_object_unref (channel);
+}
+
+static void
 test_later_ready_and_close (void)
 {
   CockpitTransport *transport;
@@ -468,6 +520,7 @@ main (int argc,
 
   g_test_add_func ("/channel/later-close", test_later_close);
   g_test_add_func ("/channel/later-ready", test_later_ready);
+  g_test_add_func ("/channel/later-ready-base64", test_later_ready_base64);
   g_test_add_func ("/channel/later-ready-and-close", test_later_ready_and_close);
 
   g_test_add ("/channel/recv-send", TestCase, NULL,

@@ -18,8 +18,9 @@
  */
 
 var shell = shell || { };
+var modules = modules || { };
 
-(function($, cockpit, shell) {
+(function($, cockpit, shell, modules) {
 
 function nm_debug() {
     if (window.debugging == "all" || window.debugging == "nm")
@@ -1285,8 +1286,8 @@ PageNetworking.prototype = {
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
-        this.log_box = shell.server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
-                                             "_SYSTEMD_UNIT=firewalld.service" ], 10);
+        this.log_box = modules.server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
+                                               "_SYSTEMD_UNIT=firewalld.service" ], 10);
         $('#networking-log').empty().append(this.log_box);
 
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
@@ -3119,4 +3120,4 @@ function PageNetworkVlanSettings() {
 
 shell.dialogs.push(new PageNetworkVlanSettings());
 
-})($, cockpit, shell);
+})($, cockpit, shell, modules);

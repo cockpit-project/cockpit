@@ -18,8 +18,9 @@
  */
 
 var shell = shell || { };
+var modules = modules || { };
 
-(function($, cockpit, shell) {
+(function($, cockpit, shell, modules) {
 
 function resource_debug() {
     if (window.debugging == "all" || window.debugging == "resource" || true)
@@ -676,9 +677,9 @@ PageService.prototype = {
     },
 
     watch_journal: function () {
-        this.journal_watcher = shell.server.logbox([ "_SYSTEMD_UNIT=" + this.service, "+",
-                                                     "COREDUMP_UNIT=" + this.service, "+",
-                                                     "UNIT=" + this.service ], 10);
+        this.journal_watcher = modules.server.logbox([ "_SYSTEMD_UNIT=" + this.service, "+",
+                                                       "COREDUMP_UNIT=" + this.service, "+",
+                                                       "UNIT=" + this.service ], 10);
         $('#service-log').empty().append(this.journal_watcher);
     },
 
@@ -842,4 +843,4 @@ function PageService() {
 
 shell.pages.push(new PageService());
 
-})($, cockpit, shell);
+})($, cockpit, shell, modules);

@@ -40,8 +40,9 @@
 */
 
 var shell = shell || { };
+var modules = modules ||  { };
 
-(function($, cockpit, shell) {
+(function($, cockpit, shell, modules) {
 
 shell.language_code = null;
 shell.pages = [];
@@ -54,15 +55,21 @@ shell.dbus = dbus;
 /* Initialize cockpit when page is loaded and packages available */
 var packages;
 var loaded = false;
+modules.loaded = false;
 
 function maybe_init() {
-    if (packages && loaded && shell.server)
+    if (packages && loaded && modules.loaded)
         init();
 }
 
 /* HACK: Until all of the shell is loaded via AMD */
-require([ "server/server" ], function(module) {
-    shell.server = module;
+require([
+    "server/server",
+    "docker/docker"
+], function(server, docker) {
+    modules.server = server;
+    modules.docker = docker;
+    modules.loaded = true;
     maybe_init();
 });
 
@@ -1138,7 +1145,7 @@ $(function() {
     maybe_init();
 });
 
-})(jQuery, cockpit, shell);
+})(jQuery, cockpit, shell, modules);
 
 function F(format, args) {
     return format.replace(/%\{([^}]+)\}/g, function(_, key) { return args[key] || ""; });

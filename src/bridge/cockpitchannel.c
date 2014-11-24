@@ -597,12 +597,13 @@ cockpit_channel_ready (CockpitChannel *self)
           payload = g_queue_pop_head (queue);
           if (payload == NULL)
             break;
-          decoded = NULL;
           if (self->priv->base64_encoding)
-            payload = decoded = base64_decode (payload);
+            {
+              decoded = base64_decode (payload);
+              g_bytes_unref (payload);
+              payload = decoded;
+            }
           (klass->recv) (self, payload);
-          if (decoded)
-            g_bytes_unref (decoded);
           g_bytes_unref (payload);
         }
       g_queue_free (queue);

@@ -412,7 +412,6 @@ test_spawn_environ (void)
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-  cockpit_channel_close (channel, NULL);
   json_object_unref (options);
 
   string = g_string_new ("");
@@ -465,7 +464,6 @@ test_spawn_status (void)
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-  cockpit_channel_close (channel, NULL);
   json_object_unref (options);
 
   while (!problem)
@@ -509,7 +507,6 @@ test_spawn_signal (void)
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-  cockpit_channel_close (channel, NULL);
   json_object_unref (options);
 
   while (!problem)

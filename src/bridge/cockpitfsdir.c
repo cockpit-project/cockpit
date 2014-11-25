@@ -179,13 +179,12 @@ on_changed (GFileMonitor      *monitor,
 }
 
 static void
-cockpit_fsdir_constructed (GObject *object)
+cockpit_fsdir_prepare (CockpitChannel *channel)
 {
-  CockpitFsdir *self = COCKPIT_FSDIR (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitFsdir *self = COCKPIT_FSDIR (channel);
   GError *error;
 
-  G_OBJECT_CLASS (cockpit_fsdir_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_fsdir_parent_class)->prepare (channel);
 
   self->path = cockpit_channel_get_option (channel, "path");
   if (self->path == NULL || *(self->path) == 0)
@@ -273,10 +272,10 @@ cockpit_fsdir_class_init (CockpitFsdirClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_fsdir_constructed;
   gobject_class->dispose = cockpit_fsdir_dispose;
   gobject_class->finalize = cockpit_fsdir_finalize;
 
+  channel_class->prepare = cockpit_fsdir_prepare;
   channel_class->recv = cockpit_fsdir_recv;
 }
 

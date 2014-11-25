@@ -1917,14 +1917,13 @@ on_bus_ready (GObject *source,
 }
 
 static void
-cockpit_dbus_json_constructed (GObject *object)
+cockpit_dbus_json_prepare (CockpitChannel *channel)
 {
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (channel);
   GBusType bus_type;
   const gchar *bus;
 
-  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_dbus_json_parent_class)->prepare (channel);
 
   /*
    * Guarantee: Remember that we cannot close the channel until we've
@@ -2028,10 +2027,10 @@ cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_dbus_json_constructed;
   gobject_class->dispose = cockpit_dbus_json_dispose;
   gobject_class->finalize = cockpit_dbus_json_finalize;
 
+  channel_class->prepare = cockpit_dbus_json_prepare;
   channel_class->recv = cockpit_dbus_json_recv;
   channel_class->closed = cockpit_dbus_json_closed;
 }

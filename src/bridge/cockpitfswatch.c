@@ -136,14 +136,13 @@ on_changed (GFileMonitor      *monitor,
 }
 
 static void
-cockpit_fswatch_constructed (GObject *object)
+cockpit_fswatch_prepare (CockpitChannel *channel)
 {
-  CockpitFswatch *self = COCKPIT_FSWATCH (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitFswatch *self = COCKPIT_FSWATCH (channel);
   GError *error = NULL;
   const gchar *path;
 
-  G_OBJECT_CLASS (cockpit_fswatch_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_fswatch_parent_class)->prepare (channel);
 
   path = cockpit_channel_get_option (channel, "path");
   if (path == NULL || *path == 0)
@@ -219,10 +218,10 @@ cockpit_fswatch_class_init (CockpitFswatchClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_fswatch_constructed;
   gobject_class->dispose = cockpit_fswatch_dispose;
   gobject_class->finalize = cockpit_fswatch_finalize;
 
+  channel_class->prepare = cockpit_fswatch_prepare;
   channel_class->recv = cockpit_fswatch_recv;
 }
 

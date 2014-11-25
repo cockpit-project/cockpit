@@ -94,27 +94,6 @@ mock_echo_channel_open (CockpitTransport *transport,
   return channel;
 }
 
-static CockpitChannel *
-mock_echo_channel_open_base64 (CockpitTransport *transport,
-                               const gchar *channel_id)
-{
-  CockpitChannel *channel;
-  JsonObject *options;
-
-  g_assert (channel_id != NULL);
-
-  options = json_object_new ();
-  json_object_set_string_member (options, "binary", "base64");
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "id", channel_id,
-                          "options", options,
-                          NULL);
-
-  json_object_unref (options);
-  return channel;
-}
-
 /* ----------------------------------------------------------------------------
  * Testing
  */
@@ -288,16 +267,6 @@ on_closed_get_problem (CockpitChannel *channel,
 }
 
 static void
-on_closed_expect_no_problem (CockpitChannel *channel,
-                             const gchar *problem,
-                             gpointer user_data)
-{
-  gboolean *retval = user_data;
-  g_assert (problem == NULL);
-  *retval = TRUE;
-}
-
-static void
 test_close_transport (TestCase *tc,
                       gconstpointer unused)
 {
@@ -380,135 +349,6 @@ test_properties (void)
   g_object_unref (channel);
 }
 
-static void
-test_later_close (void)
-{
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-  gchar *problem = NULL;
-
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = mock_echo_channel_open (transport, "554");
-
-  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-
-  cockpit_channel_close (channel, "first");
-  cockpit_channel_close (channel, "meh");
-
-  /* No signal emitted yet */
-  g_assert (problem == NULL);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  /* After main loop */
-  g_assert_cmpstr (problem, ==, "first");
-
-  g_free (problem);
-  g_object_unref (transport);
-  g_object_unref (channel);
-}
-
-static void
-test_later_ready (void)
-{
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-  GBytes *payload;
-  GBytes *sent;
-
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = mock_echo_channel_open (transport, "554");
-
-  cockpit_channel_ready (channel);
-
-  payload = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (transport, "554", payload);
-  g_bytes_unref (payload);
-
-  /* Not actually ready yet */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent == NULL);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  /* Now we're ready */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent != NULL);
-
-  g_object_unref (transport);
-  g_object_unref (channel);
-}
-
-static void
-test_later_ready_base64 (void)
-{
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-  GBytes *payload;
-  GBytes *sent;
-
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = mock_echo_channel_open_base64 (transport, "554");
-
-  payload = g_bytes_new ("WWVlZWhhdyE=", 12);
-  cockpit_transport_emit_recv (transport, "554", payload);
-  g_bytes_unref (payload);
-
-  cockpit_channel_ready (channel);
-
-  /* Not actually ready yet */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent == NULL);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  /* Now we're ready */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent != NULL);
-
-  g_object_unref (transport);
-  g_object_unref (channel);
-}
-
-static void
-test_later_ready_and_close (void)
-{
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-  GBytes *payload;
-  GBytes *sent;
-  gboolean got_closed = FALSE;
-
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = mock_echo_channel_open (transport, "554");
-
-  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_expect_no_problem), &got_closed);
-
-  cockpit_channel_ready (channel);
-
-  payload = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (transport, "554", payload);
-  g_bytes_unref (payload);
-
-  cockpit_channel_close (channel, NULL);
-
-  /* Not actually ready yet */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent == NULL);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  /* Now we're ready */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent != NULL);
-
-  /* And closed */
-  g_assert (got_closed);
-
-  g_object_unref (transport);
-  g_object_unref (channel);
-}
-
 int
 main (int argc,
       char *argv[])
@@ -517,11 +357,6 @@ main (int argc,
 
   g_test_add_func ("/channel/get-option", test_get_option);
   g_test_add_func ("/channel/properties", test_properties);
-
-  g_test_add_func ("/channel/later-close", test_later_close);
-  g_test_add_func ("/channel/later-ready", test_later_ready);
-  g_test_add_func ("/channel/later-ready-base64", test_later_ready_base64);
-  g_test_add_func ("/channel/later-ready-and-close", test_later_ready_and_close);
 
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);

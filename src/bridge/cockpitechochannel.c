@@ -57,18 +57,17 @@ cockpit_echo_channel_init (CockpitEchoChannel *self)
 }
 
 static void
-cockpit_echo_channel_constructed (GObject *object)
+cockpit_echo_channel_prepare (CockpitChannel *channel)
 {
-  G_OBJECT_CLASS (cockpit_echo_channel_parent_class)->constructed (object);
-  cockpit_channel_ready (COCKPIT_CHANNEL (object));
+  COCKPIT_CHANNEL_CLASS (cockpit_echo_channel_parent_class)->prepare (channel);
+  cockpit_channel_ready (channel);
 }
 
 static void
 cockpit_echo_channel_class_init (CockpitEchoChannelClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_echo_channel_constructed;
+  channel_class->prepare = cockpit_echo_channel_prepare;
   channel_class->recv = cockpit_echo_channel_recv;
 }

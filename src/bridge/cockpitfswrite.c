@@ -197,13 +197,12 @@ cockpit_fswrite_init (CockpitFswrite *self)
 }
 
 static void
-cockpit_fswrite_constructed (GObject *object)
+cockpit_fswrite_prepare (CockpitChannel *channel)
 {
-  CockpitFswrite *self = COCKPIT_FSWRITE (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitFswrite *self = COCKPIT_FSWRITE (channel);
   gchar *actual_tag;
 
-  G_OBJECT_CLASS (cockpit_fswrite_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_fswrite_parent_class)->prepare (channel);
 
   self->path = cockpit_channel_get_option (channel, "path");
   self->expected_tag = cockpit_channel_get_option (channel, "tag");
@@ -263,9 +262,9 @@ cockpit_fswrite_class_init (CockpitFswriteClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_fswrite_constructed;
   gobject_class->finalize = cockpit_fswrite_finalize;
 
+  channel_class->prepare = cockpit_fswrite_prepare;
   channel_class->recv = cockpit_fswrite_recv;
   channel_class->close = cockpit_fswrite_close;
 }

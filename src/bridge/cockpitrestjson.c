@@ -1071,17 +1071,16 @@ on_socket_address_ready (GObject *source,
 }
 
 static void
-cockpit_rest_json_constructed (GObject *object)
+cockpit_rest_json_prepare (CockpitChannel *channel)
 {
-  CockpitChannel *channel = COCKPIT_CHANNEL (object);
-  CockpitRestJson *self = COCKPIT_REST_JSON (object);
+  CockpitRestJson *self = COCKPIT_REST_JSON (channel);
   GSocketAddressEnumerator *enumerator;
   GSocketConnectable *connectable;
   GError *error = NULL;
   const gchar *unix_path;
   gint64 port;
 
-  G_OBJECT_CLASS (cockpit_rest_json_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_rest_json_parent_class)->prepare (channel);
 
   if (self->closed)
     return;
@@ -1162,10 +1161,10 @@ cockpit_rest_json_class_init (CockpitRestJsonClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_rest_json_constructed;
   gobject_class->dispose = cockpit_rest_json_dispose;
   gobject_class->finalize = cockpit_rest_json_finalize;
 
+  channel_class->prepare = cockpit_rest_json_prepare;
   channel_class->recv = cockpit_rest_json_recv;
   channel_class->close = cockpit_rest_json_close;
 }

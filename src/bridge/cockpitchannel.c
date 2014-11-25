@@ -58,12 +58,6 @@
  * See doc/protocol.md for information about channels.
  */
 
-typedef struct {
-    gboolean ready;
-    gboolean close;
-    gchar *problem;
-} LaterData;
-
 struct _CockpitChannelPrivate {
     gulong recv_sig;
     gulong close_sig;
@@ -78,7 +72,10 @@ struct _CockpitChannelPrivate {
     GQueue *received;
 
     /* Whether we've sent a closed message */
-    gboolean closed;
+    gboolean sent_close;
+
+    /* Whether we called the close vfunc */
+    gboolean emitted_close;
 
     /* Whether the transport closed (before we did) */
     gboolean transport_closed;
@@ -91,8 +88,7 @@ struct _CockpitChannelPrivate {
     JsonObject *close_options;
 
     /* If we've gotten to the main-loop yet */
-    guint later_tag;
-    LaterData *later_data;
+    guint prepare_tag;
 };
 
 enum {
@@ -107,33 +103,19 @@ static guint cockpit_channel_sig_closed;
 G_DEFINE_TYPE (CockpitChannel, cockpit_channel, G_TYPE_OBJECT);
 
 static gboolean
-on_idle_later (gpointer data)
+on_idle_prepare (gpointer data)
 {
-  CockpitChannel *self = data;
-  LaterData *later = self->priv->later_data;
-
-  self->priv->later_tag = 0;
-
-  if (later)
-    {
-      self->priv->later_data = NULL;
-      if (later->ready && !(later->close && later->problem != NULL))
-        cockpit_channel_ready (self);
-      if (later->close)
-        cockpit_channel_close (self, later->problem);
-      g_free (later->problem);
-      g_slice_free (LaterData, later);
-    }
-
+  cockpit_channel_prepare (data);
   return FALSE;
 }
+
 static void
 cockpit_channel_init (CockpitChannel *self)
 {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_CHANNEL,
                                             CockpitChannelPrivate);
 
-  self->priv->later_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_later, self, NULL);
+  self->priv->prepare_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_prepare, self, NULL);
 }
 
 static GBytes *
@@ -220,7 +202,7 @@ on_transport_closed (CockpitTransport *transport,
 {
   CockpitChannel *self = COCKPIT_CHANNEL (user_data);
   self->priv->transport_closed = TRUE;
-  if (!self->priv->closed)
+  if (!self->priv->emitted_close)
     cockpit_channel_close (self, problem);
 }
 
@@ -228,7 +210,6 @@ static void
 cockpit_channel_constructed (GObject *object)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (object);
-  const gchar *binary;
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->constructed (object);
 
@@ -238,6 +219,13 @@ cockpit_channel_constructed (GObject *object)
                                            G_CALLBACK (on_transport_recv), self);
   self->priv->close_sig = g_signal_connect (self->priv->transport, "closed",
                                             G_CALLBACK (on_transport_closed), self);
+}
+
+static void
+cockpit_channel_real_prepare (CockpitChannel *channel)
+{
+  CockpitChannel *self = COCKPIT_CHANNEL (channel);
+  const gchar *binary;
 
   binary = cockpit_channel_get_option (self, "binary");
   if (binary != NULL)
@@ -311,10 +299,10 @@ cockpit_channel_dispose (GObject *object)
    * This object was destroyed before going to the main loop
    * no need to wait until later before we fire various signals.
    */
-  if (self->priv->later_tag)
+  if (self->priv->prepare_tag)
     {
-      g_source_remove (self->priv->later_tag);
-      on_idle_later (self);
+      g_source_remove (self->priv->prepare_tag);
+      self->priv->prepare_tag = 0;
     }
 
   if (self->priv->recv_sig)
@@ -329,7 +317,7 @@ cockpit_channel_dispose (GObject *object)
     g_queue_free_full (self->priv->received, (GDestroyNotify)g_bytes_unref);
   self->priv->received = NULL;
 
-  if (!self->priv->closed)
+  if (!self->priv->emitted_close)
     cockpit_channel_close (self, "terminated");
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->dispose (object);
@@ -357,10 +345,10 @@ cockpit_channel_real_close (CockpitChannel *self,
   JsonObject *object;
   GBytes *message;
 
-  if (self->priv->closed)
+  if (self->priv->sent_close)
     return;
 
-  self->priv->closed = TRUE;
+  self->priv->sent_close = TRUE;
 
   if (!self->priv->transport_closed)
     {
@@ -402,6 +390,7 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
   gobject_class->dispose = cockpit_channel_dispose;
   gobject_class->finalize = cockpit_channel_finalize;
 
+  klass->prepare = cockpit_channel_real_prepare;
   klass->close = cockpit_channel_real_close;
 
   /**
@@ -549,15 +538,6 @@ cockpit_channel_close (CockpitChannel *self,
 
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
 
-  if (self->priv->later_tag)
-    {
-      if (!self->priv->later_data)
-        self->priv->later_data = g_slice_new0 (LaterData);
-      self->priv->later_data->close = TRUE;
-      if (!self->priv->later_data->problem)
-        self->priv->later_data->problem = g_strdup (problem);
-    }
-  else
     {
       klass = COCKPIT_CHANNEL_GET_CLASS (self);
       g_assert (klass->close != NULL);
@@ -587,14 +567,6 @@ cockpit_channel_ready (CockpitChannel *self)
   GBytes *decoded;
   GBytes *payload;
   GQueue *queue;
-
-  if (self->priv->later_tag)
-    {
-      if (!self->priv->later_data)
-        self->priv->later_data = g_slice_new0 (LaterData);
-      self->priv->later_data->ready = TRUE;
-      return;
-    }
 
   klass = COCKPIT_CHANNEL_GET_CLASS (self);
   g_assert (klass->recv != NULL);
@@ -872,3 +844,36 @@ cockpit_channel_get_id (CockpitChannel *self)
   g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
   return self->priv->id;
 }
+
+/**
+ * cockpit_channel_prepare:
+ * @self: the channel
+ *
+ * Usually this is automatically called after the channel is
+ * created and control returns to the mainloop. However you
+ * can preempt that by calling this function.
+ */
+void
+cockpit_channel_prepare (CockpitChannel *self)
+{
+  CockpitChannelClass *klass;
+
+  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
+
+  if (!self->priv->prepare_tag)
+    return;
+
+  if (self->priv->prepare_tag)
+    {
+      g_source_remove (self->priv->prepare_tag);
+      self->priv->prepare_tag = 0;
+    }
+
+  if (!self->priv->emitted_close)
+    {
+      klass = COCKPIT_CHANNEL_GET_CLASS (self);
+      g_assert (klass->prepare);
+      (klass->prepare) (self);
+    }
+}
+

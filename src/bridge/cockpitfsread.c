@@ -179,14 +179,13 @@ push_bytes (GQueue *queue,
 }
 
 static void
-cockpit_fsread_constructed (GObject *object)
+cockpit_fsread_prepare (CockpitChannel *channel)
 {
-  CockpitFsread *self = COCKPIT_FSREAD (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitFsread *self = COCKPIT_FSREAD (channel);
   GMappedFile *mapped;
   GError *error = NULL;
 
-  G_OBJECT_CLASS (cockpit_fsread_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_fsread_parent_class)->prepare (channel);
 
   self->path = cockpit_channel_get_option (channel, "path");
   if (self->path == NULL || *(self->path) == 0)
@@ -203,6 +202,7 @@ cockpit_fsread_constructed (GObject *object)
       if (err == ENOENT)
         {
           cockpit_channel_close_option (channel, "tag", "-");
+          cockpit_channel_ready (channel);
           cockpit_channel_close (channel, NULL);
         }
       else
@@ -262,9 +262,9 @@ cockpit_fsread_class_init (CockpitFsreadClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_fsread_constructed;
   gobject_class->finalize = cockpit_fsread_finalize;
 
+  channel_class->prepare = cockpit_fsread_prepare;
   channel_class->recv = cockpit_fsread_recv;
   channel_class->close = cockpit_fsread_close;
 }

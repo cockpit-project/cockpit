@@ -54,6 +54,8 @@ struct _CockpitChannelClass
 
   /* vfuncs */
 
+  void        (* prepare)     (CockpitChannel *channel);
+
   void        (* recv)        (CockpitChannel *channel,
                                GBytes *message);
 
@@ -73,6 +75,8 @@ void                cockpit_channel_close             (CockpitChannel *self,
 const gchar *       cockpit_channel_get_id            (CockpitChannel *self);
 
 /* Used by implementations */
+
+void                cockpit_channel_prepare           (CockpitChannel *self);
 
 void                cockpit_channel_ready             (CockpitChannel *self);
 

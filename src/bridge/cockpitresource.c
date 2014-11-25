@@ -135,6 +135,7 @@ respond_package_listing (CockpitChannel *channel)
   json_array_unref (root);
 
   /* All done */
+  cockpit_channel_ready (channel);
   cockpit_channel_close (channel, NULL);
 }
 
@@ -194,11 +195,10 @@ open_file (CockpitChannel *channel,
   return mapped;
 }
 
-static gboolean
-on_prepare_channel (gpointer data)
+static void
+cockpit_resource_prepare (CockpitChannel *channel)
 {
-  CockpitResource *self = COCKPIT_RESOURCE (data);
-  CockpitChannel *channel = COCKPIT_CHANNEL (data);
+  CockpitResource *self = COCKPIT_RESOURCE (channel);
   GHashTable *listing = NULL;
   gchar *filename = NULL;
   const gchar *host = NULL;
@@ -216,7 +216,7 @@ on_prepare_channel (gpointer data)
   gboolean retry;
   guint i;
 
-  self->idler = 0;
+  COCKPIT_CHANNEL_CLASS (cockpit_resource_parent_class)->prepare (channel);
 
   package = cockpit_channel_get_option (channel, "package");
   path = cockpit_channel_get_option (channel, "path");
@@ -306,18 +306,6 @@ out:
   g_free (string);
   g_clear_error (&error);
   g_free (filename);
-  return FALSE;
-}
-
-static void
-cockpit_resource_constructed (GObject *object)
-{
-  CockpitResource *self = COCKPIT_RESOURCE (object);
-
-  G_OBJECT_CLASS (cockpit_resource_parent_class)->constructed (object);
-
-  /* Do basic construction later, to provide guarantee not to close immediately */
-  self->idler = g_idle_add (on_prepare_channel, self);
 }
 
 static void
@@ -342,9 +330,9 @@ cockpit_resource_class_init (CockpitResourceClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_resource_constructed;
   gobject_class->finalize = cockpit_resource_finalize;
 
+  channel_class->prepare = cockpit_resource_prepare;
   channel_class->recv = cockpit_resource_recv;
   channel_class->close = cockpit_resource_close;
 }

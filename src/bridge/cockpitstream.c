@@ -191,10 +191,9 @@ cockpit_stream_init (CockpitStream *self)
 }
 
 static void
-cockpit_stream_constructed (GObject *object)
+cockpit_stream_prepare (CockpitChannel *channel)
 {
-  CockpitStream *self = COCKPIT_STREAM (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitStream *self = COCKPIT_STREAM (channel);
   GSocketAddress *address;
   CockpitPipeFlags flags;
   const gchar *unix_path;
@@ -203,7 +202,7 @@ cockpit_stream_constructed (GObject *object)
   const gchar *dir;
   const gchar *error;
 
-  G_OBJECT_CLASS (cockpit_stream_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_stream_parent_class)->prepare (channel);
 
   unix_path = cockpit_channel_get_option (channel, "unix");
   argv = cockpit_channel_get_strv_option (channel, "spawn");
@@ -287,10 +286,10 @@ cockpit_stream_class_init (CockpitStreamClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_stream_constructed;
   gobject_class->dispose = cockpit_stream_dispose;
   gobject_class->finalize = cockpit_stream_finalize;
 
+  channel_class->prepare = cockpit_stream_prepare;
   channel_class->recv = cockpit_stream_recv;
   channel_class->close = cockpit_stream_close;
 }

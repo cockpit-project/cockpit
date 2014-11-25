@@ -202,6 +202,8 @@ on_transport_closed (CockpitTransport *transport,
 {
   CockpitChannel *self = COCKPIT_CHANNEL (user_data);
   self->priv->transport_closed = TRUE;
+  if (problem == NULL)
+    problem = "disconnected";
   if (!self->priv->emitted_close)
     cockpit_channel_close (self, problem);
 }

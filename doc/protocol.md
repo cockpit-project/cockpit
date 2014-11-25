@@ -342,7 +342,7 @@ sent back in a "reply" or "error" message with the same "id" field.
 
 Method reply messages are JSON objects with a "reply" field whose value is
 an array, the array contains another array of out arguments, or null if
-the DBus reply had no body. 
+the DBus reply had no body.
     {
         "reply": [ [ "arg0", 1, 2 ] ],
         "id": "cookie"
@@ -585,6 +585,125 @@ following options can be specified:
    then the environment is inherited from the cockpit-bridge.
  * "pty": Execute the command as a terminal pty.
 
+Payload: fswatch1
+-----------------
+
+You will get a stream of change notifications for a file or a
+directory.
+
+The following options can be specified in the "open" control message:
+
+ * "path": The path name to watch.  This should be an absolute path to
+   a file or directory.
+
+Each message on the stream will be a JSON object with the following
+fields:
+
+ * "event": A string describing the kind of change.  One of "changed",
+   "deleted", "created", "attribute-changed", "moved", or "done-hint".
+
+ * "path": The absolute path name of the file that has changed.
+
+ * "other": The absolute path name of the other file in case of a "moved"
+   event.
+
+In case of an error, the channel will be closed.  In addition to the
+usual "problem" field, the "close" control message sent by the server
+might have the following additional fields:
+
+ * "message": A string in the current locale describing the error.
+
+Payload: fsdir1
+---------------
+
+A channel of this type lists the files in a directory and will watch
+for further changes.
+
+The following options can be specified in the "open" control message:
+
+ * "path": The path name of the directory to watch.  This should be an
+   absolute path.
+
+The channel will send a number of JSON messages that list the current
+content of the directory.  These messages have a "event" field with
+value "present" and a "path" field that holds the (relative) name of
+the file.  After all files have been listed a message with an "event"
+field of "present-done" is sent.
+
+Other messages on the stream signal changes to the directory, in the
+same format as used by the "fswatch1" payload type.
+
+In case of an error, the channel will be closed.  In addition to the
+usual "problem" field, the "close" control message sent by the server
+might have the following additional fields:
+
+ * "message": A string in the current locale describing the error.
+
+Payload: fsread1
+----------------
+
+Returns the contents of a file and its current 'transaction tag'.
+
+The following options can be specified in the "open" control message:
+
+ * "path": The path name of the file to read.
+
+The channel will return the content of the file in one or more
+messages.  As with "stream", the boundaries of the messages are
+arbitrary.
+
+If the file is modified while you are reading it, the channel is
+closed with a "change-conflict" problem code.  If the file is
+atomically replaced as with 'rename' when you are reading it, this is
+not considered an error and you will get the old content with a
+correct tag.
+
+When all content has been sent or an error has occurred, the channel
+will be closed.  In addition to the usual "problem" field, the "close"
+control message sent by the server might have the following additional
+fields:
+
+ * "message": A string in the current locale describing the error.
+
+ * "tag": The transaction tag for the returned file content.  The tag
+   for a non-existing file is "-".
+
+Payload: fswrite1
+-----------------
+
+Replace the content of a file.
+
+The following options can be specified in the "open" control message:
+
+ * "path": The path name of the file to replace.
+
+ * "tag": The expected transaction tag of the file.  When the actual
+   transaction tag of the file is different, the write will fail.  If
+   you don't set this field, the actual tag will not be checked.  To
+   express that you expect the file to not exist, use "-" as the tag.
+
+You should write the new content to the channel as one or more
+messages.  To indicate the end of the content, close the channel
+without a problem code.
+
+If you don't send any content messages before closing the channel, the
+file will be removed.  To create an empty file, send at least one
+content message of length zero.
+
+When the file does not have the expected tag, the channel will be
+closed with a "change-conflict" problem code.
+
+The new content will be written to a temporary file and the old
+content will be replaced with a "rename" syscall when the channel is
+closed without problem code.  If the channel is closed with a problem
+code (by either client or server), the file will be left untouched.
+
+In addition to the usual "problem" field, the "close" control message
+sent by the server might have the following additional fields:
+
+ * "message": A string in the current locale describing the error.
+
+ * "tag": The transaction tag of the new content.
 
 Problem codes
 -------------

@@ -538,9 +538,17 @@ cockpit_channel_close (CockpitChannel *self,
 
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
 
+  /* No further messages should be received */
+  if (self->priv->recv_sig)
+    g_signal_handler_disconnect (self->priv->transport, self->priv->recv_sig);
+  self->priv->recv_sig = 0;
+
+  /* If not ready, and no problem, then wait until ready to close */
+  if (problem || self->priv->ready)
     {
       klass = COCKPIT_CHANNEL_GET_CLASS (self);
       g_assert (klass->close != NULL);
+      self->priv->emitted_close = TRUE;
       (klass->close) (self, problem);
     }
 }
@@ -570,6 +578,7 @@ cockpit_channel_ready (CockpitChannel *self)
 
   klass = COCKPIT_CHANNEL_GET_CLASS (self);
   g_assert (klass->recv != NULL);
+  g_assert (klass->close != NULL);
 
   g_object_ref (self);
   while (self->priv->received)
@@ -594,6 +603,14 @@ cockpit_channel_ready (CockpitChannel *self)
     }
 
   self->priv->ready = TRUE;
+
+  /* No more data coming? */
+  if (self->priv->recv_sig == 0 && !self->priv->emitted_close)
+    {
+      self->priv->emitted_close = TRUE;
+      (klass->close) (self, NULL);
+    }
+
   g_object_unref (self);
 }
 

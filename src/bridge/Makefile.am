@@ -28,6 +28,14 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitstream.h \
 	src/bridge/cockpitsuperchannels.c \
 	src/bridge/cockpitsuperchannels.h \
+	src/bridge/cockpitfsread.c \
+	src/bridge/cockpitfsread.h \
+	src/bridge/cockpitfswrite.c \
+	src/bridge/cockpitfswrite.h \
+	src/bridge/cockpitfswatch.c \
+	src/bridge/cockpitfswatch.h \
+	src/bridge/cockpitfsdir.c \
+	src/bridge/cockpitfsdir.h \
 	src/bridge/deprecated/cockpitdbusjson1.c \
 	src/bridge/deprecated/cockpitdbusjson1.h \
 	src/bridge/deprecated/cockpitdbusjson2.c \
@@ -93,6 +101,7 @@ BRIDGE_CHECKS = \
 	test-stream \
 	test-package \
 	test-resource \
+	test-fs \
 	$(NULL)
 
 test_channel_SOURCES = \
@@ -140,6 +149,12 @@ test_fakemanager_SOURCES = \
 	$(mock_dbus_sources)
 test_fakemanager_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_fakemanager_LDADD = $(libcockpit_bridge_LIBS)
+
+test_fs_SOURCES = \
+	src/bridge/test-fs.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_fs_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_fs_LDADD = $(libcockpit_bridge_LIBS)
 
 noinst_PROGRAMS += $(BRIDGE_CHECKS)
 TESTS += $(BRIDGE_CHECKS)

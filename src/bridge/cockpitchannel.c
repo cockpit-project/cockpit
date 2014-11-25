@@ -26,6 +26,10 @@
 #include "cockpitrestjson.h"
 #include "cockpitresource.h"
 #include "cockpitstream.h"
+#include "cockpitfsread.h"
+#include "cockpitfswrite.h"
+#include "cockpitfswatch.h"
+#include "cockpitfsdir.h"
 
 #include "deprecated/cockpitdbusjson1.h"
 #include "deprecated/cockpitdbusjson2.h"
@@ -482,6 +486,14 @@ CockpitChannel *
     channel_type = COCKPIT_TYPE_STREAM;
   else if (g_strcmp0 (payload, "resource2") == 0)
     channel_type = COCKPIT_TYPE_RESOURCE;
+  else if (g_strcmp0 (payload, "fsread1") == 0)
+    channel_type = COCKPIT_TYPE_FSREAD;
+  else if (g_strcmp0 (payload, "fswrite1") == 0)
+    channel_type = COCKPIT_TYPE_FSWRITE;
+  else if (g_strcmp0 (payload, "fswatch1") == 0)
+    channel_type = COCKPIT_TYPE_FSWATCH;
+  else if (g_strcmp0 (payload, "fsdir1") == 0)
+    channel_type = COCKPIT_TYPE_FSDIR;
   else if (g_strcmp0 (payload, "null") == 0)
     channel_type = COCKPIT_TYPE_NULL_CHANNEL;
   else if (g_strcmp0 (payload, "echo") == 0)

@@ -97,7 +97,7 @@ on_pipe_read (CockpitPipe *pipe,
           break;
         }
 
-      message = cockpit_pipe_consume (input, sizeof (size), size);
+      message = cockpit_pipe_consume (input, sizeof (size), size, 0);
       payload = cockpit_transport_parse_frame (message, &channel);
       if (payload)
         {

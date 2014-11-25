@@ -1245,16 +1245,17 @@ cockpit_pipe_exit_status (CockpitPipe *self)
 /**
  * cockpit_pipe_consume:
  * @buffer: a data buffer
- * @skip: amount of bytes to skip
+ * @before: amount of preceeding bytes to discard
  * @length: length of data to consume
+ * @after: amount of trailing bytes to discard
  *
  * Used to consume data from the buffer passed to the the
  * read signal.
  *
- * @skip + @length bytes will be removed from the @buffer,
+ * @before + @length + @after bytes will be removed from the @buffer,
  * and @length bytes will be returned.
  *
- * As an omptimization of @skip + @length is equal to the
+ * As an omptimization of @before + @length + @after is equal to the
  * entire length of the buffer, then the data will not
  * be copied but ownership will be transferred to the returned
  * bytes.
@@ -1263,8 +1264,9 @@ cockpit_pipe_exit_status (CockpitPipe *self)
  */
 GBytes *
 cockpit_pipe_consume (GByteArray *buffer,
-                      gsize skip,
-                      gsize length)
+                      gsize before,
+                      gsize length,
+                      gsize after)
 {
   GBytes *bytes;
   guint8 *buf;
@@ -1272,17 +1274,17 @@ cockpit_pipe_consume (GByteArray *buffer,
   g_return_val_if_fail (buffer != NULL, NULL);
 
   /* Optimize when we match full buffer length */
-  if (buffer->len == skip + length)
+  if (buffer->len == before + length + after)
     {
       /* When array is reffed, this just clears byte array */
       g_byte_array_ref (buffer);
       buf = g_byte_array_free (buffer, FALSE);
-      bytes = g_bytes_new_with_free_func (buf + skip, length, g_free, buf);
+      bytes = g_bytes_new_with_free_func (buf + before, length, g_free, buf);
     }
   else
     {
-      bytes = g_bytes_new (buffer->data + skip, length);
-      g_byte_array_remove_range (buffer, 0, skip + length);
+      bytes = g_bytes_new (buffer->data + before, length);
+      g_byte_array_remove_range (buffer, 0, before + length + after);
     }
 
   return bytes;

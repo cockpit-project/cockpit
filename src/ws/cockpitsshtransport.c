@@ -846,7 +846,7 @@ drain_buffer (CockpitSshTransport *self)
           break;
         }
 
-      message = cockpit_pipe_consume (self->buffer, sizeof (size), size);
+      message = cockpit_pipe_consume (self->buffer, sizeof (size), size, 0);
       payload = cockpit_transport_parse_frame (message, &channel);
       if (payload)
         {

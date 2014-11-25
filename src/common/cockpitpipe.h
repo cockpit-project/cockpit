@@ -95,8 +95,9 @@ void               cockpit_pipe_skip         (GByteArray *buffer,
                                               gsize skip);
 
 GBytes *           cockpit_pipe_consume      (GByteArray *buffer,
-                                              gsize skip,
-                                              gsize length);
+                                              gsize before,
+                                              gsize length,
+                                              gsize after);
 
 G_END_DECLS
 

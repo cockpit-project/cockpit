@@ -557,7 +557,7 @@ test_consume_entire (void)
   buffer = g_byte_array_new ();
   g_byte_array_append (buffer, (guint8 *)"Marmaalaaaade!", 15);
 
-  bytes = cockpit_pipe_consume (buffer, 0, 15);
+  bytes = cockpit_pipe_consume (buffer, 0, 15, 0);
   g_assert_cmpuint (buffer->len, ==, 0);
   g_byte_array_free (buffer, TRUE);
 
@@ -575,7 +575,7 @@ test_consume_partial (void)
   buffer = g_byte_array_new ();
   g_byte_array_append (buffer, (guint8 *)"Marmaalaaaade!", 15);
 
-  bytes = cockpit_pipe_consume (buffer, 0, 7);
+  bytes = cockpit_pipe_consume (buffer, 0, 7, 0);
   g_assert_cmpuint (buffer->len, ==, 8);
   g_assert_cmpstr ((gchar *)buffer->data, ==, "aaaade!");
   g_byte_array_free (buffer, TRUE);
@@ -594,7 +594,7 @@ test_consume_skip (void)
   buffer = g_byte_array_new ();
   g_byte_array_append (buffer, (guint8 *)"Marmaalaaaade!", 15);
 
-  bytes = cockpit_pipe_consume (buffer, 7, 8);
+  bytes = cockpit_pipe_consume (buffer, 7, 8, 0);
   g_assert_cmpuint (buffer->len, ==, 0);
   g_byte_array_free (buffer, TRUE);
 

@@ -60,18 +60,19 @@ G_DEFINE_TYPE (CockpitFswrite, cockpit_fswrite, COCKPIT_TYPE_CHANNEL);
 
 static const gchar *
 prepare_for_close_with_errno (CockpitFswrite *self,
+                              const gchar *diagnostic,
                               int err)
 {
   JsonObject *options;
 
   if (err == EPERM)
     {
-      g_debug ("%s: %s", self->path, strerror (err));
+      g_debug ("%s: %s: %s", self->path, diagnostic, strerror (err));
       return "not-authorized";
     }
   else
     {
-      g_message ("%s: %s", self->path, strerror (err));
+      g_message ("%s: %s: %s", self->path, diagnostic, strerror (err));
 
       options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
       json_object_set_string_member (options, "message", strerror (err));
@@ -81,10 +82,11 @@ prepare_for_close_with_errno (CockpitFswrite *self,
 
 static void
 close_with_errno (CockpitFswrite *self,
+                  const gchar *diagnostic,
                   int err)
 {
   cockpit_channel_close (COCKPIT_CHANNEL (self),
-                         prepare_for_close_with_errno (self, err));
+                         prepare_for_close_with_errno (self, diagnostic, err));
 }
 
 static void
@@ -105,7 +107,7 @@ cockpit_fswrite_recv (CockpitChannel *channel,
           if (errno == EINTR)
             continue;
 
-          close_with_errno (self, errno);
+          close_with_errno (self, "couldn't write", errno);
           return;
         }
 
@@ -152,7 +154,7 @@ cockpit_fswrite_close (CockpitChannel *channel,
   if (problem == NULL || *problem == 0)
     {
       if (xfsync (self->fd) < 0 || xclose (self->fd) < 0)
-        problem = prepare_for_close_with_errno (self, errno);
+        problem = prepare_for_close_with_errno (self, "couldn't sync", errno);
       else
         {
           gchar *actual_tag = cockpit_get_file_tag (self->path);
@@ -167,7 +169,7 @@ cockpit_fswrite_close (CockpitChannel *channel,
                 {
                   json_object_set_string_member (options, "tag", "-");
                   if (unlink (self->path) < 0 && errno != ENOENT)
-                    problem = prepare_for_close_with_errno (self, errno);
+                    problem = prepare_for_close_with_errno (self, "couldn't unlink", errno);
                   unlink (self->tmp_path);
                 }
               else
@@ -175,7 +177,7 @@ cockpit_fswrite_close (CockpitChannel *channel,
                   gchar *new_tag = cockpit_get_file_tag (self->tmp_path);
                   json_object_set_string_member (options, "tag", new_tag);
                   if (rename (self->tmp_path, self->path) < 0)
-                    problem = prepare_for_close_with_errno (self, errno);
+                    problem = prepare_for_close_with_errno (self, "couldn't rename", errno);
                   g_free (new_tag);
                 }
             }
@@ -255,7 +257,7 @@ cockpit_fswrite_prepare (CockpitChannel *channel)
 
   problem = NULL;
   if (self->fd < 0)
-    close_with_errno (self, errno);
+    close_with_errno (self, "couldn't open unique file", errno);
   else
     cockpit_channel_ready (channel);
 

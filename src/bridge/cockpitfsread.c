@@ -230,7 +230,7 @@ cockpit_fsread_prepare (CockpitChannel *channel)
             }
           else
             {
-              g_message ("%s: %s", self->path, strerror (err));
+              g_message ("%s: couldn't open: %s", self->path, strerror (err));
               options = cockpit_channel_close_options (channel);
               json_object_set_string_member (options, "message", strerror (err));
               problem = "internal-error";
@@ -242,7 +242,7 @@ cockpit_fsread_prepare (CockpitChannel *channel)
   mapped = g_mapped_file_new_from_fd (self->fd, FALSE, &error);
   if (error)
     {
-      g_message ("%s: %s", cockpit_channel_get_id (channel), error->message);
+      g_message ("%s: couldn't map: %s", cockpit_channel_get_id (channel), error->message);
       options = cockpit_channel_close_options (channel);
       json_object_set_string_member (options, "message", error->message);
       problem = "internal-error";

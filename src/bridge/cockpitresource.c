@@ -124,15 +124,12 @@ respond_package_listing (CockpitChannel *channel)
 {
   JsonArray *root;
   GHashTable *listing;
-  JsonNode *node;
+  JsonObject *options;
 
   listing = load_package_listing (&root);
-  node = json_node_new (JSON_NODE_ARRAY);
-  json_node_set_array (node, root);
-  cockpit_channel_close_json_option (channel, "packages", node);
+  options = cockpit_channel_close_options (channel);
+  json_object_set_array_member (options, "packages", root);
   g_hash_table_unref (listing);
-  json_node_free (node);
-  json_array_unref (root);
 
   /* All done */
   cockpit_channel_ready (channel);
@@ -199,17 +196,19 @@ static void
 cockpit_resource_prepare (CockpitChannel *channel)
 {
   CockpitResource *self = COCKPIT_RESOURCE (channel);
+  const gchar *problem = "protocol-error";
   GHashTable *listing = NULL;
   gchar *filename = NULL;
   const gchar *host = NULL;
   GError *error = NULL;
   const gchar *path;
   const gchar *package;
-  const gchar **accept;
+  gchar **accept = NULL;
   const gchar *accepted;
   gchar *alternate;
   GMappedFile *mapped = NULL;
   JsonObject *object;
+  JsonObject *options;
   gchar *string = NULL;
   const gchar *pos;
   GBytes *bytes;
@@ -218,25 +217,37 @@ cockpit_resource_prepare (CockpitChannel *channel)
 
   COCKPIT_CHANNEL_CLASS (cockpit_resource_parent_class)->prepare (channel);
 
-  package = cockpit_channel_get_option (channel, "package");
-  path = cockpit_channel_get_option (channel, "path");
-  accept = cockpit_channel_get_strv_option (channel, "accept");
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "package", NULL, &package))
+    {
+      g_warning ("invalid \"package\" option in resource channel");
+      goto out;
+    }
+  if (!cockpit_json_get_string (options, "path", NULL, &path))
+    {
+      g_warning ("invalid \"package\" option in resource channel");
+      goto out;
+    }
+  if (!cockpit_json_get_strv (options, "accept", NULL, &accept))
+    {
+      g_warning ("invalid \"accept\" option in resource channel");
+      goto out;
+    }
 
   if (!package && !path)
     {
       respond_package_listing (channel);
+      problem = NULL;
       goto out;
     }
   else if (!path)
     {
-      g_message ("no 'path' specified for resource channel");
-      cockpit_channel_close (channel, "protocol-error");
+      g_message ("no \"path\" option specified for resource channel");
       goto out;
     }
   else if (!package)
     {
-      g_message ("no 'package' specified for resource channel");
-      cockpit_channel_close (channel, "protocol-error");
+      g_message ("no \"package\" option specified for resource channel");
       goto out;
     }
 
@@ -254,7 +265,7 @@ cockpit_resource_prepare (CockpitChannel *channel)
   filename = cockpit_package_resolve (listing, package, path);
   if (!filename)
     {
-      cockpit_channel_close (channel, "not-found");
+      problem = "not-found";
       goto out;
     }
 
@@ -277,11 +288,12 @@ cockpit_resource_prepare (CockpitChannel *channel)
 
   if (!mapped && retry)
     {
-      cockpit_channel_close (channel, "not-found");
+      problem = "not-found";
       goto out;
     }
 
   self->queue = g_queue_new ();
+  problem = NULL;
 
   /* The first reply payload is meta info */
   object = json_object_new ();
@@ -299,10 +311,13 @@ cockpit_resource_prepare (CockpitChannel *channel)
   cockpit_channel_ready (channel);
 
 out:
+  if (problem)
+      cockpit_channel_close (channel, problem);
   if (mapped)
     g_mapped_file_unref (mapped);
   if (listing)
     g_hash_table_unref (listing);
+  g_free (accept);
   g_free (string);
   g_clear_error (&error);
   g_free (filename);

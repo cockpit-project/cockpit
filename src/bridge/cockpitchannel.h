@@ -84,30 +84,9 @@ void                cockpit_channel_send              (CockpitChannel *self,
                                                        GBytes *payload,
                                                        gboolean valid_utf8);
 
-const gchar *       cockpit_channel_get_option        (CockpitChannel *self,
-                                                       const gchar *name);
+JsonObject *        cockpit_channel_get_options       (CockpitChannel *self);
 
-gint64              cockpit_channel_get_int_option    (CockpitChannel *self,
-                                                       const gchar *name);
-
-gboolean            cockpit_channel_get_bool_option   (CockpitChannel *self,
-                                                       const gchar *name,
-                                                       gboolean defawlt);
-
-const gchar **      cockpit_channel_get_strv_option   (CockpitChannel *self,
-                                                       const gchar *name);
-
-void                cockpit_channel_close_option      (CockpitChannel *self,
-                                                       const gchar *name,
-                                                       const gchar *value);
-
-void                cockpit_channel_close_int_option  (CockpitChannel *self,
-                                                       const gchar *name,
-                                                       gint64 value);
-
-void                cockpit_channel_close_json_option (CockpitChannel *self,
-                                                       const gchar *name,
-                                                       JsonNode *node);
+JsonObject *        cockpit_channel_close_options     (CockpitChannel *self);
 
 G_END_DECLS
 

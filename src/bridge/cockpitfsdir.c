@@ -74,6 +74,7 @@ on_files_listed (GObject *source_object,
                  gpointer user_data)
 {
   GError *error = NULL;
+  JsonObject *options;
   GList *files;
 
   files = g_file_enumerator_next_files_finish (G_FILE_ENUMERATOR (source_object), res, &error);
@@ -83,7 +84,8 @@ on_files_listed (GObject *source_object,
         {
           CockpitFsdir *self = COCKPIT_FSDIR (user_data);
           g_message ("%s: %s", COCKPIT_FSDIR(user_data)->path, error->message);
-          cockpit_channel_close_option (COCKPIT_CHANNEL (self), "message", error->message);
+          options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
+          json_object_set_string_member (options, "message", error->message);
           cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
         }
       g_clear_error (&error);
@@ -142,6 +144,7 @@ on_enumerator_ready (GObject *source_object,
 {
   GError *error = NULL;
   GFileEnumerator *enumerator;
+  JsonObject *options;
 
   enumerator = g_file_enumerate_children_finish (G_FILE (source_object), res, &error);
   if (enumerator == NULL)
@@ -150,7 +153,8 @@ on_enumerator_ready (GObject *source_object,
         {
           CockpitFsdir *self = COCKPIT_FSDIR (user_data);
           g_message ("%s: %s", self->path, error->message);
-          cockpit_channel_close_option (COCKPIT_CHANNEL (self), "message", error->message);
+          options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
+          json_object_set_string_member (options, "message", error->message);
           cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
         }
       g_clear_error (&error);
@@ -182,16 +186,22 @@ static void
 cockpit_fsdir_prepare (CockpitChannel *channel)
 {
   CockpitFsdir *self = COCKPIT_FSDIR (channel);
+  const gchar *problem = "protocol-error";
+  JsonObject *options;
   GError *error;
 
   COCKPIT_CHANNEL_CLASS (cockpit_fsdir_parent_class)->prepare (channel);
 
-  self->path = cockpit_channel_get_option (channel, "path");
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "path", NULL, &self->path))
+    {
+      g_warning ("invalid \"path\" option for fsdir channel");
+      goto out;
+    }
   if (self->path == NULL || *(self->path) == 0)
     {
-      g_warning ("missing 'path' option for fsdir channel");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("missing \"path\" option for fsdir channel");
+      goto out;
     }
 
   self->cancellable = g_cancellable_new ();
@@ -210,14 +220,20 @@ cockpit_fsdir_prepare (CockpitChannel *channel)
   if (self->monitor == NULL)
     {
       g_message ("%s: %s", self->path, error->message);
-      cockpit_channel_close_option (channel, "message", error->message);
-      cockpit_channel_close (channel, "internal-error");
-      return;
+      options = cockpit_channel_close_options (channel);
+      json_object_set_string_member (options, "message", error->message);
+      problem = "internal-error";
+      goto out;
     }
 
   self->sig_changed = g_signal_connect (self->monitor, "changed", G_CALLBACK (on_changed), self);
 
   cockpit_channel_ready (channel);
+  problem = NULL;
+
+out:
+  if (problem)
+    cockpit_channel_close (channel, problem);
 }
 
 static void

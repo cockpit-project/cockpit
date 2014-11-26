@@ -26,8 +26,6 @@
 
 #include "websocket/websocket.h"
 
-#include <gio/gunixsocketaddress.h>
-
 #include <string.h>
 
 /**
@@ -1044,103 +1042,18 @@ cockpit_rest_json_init (CockpitRestJson *self)
 }
 
 static void
-on_socket_address_ready (GObject *source,
-                         GAsyncResult *result,
-                         gpointer user_data)
-{
-  CockpitRestJson *self = COCKPIT_REST_JSON (user_data);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
-  GSocketAddressEnumerator *enumerator;
-  GError *error = NULL;
-
-  if (!self->closed)
-    {
-      enumerator = G_SOCKET_ADDRESS_ENUMERATOR (source);
-      self->address = g_socket_address_enumerator_next_finish (enumerator, result, &error);
-      if (error != NULL)
-        {
-          g_warning ("couldn't find address for %s: %s", self->name, error->message);
-          cockpit_channel_close (channel, "not-found");
-        }
-      else
-        {
-          cockpit_channel_ready (channel);
-        }
-    }
-  g_object_unref (self);
-}
-
-static void
 cockpit_rest_json_prepare (CockpitChannel *channel)
 {
   CockpitRestJson *self = COCKPIT_REST_JSON (channel);
-  const gchar *problem = "protocol-error";
-  GSocketAddressEnumerator *enumerator;
-  GSocketConnectable *connectable;
-  GError *error = NULL;
-  const gchar *unix_path;
-  JsonObject *options;
-  gint64 port;
 
   COCKPIT_CHANNEL_CLASS (cockpit_rest_json_parent_class)->prepare (channel);
 
   if (self->closed)
     return;
 
-  options = cockpit_channel_get_options (channel);
-  if (!cockpit_json_get_string (options, "unix", NULL, &unix_path))
-    {
-      g_warning ("invalid \"unix\" option in rest channel");
-      goto out;
-    }
-
-  if (!cockpit_json_get_int (options, "port", G_MAXINT64, &port))
-    {
-      g_warning ("invalid \"port\" option in rest channel");
-      goto out;
-    }
-
-  if (port != G_MAXINT64 && unix_path)
-    {
-      g_warning ("cannot specify both \"port\" and \"unix\" options");
-      goto out;
-    }
-  else if (port != G_MAXINT64)
-    {
-      connectable = g_network_address_parse ("localhost", port, &error);
-      if (error != NULL)
-        {
-          g_warning ("received invalid \"port\" option: %s", error->message);
-          goto out;
-        }
-      else
-        {
-          self->name = g_strdup_printf ("localhost:%d", (gint)port);
-          enumerator = g_socket_connectable_enumerate (connectable);
-          g_object_unref (connectable);
-          g_socket_address_enumerator_next_async (enumerator, NULL,
-                                                  on_socket_address_ready,
-                                                  g_object_ref (self));
-          g_object_unref (enumerator);
-        }
-    }
-  else if (unix_path)
-    {
-      self->name = g_strdup (unix_path);
-      self->address = g_unix_socket_address_new (unix_path);
-      cockpit_channel_ready (channel);
-    }
-  else
-    {
-      g_warning ("received neither a port or unix option");
-      goto out;
-    }
-
-  problem = NULL;
-
-out:
-  if (problem)
-    cockpit_channel_close (channel, problem);
+  self->address = cockpit_channel_parse_address (channel, &self->name);
+  if (self->address)
+    cockpit_channel_ready (channel);
 }
 
 static void

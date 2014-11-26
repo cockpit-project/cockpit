@@ -229,7 +229,6 @@ cockpit_stream_prepare (CockpitChannel *channel)
   GSocketAddress *address;
   CockpitPipeFlags flags;
   JsonObject *options;
-  const gchar *unix_path;
   gchar **argv = NULL;
   gchar **env = NULL;
   gboolean pty;
@@ -239,19 +238,9 @@ cockpit_stream_prepare (CockpitChannel *channel)
   COCKPIT_CHANNEL_CLASS (cockpit_stream_parent_class)->prepare (channel);
 
   options = cockpit_channel_get_options (channel);
-  if (!cockpit_json_get_string (options, "unix", NULL, &unix_path))
-    {
-      g_warning ("invalid \"unix\" option for stream channel");
-      goto out;
-    }
   if (!cockpit_json_get_strv (options, "spawn", NULL, &argv))
     {
       g_warning ("invalid \"spawn\" option for stream channel");
-      goto out;
-    }
-  if (!cockpit_json_get_string (options, "error", NULL, &error))
-    {
-      g_warning ("invalid \"error\" options for stream channel");
       goto out;
     }
   if (!cockpit_json_get_int (options, "batch", G_MAXINT64, &self->batch_size))
@@ -260,25 +249,14 @@ cockpit_stream_prepare (CockpitChannel *channel)
       goto out;
     }
 
-  if (argv == NULL && unix_path == NULL)
+  if (argv)
     {
-      g_warning ("did not receive a \"unix\" or \"spawn\" option");
-      goto out;
-    }
-  else if (argv != NULL && unix_path != NULL)
-    {
-      g_warning ("received both a \"unix\" and \"spawn\" option");
-      goto out;
-    }
-  else if (unix_path)
-    {
-      self->name = g_strdup (unix_path);
-      address = g_unix_socket_address_new (unix_path);
-      self->pipe = cockpit_pipe_connect (self->name, address);
-      g_object_unref (address);
-    }
-  else if (argv)
-    {
+      if (!cockpit_json_get_string (options, "error", NULL, &error))
+        {
+          g_warning ("invalid \"error\" options for stream channel");
+          goto out;
+        }
+
       flags = COCKPIT_PIPE_STDERR_TO_LOG;
       if (error && g_str_equal (error, "output"))
         flags = COCKPIT_PIPE_STDERR_TO_STDOUT;
@@ -303,6 +281,15 @@ cockpit_stream_prepare (CockpitChannel *channel)
         self->pipe = cockpit_pipe_pty ((const gchar **)argv, (const gchar **)env, dir);
       else
         self->pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env, dir, flags);
+    }
+  else
+    {
+      problem = NULL; /* closing handled elsewhere */
+      address = cockpit_channel_parse_address (channel, &self->name);
+      if (!address)
+        goto out;
+      self->pipe = cockpit_pipe_connect (self->name, address);
+      g_object_unref (address);
     }
 
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);

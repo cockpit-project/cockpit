@@ -89,7 +89,7 @@ EOF
 sed -i -e 's/gpgcheck=1/gpgcheck=0/' $base/mock/$os-$arch-cockpit.cfg
 touch -r /etc/mock/$os-$arch.cfg $base/mock/$os-$arch-cockpit.cfg
 
-if LANG=C /usr/bin/mock $mock_opts $mock_clean_opts --configdir=$base/mock/ \
+if LANG=C /usr/bin/mock --quiet $mock_opts $mock_clean_opts --configdir=$base/mock/ \
 	--resultdir $base/mock -r $os-$arch-cockpit $srpm; then
     grep "^Wrote: .*\.\($arch\|noarch\)\.rpm$" $base/mock/build.log | while read l; do
         p=$(basename "$l") # knocks off the "Wrote:" part as well...

@@ -179,7 +179,7 @@ cockpit_session_remove_channel (CockpitSessions *sessions,
   g_hash_table_remove (sessions->by_channel, channel);
   g_hash_table_remove (session->channels, channel);
 
-  if (g_hash_table_size (session->channels) == 0)
+  if (g_hash_table_size (session->channels) == 0 && !session->primary)
     {
       /*
        * Close sessions that are no longer in use after N seconds

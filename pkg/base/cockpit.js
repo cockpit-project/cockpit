@@ -1960,6 +1960,9 @@ var self_module_id = null;
 
         window.define = define_module;
         window.define.amd = { "implementation": "cockpit" };
+
+        if (window.jQuery)
+            window.define('jquery', function() { return window.jQuery; });
     }
 
 }()); /* end AMD loader */

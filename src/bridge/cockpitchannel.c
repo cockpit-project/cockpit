@@ -37,6 +37,8 @@
 
 #include <json-glib/json-glib.h>
 
+#include <gio/gunixsocketaddress.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -845,4 +847,87 @@ cockpit_channel_eof (CockpitChannel *self)
 
   cockpit_transport_send (self->priv->transport, NULL, message);
   g_bytes_unref (message);
+}
+
+GSocketAddress *
+cockpit_channel_parse_address (CockpitChannel *self,
+                               gchar **possible_name)
+{
+  GSocketAddressEnumerator *enumerator;
+  const gchar *problem = "protocol-error";
+  GSocketConnectable *connectable;
+  GSocketAddress *address = NULL;
+  const gchar *unix_path;
+  JsonObject *options;
+  GError *error = NULL;
+  gint64 port;
+
+  options = self->priv->open_options;
+  if (!cockpit_json_get_string (options, "unix", NULL, &unix_path))
+    {
+      g_warning ("invalid \"unix\" option in channel");
+      goto out;
+    }
+  if (!cockpit_json_get_int (options, "port", G_MAXINT64, &port))
+    {
+      g_warning ("invalid \"port\" option in channel");
+      goto out;
+    }
+
+  if (port != G_MAXINT64 && unix_path)
+    {
+      g_warning ("cannot specify both \"port\" and \"unix\" options");
+      goto out;
+    }
+  else if (port != G_MAXINT64)
+    {
+      connectable = g_network_address_parse ("localhost", port, &error);
+      if (error != NULL)
+        {
+          g_warning ("received invalid \"port\" option: %s", error->message);
+          goto out;
+        }
+      else
+        {
+          enumerator = g_socket_connectable_enumerate (connectable);
+          g_object_unref (connectable);
+
+          address = g_socket_address_enumerator_next (enumerator, NULL, &error);
+          g_object_unref (enumerator);
+
+          if (error != NULL)
+            {
+              g_warning ("couldn't find address for localhost:%d: %s", (gint)port, error->message);
+              problem = "not-found";
+              goto out;
+            }
+
+          if (possible_name)
+            *possible_name = g_strdup_printf ("localhost:%d", (gint)port);
+        }
+    }
+  else if (unix_path)
+    {
+      if (possible_name)
+        *possible_name = g_strdup (unix_path);
+      address = g_unix_socket_address_new (unix_path);
+    }
+  else
+    {
+      g_warning ("no \"port\" or \"unix\" or other connection option for channel");
+      goto out;
+    }
+
+  problem = NULL;
+
+out:
+  g_clear_error (&error);
+  if (problem)
+    {
+      cockpit_channel_close (self, problem);
+      if (address)
+        g_object_unref (address);
+      address = NULL;
+    }
+  return address;
 }

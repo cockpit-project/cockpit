@@ -92,6 +92,9 @@ JsonObject *        cockpit_channel_get_options       (CockpitChannel *self);
 
 JsonObject *        cockpit_channel_close_options     (CockpitChannel *self);
 
+GSocketAddress *    cockpit_channel_parse_address     (CockpitChannel *self,
+                                                       gchar **possible_name);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_CHANNEL_H__ */

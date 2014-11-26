@@ -199,8 +199,10 @@ test_close_option (TestCase *tc,
                    gconstpointer unused)
 {
   JsonObject *sent;
+  JsonObject *options;
 
-  cockpit_channel_close_option (tc->channel, "option", "four");
+  options = cockpit_channel_close_options (tc->channel);
+  json_object_set_string_member (options, "option", "four");
   cockpit_channel_close (tc->channel, "bad-boy");
 
   g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 1);
@@ -213,37 +215,17 @@ test_close_option (TestCase *tc,
 }
 
 static void
-test_close_int_option (TestCase *tc,
-                       gconstpointer unused)
-{
-  JsonObject *sent;
-
-  cockpit_channel_close_int_option (tc->channel, "option", 4);
-  cockpit_channel_close (tc->channel, "bad-boy");
-
-  g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 1);
-
-  sent = mock_transport_pop_control (tc->transport);
-  g_assert (sent != NULL);
-
-  cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"554\", \"problem\": \"bad-boy\", \"option\": 4 }");
-}
-
-static void
 test_close_json_option (TestCase *tc,
                         gconstpointer unused)
 {
   JsonObject *sent;
   JsonObject *obj;
-  JsonNode *node;
+  JsonObject *options;
 
   obj = json_object_new ();
   json_object_set_string_member (obj, "test", "value");
-  node = json_node_init_object (json_node_alloc (), obj);
-  cockpit_channel_close_json_option (tc->channel, "option", node);
-  json_node_free (node);
-  json_object_unref (obj);
+  options = cockpit_channel_close_options (tc->channel);
+  json_object_set_object_member (options, "option", obj);
 
   cockpit_channel_close (tc->channel, "bad-boy");
 
@@ -314,9 +296,10 @@ test_get_option (void)
   g_object_unref (transport);
   json_object_unref (options);
 
-  g_assert_cmpstr (cockpit_channel_get_option (channel, "scruffy"), ==, "janitor");
-  g_assert_cmpstr (cockpit_channel_get_option (channel, "age"), ==, NULL);
-  g_assert_cmpstr (cockpit_channel_get_option (channel, "marmalade"), ==, NULL);
+  options = cockpit_channel_get_options (channel);
+  g_assert_cmpstr (json_object_get_string_member (options, "scruffy"), ==, "janitor");
+  g_assert_cmpint (json_object_get_int_member (options, "age"), ==, 5);
+  g_assert (json_object_get_member (options, "marmalade") == NULL);
 
   g_object_unref (channel);
 }
@@ -368,8 +351,6 @@ main (int argc,
               setup, test_close_option, teardown);
   g_test_add ("/channel/close-json-option", TestCase, NULL,
               setup, test_close_json_option, teardown);
-  g_test_add ("/channel/close-int-option", TestCase, NULL,
-              setup, test_close_int_option, teardown);
   g_test_add ("/channel/close-transport", TestCase, NULL,
               setup, test_close_transport, teardown);
 

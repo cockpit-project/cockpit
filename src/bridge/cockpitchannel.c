@@ -227,10 +227,16 @@ static void
 cockpit_channel_real_prepare (CockpitChannel *channel)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (channel);
+  JsonObject *options;
   const gchar *binary;
 
-  binary = cockpit_channel_get_option (self, "binary");
-  if (binary != NULL)
+  options = cockpit_channel_get_options (self);
+  if (!cockpit_json_get_string (options, "binary", NULL, &binary))
+    {
+      g_warning ("%s: channel has invalid \"binary\" option", self->priv->id);
+      cockpit_channel_close (self, "protocol-error");
+    }
+  else if (binary != NULL)
     {
       self->priv->binary_ok = TRUE;
       if (g_str_equal (binary, "base64"))
@@ -239,7 +245,7 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
         }
       else if (!g_str_equal (binary, "raw"))
         {
-          g_warning ("%s: channel has invalid binary option: %s", self->priv->id, binary);
+          g_warning ("%s: channel has invalid \"binary\" option: %s", self->priv->id, binary);
           cockpit_channel_close (self, "protocol-error");
         }
     }
@@ -687,166 +693,33 @@ cockpit_channel_send (CockpitChannel *self,
 /**
  * cockpit_channel_get_option:
  * @self: a channel
- * @name: the option name
  *
- * Called by implementations to get a string value from the
- * channel's options.
+ * Called by implementations to get the channel's open options.
  *
- * Returns: (transfer none): the option value or NULL
+ * Returns: (transfer none): the open options, should not be NULL
  */
-const gchar *
-cockpit_channel_get_option (CockpitChannel *self,
-                            const gchar *name)
+JsonObject *
+cockpit_channel_get_options (CockpitChannel *self)
 {
-  const gchar *value;
-  if (!cockpit_json_get_string (self->priv->open_options, name, NULL, &value))
-    value = NULL;
-  return value;
-}
-
-/**
- * cockpit_channel_get_int_option:
- * @self: a channel
- * @name: the option name
- *
- * Called by implementations to get an int value from the
- * channel's options.
- *
- * Returns: the option value or G_MAXINT64
- */
-gint64
-cockpit_channel_get_int_option (CockpitChannel *self,
-                                const gchar *name)
-{
-  gint64 value;
-  if (!cockpit_json_get_int (self->priv->open_options, name, G_MAXINT64, &value))
-    value = G_MAXINT64;
-  return value;
-}
-
-/**
- * cockpit_channel_get_bool_option:
- * @self: a channel
- * @name: the option name
- * @defawlt: default value
- *
- * Called by implementations to get an int value from the
- * channel's options.
- *
- * Returns: TRUE or FALSE if option set, @defauwlt if not set
- */
-gboolean
-cockpit_channel_get_bool_option (CockpitChannel *self,
-                                 const gchar *name,
-                                 gboolean defawlt)
-{
-  gboolean value;
-  if (!cockpit_json_get_bool (self->priv->open_options, name, defawlt, &value))
-    value = defawlt;
-  return value;
-}
-
-
-/**
- * cockpit_channel_get_strv_option:
- * @self: a channel
- * @name: the option name
- *
- * Called by implementations to get a string array value from
- * the channel's options.
- *
- * Returns: (transfer none): the option value or NULL.
- */
-const gchar **
-cockpit_channel_get_strv_option (CockpitChannel *self,
-                                 const gchar *name)
-{
-  gchar **value;
-
   g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
-
-  value = g_object_get_data (G_OBJECT (self), name);
-  if (value)
-    return (const gchar **)value;
-
-  if (!cockpit_json_get_strv (self->priv->open_options, name, NULL, &value))
-    value = NULL;
-
-  /* Stash here so caller can not worry about memory */
-  g_object_set_data_full (G_OBJECT (self), name, value, g_free);
-  return (const gchar **)value;
+  return self->priv->open_options;
 }
 
 /**
- * cockpit_channel_close_option:
+ * cockpit_channel_get_option:
  * @self: a channel
- * @name: the option name
- * @value: the value to add
  *
- * Add a value to the close message for this channel. This must
- * be called before the cockpit_channel_close base class
- * implementation.
+ * Called by implementations to get the channel's open options.
+ *
+ * Returns: (transfer none): the open options, should not be NULL
  */
-void
-cockpit_channel_close_option (CockpitChannel *self,
-                              const gchar *name,
-                              const gchar *value)
+JsonObject *
+cockpit_channel_close_options (CockpitChannel *self)
 {
-  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
-  g_return_if_fail (name != NULL);
-  g_return_if_fail (value != NULL);
-
+  g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
   if (!self->priv->close_options)
     self->priv->close_options = json_object_new ();
-  json_object_set_string_member (self->priv->close_options, name, value);
-}
-
-/**
- * cockpit_channel_close_int_option:
- * @self: a channel
- * @name: the option name
- * @value: the value to add
- *
- * Add a value to the close message for this channel. This must
- * be called before the cockpit_channel_close base class
- * implementation.
- */
-void
-cockpit_channel_close_int_option (CockpitChannel *self,
-                                  const gchar *name,
-                                  gint64 value)
-{
-  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
-  g_return_if_fail (name != NULL);
-
-  if (!self->priv->close_options)
-    self->priv->close_options = json_object_new ();
-  json_object_set_int_member (self->priv->close_options, name, value);
-}
-
-/**
- * cockpit_channel_close_json_option:
- * @self: a channel
- * @name: the option name
- * @value: the value to add
- *
- * Add a JSON value to the close message for this channel. This must
- * be called befor ethe cockpit_channel_close base class
- * implementation.
- */
-void
-cockpit_channel_close_json_option (CockpitChannel *self,
-                                   const gchar *name,
-                                   JsonNode *node)
-{
-  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
-  g_return_if_fail (name != NULL);
-  g_return_if_fail (node != NULL);
-
-  if (!self->priv->close_options)
-    self->priv->close_options = json_object_new ();
-  json_object_set_member (self->priv->close_options, name,
-                          json_node_copy (node));
+  return self->priv->close_options;
 }
 
 /**

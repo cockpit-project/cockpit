@@ -21,6 +21,8 @@
 
 #include "cockpitfsread.h"
 
+#include "common/cockpitjson.h"
+
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -124,6 +126,7 @@ cockpit_fsread_close (CockpitChannel *channel,
                       const gchar *problem)
 {
   CockpitFsread *self = COCKPIT_FSREAD (channel);
+  JsonObject *options;
   gchar *tag;
 
   if (self->idler)
@@ -136,9 +139,14 @@ cockpit_fsread_close (CockpitChannel *channel,
     {
       tag = cockpit_get_file_tag_from_fd (self->fd);
       if (g_strcmp0 (tag, self->start_tag) == 0)
-        cockpit_channel_close_option (channel, "tag", tag);
+        {
+          options = cockpit_channel_close_options (channel);
+          json_object_set_string_member (options, "tag", tag);
+        }
       else
-        problem = "change-conflict";
+        {
+          problem = "change-conflict";
+        }
       g_free (tag);
     }
 
@@ -182,17 +190,23 @@ static void
 cockpit_fsread_prepare (CockpitChannel *channel)
 {
   CockpitFsread *self = COCKPIT_FSREAD (channel);
+  const gchar *problem = "protocol-error";
+  JsonObject *options;
   GMappedFile *mapped;
   GError *error = NULL;
 
   COCKPIT_CHANNEL_CLASS (cockpit_fsread_parent_class)->prepare (channel);
 
-  self->path = cockpit_channel_get_option (channel, "path");
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "path", NULL, &self->path))
+    {
+      g_warning ("invalid \"path\" option for fsread channel");
+      goto out;
+    }
   if (self->path == NULL || *(self->path) == 0)
     {
-      g_warning ("missing 'path' option for fsread channel");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("missing \"path\" option for fsread channel");
+      goto out;
     }
 
   self->fd = open (self->path, O_RDONLY);
@@ -201,34 +215,38 @@ cockpit_fsread_prepare (CockpitChannel *channel)
       int err = errno;
       if (err == ENOENT)
         {
-          cockpit_channel_close_option (channel, "tag", "-");
+          options = cockpit_channel_close_options (channel);
+          json_object_set_string_member (options, "tag", "-");
           cockpit_channel_ready (channel);
           cockpit_channel_close (channel, NULL);
+          problem = NULL;
         }
       else
         {
           if (err == EPERM)
             {
               g_debug ("%s: %s", self->path, strerror (err));
-              cockpit_channel_close (channel, "not-authorized");
+              problem = "not-authorized";
             }
           else
             {
               g_message ("%s: %s", self->path, strerror (err));
-              cockpit_channel_close_option (channel, "message", strerror (err));
-              cockpit_channel_close (channel, "internal-error");
+              options = cockpit_channel_close_options (channel);
+              json_object_set_string_member (options, "message", strerror (err));
+              problem = "internal-error";
             }
         }
-      return;
+      goto out;
     }
 
   mapped = g_mapped_file_new_from_fd (self->fd, FALSE, &error);
   if (error)
     {
       g_message ("%s: %s", cockpit_channel_get_id (channel), error->message);
-      cockpit_channel_close_option (channel, "message", error->message);
-      cockpit_channel_close (channel, "internal-error");
-      return;
+      options = cockpit_channel_close_options (channel);
+      json_object_set_string_member (options, "message", error->message);
+      problem = "internal-error";
+      goto out;
     }
 
   self->start_tag = cockpit_get_file_tag_from_fd (self->fd);
@@ -237,6 +255,11 @@ cockpit_fsread_prepare (CockpitChannel *channel)
   self->idler = g_idle_add (on_idle_send_block, self);
   cockpit_channel_ready (channel);
   g_mapped_file_unref (mapped);
+  problem = NULL;
+
+out:
+  if (problem)
+    cockpit_channel_close (channel, problem);
 }
 
 static void

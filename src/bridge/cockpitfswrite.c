@@ -22,6 +22,8 @@
 #include "cockpitfswrite.h"
 #include "cockpitfsread.h"
 
+#include "common/cockpitjson.h"
+
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -60,6 +62,8 @@ static const gchar *
 prepare_for_close_with_errno (CockpitFswrite *self,
                               int err)
 {
+  JsonObject *options;
+
   if (err == EPERM)
     {
       g_debug ("%s: %s", self->path, strerror (err));
@@ -68,7 +72,9 @@ prepare_for_close_with_errno (CockpitFswrite *self,
   else
     {
       g_message ("%s: %s", self->path, strerror (err));
-      cockpit_channel_close_option (COCKPIT_CHANNEL (self), "message", strerror (err));
+
+      options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
+      json_object_set_string_member (options, "message", strerror (err));
       return "internal-error";
     }
 }
@@ -139,6 +145,7 @@ cockpit_fswrite_close (CockpitChannel *channel,
                        const gchar *problem)
 {
   CockpitFswrite *self = COCKPIT_FSWRITE (channel);
+  JsonObject *options;
 
   /* Commit the changes when there was no problem.
    */
@@ -155,9 +162,10 @@ cockpit_fswrite_close (CockpitChannel *channel,
             }
           else
             {
+              options = cockpit_channel_close_options (channel);
               if (!self->got_content)
                 {
-                  cockpit_channel_close_option (channel, "tag", "-");
+                  json_object_set_string_member (options, "tag", "-");
                   if (unlink (self->path) < 0 && errno != ENOENT)
                     problem = prepare_for_close_with_errno (self, errno);
                   unlink (self->tmp_path);
@@ -165,7 +173,7 @@ cockpit_fswrite_close (CockpitChannel *channel,
               else
                 {
                   gchar *new_tag = cockpit_get_file_tag (self->tmp_path);
-                  cockpit_channel_close_option (channel, "tag", new_tag);
+                  json_object_set_string_member (options, "tag", new_tag);
                   if (rename (self->tmp_path, self->path) < 0)
                     problem = prepare_for_close_with_errno (self, errno);
                   g_free (new_tag);
@@ -200,28 +208,36 @@ static void
 cockpit_fswrite_prepare (CockpitChannel *channel)
 {
   CockpitFswrite *self = COCKPIT_FSWRITE (channel);
-  gchar *actual_tag;
+  const gchar *problem = "protocol-error";
+  JsonObject *options;
+  gchar *actual_tag = NULL;
 
   COCKPIT_CHANNEL_CLASS (cockpit_fswrite_parent_class)->prepare (channel);
 
-  self->path = cockpit_channel_get_option (channel, "path");
-  self->expected_tag = cockpit_channel_get_option (channel, "tag");
-
-  if (self->path == NULL || *(self->path) == 0)
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "path", NULL, &self->path))
     {
-      g_warning ("missing 'path' option for fswrite channel");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("invalid \"path\" option for fswrite1 channel");
+      goto out;
+    }
+  else if (self->path == NULL || g_str_equal (self->path, ""))
+    {
+      g_warning ("missing \"path\" option for fswrite1 channel");
+      goto out;
+    }
+
+  if (!cockpit_json_get_string (options, "tag", NULL, &self->expected_tag))
+    {
+      g_warning ("%s: invalid \"tag\" option for fswrite1 channel", self->path);
+      goto out;
     }
 
   actual_tag = cockpit_get_file_tag (self->path);
   if (self->expected_tag && g_strcmp0 (self->expected_tag, actual_tag))
     {
-      cockpit_channel_close (channel, "change-conflict");
-      g_free (actual_tag);
-      return;
+      problem = "change-conflict";
+      goto out;
     }
-  g_free (actual_tag);
 
   // TODO - delay the opening until the first content message.  That
   // way, we don't create a useless temporary file (which might even
@@ -237,13 +253,16 @@ cockpit_fswrite_prepare (CockpitChannel *channel)
       self->tmp_path = NULL;
     }
 
+  problem = NULL;
   if (self->fd < 0)
-    {
-      close_with_errno (self, errno);
-      return;
-    }
+    close_with_errno (self, errno);
+  else
+    cockpit_channel_ready (channel);
 
-  cockpit_channel_ready (channel);
+out:
+  g_free (actual_tag);
+  if (problem)
+      cockpit_channel_close (channel, problem);
 }
 
 static void

@@ -293,7 +293,7 @@ test_no_path (TestCase *tc,
 {
   g_assert (fixture == &fixture_no_path);
 
-  cockpit_expect_message ("no 'path' specified for resource channel");
+  cockpit_expect_message ("no \"path\" option specified for resource channel");
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
@@ -328,7 +328,7 @@ test_no_package (TestCase *tc,
 {
   g_assert (fixture == &fixture_no_package);
 
-  cockpit_expect_message ("no 'package' specified for resource channel");
+  cockpit_expect_message ("no \"package\" option specified for resource channel");
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);

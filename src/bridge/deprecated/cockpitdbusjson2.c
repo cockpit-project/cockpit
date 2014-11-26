@@ -1448,13 +1448,16 @@ static void
 cockpit_dbus_json2_prepare (CockpitChannel *channel)
 {
   CockpitDBusJson2 *self = COCKPIT_DBUS_JSON2 (channel);
+  const gchar *problem = "protocol-error";
   const gchar *dbus_service;
   const gchar *dbus_path;
   const gchar *bus;
   const gchar *new_prop_name;
   GType object_manager_type;
   gconstpointer new_prop_value;
+  JsonObject *options;
   GBusType bus_type;
+  gchar **paths = NULL;
 
   COCKPIT_CHANNEL_CLASS (cockpit_dbus_json2_parent_class)->prepare (channel);
 
@@ -1464,7 +1467,28 @@ cockpit_dbus_json2_prepare (CockpitChannel *channel)
    * callers. See teh similar GLib async guarantee.
    */
 
-  dbus_service = cockpit_channel_get_option (channel, "service");
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "service", NULL, &dbus_service))
+    {
+      g_warning ("invalid \"service\" option in dbus channel");
+      goto out;
+    }
+  if (!cockpit_json_get_string (options, "bus", NULL, &bus))
+    {
+      g_warning ("invalid \"bus\" option in dbus channel");
+      goto out;
+    }
+  if (!cockpit_json_get_string (options, "object-manager", NULL, &dbus_path))
+    {
+      g_warning ("invalid \"object-manager\" option in dbus channel");
+      goto out;
+    }
+  if (!cockpit_json_get_strv (options, "object-paths", NULL, &paths))
+    {
+      g_warning ("invalid \"object-paths\" option in dbus channel");
+      goto out;
+    }
+
   if (dbus_service == NULL || !g_dbus_is_name (dbus_service))
     {
       g_warning ("bridge got invalid dbus service");
@@ -1472,18 +1496,16 @@ cockpit_dbus_json2_prepare (CockpitChannel *channel)
       return;
     }
 
-  dbus_path = cockpit_channel_get_option (channel, "object-manager");
   if (dbus_path == NULL)
     {
-      new_prop_value = cockpit_channel_get_strv_option (channel, "object-paths");
+      new_prop_value = paths;
       new_prop_name = "object-paths";
       object_manager_type = COCKPIT_TYPE_FAKE_MANAGER;
     }
   else if (!g_variant_is_object_path (dbus_path))
     {
-      g_warning ("bridge got invalid object-manager path");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("bridge got invalid \"object-manager\" option");
+      goto out;
     }
   else
     {
@@ -1497,7 +1519,6 @@ cockpit_dbus_json2_prepare (CockpitChannel *channel)
    * places yet, so use the session bus for now.
    */
   bus_type = G_BUS_TYPE_SESSION;
-  bus = cockpit_channel_get_option (channel, "bus");
   if (bus == NULL || g_str_equal (bus, "session") ||
       g_str_equal (bus, "user"))
     {
@@ -1509,9 +1530,8 @@ cockpit_dbus_json2_prepare (CockpitChannel *channel)
     }
   else
     {
-      g_warning ("bridge got an invalid bus type");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("bridge got an invalid \"bus\" option");
+      goto out;
     }
 
   /* Both GDBusObjectManager and CockpitFakeManager have similar props */
@@ -1525,6 +1545,13 @@ cockpit_dbus_json2_prepare (CockpitChannel *channel)
                               "name", dbus_service,
                               new_prop_name, new_prop_value,
                               NULL);
+
+  problem = NULL;
+
+out:
+  g_free (paths);
+  if (problem)
+    cockpit_channel_close (channel, problem);
 }
 
 static void

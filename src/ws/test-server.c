@@ -34,6 +34,7 @@
 
 static GMainLoop *loop = NULL;
 static int exit_code = 0;
+static gint server_port = 0;
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -100,6 +101,8 @@ on_handle_stream_socket (CockpitWebServer *server,
   CockpitTransport *transport;
   CockpitCreds *creds;
   CockpitPipe *pipe;
+  gchar *value;
+  gchar **env;
 
   const gchar *argv[] = {
     "cockpit-bridge",
@@ -112,11 +115,17 @@ on_handle_stream_socket (CockpitWebServer *server,
   creds = cockpit_creds_new (g_get_user_name (),
                              NULL);
 
-  pipe = cockpit_pipe_spawn (argv, NULL, NULL, FALSE);
+  value = g_strdup_printf ("%d", server_port);
+  env = g_environ_setenv (g_get_environ (), "COCKPIT_TEST_SERVER_PORT", value, TRUE);
+
+  pipe = cockpit_pipe_spawn (argv, (const gchar **)env, NULL, FALSE);
   transport = cockpit_pipe_transport_new (pipe);
   service = cockpit_web_service_new (creds, transport);
   g_object_unref (transport);
   g_object_unref (pipe);
+
+  g_free (value);
+  g_strfreev (env);
 
   cockpit_web_service_socket (service, io_stream, headers, input);
 
@@ -154,15 +163,14 @@ server_ready (void)
   const gchar *roots[] = { ".", SRCDIR, NULL };
   GError *error = NULL;
   CockpitWebServer *server;
-  gint port;
   gchar *url;
 
   if (!isatty (1))
-    port = 0; /* select one automatically */
+    server_port = 0; /* select one automatically */
   else
-    port = 8765;
+    server_port = 8765;
 
-  server = cockpit_web_server_new (port, /* TCP port to listen to */
+  server = cockpit_web_server_new (server_port, /* TCP port to listen to */
                                    NULL, /* TLS cert */
                                    roots,/* Where to serve files from */
                                    NULL, /* GCancellable* */
@@ -180,8 +188,8 @@ server_ready (void)
                     "handle-resource::/pkg/",
                     G_CALLBACK (on_handle_resource), NULL);
 
-  g_object_get (server, "port", &port, NULL);
-  url = g_strdup_printf("http://localhost:%d", port);
+  g_object_get (server, "port", &server_port, NULL);
+  url = g_strdup_printf("http://localhost:%d", server_port);
 
   if (!isatty (1))
     {

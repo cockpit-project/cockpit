@@ -95,6 +95,8 @@ JsonObject *        cockpit_channel_close_options     (CockpitChannel *self);
 GSocketAddress *    cockpit_channel_parse_address     (CockpitChannel *self,
                                                        gchar **possible_name);
 
+void                cockpit_channel_internal_address  (const gchar *name,
+                                                       GSocketAddress *address);
 G_END_DECLS
 
 #endif /* __COCKPIT_CHANNEL_H__ */

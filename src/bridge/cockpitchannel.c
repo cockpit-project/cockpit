@@ -443,6 +443,9 @@ static void
 cockpit_channel_class_init (CockpitChannelClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GSocketAddress *address;
+  GInetAddress *inet;
+  const gchar *port;
 
   gobject_class->constructed = cockpit_channel_constructed;
   gobject_class->get_property = cockpit_channel_get_property;
@@ -496,6 +499,21 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
                                              NULL, NULL, NULL, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   g_type_class_add_private (klass, sizeof (CockpitChannelPrivate));
+
+  /*
+   * If we're running under a test server, register that server's HTTP address
+   * as an internal address, available for use in cockpit channels.
+   */
+
+  port = g_getenv ("COCKPIT_TEST_SERVER_PORT");
+  if (port)
+    {
+      inet = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
+      address = g_inet_socket_address_new (inet, atoi (port));
+      cockpit_channel_internal_address ("test-server", address);
+      g_object_unref (address);
+      g_object_unref (inet);
+    }
 }
 
 /**
@@ -849,6 +867,21 @@ cockpit_channel_eof (CockpitChannel *self)
   g_bytes_unref (message);
 }
 
+static GHashTable *internal_addresses;
+
+void
+cockpit_channel_internal_address (const gchar *name,
+                                  GSocketAddress *address)
+{
+  if (!internal_addresses)
+    {
+      internal_addresses = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                  g_free, g_object_unref);
+    }
+
+  g_hash_table_replace (internal_addresses, g_strdup (name), g_object_ref (address));
+}
+
 GSocketAddress *
 cockpit_channel_parse_address (CockpitChannel *self,
                                gchar **possible_name)
@@ -858,6 +891,7 @@ cockpit_channel_parse_address (CockpitChannel *self,
   GSocketConnectable *connectable;
   GSocketAddress *address = NULL;
   const gchar *unix_path;
+  const gchar *internal;
   JsonObject *options;
   GError *error = NULL;
   gint64 port;
@@ -871,6 +905,11 @@ cockpit_channel_parse_address (CockpitChannel *self,
   if (!cockpit_json_get_int (options, "port", G_MAXINT64, &port))
     {
       g_warning ("invalid \"port\" option in channel");
+      goto out;
+    }
+  if (!cockpit_json_get_string (options, "internal", NULL, &internal))
+    {
+      g_warning ("invalid \"internal\" option in channel");
       goto out;
     }
 
@@ -912,9 +951,24 @@ cockpit_channel_parse_address (CockpitChannel *self,
         *possible_name = g_strdup (unix_path);
       address = g_unix_socket_address_new (unix_path);
     }
+  else if (internal)
+    {
+      if (internal_addresses)
+        address = g_hash_table_lookup (internal_addresses, internal);
+      if (!address)
+        {
+          g_warning ("couldn't find internal address: %s", internal);
+          problem = "not-found";
+          goto out;
+        }
+
+      if (possible_name)
+        *possible_name = g_strdup (internal);
+      address = g_object_ref (address);
+    }
   else
     {
-      g_warning ("no \"port\" or \"unix\" or other connection option for channel");
+      g_warning ("no \"port\" or \"unix\" or other address option for channel");
       goto out;
     }
 

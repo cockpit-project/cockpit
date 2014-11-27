@@ -27,9 +27,9 @@ PageAbout.prototype = {
 
     enter: function() {
         $("#about-version").empty();
-        $("#about-version").append(document.createTextNode(cockpit.info["version"]));
+        $("#about-version").append(document.createTextNode(cockpit.info.version));
         $("#about-build-info").empty();
-        $("#about-build-info").append(document.createTextNode(cockpit.info["build"]));
+        $("#about-build-info").append(document.createTextNode(cockpit.info.build));
     },
 
     show: function() {

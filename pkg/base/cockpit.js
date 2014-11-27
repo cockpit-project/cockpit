@@ -476,8 +476,8 @@ function Channel(options) {
         if (command.host === undefined) {
             var host = default_host;
             /* HACK until we migrate all the pages from shell */
-            if ("shell" in window && typeof window['shell'].get_page_machine == "function")
-                host = window["shell"].get_page_machine();
+            if ("shell" in window && typeof window.shell.get_page_machine == "function")
+                host = window.shell.get_page_machine();
             if (host)
                 command.host = host;
         }
@@ -1260,7 +1260,7 @@ function full_scope(cockpit, $) {
 
         $(channel).on("message", function(event, payload) {
             dbus_debug("dbus:", payload);
-            var msg = undefined;
+            var msg;
             try {
                 msg = JSON.parse(payload);
             } catch(ex) {
@@ -1348,18 +1348,18 @@ function full_scope(cockpit, $) {
             var dfd = $.Deferred();
             var id = String(last_cookie);
             last_cookie++;
-            var call = {
+            var method_call = {
                 "call": [ path, iface, method, args || [] ],
                 "id": id
             };
             if (options) {
                 if (options.type)
-                    call.type = options.type;
+                    method_call.type = options.type;
                 if (options.flags !== undefined)
-                    call.flags = options.flags;
+                    method_call.flags = options.flags;
             }
 
-            var msg = JSON.stringify(call);
+            var msg = JSON.stringify(method_call);
             dbus_debug("dbus:", msg);
             channel.send(msg);
             calls[id] = dfd;
@@ -1388,12 +1388,13 @@ function full_scope(cockpit, $) {
 
             return {
                 remove: function() {
+                    var prev;
                     if (id) {
-                        var prev = subscribers[id];
+                        prev = subscribers[id];
                         if (prev)
                             delete subscribers[id];
                     }
-                    if (rule !== false && channel && channel.valid) {
+                    if (rule !== false && channel && channel.valid && prev) {
                         var msg = JSON.stringify({ "remove-match": prev.match });
                         dbus_debug("dbus:", msg);
                         channel.send(msg);
@@ -1442,13 +1443,13 @@ function full_scope(cockpit, $) {
             iface = String(iface);
             if (!path)
                 path = "/" + iface.replace(/\./g, "/");
-            var ctor = self.constructors[iface];
-            if (!ctor)
-                ctor = self.constructors["*"];
+            var Constructor = self.constructors[iface];
+            if (!Constructor)
+                Constructor = self.constructors["*"];
             if (!options)
                 options = { };
             ensure_cache();
-            return new ctor(self, cache, iface, String(path), options);
+            return new Constructor(self, cache, iface, String(path), options);
         };
 
         self.proxies = function proxies(iface, path_namespace) {
@@ -1491,8 +1492,15 @@ function full_scope(cockpit, $) {
 
         if (header) {
             if (header["plural-forms"]) {
+                /*
+                 * This code has been cross checked when it was compiled by our
+                 * po2json tool. Therefore ignore warnings about eval being evil.
+                 */
+
+                /* jshint ignore:start */
                 plural = new Function("n", "var nplurals, plural; " +
                                       header["plural-forms"] + "; return plural;");
+                /* jshint ignore:end */
             }
             if (header["language"])
                 lang = header["language"];
@@ -1549,10 +1557,10 @@ function full_scope(cockpit, $) {
     }
 
     cockpit.locale = function locale(po, translate) {
-        var locale = new Locale(po);
+        var loc = new Locale(po);
         if (translate)
-            $(function() {translate_page(locale); });
-        return locale;
+            $(function() {translate_page(loc); });
+        return loc;
     };
 
     var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
@@ -1754,6 +1762,13 @@ var self_module_id = null;
         var result = [ ];
         var length = dependencies.length;
 
+        var func = function require_local(arg0, arg1) {
+            return require_with_context(module, arg0, arg1);
+        };
+        func.toUrl = function(str) {
+            return qualify(str, module.id);
+        };
+
         /* First make sure we can resolve everything */
         for (var i = 0; i < length; i++) {
             var id = dependencies[i];
@@ -1764,12 +1779,6 @@ var self_module_id = null;
 
             /* Special id 'require' defined by AMD */
             } else if (id == "require") {
-                var func = function require_local(arg0, arg1) {
-                    return require_with_context(module, arg0, arg1);
-                };
-                func.toUrl = function(str) {
-                    return qualify(str, module.id);
-                };
                 result.push(func);
 
             /* Special id 'exports' defined by AMD */

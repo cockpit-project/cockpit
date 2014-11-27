@@ -226,7 +226,7 @@ shell.setup_complicated_plot = function setup_complicated_plot(graph_id, resmon,
             series = data[n].data;
             value = samples[n];
 
-            if (options["x_rh_stack_graphs"]) {
+            if (options.x_rh_stack_graphs) {
                 floor = 0;
                 for (i = n + 1; i < samples.length; i++) {
                     floor += samples[i];

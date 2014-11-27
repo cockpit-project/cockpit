@@ -267,7 +267,7 @@ var shell = shell || { };
             console.error("the Rest(uri) must currently start with 'unix://'");
         var args = { "unix": endpoint.substring(7), "payload": "rest-json1" };
         if (machine !== undefined)
-            args["host"] = machine;
+            args.host = machine;
         if (options !== undefined)
             $.extend(args, options);
 
@@ -278,7 +278,7 @@ var shell = shell || { };
 
                 /* Individual requests wait for 'result' event */
                 $(channel).on("message", function(event, payload) {
-                    var result = undefined;
+                    var result;
                     try {
                         result = JSON.parse(payload);
                         rest_debug("rest result:", result);

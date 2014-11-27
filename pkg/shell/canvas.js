@@ -161,6 +161,23 @@ shell.image_editor = function image_editor(element, width, height) {
 
         var h_w = crop_handle_width;
 
+        function mousemove(ev) {
+            var x = ev.pageX - offset.left - xoff;
+            var y = ev.pageY - offset.top - yoff;
+            if (proj_sign === 0)
+                set_crop (x, y, orig_s, true);
+            else {
+                var d = Math.floor((x - orig_x + proj_sign * (y - orig_y)) / 2);
+                set_crop (orig_x + dx_sign*d, orig_y + dy_sign*d, orig_s + ds_sign*d, false);
+            }
+            self.changed = true;
+        }
+
+        function mouseup(ev) {
+            $('body').off('mousemove', mousemove);
+            $('body').off('mouseup', mouseup);
+        }
+
         if (xoff > 0 && yoff > 0 && xoff < crop_s && yoff < crop_s) {
             if (xoff < h_w && yoff < h_w) {
                 // top left
@@ -189,23 +206,6 @@ shell.image_editor = function image_editor(element, width, height) {
             } else {
                 // center
                 proj_sign = 0;
-            }
-
-            function mousemove(ev) {
-                var x = ev.pageX - offset.left - xoff;
-                var y = ev.pageY - offset.top - yoff;
-                if (proj_sign === 0)
-                    set_crop (x, y, orig_s, true);
-                else {
-                    var d = Math.floor((x - orig_x + proj_sign * (y - orig_y)) / 2);
-                    set_crop (orig_x + dx_sign*d, orig_y + dy_sign*d, orig_s + ds_sign*d, false);
-                }
-                self.changed = true;
-            }
-
-            function mouseup(ev) {
-                $('body').off('mousemove', mousemove);
-                $('body').off('mouseup', mouseup);
             }
 
             $('body').on('mousemove', mousemove);

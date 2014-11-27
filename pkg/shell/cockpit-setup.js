@@ -275,7 +275,7 @@ PageSetupServer.prototype = {
         var client = shell.dbus(self.address, self.options);
         $(client).on('state-change', function() {
             if (client.state == "closed") {
-                if (!self.options["host_key"] && client.error == "unknown-hostkey") {
+                if (!self.options.host_key && client.error == "unknown-hostkey") {
                     /* The host key is unknown.  Remember it and try
                      * again while allowing that one host key.  When
                      * the user confirms the host key eventually, we

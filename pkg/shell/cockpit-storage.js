@@ -113,6 +113,17 @@ function job_box(client, tbody, domain, descriptions, target_describer) {
         var target_desc, desc, progress, remaining, cancel;
         var some_added = false;
 
+        function make_click_handler() {
+            return function(event) {
+                if (!shell.check_admin(client))
+                    return;
+                j.call('Cancel', function (error) {
+                    if (error)
+                        shell.show_unexpected_error(error);
+                });
+            };
+        }
+
         tbody.empty();
         for (i = 0; i < objs.length; i++) {
             j = objs[i].lookup("com.redhat.Cockpit.Job");
@@ -138,14 +149,7 @@ function job_box(client, tbody, domain, descriptions, target_describer) {
                     remaining = '';
                 if (j.Cancellable) {
                     cancel = $('<button class="btn btn-default">').text(_("Cancel"));
-                    cancel.on('click', function (event) {
-                        if (!shell.check_admin(client))
-                            return;
-                        j.call('Cancel', function (error) {
-                            if (error)
-                                shell.show_unexpected_error(error);
-                        });
-                    });
+                    cancel.on('click', make_click_handler());
                 } else
                     cancel = "";
                 tbody.append(

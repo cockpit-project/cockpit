@@ -318,8 +318,8 @@ DBusClient.prototype = {
 
         if (!channel_opts["service"])
             channel_opts["service"] = "com.redhat.Cockpit";
-        if (channel_opts["object-manager"] == undefined &&
-            channel_opts["object-paths"] == undefined)
+        if (channel_opts["object-manager"] === undefined &&
+            channel_opts["object-paths"] === undefined)
             channel_opts["object-manager"] = "/com/redhat/Cockpit";
 
         dbus_debug("Connecting DBusClient to " + channel_opts["service"] + " on " + this.target);

@@ -585,11 +585,18 @@ ul.available-interfaces-group {
     text-overflow: ellipsis;
 }
 
+#storage_raids .row span,
+#storage_vgs .row span,
 #storage_drives .row span {
     padding: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+#storage_raids .row span.raid-size,
+#storage_vgs .row span.vg-size {
+    text-align: right;
 }
 
 #storage .storage-sidebar .storage-disk-size {

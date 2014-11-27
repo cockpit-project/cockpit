@@ -170,14 +170,14 @@ function NetworkManagerModel(address) {
     function get_object(path, type) {
         if (path == "/")
             return null;
+        function constructor() {
+            this[' priv'] = { };
+            priv(this).type = type;
+            priv(this).path = path;
+            for (var p in type.props)
+                this[p] = type.props[p].def;
+        }
         if (!objects[path]) {
-            function constructor() {
-                this[' priv'] = { };
-                priv(this).type = type;
-                priv(this).path = path;
-                for (var p in type.props)
-                    this[p] = type.props[p].def;
-            }
             constructor.prototype = type.prototype;
             objects[path] = new constructor();
             if (type.refresh)
@@ -878,6 +878,13 @@ function NetworkManagerModel(address) {
                 //
                 // TODO - Nail down how NM really handles this.
 
+                function check_con(con) {
+                    if (con.Settings.connection.type == obj.Settings.connection.slave_type) {
+                        obj.Masters.push(con);
+                        con.Slaves.push(obj);
+                    }
+                }
+
                 obj.Masters = [ ];
                 if (obj.Settings && obj.Settings.connection && obj.Settings.connection.slave_type) {
                     master = connections_by_uuid[obj.Settings.connection.master];
@@ -885,12 +892,6 @@ function NetworkManagerModel(address) {
                         obj.Masters.push(master);
                         master.Slaves.push(obj);
                     } else {
-                        function check_con(con) {
-                            if (con.Settings.connection.type == obj.Settings.connection.slave_type) {
-                                obj.Masters.push(con);
-                                con.Slaves.push(obj);
-                            }
-                        }
 
                         iface = peek_interface(obj.Settings.connection.master);
                         if (iface) {
@@ -2164,7 +2165,7 @@ PageNetworkInterface.prototype = {
                             self.model.list_interfaces().map(function (iface) {
                                 if (is_interesting_interface(iface) &&
                                     !self.graph_ifaces[iface.Name] &&
-                                    iface != self.iface)
+                                    iface != self.iface) {
                                     return $('<li role="presentation">').append(
                                         $('<a role="menuitem">').
                                             text(iface.Name).
@@ -2176,8 +2177,8 @@ PageNetworkInterface.prototype = {
                                                           true).
                                                     fail(shell.show_unexpected_error);
                                             }));
-                                else
-                                    return null;
+                                }
+                                return null;
                             })));
 
             $('#network-interface-slaves thead th:nth-child(5)').html(add_btn);

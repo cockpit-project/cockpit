@@ -1828,19 +1828,19 @@ function DockerClient(machine) {
     }
 
     this.change_memory_limit = function change_memory_limit(id, value) {
-        if (value == undefined || value <= 0)
+        if (value === undefined || value <= 0)
             value = -1;
         return change_cgroup("memory", this.containers[id].CGroup, "memory.limit_in_bytes", value);
     };
 
     this.change_swap_limit = function change_swap_limit(id, value) {
-        if (value == undefined || value <= 0)
+        if (value === undefined || value <= 0)
             value = -1;
         return change_cgroup("memory", this.containers[id].CGroup, "memory.memsw.limit_in_bytes", value);
     };
 
     this.change_cpu_priority = function change_cpu_priority(id, value) {
-        if (value == undefined || value <= 0)
+        if (value === undefined || value <= 0)
             value = 1024;
         return change_cgroup("cpuacct", this.containers[id].CGroup, "cpu.shares", value);
     };

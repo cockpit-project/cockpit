@@ -397,6 +397,28 @@ PageServices.prototype = {
             return (a[1]).localeCompare(b[1]);
         }
 
+        /* HACK
+         *
+         * When description is not set, cockpitd
+         * couldn't parse the unit file.  We fix that
+         * up by getting the service info
+         * asynchronously from systemd directly.
+         *
+         * https://github.com/cockpit-project/cockpit/issues/826
+         */
+        function hack_get_service_info(name) {
+            me.manager.call('GetServiceInfo', name, function (error, result) {
+                if (result) {
+                    me.update_service(result.Id,
+                                      result.Description,
+                                      result.LoadState,
+                                      result.ActiveState,
+                                      result.SubState,
+                                      result.UnitFileState);
+                }
+            });
+        }
+
         me.manager.call('ListServices', function(error, services) {
             var pattern;
             var service;
@@ -421,29 +443,8 @@ PageServices.prototype = {
                 for (i = 0; i < services.length; i++) {
                     service = services[i];
                     if (!pattern || (service[0].match(pattern) && (service[2] != "not-found" || !include_buttons))) {
-                        /* HACK
-                         *
-                         * When description is not set, cockpitd
-                         * couldn't parse the unit file.  We fix that
-                         * up by getting the service info
-                         * asynchronously from systemd directly.
-                         *
-                         * https://github.com/cockpit-project/cockpit/issues/826
-                         */
-                        if (service[1] == "Unknown" && me.manager) {
-                            (function (name) {
-                                me.manager.call('GetServiceInfo', name, function (error, result) {
-                                    if (result) {
-                                        me.update_service(result.Id,
-                                                          result.Description,
-                                                          result.LoadState,
-                                                          result.ActiveState,
-                                                          result.SubState,
-                                                          result.UnitFileState);
-                                    }
-                                });
-                            })(service[0]);
-                        }
+                        if (service[1] == "Unknown" && me.manager)
+                            hack_get_service_info(service[0]);
 
                         var item = $(render_service (service[0],
                                                      service[1],
@@ -698,6 +699,19 @@ PageService.prototype = {
 
         $('#service .breadcrumb .active').text(me.service);
 
+        function add_proc_info(info, level) {
+            var i;
+            if (level > 0)
+                procs.append("<div class=\"list-group-item\">" + shell.esc(info[0]) + "</div>");
+            for (i = 1; i < info.length; i++) {
+                if (true) {
+                    procs.append("<div class=\"list-group-item\">" + shell.esc(info[i].Pid) + " " + shell.esc(info[i].CmdLine) + "</div>");
+                } else {
+                    add_proc_info(info[i], level+1);
+                }
+            }
+        }
+
         me.manager.call('GetServiceInfo', me.service, function (error, info) {
             if (error) {
                 $("#service-unknown").show();
@@ -798,18 +812,6 @@ PageService.prototype = {
                 procs.empty();
                 procs.append("<div class=\"list-group-item\"> " + _("CGroup") + ": " + shell.esc(info.DefaultControlGroup) + "</div>");
 
-                function add_proc_info(info, level) {
-                    var i;
-                    if (level > 0)
-                        procs.append("<div class=\"list-group-item\">" + shell.esc(info[0]) + "</div>");
-                    for (i = 1; i < info.length; i++) {
-                        if (true) {
-                            procs.append("<div class=\"list-group-item\">" + shell.esc(info[i].Pid) + " " + shell.esc(info[i].CmdLine) + "</div>");
-                        } else {
-                            add_proc_info(info[i], level+1);
-                        }
-                    }
-                }
 
                 add_proc_info (info.Processes, 0);
             } else {

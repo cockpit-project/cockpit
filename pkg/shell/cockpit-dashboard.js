@@ -82,15 +82,18 @@ var avatar_editor;
 
 $(function () {
     var rows = [ ];
+
+    function make_color_div(c) {
+        return $('<div class="color-cell">').
+            css('background-color', c);
+    }
+
     for (var i = 0; i < shell.host_colors.length; i += 6) {
         var part = shell.host_colors.slice(i, i+6);
         rows.push(
             $('<div>').
                 append(
-                    part.map(function (c) {
-                        return $('<div class="color-cell">').
-                            css('background-color', c);
-                    })));
+                    part.map(make_color_div)));
     }
 
     $('#host-edit-color-popover .popover-content').append(rows);
@@ -359,7 +362,7 @@ PageDashboard.prototype = {
                                    resource_monitors[current_monitor].options);
             self.plot.reset();
             self.plot.set_options(options);
-            for (addr in hosts)
+            for (var addr in hosts)
                 plot_add(addr);
             self.plot.refresh();
             self.plot.start_walking(1);

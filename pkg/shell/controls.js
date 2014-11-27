@@ -62,7 +62,7 @@ function reflow_bar_graph(graph, div) {
 
     function value_parts(el) {
         var value = $(el).attr('value');
-        if (value == undefined)
+        if (value === undefined)
             return [NaN];
         var values = value.split("/", 2);
         var portion = parseInt(values[0], 10);

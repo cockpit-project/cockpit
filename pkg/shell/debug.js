@@ -26,25 +26,25 @@ var shell = shell || { };
  * it ignores default handling, even if the default handler returns
  * false.
  */
-if (window.navigator.userAgent.indexOf("PhantomJS") == -1) {
-
-    var oops = null;
-    function setup_oops() {
-        if (oops)
-            return true;
-        oops = $("#navbar-oops");
-        if (!oops)
-            return false;
-        oops.children("a").on("click", function() {
-            $("#error-popup-title").text(_("Unexpected error"));
-            var details = _("Cockpit had an unexpected internal error. <br/><br/>") +
-                      _("You can try restarting Cockpit by pressing refresh in your browser. ") +
-                      _("The console contains more details about this error");
-            $("#error-popup-message").html(details);
-            $('#error-popup').modal('show');
-        });
+var oops = null;
+function setup_oops() {
+    if (oops)
         return true;
-    }
+    oops = $("#navbar-oops");
+    if (!oops)
+        return false;
+    oops.children("a").on("click", function() {
+        $("#error-popup-title").text(_("Unexpected error"));
+        var details = _("Cockpit had an unexpected internal error. <br/><br/>") +
+                  _("You can try restarting Cockpit by pressing refresh in your browser. ") +
+                  _("The console contains more details about this error");
+        $("#error-popup-message").html(details);
+        $('#error-popup').modal('show');
+    });
+    return true;
+}
+
+if (window.navigator.userAgent.indexOf("PhantomJS") == -1) {
 
     var old_onerror = window.onerror;
     window.onerror = function cockpit_error_handler(msg, url, line) {

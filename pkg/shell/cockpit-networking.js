@@ -842,22 +842,7 @@ function NetworkManagerModel(address) {
                 obj.Interfaces = [ ];
             },
 
-            // Sets: type_Interface.Connections
-            //
-            function (obj) {
-                function add_to_interface(name) {
-                    get_interface(name).Connections.push(obj);
-                }
-
-                if (obj.Settings) {
-                    if (obj.Settings.bond)
-                        add_to_interface(obj.Settings.bond.interface_name);
-                    if (obj.Settings.bridge)
-                        add_to_interface(obj.Settings.bridge.interface_name);
-                    if (obj.Settings.vlan)
-                        add_to_interface(obj.Settings.vlan.interface_name);
-                }
-            },
+            null,
 
             // Needs: type_Interface.Device
             //        type_Interface.Connections
@@ -961,20 +946,7 @@ function NetworkManagerModel(address) {
             disconnect: function () {
                 return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect');
             }
-        },
-
-        exporters: [
-            null,
-
-            // Sets: type_Interface.Device
-            //
-            function (obj) {
-                if (obj.Interface) {
-                    var iface = get_interface(obj.Interface);
-                    iface.Device = obj;
-                }
-            }
-        ]
+        }
     };
 
     // The 'Interface' type does not correspond to any NetworkManager
@@ -1037,6 +1009,7 @@ function NetworkManagerModel(address) {
         ],
 
         props: {
+            Connections:            { conv: conv_Array(conv_Object(type_Connection)),           def: [] }
         },
 
         prototype: {
@@ -1054,7 +1027,32 @@ function NetworkManagerModel(address) {
                     });
                 return dfd.promise();
             }
-        }
+        },
+
+        exporters: [
+            null,
+
+            // Sets: type_Interface.Connections
+            //
+            function (obj) {
+                if (obj.Connections) {
+                    obj.Connections.forEach(function (con) {
+                        function add_to_interface(name) {
+                            get_interface(name).Connections.push(con);
+                        }
+
+                        if (con.Settings) {
+                            if (con.Settings.bond)
+                                add_to_interface(con.Settings.bond.interface_name);
+                            if (con.Settings.bridge)
+                                add_to_interface(con.Settings.bridge.interface_name);
+                            if (con.Settings.vlan)
+                                add_to_interface(con.Settings.vlan.interface_name);
+                        }
+                    });
+                }
+            }
+        ]
     };
 
     var type_Manager = {
@@ -1065,7 +1063,22 @@ function NetworkManagerModel(address) {
         props: {
             Devices:            { conv: conv_Array(conv_Object(type_Device)),           def: [] },
             ActiveConnections:  { conv: conv_Array(conv_Object(type_ActiveConnection)), def: [] }
-        }
+        },
+
+        exporters: [
+            null,
+
+            // Sets: type_Interface.Device
+            //
+            function (obj) {
+                obj.Devices.forEach(function (dev) {
+                    if (dev.Interface) {
+                        var iface = get_interface(dev.Interface);
+                        iface.Device = dev;
+                    }
+                });
+            }
+        ]
     };
 
     /* Now create the cycle declarations.

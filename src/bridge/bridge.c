@@ -124,8 +124,6 @@ process_close (CockpitTransport *transport,
       g_debug ("close channel %s", channel_id);
       if (!cockpit_json_get_string (options, "problem", NULL, &problem))
         problem = NULL;
-      if (problem && g_str_equal (problem, ""))
-        problem = NULL;
       cockpit_channel_close (channel, problem);
     }
   else

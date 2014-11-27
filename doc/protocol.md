@@ -68,8 +68,10 @@ If a control message pertains to a specific channel it has a "channel" field
 containing the id of the channel. It is invalid to have a present but empty
 "channel" field.
 
-Unknown control messages are ignored. Unlike payload messages, control messages
-are not forwarded unless explicitly for the specific command below.
+Unknown control messages are ignored. Control messages that have a channel are
+forwarded to the correct endpoint. Control messages without a channel are not
+forwarded automatically.
+
 
 Command: init
 -------------
@@ -133,8 +135,8 @@ An example of an open:
         "host": "localhost"
     }
 
-This message is forwarded on to the cockpit-bridge. This message is sent from
-the cockpit-web frontend or cockit-ws.
+This message is sent to the cockpit-bridge.
+
 
 Command: close
 --------------
@@ -168,7 +170,6 @@ In the case of a connection that fails wiwh the problem "unknown-hostkey" the
 host key for the server will be included in a "host-key" field in the close
 message.
 
-This message is forwarded on to the cockpit-bridge.
 
 Command: eof
 ------------
@@ -186,7 +187,6 @@ sent once.
 After it is sent no more messages may be sent in that direction. It is an error
 to send further messages, or send another "eof" message.
 
-This message is forwarded on to the cockpit-bridge.
 
 Command: ping
 -------------
@@ -252,7 +252,8 @@ Example logout message:
         "disconnect": true
     }
 
-The "logout" command is forwarded to all bridge instances.
+The "logout" command is broadcast to all bridge instances.
+
 
 Payload: null
 -------------

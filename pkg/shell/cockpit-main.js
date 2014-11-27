@@ -1029,9 +1029,9 @@ function register_child(child_window, host) {
 
 cockpit.transport.filter(function(message, channel, control) {
 
-    /* "close" control messages get forwarded to everyone */
+    /* Only control messages with a channel are forwardable */
     if (control) {
-        if (control.command == "close") {
+        if (control.channel !== undefined) {
             $.each(frame_peers_by_seed, function(seed, peer) {
                 if (peer.initialized)
                     peer.window.postMessage(message, origin);
@@ -1085,10 +1085,8 @@ window.addEventListener("message", function(event) {
             );
             frame.postMessage("\n" + JSON.stringify(reply), origin);
 
-        /* Only open, close and eof are forwardable */
-        } else if (control.command !== "open" &&
-                   control.command !== "close" &&
-                   control.command !== "eof") {
+        /* Only control messages with a channel are forwardable */
+        } else if (control.channel === undefined) {
             return;
         }
     }

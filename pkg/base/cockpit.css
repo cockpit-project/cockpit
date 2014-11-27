@@ -402,8 +402,8 @@ code, kbd, pre, samp {
     min-width: 28px;
 }
 
-/* Our terminal emulator */
-.terminal-emulator {
+/* Our terminal or logs */
+.console {
     font-family: monospace, courier new;
     margin-left: auto;
     margin-right: auto;
@@ -414,21 +414,32 @@ code, kbd, pre, samp {
     text-align: center;
 }
 
-.terminal-emulator > .terminal {
+.console > .logs {
+    padding: 1em;
+    margin: 1em;
+    text-align: left;
+    display: inline-block;
+    font-family: inherit;
+    width: 60em;
+    max-height: 40em;
+    overflow-y: scroll;
+}
+
+.console > .terminal {
     background-color: black;
     padding: 1em;
     margin: 1em;
     display: inline-block; /* size DIV to contents */
 }
 
-.container-fluid .terminal-emulator {
+.container-fluid .console {
     margin-top: 0;
     float: right;
 }
 
 @media (max-width: 1350px) {
-    .container-fluid .terminal-emulator {
-	font-size: 11px;
+    .container-fluid .console {
+	font-size: 11pt;
     }
 }
 

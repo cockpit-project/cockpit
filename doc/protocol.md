@@ -81,6 +81,7 @@ open until the "init" message has been received.
 The following fields are defined:
 
  * "version": The version of the protocol. Currently zero, and unstable.
+ * "capabilities": An array of capability strings
  * "channel-seed": A seed to be used when generating new channel ids.
  * "default-host": The default host to put in "open" messages.
  * "user": An object containing information about the logged in user.
@@ -300,8 +301,8 @@ Payload: dbus-json3
 -------------------
 
 DBus messages are encoded in JSON payloads by cockpit-web, and decoded in
-cockpit-bridge. The 'dbus-json1' and 'dbus-json2' protocols are deprecated
-and not documented.
+cockpit-bridge. The 'dbus-json1' is deprecated. The 'dbus-json2' protocol
+is no longer supported.
 
 Additional "open" command options are needed to open a channel of this
 type:

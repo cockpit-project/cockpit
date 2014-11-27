@@ -18,8 +18,9 @@
  */
 
 var shell = shell || { };
+var modules = modules || { };
 
-(function($, cockpit, shell) {
+(function($, cockpit, shell, modules) {
 
 function nm_debug() {
     if (window.debugging == "all" || window.debugging == "nm")
@@ -103,9 +104,8 @@ function nm_debug() {
 
 function NetworkManagerModel(address) {
     /*
-     * The NetworkManager model doesn't need DBusObjects or
-     * DBusInterfaces in its DBusClient.  Instead, it uses the 'raw'
-     * events and method of DBusClient and constructs its own data
+     * The NetworkManager model doesn't need proxies in its DBus client.
+     * It uses the 'raw' dbus events and methods and constructs its own data
      * structure.  This has the advantage of avoiding wasting
      * resources for maintaining the unused proxies, avoids some code
      * complexity, and allows to do the right thing with the
@@ -114,29 +114,22 @@ function NetworkManagerModel(address) {
      * However, we do use a fake object manager since that allows us
      * to avoid a lot of 'GetAll' round trips during initialization
      * and helps with removing obsolete objects.
-     *
-     * TODO - make sure that we receive information about new objects
-     *        before they are referenced.
      */
 
     var self = this;
+    var byteorder = null;
 
-    /* TODO: This code needs to be migrated away from old dbus */
-    var client = shell.dbus_client(address,
-                                { 'bus':          "system",
-                                  'service':      "org.freedesktop.NetworkManager",
-                                  'object-paths': [ "/org/freedesktop/NetworkManager" ],
-                                  'proxies':      false
-                                });
+    var client = cockpit.dbus("org.freedesktop.NetworkManager");
 
     self.client = client;
 
-    /* Mostly generic D-Bus stuff.
-
-       TODO - make this more generic and factor it out.
-     */
+    /* Mostly generic D-Bus stuff.  */
 
     var objects = { };
+
+    function complain() {
+        console.warn.apply(console, arguments);
+    }
 
     function conv_Object(type) {
         return function (path) {
@@ -201,12 +194,11 @@ function NetworkManagerModel(address) {
         }
     }
 
-    function set_object_properties(obj, props, prefix) {
+    function set_object_properties(obj, props) {
         var p, decl, val;
         decl = priv(obj).type.props;
-        prefix = prefix || "";
         for (p in decl) {
-            val = props[prefix + (decl[p].prop || p)];
+            val = props[decl[p].prop || p];
             if(val !== undefined) {
                 if (decl[p].conv)
                     val = decl[p].conv(val);
@@ -223,7 +215,7 @@ function NetworkManagerModel(address) {
         var props = { };
         for (var p in props_with_sigs) {
             if (props_with_sigs.hasOwnProperty(p)) {
-                props[p] = props_with_sigs[p].val;
+                props[p] = props_with_sigs[p].v;
             }
         }
         return props;
@@ -238,19 +230,13 @@ function NetworkManagerModel(address) {
 
     function call_object_method(obj, iface, method) {
         var dfd = new $.Deferred();
-
-        function slice_arguments(args, first, last) {
-            return Array.prototype.slice.call(args, first, last);
-        }
-
-        client.call_with_args(objpath(obj), iface, method,
-                              slice_arguments(arguments, 3),
-                              function (error) {
-                                  if (error)
-                                      dfd.reject(error);
-                                  else
-                                      dfd.resolve.apply(dfd, slice_arguments(arguments, 1));
-                              });
+        client.call(objpath(obj), iface, method, Array.prototype.slice.call(arguments, 3)).
+            fail(function(ex) {
+                dfd.reject(ex);
+            }).
+            done(function(reply) {
+                dfd.resolve.apply(dfd, reply);
+            });
         return dfd.promise();
     }
 
@@ -266,7 +252,7 @@ function NetworkManagerModel(address) {
         });
     }
 
-    function signal_emitted (event, path, iface, signal, args) {
+    function signal_emitted(path, iface, signal, args) {
         var obj = peek_object(path);
 
         if (obj) {
@@ -281,23 +267,14 @@ function NetworkManagerModel(address) {
         }
     }
 
-    function seed(event, data) {
-        for (var path in data)
-            object_added(event, path, data[path].ifaces);
-    }
-
-    function object_added(event, path, ifaces) {
-        for (var iface in ifaces)
-            interface_added(event, path, iface, ifaces[iface]);
-    }
-
-    function interface_added (event, path, iface, props) {
+    function interface_properties(path, iface, props) {
         var type = interface_types[iface];
         if (type)
-            set_object_properties (get_object(path, type), props, "dbus_prop_");
+            set_object_properties(get_object(path, type), props);
     }
 
-    function object_removed(event, path) {
+    function interface_removed(path, iface) {
+        /* For NetworkManager we can make this assumption */
         drop_object(path);
     }
 
@@ -325,18 +302,36 @@ function NetworkManagerModel(address) {
         }
     }
 
-    $(client).on("signal", signal_emitted);
-    $(client).on("seed", seed);
-    $(client).on("object-added", object_added);
-    $(client).on("interface-added", interface_added);
-    $(client).on("object-removed", object_removed);
+    client.call("/org/freedesktop/NetworkManager",
+                "org.freedesktop.DBus.Properties", "Get",
+                ["org.freedesktop.NetworkManager", "State"], { flags: "" }).
+        fail(complain).
+        done(function(reply, options) {
+            if (options.flags) {
+                if (options.flags.indexOf(">") !== -1)
+                    byteorder = "be";
+                else if (options.flags.indexOf("<") !== -1)
+                    byteorder = "le";
+            }
+        });
+
+    var subscription = client.subscribe({ }, signal_emitted);
+    var watch = client.watch({ });
+    $(client).on("notify", function(event, data) {
+        $.each(data, function(path, ifaces) {
+            $.each(ifaces, function(iface, props) {
+                if (props)
+                    interface_properties(path, iface, props);
+                else
+                    interface_removed(path, iface);
+            });
+        });
+    });
 
     self.close = function close() {
-        $(client).off("signal", signal_emitted);
-        $(client).off("seed", seed);
-        $(client).off("object-added", object_added);
-        $(client).off("interface-added", interface_added);
-        $(client).off("object-removed", object_removed);
+        subscription.remove();
+        watch.remove();
+        $(client).off("notify");
         client.close("unused");
     };
 
@@ -349,7 +344,7 @@ function NetworkManagerModel(address) {
 
     function bytes_from_nm32(num) {
         var bytes = [], i;
-        if (client.byteorder == "be") {
+        if (byteorder == "be") {
             for (i = 3; i >= 0; i--) {
                 bytes[i] = num & 0xFF;
                 num = num >>> 8;
@@ -365,7 +360,7 @@ function NetworkManagerModel(address) {
 
     function bytes_to_nm32(bytes) {
         var num = 0, i;
-        if (client.byteorder == "be") {
+        if (byteorder == "be") {
             for (i = 0; i < 4; i++) {
                 num = 256*num + bytes[i];
             }
@@ -455,11 +450,12 @@ function NetworkManagerModel(address) {
             bytes[2*i] = num >> 8;
             bytes[2*i+1] = num & 255;
         }
-        return bytes;
+        return cockpit.base64_encode(bytes);
     }
 
-    function ip6_to_text(bytes) {
+    function ip6_to_text(data) {
         var parts = [];
+        var bytes = cockpit.base64_decode(data);
         for (var i = 0; i < 8; i++)
             parts[i] = ((bytes[2*i] << 8) + bytes[2*i+1]).toString(16);
         return parts.join(':');
@@ -499,7 +495,7 @@ function NetworkManagerModel(address) {
 
         function get(first, second, def) {
             if (settings[first] && settings[first][second])
-                return settings[first][second].val;
+                return settings[first][second].v;
             else
                 return def;
         }
@@ -580,7 +576,7 @@ function NetworkManagerModel(address) {
             if (!result[first])
                 result[first] = { };
             if (val !== undefined)
-                result[first][second] = shell.variant(sig, val);
+                result[first][second] = cockpit.variant(sig, val);
             else
                 delete result[first][second];
         }
@@ -721,16 +717,18 @@ function NetworkManagerModel(address) {
 
     function refresh_settings(obj) {
         push_refresh();
-        client.call(objpath(obj), "org.freedesktop.NetworkManager.Settings.Connection", "GetSettings",
-                    function (error, result) {
-                        if (result) {
-                            priv(obj).orig = result;
-                            if (!priv(obj).frozen) {
-                                set_settings(obj, settings_from_nm(result));
-                            }
-                        }
-                        pop_refresh();
-                    });
+        client.call(objpath(obj), "org.freedesktop.NetworkManager.Settings.Connection", "GetSettings").
+            always(pop_refresh).
+            fail(complain).
+            done(function(reply) {
+                var result = reply[0];
+                if (result) {
+                    priv(obj).orig = result;
+                    if (!priv(obj).frozen) {
+                        set_settings(obj, settings_from_nm(result));
+                    }
+                }
+            });
     }
 
     function refresh_udev(obj) {
@@ -844,22 +842,7 @@ function NetworkManagerModel(address) {
                 obj.Interfaces = [ ];
             },
 
-            // Sets: type_Interface.Connections
-            //
-            function (obj) {
-                function add_to_interface(name) {
-                    get_interface(name).Connections.push(obj);
-                }
-
-                if (obj.Settings) {
-                    if (obj.Settings.bond)
-                        add_to_interface(obj.Settings.bond.interface_name);
-                    if (obj.Settings.bridge)
-                        add_to_interface(obj.Settings.bridge.interface_name);
-                    if (obj.Settings.vlan)
-                        add_to_interface(obj.Settings.vlan.interface_name);
-                }
-            },
+            null,
 
             // Needs: type_Interface.Device
             //        type_Interface.Connections
@@ -962,20 +945,7 @@ function NetworkManagerModel(address) {
             disconnect: function () {
                 return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect');
             }
-        },
-
-        exporters: [
-            null,
-
-            // Sets: type_Interface.Device
-            //
-            function (obj) {
-                if (obj.Interface) {
-                    var iface = get_interface(obj.Interface);
-                    iface.Device = obj;
-                }
-            }
-        ]
+        }
     };
 
     // The 'Interface' type does not correspond to any NetworkManager
@@ -1038,6 +1008,7 @@ function NetworkManagerModel(address) {
         ],
 
         props: {
+            Connections:            { conv: conv_Array(conv_Object(type_Connection)),           def: [] }
         },
 
         prototype: {
@@ -1055,7 +1026,32 @@ function NetworkManagerModel(address) {
                     });
                 return dfd.promise();
             }
-        }
+        },
+
+        exporters: [
+            null,
+
+            // Sets: type_Interface.Connections
+            //
+            function (obj) {
+                if (obj.Connections) {
+                    obj.Connections.forEach(function (con) {
+                        function add_to_interface(name) {
+                            get_interface(name).Connections.push(con);
+                        }
+
+                        if (con.Settings) {
+                            if (con.Settings.bond)
+                                add_to_interface(con.Settings.bond.interface_name);
+                            if (con.Settings.bridge)
+                                add_to_interface(con.Settings.bridge.interface_name);
+                            if (con.Settings.vlan)
+                                add_to_interface(con.Settings.vlan.interface_name);
+                        }
+                    });
+                }
+            }
+        ]
     };
 
     var type_Manager = {
@@ -1066,7 +1062,22 @@ function NetworkManagerModel(address) {
         props: {
             Devices:            { conv: conv_Array(conv_Object(type_Device)),           def: [] },
             ActiveConnections:  { conv: conv_Array(conv_Object(type_ActiveConnection)), def: [] }
-        }
+        },
+
+        exporters: [
+            null,
+
+            // Sets: type_Interface.Device
+            //
+            function (obj) {
+                obj.Devices.forEach(function (dev) {
+                    if (dev.Interface) {
+                        var iface = get_interface(dev.Interface);
+                        iface.Device = dev;
+                    }
+                });
+            }
+        ]
     };
 
     /* Now create the cycle declarations.
@@ -1285,8 +1296,8 @@ PageNetworking.prototype = {
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
-        this.log_box = shell.server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
-                                             "_SYSTEMD_UNIT=firewalld.service" ], 10);
+        this.log_box = modules.server.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
+                                               "_SYSTEMD_UNIT=firewalld.service" ], 10);
         $('#networking-log').empty().append(this.log_box);
 
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
@@ -3119,4 +3130,4 @@ function PageNetworkVlanSettings() {
 
 shell.dialogs.push(new PageNetworkVlanSettings());
 
-})($, cockpit, shell);
+})($, cockpit, shell, modules);

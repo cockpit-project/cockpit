@@ -312,7 +312,7 @@ DBusClient.prototype = {
     connect: function() {
         var channel_opts = {
             "host" : this.target,
-            "payload" : "dbus-json2"
+            "payload" : "dbus-json1"
         };
         $.extend(channel_opts, this.options);
 

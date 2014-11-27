@@ -1247,6 +1247,7 @@ on_web_socket_open (WebSocketConnection *connection,
                     CockpitWebService *self)
 {
   CockpitSocket *socket;
+  JsonArray *capabilities;
   GBytes *command;
   JsonObject *object;
   JsonObject *info;
@@ -1264,6 +1265,12 @@ on_web_socket_open (WebSocketConnection *connection,
   json_object_set_int_member (object, "version", 0);
   json_object_set_string_member (object, "channel-seed", socket->id);
   json_object_set_string_member (object, "default-host", "localhost");
+  if (web_socket_connection_get_flavor (connection) == WEB_SOCKET_FLAVOR_RFC6455)
+    {
+      capabilities = json_array_new ();
+      json_array_add_string_element (capabilities, "binary");
+      json_object_set_array_member (object, "capabilities", capabilities);
+    }
 
   info = json_object_new ();
   json_object_set_string_member (info, "user", cockpit_creds_get_user (self->creds));

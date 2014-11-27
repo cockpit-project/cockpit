@@ -32,7 +32,6 @@
 #include "cockpitfsdir.h"
 
 #include "deprecated/cockpitdbusjson1.h"
-#include "deprecated/cockpitdbusjson2.h"
 
 #include "common/cockpitjson.h"
 
@@ -476,8 +475,6 @@ CockpitChannel *
   /* TODO: We need to migrate away from dbus-json1 */
   if (g_strcmp0 (payload, "dbus-json1") == 0)
     channel_type = COCKPIT_TYPE_DBUS_JSON1;
-  else if (g_strcmp0 (payload, "dbus-json2") == 0)
-    channel_type = COCKPIT_TYPE_DBUS_JSON2;
   else if (g_strcmp0 (payload, "dbus-json3") == 0)
     channel_type = COCKPIT_TYPE_DBUS_JSON;
   else if (g_strcmp0 (payload, "rest-json1") == 0)

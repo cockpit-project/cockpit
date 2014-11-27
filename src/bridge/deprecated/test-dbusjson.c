@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpitdbusjson2.h"
+#include "cockpitdbusjson1.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
@@ -42,7 +42,7 @@ test_dispose_invalid (void)
 
   cockpit_expect_warning ("bridge got invalid dbus service");
   transport = cockpit_pipe_transport_new_fds ("mock", fd, fd);
-  channel = cockpit_dbus_json2_open (transport, "444", "", "/otree");
+  channel = cockpit_dbus_json1_open (transport, "444", "", "/otree");
 
   g_object_unref (transport);
   g_object_unref (channel);

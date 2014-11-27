@@ -22,7 +22,6 @@
 #include "cockpitdbusjson1.h"
 
 #include "cockpitchannel.h"
-#include "cockpitfakemanager.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
@@ -1087,8 +1086,16 @@ on_object_manager_ready (GObject *source,
 
   if (self->object_manager == NULL)
     {
-      g_warning ("%s", error->message);
-      cockpit_channel_close (channel, "internal-error");
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED) ||
+          g_cancellable_is_cancelled (self->cancellable))
+        {
+          g_debug ("%s", error->message);
+        }
+      else
+        {
+          g_warning ("%s", error->message);
+          cockpit_channel_close (channel, "internal-error");
+        }
     }
   else
     {
@@ -1162,13 +1169,7 @@ cockpit_dbus_json1_constructed (GObject *object)
     }
 
   dbus_path = cockpit_channel_get_option (channel, "object-manager");
-  if (dbus_path == NULL)
-    {
-      new_prop_value = cockpit_channel_get_strv_option (channel, "paths");
-      new_prop_name = "object-paths";
-      object_manager_type = COCKPIT_TYPE_FAKE_MANAGER;
-    }
-  else if (!g_variant_is_object_path (dbus_path))
+  if (dbus_path == NULL || !g_variant_is_object_path (dbus_path))
     {
       g_warning ("bridge got invalid object-manager path");
       cockpit_channel_close (channel, "protocol-error");
@@ -1203,7 +1204,6 @@ cockpit_dbus_json1_constructed (GObject *object)
       return;
     }
 
-  /* Both GDBusObjectManager and CockpitFakeManager have similar props */
   g_async_initable_new_async (object_manager_type,
                               G_PRIORITY_DEFAULT, NULL,
                               on_object_manager_ready,
@@ -1221,24 +1221,21 @@ cockpit_dbus_json1_dispose (GObject *object)
   CockpitDBusJson1 *self = COCKPIT_DBUS_JSON1 (object);
   GList *l;
 
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_object_added),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_object_removed),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_interface_added),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_interface_removed),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_interface_proxy_properties_changed),
-                                        self);
-  g_signal_handlers_disconnect_by_func (self->object_manager,
-                                        G_CALLBACK (on_interface_proxy_signal),
-                                        self);
+  if (self->object_manager)
+    {
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_object_added), self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_object_removed), self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_interface_added), self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_interface_removed), self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_interface_proxy_properties_changed), self);
+      g_signal_handlers_disconnect_by_func (self->object_manager,
+                                            G_CALLBACK (on_interface_proxy_signal), self);
+    }
 
   /* Divorce ourselves the outstanding calls */
   for (l = self->active_calls; l != NULL; l = g_list_next (l))
@@ -1257,8 +1254,6 @@ cockpit_dbus_json1_finalize (GObject *object)
 {
   CockpitDBusJson1 *self = COCKPIT_DBUS_JSON1 (object);
 
-  if (self->object_manager)
-    g_object_unref (self->object_manager);
   g_object_unref (self->cancellable);
   g_hash_table_destroy (self->introspect_cache);
 

@@ -18,7 +18,9 @@
  */
 
 var shell = shell || { };
-(function($, cockpit, shell) {
+var modules = modules || { };
+
+(function($, cockpit, shell, modules) {
 
 function fmt_size(bytes)
 {
@@ -277,10 +279,10 @@ function storage_job_box(client, elt)
 }
 
 function storage_log_box(elt) {
-    var logbox = shell.server.logbox([ "_SYSTEMD_UNIT=udisks2.service", "+",
-                                       "_SYSTEMD_UNIT=dm-event.service", "+",
-                                       "_SYSTEMD_UNIT=smartd.service", "+",
-                                       "COCKPIT_DOMAIN=storage" ], 10);
+    var logbox = modules.server.logbox([ "_SYSTEMD_UNIT=udisks2.service", "+",
+                                         "_SYSTEMD_UNIT=dm-event.service", "+",
+                                         "_SYSTEMD_UNIT=smartd.service", "+",
+                                         "COCKPIT_DOMAIN=storage" ], 10);
     elt.empty().append(logbox);
     return logbox;
 }
@@ -344,7 +346,7 @@ PageStorage.prototype = {
 
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from the old dbus */
-        this.client = shell.dbus(this.address, { payload: 'dbus-json1' });
+        this.client = shell.dbus(this.address);
         watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
@@ -1247,7 +1249,7 @@ PageStorageDetail.prototype = {
 
         this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address, { payload: 'dbus-json1' });
+        this.client = shell.dbus(this.address);
         watch_jobs(this.client);
 
         this._drive = null;
@@ -3539,4 +3541,4 @@ function PageVGDiskAdd() {
 
 shell.dialogs.push(new PageVGDiskAdd());
 
-})(jQuery, cockpit, shell);
+})(jQuery, cockpit, shell, modules);

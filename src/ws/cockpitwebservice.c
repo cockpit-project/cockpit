@@ -1265,6 +1265,8 @@ on_web_socket_open (WebSocketConnection *connection,
     {
       capabilities = json_array_new ();
       json_array_add_string_element (capabilities, "binary");
+      json_array_add_string_element (capabilities, "ssh");
+      json_array_add_string_element (capabilities, "multi");
       json_object_set_array_member (object, "capabilities", capabilities);
     }
 

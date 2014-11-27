@@ -872,11 +872,6 @@ parse_and_process_request (CockpitRequest *request)
       request->delayed_reply = 405;
     }
 
-  /*
-   * TODO: the following are not implemented and required by HTTP/1.1
-   *  * Transfer-Encoding: chunked (for requests)
-   */
-
   str = g_hash_table_lookup (headers, "Host");
   if (!str || g_str_equal (str, ""))
     {

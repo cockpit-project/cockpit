@@ -81,6 +81,7 @@ open until the "init" message has been received.
 The following fields are defined:
 
  * "version": The version of the protocol. Currently zero, and unstable.
+ * "capabilities": An array of capability strings
  * "channel-seed": A seed to be used when generating new channel ids.
  * "default-host": The default host to put in "open" messages.
  * "user": An object containing information about the logged in user.
@@ -143,7 +144,7 @@ The "close" command closes a channel.
 The following fields are defined:
 
  * "channel": The id of the channel to close
- * "problem": A short problem code for closure, or empty for a normal close
+ * "problem": A short problem code for closure, or not present for a normal close
 
 The channel id must be set.  An example of a close:
 
@@ -156,7 +157,8 @@ The channel id must be set.  An example of a close:
 Any protocol participant can send this message. The cockpit-bridge and cockpit-ws
 backends will send this message when a channel closes whether because of an
 error or a normal closure. The frontend cockpit-web will send this when it
-wants to close a channel normally.
+wants to close a channel normally. Once either end has sent this message the
+channel is considered closed.
 
 See below for a list of problem codes.
 
@@ -165,6 +167,24 @@ Other fields may be present in a close message.
 In the case of a connection that fails wiwh the problem "unknown-hostkey" the
 host key for the server will be included in a "host-key" field in the close
 message.
+
+This message is forwarded on to the cockpit-bridge.
+
+Command: eof
+------------
+
+The "eof" command indicates that no more messages will be sent on the channel
+in the same direction as the "eof" was sent.
+
+The following fields are defined:
+
+ * "channel": The id of the channel
+
+Either or both endpoints of a channel can send this message. It may only be
+sent once.
+
+After it is sent no more messages may be sent in that direction. It is an error
+to send further messages, or send another "eof" message.
 
 This message is forwarded on to the cockpit-bridge.
 
@@ -244,7 +264,7 @@ Payload: echo
 -------------
 
 A channel opened with this payload type will send back all data that
-it receives.
+it receives. It sends an "eof" when it receives one.
 
 
 Payload: resource2
@@ -585,6 +605,10 @@ following options can be specified:
    then the environment is inherited from the cockpit-bridge.
  * "pty": Execute the command as a terminal pty.
 
+If an "eof" is sent to the bridge on this channel, then the socket and/or pipe
+input is shutdown. The channel will send an "eof" when the output of the socket
+or pipe is done.
+
 Payload: fswatch1
 -----------------
 
@@ -668,6 +692,9 @@ fields:
  * "tag": The transaction tag for the returned file content.  The tag
    for a non-existing file is "-".
 
+It is not permitted to send data in an fsdir1 channel. This channel
+sends an "eof" when all file data was sent.
+
 Payload: fswrite1
 -----------------
 
@@ -683,12 +710,11 @@ The following options can be specified in the "open" control message:
    express that you expect the file to not exist, use "-" as the tag.
 
 You should write the new content to the channel as one or more
-messages.  To indicate the end of the content, close the channel
-without a problem code.
+messages.  To indicate the end of the content, send an "eof" message.
 
-If you don't send any content messages before closing the channel, the
-file will be removed.  To create an empty file, send at least one
-content message of length zero.
+If you don't send any content messages before sending "eof", the file
+will be removed.  To create an empty file, send at least one content
+message of length zero.
 
 When the file does not have the expected tag, the channel will be
 closed with a "change-conflict" problem code.
@@ -704,6 +730,8 @@ sent by the server might have the following additional fields:
  * "message": A string in the current locale describing the error.
 
  * "tag": The transaction tag of the new content.
+
+No payload messages will be sent by this channel.
 
 Problem codes
 -------------

@@ -216,7 +216,6 @@ expect_control_message (JsonObject *options,
       if (!expect_option)
         break;
       expect_value = va_arg (va, const gchar *);
-      g_assert (expect_value != NULL);
 
       value = NULL;
       node = json_object_get_member (options, expect_option);
@@ -270,8 +269,10 @@ test_shutdown (TestCase *tc,
 
   g_assert_cmpstr (tc->channel_problem, ==, "");
   sent = mock_transport_pop_control (tc->transport);
+  expect_control_message (sent, "eof", "548", NULL);
 
-  expect_control_message (sent, "close", "548", "problem", "", NULL);
+  sent = mock_transport_pop_control (tc->transport);
+  expect_control_message (sent, "close", "548", "problem", NULL, NULL);
 }
 
 static void
@@ -302,7 +303,10 @@ test_close_normal (TestCase *tc,
   g_bytes_unref (payload);
 
   control = mock_transport_pop_control (tc->transport);
-  expect_control_message (control, "close", "548", "problem", "", NULL);
+  expect_control_message (control, "eof", "548", NULL);
+
+  control = mock_transport_pop_control (tc->transport);
+  expect_control_message (control, "close", "548", "problem", NULL, NULL);
 }
 
 static void
@@ -412,7 +416,6 @@ test_spawn_environ (void)
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-  cockpit_channel_close (channel, NULL);
   json_object_unref (options);
 
   string = g_string_new ("");
@@ -465,14 +468,16 @@ test_spawn_status (void)
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-  cockpit_channel_close (channel, NULL);
   json_object_unref (options);
 
   while (!problem)
     g_main_context_iteration (NULL, TRUE);
 
   control = mock_transport_pop_control (transport);
-  expect_control_message (control, "close", "548", "problem", "", NULL);
+  expect_control_message (control, "eof", "548", NULL);
+
+  control = mock_transport_pop_control (transport);
+  expect_control_message (control, "close", "548", "problem", NULL, NULL);
   g_assert_cmpint (json_object_get_int_member (control, "exit-status"), ==, 5);
 
   g_free (problem);
@@ -509,14 +514,16 @@ test_spawn_signal (void)
                           "transport", transport,
                           NULL);
   g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-  cockpit_channel_close (channel, NULL);
   json_object_unref (options);
 
   while (!problem)
     g_main_context_iteration (NULL, TRUE);
 
   control = mock_transport_pop_control (transport);
-  cockpit_assert_json_eq (control, "{ \"command\": \"close\", \"channel\": \"548\", \"problem\": \"\","
+  expect_control_message (control, "eof", "548", NULL);
+
+  control = mock_transport_pop_control (transport);
+  cockpit_assert_json_eq (control, "{ \"command\": \"close\", \"channel\": \"548\","
                                    "  \"exit-signal\": \"TERM\"}");
 
   g_free (problem);

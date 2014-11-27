@@ -22,6 +22,7 @@
 #include "cockpitstream.h"
 
 #include "common/cockpitpipe.h"
+#include "common/cockpitjson.h"
 
 #include "common/cockpitunixsignal.h"
 
@@ -48,12 +49,12 @@ typedef struct {
   CockpitChannel parent;
   CockpitPipe *pipe;
   GSocket *sock;
-  const gchar *name;
+  gchar *name;
   gboolean open;
   gboolean closing;
   guint sig_read;
   guint sig_close;
-  gint batch_size;
+  gint64 batch_size;
   guint batch_timeout;
 } CockpitStream;
 
@@ -92,6 +93,23 @@ process_pipe_buffer (CockpitStream *self,
       cockpit_channel_send (channel, message, FALSE);
       g_bytes_unref (message);
     }
+}
+
+static void
+cockpit_stream_eof (CockpitChannel *channel)
+{
+  CockpitStream *self = COCKPIT_STREAM (channel);
+
+  self->closing = TRUE;
+  if (self->pipe)
+    process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
+
+  /*
+   * If closed, call base class handler directly. Otherwise ask
+   * our pipe to close first, which will come back here.
+  */
+  if (self->open)
+    cockpit_pipe_close (self->pipe, NULL);
 }
 
 static void
@@ -159,6 +177,7 @@ on_pipe_close (CockpitPipe *pipe,
 {
   CockpitStream *self = user_data;
   CockpitChannel *channel = user_data;
+  JsonObject *options;
   gint status;
   gchar *signal;
 
@@ -168,18 +187,30 @@ on_pipe_close (CockpitPipe *pipe,
 
   if (cockpit_pipe_get_pid (pipe, NULL))
     {
+      options = cockpit_channel_close_options (channel);
       status = cockpit_pipe_exit_status (pipe);
       if (WIFEXITED (status))
-        cockpit_channel_close_int_option (channel, "exit-status", WEXITSTATUS (status));
+        {
+          json_object_set_int_member (options, "exit-status", WEXITSTATUS (status));
+        }
       else if (WIFSIGNALED (status))
         {
           signal = cockpit_strsignal (WTERMSIG (status));
-          cockpit_channel_close_option (channel, "exit-signal", signal);
+          json_object_set_string_member (options, "exit-signal", signal);
           g_free (signal);
         }
       else if (status)
-        cockpit_channel_close_int_option (channel, "exit-status", -1);
+        {
+          json_object_set_int_member (options, "exit-status", -1);
+        }
     }
+
+  /*
+   * In theory we should plumb eof handling all the way through to CockpitPipe.
+   * But we can do that later in a compatible way.
+   */
+  if (problem == NULL)
+    cockpit_channel_eof (channel);
 
   cockpit_channel_close (channel, problem);
 }
@@ -191,38 +222,57 @@ cockpit_stream_init (CockpitStream *self)
 }
 
 static void
-cockpit_stream_constructed (GObject *object)
+cockpit_stream_prepare (CockpitChannel *channel)
 {
-  CockpitStream *self = COCKPIT_STREAM (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitStream *self = COCKPIT_STREAM (channel);
+  const gchar *problem = "protocol-error";
   GSocketAddress *address;
   CockpitPipeFlags flags;
+  JsonObject *options;
   const gchar *unix_path;
-  const gchar **argv;
-  const gchar **env;
+  gchar **argv = NULL;
+  gchar **env = NULL;
+  gboolean pty;
   const gchar *dir;
   const gchar *error;
 
-  G_OBJECT_CLASS (cockpit_stream_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_stream_parent_class)->prepare (channel);
 
-  unix_path = cockpit_channel_get_option (channel, "unix");
-  argv = cockpit_channel_get_strv_option (channel, "spawn");
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "unix", NULL, &unix_path))
+    {
+      g_warning ("invalid \"unix\" option for stream channel");
+      goto out;
+    }
+  if (!cockpit_json_get_strv (options, "spawn", NULL, &argv))
+    {
+      g_warning ("invalid \"spawn\" option for stream channel");
+      goto out;
+    }
+  if (!cockpit_json_get_string (options, "error", NULL, &error))
+    {
+      g_warning ("invalid \"error\" options for stream channel");
+      goto out;
+    }
+  if (!cockpit_json_get_int (options, "batch", G_MAXINT64, &self->batch_size))
+    {
+      g_warning ("invalid \"batch\" option for stream channel");
+      goto out;
+    }
 
   if (argv == NULL && unix_path == NULL)
     {
-      g_warning ("did not receive a unix or spawn option");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("did not receive a \"unix\" or \"spawn\" option");
+      goto out;
     }
   else if (argv != NULL && unix_path != NULL)
     {
-      g_warning ("received both a unix and spawn option");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("received both a \"unix\" and \"spawn\" option");
+      goto out;
     }
   else if (unix_path)
     {
-      self->name = unix_path;
+      self->name = g_strdup (unix_path);
       address = g_unix_socket_address_new (unix_path);
       self->pipe = cockpit_pipe_connect (self->name, address);
       g_object_unref (address);
@@ -230,25 +280,42 @@ cockpit_stream_constructed (GObject *object)
   else if (argv)
     {
       flags = COCKPIT_PIPE_STDERR_TO_LOG;
-      error = cockpit_channel_get_option (channel, "error");
       if (error && g_str_equal (error, "output"))
         flags = COCKPIT_PIPE_STDERR_TO_STDOUT;
 
-      self->name = argv[0];
-      env = cockpit_channel_get_strv_option (channel, "environ");
-      dir = cockpit_channel_get_option (channel, "directory");
-      if (cockpit_channel_get_bool_option (channel, "pty", FALSE))
-        self->pipe = cockpit_pipe_pty (argv, env, dir);
+      self->name = g_strdup (argv[0]);
+      if (!cockpit_json_get_strv (options, "environ", NULL, &env))
+        {
+          g_warning ("invalid \"environ\" option for stream channel");
+          goto out;
+        }
+      if (!cockpit_json_get_string (options, "directory", NULL, &dir))
+        {
+          g_warning ("invalid \"directory\" option for stream channel");
+          goto out;
+        }
+      if (!cockpit_json_get_bool (options, "pty", FALSE, &pty))
+        {
+          g_warning ("invalid \"pty\" option for stream channel");
+          goto out;
+        }
+      if (pty)
+        self->pipe = cockpit_pipe_pty ((const gchar **)argv, (const gchar **)env, dir);
       else
-        self->pipe = cockpit_pipe_spawn (argv, env, dir, flags);
+        self->pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env, dir, flags);
     }
-
-  self->batch_size = cockpit_channel_get_int_option (channel, "batch");
 
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
   self->open = TRUE;
   cockpit_channel_ready (channel);
+  problem = NULL;
+
+out:
+  g_free (argv);
+  g_free (env);
+  if (problem)
+    cockpit_channel_close (channel, problem);
 }
 
 static void
@@ -277,6 +344,7 @@ cockpit_stream_finalize (GObject *object)
 
   g_clear_object (&self->sock);
   g_clear_object (&self->pipe);
+  g_free (self->name);
 
   G_OBJECT_CLASS (cockpit_stream_parent_class)->finalize (object);
 }
@@ -287,10 +355,11 @@ cockpit_stream_class_init (CockpitStreamClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_stream_constructed;
   gobject_class->dispose = cockpit_stream_dispose;
   gobject_class->finalize = cockpit_stream_finalize;
 
+  channel_class->prepare = cockpit_stream_prepare;
+  channel_class->eof = cockpit_stream_eof;
   channel_class->recv = cockpit_stream_recv;
   channel_class->close = cockpit_stream_close;
 }

@@ -121,11 +121,8 @@ process_close (CockpitTransport *transport,
   channel = g_hash_table_lookup (channels, channel_id);
   if (channel)
     {
-      g_debug ("close channel %s %s", channel_id,
-               cockpit_channel_get_option (channel, "payload"));
+      g_debug ("close channel %s", channel_id);
       if (!cockpit_json_get_string (options, "problem", NULL, &problem))
-        problem = NULL;
-      if (problem && g_str_equal (problem, ""))
         problem = NULL;
       cockpit_channel_close (channel, problem);
     }

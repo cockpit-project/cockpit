@@ -18,7 +18,9 @@
  */
 
 var shell = shell || { };
-(function($, cockpit, shell) {
+var modules = modules || { };
+
+(function($, cockpit, shell, modules) {
 
 function resource_debug() {
     if (window.debugging == "all" || window.debugging == "resource")
@@ -975,8 +977,8 @@ PageContainerDetails.prototype = {
         if (this.terminal) {
             this.terminal.close();
             this.terminal = null;
-            $("#container-terminal").hide();
         }
+        $("#container-terminal").hide();
     },
 
     setup: function() {
@@ -1082,18 +1084,12 @@ PageContainerDetails.prototype = {
     },
 
     maybe_show_terminal: function(info) {
-        if (!info.Config.Tty)
-            return;
-
         if (!this.terminal) {
-            this.terminal = new DockerTerminal($("#container-terminal")[0],
-                                               this.address,
-                                               this.container_id);
+            this.terminal = modules.docker.console(this.container_id, info.Config.Tty);
+            $("#container-terminal").empty().append(this.terminal);
         }
-
         if (this.terminal.connected)
             this.terminal.typeable(info.State.Running);
-
         $("#container-terminal").show();
     },
 
@@ -1368,6 +1364,7 @@ shell.pages.push(new PageImageDetails());
 function DockerClient(machine) {
     var me = this;
     var events;
+    var watch;
     var rest;
     var connected;
     var got_failure;
@@ -1381,6 +1378,16 @@ function DockerClient(machine) {
        incompatible changes, but they are also nicer.
      */
 
+    var later;
+    function trigger_event() {
+        if (!later) {
+            later = window.setTimeout(function() {
+                later = null;
+                $(me).trigger("event");
+            }, 300);
+        }
+    }
+
     /* This is a named function because we call it recursively */
     function connect_events() {
 
@@ -1389,7 +1396,7 @@ function DockerClient(machine) {
             docker_debug("event:", resp);
             if (connected.state() == "pending")
                 connected.resolve();
-            $(me).trigger("event");
+            trigger_event();
         }).
 
         /* Reconnect to /events when it disconnects/fails */
@@ -1403,9 +1410,6 @@ function DockerClient(machine) {
             }, 1000);
         });
     }
-
-    /* All active poll requests for containers/images indexed by Id */
-    var polls = { };
 
     /*
      * Exposed API, all containers and images
@@ -1456,22 +1460,14 @@ function DockerClient(machine) {
            delete containers_by_name[name];
     }
 
-    function perform_connect() {
-        got_failure = false;
-        connected = $.Deferred();
-        rest = shell.rest("unix:///var/run/docker.sock", machine);
-        events = rest.get("/v1.10/events");
-
-        connect_events();
-
+    function fetch_containers() {
         /*
          * Gets a list of the containers and details for each one.  We use
-         * /events for notification when something changes.  However, for
-         * extra robustness and to account for the fact that there are no
-         * events when new images appear, we also poll for changes.
+         * /events for notification when something changes as well as some
+         * file monitoring.
          */
-        rest.poll("/v1.10/containers/json", 4000, events, { "all": 1 }).
-            stream(function(containers) {
+        rest.get("/v1.10/containers/json", { all: 1 }).
+            done(function(containers) {
                 if (connected.state() == "pending")
                     connected.resolve();
                 alive = true;
@@ -1481,39 +1477,33 @@ function DockerClient(machine) {
                  * conflicting with the information that we get about specific
                  * containers. So just use it to get a list of containers.
                  */
+
+                var seen = {};
                 $(containers).each(function(i, item) {
                     var id = item.Id;
+                    if (!id)
+                        return;
+
+                    seen[id] = id;
                     containers_meta[id] = item;
-                    if (id && !polls[id]) {
-                        polls[id] = rest.poll("/v1.10/containers/" + id + "/json", 5000, events).
-                            stream(function(container) {
-                                populate_container(id, container);
-                                me.containers[id] = container;
-                                $(me).trigger("container", [id, container]);
-                            }).
-                            fail(function(ex) {
-                                /*
-                                 * A 404 is the way we determine when a container
-                                 * actually goes away
-                                 */
-                                if (ex.status == 404) {
-                                    cleanup_container(id, me.containers[id]);
-                                    delete me.containers[id];
-                                    $(me).trigger("container", [id, undefined]);
-                                }
-                            }).
-                            always(function() {
-                                /*
-                                 * This lets us start a new poll for this, if it failed
-                                 * for a reason other than a 404
-                                 */
-                                polls[id].cancel();
-                                delete polls[id];
-                            });
-                    } else if (id && me.containers[id]) {
-                        populate_container(id, me.containers[id]);
-                        $(me).trigger("container", [id, me.containers[id]]);
-                    }
+                    rest.get("/v1.10/containers/" + id + "/json").
+                        done(function(container) {
+                            populate_container(id, container);
+                            me.containers[id] = container;
+                            $(me).trigger("container", [id, container]);
+                        });
+                });
+
+                var removed = [];
+                $.each(me.containers, function(id) {
+                    if (!seen[id])
+                        removed.push(id);
+                });
+
+                $.each(removed, function(i, id) {
+                    cleanup_container(id, me.containers[id]);
+                    delete me.containers[id];
+                    $(me).trigger("container", [id, undefined]);
                 });
             }).
             fail(function(ex) {
@@ -1522,64 +1512,59 @@ function DockerClient(machine) {
                 got_failure = true;
                 $(me).trigger("failure", [ex]);
             });
+    }
 
-        function populate_image(id, image) {
-            if (image.config === undefined) {
-                if (image.container_config)
-                    image.config = image.container_config;
-                else
-                    image.config = { };
-            }
-            $.extend(image, images_meta[id]);
-
-            /* HACK: TODO upstream bug */
-            if (image.RepoTags)
-                image.RepoTags.sort();
+    function populate_image(id, image) {
+        if (image.config === undefined) {
+            if (image.container_config)
+                image.config = image.container_config;
+            else
+                image.config = { };
         }
+        $.extend(image, images_meta[id]);
 
+        /* HACK: TODO upstream bug */
+        if (image.RepoTags)
+            image.RepoTags.sort();
+    }
+
+    function fetch_images() {
         /*
          * Gets a list of images and keeps it up to date. Again, the /images/json and
          * /images/xxxx/json have completely inconsistent keys. So using the former
          * is pretty useless here :S
          */
-        var images_req = rest.poll("/v1.10/images/json", 1000).
-            stream(function(images) {
+        rest.get("/v1.10/images/json", 1000).
+            done(function(images) {
                 if (connected.state() == "pending")
                     connected.resolve();
                 alive = true;
 
-                $(images).each(function(i, item) {
+                var seen = {};
+                $.each(images, function(i, item) {
                     var id = item.Id;
+                    if (!id)
+                        return;
+
+                    seen[id] = id;
                     images_meta[id] = item;
-                    if (id && !polls[id]) {
-                        polls[id] = rest.poll("/v1.10/images/" + id + "/json", 0, images_req).
-                            stream(function(image) {
-                                populate_image(id, image);
-                                me.images[id] = image;
-                                $(me).trigger("image", [id, image]);
-                            }).
-                            fail(function(ex) {
-                                /*
-                                 * A 404 is the way we determine when a container
-                                 * actually goes away
-                                 */
-                                if (ex.status == 404) {
-                                    delete me.images[id];
-                                    $(me).trigger("image", [id, undefined]);
-                                }
-                            }).
-                            always(function() {
-                                /*
-                                 * This lets us start a new poll for image, if it failed
-                                 * for a reason other than a 404.
-                                 */
-                                polls[id].cancel();
-                                delete polls[id];
-                            });
-                    } else if (id && me.images[id]) {
-                        populate_image(id, me.images[id]);
-                        $(me).trigger("image", [id, me.images[id]]);
-                    }
+                    rest.get("/v1.10/images/" + id + "/json").
+                        done(function(image) {
+                            populate_image(id, image);
+                            me.images[id] = image;
+                            $(me).trigger("image", [id, image]);
+                        });
+                });
+
+                var removed = [];
+                $.each(me.images, function(id) {
+                    if (!seen[id])
+                        removed.push(id);
+                });
+
+                $.each(removed, function(i, id) {
+                    delete me.images[id];
+                    $(me).trigger("image", [id, undefined]);
                 });
             }).
             fail(function(ex) {
@@ -1588,6 +1573,33 @@ function DockerClient(machine) {
                 got_failure = true;
                 $(me).trigger("failure", [ex]);
             });
+    }
+
+    $(me).on("event", function() {
+        fetch_containers();
+        fetch_images();
+    });
+
+    function perform_connect() {
+        got_failure = false;
+        connected = $.Deferred();
+        rest = shell.rest("unix:///var/run/docker.sock", machine);
+        events = rest.get("/v1.10/events");
+
+        connect_events();
+
+        if (watch && watch.valid)
+            watch.close();
+
+        watch = cockpit.channel({ payload: "fsdir1", path: "/var/lib/docker" });
+        $(watch).on("message", function(event, data) {
+            trigger_event();
+        });
+        $(watch).on("close", function(event, options) {
+            console.warn("monitor for docker directory failed: " + options.problem);
+        });
+
+        $(me).triggerHandler("event");
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
         dbus_client = shell.dbus(machine, { payload: "dbus-json1" });
@@ -1890,116 +1902,4 @@ function DockerClient(machine) {
     };
 }
 
-function DockerTerminal(parent, machine, id) {
-    var self = this;
-
-    var term = new Terminal({
-        cols: 80,
-        rows: 24,
-        screenKeys: true
-    });
-
-    /* term.js wants the parent element to build its terminal inside of */
-    term.open(parent);
-
-    var enable_input = true;
-    var channel = null;
-
-    /*
-     * A raw channel over which we speak Docker's strange /attach
-     * protocol. It starts with a HTTP POST, and then quickly
-     * degenerates into a simple stream.
-     *
-     * We only support the tty stream. The other framed stream
-     * contains embedded nulls in the framing and doesn't work
-     * with our stream channels.
-     *
-     * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
-     */
-    function attach() {
-        channel = cockpit.channel({
-            "host": machine,
-            "payload": "stream",
-            "unix": "/var/run/docker.sock"
-        });
-
-        var buffer = "";
-        var headers = false;
-        self.connected = true;
-
-        $(channel).
-            on("close.terminal", function(ev, options) {
-                self.connected = false;
-                var problem = options.problem || "disconnected";
-                term.write('\x1b[31m' + problem + '\x1b[m\r\n');
-                self.typeable(false);
-                $(channel).off("close.terminal");
-                $(channel).off("message.terminal");
-                channel = null;
-            }).
-            on("message.terminal", function(ev, payload) {
-                /* Look for end of headers first */
-                if (!headers) {
-                    buffer += payload;
-                    var pos = buffer.indexOf("\r\n\r\n");
-                    if (pos == -1)
-                        return;
-                    headers = true;
-                    payload = buffer.substring(pos + 2);
-                }
-                /* Once headers are done it's just raw data */
-                term.write(payload);
-            });
-
-        var req =
-            "POST /v1.10/containers/" + id + "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
-            "Content-Length: 0\r\n" +
-            "\r\n";
-        channel.send(req);
-    }
-
-    term.on('data', function(data) {
-        /* Send typed input back through channel */
-        if (enable_input)
-            channel.send(data);
-    });
-
-    attach();
-
-    /* Allows caller to cleanup nicely */
-    this.close = function close() {
-        if (self.connected)
-            channel.close(null);
-        term.destroy();
-    };
-
-    /* Allows the curser to restart the attach request */
-    this.connect = function connect() {
-        if (channel) {
-            channel.close();
-            channel = null;
-        }
-        term.softReset();
-        term.refresh(term.y, term.y);
-        attach();
-    };
-
-    /* Shows and hides the cursor */
-    this.typeable = function typeable(yes) {
-        if (yes === undefined)
-            yes = !enable_input;
-        if (yes) {
-            term.cursorHidden = false;
-            term.showCursor();
-        } else {
-            /* There's no term.hideCursor() function */
-            term.cursorHidden = true;
-            term.refresh(term.y, term.y);
-        }
-        enable_input = yes;
-    };
-
-    return this;
-}
-
-})(jQuery, cockpit, shell);
+})(jQuery, cockpit, shell, modules);

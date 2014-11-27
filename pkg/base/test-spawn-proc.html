@@ -94,7 +94,7 @@ asyncTest("error output", function() {
         });
 });
 
-asyncTest("write close read", function() {
+asyncTest("write eof read", function() {
     expect(2);
 
     var proc = cockpit.spawn(["/usr/bin/sort"]);
@@ -110,7 +110,7 @@ asyncTest("write close read", function() {
 
     proc.write("2\n");
     proc.write("3\n1\n");
-    proc.close();
+    proc.write(null);
 });
 
 

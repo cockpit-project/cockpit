@@ -61,7 +61,7 @@ cockpit_transport_default_recv (CockpitTransport *transport,
   gboolean ret = FALSE;
   const gchar *inner_channel;
   JsonObject *options;
-  const gchar *command;
+  const gchar *command = NULL;
 
   /* Our default handler parses control channel and fires control signal */
   if (channel)
@@ -76,10 +76,10 @@ cockpit_transport_default_recv (CockpitTransport *transport,
     }
 
   g_signal_emit (transport, signals[CONTROL], 0, command, inner_channel, options, payload, &ret);
-  json_object_unref (options);
 
   if (!ret)
     g_debug ("received unknown control command: %s", command);
+  json_object_unref (options);
 
   return TRUE;
 }

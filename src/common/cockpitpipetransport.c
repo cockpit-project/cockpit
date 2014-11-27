@@ -133,7 +133,6 @@ on_pipe_close (CockpitPipe *pipe,
   if (cockpit_pipe_get_pid (pipe, NULL))
     {
       if (problem == NULL ||
-          g_str_equal (problem, "") ||
           g_str_equal (problem, "internal-error"))
         {
           status = cockpit_pipe_exit_status (pipe);

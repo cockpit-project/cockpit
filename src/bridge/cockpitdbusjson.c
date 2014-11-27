@@ -1917,27 +1917,32 @@ on_bus_ready (GObject *source,
 }
 
 static void
-cockpit_dbus_json_constructed (GObject *object)
+cockpit_dbus_json_prepare (CockpitChannel *channel)
 {
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitDBusJson *self = COCKPIT_DBUS_JSON (channel);
+  const gchar *problem = "protocol-error";
+  JsonObject *options;
   GBusType bus_type;
   const gchar *bus;
 
-  G_OBJECT_CLASS (cockpit_dbus_json_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_dbus_json_parent_class)->prepare (channel);
 
-  /*
-   * Guarantee: Remember that we cannot close the channel until we've
-   * hit the main loop. This is to make it easier and predictable on
-   * callers. See the similar GLib async guarantee.
-   */
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "name", NULL, &self->name))
+    {
+      g_warning ("invalid \"name\" option in dbus channel");
+      goto out;
+    }
+  if (!cockpit_json_get_string (options, "bus", NULL, &bus))
+    {
+      g_warning ("invalid \"bus\" option in dbus channel");
+      goto out;
+    }
 
-  self->name = cockpit_channel_get_option (channel, "name");
   if (self->name == NULL || !g_dbus_is_name (self->name))
     {
-      g_warning ("bridge got invalid dbus name: %s", self->name);
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("bad \"name\" option in dbus channel: %s", self->name);
+      goto out;
     }
 
   /*
@@ -1945,7 +1950,6 @@ cockpit_dbus_json_constructed (GObject *object)
    * places yet, so use the session bus for now.
    */
   bus_type = G_BUS_TYPE_SESSION;
-  bus = cockpit_channel_get_option (channel, "bus");
   if (bus == NULL || g_str_equal (bus, "system"))
     {
       bus_type = G_BUS_TYPE_SYSTEM;
@@ -1957,12 +1961,16 @@ cockpit_dbus_json_constructed (GObject *object)
     }
   else
     {
-      g_warning ("bridge got an invalid bus type: %s", bus);
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("invalid \"bus\" option in dbus channel: %s", bus);
+      goto out;
     }
 
   g_bus_get (bus_type, self->cancellable, on_bus_ready, g_object_ref (self));
+  problem = NULL;
+
+out:
+  if (problem)
+    cockpit_channel_close (channel, problem);
 }
 
 static void
@@ -2028,10 +2036,10 @@ cockpit_dbus_json_class_init (CockpitDBusJsonClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_dbus_json_constructed;
   gobject_class->dispose = cockpit_dbus_json_dispose;
   gobject_class->finalize = cockpit_dbus_json_finalize;
 
+  channel_class->prepare = cockpit_dbus_json_prepare;
   channel_class->recv = cockpit_dbus_json_recv;
   channel_class->closed = cockpit_dbus_json_closed;
 }

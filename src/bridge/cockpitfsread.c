@@ -60,13 +60,34 @@ on_idle_send_block (gpointer data)
 {
   CockpitChannel *channel = data;
   CockpitFsread *self = data;
+  const gchar *problem;
+  JsonObject *options;
   GBytes *payload;
+  gchar *tag;
 
   payload = g_queue_pop_head (self->queue);
   if (payload == NULL)
     {
       self->idler = 0;
-      cockpit_channel_close (channel, NULL);
+      cockpit_channel_eof (channel);
+
+      problem = NULL;
+      if (self->fd >= 0 && self->start_tag)
+        {
+          tag = cockpit_get_file_tag_from_fd (self->fd);
+          if (g_strcmp0 (tag, self->start_tag) == 0)
+            {
+              options = cockpit_channel_close_options (channel);
+              json_object_set_string_member (options, "tag", tag);
+            }
+          else
+            {
+              problem = "change-conflict";
+            }
+          g_free (tag);
+        }
+
+      cockpit_channel_close (channel, problem);
       return FALSE;
     }
   else
@@ -126,28 +147,11 @@ cockpit_fsread_close (CockpitChannel *channel,
                       const gchar *problem)
 {
   CockpitFsread *self = COCKPIT_FSREAD (channel);
-  JsonObject *options;
-  gchar *tag;
 
   if (self->idler)
     {
       g_source_remove (self->idler);
       self->idler = 0;
-    }
-
-  if (self->fd >= 0 && self->start_tag && (problem == NULL || *problem == 0))
-    {
-      tag = cockpit_get_file_tag_from_fd (self->fd);
-      if (g_strcmp0 (tag, self->start_tag) == 0)
-        {
-          options = cockpit_channel_close_options (channel);
-          json_object_set_string_member (options, "tag", tag);
-        }
-      else
-        {
-          problem = "change-conflict";
-        }
-      g_free (tag);
     }
 
   if (self->fd >= 0)

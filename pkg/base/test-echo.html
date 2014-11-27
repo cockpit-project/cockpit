@@ -38,22 +38,22 @@
   </body>
 <script type="text/javascript">
 
+window.debugging = "channel";
 asyncTest("basic", function() {
     expect(2);
 
     var channel = cockpit.channel({ "payload": "echo" });
 
-    $(channel).on("close", function(ev, options) {
-        equal(options.problem, "blah", "got right close reason");
+    $(channel).on("eof", function(ev) {
+        ok(true, "got eof");
+        channel.close();
         $(channel).off();
         start();
     });
 
     $(channel).on("message", function(ev, payload) {
         strictEqual(payload, "the payload", "got the right payload");
-
-        /* Can't use channel.close as it short circuits the close */
-        cockpit.transport.inject("\n" + JSON.stringify({ command: "close", channel: channel.id, problem: "blah" }));
+        channel.eof();
     });
 
     channel.send("the payload");

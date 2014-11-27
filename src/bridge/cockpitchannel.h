@@ -59,6 +59,8 @@ struct _CockpitChannelClass
   void        (* recv)        (CockpitChannel *channel,
                                GBytes *message);
 
+  void        (* eof)         (CockpitChannel *channel);
+
   void        (* close)       (CockpitChannel *channel,
                                const gchar *problem);
 };
@@ -83,6 +85,8 @@ void                cockpit_channel_ready             (CockpitChannel *self);
 void                cockpit_channel_send              (CockpitChannel *self,
                                                        GBytes *payload,
                                                        gboolean valid_utf8);
+
+void                cockpit_channel_eof               (CockpitChannel *self);
 
 JsonObject *        cockpit_channel_get_options       (CockpitChannel *self);
 

@@ -615,7 +615,8 @@ process_close (CockpitWebService *self,
   if (node != NULL && json_node_get_node_type (node) == JSON_NODE_ARRAY)
     process_packages (json_node_get_array (node), session->host, session->packages);
 
-  cockpit_session_remove_channel (&self->sessions, session, channel);
+  if (session)
+    cockpit_session_remove_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_remove_channel (&self->sockets, socket, channel);
   return TRUE;
@@ -775,8 +776,10 @@ on_session_control (CockpitTransport *transport,
       session = cockpit_session_by_channel (&self->sessions, channel);
       if (!session)
         {
-          g_warning ("channel %s does not exist", channel);
-          valid = FALSE;
+          /* This is not an error, since closing can race between the endpoints */
+          g_debug ("channel %s does not exist", channel);
+          forward = FALSE;
+          valid = TRUE;
         }
       else if (session->transport != transport)
         {
@@ -786,6 +789,11 @@ on_session_control (CockpitTransport *transport,
       else if (g_strcmp0 (command, "close") == 0)
         {
           valid = process_close (self, socket, session, channel, options);
+          forward = TRUE;
+        }
+      else if (g_strcmp0 (command, "eof") == 0)
+        {
+          valid = TRUE;
           forward = TRUE;
         }
       else
@@ -831,8 +839,8 @@ on_session_recv (CockpitTransport *transport,
   session = cockpit_session_by_channel (&self->sessions, channel);
   if (session == NULL)
     {
-      g_warning ("received message with unknown channel %s from session", channel);
-      outbound_protocol_error (self, transport);
+      /* This is not an error since channel closing can race */
+      g_debug ("dropping message with unknown channel %s from session", channel);
       return FALSE;
     }
   else if (session->transport != transport)
@@ -1121,7 +1129,7 @@ dispatch_inbound_command (CockpitWebService *self,
   JsonObject *options = NULL;
   gboolean valid = FALSE;
   gboolean forward = FALSE;
-  CockpitSession *session;
+  CockpitSession *session = NULL;
   GHashTableIter iter;
   GBytes *bytes;
 
@@ -1153,6 +1161,12 @@ dispatch_inbound_command (CockpitWebService *self,
       forward = TRUE;
     }
   else if (g_strcmp0 (command, "close") == 0)
+    {
+      session = cockpit_session_by_channel (&self->sessions, channel);
+      valid = process_close (self, socket, session, channel, options);
+      forward = TRUE;
+    }
+  else if (g_strcmp0 (command, "eof") == 0)
     {
       valid = TRUE;
       forward = TRUE;

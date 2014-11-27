@@ -61,6 +61,7 @@
 struct _CockpitChannelPrivate {
     gulong recv_sig;
     gulong close_sig;
+    gulong control_sig;
 
     /* Construct arguments */
     CockpitTransport *transport;
@@ -79,6 +80,10 @@ struct _CockpitChannelPrivate {
 
     /* Whether the transport closed (before we did) */
     gboolean transport_closed;
+
+    /* EOF flags */
+    gboolean sent_eof;
+    gboolean received_eof;
 
     /* Binary options */
     gboolean binary_ok;
@@ -174,6 +179,13 @@ on_transport_recv (CockpitTransport *transport,
   if (g_strcmp0 (channel_id, self->priv->id) != 0)
     return FALSE;
 
+  if (self->priv->received_eof)
+    {
+      g_warning ("%s: channel received message after eof", self->priv->id);
+      cockpit_channel_close (self, "protocol-error");
+      return TRUE;
+    }
+
   if (self->priv->ready)
     {
       if (self->priv->base64_encoding)
@@ -193,6 +205,42 @@ on_transport_recv (CockpitTransport *transport,
     g_bytes_unref (decoded);
 
   return TRUE;
+}
+
+static gboolean
+on_transport_control (CockpitTransport *transport,
+                      const char *command,
+                      const gchar *channel_id,
+                      JsonObject *options,
+                      GBytes *payload,
+                      gpointer user_data)
+{
+  CockpitChannel *self = user_data;
+  CockpitChannelClass *klass;
+
+  if (g_strcmp0 (channel_id, self->priv->id) != 0)
+    return FALSE;
+
+  if (g_str_equal (command, "eof"))
+    {
+      if (self->priv->received_eof)
+        {
+          g_warning ("%s: channel received second eof", self->priv->id);
+          cockpit_channel_close (self, "protocol-error");
+          return TRUE;
+        }
+
+      self->priv->received_eof = TRUE;
+      if (self->priv->ready)
+        {
+          klass = COCKPIT_CHANNEL_GET_CLASS (self);
+          if (klass->eof)
+            (klass->eof) (self);
+        }
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 static void
@@ -219,6 +267,8 @@ cockpit_channel_constructed (GObject *object)
 
   self->priv->recv_sig = g_signal_connect (self->priv->transport, "recv",
                                            G_CALLBACK (on_transport_recv), self);
+  self->priv->control_sig = g_signal_connect (self->priv->transport, "control",
+                                              G_CALLBACK (on_transport_control), self);
   self->priv->close_sig = g_signal_connect (self->priv->transport, "closed",
                                             G_CALLBACK (on_transport_closed), self);
 }
@@ -316,6 +366,10 @@ cockpit_channel_dispose (GObject *object)
   if (self->priv->recv_sig)
     g_signal_handler_disconnect (self->priv->transport, self->priv->recv_sig);
   self->priv->recv_sig = 0;
+
+  if (self->priv->control_sig)
+    g_signal_handler_disconnect (self->priv->transport, self->priv->control_sig);
+  self->priv->control_sig = 0;
 
   if (self->priv->close_sig)
     g_signal_handler_disconnect (self->priv->transport, self->priv->close_sig);
@@ -548,14 +602,18 @@ cockpit_channel_close (CockpitChannel *self,
     g_signal_handler_disconnect (self->priv->transport, self->priv->recv_sig);
   self->priv->recv_sig = 0;
 
-  /* If not ready, and no problem, then wait until ready to close */
-  if (problem || self->priv->ready)
-    {
-      klass = COCKPIT_CHANNEL_GET_CLASS (self);
-      g_assert (klass->close != NULL);
-      self->priv->emitted_close = TRUE;
-      (klass->close) (self, problem);
-    }
+  if (self->priv->control_sig)
+    g_signal_handler_disconnect (self->priv->transport, self->priv->control_sig);
+  self->priv->control_sig = 0;
+
+  if (self->priv->close_sig)
+    g_signal_handler_disconnect (self->priv->transport, self->priv->close_sig);
+  self->priv->close_sig = 0;
+
+  klass = COCKPIT_CHANNEL_GET_CLASS (self);
+  g_assert (klass->close != NULL);
+  self->priv->emitted_close = TRUE;
+  (klass->close) (self, problem);
 }
 
 /* Used by implementations */
@@ -610,10 +668,10 @@ cockpit_channel_ready (CockpitChannel *self)
   self->priv->ready = TRUE;
 
   /* No more data coming? */
-  if (self->priv->recv_sig == 0 && !self->priv->emitted_close)
+  if (self->priv->received_eof)
     {
-      self->priv->emitted_close = TRUE;
-      (klass->close) (self, NULL);
+      if (klass->eof)
+        (klass->eof) (self);
     }
 
   g_object_unref (self);
@@ -752,11 +810,8 @@ cockpit_channel_prepare (CockpitChannel *self)
   if (!self->priv->prepare_tag)
     return;
 
-  if (self->priv->prepare_tag)
-    {
-      g_source_remove (self->priv->prepare_tag);
-      self->priv->prepare_tag = 0;
-    }
+  g_source_remove (self->priv->prepare_tag);
+  self->priv->prepare_tag = 0;
 
   if (!self->priv->emitted_close)
     {
@@ -766,3 +821,31 @@ cockpit_channel_prepare (CockpitChannel *self)
     }
 }
 
+/**
+ * cockpit_channel_eof:
+ * @self: the channel
+ *
+ * Send an EOF to the other side. This should only be called once.
+ * Whether an EOF should be sent or not depends on the payload type.
+ */
+void
+cockpit_channel_eof (CockpitChannel *self)
+{
+  JsonObject *object;
+  GBytes *message;
+
+  g_return_if_fail (COCKPIT_IS_CHANNEL (self));
+  g_return_if_fail (self->priv->sent_eof == FALSE);
+
+  self->priv->sent_eof = TRUE;
+
+  object = json_object_new ();
+  json_object_set_string_member (object, "command", "eof");
+  json_object_set_string_member (object, "channel", self->priv->id);
+
+  message = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+
+  cockpit_transport_send (self->priv->transport, NULL, message);
+  g_bytes_unref (message);
+}

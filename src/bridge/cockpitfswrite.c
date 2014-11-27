@@ -143,58 +143,65 @@ xclose (int fd)
 }
 
 static void
+cockpit_fswrite_eof (CockpitChannel *channel)
+{
+  CockpitFswrite *self = COCKPIT_FSWRITE (channel);
+  const gchar *problem = NULL;
+  JsonObject *options;
+
+  /* Commit the changes when there was no problem  */
+  if (xfsync (self->fd) < 0 || xclose (self->fd) < 0)
+    {
+      problem = prepare_for_close_with_errno (self, "couldn't sync", errno);
+    }
+  else
+    {
+      gchar *actual_tag = cockpit_get_file_tag (self->path);
+      if (self->expected_tag && g_strcmp0 (self->expected_tag, actual_tag))
+        {
+          problem = "out-of-date";
+        }
+      else
+        {
+          options = cockpit_channel_close_options (channel);
+          if (!self->got_content)
+            {
+              json_object_set_string_member (options, "tag", "-");
+              if (unlink (self->path) < 0 && errno != ENOENT)
+                problem = prepare_for_close_with_errno (self, "couldn't unlink", errno);
+              unlink (self->tmp_path);
+            }
+          else
+            {
+              gchar *new_tag = cockpit_get_file_tag (self->tmp_path);
+              json_object_set_string_member (options, "tag", new_tag);
+              if (rename (self->tmp_path, self->path) < 0)
+                problem = prepare_for_close_with_errno (self, "couldn't rename", errno);
+              g_free (new_tag);
+            }
+        }
+      g_free (actual_tag);
+    }
+
+  self->fd = -1;
+  cockpit_channel_close (channel, problem);
+}
+
+static void
 cockpit_fswrite_close (CockpitChannel *channel,
                        const gchar *problem)
 {
   CockpitFswrite *self = COCKPIT_FSWRITE (channel);
-  JsonObject *options;
 
-  /* Commit the changes when there was no problem.
-   */
-  if (problem == NULL || *problem == 0)
-    {
-      if (xfsync (self->fd) < 0 || xclose (self->fd) < 0)
-        problem = prepare_for_close_with_errno (self, "couldn't sync", errno);
-      else
-        {
-          gchar *actual_tag = cockpit_get_file_tag (self->path);
-          if (self->expected_tag && g_strcmp0 (self->expected_tag, actual_tag))
-            {
-              problem = "out-of-date";
-            }
-          else
-            {
-              options = cockpit_channel_close_options (channel);
-              if (!self->got_content)
-                {
-                  json_object_set_string_member (options, "tag", "-");
-                  if (unlink (self->path) < 0 && errno != ENOENT)
-                    problem = prepare_for_close_with_errno (self, "couldn't unlink", errno);
-                  unlink (self->tmp_path);
-                }
-              else
-                {
-                  gchar *new_tag = cockpit_get_file_tag (self->tmp_path);
-                  json_object_set_string_member (options, "tag", new_tag);
-                  if (rename (self->tmp_path, self->path) < 0)
-                    problem = prepare_for_close_with_errno (self, "couldn't rename", errno);
-                  g_free (new_tag);
-                }
-            }
-          g_free (actual_tag);
-        }
-      self->fd = -1;
-    }
+  if (self->fd != -1)
+    close (self->fd);
+  self->fd = -1;
 
-  /* Cleanup in case of problem
-   */
-  if (problem && *problem)
+  /* Cleanup in case of problem */
+  if (problem)
     {
-      if (self->fd != -1)
-        close (self->fd);
       if (self->tmp_path)
         unlink (self->tmp_path);
-      self->fd = -1;
     }
 
   COCKPIT_CHANNEL_CLASS (cockpit_fswrite_parent_class)->close (channel, problem);
@@ -287,6 +294,7 @@ cockpit_fswrite_class_init (CockpitFswriteClass *klass)
 
   channel_class->prepare = cockpit_fswrite_prepare;
   channel_class->recv = cockpit_fswrite_recv;
+  channel_class->eof = cockpit_fswrite_eof;
   channel_class->close = cockpit_fswrite_close;
 }
 

@@ -1471,6 +1471,15 @@
         a string.</para>
     </refsection>
 
+    <refsection id="latest-channels-eof">
+      <title>channel.eof()</title>
+<programlisting>
+ channel.eof()
+</programlisting>
+      <para>Notify the channel that no further messages will be sent. This has relevance
+        depending on the <code>"payload"</code> of the channel.</para>
+    </refsection>
+
     <refsection id="latest-channels-close">
       <title>channel.close()</title>
 <programlisting>
@@ -1495,6 +1504,17 @@
       <para>An event triggered when the channel receives a message. The message is
         passed as a string to the handler in the <code>data</code>. The contents of
         the message depends on the payload type of the channel.</para>
+    </refsection>
+
+    <refsection id="latest-channels-oneof">
+      <title>channel.oneof</title>
+<programlisting>
+ $(channel).on("eof", function(event) { ... })
+ channel.addEventListener("eof", function(event) { ... })
+</programlisting>
+      <para>An event triggered when no further messages will be delivered to the
+        channel. Not all channels send this message. It depends on the
+        <code>"payload"</code> of the channel.</para>
     </refsection>
 
     <refsection id="latest-channels-close-ev">

@@ -96,6 +96,23 @@ process_pipe_buffer (CockpitStream *self,
 }
 
 static void
+cockpit_stream_eof (CockpitChannel *channel)
+{
+  CockpitStream *self = COCKPIT_STREAM (channel);
+
+  self->closing = TRUE;
+  if (self->pipe)
+    process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
+
+  /*
+   * If closed, call base class handler directly. Otherwise ask
+   * our pipe to close first, which will come back here.
+  */
+  if (self->open)
+    cockpit_pipe_close (self->pipe, NULL);
+}
+
+static void
 cockpit_stream_close (CockpitChannel *channel,
                       const gchar *problem)
 {
@@ -187,6 +204,13 @@ on_pipe_close (CockpitPipe *pipe,
           json_object_set_int_member (options, "exit-status", -1);
         }
     }
+
+  /*
+   * In theory we should plumb eof handling all the way through to CockpitPipe.
+   * But we can do that later in a compatible way.
+   */
+  if (problem == NULL)
+    cockpit_channel_eof (channel);
 
   cockpit_channel_close (channel, problem);
 }
@@ -335,6 +359,7 @@ cockpit_stream_class_init (CockpitStreamClass *klass)
   gobject_class->finalize = cockpit_stream_finalize;
 
   channel_class->prepare = cockpit_stream_prepare;
+  channel_class->eof = cockpit_stream_eof;
   channel_class->recv = cockpit_stream_recv;
   channel_class->close = cockpit_stream_close;
 }

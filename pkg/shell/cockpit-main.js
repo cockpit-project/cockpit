@@ -1078,8 +1078,10 @@ window.addEventListener("message", function(event) {
             );
             frame.postMessage("\n" + JSON.stringify(reply), origin);
 
-        /* Only open and close are forwardable */
-        } else if (control.command !== "open" && control.command !== "close") {
+        /* Only open, close and eof are forwardable */
+        } else if (control.command !== "open" &&
+                   control.command !== "close" &&
+                   control.command !== "eof") {
             return;
         }
     }

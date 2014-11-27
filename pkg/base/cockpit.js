@@ -420,7 +420,8 @@ function Channel(options) {
 
     var transport;
     var valid = true;
-    var shut = false;
+    var received_eof = false;
+    var sent_eof = false;
     var queue = [ ];
     var id = null;
 
@@ -430,14 +431,18 @@ function Channel(options) {
     self.id = id;
 
     function on_message(payload) {
-        var event = document.createEvent("CustomEvent");
-        event.initCustomEvent("message", false, false, payload);
-        self.dispatchEvent(event, payload);
+        if (received_eof) {
+            console.warn("received message after eof");
+            self.close("protocol-error");
+        } else {
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent("message", false, false, payload);
+            self.dispatchEvent(event, payload);
+        }
     }
 
     function on_close(data) {
         self.valid = valid = false;
-        shut = true;
         if (transport && id)
             transport.unregister(id);
         var event = document.createEvent("CustomEvent");
@@ -445,9 +450,23 @@ function Channel(options) {
         self.dispatchEvent(event, data);
     }
 
+    function on_eof() {
+        if (received_eof) {
+            console.warn("received two eof messages on channel");
+            self.close("protocol-error");
+        } else {
+            received_eof = true;
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent("eof", false, false, null);
+            self.dispatchEvent(event, null);
+        }
+    }
+
     function on_control(data) {
         if (data.command == "close")
             on_close(data);
+        else if (data.command == "eof")
+            on_eof();
         else
             console.log("unhandled control message: '" + data.command + "'");
     }
@@ -498,21 +517,30 @@ function Channel(options) {
 
     self.send = function send(message) {
         message = String(message);
-        if (shut)
-            console.log("sending message on closed channel: " + self);
+        if (!valid)
+            console.warn("sending message on closed channel");
+        else if (sent_eof)
+            console.warn("sending message after eof");
         else if (!transport)
             queue.push(message);
         else
             transport.send_message(id, message);
     };
 
-    self.close = function close(options) {
-        if (!valid || shut) {
-            console.log("closing closed channel: " + self);
-            return;
-        }
+    self.eof = function eof() {
+        var message = { "command": "eof", "channel": id };
+        if (sent_eof)
+            console.warn("already sent eof");
+        else if (!transport)
+            queue.push(message);
+        else
+            transport.send_control(message);
+    };
 
-        shut = true;
+    self.close = function close(options) {
+        if (!valid)
+            return;
+
         if (!options)
             options = { };
         else if (typeof options == "string")
@@ -524,9 +552,7 @@ function Channel(options) {
             queue.push(options);
         else
             transport.send_control(options);
-
-        if (options.problem)
-            on_close(options);
+        on_close(options);
     };
 
     self.toString = function toString() {
@@ -949,7 +975,10 @@ function full_scope(cockpit, $) {
                 },
                 write: function(message) {
                     spawn_debug("process input:", message);
-                    channel.send(message);
+                    if (message === null)
+                        channel.eof();
+                    else
+                        channel.send(message);
                     return this;
                 },
                 close: function(problem) {

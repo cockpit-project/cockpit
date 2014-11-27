@@ -21,6 +21,8 @@
 
 #include "cockpitfsread.h"
 
+#include "common/cockpitjson.h"
+
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -58,13 +60,34 @@ on_idle_send_block (gpointer data)
 {
   CockpitChannel *channel = data;
   CockpitFsread *self = data;
+  const gchar *problem;
+  JsonObject *options;
   GBytes *payload;
+  gchar *tag;
 
   payload = g_queue_pop_head (self->queue);
   if (payload == NULL)
     {
       self->idler = 0;
-      cockpit_channel_close (channel, NULL);
+      cockpit_channel_eof (channel);
+
+      problem = NULL;
+      if (self->fd >= 0 && self->start_tag)
+        {
+          tag = cockpit_get_file_tag_from_fd (self->fd);
+          if (g_strcmp0 (tag, self->start_tag) == 0)
+            {
+              options = cockpit_channel_close_options (channel);
+              json_object_set_string_member (options, "tag", tag);
+            }
+          else
+            {
+              problem = "change-conflict";
+            }
+          g_free (tag);
+        }
+
+      cockpit_channel_close (channel, problem);
       return FALSE;
     }
   else
@@ -124,22 +147,11 @@ cockpit_fsread_close (CockpitChannel *channel,
                       const gchar *problem)
 {
   CockpitFsread *self = COCKPIT_FSREAD (channel);
-  gchar *tag;
 
   if (self->idler)
     {
       g_source_remove (self->idler);
       self->idler = 0;
-    }
-
-  if (self->fd >= 0 && self->start_tag && (problem == NULL || *problem == 0))
-    {
-      tag = cockpit_get_file_tag_from_fd (self->fd);
-      if (g_strcmp0 (tag, self->start_tag) == 0)
-        cockpit_channel_close_option (channel, "tag", tag);
-      else
-        problem = "change-conflict";
-      g_free (tag);
     }
 
   if (self->fd >= 0)
@@ -179,21 +191,26 @@ push_bytes (GQueue *queue,
 }
 
 static void
-cockpit_fsread_constructed (GObject *object)
+cockpit_fsread_prepare (CockpitChannel *channel)
 {
-  CockpitFsread *self = COCKPIT_FSREAD (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitFsread *self = COCKPIT_FSREAD (channel);
+  const gchar *problem = "protocol-error";
+  JsonObject *options;
   GMappedFile *mapped;
   GError *error = NULL;
 
-  G_OBJECT_CLASS (cockpit_fsread_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_fsread_parent_class)->prepare (channel);
 
-  self->path = cockpit_channel_get_option (channel, "path");
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "path", NULL, &self->path))
+    {
+      g_warning ("invalid \"path\" option for fsread channel");
+      goto out;
+    }
   if (self->path == NULL || *(self->path) == 0)
     {
-      g_warning ("missing 'path' option for fsread channel");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("missing \"path\" option for fsread channel");
+      goto out;
     }
 
   self->fd = open (self->path, O_RDONLY);
@@ -202,33 +219,38 @@ cockpit_fsread_constructed (GObject *object)
       int err = errno;
       if (err == ENOENT)
         {
-          cockpit_channel_close_option (channel, "tag", "-");
+          options = cockpit_channel_close_options (channel);
+          json_object_set_string_member (options, "tag", "-");
+          cockpit_channel_ready (channel);
           cockpit_channel_close (channel, NULL);
+          problem = NULL;
         }
       else
         {
           if (err == EPERM)
             {
               g_debug ("%s: %s", self->path, strerror (err));
-              cockpit_channel_close (channel, "not-authorized");
+              problem = "not-authorized";
             }
           else
             {
-              g_message ("%s: %s", self->path, strerror (err));
-              cockpit_channel_close_option (channel, "message", strerror (err));
-              cockpit_channel_close (channel, "internal-error");
+              g_message ("%s: couldn't open: %s", self->path, strerror (err));
+              options = cockpit_channel_close_options (channel);
+              json_object_set_string_member (options, "message", strerror (err));
+              problem = "internal-error";
             }
         }
-      return;
+      goto out;
     }
 
   mapped = g_mapped_file_new_from_fd (self->fd, FALSE, &error);
   if (error)
     {
-      g_message ("%s: %s", cockpit_channel_get_id (channel), error->message);
-      cockpit_channel_close_option (channel, "message", error->message);
-      cockpit_channel_close (channel, "internal-error");
-      return;
+      g_message ("%s: couldn't map: %s", cockpit_channel_get_id (channel), error->message);
+      options = cockpit_channel_close_options (channel);
+      json_object_set_string_member (options, "message", error->message);
+      problem = "internal-error";
+      goto out;
     }
 
   self->start_tag = cockpit_get_file_tag_from_fd (self->fd);
@@ -237,6 +259,11 @@ cockpit_fsread_constructed (GObject *object)
   self->idler = g_idle_add (on_idle_send_block, self);
   cockpit_channel_ready (channel);
   g_mapped_file_unref (mapped);
+  problem = NULL;
+
+out:
+  if (problem)
+    cockpit_channel_close (channel, problem);
 }
 
 static void
@@ -262,9 +289,9 @@ cockpit_fsread_class_init (CockpitFsreadClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_fsread_constructed;
   gobject_class->finalize = cockpit_fsread_finalize;
 
+  channel_class->prepare = cockpit_fsread_prepare;
   channel_class->recv = cockpit_fsread_recv;
   channel_class->close = cockpit_fsread_close;
 }

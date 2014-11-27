@@ -647,6 +647,12 @@ test_close_error (TestCase *test,
   g_bytes_unref (received);
   received = NULL;
 
+  /* Silly test echos the "open" message */
+  WAIT_UNTIL (received != NULL);
+  expect_control_message (received, "open", "4", NULL);
+  g_bytes_unref (received);
+  received = NULL;
+
   WAIT_UNTIL (received != NULL);
   g_bytes_unref (received);
   received = NULL;
@@ -1006,6 +1012,8 @@ test_expect_host_key (TestCase *test,
   g_assert (received != NULL);
   g_bytes_unref (received);
   received = NULL;
+
+  g_signal_handlers_disconnect_by_func (ws, on_message_get_bytes, &received);
 
   close_client_and_stop_web_service (test, ws, service);
   g_free (knownhosts);

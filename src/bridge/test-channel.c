@@ -94,27 +94,6 @@ mock_echo_channel_open (CockpitTransport *transport,
   return channel;
 }
 
-static CockpitChannel *
-mock_echo_channel_open_base64 (CockpitTransport *transport,
-                               const gchar *channel_id)
-{
-  CockpitChannel *channel;
-  JsonObject *options;
-
-  g_assert (channel_id != NULL);
-
-  options = json_object_new ();
-  json_object_set_string_member (options, "binary", "base64");
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "id", channel_id,
-                          "options", options,
-                          NULL);
-
-  json_object_unref (options);
-  return channel;
-}
-
 /* ----------------------------------------------------------------------------
  * Testing
  */
@@ -220,8 +199,10 @@ test_close_option (TestCase *tc,
                    gconstpointer unused)
 {
   JsonObject *sent;
+  JsonObject *options;
 
-  cockpit_channel_close_option (tc->channel, "option", "four");
+  options = cockpit_channel_close_options (tc->channel);
+  json_object_set_string_member (options, "option", "four");
   cockpit_channel_close (tc->channel, "bad-boy");
 
   g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 1);
@@ -234,37 +215,17 @@ test_close_option (TestCase *tc,
 }
 
 static void
-test_close_int_option (TestCase *tc,
-                       gconstpointer unused)
-{
-  JsonObject *sent;
-
-  cockpit_channel_close_int_option (tc->channel, "option", 4);
-  cockpit_channel_close (tc->channel, "bad-boy");
-
-  g_assert_cmpuint (mock_transport_count_sent (tc->transport), ==, 1);
-
-  sent = mock_transport_pop_control (tc->transport);
-  g_assert (sent != NULL);
-
-  cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"554\", \"problem\": \"bad-boy\", \"option\": 4 }");
-}
-
-static void
 test_close_json_option (TestCase *tc,
                         gconstpointer unused)
 {
   JsonObject *sent;
   JsonObject *obj;
-  JsonNode *node;
+  JsonObject *options;
 
   obj = json_object_new ();
   json_object_set_string_member (obj, "test", "value");
-  node = json_node_init_object (json_node_alloc (), obj);
-  cockpit_channel_close_json_option (tc->channel, "option", node);
-  json_node_free (node);
-  json_object_unref (obj);
+  options = cockpit_channel_close_options (tc->channel);
+  json_object_set_object_member (options, "option", obj);
 
   cockpit_channel_close (tc->channel, "bad-boy");
 
@@ -285,16 +246,6 @@ on_closed_get_problem (CockpitChannel *channel,
   gchar **retval = user_data;
   g_assert (*retval == NULL);
   *retval = g_strdup (problem);
-}
-
-static void
-on_closed_expect_no_problem (CockpitChannel *channel,
-                             const gchar *problem,
-                             gpointer user_data)
-{
-  gboolean *retval = user_data;
-  g_assert (problem == NULL);
-  *retval = TRUE;
 }
 
 static void
@@ -345,9 +296,10 @@ test_get_option (void)
   g_object_unref (transport);
   json_object_unref (options);
 
-  g_assert_cmpstr (cockpit_channel_get_option (channel, "scruffy"), ==, "janitor");
-  g_assert_cmpstr (cockpit_channel_get_option (channel, "age"), ==, NULL);
-  g_assert_cmpstr (cockpit_channel_get_option (channel, "marmalade"), ==, NULL);
+  options = cockpit_channel_get_options (channel);
+  g_assert_cmpstr (json_object_get_string_member (options, "scruffy"), ==, "janitor");
+  g_assert_cmpint (json_object_get_int_member (options, "age"), ==, 5);
+  g_assert (json_object_get_member (options, "marmalade") == NULL);
 
   g_object_unref (channel);
 }
@@ -380,135 +332,6 @@ test_properties (void)
   g_object_unref (channel);
 }
 
-static void
-test_later_close (void)
-{
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-  gchar *problem = NULL;
-
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = mock_echo_channel_open (transport, "554");
-
-  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
-
-  cockpit_channel_close (channel, "first");
-  cockpit_channel_close (channel, "meh");
-
-  /* No signal emitted yet */
-  g_assert (problem == NULL);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  /* After main loop */
-  g_assert_cmpstr (problem, ==, "first");
-
-  g_free (problem);
-  g_object_unref (transport);
-  g_object_unref (channel);
-}
-
-static void
-test_later_ready (void)
-{
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-  GBytes *payload;
-  GBytes *sent;
-
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = mock_echo_channel_open (transport, "554");
-
-  cockpit_channel_ready (channel);
-
-  payload = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (transport, "554", payload);
-  g_bytes_unref (payload);
-
-  /* Not actually ready yet */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent == NULL);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  /* Now we're ready */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent != NULL);
-
-  g_object_unref (transport);
-  g_object_unref (channel);
-}
-
-static void
-test_later_ready_base64 (void)
-{
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-  GBytes *payload;
-  GBytes *sent;
-
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = mock_echo_channel_open_base64 (transport, "554");
-
-  payload = g_bytes_new ("WWVlZWhhdyE=", 12);
-  cockpit_transport_emit_recv (transport, "554", payload);
-  g_bytes_unref (payload);
-
-  cockpit_channel_ready (channel);
-
-  /* Not actually ready yet */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent == NULL);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  /* Now we're ready */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent != NULL);
-
-  g_object_unref (transport);
-  g_object_unref (channel);
-}
-
-static void
-test_later_ready_and_close (void)
-{
-  CockpitTransport *transport;
-  CockpitChannel *channel;
-  GBytes *payload;
-  GBytes *sent;
-  gboolean got_closed = FALSE;
-
-  transport = g_object_new (mock_transport_get_type (), NULL);
-  channel = mock_echo_channel_open (transport, "554");
-
-  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_expect_no_problem), &got_closed);
-
-  cockpit_channel_ready (channel);
-
-  payload = g_bytes_new ("Yeehaw!", 7);
-  cockpit_transport_emit_recv (transport, "554", payload);
-  g_bytes_unref (payload);
-
-  cockpit_channel_close (channel, NULL);
-
-  /* Not actually ready yet */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent == NULL);
-
-  while (g_main_context_iteration (NULL, FALSE));
-
-  /* Now we're ready */
-  sent = mock_transport_pop_channel ((MockTransport *)transport, "554");
-  g_assert (sent != NULL);
-
-  /* And closed */
-  g_assert (got_closed);
-
-  g_object_unref (transport);
-  g_object_unref (channel);
-}
-
 int
 main (int argc,
       char *argv[])
@@ -517,11 +340,6 @@ main (int argc,
 
   g_test_add_func ("/channel/get-option", test_get_option);
   g_test_add_func ("/channel/properties", test_properties);
-
-  g_test_add_func ("/channel/later-close", test_later_close);
-  g_test_add_func ("/channel/later-ready", test_later_ready);
-  g_test_add_func ("/channel/later-ready-base64", test_later_ready_base64);
-  g_test_add_func ("/channel/later-ready-and-close", test_later_ready_and_close);
 
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);
@@ -533,8 +351,6 @@ main (int argc,
               setup, test_close_option, teardown);
   g_test_add ("/channel/close-json-option", TestCase, NULL,
               setup, test_close_json_option, teardown);
-  g_test_add ("/channel/close-int-option", TestCase, NULL,
-              setup, test_close_int_option, teardown);
   g_test_add ("/channel/close-transport", TestCase, NULL,
               setup, test_close_transport, teardown);
 

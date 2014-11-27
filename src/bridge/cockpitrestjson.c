@@ -1071,36 +1071,47 @@ on_socket_address_ready (GObject *source,
 }
 
 static void
-cockpit_rest_json_constructed (GObject *object)
+cockpit_rest_json_prepare (CockpitChannel *channel)
 {
-  CockpitChannel *channel = COCKPIT_CHANNEL (object);
-  CockpitRestJson *self = COCKPIT_REST_JSON (object);
+  CockpitRestJson *self = COCKPIT_REST_JSON (channel);
+  const gchar *problem = "protocol-error";
   GSocketAddressEnumerator *enumerator;
   GSocketConnectable *connectable;
   GError *error = NULL;
   const gchar *unix_path;
+  JsonObject *options;
   gint64 port;
 
-  G_OBJECT_CLASS (cockpit_rest_json_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_rest_json_parent_class)->prepare (channel);
 
   if (self->closed)
     return;
 
-  port = cockpit_channel_get_int_option (channel, "port");
-  unix_path = cockpit_channel_get_option (channel, "unix");
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "unix", NULL, &unix_path))
+    {
+      g_warning ("invalid \"unix\" option in rest channel");
+      goto out;
+    }
+
+  if (!cockpit_json_get_int (options, "port", G_MAXINT64, &port))
+    {
+      g_warning ("invalid \"port\" option in rest channel");
+      goto out;
+    }
 
   if (port != G_MAXINT64 && unix_path)
     {
-      g_warning ("cannot specify both host and unix options");
-      cockpit_channel_close (channel, "protocol-error");
+      g_warning ("cannot specify both \"port\" and \"unix\" options");
+      goto out;
     }
   else if (port != G_MAXINT64)
     {
       connectable = g_network_address_parse ("localhost", port, &error);
       if (error != NULL)
         {
-          g_warning ("received invalid port option: %s", error->message);
-          cockpit_channel_close (channel, "protocol-error");
+          g_warning ("received invalid \"port\" option: %s", error->message);
+          goto out;
         }
       else
         {
@@ -1122,8 +1133,14 @@ cockpit_rest_json_constructed (GObject *object)
   else
     {
       g_warning ("received neither a port or unix option");
-      cockpit_channel_close (channel, "protocol-error");
+      goto out;
     }
+
+  problem = NULL;
+
+out:
+  if (problem)
+    cockpit_channel_close (channel, problem);
 }
 
 static void
@@ -1162,10 +1179,10 @@ cockpit_rest_json_class_init (CockpitRestJsonClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_rest_json_constructed;
   gobject_class->dispose = cockpit_rest_json_dispose;
   gobject_class->finalize = cockpit_rest_json_finalize;
 
+  channel_class->prepare = cockpit_rest_json_prepare;
   channel_class->recv = cockpit_rest_json_recv;
   channel_class->close = cockpit_rest_json_close;
 }

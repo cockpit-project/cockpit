@@ -615,7 +615,8 @@ process_close (CockpitWebService *self,
   if (node != NULL && json_node_get_node_type (node) == JSON_NODE_ARRAY)
     process_packages (json_node_get_array (node), session->host, session->packages);
 
-  cockpit_session_remove_channel (&self->sessions, session, channel);
+  if (session)
+    cockpit_session_remove_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_remove_channel (&self->sockets, socket, channel);
   return TRUE;
@@ -730,7 +731,7 @@ on_session_control (CockpitTransport *transport,
   CockpitSession *session = NULL;
   CockpitSocket *socket = NULL;
   gboolean valid = FALSE;
-  gboolean forward = FALSE;
+  gboolean forward;
 
   if (!channel)
     {
@@ -759,13 +760,16 @@ on_session_control (CockpitTransport *transport,
         }
       else
         {
-          g_warning ("received a %s control command without a channel", command);
-          valid = FALSE;
+          g_debug ("received a %s unknown control command", command);
+          valid = TRUE;
         }
     }
   else
     {
       socket = cockpit_socket_lookup_by_channel (&self->sockets, channel);
+
+      /* Usually all control messages with a channel are forwarded */
+      forward = TRUE;
 
       /*
        * To prevent one host from messing with another, outbound commands
@@ -775,8 +779,10 @@ on_session_control (CockpitTransport *transport,
       session = cockpit_session_by_channel (&self->sessions, channel);
       if (!session)
         {
-          g_warning ("channel %s does not exist", channel);
-          valid = FALSE;
+          /* This is not an error, since closing can race between the endpoints */
+          g_debug ("channel %s does not exist", channel);
+          forward = FALSE;
+          valid = TRUE;
         }
       else if (session->transport != transport)
         {
@@ -786,7 +792,6 @@ on_session_control (CockpitTransport *transport,
       else if (g_strcmp0 (command, "close") == 0)
         {
           valid = process_close (self, socket, session, channel, options);
-          forward = TRUE;
         }
       else
         {
@@ -831,8 +836,8 @@ on_session_recv (CockpitTransport *transport,
   session = cockpit_session_by_channel (&self->sessions, channel);
   if (session == NULL)
     {
-      g_warning ("received message with unknown channel %s from session", channel);
-      outbound_protocol_error (self, transport);
+      /* This is not an error since channel closing can race */
+      g_debug ("dropping message with unknown channel %s from session", channel);
       return FALSE;
     }
   else if (session->transport != transport)
@@ -1120,10 +1125,9 @@ dispatch_inbound_command (CockpitWebService *self,
   const gchar *channel;
   JsonObject *options = NULL;
   gboolean valid = FALSE;
-  gboolean forward = FALSE;
-  CockpitSession *session;
+  gboolean broadcast = FALSE;
+  CockpitSession *session = NULL;
   GHashTableIter iter;
-  GBytes *bytes;
 
   valid = cockpit_transport_parse_command (payload, &command, &channel, &options);
   if (!valid)
@@ -1142,32 +1146,28 @@ dispatch_inbound_command (CockpitWebService *self,
       goto out;
     }
 
+  valid = TRUE;
+
   if (g_strcmp0 (command, "open") == 0)
     {
       valid = process_open (self, socket, channel, options);
-      forward = TRUE;
     }
   else if (g_strcmp0 (command, "logout") == 0)
     {
       valid = process_logout (self, options);
-      forward = TRUE;
+      broadcast = TRUE;
     }
   else if (g_strcmp0 (command, "close") == 0)
     {
-      valid = TRUE;
-      forward = TRUE;
-    }
-  else
-    {
-      valid = TRUE;
+      session = cockpit_session_by_channel (&self->sessions, channel);
+      valid = process_close (self, socket, session, channel, options);
     }
 
   if (!valid)
     goto out;
 
-  if (forward && !channel)
+  if (broadcast)
     {
-      /* Control messages without a channel get sent to all sessions */
       g_hash_table_iter_init (&iter, self->sessions.by_transport);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
         {
@@ -1175,18 +1175,14 @@ dispatch_inbound_command (CockpitWebService *self,
             cockpit_transport_send (session->transport, NULL, payload);
         }
     }
-  else if (forward)
+
+  if (channel)
     {
-      /* Control messages with a channel get forward to that session */
       session = cockpit_session_by_channel (&self->sessions, channel);
       if (session)
         {
           if (!session->sent_eof)
-            {
-              bytes = cockpit_json_write_bytes (options);
-              cockpit_transport_send (session->transport, NULL, bytes);
-              g_bytes_unref (bytes);
-            }
+            cockpit_transport_send (session->transport, NULL, payload);
         }
       else
         g_debug ("dropping control message with unknown channel %s", channel);
@@ -1734,9 +1730,6 @@ on_resource_control (CockpitTransport *transport,
       problem = "unknown";
     }
 
-  if (g_strcmp0 (problem, "") == 0)
-    problem = NULL;
-
   resource_response_done (rr, problem);
   return TRUE; /* handled */
 }
@@ -1750,7 +1743,7 @@ on_resource_closed (CockpitTransport *transport,
 
   g_debug ("%s: transport closed while serving resource: %s", rr->logname, problem);
 
-  if (problem == NULL || g_strcmp0 (problem, "") == 0)
+  if (problem == NULL)
     problem = "terminated";
 
   resource_response_done (rr, problem);

@@ -210,7 +210,7 @@
       </div>
 
       <div id="storage" hidden>
-        <div class="col-sm-9">
+        <div class="col-md-8 col-lg-9">
 
           <div class="row">
             <div class="col-sm-6">
@@ -224,7 +224,7 @@
           </div>
           <br/>
 
-          <div class="panel panel-default">
+          <div class="panel panel-default storage-mounts">
             <div class="panel-heading">
               <span translatable="yes">Filesystems</span>
             </div>
@@ -233,8 +233,8 @@
                 <tr>
                   <th>Name</th>
                   <th>Mount Point</th>
-                  <th style="width: 55%;">Size</th>
-                  <th style="width: 20%;">&nbsp;</th>
+                  <th class="size-graph">Size</th>
+                  <th class="size-number">&nbsp;</th>
                 </tr>
               </thead>
               <tbody id="storage_mounts">
@@ -249,7 +249,7 @@
 
         </div>
 
-        <div class="col-sm-3">
+        <div class="col-md-4 col-lg-3">
 
           <p>
             <button id="storage_create_raid" class="btn btn-default" translatable="yes">Create RAID Device</button>

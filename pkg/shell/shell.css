@@ -533,3 +533,33 @@ ul.available-interfaces-group {
     padding-left: 5px;
     padding-right: 5px;
 }
+
+
+#storage .storage-mounts .table {
+    table-layout: fixed;
+}
+
+#storage .storage-mounts .table th,
+#storage .storage-mounts .table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 992px) {
+    .storage-mounts .size-graph {
+        width: 20%;
+    }
+    .storage-mounts .size-number {
+        width: 20%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .storage-mounts .size-graph {
+        width: 55%;
+    }
+    .storage-mounts .size-number {
+        width: 10%;
+    }
+}

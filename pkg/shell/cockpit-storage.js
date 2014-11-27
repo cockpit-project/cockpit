@@ -636,9 +636,9 @@ PageStorage.prototype = {
                 cockpit.location.go("storage-detail", { type: "mdraid", id: id });
             }).
             append(
-                $('<td>').append(
-                    $('<span style="float:right">').text(fmt_size(raid.Size)),
-                    $('<span>').text(raid_get_desc(raid))),
+                $('<td class="row">').append(
+                    $('<span class="col-xs-3 col-xs-push-9 raid-size">').text(fmt_size(raid.Size)),
+                    $('<span class="col-xs-9 col-xs-pull-3">').text(raid_get_desc(raid))),
                 $('<td style="width:28px">').append(
                     $('<div>', { id: "storage-spinner-" + id,
                                  "class": "waiting"
@@ -681,9 +681,9 @@ PageStorage.prototype = {
                 cockpit.location.go("storage-detail", { type: "vg", id: id });
             }).
             append(
-                $('<td>').append(
-                    $('<span style="float:right">').text(fmt_size(vg.Size)),
-                    $('<span>').text(vg.Name)),
+                $('<td class="row">').append(
+                    $('<span class="col-xs-3 col-xs-push-9 vg-size">').text(fmt_size(vg.Size)),
+                    $('<span class="col-xs-9 col-xs-pull-3">').text(vg.Name)),
                 $('<td style="width:28px">').append(
                     $('<div>', { id: "storage-spinner-" + id,
                                  "class": "waiting"

@@ -75,7 +75,7 @@ PageShutdownDialog.prototype = {
 
         if (this.cockpitd) {
             var host = shell.util.hostname_for_display(this.cockpitd_manager);
-            $('#shutdown-dialog .modal-title').text(F(_("Shutdown %{host}"), { host: host }));
+            $('#shutdown-dialog .modal-title').text(cockpit.format(_("Shutdown $0"), host));
         }
 
         var delay = shell.select_btn_selected(this.delay_btn);

@@ -1749,7 +1749,7 @@ PageNetworkInterface.prototype = {
         var desc;
         if (dev) {
             if (dev.DeviceType == 'ethernet') {
-                desc = F("%{IdVendor} %{IdModel} (%{Driver})", dev);
+                desc = cockpit.format("$IdVendor $IdModel $Driver)", dev);
             } else if (dev.DeviceType == 'bond') {
                 desc = _("Bond");
             } else if (dev.DeviceType == 'vlan') {
@@ -1851,15 +1851,15 @@ PageNetworkInterface.prototype = {
                     addrs.push(addr);
                 });
                 if (addrs.length > 0)
-                    parts.push(F(addr_is_extra? "Additional address %{val}" : "Address %{val}",
+                    parts.push(cockpit.format(addr_is_extra ? "Additional address $val" : "Address $val",
                                  { val: addrs.join(", ") }));
 
                 var dns_is_extra = (!params["ignore-auto-dns"] && params.method != "manual");
                 if (params.dns.length > 0)
-                    parts.push(F(dns_is_extra? "Additional DNS %{val}" : "DNS %{val}",
+                    parts.push(cockpit.format(dns_is_extra ? "Additional DNS $val" : "DNS $val",
                                  { val: params.dns.join(", ") }));
                 if (params.dns_search.length > 0)
-                    parts.push(F(dns_is_extra? "Additional DNS Search Domains %{val}" : "DNS Search Domains %{val}",
+                    parts.push(cockpit.format(dns_is_extra ? "Additional DNS Search Domains $val" : "DNS Search Domains $val",
                                  { val: params.dns_search.join(", ") }));
 
                 return parts.map(function (p) { return $('<div>').text(p); });
@@ -1968,19 +1968,19 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 function add_row(fmt, args) {
-                    rows.push($('<div>').text(F(_(fmt), args)));
+                    rows.push($('<div>').text(cockpit.format(fmt, args)));
                 }
 
                 if (options.stp) {
-                    add_row("Spanning Tree Protocol");
+                    add_row(_("Spanning Tree Protocol"));
                     if (options.priority != 32768)
-                        add_row("Priority %{priority}", options);
+                        add_row(_("Priority $priority"), options);
                     if (options.forward_delay != 15)
-                        add_row("Forward delay %{forward_delay}", options);
+                        add_row(_("Forward delay $forward_delay"), options);
                     if (options.hello_time != 2)
-                        add_row("Hello time %{hello_time}", options);
+                        add_row(_("Hello time $hello_time"), options);
                     if (options.max_age != 20)
-                        add_row("Maximum message age %{max_age}", options);
+                        add_row(_("Maximum message age $max_age"), options);
                 }
 
                 return render_settings_row(_("Bridge"), rows, configure_bridge_settings);
@@ -1994,15 +1994,15 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 function add_row(fmt, args) {
-                    rows.push($('<div>').text(F(_(fmt), args)));
+                    rows.push($('<div>').text(cockpit.format(fmt, args)));
                 }
 
                 if (options.priority != 32)
-                    add_row("Priority %{priority}", options);
+                    add_row(_("Priority $priority"), options);
                 if (options.path_cost != 100)
-                    add_row("Path cost %{path_cost}", options);
+                    add_row(_("Path cost $path_cost"), options);
                 if (options.hairpin_mode)
-                    add_row("Hairpin mode");
+                    add_row(_("Hairpin mode"));
 
                 return render_settings_row(_("Bridge port"), rows, configure_bridge_port_settings);
             }
@@ -2015,11 +2015,11 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 function add_row(fmt, args) {
-                    rows.push($('<div>').text(F(_(fmt), args)));
+                    rows.push($('<div>').text(cockpit.format(fmt, args)));
                 }
 
-                add_row("Parent %{parent}", options);
-                add_row("Id %{id}", options);
+                add_row(_("Parent $parent"), options);
+                add_row(_("Id $id"), options);
 
                 return render_settings_row(_("VLAN"), rows,
                                            configure_vlan_settings);
@@ -2027,7 +2027,7 @@ PageNetworkInterface.prototype = {
 
             return [ render_master(),
                      $('<tr>').append(
-                         $('<td>').text("General"),
+                         $('<td>').text(_("General")),
                          $('<td>').append(
                              $('<label style="font-weight:inherit">').append(
                                  $('<input type="checkbox" style="margin-left:0px">').
@@ -2036,7 +2036,7 @@ PageNetworkInterface.prototype = {
                                          settings.connection.autoconnect = $(this).prop('checked');
                                          apply();
                                      }),
-                                 "Connect automatically"))),
+                                 _("Connect automatically")))),
                      render_ip_settings_row("ipv4", _("IPv4")),
                      render_ip_settings_row("ipv6", _("IPv6")),
                      render_vlan_settings_row(),
@@ -2354,7 +2354,7 @@ PageNetworkIpSettings.prototype = {
         }
 
         function render_ip_settings() {
-            var prefix_text = (topic == "ipv4")? "Prefix length or Netmask" : "Prefix length";
+            var prefix_text = (topic == "ipv4")? _("Prefix length or Netmask") : _("Prefix length");
             var body =
                 $('<div>').append(
                     addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", prefix_text, "Gateway" ],

@@ -143,7 +143,7 @@ The "close" command closes a channel.
 The following fields are defined:
 
  * "channel": The id of the channel to close
- * "problem": A short problem code for closure, or empty for a normal close
+ * "problem": A short problem code for closure, or not present for a normal close
 
 The channel id must be set.  An example of a close:
 

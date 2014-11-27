@@ -1734,9 +1734,6 @@ on_resource_control (CockpitTransport *transport,
       problem = "unknown";
     }
 
-  if (g_strcmp0 (problem, "") == 0)
-    problem = NULL;
-
   resource_response_done (rr, problem);
   return TRUE; /* handled */
 }
@@ -1750,7 +1747,7 @@ on_resource_closed (CockpitTransport *transport,
 
   g_debug ("%s: transport closed while serving resource: %s", rr->logname, problem);
 
-  if (problem == NULL || g_strcmp0 (problem, "") == 0)
+  if (problem == NULL)
     problem = "terminated";
 
   resource_response_done (rr, problem);

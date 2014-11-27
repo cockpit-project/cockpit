@@ -349,7 +349,6 @@ static void
 cockpit_channel_real_close (CockpitChannel *self,
                             const gchar *problem)
 {
-  const gchar *overridden = problem;
   JsonObject *object;
   GBytes *message;
 
@@ -360,9 +359,6 @@ cockpit_channel_real_close (CockpitChannel *self,
 
   if (!self->priv->transport_closed)
     {
-      if (overridden == NULL)
-        overridden = "";
-
       if (self->priv->close_options)
         {
           object = self->priv->close_options;
@@ -375,7 +371,8 @@ cockpit_channel_real_close (CockpitChannel *self,
 
       json_object_set_string_member (object, "command", "close");
       json_object_set_string_member (object, "channel", self->priv->id);
-      json_object_set_string_member (object, "problem", overridden);
+      if (problem)
+        json_object_set_string_member (object, "problem", problem);
 
       message = cockpit_json_write_bytes (object);
       json_object_unref (object);

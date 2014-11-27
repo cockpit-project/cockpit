@@ -582,11 +582,11 @@ PageStorage.prototype = {
             append(
                 $('<td style="width: 48px">').append(
                     $('<img>', { src: "/cockpit/@@shell@@/images/storage-disk.png" })),
-                $('<td>').append(
-                    $('<span>').text(drive.Name),
+                $('<td class="row">').append(
+                    $('<span class="col-md-12">').text(drive.Name),
                     $('<br>'),
-                    $('<span>').text(desc),
-                    $('<span class="pull-right">').append(
+                    $('<span class="col-md-12 col-lg-6 storage-disk-size">').text(desc),
+                    $('<span class="col-md-12 col-lg-6">').append(
                         $('<span class="reading">').text(""),
                         $('<span style="display:inline-block;width:2em">'),
                         $('<span class="writing">').text(""))),

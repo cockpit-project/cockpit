@@ -229,24 +229,6 @@ function NetworkManagerModel(address) {
         return props;
     }
 
-    function refresh_object_properties(obj) {
-        var type = priv(obj).type;
-        var path = priv(obj).path;
-        push_refresh();
-        type.interfaces.forEach(function (iface) {
-            push_refresh();
-            client.call(path, "org.freedesktop.DBus.Properties", "GetAll", iface,
-                        function (error, result) {
-                            if (!error)
-                                set_object_properties(obj, remove_signatures(result));
-                            pop_refresh();
-                        });
-        });
-        if (type.refresh)
-            type.refresh(obj);
-        pop_refresh();
-    }
-
     function objpath(obj) {
         if (obj && priv(obj).path)
             return priv(obj).path;
@@ -724,13 +706,6 @@ function NetworkManagerModel(address) {
         // NM_DEVICE_STATE_FAILED
         case 120: return _("Failed");
         default: return "";
-        }
-    }
-
-    function refresh_all_devices() {
-        for (var path in objects) {
-            if (path.startsWith("/org/freedesktop/NetworkManager/Devices/"))
-                refresh_object_properties(objects[path]);
         }
     }
 

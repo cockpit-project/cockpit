@@ -18,7 +18,9 @@
  */
 
 var shell = shell || { };
-(function($, cockpit, shell) {
+var modules = modules || { };
+
+(function($, cockpit, shell, modules) {
 
 function resource_debug() {
     if (window.debugging == "all" || window.debugging == "resource")
@@ -975,8 +977,8 @@ PageContainerDetails.prototype = {
         if (this.terminal) {
             this.terminal.close();
             this.terminal = null;
-            $("#container-terminal").hide();
         }
+        $("#container-terminal").hide();
     },
 
     setup: function() {
@@ -1082,18 +1084,12 @@ PageContainerDetails.prototype = {
     },
 
     maybe_show_terminal: function(info) {
-        if (!info.Config.Tty)
-            return;
-
         if (!this.terminal) {
-            this.terminal = new DockerTerminal($("#container-terminal")[0],
-                                               this.address,
-                                               this.container_id);
+            this.terminal = modules.docker.console(this.container_id, info.Config.Tty);
+            $("#container-terminal").empty().append(this.terminal);
         }
-
         if (this.terminal.connected)
             this.terminal.typeable(info.State.Running);
-
         $("#container-terminal").show();
     },
 
@@ -1890,116 +1886,4 @@ function DockerClient(machine) {
     };
 }
 
-function DockerTerminal(parent, machine, id) {
-    var self = this;
-
-    var term = new Terminal({
-        cols: 80,
-        rows: 24,
-        screenKeys: true
-    });
-
-    /* term.js wants the parent element to build its terminal inside of */
-    term.open(parent);
-
-    var enable_input = true;
-    var channel = null;
-
-    /*
-     * A raw channel over which we speak Docker's strange /attach
-     * protocol. It starts with a HTTP POST, and then quickly
-     * degenerates into a simple stream.
-     *
-     * We only support the tty stream. The other framed stream
-     * contains embedded nulls in the framing and doesn't work
-     * with our stream channels.
-     *
-     * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
-     */
-    function attach() {
-        channel = cockpit.channel({
-            "host": machine,
-            "payload": "stream",
-            "unix": "/var/run/docker.sock"
-        });
-
-        var buffer = "";
-        var headers = false;
-        self.connected = true;
-
-        $(channel).
-            on("close.terminal", function(ev, options) {
-                self.connected = false;
-                var problem = options.problem || "disconnected";
-                term.write('\x1b[31m' + problem + '\x1b[m\r\n');
-                self.typeable(false);
-                $(channel).off("close.terminal");
-                $(channel).off("message.terminal");
-                channel = null;
-            }).
-            on("message.terminal", function(ev, payload) {
-                /* Look for end of headers first */
-                if (!headers) {
-                    buffer += payload;
-                    var pos = buffer.indexOf("\r\n\r\n");
-                    if (pos == -1)
-                        return;
-                    headers = true;
-                    payload = buffer.substring(pos + 2);
-                }
-                /* Once headers are done it's just raw data */
-                term.write(payload);
-            });
-
-        var req =
-            "POST /v1.10/containers/" + id + "/attach?logs=1&stream=1&stdin=1&stdout=1&stderr=1 HTTP/1.0\r\n" +
-            "Content-Length: 0\r\n" +
-            "\r\n";
-        channel.send(req);
-    }
-
-    term.on('data', function(data) {
-        /* Send typed input back through channel */
-        if (enable_input)
-            channel.send(data);
-    });
-
-    attach();
-
-    /* Allows caller to cleanup nicely */
-    this.close = function close() {
-        if (self.connected)
-            channel.close(null);
-        term.destroy();
-    };
-
-    /* Allows the curser to restart the attach request */
-    this.connect = function connect() {
-        if (channel) {
-            channel.close();
-            channel = null;
-        }
-        term.softReset();
-        term.refresh(term.y, term.y);
-        attach();
-    };
-
-    /* Shows and hides the cursor */
-    this.typeable = function typeable(yes) {
-        if (yes === undefined)
-            yes = !enable_input;
-        if (yes) {
-            term.cursorHidden = false;
-            term.showCursor();
-        } else {
-            /* There's no term.hideCursor() function */
-            term.cursorHidden = true;
-            term.refresh(term.y, term.y);
-        }
-        enable_input = yes;
-    };
-
-    return this;
-}
-
-})(jQuery, cockpit, shell);
+})(jQuery, cockpit, shell, modules);

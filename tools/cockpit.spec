@@ -189,6 +189,7 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 
 %files shell
 %{_datadir}/%{name}/base
+%{_datadir}/%{name}/docker
 %{_datadir}/%{name}/shell
 %{_datadir}/%{name}/playground
 %{_datadir}/%{name}/server-systemd

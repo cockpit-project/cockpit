@@ -136,21 +136,26 @@ on_changed (GFileMonitor      *monitor,
 }
 
 static void
-cockpit_fswatch_constructed (GObject *object)
+cockpit_fswatch_prepare (CockpitChannel *channel)
 {
-  CockpitFswatch *self = COCKPIT_FSWATCH (object);
-  CockpitChannel *channel = COCKPIT_CHANNEL (self);
+  CockpitFswatch *self = COCKPIT_FSWATCH (channel);
+  const gchar *problem = "protocol-error";
+  JsonObject *options;
   GError *error = NULL;
   const gchar *path;
 
-  G_OBJECT_CLASS (cockpit_fswatch_parent_class)->constructed (object);
+  COCKPIT_CHANNEL_CLASS (cockpit_fswatch_parent_class)->prepare (channel);
 
-  path = cockpit_channel_get_option (channel, "path");
-  if (path == NULL || *path == 0)
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "path", NULL, &path))
     {
-      g_warning ("missing 'path' option for fswatch channel");
-      cockpit_channel_close (channel, "protocol-error");
-      return;
+      g_warning ("invalid \"path\" option for fswatch channel");
+      goto out;
+    }
+  else if (path == NULL || *path == 0)
+    {
+      g_warning ("missing \"path\" option for fswatch channel");
+      goto out;
     }
 
   GFile *file = g_file_new_for_path (path);
@@ -160,15 +165,21 @@ cockpit_fswatch_constructed (GObject *object)
   if (monitor == NULL)
     {
       g_message ("%s: %s", self->path, error->message);
-      cockpit_channel_close_option (channel, "message", error->message);
-      cockpit_channel_close (channel, "internal-error");
-      return;
+      options = cockpit_channel_close_options (channel);
+      json_object_set_string_member (options, "message", error->message);
+      problem = "internal-error";
+      goto out;
     }
 
   self->monitor = monitor;
   self->sig_changed = g_signal_connect (self->monitor, "changed", G_CALLBACK (on_changed), self);
 
   cockpit_channel_ready (channel);
+  problem = NULL;
+
+out:
+  if (problem)
+    cockpit_channel_close (channel, problem);
 }
 
 static void
@@ -219,10 +230,10 @@ cockpit_fswatch_class_init (CockpitFswatchClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_fswatch_constructed;
   gobject_class->dispose = cockpit_fswatch_dispose;
   gobject_class->finalize = cockpit_fswatch_finalize;
 
+  channel_class->prepare = cockpit_fswatch_prepare;
   channel_class->recv = cockpit_fswatch_recv;
 }
 

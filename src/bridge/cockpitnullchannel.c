@@ -56,22 +56,17 @@ cockpit_null_channel_init (CockpitNullChannel *self)
 }
 
 static void
-cockpit_null_channel_constructed (GObject *object)
+cockpit_null_channel_prepare (CockpitChannel *channel)
 {
-  CockpitChannel *channel = COCKPIT_CHANNEL (object);
-
-  G_OBJECT_CLASS (cockpit_null_channel_parent_class)->constructed (object);
-
+  COCKPIT_CHANNEL_CLASS (cockpit_null_channel_parent_class)->prepare (channel);
   cockpit_channel_ready (channel);
 }
 
 static void
 cockpit_null_channel_class_init (CockpitNullChannelClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->constructed = cockpit_null_channel_constructed;
-
+  channel_class->prepare = cockpit_null_channel_prepare;
   channel_class->recv = cockpit_null_channel_recv;
 }

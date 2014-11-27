@@ -237,7 +237,7 @@ test_listing (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   cockpit_assert_json_eq (control,
-                          "{ \"command\": \"close\", \"channel\": \"444\", \"problem\": \"\", \"packages\": ["
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"packages\": ["
                           " {"
                           "  \"id\": [\"second\",\"$2362deb82fad54aca51092c505a5660ac6c45a9f\",\"one\",\"two\"],"
                           "  \"manifest\": { \"description\": \"second dummy description\"}"
@@ -293,7 +293,7 @@ test_no_path (TestCase *tc,
 {
   g_assert (fixture == &fixture_no_path);
 
-  cockpit_expect_message ("no 'path' specified for resource channel");
+  cockpit_expect_message ("no \"path\" option specified for resource channel");
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
@@ -328,7 +328,7 @@ test_no_package (TestCase *tc,
 {
   g_assert (fixture == &fixture_no_package);
 
-  cockpit_expect_message ("no 'package' specified for resource channel");
+  cockpit_expect_message ("no \"package\" option specified for resource channel");
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
@@ -405,7 +405,7 @@ test_list_bad_name (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   cockpit_assert_json_eq (control,
-                          "{ \"command\": \"close\", \"channel\": \"444\", \"problem\": \"\", \"packages\": ["
+                          "{ \"command\": \"close\", \"channel\": \"444\", \"packages\": ["
                           " {"
                           "  \"id\": [ \"ok\", \"$248b261c112455057b51827f3f63380159e27338\" ],"
                           "  \"manifest\": { }"

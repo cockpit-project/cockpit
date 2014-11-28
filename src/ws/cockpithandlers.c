@@ -48,14 +48,23 @@ cockpit_handler_socket (CockpitWebServer *server,
                         CockpitHandlerData *ws)
 {
   CockpitWebService *service;
+  const gchar *query = NULL;
 
-  if (!g_str_equal (path, "/socket"))
+  if (!g_str_has_prefix (path, "/socket"))
+    return FALSE;
+
+  if (path[7] == '?')
+    query = path + 8;
+  else if (path[7] != '\0')
     return FALSE;
 
   service = cockpit_auth_check_cookie (ws->auth, headers);
   if (service)
     {
-      cockpit_web_service_socket (service, io_stream, headers, input);
+      if (query)
+        cockpit_web_service_sideband (service, query, io_stream, headers, input);
+      else
+        cockpit_web_service_socket (service, io_stream, headers, input);
       g_object_unref (service);
     }
   else

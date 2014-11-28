@@ -191,17 +191,20 @@ on_handle_mock (CockpitWebServer *server,
 /* Called by @server when handling HTTP requests to /socket - runs in a separate
  * thread dedicated to the request so it may do blocking I/O
  */
+
+static CockpitWebService *service;
+
 static gboolean
 on_handle_stream_socket (CockpitWebServer *server,
-                         const gchar *resource,
+                         const gchar *path,
                          GIOStream *io_stream,
                          GHashTable *headers,
                          GByteArray *input,
                          guint in_length,
                          gpointer user_data)
 {
-  CockpitWebService *service;
   CockpitTransport *transport;
+  const gchar *query = NULL;
   CockpitCreds *creds;
   CockpitPipe *pipe;
   gchar *value;
@@ -212,30 +215,46 @@ on_handle_stream_socket (CockpitWebServer *server,
     NULL,
   };
 
-  if (!g_str_equal (resource, "/socket"))
+  if (!g_str_has_prefix (path, "/socket"))
     return FALSE;
 
-  creds = cockpit_creds_new (g_get_user_name (),
-                             NULL);
+  if (path[7] == '?')
+    query = path + 8;
+  else if (path[7] != '\0')
+    return FALSE;
 
-  value = g_strdup_printf ("%d", server_port);
-  env = g_environ_setenv (g_get_environ (), "COCKPIT_TEST_SERVER_PORT", value, TRUE);
+  if (service)
+    {
+      g_object_ref (service);
+    }
+  else
+    {
+      value = g_strdup_printf ("%d", server_port);
+      env = g_environ_setenv (g_get_environ (), "COCKPIT_TEST_SERVER_PORT", value, TRUE);
 
-  pipe = cockpit_pipe_spawn (argv, (const gchar **)env, NULL, FALSE);
-  transport = cockpit_pipe_transport_new (pipe);
-  service = cockpit_web_service_new (creds, transport);
-  g_object_unref (transport);
-  g_object_unref (pipe);
+      creds = cockpit_creds_new (g_get_user_name (), NULL);
+      pipe = cockpit_pipe_spawn (argv, (const gchar **)env, NULL, FALSE);
+      transport = cockpit_pipe_transport_new (pipe);
+      service = cockpit_web_service_new (creds, transport);
+      cockpit_creds_unref (creds);
+      g_object_unref (transport);
+      g_object_unref (pipe);
 
-  g_free (value);
-  g_strfreev (env);
+      g_free (value);
+      g_strfreev (env);
 
-  cockpit_web_service_socket (service, io_stream, headers, input);
+      /* Clear the pointer automatically when service is done */
+      g_object_add_weak_pointer (G_OBJECT (service), (gpointer *)&service);
+    }
+
+  if (query)
+    cockpit_web_service_sideband (service, query, io_stream, headers, input);
+  else
+    cockpit_web_service_socket (service, io_stream, headers, input);
 
   /* Keeps ref on itself until it closes */
   g_object_unref (service);
 
-  cockpit_creds_unref (creds);
   return TRUE;
 }
 

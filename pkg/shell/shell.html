@@ -164,7 +164,7 @@
       </script>
 
       <div id="server" class="container-fluid" hidden>
-        <div class="col-md-3">
+        <div class="col-md-4 col-lg-3 cockpit-info-table-container">
           <table class="cockpit-info-table">
             <tr>
               <td>Hardware</td>
@@ -194,8 +194,8 @@
             </tr>
           </table>
         </div>
-        <div id="server-graph-columns" class="col-md-9">
-          <div id="server-graph-column-1" class="col-md-6">
+        <div id="server-graph-columns" class="col-md-8 col-lg-9">
+          <div id="server-graph-column-1" class="col-md-12 col-lg-6">
             <div style="color:black">CPU<span style="float:right" id="server_cpu_text"></span></div>
             <div style="height:120px" id="server_cpu_graph" class="server-graph" onclick="cockpit.location.go('cpu_status');"></div>
             <br/>
@@ -203,7 +203,7 @@
             <div style="height:120px" id="server_memory_graph" class="server-graph" onclick="cockpit.location.go('memory_status');"></div>
             <br/>
           </div>
-          <div id="server-graph-column-2" class="col-md-6">
+          <div id="server-graph-column-2" class="col-md-12 col-lg-6">
             <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
             <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.location.go('storage');"></div>
             <br/>

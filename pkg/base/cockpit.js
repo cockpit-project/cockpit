@@ -340,7 +340,7 @@ function Transport() {
 
         /* A binary message, split out the channel */
         if (have_array_buffer && data instanceof window.ArrayBuffer) {
-            binary = window.Uint8Array(data);
+            binary = new window.Uint8Array(data);
             length = binary.length;
             for (pos = 0; pos < length; pos++) {
                 if (binary[pos] == 10) /* new line */

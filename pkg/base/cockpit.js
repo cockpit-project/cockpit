@@ -1002,7 +1002,8 @@ function basic_scope(cockpit) {
             default_transport.close(options);
         },
         origin: origin,
-        options: { }
+        options: { },
+        uri: calculate_url,
     };
 }
 

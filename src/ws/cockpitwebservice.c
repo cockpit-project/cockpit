@@ -406,6 +406,113 @@ cockpit_sockets_cleanup (CockpitSockets *sockets)
 }
 
 /* ----------------------------------------------------------------------------
+ * Sideband Info
+ */
+
+typedef struct {
+  gchar *channel;
+  WebSocketConnection *connection;
+  WebSocketDataType data_type;
+  JsonObject *options;
+  gulong open_sig;
+  gulong message_sig;
+  gulong close_sig;
+} CockpitSideband;
+
+typedef struct {
+  GHashTable *by_channel;
+  GHashTable *by_connection;
+} CockpitSidebands;
+
+static void
+cockpit_sideband_free (gpointer data)
+{
+  CockpitSideband *sideband = data;
+  g_free (sideband->channel);
+  if (sideband->connection)
+    {
+      if (sideband->open_sig)
+        g_signal_handler_disconnect (sideband->connection, sideband->open_sig);
+      if (sideband->message_sig)
+        g_signal_handler_disconnect (sideband->connection, sideband->message_sig);
+      if (sideband->close_sig)
+        g_signal_handler_disconnect (sideband->connection, sideband->close_sig);
+      g_object_unref (sideband->connection);
+    }
+  json_object_unref (sideband->options);
+  g_free (sideband);
+}
+
+static void
+cockpit_sidebands_init (CockpitSidebands *sidebands)
+{
+  /* This owns the sideband */
+  sidebands->by_channel = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                 NULL, cockpit_sideband_free);
+  sidebands->by_connection = g_hash_table_new (g_direct_hash, g_direct_equal);
+}
+
+static CockpitSideband *
+cockpit_sideband_track (CockpitSidebands *sidebands,
+                        const gchar *channel,
+                        WebSocketConnection *connection)
+{
+  CockpitSideband *sideband;
+
+  sideband = g_new0 (CockpitSideband, 1);
+  sideband->channel = g_strdup (channel);
+  sideband->connection = g_object_ref (connection);
+
+  g_debug ("%s new sideband", channel);
+
+  /* This owns the sideband */
+  g_hash_table_insert (sidebands->by_channel, sideband->channel, sideband);
+  g_hash_table_insert (sidebands->by_connection, connection, sideband);
+
+  return sideband;
+}
+
+inline static CockpitSideband *
+cockpit_sideband_by_channel (CockpitSidebands *sidebands,
+                             const gchar *channel)
+{
+  return g_hash_table_lookup (sidebands->by_channel, channel);
+}
+
+inline static CockpitSideband *
+cockpit_sideband_by_connection (CockpitSidebands *sidebands,
+                                WebSocketConnection *connection)
+{
+  return g_hash_table_lookup (sidebands->by_connection, connection);
+}
+
+static void
+cockpit_sideband_destroy (CockpitSidebands *sidebands,
+                          CockpitSideband *sideband,
+                          const gchar *reason)
+{
+  g_debug ("%s destroy sideband", sideband->channel);
+
+  if (sideband->connection)
+    {
+      if (web_socket_connection_get_ready_state (sideband->connection) < WEB_SOCKET_STATE_CLOSING)
+        web_socket_connection_close (sideband->connection, WEB_SOCKET_CLOSE_GOING_AWAY, reason);
+    }
+
+  g_hash_table_remove (sidebands->by_connection, sideband->connection);
+
+  /* This owns the sideband */
+  g_hash_table_remove (sidebands->by_channel, sideband->channel);
+}
+
+static void
+cockpit_sidebands_cleanup (CockpitSidebands *sidebands)
+{
+  g_hash_table_destroy (sidebands->by_connection);
+  g_hash_table_destroy (sidebands->by_channel);
+}
+
+/* ----------------------------------------------------------------------------
  * Web Socket Routing
  */
 
@@ -415,11 +522,12 @@ struct _CockpitWebService {
   CockpitCreds *creds;
   CockpitSockets sockets;
   CockpitSessions sessions;
+  CockpitSidebands sidebands;
   gboolean closing;
   GBytes *control_prefix;
   guint ping_timeout;
   gint callers;
-  guint next_resource_id;
+  guint next_internal_id;
 };
 
 typedef struct {
@@ -437,6 +545,7 @@ cockpit_web_service_dispose (GObject *object)
   CockpitWebService *self = COCKPIT_WEB_SERVICE (object);
   CockpitSocket *socket;
   CockpitSession *session;
+  CockpitSideband *sideband;
   GHashTableIter iter;
   gboolean emit = FALSE;
 
@@ -446,6 +555,13 @@ cockpit_web_service_dispose (GObject *object)
       emit = TRUE;
     }
   self->closing = TRUE;
+
+  g_hash_table_iter_init (&iter, self->sidebands.by_connection);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&sideband))
+    {
+      if (web_socket_connection_get_ready_state (sideband->connection) < WEB_SOCKET_STATE_CLOSING)
+        web_socket_connection_close (sideband->connection, WEB_SOCKET_CLOSE_GOING_AWAY, "terminated");
+    }
 
   g_hash_table_iter_init (&iter, self->sockets.by_connection);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&socket))
@@ -475,6 +591,7 @@ cockpit_web_service_finalize (GObject *object)
 {
   CockpitWebService *self = COCKPIT_WEB_SERVICE (object);
 
+  cockpit_sidebands_cleanup (&self->sidebands);
   cockpit_sessions_cleanup (&self->sessions);
   cockpit_sockets_cleanup (&self->sockets);
   g_bytes_unref (self->control_prefix);
@@ -609,11 +726,17 @@ process_close (CockpitWebService *self,
                const gchar *channel,
                JsonObject *options)
 {
+  CockpitSideband *sideband;
   JsonNode *node;
 
   node = json_object_get_member (options, "packages");
   if (node != NULL && json_node_get_node_type (node) == JSON_NODE_ARRAY)
     process_packages (json_node_get_array (node), session->host, session->packages);
+
+  /* Close the sideband if it's still open */
+  sideband = cockpit_sideband_by_channel (&self->sidebands, channel);
+  if (sideband)
+    cockpit_sideband_destroy (&self->sidebands, sideband, "closed");
 
   if (session)
     cockpit_session_remove_channel (&self->sessions, session, channel);
@@ -825,6 +948,7 @@ on_session_recv (CockpitTransport *transport,
 {
   CockpitWebService *self = user_data;
   WebSocketDataType data_type;
+  CockpitSideband *sideband;
   CockpitSession *session;
   CockpitSocket *socket;
   gchar *string;
@@ -847,6 +971,19 @@ on_session_recv (CockpitTransport *transport,
       return FALSE;
     }
 
+  /* If this is a sideband, then send the message there */
+  sideband = cockpit_sideband_by_channel (&self->sidebands, channel);
+  if (sideband)
+    {
+      g_return_val_if_fail (sideband->connection != NULL, FALSE);
+      if (web_socket_connection_get_ready_state (sideband->connection) == WEB_SOCKET_STATE_OPEN)
+        {
+          web_socket_connection_send (sideband->connection, sideband->data_type, NULL, payload);
+          return TRUE;
+        }
+      return FALSE;
+    }
+
   /* Forward the message to the right socket */
   socket = cockpit_socket_lookup_by_channel (&self->sockets, channel);
   if (socket && web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
@@ -856,6 +993,7 @@ on_session_recv (CockpitTransport *transport,
       data_type = GPOINTER_TO_INT (g_hash_table_lookup (socket->channels, channel));
       web_socket_connection_send (socket->connection, data_type, prefix, payload);
       g_bytes_unref (prefix);
+      return TRUE;
     }
 
   return FALSE;
@@ -872,6 +1010,7 @@ on_session_closed (CockpitTransport *transport,
   CockpitSshTransport *ssh;
   GHashTableIter iter;
   CockpitSocket *socket;
+  CockpitSideband *sideband;
   const gchar *key = NULL;
   const gchar *fp = NULL;
   GBytes *payload;
@@ -891,6 +1030,10 @@ on_session_closed (CockpitTransport *transport,
       g_hash_table_iter_init (&iter, session->channels);
       while (g_hash_table_iter_next (&iter, (gpointer *)&channel, NULL))
         {
+          sideband = cockpit_sideband_by_channel (&self->sidebands, channel);
+          if (sideband)
+            cockpit_sideband_destroy (&self->sidebands, sideband, problem);
+
           socket = cockpit_socket_lookup_by_channel (&self->sockets, channel);
           if (socket)
             {
@@ -962,19 +1105,37 @@ lookup_or_open_session_for_host (CockpitWebService *self,
 }
 
 static gboolean
+parse_binary_type (JsonObject *options,
+                   WebSocketDataType *data_type)
+{
+  const gchar *binary;
+
+  if (!cockpit_json_get_string (options, "binary", NULL, &binary))
+    {
+      g_warning ("invalid \"binary\" option");
+      return FALSE;
+    }
+
+  if (binary && g_str_equal (binary, "raw"))
+    *data_type = WEB_SOCKET_DATA_BINARY;
+  else
+    *data_type = WEB_SOCKET_DATA_TEXT;
+  return TRUE;
+}
+
+static gboolean
 process_open (CockpitWebService *self,
               CockpitSocket *socket,
               const gchar *channel,
               JsonObject *options)
 {
+  WebSocketDataType data_type = WEB_SOCKET_DATA_TEXT;
   CockpitSession *session = NULL;
   CockpitCreds *creds;
-  WebSocketDataType data_type;
   const gchar *specific_user;
   const gchar *password;
   const gchar *host;
   const gchar *host_key;
-  const gchar *binary;
   gboolean private;
 
   if (self->closing)
@@ -989,16 +1150,11 @@ process_open (CockpitWebService *self,
       return FALSE;
     }
 
-  if (!cockpit_json_get_string (options, "binary", NULL, &binary))
+  if (socket)
     {
-      g_warning ("%s: invalid binary option", socket->id);
-      return FALSE;
+      if (!parse_binary_type (options, &data_type))
+        return FALSE;
     }
-
-  if (binary && g_str_equal (binary, "raw"))
-    data_type = WEB_SOCKET_DATA_BINARY;
-  else
-    data_type = WEB_SOCKET_DATA_TEXT;
 
   if (!cockpit_json_get_string (options, "host", "localhost", &host))
     host = "localhost";
@@ -1041,7 +1197,8 @@ process_open (CockpitWebService *self,
 
   cockpit_creds_unref (creds);
   cockpit_session_add_channel (&self->sessions, session, channel);
-  cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
+  if (socket)
+    cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
   return TRUE;
 }
 
@@ -1307,6 +1464,7 @@ static gboolean
 on_web_socket_closing (WebSocketConnection *connection,
                        CockpitWebService *self)
 {
+  CockpitSideband *sideband;
   CockpitSession *session;
   CockpitSocket *socket;
   GHashTable *snapshot;
@@ -1329,6 +1487,10 @@ on_web_socket_closing (WebSocketConnection *connection,
   g_hash_table_iter_init (&iter, snapshot);
   while (g_hash_table_iter_next (&iter, (gpointer *)&channel, (gpointer *)&session))
     {
+      sideband = cockpit_sideband_by_channel (&self->sidebands, channel);
+      if (sideband)
+        cockpit_sideband_destroy (&self->sidebands, sideband, "disconnected");
+
       payload = build_control ("command", "close",
                                "channel", channel,
                                "problem", "disconnected",
@@ -1391,6 +1553,7 @@ cockpit_web_service_init (CockpitWebService *self)
   self->control_prefix = g_bytes_new_static ("\n", 1);
   cockpit_sessions_init (&self->sessions);
   cockpit_sockets_init (&self->sockets);
+  cockpit_sidebands_init (&self->sidebands);
   self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);
 }
 
@@ -1445,11 +1608,12 @@ cockpit_web_service_new (CockpitCreds *creds,
 }
 
 static WebSocketConnection *
-create_web_socket_server_for_stream (GIOStream *io_stream,
+create_web_socket_server_for_stream (const gchar **protocols,
+                                     const gchar *query,
+                                     GIOStream *io_stream,
                                      GHashTable *headers,
                                      GByteArray *input_buffer)
 {
-  const gchar *protocols[] = { "cockpit1", NULL };
   WebSocketConnection *connection;
   const gchar *host = NULL;
   gboolean secure;
@@ -1463,8 +1627,11 @@ create_web_socket_server_for_stream (GIOStream *io_stream,
 
   secure = G_IS_TLS_CONNECTION (io_stream);
 
-  url = g_strdup_printf ("%s://%s/socket", secure ? "wss" : "ws",
-                         host ? host : "localhost");
+  url = g_strdup_printf ("%s://%s/socket%s%s",
+                         secure ? "wss" : "ws",
+                         host ? host : "localhost",
+                         query ? "?" : "",
+                         query ? query : "");
   origin = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
 
   connection = web_socket_server_new_for_stream (url, origin, protocols,
@@ -1493,9 +1660,10 @@ cockpit_web_service_socket (CockpitWebService *self,
                             GHashTable *headers,
                             GByteArray *input_buffer)
 {
+  const gchar *protocols[] = { "cockpit1", NULL };
   WebSocketConnection *connection;
 
-  connection = create_web_socket_server_for_stream (io_stream, headers, input_buffer);
+  connection = create_web_socket_server_for_stream (protocols, NULL, io_stream, headers, input_buffer);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_open), self);
   g_signal_connect (connection, "closing", G_CALLBACK (on_web_socket_closing), self);
@@ -1507,6 +1675,8 @@ cockpit_web_service_socket (CockpitWebService *self,
 
   caller_begin (self);
 }
+
+
 
 /**
  * cockpit_web_service_get_creds:
@@ -1536,7 +1706,7 @@ cockpit_web_service_disconnect (CockpitWebService *self)
 
 static void
 on_web_socket_noauth (WebSocketConnection *connection,
-                      gpointer unused)
+                      gpointer data)
 {
   GBytes *payload;
   GBytes *prefix;
@@ -1560,13 +1730,198 @@ cockpit_web_service_noauth (GIOStream *io_stream,
 {
   WebSocketConnection *connection;
 
-  connection = create_web_socket_server_for_stream (io_stream, headers, input_buffer);
+  connection = create_web_socket_server_for_stream (NULL, NULL, io_stream, headers, input_buffer);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_noauth), NULL);
   g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
 
   /* Unreferences connection when it closes */
   g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
+}
+
+static gchar *
+generate_channel_id (CockpitWebService *self)
+{
+  return g_strdup_printf ("0:%d", self->next_internal_id++);
+}
+
+static void
+on_sideband_open (WebSocketConnection *connection,
+                  CockpitWebService *self)
+{
+  CockpitSideband *sideband;
+  CockpitSession *session;
+  GBytes *payload;
+
+  /*
+   * We delayed sending the "open" message for the sideband channel
+   * earlier, since opening it would have caused the bridge to start
+   * talking prematurely. So now we're ready to send it.
+   */
+
+  sideband = cockpit_sideband_by_connection (&self->sidebands, connection);
+  g_return_if_fail (sideband != NULL);
+
+  if (!process_open (self, NULL, sideband->channel, sideband->options))
+    {
+      web_socket_connection_close (connection, WEB_SOCKET_CLOSE_SERVER_ERROR, "protocol-error");
+      return;
+    }
+
+  session = cockpit_session_by_channel (&self->sessions, sideband->channel);
+  g_return_if_fail (sideband != NULL);
+
+  if (!session->sent_eof)
+    {
+      payload = cockpit_json_write_bytes (sideband->options);
+      cockpit_transport_send (session->transport, NULL, payload);
+      g_bytes_unref (payload);
+    }
+}
+
+static void
+on_sideband_message (WebSocketConnection *connection,
+                     WebSocketDataType type,
+                     GBytes *payload,
+                     CockpitWebService *self)
+{
+  CockpitSideband *sideband;
+  CockpitSession *session;
+
+  sideband = cockpit_sideband_by_connection (&self->sidebands, connection);
+  if (sideband)
+    {
+      session = cockpit_session_by_channel (&self->sessions, sideband->channel);
+      if (session)
+        {
+          if (!session->sent_eof)
+            cockpit_transport_send (session->transport, sideband->channel, payload);
+        }
+      else
+        {
+          g_debug ("sideband message for unknown channel %s", sideband->channel);
+        }
+    }
+}
+
+static void
+on_sideband_close (WebSocketConnection *connection,
+                   CockpitWebService *self)
+{
+  CockpitSideband *sideband;
+  CockpitSession *session;
+  GBytes *payload;
+
+  sideband = cockpit_sideband_by_connection (&self->sidebands, connection);
+  if (sideband)
+    {
+      session = cockpit_session_by_channel (&self->sessions, sideband->channel);
+      if (session && !session->sent_eof)
+        {
+          payload = build_control ("command", "eof", "channel", sideband->channel, NULL);
+          cockpit_transport_send (session->transport, sideband->channel, payload);
+          g_bytes_unref (payload);
+        }
+    }
+}
+
+static void
+on_sideband_invalid (WebSocketConnection *connection,
+                     gpointer unused)
+{
+  g_debug ("closing invalid web socket");
+  web_socket_connection_close (connection, WEB_SOCKET_CLOSE_GOING_AWAY, "protocol-error");
+}
+
+void
+cockpit_web_service_sideband (CockpitWebService *self,
+                              const gchar *escaped,
+                              GIOStream *io_stream,
+                              GHashTable *headers,
+                              GByteArray *input_buffer)
+{
+  WebSocketConnection *connection = NULL;
+  CockpitSideband *sideband = NULL;
+  const gchar *array[] = { NULL, NULL };
+  WebSocketDataType data_type;
+  const gchar **protocols;
+  const gchar *protocol;
+  JsonObject *options = NULL;
+  const gchar *channel;
+  GBytes *bytes = NULL;
+  gchar *generated = NULL;
+  gchar *data = NULL;
+
+  data = g_uri_unescape_string (escaped, "/");
+  if (data == NULL)
+    {
+      g_warning ("invalid sideband query string");
+      goto out;
+    }
+
+  bytes = g_bytes_new_take (data, strlen (data));
+  if (!cockpit_transport_parse_command (bytes, NULL, &channel, &options))
+    {
+      g_warning ("invalid sideband command");
+      goto out;
+    }
+
+  if (channel != NULL)
+    {
+      g_warning ("should not specify \"channel\" in sideband command: %s", channel);
+      goto out;
+    }
+
+  if (!cockpit_json_get_string (options, "protocol", NULL, &protocol))
+    {
+      g_warning ("invalid sideband \"protocol\" option");
+      goto out;
+    }
+  else if (protocol)
+    {
+      array[0] = protocol;
+      protocols = array;
+    }
+  else
+    {
+      protocols = NULL;
+    }
+
+  json_object_set_string_member (options, "command", "open");
+
+  if (!parse_binary_type (options, &data_type))
+    goto out;
+
+  channel = generated = generate_channel_id (self);
+  json_object_set_string_member (options, "channel", generated);
+
+  connection = create_web_socket_server_for_stream (protocols, escaped, io_stream, headers, input_buffer);
+
+  sideband = cockpit_sideband_track (&self->sidebands, channel, connection);
+  sideband->options = json_object_ref (options);
+  sideband->data_type = data_type;
+
+  sideband->open_sig = g_signal_connect (connection, "open", G_CALLBACK (on_sideband_open), self);
+  sideband->message_sig = g_signal_connect (connection, "message", G_CALLBACK (on_sideband_message), self);
+  sideband->close_sig = g_signal_connect (connection, "close", G_CALLBACK (on_sideband_close), self);
+  g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
+
+out:
+  if (bytes)
+    g_bytes_unref (bytes);
+  if (options)
+    json_object_unref (options);
+  if (connection)
+    g_object_unref (connection);
+  g_free (generated);
+
+  if (!sideband)
+    {
+      connection = create_web_socket_server_for_stream (NULL, escaped, io_stream, headers, input_buffer);
+      g_signal_connect (connection, "open", G_CALLBACK (on_sideband_invalid), "protocol-error");
+      g_signal_connect (connection, "error", G_CALLBACK (on_web_socket_error), NULL);
+      g_signal_connect (connection, "close", G_CALLBACK (g_object_unref), NULL);
+    }
 }
 
 gboolean
@@ -1768,7 +2123,7 @@ resource_response_new (CockpitWebService *self,
   rr = g_new0 (ResourceResponse, 1);
   rr->response = g_object_ref (response);
   rr->transport = g_object_ref (session->transport);
-  rr->channel = g_strdup_printf ("%d0", self->next_resource_id++);
+  rr->channel = generate_channel_id (self);
   rr->logname = cockpit_web_response_get_path (response);
 
   rr->recv_sig = g_signal_connect (rr->transport, "recv", G_CALLBACK (on_resource_recv_first), rr);

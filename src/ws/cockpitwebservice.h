@@ -48,6 +48,12 @@ void                 cockpit_web_service_socket      (CockpitWebService *self,
                                                       GHashTable *headers,
                                                       GByteArray *input_buffer);
 
+void                 cockpit_web_service_sideband    (CockpitWebService *self,
+                                                      const gchar *details,
+                                                      GIOStream *io_stream,
+                                                      GHashTable *headers,
+                                                      GByteArray *input_buffer);
+
 void                 cockpit_web_service_resource    (CockpitWebService *self,
                                                       GHashTable *headers,
                                                       CockpitWebResponse *response);

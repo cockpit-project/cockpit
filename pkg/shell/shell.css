@@ -317,25 +317,28 @@ ul.available-interfaces-group {
 }
 
 .container-col-name {
-    width: 125px;
+    width: 20%;
 }
 
 .container-col-image {
-    width: 180px;
+    width: 20%;
 }
 
 .container-col-command {
-    width: 150px;
+    width: 20%;
 }
 
 .container-col-cpu {
-    width: 50px;
+    width: 5%;
     text-align: right;
 }
 
+.container-col-memory-graph {
+    width: 15%;
+}
+
 .container-col-memory-text {
-    width: 100px;
-    white-space: nowrap;
+    width: 10%;
 }
 
 #containers .cell-buttons,
@@ -526,6 +529,11 @@ ul.available-interfaces-group {
     width: 15%;
 }
 
+/* Hack to remove size column */
+.image-col-size-graph {
+    display: none !important;
+}
+
 /* networking */
 
 .network-number-field {
@@ -562,9 +570,4 @@ ul.available-interfaces-group {
     padding-top: 20px;
     padding-left: 5px;
     padding-right: 5px;
-}
-
-/* Hack */
-.image-col-size-graph {
-    display: none !important;
 }

@@ -320,8 +320,7 @@ ul.available-interfaces-group {
     width: 125px;
 }
 
-.container-col-image,
-.image-col-tags {
+.container-col-image {
     width: 180px;
 }
 
@@ -334,14 +333,19 @@ ul.available-interfaces-group {
     text-align: right;
 }
 
-.container-col-memory-text,
-.image-col-size-text {
+.container-col-memory-text {
     width: 100px;
     white-space: nowrap;
 }
 
-.image-col-created {
-    width: 325px;
+#containers .cell-buttons,
+#containers .table > tbody > tr > .cell-buttons {
+    width: auto;
+}
+
+#containers .cell-buttons button,
+#containers .table > tbody > tr > .cell-buttons button {
+    float: right;
 }
 
 /*
@@ -496,6 +500,32 @@ ul.available-interfaces-group {
     float: left;
 }
 
+#containers #containers-containers .table,
+#containers #containers-images .table {
+    table-layout: fixed;
+}
+
+#containers #containers-containers .table th,
+#containers #containers-containers .table td,
+#containers #containers-images .table th,
+#containers #containers-images .table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.image-col-tags {
+    width: 40%;
+}
+
+.image-col-created {
+    width: 30%;
+}
+
+.image-col-size-text {
+    width: 15%;
+}
+
 /* networking */
 
 .network-number-field {
@@ -532,4 +562,9 @@ ul.available-interfaces-group {
     padding-top: 20px;
     padding-left: 5px;
     padding-right: 5px;
+}
+
+/* Hack */
+.image-col-size-graph {
+    display: none !important;
 }

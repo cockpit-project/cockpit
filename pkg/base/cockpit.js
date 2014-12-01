@@ -200,6 +200,37 @@ function calculate_url() {
     }
 }
 
+function join_data(buffers, binary) {
+    if (!binary)
+        return buffers.join("");
+
+    var data;
+    var j, k, total = 0;
+    var i, length = buffers.length;
+    for (i = 0; i < length; i++)
+        total += buffers[i].length;
+
+    if (window.Uint8Array)
+        data = new window.Uint8Array(total);
+    else
+        data = new Array(total);
+
+    if (data.set) {
+        for (j = 0, i = 0; i < length; i++) {
+            data.set(buffers[i], j);
+            j += buffers[i].length;
+        }
+    } else {
+        for (j = 0, i = 0; i < length; i++) {
+            for (k = 0; k < buffers[i].length; k++)
+                data[i + j] = buffers[i][k];
+            j += buffers[i].length;
+        }
+    }
+
+    return data;
+}
+
 /*
  * A WebSocket that connects to parent frame. The mechanism
  * for doing this will eventually be documented publicly,
@@ -502,16 +533,7 @@ function Transport() {
         if (payload.byteLength || is_array(payload)) {
             if (payload instanceof window.ArrayBuffer)
                 payload = new window.Uint8Array(payload);
-            var i;
-            var channel_length = channel.length;
-            var payload_length = payload.length;
-            var output = new window.Uint8Array(channel_length + 1 + payload_length);
-            for (i = 0; i < channel_length; i++)
-                output[i] = channel.charCodeAt(i) & 0xFF;
-            output[i] = 10; /* new line */
-            i += 1;
-            for (var x = 0; x < payload_length; x++, i++)
-                output[i] = payload[x];
+            var output = join_data([array_from_raw_string(channel), [ 10 ], payload ], true);
             return self.send_data(output.buffer);
 
         /* A string message */
@@ -720,6 +742,38 @@ function Channel(options) {
         else
             transport.send_control(options);
         on_close(options);
+    };
+
+    self.buffer = function buffer(callback) {
+        var buffers = [];
+        buffers.callback = callback;
+        buffers.squash = function squash() {
+            return join_data(buffers, binary);
+        };
+
+        self.addEventListener("message", function(event, data) {
+            var consumed, block;
+            buffers.push(data);
+            if (buffers.callback) {
+                block = join_data(buffers, binary);
+                if (block.length > 0) {
+                    consumed = buffers.callback.call(self, block);
+                    if (typeof consumed !== "number" || consumed === block.length) {
+                        buffers.length = 0;
+                    } else if (consumed !== 0) {
+                        buffers.length = 1;
+                        if (block.subarray)
+                            buffers[0] = block.subarray(consumed);
+                        else if (block.substring)
+                            buffers[0] = block.substring(consumed);
+                        else
+                            buffers[0] = block.slice(consumed);
+                    }
+                }
+            }
+        });
+
+        return buffers;
     };
 
     self.toString = function toString() {
@@ -1193,44 +1247,37 @@ function full_scope(cockpit, $) {
 
         var channel = cockpit.channel(args);
 
-        /* Callbacks that want to stream response, see below */
-        var streamers = null;
+        /* Callback that wants a stream response, see below */
+        var buffer = channel.buffer(null);
 
-        var buffer = "";
         $(channel).
-            on("message", function(event, payload) {
-                spawn_debug("process output:", payload);
-                buffer += payload;
-                if (streamers && buffer) {
-                    streamers.fire(buffer);
-                    buffer = "";
-                }
-            }).
             on("close", function(event, options) {
                 spawn_debug("process closed:", JSON.stringify(options));
-                if (options.problem)
+                if (options.problem) {
                     dfd.reject(new ProcessError(options.problem));
-                else if (options["exit-status"] || options["exit-signal"])
+                } else if (options["exit-status"] || options["exit-signal"]) {
                     dfd.reject(new ProcessError(options["exit-status"], options["exit-signal"]));
-                else
-                    dfd.resolve(buffer);
+                } else {
+                    var data = buffer.squash();
+                    spawn_debug("process output:", data);
+                    dfd.resolve(data);
+                }
             });
 
         var jpromise = dfd.promise;
         dfd.promise = function() {
             return $.extend(jpromise.apply(this, arguments), {
                 stream: function(callback) {
-                    if (streamers === null)
-                        streamers = $.Callbacks("" /* no flags */);
-                    streamers.add(callback);
+                    buffer.callback = callback;
                     return this;
                 },
-                write: function(message) {
-                    spawn_debug("process input:", message);
-                    if (message === null)
-                        channel.eof();
-                    else
+                input: function(message, stream) {
+                    if (message !== null && message !== undefined) {
+                        spawn_debug("process input:", message);
                         channel.send(message);
+                    }
+                    if (!stream)
+                        channel.eof();
                     return this;
                 },
                 close: function(problem) {

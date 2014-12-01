@@ -256,11 +256,14 @@ cockpit_transport_parse_command (GBytes *payload,
     }
 
   /* Parse out the command */
-  if (!cockpit_json_get_string (object, "command", NULL, command) ||
-      *command == NULL || g_str_equal (*command, ""))
+  if (command)
     {
-      g_warning ("Received invalid control message: invalid or missing command");
-      goto out;
+      if (!cockpit_json_get_string (object, "command", NULL, command) ||
+          *command == NULL || g_str_equal (*command, ""))
+        {
+          g_warning ("Received invalid control message: invalid or missing command");
+          goto out;
+        }
     }
 
   /* Parse out the channel */

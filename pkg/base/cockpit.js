@@ -563,7 +563,7 @@ function Channel(options) {
     var sent_eof = false;
     var id = null;
     var base64 = false;
-    var binary = false;
+    var binary = (options.binary === true);
 
     /*
      * Queue while waiting for transport, items are tuples:
@@ -574,6 +574,7 @@ function Channel(options) {
     /* Handy for callers, but not used by us */
     self.valid = valid;
     self.options = options;
+    self.binary = binary;
     self.id = id;
 
     function on_message(payload) {
@@ -659,8 +660,7 @@ function Channel(options) {
                 command.host = host;
         }
 
-        if (options.binary === true) {
-            binary = true;
+        if (binary) {
             if (transport.binary) {
                 command.binary = "raw";
             } else {

@@ -39,7 +39,7 @@
 <script type="text/javascript">
 
 asyncTest("basic", function() {
-    expect(2);
+    expect(3);
 
     var channel = cockpit.channel({ "payload": "echo" });
 
@@ -55,6 +55,7 @@ asyncTest("basic", function() {
         channel.eof();
     });
 
+    strictEqual(channel.binary, false, "not binary");
     channel.send("the payload");
 });
 
@@ -82,7 +83,7 @@ asyncTest("base64", function() {
 });
 
 asyncTest("binary", function() {
-    expect(2);
+    expect(3);
 
     var channel = cockpit.channel({ "payload": "echo", "binary": true });
 
@@ -114,6 +115,8 @@ asyncTest("binary", function() {
         for (i = 0; i < 8; i++)
             buffer[i] = i;
     }
+
+    strictEqual(channel.binary, true, "binary set");
     channel.send(buffer);
 });
 

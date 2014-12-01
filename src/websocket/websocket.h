@@ -34,7 +34,7 @@ gssize          web_socket_util_parse_headers  (const gchar *data,
                                                 gsize length,
                                                 GHashTable **headers);
 
-gsize           web_socket_util_parse_req_line (const gchar *data,
+gssize          web_socket_util_parse_req_line (const gchar *data,
                                                 gsize length,
                                                 gchar **method,
                                                 gchar **resource);

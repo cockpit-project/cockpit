@@ -585,10 +585,10 @@ PageStorage.prototype = {
                 $('<td class="row">').append(
                     $('<span class="col-md-12">').text(drive.Name),
                     $('<br>'),
-                    $('<span class="col-md-12 col-lg-6 storage-disk-size">').text(desc),
-                    $('<span class="col-md-12 col-lg-6">').append(
+                    $('<span class="col-md-12 col-lg-5 storage-disk-size">').text(desc),
+                    $('<span class="col-md-12 col-lg-7">').append(
                         $('<span class="reading">').text(""),
-                        $('<span style="display:inline-block;width:2em">'),
+                        $('<span style="display:inline-block;width:1em">'),
                         $('<span class="writing">').text(""))),
                 $('<td style="width:28px">').append(
                     $('<div>', { id: "storage-spinner-" + id,

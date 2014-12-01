@@ -211,6 +211,11 @@
 
       <variablelist>
         <varlistentry>
+          <term><code>"binary"</code></term>
+          <listitem><para>If set to <code>true</code> then handle the input and output
+            of the process as arrays of binary bytes.</para></listitem>
+        </varlistentry>
+        <varlistentry>
           <term><code>"directory"</code></term>
           <listitem><para>The directory to spawn the process in.</para></listitem>
         </varlistentry>
@@ -273,9 +278,11 @@
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         method. It sets up a handler to be called when the process finishes successfully.</para>
       <para>The <code>data</code> argument contains the standard output of the process.
-        If any <code><link linkend="latest-spawn-stream">process.stream()</link></code>
-        handlers are set up, then they will consume the standard output, and the
-        <code>data</code> argument will be <code>null</code>.</para>
+        If it a string, unless the process was opened in binary mode, in which case the
+        <code>data</code> is an array of bytes. If a
+        <code><link linkend="latest-spawn-stream">process.stream()</link></code>
+        handler is set up, then any standard output data consumed by the handler will not
+        be included in the <code>data</code> argument.</para>
     </refsection>
 
     <refsection id="latest-spawn-fail">
@@ -329,18 +336,28 @@
       <para>This sets up a handler to be called when the process has standard output. The
         handler will be called multiple times. The handler will be called regardless of
         whether the process ends up exiting successfully or not.</para>
-      <para>If any <code>process.stream()</code> handlers are set up, then the
+      <para>Only one handler may be registered at a time. Registering an additional handler
+        replaces the previous one. The handler receives either string <code>data</code> or
+        an array of binary bytes as its argument. A stream handler may return a number, which
+        indicates the number of characters or bytes consumed from <code>data</code>. Any data
+        not consumed will be included again the next time the handler is called.</para>
+      <para>If a <code>process.stream()</code> handler is set up, then the
         <code><link linkend="latest-spawn-done">process.done()</link></code> handlers will
-        get a <code>null</code> as their <code>data</code> argument. The stream handlers
-        consume the data.</para>
+        only get any remaining data not consumed by the stream handler.</para>
     </refsection>
 
-    <refsection id="latest-spawn-write">
-      <title>process.write()</title>
+    <refsection id="latest-spawn-input">
+      <title>process.input()</title>
 <programlisting>
- process.write(data)
+ process.input(data, [stream])
 </programlisting>
-      <para>This method writes string data to the standard input of the process.</para>
+      <para>This method writes <code>data</code> to the standard input of the process.
+        If <code>data</code> is <code>null</code> or <code>undefined</code> it is not sent.
+        The <code>data</code> should be a string or an array of bytes if the process was
+        opened in binary mode.</para>
+      <para>If <code>stream</code> is set to <code>true</code> then this function may be
+        called again with further input. Otherwise the standard input of the process
+        is closed.</para>
     </refsection>
 
     <refsection id="latest-spawn-close">
@@ -348,8 +365,7 @@
 <programlisting>
  process.close([problem])
 </programlisting>
-      <para>Close the proces. If <code>problem</code> is not specified, then just the standard
-        input of the process is closed. If <code>problem</code> is specified it should be a
+      <para>Close the process. If <code>problem</code> is specified it should be a
         standard <link linkend="latest-problems">problem code</link> string. In this case the
         process will be terminated with a signal.</para>
     </refsection>

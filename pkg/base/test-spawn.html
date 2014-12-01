@@ -123,6 +123,33 @@ function MockPeer() {
             $(this).triggerHandler("close", [options || { }]);
         };
 
+        this.buffer = function(callback) {
+            var buffers = [];
+            buffers.callback = callback;
+            buffers.squash = function squash() {
+                return buffers.join("");
+            };
+
+            this.onmessage = function(event, data) {
+                var consumed, block;
+                buffers.push(data);
+                if (buffers.callback) {
+                    block = buffers.squash();
+                    if (block.length > 0) {
+                        consumed = buffers.callback.call(self, block);
+                        if (typeof consumed !== "number" || consumed === block.length) {
+                            buffers.length = 0;
+                        } else {
+                            buffers.length = 1;
+                            buffers[0] = block.substring(consumed);
+                        }
+                    }
+                }
+            };
+
+            return buffers;
+        };
+
         QUnit.testDone(function() {
             channel.valid = false;
         });
@@ -154,7 +181,7 @@ asyncTest("simple request", function() {
     });
 
     cockpit.spawn(["/the/path", "arg1", "arg2"]).
-        write("input").
+        input("input", true).
         done(function(resp) {
             deepEqual(resp, "output", "returned right json");
         })
@@ -292,12 +319,12 @@ test("spawn promise recursive", function() {
     strictEqual(promise2, target, "used target");
     equal(typeof promise2.done, "function", "promise2.done()");
     equal(typeof promise2.promise, "function", "promise2.promise()");
-    equal(typeof promise2.write, "function", "promise2.write()");
+    equal(typeof promise2.input, "function", "promise2.input()");
 
     var promise3 = promise2.promise();
     equal(typeof promise3.done, "function", "promise3.done()");
     equal(typeof promise3.promise, "function", "promise3.promise()");
-    equal(typeof promise3.write, "function", "promise3.write()");
+    equal(typeof promise3.input, "function", "promise3.input()");
 });
 
 QUnit.start();

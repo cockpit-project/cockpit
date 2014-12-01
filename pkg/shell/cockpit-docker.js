@@ -630,8 +630,6 @@ PageRunImage.prototype = {
                 page.memory_slider.max = info.memory;
             });
 
-        console.log(info);
-
         /* Memory slider defaults */
         if (info.container_config.Memory) {
             this.memory_slider.value = info.config_container.Memory;
@@ -825,9 +823,16 @@ PageSearchImage.prototype = {
 
         var failed = false;
         var layers = {};
+        var buffer = "";
 
         this.client.pull(repo, tag).
-            stream(function(progress) {
+            stream(function(data) {
+                buffer += data;
+                var next = modules.docker.json_skip(buffer, 0);
+                if (next === 0)
+                    return; /* not enough data yet */
+                var progress = JSON.parse(buffer.substring(0, next));
+                buffer = buffer.substring(next);
                 if ("error" in progress) {
                     failed = true;
                     created.text = 'Error downloading';
@@ -857,7 +862,7 @@ PageSearchImage.prototype = {
                     size.html(full_status);
                 }
             }).
-            done(function(progress) {
+            done(function() {
                 // According to Docker, download was finished.
                 if(!failed) {
                     tr.remove();
@@ -875,10 +880,11 @@ PageSearchImage.prototype = {
         $('#containers-search-image-results').hide();
         $('#containers-search-image-results tbody tr').remove();
         this.search_request = client.search(term).
-          done(function(resp){
+          done(function(data) {
+              var resp = data && JSON.parse(data);
               $('#containers-search-image-waiting').removeClass('waiting');
 
-              if(resp.length > 0) {
+              if(resp && resp.length > 0) {
                   $('#containers-search-image-results').show();
                   resp.forEach(function(entry) {
                       var row = $('<tr>').append(
@@ -928,7 +934,7 @@ PageSearchImage.prototype = {
         $('#containers-search-image-results').hide();
         $('#containers-search-image-results tbody tr').remove();
         if (this.search_request !== null) {
-            this.search_request.cancel();
+            this.search_request.close();
             this.search_request = null;
         }
         $('#containers-search-image-waiting').removeClass('waiting');
@@ -1363,7 +1369,7 @@ function DockerClient(machine) {
     var me = this;
     var events;
     var watch;
-    var rest;
+    var http;
     var connected;
     var got_failure;
     var alive = true;
@@ -1390,6 +1396,7 @@ function DockerClient(machine) {
     function connect_events() {
 
         /* Trigger the event signal when JSON from /events */
+        events = http.get("/v1.10/events");
         events.stream(function(resp) {
             docker_debug("event:", resp);
             if (connected.state() == "pending")
@@ -1401,7 +1408,6 @@ function DockerClient(machine) {
         always(function() {
             window.setTimeout(function() {
                 if (alive && events) {
-                    events = events.restart();
                     connect_events();
                     alive = false;
                 }
@@ -1450,12 +1456,15 @@ function DockerClient(machine) {
            containers_by_name[name] = id;
     }
 
-    function cleanup_container(id, container) {
-       if (!container)
-           return;
-       var name = container_to_name(container);
-       if (name && containers_by_name[name] == id)
-           delete containers_by_name[name];
+    function remove_container(id) {
+        var container = me.containers[id];
+        if (container) {
+            var name = container_to_name(container);
+            if (name && containers_by_name[name] == id)
+                delete containers_by_name[name];
+            delete me.containers[id];
+            $(me).trigger("container", [id, undefined]);
+        }
     }
 
     function fetch_containers() {
@@ -1464,8 +1473,9 @@ function DockerClient(machine) {
          * /events for notification when something changes as well as some
          * file monitoring.
          */
-        rest.get("/v1.10/containers/json", { all: 1 }).
-            done(function(containers) {
+        http.get("/v1.10/containers/json", { all: 1 }).
+            done(function(data) {
+                var containers = JSON.parse(data);
                 if (connected.state() == "pending")
                     connected.resolve();
                 alive = true;
@@ -1484,8 +1494,9 @@ function DockerClient(machine) {
 
                     seen[id] = id;
                     containers_meta[id] = item;
-                    rest.get("/v1.10/containers/" + id + "/json").
-                        done(function(container) {
+                    http.get("/v1.10/containers/" + encodeURIComponent(id) + "/json").
+                        done(function(data) {
+                            var container = JSON.parse(data);
                             populate_container(id, container);
                             me.containers[id] = container;
                             $(me).trigger("container", [id, container]);
@@ -1499,9 +1510,7 @@ function DockerClient(machine) {
                 });
 
                 $.each(removed, function(i, id) {
-                    cleanup_container(id, me.containers[id]);
-                    delete me.containers[id];
-                    $(me).trigger("container", [id, undefined]);
+                    remove_container(id);
                 });
             }).
             fail(function(ex) {
@@ -1526,14 +1535,22 @@ function DockerClient(machine) {
             image.RepoTags.sort();
     }
 
+    function remove_image(id) {
+        if (me.images[id]) {
+            delete me.images[id];
+            $(me).trigger("image", [id, undefined]);
+        }
+    }
+
     function fetch_images() {
         /*
          * Gets a list of images and keeps it up to date. Again, the /images/json and
          * /images/xxxx/json have completely inconsistent keys. So using the former
          * is pretty useless here :S
          */
-        rest.get("/v1.10/images/json", 1000).
-            done(function(images) {
+        http.get("/v1.10/images/json").
+            done(function(data) {
+                var images = JSON.parse(data);
                 if (connected.state() == "pending")
                     connected.resolve();
                 alive = true;
@@ -1546,8 +1563,9 @@ function DockerClient(machine) {
 
                     seen[id] = id;
                     images_meta[id] = item;
-                    rest.get("/v1.10/images/" + id + "/json").
-                        done(function(image) {
+                    http.get("/v1.10/images/" + encodeURIComponent(id) + "/json").
+                        done(function(data) {
+                            var image = JSON.parse(data);
                             populate_image(id, image);
                             me.images[id] = image;
                             $(me).trigger("image", [id, image]);
@@ -1561,8 +1579,7 @@ function DockerClient(machine) {
                 });
 
                 $.each(removed, function(i, id) {
-                    delete me.images[id];
-                    $(me).trigger("image", [id, undefined]);
+                    remove_image(id);
                 });
             }).
             fail(function(ex) {
@@ -1581,8 +1598,7 @@ function DockerClient(machine) {
     function perform_connect() {
         got_failure = false;
         connected = $.Deferred();
-        rest = shell.rest("unix:///var/run/docker.sock", machine);
-        events = rest.get("/v1.10/events");
+        http = cockpit.http("/var/run/docker.sock");
 
         connect_events();
 
@@ -1594,7 +1610,8 @@ function DockerClient(machine) {
             trigger_event();
         });
         $(watch).on("close", function(event, options) {
-            console.warn("monitor for docker directory failed: " + options.problem);
+            if (options.problem)
+                console.warn("monitor for docker directory failed: " + options.problem);
         });
 
         $(me).triggerHandler("event");
@@ -1633,12 +1650,16 @@ function DockerClient(machine) {
     this.pull = function pull(repo, tag) {
         docker_debug("pulling: " + repo + ", tag: " + tag);
 
-        var url = "/v1.10/images/create?fromImage=" + repo;
-        if(tag !== '') {
-            url += "&tag=" + tag;
-        }
+        var params = { "fromImage": repo };
+        if (tag)
+            params["tag"] = tag;
 
-        return rest.post(url);
+        return http.request({
+            method: "POST",
+            path: "/v1.10/images/create",
+            params: params,
+            body: ""
+        });
     };
 
     /* We listen to the resource monitor and include the measurements
@@ -1702,17 +1723,17 @@ function DockerClient(machine) {
     /* Actually connect initially */
     perform_connect();
 
-    this.start = function start(id, options) {
+    this.start = function start(id) {
         waiting(id);
-        docker_debug("starting:", id, options);
-        return rest.post("/v1.10/containers/" + id + "/start", null, options).
-            fail(function(ex) {
+        docker_debug("starting:", id);
+        return http.post("/v1.10/containers/" + encodeURIComponent(id) + "/start")
+            .fail(function(ex) {
                 docker_debug("start failed:", id, ex);
-            }).
-            done(function(resp) {
+            })
+            .done(function(resp) {
                 docker_debug("started:", id, resp);
-            }).
-            always(function() {
+            })
+            .always(function() {
                 not_waiting(id);
             });
     };
@@ -1722,14 +1743,19 @@ function DockerClient(machine) {
         if (timeout === undefined)
             timeout = 10;
         docker_debug("stopping:", id, timeout);
-        return rest.post("/v1.10/containers/" + id + "/stop", { 't': timeout }).
-            fail(function(ex) {
+        return http.request({
+                method: "POST",
+                path: "/v1.10/containers/" + encodeURIComponent(id) + "/stop",
+                params: { 't': timeout },
+                body: ""
+            })
+            .fail(function(ex) {
                 docker_debug("stop failed:", id, ex);
-            }).
-            done(function(resp) {
+            })
+            .done(function(resp) {
                 docker_debug("stopped:", id, resp);
-            }).
-            always(function() {
+            })
+            .always(function() {
                 not_waiting(id);
             });
     };
@@ -1737,36 +1763,43 @@ function DockerClient(machine) {
     this.restart = function restart(id) {
         waiting(id);
         docker_debug("restarting:", id);
-        return rest.post("/v1.10/containers/" + id + "/restart").
-            fail(function(ex) {
+        return http.post("/v1.10/containers/" + encodeURIComponent(id) + "/restart")
+            .fail(function(ex) {
                 docker_debug("restart failed:", id, ex);
-            }).
-            done(function(resp) {
+            })
+            .done(function(resp) {
                 docker_debug("restarted:", id, resp);
-            }).
-            always(function() {
+            })
+            .always(function() {
                 not_waiting(id);
             });
     };
 
     this.create = function create(name, options) {
-        docker_debug("creating:", name, options);
-        return rest.post("/v1.10/containers/create", { "name": name }, options).
-            fail(function(ex) {
+        docker_debug("creating:", name);
+        return http.request({
+                method: "POST",
+                path: "/v1.10/containers/create",
+                params: { "name": name },
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(options || { })
+            })
+            .fail(function(ex) {
                 docker_debug("create failed:", name, ex);
-            }).
-            done(function(resp) {
+            })
+            .done(function(resp) {
                 docker_debug("created:", name, resp);
-            });
+            })
+            .then(JSON.parse);
     };
 
     this.search = function search(term) {
         docker_debug("searching:", term);
-        return rest.get("/v1.10/images/search", { "term": term }).
-            fail(function(ex) {
+        return http.get("/v1.10/images/search", { "term": term })
+            .fail(function(ex) {
                 docker_debug("search failed:", term, ex);
-            }).
-            done(function(resp) {
+            })
+            .done(function(resp) {
                 docker_debug("searched:", term, resp);
             });
     };
@@ -1780,29 +1813,41 @@ function DockerClient(machine) {
 
         waiting(id);
         docker_debug("committing:", id, repotag, options, run_config);
-        return rest.post("/v1.10/commit", args, run_config).
-            fail(function(ex) {
+        return http.request({
+                method: "POST",
+                path: "/v1.10/commit",
+                params: args,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(run_config || { })
+            })
+            .fail(function(ex) {
                 docker_debug("commit failed:", repotag, ex);
-            }).
-            done(function(resp) {
+            })
+            .done(function(resp) {
                 docker_debug("committed:", repotag);
-            }).
-            always(function() {
+            })
+            .always(function() {
                 not_waiting(id);
-            });
+            })
+            .then(JSON.parse);
     };
 
     this.rm = function rm(id) {
         waiting(id);
         docker_debug("deleting:", id);
-        return rest.del("/v1.10/containers/" + id).
-            fail(function(ex) {
+        return http.request({
+                method: "DELETE",
+                path: "/v1.10/containers/" + encodeURIComponent(id),
+                body: ""
+            })
+            .fail(function(ex) {
                 docker_debug("delete failed:", id, ex);
-            }).
-            done(function(resp) {
+            })
+            .done(function(resp) {
                 docker_debug("deleted:", id, resp);
-            }).
-            always(function() {
+                remove_container(id);
+            })
+            .always(function() {
                 not_waiting(id);
             });
     };
@@ -1810,14 +1855,19 @@ function DockerClient(machine) {
     this.rmi = function rmi(id) {
         waiting(id);
         docker_debug("deleting:", id);
-        return rest.del("/v1.10/images/" + id).
-            fail(function(ex) {
+        return http.request({
+                method: "DELETE",
+                path: "/v1.10/images/" + encodeURIComponent(id),
+                body: ""
+            })
+            .fail(function(ex) {
                 docker_debug("delete failed:", id, ex);
-            }).
-            done(function(resp) {
+            })
+            .done(function(resp) {
                 docker_debug("deleted:", id, resp);
-            }).
-            always(function() {
+                remove_image(id);
+            })
+            .always(function() {
                 not_waiting(id);
             });
     };
@@ -1876,9 +1926,6 @@ function DockerClient(machine) {
     this.close = function close() {
         $(monitor).off('NewSample', handle_new_samples);
         monitor = null;
-        if (rest)
-            rest.close();
-        rest = null;
         if (dbus_client)
             dbus_client.release();
         dbus_client = null;

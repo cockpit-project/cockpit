@@ -56,10 +56,11 @@ define([
                 self.typeable(false);
                 $(channel).off("message");
                 channel = null;
-            }).
-            on("message", function(ev, payload) {
-                term.write(decoder.decode(payload));
             });
+
+        self.process = function process(buffer) {
+                term.write(decoder.decode(buffer));
+        };
 
         term.on('data', function(data) {
             /* Send typed input back through channel */
@@ -86,12 +87,6 @@ define([
         };
 
         return self;
-    }
-
-    /* Nastiness necessary for some browsers */
-    function push_all(a, b) {
-        for (var i = 0, length = b.length; i < length; i++)
-            a.push(b[i]);
     }
 
     function DockerLogs(parent, channel, failure) {
@@ -124,7 +119,32 @@ define([
         }
 
         var decoder = cockpit.utf8_decoder(false);
-        var buffer = [];
+
+        self.process = function process(buffer) {
+            var at = 0;
+            var size, block;
+            var length = buffer.length;
+            while (true) {
+                if (length < at + 8)
+                    return at; /* more data */
+
+                size = ((buffer[at + 4] & 0xFF) << 24) | ((buffer[at + 5] & 0xFF) << 16) |
+                       ((buffer[at + 6] & 0xFF) << 8) | (buffer[at + 7] & 0xFF);
+
+                if (length < at + 8 + size)
+                    return at; /* more data */
+
+                /* Output the data */
+                if (buffer.subarray)
+                    block = buffer.subarray(at + 8, at + 8 + size);
+                else
+                    block = buffer.slice(at + 8, at + 8 + size);
+                write(decoder.decode(block, { stream: true }));
+                at += 8 + size;
+            }
+
+            return at;
+        };
 
         /*
          * A raw channel over which we speak Docker's even stranger /logs
@@ -137,31 +157,7 @@ define([
                 self.connected = false;
                 $(channel).off();
                 channel = null;
-            }).
-            on("message", function(ev, payload) {
-                push_all(buffer, payload);
-
-                while (true) {
-                    if (buffer.length < 8)
-                        return; /* more data */
-
-                    var size = ((buffer[4] & 0xFF) << 24) | ((buffer[5] & 0xFF) << 16) |
-                               ((buffer[6] & 0xFF) << 8) | (buffer[7] & 0xFF);
-
-                    if (buffer.length < 8 + size)
-                        return; /* more data */
-
-                    /* Output the data */
-                    write(decoder.decode(buffer.slice(8, 8 + size), { stream: true }));
-                    buffer = buffer.slice(8 + size);
-                }
             });
-
-        /* Allows caller to cleanup nicely */
-        self.close = function close() {
-            if (self.connected)
-                channel.close(null);
-        };
 
         return self;
     }
@@ -195,9 +191,11 @@ define([
          * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
          */
         function attach() {
-            var buffer = [];
-            var headers = null;
             self.connected = true;
+
+            if (view)
+                view.close();
+            view = null;
 
             channel = cockpit.channel({
                 "payload": "stream",
@@ -217,50 +215,55 @@ define([
                     self.connected = false;
                     $(channel).off(".attach");
                     channel = null;
-                }).
-                on("message.attach", function(ev, payload) {
-                    push_all(buffer, payload);
-
-                    var pos = 0;
-                    var failure;
-                    var parts;
-
-                    /* Look for end of headers first */
-                    if (headers === null) {
-                        pos = sequence_find(buffer, [ 13, 10, 13, 10 ]);
-                        if (pos == -1)
-                            return;
-
-                        headers = cockpit.utf8_decoder().decode(buffer.slice(0, pos));
-                        docker_debug(container_id + ": console headers: ", headers);
-
-                        parts = headers.split("\r\n", 1)[0].split(" ");
-                        if (parts[1] != "200") {
-                            tty = false;
-                            failure = parts.slice(2).join(" ");
-                        } else {
-                            buffer = buffer.slice(pos + 4);
-                        }
-                    }
-
-                    /* We need at least two bytes to determine stream type */
-                    if (tty === undefined) {
-                        if (buffer.length < 2)
-                            return;
-                        tty = !((buffer[0] === 0 || buffer[0] === 1 || buffer[0] === 2) && buffer[1] === 0);
-                        docker_debug(container_id + ": mode tty: " + tty);
-                    }
-
-                    $(channel).off("message.attach");
-
-                    if (tty)
-                        view = new DockerTerminal(self, channel);
-                    else
-                        view = new DockerLogs(self, channel, failure);
-
-                    $(channel).triggerHandler("message", [ buffer ]);
-                    self.typeable(want_typeable);
                 });
+
+            var headers = null;
+            var buffer = channel.buffer();
+            buffer.callback = function(data) {
+                var pos = 0;
+                var parts;
+
+                /* Look for end of headers first */
+                if (headers === null) {
+                    pos = sequence_find(data, [ 13, 10, 13, 10 ]);
+                    if (pos == -1)
+                        return;
+
+                    if (data.subarray)
+                        headers = cockpit.utf8_decoder().decode(data.subarray(0, pos));
+                    else
+                        headers = cockpit.utf8_decoder().decode(data.slice(0, pos));
+                    docker_debug(container_id + ": console headers: ", headers);
+
+                    parts = headers.split("\r\n", 1)[0].split(" ");
+                    if (parts[1] != "200") {
+                        view = new DockerLogs(self, channel, parts.slice(2).join(" "));
+                        buffer.callback = null;
+                        self.connected = false;
+                        return;
+                    } else if (data.subarray) {
+                        data = data.subarray(pos + 4);
+                    } else {
+                        data = data.slice(pos + 4);
+                    }
+                }
+
+                /* We need at least two bytes to determine stream type */
+                if (tty === undefined) {
+                    if (data.length < 2)
+                        return pos + 4;
+                    tty = !((data[0] === 0 || data[0] === 1 || data[0] === 2) && data[1] === 0);
+                    docker_debug(container_id + ": mode tty: " + tty);
+                }
+
+                if (tty)
+                    view = new DockerTerminal(self, channel);
+                else
+                    view = new DockerLogs(self, channel);
+                buffer.callback = view.process;
+                buffer.callback(data);
+                self.typeable(want_typeable);
+            };
         }
 
         attach();
@@ -270,7 +273,8 @@ define([
             if (self.connected)
                 channel.close(problem);
             if (view) {
-                view.close();
+                if (view.close)
+                    view.close();
                 view = null;
             }
         };

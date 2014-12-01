@@ -162,7 +162,7 @@ _web_socket_util_parse_url (const gchar *url,
  * Return value: zero if truncated, negative if fails, or number of
  *               characters parsed
  */
-gsize
+gssize
 web_socket_util_parse_req_line (const gchar *data,
                                 gsize length,
                                 gchar **method,

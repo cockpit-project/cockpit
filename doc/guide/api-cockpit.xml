@@ -247,6 +247,10 @@
               size. This is not a guarantee. After a short timeout the data will be sent
               even if the data doesn't match the batch size. Defaults to zero.</para></listitem>
         </varlistentry>
+        <varlistentry>
+          <term><code>"latency"</code></term>
+          <listitem><para> The timeout for flushing any cached data in milliseconds.</para></listitem>
+        </varlistentry>
 	<varlistentry>
 	  <term><code>"superuser"</code></term>
 	  <listitem><para>Try to spawn the process as root instead of the logged in user. If the

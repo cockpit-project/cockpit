@@ -54,8 +54,9 @@ typedef struct {
   gboolean closing;
   guint sig_read;
   guint sig_close;
-  gint64 batch_size;
-  guint batch_timeout;
+  gint64 batch;
+  gint64 latency;
+  guint timeout;
 } CockpitStream;
 
 typedef struct {
@@ -79,10 +80,16 @@ process_pipe_buffer (CockpitStream *self,
   CockpitChannel *channel = (CockpitChannel *)self;
   GBytes *message;
 
-  if (self->batch_timeout)
+  if (!data && self->pipe)
+    data = cockpit_pipe_get_buffer (self->pipe);
+
+  if (!data)
+    return;
+
+  if (self->timeout)
     {
-      g_source_remove (self->batch_timeout);
-      self->batch_timeout = 0;
+      g_source_remove (self->timeout);
+      self->timeout = 0;
     }
 
   if (data->len)
@@ -101,8 +108,7 @@ cockpit_stream_eof (CockpitChannel *channel)
   CockpitStream *self = COCKPIT_STREAM (channel);
 
   self->closing = TRUE;
-  if (self->pipe)
-    process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
+  process_pipe_buffer (self, NULL);
 
   /*
    * If closed, call base class handler directly. Otherwise ask
@@ -113,14 +119,41 @@ cockpit_stream_eof (CockpitChannel *channel)
 }
 
 static void
+cockpit_stream_options (CockpitChannel *channel,
+                        JsonObject *options)
+{
+  CockpitStream *self = COCKPIT_STREAM (channel);
+  const gchar *problem = "protocol-error";
+
+  if (!cockpit_json_get_int (options, "batch", self->batch, &self->batch))
+    {
+      g_warning ("invalid \"batch\" option for stream channel");
+      goto out;
+    }
+
+  if (!cockpit_json_get_int (options, "latency", self->latency, &self->latency) ||
+      self->latency < 0 || self->latency >= G_MAXUINT)
+    {
+      g_warning ("invalid \"latency\" option for stream channel");
+      goto out;
+    }
+
+  problem = NULL;
+  process_pipe_buffer (self, NULL);
+
+out:
+  if (problem)
+    cockpit_channel_close (channel, problem);
+}
+
+static void
 cockpit_stream_close (CockpitChannel *channel,
                       const gchar *problem)
 {
   CockpitStream *self = COCKPIT_STREAM (channel);
 
   self->closing = TRUE;
-  if (self->pipe)
-    process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
+  process_pipe_buffer (self, NULL);
 
   /*
    * If closed, call base class handler directly. Otherwise ask
@@ -136,8 +169,8 @@ static gboolean
 on_batch_timeout (gpointer user_data)
 {
   CockpitStream *self = user_data;
-  self->batch_timeout = 0;
-  process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
+  self->timeout = 0;
+  process_pipe_buffer (self, NULL);
   return FALSE;
 }
 
@@ -149,13 +182,11 @@ on_pipe_read (CockpitPipe *pipe,
 {
   CockpitStream *self = user_data;
 
-  if (!end_of_data &&
-      self->batch_size > 0 &&
-      data->len < self->batch_size)
+  if (!end_of_data && self->batch > 0 && data->len < self->batch)
     {
       /* Delay the processing of this data */
-      if (!self->batch_timeout)
-        self->batch_timeout = g_timeout_add (75, on_batch_timeout, self);
+      if (!self->timeout)
+        self->timeout = g_timeout_add (self->latency, on_batch_timeout, self);
     }
   else
     {
@@ -181,7 +212,7 @@ on_pipe_close (CockpitPipe *pipe,
   gint status;
   gchar *signal;
 
-  process_pipe_buffer (self, cockpit_pipe_get_buffer (self->pipe));
+  process_pipe_buffer (self, NULL);
 
   self->open = FALSE;
 
@@ -218,7 +249,8 @@ on_pipe_close (CockpitPipe *pipe,
 static void
 cockpit_stream_init (CockpitStream *self)
 {
-
+  /* Has no effect until batch is set */
+  self->latency = 75;
 }
 
 static void
@@ -238,16 +270,17 @@ cockpit_stream_prepare (CockpitChannel *channel)
   COCKPIT_CHANNEL_CLASS (cockpit_stream_parent_class)->prepare (channel);
 
   options = cockpit_channel_get_options (channel);
+
   if (!cockpit_json_get_strv (options, "spawn", NULL, &argv))
     {
       g_warning ("invalid \"spawn\" option for stream channel");
       goto out;
     }
-  if (!cockpit_json_get_int (options, "batch", G_MAXINT64, &self->batch_size))
-    {
-      g_warning ("invalid \"batch\" option for stream channel");
-      goto out;
-    }
+
+  /* Support our options in the open message too */
+  cockpit_stream_options (channel, options);
+  if (self->closing)
+    goto out;
 
   if (argv)
     {
@@ -346,6 +379,7 @@ cockpit_stream_class_init (CockpitStreamClass *klass)
   gobject_class->finalize = cockpit_stream_finalize;
 
   channel_class->prepare = cockpit_stream_prepare;
+  channel_class->options = cockpit_stream_options;
   channel_class->eof = cockpit_stream_eof;
   channel_class->recv = cockpit_stream_recv;
   channel_class->close = cockpit_stream_close;

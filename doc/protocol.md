@@ -583,9 +583,6 @@ Additional "open" command options should be specified with a channel of
 this payload type:
 
  * "unix": Open a channel with the given unix socket.
- * "batch": Batches data coming from the stream in blocks of at least this
-   size. This is not a guarantee. After a short timeout the data will be
-   sent even if the data doesn't match the batch size. Defaults to zero.
  * "spawn": Spawn a process and connect standard input and standard output
    to the channel. Should be an array of strings which is the process
    file path and arguments.
@@ -604,6 +601,14 @@ following options can be specified:
 If an "eof" is sent to the bridge on this channel, then the socket and/or pipe
 input is shutdown. The channel will send an "eof" when the output of the socket
 or pipe is done.
+
+Additionally a "tell" control message may be sent in this channel with the
+following options:
+
+ * "batch": Batches data coming from the stream in blocks of at least this
+   size. This is not a guarantee. After a short timeout the data will be
+   sent even if the data doesn't match the batch size. Defaults to zero.
+ * "latency": The timeout for flushing any cached data in milliseconds.
 
 Payload: fswatch1
 -----------------

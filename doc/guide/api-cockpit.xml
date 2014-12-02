@@ -241,12 +241,6 @@
           <listitem><para>Launch the process in its own PTY terminal, and send/receive
             terminal input and output.</para></listitem>
         </varlistentry>
-        <varlistentry>
-          <term><code>"batch"</code></term>
-          <listitem><para>Batch data coming from the process in blocks of at least this
-              size. This is not a guarantee. After a short timeout the data will be sent
-              even if the data doesn't match the batch size. Defaults to zero.</para></listitem>
-        </varlistentry>
 	<varlistentry>
 	  <term><code>"superuser"</code></term>
 	  <listitem><para>Try to spawn the process as root instead of the logged in user. If the

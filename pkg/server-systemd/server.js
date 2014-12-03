@@ -142,7 +142,7 @@ define([
             }
         }
 
-        var proc = cockpit.spawn(cmd, { host: options.host }).
+        var proc = cockpit.spawn(cmd, { host: options.host, batch: 8192, latency: 300 }).
             stream(function(data) {
                 var pos = 0;
                 var next;

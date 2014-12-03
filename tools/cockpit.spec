@@ -72,12 +72,6 @@ BuildRequires: sed
 # For documentation
 BuildRequires: /usr/bin/xmlto
 
-Requires: realmd
-Requires: udisks2 >= 2.1.0
-Requires: mdadm
-Requires: lvm2
-Requires: storaged
-
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
@@ -104,9 +98,28 @@ The Cockpit Deployment and Developer Guide shows sysadmins how to
 deploy Cockpit on their machines as well as helps developers who want to
 embed or extend Cockpit.
 
+%package docker
+Summary: Cockpit user interface for Docker containers
+%if 0%{?fedora}
+Requires: docker-io
+%else
+Requires: docker
+%endif
+
+%description docker
+The Cockpit components for interacting with Docker and user interface.
+This package is not yet complete.
+
 %package shell
 Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
+Requires: %{name}-docker = %{version}-%{release}
+Requires: NetworkManager
+Requires: realmd
+Requires: udisks2 >= 2.1.0
+Requires: mdadm
+Requires: lvm2
+Requires: storaged
 Obsoletes: %{name}-assets
 BuildArch: noarch
 
@@ -179,9 +192,11 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %files doc
 %{_docdir}/%{name}
 
+%files docker
+%{_datadir}/%{name}/docker
+
 %files shell
 %{_datadir}/%{name}/base
-%{_datadir}/%{name}/docker
 %{_datadir}/%{name}/shell
 %{_datadir}/%{name}/playground
 %{_datadir}/%{name}/server-systemd
@@ -272,6 +287,9 @@ fi
 %endif
 
 %changelog
+* Wed Dec 03 2014 Stef Walter <stefw@redhat.com> - 0.33-1
+- Update to 0.33 release
+
 * Mon Nov 24 2014 Stef Walter <stefw@redhat.com> - 0.32-1
 - Update to 0.32 release
 

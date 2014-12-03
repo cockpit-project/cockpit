@@ -112,6 +112,8 @@ define([
             }
         }
 
+        channel.control({ batch: 16384, latency: 50 });
+
         /* Just display the failure */
         if (failure) {
             write(failure);

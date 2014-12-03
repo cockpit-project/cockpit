@@ -228,7 +228,7 @@ define([
                 if (headers === null) {
                     pos = sequence_find(data, [ 13, 10, 13, 10 ]);
                     if (pos == -1)
-                        return;
+                        return 0;
 
                     if (data.subarray)
                         headers = cockpit.utf8_decoder().decode(data.subarray(0, pos));
@@ -261,9 +261,11 @@ define([
                     view = new DockerTerminal(self, channel);
                 else
                     view = new DockerLogs(self, channel);
-                buffer.callback = view.process;
-                buffer.callback(data);
                 self.typeable(want_typeable);
+
+                buffer.callback = view.process;
+                var consumed = view.process(data);
+                return pos + 4 + consumed;
             };
         }
 

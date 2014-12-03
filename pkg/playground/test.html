@@ -138,7 +138,7 @@ require([
                 set_counter(message.tag, new_content);
         });
         channel.send(new_content);
-        channel.eof();
+        channel.control({ command: "eof" });
     }
 
     $('#read-file').click(read_counter);

@@ -188,6 +188,17 @@ After it is sent no more messages may be sent in that direction. It is an error
 to send further messages, or send another "eof" message.
 
 
+Command: options
+----------------
+
+The "options" command sends further channel options on the fly. The contents of
+the message depends on the channel payload.
+
+The following fields are defined:
+
+ * "channel": The id of the channel
+
+
 Command: ping
 -------------
 

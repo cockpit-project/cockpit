@@ -222,21 +222,28 @@ on_transport_control (CockpitTransport *transport,
   if (g_strcmp0 (channel_id, self->priv->id) != 0)
     return FALSE;
 
-  if (g_str_equal (command, "eof"))
+  klass = COCKPIT_CHANNEL_GET_CLASS (self);
+  if (g_str_equal (command, "options"))
+    {
+      if (klass->options)
+        (klass->options) (self, options);
+      return TRUE;
+    }
+  else if (g_str_equal (command, "eof"))
     {
       if (self->priv->received_eof)
         {
           g_warning ("%s: channel received second eof", self->priv->id);
           cockpit_channel_close (self, "protocol-error");
-          return TRUE;
         }
-
-      self->priv->received_eof = TRUE;
-      if (self->priv->ready)
+      else
         {
-          klass = COCKPIT_CHANNEL_GET_CLASS (self);
-          if (klass->eof)
-            (klass->eof) (self);
+          self->priv->received_eof = TRUE;
+          if (self->priv->ready)
+            {
+              if (klass->eof)
+                (klass->eof) (self);
+            }
         }
       return TRUE;
     }

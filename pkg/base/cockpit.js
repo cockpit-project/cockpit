@@ -621,25 +621,24 @@ function Channel(options) {
         self.dispatchEvent(event, data);
     }
 
-    function on_eof() {
-        if (received_eof) {
+    function on_control(data) {
+        if (data.command == "close") {
+            on_close(data);
+            return;
+        }
+
+        var eof = data.command === "eof";
+        if (eof && received_eof) {
             console.warn("received two eof messages on channel");
             self.close("protocol-error");
-        } else {
-            received_eof = true;
-            var event = document.createEvent("CustomEvent");
-            event.initCustomEvent("eof", false, false, null);
-            self.dispatchEvent(event, null);
-        }
-    }
 
-    function on_control(data) {
-        if (data.command == "close")
-            on_close(data);
-        else if (data.command == "eof")
-            on_eof();
-        else
-            console.log("unhandled control message: '" + data.command + "'");
+        } else {
+            if (eof)
+                received_eof = true;
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent("control", false, false, data);
+            self.dispatchEvent(event, data);
+        }
     }
 
     function send_payload(payload) {
@@ -716,14 +715,17 @@ function Channel(options) {
             send_payload(message);
     };
 
-    self.eof = function eof() {
-        var message = { "command": "eof", "channel": id };
-        if (sent_eof)
-            console.warn("already sent eof");
-        else if (!transport)
-            queue.push([true, message]);
+    self.control = function control(options) {
+        options = options || { };
+        if (!options.command)
+            options.command = "options";
+	if (options.command === "eof")
+            sent_eof = true;
+        options.channel = id;
+        if (!transport)
+            queue.push([true, options]);
         else
-            transport.send_control(message);
+            transport.send_control(options);
     };
 
     self.close = function close(options) {
@@ -1280,7 +1282,7 @@ function full_scope(cockpit, $) {
                         channel.send(message);
                     }
                     if (!stream)
-                        channel.eof();
+                        channel.control({ command: "eof" });
                     return this;
                 },
                 close: function(problem) {
@@ -2084,7 +2086,7 @@ function full_scope(cockpit, $) {
                     channel.send(input);
                 }
                 http_debug("http eof:", input);
-                channel.eof();
+                channel.control({ command: "eof" });
             }
 
             /* Callbacks that want to stream or get headers */
@@ -2165,7 +2167,7 @@ function full_scope(cockpit, $) {
                         }
                         if (!stream) {
                             http_debug("http eof");
-                            channel.eof();
+                            channel.control({ command: "eof" });
                         }
                         return this;
                     },

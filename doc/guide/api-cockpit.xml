@@ -1746,13 +1746,16 @@
         then the <code>data</code> will be converted to a string if not already a string.</para>
     </refsection>
 
-    <refsection id="latest-channels-eof">
-      <title>channel.eof()</title>
+    <refsection id="latest-channels-control">
+      <title>channel.control()</title>
 <programlisting>
- channel.eof()
+ channel.control(options)
 </programlisting>
-      <para>Notify the channel that no further messages will be sent. This has relevance
-        depending on the <code>"payload"</code> of the channel.</para>
+      <para>Notify the channel to tune certain parameters on the fly. The <code>options</code>
+        is a plain javascript object, and the contents depend on the <code>"payload"</code>
+        of the channel.</para>
+      <para>One common operation is to set <code>"command"</code> to <code>"eof"</code> in the
+        options field. To indicate that no further messages will be sent through the channel.</para>
     </refsection>
 
     <refsection id="latest-channels-close">
@@ -1783,15 +1786,17 @@
         the message depends on the payload type of the channel.</para>
     </refsection>
 
-    <refsection id="latest-channels-oneof">
-      <title>channel.oneof</title>
+    <refsection id="latest-channels-oncontrol">
+      <title>channel.oncontrol</title>
 <programlisting>
- $(channel).on("eof", function(event) { ... })
- channel.addEventListener("eof", function(event) { ... })
+ $(channel).on("control", function(event, options) { ... })
+ channel.addEventListener("control", function(event, options) { ... })
 </programlisting>
-      <para>An event triggered when no further messages will be delivered to the
-        channel. Not all channels send this message. It depends on the
-        <code>"payload"</code> of the channel.</para>
+      <para>An event triggered when the channel receives an control message in the
+        middle of the flow. One particular use is when the <code>command</code> is set to
+        <code>"eof"</code> then no further messages will be received in the channel.
+        The exact form of these messages depend on the <code>"payload"</code> of the
+        channel.</para>
     </refsection>
 
     <refsection id="latest-channels-close-ev">

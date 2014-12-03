@@ -95,18 +95,19 @@ define([
         var pre = $("<pre>").addClass("logs");
         parent.append(pre);
 
-        var scroll;
+        var wait;
+        var writing = [];
         function write(data) {
-            var at_bottom = pre[0].scrollHeight - pre.scrollTop() <= pre.outerHeight();
-            var span = $("<span>").text(data);
-            pre.append(span);
-            if (!at_bottom && scroll) {
-                window.clearInterval(scroll);
-                scroll = null;
-            } else if (at_bottom && !scroll) {
-                scroll = window.setTimeout(function() {
-                    scroll = null;
-                    pre.scrollTop(pre.prop("scrollHeight"));
+            writing.push(data);
+            if (!wait) {
+                wait = window.setTimeout(function() {
+                    wait = null;
+                    var at_bottom = pre[0].scrollHeight - pre.scrollTop() <= pre.outerHeight();
+                    var span = $("<span>").text(writing.join(""));
+                    writing.length = 0;
+                    pre.append(span);
+                    if (at_bottom)
+                        pre.scrollTop(pre.prop("scrollHeight"));
                 }, 50);
             }
         }

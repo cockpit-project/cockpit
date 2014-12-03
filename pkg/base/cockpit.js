@@ -761,7 +761,8 @@ function Channel(options) {
                     if (typeof consumed !== "number" || consumed === block.length) {
                         buffers.length = 0;
                     } else if (consumed === 0) {
-                        buffers = [ block ];
+                        buffers.length = 1;
+                        buffers[0] = block;
                     } else if (consumed !== 0) {
                         buffers.length = 1;
                         if (block.subarray)

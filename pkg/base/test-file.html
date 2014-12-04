@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+  <title>File Tests</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
+  <script type="text/javascript" src="../../lib/jquery.v2.1.0.js"></script>
+  <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
+  <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
+  <script type="text/javascript" src="../../tools/qunit-config.js"></script>
+
+  <script type="text/javascript" src="cockpit.js"></script>
+</head>
+<body>
+  <h1 id="qunit-header">File Tests</h1>
+  <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+  <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+  <div id="qunit-fixture">test markup, will be hidden</div>
+  <div id="done-flag" style="display:none">Done</div>
+</body>
+<script type="text/javascript">
+
+var dir;
+
+asyncTest("simple read", function() {
+    expect(2);
+    cockpit.file(dir + "/foo").read().
+        done(function(resp) {
+            equal(resp, "1234\n", "correct result");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
+asyncTest("read non-existent", function() {
+    expect(2);
+    cockpit.file(dir + "/blah").read().
+        done(function(resp) {
+            equal(resp, null, "correct result");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
+asyncTest("parse read", function() {
+    expect(2);
+    cockpit.file(dir + "/foo.json", { syntax: JSON }).read().
+        done(function(resp) {
+            deepEqual(resp, { foo: 12 }, "correct result");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
+asyncTest("parse read error", function() {
+    expect(2);
+    cockpit.file(dir + "/foo.bin", { syntax: JSON }).read().
+        fail(function(error) {
+            ok(error instanceof SyntaxError, "got SyntaxError error");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "failed");
+            start();
+        });
+});
+
+asyncTest("binary read", function() {
+    expect(2);
+    cockpit.file(dir + "/foo.bin", { binary: true }).read().
+        done(function(resp) {
+            deepEqual(resp, new Uint8Array([ 0, 1, 2, 3 ]), "correct result");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
+asyncTest("simple replace", function() {
+    expect(2);
+    cockpit.file(dir + "/bar").replace("4321\n").
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            cockpit.spawn([ "cat", dir + "/bar" ])
+                .done(function (res) {
+                    equal(res, "4321\n", "correct content");
+                    start();
+                });
+        });
+});
+
+asyncTest("stringify replace", function() {
+    expect(2);
+    cockpit.file(dir + "/bar", { syntax: JSON }).replace({ foo: 4321 }).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            cockpit.spawn([ "cat", dir + "/bar" ])
+                .done(function (res) {
+                    deepEqual(JSON.parse(res), { foo: 4321 }, "correct content");
+                    start();
+                });
+        });
+});
+
+asyncTest("stringify replace error", function() {
+    expect(2);
+    var cycle = { };
+    cycle.me = cycle;
+    cockpit.file(dir + "/bar", { syntax: JSON }).replace(cycle).
+        fail(function(error) {
+            ok(error instanceof TypeError, "got stringify error");
+        }).
+        always(function() {
+            equal(this.state(), "rejected", "failed");
+            start();
+        });
+});
+
+asyncTest("binary replace", function() {
+    expect(2);
+    cockpit.file(dir + "/bar", { binary: true }).replace(new Uint8Array([3, 2, 1, 0])).
+        always(function() {
+            equal(this.state(), "resolved", "didn't fail");
+            cockpit.spawn([ "cat", dir + "/bar" ], { binary: true })
+                .done(function (res) {
+                    deepEqual(res, new Uint8Array([3, 2, 1, 0]), "correct content");
+                    start();
+                });
+        });
+});
+
+asyncTest("remove", function() {
+    expect(3);
+    cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar && echo exists" ])
+        .done(function (res) {
+            equal(res, "exists\n", "exists");
+            cockpit.file(dir + "/bar").replace(null).
+                always(function() {
+                    equal(this.state(), "resolved", "didn't fail");
+                    cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar || echo gone" ])
+                        .done(function (res) {
+                            equal(res, "gone\n", "gone");
+                            start();
+                        });
+                });
+        });
+});
+
+asyncTest("abort replace", function() {
+    expect(2);
+
+    var file = cockpit.file(dir + "/bar");
+
+    var n = 0;
+    function start_after_two() {
+        n += 1;
+        if (n == 2)
+            start();
+    }
+
+    file.replace("1234\n")
+        .always(function () {
+            equal(this.state(), "rejected", "failed as expected");
+            start_after_two();
+        });
+
+    file.replace("abcd\n")
+        .always(function () {
+            equal(this.state(), "resolved", "didn't fail");
+            start_after_two();
+        });
+});
+
+asyncTest("replace with tag", function() {
+    var file = cockpit.file(dir + "/barfoo");
+
+    file.read()
+        .always(function () {
+            equal(this.state(), "resolved", "didn't fail");
+        })
+        .done(function (content, tag_1) {
+            equal(content, null, "file does not exist");
+            equal(tag_1, "-", "first tag is -");
+            file.replace("klmn\n", tag_1)
+                .always(function () {
+                    equal(this.state(), "resolved", "didn't fail");
+                })
+                .done(function (tag_2) {
+                    notEqual(tag_2, "-", "second tag is not -");
+                    file.replace("KLMN\n", tag_2)
+                        .always(function () {
+                            equal(this.state(), "resolved", "didn't fail");
+                        })
+                        .done(function (tag_3) {
+                            notEqual(tag_3, tag_2, "third tag is different");
+                            file.replace("opqr\n", tag_2)
+                                .fail(function (error) {
+                                    equal(error.problem, "change-conflict", "wrong tag is rejected");
+                                    start();
+                                });
+                        });
+                });
+        });
+});
+
+asyncTest("modify", function() {
+    expect(7);
+
+    var file = cockpit.file(dir + "/quux");
+
+    var n = 0;
+    file
+        .modify(function (old) {
+            n += 1;
+            equal(old, null, "no old content");
+            return "ABCD\n";
+        })
+        .always(function () {
+            equal(this.state(), "resolved", "didn't fail");
+            equal(n, 1, "callback called once");
+        })
+        .done(function () {
+            var n = 0;
+            file
+                .modify(function (old) {
+                    n += 1;
+                    equal(old, "ABCD\n", "correct old content");
+                    return "dcba\n";
+                })
+                .always(function () {
+                    equal(this.state(), "resolved", "didn't fail");
+                    equal(n, 1, "callback called once");
+                    cockpit.spawn([ "cat", dir + "/quux" ])
+                        .done(function (res) {
+                            equal(res, "dcba\n", "correct content");
+                            start();
+                        });
+                });
+        });
+});
+
+asyncTest("modify with conflict", function() {
+    expect(8);
+
+    var file = cockpit.file(dir + "/baz");
+
+    var n = 0;
+    file
+        .modify(function (old) {
+            n += 1;
+            equal(old, null, "no old content");
+            return "ABCD\n";
+        })
+        .always(function () {
+            equal(this.state(), "resolved", "didn't fail");
+            equal(n, 1, "callback called once");
+        })
+        .done(function (content, tag) {
+            var n = 0;
+            cockpit.spawn([ "bash", "-c", "sleep 1; echo XYZ > " + dir + "/baz" ])
+                .done(function () {
+                    file
+                        .modify(function (old) {
+                            n += 1;
+                            if (n == 1)
+                                equal(old, "ABCD\n", "correct old (out-of-date) content");
+                            else
+                                equal(old, "XYZ\n", "correct old (current) content");
+                            return old.toLowerCase();
+                        }, content, tag)
+                        .always(function () {
+                            equal(this.state(), "resolved", "didn't fail");
+                            equal(n, 2, "callback called twice")
+                            cockpit.spawn([ "cat", dir + "/baz" ])
+                                .done(function (res) {
+                                    equal(res, "xyz\n", "correct content");
+                                    start();
+                                });
+                        });
+                });
+        });
+});
+
+asyncTest("watching", function() {
+    expect(3);
+
+    var file = cockpit.file(dir + "/foobar");
+    var watch = file.watch(changed);
+
+    var n = 0;
+    function changed(content, tag) {
+        n += 1;
+        if (n == 1) {
+            equal(content, null, "initially non-existent");
+            cockpit.spawn([ "bash", "-c", "echo 1234 > " + dir + "/foobar" ]);
+        } else if (n == 2) {
+            equal(content, "1234\n", "correct new content");
+            cockpit.spawn([ "bash", "-c", "rm " + dir + "/foobar" ]);
+        } else if (n == 3) {
+            equal(content, null, "finally non-existent");
+            start ();
+        }
+    }
+
+});
+
+asyncTest("syntax watching", function() {
+    expect(3);
+
+    var file = cockpit.file(dir + "/foobar.json", { syntax: JSON });
+    var watch = file.watch(changed, error);
+
+    var n = 0;
+    function changed(content, tag) {
+        n += 1;
+        if (n == 1) {
+            equal(content, null, "initially non-existent");
+            cockpit.spawn([ "bash", "-c", "echo '[ 1, 2, 3, 4 ]'  > " + dir + "/foobar.json" ]);
+        } else if (n == 2) {
+            deepEqual(content, [ 1, 2, 3, 4], "correct new content");
+            cockpit.spawn([ "bash", "-c", "echo 'hi-there-this-is-not-json'  > " + dir + "/foobar.json" ]);
+        } else
+            ok(false, "not reached");
+    }
+
+    function error(err) {
+        n += 1;
+        if (n == 3) {
+            ok(err instanceof SyntaxError, "got SyntaxError error");
+            start ();
+        } else
+            ok(false, "not reached");
+    }
+});
+
+asyncTest("closing", function() {
+    expect(2);
+
+    var file = cockpit.file(dir + "/foobarbaz");
+    var watch = file.watch(changed, error);
+
+    var n = 0;
+    function start_after_two() {
+        n += 1;
+        if (n == 2)
+            start();
+    }
+
+    file.read()
+        .done(function (content, tag) {
+            ok(false, "read didn't complete");
+        }).
+        fail(function (error) {
+            equal(error.problem, "cancelled", "read got cancelled");
+            start_after_two();
+        });
+
+    function changed(content, tag) {
+        ok(false, "not reached");
+    }
+
+    function error(err) {
+        equal(err.problem, "cancelled", "watch got cancelled");
+        start_after_two();
+    }
+
+    file.close();
+});
+
+asyncTest("remove testdir", function() {
+    expect(1);
+    cockpit.spawn([ "rm", "-rf", dir ]).
+        always(function () {
+            equal(this.state(), "resolved", "didn't fail");
+            start();
+        });
+});
+
+cockpit.spawn(["bash", "-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; echo $d"]).
+    done(function (resp) {
+        dir = resp.replace(/\n$/, "");
+        QUnit.start();
+    });
+
+</script>
+</html>

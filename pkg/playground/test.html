@@ -26,9 +26,16 @@
         <p>Translated text: <span translatable="yes">Networking</span></p>
         <p>On the fly: <span id="translation"></span> <span id="reverse"></span></p>
         <br/>
-        <button class="btn btn-default" id="read-file">Read /tmp/counter</button>
-        <button class="btn btn-default" id="write-file">Increment /tmp/counter</button>
-        <div id="file-content"><div>
+        <button class="btn btn-default" id="modify-file">Increment /tmp/counter atomically</button>
+        <div id="file-content"></div>
+        <div id="file-error" style="color:red"></div>
+        <br/>
+        <div>
+          <button class="btn btn-default" id="load-file">Load /tmp/counter</button>
+          <button class="btn btn-default" id="save-file">Overwrite /tmp/counter</button>
+          <button class="btn btn-default" id="delete-file">Delete /tmp/counter</button>
+        </div>
+        <textarea id="edit-file"></textarea>
     </div>
 <script>
 require([
@@ -98,70 +105,51 @@ require([
         cockpit.location.go(cockpit.location.path.concat(len.toString()), { length: len.toString() });
     });
 
-    var counter_tag = "-";
-    var counter_content = "";
+    var counter = cockpit.file("/tmp/counter", { syntax: JSON });
 
-    function set_counter(tag, content) {
-        counter_tag = tag;
-        counter_content = content;
-        $('#file-content').text(counter_content);
-        console.log("Tag", counter_tag);
+    function normalize_counter(obj) {
+        obj = obj || { };
+        obj.counter = obj.counter || 0;
+        return obj;
     }
 
-    function read_counter() {
-        var channel = cockpit.channel({ payload: "fsread1",
-                                        path: "/tmp/counter"
-                                      });
-        var new_content = "";
-        $(channel).on("message", function (event, message) {
-            new_content += message;
-        });
-        $(channel).on("close", function (event, message) {
-            if (message.problem)
-                $('#file-content').text(message.error || message.problem);
-            else
-                set_counter(message.tag, new_content);
-        });
+    function complain(error) {
+        $('#file-error').text(error.toString());
     }
 
-    function write_counter() {
-        var channel = cockpit.channel({ payload: "fswrite1",
-                                        path: "/tmp/counter",
-                                        tag: counter_tag
-                                      });
-        var new_content = counter_content + ".";
-
-        $(channel).on("close", function (event, message) {
-            if (message.problem)
-                $('#file-content').text(message.error || message.problem);
-            else
-                set_counter(message.tag, new_content);
-        });
-        channel.send(new_content);
-        channel.control({ command: "eof" });
+    function changed(content, tag) {
+        $('#file-content').text(normalize_counter(content).counter);
+        $('#file-error').empty();
     }
 
-    $('#read-file').click(read_counter);
-    $('#write-file').click(write_counter);
+    counter.watch(changed, complain);
 
-    var channel = cockpit.channel({ payload: "fswatch1",
-                                    path: "/tmp/counter"
-                                  });
-    $(channel).on("message", function (event, message) {
-        console.log(message);
-        var msg = null;
-        try { msg = JSON.parse(message); } catch(e) { }
-        if (msg && msg.path == "/tmp/counter" && msg.tag && msg.tag != counter_tag)
-            $('#file-content').text("changed");
+    $('#modify-file').click(function () {
+        counter
+            .modify(function (obj) {
+                obj = normalize_counter(obj);
+                obj.counter += 1;
+                return obj;
+            })
+            .fail(complain);
     });
 
-    read_counter();
+    function load_file() {
+        cockpit.file("/tmp/counter").read().done(function (content) {
+            $('#edit-file').val(content);
+        });
+    }
 
-    var dir_channel = cockpit.channel({ payload: "fsdir1",
-                                        path: "/tmp/"
-                                      });
-    $(dir_channel).on("message", function (event, message) {
-        console.log("In /tmp", message);
+    function save_file() {
+        cockpit.file("/tmp/counter").replace($('#edit-file').val());
+    }
+
+    $('#load-file').click(load_file);
+    $('#save-file').click(save_file);
+    load_file();
+
+    $('#delete-file').click(function () {
+        cockpit.spawn([ "rm", "-f", "tmp/counter" ]);
     });
 
     $("body").show();

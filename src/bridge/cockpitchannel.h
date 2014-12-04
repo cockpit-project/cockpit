@@ -59,6 +59,9 @@ struct _CockpitChannelClass
   void        (* recv)        (CockpitChannel *channel,
                                GBytes *message);
 
+  void        (* options)     (CockpitChannel *channel,
+                               JsonObject *options);
+
   void        (* eof)         (CockpitChannel *channel);
 
   void        (* close)       (CockpitChannel *channel,

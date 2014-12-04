@@ -7,11 +7,15 @@
     <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
     <script src="../@@latest@@/cockpit.js"></script>
 <script>
+
 require([
     "jquery",
     "latest/cockpit",
-    "server-systemd/server"
-], function($, cockpit, server) {
+    "server-systemd/server",
+    "latest/po"
+], function($, cockpit, server, po) {
+    var _ = cockpit.locale(po, true).gettext;
+
     var filler;
 
     function stop_query() {

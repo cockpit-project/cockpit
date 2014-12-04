@@ -81,7 +81,7 @@ define([
                 if (arg instanceof Array)
                     matches.push.apply(matches, arg);
                 else
-                    jQuery.extend(options, arg);
+                    $.extend(options, arg);
             } else {
                 console.warn("server.journal called with invalid argument:", arg);
             }
@@ -123,7 +123,7 @@ define([
         cmd.push("--");
         cmd.push.apply(cmd, matches);
 
-        var dfd = new jQuery.Deferred();
+        var dfd = new $.Deferred();
         var promise;
         var buffer = "";
         var entries = [];
@@ -137,7 +137,7 @@ define([
                 entries = [];
                 streamers.fireWith(promise, [ents]);
             } else {
-                clearInterval(interval);
+                window.clearInterval(interval);
                 interval = null;
             }
         }
@@ -166,7 +166,7 @@ define([
                 });
 
                 if (streamers && interval === null)
-                    interval = setInterval(fire_streamers, 300);
+                    interval = window.setInterval(fire_streamers, 300);
             }).
             done(function() {
                 fire_streamers();
@@ -184,7 +184,7 @@ define([
                 }
             }).
             always(function() {
-                clearInterval(interval);
+                window.clearInterval(interval);
             });
 
         var jpromise = dfd.promise;

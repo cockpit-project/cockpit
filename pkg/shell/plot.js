@@ -17,6 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
 var shell = shell || { };
 (function($, shell) {
 
@@ -133,7 +138,7 @@ shell.plot = function plot(element, x_range) {
 
     function start_walking(interval) {
         if (!walk_timer)
-            walk_timer = setInterval(function () {
+            walk_timer = window.setInterval(function () {
                 now += interval;
                 refresh();
             }, interval*1000);
@@ -141,7 +146,7 @@ shell.plot = function plot(element, x_range) {
 
     function stop_walking() {
         if (walk_timer)
-            clearInterval(walk_timer);
+            window.clearInterval(walk_timer);
         walk_timer = null;
     }
 

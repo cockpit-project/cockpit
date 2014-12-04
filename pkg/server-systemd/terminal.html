@@ -7,11 +7,17 @@
     <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
     <script src="../@@latest@@/cockpit.js"></script>
 <script>
+
+/* global _        */
+
 require([
     "jquery",
     "latest/cockpit",
-    "latest/term"
-], function($, cockpit, Terminal) {
+    "latest/term",
+    "latest/po"
+], function($, cockpit, Terminal, po) {
+    var _ = cockpit.locale(po, true).gettext;
+
     var term = null;
     var channel = null;
 

@@ -39,6 +39,13 @@
    last user.
 */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
+/* global phantom_checkpoint */
+
 var shell = shell || { };
 var modules = modules ||  { };
 

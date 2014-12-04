@@ -17,6 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+
 var shell = shell || { };
 (function($, shell) {
 

@@ -107,7 +107,7 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[1] + values[2] + values[3];
-                                          return shell.format_bytes(total);
+                                          return cockpit.format_bytes(total);
                                       });
 
         monitor = self.client.get("/com/redhat/Cockpit/NetworkMonitor",
@@ -122,7 +122,7 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[0] + values[1];
-                                          return shell.format_bits_per_sec(total * 8);
+                                          return cockpit.format_bits_per_sec(total * 8);
                                       });
 
         monitor = self.client.get("/com/redhat/Cockpit/DiskIOMonitor",
@@ -137,7 +137,7 @@ PageServer.prototype = {
                                       },
                                       function(values) { // Combines the series into a textual string
                                           var total = values[0] + values[1];
-                                          return shell.format_bytes_per_sec(total);
+                                          return cockpit.format_bytes_per_sec(total);
                                       });
 
 

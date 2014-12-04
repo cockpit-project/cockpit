@@ -24,12 +24,12 @@ var modules = modules || { };
 
 function fmt_size(bytes)
 {
-    return shell.format_bytes(bytes, 1024);
+    return cockpit.format_bytes(bytes, 1024);
 }
 
 function fmt_size_long(bytes)
 {
-    var with_unit = shell.format_bytes(bytes, 1024);
+    var with_unit = cockpit.format_bytes(bytes, 1024);
     /* Translators: Used in "42.5 KB (42399 bytes)" */
     return with_unit + " (" + bytes + " " + C_("format-bytes", "bytes") + ")";
 }
@@ -310,11 +310,11 @@ function hide_error_message(id) {
 function format_fsys_usage(used, total) {
     var text = "";
     var units = 1000;
-    var parts = shell.format_bytes(total, units, true);
+    var parts = cockpit.format_bytes(total, units, true);
     text = " / " + parts.join(" ");
     units = parts[1];
 
-    parts = shell.format_bytes(used, units, true);
+    parts = cockpit.format_bytes(used, units, true);
     return parts[0] + text;
 }
 
@@ -395,9 +395,9 @@ PageStorage.prototype = {
                 var row = $('#storage tr[data-blockdev="' + shell.esc(id) + '"]');
                 if (row.length > 0) {
                     row.find('span.reading').text(
-                        "R: " + shell.format_bytes_per_sec(samples[id][0]));
+                        "R: " + cockpit.format_bytes_per_sec(samples[id][0]));
                     row.find('span.writing').text(
-                        "W: " + shell.format_bytes_per_sec(samples[id][1]));
+                        "W: " + cockpit.format_bytes_per_sec(samples[id][1]));
                 }
             }
         }
@@ -409,14 +409,14 @@ PageStorage.prototype = {
         this.rx_plot = shell.setup_multi_plot('#storage-reading-graph', this.monitor, 0, blues.concat(blues),
                                                 is_interesting_blockdev);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#storage-reading-text').text(shell.format_bytes_per_sec(total));
+            $('#storage-reading-text').text(cockpit.format_bytes_per_sec(total));
         });
         $(this.rx_plot).on('highlight', highlight_blockdev_row);
 
         this.tx_plot = shell.setup_multi_plot('#storage-writing-graph', this.monitor, 1, blues.concat(blues),
                                                 is_interesting_blockdev);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#storage-writing-text').text(shell.format_bytes_per_sec(total));
+            $('#storage-writing-text').text(cockpit.format_bytes_per_sec(total));
         });
         $(this.tx_plot).on('highlight', highlight_blockdev_row);
 
@@ -784,7 +784,7 @@ PageStorage.prototype = {
                 this.mount_texts[block.MountedAt[i]] = text;
             }
         } else
-            text.text(shell.format_bytes(block.Size, 1000));
+            text.text(cockpit.format_bytes(block.Size, 1000));
 
         var tr =
             $('<tr>', { Sort: sort_key }).

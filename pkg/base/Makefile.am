@@ -42,6 +42,7 @@ base_TESTS = \
 	pkg/base/test-location.html \
 	pkg/base/test-framed.html \
 	pkg/base/test-locale.html \
+	pkg/base/test-format.html \
 	$(NULL)
 
 TESTS += $(base_TESTS)

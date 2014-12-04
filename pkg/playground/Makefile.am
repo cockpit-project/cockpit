@@ -2,6 +2,8 @@ playgrounddir = $(pkgdatadir)/playground
 playground_DATA = \
 	pkg/playground/test.html \
 	pkg/playground/test.min.html \
+	pkg/playground/speed.html \
+	pkg/playground/speed.min.html \
 	pkg/playground/manifest.json \
 	pkg/playground/hammer.gif \
 	pkg/playground/po.de.js \
@@ -10,6 +12,7 @@ playground_DATA = \
 
 CLEANFILES += \
 	pkg/playground/test.min.html \
+	pkg/playground/speed.min.html \
 	$(NULL)
 
 EXTRA_DIST += \

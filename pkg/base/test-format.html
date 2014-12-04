@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+    <title>Format Tests</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
+    <script src="../../lib/jquery.v2.1.0.js"></script>
+    <script src="../../lib/qunit-1.14.0.js"></script>
+    <script src="../../lib/qunit-tap.js"></script>
+    <script src="../../tools/qunit-config.js"></script>
+
+    <script src="cockpit.js"></script>
+</head>
+<body>
+    <h1 id="qunit-header">Format Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+</body>
+<script>
+
+test("format", function() {
+    equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),
+          "My special message with lots of things", "named keys");
+    equal(cockpit.format("My $0 message with $1 of things", [ "special", "lots" ]),
+          "My special message with lots of things", "number keys");
+    equal(cockpit.format("My $0 message with $1 of things", "special", "lots"),
+          "My special message with lots of things", "vararg keys");
+    equal(cockpit.format("My $0 message with lots of things", "special"),
+          "My special message with lots of things", "vararg one key");
+    equal(cockpit.format("Undefined $value", { }), "Undefined ", "missing value");
+});
+
+test("format_bytes", function() {
+    var checks = [
+        [ 999, 1000, "999" ],
+        [ 1934, undefined, "1.9 KB" ],
+        [ 1934, 1000, "1.9 KB" ],
+        [ 2000, 1024, "2.0 KB" ],
+        [ 1999, 1000, "2.0 KB" ],
+        [ 1999, 1024, "2.0 KB" ],
+        [ 1000000, 1000, "1.0 MB" ],
+        [ 1000000, 1024, "976.6 KB" ],
+        [ 2000000, 1024, "1.9 MB" ],
+        [ 2000000, 1000, "2.0 MB" ],
+        [ 2000000, "MB", "1.9 MB" ],
+        [ 2000000, "KB", "1953.1 KB" ],
+        [ 1, "KB", "0.1 KB" ],
+        [ 0, "KB", "0 KB" ],
+    ];
+
+    var i, split;
+
+    expect(checks.length * 2);
+    for (i = 0; i < checks.length; i++) {
+        strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
+                    "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
+    }
+    for (i = 0; i < checks.length; i++) {
+        split = checks[i][2].split(" ");
+        deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], true), split,
+                   "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ", true) = " + split);
+    }
+});
+
+test("format_bytes_per_sec", function() {
+    var checks = [
+        [ 2555, "2.5 KB/s" ]
+    ];
+
+    expect(checks.length);
+    for (var i = 0; i < checks.length; i++) {
+        strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
+                    "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
+    }
+});
+
+test("format_bits_per_sec", function() {
+    var checks = [
+        [ 555, "555 bps" ],
+        [ 2555, "2.6 Kbps" ]
+    ];
+
+    expect(checks.length);
+    for (var i = 0; i < checks.length; i++) {
+        strictEqual(cockpit.format_bits_per_sec(checks[i][0]), checks[i][1],
+                    "format_bits_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
+    }
+});
+
+QUnit.start();
+
+</script>
+</html>

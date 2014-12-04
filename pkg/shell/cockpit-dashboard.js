@@ -55,7 +55,7 @@ var resource_monitors = [
       get: function (s) { return s[1]+s[2]+s[3]; },
       options: { yaxis: { ticks: network_ticks,
                           tickColor: "#e1e6ed",
-                          tickFormatter:  function (v) { return shell.format_bytes(v); }
+                          tickFormatter:  function (v) { return cockpit.format_bytes(v); }
                         }
                },
       ymax_unit: 100000000
@@ -63,7 +63,7 @@ var resource_monitors = [
     { path: "/com/redhat/Cockpit/NetworkMonitor",
       get: function (s) { return s[0]+s[1]; },
       options: { yaxis: { tickColor: "#e1e6ed",
-                          tickFormatter:  function (v) { return shell.format_bits_per_sec(v*8); }
+                          tickFormatter:  function (v) { return cockpit.format_bits_per_sec(v*8); }
                         }
                },
       ymax_min: 100000
@@ -71,7 +71,7 @@ var resource_monitors = [
     { path: "/com/redhat/Cockpit/DiskIOMonitor",
       get: function (s) { return s[0]+s[1]; },
       options: { yaxis: { tickColor: "#e1e6ed",
-                          tickFormatter:  function (v) { return shell.format_bytes_per_sec(v); }
+                          tickFormatter:  function (v) { return cockpit.format_bytes_per_sec(v); }
                         }
                },
       ymax_min: 10000

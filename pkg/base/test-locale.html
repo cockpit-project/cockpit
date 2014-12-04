@@ -97,18 +97,6 @@ test("ngettext complex", function() {
     equal(loc.ngettext("$0 mop", "$0 mops", 2), "$0 mops", "default multiple");
 });
 
-test("format", function() {
-    equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),
-          "My special message with lots of things", "named keys");
-    equal(cockpit.format("My $0 message with $1 of things", [ "special", "lots" ]),
-          "My special message with lots of things", "number keys");
-    equal(cockpit.format("My $0 message with $1 of things", "special", "lots"),
-          "My special message with lots of things", "vararg keys");
-    equal(cockpit.format("My $0 message with lots of things", "special"),
-          "My special message with lots of things", "vararg one key");
-    equal(cockpit.format("Undefined $value", { }), "Undefined ", "missing value");
-});
-
 QUnit.start();
 
 </script>

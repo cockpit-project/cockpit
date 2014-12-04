@@ -1270,8 +1270,8 @@ PageNetworking.prototype = {
             for (var id in samples) {
                 var row = $('#networking-interfaces tr[data-sample-id="' + shell.esc(id) + '"]');
                 if (row.length > 0) {
-                    row.find('td:nth-child(3)').text(shell.format_bits_per_sec(samples[id][1] * 8));
-                    row.find('td:nth-child(4)').text(shell.format_bits_per_sec(samples[id][0] * 8));
+                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(samples[id][1] * 8));
+                    row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(samples[id][0] * 8));
                 }
             }
         }
@@ -1286,14 +1286,14 @@ PageNetworking.prototype = {
         this.rx_plot = shell.setup_multi_plot('#networking-rx-graph', this.monitor, 0, blues.concat(blues),
                                                 is_interesting_netdev, network_plot_setup_hook);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#networking-rx-text').text(shell.format_bits_per_sec(total * 8));
+            $('#networking-rx-text').text(cockpit.format_bits_per_sec(total * 8));
         });
         $(this.rx_plot).on('highlight', highlight_netdev_row);
 
         this.tx_plot = shell.setup_multi_plot('#networking-tx-graph', this.monitor, 1, blues.concat(blues),
                                                 is_interesting_netdev, network_plot_setup_hook);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#networking-tx-text').text(shell.format_bits_per_sec(total * 8));
+            $('#networking-tx-text').text(cockpit.format_bits_per_sec(total * 8));
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
@@ -1601,8 +1601,8 @@ PageNetworkInterface.prototype = {
             for (var id in samples) {
                 var row = $('#network-interface-slaves tr[data-sample-id="' + shell.esc(id) + '"]');
                 if (row.length > 0) {
-                    row.find('td:nth-child(2)').text(shell.format_bits_per_sec(samples[id][1] * 8));
-                    row.find('td:nth-child(3)').text(shell.format_bits_per_sec(samples[id][0] * 8));
+                    row.find('td:nth-child(2)').text(cockpit.format_bits_per_sec(samples[id][1] * 8));
+                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(samples[id][0] * 8));
                 }
             }
         }
@@ -1618,7 +1618,7 @@ PageNetworkInterface.prototype = {
                                                 blues.concat(blues), is_interesting_netdev,
                                                 network_plot_setup_hook);
         $(this.rx_plot).on('update-total', function (event, total) {
-            $('#network-interface-rx-text').text(shell.format_bits_per_sec(total * 8));
+            $('#network-interface-rx-text').text(cockpit.format_bits_per_sec(total * 8));
         });
         $(this.rx_plot).on('highlight', highlight_netdev_row);
 
@@ -1626,7 +1626,7 @@ PageNetworkInterface.prototype = {
                                                 blues.concat(blues), is_interesting_netdev,
                                                 network_plot_setup_hook);
         $(this.tx_plot).on('update-total', function (event, total) {
-            $('#network-interface-tx-text').text(shell.format_bits_per_sec(total * 8));
+            $('#network-interface-tx-text').text(cockpit.format_bits_per_sec(total * 8));
         });
         $(this.tx_plot).on('highlight', highlight_netdev_row);
 
@@ -1774,7 +1774,7 @@ PageNetworkInterface.prototype = {
                     $('<td>').text(_("Carrier")),
                     $('<td>').append(
                         dev.Carrier ?
-                            (dev.Speed? shell.format_bits_per_sec(dev.Speed*1e6) :_("Yes")) :
+                            (dev.Speed? cockpit.format_bits_per_sec(dev.Speed*1e6) :_("Yes")) :
                         _("No")));
             } else
                 return null;

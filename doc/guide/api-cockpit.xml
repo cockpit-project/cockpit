@@ -1493,7 +1493,7 @@
 
     <para>Various utility functions.</para>
 
-    <refsection id="latest-locale-format">
+    <refsection id="latest-format">
       <title>cockpit.format()</title>
 <programlisting>
  string = cockpit.format(template, args)
@@ -1508,6 +1508,41 @@
 
       <para>In the second form, multiple <code>arg</code> arguments may be passed directly,
         and interpolated as as numeric fields in the <code>template</code>.</para>
+    </refsection>
+
+    <refsection id="latest-format-bytes">
+      <title>cockpit.format_bytes()</title>
+<programlisting>
+ string = cockpit.format_bytes(number, [factor])
+ array = cockpit.format_bytes(number, [factor, separate])
+</programlisting>
+      <para>Formats <code>number</code> into a displayable <code>string</code> with a suffix, such as
+        <emphasis>KB</emphasis> or <emphasis>MB</emphasis>. Returns an <code>array</code> of the
+        formatted number and the suffix if <code>separate</code> is set to <code>true</code>.</para>
+
+      <para>If specifying 1000 or 1024 is specified as a <code>factor</code> then an appropriate suffix
+        will be chosen. By default the <code>factor</code> is 1024.  You can pass a string suffix as a
+        <code>factor</code> in which case the resulting number will be formatted with the same suffix.</para>
+
+      <para>If the <code>number</code> is less than the <code>factor</code> or an unknown factor
+        was passed in, then the formatted number is returned without a suffix. If <code>separate</code>
+        is true, returns an array of <code>[formatted_number, suffix]</code> unless no suffix is returned.</para>
+    </refsection>
+
+    <refsection>
+      <title>cockpit.format_bytes_per_sec()</title>
+  <programlisting>
+   string = cockpit.format_bytes_per_sec(number)
+  </programlisting>
+      <para>Format <code>number</code> of bytes into a displayable speed <code>string</code>.</para>
+    </refsection>
+
+    <refsection>
+      <title>cockpit.format_bits_per_sec()</title>
+  <programlisting>
+    string = cockpit.format_bits_per_sec(number)
+  </programlisting>
+      <para>Format <code>number</code> of bits into a displayable speed <code>string</code>.</para>
     </refsection>
   </refsection>
 

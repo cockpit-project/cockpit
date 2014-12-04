@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global jQuery     */
+
 var mock = mock || { };
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
@@ -296,9 +298,9 @@ function Transport() {
 
         if (ws_loc) {
             if ("WebSocket" in window) {
-                ws = new WebSocket(ws_loc, "cockpit1");
+                ws = new window.WebSocket(ws_loc, "cockpit1");
             } else if ("MozWebSocket" in window) { // Firefox 6
-                ws = new MozWebSocket(ws_loc);
+                ws = new window.MozWebSocket(ws_loc);
             } else {
                 console.error("WebSocket not supported, application will not work!");
             }
@@ -431,7 +433,7 @@ function Transport() {
         if (!options)
             options = { "problem": "disconnected" };
         options.command = "close";
-        clearInterval(check_health_timer);
+        window.clearInterval(check_health_timer);
         var ows = ws;
         ws = null;
         if (ows)
@@ -889,7 +891,7 @@ function basic_scope(cockpit) {
         self.encoding = "utf-8";
 
         self.encode = function encode(string, options) {
-            var data = unescape(encodeURIComponent(string));
+            var data = window.unescape(encodeURIComponent(string));
             if (constructor === String)
                 return data;
             return array_from_raw_string(data, constructor);
@@ -944,7 +946,7 @@ function basic_scope(cockpit) {
                         break;
                     }
 
-                    str += decodeURIComponent(escape(data.substring(beg, i)));
+                    str += decodeURIComponent(window.escape(data.substring(beg, i)));
                     str += "\ufffd";
                     i++;
                     beg = i;
@@ -953,7 +955,7 @@ function basic_scope(cockpit) {
                 }
             }
 
-            str += decodeURIComponent(escape(data.substring(beg, i)));
+            str += decodeURIComponent(window.escape(data.substring(beg, i)));
             return str;
         };
     }

@@ -16,6 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
 var shell = shell || { };
 
 /* ----------------------------------------------------------------------------

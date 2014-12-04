@@ -17,6 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+/* global N_       */
+
 var shell = shell || { };
 var modules = modules || { };
 
@@ -699,7 +705,7 @@ PageService.prototype = {
 
         $('#service .breadcrumb .active').text(me.service);
 
-        function add_proc_info(info, level) {
+        function add_proc_info(procs, info, level) {
             var i;
             if (level > 0)
                 procs.append("<div class=\"list-group-item\">" + shell.esc(info[0]) + "</div>");
@@ -813,7 +819,7 @@ PageService.prototype = {
                 procs.append("<div class=\"list-group-item\"> " + _("CGroup") + ": " + shell.esc(info.DefaultControlGroup) + "</div>");
 
 
-                add_proc_info (info.Processes, 0);
+                add_proc_info (procs, info.Processes, 0);
             } else {
                 procs.closest('.panel').hide();
             }
@@ -845,4 +851,4 @@ function PageService() {
 
 shell.pages.push(new PageService());
 
-})($, cockpit, shell, modules);
+})(jQuery, cockpit, shell, modules);

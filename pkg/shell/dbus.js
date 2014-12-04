@@ -117,6 +117,11 @@
 
  */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
 var shell = shell || { };

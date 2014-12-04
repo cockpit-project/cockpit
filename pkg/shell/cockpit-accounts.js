@@ -17,6 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
 var shell = shell || { };
 (function($, cockpit, shell) {
 
@@ -309,7 +314,7 @@ PageAccountsCreate.prototype = {
                 hide_error();
         }
 
-        clearTimeout(this.error_timeout);
+        window.clearTimeout(this.error_timeout);
         this.error_timeout = null;
 
         if (behavior == "changeFocus") {
@@ -325,7 +330,7 @@ PageAccountsCreate.prototype = {
             else
                 hide_error();
 
-            this.error_timeout = setTimeout(check_password_match, 2000);
+            this.error_timeout = window.setTimeout(check_password_match, 2000);
             this.setTimeout = null;
         }
 
@@ -897,7 +902,7 @@ PageAccountSetPassword.prototype = {
                 hide_error();
         }
 
-        clearTimeout(this.error_timeout);
+        window.clearTimeout(this.error_timeout);
         this.error_timeout = null;
 
         if (behavior == "changeFocus") {
@@ -913,7 +918,7 @@ PageAccountSetPassword.prototype = {
             else
                 hide_error();
 
-            this.error_timeout = setTimeout(check_password_match, 2000);
+            this.error_timeout = window.setTimeout(check_password_match, 2000);
             this.setTimeout = null;
         }
 

@@ -17,6 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
 var shell = shell || { };
 (function($, cockpit, shell) {
 
@@ -264,8 +269,8 @@ PageRealmsOp.prototype = {
         if ($("#realms-op-address").val() != me.checked) {
             $("#realms-op-address-error").hide();
             if (me.timeout)
-                clearTimeout(me.timeout);
-            me.timeout = setTimeout(function () { me.check_realm(); }, 1000);
+                window.clearTimeout(me.timeout);
+            me.timeout = window.setTimeout(function () { me.check_realm(); }, 1000);
         }
     },
 
@@ -390,4 +395,4 @@ function PageRealmsOp() {
 
 shell.dialogs.push(new PageRealmsOp());
 
-})($, cockpit, shell);
+})(jQuery, cockpit, shell);

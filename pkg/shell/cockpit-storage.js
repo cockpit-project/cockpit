@@ -17,6 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
 var shell = shell || { };
 var modules = modules || { };
 
@@ -506,7 +511,7 @@ PageStorage.prototype = {
         var self = this;
         if (!self._coldplug_pending) {
             self._coldplug_pending = true;
-            setTimeout(function () {
+            window.setTimeout(function () {
                 self._coldplug_pending = false;
                 if (self.client)
                     self._coldplug();

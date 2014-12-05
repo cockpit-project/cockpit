@@ -17,6 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
 var shell = shell || { };
 var modules = modules || { };
 
@@ -298,7 +303,7 @@ function NetworkManagerModel(address) {
 
         if (!export_pending) {
             export_pending = true;
-            setTimeout(function () { export_pending = false; doit(); }, 300);
+            window.setTimeout(function () { export_pending = false; doit(); }, 300);
         }
     }
 
@@ -3131,4 +3136,4 @@ function PageNetworkVlanSettings() {
 
 shell.dialogs.push(new PageNetworkVlanSettings());
 
-})($, cockpit, shell, modules);
+})(jQuery, cockpit, shell, modules);

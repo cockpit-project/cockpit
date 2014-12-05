@@ -50,7 +50,7 @@ require([
 
     function generate(length, binary) {
         if (binary)
-            return new ArrayBuffer(length);
+            return new window.ArrayBuffer(length);
         else
             return (new Array(length)).join("x");
     }
@@ -63,7 +63,7 @@ require([
         var interval = parseInt($("#interval").val(), 10);
 
         if (isNaN(length) || isNaN(interval) || isNaN(batch)) {
-            alert("Bad value");
+            window.alert("Bad value");
             return;
         }
 
@@ -80,7 +80,7 @@ require([
 
         $(channel).on("close", function(event, options) {
             if (options.problem)
-                alert(options.problem);
+                window.alert(options.problem);
         });
 
         var input = generate(length, binary);
@@ -113,7 +113,7 @@ require([
         var interval = parseInt($("#interval").val(), 10);
 
         if (isNaN(length) || isNaN(interval) || isNaN(batch)) {
-            alert("Bad value");
+            window.alert("Bad value");
             return;
         }
 
@@ -121,7 +121,7 @@ require([
         var params = { payload: "echo" };
         if (binary)
             params.binary = "raw";
-        var ws = new WebSocket(cockpit.transport.uri() + "?" + JSON.stringify(params));
+        var ws = new window.WebSocket(cockpit.transport.uri() + "?" + JSON.stringify(params));
 
         ws.binaryType = 'arraybuffer';
 
@@ -154,7 +154,7 @@ require([
 
         ws.onclose = function(event) {
             if (!done)
-                alert("channel closed");
+                window.alert("channel closed");
         };
 
         window.setTimeout(function() {

@@ -17,7 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = cockpit || { };
+/* global jQuery   */
+/* global cockpit  */
+/* global _        */
+/* global C_       */
+
 var shell = shell || { };
 
 (function($, cockpit, shell) {
@@ -329,7 +333,7 @@ function make_resource_cache() {
             handle.resource.release = function() {
                 cache_debug("Releasing %s", key);
                 // Only really release it after a delay
-                setTimeout(function () {
+                window.setTimeout(function () {
                     if (!handle.refcount) {
                         console.warn("Releasing unreffed resource");
                     } else {

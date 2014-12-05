@@ -16,6 +16,7 @@ TESTS += $(docker_TESTS)
 
 CLEANFILES += \
 	pkg/docker/docker.min.js \
+	pkg/docker/console.min.html \
 	$(NULL)
 
 EXTRA_DIST += \

@@ -26,10 +26,8 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
-#include "daemon.h"
 #include "machines.h"
 #include "machine.h"
-#include "utils.h"
 
 #include "common/cockpitmemory.h"
 

@@ -17,23 +17,22 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_MACHINES_H__
-#define COCKPIT_MACHINES_H__
+#ifndef COCKPIT_MANAGER_H__
+#define COCKPIT_MANAGER_H__
 
-#include "types.h"
+#include <gio/gio.h>
+#include "internal-generated.h"
 
 G_BEGIN_DECLS
 
-#define COCKPIT_TYPE_DAEMON_MACHINES  (machines_get_type ())
-#define MACHINES(o)          (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DAEMON_MACHINES, Machines))
-#define COCKPIT_IS_DAEMON_MACHINES(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_DAEMON_MACHINES))
+#define COCKPIT_TYPE_DAEMON_MANAGER  (manager_get_type ())
+#define MANAGER(o)          (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DAEMON_MANAGER, Manager))
+#define COCKPIT_IS_DAEMON_MANAGER(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_DAEMON_MANAGER))
 
-GType             machines_get_type    (void) G_GNUC_CONST;
+GType             manager_get_type    (void) G_GNUC_CONST;
 
-CockpitMachines * machines_new         (GDBusObjectManagerServer *object_manager);
-
-gboolean          machines_write       (Machines *machines, GError **error);
+CockpitManager *  manager_new         (void);
 
 G_END_DECLS
 
-#endif /* COCKPIT_MACHINES_H__ */
+#endif /* COCKPIT_MANAGER_H__ */

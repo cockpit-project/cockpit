@@ -23,7 +23,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "daemon.h"
 #include "networkmonitor.h"
 
 /**
@@ -43,6 +42,7 @@ typedef struct
   gdouble bytes_tx_per_sec;
 } Sample;
 
+typedef struct _NetworkMonitor NetworkMonitor;
 typedef struct _NetworkMonitorClass NetworkMonitorClass;
 
 /**
@@ -55,13 +55,12 @@ struct _NetworkMonitor
 {
   CockpitResourceMonitorSkeleton parent_instance;
 
-  Daemon *daemon;
-
   guint user_hz;
 
   guint samples_max;
   gint samples_prev;
   guint samples_next;
+  guint timeout;
 
   /* Arrays of samples_max Sample instances */
   Sample *samples;
@@ -72,20 +71,10 @@ struct _NetworkMonitorClass
   CockpitResourceMonitorSkeletonClass parent_class;
 };
 
-enum
-{
-  PROP_0,
-  PROP_DAEMON
-};
-
 static void resource_monitor_iface_init (CockpitResourceMonitorIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (NetworkMonitor, network_monitor, COCKPIT_TYPE_RESOURCE_MONITOR_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_RESOURCE_MONITOR, resource_monitor_iface_init));
-
-static void on_tick (Daemon  *daemon,
-                     guint64     delta_usec,
-                     gpointer    user_data);
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -108,63 +97,19 @@ network_monitor_finalize (GObject *object)
   NetworkMonitor *monitor = NETWORK_MONITOR (object);
 
   g_free (monitor->samples);
-
-  g_signal_handlers_disconnect_by_func (monitor->daemon, G_CALLBACK (on_tick), monitor);
+  g_source_remove (monitor->timeout);
 
   G_OBJECT_CLASS (network_monitor_parent_class)->finalize (object);
 }
 
-static void
-network_monitor_get_property (GObject *object,
-                              guint prop_id,
-                              GValue *value,
-                              GParamSpec *pspec)
-{
-  NetworkMonitor *monitor = NETWORK_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_value_set_object (value, network_monitor_get_daemon (monitor));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-network_monitor_set_property (GObject *object,
-                              guint prop_id,
-                              const GValue *value,
-                              GParamSpec *pspec)
-{
-  NetworkMonitor *monitor = NETWORK_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_assert (monitor->daemon == NULL);
-      /* we don't take a reference to the daemon */
-      monitor->daemon = g_value_get_object (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
 static void collect (NetworkMonitor *monitor);
 
-static void
-on_tick (Daemon *daemon,
-         guint64 delta_usec,
-         gpointer user_data)
+static gboolean
+on_tick (gpointer user_data)
 {
   NetworkMonitor *monitor = NETWORK_MONITOR (user_data);
   collect (monitor);
+  return TRUE;
 }
 
 static void
@@ -175,11 +120,10 @@ network_monitor_constructed (GObject *object)
   cockpit_resource_monitor_set_num_samples (COCKPIT_RESOURCE_MONITOR (monitor), monitor->samples_max);
   cockpit_resource_monitor_set_num_series (COCKPIT_RESOURCE_MONITOR (monitor), 2);
 
-  g_signal_connect (monitor->daemon, "tick", G_CALLBACK (on_tick), monitor);
+  monitor->timeout = g_timeout_add_seconds (1, on_tick, monitor);
   collect (monitor);
 
-  if (G_OBJECT_CLASS (network_monitor_parent_class)->constructed != NULL)
-    G_OBJECT_CLASS (network_monitor_parent_class)->constructed (object);
+  G_OBJECT_CLASS (network_monitor_parent_class)->constructed (object);
 }
 
 static void
@@ -190,56 +134,19 @@ network_monitor_class_init (NetworkMonitorClass *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize     = network_monitor_finalize;
   gobject_class->constructed  = network_monitor_constructed;
-  gobject_class->set_property = network_monitor_set_property;
-  gobject_class->get_property = network_monitor_get_property;
-
-  /**
-   * NetworkMonitor:daemon:
-   *
-   * The #Daemon for the object.
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_DAEMON,
-                                   g_param_spec_object ("daemon",
-                                                        NULL,
-                                                        NULL,
-                                                        TYPE_DAEMON,
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
 }
 
 /**
  * network_monitor_new:
- * @daemon: A #Daemon.
  *
  * Creates a new #NetworkMonitor instance.
  *
  * Returns: A new #NetworkMonitor. Free with g_object_unref().
  */
 CockpitResourceMonitor *
-network_monitor_new (Daemon *daemon)
+network_monitor_new (void)
 {
-  g_return_val_if_fail (IS_DAEMON (daemon), NULL);
-  return COCKPIT_RESOURCE_MONITOR (g_object_new (TYPE_NETWORK_MONITOR,
-                                                 "daemon", daemon,
-                                                 NULL));
-}
-
-/**
- * network_monitor_get_daemon:
- * @monitor: A #NetworkMonitor.
- *
- * Gets the daemon used by @monitor.
- *
- * Returns: A #Daemon. Do not free, the object is owned by @monitor.
- */
-Daemon *
-network_monitor_get_daemon (NetworkMonitor *monitor)
-{
-  g_return_val_if_fail(IS_NETWORK_MONITOR (monitor), NULL);
-  return monitor->daemon;
+  return g_object_new (TYPE_NETWORK_MONITOR, NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

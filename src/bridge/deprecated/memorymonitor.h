@@ -17,23 +17,22 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_DISK_IO_MONITOR_H__
-#define COCKPIT_DISK_IO_MONITOR_H__
+#ifndef COCKPIT_MEMORY_MONITOR_H__
+#define COCKPIT_MEMORY_MONITOR_H__
 
-#include "types.h"
+#include <gio/gio.h>
+#include "internal-generated.h"
 
 G_BEGIN_DECLS
 
-#define TYPE_DISK_IO_MONITOR  (disk_io_monitor_get_type ())
-#define DISK_IO_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_DISK_IO_MONITOR, DiskIOMonitor))
-#define IS_DISK_IO_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_DISK_IO_MONITOR))
+#define TYPE_MEMORY_MONITOR  (memory_monitor_get_type ())
+#define MEMORY_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_MEMORY_MONITOR, MemoryMonitor))
+#define IS_MEMORY_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_MEMORY_MONITOR))
 
-GType                     disk_io_monitor_get_type   (void) G_GNUC_CONST;
+GType                     memory_monitor_get_type   (void) G_GNUC_CONST;
 
-CockpitResourceMonitor *  disk_io_monitor_new        (Daemon *daemon);
-
-Daemon *                  disk_io_monitor_get_daemon (DiskIOMonitor *monitor);
+CockpitResourceMonitor *  memory_monitor_new        (void);
 
 G_END_DECLS
 
-#endif /* COCKPIT_DISK_IO_MONITOR_H__ */
+#endif /* COCKPIT_MEMORY_MONITOR_H__ */

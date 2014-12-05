@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2014 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,23 +17,22 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_CPU_MONITOR_H__
-#define COCKPIT_CPU_MONITOR_H__
+#ifndef COCKPIT_NETDEV_MONITOR_H__
+#define COCKPIT_NETDEV_MONITOR_H__
 
-#include "types.h"
+#include <gio/gio.h>
+#include "internal-generated.h"
 
 G_BEGIN_DECLS
 
-#define TYPE_CPU_MONITOR  (cpu_monitor_get_type ())
-#define CPU_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_CPU_MONITOR, CpuMonitor))
-#define IS_CPU_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_CPU_MONITOR))
+#define TYPE_NETDEV_MONITOR  (netdev_monitor_get_type ())
+#define NETDEV_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_NETDEV_MONITOR, NetdevMonitor))
+#define IS_NETDEV_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_NETDEV_MONITOR))
 
-GType                     cpu_monitor_get_type    (void) G_GNUC_CONST;
+GType                         netdev_monitor_get_type    (void) G_GNUC_CONST;
 
-CockpitResourceMonitor *  cpu_monitor_new         (Daemon     *daemon);
-
-Daemon *                  cpu_monitor_get_daemon  (CpuMonitor *monitor);
+CockpitMultiResourceMonitor * netdev_monitor_new         (void);
 
 G_END_DECLS
 
-#endif /* COCKPIT_CPU_MONITOR_H__ */
+#endif /* COCKPIT_NETDEV_MONITOR_H__ */

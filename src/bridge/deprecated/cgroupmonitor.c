@@ -19,12 +19,12 @@
 
 #include "config.h"
 
+#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
 #include <fts.h>
 
-#include "daemon.h"
 #include "cgroupmonitor.h"
 
 #include "common/cockpitmemory.h"
@@ -56,6 +56,7 @@ typedef struct {
   Sample samples[SAMPLES_MAX];
 } Consumer;
 
+typedef struct _CGroupMonitor CGroupMonitor;
 typedef struct _CGroupMonitorClass CGroupMonitorClass;
 
 /**
@@ -70,6 +71,7 @@ struct _CGroupMonitor
   CockpitMultiResourceMonitorSkeleton parent_instance;
 
   gchar *basedir;
+  guint timeout;
 
   gchar *memory_root;
   gchar *cpuacct_root;
@@ -94,7 +96,6 @@ struct _CGroupMonitorClass
 enum
 {
   PROP_0,
-  PROP_TICK_SOURCE,
   PROP_BASEDIR
 };
 
@@ -102,10 +103,6 @@ static void resource_monitor_iface_init (CockpitMultiResourceMonitorIface *iface
 
 G_DEFINE_TYPE_WITH_CODE (CGroupMonitor, cgroup_monitor, COCKPIT_TYPE_MULTI_RESOURCE_MONITOR_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_MULTI_RESOURCE_MONITOR, resource_monitor_iface_init));
-
-static void on_tick (GObject    *unused_source,
-                     guint64     delta_usec,
-                     gpointer    user_data);
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -127,6 +124,7 @@ cgroup_monitor_finalize (GObject *object)
   g_free (monitor->cpuacct_root);
   g_hash_table_destroy (monitor->consumers);
   g_free (monitor->timestamps);
+  g_source_remove (monitor->timeout);
 
   G_OBJECT_CLASS (cgroup_monitor_parent_class)->finalize (object);
 }
@@ -141,11 +139,6 @@ cgroup_monitor_set_property (GObject *object,
 
   switch (prop_id)
     {
-    case PROP_TICK_SOURCE:
-      g_signal_connect_object (g_value_get_object (value),
-                               "tick", G_CALLBACK (on_tick),
-                               monitor, 0);
-      break;
     case PROP_BASEDIR:
       monitor->basedir = g_value_dup_string (value);
       break;
@@ -157,13 +150,12 @@ cgroup_monitor_set_property (GObject *object,
 
 static void collect (CGroupMonitor *monitor);
 
-static void
-on_tick (GObject *unused_source,
-         guint64 delta_usec,
-         gpointer user_data)
+static gboolean
+on_tick (gpointer user_data)
 {
   CGroupMonitor *monitor = CGROUP_MONITOR (user_data);
   collect (monitor);
+  return TRUE;
 }
 
 static void
@@ -188,6 +180,7 @@ cgroup_monitor_constructed (GObject *object)
   monitor->memory_root = g_build_filename (monitor->basedir, "memory", NULL);
   monitor->cpuacct_root = g_build_filename (monitor->basedir, "cpuacct", NULL);
 
+  monitor->timeout = g_timeout_add_seconds (1, on_tick, monitor);
   collect (monitor);
 
   G_OBJECT_CLASS (cgroup_monitor_parent_class)->constructed (object);
@@ -203,21 +196,6 @@ cgroup_monitor_class_init (CGroupMonitorClass *klass)
   gobject_class->constructed = cgroup_monitor_constructed;
   gobject_class->set_property = cgroup_monitor_set_property;
 
-  /**
-   * CGroupMonitor:tick-source:
-   *
-   * An object which emits a tick signal, like a #Daemon
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_TICK_SOURCE,
-                                   g_param_spec_object ("tick-source",
-                                                        NULL,
-                                                        NULL,
-                                                        G_TYPE_OBJECT,
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
-
   g_object_class_install_property (gobject_class, PROP_BASEDIR,
           g_param_spec_string ("base-directory", NULL, NULL, "/sys/fs/cgroup",
                                G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
@@ -226,19 +204,15 @@ cgroup_monitor_class_init (CGroupMonitorClass *klass)
 
 /**
  * cgroup_monitor_new:
- * @root: The name of the root of the cgroup hierachy to monitor.
- * @tick_source: An object which emits a signal like a tick source
  *
  * Creates a new #CGroupMonitor instance.
  *
  * Returns: A new #CGroupMonitor. Free with g_object_unref().
  */
 CockpitMultiResourceMonitor *
-cgroup_monitor_new (GObject *tick_source)
+cgroup_monitor_new (void)
 {
-  return COCKPIT_MULTI_RESOURCE_MONITOR (g_object_new (TYPE_CGROUP_MONITOR,
-                                                       "tick-source", tick_source,
-                                                       NULL));
+  return g_object_new (TYPE_CGROUP_MONITOR, NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

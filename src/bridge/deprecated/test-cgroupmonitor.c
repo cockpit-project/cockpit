@@ -25,77 +25,14 @@
 
 #include <glib/gstdio.h>
 
-/* -----------------------------------------------------------------------------
- * Mock
- */
-
-static GType mock_ticker_get_type (void) G_GNUC_CONST;
-
-typedef struct {
-  GObject parent;
-  guint tick_id;
-  guint64 last_tick;
-} MockTicker;
-
-typedef GObjectClass MockTickerClass;
-
-G_DEFINE_TYPE (MockTicker, mock_ticker, G_TYPE_OBJECT);
-
-static guint signal_tick;
-
-static void
-mock_ticker_init (MockTicker *self)
-{
-
-}
-
-static void
-mock_ticker_finalize (GObject *object)
-{
-  MockTicker *self = (MockTicker *)object;
-  g_source_remove (self->tick_id);
-  G_OBJECT_CLASS (mock_ticker_parent_class)->finalize (object);
-}
-
-static void
-mock_ticker_class_init (MockTickerClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  object_class->finalize = mock_ticker_finalize;
-  signal_tick = g_signal_new ("tick",
-                              G_OBJECT_CLASS_TYPE (klass),
-                              G_SIGNAL_RUN_LAST, 0, NULL, NULL,
-                              g_cclosure_marshal_generic,
-                              G_TYPE_NONE, 1, G_TYPE_UINT64);
-}
-
-static gboolean
-on_timeout_emit_tick (gpointer user_data)
-{
-  MockTicker *self = user_data;
-  guint64 delta_usec = 0;
-  gint64 now = g_get_monotonic_time ();
-  if (self->last_tick != 0)
-    delta_usec = now - self->last_tick;
-  self->last_tick = now;
-  g_signal_emit (self, signal_tick, 0, delta_usec);
-  return TRUE; /* keep source around */
-}
-
-static MockTicker *
-mock_ticker_new (gint frequency_ms)
-{
-  MockTicker *ticker = g_object_new (mock_ticker_get_type (), NULL);
-  ticker->tick_id = g_timeout_add (frequency_ms, on_timeout_emit_tick, ticker);
-  return ticker;
-}
+#include <string.h>
+#include <stdlib.h>
 
 /* -----------------------------------------------------------------------------
  * Test
  */
 
 typedef struct {
-  MockTicker *ticker;
   GDBusConnection *connection;
   GDBusObjectManagerServer *object_manager;
   CockpitMultiResourceMonitor *impl;
@@ -197,10 +134,8 @@ setup (TestCase *tc,
         g_assert_not_reached ();
     }
 
-  tc->ticker = mock_ticker_new (10);
   tc->impl = g_object_new (TYPE_CGROUP_MONITOR,
                            "base-directory", tc->testdir,
-                           "tick-source", tc->ticker,
                            NULL);
   object = cockpit_object_skeleton_new ("/test/monitor");
   cockpit_object_skeleton_set_multi_resource_monitor (object, tc->impl);
@@ -248,7 +183,6 @@ teardown (TestCase *tc,
   g_free (tc->cpudir);
   g_free (cmd);
 
-  g_object_unref (tc->ticker);
   g_object_unref (tc->object_manager);
   g_object_unref (tc->proxy);
 
@@ -271,9 +205,7 @@ static void
 test_new (void)
 {
   CockpitMultiResourceMonitor *monitor;
-  MockTicker *ticker = mock_ticker_new (10);
-  monitor = cgroup_monitor_new (G_OBJECT (ticker));
-  g_object_unref (ticker);
+  monitor = cgroup_monitor_new ();
   g_assert (COCKPIT_IS_MULTI_RESOURCE_MONITOR (monitor));
 
   g_object_add_weak_pointer (G_OBJECT (monitor), (gpointer *)&monitor);

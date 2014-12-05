@@ -23,6 +23,19 @@
 #include "cockpitpolkitagent.h"
 #include "cockpitsuperchannels.h"
 
+#include "deprecated/manager.h"
+#include "deprecated/machines.h"
+#include "deprecated/services.h"
+#include "deprecated/cpumonitor.h"
+#include "deprecated/memorymonitor.h"
+#include "deprecated/networkmonitor.h"
+#include "deprecated/diskiomonitor.h"
+#include "deprecated/cgroupmonitor.h"
+#include "deprecated/netdevmonitor.h"
+#include "deprecated/blockdevmonitor.h"
+#include "deprecated/mountmonitor.h"
+#include "deprecated/services.h"
+
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
@@ -295,6 +308,135 @@ out:
   return pid;
 }
 
+static GDBusObjectManagerServer *
+export_internal_objects (GDBusConnection *connection)
+{
+  GDBusObjectManagerServer *object_manager;
+  CockpitManager *manager;
+  CockpitMachines *machines;
+  CockpitResourceMonitor *monitor;
+  CockpitServices *services;
+  CockpitMultiResourceMonitor *multi_monitor;
+  CockpitObjectSkeleton *object = NULL;
+
+  object_manager = g_dbus_object_manager_server_new ("/com/redhat/Cockpit");
+
+  /* /com/redhat/Cockpit/Machines */
+  machines = machines_new (object_manager);
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Machines");
+  cockpit_object_skeleton_set_machines (object, machines);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (machines);
+  g_object_unref (object);
+
+  g_debug ("exported machines object");
+
+  /* /com/redhat/Cockpit/Manager */
+  manager = manager_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Manager");
+  cockpit_object_skeleton_set_manager (object, manager);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (manager);
+  g_object_unref (object);
+
+  g_debug ("exported manager");
+
+  /* /com/redhat/Cockpit/CpuMonitor */
+  monitor = cpu_monitor_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/CpuMonitor");
+  cockpit_object_skeleton_set_resource_monitor (object, monitor);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (monitor);
+  g_object_unref (object);
+
+  g_debug ("exported cpu monitor");
+
+  /* /com/redhat/Cockpit/MemoryMonitor */
+  monitor = memory_monitor_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/MemoryMonitor");
+  cockpit_object_skeleton_set_resource_monitor (object, monitor);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (monitor);
+  g_object_unref (object);
+
+  g_debug ("exported memory monitor");
+
+  /* /com/redhat/Cockpit/NetworkMonitor */
+  monitor = network_monitor_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/NetworkMonitor");
+  cockpit_object_skeleton_set_resource_monitor (object, monitor);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (monitor);
+  g_object_unref (object);
+
+  g_debug ("exported network monitor");
+
+  /* /com/redhat/Cockpit/DiskIOMonitor */
+  monitor = disk_io_monitor_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/DiskIOMonitor");
+  cockpit_object_skeleton_set_resource_monitor (object, monitor);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (monitor);
+  g_object_unref (object);
+
+  g_debug ("exported disk io monitor");
+
+  /* /com/redhat/Cockpit/LxcMonitor */
+  multi_monitor = cgroup_monitor_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/LxcMonitor");
+  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (multi_monitor);
+  g_object_unref (object);
+
+  g_debug ("exported lxc monitor");
+
+  /* /com/redhat/Cockpit/NetdevMonitor */
+  multi_monitor = netdev_monitor_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/NetdevMonitor");
+  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (multi_monitor);
+  g_object_unref (object);
+
+  g_debug ("exported net dev monitor");
+
+  /* /com/redhat/Cockpit/BlockdevMonitor */
+  multi_monitor = blockdev_monitor_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/BlockdevMonitor");
+  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (multi_monitor);
+  g_object_unref (object);
+
+  g_debug ("exported block dev monitor");
+
+  /* /com/redhat/Cockpit/MountMonitor */
+  multi_monitor = mount_monitor_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/MountMonitor");
+  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (multi_monitor);
+  g_object_unref (object);
+
+  g_debug ("exported mount monitor");
+
+  /* /com/redhat/Cockpit/Services */
+  services = services_new ();
+  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Services");
+  cockpit_object_skeleton_set_services (object, services);
+  g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (object));
+  g_object_unref (services);
+  g_object_unref (object);
+
+  g_debug ("exported services");
+
+  /* Export the ObjectManager */
+  g_dbus_object_manager_server_set_connection (object_manager, connection);
+
+  return object_manager;
+}
+
 static gboolean
 on_signal_done (gpointer data)
 {
@@ -312,6 +454,7 @@ run_bridge (void)
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
   CockpitSuperChannels *super = NULL;
+  GDBusObjectManagerServer *exported;
   GError *error = NULL;
   gpointer polkit_agent = NULL;
   GPid daemon_pid;
@@ -347,6 +490,8 @@ run_bridge (void)
     {
       g_message ("couldn't connect to session bus: %s", error->message);
       g_clear_error (&error);
+
+      exported = export_internal_objects (connection);
     }
   else
     {
@@ -375,6 +520,8 @@ run_bridge (void)
     cockpit_polkit_agent_unregister (polkit_agent);
   if (super)
     g_object_unref (super);
+  if (exported)
+    g_object_unref (exported);
   if (connection)
     g_object_unref (connection);
   g_object_unref (transport);

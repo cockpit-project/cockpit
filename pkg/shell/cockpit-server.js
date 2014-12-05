@@ -63,7 +63,7 @@ PageServer.prototype = {
 
         self.address = shell.get_page_machine();
         /* TODO: Need to migrate away from old dbus */
-        self.client = shell.dbus(self.address);
+        self.client = shell.dbus(self.address, { service: "internal" });
 
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");

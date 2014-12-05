@@ -20,7 +20,8 @@
 #ifndef COCKPIT_SERVICES_H__
 #define COCKPIT_SERVICES_H__
 
-#include "types.h"
+#include <gio/gio.h>
+#include "internal-generated.h"
 
 G_BEGIN_DECLS
 
@@ -30,9 +31,7 @@ G_BEGIN_DECLS
 
 GType              services_get_type          (void) G_GNUC_CONST;
 
-CockpitServices *  services_new               (Daemon *daemon);
-
-Daemon *           services_get_daemon        (Services *realms);
+CockpitServices *  services_new               (void);
 
 G_END_DECLS
 

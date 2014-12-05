@@ -20,13 +20,17 @@
 #ifndef COCKPIT_MACHINE_H__
 #define COCKPIT_MACHINE_H__
 
-#include "types.h"
+#include <gio/gio.h>
+#include "internal-generated.h"
 
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_DAEMON_MACHINE  (machine_get_type ())
 #define MACHINE(o)                   (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DAEMON_MACHINE, Machine))
 #define COCKPIT_IS_DAEMON_MACHINE(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_DAEMON_MACHINE))
+
+typedef struct _Machine Machine;
+typedef struct _Machines Machines;
 
 GType             machine_get_type    (void) G_GNUC_CONST;
 

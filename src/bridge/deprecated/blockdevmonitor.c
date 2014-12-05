@@ -19,12 +19,12 @@
 
 #include "config.h"
 
+#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
 #include <fts.h>
 
-#include "daemon.h"
 #include "blockdevmonitor.h"
 
 #define SAMPLES_MAX 300
@@ -50,6 +50,7 @@ typedef struct {
   Sample samples[SAMPLES_MAX];
 } Consumer;
 
+typedef struct _BlockdevMonitor BlockdevMonitor;
 typedef struct _BlockdevMonitorClass BlockdevMonitorClass;
 
 /**
@@ -65,6 +66,7 @@ struct _BlockdevMonitor
 
   gint samples_prev;
   guint samples_next;
+  guint timeout;
 
   /* interface -> Consumer
    */
@@ -80,20 +82,10 @@ struct _BlockdevMonitorClass
   CockpitMultiResourceMonitorSkeletonClass parent_class;
 };
 
-enum
-{
-  PROP_0,
-  PROP_TICK_SOURCE
-};
-
 static void resource_monitor_iface_init (CockpitMultiResourceMonitorIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (BlockdevMonitor, blockdev_monitor, COCKPIT_TYPE_MULTI_RESOURCE_MONITOR_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_MULTI_RESOURCE_MONITOR, resource_monitor_iface_init));
-
-static void on_tick (GObject    *unused_source,
-                     guint64     delta_usec,
-                     gpointer    user_data);
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -112,40 +104,19 @@ blockdev_monitor_finalize (GObject *object)
 
   g_hash_table_destroy (monitor->consumers);
   g_free (monitor->timestamps);
+  g_source_remove (monitor->timeout);
 
   G_OBJECT_CLASS (blockdev_monitor_parent_class)->finalize (object);
 }
 
-static void
-blockdev_monitor_set_property (GObject *object,
-                             guint prop_id,
-                             const GValue *value,
-                             GParamSpec *pspec)
-{
-  BlockdevMonitor *monitor = BLOCKDEV_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_TICK_SOURCE:
-      g_signal_connect_object (g_value_get_object (value),
-                               "tick", G_CALLBACK (on_tick),
-                               monitor, 0);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
 static void collect (BlockdevMonitor *monitor);
 
-static void
-on_tick (GObject *unused_source,
-         guint64 delta_usec,
-         gpointer user_data)
+static gboolean
+on_tick (gpointer user_data)
 {
   BlockdevMonitor *monitor = BLOCKDEV_MONITOR (user_data);
   collect (monitor);
+  return TRUE;
 }
 
 static void
@@ -165,6 +136,7 @@ blockdev_monitor_constructed (GObject *object)
   cockpit_multi_resource_monitor_set_legends (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), legends);
   cockpit_multi_resource_monitor_set_num_series (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), 2);
 
+  monitor->timeout = g_timeout_add_seconds (1, on_tick, monitor);
   collect (monitor);
 
   G_OBJECT_CLASS (blockdev_monitor_parent_class)->constructed (object);
@@ -178,39 +150,20 @@ blockdev_monitor_class_init (BlockdevMonitorClass *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = blockdev_monitor_finalize;
   gobject_class->constructed = blockdev_monitor_constructed;
-  gobject_class->set_property = blockdev_monitor_set_property;
-
-  /**
-   * BlockdevMonitor:tick-source:
-   *
-   * An object which emits a tick signal, like a #Daemon
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_TICK_SOURCE,
-                                   g_param_spec_object ("tick-source",
-                                                        NULL,
-                                                        NULL,
-                                                        G_TYPE_OBJECT,
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
 }
 
 /**
  * blockdev_monitor_new:
  * @root: The name of the root of the blockdev hierachy to monitor.
- * @tick_source: An object which emits a signal like a tick source
  *
  * Creates a new #BlockdevMonitor instance.
  *
  * Returns: A new #BlockdevMonitor. Free with g_object_unref().
  */
 CockpitMultiResourceMonitor *
-blockdev_monitor_new (GObject *tick_source)
+blockdev_monitor_new (void)
 {
-  return COCKPIT_MULTI_RESOURCE_MONITOR (g_object_new (TYPE_BLOCKDEV_MONITOR,
-                                                       "tick-source", tick_source,
-                                                       NULL));
+  return g_object_new (TYPE_BLOCKDEV_MONITOR, NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

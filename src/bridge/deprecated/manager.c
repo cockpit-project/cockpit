@@ -28,10 +28,10 @@
 
 #include <gudev/gudev.h>
 
-#include "daemon.h"
 #include "manager.h"
-#include "utils.h"
 
+#include "common/cockpitenums.h"
+#include "common/cockpiterror.h"
 #include "common/cockpitmemory.h"
 
 /**
@@ -42,6 +42,7 @@
  * This type provides an implementation of the #CockpitManager interface.
  */
 
+typedef struct _Manager Manager;
 typedef struct _ManagerClass ManagerClass;
 
 /**
@@ -54,7 +55,6 @@ struct _Manager
 {
   CockpitManagerSkeleton parent_instance;
 
-  Daemon *daemon;
   GCancellable *cancellable;
 
   /* may be NULL */
@@ -68,12 +68,6 @@ struct _Manager
 struct _ManagerClass
 {
   CockpitManagerSkeletonClass parent_class;
-};
-
-enum
-{
-  PROP_0,
-  PROP_DAEMON
 };
 
 static void manager_iface_init (CockpitManagerIface *iface);
@@ -120,48 +114,6 @@ manager_finalize (GObject *object)
   g_clear_object (&manager->etc_os_release_monitor);
 
   G_OBJECT_CLASS (manager_parent_class)->finalize (object);
-}
-
-static void
-manager_get_property (GObject *object,
-                      guint prop_id,
-                      GValue *value,
-                      GParamSpec *pspec)
-{
-  Manager *manager = MANAGER (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_value_set_object (value, manager_get_daemon (manager));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-manager_set_property (GObject *object,
-                      guint prop_id,
-                      const GValue *value,
-                      GParamSpec *pspec)
-{
-  Manager *manager = MANAGER (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_assert (manager->daemon == NULL);
-      /* we don't take a reference to the daemon */
-      manager->daemon = g_value_get_object (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
 }
 
 static void
@@ -363,24 +315,6 @@ manager_class_init (ManagerClass *klass)
   gobject_class->dispose = manager_dispose;
   gobject_class->finalize     = manager_finalize;
   gobject_class->constructed  = manager_constructed;
-  gobject_class->set_property = manager_set_property;
-  gobject_class->get_property = manager_get_property;
-
-  /**
-   * Manager:daemon:
-   *
-   * The #Daemon for the object.
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_DAEMON,
-                                   g_param_spec_object ("daemon",
-                                                        NULL,
-                                                        NULL,
-                                                        TYPE_DAEMON,
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
 }
 
 /**
@@ -392,28 +326,11 @@ manager_class_init (ManagerClass *klass)
  * Returns: A new #Manager. Free with g_object_unref().
  */
 CockpitManager *
-manager_new (Daemon *daemon)
+manager_new (void)
 {
-  g_return_val_if_fail (IS_DAEMON (daemon), NULL);
-  return COCKPIT_MANAGER (g_object_new (COCKPIT_TYPE_DAEMON_MANAGER,
-                                        "daemon", daemon,
-                                        "version", PACKAGE_VERSION,
-                                        NULL));
-}
-
-/**
- * manager_get_daemon:
- * @manager: A #Manager.
- *
- * Gets the daemon used by @manager.
- *
- * Returns: A #Daemon. Do not free, the object is owned by @manager.
- */
-Daemon *
-manager_get_daemon (Manager *manager)
-{
-  g_return_val_if_fail (COCKPIT_IS_DAEMON_MANAGER (manager), NULL);
-  return manager->daemon;
+  return g_object_new (COCKPIT_TYPE_DAEMON_MANAGER,
+                       "version", PACKAGE_VERSION,
+                       NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

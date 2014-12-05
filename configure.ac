@@ -134,7 +134,7 @@ AC_MSG_RESULT(dbusservicedir)
 AC_CHECK_HEADER([security/pam_appl.h], ,
   [AC_MSG_ERROR([Couldn't find PAM headers. Try installing pam-devel])]
 )
-AC_CHECK_LIB(pam, pam_open_session, ,
+AC_CHECK_LIB(pam, pam_open_session, [ true ],
   [AC_MSG_ERROR([Couldn't find PAM library. Try installing pam-devel])]
 )
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS -lpam"
@@ -163,7 +163,7 @@ REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lkeyutils"
 AC_CHECK_HEADER([crypt.h], ,
   [AC_MSG_ERROR([Couldn't find crypt headers. Try installing glibc-headers])]
 )
-AC_CHECK_LIB(crypt, crypt_r, ,
+AC_CHECK_LIB(crypt, crypt_r, [ true ],
   [AC_MSG_ERROR([Couldn't find crypt library. Try installing glibc-devel])]
 )
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"

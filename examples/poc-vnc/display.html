@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Proof of Concept: VNC</title>
+<meta charset="utf-8">
+
+<link href="../base/cockpit.css" rel="stylesheet" type="text/css">
+
+<!-- TODO: These should be combined -->
+<script src="include/util.js"></script>
+<script src="include/webutil.js"></script>
+<script src="include/base64.js"></script>
+<script src="include/websock.js"></script>
+<script src="include/des.js"></script>
+<script src="include/keysym.js"></script>
+<script src="include/keysymdef.js"></script>
+<script src="include/keyboard.js"></script>
+<script src="include/input.js"></script>
+<script src="include/display.js"></script>
+<script src="include/jsunzip.js"></script>
+<script src="include/rfb.js"></script>
+
+<script src="../base/cockpit.js"></script>
+<script>
+require(['base/cockpit'], function(cockpit) {
+    $("#connect").on("click", function() {
+        $("canvas").show();
+        $("table").hide();
+
+        var channel = {
+            command: "open",
+            payload: "stream",
+            protocol: "binary",
+            port: parseInt($("#port").val(), 10),
+            binary: "raw"
+        };
+
+        console.log("channel", $("#port").text(), channel.port);
+        WebUtil.init_logging('warn');
+
+        var path = "socket?" + encodeURIComponent(JSON.stringify(channel));
+
+        var options = {
+            target: document.getElementById('canvas'),
+            encrypt: false,
+            repeaterID: '',
+            true_color: true,
+            local_cursor: true,
+            shared: true,
+            view_only: false,
+        };
+
+        options.onUpdateState = function updateState(rfb, state, oldstate, msg) {
+            console.log(state, msg);
+        };
+
+        options.onXvpInit = function() { };
+        options.onPasswordRequired = function() {
+            console.log("password required");
+        };
+
+        var rfb = new RFB(options);
+        rfb.connect(window.location.hostname, window.location.port, "", path);
+    });
+});
+</script>
+</head>
+<body>
+    <div class="container-fluid">
+        <h2>VNC tunneled through Cockpit</h2>
+
+        <table class="cockpit-form-table">
+            <tr>
+                <td>Local port</td>
+                <td><input class="form-control" id="port" value="5900" style="width: 100px"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><button class="btn btn-default btn-primary" id="connect">Connect</button></td>
+            </tr>
+        </table>
+
+        <canvas id="canvas" width="640px" height="20px" style="border: 2px solid black;" hidden>
+             Canvas not supported.
+        </canvas>
+    </div>
+</body>
+</html>

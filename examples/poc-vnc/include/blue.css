@@ -1,0 +1,64 @@
+/*
+ * noVNC blue CSS
+ * Copyright (C) 2012 Joel Martin
+ * Copyright (C) 2013 Samuel Mannehed for Cendio AB
+ * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+ * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
+ */
+
+.noVNC_status_normal {
+  background-color:#04073d;
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.54, rgb(10,15,79)),
+    color-stop(0.5, rgb(4,7,61))
+  );
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(10,15,79) 54%,
+    rgb(4,7,61) 50%
+  );
+}
+.noVNC_status_error {
+  background-color:#f04040;
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.54, rgb(240,64,64)),
+    color-stop(0.5, rgb(4,7,61))
+  );
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(4,7,61) 54%,
+    rgb(249,64,64) 50%
+  );
+}
+.noVNC_status_warn {
+  background-color:#f0f040;
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.54, rgb(240,240,64)),
+    color-stop(0.5, rgb(4,7,61))
+  );
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(4,7,61) 54%,
+    rgb(240,240,64) 50%
+  );
+}
+
+.triangle-right {
+  border:2px solid #fff;
+  background:#04073d;
+  color:#fff;
+}
+
+#keyboardinput {
+  background-color:#04073d;
+}
+

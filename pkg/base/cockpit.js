@@ -44,9 +44,9 @@ function is_array(it) {
     return Object.prototype.toString.call(it) === '[object Array]';
 }
 
-function BasicError(problem) {
+function BasicError(problem, message) {
     this.problem = problem;
-    this.message = problem;
+    this.message = message || problem;
     this.toString = function() {
         return this.message;
     };
@@ -1808,6 +1808,253 @@ function full_scope(cockpit, $) {
     cockpit.byte_array = function byte_array(string) {
         return window.btoa(string);
     };
+
+    /* File access
+     */
+
+    function File(path, options) {
+        options = options || { };
+        var binary = options.binary;
+
+        var self = {
+            read: read,
+            replace: replace,
+            modify: modify,
+
+            watch: watch,
+
+            close: close
+        };
+
+        function parse(str) {
+            if (options.syntax && options.syntax.parse)
+                return options.syntax.parse(str);
+            else
+                return str;
+        }
+
+        function stringify(obj) {
+            if (options.syntax && options.syntax.stringify)
+                return options.syntax.stringify(obj);
+            else
+                return obj;
+        }
+
+        var read_promise = null;
+        var read_channel;
+
+        function read() {
+            if (read_promise)
+                return read_promise;
+
+            var dfd = $.Deferred();
+
+            function try_read() {
+                read_channel = cockpit.channel({ payload: "fsread1",
+                                                 path: path,
+                                                 binary: binary
+                                               });
+                var content_parts = [ ];
+                $(read_channel).on("message", function (event, message) {
+                    content_parts.push(message);
+                });
+                $(read_channel).on("close", function (event, message) {
+                    read_channel = null;
+
+                    if (message.problem == "change-conflict") {
+                        try_read();
+                        return;
+                    }
+
+                    read_promise = null;
+
+                    if (message.problem) {
+                        var error = new BasicError(message.problem, message.message);
+                        fire_watch_error_callbacks(error);
+                        dfd.reject(error);
+                        return;
+                    }
+
+                    var content;
+                    if (message.tag == "-")
+                        content = null;
+                    else {
+                        try {
+                            content = parse(join_data(content_parts, binary));
+                        } catch (e) {
+                            fire_watch_error_callbacks(e);
+                            dfd.reject(e);
+                            return;
+                        }
+                    }
+
+                    fire_watch_content_callbacks(content, message.tag);
+                    dfd.resolve(content, message.tag);
+                });
+            }
+
+            try_read();
+
+            read_promise = dfd.promise();
+            return read_promise;
+        }
+
+        var replace_channel = null;
+
+        function replace(new_content, expected_tag) {
+            var dfd = $.Deferred();
+
+            var file_content;
+            try {
+                if (new_content === null)
+                    file_content = null;
+                else
+                    file_content = stringify(new_content);
+            }
+            catch (e) {
+                dfd.reject(e);
+                return dfd.promise();
+            }
+
+            if (replace_channel)
+                replace_channel.close("abort");
+
+            replace_channel = cockpit.channel({ payload: "fswrite1",
+                                                path: path,
+                                                tag: expected_tag,
+                                                binary: binary
+                                              });
+
+            $(replace_channel).on("close", function (event, message) {
+                replace_channel = null;
+                if (message.problem) {
+                    dfd.reject(new BasicError(message.problem, message.message));
+                } else {
+                    fire_watch_content_callbacks(new_content, message.tag);
+                    dfd.resolve(message.tag);
+                }
+            });
+
+            /* TODO - don't flood the channel when file_content is
+             *        very large.
+             */
+            if (file_content !== null)
+                replace_channel.send(file_content);
+            replace_channel.control({ command: "eof" });
+
+            return dfd.promise();
+        }
+
+        function modify(callback, initial_content, initial_tag) {
+            var dfd = $.Deferred();
+
+            function update(content, tag) {
+                var new_content = callback(content);
+                if (new_content === undefined)
+                    new_content = content;
+                replace(new_content, tag).
+                    done(function (new_tag) {
+                        dfd.resolve(new_content, new_tag);
+                    }).
+                    fail(function (error) {
+                        if (error.problem == "change-conflict")
+                            read_then_update();
+                        else
+                            dfd.reject(error);
+                    });
+            }
+
+            function read_then_update() {
+                read().
+                    done(update).
+                    fail (function (error) {
+                        dfd.reject(error);
+                    });
+            }
+
+            if (initial_content === undefined)
+                read_then_update();
+            else
+                update(initial_content, initial_tag);
+
+            return dfd.promise();
+        }
+
+        var watch_content_callbacks = $.Callbacks();
+        var watch_error_callbacks = $.Callbacks();
+        var n_watch_callbacks = 0;
+
+        var watch_channel = null;
+        var watch_tag;
+
+        function ensure_watch_channel() {
+            if (n_watch_callbacks > 0) {
+                if (watch_channel)
+                    return;
+
+                watch_channel = cockpit.channel({ payload: "fswatch1",
+                                                  path: path
+                                                });
+                $(watch_channel).on("message", function (event, message_string) {
+                    var message;
+                    try      { message = JSON.parse(message_string); }
+                    catch(e) { message = null; }
+                    if (message && message.path == path && message.tag && message.tag != watch_tag)
+                        read();
+                });
+            } else {
+                if (watch_channel) {
+                    watch_channel.close();
+                    watch_channel = null;
+                }
+            }
+        }
+
+        function fire_watch_content_callbacks(content, tag) {
+            watch_tag = tag;
+            watch_content_callbacks.fire(content, tag);
+        }
+
+        function fire_watch_error_callbacks(error) {
+            watch_error_callbacks.fire(error);
+        }
+
+        function watch(callback, error) {
+            if (callback)
+                watch_content_callbacks.add(callback);
+            if (error)
+                watch_error_callbacks.add(error);
+            n_watch_callbacks += 1;
+            ensure_watch_channel();
+
+            watch_tag = null;
+            read();
+
+            return {
+                remove: function () {
+                    if (callback)
+                        watch_content_callbacks.remove(callback);
+                    if (error)
+                        watch_error_callbacks.remove(error);
+                    n_watch_callbacks -= 1;
+                    ensure_watch_channel();
+                }
+            };
+        }
+
+        function close() {
+            if (read_channel)
+                read_channel.close("cancelled");
+            if (replace_channel)
+                replace_channel.close("cancelled");
+            if (watch_channel)
+                watch_channel.close("cancelled");
+        }
+
+        return self;
+    }
+
+    cockpit.file = File;
 
     /* ---------------------------------------------------------------------
      * Localization

@@ -811,6 +811,10 @@ function basic_scope(cockpit) {
         return new Channel(options);
     };
 
+    /* ------------------------------------------------------------
+     * Text Encoding
+     */
+
     function Utf8TextEncoder(constructor) {
         var self = this;
         self.encoding = "utf-8";
@@ -2585,6 +2589,127 @@ function full_scope(cockpit, $, po) {
         }
         return storage;
     }
+
+    function StorageCache(key, provider, consumer) {
+        var self = this;
+
+        /* For triggering events and ownership */
+        var trigger = window.sessionStorage;
+        var last;
+
+        var storage = lookup_storage(window);
+
+        var claimed = false;
+        var emitting = 0;
+        var source;
+
+        function callback() {
+            /* Only run the callback if we have a result */
+            if (storage[key] !== undefined) {
+                if (consumer(storage[key], key) === false)
+                    self.close();
+            }
+        }
+
+        function result(value) {
+            if (source && !claimed)
+                claimed = true;
+            if (!claimed)
+                return;
+
+            var version = (last || 0) + 1;
+
+            /* Event for the local window */
+            var ev = document.createEvent("StorageEvent");
+            ev.initStorageEvent("storage", false, false, key, version,
+                                version, window.location, trigger);
+
+            storage[key] = value;
+            trigger.setItem(key, version);
+            try {
+                emitting += 1;
+                window.dispatchEvent(ev);
+            } finally {
+                emitting -= 1;
+            }
+        }
+
+        self.claim = function claim() {
+            if (!source)
+                source = provider(result, key);
+        };
+
+        function unclaim() {
+            if (source && source.close)
+                source.close();
+            source = null;
+
+            if (!claimed)
+                return;
+
+            claimed = false;
+            if (!claimed && last == trigger.getItem(key)) {
+                var ev = document.createEvent("StorageEvent");
+                var version = trigger[key];
+                ev.initStorageEvent("storage", false, false, key, version,
+                                    null, window.location, trigger);
+                delete storage[key];
+                trigger.removeItem(key);
+                try {
+                    emitting += 1;
+                    window.dispatchEvent(ev);
+                } finally {
+                    emitting -= 1;
+                }
+            }
+        }
+
+        function changed(event) {
+            if (event.key !== key)
+                return;
+
+            if (!emitting) {
+                if (!event.newValue) {
+                    self.claim();
+                    return;
+                } else if (claimed) {
+                    unclaim();
+                }
+            }
+
+            if (last !== event.newValue) {
+                if (event.newValue)
+                    last = parseInt(event.newValue);
+                else
+                    last = 0;
+                callback();
+            }
+        }
+
+        self.close = function() {
+            window.removeEventListener("storage", changed, true);
+            unclaim();
+        };
+
+        window.addEventListener("storage", changed, true);
+
+        /* Always clear this data on unload */
+        window.addEventListener("beforeunload", function() {
+            self.close();
+        });
+        window.addEventListener("unload", function() {
+            self.close();
+        });
+
+        if (trigger.getItem(key))
+            callback();
+        else
+            self.claim();
+    }
+
+    cockpit.cache = function cache(key, provider, consumer) {
+        return new StorageCache(key, provider, consumer);
+    };
 
     /* ---------------------------------------------------------------------
      * Metrics

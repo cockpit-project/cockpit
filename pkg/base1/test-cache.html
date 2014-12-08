@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2015 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+    <title>Cache Tests</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../tools/qunit.css" type="text/css" media="screen" />
+    <script src="../../tools/qunit.js"></script>
+
+    <script src="cockpit.js"></script>
+</head>
+<body>
+    <h1 id="qunit-header">Cache Tests</h1>
+    <h2 id="qunit-banner"></h2><div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2><ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+</body>
+<script>
+
+test("public api", function() {
+    equal(typeof cockpit.cache, "function", "cockpit.cache is a function");
+});
+
+asyncTest("single cache", function() {
+    expect(6);
+
+    var closed = false;
+
+    function provider(result, key) {
+        equal(key, "test-key-1", "provider got right key");
+        equal(typeof result, "function", "provider got result function");
+
+        var timer = window.setTimeout(function() {
+            result({ myobject: "value" });
+        }, 200);
+
+        return {
+            close: function() {
+                window.clearTimeout(timer);
+                closed = true;
+            }
+        };
+    }
+
+    function consumer(value, key) {
+        equal(key, "test-key-1", "consumer got right key");
+        deepEqual(value, { myobject: "value" });
+
+        equal(closed, false, "cache is not closed");
+        cache.close();
+        equal(closed, true, "cache is closed");
+
+        start();
+    }
+
+    var cache = cockpit.cache("test-key-1", provider, consumer);
+});
+
+asyncTest("multi cache", function() {
+    expect(12);
+
+    var closed1 = false;
+
+    function provider1(result, key) {
+        equal(key, "test-key-b", "provider1 got right key");
+        equal(typeof result, "function", "provider1 got result function");
+
+        var timer = window.setTimeout(function() {
+            result({ myobject: "value1" });
+        }, 200);
+
+        return {
+            close: function() {
+                window.clearTimeout(timer);
+                closed1 = true;
+            }
+        };
+    }
+
+    function provider2(result, key) {
+        equal(key, "test-key-b", "provider2 got right key");
+        equal(typeof result, "function", "provider2 got result function");
+
+        var timer = window.setTimeout(function() {
+            console.log("provider2 setting value");
+            result({ myobject: "value2" });
+        }, 200);
+
+        return {
+            close: function() {
+                window.clearTimeout(timer);
+            }
+        };
+    }
+
+    function consumer1(value, key) {
+        equal(key, "test-key-b", "consumer1 got right key");
+        deepEqual(value, { myobject: "value1" }, "consumer1 got right value");
+    }
+
+    var count = 0;
+
+    function consumer2(value, key) {
+        equal(key, "test-key-b", "consumer2 got right key");
+        count++;
+        if (count === 1) {
+            deepEqual(value, { myobject: "value1" }, "consumer2 got value from producer1");
+            equal(closed1, false, "cache1 is not closed");
+            cache1.close();
+            equal(closed1, true, "cache1 is closed");
+        } else if (count === 2) {
+            deepEqual(value, { myobject: "value2" }, "cache2 provided another value");
+            start();
+        }
+    }
+
+    var cache1 = cockpit.cache("test-key-b", provider1, consumer1);
+    var cache2 = cockpit.cache("test-key-b", provider2, consumer2);
+});
+
+
+QUnit.start();
+
+</script>
+</html>

@@ -14,6 +14,8 @@ base_DATA = \
 	pkg/base/cockpit.min.js \
 	pkg/base/jquery.js \
 	pkg/base/jquery.min.js \
+	pkg/base/mustache.js \
+	pkg/base/mustache.min.js \
 	pkg/base/term.js \
 	pkg/base/manifest.json \
 	po/po.en.js \

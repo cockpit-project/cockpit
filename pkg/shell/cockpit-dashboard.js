@@ -186,7 +186,7 @@ PageDashboard.prototype = {
         var self = this;
         self.edit_enabled = val;
         $('#dashboard-enable-edit').toggleClass('active', self.edit_enabled);
-        $('#dashboard-hosts .edit-button').toggle(self.edit_enabled);
+        $('#dashboard-hosts').toggleClass('editable', self.edit_enabled);
     },
 
     enter: function() {
@@ -221,7 +221,6 @@ PageDashboard.prototype = {
             var info = hosts[addr] = { };
             info.link = $('<a class="list-group-item">').append(
                 $('<button class="btn btn-danger edit-button pficon pficon-close" style="float:right">').
-                    toggle(self.edit_enabled).
                     click(function () {
                         self.toggle_edit(false);
                         var h = shell.hosts[addr];
@@ -230,7 +229,6 @@ PageDashboard.prototype = {
                         return false;
                     }),
                 $('<button class="btn btn-default edit-button pficon pficon-edit" style="float:right;margin-right:10px">').
-                    toggle(self.edit_enabled).
                     click(function () {
                         self.toggle_edit(false);
                         host_edit_dialog(addr);

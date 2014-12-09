@@ -381,6 +381,7 @@ function hosts_init() {
                      color: null,
                      state: "connecting",
                      cockpitd: client,
+                     address: addr,
 
                      compare: compare,
                      set_display_name: set_display_name,

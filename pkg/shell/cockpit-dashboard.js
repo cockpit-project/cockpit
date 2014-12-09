@@ -194,7 +194,7 @@ PageDashboard.prototype = {
 
         var hosts = self.hosts = { };
 
-        $('#dashboard-hosts').empty();
+        $('#dashboard-hosts .list-group').empty();
         self.toggle_edit(false);
 
         $(shell.hosts).on("added.dashboard", added);
@@ -220,7 +220,7 @@ PageDashboard.prototype = {
         function added(event, addr) {
             var info = hosts[addr] = { };
             info.link = $('<a class="list-group-item">').append(
-                $('<button class="btn btn-danger edit-button pficon pficon-close" style="float:right">').
+                $('<button class="btn btn-danger edit-button pficon pficon-close">').
                     click(function () {
                         self.toggle_edit(false);
                         var h = shell.hosts[addr];
@@ -228,13 +228,13 @@ PageDashboard.prototype = {
                             h.remove();
                         return false;
                     }),
-                $('<button class="btn btn-default edit-button pficon pficon-edit" style="float:right;margin-right:10px">').
+                $('<button class="btn btn-default edit-button pficon pficon-edit">').
                     click(function () {
                         self.toggle_edit(false);
                         host_edit_dialog(addr);
                         return false;
                     }),
-                info.avatar_img = $('<img width="32" height="32" class="host-avatar">').
+                info.avatar_img = $('<img class="host-avatar">').
                     attr('src', "images/server-small.png"),
                 info.hostname_span = $('<span>')).
                 click(function () {
@@ -287,10 +287,10 @@ PageDashboard.prototype = {
                 return;
 
             dash_info.hostname_span.text(shell_info.display_name);
-            if (shell_info.state == "failed") {
+            var failed = (shell_info.state == "failed");
+            dash_info.link.toggleClass("failed", failed);
+            if (failed) {
                 dash_info.avatar_img.attr('src', "images/server-error.png");
-                dash_info.avatar_img.
-                    css('border', "none");
                 if (dash_info.plot_series) {
                     dash_info.plot_series.remove();
                     dash_info.plot_series = null;
@@ -301,8 +301,6 @@ PageDashboard.prototype = {
                 if (shell_info.color && shell_info.color != dash_info.color) {
                     dash_info.color = shell_info.color;
                     dash_info.avatar_img.
-                        css('border-width', 2).
-                        css('border-style', "solid").
                         css('border-color', shell_info.color);
                     if (dash_info.plot_series) {
                         dash_info.plot_series.options.color = shell_info.color;
@@ -318,7 +316,7 @@ PageDashboard.prototype = {
                                 sort(function (a1, a2) {
                                     return shell.hosts[a1].compare(shell.hosts[a2]);
                                 }));
-            $('#dashboard-hosts').append(
+            $('#dashboard-hosts .list-group').append(
                 sorted_hosts.map(function (addr) { return hosts[addr].link; }));
         }
 

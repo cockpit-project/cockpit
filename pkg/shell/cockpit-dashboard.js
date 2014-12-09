@@ -238,11 +238,13 @@ PageDashboard.prototype = {
                     attr('src', "images/server-small.png"),
                 info.hostname_span = $('<span>')).
                 click(function () {
-                    var h = shell.hosts[addr];
-                    if (h.state == "failed")
-                        h.show_problem_dialog();
-                    else
-                        cockpit.location.go([ addr, "server" ]);
+                    if (!self.edit_enabled) {
+                        var h = shell.hosts[addr];
+                        if (h.state == "failed")
+                            h.show_problem_dialog();
+                        else
+                            cockpit.location.go([ addr, "server" ]);
+                    }
                 }).
                 mouseenter(function () {
                     highlight(true);

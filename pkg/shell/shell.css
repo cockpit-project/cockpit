@@ -69,6 +69,16 @@ html, body {
     width: 28px;
 }
 
+/* Per server buttons not visible by default */
+#dashboard-hosts button {
+    display: none;
+}
+
+/* When panel is editable, then buttons are visible */
+#dashboard-hosts.editable button {
+    display: block;
+}
+
 #dashboard-hosts .btn,
 #dashboard-enable-edit,
 #dashboard-add {

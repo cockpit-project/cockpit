@@ -8,6 +8,7 @@
     <link href="shell.css" rel="stylesheet">
     <script src="../@@latest@@/jquery.js"></script>
     <script src="../@@latest@@/term.js"></script>
+    <script src="../@@latest@@/mustache.js"></script>
     <script src="../@@latest@@/cockpit.js"></script>
     <script src="attrchange.js"></script>
     <script src="shell.js"></script>
@@ -148,6 +149,18 @@
           </div>
         </div>
       </div>
+
+      <script id="dashboard-hosts-tmpl" type="x-template/mustache">
+        {{#machines}}
+          {{! state can be 'failed' or 'connected' }}
+          <a data-address="{{address}}" class="list-group-item {{state}}">
+            <button class="btn btn-danger edit-button pficon pficon-close"></button>
+            <button class="btn btn-default edit-button pficon pficon-edit"></button>
+            <img style="border-color: {{color}};" class="host-avatar" src="{{render_avatar}}">
+            <span>{{display_name}}</span>
+          </a>
+        {{/machines}}
+      </script>
 
       <div id="server" class="container-fluid" hidden>
         <div class="col-md-3">

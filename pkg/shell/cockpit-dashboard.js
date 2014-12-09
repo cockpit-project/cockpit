@@ -21,6 +21,7 @@
 /* global cockpit  */
 /* global _        */
 /* global C_       */
+/* global Mustache */
 
 var shell = shell || { };
 (function($, cockpit, shell) {
@@ -189,14 +190,10 @@ PageDashboard.prototype = {
         });
         this.plot = shell.plot($('#dashboard-plot'), 300, 1);
 
-        var hosts = self.hosts = { };
-
-        $('#dashboard-hosts .list-group').empty();
-        self.toggle_edit(false);
-
-        $(shell.hosts).on("added.dashboard", added);
-        $(shell.hosts).on("removed.dashboard", removed);
-        $(shell.hosts).on("changed.dashboard", changed);
+        var renderer = host_renderer($("#dashboard-hosts .list-group"));
+        $(shell.hosts).on("added.dashboard", renderer);
+        $(shell.hosts).on("removed.dashboard", renderer);
+        $(shell.hosts).on("changed.dashboard", renderer);
 
         var current_monitor = 0;
 
@@ -216,7 +213,7 @@ PageDashboard.prototype = {
         $("#dashboard-hosts")
             .on("click", "a.list-group-item", function() {
                 if (!self.edit_enabled) {
-                    var addr = $(this).data("address");
+                    var addr = $(this).attr("data-address");
                     var h = shell.hosts[addr];
                     if (h.state == "failed")
                         h.show_problem_dialog();
@@ -228,7 +225,7 @@ PageDashboard.prototype = {
             .on("click", "button.pficon-close", function() {
                 var item = $(this).parent(".list-group-item");
                 self.toggle_edit(false);
-                var h = shell.hosts[item.data("address")];
+                var h = shell.hosts[item.attr("data-address")];
                 if (h)
                     h.remove();
                 return false;
@@ -236,7 +233,7 @@ PageDashboard.prototype = {
             .on("click", "button.pficon-edit", function() {
                 var item = $(this).parent(".list-group-item");
                 self.toggle_edit(false);
-                host_edit_dialog(item.data("address"));
+                host_edit_dialog(item.attr("data-address"));
                 return false;
             })
             .on("mouseenter", "a.list-group-item", function() {
@@ -245,17 +242,6 @@ PageDashboard.prototype = {
             .on("mouseleave", "a.list-group-item", function() {
                 highlight($(this), false);
             });
-
-        function highlight(item, val) {
-            item.toggleClass("highlight", val);
-            var s = series[item.data("address")];
-            if (s) {
-                s.options.lines.lineWidth = val? 3 : 2;
-                if (val)
-                    s.move_to_front();
-                self.plot.refresh();
-            }
-        }
 
         var series = { };
 
@@ -269,17 +255,19 @@ PageDashboard.prototype = {
 
             $("#dashboard-hosts .list-group-item").each(function() {
                 var item = $(this);
-                var addr = item.data("address");
+                var addr = item.attr("data-address");
                 var host = shell.hosts[addr];
                 if (!host || host.state == "failed")
                     return;
                 delete seen[addr];
                 if (!series[addr]) {
                     series[addr] = plot_add(addr);
-                    $(series[addr]).on('hover', function(event, val) {
+                }
+                $(series[addr])
+                    .off('hover')
+                    .on('hover', function(event, val) {
                         highlight(item, val);
                     });
-                }
                 if (series[addr].options.color != host.color) {
                     refresh = true;
                     series[addr].options.color = host.color;
@@ -295,75 +283,49 @@ PageDashboard.prototype = {
                 self.plot.refresh();
         }
 
-        function added(event, addr) {
-            var info = hosts[addr] = { };
-            info.link = $('<a class="list-group-item">')
-                .attr("data-address", addr).append(
-                $('<button class="btn btn-danger edit-button pficon pficon-close">'),
-                $('<button class="btn btn-default edit-button pficon pficon-edit">'),
-                info.avatar_img = $('<img class="host-avatar">').
-                    attr('src', "images/server-small.png"),
-                info.hostname_span = $('<span>'));
-
-            changed(event, addr);
-
-            info.remove = function () {
-                var series = info.link.data("series");
-                if (series)
-                    series.remove();
-                info.link.remove();
-            };
-
-            show_hosts();
-        }
-
-        function removed(event, addr) {
-            hosts[addr].remove();
-            delete hosts[addr];
-            update_series();
-        }
-
-        function changed(event, addr) {
-            var shell_info = shell.hosts[addr];
-            var dash_info = hosts[addr];
-
-            if (!dash_info || !shell_info)
-                return;
-
-            dash_info.hostname_span.text(shell_info.display_name);
-            var failed = (shell_info.state == "failed");
-            dash_info.link.toggleClass("failed", failed);
-            if (failed) {
-                dash_info.avatar_img.attr('src', "images/server-error.png");
-                if (dash_info.plot_series) {
-                    dash_info.plot_series.remove();
-                    dash_info.plot_series = null;
-                }
-            } else {
-                if (shell_info.avatar)
-                    dash_info.avatar_img.attr('src', shell_info.avatar);
-                if (shell_info.color && shell_info.color != dash_info.color) {
-                    dash_info.color = shell_info.color;
-                    dash_info.avatar_img.
-                        css('border-color', shell_info.color);
-                    if (dash_info.plot_series) {
-                        dash_info.plot_series.options.color = shell_info.color;
-                        self.plot.refresh();
-                    }
-                }
+        function highlight(item, val) {
+            item.toggleClass("highlight", val);
+            var s = series[item.attr("data-address")];
+            if (s) {
+                s.options.lines.lineWidth = val? 3 : 2;
+                if (val)
+                    s.move_to_front();
+                self.plot.refresh();
             }
-            show_hosts();
         }
 
-        function show_hosts() {
-            var sorted_hosts = (Object.keys(hosts).
-                                sort(function (a1, a2) {
-                                    return shell.hosts[a1].compare(shell.hosts[a2]);
-                                }));
-            $('#dashboard-hosts .list-group').append(
-                sorted_hosts.map(function (addr) { return hosts[addr].link; }));
+        function host_renderer(target) {
+            var template = $("#dashboard-hosts-tmpl").html();
+            Mustache.parse(template);
 
-            update_series();
+            function render_avatar() {
+                if (this.state == "failed")
+                    return "images/server-error.png";
+                else if (this.avatar)
+                    return this.avatar;
+                else
+                    return "images/server-small.png";
+            }
+
+            function render() {
+                var sorted_hosts = Object.keys(shell.hosts)
+                    .sort(function(a1, a2) {
+                        return shell.hosts[a1].compare(shell.hosts[a2]);
+                    }).
+                    map(function(a) {
+                        return shell.hosts[a];
+                    });
+
+                var text = Mustache.render(template, {
+                    machines: sorted_hosts,
+                    render_avatar: render_avatar
+                });
+
+                target.html(text);
+                update_series();
+            }
+
+            return render;
         }
 
         function plot_add(addr) {
@@ -419,8 +381,7 @@ PageDashboard.prototype = {
             self.plot.resize();
         });
 
-        for (var addr in shell.hosts)
-            added(null, addr);
+        renderer();
     },
 
     show: function() {

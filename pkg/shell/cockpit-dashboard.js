@@ -217,60 +217,103 @@ PageDashboard.prototype = {
 
         set_monitor(current_monitor);
 
+        $("#dashboard-hosts")
+            .on("click", "a.list-group-item", function() {
+                if (!self.edit_enabled) {
+                    var h = shell.hosts[$(this).data("address")];
+                    if (h.state == "failed")
+                        h.show_problem_dialog();
+                    else
+                        cockpit.location.go([ addr, "server" ]);
+                    return false;
+                }
+            })
+            .on("click", "button.pficon-close", function() {
+                var item = $(this).parent(".list-group-item");
+                self.toggle_edit(false);
+                var h = shell.hosts[item.data("address")];
+                if (h)
+                    h.remove();
+                return false;
+            })
+            .on("click", "button.pficon-edit", function() {
+                var item = $(this).parent(".list-group-item");
+                self.toggle_edit(false);
+                host_edit_dialog(item.data("address"));
+                return false;
+            })
+            .on("mouseenter", "a.list-group-item", function() {
+                highlight($(this), true);
+            })
+            .on("mouseleave", "a.list-group-item", function() {
+                highlight($(this), false);
+            });
+
+        function highlight(item, val) {
+            item.toggleClass("highlight", val);
+            var series = item.data("plot-series");
+            if (series) {
+                series.options.lines.lineWidth = val? 3 : 2;
+                series.move_to_front();
+                self.plot.refresh();
+            }
+        }
+
+        var series = { };
+
+        function update_series() {
+            var refresh = false;
+
+            var seen = { };
+            $.each(series, function(addr) {
+                seen[addr] = true;
+            });
+
+            $("#dashboard-hosts .list-group-item").each(function() {
+                var item = $(this);
+                var addr = item.data("address");
+                var host = shell.hosts[addr];
+                if (!host || host.state == "failed")
+                    return;
+                delete seen[addr];
+                if (!series[addr]) {
+                    series[addr] = plot_add(addr);
+                    $(series[addr]).on('hover', function(event, val) {
+                        highlight(item, val);
+                    });
+                }
+                if (series[addr].options.color != host.color) {
+                    refresh = true;
+                    series[addr].options.color = host.color;
+                }
+            });
+
+            $.each(seen, function(addr) {
+                series[addr].remove();
+                delete series[addr];
+            });
+
+            if (refresh)
+                self.plot.refresh();
+        }
+
         function added(event, addr) {
             var info = hosts[addr] = { };
-            info.link = $('<a class="list-group-item">').append(
-                $('<button class="btn btn-danger edit-button pficon pficon-close">').
-                    click(function () {
-                        self.toggle_edit(false);
-                        var h = shell.hosts[addr];
-                        if (h)
-                            h.remove();
-                        return false;
-                    }),
-                $('<button class="btn btn-default edit-button pficon pficon-edit">').
-                    click(function () {
-                        self.toggle_edit(false);
-                        host_edit_dialog(addr);
-                        return false;
-                    }),
+            info.link = $('<a class="list-group-item">')
+                .attr("data-address", addr).append(
+                $('<button class="btn btn-danger edit-button pficon pficon-close">'),
+                $('<button class="btn btn-default edit-button pficon pficon-edit">'),
                 info.avatar_img = $('<img class="host-avatar">').
                     attr('src', "images/server-small.png"),
-                info.hostname_span = $('<span>')).
-                click(function () {
-                    if (!self.edit_enabled) {
-                        var h = shell.hosts[addr];
-                        if (h.state == "failed")
-                            h.show_problem_dialog();
-                        else
-                            cockpit.location.go([ addr, "server" ]);
-                    }
-                }).
-                mouseenter(function () {
-                    highlight(true);
-                }).
-                mouseleave(function () {
-                    highlight(false);
-                });
+                info.hostname_span = $('<span>'));
 
             changed(event, addr);
 
-            function highlight(val) {
-                info.link.toggleClass("highlight", val);
-                if (info.plot_series) {
-                    info.plot_series.options.lines.lineWidth = val? 3 : 2;
-                    info.plot_series.move_to_front();
-                    self.plot.refresh();
-                }
-            }
-
-            info.plot_series = plot_add(addr);
-            $(info.plot_series).on('hover', function (event, val) { highlight(val); });
-
             info.remove = function () {
+                var series = info.link.data("series");
+                if (series)
+                    series.remove();
                 info.link.remove();
-                if (info.plot_series)
-                    info.plot_series.remove();
             };
 
             show_hosts();
@@ -279,6 +322,7 @@ PageDashboard.prototype = {
         function removed(event, addr) {
             hosts[addr].remove();
             delete hosts[addr];
+            update_series();
         }
 
         function changed(event, addr) {
@@ -320,6 +364,8 @@ PageDashboard.prototype = {
                                 }));
             $('#dashboard-hosts .list-group').append(
                 sorted_hosts.map(function (addr) { return hosts[addr].link; }));
+
+            update_series();
         }
 
         function plot_add(addr) {
@@ -365,8 +411,8 @@ PageDashboard.prototype = {
                                    resource_monitors[current_monitor].options);
             self.plot.reset();
             self.plot.set_options(options);
-            for (var addr in hosts)
-                plot_add(addr);
+            series = {};
+            update_series();
             self.plot.refresh();
             self.plot.start_walking(1);
         }

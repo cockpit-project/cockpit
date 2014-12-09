@@ -164,10 +164,18 @@ function host_edit_dialog(addr) {
 PageDashboard.prototype = {
     _init: function() {
         this.id = "dashboard";
+        this.edit_enabled = false;
     },
 
     getTitle: function() {
         return null;
+    },
+
+    toggle_edit: function(val) {
+        var self = this;
+        self.edit_enabled = val;
+        $('#dashboard-enable-edit').toggleClass('active', self.edit_enabled);
+        $('#dashboard-hosts').toggleClass('editable', self.edit_enabled);
     },
 
     setup: function() {
@@ -180,17 +188,6 @@ PageDashboard.prototype = {
             self.toggle_edit(!self.edit_enabled);
         });
         this.plot = shell.plot($('#dashboard-plot'), 300, 1);
-    },
-
-    toggle_edit: function(val) {
-        var self = this;
-        self.edit_enabled = val;
-        $('#dashboard-enable-edit').toggleClass('active', self.edit_enabled);
-        $('#dashboard-hosts').toggleClass('editable', self.edit_enabled);
-    },
-
-    enter: function() {
-        var self = this;
 
         var hosts = self.hosts = { };
 
@@ -201,10 +198,10 @@ PageDashboard.prototype = {
         $(shell.hosts).on("removed.dashboard", removed);
         $(shell.hosts).on("changed.dashboard", changed);
 
-        var current_monitor = parseInt(shell.get_page_param('m'), 10) || 0;
+        var current_monitor = 0;
 
         $('#dashboard .nav-tabs li').click(function () {
-            set_monitor(parseInt($(this).attr('data-monitor-id'), 10));
+            set_monitor(parseInt($(this).data('monitor-id'), 10));
         });
 
         function set_monitor(id) {
@@ -212,7 +209,6 @@ PageDashboard.prototype = {
             $('#dashboard .nav-tabs li[data-monitor-id=' + id + ']').addClass("active");
             current_monitor = id;
             plot_reset();
-            shell.set_page_param('m', id.toString());
         }
 
         set_monitor(current_monitor);
@@ -220,7 +216,8 @@ PageDashboard.prototype = {
         $("#dashboard-hosts")
             .on("click", "a.list-group-item", function() {
                 if (!self.edit_enabled) {
-                    var h = shell.hosts[$(this).data("address")];
+                    var addr = $(this).data("address");
+                    var h = shell.hosts[addr];
                     if (h.state == "failed")
                         h.show_problem_dialog();
                     else
@@ -423,27 +420,20 @@ PageDashboard.prototype = {
 
         for (var addr in shell.hosts)
             added(null, addr);
-
-        self.old_sidebar_state = $('#cockpit-sidebar').is(':visible');
-        $('#content-navbar').hide();
-        $('#cockpit-sidebar').hide();
     },
 
     show: function() {
         this.plot.resize();
+        this.toggle_edit(false);
     },
 
-    leave: function() {
-        var self = this;
+    enter: function() {
+        this.old_sidebar_state = $('#cockpit-sidebar').is(':visible');
+        $('#content-navbar').hide();
+        $('#cockpit-sidebar').hide();
+    },
 
-        self.plot.reset();
-
-        for (var addr in self.hosts)
-            self.hosts[addr].remove();
-
-        $(shell.hosts).off(".dashboard");
-        $(cockpit).off('.dashboard');
-
+    leave: function () {
         $('#content-navbar').show();
         $('#cockpit-sidebar').toggle(this.old_sidebar_state);
     }

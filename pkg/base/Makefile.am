@@ -75,6 +75,8 @@ update-jquery:
 	    $(srcdir)/lib/bootstrap-select.v1.6.3.min.js \
 	    $(srcdir)/lib/jquery-flot.v0.7.min.js
 
-# Never recreate this file
+# Never recreate these files
 pkg/base/jquery.min.js:
+	@true
+pkg/base/mustache.min.js:
 	@true

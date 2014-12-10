@@ -2321,7 +2321,7 @@ function full_scope(cockpit, $) {
                 delete req.headers;
 
             $.extend(req, options);
-            http_debug("http request:", req);
+            http_debug("http request:", JSON.stringify(req));
 
             /* We need a channel for the request */
             var channel = cockpit.channel(req);
@@ -2331,7 +2331,7 @@ function full_scope(cockpit, $) {
                     http_debug("http input:", input);
                     channel.send(input);
                 }
-                http_debug("http eof:", input);
+                http_debug("http eof");
                 channel.control({ command: "eof" });
             }
 

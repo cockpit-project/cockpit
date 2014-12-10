@@ -69,6 +69,27 @@ html, body {
     width: 28px;
 }
 
+#dashboard-hosts .list-group-item {
+    border-left-width: 7px;
+    border-left-style: solid;
+    border-top: none;
+    position: relative;
+}
+
+#dashboard-hosts .list-group-item:before {
+    content: "";
+    position: absolute;
+    border-top: 1px solid #BABABA;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: 1px;
+}
+
+#dashboard-hosts .list-group-item:first-child:before {
+    border-top-color: transparent;
+}
+
 #dashboard-hosts button {
     height: 28px;
     width: 28px;
@@ -102,13 +123,7 @@ html, body {
 
 #dashboard-hosts .list-group-item .host-avatar {
     float: left;
-    border-width: 2px;
-    border-style: solid;
-}
-
-/* Failed items have no border around server icon */
-#dashboard-hosts .list-group-item.failed .host-avatar {
-    border: none;
+    border-style: none;
 }
 
 #dashboard-hosts .list-group-item span {

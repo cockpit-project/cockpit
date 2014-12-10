@@ -248,10 +248,11 @@ PageDashboard.prototype = {
 
         function highlight(item, val) {
             item.toggleClass("highlight", val);
-            var series = item.data("plot-series");
-            if (series) {
-                series.options.lines.lineWidth = val? 3 : 2;
-                series.move_to_front();
+            var s = series[item.data("address")];
+            if (s) {
+                s.options.lines.lineWidth = val? 3 : 2;
+                if (val)
+                    s.move_to_front();
                 self.plot.refresh();
             }
         }

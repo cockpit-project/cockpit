@@ -431,7 +431,7 @@ simple_token (const gchar *string)
 static gboolean
 single_line (const gchar *string)
 {
-  string += strcspn (string, " \r\n\v");
+  string += strcspn (string, "\r\n\v");
   return string[0] == '\0';
 }
 

@@ -212,13 +212,12 @@ PageDashboard.prototype = {
 
         $("#dashboard-hosts")
             .on("click", "a.list-group-item", function() {
-                if (!self.edit_enabled) {
-                    var addr = $(this).attr("data-address");
-                    var h = shell.hosts[addr];
-                    if (h.state == "failed")
-                        h.show_problem_dialog();
-                    else
-                        cockpit.location.go([ addr, "server" ]);
+                if (self.edit_enabled)
+                    return false;
+                var addr = $(this).attr("data-address");
+                var h = shell.hosts[addr];
+                if (h.state == "failed") {
+                    h.show_problem_dialog();
                     return false;
                 }
             })

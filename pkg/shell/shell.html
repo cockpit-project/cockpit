@@ -153,10 +153,10 @@
       <script id="dashboard-hosts-tmpl" type="x-template/mustache">
         {{#machines}}
           {{! state can be 'failed' or 'connected' }}
-          <a data-address="{{address}}" class="list-group-item {{state}}">
+          <a data-address="{{address}}" class="list-group-item {{state}}" style="border-left-color: {{ color }};">
             <button class="btn btn-danger edit-button pficon pficon-close"></button>
             <button class="btn btn-default edit-button pficon pficon-edit"></button>
-            <img style="border-color: {{color}};" class="host-avatar" src="{{render_avatar}}">
+            <img class="host-avatar" src="{{render_avatar}}">
             <span>{{display_name}}</span>
           </a>
         {{/machines}}

@@ -147,12 +147,12 @@ asyncTest("headers", function() {
     expect(3);
 
     cockpit.http({ "internal": "test-server" })
-        .get("/mock/headers", null, { "Header1": "booo", "Header2": "yay" })
+        .get("/mock/headers", null, { "Header1": "booo", "Header2": "yay value" })
         .response(function(status, headers) {
             equal(status, 201, "status code");
             deepEqual(headers, {
                     "Header1": "booo",
-                    "Header2": "yay",
+                    "Header2": "yay value",
                     "Header3": "three",
                     "Header4": "marmalade"
             }, "got back headers");

@@ -391,6 +391,19 @@ asyncTest("closing", function() {
     file.close();
 });
 
+asyncTest("channel options", function() {
+    expect(2);
+    var file = cockpit.file(dir + "/foobarbaz", { host: "horst.example" });
+    file.read()
+        .always(function () {
+            equal(this.state(), "rejected", "failed");
+        }).
+        fail(function (error) {
+            equal(error.problem, "no-host", "failed to connect");
+            start();
+        });
+});
+
 asyncTest("remove testdir", function() {
     expect(1);
     cockpit.spawn([ "rm", "-rf", dir ]).

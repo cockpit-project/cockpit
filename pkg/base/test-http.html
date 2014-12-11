@@ -181,6 +181,57 @@ test("http promise recursive", function() {
     equal(typeof promise3.input, "function", "promise3.input()");
 });
 
+asyncTest("http keep alive", function() {
+    expect(3);
+
+    /*
+     * The /mock/connection handler returns an identifier that changes if
+     * a different connection is used.
+     */
+
+    var first;
+    cockpit.http({ "internal": "test-server" }).get("/mock/connection")
+        .always(function() {
+            equal(this.state(), "resolved", "response didn't fail");
+        })
+        .done(function(data) {
+            first = data;
+            cockpit.http({ "internal": "test-server" }).get("/mock/connection")
+                .done(function(data) {
+                    equal(first, data, "same connection");
+                })
+                .always(function() {
+                    equal(this.state(), "resolved", "response didn't fail");
+                    start();
+                });
+        });
+});
+
+asyncTest("http connection different", function() {
+    expect(3);
+
+    /*
+     * The /mock/connection handler returns an identifier that changes if
+     * a different connection is used.
+     */
+
+    var first;
+    cockpit.http({ "internal": "test-server", "connection": "one" }).get("/mock/connection")
+        .always(function() {
+            equal(this.state(), "resolved", "response didn't fail");
+        })
+        .done(function(data) {
+            first = data;
+            cockpit.http({ "internal": "test-server", "connection": "two" }).get("/mock/connection")
+                .done(function(data) {
+                    notEqual(first, data, "different connection");
+                })
+                .always(function() {
+                    equal(this.state(), "resolved", "response didn't fail");
+                    start();
+                });
+        });
+});
 
 QUnit.start();
 </script>

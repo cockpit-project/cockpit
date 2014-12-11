@@ -159,6 +159,7 @@ class TestDashboard(MachineCase):
         self.login_and_go("dashboard")
         self.inject_extras(b)
         self.wait_dashboard_addresses (b, [ "localhost" ])
+        old_color = b.eval_js('return shell.hosts["localhost"].color;')
 
         b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
         b.click('#dashboard-enable-edit')
@@ -166,8 +167,6 @@ class TestDashboard(MachineCase):
 
         b.click('#dashboard-hosts a:first-child button.pficon-edit')
         b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
-
-        b.wait_js_cond('shell.hosts["localhost"].color == "gray"')
 
         b.wait_popup('host-edit-dialog')
         b.set_val('#host-edit-name', "Horst")
@@ -179,7 +178,8 @@ class TestDashboard(MachineCase):
         b.wait_popdown('host-edit-dialog')
 
         b.wait_text('#dashboard-hosts a:first-child span', "Horst")
-        b.wait_js_cond('shell.hosts["localhost"].color != "gray"')
+        b.wait_js_cond('shell.hosts["localhost"].color != "%s";' % old_color)
+
         self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
 
     def testSetup(self):

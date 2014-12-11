@@ -219,7 +219,7 @@ test_parse_status (void)
 
   for (i = 0; i < G_N_ELEMENTS (lines); i++)
     {
-      ret = web_socket_util_parse_status_line (lines[i], strlen (lines[i]), &status, &reason);
+      ret = web_socket_util_parse_status_line (lines[i], strlen (lines[i]), NULL, &status, &reason);
       g_assert_cmpint (ret, ==, strlen (lines[i]) - 2);
       g_assert_cmpuint (status, ==, 101);
       g_assert_cmpstr (reason, ==, "Switching Protocols");
@@ -233,7 +233,7 @@ test_parse_status_no_out (void)
   const gchar *line = "HTTP/1.0 101 Switching Protocols\r\n  ";
   gssize ret;
 
-  ret = web_socket_util_parse_status_line (line, strlen (line), NULL, NULL);
+  ret = web_socket_util_parse_status_line (line, strlen (line), NULL, NULL, NULL);
   g_assert_cmpint (ret, ==, strlen (line) - 2);
 }
 
@@ -243,7 +243,7 @@ test_parse_status_not_enough (void)
   const gchar *data = "HTTP/";
   gssize ret;
 
-  ret = web_socket_util_parse_status_line (data, strlen (data), NULL, NULL);
+  ret = web_socket_util_parse_status_line (data, strlen (data), NULL, NULL, NULL);
   g_assert_cmpint (ret, ==, 0);
 }
 
@@ -262,9 +262,29 @@ test_parse_status_bad (void)
 
   for (i = 0; i < G_N_ELEMENTS (lines); i++)
     {
-      ret = web_socket_util_parse_status_line (lines[i], strlen (lines[i]), NULL, NULL);
+      ret = web_socket_util_parse_status_line (lines[i], strlen (lines[i]), NULL, NULL, NULL);
       g_assert_cmpint (ret, ==, -1);
     }
+}
+
+static void
+test_parse_version (void)
+{
+  gchar *version;
+  const gchar *line;
+  gssize ret;
+
+  line = "HTTP/1.0 101 Switching Protocols\r\n  ";
+  ret = web_socket_util_parse_status_line (line, strlen (line), &version, NULL, NULL);
+  g_assert_cmpint (ret, ==, strlen (line) - 2);
+  g_assert_cmpstr (version, ==, "HTTP/1.0");
+  g_free (version);
+
+  line = "HTTP/1.1 101 Switching Protocols\r\n  ";
+  ret = web_socket_util_parse_status_line (line, strlen (line), &version, NULL, NULL);
+  g_assert_cmpint (ret, ==, strlen (line) - 2);
+  g_assert_cmpstr (version, ==, "HTTP/1.1");
+  g_free (version);
 }
 
 static void
@@ -1258,7 +1278,7 @@ test_hixie76_response_headers (void)
   g_assert (count > 0);
 
   /* Parse things out */
-  in1 = web_socket_util_parse_status_line (buffer, count, &status, NULL);
+  in1 = web_socket_util_parse_status_line (buffer, count, NULL, &status, NULL);
   g_assert_cmpint (in1, >, 0);
   in2 = web_socket_util_parse_headers (buffer + in1, count - in1, &headers);
   g_assert_cmpint (in2, >, 0);
@@ -1418,6 +1438,7 @@ main (int argc,
   g_test_add_func ("/web-socket/parse-status-no-out", test_parse_status_no_out);
   g_test_add_func ("/web-socket/parse-status-not-enough", test_parse_status_not_enough);
   g_test_add_func ("/web-socket/parse-status-bad", test_parse_status_bad);
+  g_test_add_func ("/web-socket/parse-version", test_parse_version);
   g_test_add_func ("/web-socket/parse-headers", test_parse_headers);
   g_test_add_func ("/web-socket/parse-headers-no-out", test_parse_headers_no_out);
   g_test_add_func ("/web-socket/parse-headers-bad", test_parse_headers_bad);

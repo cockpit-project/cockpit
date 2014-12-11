@@ -151,6 +151,7 @@ relay_headers (CockpitHttpStream *self,
 {
   const gchar *problem = "protocol-error";
   GHashTable *headers = NULL;
+  gchar *version = NULL;
   gchar *reason = NULL;
   JsonObject *object;
   const gchar *data;
@@ -167,7 +168,7 @@ relay_headers (CockpitHttpStream *self,
   data = (const gchar *)buffer->data;
   length = buffer->len;
 
-  offset = web_socket_util_parse_status_line (data, length, &status, &reason);
+  offset = web_socket_util_parse_status_line (data, length, &version, &status, &reason);
   if (offset == 0)
     return FALSE; /* want more data */
 
@@ -228,6 +229,7 @@ out:
     cockpit_channel_close (channel, problem);
   if (headers)
     g_hash_table_unref (headers);
+  g_free (version);
   g_free (reason);
 
   return TRUE;

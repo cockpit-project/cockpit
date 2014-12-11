@@ -303,7 +303,7 @@ test_content_type (TestCase *tc,
   resp = output_as_string (tc);
   length = strlen (resp);
 
-  off = web_socket_util_parse_status_line (resp, length, &status, NULL);
+  off = web_socket_util_parse_status_line (resp, length, NULL, &status, NULL);
   g_assert_cmpuint (off, >, 0);
   g_assert_cmpint (status, ==, 200);
 

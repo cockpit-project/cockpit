@@ -87,11 +87,18 @@ G_DEFINE_TYPE (CockpitHttpStream, cockpit_http_stream, COCKPIT_TYPE_CHANNEL);
 
 static gboolean
 parse_content_length (CockpitHttpStream *self,
+                      guint status,
                       GHashTable *headers)
 {
   const gchar *header;
   guint64 value;
   gchar *end;
+
+  if (status == 204)
+    {
+      self->response_length = 0;
+      return TRUE;
+    }
 
   header = g_hash_table_lookup (headers, "Content-Length");
   if (header == NULL)
@@ -189,7 +196,7 @@ relay_headers (CockpitHttpStream *self,
     }
 
   if (!parse_transfer_encoding (self, headers) ||
-      !parse_content_length (self, headers))
+      !parse_content_length (self, status, headers))
     goto out;
 
   problem = NULL;

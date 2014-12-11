@@ -1231,6 +1231,11 @@
 
       <variablelist>
         <varlistentry>
+          <term><code>"connection"</code></term>
+          <listitem><para>A connection identifier. Subsequent channel requests with the same
+            identifier will try to use the same connection if it is still open.</para></listitem>
+        </varlistentry>
+        <varlistentry>
           <term><code>"superuser"</code></term>
           <listitem><para>Try to open this channel as root. If the currently logged in user is not
 	    permitted to become root (eg: via <code>pkexec</code>) then the <code>channel</code> will

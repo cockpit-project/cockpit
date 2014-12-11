@@ -167,6 +167,25 @@ mock_http_headers (CockpitWebResponse *response,
 }
 
 static gboolean
+mock_http_connection (CockpitWebResponse *response)
+{
+  GIOStream *io;
+  GBytes *bytes;
+  gchar *output;
+
+  /* Lets caller have an indication of which IO stream is being used */
+
+  io = cockpit_web_response_get_stream (response);
+  output = g_strdup_printf ("%p", io);
+  bytes = g_bytes_new_take (output, strlen (output));
+
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+
+  return TRUE;
+}
+
+static gboolean
 on_handle_mock (CockpitWebServer *server,
                 const gchar *path,
                 GHashTable *headers,
@@ -182,6 +201,8 @@ on_handle_mock (CockpitWebServer *server,
     return mock_http_stream (response);
   if (g_str_equal (path, "/headers"))
     return mock_http_headers (response, headers);
+  if (g_str_equal (path, "/connection"))
+    return mock_http_connection (response);
   else
     return FALSE;
 }

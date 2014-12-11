@@ -70,13 +70,16 @@ strskip (const gchar *start,
 
 static gsize
 parse_version (const gchar *data,
-               gsize length)
+               gsize length,
+               gchar **version)
 {
   if (length < 8)
     return 0;
   if (memcmp (data, "HTTP/1.0", 8) != 0 &&
       memcmp (data, "HTTP/1.1", 8) != 0)
     return 0;
+  if (version)
+    *version = g_strndup (data, 8);
   return 8;
 }
 
@@ -206,7 +209,7 @@ web_socket_util_parse_req_line (const gchar *data,
   version = strskip (path_end + 1, ' ', end);
 
   /* Returns number of characters consumed */
-  n = parse_version (version, (end - version));
+  n = parse_version (version, (end - version), NULL);
   if (n == 0)
     return -1;
 
@@ -411,6 +414,7 @@ _web_socket_util_header_empty (GHashTable *headers,
  * web_socket_util_parse_status_line:
  * @data: (array length=length): the input data
  * @length: length of data
+ * @version: (out): location to place HTTP version, or %NULL
  * @status: (out): location to place HTTP status, or %NULL
  * @reason: (out): location to place HTTP message, or %NULL
  *
@@ -432,6 +436,7 @@ _web_socket_util_header_empty (GHashTable *headers,
 gssize
 web_socket_util_parse_status_line (const gchar *data,
                                    gsize length,
+                                   gchar **version,
                                    guint *status,
                                    gchar **reason)
 {
@@ -452,7 +457,7 @@ web_socket_util_parse_status_line (const gchar *data,
   if (end == NULL)
     return 0; /* need more data */
 
-  n = parse_version (at, (end - at));
+  n = parse_version (at, (end - at), version);
   if (n == 0 || at[n] != ' ')
     return -1;
   at += n;

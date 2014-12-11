@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 typedef struct {
   MockTransport *transport;
@@ -286,6 +287,22 @@ test_read_non_existent (TestCase *tc,
 }
 
 static void
+test_read_denied (TestCase *tc,
+                  gconstpointer unused)
+{
+  JsonObject *control;
+
+  set_contents (tc->test_path, "Hello!");
+  g_assert (chmod (tc->test_path, 0) >= 0);
+
+  setup_fsread_channel (tc, tc->test_path);
+  wait_channel_closed (tc);
+
+  control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "not-authorized");
+}
+
+static void
 test_read_changed (TestCase *tc,
                    gconstpointer unused)
 {
@@ -487,6 +504,25 @@ test_write_empty (TestCase *tc,
   g_assert (json_object_get_member (control, "problem") == NULL);
   g_assert_cmpstr (json_object_get_string_member (control, "tag"), ==, tag);
   g_free (tag);
+}
+
+static void
+test_write_denied (TestCase *tc,
+                   gconstpointer unused)
+{
+  JsonObject *control;
+
+  g_assert (chmod (tc->test_dir, 0) >= 0);
+
+  setup_fswrite_channel (tc, tc->test_path, NULL);
+  send_string (tc, "Hello!");
+  send_eof (tc);
+  wait_channel_closed (tc);
+
+  control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "not-authorized");
+
+  g_assert (chmod (tc->test_dir, 0777) >= 0);
 }
 
 static void
@@ -770,6 +806,8 @@ main (int argc,
               setup, test_read_simple, teardown);
   g_test_add ("/fsread/non-existent", TestCase, NULL,
               setup, test_read_non_existent, teardown);
+  g_test_add ("/fsread/denied", TestCase, NULL,
+              setup, test_read_denied, teardown);
   g_test_add ("/fsread/changed", TestCase, NULL,
               setup, test_read_changed, teardown);
   g_test_add ("/fsread/replaced", TestCase, NULL,
@@ -787,6 +825,8 @@ main (int argc,
               setup, test_write_remove_nonexistent, teardown);
   g_test_add ("/fswrite/empty", TestCase, NULL,
               setup, test_write_empty, teardown);
+  g_test_add ("/fswrite/denied", TestCase, NULL,
+              setup, test_write_denied, teardown);
   g_test_add ("/fswrite/expect-non-existent", TestCase, NULL,
               setup, test_write_expect_non_existent, teardown);
   g_test_add ("/fswrite/expect-non-existent-fail", TestCase, NULL,

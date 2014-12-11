@@ -227,9 +227,9 @@ cockpit_fsread_prepare (CockpitChannel *channel)
         }
       else
         {
-          if (err == EPERM)
+          if (err == EPERM || err == EACCES)
             {
-              g_debug ("%s: %s", self->path, strerror (err));
+              g_debug ("%s: couldn't open: %s", self->path, strerror (err));
               problem = "not-authorized";
             }
           else

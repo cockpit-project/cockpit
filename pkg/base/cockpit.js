@@ -1826,6 +1826,9 @@ function full_scope(cockpit, $) {
             close: close
         };
 
+        var base_channel_options = $.extend({ }, options);
+        delete base_channel_options.syntax;
+
         function parse(str) {
             if (options.syntax && options.syntax.parse)
                 return options.syntax.parse(str);
@@ -1848,12 +1851,13 @@ function full_scope(cockpit, $) {
                 return read_promise;
 
             var dfd = $.Deferred();
+            var opts = $.extend({ }, base_channel_options, {
+                payload: "fsread1",
+                path: path,
+            });
 
             function try_read() {
-                read_channel = cockpit.channel({ payload: "fsread1",
-                                                 path: path,
-                                                 binary: binary
-                                               });
+                read_channel = cockpit.channel(opts);
                 var content_parts = [ ];
                 $(read_channel).on("message", function (event, message) {
                     content_parts.push(message);
@@ -1919,11 +1923,12 @@ function full_scope(cockpit, $) {
             if (replace_channel)
                 replace_channel.close("abort");
 
-            replace_channel = cockpit.channel({ payload: "fswrite1",
-                                                path: path,
-                                                tag: expected_tag,
-                                                binary: binary
-                                              });
+            var opts = $.extend({ }, base_channel_options, {
+                payload: "fswrite1",
+                path: path,
+                tag: expected_tag
+            });
+            replace_channel = cockpit.channel(opts);
 
             $(replace_channel).on("close", function (event, message) {
                 replace_channel = null;
@@ -1992,9 +1997,11 @@ function full_scope(cockpit, $) {
                 if (watch_channel)
                     return;
 
-                watch_channel = cockpit.channel({ payload: "fswatch1",
-                                                  path: path
-                                                });
+                var opts = $.extend({ }, base_channel_options, {
+                    payload: "fswatch1",
+                    path: path,
+                });
+                watch_channel = cockpit.channel(opts);
                 $(watch_channel).on("message", function (event, message_string) {
                     var message;
                     try      { message = JSON.parse(message_string); }

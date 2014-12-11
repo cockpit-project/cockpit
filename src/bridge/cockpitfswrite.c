@@ -65,7 +65,7 @@ prepare_for_close_with_errno (CockpitFswrite *self,
 {
   JsonObject *options;
 
-  if (err == EPERM)
+  if (err == EPERM || err == EACCES)
     {
       g_debug ("%s: %s: %s", self->path, diagnostic, strerror (err));
       return "not-authorized";

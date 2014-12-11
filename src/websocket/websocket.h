@@ -41,6 +41,7 @@ gssize          web_socket_util_parse_req_line (const gchar *data,
 
 gssize       web_socket_util_parse_status_line (const gchar *data,
                                                 gsize length,
+                                                gchar **version,
                                                 guint *status,
                                                 gchar **reason);
 

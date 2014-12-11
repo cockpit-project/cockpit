@@ -566,6 +566,12 @@ payload type:
  * "unix": Open a channel with the given unix socket.
  * "port": Open a channel with the given TCP port on localhost.
 
+You may also specify these options:
+
+ * "connection": A connection identifier. Subsequent channel requests
+   with the same identifier will try to use the same connection if it
+   is still open.
+
 Any data to be sent should be sent via the channel, and then the channel
 should be closed without a problem.
 

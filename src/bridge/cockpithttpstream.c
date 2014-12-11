@@ -31,6 +31,113 @@
 #include <string.h>
 
 /**
+ * CockpitHttpConnection
+ *
+ * A pooled raw HTTP connection. We close this after a short timeout
+ * to try to preempt the server closing it.
+ */
+
+typedef struct {
+  gchar *name;
+  CockpitPipe *pipe;
+  gulong sig_close;
+  guint timeout;
+} CockpitHttpConnection;
+
+static GHashTable *connection_pool;
+
+static void
+cockpit_http_connection_free (gpointer data)
+{
+  CockpitHttpConnection *connection = data;
+  if (connection->timeout)
+    g_source_remove (connection->timeout);
+  if (connection->pipe)
+    {
+      g_signal_handler_disconnect (connection->pipe, connection->sig_close);
+      cockpit_pipe_close (connection->pipe, NULL);
+      g_object_unref (connection->pipe);
+    }
+  g_free (connection->name);
+  g_slice_free (CockpitHttpConnection, connection);
+}
+
+static void
+cockpit_http_connection_remove (const gchar *name)
+{
+  if (connection_pool)
+    {
+      g_hash_table_remove (connection_pool, name);
+      if (g_hash_table_size (connection_pool) == 0)
+        {
+          g_hash_table_destroy (connection_pool);
+          connection_pool = NULL;
+        }
+    }
+}
+
+static void
+on_connection_close (CockpitPipe *pipe,
+                     const gchar *problem,
+                     gpointer data)
+{
+  CockpitHttpConnection *connection = data;
+  g_debug ("%s: pooled connection closed", connection->name);
+  cockpit_http_connection_remove (connection->name);
+}
+
+static gboolean
+on_connection_timeout (gpointer data)
+{
+  CockpitHttpConnection *connection = data;
+  g_debug ("%s: pooled timed out", connection->name);
+  cockpit_http_connection_remove (connection->name);
+  return FALSE;
+}
+
+static void
+cockpit_http_connection_checkin (const gchar *name,
+                                 CockpitPipe *pipe)
+{
+  CockpitHttpConnection *connection;
+
+  connection = g_slice_new0 (CockpitHttpConnection);
+  connection->name = g_strdup (name);
+  connection->pipe = g_object_ref (pipe);
+  connection->sig_close = g_signal_connect (pipe, "close", G_CALLBACK (on_connection_close), connection);
+  connection->timeout = g_timeout_add_seconds (10, on_connection_timeout, connection);
+
+  if (!connection_pool)
+    connection_pool = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, cockpit_http_connection_free);
+
+  g_debug ("%s: pooling connection", connection->name);
+  g_hash_table_replace (connection_pool, connection->name, connection);
+}
+
+static CockpitPipe *
+cockpit_http_connection_checkout (const gchar *name)
+{
+  CockpitHttpConnection *connection;
+  CockpitPipe *pipe;
+
+  if (!connection_pool)
+    return NULL;
+
+  connection = g_hash_table_lookup (connection_pool, name);
+  if (!connection)
+    return NULL;
+
+  g_debug ("%s: reusing pooled connection", connection->name);
+
+  pipe = connection->pipe;
+  g_signal_handler_disconnect (connection->pipe, connection->sig_close);
+  connection->pipe = NULL;
+
+  cockpit_http_connection_remove (name);
+  return pipe;
+}
+
+/**
  * CockpitHttpStream:
  *
  * A #CockpitChannel that represents a HTTP request/response.
@@ -41,7 +148,6 @@
 /*
  * Some things we should add later without breaking the payload:
  *
- *  - Keep alives and a simple pooled connection with 1 connection
  *  - Specifying the HTTP version of the request.
  *  - Chunked messages in the request when request is HTTP/1.1
  *  - Trans coding for non-UTF8 charsets.
@@ -70,6 +176,7 @@ typedef struct _CockpitHttpStream {
   gint state;
   gboolean failed;
   gboolean binary;
+  gboolean keep_alive;
 
   /* The request */
   GList *request;
@@ -145,12 +252,42 @@ parse_transfer_encoding (CockpitHttpStream *self,
 }
 
 static gboolean
+parse_keep_alive (CockpitHttpStream *self,
+                  const gchar *version,
+                  GHashTable *headers)
+{
+  const gchar *header;
+
+  header = g_hash_table_lookup (headers, "Connection");
+
+  g_debug ("%s: got Connection of %s on %s response", self->name, header, version);
+
+  if (!header)
+    {
+      if (version && g_ascii_strcasecmp (version, "HTTP/1.1") == 0)
+        header = "keep-alive";
+    }
+
+  /*
+   * This is pretty conservative. If a Connection header is present
+   * and it *doesn't* have the non-standard "keep-alive" value in
+   * it, then assume we can't keep alive. Either the connection is
+   * meant to close, or we have no idea what the server is trying
+   * to tell us.
+   */
+
+  self->keep_alive = (strstr (header, "keep-alive") != NULL);
+  return TRUE;
+}
+
+static gboolean
 relay_headers (CockpitHttpStream *self,
                CockpitChannel *channel,
                GByteArray *buffer)
 {
   const gchar *problem = "protocol-error";
   GHashTable *headers = NULL;
+  gchar *version = NULL;
   gchar *reason = NULL;
   JsonObject *object;
   const gchar *data;
@@ -167,7 +304,7 @@ relay_headers (CockpitHttpStream *self,
   data = (const gchar *)buffer->data;
   length = buffer->len;
 
-  offset = web_socket_util_parse_status_line (data, length, &status, &reason);
+  offset = web_socket_util_parse_status_line (data, length, &version, &status, &reason);
   if (offset == 0)
     return FALSE; /* want more data */
 
@@ -188,7 +325,8 @@ relay_headers (CockpitHttpStream *self,
     }
 
   if (!parse_transfer_encoding (self, headers) ||
-      !parse_content_length (self, headers))
+      !parse_content_length (self, headers) ||
+      !parse_keep_alive (self, version, headers))
     goto out;
 
   problem = NULL;
@@ -228,6 +366,7 @@ out:
     cockpit_channel_close (channel, problem);
   if (headers)
     g_hash_table_unref (headers);
+  g_free (version);
   g_free (reason);
 
   return TRUE;
@@ -437,11 +576,11 @@ single_line (const gchar *string)
 
 static gboolean
 disallowed_header (const gchar *name,
+                   const gchar *value,
                    gboolean binary)
 {
   static const gchar *bad_headers[] = {
       "Accept-Encoding",
-      "Connection",
       "Content-Encoding",
       "Content-Length",
       "Content-MD5",
@@ -475,6 +614,13 @@ disallowed_header (const gchar *name,
           if (g_ascii_strcasecmp (bad_text[i], name) == 0)
             return TRUE;
         }
+    }
+
+  /* Only allow the caller to specify Connection: close */
+  if (g_ascii_strcasecmp ("Connection", name) == 0 &&
+      !g_strcmp0 (value, "close"))
+    {
+      return TRUE;
     }
 
   return FALSE;
@@ -563,11 +709,6 @@ send_http_request (CockpitHttpStream *self)
               g_warning ("%s: invalid header in HTTP stream request: %s", self->name, header);
               goto out;
             }
-          if (disallowed_header (header, self->binary))
-            {
-              g_warning ("%s: disallowed header in HTTP stream request: %s", self->name, header);
-              goto out;
-            }
           node = json_object_get_member (headers, header);
           if (!node || !JSON_NODE_HOLDS_VALUE (node) || json_node_get_value_type (node) != G_TYPE_STRING)
             {
@@ -575,6 +716,11 @@ send_http_request (CockpitHttpStream *self)
               goto out;
             }
           value = json_node_get_string (node);
+          if (disallowed_header (header, value, self->binary))
+            {
+              g_warning ("%s: disallowed header in HTTP stream request: %s", self->name, header);
+              goto out;
+            }
           if (!single_line (value))
             {
               g_warning ("%s: invalid header value in HTTP stream request: %s", self->name, header);
@@ -592,7 +738,6 @@ send_http_request (CockpitHttpStream *self)
   if (!had_host)
     g_string_append_printf (string, "Host: %s\r\n", self->name);
 
-  g_string_append (string, "Connection: close\r\n");
   g_string_append (string, "Accept-Encoding: \r\n");
 
   if (!self->binary)
@@ -665,6 +810,17 @@ cockpit_http_stream_close (CockpitChannel *channel,
       g_debug ("%s: relayed response", self->name);
       self->state = FINISHED;
       cockpit_channel_eof (channel);
+
+      /* Save this for another round? */
+      if (self->keep_alive)
+        {
+          cockpit_http_connection_checkin (self->name, self->pipe);
+          g_signal_handler_disconnect (self->pipe, self->sig_read);
+          g_signal_handler_disconnect (self->pipe, self->sig_close);
+          g_object_unref (self->pipe);
+          self->pipe = NULL;
+        }
+
       COCKPIT_CHANNEL_CLASS (cockpit_http_stream_parent_class)->close (channel, NULL);
     }
   else if (self->state != FINISHED)
@@ -680,6 +836,7 @@ static void
 cockpit_http_stream_init (CockpitHttpStream *self)
 {
   self->response_length = -1;
+  self->keep_alive = FALSE;
   self->state = BUFFER_REQUEST;
 }
 
@@ -687,6 +844,7 @@ static void
 cockpit_http_stream_prepare (CockpitChannel *channel)
 {
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (channel);
+  const gchar *connection;
   GSocketAddress *address;
   JsonObject *options;
 
@@ -695,15 +853,28 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   if (self->failed)
     return;
 
-  address = cockpit_channel_parse_address (channel, &self->name);
+  options = cockpit_channel_get_options (channel);
+  if (!cockpit_json_get_string (options, "connection", NULL, &connection))
+    {
+      g_warning ("%s: bad \"connection\" field in HTTP stream request", self->name);
+      cockpit_channel_close (channel, "protocol-error");
+      return;
+    }
+
+  if (connection)
+    self->name = g_strdup (connection);
+
+  address = cockpit_channel_parse_address (channel, self->name ? NULL : &self->name);
   if (!address)
     return;
 
   /* Parsed elsewhere */
-  options = cockpit_channel_get_options (channel);
   self->binary = json_object_has_member (options, "binary");
 
-  self->pipe = cockpit_pipe_connect (self->name, address);
+  self->pipe = cockpit_http_connection_checkout (self->name);
+  if (!self->pipe)
+    self->pipe = cockpit_pipe_connect (self->name, address);
+
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
   g_object_unref (address);

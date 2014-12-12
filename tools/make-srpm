@@ -38,8 +38,9 @@ rpm_tmpdir=$(mktemp -d -t rpmbuild.XXXXXX)
 (
     cd $base/..
     git archive HEAD --prefix cockpit-wip/ --output $rpm_tmpdir/cockpit-wip.tar
-    tar -rf $rpm_tmpdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' tools/node_modules
-    # tar -tf $rpm_tmpdir/cockpit-wip.tar
+    if [ -d tools/node_modules ]; then
+        tar -rf $rpm_tmpdir/cockpit-wip.tar --transform='s|^|cockpit-wip/|S' tools/node_modules
+    fi
     gzip $rpm_tmpdir/cockpit-wip.tar
     cp test/cockpit.pam $rpm_tmpdir
     sed '1i\

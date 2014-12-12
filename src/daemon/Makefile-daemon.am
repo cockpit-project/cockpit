@@ -39,28 +39,6 @@ libcockpitd_a_SOURCES = \
 	src/daemon/daemon.c \
 	src/daemon/utils.h \
 	src/daemon/utils.c \
-	src/daemon/manager.h \
-	src/daemon/manager.c \
-	src/daemon/machines.h \
-	src/daemon/machines.c \
-	src/daemon/machine.h \
-	src/daemon/machine.c \
-	src/daemon/cpumonitor.h \
-	src/daemon/cpumonitor.c \
-	src/daemon/memorymonitor.h \
-	src/daemon/memorymonitor.c \
-	src/daemon/networkmonitor.h \
-	src/daemon/networkmonitor.c \
-	src/daemon/diskiomonitor.h \
-	src/daemon/diskiomonitor.c \
-	src/daemon/cgroupmonitor.h \
-	src/daemon/cgroupmonitor.c \
-	src/daemon/netdevmonitor.h \
-	src/daemon/netdevmonitor.c \
-	src/daemon/blockdevmonitor.h \
-	src/daemon/blockdevmonitor.c \
-	src/daemon/mountmonitor.h \
-	src/daemon/mountmonitor.c \
 	src/daemon/storagemanager.h \
 	src/daemon/storagemanager.c \
 	src/daemon/storageprovider.h \
@@ -81,14 +59,10 @@ libcockpitd_a_SOURCES = \
 	src/daemon/storagejob.c \
 	src/daemon/realms.h \
 	src/daemon/realms.c \
-	src/daemon/services.h \
-	src/daemon/services.c \
 	src/daemon/accounts.h \
 	src/daemon/accounts.c \
 	src/daemon/account.h \
 	src/daemon/account.c \
-	src/daemon/cgroup-show.h \
-	src/daemon/cgroup-show.c \
 	src/daemon/lvmutil.h \
 	src/daemon/lvmutil.c \
 	$(NULL)
@@ -129,21 +103,3 @@ EXTRA_DIST += \
 CLEANFILES += \
 	com.redhat.Cockpit.service \
 	$(NULL)
-
-# -----------------------------------------------------------------------------
-# TESTS
-
-DAEMON_CHECKS = \
-	test-cgroupmonitor \
-	test-machines
-
-test_cgroupmonitor_SOURCES = src/daemon/test-cgroupmonitor.c
-test_cgroupmonitor_CFLAGS = $(libcockpitd_a_CFLAGS)
-test_cgroupmonitor_LDADD = $(cockpitd_LDADD)
-
-test_machines_SOURCES = src/daemon/test-machines.c
-test_machines_CFLAGS = $(libcockpitd_a_CFLAGS)
-test_machines_LDADD = $(cockpitd_LDADD)
-
-noinst_PROGRAMS += $(DAEMON_CHECKS)
-TESTS += $(DAEMON_CHECKS)

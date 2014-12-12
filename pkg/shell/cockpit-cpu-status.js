@@ -39,7 +39,7 @@ PageCpuStatus.prototype = {
 
         this.address = shell.get_page_param('machine', 'server') || "localhost";
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address);
+        this.client = shell.dbus(this.address, { service: "internal" });
 
         var resmon = this.client.get("/com/redhat/Cockpit/CpuMonitor", "com.redhat.Cockpit.ResourceMonitor");
         var options = {

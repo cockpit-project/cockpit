@@ -17,23 +17,22 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_MANAGER_H__
-#define COCKPIT_MANAGER_H__
+#ifndef COCKPIT_CPU_MONITOR_H__
+#define COCKPIT_CPU_MONITOR_H__
 
-#include "types.h"
+#include <gio/gio.h>
+#include "internal-generated.h"
 
 G_BEGIN_DECLS
 
-#define COCKPIT_TYPE_DAEMON_MANAGER  (manager_get_type ())
-#define MANAGER(o)          (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DAEMON_MANAGER, Manager))
-#define COCKPIT_IS_DAEMON_MANAGER(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_DAEMON_MANAGER))
+#define TYPE_CPU_MONITOR  (cpu_monitor_get_type ())
+#define CPU_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_CPU_MONITOR, CpuMonitor))
+#define IS_CPU_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_CPU_MONITOR))
 
-GType             manager_get_type    (void) G_GNUC_CONST;
+GType                     cpu_monitor_get_type    (void) G_GNUC_CONST;
 
-CockpitManager *  manager_new         (Daemon  *daemon);
-
-Daemon *          manager_get_daemon  (Manager *manager);
+CockpitResourceMonitor *  cpu_monitor_new         (void);
 
 G_END_DECLS
 
-#endif /* COCKPIT_MANAGER_H__ */
+#endif /* COCKPIT_CPU_MONITOR_H__ */

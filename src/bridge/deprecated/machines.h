@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2014 Red Hat, Inc.
+ * Copyright (C) 2013 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,21 +17,26 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_BLOCKDEV_MONITOR_H__
-#define COCKPIT_BLOCKDEV_MONITOR_H__
+#ifndef COCKPIT_MACHINES_H__
+#define COCKPIT_MACHINES_H__
 
-#include "types.h"
+#include <gio/gio.h>
+
+#include "internal-generated.h"
+#include "machine.h"
 
 G_BEGIN_DECLS
 
-#define TYPE_BLOCKDEV_MONITOR  (blockdev_monitor_get_type ())
-#define BLOCKDEV_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_BLOCKDEV_MONITOR, BlockdevMonitor))
-#define IS_BLOCKDEV_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_BLOCKDEV_MONITOR))
+#define COCKPIT_TYPE_DAEMON_MACHINES  (machines_get_type ())
+#define MACHINES(o)          (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_DAEMON_MACHINES, Machines))
+#define COCKPIT_IS_DAEMON_MACHINES(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_DAEMON_MACHINES))
 
-GType                         blockdev_monitor_get_type    (void) G_GNUC_CONST;
+GType             machines_get_type    (void) G_GNUC_CONST;
 
-CockpitMultiResourceMonitor * blockdev_monitor_new         (GObject *tick_source);
+CockpitMachines * machines_new         (GDBusObjectManagerServer *object_manager);
+
+gboolean          machines_write       (Machines *machines, GError **error);
 
 G_END_DECLS
 
-#endif /* COCKPIT_BLOCKDEV_MONITOR_H__ */
+#endif /* COCKPIT_MACHINES_H__ */

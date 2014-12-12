@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2014 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,23 +17,22 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_NETWORK_MONITOR_H__
-#define COCKPIT_NETWORK_MONITOR_H__
+#ifndef COCKPIT_BLOCKDEV_MONITOR_H__
+#define COCKPIT_BLOCKDEV_MONITOR_H__
 
-#include "types.h"
+#include <gio/gio.h>
+#include "internal-generated.h"
 
 G_BEGIN_DECLS
 
-#define TYPE_NETWORK_MONITOR  (network_monitor_get_type ())
-#define NETWORK_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_NETWORK_MONITOR, NetworkMonitor))
-#define IS_NETWORK_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_NETWORK_MONITOR))
+#define TYPE_BLOCKDEV_MONITOR  (blockdev_monitor_get_type ())
+#define BLOCKDEV_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_BLOCKDEV_MONITOR, BlockdevMonitor))
+#define IS_BLOCKDEV_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_BLOCKDEV_MONITOR))
 
-GType                     network_monitor_get_type   (void) G_GNUC_CONST;
+GType                         blockdev_monitor_get_type    (void) G_GNUC_CONST;
 
-CockpitResourceMonitor *  network_monitor_new        (Daemon *daemon);
-
-Daemon *                  network_monitor_get_daemon (NetworkMonitor *monitor);
+CockpitMultiResourceMonitor * blockdev_monitor_new         (void);
 
 G_END_DECLS
 
-#endif /* COCKPIT_NETWORK_MONITOR_H__ */
+#endif /* COCKPIT_BLOCKDEV_MONITOR_H__ */

@@ -38,6 +38,8 @@ PageSetupServer.prototype = {
         $(this.local_client).off('.setup');
         this.local_client.release();
         this.local_client = null;
+        this.cockpitd.release();
+        this.cockpitd = null;
     },
 
     setup: function() {
@@ -146,7 +148,8 @@ PageSetupServer.prototype = {
         });
 
         /* TODO: This code needs to be migrated away from old dbus */
-        self.local_client = shell.dbus("localhost");
+        self.cockpitd = shell.dbus("localhost");
+        self.local_client = shell.dbus("localhost", { service: "internal" });
         $(self.local_client).on('objectAdded.setup objectRemoved.setup', function(event, object) {
             if (object.lookup('com.redhat.Cockpit.Machine'))
                 self.update_discovered();
@@ -461,9 +464,9 @@ PageSetupServer.prototype = {
             return map;
         }
 
-        var manager = this.local_client.lookup("/com/redhat/Cockpit/Accounts",
+        var manager = this.cockpitd.lookup("/com/redhat/Cockpit/Accounts",
                                                "com.redhat.Cockpit.Accounts");
-        var local = get_role_accounts(this.local_client, manager.Roles);
+        var local = get_role_accounts(this.cockpitd, manager.Roles);
         var remote = get_role_accounts(this.client, null);
 
         function needs_update(l) {

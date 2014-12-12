@@ -1,6 +1,20 @@
 
 noinst_LIBRARIES += libcockpit-bridge.a
 
+bridge_built_sources = internal-generated.h internal-generated.c
+
+internal-generated.h: internal-generated.c
+internal-generated.c: Makefile.am $(top_srcdir)/src/bridge/deprecated/internal.xml
+	$(AM_V_GEN) $(GDBUS_CODEGEN) \
+		--interface-prefix com.redhat.Cockpit. \
+		--c-namespace Cockpit \
+		--c-generate-object-manager \
+		--generate-c-code internal-generated \
+		$(top_srcdir)/src/bridge/deprecated/internal.xml
+BUILT_SOURCES += $(bridge_built_sources)
+CLEANFILES += $(bridge_built_sources)
+
+nodist_libcockpit_bridge_a_SOURCES = $(bridge_built_sources)
 libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitchannel.c \
 	src/bridge/cockpitchannel.h \
@@ -38,6 +52,32 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitfsdir.h \
 	src/bridge/deprecated/cockpitdbusjson1.c \
 	src/bridge/deprecated/cockpitdbusjson1.h \
+	src/bridge/deprecated/manager.h \
+	src/bridge/deprecated/manager.c \
+	src/bridge/deprecated/machines.h \
+	src/bridge/deprecated/machines.c \
+	src/bridge/deprecated/machine.h \
+	src/bridge/deprecated/machine.c \
+	src/bridge/deprecated/cpumonitor.h \
+	src/bridge/deprecated/cpumonitor.c \
+	src/bridge/deprecated/memorymonitor.h \
+	src/bridge/deprecated/memorymonitor.c \
+	src/bridge/deprecated/networkmonitor.h \
+	src/bridge/deprecated/networkmonitor.c \
+	src/bridge/deprecated/diskiomonitor.h \
+	src/bridge/deprecated/diskiomonitor.c \
+	src/bridge/deprecated/cgroupmonitor.h \
+	src/bridge/deprecated/cgroupmonitor.c \
+	src/bridge/deprecated/netdevmonitor.h \
+	src/bridge/deprecated/netdevmonitor.c \
+	src/bridge/deprecated/blockdevmonitor.h \
+	src/bridge/deprecated/blockdevmonitor.c \
+	src/bridge/deprecated/mountmonitor.h \
+	src/bridge/deprecated/mountmonitor.c \
+	src/bridge/deprecated/services.h \
+	src/bridge/deprecated/services.c \
+	src/bridge/deprecated/cgroup-show.h \
+	src/bridge/deprecated/cgroup-show.c \
 	$(NULL)
 
 libcockpit_bridge_a_CFLAGS = \
@@ -96,6 +136,8 @@ BRIDGE_CHECKS = \
 	test-package \
 	test-resource \
 	test-fs \
+	test-cgroupmonitor \
+	test-machines \
 	$(NULL)
 
 test_channel_SOURCES = \
@@ -104,10 +146,18 @@ test_channel_SOURCES = \
 test_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_channel_LDADD = $(libcockpit_bridge_LIBS)
 
+test_cgroupmonitor_SOURCES = src/bridge/deprecated/test-cgroupmonitor.c
+test_cgroupmonitor_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_cgroupmonitor_LDADD = $(libcockpit_bridge_LIBS)
+
 test_dbusjson_SOURCES = src/bridge/deprecated/test-dbusjson.c $(mock_dbus_sources)
 nodist_test_dbusjson_SOURCES = $(test_built_sources)
 test_dbusjson_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_dbusjson_LDADD = $(libcockpit_bridge_LIBS)
+
+test_machines_SOURCES = src/bridge/deprecated/test-machines.c
+test_machines_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_machines_LDADD = $(libcockpit_bridge_LIBS)
 
 test_package_SOURCES = src/bridge/test-package.c
 test_package_CFLAGS = $(libcockpit_bridge_a_CFLAGS)

@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "daemon.h"
 #include "cpumonitor.h"
 
 /**
@@ -46,6 +45,7 @@ typedef struct
   gdouble iowait_percentage;
 } Sample;
 
+typedef struct _CpuMonitor CpuMonitor;
 typedef struct _CpuMonitorClass CpuMonitorClass;
 
 /**
@@ -58,13 +58,12 @@ struct _CpuMonitor
 {
   CockpitResourceMonitorSkeleton parent_instance;
 
-  Daemon *daemon;
-
   guint user_hz;
 
   guint samples_max;
   gint samples_prev;
   guint samples_next;
+  guint timeout;
 
   /* Arrays of samples_max Sample instances (nice, user, system, iowait) */
   Sample *samples;
@@ -75,20 +74,10 @@ struct _CpuMonitorClass
   CockpitResourceMonitorSkeletonClass parent_class;
 };
 
-enum
-{
-  PROP_0,
-  PROP_DAEMON
-};
-
 static void resource_monitor_iface_init (CockpitResourceMonitorIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CpuMonitor, cpu_monitor, COCKPIT_TYPE_RESOURCE_MONITOR_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_RESOURCE_MONITOR, resource_monitor_iface_init));
-
-static void on_tick (Daemon  *daemon,
-                     guint64     delta_usec,
-                     gpointer    user_data);
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -118,63 +107,19 @@ cpu_monitor_finalize (GObject *object)
   CpuMonitor *monitor = CPU_MONITOR (object);
 
   g_free (monitor->samples);
-
-  g_signal_handlers_disconnect_by_func (monitor->daemon, G_CALLBACK (on_tick), monitor);
+  g_source_remove (monitor->timeout);
 
   G_OBJECT_CLASS (cpu_monitor_parent_class)->finalize (object);
 }
 
-static void
-cpu_monitor_get_property (GObject *object,
-                          guint prop_id,
-                          GValue *value,
-                          GParamSpec *pspec)
-{
-  CpuMonitor *monitor = CPU_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_value_set_object (value, cpu_monitor_get_daemon (monitor));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-cpu_monitor_set_property (GObject *object,
-                          guint prop_id,
-                          const GValue *value,
-                          GParamSpec *pspec)
-{
-  CpuMonitor *monitor = CPU_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_assert (monitor->daemon == NULL);
-      /* we don't take a reference to the daemon */
-      monitor->daemon = g_value_get_object (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
 static void collect (CpuMonitor *monitor);
 
-static void
-on_tick (Daemon *daemon,
-         guint64 delta_usec,
-         gpointer user_data)
+static gboolean
+on_tick (gpointer user_data)
 {
   CpuMonitor *monitor = CPU_MONITOR (user_data);
   collect (monitor);
+  return TRUE;
 }
 
 static void
@@ -185,11 +130,10 @@ cpu_monitor_constructed (GObject *object)
   cockpit_resource_monitor_set_num_samples (COCKPIT_RESOURCE_MONITOR (monitor), monitor->samples_max);
   cockpit_resource_monitor_set_num_series (COCKPIT_RESOURCE_MONITOR (monitor), 4);
 
-  g_signal_connect (monitor->daemon, "tick", G_CALLBACK (on_tick), monitor);
+  monitor->timeout = g_timeout_add_seconds (1, on_tick, monitor);
   collect (monitor);
 
-  if (G_OBJECT_CLASS (cpu_monitor_parent_class)->constructed != NULL)
-    G_OBJECT_CLASS (cpu_monitor_parent_class)->constructed (object);
+  G_OBJECT_CLASS (cpu_monitor_parent_class)->constructed (object);
 }
 
 static void
@@ -200,24 +144,6 @@ cpu_monitor_class_init (CpuMonitorClass *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = cpu_monitor_finalize;
   gobject_class->constructed = cpu_monitor_constructed;
-  gobject_class->set_property = cpu_monitor_set_property;
-  gobject_class->get_property = cpu_monitor_get_property;
-
-  /**
-   * CpuMonitor:daemon:
-   *
-   * The #Daemon for the object.
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_DAEMON,
-                                   g_param_spec_object ("daemon",
-                                                        NULL,
-                                                        NULL,
-                                                        TYPE_DAEMON,
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
 }
 
 /**
@@ -229,27 +155,9 @@ cpu_monitor_class_init (CpuMonitorClass *klass)
  * Returns: A new #CpuMonitor. Free with g_object_unref().
  */
 CockpitResourceMonitor *
-cpu_monitor_new (Daemon *daemon)
+cpu_monitor_new (void)
 {
-  g_return_val_if_fail (IS_DAEMON (daemon), NULL);
-  return COCKPIT_RESOURCE_MONITOR (g_object_new (TYPE_CPU_MONITOR,
-                                             "daemon", daemon,
-                                             NULL));
-}
-
-/**
- * cpu_monitor_get_daemon:
- * @monitor: A #CpuMonitor.
- *
- * Gets the daemon used by @monitor.
- *
- * Returns: A #Daemon. Do not free, the object is owned by @monitor.
- */
-Daemon *
-cpu_monitor_get_daemon (CpuMonitor *monitor)
-{
-  g_return_val_if_fail (IS_CPU_MONITOR (monitor), NULL);
-  return monitor->daemon;
+  return g_object_new (TYPE_CPU_MONITOR, NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

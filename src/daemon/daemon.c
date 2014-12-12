@@ -22,20 +22,9 @@
 #include <string.h>
 
 #include "daemon.h"
-#include "manager.h"
-#include "machines.h"
-#include "cpumonitor.h"
-#include "memorymonitor.h"
-#include "networkmonitor.h"
-#include "diskiomonitor.h"
-#include "cgroupmonitor.h"
-#include "netdevmonitor.h"
-#include "blockdevmonitor.h"
-#include "mountmonitor.h"
 #include "storageprovider.h"
 #include "storagemanager.h"
 #include "realms.h"
-#include "services.h"
 #include "accounts.h"
 
 /**
@@ -63,17 +52,11 @@ struct _Daemon
 
   Machines *machines;
   StorageProvider *storage_provider;
-
-  guint tick_timeout_id;
-  gint64 last_tick;
 };
 
 struct _DaemonClass
 {
   GObjectClass parent_class;
-
-  void (*tick) (Daemon *daemon,
-                guint64 delta_usec);
 };
 
 enum
@@ -82,14 +65,6 @@ enum
   PROP_CONNECTION,
   PROP_OBJECT_MANAGER,
 };
-
-enum
-{
-  TICK_SIGNAL,
-  LAST_SIGNAL
-};
-
-static guint signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE(Daemon, daemon, G_TYPE_OBJECT);
 
@@ -103,11 +78,7 @@ daemon_finalize (GObject *object)
   g_object_unref (daemon->connection);
   g_object_unref (daemon->system_bus_proxy);
 
-  if (daemon->tick_timeout_id > 0)
-    g_source_remove (daemon->tick_timeout_id);
-
-  if (G_OBJECT_CLASS (daemon_parent_class)->finalize != NULL)
-    G_OBJECT_CLASS (daemon_parent_class)->finalize (object);
+  G_OBJECT_CLASS (daemon_parent_class)->finalize (object);
 }
 
 static void
@@ -160,35 +131,13 @@ daemon_init (Daemon *daemon)
 {
 }
 
-static gboolean
-on_timeout (gpointer user_data)
-{
-  Daemon *daemon = DAEMON (user_data);
-  guint64 delta_usec = 0;
-  gint64 now;
-
-  now = g_get_monotonic_time ();
-  if (daemon->last_tick != 0)
-    delta_usec = now - daemon->last_tick;
-  daemon->last_tick = now;
-
-  g_signal_emit (daemon, signals[TICK_SIGNAL], 0, delta_usec);
-
-  return TRUE; /* keep source around */
-}
-
 static Daemon *_daemon_instance;
 
 static void
 daemon_constructed (GObject *_object)
 {
   Daemon *daemon = DAEMON (_object);
-  CockpitManager *manager;
-  CockpitMachines *machines;
-  CockpitResourceMonitor *monitor;
-  CockpitMultiResourceMonitor *multi_monitor;
   CockpitRealms *realms;
-  CockpitServices *services;
   CockpitAccounts *accounts;
   CockpitStorageManager *storage_manager;
   CockpitObjectSkeleton *object = NULL;
@@ -208,107 +157,6 @@ daemon_constructed (GObject *_object)
 
   daemon->object_manager = g_dbus_object_manager_server_new ("/com/redhat/Cockpit");
 
-  /* /com/redhat/Cockpit/Machines */
-  machines = machines_new (daemon_get_object_manager (daemon));
-  daemon->machines = MACHINES (machines);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Machines");
-  cockpit_object_skeleton_set_machines (object, machines);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (machines);
-  g_object_unref (object);
-
-  g_debug ("exported machines object");
-
-  /* /com/redhat/Cockpit/Manager */
-  manager = manager_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Manager");
-  cockpit_object_skeleton_set_manager (object, manager);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (manager);
-  g_object_unref (object);
-
-  g_debug ("exported manager");
-
-  /* /com/redhat/Cockpit/CpuMonitor */
-  monitor = cpu_monitor_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/CpuMonitor");
-  cockpit_object_skeleton_set_resource_monitor (object, monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (monitor);
-  g_object_unref (object);
-
-  g_debug ("exported cpu monitor");
-
-  /* /com/redhat/Cockpit/MemoryMonitor */
-  monitor = memory_monitor_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/MemoryMonitor");
-  cockpit_object_skeleton_set_resource_monitor (object, monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (monitor);
-  g_object_unref (object);
-
-  g_debug ("exported memory monitor");
-
-  /* /com/redhat/Cockpit/NetworkMonitor */
-  monitor = network_monitor_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/NetworkMonitor");
-  cockpit_object_skeleton_set_resource_monitor (object, monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (monitor);
-  g_object_unref (object);
-
-  g_debug ("exported network monitor");
-
-  /* /com/redhat/Cockpit/DiskIOMonitor */
-  monitor = disk_io_monitor_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/DiskIOMonitor");
-  cockpit_object_skeleton_set_resource_monitor (object, monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (monitor);
-  g_object_unref (object);
-
-  g_debug ("exported disk io monitor");
-
-  /* /com/redhat/Cockpit/LxcMonitor */
-  multi_monitor = cgroup_monitor_new (G_OBJECT (daemon));
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/LxcMonitor");
-  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (multi_monitor);
-  g_object_unref (object);
-
-  g_debug ("exported lxc monitor");
-
-  /* /com/redhat/Cockpit/NetdevMonitor */
-  multi_monitor = netdev_monitor_new (G_OBJECT (daemon));
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/NetdevMonitor");
-  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (multi_monitor);
-  g_object_unref (object);
-
-  g_debug ("exported net dev monitor");
-
-  /* /com/redhat/Cockpit/BlockdevMonitor */
-  multi_monitor = blockdev_monitor_new (G_OBJECT (daemon));
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/BlockdevMonitor");
-  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (multi_monitor);
-  g_object_unref (object);
-
-  g_debug ("exported block dev monitor");
-
-  /* /com/redhat/Cockpit/MountMonitor */
-  multi_monitor = mount_monitor_new (G_OBJECT (daemon));
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/MountMonitor");
-  cockpit_object_skeleton_set_multi_resource_monitor (object, multi_monitor);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (multi_monitor);
-  g_object_unref (object);
-
-  g_debug ("exported mount monitor");
-
   /* /com/redhat/Cockpit/Realms */
   realms = realms_new (daemon);
   object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Realms");
@@ -318,16 +166,6 @@ daemon_constructed (GObject *_object)
   g_object_unref (object);
 
   g_debug ("exported realms");
-
-  /* /com/redhat/Cockpit/Services */
-  services = services_new (daemon);
-  object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Services");
-  cockpit_object_skeleton_set_services (object, services);
-  g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-  g_object_unref (services);
-  g_object_unref (object);
-
-  g_debug ("exported services");
 
   /* /com/redhat/Cockpit/Accounts */
   accounts = accounts_new ();
@@ -356,8 +194,6 @@ daemon_constructed (GObject *_object)
 
   /* Export the ObjectManager */
   g_dbus_object_manager_server_set_connection (daemon->object_manager, daemon->connection);
-
-  daemon->tick_timeout_id = g_timeout_add_seconds (1, on_timeout, daemon);
 
   g_debug ("daemon constructed");
 
@@ -405,29 +241,6 @@ daemon_class_init (DaemonClass *klass)
                                                         G_TYPE_DBUS_OBJECT_MANAGER_SERVER,
                                                         G_PARAM_READABLE |
                                                         G_PARAM_STATIC_STRINGS));
-
-  /**
-   * Daemon::tick
-   * @daemon: A #Daemon.
-   * @delta_usec: The number of micro-seconds since this was last emitted or 0 if the first time it's emitted.
-   *
-   * Emitted every second - subsystems should use this signal instead
-   * of setting up their own timeout.
-   *
-   * This signal is emitted in the
-   * <link linkend="g-main-context-push-thread-default">thread-default main loop</link>
-   * that @daemon was created in.
-   */
-  signals[TICK_SIGNAL] = g_signal_new ("tick",
-                                       G_OBJECT_CLASS_TYPE (klass),
-                                       G_SIGNAL_RUN_LAST,
-                                       G_STRUCT_OFFSET (DaemonClass, tick),
-                                       NULL,
-                                       NULL,
-                                       g_cclosure_marshal_generic,
-                                       G_TYPE_NONE,
-                                       1,
-                                       G_TYPE_UINT64);
 }
 
 /**

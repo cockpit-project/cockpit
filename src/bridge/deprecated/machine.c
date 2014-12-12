@@ -26,10 +26,8 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 
-#include "daemon.h"
 #include "machine.h"
 #include "machines.h"
-#include "utils.h"
 
 #include "common/cockpitmemory.h"
 
@@ -138,6 +136,38 @@ machine_write (Machine *machine, GKeyFile *file)
 
   const gchar *avatar = cockpit_machine_get_avatar (COCKPIT_MACHINE (machine));
   g_key_file_set_string (file, machine->id, "avatar", avatar? avatar: "");
+}
+
+static gchar *
+utils_generate_object_path (const gchar *base,
+                            const gchar *s)
+{
+  guint n;
+  GString *str;
+
+  g_return_val_if_fail (g_variant_is_object_path (base), NULL);
+  g_return_val_if_fail (g_utf8_validate (s, -1, NULL), NULL);
+
+  str = g_string_new (base);
+  g_string_append_c (str, '/');
+  for (n = 0; s[n] != '\0'; n++)
+    {
+      gint c = s[n];
+      /* D-Bus spec sez:
+       *
+       * Each element must only contain the ASCII characters "[A-Z][a-z][0-9]_"
+       */
+      if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')
+        {
+          g_string_append_c (str, c);
+        }
+      else
+        {
+          /* Escape bytes not in [A-Z][a-z][0-9] as _<hex-with-two-digits> */
+          g_string_append_printf (str, "_%02x", c & 0xFF);
+        }
+    }
+  return g_string_free (str, FALSE);
 }
 
 void

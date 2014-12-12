@@ -17,21 +17,22 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_NETDEV_MONITOR_H__
-#define COCKPIT_NETDEV_MONITOR_H__
+#ifndef COCKPIT_CGROUP_MONITOR_H__
+#define COCKPIT_CGROUP_MONITOR_H__
 
-#include "types.h"
+#include <gio/gio.h>
+#include "internal-generated.h"
 
 G_BEGIN_DECLS
 
-#define TYPE_NETDEV_MONITOR  (netdev_monitor_get_type ())
-#define NETDEV_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_NETDEV_MONITOR, NetdevMonitor))
-#define IS_NETDEV_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_NETDEV_MONITOR))
+#define TYPE_CGROUP_MONITOR  (cgroup_monitor_get_type ())
+#define CGROUP_MONITOR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), TYPE_CGROUP_MONITOR, CGroupMonitor))
+#define IS_CGROUP_MONITOR(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), TYPE_CGROUP_MONITOR))
 
-GType                         netdev_monitor_get_type    (void) G_GNUC_CONST;
+GType                         cgroup_monitor_get_type    (void) G_GNUC_CONST;
 
-CockpitMultiResourceMonitor * netdev_monitor_new         (GObject *tick_source);
+CockpitMultiResourceMonitor * cgroup_monitor_new         (void);
 
 G_END_DECLS
 
-#endif /* COCKPIT_NETDEV_MONITOR_H__ */
+#endif /* COCKPIT_CGROUP_MONITOR_H__ */

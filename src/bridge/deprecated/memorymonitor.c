@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "daemon.h"
 #include "memorymonitor.h"
+#include "internal-generated.h"
 
 /**
  * SECTION:memorymonitor
@@ -42,6 +42,7 @@ typedef struct
   gint64 swap_used;
 } Sample;
 
+typedef struct _MemoryMonitor MemoryMonitor;
 typedef struct _MemoryMonitorClass MemoryMonitorClass;
 
 /**
@@ -54,11 +55,10 @@ struct _MemoryMonitor
 {
   CockpitResourceMonitorSkeleton parent_instance;
 
-  Daemon *daemon;
-
   guint samples_max;
   gint samples_prev;
   guint samples_next;
+  guint timeout;
 
   /* Arrays of samples_max Sample instances */
   Sample *samples;
@@ -79,10 +79,6 @@ static void resource_monitor_iface_init (CockpitResourceMonitorIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MemoryMonitor, memory_monitor, COCKPIT_TYPE_RESOURCE_MONITOR_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_RESOURCE_MONITOR, resource_monitor_iface_init));
-
-static void on_tick (Daemon  *daemon,
-                     guint64     delta_usec,
-                     gpointer    user_data);
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -105,63 +101,19 @@ memory_monitor_finalize (GObject *object)
   MemoryMonitor *monitor = MEMORY_MONITOR (object);
 
   g_free (monitor->samples);
-
-  g_signal_handlers_disconnect_by_func (monitor->daemon, G_CALLBACK (on_tick), monitor);
+  g_source_remove (monitor->timeout);
 
   G_OBJECT_CLASS (memory_monitor_parent_class)->finalize (object);
 }
 
-static void
-memory_monitor_get_property (GObject *object,
-                             guint prop_id,
-                             GValue *value,
-                             GParamSpec *pspec)
-{
-  MemoryMonitor *monitor = MEMORY_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_value_set_object (value, memory_monitor_get_daemon (monitor));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-memory_monitor_set_property (GObject *object,
-                             guint prop_id,
-                             const GValue *value,
-                             GParamSpec *pspec)
-{
-  MemoryMonitor *monitor = MEMORY_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_assert (monitor->daemon == NULL);
-      /* we don't take a reference to the daemon */
-      monitor->daemon = g_value_get_object (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
 static void collect (MemoryMonitor *monitor);
 
-static void
-on_tick (Daemon *daemon,
-         guint64 delta_usec,
-         gpointer user_data)
+static gboolean
+on_tick (gpointer user_data)
 {
   MemoryMonitor *monitor = MEMORY_MONITOR (user_data);
   collect (monitor);
+  return TRUE;
 }
 
 static void
@@ -172,11 +124,10 @@ memory_monitor_constructed (GObject *object)
   cockpit_resource_monitor_set_num_samples (COCKPIT_RESOURCE_MONITOR (monitor), monitor->samples_max);
   cockpit_resource_monitor_set_num_series (COCKPIT_RESOURCE_MONITOR (monitor), 4);
 
-  g_signal_connect (monitor->daemon, "tick", G_CALLBACK (on_tick), monitor);
+  monitor->timeout = g_timeout_add_seconds (1, on_tick, monitor);
   collect (monitor);
 
-  if (G_OBJECT_CLASS (memory_monitor_parent_class)->constructed != NULL)
-    G_OBJECT_CLASS (memory_monitor_parent_class)->constructed (object);
+  G_OBJECT_CLASS (memory_monitor_parent_class)->constructed (object);
 }
 
 static void
@@ -187,24 +138,6 @@ memory_monitor_class_init (MemoryMonitorClass *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize     = memory_monitor_finalize;
   gobject_class->constructed  = memory_monitor_constructed;
-  gobject_class->set_property = memory_monitor_set_property;
-  gobject_class->get_property = memory_monitor_get_property;
-
-  /**
-   * MemoryMonitor:daemon:
-   *
-   * The #Daemon for the object.
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_DAEMON,
-                                   g_param_spec_object ("daemon",
-                                                        NULL,
-                                                        NULL,
-                                                        TYPE_DAEMON,
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
 }
 
 /**
@@ -216,27 +149,9 @@ memory_monitor_class_init (MemoryMonitorClass *klass)
  * Returns: A new #MemoryMonitor. Free with g_object_unref().
  */
 CockpitResourceMonitor *
-memory_monitor_new (Daemon *daemon)
+memory_monitor_new (void)
 {
-  g_return_val_if_fail (IS_DAEMON (daemon), NULL);
-  return COCKPIT_RESOURCE_MONITOR (g_object_new (TYPE_MEMORY_MONITOR,
-                                                 "daemon", daemon,
-                                                 NULL));
-}
-
-/**
- * memory_monitor_get_daemon:
- * @monitor: A #MemoryMonitor.
- *
- * Gets the daemon used by @monitor.
- *
- * Returns: A #Daemon. Do not free, the object is owned by @monitor.
- */
-Daemon *
-memory_monitor_get_daemon (MemoryMonitor *monitor)
-{
-  g_return_val_if_fail (IS_MEMORY_MONITOR (monitor), NULL);
-  return monitor->daemon;
+  return g_object_new (TYPE_MEMORY_MONITOR, NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

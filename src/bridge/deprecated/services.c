@@ -23,17 +23,18 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "utils.h"
-#include "daemon.h"
 #include "services.h"
 #include "cgroup-show.h"
+#include "internal-generated.h"
 
+#include "common/cockpiterror.h"
 #include "common/cockpitmemory.h"
 
 /**
  * @title: Services
  */
 
+typedef struct _Services Services;
 typedef struct _ServicesClass ServicesClass;
 
 /**
@@ -46,7 +47,6 @@ typedef struct _ServicesClass ServicesClass;
 struct _Services
 {
   CockpitServicesSkeleton parent_instance;
-  Daemon *daemon;
 
   GDBusProxy *systemd;
 
@@ -56,12 +56,6 @@ struct _Services
 struct _ServicesClass
 {
   CockpitServicesSkeletonClass parent_class;
-};
-
-enum
-{
-  PROP_0,
-  PROP_DAEMON,
 };
 
 static void services_iface_init (CockpitServicesIface *iface);
@@ -76,49 +70,7 @@ services_finalize (GObject *object)
 
   g_hash_table_destroy (services->delayed_unit_news);
 
-  if (G_OBJECT_CLASS (services_parent_class)->finalize != NULL)
-    G_OBJECT_CLASS (services_parent_class)->finalize (object);
-}
-
-static void
-services_get_property (GObject *object,
-                       guint prop_id,
-                       GValue *value,
-                       GParamSpec *pspec)
-{
-  Services *services = SERVICES (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_value_set_object (value, services_get_daemon (services));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-services_set_property (GObject *object,
-                       guint prop_id,
-                       const GValue *value,
-                       GParamSpec *pspec)
-{
-  Services *services = SERVICES (object);
-
-  switch (prop_id)
-    {
-    case PROP_DAEMON:
-      g_assert (services->daemon == NULL);
-      services->daemon = g_value_dup_object (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
+  G_OBJECT_CLASS (services_parent_class)->finalize (object);
 }
 
 static void
@@ -376,48 +328,19 @@ services_class_init (ServicesClass *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize     = services_finalize;
   gobject_class->constructed  = services_constructed;
-  gobject_class->set_property = services_set_property;
-  gobject_class->get_property = services_get_property;
-
-  /**
-   * Services:daemon:
-   *
-   * The #Daemon to use.
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_DAEMON,
-                                   g_param_spec_object ("daemon",
-                                                        "Daemon",
-                                                        "The Daemon to use",
-                                                        TYPE_DAEMON,
-                                                        G_PARAM_READABLE |
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
 }
 
 /**
  * services_new:
- * @daemon: A #Daemon.
  *
  * Create a new #Services instance.
  *
  * Returns: A #Services object. Free with g_object_unref().
  */
 CockpitServices *
-services_new (Daemon *daemon)
+services_new (void)
 {
-  g_return_val_if_fail (IS_DAEMON (daemon), NULL);
-  return COCKPIT_SERVICES (g_object_new (TYPE_SERVICES,
-                                         "daemon", daemon,
-                                         NULL));
-}
-
-Daemon *
-services_get_daemon (Services *services)
-{
-  g_return_val_if_fail (IS_SERVICES (services), NULL);
-  return services->daemon;
+  return g_object_new (TYPE_SERVICES, NULL);
 }
 
 static void

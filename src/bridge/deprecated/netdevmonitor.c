@@ -19,12 +19,12 @@
 
 #include "config.h"
 
+#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
 #include <fts.h>
 
-#include "daemon.h"
 #include "netdevmonitor.h"
 
 #define SAMPLES_MAX 300
@@ -50,6 +50,7 @@ typedef struct {
   Sample samples[SAMPLES_MAX];
 } Consumer;
 
+typedef struct _NetdevMonitor NetdevMonitor;
 typedef struct _NetdevMonitorClass NetdevMonitorClass;
 
 /**
@@ -65,6 +66,7 @@ struct _NetdevMonitor
 
   gint samples_prev;
   guint samples_next;
+  guint timeout;
 
   /* interface -> Consumer
    */
@@ -80,20 +82,10 @@ struct _NetdevMonitorClass
   CockpitMultiResourceMonitorSkeletonClass parent_class;
 };
 
-enum
-{
-  PROP_0,
-  PROP_TICK_SOURCE
-};
-
 static void resource_monitor_iface_init (CockpitMultiResourceMonitorIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (NetdevMonitor, netdev_monitor, COCKPIT_TYPE_MULTI_RESOURCE_MONITOR_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_MULTI_RESOURCE_MONITOR, resource_monitor_iface_init));
-
-static void on_tick (GObject    *unused_source,
-                     guint64     delta_usec,
-                     gpointer    user_data);
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -112,40 +104,19 @@ netdev_monitor_finalize (GObject *object)
 
   g_hash_table_destroy (monitor->consumers);
   g_free (monitor->timestamps);
+  g_source_remove (monitor->timeout);
 
   G_OBJECT_CLASS (netdev_monitor_parent_class)->finalize (object);
 }
 
-static void
-netdev_monitor_set_property (GObject *object,
-                             guint prop_id,
-                             const GValue *value,
-                             GParamSpec *pspec)
-{
-  NetdevMonitor *monitor = NETDEV_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_TICK_SOURCE:
-      g_signal_connect_object (g_value_get_object (value),
-                               "tick", G_CALLBACK (on_tick),
-                               monitor, 0);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
 static void collect (NetdevMonitor *monitor);
 
-static void
-on_tick (GObject *unused_source,
-         guint64 delta_usec,
-         gpointer user_data)
+static gboolean
+on_tick (gpointer user_data)
 {
   NetdevMonitor *monitor = NETDEV_MONITOR (user_data);
   collect (monitor);
+  return TRUE;
 }
 
 static void
@@ -163,6 +134,7 @@ netdev_monitor_constructed (GObject *object)
   cockpit_multi_resource_monitor_set_legends (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), legends);
   cockpit_multi_resource_monitor_set_num_series (COCKPIT_MULTI_RESOURCE_MONITOR (monitor), 2);
 
+  monitor->timeout = g_timeout_add_seconds (1, on_tick, monitor);
   collect (monitor);
 
   G_OBJECT_CLASS (netdev_monitor_parent_class)->constructed (object);
@@ -176,39 +148,19 @@ netdev_monitor_class_init (NetdevMonitorClass *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->finalize = netdev_monitor_finalize;
   gobject_class->constructed = netdev_monitor_constructed;
-  gobject_class->set_property = netdev_monitor_set_property;
-
-  /**
-   * NetdevMonitor:tick-source:
-   *
-   * An object which emits a tick signal, like a #Daemon
-   */
-  g_object_class_install_property (gobject_class,
-                                   PROP_TICK_SOURCE,
-                                   g_param_spec_object ("tick-source",
-                                                        NULL,
-                                                        NULL,
-                                                        G_TYPE_OBJECT,
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
 }
 
 /**
  * netdev_monitor_new:
- * @root: The name of the root of the netdev hierachy to monitor.
- * @tick_source: An object which emits a signal like a tick source
  *
  * Creates a new #NetdevMonitor instance.
  *
  * Returns: A new #NetdevMonitor. Free with g_object_unref().
  */
 CockpitMultiResourceMonitor *
-netdev_monitor_new (GObject *tick_source)
+netdev_monitor_new (void)
 {
-  return COCKPIT_MULTI_RESOURCE_MONITOR (g_object_new (TYPE_NETDEV_MONITOR,
-                                                       "tick-source", tick_source,
-                                                       NULL));
+  return g_object_new (TYPE_NETDEV_MONITOR, NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

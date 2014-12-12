@@ -1,3 +1,5 @@
+if WITH_COCKPIT_WS
+
 COCKPIT_BUILD_INFO = "Built on $(shell date)"
 
 noinst_LIBRARIES += libcockpit-ws.a
@@ -91,7 +93,7 @@ firewall_DATA = src/ws/cockpit.xml
 
 # If running cockpit-ws as a non-standard user, we also set up
 # cockpit-session to be setuid root, but only runnable by cockpit-session
-install-data-hook::
+install-exec-hook::
 	-chown root:$(COCKPIT_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session
 	-test "$(COCKPIT_USER)" != "root" && chmod 4750 $(DESTDIR)$(libexecdir)/cockpit-session
 
@@ -291,11 +293,10 @@ TESTS += $(WS_CHECKS)
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
 	-chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d
-	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
-	-chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit
-	-chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit
 
 update-known-hosts:
 	cat $(srcdir)/src/ws/mock_*.pub | \
 		sed -ne 's/\(.*\) [^ ]\+$$/[localhost]:*,[127.0.0.1]:* \1/p' > \
 			$(srcdir)/src/ws/mock_known_hosts
+
+endif

@@ -16,6 +16,8 @@ lib_FILES = \
 	lib/amdjs-tests \
 	$(NULL)
 
+if WITH_COCKPIT_WS
+
 staticdir = $(datadir)/cockpit/static
 static_DATA = \
 	src/static/login.html \
@@ -23,10 +25,14 @@ static_DATA = \
 	src/static/apple-touch-icon.png \
 	$(NULL)
 
+EXTRA_DIST += $(static_DATA)
+
+endif
+
 staticcachedir = $(datadir)/cockpit/static
 staticcache_DATA = $(NULL)
 
-staticfontsdir = $(staticdir)/fonts
+staticfontsdir = $(staticcachedir)/fonts
 staticfonts_DATA = \
 	lib/fonts/OpenSans-Bold-webfont.eot \
 	lib/fonts/OpenSans-Bold-webfont.svg \
@@ -79,7 +85,7 @@ staticfonts_DATA = \
 	lib/fonts/fontawesome-webfont.woff \
 	$(NULL)
 
-staticimagesdir = $(staticdir)/images
+staticimagesdir = $(staticcachedir)/images
 staticimages_DATA = \
 	src/static/images/logo.v0.svg \
 	src/static/images/logo.v0.png \
@@ -100,7 +106,6 @@ $(static_CHECKSUMS): $(staticcache_DATA) $(staticfonts_DATA) $(staticimages_DATA
 
 EXTRA_DIST += \
 	$(lib_FILES) \
-	$(static_DATA) \
 	$(staticcache_DATA) \
 	$(staticfonts_DATA) \
 	$(staticimages_DATA) \

@@ -1,9 +1,26 @@
 man_MANS += \
 	doc/man/cockpitd.8 \
 	doc/man/cockpit-bridge.1 \
-	doc/man/cockpit-ws.8 \
-	doc/man/cockpit.conf.5	\
 	$(NULL)
+
+EXTRA_DIST += \
+	doc/man/cockpitd.xml \
+	doc/man/cockpit-bridge.xml \
+	$(NULL)
+
+if WITH_COCKPIT_WS
+
+man_MANS += \
+	doc/man/cockpit-ws.8 \
+	doc/man/cockpit.conf.5 \
+	$(NULL)
+
+EXTRA_DIST += \
+	doc/man/cockpit-ws.xml \
+	doc/man/cockpit.conf.xml \
+	$(NULL)
+
+endif
 
 MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
 	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
@@ -14,13 +31,6 @@ MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 
 	$(AM_V_GEN) $(MAN_PROC)
 .xml.5:
 	$(AM_V_GEN) $(MAN_PROC)
-
-EXTRA_DIST += 				\
-	doc/man/cockpitd.xml		\
-	doc/man/cockpit-bridge.xml \
-	doc/man/cockpit-ws.xml		\
-	doc/man/cockpit.conf.xml		\
-	$(NULL)
 
 CLEANFILES += \
 	$(man_MANS)

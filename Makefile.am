@@ -142,6 +142,11 @@ uninstall-local:: uninstall-doc-local
 
 LATEST = latest/
 
+install-data-hook::
+	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
+	-chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit
+	-chmod 775 $(DESTDIR)$(localstatedir)/lib/cockpit
+
 if ENABLE_DOC
 
 include doc/Makefile-doc.am

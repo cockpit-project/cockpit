@@ -34,6 +34,7 @@
 #include "common/cockpitmemory.h"
 
 #include <libssh/libssh.h>
+#include <libssh/callbacks.h>
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -74,6 +75,8 @@ main (int argc,
   g_setenv ("KRB5CCNAME", "FILE:/dev/null", TRUE);
 
   g_type_init ();
+
+  ssh_threads_set_callbacks (ssh_threads_get_pthread());
   ssh_init ();
 
   memset (&data, 0, sizeof (data));

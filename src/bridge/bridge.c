@@ -368,7 +368,7 @@ run_bridge (void)
   /* Owns the channels */
   channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
-  while (!terminated && !closed)
+  while (!terminated && !closed && !interupted)
     g_main_context_iteration (NULL, TRUE);
 
   if (polkit_agent)

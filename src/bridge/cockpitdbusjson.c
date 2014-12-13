@@ -185,15 +185,23 @@ parse_json_byte_array (JsonNode *node,
   while (value[pos] == '=')
     pos++;
 
-  /* base64 strings are always multiple of 3 */
-  if (pos % 3 == 0 || value[pos] == '\0')
-    data = g_base64_decode (value, &length);
-
-  if (!data)
+  if (pos == 0)
     {
-      g_set_error (error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                   "Invalid base64 in argument");
-      goto out;
+      data = NULL;
+      length = 0;
+    }
+  else
+    {
+      /* base64 strings are always multiple of 3 */
+      if (pos % 3 == 0 || value[pos] == '\0')
+        data = g_base64_decode (value, &length);
+
+      if (!data)
+        {
+          g_set_error (error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
+                       "Invalid base64 in argument");
+          goto out;
+        }
     }
 
   result = g_variant_new_from_data (G_VARIANT_TYPE_BYTESTRING,
@@ -560,9 +568,12 @@ build_json_byte_array (GVariant *value)
   gchar *string;
 
   data = g_variant_get_fixed_array (value, &length, 1);
-  string = g_base64_encode (data, length);
+  if (length > 0)
+    string = g_base64_encode (data, length);
+  else
+    string = NULL;
   node = json_node_new (JSON_NODE_VALUE);
-  json_node_set_string (node, string);
+  json_node_set_string (node, string ? string : "");
   g_free (string); /* unfortunately :S */
 
   return node;

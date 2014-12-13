@@ -329,6 +329,24 @@ asyncTest("with types", function() {
         });
 });
 
+asyncTest("empty base64", function() {
+    expect(3);
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    dbus.call("/bork", "borkety.Bork", "Echo",
+              [ "" ],
+              { type: "ay" }).
+        done(function(reply, options) {
+            deepEqual(reply, [ "" ], "round trip");
+            equal(options.type, "ay", "got back type");
+        }).
+        always(function() {
+            equal(this.state(), "resolved", "finished successfuly");
+            start();
+        });
+});
+
+
 asyncTest("bad types", function() {
     expect(3);
 

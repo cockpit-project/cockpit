@@ -82,6 +82,26 @@ asyncTest("base64", function() {
     });
 });
 
+asyncTest("base64 empty", function() {
+    expect(1);
+
+    var channel = cockpit.channel({
+        "payload": "echo",
+        "binary": "base64"
+    });
+
+    var first = true;
+
+    $(channel).on("message", function(ev, payload) {
+        strictEqual(payload, "", "got the right payload");
+        $(channel).off();
+        start();
+    });
+
+    channel.send("");
+});
+
+
 asyncTest("binary", function() {
     expect(3);
 

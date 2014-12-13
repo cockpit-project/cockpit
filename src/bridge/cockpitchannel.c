@@ -135,6 +135,9 @@ base64_decode (GBytes *bytes)
 
   data = g_bytes_get_data (bytes, &length);
 
+  if (length == 0)
+    return g_bytes_new_static ("", 0);
+
   /* We can use a smaller limit here, since we know the saved state is 0,
      +1 used to avoid calling g_malloc0(0), and hence returning NULL */
   decoded = g_malloc0 ((length / 4) * 3 + 3);
@@ -153,6 +156,9 @@ base64_encode (GBytes *bytes)
   gint save = 0;
 
   data = g_bytes_get_data (bytes, &length);
+
+  if (length == 0)
+    return g_bytes_new_static ("", 0);
 
   /* We can use a smaller limit here, since we know the saved state is 0,
      +1 is needed for trailing \0, also check for unlikely integer overflow */

@@ -269,8 +269,9 @@ validate_rfc6455_websocket_key (const gchar *key)
 {
   /* The key must be 16 bytes base64 encoded */
   guchar *decoded;
-  gsize length;
-  if (strlen (key) > 1024)
+  gsize length, len;
+  len = strlen (key);
+  if (len == 0 || len > 1024)
     return FALSE;
   decoded = g_base64_decode (key, &length);
   if (!decoded)

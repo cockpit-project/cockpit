@@ -174,7 +174,7 @@ on_closed_set_flag (CockpitTransport *transport,
 static void
 send_init_command (CockpitTransport *transport)
 {
-  const gchar *response = "\n{ \"command\": \"init\", \"version\": 0 }";
+  const gchar *response = "{ \"command\": \"init\", \"version\": 0 }";
   GBytes *bytes = g_bytes_new_static (response, strlen (response));
   cockpit_transport_send (transport, NULL, bytes);
   g_bytes_unref (bytes);

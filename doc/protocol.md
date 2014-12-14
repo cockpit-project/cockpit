@@ -2,11 +2,9 @@
 Protocol Documentation
 ======================
 
-The protocol is an implementation detail of Cockpit. It's a simple wrapper over
-some other protocols, like DBus, REST, and so on. Use those instead.
-
-Don't use this. This document ends here. It will self-destruct within 10
-seconds. Leave now while you still can.
+The protocol is a simple transport for other APIs. It's a simple wrapper over
+some other protocols, like DBus, REST, and so on. At the present time this
+is unstable, but will need to become stable in the near future.
 
 Channels
 --------
@@ -20,8 +18,8 @@ channel. It contains command messages. These are described below. Initially
 only the control channel exists. Additional channels are opened and closed
 via command messages.
 
-Channels operate across all participants, and they help the cockpit-ws
-forwarding layer to know where to send messages.
+Channels operate across all participants, and they help a forwarding layer
+like cockpit-ws to know where to send messages.
 
 Framing
 -------
@@ -113,13 +111,6 @@ If "binary" is set then this channel transfers binary messages. If "binary"
 is set to "base64" then messages in the channel are encoded using "base64",
 otherwise if it's set to "raw" they are transferred directly.
 
-These optional fields are used when establishing a channel over a new
-connection with a host. If a connection is already open for the given
-"host" and "user" then these will not be used.
-
- * "password": Optional alternate password for authenticating with host
- * "host-key": Optional ssh public hostkey to expect when connecting to machine
-
 After the command is sent, then the channel is assumed to be open. No response
 is sent. If for some reason the channel shouldn't or cannot be opened, then
 the recipient will respond with a "close" message.
@@ -165,11 +156,6 @@ channel is considered closed.
 See below for a list of problem codes.
 
 Other fields may be present in a close message.
-
-In the case of a connection that fails wiwh the problem "unknown-hostkey" the
-host key for the server will be included in a "host-key" field in the close
-message.
-
 
 Command: eof
 ------------
@@ -277,55 +263,6 @@ Payload: echo
 
 A channel opened with this payload type will send back all data that
 it receives. It sends an "eof" when it receives one.
-
-
-Payload: resource2
-------------------
-
-These payloads contain resource data, such as javascript and html files that
-make up cockpit packages. Typically, channels of this type are opened between
-cockpit-ws and cockpit-bridge. See doc/packages.md
-
-Additional "open" command options are available to open a channel of this
-type:
-
- * "package": the package to retrieve resource from
- * "path": path of the resource within the package.
- * "accept": array of various file extensions for content negotation
-
-The "package" may either be fully qualified (ie: package@host), although the
-host part is not used for routing, and the usual "open" command "host"
-option should be used. The package may also be a package checksum.
-
-If "accept" includes "minified" then a minified form of the file will
-be selected, if it is available.
-
-The first channel payload will be a JSON object, containing the following
-options, related to headers.
-
- * "accept": the content negotiation option accepted
-
-The remaining channel payloads will be the raw (possibly binary) byte data
-of the resource being retrieved.
-
-If "package" and "path" are missing, then the channel will be immediately
-closed without a "problem", and a combined manifest of all packages, including
-checksums for system packages will be returned in the "close" message under
-the "packages" option:
-
-    {
-        "command": "close",
-        "channel": "5",
-        "packages": [
-            {
-                "id": ["app1", "$0d599f0ec05c3bda8c3b8a68c32a1b47"],
-                "manifest" : { ... }
-            },
-            ...
-        ]
-    }
-
-The resource1 payload is no longer supported.
 
 
 Payload: dbus-json3

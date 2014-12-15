@@ -143,7 +143,7 @@ xclose (int fd)
 }
 
 static void
-cockpit_fswrite_eof (CockpitChannel *channel)
+cockpit_fswrite_done (CockpitChannel *channel)
 {
   CockpitFswrite *self = COCKPIT_FSWRITE (channel);
   const gchar *problem = NULL;
@@ -294,7 +294,7 @@ cockpit_fswrite_class_init (CockpitFswriteClass *klass)
 
   channel_class->prepare = cockpit_fswrite_prepare;
   channel_class->recv = cockpit_fswrite_recv;
-  channel_class->eof = cockpit_fswrite_eof;
+  channel_class->done = cockpit_fswrite_done;
   channel_class->close = cockpit_fswrite_close;
 }
 

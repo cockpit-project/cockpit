@@ -581,8 +581,8 @@ function Channel(options) {
 
     var transport;
     var valid = true;
-    var received_eof = false;
-    var sent_eof = false;
+    var received_done = false;
+    var sent_done = false;
     var id = null;
     var base64 = false;
     var binary = (options.binary === true);
@@ -600,8 +600,8 @@ function Channel(options) {
     self.id = id;
 
     function on_message(payload) {
-        if (received_eof) {
-            console.warn("received message after eof");
+        if (received_done) {
+            console.warn("received message after done");
             self.close("protocol-error");
         } else {
             if (base64)
@@ -627,14 +627,14 @@ function Channel(options) {
             return;
         }
 
-        var eof = data.command === "eof";
-        if (eof && received_eof) {
-            console.warn("received two eof messages on channel");
+        var done = data.command === "done";
+        if (done && received_done) {
+            console.warn("received two done commands on channel");
             self.close("protocol-error");
 
         } else {
-            if (eof)
-                received_eof = true;
+            if (done)
+                received_done = true;
             var event = document.createEvent("CustomEvent");
             event.initCustomEvent("control", false, false, data);
             self.dispatchEvent(event, data);
@@ -707,8 +707,8 @@ function Channel(options) {
     self.send = function send(message) {
         if (!valid)
             console.warn("sending message on closed channel");
-        else if (sent_eof)
-            console.warn("sending message after eof");
+        else if (sent_done)
+            console.warn("sending message after done");
         else if (!transport)
             queue.push([false, message]);
         else
@@ -719,8 +719,8 @@ function Channel(options) {
         options = options || { };
         if (!options.command)
             options.command = "options";
-	if (options.command === "eof")
-            sent_eof = true;
+	if (options.command === "done")
+            sent_done = true;
         options.channel = id;
         if (!transport)
             queue.push([true, options]);
@@ -1283,7 +1283,7 @@ function full_scope(cockpit, $) {
                         channel.send(message);
                     }
                     if (!stream)
-                        channel.control({ command: "eof" });
+                        channel.control({ command: "done" });
                     return this;
                 },
                 close: function(problem) {
@@ -1945,7 +1945,7 @@ function full_scope(cockpit, $) {
              */
             if (file_content !== null)
                 replace_channel.send(file_content);
-            replace_channel.control({ command: "eof" });
+            replace_channel.control({ command: "done" });
 
             return dfd.promise();
         }
@@ -2338,8 +2338,8 @@ function full_scope(cockpit, $) {
                     http_debug("http input:", input);
                     channel.send(input);
                 }
-                http_debug("http eof");
-                channel.control({ command: "eof" });
+                http_debug("http done");
+                channel.control({ command: "done" });
             }
 
             /* Callbacks that want to stream or get headers */
@@ -2419,8 +2419,8 @@ function full_scope(cockpit, $) {
                             channel.send(message);
                         }
                         if (!stream) {
-                            http_debug("http eof");
-                            channel.control({ command: "eof" });
+                            http_debug("http done");
+                            channel.control({ command: "done" });
                         }
                         return this;
                     },

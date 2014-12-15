@@ -83,8 +83,8 @@ struct _CockpitChannelPrivate {
     gboolean transport_closed;
 
     /* EOF flags */
-    gboolean sent_eof;
-    gboolean received_eof;
+    gboolean sent_done;
+    gboolean received_done;
 
     /* Binary options */
     gboolean binary_ok;
@@ -186,9 +186,9 @@ on_transport_recv (CockpitTransport *transport,
   if (g_strcmp0 (channel_id, self->priv->id) != 0)
     return FALSE;
 
-  if (self->priv->received_eof)
+  if (self->priv->received_done)
     {
-      g_warning ("%s: channel received message after eof", self->priv->id);
+      g_warning ("%s: channel received message after done", self->priv->id);
       cockpit_channel_close (self, "protocol-error");
       return TRUE;
     }
@@ -235,20 +235,20 @@ on_transport_control (CockpitTransport *transport,
         (klass->options) (self, options);
       return TRUE;
     }
-  else if (g_str_equal (command, "eof"))
+  else if (g_str_equal (command, "done"))
     {
-      if (self->priv->received_eof)
+      if (self->priv->received_done)
         {
-          g_warning ("%s: channel received second eof", self->priv->id);
+          g_warning ("%s: channel received second done", self->priv->id);
           cockpit_channel_close (self, "protocol-error");
         }
       else
         {
-          self->priv->received_eof = TRUE;
+          self->priv->received_done = TRUE;
           if (self->priv->ready)
             {
-              if (klass->eof)
-                (klass->eof) (self);
+              if (klass->done)
+                (klass->done) (self);
             }
         }
       return TRUE;
@@ -698,10 +698,10 @@ cockpit_channel_ready (CockpitChannel *self)
   self->priv->ready = TRUE;
 
   /* No more data coming? */
-  if (self->priv->received_eof)
+  if (self->priv->received_done)
     {
-      if (klass->eof)
-        (klass->eof) (self);
+      if (klass->done)
+        (klass->done) (self);
     }
 
   g_object_unref (self);
@@ -852,25 +852,25 @@ cockpit_channel_prepare (CockpitChannel *self)
 }
 
 /**
- * cockpit_channel_eof:
+ * cockpit_channel_done:
  * @self: the channel
  *
  * Send an EOF to the other side. This should only be called once.
  * Whether an EOF should be sent or not depends on the payload type.
  */
 void
-cockpit_channel_eof (CockpitChannel *self)
+cockpit_channel_done (CockpitChannel *self)
 {
   JsonObject *object;
   GBytes *message;
 
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
-  g_return_if_fail (self->priv->sent_eof == FALSE);
+  g_return_if_fail (self->priv->sent_done == FALSE);
 
-  self->priv->sent_eof = TRUE;
+  self->priv->sent_done = TRUE;
 
   object = json_object_new ();
-  json_object_set_string_member (object, "command", "eof");
+  json_object_set_string_member (object, "command", "done");
   json_object_set_string_member (object, "channel", self->priv->id);
 
   message = cockpit_json_write_bytes (object);

@@ -44,7 +44,7 @@ asyncTest("basic", function() {
     var channel = cockpit.channel({ "payload": "echo" });
 
     $(channel).on("control", function(ev, options) {
-        equal(options.command, "eof", "got eof");
+        equal(options.command, "done", "got done");
         channel.close();
         $(channel).off();
         start();
@@ -52,7 +52,7 @@ asyncTest("basic", function() {
 
     $(channel).on("message", function(ev, payload) {
         strictEqual(payload, "the payload", "got the right payload");
-        channel.control({ command: "eof" });
+        channel.control({ command: "done" });
     });
 
     strictEqual(channel.binary, false, "not binary");

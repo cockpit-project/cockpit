@@ -373,7 +373,6 @@ test_read_combined (void)
   struct iovec iov[4];
   gint state = 0;
   gint fds[2];
-  guint32 size;
   gint out;
 
   if (pipe(fds) < 0)
@@ -387,16 +386,15 @@ test_read_combined (void)
   g_signal_connect (transport, "recv", G_CALLBACK (on_recv_multiple), &state);
 
   /* Write two messages to the pipe at once */
-  size = GUINT32_TO_BE (5);
-  iov[0].iov_base = &size;
-  iov[0].iov_len = sizeof (size);
+  iov[0].iov_base = "5\n";
+  iov[0].iov_len = 2;
   iov[1].iov_base = "9\none";
   iov[1].iov_len = 5;
-  iov[2].iov_base = &size;
-  iov[2].iov_len = sizeof (size);
+  iov[2].iov_base = "5\n";
+  iov[2].iov_len = 2;
   iov[3].iov_base = "9\ntwo";
   iov[3].iov_len = 5;
-  g_assert_cmpint (writev (fds[1], iov, 4), ==, 18);
+  g_assert_cmpint (writev (fds[1], iov, 4), ==, 14);
 
   WAIT_UNTIL (state == 2);
 
@@ -425,12 +423,46 @@ test_read_truncated (void)
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
 
   /* Not a full 4 byte length (ie: truncated) */
-  g_assert_cmpint (write (fds[1], "X", 1), ==, 1);
+  g_assert_cmpint (write (fds[1], "5", 1), ==, 1);
   g_assert_cmpint (close (fds[1]), ==, 0);
 
   WAIT_UNTIL (problem != NULL);
 
   g_assert_cmpstr (problem, ==, "internal-error");
+  g_free (problem);
+
+  g_object_unref (transport);
+
+  cockpit_assert_expected ();
+}
+
+static void
+test_incorrect_protocol (void)
+{
+  CockpitTransport *transport;
+  gchar *problem = NULL;
+  gint fds[2];
+  gint out;
+
+  if (pipe(fds) < 0)
+    g_assert_not_reached ();
+
+  out = dup (2);
+  g_assert (out >= 0);
+
+  cockpit_expect_warning ("*received invalid length prefix");
+
+  /* Pass in a read end of the pipe */
+  transport = cockpit_pipe_transport_new_fds ("test", fds[0], out);
+  g_signal_connect (transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  /* Not a full 4 byte length (ie: truncated) */
+  g_assert_cmpint (write (fds[1], "X", 1), ==, 1);
+  g_assert_cmpint (close (fds[1]), ==, 0);
+
+  WAIT_UNTIL (problem != NULL);
+
+  g_assert_cmpstr (problem, ==, "protocol-error");
   g_free (problem);
 
   g_object_unref (transport);
@@ -624,6 +656,7 @@ main (int argc,
   g_test_add_func ("/transport/write-error", test_write_error);
   g_test_add_func ("/transport/read-combined", test_read_combined);
   g_test_add_func ("/transport/read-truncated", test_read_truncated);
+  g_test_add_func ("/transport/read-incorrect", test_incorrect_protocol);
 
   return g_test_run ();
 }

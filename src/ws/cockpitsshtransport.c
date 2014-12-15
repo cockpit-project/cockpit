@@ -826,27 +826,44 @@ drain_buffer (CockpitSshTransport *self)
   GBytes *message;
   GBytes *payload;
   gchar *channel;
-  guint32 size;
+  guint32 size, i;
+  gchar *data;
 
   for (;;)
     {
-      if (self->buffer->len < sizeof (size))
+      size = 0;
+      data = (gchar *)self->buffer->data;
+      for (i = 0; i < self->buffer->len; i++)
+        {
+          /* Check invalid characters, prevent ineger overflow, limit max length */
+          if (i > 7 || data[i] < '0' || data[i] > '9')
+            break;
+          size *= 10;
+          size += data[i] - '0';
+        }
+
+      if (i == self->buffer->len)
         {
           if (!self->received_eof)
             g_debug ("%s: want len have %d", self->logname, (int)self->buffer->len);
           break;
         }
 
-      memcpy (&size, self->buffer->data, sizeof (size));
-      size = GUINT32_FROM_BE (size);
-      if (self->buffer->len < size + sizeof (size))
+      if (data[i] != '\n')
+        {
+          g_warning ("%s: incorrect protocol: received invalid length prefix", self->logname);
+          close_immediately (self, "protocol-error");
+          break;
+        }
+
+      if (self->buffer->len < i + 1 + size)
         {
           g_debug ("%s: want %d have %d", self->logname,
                    (int)(size + sizeof (size)), (int)self->buffer->len);
           break;
         }
 
-      message = cockpit_pipe_consume (self->buffer, sizeof (size), size, 0);
+      message = cockpit_pipe_consume (self->buffer, i + 1, size, 0);
       payload = cockpit_transport_parse_frame (message, &channel);
       if (payload)
         {
@@ -1340,22 +1357,24 @@ cockpit_ssh_transport_send (CockpitTransport *transport,
 {
   CockpitSshTransport *self = COCKPIT_SSH_TRANSPORT (transport);
   gchar *prefix;
+  gsize channel_len;
+  gsize payload_len;
   gsize length;
-  guint32 size;
 
   g_return_if_fail (!self->closing);
 
-  prefix = g_strdup_printf ("xxxx%s\n", channel ? channel : "");
-  length = strlen (prefix);
+  channel_len = channel ? strlen (channel) : 0;
+  payload_len = g_bytes_get_size (payload);
 
-  /* See doc/protocol.md */
-  size = GUINT32_TO_BE (g_bytes_get_size (payload) + length - 4);
-  memcpy (prefix, &size, 4);
+  prefix = g_strdup_printf ("%" G_GSIZE_FORMAT "\n%s\n",
+                                channel_len + 1 + payload_len,
+                                channel ? channel : "");
+  length = strlen (prefix);
 
   g_queue_push_tail (self->queue, g_bytes_new_take (prefix, length));
   g_queue_push_tail (self->queue, g_bytes_ref (payload));
 
-  g_debug ("%s: queued %d byte payload", self->logname, (int)g_bytes_get_size (payload));
+  g_debug ("%s: queued %" G_GSIZE_FORMAT " byte payload", self->logname, payload_len);
 }
 
 static void

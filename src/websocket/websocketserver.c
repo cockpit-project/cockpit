@@ -26,6 +26,7 @@
 
 enum {
   PROP_0,
+  PROP_ORIGINS,
   PROP_PROTOCOLS,
   PROP_REQUEST_HEADERS,
   PROP_INPUT_BUFFER,
@@ -36,6 +37,7 @@ struct _WebSocketServer
   WebSocketConnection parent;
 
   gboolean protocol_chosen;
+  gchar **allowed_origins;
   gchar **allowed_protocols;
   GHashTable *request_headers;
 };
@@ -162,10 +164,10 @@ respond_handshake_hixie76 (WebSocketServer *self,
   const gchar *protocol;
   const gchar *origin;
   const gchar *host;
-  const gchar *expect_origin;
   GString *handshake;
   guint8 *response;
   gsize len;
+  guint i;
 
   if (!_web_socket_util_header_equals (headers, "Upgrade", "websocket") ||
       !_web_socket_util_header_contains (headers, "Connection", "upgrade") ||
@@ -203,10 +205,14 @@ respond_handshake_hixie76 (WebSocketServer *self,
       return FALSE;
     }
 
-  expect_origin = web_socket_connection_get_origin (conn);
-  if (expect_origin)
+  if (self->allowed_origins)
     {
-      if (g_ascii_strcasecmp (origin, expect_origin) != 0)
+      for (i = 0; self->allowed_origins[i] != NULL; i++)
+        {
+          if (g_ascii_strcasecmp (origin, self->allowed_origins[i]) == 0)
+            break;
+        }
+      if (self->allowed_origins[i] == NULL)
         {
           g_message ("received request from bad Origin: %s", origin);
           respond_handshake_forbidden (conn);
@@ -286,13 +292,13 @@ respond_handshake_rfc6455 (WebSocketServer *self,
                            GHashTable *headers)
 {
   const gchar *protocol;
-  const gchar *expect_origin;
   const gchar *origin;
   const gchar *host;
   gchar *accept_key;
   gchar *key;
   GString *handshake;
   gsize len;
+  guint i;
 
   if (!_web_socket_util_header_equals (headers, "Upgrade", "websocket") ||
       !_web_socket_util_header_contains (headers, "Connection", "upgrade") ||
@@ -328,8 +334,7 @@ respond_handshake_rfc6455 (WebSocketServer *self,
       return FALSE;
     }
 
-  expect_origin = web_socket_connection_get_origin (conn);
-  if (expect_origin)
+  if (self->allowed_origins)
     {
       origin = g_hash_table_lookup (headers, "Origin");
       if (!origin)
@@ -338,7 +343,12 @@ respond_handshake_rfc6455 (WebSocketServer *self,
           respond_handshake_forbidden (conn);
           return FALSE;
         }
-      if (g_ascii_strcasecmp (origin, expect_origin) != 0)
+      for (i = 0; self->allowed_origins[i] != NULL; i++)
+        {
+          if (g_ascii_strcasecmp (origin, self->allowed_origins[i]) == 0)
+            break;
+        }
+      if (self->allowed_origins[i] == NULL)
         {
           g_message ("received request from bad Origin: %s", origin);
           respond_handshake_forbidden (conn);
@@ -524,6 +534,11 @@ web_socket_server_set_property (GObject *object,
 
   switch (prop_id)
     {
+    case PROP_ORIGINS:
+      g_return_if_fail (self->allowed_origins == FALSE);
+      self->allowed_origins = g_value_dup_boxed (value);
+      break;
+
     case PROP_PROTOCOLS:
       g_return_if_fail (self->protocol_chosen == FALSE);
       g_strfreev (self->allowed_protocols);
@@ -552,6 +567,7 @@ web_socket_server_finalize (GObject *object)
 {
   WebSocketServer *self = WEB_SOCKET_SERVER (object);
 
+  g_strfreev (self->allowed_origins);
   g_strfreev (self->allowed_protocols);
   if (self->request_headers)
     g_hash_table_unref (self->request_headers);
@@ -572,6 +588,14 @@ web_socket_server_class_init (WebSocketServerClass *klass)
   conn_class->server_behavior = TRUE;
   conn_class->handshake = web_socket_server_handshake;
 
+  /**
+   * WebSocketServer:origins:
+   *
+   * The allowed origins to receive client requests from.
+   */
+  g_object_class_install_property (object_class, PROP_ORIGINS,
+                                   g_param_spec_boxed ("origins", "Possible Origins", "The possible HTTP origins", G_TYPE_STRV,
+                                                        G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
   /**
    * WebSocketServer:protocols:
    *
@@ -610,7 +634,7 @@ web_socket_server_class_init (WebSocketServerClass *klass)
 /**
  * web_socket_server_new_for_stream:
  * @url: the url address of the WebSocket
- * @origin: (allow-none): the origin to expect the client to report
+ * @origins: (allow-none): the origin to expect the client to report
  * @protocols: (allow-none): possible protocols for the client to
  * @io_stream: the IO stream to communicate over
  * @request_headers: (allow-none): already parsed headers, or %NULL
@@ -640,7 +664,7 @@ web_socket_server_class_init (WebSocketServerClass *klass)
  */
 WebSocketConnection *
 web_socket_server_new_for_stream (const gchar *url,
-                                  const gchar *origin,
+                                  const gchar **origins,
                                   const gchar **protocols,
                                   GIOStream *io_stream,
                                   GHashTable *request_headers,
@@ -648,7 +672,7 @@ web_socket_server_new_for_stream (const gchar *url,
 {
   return g_object_new (WEB_SOCKET_TYPE_SERVER,
                        "url", url,
-                       "origin", origin,
+                       "origins", origins,
                        "protocols", protocols,
                        "io-stream", io_stream,
                        "request-headers", request_headers,

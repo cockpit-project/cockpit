@@ -26,6 +26,7 @@
 
 enum {
   PROP_0,
+  PROP_ORIGIN,
   PROP_PROTOCOLS,
 };
 
@@ -34,6 +35,7 @@ struct _WebSocketClient
   WebSocketConnection parent;
 
   gboolean handshake_started;
+  gchar *origin;
   gchar **possible_protocols;
   gpointer accept_key;
   GHashTable *include_headers;
@@ -275,7 +277,6 @@ request_handshake_rfc6455 (WebSocketClient *self,
   gchar *key;
   gchar *protocols;
   GString *handshake;
-  const gchar *origin;
   guint32 raw[4];
   gsize len;
 
@@ -300,8 +301,7 @@ request_handshake_rfc6455 (WebSocketClient *self,
                               path, host, key);
 
   /* RFC 6454 talks about 'null' */
-  origin = web_socket_connection_get_origin (conn);
-  g_string_append_printf (handshake, "Origin: %s\r\n", origin ? origin : "null");
+  g_string_append_printf (handshake, "Origin: %s\r\n", self->origin ? self->origin : "null");
 
   if (self->possible_protocols)
     {
@@ -368,7 +368,6 @@ request_handshake_hixie76 (WebSocketClient *self,
   gchar *key_1, *key_2;
   GString *handshake;
   gchar *protocols;
-  const gchar *origin;
   gsize len;
   gint i;
 
@@ -382,8 +381,6 @@ request_handshake_hixie76 (WebSocketClient *self,
   g_free (self->accept_key);
   self->accept_key = _web_socket_complete_challenge_hixie76 (number_1, number_2, challenge);
 
-  origin = web_socket_connection_get_origin (conn);
-
   handshake = g_string_new ("");
   g_string_printf (handshake, "GET %s HTTP/1.1\r\n"
                               "Host: %s\r\n"
@@ -393,7 +390,7 @@ request_handshake_hixie76 (WebSocketClient *self,
                               "Sec-WebSocket-Key2: %s\r\n"
                               "Origin: %s\r\n",
                               path, host, key_1, key_2,
-                              origin ? origin : "null");
+                              self->origin ? self->origin : "null");
 
   g_free (key_1);
   g_free (key_2);
@@ -557,6 +554,11 @@ web_socket_client_set_property (GObject *object,
 
   switch (prop_id)
     {
+    case PROP_ORIGIN:
+      g_return_if_fail (self->origin == NULL);
+      self->origin = g_value_dup_string (value);
+      break;
+
     case PROP_PROTOCOLS:
       g_return_if_fail (self->handshake_started == FALSE);
       g_strfreev (self->possible_protocols);
@@ -589,6 +591,7 @@ web_socket_client_finalize (GObject *object)
   WebSocketClient *self = WEB_SOCKET_CLIENT (object);
 
   g_strfreev (self->possible_protocols);
+  g_free (self->origin);
   g_free (self->accept_key);
   if (self->include_headers)
     g_hash_table_unref (self->include_headers);
@@ -614,7 +617,17 @@ web_socket_client_class_init (WebSocketClientClass *klass)
   conn_class->close = web_socket_client_close;
 
   /**
-   * WebSocketServer:protocols:
+   * WebSocketClient:origin:
+   *
+   * The WebSocket origin. Client WebSockets will send this to the server. If
+   * set on a server, then only clients with the matching origin will be accepted.
+   */
+  g_object_class_install_property (object_class, PROP_ORIGIN,
+                                   g_param_spec_string ("origin", "Origin", "The WebSocket origin", NULL,
+                                                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * WebSocketClient:protocols:
    *
    * The possible protocols to negotiate with the peer.
    */

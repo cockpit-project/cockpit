@@ -80,7 +80,6 @@ enum {
   PROP_0,
   PROP_URL,
   PROP_PROTOCOL,
-  PROP_ORIGIN,
   PROP_READY_STATE,
   PROP_BUFFERED_AMOUNT,
   PROP_IO_STREAM,
@@ -118,7 +117,6 @@ struct _WebSocketConnectionPrivate
    * on the server, the one the socket lives at
    */
   gchar *url;
-  gchar *origin;
   gchar *chosen_protocol;
 
   GSource *start_idle;
@@ -1436,11 +1434,6 @@ web_socket_connection_set_property (GObject *object,
       pv->url = g_value_dup_string (value);
       break;
 
-    case PROP_ORIGIN:
-      g_return_if_fail (pv->origin == NULL);
-      pv->origin = g_value_dup_string (value);
-      break;
-
     case PROP_IO_STREAM:
       g_return_if_fail (pv->io_stream == NULL);
       io_stream = g_value_dup_object (value);
@@ -1477,7 +1470,6 @@ web_socket_connection_finalize (GObject *object)
   WebSocketConnectionPrivate *pv = self->pv;
 
   g_free (pv->url);
-  g_free (pv->origin);
   g_free (pv->chosen_protocol);
   g_free (pv->peer_close_data);
 
@@ -1540,16 +1532,6 @@ web_socket_connection_class_init (WebSocketConnectionClass *klass)
   g_object_class_install_property (gobject_class, PROP_PROTOCOL,
                                    g_param_spec_string ("protocol", "Protocol", "The chosen WebSocket protocol", NULL,
                                                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
-  /**
-   * WebSocketConnection:origin:
-   *
-   * The WebSocket origin. Client WebSockets will send this to the server. If
-   * set on a server, then only clients with the matching origin will be accepted.
-   */
-  g_object_class_install_property (gobject_class, PROP_ORIGIN,
-                                   g_param_spec_string ("origin", "Origin", "The WebSocket origin", NULL,
-                                                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
   /**
    * WebSocketConnection:ready-state:
@@ -1696,21 +1678,6 @@ web_socket_connection_get_url (WebSocketConnection *self)
 {
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), NULL);
   return self->pv->url;
-}
-
-/**
- * web_socket_connection_get_origin:
- * @self: the WebSocket
- *
- * Get the origin of the WebSocket.
- *
- * Returns: the origin
- */
-const gchar *
-web_socket_connection_get_origin (WebSocketConnection *self)
-{
-  g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), NULL);
-  return self->pv->origin;
 }
 
 /**

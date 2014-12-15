@@ -14,6 +14,8 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitechochannel.h \
 	src/bridge/cockpithttpstream.c \
 	src/bridge/cockpithttpstream.h \
+	src/bridge/cockpitinteracttransport.c \
+	src/bridge/cockpitinteracttransport.h \
 	src/bridge/cockpitpackage.c \
 	src/bridge/cockpitpackage.h \
 	src/bridge/cockpitpaths.c \

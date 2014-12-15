@@ -76,7 +76,7 @@ typedef struct
   gboolean private;
   GHashTable *channels;
   CockpitTransport *transport;
-  gboolean sent_eof;
+  gboolean sent_done;
   guint timeout;
   CockpitCreds *creds;
   GHashTable *packages;
@@ -573,9 +573,9 @@ cockpit_web_service_dispose (GObject *object)
   g_hash_table_iter_init (&iter, self->sessions.by_transport);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
     {
-      if (!session->sent_eof)
+      if (!session->sent_done)
         {
-          session->sent_eof = TRUE;
+          session->sent_done = TRUE;
           cockpit_transport_close (session->transport, NULL);
         }
     }
@@ -800,7 +800,7 @@ process_authorize (CockpitWebService *self,
    * user has it open, he/she is authorized.
    */
 
-  if (!session->sent_eof)
+  if (!session->sent_done)
     {
       payload = build_control ("command", "authorize",
                                "cookie", cookie,
@@ -1328,7 +1328,7 @@ dispatch_inbound_command (CockpitWebService *self,
       g_hash_table_iter_init (&iter, self->sessions.by_transport);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
         {
-          if (!session->sent_eof)
+          if (!session->sent_done)
             cockpit_transport_send (session->transport, NULL, payload);
         }
     }
@@ -1338,7 +1338,7 @@ dispatch_inbound_command (CockpitWebService *self,
       session = cockpit_session_by_channel (&self->sessions, channel);
       if (session)
         {
-          if (!session->sent_eof)
+          if (!session->sent_done)
             cockpit_transport_send (session->transport, NULL, payload);
         }
       else
@@ -1382,7 +1382,7 @@ on_web_socket_message (WebSocketConnection *connection,
       session = cockpit_session_by_channel (&self->sessions, channel);
       if (session)
         {
-          if (!session->sent_eof)
+          if (!session->sent_done)
             cockpit_transport_send (session->transport, channel, payload);
         }
       else
@@ -1771,7 +1771,7 @@ on_sideband_open (WebSocketConnection *connection,
   session = cockpit_session_by_channel (&self->sessions, sideband->channel);
   g_return_if_fail (sideband != NULL);
 
-  if (!session->sent_eof)
+  if (!session->sent_done)
     {
       payload = cockpit_json_write_bytes (sideband->options);
       cockpit_transport_send (session->transport, NULL, payload);
@@ -1794,7 +1794,7 @@ on_sideband_message (WebSocketConnection *connection,
       session = cockpit_session_by_channel (&self->sessions, sideband->channel);
       if (session)
         {
-          if (!session->sent_eof)
+          if (!session->sent_done)
             cockpit_transport_send (session->transport, sideband->channel, payload);
         }
       else
@@ -1816,9 +1816,9 @@ on_sideband_close (WebSocketConnection *connection,
   if (sideband)
     {
       session = cockpit_session_by_channel (&self->sessions, sideband->channel);
-      if (session && !session->sent_eof)
+      if (session && !session->sent_done)
         {
-          payload = build_control ("command", "eof", "channel", sideband->channel, NULL);
+          payload = build_control ("command", "done", "channel", sideband->channel, NULL);
           cockpit_transport_send (session->transport, sideband->channel, payload);
           g_bytes_unref (payload);
         }

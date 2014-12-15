@@ -51,10 +51,10 @@ cockpit_echo_channel_recv (CockpitChannel *channel,
 }
 
 static void
-cockpit_echo_channel_eof (CockpitChannel *channel)
+cockpit_echo_channel_done (CockpitChannel *channel)
 {
-  g_debug ("received echo channel eof");
-  cockpit_channel_eof (channel);
+  g_debug ("received echo channel done");
+  cockpit_channel_done (channel);
 }
 
 static void
@@ -77,5 +77,5 @@ cockpit_echo_channel_class_init (CockpitEchoChannelClass *klass)
 
   channel_class->prepare = cockpit_echo_channel_prepare;
   channel_class->recv = cockpit_echo_channel_recv;
-  channel_class->eof = cockpit_echo_channel_eof;
+  channel_class->done = cockpit_echo_channel_done;
 }

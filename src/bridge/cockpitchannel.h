@@ -62,7 +62,7 @@ struct _CockpitChannelClass
   void        (* options)     (CockpitChannel *channel,
                                JsonObject *options);
 
-  void        (* eof)         (CockpitChannel *channel);
+  void        (* done)        (CockpitChannel *channel);
 
   void        (* close)       (CockpitChannel *channel,
                                const gchar *problem);
@@ -89,7 +89,7 @@ void                cockpit_channel_send              (CockpitChannel *self,
                                                        GBytes *payload,
                                                        gboolean valid_utf8);
 
-void                cockpit_channel_eof               (CockpitChannel *self);
+void                cockpit_channel_done              (CockpitChannel *self);
 
 JsonObject *        cockpit_channel_get_options       (CockpitChannel *self);
 

@@ -1967,7 +1967,7 @@ handle = file.watch(callback, error_callback);
       <para>Notify the channel to tune certain parameters on the fly. The <code>options</code>
         is a plain javascript object, and the contents depend on the <code>"payload"</code>
         of the channel.</para>
-      <para>One common operation is to set <code>"command"</code> to <code>"eof"</code> in the
+      <para>One common operation is to set <code>"command"</code> to <code>"done"</code> in the
         options field. To indicate that no further messages will be sent through the channel.</para>
     </refsection>
 
@@ -2007,7 +2007,7 @@ handle = file.watch(callback, error_callback);
 </programlisting>
       <para>An event triggered when the channel receives an control message in the
         middle of the flow. One particular use is when the <code>command</code> is set to
-        <code>"eof"</code> then no further messages will be received in the channel.
+        <code>"done"</code> then no further messages will be received in the channel.
         The exact form of these messages depend on the <code>"payload"</code> of the
         channel.</para>
     </refsection>

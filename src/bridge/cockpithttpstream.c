@@ -791,7 +791,7 @@ cockpit_http_stream_recv (CockpitChannel *channel,
 }
 
 static void
-cockpit_http_stream_eof (CockpitChannel *channel)
+cockpit_http_stream_done (CockpitChannel *channel)
 {
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (channel);
 
@@ -817,7 +817,7 @@ cockpit_http_stream_close (CockpitChannel *channel,
     {
       g_debug ("%s: relayed response", self->name);
       self->state = FINISHED;
-      cockpit_channel_eof (channel);
+      cockpit_channel_done (channel);
 
       /* Save this for another round? */
       if (self->keep_alive)
@@ -930,7 +930,7 @@ cockpit_http_stream_class_init (CockpitHttpStreamClass *klass)
 
   channel_class->prepare = cockpit_http_stream_prepare;
   channel_class->recv = cockpit_http_stream_recv;
-  channel_class->eof = cockpit_http_stream_eof;
+  channel_class->done = cockpit_http_stream_done;
   channel_class->close = cockpit_http_stream_close;
 }
 

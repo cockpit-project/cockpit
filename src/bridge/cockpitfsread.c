@@ -69,7 +69,7 @@ on_idle_send_block (gpointer data)
   if (payload == NULL)
     {
       self->idler = 0;
-      cockpit_channel_eof (channel);
+      cockpit_channel_done (channel);
 
       problem = NULL;
       if (self->fd >= 0 && self->start_tag)

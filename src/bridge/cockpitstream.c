@@ -103,7 +103,7 @@ process_pipe_buffer (CockpitStream *self,
 }
 
 static void
-cockpit_stream_eof (CockpitChannel *channel)
+cockpit_stream_done (CockpitChannel *channel)
 {
   CockpitStream *self = COCKPIT_STREAM (channel);
 
@@ -237,11 +237,11 @@ on_pipe_close (CockpitPipe *pipe,
     }
 
   /*
-   * In theory we should plumb eof handling all the way through to CockpitPipe.
+   * In theory we should plumb done handling all the way through to CockpitPipe.
    * But we can do that later in a compatible way.
    */
   if (problem == NULL)
-    cockpit_channel_eof (channel);
+    cockpit_channel_done (channel);
 
   cockpit_channel_close (channel, problem);
 }
@@ -380,7 +380,7 @@ cockpit_stream_class_init (CockpitStreamClass *klass)
 
   channel_class->prepare = cockpit_stream_prepare;
   channel_class->options = cockpit_stream_options;
-  channel_class->eof = cockpit_stream_eof;
+  channel_class->done = cockpit_stream_done;
   channel_class->recv = cockpit_stream_recv;
   channel_class->close = cockpit_stream_close;
 }

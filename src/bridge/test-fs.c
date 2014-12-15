@@ -128,9 +128,9 @@ send_string (TestCase *tc,
 }
 
 static void
-send_eof (TestCase *tc)
+send_done (TestCase *tc)
 {
-  const gchar *message = "{ \"command\": \"eof\", \"channel\": \"1234\" }";
+  const gchar *message = "{ \"command\": \"done\", \"channel\": \"1234\" }";
   GBytes *bytes = g_bytes_new_static (message, strlen (message));
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), NULL, bytes);
   g_bytes_unref (bytes);
@@ -262,7 +262,7 @@ test_read_simple (TestCase *tc,
   assert_received (tc, "Hello!");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "eof");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
 
   control = mock_transport_pop_control (tc->transport);
   g_assert (json_object_get_member (control, "problem") == NULL);
@@ -321,7 +321,7 @@ test_read_changed (TestCase *tc,
   wait_channel_closed (tc);
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "eof");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
 
   control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "change-conflict");
@@ -352,7 +352,7 @@ test_read_replaced (TestCase *tc,
   assert_received (tc, "Hello!");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "eof");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
 
   control = mock_transport_pop_control (tc->transport);
   g_assert (json_object_get_member (control, "problem") == NULL);
@@ -381,7 +381,7 @@ test_read_removed (TestCase *tc,
   assert_received (tc, "Hello!");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "eof");
+  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
 
   control = mock_transport_pop_control (tc->transport);
   g_assert (json_object_get_member (control, "problem") == NULL);
@@ -398,7 +398,7 @@ test_write_simple (TestCase *tc,
 
   setup_fswrite_channel (tc, tc->test_path, NULL);
   send_string (tc, "Hello!");
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
 
   wait_channel_closed (tc);
@@ -422,7 +422,7 @@ test_write_multiple (TestCase *tc,
   setup_fswrite_channel (tc, tc->test_path, NULL);
   send_string (tc, "Hel");
   send_string (tc, "lo!");
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
 
   wait_channel_closed (tc);
@@ -446,7 +446,7 @@ test_write_remove (TestCase *tc,
   set_contents (tc->test_path, "Goodbye!");
   tag = cockpit_get_file_tag (tc->test_path);
   setup_fswrite_channel (tc, tc->test_path, tag);
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
   g_free (tag);
 
@@ -468,7 +468,7 @@ test_write_remove_nonexistent (TestCase *tc,
   g_assert (g_file_test (tc->test_path, G_FILE_TEST_EXISTS) == FALSE);
 
   setup_fswrite_channel (tc, tc->test_path, "-");
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
 
   wait_channel_closed (tc);
@@ -491,7 +491,7 @@ test_write_empty (TestCase *tc,
   tag = cockpit_get_file_tag (tc->test_path);
   setup_fswrite_channel (tc, tc->test_path, tag);
   send_string (tc, "");
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
   g_free (tag);
 
@@ -516,7 +516,7 @@ test_write_denied (TestCase *tc,
 
   setup_fswrite_channel (tc, tc->test_path, NULL);
   send_string (tc, "Hello!");
-  send_eof (tc);
+  send_done (tc);
   wait_channel_closed (tc);
 
   control = mock_transport_pop_control (tc->transport);
@@ -534,7 +534,7 @@ test_write_expect_non_existent (TestCase *tc,
 
   setup_fswrite_channel (tc, tc->test_path, "-");
   send_string (tc, "Hello!");
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
 
   wait_channel_closed (tc);
@@ -558,7 +558,7 @@ test_write_expect_non_existent_fail (TestCase *tc,
 
   setup_fswrite_channel (tc, tc->test_path, "-");
   send_string (tc, "Hello!");
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
 
   wait_channel_closed (tc);
@@ -580,7 +580,7 @@ test_write_expect_tag (TestCase *tc,
   tag = cockpit_get_file_tag (tc->test_path);
   setup_fswrite_channel (tc, tc->test_path, tag);
   send_string (tc, "Hello!");
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
   g_free (tag);
 
@@ -607,7 +607,7 @@ test_write_expect_tag_fail (TestCase *tc,
   setup_fswrite_channel (tc, tc->test_path, tag);
   send_string (tc, "Hello!");
   set_contents (tc->test_path, "Tschüss!");
-  send_eof (tc);
+  send_done (tc);
   close_channel (tc, NULL);
   g_free (tag);
 

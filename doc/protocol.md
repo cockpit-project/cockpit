@@ -157,11 +157,12 @@ See below for a list of problem codes.
 
 Other fields may be present in a close message.
 
-Command: eof
-------------
 
-The "eof" command indicates that no more messages will be sent on the channel
-in the same direction as the "eof" was sent.
+Command: done
+-------------
+
+The "done" command indicates that no more messages will be sent on the channel
+in the same direction as the "done" was sent.
 
 The following fields are defined:
 
@@ -171,7 +172,7 @@ Either or both endpoints of a channel can send this message. It may only be
 sent once.
 
 After it is sent no more messages may be sent in that direction. It is an error
-to send further messages, or send another "eof" message.
+to send further messages, or send another "done" message.
 
 
 Command: options
@@ -262,7 +263,7 @@ Payload: echo
 -------------
 
 A channel opened with this payload type will send back all data that
-it receives. It sends an "eof" when it receives one.
+it receives. It sends an "done" when it receives one.
 
 
 Payload: dbus-json3
@@ -545,8 +546,8 @@ following options can be specified:
    then the environment is inherited from the cockpit-bridge.
  * "pty": Execute the command as a terminal pty.
 
-If an "eof" is sent to the bridge on this channel, then the socket and/or pipe
-input is shutdown. The channel will send an "eof" when the output of the socket
+If an "done" is sent to the bridge on this channel, then the socket and/or pipe
+input is shutdown. The channel will send an "done" when the output of the socket
 or pipe is done.
 
 Additionally, a "options" control message may be sent in this channel
@@ -636,7 +637,7 @@ fields:
    for a non-existing file is "-".
 
 It is not permitted to send data in an fsdir1 channel. This channel
-sends an "eof" when all file data was sent.
+sends an "done" when all file data was sent.
 
 Payload: fswrite1
 -----------------
@@ -653,9 +654,9 @@ The following options can be specified in the "open" control message:
    express that you expect the file to not exist, use "-" as the tag.
 
 You should write the new content to the channel as one or more
-messages.  To indicate the end of the content, send an "eof" message.
+messages.  To indicate the end of the content, send an "done" message.
 
-If you don't send any content messages before sending "eof", the file
+If you don't send any content messages before sending "done", the file
 will be removed.  To create an empty file, send at least one content
 message of length zero.
 

@@ -24,9 +24,8 @@ like cockpit-ws to know where to send messages.
 Framing
 -------
 
-The channel id is a string and ends with a newline.  It may not
-contain a newline, and must be utf8 valid. After this comes the
-channel dependent payload.
+The channel id is a UTF-8 valid string.  The channel id string comes first
+in the message, then a new line, then payload.
 
 For example if you had a payload of the string 'abc', and it was being
 sent through the channel 'a5', that might look like:
@@ -34,17 +33,15 @@ sent through the channel 'a5', that might look like:
     a5\nabc
 
 When a message is sent over a stream transport that does not have distinct
-messages (such as SSH or stdio), the message is also prefixed with a 32-bit MSB
-length in bytes of the message. The length does not include the 4 bytes
-of the length itself.
+messages (such as SSH or stdio), the message is also prefixed with a base 10
+integer and new line, which represents the length of the following message.
 
 An example. When going over a stream transport with a payload of the 3 byte
 string 'abc', and a channel of 'a5', would have a message length of 6: 3 bytes of
 payload, 2 bytes for the channel number, 1 for the new line. It would look like
-this on the wire:
+this in a stream:
 
-    |----msb length---| |----chan----| |---payload--|
-    0x00 0x00 0x00 0x06 0x61 0x35 0x0A 0x61 0x62 0x63
+    6\na5\nabc
 
 Control Messages
 ----------------

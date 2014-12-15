@@ -78,26 +78,43 @@ on_pipe_read (CockpitPipe *pipe,
   GBytes *message;
   GBytes *payload;
   gchar *channel;
-  guint32 size;
+  guint32 i, size;
+  gchar *data;
 
   for (;;)
     {
-      if (input->len < sizeof (size))
+      size = 0;
+      data = (gchar *)input->data;
+      for (i = 0; i < input->len; i++)
+        {
+          /* Check invalid characters, prevent integer overflow, limit max length */
+          if (i > 7 || data[i] < '0' || data[i] > '9')
+            break;
+          size *= 10;
+          size += data[i] - '0';
+        }
+
+      if (i == input->len)
         {
           if (!end_of_data)
             g_debug ("%s: want more data", self->name);
           break;
         }
 
-      memcpy (&size, input->data, sizeof (size));
-      size = GUINT32_FROM_BE (size);
-      if (input->len < size + sizeof (size))
+      if (data[i] != '\n')
         {
-          g_debug ("%s: want more data", self->name);
+          g_warning ("%s: incorrect protocol: received invalid length prefix", self->name);
+          cockpit_pipe_close (pipe, "protocol-error");
           break;
         }
 
-      message = cockpit_pipe_consume (input, sizeof (size), size, 0);
+      if (input->len < i + 1 + size)
+        {
+          g_debug ("%s: want more data 2", self->name);
+          break;
+        }
+
+      message = cockpit_pipe_consume (input, i + 1, size, 0);
       payload = cockpit_transport_parse_frame (message, &channel);
       if (payload)
         {
@@ -242,23 +259,22 @@ cockpit_pipe_transport_send (CockpitTransport *transport,
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (transport);
   GBytes *prefix;
   gchar *prefix_str;
-  gsize prefix_len;
-  guint32 size;
+  gsize payload_len;
+  gsize channel_len;
 
-  prefix_str = g_strdup_printf ("xxxx%s\n", channel_id ? channel_id : "");
-  prefix_len = strlen (prefix_str);
+  channel_len = channel_id ? strlen (channel_id) : 0;
+  payload_len = g_bytes_get_size (payload);
 
-  /* See doc/protocol.md */
-  size = GUINT32_TO_BE (g_bytes_get_size (payload) + prefix_len - 4);
-  memcpy (prefix_str, &size, 4);
-
-  prefix = g_bytes_new_take (prefix_str, prefix_len);
+  prefix_str = g_strdup_printf ("%" G_GSIZE_FORMAT "\n%s\n",
+                                channel_len + 1 + payload_len,
+                                channel_id ? channel_id : "");
+  prefix = g_bytes_new_take (prefix_str, strlen (prefix_str));
 
   cockpit_pipe_write (self->pipe, prefix);
   cockpit_pipe_write (self->pipe, payload);
   g_bytes_unref (prefix);
 
-  g_debug ("%s: queued %d byte payload", self->name, (int)g_bytes_get_size (payload));
+  g_debug ("%s: queued %" G_GSIZE_FORMAT " byte payload", self->name, payload_len);
 }
 
 static void

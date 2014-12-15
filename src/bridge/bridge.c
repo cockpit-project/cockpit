@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
+#include "cockpitinteracttransport.h"
 #include "cockpitpackage.h"
 #include "cockpitpolkitagent.h"
 #include "cockpitsuperchannels.h"
@@ -174,7 +175,7 @@ on_closed_set_flag (CockpitTransport *transport,
 static void
 send_init_command (CockpitTransport *transport)
 {
-  const gchar *response = "\n{ \"command\": \"init\", \"version\": 0 }";
+  const gchar *response = "{ \"command\": \"init\", \"version\": 0 }";
   GBytes *bytes = g_bytes_new_static (response, strlen (response));
   cockpit_transport_send (transport, NULL, bytes);
   g_bytes_unref (bytes);
@@ -304,17 +305,17 @@ on_signal_done (gpointer data)
 }
 
 static int
-run_bridge (void)
+run_bridge (const gchar *interactive)
 {
   CockpitTransport *transport;
-  GDBusConnection *connection;
+  GDBusConnection *connection = NULL;
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
   CockpitSuperChannels *super = NULL;
   GError *error = NULL;
   gpointer polkit_agent = NULL;
-  GPid daemon_pid;
+  GPid daemon_pid = 0;
   guint sig_term;
   guint sig_int;
   int outfd;
@@ -337,27 +338,38 @@ run_bridge (void)
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
   sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
 
-  /* Start a session daemon if necessary */
-  daemon_pid = start_dbus_daemon ();
-
   g_type_init ();
 
-  connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-  if (connection == NULL)
+  /* Start a session daemon if necessary */
+  if (!interactive)
     {
-      g_message ("couldn't connect to session bus: %s", error->message);
-      g_clear_error (&error);
+      daemon_pid = start_dbus_daemon ();
+
+      connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+      if (connection == NULL)
+        {
+          g_message ("couldn't connect to session bus: %s", error->message);
+          g_clear_error (&error);
+        }
+      else
+        {
+          g_dbus_connection_set_exit_on_close (connection, FALSE);
+        }
+    }
+
+  if (interactive)
+    {
+      transport = cockpit_interact_transport_new (0, outfd, interactive);
     }
   else
     {
-      g_dbus_connection_set_exit_on_close (connection, FALSE);
+      transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
     }
-
-  transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
 
   if (geteuid () != 0)
     {
-      polkit_agent = cockpit_polkit_agent_register (transport, NULL);
+      if (!interactive)
+        polkit_agent = cockpit_polkit_agent_register (transport, NULL);
       super = cockpit_super_channels_new (transport);
     }
 
@@ -399,10 +411,14 @@ main (int argc,
 {
   GOptionContext *context;
   GError *error = NULL;
+  int ret;
 
   static gboolean opt_packages = FALSE;
+  static gchar *opt_interactive = NULL;
+
   static GOptionEntry entries[] = {
     { "packages", 0, 0, G_OPTION_ARG_NONE, &opt_packages, "Show Cockpit package information", NULL },
+    { "interact", 0, 0, G_OPTION_ARG_STRING, &opt_interactive, "Interact with the raw protocol", "boundary" },
     { NULL }
   };
 
@@ -442,11 +458,14 @@ main (int argc,
       return 0;
     }
 
-  if (isatty (1))
+  if (!opt_interactive && isatty (1))
     {
       g_printerr ("cockpit-bridge: no option specified\n");
       return 2;
     }
 
-  return run_bridge ();
+  ret = run_bridge (opt_interactive);
+
+  g_free (opt_interactive);
+  return ret;
 }

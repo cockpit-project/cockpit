@@ -1698,8 +1698,8 @@ create_web_socket_server_for_stream (const gchar **protocols,
 {
   WebSocketConnection *connection;
   const gchar *host = NULL;
+  gchar *origins[2];
   gboolean secure;
-  gchar *origin;
   gchar *url;
 
   if (headers)
@@ -1714,12 +1714,14 @@ create_web_socket_server_for_stream (const gchar **protocols,
                          host ? host : "localhost",
                          query ? "?" : "",
                          query ? query : "");
-  origin = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
 
-  connection = web_socket_server_new_for_stream (url, origin, protocols,
-                                                 io_stream, headers,
+  origins[0] = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
+  origins[1] = NULL;
+
+  connection = web_socket_server_new_for_stream (url, (const gchar **)origins,
+                                                 protocols, io_stream, headers,
                                                  input_buffer);
-  g_free (origin);
+  g_free (origins[0]);
   g_free (url);
 
   return connection;

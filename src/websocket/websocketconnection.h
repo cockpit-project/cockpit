@@ -73,8 +73,6 @@ GType           web_socket_connection_get_type            (void) G_GNUC_CONST;
 
 const gchar *   web_socket_connection_get_url             (WebSocketConnection *self);
 
-const gchar *   web_socket_connection_get_origin          (WebSocketConnection *self);
-
 const gchar *   web_socket_connection_get_protocol        (WebSocketConnection *self);
 
 WebSocketState  web_socket_connection_get_ready_state     (WebSocketConnection *self);

@@ -25,9 +25,9 @@
 var shell = shell || { };
 (function($, shell) {
 
-/* A thin abstraction over flot and the cockpitd resource monitors.
- * It mostly shields you from hairy array acrobatics and having to
- * know when it is safe or required to create the flot object.
+/* A thin abstraction over flot and metrics channels.  It mostly
+ * shields you from hairy array acrobatics and having to know when it
+ * is safe or required to create the flot object.
  *
  *
  * - plot = shell.plot(element, x_range)
@@ -70,20 +70,30 @@ var shell = shell || { };
  * Resets the plot to be empty.  The plot will disappear completely
  * from the DOM, including the grid.
  *
- * - series = plot.add_cockpitd_resource_monitor(path, get_sample, options)
+ * - series = plot.add_metrics_sum_series(desc, options)
  *
- * Adds a standard cockpitd resource monitor into the plot with the
- * given options.  The plot will automatically refresh as data becomes
- * available from the monitor.  The 'get_sample' argument should be a
- * function that converts the raw samples of the monitor into a single
- * value for use in the plot.
+ * Adds a single series into the plot that is fed by a metrics
+ * channel.  The series will have the given flot options.  The plot
+ * will automatically refresh as data becomes available from the
+ * channel.
+ *
+ * The single value for the series is computed by summing the values
+ * for all metrics and all instances that are delivered by the
+ * channel.
+ *
+ * The 'desc' argument determines the channel options:
+ *
+ *   metrics:         An array with the names of all metrics to monitor.
+ *   units:           The common units string for all metrics.
+ *   instances:       A optional list of instances to include.
+ *   omit_instances:  A optional list of instances to omit.
+ *   interval:        The interval between samples.
+ *   factor:          A factor to apply to the final sum of all samples.
  *
  * - series.options
  *
  * Direct access to the series options.  You need to refresh the plot
- * after changing it.  This is guaranteed to be the same object that
- * was passed to 'add_cockpitd_resource_monitor' and you can use it to
- * attach extra bookkeeping information for your own use.
+ * after changing it.
  *
  * - series.move_to_front()
  *
@@ -139,8 +149,8 @@ shell.plot = function plot(element, x_range) {
     function start_walking(interval) {
         if (!walk_timer)
             walk_timer = window.setInterval(function () {
-                now += interval;
                 refresh();
+                now += interval;
             }, interval*1000);
     }
 
@@ -175,12 +185,12 @@ shell.plot = function plot(element, x_range) {
         flot = null;
     }
 
-    function add_cockpitd_resource_monitor(cockpitd, path, get, opts) {
+    function add_metrics_sum_series(desc, opts) {
         var series = opts;
         var series_data = null;
-        var offset;
-
-        var my_gen = generation;
+        var timestamp;
+        var channel;
+        var cur_samples;
 
         var self = {
             options: series,
@@ -192,9 +202,7 @@ shell.plot = function plot(element, x_range) {
         series.hover = hover;
 
         function stop() {
-            if (subs)
-                subs.remove();
-            subs = null;
+            channel.close();
         }
 
         function hover(val) {
@@ -220,10 +228,6 @@ shell.plot = function plot(element, x_range) {
             }
         }
 
-        function get_data_point(sample) {
-            return [ sample[0]/1000000 - offset, get(sample[1]) ];
-        }
-
         function trim_series() {
             for (var i = 0; i < series_data.length; i++) {
                 if (series_data[i][0] >= now - x_range) {
@@ -233,63 +237,76 @@ shell.plot = function plot(element, x_range) {
             }
         }
 
-        function init(samples) {
-            var i;
+        var metrics;
+        var instances;
 
-            if (my_gen < generation || !subs) {
-                /* The plot has been reset or this series has been
-                   stopped already.
-                */
-                return;
-            }
-
-            if (samples.length === 0)
-                return;
-
-            /* We assume that the timestamp of the last sample
-             * corresponds to 'now'.  This can be quite off, but is
-             * good enough for the current cockpitd monitors.
-             *
-             * TODO: Get an explicit 'now' timestamp from the
-             * GetSamples call or equivalent.
-             */
-
-            offset = samples[samples.length-1][0]/1000000 - now;
+        function init() {
             series_data = [];
-            for (i = 0; i < samples.length; i++)
-                series_data[i] = get_data_point(samples[i]);
             trim_series();
-
             add_series();
             refresh();
+            timestamp = now;
         }
 
-        function on_new_sample(path, iface, signal, args) {
-            var i;
+        function on_new_sample(samples) {
+            var i, j, sum = 0;
 
-            if (!series_data)
-                init([ args ]);
-            else {
-                trim_series();
-                series_data[series_data.length] = get_data_point(args);
+            function count_sample(index, cur, samples) {
+                if (samples[index] || samples[index] === 0)
+                    cur[index] = samples[index];
+                sum += cur[index];
             }
+
+            for (i = 0; i < metrics.length; i++) {
+                if (instances[i] !== undefined) {
+                    for (j = 0; j < instances[i].length; j++)
+                        count_sample(j, cur_samples[i], samples[i]);
+                } else
+                    count_sample(i, cur_samples, samples);
+            }
+
+            trim_series();
+            series_data[series_data.length] = [ timestamp, sum*(desc.factor || 1) ];
+            timestamp += (desc.interval || 1000) / 1000;
         }
-
-        var subs = cockpitd.subscribe({ "path": path,
-                                        "interface": "com.redhat.Cockpit.ResourceMonitor",
-                                        "member": "NewSample"
-                                      }, on_new_sample);
-
-        cockpitd.call(path,
-                      "com.redhat.Cockpit.ResourceMonitor",
-                      "GetSamples", [ { } ], { }).
-            done(function (result) { init (result[0]); });
 
         function remove() {
             stop();
             remove_series();
             refresh();
         }
+
+        metrics = desc.metrics.map(function (n) { return { name: n, units: desc.units }; });
+
+        channel = cockpit.channel({ payload: "metrics1",
+                                    source: desc.source || "direct",
+                                    metrics: metrics,
+                                    instances: desc.instances,
+                                    omit_instances: desc.omit_instances,
+                                    interval: desc.interval || 1000,
+                                    host: desc.host
+                                  });
+        $(channel).on("close", function (event, message) {
+            console.log(message);
+        });
+        $(channel).on("message", function (event, message) {
+            var msg = JSON.parse(message);
+            var i;
+            if (msg.length) {
+                for (i = 0; i < msg.length; i++) {
+                    on_new_sample(msg[i]);
+                }
+            } else {
+                instances = msg.metrics.map(function (m) { return m.instances; });
+                cur_samples = [];
+                for (i = 0; i < metrics.length; i++) {
+                    if (instances[i] !== null)
+                        cur_samples[i] = [];
+                }
+                if (series_data === null)
+                    init();
+            }
+        });
 
         return self;
     }
@@ -326,7 +343,7 @@ shell.plot = function plot(element, x_range) {
         reset: reset,
         resize: resize,
         set_options: set_options,
-        add_cockpitd_resource_monitor: add_cockpitd_resource_monitor
+        add_metrics_sum_series: add_metrics_sum_series
     };
 };
 

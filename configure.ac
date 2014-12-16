@@ -183,6 +183,15 @@ AC_CHECK_LIB(crypt, crypt_r, [ true ],
 COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS -lcrypt"
 REAUTHORIZE_LIBS="$REAUTHORIZE_LIBS -lcrypt"
 
+# pcp
+AC_CHECK_HEADER([pcp/pmapi.h], ,
+  [AC_MSG_ERROR([Couldn't find pcp headers. Try installing pcp-libs-devel])]
+)
+AC_CHECK_LIB(pcp, pmNewContext, [ true ],
+  [AC_MSG_ERROR([Couldn't find pcp library. Try installing pcp-libs-devel])]
+)
+COCKPIT_BRIDGE_LIBS="$COCKPIT_BRIDGE_LIBS -lpcp -lm"
+
 # gssapi
 AC_CHECK_LIB(gssapi_krb5, gss_import_cred,
   [AC_DEFINE_UNQUOTED(HAVE_GSS_IMPORT_CRED, 1, Whether gss_import_cred is available)])

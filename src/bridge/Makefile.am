@@ -20,8 +20,12 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitpackage.h \
 	src/bridge/cockpitpaths.c \
 	src/bridge/cockpitpaths.h \
+	src/bridge/cockpitpcpmetrics.c \
+	src/bridge/cockpitpcpmetrics.h \
 	src/bridge/cockpitpolkitagent.c \
 	src/bridge/cockpitpolkitagent.h \
+	src/bridge/cockpitmetrics.c \
+	src/bridge/cockpitmetrics.h \
 	src/bridge/cockpitnullchannel.c \
 	src/bridge/cockpitnullchannel.h \
 	src/bridge/cockpitresource.c \
@@ -98,7 +102,18 @@ BRIDGE_CHECKS = \
 	test-package \
 	test-resource \
 	test-fs \
+	test-metrics \
 	$(NULL)
+
+noinst_DATA += mock-pmda.so
+
+CLEANFILES += mock-pmda.so
+
+# This is non-portable, but I don't feel like dragging in libtool just
+# for this.
+#
+mock-pmda.so: src/bridge/mock-pmda.c
+	gcc -g -fPIC -shared -o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
 
 test_channel_SOURCES = \
 	src/bridge/test-channel.c \
@@ -141,8 +156,17 @@ test_fs_SOURCES = \
 test_fs_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_fs_LDADD = $(libcockpit_bridge_LIBS)
 
+test_metrics_SOURCES = \
+	src/bridge/test-metrics.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_metrics_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_metrics_LDADD = $(libcockpit_bridge_LIBS) -ldl
+
 noinst_PROGRAMS += $(BRIDGE_CHECKS)
 TESTS += $(BRIDGE_CHECKS)
 
 EXTRA_DIST += \
-	src/bridge/mock-resource
+	src/bridge/mock-resource \
+	src/bridge/mock-pmda.c \
+	src/bridge/mock-pmns \
+	$(NULL)

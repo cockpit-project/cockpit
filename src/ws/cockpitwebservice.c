@@ -912,10 +912,6 @@ on_session_control (CockpitTransport *transport,
           g_warning ("received a command with wrong channel %s from session", channel);
           valid = FALSE;
         }
-      else if (g_strcmp0 (command, "close") == 0)
-        {
-          valid = process_close (self, socket, session, channel, options);
-        }
       else
         {
           valid = TRUE;
@@ -930,6 +926,9 @@ on_session_control (CockpitTransport *transport,
                                           self->control_prefix, payload);
             }
         }
+
+      if (g_strcmp0 (command, "close") == 0)
+        process_close (self, socket, session, channel, options);
     }
 
   if (!valid)
@@ -1317,7 +1316,7 @@ dispatch_inbound_command (CockpitWebService *self,
   else if (g_strcmp0 (command, "close") == 0)
     {
       session = cockpit_session_by_channel (&self->sessions, channel);
-      valid = process_close (self, socket, session, channel, options);
+      valid = TRUE;
     }
 
   if (!valid)
@@ -1344,6 +1343,9 @@ dispatch_inbound_command (CockpitWebService *self,
       else
         g_debug ("dropping control message with unknown channel %s", channel);
     }
+
+   if (g_strcmp0 (command, "close") == 0)
+     process_close (self, socket, session, channel, options);
 
 out:
   if (!valid)

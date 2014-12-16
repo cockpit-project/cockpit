@@ -314,6 +314,7 @@ test_read_changed (TestCase *tc,
   {
     sleep(1);
     FILE *f = fopen (tc->test_path, "w");
+    g_assert (f != NULL);
     fputs ("Goodbye!", f);
     fclose (f);
   }

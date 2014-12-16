@@ -41,7 +41,7 @@ var common_plot_options = {
           }
 };
 
-function network_ticks(opts) {
+function memory_ticks(opts) {
     // Not more than 5 ticks, nicely rounded to powers of 2.
     var size = Math.pow(2.0, Math.ceil(Math.log2(opts.max/5)));
     var ticks = [ ];
@@ -51,31 +51,44 @@ function network_ticks(opts) {
 }
 
 var resource_monitors = [
-    { path: "/com/redhat/Cockpit/CpuMonitor",
-      get: function (s) { return s[0]+s[1]+s[2]; },
+    { plot: { metrics: [ "kernel.all.cpu.nice",
+                         "kernel.all.cpu.user",
+                         "kernel.all.cpu.sys"
+                       ],
+              units: "millisec",
+              interval: 1000,
+              factor: 0.1  // millisec / sec -> percent
+            },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter: function(v) { return v + "%"; }} },
       ymax_unit: 100
     },
-    { path: "/com/redhat/Cockpit/MemoryMonitor",
-      get: function (s) { return s[1]+s[2]+s[3]; },
-      options: { yaxis: { ticks: network_ticks,
+    { plot: { metrics: [ "mem.util.used" ],
+              units: "byte",
+              interval: 1000
+            },
+      options: { yaxis: { ticks: memory_ticks,
                           tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bytes(v); }
                         }
                },
       ymax_unit: 100000000
     },
-    { path: "/com/redhat/Cockpit/NetworkMonitor",
-      get: function (s) { return s[0]+s[1]; },
+    { plot: { metrics: [ "network.interface.total.bytes" ],
+              units: "byte",
+              omit_instances: [ "lo" ],
+              interval: 1000
+            },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bits_per_sec(v*8); }
                         }
                },
       ymax_min: 100000
     },
-    { path: "/com/redhat/Cockpit/DiskIOMonitor",
-      get: function (s) { return s[0]+s[1]; },
+    { plot: { metrics: [ "disk.dev.total_bytes" ],
+              units: "byte",
+              interval: 1000
+            },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bytes_per_sec(v); }
                         }
@@ -188,7 +201,7 @@ PageDashboard.prototype = {
         $('#dashboard-enable-edit').click(function () {
             self.toggle_edit(!self.edit_enabled);
         });
-        this.plot = shell.plot($('#dashboard-plot'), 300, 1);
+        this.plot = shell.plot($('#dashboard-plot'), 300);
 
         var renderer = host_renderer($("#dashboard-hosts .list-group"));
         $(shell.hosts).on("added.dashboard", renderer);
@@ -334,14 +347,13 @@ PageDashboard.prototype = {
             if (shell_info.state == "failed")
                 return null;
 
-            return self.plot.add_cockpitd_resource_monitor(shell_info.cockpitd,
-                                                           resource_monitors[current_monitor].path,
-                                                           resource_monitors[current_monitor].get,
-                                                           { color: shell_info.color,
-                                                             lines: {
-                                                                 lineWidth: 2
-                                                             }
-                                                           });
+            return self.plot.add_metrics_sum_series($.extend({ host: addr},
+                                                             resource_monitors[current_monitor].plot),
+                                                    { color: shell_info.color,
+                                                      lines: {
+                                                          lineWidth: 2
+                                                      }
+                                                    });
         }
 
         function plot_setup_hook(flot) {

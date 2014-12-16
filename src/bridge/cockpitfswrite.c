@@ -169,7 +169,8 @@ cockpit_fswrite_eof (CockpitChannel *channel)
               json_object_set_string_member (options, "tag", "-");
               if (unlink (self->path) < 0 && errno != ENOENT)
                 problem = prepare_for_close_with_errno (self, "couldn't unlink", errno);
-              unlink (self->tmp_path);
+              if (unlink (self->tmp_path) < 0)
+                g_message ("%s: couldn't remove temp file: %s", self->tmp_path, g_strerror (errno));
             }
           else
             {
@@ -201,7 +202,8 @@ cockpit_fswrite_close (CockpitChannel *channel,
   if (problem)
     {
       if (self->tmp_path)
-        unlink (self->tmp_path);
+        if (unlink (self->tmp_path) < 0)
+          g_message ("%s: couldn't remove temp file: %s", self->tmp_path, g_strerror (errno));
     }
 
   COCKPIT_CHANNEL_CLASS (cockpit_fswrite_parent_class)->close (channel, problem);

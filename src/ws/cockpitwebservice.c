@@ -1332,10 +1332,11 @@ dispatch_inbound_command (CockpitWebService *self,
             cockpit_transport_send (session->transport, NULL, payload);
         }
     }
-
-  if (channel)
+  else if (channel)
     {
-      session = cockpit_session_by_channel (&self->sessions, channel);
+      if (!session)
+        session = cockpit_session_by_channel (&self->sessions, channel);
+
       if (session)
         {
           if (!session->sent_done)

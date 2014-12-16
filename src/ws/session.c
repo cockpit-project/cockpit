@@ -502,7 +502,6 @@ perform_gssapi (void)
 {
   struct pam_conv conv = { pam_conv_func, };
   OM_uint32 major, minor;
-  gss_cred_id_t server = GSS_C_NO_CREDENTIAL;
   gss_cred_id_t client = GSS_C_NO_CREDENTIAL;
   gss_buffer_desc input = GSS_C_EMPTY_BUFFER;
   gss_buffer_desc output = GSS_C_EMPTY_BUFFER;
@@ -517,7 +516,6 @@ perform_gssapi (void)
   OM_uint32 caps = 0;
   int res;
 
-  server = GSS_C_NO_CREDENTIAL;
   res = PAM_AUTH_ERR;
 
   /* We shouldn't be writing to kerberos caches here */
@@ -526,7 +524,7 @@ perform_gssapi (void)
   debug ("reading kerberos auth from cockpit-ws");
   input.value = read_auth_until_eof (&input.length);
 
-  major = gss_accept_sec_context (&minor, &context, server, &input,
+  major = gss_accept_sec_context (&minor, &context, GSS_C_NO_CREDENTIAL, &input,
                                   GSS_C_NO_CHANNEL_BINDINGS, &name, &mech_type,
                                   &output, &flags, &caps, &client);
 
@@ -639,8 +637,6 @@ out:
     gss_release_buffer (&minor, &local);
   if (client != GSS_C_NO_CREDENTIAL)
     gss_release_cred (&minor, &client);
-  if (server != GSS_C_NO_CREDENTIAL)
-    gss_release_cred (&minor, &server);
   if (name != GSS_C_NO_NAME)
      gss_release_name (&minor, &name);
   if (context != GSS_C_NO_CONTEXT)

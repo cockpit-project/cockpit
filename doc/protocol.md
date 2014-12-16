@@ -674,6 +674,204 @@ sent by the server might have the following additional fields:
 
 No payload messages will be sent by this channel.
 
+Payload: metrics1
+-----------------
+
+With this payload type, you can monitor a large number of metrics,
+such as all of the metrics exposed by PCP, the Performance Copilot.
+
+In addition to monitoring live values of the metrics, you can also
+access archives of previously recorded values.
+
+You specify which metrics to monitor in the options of the "open"
+command for a new channel.  If some of the metrics are not available,
+or their attributes do not match what you have specified, the channel
+will close with an error.
+
+One of the options is the "source" of the metrics.  Many details of
+how to specify metrics and how the channel will work in detail depend
+on the type of the source, and are explained in specific sections
+below.
+
+The general open options are:
+
+ * "source" (string): The source of the metrics:
+
+   * "direct": PCP metrics from plugins that are loaded into the
+     Cockpit bridge directly.  Use this when in doubt.
+
+   * "pcmd": PCP metrics from the local PCP daemon.
+
+ * "metrics" (array): Descriptions of the metrics to use.  The exact
+   format and semantics depend on the source.  See the specific
+   sections below.
+
+ * "instances" (array of strings, optional): When specified, only the
+   listed instances are included in the reported samples.
+
+ * "omit-instances" (array of strings, optional): When specified, the
+   listed instances are omitted from the reported samples.  Only one
+   of "instances" and "omit-instances" can be specified.
+
+ * "interval" (number, optional): The sample interval in milliseconds.
+   Defaults to 1000.
+
+Once the channel is open, it will send messages encoded as JSON.  It
+will send two types of message: 'meta' messages that describe the
+metrics, and 'data' messages with the actual samples.
+
+A 'meta' message applies to all following 'data' messages until the
+next 'meta' message.  The first message in a channel will always be a
+'meta' message.
+
+The 'meta' messages are JSON objects; the 'data' messages are JSON
+arrays.
+
+The 'meta' messages have at least the following fields:
+
+ * "metrics" (array): This field provides information about the
+   requested metrics.  The array has one object for each metric, in
+   the same order as the "metrics" option used when opening the
+   channel.
+
+   For each metric, the corresponding object contains at least the
+   following field:
+
+   * "instances" (array of strings, optional): This field lists the
+      instances for instanced metrics.  This field is not present for
+      non-instanced metrics.
+
+Depending on the source, more fields might be present in a 'meta'
+message, and more fields might be present in the objects of the
+"metrics" field.
+
+The 'data' messages are nested arrays in this shape:
+
+    [  // first point in time
+       [
+          // first metric (instanced, with two instances)
+          [
+             // first instance
+             1234,
+             // second instance
+             5678
+          ],
+          // second metric (not instanced)
+          789,
+          // third metric (string)
+          "foo"
+       ],
+       // next point in time
+       [
+          // same shape again as for the first point in time
+       ]
+    ]
+
+Thus, a 'data' message contains data for one or more points in time
+where samples have been taken.  A point in time is always one
+"interval" later than the previous point in time, even when they are
+reported in the same 'data' message.
+
+For real time monitoring, you will generally only receive one point in
+time per 'data' message, but when accessing archived data, the channel
+might report multiple points in time in one message, to improve
+efficiency.
+
+For each point in time, there is an array with samples for each
+metric, in the same order as the "metrics" option used when opening
+the channel.
+
+For non-instanced metrics, the array contains the value of the metric.
+For instanced metrics, the array contains another array with samples
+for each instance, in the same order as reported in the "instances"
+field of the most recent 'meta' message.
+
+In order to gain efficiency, 'data' messages are usually compressed.
+This is done by only transmitting the differences from one point in
+time to the next.
+
+If a value for a metric or a instance is the same as at the previous
+point in time, the channel transmits a "null" value instead.
+Additionally, "null" values at the end of an array are suppressed by
+transmitting a shorter array.
+
+For example, say the samples for three points in time are
+
+    1: [ 21354, [ 5,  5, 5 ], 100 ]
+    2: [ 21354, [ 5, 15, 5 ], 100 ]
+    3: [ 21354, [ 5, 15, 5 ], 100 ]
+
+then the channel will send these array instead:
+
+    1: [ 21354, [    5,  5, 5 ], 100 ]
+    2: [  null, [ null, 15 ] ]
+    3: [  null, [ ] ]
+
+# PCP metric sources
+
+You specify the desired metrics as an array of objects, where each
+object describes one metric.  For example:
+
+    [ { name: "kernel.all.cpu.user",
+        type: "number",
+        units: "millisec",
+        semantics: "counter"
+      },
+      ...
+    ]
+
+A metric description is used to describe the expected behavior of the
+metric.  For example, you can specify that you expect numbers for a
+given metric and can then be sure that the source will not
+unexpectedly deliver strings to you.
+
+A metric description can have the following fields:
+
+ * "name" (string): The name of the metric.  Use "pminfo -L" to get a
+   list of available PCP metric names for a "direct" source, for
+   example.  If no metric of this name exists, the channel is closed
+   without delivering any message.
+
+ * "type" (string, optional): The expected type of the metric, either
+   "number" or "string".  If no type is specified, any type is allowed
+   (unless "units" is also specified, see below).  If the metric is
+   not of the given type, the channel is closed.
+
+ * "semantics" (string, optional): The expected semantics of the
+   metric, one of "counter", "instant", or "discrete".  If the metric
+   does not have the given semantics, the channel is closed.
+
+ * "units" (string, optional): The units that values for this metric
+   should be delivered in.  If the given metric can not be converted
+   into these units, the channel is closed.  The format of the string
+   is the same as the one used by "pminfo -d".
+
+   When specifying "units", "type" defaults to "number".
+
+The metric information objects in the 'meta' messages for PCP sources
+also contain these fields:
+
+ * "name" (string): The name of the metric.
+
+ * "type" (string): The type of the values reported for this metric,
+   either "number" or "string".
+
+ * "semantics" (string): The semantics of this metric, one of
+   "counter", "instant", or "discrete".  Counter metrics are treated
+   specially by a metrics channel, see below.
+
+ * "units" (string): The units for the values reported for this
+   metric.
+
+The idea is that you can either provide detailed expectations for a
+metric and can then be sure that your code will not be faced with
+unexpected sample values, or you can inspect the 'meta' message and
+adapt to whatever characteristics the metric actually has.
+
+Metrics that have "counter" semantics are 'differentiated' in the
+bridge: the channel will report the delta between the current and the
+previous value of the metric.
+
 Problem codes
 -------------
 

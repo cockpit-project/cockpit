@@ -55,6 +55,7 @@ BuildRequires: dbus-devel
 BuildRequires: glib-networking
 BuildRequires: systemd
 BuildRequires: polkit
+BuildRequires: pcp-libs-devel
 
 %if %{defined gitcommit}
 BuildRequires: npm

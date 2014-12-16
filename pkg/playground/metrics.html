@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cockpit Monitoring</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../@@latest@@/cockpit.js"></script>
+</head>
+<body hidden>
+    <div class="container-fluid">
+        <h1>Monitoring</h1>
+        <button style="float: right;" onclick="cockpit.logout(true);">Reload</button>
+        <div id="results"></div>
+    </div>
+<script>
+require([
+    'jquery',
+    'latest/cockpit'
+], function($, cockpit) {
+
+    var metrics = [ { name: "kernel.all.cpu.user",
+                      units: "millisec"
+                    },
+                    { name: "kernel.all.cpu.sys",
+                      units: "millisec"
+                    },
+                    { name: "mem.util.used",
+                      units: "byte"
+                    },
+                    { name: "mem.util.free",
+                      units: "byte"
+                    },
+                    { name: "network.interface.total.bytes",
+                      units: "byte"
+                    },
+                    { name: "disk.dev.total_bytes",
+                      units: "byte"
+                    },
+                    { name: "hinv.machine",
+                      type: "string"
+                    },
+                    { name: "hinv.cpu.model_name",
+                      type: "string"
+                    }
+                  ];
+
+    var data = [ ];
+
+    function setup (metrics) {
+        var $results = $('#results');
+        var span;
+
+        for (var i = 0; i < metrics.length; i++) {
+            var name = metrics[i].name;
+            if (metrics[i].instances === undefined) {
+                $('#results').append(
+                    $('<div>').append(
+                        name + " ",
+                        span = $('<span>')));
+
+                data[i] = { element: span, metric: metrics[i] };
+            } else {
+                data[i] = { instances: [ ] };
+                $('#results').append(
+                    $('<div>').append(name));
+                for (var j = 0; j < metrics[i].instances.length; j++) {
+                    $('#results').append(
+                        $('<div style="padding-left:10px">').append(
+                            metrics[i].instances[j] + " ",
+                            span = $('<span>')));
+                    data[i].instances[j] = { element: span, metric: metrics[i] };
+                }
+            }
+        }
+    }
+
+    function new_sample(d, val) {
+        var res;
+
+        if (val === null || val === undefined)
+            val = d.last_val;
+
+        if  (val !== null && val !== undefined) {
+            if (d.metric.type == "number") {
+                d.element.text(val.toString() + " " + d.metric.units + (d.metric.semantics == "counter"? "/s" : ""));
+            } else if (d.metric.type == "string") {
+                d.element.text(val.toString());
+            } else
+                d.element.text("?");
+        }
+
+        d.last_val = val;
+    }
+
+    var channel = cockpit.channel({ payload: "metrics1",
+                                    source: "direct",
+                                    metrics: metrics,
+                                    'omit-instances': [ "lo", "docker0" ],
+                                    interval: 1000
+                                  });
+    $(channel).on("close", function (event, message) {
+        console.log(message);
+    });
+    $(channel).on("message", function (event, message) {
+        console.log(message);
+        var msg = JSON.parse(message);
+        if (msg.length) {
+            for (var i = 0; i < msg.length; i++) {
+                for (var j = 0; j < metrics.length; j++) {
+                    if (data[j].element)
+                        new_sample (data[j], msg[i][j]);
+                    else {
+                        for (var k = 0; k < data[j].instances.length; k++)
+                            new_sample (data[j].instances[k], msg[i][j][k]);
+                    }
+                }
+            }
+        } else {
+            setup (msg.metrics);
+        }
+    });
+
+    $("body").show();
+});
+</script>
+</body>
+</html>

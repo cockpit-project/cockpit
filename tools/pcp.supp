@@ -1,0 +1,10 @@
+{
+   pcp_strdup_into_environment
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:strdup
+   ...
+   fun:pmGetConfig
+   ...
+}

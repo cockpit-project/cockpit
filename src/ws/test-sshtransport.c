@@ -175,11 +175,12 @@ setup_transport (TestCase *tc,
   if (!command)
     command = "cat";
 
-  if (fixture->expect_key)
-    expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
-
   if (fixture)
-    ignore_key = fixture->ignore_key;
+    {
+      if (fixture->expect_key)
+        expect_knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s", (int)tc->ssh_port, fixture->expect_key);
+      ignore_key = fixture->ignore_key;
+    }
 
   tc->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", "127.0.0.1",

@@ -69,11 +69,16 @@ html, body {
     width: 28px;
 }
 
+#dashboard .panel-heading {
+    background-color: #EDEDED;
+}
+
 #dashboard-hosts .list-group-item {
     border-left-width: 7px;
     border-left-style: solid;
     border-top: none;
     position: relative;
+    padding-bottom: 6px;
     outline: 0;
 }
 
@@ -110,6 +115,10 @@ html, body {
     display: block;
 }
 
+#dashboard-hosts.editable .machine-state {
+    display: none;
+}
+
 #dashboard-hosts.editable .list-group-item:hover {
     background-color: #FFF;
     cursor: auto;
@@ -127,14 +136,68 @@ html, body {
     border-style: none;
 }
 
-#dashboard-hosts .list-group-item span {
+#dashboard-hosts .list-group-item h4 {
     margin-right: 76px;
     display: block;
-    padding-top: 6px;
-    padding-bottom: 4px;
+    padding-top: 8px;
+    padding-bottom: 9px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+#dashboard-hosts .object {
+    display: inline-block;
+    border-radius: 3px;
+    border: 1px solid #bababa;
+    padding: 5px;
+    width: 150px;
+    margin-left: 0.1em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+#dashboard-hosts .object:hover {
+    background-color: #bababa;
+    color: white;
+}
+
+#dashboard-hosts .machine-state,
+#dashboard-hosts .object-state {
+    float: right;
+    font-size: 20px;
+    color: #555;
+}
+
+#dashboard-hosts .machine-state.smaller,
+#dashboard-hosts .object-state.smaller {
+    padding-top: 3px;
+    padding-right: 3px;
+    font-size: 14px;
+}
+
+#dashboard-events table td:first-child {
+    white-space: nowrap;
+}
+
+#dashboard-events table td:last-child {
+    border-right-width: 5px;
+    border-right-style: solid;
+    white-space: nowrap;
+}
+
+#dashboard-events table td {
+    border-top: none;
+    border-bottom: none;
+}
+
+#dashboard-events .fa {
+    font-size: 20px;
+    color: #555;
+}
+
+td.event-message {
+    width: 100%;
 }
 
 #content-navbar-hostname {

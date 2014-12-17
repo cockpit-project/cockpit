@@ -200,11 +200,12 @@ function client_error_description (error) {
     else if (error == "timeout")
         return _("Connection has timed out.");
     else if (error == "no-cockpit")
-        return _("Cockpit is not installed on the host.");
+        return _("Cockpit is not installed on the server.");
+    else if (error == "not-supported")
+        return _("Cockpit is installed but is an incompatible version.");
     else if (error == "no-forwarding")
         return _("Cannot forward login credentials");
-    else
-        return _("Server has closed the connection.");
+    return error;
 }
 
 shell.util = shell.util || { };

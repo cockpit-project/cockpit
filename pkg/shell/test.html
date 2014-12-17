@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title translatable="yes">Kubernetes Test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../@@latest@@/cockpit.js"></script>
+<script>
+require([
+    "jquery",
+    "latest/cockpit",
+    "kubernetes/kubernetes",
+    "server/server"
+], function($, cockpit, kubernetes) {
+    "use strict"
+
+    /* TODO: Obviously we're not using the manifests here */
+    var hosts = $("#hosts");
+    var things = $("#things");
+
+    var kubernetes = kubernetes.discover(null);
+    $(kubernetes).on("changed", function() {
+        hosts.empty();
+        $.each(this.hosts, function(id, host) {
+            hosts.append(host.render());
+        });
+        things.empty();
+        $.each(this.things, function(id, thing) {
+            things.append(thing.render());
+        });
+    });
+
+    $("body").show();
+});
+</script>
+</head>
+<body hidden>
+    <para>Hosts</para>
+    <ul id="hosts"></ul>
+    <para>Things</para>
+    <ul id="things"></ul>
+</body>
+</html>

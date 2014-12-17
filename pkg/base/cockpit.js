@@ -25,9 +25,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 "use strict";
 
 if (typeof window.debugging === "undefined") {
-    var match = /debugging=([^;]*)/.exec(document.cookie);
-    if (match)
-        window.debugging = match[1];
+    window.debugging = window.sessionStorage["debugging"] ||
+                       window.localStorage["debugging"];
 }
 
 function in_array(array, val) {

@@ -215,7 +215,7 @@ commands in the console:
 
 Or in order to log starting at page reload:
 
-    > document.cookie = "debugging=channel;"
+    > window.sessionStorage["debugging"] = "channel"
 
 ## Running Cockpit processes under a debugger
 

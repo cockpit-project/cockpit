@@ -106,6 +106,45 @@ require(['docker/docker'], function(docker) {
         }
     });
 
+    test("quote_cmdline", function() {
+        var checks = [
+            [ [ "foo" ],          "foo" ],
+            [ [ "foo", "bar" ],   "foo bar" ],
+            [ [ "f o o" ],        "\"f o o\"" ],
+            [ [ "f\\o" ],         "f\\\\o" ],
+            [ [ "f\"o" ],         "'f\"o'" ],
+            [ [ "f\"\'o" ],       "'f\"\\'o'" ],
+            [ [ "f \"o" ],        "\"f \\\"o\"" ]
+        ];
+
+        expect(checks.length);
+        for (var i = 0; i < checks.length; i++)
+            strictEqual(docker.quote_cmdline(checks[i][0]), checks[i][1],
+                        "quote(" + String(checks[i][0]) + ") = " + checks[i][1]);
+
+    });
+
+    test("unquote_cmdline", function() {
+        var checks = [
+            [ [ "foo" ],            "  foo  " ],
+            [ [ "foo", "bar" ],     "foo    bar  " ],
+            [ [ "f o o" ],          "\"f o o\"" ],
+            [ [ "f o o" ],          "'f o o'" ],
+            [ [ "f\\o" ],           "f\\\\o" ],
+            [ [ "f\"o" ],           "'f\"o'" ],
+            [ [ "f\"\'o" ],         "'f\"\\'o'" ],
+            [ [ "f \"o" ],          "\"f \\\"o\"" ],
+            [ [ "f o o" ],          "f' 'o\" \"o" ],
+            [ [ "f'" , "o\" \"o" ], "f\\' 'o\" \"o" ]
+        ];
+
+        expect(checks.length);
+        for (var i = 0; i < checks.length; i++)
+            deepEqual(docker.unquote_cmdline(checks[i][1]), checks[i][0],
+                      "unquote(" + String(checks[i][1]) + ") = " + checks[i][0]);
+
+    });
+
     QUnit.start();
 });
 

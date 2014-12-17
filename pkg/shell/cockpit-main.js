@@ -275,9 +275,9 @@ function check_admin() {
  * - set_avatar(avatar)
  * - set_color(color)
  * - reconnect()
- * - show_problem_dialog()
  * - set_active()
  * - remove()
+ * - discover()
  *
  * $(shell.hosts).on("added removed changed", function (addr) { });
  */
@@ -582,6 +582,48 @@ function hosts_init() {
         update();
     });
 }
+
+/* Implements the usual doc/discovery.md API for these shell hosts */
+shell.discover = function discover(callback) {
+    var data = { };
+
+    function update(addr) {
+        var machine = data[addr];
+        if (!machine) {
+            machine = { };
+            data[addr] = machine;
+        }
+        var host = shell.hosts[addr];
+        machine.address = addr;
+        if (host.color)
+            machine.color = host.color;
+        if (host.avatar)
+            machine.avatar = host.avatar;
+        if (host.display_name)
+            machine.label = host.display_name;
+        if (host.state)
+            machine.state = host.state;
+        machine.problems = [];
+        if (host.problem)
+            machine.problems.push(host.problem);
+    }
+
+    $(shell.hosts).on('added changed', function(event, addr) {
+        update(addr);
+        callback(data);
+    });
+
+    $(shell.hosts).on('removed', function(event, addr) {
+        delete data[addr];
+        callback(data);
+    });
+
+    $.each(shell.hosts, function(addr) {
+        update(addr);
+    });
+
+    callback(data);
+};
 
 function update_global_nav() {
     var info;

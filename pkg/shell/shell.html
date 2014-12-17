@@ -138,13 +138,32 @@
             </div>
           </div>
           <div class="col-md-8">
-            <div class="panel panel-default cockpit-log-panel">
+            <div class="panel panel-default" id="dashboard-events">
               <div class="panel-heading">
                 Events
               </div>
-              <div class="panel-body">
-                <div class="cockpit-logline">(Coming soon...)</div>
-              </div>
+              <table class="table table-hover">
+                <tbody>
+                  <tr data-key="m:minion.thewalter.lan">
+                    <td>Pod: Second Test</td>
+                    <td class="event-message">Started on minion.thewalter.lan</td>
+                    <td>08:05</td>
+                    <td style="border-right-color: #BABABA"></td>
+                  </tr>
+                  <tr data-key="m:4a0279f74e7d4760b6eee5f55fc2cd90">
+                    <td>Pod: apache</td>
+                    <td class="event-message">Failed to schedule due to constraint violation</td>
+                    <td>08:12</td>
+                    <td style="border-right-color: rgb(0, 185, 255)"><span class="fa fa-exclamation-circle"></span></td>
+                  </tr>
+                  <tr>
+                    <td>...</td>
+                    <td class="event-message"></td>
+                    <td></td>
+                    <td style="border-right-style: none"></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -153,14 +172,32 @@
       <script id="dashboard-hosts-tmpl" type="x-template/mustache">
         {{#machines}}
           {{! state can be 'failed' or 'connected' }}
-          <a data-address="{{address}}" class="list-group-item {{state}}"
+          <a data-key="{{key}}" data-address="{{address}}" class="list-group-item {{state}}"
               style="border-left-color: {{ color }};" href="/#/{{address}}/server">
+            <span class="machine-state {{render_state}}" title="{{message}}"></span>
             <button class="btn btn-danger edit-button pficon pficon-close"></button>
             <button class="btn btn-default edit-button pficon pficon-edit"></button>
             <img class="host-avatar" src="{{render_avatar}}">
-            <span>{{display_name}}</span>
+            <h4 class="list-group-item-heading">{{label}}</h4>
+            {{#objects}}
+              <span class="object" title="{{render_json}}">
+                <span class="object-state {{render_state}}" title="{{message}}"></span>{{label}}</span>
+            {{/objects}}
           </a>
         {{/machines}}
+      </script>
+
+      <script id="dashboard-events-tmpl" type="x-template/mustache">
+          <tbody>
+          {{#events}}
+            <tr data-key="{{key}}">
+              <td>{{render_what}}</td>
+              <td class="event-message">{{message}}</td>
+              <td>{{render_when}}</td>
+              <td style="border-right-color: {{render_color}}"><span class="{{render_priority}}"></span></td>
+            </tr>
+          {{/events}}
+          </tbody>
       </script>
 
       <div id="server" class="container-fluid" hidden>
@@ -2736,6 +2773,26 @@
             <button class="btn btn-primary" id="reconnect-dialog-reconnect">
               Try reconnecting
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <div class="modal" id="diagnose-no-cockpit" tabindex="-1" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" translatable="yes">Cockpit not installed</h4>
+            </div>
+            <div class="modal-body">
+              <div translatable="yes">Cockpit is not installed on the machine.</div>
+              <div class="diagnose-details"></div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>

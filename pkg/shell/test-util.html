@@ -52,44 +52,6 @@ test("format_delay", function() {
     }
 });
 
-test("quote_words", function() {
-    var checks = [
-        [ [ "foo" ],          "foo" ],
-        [ [ "foo", "bar" ],   "foo bar" ],
-        [ [ "f o o" ],        "\"f o o\"" ],
-        [ [ "f\\o" ],         "f\\\\o" ],
-        [ [ "f\"o" ],         "'f\"o'" ],
-        [ [ "f\"\'o" ],       "'f\"\\'o'" ],
-        [ [ "f \"o" ],        "\"f \\\"o\"" ]
-    ];
-
-    expect(checks.length);
-    for (var i = 0; i < checks.length; i++)
-        strictEqual(shell.util.quote_words(checks[i][0]), checks[i][1],
-                    "quote_words(" + String(checks[i][0]) + ") = " + checks[i][1]);
-
-});
-
-test("parse_words", function() {
-    var checks = [
-        [ [ "foo" ],            "  foo  " ],
-        [ [ "foo", "bar" ],     "foo    bar  " ],
-        [ [ "f o o" ],          "\"f o o\"" ],
-        [ [ "f o o" ],          "'f o o'" ],
-        [ [ "f\\o" ],           "f\\\\o" ],
-        [ [ "f\"o" ],           "'f\"o'" ],
-        [ [ "f\"\'o" ],         "'f\"\\'o'" ],
-        [ [ "f \"o" ],          "\"f \\\"o\"" ],
-        [ [ "f o o" ],          "f' 'o\" \"o" ],
-        [ [ "f'" , "o\" \"o" ], "f\\' 'o\" \"o" ]
-    ];
-
-    expect(checks.length);
-    for (var i = 0; i < checks.length; i++)
-        deepEqual(shell.util.parse_words(checks[i][1]), checks[i][0],
-                  "parse_words(" + String(checks[i][1]) + ") = " + checks[i][0]);
-
-});
 
 QUnit.start();
 

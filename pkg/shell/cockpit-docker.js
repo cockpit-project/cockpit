@@ -45,11 +45,11 @@ function docker(machine) {
 }
 
 function quote_cmdline (cmds) {
-    return shell.util.quote_words(cmds || []);
+    return modules.docker.quote_cmdline(cmds || []);
 }
 
 function unquote_cmdline (string) {
-    return shell.util.parse_words(string);
+    return modules.docker.unquote_cmdline(string);
 }
 
 function render_container_cmdline (container) {

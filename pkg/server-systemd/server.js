@@ -748,5 +748,91 @@ define([
                };
     };
 
+    function hex(data) {
+        var out = [];
+        var i, length = data.length;
+        for (i = 0; i < length; i++)
+            out.push(("0" + (data[i] & 0xff).toString(16)).slice(-2));
+        return out.join("");
+    }
+
+    server.discover = function discover(address, callback) {
+        address = address || "localhost";
+
+        /* Everything hangs off the local machine */
+        var machines = { };
+        var objects = { };
+        var events = [ ];
+        var machine = {
+            address: address,
+            machines: machines,
+            objects: objects,
+            events: events
+        };
+        var store = { "": machine };
+
+        var systemd;
+        var machined;
+        var first = true;
+
+        var result = {
+            close: function() {
+                if (systemd)
+                    systemd.close();
+                if (machined)
+                    machined.close();
+            }
+        };
+
+        systemd = cockpit.dbus("org.freedesktop.systemd1", { host: address });
+        machined = cockpit.dbus("org.freedesktop.machine1", { host: address });
+
+        var proxies = machined.proxies("org.freedesktop.machine1.Machine");
+        $(proxies).on("added changed", function(event, machine) {
+            var info = {
+                label: machine.Name,
+                id: hex(cockpit.base64_decode(machine.Id)),
+            };
+
+            /* TODO: Container addresses seem to be broken on my system */
+
+            if (machine.State == 'running')
+                info.state = "running";
+            else if (machine.State == 'opening' || machine.State == 'closing')
+                info.state = "waiting";
+
+            machines[machine.path] = info;
+            if (!first)
+                callback(store);
+        });
+        $(proxies).on("removed", function(event, machine) {
+            delete machines[machine.path];
+            if (!first)
+                callback(store);
+        });
+
+        machined.proxy("org.freedesktop.machine1.Manager", "/org/freedesktop/machine1")
+            .call("ListMachines")
+            .fail(function(ex) {
+                console.log(ex);
+            })
+            .always(function(ex) {
+                first = false;
+                callback(store);
+            });
+
+        var manager = systemd.proxy("org.freedesktop.systemd1.Manager", "/org/freedesktop/systemd1");
+        manager.wait(function() {
+            var ev = {
+                id: "booted",
+                message: _("Server booted"),
+                timestamp: manager.FinishTimestamp / 1000
+            };
+            events.push(ev);
+        });
+
+        return result;
+    };
+
     return server;
 });

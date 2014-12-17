@@ -24,11 +24,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 (function() {
 "use strict";
 
-if (typeof window.debugging === "undefined") {
-    var match = /debugging=([^;]*)/.exec(document.cookie);
-    if (match)
-        window.debugging = match[1];
-}
+if (typeof window.debugging === "undefined")
+    window.debugging = window.localStorage.getItem("debugging");
 
 function in_array(array, val) {
     var length = array.length;

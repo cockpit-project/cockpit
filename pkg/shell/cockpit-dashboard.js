@@ -297,6 +297,7 @@ PageDashboard.prototype = {
             var template = $("#dashboard-hosts-tmpl").html();
             Mustache.parse(template);
 
+            /* jshint validthis:true */
             function render_avatar() {
                 if (this.state == "failed")
                     return "images/server-error.png";

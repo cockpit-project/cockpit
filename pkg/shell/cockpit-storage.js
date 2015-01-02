@@ -314,7 +314,7 @@ function hide_error_message(id) {
 
 function format_fsys_usage(used, total) {
     var text = "";
-    var units = 1000;
+    var units = 1024;
     var parts = cockpit.format_bytes(total, units, true);
     text = " / " + parts.join(" ");
     units = parts[1];
@@ -789,7 +789,7 @@ PageStorage.prototype = {
                 this.mount_texts[block.MountedAt[i]] = text;
             }
         } else
-            text.text(cockpit.format_bytes(block.Size, 1000));
+            text.text(cockpit.format_bytes(block.Size, 1024));
 
         var tr =
             $('<tr>', { Sort: sort_key }).

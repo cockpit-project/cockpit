@@ -580,7 +580,22 @@ PageContainers.prototype = {
 
         var row = tr.children("td");
         $(row[0]).html(multi_line(image.RepoTags));
-        $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
+
+	/* if an image is older than two days, don't show the time */
+	var thresholdDate = new Date(image.Created*1000);
+	thresholdDate.setDate(thresholdDate.getDate() + 2);
+	
+	if (thresholdDate > (new Date())) {
+		$(row[1]).text(new Date(image.Created*1000).toLocaleString());
+	}
+	else {
+		var creationDate = new Date(image.Created*1000);
+		$(row[1]).text(creationDate.toLocaleDateString());
+
+		/* if we hide the time, put full timestamp in the hover text */
+		$(row[1]).attr("title", creationDate.toLocaleString());
+	}
+
         $(row[2]).children("div").attr("value", image.VirtualSize);
         $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024));
 

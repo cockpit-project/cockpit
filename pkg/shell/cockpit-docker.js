@@ -581,20 +581,20 @@ PageContainers.prototype = {
         var row = tr.children("td");
         $(row[0]).html(multi_line(image.RepoTags));
 
-	/* if an image is older than two days, don't show the time */
-	var thresholdDate = new Date(image.Created*1000);
-	thresholdDate.setDate(thresholdDate.getDate() + 2);
-	
-	if (thresholdDate > (new Date())) {
-		$(row[1]).text(new Date(image.Created*1000).toLocaleString());
-	}
-	else {
-		var creationDate = new Date(image.Created*1000);
-		$(row[1]).text(creationDate.toLocaleDateString());
+        /* if an image is older than two days, don't show the time */
+        var threshold_date = new Date(image.Created * 1000);
+        threshold_date.setDate(threshold_date.getDate() + 2);
 
-		/* if we hide the time, put full timestamp in the hover text */
-		$(row[1]).attr("title", creationDate.toLocaleString());
-	}
+        if (threshold_date > (new Date())) {
+            $(row[1]).text(new Date(image.Created * 1000).toLocaleString());
+        } else {
+            var creationDate = new Date(image.Created * 1000);
+
+            /* we hide the time, so put full timestamp in the hover text */
+            $(row[1])
+                .text(creationDate.toLocaleDateString())
+                .attr("title", creationDate.toLocaleString());
+        }
 
         $(row[2]).children("div").attr("value", image.VirtualSize);
         $(row[3]).text(cockpit.format_bytes(image.VirtualSize, 1024));

@@ -57,6 +57,7 @@ struct _CockpitDBusCache {
   GDBusConnection *connection;
 
   /* The readable DBus name, and actual unique owner */
+  gchar *logname;
   gchar *name;
   gchar *name_owner;
 
@@ -315,7 +316,7 @@ introspect_complete (CockpitDBusCache *self,
       iface = g_hash_table_lookup (self->introspected, id->interface);
       if (!iface)
         {
-          g_debug ("%s: introspect interface %s didn't work", self->name, id->interface);
+          g_debug ("%s: introspect interface %s didn't work", self->logname, id->interface);
 
           /*
            * So we were expecting an interface that wasn't found at the expected
@@ -414,7 +415,7 @@ on_introspect_reply (GObject *source,
 
   if (retval)
     {
-      g_debug ("%s: reply from Introspect() at %s", self->name, id->path);
+      g_debug ("%s: reply from Introspect() at %s", self->logname, id->path);
 
       g_variant_get (retval, "(&s)", &xml);
 
@@ -430,7 +431,7 @@ on_introspect_reply (GObject *source,
   if (error)
     {
       if (!dbus_error_matches_unknown (error))
-        g_message ("%s: couldn't introspect %s: %s", self->name, id->path, error->message);
+        g_message ("%s: couldn't introspect %s: %s", self->logname, id->path, error->message);
       g_error_free (error);
     }
 
@@ -448,7 +449,7 @@ introspect_next (CockpitDBusCache *self)
   id = g_queue_peek_head (self->introspects);
   if (id && !id->introspecting)
     {
-      g_debug ("%s: calling Introspect() on %s", self->name, id->path);
+      g_debug ("%s: calling Introspect() on %s", self->logname, id->path);
 
       id->introspecting = TRUE;
       g_dbus_connection_call (self->connection, self->name_owner, id->path,
@@ -488,7 +489,7 @@ introspect_flush (CockpitDBusCache *self)
         }
 
       if (!note)
-        g_debug ("%s: flushing introspect queue", self->name);
+        g_debug ("%s: flushing introspect queue", self->logname);
       note = TRUE;
       introspect_complete (self, id);
     }
@@ -514,7 +515,7 @@ introspect_queue (CockpitDBusCache *self,
   id->callback = callback;
   id->user_data = user_data;
 
-  g_debug ("%s: queueing introspect %s %s%s", self->name, path,
+  g_debug ("%s: queueing introspect %s %s%s", self->logname, path,
            interface ? "for " : "", interface ? interface : "");
   g_queue_push_tail (self->introspects, id);
 
@@ -664,7 +665,7 @@ ensure_properties (CockpitDBusCache *self,
                                           NULL, (GDestroyNotify)g_variant_unref);
       g_hash_table_replace (interfaces, iface->name, properties);
 
-      g_debug ("%s: present %s at %s", self->name, iface->name, path);
+      g_debug ("%s: present %s at %s", self->logname, iface->name, path);
       emit_change (self, path, iface, NULL, NULL);
     }
 
@@ -708,7 +709,7 @@ process_value (CockpitDBusCache *self,
       g_hash_table_replace (properties, (gchar *)property, value);
     }
 
-  g_debug ("%s: changed %s %s at %s", self->name, iface->name, property, path);
+  g_debug ("%s: changed %s %s at %s", self->logname, iface->name, property, path);
   emit_change (self, path, iface, property, value);
 }
 
@@ -754,7 +755,7 @@ on_get_reply (GObject *source,
     {
       if (!g_cancellable_is_cancelled (self->cancellable))
         {
-          g_message ("%s: couldn't get property %s %s at %s", self->name,
+          g_message ("%s: couldn't get property %s %s at %s", self->logname,
                      gd->iface->name, gd->property, gd->path);
         }
       g_error_free (error);
@@ -762,7 +763,7 @@ on_get_reply (GObject *source,
 
   if (retval)
     {
-      g_debug ("%s: reply from Get() on %s", self->name, gd->path);
+      g_debug ("%s: reply from Get() on %s", self->logname, gd->path);
 
       process_get (self, gd->batch, gd->path, gd->iface, gd->property, retval);
       g_variant_unref (retval);
@@ -828,7 +829,7 @@ process_properties_changed (CockpitDBusCache *self,
   g_variant_iter_init (&iter, invalidated);
   while (g_variant_iter_loop (&iter, "&s", &property))
     {
-      g_debug ("%s: calling Get() for %s %s at %s", self->name, iface->name, property, pcd->path);
+      g_debug ("%s: calling Get() for %s %s at %s", self->logname, iface->name, property, pcd->path);
 
       gd = g_slice_new0 (GetData);
       gd->self = g_object_ref (self);
@@ -891,11 +892,11 @@ on_properties_signal (GDBusConnection *connection,
 
   if (!g_variant_is_of_type (body, G_VARIANT_TYPE ("(sa{sv}as)")))
     {
-      g_debug ("%s: received PropertiesChanged with bad type", self->name);
+      g_debug ("%s: received PropertiesChanged with bad type", self->logname);
       return;
     }
 
-  g_debug ("%s: signal PropertiesChanged at %s", self->name, path);
+  g_debug ("%s: signal PropertiesChanged at %s", self->logname, path);
   g_variant_get (body, "(&s@a{sv}@as)", &interface, NULL, NULL);
 
   if (!cockpit_dbus_rules_match (self->rules, path, interface, NULL, NULL))
@@ -1002,7 +1003,7 @@ process_removed (CockpitDBusCache *self,
 
   g_hash_table_remove (interfaces, interface);
 
-  g_debug ("%s: removed %s at %s", self->name, interface, path);
+  g_debug ("%s: removed %s at %s", self->logname, interface, path);
   emit_remove (self, path, interface);
 }
 
@@ -1051,12 +1052,12 @@ on_manager_signal (GDBusConnection *connection,
     {
       if (g_variant_is_of_type (body, G_VARIANT_TYPE ("(oa{sa{sv}})")))
         {
-          g_debug ("%s: signal InterfacesAdded at %s", self->name, path);
+          g_debug ("%s: signal InterfacesAdded at %s", self->logname, path);
           cockpit_dbus_cache_barrier (self, process_interfaces_added, g_variant_ref (body));
         }
       else
         {
-          g_debug ("%s: received InterfacesAdded with bad type", self->name);
+          g_debug ("%s: received InterfacesAdded with bad type", self->logname);
           return;
         }
     }
@@ -1064,12 +1065,12 @@ on_manager_signal (GDBusConnection *connection,
     {
       if (g_variant_is_of_type (body, G_VARIANT_TYPE ("(oas)")))
         {
-          g_debug ("%s: signal InterfacesRemoved at %s", self->name, path);
+          g_debug ("%s: signal InterfacesRemoved at %s", self->logname, path);
           cockpit_dbus_cache_barrier (self, process_interfaces_removed, g_variant_ref (body));
         }
       else
         {
-          g_debug ("%s: received InterfacesRemoved with bad type", self->name);
+          g_debug ("%s: received InterfacesRemoved with bad type", self->logname);
           return;
         }
     }
@@ -1083,6 +1084,8 @@ cockpit_dbus_cache_constructed (GObject *object)
   g_return_if_fail (self->name != NULL);
   g_return_if_fail (self->name_owner != NULL);
   g_return_if_fail (self->connection != NULL);
+
+  self->logname = self->name;
 
   self->subscribe_properties = g_dbus_connection_signal_subscribe (self->connection,
                                                                    self->name_owner,
@@ -1433,7 +1436,7 @@ on_get_all_reply (GObject *source,
     {
       if (!g_cancellable_is_cancelled (self->cancellable))
         {
-          g_message ("%s: couldn't get all properties of %s at %s", self->name,
+          g_message ("%s: couldn't get all properties of %s at %s", self->logname,
                      gad->iface->name, gad->path);
         }
       g_error_free (error);
@@ -1441,7 +1444,7 @@ on_get_all_reply (GObject *source,
 
   if (retval)
     {
-      g_debug ("%s: reply to GetAll() for %s at %s", self->name, gad->iface->name, gad->path);
+      g_debug ("%s: reply to GetAll() for %s at %s", self->logname, gad->iface->name, gad->path);
       process_get_all (self, gad->batch, gad->path, gad->iface, retval);
 
       g_variant_unref (retval);
@@ -1465,7 +1468,7 @@ retrieve_properties (CockpitDBusCache *self,
 {
   GetAllData *gad;
 
-  g_debug ("%s: calling GetAll() for %s at %s", self->name, iface->name, path);
+  g_debug ("%s: calling GetAll() for %s at %s", self->logname, iface->name, path);
 
   gad = g_slice_new0 (GetAllData);
   gad->self = g_object_ref (self);
@@ -1504,7 +1507,7 @@ process_introspect_node (CockpitDBusCache *self,
       iface = node->interfaces[i];
       if (!iface->name)
         {
-          g_warning ("Received interface from %s at %s without name", self->name, path);
+          g_warning ("Received interface from %s at %s without name", self->logname, path);
           continue;
         }
 
@@ -1568,12 +1571,12 @@ on_get_managed_objects_reply (GObject *source,
           /* Doesn't support ObjectManager? */
           if (dbus_error_matches_unknown (error))
             {
-              g_debug ("%s: no ObjectManager at %s", self->name, gmod->path);
+              g_debug ("%s: no ObjectManager at %s", self->logname, gmod->path);
             }
           else
             {
               g_message ("%s: couldn't get managed objects at %s: %s",
-                         self->name, gmod->path, error->message);
+                         self->logname, gmod->path, error->message);
             }
         }
       g_error_free (error);
@@ -1581,7 +1584,7 @@ on_get_managed_objects_reply (GObject *source,
 
   if (retval)
     {
-      g_debug ("%s: reply from GetManagedObjects() on %s", self->name, gmod->path);
+      g_debug ("%s: reply from GetManagedObjects() on %s", self->logname, gmod->path);
 
       /* Note that this is indeed an object manager */
       cockpit_paths_add (self->managed, gmod->path);
@@ -1634,7 +1637,7 @@ cockpit_dbus_cache_watch (CockpitDBusCache *self,
       gmod->path = path;
       gmod->self = g_object_ref (self);
 
-      g_debug ("%s: calling GetManagedObjects() on %s", self->name, gmod->path);
+      g_debug ("%s: calling GetManagedObjects() on %s", self->logname, gmod->path);
 
       g_dbus_connection_call (self->connection, self->name_owner, gmod->path,
                               "org.freedesktop.DBus.ObjectManager", "GetManagedObjects",

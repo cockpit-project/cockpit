@@ -48,6 +48,7 @@ typedef struct {
   guint ping_id;
 
   /* Talking to */
+  const gchar *logname;
   const gchar *name;
   gchar *name_owner;
   guint name_watch;
@@ -951,11 +952,11 @@ send_dbus_error (CockpitDBusJson *self,
 
   if (!call->cookie)
     {
-      g_debug ("%s: dropping error without cookie: %s", self->name, error->message);
+      g_debug ("%s: dropping error without cookie: %s", self->logname, error->message);
       return;
     }
 
-  g_debug ("%s: failed %s", self->name, call->method);
+  g_debug ("%s: failed %s", self->logname, call->method);
 
   object = build_json_error (error);
   json_object_set_string_member (object, "id", call->cookie);
@@ -1011,13 +1012,13 @@ send_dbus_reply (CockpitDBusJson *self,
   reply = json_array_new ();
   if (g_dbus_message_get_message_type (message) == G_DBUS_MESSAGE_TYPE_ERROR)
     {
-      g_debug ("%s: errorc for %s", self->name, call->method);
+      g_debug ("%s: errorc for %s", self->logname, call->method);
       json_array_add_string_element (reply, g_dbus_message_get_error_name (message));
       json_object_set_array_member (object, "error", reply);
     }
   else
     {
-      g_debug ("%s: reply for %s", self->name, call->method);
+      g_debug ("%s: reply for %s", self->logname, call->method);
       json_object_set_array_member (object, "reply", reply);
       scrape = g_dbus_message_get_body (message);
     }
@@ -1145,7 +1146,7 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
   if (!parameters)
     goto out;
 
-  g_debug ("%s: invoking %s %s at %s", self->name, call->interface, call->method, call->path);
+  g_debug ("%s: invoking %s %s at %s", self->logname, call->interface, call->method, call->path);
 
   message = g_dbus_message_new_method_call (call->dbus_json->name_owner,
                                             call->path,
@@ -1823,7 +1824,7 @@ on_timeout_ping (gpointer data)
   if (error)
     {
       g_warning ("%s: couldn't send ping to %s: %s",
-                 self->name, self->name_owner, error->message);
+                 self->logname, self->name_owner, error->message);
       g_error_free (error);
       self->ping_id = 0;
       return FALSE;
@@ -1844,7 +1845,7 @@ on_name_appeared (GDBusConnection *connection,
     return;
 
   self->name_owner = g_strdup (name_owner);
-  g_debug ("%s: name owner is %s", self->name, self->name_owner);
+  g_debug ("%s: name owner is %s", self->logname, self->name_owner);
 
   self->cache = cockpit_dbus_cache_new (self->connection,
                                         self->name,
@@ -1955,6 +1956,8 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       g_warning ("bad \"name\" option in dbus channel: %s", self->name);
       goto out;
     }
+
+  self->logname = self->name;
 
   /*
    * The default bus is the "user" bus which doesn't exist in many

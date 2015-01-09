@@ -26,6 +26,10 @@
 #include <glib-unix.h>
 #include <string.h>
 
+typedef struct {
+  GDBusObjectManagerServer *object_manager;
+} MockData;
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gboolean
@@ -200,10 +204,10 @@ on_handle_create_object (TestFrobber *object,
                          const gchar *at_path,
                          gpointer user_data)
 {
-  GDBusObjectManagerServer *object_manager = G_DBUS_OBJECT_MANAGER_SERVER (user_data);
+  MockData *data = user_data;
   GDBusObject *previous;
 
-  previous = g_dbus_object_manager_get_object (G_DBUS_OBJECT_MANAGER (object_manager), at_path);
+  previous = g_dbus_object_manager_get_object (G_DBUS_OBJECT_MANAGER (data->object_manager), at_path);
   if (previous != NULL)
     {
       g_dbus_method_invocation_return_error (invocation,
@@ -220,7 +224,7 @@ on_handle_create_object (TestFrobber *object,
       new_object = test_object_skeleton_new (at_path);
       frobber = test_frobber_skeleton_new ();
       test_object_skeleton_set_frobber (new_object, frobber);
-      g_dbus_object_manager_server_export (object_manager, G_DBUS_OBJECT_SKELETON (new_object));
+      g_dbus_object_manager_server_export (data->object_manager, G_DBUS_OBJECT_SKELETON (new_object));
       g_object_unref (frobber);
       g_object_unref (new_object);
 
@@ -239,13 +243,13 @@ on_handle_delete_object (TestFrobber *object,
                          const gchar *path,
                          gpointer user_data)
 {
-  GDBusObjectManagerServer *object_manager = G_DBUS_OBJECT_MANAGER_SERVER (user_data);
+  MockData *data = user_data;
   GDBusObject *previous;
 
-  previous = g_dbus_object_manager_get_object (G_DBUS_OBJECT_MANAGER (object_manager), path);
+  previous = g_dbus_object_manager_get_object (G_DBUS_OBJECT_MANAGER (data->object_manager), path);
   if (previous != NULL)
     {
-      g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager, path));
+      g_warn_if_fail (g_dbus_object_manager_server_unexport (data->object_manager, path));
       test_frobber_complete_delete_object (object, invocation);
       g_object_unref (previous);
     }
@@ -264,17 +268,17 @@ on_handle_delete_all_objects (TestFrobber *object,
                               GDBusMethodInvocation *invocation,
                               gpointer user_data)
 {
-  GDBusObjectManagerServer *object_manager = G_DBUS_OBJECT_MANAGER_SERVER (user_data);
+  MockData *data = user_data;
   const gchar *path;
   GList *objects;
   GList *l;
 
-  objects = g_dbus_object_manager_get_objects (G_DBUS_OBJECT_MANAGER (object_manager));
+  objects = g_dbus_object_manager_get_objects (G_DBUS_OBJECT_MANAGER (data->object_manager));
   for (l = objects; l != NULL; l = g_list_next (l))
     {
       path = g_dbus_object_get_object_path (l->data);
       if (!g_str_has_suffix (path, "/frobber"))
-        g_warn_if_fail (g_dbus_object_manager_server_unexport (object_manager, path));
+        g_warn_if_fail (g_dbus_object_manager_server_unexport (data->object_manager, path));
     }
 
   test_frobber_complete_delete_all_objects (object, invocation);
@@ -501,6 +505,13 @@ mock_service_create_introspect_fail (GDBusConnection *connection)
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static void
+mock_data_free (gpointer data)
+{
+  MockData *mock_data = data;
+  g_free (mock_data);
+}
+
 GObject *
 mock_service_create_and_export (GDBusConnection *connection,
                                 const gchar *object_manager_path)
@@ -509,7 +520,10 @@ mock_service_create_and_export (GDBusConnection *connection,
   TestFrobber *exported_frobber;
   TestObjectSkeleton *exported_object;
   GDBusObjectManagerServer *object_manager;
+  MockData *mock_data;
   gchar *path;
+
+  mock_data = g_new0 (MockData, 1);
 
   /* Test that we can export an object using the generated
    * TestFrobberSkeleton subclass. Notes:
@@ -531,6 +545,8 @@ mock_service_create_and_export (GDBusConnection *connection,
   test_frobber_set_readonly_property (exported_frobber, "blah");
 
   object_manager = g_dbus_object_manager_server_new (object_manager_path);
+  mock_data->object_manager = object_manager;
+  g_object_set_data_full (G_OBJECT (object_manager), "mock-data", mock_data, mock_data_free);
 
   path = g_strdup_printf ("%s/frobber", object_manager_path);
   exported_object = test_object_skeleton_new (path);
@@ -543,58 +559,44 @@ mock_service_create_and_export (GDBusConnection *connection,
   g_dbus_object_manager_server_set_connection (object_manager, connection);
 
   g_assert_no_error (error);
-  g_signal_connect (exported_frobber,
-                    "handle-hello-world",
-                    G_CALLBACK (on_handle_hello_world),
-                    object_manager);
+  g_signal_connect (exported_frobber, "handle-hello-world",
+                    G_CALLBACK (on_handle_hello_world), NULL);
   g_signal_connect (exported_frobber,
                     "handle-test-primitive-types",
-                    G_CALLBACK (on_handle_test_primitive_types),
-                    object_manager);
+                    G_CALLBACK (on_handle_test_primitive_types), NULL);
   g_signal_connect (exported_frobber,
                     "handle-test-non-primitive-types",
-                    G_CALLBACK (on_handle_test_non_primitive_types),
-                    object_manager);
+                    G_CALLBACK (on_handle_test_non_primitive_types), NULL);
   g_signal_connect (exported_frobber,
                     "handle-request-signal-emission",
-                    G_CALLBACK (on_handle_request_signal_emission),
-                    object_manager);
+                    G_CALLBACK (on_handle_request_signal_emission), NULL);
   g_signal_connect (exported_frobber,
                     "handle-request-property-mods",
-                    G_CALLBACK (on_handle_request_property_mods),
-                    NULL);
+                    G_CALLBACK (on_handle_request_property_mods), NULL);
   g_signal_connect (exported_frobber,
                     "handle-request-multi-property-mods",
-                    G_CALLBACK (on_handle_request_multi_property_mods),
-                    object_manager);
+                    G_CALLBACK (on_handle_request_multi_property_mods), NULL);
   g_signal_connect (exported_frobber,
                     "handle-property-cancellation",
-                    G_CALLBACK (on_handle_property_cancellation),
-                    object_manager);
+                    G_CALLBACK (on_handle_property_cancellation), NULL);
   g_signal_connect (exported_frobber,
                     "handle-delete-all-objects",
-                    G_CALLBACK (on_handle_delete_all_objects),
-                    object_manager);
+                    G_CALLBACK (on_handle_delete_all_objects), mock_data);
   g_signal_connect (exported_frobber,
                     "handle-create-object",
-                    G_CALLBACK (on_handle_create_object),
-                    object_manager);
+                    G_CALLBACK (on_handle_create_object), mock_data);
   g_signal_connect (exported_frobber,
                     "handle-delete-object",
-                    G_CALLBACK (on_handle_delete_object),
-                    object_manager);
+                    G_CALLBACK (on_handle_delete_object), mock_data);
   g_signal_connect (exported_frobber,
                     "handle-test-asv",
-                    G_CALLBACK (on_handle_test_asv),
-                    object_manager);
+                    G_CALLBACK (on_handle_test_asv), NULL);
   g_signal_connect (exported_frobber,
                     "handle-add-alpha",
-                    G_CALLBACK (on_handle_add_alpha),
-                    object_manager);
+                    G_CALLBACK (on_handle_add_alpha), NULL);
   g_signal_connect (exported_frobber,
                     "handle-remove-alpha",
-                    G_CALLBACK (on_handle_remove_alpha),
-                    object_manager);
+                    G_CALLBACK (on_handle_remove_alpha), NULL);
   g_signal_connect (exported_frobber, "handle-create-clique",
                     G_CALLBACK (on_create_clique), NULL);
   g_signal_connect (exported_frobber, "handle-emit-hidden",

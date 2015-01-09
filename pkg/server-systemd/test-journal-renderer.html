@@ -84,6 +84,7 @@ function reboot() {
 
 var output;
 var renderer;
+var expected_day;
 
 var funcs = {
     render_line: function (ident, prio, message, count, time, cursor) {
@@ -157,6 +158,20 @@ function jexpect(label, expected) {
     ok(check(expected), label);
 }
 
+var month_names = [         'January',
+                            'February',
+                            'March',
+                            'April',
+                            'May',
+                            'June',
+                            'July',
+                            'August',
+                            'September',
+                            'October',
+                            'November',
+                            'December'
+                          ];
+
 require([
   'server-systemd/server'
 ], function(server) {
@@ -164,6 +179,8 @@ require([
     QUnit.testStart(function() {
         output = [ ];
         renderer = server.journal_renderer(funcs);
+        var d = new Date(time);
+        expected_day = month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
     });
 
     test("append", function() {
@@ -171,13 +188,13 @@ require([
         append('foo');
         append_flush();
         jexpect('two repeated lines',
-                 [ { day: "January 1, 1970" },
+                 [ { day: expected_day },
                    { message: 'foo', count: 2 }
                  ])
         append('foo');
         append_flush();
         jexpect('three repeated lines after flush',
-                [ { day: "January 1, 1970" },
+                [ { day: expected_day },
                   { message: 'foo', count: 3 }
                 ])
     });
@@ -187,13 +204,13 @@ require([
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
-                [ { day: "January 1, 1970" },
+                [ { day: expected_day },
                   { message: 'foo', count: 2 }
                 ])
         prepend('foo');
         prepend_flush();
         jexpect('three repeated lines after flush',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'foo', count: 3 }
             ])
     });
@@ -204,7 +221,7 @@ require([
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'foo', count: 2 }
             ])
     });
@@ -215,7 +232,7 @@ require([
         prepend('bar');
         prepend_flush();
         jexpect('two different lines',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'bar', count: 1 },
               { message: 'foo', count: 1 }
             ])
@@ -227,7 +244,7 @@ require([
         append('foo');
         append_flush();
         jexpect('two repeated lines',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'foo', count: 2 }
             ])
     });
@@ -239,7 +256,7 @@ require([
         append('foo');
         append_flush();
         jexpect('two different lines',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'baz', count: 1 },
               { message: 'bar', count: 1 },
               { message: 'foo', count: 1 }
@@ -253,7 +270,7 @@ require([
         append('bar');
         append_flush();
         jexpect('two repeated lines',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'baz', count: 1 },
               { message: 'bar', count: 2 },
             ])
@@ -266,7 +283,7 @@ require([
         prepend('baz');
         prepend_flush();
         jexpect('two different lines',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'baz', count: 1 },
               { message: 'foo', count: 1 },
               { message: 'bar', count: 1 },
@@ -280,7 +297,7 @@ require([
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'foo', count: 2 },
               { message: 'bar', count: 1 },
             ])
@@ -293,7 +310,7 @@ require([
         append('foo');
         append_flush();
         jexpect('two repeated lines before reboot',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'foo', count: 2 },
               { reboot: true },
               { message: 'foo', count: 1 },
@@ -308,7 +325,7 @@ require([
         prepend('bar');
         prepend_flush();
         jexpect('different lines',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'bar', count: 1 },
               { reboot: true },
               { message: 'foo', count: 1 },
@@ -324,7 +341,7 @@ require([
         prepend('foo');
         prepend_flush();
         jexpect('repeated line',
-            [ { day: "January 1, 1970" },
+            [ { day: expected_day },
               { message: 'foo', count: 1 },
               { reboot: true },
               { message: 'foo', count: 1 },

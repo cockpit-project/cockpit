@@ -30,6 +30,13 @@ class TestDocker(MachineCase):
         b = self.browser
         m = self.machine
 
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1169769
+        #
+        self.allow_journal_messages('.*denied.*add_name.*name="\\.docker".*',
+                                    '.*denied.*create.*name="\\.docker".*',
+                                    '.*denied.*create.*name="key\\.json".*',
+                                    '.*denied.*write open.*path="/\\.docker/key\\.json".*')
+
         m.execute("systemctl start docker.socket")
         m.execute("usermod -G wheel,docker admin")
 

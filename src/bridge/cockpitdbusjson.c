@@ -23,6 +23,7 @@
 
 #include "cockpitchannel.h"
 #include "cockpitdbuscache.h"
+#include "cockpitdbusinternal.h"
 #include "cockpitdbusrules.h"
 
 #include "common/cockpitjson.h"
@@ -1446,7 +1447,8 @@ build_dbus_match (CockpitDBusJson *self,
                   const gchar *arg0)
 {
   GString *string = g_string_new ("type='signal'");
-  g_string_append_printf (string, ",sender='%s'", self->name);
+  if (self->name)
+    g_string_append_printf (string, ",sender='%s'", self->name);
   if (path)
     g_string_append_printf (string, ",path='%s'", path);
   if (path_namespace && !g_str_equal (path_namespace, "/"))
@@ -1833,6 +1835,8 @@ on_name_vanished (GDBusConnection *connection,
 static void
 subscribe_and_cache (CockpitDBusJson *self)
 {
+  g_dbus_connection_set_exit_on_close (self->connection, FALSE);
+
   self->cache = cockpit_dbus_cache_new (self->connection, self->name);
   self->meta_sig = g_signal_connect (self->cache, "meta", G_CALLBACK (on_cache_meta), self);
   self->update_sig = g_signal_connect (self->cache, "update",
@@ -1905,11 +1909,6 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
   COCKPIT_CHANNEL_CLASS (cockpit_dbus_json_parent_class)->prepare (channel);
 
   options = cockpit_channel_get_options (channel);
-  if (!cockpit_json_get_string (options, "name", NULL, &self->name))
-    {
-      g_warning ("invalid \"name\" option in dbus channel");
-      goto out;
-    }
   if (!cockpit_json_get_string (options, "bus", NULL, &bus))
     {
       g_warning ("invalid \"bus\" option in dbus channel");
@@ -1922,6 +1921,8 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
     }
 
   self->logname = self->name;
+  if (self->logname == NULL)
+    self->logname = "internal";
 
   /*
    * The default bus is the "user" bus which doesn't exist in many
@@ -1937,14 +1938,44 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
     {
       bus_type = G_BUS_TYPE_SESSION;
     }
+  else if (g_str_equal (bus, "internal"))
+    {
+      bus_type = G_BUS_TYPE_NONE;
+    }
   else
     {
       g_warning ("invalid \"bus\" option in dbus channel: %s", bus);
       goto out;
     }
 
-  if (bus_type != G_BUS_TYPE_NONE)
+  /* An internal peer to peer connection to cockpit-bridge */
+  if (bus_type == G_BUS_TYPE_NONE)
     {
+      if (!cockpit_json_get_null (options, "name", NULL))
+        {
+          g_warning ("do not specify \"name\" option in dbus channel when \"internal\"");
+          goto out;
+        }
+
+      self->name = NULL;
+
+      self->connection = cockpit_dbus_internal_client ();
+      if (self->connection == NULL)
+        {
+          problem = "internal-error";
+          goto out;
+        }
+
+      subscribe_and_cache (self);
+      cockpit_channel_ready (channel);
+    }
+  else
+    {
+      if (!cockpit_json_get_string (options, "name", NULL, &self->name))
+        {
+          g_warning ("invalid \"name\" option in dbus channel");
+          goto out;
+        }
       if (self->name == NULL)
         {
           g_warning ("missing \"name\" option in dbus channel: %s", self->name);
@@ -1956,6 +1987,7 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
           goto out;
         }
 
+      /* Ready when the bus connection is available */
       g_bus_get (bus_type, self->cancellable, on_bus_ready, g_object_ref (self));
     }
 

@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
+#include "cockpitdbusinternal.h"
 #include "cockpitinteracttransport.h"
 #include "cockpitpackage.h"
 #include "cockpitpolkitagent.h"
@@ -342,6 +343,7 @@ run_bridge (const gchar *interactive)
   if (!interactive)
     daemon_pid = start_dbus_daemon ();
 
+  cockpit_dbus_internal_startup ();
 
   if (interactive)
     {
@@ -375,6 +377,8 @@ run_bridge (const gchar *interactive)
     g_object_unref (super);
   g_object_unref (transport);
   g_hash_table_destroy (channels);
+
+  cockpit_dbus_internal_cleanup ();
 
   if (daemon_pid)
     kill (daemon_pid, SIGTERM);

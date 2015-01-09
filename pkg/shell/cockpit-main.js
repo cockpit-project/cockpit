@@ -370,7 +370,7 @@ function hosts_init() {
     }
 
     function add_host(addr, proxy) {
-        var client = cockpit.dbus("com.redhat.Cockpit", { host: addr, bus: "session" });
+        var client = cockpit.dbus("com.redhat.Cockpit", { host: addr, bus: "session", track: true });
         var manager = client.proxy("com.redhat.Cockpit.Manager",
                                    "/com/redhat/Cockpit/Manager");
 
@@ -572,7 +572,7 @@ function hosts_init() {
 
     local_account_proxies = null;
 
-    var cockpitd = cockpit.dbus("com.redhat.Cockpit", { host: "localhost", bus: "session" });
+    var cockpitd = cockpit.dbus("com.redhat.Cockpit", { host: "localhost", bus: "session", track: true });
     local_account_proxies = cockpitd.proxies("com.redhat.Cockpit.Account",
                                              "/com/redhat/Cockpit/Accounts");
     host_proxies = cockpitd.proxies("com.redhat.Cockpit.Machine",

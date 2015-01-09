@@ -537,6 +537,14 @@
             immediately be <link linkend="latest-dbus-onclose">closed</link> with a
             <code>"not-authorized"</code> problem code.</para></listitem>
         </varlistentry>
+        <varlistentry>
+          <term><code>"track"</code></term>
+          <listitem><para>It is valid for a DBus service to exit, and be restarted in such a
+            way that clients continue to talk to it across the restart. Some services are not
+            written with this in mind. If the <code>"track"</code> option is set to
+            <code>true</code> then the channel will close when the service exits and/or disconnects
+            from the DBus bus.</para></listitem>
+        </varlistentry>
       </variablelist>
     </refsection>
 

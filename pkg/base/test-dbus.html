@@ -871,6 +871,84 @@ test("watch promise recursive", function() {
     equal(typeof promise3.remove, "function", "promise3.remove()");
 });
 
+asyncTest("track name", function() {
+    expect(4);
+
+    var name = "yo.x" + new Date().getTime();
+    var released = false;
+    var gone = false;
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "ClaimOtherName", [ name ])
+        .always(function() {
+            equal(this.state(), "resolved", "name claimed");
+
+            var other = cockpit.dbus(name, { "bus": "session", "track": true });
+            $(other).on("close", function(event, data) {
+                strictEqual(data.problem, undefined, "no problem");
+                gone = true;
+                if (released && gone)
+                    start();
+            });
+
+            other.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                       "HelloWorld", [ "test" ])
+                .always(function() {
+                    equal(this.state(), "resolved", "called on other name");
+
+                    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                              "ReleaseOtherName", [ name ])
+                        .always(function() {
+                            equal(this.state(), "resolved", "name released");
+                            released = true;
+                            if (released && gone)
+                                start();
+                        });
+                });
+        });
+});
+
+asyncTest("no track name", function() {
+    expect(5);
+
+    var name = "yo.y" + new Date().getTime();
+    var gone = false;
+
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "ClaimOtherName", [ name ])
+        .always(function() {
+            equal(this.state(), "resolved", "name claimed");
+
+            var other = cockpit.dbus(name, { "bus": "session", "track": false });
+            $(other).on("close", function(event, data) {
+                console.log(data);
+                gone = true;
+            });
+
+            other.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                       "HelloWorld", [ "test" ])
+                .always(function() {
+                    equal(this.state(), "resolved", "called on other name");
+
+                    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                              "ReleaseOtherName", [ name ])
+                        .always(function() {
+                            equal(this.state(), "resolved", "name released");
+
+                            other.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                                       "HelloWorld", [ "test" ])
+                                .always(function() {
+                                    equal(this.state(), "rejected", "call after release should fail");
+                                    equal(gone, false, "is not gone");
+                                    start();
+                                });
+                        });
+                });
+        });
+});
+
 
 QUnit.start();
 </script>

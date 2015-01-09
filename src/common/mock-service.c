@@ -27,7 +27,9 @@
 #include <string.h>
 
 typedef struct {
+  GDBusConnection *connection;
   GDBusObjectManagerServer *object_manager;
+  GHashTable *other_names;
 } MockData;
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -333,6 +335,94 @@ on_handle_remove_alpha (TestFrobber *frobber,
   return TRUE;
 }
 
+/* ---------------------------------------------------------------------------------------------------- */
+
+typedef struct {
+  GDBusMethodInvocation *invocation;
+} ClaimNameData;
+
+static void
+claim_name_data_free (gpointer data)
+{
+  ClaimNameData *claim_data = data;
+  if (claim_data->invocation)
+    g_object_unref (claim_data->invocation);
+  g_free (claim_data);
+}
+
+static void
+on_other_name_acquired (GDBusConnection *connection,
+                        const gchar *name,
+                        gpointer user_data)
+{
+  ClaimNameData *claim_data = user_data;
+  if (claim_data->invocation)
+    {
+      g_dbus_method_invocation_return_value (claim_data->invocation, NULL);
+      g_clear_object (&claim_data->invocation);
+    }
+}
+
+static void
+on_other_name_lost (GDBusConnection *connection,
+                    const gchar *name,
+                    gpointer user_data)
+{
+  ClaimNameData *claim_data = user_data;
+  if (claim_data->invocation)
+    {
+      g_dbus_method_invocation_return_error (claim_data->invocation,
+                                             G_IO_ERROR, G_IO_ERROR_FAILED,
+                                             "Couldn't claim name: %s", name);
+      g_message ("couldn't claim name: %s", name);
+      g_clear_object (&claim_data->invocation);
+    }
+}
+
+static gboolean
+on_claim_other_name (TestFrobber *frobber,
+                     GDBusMethodInvocation *invocation,
+                     const gchar *name,
+                     gpointer user_data)
+{
+  ClaimNameData *claim_data;
+  MockData *mock_data = user_data;
+  guint id;
+
+  g_return_val_if_fail (g_hash_table_lookup (mock_data->other_names, name) == NULL, FALSE);
+
+  claim_data = g_new0 (ClaimNameData, 1);
+  claim_data->invocation = g_object_ref (invocation);
+  id = g_bus_own_name_on_connection (mock_data->connection, name,
+                                     G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT | G_BUS_NAME_OWNER_FLAGS_NONE,
+                                     on_other_name_acquired,
+                                     on_other_name_lost,
+                                     claim_data, claim_name_data_free);
+
+  g_hash_table_replace (mock_data->other_names, g_strdup (name), GUINT_TO_POINTER (id));
+  return TRUE;
+}
+
+static gboolean
+on_release_other_name (TestFrobber *frobber,
+                       GDBusMethodInvocation *invocation,
+                       const gchar *name,
+                       gpointer user_data)
+{
+  MockData *mock_data = user_data;
+  guint id;
+
+  g_return_val_if_fail (g_hash_table_lookup (mock_data->other_names, name) != NULL, FALSE);
+
+  id = GPOINTER_TO_UINT (g_hash_table_lookup (mock_data->other_names, name));
+  g_hash_table_remove (mock_data->other_names, name);
+  g_bus_unown_name (id);
+
+  g_dbus_method_invocation_return_value (invocation, NULL);
+  return TRUE;
+
+}
+
 /* ------------------------------------------------------------------------
  * Non object manager stuff
  */
@@ -509,6 +599,8 @@ static void
 mock_data_free (gpointer data)
 {
   MockData *mock_data = data;
+  g_object_unref (mock_data->connection);
+  g_hash_table_destroy (mock_data->other_names);
   g_free (mock_data);
 }
 
@@ -524,6 +616,8 @@ mock_service_create_and_export (GDBusConnection *connection,
   gchar *path;
 
   mock_data = g_new0 (MockData, 1);
+  mock_data->connection = g_object_ref (connection);
+  mock_data->other_names = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   /* Test that we can export an object using the generated
    * TestFrobberSkeleton subclass. Notes:
@@ -601,6 +695,11 @@ mock_service_create_and_export (GDBusConnection *connection,
                     G_CALLBACK (on_create_clique), NULL);
   g_signal_connect (exported_frobber, "handle-emit-hidden",
                     G_CALLBACK (on_emit_hidden), NULL);
+
+  g_signal_connect (exported_frobber, "handle-claim-other-name",
+                    G_CALLBACK (on_claim_other_name), mock_data);
+  g_signal_connect (exported_frobber, "handle-release-other-name",
+                    G_CALLBACK (on_release_other_name), mock_data);
 
   g_object_unref (exported_frobber);
   mock_service_create_introspect_fail (connection);

@@ -45,14 +45,14 @@ typedef struct {
   GDBusConnection *connection;
   gboolean subscribed;
   guint subscribe_id;
-  guint ping_id;
 
   /* Talking to */
   const gchar *logname;
   const gchar *name;
-  gchar *name_owner;
   guint name_watch;
   gboolean name_watched;
+  gboolean name_appeared;
+  gboolean name_track;
 
   /* Call related */
   GCancellable *cancellable;
@@ -1148,7 +1148,7 @@ handle_dbus_call_on_interface (CockpitDBusJson *self,
 
   g_debug ("%s: invoking %s %s at %s", self->logname, call->interface, call->method, call->path);
 
-  message = g_dbus_message_new_method_call (call->dbus_json->name_owner,
+  message = g_dbus_message_new_method_call (call->dbus_json->name,
                                             call->path,
                                             call->interface,
                                             call->method);
@@ -1446,7 +1446,7 @@ build_dbus_match (CockpitDBusJson *self,
                   const gchar *arg0)
 {
   GString *string = g_string_new ("type='signal'");
-  g_string_append_printf (string, ",sender='%s'", self->name_owner);
+  g_string_append_printf (string, ",sender='%s'", self->name);
   if (path)
     g_string_append_printf (string, ",path='%s'", path);
   if (path_namespace && !g_str_equal (path_namespace, "/"))
@@ -1799,40 +1799,6 @@ cockpit_dbus_json_init (CockpitDBusJson *self)
   self->rules = cockpit_dbus_rules_new ();
 }
 
-static gboolean
-on_timeout_ping (gpointer data)
-{
-  CockpitDBusJson *self = COCKPIT_DBUS_JSON (data);
-  GDBusMessage *message;
-  GError *error = NULL;
-
-  if (g_cancellable_is_cancelled (self->cancellable))
-    {
-      self->ping_id = 0;
-      return FALSE;
-    }
-
-  message = g_dbus_message_new_method_call (self->name_owner, "/",
-                                            "org.freedesktop.DBus.Peer", "Ping");
-
-  g_dbus_connection_send_message (self->connection, message,
-                                  G_DBUS_SEND_MESSAGE_FLAGS_NONE,
-                                  NULL, &error);
-
-  g_object_unref (message);
-
-  if (error)
-    {
-      g_warning ("%s: couldn't send ping to %s: %s",
-                 self->logname, self->name_owner, error->message);
-      g_error_free (error);
-      self->ping_id = 0;
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
 static void
 on_name_appeared (GDBusConnection *connection,
                   const gchar *name,
@@ -1841,33 +1807,11 @@ on_name_appeared (GDBusConnection *connection,
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
 
-  if (self->name_owner)
-    return;
-
-  self->name_owner = g_strdup (name_owner);
-  g_debug ("%s: name owner is %s", self->logname, self->name_owner);
-
-  self->cache = cockpit_dbus_cache_new (self->connection,
-                                        self->name,
-                                        self->name_owner);
-
-  self->meta_sig = g_signal_connect (self->cache, "meta", G_CALLBACK (on_cache_meta), self);
-  self->update_sig = g_signal_connect (self->cache, "update",
-                                       G_CALLBACK (on_cache_update), self);
-
-  self->subscribe_id = g_dbus_connection_signal_subscribe (self->connection,
-                                                           self->name_owner,
-                                                           NULL, /* interface */
-                                                           NULL, /* member */
-                                                           NULL, /* object_path */
-                                                           NULL, /* arg0 */
-                                                           G_DBUS_SIGNAL_FLAGS_NO_MATCH_RULE,
-                                                           on_signal_message, self, NULL);
-  self->subscribed = TRUE;
-
-  self->ping_id = g_timeout_add_seconds (10, on_timeout_ping, self);
-
-  cockpit_channel_ready (COCKPIT_CHANNEL (self));
+  if (!self->name_appeared)
+    {
+      self->name_appeared = TRUE;
+      cockpit_channel_ready (COCKPIT_CHANNEL (self));
+    }
 }
 
 static void
@@ -1878,12 +1822,31 @@ on_name_vanished (GDBusConnection *connection,
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
   CockpitChannel *channel = COCKPIT_CHANNEL (self);
 
-  if (G_IS_DBUS_CONNECTION (connection) && g_dbus_connection_is_closed (connection))
+  if (!G_IS_DBUS_CONNECTION (connection) || g_dbus_connection_is_closed (connection))
     cockpit_channel_close (channel, "disconnected");
-  else if (self->name_owner)
-    cockpit_channel_close (channel, NULL);
-  else
+  else if (!self->name_appeared)
     cockpit_channel_close (channel, "not-found");
+  else if (self->name_track)
+    cockpit_channel_close (channel, NULL);
+}
+
+static void
+subscribe_and_cache (CockpitDBusJson *self)
+{
+  self->cache = cockpit_dbus_cache_new (self->connection, self->name);
+  self->meta_sig = g_signal_connect (self->cache, "meta", G_CALLBACK (on_cache_meta), self);
+  self->update_sig = g_signal_connect (self->cache, "update",
+                                       G_CALLBACK (on_cache_update), self);
+
+  self->subscribe_id = g_dbus_connection_signal_subscribe (self->connection,
+                                                           self->name,
+                                                           NULL, /* interface */
+                                                           NULL, /* member */
+                                                           NULL, /* object_path */
+                                                           NULL, /* arg0 */
+                                                           G_DBUS_SIGNAL_FLAGS_NO_MATCH_RULE,
+                                                           on_signal_message, self, NULL);
+  self->subscribed = TRUE;
 }
 
 static void
@@ -1915,14 +1878,16 @@ on_bus_ready (GObject *source,
     {
       g_dbus_connection_set_exit_on_close (self->connection, FALSE);
 
+
       flags = G_BUS_NAME_WATCHER_FLAGS_AUTO_START;
       self->name_watch = g_bus_watch_name_on_connection (self->connection,
-                                                         self->name,
-                                                         flags,
+                                                         self->name, flags,
                                                          on_name_appeared,
                                                          on_name_vanished,
                                                          self, NULL);
       self->name_watched = TRUE;
+
+      subscribe_and_cache (self);
     }
 
   g_object_unref (self);
@@ -1950,10 +1915,9 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       g_warning ("invalid \"bus\" option in dbus channel");
       goto out;
     }
-
-  if (self->name == NULL || !g_dbus_is_name (self->name))
+  if (!cockpit_json_get_bool (options, "track", FALSE, &self->name_track))
     {
-      g_warning ("bad \"name\" option in dbus channel: %s", self->name);
+      g_warning ("invalid \"track\" option in dbus channel");
       goto out;
     }
 
@@ -1979,7 +1943,22 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
       goto out;
     }
 
-  g_bus_get (bus_type, self->cancellable, on_bus_ready, g_object_ref (self));
+  if (bus_type != G_BUS_TYPE_NONE)
+    {
+      if (self->name == NULL)
+        {
+          g_warning ("missing \"name\" option in dbus channel: %s", self->name);
+          goto out;
+        }
+      else if (!g_dbus_is_name (self->name))
+        {
+          g_warning ("bad \"name\" option in dbus channel: %s", self->name);
+          goto out;
+        }
+
+      g_bus_get (bus_type, self->cancellable, on_bus_ready, g_object_ref (self));
+    }
+
   problem = NULL;
 
 out:
@@ -1994,12 +1973,6 @@ cockpit_dbus_json_dispose (GObject *object)
   GList *l;
 
   g_cancellable_cancel (self->cancellable);
-
-  if (self->ping_id)
-    {
-      g_source_remove (self->ping_id);
-      self->ping_id = 0;
-    }
 
   if (self->name_watched)
     {
@@ -2036,7 +2009,6 @@ cockpit_dbus_json_finalize (GObject *object)
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (object);
 
-  g_free (self->name_owner);
   g_clear_object (&self->connection);
   g_object_unref (self->cancellable);
   cockpit_dbus_rules_free (self->rules);

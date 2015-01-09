@@ -52,8 +52,7 @@ typedef void       (* CockpitDBusBarrierFunc)              (CockpitDBusCache *ca
 GType                 cockpit_dbus_cache_get_type          (void) G_GNUC_CONST;
 
 CockpitDBusCache *    cockpit_dbus_cache_new               (GDBusConnection *connection,
-                                                            const gchar *name,
-                                                            const gchar *name_owner);
+                                                            const gchar *name);
 
 void                  cockpit_dbus_cache_barrier           (CockpitDBusCache *self,
                                                             CockpitDBusBarrierFunc callback,

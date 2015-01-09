@@ -59,7 +59,6 @@ struct _CockpitDBusCache {
   /* The readable DBus name, and actual unique owner */
   gchar *logname;
   gchar *name;
-  gchar *name_owner;
 
   /* Introspection stuff */
   GHashTable *introspected;
@@ -452,10 +451,10 @@ introspect_next (CockpitDBusCache *self)
       g_debug ("%s: calling Introspect() on %s", self->logname, id->path);
 
       id->introspecting = TRUE;
-      g_dbus_connection_call (self->connection, self->name_owner, id->path,
+      g_dbus_connection_call (self->connection, self->name, id->path,
                               "org.freedesktop.DBus.Introspectable", "Introspect",
                               g_variant_new ("()"), G_VARIANT_TYPE ("(s)"),
-                              G_DBUS_CALL_FLAGS_NO_AUTO_START, -1,
+                              G_DBUS_CALL_FLAGS_NONE, -1,
                               self->cancellable, on_introspect_reply,
                               g_object_ref (self));
     }
@@ -838,11 +837,11 @@ process_properties_changed (CockpitDBusCache *self,
       gd->path = pcd->path;
       gd->iface = iface;
 
-      g_dbus_connection_call (self->connection, self->name_owner, gd->path,
+      g_dbus_connection_call (self->connection, self->name, gd->path,
                               "org.freedesktop.DBus.Properties", "Get",
                               g_variant_new ("(ss)", iface->name, property),
                               G_VARIANT_TYPE ("(v)"),
-                              G_DBUS_CALL_FLAGS_NO_AUTO_START, -1,
+                              G_DBUS_CALL_FLAGS_NONE, -1,
                               self->cancellable, on_get_reply, gd);
     }
 
@@ -1082,13 +1081,12 @@ cockpit_dbus_cache_constructed (GObject *object)
   CockpitDBusCache *self = COCKPIT_DBUS_CACHE (object);
 
   g_return_if_fail (self->name != NULL);
-  g_return_if_fail (self->name_owner != NULL);
   g_return_if_fail (self->connection != NULL);
 
   self->logname = self->name;
 
   self->subscribe_properties = g_dbus_connection_signal_subscribe (self->connection,
-                                                                   self->name_owner,
+                                                                   self->name,
                                                                    "org.freedesktop.DBus.Properties",
                                                                    "PropertiesChanged",
                                                                    NULL, /* object_path */
@@ -1098,7 +1096,7 @@ cockpit_dbus_cache_constructed (GObject *object)
                                                                    self, NULL);
 
   self->subscribe_manager = g_dbus_connection_signal_subscribe (self->connection,
-                                                                self->name_owner,
+                                                                self->name,
                                                                 "org.freedesktop.DBus.ObjectManager",
                                                                 NULL, /* member */
                                                                 NULL, /* object_path */
@@ -1125,9 +1123,6 @@ cockpit_dbus_cache_set_property (GObject *obj,
         break;
       case PROP_NAME:
         self->name = g_value_dup_string (value);
-        break;
-      case PROP_NAME_OWNER:
-        self->name_owner = g_value_dup_string (value);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -1168,7 +1163,6 @@ cockpit_dbus_cache_finalize (GObject *object)
   CockpitDBusCache *self = COCKPIT_DBUS_CACHE (object);
 
   g_free (self->name);
-  g_free (self->name_owner);
 
   cockpit_dbus_rules_free (self->rules);
   g_tree_destroy (self->managed);
@@ -1213,10 +1207,6 @@ cockpit_dbus_cache_class_init (CockpitDBusCacheClass *klass)
 
   g_object_class_install_property (gobject_class, PROP_NAME,
        g_param_spec_string ("name", "name", "name", NULL,
-                            G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_NAME_OWNER,
-       g_param_spec_string ("name-owner", "name-owner", "name-owner", NULL,
                             G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
@@ -1476,10 +1466,10 @@ retrieve_properties (CockpitDBusCache *self,
   gad->path = path;
   gad->iface = iface;
 
-  g_dbus_connection_call (self->connection, self->name_owner, path,
+  g_dbus_connection_call (self->connection, self->name, path,
                           "org.freedesktop.DBus.Properties", "GetAll",
                           g_variant_new ("(s)", iface->name), G_VARIANT_TYPE ("(a{sv})"),
-                          G_DBUS_CALL_FLAGS_NO_AUTO_START, -1,
+                          G_DBUS_CALL_FLAGS_NONE, -1,
                           self->cancellable, on_get_all_reply, gad);
 }
 
@@ -1639,10 +1629,10 @@ cockpit_dbus_cache_watch (CockpitDBusCache *self,
 
       g_debug ("%s: calling GetManagedObjects() on %s", self->logname, gmod->path);
 
-      g_dbus_connection_call (self->connection, self->name_owner, gmod->path,
+      g_dbus_connection_call (self->connection, self->name, gmod->path,
                               "org.freedesktop.DBus.ObjectManager", "GetManagedObjects",
                               g_variant_new ("()"), G_VARIANT_TYPE ("(a{oa{sa{sv}}})"),
-                              G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, /* timeout */
+                              G_DBUS_CALL_FLAGS_NONE, -1, /* timeout */
                               self->cancellable, on_get_managed_objects_reply, gmod);
     }
   else
@@ -1834,12 +1824,10 @@ cockpit_dbus_cache_poke (CockpitDBusCache *self,
 
 CockpitDBusCache *
 cockpit_dbus_cache_new (GDBusConnection *connection,
-                        const gchar *name,
-                        const gchar *name_owner)
+                        const gchar *name)
 {
   return g_object_new (COCKPIT_TYPE_DBUS_CACHE,
                        "connection", connection,
                        "name", name,
-                       "name-owner", name_owner,
                        NULL);
 }

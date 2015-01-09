@@ -274,8 +274,10 @@ Additional "open" command options are needed to open a channel of this
 type:
 
  * "bus": The DBus bus to connect to either "session" or "system",
-   defaults to "system" if not present.
- * "name": A service name of the DBus service to communicate with.
+   defaults to "system" if not present. If set to "internal" then this
+   channel will communicate with the internal bridge DBus connection.
+ * "name": A service name of the DBus service to communicate with. Set to
+   null if "bus" is "internal".
  * "track": Only talk with the first name DBus owner of the service
    name, and close the channel when it goes away.
 

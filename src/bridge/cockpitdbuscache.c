@@ -1080,10 +1080,11 @@ cockpit_dbus_cache_constructed (GObject *object)
 {
   CockpitDBusCache *self = COCKPIT_DBUS_CACHE (object);
 
-  g_return_if_fail (self->name != NULL);
   g_return_if_fail (self->connection != NULL);
 
   self->logname = self->name;
+  if (self->logname == NULL)
+    self->logname = "internal";
 
   self->subscribe_properties = g_dbus_connection_signal_subscribe (self->connection,
                                                                    self->name,

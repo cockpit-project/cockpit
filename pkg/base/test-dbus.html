@@ -949,6 +949,19 @@ asyncTest("no track name", function() {
         });
 });
 
+asyncTest("internal dbus", function() {
+    expect(2);
+
+    var dbus = cockpit.dbus(null, { "bus": "internal" });
+    dbus.call("/", "org.freedesktop.DBus.Introspectable", "Introspect")
+        .done(function(resp) {
+            ok(String(resp[0]).indexOf("<node") !== -1, "introspected internal");
+        })
+        .always(function() {
+            equal(this.state(), "resolved", "called internal");
+            start();
+        });
+});
 
 QUnit.start();
 </script>

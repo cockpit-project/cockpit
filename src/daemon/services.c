@@ -142,21 +142,25 @@ on_unit_proxy_ready (GObject *object,
       cleanup_unref_variant GVariant *a = g_dbus_proxy_get_cached_property (unit, "ActiveState");
       cleanup_unref_variant GVariant *s = g_dbus_proxy_get_cached_property (unit, "SubState");
       cleanup_unref_variant GVariant *f = g_dbus_proxy_get_cached_property (unit, "UnitFileState");
-      g_variant_get (n, "&s", &name);
-      g_variant_get (d, "&s", &description);
-      g_variant_get (l, "&s", &load_state);
-      g_variant_get (a, "&s", &active_state);
-      g_variant_get (s, "&s", &sub_state);
-      g_variant_get (f, "&s", &file_state);
 
-      cockpit_services_emit_service_update (COCKPIT_SERVICES (services),
-                                            g_variant_new ("(ssssss)",
-                                                           name,
-                                                           description,
-                                                           load_state,
-                                                           active_state,
-                                                           sub_state,
-                                                           file_state));
+      if (n && d && l && a && s && f)
+        {
+          g_variant_get (n, "&s", &name);
+          g_variant_get (d, "&s", &description);
+          g_variant_get (l, "&s", &load_state);
+          g_variant_get (a, "&s", &active_state);
+          g_variant_get (s, "&s", &sub_state);
+          g_variant_get (f, "&s", &file_state);
+
+          cockpit_services_emit_service_update (COCKPIT_SERVICES (services),
+                                                g_variant_new ("(ssssss)",
+                                                               name,
+                                                               description,
+                                                               load_state,
+                                                               active_state,
+                                                               sub_state,
+                                                               file_state));
+        }
     }
 }
 

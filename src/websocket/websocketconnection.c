@@ -409,6 +409,7 @@ send_prefixed_message_rfc6455 (WebSocketConnection *self,
           if (prefix_len > 125)
               prefix_len = 125;
           payload_len = 125 - prefix_len;
+          len = 125;
         }
 
       /* Buffered amount of bytes is zero for control messages */

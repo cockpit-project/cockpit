@@ -331,7 +331,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
                          data->logname);
               break;
             case SSH_AUTH_AGAIN:
-              g_message ("%s: server asked you to try logging in again",
+              g_message ("%s: password auth failed: server asked for retry",
                          data->logname);
               break;
             default:

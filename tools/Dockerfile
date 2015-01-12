@@ -20,6 +20,7 @@ ADD cockpit-container-bridge /container/cockpit-bridge
 ADD cockpit-container-daemon /container/cockpitd
 ADD cockpit-container-run /container/cockpit-run
 
-# Look ma, no EXPOSE
+EXPOSE 9090
+VOLUME /host
 
 CMD ["/container/cockpit-run"]

@@ -385,15 +385,16 @@ send_prefixed_message_rfc6455 (WebSocketConnection *self,
                                const guint8 *payload,
                                gsize payload_len)
 {
-  gsize amount = payload_len + prefix_len;
+  gsize amount;
   GByteArray *bytes;
   gsize frame_len;
   guint8 *outer;
   guint8 *mask = 0;
   guint8 *at;
   gsize len;
+  guint64 size;
 
-  len = prefix_len + payload_len;
+  len = payload_len + prefix_len;
   amount = len;
 
   bytes = g_byte_array_sized_new (14 + len);
@@ -416,29 +417,30 @@ send_prefixed_message_rfc6455 (WebSocketConnection *self,
       amount = 0;
     }
 
-  if (len < 126)
+  size = len;
+  if (size < 126)
     {
-      outer[1] = (0xFF & len); /* mask | 7-bit-len */
+      outer[1] = (0xFF & size); /* mask | 7-bit-len */
       bytes->len = 2;
     }
-  else if (len < 65536)
+  else if (size < 65536)
     {
       outer[1] = 126; /* mask | 16-bit-len */
-      outer[2] = (len >> 8) & 0xFF;
-      outer[3] = (len >> 0) & 0xFF;
+      outer[2] = (size >> 8) & 0xFF;
+      outer[3] = (size >> 0) & 0xFF;
       bytes->len = 4;
     }
   else
     {
       outer[1] = 127; /* mask | 64-bit-len */
-      outer[2] = (len >> 56) & 0xFF;
-      outer[3] = (len >> 48) & 0xFF;
-      outer[4] = (len >> 40) & 0xFF;
-      outer[5] = (len >> 32) & 0xFF;
-      outer[6] = (len >> 24) & 0xFF;
-      outer[7] = (len >> 16) & 0xFF;
-      outer[8] = (len >> 8) & 0xFF;
-      outer[9] = (len >> 0) & 0xFF;
+      outer[2] = (size >> 56) & 0xFF;
+      outer[3] = (size >> 48) & 0xFF;
+      outer[4] = (size >> 40) & 0xFF;
+      outer[5] = (size >> 32) & 0xFF;
+      outer[6] = (size >> 24) & 0xFF;
+      outer[7] = (size >> 16) & 0xFF;
+      outer[8] = (size >> 8) & 0xFF;
+      outer[9] = (size >> 0) & 0xFF;
       bytes->len = 10;
     }
 

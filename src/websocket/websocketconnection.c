@@ -629,7 +629,7 @@ too_big_error_and_close (WebSocketConnection *self,
                                        self->pv->server_side ?
                                            "Received extremely large WebSocket data from the server" :
                                            "Received extremely large WebSocket data from the client");
-  g_message ("%s is trying to frame of size %" G_GUINT64_FORMAT " or greater, but max supported size is 128KiB",
+  g_message ("%s is trying to frame of size %" G_GSIZE_FORMAT " or greater, but max supported size is 128KiB",
              self->pv->server_side ? "server" : "client", payload_len);
   _web_socket_connection_error_and_close (self, error, TRUE);
 

@@ -1876,8 +1876,8 @@ on_bus_ready (GObject *source,
     }
   else
     {
+      /* Yup, we don't want this */
       g_dbus_connection_set_exit_on_close (self->connection, FALSE);
-
 
       flags = G_BUS_NAME_WATCHER_FLAGS_AUTO_START;
       self->name_watch = g_bus_watch_name_on_connection (self->connection,

@@ -1013,18 +1013,50 @@ function full_scope(cockpit, $) {
      * User and system information
      */
 
-    cockpit.user = { };
     cockpit.info = { };
     init_callback = function(options) {
-        if (options.user)
-            $.extend(cockpit.user, options.user);
         if (options.system)
             $.extend(cockpit.info, options.system);
-        if (options.user)
-            $(cockpit.user).trigger("changed");
         if (options.system)
             $(cockpit.info).trigger("changed");
     };
+
+    function User() {
+        var self = this;
+        self["user"] = null;
+        self["name"] = null;
+
+        var dbus = cockpit.dbus(null, { "bus": "internal" });
+        dbus.call("/user", "org.freedesktop.DBus.Properties",
+                  "GetAll", [ "cockpit.User" ],
+                  { "type": "s" })
+            .done(function(reply) {
+                var user = reply[0];
+                self["user"] = user.Name.v;
+                self["name"] = user.Full.v;
+                self["id"] = user.Id.v;
+                self["groups"] = user.Groups.v;
+                self["home"] = user.Home.v;
+                self["shell"] = user.Shell.v;
+            })
+            .fail(function(ex) {
+                console.warn("couldn't load user info: " + ex.message);
+            })
+            .always(function() {
+                dbus.close();
+                $(self).triggerHandler("changed");
+            });
+    }
+
+    var the_user = null;
+    Object.defineProperty(cockpit, "user", {
+        enumerable: true,
+        get: function user_get() {
+            if (!the_user)
+                the_user = new User();
+            return the_user;
+        }
+    });
 
     /* ----------------------------------------------------------------------------
      * Packages

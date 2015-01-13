@@ -1405,7 +1405,6 @@ on_web_socket_open (WebSocketConnection *connection,
   GBytes *command;
   JsonObject *object;
   JsonObject *info;
-  const gchar *name;
 
   g_info ("New connection from %s for %s",
           cockpit_creds_get_rhost (self->creds),
@@ -1427,13 +1426,6 @@ on_web_socket_open (WebSocketConnection *connection,
       json_array_add_string_element (capabilities, "multi");
       json_object_set_array_member (object, "capabilities", capabilities);
     }
-
-  info = json_object_new ();
-  json_object_set_string_member (info, "user", cockpit_creds_get_user (self->creds));
-  name = cockpit_creds_get_fullname (self->creds);
-  if (name)
-      json_object_set_string_member (info, "name", name);
-  json_object_set_object_member (object, "user", info);
 
   info = json_object_new ();
   json_object_set_string_member (info, "version", PACKAGE_VERSION);

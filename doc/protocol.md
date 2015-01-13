@@ -81,7 +81,6 @@ The following fields are defined:
  * "capabilities": An array of capability strings
  * "channel-seed": A seed to be used when generating new channel ids.
  * "default-host": The default host to put in "open" messages.
- * "user": An object containing information about the logged in user.
  * "problem": A problem occurred during init.
 
 If a problem occurs that requires shutdown of a transport, then the "problem"

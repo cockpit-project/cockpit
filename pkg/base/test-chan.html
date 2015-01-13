@@ -482,16 +482,9 @@ asyncTest("droppriv", function() {
 });
 
 asyncTest("info", function() {
-    expect(6);
+    expect(3);
 
-    var user_changed = false;
     var info_changed = false;
-
-    $(cockpit.user).on("changed", function() {
-        strictEqual(cockpit.user.user, "scruffy", "cockpit.user.user");
-        strictEqual(cockpit.user.name, "Scruffy the Janitor", "cockpit.user.name");
-        user_changed = true;
-    });
 
     $(cockpit.info).on("changed", function() {
         strictEqual(cockpit.info.version, "zero.point.zero", "cockpit.user.user");
@@ -503,9 +496,7 @@ asyncTest("info", function() {
         var cmd = JSON.parse(payload);
         if (cmd.command == "open") {
             $(mock_peer).off("recv");
-            $(cockpit.user).off("changed");
             $(cockpit.info).off("changed");
-            strictEqual(user_changed, true, "user changed event was called");
             strictEqual(info_changed, true, "info changed event was called");
             start();
         }

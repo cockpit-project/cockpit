@@ -502,9 +502,9 @@
           <div class="panel-heading">
             <span translatable="yes">Interfaces</span>
             <div style="float:right">
-              <button id="networking-add-bond" class="btn btn-default">Add Bond</button>
-              <button id="networking-add-bridge" class="btn btn-default">Add Bridge</button>
-              <button id="networking-add-vlan" class="btn btn-default">Add VLAN</button>
+              <button id="networking-add-bond" class="btn btn-default network-privileged">Add Bond</button>
+              <button id="networking-add-bridge" class="btn btn-default network-privileged">Add Bridge</button>
+              <button id="networking-add-vlan" class="btn btn-default network-privileged">Add VLAN</button>
             </div>
           </div>
           <table class="table table-hover">
@@ -548,7 +548,7 @@
             <span style="margin-left:20px;margin-right:20px" id="network-interface-hw"></span>
             <span id="network-interface-mac"></span>
             <div style="float:right">
-              <button class="btn btn-danger" style="margin-right:20px"
+              <button class="btn btn-danger network-privileged" style="margin-right:20px"
                       id="network-interface-delete">
                 Delete
               </button>

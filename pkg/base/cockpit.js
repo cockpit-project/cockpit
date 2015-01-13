@@ -2510,6 +2510,63 @@ function full_scope(cockpit, $) {
         return new HttpClient(endpoint, options || { });
     };
 
+    /* ---------------------------------------------------------------------
+     * Permission
+     */
+
+    var authority = null;
+
+    function Permission(options) {
+        var self = this;
+        self.allowed = null;
+
+        var user = cockpit.user;
+        var group = null;
+
+        if (options)
+            group = options.group;
+
+        function decide() {
+            if (user.id === 0)
+                return true;
+
+            if (group && user.groups) {
+                var allowed = false;
+                $.each(user.groups, function(i, name) {
+                    if (name == group) {
+                        allowed = true;
+                        return false;
+                    }
+                });
+                return allowed;
+            }
+
+            if (user.id === undefined)
+                return null;
+
+            return false;
+        }
+
+        function user_changed() {
+            var allowed = decide();
+            if (self.allowed !== allowed) {
+                self.allowed = allowed;
+                $(self).triggerHandler("changed");
+            }
+        }
+
+        $(user).on("changed", user_changed);
+        user_changed();
+
+        self.close = function close() {
+            $(user).off("changed", user_changed);
+        };
+    }
+
+    cockpit.permission = function permission(arg) {
+        return new Permission(arg);
+    };
+
 } /* full_scope */
 
 /* ----------------------------------------------------------------------------

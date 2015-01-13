@@ -384,7 +384,7 @@ open_session (pam_handle_t *pamh)
 
   if (want_session)
     {
-      debug ("checking access for %s", user);
+      debug ("checking access for %s", name);
       res = pam_acct_mgmt (pamh, 0);
       if (res != PAM_SUCCESS)
         {

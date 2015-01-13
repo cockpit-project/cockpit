@@ -2511,6 +2511,99 @@ function full_scope(cockpit, $) {
         return new HttpClient(endpoint, options || { });
     };
 
+    /* ---------------------------------------------------------------------
+     * Permission
+     */
+
+    var authority = null;
+
+    function Permission(options) {
+        var self = this;
+
+        var user = cockpit.user;
+
+        var group = options.group;
+        var action = options.action;
+        var checked = null;
+
+        function decide() {
+            var allowed = false;
+
+            if (user.id === 0)
+                allowed = true;
+
+            /*
+             * First and second values returned from CheckAuthorization are
+             * is_authorized and is_challenge. In either case we are allowed.
+             */
+            if (checked && (checked[0] || checked[1]))
+                allowed = true;
+
+            $.each(user.groups, function(i, name) {
+                if (name == group) {
+                    allowed = true;
+                    return false;
+                }
+            });
+
+            if (self.allowed !== allowed) {
+                self.allowed = allowed;
+                $(self).triggerHandler("changed");
+            }
+        }
+
+        function check_authorization() {
+            if (!user.subject)
+                return;
+            authority.call("/org/freedesktop/PolicyKit1/Authority",
+                           "org.freedesktop.PolicyKit1.Authority",
+                           "CheckAuthorization", [ user.subject, action, { }, 0, "" ])
+                .done(function(resp) {
+                    checked = resp;
+                    decide();
+                })
+                .fail(function(ex) {
+                    console.warn("couldn't check polkit authorization: " + ex.message);
+                    checked = null;
+                    decide();
+                });
+        }
+
+        var sub = null;
+
+        if (action) {
+            if (!authority)
+                authority = cockpit.dbus("org.freedesktop.PolicyKit1");
+            sub = authority.subscribe({
+                    interface: "org.freedesktop.PolicyKit1.Authority",
+                    path: "/org/freedesktop/PolicyKit1/Authority",
+                    member: "Changed"
+                }, check_authorization);
+            check_authorization();
+        }
+
+        function user_changed() {
+            if (action)
+                check_authorization();
+            decide();
+        }
+
+        $(user).on("changed", user_changed);
+        user_changed();
+
+        self.close = function close() {
+            if (sub) {
+                sub.remove();
+                sub = null;
+            }
+            $(user).off("changed", decide);
+        };
+    }
+
+    cockpit.permission = function permission(arg) {
+        return new Permission(arg);
+    };
+
 } /* full_scope */
 
 /* ----------------------------------------------------------------------------

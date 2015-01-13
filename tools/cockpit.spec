@@ -73,8 +73,12 @@ BuildRequires: sed
 BuildRequires: /usr/bin/xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
+Requires: %{name}-daemon = %{version}-%{release}
 Requires: %{name}-ws = %{version}-%{release}
 Requires: %{name}-shell = %{version}-%{release}
+%ifarch x86_64
+Requires: %{name}-docker = %{version}-%{release}
+%endif
 %if %{defined selinux}
 Requires: %{name}-selinux-policy = %{version}-%{release}
 %endif
@@ -90,6 +94,19 @@ Summary: Cockpit bridge server-side component
 The Cockpit bridge component installed server side and runs commands on the
 system on behalf of the web based user interface.
 
+%package daemon
+Summary: Deprecated wrappers for various configuration APIs
+Requires: udisks2 >= 2.1.0
+Requires: mdadm
+Requires: lvm2
+Requires: realmd
+Requires: storaged
+
+%description daemon
+Summary: Deprecated wrappers for various configuration APIs such as udisks2
+and accountsservice. Soon these will be accessed directly from the cockpit
+user interface, and this package will disappear.
+
 %package doc
 Summary: Cockpit deployment and developer guide
 
@@ -98,28 +115,10 @@ The Cockpit Deployment and Developer Guide shows sysadmins how to
 deploy Cockpit on their machines as well as helps developers who want to
 embed or extend Cockpit.
 
-%package docker
-Summary: Cockpit user interface for Docker containers
-%if 0%{?fedora}
-Requires: docker-io
-%else
-Requires: docker
-%endif
-
-%description docker
-The Cockpit components for interacting with Docker and user interface.
-This package is not yet complete.
-
 %package shell
 Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
-Requires: %{name}-docker = %{version}-%{release}
 Requires: NetworkManager
-Requires: realmd
-Requires: udisks2 >= 2.1.0
-Requires: mdadm
-Requires: lvm2
-Requires: storaged
 Obsoletes: %{name}-assets
 BuildArch: noarch
 
@@ -171,6 +170,9 @@ install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 install -d %{buildroot}%{_datadir}/selinux/targeted
 install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %endif
+%ifnarch x86_64
+rm -rf %{buildroot}/%{_datadir}/%{name}/docker
+%endif
 
 %files
 %{_docdir}/%{name}/AUTHORS
@@ -182,18 +184,17 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 
 %files bridge
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
-%doc %{_mandir}/man8/cockpitd.8.gz
-%{_datadir}/dbus-1/services/com.redhat.Cockpit.service
-%{_libexecdir}/cockpitd
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
 %{_libdir}/security/pam_reauthorize.so
 
+%files daemon
+%doc %{_mandir}/man8/cockpitd.8.gz
+%{_datadir}/dbus-1/services/com.redhat.Cockpit.service
+%{_libexecdir}/cockpitd
+
 %files doc
 %{_docdir}/%{name}
-
-%files docker
-%{_datadir}/%{name}/docker
 
 %files shell
 %{_datadir}/%{name}/base
@@ -231,6 +232,21 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 %systemd_postun_with_restart cockpit.socket
 
 # Conditionally built packages below
+
+%ifarch x86_64
+
+%package docker
+Summary: Cockpit user interface for Docker containers
+Requires: docker
+
+%description docker
+The Cockpit components for interacting with Docker and user interface.
+This package is not yet complete.
+
+%files docker
+%{_datadir}/%{name}/docker
+
+%endif
 
 %if %{defined gitcommit}
 
@@ -287,6 +303,21 @@ fi
 %endif
 
 %changelog
+* Mon Jan 12 2015 Stef Walter <stefw@redhat.com> - 0.36-1
+- Update to 0.36 release
+
+* Mon Dec 15 2014 Stef Walter <stefw@redhat.com> - 0.35-1
+- Update to 0.35 release
+
+* Thu Dec 11 2014 Stef Walter <stefw@redhat.com> - 0.34-1
+- Update to 0.34 release
+
+* Fri Dec 05 2014 Stef Walter <stefw@redhat.com> - 0.33-3
+- Only depend on docker stuff on x86_64
+
+* Fri Dec 05 2014 Stef Walter <stefw@redhat.com> - 0.33-2
+- Only build docker stuff on x86_64
+
 * Wed Dec 03 2014 Stef Walter <stefw@redhat.com> - 0.33-1
 - Update to 0.33 release
 

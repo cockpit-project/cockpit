@@ -20,6 +20,7 @@
 
 #include "cockpitchannel.h"
 #include "cockpitdbusinternal.h"
+#include "cockpitdbususer.h"
 #include "cockpitinteracttransport.h"
 #include "cockpitpackage.h"
 #include "cockpitpolkitagent.h"
@@ -360,6 +361,8 @@ run_bridge (const gchar *interactive)
         polkit_agent = cockpit_polkit_agent_register (transport, NULL);
       super = cockpit_super_channels_new (transport);
     }
+
+  cockpit_dbus_user_startup ();
 
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);

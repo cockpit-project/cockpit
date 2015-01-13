@@ -12,6 +12,8 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbusjson.h \
 	src/bridge/cockpitdbusrules.c \
 	src/bridge/cockpitdbusrules.h \
+	src/bridge/cockpitdbususer.c \
+	src/bridge/cockpitdbususer.h \
 	src/bridge/cockpitechochannel.c \
 	src/bridge/cockpitechochannel.h \
 	src/bridge/cockpithttpstream.c \

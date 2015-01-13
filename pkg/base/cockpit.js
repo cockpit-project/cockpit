@@ -1038,6 +1038,7 @@ function full_scope(cockpit, $) {
                 self["groups"] = user.Groups.v;
                 self["home"] = user.Home.v;
                 self["shell"] = user.Shell.v;
+                self["subject"] = user.Subject.v;
             })
             .fail(function(ex) {
                 console.warn("couldn't load user info: " + ex.message);

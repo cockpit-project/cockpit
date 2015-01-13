@@ -78,6 +78,10 @@ gboolean       cockpit_json_get_array         (JsonObject *object,
                                                JsonArray *defawlt,
                                                JsonArray **value);
 
+gboolean       cockpit_json_get_null          (JsonObject *object,
+                                               const gchar *member,
+                                               gboolean *present);
+
 guint          cockpit_json_int_hash          (gconstpointer v);
 
 gboolean       cockpit_json_int_equal         (gconstpointer v1,

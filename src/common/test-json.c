@@ -30,7 +30,8 @@ static const gchar *test_data =
   "   \"string\": \"value\","
   "   \"number\": 55,"
   "   \"array\": [ \"one\", \"two\", \"three\" ],"
-  "   \"bool\": true"
+  "   \"bool\": true,"
+  "   \"null\": null"
   "}";
 
 typedef struct {
@@ -121,6 +122,32 @@ test_get_bool (TestCase *tc,
   g_assert_cmpint (value, ==, FALSE);
 
   ret = cockpit_json_get_bool (tc->root, "string", FALSE, &value);
+  g_assert (ret == FALSE);
+}
+
+static void
+test_get_null (TestCase *tc,
+                 gconstpointer data)
+{
+  gboolean ret;
+  gboolean present;
+
+  ret = cockpit_json_get_null (tc->root, "null", NULL);
+  g_assert (ret == TRUE);
+
+  present = FALSE;
+  ret = cockpit_json_get_null (tc->root, "null", &present);
+  g_assert (ret == TRUE);
+  g_assert (present == TRUE);
+
+  ret = cockpit_json_get_null (tc->root, "unknown", NULL);
+  g_assert (ret == TRUE);
+
+  ret = cockpit_json_get_null (tc->root, "unknown", &present);
+  g_assert (ret == TRUE);
+  g_assert (present == FALSE);
+
+  ret = cockpit_json_get_null (tc->root, "number", NULL);
   g_assert (ret == FALSE);
 }
 
@@ -375,6 +402,8 @@ main (int argc,
               setup, test_get_int, teardown);
   g_test_add ("/json/get-bool", TestCase, NULL,
               setup, test_get_bool, teardown);
+  g_test_add ("/json/get-null", TestCase, NULL,
+              setup, test_get_null, teardown);
   g_test_add ("/json/get-strv", TestCase, NULL,
               setup, test_get_strv, teardown);
 

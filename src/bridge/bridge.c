@@ -308,12 +308,10 @@ static int
 run_bridge (const gchar *interactive)
 {
   CockpitTransport *transport;
-  GDBusConnection *connection = NULL;
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
   CockpitSuperChannels *super = NULL;
-  GError *error = NULL;
   gpointer polkit_agent = NULL;
   GPid daemon_pid = 0;
   guint sig_term;
@@ -342,20 +340,8 @@ run_bridge (const gchar *interactive)
 
   /* Start a session daemon if necessary */
   if (!interactive)
-    {
-      daemon_pid = start_dbus_daemon ();
+    daemon_pid = start_dbus_daemon ();
 
-      connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-      if (connection == NULL)
-        {
-          g_message ("couldn't connect to session bus: %s", error->message);
-          g_clear_error (&error);
-        }
-      else
-        {
-          g_dbus_connection_set_exit_on_close (connection, FALSE);
-        }
-    }
 
   if (interactive)
     {
@@ -387,8 +373,6 @@ run_bridge (const gchar *interactive)
     cockpit_polkit_agent_unregister (polkit_agent);
   if (super)
     g_object_unref (super);
-  if (connection)
-    g_object_unref (connection);
   g_object_unref (transport);
   g_hash_table_destroy (channels);
 

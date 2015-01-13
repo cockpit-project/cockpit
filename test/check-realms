@@ -193,6 +193,6 @@ class TestKerberos(MachineCase):
                                           '--resolve', 'x0.cockpit.lan:9090:%s' % self.machine.address,
                                           'http://x0.cockpit.lan:9090/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
-        self.assertIn('"admin"', output)
+        self.assertIn('"admin@cockpit.lan"', output)
 
 test_main()

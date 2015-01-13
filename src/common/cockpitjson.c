@@ -193,6 +193,32 @@ cockpit_json_get_strv (JsonObject *options,
   return valid;
 }
 
+gboolean
+cockpit_json_get_null (JsonObject *object,
+                       const gchar *member,
+                       gboolean *present)
+{
+  JsonNode *node;
+
+  node = json_object_get_member (object, member);
+  if (!node)
+    {
+      if (present)
+        *present = FALSE;
+      return TRUE;
+    }
+  else if (json_node_get_node_type (node) == JSON_NODE_NULL)
+    {
+      if (present)
+        *present = TRUE;
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
 static gboolean
 cockpit_json_equal_object (JsonObject *previous,
                            JsonObject *current)

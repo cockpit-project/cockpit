@@ -93,6 +93,7 @@ define([
         var self = this;
 
         var pre = $("<pre>").addClass("logs");
+        parent.empty();
         parent.append(pre);
 
         var wait;

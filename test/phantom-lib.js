@@ -30,6 +30,20 @@ function ph_find (sel)
     return ph_only(els, sel);
 }
 
+function ph_count(sel)
+{
+    var els = ph_select(sel);
+    return els.length;
+}
+
+function ph_count_check (sel, expected_num)
+{
+    count = ph_count(sel);
+    if (count != expected_num)
+        throw "found " + count + " " + sel + " not " + expected_num;
+    return count;
+}
+
 function ph_val (sel)
 {
     var el = ph_find(sel);

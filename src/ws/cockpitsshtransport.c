@@ -108,6 +108,15 @@ auth_method_description (int methods)
   return g_string_free (string, FALSE);
 }
 
+static gboolean
+ssh_msg_is_disconnected (const gchar *msg)
+{
+      return msg && (strstr (msg, "disconnected") ||
+                     strstr (msg, "SSH_MSG_DISCONNECT") ||
+                     strstr (msg, "Socket error: Success") ||
+                     strstr (msg, "Socket error: Connection reset by peer"));
+}
+
 /*
  * NOTE: This function changes the SSH_OPTIONS_KNOWNHOSTS option on
  * the session.
@@ -288,6 +297,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
   const gchar *problem;
   gboolean tried = FALSE;
   gchar *description;
+  const gchar *msg;
   int methods;
   int rc;
 
@@ -335,10 +345,13 @@ cockpit_ssh_authenticate (CockpitSshData *data)
                          data->logname);
               break;
             default:
+              msg = ssh_get_error (data->session);
               if (g_atomic_int_get (data->connecting))
-                g_message ("%s: couldn't authenticate: %s", data->logname,
-                           ssh_get_error (data->session));
-              problem = "internal-error";
+                g_message ("%s: couldn't authenticate: %s", data->logname, msg);
+              if (ssh_msg_is_disconnected (msg))
+                problem = "terminated";
+              else
+                problem = "internal-error";
               goto out;
             }
         }
@@ -378,10 +391,13 @@ cockpit_ssh_authenticate (CockpitSshData *data)
                          data->logname);
               break;
             default:
+              msg = ssh_get_error (data->session);
               if (g_atomic_int_get (data->connecting))
-                g_message ("%s: couldn't authenticate: %s", data->logname,
-                           ssh_get_error (data->session));
-              problem = "internal-error";
+                g_message ("%s: couldn't authenticate: %s", data->logname, msg);
+              if (ssh_msg_is_disconnected (msg))
+                problem = "terminated";
+              else
+                problem = "internal-error";
               goto out;
             }
         }
@@ -1166,10 +1182,7 @@ cockpit_ssh_source_dispatch (GSource *source,
        *
        * https://red.libssh.org/issues/158
        */
-      if (msg && (strstr (msg, "disconnected") ||
-                  strstr (msg, "SSH_MSG_DISCONNECT") ||
-                  strstr (msg, "Socket error: Success") ||
-                  strstr (msg, "Socket error: Connection reset by peer")))
+      if (ssh_msg_is_disconnected (msg))
         {
           g_debug ("%s: failed to process channel: %s", self->logname, msg);
           close_immediately (self, "terminated");

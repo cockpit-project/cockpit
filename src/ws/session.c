@@ -903,10 +903,10 @@ main (int argc,
         {
           if (clearenv () != 0)
             err (1, "couldn't clear environment");
-
-          /* set a minimal environment */
-          setenv ("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", 1);
         }
+
+      /* set a minimal environment */
+      setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 1);
 
       if (setgid (0) != 0 || setuid (0) != 0)
         err (1, "couldn't switch permissions correctly");
@@ -939,7 +939,7 @@ main (int argc,
   if (want_session)
     {
       /* Let the G_MESSAGES_DEBUG leak through from parent as a default */
-      transfer_pam_env (pamh, "G_DEBUG", "G_MESSAGES_DEBUG", NULL);
+      transfer_pam_env (pamh, "G_DEBUG", "G_MESSAGES_DEBUG", "PATH", NULL);
 
       env = pam_getenvlist (pamh);
       if (env == NULL)

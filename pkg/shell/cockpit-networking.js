@@ -32,6 +32,13 @@ function nm_debug() {
         console.debug.apply(console, arguments);
 }
 
+function generate_uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
+}
+
 /* NetworkManagerModel
  *
  * The NetworkManager model maintains a mostly-read-only data
@@ -1397,7 +1404,7 @@ PageNetworking.prototype = {
         if (!shell.check_admin(this.cockpitd))
             return;
 
-        uuid = shell.util.uuid();
+        uuid = generate_uuid();
         for (i = 0; i < 100; i++) {
             iface = "bond" + i;
             if (!this.model.find_interface(iface))
@@ -1433,7 +1440,7 @@ PageNetworking.prototype = {
         if (!shell.check_admin(this.cockpitd))
             return;
 
-        uuid = shell.util.uuid();
+        uuid = generate_uuid();
         for (i = 0; i < 100; i++) {
             iface = "bridge" + i;
             if (!this.model.find_interface(iface))
@@ -1472,7 +1479,7 @@ PageNetworking.prototype = {
         if (!shell.check_admin(this.cockpitd))
             return;
 
-        uuid = shell.util.uuid();
+        uuid = generate_uuid();
 
         PageNetworkVlanSettings.model = this.model;
         PageNetworkVlanSettings.done = null;
@@ -2039,7 +2046,7 @@ PageNetworkInterface.prototype = {
         }
 
         function create_ghost_connection_settings() {
-            var uuid = shell.util.uuid();
+            var uuid = generate_uuid();
             return {
                 connection: {
                     id: uuid,
@@ -2537,7 +2544,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
          */
 
         if (!main_connection) {
-            uuid = shell.util.uuid();
+            uuid = generate_uuid();
             return model.get_settings().add_connection({ connection:
                                                          { id: uuid,
                                                            uuid: uuid,

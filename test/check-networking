@@ -57,7 +57,7 @@ class TestNetworking(MachineCase):
         # Add interface, wait for it to be recognized and activated by
         # Network Manager, and switch to its page
 
-        mac = "52:54:00:9e:00:ff"
+        mac = "52:54:00:9e:00:f1"
         label = "test"
         m.execute("echo -e 'TYPE=Ethernet\nHWADDR=%s\nBOOTPROTO=dhcp\n' >/etc/sysconfig/network-scripts/ifcfg-%s" % (mac, label))
         m.execute("nmcli c reload")

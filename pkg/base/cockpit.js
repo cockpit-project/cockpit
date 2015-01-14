@@ -2265,7 +2265,7 @@ function full_scope(cockpit, $) {
                 return this.status;
         };
         this.toString = function() {
-            if (this.status === 0)
+            if (!this.status)
                 return this.problem;
             else
                 return this.status + " " + this.message;

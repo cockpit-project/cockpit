@@ -1427,8 +1427,8 @@ on_get_all_reply (GObject *source,
     {
       if (!g_cancellable_is_cancelled (self->cancellable))
         {
-          g_message ("%s: couldn't get all properties of %s at %s", self->logname,
-                     gad->iface->name, gad->path);
+          g_message ("%s: couldn't get all properties of %s at %s: %s", self->logname,
+                     gad->iface->name, gad->path, error->message);
         }
       g_error_free (error);
     }

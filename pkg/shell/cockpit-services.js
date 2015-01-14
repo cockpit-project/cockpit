@@ -231,7 +231,8 @@ PageServices.prototype = {
 
         if (!me.geard_check_done) {
             me.geard_check_done = true;
-            cockpit.spawn([ "which", "gear" ], { host: me.address }).
+            cockpit.spawn([ "which", "gear" ], { host: me.address,
+                                                 error : "output" }).
                 done(function () {
                     me.geard_present = true;
                     shell.content_refresh();

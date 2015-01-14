@@ -533,7 +533,7 @@ class QemuMachine(Machine):
                 return macaddr
             raise Failure("Mac address %s is in use" % macaddr)
         else:
-            for i in range(0, 0xFF):
+            for i in range(0, 0x0F):
                 macaddr = "%s:%02x" % (self.macaddr_prefix, i)
                 if self._lock_resource(macaddr):
                     return macaddr

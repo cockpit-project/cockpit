@@ -160,6 +160,52 @@ cockpit_metrics_open (CockpitTransport *transport,
                        NULL);
 }
 
+static void
+send_object (CockpitMetrics *self,
+             JsonObject *object)
+{
+  CockpitChannel *channel = (CockpitChannel *)self;
+  GBytes *bytes;
+
+  bytes = cockpit_json_write_bytes (object);
+  cockpit_channel_send (channel, bytes, TRUE);
+  g_bytes_unref (bytes);
+}
+
+void
+cockpit_metrics_send_meta (CockpitMetrics *self,
+                           JsonObject *meta)
+{
+  send_object (self, meta);
+}
+
+static void
+send_array (CockpitMetrics *self,
+            JsonArray *array)
+{
+  CockpitChannel *channel = (CockpitChannel *)self;
+  GBytes *bytes;
+  JsonNode *node;
+  gsize length;
+  gchar *ret;
+
+  node = json_node_new (JSON_NODE_ARRAY);
+  json_node_set_array (node, array);
+  ret = cockpit_json_write (node, &length);
+  json_node_free (node);
+
+  bytes = g_bytes_new_take (ret, length);
+  cockpit_channel_send (channel, bytes, TRUE);
+  g_bytes_unref (bytes);
+}
+
+void
+cockpit_metrics_send_data (CockpitMetrics *self,
+                           JsonArray *data)
+{
+  send_array (self, data);
+}
+
 /* ---- */
 
 void

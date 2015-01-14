@@ -54,6 +54,12 @@ CockpitChannel *   cockpit_metrics_open         (CockpitTransport *transport,
 void               cockpit_metrics_metronome    (CockpitMetrics *self,
                                                  gint64 interval);
 
+void               cockpit_metrics_send_meta    (CockpitMetrics *self,
+                                                 JsonObject *meta);
+
+void               cockpit_metrics_send_data    (CockpitMetrics *self,
+                                                 JsonArray *data);
+
 typedef struct {
   JsonArray *array;
   int n_skip;

@@ -944,7 +944,7 @@ function setup_user_menu() {
         $('.cockpit-deauthorize-item').toggle(is_not_root);
     }
 
-    $(cockpit.info).on("changed", update_name);
+    $(cockpit.user).on("changed", update_name);
     if (cockpit.user["name"])
         update_name();
 

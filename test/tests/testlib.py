@@ -1,0 +1,559 @@
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Tools for writing Cockpit test cases.
+"""
+
+from time import sleep
+from urlparse import urlparse
+
+import argparse
+import subprocess
+import os
+import atexit
+import shutil
+import sys
+import socket
+import traceback
+import exceptions
+import re
+import json
+#import unittest
+from avocado import test
+from avocado.utils import process
+#import testvm
+
+
+#topdir = "/usr/share/avocado/tests/"
+topdir=os.path.dirname(os.path.abspath(__file__))
+# Command line options
+
+program_name = "TEST"
+arg_sit_on_failure = False
+arg_trace = False
+
+class Browser:
+    phantom_wait_timeout = 60
+
+    def __init__(self, address, label):
+        self.default_user = "admin"
+        self.address = address
+        self.label = label
+        self.phantom = None
+
+    def title(self):
+        return self.phantom.do('return document.title');
+
+    def open(self, page=None, url=None, port=9090):
+        """
+        Load a page into the browser.
+
+        Arguments:
+          page: The id of the Cockpit page to load, such as "dashboard".
+          url: The full URL to load.
+
+        Either PAGE or URL needs to be given.
+
+        Raises:
+          Error: When a timeout occurs waiting for the page to load.
+        """
+        if page:
+            if not page.startswith("/"):
+                page = "/local/" + page;
+            url = "/#%s" % (page, )
+        if url.startswith("/"):
+            url = "http://%s:%d%s" % (self.address, port, url)
+
+        def tryopen(hard=False):
+            try:
+                if self.phantom:
+                    self.phantom.kill()
+                self.phantom = Phantom("en_US.utf8")
+                self.phantom.open(url)
+                return True
+            except:
+                if hard:
+                    raise
+                return False
+
+        tries = 0
+        while not tryopen(tries >= 20):
+            print "Restarting browser..."
+            sleep(0.1)
+            tries = tries + 1
+
+        self.init_after_load()
+
+    def init_after_load(self):
+        # Prevent sizzle from registering with AMD loader, and also claiming the usual global name
+        with open("%s/lib/sizzle.v2.1.0.js" % topdir) as file:
+            js = "var define = null; " + file.read()
+            self.phantom.do(js)
+        self.phantom.inject("%s/lib/phantom-lib.js" % topdir)
+        self.phantom.do("ph_init()")
+
+    def reload(self):
+        self.phantom.reload()
+        self.init_after_load()
+
+    def expect_reload(self):
+        self.phantom.expect_reload()
+        self.init_after_load()
+
+    def switch_to_frame(self, name):
+        self.phantom.switch_to_frame(name)
+        self.init_after_load()
+
+    def switch_to_parent_frame(self):
+        self.phantom.switch_to_parent_frame()
+
+    def eval_js(self, code):
+        return self.phantom.do(code)
+
+    def call_js_func(self, func, *args):
+        return self.phantom.do("return %s(%s);" % (func, ','.join(map(jsquote, args))))
+
+    def go(self, hash):
+        if not hash.startswith("/"):
+            hash = "/local/" + hash;
+        self.call_js_func('ph_go', hash)
+
+    def click(self, selector):
+        self.call_js_func('ph_click', selector)
+
+    def val(self, selector):
+        return self.call_js_func('ph_val', selector)
+
+    def set_val(self, selector, val):
+        self.call_js_func('ph_set_val', selector, val)
+
+    def text(self, selector):
+        return self.call_js_func('ph_text', selector)
+
+    def attr(self, selector, attr):
+        return self.call_js_func('ph_attr', selector, attr)
+
+    def set_attr(self, selector, attr, val):
+        self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
+
+    def set_checked(self, selector, val):
+        self.call_js_func('ph_set_checked', selector, val)
+
+    def focus(self, selector):
+        self.call_js_func('ph_focus', selector)
+
+    def key_press(self, keys):
+        return self.phantom.keys('keypress', keys)
+
+    def wait_timeout(self, timeout):
+        class WaitParamsRestorer():
+            def __init__(self, timeout):
+                self.timeout = timeout
+            def __enter__(self):
+                pass
+            def __exit__(self, type, value, traceback):
+                self.phantom_wait_timeout = self.timeout
+        r = WaitParamsRestorer(self.phantom_wait_timeout)
+        self.phantom_wait_timeout = max (timeout, self.phantom_wait_timeout)
+        return r
+
+    def inject_js(self, code):
+        self.phantom.do(code);
+
+    def wait_js_cond(self, cond):
+        return self.phantom.wait(cond, timeout=self.phantom_wait_timeout)
+
+    def wait_js_func(self, func, *args):
+        output = self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))), timeout=self.phantom_wait_timeout)
+        test.log.debug(str(func) + ": " + str(args)+ ": RESULT " + str(output))
+        return output
+
+    def wait_present(self, selector):
+        return self.wait_js_func('ph_is_present', selector)
+
+    def wait_visible(self, selector):
+        return self.wait_js_func('ph_is_visible', selector)
+
+    def wait_val(self, selector, val):
+        return self.wait_js_func('ph_has_val', selector, val)
+
+    def wait_attr(self, selector, attr, val):
+        return self.wait_js_func('ph_has_attr', selector, attr, val)
+
+    def wait_not_visible(self, selector):
+        return self.wait_js_func('!ph_is_visible', selector)
+
+    def wait_in_text(self, selector, text):
+        return self.wait_js_func('ph_in_text', selector, text)
+
+    def wait_not_in_text(self, selector, text):
+        return self.wait_js_func('!ph_in_text', selector, text)
+
+    def wait_text(self, selector, text):
+        return self.wait_js_func('ph_text_is', selector, text)
+
+    def wait_text_not(self, selector, text):
+        return self.wait_js_func('!ph_text_is', selector, text)
+
+    # TODO: This code needs to be migrated away from dbus-json1
+    def wait_dbus_ready(self, client_address = "localhost", client_options = { }):
+        return self.wait_js_func('ph_dbus_ready', client_address, client_options)
+
+    def wait_dbus_prop(self, iface, prop, text, client_address = "localhost", client_options = { }):
+        return self.wait_js_func('ph_dbus_prop', client_address, client_options, iface, prop, text)
+
+    def wait_dbus_object_prop(self, path, iface, prop, text, client_address = "localhost", client_options = { }):
+        return self.wait_js_func('ph_dbus_object_prop', client_address, client_options, path, iface, prop, text)
+
+    def wait_popup(self, id):
+        """Wait for a popup to open.
+
+        Arguments:
+          id: The 'id' attribute of the popup.
+        """
+        self.wait_visible('#' + id);
+
+    def wait_popdown(self, id):
+        """Wait for a popup to close.
+
+        Arguments:
+            id: The 'id' attribute of the popup.
+        """
+        self.wait_not_visible('#' + id)
+
+    def wait_page(self, id):
+        """Wait for a page to become current.
+
+        Arguments:
+
+            id: The identifier the page.  This is either a the id
+                attribute for legacy pages, or a string starting with
+                "/" for modern pages.
+        """
+        self.wait_present('#content')
+        self.wait_visible('#content')
+        if id.startswith("/"):
+            self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % id)
+            self.switch_to_frame(id)
+            self.wait_present("body")
+            self.wait_visible("body")
+        else:
+            self.wait_visible('#' + id)
+            self.wait_dbus_ready()
+
+    def wait_action_btn(self, sel, entry):
+        self.wait_text(sel + ' button:first-child', entry);
+
+    def click_action_btn(self, sel, entry=None):
+        # We don't need to open the menu, it's enough to simulate a
+        # click on the invisible button.
+        if entry:
+            self.click(sel + ' a:contains("%s")' % entry);
+        else:
+            self.click(sel + ' button:first-child');
+
+    def login_and_go(self, page, user=None):
+        if user is None:
+            user = self.default_user
+        self.open(page)
+        self.wait_visible("#login")
+        self.set_val('#login-user-input', user)
+        self.set_val('#login-password-input', "foobar")
+        self.click('#login-button')
+        self.expect_reload()
+        self.wait_page(page)
+
+    def logout(self):
+        self.click('a[onclick*="cockpit.logout"]')
+        self.expect_reload()
+
+    def relogin(self, page, user=None):
+        if user is None:
+            user = self.default_user
+        self.logout()
+        self.wait_visible("#login")
+        self.set_val("#login-user-input", user)
+        self.set_val("#login-password-input", "foobar")
+        self.click('#login-button')
+        self.expect_reload()
+        self.wait_page(page)
+
+    def snapshot(self, title, label=None):
+        """Take a snapshot of the current screen and save it as a PNG.
+
+        Arguments:
+            title: Used for the filename.
+        """
+        if self.phantom:
+            self.phantom.show(file="%s-%s-%s.png" % (program_name, label or self.label, title))
+
+
+some_failed = False
+
+def jsquote(str):
+    return json.dumps(str)
+
+class Phantom:
+    def __init__(self, lang=None):
+        environ = os.environ.copy()
+        if lang:
+            environ["LC_ALL"] = lang
+        self.driver = subprocess.Popen([ "%s/lib/phantom-driver"  % topdir], env=environ,
+                                       stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+
+    def run(self, args):
+        if arg_trace:
+            test.log.debug("-> " + str(args))
+        self.driver.stdin.write(json.dumps(args).replace("\n", " ")+ "\n")
+        res = json.loads(self.driver.stdout.readline())
+        if arg_trace:
+            test.log.debug("<- "+ str(res))
+        if 'error' in res:
+            raise Error(res['error'])
+        if 'timeout' in res:
+            raise Error("timeout")
+        if 'result' in res:
+            return res['result']
+        raise Error("unexpected")
+
+    def open(self, url):
+        status = self.run({'cmd': 'open', 'url': url})
+        if status != "success":
+            raise Error(status)
+
+    def reload(self):
+        status = self.run({'cmd': 'reload'})
+        if status != "success":
+            raise Error(status)
+
+    def expect_reload(self):
+        status = self.run({'cmd': 'expect-reload'})
+        if status != "success":
+            raise Error(status)
+
+    def inject(self, file):
+        if not self.run({'cmd': 'inject', 'file': file}):
+            raise Error("failed")
+
+    def switch_to_frame(self, name):
+        return self.run({'cmd': 'switch', 'name': name})
+
+    def switch_to_parent_frame(self):
+        return self.run({'cmd': 'switch_parent'})
+
+    def do(self, code):
+        return self.run({'cmd': 'do', 'code': code})
+
+    def wait(self, cond, timeout):
+        return self.run({'cmd': 'wait', 'cond': cond, 'timeout': timeout*1000})
+
+    def show(self, file="page.png"):
+        if not self.run({'cmd': 'show', 'file': file}):
+            raise "failed"
+        print "Wrote %s" % file
+
+    def keys(self, type, keys):
+        self.run({'cmd': 'keys', 'type': type, 'keys': keys })
+
+    def quit(self):
+        self.driver.stdin.close()
+        self.driver.wait()
+
+    def kill(self):
+        self.driver.terminate()
+        self.driver.wait()
+
+
+class Error(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return self.msg
+
+def wait(func, msg=None, delay=0.2, tries=20):
+    """
+    Wait for FUNC to return something truthy, and return that.
+
+    FUNC is called repeatedly until it returns a true value or until a
+    timeout occurs.  In the latter case, a exception is raised that
+    describes the situation.  The exception is either the last one
+    thrown by FUNC, or includes MSG, or a default message.
+
+    Arguments:
+      func: The function to call.
+      msg: A error message to use when the timeout occurs.  Defaults
+        to a generic message.
+      delay: How long to wait between calls to FUNC, in seconds.
+        Defaults to 0.2.
+      tries: How often to call FUNC.  Defaults to 20.
+
+    Raises:
+      Error: When a timeout occurs.
+    """
+
+    t = 0
+    while t < tries:
+        try:
+            val = func()
+            if val:
+                return val
+        except:
+            if t == tries-1:
+                raise
+            else:
+                pass
+        t = t + 1
+        sleep(delay)
+    raise Error(msg or "Condition did not become true.")
+
+def check(cond, msg=None):
+    if not cond:
+        raise Error(msg or "Condition is not true")
+    else:
+        return True
+
+def check_eq(val, expected, source = "Value"):
+    return check (val == expected, "%s is '%s', not '%s' as expected" % ( source, val, expected ))
+
+def check_not_eq(val, expected, source = "Value"):
+    return check (val != expected, "%s is '%s', not something else as expected" % ( source, val ))
+
+def check_in(val, expected, source = "Value"):
+    return check (expected in val, "%s is '%s', which doesn't include '%s' as expected" % ( source, val, expected ))
+
+def check_not_in(val, expected, source = "Value"):
+    return check (expected not in val, "%s is '%s', which includes '%s', but that isn't expected" % ( source, val, expected ))
+
+def sit():
+    """
+    Wait until the user confirms to continue.
+
+    The current test case is suspended so that the user can inspect
+    the browser.
+    """
+    raw_input ("Press RET to continue... ")
+
+def merge(*args):
+    return dict(reduce(lambda x,y: x + y, map(lambda d: d.items(), args), [ ]))
+
+def shesc(str):
+    return "'" + str.replace("'", "'\\''") + "'"
+
+
+class Journalctl:
+    def __init__(self):
+        pass
+
+    def journal_messages(self, syslog_ids, log_level):
+        """Return interesting journal messages"""
+
+        # Journald does not always set trusted fields like
+        # _SYSTEMD_UNIT or _EXE correctly for the last few messages of
+        # a dying process, so we filter by the untrusted but reliable
+        # SYSLOG_IDENTIFIER instead
+
+        matches = " ".join(map(lambda id: "SYSLOG_IDENTIFIER=" + id, syslog_ids))
+
+        # Some versions of journalctl terminate unsuccessfully when
+        # the output is empty.  We work around this by ignoring the
+        # exit status and including error messages from journalctl
+        # itself in the returned messages.
+
+        cmd = "journalctl 2>&1 -o cat -p %d %s" % (log_level, matches)
+        out=process.run(cmd, shell=True, ignore_status=True)
+        messages = str(out).splitlines()
+        if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
+            # No messages
+            return [ ]
+        else:
+            return messages
+
+    def audit_messages(self, type_pref):
+        cmd = "journalctl -o cat SYSLOG_IDENTIFIER=kernel 2>&1 | grep 'type=%s.*audit' || true" % (type_pref, )
+        out=process.run(cmd, shell=True, ignore_status=True)
+        messages = str(out).splitlines()
+        if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
+            messages = [ ]
+        return messages
+
+    allowed_messages = [
+        # This is a failed login, which happens every time
+        "Returning error-response 401 with reason `Sorry'",
+
+        # Reboots are ok
+        "-- Reboot --",
+
+        # Sometimes D-Bus goes away before us during shutdown
+        "Lost the name com.redhat.Cockpit on the session message bus",
+        "GLib-GIO:ERROR:gdbusobjectmanagerserver\\.c:.*:g_dbus_object_manager_server_emit_interfaces_.*: assertion failed \\(error == NULL\\): The connection is closed \\(g-io-error-quark, 18\\)",
+        "Error sending message: The connection is closed",
+
+        ## Bugs
+
+        # https://bugs.freedesktop.org/show_bug.cgi?id=70540
+        ".*ActUserManager: user .* has no username.*",
+
+        # https://github.com/cockpit-project/cockpit/issues/48
+        "Failed to load '.*': Key file does not have group 'Unit'",
+
+        # https://github.com/cockpit-project/cockpit/issues/115
+        "cockpit-testing\\.service: main process exited, code=exited, status=1/FAILURE",
+        "Unit cockpit-testing\\.service entered failed state\\.",
+
+        # https://bugs.freedesktop.org/show_bug.cgi?id=71092
+        "logind\\.KillUser failed \\(Input/output error\\), trying systemd\\.KillUnit",
+
+        # SELinux messages to ignore
+        "(audit: )?type=1403 audit.*",
+        "(audit: )?type=1404 audit.*",
+    ]
+
+    def allow_journal_messages(self, *patterns):
+        """Don't fail if the journal containes a entry matching the given regexp"""
+        for p in patterns:
+            self.allowed_messages.append(p)
+
+    def allow_restart_journal_messages():
+        self.allow_journal_messages("Error receiving data: Connection reset by peer",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
+                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Error sending message: Broken pipe \\(g-io-error-quark, 44\\). Exiting.",
+                                    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1141137
+                                    "localhost: bridge program failed: Child process killed by signal 9",
+                                    "request timed out, closing")
+
+    def check_journal_messages(self, machine=None):
+        """Check for unexpected journal entries."""
+        syslog_ids = [ "cockpitd", "cockpit-ws" ]
+        messages = self.journal_messages(syslog_ids, 5)
+        messages += self.audit_messages("14") # 14xx is selinux
+        all_found = True
+        for m in messages:
+            found = False
+            for p in self.allowed_messages:
+                match = re.match(p, m)
+                if match and match.group(0) == m:
+                    found = True
+                    break
+            if not found:
+                print "Unexpected journal message '%s'" % m
+                all_found = False
+#        if not all_found:
+#            self.copy_journal("FAIL")
+#            raise Error("There were unexpected journal messages")

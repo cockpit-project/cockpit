@@ -1,0 +1,206 @@
+#!/usr/bin/env phantomjs
+
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2013 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* phantom-driver -- A small driver for phantomjs
+ *
+ * This program reads a line from stdin, executes the command
+ * specified by it, and replies back with a line on stdout.
+ *
+ * The two main commands are "do" and "wait". "Do" will execute
+ * arbitrary JavaScript in the context of the web page.  "Wait" will
+ * run the event loop of the browser until the given condition is
+ * true.
+ *
+ * The "wait" command will check the condition only at explicit
+ * 'checkpoints'.  These checkpoints must be triggered by calling
+ * 'phantom_checkpoint' from the webapp whenever it reaches a
+ * interesting point.
+ *
+ * While phantom-driver is waiting for the next command, nothing
+ * happens on the web page.  No websockets are served, no idle or
+ * timeout handlers run, etc.  (The web page does not receive any
+ * external input events in any case.)
+ *
+ * The rest of the command are: "open" to load a specified URL,
+ * "inject" to load some JavaScript into the web page, "show" to take
+ * a screenshot, and "keys" to send key events.
+ */
+
+var page = require('webpage').create();
+var sys = require('system');
+
+var onCheckpoint;
+var lastError;
+var waitTimeout;
+
+page.viewportSize = { width: 800, height: 480 };
+
+function step ()
+{
+    setTimeout(function () {
+        if (onCheckpoint)
+            throw "nope";
+
+        var cmdline = sys.stdin.readLine();
+
+        if (cmdline == "" && sys.stdin.atEnd()) {
+            phantom.exit(0);
+            return;
+        }
+
+        // sys.stderr.writeLine(cmdline);
+
+        var cmd = JSON.parse(cmdline);
+
+        function on_load_finished(status)
+        {
+            page.onLoadFinished = null;
+            if (status == "success") {
+                page.evaluate(function () {
+                    localStorage.clear();
+                    phantom_checkpoint = function() {
+                        console.log ("-*-CHECKPOINT-*-");
+                    }
+                });
+            }
+            sys.stdout.writeLine(JSON.stringify({result: status}));
+            step ();
+        }
+
+        if (cmd.cmd == "open") {
+            page.onLoadFinished = on_load_finished;
+            page.open(cmd.url);
+        } else if (cmd.cmd == "reload") {
+            page.onLoadFinished = on_load_finished;
+            page.reload();
+        } else if (cmd.cmd == "expect-reload") {
+            page.onLoadFinished = on_load_finished;
+        } else if (cmd.cmd == "inject") {
+            page.injectJs(cmd.file);
+            sys.stdout.writeLine(JSON.stringify({result: true}));
+            step();
+        } else if (cmd.cmd == "switch") {
+            if (page.switchToFrame(cmd.name))
+                sys.stdout.writeLine(JSON.stringify({result: true}));
+            else
+                sys.stdout.writeLine(JSON.stringify({error: "Can't switch to frame"}));
+            step();
+        } else if (cmd.cmd == "switch_parent") {
+            if (page.switchToParentFrame())
+                sys.stdout.writeLine(JSON.stringify({result: true}));
+            else
+                sys.stdout.writeLine(JSON.stringify({error: "Can't switch to parent frame"}));
+            step();
+        } else if (cmd.cmd == "show") {
+            page.render(cmd.file || "page.png");
+            sys.stdout.writeLine(JSON.stringify({result: true}));
+            step();
+        } else if (cmd.cmd == "quit") {
+            sys.stdout.writeLine(JSON.stringify({result: true}));
+            phantom.exit(0);
+        } else if (cmd.cmd == "sit") {
+            sys.stdout.writeLine(JSON.stringify({result: true}));
+            // fall through to the phantom event loop
+        } else if (cmd.cmd == "do") {
+            lastError = null;
+            var func = "function () { " + cmd.code + "}";
+            var val = page.evaluate (func);
+            if (lastError)
+                sys.stdout.writeLine(JSON.stringify({error: lastError}));
+            else
+                sys.stdout.writeLine(JSON.stringify({result: val}));
+            step ();
+        } else if (cmd.cmd == "wait") {
+            var func = "function () { return " + cmd.cond + "}";
+
+            function respond(val)
+            {
+                sys.stdout.writeLine(JSON.stringify(val));
+                clearTimeout(waitTimeout);
+                onCheckpoint = null;
+                waitTimeout = null;
+                step ();
+            }
+
+            function check(is_timeout)
+            {
+                lastError = null;
+                var val = page.evaluate (func);
+                if (lastError)
+                    respond ({error: lastError});
+                else if (val) {
+                    if (is_timeout)
+                        sys.stderr.writeLine("WARNING: condition '" + cmd.cond + "' was true after timeout, add some more checkpoints");
+                    respond ({result: val});
+                } else if (is_timeout)
+                    respond ({timeout: true});
+            }
+
+            onCheckpoint = function () {
+                check (false);
+            }
+
+            waitTimeout = setTimeout (function () {
+                check (true);
+            }, cmd.timeout || 5000);
+
+            check (false);
+        } else if (cmd.cmd == "keys") {
+            var i;
+            if (typeof cmd.keys == "string")
+                page.sendEvent (cmd.type, cmd.keys, null, null, cmd.modifier || 0);
+            else {
+                for (i = 0; i < cmd.keys.length; i++) {
+                    var k = cmd.keys[i];
+                    if (typeof k == "string" && k.length > 1)
+                        k = page.event.key[k];
+                    page.sendEvent (cmd.type, k, null, null, cmd.modifier || 0);
+                }
+            }
+            sys.stdout.writeLine(JSON.stringify({result: true}));
+            step ();
+        } else {
+            sys.stdout.writeLine(JSON.stringify({error: "?"}));
+            step ();
+        }
+
+    }, 0);
+}
+
+page.onConsoleMessage = function(msg, lineNum, sourceId) {
+    if (msg == "-*-CHECKPOINT-*-") {
+        // sys.stderr.writeLine("CHECKPOINT");
+        if (onCheckpoint)
+            onCheckpoint();
+    } else
+        sys.stderr.writeLine('> ' + msg);
+};
+
+page.onError = function(msg, trace) {
+    var i;
+    var backtrace = "";
+    for (i = 0; i < trace.length; i++)
+        backtrace += "\n" + trace[i].file + " " + trace[i].line + " " + trace[i].function;
+    sys.stderr.writeLine("Page error: " + msg + backtrace);
+    lastError = msg;
+}
+
+step();

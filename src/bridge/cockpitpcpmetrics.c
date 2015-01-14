@@ -102,37 +102,6 @@ result_meta_equal (pmResult *r1,
   return TRUE;
 }
 
-static void
-send_object (CockpitPcpMetrics *self,
-             JsonObject *object)
-{
-  CockpitChannel *channel = (CockpitChannel *)self;
-  GBytes *bytes;
-
-  bytes = cockpit_json_write_bytes (object);
-  cockpit_channel_send (channel, bytes, TRUE);
-  g_bytes_unref (bytes);
-}
-
-static void
-send_array (CockpitPcpMetrics *self,
-            JsonArray *array)
-{
-  CockpitChannel *channel = (CockpitChannel *)self;
-  GBytes *bytes;
-  JsonNode *node;
-  gsize length;
-  gchar *ret;
-
-  node = json_node_new (JSON_NODE_ARRAY);
-  json_node_set_array (node, array);
-  ret = cockpit_json_write (node, &length);
-  json_node_free (node);
-
-  bytes = g_bytes_new_take (ret, length);
-  cockpit_channel_send (channel, bytes, TRUE);
-  g_bytes_unref (bytes);
-}
 
 static JsonObject *
 build_meta (CockpitPcpMetrics *self,
@@ -432,7 +401,7 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
   meta = build_meta_if_necessary (self, result);
   if (meta)
     {
-      send_object (self, meta);
+      cockpit_metrics_send_meta (metrics, meta);
       json_object_unref (meta);
 
       /* We can't compress across a meta message.
@@ -445,7 +414,7 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
   /* Send one set of samples */
   message = json_array_new ();
   json_array_add_array_element (message, build_samples (self, result));
-  send_array (self, message);
+  cockpit_metrics_send_data (metrics, message);
   json_array_unref (message);
 
   if (self->last)

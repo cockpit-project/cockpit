@@ -267,19 +267,6 @@ function make_resource_cache() {
     return { get: get };
 }
 
-/* - uuid = shell.util.uuid()
- *
- * Create a new random UUID.
- */
-
-shell.util.uuid = uuid;
-function uuid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
-        return v.toString(16);
-    });
-}
-
 /* - shell.util.machine_info(address).done(function (info) { })
  *
  * Get information about the machine at ADDRESS.  The returned object

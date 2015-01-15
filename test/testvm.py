@@ -684,8 +684,9 @@ class QemuMachine(Machine):
         assert self._process
         output = ""
         address = None
+        ready_to_login = False
         p = self._process
-        while not address and p.poll() is None:
+        while not (address and ready_to_login) and p.poll() is None:
             ret = select.select([p.stdout.fileno()], [], [], 10)
             for fd in ret[0]:
                 if fd == p.stdout.fileno():
@@ -695,10 +696,14 @@ class QemuMachine(Machine):
                     output += data
                     if "emergency mode" in output:
                         raise Failure("qemu vm failed to boot, stuck in emergency mode")
-                    address = self._parse_cockpit_canary("COCKPIT_ADDRESS", output)
+                    parsed_address = self._parse_cockpit_canary("COCKPIT_ADDRESS", output)
+                    if parsed_address:
+                        address = parsed_address
+                    if "login: " in output:
+                        ready_to_login = True
                     (unused, sep, output) = output.rpartition("\n")
 
-        if not address:
+        if p.poll():
             raise Failure("qemu did not run successfully: %d" % (p.returncode, ))
 
         self.address = address

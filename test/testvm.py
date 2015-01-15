@@ -795,7 +795,7 @@ class QemuMachine(Machine):
             ]
             proc = subprocess.Popen(cmd)
             file = "nbd+unix://?socket=%s" % nbd
-            time.sleep(0.2)
+            time.sleep(2)
         else:
             file = path
             proc = None

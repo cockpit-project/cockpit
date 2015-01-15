@@ -30,9 +30,11 @@ require([
             },
             render_selector: function() {
                 var parts = [];
-                $.each(this.selector, function(key, value) {
-                    parts.push(key + ": " + value);
-                });
+                if (this.selector) {
+                    $.each(this.selector, function(key, value) {
+                        parts.push(key + ": " + value);
+                    });
+                }
                 return parts.join("<br>");
             }
         };

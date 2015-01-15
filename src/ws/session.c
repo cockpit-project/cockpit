@@ -906,7 +906,7 @@ main (int argc,
         }
 
       /* set a minimal environment */
-      setenv ("PATH", "/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin", 1);
+      setenv ("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 1);
 
       if (setgid (0) != 0 || setuid (0) != 0)
         err (1, "couldn't switch permissions correctly");

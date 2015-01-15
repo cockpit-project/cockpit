@@ -23,17 +23,6 @@ from testlib import *
 import socket
 import time
 
-def wait_for_port (addr, port):
-    tries = 0
-    while tries < 20:
-        try:
-            socket.create_connection ((addr, port)).close()
-            return
-        except:
-            time.sleep(0.2)
-        tries += 1
-    assert False
-
 def inject_extras(browser):
     browser.eval_js("""
     dashboard_addresses = function () {
@@ -96,9 +85,6 @@ class TestMultiMachine(MachineCase):
             # logind from systemd 208 is buggy, so we use systemd directly if it fails
             # https://bugs.freedesktop.org/show_bug.cgi?id=71092
             machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
-
-        wait_for_port(m2.address, 22)
-        wait_for_port(m3.address, 22)
 
         self.login_and_go("dashboard")
         inject_extras(b)

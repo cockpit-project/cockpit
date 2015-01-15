@@ -461,7 +461,7 @@ class Phantom:
 
     def run(self, args):
         if arg_trace:
-            print "->", args
+            print "->", repr(args)[:200]
         self.driver.stdin.write(json.dumps(args).replace("\n", " ")+ "\n")
         res = json.loads(self.driver.stdout.readline())
         if arg_trace:

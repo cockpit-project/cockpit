@@ -8,7 +8,10 @@ Fedora:
 
   # yum install trickle nbd-server npm python-libguestfs qemu mock qemu-kvm python \
          curl libvirt-client libvirtd qemu-nbd fakeroot glibc-static
-  $ npm install phantomjs
+
+Testing requires phantomjs globally on the system, not just inside the cockpit package.
+
+  # npm -g install phantomjs
 
 ## Quick list of tools
 
@@ -59,6 +62,9 @@ First, you need to run ./testsuite-prepare.  This will download
 necessary images, compile cockpit, install the result, and set up some
 virtual networking.  It might ask for the sudo password in order to
 setup the network.
+
+Please make sure that mock does not issue a warning. You may have to add
+your user to the mock system group.
 
   $ ./testsuite-prepare
 

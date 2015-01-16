@@ -243,18 +243,6 @@ build_meta_if_necessary (CockpitPcpMetrics *self,
   return build_meta (self, result);
 }
 
-static gboolean
-result_value_equal (int valfmt,
-                    pmValue *val1,
-                    pmValue *val2)
-{
-  if (valfmt == PM_VAL_INSITU)
-    return val1->value.lval == val2->value.lval;
-  else
-    return (val1->value.pval->vlen == val2->value.pval->vlen
-            && memcmp (val1->value.pval, val2->value.pval, val1->value.pval->vlen) == 0);
-}
-
 static JsonNode *
 build_sample (CockpitPcpMetrics *self,
               pmResult *result,
@@ -276,7 +264,7 @@ build_sample (CockpitPcpMetrics *self,
   if (info->desc.sem == PM_SEM_COUNTER && info->desc.type != PM_TYPE_STRING)
     {
       if (!self->last)
-        return NULL;
+        return json_node_new (JSON_NODE_NULL);
 
       pmAtomValue old, new;
       pmValue *last_value = &self->last->vset[metric]->vlist[instance];
@@ -308,13 +296,6 @@ build_sample (CockpitPcpMetrics *self,
     }
   else
     {
-      if (self->last)
-        {
-          pmValue *last_value = &self->last->vset[metric]->vlist[instance];
-          if (result_value_equal (valfmt, value, last_value))
-            return NULL;
-        }
-
       if (info->desc.type == PM_TYPE_STRING)
         {
           if (pmExtractValue (valfmt, value, PM_TYPE_STRING, &sample, PM_TYPE_STRING) < 0)
@@ -348,33 +329,31 @@ static JsonArray *
 build_samples (CockpitPcpMetrics *self,
                pmResult *result)
 {
-  CockpitCompressedArrayBuilder samples;
-  CockpitCompressedArrayBuilder array;
+  JsonArray *output;
+  JsonArray *array;
   pmValueSet *vs;
   int i, j;
 
-  cockpit_compressed_array_builder_init (&samples);
-
+  output = json_array_new ();
   for (i = 0; i < result->numpmid; i++)
     {
       vs = result->vset[i];
 
       /* When negative numval is an error code ... we don't care */
       if (vs->numval < 0)
-        cockpit_compressed_array_builder_add (&samples, NULL);
+        json_array_add_null_element (output);
       else if (vs->numval == 1 && vs->vlist[0].inst == PM_IN_NULL)
-        cockpit_compressed_array_builder_add (&samples, build_sample (self, result, i, 0));
+        json_array_add_element (output, build_sample (self, result, i, 0));
       else
         {
-          cockpit_compressed_array_builder_init (&array);
+          array = json_array_new ();
           for (j = 0; j < vs->numval; j++)
-            cockpit_compressed_array_builder_add (&array, build_sample (self, result, i, j));
-          cockpit_compressed_array_builder_take_and_add_array (&samples,
-                                                               cockpit_compressed_array_builder_finish (&array));
+            json_array_add_element (array, build_sample (self, result, i, j));
+          json_array_add_array_element (output, array);
         }
     }
 
-  return cockpit_compressed_array_builder_finish (&samples);
+  return output;
 }
 
 static void
@@ -403,12 +382,6 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
     {
       cockpit_metrics_send_meta (metrics, meta);
       json_object_unref (meta);
-
-      /* We can't compress across a meta message.
-       */
-      if (self->last)
-        pmFreeResult (self->last);
-      self->last = NULL;
     }
 
   /* Send one set of samples */

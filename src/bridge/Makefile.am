@@ -117,7 +117,9 @@ CLEANFILES += mock-pmda.so
 # for this.
 #
 mock-pmda.so: src/bridge/mock-pmda.c
-	gcc -g -fPIC -shared -o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
+	$(AM_V_CCLD) gcc -g -fPIC -shared \
+		-DSRCDIR=\"$(abs_srcdir)\" \
+		-o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
 
 test_channel_SOURCES = \
 	src/bridge/test-channel.c \

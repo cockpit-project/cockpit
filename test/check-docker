@@ -88,9 +88,9 @@ class TestDocker(MachineCase):
 
         # Make sure after restart we only have one
         b.click("#container-details-start")
-        b.wait_in_text("#container-details-state", "Exited")
         b.wait_in_text("#container-terminal", "Hello from container-probe.\nHello from container-probe.")
         b.call_js_func("ph_count_check", ".logs",  1)
+        b.wait_in_text("#container-details-state", "Exited")
 
         # Delete container
         b.click("#container-details-delete")

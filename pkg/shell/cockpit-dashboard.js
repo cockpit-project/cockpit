@@ -334,7 +334,7 @@ PageDashboard.prototype = {
                     render_avatar: render_avatar
                 });
 
-                target.html(text);
+                target.amend(text);
                 update_series();
             }
 

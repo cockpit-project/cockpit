@@ -112,7 +112,10 @@ G_DEFINE_TYPE (CockpitChannel, cockpit_channel, G_TYPE_OBJECT);
 static gboolean
 on_idle_prepare (gpointer data)
 {
-  cockpit_channel_prepare (data);
+  CockpitChannel *self = COCKPIT_CHANNEL (data);
+  g_object_ref (self);
+  cockpit_channel_prepare (self);
+  g_object_unref (self);
   return FALSE;
 }
 

@@ -95,6 +95,7 @@ define([
         self.minions = [ ];
         self.pods = [ ];
         self.services = [ ];
+        self.replicationControllers = [];
 
         var later;
         var monitor = new EtcdMonitor();
@@ -115,6 +116,7 @@ define([
                 return (a1.id || "").localeCompare(a2.id || "");
             });
             self[what] = resp.items;
+
             if (!first)
                 $(self).triggerHandler(what, [ self[what] ]);
         }
@@ -144,6 +146,12 @@ define([
                     receive(data, "services");
                 }));
 
+            reqs.push(api.get("/api/v1beta1/replicationControllers")
+                .fail(failure)
+                .done(function(data) {
+                    receive(data, "replicationControllers");
+                }));
+
             if (first) {
                 $.when.apply($, reqs)
                     .always(function() {
@@ -151,6 +159,7 @@ define([
                         $(self).triggerHandler("minions", [ self.minions ]);
                         $(self).triggerHandler("services", [ self.services ]);
                         $(self).triggerHandler("pods", [ self.pods ]);
+                        $(self).triggerHandler("replicationControllers", [ self.replicationControllers ]);
                     });
             }
         }
@@ -162,8 +171,58 @@ define([
         };
     }
 
-    kubernetes.client = function client() {
+    function EtcdClient() {
+        var self = this;
+
+        var etcd_api = cockpit.http(7001);
+        var first = true;
+        var later;
+
+        function receive(data, what ,kind) {
+            var resp = JSON.parse(data);
+            self[what] = resp;
+
+            if (!first)
+                $(self).triggerHandler(what, [ self[what] ]);
+        }
+
+        function failure(ex) {
+            console.warn(ex);
+        }
+
+        function update() {
+            var reqs = [];
+
+            reqs.push(etcd_api.get("/v2/admin/machines")
+                .fail(failure)
+                .done(function(data) {
+                    receive(data, "etcdHosts");
+                }));
+
+            reqs.push(etcd_api.get("/v2/keys/coreos.com/network/config")
+                .fail(failure)
+                .done(function(data) {
+                    receive(data, "flannelConfig");
+                }));
+
+            if (first) {
+                $.when.apply($, reqs)
+                    .always(function() {
+                        first = false;
+                        $(self).triggerHandler("etcdHosts", [ self.etcdHosts ]);
+                    });
+            }
+        }
+
+        update();
+    }
+
+    kubernetes.k8client = function client() {
         return new KubernetesClient();
+    };
+
+    kubernetes.etcdclient = function client() {
+        return new EtcdClient();
     };
 
     return kubernetes;

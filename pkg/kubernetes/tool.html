@@ -30,10 +30,41 @@ require([
             },
             render_selector: function() {
                 var parts = [];
-                $.each(this.selector, function(key, value) {
-                    parts.push(key + ": " + value);
-                });
+                if (this.selector) {
+			$.each(this.selector, function(key, value) {
+			parts.push(key + ": " + value);
+			});
+		}
                 return parts.join("<br>");
+            },
+            render_ports: function() {
+                var parts = [];
+                if (this.ports) {
+			$.each(this.ports[0], function(key, value) {
+			if(key=="hostPort" || key=="containerPort") {
+				parts.push(key + " : " + value);
+			}});
+		}
+                return parts.join("   ");
+            },
+            render_etcdhosts: function() {
+                var parts = [];
+                if (this.ports) {
+			$.each(this.ports[0], function(key, value) {
+			if(key=="hostPort" || key=="containerPort") {
+				parts.push(key + " : " + value);
+			}});
+		}
+                return parts.join("   ");
+            },
+            render_labels: function() {
+                var parts = [];
+                if (this.labels) {
+			$.each(this.labels, function(key, value) {
+				parts.push(key + " : " + value);
+			});
+		}
+                return parts.join("\n");
             }
         };
 
@@ -42,12 +73,11 @@ require([
                 minions: client.minions,
                 pods: client.pods,
                 services: client.services,
-                replication: client.replication
+                replicationControllers: client.replicationControllers,
+                etcdHosts:client.etcdHosts
             }, helpers));
-
             view.amend(text);
         }
-
         return render;
     }
 
@@ -122,10 +152,15 @@ require([
         {{#pods}}
           <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
             <h4 class="list-group-item-heading">{{id}}</h4>
+	    Labels :
+	    <p class="list-group-item-text">
+            {{render_labels}} </p>
+	    <hr>
             {{#desiredState}}
               {{#manifest}}
                 {{#containers}}
-                  <p class="list-group-item-text">{{image}} {{render_ports}}</p>
+                  <p class="list-group-item-text">Image : {{image}} </p>
+                  <p class="list-group-item-text">{{render_ports}} </p>
                 {{/containers}}
               {{/manifest}}
             {{/desiredState}}
@@ -142,12 +177,35 @@ require([
         {{#services}}
           <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
             <h4 class="list-group-item-heading">{{id}}</h4>
-            <p class="kubernetes-selector">{{{render_selector}}}</p>
+            Labels :
+	    <p class="list-group-item-text">
+            {{render_labels}} </p>
+	    <hr>
+	    <p class="kubernetes-selector">{{{render_selector}}}</p>
             <p>{{portalIP}}:{{port}}</p>
           </a>
         {{/services}}
+	<a class="list-group-item" data-toggle="modal" >
+        <h4 class="list-group-item-heading">etcd</h4>
+        {{#etcdHosts}}
+	   <p class="list-group-item-text">{{name}} : {{state}} </p>
+	{{/etcdHosts}}
+         </a>
+	<a class="list-group-item" data-toggle="modal">
+         <h4 class="list-group-item-heading">Flannel</h4>
+         </a>
         </div>
       </div>
+      <div class="col-md-4">
+        <h3>ReplicationControllers</h3>
+        {{#replicationControllers}}
+
+        <div class="list-group" id="kubernetes-replicationControllers">
+          <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
+            <h4 class="list-group-item-heading">{{id}}</h4>
+          </a>
+        {{/replicationControllers}}
+        </div>
     </div>
   </script>
 

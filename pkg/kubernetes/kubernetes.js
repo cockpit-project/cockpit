@@ -86,15 +86,20 @@ define([
         notify();
     }
 
+
+	//TODO : have client support all components involved in k8 cluster(cadvisor/flannel/etcd/docker)
     function KubernetesClient() {
         var self = this;
 
         var api = cockpit.http(8080);
+        var etcd_api = cockpit.http(7001);
         var first = true;
 
         self.minions = [ ];
         self.pods = [ ];
         self.services = [ ];
+	self.replicationControllers = [];
+	self.flannelConfig = [];
 
         var later;
         var monitor = new EtcdMonitor();
@@ -107,14 +112,19 @@ define([
             }
         });
 
-        function receive(data, what) {
+        function receive(data, what ,kind) {
             var resp = JSON.parse(data);
-            if (!resp.items)
-                return;
-            resp.items.sort(function(a1, a2) {
-                return (a1.id || "").localeCompare(a2.id || "");
-            });
-            self[what] = resp.items;
+            if(kind=="k8"){
+	        //console.log("value="+JSON.stringify(data));
+                if (!resp.items)
+                    return [];
+                resp.items.sort(function(a1, a2) {
+                    return (a1.id || "").localeCompare(a2.id || "");
+                });
+                self[what] = resp.items;
+		}else{
+		self[what] = resp;
+            }
             if (!first)
                 $(self).triggerHandler(what, [ self[what] ]);
         }
@@ -129,20 +139,38 @@ define([
             reqs.push(api.get("/api/v1beta1/minions")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "minions");
+                    receive(data, "minions","k8");
                 }));
 
             reqs.push(api.get("/api/v1beta1/pods")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "pods");
+                    receive(data, "pods","k8");
                 }));
 
             reqs.push(api.get("/api/v1beta1/services")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "services");
+                    receive(data, "services","k8");
                 }));
+
+            reqs.push(api.get("/api/v1beta1/replicationControllers")
+                .fail(failure)
+                .done(function(data) {
+                    receive(data, "replicationControllers","k8");
+                }));
+
+            reqs.push(etcd_api.get("/v2/admin/machines","etcd")
+                    .fail(failure)
+                    .done(function(data) {
+                        receive(data, "etcdHosts");
+                    }));
+
+            reqs.push(etcd_api.get("/v2/keys/coreos.com/network/config","etcd")
+                    .fail(failure)
+                    .done(function(data) {
+                        receive(data, "flannelConfig");
+                    }));
 
             if (first) {
                 $.when.apply($, reqs)
@@ -151,6 +179,7 @@ define([
                         $(self).triggerHandler("minions", [ self.minions ]);
                         $(self).triggerHandler("services", [ self.services ]);
                         $(self).triggerHandler("pods", [ self.pods ]);
+		        $(self).triggerHandler("replicationControllers", [ self.replicationControllers ]);
                     });
             }
         }

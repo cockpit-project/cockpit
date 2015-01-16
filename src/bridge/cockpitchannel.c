@@ -406,7 +406,8 @@ cockpit_channel_finalize (GObject *object)
   CockpitChannel *self = COCKPIT_CHANNEL (object);
 
   g_object_unref (self->priv->transport);
-  json_object_unref (self->priv->open_options);
+  if (self->priv->open_options)
+    json_object_unref (self->priv->open_options);
   if (self->priv->close_options)
     json_object_unref (self->priv->close_options);
   g_free (self->priv->id);

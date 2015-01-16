@@ -2324,6 +2324,30 @@
                   <input type="checkbox" id="containers-run-image-with-terminal" checked />
                 </td>
               </tr>
+              <tr>
+                <td>Ports</td>
+                <td colspan="3">
+                  <input type="checkbox" checked />
+                  Expose container ports
+                  <div class="containers-run-portmapping">
+                    <form class="form-inline">
+                      <div class="form-group">
+                        <input type="text" class="form-control" id="12" placeholder="none" style="max-width: 5em;">
+                      </div>
+                      <select class="form-control selectpicker" data-width="60px">
+                        <option>TCP</option>
+                        <option>UDP</option>
+                      </select>
+                      <div class="form-group">
+                        <label for="345"> &nbsp;to host port</label>
+                        <input type="text" class="form-control" id="345" placeholder="none" style="max-width: 5em;">
+                      </div>
+                      <button type="button" class="btn btn-default fa fa-plus"></button>
+                      <button type="button" class="btn btn-default pficon-close"></button>
+                    </form>
+                  </div>        
+                </td>
+              </tr>              
             </table>
           </div>
           <div class="modal-footer">

@@ -187,33 +187,27 @@ teardown (TestCase *tc,
 static JsonObject *
 json_obj (const gchar *str)
 {
-  JsonObject *res = cockpit_json_parse_object(str, -1, NULL);
-  g_assert (res != NULL);
-  return res;
-}
-
-static JsonNode *
-json (const gchar *str)
-{
-  JsonNode *res = cockpit_json_parse(str, -1, NULL);
-  g_assert (res != NULL);
-  return res;
-}
-
-static gboolean
-json_equal (JsonNode *node, const gchar *str)
-{
-  JsonNode *node2 = json (str);
-  gboolean res = cockpit_json_equal (node, node2);
-  json_node_free (node2);
+  GError *error = NULL;
+  JsonObject *res = cockpit_json_parse_object (str, -1, &error);
+  g_assert_no_error (error);
   return res;
 }
 
 static void
-assert_sample (TestCase *tc, const gchar *json_str)
+assert_sample_msg (const char *domain,
+                   const char *file,
+                   int line,
+                   const char *func,
+                   TestCase *tc,
+                   const gchar *json_str)
 {
-  g_assert (json_equal (recv_json (tc), json_str));
+  JsonNode *node = recv_json (tc);
+  g_assert_cmpint (json_node_get_node_type (node), ==, JSON_NODE_ARRAY);
+  _cockpit_assert_json_eq_msg (domain, file, line, func, json_node_get_array (node), json_str);
 }
+
+#define assert_sample(tc, json) \
+  (assert_sample_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (tc), (json)))
 
 static void
 test_metrics_compression (TestCase *tc,
@@ -227,8 +221,8 @@ test_metrics_compression (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[0]]");
   assert_sample (tc, "[[]]");
@@ -252,8 +246,8 @@ test_metrics_units (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'sec', 'semantics': 'instant' } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'sec', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[60]]");
 
@@ -271,8 +265,8 @@ test_metrics_units_conv (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'min', 'semantics': 'instant' } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'min', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[1]]");
 
@@ -308,8 +302,8 @@ test_metrics_units_funny_conv (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'min*2', 'semantics': 'instant' } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'min*2', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[0.5]]");
 
@@ -327,8 +321,8 @@ test_metrics_strings (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.string', 'type': 'string', 'units': '', 'semantics': 'instant' } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.string', 'type': 'string', 'units': '', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[['foobar']]");
   assert_sample (tc, "[[]]");
@@ -388,10 +382,10 @@ test_metrics_simple_instances (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': ['red', 'green', 'blue'] "
-                        "  } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "    'instances': ['red', 'green', 'blue'] "
+                          "  } ]");
 
   assert_sample (tc, "[[[0, 0, 0]]]");
   mock_pmda_control ("set-value", 1, 1);
@@ -418,10 +412,10 @@ test_metrics_instance_filter_include (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': ['red', 'blue'] "
-                        "  } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "    'instances': ['red', 'blue'] "
+                          "  } ]");
 
   assert_sample (tc, "[[[0, 0]]]");
   mock_pmda_control ("set-value", 3, 1);
@@ -443,10 +437,10 @@ test_metrics_instance_filter_omit (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': ['red', 'blue'] "
-                        "  } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "    'instances': ['red', 'blue'] "
+                          "  } ]");
 
   assert_sample (tc, "[[[0, 0]]]");
   mock_pmda_control ("set-value", 3, 1);
@@ -468,10 +462,10 @@ test_metrics_instance_dynamic (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': [] "
-                        "  } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "    'instances': [] "
+                          "  } ]");
 
   assert_sample (tc, "[[[]]]");
 
@@ -479,20 +473,20 @@ test_metrics_instance_dynamic (TestCase *tc,
   mock_pmda_control ("add-instance", "milk", 3);
 
   meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': [ 'bananas', 'milk' ] "
-                        "  } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "    'instances': [ 'bananas', 'milk' ] "
+                          "  } ]");
   assert_sample (tc, "[[[ 5, 3 ]]]");
   assert_sample (tc, "[[[]]]");
 
   mock_pmda_control ("del-instance", "bananas");
 
   meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': [ 'milk' ] "
-                        "  } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "    'instances': [ 'milk' ] "
+                          "  } ]");
   assert_sample (tc, "[[[ 3 ]]]");
 
   mock_pmda_control ("add-instance", "milk", 2);
@@ -514,8 +508,8 @@ test_metrics_counter (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.counter', 'type': 'number', 'units': '', 'semantics': 'counter' } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.counter', 'type': 'number', 'units': '', 'semantics': 'counter' } ]");
 
   assert_sample (tc, "[[]]");
   assert_sample (tc, "[[0]]");
@@ -539,8 +533,8 @@ test_metrics_counter64 (TestCase *tc,
   setup_metrics_channel_json (tc, options);
 
   JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.counter64', 'type': 'number', 'units': '', 'semantics': 'counter' } ]"));
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.counter64', 'type': 'number', 'units': '', 'semantics': 'counter' } ]");
 
   assert_sample (tc, "[[]]");
   assert_sample (tc, "[[0]]");
@@ -557,6 +551,9 @@ main (int argc,
       char *argv[])
 {
   cockpit_test_init (&argc, &argv);
+
+  if (chdir (BUILDDIR) < 0)
+    g_assert_not_reached ();
 
   init_mock_pmda ();
 

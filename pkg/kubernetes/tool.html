@@ -31,39 +31,41 @@ require([
             render_selector: function() {
                 var parts = [];
                 if (this.selector) {
-			$.each(this.selector, function(key, value) {
-			parts.push(key + ": " + value);
-			});
-		}
+                    $.each(this.selector, function(key, value) {
+                        parts.push(key + ": " + value);
+                    });
+                }
                 return parts.join("<br>");
             },
             render_ports: function() {
                 var parts = [];
                 if (this.ports) {
-			$.each(this.ports[0], function(key, value) {
-			if(key=="hostPort" || key=="containerPort") {
-				parts.push(key + " : " + value);
-			}});
-		}
+                    $.each(this.ports[0], function(key, value) {
+                        if(key=="hostPort" || key=="containerPort") {
+                            parts.push(key + " : " + value);
+                        }
+                    });
+                }
                 return parts.join("   ");
             },
             render_etcdhosts: function() {
                 var parts = [];
                 if (this.ports) {
-			$.each(this.ports[0], function(key, value) {
-			if(key=="hostPort" || key=="containerPort") {
-				parts.push(key + " : " + value);
-			}});
-		}
+                    $.each(this.ports[0], function(key, value) {
+                        if(key=="hostPort" || key=="containerPort") {
+                            parts.push(key + " : " + value);
+                        }
+                    });
+                }
                 return parts.join("   ");
             },
             render_labels: function() {
                 var parts = [];
                 if (this.labels) {
-			$.each(this.labels, function(key, value) {
-				parts.push(key + " : " + value);
-			});
-		}
+                    $.each(this.labels, function(key, value) {
+                        parts.push(key + " : " + value);
+                    });
+                }
                 return parts.join("\n");
             }
         };
@@ -74,7 +76,7 @@ require([
                 pods: client.pods,
                 services: client.services,
                 replicationControllers: client.replicationControllers,
-                etcdHosts:client.etcdHosts
+                etcdHosts: client.etcdHosts
             }, helpers));
             view.amend(text);
         }
@@ -152,10 +154,10 @@ require([
         {{#pods}}
           <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
             <h4 class="list-group-item-heading">{{id}}</h4>
-	    Labels :
-	    <p class="list-group-item-text">
+             Labels :
+             <p class="list-group-item-text">
             {{render_labels}} </p>
-	    <hr>
+            <hr>
             {{#desiredState}}
               {{#manifest}}
                 {{#containers}}
@@ -178,22 +180,22 @@ require([
           <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
             <h4 class="list-group-item-heading">{{id}}</h4>
             Labels :
-	    <p class="list-group-item-text">
+            <p class="list-group-item-text">
             {{render_labels}} </p>
-	    <hr>
-	    <p class="kubernetes-selector">{{{render_selector}}}</p>
+            <hr>
+            <p class="kubernetes-selector">{{{render_selector}}}</p>
             <p>{{portalIP}}:{{port}}</p>
           </a>
         {{/services}}
-	<a class="list-group-item" data-toggle="modal" >
-        <h4 class="list-group-item-heading">etcd</h4>
-        {{#etcdHosts}}
-	   <p class="list-group-item-text">{{name}} : {{state}} </p>
-	{{/etcdHosts}}
-         </a>
-	<a class="list-group-item" data-toggle="modal">
-         <h4 class="list-group-item-heading">Flannel</h4>
-         </a>
+        <a class="list-group-item" data-toggle="modal" >
+            <h4 class="list-group-item-heading">etcd</h4>
+            {{#etcdHosts}}
+                <p class="list-group-item-text">{{name}} : {{state}} </p>
+            {{/etcdHosts}}
+        </a>
+        <a class="list-group-item" data-toggle="modal">
+            <h4 class="list-group-item-heading">Flannel</h4>
+        </a>
         </div>
       </div>
       <div class="col-md-4">

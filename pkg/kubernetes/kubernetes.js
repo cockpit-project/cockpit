@@ -86,8 +86,7 @@ define([
         notify();
     }
 
-
-	//TODO : have client support all components involved in k8 cluster(cadvisor/flannel/etcd/docker)
+    //TODO : have client support all components involved in k8 cluster(cadvisor/flannel/etcd/docker)
     function KubernetesClient() {
         var self = this;
 
@@ -114,8 +113,7 @@ define([
 
         function receive(data, what ,kind) {
             var resp = JSON.parse(data);
-            if(kind=="k8"){
-	        //console.log("value="+JSON.stringify(data));
+            if (kind == "k8") {
                 if (!resp.items)
                     return [];
                 resp.items.sort(function(a1, a2) {
@@ -139,34 +137,34 @@ define([
             reqs.push(api.get("/api/v1beta1/minions")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "minions","k8");
+                    receive(data, "minions", "k8");
                 }));
 
             reqs.push(api.get("/api/v1beta1/pods")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "pods","k8");
+                    receive(data, "pods", "k8");
                 }));
 
             reqs.push(api.get("/api/v1beta1/services")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "services","k8");
+                    receive(data, "services", "k8");
                 }));
 
             reqs.push(api.get("/api/v1beta1/replicationControllers")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "replicationControllers","k8");
+                    receive(data, "replicationControllers", "k8");
                 }));
 
-            reqs.push(etcd_api.get("/v2/admin/machines","etcd")
+            reqs.push(etcd_api.get("/v2/admin/machines", "etcd")
                     .fail(failure)
                     .done(function(data) {
                         receive(data, "etcdHosts");
                     }));
 
-            reqs.push(etcd_api.get("/v2/keys/coreos.com/network/config","etcd")
+            reqs.push(etcd_api.get("/v2/keys/coreos.com/network/config", "etcd")
                     .fail(failure)
                     .done(function(data) {
                         receive(data, "flannelConfig");

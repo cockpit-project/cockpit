@@ -511,9 +511,10 @@ test_metrics_counter (TestCase *tc,
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
                           "[ { 'name': 'mock.counter', 'type': 'number', 'units': '', 'semantics': 'counter' } ]");
 
+  /* Because the length has changed, nulls should be sent */
+  assert_sample (tc, "[[null]]");
+  assert_sample (tc, "[[0]]");
   assert_sample (tc, "[[]]");
-  assert_sample (tc, "[[0]]");
-  assert_sample (tc, "[[0]]");
   mock_pmda_control ("inc-counter", 5);
   assert_sample (tc, "[[5]]");
   assert_sample (tc, "[[0]]");
@@ -536,9 +537,10 @@ test_metrics_counter64 (TestCase *tc,
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
                           "[ { 'name': 'mock.counter64', 'type': 'number', 'units': '', 'semantics': 'counter' } ]");
 
+  /* Because the length has changed, nulls should be sent */
+  assert_sample (tc, "[[null]]");
+  assert_sample (tc, "[[0]]");
   assert_sample (tc, "[[]]");
-  assert_sample (tc, "[[0]]");
-  assert_sample (tc, "[[0]]");
   mock_pmda_control ("inc-counter64", 5);
   assert_sample (tc, "[[5]]");
   assert_sample (tc, "[[0]]");

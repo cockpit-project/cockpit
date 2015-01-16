@@ -106,6 +106,7 @@ BRIDGE_CHECKS = \
 	test-package \
 	test-resource \
 	test-fs \
+	test-metrics \
 	test-pcp \
 	$(NULL)
 
@@ -161,6 +162,12 @@ test_fs_SOURCES = \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_fs_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_fs_LDADD = $(libcockpit_bridge_LIBS)
+
+test_metrics_SOURCES = \
+	src/bridge/test-metrics.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_metrics_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_metrics_LDADD = $(libcockpit_bridge_LIBS)
 
 test_pcp_SOURCES = \
 	src/bridge/test-pcp.c \

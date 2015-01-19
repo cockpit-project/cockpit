@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2014 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Permissions tests</title>
+    <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
+    <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
+    <script type="text/javascript" src="../../tools/qunit-config.js"></script>
+
+    <script type="text/javascript" src="cockpit.js"></script>
+</head>
+<body>
+    <h1 id="qunit-header">Permissions tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <div id="done-flag" style="display:none">Done</div>
+<script>
+
+function MockDBusClient(name, options, callback) {
+    var self = this;
+    var subscribers = { };
+    var calls = { };
+
+    var args = { };
+    if (options)
+        $.extend(args, options);
+    args.payload = "dbus-json3";
+    args.name = name;
+    self.options = options;
+
+    function default_set_response(msg) {
+        self.finish_call(msg.id, null, "Unknown call");
+    }
+
+    if (callback)
+      self.send_response = callback;
+    else
+      self.send_response = default_set_response;
+
+    // Sends a signal to all subscribers
+    // Unlinke the real one, we do no matching
+    self.send_signal = function(msg) {
+        $.each(subscribers, function(id, subscription) {
+            if (subscription.callback) {
+                subscription.callback.apply(self, msg.signal);
+            }
+        });
+    };
+
+    self.close = function close(options) {
+        var problem = "disconnected";
+        var outstanding = calls;
+        calls = { };
+        $.each(outstanding, function(id, dfd) {
+            dfd.reject({
+                problem: problem,
+                message: problem,
+                name: null
+            });
+        });
+        $(self).triggerHandler("close", [ problem ]);
+    };
+
+    self.finish_call = function finish_call(response) {
+        if (!calls[response.id])
+          return;
+        var dfd = calls[response.id];
+        if (response.error)
+          dfd.reject(response.result);
+        else
+          dfd.resolve(response.result);
+
+        delete calls[response.id];
+    };
+
+    var last_cookie = 1;
+
+    self.call = function call(path, iface, method, args, options) {
+        var dfd = $.Deferred();
+        var id = String(last_cookie);
+        last_cookie++;
+        calls[id] = dfd;
+        var method_call = {
+            "call": [ path, iface, method, args || [] ],
+            "id": id
+        };
+
+        // wait a ms before replying
+        setTimeout(function() {
+              var response = self.send_response(method_call);
+              self.finish_call(response);
+        }, 1);
+
+        return dfd.promise();
+    };
+
+    self.subscribe = function subscribe(match, callback, rule) {
+        var subscription = {
+            match: match || { },
+            callback: callback
+        };
+
+        var id;
+        if (callback) {
+            id = String(last_cookie);
+            last_cookie++;
+            subscribers[id] = subscription;
+        }
+
+        return {
+            remove: function() {
+                var prev;
+                if (id) {
+                    prev = subscribers[id];
+                    if (prev)
+                        delete subscribers[id];
+                }
+            }
+        };
+    };
+}
+
+var last_dbus;
+function setup_mock(callback) {
+  cockpit.dbus = function dbus(name, options) {
+      last_dbus = new MockDBusClient(name, options, callback);
+      return last_dbus;
+  };
+}
+
+var root_user = {
+    name: "weird-root",
+    user: "weird-root",
+    id: 0,
+    subject: ["unixprocess", {pid : { t: "u", v: 1000 }}],
+    groups: null
+};
+
+var priv_user = {
+    name: "user",
+    user: "user",
+    id: 1000,
+    subject: ["unixprocess", {pid : { t: "u", v: 1001 }}],
+    groups: ["user", "agroup"]
+};
+
+var limited_user = {
+    name: "limited",
+    user: "limited",
+    id: 1001,
+    subject: ["unixprocess", {pid : { t: "u", v: 1002 }}],
+    groups: ["limited"]
+};
+
+
+function setup_user(user) {
+    for(var attr in user) {
+        cockpit.user[attr] = user[attr];
+    }
+}
+
+function basic_mock_checks(msg) {
+    var error = true;
+    var result = ["bad call"];
+    var call_data = msg.call;
+    if (call_data && call_data[0] == "/org/freedesktop/PolicyKit1/Authority") {
+        if (call_data[3][0][0] == "unixprocess") {
+          error = false;
+          result = [];
+          var pid = call_data[3][0][1].pid.v;
+          if (pid == 1000)
+              result.push(true);
+          else
+              result.push(false);
+
+          if (pid == 1001)
+              result.push(true);
+          else
+              result.push(false);
+          result.push({});
+        }
+    }
+
+    return {
+        id: msg.id,
+        result: [result],
+        error: error
+    };
+}
+
+
+QUnit.module("Permission tests", {
+    setup: function() {
+        this.old_dbus = cockpit.dbus;
+    },
+    teardown: function() {
+        cockpit.dbus = this.old_dbus;
+        $(cockpit.user).off("changed");
+    }
+});
+
+
+test("root-all-permissions", function() {
+    expect(2);
+    setup_user(priv_user);
+
+    var p1 = cockpit.permission();
+    equal(p1.allowed, false, "not root, not allowed");
+
+    setup_user(root_user);
+    var p2 = cockpit.permission();
+    equal(p2.allowed, true, "is root, allowed");
+});
+
+test("group-permissions", function() {
+    expect(3);
+    setup_user(priv_user);
+
+    var p1 = cockpit.permission({ group: "badgroup" });
+    equal(p1.allowed, false, "no group, not allowed");
+
+    var p2 = cockpit.permission({ group: "agroup" });
+    equal(p2.allowed, true, "has group, allowed");
+
+    setup_user(root_user);
+    var p3 = cockpit.permission({ group: "agroup" });
+    equal(p3.allowed, true, "no group but root, allowed");
+});
+
+
+asyncTest("action-string-permissions", function() {
+    expect(3);
+
+    var i = 0;
+    var p;
+    var users = [ priv_user, limited_user, root_user];
+    var expected_results = {
+        "weird-root": [true, "root user, allowed"],
+        "limited": [false, "no permission, not allowed"],
+        "user": [true, "can escalate, allowed"]
+    };
+
+    setup_mock(basic_mock_checks);
+
+    function check_and_continue() {
+        var u = users[i];
+        result = expected_results[u.user];
+        equal(p.allowed, result[0], result[1]);
+        p.close();
+        i = i + 1;
+        test_next_user();
+    }
+
+    function test_next_user() {
+        if (i < users.length) {
+            setup_user(users[i]);
+            p = cockpit.permission("mock.test.SimplePermission");
+            $(p).on("changed", check_and_continue);
+        } else {
+            p = null;
+            start();
+        }
+    }
+    test_next_user();
+});
+
+
+asyncTest("action-and-group-permissions", function() {
+    expect(5);
+
+    var i = 0;
+    var p;
+    var users = [
+        [root_user, "agroup"],
+        [limited_user, "limited"],
+        [limited_user, "agroup"],
+        [priv_user, "agroup"],
+        [priv_user, "limited"],
+    ];
+
+    var expected_results = {
+        "weird-root-agroup": [true, "root user no group, allowed"],
+        "limited-limited": [true, "no permision has group, allowed"],
+        "limited-agroup": [false, "no permision no group, not allowed"],
+        "user-agroup": [true, "permission and group, allowed"],
+        "user-limited": [true, "permission but not group, allowed"]
+    };
+
+    setup_mock(basic_mock_checks);
+
+    function check_and_continue() {
+        var u = users[i][0].user + "-" + users[i][1];
+        result = expected_results[u];
+        equal(p.allowed, result[0], result[1]);
+        p.close();
+        i = i + 1;
+        test_next_user();
+    }
+
+    function test_next_user() {
+        if (i < users.length) {
+            setup_user(users[i][0]);
+            p = cockpit.permission({
+                action: "mock.test.SimplePermission",
+                group: users[i][1]
+            });
+            $(p).on("changed", check_and_continue);
+        } else {
+            p = null;
+            start();
+        }
+    }
+    test_next_user();
+});
+
+// Test that signaling on dbus triggers rechecks.
+asyncTest("dbus-data-changed", function() {
+    expect(2);
+    setup_mock(basic_mock_checks);
+    var i = 0;
+    setup_user(priv_user);
+
+    function checks() {
+        if (i === 0) {
+          equal(p.allowed, true, "user allowed");
+          i = 1;
+          change_sub();
+        } else {
+          equal(p.allowed, false, "triggered not allowed");
+          start();
+          p = null;
+        }
+    }
+    var p = cockpit.permission({
+        action: "mock.test.SimplePermission"
+    });
+    $(p).on("changed", checks);
+
+    function change_sub() {
+        setup_user(limited_user);
+        last_dbus.send_signal({
+            signal: ["mock.test.SimplePermission"]
+        });
+    }
+});
+
+// Start tests after we have a user object
+function start_tests() {
+    $(cockpit.user).off("changed", start_tests);
+    QUnit.start();
+}
+$(cockpit.user).on("changed", start_tests);
+
+</script>
+</body>
+</html>

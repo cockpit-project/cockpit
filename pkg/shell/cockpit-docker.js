@@ -634,6 +634,24 @@ PageRunImage.prototype = {
         this.memory_slider = new MemorySlider($("#containers-run-image-memory"),
                                               10*1024*1024, 2*1024*1024*1024);
         this.cpu_slider = new CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
+
+        var table = $('#containers_run_image_dialog .modal-body table');
+        this.run_portmapping = $('<div class="containers-run-portmapping">');
+        this.portmapping_checkbox = $('<input type="checkbox" checked>');
+        table.append($('<tr>')
+            .append($('<td>').text('Ports'))
+            .append($('<td colspan="3">')
+                .append(this.portmapping_checkbox)
+                .append('Expose container ports')
+                .append(this.run_portmapping)
+            )
+        );
+        this.portmapping_checkbox.on('click', function() {
+            if ($(this).prop('checked'))
+                $('.containers-run-portmapping').show();
+            else
+                $('.containers-run-portmapping').hide();
+        });
     },
 
     enter: function() {
@@ -684,40 +702,128 @@ PageRunImage.prototype = {
         $("#containers-run-image-name").val(make_name());
         $("#containers-run-image-command").val(quote_cmdline(PageRunImage.image_info.config.Cmd));
 
-        function render_port(p) {
-            var port_input = $('<input class="form-control" style="display:inline;width:auto" >');
-            var tr =
-                $('<tr class="port-map">').append(
-                    $('<td>').text(
-                        cockpit.format(_("Bind port $0 to "), p)),
-                    $('<td colspan="2">').append(port_input));
+        /* render a port, all parameters are optional and default is to let internal port be editable */
+        function render_port(port_internal, port_protocol, port_internal_editable, port_external) {
+            if (port_internal === undefined)
+                port_internal = '';
+            if (port_protocol === undefined)
+                port_protocol = 'TCP';
+            if (port_internal_editable === undefined)
+                port_internal_editable = true;
+            if (port_external === undefined)
+                port_external = '';
 
-            port_input.attr('placeholder', _("none"));
-            return tr;
+            var port_internal_element = $('<input type="text" class="form-control">');
+            var port_external_element = $('<input type="text" class="form-control">');
+
+            var protocol_select = $('<select class="form-control selectpicker" data-width="60px">')
+                        .append($('<option>').text(_("TCP")))
+                        .append($('<option>').text(_("UDP")));
+
+            var mapping_add = $('<button type="button" class="btn btn-default fa fa-plus">');
+            var mapping_remove = $('<button type="button" class="btn btn-default pficon-close">');
+
+            /* if internal port is editable, allow row delete, otherwise disable modification */
+            if (port_internal_editable) {
+                mapping_remove.on('click', function () {
+                    var parent = $(this).closest("form");
+                    /* don't remove last row */
+                    if (parent.parent().children().length > 1) {
+                        parent.remove();
+                    } else {
+                        parent.find('input').each(function() {
+                            $(this).val('');
+                        });
+                        parent.find('select').selectpicker('val', _("TCP"));
+                    }
+                });
+            } else {
+                port_internal_element.prop('disabled', true);
+                protocol_select.prop('disabled', true);
+                mapping_remove.prop('disabled', true);
+            }
+
+            var portmapping = {};
+            portmapping.html =
+                    $('<form class="form-inline">')
+                    .append($('<div class="form-group">')
+                        .append(port_internal_element)
+                    )
+                    .append(protocol_select)
+                    .append($('<div class="form-group">')
+                        .append($('<label>').html(' &nbsp;to host port'))
+                        .append(port_external_element)
+                    )
+                    .append(mapping_add)
+                    .append(mapping_remove);
+
+            port_internal_element.attr('placeholder', _("none"));
+            port_internal_element.val(port_internal);
+
+            protocol_select.selectpicker('refresh');
+
+            if (port_protocol.toUpperCase() === _("UDP"))
+                protocol_select.selectpicker('val', _("UDP"));
+            else
+                protocol_select.selectpicker('val', _("TCP"));
+
+            port_external_element.attr('placeholder', _("none"));
+            port_external_element.val(port_external);
+            portmapping.elements = {
+                'add'     : mapping_add
+            };
+
+            return portmapping;
         }
 
-        var table = $('#containers_run_image_dialog .modal-body table');
-        table.find('.port-map').remove();
-        this.port_items = { };
+        function add_portmapping(parent, insert_after_element, port_internal, port_protocol, port_internal_editable, port_external) {
+            var tr = render_port(port_internal, port_protocol, port_internal_editable, port_external);
+
+            if (insert_after_element === undefined || insert_after_element.length < 1)
+                parent.append(tr.html);
+            else
+                tr.html.insertAfter(insert_after_element);
+
+            tr.elements.add.on('click', function () {
+                add_portmapping(parent, $(this).closest("form"));
+            });
+        }
+
+        /* delete any old port mapping entries */
+        this.run_portmapping.empty();
+
         for (var p in PageRunImage.image_info.config.ExposedPorts) {
-            var tr = render_port(p);
-            this.port_items[p] = tr;
-            table.append(tr);
+            add_portmapping(this.run_portmapping, undefined, parseInt(p), p.slice(-3), false);
         }
+        /* if we don't have any exposed ports, add one entry */
+        if (this.run_portmapping.children().length < 1)
+            add_portmapping(this.run_portmapping);
+
+        this.portmapping_checkbox.prop('checked', true);
     },
 
     run: function() {
         var name = $("#containers-run-image-name").val();
         var cmd = $("#containers-run-image-command").val();
         var port_bindings = { };
-        var p, map;
-        for (p in this.port_items) {
-            map = this.port_items[p].find('input').val();
-            if (map)
-                port_bindings[p] = [ { "HostIp": "",
-                                       "HostPort": map
-                                     }
-                                   ];
+        var p, mapping;
+        var map_from, map_to, map_protocol;
+        var exposed_ports = { };
+        if (this.portmapping_checkbox.prop('checked')) {
+            this.run_portmapping.children('form').each(function() {
+                var input_ports = $(this).find('input').map(function(idx, elem) {
+                        return $(elem).val();
+                    }).get();
+                map_from = input_ports[0];
+                map_to = input_ports[1];
+                map_protocol = $(this).find('select').val().toLowerCase();
+
+                if (map_from === '' || map_to === '')
+                    return;
+
+                port_bindings[map_from + '/' + map_protocol] = [ { "HostPort": map_to } ];
+                exposed_ports[map_from + '/' + map_protocol] = { };
+            });
         }
 
         $("#containers_run_image_dialog").modal('hide');
@@ -729,7 +835,8 @@ PageRunImage.prototype = {
             "Memory": this.memory_slider.value || 0,
             "MemorySwap": (this.memory_slider.value * 2) || 0,
             "CpuShares": this.cpu_slider.value || 0,
-            "Tty": tty
+            "Tty": tty,
+            "ExposedPorts": exposed_ports
         };
 
         if (tty) {

@@ -136,7 +136,7 @@ build_meta (CockpitPcpMetrics *self,
       /* Instances
        */
       vs = result->vset[i];
-      if (vs->numval < 0 || (vs->numval == 1 && vs->vlist[0].inst == PM_IN_NULL))
+      if (vs->numval < 0 || self->metrics[i].desc.indom == PM_INDOM_NULL)
         {
           /* When negative numval is an error code ... we don't care */
         }
@@ -342,7 +342,7 @@ build_samples (CockpitPcpMetrics *self,
       /* When negative numval is an error code ... we don't care */
       if (vs->numval < 0)
         json_array_add_null_element (output);
-      else if (vs->numval == 1 && vs->vlist[0].inst == PM_IN_NULL)
+      else if (self->metrics[i].desc.indom == PM_INDOM_NULL)
         json_array_add_element (output, build_sample (self, result, i, 0));
       else
         {

@@ -689,14 +689,15 @@ In addition to monitoring live values of the metrics, you can also
 access archives of previously recorded values.
 
 You specify which metrics to monitor in the options of the "open"
-command for a new channel.  If some of the metrics are not available,
-or their attributes do not match what you have specified, the channel
-will close with an error.
+command for a new channel.
 
 One of the options is the "source" of the metrics.  Many details of
 how to specify metrics and how the channel will work in detail depend
 on the type of the source, and are explained in specific sections
 below.
+
+The channel guarantees that each sample returned by it contains values
+for all requested metrics.
 
 The general open options are:
 
@@ -706,6 +707,20 @@ The general open options are:
      Cockpit bridge directly.  Use this when in doubt.
 
    * "pcmd": PCP metrics from the local PCP daemon.
+
+   * A string starting with "/": PCP metrics from one or more
+     archives.
+
+     The string is either the name of an archive, or the name of a
+     directory.  When it refers to a directory, the bridge will find
+     all archives in that directory and merge them.  The archives must
+     not overlap in time.
+
+   * "pcp-archive": PCP metrics from the default pmlogger archive.
+
+     This is the same as using the name of the default pmlogger
+     archive directory directly, but you don't have to know where it
+     is.
 
  * "metrics" (array): Descriptions of the metrics to use.  The exact
    format and semantics depend on the source.  See the specific
@@ -720,6 +735,21 @@ The general open options are:
 
  * "interval" (number, optional): The sample interval in milliseconds.
    Defaults to 1000.
+
+ * "timestamp" (number, optional): The desired time of the first
+   sample.  This is only used when accessing archives of samples.
+
+   This is either the number of milliseconds since the epoch, or (when
+   negative) the number of milliseconds in the past.
+
+   The first sample will be from a time not earlier than this
+   timestamp, but it might be from a much later time.
+
+ * "limit" (number, optional): The number of samples to return.  This
+   is only used when accessing an archive.
+
+   When no "limit" is specified, all samples until the end of the
+   archive are delivered.
 
 Once the channel is open, it will send messages encoded as JSON.  It
 will send two types of message: 'meta' messages that describe the

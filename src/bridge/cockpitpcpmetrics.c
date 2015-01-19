@@ -47,14 +47,23 @@ typedef struct {
 } MetricInfo;
 
 typedef struct {
+  int context;
+  gint64 start;
+} ArchiveInfo;
+
+typedef struct {
   CockpitMetrics parent;
   const gchar *name;
-  int context;
+  int direct_context;
   int numpmid;
   pmID *pmidlist;
   MetricInfo *metrics;
-  gchar **instances;
   gint64 interval;
+  gint64 limit;
+  guint idler;
+
+  GList *archives;  /* of ArchiveInfo */
+  GList *cur_archive;
 
   /* The previous samples sent */
   pmResult *last;
@@ -69,7 +78,7 @@ G_DEFINE_TYPE (CockpitPcpMetrics, cockpit_pcp_metrics, COCKPIT_TYPE_METRICS);
 static void
 cockpit_pcp_metrics_init (CockpitPcpMetrics *self)
 {
-  self->context = -1;
+  self->direct_context = -1;
 }
 
 static gboolean
@@ -266,7 +275,19 @@ build_sample (CockpitPcpMetrics *self,
   */
 
   if (info->desc.type == PM_TYPE_AGGREGATE || info->desc.type == PM_TYPE_EVENT)
-    return NULL;
+    return json_node_new (JSON_NODE_NULL);
+
+  if (result->vset[metric]->numval <= instance)
+    {
+      if (self->last && self->last->vset[metric]->numval <= instance)
+        return json_node_new (JSON_NODE_NULL);
+      else
+        {
+          JsonNode *node = json_node_new (JSON_NODE_VALUE);
+          json_node_set_boolean (node, FALSE);
+          return node;
+        }
+    }
 
   if (info->desc.sem == PM_SEM_COUNTER && info->desc.type != PM_TYPE_STRING)
     {
@@ -373,7 +394,7 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
   pmResult *result;
   int rc;
 
-  if (pmUseContext (self->context) < 0)
+  if (pmUseContext (self->direct_context) < 0)
     g_return_if_reached ();
 
   rc = pmFetch (self->numpmid, self->pmidlist, &result);
@@ -400,6 +421,98 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
   if (self->last)
     pmFreeResult (self->last);
   self->last = result;
+}
+
+static void next_archive (CockpitPcpMetrics *self);
+
+static gboolean
+on_idle_batch (gpointer user_data)
+{
+  const int archive_batch = 60;
+  CockpitPcpMetrics *self = user_data;
+  ArchiveInfo *info;
+  JsonArray *message = NULL;
+  JsonObject *meta;
+  pmResult *result;
+  gint i;
+  int rc;
+
+  info = (ArchiveInfo *)(self->cur_archive->data);
+
+  if (pmUseContext (info->context) < 0)
+    return FALSE;
+
+  for (i = 0; i < archive_batch; i++)
+    {
+      /* Sent enough samples? */
+      self->limit--;
+      if (self->limit < 0)
+        {
+          if (message)
+            {
+              cockpit_metrics_send_data (COCKPIT_METRICS (self), message);
+              json_array_unref (message);
+            }
+          cockpit_channel_close (COCKPIT_CHANNEL (self), NULL);
+          return FALSE;
+        }
+
+      rc = pmFetch (self->numpmid, self->pmidlist, &result);
+      if (rc < 0)
+        {
+          if (rc == PM_ERR_EOL)
+            {
+              if (message)
+                cockpit_metrics_send_data (COCKPIT_METRICS (self), message);
+              next_archive (self);
+            }
+          else
+            {
+              g_message ("%s: couldn't read from archive: %s", self->name, pmErrStr (rc));
+              cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+            }
+          if (message)
+            json_array_unref (message);
+          return FALSE;
+        }
+
+      meta = build_meta_if_necessary (self, result);
+      if (meta)
+        {
+          if (message)
+            {
+              cockpit_metrics_send_data (COCKPIT_METRICS (self), message);
+              json_array_unref (message);
+              message = NULL;
+            }
+
+          cockpit_metrics_send_meta (COCKPIT_METRICS (self), meta);
+          json_object_unref (meta);
+
+          /* We can't compute deltas across a meta message since
+             number and position of instances etc might have chagned.
+           */
+          if (self->last)
+            pmFreeResult (self->last);
+          self->last = NULL;
+        }
+
+      if (message == NULL)
+          message = json_array_new ();
+      json_array_add_array_element (message, build_samples (self, result));
+
+      if (self->last)
+        pmFreeResult (self->last);
+      self->last = result;
+    }
+
+  if (message)
+    {
+      cockpit_metrics_send_data (COCKPIT_METRICS (self), message);
+      json_array_unref (message);
+    }
+
+  return TRUE;
 }
 
 static gboolean
@@ -432,6 +545,7 @@ convert_metric_description (CockpitPcpMetrics *self,
   const gchar *units;
   const gchar *type;
   const gchar *semantics;
+  int rc;
 
   if (json_node_get_node_type (node) == JSON_NODE_OBJECT)
     {
@@ -471,15 +585,17 @@ convert_metric_description (CockpitPcpMetrics *self,
       return FALSE;
     }
 
-  if (pmLookupName (1, (char **)&info->name, &info->id) < 0)
+  rc = pmLookupName (1, (char **)&info->name, &info->id);
+  if (rc < 0)
     {
-      g_warning ("%s: no such metric: %s (%s)", self->name, info->name, pmErrStr (self->context));
+      g_warning ("%s: no such metric: %s (%s)", self->name, info->name, pmErrStr (rc));
       return FALSE;
     }
 
-  if (pmLookupDesc (info->id, &info->desc) < 0)
+  rc = pmLookupDesc (info->id, &info->desc);
+  if (rc < 0)
     {
-      g_warning ("%s: no such metric: %s (%s)", self->name, info->name, pmErrStr (self->context));
+      g_warning ("%s: no such metric: %s (%s)", self->name, info->name, pmErrStr (rc));
       return FALSE;
     }
 
@@ -568,60 +684,24 @@ convert_metric_description (CockpitPcpMetrics *self,
   return TRUE;
 }
 
-static void
-cockpit_pcp_metrics_prepare (CockpitChannel *channel)
+static gboolean
+prepare_current_context (CockpitPcpMetrics *self)
 {
-  CockpitPcpMetrics *self = COCKPIT_PCP_METRICS (channel);
-  const gchar *problem = "protocol-error";
+  gboolean result = FALSE;
   JsonObject *options;
-  const gchar *source;
   gchar **instances = NULL;
   gchar **omit_instances = NULL;
   JsonArray *metrics;
-  const char *name;
-  int type;
   int i;
 
-  COCKPIT_CHANNEL_CLASS (cockpit_pcp_metrics_parent_class)->prepare (channel);
+  g_free (self->metrics);
+  g_free (self->pmidlist);
 
-  options = cockpit_channel_get_options (channel);
+  self->numpmid = 0;
+  self->metrics = NULL;
+  self->pmidlist = NULL;
 
-  /* "source" option */
-  if (!cockpit_json_get_string (options, "source", NULL, &source))
-    {
-      g_warning ("invalid \"source\" option for metrics channel");
-      goto out;
-    }
-  else if (!source)
-    {
-      g_warning ("no \"source\" option specified for metrics channel");
-      goto out;
-    }
-  else if (g_str_equal (source, "direct"))
-    {
-      type = PM_CONTEXT_LOCAL;
-      name = NULL;
-    }
-  else if (g_str_equal (source, "pmcd"))
-    {
-      type = PM_CONTEXT_HOST;
-      name = "local:";
-    }
-  else
-    {
-      g_message ("unsupported \"source\" option specified for metrics: %s", source);
-      problem = "not-supported";
-      goto out;
-    }
-
-  self->name = source;
-  self->context = pmNewContext(type, name);
-  if (self->context < 0)
-    {
-      g_warning ("%s: couldn't create PCP context: %s", self->name, pmErrStr (self->context));
-      problem = "internal-error";
-      goto out;
-    }
+  options = cockpit_channel_get_options (COCKPIT_CHANNEL (self));
 
   /* "instances" option */
   if (!cockpit_json_get_strv (options, "instances", NULL, (gchar ***)&instances))
@@ -638,7 +718,6 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
     }
 
   /* "metrics" option */
-  self->numpmid = 0;
   if (!cockpit_json_get_array (options, "metrics", NULL, &metrics))
     {
       g_warning ("%s: invalid \"metrics\" option was specified (not an array)", self->name);
@@ -682,6 +761,313 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
         }
     }
 
+  result = TRUE;
+
+ out:
+  g_free (instances);
+  g_free (omit_instances);
+  return result;
+}
+
+static void start_archive (CockpitPcpMetrics *self, gint64 timestamp);
+
+static gboolean
+add_archive (CockpitPcpMetrics *self,
+             const gchar *name)
+{
+  ArchiveInfo *info;
+  pmLogLabel label;
+  int rc;
+
+  info = g_new0 (ArchiveInfo, 1);
+  info->context = pmNewContext (PM_CONTEXT_ARCHIVE, name);
+  if (info->context < 0)
+    {
+      g_message ("%s: couldn't create pcp archive context for %s: %s", self->name, name, pmErrStr (info->context));
+      g_free (info);
+      return FALSE;
+    }
+
+  rc = pmGetArchiveLabel (&label);
+  if (rc < 0)
+    {
+      g_message ("%s: couldn't read archive label of %s: %s", self->name, name, pmErrStr (rc));
+      pmDestroyContext (info->context);
+      g_free (info);
+      return FALSE;
+    }
+
+  info->start = label.ll_start.tv_sec * 1000 + label.ll_start.tv_usec / 1000;
+  self->archives = g_list_prepend (self->archives, info);
+  return TRUE;
+}
+
+static gint
+cmp_archive_start (gconstpointer a,
+                   gconstpointer b)
+{
+  const ArchiveInfo *a_info = a;
+  const ArchiveInfo *b_info = b;
+
+  if (a_info->start > b_info->start)
+    return 1;
+  else if (a_info->start < b_info->start)
+    return -1;
+  else
+    return 0;
+}
+
+static gboolean
+prepare_archives (CockpitPcpMetrics *self,
+                  const gchar *name,
+                  gint64 timestamp)
+{
+  GDir *dir;
+  int count;
+  GError *error = NULL;
+
+  dir = g_dir_open (name, 0, &error);
+  if (dir)
+    {
+      const gchar *entry;
+      count = 0;
+      while ((entry = g_dir_read_name (dir)) && count < 200)
+        {
+          if (g_str_has_suffix (entry, ".meta"))
+            {
+              gchar *path = g_build_filename (name, entry, NULL);
+              path[strlen(path)-strlen(".meta")] = '\0';
+              add_archive (self, path);
+              g_free (path);
+              count += 1;
+            }
+        }
+      g_dir_close (dir);
+    }
+  else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+    {
+      add_archive (self, name);
+    }
+  else
+    {
+      g_message ("%s: %s", name, error->message);
+    }
+
+  g_clear_error (&error);
+
+  if (self->archives == NULL)
+    return FALSE;
+
+  self->archives = g_list_sort (self->archives, cmp_archive_start);
+
+  self->cur_archive = self->archives;
+  start_archive (self, timestamp);
+  return TRUE;
+}
+
+static void
+start_archive (CockpitPcpMetrics *self, gint64 timestamp)
+{
+  ArchiveInfo *info;
+  struct timeval stamp;
+  int rc;
+
+  while (self->cur_archive && self->cur_archive->next
+         && ((ArchiveInfo *)(self->cur_archive->next->data))->start < timestamp)
+    self->cur_archive = self->cur_archive->next;
+
+ again:
+  if (self->cur_archive == NULL)
+    {
+      cockpit_channel_close (COCKPIT_CHANNEL (self), NULL);
+      return;
+    }
+
+  info = self->cur_archive->data;
+
+  if (timestamp < info->start)
+    timestamp = info->start;
+
+  stamp.tv_sec = (timestamp / 1000);
+  stamp.tv_usec = (timestamp % 1000) * 1000;
+
+  rc = pmUseContext (info->context);
+  if (rc < 0)
+    {
+      g_message ("%s: couldn't switch pcp context: %s", self->name, pmErrStr (rc));
+      cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+      return;
+    }
+
+  rc = pmSetMode (PM_MODE_INTERP | PM_XTB_SET(PM_TIME_MSEC), &stamp, self->interval);
+  if (rc < 0)
+    {
+      g_message ("%s: couldn't set pcp mode: %s", self->name, pmErrStr (rc));
+      cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+      return;
+    }
+
+  if (!prepare_current_context (self))
+    {
+      self->cur_archive = self->cur_archive->next;
+      goto again;
+    }
+
+  /* Make sure we send a meta message.
+   */
+  if (self->last)
+    pmFreeResult (self->last);
+  self->last = NULL;
+
+  self->idler = g_idle_add (on_idle_batch, self);
+}
+
+static void
+next_archive (CockpitPcpMetrics *self)
+{
+  self->cur_archive = self->cur_archive->next;
+  start_archive (self, 0);
+}
+
+static gboolean
+ensure_pcp_conf (void)
+{
+  gboolean res = TRUE;
+  gchar *prefix;
+  gchar *conf;
+  gchar *confpath = NULL;
+  FILE *fp = NULL;
+
+  /* Libpcp is prone to call exit(1) behind our backs when it can't
+     find its config file, so we check here first.
+  */
+
+  prefix = getenv("PCP_DIR");
+  conf = getenv("PCP_CONF");
+
+  if (conf == NULL)
+    {
+      if (prefix == NULL)
+        confpath = g_strdup ("/etc/pcp.conf");
+      else
+        confpath = g_strdup_printf ("%s/etc/pcp.conf", prefix);
+      conf = confpath;
+    }
+
+  if (access((const char *)conf, R_OK) < 0 ||
+      (fp = fopen(conf, "r")) == NULL)
+    {
+      g_warning ("Could not access %s: %m", conf);
+      res = FALSE;
+    }
+
+  if (fp)
+    fclose (fp);
+  g_free (confpath);
+  return res;
+}
+
+static void
+cockpit_pcp_metrics_prepare (CockpitChannel *channel)
+{
+  CockpitPcpMetrics *self = COCKPIT_PCP_METRICS (channel);
+  const gchar *problem = "protocol-error";
+  JsonObject *options;
+  const gchar *source;
+  int type;
+  char *name = NULL;
+  gint64 timestamp;
+
+  COCKPIT_CHANNEL_CLASS (cockpit_pcp_metrics_parent_class)->prepare (channel);
+
+  options = cockpit_channel_get_options (channel);
+
+  if (!ensure_pcp_conf ())
+    {
+      problem = "internal-error";
+      goto out;
+    }
+
+  /* "source" option */
+  if (!cockpit_json_get_string (options, "source", NULL, &source))
+    {
+      g_warning ("invalid \"source\" option for metrics channel");
+      goto out;
+    }
+  else if (!source)
+    {
+      g_warning ("no \"source\" option specified for metrics channel");
+      goto out;
+    }
+  else if (g_str_has_prefix (source, "/"))
+    {
+      type = PM_CONTEXT_ARCHIVE;
+      name = g_strdup (source);
+    }
+  else if (g_str_has_prefix (source, "pcp-archive"))
+    {
+      gchar *dir = pmGetConfig("PCP_LOG_DIR");
+      gchar hostname[HOST_NAME_MAX + 1];
+      if (gethostname (hostname, HOST_NAME_MAX) < 0)
+        {
+          g_warning ("Error getting hostname: %m");
+          problem = "internal-error";
+          goto out;
+        }
+      hostname[HOST_NAME_MAX] = '\0';
+      type = PM_CONTEXT_ARCHIVE;
+      name = g_strdup_printf ("%s/pmlogger/%s", dir, hostname);
+    }
+  else if (g_str_equal (source, "direct"))
+    {
+      type = PM_CONTEXT_LOCAL;
+      name = NULL;
+    }
+  else if (g_str_equal (source, "pmcd"))
+    {
+      type = PM_CONTEXT_HOST;
+      name = g_strdup ("local:");
+    }
+  else
+    {
+      g_message ("unsupported \"source\" option specified for metrics: %s", source);
+      problem = "not-supported";
+      goto out;
+    }
+
+  self->name = source;
+
+  /* "timestamp" option */
+  if (!cockpit_json_get_int (options, "timestamp", 0, &timestamp))
+    {
+      g_warning ("%s: invalid \"timestamp\" option", self->name);
+      goto out;
+    }
+  if (timestamp / 1000 < G_MINLONG || timestamp / 1000 > G_MAXLONG)
+    {
+      g_warning ("%s: invalid \"timestamp\" value: %" G_GINT64_FORMAT, self->name, timestamp);
+      goto out;
+    }
+
+  if (timestamp < 0)
+    {
+      struct timeval now;
+      gettimeofday (&now, NULL);
+      timestamp = (now.tv_sec * 1000 + now.tv_usec / 1000) + timestamp;
+    }
+
+  /* "limit" option */
+  if (!cockpit_json_get_int (options, "limit", G_MAXINT64, &self->limit))
+    {
+      g_warning ("%s: invalid \"limit\" option", self->name);
+      goto out;
+    }
+  else if (self->limit <= 0)
+    {
+      g_warning ("%s: invalid \"limit\" option value: %" G_GINT64_FORMAT, self->name, self->limit);
+      goto out;
+    }
+
   /* "interval" option */
   if (!cockpit_json_get_int (options, "interval", 1000, &self->interval))
     {
@@ -694,15 +1080,37 @@ cockpit_pcp_metrics_prepare (CockpitChannel *channel)
       goto out;
     }
 
+  if (type == PM_CONTEXT_ARCHIVE)
+    {
+      if (!prepare_archives (self, name, timestamp))
+        {
+          problem = "internal-error";
+          goto out;
+        }
+    }
+  else
+    {
+      self->direct_context = pmNewContext(type, name);
+      if (self->direct_context < 0)
+        {
+          g_warning ("%s: couldn't create PCP context: %s", self->name, pmErrStr (self->direct_context));
+          problem = "internal-error";
+          goto out;
+        }
+
+      if (!prepare_current_context (self))
+        goto out;
+    }
+
   problem = NULL;
-  cockpit_metrics_metronome (COCKPIT_METRICS (self), self->interval);
+  if (type != PM_CONTEXT_ARCHIVE)
+      cockpit_metrics_metronome (COCKPIT_METRICS (self), self->interval);
   cockpit_channel_ready (channel);
 
 out:
   if (problem)
     cockpit_channel_close (channel, problem);
-  g_free (instances);
-  g_free (omit_instances);
+  g_free (name);
 }
 
 static void
@@ -716,10 +1124,20 @@ cockpit_pcp_metrics_dispose (GObject *object)
       self->last = NULL;
     }
 
-  if (self->context >= 0)
+  for (GList *a = self->archives; a; a = a->next)
     {
-      pmDestroyContext (self->context);
-      self->context = -1;
+      ArchiveInfo *info = a->data;
+      if (info->context >= 0)
+        pmDestroyContext (info->context);
+      g_free (info);
+    }
+  g_list_free (self->archives);
+  self->archives = NULL;
+
+  if (self->direct_context >= 0)
+    {
+      pmDestroyContext (self->direct_context);
+      self->direct_context = -1;
     }
 
   G_OBJECT_CLASS (cockpit_pcp_metrics_parent_class)->dispose (object);
@@ -731,7 +1149,6 @@ cockpit_pcp_metrics_finalize (GObject *object)
   CockpitPcpMetrics *self = COCKPIT_PCP_METRICS (object);
 
   g_free (self->metrics);
-  g_free (self->instances);
   g_free (self->pmidlist);
 
   G_OBJECT_CLASS (cockpit_pcp_metrics_parent_class)->finalize (object);

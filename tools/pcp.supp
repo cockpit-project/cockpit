@@ -8,3 +8,13 @@
    fun:pmGetConfig
    ...
 }
+{
+   pcp_interp_hash_leak: http://oss.sgi.com/bugzilla/show_bug.cgi?id=1057
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:__pmHashAdd
+   fun:__pmLogFetchInterp
+   fun:__pmLogFetch
+   ...
+}

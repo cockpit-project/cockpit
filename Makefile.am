@@ -137,6 +137,7 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 clean-local:
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
+	rm -rf mock-archives
 
 uninstall-local:: uninstall-doc-local
 	@true

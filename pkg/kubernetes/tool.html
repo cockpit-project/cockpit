@@ -14,7 +14,8 @@ require([
     "kubernetes/kubernetes",
     "latest/po"
 ], function($, cockpit, Mustache, kubernetes, po) {
-    var client = kubernetes.client();
+    var client = kubernetes.k8client();
+    var etcdclient = kubernetes.etcdclient();
     var _ = cockpit.locale(po).gettext;
 
     function view_renderer() {
@@ -76,7 +77,7 @@ require([
                 pods: client.pods,
                 services: client.services,
                 replicationControllers: client.replicationControllers,
-                etcdHosts: client.etcdHosts
+                etcdHosts: etcdclient.etcdHosts
             }, helpers));
             view.amend(text);
         }

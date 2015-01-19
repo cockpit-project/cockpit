@@ -108,6 +108,7 @@ BRIDGE_CHECKS = \
 	test-fs \
 	test-metrics \
 	test-pcp \
+	test-pcp-archives \
 	test-httpstream \
 	$(NULL)
 
@@ -175,6 +176,12 @@ test_pcp_SOURCES = \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_pcp_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_pcp_LDADD = $(libcockpit_bridge_LIBS) -ldl
+
+test_pcp_archives_SOURCES = \
+	src/bridge/test-pcp-archives.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_pcp_archives_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_pcp_archives_LDADD = $(libcockpit_bridge_LIBS) -ldl -lpcp_import
 
 test_httpstream_SOURCES = \
 	src/bridge/test-httpstream.c \

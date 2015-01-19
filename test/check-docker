@@ -139,7 +139,7 @@ CMD ["/bin/container-probe", "%d"]
         b.click('#containers-images tr:contains("container-probe2") button.btn-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
-        b.set_val(".port-map input", port)
+        b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE2")
@@ -151,9 +151,59 @@ CMD ["/bin/container-probe", "%d"]
         b.wait_in_text("#container-details-ports", "0.0.0.0:%d -> %d/tcp" % (port, port))
 
         # Check connection on port
+        b.wait_in_text("#container-terminal", u"Waiting\xa0for\xa0connection\xa0on\xa0port\xa0%d." % (port))
         expected_message = "Sending messages"
         data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port))
         check_eq(data, expected_message)
+
+        # Wait for exit
+        b.wait_in_text("#container-details-state", "Exited")
+
+        # Delete container
+        b.click("#container-details-delete")
+        self.confirm()
+        b.wait_page("containers")
+        b.wait_not_in_text("#containers-containers", "PROBE")
+
+        nport = port + 1;
+        # Run it again, but expose additional port
+        b.click('#containers-images tr:contains("container-probe2") button.btn-play')
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE2")
+        # Tell our probe to listen on both ports
+        b.set_val("#containers-run-image-command", "/bin/container-probe %d %d" % (port, nport))
+        b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
+        b.click(".containers-run-portmapping form:eq(0) .fa-plus")
+        b.set_val(".containers-run-portmapping form:eq(1) input:eq(0)", nport)
+        b.set_val(".containers-run-portmapping form:eq(1) input:eq(1)", nport)
+
+        b.click("#containers-run-image-run");
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE2")
+
+        # Check output of the probe
+        b.click('#containers-containers tr:contains("PROBE2")')
+        b.wait_page("container-details")
+        b.wait_in_text("#container-terminal", "Hello from container-probe.")
+        b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (port, port))
+        b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (nport, nport))
+
+        # Check connection on both ports
+        b.wait_in_text("#container-terminal", u"Waiting\xa0for\xa0connection\xa0on\xa0port\xa0%d." % (port))
+        data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port))
+        check_eq(data, expected_message)
+        b.wait_in_text("#container-terminal", u"Waiting\xa0for\xa0connection\xa0on\xa0port\xa0%d." % (nport))
+        data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (nport))
+        check_eq(data, expected_message)
+
+        # Wait for exit
+        b.wait_in_text("#container-details-state", "Exited")
+
+        # Delete container
+        b.click("#container-details-delete")
+        self.confirm()
+        b.wait_page("containers")
+        b.wait_not_in_text("#containers-containers", "PROBE")
 
     def testFailure(self):
         b = self.browser

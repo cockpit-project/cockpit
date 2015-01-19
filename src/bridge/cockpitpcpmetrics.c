@@ -112,16 +112,23 @@ build_meta (CockpitPcpMetrics *self,
   JsonArray *instances;
   JsonObject *root;
   pmValueSet *vs;
-  gint64 timestamp;
+  struct timeval now_timeval;
+  gint64 timestamp, now;
   char *instance;
   int i, j;
   int rc;
 
+  gettimeofday (&now_timeval, NULL);
+
   timestamp = (result->timestamp.tv_sec * 1000) +
               (result->timestamp.tv_usec / 1000);
 
+  now = (now_timeval.tv_sec * 1000) +
+        (now_timeval.tv_usec / 1000);
+
   root = json_object_new ();
   json_object_set_int_member (root, "timestamp", timestamp);
+  json_object_set_int_member (root, "now", now);
   json_object_set_int_member (root, "interval", self->interval);
 
   metrics = json_array_new ();

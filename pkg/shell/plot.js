@@ -30,14 +30,20 @@ var shell = shell || { };
  * is safe or required to create the flot object.
  *
  *
- * - plot = shell.plot(element, x_range)
+ * - plot = shell.plot(element, x_range, [x_stop])
  *
  * Creates a 'plot' object attached to the given DOM element.  It will
- * show 'x_range' seconds worth of samples.
+ * show 'x_range' seconds worth of samples, until 'x_stop'.
  *
- * - plot.start_walking(interval)
+ * If 'x_stop' is undefined, the plot will show the last 'x_range'
+ * seconds until now and walking will work as expected (see below).
  *
- * Scroll towards the future every 'interval' seconds.
+ * If 'x_stop' is not undefined, it should be the number of seconds
+ * since the epoch.
+ *
+ * - plot.start_walking()
+ *
+ * Scroll towards the future.
  *
  * - plot.stop_walking()
  *
@@ -65,7 +71,7 @@ var shell = shell || { };
  * limits, for example.  It is called with the flot object as its only
  * parameter.
  *
- * - plot.reset()
+ * - plot.reset([x_range],[x_stop])
  *
  * Resets the plot to be empty.  The plot will disappear completely
  * from the DOM, including the grid.
@@ -110,14 +116,13 @@ var shell = shell || { };
  * == true), or stops hovering over it ('val' == false).
  */
 
-shell.plot = function plot(element, x_range) {
+shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     var options = { };
     var data = [ ];
     var flot = null;
-    var generation = 0;
-
-    var now = 0;
     var walk_timer;
+
+    var now, x_range, x_offset, interval;
 
     function refresh() {
         if (flot === null) {
@@ -129,8 +134,8 @@ shell.plot = function plot(element, x_range) {
         flot.setData(data);
         var axes = flot.getAxes();
 
-        axes.xaxis.options.min = now - x_range;
-        axes.xaxis.options.max = now;
+        axes.xaxis.options.min = now - x_range - x_offset;
+        axes.xaxis.options.max = now - x_offset;
         if (options.setup_hook)
             options.setup_hook(flot);
 
@@ -146,12 +151,12 @@ shell.plot = function plot(element, x_range) {
         flot.draw();
     }
 
-    function start_walking(interval) {
+    function start_walking() {
         if (!walk_timer)
             walk_timer = window.setInterval(function () {
                 refresh();
                 now += interval;
-            }, interval*1000);
+            }, interval);
     }
 
     function stop_walking() {
@@ -160,16 +165,31 @@ shell.plot = function plot(element, x_range) {
         walk_timer = null;
     }
 
-    function reset() {
+    function reset(x_range_seconds, x_stop_seconds) {
         stop_walking();
         for (var i = 0; i < data.length; i++)
             data[i].stop();
+
+        now = (new Date()).getTime();
+
+        if (x_stop_seconds !== undefined)
+            x_offset = now - x_stop_seconds*1000;
+        else
+            x_offset = 0;
+
+        // Fill the plot with about 1000 samples.
+        //
+        // TODO - do this based on the actual size of the plot.
+        //
+        if (x_range_seconds !== undefined) {
+            x_range = x_range_seconds * 1000;
+            interval = Math.ceil(x_range_seconds / 1000) * 1000;
+        }
 
         options = { };
         data = [ ];
         flot = null;
         $(element).empty();
-        generation += 1;
     }
 
     function resize() {
@@ -189,8 +209,11 @@ shell.plot = function plot(element, x_range) {
         var series = opts;
         var series_data = null;
         var timestamp;
-        var channel;
+        var archive_channel, real_time_channel;
+        var factor;
         var cur_samples;
+        var stopped = false;
+        var refresh_on_samples = true;
 
         var self = {
             options: series,
@@ -202,7 +225,11 @@ shell.plot = function plot(element, x_range) {
         series.hover = hover;
 
         function stop() {
-            channel.close();
+            stopped = true;
+            if (archive_channel)
+                archive_channel.close();
+            if (real_time_channel)
+                real_time_channel.close();
         }
 
         function hover(val) {
@@ -230,7 +257,7 @@ shell.plot = function plot(element, x_range) {
 
         function trim_series() {
             for (var i = 0; i < series_data.length; i++) {
-                if (series_data[i][0] >= now - x_range) {
+                if (series_data[i][0] >= now - x_range - x_offset) {
                     series_data.splice(0, i);
                     return;
                 }
@@ -240,12 +267,11 @@ shell.plot = function plot(element, x_range) {
         var metrics;
         var instances;
 
-        function init() {
+        function init(msg) {
             series_data = [];
             trim_series();
             add_series();
             refresh();
-            timestamp = now;
         }
 
         function on_new_sample(samples) {
@@ -266,8 +292,9 @@ shell.plot = function plot(element, x_range) {
             }
 
             trim_series();
-            series_data[series_data.length] = [ timestamp, sum*(desc.factor || 1) ];
-            timestamp += (desc.interval || 1000) / 1000;
+            if (!isNaN(sum))
+                series_data[series_data.length] = [ timestamp, sum*factor ];
+            timestamp += interval;
         }
 
         function remove() {
@@ -278,24 +305,20 @@ shell.plot = function plot(element, x_range) {
 
         metrics = desc.metrics.map(function (n) { return { name: n, units: desc.units }; });
 
-        channel = cockpit.channel({ payload: "metrics1",
-                                    source: desc.source || "direct",
-                                    metrics: metrics,
-                                    instances: desc.instances,
-                                    omit_instances: desc.omit_instances,
-                                    interval: desc.interval || 1000,
-                                    host: desc.host
-                                  });
-        $(channel).on("close", function (event, message) {
-            console.log(message);
-        });
-        $(channel).on("message", function (event, message) {
+        function handle_message(event, message) {
+            if (stopped)
+                return;
+
             var msg = JSON.parse(message);
-            var i;
+            var i, t;
             if (msg.length) {
                 for (i = 0; i < msg.length; i++) {
                     on_new_sample(msg[i]);
                 }
+                if (refresh_on_samples)
+                    refresh();
+                if (!archive_channel)
+                    refresh_on_samples = false;
             } else {
                 instances = msg.metrics.map(function (m) { return m.instances; });
                 cur_samples = [];
@@ -303,8 +326,49 @@ shell.plot = function plot(element, x_range) {
                     if (instances[i] !== null)
                         cur_samples[i] = [];
                 }
+
                 if (series_data === null)
-                    init();
+                    init(msg);
+
+                t = new Date().getTime() + (msg.timestamp - msg.now);
+                if (archive_channel && t > timestamp + 2 * interval)
+                    series_data[series_data.length] = [ timestamp, null ];
+                timestamp = t;
+            }
+        }
+
+        if (desc.factor)
+            factor = desc.factor / (interval / 1000);
+        else
+            factor = 1;
+
+        archive_channel = cockpit.channel({ payload: "metrics1",
+                                            source: "pcp-archive",
+                                            metrics: metrics,
+                                            instances: desc.instances,
+                                            omit_instances: desc.omit_instances,
+                                            interval: interval,
+                                            timestamp: -x_range - x_offset,
+                                            limit: (x_offset > 0) ? (x_range / interval) : undefined,
+                                            host: desc.host
+                                          });
+        $(archive_channel).on("message", handle_message);
+
+        $(archive_channel).on("close", function (event, message) {
+            archive_channel = null;
+            if (x_offset === 0 && !stopped) {
+                real_time_channel = cockpit.channel({ payload: "metrics1",
+                                                      source: "direct",
+                                                      metrics: metrics,
+                                                      instances: desc.instances,
+                                                      'omit-instances': desc['omit-instances'],
+                                                      interval: interval,
+                                                      host: desc.host
+                                                    });
+                $(real_time_channel).on("message", handle_message);
+                $(real_time_channel).on("close", function (event, message) {
+                    real_time_channel = null;
+                });
             }
         });
 
@@ -334,7 +398,7 @@ shell.plot = function plot(element, x_range) {
     $(element).on("plothover", hover_on);
     $(element).on("mouseleave", hover_off);
 
-    set_options({});
+    reset(x_range_seconds, x_stop_seconds);
 
     return {
         start_walking: start_walking,

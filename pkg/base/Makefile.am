@@ -47,6 +47,7 @@ base_TESTS = \
 	pkg/base/test-format.html \
 	pkg/base/test-file.html \
 	pkg/base/test-user.html \
+	pkg/base/test-permissions.html \
 	$(NULL)
 
 TESTS += $(base_TESTS)

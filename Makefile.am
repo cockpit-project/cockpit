@@ -187,6 +187,7 @@ endif
 
 include pkg/base/Makefile.am
 include pkg/docker/Makefile.am
+include pkg/kubernetes/Makefile.am
 include pkg/playground/Makefile.am
 include pkg/server-systemd/Makefile.am
 include pkg/shell/Makefile.am

@@ -65,6 +65,10 @@ require([
             if (channel && channel.valid)
                 channel.send(data);
         });
+
+        term.on('title', function(title) {
+            $("#terminal-title").text(title);
+        });
     }
 
     function show() {
@@ -89,9 +93,7 @@ require([
 <body style="display: none;">
     <div class="panel panel-default console-container">
         <div class="panel-heading">
-            <span translatable="yes">
-                Terminal
-            </span>
+            <tt id="terminal-title" translatable="yes">Terminal</tt>
             <button id="terminal-reset" class="btn btn-default pull-right" translatable="yes">Reset</button>
         </div>
         <div id="terminal" class="console">

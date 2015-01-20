@@ -51,6 +51,9 @@ class TestTerminal(MachineCase):
         b.key_press([ 'e', 'c', 'h', 'o', ' ',  'ä', 'ö', 'ü', 'Return' ])
         wait_line(4, u'äöü')
 
+        # The '@' sign is in the default prompt
+        b.wait_in_text("#terminal-title", '@')
+
     def testReset(self):
         b = self.browser;
         m = self.machine;

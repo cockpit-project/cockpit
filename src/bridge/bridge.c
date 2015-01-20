@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pwd.h>
 
 #include <glib-unix.h>
 
@@ -306,6 +307,31 @@ on_signal_done (gpointer data)
   return TRUE;
 }
 
+static struct passwd *
+getpwuid_a (uid_t uid)
+{
+  int err;
+  long bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
+  struct passwd *ret = NULL;
+  struct passwd *buf;
+
+  if (bufsize <= 0)
+    bufsize = 8192;
+
+  buf = g_malloc (sizeof(struct passwd) + bufsize);
+  err = getpwuid_r (uid, buf, (char *)(buf + 1), bufsize, &ret);
+
+  if (ret == NULL)
+    {
+      free (buf);
+      if (err == 0)
+        err = ENOENT;
+      errno = err;
+    }
+
+  return ret;
+}
+
 static int
 run_bridge (const gchar *interactive)
 {
@@ -315,12 +341,28 @@ run_bridge (const gchar *interactive)
   gboolean closed = FALSE;
   CockpitSuperChannels *super = NULL;
   gpointer polkit_agent = NULL;
+  struct passwd *pwd;
   GPid daemon_pid = 0;
   guint sig_term;
   guint sig_int;
   int outfd;
+  uid_t uid;
 
   cockpit_set_journal_logging (!isatty (2));
+
+  /* Always set environment variables early */
+  uid = geteuid();
+  pwd = getpwuid_a (uid);
+  if (pwd == NULL)
+    {
+      g_message ("couldn't get user info: %s", g_strerror (errno));
+    }
+  else
+    {
+      g_setenv ("USER", pwd->pw_name, TRUE);
+      g_setenv ("HOME", pwd->pw_dir, TRUE);
+      g_setenv ("SHELL", pwd->pw_shell, TRUE);
+    }
 
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write
@@ -355,14 +397,17 @@ run_bridge (const gchar *interactive)
       transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
     }
 
-  if (geteuid () != 0)
+  if (uid != 0)
     {
       if (!interactive)
         polkit_agent = cockpit_polkit_agent_register (transport, NULL);
       super = cockpit_super_channels_new (transport);
     }
 
-  cockpit_dbus_user_startup ();
+  cockpit_dbus_user_startup (pwd);
+
+  g_free (pwd);
+  pwd = NULL;
 
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);
   g_signal_connect (transport, "closed", G_CALLBACK (on_closed_set_flag), &closed);

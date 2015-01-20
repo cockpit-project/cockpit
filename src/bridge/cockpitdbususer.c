@@ -29,29 +29,32 @@
 #include <pwd.h>
 
 static void
-populate_passwd_props (GHashTable *props)
+variant_table_sink (GHashTable *props,
+                    const gchar *name,
+                    GVariant *value)
 {
-  struct passwd *pw;
-  uid_t uid;
+  g_hash_table_insert (props, (gchar *)name, g_variant_ref_sink (value));
+}
 
-  uid = geteuid ();
-  g_hash_table_insert (props, "Id", g_variant_new_int64 (uid));
-
-  pw = getpwuid (uid);
+static void
+populate_passwd_props (GHashTable *props,
+                       struct passwd *pw)
+{
   if (pw == NULL)
     {
-      g_warning ("couldn't get user info: %s", g_strerror (errno));
-      g_hash_table_insert (props, "Name", g_variant_new_string (""));
-      g_hash_table_insert (props, "Full", g_variant_new_string (""));
-      g_hash_table_insert (props, "Home", g_variant_new_string (""));
-      g_hash_table_insert (props, "Shell", g_variant_new_string (""));
+      variant_table_sink (props, "Id", g_variant_new_int64 (geteuid ()));
+      variant_table_sink (props, "Name", g_variant_new_string (""));
+      variant_table_sink (props, "Full", g_variant_new_string (""));
+      variant_table_sink (props, "Home", g_variant_new_string (""));
+      variant_table_sink (props, "Shell", g_variant_new_string (""));
     }
   else
     {
-      g_hash_table_insert (props, "Name", g_variant_new_string (pw->pw_name));
-      g_hash_table_insert (props, "Full", g_variant_new_string (pw->pw_gecos));
-      g_hash_table_insert (props, "Home", g_variant_new_string (pw->pw_dir));
-      g_hash_table_insert (props, "Shell", g_variant_new_string (pw->pw_shell));
+      variant_table_sink (props, "Id", g_variant_new_int64 (pw->pw_uid));
+      variant_table_sink (props, "Name", g_variant_new_string (pw->pw_name));
+      variant_table_sink (props, "Full", g_variant_new_string (pw->pw_gecos));
+      variant_table_sink (props, "Home", g_variant_new_string (pw->pw_dir));
+      variant_table_sink (props, "Shell", g_variant_new_string (pw->pw_shell));
     }
 }
 
@@ -102,22 +105,12 @@ populate_group_prop (GHashTable *props)
       g_ptr_array_add (array, g_variant_new_string (gr->gr_name));
     }
 
-  g_hash_table_insert (props, "Groups", g_variant_new_array (G_VARIANT_TYPE_STRING,
-                                                             (GVariant * const*)array->pdata,array->len));
+  variant_table_sink (props, "Groups", g_variant_new_array (G_VARIANT_TYPE_STRING,
+                                                            (GVariant * const*)array->pdata,array->len));
 
   g_ptr_array_free (array, TRUE);
   g_free (list);
 }
-
-static void
-ref_sink_all_values (gpointer key,
-                     gpointer value,
-                     gpointer user_data)
-{
-  g_assert (g_variant_is_floating (value));
-  g_variant_ref_sink (value);
-}
-
 
 static GVariant *
 user_get_property (GDBusConnection *connection,
@@ -130,12 +123,8 @@ user_get_property (GDBusConnection *connection,
 {
   GHashTable *props = user_data;
 
-  if (g_hash_table_size (props) == 0)
-    {
-      populate_passwd_props (props);
-      populate_group_prop (props);
-      g_hash_table_foreach (props, ref_sink_all_values, NULL);
-    }
+  if (!g_hash_table_lookup (props, "Groups"))
+    populate_group_prop (props);
 
   GVariant *value = g_hash_table_lookup (props, property_name);
   g_return_val_if_fail (value != NULL, NULL);
@@ -185,7 +174,7 @@ static GDBusInterfaceVTable user_vtable = {
 };
 
 void
-cockpit_dbus_user_startup (void)
+cockpit_dbus_user_startup (struct passwd *pwd)
 {
   GDBusConnection *connection;
   GHashTable *props;
@@ -195,6 +184,7 @@ cockpit_dbus_user_startup (void)
   g_return_if_fail (connection != NULL);
 
   props = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify)g_variant_unref);
+  populate_passwd_props (props, pwd);
 
   g_dbus_connection_register_object (connection, "/user", &user_interface,
                                      &user_vtable, props, (GDestroyNotify)g_hash_table_unref,

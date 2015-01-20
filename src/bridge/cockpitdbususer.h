@@ -21,10 +21,11 @@
 #define __COCKPIT_DBUS_USER_H
 
 #include <gio/gio.h>
+#include <pwd.h>
 
 G_BEGIN_DECLS
 
-void                  cockpit_dbus_user_startup      (void);
+void                  cockpit_dbus_user_startup      (struct passwd *pwd);
 
 G_END_DECLS
 

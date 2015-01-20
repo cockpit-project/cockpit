@@ -844,7 +844,7 @@ then the channel will send these array instead:
 
 This compression does not happen across 'meta' messages.
 
-# PCP metric sources
+**PCP metric source**
 
 You specify the desired metrics as an array of objects, where each
 object describes one metric.  For example:

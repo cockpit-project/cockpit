@@ -1455,6 +1455,39 @@
 
   </refsection>
 
+<refsection id="latest-permission">
+    <title>Permissions</title>
+    <para>Cockpit provides a mechnisim for checking if the current user satisfies a
+given criteria. Currently capable of checking for root users, group membership,
+and quering polkit via dbus.</para>
+
+    <refsection id="latest-permission-constructor">
+      <title>cockpit.permission()</title>
+<programlisting>
+ permission = cockpit.permission([options])
+</programlisting>
+
+      <para>Create a new permission object. The <code>options</code> argument can be a polkit action string or an object with group and/or action attributes. If no argument is given, it will check if the user is root.</para>
+
+      <para>If a pollkit action is provided a subscription will be setup to ensure we are kept up to date with polkit permission changes.</para>
+      <variablelist>
+        <varlistentry>
+          <term><code>"allowed"</code></term>
+          <listitem><para>A Boolean that indicates whether or not the current user satisfies the given criteria. If any of the given tests evaluate to true, result will be true even if other criteria are false. Because getting the correct value may be a async operation, this value should generally be checked from within a <code>$(permission).on("changed", </code>callback.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    </refsection>
+
+    <refsection id="latest-permission-close">
+      <title>permission.close()</title>
+<programlisting>
+  permission.close()
+</programlisting>
+      <para>Closes the permission object and tears down any registered callbacks and dbus subscriptions.</para>
+    </refsection>
+
+  </refsection>
   <refsection id="latest-locale">
     <title>Localization</title>
 

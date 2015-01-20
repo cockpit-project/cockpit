@@ -52,17 +52,21 @@ function MockDBusClient(name, options, callback) {
     self.options = options;
 
     function default_set_response(msg) {
-        self.finish_call(msg.id, null, "Unknown call");
+        return {
+            id: msg.id,
+            result: null,
+            error: "Unknown call"
+        };
     }
 
     if (callback)
-      self.send_response = callback;
+      self.mock_send_response = callback;
     else
-      self.send_response = default_set_response;
+      self.mock_send_response = default_set_response;
 
     // Sends a signal to all subscribers
     // Unlinke the real one, we do no matching
-    self.send_signal = function(msg) {
+    self.mock_send_signal = function(msg) {
         $.each(subscribers, function(id, subscription) {
             if (subscription.callback) {
                 subscription.callback.apply(self, msg.signal);
@@ -84,7 +88,7 @@ function MockDBusClient(name, options, callback) {
         $(self).triggerHandler("close", [ problem ]);
     };
 
-    self.finish_call = function finish_call(response) {
+    self.mock_finish_call = function mock_finish_call(response) {
         if (!calls[response.id])
           return;
         var dfd = calls[response.id];
@@ -110,8 +114,8 @@ function MockDBusClient(name, options, callback) {
 
         // wait a ms before replying
         setTimeout(function() {
-              var response = self.send_response(method_call);
-              self.finish_call(response);
+              var response = self.mock_send_response(method_call);
+              self.mock_finish_call(response);
         }, 1);
 
         return dfd.promise();
@@ -361,7 +365,7 @@ asyncTest("dbus-data-changed", function() {
 
     function change_sub() {
         setup_user(limited_user);
-        last_dbus.send_signal({
+        last_dbus.mock_send_signal({
             signal: ["mock.test.SimplePermission"]
         });
     }

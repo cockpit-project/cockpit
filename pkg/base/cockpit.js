@@ -2513,20 +2513,6 @@ function full_scope(cockpit, $) {
 
     /* ---------------------------------------------------------------------
      * Permission
-     *
-     * Checks if the current user meets the given criteria.
-     * Currently capable of checking for root users, group membership,
-     * and quering polkit via dbus.
-     *
-     * If called with a string that string will be considered
-     * a polkit action. If called with an object that object
-     * will be checked for group and action attributes and checked
-     * accordingly. If no argument is given, it will
-     * check if the user is root. If any of the given tests evaluate
-     * to true, result will be true even if other criteria are false.
-     *
-     * Interested functions should register with on.("changed"
-     * so they will be called back if the result of the checks changes.
      */
 
     var authority = null;
@@ -2559,10 +2545,10 @@ function full_scope(cockpit, $) {
              * First and second values returned from CheckAuthorization are
              * is_authorized and is_challenge. In either case we are allowed.
              */
-            if (!allowed && (checked && (checked[0] || checked[1])))
+            if (checked && (checked[0] || checked[1]))
                 allowed = true;
 
-            if (!allowed && (group && user.groups)) {
+            if (group && user.groups) {
               $.each(user.groups, function(i, name) {
                   if (name == group) {
                       allowed = true;

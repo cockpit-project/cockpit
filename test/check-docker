@@ -105,6 +105,56 @@ class TestDocker(MachineCase):
         self.confirm()
         b.wait_page("containers")
 
+    def testExpose(self):
+        b = self.browser
+        m = self.machine
+        self.allow_journal_messages('.*denied.*name_connect.*docker.*')
+
+        m.execute("systemctl start docker.socket")
+        m.execute("usermod -G wheel,docker admin")
+
+        self.login_and_go("containers")
+
+        port = 3380;
+
+        # Import the container-probe image and wait for it to appear
+        m.upload(["container-probe.tar.gz"], "/var/tmp/container-probe.tar.gz")
+        m.execute("docker import - test/container-probe </var/tmp/container-probe.tar.gz")
+        b.wait_in_text("#containers-images", "container-probe")
+
+        # Create an updated image, expose a port
+        m.execute("mkdir /var/tmp/container-probe2")
+        m.execute("""echo -e '
+FROM test/container-probe
+MAINTAINER cockpit
+EXPOSE %d
+CMD ["/bin/container-probe", "%d"]
+' > /var/tmp/container-probe2/Dockerfile""" % (port, port))
+        m.execute("docker build -t test/container-probe2 /var/tmp/container-probe2");
+
+        # Wait for it to appear
+        b.wait_in_text("#containers-images", "container-probe2")
+
+        # Run it
+        b.click('#containers-images tr:contains("container-probe2") button.btn-play')
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE2")
+        b.set_val(".port-map input", port)
+        b.click("#containers-run-image-run");
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE2")
+
+        # Check output of the probe
+        b.click('#containers-containers tr:contains("PROBE2")')
+        b.wait_page("container-details")
+        b.wait_in_text("#container-terminal", "Hello from container-probe.")
+        b.wait_in_text("#container-details-ports", "0.0.0.0:%d -> %d/tcp" % (port, port))
+
+        # Check connection on port
+        expected_message = "Sending messages"
+        data = m.execute("exec 3<>/dev/tcp/localhost/%d; cat <&3" % (port))
+        check_eq(data, expected_message)
+
     def testFailure(self):
         b = self.browser
         m = self.machine

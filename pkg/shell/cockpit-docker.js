@@ -1743,10 +1743,15 @@ function DockerClient(machine) {
     /* Actually connect initially */
     perform_connect();
 
-    this.start = function start(id) {
+    this.start = function start(id, options) {
         waiting(id);
         docker_debug("starting:", id);
-        return http.post("/v1.10/containers/" + encodeURIComponent(id) + "/start")
+        return http.request({
+                method: "POST",
+                path: "/v1.10/containers/" + encodeURIComponent(id) + "/start",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(options || { })
+            })
             .fail(function(ex) {
                 docker_debug("start failed:", id, ex);
             })

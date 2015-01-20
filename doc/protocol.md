@@ -850,9 +850,7 @@ You specify the desired metrics as an array of objects, where each
 object describes one metric.  For example:
 
     [ { name: "kernel.all.cpu.user",
-        type: "number",
         units: "millisec",
-        semantics: "counter"
       },
       ...
     ]
@@ -869,21 +867,10 @@ A metric description can have the following fields:
    example.  If no metric of this name exists, the channel is closed
    without delivering any message.
 
- * "type" (string, optional): The expected type of the metric, either
-   "number" or "string".  If no type is specified, any type is allowed
-   (unless "units" is also specified, see below).  If the metric is
-   not of the given type, the channel is closed.
-
- * "semantics" (string, optional): The expected semantics of the
-   metric, one of "counter", "instant", or "discrete".  If the metric
-   does not have the given semantics, the channel is closed.
-
  * "units" (string, optional): The units that values for this metric
    should be delivered in.  If the given metric can not be converted
    into these units, the channel is closed.  The format of the string
    is the same as the one used by "pminfo -d".
-
-   When specifying "units", "type" defaults to "number".
 
 The metric information objects in the 'meta' messages for PCP sources
 also contain these fields:
@@ -900,10 +887,9 @@ also contain these fields:
  * "units" (string): The units for the values reported for this
    metric.
 
-The idea is that you can either provide detailed expectations for a
-metric and can then be sure that your code will not be faced with
-unexpected sample values, or you can inspect the 'meta' message and
-adapt to whatever characteristics the metric actually has.
+The idea is that you can inspect the 'meta' message and
+adapt to whatever characteristics the metric actually has, or close
+the channel if unexpected characteristics were encountered.
 
 Metrics that have "counter" semantics are 'differentiated' in the
 bridge: the channel will report the delta between the current and the

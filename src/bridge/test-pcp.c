@@ -335,42 +335,6 @@ test_metrics_strings (TestCase *tc,
 }
 
 static void
-test_metrics_wrong_type (TestCase *tc,
-                         gconstpointer unused)
-{
-  cockpit_expect_warning ("direct: metric mock.string is not a number");
-
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.string', 'type': 'number' } ],"
-                                 "  'interval': 1"
-                                 "}");
-  setup_metrics_channel_json (tc, options);
-
-  wait_channel_closed (tc);
-  g_assert_cmpstr (tc->problem, ==, "protocol-error");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_wrong_semantics (TestCase *tc,
-                              gconstpointer unused)
-{
-  cockpit_expect_warning ("direct: metric mock.value is not a counter");
-
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.value', 'semantics': 'counter' } ],"
-                                 "  'interval': 1"
-                                 "}");
-  setup_metrics_channel_json (tc, options);
-
-  wait_channel_closed (tc);
-  g_assert_cmpstr (tc->problem, ==, "protocol-error");
-
-  json_object_unref (options);
-}
-
-static void
 test_metrics_simple_instances (TestCase *tc,
                                gconstpointer unused)
 {
@@ -630,11 +594,6 @@ main (int argc,
 
   g_test_add ("/metrics/strings", TestCase, NULL,
               setup, test_metrics_strings, teardown);
-  g_test_add ("/metrics/wrong-type", TestCase, NULL,
-              setup, test_metrics_wrong_type, teardown);
-
-  g_test_add ("/metrics/wrong-semantics", TestCase, NULL,
-              setup, test_metrics_wrong_semantics, teardown);
 
   g_test_add ("/metrics/simple-instances", TestCase, NULL,
               setup, test_metrics_simple_instances, teardown);

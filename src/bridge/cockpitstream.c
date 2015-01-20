@@ -29,6 +29,7 @@
 #include <gio/gunixsocketaddress.h>
 
 #include <sys/wait.h>
+#include <string.h>
 
 /**
  * CockpitStream:
@@ -253,6 +254,67 @@ cockpit_stream_init (CockpitStream *self)
   self->latency = 75;
 }
 
+static gint
+environ_find (gchar **env,
+              const gchar *variable)
+{
+  gint len, x;
+  gchar *pos;
+
+  pos = strchr (variable, '=');
+  if (pos == NULL)
+    len = strlen (variable);
+  else
+    len = pos - variable;
+
+  for (x = 0; env && env[x]; x++)
+    {
+      if (strncmp (env[x], variable, len) == 0 &&
+          env[x][len] == '=')
+        return x;
+    }
+
+  return -1;
+}
+
+static gchar **
+parse_environ (JsonObject *options)
+{
+  gchar **envset = NULL;
+  gsize length;
+  gchar **env;
+  gint i, x;
+
+  if (!cockpit_json_get_strv (options, "environ", NULL, &envset))
+    {
+      g_warning ("invalid \"environ\" option for stream channel");
+      return NULL;
+    }
+
+  env = g_get_environ ();
+  length = g_strv_length (env);
+
+  for (i = 0; envset && envset[i] != NULL; i++)
+    {
+      x = environ_find (env, envset[i]);
+      if (x != -1)
+        {
+          g_free (env[x]);
+          env[x] = g_strdup (envset[i]);
+        }
+      else
+        {
+          env = g_renew (gchar *, env, length + 2);
+          env[length] = g_strdup (envset[i]);
+          env[length + 1] = NULL;
+          length++;
+        }
+    }
+
+  g_free (envset);
+  return env;
+}
+
 static void
 cockpit_stream_prepare (CockpitChannel *channel)
 {
@@ -295,11 +357,6 @@ cockpit_stream_prepare (CockpitChannel *channel)
         flags = COCKPIT_PIPE_STDERR_TO_STDOUT;
 
       self->name = g_strdup (argv[0]);
-      if (!cockpit_json_get_strv (options, "environ", NULL, &env))
-        {
-          g_warning ("invalid \"environ\" option for stream channel");
-          goto out;
-        }
       if (!cockpit_json_get_string (options, "directory", NULL, &dir))
         {
           g_warning ("invalid \"directory\" option for stream channel");
@@ -310,6 +367,9 @@ cockpit_stream_prepare (CockpitChannel *channel)
           g_warning ("invalid \"pty\" option for stream channel");
           goto out;
         }
+      env = parse_environ (options);
+      if (!env)
+        goto out;
       if (pty)
         self->pipe = cockpit_pipe_pty ((const gchar **)argv, (const gchar **)env, dir);
       else
@@ -333,7 +393,7 @@ cockpit_stream_prepare (CockpitChannel *channel)
 
 out:
   g_free (argv);
-  g_free (env);
+  g_strfreev (env);
   if (problem)
     cockpit_channel_close (channel, problem);
 }

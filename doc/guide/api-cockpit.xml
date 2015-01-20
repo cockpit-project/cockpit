@@ -253,8 +253,9 @@
         </varlistentry>
         <varlistentry>
           <term><code>"environ"</code></term>
-          <listitem><para>A javascript plain object that contains strings to be used as
-            an environment for the new process.</para></listitem>
+          <listitem><para>An optional array that contains strings to be used as
+            additional environment variables for the new process. These are
+            <code>"NAME=VALUE"</code> strings.</para></listitem>
         </varlistentry>
         <varlistentry>
           <term><code>"pty"</code></term>

@@ -543,8 +543,9 @@ following options can be specified:
  * "error": If "spawn" is set, and "error" is set to "output", then stderr
    is included in the payload data. If "pty" is set then stderr is always
    included.
- * "environ": This is the environment for the new spawned process. If unset,
-   then the environment is inherited from the cockpit-bridge.
+ * "environ": This is a list of additional environment variables for the new
+   spawned process. The variables are in the form of "NAME=VALUE". The default
+   environment is inherited from cockpit-bridge.
  * "pty": Execute the command as a terminal pty.
 
 If an "done" is sent to the bridge on this channel, then the socket and/or pipe

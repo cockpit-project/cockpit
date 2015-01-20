@@ -56,7 +56,6 @@ asyncTest("load user info", function() {
             equal(user.Home.t, "s", "type Home")
             equal(user.Home.v.indexOf("/"), 0, "Home starts with slash");
             equal(user.Groups.t, "as", "type Groups");
-            console.log(user);
         })
         .always(function() {
             equal(this.state(), "resolved", "finished successfuly");

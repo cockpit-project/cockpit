@@ -419,12 +419,17 @@ code, kbd, pre, samp {
 }
 
 /* Our terminal or logs */
+.console-container {
+    display: table;
+    margin: 1em auto;
+}
+
 .console {
     font-family: monospace, courier new;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    margin-top: 0;
+    margin-bottom: 0;
     line-height: 1;
     font-size: 10pt;
     text-align: center;

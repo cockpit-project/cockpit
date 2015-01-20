@@ -54,32 +54,6 @@ class TestTerminal(MachineCase):
         # The '@' sign is in the default prompt
         b.wait_in_text("#terminal-title", '@')
 
-    def testReset(self):
-        b = self.browser;
-        m = self.machine;
-        b.default_user = "admin"
-
-        self.login_and_go("/local/terminal")
-
-        def line_sel(i):
-            return '#terminal .terminal div:nth-child(%d)' % i
-
-        def line_text(t):
-            return t + u'\xa0'*(80-len(t))
-
-        def wait_line(i,t):
-            b.wait_text(line_sel(i), line_text(t))
-
-        b.focus('#terminal .terminal')
-
-        # wait for prompt in first line and remember it
-        b.wait_text_not(line_sel(1), line_text(""))
-        prompt = b.text(line_sel(1))
-
-        # Run some commands
-        b.key_press( [ 'w', 'h', 'o', 'a', 'm', 'i', 'Return' ] )
-        wait_line(2, "admin")
-
         # now reset terminal
         b.click('#terminal-reset')
 

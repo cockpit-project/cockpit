@@ -4,6 +4,7 @@
     <title translatable="yes">Terminal</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../@@latest@@/patternfly.css" type="text/css" rel="stylesheet">
     <link href="../@@latest@@/cockpit.css" type="text/css" rel="stylesheet">
     <script src="../@@latest@@/cockpit.js"></script>
 <script>
@@ -21,7 +22,7 @@ require([
     var term = null;
     var channel = null;
 
-    function show() {
+    function start_terminal() {
         term = new Terminal({
             cols: 80,
             rows: 24,
@@ -29,7 +30,9 @@ require([
         });
 
         /* term.js wants the parent element to build its terminal inside of */
-        term.open($("#terminal")[0]);
+        var container = $('#terminal');
+        term.open(container[0]);
+        container.children().first().css('margin', 0);
 
         channel = cockpit.channel({
             "payload": "stream",
@@ -62,7 +65,20 @@ require([
             if (channel && channel.valid)
                 channel.send(data);
         });
+    }
 
+    function show() {
+        $("#terminal-reset").on('click', function() {
+            /* make sure cockpit channel is closed properly */
+            if (channel) {
+                channel.close();
+            }
+            $("#terminal").empty();
+
+            start_terminal();
+        });
+
+        start_terminal();
         $("body").show();
     }
 
@@ -71,6 +87,15 @@ require([
 </script>
 </head>
 <body style="display: none;">
-    <div id="terminal" class="console"></div>
+    <div class="panel panel-default console-container">
+        <div class="panel-heading">
+            <span translatable="yes">
+                Terminal
+            </span>
+            <button id="terminal-reset" class="btn btn-default pull-right" translatable="yes">Reset</button>
+        </div>
+        <div id="terminal" class="console">
+        </div>
+    </div>
 </body>
 </html>

@@ -68,7 +68,7 @@ require([
     }
 
     function show() {
-        $("#terminal_reset").on('click', function() {
+        $("#terminal-reset").on('click', function() {
             /* make sure cockpit channel is closed properly */
             if (channel) {
                 channel.close();
@@ -87,18 +87,14 @@ require([
 </script>
 </head>
 <body style="display: none;">
-    <div id="terminal_container" class="panel panel-default" style="display: table; margin: 1em auto;">
-        <div id="terminal_control" class="panel-heading" style="display: table-row; text-align: left;">
-            <div style="padding: 10px">
-                <span translatable="yes">
-                    Terminal
-                </span>
-                <div style="float: right;">
-                    <button id="terminal_reset" class="btn btn-default" translatable="yes">Reset</button>
-                </div>
-            </div>
+    <div class="panel panel-default console-container">
+        <div class="panel-heading">
+            <span translatable="yes">
+                Terminal
+            </span>
+            <button id="terminal-reset" class="btn btn-default pull-right" translatable="yes">Reset</button>
         </div>
-        <div id="terminal" class="console" style="display: table-row;">
+        <div id="terminal" class="console">
         </div>
     </div>
 </body>

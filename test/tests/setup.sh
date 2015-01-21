@@ -16,7 +16,7 @@ yum -y install avocado-virt
 NUMBER=2
 TREE="http://download.fedoraproject.org/pub/fedora/linux/releases/21/Server/x86_64/os"
 #TREE="http://ftp.fi.muni.cz/pub/linux/centos/7.0.1406/os/x86_64/"
-KSF=fedora21.ks
+KSF=base.ks
 ADIR=`pwd`
 VMDIRS=/var/lib/libvirt/images/
 mkdir -p $VMDIRS

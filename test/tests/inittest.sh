@@ -19,7 +19,6 @@ yum-builddep -y $PACKAGE
  cd cockpit && \
  mkdir $BUILD && \
  cd $BUILD && \
- false && \
  ../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug && \
  make && \
  make install

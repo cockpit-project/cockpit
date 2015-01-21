@@ -168,6 +168,7 @@ mock_control (const char *cmd, ...)
       int val = va_arg (ap, int);
       counter64 += val;
     }
+  va_end(ap);
 }
 
 void

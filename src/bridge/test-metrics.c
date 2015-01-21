@@ -39,7 +39,11 @@ void (*mock_pmda_control) (const char *cmd, ...);
 static void
 init_mock_pmda (void)
 {
-  g_assert (pmLoadNameSpace (SRCDIR "/src/bridge/mock-pmns") >= 0);
+  if (pmLoadNameSpace (SRCDIR "/src/bridge/mock-pmns") < 0)
+    {
+      cockpit_test_skip ("No PCP\n");
+      exit (0);
+    }
 
   g_assert (__pmLocalPMDA (PM_LOCAL_CLEAR, 0, NULL, NULL) >= 0);
   g_assert (__pmLocalPMDA (PM_LOCAL_ADD, 333, "./mock-pmda.so", "mock_init") >= 0);

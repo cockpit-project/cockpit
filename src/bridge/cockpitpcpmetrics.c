@@ -382,6 +382,13 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
     {
       cockpit_metrics_send_meta (metrics, meta);
       json_object_unref (meta);
+
+      /* We can't compute deltas across a meta message since
+         number and position of instances etc might have chagned.
+      */
+      if (self->last)
+        pmFreeResult (self->last);
+      self->last = NULL;
     }
 
   /* Send one set of samples */

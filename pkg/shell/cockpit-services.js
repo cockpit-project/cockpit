@@ -836,7 +836,7 @@ PageService.prototype = {
     },
 
     action: function(op) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         this.manager.call('ServiceAction', this.service, op, function (error) {

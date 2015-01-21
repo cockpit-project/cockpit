@@ -32,24 +32,20 @@ function make_set(array) {
     return s;
 }
 
-shell.check_admin = function check_admin(client)
-{
-    var acc, i;
+var wheel = cockpit.permission({ group: "wheel" });
 
-    if (cockpit.user["user"] == "root")
+shell.check_admin = function check_admin(permission) {
+    if (!permission)
+        permission = wheel;
+    if (permission.allowed === true) {
         return true;
-
-    acc = find_account(cockpit.user["user"], client);
-    if (acc) {
-        for (i = 0; i < acc.Groups.length; i++) {
-            if (acc.Groups[i] == 'wheel')
-                return true;
-        }
+    } else if (permission.allowed === false) {
         shell.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
         return false;
+    } else {
+        /* When in doubt, just go ahead and let it fail later */
+        return true;
     }
-    // When in doubt, just go ahead and let it fail later.
-    return true;
 };
 
 function find_account(user_name, client)
@@ -239,7 +235,7 @@ PageAccounts.prototype = {
     },
 
     create: function () {
-        if (shell.check_admin(this.client)) {
+        if (shell.check_admin()) {
             PageAccountsCreate.client = this.client;
             $('#accounts-create-dialog').modal('show');
         }
@@ -476,7 +472,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account.UserName == cockpit.user["user"] ||
-                shell.check_admin(this.client));
+                shell.check_admin());
     },
 
     change_real_name: function() {
@@ -501,7 +497,7 @@ PageAccount.prototype = {
     change_locked: function() {
         var me = this;
 
-        if (!shell.check_admin(this.client)) {
+        if (!shell.check_admin()) {
             me.update ();
             return;
         }
@@ -526,7 +522,7 @@ PageAccount.prototype = {
     },
 
     delete_account: function() {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageAccountConfirmDelete.account = this.account;
@@ -536,7 +532,7 @@ PageAccount.prototype = {
     logout_account: function() {
         var me = this;
 
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         this.account.call('KillSessions',
@@ -549,7 +545,7 @@ PageAccount.prototype = {
     },
 
     change_roles: function() {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageAccountChangeRoles.account = this.account;

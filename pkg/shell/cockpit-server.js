@@ -41,14 +41,14 @@ PageServer.prototype = {
         $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
 
         $('#system_information_hostname_button').on('click', function () {
-            if (!shell.check_admin(self.client))
+            if (!shell.check_admin())
                 return;
             PageSystemInformationChangeHostname.client = self.client;
             $('#system_information_change_hostname').modal('show');
         });
 
         $('#system_information_realms_button').on('click', function () {
-            if (!shell.check_admin(self.client))
+            if (!shell.check_admin())
                 return;
 
             if (self.realms.Joined && self.realms.Joined.length > 0) {

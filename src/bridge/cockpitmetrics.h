@@ -30,20 +30,22 @@ G_BEGIN_DECLS
 #define COCKPIT_METRICS_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), COCKPIT_TYPE_METRICS, CockpitMetricsClass))
 #define COCKPIT_METRICS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_METRICS, CockpitMetricsClass))
 
+typedef struct _CockpitMetrics CockpitMetrics;
+typedef struct _CockpitMetricsClass CockpitMetricsClass;
 typedef struct _CockpitMetricsPrivate CockpitMetricsPrivate;
 
-typedef struct {
+struct _CockpitMetrics {
   CockpitChannel parent;
   CockpitMetricsPrivate *priv;
-} CockpitMetrics;
+};
 
-typedef struct {
+struct _CockpitMetricsClass {
   CockpitChannelClass parent_class;
 
   void        (* tick)         (CockpitMetrics *metrics,
                                 gint64 current_monotic_time);
 
-} CockpitMetricsClass;
+};
 
 GType              cockpit_metrics_get_type     (void) G_GNUC_CONST;
 
@@ -54,19 +56,10 @@ CockpitChannel *   cockpit_metrics_open         (CockpitTransport *transport,
 void               cockpit_metrics_metronome    (CockpitMetrics *self,
                                                  gint64 interval);
 
-typedef struct {
-  JsonArray *array;
-  int n_skip;
-} CockpitCompressedArrayBuilder;
+void               cockpit_metrics_send_meta    (CockpitMetrics *self,
+                                                 JsonObject *meta);
 
-void cockpit_compressed_array_builder_init              (CockpitCompressedArrayBuilder *compr);
-
-void cockpit_compressed_array_builder_add               (CockpitCompressedArrayBuilder *compr,
-                                                         JsonNode *element);
-
-void cockpit_compressed_array_builder_take_and_add_array (CockpitCompressedArrayBuilder *compr,
-                                                          JsonArray *array);
-
-JsonArray *cockpit_compressed_array_builder_finish      (CockpitCompressedArrayBuilder *compr);
+void               cockpit_metrics_send_data    (CockpitMetrics *self,
+                                                 JsonArray *data);
 
 #endif /* COCKPIT_METRICS_H__ */

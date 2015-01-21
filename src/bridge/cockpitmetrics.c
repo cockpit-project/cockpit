@@ -28,6 +28,7 @@ struct _CockpitMetricsPrivate {
   guint timeout;
   gint64 next;
   gint64 interval;
+  JsonArray *last;
 };
 
 G_DEFINE_ABSTRACT_TYPE (CockpitMetrics, cockpit_metrics, COCKPIT_TYPE_CHANNEL);
@@ -71,6 +72,12 @@ cockpit_metrics_dispose (GObject *object)
     {
       g_source_remove (self->priv->timeout);
       self->priv->timeout = 0;
+    }
+
+  if (self->priv->last)
+    {
+      json_array_unref (self->priv->last);
+      self->priv->last = NULL;
     }
 
   G_OBJECT_CLASS (cockpit_metrics_parent_class)->dispose (object);
@@ -160,47 +167,157 @@ cockpit_metrics_open (CockpitTransport *transport,
                        NULL);
 }
 
-/* ---- */
-
-void
-cockpit_compressed_array_builder_init (CockpitCompressedArrayBuilder *compr)
+static void
+send_object (CockpitMetrics *self,
+             JsonObject *object)
 {
-  compr->array = NULL;
-  compr->n_skip = 0;
+  CockpitChannel *channel = (CockpitChannel *)self;
+  GBytes *bytes;
+
+  bytes = cockpit_json_write_bytes (object);
+  cockpit_channel_send (channel, bytes, TRUE);
+  g_bytes_unref (bytes);
 }
 
+/*
+ * cockpit_metrics_send_meta:
+ * @self: The CockpitMetrics
+ * @meta: An object containing metric meta data
+ *
+ * Send metrics meta data down the channel. If you use cockpit_metrics_send_data()
+ * then you must use this function instead of sending stuff on the channel directly.
+ */
 void
-cockpit_compressed_array_builder_add (CockpitCompressedArrayBuilder *compr,
-                                      JsonNode *element)
+cockpit_metrics_send_meta (CockpitMetrics *self,
+                           JsonObject *meta)
 {
-  if (element == NULL)
-    compr->n_skip++;
+  /* Cannot compress across meta message */
+  if (self->priv->last)
+    json_array_unref (self->priv->last);
+  self->priv->last = NULL;
+
+  send_object (self, meta);
+}
+
+static void
+send_array (CockpitMetrics *self,
+            JsonArray *array)
+{
+  CockpitChannel *channel = (CockpitChannel *)self;
+  GBytes *bytes;
+  JsonNode *node;
+  gsize length;
+  gchar *ret;
+
+  node = json_node_new (JSON_NODE_ARRAY);
+  json_node_set_array (node, array);
+  ret = cockpit_json_write (node, &length);
+  json_node_free (node);
+
+  bytes = g_bytes_new_take (ret, length);
+  cockpit_channel_send (channel, bytes, TRUE);
+  g_bytes_unref (bytes);
+}
+
+static JsonArray *
+push_array_at (JsonArray *array,
+               guint index,
+               JsonNode *node)
+{
+  if (array == NULL)
+    array = json_array_new ();
+
+  g_assert (index >= json_array_get_length (array));
+
+  while (index > json_array_get_length (array))
+    json_array_add_null_element (array);
+
+  if (node)
+    json_array_add_element (array, node);
+
+  return array;
+}
+
+static JsonArray *
+interframe_compress_samples (JsonArray *last,
+                             JsonArray *samples)
+{
+  JsonArray *output = NULL;
+  JsonArray *res = NULL;
+  JsonNode *a, *b;
+  JsonNode *node;
+  guint alen;
+  guint blen;
+  guint i;
+
+  if (last)
+    {
+      alen = json_array_get_length (last);
+      blen = json_array_get_length (samples);
+
+      for (i = 0; i < blen; i++)
+        {
+          a = NULL;
+          if (i < alen)
+            a = json_array_get_element (last, i);
+
+          b = json_array_get_element (samples, i);
+
+          if (a == NULL)
+            {
+              output = push_array_at (output, i, json_node_copy (b));
+            }
+          else if (json_node_get_node_type (a) == JSON_NODE_ARRAY &&
+                   json_node_get_node_type (b) == JSON_NODE_ARRAY)
+            {
+              res = interframe_compress_samples (json_node_get_array (a),
+                                                 json_node_get_array (b));
+              node = json_node_new (JSON_NODE_ARRAY);
+              json_node_take_array (node, res ? res : json_array_new ());
+              output = push_array_at (output, i, node);
+            }
+          else if (!cockpit_json_equal (a, b))
+            {
+              output = push_array_at (output, i, json_node_copy (b));
+            }
+        }
+      if (blen < alen)
+        {
+          output = push_array_at (output, blen, NULL);
+        }
+    }
+
+  return output;
+}
+
+/*
+ * cockpit_metrics_send_data:
+ * @self: The CockpitMetrics
+ * @data: An array of JSON arrays
+ *
+ * Send metrics data down the channel, possibly doing interframe
+ * compression between what was sent last. @data should no longer
+ * be modified by the caller.
+ */
+void
+cockpit_metrics_send_data (CockpitMetrics *self,
+                           JsonArray *data)
+{
+  JsonArray *res;
+
+  res = interframe_compress_samples (self->priv->last, data);
+
+  if (self->priv->last)
+    json_array_unref (self->priv->last);
+  self->priv->last = json_array_ref (data);
+
+  if (res)
+    {
+      send_array (self, res);
+      json_array_unref (res);
+    }
   else
     {
-      if (!compr->array)
-        compr->array = json_array_new ();
-      for (int i = 0; i < compr->n_skip; i++)
-        json_array_add_null_element (compr->array);
-      compr->n_skip = 0;
-      json_array_add_element (compr->array, element);
+      send_array (self, data);
     }
-}
-
-void
-cockpit_compressed_array_builder_take_and_add_array (CockpitCompressedArrayBuilder *compr,
-                                                     JsonArray *array)
-{
-  JsonNode *node = json_node_alloc ();
-  json_node_init_array (node, array);
-  cockpit_compressed_array_builder_add (compr, node);
-  json_array_unref (array);
-}
-
-JsonArray *
-cockpit_compressed_array_builder_finish (CockpitCompressedArrayBuilder *compr)
-{
-  if (compr->array)
-    return compr->array;
-  else
-    return json_array_new ();
 }

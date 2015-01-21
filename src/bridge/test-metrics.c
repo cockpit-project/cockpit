@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2014 Red Hat, Inc.
+ * Copyright (C) 2015 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -25,45 +25,11 @@
 #include "common/cockpittest.h"
 #include "common/cockpitjson.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <dlfcn.h>
-
-#include <pcp/pmapi.h>
-#include <pcp/impl.h>
-
-void (*mock_pmda_control) (const char *cmd, ...);
-
-static void
-init_mock_pmda (void)
-{
-  g_assert (pmLoadNameSpace (SRCDIR "/src/bridge/mock-pmns") >= 0);
-
-  g_assert (__pmLocalPMDA (PM_LOCAL_CLEAR, 0, NULL, NULL) >= 0);
-  g_assert (__pmLocalPMDA (PM_LOCAL_ADD, 333, "./mock-pmda.so", "mock_init") >= 0);
-
-  void *handle = dlopen ("./mock-pmda.so", RTLD_NOW);
-  g_assert (handle != NULL);
-
-  mock_pmda_control = dlsym (handle, "mock_control");
-  g_assert (mock_pmda_control != NULL);
-}
-
-typedef struct AtTeardown {
-  struct AtTeardown *link;
-  void (*func) (void *);
-  void *data;
-} AtTeardown;
-
 typedef struct {
   MockTransport *transport;
-  CockpitChannel *channel;
+  CockpitMetrics *channel;
   gchar *problem;
   gboolean channel_closed;
-
-  AtTeardown *at_teardown;
 } TestCase;
 
 static void
@@ -85,36 +51,36 @@ on_transport_closed (CockpitTransport *transport,
   g_assert_not_reached ();
 }
 
+typedef struct _CockpitMetrics MockMetrics;
+typedef struct _CockpitMetricsClass MockMetricsClass;
+
+GType mock_metrics_get_type (void);
+
+G_DEFINE_TYPE (MockMetrics, mock_metrics, COCKPIT_TYPE_METRICS);
+
+static void
+mock_metrics_init (MockMetrics *self)
+{
+  /* nothing */
+}
+
+static void
+mock_metrics_class_init (MockMetricsClass *self)
+{
+  /* nothing */
+}
+
 static void
 setup (TestCase *tc,
        gconstpointer data)
 {
   tc->transport = mock_transport_new ();
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_transport_closed), NULL);
-  tc->channel = NULL;
-  tc->at_teardown = NULL;
-
-  mock_pmda_control ("reset");
-}
-
-static void
-at_teardown (TestCase *tc, void *func, void *data)
-{
-  AtTeardown *item = g_new0 (AtTeardown, 1);
-
-  item->func = func;
-  item->data = data;
-  item->link = tc->at_teardown;
-  tc->at_teardown = item;
-}
-
-static void
-setup_metrics_channel_json (TestCase *tc, JsonObject *options)
-{
-  tc->channel = cockpit_metrics_open (COCKPIT_TRANSPORT (tc->transport), "1234", options);
-  tc->channel_closed = FALSE;
+  tc->channel = g_object_new (mock_metrics_get_type (),
+                              "transport", tc->transport,
+                              "id", "1234",
+                              NULL);
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
-  cockpit_channel_prepare (tc->channel);
 }
 
 static GBytes *
@@ -127,31 +93,30 @@ recv_bytes (TestCase *tc)
 }
 
 static JsonObject *
-recv_json_object (TestCase *tc)
+recv_object (TestCase *tc)
 {
   GBytes *msg = recv_bytes (tc);
   JsonObject *res = cockpit_json_parse_bytes (msg, NULL);
   g_assert (res != NULL);
-  at_teardown (tc, json_object_unref, res);
   return res;
 }
 
-static JsonNode *
-recv_json (TestCase *tc)
+static JsonArray *
+recv_array (TestCase *tc)
 {
-  GBytes *msg = recv_bytes (tc);
-  gsize length = g_bytes_get_size (msg);
-  JsonNode *res = cockpit_json_parse (g_bytes_get_data (msg, NULL), length, NULL);
-  g_assert (res != NULL);
-  at_teardown (tc, json_node_free, res);
-  return res;
-}
+  GBytes *msg;
+  GError *error = NULL;
+  JsonArray *array;
+  JsonNode *node;
 
-static void
-wait_channel_closed (TestCase *tc)
-{
-  while (tc->channel_closed == FALSE)
-    g_main_context_iteration (NULL, TRUE);
+  msg = recv_bytes (tc);
+  node = cockpit_json_parse (g_bytes_get_data (msg, NULL), g_bytes_get_size (msg), &error);
+  g_assert_no_error (error);
+  g_assert_cmpint (json_node_get_node_type (node), ==, JSON_NODE_ARRAY);
+
+  array = json_node_dup_array (node);
+  json_node_free (node);
+  return array;
 }
 
 static void
@@ -169,383 +134,114 @@ teardown (TestCase *tc,
       g_assert (tc->channel == NULL);
     }
 
-  while (tc->at_teardown)
-    {
-      AtTeardown *item = tc->at_teardown;
-      tc->at_teardown = item->link;
-      item->func (item->data);
-      g_free (item);
-    }
-
   g_free (tc->problem);
 }
 
-static JsonObject *
-json_obj (const gchar *str)
+static void
+assert_sample_msg (const char *domain,
+                   const char *file,
+                   int line,
+                   const char *func,
+                   TestCase *tc,
+                   const gchar *json_str)
 {
-  JsonObject *res = cockpit_json_parse_object(str, -1, NULL);
-  g_assert (res != NULL);
-  return res;
+  JsonArray *array = recv_array (tc);
+  _cockpit_assert_json_eq_msg (domain, file, line, func, array, json_str);
+  json_array_unref (array);
 }
 
-static JsonNode *
-json (const gchar *str)
-{
-  JsonNode *res = cockpit_json_parse(str, -1, NULL);
-  g_assert (res != NULL);
-  return res;
-}
-
-static gboolean
-json_equal (JsonNode *node, const gchar *str)
-{
-  JsonNode *node2 = json (str);
-  gboolean res = cockpit_json_equal (node, node2);
-  json_node_free (node2);
-  return res;
-}
+#define assert_sample(tc, json) \
+  (assert_sample_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (tc), (json)))
 
 static void
-assert_sample (TestCase *tc, const gchar *json_str)
+test_compression (TestCase *tc,
+                  gconstpointer unused)
 {
-  g_assert (json_equal (recv_json (tc), json_str));
-}
+  JsonArray *zero = json_array_new ();
+  JsonArray *sample = json_array_new ();
+  json_array_add_int_element (sample, 0);
+  json_array_add_array_element (zero, sample);
 
-static void
-test_metrics_compression (TestCase *tc,
-                          gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.value' } ],"
-                                 "  'interval': 1"
-                                 "}");
-
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]"));
-
+  cockpit_metrics_send_data (tc->channel, zero);
   assert_sample (tc, "[[0]]");
+  cockpit_metrics_send_data (tc->channel, zero);
   assert_sample (tc, "[[]]");
-  assert_sample (tc, "[[]]");
-  mock_pmda_control ("set-value", 0, 1);
-  assert_sample (tc, "[[1]]");
-  assert_sample (tc, "[[]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_units (TestCase *tc,
-                    gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.seconds' } ],"
-                                 "  'interval': 1"
-                                 "}");
-
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'sec', 'semantics': 'instant' } ]"));
-
-  assert_sample (tc, "[[60]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_units_conv (TestCase *tc,
-                         gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.seconds', 'units': 'min' } ],"
-                                 "  'interval': 1"
-                                 "}");
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'min', 'semantics': 'instant' } ]"));
-
-  assert_sample (tc, "[[1]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_units_noconv (TestCase *tc,
-                           gconstpointer unused)
-{
-  cockpit_expect_warning ("direct: can't convert metric mock.seconds to units byte");
-
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.seconds', 'units': 'byte' } ],"
-                                 "  'interval': 1"
-                                 "}");
-  setup_metrics_channel_json (tc, options);
-
-  wait_channel_closed (tc);
-  g_assert_cmpstr (tc->problem, ==, "protocol-error");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_units_funny_conv (TestCase *tc,
-                               gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.seconds', 'units': '2 min' } ],"
-                                 "  'interval': 1"
-                                 "}");
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'min*2', 'semantics': 'instant' } ]"));
-
-  assert_sample (tc, "[[0.5]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_strings (TestCase *tc,
-                      gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.string' } ],"
-                                 "  'interval': 1"
-                                 "}");
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.string', 'type': 'string', 'units': '', 'semantics': 'instant' } ]"));
-
-  assert_sample (tc, "[['foobar']]");
+  cockpit_metrics_send_data (tc->channel, zero);
   assert_sample (tc, "[[]]");
 
-  mock_pmda_control ("set-string", "barfoo");
+  JsonArray *zero_one = json_array_new ();
+  sample = json_array_new ();
+  json_array_add_int_element (sample, 0);
+  json_array_add_int_element (sample, 1);
+  json_array_add_array_element (zero_one, sample);
 
-  assert_sample (tc, "[['barfoo']]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_wrong_type (TestCase *tc,
-                         gconstpointer unused)
-{
-  cockpit_expect_warning ("direct: metric mock.string is not a number");
-
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.string', 'type': 'number' } ],"
-                                 "  'interval': 1"
-                                 "}");
-  setup_metrics_channel_json (tc, options);
-
-  wait_channel_closed (tc);
-  g_assert_cmpstr (tc->problem, ==, "protocol-error");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_wrong_semantics (TestCase *tc,
-                              gconstpointer unused)
-{
-  cockpit_expect_warning ("direct: metric mock.value is not a counter");
-
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.value', 'semantics': 'counter' } ],"
-                                 "  'interval': 1"
-                                 "}");
-  setup_metrics_channel_json (tc, options);
-
-  wait_channel_closed (tc);
-  g_assert_cmpstr (tc->problem, ==, "protocol-error");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_simple_instances (TestCase *tc,
-                               gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.values' } ],"
-                                 "  'interval': 1"
-                                 "}");
-
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': ['red', 'green', 'blue'] "
-                        "  } ]"));
-
-  assert_sample (tc, "[[[0, 0, 0]]]");
-  mock_pmda_control ("set-value", 1, 1);
-  assert_sample (tc, "[[[1]]]");
-  mock_pmda_control ("set-value", 2, 1);
-  assert_sample (tc, "[[[null, 1]]]");
-  mock_pmda_control ("set-value", 3, 1);
-  assert_sample (tc, "[[[null, null, 1]]]");
-  assert_sample (tc, "[[[]]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_instance_filter_include (TestCase *tc,
-                                      gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.values' } ],"
-                                 "  'instances': [ 'red', 'blue' ],"
-                                 "  'interval': 1"
-                                 "}");
-
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': ['red', 'blue'] "
-                        "  } ]"));
-
-  assert_sample (tc, "[[[0, 0]]]");
-  mock_pmda_control ("set-value", 3, 1);
-  assert_sample (tc, "[[[null, 1]]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_instance_filter_omit (TestCase *tc,
-                                   gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.values' } ],"
-                                 "  'omit-instances': [ 'green' ],"
-                                 "  'interval': 1"
-                                 "}");
-
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': ['red', 'blue'] "
-                        "  } ]"));
-
-  assert_sample (tc, "[[[0, 0]]]");
-  mock_pmda_control ("set-value", 3, 1);
-  assert_sample (tc, "[[[null, 1]]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_instance_dynamic (TestCase *tc,
-                               gconstpointer unused)
-{
-  JsonObject *meta;
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.instances' } ],"
-                                 "  'interval': 1"
-                                 "}");
-
-  setup_metrics_channel_json (tc, options);
-
-  meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': [] "
-                        "  } ]"));
-
-  assert_sample (tc, "[[[]]]");
-
-  mock_pmda_control ("add-instance", "bananas", 5);
-  mock_pmda_control ("add-instance", "milk", 3);
-
-  meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': [ 'bananas', 'milk' ] "
-                        "  } ]"));
-  assert_sample (tc, "[[[ 5, 3 ]]]");
-  assert_sample (tc, "[[[]]]");
-
-  mock_pmda_control ("del-instance", "bananas");
-
-  meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
-                        "    'instances': [ 'milk' ] "
-                        "  } ]"));
-  assert_sample (tc, "[[[ 3 ]]]");
-
-  mock_pmda_control ("add-instance", "milk", 2);
-
-  assert_sample (tc, "[[[ 2 ]]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_counter (TestCase *tc,
-                      gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.counter' } ],"
-                                 "  'interval': 1"
-                                 "}");
-
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.counter', 'type': 'number', 'units': '', 'semantics': 'counter' } ]"));
-
+  cockpit_metrics_send_data (tc->channel, zero_one);
+  assert_sample (tc, "[[null, 1]]");
+  cockpit_metrics_send_data (tc->channel, zero_one);
   assert_sample (tc, "[[]]");
-  assert_sample (tc, "[[0]]");
-  assert_sample (tc, "[[0]]");
-  mock_pmda_control ("inc-counter", 5);
-  assert_sample (tc, "[[5]]");
-  assert_sample (tc, "[[0]]");
 
-  json_object_unref (options);
+  JsonArray *zero_two = json_array_new ();
+  sample = json_array_new ();
+  json_array_add_int_element (sample, 0);
+  json_array_add_int_element (sample, 2);
+  json_array_add_array_element (zero_two, sample);
+
+  cockpit_metrics_send_data (tc->channel, zero_two);
+  assert_sample (tc, "[[null, 2]]");
+  cockpit_metrics_send_data (tc->channel, zero_two);
+  assert_sample (tc, "[[]]");
+
+  JsonArray *string = json_array_new ();
+  sample = json_array_new ();
+  json_array_add_string_element (sample, "blah");
+  json_array_add_array_element (string, sample);
+
+  cockpit_metrics_send_data (tc->channel, string);
+  assert_sample (tc, "[[\"blah\"]]");
+  cockpit_metrics_send_data (tc->channel, string);
+  assert_sample (tc, "[[]]");
+
+  cockpit_metrics_send_data (tc->channel, zero_one);
+  assert_sample (tc, "[[0, 1]]");
+  cockpit_metrics_send_data (tc->channel, zero_one);
+  assert_sample (tc, "[[]]");
+
+  cockpit_metrics_send_data (tc->channel, zero);
+  assert_sample (tc, "[[null]]");
+  cockpit_metrics_send_data (tc->channel, zero);
+  assert_sample (tc, "[[]]");
+
+  json_array_unref (zero);
+  json_array_unref (zero_one);
+  json_array_unref (zero_two);
+  json_array_unref (string);
 }
 
 static void
-test_metrics_counter64 (TestCase *tc,
+test_compression_reset (TestCase *tc,
                         gconstpointer unused)
 {
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.counter64' } ],"
-                                 "  'interval': 1"
-                                 "}");
+  JsonArray *zero = json_array_new ();
+  JsonArray *sample = json_array_new ();
+  json_array_add_int_element (sample, 0);
+  json_array_add_array_element (zero, sample);
 
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  g_assert (json_equal (json_object_get_member (meta, "metrics"),
-                        "[ { 'name': 'mock.counter64', 'type': 'number', 'units': '', 'semantics': 'counter' } ]"));
-
+  cockpit_metrics_send_data (tc->channel, zero);
+  assert_sample (tc, "[[0]]");
+  cockpit_metrics_send_data (tc->channel, zero);
   assert_sample (tc, "[[]]");
-  assert_sample (tc, "[[0]]");
-  assert_sample (tc, "[[0]]");
-  mock_pmda_control ("inc-counter64", 5);
-  assert_sample (tc, "[[5]]");
-  assert_sample (tc, "[[0]]");
 
-  json_object_unref (options);
+  JsonObject *meta = json_object_new ();
+  cockpit_metrics_send_meta (tc->channel, meta);
+  json_object_unref (recv_object (tc));
+
+  cockpit_metrics_send_data (tc->channel, zero);
+  assert_sample (tc, "[[0]]");
+  cockpit_metrics_send_data (tc->channel, zero);
+  assert_sample (tc, "[[]]");
+
+  json_array_unref (zero);
+  json_object_unref (meta);
 }
 
 int
@@ -554,41 +250,10 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  init_mock_pmda ();
-
   g_test_add ("/metrics/compression", TestCase, NULL,
-              setup, test_metrics_compression, teardown);
-
-  g_test_add ("/metrics/units", TestCase, NULL,
-              setup, test_metrics_units, teardown);
-  g_test_add ("/metrics/units-conv", TestCase, NULL,
-              setup, test_metrics_units_conv, teardown);
-  g_test_add ("/metrics/units-noconv", TestCase, NULL,
-              setup, test_metrics_units_noconv, teardown);
-  g_test_add ("/metrics/units-funny-conv", TestCase, NULL,
-              setup, test_metrics_units_funny_conv, teardown);
-
-  g_test_add ("/metrics/strings", TestCase, NULL,
-              setup, test_metrics_strings, teardown);
-  g_test_add ("/metrics/wrong-type", TestCase, NULL,
-              setup, test_metrics_wrong_type, teardown);
-
-  g_test_add ("/metrics/wrong-semantics", TestCase, NULL,
-              setup, test_metrics_wrong_semantics, teardown);
-
-  g_test_add ("/metrics/simple-instances", TestCase, NULL,
-              setup, test_metrics_simple_instances, teardown);
-  g_test_add ("/metrics/instance-filter-include", TestCase, NULL,
-              setup, test_metrics_instance_filter_include, teardown);
-  g_test_add ("/metrics/instance-filter-omit", TestCase, NULL,
-              setup, test_metrics_instance_filter_omit, teardown);
-  g_test_add ("/metrics/instance-dynamic", TestCase, NULL,
-              setup, test_metrics_instance_dynamic, teardown);
-
-  g_test_add ("/metrics/counter", TestCase, NULL,
-              setup, test_metrics_counter, teardown);
-  g_test_add ("/metrics/counter64", TestCase, NULL,
-              setup, test_metrics_counter64, teardown);
+              setup, test_compression, teardown);
+  g_test_add ("/metrics/compression-reset", TestCase, NULL,
+              setup, test_compression_reset, teardown);
 
   return g_test_run ();
 }

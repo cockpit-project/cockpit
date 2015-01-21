@@ -107,6 +107,7 @@ BRIDGE_CHECKS = \
 	test-resource \
 	test-fs \
 	test-metrics \
+	test-pcp \
 	$(NULL)
 
 noinst_DATA += mock-pmda.so
@@ -117,7 +118,9 @@ CLEANFILES += mock-pmda.so
 # for this.
 #
 mock-pmda.so: src/bridge/mock-pmda.c
-	gcc -g -fPIC -shared -o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
+	$(AM_V_CCLD) gcc -g -fPIC -shared \
+		-DSRCDIR=\"$(abs_srcdir)\" \
+		-o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
 
 test_channel_SOURCES = \
 	src/bridge/test-channel.c \
@@ -164,7 +167,13 @@ test_metrics_SOURCES = \
 	src/bridge/test-metrics.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_metrics_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_metrics_LDADD = $(libcockpit_bridge_LIBS) -ldl
+test_metrics_LDADD = $(libcockpit_bridge_LIBS)
+
+test_pcp_SOURCES = \
+	src/bridge/test-pcp.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_pcp_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_pcp_LDADD = $(libcockpit_bridge_LIBS) -ldl
 
 noinst_PROGRAMS += $(BRIDGE_CHECKS)
 TESTS += $(BRIDGE_CHECKS)

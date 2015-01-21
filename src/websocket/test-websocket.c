@@ -278,7 +278,6 @@ test_parse_version (void)
   ret = web_socket_util_parse_status_line (line, strlen (line), &version, NULL, NULL);
   g_assert_cmpint (ret, ==, strlen (line) - 2);
   g_assert_cmpstr (version, ==, "HTTP/1.0");
-  g_free (version);
 
   line = "HTTP/1.1 101 Switching Protocols\r\n  ";
   ret = web_socket_util_parse_status_line (line, strlen (line), &version, NULL, NULL);

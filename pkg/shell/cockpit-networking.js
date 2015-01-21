@@ -1401,7 +1401,7 @@ PageNetworking.prototype = {
     add_bond: function () {
         var iface, i, uuid;
 
-        if (!shell.check_admin(this.cockpitd))
+        if (!shell.check_admin())
             return;
 
         uuid = generate_uuid();
@@ -1437,7 +1437,7 @@ PageNetworking.prototype = {
     add_bridge: function () {
         var iface, i, uuid;
 
-        if (!shell.check_admin(this.cockpitd))
+        if (!shell.check_admin())
             return;
 
         uuid = generate_uuid();
@@ -1476,7 +1476,7 @@ PageNetworking.prototype = {
     add_vlan: function () {
         var iface, i, uuid;
 
-        if (!shell.check_admin(this.cockpitd))
+        if (!shell.check_admin())
             return;
 
         uuid = generate_uuid();
@@ -1571,7 +1571,7 @@ PageNetworkInterface.prototype = {
                                               $.proxy(this, "connect"),
                                               $.proxy(this, "disconnect"),
                                               function () {
-                                                  return shell.check_admin(self.cockpitd);
+                                                  return shell.check_admin();
                                               }));
     },
 
@@ -1668,7 +1668,7 @@ PageNetworkInterface.prototype = {
     delete_connections: function() {
         var self = this;
 
-        if (!shell.check_admin(self.cockpitd))
+        if (!shell.check_admin())
             return;
 
         function delete_connection_and_slaves(con) {
@@ -1915,7 +1915,7 @@ PageNetworkInterface.prototype = {
                         $('<button class="btn btn-default">').
                             text(_("Configure")).
                             click(function () {
-                                if (!shell.check_admin(self.cockpitd))
+                                if (!shell.check_admin())
                                     return;
                                 configure();
                             })));
@@ -2151,13 +2151,13 @@ PageNetworkInterface.prototype = {
                                                          }
                                                      },
                                                      function () {
-                                                         return shell.check_admin(self.cockpitd);
+                                                         return shell.check_admin();
                                                      })),
                                    $('<td width="28px">').append(
                                        $('<button class="btn btn-default btn-control">').
                                            text("-").
                                            click(function () {
-                                               if (!shell.check_admin(self.cockpitd))
+                                               if (!shell.check_admin())
                                                    return false;
                                                slave_con.delete_().
                                                    fail(shell.show_unexpected_error);
@@ -2192,7 +2192,7 @@ PageNetworkInterface.prototype = {
                                         $('<a role="menuitem">').
                                             text(iface.Name).
                                             click(function () {
-                                                if (!shell.check_admin(self.cockpitd))
+                                                if (!shell.check_admin())
                                                     return;
                                                 set_slave(self.model, con, con.Settings,
                                                           con.Settings.connection.type, iface.Name,

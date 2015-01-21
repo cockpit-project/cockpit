@@ -122,7 +122,7 @@ function job_box(client, tbody, domain, descriptions, target_describer) {
 
         function make_click_handler() {
             return function(event) {
-                if (!shell.check_admin(client))
+                if (!shell.check_admin())
                     return;
                 j.call('Cancel', function (error) {
                     if (error)
@@ -336,13 +336,13 @@ PageStorage.prototype = {
         var self = this;
 
         $("#storage_create_raid").on('click', function() {
-            if (!shell.check_admin(self.client))
+            if (!shell.check_admin())
                 return;
             PageCreateRaid.client = self.client;
             $('#create-raid-dialog').modal('show');
         });
         $("#storage_create_volume_group").on('click', function() {
-            if (!shell.check_admin(self.client))
+            if (!shell.check_admin())
                 return;
             PageCreateVolumeGroup.client = self.client;
             $('#create-volume-group-dialog').modal('show');
@@ -1224,7 +1224,7 @@ PageStorageDetail.prototype = {
                                           change_bitmap,
                                           undefined,
                                           function () {
-                                              return shell.check_admin(self.client);
+                                              return shell.check_admin();
                                           });
 
         $("#raid_detail_bitmap").append(this.bitmap_onoff);
@@ -1990,7 +1990,7 @@ PageStorageDetail.prototype = {
     },
 
     action: function(op) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         if (op == 'format')
@@ -2026,7 +2026,7 @@ PageStorageDetail.prototype = {
                                                    "com.redhat.Cockpit.Storage.LogicalVolume");
         }
 
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         if (op == 'format')
@@ -2065,7 +2065,7 @@ PageStorageDetail.prototype = {
     },
 
     raid_action: function() {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         this.action(this.raid_op);
@@ -2117,7 +2117,7 @@ PageStorageDetail.prototype = {
     },
 
     format_disk: function (block) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageFormatDisk.block = null;
@@ -2152,7 +2152,7 @@ PageStorageDetail.prototype = {
     },
 
     create_partition: function (block, start, size, enable_dos_extended) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageFormat.block = block;
@@ -2203,7 +2203,7 @@ PageStorageDetail.prototype = {
     },
 
     raid_disk_remove: function(block) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         this._mdraid.call('RemoveDevices', [ block.getObject().objectPath ],
@@ -2214,7 +2214,7 @@ PageStorageDetail.prototype = {
     },
 
     raid_disk_add: function() {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageRaidDiskAdd.mdraid = this._mdraid;
@@ -2261,7 +2261,7 @@ PageStorageDetail.prototype = {
         var self = this;
         var location = cockpit.location;
 
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         shell.confirm(cockpit.format(_("Please confirm deletion of $0"), self._vg.Name),
@@ -2287,7 +2287,7 @@ PageStorageDetail.prototype = {
     },
 
     remove_physical_volume: function(block) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         if (block.PvFreeSize != block.PvSize) {
@@ -2317,7 +2317,7 @@ PageStorageDetail.prototype = {
     },
 
     empty_physical_volume: function(block) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         var used = block.PvSize - block.PvFreeSize;
@@ -2339,7 +2339,7 @@ PageStorageDetail.prototype = {
     },
 
     add_physical_volume: function() {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageVGDiskAdd.volume_group = this._vg;
@@ -2347,7 +2347,7 @@ PageStorageDetail.prototype = {
     },
 
     create_plain_volume: function (volume_group) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageCreatePlainVolume.volume_group = volume_group;
@@ -2355,7 +2355,7 @@ PageStorageDetail.prototype = {
     },
 
     create_thin_pool: function (volume_group) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageCreateThinPool.volume_group = volume_group;
@@ -2363,7 +2363,7 @@ PageStorageDetail.prototype = {
     },
 
     create_thin_volume: function (pool) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageCreateThinVolume.pool = pool;
@@ -2371,14 +2371,14 @@ PageStorageDetail.prototype = {
     },
 
     create_raid_volume: function (volume_group) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         shell.show_error_dialog("Sorry", "Not yet.");
     },
 
     create_snapshot: function (origin) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         if (origin.Origin != "/") {
@@ -2393,7 +2393,7 @@ PageStorageDetail.prototype = {
     delete_logical_volume: function(lv) {
         var self = this;
 
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         shell.confirm(cockpit.format(_("Please confirm deletion of $0"), self._vg.Name + "/" + lv.Name),
@@ -2408,7 +2408,7 @@ PageStorageDetail.prototype = {
     },
 
     resize_logical_volume: function(lv) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageResizeVolume.volume = lv;
@@ -2416,7 +2416,7 @@ PageStorageDetail.prototype = {
     },
 
     rename_volume_group: function() {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageRenameGroup.group = this._vg;
@@ -2424,7 +2424,7 @@ PageStorageDetail.prototype = {
     },
 
     rename_logical_volume: function(lv) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         PageRenameVolume.volume = lv;
@@ -2432,7 +2432,7 @@ PageStorageDetail.prototype = {
     },
 
     activate_logical_volume: function(lv) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         lv.call('Activate', function (error, result) {
@@ -2442,7 +2442,7 @@ PageStorageDetail.prototype = {
     },
 
     deactivate_logical_volume: function(lv) {
-        if (!shell.check_admin(this.client))
+        if (!shell.check_admin())
             return;
 
         lv.call('Deactivate', function (error, result) {

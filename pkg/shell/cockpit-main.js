@@ -236,31 +236,6 @@ function recalculate_layout() {
 
 var local_account_proxies;
 
-function check_admin() {
-    var acc;
-
-    if (cockpit.user["user"] == "root")
-        return true;
-
-    for (var path in local_account_proxies) {
-        var a = local_account_proxies[path];
-        if (a.UserName == cockpit.user["user"]) {
-            acc = a;
-            break;
-        }
-    }
-
-    if (acc && acc.Groups) {
-        if (shell.find_in_array(acc.Groups, "wheel"))
-            return true;
-        shell.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
-        return false;
-    }
-
-    // When in doubt, just go ahead and let it fail later.
-    return true;
-}
-
 /* Information for each host, keyed by address.  hosts[addr] is an
  * object with at least these fields:
  *
@@ -284,7 +259,7 @@ function check_admin() {
 shell.hosts = { };
 
 shell.host_setup = function host_setup() {
-    if (!check_admin())
+    if (!shell.check_admin())
         return;
 
     $('#dashboard_setup_server_dialog').modal('show');

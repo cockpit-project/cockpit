@@ -40,6 +40,8 @@ listen_on_port (int port)
 
   cli_len = sizeof (cli_addr);
 
+  printf ("Waiting for connection on port %i.\n", port);
+
   new_sock_fd = accept (sock_fd, (struct sockaddr *) &cli_addr, &cli_len);
   if (new_sock_fd < 0)
     error("ERROR on accept");
@@ -80,7 +82,6 @@ main (int argc, char **argv)
       int port = (int) strtol(argv[arg_index], &pEnd, 10);
       if (port != 0)
         {
-          printf ("Waiting for connection on port %i.\n", port);
           listen_on_port (port);
         }
     }

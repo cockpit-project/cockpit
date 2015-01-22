@@ -30,6 +30,10 @@ from avocado import job
 from avocado import test
 from avocado.utils import process
 
+import os, sys
+topdir = "/usr/share/avocado/tests"
+sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+"/lib")
+sys.path.append(topdir+"/lib")
 from testlib import *
 
 admins_only_pam = """

@@ -125,6 +125,24 @@ define([
             console.warn(ex);
         }
 
+        this.delete_pod = function delete_pod(pod_name) {
+            api.request({"method": "DELETE",
+                "params": "",
+                "path": "/api/v1beta1/pods/" + pod_name,
+                "body": "",
+                "headers": ""
+            }).fail(failure);
+        };
+
+        this.delete_minion = function delete_minion(minion_name) {
+            api.request({"method": "DELETE",
+                "params": "",
+                "path": "/api/v1beta1/minions/" + minion_name,
+                "body": "",
+                "headers": ""
+            }).fail(failure);
+        };
+
         function update() {
             var reqs = [];
 

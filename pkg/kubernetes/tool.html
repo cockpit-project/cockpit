@@ -99,6 +99,35 @@ require([
         return null;
     }
 
+    $("#delete-dialog").on("show.bs.modal", function(event) {
+        var entityType = "";
+        var button = $(event.relatedTarget);
+        var id = button.attr("id");
+        if (id == "delete-pods") {
+            entityType = "pod";
+        } else {
+            entityType = "minion";
+        }
+        var entity = button.attr("data-id");
+        if (!entity)
+            return false;
+
+        $(this).find(".modal-body").html("Do you want to Delete the " + entityType + " : "  + entity + " ?");
+
+        $("#delete-dialog-apply").off('click');
+        $("#delete-dialog-apply").on('click', function () {
+            if (entityType == "pod") {
+                client.delete_pod(entity);
+            } else if (entityType == "minion") {
+                client.delete_minion(entity);
+            } else {
+               ; //TODO
+            }
+            $("#delete-dialog").hide();
+            $("#delete-dialog-apply").off('click');
+        });
+    });
+
     $("#pod-editor").on("show.bs.modal", function(event) {
         var button = $(event.relatedTarget);
         var pod = lookup_pod(button.attr("data-id"));
@@ -129,86 +158,108 @@ require([
   <script id="kubernetes-view-tmpl" type="x-template/mustache">
     <div class="row">
       <div class="col-md-4">
-        <h3>Minions</h3>
-        <div class="list-group" id="kubernetes-minions">
-        {{#minions}}
-          <a class="list-group-item" data-id="{{id}}">
-            <h4 class="list-group-item-heading">{{id}}</h4>
-            <p class="list-group-item-text">
-            {{#resources}}
-              {{#capacity}}
-                {{#cpu}}
-                  CPU: {{cpu}}
-                {{/cpu}}
-                {{#memory}}
-                  Memory: {{render_memory}}
-                {{/memory}}
-              {{/capacity}}
-            {{/resources}}
-            </p>
-          </a>
-        {{/minions}}
+        <div class="panel panel-default" id="dashboard-minion">
+          <div class="panel-heading">
+            <span>Minions</span>
+          </div>
+          <div class="list-group" id="kubernetes-minions">
+            {{#minions}}
+              <div class="list-group-item">
+              <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-minions" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
+                <span>{{id}}</span>
+              </div>
+              <a class="list-group-item">
+                <p class="list-group-item-text">
+                {{#resources}}
+                  {{#capacity}}
+                    {{#cpu}}
+                      CPU: {{cpu}}
+                    {{/cpu}}
+                    {{#memory}}
+                      Memory: {{render_memory}}
+                    {{/memory}}
+                  {{/capacity}}
+                {{/resources}}
+                </p>
+              </a>
+            {{/minions}}
+          </div>
         </div>
       </div>
       <div class="col-md-4">
-        <h3>Pods</h3>
-        <div class="list-group" id="kubernetes-pods">
-        {{#pods}}
-          <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
-            <h4 class="list-group-item-heading">{{id}}</h4>
-            Labels:
-            <p class="list-group-item-text">{{render_labels}}</p>
-            <hr>
-            {{#desiredState}}
-              {{#manifest}}
-                {{#containers}}
-                  <p class="list-group-item-text">Image: {{image}} </p>
-                  <p class="list-group-item-text">{{render_ports}} </p>
-                {{/containers}}
-              {{/manifest}}
-            {{/desiredState}}
-            {{#currentState}}
-              {{status}} {{host}} {{podIP}}
-            {{/currentState}}
-          </a>
-        {{/pods}}
+        <div class="panel panel-default" id="dashboard-pod">
+          <div class="panel-heading">
+            <span>Pods</span>
+          </div>
+          <div class="list-group" id="kubernetes-pods">
+            {{#pods}}
+            <div class="list-group-item">
+              <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-pods" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
+              <span>{{id}}</span>
+            </div>
+            <a class="list-group-item">
+              Labels:
+              <p class="list-group-item-text">{{render_labels}}</p>
+              <hr>
+              {{#desiredState}}
+                {{#manifest}}
+                  {{#containers}}
+                    <p class="list-group-item-text">Image: {{image}} </p>
+                    <p class="list-group-item-text">{{render_ports}} </p>
+                  {{/containers}}
+                {{/manifest}}
+              {{/desiredState}}
+              {{#currentState}}
+                {{status}} {{host}} {{podIP}}
+              {{/currentState}}
+            </a>
+            {{/pods}}
+          </div>
         </div>
       </div>
       <div class="col-md-4">
-        <h3>Services</h3>
-        <div class="list-group" id="kubernetes-services">
-        {{#services}}
-          <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
-            <h4 class="list-group-item-heading">{{id}}</h4>
-            Labels :
-            <p class="list-group-item-text">
-            {{render_labels}} </p>
-            <hr>
-            <p class="kubernetes-selector">{{{render_selector}}}</p>
-            <p>{{portalIP}}:{{port}}</p>
-          </a>
-        {{/services}}
-        <a class="list-group-item" data-toggle="modal" >
-            <h4 class="list-group-item-heading">etcd</h4>
-            {{#etcdHosts}}
+        <div class="panel panel-default" id="dashboard-service">
+          <div class="panel-heading">
+            <span>Services</span>
+          </div>
+          <div class="list-group" id="kubernetes-services">
+            {{#services}}
+            <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
+              <h4 class="list-group-item-heading">{{id}}</h4>
+              Labels :
+              <p class="list-group-item-text">
+                {{render_labels}}</p>
+              <hr>
+              <p class="kubernetes-selector">{{{render_selector}}}</p>
+              <p>{{portalIP}}:{{port}}</p>
+            </a>
+            {{/services}}
+            <a class="list-group-item" data-toggle="modal" >
+              <h4 class="list-group-item-heading">etcd</h4>
+              {{#etcdHosts}}
                 <p class="list-group-item-text">{{name}}: {{state}} </p>
-            {{/etcdHosts}}
-        </a>
-        <a class="list-group-item" data-toggle="modal">
-            <h4 class="list-group-item-heading">Flannel</h4>
-        </a>
+              {{/etcdHosts}}
+            </a>
+            <a class="list-group-item" data-toggle="modal">
+              <h4 class="list-group-item-heading">Flannel</h4>
+            </a>
+          </div>
         </div>
       </div>
       <div class="col-md-4">
-        <h3>ReplicationControllers</h3>
-        {{#replicationControllers}}
-
-        <div class="list-group" id="kubernetes-replicationControllers">
-          <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
-            <h4 class="list-group-item-heading">{{id}}</h4>
-          </a>
-        {{/replicationControllers}}
+        <div class="panel panel-default" id="dashboard-service">
+          <div class="panel-heading">
+            <span>ReplicationController</span>
+          </div>
+          <div class="list-group" id="kubernetes-replicationControllers">
+            {{#replicationControllers}}
+            <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
+              <h4 class="list-group-item-heading">{{id}}</h4>
+            </a>
+            {{/replicationControllers}}
+          </div>
         </div>
+      </div>
     </div>
   </script>
 
@@ -253,6 +304,20 @@ require([
       </div>
     </div>
   </div>
-
+  <div id="delete-dialog" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+        </div>
+        <div class="modal-body">
+          Dialog body
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="delete-dialog-apply">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

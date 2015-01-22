@@ -283,7 +283,7 @@ parse_keep_alive (CockpitHttpStream *self,
    * to tell us.
    */
 
-  self->keep_alive = (strstr (header, "keep-alive") != NULL);
+  self->keep_alive = (header && strstr (header, "keep-alive") != NULL);
   return TRUE;
 }
 

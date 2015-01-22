@@ -108,6 +108,7 @@ BRIDGE_CHECKS = \
 	test-fs \
 	test-metrics \
 	test-pcp \
+	test-httpstream \
 	$(NULL)
 
 noinst_DATA += mock-pmda.so
@@ -174,6 +175,12 @@ test_pcp_SOURCES = \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_pcp_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_pcp_LDADD = $(libcockpit_bridge_LIBS) -ldl
+
+test_httpstream_SOURCES = \
+	src/bridge/test-httpstream.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_httpstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_httpstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
 
 noinst_PROGRAMS += $(BRIDGE_CHECKS)
 TESTS += $(BRIDGE_CHECKS)

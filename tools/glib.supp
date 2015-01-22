@@ -156,6 +156,15 @@
    fun:g_cancellable_push_current
 }
 {
+   _g_io_module_get_default
+   Memcheck:Leak
+   ...
+   fun:g_io_module_new
+   fun:g_io_modules_scan_all_in_directory_with_scope
+   fun:_g_io_modules_ensure_loaded
+   fun:_g_io_module_get_default
+}
+{
    g_io_scheduler_push_job
    Memcheck:Leak
    ...

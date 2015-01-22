@@ -268,7 +268,7 @@ test_parse_status_bad (void)
 }
 
 static void
-test_parse_version (void)
+test_parse_version_1_0 (void)
 {
   gchar *version;
   const gchar *line;
@@ -279,6 +279,14 @@ test_parse_version (void)
   g_assert_cmpint (ret, ==, strlen (line) - 2);
   g_assert_cmpstr (version, ==, "HTTP/1.0");
   g_free (version);
+}
+
+static void
+test_parse_version_1_1 (void)
+{
+  gchar *version;
+  const gchar *line;
+  gssize ret;
 
   line = "HTTP/1.1 101 Switching Protocols\r\n  ";
   ret = web_socket_util_parse_status_line (line, strlen (line), &version, NULL, NULL);
@@ -1438,7 +1446,8 @@ main (int argc,
   g_test_add_func ("/web-socket/parse-status-no-out", test_parse_status_no_out);
   g_test_add_func ("/web-socket/parse-status-not-enough", test_parse_status_not_enough);
   g_test_add_func ("/web-socket/parse-status-bad", test_parse_status_bad);
-  g_test_add_func ("/web-socket/parse-version", test_parse_version);
+  g_test_add_func ("/web-socket/parse-version-1-0", test_parse_version_1_0);
+  g_test_add_func ("/web-socket/parse-version-1-1", test_parse_version_1_1);
   g_test_add_func ("/web-socket/parse-headers", test_parse_headers);
   g_test_add_func ("/web-socket/parse-headers-no-out", test_parse_headers_no_out);
   g_test_add_func ("/web-socket/parse-headers-bad", test_parse_headers_bad);

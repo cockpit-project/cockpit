@@ -174,12 +174,7 @@ mock_control (const char *cmd, ...)
 void
 mock_init(pmdaInterface *dp)
 {
-  /*
-   * HACK: no helptext should be necessary, but:
-   * https://bugzilla.redhat.com/show_bug.cgi?id=1182949
-   */
-
-  pmdaDSO(dp, PMDA_INTERFACE_2, "mock-pmda", SRCDIR "/src/bridge/mock-help");
+  pmdaDSO(dp, PMDA_INTERFACE_2, "mock-pmda", NULL);
 
   if (dp->status != 0)
     return;

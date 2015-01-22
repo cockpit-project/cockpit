@@ -26,10 +26,32 @@
 var shell = shell || { };
 (function($, cockpit, shell) {
 
+var month_names = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+
+function format_date_tick(val, axis) {
+    function pad(n) {
+        var str = n.toFixed();
+        if(str.length == 1)
+            str = '0' + str;
+        return str;
+    }
+
+    var d = new Date(val);
+    var n = new Date();
+    var time = pad(d.getHours()) + ':' + pad(d.getMinutes());
+
+    if (d.getFullYear() == n.getFullYear() && d.getMonth() == n.getMonth() && d.getDate() == n.getDate()) {
+        return time;
+    } else {
+        var day = C_("month-name", month_names[d.getMonth()]) + ' ' + d.getDate().toFixed();
+        return day + ", " + time;
+    }
+}
+
 var common_plot_options = {
     legend: { show: false },
     series: { shadowSize: 0 },
-    xaxis: { tickColor: "#d1d1d1", tickFormatter: function() { return ""; } },
+    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: format_date_tick },
     // The point radius influences the margin around the grid even if
     // no points are plotted.  We don't want any margin, so we set the
     // radius to zero.
@@ -56,7 +78,6 @@ var resource_monitors = [
                          "kernel.all.cpu.sys"
                        ],
               units: "millisec",
-              interval: 1000,
               factor: 0.1  // millisec / sec -> percent
             },
       options: { yaxis: { tickColor: "#e1e6ed",
@@ -64,8 +85,7 @@ var resource_monitors = [
       ymax_unit: 100
     },
     { plot: { metrics: [ "mem.util.used" ],
-              units: "byte",
-              interval: 1000
+              units: "byte"
             },
       options: { yaxis: { ticks: memory_ticks,
                           tickColor: "#e1e6ed",
@@ -76,8 +96,8 @@ var resource_monitors = [
     },
     { plot: { metrics: [ "network.interface.total.bytes" ],
               units: "byte",
-              omit_instances: [ "lo" ],
-              interval: 1000
+              'omit-instances': [ "lo" ],
+              factor: 1.0
             },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bits_per_sec(v*8); }
@@ -87,13 +107,13 @@ var resource_monitors = [
     },
     { plot: { metrics: [ "disk.dev.total_bytes" ],
               units: "byte",
-              interval: 1000
+              factor: 1.0
             },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bytes_per_sec(v); }
                         }
                },
-      ymax_min: 10000
+      ymax_min: 100000
     }
 ];
 
@@ -195,20 +215,22 @@ PageDashboard.prototype = {
     setup: function() {
         var self = this;
 
+        var current_monitor = 0;
+        var plot_x_range = 60*60;
+        var plot_x_stop;
+
         $('#dashboard-add').click(function () {
             shell.host_setup();
         });
         $('#dashboard-enable-edit').click(function () {
             self.toggle_edit(!self.edit_enabled);
         });
-        this.plot = shell.plot($('#dashboard-plot'), 300);
+        this.plot = shell.plot($('#dashboard-plot'), plot_x_range, plot_x_stop);
 
         var renderer = host_renderer($("#dashboard-hosts .list-group"));
         $(shell.hosts).on("added.dashboard", renderer);
         $(shell.hosts).on("removed.dashboard", renderer);
         $(shell.hosts).on("changed.dashboard", renderer);
-
-        var current_monitor = 0;
 
         $('#dashboard .nav-tabs li').click(function () {
             set_monitor(parseInt($(this).data('monitor-id'), 10));
@@ -221,7 +243,46 @@ PageDashboard.prototype = {
             plot_reset();
         }
 
+        $('#dashboard-range-buttons button').click(function () {
+            set_plot_x_range(parseInt($(this).data('seconds'), 10));
+        });
+
+        $('#dashboard-scroll-left').click(function () {
+            scroll_plot_left();
+        });
+
+        $('#dashboard-scroll-right').click(function () {
+            scroll_plot_right();
+        });
+
+        function set_plot_x_range(val) {
+            $('#dashboard-range-buttons button').removeClass("active");
+            $('#dashboard-range-buttons button[data-seconds=' + val + ']').addClass("active");
+            plot_x_range = val;
+            plot_x_stop = undefined;
+            plot_reset();
+        }
+
+        function scroll_plot_left() {
+            var step = plot_x_range / 10;
+            if (plot_x_stop === undefined)
+                plot_x_stop = (new Date()).getTime() / 1000;
+            plot_x_stop -= step;
+            plot_reset();
+        }
+
+        function scroll_plot_right() {
+            var step = plot_x_range / 10;
+            if (plot_x_stop !== undefined) {
+                plot_x_stop += step;
+                if (plot_x_stop >= (new Date()).getTime() / 1000 - 10)
+                    plot_x_stop = undefined;
+                plot_reset();
+            }
+        }
+
         set_monitor(current_monitor);
+        set_plot_x_range(plot_x_range);
 
         $("#dashboard-hosts")
             .on("click", "a.list-group-item", function() {
@@ -381,12 +442,13 @@ PageDashboard.prototype = {
             var options = $.extend({ setup_hook: plot_setup_hook },
                                    common_plot_options,
                                    resource_monitors[current_monitor].options);
-            self.plot.reset();
+            self.plot.reset(plot_x_range, plot_x_stop);
             self.plot.set_options(options);
             series = {};
             update_series();
             self.plot.refresh();
-            self.plot.start_walking(1);
+            if (plot_x_stop === undefined)
+                self.plot.start_walking();
         }
 
         $(cockpit).on('resize.dashboard', function () {

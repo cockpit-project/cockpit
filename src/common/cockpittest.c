@@ -175,6 +175,10 @@ cockpit_test_init (int *argc,
 
   signal (SIGPIPE, SIG_IGN);
 
+  g_setenv ("GIO_USE_VFS", "local", TRUE);
+  g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
+  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
+
   g_type_init ();
 
   if (*argc > 0)

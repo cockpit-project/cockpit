@@ -28,25 +28,27 @@ class TestSession(MachineCase):
         # TODO: Make this work with non-root
         b.default_user = "root"
 
-        def check_session(should_exist):
-            check = check_in if should_exist else check_not_in
-            check(m.execute("loginctl list-sessions"), "admin")
+        def wait_session(should_exist):
+            def cond():
+                check = check_in if should_exist else check_not_in
+                return check(m.execute("loginctl list-sessions"), "admin")
+            wait (cond)
 
         def kill_user_admin():
             # logind from systemd 208 is buggy, so we use systemd directly if it fails
             # https://bugs.freedesktop.org/show_bug.cgi?id=71092
             m.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
 
-        check_session(False)
+        wait_session(False)
 
         # Login
         self.login_and_go("server", "admin")
-        check_session(True)
+        wait_session(True)
 
         # Logout
         b.logout()
         b.wait_visible("#login")
-        check_session(False)
+        wait_session(False)
 
         # Login again
         b.set_val("#login-user-input", "admin")
@@ -54,13 +56,13 @@ class TestSession(MachineCase):
         b.click('#login-button')
         b.expect_reload()
         b.wait_page("server")
-        check_session(True)
+        wait_session(True)
 
         # Kill session from the outside
         kill_user_admin()
-        check_session(False)
+        wait_session(False)
         b.relogin("server", "admin")
-        check_session(True)
+        wait_session(True)
 
         # TODO: This doesn't work as non-root
         # Kill session from the inside
@@ -69,7 +71,7 @@ class TestSession(MachineCase):
         # b.wait_page("account")
         # b.wait_text("#account-user-name", "admin")
         # b.click("#account-logout")
-        # check_session(False)
+        # wait_session(False)
 
         self.allow_restart_journal_messages()
         # Might happen when killing the bridge.

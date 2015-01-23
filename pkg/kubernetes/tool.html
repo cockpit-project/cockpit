@@ -112,7 +112,7 @@ require([
         if (!entity)
             return false;
 
-        $(this).find(".modal-body").html("Do you want to Delete the " + entityType + " : "  + entity + " ?");
+        $(this).find(".modal-body").html("Do you want to Delete the " + entityType + ": "  + entity + " ?");
 
         $("#delete-dialog-apply").off('click');
         $("#delete-dialog-apply").on('click', function () {
@@ -198,9 +198,7 @@ require([
               <span>{{id}}</span>
             </div>
             <a class="list-group-item">
-              Labels:
-              <p class="list-group-item-text">{{render_labels}}</p>
-              <hr>
+              Labels:<p class="list-group-item-text">{{render_labels}}</p>
               {{#desiredState}}
                 {{#manifest}}
                   {{#containers}}
@@ -229,7 +227,6 @@ require([
               Labels :
               <p class="list-group-item-text">
                 {{render_labels}}</p>
-              <hr>
               <p class="kubernetes-selector">{{{render_selector}}}</p>
               <p>{{portalIP}}:{{port}}</p>
             </a>

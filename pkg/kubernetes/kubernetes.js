@@ -127,12 +127,14 @@ define([
 
         this.delete_pod = function delete_pod(pod_name) {
             api.request({"method": "DELETE",
+                "body": "",
                 "path": "/api/v1beta1/pods/" + pod_name
             }).fail(failure);
         };
 
         this.delete_minion = function delete_minion(minion_name) {
             api.request({"method": "DELETE",
+                "body": "",
                 "path": "/api/v1beta1/minions/" + minion_name
             }).fail(failure);
         };

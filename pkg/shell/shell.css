@@ -365,16 +365,34 @@ ul.available-interfaces-group {
     width: 10%;
 }
 
+#image-details-containers .cell-buttons,
+#image-details-containers .table > tbody > tr > .cell-buttons,
 #containers .cell-buttons,
 #containers .table > tbody > tr > .cell-buttons {
-    width: auto;
+    padding-left: 4px;
+    padding-bottom: 4px;
+    padding-top: 4px;
+    padding-right: 15px;
+    text-align: right;
+    width: 44px;
 }
 
+#image-details-containers .cell-buttons button,
+#image-details-containers .table > tbody > tr > .cell-buttons button,
 #containers .cell-buttons button,
 #containers .table > tbody > tr > .cell-buttons button {
-    position: absolute;
-    right: 30px;
+    max-width: 26px;
+    max-height: 26px;
 }
+
+#image-details-containers .container-col-danger,
+#image-details-containers .table > tbody > tr > .container-col-danger,
+#containers .container-col-danger,
+#containers .table > tbody > tr > .container-col-danger {
+    padding-right: 4px;
+    width: 34px;
+}
+
 
 /*
  * The oops status in the navbar, used when an unhandled exception

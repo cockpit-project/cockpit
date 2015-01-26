@@ -56,6 +56,23 @@ class TestDocker(MachineCase):
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE")
 
+        # delete it.
+        b.wait_in_text('#containers-containers tbody tr:last', "PROBE")
+        b.call_js_func("ph_has_attr", "#containers-containers tbody tr:last button.btn-delete", "disabled",  "true")
+        b.click("#containers-containers button.enable-danger")
+        b.call_js_func("ph_has_attr", "#containers-containers tbody tr:last button.btn-delete", "disabled",  "false")
+        b.click("#containers-containers tbody tr:last button.btn-delete")
+        b.wait_js_func('!ph_is_present', "#containers-containers tbody tr")
+
+        # Start it again
+        b.click('#containers-images tr:contains("container-probe") button.btn-play')
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE")
+        b.set_val("#containers-run-image-command", "/bin/container-probe")
+        b.click("#containers-run-image-run");
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE")
+
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE")')
         b.wait_page("container-details")

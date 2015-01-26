@@ -338,11 +338,14 @@ function unsetup_for_failure(client) {
     $('#containers-failure-start').off('.failure');
 }
 
-function render_container (client, $panel, filter_button, prefix, id, container) {
+function render_container (client, $panel, filter_button, prefix, id, container, danger_mode) {
     var tr = $("#" + prefix + id);
 
     if (!container) {
         tr.remove();
+        if (!$panel.find('table > tbody > tr').length) {
+            $panel.find('button.enable-danger').toggle(false);
+        }
         return;
     }
 
@@ -369,7 +372,21 @@ function render_container (client, $panel, filter_button, prefix, id, container)
 
     var added = false;
     if (!tr.length) {
+        $panel.find('button.enable-danger').toggle(true);
         var img_waiting = $('<div class="waiting">');
+        var btn_delete = $('<button class="btn btn-danger pficon pficon-close btn-delete">').
+            on("click", function() {
+                var self = this;
+                $(self).hide().
+                    siblings("div.waiting").show();
+                client.rm(id, true).
+                    fail(function(ex) {
+                        shell.show_unexpected_error(ex);
+                        $(self).show().
+                            siblings("div.waiting").hide();
+                    });
+                return false;
+            });
         var btn_play = $('<button class="btn btn-default btn-control btn-play">').
             on("click", function() {
                 $(this).hide().
@@ -397,7 +414,9 @@ function render_container (client, $panel, filter_button, prefix, id, container)
             $('<td class="container-col-cpu">'),
             $('<td class="container-col-memory-graph">').append(shell.BarRow("containers-containers")),
             $('<td class="container-col-memory-text">'),
-            $('<td class="cell-buttons">').append(btn_play, btn_stop, img_waiting));
+            $('<td class="container-col-danger cell-buttons">').append(btn_delete, img_waiting),
+            $('<td class="container-col-actions cell-buttons">').append(btn_play, btn_stop, img_waiting.clone()));
+
         tr.on('click', function(event) {
             cockpit.location.go("container-details", { id: id });
         });
@@ -417,8 +436,24 @@ function render_container (client, $panel, filter_button, prefix, id, container)
 
     var waiting = id in client.waiting;
     $(row[6]).children("div.waiting").toggle(waiting);
-    $(row[6]).children("button.btn-play").toggle(!waiting && !container.State.Running);
-    $(row[6]).children("button.btn-stop").toggle(!waiting && container.State.Running);
+    $(row[6]).children("button.btn-delete")
+        .toggle(!waiting)
+        .toggleClass('disabled', container.State.Running);
+
+    var title = (waiting || container.State.Running) ? "You can only delete<br/> stopped containers" : "Delete immediately";
+
+    $(row[6]).children("button.btn-delete")
+          .tooltip('destroy')
+          .attr("title", title)
+          .tooltip({html: true});
+
+
+    $(row[7]).children("div.waiting").toggle(waiting);
+    $(row[7]).children("button.btn-play").toggle(!waiting && !container.State.Running);
+    $(row[7]).children("button.btn-stop").toggle(!waiting && container.State.Running);
+
+    $(row[6]).toggle(danger_mode);
+    $(row[7]).toggle(!danger_mode);
 
     if (filter_button) {
         var filter = shell.select_btn_selected(filter_button);
@@ -429,16 +464,43 @@ function render_container (client, $panel, filter_button, prefix, id, container)
         insert_table_sorted($panel.find('table'), tr);
 }
 
+function setup_danger_button(id, parent_id, callback) {
+    var danger_button = $('<button class="btn btn-default btn-control fa fa-check enable-danger">')
+        .toggle(false)
+        .on("click", callback);
+    $(id + ' th.container-col-actions').append(danger_button);
+    $(parent_id)[0].addEventListener("click", function(ev) {
+          if ($(ev.target).parents(id).length === 0 &&
+                  $(id + ' button.enable-danger').hasClass('active'))
+              callback();
+    }, true);
+}
+
 PageContainers.prototype = {
     _init: function() {
         this.id = "containers";
+        this.danger_enabled = false;
     },
 
     getTitle: function() {
         return C_("page-title", "Containers");
     },
 
+    toggle_danger: function(val) {
+        var self = this;
+        self.danger_enabled = val;
+        $('#containers-containers button.enable-danger').toggleClass('active', self.danger_enabled);
+        $("#containers-containers td.container-col-actions").toggle(!self.danger_enabled);
+        $("#containers-containers td.container-col-danger").toggle(self.danger_enabled);
+    },
+
     setup: function() {
+        var self = this;
+        setup_danger_button('#containers-containers', "#"+this.id,
+            function() {
+                self.toggle_danger(!self.danger_enabled);
+            });
+
         this.container_filter_btn =
             shell.select_btn($.proxy(this, "filter"),
                                [ { title: _("All"),                 choice: 'all',  is_default: true },
@@ -513,6 +575,7 @@ PageContainers.prototype = {
         });
 
         var id;
+        $("#containers-containers button.enable-danger").toggle(false);
         for (id in this.client.containers) {
             this.render_container(id, this.client.containers[id]);
         }
@@ -544,7 +607,7 @@ PageContainers.prototype = {
 
     render_container: function(id, container) {
         render_container(this.client, $('#containers-containers'), this.container_filter_btn,
-                         "", id, container);
+                         "", id, container, this.danger_enabled);
     },
 
     render_image: function(id, image) {
@@ -1357,6 +1420,7 @@ PageImageDetails.prototype = {
     _init: function() {
         this.id = "image-details";
         this.section_id = "containers";
+        this.danger_enabled = false;
     },
 
     getTitle: function() {
@@ -1377,7 +1441,21 @@ PageImageDetails.prototype = {
         this.client = null;
     },
 
+    toggle_danger: function(val) {
+        var self = this;
+        self.danger_enabled = val;
+        $('#image-details-containers button.enable-danger').toggleClass('active', self.danger_enabled);
+        $("#image-details-containers td.container-col-actions").toggle(!self.danger_enabled);
+        $("#image-details-containers td.container-col-danger").toggle(self.danger_enabled);
+
+    },
+
     setup: function() {
+        var self = this;
+        setup_danger_button('#image-details-containers', "#"+this.id,
+            function() {
+                self.toggle_danger(!self.danger_enabled);
+            });
         $('#image-details-run').on('click', $.proxy(this, "run_image"));
         $('#image-details-delete').on('click', $.proxy(this, "delete_image"));
     },
@@ -1394,7 +1472,7 @@ PageImageDetails.prototype = {
         this.dbus_client = shell.dbus(this.address);
 
         $('#image-details-containers table tbody tr').remove();
-
+        $('#image-details-containers button.enable-danger').toggle(false);
         $(this.client).on('image.image-details', function (event, id, image) {
             if (id == self.image_id)
                 self.update();
@@ -1460,7 +1538,7 @@ PageImageDetails.prototype = {
 
     render_container: function (id, container) {
         render_container(this.client, $('#image-details-containers'), null, "I",
-                         id, container);
+                         id, container, this.danger_enabled);
     },
 
     run_image: function () {

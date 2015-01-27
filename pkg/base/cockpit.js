@@ -1058,6 +1058,11 @@ function full_scope(cockpit, $) {
         }
     });
 
+    document.addEventListener("click", function(ev) {
+        if ($(ev.target).hasClass('disabled'))
+          ev.stopPropagation();
+    }, true);
+
     /* ----------------------------------------------------------------------------
      * Packages
      *

@@ -35,7 +35,6 @@ shelldir = $(pkgdatadir)/shell
 shell_DATA = \
 	shell.js \
 	shell.min.js \
-	pkg/shell/jquery-flot.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
 	pkg/shell/shell.min.html \

@@ -17,7 +17,9 @@ require([
     "latest/term",
     "latest/po"
 ], function($, cockpit, Terminal, po) {
-    var _ = cockpit.locale(po, true).gettext;
+    cockpit.locale(po);
+    cockpit.translate();
+    var _ = cockpit.gettext;
 
     var term = null;
     var channel = null;

@@ -18,14 +18,12 @@
  */
 define([
     "jquery",
-    "latest/cockpit",
-    "latest/po"
-], function($, cockpit, po) {
+    "latest/cockpit"
+], function($, cockpit) {
     "use strict";
 
-    var locale = cockpit.locale(po, false);
-    var _ = locale.gettext;
-    var C_ = locale.gettext;
+    var _ = cockpit.gettext;
+    var C_ = cockpit.gettext;
 
     var server = { };
 

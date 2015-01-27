@@ -48,7 +48,7 @@ PageDisplayLanguageDialog.prototype = {
                 $.each(pkg.manifest.linguas, function(i, code) {
                     var name = names[code] || code;
                     var $el = $("<option>").text(name).val(code);
-                    if (code == shell.language_code)
+                    if (code == cockpit.language)
                         $el.attr("selected", "true");
                     $("#display-language-list").append($el);
                 });

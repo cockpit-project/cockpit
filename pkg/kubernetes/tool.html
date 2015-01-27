@@ -11,12 +11,11 @@ require([
     "jquery",
     "latest/cockpit",
     "latest/mustache",
-    "kubernetes/kubernetes",
-    "latest/po"
-], function($, cockpit, Mustache, kubernetes, po) {
+    "kubernetes/kubernetes"
+], function($, cockpit, Mustache, kubernetes) {
     var client = kubernetes.k8client();
     var etcdclient = kubernetes.etcdclient();
-    var _ = cockpit.locale(po).gettext;
+    var _ = cockpit.gettext;
 
     function view_renderer() {
         var template = $("#kubernetes-view-tmpl").html();

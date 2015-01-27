@@ -19,11 +19,6 @@
 
 /* MAIN
 
-   - shell.language_code
-
-   Information about the selected display language.  'language_code'
-   contains the symbol identifying the language, such as "de" or "fi".
-
    - client = shell.dbus(address, [options])
    - client.release()
 
@@ -51,7 +46,6 @@ var modules = modules ||  { };
 
 (function($, cockpit, shell, modules) {
 
-shell.language_code = null;
 shell.pages = [];
 shell.dialogs = [];
 
@@ -93,9 +87,8 @@ function init() {
  * But we still want to know the language code, so load the locale po
  */
 
-var locale = cockpit.locale({ }, false);
 require(["latest/po"], function(po) {
-    shell.language_code = (po[""] ? po[""]["language"] : null);
+    cockpit.locale(po);
 });
 shell.i18n = function i18n(string, context) {
     return string;

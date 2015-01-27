@@ -56,16 +56,19 @@ test("public api", function() {
 });
 
 test("gettext", function() {
-    var loc = cockpit.locale(pig_latin);
-    equal(loc.lang, "pig", "correct lang");
-    equal(loc.gettext("Marmalade"), "Armalademay", "returned translation");
-    equal(loc.gettext("explain", "Marmalade"), "ArmaladeMAY", "with context");
-    equal(loc.gettext("Blah"), "Blah", "english default");
-    equal(loc.gettext("explain", "Blah"), "Blah", "english default context");
+    cockpit.locale(null); /* clear it */
+    cockpit.locale(pig_latin);
+    equal(cockpit.language, "pig", "correct lang");
+    equal(cockpit.gettext("Marmalade"), "Armalademay", "returned translation");
+    equal(cockpit.gettext("explain", "Marmalade"), "ArmaladeMAY", "with context");
+    equal(cockpit.gettext("Blah"), "Blah", "english default");
+    equal(cockpit.gettext("explain", "Blah"), "Blah", "english default context");
 });
 
 test("underscore", function() {
-    var _ = cockpit.locale(pig_latin).gettext;
+    cockpit.locale(null); /* clear it */
+    cockpit.locale(pig_latin);
+    var _ = cockpit.gettext;
     var C_ = _;
     equal(_("Marmalade"), "Armalademay", "returned translation");
     equal(_("Blah"), "Blah", "english default");
@@ -74,27 +77,29 @@ test("underscore", function() {
 });
 
 test("ngettext simple", function() {
-    var loc = cockpit.locale(pig_latin);
-    equal(loc.ngettext("$0 bucket", "$0 buckets", 0), "$0 ucketsbay", "zero things");
-    equal(loc.ngettext("$0 bucket", "$0 buckets", 1), "$0 ucketbay", "one thing");
-    equal(loc.ngettext("$0 bucket", "$0 buckets", 5), "$0 ucketsbay", "multiple things");
-    equal(loc.ngettext("explain", "$0 bucket", "$0 buckets", 0), "$0 ucketsBAY", "zero things context");
-    equal(loc.ngettext("explain", "$0 bucket", "$0 buckets", 1), "$0 ucketBAY", "one thing context");
-    equal(loc.ngettext("explain", "$0 bucket", "$0 buckets", 5), "$0 ucketsBAY", "multiple things context");
-    equal(loc.ngettext("$0 mop", "$0 mops", 1), "$0 mop", "default one");
-    equal(loc.ngettext("$0 mop", "$0 mops", 2), "$0 mops", "default multiple");
-    equal(loc.ngettext("explain", "$0 mop", "$0 mops", 1), "$0 mop", "default one context");
-    equal(loc.ngettext("explain", "$0 mop", "$0 mops", 2), "$0 mops", "default multiple context");
+    cockpit.locale(null); /* clear it */
+    cockpit.locale(pig_latin);
+    equal(cockpit.ngettext("$0 bucket", "$0 buckets", 0), "$0 ucketsbay", "zero things");
+    equal(cockpit.ngettext("$0 bucket", "$0 buckets", 1), "$0 ucketbay", "one thing");
+    equal(cockpit.ngettext("$0 bucket", "$0 buckets", 5), "$0 ucketsbay", "multiple things");
+    equal(cockpit.ngettext("explain", "$0 bucket", "$0 buckets", 0), "$0 ucketsBAY", "zero things context");
+    equal(cockpit.ngettext("explain", "$0 bucket", "$0 buckets", 1), "$0 ucketBAY", "one thing context");
+    equal(cockpit.ngettext("explain", "$0 bucket", "$0 buckets", 5), "$0 ucketsBAY", "multiple things context");
+    equal(cockpit.ngettext("$0 mop", "$0 mops", 1), "$0 mop", "default one");
+    equal(cockpit.ngettext("$0 mop", "$0 mops", 2), "$0 mops", "default multiple");
+    equal(cockpit.ngettext("explain", "$0 mop", "$0 mops", 1), "$0 mop", "default one context");
+    equal(cockpit.ngettext("explain", "$0 mop", "$0 mops", 2), "$0 mops", "default multiple context");
 });
 
 test("ngettext complex", function() {
-    var loc = cockpit.locale(ru);
-    equal(loc.ngettext("$0 bit", "$0 bits", 0), "$0 бит", "zero things");
-    equal(loc.ngettext("$0 bit", "$0 bits", 1), "$0 бит", "one thing");
-    equal(loc.ngettext("$0 bit", "$0 bits", 5), "$0 бит", "multiple things");
-    equal(loc.ngettext("$0 bit", "$0 bits", 23), "$0 бита", "genitive singular");
-    equal(loc.ngettext("$0 mop", "$0 mops", 1), "$0 mop", "default one");
-    equal(loc.ngettext("$0 mop", "$0 mops", 2), "$0 mops", "default multiple");
+    cockpit.locale(null); /* clear it */
+    cockpit.locale(ru);
+    equal(cockpit.ngettext("$0 bit", "$0 bits", 0), "$0 бит", "zero things");
+    equal(cockpit.ngettext("$0 bit", "$0 bits", 1), "$0 бит", "one thing");
+    equal(cockpit.ngettext("$0 bit", "$0 bits", 5), "$0 бит", "multiple things");
+    equal(cockpit.ngettext("$0 bit", "$0 bits", 23), "$0 бита", "genitive singular");
+    equal(cockpit.ngettext("$0 mop", "$0 mops", 1), "$0 mop", "default one");
+    equal(cockpit.ngettext("$0 mop", "$0 mops", 2), "$0 mops", "default multiple");
 });
 
 QUnit.start();

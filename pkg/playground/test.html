@@ -43,9 +43,9 @@ require([
     'latest/cockpit',
     'playground/po'
 ], function($, cockpit, po) {
-    var loc = cockpit.locale(po);
-    var _ = loc.gettext;
-    var C_ = loc.gettext;
+    cockpit.locale(po);
+    var _ = cockpit.gettext;
+    var C_ = cockpit.gettext;
 
     $("#translation").text(_("Translation"));
     $("#reverse").text(C_("reverse", "Translation"));

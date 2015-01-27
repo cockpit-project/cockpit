@@ -2096,16 +2096,21 @@ function full_scope(cockpit, $) {
      * Localization
      */
 
-    function Locale(po) {
-        var self = this;
+    var po_data = { };
+    var po_plural;
 
-        function imply( val ) {
-            return (val === true ? 1 : val ? val : 0);
+    cockpit.language = undefined;
+
+    cockpit.locale = function locale(po) {
+        var lang = cockpit.language || "en";
+        var header;
+
+        if (po) {
+            $.extend(po_data, po);
+            header = po[""];
+        } else {
+            po_data = { };
         }
-
-        var plural;
-        var lang = "en";
-        var header = po[""];
 
         if (header) {
             if (header["plural-forms"]) {
@@ -2115,70 +2120,75 @@ function full_scope(cockpit, $) {
                  */
 
                 /* jshint ignore:start */
-                plural = new Function("n", "var nplurals, plural; " +
-                                      header["plural-forms"] + "; return plural;");
+                po_plural = new Function("n", "var nplurals, plural; " +
+                                         header["plural-forms"] + "; return plural;");
                 /* jshint ignore:end */
             }
             if (header["language"])
                 lang = header["language"];
         }
 
-        self.lang = lang;
+        cockpit.language = lang;
+    };
 
-        self.gettext = function gettext(context, string) {
-            /* Missing first parameter */
-            if (arguments.length == 1) {
-                string = context;
-                context = undefined;
-            }
-
-            var key = context ? context + '\u0004' + string : string;
-            if (po) {
-                var translated = po[key];
-                if (translated && translated[1])
-                    return translated[1];
-            }
-            return string;
-        };
-
-        self.ngettext = function ngettext(context, string1, stringN, num) {
-            /* Missing first parameter */
-            if (arguments.length == 3) {
-                num = stringN;
-                stringN = string1;
-                string1 = context;
-                context = undefined;
-            }
-
-            var key = context ? context + '\u0004' + string1 : string1;
-            if (po && plural) {
-                var translated = po[key];
-                if (translated) {
-                    var i = imply(plural(num)) + 1;
-                    if (translated[i])
-                        return translated[i];
-                }
-            }
-            if (num == 1)
-                return string1;
-            return stringN;
-        };
-    }
-
-    function translate_page(locale) {
-        $("[translatable=\"yes\"]").each(function(i, e) {
+    cockpit.translate = function translate(sel) {
+        $("[translatable=\"yes\"]", sel).each(function(i, e) {
             var $e = $(e);
-            var translated = locale.gettext(e.getAttribute("context"), $e.text());
+            var translated = cockpit.gettext(e.getAttribute("context"), $e.text());
             $(e).removeAttr("translatable").text(translated);
         });
+    };
+
+    cockpit.gettext = function gettext(context, string) {
+        /* Missing first parameter */
+        if (arguments.length == 1) {
+            string = context;
+            context = undefined;
+        }
+
+        var key = context ? context + '\u0004' + string : string;
+        if (po_data) {
+            var translated = po_data[key];
+            if (translated && translated[1])
+                return translated[1];
+        }
+        return string;
+    };
+
+    function imply( val ) {
+        return (val === true ? 1 : val ? val : 0);
     }
 
-    cockpit.locale = function locale(po, translate) {
-        var loc = new Locale(po);
-        if (translate)
-            $(function() {translate_page(loc); });
-        return loc;
+    cockpit.ngettext = function ngettext(context, string1, stringN, num) {
+        /* Missing first parameter */
+        if (arguments.length == 3) {
+            num = stringN;
+            stringN = string1;
+            string1 = context;
+            context = undefined;
+        }
+
+        var key = context ? context + '\u0004' + string1 : string1;
+        if (po_data && po_plural) {
+            var translated = po_data[key];
+            if (translated) {
+                var i = imply(po_plural(num)) + 1;
+                if (translated[i])
+                    return translated[i];
+            }
+        }
+        if (num == 1)
+            return string1;
+        return stringN;
     };
+
+    cockpit.noop = function noop(arg0, arg1) {
+        return arguments[arguments.length - 1];
+    };
+
+    /* ---------------------------------------------------------------------
+     * Utilities
+     */
 
     var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
     cockpit.format = function format(fmt, args) {

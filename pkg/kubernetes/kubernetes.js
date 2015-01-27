@@ -24,7 +24,8 @@ define([
 ], function($, cockpit, po) {
     "use strict";
 
-    var _ = cockpit.locale(po).gettext;
+    cockpit.locale(po);
+    var _ = cockpit.gettext;
 
     var kubernetes = { };
 

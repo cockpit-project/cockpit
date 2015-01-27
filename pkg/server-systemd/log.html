@@ -14,7 +14,9 @@ require([
     "server-systemd/server",
     "latest/po"
 ], function($, cockpit, server, po) {
-    var _ = cockpit.locale(po, true).gettext;
+    cockpit.locale(po);
+    cockpit.translate();
+    var _ = cockpit.gettext;
 
     var filler;
 

@@ -104,8 +104,12 @@ require([
         var id = button.attr("id");
         if (id == "delete-pods") {
             entityType = "pod";
-        } else {
+        } else if (id == "delete-minions") {
             entityType = "minion";
+        } else if (id == "delete-replicationControllers") {
+            entityType = "replicationController";
+        } else {
+            entityType = "services";
         }
         var entity = button.attr("data-id");
         if (!entity)
@@ -119,6 +123,8 @@ require([
                 client.delete_pod(entity);
             } else if (entityType == "minion") {
                 client.delete_minion(entity);
+            } else if (entityType == "replicationController") {
+                client.delete_replicationController(entity);
             } else {
                ; //TODO
             }
@@ -248,6 +254,7 @@ require([
           <div class="list-group" id="kubernetes-replicationControllers">
             {{#replicationControllers}}
             <a class="list-group-item">
+              <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-replicationControllers" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
               <h5 class="list-group-item-heading">{{id}}</h5>
               </br>
               Labels: <p class="list-group-item-text">{{render_labels}}</p>

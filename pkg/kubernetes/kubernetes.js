@@ -140,6 +140,13 @@ define([
             }).fail(failure);
         };
 
+        this.delete_replicationController = function delete_replicationController(rc_name) {
+            api.request({"method": "DELETE",
+                "body": "",
+                "path": "/api/v1beta1/replicationControllers/" + rc_name
+            }).fail(failure);
+        };
+
         function update() {
             var reqs = [];
 

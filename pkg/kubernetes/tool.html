@@ -163,11 +163,10 @@ require([
           </div>
           <div class="list-group" id="kubernetes-minions">
             {{#minions}}
-              <div class="list-group-item">
-              <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-minions" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
-                <span>{{id}}</span>
-              </div>
               <a class="list-group-item">
+                <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-minions" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
+                <h5 class="list-group-item-heading">{{id}}</h5>
+                </br>
                 <p class="list-group-item-text">
                 {{#resources}}
                   {{#capacity}}
@@ -192,11 +191,10 @@ require([
           </div>
           <div class="list-group" id="kubernetes-pods">
             {{#pods}}
-            <div class="list-group-item">
-              <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-pods" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
-              <span>{{id}}</span>
-            </div>
             <a class="list-group-item">
+              <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-pods" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
+              <h5 class="list-group-item-heading">{{id}}</h5>
+              </br>
               Labels:<p class="list-group-item-text">{{render_labels}}</p>
               {{#desiredState}}
                 {{#manifest}}
@@ -222,11 +220,11 @@ require([
           <div class="list-group" id="kubernetes-services">
             {{#services}}
             <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
-              <h4 class="list-group-item-heading">{{id}}</h4>
-              Labels :
-              <p class="list-group-item-text">
-                {{render_labels}}</p>
+              <h5 class="list-group-item-heading">{{id}}</h5>
+              </br>
+              Labels: <p class="list-group-item-text">{{render_labels}}</p>
               <p class="kubernetes-selector">{{{render_selector}}}</p>
+              <p class="list-group-item-text">Container Port: {{containerPort}}</p>
               <p>{{portalIP}}:{{port}}</p>
             </a>
             {{/services}}
@@ -243,14 +241,22 @@ require([
         </div>
       </div>
       <div class="col-md-4">
-        <div class="panel panel-default" id="dashboard-service">
+        <div class="panel panel-default" id="dashboard-replicationControllers">
           <div class="panel-heading">
             <span>ReplicationController</span>
           </div>
           <div class="list-group" id="kubernetes-replicationControllers">
             {{#replicationControllers}}
-            <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
-              <h4 class="list-group-item-heading">{{id}}</h4>
+            <a class="list-group-item">
+              <h5 class="list-group-item-heading">{{id}}</h5>
+              </br>
+              Labels: <p class="list-group-item-text">{{render_labels}}</p>
+              {{#desiredState}}
+                  <p class="list-group-item-text">Total replicas: {{replicas}}</p>
+              {{/desiredState}}
+              {{#currentState}}
+                  <p class="list-group-item-text">Current replicas: {{replicas}}</p>
+              {{/currentState}}
             </a>
             {{/replicationControllers}}
           </div>

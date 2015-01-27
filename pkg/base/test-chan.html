@@ -653,6 +653,14 @@ asyncTest("auto host shell hack", function() {
     });
 });
 
+test("message", function() {
+    expect(4);
+    strictEqual(cockpit.message("terminated"), "Your session has been terminated.", "problem code");
+    strictEqual(cockpit.message({ problem: "timeout" }), "Connection has timed out.", "problem property");
+    strictEqual(cockpit.message({ message: "The message", problem: "blah" }), "The message", "problem property");
+    strictEqual(cockpit.message(55), "55", "invalid input");
+});
+
 window.location.hash = "";
 QUnit.start();
 

@@ -296,17 +296,16 @@ PageSetupServer.prototype = {
                      */
                     self.show_tab('login');
                     self.highlight_error_message('#dashboard_setup_login_error',
-                                                 shell.client_error_description(client.error));
+                                                 cockpit.message(client.error));
                     return;
                 }
 
                 /* The connection has failed.  Show the error on every
                  * tab but stay on the current tab.
                  */
-                self.highlight_error_message('#dashboard_setup_address_error',
-                                             shell.client_error_description(client.error));
-                self.highlight_error_message('#dashboard_setup_login_error',
-                                             shell.client_error_description(client.error));
+                var problem = client.error || "disconnected";
+                self.highlight_error_message('#dashboard_setup_address_error', cockpit.message(problem));
+                self.highlight_error_message('#dashboard_setup_login_error', cockpit.message(problem));
 
                 $('#dashboard_setup_next').prop('disabled', false);
                 $('#dashboard_setup_next').text(_("Next"));

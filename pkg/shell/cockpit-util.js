@@ -185,28 +185,6 @@ shell.select_btn_selected = function select_btn_selected(btn) {
     return $.data(btn[0], 'cockpit-select-btn-funcs').selected();
 };
 
-shell.client_error_description = client_error_description;
-function client_error_description (error) {
-    if (error == "terminated")
-        return _("Your session has been terminated.");
-    else if (error == "no-session")
-        return _("Your session has expired.  Please log in again.");
-    else if (error == "not-authorized")
-        return _("Login failed");
-    else if (error == "unknown-hostkey")
-        return _("Untrusted host");
-    else if (error == "internal-error")
-        return _("Internal error");
-    else if (error == "timeout")
-        return _("Connection has timed out.");
-    else if (error == "no-cockpit")
-        return _("Cockpit is not installed on the host.");
-    else if (error == "no-forwarding")
-        return _("Cannot forward login credentials");
-    else
-        return _("Server has closed the connection.");
-}
-
 shell.util = shell.util || { };
 
 function cache_debug() {

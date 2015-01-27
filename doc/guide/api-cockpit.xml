@@ -441,6 +441,20 @@
         <listitem><para>Could not forward authentication credentials to the remote host.</para></listitem>
       </varlistentry>
     </variablelist>
+
+    <refsection id="latest-messages">
+      <title>cockpit.message()</title>
+<programlisting>
+ message = cockpit.message(problem)
+ message = cockpit.message(exception)
+</programlisting>
+      <para>Return a message for the <code>exception</code> or <code>problem</code> code
+        passed as an argument. If the argument is an object with a <code>"message"</code> property,
+        as is the case with most exceptions, that will be returned directly. If the argument is
+        an object with a <code>"problem"</code> property, then it will be used as the problem code.
+        An appropriate message will be returned for problem codes.</para>
+    </refsection>
+
   </refsection>
 
   <refsection id="latest-dbus">

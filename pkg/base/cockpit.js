@@ -45,7 +45,7 @@ function is_array(it) {
 
 function BasicError(problem, message) {
     this.problem = problem;
-    this.message = message || problem;
+    this.message = message || cockpit.message(problem);
     this.toString = function() {
         return this.message;
     };
@@ -1007,7 +1007,7 @@ function basic_scope(cockpit) {
 }
 
 
-function full_scope(cockpit, $) {
+function full_scope(cockpit, $, po) {
 
     /* ---------------------------------------------------------------------
      * User and system information
@@ -1248,7 +1248,7 @@ function full_scope(cockpit, $) {
             this.problem = arg0;
             this.exit_status = NaN;
             this.exit_signal = null;
-            this.message = arg0;
+            this.message = cockpit.message(arg0);
         } else {
             this.exit_status = status;
             this.exit_signal = signal;
@@ -1339,7 +1339,7 @@ function full_scope(cockpit, $) {
         if (typeof(arg) == "string") {
             this.problem = arg;
             this.name = null;
-            this.message = arg;
+            this.message = cockpit.message(arg);
         } else {
             this.problem = null;
             this.name = arg[0];
@@ -2186,6 +2186,9 @@ function full_scope(cockpit, $) {
         return arguments[arguments.length - 1];
     };
 
+    /* Only for _() calls here in the cockpit code */
+    var _ = cockpit.gettext;
+
     /* ---------------------------------------------------------------------
      * Utilities
      */
@@ -2288,11 +2291,42 @@ function full_scope(cockpit, $) {
         return format_units(number, bit_suffixes, 1000, false);
     };
 
+    cockpit.message = function message(arg) {
+        if (arg.message)
+            return arg.message;
+
+        var problem = null;
+        if (arg.problem)
+            problem = arg.problem;
+        else
+            problem = arg + "";
+        if (problem == "terminated")
+            return _("Your session has been terminated.");
+        else if (problem == "no-session")
+            return _("Your session has expired. Please log in again.");
+        else if (problem == "not-authorized")
+            return _("Login failed");
+        else if (problem == "unknown-hostkey")
+            return _("Untrusted host");
+        else if (problem == "internal-error")
+            return _("Internal error");
+        else if (problem == "timeout")
+            return _("Connection has timed out.");
+        else if (problem == "no-cockpit")
+            return _("Cockpit is not installed on the host.");
+        else if (problem == "no-forwarding")
+            return _("Cannot forward login credentials");
+        else if (problem == "disconnected")
+            return _("Server has closed the connection.");
+        else
+            return problem;
+    };
+
     function HttpError(arg0, arg1, message) {
         var status = parseInt(arg0, 10);
         if (isNaN(status)) {
             this.problem = arg0;
-            this.message = arg1 || arg0;
+            this.message = message || arg1 || cockpit.message(arg0);
         } else {
             this.status = status;
             this.reason = arg1;

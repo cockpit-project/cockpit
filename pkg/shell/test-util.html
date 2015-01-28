@@ -24,7 +24,6 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="../../lib/qunit-1.14.0.css" type="text/css" media="screen" />
     <script type="text/javascript" src="../../lib/jquery.v2.1.0.js"></script>
-    <script type="text/javascript" src="../../lib/bootstrap.v3.0.3.js"></script>
     <script type="text/javascript" src="../../lib/qunit-1.14.0.js"></script>
     <script type="text/javascript" src="../../lib/qunit-tap.js"></script>
     <script type="text/javascript" src="../../tools/qunit-config.js"></script>
@@ -52,44 +51,6 @@ test("format_delay", function() {
         strictEqual(shell.format_delay(checks[i][0]), checks[i][1],
                     "format_delay(" + checks[i][0] + ") = " + checks[i][1]);
     }
-});
-
-
-test("update_privileged_ui", function() {
-    p_true = { 'allowed' : true };
-    p_false = { 'allowed' : false };
-    p_unknown = { };
-
-    b1 = $('<button class="btn" id="b1">');
-    b2 = $('<button class="btn" id="b2" title="A Real title">');
-
-    $('#testing').append(b1, b2);
-    shell.update_privileged_ui(p_true, ".btn", "disabled message");
-
-    equal($("#b1").attr('data-original-title'), "", 'b1 true, normal blank title');
-    equal($("#b2").attr('data-original-title'), "A Real title", 'b2 true, normal title');
-    ok(!$("#b1").hasClass("disabled"), 'b1 true, no disabled class');
-    ok(!$("#b2").hasClass("disabled"), 'b2 true, no disabled class');
-    ok(!$("#b1").attr("disabled"), 'b1 true, not disabled');
-    ok(!$("#b2").attr("disabled"), 'b2 true, not disabled');
-
-    shell.update_privileged_ui(p_false, ".btn", "disabled message");
-
-    equal($("#b1").attr('data-original-title'), "disabled message", 'b1 false, disabled title');
-    equal($("#b2").attr('data-original-title'), "disabled message", 'b2 false, disabled title');
-    ok($("#b1").hasClass("disabled"), 'b1 false, has disabled class');
-    ok($("#b2").hasClass("disabled"), 'b2 false, has disabled class');
-    ok(!$("#b1").attr("disabled"), 'b1 false, not disabled');
-    ok(!$("#b2").attr("disabled"), 'b2 false, not disabled');
-
-    shell.update_privileged_ui(p_unknown, ".btn", "disabled message");
-
-    equal($("#b1").attr('data-original-title'), "", 'b1 unknown, back to normal blank title');
-    equal($("#b2").attr('data-original-title'), "A Real title", 'b2 unknown, back to normal title');
-    ok(!$("#b1").hasClass("disabled"), 'b1 unknown, no disabled class');
-    ok(!$("#b2").hasClass("disabled"), 'b2 unknown, no disabled class');
-    ok(!$("#b1").attr("disabled"), 'b1 unknown, not disabled');
-    ok(!$("#b2").attr("disabled"), 'b2 unknown, not disabled');
 });
 
 QUnit.start();

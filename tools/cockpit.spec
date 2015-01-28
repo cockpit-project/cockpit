@@ -120,6 +120,7 @@ embed or extend Cockpit.
 Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: NetworkManager
+Requires: pcp
 Obsoletes: %{name}-assets
 BuildArch: noarch
 
@@ -308,6 +309,12 @@ fi
 %endif
 
 %changelog
+* Wed Jan 28 2015 Stef Walter <stefw@redhat.com> - 0.38-1
+- Update to 0.38 release
+
+* Thu Jan 22 2015 Stef Walter <stefw@redhat.com> - 0.37-1
+- Update to 0.37 release
+
 * Mon Jan 12 2015 Stef Walter <stefw@redhat.com> - 0.36-1
 - Update to 0.36 release
 

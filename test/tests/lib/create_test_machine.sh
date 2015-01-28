@@ -35,7 +35,7 @@ ip address: `vm_get_ip $NAME`"
 function virtinstall(){
     yum -y install yum-plugin-copr
     yum -y copr enable fsimonce/virt-deploy
-    yum -y install yum-plugin-copr
+    yum -y install virt-deploy
     PREFIX=$1
     DISTRO=$2
     NAME=$PREFIX-$DISTRO-$ARCH

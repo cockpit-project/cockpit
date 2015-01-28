@@ -1,6 +1,19 @@
 #! /bin/bash
 
-set -e
+set -ex
+
+create_images=
+make_rpms_opts=
+
+while [ $# -gt 0 ]; do
+    case $1 in
+	--clean)
+	    create_images=t
+            make_rpms_opts="--clean"
+	    ;;
+    esac
+    shift
+done
 
 IP=/sbin/ip
 
@@ -26,12 +39,23 @@ fi
 
 set -x
 
-./vm-download -f cockpit
-./vm-download -f ipa
+if [ -z "$create_images" ]; then
+    ./vm-download -f cockpit
+    ./vm-download -f ipa
+fi
 
-rpms=$(../tools/make-rpms | grep -v cockpit-doc-)
+rpms=$(../tools/make-rpms $make_rpms_opts | grep -v cockpit-doc-)
 if [ -z "$rpms" ]; then
   exit 1
+fi
+
+if [ -n "$create_images" ]; then
+    ./vm-reset
+    ./vm-create -v -f cockpit
+    ./vm-create -v -f ipa
+    unset TEST_DATA
+    ./vm-save -f cockpit
+    ./vm-save -f ipa
 fi
 
 ./vm-reset

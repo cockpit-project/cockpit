@@ -369,7 +369,7 @@ $(document).ready(setup_sliders);
    changes state.  If it returns 'false', the change is declined.
  */
 
-shell.OnOff = function OnOff(val, on, off, role_check) {
+shell.OnOff = function OnOff(val, on, off, role_check, btn_classes) {
     function toggle(event) {
         if (role_check && !role_check())
             return false;
@@ -396,10 +396,12 @@ shell.OnOff = function OnOff(val, on, off, role_check) {
         $('<div class="btn-group btn-toggle">').append(
             on_btn = $('<button class="btn">').
                 text("On").
+                addClass(btn_classes).
                 addClass(!val? "btn-default" : "btn-primary active").
                 click(toggle),
             off_btn = $('<button class="btn">').
                 text("Off").
+                addClass(btn_classes).
                 addClass(val? "btn-default" : "btn-primary active").
                 click(toggle));
 
@@ -409,7 +411,7 @@ shell.OnOff = function OnOff(val, on, off, role_check) {
     };
 
     box.enable = function enable(val) {
-        box.find('button').prop('disabled', !val);
+        box.find('button').toggleClass('disabled', !val);
     };
 
     return box;

@@ -784,7 +784,7 @@ PageRunImage.prototype = {
                         .append($('<option>').text(_("UDP")));
 
             var mapping_add = $('<button type="button" class="btn btn-default fa fa-plus">');
-            var mapping_remove = $('<button type="button" class="btn btn-default pficon-close">');
+            var mapping_remove = $('<button type="button" class="btn btn-danger btn-delete pficon-delete">');
 
             /* if internal port is editable, allow row delete, otherwise disable modification */
             if (port_internal_editable) {

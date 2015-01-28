@@ -129,21 +129,21 @@ define([
         this.delete_pod = function delete_pod(pod_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta1/pods/" + pod_name
+                "path": "/api/v1beta1/pods/" + encodeURIComponent(pod_name)
             }).fail(failure);
         };
 
         this.delete_minion = function delete_minion(minion_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta1/minions/" + minion_name
+                "path": "/api/v1beta1/minions/" + encodeURIComponent(minion_name)
             }).fail(failure);
         };
 
         this.delete_replicationController = function delete_replicationController(rc_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta1/replicationControllers/" + rc_name
+                "path": "/api/v1beta1/replicationControllers/" + encodeURIComponent(rc_name)
             }).fail(failure);
         };
 

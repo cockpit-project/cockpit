@@ -1234,6 +1234,18 @@ function network_plot_setup_hook(plot) {
     axes.yaxis.options.min = 0;
 }
 
+function update_privileged() {
+    shell.update_privileged_ui(
+        permission, ".network-privileged",
+        cockpit.format(
+            _("The user $0 is not permitted to modify network settings"),
+            cockpit.user.name)
+    );
+}
+
+var permission = cockpit.permission({ group: "wheel" });
+$(permission).on("changed", update_privileged);
+
 PageNetworking.prototype = {
     _init: function () {
         this.id = "networking";
@@ -1244,6 +1256,7 @@ PageNetworking.prototype = {
     },
 
     setup: function () {
+        update_privileged();
         $("#networking-add-bond").click($.proxy(this, "add_bond"));
         $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
         $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
@@ -1401,9 +1414,6 @@ PageNetworking.prototype = {
     add_bond: function () {
         var iface, i, uuid;
 
-        if (!shell.check_admin())
-            return;
-
         uuid = generate_uuid();
         for (i = 0; i < 100; i++) {
             iface = "bond" + i;
@@ -1436,9 +1446,6 @@ PageNetworking.prototype = {
 
     add_bridge: function () {
         var iface, i, uuid;
-
-        if (!shell.check_admin())
-            return;
 
         uuid = generate_uuid();
         for (i = 0; i < 100; i++) {
@@ -1475,9 +1482,6 @@ PageNetworking.prototype = {
 
     add_vlan: function () {
         var iface, i, uuid;
-
-        if (!shell.check_admin())
-            return;
 
         uuid = generate_uuid();
 
@@ -1568,11 +1572,10 @@ PageNetworkInterface.prototype = {
         $('#network-interface-delete').click($.proxy(this, "delete_connections"));
         $('#network-interface-delete').parent().append(
             this.device_onoff = shell.OnOff(false,
-                                              $.proxy(this, "connect"),
-                                              $.proxy(this, "disconnect"),
-                                              function () {
-                                                  return shell.check_admin();
-                                              }));
+                                            $.proxy(this, "connect"),
+                                            $.proxy(this, "disconnect"),
+                                            null,
+                                            "network-privileged"));
     },
 
     enter: function () {
@@ -1667,9 +1670,6 @@ PageNetworkInterface.prototype = {
 
     delete_connections: function() {
         var self = this;
-
-        if (!shell.check_admin())
-            return;
 
         function delete_connection_and_slaves(con) {
             return $.when(con.delete_(),
@@ -1912,11 +1912,9 @@ PageNetworkInterface.prototype = {
                         css('vertical-align', rows.length > 1 ? "top" : "center"),
                     $('<td>').append(rows),
                     $('<td style="text-align:right;vertical-align:top">').append(
-                        $('<button class="btn btn-default">').
+                        $('<button class="btn btn-default network-privileged">').
                             text(_("Configure")).
                             click(function () {
-                                if (!shell.check_admin())
-                                    return;
                                 configure();
                             })));
             }
@@ -2104,6 +2102,7 @@ PageNetworkInterface.prototype = {
             append(render_active_status_row()).
             append(render_carrier_status_row()).
             append(render_connection_settings_rows(self.main_connection, self.connection_settings));
+        update_privileged();
 
         function update_connection_slaves(con) {
             var tbody = $('#network-interface-slaves tbody');
@@ -2149,16 +2148,11 @@ PageNetworkInterface.prototype = {
                                                              dev.disconnect().
                                                                  fail(shell.show_unexpected_error);
                                                          }
-                                                     },
-                                                     function () {
-                                                         return shell.check_admin();
-                                                     })),
+                                                     }, null, "network-privileged")),
                                    $('<td width="28px">').append(
-                                       $('<button class="btn btn-default btn-control">').
+                                       $('<button class="btn btn-default btn-control network-privileged">').
                                            text("-").
                                            click(function () {
-                                               if (!shell.check_admin())
-                                                   return false;
                                                slave_con.delete_().
                                                    fail(shell.show_unexpected_error);
                                                return false;
@@ -2175,7 +2169,7 @@ PageNetworkInterface.prototype = {
 
             var add_btn =
                 $('<div>', { 'class': 'dropdown' }).append(
-                    $('<button>', { 'class': 'btn btn-default btn-control dropdown-toggle',
+                    $('<button>', { 'class': 'network-privileged btn btn-default btn-control dropdown-toggle',
                                     'data-toggle': 'dropdown'
                                   }).
                         text("+"),
@@ -2192,8 +2186,6 @@ PageNetworkInterface.prototype = {
                                         $('<a role="menuitem">').
                                             text(iface.Name).
                                             click(function () {
-                                                if (!shell.check_admin())
-                                                    return;
                                                 set_slave(self.model, con, con.Settings,
                                                           con.Settings.connection.type, iface.Name,
                                                           true).
@@ -2207,6 +2199,7 @@ PageNetworkInterface.prototype = {
 
             $(self.monitor).trigger('notify:Consumers');
             $('#network-interface-slaves').show();
+            update_privileged();
         }
 
         update_connection_slaves(self.main_connection);

@@ -234,7 +234,7 @@ PageDashboard.prototype = {
                     return false;
                 }
             })
-            .on("click", "button.pficon-close", function() {
+            .on("click", "button.pficon-delete", function() {
                 var item = $(this).parent(".list-group-item");
                 self.toggle_edit(false);
                 var h = shell.hosts[item.attr("data-address")];

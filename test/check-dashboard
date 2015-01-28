@@ -52,7 +52,7 @@ class TestDashboard(MachineCase):
 
     def machine_remove(self, b, address):
         map = self.get_address_map(b)
-        b.click('#dashboard-hosts a:nth-child(%d) button.pficon-close' % (map[address]+1))
+        b.click('#dashboard-hosts a:nth-child(%d) button.pficon-delete' % (map[address]+1))
 
     def add_machine(self, b, address):
         b.click('#dashboard-add')

@@ -374,7 +374,7 @@ function render_container (client, $panel, filter_button, prefix, id, container,
     if (!tr.length) {
         $panel.find('button.enable-danger').toggle(true);
         var img_waiting = $('<div class="waiting">');
-        var btn_delete = $('<button class="btn btn-danger pficon pficon-close btn-delete">').
+        var btn_delete = $('<button class="btn btn-danger pficon pficon-delete btn-delete">').
             on("click", function() {
                 var self = this;
                 $(self).hide().

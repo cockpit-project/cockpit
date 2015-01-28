@@ -11,7 +11,7 @@ BUILD="build1"
 PACKAGE="cockpit"
 SOURCE="https://github.com/$PACKAGE-project/$PACKAGE.git"
 
-yum  -y install git pcp-libs-devel
+#
 yum-builddep -y $PACKAGE
 yum-builddep -y $PACKAGE
 

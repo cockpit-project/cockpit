@@ -26,11 +26,5 @@ autopart
 %end
 
 %post
-yum -y install nodejs npm
-npm -g install phantomjs
-
-yum -y install yum-plugin-copr
-yum -y copr enable lmr/Autotest
-yum -y install avocado
-
+echo DONE
 %end

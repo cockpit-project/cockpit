@@ -292,6 +292,12 @@ test_read_denied (TestCase *tc,
 {
   JsonObject *control;
 
+  if (geteuid () == 0)
+    {
+      cockpit_test_skip ("running as root");
+      return;
+    }
+
   set_contents (tc->test_path, "Hello!");
   g_assert (chmod (tc->test_path, 0) >= 0);
 
@@ -512,6 +518,12 @@ test_write_denied (TestCase *tc,
                    gconstpointer unused)
 {
   JsonObject *control;
+
+  if (geteuid () == 0)
+    {
+      cockpit_test_skip ("running as root");
+      return;
+    }
 
   g_assert (chmod (tc->test_dir, 0) >= 0);
 

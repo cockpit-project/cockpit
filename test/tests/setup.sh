@@ -19,7 +19,7 @@ virt-create $PREFIX $DISTRO
 /bin/cp -r * /usr/share/avocado/tests
 vm_ssh $NAME mkdir -p /root/avocado/tests
 tar czf - . | vm_ssh $NAME tar xzf - --directory /root/avocado/tests/
-vm_ssh $NAME avocado avocado/tests/inittest.sh avocado/tests/checklogin.py
+vm_ssh $NAME avocado run avocado/tests/inittest.sh avocado/tests/checklogin.py
 
 #cp * ~/tmp/root/avocado/tests/ -rf; cp -rf * /usr/share/avocado/tests/
 # avocado run checklogin.py

@@ -76,6 +76,7 @@ CHECK_HTML = \
 	pkg/shell/test-dummy.html \
 	pkg/shell/test-util.html \
 	pkg/shell/test-dbusx.html \
+	pkg/shell/test-controls.html \
 	$(NULL)
 
 TESTS += $(CHECK_HTML)

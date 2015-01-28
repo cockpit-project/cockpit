@@ -417,4 +417,29 @@ shell.OnOff = function OnOff(val, on, off, role_check, btn_classes) {
     return box;
 };
 
+/*
+ * Update the disabled status and tooltip for all
+ * elements with the given css class.
+ */
+shell.update_privileged_ui = function update_privileged_ui(perm, css_class, denied_message) {
+    var allowed = (perm.allowed !== false);
+    $(css_class).each(function() {
+        $(this).toggleClass("disabled", !allowed)
+             .tooltip("destroy")
+             .attr('data-original-title', null);
+
+        // preserve old title first time, use when allowed
+        var allowed_key = 'allowed-title';
+        if (typeof $(this).data(allowed_key) === 'undefined' ||
+               $(this).data(allowed_key) === false)
+            $(this).data(allowed_key, $(this).attr('title') || "");
+
+        if (allowed)
+            $(this).attr('title', $(this).data(allowed_key));
+        else
+            $(this).attr('title', denied_message);
+        $(this).tooltip();
+    });
+};
+
 })(jQuery, cockpit, shell);

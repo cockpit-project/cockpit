@@ -203,6 +203,10 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 %{_datadir}/%{name}/playground
 %{_datadir}/%{name}/server-systemd
 
+%post shell
+# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
+( cd /var/lib/pcp/pmns && ./Rebuild -du )
+
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz

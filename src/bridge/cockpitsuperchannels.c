@@ -263,7 +263,7 @@ on_transport_control (CockpitTransport *transport,
       return TRUE;
     }
 
-  if (g_str_equal (command, "close") && channel)
+  if (channel)
     {
       if (self->channels && g_hash_table_lookup (self->channels, channel))
         {

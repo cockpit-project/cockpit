@@ -195,6 +195,9 @@ class TestDashboard(MachineCase):
 
         # Create some users on m1 and m2.
 
+        m1.execute("groupadd docker")
+        m2.execute("groupadd docker")
+
         m1.execute("useradd junior -G docker")
         m1.execute("echo foobar | passwd --stdin junior")
 

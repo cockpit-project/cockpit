@@ -147,6 +147,21 @@ define([
             }).fail(failure);
         };
 
+        this.create_replicationController = function create_replicationController(replicationController_json) {
+            api.post("/api/v1beta1/replicationControllers", JSON.parse(JSON.stringify(replicationController_json)))
+               .fail(failure);
+        };
+
+        this.create_minion = function create_minion(minion_json) {
+            api.post("/api/v1beta1/minions", JSON.parse(JSON.stringify(minion_json)))
+               .fail(failure);
+        };
+
+        this.create_pod = function create_pod(pod_json) {
+            api.post("/api/v1beta1/pods", JSON.parse(JSON.stringify(pod_json)))
+               .fail(failure);
+        };
+
         function update() {
             var reqs = [];
 

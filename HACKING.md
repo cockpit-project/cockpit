@@ -13,14 +13,13 @@ disks or network adapters.
 
 ## Dependencies
 
-Currently the x86_64 architectures of Fedora 20 and Rawhide are most
+Currently the x86_64 architectures of Fedora 21 and Rawhide are most
 often used for development.
 
 Check `tools/cockpit.spec` for the concrete Fedora build dependencies.
 The following should work in a fresh Git clone:
 
-    $ srpm=$(tools/make-srpm)
-    $ sudo yum-builddep $srpm
+    $ sudo yum-builddep tools/cockpit.spec
     $ sudo yum install nodejs npm
 
 In addition for testing the following dependencies are required:

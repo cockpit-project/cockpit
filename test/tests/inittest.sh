@@ -24,7 +24,7 @@ SOURCE="https://github.com/$PACKAGE-project/$PACKAGE.git"
 RETC=$?
 
 if [ "$RETC" -eq 0 ]; then
-    /bin/cp -f ../src/bridge/cockpit.pam.insecure /etc/pam.d/cockpit
+    /bin/cp -f ../src/bridge/$PACKAGE.pam.insecure /etc/pam.d/$PACKAGE
     grep reauthorize /etc/pam.d/sshd || sh -c 'cat ../src/bridge/sshd-reauthorize.pam >> /etc/pam.d/sshd'   
 fi
 

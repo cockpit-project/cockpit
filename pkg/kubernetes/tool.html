@@ -98,6 +98,69 @@ require([
         return null;
     }
 
+    $("#add-dialog").on("show.bs.modal", function(event) {
+        var entityType = "";
+        var jsondata = "";
+        var text = "";
+        var button = $(event.relatedTarget);
+        var id = button.attr("id");
+        if (id == "add-pods") {
+            entityType = "pod";
+        } else if (id == "add-minions") {
+            entityType = "minion";
+        } else if (id == "add-replicationControllers") {
+            entityType = "replicationController";
+        } else {
+            entityType = "services";
+        }
+
+        $('#add-dialog-fail').hide();
+        $(this).find(".modal-body").html('<p> Please provide the ' + entityType + ' json File: '+'<input type="file" id="file-input"></p>');
+
+        $("#file-input").on('change', function () {
+            $('#add-dialog-fail').hide();
+            var files, file, reader;
+            files = $("#file-input")[0].files;
+            if (files.length != 1) {
+                text = "No json File was selected.Please select a json file. ";
+                $('#add-dialog-fail').show();
+                $('#add-dialog-fail-msg').html(text);
+                return;
+            }
+            file = files[0];
+            if (!file.type.match("json.*")) {
+                text = "Selected file is Not a Json file.Please select a json file. ";
+                $('#add-dialog-fail').show();
+                $('#add-dialog-fail-msg').html(text);
+                return;
+            }
+            reader = new window.FileReader();
+            reader.onerror = function () {
+                text =  "Unable to Read the file.Please check the json file. ";
+                $('#add-dialog-fail').show();
+                $('#add-dialog-fail-msg').html(text);
+            };
+            reader.onload = function () {
+                jsondata = reader.result;
+            };
+            reader.readAsText(file);
+        });
+        $("#add-dialog-apply").off('click');
+        $("#add-dialog-apply").on('click', function () {
+            if (entityType == "pod") {
+                client.create_pod(jsondata);
+            } else if (entityType == "minion") {
+                client.create_minion(jsondata);
+            } else if (entityType == "replicationController") {
+                client.create_replicationController(jsondata);
+            } else {
+               ; //TODO
+            }
+            $("#add-dialog").hide();
+            $("#add-dialog-apply").off('click');
+        });
+    });
+
     $("#delete-dialog").on("show.bs.modal", function(event) {
         var entityType = "";
         var button = $(event.relatedTarget);
@@ -165,6 +228,7 @@ require([
       <div class="col-md-4">
         <div class="panel panel-default" id="dashboard-minion">
           <div class="panel-heading">
+            <button class="btn btn-primary pull-right fa fa-plus" id="add-minions" data-toggle="modal" data-target="#add-dialog"></button>
             <span>Minions</span>
           </div>
           <div class="list-group" id="kubernetes-minions">
@@ -193,6 +257,7 @@ require([
       <div class="col-md-4">
         <div class="panel panel-default" id="dashboard-pod">
           <div class="panel-heading">
+            <button class="btn btn-primary pull-right fa fa-plus" id="add-pods" data-toggle="modal" data-target="#add-dialog"></button>
             <span>Pods</span>
           </div>
           <div class="list-group" id="kubernetes-pods">
@@ -249,6 +314,7 @@ require([
       <div class="col-md-4">
         <div class="panel panel-default" id="dashboard-replicationControllers">
           <div class="panel-heading">
+            <button class="btn btn-primary pull-right fa fa-plus" id="add-replicationControllers" data-toggle="modal" data-target="#add-dialog"></button>
             <span>ReplicationController</span>
           </div>
           <div class="list-group" id="kubernetes-replicationControllers">
@@ -324,6 +390,28 @@ require([
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary" id="delete-dialog-apply">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="add-dialog" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+        </div>
+        <div class="modal-body">
+          Dialog body
+        </div>
+        <div id="add-dialog-fail" class=" alert alert-danger" role="alert">
+          <span class="pficon-layered">
+            <span class="pficon pficon-error-octagon"></span>
+            <span class="pficon pficon-error-exclamation"></span>
+          </span>
+          <strong id="add-dialog-fail-msg">{{errorMsg}}</strong>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="add-dialog-apply">Create</button>
         </div>
       </div>
     </div>

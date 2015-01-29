@@ -11,13 +11,11 @@ BUILD="build1"
 PACKAGE="cockpit"
 SOURCE="https://github.com/$PACKAGE-project/$PACKAGE.git"
 
-#
-yum-builddep -y $PACKAGE
-yum-builddep -y $PACKAGE
-
- /bin/rm -fr $PACKAGE
+/bin/rm -fr $PACKAGE
  git clone $SOURCE && \
- cd cockpit && \
+ cd $PACKAGE && \
+# running twice (sometimes first command failed with strange reason)
+ yum-builddep -y tools/$PACKAGE.spec || yum-builddep -y tools/$PACKAGE.spec && \
  mkdir $BUILD && \
  cd $BUILD && \
  ../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug && \

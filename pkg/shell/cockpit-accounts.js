@@ -32,21 +32,18 @@ function make_set(array) {
     return s;
 }
 
-var wheel = cockpit.permission({ group: "wheel" });
+function update_accounts_privileged() {
+    shell.update_privileged_ui(
+        shell.default_permission, ".accounts-privileged",
+        cockpit.format(
+            _("The user $0 is not permitted to modify accounts"),
+            cockpit.user.name)
+    );
+    $(".accounts-privileged").children("input")
+        .attr('disabled', shell.default_permission.allowed === false);
+}
 
-shell.check_admin = function check_admin(permission) {
-    if (!permission)
-        permission = wheel;
-    if (permission.allowed === true) {
-        return true;
-    } else if (permission.allowed === false) {
-        shell.show_error_dialog(_("Not authorized"), _("You are not authorized for this operation."));
-        return false;
-    } else {
-        /* When in doubt, just go ahead and let it fail later */
-        return true;
-    }
-};
+$(shell.default_permission).on("changed", update_accounts_privileged);
 
 function find_account(user_name, client)
 {
@@ -176,6 +173,7 @@ PageAccounts.prototype = {
 
     setup: function() {
         $('#accounts-create').on('click', $.proxy (this, "create"));
+        update_accounts_privileged();
     },
 
     enter: function() {
@@ -235,10 +233,8 @@ PageAccounts.prototype = {
     },
 
     create: function () {
-        if (shell.check_admin()) {
-            PageAccountsCreate.client = this.client;
-            $('#accounts-create-dialog').modal('show');
-        }
+        PageAccountsCreate.client = this.client;
+        $('#accounts-create-dialog').modal('show');
     },
 
     go: function (user) {
@@ -404,6 +400,8 @@ PageAccount.prototype = {
         this.account = find_account(shell.get_page_param('id'), this.client);
 
         if (this.account) {
+            var can_change = this.check_role_for_self_mod();
+
             var manager = this.client.get ("/com/redhat/Cockpit/Accounts",
                                            "com.redhat.Cockpit.Accounts");
             this.sys_roles = manager.Roles || [ ];
@@ -414,6 +412,9 @@ PageAccount.prototype = {
                                       $('#account-pic').attr('src', result);
                               });
             $('#account-pic').attr('src', "/cockpit/@@shell@@/images/avatar-default-128.png");
+            $('#account-pic').toggleClass('accounts-privileged', !can_change);
+            $('#account-real-name').attr('disabled', !can_change);
+
             if (!this.real_name_dirty)
                 $('#account-real-name').val(this.account.RealName);
             $('#account-user-name').text(this.account.UserName);
@@ -444,6 +445,7 @@ PageAccount.prototype = {
             $('#account-roles').text("");
             $('#account .breadcrumb .active').text("?");
         }
+        update_accounts_privileged();
     },
 
     trigger_change_avatar: function() {
@@ -472,7 +474,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account.UserName == cockpit.user["user"] ||
-                shell.check_admin());
+                shell.default_permission.allowed !== false);
     },
 
     change_real_name: function() {
@@ -497,11 +499,6 @@ PageAccount.prototype = {
     change_locked: function() {
         var me = this;
 
-        if (!shell.check_admin()) {
-            me.update ();
-            return;
-        }
-
         this.account.call ('SetLocked',
                            $('#account-locked').prop('checked'),
                            function (error) {
@@ -522,19 +519,12 @@ PageAccount.prototype = {
     },
 
     delete_account: function() {
-        if (!shell.check_admin())
-            return;
-
         PageAccountConfirmDelete.account = this.account;
         $('#account-confirm-delete-dialog').modal('show');
     },
 
     logout_account: function() {
         var me = this;
-
-        if (!shell.check_admin())
-            return;
-
         this.account.call('KillSessions',
                           function (error) {
                               if (error) {
@@ -545,9 +535,6 @@ PageAccount.prototype = {
     },
 
     change_roles: function() {
-        if (!shell.check_admin())
-            return;
-
         PageAccountChangeRoles.account = this.account;
         $('#account-change-roles-dialog').modal('show');
     }

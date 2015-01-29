@@ -160,7 +160,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
 
     if (manager) {
         var img_waiting = $('<div class="waiting">');
-        var btn_play = $('<button class="btn btn-default btn-control btn-play">').
+        var btn_play = $('<button class="btn btn-default btn-control services-privileged btn-play">').
             on("click", function() {
                 manager.call('ServiceAction', name, 'start', function (error) {
                     if (error)
@@ -168,7 +168,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
                 });
                 return false;
             });
-        var btn_stop = $('<button class="btn btn-default btn-control btn-stop">').
+        var btn_stop = $('<button class="btn btn-default btn-control services-privileged btn-stop">').
             on("click", function() {
                 manager.call('ServiceAction', name, 'stop', function (error) {
                     if (error)
@@ -189,7 +189,7 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
         var geard_match = name.match(/ctr-(.*)\.service/);
 
         if (geard_match) {
-            var btn_eject = $('<button class="btn btn-default btn-control btn-eject">').
+            var btn_eject = $('<button class="btn btn-default btn-control services-privileged btn-eject">').
                 on("click", function() {
                     cockpit.spawn([ "gear", "delete", geard_match[1] ], { host: address }).
                         fail(shell.show_unexpected_error);
@@ -205,6 +205,17 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
     return tr;
 }
 
+function update_service_privileged() {
+    shell.update_privileged_ui(
+        shell.default_permission, ".services-privileged",
+        cockpit.format(
+            _("The user $0 is not permitted to modify services"),
+            cockpit.user.name)
+    );
+}
+
+$(shell.default_permission).on("changed", update_service_privileged);
+
 PageServices.prototype = {
     _init: function() {
         this.id = "services";
@@ -217,6 +228,7 @@ PageServices.prototype = {
     },
 
     setup: function() {
+        update_service_privileged();
         var self = this;
         $('#services-add').click(function () {
             PageServiceAdd.address = self.address;
@@ -481,6 +493,7 @@ PageServices.prototype = {
                 list_static.parents(".panel").toggle(static_added);
             }
         });
+        update_service_privileged();
     }
 };
 
@@ -582,7 +595,7 @@ PageService.prototype = {
         ];
 
         self.unit_action_btn = shell.action_btn(function (op) { self.action(op); },
-                                                  unit_action_spec);
+                                                  unit_action_spec, "services-privileged");
         $('#service-unit-action-btn').html(self.unit_action_btn);
 
         var file_action_spec = [
@@ -597,7 +610,7 @@ PageService.prototype = {
         ];
 
         self.file_action_btn = shell.action_btn(function (op) { self.action(op); },
-                                                  file_action_spec);
+                                                  file_action_spec, "services-privileged");
         $('#service-file-action-btn').html(self.file_action_btn);
 
         $("#service-refresh").on('click', function () {
@@ -825,6 +838,7 @@ PageService.prototype = {
                 procs.closest('.panel').hide();
             }
         });
+        update_service_privileged();
     },
 
     set_unit_action: function(op) {
@@ -836,9 +850,6 @@ PageService.prototype = {
     },
 
     action: function(op) {
-        if (!shell.check_admin())
-            return;
-
         this.manager.call('ServiceAction', this.service, op, function (error) {
             if (error)
                 shell.show_error_dialog(_("Error"), error.message);

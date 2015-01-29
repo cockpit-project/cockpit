@@ -54,28 +54,55 @@ class TestRoles(MachineCase):
         b.click('a[onclick*="shell.go_login_account"]')
         b.wait_page("account")
         b.wait_text("#account-user-name", "user")
+        b.wait_present("#account-real-name:not([disabled])")
+        b.wait_present("#account-locked[disabled]")
+        b.wait_present("#account-set-password.disabled")
+        b.wait_present("#account-delete.disabled")
+        b.wait_present("#account-logout.disabled")
+        b.wait_present("#account-change-roles.disabled")
+        b.wait_present("#account-change-roles.disabled")
         b.set_val('#account-real-name', "Userrrr")
 
         # Try to change admins name
         b.go("account?id=admin")
         b.wait_page("account")
         b.wait_text("#account-user-name", "admin")
-        b.set_val('#account-real-name', "Administratorrrr")
-        b.wait_popup("error-popup")
-        b.click("#error-popup button")
-        b.wait_popdown("error-popup")
+        b.wait_present("#account-real-name[disabled]")
+        b.wait_present("#account-locked[disabled]")
+        b.wait_present("#account-set-password.disabled")
+        b.wait_present("#account-delete.disabled")
+        b.wait_present("#account-logout.disabled")
+        b.wait_present("#account-change-roles.disabled")
+        b.wait_present("#account-change-roles.disabled")
 
         # Add role from the outside (and wait for it to stick)
         b.go("account?id=user")
         b.wait_page("account")
+        b.wait_text("#account-user-name", "user")
+        b.wait_val("#account-real-name", "Userrrr")
+
         m.execute("usermod -a -G wheel user")
         b.wait_text("#account-roles", "Server Administrator")
 
+        b.relogin("account", "user")
+
         # Try to change admins name again
         b.go("account?id=admin")
-        b.wait_page("account")
         b.wait_text("#account-user-name", "admin")
+        b.wait_present("#account-real-name:not([disabled])")
+        b.wait_present("#account-locked:not([disabled])")
+        b.wait_present("#account-set-password:not(.disabled)")
+        b.wait_present("#account-delete:not(.disabled)")
+        b.wait_present("#account-logout:not(.disabled)")
+        b.wait_present("#account-change-roles:not(.disabled)")
+        b.wait_present("#account-change-roles:not(.disabled)")
+
         b.set_val('#account-real-name', "Administratorrrr")
+
+        b.go("account?id=admin")
+        b.wait_page("account")
+        b.wait_val("#account-real-name", "Administratorrrr")
+        self.allow_restart_journal_messages()
 
     def testDynamic(self):
         m = self.machine

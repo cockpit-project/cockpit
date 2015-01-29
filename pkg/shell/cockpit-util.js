@@ -66,12 +66,14 @@ shell.find_in_array = function find_in_array(array, elt) {
     return false;
 };
 
-shell.action_btn = function action_btn(func, spec) {
+shell.action_btn = function action_btn(func, spec, btn_classes) {
     var direct_btn, indirect_btns, btn;
     var direct_action, disabled;
 
     direct_btn =
-        $('<button>', { 'class': 'btn btn-default' }).text("");
+        $('<button>', { 'class': 'btn btn-default' })
+            .text("")
+            .addClass(btn_classes);
 
     indirect_btns = [ ];
     disabled = [ ];
@@ -84,7 +86,8 @@ shell.action_btn = function action_btn(func, spec) {
                                                   func (s.action);
                                             }
                                  }
-                         }).append(
+                         }).addClass(btn_classes).addClass(s.btn_classes)
+                         .append(
                              $('<span>', { 'class': s.danger? 'text-danger' : '' }).text(s.title)));
         disabled[i] = false;
     });
@@ -94,8 +97,8 @@ shell.action_btn = function action_btn(func, spec) {
             direct_btn,
             $('<button>', { 'class': 'btn btn-default dropdown-toggle',
                              'data-toggle': 'dropdown'
-                          }).
-                append(
+                          }).addClass(btn_classes)
+                .append(
                     $('<span>', { 'class': 'caret' })),
             $('<ul>', { 'class': 'dropdown-menu',
                         'style': 'right:0px;left:auto;min-width:0;text-align:left',

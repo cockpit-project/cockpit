@@ -314,7 +314,7 @@ function setup_for_failure(page, client, address) {
     });
 
     $('#containers-failure-start').on('click.failure', function () {
-        cockpit.spawn([ "systemctl", "start", "docker.socket" ], { "host": address, "superuser": true }).
+        cockpit.spawn([ "systemctl", "start", "docker" ], { "host": address, "superuser": true }).
             done(function () {
                 client.close();
                 client.connect().
@@ -1803,7 +1803,7 @@ function DockerClient(machine) {
     function perform_connect() {
         got_failure = false;
         connected = $.Deferred();
-        http = cockpit.http("/var/run/docker.sock");
+        http = cockpit.http("/var/run/docker.sock", { superuser: true });
 
         connect_events();
 

@@ -81,6 +81,8 @@ class TestRoles(MachineCase):
         m = self.machine
         b = self.browser
 
+        m.execute("groupadd docker")
+
         self.login_and_go("accounts")
         b.go("account?id=admin")
 

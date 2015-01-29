@@ -25,6 +25,27 @@
 var shell = shell || { };
 (function($, cockpit, shell) {
 
+function update_hostname_privileged() {
+    shell.update_privileged_ui(
+        shell.default_permission, ".hostname-privileged",
+        cockpit.format(
+            _("The user $0 is not permitted to modify hostnames"),
+            cockpit.user.name)
+    );
+}
+
+function update_realm_privileged() {
+    shell.update_privileged_ui(
+        shell.default_permission, ".realm-privileged",
+        cockpit.format(
+            _("The user $0 is not permitted to modify realms"),
+            cockpit.user.name)
+    );
+}
+
+$(shell.default_permission).on("changed", update_realm_privileged);
+$(shell.default_permission).on("changed", update_hostname_privileged);
+
 PageServer.prototype = {
     _init: function() {
         this.id = "server";
@@ -36,21 +57,18 @@ PageServer.prototype = {
 
     setup: function() {
         var self = this;
+        update_realm_privileged();
+        update_hostname_privileged();
 
         $('#server-avatar').on('click', $.proxy (this, "trigger_change_avatar"));
         $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
 
         $('#system_information_hostname_button').on('click', function () {
-            if (!shell.check_admin())
-                return;
             PageSystemInformationChangeHostname.client = self.client;
             $('#system_information_change_hostname').modal('show');
         });
 
         $('#system_information_realms_button').on('click', function () {
-            if (!shell.check_admin())
-                return;
-
             if (self.realms.Joined && self.realms.Joined.length > 0) {
                 var name = self.realms.Joined[0][0];
                 var details = self.realms.Joined[0][1];

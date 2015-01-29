@@ -252,9 +252,6 @@ var local_account_proxies;
 shell.hosts = { };
 
 shell.host_setup = function host_setup() {
-    if (!shell.check_admin())
-        return;
-
     $('#dashboard_setup_server_dialog').modal('show');
 };
 
@@ -285,6 +282,8 @@ shell.host_colors = [
     "#024848"
 ];
 
+shell.default_permission = cockpit.permission({ group: "wheel" });
+
 function pick_unused_host_color() {
     function in_use(color) {
         var norm = $.color.parse(color).toString();
@@ -301,6 +300,15 @@ function pick_unused_host_color() {
             return shell.host_colors[i];
     }
     return "gray";
+}
+
+function update_servers_privileged() {
+    shell.update_privileged_ui(
+        shell.default_permission, ".servers-privileged",
+        cockpit.format(
+            _("The user $0 is not permitted to add servers"),
+            cockpit.user.name)
+    );
 }
 
 function hosts_init() {
@@ -508,7 +516,7 @@ function hosts_init() {
 
     var all_hosts = $('<a class="list-group-item">').
         append(
-            $('<button class="btn btn-primary" style="float:right">').
+            $('<button class="btn btn-primary servers-privileged" data-container="body" data-placement="bottom"  style="float:right">').
                 text("+").
                 click(function () {
                     shell.host_setup();
@@ -530,6 +538,7 @@ function hosts_init() {
         $('#hosts').append(
             all_hosts,
             sorted_hosts.map(function (h) { return h._element; }));
+        update_servers_privileged();
     }
 
     $('#hosts-button').click(function () {
@@ -548,6 +557,10 @@ function hosts_init() {
         $(host_proxies).on('added removed changed', update);
         update();
     });
+
+
+    $(shell.default_permission).on("changed", update_servers_privileged);
+    update_servers_privileged();
 }
 
 function update_global_nav() {

@@ -143,7 +143,7 @@
           <div class="col-md-4">
             <div class="panel panel-default" id="dashboard-hosts">
               <div class="panel-heading">
-                <button class="btn btn-primary fa fa-plus" id="dashboard-add" title="Add Server"></button>
+                <button class="btn btn-primary servers-privileged fa fa-plus" id="dashboard-add" title="Add Server"></button>
                 <button class="btn btn-default fa fa-check" id="dashboard-enable-edit" title="Edit Server"></button>
                 <span>Servers</span>
               </div>
@@ -198,12 +198,12 @@
             </tr>
             <tr>
               <td>Host Name</td>
-              <td><button class="btn btn-default" id="system_information_hostname_button"></button></td>
+              <td><button class="btn btn-default hostname-privileged" id="system_information_hostname_button"></button></td>
             </tr>
             <tr>
               <td>Domain</td>
               <td>
-                <button class="btn btn-default" id="system_information_realms_button"></button>
+                <button class="btn btn-default realm-privileged" id="system_information_realms_button"></button>
               </td>
             </tr>
           </table>
@@ -279,8 +279,8 @@
         <div class="col-md-4 col-lg-3 storage-sidebar">
 
           <div class="row create-storage">
-            <div class="col-xs-6 col-md-12 col-lg-6"><button id="storage_create_raid" class="btn btn-default" translatable="yes">Create RAID Device</button></div>
-            <div class="col-xs-6 col-md-12 col-lg-6"><button id="storage_create_volume_group" class="btn btn-default" translatable="yes">Create Volume Group</button></div>
+            <div class="col-xs-6 col-md-12 col-lg-6"><button id="storage_create_raid" class="btn btn-default storage-privileged" translatable="yes">Create RAID Device</button></div>
+            <div class="col-xs-6 col-md-12 col-lg-6"><button id="storage_create_volume_group" class="btn btn-default storage-privileged" translatable="yes">Create Volume Group</button></div>
           </div>
 
           <div class="panel panel-default">
@@ -335,7 +335,7 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <span translatable="yes">Drive</span>
-              <button class="btn btn-default" style="float:right" id="drive_format" translatable="yes">
+              <button class="btn btn-default storage-privileged" style="float:right" id="drive_format" translatable="yes">
                 Format
               </button>
             </div>
@@ -414,7 +414,7 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <span translatable="yes">Disks</span>
-              <button style="float:right" class="btn btn-default" id="raid-disks-add">
+              <button style="float:right" class="btn btn-default storage-privileged" id="raid-disks-add">
                 Add
               </button>
             </div>
@@ -448,7 +448,7 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <span translatable="yes">Physical Volumes</span>
-              <button style="float:right" class="btn btn-default" id="vg-pv-add">
+              <button style="float:right" class="btn btn-default storage-privileged" id="vg-pv-add">
                 Add
               </button>
             </div>
@@ -461,7 +461,7 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <span translatable="yes">Block Device</span>
-              <button class="btn btn-default" style="float:right" id="block_format" translatable="yes">
+              <button class="btn btn-default storage-privileged" style="float:right" id="block_format" translatable="yes">
                 Format
               </button>
             </div>
@@ -622,7 +622,7 @@
             </tbody>
           </table>
         </div>
-        <button class="btn btn-default" id="services-add">Add Service</button>
+        <button class="btn btn-default services-privileged" id="services-add">Add Service</button>
       </div>
 
       <div id="service" class="container-fluid" hidden>
@@ -665,7 +665,7 @@
                     <input id="service-parameter" type="text">
                   </td>
                   <td style="text-align:right">
-                    <button class="btn btn-default" id="service-instantiate"
+                    <button class="btn btn-default services-privileged" id="service-instantiate"
                             translatable="yes">Instantiate</button>
                   </td>
                 </tr>
@@ -716,7 +716,7 @@
       </div>
 
       <div id="accounts" class="container-fluid" hidden>
-        <button class="btn btn-default" id="accounts-create" translatable="yes">Create New Account</button>
+        <button class="btn btn-default accounts-privileged" id="accounts-create" translatable="yes">Create New Account</button>
         <div id="accounts-list">
         </div>
       </div>
@@ -734,7 +734,7 @@
                        id="account-avatar-uploader" style="display:none"/>
                 <img id="account-pic" width="128" height="128">
               </td>
-              <td style="vertical-align:bottom"><input id="account-real-name" class="form-control"></td>
+              <td style="vertical-align:bottom"><input id="account-real-name" class="form-control""></td>
             </tr>
             <tr>
               <td translatable="yes">User Name</td>
@@ -752,16 +752,16 @@
             <tr>
               <td translatable="yes">Access</td>
               <td>
-                <div class="checkbox">
+                <div class="checkbox accounts-privileged">
                   <input type="checkbox" id="account-locked"> Lock Account
                 </div>
               </td>
             </tr>
           </table>
-          <button class="btn btn-default" id="account-set-password">Set Password</button>
-          <button class="btn btn-default" id="account-delete">Delete</button>
-          <button class="btn btn-default" id="account-logout">Terminate Session</button>
-          <button class="btn btn-default" id="account-change-roles">Change Roles</button>
+          <button class="btn btn-default accounts-privileged" id="account-set-password">Set Password</button>
+          <button class="btn btn-default accounts-privileged" id="account-delete">Delete</button>
+          <button class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
+          <button class="btn btn-default accounts-privileged" id="account-change-roles">Change Roles</button>
         </center>
 
       </div>

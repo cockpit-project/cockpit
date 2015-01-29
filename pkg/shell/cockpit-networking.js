@@ -1234,17 +1234,15 @@ function network_plot_setup_hook(plot) {
     axes.yaxis.options.min = 0;
 }
 
-function update_privileged() {
+function update_network_privileged() {
     shell.update_privileged_ui(
-        permission, ".network-privileged",
+        shell.default_permission, ".network-privileged",
         cockpit.format(
             _("The user $0 is not permitted to modify network settings"),
             cockpit.user.name)
     );
 }
-
-var permission = cockpit.permission({ group: "wheel" });
-$(permission).on("changed", update_privileged);
+$(shell.default_permission).on("changed", update_network_privileged);
 
 PageNetworking.prototype = {
     _init: function () {
@@ -1256,7 +1254,7 @@ PageNetworking.prototype = {
     },
 
     setup: function () {
-        update_privileged();
+        update_network_privileged();
         $("#networking-add-bond").click($.proxy(this, "add_bond"));
         $("#networking-add-bridge").click($.proxy(this, "add_bridge"));
         $("#networking-add-vlan").click($.proxy(this, "add_vlan"));
@@ -2102,7 +2100,7 @@ PageNetworkInterface.prototype = {
             append(render_active_status_row()).
             append(render_carrier_status_row()).
             append(render_connection_settings_rows(self.main_connection, self.connection_settings));
-        update_privileged();
+        update_network_privileged();
 
         function update_connection_slaves(con) {
             var tbody = $('#network-interface-slaves tbody');
@@ -2183,7 +2181,7 @@ PageNetworkInterface.prototype = {
                                     !self.graph_ifaces[iface.Name] &&
                                     iface != self.iface) {
                                     return $('<li role="presentation">').append(
-                                        $('<a role="menuitem">').
+                                        $('<a role="menuitem" class="network-privileged">').
                                             text(iface.Name).
                                             click(function () {
                                                 set_slave(self.model, con, con.Settings,
@@ -2199,7 +2197,7 @@ PageNetworkInterface.prototype = {
 
             $(self.monitor).trigger('notify:Consumers');
             $('#network-interface-slaves').show();
-            update_privileged();
+            update_network_privileged();
         }
 
         update_connection_slaves(self.main_connection);

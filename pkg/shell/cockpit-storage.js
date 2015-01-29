@@ -122,8 +122,6 @@ function job_box(client, tbody, domain, descriptions, target_describer) {
 
         function make_click_handler() {
             return function(event) {
-                if (!shell.check_admin())
-                    return;
                 j.call('Cancel', function (error) {
                     if (error)
                         shell.show_unexpected_error(error);
@@ -323,6 +321,18 @@ function format_fsys_usage(used, total) {
     return parts[0] + text;
 }
 
+function update_storage_privileged() {
+    shell.update_privileged_ui(
+        shell.default_permission, ".storage-privileged",
+        cockpit.format(
+            _("The user $0 is not permitted to manage storage"),
+            cockpit.user.name)
+    );
+}
+
+$(shell.default_permission).on("changed", update_storage_privileged);
+
+
 PageStorage.prototype = {
     _init: function() {
         this.id = "storage";
@@ -336,14 +346,10 @@ PageStorage.prototype = {
         var self = this;
 
         $("#storage_create_raid").on('click', function() {
-            if (!shell.check_admin())
-                return;
             PageCreateRaid.client = self.client;
             $('#create-raid-dialog').modal('show');
         });
         $("#storage_create_volume_group").on('click', function() {
-            if (!shell.check_admin())
-                return;
             PageCreateVolumeGroup.client = self.client;
             $('#create-volume-group-dialog').modal('show');
         });
@@ -1208,7 +1214,7 @@ PageStorageDetail.prototype = {
                                   { title: _("Stop Scrubbing"),  action: 'stop-scrub' },
                                   { title: _("Delete"),          action: 'delete' }
                                 ]);
-        $('#raid_action_btn').html(self.raid_action_btn);
+        $('#raid_action_btn').html(self.raid_action_btn, "storage-privileged");
         $('#raid-disks-add').on('click', $.proxy(this, "raid_disk_add"));
 
         function change_bitmap(val) {
@@ -1223,9 +1229,7 @@ PageStorageDetail.prototype = {
         this.bitmap_onoff = shell.OnOff(false,
                                           change_bitmap,
                                           undefined,
-                                          function () {
-                                              return shell.check_admin();
-                                          });
+                                          null, "storage-privileged");
 
         $("#raid_detail_bitmap").append(this.bitmap_onoff);
 
@@ -1237,7 +1241,7 @@ PageStorageDetail.prototype = {
                                       [ { title: _("Rename"), action: 'rename',
                                           is_default: true },
                                         { title: _("Delete"), action: 'delete' }
-                                      ]);
+                                      ], "storage-privileged");
         $('#vg_action_btn').html(btn);
         $("#vg-pv-add").on('click', $.proxy(this, "add_physical_volume"));
 
@@ -1293,6 +1297,7 @@ PageStorageDetail.prototype = {
         $(this.client).on("objectAdded.storage-details", $.proxy(this._update, this));
         $(this.client).on("objectRemoved.storage-details", $.proxy(this._update, this));
         $(this.client).on("propertiesChanged.storage-details", $.proxy(this._onPropertiesChanged, this));
+        update_storage_privileged();
     },
 
     _onPropertiesChanged: function(event, obj, iface)
@@ -1333,6 +1338,7 @@ PageStorageDetail.prototype = {
         $("#block_detail_device").html(val);
         val = block.Size > 0 ? fmt_size_long(block.Size) : C_("storage", "No Media Inserted");
         $("#block_detail_capacity").html(val);
+        update_storage_privileged();
     },
 
     _updateContent: function (block_or_vg) {
@@ -1432,7 +1438,7 @@ PageStorageDetail.prototype = {
 
             if (action_spec.length > 0) {
                 btn = shell.action_btn(function (op) { me.block_action (target, op); },
-                                         action_spec);
+                                         action_spec, "storage-privileged");
                 shell.action_btn_select(btn, default_op);
 
                 shell.action_btn_enable(btn, 'mount',              !is_filesystem_mounted);
@@ -1447,7 +1453,7 @@ PageStorageDetail.prototype = {
         }
 
         function create_simple_btn (title, func) {
-            return $('<button>', { 'class': 'btn btn-default',
+            return $('<button>', { 'class': 'btn btn-default storage-privileged',
                                    'on': { 'click': func }
                                  }).text(title);
         }
@@ -1690,7 +1696,7 @@ PageStorageDetail.prototype = {
                                                 { title: _("Create Pool for Thin Logical Volumes"),
                                                   action: 'create-thin-pool'
                                                 }
-                                              ]);
+                                              ], "storage-privileged");
                 id = append_entry (level, null, desc, btn);
             }
         }
@@ -1765,6 +1771,7 @@ PageStorageDetail.prototype = {
             $('#drive_format').hide();
         else
             $('#drive_format').show();
+        update_storage_privileged();
     },
 
     _updateMDRaid: function() {
@@ -1916,10 +1923,11 @@ PageStorageDetail.prototype = {
                                 block_get_link_desc(block)),
                             $('<td style="width:100px;text-align:right">').html(state_html),
                             $('<td style="text-align:right">').append(
-                                $('<button>', { 'class': 'btn btn-default',
+                                $('<button>', { 'class': 'btn btn-default storage-privileged',
                                                 'on': { 'click': $.proxy(this, "raid_disk_remove", block) }
                                               }).text(_("Remove")).css('visibility', raid.Level === "raid0" ? 'hidden' : 'visible'))))));
         }
+        update_storage_privileged();
     },
 
     _updateVG: function() {
@@ -1983,16 +1991,14 @@ PageStorageDetail.prototype = {
                                                })),
                             $('<td style="text-align:right">').html(
                                 shell.action_btn(physical_action_func (block),
-                                                   physical_action_spec))))));
+                                                   physical_action_spec, "storage-privileged"))))));
         }
 
         this._updateContent (vg);
+        update_storage_privileged();
     },
 
     action: function(op) {
-        if (!shell.check_admin())
-            return;
-
         if (op == 'format')
             this.format_disk();
         else if (op == 'delete')
@@ -2025,9 +2031,6 @@ PageStorageDetail.prototype = {
                 return block_or_lv._client.lookup (block_or_lv.LogicalVolume,
                                                    "com.redhat.Cockpit.Storage.LogicalVolume");
         }
-
-        if (!shell.check_admin())
-            return;
 
         if (op == 'format')
             this.format(target);
@@ -2065,9 +2068,6 @@ PageStorageDetail.prototype = {
     },
 
     raid_action: function() {
-        if (!shell.check_admin())
-            return;
-
         this.action(this.raid_op);
     },
 
@@ -2117,9 +2117,6 @@ PageStorageDetail.prototype = {
     },
 
     format_disk: function (block) {
-        if (!shell.check_admin())
-            return;
-
         PageFormatDisk.block = null;
         if (this._drive)
             PageFormatDisk.block = find_block_device_for_drive(this._drive);
@@ -2152,9 +2149,6 @@ PageStorageDetail.prototype = {
     },
 
     create_partition: function (block, start, size, enable_dos_extended) {
-        if (!shell.check_admin())
-            return;
-
         PageFormat.block = block;
         PageFormat.mode = 'create-partition';
         PageFormat.start = start;
@@ -2203,9 +2197,6 @@ PageStorageDetail.prototype = {
     },
 
     raid_disk_remove: function(block) {
-        if (!shell.check_admin())
-            return;
-
         this._mdraid.call('RemoveDevices', [ block.getObject().objectPath ],
                           function (error) {
                               if (error)
@@ -2214,9 +2205,6 @@ PageStorageDetail.prototype = {
     },
 
     raid_disk_add: function() {
-        if (!shell.check_admin())
-            return;
-
         PageRaidDiskAdd.mdraid = this._mdraid;
         $('#raid_disk_add_dialog').modal('show');
     },
@@ -2261,9 +2249,6 @@ PageStorageDetail.prototype = {
         var self = this;
         var location = cockpit.location;
 
-        if (!shell.check_admin())
-            return;
-
         shell.confirm(cockpit.format(_("Please confirm deletion of $0"), self._vg.Name),
                         _("Deleting a volume group will erase all data on it."),
                         _("Delete")).
@@ -2287,9 +2272,6 @@ PageStorageDetail.prototype = {
     },
 
     remove_physical_volume: function(block) {
-        if (!shell.check_admin())
-            return;
-
         if (block.PvFreeSize != block.PvSize) {
             shell.show_error_dialog("Error", "Volume is in use.");
             return;
@@ -2317,9 +2299,6 @@ PageStorageDetail.prototype = {
     },
 
     empty_physical_volume: function(block) {
-        if (!shell.check_admin())
-            return;
-
         var used = block.PvSize - block.PvFreeSize;
         if (used === 0) {
             shell.show_error_dialog("Dude", "Volume is already empty.");
@@ -2339,48 +2318,30 @@ PageStorageDetail.prototype = {
     },
 
     add_physical_volume: function() {
-        if (!shell.check_admin())
-            return;
-
         PageVGDiskAdd.volume_group = this._vg;
         $('#vg_disk_add_dialog').modal('show');
     },
 
     create_plain_volume: function (volume_group) {
-        if (!shell.check_admin())
-            return;
-
         PageCreatePlainVolume.volume_group = volume_group;
         $('#storage_create_plain_volume_dialog').modal('show');
     },
 
     create_thin_pool: function (volume_group) {
-        if (!shell.check_admin())
-            return;
-
         PageCreateThinPool.volume_group = volume_group;
         $('#storage_create_thin_pool_dialog').modal('show');
     },
 
     create_thin_volume: function (pool) {
-        if (!shell.check_admin())
-            return;
-
         PageCreateThinVolume.pool = pool;
         $('#storage_create_thin_volume_dialog').modal('show');
     },
 
     create_raid_volume: function (volume_group) {
-        if (!shell.check_admin())
-            return;
-
         shell.show_error_dialog("Sorry", "Not yet.");
     },
 
     create_snapshot: function (origin) {
-        if (!shell.check_admin())
-            return;
-
         if (origin.Origin != "/") {
             shell.show_error_dialog("Error", "Can't take a snapshot of a snapshot.");
             return;
@@ -2392,10 +2353,6 @@ PageStorageDetail.prototype = {
 
     delete_logical_volume: function(lv) {
         var self = this;
-
-        if (!shell.check_admin())
-            return;
-
         shell.confirm(cockpit.format(_("Please confirm deletion of $0"), self._vg.Name + "/" + lv.Name),
                         _("Deleting a logical volume will erase all data in it."),
                         _("Delete")).
@@ -2408,33 +2365,21 @@ PageStorageDetail.prototype = {
     },
 
     resize_logical_volume: function(lv) {
-        if (!shell.check_admin())
-            return;
-
         PageResizeVolume.volume = lv;
         $('#storage_resize_volume_dialog').modal('show');
     },
 
     rename_volume_group: function() {
-        if (!shell.check_admin())
-            return;
-
         PageRenameGroup.group = this._vg;
         $('#storage_rename_group_dialog').modal('show');
     },
 
     rename_logical_volume: function(lv) {
-        if (!shell.check_admin())
-            return;
-
         PageRenameVolume.volume = lv;
         $('#storage_rename_volume_dialog').modal('show');
     },
 
     activate_logical_volume: function(lv) {
-        if (!shell.check_admin())
-            return;
-
         lv.call('Activate', function (error, result) {
             if (error)
                 shell.show_unexpected_error(error);
@@ -2442,9 +2387,6 @@ PageStorageDetail.prototype = {
     },
 
     deactivate_logical_volume: function(lv) {
-        if (!shell.check_admin())
-            return;
-
         lv.call('Deactivate', function (error, result) {
             if (error)
                 shell.show_unexpected_error(error);

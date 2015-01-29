@@ -37,8 +37,7 @@ class TestDocker(MachineCase):
                                     '.*denied.*create.*name="key\\.json".*',
                                     '.*denied.*write open.*path="/\\.docker/key\\.json".*')
 
-        m.execute("systemctl start docker.socket")
-        m.execute("usermod -G wheel,docker admin")
+        m.execute("systemctl start docker")
 
         self.login_and_go("containers")
 
@@ -128,8 +127,7 @@ class TestDocker(MachineCase):
         m = self.machine
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
-        m.execute("systemctl start docker.socket")
-        m.execute("usermod -G wheel,docker admin")
+        m.execute("systemctl start docker")
 
         self.login_and_go("containers")
 
@@ -228,34 +226,28 @@ CMD ["/bin/container-probe", "%d"]
         m = self.machine
 
         # Make sure Docker isn't running and go to the containers page
-        # as "admin".
+        # as "admin" without the "wheel" group.
+        m.execute("systemctl stop docker")
+        m.execute("usermod -G '' admin")
+        self.allow_journal_messages("Can't write /var/lib/cockpit/machines: Failed to create file '/var/lib/cockpit/machines\\..*': Permission denied")
 
-        m.execute("systemctl stop docker.service docker.socket")
         self.login_and_go("containers")
 
-        # Docker isn't running, but we can start it.
-        b.wait_visible("#containers-failure")
-        b.wait_text("#containers-failure-message", "Docker is not installed or activated on the system")
-        b.wait_visible("#containers-failure-start")
-        b.click("#containers-failure-start")
-
-        # However, we can't access the socket
+        # We can not become root, so we can't access docker.
         b.wait_visible("#containers-failure")
         b.wait_text("#containers-failure-message", "Not authorized to access Docker on this system")
         b.wait_visible("#containers-failure-retry")
 
-        # Give "admin" access via the docker group and login again
-        m.execute("usermod -G wheel,docker admin")
+        # Give "admin" access via the wheel group and login again
+        m.execute("usermod -G wheel admin")
         b.relogin("containers")
         self.allow_restart_journal_messages()
-        b.wait_visible("#containers-containers")
 
-        # Restart the daemon, wait for the failure, and reconnect.
-        m.execute("systemctl restart docker.service")
+        # Now we can become root and start docker
         b.wait_visible("#containers-failure")
-        b.wait_visible("#containers-failure-retry")
-        b.click("#containers-failure-retry")
-        b.wait_not_visible("#containers-failure")
+        b.wait_text("#containers-failure-message", "Docker is not installed or activated on the system")
+        b.wait_visible("#containers-failure-start")
+        b.click("#containers-failure-start")
         b.wait_visible("#containers-containers")
 
 test_main()

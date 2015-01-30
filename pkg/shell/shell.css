@@ -345,6 +345,48 @@ ul.available-interfaces-group {
     cursor: pointer;
 }
 
+/* Align with the top of the graphs
+  only when not wrapped
+*/
+@media (min-width: 1200px) {
+  #containers-storage {
+    margin-top: 19px;
+  }
+}
+
+#containers-storage {
+    padding: 8px 15px 8px 15px;
+    overflow: hidden;
+}
+
+#containers-storage .bar-row {
+    min-width: 50px;
+    vertical-align: middle;
+}
+
+#containers-storage .bar-group {
+    min-width: 150px;
+    overflow: hidden;
+}
+
+#containers-storage .bar {
+    overflow: hidden;
+    vertical-align: bottom;
+}
+
+#containers-storage .data {
+    float: right;
+    max-height: 4em;
+    vertical-align: bottom;
+    padding-left: 8px;
+}
+
+#containers-storage .storage-label {
+    max-height: 4em;
+    float: left;
+    padding-right: 8px;
+}
+
 .container-col-name {
     width: 20%;
 }
@@ -507,12 +549,6 @@ ul.available-interfaces-group {
 /* server overview dashboard */
 #server .cockpit-info-table td:first-child {
     width: 50%;
-}
-
-/* Align with the top of the graphs */
-
-#containers-images  {
-    margin-top: 19px;
 }
 
 #containers-search-image-dialog .modal-body {

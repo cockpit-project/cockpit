@@ -585,6 +585,7 @@ PageContainers.prototype = {
         }
 
         setup_for_failure(self, self.client, self.address);
+        self.render_storage();
     },
 
     show: function() {
@@ -603,6 +604,47 @@ PageContainers.prototype = {
         $(this.client).off('.containers');
         this.client.release();
         this.client = null;
+    },
+
+    render_storage: function () {
+        this.client.info().done(function(data) {
+            var resp = data && JSON.parse(data);
+            if (resp['Driver'] !== "devicemapper") {
+                // TODO: None of the other graphdrivers currently
+                // report size information.
+                $('#containers-storage .bar').html();
+                $('#containers-storage .data').html("Unknown");
+            }
+
+            var warning = "WARNING: Docker may be reporting the size it has alocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.";
+            $('#containers-storage').attr("title", warning).tooltip();
+
+            var used;
+            var total;
+            $.each(resp['DriverStatus'], function (index, value) {
+                if (value && value[0] == "Data Space Total")
+                    total = value[1];
+                else if (value && value[0] == "Data Space Used")
+                    used = value[1];
+            });
+
+            if (used && total) {
+              var formated = used + " / " + total;
+
+              var f_used = parseFloat(used);
+              var f_total = parseFloat(total);
+
+              var bar_row = shell.BarRow();
+              bar_row.attr("value", f_used + "/" + f_total);
+              bar_row.toggleClass("bar-row-danger", used > 0.95 * total);
+
+              $('#containers-storage .bar').html(bar_row);
+              $('#containers-storage .data').html(formated);
+            } else {
+              $('#containers-storage .bar').html();
+              $('#containers-storage .data').html("Unknown");
+            }
+        });
     },
 
     render_container: function(id, container) {
@@ -2132,6 +2174,15 @@ function DockerClient(machine) {
         return shell.util.machine_info(machine);
     };
 
+    this.info = function info() {
+        return http.get("/v1.10/info")
+            .fail(function(ex) {
+                docker_debug("info failed:", ex);
+            })
+            .done(function(resp) {
+                docker_debug("info:", resp);
+            });
+    };
 
     this.close = function close() {
         $(monitor).off('NewSample', handle_new_samples);

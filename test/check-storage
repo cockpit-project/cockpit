@@ -552,6 +552,9 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1187481
+        return
+
         self.login_and_go("storage")
         b.wait_in_text("#storage_drives", "VirtIO")
 

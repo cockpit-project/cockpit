@@ -108,23 +108,23 @@
     <div id="content">
 
       <div id="dashboard" class="container-fluid" hidden>
-        <div class="btn-toolbar">
-          <div class="btn-group" id="dashboard-range-buttons">
-            <button class="btn btn-default" data-seconds="604800">1 week</button>
-            <button class="btn btn-default" data-seconds="86400">1 day</button>
-            <button class="btn btn-default" data-seconds="21600">6 hours</button>
-            <button class="btn btn-default" data-seconds="3600">1 hour</button>
-            <button class="btn btn-default" data-seconds="300">5 minutes</button>
-          </div>
-          <div class="btn-group">
-            <button class="btn btn-default" id="dashboard-scroll-left">&lt;</button>
-            <button class="btn btn-default" id="dashboard-scroll-right">&gt;</button>
-          </div>
-        </div>
-        <br>
-        <br>
         <div class="row">
           <div class="col-md-12">
+            <div id="dashboard-toolbar" class="pull-right">
+              <div class="btn-toolbar">
+                <div class="btn-group" id="dashboard-range-buttons">
+                  <button class="btn btn-default" data-seconds="604800">1 week</button>
+                  <button class="btn btn-default" data-seconds="86400">1 day</button>
+                  <button class="btn btn-default" data-seconds="21600">6 hours</button>
+                  <button class="btn btn-default" data-seconds="3600">1 hour</button>
+                  <button class="btn btn-default" data-seconds="300">5 minutes</button>
+                </div>
+                <div class="btn-group">
+                  <button class="btn btn-default" id="dashboard-scroll-left">&lt;</button>
+                  <button class="btn btn-default" id="dashboard-scroll-right">&gt;</button>
+                </div>
+              </div>
+            </div>
             <ul class="nav nav-tabs">
               <li data-monitor-id="0"><a>CPU</a></li>
               <li data-monitor-id="1"><a>Memory</a></li>
@@ -135,9 +135,8 @@
             <div id="dashboard-plot" style="height:250px"></div>
           </div>
         </div>
-        <br>
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-12">
             <div class="panel panel-default" id="dashboard-hosts">
               <div class="panel-heading">
                 <button class="btn btn-primary servers-privileged fa fa-plus" id="dashboard-add" title="Add Server"></button>
@@ -145,16 +144,6 @@
                 <span>Servers</span>
               </div>
               <div class="list-group">
-              </div>
-            </div>
-          </div>
-          <div class="col-md-8">
-            <div class="panel panel-default cockpit-log-panel">
-              <div class="panel-heading">
-                Events
-              </div>
-              <div class="panel-body">
-                <div class="cockpit-logline">(Coming soon...)</div>
               </div>
             </div>
           </div>

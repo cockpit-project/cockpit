@@ -7,7 +7,7 @@ USER="root"
 export ARCH="x86_64"
 export SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
-PREQ="yum -y -q install nodejs npm tar bzip2 gzip git pcp-libs-devel yum-utils fontconfig;
+PREQ="yum -y -q install nodejs npm tar bzip2 gzip unzip zip tar git yum-utils fontconfig pystache;
 npm -g install phantomjs > /dev/null;
 yum -y -q install yum-plugin-copr;
 yum -y -q copr enable lmr/Autotest;
@@ -33,9 +33,6 @@ ip address: `vm_get_ip $NAME`"
 
 }
 function virtinstall(){
-    yum -y install yum-plugin-copr
-    yum -y copr enable fsimonce/virt-deploy
-    yum -y install virt-deploy
     PREFIX=$1
     DISTRO=$2
     NAME=$PREFIX-$DISTRO-$ARCH

@@ -35,6 +35,7 @@ import traceback
 import exceptions
 import re
 import json
+import logging
 #import unittest
 from avocado import test
 from avocado.utils import process
@@ -45,6 +46,7 @@ from avocado.utils import process
 topdir=os.path.dirname(os.path.abspath(__file__))
 # Command line options
 
+log=logging.getLogger("Browser")
 program_name = "TEST"
 arg_sit_on_failure = False
 arg_trace = False
@@ -57,7 +59,7 @@ class Browser:
         self.address = address
         self.label = label
         self.phantom = None
-        test.log.info("TOPDIR is: %s" % topdir)
+        log.info("TOPDIR is: %s" % topdir)
 
     def title(self):
         return self.phantom.do('return document.title');
@@ -96,7 +98,7 @@ class Browser:
 
         tries = 0
         while not tryopen(tries >= 20):
-            print "Restarting browser..."
+            log.info( "Restarting browser...")
             sleep(0.1)
             tries = tries + 1
 
@@ -183,7 +185,7 @@ class Browser:
 
     def wait_js_func(self, func, *args):
         output = self.phantom.wait("%s(%s)" % (func, ','.join(map(jsquote, args))), timeout=self.phantom_wait_timeout)
-        test.log.debug(str(func) + ": " + str(args)+ ": RESULT " + str(output))
+        log.debug(str(func) + ": " + str(args)+ ": RESULT " + str(output))
         return output
 
     def wait_present(self, selector):
@@ -288,7 +290,7 @@ class Browser:
     def relogin(self, page, user=None):
         if user is None:
             user = self.default_user
-        self.logout()
+        logout()
         self.wait_visible("#login")
         self.set_val("#login-user-input", user)
         self.set_val("#login-password-input", "foobar")
@@ -321,11 +323,11 @@ class Phantom:
 
     def run(self, args):
         if arg_trace:
-            test.log.debug("-> " + str(args))
+            log.debug("-> " + str(args))
         self.driver.stdin.write(json.dumps(args).replace("\n", " ")+ "\n")
         res = json.loads(self.driver.stdout.readline())
         if arg_trace:
-            test.log.debug("<- "+ str(res))
+            log.debug("<- "+ str(res))
         if 'error' in res:
             raise Error(res['error'])
         if 'timeout' in res:
@@ -368,7 +370,7 @@ class Phantom:
     def show(self, file="page.png"):
         if not self.run({'cmd': 'show', 'file': file}):
             raise "failed"
-        print "Wrote %s" % file
+        log.info(  "Wrote %s" % file )
 
     def keys(self, type, keys):
         self.run({'cmd': 'keys', 'type': type, 'keys': keys })
@@ -553,7 +555,7 @@ class Journalctl:
                     found = True
                     break
             if not found:
-                print "Unexpected journal message '%s'" % m
+                log.info( "Unexpected journal message '%s'" % m)
                 all_found = False
 #        if not all_found:
 #            self.copy_journal("FAIL")

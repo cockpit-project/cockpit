@@ -27,7 +27,6 @@ import base64
 import time
 
 from avocado import job
-from avocado import test
 from avocado.utils import process
 
 import os, sys
@@ -68,7 +67,7 @@ class checklogin(test.Test):
         b=Browser("localhost", "x")
         b.open("localhost")
         b.wait_visible("#login")
-
+        
         def login(user, password):
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
@@ -113,7 +112,7 @@ class checklogin(test.Test):
         assert len(lines) > 0
         tokens = lines[0].split(' ', 2)
         assert len(tokens) == 3
-        test.log.debug(tokens)
+        self.log.debug(tokens)
         return int(tokens[1])
 
     def Raw(self):

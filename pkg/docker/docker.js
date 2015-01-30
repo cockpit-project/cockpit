@@ -204,6 +204,7 @@ define([
             channel = cockpit.channel({
                 "payload": "stream",
                 "unix": "/var/run/docker.sock",
+                "superuser": true,
                 "binary": true
             });
 

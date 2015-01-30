@@ -121,6 +121,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     var data = [ ];
     var flot = null;
     var walk_timer;
+    var result = { };
 
     var now, x_range, x_offset, interval;
 
@@ -342,29 +343,46 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         else
             factor = 1;
 
-        archive_channel = cockpit.channel({ payload: "metrics1",
+        var chanopts = {
+            payload: "metrics1",
+            metrics: metrics,
+            instances: desc.instances,
+            "omit-instances": desc['omit-instances'],
+            interval: interval,
+            host: desc.host
+        };
+
+        archive_channel = cockpit.channel($.extend({
                                             source: "pcp-archive",
-                                            metrics: metrics,
-                                            instances: desc.instances,
-                                            omit_instances: desc.omit_instances,
-                                            interval: interval,
                                             timestamp: -x_range - x_offset,
                                             limit: (x_offset > 0) ? (x_range / interval) : undefined,
-                                            host: desc.host
-                                          });
-        $(archive_channel).on("message", handle_message);
+                                          }, chanopts));
+        $(archive_channel).on("message", function(data) {
+            if (!result.archives) {
+                result.archives = true;
+                $(result).triggerHandler("changed");
+            }
+            handle_message(data);
+        });
 
         $(archive_channel).on("close", function (event, message) {
             archive_channel = null;
+
+            /* If no archived data was available within the time frame, check for presence of any */
+            if (!result.archives) {
+                var lookup = cockpit.channel($.extend({ source: "pcp-archive", limit: 1 }, chanopts));
+                $(lookup)
+                    .on("message", function() {
+                        result.archives = true;
+                        lookup.close();
+                    })
+                    .on("close", function() {
+                        $(result).triggerHandler("changed");
+                    });
+            }
+
             if (x_offset === 0 && !stopped) {
-                real_time_channel = cockpit.channel({ payload: "metrics1",
-                                                      source: "direct",
-                                                      metrics: metrics,
-                                                      instances: desc.instances,
-                                                      'omit-instances': desc['omit-instances'],
-                                                      interval: interval,
-                                                      host: desc.host
-                                                    });
+                real_time_channel = cockpit.channel($.extend({ source: "direct" }, chanopts));
                 $(real_time_channel).on("message", handle_message);
                 $(real_time_channel).on("close", function (event, message) {
                     real_time_channel = null;
@@ -400,7 +418,8 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
     reset(x_range_seconds, x_stop_seconds);
 
-    return {
+    $.extend(result, {
+        archives: false, /* true if any archive data found */
         start_walking: start_walking,
         stop_walking: stop_walking,
         refresh: refresh,
@@ -408,7 +427,9 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         resize: resize,
         set_options: set_options,
         add_metrics_sum_series: add_metrics_sum_series
-    };
+    });
+
+    return result;
 };
 
 })(jQuery, shell);

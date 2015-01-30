@@ -430,7 +430,7 @@ shell.update_privileged_ui = function update_privileged_ui(perm, css_class, deni
         if (typeof $(this).data(allowed_key) === 'undefined' ||
                $(this).data(allowed_key) === false)
             $(this).data(allowed_key, $(this).attr('title') || "");
-            $(this).tooltip();
+            $(this).tooltip({ html: true });
 
         if ($(this).hasClass("disabled") === allowed) {
           $(this).toggleClass("disabled", !allowed)

@@ -325,7 +325,7 @@ function update_storage_privileged() {
     shell.update_privileged_ui(
         shell.default_permission, ".storage-privileged",
         cockpit.format(
-            _("The user $0 is not permitted to manage storage"),
+            _("The user <b>$0</b> is not permitted to manage storage"),
             cockpit.user.name)
     );
 }

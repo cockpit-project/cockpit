@@ -209,7 +209,7 @@ function update_service_privileged() {
     shell.update_privileged_ui(
         shell.default_permission, ".services-privileged",
         cockpit.format(
-            _("The user $0 is not permitted to modify services"),
+            _("The user <b>$0</b> is not permitted to modify services"),
             cockpit.user.name)
     );
 }

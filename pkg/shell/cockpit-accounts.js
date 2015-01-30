@@ -36,7 +36,7 @@ function update_accounts_privileged() {
     shell.update_privileged_ui(
         shell.default_permission, ".accounts-privileged",
         cockpit.format(
-            _("The user $0 is not permitted to modify accounts"),
+            _("The user <b>$0</b> is not permitted to modify accounts"),
             cockpit.user.name)
     );
     $(".accounts-privileged").children("input")

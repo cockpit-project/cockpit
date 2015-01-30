@@ -29,7 +29,7 @@ function update_hostname_privileged() {
     shell.update_privileged_ui(
         shell.default_permission, ".hostname-privileged",
         cockpit.format(
-            _("The user $0 is not permitted to modify hostnames"),
+            _("The user <b>$0</b> is not permitted to modify hostnames"),
             cockpit.user.name)
     );
 }
@@ -38,7 +38,7 @@ function update_realm_privileged() {
     shell.update_privileged_ui(
         shell.default_permission, ".realm-privileged",
         cockpit.format(
-            _("The user $0 is not permitted to modify realms"),
+            _("The user <b>$0</b> is not permitted to modify realms"),
             cockpit.user.name)
     );
 }

@@ -1238,7 +1238,7 @@ function update_network_privileged() {
     shell.update_privileged_ui(
         shell.default_permission, ".network-privileged",
         cockpit.format(
-            _("The user $0 is not permitted to modify network settings"),
+            _("The user <b>$0</b> is not permitted to modify network settings"),
             cockpit.user.name)
     );
 }

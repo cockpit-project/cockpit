@@ -306,7 +306,7 @@ function update_servers_privileged() {
     shell.update_privileged_ui(
         shell.default_permission, ".servers-privileged",
         cockpit.format(
-            _("The user $0 is not permitted to add servers"),
+            _("The user <b>$0</b> is not permitted to add servers"),
             cockpit.user.name)
     );
 }

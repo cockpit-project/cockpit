@@ -38,7 +38,7 @@ function virtinstall(){
     NAME=$PREFIX-$DISTRO-$ARCH
     TMPF=`mktemp`
     echo "virt-deploy create $PREFIX $DISTRO "
-    virt-deploy create $PREFIX $DISTRO 2>&1 | tee $TMPF
+    sudo virt-deploy create $PREFIX $DISTRO 2>&1 | tee $TMPF
     sleep 2
     is_created $NAME &> /dev/null
     IP=`cat $TMPF | tail -5 | grep "ip address:" | sed -r 's/ip address: (.*)/\1/'`
@@ -49,7 +49,7 @@ function virtinstall(){
 }
 
 function treeinstall(){
-    yum -y virt-install virt-manager libvirt qemu-kvm libvirt-daemon-kvm qemu-kvm-tools
+#    sudo yum -y virt-install virt-manager libvirt qemu-kvm libvirt-daemon-kvm qemu-kvm-tools
     PREFIX=$1
     DISTRO=$2
     if   [ "$DISTRO" = "fedora-21" ]; then
@@ -66,8 +66,8 @@ function treeinstall(){
     NAME=${PREFIX}-${DISTRO}-${ARCH}
     IMG=$NAME.img
     MAC=`printf '52:54:00:%02X:%02X:%02X\n' $[RANDOM%256] $[RANDOM%256] $[RANDOM%256]`
-    qemu-img create -f qcow2 $VMDIRS/$IMG 20G
-    virt-install --connect=qemu:///system \
+    sudo qemu-img create -f qcow2 $VMDIRS/$IMG 20G
+    sudo virt-install --connect=qemu:///system \
             --network network:default,mac=$MAC \
             --initrd-inject=$ADIR/$KSF \
             --extra-args="ks=file:/$KSF console=tty0 console=ttyS0,115200" \
@@ -101,11 +101,11 @@ function vm_wait_online(){
 
 function is_created(){
     NAME=$1
-    if virsh list | grep -q $NAME; then
+    if sudo virsh list | grep -q $NAME; then
         echo "domain $NAME already exist and running "
-    elif virsh list --inactive| grep -q $NAME; then
+    elif sudo virsh list --inactive| grep -q $NAME; then
         echo "domain $NAME already exist and stopped "
-        virsh start $NAME
+        sudo virsh start $NAME
         vm_wait_online `vm_get_mac $NAME`
     else 
         echo "domain $NAME does not exist"
@@ -135,7 +135,7 @@ function vm_get_ip(){
 }
 function vm_get_mac(){
     NAME=$1
-    MAC=`virsh dumpxml $NAME | grep 'mac address' | cut -d\' -f2`
+    MAC=`sudo virsh dumpxml $NAME | grep 'mac address' | cut -d\' -f2`
     echo $MAC
 }
 

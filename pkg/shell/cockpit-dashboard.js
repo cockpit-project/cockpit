@@ -225,7 +225,10 @@ PageDashboard.prototype = {
         $('#dashboard-enable-edit').click(function () {
             self.toggle_edit(!self.edit_enabled);
         });
-        this.plot = shell.plot($('#dashboard-plot'), plot_x_range, plot_x_stop);
+        self.plot = shell.plot($('#dashboard-plot'), plot_x_range, plot_x_stop);
+        $(self.plot).on("changed", function() {
+            $("#dashboard-toolbar").toggle(self.plot.archives);
+        });
 
         var renderer = host_renderer($("#dashboard-hosts .list-group"));
         $(shell.hosts).on("added.dashboard", renderer);

@@ -216,7 +216,7 @@ PageDashboard.prototype = {
         var self = this;
 
         var current_monitor = 0;
-        var plot_x_range = 60*60;
+        var plot_x_range = 5*60;
         var plot_x_stop;
 
         $('#dashboard-add').click(function () {

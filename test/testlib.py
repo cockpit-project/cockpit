@@ -578,7 +578,7 @@ class Error(Exception):
     def __str__(self):
         return self.msg
 
-def wait(func, msg=None, delay=0.2, tries=20):
+def wait(func, msg=None, delay=1, tries=60):
     """
     Wait for FUNC to return something truthy, and return that.
 

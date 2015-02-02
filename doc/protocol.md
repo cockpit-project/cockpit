@@ -842,6 +842,8 @@ then the channel will send these array instead:
     2: [  null, [ null, 15 ] ]
     3: [  null, [ ] ]
 
+This compression does not happen across 'meta' messages.
+
 # PCP metric sources
 
 You specify the desired metrics as an array of objects, where each

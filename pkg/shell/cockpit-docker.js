@@ -616,7 +616,7 @@ PageContainers.prototype = {
                 $('#containers-storage .data').html("Unknown");
             }
 
-            var warning = "WARNING: Docker may be reporting the size it has alocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.";
+            var warning = _("WARNING: Docker may be reporting the size it has alocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
             $('#containers-storage').attr("title", warning).tooltip();
 
             var used;

@@ -67,6 +67,7 @@ typedef struct {
 
   /* The previous samples sent */
   pmResult *last;
+  gboolean last_has_compatible_layout;
 } CockpitPcpMetrics;
 
 typedef struct {
@@ -291,16 +292,36 @@ build_sample (CockpitPcpMetrics *self,
 
   if (info->desc.sem == PM_SEM_COUNTER && info->desc.type != PM_TYPE_STRING)
     {
-      if (!self->last)
-        return json_node_new (JSON_NODE_NULL);
-
+      int last_valfmt;
+      pmValue *last_value = NULL;
       pmAtomValue old, new;
-      pmValue *last_value = &self->last->vset[metric]->vlist[instance];
+
+      if (self->last && self->last_has_compatible_layout)
+        {
+          last_valfmt = valfmt;
+          last_value = &self->last->vset[metric]->vlist[instance];
+        }
+      else if (self->last)
+        {
+          pmValueSet *vs = self->last->vset[metric];
+          last_valfmt = vs->valfmt;
+          for (int i = 0; i < vs->numval; i++)
+            {
+              if (vs->vlist[i].inst == value->inst)
+                {
+                  last_value = &vs->vlist[i];
+                  break;
+                }
+            }
+        }
+
+      if (last_value == NULL)
+        return json_node_new (JSON_NODE_NULL);
 
       if (info->desc.type == PM_TYPE_64)
         {
           if (pmExtractValue (valfmt, value, PM_TYPE_64, &new, PM_TYPE_64) < 0
-              || pmExtractValue (valfmt, last_value, PM_TYPE_64, &old, PM_TYPE_64) < 0)
+              || pmExtractValue (last_valfmt, last_value, PM_TYPE_64, &old, PM_TYPE_64) < 0)
             return json_node_new (JSON_NODE_NULL);
 
           sample.d = new.ll - old.ll;
@@ -308,7 +329,7 @@ build_sample (CockpitPcpMetrics *self,
       else if (info->desc.type == PM_TYPE_U64)
         {
           if (pmExtractValue (valfmt, value, PM_TYPE_U64, &new, PM_TYPE_U64) < 0
-              || pmExtractValue (valfmt, last_value, PM_TYPE_U64, &old, PM_TYPE_U64) < 0)
+              || pmExtractValue (last_valfmt, last_value, PM_TYPE_U64, &old, PM_TYPE_U64) < 0)
             return json_node_new (JSON_NODE_NULL);
 
           sample.d = new.ull - old.ull;
@@ -316,7 +337,7 @@ build_sample (CockpitPcpMetrics *self,
       else
         {
           if (pmExtractValue (valfmt, value, info->desc.type, &new, PM_TYPE_DOUBLE) < 0
-              || pmExtractValue (valfmt, last_value, info->desc.type, &old, PM_TYPE_DOUBLE) < 0)
+              || pmExtractValue (last_valfmt, last_value, info->desc.type, &old, PM_TYPE_DOUBLE) < 0)
             return json_node_new (JSON_NODE_NULL);
 
           sample.d = new.d - old.d;
@@ -412,6 +433,8 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
       json_object_unref (meta);
     }
 
+  self->last_has_compatible_layout = (meta == NULL);
+
   /* Send one set of samples */
   message = json_array_new ();
   json_array_add_array_element (message, build_samples (self, result));
@@ -488,14 +511,9 @@ on_idle_batch (gpointer user_data)
 
           cockpit_metrics_send_meta (COCKPIT_METRICS (self), meta);
           json_object_unref (meta);
-
-          /* We can't compute deltas across a meta message since
-             number and position of instances etc might have chagned.
-           */
-          if (self->last)
-            pmFreeResult (self->last);
-          self->last = NULL;
         }
+
+      self->last_has_compatible_layout = (meta == NULL);
 
       if (message == NULL)
           message = json_array_new ();

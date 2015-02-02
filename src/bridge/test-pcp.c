@@ -523,6 +523,63 @@ test_metrics_counter (TestCase *tc,
 }
 
 static void
+test_metrics_counter_across_meta (TestCase *tc,
+                                  gconstpointer unused)
+{
+  JsonObject *options = json_obj("{ 'source': 'direct',"
+                                 "  'metrics': [ { 'name': 'mock.counter' },"
+                                 "               { 'name': 'mock.instances' }"
+                                 "             ],"
+                                 "  'interval': 1"
+                                 "}");
+
+  setup_metrics_channel_json (tc, options);
+
+  JsonObject *meta = recv_json_object (tc);
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.counter',"
+                          "    'type': 'number',"
+                          "    'units': '',"
+                          "    'semantics': 'counter' },"
+                          "  { 'name': 'mock.instances',"
+                          "    'type': 'number',"
+                          "    'units': '',"
+                          "    'semantics': 'instant',"
+                          "    'instances': [] }"
+                          "]");
+
+  /* Because the length has changed, nulls should be sent */
+  assert_sample (tc, "[[null,[]]]");
+  assert_sample (tc, "[[0,[]]]");
+  assert_sample (tc, "[[null,[]]]");
+  mock_pmda_control ("inc-counter", 5);
+  assert_sample (tc, "[[5,[]]]");
+  assert_sample (tc, "[[0,[]]]");
+  assert_sample (tc, "[[null,[]]]");
+
+  /* Add an instance, which triggers a meta message.  The counter
+     should be unaffected and return '0'.  However, the '0' will not
+     be compressed away.
+  */
+  mock_pmda_control ("add-instance", "foo", 12);
+  meta = recv_json_object (tc);
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.counter',"
+                          "    'type': 'number',"
+                          "    'units': '',"
+                          "    'semantics': 'counter' },"
+                          "  { 'name': 'mock.instances',"
+                          "    'type': 'number',"
+                          "    'units': '',"
+                          "    'semantics': 'instant',"
+                          "    'instances': [ 'foo' ] }"
+                          "]");
+  assert_sample (tc, "[[0,[12]]]");
+
+  json_object_unref (options);
+}
+
+static void
 test_metrics_counter64 (TestCase *tc,
                         gconstpointer unused)
 {
@@ -592,6 +649,9 @@ main (int argc,
               setup, test_metrics_counter, teardown);
   g_test_add ("/metrics/counter64", TestCase, NULL,
               setup, test_metrics_counter64, teardown);
+  g_test_add ("/metrics/counter-across-meta", TestCase, NULL,
+              setup, test_metrics_counter_across_meta, teardown);
+
 
   return g_test_run ();
 }

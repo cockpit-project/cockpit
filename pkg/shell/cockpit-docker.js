@@ -631,11 +631,11 @@ PageContainers.prototype = {
             if (used && total) {
               var formated = used + " / " + total;
 
-              var f_used = parseFloat(used);
-              var f_total = parseFloat(total);
+              var b_used = cockpit.bytes_from_format(used);
+              var b_total = cockpit.bytes_from_format(total);
 
               var bar_row = shell.BarRow();
-              bar_row.attr("value", f_used + "/" + f_total);
+              bar_row.attr("value", b_used + "/" + b_total);
               bar_row.toggleClass("bar-row-danger", used > 0.95 * total);
 
               $('#containers-storage .bar').html(bar_row);

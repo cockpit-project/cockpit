@@ -27,6 +27,7 @@ import base64
 import time
 
 from avocado import job
+from avocado import test
 from avocado.utils import process
 
 import os, sys

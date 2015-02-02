@@ -21,25 +21,16 @@
 Tools for writing Cockpit test cases.
 """
 
-from time import sleep
-from urlparse import urlparse
-
-import argparse
-import subprocess
+from time import sleep # Browser class (timeouts)
+import subprocess      # opening Phantom driver
 import os
-import atexit
-import shutil
-import sys
-import socket
-import traceback
-import exceptions
-import re
-import json
-import logging
-#import unittest
-from avocado import test
-from avocado.utils import process
-#import testvm
+import traceback 
+import re       # journal matching
+import json     # Phantom
+import logging  # debug output in classes
+#from avocado import test
+from avocado.utils import process # Journal output
+
 
 
 #topdir = "/usr/share/avocado/tests/lib"

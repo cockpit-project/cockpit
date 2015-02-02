@@ -28,7 +28,6 @@ import traceback
 import re       # journal matching
 import json     # Phantom
 import logging  # debug output in classes
-#from avocado import test
 from avocado.utils import process # Journal output
 
 

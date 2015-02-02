@@ -44,7 +44,7 @@ tar czf - . | vm_ssh $NAME tar xzf - --directory /root/avocado/tests/
 
 #vm_ssh $NAME avocado run avocado/tests/inittest.sh avocado/tests/checklogin.py 
 
-sudo avocado run --vm --vm-domain "$NAME" --vm-clean --vm-username root --vm-password "$PASSWD" --vm-hostname "$IP" inittest.sh checklogin.py
+sudo avocado run --vm --vm-domain "$NAME" --vm-clean --vm-username root --vm-password "$PASSWD" --vm-hostname "$IP" inittest.sh compiletest.sh checklogin.py
 
 #vm_ssh $NAME tar czf -  /root/avocado/job-results | tar xzf -
 # cp * ~/tmp/root/avocado/tests/ -rf; cp -rf * /usr/share/avocado/tests/

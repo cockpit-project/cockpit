@@ -73,7 +73,8 @@ function memory_ticks(opts) {
 }
 
 var resource_monitors = [
-    { plot: { metrics: [ "kernel.all.cpu.nice",
+    { selector: "#dashboard-plot-0",
+      plot: { metrics: [ "kernel.all.cpu.nice",
                          "kernel.all.cpu.user",
                          "kernel.all.cpu.sys"
                        ],
@@ -84,7 +85,8 @@ var resource_monitors = [
                           tickFormatter: function(v) { return v + "%"; }} },
       ymax_unit: 100
     },
-    { plot: { metrics: [ "mem.util.used" ],
+    { selector: "#dashboard-plot-1",
+      plot: { metrics: [ "mem.util.used" ],
               units: "byte"
             },
       options: { yaxis: { ticks: memory_ticks,
@@ -94,7 +96,8 @@ var resource_monitors = [
                },
       ymax_unit: 100000000
     },
-    { plot: { metrics: [ "network.interface.total.bytes" ],
+    { selector: "#dashboard-plot-2",
+      plot: { metrics: [ "network.interface.total.bytes" ],
               units: "byte",
               'omit-instances': [ "lo" ],
               factor: 1.0
@@ -105,7 +108,8 @@ var resource_monitors = [
                },
       ymax_min: 100000
     },
-    { plot: { metrics: [ "disk.dev.total_bytes" ],
+    { selector: "#dashboard-plot-3",
+      plot: { metrics: [ "disk.dev.total_bytes" ],
               units: "byte",
               factor: 1.0
             },
@@ -225,10 +229,6 @@ PageDashboard.prototype = {
         $('#dashboard-enable-edit').click(function () {
             self.toggle_edit(!self.edit_enabled);
         });
-        self.plot = shell.plot($('#dashboard-plot'), plot_x_range, plot_x_stop);
-        $(self.plot).on("changed", function() {
-            $("#dashboard-toolbar").toggle(self.plot.archives);
-        });
 
         var renderer = host_renderer($("#dashboard-hosts .list-group"));
         $(shell.hosts).on("added.dashboard", renderer);
@@ -243,7 +243,9 @@ PageDashboard.prototype = {
             $('#dashboard .nav-tabs li').removeClass("active");
             $('#dashboard .nav-tabs li[data-monitor-id=' + id + ']').addClass("active");
             current_monitor = id;
-            plot_reset();
+            $('.dashboard-plot').hide();
+            $(resource_monitors[id].selector).show();
+            plot_refresh();
         }
 
         $('#dashboard-range-buttons button').click(function () {
@@ -267,7 +269,7 @@ PageDashboard.prototype = {
             $('#dashboard-range-buttons button[data-seconds=' + val + ']').addClass("active");
             plot_x_range = val;
             plot_x_stop = undefined;
-            plot_reset();
+            plot_reset_soft();
             update_scroll_buttons();
         }
 
@@ -276,7 +278,7 @@ PageDashboard.prototype = {
             if (plot_x_stop === undefined)
                 plot_x_stop = (new Date()).getTime() / 1000;
             plot_x_stop -= step;
-            plot_reset();
+            plot_reset_soft();
             update_scroll_buttons();
         }
 
@@ -286,11 +288,12 @@ PageDashboard.prototype = {
                 plot_x_stop += step;
                 if (plot_x_stop >= (new Date()).getTime() / 1000 - 10)
                     plot_x_stop = undefined;
-                plot_reset();
+                plot_reset_soft();
             }
             update_scroll_buttons();
         }
 
+        plot_init();
         set_monitor(current_monitor);
         set_plot_x_range(plot_x_range);
 
@@ -346,34 +349,38 @@ PageDashboard.prototype = {
                 if (!series[addr]) {
                     series[addr] = plot_add(addr);
                 }
-                $(series[addr])
-                    .off('hover')
-                    .on('hover', function(event, val) {
-                        highlight(item, val);
-                    });
-                if (series[addr].options.color != host.color) {
-                    refresh = true;
-                    series[addr].options.color = host.color;
-                }
+                series[addr].forEach(function (s) {
+                    $(s)
+                        .off('hover')
+                        .on('hover', function(event, val) {
+                            highlight(item, val);
+                        });
+                    if (s.options.color != host.color) {
+                        refresh = true;
+                        s.options.color = host.color;
+                    }
+                });
             });
 
             $.each(seen, function(addr) {
-                series[addr].remove();
+                series[addr].forEach(function (s) { s.remove(); });
                 delete series[addr];
             });
 
             if (refresh)
-                self.plot.refresh();
+                plot_refresh();
         }
 
         function highlight(item, val) {
             item.toggleClass("highlight", val);
-            var s = series[item.attr("data-address")];
-            if (s) {
-                s.options.lines.lineWidth = val? 3 : 2;
-                if (val)
-                    s.move_to_front();
-                self.plot.refresh();
+            var ser = series[item.attr("data-address")];
+            if (ser) {
+                ser.forEach(function (s) {
+                    s.options.lines.lineWidth = val? 3 : 2;
+                    if (val)
+                        s.move_to_front();
+                });
+                plot_refresh();
             }
         }
 
@@ -412,64 +419,99 @@ PageDashboard.prototype = {
             return render;
         }
 
+        function plot_refresh() {
+            self.plots.forEach(function (p) { p.refresh(); });
+        }
+
         function plot_add(addr) {
             var shell_info = shell.hosts[addr];
 
             if (shell_info.state == "failed")
                 return null;
 
-            return self.plot.add_metrics_sum_series($.extend({ host: addr},
-                                                             resource_monitors[current_monitor].plot),
-                                                    { color: shell_info.color,
-                                                      lines: {
-                                                          lineWidth: 2
-                                                      }
-                                                    });
+            var series = [ ];
+            var i = 0;
+            resource_monitors.forEach(function (rm) {
+                if (self.plots[i]) {
+                    series.push(self.plots[i].add_metrics_sum_series($.extend({ host: addr},
+                                                                              rm.plot),
+                                                                     { color: shell_info.color,
+                                                                       lines: {
+                                                                           lineWidth: 2
+                                                                       }
+                                                                     }));
+                }
+                i += 1;
+            });
+            return series;
         }
 
-        function plot_setup_hook(flot) {
-            var axes = flot.getAxes();
-            var config = resource_monitors[current_monitor];
+        function plot_init() {
+            self.plots = [];
 
-            if (config.ymax_unit) {
-                if (axes.yaxis.datamax)
-                    axes.yaxis.options.max = Math.ceil(axes.yaxis.datamax / config.ymax_unit) * config.ymax_unit;
-                else
-                    axes.yaxis.options.max = config.ymax_unit;
-            }
+            $("#dashboard-toolbar").hide();
 
-            if (config.ymax_min) {
-                if (axes.yaxis.datamax < config.ymax_min)
-                    axes.yaxis.options.max = config.ymax_min;
-                else
-                    axes.yaxis.options.max = null;
-            }
+            resource_monitors.forEach(function (rm) {
+                function setup_hook(flot) {
+                    var axes = flot.getAxes();
+                    var config = rm;
 
-            axes.yaxis.options.min = 0;
-        }
+                    if (rm.ymax_unit) {
+                        if (axes.yaxis.datamax)
+                            axes.yaxis.options.max = Math.ceil(axes.yaxis.datamax / config.ymax_unit) * rm.ymax_unit;
+                        else
+                            axes.yaxis.options.max = rm.ymax_unit;
+                    }
 
-        function plot_reset() {
-            var options = $.extend({ setup_hook: plot_setup_hook },
-                                   common_plot_options,
-                                   resource_monitors[current_monitor].options);
-            self.plot.reset(plot_x_range, plot_x_stop);
-            self.plot.set_options(options);
+                    if (rm.ymax_min) {
+                        if (axes.yaxis.datamax < rm.ymax_min)
+                            axes.yaxis.options.max = rm.ymax_min;
+                        else
+                            axes.yaxis.options.max = null;
+                    }
+
+                    axes.yaxis.options.min = 0;
+                }
+
+                if (!rm.selector)
+                    return;
+
+                var options = $.extend({ setup_hook: setup_hook },
+                                       common_plot_options,
+                                       rm.options);
+                var plot = shell.plot($(rm.selector), plot_x_range, plot_x_stop);
+                plot.set_options(options);
+                self.plots.push(plot);
+
+                $(plot).on("changed", function() {
+                    if (plot.archives)
+                        $("#dashboard-toolbar").show();
+                });
+            });
+
             series = {};
             update_series();
-            self.plot.refresh();
-            if (plot_x_stop === undefined)
-                self.plot.start_walking();
+        }
+
+        function plot_reset_soft() {
+            self.plots.forEach(function (p) {
+                p.stop_walking();
+                p.reset(plot_x_range, plot_x_stop);
+                p.refresh();
+                if (plot_x_stop === undefined)
+                    p.start_walking();
+            });
         }
 
         $(cockpit).on('resize.dashboard', function () {
-            self.plot.resize();
+            self.plots.forEach(function (p) { p.resize(); });
         });
 
         renderer();
     },
 
     show: function() {
-        this.plot.resize();
+        this.plots[0].resize();
         this.toggle_edit(false);
     },
 

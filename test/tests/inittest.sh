@@ -7,9 +7,9 @@ set -x
 PACKAGE="cockpit"
 SOURCE="https://github.com/$PACKAGE-project/$PACKAGE.git"
 
- /bin/rm -fr $PACKAGE
- git clone $SOURCE
- yum-builddep -y $PACKAGE/tools/$PACKAGE.spec
- RETC=$?
+/bin/rm -fr $PACKAGE
+git clone $SOURCE
+yum-builddep -y $PACKAGE/tools/$PACKAGE.spec || yum-builddep -y $PACKAGE/tools/$PACKAGE.spec 
+RETC=$?
 
 exit $RETC

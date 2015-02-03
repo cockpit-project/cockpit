@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # COPR plugin, html results for avocado, and sshpass for key transfer
-sudo yum -y -q install pystache sshpass yum-plugin-copr telnet 
+sudo yum -y -q install pystache sshpass yum-plugin-copr telnet fabric
 # avocado installation from COPR
 sudo yum -y -q copr enable lmr/Autotest
 sudo yum -y -q install avocado

@@ -162,7 +162,13 @@ function virt-create(){
     #is_created $NAME|| treeinstall $PREFIX $DISTRO
     
 }
-
+function vm_delete_snaps(){
+    NAME=$1
+    for foo in `virsh snapshot-list $NAME --name`; do
+        virsh snapshot-delete $NAME $foo
+    done
+    echo All snaps deleted for: $NAME
+}
 function vm_get_name(){
     PREFIX=$1
     DISTRO=$2

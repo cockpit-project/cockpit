@@ -526,3 +526,8 @@ code, kbd, pre, samp {
 .journal-lines .cockpit-logline:hover {
     cursor: pointer;
 }
+
+/* HACK: Need to update patternfly to work with latest bootstrap-select */
+.bootstrap-select.btn-group .dropdown-menu li a span.check-mark {
+  display: none;
+}

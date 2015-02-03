@@ -164,8 +164,8 @@ function virt-create(){
 }
 function vm_delete_snaps(){
     NAME=$1
-    for foo in `virsh snapshot-list $NAME --name`; do
-        virsh snapshot-delete $NAME $foo
+    for foo in `sudo virsh snapshot-list $NAME --name`; do
+        sudo virsh snapshot-delete $NAME $foo
     done
     echo All snaps deleted for: $NAME
 }

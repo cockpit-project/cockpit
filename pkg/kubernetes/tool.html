@@ -113,36 +113,34 @@ require([
             entityType = "services";
         }
 
-        var template = $("#add-dialog-errorMsg-tmpl").html();
-        Mustache.parse(template);
-
-        /* jshint validthis:true */
-        var context = { };
-
+        $('#add-dialog-fail').hide();
         $(this).find(".modal-body").html('<p> Please provide the ' + entityType + ' json File: '+'<input type="file" id="file-input"></p>');
 
         $("#file-input").on('change', function () {
-            $('#add-dialog-fail').text("").hide();
+            $('#add-dialog-fail').hide();
             var files, file, reader;
             files = $("#file-input")[0].files;
             if (files.length != 1) {
-                var text = Mustache.render(template, $.extend({errorMsg: "No json File was selected.Please select a json file." }));
-                $('#add-dialog-fail').html(text).show();
+                var text = "No json File was selected.Please select a json file. ";
+                $('#add-dialog-fail').show();
+                $('#add-dialog-fail-msg').html(text);
                 return;
             }
             file = files[0];
             if (!file.type.match("json.*")) {
-                var text = Mustache.render(template, $.extend({errorMsg: "Selected file is Not a Json file.Please select a json file." }));
-                $('#add-dialog-fail').html(text).show();
+                var text = "Selected file is Not a Json file.Please select a json file. ";
+                $('#add-dialog-fail').show();
+                $('#add-dialog-fail-msg').html(text);
                 return;
             }
             reader = new window.FileReader();
             reader.onerror = function () {
-                var text = Mustache.render(template, $.extend({errorMsg: "Unable to Read the file.Please check the json file." }));
-                $('#add-dialog-fail').html(text).show();
+                var text =  "Unable to Read the file.Please check the json file. ";
+                $('#add-dialog-fail').show();
+                $('#add-dialog-fail-msg').html(text);
             };
             reader.onload = function () {
-                jsondata=reader.result;
+                jsondata = reader.result;
             };
             reader.readAsText(file);
         });
@@ -361,16 +359,6 @@ require([
     {{/desiredState}}
   </script>
 
-  <script id="add-dialog-errorMsg-tmpl" type="x-template/mustache">
-    <div class=" alert alert-danger" role="alert">
-      <span class="pficon-layered">
-        <span class="pficon pficon-error-octagon"></span>
-        <span class="pficon pficon-error-exclamation"></span>
-      </span>
-      <strong>{{errorMsg}}</strong>
-    </div>
-  </script>
-
   <div id="pod-editor" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -413,7 +401,13 @@ require([
         <div class="modal-body">
           Dialog body
         </div>
-        <div id="add-dialog-fail"></div>
+        <div id="add-dialog-fail" class=" alert alert-danger" role="alert">
+          <span class="pficon-layered">
+            <span class="pficon pficon-error-octagon"></span>
+            <span class="pficon pficon-error-exclamation"></span>
+          </span>
+          <strong id="add-dialog-fail-msg">{{errorMsg}}</strong>
+        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary" id="add-dialog-apply">Create</button>

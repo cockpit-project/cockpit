@@ -31,9 +31,11 @@ class TestShutdownRestart(MachineCase):
         self.login_and_go("server")
 
         # Reboot
-        b.click("#content-navbar a:contains('Shutdown')")
+        b.click("#shutdown-group button.btn-danger")
         b.wait_popup("shutdown-dialog")
-        b.click("#shutdown-dialog button:contains('Restart')")
+        b.wait_in_text("#shutdown-action", 'Restart')
+        b.click("a.opt span:contains('No Delay')")
+        b.click("#shutdown-action")
         b.wait_popdown("shutdown-dialog")
         m.wait_boot()
         self.start_cockpit()
@@ -43,9 +45,11 @@ class TestShutdownRestart(MachineCase):
         self.check_journal_messages()
 
         # Poweroff
-        b.click("#content-navbar a:contains('Shutdown')")
+        b.click("#shutdown-group a:contains('Shutdown')")
         b.wait_popup("shutdown-dialog")
-        b.click("#shutdown-dialog button:contains('Power Off')")
+        b.wait_in_text("#shutdown-action", 'Shutdown')
+        b.click("a.opt span:contains('No Delay')")
+        b.click("#shutdown-action")
         b.wait_popdown("shutdown-dialog")
         m.wait_poweroff()
 

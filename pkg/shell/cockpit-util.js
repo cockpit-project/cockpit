@@ -145,10 +145,20 @@ shell.action_btn_enable = function action_btn_enable(btn, action, val) {
 shell.select_btn = function select_btn(func, spec) {
     var div, btn;
 
+    function option_mapper(opt) {
+        if (opt.group && Array.isArray(opt.group)) {
+          var group = $('<optgroup>')
+              .attr('label', opt.title ? opt.title : "" )
+              .append(opt.group.map(option_mapper));
+          return group;
+        } else {
+          return $('<option>', { value: opt.choice }).text(opt.title);
+        }
+    }
+
     btn = $('<select class="form-control">').append(
-        spec.map(function (opt) {
-            return $('<option>', { value: opt.choice }).text(opt.title);
-        }));
+        spec.map(option_mapper)
+    );
 
     btn.on('change', function () {
         func(btn.val());

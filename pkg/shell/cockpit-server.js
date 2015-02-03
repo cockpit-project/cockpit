@@ -37,6 +37,14 @@ PageServer.prototype = {
     setup: function() {
         var self = this;
 
+        $('#shutdown-group').append(
+              shell.action_btn(
+                  function (op) { self.shutdown(op); },
+                  [ { title: _("Restart"),         action: 'default' },
+                    { title: _("Shutdown"),        action: 'shutdown' },
+                  ])
+        );
+
         $('#server-avatar').on('click', $.proxy (this, "trigger_change_avatar"));
         $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
 
@@ -218,6 +226,11 @@ PageServer.prototype = {
         $(self.client).off('.server');
         self.client.release();
         self.client = null;
+    },
+
+    shutdown: function(action_type) {
+        PageShutdownDialog.type = action_type;
+        $('#shutdown-dialog').modal('show');
     },
 
     start_plots: function () {
@@ -422,5 +435,115 @@ function PageSystemInformationChangeHostname() {
 }
 
 shell.dialogs.push(new PageSystemInformationChangeHostname());
+
+
+PageShutdownDialog.prototype = {
+    _init: function() {
+        this.id = "shutdown-dialog";
+    },
+
+    setup: function() {
+        $("#shutdown-delay").html(
+            this.delay_btn = shell.select_btn($.proxy(this, "update"),
+                                                [ { choice: "1",   title: _("1 Minute") },
+                                                  { choice: "5",   title: _("5 Minutes") },
+                                                  { choice: "20",  title: _("20 Minutes") },
+                                                  { choice: "40",  title: _("40 Minutes") },
+                                                  { choice: "60",  title: _("60 Minutes") },
+                                                  { group : [{ choice: "0",   title: _("No Delay") },
+                                                             { choice: "x",   title: _("Specific Time")}]}
+                                                ]).
+                css("display", "inline"));
+
+        $("#shutdown-time input").change($.proxy(this, "update"));
+    },
+
+    enter: function(event) {
+        this.address = shell.get_page_machine();
+
+        /* TODO: This needs to be migrated away from the old dbus */
+        this.cockpitd = shell.dbus(this.address);
+        this.cockpitd_manager = this.cockpitd.get("/com/redhat/Cockpit/Manager",
+                                                  "com.redhat.Cockpit.Manager");
+        $(this.cockpitd_manager).on("notify.shutdown", $.proxy(this, "update"));
+
+        $("#shutdown-message").
+            val("").
+            attr("placeholder", _("Message to logged in users")).
+            attr("rows", 5);
+
+        shell.select_btn_select(this.delay_btn, "1");
+
+        if (PageShutdownDialog.type == 'shutdown') {
+          $('#shutdown-dialog .modal-title').text(_("Shutdown"));
+          $("#shutdown-action").click($.proxy(this, "shutdown"));
+          $("#shutdown-action").text(_("Shutdown"));
+        } else {
+          $('#shutdown-dialog .modal-title').text(_("Restart"));
+          $("#shutdown-action").click($.proxy(this, "restart"));
+          $("#shutdown-action").text(_("Restart"));
+        }
+        this.update();
+    },
+
+    show: function(e) {
+    },
+
+    leave: function() {
+        $(this.cockpitd_manager).off(".shutdown");
+        this.cockpitd.release();
+        this.cockpitd = null;
+        this.cockpitd_manager = null;
+    },
+
+    update: function() {
+        var disabled = false;
+
+        var delay = shell.select_btn_selected(this.delay_btn);
+        $("#shutdown-time").toggle(delay == "x");
+        if (delay == "x") {
+            var h = parseInt($("#shutdown-time input:nth-child(1)").val(), 10);
+            var m = parseInt($("#shutdown-time input:nth-child(3)").val(), 10);
+            var valid = (h >= 0 && h < 24) && (m >= 0 && m < 60);
+            $("#shutdown-time").toggleClass("has-error", !valid);
+            if (!valid)
+                disabled = true;
+        }
+
+        $("#shutdown-action").prop('disabled', disabled);
+    },
+
+    do_action: function(op) {
+        var delay = shell.select_btn_selected(this.delay_btn);
+        var message = $("#shutdown-message").val();
+        var when;
+
+        if (delay == "x")
+            when = ($("#shutdown-time input:nth-child(1)").val() + ":" +
+                    $("#shutdown-time input:nth-child(3)").val());
+        else
+            when = "+" + delay;
+
+        this.cockpitd_manager.call('Shutdown', op, when, message, function(error) {
+            $('#shutdown-dialog').modal('hide');
+            if (error && error.name != 'Disconnected')
+                shell.show_unexpected_error(error);
+        });
+    },
+
+    restart: function() {
+        this.do_action('restart');
+    },
+
+    shutdown: function() {
+        this.do_action('shutdown');
+    }
+};
+
+function PageShutdownDialog() {
+    this._init();
+}
+
+shell.dialogs.push(new PageShutdownDialog());
 
 })(jQuery, cockpit, shell);

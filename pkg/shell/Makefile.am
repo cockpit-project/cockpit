@@ -18,7 +18,6 @@ shell_js_PARTS = \
 	pkg/shell/cockpit-networking.js \
 	pkg/shell/cockpit-storage.js \
 	pkg/shell/cockpit-realms.js \
-	pkg/shell/cockpit-shutdown.js \
 	pkg/shell/cockpit-services.js \
 	pkg/shell/cockpit-accounts.js \
 	pkg/shell/cockpit-docker.js \

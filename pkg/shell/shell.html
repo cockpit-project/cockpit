@@ -91,9 +91,6 @@
               <li>
                 <a data-page-id="accounts">Administrator accounts</a>
               </li>
-              <li>
-                <a data-toggle="modal" data-target="#shutdown-dialog">Shutdown and Reboot</a>
-              </li>
             </ul>
           </li>
         </ul>
@@ -204,6 +201,11 @@
               <td>Domain</td>
               <td>
                 <button class="btn btn-default" id="system_information_realms_button"></button>
+              </td>
+            </tr>
+            <tr>
+              <td translatable="yes">Power Options</td>
+              <td id="shutdown-group">
               </td>
             </tr>
           </table>
@@ -2503,19 +2505,19 @@
     <div class="modal" id="shutdown-dialog"
          tabindex="-1" role="dialog"
          data-backdrop="static">
-      <div class="modal-dialog cockpit-modal-sm">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">Shutdown</h4>
+            <h4 class="modal-title"></h4>
           </div>
           <div class="modal-body">
             <textarea class="form-control" style="resize:none;margin-bottom:10px" id="shutdown-message">
             </textarea>
-            <table width="100%">
+            <table>
               <tr>
-                <td style="width:3em">Delay:</td>
-                <td style="text-align:right" id="shutdown-delay"></td>
-                <td style="text-align:center;width:8em">
+                <td translatable="yes">Delay</td>
+                <td id="shutdown-delay"></td>
+                <td>
                   <div id="shutdown-time">
                     <input class="form-control" style="width:3em;display:inline" value="18"/>
                     <span style="font-weight:bold">:</span>
@@ -2526,17 +2528,11 @@
             </table>
           </div>
           <div class="modal-footer">
-            <center>
-              <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+              <button class="btn btn-default btn-danger" translatable="yes" data-dismiss="modal">
                 Cancel
               </button>
-              <button class="btn btn-primary" translatable="yes" id="shutdown-restart">
-                Restart
+              <button class="btn btn-danger" id="shutdown-action">
               </button>
-              <button class="btn btn-primary" translatable="yes" id="shutdown-poweroff">
-                Power Off
-              </button>
-            </center>
           </div>
         </div>
       </div>

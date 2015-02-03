@@ -33,13 +33,29 @@ a {
     pointer-events: auto;
 }
 
+.btn.disabled:hover {
+  z-index: auto;
+}
+
 /* HACK: https://github.com/patternfly/patternfly/issues/39 */
 code, kbd, pre, samp {
   font-family: monospace, Menlo, Monaco, Consolas, "Courier New";
 }
 
-.dropdown-menu > .disabled > a:hover {
-    cursor: default;
+.dropdown-menu > li > a.disabled,
+.dropdown-menu > li > a.disabled:hover,
+.dropdown-menu > li > a.disabled:focus {
+  color: #999999;
+}
+
+.dropdown-menu > li > a.disabled:hover,
+.dropdown-menu > li > a.disabled:focus {
+  text-decoration: none;
+  background-color: transparent;
+  background-image: none;
+  border-color: transparent;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  cursor: default;
 }
 
 /* Panels don't draw borders between them */

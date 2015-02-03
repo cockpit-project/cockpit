@@ -71,7 +71,7 @@ shell.action_btn = function action_btn(func, spec, btn_classes) {
     var direct_action, disabled;
 
     direct_btn =
-        $('<button>', { 'class': 'btn btn-default' })
+        $('<button>', { 'data-container' : 'body', 'class': 'btn btn-default' })
             .text("")
             .addClass(btn_classes);
 
@@ -81,8 +81,8 @@ shell.action_btn = function action_btn(func, spec, btn_classes) {
         indirect_btns[i] = $('<li>', { 'class': 'presentation' }).
             append(
                 $('<a>', { 'role': 'menuitem',
-                           'on': { 'click': function () {
-                                              if (!disabled[i])
+                           'on': { 'click': function (e) {
+                                              if (!disabled[i] && !$(e.currentTarget).hasClass('disabled'))
                                                   func (s.action);
                                             }
                                  }
@@ -97,7 +97,7 @@ shell.action_btn = function action_btn(func, spec, btn_classes) {
             direct_btn,
             $('<button>', { 'class': 'btn btn-default dropdown-toggle',
                              'data-toggle': 'dropdown'
-                          }).addClass(btn_classes)
+                          })
                 .append(
                     $('<span>', { 'class': 'caret' })),
             $('<ul>', { 'class': 'dropdown-menu',

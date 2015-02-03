@@ -101,6 +101,7 @@ require([
     $("#add-dialog").on("show.bs.modal", function(event) {
         var entityType = "";
         var jsondata = "";
+        var text = "";
         var button = $(event.relatedTarget);
         var id = button.attr("id");
         if (id == "add-pods") {
@@ -121,21 +122,21 @@ require([
             var files, file, reader;
             files = $("#file-input")[0].files;
             if (files.length != 1) {
-                var text = "No json File was selected.Please select a json file. ";
+                text = "No json File was selected.Please select a json file. ";
                 $('#add-dialog-fail').show();
                 $('#add-dialog-fail-msg').html(text);
                 return;
             }
             file = files[0];
             if (!file.type.match("json.*")) {
-                var text = "Selected file is Not a Json file.Please select a json file. ";
+                text = "Selected file is Not a Json file.Please select a json file. ";
                 $('#add-dialog-fail').show();
                 $('#add-dialog-fail-msg').html(text);
                 return;
             }
             reader = new window.FileReader();
             reader.onerror = function () {
-                var text =  "Unable to Read the file.Please check the json file. ";
+                text =  "Unable to Read the file.Please check the json file. ";
                 $('#add-dialog-fail').show();
                 $('#add-dialog-fail-msg').html(text);
             };

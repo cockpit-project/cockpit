@@ -419,11 +419,11 @@ shell.OnOff = function OnOff(val, on, off, role_check, btn_classes) {
 
 /*
  * Update the disabled status and tooltip for all
- * elements with the given css class.
+ * elements with the given selector
  */
-shell.update_privileged_ui = function update_privileged_ui(perm, css_class, denied_message) {
+shell.update_privileged_ui = function update_privileged_ui(perm, selector, denied_message) {
     var allowed = (perm.allowed !== false);
-    $(css_class).each(function() {
+    $(selector).each(function() {
         // preserve old title first time to use when allowed
         // activate tooltip
         var allowed_key = 'allowed-title';

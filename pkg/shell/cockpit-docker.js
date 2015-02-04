@@ -585,7 +585,10 @@ PageContainers.prototype = {
         }
 
         setup_for_failure(self, self.client, self.address);
+
+        // Render storage, throttle update on events
         self.render_storage();
+        $(this.client).on('event.containers', this.throttled_render_storage());
     },
 
     show: function() {
@@ -605,6 +608,30 @@ PageContainers.prototype = {
         this.client.release();
         this.client = null;
     },
+
+    throttled_render_storage: function () {
+        var self = this;
+        var timer = null;
+        var missed = false;
+
+        var throttle = function() {
+          if (!timer) {
+            self.render_storage();
+            timer = window.setTimeout(function () {
+                var need_call = missed;
+                missed = false;
+                timer = null;
+                if (need_call && self.client)
+                    throttle();
+
+            }, 10000);
+          } else {
+            missed = true;
+          }
+        };
+
+        return throttle;
+     },
 
     render_storage: function () {
         this.client.info().done(function(data) {

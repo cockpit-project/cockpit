@@ -82,27 +82,6 @@ test("format_bytes", function() {
     }
 });
 
-test("bytes_from_format", function() {
-    var checks = [
-        [ "999", 1000, 999 ],
-        [ "1.9 kb", undefined,  1945.6],
-        [ "1.9 KB", 1000,  1900],
-        [ "2.0 KB", 1024, 2048 ],
-        [ "2.0 KB", 1000,  2000 ],
-        [ "1.0 MB", undefined, 1048576 ],
-        [ "1 GB", 1024, 1073741824 ],
-        [ "1 Unknown", 1024, 1 ],
-    ];
-
-    var i;
-
-    expect(checks.length);
-    for (i = 0; i < checks.length; i++) {
-        strictEqual(cockpit.bytes_from_format(checks[i][0], checks[i][1]), checks[i][2],
-                    "bytes_from_format(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
-    }
-});
-
 test("format_bytes_per_sec", function() {
     var checks = [
         [ 2555, "2.5 KB/s" ]

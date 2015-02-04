@@ -658,8 +658,8 @@ PageContainers.prototype = {
             if (used && total) {
               var formated = used + " / " + total;
 
-              var b_used = cockpit.bytes_from_format(used);
-              var b_total = cockpit.bytes_from_format(total);
+              var b_used = modules.docker.bytes_from_format(used);
+              var b_total = modules.docker.bytes_from_format(total);
 
               var bar_row = shell.BarRow();
               bar_row.attr("value", b_used + "/" + b_total);

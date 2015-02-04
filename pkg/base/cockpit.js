@@ -2274,25 +2274,6 @@ function full_scope(cockpit, $, po) {
         /* 1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ] */
     };
 
-    cockpit.bytes_from_format = function bytes_from_format(formatted, factor, separate) {
-        if (factor === undefined)
-            factor = 1024;
-
-        if (separate === undefined)
-            separate = " ";
-
-        var suffixes = byte_suffixes[factor];
-        var format = formatted.split(separate).pop().toUpperCase();
-        var spot = byte_suffixes[factor].indexOf(format);
-
-        /* TODO: Make the decimal separator translatable */
-        var num = parseFloat(formatted);
-
-        if (spot > 0 && !isNaN(num))
-            return num * Math.pow(factor, spot);
-        return num;
-    };
-
     cockpit.format_bytes = function format_bytes(number, factor, separate) {
         if (factor === undefined)
             factor = 1024;

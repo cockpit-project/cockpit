@@ -145,7 +145,7 @@ setup_transport (TestCase *tc,
                  gconstpointer data)
 {
   const TestFixture *fixture = data;
-  g_assert_nonnull(fixture);
+  g_assert(fixture != NULL);
 
   const gchar *password = fixture->client_password ? fixture->client_password : PASSWORD;
   CockpitCreds *creds;

@@ -104,8 +104,8 @@ class TestDocker(MachineCase):
         # Check links, v1.10 of the API doesn't return links
         # so our visual won't work.
         info = json.loads(m.execute('docker inspect PROBE2'))
-        self.assertEqual(info[0]["HostConfig"]["Links"],
-            ["/PROBE:/PROBE2/alias1", "/PROBE:/PROBE2/alias2"])
+        self.assertEqual(set(info[0]["HostConfig"]["Links"]),
+            set(["/PROBE:/PROBE2/alias1", "/PROBE:/PROBE2/alias2"]))
 
         # delete PROBE2
         b.wait_in_text('#containers-containers tbody tr:first', "PROBE2")

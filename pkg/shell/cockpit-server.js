@@ -68,6 +68,14 @@ PageServer.prototype = {
                   ])
         );
 
+        $('#shutdown-group').append(
+              shell.action_btn(
+                  function (op) { self.shutdown(op); },
+                  [ { title: _("Restart"),         action: 'default' },
+                    { title: _("Shutdown"),        action: 'shutdown' },
+                  ])
+        );
+
         $('#server-avatar').on('click', $.proxy (this, "trigger_change_avatar"));
         $('#server-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
 

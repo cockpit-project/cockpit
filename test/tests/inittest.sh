@@ -4,11 +4,13 @@
 #  download new version of cockpit from git 
 set -x
 
+cd /root
 PACKAGE="cockpit"
 SOURCE="https://github.com/$PACKAGE-project/$PACKAGE.git"
 
 /bin/rm -fr $PACKAGE
 git clone $SOURCE
+#yum-builddep -y cockpit
 yum-builddep -y $PACKAGE/tools/$PACKAGE.spec || yum-builddep -y $PACKAGE/tools/$PACKAGE.spec 
 RETC=$?
 

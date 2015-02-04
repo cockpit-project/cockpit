@@ -6,9 +6,11 @@
 # it is basic test compilation must PASS
 
 set -x
-
+cd /root
 BUILD="build1"
 PACKAGE="cockpit"
+test -d $PACKAGE/$BUILD && /bin/rm -r $PACKAGE/$BUILD
+
  cd $PACKAGE && \
  mkdir $BUILD && \
  cd $BUILD && \

@@ -884,6 +884,10 @@
                 <td>Ports:</td>
                 <td colspan="2" id="container-details-ports"></td>
               </tr>
+              <tr id="container-details-links-row" style="display: none;">
+                <td>Links:</td>
+                <td colspan="2" id="container-details-links"></td>
+              </tr>
               <tr>
                 <td>&nbsp;</td>
                 <td>
@@ -2262,6 +2266,15 @@
       </div>
     </div>
 
+    <script id="container-link-tmpl" type="x-template/mustache">
+      <form class="form-inline">
+        <button type="button" class="btn btn-default fa fa-plus"></button><button type="button" class="btn btn-default pficon-close"></button>
+        <div class="form-group"><select class="form-control selectpicker" name="container"><option value="">select container</option>{{#containers}}<option>{{.}}</option>{{/containers}}</select></div>
+        <div class="form-group"><label translatable="yes">{{alias_label}}</label><input type="text" name="alias" class="form-control"></div>
+      </form>
+
+    </script>
+
     <div class="modal" id="containers_run_image_dialog"
          tabindex="-1" role="dialog"
          data-backdrop="static">
@@ -2326,6 +2339,14 @@
                 <td translatable="yes">With terminal</td>
                 <td class="shrink">
                   <input type="checkbox" id="containers-run-image-with-terminal" checked />
+                </td>
+              </tr>
+              <tr>
+                <td translatable="yes">Links</td>
+                <td colspan="3">
+                  <input type="checkbox" name="link-containers" id="link-containers" checked="false"/><label for="link-containers">Link to another container</label>
+                  <div id="select-linked-containers" class="containers-run-inline">
+                  </div>
                 </td>
               </tr>
             </table>

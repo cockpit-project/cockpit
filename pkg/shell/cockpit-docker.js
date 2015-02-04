@@ -21,6 +21,7 @@
 /* global cockpit  */
 /* global _        */
 /* global C_       */
+/* global Mustache */
 
 var shell = shell || { };
 var modules = modules || { };
@@ -689,6 +690,7 @@ PageRunImage.prototype = {
     },
 
     leave: function() {
+        this.containers = null;
     },
 
     setup: function() {
@@ -699,7 +701,7 @@ PageRunImage.prototype = {
         this.cpu_slider = new CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
 
         var table = $('#containers_run_image_dialog .modal-body table');
-        this.run_portmapping = $('<div class="containers-run-portmapping">');
+        this.run_portmapping = $('<div class="containers-run-portmapping containers-run-inline">');
         this.portmapping_checkbox = $('<input type="checkbox" checked>');
         table.append($('<tr>')
             .append($('<td>').text('Ports'))
@@ -714,6 +716,18 @@ PageRunImage.prototype = {
                 $('.containers-run-portmapping').show();
             else
                 $('.containers-run-portmapping').hide();
+        });
+
+        var renderer = this.link_renderer();
+        $("#link-containers").change(function() {
+            if ($(this).prop('checked')) {
+                if ($('#select-linked-containers').children().length === 0 ) {
+                    renderer();
+                }
+                $('#select-linked-containers').show();
+            } else {
+                $('#select-linked-containers').hide();
+            }
         });
     },
 
@@ -730,6 +744,19 @@ PageRunImage.prototype = {
             done(function (info) {
                 page.memory_slider.max = info.memory;
             });
+
+        page.containers = [];
+        var id;
+        for (id in PageRunImage.client.containers) {
+            page.containers.push(
+                render_container_name(
+                  PageRunImage.client.containers[id].Name
+                )
+            );
+        }
+
+        $('#select-linked-containers').empty();
+        $("#link-containers").prop("checked", false);
 
         /* Memory slider defaults */
         if (info.container_config.Memory) {
@@ -809,6 +836,8 @@ PageRunImage.prototype = {
             var portmapping = {};
             portmapping.html =
                     $('<form class="form-inline">')
+                    .append(mapping_add)
+                    .append(mapping_remove)
                     .append($('<div class="form-group">')
                         .append(port_internal_element)
                     )
@@ -816,9 +845,7 @@ PageRunImage.prototype = {
                     .append($('<div class="form-group">')
                         .append($('<label>').html(' &nbsp;to host port'))
                         .append(port_external_element)
-                    )
-                    .append(mapping_add)
-                    .append(mapping_remove);
+                    );
 
             port_internal_element.attr('placeholder', _("none"));
             port_internal_element.val(port_internal);
@@ -865,12 +892,44 @@ PageRunImage.prototype = {
         this.portmapping_checkbox.prop('checked', true);
     },
 
+    link_renderer: function() {
+        var self = this;
+        var template = $("#container-link-tmpl").html();
+        Mustache.parse(template);
+
+        function add_row() {
+            render();
+        }
+
+        function remove_row(e) {
+            var parent = $(e.target).closest("form");
+            parent.remove();
+            if ($('#select-linked-containers').children().length === 0 ) {
+                $("#link-containers").attr("checked", false);
+            }
+        }
+
+        function render() {
+          var row = $(Mustache.render(template, {
+              containers: self.containers,
+              alias_label: _('alias')
+          }));
+          row.children("button.fa-plus").on('click', add_row);
+          row.children("button.pficon-close").on('click', remove_row);
+          row.find("div select.selectpicker").selectpicker('refresh');
+          $("#select-linked-containers").append(row);
+        }
+
+        return render;
+    },
+
     run: function() {
         var name = $("#containers-run-image-name").val();
         var cmd = $("#containers-run-image-command").val();
         var port_bindings = { };
         var p, mapping;
         var map_from, map_to, map_protocol;
+        var links = [];
         var exposed_ports = { };
         if (this.portmapping_checkbox.prop('checked')) {
             this.run_portmapping.children('form').each(function() {
@@ -889,6 +948,17 @@ PageRunImage.prototype = {
             });
         }
 
+        if ($("#link-containers").prop('checked')) {
+          $("#select-linked-containers form").each(function() {
+              var container = $(this).find('select[name="container"]').val();
+              var alias = $(this).find('input[name="alias"]').val();
+              if (!container || !alias) {
+                  return;
+              }
+              links.push(container + ':' + alias);
+          });
+        }
+
         $("#containers_run_image_dialog").modal('hide');
 
         var tty = $("#containers-run-image-with-terminal").prop('checked');
@@ -899,7 +969,10 @@ PageRunImage.prototype = {
             "MemorySwap": (this.memory_slider.value * 2) || 0,
             "CpuShares": this.cpu_slider.value || 0,
             "Tty": tty,
-            "ExposedPorts": exposed_ports
+            "ExposedPorts": exposed_ports,
+            "HostConfig": {
+                "Links": links
+            }
         };
 
         if (tty) {
@@ -1302,6 +1375,7 @@ PageContainerDetails.prototype = {
         $('#container-details-command').text("");
         $('#container-details-state').text("");
         $('#container-details-ports-row').hide();
+        $('#container-details-links-row').hide();
         $('#container-details-resource-row').hide();
 
         var info = this.client.containers[this.container_id];
@@ -1353,6 +1427,8 @@ PageContainerDetails.prototype = {
         $('#container-details-ports-row').toggle(port_bindings.length > 0);
         $('#container-details-ports').html(port_bindings.map(shell.esc).join('<br/>'));
 
+        this.update_links(info);
+
         update_memory_bar(this.memory_usage, info.MemoryUsage, info.MemoryLimit);
         $('#container-details-memory-text').text(format_memory_and_limit(info.MemoryUsage, info.MemoryLimit));
 
@@ -1360,6 +1436,17 @@ PageContainerDetails.prototype = {
         $('#container-details .cpu-shares').text(format_cpu_shares(info.CpuPriority));
 
         this.maybe_show_terminal(info);
+    },
+
+    update_links: function(info) {
+        $('#container-details-links').empty();
+        var links = info.HostConfig.Links;
+        if (links) {
+          $('#container-details-links-row').toggle(true);
+          $('#container-details-links').html(
+                links.join('<br/>')
+          );
+        }
     },
 
     start_container: function () {

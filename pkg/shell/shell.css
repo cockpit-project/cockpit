@@ -591,12 +591,12 @@ ul.available-interfaces-group {
     vertical-align: top;
 }
 
-.containers-run-portmapping {
+.containers-run-inline {
     margin-left: 8px;
 }
 
-.containers-run-portmapping form .pficon-close,
-.containers-run-portmapping form .fa-plus {
+.containers-run-inline form .pficon-close,
+.containers-run-inline form .fa-plus {
     height: 26px;
     width: 26px;
     padding: 8px;
@@ -604,11 +604,7 @@ ul.available-interfaces-group {
     margin-left: 5px;
 }
 
-.containers-run-portmapping input {
-    max-width: 5em;
-}
-
-.containers-run-portmapping .form-inline {
+.containers-run-inline .form-inline {
     background: #f4f4f4;
     border-width: 0 1px 1px 1px;
     border-style: solid;
@@ -616,12 +612,38 @@ ul.available-interfaces-group {
     padding: 4px;
 }
 
-.containers-run-portmapping .form-inline:first-of-type {
+.containers-run-inline .form-inline:first-of-type {
     border-top: 1px solid #bababa;
 }
 
-.containers-run-portmapping .form-control {
+.containers-run-inline .form-control {
   margin: 0 4px;
+}
+
+.containers-run-portmapping input {
+    max-width: 5em;
+}
+
+#select-linked-containers .form-group {
+    width: 80%;
+}
+
+#select-linked-containers label {
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+#select-linked-containers .form-control {
+    padding-left: 4px;
+}
+
+@media (min-width: 768px) {
+  #select-linked-containers .form-group {
+      width: 40%;
+  }
+  #select-linked-containers input {
+      max-width: 75%;
+  }
 }
 
 /* Hack to remove size column */

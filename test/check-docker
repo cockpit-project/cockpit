@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib import *
+import json
 
 class TestDocker(MachineCase):
     def confirm(self):
@@ -55,24 +56,6 @@ class TestDocker(MachineCase):
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE")
 
-        # delete it.
-        b.wait_in_text('#containers-containers tbody tr:last', "PROBE")
-        b.wait_not_visible("#containers-containers tbody tr:last button.btn-delete")
-        b.click("#containers-containers button.enable-danger")
-        b.wait_visible("#containers-containers tbody tr:last button.btn-delete")
-        b.wait_not_present("#containers-containers tbody tr:last button.btn-delete.disabled")
-        b.click("#containers-containers tbody tr:last button.btn-delete")
-        b.wait_js_func('!ph_is_present', "#containers-containers tbody tr")
-
-        # Start it again
-        b.click('#containers-images tr:contains("container-probe") button.btn-play')
-        b.wait_popup("containers_run_image_dialog")
-        b.set_val("#containers-run-image-name", "PROBE")
-        b.set_val("#containers-run-image-command", "/bin/container-probe")
-        b.click("#containers-run-image-run");
-        b.wait_popdown("containers_run_image_dialog")
-        b.wait_in_text("#containers-containers", "PROBE")
-
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE")')
         b.wait_page("container-details")
@@ -96,7 +79,44 @@ class TestDocker(MachineCase):
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE")
 
-        # Check output of the probe
+        # Check not linked
+        info = json.loads(m.execute('docker inspect PROBE'))
+        self.assertEqual(info[0]["HostConfig"]["Links"], None)
+
+        # Create another container linked to old one
+        b.click('#containers-images tr:contains("container-probe") button.btn-play')
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE2")
+        b.set_val("#containers-run-image-command", "/bin/container-probe")
+        b.click("#containers-run-image-with-terminal");
+        b.wait_not_visible("#select-linked-containers");
+        b.click("#link-containers");
+        b.wait_visible("#select-linked-containers");
+        b.set_val("#select-linked-containers form:last-child select.selectpicker", "PROBE")
+        b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias1")
+        b.click("#select-linked-containers form:last-child  button.fa-plus");
+        b.set_val("#select-linked-containers form:last-child  select.selectpicker", "PROBE")
+        b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias2")
+        b.click("#containers-run-image-run");
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE2")
+
+        # Check links, v1.10 of the API doesn't return links
+        # so our visual won't work.
+        info = json.loads(m.execute('docker inspect PROBE2'))
+        self.assertEqual(info[0]["HostConfig"]["Links"],
+            ["/PROBE:/PROBE2/alias1", "/PROBE:/PROBE2/alias2"])
+
+        # delete PROBE2
+        b.wait_in_text('#containers-containers tbody tr:first', "PROBE2")
+        b.wait_not_visible("#containers-containers tbody tr:first button.btn-delete")
+        b.click("#containers-containers button.enable-danger")
+        b.wait_visible("#containers-containers tbody tr:first button.btn-delete")
+        b.wait_not_present("#containers-containers tbody tr:first button.btn-delete.disabled")
+        b.click("#containers-containers tbody tr:first button.btn-delete")
+        b.wait_not_in_text('#containers-containers tbody tr:first', "PROBE2")
+
+        # Check output of PROBE
         b.click('#containers-containers tr:contains("PROBE")')
         b.wait_page("container-details")
         b.wait_in_text("#container-terminal", "Hello from container-probe.")

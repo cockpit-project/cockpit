@@ -97,6 +97,6 @@ tar czf - . | vm_ssh $NAME tar xzf - --directory /root/cockpit
 vm_ssh $NAME cp -r /root/cockpit/$BASE/\* /root/avocado/tests$AVOCADO_TEST_DIR
 
 AVOCADO_PARAMS="--vm-domain $NAME --vm-username root --vm-password $PASSWD --vm-hostname $IP"
-sudo avocado run $AVOCADO_PARAMS $AVOCADO_TEST_DIR/{sources.sh,inittest.sh}
-sudo avocado run $AVOCADO_PARAMS --vm-clean $AVOCADO_TEST_DIR/{compiletest.sh,checklogin.py}
+sudo avocado run $AVOCADO_PARAMS --xunit out1.xml $AVOCADO_TEST_DIR/{sources.sh,inittest.sh}
+sudo avocado run $AVOCADO_PARAMS --xunit out2.xml  --vm-clean $AVOCADO_TEST_DIR/{compiletest.sh,checklogin.py}
 

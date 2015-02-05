@@ -2,6 +2,8 @@
 
 unset command_not_found_handle
 BASE_PCKGS="virt-deploy pystache sshpass telnet fabric"
+GRP="virtualization"
+
 function host_dependencies_fedora(){
     sudo yum -y yum-plugin-copr
     sudo yum -y copr enable fsimonce/virt-deploy
@@ -13,6 +15,21 @@ function host_dependencies_rhel7(){
     sudo /bin/cp virt-deploy.repo /etc/yum.repos.d/
     sudo yum -y install $BASE_PCKGS
 
+}
+
+function host_virtlibpolicy_solver(){
+    LUSER=`whoami`
+    sudo groupadd $GRP
+    sudo usermod -a -G $GRP $LUSER
+    newgrp $GRP
+    sudo chgrp $GRP  /var/lib/libvirt/images
+    sudo chmod g+rwx /var/lib/libvirt/images
+    sudo tee /etc/polkit-1/localauthority/50-local.d/50-org.example-libvirt-remote-access.pkla <<< "[libvirt Management Access]
+Identity=unix-group:$GRP
+Action=org.libvirt.unix.manage
+ResultAny=yes
+ResultInactive=yes
+ResultActive=yes"
 }
 
 if rpm -q $BASE_PCKGS >& /dev/null; then
@@ -28,12 +45,15 @@ else
     fi
 fi
 
+if groups `whoami` | grep -s $GRP; then
+    echo "Virtualization enabled for user"
+else
+    host_virtlibpolicy_solver
+fi
+
 # generate key if not generated yet
 ssh-keygen -q -f ~/.ssh/id_rsa -N "" </dev/null
 
-# sudo for actual user have to be setup at least for commands
-#
-#    virsh, virt-deploy
 AVOCADO_NEW="https://github.com/avocado-framework/avocado/archive/master.zip"
 AVOCADO="avocado-master"
 AVOCADO_SOURCE="

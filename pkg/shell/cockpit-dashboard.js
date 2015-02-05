@@ -258,12 +258,17 @@ PageDashboard.prototype = {
             scroll_plot_right();
         });
 
+        function update_scroll_buttons() {
+            $('#dashboard-scroll-right').attr('disabled', plot_x_stop === undefined);
+        }
+
         function set_plot_x_range(val) {
             $('#dashboard-range-buttons button').removeClass("active");
             $('#dashboard-range-buttons button[data-seconds=' + val + ']').addClass("active");
             plot_x_range = val;
             plot_x_stop = undefined;
             plot_reset();
+            update_scroll_buttons();
         }
 
         function scroll_plot_left() {
@@ -272,6 +277,7 @@ PageDashboard.prototype = {
                 plot_x_stop = (new Date()).getTime() / 1000;
             plot_x_stop -= step;
             plot_reset();
+            update_scroll_buttons();
         }
 
         function scroll_plot_right() {
@@ -282,6 +288,7 @@ PageDashboard.prototype = {
                     plot_x_stop = undefined;
                 plot_reset();
             }
+            update_scroll_buttons();
         }
 
         set_monitor(current_monitor);

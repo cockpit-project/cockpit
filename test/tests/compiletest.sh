@@ -6,22 +6,21 @@
 # it is basic test compilation must PASS
 
 set -x
+set -e
+
 cd /root
 BUILD="build1"
 PACKAGE="cockpit"
 test -d $PACKAGE/$BUILD && /bin/rm -r $PACKAGE/$BUILD
 
- cd $PACKAGE && \
- mkdir $BUILD && \
- cd $BUILD && \
- ../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug && \
- make && \
- make install
-RETC=$?
+cd $PACKAGE
+mkdir -p $BUILD
+cd $BUILD
+../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug
+make
+make install
 
-if [ "$RETC" -eq 0 ]; then
-    /bin/cp -f ../src/bridge/$PACKAGE.pam.insecure /etc/pam.d/$PACKAGE
-    grep reauthorize /etc/pam.d/sshd || sh -c 'cat ../src/bridge/sshd-reauthorize.pam >> /etc/pam.d/sshd'   
-fi
+set +e
+/bin/cp -f ../src/bridge/$PACKAGE.pam.insecure /etc/pam.d/$PACKAGE
+grep reauthorize /etc/pam.d/sshd || sh -c 'cat ../src/bridge/sshd-reauthorize.pam >> /etc/pam.d/sshd'   
 
-exit $RETC

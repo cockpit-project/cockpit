@@ -6,4 +6,6 @@ set -e
 
 cd /root
 PACKAGE="cockpit"
-yum-builddep -y $PACKAGE/tools/$PACKAGE.spec
+SOURCE="https://github.com/$PACKAGE-project/$PACKAGE.git"
+/bin/rm -fr $PACKAGE
+git clone $SOURCE

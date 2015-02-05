@@ -1,13 +1,32 @@
 #!/bin/bash
 
-# COPR plugin, html results for avocado, and sshpass for key transfer
-sudo yum -y -q install pystache sshpass yum-plugin-copr telnet fabric
-# avocado installation from COPR
-sudo yum -y -q copr enable lmr/Autotest
-sudo yum -y -q install avocado
-# avocado installation from COPR 
-sudo yum -y copr enable fsimonce/virt-deploy
-sudo yum -y install virt-deploy
+unset command_not_found_handle
+BASE_PCKGS="virt-deploy pystache sshpass telnet fabric"
+function host_dependencies_fedora(){
+    sudo yum -y yum-plugin-copr
+    sudo yum -y copr enable fsimonce/virt-deploy
+    sudo yum -y install $BASE_PCKGS
+}
+
+function host_dependencies_rhel7(){
+    curl https://copr.fedoraproject.org/coprs/fsimonce/virt-deploy/repo/epel-7/fsimonce-virt-deploy-epel-7.repo > virt-deploy.repo
+    sudo /bin/cp virt-deploy.repo /etc/yum.repos.d/
+    sudo yum -y install $BASE_PCKGS
+
+}
+
+if rpm -q $BASE_PCKGS >& /dev/null; then
+    echo "All packages alread installed"
+else
+    if cat /etc/redhat-release | grep -sq "Red Hat"; then
+        host_dependencies_rhel7
+    elif cat /etc/redhat-release | grep -sq "Fedora"; then
+        host_dependencies_fedora
+    else
+        echo "Now are supported only Fedora and Red Hat installation methods"
+        exit 10
+    fi
+fi
 
 # generate key if not generated yet
 ssh-keygen -q -f ~/.ssh/id_rsa -N "" </dev/null
@@ -18,15 +37,18 @@ ssh-keygen -q -f ~/.ssh/id_rsa -N "" </dev/null
 AVOCADO_NEW="https://github.com/avocado-framework/avocado/archive/master.zip"
 AVOCADO="avocado-master"
 AVOCADO_SOURCE="
- curl -L $AVOCADO_NEW > $AVOCADO.zip && \
- unzip -o $AVOCADO.zip && \
- cd $AVOCADO && \
- sudo ./setup.py install && \
- cd ..
+(
+ set -e;
+ cd /tmp;
+ curl -L $AVOCADO_NEW > $AVOCADO.zip;
+ unzip -o $AVOCADO.zip;
+ cd $AVOCADO;
+ sudo ./setup.py install;
+)
 "
 BASE=test/tests
 source $BASE/lib/create_test_machine.sh
-AVOCADO_TEST_DIR=/usr/share/avocado/tests
+AVOCADO_TEST_DIR=/tmp/avocado-test/tests
 
 PREFIX=checkmachine1
 DISTRO=fedora-21
@@ -35,30 +57,26 @@ NAME=`vm_get_name $PREFIX $DISTRO`
 IP=`vm_get_ip $NAME`
 PASSWD=`vm_get_pass $NAME`
 
+# avocado installation part (workaround (copr version does not contail all possibilities))
+avocado -v || sudo bash -c "$AVOCADO_SOURCE"
+LOCAL_VERSION=`avocado -v`
+vm_ssh $NAME avocado -v || vm_ssh $NAME "$AVOCADO_SOURCE"
+REMOTE_VERSION=`vm_ssh $NAME avocado -v`
+if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ]; then
+    echo "avocado versions are not same on LOCAL and REMOTE $LOCAL_VERSION != $REMOTE_VERSION (SHOULD BE)"
+    exit 11
+fi
+
 # workaound for slow snapshost creation (delete all existing snaps)
 vm_delete_snaps $NAME
 
-# avocado installation
-vm_ssh $NAME "$AVOCADO_SOURCE"
-sudo bash -c "$AVOCADO_SOURCE"
-
-
-sudo /bin/cp -r $BASE/* $AVOCADO_TEST_DIR
-vm_ssh $NAME mkdir -p /root/avocado/tests$AVOCADO_TEST_DIR /root/cockpit
+mkdir -p $AVOCADO_TEST_DIR
+/bin/cp -r $BASE/* $AVOCADO_TEST_DIR
+vm_ssh $NAME mkdir -p /root/avocado/tests/$AVOCADO_TEST_DIR /root/cockpit
 tar czf - . | vm_ssh $NAME tar xzf - --directory /root/cockpit
 vm_ssh $NAME cp -r /root/cockpit/$BASE/\* /root/avocado/tests$AVOCADO_TEST_DIR
 
-#vm_ssh $NAME avocado run avocado/tests/inittest.sh avocado/tests/checklogin.py 
+AVOCADO_PARAMS="--vm-domain $NAME --vm-username root --vm-password $PASSWD --vm-hostname $IP"
+sudo avocado run $AVOCADO_PARAMS $AVOCADO_TEST_DIR/{sources.sh,inittest.sh}
+sudo avocado run $AVOCADO_PARAMS --vm-clean $AVOCADO_TEST_DIR/{compiletest.sh,checklogin.py}
 
-sudo avocado run --vm-domain "$NAME" --vm-username root --vm-password "$PASSWD" --vm-hostname "$IP" $AVOCADO_TEST_DIR/inittest.sh
-#vm_ssh $NAME cp -r /root/cockpit/lib/sizzle.v2.1.0.js /root/cockpit/test/phantom-* /root/avocado/tests$AVOCADO_TEST_DIR/lib
-sudo avocado run --vm-domain "$NAME" --vm-clean --vm-username root --vm-password "$PASSWD" --vm-hostname "$IP" $AVOCADO_TEST_DIR/compiletest.sh $AVOCADO_TEST_DIR/checklogin.py
-
-#vm_ssh $NAME tar czf -  /root/avocado/job-results | tar xzf -
-# cp * ~/tmp/root/avocado/tests/ -rf; cp -rf * /usr/share/avocado/tests/
-# avocado run checklogin.py
-
- 
-# cat /root/avocado/job-results/latest/job.log 
-
-# virt-deploy delete $NAME

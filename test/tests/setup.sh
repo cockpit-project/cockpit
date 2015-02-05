@@ -61,7 +61,7 @@ PASSWD=`vm_get_pass $NAME`
 avocado -v || sudo bash -c "$AVOCADO_SOURCE"
 LOCAL_VERSION=`avocado -v 2>&1 |grep Avo`
 vm_ssh $NAME avocado -v || vm_ssh $NAME "$AVOCADO_SOURCE"
-REMOTE_VERSION=`vm_ssh $NAME "avocado -v 2>&1 | grep Avo"`
+REMOTE_VERSION=`vm_ssh $NAME "avocado -v " 2>&1 | grep Avo`
 if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ]; then
     echo "avocado versions are not same on LOCAL and REMOTE $LOCAL_VERSION != $REMOTE_VERSION (SHOULD BE)"
     exit 11

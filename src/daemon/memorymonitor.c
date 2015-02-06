@@ -298,8 +298,16 @@ collect (MemoryMonitor *monitor)
 
   sample->timestamp = now;
   sample->free      = free_kb * 1024;
-  sample->used      = (total_kb - free_kb) * 1024;
   sample->cached    = (buffers_kb + cached_kb) * 1024;
+
+  /* To compute the amout of used memory, use the following formula.
+   * Used = Total - (free + cache + buffers)
+   * Reasoning: The amount of "used = total-free" memory is usualy
+   *            pretty high since kernel tries to use memory for
+   *            caching as much as possible. See man proc or
+   *            http://www.linuxatemyram.com/ */
+
+  sample->used      = (total_kb - free_kb) * 1024 - sample->cached;
   sample->swap_used = (swap_total_kb - swap_free_kb) * 1024;
 
 out:

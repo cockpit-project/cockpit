@@ -243,6 +243,130 @@ var kube_data = {
             ]
         }
     },
+    "pods": {
+        "kind": "PodList",
+        "creationTimestamp": null,
+        "selfLink": "/api/v1beta1/pods",
+        "resourceVersion": 84102,
+        "apiVersion": "v1beta1",
+        "items": [
+            {
+                "id": "0b547d64-ab8a-11e4-9a7c-080027300d85",
+                "uid": "0b547d64-ab8a-11e4-9a7c-080027300d85",
+                "creationTimestamp": "2015-02-03T15:20:11+05:30",
+                "selfLink": "/api/v1beta1/pods/0b547d64-ab8a-11e4-9a7c-080027300d85?namespace=default",
+                "resourceVersion": 84102,
+                "namespace": "default",
+                "labels": {
+                    "name": "wordpressreplica"
+                },
+                "desiredState": {
+                    "manifest": {
+                        "version": "v1beta2",
+                        "id": "",
+                        "volumes": null,
+                        "containers": [
+                            {
+                                "name": "slave",
+                                "image": "jbfink/wordpress",
+                                "ports": [
+                                    {
+                                        "hostPort": 81,
+                                        "containerPort": 80,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "imagePullPolicy": ""
+                            }
+                        ],
+                        "restartPolicy": {
+                            "always": {}
+                        }
+                    }
+                },
+                "currentState": {
+                    "manifest": {
+                        "version": "",
+                        "id": "",
+                        "volumes": null,
+                        "containers": null,
+                        "restartPolicy": {}
+                    },
+                    "status": "Waiting"
+                }
+            },
+            {
+                "id": "apache",
+                "uid": "11768037-ab8a-11e4-9a7c-080027300d85",
+                "creationTimestamp": "2015-02-03T15:20:21+05:30",
+                "selfLink": "/api/v1beta1/pods/apache?namespace=default",
+                "resourceVersion": 82248,
+                "namespace": "default",
+                "labels": {
+                    "name": "apache"
+                },
+                "desiredState": {
+                    "manifest": {
+                        "version": "v1beta2",
+                        "id": "",
+                        "volumes": null,
+                        "containers": [
+                            {
+                                "name": "master",
+                                "image": "fedora/apache",
+                                "ports": [
+                                    {
+                                        "hostPort": 8084,
+                                        "containerPort": 80,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "imagePullPolicy": ""
+                            }
+                        ],
+                        "restartPolicy": {
+                            "always": {}
+                        }
+                    }
+                },
+                "currentState": {
+                    "manifest": {
+                        "version": "",
+                        "id": "",
+                        "volumes": null,
+                        "containers": null,
+                        "restartPolicy": {}
+                    },
+                    "status": "Running",
+                    "host": "127.0.0.1",
+                    "podIP": "172.17.0.3",
+                    "info": {
+                        "master": {
+                            "state": {
+                                "running": {
+                                    "startedAt": "2015-02-03T09:50:25Z"
+                                }
+                            },
+                            "restartCount": 0,
+                            "image": "fedora/apache",
+                            "containerID": "docker://71e288e50fa7e61724207944e0950c23ab56036d7d10faa2969d9b2f1a0322ad"
+                        },
+                        "net": {
+                            "state": {
+                                "running": {
+                                    "startedAt": "2015-02-03T09:50:24Z"
+                                }
+                            },
+                            "restartCount": 0,
+                            "podIP": "172.17.0.3",
+                            "image": "kubernetes/pause:latest",
+                            "containerID": "docker://8ba22e7c4954bc4dc2d8a9ac7a0dc2c1924a20b9a892be19591876ab18fd3a13"
+                        }
+                    }
+                }
+            }
+        ]
+    }
 };
 
 require([
@@ -361,6 +485,22 @@ require([
             equal(typeof minion.resources, "object", "minion has resources");
 
             $(client).off("minions");
+            client.close();
+            start();
+        });
+    });
+
+    asyncTest("list pods", function() {
+        expect(3);
+
+        var client = kubernetes.k8client();
+        $(client).on("pods", function(ev) {
+            var pod = client.pods[0];
+            equal(client.pods.length, 2, "number of pods");
+            equal(pod.id, "0b547d64-ab8a-11e4-9a7c-080027300d85", "pod id");
+            equal(pod.labels.name, "wordpressreplica", "pod has label");
+
+            $(client).off("pods");
             client.close();
             start();
         });

@@ -147,6 +147,13 @@ define([
             }).fail(failure);
         };
 
+        this.delete_service = function delete_service(service_name) {
+            api.request({"method": "DELETE",
+                "body": "",
+                "path": "/api/v1beta1/services/" + encodeURIComponent(service_name)
+            }).fail(failure);
+        };
+
         this.create_replicationController = function create_replicationController(replicationController_json) {
             api.post("/api/v1beta1/replicationControllers", replicationController_json)
                .fail(failure);
@@ -160,6 +167,18 @@ define([
         this.create_pod = function create_pod(pod_json) {
             api.post("/api/v1beta1/pods", pod_json)
                .fail(failure);
+        };
+
+        this.create_service = function create_pod(service_json) {
+            api.post("/api/v1beta1/services", service_json)
+               .fail(failure);
+        };
+
+        this.update_replicationController = function update_replicationController(rc_json) {
+            api.request({"method": "PUT",
+                "body": rc_json,
+                "path": "/api/v1beta1/replicationControllers/" + encodeURIComponent(rc_json.id)
+            }).fail(failure);
         };
 
         function update() {

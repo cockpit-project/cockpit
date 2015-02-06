@@ -67,6 +67,12 @@ require([
                     });
                 }
                 return parts.join("\n");
+            },
+            render_button: function() {
+                if(this.id == "kubernetes" || this.id == "kubernetes-ro") {
+                    return false;
+                }
+                return true;
             }
         };
 
@@ -98,6 +104,16 @@ require([
         return null;
     }
 
+    function lookup_rc(id) {
+        var pod, i, length = client.replicationControllers.length;
+        for (i = 0; i < length; i++) {
+            rc = client.replicationControllers[i];
+            if (id == rc.id)
+                return rc;
+        }
+        return null;
+    }
+
     $("#add-dialog").on("show.bs.modal", function(event) {
         var entityType = "";
         var jsondata = "";
@@ -111,7 +127,7 @@ require([
         } else if (id == "add-replicationControllers") {
             entityType = "replicationController";
         } else {
-            entityType = "services";
+            entityType = "service";
         }
 
         $('#add-dialog-fail').hide();
@@ -147,14 +163,20 @@ require([
         });
         $("#add-dialog-apply").off('click');
         $("#add-dialog-apply").on('click', function () {
+            if (jsondata === "") {
+                var errormsg = "No json File was selected.Please select a json file. ";
+                $('#add-dialog-fail').show();
+                $('#add-dialog-fail-msg').html(errormsg);
+                return;
+            }
             if (entityType == "pod") {
                 client.create_pod(jsondata);
             } else if (entityType == "minion") {
                 client.create_minion(jsondata);
             } else if (entityType == "replicationController") {
                 client.create_replicationController(jsondata);
-            } else {
-               ; //TODO
+            } else if (entityType == "service") {
+               client.create_service(jsondata);
             }
             $("#add-dialog").hide();
             $("#add-dialog-apply").off('click');
@@ -171,8 +193,8 @@ require([
             entityType = "minion";
         } else if (id == "delete-replicationControllers") {
             entityType = "replicationController";
-        } else {
-            entityType = "services";
+        } else if (id == "delete-services") {
+            entityType = "service";
         }
         var entity = button.attr("data-id");
         if (!entity)
@@ -188,8 +210,8 @@ require([
                 client.delete_minion(entity);
             } else if (entityType == "replicationController") {
                 client.delete_replicationController(entity);
-            } else {
-               ; //TODO
+            } else if (entityType == "service") {
+                client.delete_service(entity);
             }
             $("#delete-dialog").hide();
             $("#delete-dialog-apply").off('click');
@@ -211,6 +233,57 @@ require([
         var text = Mustache.render(template, $.extend(context, pod));
 
         $(this).find(".modal-body").html(text);
+    });
+
+    $("#update-editor").on("show.bs.modal", function(event) {
+        var entityType = "";
+        var entity;
+        var button = $(event.relatedTarget);
+        var id = button.attr("id");
+        if (id == "update-pods") {
+            entityType = "pod";
+        } else if (id == "update-minions") {
+            entityType = "minion";
+        } else if (id == "update-replicationControllers") {
+            entityType = "replicationController";
+            entity = lookup_rc(button.attr("data-id"));
+        } else if (id == "update-services") {
+            entityType = "service";
+        }
+
+        if (!entity)
+            return false;
+
+        var template = $("#edit-rc-tmpl").html();
+        Mustache.parse(template);
+
+        /* jshint validthis:true */
+        var context = { };
+        var text = Mustache.render(template, $.extend(context, rc));
+        $(this).find(".modal-body").html(text);
+
+        $("#update-dialog-apply").off('click');
+        $("#update-dialog-apply").on('click', function () {
+            if (entityType == "pod") {
+                //TODO
+            } else if (entityType == "minion") {
+                //TODO
+            } else if (entityType == "replicationController") {
+                var replica = $("#update-replica");
+                if (!replica) {
+                    return;
+                } else {
+                    entity.desiredState.replicas = parseInt(replica.val());
+                    entity.kind = "ReplicationController";
+                    entity.apiVersion = "v1beta1";
+                    client.update_replicationController(JSON.stringify(entity));
+                }
+            } else if (entityType == "service") {
+                //TODO
+            }
+            $("#update-editor").hide();
+            $("#update-dialog-apply").off('click');
+        });
     });
 
     $("body").show();
@@ -286,11 +359,15 @@ require([
       <div class="col-md-4">
         <div class="panel panel-default" id="dashboard-service">
           <div class="panel-heading">
+            <button class="btn btn-primary pull-right fa fa-plus" id="add-services" data-toggle="modal" data-target="#add-dialog"></button>
             <span>Services</span>
           </div>
           <div class="list-group" id="kubernetes-services">
             {{#services}}
-            <a class="list-group-item" data-toggle="modal" data-target="#pod-editor" data-id="{{id}}">
+            <a class="list-group-item">
+              {{#render_button}}
+                <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-services" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
+              {{/render_button}}
               <h5 class="list-group-item-heading">{{id}}</h5>
               </br>
               Labels: <p class="list-group-item-text">{{render_labels}}</p>
@@ -319,7 +396,7 @@ require([
           </div>
           <div class="list-group" id="kubernetes-replicationControllers">
             {{#replicationControllers}}
-            <a class="list-group-item">
+            <a class="list-group-item" data-toggle="modal" id="update-replicationControllers" data-target="#update-editor" data-id="{{id}}">
               <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-replicationControllers" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
               <h5 class="list-group-item-heading">{{id}}</h5>
               </br>
@@ -359,6 +436,26 @@ require([
       {{/manifest}}
     {{/desiredState}}
   </script>
+  <script id="edit-rc-tmpl" type="x-template/mustache">
+    <table class="cockpit-form-table">
+    <p>{{kind}}</p>
+    {{#desiredState}}
+      {{#replicas}}
+        <tr>
+          <td>replicas</td>
+          <td><input id="update-replica" type="text" value="{{replicas}}"></input></td>
+        </tr>
+      {{/replicas}}
+    {{/desiredState}}
+<!--
+    {{#labels}}
+        <tr>
+          <td>labels</td>
+          <td><input id="labels" type="text" value="{{labels}}"></input></td>
+        </tr>
+    {{/labels}}
+-->
+  </script>
 
   <div id="pod-editor" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
@@ -375,6 +472,25 @@ require([
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="update-editor" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+          </button>
+          <h4 class="modal-title">ReplicationController Editor</h4>
+        </div>
+        <div class="modal-body">
+          Dialog body
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="update-dialog-apply">Update</button>
         </div>
       </div>
     </div>

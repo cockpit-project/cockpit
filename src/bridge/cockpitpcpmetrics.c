@@ -332,7 +332,10 @@ build_sample (CockpitPcpMetrics *self,
               || pmExtractValue (last_valfmt, last_value, PM_TYPE_U64, &old, PM_TYPE_U64) < 0)
             return json_node_new (JSON_NODE_NULL);
 
-          sample.d = new.ull - old.ull;
+          if (new.ull > old.ull)
+            sample.d = new.ull - old.ull;
+          else
+            sample.d = -(double)(old.ull - new.ull);
         }
       else
         {

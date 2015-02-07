@@ -48,7 +48,15 @@ class TestSession(MachineCase):
         # Logout
         b.logout()
         b.wait_visible("#login")
-        wait_session(False)
+
+        # HACK - sometimes the session gets stuck forever in state 'closing' with no processes.
+        #        https://bugs.freedesktop.org/show_bug.cgi?id=89024
+        try:
+            wait_session(False)
+        except:
+            print ("WARNING: admin session is still there, killing it")
+            kill_user_admin()
+            wait_session(False)
 
         # Login again
         b.set_val("#login-user-input", "admin")

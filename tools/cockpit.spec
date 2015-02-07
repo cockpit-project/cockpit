@@ -1,4 +1,4 @@
-# Globals that might be defined elsewhere
+# Globals that might be defined elsewhere
 #  * gitcommit xxxx
 #  * selinux 1
 
@@ -7,7 +7,7 @@
 %define extra_flags CFLAGS='-O2 -Wall -Werror'
 %define selinux 1
 %endif
-%if 0%{?fedora} <= 21
+%if 0%{?fedora} > 0 && 0%{?fedora} <= 21
 %define selinux 1
 %endif
 %if 0%{?rhel}
@@ -23,7 +23,11 @@ Version:        0.38
 Release:        1%{?dist}
 Summary:        A user interface for Linux servers
 
+%if 0%{?suse_version}
+License:        LGPL-2.1+
+%else
 License:        LGPLv2+
+%endif
 URL:            http://cockpit-project.org/
 
 %if %{defined gitcommit}
@@ -31,7 +35,11 @@ Source0:        cockpit-%{version}.tar.gz
 %else
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.bz2
 %endif
-Source1:        cockpit.pam
+%if 0%{?suse_version}
+Source1:        cockpit-suse.pam
+%else
+Source1:        cockpit-fedora.pam
+%endif
 
 BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: pkgconfig(gudev-1.0)
@@ -49,13 +57,23 @@ BuildRequires: openssl-devel
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel
 BuildRequires: libxslt-devel
+%if 0%{?suse_version}
+%define extra_flags CFLAGS='$(RPM_OPT_FLAGS)'
+BuildRequires: update-desktop-files
+BuildRequires: docbook-xsl-stylesheets
+BuildRequires: keyutils-devel
+BuildRequires: dbus-1-devel
+BuildRequires: libpcp-devel
+%{?systemd_requires}
+%else
 BuildRequires: docbook-style-xsl
 BuildRequires: keyutils-libs-devel
 BuildRequires: dbus-devel
+BuildRequires: pcp-libs-devel
+%endif
 BuildRequires: glib-networking
 BuildRequires: systemd
 BuildRequires: polkit
-BuildRequires: pcp-libs-devel
 
 %if %{defined gitcommit}
 BuildRequires: npm
@@ -71,7 +89,11 @@ BuildRequires: sed
 %endif
 
 # For documentation
+%if 0%{?suse_version}
+BuildRequires: xmlto
+%else
 BuildRequires: /usr/bin/xmlto
+%endif
 
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-daemon = %{version}-%{release}
@@ -167,6 +189,9 @@ cp src/bridge/polkit-workarounds.rules %{buildroot}/%{_datadir}/polkit-1/rules.d
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
+%if 0%{?suse_version}
+install -d %{buildroot}%{_docdir}/%{name}
+%endif
 install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 %if %{defined selinux}
 install -d %{buildroot}%{_datadir}/selinux/targeted
@@ -175,67 +200,121 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %ifnarch x86_64
 rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 %endif
+%if 0%{?suse_version}
+%suse_update_desktop_file -u -r -G 'Cockpit Server Manager' %{name} System Utility
+mv %{buildroot}%{_datadir}/doc/%{name} %{buildroot}%{_docdir}/%{name}/html
+%endif
 
 %files
+%if 0%{?suse_version}
+%defattr(-,root,root)
+%endif
 %{_docdir}/%{name}/AUTHORS
 %{_docdir}/%{name}/COPYING
 %{_docdir}/%{name}/README.md
+%if 0%{?suse_version}
+%dir %{_datadir}/%{name}
+%endif
 %{_datadir}/appdata
 %{_datadir}/applications
 %{_datadir}/pixmaps
 
 %files bridge
+%if 0%{?suse_version}
+%defattr(-,root,root)
+%endif
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %attr(4755, -, -) %{_libexecdir}/cockpit-polkit
+%if 0%{?suse_version}
+%dir %{_libdir}/security
+%endif
 %{_libdir}/security/pam_reauthorize.so
 
 %files daemon
+%if 0%{?suse_version}
+%defattr(-,root,root)
+%endif
 %doc %{_mandir}/man8/cockpitd.8.gz
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
 %{_libexecdir}/cockpitd
 
 %files doc
+%if 0%{?suse_version}
+%defattr(-,root,root)
+%endif
+%exclude %{_docdir}/%{name}/AUTHORS
+%exclude %{_docdir}/%{name}/COPYING
+%exclude %{_docdir}/%{name}/README.md
 %{_docdir}/%{name}
 
 %files shell
+%if 0%{?suse_version}
+%defattr(-,root,root)
+%endif
 %{_datadir}/%{name}/base
 %{_datadir}/%{name}/shell
 %{_datadir}/%{name}/playground
 %{_datadir}/%{name}/server-systemd
 
+%if !0%{?suse_version}
 %post shell
 # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
 ( cd /var/lib/pcp/pmns && ./Rebuild -du )
+%endif
 
 %files ws
+%if 0%{?suse_version}
+%defattr(-,root,root)
+%endif
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
 %config(noreplace) %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit.socket
+%if 0%{?suse_version}
+%dir %{_prefix}/lib/firewalld
+%dir %{_prefix}/lib/firewalld/services
+%endif
 %{_prefix}/lib/firewalld/services/cockpit.xml
 %{_sbindir}/remotectl
 %{_libexecdir}/cockpit-ws
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
+%if !0%{?suse_version}
 %attr(775, -, wheel) %{_sharedstatedir}/%{name}
+%endif
 %{_datadir}/%{name}/static
 
 %pre ws
+%if 0%{?suse_version}
+%service_add_pre %{name}.service
+%endif
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
 getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
 
 %post ws
+%if 0%{?suse_version}
+%service_add_post %{name}.service
+%else
 %systemd_post cockpit.socket
+%endif
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %preun ws
+%if 0%{?suse_version}
+%service_del_preun %{name}.service
+%else
 %systemd_preun cockpit.socket
+%endif
 
 %postun ws
+%if 0%{?suse_version}
+%service_del_postun %{name}.service
+%else
 %systemd_postun_with_restart cockpit.socket
+%endif
 
 # Conditionally built packages below
 
@@ -250,6 +329,9 @@ The Cockpit components for interacting with Docker and user interface.
 This package is not yet complete.
 
 %files docker
+%if 0%{?suse_version}
+%defattr(-,root,root)
+%endif
 %{_datadir}/%{name}/docker
 
 %endif
@@ -265,6 +347,9 @@ This package contains programs and other files for testing Cockpit, and
 pulls in some necessary packages via dependencies.
 
 %files test-assets
+%if 0%{?suse_version}
+%defattr(-,root,root)
+%endif
 %{_datadir}/cockpit-test-assets
 %{_datadir}/polkit-1/rules.d
 /usr/lib/systemd/system/cockpit-testing.service

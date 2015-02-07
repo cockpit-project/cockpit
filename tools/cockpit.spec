@@ -7,7 +7,7 @@
 %define extra_flags CFLAGS='-O2 -Wall -Werror'
 %define selinux 1
 %endif
-%if 0%{?fedora} <= 21
+%if 0%{?fedora} > 0 && 0%{?fedora} <= 21
 %define selinux 1
 %endif
 %if 0%{?rhel}
@@ -70,7 +70,7 @@ BuildRequires: sed
 %endif
 
 # For documentation
-BuildRequires: /usr/bin/xmlto
+BuildRequires: xmlto
 
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: %{name}-daemon = %{version}-%{release}
@@ -180,6 +180,7 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 %{_docdir}/%{name}/AUTHORS
 %{_docdir}/%{name}/COPYING
 %{_docdir}/%{name}/README.md
+%dir %{_datadir}/%{name}
 %{_datadir}/appdata
 %{_datadir}/applications
 %{_datadir}/pixmaps
@@ -196,6 +197,9 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 %{_libexecdir}/cockpitd
 
 %files doc
+%exclude %{_docdir}/%{name}/AUTHORS
+%exclude %{_docdir}/%{name}/COPYING
+%exclude %{_docdir}/%{name}/README.md
 %{_docdir}/%{name}
 
 %files shell

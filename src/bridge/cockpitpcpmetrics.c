@@ -463,7 +463,10 @@ on_idle_batch (gpointer user_data)
   info = (ArchiveInfo *)(self->cur_archive->data);
 
   if (pmUseContext (info->context) < 0)
-    return FALSE;
+    {
+      self->idler = 0;
+      return FALSE;
+    }
 
   for (i = 0; i < archive_batch; i++)
     {
@@ -477,6 +480,7 @@ on_idle_batch (gpointer user_data)
               json_array_unref (message);
             }
           cockpit_channel_close (COCKPIT_CHANNEL (self), NULL);
+          self->idler = 0;
           return FALSE;
         }
 
@@ -496,6 +500,8 @@ on_idle_batch (gpointer user_data)
             }
           if (message)
             json_array_unref (message);
+
+          self->idler = 0;
           return FALSE;
         }
 
@@ -1135,6 +1141,12 @@ static void
 cockpit_pcp_metrics_dispose (GObject *object)
 {
   CockpitPcpMetrics *self = COCKPIT_PCP_METRICS (object);
+
+  if (self->idler)
+    {
+      g_source_remove (self->idler);
+      self->idler = 0;
+    }
 
   if (self->last)
     {

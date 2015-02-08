@@ -51,7 +51,7 @@ function format_date_tick(val, axis) {
 var common_plot_options = {
     legend: { show: false },
     series: { shadowSize: 0 },
-    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: format_date_tick },
+    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: format_date_tick, minTickSize: [ 1, 'minute' ] },
     // The point radius influences the margin around the grid even if
     // no points are plotted.  We don't want any margin, so we set the
     // radius to zero.

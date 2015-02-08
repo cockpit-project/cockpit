@@ -256,6 +256,8 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
             var val = monitor.sample_real_time(now-interval, now);
             if (val !== null && !isNaN(val)) {
                 series_data[series_data.length] = [ now, val ];
+                if (opts.real_time_callback)
+                    opts.real_time_callback(val);
             }
         }
 

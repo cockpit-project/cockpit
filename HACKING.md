@@ -339,10 +339,10 @@ There is experimental support for this in tools/Dockerfile
 
 To build the privileged container:
 
- $ cd tools/
- $ rm -f *.rpm
- $ ./make-rpms # optional
- $ docker build .
+	$ cd tools/
+	$ rm -f *.rpm
+	$ ./make-rpms # optional
+	$ docker build .
 
 By running make-rpms first, the latest Cockpit from git HEAD will be built instead
 of downloading the latest release into the privileged container.

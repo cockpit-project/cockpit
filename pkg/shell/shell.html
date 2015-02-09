@@ -2278,13 +2278,53 @@
       </div>
     </div>
 
+    <script id="port-expose-tmpl" type="x-template/mustache">
+      <form class="form-inline">
+        <button type="button" class="btn btn-default fa fa-plus"/>
+        <button type="button" class="btn btn-default pficon-close"/>
+        <div class="form-group">
+          <input type="text" name="container" class="form-control" placeholder="{{placeholder}}">
+        </div>
+        <div class="form-group">
+          <select class="form-control selectpicker" name="protocol" data-width="60px">
+            <option>TCP</option>
+            <option>UDP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label translatable="yes">{{host_port_label}}</label>
+          <input type="text" name="host" class="form-control" placeholder="{{placeholder}}">
+        </div>
+        <div hidden>
+          <span class="help-block"/>
+        </div>
+        <div hidden>
+          <span class="help-block"/>
+        </div>
+      </form>
+    </script>
+
     <script id="container-link-tmpl" type="x-template/mustache">
       <form class="form-inline">
-        <button type="button" class="btn btn-default fa fa-plus"></button><button type="button" class="btn btn-default pficon-close"></button>
-        <div class="form-group"><select class="form-control selectpicker" name="container"><option value="">select container</option>{{#containers}}<option>{{.}}</option>{{/containers}}</select></div>
-        <div class="form-group"><label translatable="yes">{{alias_label}}</label><input type="text" name="alias" class="form-control"></div>
+        <button type="button" class="btn btn-default fa fa-plus"/>
+        <button type="button" class="btn btn-default pficon-close"/>
+        <div class="form-group">
+          <select class="form-control selectpicker" name="container">
+            <option value="">select container</option>
+            {{#containers}}<option>{{.}}</option>{{/containers}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label translatable="yes">{{alias_label}}</label>
+          <input type="text" name="alias" class="form-control" placeholder="{{placeholder}}">
+        </div>
+        <div hidden>
+          <span class="help-block"/>
+        </div>
+        <div hidden>
+          <span class="help-block"/>
+        </div>
       </form>
-
     </script>
 
     <div class="modal" id="containers_run_image_dialog"
@@ -2313,6 +2353,11 @@
                 <td translatable="yes">Command</td>
                 <td colspan="3">
                   <input class="form-control" type="text" id="containers-run-image-command"/>
+                  <div id="containers-run-image-command-note" hidden>
+                    <span class="help-block">
+                        Command can't be empty
+                    </span>
+                  </div>
                 </td>
               </tr>
               <tr id="containers-run-image-memory">
@@ -2361,6 +2406,15 @@
                   </div>
                 </td>
               </tr>
+              <tr>
+                <td translatable="yes">Ports</td>
+                <td colspan="3">
+                  <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/><label for="expose-ports">Expose container ports</label>
+                  <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
+                  </div>
+                </td>
+              </tr>
+
             </table>
           </div>
           <div class="modal-footer">

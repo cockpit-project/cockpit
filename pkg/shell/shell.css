@@ -627,6 +627,11 @@ ul.available-interfaces-group {
     vertical-align: top;
 }
 
+/* workaround: make text red for select if contained in has-error, not in patternfly */
+.has-error > .bootstrap-select > button > span {
+    color: #A94442;
+}
+
 .containers-run-inline {
     margin-left: 8px;
 }

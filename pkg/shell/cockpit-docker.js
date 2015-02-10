@@ -1966,16 +1966,22 @@ function DockerClient(machine) {
         if (watch && watch.valid)
             watch.close();
 
-        watch = cockpit.channel({ payload: "fsdir1", path: "/var/lib/docker" });
-        $(watch).on("message", function(event, data) {
-            trigger_event();
-        });
-        $(watch).on("close", function(event, options) {
-            if (options.problem)
-                console.warn("monitor for docker directory failed: " + options.problem);
-        });
+        http.get("/v1.10/info").done(function(data) {
+            var info = data && JSON.parse(data);
+            watch = cockpit.channel({ payload: "fsdir1", path: info["DockerRootDir"]});
+            $(watch).on("message", function(event, data) {
+                trigger_event();
+            });
+            $(watch).on("close", function(event, options) {
+                if (options.problem)
+                    console.warn("monitor for docker directory failed: " + options.problem);
+            });
 
-        $(me).triggerHandler("event");
+            $(me).triggerHandler("event");
+        }).fail(function (err) {
+            console.warn("monitor for docker directory failed: " + err);
+            $(me).triggerHandler("event");
+        });
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
         dbus_client = shell.dbus(machine);

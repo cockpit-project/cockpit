@@ -34,7 +34,7 @@
 /**
  * CockpitFsdir:
  *
- * A #CockpitChannel that watches a directory.
+ * A #CockpitChannel that lists and optionally watches a directory.
  *
  * The payload type for this channel is 'fsdir1'.
  */
@@ -108,6 +108,12 @@ on_files_listed (GObject *source_object,
 
       g_clear_object (&self->cancellable);
       g_object_unref (source_object);
+
+      if (self->monitor == NULL)
+        {
+          cockpit_channel_done (COCKPIT_CHANNEL(self));
+          cockpit_channel_close (COCKPIT_CHANNEL(self), NULL);
+        }
       return;
     }
 
@@ -189,6 +195,7 @@ cockpit_fsdir_prepare (CockpitChannel *channel)
   const gchar *problem = "protocol-error";
   JsonObject *options;
   GError *error;
+  gboolean nowatch;
 
   COCKPIT_CHANNEL_CLASS (cockpit_fsdir_parent_class)->prepare (channel);
 
@@ -204,6 +211,12 @@ cockpit_fsdir_prepare (CockpitChannel *channel)
       goto out;
     }
 
+  if (!cockpit_json_get_bool (options, "nowatch", FALSE, &nowatch))
+    {
+      g_warning ("invalid \"nowatch\" option for fsdir channel");
+      goto out;
+    }
+
   self->cancellable = g_cancellable_new ();
 
   GFile *file = g_file_new_for_path (self->path);
@@ -214,19 +227,26 @@ cockpit_fsdir_prepare (CockpitChannel *channel)
                                    self->cancellable,
                                    on_enumerator_ready,
                                    self);
-  self->monitor = g_file_monitor_directory (file, 0, NULL, &error);
-  g_object_unref (file);
 
-  if (self->monitor == NULL)
+  if (!nowatch)
     {
-      g_message ("%s: %s", self->path, error->message);
-      options = cockpit_channel_close_options (channel);
-      json_object_set_string_member (options, "message", error->message);
-      problem = "internal-error";
-      goto out;
-    }
+      self->monitor = g_file_monitor_directory (file, 0, NULL, &error);
+      g_object_unref (file);
+      if (self->monitor == NULL)
+        {
+          g_message ("%s: %s", self->path, error->message);
+          options = cockpit_channel_close_options (channel);
+          json_object_set_string_member (options, "message", error->message);
+          problem = "internal-error";
+          goto out;
+        }
 
-  self->sig_changed = g_signal_connect (self->monitor, "changed", G_CALLBACK (on_changed), self);
+      self->sig_changed = g_signal_connect (self->monitor, "changed", G_CALLBACK (on_changed), self);
+    }
+  else
+    {
+      g_object_unref (file);
+    }
 
   cockpit_channel_ready (channel);
   problem = NULL;
@@ -300,6 +320,7 @@ cockpit_fsdir_class_init (CockpitFsdirClass *klass)
  * @transport: the transport to send/receive messages on
  * @channel_id: the channel id
  * @path: the path name of the file to read
+ * @nowatch: boolean, skip watching?
  *
  * This function is mainly used by tests. The usual way
  * to get a #CockpitFsdir is via cockpit_channel_open()
@@ -309,7 +330,8 @@ cockpit_fsdir_class_init (CockpitFsdirClass *klass)
 CockpitChannel *
 cockpit_fsdir_open (CockpitTransport *transport,
                     const gchar *channel_id,
-                    const gchar *path)
+                    const gchar *path,
+                    const gboolean nowatch )
 {
   CockpitChannel *channel;
   JsonObject *options;
@@ -319,6 +341,7 @@ cockpit_fsdir_open (CockpitTransport *transport,
   options = json_object_new ();
   json_object_set_string_member (options, "path", path);
   json_object_set_string_member (options, "payload", "fsdir1");
+  json_object_set_boolean_member (options, "nowatch", nowatch);
 
   channel = g_object_new (COCKPIT_TYPE_FSDIR,
                           "transport", transport,

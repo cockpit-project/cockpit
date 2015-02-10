@@ -32,6 +32,7 @@ GType              cockpit_fsdir_get_type     (void) G_GNUC_CONST;
 
 CockpitChannel *   cockpit_fsdir_open         (CockpitTransport *transport,
                                                const gchar *channel_id,
-                                               const gchar *path);
+                                               const gchar *path,
+                                               const gboolean nowatch);
 
 #endif /* COCKPIT_FSDIR_H__ */

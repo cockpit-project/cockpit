@@ -644,24 +644,35 @@ PageContainers.prototype = {
                 $('#containers-storage .data').html("Unknown");
             }
 
-            var warning = _("WARNING: Docker may be reporting the size it has alocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
-            $('#containers-storage').attr("title", warning).tooltip();
-
             var used;
             var total;
+            var avail;
             $.each(resp['DriverStatus'], function (index, value) {
                 if (value && value[0] == "Data Space Total")
                     total = value[1];
                 else if (value && value[0] == "Data Space Used")
                     used = value[1];
+                else if (value && value[0] == "Data Space Available")
+                    avail = value[1];
             });
 
             if (used && total) {
-              var formated = used + " / " + total;
 
               var b_used = modules.docker.bytes_from_format(used);
               var b_total = modules.docker.bytes_from_format(total);
 
+              // Prefer available if present as that will be accurate for
+              // sparse file based devices
+              if (avail) {
+                  b_total = modules.docker.bytes_from_format(avail);
+                  total = cockpit.format_bytes(b_used + b_total);
+                  $('#containers-storage').attr("title", "").tooltip('destroy');
+              } else {
+                  var warning = _("WARNING: Docker may be reporting the size it has alocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
+                  $('#containers-storage').attr("title", warning).tooltip();
+              }
+
+              var formated = used + " / " + total;
               var bar_row = shell.BarRow();
               bar_row.attr("value", b_used + "/" + b_total);
               bar_row.toggleClass("bar-row-danger", used > 0.95 * total);

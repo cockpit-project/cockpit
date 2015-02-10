@@ -798,12 +798,12 @@ cockpit_channel_get_options (CockpitChannel *self)
 }
 
 /**
- * cockpit_channel_get_option:
+ * cockpit_channel_close_options
  * @self: a channel
  *
- * Called by implementations to get the channel's open options.
+ * Called by implementations to get the channel's close options.
  *
- * Returns: (transfer none): the open options, should not be NULL
+ * Returns: (transfer none): the close options, should not be NULL
  */
 JsonObject *
 cockpit_channel_close_options (CockpitChannel *self)

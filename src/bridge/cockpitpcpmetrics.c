@@ -42,6 +42,7 @@ typedef struct {
   pmDesc desc;
   pmUnits *units;
   gdouble factor;
+  gboolean convert_to_rate;
 
   pmUnits units_buf;
 } MetricInfo;
@@ -372,6 +373,19 @@ build_sample (CockpitPcpMetrics *self,
       sample.d *= info->factor;
     }
 
+  if (info->convert_to_rate)
+    {
+      if (self->last == NULL)
+        return json_node_new (JSON_NODE_NULL);
+
+      guint64 now_timestamp = ((result->timestamp.tv_sec * 1000) +
+                               (result->timestamp.tv_usec / 1000));
+      guint64 last_timestamp = ((self->last->timestamp.tv_sec * 1000) +
+                                (self->last->timestamp.tv_usec / 1000));
+
+      sample.d /= ((double)(now_timestamp - last_timestamp))/1000;
+    }
+
   JsonNode *node = json_node_new (JSON_NODE_VALUE);
   json_node_set_double (node, sample.d);
   return node;
@@ -585,6 +599,13 @@ convert_metric_description (CockpitPcpMetrics *self,
       if (!cockpit_json_get_string (json_node_get_object (node), "units", NULL, &units))
         {
           g_warning ("%s: invalid units for metric %s (not a string)",
+                     self->name, info->name);
+          return FALSE;
+        }
+
+      if (!cockpit_json_get_bool (json_node_get_object (node), "rate", FALSE, &info->convert_to_rate))
+        {
+          g_warning ("%s: invalid rate for metric %s (not a boolean)",
                      self->name, info->name);
           return FALSE;
         }

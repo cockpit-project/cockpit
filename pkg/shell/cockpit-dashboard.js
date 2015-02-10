@@ -79,6 +79,7 @@ var resource_monitors = [
                          "kernel.all.cpu.sys"
                        ],
               units: "millisec",
+              rate: true,
               factor: 0.1  // millisec / sec -> percent
             },
       options: { yaxis: { tickColor: "#e1e6ed",

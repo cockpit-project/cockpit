@@ -872,6 +872,12 @@ A metric description can have the following fields:
    into these units, the channel is closed.  The format of the string
    is the same as the one used by "pminfo -d".
 
+
+ * "rate" (boolean, optional): Whether to convert the metrics to a
+   rate by dividing it by the time difference (in seconds) between
+   samples.  When the metric has "counter" semantics, the conversion
+   also includes taking the difference of the values.
+
 The metric information objects in the 'meta' messages for PCP sources
 also contain these fields:
 
@@ -890,10 +896,6 @@ also contain these fields:
 The idea is that you can inspect the 'meta' message and
 adapt to whatever characteristics the metric actually has, or close
 the channel if unexpected characteristics were encountered.
-
-Metrics that have "counter" semantics are 'differentiated' in the
-bridge: the channel will report the delta between the current and the
-previous value of the metric.
 
 Problem codes
 -------------

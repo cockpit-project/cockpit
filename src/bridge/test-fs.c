@@ -728,6 +728,7 @@ test_dir_simple (TestCase *tc,
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, base);
+  g_assert (json_object_get_int_member (event, "type") == 1);
   json_object_unref (event);
 
   event = recv_json (tc);
@@ -757,6 +758,7 @@ test_dir_simple_no_watch (TestCase *tc,
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, base);
+  g_assert (json_object_get_int_member (event, "type") == 1);
   json_object_unref (event);
 
   event = recv_json (tc);

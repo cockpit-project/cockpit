@@ -490,6 +490,8 @@ on_idle_batch (gpointer user_data)
       rc = pmFetch (self->numpmid, self->pmidlist, &result);
       if (rc < 0)
         {
+          self->idler = 0;
+
           if (rc == PM_ERR_EOL)
             {
               if (message)
@@ -504,7 +506,6 @@ on_idle_batch (gpointer user_data)
           if (message)
             json_array_unref (message);
 
-          self->idler = 0;
           return FALSE;
         }
 
@@ -872,6 +873,7 @@ start_archive (CockpitPcpMetrics *self, gint64 timestamp)
     pmFreeResult (self->last);
   self->last = NULL;
 
+  g_assert (self->idler == 0);
   self->idler = g_idle_add (on_idle_batch, self);
 }
 

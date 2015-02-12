@@ -212,6 +212,7 @@ cockpit_fswatch_prepare (CockpitChannel *channel)
   problem = NULL;
 
 out:
+  g_clear_error (&error);
   if (problem)
     cockpit_channel_close (channel, problem);
 }

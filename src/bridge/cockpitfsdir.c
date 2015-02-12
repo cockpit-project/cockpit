@@ -68,6 +68,19 @@ cockpit_fsdir_init (CockpitFsdir *self)
 {
 }
 
+static const gchar *
+error_to_problem (GError *error)
+{
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
+    return "not-authorized";
+  else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+    return "not-found";
+  else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY))
+    return "not-found";
+  else
+    return "internal-error";
+}
+
 static void
 on_files_listed (GObject *source_object,
                  GAsyncResult *res,
@@ -83,7 +96,7 @@ on_files_listed (GObject *source_object,
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         {
           CockpitFsdir *self = COCKPIT_FSDIR (user_data);
-          g_message ("%s: %s", COCKPIT_FSDIR(user_data)->path, error->message);
+          g_message ("%s: couldn't process files %s", COCKPIT_FSDIR(user_data)->path, error->message);
           options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
           json_object_set_string_member (options, "message", error->message);
           cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
@@ -160,10 +173,10 @@ on_enumerator_ready (GObject *source_object,
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         {
           CockpitFsdir *self = COCKPIT_FSDIR (user_data);
-          g_message ("%s: %s", self->path, error->message);
+          g_message ("%s: couldn't list directory: %s", self->path, error->message);
           options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
           json_object_set_string_member (options, "message", error->message);
-          cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
+          cockpit_channel_close (COCKPIT_CHANNEL (self), error_to_problem (error));
         }
       g_clear_error (&error);
       return;
@@ -196,7 +209,8 @@ cockpit_fsdir_prepare (CockpitChannel *channel)
   CockpitFsdir *self = COCKPIT_FSDIR (channel);
   const gchar *problem = "protocol-error";
   JsonObject *options;
-  GError *error;
+  GError *error = NULL;
+  GFile *file = NULL;
   gboolean watch;
 
   COCKPIT_CHANNEL_CLASS (cockpit_fsdir_parent_class)->prepare (channel);
@@ -221,7 +235,7 @@ cockpit_fsdir_prepare (CockpitChannel *channel)
 
   self->cancellable = g_cancellable_new ();
 
-  GFile *file = g_file_new_for_path (self->path);
+  file = g_file_new_for_path (self->path);
   g_file_enumerate_children_async (file,
                                    G_FILE_ATTRIBUTE_STANDARD_NAME,
                                    G_FILE_QUERY_INFO_NONE,
@@ -233,7 +247,6 @@ cockpit_fsdir_prepare (CockpitChannel *channel)
   if (watch)
     {
       self->monitor = g_file_monitor_directory (file, 0, NULL, &error);
-      g_object_unref (file);
       if (self->monitor == NULL)
         {
           g_message ("%s: couldn't monitor directory: %s", self->path, error->message);
@@ -245,15 +258,14 @@ cockpit_fsdir_prepare (CockpitChannel *channel)
 
       self->sig_changed = g_signal_connect (self->monitor, "changed", G_CALLBACK (on_changed), self);
     }
-  else
-    {
-      g_object_unref (file);
-    }
 
   cockpit_channel_ready (channel);
   problem = NULL;
 
 out:
+  g_clear_error (&error);
+  if (file)
+    g_object_unref (file);
   if (problem)
     cockpit_channel_close (channel, problem);
 }

@@ -402,12 +402,7 @@ open_session (pam_handle_t *pamh)
 
       debug ("opening pam session for %s", name);
 
-      res = pam_set_item (pamh, PAM_TTY, line);
-      if (res != PAM_SUCCESS)
-        {
-          warnx ("couldn't set tty: %s", pam_strerror (pamh, res));
-          return res;
-        }
+      pam_putenv (pamh, "XDG_SESSION_CLASS=user");
 
       res = pam_setcred (pamh, PAM_ESTABLISH_CRED);
       if (res != PAM_SUCCESS)

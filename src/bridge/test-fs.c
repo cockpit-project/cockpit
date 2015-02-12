@@ -39,6 +39,8 @@ typedef struct {
   gchar *test_dir;
   gchar *test_path;
   gchar *test_path_2;
+  gchar *test_link;
+  gchar *test_subdir;
   gchar *problem;
   gboolean channel_closed;
 } TestCase;
@@ -73,9 +75,13 @@ setup (TestCase *tc,
   g_assert (tc->test_dir != NULL);
   tc->test_path = g_strdup_printf ("%s/%s", tc->test_dir, "foo");
   tc->test_path_2 = g_strdup_printf ("%s/%s", tc->test_dir, "bar");
+  tc->test_subdir = g_strdup_printf ("%s/%s", tc->test_dir, "subdir");
+  tc->test_link = g_strdup_printf ("%s/%s", tc->test_dir, "foo-link");
 
   g_assert (unlink (tc->test_path) >= 0 || errno == ENOENT);
   g_assert (unlink (tc->test_path_2) >= 0 || errno == ENOENT);
+  g_assert (unlink (tc->test_link) >= 0 || errno == ENOENT);
+  g_assert (rmdir (tc->test_subdir) >= 0 || errno == ENOENT);
 }
 
 static void
@@ -186,10 +192,14 @@ teardown (TestCase *tc,
 
   g_assert (unlink (tc->test_path) >= 0 || errno == ENOENT);
   g_assert (unlink (tc->test_path_2) >= 0 || errno == ENOENT);
+  g_assert (unlink (tc->test_link) >= 0 || errno == ENOENT);
+  g_assert (rmdir (tc->test_subdir) >= 0 || errno == ENOENT);
   g_assert (rmdir (tc->test_dir) >= 0);
 
   g_free (tc->test_path);
   g_free (tc->test_path_2);
+  g_free (tc->test_link);
+  g_free (tc->test_subdir);
   g_free (tc->test_dir);
 
   g_free (tc->problem);
@@ -651,6 +661,7 @@ test_watch_simple (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "created");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, tc->test_path);
   g_assert_cmpstr (json_object_get_string_member (event, "tag"), ==, tag);
+  g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "file");
   json_object_unref (event);
   g_free (tag);
 }
@@ -728,7 +739,7 @@ test_dir_simple (TestCase *tc,
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, base);
-  g_assert_cmpint (json_object_get_int_member (event, "type"), ==, 1);
+  g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "file");
   json_object_unref (event);
 
   event = recv_json (tc);
@@ -758,7 +769,7 @@ test_dir_simple_no_watch (TestCase *tc,
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, base);
-  g_assert_cmpint (json_object_get_int_member (event, "type"), ==, 1);
+  g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "file");
   json_object_unref (event);
 
   event = recv_json (tc);
@@ -804,16 +815,21 @@ test_dir_watch (TestCase *tc,
   json_object_unref (event);
 
   set_contents (tc->test_path, "Hello!");
-  g_assert (unlink (tc->test_path) >= 0);
 
-  /* We want to see at least "created" and "deleted" for the path, in
-     that order.
-   */
+  GFile *dir = g_file_new_for_path (tc->test_subdir);
+  g_assert (g_file_make_directory (dir, NULL, NULL));
+  g_object_unref (dir);
+
+  GFile *link = g_file_new_for_path (tc->test_link);
+  g_assert (g_file_make_symbolic_link (link, tc->test_path, NULL, NULL));
+  g_object_unref (link);
 
   gboolean saw_created = FALSE;
+  gboolean saw_created_dir = FALSE;
+  gboolean saw_created_link = FALSE;
   gboolean saw_deleted = FALSE;
 
-  while (!(saw_created && saw_deleted) && !tc->channel_closed)
+  while (!(saw_created && saw_deleted && saw_created_dir && saw_created_link) && !tc->channel_closed)
     {
       event = recv_json (tc);
       if (g_strcmp0 (json_object_get_string_member (event, "path"), tc->test_path) == 0)
@@ -821,6 +837,8 @@ test_dir_watch (TestCase *tc,
           if (g_strcmp0 (json_object_get_string_member (event, "event"), "created") == 0)
             {
               g_assert (!saw_deleted);
+              g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "file");
+              g_assert (unlink (tc->test_path) >= 0);
               saw_created = TRUE;
             }
           else if (g_strcmp0 (json_object_get_string_member (event, "event"), "deleted") == 0)
@@ -829,10 +847,28 @@ test_dir_watch (TestCase *tc,
               saw_deleted= TRUE;
             }
         }
+      if (g_strcmp0 (json_object_get_string_member (event, "path"), tc->test_link) == 0)
+        {
+          if (g_strcmp0 (json_object_get_string_member (event, "event"), "created") == 0)
+            {
+              g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "link");
+              g_assert (!saw_created_link);
+              saw_created_link = TRUE;
+            }
+        }
+      if (g_strcmp0 (json_object_get_string_member (event, "path"), tc->test_subdir) == 0)
+        {
+          if (g_strcmp0 (json_object_get_string_member (event, "event"), "created") == 0)
+            {
+              g_assert_cmpstr (json_object_get_string_member (event, "type"), ==, "directory");
+              g_assert (!saw_created_dir);
+              saw_created_dir = TRUE;
+            }
+        }
       json_object_unref (event);
     }
 
-  g_assert (saw_created && saw_deleted);
+  g_assert (saw_created && saw_deleted && saw_created_link && saw_created_dir);
 
   close_channel (tc, NULL);
   wait_channel_closed (tc);

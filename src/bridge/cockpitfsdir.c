@@ -127,7 +127,8 @@ on_files_listed (GObject *source_object,
       json_object_set_string_member (msg, "event", "present");
       json_object_set_string_member
         (msg, "path", g_file_info_get_attribute_byte_string (info, G_FILE_ATTRIBUTE_STANDARD_NAME));
-      json_object_set_int_member (msg, "type", g_file_info_get_file_type (info));
+      json_object_set_string_member
+        (msg, "type", cockpit_file_type_to_string (g_file_info_get_file_type (info)));
       msg_bytes = cockpit_json_write_bytes (msg);
       json_object_unref (msg);
       cockpit_channel_send (COCKPIT_CHANNEL(self), msg_bytes, FALSE);

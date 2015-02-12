@@ -34,6 +34,8 @@ CockpitChannel *   cockpit_fswatch_open         (CockpitTransport *transport,
                                                  const gchar *channel_id,
                                                  const gchar *path);
 
+gchar *            cockpit_file_type_to_string  (GFileType file_type);
+
 void
 cockpit_fswatch_emit_event (CockpitChannel    *channel,
                             GFile             *file,

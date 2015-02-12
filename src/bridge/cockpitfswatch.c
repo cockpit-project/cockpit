@@ -67,6 +67,23 @@ cockpit_fswatch_init (CockpitFswatch *self)
 {
 }
 
+gchar *
+cockpit_file_type_to_string (GFileType file_type)
+{
+  switch (file_type) {
+  case G_FILE_TYPE_REGULAR:
+    return "file";
+  case G_FILE_TYPE_DIRECTORY:
+    return "directory";
+  case G_FILE_TYPE_SYMBOLIC_LINK:
+    return "link";
+  case G_FILE_TYPE_SPECIAL:
+    return "special";
+  default:
+    return "unknown";
+  }
+}
+
 static gchar *
 event_type_to_string (GFileMonitorEvent event_type)
 {
@@ -109,6 +126,23 @@ cockpit_fswatch_emit_event (CockpitChannel    *channel,
       char *t = cockpit_get_file_tag (p);
       json_object_set_string_member (msg, "path", p);
       json_object_set_string_member (msg, "tag", t);
+      if (event_type == G_FILE_MONITOR_EVENT_CREATED)
+        {
+          GError *error = NULL;
+          GFileInfo *info = g_file_query_info (file,
+                                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                               NULL, &error);
+          if (info)
+            {
+              json_object_set_string_member
+                (msg, "type", cockpit_file_type_to_string (g_file_info_get_file_type (info)));
+              g_object_unref (info);
+            }
+
+          g_clear_error (&error);
+      }
+
       g_free (p);
       g_free (t);
     }

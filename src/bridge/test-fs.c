@@ -877,6 +877,21 @@ test_dir_watch (TestCase *tc,
   g_assert (json_object_get_member (control, "problem") == NULL);
 }
 
+static void
+test_dir_list_fail (TestCase *tc,
+                      gconstpointer unused)
+{
+  JsonObject *control;
+  setup_fsdir_channel (tc, tc->test_path, FALSE);
+
+  // Channel should close automatically
+  wait_channel_closed (tc);
+
+  control = mock_transport_pop_control (tc->transport);
+  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "not-found");
+}
+
+
 int
 main (int argc,
       char *argv[])
@@ -932,6 +947,8 @@ main (int argc,
               setup, test_dir_early_close, teardown);
   g_test_add ("/fsdir/watch", TestCase, NULL,
               setup, test_dir_watch, teardown);
+  g_test_add ("/fsdir/list_fail", TestCase, NULL,
+              setup, test_dir_list_fail, teardown);
 
   return g_test_run ();
 }

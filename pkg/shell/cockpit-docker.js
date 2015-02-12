@@ -664,12 +664,12 @@ PageContainers.prototype = {
               // Prefer available if present as that will be accurate for
               // sparse file based devices
               if (avail) {
+                  $('#containers-storage').tooltip('destroy');
                   b_total = modules.docker.bytes_from_format(avail);
                   total = cockpit.format_bytes(b_used + b_total);
-                  $('#containers-storage').attr("title", "").tooltip('destroy');
               } else {
-                  var warning = _("WARNING: Docker may be reporting the size it has alocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
-                  $('#containers-storage').attr("title", warning).tooltip();
+                  var warning = _("WARNING: Docker may be reporting the size it has allocated to it's storage pool using sparse files, not the actual space available to the underlying storage device.");
+                  $('#containers-storage').tooltip({ title : warning });
               }
 
               var formated = used + " / " + total;

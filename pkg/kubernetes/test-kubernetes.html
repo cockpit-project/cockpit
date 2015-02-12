@@ -366,6 +366,49 @@ var kube_data = {
                 }
             }
         ]
+    },
+    "services": {
+        "kind": "ServiceList",
+        "creationTimestamp": null,
+        "selfLink": "/api/v1beta1/services",
+        "resourceVersion": 27,
+        "apiVersion": "v1beta1",
+        "items": [
+            {
+                "id": "kubernetes",
+                "uid": "907220be-a688-11e4-b854-525400069c27",
+                "creationTimestamp": "2015-01-27T16:56:59-08:00",
+                "selfLink": "/api/v1beta1/services/kubernetes?namespace=default",
+                "resourceVersion": 3,
+                "namespace": "default",
+                "port": 443,
+                "protocol": "TCP",
+                "labels": {
+                    "component": "apiserver",
+                    "provider": "kubernetes"
+                },
+                "selector": null,
+                "containerPort": 0,
+                "portalIP": "10.254.115.76"
+            },
+            {
+                "id": "kubernetes-ro",
+                "uid": "90727b80-a688-11e4-b854-525400069c27",
+                "creationTimestamp": "2015-01-27T16:56:59-08:00",
+                "selfLink": "/api/v1beta1/services/kubernetes-ro?namespace=default",
+                "resourceVersion": 4,
+                "namespace": "default",
+                "port": 80,
+                "protocol": "TCP",
+                "labels": {
+                    "component": "apiserver",
+                    "provider": "kubernetes"
+                },
+                "selector": null,
+                "containerPort": 0,
+                "portalIP": "10.254.48.13"
+            }
+        ]
     }
 };
 
@@ -501,6 +544,22 @@ require([
             equal(pod.labels.name, "wordpressreplica", "pod has label");
 
             $(client).off("pods");
+            client.close();
+            start();
+        });
+    });
+
+    asyncTest("list services", function() {
+        expect(3);
+
+        var client = kubernetes.k8client();
+        $(client).on("services", function(ev) {
+            var svc = client.services[0];
+            equal(client.services.length, 2, "number of services");
+            equal(svc.id, "kubernetes", "service id");
+            equal(svc.labels.component, "apiserver", "service has label");
+
+            $(client).off("services");
             client.close();
             start();
         });

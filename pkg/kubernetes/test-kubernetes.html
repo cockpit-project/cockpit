@@ -366,7 +366,7 @@ var kube_data = {
                 }
             }
         ]
-    }
+    },
     "services": {
         "kind": "ServiceList",
         "creationTimestamp": null,
@@ -387,11 +387,11 @@ var kube_data = {
                     "component": "apiserver",
                     "provider": "kubernetes"
                 },
-		"selector": null,
-		"containerPort": 0,
-		"portalIP": "10.254.115.76"
+                "selector": null,
+                "containerPort": 0,
+                "portalIP": "10.254.115.76"
             },
-	    {
+            {
                 "id": "kubernetes-ro",
                 "uid": "90727b80-a688-11e4-b854-525400069c27",
                 "creationTimestamp": "2015-01-27T16:56:59-08:00",
@@ -404,10 +404,10 @@ var kube_data = {
                     "component": "apiserver",
                     "provider": "kubernetes"
                 },
-		"selector": null,
-		"containerPort": 0,
-		"portalIP": "10.254.48.13"
-	    }
+                "selector": null,
+                "containerPort": 0,
+                "portalIP": "10.254.48.13"
+            }
         ]
     }
 };
@@ -520,7 +520,7 @@ require([
     asyncTest("list minions", function() {
         expect(3);
 
-        var client = kubernetes.k8client();
+		var client = kubernetes.k8client();
         $(client).on("minions", function(ev) {
             var minion = client.minions[0];
             equal(client.minions.length, 1, "number of minions");
@@ -554,12 +554,12 @@ require([
 
         var client = kubernetes.k8client();
         $(client).on("services", function(ev) {
-            var service = client.services[0];
+            var svc = client.services[0];
             equal(client.services.length, 2, "number of services");
-            equal(service.id, "kubernetes", "service id");
-            equal(service.labels.component, "apiserver", "service has label");
+            equal(svc.id, "kubernetes", "service id");
+            equal(svc.labels.component, "apiserver", "service has label");
 
-            $(client).off("service");
+            $(client).off("services");
             client.close();
             start();
         });

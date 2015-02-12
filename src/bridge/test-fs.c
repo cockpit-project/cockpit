@@ -112,9 +112,9 @@ setup_fswatch_channel (TestCase *tc,
 static void
 setup_fsdir_channel (TestCase *tc,
                      const gchar *path,
-                     const gboolean nowatch)
+                     const gboolean watch)
 {
-  tc->channel = cockpit_fsdir_open (COCKPIT_TRANSPORT (tc->transport), "1234", path, nowatch);
+  tc->channel = cockpit_fsdir_open (COCKPIT_TRANSPORT (tc->transport), "1234", path, watch);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
 }
@@ -723,12 +723,12 @@ test_dir_simple (TestCase *tc,
 
   set_contents (tc->test_path, "Hello!");
 
-  setup_fsdir_channel (tc, tc->test_dir, FALSE);
+  setup_fsdir_channel (tc, tc->test_dir, TRUE);
 
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, base);
-  g_assert (json_object_get_int_member (event, "type") == 1);
+  g_assert_cmpint (json_object_get_int_member (event, "type"), ==, 1);
   json_object_unref (event);
 
   event = recv_json (tc);
@@ -753,12 +753,12 @@ test_dir_simple_no_watch (TestCase *tc,
 
   set_contents (tc->test_path, "Hello!");
 
-  setup_fsdir_channel (tc, tc->test_dir, TRUE);
+  setup_fsdir_channel (tc, tc->test_dir, FALSE);
 
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
   g_assert_cmpstr (json_object_get_string_member (event, "path"), ==, base);
-  g_assert (json_object_get_int_member (event, "type") == 1);
+  g_assert_cmpint (json_object_get_int_member (event, "type"), ==, 1);
   json_object_unref (event);
 
   event = recv_json (tc);
@@ -782,7 +782,7 @@ test_dir_early_close (TestCase *tc,
 
   set_contents (tc->test_path, "Hello!");
 
-  setup_fsdir_channel (tc, tc->test_dir, FALSE);
+  setup_fsdir_channel (tc, tc->test_dir, TRUE);
   close_channel (tc, NULL);
 
   wait_channel_closed (tc);
@@ -797,7 +797,7 @@ test_dir_watch (TestCase *tc,
 {
   JsonObject *event, *control;
 
-  setup_fsdir_channel (tc, tc->test_dir, FALSE);
+  setup_fsdir_channel (tc, tc->test_dir, TRUE);
 
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present-done");
@@ -890,7 +890,7 @@ main (int argc,
 
   g_test_add ("/fsdir/simple", TestCase, NULL,
               setup, test_dir_simple, teardown);
-  g_test_add ("/fsdir/simple", TestCase, NULL,
+  g_test_add ("/fsdir/simple_no_watch", TestCase, NULL,
               setup, test_dir_simple_no_watch, teardown);
   g_test_add ("/fsdir/early-close", TestCase, NULL,
               setup, test_dir_early_close, teardown);

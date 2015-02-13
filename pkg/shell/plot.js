@@ -307,10 +307,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
             var timestamp;
             var factor;
 
-            if (desc.factor)
-                factor = desc.factor / (options.interval / 1000);
-            else
-                factor = 1;
+            factor = desc.factor || 1;
 
             function on_new_samples(msg) {
 
@@ -368,7 +365,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
             return channel;
         }
 
-        metrics = desc.metrics.map(function (n) { return { name: n, units: desc.units }; });
+        metrics = desc.metrics.map(function (n) { return { name: n, units: desc.units, derive: desc.derive }; });
 
         var chanopts = {
             payload: "metrics1",

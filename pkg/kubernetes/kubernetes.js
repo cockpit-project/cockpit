@@ -93,10 +93,10 @@ define([
         var api = cockpit.http(8080);
         var first = true;
 
-        self.minions = [ ];
+        self.nodes = [ ];
         self.pods = [ ];
         self.services = [ ];
-        self.replicationControllers = [];
+        self.replicationcontrollers = [];
 
         var later;
         var monitor = new EtcdMonitor();
@@ -129,93 +129,93 @@ define([
         this.delete_pod = function delete_pod(pod_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta1/pods/" + encodeURIComponent(pod_name)
+                "path": "/api/v1beta3/namespaces/default/pods/" + encodeURIComponent(pod_name)
             }).fail(failure);
         };
 
-        this.delete_minion = function delete_minion(minion_name) {
+        this.delete_node = function delete_node(nodes_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta1/minions/" + encodeURIComponent(minion_name)
+                "path": "/api/v1beta3/namespaces/default/nodes/" + encodeURIComponent(nodes_name)
             }).fail(failure);
         };
 
-        this.delete_replicationController = function delete_replicationController(rc_name) {
+        this.delete_replicationcontroller = function delete_replicationcontroller(rc_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta1/replicationControllers/" + encodeURIComponent(rc_name)
+                "path": "/api/v1beta3/namespaces/default/replicationcontrollers/" + encodeURIComponent(rc_name)
             }).fail(failure);
         };
 
         this.delete_service = function delete_service(service_name) {
             api.request({"method": "DELETE",
                 "body": "",
-                "path": "/api/v1beta1/services/" + encodeURIComponent(service_name)
+                "path": "/api/v1beta3/namespaces/default/services/" + encodeURIComponent(service_name)
             }).fail(failure);
         };
 
-        this.create_replicationController = function create_replicationController(replicationController_json) {
-            api.post("/api/v1beta1/replicationControllers", replicationController_json)
+        this.create_replicationcontroller = function create_replicationcontroller(replicationcontroller_json) {
+            api.post("/api/v1beta3/namespaces/default/replicationcontrollers", replicationcontroller_json)
                .fail(failure);
         };
 
-        this.create_minion = function create_minion(minion_json) {
-            api.post("/api/v1beta1/minions", minion_json)
+        this.create_node = function create_node(node_json) {
+            api.post("/api/v1beta3/namespaces/default/nodes", node_json)
                .fail(failure);
         };
 
         this.create_pod = function create_pod(pod_json) {
-            api.post("/api/v1beta1/pods", pod_json)
+            api.post("/api/v1beta3/namespaces/default/pods", pod_json)
                .fail(failure);
         };
 
         this.create_service = function create_pod(service_json) {
-            api.post("/api/v1beta1/services", service_json)
+            api.post("/api/v1beta3/namespaces/default/services", service_json)
                .fail(failure);
         };
 
-        this.update_replicationController = function update_replicationController(rc_json) {
+        this.update_replicationcontroller = function update_replicationcontroller(rc_json) {
             api.request({"method": "PUT",
                 "body": rc_json,
-                "path": "/api/v1beta1/replicationControllers/" + encodeURIComponent(rc_json.id)
+                "path": "/api/v1beta3/namespaces/default/replicationcontrollers/" + encodeURIComponent(rc_json.id)
             }).fail(failure);
         };
 
         function update() {
             var reqs = [];
 
-            reqs.push(api.get("/api/v1beta1/minions")
+            reqs.push(api.get("/api/v1beta3/nodes")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "minions");
+                    receive(data, "nodes");
                 }));
 
-            reqs.push(api.get("/api/v1beta1/pods")
+            reqs.push(api.get("/api/v1beta3/pods")
                 .fail(failure)
                 .done(function(data) {
                     receive(data, "pods");
                 }));
 
-            reqs.push(api.get("/api/v1beta1/services")
+            reqs.push(api.get("/api/v1beta3/services")
                 .fail(failure)
                 .done(function(data) {
                     receive(data, "services");
                 }));
 
-            reqs.push(api.get("/api/v1beta1/replicationControllers")
+            reqs.push(api.get("/api/v1beta3/replicationcontrollers")
                 .fail(failure)
                 .done(function(data) {
-                    receive(data, "replicationControllers");
+                    receive(data, "replicationcontrollers");
                 }));
 
             if (first) {
                 $.when.apply($, reqs)
                     .always(function() {
                         first = false;
-                        $(self).triggerHandler("minions", [ self.minions ]);
+                        $(self).triggerHandler("nodes", [ self.nodes ]);
                         $(self).triggerHandler("services", [ self.services ]);
                         $(self).triggerHandler("pods", [ self.pods ]);
-                        $(self).triggerHandler("replicationControllers", [ self.replicationControllers ]);
+                        $(self).triggerHandler("replicationcontrollers", [ self.replicationcontrollers ]);
                     });
             }
         }

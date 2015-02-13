@@ -221,19 +221,22 @@ function MockHttp(callback) {
 /* ------------------------------------------------------------------------- */
 
 var kube_data = {
-    "minions/127.0.0.1": {
-        "kind": "Minion",
-        "id": "127.0.0.1",
-        "uid": "f530580d-a169-11e4-8651-10c37bdb8410",
-        "creationTimestamp": "2015-01-21T13:35:18+01:00",
-        "resourceVersion": 1,
-        "resources": {
+    "nodes/127.0.0.1": {
+        "kind": "Node",
+        "metadata": {
+            "id": "127.0.0.1",
+            "uid": "f530580d-a169-11e4-8651-10c37bdb8410",
+            "creationTimestamp": "2015-01-21T13:35:18+01:00",
+            "resourceVersion": 1,
+        },
+        "spec": {
             "capacity": {
-                "cpu": "1000",
-                "memory": 3221225472
+                "cpu": "1k",
+                "memory": "3Gi",
             }
         },
         "status": {
+            "hostIP": "127.0.0.1",
             "conditions": [
                 {
                     "kind": "Ready",
@@ -243,172 +246,154 @@ var kube_data = {
             ]
         }
     },
-    "pods": {
-        "kind": "PodList",
-        "creationTimestamp": null,
-        "selfLink": "/api/v1beta1/pods",
-        "resourceVersion": 84102,
-        "apiVersion": "v1beta1",
-        "items": [
-            {
-                "id": "0b547d64-ab8a-11e4-9a7c-080027300d85",
-                "uid": "0b547d64-ab8a-11e4-9a7c-080027300d85",
-                "creationTimestamp": "2015-02-03T15:20:11+05:30",
-                "selfLink": "/api/v1beta1/pods/0b547d64-ab8a-11e4-9a7c-080027300d85?namespace=default",
-                "resourceVersion": 84102,
-                "namespace": "default",
-                "labels": {
-                    "name": "wordpressreplica"
-                },
-                "desiredState": {
-                    "manifest": {
-                        "version": "v1beta2",
-                        "id": "",
-                        "volumes": null,
-                        "containers": [
-                            {
-                                "name": "slave",
-                                "image": "jbfink/wordpress",
-                                "ports": [
-                                    {
-                                        "hostPort": 81,
-                                        "containerPort": 80,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "imagePullPolicy": ""
-                            }
-                        ],
-                        "restartPolicy": {
-                            "always": {}
-                        }
-                    }
-                },
-                "currentState": {
-                    "manifest": {
-                        "version": "",
-                        "id": "",
-                        "volumes": null,
-                        "containers": null,
-                        "restartPolicy": {}
-                    },
-                    "status": "Waiting"
-                }
+    "namespaces/default/pods/database-1": {
+        "kind": "Pod",
+        "metadata": {
+            "name": "wordpress",
+            "resourceVersion": 84102,
+            "uid": "0b547d64-ab8a-11e4-9a7c-080027300d85",
+            "namespace": "default",
+            "labels": {
+                "name": "wordpressreplica"
             },
-            {
-                "id": "apache",
-                "uid": "11768037-ab8a-11e4-9a7c-080027300d85",
-                "creationTimestamp": "2015-02-03T15:20:21+05:30",
-                "selfLink": "/api/v1beta1/pods/apache?namespace=default",
-                "resourceVersion": 82248,
-                "namespace": "default",
-                "labels": {
-                    "name": "apache"
-                },
-                "desiredState": {
-                    "manifest": {
-                        "version": "v1beta2",
-                        "id": "",
-                        "volumes": null,
-                        "containers": [
-                            {
-                                "name": "master",
-                                "image": "fedora/apache",
-                                "ports": [
-                                    {
-                                        "hostPort": 8084,
-                                        "containerPort": 80,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "imagePullPolicy": ""
-                            }
-                        ],
-                        "restartPolicy": {
-                            "always": {}
+        },
+        "spec": {
+            "volumes": null,
+            "containers": [
+                {
+                    "name": "slave",
+                    "image": "jbfink/wordpress",
+                    "ports": [
+                        {
+                            "hostPort": 81,
+                            "containerPort": 80,
+                            "protocol": "TCP"
                         }
-                    }
-                },
-                "currentState": {
-                    "manifest": {
-                        "version": "",
-                        "id": "",
-                        "volumes": null,
-                        "containers": null,
-                        "restartPolicy": {}
+                    ],
+                    "imagePullPolicy": "IfNotPresent"
+                }
+            ],
+            "restartPolicy": {
+                "always": {}
+            },
+            "dnsPolicy": "ClusterFirst"
+        },
+        "status": {
+            "phase": "Running",
+            "Condition": [
+                {
+                    "kind": "Ready",
+                    "status": "Full"
+                }
+            ],
+            "host": "127.0.0.1",
+            "hostIP": "127.0.0.1",
+            "podIP": "172.17.4.173",
+            "info": {
+                "POD": {
+                    "state": {
+                        "running": {
+                            "startedAt": "2015-02-13T16:21:35Z"
+                        }
                     },
-                    "status": "Running",
-                    "host": "127.0.0.1",
-                    "podIP": "172.17.0.3",
-                    "info": {
-                        "master": {
-                            "state": {
-                                "running": {
-                                    "startedAt": "2015-02-03T09:50:25Z"
-                                }
-                            },
-                            "restartCount": 0,
-                            "image": "fedora/apache",
-                            "containerID": "docker://71e288e50fa7e61724207944e0950c23ab56036d7d10faa2969d9b2f1a0322ad"
-                        },
-                        "net": {
-                            "state": {
-                                "running": {
-                                    "startedAt": "2015-02-03T09:50:24Z"
-                                }
-                            },
-                            "restartCount": 0,
-                            "podIP": "172.17.0.3",
-                            "image": "kubernetes/pause:latest",
-                            "containerID": "docker://8ba22e7c4954bc4dc2d8a9ac7a0dc2c1924a20b9a892be19591876ab18fd3a13"
+                    "ready": false,
+                    "restartCount": 0,
+                    "containerID": "docker://9031b6aef7829ec029955377bd53642760899d4eed37738830756d0ce092a01d",
+                    "podIP": "172.17.4.173",
+                    "image": "kubernetes/pause:latest",
+                    "imageID": "docker://6c4579af347b649857e915521132f15a06186d73faa62145e3eeeb6be0e97c27"
+                },
+                "slave": {
+                    "state": {
+                        "running": {
+                            "startedAt": "2015-02-13T16:27:49Z"
                         }
-                    }
+                    },
+                    "ready": true,
+                    "restartCount": 0,
+                    "containerID": "docker://dc70bd24ecc7fd86a385d67bdbc2a60b219cf34fdd215f8f599c95ba93b1a82b",
+                    "image": "jbfink/wordpress",
+                    "imageID": "docker://0beee7f478c860c8444aa6a3966e1cb0cd574a01c874fc5dcc48585bd45dba52"
                 }
             }
-        ]
+        }
     },
-    "services": {
-        "kind": "ServiceList",
-        "creationTimestamp": null,
-        "selfLink": "/api/v1beta1/services",
-        "resourceVersion": 27,
-        "apiVersion": "v1beta1",
-        "items": [
-            {
-                "id": "kubernetes",
-                "uid": "907220be-a688-11e4-b854-525400069c27",
-                "creationTimestamp": "2015-01-27T16:56:59-08:00",
-                "selfLink": "/api/v1beta1/services/kubernetes?namespace=default",
-                "resourceVersion": 3,
-                "namespace": "default",
-                "port": 443,
-                "protocol": "TCP",
-                "labels": {
-                    "component": "apiserver",
-                    "provider": "kubernetes"
-                },
-                "selector": null,
-                "containerPort": 0,
-                "portalIP": "10.254.115.76"
+    "namespaces/default/pods/apache": {
+        "kind": "Pod",
+        "metadata": {
+            "name": "apache",
+            "uid": "11768037-ab8a-11e4-9a7c-080027300d85",
+            "resourceVersion": 5,
+            "namespace": "default",
+            "labels": {
+                "name": "apache"
             },
-            {
-                "id": "kubernetes-ro",
-                "uid": "90727b80-a688-11e4-b854-525400069c27",
-                "creationTimestamp": "2015-01-27T16:56:59-08:00",
-                "selfLink": "/api/v1beta1/services/kubernetes-ro?namespace=default",
-                "resourceVersion": 4,
-                "namespace": "default",
-                "port": 80,
-                "protocol": "TCP",
-                "labels": {
-                    "component": "apiserver",
-                    "provider": "kubernetes"
-                },
-                "selector": null,
-                "containerPort": 0,
-                "portalIP": "10.254.48.13"
-            }
-        ]
+        },
+        "spec": {
+            "volumes": null,
+            "containers": [
+                {
+                    "name": "slave",
+                    "image": "fedora/apache",
+                    "ports": [
+                        {
+                            "hostPort": 8084,
+                            "containerPort": 80,
+                            "protocol": "TCP"
+                        }
+                    ],
+                    "imagePullPolicy": "IfNotPresent"
+                }
+            ],
+            "restartPolicy": {
+                "always": {}
+            },
+            "dnsPolicy": "ClusterFirst"
+        },
+    },
+    "namespaces/default/services/kubernetes": {
+        "kind": "Service",
+        "metadata": {
+            "name": "kubernetes",
+            "namespace": "default",
+            "uid": "9750385b-7fa4-11e4-91e3-10c37bdb8410",
+            "resourceVersion": "15",
+        },
+        "spec": {
+            "port": 443,
+            "protocol": "TCP",
+            "selector": {
+                "component": "apiserver",
+                "provider": "kubernetes"
+            },
+            "portalIP": "10.254.224.238",
+            "containerPort": 0,
+            "sessionAffinity": "None"
+        },
+        "status": {}
+    },
+    "namespaces/default/services/kubernetes-ro": {
+        "kind": "Service",
+        "apiVersion": "v1beta3",
+        "metadata": {
+            "name": "kubernetes-ro",
+            "namespace": "default",
+            "selfLink": "/api/v1beta3/namespaces/default/services/kubernetes-ro",
+            "uid": "97504104-7fa4-11e4-91e3-10c37bdb8410",
+            "resourceVersion": "16",
+        },
+        "spec": {
+            "port": 80,
+            "protocol": "TCP",
+            "selector": {
+                "component": "apiserver",
+                "provider": "kubernetes"
+            },
+            "portalIP": "10.254.117.100",
+            "containerPort": 0,
+            "sessionAffinity": "None"
+        },
+        "status": {}
     }
 };
 
@@ -420,7 +405,7 @@ require([
 
     function kube_apiserver(req) {
         var parts = req.path.substring(1).split("/");
-        if (parts[0] != "api" && parts[1] != "v1beta1")
+        if (parts[0] != "api" && parts[1] != "v1beta3")
             return false;
 
         parts = parts.slice(2);
@@ -436,18 +421,18 @@ require([
 
         function basics(item) {
             item.selfLink = req.path;
-            item.apiVersion = "v1beta1";
+            item.apiVersion = "v1beta3";
             $.each(item.items, function(i, child) {
                 var id = child.id;
                 child.selfLink = req.path + "/" + id;
-                child.apiVersion = "v1beta1";
+                child.apiVersion = "v1beta3";
             });
         }
 
-        function list(kind, prefix) {
+        function list(kind, match) {
             var items = [];
             $.each(kube_data, function(id, data) {
-                if (id.indexOf(prefix) === 0)
+                if (id.match(match))
                     items.push(data);
             });
 
@@ -460,6 +445,7 @@ require([
         }
 
         var data;
+        var prefix;
 
         /* Straight up items */
         if (kube_data[item]) {
@@ -470,15 +456,16 @@ require([
             return false;
 
         /* Various lists */
-        } else if (what == "minions") {
-            data = list("MinionList", "minions/");
-            data.minions = data.items;
+        } else if (what == "namespaces") {
+            data = list("NamespaceList", /namespaces\//);
+        } else if (what == "nodes") {
+            data = list("NodeList", /nodes\//);
         } else if (what == "pods") {
-            data = list("PodList", "pods/");
+            data = list("PodList", /namespaces\/.+\/pods\//);
         } else if (what == "services") {
-            data = list("ServiceList", "services/");
-        } else if (what == "replicationControllers") {
-            data = list("ReplicationControllerList", "replicationControllers/");
+            data = list("ServiceList", /namespaces\/.+\/services\//);
+        } else if (what == "replicationcontrollers") {
+            data = list("ReplicationControllerList", /namespaces\/.+\/replicationcontrollers\//);
 
         /* Nothing found */
         } else {
@@ -517,17 +504,17 @@ require([
             throw "Unexpected mock http endpoint";
     };
 
-    asyncTest("list minions", function() {
+    asyncTest("list nodes", function() {
         expect(3);
 
         var client = kubernetes.k8client();
-        $(client).on("minions", function(ev) {
-            var minion = client.minions[0];
-            equal(client.minions.length, 1, "number of minions");
-            equal(minion.id, "127.0.0.1", "localhost minion");
-            equal(typeof minion.resources, "object", "minion has resources");
+        $(client).on("nodes", function(ev) {
+            var node = client.nodes[0];
+            equal(client.nodes.length, 1, "number of nodes");
+            equal(node.metadata.id, "127.0.0.1", "localhost node");
+            equal(typeof node.spec.capacity, "object", "node has resources");
 
-            $(client).off("minions");
+            $(client).off("nodes");
             client.close();
             start();
         });
@@ -540,8 +527,8 @@ require([
         $(client).on("pods", function(ev) {
             var pod = client.pods[0];
             equal(client.pods.length, 2, "number of pods");
-            equal(pod.id, "0b547d64-ab8a-11e4-9a7c-080027300d85", "pod id");
-            equal(pod.labels.name, "wordpressreplica", "pod has label");
+            equal(pod.metadata.uid, "0b547d64-ab8a-11e4-9a7c-080027300d85", "pod id");
+            equal(pod.metadata.labels.name, "wordpressreplica", "pod has label");
 
             $(client).off("pods");
             client.close();
@@ -556,8 +543,8 @@ require([
         $(client).on("services", function(ev) {
             var svc = client.services[0];
             equal(client.services.length, 2, "number of services");
-            equal(svc.id, "kubernetes", "service id");
-            equal(svc.labels.component, "apiserver", "service has label");
+            equal(svc.metadata.name, "kubernetes", "service id");
+            equal(svc.spec.selector.component, "apiserver", "service has label");
 
             $(client).off("services");
             client.close();
@@ -567,7 +554,7 @@ require([
 
     test("close immediate", function() {
         var client = kubernetes.k8client();
-        equal(client.minions.length, 0, "no minions yet");
+        equal(client.nodes.length, 0, "no nodes yet");
 
         /* No error should be thrown on immediate close*/
         client.close();

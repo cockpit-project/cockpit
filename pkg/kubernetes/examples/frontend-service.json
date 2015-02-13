@@ -1,13 +1,21 @@
 {
-  "id": "frontend",
-  "kind": "Service",
-  "apiVersion": "v1beta1",
-  "port": 80,
-  "containerPort": 80,
-  "selector": {
-    "name": "frontend"
-  },
-  "labels": {
-    "name": "frontend"
-  }
+    "kind": "Service",
+    "apiVersion": "v1beta3",
+
+    "metadata": {
+        "name": "frontend",
+        "namespace": "default",
+        "labels": {
+            "template": "ruby-helloworld-sample"
+        }
+    },
+    "spec": {
+        "port": 5432,
+        "protocol": "TCP",
+        "selector": {
+            "name": "frontend"
+        },
+        "containerPort": 8080,
+        "sessionAffinity": "None"
+    }
 }

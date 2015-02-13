@@ -25,9 +25,6 @@ require([
 
         /* jshint validthis:true */
         var helpers = {
-            render_memory: function() {
-                return cockpit.format_bytes(this.memory);
-            },
             render_selector: function() {
                 var parts = [];
                 if (this.selector) {
@@ -61,15 +58,15 @@ require([
             },
             render_labels: function() {
                 var parts = [];
-                if (this.labels) {
-                    $.each(this.labels, function(key, value) {
+                if (this.metadata.labels) {
+                    $.each(this.metadata.labels, function(key, value) {
                         parts.push(key + ": " + value);
                     });
                 }
                 return parts.join("\n");
             },
             render_button: function() {
-                if(this.id == "kubernetes" || this.id == "kubernetes-ro") {
+                if(this.name == "kubernetes" || this.name == "kubernetes-ro") {
                     return false;
                 }
                 return true;
@@ -78,10 +75,10 @@ require([
 
         function render() {
             var text = Mustache.render(template, $.extend({
-                minions: client.minions,
+                nodes: client.nodes,
                 pods: client.pods,
                 services: client.services,
-                replicationControllers: client.replicationControllers,
+                replicationcontrollers: client.replicationcontrollers,
                 etcdHosts: etcdclient.etcdHosts
             }, helpers));
 
@@ -91,7 +88,7 @@ require([
     }
 
     renderer = view_renderer();
-    $(client).on("pods minions", renderer);
+    $(client).on("pods nodes", renderer);
     renderer();
 
     function lookup_pod(id) {
@@ -105,9 +102,9 @@ require([
     }
 
     function lookup_rc(id) {
-        var pod, i, length = client.replicationControllers.length;
+        var pod, i, length = client.replicationcontrollers.length;
         for (i = 0; i < length; i++) {
-            rc = client.replicationControllers[i];
+            rc = client.replicationcontrollers[i];
             if (id == rc.id)
                 return rc;
         }
@@ -122,10 +119,10 @@ require([
         var id = button.attr("id");
         if (id == "add-pods") {
             entityType = "pod";
-        } else if (id == "add-minions") {
-            entityType = "minion";
-        } else if (id == "add-replicationControllers") {
-            entityType = "replicationController";
+        } else if (id == "add-nodes") {
+            entityType = "node";
+        } else if (id == "add-replicationcontrollers") {
+            entityType = "replicationcontroller";
         } else {
             entityType = "service";
         }
@@ -171,10 +168,10 @@ require([
             }
             if (entityType == "pod") {
                 client.create_pod(jsondata);
-            } else if (entityType == "minion") {
-                client.create_minion(jsondata);
-            } else if (entityType == "replicationController") {
-                client.create_replicationController(jsondata);
+            } else if (entityType == "node") {
+                client.create_nodes(jsondata);
+            } else if (entityType == "replicationcontroller") {
+                client.create_replicationcontroller(jsondata);
             } else if (entityType == "service") {
                client.create_service(jsondata);
             }
@@ -189,10 +186,10 @@ require([
         var id = button.attr("id");
         if (id == "delete-pods") {
             entityType = "pod";
-        } else if (id == "delete-minions") {
-            entityType = "minion";
-        } else if (id == "delete-replicationControllers") {
-            entityType = "replicationController";
+        } else if (id == "delete-nodes") {
+            entityType = "node";
+        } else if (id == "delete-replicationcontrollers") {
+            entityType = "replicationcontroller";
         } else if (id == "delete-services") {
             entityType = "service";
         }
@@ -206,10 +203,10 @@ require([
         $("#delete-dialog-apply").on('click', function () {
             if (entityType == "pod") {
                 client.delete_pod(entity);
-            } else if (entityType == "minion") {
-                client.delete_minion(entity);
-            } else if (entityType == "replicationController") {
-                client.delete_replicationController(entity);
+            } else if (entityType == "node") {
+                client.delete_node(entity);
+            } else if (entityType == "replicationcontroller") {
+                client.delete_replicationcontroller(entity);
             } else if (entityType == "service") {
                 client.delete_service(entity);
             }
@@ -242,10 +239,10 @@ require([
         var id = button.attr("id");
         if (id == "update-pods") {
             entityType = "pod";
-        } else if (id == "update-minions") {
-            entityType = "minion";
-        } else if (id == "update-replicationControllers") {
-            entityType = "replicationController";
+        } else if (id == "update-nodes") {
+            entityType = "node";
+        } else if (id == "update-replicationcontrollers") {
+            entityType = "replicationcontroller";
             entity = lookup_rc(button.attr("data-id"));
         } else if (id == "update-services") {
             entityType = "service";
@@ -266,9 +263,9 @@ require([
         $("#update-dialog-apply").on('click', function () {
             if (entityType == "pod") {
                 //TODO
-            } else if (entityType == "minion") {
+            } else if (entityType == "node") {
                 //TODO
-            } else if (entityType == "replicationController") {
+            } else if (entityType == "replicationcontroller") {
                 var replica = $("#update-replica");
                 if (!replica) {
                     return;
@@ -276,7 +273,7 @@ require([
                     entity.desiredState.replicas = parseInt(replica.val());
                     entity.kind = "ReplicationController";
                     entity.apiVersion = "v1beta1";
-                    client.update_replicationController(JSON.stringify(entity));
+                    client.update_replicationcontroller(JSON.stringify(entity));
                 }
             } else if (entityType == "service") {
                 //TODO
@@ -299,31 +296,29 @@ require([
   <script id="kubernetes-view-tmpl" type="x-template/mustache">
     <div class="row">
       <div class="col-md-4">
-        <div class="panel panel-default" id="dashboard-minion">
+        <div class="panel panel-default" id="dashboard-node">
           <div class="panel-heading">
-            <button class="btn btn-primary pull-right fa fa-plus" id="add-minions" data-toggle="modal" data-target="#add-dialog"></button>
-            <span>Minions</span>
+            <button class="btn btn-primary pull-right fa fa-plus" id="add-nodes" data-toggle="modal" data-target="#add-dialog"></button>
+            <span>Nodes</span>
           </div>
-          <div class="list-group" id="kubernetes-minions">
-            {{#minions}}
+          <div class="list-group" id="kubernetes-nodes">
+            {{#nodes}}
               <a class="list-group-item">
-                <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-minions" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
-                <h5 class="list-group-item-heading">{{id}}</h5>
-                </br>
+                {{#metadata}}
+                  <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-nodes" data-toggle="modal" data-target="#delete-dialog" data-id="{{name}}"></button>
+                  <h5 class="list-group-item-heading">{{name}}</h5>
+                  </br>
+                {{/metadata}}
                 <p class="list-group-item-text">
-                {{#resources}}
+                {{#spec}}
                   {{#capacity}}
-                    {{#cpu}}
-                      CPU: {{cpu}}
-                    {{/cpu}}
-                    {{#memory}}
-                      Memory: {{render_memory}}
-                    {{/memory}}
+                    CPU: {{cpu}}
+                    Memory: {{memory}}
                   {{/capacity}}
-                {{/resources}}
+                {{/spec}}
                 </p>
               </a>
-            {{/minions}}
+            {{/nodes}}
           </div>
         </div>
       </div>
@@ -336,21 +331,21 @@ require([
           <div class="list-group" id="kubernetes-pods">
             {{#pods}}
             <a class="list-group-item">
-              <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-pods" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
-              <h5 class="list-group-item-heading">{{id}}</h5>
+              {{#metadata}}
+                <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-pods" data-toggle="modal" data-target="#delete-dialog" data-id="{{name}}"></button>
+                <h5 class="list-group-item-heading">{{name}}</h5>
+              {{/metadata}}
               </br>
               Labels:<p class="list-group-item-text">{{render_labels}}</p>
-              {{#desiredState}}
-                {{#manifest}}
-                  {{#containers}}
-                    <p class="list-group-item-text">Image: {{image}} </p>
-                    <p class="list-group-item-text">{{render_ports}} </p>
-                  {{/containers}}
-                {{/manifest}}
-              {{/desiredState}}
-              {{#currentState}}
-                {{status}} {{host}} {{podIP}}
-              {{/currentState}}
+              {{#spec}}
+                {{#containers}}
+                  <p class="list-group-item-text">Image: {{image}} </p>
+                  <p class="list-group-item-text">{{render_ports}} </p>
+                {{/containers}}
+              {{/spec}}
+              {{#status}}
+                {{phase}} {{host}} {{podIP}}
+              {{/status}}
             </a>
             {{/pods}}
           </div>
@@ -365,15 +360,19 @@ require([
           <div class="list-group" id="kubernetes-services">
             {{#services}}
             <a class="list-group-item">
-              {{#render_button}}
-                <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-services" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
-              {{/render_button}}
-              <h5 class="list-group-item-heading">{{id}}</h5>
+              {{#metadata}}
+                {{#render_button}}
+                  <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-services" data-toggle="modal" data-target="#delete-dialog" data-id="{{name}}"></button>
+                {{/render_button}}
+                <h5 class="list-group-item-heading">{{name}}</h5>
+              {{/metadata}}
               </br>
               Labels: <p class="list-group-item-text">{{render_labels}}</p>
-              <p class="kubernetes-selector">{{{render_selector}}}</p>
-              <p class="list-group-item-text">Container Port: {{containerPort}}</p>
-              <p>{{portalIP}}:{{port}}</p>
+              {{#spec}}
+                <p class="kubernetes-selector">{{{render_selector}}}</p>
+                <p class="list-group-item-text">Container Port: {{containerPort}}</p>
+                <p>{{portalIP}}:{{port}}</p>
+              {{/spec}}
             </a>
             {{/services}}
             <a class="list-group-item" data-toggle="modal" >
@@ -389,26 +388,28 @@ require([
         </div>
       </div>
       <div class="col-md-4">
-        <div class="panel panel-default" id="dashboard-replicationControllers">
+        <div class="panel panel-default" id="dashboard-replicationcontrollers">
           <div class="panel-heading">
-            <button class="btn btn-primary pull-right fa fa-plus" id="add-replicationControllers" data-toggle="modal" data-target="#add-dialog"></button>
-            <span>ReplicationController</span>
+            <button class="btn btn-primary pull-right fa fa-plus" id="add-replicationcontrollers" data-toggle="modal" data-target="#add-dialog"></button>
+            <span>Replication Controllers</span>
           </div>
-          <div class="list-group" id="kubernetes-replicationControllers">
-            {{#replicationControllers}}
-            <a class="list-group-item" data-toggle="modal" id="update-replicationControllers" data-target="#update-editor" data-id="{{id}}">
-              <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-replicationControllers" data-toggle="modal" data-target="#delete-dialog" data-id="{{id}}"></button>
-              <h5 class="list-group-item-heading">{{id}}</h5>
+          <div class="list-group" id="kubernetes-replicationcontrollers">
+            {{#replicationcontrollers}}
+              {{#metadata}}
+                <a class="list-group-item" data-toggle="modal" id="update-replicationcontrollers" data-target="#update-editor" data-id="{{name}}">
+                <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-replicationcontrollers" data-toggle="modal" data-target="#delete-dialog" data-id="{{name}}"></button>
+                <h5 class="list-group-item-heading">{{name}}</h5>
+              {{/metadata}}
               </br>
               Labels: <p class="list-group-item-text">{{render_labels}}</p>
-              {{#desiredState}}
+              {{#spec}}
                   <p class="list-group-item-text">Total replicas: {{replicas}}</p>
-              {{/desiredState}}
-              {{#currentState}}
+              {{/spec}}
+              {{#status}}
                   <p class="list-group-item-text">Current replicas: {{replicas}}</p>
-              {{/currentState}}
-            </a>
-            {{/replicationControllers}}
+              {{/status}}
+              </a>
+            {{/replicationcontrollers}}
           </div>
         </div>
       </div>
@@ -483,7 +484,7 @@ require([
           <button type="button" class="close" data-dismiss="modal">
             <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
           </button>
-          <h4 class="modal-title">ReplicationController Editor</h4>
+          <h4 class="modal-title">Replication Controller Editor</h4>
         </div>
         <div class="modal-body">
           Dialog body

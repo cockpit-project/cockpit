@@ -119,6 +119,11 @@ setup_metrics_channel_json (TestCase *tc, JsonObject *options)
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
   cockpit_channel_prepare (tc->channel);
+
+  /* We work with real timestamps here but we don't want the
+     interpolation to change any of our sample values.
+  */
+  cockpit_metrics_set_interpolate (COCKPIT_METRICS (tc->channel), FALSE);
 }
 
 static GBytes *
@@ -222,7 +227,7 @@ test_metrics_compression (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[0]]");
   assert_sample (tc, "[[]]");
@@ -247,7 +252,7 @@ test_metrics_units (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'sec', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.seconds', 'units': 'sec', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[60]]");
 
@@ -266,7 +271,7 @@ test_metrics_units_conv (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'min', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.seconds', 'units': 'min', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[1]]");
 
@@ -303,7 +308,7 @@ test_metrics_units_funny_conv (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.seconds', 'type': 'number', 'units': 'min*2', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.seconds', 'units': 'min*2', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[0.5]]");
 
@@ -322,14 +327,14 @@ test_metrics_strings (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.string', 'type': 'string', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.string', 'units': '', 'semantics': 'instant' } ]");
 
-  assert_sample (tc, "[['foobar']]");
-  assert_sample (tc, "[[]]");
+  assert_sample (tc, "[[false]]");
+  assert_sample (tc, "[[false]]");
 
   mock_pmda_control ("set-string", "barfoo");
 
-  assert_sample (tc, "[['barfoo']]");
+  assert_sample (tc, "[[false]]");
 
   json_object_unref (options);
 }
@@ -347,7 +352,7 @@ test_metrics_simple_instances (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "[ { 'name': 'mock.values', 'units': '', 'semantics': 'instant', "
                           "    'instances': ['red', 'green', 'blue'] "
                           "  } ]");
 
@@ -377,7 +382,7 @@ test_metrics_instance_filter_include (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "[ { 'name': 'mock.values', 'units': '', 'semantics': 'instant', "
                           "    'instances': ['red', 'blue'] "
                           "  } ]");
 
@@ -402,7 +407,7 @@ test_metrics_instance_filter_omit (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.values', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "[ { 'name': 'mock.values', 'units': '', 'semantics': 'instant', "
                           "    'instances': ['red', 'blue'] "
                           "  } ]");
 
@@ -427,7 +432,7 @@ test_metrics_instance_dynamic (TestCase *tc,
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "[ { 'name': 'mock.instances', 'units': '', 'semantics': 'instant', "
                           "    'instances': [] "
                           "  } ]");
 
@@ -438,7 +443,7 @@ test_metrics_instance_dynamic (TestCase *tc,
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "[ { 'name': 'mock.instances', 'units': '', 'semantics': 'instant', "
                           "    'instances': [ 'bananas', 'milk' ] "
                           "  } ]");
   assert_sample (tc, "[[[ 5, 3 ]]]");
@@ -448,7 +453,7 @@ test_metrics_instance_dynamic (TestCase *tc,
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.instances', 'type': 'number', 'units': '', 'semantics': 'instant', "
+                          "[ { 'name': 'mock.instances', 'units': '', 'semantics': 'instant', "
                           "    'instances': [ 'milk' ] "
                           "  } ]");
   assert_sample (tc, "[[[ 3 ]]]");
@@ -465,7 +470,7 @@ test_metrics_counter (TestCase *tc,
                       gconstpointer unused)
 {
   JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.counter' } ],"
+                                 "  'metrics': [ { 'name': 'mock.counter', 'derive': 'delta' } ],"
                                  "  'interval': 1"
                                  "}");
 
@@ -473,13 +478,37 @@ test_metrics_counter (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.counter', 'type': 'number', 'units': '', 'semantics': 'counter' } ]");
+                          "[ { 'name': 'mock.counter', 'units': '', 'semantics': 'counter', 'derive': 'delta' } ]");
 
-  /* Because the length has changed, nulls should be sent */
-  assert_sample (tc, "[[null]]");
+  assert_sample (tc, "[[false]]");
   assert_sample (tc, "[[0]]");
   assert_sample (tc, "[[]]");
   mock_pmda_control ("inc-counter", 5);
+  assert_sample (tc, "[[5]]");
+  assert_sample (tc, "[[0]]");
+
+  json_object_unref (options);
+}
+
+static void
+test_metrics_counter64 (TestCase *tc,
+                        gconstpointer unused)
+{
+  JsonObject *options = json_obj("{ 'source': 'direct',"
+                                 "  'metrics': [ { 'name': 'mock.counter64', 'derive': 'delta' } ],"
+                                 "  'interval': 1"
+                                 "}");
+
+  setup_metrics_channel_json (tc, options);
+
+  JsonObject *meta = recv_json_object (tc);
+  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
+                          "[ { 'name': 'mock.counter64', 'units': '', 'semantics': 'counter', 'derive': 'delta' } ]");
+
+  assert_sample (tc, "[[false]]");
+  assert_sample (tc, "[[0]]");
+  assert_sample (tc, "[[]]");
+  mock_pmda_control ("inc-counter64", 5);
   assert_sample (tc, "[[5]]");
   assert_sample (tc, "[[0]]");
 
@@ -491,7 +520,7 @@ test_metrics_counter_across_meta (TestCase *tc,
                                   gconstpointer unused)
 {
   JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.counter' },"
+                                 "  'metrics': [ { 'name': 'mock.counter', 'derive': 'delta' },"
                                  "               { 'name': 'mock.instances' }"
                                  "             ],"
                                  "  'interval': 1"
@@ -502,69 +531,38 @@ test_metrics_counter_across_meta (TestCase *tc,
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
                           "[ { 'name': 'mock.counter',"
-                          "    'type': 'number',"
                           "    'units': '',"
-                          "    'semantics': 'counter' },"
+                          "    'semantics': 'counter',"
+                          "    'derive': 'delta'"
+                          "  },"
                           "  { 'name': 'mock.instances',"
-                          "    'type': 'number',"
                           "    'units': '',"
                           "    'semantics': 'instant',"
                           "    'instances': [] }"
                           "]");
 
-  /* Because the length has changed, nulls should be sent */
-  assert_sample (tc, "[[null,[]]]");
+  assert_sample (tc, "[[false,[]]]");
   assert_sample (tc, "[[0,[]]]");
-  assert_sample (tc, "[[null,[]]]");
-  mock_pmda_control ("inc-counter", 5);
-  assert_sample (tc, "[[5,[]]]");
-  assert_sample (tc, "[[0,[]]]");
-  assert_sample (tc, "[[null,[]]]");
 
   /* Add an instance, which triggers a meta message.  The counter
-     should be unaffected and return '0'.  However, the '0' will not
-     be compressed away.
+     should be unaffected and return '0'.  Since it is still in the
+     same place in the arrays, it might also be compressed away but as
+     it happens, the channel will not compress over any meta message.
   */
   mock_pmda_control ("add-instance", "foo", 12);
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
                           "[ { 'name': 'mock.counter',"
-                          "    'type': 'number',"
                           "    'units': '',"
-                          "    'semantics': 'counter' },"
+                          "    'semantics': 'counter',"
+                          "    'derive': 'delta'"
+                          "  },"
                           "  { 'name': 'mock.instances',"
-                          "    'type': 'number',"
                           "    'units': '',"
                           "    'semantics': 'instant',"
                           "    'instances': [ 'foo' ] }"
                           "]");
   assert_sample (tc, "[[0,[12]]]");
-
-  json_object_unref (options);
-}
-
-static void
-test_metrics_counter64 (TestCase *tc,
-                        gconstpointer unused)
-{
-  JsonObject *options = json_obj("{ 'source': 'direct',"
-                                 "  'metrics': [ { 'name': 'mock.counter64' } ],"
-                                 "  'interval': 1"
-                                 "}");
-
-  setup_metrics_channel_json (tc, options);
-
-  JsonObject *meta = recv_json_object (tc);
-  cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.counter64', 'type': 'number', 'units': '', 'semantics': 'counter' } ]");
-
-  /* Because the length has changed, nulls should be sent */
-  assert_sample (tc, "[[null]]");
-  assert_sample (tc, "[[0]]");
-  assert_sample (tc, "[[]]");
-  mock_pmda_control ("inc-counter64", 5);
-  assert_sample (tc, "[[5]]");
-  assert_sample (tc, "[[0]]");
 
   json_object_unref (options);
 }

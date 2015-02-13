@@ -3,24 +3,24 @@
     "apiVersion": "v1beta3",
 
     "metadata": {
-        "name": "frontendcontroller",
+        "name": "databasecontroller",
         "namespace": "default",
         "labels": {
-            "name": "frontendcontroller",
+            "name": "databasecontroller",
             "template": "ruby-helloworld-sample"
         }
     },
     "spec": {
-        "replicas": 3,
+        "replicas": 1,
         "selector": {
-            "name": "frontend"
+            "name": "database"
         },
         "template": {
             "metadata": {
-                "name": "frontend-1",
+                "name": "database-1",
                 "namespace": "default",
                 "labels": {
-                    "name": "frontend",
+                    "name": "database",
                     "template": "ruby-helloworld-sample"
                 }
             },
@@ -28,35 +28,25 @@
                 "volumes": null,
                 "containers": [
                 {
-                    "name": "ruby-helloworld",
-                    "image": "openshift/ruby-hello-world",
+                    "name": "ruby-helloworld-database",
+                    "image": "mysql",
                     "ports": [
                     {
-                        "containerPort": 8080,
+                        "containerPort": 3306,
                         "protocol": "TCP"
                     }
                     ],
                     "env": [
                     {
-                        "name": "ADMIN_USERNAME",
-                        "key": "ADMIN_USERNAME",
-                        "value": "admin6TM"
+                        "name": "MYSQL_ROOT_PASSWORD",
+                        "key": "MYSQL_ROOT_PASSWORD",
+                        "value": "rQHfVnTo"
                     },
                     {
-                        "name": "ADMIN_PASSWORD",
-                        "key": "ADMIN_PASSWORD",
-                        "value": "xImx1tHR"
-                    },
-                        {
-                            "name": "MYSQL_ROOT_PASSWORD",
-                            "key": "MYSQL_ROOT_PASSWORD",
-                            "value": "rQHfVnTo"
-                        },
-                        {
-                            "name": "MYSQL_DATABASE",
-                            "key": "MYSQL_DATABASE",
-                            "value": "root"
-                        }
+                        "name": "MYSQL_DATABASE",
+                        "key": "MYSQL_DATABASE",
+                        "value": "root"
+                    }
                     ],
                     "imagePullPolicy": "IfNotPresent",
                     "capabilities": {}
@@ -69,7 +59,7 @@
                 "dnsPolicy": "ClusterFirst"
             }
 
+
         }
     }
-}		
-
+}

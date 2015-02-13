@@ -1,0 +1,21 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1beta3",
+
+  "metadata": {
+      "name": "database",
+      "namespace": "default",
+      "labels": {
+          "template": "ruby-helloworld-sample"
+      }
+  },
+  "spec": {
+      "port": 5432,
+      "protocol": "TCP",
+      "selector": {
+          "name": "database"
+      },
+      "containerPort": 3306,
+      "sessionAffinity": "None"
+  }
+}

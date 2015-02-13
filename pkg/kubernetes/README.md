@@ -8,6 +8,25 @@ and requires an otherwise working latest version of Cockpit.
 This sets up a single machine kubernetes master and minion:
 
     $ sudo yum install kubernetes
+
+Now in order to support the v1beta3 API, we need to build kubernetes
+from source or use a version later than v0.10.0:
+
+    $ git clone git@github.com:GoogleCloudPlatform/kubernetes.git
+    $ cd kubernetes
+    $ git checkout v0.10.0
+    $ make
+    $ DIST=_output/local/bin/linux/amd64/
+    $ sudo cp -v $DIST/kube* /usr/bin
+
+The v1beta3 API is not enabled by default. The kube-apiserver process needs to run
+with the --runtime_config=api/v1beta3 argument. Use the following command
+to enable it:
+
+    $ sudo sed -i 's|KUBE_API_ARGS="|KUBE_API_ARGS="--runtime_config=api/v1beta3 |' /etc/kubernetes/apiserver
+
+Now start kubernetes:
+
     $ sudo systemctl start docker etcd kube-controller-manager \
          kube-apiserver kube-scheduler kubelet kube-proxy
 

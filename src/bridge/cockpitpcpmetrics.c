@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
+
 #include "config.h"
 
 #include "cockpitmetrics.h"
@@ -25,6 +27,7 @@
 #include "common/cockpitjson.h"
 
 #include <pcp/pmapi.h>
+#include <math.h>
 
 /**
  * CockpitPcpMetrics:
@@ -38,6 +41,7 @@ static int my_pmParseUnitsStr(const char *, pmUnits *, double *);
 
 typedef struct {
   const gchar *name;
+  const gchar *derive;
   pmID id;
   pmDesc desc;
   pmUnits *units;
@@ -67,7 +71,6 @@ typedef struct {
 
   /* The previous samples sent */
   pmResult *last;
-  gboolean last_has_compatible_layout;
 } CockpitPcpMetrics;
 
 typedef struct {
@@ -112,6 +115,11 @@ result_meta_equal (pmResult *r1,
   return TRUE;
 }
 
+static gint64
+timestamp_from_timeval (struct timeval *tv)
+{
+  return tv->tv_sec * 1000 + tv->tv_usec / 1000;
+}
 
 static JsonObject *
 build_meta (CockpitPcpMetrics *self,
@@ -130,11 +138,8 @@ build_meta (CockpitPcpMetrics *self,
 
   gettimeofday (&now_timeval, NULL);
 
-  timestamp = (result->timestamp.tv_sec * 1000) +
-              (result->timestamp.tv_usec / 1000);
-
-  now = (now_timeval.tv_sec * 1000) +
-        (now_timeval.tv_usec / 1000);
+  timestamp = timestamp_from_timeval (&result->timestamp);
+  now = timestamp_from_timeval (&now_timeval);
 
   root = json_object_new ();
   json_object_set_int_member (root, "timestamp", timestamp);
@@ -146,9 +151,11 @@ build_meta (CockpitPcpMetrics *self,
     {
       metric = json_object_new ();
 
-      /* Name
+      /* Name and derivation mode
        */
       json_object_set_string_member (metric, "name", self->metrics[i].name);
+      if (self->metrics[i].derive)
+        json_object_set_string_member (metric, "derive", self->metrics[i].derive);
 
       /* Instances
        */
@@ -201,24 +208,6 @@ build_meta (CockpitPcpMetrics *self,
           g_free (name);
         }
 
-      /* Type
-       */
-      switch (self->metrics[i].desc.type) {
-      case PM_TYPE_STRING:
-        json_object_set_string_member (metric, "type", "string");
-        break;
-      case PM_TYPE_32:
-      case PM_TYPE_U32:
-      case PM_TYPE_64:
-      case PM_TYPE_U64:
-      case PM_TYPE_FLOAT:
-      case PM_TYPE_DOUBLE:
-        json_object_set_string_member (metric, "type", "number");
-        break;
-      default:
-        break;
-      }
-
       /* Semantics
        */
       switch (self->metrics[i].desc.sem) {
@@ -260,8 +249,9 @@ build_meta_if_necessary (CockpitPcpMetrics *self,
   return build_meta (self, result);
 }
 
-static JsonNode *
+static void
 build_sample (CockpitPcpMetrics *self,
+              double **buffer,
               pmResult *result,
               int metric,
               int instance)
@@ -271,141 +261,77 @@ build_sample (CockpitPcpMetrics *self,
   pmValue *value = &result->vset[metric]->vlist[instance];
   pmAtomValue sample;
 
-  /* The following mouth full will set sample.d to the appropriate
-     value, or return early for special cases and errors.
-  */
+  buffer[metric][instance] = NAN;
 
   if (info->desc.type == PM_TYPE_AGGREGATE || info->desc.type == PM_TYPE_EVENT)
-    return json_node_new (JSON_NODE_NULL);
+    return;
 
   if (result->vset[metric]->numval <= instance)
+    return;
+
+  /* Make sure we keep the least 48 significant bits of 64 bit numbers
+     since "delta" and "rate" derivation works on those, and the whole
+     64 don't fit into a double.
+  */
+
+  if (info->desc.type == PM_TYPE_64)
     {
-      if (self->last && self->last->vset[metric]->numval <= instance)
-        return json_node_new (JSON_NODE_NULL);
-      else
-        {
-          JsonNode *node = json_node_new (JSON_NODE_VALUE);
-          json_node_set_boolean (node, FALSE);
-          return node;
-        }
+      if (pmExtractValue (valfmt, value, PM_TYPE_64, &sample, PM_TYPE_64) < 0)
+        return;
+
+      sample.d = (sample.ll << 16) >> 16;
     }
-
-  if (info->desc.sem == PM_SEM_COUNTER && info->desc.type != PM_TYPE_STRING)
+  else if (info->desc.type == PM_TYPE_U64)
     {
-      int last_valfmt;
-      pmValue *last_value = NULL;
-      pmAtomValue old, new;
+      if (pmExtractValue (valfmt, value, PM_TYPE_U64, &sample, PM_TYPE_U64) < 0)
+        return;
 
-      if (self->last && self->last_has_compatible_layout)
-        {
-          last_valfmt = valfmt;
-          last_value = &self->last->vset[metric]->vlist[instance];
-        }
-      else if (self->last)
-        {
-          pmValueSet *vs = self->last->vset[metric];
-          last_valfmt = vs->valfmt;
-          for (int i = 0; i < vs->numval; i++)
-            {
-              if (vs->vlist[i].inst == value->inst)
-                {
-                  last_value = &vs->vlist[i];
-                  break;
-                }
-            }
-        }
-
-      if (last_value == NULL)
-        return json_node_new (JSON_NODE_NULL);
-
-      if (info->desc.type == PM_TYPE_64)
-        {
-          if (pmExtractValue (valfmt, value, PM_TYPE_64, &new, PM_TYPE_64) < 0
-              || pmExtractValue (last_valfmt, last_value, PM_TYPE_64, &old, PM_TYPE_64) < 0)
-            return json_node_new (JSON_NODE_NULL);
-
-          sample.d = new.ll - old.ll;
-        }
-      else if (info->desc.type == PM_TYPE_U64)
-        {
-          if (pmExtractValue (valfmt, value, PM_TYPE_U64, &new, PM_TYPE_U64) < 0
-              || pmExtractValue (last_valfmt, last_value, PM_TYPE_U64, &old, PM_TYPE_U64) < 0)
-            return json_node_new (JSON_NODE_NULL);
-
-          if (new.ull > old.ull)
-            sample.d = new.ull - old.ull;
-          else
-            sample.d = -(double)(old.ull - new.ull);
-        }
-      else
-        {
-          if (pmExtractValue (valfmt, value, info->desc.type, &new, PM_TYPE_DOUBLE) < 0
-              || pmExtractValue (last_valfmt, last_value, info->desc.type, &old, PM_TYPE_DOUBLE) < 0)
-            return json_node_new (JSON_NODE_NULL);
-
-          sample.d = new.d - old.d;
-        }
+      sample.d = (sample.ull << 16) >> 16;
     }
   else
     {
-      if (info->desc.type == PM_TYPE_STRING)
-        {
-          if (pmExtractValue (valfmt, value, PM_TYPE_STRING, &sample, PM_TYPE_STRING) < 0)
-            return json_node_new (JSON_NODE_NULL);
-
-          JsonNode *node = json_node_new (JSON_NODE_VALUE);
-          json_node_set_string (node, sample.cp);
-          free (sample.cp);
-          return node;
-        }
-      else
-        {
-          if (pmExtractValue (valfmt, value, info->desc.type, &sample, PM_TYPE_DOUBLE) < 0)
-            return json_node_new (JSON_NODE_NULL);
-        }
+      if (pmExtractValue (valfmt, value, info->desc.type, &sample, PM_TYPE_DOUBLE) < 0)
+        return;
     }
 
   if (info->units != &info->desc.units)
     {
       if (pmConvScale (PM_TYPE_DOUBLE, &sample, &info->desc.units, &sample, info->units) < 0)
-        return json_node_new (JSON_NODE_NULL);
+        return;
       sample.d *= info->factor;
     }
 
-  JsonNode *node = json_node_new (JSON_NODE_VALUE);
-  json_node_set_double (node, sample.d);
-  return node;
+  buffer[metric][instance] = sample.d;
 }
 
-static JsonArray *
+static void
 build_samples (CockpitPcpMetrics *self,
                pmResult *result)
 {
-  JsonArray *output;
-  JsonArray *array;
+  double **buffer;
   pmValueSet *vs;
   int i, j;
 
-  output = json_array_new ();
+  buffer = cockpit_metrics_get_data_buffer (COCKPIT_METRICS (self));
   for (i = 0; i < result->numpmid; i++)
     {
       vs = result->vset[i];
 
       /* When negative numval is an error code ... we don't care */
       if (vs->numval < 0)
-        json_array_add_null_element (output);
+        {
+          ;
+        }
       else if (self->metrics[i].desc.indom == PM_INDOM_NULL)
-        json_array_add_element (output, build_sample (self, result, i, 0));
+        {
+          build_sample (self, buffer, result, i, 0);
+        }
       else
         {
-          array = json_array_new ();
           for (j = 0; j < vs->numval; j++)
-            json_array_add_element (array, build_sample (self, result, i, j));
-          json_array_add_array_element (output, array);
+            build_sample (self, buffer, result, i, j);
         }
     }
-
-  return output;
 }
 
 static void
@@ -413,7 +339,6 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
                           gint64 timestamp)
 {
   CockpitPcpMetrics *self = (CockpitPcpMetrics *)metrics;
-  JsonArray *message;
   JsonObject *meta;
   pmResult *result;
   int rc;
@@ -432,17 +357,14 @@ cockpit_pcp_metrics_tick (CockpitMetrics *metrics,
   meta = build_meta_if_necessary (self, result);
   if (meta)
     {
-      cockpit_metrics_send_meta (metrics, meta);
+      cockpit_metrics_send_meta (metrics, meta, FALSE);
       json_object_unref (meta);
     }
 
-  self->last_has_compatible_layout = (meta == NULL);
-
   /* Send one set of samples */
-  message = json_array_new ();
-  json_array_add_array_element (message, build_samples (self, result));
-  cockpit_metrics_send_data (metrics, message);
-  json_array_unref (message);
+  build_samples (self, result);
+  cockpit_metrics_send_data (metrics, timestamp_from_timeval (&result->timestamp));
+  cockpit_metrics_flush_data (metrics);
 
   if (self->last)
     pmFreeResult (self->last);
@@ -457,7 +379,6 @@ on_idle_batch (gpointer user_data)
   const int archive_batch = 60;
   CockpitPcpMetrics *self = user_data;
   ArchiveInfo *info;
-  JsonArray *message = NULL;
   JsonObject *meta;
   pmResult *result;
   gint i;
@@ -477,11 +398,7 @@ on_idle_batch (gpointer user_data)
       self->limit--;
       if (self->limit < 0)
         {
-          if (message)
-            {
-              cockpit_metrics_send_data (COCKPIT_METRICS (self), message);
-              json_array_unref (message);
-            }
+          cockpit_metrics_flush_data (COCKPIT_METRICS (self));
           cockpit_channel_close (COCKPIT_CHANNEL (self), NULL);
           self->idler = 0;
           return FALSE;
@@ -494,8 +411,7 @@ on_idle_batch (gpointer user_data)
 
           if (rc == PM_ERR_EOL)
             {
-              if (message)
-                cockpit_metrics_send_data (COCKPIT_METRICS (self), message);
+              cockpit_metrics_flush_data (COCKPIT_METRICS (self));
               next_archive (self);
             }
           else
@@ -503,8 +419,6 @@ on_idle_batch (gpointer user_data)
               g_message ("%s: couldn't read from archive: %s", self->name, pmErrStr (rc));
               cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
             }
-          if (message)
-            json_array_unref (message);
 
           return FALSE;
         }
@@ -512,34 +426,19 @@ on_idle_batch (gpointer user_data)
       meta = build_meta_if_necessary (self, result);
       if (meta)
         {
-          if (message)
-            {
-              cockpit_metrics_send_data (COCKPIT_METRICS (self), message);
-              json_array_unref (message);
-              message = NULL;
-            }
-
-          cockpit_metrics_send_meta (COCKPIT_METRICS (self), meta);
+          cockpit_metrics_send_meta (COCKPIT_METRICS (self), meta, self->last == NULL);
           json_object_unref (meta);
         }
 
-      self->last_has_compatible_layout = (meta == NULL);
-
-      if (message == NULL)
-          message = json_array_new ();
-      json_array_add_array_element (message, build_samples (self, result));
+      build_samples (self, result);
+      cockpit_metrics_send_data (COCKPIT_METRICS (self), timestamp_from_timeval (&result->timestamp));
 
       if (self->last)
         pmFreeResult (self->last);
       self->last = result;
     }
 
-  if (message)
-    {
-      cockpit_metrics_send_data (COCKPIT_METRICS (self), message);
-      json_array_unref (message);
-    }
-
+  cockpit_metrics_flush_data (COCKPIT_METRICS (self));
   return TRUE;
 }
 
@@ -586,6 +485,13 @@ convert_metric_description (CockpitPcpMetrics *self,
       if (!cockpit_json_get_string (json_node_get_object (node), "units", NULL, &units))
         {
           g_warning ("%s: invalid units for metric %s (not a string)",
+                     self->name, info->name);
+          return FALSE;
+        }
+
+      if (!cockpit_json_get_string (json_node_get_object (node), "derive", NULL, &info->derive))
+        {
+          g_warning ("%s: invalid derivation mode for metric %s (not a string)",
                      self->name, info->name);
           return FALSE;
         }

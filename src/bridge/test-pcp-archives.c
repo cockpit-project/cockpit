@@ -228,7 +228,7 @@ test_metrics_single_archive (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[10],[11],[12]]");
 
@@ -249,7 +249,7 @@ test_metrics_archive_limit (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[10],[11]]");
 
@@ -270,7 +270,7 @@ test_metrics_archive_timestamp (TestCase *tc,
 
   JsonObject *meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
 
   assert_sample (tc, "[[11],[12]]");
 
@@ -291,12 +291,12 @@ test_metrics_archive_directory (TestCase *tc,
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
   assert_sample (tc, "[[10],[11],[12]]");
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
   assert_sample (tc, "[[13],[14],[15]]");
 
   json_object_unref (options);
@@ -317,7 +317,7 @@ test_metrics_archive_directory_timestamp (TestCase *tc,
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.value', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.value', 'units': '', 'semantics': 'instant' } ]");
   assert_sample (tc, "[[14],[15]]");
 
   json_object_unref (options);
@@ -339,7 +339,7 @@ test_metrics_archive_directory_late_metric (TestCase *tc,
 
   meta = recv_json_object (tc);
   cockpit_assert_json_eq (json_object_get_array_member (meta, "metrics"),
-                          "[ { 'name': 'mock.late', 'type': 'number', 'units': '', 'semantics': 'instant' } ]");
+                          "[ { 'name': 'mock.late', 'units': '', 'semantics': 'instant' } ]");
   assert_sample (tc, "[[30],[31],[32]]");
 
   json_object_unref (options);

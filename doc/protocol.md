@@ -728,9 +728,7 @@ The general open options are:
      archive directory directly, but you don't have to know where it
      is.
 
- * "metrics" (array): Descriptions of the metrics to use.  The exact
-   format and semantics depend on the source.  See the specific
-   sections below.
+ * "metrics" (array): Descriptions of the metrics to use.  See below.
 
  * "instances" (array of strings, optional): When specified, only the
    listed instances are included in the reported samples.
@@ -757,6 +755,35 @@ The general open options are:
    When no "limit" is specified, all samples until the end of the
    archive are delivered.
 
+You specify the desired metrics as an array of objects, where each
+object describes one metric.  For example:
+
+    [ { name: "kernel.all.cpu.user",
+        units: "millisec",
+        derive: "rate"
+      },
+      ...
+    ]
+
+A metric description can contain the following fields:
+
+ * "name" (string): The name of the metric.  Available metrics depend
+   on the source.
+
+ * "units" (string, optional): The units that values for this metric
+   should be delivered in.  If the given metric can not be converted
+   into these units, the channel is closed.  The format of the string
+   depends on the source.
+
+ * "derive" (string, optional): Optional computation.  Possible values
+   are "delta" and "rate".  For "delta", the channel delivers the
+   difference between the current and the previous value for a metric.
+   For "rate", the channel delivers the change per millisecond of the
+   metric.
+
+   For both "delta" and "rate", the value for a metric will be "false"
+   if there is no previous value to do the computation with.
+
 Once the channel is open, it will send messages encoded as JSON.  It
 will send two types of message: 'meta' messages that describe the
 metrics, and 'data' messages with the actual samples.
@@ -782,6 +809,17 @@ The 'meta' messages have at least the following fields:
       instances for instanced metrics.  This field is not present for
       non-instanced metrics.
 
+   * "units" (string): The units of the values for this metric.
+
+   * "derive" (string): The post-processing mode, as specified in the
+     "open" message.
+
+ * "timestamp" (number): The point in time of the next 'data' message,
+   in milliseconds since the epoch.
+
+ * "interval" (number): The time interval between subsequent points in
+   time in the 'data' messages, in milliseconds.
+
 Depending on the source, more fields might be present in a 'meta'
 message, and more fields might be present in the objects of the
 "metrics" field.
@@ -799,8 +837,8 @@ The 'data' messages are nested arrays in this shape:
           ],
           // second metric (not instanced)
           789,
-          // third metric (string)
-          "foo"
+          // third metric
+          543
        ],
        // next point in time
        [
@@ -848,58 +886,31 @@ then the channel will send these array instead:
     2: [  null, [ null, 15 ] ]
     3: [  null, [ ] ]
 
-This compression does not happen across 'meta' messages.
+This compression only happens when the last and current value belong
+to the same instance of the same metric.  Thus, the client does not
+need to track layout changes when decompressing data messages.
+
+Instead of a number of "null", a data message can also contain
+"false".  This indicates an error of some kind, or an unavailable
+value.
 
 **PCP metric source**
 
-You specify the desired metrics as an array of objects, where each
-object describes one metric.  For example:
+Cou can use "pminfo -L" to get a list of available PCP metric names
+for a "direct" source, for example.  If no metric of this name exists,
+the channel is closed without delivering any message.
 
-    [ { name: "kernel.all.cpu.user",
-        units: "millisec",
-      },
-      ...
-    ]
-
-A metric description is used to describe the expected behavior of the
-metric.  For example, you can specify that you expect numbers for a
-given metric and can then be sure that the source will not
-unexpectedly deliver strings to you.
-
-A metric description can have the following fields:
-
- * "name" (string): The name of the metric.  Use "pminfo -L" to get a
-   list of available PCP metric names for a "direct" source, for
-   example.  If no metric of this name exists, the channel is closed
-   without delivering any message.
-
- * "units" (string, optional): The units that values for this metric
-   should be delivered in.  If the given metric can not be converted
-   into these units, the channel is closed.  The format of the string
-   is the same as the one used by "pminfo -d".
+The format of the "units" member is the same as the one used by
+"pminfo -d".
 
 The metric information objects in the 'meta' messages for PCP sources
 also contain these fields:
 
- * "name" (string): The name of the metric.
-
- * "type" (string): The type of the values reported for this metric,
-   either "number" or "string".
-
  * "semantics" (string): The semantics of this metric, one of
-   "counter", "instant", or "discrete".  Counter metrics are treated
-   specially by a metrics channel, see below.
+   "counter", "instant", or "discrete".
 
- * "units" (string): The units for the values reported for this
-   metric.
-
-The idea is that you can inspect the 'meta' message and
-adapt to whatever characteristics the metric actually has, or close
-the channel if unexpected characteristics were encountered.
-
-Metrics that have "counter" semantics are 'differentiated' in the
-bridge: the channel will report the delta between the current and the
-previous value of the metric.
+Only numeric metrics are currently supported.  Non-numeric metrics
+have all their samples set to "false".
 
 Problem codes
 -------------

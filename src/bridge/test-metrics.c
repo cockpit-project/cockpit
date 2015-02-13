@@ -153,94 +153,319 @@ assert_sample_msg (const char *domain,
 #define assert_sample(tc, json) \
   (assert_sample_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (tc), (json)))
 
+static JsonObject *
+json_obj_msg (const char *domain,
+              const char *file,
+              int line,
+              const char *func,
+              const gchar *json_str)
+{
+  GError *error = NULL;
+  JsonObject *res = cockpit_json_parse_object (json_str, -1, &error);
+  if (error)
+    g_assertion_message_error (domain, file, line, func, "error", error, 0, 0);
+  return res;
+}
+
+#define json_obj(json_str) \
+  (json_obj_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (json_str)))
+
+static void
+send_sample (TestCase *tc, gint64 timestamp, int n, ...)
+{
+  va_list ap;
+  va_start (ap, n);
+
+  double **buffer;
+  buffer = cockpit_metrics_get_data_buffer (tc->channel);
+  for (int i = 0; i < n; i++)
+    buffer[i][0] = va_arg (ap, double);
+  cockpit_metrics_send_data (tc->channel, timestamp);
+  cockpit_metrics_flush_data (tc->channel);
+
+  va_end (ap);
+}
+
+static void
+send_instance_sample (TestCase *tc, gint64 timestamp, int n, ...)
+{
+  va_list ap;
+  va_start (ap, n);
+
+  double **buffer;
+  buffer = cockpit_metrics_get_data_buffer (tc->channel);
+  for (int i = 0; i < n; i++)
+    buffer[0][i] = va_arg (ap, double);
+  cockpit_metrics_send_data (tc->channel, timestamp);
+  cockpit_metrics_flush_data (tc->channel);
+
+  va_end (ap);
+}
+
 static void
 test_compression (TestCase *tc,
                   gconstpointer unused)
 {
-  JsonArray *zero = json_array_new ();
-  JsonArray *sample = json_array_new ();
-  json_array_add_int_element (sample, 0);
-  json_array_add_array_element (zero, sample);
+  JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo' },"
+                               "               { 'name': 'bar' }"
+                               "             ],"
+                               "  'interval': 1000"
+                               "}");
+  cockpit_metrics_send_meta (tc->channel, meta, FALSE);
+  json_object_unref (recv_object (tc));
 
-  cockpit_metrics_send_data (tc->channel, zero);
-  assert_sample (tc, "[[0]]");
-  cockpit_metrics_send_data (tc->channel, zero);
+  send_sample (tc,    0, 2, 0.0, 0.0);
+  assert_sample (tc, "[[0,0]]");
+  send_sample (tc, 1000, 2, 0.0, 0.0);
   assert_sample (tc, "[[]]");
-  cockpit_metrics_send_data (tc->channel, zero);
+  send_sample (tc, 2000, 2, 0.0, 0.0);
   assert_sample (tc, "[[]]");
 
-  JsonArray *zero_one = json_array_new ();
-  sample = json_array_new ();
-  json_array_add_int_element (sample, 0);
-  json_array_add_int_element (sample, 1);
-  json_array_add_array_element (zero_one, sample);
-
-  cockpit_metrics_send_data (tc->channel, zero_one);
+  send_sample (tc, 3000, 2, 0.0, 1.0);
   assert_sample (tc, "[[null, 1]]");
-  cockpit_metrics_send_data (tc->channel, zero_one);
-  assert_sample (tc, "[[]]");
 
-  JsonArray *zero_two = json_array_new ();
-  sample = json_array_new ();
-  json_array_add_int_element (sample, 0);
-  json_array_add_int_element (sample, 2);
-  json_array_add_array_element (zero_two, sample);
+  send_sample (tc, 4000, 2, 1.0, 1.0);
+  assert_sample (tc, "[[1]]");
 
-  cockpit_metrics_send_data (tc->channel, zero_two);
-  assert_sample (tc, "[[null, 2]]");
-  cockpit_metrics_send_data (tc->channel, zero_two);
-  assert_sample (tc, "[[]]");
-
-  JsonArray *string = json_array_new ();
-  sample = json_array_new ();
-  json_array_add_string_element (sample, "blah");
-  json_array_add_array_element (string, sample);
-
-  cockpit_metrics_send_data (tc->channel, string);
-  assert_sample (tc, "[[\"blah\"]]");
-  cockpit_metrics_send_data (tc->channel, string);
-  assert_sample (tc, "[[]]");
-
-  cockpit_metrics_send_data (tc->channel, zero_one);
-  assert_sample (tc, "[[0, 1]]");
-  cockpit_metrics_send_data (tc->channel, zero_one);
-  assert_sample (tc, "[[]]");
-
-  cockpit_metrics_send_data (tc->channel, zero);
-  assert_sample (tc, "[[null]]");
-  cockpit_metrics_send_data (tc->channel, zero);
-  assert_sample (tc, "[[]]");
-
-  json_array_unref (zero);
-  json_array_unref (zero_one);
-  json_array_unref (zero_two);
-  json_array_unref (string);
+  json_object_unref (meta);
 }
 
 static void
 test_compression_reset (TestCase *tc,
                         gconstpointer unused)
 {
-  JsonArray *zero = json_array_new ();
-  JsonArray *sample = json_array_new ();
-  json_array_add_int_element (sample, 0);
-  json_array_add_array_element (zero, sample);
-
-  cockpit_metrics_send_data (tc->channel, zero);
-  assert_sample (tc, "[[0]]");
-  cockpit_metrics_send_data (tc->channel, zero);
-  assert_sample (tc, "[[]]");
-
-  JsonObject *meta = json_object_new ();
-  cockpit_metrics_send_meta (tc->channel, meta);
+  JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo' },"
+                               "               { 'name': 'bar' }"
+                               "             ],"
+                               "  'interval': 1000"
+                               "}");
+  cockpit_metrics_send_meta (tc->channel, meta, FALSE);
   json_object_unref (recv_object (tc));
 
-  cockpit_metrics_send_data (tc->channel, zero);
-  assert_sample (tc, "[[0]]");
-  cockpit_metrics_send_data (tc->channel, zero);
+  send_sample (tc,    0, 2, 0.0, 0.0);
+  assert_sample (tc, "[[0,0]]");
+  send_sample (tc, 1000, 2, 0.0, 0.0);
   assert_sample (tc, "[[]]");
 
-  json_array_unref (zero);
+  cockpit_metrics_send_meta (tc->channel, meta, TRUE);
+  json_object_unref (recv_object (tc));
+
+  send_sample (tc, 2000, 2, 0.0, 0.0);
+  assert_sample (tc, "[[0,0]]");
+  send_sample (tc, 3000, 2, 0.0, 0.0);
+  assert_sample (tc, "[[]]");
+
+  json_object_unref (meta);
+}
+
+static void
+test_derive_delta (TestCase *tc,
+                   gconstpointer unused)
+{
+  JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo',"
+                               "                 'derive': 'delta'"
+                               "               }"
+                               "             ],"
+                               "  'interval': 100"
+                               "}");
+  cockpit_metrics_send_meta (tc->channel, meta, FALSE);
+  json_object_unref (recv_object (tc));
+
+  send_sample (tc,    0, 1, 0.0);
+  assert_sample (tc, "[[false]]");
+  send_sample (tc,  100, 1, 10.0);
+  assert_sample (tc, "[[10]]");
+  send_sample (tc,  200, 1, 20.0);
+  assert_sample (tc, "[[]]");
+  send_sample (tc,  300, 1, 40.0);
+  assert_sample (tc, "[[20]]");
+  send_sample (tc,  400, 1, 30.0);
+  assert_sample (tc, "[[-10]]");
+  send_sample (tc,  500, 1, 30.0);
+  assert_sample (tc, "[[0]]");
+  send_sample (tc,  600, 1, 30.0);
+  assert_sample (tc, "[[]]");
+  send_sample (tc,  700, 1, 30.0);
+  assert_sample (tc, "[[]]");
+
+  cockpit_metrics_send_meta (tc->channel, meta, TRUE);
+  json_object_unref (recv_object (tc));
+
+  send_sample (tc,  800, 1, 30.0);
+  assert_sample (tc, "[[false]]");
+  send_sample (tc,  900, 1, 30.0);
+  assert_sample (tc, "[[0]]");
+  send_sample (tc, 1000, 1, 30.0);
+  assert_sample (tc, "[[]]");
+  send_sample (tc, 1100, 1, 40.0);
+  assert_sample (tc, "[[10]]");
+  send_sample (tc, 1200, 1, 40.0);
+  assert_sample (tc, "[[0]]");
+
+  json_object_unref (meta);
+}
+
+static void
+test_derive_rate_no_interpolate (TestCase *tc,
+                                 gconstpointer unused)
+{
+  cockpit_metrics_set_interpolate (tc->channel, FALSE);
+
+  JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo',"
+                               "                 'derive': 'rate'"
+                               "               }"
+                               "             ],"
+                               "  'interval': 100"
+                               "}");
+  cockpit_metrics_send_meta (tc->channel, meta, FALSE);
+  json_object_unref (recv_object (tc));
+
+  send_sample (tc,    0, 1, 0.0);
+  assert_sample (tc, "[[false]]");
+  send_sample (tc,  100, 1, 10.0);
+  assert_sample (tc, "[[100]]");
+  send_sample (tc,  200, 1, 20.0);
+  assert_sample (tc, "[[]]");
+  send_sample (tc,  300, 1, 40.0);
+  assert_sample (tc, "[[200]]");
+  send_sample (tc,  400, 1, 30.0);
+  assert_sample (tc, "[[-100]]");
+  send_sample (tc,  500, 1, 30.0);
+  assert_sample (tc, "[[0]]");
+  send_sample (tc,  600, 1, 30.0);
+  assert_sample (tc, "[[]]");
+  send_sample (tc,  700, 1, 30.0);
+  assert_sample (tc, "[[]]");
+
+  cockpit_metrics_send_meta (tc->channel, meta, TRUE);
+  json_object_unref (recv_object (tc));
+
+  send_sample (tc,  800, 1, 30.0);
+  assert_sample (tc, "[[false]]");
+  send_sample (tc,  900, 1, 30.0);
+  assert_sample (tc, "[[0]]");
+  send_sample (tc, 1000, 1, 30.0);
+  assert_sample (tc, "[[]]");
+  send_sample (tc, 1200, 1, 40.0);  // double interval -> half rate
+  assert_sample (tc, "[[50]]");
+  send_sample (tc, 1200, 1, 40.0);
+  assert_sample (tc, "[[false]]");  // divide by zero -> NaN -> false
+  send_sample (tc, 1300, 1, 40.0);
+  assert_sample (tc, "[[0]]");
+
+  json_object_unref (meta);
+}
+
+static void
+test_interpolate (TestCase *tc,
+                  gconstpointer unused)
+{
+  JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo'"
+                               "               },"
+                               "               {"
+                               "                 'name': 'bar',"
+                               "                 'derive': 'rate'"
+                               "               }"
+                               "             ],"
+                               "  'interval': 100"
+                               "}");
+  cockpit_metrics_send_meta (tc->channel, meta, FALSE);
+  json_object_unref (recv_object (tc));
+
+  // rising by 10 for every 100 ms, with non-equally spaced samples
+
+  send_sample (tc,    0, 2,  0.0,  0.0);
+  assert_sample (tc, "[[0,false]]");
+  send_sample (tc,  100, 2, 10.0, 10.0);
+  assert_sample (tc, "[[10,100]]");
+  send_sample (tc,  250, 2, 25.0, 25.0);
+  assert_sample (tc, "[[20]]");
+  send_sample (tc,  300, 2, 30.0, 30.0);
+  assert_sample (tc, "[[30]]");
+  send_sample (tc,  500, 2, 50.0, 50.0);
+  assert_sample (tc, "[[40]]");
+  send_sample (tc,  500, 2, 50.0, 50.0);
+  assert_sample (tc, "[[50]]");
+
+  json_object_unref (meta);
+}
+
+static void
+test_instances (TestCase *tc,
+                gconstpointer unused)
+{
+  JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo',"
+                               "                 'instances': [ 'a', 'b' ]"
+                               "               }"
+                               "             ],"
+                               "  'interval': 1000"
+                               "}");
+  cockpit_metrics_send_meta (tc->channel, meta, FALSE);
+  json_object_unref (recv_object (tc));
+
+  send_instance_sample (tc,    0, 2, 0.0, 0.0);
+  assert_sample (tc, "[[[0,0]]]");
+  send_instance_sample (tc, 1000, 2, 0.0, 0.0);
+  assert_sample (tc, "[[[]]]");
+  send_instance_sample (tc, 2000, 2, 0.0, 0.0);
+  assert_sample (tc, "[[[]]]");
+
+  send_instance_sample (tc, 3000, 2, 0.0, 1.0);
+  assert_sample (tc, "[[[null, 1]]]");
+
+  send_instance_sample (tc, 4000, 2, 1.0, 1.0);
+  assert_sample (tc, "[[[1]]]");
+
+  json_object_unref (meta);
+}
+
+static void
+test_dynamic_instances (TestCase *tc,
+                        gconstpointer unused)
+{
+  JsonObject *meta = json_obj ("{ 'metrics': [ { 'name': 'foo',"
+                               "                 'instances': [ 'a' ],"
+                               "                 'derive': 'delta'"
+                               "               }"
+                               "             ],"
+                               "  'interval': 100"
+                               "}");
+  cockpit_metrics_send_meta (tc->channel, meta, FALSE);
+  json_object_unref (recv_object (tc));
+
+  send_instance_sample (tc,    0, 1, 0.0);
+  assert_sample (tc, "[[[false]]]");
+  send_instance_sample (tc,  100, 1, 10.0);
+  assert_sample (tc, "[[[10]]]");
+  send_instance_sample (tc,  200, 1, 20.0);
+  assert_sample (tc, "[[[]]]");
+
+  json_object_unref (meta);
+  meta = json_obj ("{ 'metrics': [ { 'name': 'foo',"
+                   "                 'instances': [ 'b', 'a' ],"
+                   "                 'derive': 'delta'"
+                   "               }"
+                   "             ],"
+                   "  'interval': 100"
+                   "}");
+  cockpit_metrics_send_meta (tc->channel, meta, FALSE);
+  json_object_unref (recv_object (tc));
+
+  /* Instance 'a' is now at a different index.  The 'delta' derivation
+     should continue to work, but no compression should happen.
+  */
+
+  send_instance_sample (tc,  300, 2,  0.0, 30.0);
+  assert_sample (tc, "[[[false,10]]]");
+  send_instance_sample (tc,  400, 2, 10.0, 20.0);
+  assert_sample (tc, "[[[10,-10]]]");
+  send_instance_sample (tc,  500, 2, 10.0, 40.0);
+  assert_sample (tc, "[[[0,20]]]");
+  send_instance_sample (tc,  600, 2, 10.0, 50.0);
+  assert_sample (tc, "[[[null,10]]]");
+  send_instance_sample (tc,  700, 2, 10.0, 60.0);
+  assert_sample (tc, "[[[]]]");
+
   json_object_unref (meta);
 }
 
@@ -254,6 +479,17 @@ main (int argc,
               setup, test_compression, teardown);
   g_test_add ("/metrics/compression-reset", TestCase, NULL,
               setup, test_compression_reset, teardown);
+  g_test_add ("/metrics/derive-delta", TestCase, NULL,
+              setup, test_derive_delta, teardown);
+  g_test_add ("/metrics/derive-rate", TestCase, NULL,
+              setup, test_derive_rate_no_interpolate, teardown);
+  g_test_add ("/metrics/interpolate", TestCase, NULL,
+              setup, test_interpolate, teardown);
+
+  g_test_add ("/metrics/instances", TestCase, NULL,
+              setup, test_instances, teardown);
+  g_test_add ("/metrics/dynamic-instances", TestCase, NULL,
+              setup, test_dynamic_instances, teardown);
 
   return g_test_run ();
 }

@@ -79,6 +79,7 @@ var resource_monitors = [
                          "kernel.all.cpu.sys"
                        ],
               units: "millisec",
+              derive: "rate",
               factor: 0.1  // millisec / sec -> percent
             },
       options: { yaxis: { tickColor: "#e1e6ed",
@@ -100,7 +101,7 @@ var resource_monitors = [
       plot: { metrics: [ "network.interface.total.bytes" ],
               units: "byte",
               'omit-instances': [ "lo" ],
-              factor: 1.0
+              derive: "rate"
             },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bits_per_sec(v*8); }
@@ -111,7 +112,7 @@ var resource_monitors = [
     { selector: "#dashboard-plot-3",
       plot: { metrics: [ "disk.dev.total_bytes" ],
               units: "byte",
-              factor: 1.0
+              derive: "rate"
             },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bytes_per_sec(v); }

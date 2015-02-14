@@ -520,7 +520,7 @@ require([
     asyncTest("list minions", function() {
         expect(3);
 
-        var client = kubernetes.k8client();
+		var client = kubernetes.k8client();
         $(client).on("minions", function(ev) {
             var minion = client.minions[0];
             equal(client.minions.length, 1, "number of minions");

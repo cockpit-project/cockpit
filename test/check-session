@@ -52,14 +52,7 @@ class TestSession(MachineCase):
         # Logout
         b.logout()
         b.wait_visible("#login")
-
-        # HACK - sometimes the session gets stuck forever in state 'closing' with no processes.
-        #        https://bugs.freedesktop.org/show_bug.cgi?id=89024
-        try:
-            wait_session(False)
-        except:
-            print ("WARNING: ran into https://bugs.freedesktop.org/show_bug.cgi?id=89024, skipping rest of test")
-            return
+        wait_session(False)
 
         # Login again
         b.set_val("#login-user-input", "admin")

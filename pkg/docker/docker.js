@@ -59,7 +59,8 @@ define([
             });
 
         self.process = function process(buffer) {
-                term.write(decoder.decode(buffer));
+            term.write(decoder.decode(buffer));
+            return buffer.length;
         };
 
         term.on('data', function(data) {

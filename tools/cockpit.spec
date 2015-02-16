@@ -34,7 +34,6 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 Source1:        cockpit.pam
 
 BuildRequires: pkgconfig(gio-unix-2.0)
-BuildRequires: pkgconfig(gudev-1.0)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(udisks2) >= 2.1.0
 BuildRequires: pkgconfig(libsystemd-daemon)
@@ -121,6 +120,7 @@ Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: NetworkManager
 Requires: pcp
+Requires: grep
 Obsoletes: %{name}-assets
 BuildArch: noarch
 

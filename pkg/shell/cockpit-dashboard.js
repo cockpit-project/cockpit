@@ -221,8 +221,6 @@ PageDashboard.prototype = {
         var self = this;
 
         var current_monitor = 0;
-        var plot_x_range = 5*60;
-        var plot_x_stop;
 
         $('#dashboard-add').click(function () {
             shell.host_setup();
@@ -249,54 +247,9 @@ PageDashboard.prototype = {
             plot_refresh();
         }
 
-        $('#dashboard-range-buttons button').click(function () {
-            set_plot_x_range(parseInt($(this).data('seconds'), 10));
-        });
-
-        $('#dashboard-scroll-left').click(function () {
-            scroll_plot_left();
-        });
-
-        $('#dashboard-scroll-right').click(function () {
-            scroll_plot_right();
-        });
-
-        function update_scroll_buttons() {
-            $('#dashboard-scroll-right').attr('disabled', plot_x_stop === undefined);
-        }
-
-        function set_plot_x_range(val) {
-            $('#dashboard-range-buttons button').removeClass("active");
-            $('#dashboard-range-buttons button[data-seconds=' + val + ']').addClass("active");
-            plot_x_range = val;
-            plot_x_stop = undefined;
-            plot_reset_soft();
-            update_scroll_buttons();
-        }
-
-        function scroll_plot_left() {
-            var step = plot_x_range / 10;
-            if (plot_x_stop === undefined)
-                plot_x_stop = (new Date()).getTime() / 1000;
-            plot_x_stop -= step;
-            plot_reset_soft();
-            update_scroll_buttons();
-        }
-
-        function scroll_plot_right() {
-            var step = plot_x_range / 10;
-            if (plot_x_stop !== undefined) {
-                plot_x_stop += step;
-                if (plot_x_stop >= (new Date()).getTime() / 1000 - 10)
-                    plot_x_stop = undefined;
-                plot_reset_soft();
-            }
-            update_scroll_buttons();
-        }
-
         plot_init();
         set_monitor(current_monitor);
-        set_plot_x_range(plot_x_range);
+        shell.setup_plot_controls($('#dashboard-toolbar'), self.plots);
 
         $("#dashboard-hosts")
             .on("click", "a.list-group-item", function() {
@@ -480,28 +433,22 @@ PageDashboard.prototype = {
                 var options = $.extend({ setup_hook: setup_hook },
                                        common_plot_options,
                                        rm.options);
-                var plot = shell.plot($(rm.selector), plot_x_range, plot_x_stop);
+                var plot = shell.plot($(rm.selector));
                 plot.set_options(options);
                 self.plots.push(plot);
 
                 $(plot).on("changed", function() {
-                    if (plot.archives)
+                    if (plot.archives && !options.selection) {
                         $("#dashboard-toolbar").show();
+                        options.selection = { mode: "x", color: "#d4edfa" };
+                        plot.set_options(options);
+                        plot.refresh();
+                    }
                 });
             });
 
             series = {};
             update_series();
-        }
-
-        function plot_reset_soft() {
-            self.plots.forEach(function (p) {
-                p.stop_walking();
-                p.reset(plot_x_range, plot_x_stop);
-                p.refresh();
-                if (plot_x_stop === undefined)
-                    p.start_walking();
-            });
         }
 
         $(cockpit).on('resize.dashboard', function () {

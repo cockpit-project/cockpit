@@ -158,6 +158,13 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     }
 
     function start_walking() {
+        /* Don't overflow 32 signed bits with the interval.  This
+         * means that plots that would make about one step every month
+         * don't walk at all, but I guess that is ok.
+         */
+        if (interval > 2000000000)
+            return;
+
         if (!walk_timer)
             walk_timer = window.setInterval(function () {
                 now += interval;
@@ -174,6 +181,9 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     }
 
     function reset(x_range_seconds, x_stop_seconds) {
+        if (flot)
+            flot.clearSelection(true);
+
         now = (new Date()).getTime();
 
         if (x_stop_seconds !== undefined)
@@ -537,8 +547,20 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         hover(null);
     }
 
+    function selecting(event, ranges) {
+        if (ranges)
+            $(result).triggerHandler("zoomstart", [ ]);
+    }
+
+    function selected(event, ranges) {
+        flot.clearSelection(true);
+        $(result).triggerHandler("zoom", [ (ranges.xaxis.to - ranges.xaxis.from) / 1000, ranges.xaxis.to / 1000]);
+    }
+
     $(element).on("plothover", hover_on);
     $(element).on("mouseleave", hover_off);
+    $(element).on("plotselecting", selecting);
+    $(element).on("plotselected", selected);
 
     reset(x_range_seconds, x_stop_seconds);
 
@@ -555,6 +577,133 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     });
 
     return result;
+};
+
+shell.setup_plot_controls = function setup_plot_controls(element, plots) {
+
+    var plot_min_x_range = 5*60;
+    var plot_zoom_steps = [ 5*60,  60*60, 6*60*60, 24*60*60, 7*24*60*60, 30*24*60*60, 365*24*60*60 ];
+
+    var plot_x_range = 5*60;
+    var plot_x_stop;
+    var zoom_history = [ ];
+
+    element.find('[data-range]').click(function () {
+        zoom_history = [ ];
+        plot_x_range = parseInt($(this).attr('data-range'), 10);
+        plot_reset();
+    });
+
+    element.find('[data-action="goto-now"]').click(function () {
+        plot_x_stop = undefined;
+        plot_reset();
+    });
+
+    element.find('[data-action="scroll-left"]').click(function () {
+        var step = plot_x_range / 10;
+        if (plot_x_stop === undefined)
+            plot_x_stop = (new Date()).getTime() / 1000;
+        plot_x_stop -= step;
+        plot_reset();
+    });
+
+    element.find('[data-action="scroll-right"]').click(function () {
+        var step = plot_x_range / 10;
+        if (plot_x_stop !== undefined) {
+            plot_x_stop += step;
+            plot_reset();
+        }
+    });
+
+    element.find('[data-action="zoom-out"]').click(function () {
+        zoom_plot_out();
+    });
+
+    plots.forEach(function (p) {
+        $(p).on("zoomstart", function (event) { zoom_plot_start(); });
+        $(p).on("zoom", function (event, x_range, x_stop) { zoom_plot_in(x_range, x_stop); });
+    });
+
+    function zoom_plot_start() {
+        if (plot_x_stop === undefined) {
+            plots.forEach(function (p) {
+                p.stop_walking();
+            });
+            plot_x_stop = (new Date()).getTime() / 1000;
+            update_plot_buttons();
+        }
+    }
+
+    function zoom_plot_in(x_range, x_stop) {
+        zoom_history.push(plot_x_range);
+        plot_x_range = x_range;
+        plot_x_stop = x_stop;
+        plot_reset();
+    }
+
+    function zoom_plot_out() {
+        var r = zoom_history.pop();
+        if (r === undefined) {
+            var i;
+            for (i = 0; i < plot_zoom_steps.length-1; i++) {
+                if (plot_zoom_steps[i] > plot_x_range)
+                    break;
+            }
+            r = plot_zoom_steps[i];
+        }
+        if (plot_x_stop !== undefined)
+            plot_x_stop += (r - plot_x_range)/2;
+        plot_x_range = r;
+        plot_reset();
+    }
+
+    function format_range(seconds) {
+        function fmt(sing, plur, n) {
+            return cockpit.format(cockpit.ngettext(sing, plur, n), n);
+        }
+        if (seconds >= 365*24*60*60)
+            return fmt("$0 year", "$0 years", Math.ceil(seconds / (365*24*60*60)));
+        else if (seconds >= 30*24*60*60)
+            return fmt("$0 month", "$0 months", Math.ceil(seconds / (30*24*60*60)));
+        else if (seconds >= 7*24*60*60)
+            return fmt("$0 week", "$0 weeks", Math.ceil(seconds / (7*24*60*60)));
+        else if (seconds >= 24*60*60)
+            return fmt("$0 day", "$0 days", Math.ceil(seconds / (24*60*60)));
+        else if (seconds >= 60*60)
+            return fmt("$0 hour", "$0 hours", Math.ceil(seconds / (60*60)));
+        else
+            return fmt("$0 minute", "$0 minutes", Math.ceil(seconds / 60));
+    }
+
+    function update_plot_buttons() {
+        element.find('[data-action="scroll-right"]')
+            .attr('disabled', plot_x_stop === undefined);
+        element.find('[data-action="zoom-out"]')
+            .attr('disabled', plot_x_range >= plot_zoom_steps[plot_zoom_steps.length-1]);
+    }
+
+    function plot_reset() {
+        if (plot_x_range < plot_min_x_range) {
+            plot_x_stop += (plot_min_x_range - plot_x_range)/2;
+            plot_x_range = plot_min_x_range;
+        }
+        if (plot_x_stop >= (new Date()).getTime() / 1000 - 10)
+            plot_x_stop = undefined;
+
+        element.find('.dropdown-toggle span:first-child').text(format_range(plot_x_range));
+
+        plots.forEach(function (p) {
+            p.stop_walking();
+            p.reset(plot_x_range, plot_x_stop);
+            p.refresh();
+            if (plot_x_stop === undefined)
+                p.start_walking();
+        });
+
+        update_plot_buttons();
+    }
+
+    plot_reset();
 };
 
 })(jQuery, shell);

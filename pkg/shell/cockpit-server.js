@@ -194,9 +194,48 @@ PageServer.prototype = {
             bindf(sel, object, prop, function (s) { return s; });
         }
 
-        bind("#system_information_hardware_text", self.manager, "System");
-        bind("#system_information_asset_tag_text", self.manager, "SystemSerial");
-        bind("#system_information_bios_text", self.manager, "BIOS");
+        /*
+         * Parses output like:
+         *
+         * bios_vendor:LENOVO
+         * bios_version:8CET46WW
+         */
+        function parse_lines(output) {
+            var ret = { };
+            $.each(output.split("\n"), function(i, line) {
+                var pos = line.indexOf(":");
+                if (pos !== -1)
+                    ret[line.substring(0, pos)] = line.substring(pos + 1);
+            });
+            return ret;
+        }
+
+        cockpit.spawn(["grep", "\\w", "bios_vendor", "bios_version", "bios_date", "sys_vendor", "product_name"],
+                      { directory: "/sys/devices/virtual/dmi/id" })
+            .done(function(output) {
+                var fields = parse_lines(output);
+                $("#system_information_bios_text").text(fields.bios_vendor + " " +
+                                                        fields.bios_version + " (" +
+                                                        fields.bios_date + ")");
+                $("#system_information_hardware_text").text(fields.sys_vendor + " " +
+                                                            fields.product_name);
+            })
+            .fail(function(ex) {
+                console.warn("couldn't read dmi info: " + ex);
+            });
+
+        cockpit.spawn(["grep", "\\w", "product_serial", "chassis_serial"],
+                      { directory: "/sys/devices/virtual/dmi/id", superuser: true })
+            .done(function(output) {
+                var fields = parse_lines(output);
+                $("#system_information_asset_tag_text").text(fields.product_serial ||
+                                                             fields.chassis_serial);
+            })
+            .fail(function(ex) {
+                if (ex.problem != "not-authorized")
+                    console.warn("couldn't read serial dmi info: " + ex);
+            });
+
         bind("#system_information_os_text", self.manager, "OperatingSystem");
 
         function hostname_text() {

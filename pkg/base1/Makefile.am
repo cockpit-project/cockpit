@@ -124,6 +124,8 @@ update-lib::
 	    $(srcdir)/lib/bootstrap-select.$(VX).js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).js \
 	    $(srcdir)/lib/jquery-flot.$(VX).js \
+	    $(srcdir)/lib/jquery-flot-selection.$(VX).js \
+	    $(srcdir)/lib/jquery-flot-time.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.min.js \
 	    $(srcdir)/lib/jquery.$(VX).min.js \
@@ -131,6 +133,8 @@ update-lib::
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
+	    $(srcdir)/lib/jquery-flot-selection.$(VX).min.js \
+	    $(srcdir)/lib/jquery-flot-time.$(VX).min.js \
 	    $(srcdir)/lib/attrchange.min.js
 	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.js \
 	    $(srcdir)/lib/requirejs.$(VX).js \

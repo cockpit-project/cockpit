@@ -84,12 +84,16 @@ update-lib::
 	    $(srcdir)/lib/bootstrap.$(VX).js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).js \
 	    $(srcdir)/lib/jquery-flot.$(VX).js \
+	    $(srcdir)/lib/jquery-flot-selection.$(VX).js \
+	    $(srcdir)/lib/jquery-flot-time.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.min.js \
 	    $(srcdir)/lib/jquery.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
+	    $(srcdir)/lib/jquery-flot-selection.$(VX).min.js \
+	    $(srcdir)/lib/jquery-flot-time.$(VX).min.js \
 	    $(srcdir)/lib/attrchange.min.js
 	$(BASE_LN) ../../lib/mustache.$(VX).js mustache.js
 	$(BASE_LN) ../../lib/mustache.$(VX).min.js mustache.min.js

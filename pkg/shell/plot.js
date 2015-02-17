@@ -204,6 +204,11 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         options = { };
         data = [ ];
         flot = null;
+
+        $(element).off("plothover", hover_on);
+        $(element).off("mouseleave", hover_off);
+        $(element).off("plotselecting", selecting);
+        $(element).off("plotselected", selected);
         $(element).empty();
     }
 
@@ -796,11 +801,6 @@ shell.setup_plot_controls = function setup_plot_controls(element, plots) {
         zoom_plot_out();
     });
 
-    plots.forEach(function (p) {
-        $(p).on("zoomstart", function (event) { zoom_plot_start(); });
-        $(p).on("zoom", function (event, x_range, x_stop) { zoom_plot_in(x_range, x_stop); });
-    });
-
     function zoom_plot_start() {
         if (plot_x_stop === undefined) {
             plots.forEach(function (p) {
@@ -880,8 +880,22 @@ shell.setup_plot_controls = function setup_plot_controls(element, plots) {
         update_plot_buttons();
     }
 
-    plot_reset();
-};
+    function reset(p) {
+        if (p === undefined)
+            p = [ ];
+        plots = p;
+        plots.forEach(function (p) {
+            $(p).on("zoomstart", function (event) { zoom_plot_start(); });
+            $(p).on("zoom", function (event, x_range, x_stop) { zoom_plot_in(x_range, x_stop); });
+        });
+        plot_reset();
+    }
 
+    reset(plots);
+
+    return {
+        reset: reset
+    };
+};
 
 })(jQuery, shell);

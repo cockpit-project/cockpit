@@ -286,7 +286,7 @@ on_handle_resource (CockpitWebServer *server,
                     CockpitWebResponse *response,
                     gpointer user_data)
 {
-  gchar *alloc = NULL;;
+  gchar *alloc = NULL;
 
   g_assert (g_str_has_prefix (path, "/pkg"));
 

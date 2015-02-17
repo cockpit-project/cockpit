@@ -33,8 +33,22 @@ if (phantom.args.length == 1) {
 } else if (phantom.args.length == 2) {
     server = sys.args[1];
     url = sys.args[2];
+} else if (phantom.args.length == 3) {
+    /* strip prefix from url
+     * We need this to compensate for automake test generation behavior:
+     * The tests are called with the path (relative to the build directory) of the testfile,
+     * but from the build directory. Some tests make assumptions regarding the structure of the
+     * filename. In order to make sure that they receive the same name, regardless of actual
+     * build directory location, we need to strip that prefix (path from build to source directory)
+     * from the filename
+     */
+    server = sys.args[1];
+    prefix = sys.args[2];
+    url = sys.args[3];
+    if (url.indexOf(prefix) == 0)
+        url = url.slice(prefix.length);
 } else {
-    console.log('usage: tap-phantom [server] file');
+    console.log('usage: tap-phantom [server [prefix]] file');
     phantom.exit(2);
 }
 

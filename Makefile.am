@@ -70,7 +70,7 @@ LOG_COMPILER = $(top_srcdir)/tools/tap-gtester
 TEST_EXTENSIONS = .html
 HTML_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 if WITH_PHANTOMJS
-HTML_LOG_COMPILER = $(top_srcdir)/tools/tap-phantom $(builddir)/test-server
+HTML_LOG_COMPILER = $(top_srcdir)/tools/tap-phantom $(builddir)/test-server $(top_srcdir)/
 else
 HTML_LOG_DRIVER_FLAGS = --missing=phantomjs
 endif

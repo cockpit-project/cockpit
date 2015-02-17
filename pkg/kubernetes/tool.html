@@ -95,7 +95,7 @@ require([
         var pod, i, length = client.pods.length;
         for (i = 0; i < length; i++) {
             pod = client.pods[i];
-            if (id == pod.id)
+            if (id == pod.metadata.name)
                 return pod;
         }
         return null;
@@ -105,7 +105,7 @@ require([
         var pod, i, length = client.replicationcontrollers.length;
         for (i = 0; i < length; i++) {
             rc = client.replicationcontrollers[i];
-            if (id == rc.id)
+            if (id == rc.metadata.name)
                 return rc;
         }
         return null;
@@ -258,7 +258,6 @@ require([
         var context = { };
         var text = Mustache.render(template, $.extend(context, rc));
         $(this).find(".modal-body").html(text);
-
         $("#update-dialog-apply").off('click');
         $("#update-dialog-apply").on('click', function () {
             if (entityType == "pod") {
@@ -270,10 +269,8 @@ require([
                 if (!replica) {
                     return;
                 } else {
-                    entity.desiredState.replicas = parseInt(replica.val());
-                    entity.kind = "ReplicationController";
-                    entity.apiVersion = "v1beta1";
-                    client.update_replicationcontroller(JSON.stringify(entity));
+                    entity.spec.replicas = parseInt(replica.val());
+                    client.update_replicationcontroller(JSON.stringify(entity), entity.metadata.name);
                 }
             } else if (entityType == "service") {
                 //TODO
@@ -440,14 +437,14 @@ require([
   <script id="edit-rc-tmpl" type="x-template/mustache">
     <table class="cockpit-form-table">
     <p>{{kind}}</p>
-    {{#desiredState}}
+    {{#spec}}
       {{#replicas}}
         <tr>
           <td>replicas</td>
           <td><input id="update-replica" type="text" value="{{replicas}}"></input></td>
         </tr>
       {{/replicas}}
-    {{/desiredState}}
+    {{/spec}}
 <!--
     {{#labels}}
         <tr>

@@ -174,10 +174,10 @@ define([
                .fail(failure);
         };
 
-        this.update_replicationcontroller = function update_replicationcontroller(rc_json) {
+        this.update_replicationcontroller = function update_replicationcontroller(rc_json, rc_name) {
             api.request({"method": "PUT",
                 "body": rc_json,
-                "path": "/api/v1beta3/namespaces/default/replicationcontrollers/" + encodeURIComponent(rc_json.id)
+                "path": "/api/v1beta3/namespaces/default/replicationcontrollers/" + encodeURIComponent(rc_name)
             }).fail(failure);
         };
 

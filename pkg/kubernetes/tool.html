@@ -175,7 +175,7 @@ require([
             } else if (entityType == "service") {
                client.create_service(jsondata);
             }
-            $("#add-dialog").hide();
+            $("#add-dialog").modal('hide');
             $("#add-dialog-apply").off('click');
         });
     });
@@ -210,7 +210,7 @@ require([
             } else if (entityType == "service") {
                 client.delete_service(entity);
             }
-            $("#delete-dialog").hide();
+            $("#delete-dialog").modal('hide');
             $("#delete-dialog-apply").off('click');
         });
     });
@@ -275,7 +275,7 @@ require([
             } else if (entityType == "service") {
                 //TODO
             }
-            $("#update-editor").hide();
+            $("#update-editor").modal('hide');
             $("#update-dialog-apply").off('click');
         });
     });

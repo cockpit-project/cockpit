@@ -518,12 +518,6 @@ PageShutdownDialog.prototype = {
     enter: function(event) {
         this.address = shell.get_page_machine();
 
-        /* TODO: This needs to be migrated away from the old dbus */
-        this.cockpitd = shell.dbus(this.address);
-        this.cockpitd_manager = this.cockpitd.get("/com/redhat/Cockpit/Manager",
-                                                  "com.redhat.Cockpit.Manager");
-        $(this.cockpitd_manager).on("notify.shutdown", $.proxy(this, "update"));
-
         $("#shutdown-message").
             val("").
             attr("placeholder", _("Message to logged in users")).
@@ -547,10 +541,6 @@ PageShutdownDialog.prototype = {
     },
 
     leave: function() {
-        $(this.cockpitd_manager).off(".shutdown");
-        this.cockpitd.release();
-        this.cockpitd = null;
-        this.cockpitd_manager = null;
     },
 
     update: function() {
@@ -581,11 +571,15 @@ PageShutdownDialog.prototype = {
         else
             when = "+" + delay;
 
-        this.cockpitd_manager.call('Shutdown', op, when, message, function(error) {
-            $('#shutdown-dialog').modal('hide');
-            if (error && error.name != 'Disconnected')
-                shell.show_unexpected_error(error);
-        });
+        var arg = (op == "shutdown") ? "--poweroff" : "--reboot";
+        cockpit.spawn(["shutdown", arg, when, message])
+            .fail(function(ex) {
+                $('#shutdown-dialog').modal('hide');
+                shell.show_unexpected_error(ex);
+            })
+            .done(function(ex) {
+                $('#shutdown-dialog').modal('hide');
+            });
     },
 
     restart: function() {

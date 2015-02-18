@@ -2333,28 +2333,16 @@ function full_scope(cockpit, $, po) {
     };
 
     function HttpError(arg0, arg1, message) {
-        var status = parseInt(arg0, 10);
-        if (isNaN(status)) {
-            this.problem = arg0;
-            this.message = message || arg1 || cockpit.message(arg0);
-        } else {
-            this.status = status;
-            this.reason = arg1;
-            this.message = message || arg1;
-            this.problem = null;
-        }
+        this.status = parseInt(arg0, 10);
+        this.reason = arg1;
+        this.message = message || arg1;
+        this.problem = null;
 
         this.valueOf = function() {
-            if (this.status === 0)
-                return this.problem;
-            else
-                return this.status;
+            return this.status;
         };
         this.toString = function() {
-            if (!this.status)
-                return this.problem;
-            else
-                return this.status + " " + this.message;
+            return this.status + " " + this.message;
         };
     }
 
@@ -2460,7 +2448,7 @@ function full_scope(cockpit, $, po) {
             $(channel).on("close", function(event, options) {
                 if (options.problem) {
                     http_debug("http problem: ", options.problem);
-                    dfd.reject(new HttpError(options.problem));
+                    dfd.reject(new BasicError(options.problem));
 
                 } else {
                     var body = buffer.squash();

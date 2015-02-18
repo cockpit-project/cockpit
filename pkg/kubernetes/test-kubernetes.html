@@ -240,7 +240,13 @@ function deparam(query) {
   return parsed;
 }
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------
+ * A simple kubernetes data store
+ *
+ * We enumerate objects from here in our moke kube_apiserver() code below.
+ * In addition there are various helper function for updating this and
+ * triggering watches etc.
+ */
 
 var kube_data = {
     "nodes/127.0.0.1": {
@@ -419,151 +425,156 @@ var kube_data = {
     }
 };
 
+
+function kube_apiserver(req) {
+    var path;
+    var query;
+
+    var pos = req.path.indexOf('?');
+    if (pos === -1) {
+        path = req.path;
+        query = { };
+    } else {
+        path = req.path.substring(0, pos);
+        qs = deparam(req.path.substring(pos + 1));
+    }
+
+    var parts = path.substring(1).split("/");
+    if (parts[0] != "api" && parts[1] != "v1beta3")
+        return false;
+
+    if (req.method !== "GET") {
+        req.mock_respond(405, "Unsupported method");
+        return;
+    }
+
+    function basics(data, path) {
+        if ($.isArray(data)) {
+            $.each(data, function(i, child) {
+                basics(child, path + "/" + child.metadata.uid);
+            })
+        }
+        data.selfLink = path;
+        data.apiVersion = "v1beta3";
+    }
+
+    function list(kind, match) {
+        var items = [];
+        $.each(kube_data, function(id, data) {
+            if (id.match(match))
+                items.push(data);
+        });
+
+        return items;
+    }
+
+    var data;
+    var prefix;
+
+    parts = parts.slice(2);
+
+    /* Figure out if this is a watch */
+    var watch = false;
+    var what = parts.shift();
+    if (what == "watch") {
+        watch = true;
+        what = parts.shift();
+    }
+
+    var item = parts.join("/");
+    var kind = null;
+
+    /* Straight up items */
+    if (kube_data[item]) {
+        data = $.extend(true, { }, kube_data[item]);
+
+    /* Nothing found */
+    } else if (parts.length > 0) {
+        return false;
+
+    /* Various lists */
+    } else if (what == "namespaces") {
+        data = list("NamespaceList", /namespaces\//);
+    } else if (what == "nodes") {
+        data = list("NodeList", /nodes\//);
+    } else if (what == "pods") {
+        data = list("PodList", /namespaces\/.+\/pods\//);
+    } else if (what == "services") {
+        data = list("ServiceList", /namespaces\/.+\/services\//);
+    } else if (what == "replicationcontrollers") {
+        data = list("ReplicationControllerList", /namespaces\/.+\/replicationcontrollers\//);
+
+    /* Nothing found */
+    } else {
+        return false;
+    }
+
+    basics(data);
+
+    if (!watch) {
+        if ($.isArray(data)) {
+            data = {
+                kind: kind,
+                creationTimestamp: null,
+                resourceVersion: 1,
+                items: items
+            };
+        }
+
+        req.mock_respond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(data));
+    } else {
+        if (!$.isArray(data)) {
+            data = [ data ];
+        }
+
+        var resourceVersion = null;
+        if (query.resourceVersion) {
+            resourceVersion = parseInt(query.resourceVersion, 10);
+            if (isNaN(resourceVersion))
+                throw "invalid resourceVersion";
+        }
+
+        req.mock_respond(200, "OK", { "Content-Type": "text/plain; charset=utf-8" });
+
+        $.each(data, function(i, item) {
+            if (resourceVersion !== null) {
+                if (!item.metadata || !item.metadata.resourceVersion ||
+                    item.metadata.resourceVersion < resourceVersion)
+                    return;
+            }
+
+            req.mock_data(JSON.stringify({ type: "ADDED", object: item }) + "\n", true);
+        });
+
+        window.setTimeout(function() {
+            req.mock_data("", true);
+        }, 5000);
+    }
+}
+
+function etcd_server(req) {
+    if (req.path.indexOf("wait=true") !== -1) {
+        /*
+         * A wait request, for now just sit around and don't respond. This
+         * is where we'll later mock etcd change notifications.
+         */
+        return;
+    }
+
+    console.log(req.path, req);
+    return false;
+}
+
+/* -------------------------------------------------------------------------
+ * The actual tests
+ */
+
 require([
     "jquery",
     "latest/cockpit",
     "kubernetes/kubernetes"
 ], function($, cockpit, kubernetes) {
 
-    function kube_apiserver(req) {
-        var path;
-        var query;
-
-        var pos = req.path.indexOf('?');
-        if (pos === -1) {
-            path = req.path;
-            query = { };
-        } else {
-            path = req.path.substring(0, pos);
-            qs = deparam(req.path.substring(pos + 1));
-        }
-
-        var parts = path.substring(1).split("/");
-        if (parts[0] != "api" && parts[1] != "v1beta3")
-            return false;
-
-        if (req.method !== "GET") {
-            req.mock_respond(405, "Unsupported method");
-            return;
-        }
-
-        function basics(data, path) {
-            if ($.isArray(data)) {
-                $.each(data, function(i, child) {
-                    basics(child, path + "/" + child.metadata.uid);
-                })
-            }
-            data.selfLink = path;
-            data.apiVersion = "v1beta3";
-        }
-
-        function list(kind, match) {
-            var items = [];
-            $.each(kube_data, function(id, data) {
-                if (id.match(match))
-                    items.push(data);
-            });
-
-            return items;
-        }
-
-        var data;
-        var prefix;
-
-        parts = parts.slice(2);
-
-        /* Figure out if this is a watch */
-        var watch = false;
-        var what = parts.shift();
-        if (what == "watch") {
-            watch = true;
-            what = parts.shift();
-        }
-
-        var item = parts.join("/");
-        var kind = null;
-
-        /* Straight up items */
-        if (kube_data[item]) {
-            data = $.extend(true, { }, kube_data[item]);
-
-        /* Nothing found */
-        } else if (parts.length > 0) {
-            return false;
-
-        /* Various lists */
-        } else if (what == "namespaces") {
-            data = list("NamespaceList", /namespaces\//);
-        } else if (what == "nodes") {
-            data = list("NodeList", /nodes\//);
-        } else if (what == "pods") {
-            data = list("PodList", /namespaces\/.+\/pods\//);
-        } else if (what == "services") {
-            data = list("ServiceList", /namespaces\/.+\/services\//);
-        } else if (what == "replicationcontrollers") {
-            data = list("ReplicationControllerList", /namespaces\/.+\/replicationcontrollers\//);
-
-        /* Nothing found */
-        } else {
-            return false;
-        }
-
-        basics(data);
-
-        if (!watch) {
-            if ($.isArray(data)) {
-                data = {
-                    kind: kind,
-                    creationTimestamp: null,
-                    resourceVersion: 1,
-                    items: items
-                };
-            }
-
-            req.mock_respond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(data));
-        } else {
-            if (!$.isArray(data)) {
-                data = [ data ];
-            }
-
-            var resourceVersion = null;
-            if (query.resourceVersion) {
-                resourceVersion = parseInt(query.resourceVersion, 10);
-                if (isNaN(resourceVersion))
-                    throw "invalid resourceVersion";
-            }
-
-            req.mock_respond(200, "OK", { "Content-Type": "text/plain; charset=utf-8" });
-
-            $.each(data, function(i, item) {
-                if (resourceVersion !== null) {
-                    if (!item.metadata || !item.metadata.resourceVersion ||
-                        item.metadata.resourceVersion < resourceVersion)
-                        return;
-                }
-
-                req.mock_data(JSON.stringify({ type: "ADDED", object: item }) + "\n", true);
-            });
-
-            window.setTimeout(function() {
-                req.mock_data("", true);
-            }, 5000);
-        }
-
-    }
-
-    function etcd_server(req) {
-        if (req.path.indexOf("wait=true") !== -1) {
-            /*
-             * A wait request, for now just sit around and don't respond. This
-             * is where we'll later mock etcd change notifications.
-             */
-            return;
-        }
-
-        console.log(req.path, req);
-        return false;
-    }
 
     var cockpit_http = cockpit.http;
     cockpit.http = function(endpoint) {

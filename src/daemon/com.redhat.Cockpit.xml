@@ -107,20 +107,6 @@
     </method>
 
     <!--
-	Shutdown:
-        Initiate a shutdown or restart of the system.
-
-	@kind: What to do, either "shutdown" or "restart".
-	@when: When to shutdown, either "HH:MM" or "+MINUTES", as for the "shutdown" command.
-	@message: The wall message to display.
-    -->
-    <method name="Shutdown">
-      <arg name="kind" type="s" direction="in"/>
-      <arg name="when" type="s" direction="in"/>
-      <arg name="message" type="s" direction="in"/>
-    </method>
-
-    <!--
         GetServerTime:
         Return the current time on the server.
 

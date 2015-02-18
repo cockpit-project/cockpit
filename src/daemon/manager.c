@@ -499,79 +499,6 @@ handle_get_server_time (CockpitManager *object,
   return TRUE;
 }
 
-static void
-redirect_stderr_to_stdout (gpointer unused)
-{
-  dup2 (1, 2);
-}
-
-static gboolean
-run_cmd_for_invocation (GDBusMethodInvocation *invocation,
-                        char **output,
-                        const gchar *cmd,
-                        ...)
-{
-  const int max_args = 20;
-  const gchar *argv[max_args];
-
-  va_list ap;
-  va_start (ap, cmd);
-  const gchar **p = argv;
-  while (cmd && p < argv + max_args - 1)
-    {
-      *p++ = cmd;
-      cmd = va_arg (ap, const gchar *);
-    }
-  *p = NULL;
-  va_end (ap);
-
-  GError *error = NULL;
-  gint code;
-
-  g_spawn_sync (NULL, (gchar **)argv, NULL,
-                G_SPAWN_SEARCH_PATH | (output == NULL? G_SPAWN_STDOUT_TO_DEV_NULL : 0),
-                redirect_stderr_to_stdout, NULL, output, NULL, &code, &error);
-  if (error)
-    {
-      g_dbus_method_invocation_return_error (invocation,
-                                             COCKPIT_ERROR,
-                                             COCKPIT_ERROR_FAILED,
-                                             "Can't run '%s': %s", argv[0], error->message);
-      g_error_free (error);
-      return FALSE;
-    }
-  else if (output == NULL && !g_spawn_check_exit_status (code, &error))
-    {
-      g_dbus_method_invocation_return_error (invocation,
-                                             COCKPIT_ERROR,
-                                             COCKPIT_ERROR_FAILED,
-                                             "'%s' failed: %s", argv[0], error->message);
-      g_error_free (error);
-      return FALSE;
-    }
-  else
-    return TRUE;
-}
-
-static gboolean
-handle_shutdown (CockpitManager *object,
-                 GDBusMethodInvocation *invocation,
-                 const gchar *arg_kind,
-                 const gchar *arg_when,
-                 const gchar *arg_message)
-{
-  if (run_cmd_for_invocation (invocation, NULL,
-                              "pkexec",
-                              "shutdown",
-                              (strcmp (arg_kind, "shutdown") == 0 ? "--poweroff" : "--reboot"),
-                              arg_when,
-                              arg_message,
-                              NULL))
-    cockpit_manager_complete_shutdown (object, invocation);
-
-  return TRUE;
-}
-
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
@@ -580,5 +507,4 @@ manager_iface_init (CockpitManagerIface *iface)
   iface->handle_set_hostname = handle_set_hostname;
 
   iface->handle_get_server_time = handle_get_server_time;
-  iface->handle_shutdown = handle_shutdown;
 }

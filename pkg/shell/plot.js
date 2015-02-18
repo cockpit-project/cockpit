@@ -71,6 +71,11 @@ var shell = shell || { };
  * limits, for example.  It is called with the flot object as its only
  * parameter.
  *
+ * - options = plot.get_options()
+ *
+ * Get the global flot options.  You can modify the object and then
+ * pass it to set_options.  Don't forget to refresh the plot.
+ *
  * - plot.reset(x_range, [x_stop])
  *
  * Resets the range of the plot.  All current sources are reinitialzed
@@ -226,6 +231,10 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     function set_options(opts) {
         options = opts;
         flot = null;
+    }
+
+    function get_options() {
+        return options;
     }
 
     function add_metrics_sum_series(desc, opts) {
@@ -573,6 +582,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         destroy: destroy,
         resize: resize,
         set_options: set_options,
+        get_options: get_options,
         add_metrics_sum_series: add_metrics_sum_series
     });
 

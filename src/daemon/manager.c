@@ -510,19 +510,6 @@ out:
 /* SHUTDOWN & RESTART
  */
 
-static gboolean
-handle_get_server_time (CockpitManager *object,
-                        GDBusMethodInvocation *invocation)
-{
-  GDateTime *now = g_date_time_new_now_local ();
-  cockpit_manager_complete_get_server_time (object, invocation,
-                                            g_date_time_to_unix (now),
-                                            g_date_time_get_timezone_abbreviation (now),
-                                            g_date_time_get_utc_offset (now) / 1.0e6);
-  g_date_time_unref (now);
-  return TRUE;
-}
-
 static void
 parse_scheduled_contents (Manager *manager,
                           const char *contents)
@@ -688,7 +675,6 @@ manager_iface_init (CockpitManagerIface *iface)
 {
   iface->handle_set_hostname = handle_set_hostname;
 
-  iface->handle_get_server_time = handle_get_server_time;
   iface->handle_shutdown = handle_shutdown;
   iface->handle_cancel_shutdown = handle_cancel_shutdown;
 }

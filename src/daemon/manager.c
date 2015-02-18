@@ -572,16 +572,6 @@ handle_shutdown (CockpitManager *object,
   return TRUE;
 }
 
-static gboolean
-handle_cancel_shutdown (CockpitManager *object,
-                        GDBusMethodInvocation *invocation)
-{
-  if (run_cmd_for_invocation (invocation, NULL, "pkexec", "shutdown", "-c", NULL))
-    cockpit_manager_complete_cancel_shutdown (object, invocation);
-
-  return TRUE;
-}
-
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
@@ -591,5 +581,4 @@ manager_iface_init (CockpitManagerIface *iface)
 
   iface->handle_get_server_time = handle_get_server_time;
   iface->handle_shutdown = handle_shutdown;
-  iface->handle_cancel_shutdown = handle_cancel_shutdown;
 }

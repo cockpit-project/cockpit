@@ -98,6 +98,7 @@ function MockHttp(callback) {
         var output = "";
         var responsers = null;
         var streamer = null;
+        var closed = false;
 
         req.mock_respond = function mock_respond(status, reason, headers, body) {
             if (dfd.state() != "pending")
@@ -112,8 +113,11 @@ function MockHttp(callback) {
         };
 
         req.mock_data = function mock_data(body, stream) {
-            if (dfd.state() !== "pending")
+            if (dfd.state() !== "pending") {
+                if (closed)
+                    return;
                 throw "Called req.mock_data() on already completed request";
+            }
             responding = true;
             if (typeof body !== "string")
                 body = JSON.stringify(body);
@@ -162,6 +166,7 @@ function MockHttp(callback) {
                     return this;
                 },
                 close: function(problem) {
+                    closed = true;
                     if (!problem)
                         problem = "disconnected";
                     dfd.reject(new BasicError(problem));

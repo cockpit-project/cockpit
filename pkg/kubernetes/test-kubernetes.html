@@ -218,6 +218,28 @@ function MockHttp(callback) {
     };
 }
 
+function deparam(query) {
+  var parsed = { };
+  var vars = query.split("&");
+  for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split("=");
+      var k = decodeURIComponent(pair[0]);
+      var v = decodeURIComponent(pair[1]);
+      if (typeof parsed[k] === "undefined") {
+          if (k.substr(k.length - 2) != '[]')
+              parsed[k] = v;
+          else
+              parsed[k] = [v];
+      } else if (typeof parsed[k] === "string") {
+          parsed[k] = v;
+      } else {
+          parsed[k].push(v);
+      }
+  }
+
+  return parsed;
+}
+
 /* ------------------------------------------------------------------------- */
 
 var kube_data = {
@@ -404,29 +426,35 @@ require([
 ], function($, cockpit, kubernetes) {
 
     function kube_apiserver(req) {
-        var parts = req.path.substring(1).split("/");
+        var path;
+        var query;
+
+        var pos = req.path.indexOf('?');
+        if (pos === -1) {
+            path = req.path;
+            query = { };
+        } else {
+            path = req.path.substring(0, pos);
+            qs = deparam(req.path.substring(pos + 1));
+        }
+
+        var parts = path.substring(1).split("/");
         if (parts[0] != "api" && parts[1] != "v1beta3")
             return false;
-
-        parts = parts.slice(2);
 
         if (req.method !== "GET") {
             req.mock_respond(405, "Unsupported method");
             return;
         }
 
-        var item = parts.join("/");
-        var what = parts.shift();
-        var kind = null;
-
-        function basics(item) {
-            item.selfLink = req.path;
-            item.apiVersion = "v1beta3";
-            $.each(item.items, function(i, child) {
-                var id = child.id;
-                child.selfLink = req.path + "/" + id;
-                child.apiVersion = "v1beta3";
-            });
+        function basics(data, path) {
+            if ($.isArray(data)) {
+                $.each(data, function(i, child) {
+                    basics(child, path + "/" + child.metadata.uid);
+                })
+            }
+            data.selfLink = path;
+            data.apiVersion = "v1beta3";
         }
 
         function list(kind, match) {
@@ -436,16 +464,24 @@ require([
                     items.push(data);
             });
 
-            return {
-                kind: kind,
-                creationTimestamp: null,
-                resourceVersion: 1,
-                items: items
-            };
+            return items;
         }
 
         var data;
         var prefix;
+
+        parts = parts.slice(2);
+
+        /* Figure out if this is a watch */
+        var watch = false;
+        var what = parts.shift();
+        if (what == "watch") {
+            watch = true;
+            what = parts.shift();
+        }
+
+        var item = parts.join("/");
+        var kind = null;
 
         /* Straight up items */
         if (kube_data[item]) {
@@ -473,7 +509,47 @@ require([
         }
 
         basics(data);
-        req.mock_respond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify (data));
+
+        if (!watch) {
+            if ($.isArray(data)) {
+                data = {
+                    kind: kind,
+                    creationTimestamp: null,
+                    resourceVersion: 1,
+                    items: items
+                };
+            }
+
+            req.mock_respond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(data));
+        } else {
+            if (!$.isArray(data)) {
+                data = [ data ];
+            }
+
+            var resourceVersion = null;
+            if (query.resourceVersion) {
+                resourceVersion = parseInt(query.resourceVersion, 10);
+                if (isNaN(resourceVersion))
+                    throw "invalid resourceVersion";
+            }
+
+            req.mock_respond(200, "OK", { "Content-Type": "text/plain; charset=utf-8" });
+
+            $.each(data, function(i, item) {
+                if (resourceVersion !== null) {
+                    if (!item.metadata || !item.metadata.resourceVersion ||
+                        item.metadata.resourceVersion < resourceVersion)
+                        return;
+                }
+
+                req.mock_data(JSON.stringify({ type: "ADDED", object: item }) + "\n", true);
+            });
+
+            window.setTimeout(function() {
+                req.mock_data("", true);
+            }, 5000);
+        }
+
     }
 
     function etcd_server(req) {
@@ -527,8 +603,8 @@ require([
         $(client).on("pods", function(ev) {
             var pod = client.pods[0];
             equal(client.pods.length, 2, "number of pods");
-            equal(pod.metadata.uid, "0b547d64-ab8a-11e4-9a7c-080027300d85", "pod id");
-            equal(pod.metadata.labels.name, "wordpressreplica", "pod has label");
+            equal(pod.metadata.uid, "11768037-ab8a-11e4-9a7c-080027300d85", "pod id");
+            equal(pod.metadata.labels.name, "apache", "pod has label");
 
             $(client).off("pods");
             client.close();

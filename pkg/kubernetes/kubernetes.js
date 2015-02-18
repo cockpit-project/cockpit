@@ -34,97 +34,212 @@ define([
             console.debug.apply(console, arguments);
     }
 
-    function EtcdMonitor() {
+    function failure(ex) {
+        console.warn(ex);
+    }
+
+    function KubernetesWatch(api, type, update, remove) {
         var self = this;
 
-        var etcd = cockpit.http(4001);
-        var request;
-        var timeout;
+        var lastResource;
+        var stopping = false;
+        var requested = false;
+        var req = null;
 
-        function notify(index) {
-            var params = { wait: true, recursive: true };
-            if (index !== undefined)
-                params["waitIndex"] = index;
-            request = etcd.get("/v2/keys/", params)
-                .done(function(data) {
-                    var resp = { };
-                    $(self).triggerHandler("changed");
-                    if (data) {
-                        try {
-                            resp = JSON.parse(data);
-                        } catch(ex) {
-                            console.warn("etcd parse exception", ex, data);
-                        }
+        var buffer;
+        function handle_watch(data) {
+            if (buffer)
+                data = buffer + data;
+
+            var lines = data.split("\n");
+            var i, length = lines.length - 1;
+
+            /* Last line is incomplete save for later */
+            buffer = lines[length];
+
+            /* Process all the others */
+            var action, object;
+            for (i = 0; i < length; i++) {
+                try {
+                    action = JSON.parse(lines[i]);
+                } catch (ex) {
+                    failure(ex);
+                    req.close();
+                    continue;
+                }
+
+                object = action.object;
+                if (!object) {
+                    console.warn("invalid watch without object");
+                    continue;
+                }
+
+                if (object.metadata)
+                    lastResource = object.metadata.resourceVersion;
+                else
+                    lastResource = null;
+
+                if (action.type == "ADDED") {
+                    update(object);
+                } else if (action.type == "MODIFIED") {
+                    update(object);
+                } else if (action.type == "DELETED") {
+                    remove(object);
+
+                    /* The watch failed, likely due to invalid resourceVersion */
+                } else if (action.type == "ERROR") {
+                    if (lastResource) {
+                        lastResource = null;
+                        start_watch();
                     }
-                    var nindex;
-                    if (resp.node && resp.node.modifiedIndex)
-                        nindex = resp.node.modifiedIndex;
-                    else if (resp.prevNode && resp.prevNode.modifiedIndex)
-                        nindex = resp.prevNode.modifiedIndex;
-                    if (nindex !== undefined) {
-                        nindex++;
-                        notify(nindex);
-                    } else {
-                        timeout = window.setTimeout(function() { notify(); }, 2000);
-                    }
-                })
-                .fail(function(ex) {
-                    request = null;
-                    console.warn("etcd: " + ex.message);
-                });
+
+                } else {
+                    console.warn("invalid watch action type: " + action.type);
+                    continue;
+                }
+            }
         }
 
-        self.poke = function poke() {
-            if (!request)
-                notify();
-        };
+        function start_watch() {
+            var uri = "/api/v1beta3/watch/" + type;
 
-        self.close = function close() {
-            if (request)
-                request.close();
-        };
+            /*
+             * If we have a last resource we can guarantee that we don't miss
+             * any objects or changes to objects. If we don't have one, then we
+             * have to list everything again. Still watch at the same time though.
+             */
+            if (requested && lastResource)
+                uri += "?resourceVersion=" + encodeURIComponent(lastResource);
 
-        notify();
+            /* Tell caller to remove all sources */
+            else if (!requested)
+                remove(null);
+
+            /*
+             * As a precaution, watch must take at least 1 second
+             * to complete. Otherwise we could be in a tight loop here.
+             * eg: if the API of Kubernetes changes unpredictably.
+             */
+            var waited = false;
+            window.setTimeout(function() {
+                waited = true;
+            }, 1000);
+
+            if (req) {
+                req.cancelled = true;
+                req.close();
+            }
+
+            req = api.get(uri)
+                .stream(handle_watch)
+                .fail(function(ex) {
+                    req = null;
+                    if (!stopping)
+                        console.warn("watching kubernetes " + type + " failed: " + ex);
+                })
+                .done(function(data) {
+                    var cancelled = req && req.cancelled;
+                    req = null;
+                    if (!stopping && !cancelled) {
+                        if (!waited)
+                            console.warn("watching kubernetes " + type + " didn't block");
+                        else
+                            start_watch();
+                    }
+                });
+            requested = true;
+        }
+
+        start_watch();
+
+        self.stop = function stop() {
+            stopping = true;
+            if (req)
+                req.close();
+        };
     }
 
     function KubernetesClient() {
         var self = this;
 
         var api = cockpit.http(8080);
-        var first = true;
+        var watches = [ ];
 
-        self.nodes = [ ];
-        self.pods = [ ];
-        self.services = [ ];
-        self.replicationcontrollers = [];
+        function bind(type, items) {
+            var flat = null;
+            var timeout;
 
-        var later;
-        var monitor = new EtcdMonitor();
-        $(monitor).on("changed", function() {
-            if (!later) {
-                later = window.setTimeout(function() {
-                    later = null;
-                    update();
-                }, 200);
+            /* Always delay the update event a bit */
+            function trigger() {
+                flat = null;
+                if (!timeout) {
+                    timeout = window.setTimeout(function() {
+                        timeout = null;
+                        $(self).triggerHandler(type, self[type]);
+                    }, 100);
+                }
             }
-        });
 
-        function receive(data, what) {
-            var resp = JSON.parse(data);
-            if (!resp.items)
-                return;
-            resp.items.sort(function(a1, a2) {
-                return (a1.id || "").localeCompare(a2.id || "");
+            function update(items, item) {
+                var key = item.metadata ? item.metadata.uid : null;
+                if (!key) {
+                    console.warn("kubernetes item without uid");
+                    return;
+                }
+                items[key] = item;
+                trigger();
+            }
+
+            function remove(items, item) {
+                var key;
+                if (!item) {
+                    for (key in items)
+                        delete items[key];
+                } else {
+                    key = item.metadata ? item.metadata.uid : null;
+                    if (!key) {
+                        console.warn("kubernetes item without uid");
+                        return;
+                    }
+                    delete items[key];
+                }
+                trigger();
+            }
+
+            Object.defineProperty(self, type, {
+                enumerable: true,
+                get: function get() {
+                    if (!flat) {
+                        flat = [];
+                        for (var key in items)
+                            flat.push(items[key]);
+                        flat.sort(function(a1, a2) {
+                            return (a1.metadata.name || "").localeCompare(a2.metadata.name || "");
+                        });
+                    }
+                    return flat;
+                }
             });
-            self[what] = resp.items;
 
-            if (!first)
-                $(self).triggerHandler(what, [ self[what] ]);
+            var wc = new KubernetesWatch(api, type,
+                           function(item) { update(items, item); },
+                           function(item) { remove(items, item); });
+            watches.push(wc);
         }
 
-        function failure(ex) {
-            console.warn(ex);
-        }
+        /* Define and bind various properties which are arrays of objects */
+
+        var nodes = { };
+        bind("nodes", nodes);
+
+        var pods =  { };
+        bind("pods", pods);
+
+        var services = { };
+        bind("services", services);
+
+        var replicationcontrollers = { };
+        bind("replicationcontrollers", replicationcontrollers);
 
         this.delete_pod = function delete_pod(pod_name) {
             api.request({"method": "DELETE",
@@ -181,49 +296,12 @@ define([
             }).fail(failure);
         };
 
-        function update() {
-            var reqs = [];
-
-            reqs.push(api.get("/api/v1beta3/nodes")
-                .fail(failure)
-                .done(function(data) {
-                    receive(data, "nodes");
-                }));
-
-            reqs.push(api.get("/api/v1beta3/pods")
-                .fail(failure)
-                .done(function(data) {
-                    receive(data, "pods");
-                }));
-
-            reqs.push(api.get("/api/v1beta3/services")
-                .fail(failure)
-                .done(function(data) {
-                    receive(data, "services");
-                }));
-
-            reqs.push(api.get("/api/v1beta3/replicationcontrollers")
-                .fail(failure)
-                .done(function(data) {
-                    receive(data, "replicationcontrollers");
-                }));
-
-            if (first) {
-                $.when.apply($, reqs)
-                    .always(function() {
-                        first = false;
-                        $(self).triggerHandler("nodes", [ self.nodes ]);
-                        $(self).triggerHandler("services", [ self.services ]);
-                        $(self).triggerHandler("pods", [ self.pods ]);
-                        $(self).triggerHandler("replicationcontrollers", [ self.replicationcontrollers ]);
-                    });
-            }
-        }
-
-        update();
-
         self.close = function close() {
-            monitor.close();
+            var w = watches;
+            watches = [ ];
+            $.each(w, function(i, wc) {
+                wc.stop();
+            });
         };
     }
 
@@ -240,10 +318,6 @@ define([
 
             if (!first)
                 $(self).triggerHandler(what, [ self[what] ]);
-        }
-
-        function failure(ex) {
-            console.warn(ex);
         }
 
         function update() {

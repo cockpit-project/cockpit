@@ -169,13 +169,6 @@ manager_init (Manager *manager)
 }
 
 static void
-on_systemd_shutdown_scheduled_changed (GFileMonitor *monitor,
-                                       GFile *file,
-                                       GFile *other_file,
-                                       GFileMonitorEvent event_type,
-                                       gpointer user_data);
-
-static void
 reread_os_release (Manager *manager)
 {
   cleanup_unref_object GFile *etc_os_release = g_file_new_for_path ("/etc/os-release");
@@ -326,23 +319,6 @@ manager_constructed (GObject *object)
                             manager->cancellable,
                             on_hostname_proxy_ready,
                             g_object_ref (manager));
-
-  error = NULL;
-  cleanup_unref_object GFile *f = g_file_new_for_path ("/run/systemd/shutdown/scheduled");
-  manager->systemd_shutdown_schedule_monitor = g_file_monitor_file (f, 0, NULL, &error);
-  if (error)
-    {
-      g_warning ("Can't watch: %s", error->message);
-      g_error_free (error);
-    }
-  else
-    {
-      g_signal_connect (manager->systemd_shutdown_schedule_monitor,
-                        "changed",
-                        G_CALLBACK (on_systemd_shutdown_scheduled_changed),
-                        manager);
-      g_debug ("created shutdown schedule monitor");
-    }
 
   if (G_OBJECT_CLASS (manager_parent_class)->constructed != NULL)
     G_OBJECT_CLASS (manager_parent_class)->constructed (object);
@@ -521,81 +497,6 @@ handle_get_server_time (CockpitManager *object,
                                             g_date_time_get_utc_offset (now) / 1.0e6);
   g_date_time_unref (now);
   return TRUE;
-}
-
-static void
-parse_scheduled_contents (Manager *manager,
-                          const char *contents)
-{
-  char **lines = NULL;
-  char **lines_iter = NULL;
-  const char *mode = NULL;
-  gboolean found_usec = FALSE;
-  guint64 usec = 0;
-
-  lines = g_strsplit (contents, "\n", -1);
-
-  for (lines_iter = lines; *lines_iter; lines_iter++)
-    {
-      const char *line = *lines_iter;
-
-      if (g_str_has_prefix (line, "USEC="))
-        {
-          usec = g_ascii_strtoull (line + strlen ("USEC="), NULL, 10);
-          found_usec = TRUE;
-        }
-      else if (g_str_has_prefix (line, "MODE="))
-        {
-          mode = line + strlen ("MODE=");
-        }
-      else
-        continue;
-    }
-
-  if (mode && found_usec)
-    {
-      GVariantBuilder schedule;
-      g_variant_builder_init (&schedule, G_VARIANT_TYPE("a{sv}"));
-      g_variant_builder_add (&schedule, "{sv}", "when_seconds",
-                             g_variant_new_double (usec / 1.0e6));
-      if (strcmp (mode, "poweroff") == 0)
-        mode = "shutdown";
-      else if (strcmp (mode, "reboot") == 0)
-        mode = "restart";
-      g_variant_builder_add (&schedule, "{sv}", "kind",
-                             g_variant_new_string (mode));
-      cockpit_manager_set_shutdown_schedule (COCKPIT_MANAGER (manager),
-                                             g_variant_builder_end (&schedule));
-    }
-  else
-    g_warning ("Failed to parse scheduled shutdown file");
-
-  g_strfreev (lines);
-}
-
-static void
-on_systemd_shutdown_scheduled_changed (GFileMonitor *monitor,
-                                       GFile *file,
-                                       GFile *other_file,
-                                       GFileMonitorEvent event_type,
-                                       gpointer user_data)
-{
-  Manager *manager = user_data;
-  GError *error = NULL;
-  cleanup_free char *scheduled_contents = NULL;
-
-  if (!g_file_load_contents (file, NULL,
-                             &scheduled_contents, NULL,
-                             NULL, &error))
-    {
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-        cockpit_manager_set_shutdown_schedule (COCKPIT_MANAGER(manager), NULL);
-      else
-        g_warning ("%s", error->message);
-      g_error_free (error);
-    }
-  else
-    parse_scheduled_contents (manager, scheduled_contents);
 }
 
 static void

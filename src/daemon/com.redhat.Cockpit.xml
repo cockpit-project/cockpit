@@ -138,34 +138,6 @@
     -->
     <property name="ShutdownSchedule" type="a{sv}" access="read"/>
 
-    <!--
-        GetServerTime:
-        Return the current time on the server.
-
-        @now: Seconds since 1970-01-01 00:00:00 UTC.
-	@tz_abbrev: Abbreviation for the server time zone.
-	@tz_offset: Offset from UTC of the server time zone, in
-	  seconds.  Positive is east, negative is west.
-    -->
-    <method name="GetServerTime">
-      <arg name="now_seconds" type="d" direction="out"/>
-      <arg name="tz_abbrev" type="s" direction="out"/>
-      <arg name="tz_offset_seconds" type="d" direction="out"/>
-    </method>
-
-    <!--
-        ServerTimeUpdate:
-        A signal that is emitted when the server time has been adjusted.
-
-        It is also emitted when the time zone changes, either
-        explicitly or when daylight savings time is changes.
-    -->
-    <signal name="ServerTimeUpdate">
-      <arg name="now_seconds" type="d" direction="out"/>
-      <arg name="tz_abbrev" type="s" direction="out"/>
-      <arg name="tz_offset_seconds" type="d" direction="out"/>
-    </signal>
-
   </interface>
 
   <!--

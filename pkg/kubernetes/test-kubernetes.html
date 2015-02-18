@@ -253,7 +253,11 @@ function deparam(query) {
  * triggering watches etc.
  */
 
-var kube_data = {
+var kube_last = 100;
+
+var kude_data = { };
+
+var kube_fixtures = {
     "nodes/127.0.0.1": {
         "kind": "Node",
         "metadata": {
@@ -283,7 +287,7 @@ var kube_data = {
         "kind": "Pod",
         "metadata": {
             "name": "wordpress",
-            "resourceVersion": 84102,
+            "resourceVersion": 5,
             "uid": "0b547d64-ab8a-11e4-9a7c-080027300d85",
             "namespace": "default",
             "labels": {
@@ -430,6 +434,31 @@ var kube_data = {
     }
 };
 
+function kube_update(key, item) {
+    var type;
+    if (!item) {
+        if (kube_data[key]) {
+            type = "DELETED";
+            item = kube_data[key];
+            delete kube_data[key];
+        } else {
+            return;
+        }
+    } else {
+        if (kube_data[key])
+            type = "MODIFIED";
+        else
+            type = "ADDED";
+        kube_data[key] = item;
+    }
+
+    if (!item.metadata)
+        item.metadata = { };
+    item.metadata.resourceVersion = kube_last;
+    kube_last += 1;
+
+    $(kube_data).triggerHandler("notify", [ type, key, item ]);
+}
 
 function kube_apiserver(req) {
     var path;
@@ -441,7 +470,7 @@ function kube_apiserver(req) {
         query = { };
     } else {
         path = req.path.substring(0, pos);
-        qs = deparam(req.path.substring(pos + 1));
+        query = deparam(req.path.substring(pos + 1));
     }
 
     var parts = path.substring(1).split("/");
@@ -453,28 +482,7 @@ function kube_apiserver(req) {
         return;
     }
 
-    function basics(data, path) {
-        if ($.isArray(data)) {
-            $.each(data, function(i, child) {
-                basics(child, path + "/" + child.metadata.uid);
-            })
-        }
-        data.selfLink = path;
-        data.apiVersion = "v1beta3";
-    }
-
-    function list(kind, match) {
-        var items = [];
-        $.each(kube_data, function(id, data) {
-            if (id.match(match))
-                items.push(data);
-        });
-
-        return items;
-    }
-
-    var data;
-    var prefix;
+    var resourceVersion = null;
 
     parts = parts.slice(2);
 
@@ -484,77 +492,105 @@ function kube_apiserver(req) {
     if (what == "watch") {
         watch = true;
         what = parts.shift();
-    }
-
-    var item = parts.join("/");
-    var kind = null;
-
-    /* Straight up items */
-    if (kube_data[item]) {
-        data = $.extend(true, { }, kube_data[item]);
-
-    /* Nothing found */
-    } else if (parts.length > 0) {
-        return false;
-
-    /* Various lists */
-    } else if (what == "namespaces") {
-        data = list("NamespaceList", /namespaces\//);
-    } else if (what == "nodes") {
-        data = list("NodeList", /nodes\//);
-    } else if (what == "pods") {
-        data = list("PodList", /namespaces\/.+\/pods\//);
-    } else if (what == "services") {
-        data = list("ServiceList", /namespaces\/.+\/services\//);
-    } else if (what == "replicationcontrollers") {
-        data = list("ReplicationControllerList", /namespaces\/.+\/replicationcontrollers\//);
-
-    /* Nothing found */
-    } else {
-        return false;
-    }
-
-    basics(data);
-
-    if (!watch) {
-        if ($.isArray(data)) {
-            data = {
-                kind: kind,
-                creationTimestamp: null,
-                resourceVersion: 1,
-                items: items
-            };
-        }
-
-        req.mock_respond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(data));
-    } else {
-        if (!$.isArray(data)) {
-            data = [ data ];
-        }
-
-        var resourceVersion = null;
         if (query.resourceVersion) {
             resourceVersion = parseInt(query.resourceVersion, 10);
             if (isNaN(resourceVersion))
                 throw "invalid resourceVersion";
         }
+    }
 
-        req.mock_respond(200, "OK", { "Content-Type": "text/plain; charset=utf-8" });
+    var specific = parts.join("/");
+    var kind = null;
+    var regexp = null;
 
-        $.each(data, function(i, item) {
-            if (resourceVersion !== null) {
-                if (!item.metadata || !item.metadata.resourceVersion ||
-                    item.metadata.resourceVersion < resourceVersion)
-                    return;
-            }
+    function prepare(key, item) {
+        if (resourceVersion) {
+            console.log("resourceVersion", resourceVersion);
+            if (!item.metadata || !item.metadata.resourceVersion ||
+                item.metadata.resourceVersion < resourceVersion)
+                return null;
+        }
+        if (specific) {
+            if (key != specific)
+                return null;
+        }
+        if (regexp) {
+            if (!key.match(regexp))
+                return null;
+        }
 
-            req.mock_data(JSON.stringify({ type: "ADDED", object: item }) + "\n", true);
+        var copy = $.extend(true, { }, item);
+        copy.selfLink = "/api/v1beta3/" + key;
+        copy.apiVersion = "v1beta3";
+        return copy;
+    }
+
+    /* Various lists */
+    if (what == "namespaces") {
+        regexp = /namespaces\//;
+        kind = "NamespaceList";
+    } else if (what == "nodes") {
+        regexp = /nodes\//;
+        kind = "NodeList";
+    } else if (what == "pods") {
+        regexp = /namespaces\/.+\/pods\//;
+        kind = "PodList";
+    } else if (what == "services") {
+        regexp = /namespaces\/.+\/services\//;
+        kind = "ServiceList";
+    } else if (what == "replicationcontrollers") {
+        regexp = /namespaces\/.+\/replicationcontrollers\//;
+        kind = "ReplicationControllerList";
+
+    /* Nothing found */
+    } else {
+        return false;
+    }
+
+    function respond_get() {
+        var items = [ ];
+        var result = {
+            kind: kind,
+            creationTimestamp: null,
+            items: items
+        }
+
+        $.each(kube_data, function(key, value) {
+            var item = prepare(key, value);
+            if (item)
+                items.push(item);
         });
 
+        req.mock_respond(200, "OK", { "Content-Type": "application/json" }, JSON.stringify(data));
+    }
+
+    function stream_watch(ex, type, key, value) {
+        var item = prepare(key, value);
+        if (item)
+            req.mock_data(JSON.stringify({ type: type, object: item }) + "\n", true);
+    }
+
+    function respond_watch() {
+        req.mock_respond(200, "OK", { "Content-Type": "text/plain; charset=utf-8" });
+
+        $.each(kube_data, function(key, value) {
+            var item = prepare(key, value);
+            if (item)
+                req.mock_data(JSON.stringify({ type: "ADDED", object: item }) + "\n", true);
+        });
+
+        $(kube_data).on("notify", stream_watch);
+
         window.setTimeout(function() {
-            req.mock_data("", true);
+            $(kube_data).off("notify", stream_watch);
+            req.mock_data("", false);
         }, 5000);
     }
+
+    if (watch)
+        respond_watch();
+    else
+        respond_get();
 }
 
 function etcd_server(req) {
@@ -596,6 +632,11 @@ require([
             throw "Unexpected mock http endpoint";
     };
 
+    /* A fresh set of kube_data for each test */
+    QUnit.testStart(function() {
+        kube_data = $.extend(true, { }, kube_fixtures);
+    });
+
     asyncTest("list nodes", function() {
         expect(3);
 
@@ -625,6 +666,115 @@ require([
             $(client).off("pods");
             client.close();
             start();
+        });
+    });
+
+    asyncTest("add pod", function() {
+        expect(4);
+
+        var updated = false;
+
+        var client = kubernetes.k8client();
+        $(client).on("pods", function(ev) {
+
+            /* Run on first invocation */
+            if (!updated) {
+                equal(client.pods.length, 2, "number of pods");
+                equal(client.pods[0].metadata.labels.name, "apache", "pod has label");
+
+                updated = true;
+                kube_update("namespaces/default/pods/aardvark", {
+                    "kind": "Pod",
+                    "metadata": {
+                        "name": "aardvark",
+                        "uid": "22768037-ab8a-11e4-9a7c-080027300d85",
+                        "namespace": "default",
+                        "labels": {
+                            "name": "aardvark"
+                        },
+                    },
+                    "spec": {
+                        "volumes": null,
+                        "containers": [ ],
+                        "imagePullPolicy": "IfNotPresent"
+                    }
+                });
+
+            /* Run on second invocation */
+            } else {
+                equal(client.pods.length, 3, "added a pod");
+                equal(client.pods[0].metadata.labels.name, "aardvark", "new pod sorted correctly");
+
+                $(client).off("pods");
+                client.close();
+                start();
+            }
+        });
+    });
+
+    asyncTest("update pod", function() {
+        expect(4);
+
+        var updated = false;
+
+        var client = kubernetes.k8client();
+        $(client).on("pods", function(ev) {
+
+            /* Run on first invocation */
+            if (!updated) {
+                equal(client.pods.length, 2, "number of pods");
+                equal(client.pods[0].metadata.labels.name, "apache", "pod has label");
+
+                updated = true;
+                kube_update("namespaces/default/pods/apache", {
+                    "kind": "Pod",
+                    "metadata": {
+                        "name": "apache",
+                        "uid": "11768037-ab8a-11e4-9a7c-080027300d85",
+                        "namespace": "default",
+                        "labels": {
+                            "name": "apachepooo"
+                        },
+                    }
+                });
+
+            /* Run on second invocation */
+            } else {
+                equal(client.pods.length, 2, "updated, didn't add a pod");
+                equal(client.pods[0].metadata.labels.name, "apachepooo", "pod name updated");
+
+                $(client).off("pods");
+                client.close();
+                start();
+            }
+        });
+    });
+
+    asyncTest("remove pod", function() {
+        expect(4);
+
+        var updated = false;
+
+        var client = kubernetes.k8client();
+        $(client).on("pods", function(ev) {
+
+            /* Run on first invocation */
+            if (!updated) {
+                equal(client.pods.length, 2, "number of pods");
+                equal(client.pods[0].metadata.labels.name, "apache", "pod has label");
+
+                updated = true;
+                kube_update("namespaces/default/pods/apache", null);
+
+            /* Run on second invocation */
+            } else {
+                equal(client.pods.length, 1, "removed a pod");
+                equal(client.pods[0].metadata.labels.name, "wordpressreplica", "right pod got removed");
+
+                $(client).off("pods");
+                client.close();
+                start();
+            }
         });
     });
 

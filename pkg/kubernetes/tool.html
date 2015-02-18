@@ -180,17 +180,23 @@ require([
         });
     });
 
-    $("#delete-dialog").on("show.bs.modal", function(event) {
+    $("#kubernetes-view").on("click", ".delete-button", function(event) {
+        $('#delete-dialog').data("target", $(event.target));
+        $('#delete-dialog').modal('show');
+        return false;
+    });
+
+    $("#delete-dialog").on("show.bs.modal", function() {
         var entityType = "";
-        var button = $(event.relatedTarget);
-        var id = button.attr("id");
-        if (id == "delete-pods") {
+        var button = $(this).data("target");
+        var kind = button.attr("data-kind");
+        if (kind == "delete-pods") {
             entityType = "pod";
-        } else if (id == "delete-nodes") {
+        } else if (kind == "delete-nodes") {
             entityType = "node";
-        } else if (id == "delete-replicationcontrollers") {
+        } else if (kind == "delete-replicationcontrollers") {
             entityType = "replicationcontroller";
-        } else if (id == "delete-services") {
+        } else if (kind == "delete-services") {
             entityType = "service";
         }
         var entity = button.attr("data-id");
@@ -302,7 +308,7 @@ require([
             {{#nodes}}
               <a class="list-group-item">
                 {{#metadata}}
-                  <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-nodes" data-toggle="modal" data-target="#delete-dialog" data-id="{{name}}"></button>
+                  <button class="btn btn-danger edit-button pull-right pficon pficon-close delete-button" data-kind="delete-nodes" data-id="{{name}}"></button>
                   <h5 class="list-group-item-heading">{{name}}</h5>
                   </br>
                 {{/metadata}}
@@ -329,7 +335,7 @@ require([
             {{#pods}}
             <a class="list-group-item">
               {{#metadata}}
-                <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-pods" data-toggle="modal" data-target="#delete-dialog" data-id="{{name}}"></button>
+                <button class="btn btn-danger edit-button pull-right pficon pficon-close delete-button" data-kind="delete-pods" data-id="{{name}}"></button>
                 <h5 class="list-group-item-heading">{{name}}</h5>
               {{/metadata}}
               </br>
@@ -359,7 +365,7 @@ require([
             <a class="list-group-item">
               {{#metadata}}
                 {{#render_button}}
-                  <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-services" data-toggle="modal" data-target="#delete-dialog" data-id="{{name}}"></button>
+                  <button class="btn btn-danger edit-button pull-right pficon pficon-close" data-kind="delete-services" data-id="{{name}}"></button>
                 {{/render_button}}
                 <h5 class="list-group-item-heading">{{name}}</h5>
               {{/metadata}}
@@ -394,7 +400,7 @@ require([
             {{#replicationcontrollers}}
               {{#metadata}}
                 <a class="list-group-item" data-toggle="modal" id="update-replicationcontrollers" data-target="#update-editor" data-id="{{name}}">
-                <button class="btn btn-danger edit-button pull-right pficon pficon-close" id="delete-replicationcontrollers" data-toggle="modal" data-target="#delete-dialog" data-id="{{name}}"></button>
+                <button class="btn btn-danger edit-button pull-right pficon pficon-close delete-button" data-kind="delete-replicationcontrollers" data-id="{{name}}"></button>
                 <h5 class="list-group-item-heading">{{name}}</h5>
               {{/metadata}}
               </br>

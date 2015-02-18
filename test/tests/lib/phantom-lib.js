@@ -74,7 +74,7 @@ function ph_set_attr (sel, attr, val)
         el.removeAttribute(attr);
     else
         el.setAttribute(attr, val);
-
+    
     var ev = document.createEvent("Event");
     ev.initEvent("change", true, false);
     el.dispatchEvent(ev);
@@ -89,12 +89,12 @@ function ph_click (sel)
 {
     var ev = document.createEvent("MouseEvent");
     ev.initMouseEvent(
-            "click",
-            true /* bubble */, true /* cancelable */,
-            window, null,
-            0, 0, 0, 0, /* coordinates */
-            false, false, false, false, /* modifier keys */
-            0 /*left*/, null);
+        "click",
+        true /* bubble */, true /* cancelable */,
+        window, null,
+        0, 0, 0, 0, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        0 /*left*/, null);
     ph_find(sel).dispatchEvent(ev);
 }
 
@@ -104,7 +104,7 @@ function ph_set_checked (sel, val)
     if (el.checked === undefined)
         throw sel + " is not checkable";
     el.checked = val;
-
+    
     var ev = document.createEvent("Event");
     ev.initEvent("change", true, false);
     el.dispatchEvent(ev);
@@ -155,7 +155,7 @@ function ph_dbus_prop (client_address, client_options, iface, prop, text)
 {
     // check whether there is any object that has the given text as
     // the value of the given property
-
+    
     var result = false;
     /* TODO: This needs to be migrated away from the old dbus */
     var client = shell.dbus(client_address, client_options);
@@ -174,7 +174,7 @@ function ph_dbus_prop (client_address, client_options, iface, prop, text)
 function ph_dbus_object_prop (client_address, client_options, path, iface, prop, text)
 {
     // check whether the given property has the given value
-
+    
     /* TODO: This needs to be migrated away from the old dbus */
     var client = shell.dbus(client_address, client_options);
     var proxy = client.lookup(path, iface);

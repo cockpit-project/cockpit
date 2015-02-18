@@ -3,7 +3,7 @@
 SCRIPT=`realpath -s $0`
 SCRIPTPATH=`dirname $SCRIPT`
 PASSWORD="testvm"
-USER="root"
+RUSER="root"
 export ARCH="x86_64"
 export SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
@@ -12,7 +12,7 @@ npm -g install phantomjs > /dev/null;
 yum -y -q install yum-plugin-copr;
 yum -y -q copr enable lmr/Autotest;
 yum -y -q install avocado;
-echo $PASSWORD | passwd --stdin $USER
+echo $PASSWORD | passwd --stdin $RUSER
 "
 
 function usage(){
@@ -28,7 +28,7 @@ function write_out(){
 name: $NAME
 root password: $PASSWORD
 mac address: `vm_get_mac $NAME`
-hostname: localhost
+hostname: `vm_get_hostname $NAME`
 ip address: `vm_get_ip $NAME`"
 
 }
@@ -38,7 +38,7 @@ function virtinstall(){
     NAME=$PREFIX-$DISTRO-$ARCH
     TMPF=`mktemp`
     echo "virt-deploy create $PREFIX $DISTRO "
-    sudo virt-deploy create $PREFIX $DISTRO 2>&1 | tee $TMPF
+    virt-deploy create $PREFIX $DISTRO 2>&1 | tee $TMPF
     sleep 2
     is_created $NAME &> /dev/null
     IP=`cat $TMPF | tail -5 | grep "ip address:" | sed -r 's/ip address: (.*)/\1/'`
@@ -49,7 +49,6 @@ function virtinstall(){
 }
 
 function treeinstall(){
-#    sudo yum -y virt-install virt-manager libvirt qemu-kvm libvirt-daemon-kvm qemu-kvm-tools
     PREFIX=$1
     DISTRO=$2
     if   [ "$DISTRO" = "fedora-21" ]; then
@@ -66,8 +65,8 @@ function treeinstall(){
     NAME=${PREFIX}-${DISTRO}-${ARCH}
     IMG=$NAME.img
     MAC=`printf '52:54:00:%02X:%02X:%02X\n' $[RANDOM%256] $[RANDOM%256] $[RANDOM%256]`
-    sudo qemu-img create -f qcow2 $VMDIRS/$IMG 20G
-    sudo virt-install --connect=qemu:///system \
+    qemu-img create -f qcow2 $VMDIRS/$IMG 20G
+    virt-install --connect=qemu:///system \
             --network network:default,mac=$MAC \
             --initrd-inject=$ADIR/$KSF \
             --extra-args="ks=file:/$KSF console=tty0 console=ttyS0,115200" \
@@ -101,11 +100,11 @@ function vm_wait_online(){
 
 function is_created(){
     NAME=$1
-    if sudo virsh list | grep -q $NAME; then
+    if virsh -c qemu:///system list | grep -q $NAME; then
         echo "domain $NAME already exist and running "
-    elif sudo virsh list --inactive| grep -q $NAME; then
+    elif virsh -c qemu:///system list --inactive| grep -q $NAME; then
         echo "domain $NAME already exist and stopped "
-        sudo virsh start $NAME
+        virsh -c qemu:///system start $NAME
         vm_wait_online `vm_get_mac $NAME`
     else 
         echo "domain $NAME does not exist"
@@ -115,28 +114,36 @@ function is_created(){
 
 
 function setup_vm(){
-    HOST=$1
+    HOST="$1"
+    PASSWD="$2"
     IP=`vm_get_ip $HOST`
     echo "$HOST: $IP"
-    PASSWD="$2"
-    LOGIN=$USER
+    LOGIN=$RUSER
+    echo SSHPASS="$PASSWD" sshpass -e ssh-copy-id $SSHOPTS $LOGIN@$IP
     SSHPASS="$PASSWD" sshpass -e ssh-copy-id $SSHOPTS $LOGIN@$IP
     vm_ssh "$HOST" "$PREQ"
 }
 
 
 function vm_get_ip(){
-    NAME=$1
-    MAC=`vm_get_mac $NAME`
+    local NAME=$1
+    local MAC=`vm_get_mac $NAME`
     is_created $NAME  &>/dev/null || return 1
     
-    IP=`cat /var/lib/libvirt/dnsmasq/default.leases |grep "$MAC" |head -1 | cut -d ' ' -f 3`
+    local IP=`cat /var/lib/libvirt/dnsmasq/default.leases |grep "$MAC" |head -1 | cut -d ' ' -f 3`
     echo $IP
 }
 function vm_get_mac(){
-    NAME=$1
-    MAC=`sudo virsh dumpxml $NAME | grep 'mac address' | cut -d\' -f2`
+    local NAME=$1
+    local MAC=`virsh -c qemu:///system dumpxml $NAME | grep 'mac address' | cut -d\' -f2`
     echo $MAC
+}
+
+function vm_get_hostname(){
+    local NAME=$1
+    local MAC=`vm_get_mac $NAME`
+    local HOSTNAME=`virsh -c qemu:///system net-dumpxml default | grep $MAC |sed -r "s/.*name='([^']*).*$/\1/"`
+    echo $HOSTNAME
 }
 
 function vm_get_pass(){
@@ -144,10 +151,10 @@ function vm_get_pass(){
 }
 
 function vm_ssh(){
-    HOST=$1
+    local HOST=$1
     shift
-    echo ssh $SSHOPTS -l $USER `vm_get_ip $HOST` $@
-    ssh $SSHOPTS -l $USER `vm_get_ip $HOST` $@
+    echo ssh $SSHOPTS -l $RUSER `vm_get_ip $HOST` $@
+    ssh $SSHOPTS -l $RUSER `vm_get_ip $HOST` $@
 }
 
 
@@ -164,8 +171,8 @@ function virt-create(){
 }
 function vm_delete_snaps(){
     NAME=$1
-    for foo in `sudo virsh snapshot-list $NAME --name`; do
-        sudo virsh snapshot-delete $NAME $foo
+    for foo in `virsh -c qemu:///system snapshot-list $NAME --name`; do
+        virsh -c qemu:///system snapshot-delete $NAME $foo
     done
     echo All snaps deleted for: $NAME
 }

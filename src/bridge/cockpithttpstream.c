@@ -760,7 +760,8 @@ send_http_request (CockpitHttpStream *self)
   for (l = request; l != NULL; l = g_list_next (l))
     total += g_bytes_get_size (l->data);
 
-  g_string_append_printf (string, "Content-Length: %" G_GSIZE_FORMAT "\r\n", total);
+  if (request || g_ascii_strcasecmp (method, "POST") == 0)
+    g_string_append_printf (string, "Content-Length: %" G_GSIZE_FORMAT "\r\n", total);
   g_string_append (string, "\r\n");
 
   bytes = g_string_free_to_bytes (string);

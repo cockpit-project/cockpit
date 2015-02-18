@@ -58,8 +58,6 @@ struct _Manager
   /* may be NULL */
   GDBusProxy *hostname1_proxy;
 
-  GFileMonitor *systemd_shutdown_schedule_monitor;
-
   GFileMonitor *etc_os_release_monitor;
 };
 
@@ -109,9 +107,6 @@ manager_finalize (GObject *object)
                                             manager);
       g_object_unref (manager->hostname1_proxy);
     }
-
-  if (manager->systemd_shutdown_schedule_monitor)
-    g_object_unref (manager->systemd_shutdown_schedule_monitor);
 
   g_clear_object (&manager->etc_os_release_monitor);
 

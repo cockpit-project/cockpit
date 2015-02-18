@@ -3,7 +3,7 @@
 #set -x
 SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
 COCKPIT_DIR=$(cd $SCRIPT_DIR;cd ../..; echo `pwd`)
-BASE=test/tests
+BASE=test-avocado
 source $SCRIPT_DIR/lib/host_setup.sh
 source $SCRIPT_DIR/lib/create_test_machine.sh
 LUSER=`whoami`

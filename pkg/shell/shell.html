@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="/cockpit/@@shell@@/shell.html">
     <link href="shell.css" rel="stylesheet">
+    <link rel="stylesheet" href="../@@latest@@/bootstrap-datetimepicker.min.css" />
     <script src="../@@latest@@/jquery.js"></script>
+    <script src="../@@latest@@/moment.min.js"></script>
+    <script src="../@@latest@@/bootstrap-datetimepicker.min.js"></script>
     <script src="../@@latest@@/term.js"></script>
     <script src="../@@latest@@/mustache.js"></script>
     <script src="../@@latest@@/cockpit.js"></script>
@@ -194,6 +197,10 @@
               <td>
                 <button class="btn btn-default realm-privileged" id="system_information_realms_button"></button>
               </td>
+            </tr>
+            <tr>
+              <td translatable="yes">System Time</td>
+              <td><button class="btn btn-default systime-privileged" id="system_information_systime_button"></button></td>
             </tr>
             <tr>
               <td translatable="yes">Power Options</td>
@@ -1175,6 +1182,46 @@
               Cancel
             </button>
             <button class="btn btn-primary" id="sich-apply-button">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="system_information_change_systime"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change System Time</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td>
+                  <select class="form-control selectpicker" id="change_systime">
+                    <option value="manual_time">Manually set the time</option>
+                    <option value="ntp_time">Set time automatically using NTP</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                <div class='input-group date' id='systime-datetimepicker'>
+                    <input type='text' class="form-control" id="systime-datetime-input"/>
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span>
+                </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="systime-apply-button">
               Change
             </button>
           </div>

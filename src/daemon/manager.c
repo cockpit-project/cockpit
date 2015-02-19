@@ -57,6 +57,8 @@ struct _Manager
 
   /* may be NULL */
   GDBusProxy *hostname1_proxy;
+  /* may be NULL */
+  GDBusProxy *timedate1_proxy;
 
   GFileMonitor *systemd_shutdown_schedule_monitor;
 
@@ -80,7 +82,12 @@ G_DEFINE_TYPE_WITH_CODE (Manager, manager, COCKPIT_TYPE_MANAGER_SKELETON,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_MANAGER, manager_iface_init));
 
 static void update_hostname1 (Manager *manager);
+static void update_timedate1 (Manager *manager);
 static void on_hostname1_properties_changed (GDBusProxy         *proxy,
+                                             GVariant           *changed_properties,
+                                             const gchar *const *invalidated_properties,
+                                             gpointer            user_data);
+static void on_timedate1_properties_changed (GDBusProxy         *proxy,
                                              GVariant           *changed_properties,
                                              const gchar *const *invalidated_properties,
                                              gpointer            user_data);
@@ -277,6 +284,36 @@ on_hostname_proxy_ready (GObject *source,
 }
 
 static void
+on_timedate_proxy_ready (GObject *source,
+                         GAsyncResult *result,
+                         gpointer user_data)
+{
+  Manager *self = MANAGER (user_data);
+  GError *error = NULL;
+
+  self->timedate1_proxy = g_dbus_proxy_new_for_bus_finish (result, &error);
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+    {
+      /* nothing */
+    }
+  else if (self->timedate1_proxy == NULL)
+    {
+      g_warning ("Unable to create timedate1 proxy: %s (%s, %d)",
+                 error->message, g_quark_to_string (error->domain), error->code);
+    }
+  else
+    {
+      update_timedate1 (self);
+      g_signal_connect (self->timedate1_proxy,
+                        "g-properties-changed",
+                        G_CALLBACK (on_timedate1_properties_changed),
+                        self);
+    }
+
+  g_object_unref (self);
+}
+
+static void
 update_hostname_from_kernel (Manager *manager)
 {
   gchar hostname[HOST_NAME_MAX + 1];
@@ -325,6 +362,16 @@ manager_constructed (GObject *object)
                             "org.freedesktop.hostname1",
                             manager->cancellable,
                             on_hostname_proxy_ready,
+                            g_object_ref (manager));
+
+  g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
+                            G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES,
+                            NULL, /* GDBusInterfaceInfo* */
+                            "org.freedesktop.timedate1",
+                            "/org/freedesktop/timedate1",
+                            "org.freedesktop.timedate1",
+                            manager->cancellable,
+                            on_timedate_proxy_ready,
                             g_object_ref (manager));
 
   error = NULL;
@@ -430,6 +477,24 @@ out:
   return ret;
 }
 
+static gboolean
+peek_bool_prop (GDBusProxy *proxy,
+               const gchar *name)
+{
+  gboolean ret;
+  GVariant *value;
+
+  value = g_dbus_proxy_get_cached_property (proxy, name);
+  if (value == NULL)
+    goto out;
+
+  ret = g_variant_get_boolean (value);
+  g_variant_unref (value);
+
+out:
+  return ret;
+}
+
 static void
 update_hostname1 (Manager *manager)
 {
@@ -448,6 +513,12 @@ out:
 }
 
 static void
+update_timedate1 (Manager *manager)
+{
+  cockpit_manager_set_ntp (COCKPIT_MANAGER (manager), peek_bool_prop (manager->timedate1_proxy, "NTP"));
+}
+
+static void
 on_hostname1_properties_changed (GDBusProxy *proxy,
                                  GVariant *changed_properties,
                                  const gchar * const *invalidated_properties,
@@ -456,6 +527,16 @@ on_hostname1_properties_changed (GDBusProxy *proxy,
   Manager *manager = MANAGER (user_data);
   update_hostname1 (manager);
 
+}
+
+static void
+on_timedate1_properties_changed (GDBusProxy *proxy,
+                                 GVariant *changed_properties,
+                                 const gchar * const *invalidated_properties,
+                                 gpointer user_data)
+{
+  Manager *manager = MANAGER (user_data);
+  update_timedate1 (manager);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -681,12 +762,82 @@ handle_cancel_shutdown (CockpitManager *object,
   return TRUE;
 }
 
+static gboolean
+handle_set_server_time (CockpitManager * _manager,
+                    GDBusMethodInvocation *invocation,
+                    gint64 now_seconds)
+{
+  Manager *manager = MANAGER (_manager);
+  GError *error;
+
+  error = NULL;
+  if (!g_dbus_proxy_call_sync (manager->timedate1_proxy,
+                               "SetNTP",
+                               g_variant_new ("(bb)", FALSE, TRUE),
+                               G_DBUS_CALL_FLAGS_NONE,
+                               -1, /* timeout_msec */
+                               NULL, /* GCancellable* */
+                               &error))
+    {
+      g_dbus_error_strip_remote_error (error);
+      g_dbus_method_invocation_take_error (invocation, error);
+      goto out;
+    }
+
+  if (!g_dbus_proxy_call_sync (manager->timedate1_proxy,
+                               "SetTime",
+                               g_variant_new ("(xbb)", now_seconds * 1000, FALSE, TRUE),
+                               G_DBUS_CALL_FLAGS_NONE,
+                               -1, /* timeout_msec */
+                               NULL, /* GCancellable* */
+                               &error))
+    {
+      g_dbus_error_strip_remote_error (error);
+      g_dbus_method_invocation_take_error (invocation, error);
+      goto out;
+    }
+
+  cockpit_manager_complete_set_server_time (_manager, invocation);
+
+out:
+  return TRUE; /* Means we handled the invocation */
+}
+
+static gboolean
+handle_set_server_time_ntp (CockpitManager * _manager,
+                    GDBusMethodInvocation *invocation)
+{
+  Manager *manager = MANAGER (_manager);
+  GError *error;
+
+  error = NULL;
+  if (!g_dbus_proxy_call_sync (manager->timedate1_proxy,
+                               "SetNTP",
+                               g_variant_new ("(bb)", TRUE, TRUE),
+                               G_DBUS_CALL_FLAGS_NONE,
+                               -1, /* timeout_msec */
+                               NULL, /* GCancellable* */
+                               &error))
+    {
+      g_dbus_error_strip_remote_error (error);
+      g_dbus_method_invocation_take_error (invocation, error);
+      goto out;
+    }
+
+  cockpit_manager_complete_set_server_time_ntp (_manager, invocation);
+
+out:
+  return TRUE; /* Means we handled the invocation */
+}
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 static void
 manager_iface_init (CockpitManagerIface *iface)
 {
   iface->handle_set_hostname = handle_set_hostname;
+  iface->handle_set_server_time = handle_set_server_time;
+  iface->handle_set_server_time_ntp = handle_set_server_time_ntp;
 
   iface->handle_get_server_time = handle_get_server_time;
   iface->handle_shutdown = handle_shutdown;

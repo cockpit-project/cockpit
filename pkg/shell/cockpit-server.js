@@ -76,6 +76,12 @@ PageServer.prototype = {
             $('#system_information_change_hostname').modal('show');
         });
 
+        $('#system_information_systime_button').on('click', function () {
+            PageSystemInformationChangeHostname.client = self.client;
+            $('#system_information_change_systime').modal('show');
+        });
+
+
         $('#system_information_realms_button').on('click', function () {
             if (self.realms.Joined && self.realms.Joined.length > 0) {
                 var name = self.realms.Joined[0][0];
@@ -253,6 +259,30 @@ PageServer.prototype = {
 
         bindf("#system_information_hostname_button", self.manager, "StaticHostname", hostname_text);
         bindf("#system_information_hostname_button", self.manager, "PrettyHostname", hostname_text);
+
+        function systime_text() {
+            var d = new Date();
+
+            if (self.timestamp_diff) {
+               d.setTime(d.getTime() + self.timestamp_diff);
+               $('#system_information_systime_button').text(d.toString());
+               $('#system_information_systime_button').prop('title', d.toString());
+            } else {
+               $('#system_information_systime_button').text(_("Getting time..."));
+            }
+        }
+
+        self.manager.call('GetServerTime', function (error, timestamp, timezone, tz_offset) {
+            if (!error) {
+                self.timestamp_diff = (new Date()).getTime() - (timestamp * 1000);
+                self.timezone = timezone;
+                self.tz_offset = tz_offset;
+                systime_text();
+            } else {
+                shell.show_unexpected_error(error);
+            }
+        });
+        window.setInterval(systime_text, 1000);
 
         self.realms = self.client.get("/com/redhat/Cockpit/Realms", "com.redhat.Cockpit.Realms");
 
@@ -492,6 +522,81 @@ function PageSystemInformationChangeHostname() {
 }
 
 shell.dialogs.push(new PageSystemInformationChangeHostname());
+
+PageSystemInformationChangeSystime.prototype = {
+    _init: function() {
+        this.id = "system_information_change_systime";
+    },
+
+    setup: function() {
+        $("#systime-apply-button").on("click", $.proxy(this._on_apply_button, this));
+        $('#change_systime').on('change', $.proxy(this, "update"));
+    },
+
+    enter: function() {
+        var self = this;
+        var d = new Date();
+
+        self.manager = PageSystemInformationChangeHostname.client.get("/com/redhat/Cockpit/Manager",
+                                                                      "com.redhat.Cockpit.Manager");
+        self.manager.call('GetServerTime', function (error, timestamp, timezone, tz_offset) {
+            if (!error) {
+                self.tz_offset = tz_offset;
+                self.timezone = timezone;
+                self.timestamp_diff = d.getTime() - (timestamp * 1000);
+
+                // TODO: show timezone?
+                d.setTime(d.getTime() + self.timestamp_diff);
+                $('#systime-datetimepicker').datetimepicker({defaultDate: d.toString()});
+
+            } else
+                shell.show_unexpected_error(error);
+        });
+
+        $('#change_systime').val(self.manager.NTP ? 'ntp_time' : 'manual_time');
+        $('#change_systime').selectpicker('refresh');
+        self.update();
+    },
+
+    update: function() {
+        $('#systime-datetimepicker').parents('tr').toggle($('#change_systime').val() !== "ntp_time");
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    _on_apply_button: function(event) {
+        var self = this;
+
+        if ($('#change_systime').val() == 'manual_time') {
+            var new_datetime = new Date($("#systime-datetime-input").val());
+            self.manager.call("SetServerTime",
+                              new_datetime.getTime(),
+                              function(error, reply) {
+                                  $("#system_information_change_systime").modal('hide');
+                                  if(error)
+                                      shell.show_unexpected_error(error);
+                              });
+        } else {
+            self.manager.call("SetServerTimeNTP",
+                              function(error, reply) {
+                                  $("#system_information_change_systime").modal('hide');
+                                  if(error)
+                                      shell.show_unexpected_error(error);
+                              });
+        }
+    },
+};
+
+function PageSystemInformationChangeSystime() {
+    this._init();
+}
+
+shell.dialogs.push(new PageSystemInformationChangeSystime());
+
 
 
 PageShutdownDialog.prototype = {

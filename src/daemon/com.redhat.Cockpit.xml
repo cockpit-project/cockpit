@@ -91,6 +91,8 @@
 
     <!-- PrettyHostname: The pretty host name, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/hostnamed">systemd-hostnamed</ulink> for details -->
     <property name="PrettyHostname" type="s" access="read"/>
+    <!-- NTP: True if host is using network time protocol, see <ulink url="http://www.freedesktop.org/wiki/Software/systemd/timedated/">systemd-timedated</ulink> for details -->
+    <property name="NTP" type="b" access="read"/>
 
     <!--
         SetHostname:
@@ -104,6 +106,26 @@
       <arg name="pretty_hostname" type="s" direction="in"/>
       <arg name="static_hostname" type="s" direction="in"/>
       <arg name="options" type="a{sv}" direction="in"/>
+    </method>
+
+     <!--
+        SetServerTime:
+        Set time on the server.
+
+        @now_seconds: Seconds since 1970-01-01 00:00:00 UTC.
+    -->
+    <method name="SetServerTime">
+      <arg name="now_seconds" type="x" direction="in"/>
+    </method>
+
+    <!--
+        SetServerTimeNTP:
+        Use NTP to synchronize time on the server.
+    -->
+    <method name="SetServerTimeNTP">
+    <!--
+        TODO: pass IP of NTP server?
+    -->
     </method>
 
     <!--

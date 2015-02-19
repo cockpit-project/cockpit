@@ -20,6 +20,8 @@
 
 from testlib import *
 
+import subprocess
+
 class TestConnection(MachineCase):
     def testBasic(self):
         b = self.browser
@@ -71,5 +73,48 @@ class TestConnection(MachineCase):
         b.wait_page("server")
 
         self.allow_restart_journal_messages()
+
+    def testTls(self):
+        m = self.machine
+
+        # Start Cockpit with TLS
+        m.execute("systemctl start cockpit.socket")
+
+        null = open("/dev/null")
+        args = ['openssl', 's_client', '-connect',  m.address + ":9090" ]
+
+        # A normal TLS connection works
+        m.message(repr(args))
+        output = subprocess.check_output(args, stdin=null, stderr=subprocess.STDOUT)
+        m.message(output)
+        self.assertIn("DONE", output)
+
+        # SSLv3 should not work
+        try:
+            cmd = args + [ '-ssl3' ]
+            m.message(repr(cmd))
+            output = subprocess.check_output(cmd, stdin=null, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError, ex:
+            m.message(ex.output)
+            self.assertIn("wrong version number", ex.output)
+        else:
+            m.message(output)
+            self.fail("SSL3 should not have been successful")
+
+        # RC4 should not work
+        try:
+            cmd = args + [ '-cipher', 'RC4' ]
+            m.message(repr(cmd))
+            output = subprocess.check_output(cmd, stdin=null, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError, ex:
+            m.message(ex.output)
+            self.assertIn("ssl handshake failure", ex.output)
+        else:
+            m.message(output)
+            self.fail("RC4 cipher should not have been usable")
+
+        self.allow_journal_messages(
+            ".*Peer failed to perform TLS handshake",
+            ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")
 
 test_main()

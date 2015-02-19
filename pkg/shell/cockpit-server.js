@@ -308,6 +308,75 @@ PageServer.prototype = {
             self.plots.forEach(function (p) { p.resize(); });
         });
 
+        /* PCP logging
+         */
+
+        /* TODO: Talk to systemd directly.  This is a bit too
+         * cumbersome just for a single service so we cheat and use
+         * cockpitd which has all the hairy code.
+         */
+
+        var services = cockpit.dbus('com.redhat.Cockpit', { bus: 'session' }).
+            proxy('com.redhat.Cockpit.Services',
+                  '/com/redhat/Cockpit/Services');
+
+        function service_action_sequence(actions) {
+            function step(i) {
+                if (i < actions.length) {
+                    services.ServiceAction(actions[i][0], actions[i][1])
+                        .done(function () {
+                            step(i+1);
+                        })
+                        .fail(function () {
+                            console.warn(actions[i], "failed");
+                            refresh_pmlogger_state();
+                        });
+                }
+            }
+            step(0);
+        }
+
+        function change_pmlogger_state(val) {
+            if (val) {
+                service_action_sequence([ [ 'pmcd.service', 'enable' ],
+                                          [ 'pmcd.service', 'start' ],
+                                          [ 'pmlogger.service', 'enable' ],
+                                          [ 'pmlogger.service', 'restart' ]
+                                        ]);
+            } else {
+                service_action_sequence([ [ 'pmlogger.service', 'stop' ],
+                                          [ 'pmlogger.service', 'disable' ]
+                                        ]);
+            }
+        }
+
+        self.pmlogger_onoff = shell.OnOff(false,
+                                          change_pmlogger_state,
+                                          null,
+                                          null,
+                                          null);
+
+        $('#server-pmlogger-onoff').empty().append(self.pmlogger_onoff);
+
+        function update_pmlogger_state(state) {
+            self.pmlogger_onoff.set(state.startsWith("enabled"));
+        }
+
+        $(services).on("ServiceUpdate", function (event, state) {
+            if (state[0] == "pmlogger.service")
+                update_pmlogger_state(state[5]);
+        });
+
+        function refresh_pmlogger_state() {
+            services.wait(function () {
+                services.GetServiceInfo('pmlogger.service')
+                    .done(function (info) {
+                        update_pmlogger_state(info.UnitFileState.v);
+                    });
+            });
+        }
+
+        refresh_pmlogger_state();
     },
 
     show: function() {

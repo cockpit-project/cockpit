@@ -79,6 +79,9 @@ shellimages_DATA = \
 	pkg/shell/images/switcher.png \
 	$(NULL)
 
+pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools
+pmlogconf_DATA = pkg/shell/pmlogconf/cockpit
+
 # -----------------------------------------------------------------------------
 
 CHECK_HTML = \
@@ -111,4 +114,5 @@ EXTRA_DIST += \
 	$(shelldebug_DATA) \
 	$(shellimages_DATA) \
 	$(CHECK_HTML) \
+	pkg/shell/pmlogconf/cockpit \
 	$(NULL)

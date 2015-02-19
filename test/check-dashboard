@@ -133,6 +133,7 @@ class TestDashboard(MachineCase):
         self.login_and_go("server")
         self.inject_extras(b)
 
+        b.wait_present('#hosts a:first-child')
         b.click('#hosts a:first-child button')
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#dashboard_setup_address', "127.0.0.1")

@@ -30,6 +30,7 @@
 
 #include <glib/gstdio.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 static gchar *srcdir;

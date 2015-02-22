@@ -20,16 +20,16 @@
 #include "config.h"
 
 #include "mock-auth.h"
-#include "mock-io-stream.h"
 #include "cockpitws.h"
 #include "cockpitcreds.h"
 #include "cockpitwebservice.h"
-#include "cockpitwebserver.h"
 
 #include "common/cockpitpipetransport.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
+#include "common/mock-io-stream.h"
+#include "common/cockpitwebserver.h"
 
 #include "websocket/websocket.h"
 
@@ -38,9 +38,11 @@
 #include <libssh/libssh.h>
 
 #include <string.h>
+#include <errno.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 
 #define TIMEOUT 30
 

@@ -22,7 +22,6 @@
 #include "cockpitauth.h"
 
 #include "cockpitsshtransport.h"
-#include "cockpitwebserver.h"
 #include "cockpitws.h"
 
 #include "websocket/websocket.h"
@@ -35,6 +34,7 @@
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitunixfd.h"
+#include "common/cockpitwebserver.h"
 
 #include <glib/gstdio.h>
 

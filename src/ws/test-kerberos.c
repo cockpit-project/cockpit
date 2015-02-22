@@ -20,10 +20,10 @@
 #include "config.h"
 
 #include "cockpitauth.h"
-#include "cockpitwebserver.h"
 #include "cockpitws.h"
 
 #include "common/cockpittest.h"
+#include "common/cockpitwebserver.h"
 
 #include <krb5/krb5.h>
 #include <gssapi/gssapi_krb5.h>

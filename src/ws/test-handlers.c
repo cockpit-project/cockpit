@@ -20,13 +20,13 @@
 #include "config.h"
 
 #include "mock-auth.h"
-#include "mock-io-stream.h"
 
-#include "cockpitwebserver.h"
 #include "cockpithandlers.h"
 #include "cockpitws.h"
 
 #include "common/cockpittest.h"
+#include "common/mock-io-stream.h"
+#include "common/cockpitwebserver.h"
 
 #include <glib.h>
 

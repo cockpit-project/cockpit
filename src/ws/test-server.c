@@ -22,6 +22,7 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 #include "common/mock-service.h"
+#include "common/cockpitwebserver.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>
@@ -29,7 +30,6 @@
 #include <string.h>
 
 #include "cockpitws.h"
-#include "cockpitwebserver.h"
 #include "cockpitwebservice.h"
 
 static GMainLoop *loop = NULL;

@@ -6,13 +6,9 @@ noinst_LIBRARIES += libcockpit-ws.a
 
 libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitws.h				\
-	src/ws/cockpitwstypes.h	\
-	src/ws/cockpitwebserver.h		src/ws/cockpitwebserver.c		\
 	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
 	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
 	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
-	src/ws/cockpitwebresponse.h \
-	src/ws/cockpitwebresponse.c \
 	src/ws/cockpitwebservice.h \
 	src/ws/cockpitwebservice.c \
 	src/ws/cockpitsshtransport.h \
@@ -33,11 +29,6 @@ libcockpit_ws_LIBS = \
 	libreauthorize.a \
 	$(COCKPIT_WS_LIBS) \
 	$(REAUTHORIZE_LIBS) \
-	$(NULL)
-
-libcockpit_ws_enumheaders = 				\
-	src/ws/cockpitwstypes.h 					\
-	src/ws/cockpitwebserver.h 				\
 	$(NULL)
 
 EXTRA_DIST += \
@@ -179,8 +170,6 @@ testassets_systemdunit_data += test-server.service
 WS_CHECKS = \
 	test-creds \
 	test-auth \
-	test-webresponse \
-	test-webserver \
 	test-sshtransport \
 	test-webservice \
 	test-handlers \
@@ -211,7 +200,7 @@ test_handlers_CFLAGS = $(cockpit_ws_CFLAGS)
 test_handlers_SOURCES = \
 	src/ws/test-handlers.c \
 	src/ws/mock-auth.c src/ws/mock-auth.h \
-	src/ws/mock-io-stream.c src/ws/mock-io-stream.h \
+	src/common/mock-io-stream.c src/common/mock-io-stream.h \
 	$(NULL)
 
 test_handlers_LDADD = \
@@ -233,35 +222,12 @@ test_sshtransport_LDADD = \
 test_webservice_SOURCES = \
 	src/ws/test-webservice.c \
 	src/ws/mock-auth.c src/ws/mock-auth.h \
-	src/ws/mock-io-stream.c src/ws/mock-io-stream.h \
+	src/common/mock-io-stream.c src/common/mock-io-stream.h \
 	$(NULL)
 
 test_webservice_CFLAGS = $(cockpit_ws_CFLAGS)
 
 test_webservice_LDADD = \
-	libwebsocket.a \
-	libcockpit-ws.a \
-	$(cockpit_ws_LDADD) \
-	$(NULL)
-
-test_webresponse_SOURCES = \
-	src/ws/test-webresponse.c \
-	src/ws/mock-io-stream.c src/ws/mock-io-stream.h \
-	$(NULL)
-test_webresponse_CFLAGS = $(cockpit_ws_CFLAGS)
-test_webresponse_LDADD = \
-	libwebsocket.a \
-	libcockpit-ws.a \
-	$(cockpit_ws_LDADD) \
-	$(NULL)
-
-test_webserver_SOURCES = \
-	src/ws/test-webserver.c \
-	$(NULL)
-
-test_webserver_CFLAGS = $(cockpit_ws_CFLAGS)
-
-test_webserver_LDADD = \
 	libwebsocket.a \
 	libcockpit-ws.a \
 	$(cockpit_ws_LDADD) \

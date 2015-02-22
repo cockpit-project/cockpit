@@ -153,7 +153,7 @@ cockpit_web_server_get_property (GObject *object,
   switch (prop_id)
     {
     case PROP_PORT:
-      g_value_set_int (value, server->port);
+      g_value_set_int (value, cockpit_web_server_get_port (server));
       break;
 
     case PROP_CERTIFICATE:
@@ -485,6 +485,13 @@ const gchar **
 cockpit_web_server_get_document_roots (CockpitWebServer *self)
 {
   return (const gchar **)self->document_roots;
+}
+
+gint
+cockpit_web_server_get_port (CockpitWebServer *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), -1);
+  return self->port;
 }
 
 GHashTable *

@@ -51,12 +51,12 @@
       <link linkend="packages">packages</link>. These can be placed in an iframe or web browser
       window. Each documented and stable component has a well-known URL and these are documented
       in the <link linkend="development">API reference</link>. Each component URL begins with the string
-      <code>/cockpit/</code> followed a package name, and then the component itself.</para>
+      <code>/cockpit/@localhost/</code> followed a package name, and then the component itself.</para>
 
     <para>For example the
       <link linkend="api-terminal-html">terminal.html</link> in the
       <link linkend="api-server">server</link> package, has this URL:
-      <code>/cockpit/server/terminal.html</code></para>
+      <code>/cockpit/@localhost/server/terminal.html</code></para>
 
     <programlisting language="html"><![CDATA[
 <html>
@@ -67,7 +67,7 @@
     This is a terminal.
     <br/>
     <iframe width="800px" height="600px"
-      src="https://server.example.com:9090/cockpit/server/terminal.html"/>
+      src="https://server.example.com:9090/cockpit/@localhost/server/terminal.html"/>
   </body>
 </html>
 ]]></programlisting>

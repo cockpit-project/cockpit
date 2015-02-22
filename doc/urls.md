@@ -9,11 +9,10 @@ and their characteristics:
    are cached for as long as possible, and names *must* change when the
    contents of the file changes.
 
- * ```/cockpit/$xxxxxxxxxxxxxxx/path/to/file.ext``` are files which are
-   cached by packages for as long as possible. The checksum changes when
-   any of the contents of the given package change. Only available after
-   authentication and retrieving a resource2 listing.
+ * ```/cockpit/$xxxxxxxxxxxxxxx/package/path/to/file.ext``` are files which
+   are cached by packages for as long as possible. The checksum changes when
+   any of the packages on a system change. Only available after 
+   authentication.
 
- * ```/cockpit/package/path/to/file.ext``` or ```/cockpit/package@host/path/to/file.ext```
-   are files from packages (on specific hosts, or local machine if no host specified)
-   that are not cached. Only available after authentication.
+ * ```/cockpit/@host/package/path/to/file.ext``` are files from packages (on
+   specific hosts) that are not cached. Only available after authentication.

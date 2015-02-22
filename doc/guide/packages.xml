@@ -8,8 +8,6 @@
     features and/or code.</para>
 
   <warning>
-    <para>It is not yet possible to implement arbitrary new packages.</para>
-
     <para>In addition, any APIs or behavior not explicitly documented here is an
       internal API and can be changed at any time.</para>
   </warning>
@@ -145,22 +143,13 @@
 
     <para>When referring to files in your package, such as in a hyperlink or a <code>&lt;style&gt;</code>
       tag or <code>&lt;script&gt;</code> tag, simply use a relative path, and refer to the files
-      in the same directory.</para>
-
-    <para>However often the need arises to refer from one package to another, for example when
-      loading the base <code>cockpit.js</code> javascript. To do this the path must be
-      crafted in a specific way: <code>../@@package@@/path</code></para>
-
-    <para>The <code>@@package@@</code> is replaced by the relevant path component to address the
-      the package. Put the package name between the <code>@@</code> signs. It will be replaced with
-      a cacheable checksum of the package, or qualified package name at the given host. Don't hardcode
-      the path, use the <code>@@</code> syntax.</para>
+      in the same directory. When you need to refer to files in another package use a relative link.</para>
 
     <para>For example here's how to include the base <code>cockpit.js</code> script in your HTML
       from the <code>latest</code> package:</para>
 
 <programlisting>
-  &lt;script src="../@@latest@@"&gt;&lt;/script&gt;
+  &lt;script src="../latest/cockpit.js"&gt;&lt;/script&gt;
 </programlisting>
 
     <para>Do not assume you can link to any file in any other package. Refer to the
@@ -205,9 +194,7 @@
     </itemizedlist>
 
     <para>To include javascript from the API, simply load it into your HTML using
-      a script tag. Alternatively you can use an javascript loader. Always refer to
-      the package using the <code>@@package@@</code> syntax. This allows Cockpit to
-      optimize and cache multiple uses of the same resources.</para>
+      a script tag. Alternatively you can use an javascript loader.</para>
 
   </section>
 

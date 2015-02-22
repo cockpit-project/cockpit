@@ -18,8 +18,8 @@
       then only the <link linkend="latest-channels">raw channel API</link> will be defined.</para>
 
 <programlisting><![CDATA[
-  <script src="../@@latest@@/jquery.js">
-  <script src="../@@latest@@/cockpit.js">
+  <script src="../latest/jquery.js">
+  <script src="../latest/cockpit.js">
 ]]></programlisting>
   </refsection>
 
@@ -1884,7 +1884,7 @@ handle = file.watch(callback, error_callback);
 
       <para>This function starts a lookup for information about the package called
         <code>name</code>. The <code>name</code> argument may be a package name,
-        an alias, or a checksum. The information may be retrieved from a cache.</para>
+        an alias. The information may be retrieved from a cache.</para>
 
       <para>The return value is a
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
@@ -1900,7 +1900,7 @@ handle = file.watch(callback, error_callback);
 
       <para>This function starts a lookup for information about all the packages for
         the host that this page is connected to. If <code>expand</code> is set to <code>true</code>
-        then the there will be a key in the results for each possible name, alias, or checksum
+        then the there will be a key in the results for each possible name or alias
         for the package. Otherwise only a distinct set of packages will be returned.</para>
 
       <para>The return value is a
@@ -1924,10 +1924,6 @@ handle = file.watch(callback, error_callback);
         containing the following fields.</para>
 
       <variablelist>
-        <varlistentry>
-          <term><code>checksum</code></term>
-          <listitem><para>Checksum of the package or <code>null</code></para></listitem>
-        </varlistentry>
         <varlistentry>
           <term><code>manifest</code></term>
           <listitem><para>The package manifest as a javascript object.</para></listitem>

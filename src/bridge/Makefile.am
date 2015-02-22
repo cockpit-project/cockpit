@@ -20,8 +20,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpithttpstream.h \
 	src/bridge/cockpitinteracttransport.c \
 	src/bridge/cockpitinteracttransport.h \
-	src/bridge/cockpitpackage.c \
-	src/bridge/cockpitpackage.h \
 	src/bridge/cockpitpackages.c \
 	src/bridge/cockpitpackages.h \
 	src/bridge/cockpitpaths.c \
@@ -34,8 +32,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitmetrics.h \
 	src/bridge/cockpitnullchannel.c \
 	src/bridge/cockpitnullchannel.h \
-	src/bridge/cockpitresource.c \
-	src/bridge/cockpitresource.h \
 	src/bridge/cockpitstream.c \
 	src/bridge/cockpitstream.h \
 	src/bridge/cockpitsuperchannels.c \
@@ -105,8 +101,6 @@ BRIDGE_CHECKS = \
 	test-channel \
 	test-dbusjson \
 	test-stream \
-	test-package \
-	test-resource \
 	test-packages \
 	test-fs \
 	test-metrics \
@@ -138,10 +132,6 @@ nodist_test_dbusjson_SOURCES = $(test_built_sources)
 test_dbusjson_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_dbusjson_LDADD = $(libcockpit_bridge_LIBS)
 
-test_package_SOURCES = src/bridge/test-package.c
-test_package_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_package_LDADD = $(libcockpit_bridge_LIBS)
-
 test_packages_SOURCES = src/bridge/test-packages.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_packages_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
@@ -160,12 +150,6 @@ test_stream_SOURCES = \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_stream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_stream_LDADD = $(libcockpit_bridge_LIBS)
-
-test_resource_SOURCES = \
-	src/bridge/test-resource.c \
-	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_resource_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_resource_LDADD = $(libcockpit_bridge_LIBS)
 
 test_fs_SOURCES = \
 	src/bridge/test-fs.c \

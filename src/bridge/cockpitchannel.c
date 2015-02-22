@@ -25,7 +25,6 @@
 #include "cockpithttpstream.h"
 #include "cockpitnullchannel.h"
 #include "cockpitmetrics.h"
-#include "cockpitresource.h"
 #include "cockpitstream.h"
 #include "cockpitfsread.h"
 #include "cockpitfswrite.h"
@@ -567,8 +566,6 @@ CockpitChannel *
     channel_type = COCKPIT_TYPE_HTTP_STREAM;
   else if (g_strcmp0 (payload, "stream") == 0)
     channel_type = COCKPIT_TYPE_STREAM;
-  else if (g_strcmp0 (payload, "resource2") == 0)
-    channel_type = COCKPIT_TYPE_RESOURCE;
   else if (g_strcmp0 (payload, "fsread1") == 0)
     channel_type = COCKPIT_TYPE_FSREAD;
   else if (g_strcmp0 (payload, "fswrite1") == 0)

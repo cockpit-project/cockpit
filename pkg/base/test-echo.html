@@ -63,13 +63,15 @@ asyncTest("base64", function() {
     expect(1);
 
     var channel = cockpit.channel({
-        "payload": "resource2",
-        "path": "test.html",
-        "package": "another",
+        "payload": "http-stream1",
+        "method": "GET",
+        "internal": "packages",
+        "path": "/another/test.html",
         "binary": "base64"
     });
 
     var first = true;
+    channel.control({ "command": "done" });
 
     $(channel).on("message", function(ev, payload) {
         if (first) {

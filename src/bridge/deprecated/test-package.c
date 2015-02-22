@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpitpackage.h"
+#include "cockpitpackage1.h"
 
 #include "common/cockpittest.h"
 
@@ -47,7 +47,7 @@ setup (TestCase *tc,
     cockpit_bridge_data_dirs = (const gchar **)fixture->datadirs;
 
   if (!fixture || !fixture->no_listing)
-    tc->listing = cockpit_package_listing (&tc->json);
+    tc->listing = cockpit_package_1_listing (&tc->json);
 }
 
 static void
@@ -77,7 +77,7 @@ test_listing (TestCase *tc,
 
   g_assert (fixture == &fixture_listing);
 
-  listing = cockpit_package_listing (&json);
+  listing = cockpit_package_1_listing (&json);
 
   cockpit_assert_json_eq (json,
                           "["
@@ -103,7 +103,7 @@ test_resolve (TestCase *tc,
 {
   gchar *path;
 
-  path = cockpit_package_resolve (tc->listing, "test", "/sub/file.ext");
+  path = cockpit_package_1_resolve (tc->listing, "test", "/sub/file.ext");
   g_assert_cmpstr (SRCDIR "/src/bridge/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
   g_free (path);
 }
@@ -114,7 +114,7 @@ test_resolve_checksum (TestCase *tc,
 {
   gchar *path;
 
-  path = cockpit_package_resolve (tc->listing, "$fec489a692ee808950f34f6c519803aed65e1849", "/sub/file.ext");
+  path = cockpit_package_1_resolve (tc->listing, "$fec489a692ee808950f34f6c519803aed65e1849", "/sub/file.ext");
   g_assert_cmpstr (SRCDIR "/src/bridge/mock-resource/system/cockpit/test/sub/file.ext", ==, path);
   g_free (path);
 }
@@ -128,7 +128,7 @@ test_resolve_bad_dots (TestCase *tc,
 
   cockpit_expect_message ("invalid 'path' used as a resource: *");
 
-  path = cockpit_package_resolve (tc->listing, "test", "../test/sub/file.ext");
+  path = cockpit_package_1_resolve (tc->listing, "test", "../test/sub/file.ext");
   g_assert (path == NULL);
 }
 
@@ -140,7 +140,7 @@ test_resolve_bad_path (TestCase *tc,
 
   cockpit_expect_message ("invalid 'path' used as a resource: *");
 
-  path = cockpit_package_resolve (tc->listing, "test", "/sub/#file.ext");
+  path = cockpit_package_1_resolve (tc->listing, "test", "/sub/#file.ext");
   g_assert (path == NULL);
 }
 
@@ -152,7 +152,7 @@ test_resolve_bad_package (TestCase *tc,
 
   cockpit_expect_message ("invalid 'package' name: *");
 
-  path = cockpit_package_resolve (tc->listing, "#test", "/sub/file.ext");
+  path = cockpit_package_1_resolve (tc->listing, "#test", "/sub/file.ext");
   g_assert (path == NULL);
 }
 
@@ -162,7 +162,7 @@ test_resolve_not_found (TestCase *tc,
 {
   gchar *path;
 
-  path = cockpit_package_resolve (tc->listing, "unknown", "/sub/file.ext");
+  path = cockpit_package_1_resolve (tc->listing, "unknown", "/sub/file.ext");
   g_assert (path == NULL);
 }
 
@@ -175,7 +175,7 @@ test_expand (TestCase *tc,
   GBytes *bytes;
 
   bytes = g_bytes_new_static (data, strlen (data));
-  cockpit_package_expand (tc->listing, NULL, bytes, &queue);
+  cockpit_package_1_expand (tc->listing, NULL, bytes, &queue);
   g_bytes_unref (bytes);
 
   cockpit_assert_bytes_eq (queue.head->data, "Depend on ", -1);
@@ -199,7 +199,7 @@ test_expand_with_host (TestCase *tc,
   GBytes *bytes;
 
   bytes = g_bytes_new_static (data, strlen (data));
-  cockpit_package_expand (tc->listing, "host", bytes, &queue);
+  cockpit_package_1_expand (tc->listing, "host", bytes, &queue);
   g_bytes_unref (bytes);
 
   cockpit_assert_bytes_eq (queue.head->data, "Depend on ", -1);
@@ -222,7 +222,7 @@ test_expand_binary (TestCase *tc,
   GBytes *bytes;
 
   bytes = g_bytes_new_static ("\x00\x01\x02", 3);
-  cockpit_package_expand (tc->listing, NULL, bytes, &queue);
+  cockpit_package_1_expand (tc->listing, NULL, bytes, &queue);
   g_bytes_unref (bytes);
 
   cockpit_assert_bytes_eq (queue.head->data, "\x00\x01\x02", 3);
@@ -256,7 +256,7 @@ test_list_bad_name (TestCase *tc,
 
   cockpit_expect_warning ("package * invalid *name*");
 
-  listing = cockpit_package_listing (&json);
+  listing = cockpit_package_1_listing (&json);
 
   cockpit_assert_json_eq (json,
                           "["

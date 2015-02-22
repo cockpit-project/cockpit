@@ -17,13 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* This gets logged as part of the (more verbose) protocol logging */
-#ifdef G_LOG_DOMAIN
-#undef G_LOG_DOMAIN
-#endif
-#define G_LOG_DOMAIN "cockpit-protocol"
-
 #include "config.h"
+
+#include "cockpitwebserver.h"
+
+#include "cockpitmemory.h"
+#include "cockpitwebresponse.h"
+
+#include "websocket/websocket.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,15 +32,8 @@
 #include <unistd.h>
 #include <systemd/sd-daemon.h>
 
-#include "cockpitws.h"
-#include "cockpitwebresponse.h"
-
-#include "common/cockpitmemory.h"
-
-#include "websocket/websocket.h"
-
-guint cockpit_ws_request_timeout = 30;
-gsize cockpit_ws_request_maximum = 4096;
+guint cockpit_webserver_request_timeout = 30;
+gsize cockpit_webserver_request_maximum = 4096;
 
 typedef struct _CockpitWebServerClass CockpitWebServerClass;
 
@@ -800,7 +794,7 @@ parse_and_process_request (CockpitRequest *request)
   guint64 length;
 
   /* The hard input limit, we just terminate the connection */
-  if (request->buffer->len > cockpit_ws_request_maximum * 2)
+  if (request->buffer->len > cockpit_webserver_request_maximum * 2)
     {
       g_message ("received HTTP request that was too large");
       goto out;
@@ -1107,7 +1101,7 @@ cockpit_request_start (CockpitWebServer *self,
   /* Right before a successive request, EOF is not unexpected */
   request->eof_okay = !first;
 
-  request->timeout = g_timeout_source_new_seconds (cockpit_ws_request_timeout);
+  request->timeout = g_timeout_source_new_seconds (cockpit_webserver_request_timeout);
   g_source_set_callback (request->timeout, on_request_timeout, request, NULL);
   g_source_attach (request->timeout, self->main_context);
 

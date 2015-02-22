@@ -21,8 +21,9 @@
 #define __COCKPIT_HANDLERS_H__
 
 #include "cockpitauth.h"
-#include "cockpitwebserver.h"
-#include "cockpitwebresponse.h"
+
+#include "common/cockpitwebserver.h"
+#include "common/cockpitwebresponse.h"
 
 typedef struct {
   CockpitAuth *auth;

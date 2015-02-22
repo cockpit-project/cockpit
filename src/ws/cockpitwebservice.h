@@ -20,13 +20,11 @@
 #ifndef __COCKPIT_WEB_SERVICE_H__
 #define __COCKPIT_WEB_SERVICE_H__
 
-#include "cockpitwstypes.h"
-
 #include "cockpitcreds.h"
-#include "cockpitwebresponse.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpittransport.h"
+#include "common/cockpitwebresponse.h"
 
 G_BEGIN_DECLS
 

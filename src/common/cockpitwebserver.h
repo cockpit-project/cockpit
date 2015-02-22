@@ -20,13 +20,18 @@
 #ifndef __COCKPIT_WEB_SERVER_H__
 #define __COCKPIT_WEB_SERVER_H__
 
-#include "cockpitwstypes.h"
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_WEB_SERVER  (cockpit_web_server_get_type ())
 #define COCKPIT_WEB_SERVER(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_SERVER, CockpitWebServer))
 #define COCKPIT_IS_WEB_SERVER(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_SERVER))
+
+typedef struct _CockpitWebServer CockpitWebServer;
+
+extern guint cockpit_webserver_request_timeout;
+extern gsize cockpit_webserver_request_maximum;
 
 GType              cockpit_web_server_get_type      (void) G_GNUC_CONST;
 

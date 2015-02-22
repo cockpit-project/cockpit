@@ -30,12 +30,13 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpitwebresponse.h"
+#include "common/cockpitwebserver.h"
 
 #include "cockpitauth.h"
 #include "cockpitws.h"
 
 #include "cockpitsshtransport.h"
-#include "cockpitwebresponse.h"
 
 #include "websocket/websocket.h"
 

@@ -333,7 +333,7 @@ server_ready (void)
   g_signal_connect (server, "handle-resource::/mock/",
                     G_CALLBACK (on_handle_mock), NULL);
 
-  g_object_get (server, "port", &server_port, NULL);
+  server_port = cockpit_web_server_get_port (server);
   url = g_strdup_printf("http://localhost:%d", server_port);
 
   if (!isatty (1))

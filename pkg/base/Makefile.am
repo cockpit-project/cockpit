@@ -29,6 +29,12 @@ baseimages_DATA = \
 	pkg/base/images/stop.png \
 	$(NULL)
 
+basefontsdir = $(pkgdatadir)/base/fonts
+basefonts_DATA = \
+	pkg/base/fonts/fontawesome.woff \
+	pkg/base/fonts/patternfly.woff \
+	$(NULL)
+
 base_TESTS = \
 	pkg/base/test-base64.html \
 	pkg/base/test-utf8.html \

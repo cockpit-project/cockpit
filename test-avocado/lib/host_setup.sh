@@ -1,8 +1,22 @@
 #!/bin/bash
 
+# you have to setup domain in virt-manager default network and reboot the machine to apply changes
+# /etc/libvirt/qemu/networks/default.xml
+# add line
+# <domain name='cockpit.lan' localOnly='yes'/>
 unset command_not_found_handle
 BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip"
 GRP="virtualization"
+DEFAULTNET="/etc/libvirt/qemu/networks/default.xml"
+
+function host_default_network_domain(){
+    if grep -q 'domain name="cockpit.lan"' $DEFAULTNET; then
+        echo "network already configured, ensure that you have rebooted the machine"
+    else
+        sed -i '/<name>default<\/name>/i <domain name="cockpit.lan" localOnly="yes"/>' $DEFAULTNET
+        echo "network configured. Please REBOOT the machine, to take effect"
+    fi
+}
 
 function host_dependencies_fedora(){
     sudo yum -y yum-plugin-copr
@@ -56,6 +70,7 @@ function install_host(){
     else
         host_virtlibpolicy_solver
     fi
+    host_default_network_domain
 }
 
 function check_host(){
@@ -64,7 +79,12 @@ function check_host(){
         echo "All packages alread installed"
         if groups $USER | grep -qs $GRP; then
             echo "Virtualization enabled for user"
-            return 0
+            if grep -q 'domain name="cockpit.lan"' $DEFAULTNET; then
+                echo "Network domain configured for qemu"
+                return 0
+            else
+                echo "Network domain for virt machines is NOT configured"
+            fi
         else
             echo "Virtualization NOT properly setup"
         fi

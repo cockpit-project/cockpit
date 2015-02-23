@@ -21,4 +21,12 @@ firewall-cmd --permanent \
              --add-service dns \
              --add-service ntp
 
+firewall-cmd  \
+             --add-service http \
+             --add-service https \
+             --add-service ldap \
+             --add-service ldaps \
+             --add-service kerberos \
+             --add-service dns \
+             --add-service ntp
 

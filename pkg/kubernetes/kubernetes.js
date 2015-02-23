@@ -181,6 +181,89 @@ define([
             }).fail(failure);
         };
 
+        this.get_entities_exists = function get_entities_exists(lname) {
+            var gservices = $.grep(self.services, function(element) {
+                if (element) { //skip kubernetes services
+                    if (element.spec.selector) {
+                        if (element.spec.selector.hasOwnProperty(lname)) {
+                            return true;
+                        }
+                    }
+                }
+            });
+            var gpods = $.grep(self.pods, function(element) {
+                if (element) {
+                    if (element.metadata.labels) {
+                        if (element.metadata.labels.hasOwnProperty(lname)) {
+                            return true;
+                        }
+                    }
+                }
+            });
+            return {
+                "services": gservices,
+                "pods": gpods
+            };
+        };
+
+        this.get_entities_in = function get_entities_in(lname, lvalues) {
+            var gservices = $.grep(self.services, function(element) {
+                if (element) { //skip kubernetes services
+                    if (element.spec.selector) {
+                        if (element.spec.selector.hasOwnProperty(lname)) {
+                            if ($.inArray($.trim(element.spec.selector[lname]), lvalues)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            });
+            var gpods = $.grep(self.pods, function(element) {
+                if (element) {
+                    if (element.metadata.labels) {
+                        if (element.metadata.labels.hasOwnProperty(lname)) {
+                            if ($.inArray($.trim(element.metadata.labels[lname]), lvalues)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            });
+            return {
+                "services": gservices,
+                "pods": gpods
+            };
+        };
+
+        this.get_entities_notin = function get_entities_notin(lname, lvalues) {
+            var gservices = $.grep(self.services, function(element) {
+                if (element) {
+                    if (element.spec.selector) {
+                        if (element.spec.selector.hasOwnProperty(lname)) {
+                            if ($.inArray($.trim(element.spec.selector[lname]), lvalues) == -1) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            });
+            var gpods = $.grep(self.pods, function(element) {
+                if (element) {
+                    if (element.metadata.labels) {
+                        if (element.metadata.labels.hasOwnProperty(lname)) {
+                            if ($.inArray($.trim(element.metadata.labels[lname]), lvalues) == -1) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            });
+            return {
+                "services": gservices,
+                "pods": gpods
+            };
+        };
+
         function update() {
             var reqs = [];
 

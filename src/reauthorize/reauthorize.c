@@ -713,7 +713,7 @@ reauthorize_user (const char *challenge,
     }
 
   ret = hex_decode (beg, len, &result, &user_len);
-  if (ret < 0)
+  if (ret != 0)
     {
       message ("invalid reauthorize challenge: bad hex encoding");
       return ret;

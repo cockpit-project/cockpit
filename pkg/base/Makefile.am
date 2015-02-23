@@ -69,13 +69,13 @@ update-jquery:
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.js \
 	    $(srcdir)/lib/jquery.v2.1.0.js \
 	    $(srcdir)/lib/bootstrap.v3.1.1.js \
-	    $(srcdir)/lib/bootstrap-select.v1.6.3.js \
+	    $(srcdir)/lib/bootstrap-select.v1.5.4.js \
 	    $(srcdir)/lib/jquery-flot.v0.7.js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.min.js \
 	    $(srcdir)/lib/jquery.v2.1.0.min.js \
 	    $(srcdir)/lib/bootstrap.v3.1.1.min.js \
-	    $(srcdir)/lib/bootstrap-select.v1.6.3.min.js \
+	    $(srcdir)/lib/bootstrap-select.v1.5.4.min.js \
 	    $(srcdir)/lib/jquery-flot.v0.7.min.js \
 	    $(srcdir)/lib/attrchange.min.js
 

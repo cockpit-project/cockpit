@@ -2651,9 +2651,6 @@ var self_module_id = null;
         /* requested id -> script tag */
         scripts: { },
 
-        /* Cockpit specific packages */
-        packages: null,
-
         /* Base url to load against */
         base: undefined
     };
@@ -2672,16 +2669,6 @@ var self_module_id = null;
             this.exports = factory;   /* explicit prepared value */
             this.ready = true;        /* already ready */
         }
-    }
-
-    function canonicalize(id) {
-        if (window.mock && window.mock.loader_base)
-            return id;
-        var parts = id.split("/");
-        var pkg = loader.packages[parts[0]];
-        if (pkg && pkg.name)
-            parts[0] = pkg.name;
-        return parts.join("/");
     }
 
     /* Qualify a possibly relative path with base */
@@ -2725,16 +2712,7 @@ var self_module_id = null;
         if (window.mock && window.mock.loader_base)
             return window.mock.loader_base + id + ".js";
 
-        /* Resolve packages here */
-        var parts = id.split("/");
-        var pkg = loader.packages[parts[0]];
-        if (pkg) {
-            if (pkg.checksum)
-                parts[0] = pkg.checksum;
-            else if (pkg.name)
-                parts[0] = pkg.name;
-        }
-        return loader.base + parts.join("/") + ".js";
+        return loader.base + id + ".js";
     }
 
     /* Create a script tag for the given module id */
@@ -2784,7 +2762,7 @@ var self_module_id = null;
         var present = true;
         var length = dependencies.length;
         for (var i = 0; i < length; i++) {
-            var id = dependencies[i] = canonicalize(dependencies[i]);
+            var id = dependencies[i] = dependencies[i];
             if (id == "require" || id == "exports" || id == "module")
                 continue;
 
@@ -2807,9 +2785,6 @@ var self_module_id = null;
 
     /* Load dependencies if necessary */
     function ensure_dependencies(module, dependencies, seen, loadable) {
-        if (!loader.packages)
-            return null;
-
         if (!check_dependencies(dependencies, loadable, { }))
             return null;
 
@@ -2923,7 +2898,6 @@ var self_module_id = null;
             if (module.id === undefined)
                 module.id = id;
 
-            module.id = canonicalize(module.id);
             if (loader.modules[module.id]) {
                 console.warn("module " + module.id + " is a duplicate");
                 continue;
@@ -2945,6 +2919,8 @@ var self_module_id = null;
     function require_with_context(context, arg0, arg1) {
         if (context === null)
             context = new Module(null, null, []);
+
+        process_defined(context.id, null);
 
         /* require('string') */
         if (typeof arg0 === "string") {
@@ -2989,12 +2965,7 @@ var self_module_id = null;
         if (started)
             return;
         started = true;
-        package_table(null, function(packages, problem) {
-            if (problem)
-                console.warn("couldn't load cockpit package info: " + problem);
-            loader.packages = packages || { };
-            process_defined(null, null);
-        });
+        process_defined(null, null);
     }
 
     /* Check how we're being loaded */

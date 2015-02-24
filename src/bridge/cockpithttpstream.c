@@ -960,36 +960,3 @@ cockpit_http_stream_class_init (CockpitHttpStreamClass *klass)
   channel_class->done = cockpit_http_stream_done;
   channel_class->close = cockpit_http_stream_close;
 }
-
-/**
- * cockpit_http_stream_open:
- * @transport: the transport to send/receive messages on
- * @channel_id: the channel id
- * @unix_path: the UNIX socket path to communicate with
- *
- * This function is mainly used by tests. The usual way
- * to get a #CockpitHttpStream is via cockpit_channel_open()
- *
- * Returns: (transfer full): the new channel
- */
-CockpitChannel *
-cockpit_http_stream_open (CockpitTransport *transport,
-                          const gchar *channel_id,
-                          const gchar *unix_path)
-{
-  CockpitChannel *channel;
-  JsonObject *options;
-
-  options = json_object_new ();
-  json_object_set_string_member (options, "unix", unix_path);
-  json_object_set_string_member (options, "payload", "http-stream1");
-
-  channel = g_object_new (COCKPIT_TYPE_HTTP_STREAM,
-                          "transport", transport,
-                          "id", channel_id,
-                          "options", options,
-                          NULL);
-
-  json_object_unref (options);
-  return channel;
-}

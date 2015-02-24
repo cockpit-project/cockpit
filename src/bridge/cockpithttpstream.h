@@ -30,8 +30,4 @@ G_BEGIN_DECLS
 
 GType              cockpit_http_stream_get_type     (void) G_GNUC_CONST;
 
-CockpitChannel *   cockpit_http_stream_open         (CockpitTransport *transport,
-                                                     const gchar *channel_id,
-                                                     const gchar *unix_path);
-
 #endif /* COCKPIT_HTTP_STREAM_H__ */

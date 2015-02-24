@@ -379,6 +379,32 @@ out:
   return TRUE;
 }
 
+static void
+relay_data (CockpitChannel *channel,
+            GBytes *data)
+{
+  GBytes *block;
+  gsize size;
+  gsize offset;
+  gsize length;
+
+  size = g_bytes_get_size (data);
+  if (size < 8192)
+    {
+      cockpit_channel_send (channel, data, FALSE);
+    }
+  else
+    {
+      for (offset = 0; offset < size; offset += 4096)
+        {
+          length = MIN (4096, size - offset);
+          block = g_bytes_new_from_bytes (data, offset, length);
+          cockpit_channel_send (channel, block, FALSE);
+          g_bytes_unref (block);
+        }
+    }
+}
+
 static gboolean
 relay_chunked (CockpitHttpStream *self,
                CockpitChannel *channel,
@@ -431,7 +457,7 @@ relay_chunked (CockpitHttpStream *self,
   else
     {
       message = cockpit_pipe_consume (buffer, beg, size, 2);
-      cockpit_channel_send (channel, message, FALSE);
+      relay_data (channel, message);
       g_bytes_unref (message);
       return TRUE;
     }
@@ -467,7 +493,7 @@ relay_length (CockpitHttpStream *self,
       self->response_length -= block;
 
       message = cockpit_pipe_consume (buffer, 0, block, 0);
-      cockpit_channel_send (channel, message, FALSE);
+      relay_data (channel, message);
       g_bytes_unref (message);
     }
 
@@ -488,7 +514,7 @@ relay_all (CockpitHttpStream *self,
     }
 
   message = cockpit_pipe_consume (buffer, 0, buffer->len, 0);
-  cockpit_channel_send (channel, message, FALSE);
+  relay_data (channel, message);
   g_bytes_unref (message);
 
   return TRUE;

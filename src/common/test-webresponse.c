@@ -445,6 +445,94 @@ test_connection_close (TestCase *tc,
   g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nConnection: close\r\n\r\nthe content");
 }
 
+typedef struct {
+    GHashTable *headers;
+    GIOStream *io;
+} TestPlain;
+
+static void
+setup_plain (TestPlain *tc,
+             gconstpointer unused)
+{
+  GInputStream *input;
+  GOutputStream *output;
+
+  input = g_memory_input_stream_new ();
+  output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+
+  tc->io = mock_io_stream_new (input, output);
+
+  g_object_unref (input);
+  g_object_unref (output);
+
+  tc->headers = cockpit_web_server_new_table ();
+}
+
+static void
+teardown_plain (TestPlain *tc,
+                gconstpointer unused)
+{
+  g_object_unref (tc->io);
+  g_hash_table_unref (tc->headers);
+}
+
+static void
+test_pop_path (TestPlain *tc,
+               gconstpointer unused)
+{
+  CockpitWebResponse *response;
+  gchar *part;
+
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/cockpit/@localhost/another/test.html");
+
+  part = cockpit_web_response_pop_path (response);
+  g_assert_cmpstr (part, ==, "cockpit");
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/@localhost/another/test.html");
+  g_free (part);
+
+  part = cockpit_web_response_pop_path (response);
+  g_assert_cmpstr (part, ==, "@localhost");
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/another/test.html");
+  g_free (part);
+
+  part = cockpit_web_response_pop_path (response);
+  g_assert_cmpstr (part, ==, "another");
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/test.html");
+  g_free (part);
+
+  part = cockpit_web_response_pop_path (response);
+  g_assert_cmpstr (part, ==, "test.html");
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, NULL);
+  g_free (part);
+
+  part = cockpit_web_response_pop_path (response);
+  g_assert (part == NULL);
+  g_assert (cockpit_web_response_get_path (response) == NULL);
+  g_free (part);
+
+  cockpit_web_response_abort (response);
+  g_object_unref (response);
+}
+
+static void
+test_pop_path_root (TestPlain *tc,
+                    gconstpointer unused)
+{
+  CockpitWebResponse *response;
+  gchar *part;
+
+  response = cockpit_web_response_new (tc->io, "/", NULL, tc->headers);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/");
+
+  part = cockpit_web_response_pop_path (response);
+  g_assert_cmpstr (part, ==, NULL);
+  g_assert_cmpstr (cockpit_web_response_get_path (response), ==, NULL);
+  g_free (part);
+
+  cockpit_web_response_abort (response);
+  g_object_unref (response);
+}
 
 int
 main (int argc,
@@ -487,6 +575,11 @@ main (int argc,
               setup, test_abort, teardown);
   g_test_add ("/web-response/connection-close", TestCase, &fixture_connection_close,
               setup, test_connection_close, teardown);
+
+  g_test_add ("/web-response/pop-path", TestPlain, NULL,
+              setup_plain, test_pop_path, teardown_plain);
+  g_test_add ("/web-response/pop-path-root", TestPlain, NULL,
+              setup_plain, test_pop_path_root, teardown_plain);
 
   ret = g_test_run ();
 

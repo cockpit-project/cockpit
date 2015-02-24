@@ -1160,7 +1160,7 @@ cockpit_web_server_initable_init (GInitable *initable,
 {
   CockpitWebServer *server = COCKPIT_WEB_SERVER (initable);
   gboolean ret = FALSE;
-  gboolean failed;
+  gboolean failed = FALSE;
   int n, fd;
 
   server->socket_service = g_socket_service_new ();
@@ -1182,11 +1182,7 @@ cockpit_web_server_initable_init (GInitable *initable,
               goto out;
             }
 
-          b = g_socket_listener_add_socket (G_SOCKET_LISTENER (server->socket_service),
-                                            s,
-                                            NULL,
-                                            error);
-
+          b = cockpit_web_server_add_socket (server, s, error);
           g_object_unref (s);
 
           if (!b)
@@ -1230,7 +1226,13 @@ out:
   return ret;
 }
 
-/* ---------------------------------------------------------------------------------------------------- */
+gboolean
+cockpit_web_server_add_socket (CockpitWebServer *self,
+                               GSocket *socket,
+                               GError **error)
+{
+  return g_socket_listener_add_socket (G_SOCKET_LISTENER (self->socket_service), socket, NULL, error);
+}
 
 static void
 initable_iface_init (GInitableIface *iface)

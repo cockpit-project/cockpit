@@ -31,6 +31,7 @@
 #include <string.h>
 
 extern const gchar **cockpit_bridge_data_dirs;
+extern const gchar *cockpit_bridge_local_address;
 extern gint cockpit_bridge_packages_port;
 
 typedef struct {
@@ -529,6 +530,8 @@ main (int argc,
 {
   g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
   g_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
+
+  cockpit_bridge_local_address = "127.0.0.1";
 
   cockpit_test_init (&argc, &argv);
 

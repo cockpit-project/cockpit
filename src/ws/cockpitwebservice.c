@@ -80,11 +80,11 @@ typedef struct
   gboolean sent_done;
   guint timeout;
   CockpitCreds *creds;
-  GHashTable *packages;
   gboolean init_received;
   gulong control_sig;
   gulong recv_sig;
   gulong closed_sig;
+  gchar *checksum;
 } CockpitSession;
 
 typedef struct
@@ -112,8 +112,8 @@ cockpit_session_free (gpointer data)
   if (session->closed_sig)
     g_signal_handler_disconnect (session->transport, session->closed_sig);
   g_object_unref (session->transport);
-  g_hash_table_unref (session->packages);
   cockpit_creds_unref (session->creds);
+  g_free (session->checksum);
   g_free (session->host);
   g_free (session);
 }
@@ -235,7 +235,6 @@ cockpit_session_track (CockpitSessions *sessions,
   session->host = g_strdup (host);
   session->private = private;
   session->creds = cockpit_creds_ref (creds);
-  session->packages = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   if (!private)
     g_hash_table_insert (sessions->by_host, session->host, session);
@@ -678,48 +677,6 @@ outbound_protocol_error (CockpitWebService *self,
   cockpit_transport_close (transport, "protocol-error");
 }
 
-static void
-process_packages (JsonArray *input,
-                  const gchar *logname,
-                  GHashTable *packages)
-{
-  const gchar *name;
-  JsonObject *object;
-  gint i, j, length, count;
-  JsonNode *node;
-  JsonArray *names;
-
-  g_hash_table_remove_all (packages);
-
-  /* Build a table mapping checksum to package for resources on this session */
-  length = json_array_get_length (input);
-  for (i = 0; i < length; i++)
-    {
-      node = json_array_get_element (input, i);
-      if (JSON_NODE_HOLDS_OBJECT(node))
-        {
-          object = json_node_get_object (node);
-          node = json_object_get_member (object, "id");
-          if (JSON_NODE_HOLDS_ARRAY (node))
-            {
-              names = json_node_get_array (node);
-              count = json_array_get_length (names);
-              for (j = 0; j < count; j++)
-                {
-                  node = json_array_get_element (names, j);
-                  if (JSON_NODE_HOLDS_VALUE (node) &&
-                      json_node_get_value_type (node) == G_TYPE_STRING)
-                    {
-                      name = json_node_get_string (node);
-                      g_hash_table_add (packages, g_strdup (name));
-                      g_debug ("%s: package %s", logname, name);
-                    }
-                }
-            }
-        }
-    }
-}
-
 static gboolean
 process_close (CockpitWebService *self,
                CockpitSocket *socket,
@@ -728,11 +685,6 @@ process_close (CockpitWebService *self,
                JsonObject *options)
 {
   CockpitSideband *sideband;
-  JsonNode *node;
-
-  node = json_object_get_member (options, "packages");
-  if (node != NULL && json_node_get_node_type (node) == JSON_NODE_ARRAY)
-    process_packages (json_node_get_array (node), session->host, session->packages);
 
   /* Close the sideband if it's still open */
   sideband = cockpit_sideband_by_channel (&self->sidebands, channel);
@@ -824,6 +776,7 @@ process_session_init (CockpitWebService *self,
                       CockpitSession *session,
                       JsonObject *options)
 {
+  const gchar *checksum;
   gint64 version;
 
   if (!cockpit_json_get_int (options, "version", -1, &version))
@@ -833,7 +786,6 @@ process_session_init (CockpitWebService *self,
     {
       g_debug ("%s: received init message", session->host);
       session->init_received = TRUE;
-      return TRUE;
     }
   else
     {
@@ -841,6 +793,14 @@ process_session_init (CockpitWebService *self,
                  session->host, version);
       return FALSE;
     }
+
+  if (!cockpit_json_get_string (options, "checksum", NULL, &checksum))
+    checksum = NULL;
+
+  g_free (session->checksum);
+  session->checksum = g_strdup (checksum);
+
+  return TRUE;
 }
 
 static gboolean
@@ -1933,7 +1893,7 @@ typedef struct {
   gulong recv_sig;
   gulong closed_sig;
   gulong control_sig;
-  gboolean cache_forever;
+  gboolean done;
 } ResourceResponse;
 
 static void
@@ -1952,11 +1912,15 @@ resource_response_done (ResourceResponse *rr,
 
   if (problem == NULL)
     {
-      g_debug ("%s: completed serving resource", rr->logname);
-      if (state == COCKPIT_WEB_RESPONSE_READY)
-        cockpit_web_response_abort (rr->response);
+      if (state < COCKPIT_WEB_RESPONSE_COMPLETE)
+        {
+          g_message ("%s: invalid state while serving resource", rr->logname);
+          cockpit_web_response_abort (rr->response);
+        }
       else
-        cockpit_web_response_complete (rr->response);
+        {
+          g_debug ("%s: completed serving resource", rr->logname);
+        }
     }
   else if (state == COCKPIT_WEB_RESPONSE_READY)
     {
@@ -1999,38 +1963,71 @@ on_resource_recv (CockpitTransport *transport,
 }
 
 static void
-parse_resource2_headers (ResourceResponse *rr,
-                         GBytes *payload,
-                         const gchar **cache,
-                         const gchar **vary)
+object_to_headers (JsonObject *object,
+                   const gchar *header,
+                   JsonNode *node,
+                   gpointer user_data)
+{
+  GHashTable *headers = user_data;
+  const gchar *value = json_node_get_string (node);
+
+  g_return_if_fail (value != NULL);
+
+  if (g_ascii_strcasecmp (header, "Content-Length") == 0 ||
+      g_ascii_strcasecmp (header, "Connection") == 0)
+    return;
+
+  /*
+   * Since we add the cockpitlang Cookie to the Accept-Language header, we need to
+   * add this back into the Vary header so the browser knows Cookies this resource.
+   */
+
+  if (g_ascii_strcasecmp (header, "Vary") == 0)
+    {
+      if (strstr (value, "Accept-Language"))
+        {
+          g_hash_table_insert (headers, g_strdup (header), g_strdup_printf ("Cookie, %s", value));
+          return;
+        }
+    }
+
+  g_hash_table_insert (headers, g_strdup (header), g_strdup (value));
+}
+
+static gboolean
+parse_http_headers (ResourceResponse *rr,
+                    GBytes *payload,
+                    gint *status,
+                    gchar **reason,
+                    GHashTable **headers)
 {
   JsonObject *object = NULL;
-  const gchar *accepted;
+  JsonObject *heads;
   GError *error = NULL;
-
-  *cache = rr->cache_forever ? "max-age=31556926, public" : NULL;
+  gboolean ret = FALSE;
 
   object = cockpit_json_parse_bytes (payload, &error);
   if (error)
     {
-      g_warning ("%s: couldn't parse resource2 header payload: %s", rr->logname, error->message);
+      g_warning ("%s: couldn't parse http-stream1 header payload: %s", rr->logname, error->message);
       g_error_free (error);
       goto out;
     }
 
-  /* If a langage based response was selected, then Vary header is needed */
-  if (!cockpit_json_get_string (object, "accept", NULL, &accepted))
-    {
-      g_warning ("%s: bad \"accept\" field in resource2 header payload", rr->logname);
-      goto out;
-    }
+  *status = json_object_get_int_member (object, "status");
+  *reason = g_strdup (json_object_get_string_member (object, "reason"));
 
-  if (accepted && !g_str_equal (accepted, "min"))
-    *vary = "Cookie, Accept-Language";
+  heads = json_object_get_object_member (object, "headers");
+  *headers = cockpit_web_server_new_table ();
+  json_object_foreach_member (heads, object_to_headers, *headers);
+
+  ret = TRUE;
 
 out:
   if (object)
     json_object_unref (object);
+
+  return ret;
 }
 
 static gboolean
@@ -2040,8 +2037,9 @@ on_resource_recv_first (CockpitTransport *transport,
                         gpointer user_data)
 {
   ResourceResponse *rr = user_data;
-  const gchar *cache_control = NULL;
-  const gchar *vary = NULL;
+  GHashTable *headers;
+  gint status;
+  gchar *reason;
 
   if (g_strcmp0 (channel, rr->channel) != 0)
     return FALSE;
@@ -2052,11 +2050,16 @@ on_resource_recv_first (CockpitTransport *transport,
   g_signal_handler_disconnect (transport, rr->recv_sig);
   rr->recv_sig = g_signal_connect (transport, "recv", G_CALLBACK (on_resource_recv), rr);
 
-  parse_resource2_headers (rr, payload, &cache_control, &vary);
-  cockpit_web_response_headers (rr->response, 200, "OK", -1,
-                                "Cache-Control", cache_control,
-                                "Vary", vary,
-                                NULL);
+  if (parse_http_headers (rr, payload, &status, &reason, &headers))
+    {
+      cockpit_web_response_headers_full (rr->response, status, reason, -1, headers);
+      g_hash_table_unref (headers);
+      g_free (reason);
+    }
+  else
+    {
+      cockpit_web_response_headers (rr->response, 500, "Internal Server", -1, NULL);
+    }
 
   return TRUE;
 }
@@ -2075,11 +2078,15 @@ on_resource_control (CockpitTransport *transport,
   if (g_strcmp0 (channel, rr->channel) != 0)
     return FALSE; /* not handled */
 
-  if (!g_str_equal (command, "close"))
+  if (g_str_equal (command, "done"))
     {
-      g_message ("%s: received unknown command on resource channel: %s",
-                 rr->logname, command);
-      return TRUE; /* but handled */
+      cockpit_web_response_complete (rr->response);
+      return TRUE;
+    }
+  else if (!g_str_equal (command, "close"))
+    {
+      g_message ("%s: received unknown command on resource channel: %s", rr->logname, command);
+      return TRUE;
     }
 
   if (!cockpit_json_get_string (options, "problem", NULL, &problem))
@@ -2127,148 +2134,141 @@ resource_response_new (CockpitWebService *self,
   return rr;
 }
 
-static gchar *
-pop_package_name (const gchar *path,
-                  const gchar **remaining_path)
-{
-  /*
-   * Parses packages in this form:
-   *
-   * /package/path/to/file.ext
-   *
-   * For the above will return 'package', and set remaining_path
-   * to point to /path/to/file.ext
-   */
-
-  const gchar *beg = NULL;
-
-  if (path && path[0] == '/')
-    {
-      beg = path + 1;
-      path = strchr (beg, '/');
-    }
-
-  if (!beg)
-    return NULL;
-
-  if (remaining_path)
-    *remaining_path = path;
-
-  if (path)
-    return g_strndup (beg, path - beg);
-  else
-    return g_strdup (beg);
-}
-
 static gboolean
 resource_respond (CockpitWebService *self,
                   GHashTable *headers,
                   CockpitWebResponse *response,
-                  const gchar *remaining_path)
+                  const gchar *where)
 {
   ResourceResponse *rr;
   CockpitSession *session = NULL;
   const gchar *host = NULL;
-  const gchar *name = NULL;
-  const gchar *path = NULL;
   gchar *package = NULL;
+  gchar *val = NULL;
+  gchar *language = NULL;
   gboolean ret = FALSE;
   GHashTableIter iter;
   GBytes *command;
   gchar **parts = NULL;
-  gchar **languages;
   JsonObject *object;
-  JsonArray *accept;
-  guint i;
+  JsonObject *heads;
+  gpointer key;
+  gpointer value;
 
-  package = pop_package_name (remaining_path, &path);
-  if (!package || !path)
+  if (where[0] == '@')
     {
-      g_debug ("invalid path: %s", remaining_path);
-      goto out;
+      host = where + 1;
     }
-
-  /* Split a package@host name */
-  parts = g_strsplit (package, "@", 2);
-  name = parts[0];
-  host = parts[1];
-
-  /* No host specified? Always ask local first, faster */
-  if (host == NULL)
-    {
-      session = g_hash_table_lookup (self->sessions.by_host, "localhost");
-      if (session && session->packages)
-        {
-          if (g_hash_table_lookup (session->packages, name))
-            host = session->host;
-        }
-    }
-
-  /* Now look through all the other hosts */
-  if (host == NULL)
+  else if (where[0] == '$')
     {
       g_hash_table_iter_init (&iter, self->sessions.by_transport);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
         {
-          if (session->packages)
+          if (session->checksum && g_str_equal (session->checksum, where + 1))
             {
-              if (g_hash_table_lookup (session->packages, name))
-                {
-                  host = session->host;
-                  break;
-                }
+              host = session->host;
+              break;
             }
         }
-    }
 
-  /* Default to local if we can't find it */
-  if (host == NULL)
+      if (!host)
+        goto out;
+    }
+  else
     {
-      host = "localhost";
-      session = NULL;
+      goto out;
     }
 
-  if (!session)
-    session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
+  session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
 
   rr = resource_response_new (self, session, response);
-  rr->cache_forever = (name[0] == '$');
 
   object = build_json ("command", "open",
                        "channel", rr->channel,
-                       "payload", "resource2",
+                       "payload", "http-stream1",
+                       "internal", "packages",
+                       "method", "GET",
                        "host", host,
-                       "package", name,
-                       "path", path,
+                       "path", cockpit_web_response_get_path (response),
                        "binary", "raw",
                        NULL);
 
-  languages = cockpit_web_server_parse_languages (headers, "cockpitlang");
-  if (languages || rr->cache_forever)
-    {
-      /*
-       * We can look up minified resource if a package is checksumed, which means
-       * that it isn't supposed to change out underneath us.
-       */
-      accept = json_array_new ();
-      if (rr->cache_forever)
-        json_array_add_string_element (accept, "min");
-      for (i = 0; languages && languages[i] != NULL; i++)
-        json_array_add_string_element (accept, languages[i]);
-      json_object_set_array_member (object, "accept", accept);
+  language = cockpit_web_server_parse_cookie (headers, "cockpitlang");
 
-      g_strfreev (languages);
+  heads = json_object_new ();
+
+  g_hash_table_iter_init (&iter, headers);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      val = NULL;
+
+      if (g_ascii_strcasecmp (key, "Host") == 0 ||
+          g_ascii_strcasecmp (key, "Cookie") == 0 ||
+          g_ascii_strcasecmp (key, "Referer") == 0 ||
+          g_ascii_strcasecmp (key, "Connection") == 0 ||
+          g_ascii_strcasecmp (key, "Pragma") == 0 ||
+          g_ascii_strcasecmp (key, "Cache-Control") == 0 ||
+          g_ascii_strcasecmp (key, "User-Agent") == 0 ||
+          g_ascii_strcasecmp (key, "Accept-Charset") == 0 ||
+          g_ascii_strcasecmp (key, "Accept-Ranges") == 0 ||
+          g_ascii_strcasecmp (key, "Content-Encoding") == 0 ||
+          g_ascii_strcasecmp (key, "Content-Length") == 0 ||
+          g_ascii_strcasecmp (key, "Content-MD5") == 0 ||
+          g_ascii_strcasecmp (key, "Content-Range") == 0 ||
+          g_ascii_strcasecmp (key, "Range") == 0 ||
+          g_ascii_strcasecmp (key, "TE") == 0 ||
+          g_ascii_strcasecmp (key, "Trailer") == 0 ||
+          g_ascii_strcasecmp (key, "Upgrade") == 0 ||
+          g_ascii_strcasecmp (key, "Transfer-Encoding") == 0 ||
+          g_ascii_strcasecmp (key, "Accept-Encoding") == 0)
+        continue;
+
+      if (language && g_ascii_strcasecmp (key, "Accept-Language") == 0)
+        {
+          val = g_strdup_printf ("%s; %s", language, (gchar *)value);
+          g_free (language);
+          language = NULL;
+          value = val;
+        }
+
+      json_object_set_string_member (heads, key, value);
+      g_free (val);
     }
+
+  if (language)
+    {
+      json_object_set_string_member (heads, "Accept-Language", language);
+      g_free (language);
+      language = NULL;
+    }
+
+  if (where[0] != '$')
+    json_object_set_string_member (heads, "Pragma", "no-cache");
+  json_object_set_string_member (heads, "Host", session->host);
+
+  json_object_set_object_member (object, "headers", heads);
 
   command = cockpit_json_write_bytes (object);
   json_object_unref (object);
 
   cockpit_transport_send (rr->transport, NULL, command);
   g_bytes_unref (command);
+
+  object = build_json ("command", "done",
+                       "channel", rr->channel,
+                       NULL);
+
+  command = cockpit_json_write_bytes (object);
+  json_object_unref (object);
+
+  cockpit_transport_send (rr->transport, NULL, command);
+  g_bytes_unref (command);
+
   ret = TRUE;
 
 out:
   g_strfreev (parts);
+  g_free (language);
   g_free (package);
   return ret;
 }
@@ -2280,14 +2280,29 @@ cockpit_web_service_resource (CockpitWebService *self,
 {
   gboolean handled = FALSE;
   const gchar *path;
+  gchar *where;
 
   path = cockpit_web_response_get_path (response);
 
   if (g_str_equal (path, "/"))
-    path = "/cockpit/shell/shell.html";
+    {
+      handled = resource_respond (self, headers, response, "@localhost");
+    }
+  else if (g_str_has_prefix (path, "/cockpit/"))
+    {
+      g_free (cockpit_web_response_pop_path (response));
 
-  if (g_str_has_prefix (path, "/cockpit/"))
-    handled = resource_respond (self, headers, response, path + 8);
+      where = cockpit_web_response_pop_path (response);
+      if (!where)
+        {
+          g_debug ("invalid path: %s", path);
+        }
+      else if (where[0] == '@' || where[0] == '$')
+        {
+          handled = resource_respond (self, headers, response, where);
+        }
+      g_free (where);
+    }
 
   if (!handled)
     cockpit_web_response_error (response, 404, NULL, NULL);

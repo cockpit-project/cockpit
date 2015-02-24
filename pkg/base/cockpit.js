@@ -832,23 +832,36 @@ function build_packages(packages) {
 }
 
 function package_table(host, callback) {
-    if (!host)
-        host = default_host;
-    var table = host_packages[host];
+    var table = host_packages[host || default_host];
     if (table) {
         callback(table, null);
         return;
     }
-    var channel = new Channel({ "host": host, "payload": "resource2" });
-    channel.onclose = function(event, options) {
-        if (options.problem) {
-            package_debug("package listing failed: " + options.problem);
-            callback(null, options.problem);
-        } else {
-            host_packages[host] = table = build_packages(options.packages || []);
+    var url;
+    if (!host)
+        url = "../manifest.json";
+    else
+        url = "../../@" + host + "/manifest.json";
+    var req = new window.XMLHttpRequest();
+    req.open("GET", url);
+    req.onreadystatechange = function() {
+        var data, problem;
+        if (this.readyState !== 4)
+            return;
+        if (req.status === 200 || req.status === 304) {
+            data = JSON.parse(req.responseText);
+            host_packages[host || default_host] = table = build_packages(data);
             callback(table, null);
+        } else {
+            if (req.status === 404)
+                problem = "not-found";
+            else
+                problem = "internal-error";
+            package_debug("package listing failed: " + req.status + ": " + problem);
+            callback(null, problem);
         }
     };
+    req.send();
 }
 
 function package_info(name, callback) {

@@ -69,6 +69,7 @@ EXTRA_DIST += \
 	$(base_DATA) \
 	$(base_TESTS) \
 	$(baseimages_DATA) \
+	$(basefonts_DATA) \
 	$(NULL)
 
 update-jquery:

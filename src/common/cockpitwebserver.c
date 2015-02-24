@@ -557,7 +557,7 @@ sort_qvalue (gconstpointer a,
 
 gchar **
 cockpit_web_server_parse_languages (GHashTable *headers,
-                                    const gchar *cookie)
+                                    const gchar *defawlt)
 {
   const gchar *accept;
   Language *lang;
@@ -569,24 +569,19 @@ cockpit_web_server_parse_languages (GHashTable *headers,
   gchar *pos;
   guint i;
 
-  if (cookie)
+  langs = g_ptr_array_new_with_free_func (g_free);
+
+  if (defawlt)
     {
-      value = cockpit_web_server_parse_cookie (headers, cookie);
-      if (value)
-        {
-          ret = g_ptr_array_new ();
-          g_ptr_array_add (ret, value);
-          g_ptr_array_add (ret, NULL);
-          return (gchar **)g_ptr_array_free (ret, FALSE);
-        }
+      lang = g_new0 (Language, 1);
+      lang->qvalue = 1;
+      lang->value = defawlt;
+      g_ptr_array_add (langs, lang);
     }
 
   accept = g_hash_table_lookup (headers, "Accept-Language");
-  if (!accept)
-    return NULL;
 
   /* First build up an array we can sort */
-  langs = g_ptr_array_new_with_free_func (g_free);
   accept = copy = g_strdup (accept);
 
   while (accept)

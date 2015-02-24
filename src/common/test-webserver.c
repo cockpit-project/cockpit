@@ -276,14 +276,13 @@ test_languages_cookie (void)
   gchar **result;
   gchar *string;
 
-  g_hash_table_insert (table, g_strdup ("Cookie"), g_strdup ("cockpitlang=pig"));
   g_hash_table_insert (table, g_strdup ("Accept-Language"), g_strdup ("en-us,en, de"));
 
-  result = cockpit_web_server_parse_languages (table, "cockpitlang");
+  result = cockpit_web_server_parse_languages (table, "pig");
   g_assert (result != NULL);
 
   string = g_strjoinv (", ", result);
-  g_assert_cmpstr (string, ==, "pig");
+  g_assert_cmpstr (string, ==, "pig, en-us, en, de, en");
 
   g_free (string);
   g_strfreev (result);
@@ -297,8 +296,10 @@ test_languages_no_header (void)
   gchar **result;
 
   result = cockpit_web_server_parse_languages (table, NULL);
-  g_assert (result == NULL);
+  g_assert (result != NULL);
+  g_assert (result[0] == NULL);
 
+  g_strfreev (result);
   g_hash_table_unref (table);
 }
 

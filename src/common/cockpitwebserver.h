@@ -51,7 +51,7 @@ gchar *            cockpit_web_server_parse_cookie    (GHashTable *headers,
                                                        const gchar *name);
 
 gchar **           cockpit_web_server_parse_languages (GHashTable *headers,
-                                                       const gchar *cookie);
+                                                       const gchar *first);
 
 gchar **           cockpit_web_server_resolve_roots (const gchar *root,
                                                      ...) G_GNUC_NULL_TERMINATED;

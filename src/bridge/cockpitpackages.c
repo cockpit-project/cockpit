@@ -802,13 +802,13 @@ handle_packages (CockpitWebServer *server,
     {
       name = g_strdup ("shell");
       path = "shell.html";
-      expand = TRUE;
     }
   else
     {
       path = cockpit_web_response_get_path (response);
-      expand = FALSE;
     }
+
+  expand = (path && g_str_has_suffix (path, ".html"));
 
   out_headers = cockpit_web_server_new_table ();
 

@@ -1307,16 +1307,22 @@ typedef struct {
   GHashTable *headers;
 } TestResourceCase;
 
+typedef struct {
+  const gchar *xdg_data_home;
+} TestResourceFixture;
+
 static void
 setup_resource (TestResourceCase *tc,
                 gconstpointer data)
 {
+  const TestResourceFixture *fixture = data;
   CockpitTransport *transport;
   GInputStream *input;
   GOutputStream *output;
   CockpitCreds *creds;
   gchar **environ;
   const gchar *user;
+  const gchar *home = NULL;
 
   const gchar *argv[] = {
     BUILDDIR "/cockpit-bridge",
@@ -1325,7 +1331,12 @@ setup_resource (TestResourceCase *tc,
 
   environ = g_get_environ ();
   environ = g_environ_setenv (environ, "XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
-  environ = g_environ_setenv (environ, "XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
+
+  if (fixture)
+    home = fixture->xdg_data_home;
+  if (!home)
+    home = SRCDIR "/src/bridge/mock-resource/home";
+  environ = g_environ_setenv (environ, "XDG_DATA_HOME", home, TRUE);
 
   /* Start up a cockpit-bridge here */
   tc->pipe = cockpit_pipe_spawn (argv, (const gchar **)environ, NULL, COCKPIT_PIPE_FLAGS_NONE);
@@ -1375,44 +1386,7 @@ test_resource_simple (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL, NULL);
-
-  cockpit_web_service_resource (tc->service, tc->headers, response);
-
-  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
-  g_assert_no_error (error);
-
-  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "\r\n"
-                           "52\r\n"
-                           "<html>\n"
-                           "<head>\n"
-                           "<title>In home dir</title>\n"
-                           "</head>\n"
-                           "<body>In home dir</body>\n"
-                           "</html>\n"
-                           "\r\n"
-                           "0\r\n\r\n", -1);
-  g_bytes_unref (bytes);
-  g_object_unref (response);
-}
-
-static void
-test_resource_host (TestResourceCase *tc,
-                    gconstpointer data)
-{
-  CockpitWebResponse *response;
-  GError *error = NULL;
-  GBytes *bytes;
-
-  response = cockpit_web_response_new (tc->io, "/cockpit/another@localhost/test.html", NULL, NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, NULL);
 
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
@@ -1510,7 +1484,7 @@ test_resource_failure (TestResourceCase *tc,
 
   cockpit_expect_message ("*: failed to retrieve resource: terminated");
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL, NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, NULL);
 
   /* Now kill the bridge */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
@@ -1535,16 +1509,41 @@ test_resource_failure (TestResourceCase *tc,
   g_object_unref (response);
 }
 
+static const TestResourceFixture checksum_fixture = {
+  .xdg_data_home = "/nonexistant"
+};
+
 static void
 test_resource_checksum (TestResourceCase *tc,
                         gconstpointer data)
 {
   CockpitWebResponse *response;
+  GInputStream *input;
+  GOutputStream *output;
+  GIOStream *io;
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/$fec489a692ee808950f34f6c519803aed65e1849/sub/file.ext",
-                                       NULL, NULL);
+  /* We require that no user packages are loaded, so we have a checksum */
+  g_assert (data == &checksum_fixture);
+
+  input = g_memory_input_stream_new_from_data ("", 0, NULL);
+  output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+  io = mock_io_stream_new (input, output);
+  g_object_unref (input);
+
+  /* Start the connection up, and poke it a bit */
+  response = cockpit_web_response_new (io, "/cockpit/@localhost/not-found", NULL, NULL);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_object_unref (io);
+  g_object_unref (output);
+  g_object_unref (response);
+
+  response = cockpit_web_response_new (tc->io, "/cockpit/$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3/test/sub/file.ext", NULL, NULL);
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -1633,7 +1632,7 @@ test_resource_accept_language (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL, NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, NULL);
 
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("pig;q=0.1,de;q=0.9"));
   cockpit_web_service_resource (tc->service, tc->headers, response);
@@ -1672,7 +1671,7 @@ test_resource_override_language (TestResourceCase *tc,
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/another/test.html", NULL, NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, NULL);
 
   /* Language cookie overrides */
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de;q=0.9"));
@@ -1808,15 +1807,13 @@ main (int argc,
 
   g_test_add ("/web-service/resource/simple", TestResourceCase, NULL,
               setup_resource, test_resource_simple, teardown_resource);
-  g_test_add ("/web-service/resource/host", TestResourceCase, NULL,
-              setup_resource, test_resource_host, teardown_resource);
   g_test_add ("/web-service/resource/not-found", TestResourceCase, NULL,
               setup_resource, test_resource_not_found, teardown_resource);
   g_test_add ("/web-service/resource/no-path", TestResourceCase, NULL,
               setup_resource, test_resource_no_path, teardown_resource);
   g_test_add ("/web-service/resource/failure", TestResourceCase, NULL,
               setup_resource, test_resource_failure, teardown_resource);
-  g_test_add ("/web-service/resource/checksum", TestResourceCase, NULL,
+  g_test_add ("/web-service/resource/checksum", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_checksum, teardown_resource);
   g_test_add ("/web-service/resource/no-checksum", TestResourceCase, NULL,
               setup_resource, test_resource_no_checksum, teardown_resource);

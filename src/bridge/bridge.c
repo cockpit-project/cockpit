@@ -22,7 +22,7 @@
 #include "cockpitdbusinternal.h"
 #include "cockpitdbususer.h"
 #include "cockpitinteracttransport.h"
-#include "cockpitpackage.h"
+#include "cockpitpackages.h"
 #include "cockpitpolkitagent.h"
 #include "cockpitsuperchannels.h"
 
@@ -47,6 +47,7 @@
 
 static GHashTable *channels;
 static gboolean init_received;
+static CockpitPackages *packages;
 
 static void
 on_channel_closed (CockpitChannel *channel,
@@ -178,8 +179,19 @@ on_closed_set_flag (CockpitTransport *transport,
 static void
 send_init_command (CockpitTransport *transport)
 {
-  const gchar *response = "{ \"command\": \"init\", \"version\": 0 }";
-  GBytes *bytes = g_bytes_new_static (response, strlen (response));
+  const gchar *checksum;
+  JsonObject *object;
+  GBytes *bytes;
+
+  object = json_object_new ();
+  json_object_set_string_member (object, "command", "init");
+  json_object_set_int_member (object, "version", 0);
+
+  checksum = cockpit_packages_get_checksum (packages);
+  if (checksum)
+    json_object_set_string_member (object, "checksum", checksum);
+
+  bytes = cockpit_json_write_bytes (object);
   cockpit_transport_send (transport, NULL, bytes);
   g_bytes_unref (bytes);
 }
@@ -386,6 +398,7 @@ run_bridge (const gchar *interactive)
   if (!interactive)
     daemon_pid = start_dbus_daemon ();
 
+  packages = cockpit_packages_new ();
   cockpit_dbus_internal_startup ();
 
   if (interactive)
@@ -427,6 +440,8 @@ run_bridge (const gchar *interactive)
   g_hash_table_destroy (channels);
 
   cockpit_dbus_internal_cleanup ();
+  cockpit_packages_free (packages);
+  packages = NULL;
 
   if (daemon_pid)
     kill (daemon_pid, SIGTERM);
@@ -490,7 +505,7 @@ main (int argc,
 
   if (opt_packages)
     {
-      cockpit_package_dump ();
+      cockpit_packages_dump ();
       return 0;
     }
 

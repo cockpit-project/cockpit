@@ -391,7 +391,7 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
   g_object_class_install_property (gobject_class,
                                    PROP_PORT,
                                    g_param_spec_int ("port", NULL, NULL,
-                                                     0, 65535, 8080,
+                                                     -1, 65535, 8080,
                                                      G_PARAM_READABLE |
                                                      G_PARAM_WRITABLE |
                                                      G_PARAM_CONSTRUCT_ONLY |
@@ -1207,7 +1207,7 @@ cockpit_web_server_initable_init (GInitable *initable,
                                                               NULL, error);
           failed = (server->port == 0);
         }
-      else
+      else if (server->port > 0)
         {
           failed = !g_socket_listener_add_inet_port (G_SOCKET_LISTENER (server->socket_service),
                                                      server->port, NULL, error);

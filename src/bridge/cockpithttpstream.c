@@ -530,6 +530,8 @@ on_pipe_read (CockpitPipe *pipe,
   CockpitChannel *channel = user_data;
   gboolean ret;
 
+  g_object_ref (self);
+
   if (self->state < RELAY_REQUEST)
     {
       if (buffer->len != 0)
@@ -562,6 +564,8 @@ on_pipe_read (CockpitPipe *pipe,
       if (!ret)
         break;
     }
+
+  g_object_unref (self);
 }
 
 static void

@@ -51,6 +51,8 @@ GIOStream *           cockpit_web_response_get_stream    (CockpitWebResponse *se
 
 CockpitWebResponding  cockpit_web_response_get_state     (CockpitWebResponse *self);
 
+gchar *               cockpit_web_response_pop_path      (CockpitWebResponse *self);
+
 void                  cockpit_web_response_headers       (CockpitWebResponse *self,
                                                           guint status,
                                                           const gchar *reason,

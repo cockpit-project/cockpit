@@ -49,7 +49,8 @@ struct _CockpitWebResponse {
   GObject parent;
   GIOStream *io;
   const gchar *logname;
-  gchar *path;
+  const gchar *path;
+  gchar *full_path;
   gchar *query;
 
   /* The output queue */
@@ -134,7 +135,7 @@ cockpit_web_response_finalize (GObject *object)
 {
   CockpitWebResponse *self = COCKPIT_WEB_RESPONSE (object);
 
-  g_free (self->path);
+  g_free (self->full_path);
   g_free (self->query);
   g_assert (self->io == NULL);
   g_assert (self->out == NULL);
@@ -197,7 +198,8 @@ cockpit_web_response_new (GIOStream *io,
                   G_OBJECT_TYPE_NAME (out));
     }
 
-  self->path = g_strdup (path);
+  self->full_path = g_strdup (path);
+  self->path = self->full_path;
   self->query = g_strdup (query);
   if (self->path)
     self->logname = self->path;
@@ -649,11 +651,11 @@ finish_headers (CockpitWebResponse *self,
 
   /* Automatically figure out content type */
   if ((seen & HEADER_CONTENT_TYPE) == 0 &&
-      self->path != NULL && success)
+      self->full_path != NULL && success)
     {
       for (i = 0; i < G_N_ELEMENTS (content_types); i++)
         {
-          if (g_str_has_suffix (self->path, content_types[i].extension))
+          if (g_str_has_suffix (self->full_path, content_types[i].extension))
             {
               g_string_append_printf (string, "Content-Type: %s\r\n", content_types[i].content_type);
               break;
@@ -1081,4 +1083,44 @@ out:
   free (path);
   if (file)
     g_mapped_file_unref (file);
+}
+
+gchar *
+cockpit_web_response_pop_path (CockpitWebResponse *self)
+{
+  /*
+   * Parses packages in this form:
+   *
+   * /package/path/to/file.ext
+   *
+   * For the above will return 'package', and set remaining_path
+   * to point to /path/to/file.ext
+   */
+
+  const gchar *beg = NULL;
+  const gchar *path;
+
+  path = self->path;
+
+  if (path && path[0] == '/')
+    {
+      beg = path + 1;
+      path = strchr (beg, '/');
+    }
+  else
+    {
+      path = NULL;
+    }
+
+  if (!beg || path == beg)
+    return NULL;
+
+  self->path = path;
+
+  if (path)
+    return g_strndup (beg, path - beg);
+  else if (beg && beg[0])
+    return g_strdup (beg);
+  else
+    return NULL;
 }

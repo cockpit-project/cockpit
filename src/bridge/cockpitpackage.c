@@ -29,7 +29,7 @@
 #include <string.h>
 
 /* Overridable from tests */
-const gchar **cockpit_bridge_data_dirs = NULL; /* default */
+extern const gchar **cockpit_bridge_data_dirs;
 
 /*
  * Note that the way we construct checksums is not a stable part of our ABI. It

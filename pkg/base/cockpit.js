@@ -2205,7 +2205,7 @@ function full_scope(cockpit, $, po) {
 
     var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
     cockpit.format = function format(fmt, args) {
-        if (arguments.length != 2 || typeof(args) !== "object")
+        if (arguments.length != 2 || typeof args !== "object" || args === null)
             args = Array.prototype.slice.call(arguments, 1);
         return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
     };

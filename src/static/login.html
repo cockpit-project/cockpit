@@ -577,67 +577,19 @@ label {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 400;
-  src: url('/static/fonts/OpenSans-Regular-webfont.eot');
-  src: url('/static/fonts/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'), url('/static/fonts/OpenSans-Regular-webfont.woff') format('woff'), url('/static/fonts/OpenSans-Regular-webfont.ttf') format('truetype'), url('/static/fonts/OpenSans-Regular-webfont.svg#OpenSansRegular') format('svg');
+  src: url('/static/fonts/OpenSans-Regular-webfont.woff') format('woff');
 }
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
   font-weight: 700;
-  src: url('/static/fonts/OpenSans-Bold-webfont.eot');
-  src: url('/static/fonts/OpenSans-Bold-webfont.eot?#iefix') format('embedded-opentype'), url('/static/fonts/OpenSans-Bold-webfont.woff') format('woff'), url('/static/fonts/OpenSans-Bold-webfont.ttf') format('truetype'), url('/static/fonts/OpenSans-Bold-webfont.svg#OpenSansBold') format('svg');
+  src: url('/static/fonts/OpenSans-Bold-webfont.woff') format('woff');
 }
 .form-control:hover {
   border-color: #7BB2DD;
 }
 label {
   font-weight: 600;
-}
-@font-face {
-  font-family: 'PatternFlyIcons-webfont';
-  src: url('/static/fonts/PatternFlyIcons-webfont.eot');
-  src: url('/static/fonts/PatternFlyIcons-webfont.eot?#iefix') format('embedded-opentype'), url('/static/fonts/PatternFlyIcons-webfont.ttf') format('truetype'), url('/static/fonts/PatternFlyIcons-webfont.woff') format('woff'), url('/static/fonts/PatternFlyIcons-webfont.svg#PatternFlyIcons-webfont') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-[class*="-exclamation"] {
-  color: #fff;
-}
-[class^="pficon-"],
-[class*=" pficon-"] {
-  display: inline-block;
-  font-family: 'PatternFlyIcons-webfont';
-  font-style: normal;
-  font-variant: normal;
-  font-weight: normal;
-  line-height: 1;
-  speak: none;
-  text-transform: none;
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-.pficon-layered {
-  position: relative;
-}
-.pficon-layered .pficon:first-child {
-  position: absolute;
-  z-index: 1;
-}
-.pficon-layered .pficon:first-child + .pficon {
-  position: relative;
-  z-index: 2;
-}
-.pficon-warning-exclamation:before {
-  content: "\e60d";
-}
-.pficon-error-octagon:before {
-  color: #c90813;
-  content: "\e609";
-}
-.pficon-warning-triangle:before {
-  color: #eb7720;
-  content: "\e60c";
 }
 .login-pf {
   height: 100%;
@@ -726,14 +678,6 @@ label {
             background-color: #101010;
             color: #fff;
         }
-        .message-icon {
-            float: left;
-            margin: 0 5px;
-        }
-        .pficon-layered {
-            float: left;
-            font-size: 200%;
-        }
         .login-fatal {
             font-size: 130%;
         }
@@ -812,23 +756,11 @@ label {
         <div class="col-sm-5 col-md-6 col-lg-7 details" id="login-details">
           <p>
             <label id="server-name" class="control-label">Server: </label>
-            <div class="message-icon">
-              <span class="pficon-layered">
-                <span class="pficon pficon-warning-triangle"></span>
-                <span class="pficon pficon-warning-exclamation"></span>
-              </span>
-            </div>
-            Not ready for use on production servers.
           </p>
+          <p>Not ready for use on production servers.</p>
         </div><!--/.col-*-->
 
         <div id="login-fatal" style="display: none;">
-          <div class="message-icon">
-            <span class="pficon-layered">
-              <span class="pficon pficon-error-octagon"></span>
-              <span class="pficon pficon-warning-exclamation"></span>
-            </span>
-          </div>
           <span id="login-fatal-message"></span>
         </div>
 

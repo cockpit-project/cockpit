@@ -8,9 +8,11 @@ lib_FILES = \
 	lib/bootstrap.v3.0.3.min.js \
 	lib/bootstrap-select.v1.6.3.js \
 	lib/bootstrap-select.v1.6.3.min.js \
+	lib/fontawesome.v4.0.2.woff \
 	lib/mustache.v0.8.1.js \
 	lib/mustache.v0.8.1.min.js \
 	lib/patternfly.css \
+	lib/patternfly.v1.0.woff \
 	lib/attrchange.js \
 	lib/attrchange.min.js \
 	lib/term.js \
@@ -35,55 +37,16 @@ staticcache_DATA = $(NULL)
 
 staticfontsdir = $(staticcachedir)/fonts
 staticfonts_DATA = \
-	lib/fonts/OpenSans-Bold-webfont.eot \
-	lib/fonts/OpenSans-Bold-webfont.svg \
-	lib/fonts/OpenSans-Bold-webfont.ttf \
-	lib/fonts/OpenSans-Bold-webfont.woff \
-	lib/fonts/OpenSans-BoldItalic-webfont.eot \
-	lib/fonts/OpenSans-BoldItalic-webfont.svg \
-	lib/fonts/OpenSans-BoldItalic-webfont.ttf \
-	lib/fonts/OpenSans-BoldItalic-webfont.woff \
-	lib/fonts/OpenSans-ExtraBold-webfont.eot  \
-	lib/fonts/OpenSans-ExtraBold-webfont.svg  \
-	lib/fonts/OpenSans-ExtraBold-webfont.ttf  \
-	lib/fonts/OpenSans-ExtraBold-webfont.woff  \
-	lib/fonts/OpenSans-ExtraBoldItalic-webfont.eot \
-	lib/fonts/OpenSans-ExtraBoldItalic-webfont.svg \
-	lib/fonts/OpenSans-ExtraBoldItalic-webfont.ttf \
-	lib/fonts/OpenSans-ExtraBoldItalic-webfont.woff \
-	lib/fonts/OpenSans-Italic-webfont.eot \
-	lib/fonts/OpenSans-Italic-webfont.svg \
-	lib/fonts/OpenSans-Italic-webfont.ttf \
-	lib/fonts/OpenSans-Italic-webfont.woff \
-	lib/fonts/OpenSans-Light-webfont.eot \
-	lib/fonts/OpenSans-Light-webfont.svg \
-	lib/fonts/OpenSans-Light-webfont.ttf \
-	lib/fonts/OpenSans-Light-webfont.woff \
-	lib/fonts/OpenSans-LightItalic-webfont.eot \
-	lib/fonts/OpenSans-LightItalic-webfont.svg \
-	lib/fonts/OpenSans-LightItalic-webfont.ttf \
-	lib/fonts/OpenSans-LightItalic-webfont.woff \
-	lib/fonts/OpenSans-Regular-webfont.eot \
-	lib/fonts/OpenSans-Regular-webfont.svg \
-	lib/fonts/OpenSans-Regular-webfont.ttf \
-	lib/fonts/OpenSans-Regular-webfont.woff \
-	lib/fonts/OpenSans-Semibold-webfont.eot \
-	lib/fonts/OpenSans-Semibold-webfont.svg \
-	lib/fonts/OpenSans-Semibold-webfont.ttf \
-	lib/fonts/OpenSans-Semibold-webfont.woff \
-	lib/fonts/OpenSans-SemiboldItalic-webfont.eot \
-	lib/fonts/OpenSans-SemiboldItalic-webfont.svg \
-	lib/fonts/OpenSans-SemiboldItalic-webfont.ttf \
-	lib/fonts/OpenSans-SemiboldItalic-webfont.woff \
-	lib/fonts/PatternFlyIcons-webfont.eot \
-	lib/fonts/PatternFlyIcons-webfont.svg \
-	lib/fonts/PatternFlyIcons-webfont.ttf \
-	lib/fonts/PatternFlyIcons-webfont.woff \
-	lib/fonts/FontAwesome.otf \
-	lib/fonts/fontawesome-webfont.eot \
-	lib/fonts/fontawesome-webfont.svg \
-	lib/fonts/fontawesome-webfont.ttf \
-	lib/fonts/fontawesome-webfont.woff \
+	lib/opensans/OpenSans-Bold-webfont.woff \
+	lib/opensans/OpenSans-BoldItalic-webfont.woff \
+	lib/opensans/OpenSans-ExtraBold-webfont.woff  \
+	lib/opensans/OpenSans-ExtraBoldItalic-webfont.woff \
+	lib/opensans/OpenSans-Italic-webfont.woff \
+	lib/opensans/OpenSans-Light-webfont.woff \
+	lib/opensans/OpenSans-LightItalic-webfont.woff \
+	lib/opensans/OpenSans-Regular-webfont.woff \
+	lib/opensans/OpenSans-Semibold-webfont.woff \
+	lib/opensans/OpenSans-SemiboldItalic-webfont.woff \
 	$(NULL)
 
 staticimagesdir = $(staticcachedir)/images
@@ -101,9 +64,9 @@ static_CHECKSUMS = $(srcdir)/src/static/checksums.txt
 
 all-local:: $(static_CHECKSUMS)
 
-$(static_CHECKSUMS): $(staticcache_DATA) $(staticfonts_DATA) $(staticimages_DATA)
+$(static_CHECKSUMS): $(staticcache_DATA) $(staticimages_DATA)
 	$(AM_V_GEN) $(VERIFY_CHECKSUMS) -d $(srcdir) -o src/static/checksums.txt \
-		$(staticcache_DATA) $(staticfonts_DATA) $(staticimages_DATA)
+		$(staticcache_DATA) $(staticimages_DATA)
 
 EXTRA_DIST += \
 	$(lib_FILES) \

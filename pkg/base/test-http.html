@@ -190,13 +190,13 @@ asyncTest("http keep alive", function() {
      */
 
     var first;
-    cockpit.http({ "internal": "test-server" }).get("/mock/connection")
+    cockpit.http({ "internal": "test-server", "connection": "marmalade" }).get("/mock/connection")
         .always(function() {
             equal(this.state(), "resolved", "response didn't fail");
         })
         .done(function(data) {
             first = data;
-            cockpit.http({ "internal": "test-server" }).get("/mock/connection")
+            cockpit.http({ "internal": "test-server", "connection": "marmalade" }).get("/mock/connection")
                 .done(function(data) {
                     equal(first, data, "same connection");
                 })

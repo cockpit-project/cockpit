@@ -136,6 +136,16 @@ BuildArch: noarch
 %description shell
 This package contains the Cockpit shell UI assets.
 
+%package subscriptions
+Summary: Cockpit subscription user interface package
+Requires: subscription-manager >= 1.13
+BuildArch: noarch
+
+%description subscriptions
+This package contains the Cockpit user interface integration with local
+subscription management.
+
+>>>>>>> c23d4d0... Subscriptions: disable dependency on subscription-manager
 %package ws
 Summary: Cockpit Web Service
 Requires: glib-networking

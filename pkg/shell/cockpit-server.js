@@ -100,7 +100,7 @@ PageServer.prototype = {
                                        "com.redhat.Cockpit.Manager");
         $(self.manager).on('AvatarChanged.server', $.proxy (this, "update_avatar"));
 
-        $('#server-avatar').attr('src', "/cockpit/@@shell@@/images/server-large.png");
+        $('#server-avatar').attr('src', "images/server-large.png");
 
         function network_setup_hook(plot) {
             var axes = plot.getAxes();

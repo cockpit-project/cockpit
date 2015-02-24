@@ -107,6 +107,7 @@ BRIDGE_CHECKS = \
 	test-stream \
 	test-package \
 	test-resource \
+	test-packages \
 	test-fs \
 	test-metrics \
 	test-pcp \
@@ -140,6 +141,11 @@ test_dbusjson_LDADD = $(libcockpit_bridge_LIBS)
 test_package_SOURCES = src/bridge/test-package.c
 test_package_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_package_LDADD = $(libcockpit_bridge_LIBS)
+
+test_packages_SOURCES = src/bridge/test-packages.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
+test_packages_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_packages_LDADD = $(libcockpit_bridge_LIBS)
 
 test_paths_SOURCES = src/bridge/test-paths.c
 test_paths_CFLAGS = $(libcockpit_bridge_a_CFLAGS)

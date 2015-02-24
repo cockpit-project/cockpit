@@ -51,13 +51,12 @@ var visited_dialogs = {};
 
 shell.dbus = dbus;
 
-/* Initialize cockpit when page is loaded and packages available */
-var packages;
+/* Initialize cockpit when page is loaded and modules available */
 var loaded = false;
 modules.loaded = false;
 
 function maybe_init() {
-    if (packages && loaded && modules.loaded)
+    if (loaded && modules.loaded)
         init();
 }
 
@@ -557,7 +556,8 @@ function update_global_nav() {
     var hostname = null;
     var page_title = null;
 
-    info = shell.hosts[current_params.host];
+    if (current_params)
+        info = shell.hosts[current_params.host];
     if (info) {
         hostname = info.display_name;
         info.set_active();
@@ -695,21 +695,8 @@ function get_page_iframe(params) {
      */
 
     var href = cockpit.location.encode(params.path.slice(prefix.length), params.options);
-
-    var pkg = comp.pkg + "@" + params.host;
-    cockpit.packages.lookup(pkg).
-        done(function (info) {
-            var url = "/cockpit/";
-            if (info.checksum)
-                url += info.checksum;
-            else
-                url += pkg;
-            iframe.attr('src', url + "/" + comp.entry + '#' + href);
-        }).
-        fail(function (error) {
-            console.log("Error loading package " + pkg, error.toString());
-            iframe.attr('src', "/cockpit/" + pkg + "/" + comp.entry + '#' + href);
-        });
+    var url = "/cockpit/@" + params.host + "/" + comp.pkg + "/" + comp.entry + "#" + href;
+    iframe.attr('src', url);
 
     return iframe;
 }
@@ -1084,8 +1071,6 @@ $.extend(window.options, { sink: true, protocol: "cockpit1" });
 
 cockpit.packages.all(true).
     done(function(pkgs) {
-        packages = pkgs;
-
         var list = $.map(pkgs, function(pkg) { return pkg; });
         list.sort(function(a, b) {
             return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
@@ -1108,7 +1093,6 @@ cockpit.packages.all(true).
         maybe_init();
     }).
     fail(function(ex) {
-        packages = { };
         maybe_init();
 
         throw ex; /* should show an oops */

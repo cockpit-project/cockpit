@@ -220,7 +220,7 @@ PageAccounts.prototype = {
                 $('<img/>', { 'class': "cockpit-account-pic",
                               'width': "48",
                               'height': "48",
-                              'src': "/cockpit/@@shell@@/images/avatar-default-48.png" });
+                              'src': "images/avatar-default-48.png" });
             var div =
                 $('<div/>', { 'class': "cockpit-account" }).append(
                     img,
@@ -411,7 +411,7 @@ PageAccount.prototype = {
                                   if (result)
                                       $('#account-pic').attr('src', result);
                               });
-            $('#account-pic').attr('src', "/cockpit/@@shell@@/images/avatar-default-128.png");
+            $('#account-pic').attr('src', "images/avatar-default-128.png");
             $('#account-pic').toggleClass('accounts-privileged', !can_change);
             $('#account-real-name').attr('disabled', !can_change);
 

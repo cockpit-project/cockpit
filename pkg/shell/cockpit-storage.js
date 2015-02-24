@@ -587,7 +587,7 @@ PageStorage.prototype = {
             }).
             append(
                 $('<td style="width: 48px">').append(
-                    $('<img>', { src: "/cockpit/@@shell@@/images/storage-disk.png" })),
+                    $('<img>', { src: "images/storage-disk.png" })),
                 $('<td class="row">').append(
                     $('<span class="col-md-12">').text(drive.Name),
                     $('<br>'),

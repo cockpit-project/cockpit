@@ -36,8 +36,6 @@
 
 /* global jQuery   */
 /* global cockpit  */
-/* global _        */
-/* global C_       */
 
 /* global phantom_checkpoint */
 
@@ -82,18 +80,9 @@ function init() {
     content_show();
 }
 
-/*
- * TODO: Translations are disabled in the shell for now.
- * But we still want to know the language code, so load the locale po
- */
-
 require(["latest/po"], function(po) {
     cockpit.locale(po);
 });
-shell.i18n = function i18n(string, context) {
-    return string;
-};
-
 
 var dbus_clients = shell.util.make_resource_cache();
 
@@ -1138,10 +1127,6 @@ $(function() {
 function N_(str) {
     return str;
 }
-function _(string) {
-    return shell.i18n(string);
-}
 
-function C_(context, string) {
-    return shell.i18n(string, context);
-}
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;

@@ -42,6 +42,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+const gchar * cockpit_bridge_local_address = "localhost";
+
 /**
  * CockpitChannel:
  *
@@ -937,7 +939,7 @@ cockpit_channel_parse_address (CockpitChannel *self,
     }
   else if (port != G_MAXINT64)
     {
-      connectable = g_network_address_parse ("localhost", port, &error);
+      connectable = g_network_address_parse (cockpit_bridge_local_address, port, &error);
       if (error != NULL)
         {
           g_warning ("received invalid \"port\" option: %s", error->message);
@@ -953,13 +955,14 @@ cockpit_channel_parse_address (CockpitChannel *self,
 
           if (error != NULL)
             {
-              g_warning ("couldn't find address for localhost:%d: %s", (gint)port, error->message);
+              g_warning ("couldn't find address for %s:%d: %s", cockpit_bridge_local_address,
+                         (gint)port, error->message);
               problem = "not-found";
               goto out;
             }
 
           if (possible_name)
-            *possible_name = g_strdup_printf ("localhost:%d", (gint)port);
+            *possible_name = g_strdup_printf ("%s:%d", cockpit_bridge_local_address, (gint)port);
         }
     }
   else if (unix_path)

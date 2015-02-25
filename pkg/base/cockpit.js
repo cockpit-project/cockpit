@@ -1160,6 +1160,10 @@ function full_scope(cockpit, $, po) {
             if (typeof path == "string")
                 path = decode_path(path, self.path);
             var href = "/" + path.map(encodeURIComponent).join("/");
+
+            /* Undo unnecessary encoding of these */
+            href = href.replace("%40", "@");
+
             if (options) {
                 var query = [];
                 $.each(options, function(opt, value) {

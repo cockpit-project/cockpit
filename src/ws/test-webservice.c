@@ -1555,6 +1555,7 @@ test_resource_checksum (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
+                           "ETag: \"$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3\"\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"
@@ -1615,6 +1616,38 @@ test_resource_redirect_checksum (TestResourceCase *tc,
                            "\r\n"
                            "<html><head><title>Temporary redirect</title></head><body>Access via checksum</body></html>",
                            -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_not_modified (TestResourceCase *tc,
+                            gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
+                       g_strdup ("\"$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3\""));
+
+  response = cockpit_web_response_new (tc->io,
+                                       "/cockpit/$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3/test/sub/file.ext",
+                                       NULL, tc->headers);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 304 Not Modified\r\n"
+                           "ETag: \"$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3\"\r\n"
+                           "Content-Length: 0\r\n"
+                           "\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -1870,6 +1903,8 @@ main (int argc,
               setup_resource, test_resource_checksum, teardown_resource);
   g_test_add ("/web-service/resource/redirect-checksum", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_redirect_checksum, teardown_resource);
+  g_test_add ("/web-service/resource/not-modified", TestResourceCase, &checksum_fixture,
+              setup_resource, test_resource_not_modified, teardown_resource);
   g_test_add ("/web-service/resource/no-checksum", TestResourceCase, NULL,
               setup_resource, test_resource_no_checksum, teardown_resource);
   g_test_add ("/web-service/resource/bad-checksum", TestResourceCase, NULL,

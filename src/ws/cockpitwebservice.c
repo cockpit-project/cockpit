@@ -1921,6 +1921,7 @@ typedef struct {
   const gchar *logname;
   CockpitWebResponse *response;
   CockpitTransport *transport;
+  GHashTable *headers;
   gchar *channel;
   gulong recv_sig;
   gulong closed_sig;
@@ -1975,6 +1976,7 @@ resource_response_done (ResourceResponse *rr,
 
   g_object_unref (rr->response);
   g_object_unref (rr->transport);
+  g_hash_table_unref (rr->headers);
   g_free (rr->channel);
   g_free (rr);
 }
@@ -2030,8 +2032,7 @@ static gboolean
 parse_http_headers (ResourceResponse *rr,
                     GBytes *payload,
                     gint *status,
-                    gchar **reason,
-                    GHashTable **headers)
+                    gchar **reason)
 {
   JsonObject *object = NULL;
   JsonObject *heads;
@@ -2050,8 +2051,7 @@ parse_http_headers (ResourceResponse *rr,
   *reason = g_strdup (json_object_get_string_member (object, "reason"));
 
   heads = json_object_get_object_member (object, "headers");
-  *headers = cockpit_web_server_new_table ();
-  json_object_foreach_member (heads, object_to_headers, *headers);
+  json_object_foreach_member (heads, object_to_headers, rr->headers);
 
   ret = TRUE;
 
@@ -2069,7 +2069,6 @@ on_resource_recv_first (CockpitTransport *transport,
                         gpointer user_data)
 {
   ResourceResponse *rr = user_data;
-  GHashTable *headers;
   gint status;
   gchar *reason;
 
@@ -2082,10 +2081,9 @@ on_resource_recv_first (CockpitTransport *transport,
   g_signal_handler_disconnect (transport, rr->recv_sig);
   rr->recv_sig = g_signal_connect (transport, "recv", G_CALLBACK (on_resource_recv), rr);
 
-  if (parse_http_headers (rr, payload, &status, &reason, &headers))
+  if (parse_http_headers (rr, payload, &status, &reason))
     {
-      cockpit_web_response_headers_full (rr->response, status, reason, -1, headers);
-      g_hash_table_unref (headers);
+      cockpit_web_response_headers_full (rr->response, status, reason, -1, rr->headers);
       g_free (reason);
     }
   else
@@ -2156,6 +2154,7 @@ resource_response_new (CockpitWebService *self,
   rr = g_new0 (ResourceResponse, 1);
   rr->response = g_object_ref (response);
   rr->transport = g_object_ref (session->transport);
+  rr->headers = cockpit_web_server_new_table ();
   rr->channel = generate_channel_id (self);
   rr->logname = cockpit_web_response_get_path (response);
 
@@ -2175,6 +2174,7 @@ resource_respond (CockpitWebService *self,
   ResourceResponse *rr;
   CockpitSession *session = NULL;
   const gchar *host = NULL;
+  gchar *quoted_etag = NULL;
   gchar *package = NULL;
   gchar *val = NULL;
   gchar *language = NULL;
@@ -2194,6 +2194,17 @@ resource_respond (CockpitWebService *self,
     }
   else if (where[0] == '$')
     {
+      quoted_etag = g_strdup_printf ("\"%s\"", where);
+
+      if (g_strcmp0 (g_hash_table_lookup (headers, "If-None-Match"), where) == 0 ||
+          g_strcmp0 (g_hash_table_lookup (headers, "If-None-Match"), quoted_etag) == 0)
+        {
+          cockpit_web_response_headers (response, 304, "Not Modified", 0, "ETag", quoted_etag, NULL);
+          cockpit_web_response_complete (response);
+          ret = TRUE;
+          goto out;
+        }
+
       g_hash_table_iter_init (&iter, self->sessions.by_transport);
       while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
         {
@@ -2227,6 +2238,16 @@ resource_respond (CockpitWebService *self,
     }
 
   rr = resource_response_new (self, session, response);
+
+  if (quoted_etag)
+    {
+      /*
+       * If we have a checksum, then use it as an ETag. It is intentional that
+       * a cockpit-bridge version could (in the future) override this.
+       */
+      g_hash_table_insert (rr->headers, g_strdup ("ETag"), quoted_etag);
+      quoted_etag = NULL;
+    }
 
   object = build_json ("command", "open",
                        "channel", rr->channel,
@@ -2313,6 +2334,7 @@ resource_respond (CockpitWebService *self,
 
 out:
   g_strfreev (parts);
+  g_free (quoted_etag);
   g_free (language);
   g_free (package);
   return ret;

@@ -5,15 +5,18 @@
 # add line
 # <domain name='cockpit.lan' localOnly='yes'/>
 unset command_not_found_handle
-BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip"
-GRP="virtualization"
-DEFAULTNET="/etc/libvirt/qemu/networks/default.xml"
+HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip"
+HS_GRP="virtualization"
+HS_DEFAULTNET="/etc/libvirt/qemu/networks/default.xml"
+HS_DEFAULTNET_ACC="/var/lib/libvirt/dnsmasq/default.conf"
 
 function host_default_network_domain(){
-    if grep -q 'domain name="cockpit.lan"' $DEFAULTNET; then
+    if sudo grep -q 'domain=cockpit.lan' $HS_DEFAULTNET_ACC; then
         echo "network already configured, ensure that you have rebooted the machine"
+        
     else
-        sed -i '/<name>default<\/name>/i <domain name="cockpit.lan" localOnly="yes"/>' $DEFAULTNET
+        sudo sed -i '/<name>default<\/name>/i <domain name="cockpit.lan" localOnly="yes"/>' $HS_DEFAULTNET
+        sudo chmod a+x $HS_DEFAULTNET_ACC
         echo "network configured. Please REBOOT the machine, to take effect"
     fi
 }
@@ -21,24 +24,24 @@ function host_default_network_domain(){
 function host_dependencies_fedora(){
     sudo yum -y yum-plugin-copr
     sudo yum -y copr enable fsimonce/virt-deploy
-    sudo yum -y install $BASE_PCKGS
+    sudo yum -y install $HS_BASE_PCKGS
 }
 
 function host_dependencies_rhel7(){
     curl https://copr.fedoraproject.org/coprs/fsimonce/virt-deploy/repo/epel-7/fsimonce-virt-deploy-epel-7.repo > virt-deploy.repo
     sudo /bin/cp virt-deploy.repo /etc/yum.repos.d/
-    sudo yum -y install $BASE_PCKGS
+    sudo yum -y install $HS_BASE_PCKGS
 
 }
 
 function host_virtlibpolicy_solver(){
-    LUSER=$USER
-    sudo groupadd $GRP
-    sudo usermod -a -G $GRP $LUSER
-    sudo chgrp $GRP  /var/lib/libvirt/images
+    LHS_USER=$HS_USER
+    sudo groupadd $HS_GRP
+    sudo usermod -a -G $HS_GRP $LHS_USER
+    sudo chgrp $HS_GRP  /var/lib/libvirt/images
     sudo chmod g+rwx /var/lib/libvirt/images
     sudo tee /etc/polkit-1/localauthority/50-local.d/50-org.example-libvirt-remote-access.pkla <<< "[libvirt Management Access]
-Identity=unix-group:$GRP
+Identity=unix-group:$HS_GRP
 Action=org.libvirt.unix.manage
 ResultAny=yes
 ResultInactive=yes
@@ -47,12 +50,12 @@ ResultActive=yes
 }
 
 
-USER=$1
-METHOD=$2
+HS_USER=$1
+HS_METHOD=$2
 
 function install_host(){
-    USER=$1
-    if rpm -q $BASE_PCKGS >& /dev/null; then
+    HS_USER=$1
+    if rpm -q $HS_BASE_PCKGS >& /dev/null; then
         echo "All packages alread installed"
     else
         if cat /etc/redhat-release | grep -sq "Red Hat"; then
@@ -65,7 +68,7 @@ function install_host(){
         fi
     fi
 
-    if groups $USER | grep -s $GRP; then
+    if groups $HS_USER | grep -s $HS_GRP; then
         echo "Virtualization enabled for user"
     else
         host_virtlibpolicy_solver
@@ -74,12 +77,12 @@ function install_host(){
 }
 
 function check_host(){
-    USER=$1
-    if rpm -q $BASE_PCKGS >& /dev/null; then
+    HS_USER=$1
+    if rpm -q $HS_BASE_PCKGS >& /dev/null; then
         echo "All packages alread installed"
-        if groups $USER | grep -qs $GRP; then
+        if groups $HS_USER | grep -qs $HS_GRP; then
             echo "Virtualization enabled for user"
-            if grep -q 'domain name="cockpit.lan"' $DEFAULTNET; then
+            if grep -q 'domain=cockpit.lan' $HS_DEFAULTNET_ACC; then
                 echo "Network domain configured for qemu"
                 return 0
             else
@@ -96,32 +99,32 @@ function check_host(){
 }
 
 function avocado_pip_install(){
-    AVOCADO_STRING="
+    HS_AVOCADO_STRING="
 (
  yum -y install python-pip;
  pip install --upgrade avocado;
 );
 "
-echo $AVOCADO_STRING
+echo $HS_AVOCADO_STRING
 }
 
 function avocado_git_install(){
-    AVOCADO_NEW="https://github.com/avocado-framework/avocado/archive/master.zip"
-    AVOCADO="avocado-master"
-    AVOCADO_SOURCE="
+    HS_AVOCADO_NEW="https://github.com/avocado-framework/avocado/archive/master.zip"
+    HS_AVOCADO="avocado-master"
+    HS_AVOCADO_SOURCE="
 (
  set -e;
  cd /tmp;
- curl -L $AVOCADO_NEW > $AVOCADO.zip;
- unzip -o $AVOCADO.zip;
- cd $AVOCADO;
+ curl -L $HS_AVOCADO_NEW > $HS_AVOCADO.zip;
+ unzip -o $HS_AVOCADO.zip;
+ cd $HS_AVOCADO;
  sudo ./setup.py install;
 );
 "
-echo $AVOCADO_SOURCE
+echo $HS_AVOCADO_SOURCE
 }
 
-USERS=$1
-for ONEUSER in $USERS; do
-    install_host $ONEUSER
+HS_USERS=$1
+for ONEHS_USER in $HS_USERS; do
+    install_host $ONEHS_USER
 done

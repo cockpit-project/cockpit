@@ -38,27 +38,7 @@ from testlib import *
 from libjournal import *
 
 
-admins_only_pam = """
-#%PAM-1.0
-auth       required     pam_sepermit.so
-auth       substack     password-auth
-auth       include      postlogin
-auth       optional     pam_reauthorize.so prepare
-account    required     pam_nologin.so
-account    sufficient   pam_succeed_if.so uid = 0
-account    required     pam_succeed_if.so user ingroup wheel
-account    include      password-auth
-password   include      password-auth
-# pam_selinux.so close should be the first session rule
-session    required     pam_selinux.so close
-session    required     pam_loginuid.so
-# pam_selinux.so open should only be followed by sessions to be executed in the user context
-session    required     pam_selinux.so open env_params
-session    optional     pam_keyinit.so force revoke
-session    optional     pam_reauthorize.so prepare
-session    include      password-auth
-session    include      postlogin
-"""
+
 username="user"
 
 class checklogin(test.Test):

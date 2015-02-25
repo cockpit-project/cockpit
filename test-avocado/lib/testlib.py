@@ -41,6 +41,28 @@ program_name = "TEST"
 arg_sit_on_failure = False
 arg_trace = False
 
+admins_only_pam = """
+#%PAM-1.0
+auth       required     pam_sepermit.so
+auth       substack     password-auth
+auth       include      postlogin
+auth       optional     pam_reauthorize.so prepare
+account    required     pam_nologin.so
+account    sufficient   pam_succeed_if.so uid = 0
+account    required     pam_succeed_if.so user ingroup wheel
+account    include      password-auth
+password   include      password-auth
+# pam_selinux.so close should be the first session rule
+session    required     pam_selinux.so close
+session    required     pam_loginuid.so
+# pam_selinux.so open should only be followed by sessions to be executed in the user context
+session    required     pam_selinux.so open env_params
+session    optional     pam_keyinit.so force revoke
+session    optional     pam_reauthorize.so prepare
+session    include      password-auth
+session    include      postlogin
+"""
+
 class Browser:
     phantom_wait_timeout = 60
 
@@ -263,13 +285,13 @@ class Browser:
         else:
             self.click(sel + ' button:first-child');
 
-    def login_and_go(self, page, user=None):
+    def login_and_go(self, page, user=None, password="foobar"):
         if user is None:
             user = self.default_user
         self.open(page)
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
-        self.set_val('#login-password-input', "foobar")
+        self.set_val('#login-password-input', password)
         self.click('#login-button')
         self.expect_reload()
         self.wait_page(page)
@@ -278,7 +300,7 @@ class Browser:
         self.click('a[onclick*="cockpit.logout"]')
         self.expect_reload()
 
-    def relogin(self, page, user=None):
+    def relogin(self, page, user=None, password="foobar"):
         if user is None:
             user = self.default_user
         logout()

@@ -38,6 +38,23 @@ define([
         console.warn(ex);
     }
 
+    /*
+     * KubernetesWatch:
+     * @api: a cockpit.http() object for the api server
+     * @type: a string like 'pods' or 'nodes'
+     * @update: invoked when ADDED or MODIFIED happens
+     * @remove: invoked when DELETED happens
+     *
+     * Generates callbacks based on a Kubernetes watch.
+     *
+     * Each KubernetesWatch object watches a single type of object
+     * in Kubernetes. The URI watched is /api/v1beta3/watch/<type>
+     *
+     * In addition to the above noted invocations of the callbacks,
+     * if there is an ERROR, we restart the watch and invoke the
+     * @remove callback with a null argument to indicate we are
+     * starting over.
+     */
     function KubernetesWatch(api, type, update, remove) {
         var self = this;
 
@@ -45,6 +62,12 @@ define([
         var stopping = false;
         var requested = false;
         var req = null;
+
+        /*
+         * Each change is sent as an individual line from Kubernetes
+         * but they may not arrive exactly that way, so we buffer
+         * and split lines again.
+         */
 
         var buffer;
         function handle_watch(data) {
@@ -86,7 +109,7 @@ define([
                 } else if (action.type == "DELETED") {
                     remove(object);
 
-                    /* The watch failed, likely due to invalid resourceVersion */
+                /* The watch failed, likely due to invalid resourceVersion */
                 } else if (action.type == "ERROR") {
                     if (lastResource) {
                         lastResource = null;
@@ -165,6 +188,10 @@ define([
         var api = cockpit.http(8080);
         var watches = [ ];
 
+        /*
+         * Here we create KubernetesWatch object, and a property
+         * definition for each type of object and hook them together.
+         */
         function bind(type, items) {
             var flat = null;
             var timeout;

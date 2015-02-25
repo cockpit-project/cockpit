@@ -48,7 +48,7 @@ class checklogin(test.Test):
     
     def Basic(self):
         b=Browser("localhost", "x")
-        b.open("localhost")
+        b.open("server")
         b.wait_visible("#login")
         
         def login(user, password):

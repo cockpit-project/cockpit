@@ -55,7 +55,7 @@ class checkrealms(test.Test):
 
         default_user = "admin"
         b=Browser("localhost", "x")
-        b.login_and_go("localhost",user=default_user,password="foobar")
+        b.login_and_go("server",user=default_user,password="foobar")
         
         
         def wait_number_domains(n):

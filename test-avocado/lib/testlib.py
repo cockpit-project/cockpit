@@ -294,6 +294,7 @@ class Browser:
         self.set_val('#login-password-input', password)
         self.click('#login-button')
         self.expect_reload()
+        self.wait_page(page)
 
     def logout(self):
         self.click('a[onclick*="cockpit.logout"]')
@@ -308,6 +309,7 @@ class Browser:
         self.set_val("#login-password-input", "foobar")
         self.click('#login-button')
         self.expect_reload()
+        self.wait_page(page)
 
     def snapshot(self, title, label=None):
         """Take a snapshot of the current screen and save it as a PNG.

@@ -16,3 +16,12 @@ and their characteristics:
 
  * ```/cockpit/@host/package/path/to/file.ext``` are files from packages (on
    specific hosts) that are not cached. Only available after authentication.
+
+ * ```/cockpit/@host/checksum``` returns the checksum of the host packages
+   or an empty string if none
+
+ * ```/cockpit/@host/manifests.json``` includes a summary of all the manifest
+   files from all the packages
+
+ * ```/cockpit/@host/manifests.js``` includes a summary of all the manifest
+   files from all the packages, as an AMD loadable module

@@ -629,11 +629,11 @@ add_cache_header (GHashTable *headers,
 }
 
 static gboolean
-handle_package_manifest_js (CockpitWebServer *server,
-                            const gchar *path,
-                            GHashTable *headers,
-                            CockpitWebResponse *response,
-                            CockpitPackages *packages)
+handle_package_manifests_js (CockpitWebServer *server,
+                             const gchar *path,
+                             GHashTable *headers,
+                             CockpitWebResponse *response,
+                             CockpitPackages *packages)
 {
   GHashTable *out_headers;
   GBytes *content;
@@ -657,11 +657,11 @@ handle_package_manifest_js (CockpitWebServer *server,
 }
 
 static gboolean
-handle_package_manifest_json (CockpitWebServer *server,
-                              const gchar *path,
-                              GHashTable *headers,
-                              CockpitWebResponse *response,
-                              CockpitPackages *packages)
+handle_package_manifests_json (CockpitWebServer *server,
+                               const gchar *path,
+                               GHashTable *headers,
+                               CockpitWebResponse *response,
+                               CockpitPackages *packages)
 {
   GHashTable *out_headers;
   GBytes *content;
@@ -942,10 +942,10 @@ cockpit_packages_new (void)
 
   g_signal_connect (packages->web_server, "handle-resource::/checksum",
                     G_CALLBACK (handle_package_checksum), packages);
-  g_signal_connect (packages->web_server, "handle-resource::/manifest.js",
-                    G_CALLBACK (handle_package_manifest_js), packages);
-  g_signal_connect (packages->web_server, "handle-resource::/manifest.json",
-                    G_CALLBACK (handle_package_manifest_json), packages);
+  g_signal_connect (packages->web_server, "handle-resource::/manifests.js",
+                    G_CALLBACK (handle_package_manifests_js), packages);
+  g_signal_connect (packages->web_server, "handle-resource::/manifests.json",
+                    G_CALLBACK (handle_package_manifests_json), packages);
   g_signal_connect (packages->web_server, "handle-resource",
                     G_CALLBACK (handle_packages), packages);
 

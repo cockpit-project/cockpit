@@ -235,7 +235,7 @@ test_large (TestCase *tc,
 }
 
 static const Fixture fixture_listing = {
-  .path = "/manifest.json",
+  .path = "/manifests.json",
 };
 
 static void
@@ -417,19 +417,19 @@ test_bad_receive (TestCase *tc,
 static const Fixture fixture_list_bad_directory = {
     .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-directory", NULL },
     .expect = "package * invalid *name*",
-    .path = "/manifest.json"
+    .path = "/manifests.json"
 };
 
 static const Fixture fixture_list_bad_file = {
     .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-file", NULL },
     .expect = "package * invalid *name*",
-    .path = "/manifest.json"
+    .path = "/manifests.json"
 };
 
 static const Fixture fixture_list_bad_name = {
     .datadirs = { SRCDIR "/src/bridge/mock-resource/bad-package", NULL },
     .expect = "package * invalid *name*",
-    .path = "/manifest.json"
+    .path = "/manifests.json"
 };
 
 static void

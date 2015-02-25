@@ -839,9 +839,9 @@ function package_table(host, callback) {
     }
     var url;
     if (!host)
-        url = "../manifest.json";
+        url = "../manifests.json";
     else
-        url = "../../@" + host + "/manifest.json";
+        url = "../../@" + host + "/manifests.json";
     var req = new window.XMLHttpRequest();
     req.open("GET", url);
     req.onreadystatechange = function() {

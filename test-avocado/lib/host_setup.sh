@@ -8,15 +8,13 @@ unset command_not_found_handle
 HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip"
 HS_GRP="virtualization"
 HS_DEFAULTNET="/etc/libvirt/qemu/networks/default.xml"
-HS_DEFAULTNET_ACC="/var/lib/libvirt/dnsmasq/default.conf"
 
 function host_default_network_domain(){
-    if sudo grep -q 'domain=cockpit.lan' $HS_DEFAULTNET_ACC; then
-        echo "network already configured, ensure that you have rebooted the machine"
+    if virsh -c qemu:///system net-dumpxml default |grep -q "domain name='cockpit.lan'"; then
+        echo "network already configured"
         
     else
         sudo sed -i '/<name>default<\/name>/i <domain name="cockpit.lan" localOnly="yes"/>' $HS_DEFAULTNET
-        sudo chmod a+x $HS_DEFAULTNET_ACC
         echo "network configured. Please REBOOT the machine, to take effect"
     fi
 }
@@ -82,7 +80,7 @@ function check_host(){
         echo "All packages alread installed"
         if groups $HS_USER | grep -qs $HS_GRP; then
             echo "Virtualization enabled for user"
-            if grep -q 'domain=cockpit.lan' $HS_DEFAULTNET_ACC; then
+            if virsh -c qemu:///system net-dumpxml default |grep -q "domain name='cockpit.lan'"; then
                 echo "Network domain configured for qemu"
                 return 0
             else

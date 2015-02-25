@@ -1,1 +1,1 @@
-../../lib/term.js
+../../lib/term.v0.js

@@ -186,6 +186,7 @@ upload-doc:
 
 endif
 
+include lib/Makefile.am
 include pkg/base/Makefile.am
 include pkg/docker/Makefile.am
 include pkg/kubernetes/Makefile.am

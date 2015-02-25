@@ -20,9 +20,11 @@
 <script src="include/jsunzip.js"></script>
 <script src="include/rfb.js"></script>
 
-<script src="../base1/cockpit.js"></script>
+<script src="../base1/require.js"></script>
 <script>
-require(['base1/cockpit'], function(cockpit) {
+require([
+    'base1/cockpit'
+], function(cockpit) {
     $("#connect").on("click", function() {
         $("canvas").show();
         $("table").hide();

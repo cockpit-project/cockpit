@@ -17,7 +17,6 @@ lib_FILES = \
 	lib/attrchange.js \
 	lib/attrchange.min.js \
 	lib/term.v0.js \
-	lib/amdjs-tests \
 	$(NULL)
 
 EXTRA_DIST += \

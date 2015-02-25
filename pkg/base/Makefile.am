@@ -16,6 +16,8 @@ base_DATA = \
 	pkg/base/jquery.min.js \
 	pkg/base/mustache.js \
 	pkg/base/mustache.min.js \
+	pkg/base/require.js \
+	pkg/base/require.min.js \
 	pkg/base/term.js \
 	pkg/base/manifest.json \
 	po/po.en.js \
@@ -43,7 +45,6 @@ base_TESTS = \
 	pkg/base/test-echo.html \
 	pkg/base/test-async.html \
 	pkg/base/test-no-jquery.html \
-        pkg/base/test-amdjs.html \
 	pkg/base/test-spawn.html \
 	pkg/base/test-spawn-proc.html \
 	pkg/base/test-http.html \
@@ -91,6 +92,12 @@ update-lib::
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
 	    $(srcdir)/lib/attrchange.min.js
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/require.js \
+	    $(srcdir)/lib/requirejs.$(VX).js \
+	    $(srcdir)/pkg/base/require-config.js
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/require.min.js \
+	    $(srcdir)/lib/requirejs.$(VX).min.js \
+	    $(srcdir)/pkg/base/require-config.js
 	$(BASE_LN) ../../lib/mustache.$(VX).js mustache.js
 	$(BASE_LN) ../../lib/mustache.$(VX).min.js mustache.min.js
 	$(BASE_LN) ../../lib/patternfly.$(VX).css patternfly.css
@@ -103,4 +110,6 @@ update-lib::
 pkg/base/jquery.min.js:
 	@true
 pkg/base/mustache.min.js:
+	@true
+pkg/base/require.min.js:
 	@true

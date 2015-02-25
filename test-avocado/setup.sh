@@ -62,6 +62,6 @@ vm_ssh $GUEST1 cp -r /root/cockpit/$BASE/\* /root/avocado/tests$AVOCADO_TEST_DIR
 AVOCADO_PARAMS="--vm-domain $GUEST1 --vm-username root --vm-password $PASSWD --vm-hostname $IP"
 avocado run $AVOCADO_PARAMS --xunit out1.xml $AVOCADO_TEST_DIR/{sources.sh,inittest.sh,compiletest.sh}
 avocado run $AVOCADO_PARAMS --xunit out2.xml --vm-clean $AVOCADO_TEST_DIR/checklogin.py
-#avocado run $AVOCADO_PARAMS --xunit out2.xml --vm-clean $AVOCADO_TEST_DIR/checkrealms.py
+avocado run $AVOCADO_PARAMS --xunit out3.xml --vm-clean $AVOCADO_TEST_DIR/checkrealms.py
 
 

@@ -9,7 +9,7 @@ if rpm -q freeipa-server; then
     echo "IPA probably already installed and properly configured"
 else    
     set -eufx
-    yum  install -y freeipa-server bind bind-dyndb-ldap rng-tools
+    yum  install -y freeipa-server bind bind-dyndb-ldap rng-tools bind-utils
 
     setenforce 0
     sed -i 's/SELINUX=enforcing.*$/SELINUX=permissive/' /etc/selinux/config

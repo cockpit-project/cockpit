@@ -141,9 +141,9 @@ class TestDashboard(MachineCase):
         b.leave_page()
         b.wait_js_cond('$("#machine-dropdown ul li").length == 2')
         b.click('#machine-dropdown ul li:nth-child(1) a')
-        b.wait_js_cond('cockpit.location.href == "/@localhost"')
+        b.wait_js_cond('window.location.hash == "#/@localhost"')
         b.click('#machine-dropdown ul li:nth-child(2) a')
-        b.wait_js_cond('cockpit.location.href == "/@127.0.0.1"')
+        b.wait_js_cond('window.location.hash == "#/@127.0.0.1"')
 
     def testEdit(self):
         b = self.browser

@@ -10,6 +10,14 @@
     <script src="bootstrap-datetimepicker.js"></script>
     <script src="../base1/mustache.js"></script>
     <script src="../base1/cockpit.js"></script>
+
+    <!-- HACK: Mixing AMD and non-AMD in this file -->
+    <script src="../base1/require.js"></script>
+    <script>
+        define('jquery', function() { return window.jQuery; });
+        define('base1/cockpit', function() { return window.cockpit; });
+    </script>
+
     <script src="shell.js"></script>
   </head>
   <body>

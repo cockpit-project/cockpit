@@ -61,6 +61,6 @@ WantedBy=default.target
         b.click("button:contains('Go down')")
         b.click("button:contains('Go down')")
         b.switch_to_top()
-        b.wait_js_cond("cockpit.location.href == '/@localhost/playground/test/0/1?length=1'")
+        b.wait_js_cond("window.location.hash == '#/@localhost/playground/test/0/1?length=1'")
 
 test_main()

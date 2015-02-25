@@ -1885,6 +1885,38 @@ cockpit_web_service_get_idling (CockpitWebService *self)
   return (self->callers == 0);
 }
 
+static gboolean
+redirect_to_checksum_path (CockpitWebService *self,
+                           const gchar *checksum,
+                           CockpitWebResponse *response)
+{
+  gchar *location;
+  const gchar *body;
+  GBytes *bytes;
+  gboolean ret;
+  gsize length;
+
+  location = g_strdup_printf ("/cockpit/$%s%s", checksum, cockpit_web_response_get_path (response));
+
+  body = "<html><head><title>Temporary redirect</title></head>"
+         "<body>Access via checksum</body></html>";
+
+  length = strlen (body);
+  cockpit_web_response_headers (response, 307, "Temporary Redirect", length,
+                                "Content-Type", "text/html",
+                                "Location", location,
+                                NULL);
+  g_free (location);
+
+  bytes = g_bytes_new_static (body, length);
+  ret = cockpit_web_response_queue (response, bytes);
+  if (ret)
+    cockpit_web_response_complete (response);
+  g_bytes_unref (bytes);
+
+  return ret;
+}
+
 typedef struct {
   const gchar *logname;
   CockpitWebResponse *response;
@@ -2149,6 +2181,7 @@ resource_respond (CockpitWebService *self,
   gboolean ret = FALSE;
   GHashTableIter iter;
   GBytes *command;
+  const gchar *path;
   gchar **parts = NULL;
   JsonObject *object;
   JsonObject *heads;
@@ -2180,6 +2213,18 @@ resource_respond (CockpitWebService *self,
     }
 
   session = lookup_or_open_session_for_host (self, host, NULL, self->creds, FALSE);
+  path = cockpit_web_response_get_path (response);
+
+  /*
+   * Maybe send back a redirect to the checksum url. We only do this if actually
+   * accessing a file, and not a some sort of data like '/checksum', or a root path
+   * like '/'
+   */
+  if (where[0] == '@' && session->checksum && path && strchr (path, '.'))
+    {
+      ret = redirect_to_checksum_path (self, session->checksum, response);
+      goto out;
+    }
 
   rr = resource_response_new (self, session, response);
 
@@ -2189,7 +2234,7 @@ resource_respond (CockpitWebService *self,
                        "internal", "packages",
                        "method", "GET",
                        "host", host,
-                       "path", cockpit_web_response_get_path (response),
+                       "path", path,
                        "binary", "raw",
                        NULL);
 

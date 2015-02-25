@@ -1567,6 +1567,59 @@ test_resource_checksum (TestResourceCase *tc,
 }
 
 static void
+test_resource_redirect_checksum (TestResourceCase *tc,
+                                 gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GInputStream *input;
+  GOutputStream *output;
+  GIOStream *io;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  /* We require that no user packages are loaded, so we have a checksum */
+  g_assert (data == &checksum_fixture);
+
+  input = g_memory_input_stream_new_from_data ("", 0, NULL);
+  output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+  io = mock_io_stream_new (input, output);
+  g_object_unref (input);
+
+  /* Start the connection up, and poke it a bit */
+  response = cockpit_web_response_new (io, "/cockpit/@localhost/not-found", NULL, NULL);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_object_unref (io);
+  g_object_unref (output);
+  g_object_unref (response);
+
+  /* Now do the real request ... we should be redirected */
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/test/sub/file.ext", NULL, NULL);
+  cockpit_web_service_resource (tc->service, tc->headers, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 307 Temporary Redirect\r\n"
+                           "Content-Type: text/html\r\n"
+                           "Location: /cockpit/$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3/test/sub/file.ext\r\n"
+                           "Content-Length: 91\r\n"
+                           "\r\n"
+                           "<html><head><title>Temporary redirect</title></head><body>Access via checksum</body></html>",
+                           -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
 test_resource_no_checksum (TestResourceCase *tc,
                            gconstpointer data)
 {
@@ -1815,6 +1868,8 @@ main (int argc,
               setup_resource, test_resource_failure, teardown_resource);
   g_test_add ("/web-service/resource/checksum", TestResourceCase, &checksum_fixture,
               setup_resource, test_resource_checksum, teardown_resource);
+  g_test_add ("/web-service/resource/redirect-checksum", TestResourceCase, &checksum_fixture,
+              setup_resource, test_resource_redirect_checksum, teardown_resource);
   g_test_add ("/web-service/resource/no-checksum", TestResourceCase, NULL,
               setup_resource, test_resource_no_checksum, teardown_resource);
   g_test_add ("/web-service/resource/bad-checksum", TestResourceCase, NULL,

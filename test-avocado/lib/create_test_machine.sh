@@ -7,8 +7,8 @@ RCTM_USER="root"
 CTM_ARCH="x86_64"
 CTM_SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
-CTM_PREQ="yum -y -q install nodejs npm tar bzip2 gzip unzip zip tar git yum-utils fontconfig pystache;
-npm -g install phantomjs > /dev/null;
+CTM_PREQ="
+yum -y -q install tar bzip2 gzip unzip zip tar git yum-utils fontconfig pystache;
 yum -y -q install yum-plugin-copr;
 yum -y -q copr enable lmr/Autotest;
 yum -y -q install avocado;

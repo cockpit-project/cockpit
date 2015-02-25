@@ -33,8 +33,7 @@ ipaaddress=""
 
 class checkrealms(test.Test):
     def setup(self):
-        process.run("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' > /etc/resolv.conf" % ipaaddress, shell=True, ignore_status=True)
-        process.run("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' > /etc/resolv.conf" % ipaaddress, shell=True, ignore_status=True)
+#       process.run("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' > /etc/resolv.conf" % ipaaddress, shell=True, ignore_status=True)
         wait(lambda: process.run("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
         # create user admin
         process.run("useradd %s -c 'Administrator'" % "admin", shell=True, ignore_status=True)

@@ -30,14 +30,15 @@ virt-create $PREFIX $DISTRO
 TMP_NAME=`vm_get_name $PREFIX $DISTRO`
 IP=`vm_get_ip $TMP_NAME`
 PASSWD=`vm_get_pass $TMP_NAME`
+vm_ssh $TMP_NAME bash -s < $SCRIPT_DIR/lib/guest-cockpit.sh
 GUEST1=$TMP_NAME
 
 PREFIX=ipa
 DISTRO=fedora-21
 virt-create $PREFIX $DISTRO
-NAME_IPA=`vm_get_name $PREFIX $DISTRO`
-vm_ssh $NAME_IPA bash -s < $SCRIPT_DIR/lib/guest-ipa.sh
-NAME_IPA=$TMP_NAME
+TMP_NAME=`vm_get_name $PREFIX $DISTRO`
+vm_ssh $TMP_NAME bash -s < $SCRIPT_DIR/lib/guest-ipa.sh
+GUEST_IPA=$TMP_NAME
 
 avocado -v || sudo bash -c "`avocado_git_install`"
 LOCAL_VERSION=`avocado -v 2>&1 |grep Avo`
@@ -61,5 +62,6 @@ vm_ssh $GUEST1 cp -r /root/cockpit/$BASE/\* /root/avocado/tests$AVOCADO_TEST_DIR
 AVOCADO_PARAMS="--vm-domain $GUEST1 --vm-username root --vm-password $PASSWD --vm-hostname $IP"
 avocado run $AVOCADO_PARAMS --xunit out1.xml $AVOCADO_TEST_DIR/{sources.sh,inittest.sh,compiletest.sh}
 avocado run $AVOCADO_PARAMS --xunit out2.xml --vm-clean $AVOCADO_TEST_DIR/checklogin.py
+#avocado run $AVOCADO_PARAMS --xunit out2.xml --vm-clean $AVOCADO_TEST_DIR/checkrealms.py
 
 

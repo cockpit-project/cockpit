@@ -72,19 +72,29 @@ EXTRA_DIST += \
 	$(basefonts_DATA) \
 	$(NULL)
 
-update-jquery:
+BASE_LN = cd $(srcdir)/pkg/base; ln -sf
+FONTS_LN = cd $(srcdir)/pkg/base/fonts; ln -sf
+VX = v*[0-9]
+
+update-lib:
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.js \
-	    $(srcdir)/lib/jquery.v2.1.0.js \
-	    $(srcdir)/lib/bootstrap.v3.1.1.js \
-	    $(srcdir)/lib/bootstrap-select.v1.5.4.js \
-	    $(srcdir)/lib/jquery-flot.v0.7.js \
+	    $(srcdir)/lib/jquery.$(VX).js \
+	    $(srcdir)/lib/bootstrap.$(VX).js \
+	    $(srcdir)/lib/bootstrap-select.$(VX).js \
+	    $(srcdir)/lib/jquery-flot.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.min.js \
-	    $(srcdir)/lib/jquery.v2.1.0.min.js \
-	    $(srcdir)/lib/bootstrap.v3.1.1.min.js \
-	    $(srcdir)/lib/bootstrap-select.v1.5.4.min.js \
-	    $(srcdir)/lib/jquery-flot.v0.7.min.js \
+	    $(srcdir)/lib/jquery.$(VX).min.js \
+	    $(srcdir)/lib/bootstrap.$(VX).min.js \
+	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
+	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
 	    $(srcdir)/lib/attrchange.min.js
+	$(BASE_LN) ../../lib/mustache.$(VX).js mustache.js
+	$(BASE_LN) ../../lib/mustache.$(VX).min.js mustache.min.js
+	$(BASE_LN) ../../lib/patternfly.$(VX).css patternfly.css
+	$(BASE_LN) ../../lib/term.$(VX).js term.js
+	$(FONTS_LN) ../../../lib/fontawesome.$(VX).woff fontawesome.woff
+	$(FONTS_LN) ../../../lib/patternfly.$(VX).woff patternfly.woff
 
 # Never recreate these files
 pkg/base/jquery.min.js:

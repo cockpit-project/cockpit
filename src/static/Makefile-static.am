@@ -1,24 +1,4 @@
 
-lib_FILES = \
-	lib/jquery.v2.1.0.js \
-	lib/jquery.v2.1.0.min.js \
-	lib/jquery-flot.v0.7.js \
-	lib/jquery-flot.v0.7.min.js \
-	lib/bootstrap.v3.1.1.js \
-	lib/bootstrap.v3.1.1.min.js \
-	lib/bootstrap-select.v1.5.4.js \
-	lib/bootstrap-select.v1.5.4.min.js \
-	lib/fontawesome.v4.0.2.woff \
-	lib/mustache.v0.8.1.js \
-	lib/mustache.v0.8.1.min.js \
-	lib/patternfly.css \
-	lib/patternfly.v1.0.woff \
-	lib/attrchange.js \
-	lib/attrchange.min.js \
-	lib/term.js \
-	lib/amdjs-tests \
-	$(NULL)
-
 if WITH_COCKPIT_WS
 
 staticdir = $(datadir)/cockpit/static
@@ -69,7 +49,6 @@ $(static_CHECKSUMS): $(staticcache_DATA) $(staticimages_DATA)
 		$(staticcache_DATA) $(staticimages_DATA)
 
 EXTRA_DIST += \
-	$(lib_FILES) \
 	$(staticcache_DATA) \
 	$(staticfonts_DATA) \
 	$(staticimages_DATA) \

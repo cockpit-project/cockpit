@@ -625,7 +625,7 @@ static GBytes *
 finish_headers (CockpitWebResponse *self,
                 GString *string,
                 gssize length,
-                gboolean success,
+                gint status,
                 guint seen)
 {
   gint i;
@@ -652,7 +652,7 @@ finish_headers (CockpitWebResponse *self,
 
   /* Automatically figure out content type */
   if ((seen & HEADER_CONTENT_TYPE) == 0 &&
-      self->full_path != NULL && success)
+      self->full_path != NULL && status >= 200 && status <= 299)
     {
       for (i = 0; i < G_N_ELEMENTS (content_types); i++)
         {
@@ -664,15 +664,18 @@ finish_headers (CockpitWebResponse *self,
         }
     }
 
-  if (length >= 0)
+  if (status != 304)
     {
-      self->chunked = FALSE;
-      g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
-    }
-  else
-    {
-      self->chunked = TRUE;
-      g_string_append_printf (string, "Transfer-Encoding: chunked\r\n");
+      if (length >= 0)
+        {
+          self->chunked = FALSE;
+          g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
+        }
+      else
+        {
+          self->chunked = TRUE;
+          g_string_append_printf (string, "Transfer-Encoding: chunked\r\n");
+        }
     }
   if (!self->keep_alive)
     g_string_append (string, "Connection: close\r\n");
@@ -721,8 +724,7 @@ cockpit_web_response_headers (CockpitWebResponse *self,
   string = begin_headers (self, status, reason);
 
   va_start (va, length);
-  block = finish_headers (self, string, length,
-                          status >= 200 && status <= 299,
+  block = finish_headers (self, string, length, status,
                           append_va (string, va));
   va_end (va);
 
@@ -766,8 +768,7 @@ cockpit_web_response_headers_full  (CockpitWebResponse *self,
 
   string = begin_headers (self, status, reason);
 
-  block = finish_headers (self, string, length,
-                          status >= 200 && status <= 299,
+  block = finish_headers (self, string, length, status,
                           append_table (string, headers));
 
   queue_bytes (self, block);

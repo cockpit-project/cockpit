@@ -1646,7 +1646,6 @@ test_resource_not_modified (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 304 Not Modified\r\n"
                            "ETag: \"$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3\"\r\n"
-                           "Content-Length: 0\r\n"
                            "\r\n", -1);
   g_bytes_unref (bytes);
   g_object_unref (response);

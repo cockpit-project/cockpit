@@ -33,6 +33,7 @@ basefontsdir = $(pkgdatadir)/base/fonts
 basefonts_DATA = \
 	pkg/base/fonts/fontawesome.woff \
 	pkg/base/fonts/patternfly.woff \
+	pkg/base/fonts/glyphicons.woff \
 	$(NULL)
 
 base_TESTS = \
@@ -95,6 +96,7 @@ update-lib:
 	$(BASE_LN) ../../lib/term.$(VX).js term.js
 	$(FONTS_LN) ../../../lib/fontawesome.$(VX).woff fontawesome.woff
 	$(FONTS_LN) ../../../lib/patternfly.$(VX).woff patternfly.woff
+	$(FONTS_LN) ../../../lib/glyphicons-halflings.$(VX).woff glyphicons.woff
 
 # Never recreate these files
 pkg/base/jquery.min.js:

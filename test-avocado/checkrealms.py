@@ -134,3 +134,6 @@ class checkrealms(test.Test):
         b.click("#realms-op-cancel")
         b.wait_popdown("realms-op")
 
+
+if __name__ == "__main__":
+    job.main()

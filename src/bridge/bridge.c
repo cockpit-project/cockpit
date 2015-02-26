@@ -103,40 +103,6 @@ process_open (CockpitTransport *transport,
     }
 }
 
-static void
-process_close (CockpitTransport *transport,
-               const gchar *channel_id,
-               JsonObject *options)
-{
-  CockpitChannel *channel;
-  const gchar *problem;
-
-  /*
-   * The channel may no longer exist due to a race of the bridge closing
-   * a channel and the web closing it at the same time.
-   */
-
-  if (!channel_id)
-    {
-      g_warning ("Caller tried to close channel without an id");
-      cockpit_transport_close (transport, "protocol-error");
-      return;
-    }
-
-  channel = g_hash_table_lookup (channels, channel_id);
-  if (channel)
-    {
-      g_debug ("close channel %s", channel_id);
-      if (!cockpit_json_get_string (options, "problem", NULL, &problem))
-        problem = NULL;
-      cockpit_channel_close (channel, problem);
-    }
-  else
-    {
-      g_debug ("already closed channel %s", channel_id);
-    }
-}
-
 static gboolean
 on_transport_control (CockpitTransport *transport,
                       const char *command,
@@ -159,12 +125,29 @@ on_transport_control (CockpitTransport *transport,
     }
 
   if (g_str_equal (command, "open"))
-    process_open (transport, channel_id, options);
+    {
+      process_open (transport, channel_id, options);
+      return TRUE;
+    }
   else if (g_str_equal (command, "close"))
-    process_close (transport, channel_id, options);
-  else
-    return FALSE;
-  return TRUE; /* handled */
+    {
+      if (!channel_id)
+        {
+          g_warning ("Caller tried to close channel without an id");
+          cockpit_transport_close (transport, "protocol-error");
+        }
+      else
+        {
+          /*
+           * The channel may no longer exist due to a race of the bridge closing
+           * a channel and the web closing it at the same time.
+           */
+
+          g_debug ("already closed channel %s", channel_id);
+        }
+    }
+
+  return FALSE;
 }
 
 static void

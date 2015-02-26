@@ -229,6 +229,7 @@ on_transport_control (CockpitTransport *transport,
 {
   CockpitChannel *self = user_data;
   CockpitChannelClass *klass;
+  const gchar *problem;
 
   if (g_strcmp0 (channel_id, self->priv->id) != 0)
     return FALSE;
@@ -257,6 +258,13 @@ on_transport_control (CockpitTransport *transport,
             }
         }
       return TRUE;
+    }
+  else if (g_str_equal (command, "close"))
+    {
+      g_debug ("close channel %s", channel_id);
+      if (!cockpit_json_get_string (options, "problem", NULL, &problem))
+        problem = NULL;
+      cockpit_channel_close (self, problem);
     }
 
   return FALSE;

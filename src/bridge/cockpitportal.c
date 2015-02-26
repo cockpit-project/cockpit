@@ -447,3 +447,60 @@ cockpit_portal_new_superuser (CockpitTransport *transport)
                        "argv", argv,
                        NULL);
 }
+
+static gboolean
+pcp_filter (CockpitPortal *self,
+            const gchar *command,
+            const gchar *channel,
+            JsonObject *options,
+            GBytes *payload)
+{
+  const gchar *type;
+  const gchar *source;
+
+  if (g_str_equal (command, "open") && channel)
+    {
+      if (!cockpit_json_get_string (options, "payload", NULL, &type))
+        type = NULL;
+      if (!cockpit_json_get_string (options, "source", NULL, &source))
+        source = NULL;
+
+      if (g_strcmp0 (type, "metrics1") != 0 ||
+          g_strcmp0 (source, "internal") == 0)
+        {
+          return FALSE;
+        }
+
+      open_portal (self);
+      g_debug ("pcp portal channel: %s", channel);
+
+      g_hash_table_add (self->channels, g_strdup (channel));
+      cockpit_transport_send (self->other, NULL, payload);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+/**
+ * cockpit_portal_new_pcp
+ * @transport: the transport to send data over
+ *
+ * Create a new CockpitPortal to PCP code out of process
+ *
+ * Returns: (transfer full): the new transport
+ */
+CockpitPortal *
+cockpit_portal_new_pcp (CockpitTransport *transport)
+{
+  const gchar *argv[] = {
+    PACKAGE_LIBEXEC_DIR "/cockpit-pcp",
+    NULL
+  };
+
+  return g_object_new (COCKPIT_TYPE_PORTAL,
+                       "transport", transport,
+                       "filter", pcp_filter,
+                       "argv", argv,
+                       NULL);
+}

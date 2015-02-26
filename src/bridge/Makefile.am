@@ -1,5 +1,8 @@
 
-noinst_LIBRARIES += libcockpit-bridge.a
+noinst_LIBRARIES += \
+	libcockpit-bridge.a \
+	libcockpit-pcp.a \
+	$(NULL)
 
 libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitchannel.c \
@@ -24,8 +27,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitpackages.h \
 	src/bridge/cockpitpaths.c \
 	src/bridge/cockpitpaths.h \
-	src/bridge/cockpitpcpmetrics.c \
-	src/bridge/cockpitpcpmetrics.h \
 	src/bridge/cockpitpolkitagent.c \
 	src/bridge/cockpitpolkitagent.h \
 	src/bridge/cockpitportal.c \
@@ -50,11 +51,8 @@ libcockpit_bridge_a_SOURCES = \
 
 libcockpit_bridge_a_CFLAGS = \
 	-I$(srcdir)/src/bridge \
-	$(cockpit_cppflags_common) \
-	$(cockpit_cppflags_glib_version) \
 	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
 	$(COCKPIT_BRIDGE_CFLAGS) \
-	$(WARN_CFLAGS) \
 	$(NULL)
 
 libcockpit_bridge_LIBS = \
@@ -64,10 +62,31 @@ libcockpit_bridge_LIBS = \
 	$(COCKPIT_BRIDGE_LIBS) \
 	$(NULL)
 
+libcockpit_pcp_a_SOURCES = \
+	src/bridge/cockpitchannel.c \
+	src/bridge/cockpitchannel.h \
+	src/bridge/cockpitmetrics.c \
+	src/bridge/cockpitmetrics.h \
+	src/bridge/cockpitpcpmetrics.c \
+	src/bridge/cockpitpcpmetrics.h \
+	$(NULL)
+
+libcockpit_pcp_a_CFLAGS = \
+	-I$(srcdir)/src/bridge \
+	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
+	$(COCKPIT_PCP_CFLAGS) \
+	$(NULL)
+
+libcockpit_pcp_LIBS = \
+	libcockpit-pcp.a \
+	libcockpit-common.a \
+	$(COCKPIT_PCP_LIBS) \
+	$(NULL)
+
 # -----------------------------------------------------------------------------
 
 bin_PROGRAMS += cockpit-bridge
-libexec_PROGRAMS += cockpit-polkit
+libexec_PROGRAMS += cockpit-polkit cockpit-pcp
 
 cockpit_bridge_SOURCES = src/bridge/bridge.c
 cockpit_bridge_CFLAGS = \
@@ -76,6 +95,13 @@ cockpit_bridge_CFLAGS = \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 cockpit_bridge_LDADD = $(libcockpit_bridge_LIBS)
+
+cockpit_pcp_SOURCES = src/bridge/cockpitpcp.c
+cockpit_pcp_CFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
+	$(COCKPIT_PCP_CFLAGS) \
+	$(NULL)
+cockpit_pcp_LDADD = $(libcockpit_pcp_LIBS)
 
 cockpit_polkit_SOURCES = src/bridge/cockpitpolkithelper.c
 cockpit_polkit_CFLAGS = $(COCKPIT_POLKIT_CFLAGS)
@@ -167,14 +193,14 @@ test_metrics_LDADD = $(libcockpit_bridge_LIBS)
 test_pcp_SOURCES = \
 	src/bridge/test-pcp.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_pcp_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_pcp_LDADD = $(libcockpit_bridge_LIBS) -ldl
+test_pcp_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
+test_pcp_LDADD = $(libcockpit_pcp_LIBS) -ldl
 
 test_pcp_archives_SOURCES = \
 	src/bridge/test-pcp-archives.c \
 	src/bridge/mock-transport.c src/bridge/mock-transport.h
-test_pcp_archives_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_pcp_archives_LDADD = $(libcockpit_bridge_LIBS) -ldl -lpcp_import
+test_pcp_archives_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
+test_pcp_archives_LDADD = $(libcockpit_pcp_LIBS) -ldl -lpcp_import
 
 test_httpstream_SOURCES = \
 	src/bridge/test-httpstream.c \

@@ -36,7 +36,9 @@ typedef struct _CockpitPortalClass   CockpitPortalClass;
 
 GType                   cockpit_portal_get_type   (void) G_GNUC_CONST;
 
-CockpitPortal *         cockpit_portal_new_superuser      (CockpitTransport *peer);
+CockpitPortal *         cockpit_portal_new_superuser      (CockpitTransport *transport);
+
+CockpitPortal *         cockpit_portal_new_pcp            (CockpitTransport *transport);
 
 G_END_DECLS
 

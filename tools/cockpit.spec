@@ -115,11 +115,18 @@ The Cockpit Deployment and Developer Guide shows sysadmins how to
 deploy Cockpit on their machines as well as helps developers who want to
 embed or extend Cockpit.
 
+%package pcp
+Summary: Cockpit PCP integration
+Requires: %{name}-bridge = %{version}-%{release}
+Requires: pcp
+
+%description pcp
+Cockpit support for reading PCP metrics and loading PCP archives.
+
 %package shell
 Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: NetworkManager
-Requires: pcp
 Requires: grep
 Obsoletes: %{name}-assets
 BuildArch: noarch
@@ -202,15 +209,18 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 %exclude %{_docdir}/%{name}/README.md
 %{_docdir}/%{name}
 
+%files pcp
+%{_libexecdir}/cockpit-pcp
+
+%post pcp
+# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
+( cd /var/lib/pcp/pmns && ./Rebuild -du )
+
 %files shell
 %{_datadir}/%{name}/base
 %{_datadir}/%{name}/shell
 %{_datadir}/%{name}/playground
 %{_datadir}/%{name}/server-systemd
-
-%post shell
-# HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
-( cd /var/lib/pcp/pmns && ./Rebuild -du )
 
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz

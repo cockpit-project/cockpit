@@ -135,8 +135,10 @@ process_open (CockpitTransport *transport,
         channel_type = COCKPIT_TYPE_NULL_CHANNEL;
       else if (g_strcmp0 (payload, "echo") == 0)
         channel_type = COCKPIT_TYPE_ECHO_CHANNEL;
+#if 0
       else if (g_strcmp0 (payload, "metrics1") == 0)
-        channel_type = COCKPIT_TYPE_PCP_METRICS;
+        channel_type = COCKPIT_TYPE_INTERNAL_METRICS;
+#endif
       else
         channel_type = COCKPIT_TYPE_CHANNEL;
 
@@ -383,6 +385,7 @@ run_bridge (const gchar *interactive)
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
   CockpitPortal *super = NULL;
+  CockpitPortal *pcp = NULL;
   gpointer polkit_agent = NULL;
   struct passwd *pwd;
   GPid daemon_pid = 0;
@@ -448,6 +451,8 @@ run_bridge (const gchar *interactive)
       super = cockpit_portal_new_superuser (transport);
     }
 
+  pcp = cockpit_portal_new_pcp (transport);
+
   cockpit_dbus_user_startup (pwd);
 
   g_free (pwd);
@@ -467,6 +472,7 @@ run_bridge (const gchar *interactive)
     cockpit_polkit_agent_unregister (polkit_agent);
   if (super)
     g_object_unref (super);
+  g_object_unref (pcp);
   g_object_unref (transport);
   g_hash_table_destroy (channels);
 

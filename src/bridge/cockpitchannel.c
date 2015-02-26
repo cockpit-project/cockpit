@@ -20,18 +20,6 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
-#include "cockpitdbusjson.h"
-#include "cockpitechochannel.h"
-#include "cockpithttpstream.h"
-#include "cockpitnullchannel.h"
-#include "cockpitmetrics.h"
-#include "cockpitstream.h"
-#include "cockpitfsread.h"
-#include "cockpitfswrite.h"
-#include "cockpitfswatch.h"
-#include "cockpitfsdir.h"
-
-#include "deprecated/cockpitdbusjson1.h"
 
 #include "common/cockpitjson.h"
 
@@ -306,8 +294,28 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
   CockpitChannel *self = COCKPIT_CHANNEL (channel);
   JsonObject *options;
   const gchar *binary;
+  const gchar *payload;
 
   options = cockpit_channel_get_options (self);
+
+  if (G_OBJECT_TYPE (channel) == COCKPIT_TYPE_CHANNEL)
+    {
+      if (!cockpit_json_get_string (options, "payload", NULL, &payload))
+        payload = NULL;
+
+      if (payload)
+        {
+          g_warning ("bridge doesn't support payloads of type: %s", payload);
+          cockpit_channel_close (channel, "not-supported");
+        }
+      else
+        {
+          g_warning ("no payload type present in request to open channel");
+          cockpit_channel_close (channel, "protocol-error");
+        }
+      return;
+    }
+
   if (!cockpit_json_get_string (options, "binary", NULL, &binary))
     {
       g_warning ("%s: channel has invalid \"binary\" option", self->priv->id);
@@ -541,79 +549,6 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
       g_object_unref (address);
       g_object_unref (inet);
     }
-}
-
-/**
- * cockpit_channel_open:
- * @transport: the transport to send/receive messages on
- * @number: the channel number
- * @options: the options to open the channel.
- *
- * Open a channel for the 'payload' field in @options. Other fields
- * in @options are dependent on the channel type.
- *
- * Guarantee: channel will not close immediately, even on invalid input.
- *
- * Returns: (transfer full): the new channel
- */
-CockpitChannel *
-                cockpit_channel_open (CockpitTransport *transport,
-                                      const gchar *id,
-                                      JsonObject *options)
-{
-  CockpitChannel *channel;
-  GType channel_type;
-  const gchar *payload;
-
-  if (!cockpit_json_get_string (options, "payload", NULL, &payload))
-    payload = NULL;
-  /* TODO: We need to migrate away from dbus-json1 */
-  if (g_strcmp0 (payload, "dbus-json1") == 0)
-    channel_type = COCKPIT_TYPE_DBUS_JSON1;
-  else if (g_strcmp0 (payload, "dbus-json3") == 0)
-    channel_type = COCKPIT_TYPE_DBUS_JSON;
-  else if (g_strcmp0 (payload, "http-stream1") == 0)
-    channel_type = COCKPIT_TYPE_HTTP_STREAM;
-  else if (g_strcmp0 (payload, "stream") == 0)
-    channel_type = COCKPIT_TYPE_STREAM;
-  else if (g_strcmp0 (payload, "fsread1") == 0)
-    channel_type = COCKPIT_TYPE_FSREAD;
-  else if (g_strcmp0 (payload, "fswrite1") == 0)
-    channel_type = COCKPIT_TYPE_FSWRITE;
-  else if (g_strcmp0 (payload, "fswatch1") == 0)
-    channel_type = COCKPIT_TYPE_FSWATCH;
-  else if (g_strcmp0 (payload, "fsdir1") == 0)
-    channel_type = COCKPIT_TYPE_FSDIR;
-  else if (g_strcmp0 (payload, "null") == 0)
-    channel_type = COCKPIT_TYPE_NULL_CHANNEL;
-  else if (g_strcmp0 (payload, "echo") == 0)
-    channel_type = COCKPIT_TYPE_ECHO_CHANNEL;
-  else if (g_strcmp0 (payload, "metrics1") == 0)
-    return cockpit_metrics_open (transport, id, options);
-  else
-    channel_type = COCKPIT_TYPE_CHANNEL;
-
-  channel = g_object_new (channel_type,
-                          "transport", transport,
-                          "id", id,
-                          "options", options,
-                          NULL);
-
-  if (channel_type == COCKPIT_TYPE_CHANNEL)
-    {
-      if (payload)
-        {
-          g_warning ("bridge doesn't support payloads of type: %s", payload);
-          cockpit_channel_close (channel, "not-supported");
-        }
-      else
-        {
-          g_warning ("no payload type present in request to open channel");
-          cockpit_channel_close (channel, "protocol-error");
-        }
-    }
-
-  return channel;
 }
 
 /**

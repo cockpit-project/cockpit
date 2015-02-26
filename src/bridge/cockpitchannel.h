@@ -70,10 +70,6 @@ struct _CockpitChannelClass
 
 GType               cockpit_channel_get_type          (void) G_GNUC_CONST;
 
-CockpitChannel *    cockpit_channel_open              (CockpitTransport *transport,
-                                                       const gchar *id,
-                                                       JsonObject *options);
-
 void                cockpit_channel_close             (CockpitChannel *self,
                                                        const gchar *problem);
 

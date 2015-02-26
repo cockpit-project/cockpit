@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitmetrics.h"
+#include "cockpitpcpmetrics.h"
 #include "mock-transport.h"
 
 #include "common/cockpittest.h"
@@ -115,7 +116,11 @@ at_teardown (TestCase *tc, void *func, void *data)
 static void
 setup_metrics_channel_json (TestCase *tc, JsonObject *options)
 {
-  tc->channel = cockpit_metrics_open (COCKPIT_TRANSPORT (tc->transport), "1234", options);
+  tc->channel = g_object_new (COCKPIT_TYPE_PCP_METRICS,
+                              "transport", tc->transport,
+                              "id", "1234",
+                              "options", options,
+                              NULL);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
   cockpit_channel_prepare (tc->channel);

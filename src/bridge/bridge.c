@@ -24,7 +24,7 @@
 #include "cockpitinteracttransport.h"
 #include "cockpitpackages.h"
 #include "cockpitpolkitagent.h"
-#include "cockpitsuperchannels.h"
+#include "cockpitportal.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
@@ -351,7 +351,7 @@ run_bridge (const gchar *interactive)
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
-  CockpitSuperChannels *super = NULL;
+  CockpitPortal *super = NULL;
   gpointer polkit_agent = NULL;
   struct passwd *pwd;
   GPid daemon_pid = 0;
@@ -414,7 +414,7 @@ run_bridge (const gchar *interactive)
     {
       if (!interactive)
         polkit_agent = cockpit_polkit_agent_register (transport, NULL);
-      super = cockpit_super_channels_new (transport);
+      super = cockpit_portal_new_superuser (transport);
     }
 
   cockpit_dbus_user_startup (pwd);

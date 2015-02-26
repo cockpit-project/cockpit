@@ -28,14 +28,14 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitpcpmetrics.h \
 	src/bridge/cockpitpolkitagent.c \
 	src/bridge/cockpitpolkitagent.h \
+	src/bridge/cockpitportal.c \
+	src/bridge/cockpitportal.h \
 	src/bridge/cockpitmetrics.c \
 	src/bridge/cockpitmetrics.h \
 	src/bridge/cockpitnullchannel.c \
 	src/bridge/cockpitnullchannel.h \
 	src/bridge/cockpitstream.c \
 	src/bridge/cockpitstream.h \
-	src/bridge/cockpitsuperchannels.c \
-	src/bridge/cockpitsuperchannels.h \
 	src/bridge/cockpitfsread.c \
 	src/bridge/cockpitfsread.h \
 	src/bridge/cockpitfswrite.c \

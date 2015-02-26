@@ -56,10 +56,6 @@ struct _CockpitMetricsClass {
 
 GType              cockpit_metrics_get_type     (void) G_GNUC_CONST;
 
-CockpitChannel *   cockpit_metrics_open         (CockpitTransport *transport,
-                                                 const gchar *id,
-                                                 JsonObject *options);
-
 void               cockpit_metrics_set_interpolate (CockpitMetrics *self,
                                                     gboolean interpolate);
 

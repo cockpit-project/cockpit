@@ -20,11 +20,23 @@
 
 #include "cockpitchannel.h"
 #include "cockpitdbusinternal.h"
+#include "cockpitdbusjson.h"
 #include "cockpitdbususer.h"
+#include "cockpitechochannel.h"
+#include "cockpitfsdir.h"
+#include "cockpitfsread.h"
+#include "cockpitfswatch.h"
+#include "cockpitfswrite.h"
+#include "cockpithttpstream.h"
 #include "cockpitinteracttransport.h"
+#include "cockpitnullchannel.h"
 #include "cockpitpackages.h"
+#include "cockpitpcpmetrics.h"
 #include "cockpitpolkitagent.h"
 #include "cockpitportal.h"
+#include "cockpitstream.h"
+
+#include "deprecated/cockpitdbusjson1.h"
 
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
@@ -84,6 +96,8 @@ process_open (CockpitTransport *transport,
               JsonObject *options)
 {
   CockpitChannel *channel;
+  GType channel_type;
+  const gchar *payload;
 
   if (!channel_id)
     {
@@ -97,7 +111,41 @@ process_open (CockpitTransport *transport,
     }
   else
     {
-      channel = cockpit_channel_open (transport, channel_id, options);
+      if (!cockpit_json_get_string (options, "payload", NULL, &payload))
+        payload = NULL;
+
+      /* TODO: We need to migrate away from dbus-json1 */
+      if (g_strcmp0 (payload, "dbus-json1") == 0)
+        channel_type = COCKPIT_TYPE_DBUS_JSON1;
+      else if (g_strcmp0 (payload, "dbus-json3") == 0)
+        channel_type = COCKPIT_TYPE_DBUS_JSON;
+      else if (g_strcmp0 (payload, "http-stream1") == 0)
+        channel_type = COCKPIT_TYPE_HTTP_STREAM;
+      else if (g_strcmp0 (payload, "stream") == 0)
+        channel_type = COCKPIT_TYPE_STREAM;
+      else if (g_strcmp0 (payload, "fsread1") == 0)
+        channel_type = COCKPIT_TYPE_FSREAD;
+      else if (g_strcmp0 (payload, "fswrite1") == 0)
+        channel_type = COCKPIT_TYPE_FSWRITE;
+      else if (g_strcmp0 (payload, "fswatch1") == 0)
+        channel_type = COCKPIT_TYPE_FSWATCH;
+      else if (g_strcmp0 (payload, "fsdir1") == 0)
+        channel_type = COCKPIT_TYPE_FSDIR;
+      else if (g_strcmp0 (payload, "null") == 0)
+        channel_type = COCKPIT_TYPE_NULL_CHANNEL;
+      else if (g_strcmp0 (payload, "echo") == 0)
+        channel_type = COCKPIT_TYPE_ECHO_CHANNEL;
+      else if (g_strcmp0 (payload, "metrics1") == 0)
+        channel_type = COCKPIT_TYPE_PCP_METRICS;
+      else
+        channel_type = COCKPIT_TYPE_CHANNEL;
+
+      channel = g_object_new (channel_type,
+                              "transport", transport,
+                              "id", channel_id,
+                              "options", options,
+                              NULL);
+
       g_hash_table_insert (channels, g_strdup (channel_id), channel);
       g_signal_connect (channel, "closed", G_CALLBACK (on_channel_closed), NULL);
     }

@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "cockpitmetrics.h"
-#include "cockpitpcpmetrics.h"
 
 #include "common/cockpitjson.h"
 
@@ -203,32 +202,6 @@ cockpit_metrics_metronome (CockpitMetrics *self,
   self->priv->next = g_get_monotonic_time() / 1000;
   self->priv->interval = interval;
   on_timeout_tick (self);
-}
-
-CockpitChannel *
-cockpit_metrics_open (CockpitTransport *transport,
-                      const gchar *id,
-                      JsonObject *options)
-{
-  GType channel_type;
-  const gchar *source;
-
-    /* Source will be further validated when channel opens */
-  if (!cockpit_json_get_string (options, "source", NULL, &source))
-    source = NULL;
-
-#if 0
-  if (g_strcmp0 (source, "internal") == 0)
-    channel_type = COCKPIT_TYPE_INTERNAL_METRICS;
-  else
-#endif
-    channel_type = COCKPIT_TYPE_PCP_METRICS;
-
-  return g_object_new (channel_type,
-                       "transport", transport,
-                       "id", id,
-                       "options", options,
-                       NULL);
 }
 
 static void

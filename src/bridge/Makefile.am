@@ -71,6 +71,7 @@ libexec_PROGRAMS += cockpit-polkit
 
 cockpit_bridge_SOURCES = src/bridge/bridge.c
 cockpit_bridge_CFLAGS = \
+	-I$(srcdir)/src/bridge \
 	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)

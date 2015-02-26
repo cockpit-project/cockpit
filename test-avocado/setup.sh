@@ -7,6 +7,7 @@ BASE=`basename $SCRIPT_DIR`
 source $SCRIPT_DIR/lib/host_setup.sh
 source $SCRIPT_DIR/lib/create_test_machine.sh
 LUSER=`whoami`
+ENV_VARIABLES=$COCKPIT_DIR/$BASE/lib/var.env
 
 if check_host $LUSER; then
     echo "Host already configured"
@@ -39,6 +40,7 @@ virt-create $PREFIX $DISTRO
 TMP_NAME=`vm_get_name $PREFIX $DISTRO`
 vm_ssh $TMP_NAME bash -s < $SCRIPT_DIR/lib/guest-ipa.sh
 GUEST_IPA=$TMP_NAME
+echo -e "IPADOMAIN='cockpit.lan' \nIPADOMAINIP='`vm_get_ip $GUEST_IPA`'" > $ENV_VARIABLES
 
 avocado -v || sudo bash -c "`avocado_git_install`"
 LOCAL_VERSION=`avocado -v 2>&1 |grep Avo`
@@ -60,8 +62,7 @@ vm_ssh $GUEST1 mkdir -p /root/avocado/tests/$AVOCADO_TEST_DIR /root/cockpit
 vm_ssh $GUEST1 cp -r /root/cockpit/$BASE/\* /root/avocado/tests$AVOCADO_TEST_DIR
 
 AVOCADO_PARAMS="--vm-domain $GUEST1 --vm-username root --vm-password $PASSWD --vm-hostname $IP"
-avocado run $AVOCADO_PARAMS --xunit out1.xml $AVOCADO_TEST_DIR/{sources.sh,inittest.sh,compiletest.sh}
-avocado run $AVOCADO_PARAMS --xunit out2.xml --vm-clean $AVOCADO_TEST_DIR/checklogin.py
-#avocado run $AVOCADO_PARAMS --xunit out3.xml --vm-clean $AVOCADO_TEST_DIR/checkrealms.py
+avocado run $AVOCADO_PARAMS --xunit out1.xml $AVOCADO_TEST_DIR/{sources.sh,inittest.sh}
+avocado run $AVOCADO_PARAMS --xunit out2.xml --vm-clean $AVOCADO_TEST_DIR/{compiletest.sh,checklogin.py,checkrealms.py}
 
 

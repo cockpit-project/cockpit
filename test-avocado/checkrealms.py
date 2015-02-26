@@ -22,19 +22,32 @@ from avocado import job
 from avocado import test
 from avocado.utils import process
 
-import os, sys
+import os, sys, imp
 topdir = "/usr/share/avocado/tests"
-sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+"/lib")
+libdir = str(os.path.dirname(os.path.abspath(__file__)))+"/lib"
+sys.path.append(libdir)
 sys.path.append(topdir+"/lib")
 from testlib import *
 from libjournal import *
 
-domainip="192.168.122.47"
+try:
+    a=imp.load_source("", "%s/var.env" % libdir)
+    domain=a.IPADOMAIN
+    domainip=a.IPADOMAINIP
+except:
+    a=None
+    domain="cockpit.lan"
+    domainip="192.168.122.55"
+    pass
 
 class checkrealms(test.Test):
     def setup(self):
-        process.run("echo -e 'domain cockpit.lan\nsearch cockpit.lan\nnameserver %s\n' > /etc/resolv.conf" % domainip, shell=True, ignore_status=True)
-        wait(lambda: process.run("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+        self.log.debug("%s/var.env" % libdir)
+        process.run("/bin/cp /etc/pam.d/cockpit{,.old}", shell=True, ignore_status=True)
+        process.run("/bin/cp /etc/resolv.conf{,.old}", shell=True, ignore_status=True)
+        
+        process.run("echo -e 'domain %s\nsearch %s\nnameserver %s\n' > /etc/resolv.conf" % (domain, domain, domainip), shell=True, ignore_status=True)
+        wait(lambda: process.run("nslookup -type=SRV _ldap._tcp.%s" % domain))
         # create user admin
         process.run("useradd %s -c 'Administrator'" % "admin", shell=True, ignore_status=True)
         process.run("gpasswd wheel -a %s" % "admin", shell=True, ignore_status=True)
@@ -49,6 +62,7 @@ class checkrealms(test.Test):
     def cleanup(self):
         process.run("systemctl stop cockpit", shell=True)
         process.run("/bin/cp -f /etc/pam.d/cockpit{.old,}", shell=True, ignore_status=True)
+        process.run("/bin/cp -f /etc/resolv.conf{.old,}", shell=True, ignore_status=True)
         self.log.debug("END")
     
     def testIpa(self):
@@ -71,7 +85,7 @@ class checkrealms(test.Test):
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
 	with b.wait_timeout(120):
-                b.set_val("#realms-op-address", "cockpit.lan")
+                b.set_val("#realms-op-address", domain)
 	        b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
 	        b.set_val("#realms-op-admin", "admin")
 	        b.set_val("#realms-op-admin-password", "foobarfoo")
@@ -91,7 +105,7 @@ class checkrealms(test.Test):
         # Send a wrong password
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
-        b.set_val("#realms-op-address", "cockpit.lan")
+        b.set_val("#realms-op-address", domain)
         b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
         b.set_val("#realms-op-admin", "admin")
         b.set_val("#realms-op-admin-password", "foo")
@@ -111,7 +125,7 @@ class checkrealms(test.Test):
         # Cancel a join
         b.click("#system_information_realms_button")
         b.wait_popup("realms-op")
-        b.set_val("#realms-op-address", "cockpit.lan")
+        b.set_val("#realms-op-address", domain)
         b.wait_attr("#realms-op-admin", "placeholder", 'e.g. "admin"')
         b.set_val("#realms-op-admin", "admin")
         b.set_val("#realms-op-admin-password", "foobarfoo")

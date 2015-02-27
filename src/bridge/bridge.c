@@ -21,7 +21,6 @@
 #include "cockpitchannel.h"
 #include "cockpitdbusinternal.h"
 #include "cockpitdbusjson.h"
-#include "cockpitdbususer.h"
 #include "cockpitechochannel.h"
 #include "cockpitfsdir.h"
 #include "cockpitfsread.h"
@@ -453,6 +452,7 @@ run_bridge (const gchar *interactive)
 
   pcp = cockpit_portal_new_pcp (transport);
 
+  cockpit_dbus_time_startup ();
   cockpit_dbus_user_startup (pwd);
 
   g_free (pwd);

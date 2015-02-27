@@ -207,7 +207,7 @@ define([
                 }
             }
 
-            function update(items, item) {
+            function updated(item) {
                 var key = item.metadata ? item.metadata.uid : null;
                 if (!key) {
                     console.warn("kubernetes item without uid");
@@ -217,7 +217,7 @@ define([
                 trigger();
             }
 
-            function remove(items, item) {
+            function removed(item) {
                 var key;
                 if (!item) {
                     for (key in items)
@@ -248,9 +248,7 @@ define([
                 }
             });
 
-            var wc = new KubernetesWatch(api, type,
-                           function(item) { update(items, item); },
-                           function(item) { remove(items, item); });
+            var wc = new KubernetesWatch(api, type, updated, removed);
             watches.push(wc);
         }
 

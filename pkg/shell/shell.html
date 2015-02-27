@@ -68,7 +68,7 @@
         {{#machines}}
           {{! state can be 'failed' or 'connected' }}
           <a data-address="{{address}}" class="list-group-item {{state}}"
-              style="border-left-color: {{ color }};" href="/#/{{address}}/server">
+              style="border-left-color: {{ color }};" target="_parent" href="/#/@{{address}}/system/host">
             <button class="btn btn-danger edit-button pficon btn-delete pficon-delete"></button>
             <button class="btn btn-default edit-button pficon pficon-edit"></button>
             <img class="host-avatar" src="{{render_avatar}}">
@@ -124,10 +124,10 @@
           </div>
           <div id="server-graph-column-2" class="col-md-12 col-lg-6">
             <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
-            <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.location.go('storage');"></div>
+            <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.jump('/storage/devices');"></div>
             <br/>
             <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
-            <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.location.go('networking');"></div>
+            <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.jump('/network/interfaces');"></div>
             <br/>
           </div>
         </div>

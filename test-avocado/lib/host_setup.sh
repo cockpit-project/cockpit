@@ -1,12 +1,32 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+
 
 # you have to setup domain in virt-manager default network and reboot the machine to apply changes
 # /etc/libvirt/qemu/networks/default.xml
 # add line
 # <domain name='cockpit.lan' localOnly='yes'/>
 unset command_not_found_handle
-HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip"
-HS_GRP="virtualization"
+HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip avocado virt-manager qemu-img"
+export HS_GRP="virtualization"
 HS_DEFAULTNET="/etc/libvirt/qemu/networks/default.xml"
 
 function host_default_network_domain(){
@@ -22,13 +42,18 @@ function host_default_network_domain(){
 function host_dependencies_fedora(){
     sudo yum -y yum-plugin-copr
     sudo yum -y copr enable fsimonce/virt-deploy
+    sudo yum -y copr enable lmr/Autotest
     sudo yum -y install $HS_BASE_PCKGS
 }
 
 function host_dependencies_rhel7(){
+    sudo yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
     curl https://copr.fedoraproject.org/coprs/fsimonce/virt-deploy/repo/epel-7/fsimonce-virt-deploy-epel-7.repo > virt-deploy.repo
-    sudo /bin/cp virt-deploy.repo /etc/yum.repos.d/
+    curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/fedora-21/lmr-Autotest-fedora-21.repo | sed -r -e 's/\$releasever/21/' -e 's/\$basearch/x86_64/' -e 's/gpgcheck=1/gpgcheck=0/' > avocado.repo
+    sudo /bin/cp virt-deploy.repo avocado.repo /etc/yum.repos.d/
     sudo yum -y install $HS_BASE_PCKGS
+    
+    
 
 }
 
@@ -95,7 +120,7 @@ function check_host(){
     return 1
 
 }
-
+# deprecated
 function avocado_pip_install(){
     HS_AVOCADO_STRING="
 (
@@ -105,7 +130,7 @@ function avocado_pip_install(){
 "
 echo $HS_AVOCADO_STRING
 }
-
+# deprecated
 function avocado_git_install(){
     HS_AVOCADO_NEW="https://github.com/avocado-framework/avocado/archive/master.zip"
     HS_AVOCADO="avocado-master"

@@ -1260,6 +1260,21 @@ function full_scope(cockpit, $, po) {
         $(cockpit).triggerHandler("locationchanged");
     });
 
+    /* ------------------------------------------------------------------------
+     * Cockpit jump
+     */
+
+    cockpit.jump = function jump(path, host) {
+        if ($.isArray(path))
+            path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@");
+        else
+            path = "" + path;
+        var options = { command: "jump", location: path };
+        if (host)
+            options.host = host;
+        cockpit.transport.inject("\n" + JSON.stringify(options));
+    };
+
     /* ---------------------------------------------------------------------
      * Spawning
      *

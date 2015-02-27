@@ -52,6 +52,8 @@ BuildRequires: docbook-style-xsl
 BuildRequires: keyutils-libs-devel
 BuildRequires: dbus-devel
 BuildRequires: glib-networking
+
+BuildRequires: glib2-devel >= 2.37.4
 BuildRequires: systemd
 BuildRequires: polkit
 BuildRequires: pcp-libs-devel
@@ -137,6 +139,8 @@ This package contains the Cockpit shell UI assets.
 %package ws
 Summary: Cockpit Web Service
 Requires: glib-networking
+
+Requires: glib2 >= 2.37.4
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd

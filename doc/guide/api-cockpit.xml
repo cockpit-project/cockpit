@@ -208,6 +208,33 @@
     </refsection>
   </refsection>
 
+  <refsection id="latest-jump">
+    <title>Jumping between components</title>
+
+<programlisting>
+  cockpit.jump("/system/log")
+</programlisting>
+
+    <para>In Cockpit in there multiple components shown. In order to tell Cockpit to jump to and show
+      another component and a certain location within that component, use the
+      <code>cockpit.jump()</code> function. Stable component paths are documented. Don't assume
+      you can navigate into paths that are not stable API.</para>
+
+    <refsection id="latest-jump-jump">
+      <title>cockpit.jump()</title>
+<programlisting>
+  cockpit.jump(path, [ host ])
+</programlisting>
+      <para>Ask Cockpit to jump to another component. The location of the current component will
+        not be affected. The <code>path</code> argument can be a string path, starting with <code>/</code>
+        or an array containing the parts of a path that will be joined to create a path. If <code>host</code>
+        is not specified, then the component on the same host as the caller will be displayed.</para>
+      <para>If the calling component is not running within Cockpit, or the calling component is not
+        currently displayed, then the jump will not happen, and this function has no effect.</para>
+    </refsection>
+
+  </refsection>
+
   <refsection id="latest-spawn">
     <title>Spawning Processes</title>
 

@@ -218,6 +218,7 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 
 %files shell
 %{_datadir}/%{name}/base
+%{_datadir}/%{name}/legacy
 %{_datadir}/%{name}/shell
 %{_datadir}/%{name}/playground
 %{_datadir}/%{name}/server-systemd

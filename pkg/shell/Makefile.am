@@ -1,15 +1,12 @@
 shell_js_PARTS = \
 	pkg/shell/polyfills.js \
 	pkg/shell/dbus.js \
-	pkg/shell/debug.js \
 	pkg/shell/controls.js \
 	pkg/shell/plot.js \
 	pkg/shell/canvas.js \
 	pkg/shell/cockpit-util.js \
 	pkg/shell/cockpit-main.js \
 	pkg/shell/cockpit-plot.js \
-	pkg/shell/cockpit-about.js \
-	pkg/shell/cockpit-language.js \
 	pkg/shell/cockpit-dashboard.js \
 	pkg/shell/cockpit-setup.js \
 	pkg/shell/cockpit-server.js \
@@ -34,6 +31,10 @@ shelldir = $(pkgdatadir)/shell
 shell_DATA = \
 	shell.js \
 	shell.min.js \
+	pkg/shell/index.html \
+	pkg/shell/index.min.html \
+	pkg/shell/index.js \
+	pkg/shell/index.min.js \
 	pkg/shell/shell.css \
 	pkg/shell/shell.html \
 	pkg/shell/shell.min.html \

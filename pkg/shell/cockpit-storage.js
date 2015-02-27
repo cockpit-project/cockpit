@@ -358,9 +358,8 @@ PageStorage.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from the old dbus */
-        this.client = shell.dbus(this.address);
+        this.client = shell.dbus(null);
         watch_jobs(this.client);
 
         this._drives = $("#storage_drives");
@@ -1255,9 +1254,8 @@ PageStorageDetail.prototype = {
         var type = shell.get_page_param("type");
         var id = shell.get_page_param("id");
 
-        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address);
+        this.client = shell.dbus(null);
         watch_jobs(this.client);
 
         this._drive = null;

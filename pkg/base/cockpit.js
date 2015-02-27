@@ -678,9 +678,6 @@ function Channel(options) {
 
         if (command.host === undefined) {
             var host = default_host;
-            /* HACK until we migrate all the pages from shell */
-            if ("shell" in window && typeof window.shell.get_page_machine == "function")
-                host = window.shell.get_page_machine();
             if (host)
                 command.host = host;
         }
@@ -2625,6 +2622,27 @@ function full_scope(cockpit, $, po) {
     cockpit.permission = function permission(arg) {
         return new Permission(arg);
     };
+
+    /*
+     * If we're embedded, send oops to parent frame. Since everything
+     * could be broken at this point, just do it manually, without
+     * involving cockpit.transport or any of that logic.
+     */
+
+    var old_onerror;
+
+    if (window.navigator.userAgent.indexOf("PhantomJS") == -1 &&
+        window.parent !== window &&
+        window.parent.options && window.parent.options.sink &&
+        window.parent.options.protocol == "cockpit1") {
+        old_onerror = window.onerror;
+        window.onerror = function(msg, url, line) {
+            window.parent.postMessage("\n{ \"command\": \"oops\" }", origin);
+            if (old_onerror)
+                return old_onerror(msg, url, line);
+            return false;
+        };
+    }
 
 } /* full_scope */
 

@@ -185,13 +185,12 @@ function render_service (name, desc, load_state, active_state, sub_state, file_s
             $('<td class="cell-buttons" style="padding-left:20px;padding-right:5px">').append(
                 btn_play, btn_stop, img_waiting));
 
-        var address = manager._client.target; // XXX
         var geard_match = name.match(/ctr-(.*)\.service/);
 
         if (geard_match) {
             var btn_eject = $('<button class="btn btn-default btn-control services-privileged btn-eject">').
                 on("click", function() {
-                    cockpit.spawn([ "gear", "delete", geard_match[1] ], { host: address }).
+                    cockpit.spawn([ "gear", "delete", geard_match[1] ]).
                         fail(shell.show_unexpected_error);
                     return false;
                 });
@@ -231,7 +230,6 @@ PageServices.prototype = {
         update_service_privileged();
         var self = this;
         $('#services-add').click(function () {
-            PageServiceAdd.address = self.address;
             $('#service-add-dialog').modal('show');
         });
     },
@@ -239,12 +237,9 @@ PageServices.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = shell.get_page_machine();
-
         if (!me.geard_check_done) {
             me.geard_check_done = true;
-            cockpit.spawn([ "which", "gear" ], { host: me.address,
-                                                 error : "output" }).
+            cockpit.spawn([ "which", "gear" ], { error : "output" }).
                 done(function () {
                     me.geard_present = true;
                     shell.content_refresh();
@@ -287,7 +282,7 @@ PageServices.prototype = {
         });
 
         /* TODO: This code needs to be migrated away from old dbus */
-        me.client = shell.dbus(me.address);
+        me.client = shell.dbus(null);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");
@@ -513,7 +508,7 @@ PageServiceAdd.prototype = {
     },
 
     enter: function() {
-        this.docker = shell.docker(PageServiceAdd.address);
+        this.docker = shell.docker();
         $(this.docker).on("image.services", $.proxy(this, "update"));
 
         $('#service-add-image, #service-add-name').val("");
@@ -558,8 +553,7 @@ PageServiceAdd.prototype = {
 
     add: function() {
         $('#service-add-dialog').modal('hide');
-        cockpit.spawn([ "gear", "install", "--has-foreground", $('#service-add-image').val(), $('#service-add-name').val() ],
-                      { host: PageServiceAdd.address }).
+        cockpit.spawn([ "gear", "install", "--has-foreground", $('#service-add-image').val(), $('#service-add-name').val() ]).
             fail(shell.show_unexpected_error);
     }
 };
@@ -633,9 +627,8 @@ PageService.prototype = {
     enter: function() {
         var me = this;
 
-        me.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        me.client = shell.dbus(me.address);
+        me.client = shell.dbus(null);
 
         me.manager = me.client.get("/com/redhat/Cockpit/Services",
                                    "com.redhat.Cockpit.Services");

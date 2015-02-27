@@ -41,8 +41,8 @@ function docker_debug() {
 var docker_clients = shell.util.make_resource_cache();
 
 shell.docker = docker;
-function docker(machine) {
-    return docker_clients.get(machine, function () { return new DockerClient(machine); });
+function docker() {
+    return docker_clients.get("default", function () { return new DockerClient(); });
 }
 
 function quote_cmdline (cmds) {
@@ -265,7 +265,7 @@ function CpuSlider(sel, min, max) {
     return this;
 }
 
-function setup_for_failure(page, client, address) {
+function setup_for_failure(page, client) {
     var $failure = $("#containers-failure");
     var $page = $('#' + page.id);
 
@@ -315,7 +315,7 @@ function setup_for_failure(page, client, address) {
     });
 
     $('#containers-failure-start').on('click.failure', function () {
-        cockpit.spawn([ "systemctl", "start", "docker" ], { "host": address, "superuser": true }).
+        cockpit.spawn([ "systemctl", "start", "docker" ], { "superuser": true }).
             done(function () {
                 client.close();
                 client.connect().
@@ -518,11 +518,10 @@ PageContainers.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = shell.get_page_machine();
-        this.client = shell.docker(this.address);
+        this.client = shell.docker();
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.dbus_client = shell.dbus(this.address);
+        this.dbus_client = shell.dbus(null);
 
         var reds = [ "#250304",
                      "#5c080c",
@@ -1409,8 +1408,7 @@ PageSearchImage.prototype = {
     },
 
     enter: function() {
-        this.address = shell.get_page_machine();
-        this.client = shell.docker(this.address);
+        this.client = shell.docker();
 
         // Clear the previous results and search string from previous time
         $('#containers-search-image-results tbody tr').remove();
@@ -1699,8 +1697,7 @@ PageContainerDetails.prototype = {
                     });
             });
 
-        this.address = shell.get_page_machine();
-        this.client = shell.docker(this.address);
+        this.client = shell.docker();
         this.container_id = shell.get_page_param('id');
         this.name = this.container_id.slice(0,12);
 
@@ -1710,14 +1707,14 @@ PageContainerDetails.prototype = {
             });
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.dbus_client = shell.dbus(this.address);
+        this.dbus_client = shell.dbus(null);
 
         $(this.client).on('container.container-details', function (event, id, container) {
             if (id == self.container_id)
                 self.update();
         });
 
-        setup_for_failure(this, this.client, this.address);
+        setup_for_failure(this, this.client, null);
         this.update();
     },
 
@@ -1921,13 +1918,12 @@ PageImageDetails.prototype = {
     enter: function() {
         var self = this;
 
-        this.address = shell.get_page_machine();
-        this.client = shell.docker(this.address);
+        this.client = shell.docker();
         this.image_id = shell.get_page_param('id');
         this.name = cockpit.format(_("Image $0"), this.image_id.slice(0,12));
 
         /* TODO: migrate this code away from old dbus */
-        this.dbus_client = shell.dbus(this.address);
+        this.dbus_client = shell.dbus(null);
 
         $('#image-details-containers table tbody tr').remove();
         $('#image-details-containers button.enable-danger').toggle(false);
@@ -1947,7 +1943,7 @@ PageImageDetails.prototype = {
                 self.render_container(c.Id, c);
         }
 
-        setup_for_failure(this, this.client, this.address);
+        setup_for_failure(this, this.client);
         this.update();
     },
 
@@ -2028,7 +2024,7 @@ function PageImageDetails() {
 
 shell.pages.push(new PageImageDetails());
 
-function DockerClient(machine) {
+function DockerClient() {
     var me = this;
     var events;
     var watch;
@@ -2286,7 +2282,7 @@ function DockerClient(machine) {
         });
 
         /* TODO: This code needs to be migrated away from dbus-json1 */
-        dbus_client = shell.dbus(machine);
+        dbus_client = shell.dbus(null);
         monitor = dbus_client.get("/com/redhat/Cockpit/LxcMonitor",
                                   "com.redhat.Cockpit.MultiResourceMonitor");
         $(monitor).on('NewSample', handle_new_samples);
@@ -2556,10 +2552,7 @@ function DockerClient(machine) {
          * TODO: We need a sane UI for showing that the resources can't be changed
          * Showing unexpected error isn't it.
          */
-        var options = {
-            host: shell.get_page_machine()
-        };
-        cockpit.spawn(["sh", "-c", command], options).
+        cockpit.spawn(["sh", "-c", command]).
             fail(function(ex) {
                 console.warn(ex);
             });
@@ -2593,7 +2586,7 @@ function DockerClient(machine) {
     };
 
     this.machine_info = function machine_info() {
-        return shell.util.machine_info(machine);
+        return shell.util.machine_info();
     };
 
     this.info = function info() {

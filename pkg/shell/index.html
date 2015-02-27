@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cockpit</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/cockpit/@@base@@/shell/index.html">
+    <link href="../latest/cockpit.css" rel="stylesheet">
+    <link href="shell.css" rel="stylesheet">
+    <script src="../latest/cockpit.js"></script>
+    <script src="index.js"></script>
+  </head>
+  <body style="overflow: hidden;">
+    <nav id="topnav" class="navbar navbar-default navbar-pf" role="navigation" hidden>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <span class="sr-only" translatable="yes">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <img class="navbar-brand" height="25" src="/static/images/brand.v0.png" alt="Cockpit" />
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-utility">
+          <li id="navbar-oops" style="display: none;">
+            <a><span class="oops-status" translatable="yes">Ooops!</span></a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown">
+              <span class="pficon pficon-user"></span>
+              <span id="content-user-name"></span><b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a data-toggle="modal" data-target="#display-language" translatable="yes">Display Language</a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <a data-toggle="modal" data-target="#about" translatable="yes">About Cockpit</a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <a id="go-account" translatable="yes">Account Settings</a>
+              </li>
+              <li>
+                <a  id="deauthorize-item" translatable="yes">Drop extra privileges</a>
+              </li>
+              <li>
+                <a id="go-logout" translatable="yes">Log out</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-primary" id="content-navbar">
+          <li class="dropdown" id="machine-dropdown">
+            <a id="machine-color"></a>
+            <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
+                aria-haspopup="true" role="button" aria-expanded="false">
+               <img src="images/server-small.png" id="machine-avatar" class="machine-avatar"><span>Machines</span>
+               <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="machine-link">
+            </ul>
+          </li>
+          <li class="dashboard-link" data-component="dashboard/list">
+            <a href="#/dashboard/list" translatable="yes">Dashboard</a>
+          </li>
+          <li class="dashboard-link" data-component="dashboard/log">
+            <a href="#/machines/log" translatable="yes">Journal</a>
+          </li>
+          <li class="dashboard-link" data-component="kubernetes/cluster">
+            <a href="#/kubernetes/cluster" translatable="yes">Cluster</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="modal" id="about" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">About Cockpit</h4>
+          </div>
+          <div class="modal-body">
+            <div translatable="yes">
+              Cockpit is an advanced application with many options.
+            </div>
+            <div>
+              <span translatable="yes">Version</span> <span id="about-version"></span>.
+            </div>
+            <div>
+              <span id="about-build-info"></span>.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="display-language" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Display Language</h4>
+          </div>
+          <div class="modal-body">
+	    <p translatable="yes">Choose the language to be used in the application</p>
+            <select id="display-language-list" size="5" data-role="none">
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal" translatable="yes">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="display-language-select-button" translatable="yes">
+              Select
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="disconnected-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Disconnected</h4>
+          </div>
+          <div class="modal-body">
+            <div id="disconnected-error"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" id="disconnected-reconnect" translatable="yes">
+              Try to reconnect
+            </button>
+            <button class="btn btn-default" id="disconnected-logout" translatable="yes">
+              Log in again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="error-popup" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="error-popup-title"></h4>
+          </div>
+          <div class="modal-body">
+            <p id="error-popup-message"></p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" data-dismiss="modal" translatable="yes">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sidebar" class="list-group" hidden>
+    </div>
+
+    <div id="content">
+    </div>
+
+  </body>
+</html>

@@ -92,9 +92,8 @@ PageServer.prototype = {
     enter: function() {
         var self = this;
 
-        self.address = shell.get_page_machine();
         /* TODO: Need to migrate away from old dbus */
-        self.client = shell.dbus(self.address);
+        self.client = shell.dbus(null);
 
         self.manager = self.client.get("/com/redhat/Cockpit/Manager",
                                        "com.redhat.Cockpit.Manager");
@@ -172,7 +171,7 @@ PageServer.prototype = {
                                       });
 
 
-        shell.util.machine_info(this.address).
+        shell.util.machine_info(null).
             done(function (info) {
                 // TODO - round memory to something nice and/or adjust
                 //        the ticks.
@@ -516,8 +515,6 @@ PageShutdownDialog.prototype = {
     },
 
     enter: function(event) {
-        this.address = shell.get_page_machine();
-
         $("#shutdown-message").
             val("").
             attr("placeholder", _("Message to logged in users")).

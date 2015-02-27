@@ -177,9 +177,8 @@ PageAccounts.prototype = {
     },
 
     enter: function() {
-        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address);
+        this.client = shell.dbus(null);
 
         on_account_changes(this.client, "accounts", $.proxy(this, "update"));
         this.update();
@@ -381,9 +380,8 @@ PageAccount.prototype = {
     },
 
     enter: function() {
-        this.address = shell.get_page_machine();
         /* TODO: This code needs to be migrated away from old dbus */
-        this.client = shell.dbus(this.address);
+        this.client = shell.dbus(null);
 
         on_account_changes(this.client, "account", $.proxy(this, "update"));
         this.real_name_dirty = false;
@@ -929,11 +927,5 @@ function PageAccountSetPassword() {
 }
 
 shell.dialogs.push(new PageAccountSetPassword());
-
-shell.change_password = function change_password() {
-    PageAccountSetPassword.account = null;
-    PageAccountSetPassword.user_name = cockpit.user["user"];
-    $('#account-set-password-dialog').modal('show');
-};
 
 })(jQuery, cockpit, shell);

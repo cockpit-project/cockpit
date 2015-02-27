@@ -184,6 +184,7 @@ require([
     var ready = false;
     var current_frame = null;
     var current_location;
+    var current_address;
 
     var machines = new Machines();
     var frames = new Frames();
@@ -334,6 +335,7 @@ require([
         }
 
         current_location = "/" + path.slice(0, at).join("/");
+        current_address = address;
 
         update_navbar(machine, component);
         update_sidebar(machine, component);
@@ -613,6 +615,22 @@ require([
             }
         });
 
+        function perform_jump(control) {
+            var address = control.host;
+            if (address === undefined)
+                address = current_address || "localhost";
+            var path = [];
+            if (address)
+                path.push("@" + address);
+            if (control.location) {
+                var str = control.location;
+                if (str.indexOf("/") === 0)
+                    str = str.substring(1);
+                path.push.apply(path, str.split("/"));
+            }
+            cockpit.location.go(path);
+        }
+
         window.addEventListener("message", function(event) {
             if (event.origin !== origin)
                 return;
@@ -642,8 +660,9 @@ require([
                     );
                     frame.postMessage("\n" + JSON.stringify(reply), origin);
 
-                } else if (control.command === "navigate") {
-                    cockpit.location = control.location;
+                } else if (control.command === "jump") {
+                    if (current_frame && current_frame.contentWindow == peer.window)
+                        perform_jump(control);
                     return;
 
                 } else if (control.command == "oops") {

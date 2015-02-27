@@ -19,8 +19,6 @@
 
 #include "config.h"
 
-#include "cockpitdbususer.h"
-
 #include "cockpitdbusinternal.h"
 
 #include <sys/types.h>

@@ -21,6 +21,7 @@
 #define __COCKPIT_DBUS_INTERNAL_H
 
 #include <gio/gio.h>
+#include <pwd.h>
 
 G_BEGIN_DECLS
 
@@ -31,6 +32,10 @@ GDBusConnection *     cockpit_dbus_internal_server       (void);
 void                  cockpit_dbus_internal_startup      (void);
 
 void                  cockpit_dbus_internal_cleanup      (void);
+
+void                  cockpit_dbus_user_startup          (struct passwd *pwd);
+
+void                  cockpit_dbus_time_startup          (void);
 
 G_END_DECLS
 

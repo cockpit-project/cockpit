@@ -77,7 +77,7 @@ BASE_LN = cd $(srcdir)/pkg/base; ln -sf
 FONTS_LN = cd $(srcdir)/pkg/base/fonts; ln -sf
 VX = v*[0-9]
 
-update-lib:
+update-lib::
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.js \
 	    $(srcdir)/lib/jquery.$(VX).js \
 	    $(srcdir)/lib/bootstrap.$(VX).js \

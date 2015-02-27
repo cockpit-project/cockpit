@@ -28,11 +28,11 @@ unset command_not_found_handle
 HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip avocado virt-manager qemu-img"
 export HS_GRP="virtualization"
 HS_DEFAULTNET="/etc/libvirt/qemu/networks/default.xml"
+HS_CON="-c qemu:///system"
 
 function host_default_network_domain(){
-    if virsh -c qemu:///system net-dumpxml default |grep -q "domain name='cockpit.lan'"; then
-        echo "network already configured"
-        
+    if virsh $HS_CON net-dumpxml default |grep -q "domain name='cockpit.lan'"; then
+        echo "network already configured"       
     else
         sudo sed -i '/<name>default<\/name>/i <domain name="cockpit.lan" localOnly="yes"/>' $HS_DEFAULTNET
         echo "network configured. Please REBOOT the machine, to take effect"
@@ -52,13 +52,23 @@ function host_dependencies_rhel7(){
     curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/fedora-21/lmr-Autotest-fedora-21.repo | sed -r -e 's/\$releasever/21/' -e 's/\$basearch/x86_64/' -e 's/gpgcheck=1/gpgcheck=0/' > avocado.repo
     sudo /bin/cp virt-deploy.repo avocado.repo /etc/yum.repos.d/
     sudo yum -y install $HS_BASE_PCKGS
-    
-    
-
 }
 
 function host_virtlibpolicy_solver(){
     LHS_USER=$HS_USER
+    sudo systemctl restart libvirtd  
+    sudo virsh $HS_CON pool-define /dev/stdin <<EOF
+<pool type='dir'>
+  <name>default</name>
+  <target>
+    <path>/var/lib/libvirt/images</path>
+  </target>
+</pool>
+EOF
+
+    sudo virsh $HS_CON pool-start default
+    sudo virsh $HS_CON pool-autostart default
+
     sudo groupadd $HS_GRP
     sudo usermod -a -G $HS_GRP $LHS_USER
     sudo chgrp $HS_GRP  /var/lib/libvirt/images
@@ -105,7 +115,7 @@ function check_host(){
         echo "All packages alread installed"
         if groups $HS_USER | grep -qs $HS_GRP; then
             echo "Virtualization enabled for user"
-            if virsh -c qemu:///system net-dumpxml default |grep -q "domain name='cockpit.lan'"; then
+            if virsh $HS_CON net-dumpxml default |grep -q "domain name='cockpit.lan'"; then
                 echo "Network domain configured for qemu"
                 return 0
             else

@@ -12,7 +12,7 @@ lib_FILES = \
 	lib/fontawesome.v4.0.2.woff \
 	lib/mustache.v0.8.1.js \
 	lib/mustache.v0.8.1.min.js \
-	lib/patternfly.v0.css \
+	lib/patternfly.v1.1.3.css \
 	lib/patternfly.v1.0.woff \
 	lib/attrchange.js \
 	lib/attrchange.min.js \

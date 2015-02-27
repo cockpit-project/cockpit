@@ -114,7 +114,7 @@ function generate_uuid() {
  * NetworkManager would use a standard o.fd.DBus.Properties API.
  */
 
-function NetworkManagerModel(address) {
+function NetworkManagerModel() {
     /*
      * The NetworkManager model doesn't need proxies in its DBus client.
      * It uses the 'raw' dbus events and methods and constructs its own data
@@ -748,7 +748,7 @@ function NetworkManagerModel(address) {
             return;
 
         push_refresh();
-        cockpit.spawn(["udevadm", "info", obj.Udi], { host: address }).
+        cockpit.spawn(["udevadm", "info", obj.Udi]).
             done(function(res) {
                 var props = { };
                 function snarf_prop(line, env, prop) {
@@ -1142,8 +1142,8 @@ function NetworkManagerModel(address) {
 
 var nm_models = shell.util.make_resource_cache();
 
-function get_nm_model(machine) {
-    return nm_models.get(machine, function () { return new NetworkManagerModel(machine); });
+function get_nm_model() {
+    return nm_models.get("default", function () { return new NetworkManagerModel(); });
 }
 
 function render_interface_link(iface) {
@@ -1263,8 +1263,7 @@ PageNetworking.prototype = {
     enter: function () {
         var self = this;
 
-        this.address = shell.get_page_machine();
-        this.model = get_nm_model(this.address);
+        this.model = get_nm_model();
 
         this.ifaces = { };
 
@@ -1300,7 +1299,7 @@ PageNetworking.prototype = {
         }
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.cockpitd = shell.dbus(this.address);
+        this.cockpitd = shell.dbus(null);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 
@@ -1579,8 +1578,7 @@ PageNetworkInterface.prototype = {
     enter: function () {
         var self = this;
 
-        self.address = shell.get_page_machine();
-        self.model = get_nm_model(self.address);
+        self.model = get_nm_model();
         $(self.model).on('changed.network-interface', $.proxy(self, "update"));
 
         self.dev_name = shell.get_page_param('dev');
@@ -1621,7 +1619,7 @@ PageNetworkInterface.prototype = {
         }
 
         /* TODO: This code needs to be migrated away from old dbus */
-        this.cockpitd = shell.dbus(this.address);
+        this.cockpitd = shell.dbus(null);
         this.monitor = this.cockpitd.get("/com/redhat/Cockpit/NetdevMonitor",
                                          "com.redhat.Cockpit.MultiResourceMonitor");
 

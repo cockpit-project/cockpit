@@ -801,7 +801,7 @@ handle_packages (CockpitWebServer *server,
   if (name == NULL)
     {
       name = g_strdup ("shell");
-      path = "shell.html";
+      path = "index.html";
     }
   else
     {

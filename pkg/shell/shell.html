@@ -4,7 +4,6 @@
     <title>Cockpit</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="/cockpit/@@base@@/shell/shell.html">
     <link href="shell.css" rel="stylesheet">
     <link href="bootstrap-datetimepicker.css" rel="stylesheet">
     <script src="../latest/jquery.js"></script>
@@ -14,96 +13,7 @@
     <script src="shell.js"></script>
   </head>
   <body>
-    <nav id="topnav" class="navbar navbar-default navbar-pf navbar-fixed-top" role="navigation">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <img class="navbar-brand" height="25" src="/static/images/brand.v0.png" alt="Cockpit" />
-      </div>
-      <div class="collapse navbar-collapse navbar-collapse-1">
-        <ul class="nav navbar-nav navbar-utility">
-          <li id="navbar-oops" style="display: none;">
-            <a><span class="oops-status">Ooops!</span></a>
-          </li>
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown">
-              <span class="pficon pficon-user"></span>
-              <span id="content-user-name"></span><b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <a data-toggle="modal" data-target="#display-language-dialog">Display Language</a>
-              </li>
-              <li class="divider"></li>
-              <li>
-                <a data-toggle="modal" data-target="#about">About Cockpit</a>
-              </li>
-              <li class="divider"></li>
-              <li>
-                <a id="cockpit-go-account" onclick="shell.go_login_account();">Account Settings</a>
-              </li>
-              <li>
-                <a id="cockpit-change-passwd" onclick="shell.change_password();">Set password</a>
-              </li>
-              <li class="cockpit-deauthorize-item">
-                <a>Drop extra privileges</a>
-              </li>
-              <li>
-                <a id="cockpit-go-logout" onclick="cockpit.logout();">Log out</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-primary" id="content-navbar" hidden>
-          <li>
-            <a id="hosts-button">
-              <img height="10" src="images/switcher.png">
-            </a>
-          </li>
-          <li>
-            <a data-page-id="server" id="content-navbar-hostname">
-            </a>
-          </li>
-          <li>
-            <a data-page-id="services">Services</a>
-          </li>
-          <li>
-            <a data-task-id="journal">Journal</a>
-          </li>
-          <li>
-            <a data-page-id="networking">Networking</a>
-          </li>
-          <li>
-            <a data-page-id="storage">Storage</a>
-          </li>
-          <li>
-            <a data-page-id="containers">Containers</a>
-          </li>
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <span translatable="yes">Tools</span>
-              <b class="caret"></b>
-            </a>
-            <ul id="tools-menu" class="dropdown-menu">
-              <li>
-                <a data-page-id="accounts">Administrator accounts</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
-
-    <div id="shell-header-extra" style="position:fixed;z-index:900;padding-left:10px">
-    </div>
-
-    <div id="cockpit-sidebar" style="position:fixed;left:0px;width:300px;z-index:900">
-      <div class="list-group" id="hosts">
-      </div>
+    <div id="shell-header-extra">
     </div>
 
     <div id="content">
@@ -1011,55 +921,6 @@
 
     </div>  <!-- id="content" -->
 
-    <div class="modal" id="display-language-dialog"
-         tabindex="-1" role="dialog"
-         data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Display Language</h4>
-          </div>
-          <div class="modal-body">
-	    <p translatable="yes">Choose the language to be used in the
-	      application</p>
-            <select id="display-language-list" size="5" data-role="none">
-            </select>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal">
-              Cancel
-            </button>
-            <button class="btn btn-primary" id="display-language-select-button">
-              Select
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="disconnected-dialog"
-         tabindex="-1" role="dialog"
-         data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Disconnected</h4>
-          </div>
-          <div class="modal-body">
-            <div id="disconnected-error"></div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default" id="disconnected-reconnect">
-              Try to reconnect
-            </button>
-            <button class="btn btn-default" id="disconnected-logout">
-              Log in again
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="modal" id="error-popup"
          tabindex="-1" role="dialog"
          data-backdrop="static">
@@ -1070,34 +931,6 @@
           </div>
           <div class="modal-body">
             <p id="error-popup-message"></p>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" data-dismiss="modal">
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal" id="about"
-         tabindex="-1" role="dialog"
-         data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">About Cockpit</h4>
-          </div>
-          <div class="modal-body">
-            <div translatable="yes">
-              Cockpit is an advanced application with many options.
-            </div>
-            <div>
-              <span translatable="yes">Version</span> <span id="about-version"></span>.
-            </div>
-            <div>
-              <span id="about-build-info"></span>.
-            </div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-primary" data-dismiss="modal">
@@ -2867,8 +2700,6 @@
         </div>
       </div>
     </div>
-
-    <div class="cockpit-deauthorize-status" style="display: none;"></div>
 
   </body>
 </html>

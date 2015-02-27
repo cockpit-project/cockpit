@@ -73,8 +73,6 @@ require([
 
 function init() {
     $('.dropdown-toggle').dropdown();
-    setup_user_menu();
-    setup_watchdog();
     content_init();
     content_show();
 }
@@ -95,18 +93,6 @@ function dbus(address, options) {
                             function () { return shell.dbus_client(address, options); });
 }
 
-var watchdog_problem = null;
-
-function setup_watchdog() {
-    var watchdog = cockpit.channel({ "payload": "null" });
-    $(watchdog).on("close", function(event, options) {
-        console.warn("transport closed: " + options.problem);
-        watchdog_problem = options.problem;
-        $('.modal[role="dialog"]').modal('hide');
-        $('#disconnected-dialog').modal('show');
-    });
-}
-
 /* current_params are the navigation parameters of the current page,
  * for example:
  *
@@ -125,8 +111,6 @@ function setup_watchdog() {
 var current_params;
 var current_page_element;
 var current_legacy_page;
-
-var page_navigation_count = 0;
 
 function content_init() {
     var current_visible_dialog = null;
@@ -177,7 +161,6 @@ function content_init() {
 }
 
 function content_show() {
-    $("#content-navbar").show();
     display_location();
     phantom_checkpoint();
 }
@@ -188,34 +171,14 @@ shell.content_refresh = function content_refresh() {
 };
 
 function recalculate_layout() {
-    var $topnav = $('#topnav');
-    var $sidebar = $('#cockpit-sidebar');
     var $extra = $('#shell-header-extra');
     var $body = $('body');
 
-    var window_height = $(window).height();
-    var topnav_width = $topnav.width();
-    var topnav_height = $topnav.height()+2;
-    var sidebar_width = $sidebar.is(':visible')? $sidebar.width() : 0;
-    var extra_height = $extra.height();
-
-    $sidebar.css('top', topnav_height);
-    $sidebar.css('height', window_height - topnav_height);
-    $extra.css('top', topnav_height);
-    $extra.css('left', sidebar_width);
-    $extra.css('width', topnav_width - sidebar_width);
-
-    $body.css('padding-top', topnav_height + extra_height);
-    $body.css('padding-left', sidebar_width);
-
-    if (current_page_element && !current_legacy_page)
-        current_page_element.height(window_height - topnav_height - extra_height);
+    $body.css('padding-top', $extra.height());
 
     // This is mostly for the plots.
     $(cockpit).trigger('resize');
 }
-
-var local_account_proxies;
 
 /* Information for each host, keyed by address.  hosts[addr] is an
  * object with at least these fields:
@@ -232,7 +195,6 @@ var local_account_proxies;
  * - set_color(color)
  * - reconnect()
  * - show_problem_dialog()
- * - set_active()
  * - remove()
  *
  * $(shell.hosts).on("added removed changed", function (addr) { });
@@ -325,20 +287,10 @@ function hosts_init() {
         }
     }
 
-    function remember_last_params() {
-        var old_info = host_info[current_params.host];
-        if (old_info && current_params.path[0] != "dashboard") {
-            old_info.last_path = current_params.path;
-            old_info.last_options = current_params.options;
-        }
-    }
-
     function add_host(addr, proxy) {
         var client = cockpit.dbus("com.redhat.Cockpit", { host: addr, bus: "session", track: true });
         var manager = client.proxy("com.redhat.Cockpit.Manager",
                                    "/com/redhat/Cockpit/Manager");
-
-        var link, hostname_span, avatar_img;
 
         var info = { display_name: null,
                      avatar: null,
@@ -353,7 +305,6 @@ function hosts_init() {
                      set_color: set_color,
                      reconnect: reconnect,
                      show_problem_dialog: show_problem_dialog,
-                     set_active: set_active,
                      remove: remove,
 
                      _removed: _removed
@@ -370,19 +321,6 @@ function hosts_init() {
                 });
         }
 
-        link = info._element = $('<a class="list-group-item">').
-            append(
-                avatar_img = $('<img width="32" height="32" class="host-avatar">'),
-                hostname_span = $('<span>')).
-            click(function () {
-                if (info.state == "failed")
-                    show_problem_dialog();
-                else {
-                    remember_last_params();
-                    cockpit.location.go([ addr ].concat(info.last_path || [ "server" ]), info.last_options);
-                }
-            });
-
         function update_hostname() {
             var name;
             if (manager.valid)
@@ -393,9 +331,7 @@ function hosts_init() {
                 name = addr;
             if (name != info.display_name) {
                 info.display_name = name;
-                hostname_span.text(info.display_name);
                 update_global_nav();
-                show_hosts();
             }
         }
 
@@ -411,8 +347,6 @@ function hosts_init() {
             }
 
             info.avatar = proxy.Avatar;
-            if (info.state != "failed")
-                avatar_img.attr('src', info.avatar || "images/server-small.png");
             update_hostname();
         }
 
@@ -421,11 +355,6 @@ function hosts_init() {
             if (name != proxy.Name)
                 proxy.SetName(name);
             update_hostname();
-        }
-
-        function set_active() {
-            $('#hosts > a').removeClass("active");
-            link.addClass("active");
         }
 
         function set_display_name(name) {
@@ -464,7 +393,6 @@ function hosts_init() {
         }
 
         function _removed() {
-            link.remove();
             $(manager).off('.hosts');
             client.close();
         }
@@ -474,7 +402,6 @@ function hosts_init() {
         $(client).on("close", function (event, problem) {
             info.state = "failed";
             info.problem = problem;
-            avatar_img.attr('src', "images/server-error.png");
             $(shell.hosts).trigger('changed', [ addr ]);
         });
 
@@ -498,47 +425,9 @@ function hosts_init() {
                 update_from_manager();
             }
         });
-
-        show_hosts();
     }
-
-    var all_hosts = $('<a class="list-group-item">').
-        append(
-            $('<button class="btn btn-primary servers-privileged" data-container="body" data-placement="bottom"  style="float:right">').
-                text("+").
-                click(function () {
-                    shell.host_setup();
-                    return false;
-                }),
-            $('<span>').
-                text("All Servers")).
-        click(function () {
-            remember_last_params();
-            cockpit.location.go([]);
-        });
-
-    function show_hosts() {
-        var sorted_hosts = (Object.keys(host_info).
-                            map(function (addr) { return host_info[addr]; }).
-                            sort(function (h1, h2) {
-                                return h1.compare(h2);
-                            }));
-        $('#hosts').append(
-            all_hosts,
-            sorted_hosts.map(function (h) { return h._element; }));
-        update_servers_privileged();
-    }
-
-    $('#hosts-button').click(function () {
-        $('#cockpit-sidebar').toggle();
-        recalculate_layout();
-    });
-
-    local_account_proxies = null;
 
     var cockpitd = cockpit.dbus("com.redhat.Cockpit", { host: "localhost", bus: "session", track: true });
-    local_account_proxies = cockpitd.proxies("com.redhat.Cockpit.Account",
-                                             "/com/redhat/Cockpit/Accounts");
     host_proxies = cockpitd.proxies("com.redhat.Cockpit.Machine",
                                     "/com/redhat/Cockpit/Machines");
     host_proxies.wait(function () {
@@ -552,43 +441,22 @@ function hosts_init() {
 }
 
 function update_global_nav() {
-    var info;
-    var hostname = null;
     var page_title = null;
 
-    if (current_params)
-        info = shell.hosts[current_params.host];
-    if (info) {
-        hostname = info.display_name;
-        info.set_active();
-    }
-
-    $('#content-navbar-hostname').text(hostname);
-
-    $('#content-navbar > li').removeClass('active');
     if (current_legacy_page) {
         var section_id = current_legacy_page.section_id || current_legacy_page.id;
         page_title = current_legacy_page.getTitle();
-        $('#content-navbar > li').has('a[data-page-id="' + section_id + '"]').addClass('active');
     } else if (current_page_element) {
         // TODO: change notification
         if (current_page_element[0].contentDocument)
             page_title = current_page_element[0].contentDocument.title;
-        // TODO: hmm...
-        var task_id = current_params.path[0];
-        $('#content-navbar > li').has('a[data-task-id="' + task_id + '"]').addClass('active');
     }
 
     var doc_title;
-    if (hostname && page_title)
-        doc_title = hostname + " — " + page_title;
-    else if (page_title)
+    if (page_title)
         doc_title = page_title;
-    else if (hostname)
-        doc_title = hostname;
     else
         doc_title = _("Cockpit");
-
     document.title = doc_title;
 
     recalculate_layout();
@@ -634,73 +502,6 @@ function get_location_hash(location) {
     return location.href.split('#')[1] || '';
 }
 
-function get_page_iframe(params) {
-    /* Find the component that matches the longest prefix.  This
-     * determines the prefix we will use.
-     */
-    var prefix, key, comp;
-    for (var i = params.path.length; i >= 0; i--) {
-        prefix = params.path.slice(0,i);
-        key = JSON.stringify(prefix);
-        if (components[key]) {
-            comp = components[key];
-            break;
-        }
-    }
-
-    if (!comp)
-        return null;
-
-    /* Now find or create the iframe for it.
-     */
-
-    key = params.host + ":" + key;
-
-    var iframe = page_iframes[key];
-    if (!iframe) {
-        var host = params.host;
-        if (host == "localhost")
-            host = "local";
-        var name = "/" + encodeURIComponent(host) + "/" + prefix.map(encodeURIComponent).join("/");
-        iframe = $('<iframe class="container-frame">').
-            hide().
-            attr('name', name);
-        $('#content').append(iframe);
-        register_child(iframe[0].contentWindow, params.host);
-        page_iframes[key] = iframe;
-        iframe.on('load', function () {
-            /* Setting the "data-loaded" attribute helps the testsuite
-             * to know when it can switch into the frame and inject
-             * its own additions.
-             */
-            iframe.attr('data-loaded', true);
-            update_global_nav();
-
-            $(iframe[0].contentWindow).on('hashchange', function () {
-                if (current_page_element == iframe) {
-                    var options = { };
-                    var inner_hash = get_location_hash(iframe[0].contentWindow.location);
-                    var inner_path = cockpit.location.decode(inner_hash, options);
-                    var outer_path = [ host ].concat(prefix, inner_path);
-                    cockpit.location.go(outer_path, options);
-                }
-            });
-        });
-    }
-
-    /* We get a package listing so that we can load the entry point
-     * via checksums (which enables caching), but most importantly so
-     * that cockpit-ws will learn all the checksums and can load other
-     * pieces that the entry point refers to via checksums.
-     */
-
-    var href = cockpit.location.encode(params.path.slice(prefix.length), params.options);
-    var url = "/cockpit/@" + params.host + "/" + comp.pkg + "/" + comp.entry + "#" + href;
-    iframe.attr('src', url);
-
-    return iframe;
-}
-
 function legacy_page_from_id(id) {
     var n;
     for (n = 0; n < shell.pages.length; n++) {
@@ -715,30 +516,26 @@ function legacy_page_from_id(id) {
  */
 
 function display_params(params) {
-    page_navigation_count += 1;
-
-    var element = get_page_iframe(params);
+    var element = null;
     var legacy_page = null;
 
     /* Try to find a legacy page for path[0].
      */
-    if (!element) {
-        var id = params.path[0];
-        legacy_page = visited_legacy_pages[id];
-        if (!legacy_page) {
-            legacy_page = legacy_page_from_id(id);
-            if (legacy_page) {
-                if (legacy_page.setup)
-                    legacy_page.setup();
-                visited_legacy_pages[id] = legacy_page;
-            }
+    var id = params.path[0];
+    legacy_page = visited_legacy_pages[id];
+    if (!legacy_page) {
+        legacy_page = legacy_page_from_id(id);
+        if (legacy_page) {
+            if (legacy_page.setup)
+                legacy_page.setup();
+            visited_legacy_pages[id] = legacy_page;
         }
-        if (legacy_page)
-            element = $('#' + id);
     }
+    if (legacy_page)
+        element = $('#' + id);
 
     if (!element) {
-        cockpit.location.go([ "local", "dashboard" ]);
+        cockpit.location.go([ "server" ]);
         return;
     }
 
@@ -764,12 +561,10 @@ function display_params(params) {
 }
 
 function display_location() {
-    var host = cockpit.location.path[0];
-    var path = cockpit.location.path.slice(1);
+    var host = null;
+    var path = cockpit.location.path.slice(0);
     var options = cockpit.location.options;
 
-    if (!host || host == "local")
-        host = "localhost";
     if (path.length < 1)
         path = [ "dashboard" ];
 
@@ -818,12 +613,6 @@ function dialog_show(id) {
 
 shell.get_page_param = function get_page_param(key) {
     return current_params.options[key];
-};
-
-shell.get_page_machine = function get_page_machine() {
-    if (current_params)
-        return current_params.host;
-    return null;
 };
 
 shell.set_page_param = function set_page_param(key, val) {
@@ -886,222 +675,8 @@ shell.confirm = function confirm(title, body, action_text) {
     return deferred.promise();
 };
 
-function setup_user_menu() {
-    function update_name() {
-        var str = cockpit.user["name"] || cockpit.user["user"] || "???";
-        $('#content-user-name').text(str);
-    }
-
-    function update_user_menu() {
-        var is_root = (cockpit.user["user"] == "root");
-        var is_not_root = (cockpit.user["user"] && !is_root);
-        $('#cockpit-go-account').toggle(is_not_root);
-        $('#cockpit-change-passwd').toggle(is_root);
-        $('.cockpit-deauthorize-item').toggle(is_not_root);
-    }
-
-    $(cockpit.user).on("changed", update_name);
-    if (cockpit.user["name"])
-        update_name();
-
-    $(".cockpit-deauthorize-item a").on("click", function(ev) {
-        cockpit.drop_privileges(false);
-        $(".cockpit-deauthorize-item").addClass("disabled");
-        $(".cockpit-deauthorize-item a").off("click");
-
-        /* TODO: We need a better indicator for deauthorized state */
-        $(".cockpit-deauthorize-status").text("deauthorized");
-        ev.preventDefault();
-    });
-
-    update_user_menu();
-    $(cockpit.user).on("changed", update_user_menu);
-}
-
-shell.go_login_account = function go_login_account() {
-    cockpit.location.go([ "local", "account" ], { id: cockpit.user["user"] });
-};
-
-PageDisconnected.prototype = {
-    _init: function() {
-        this.id = "disconnected-dialog";
-    },
-
-    setup: function() {
-        $('#disconnected-reconnect').click($.proxy(this, "reconnect"));
-        $('#disconnected-logout').click($.proxy(this, "logout"));
-    },
-
-    enter: function() {
-        /* Try to reconnect right away ... so that reconnect button has a chance */
-        cockpit.channel({ payload: "null" });
-        $('#disconnected-error').text(cockpit.message(watchdog_problem));
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    reconnect: function() {
-        /*
-         * If the connection was interrupted, but cockpit-ws is still running,
-         * then it still has our session. The dummy cockpit.channel() above tried
-         * to reestablish a connection with the same credentials.
-         *
-         * So if that works, this should reload the current page and get back to
-         * where the user was right away. Otherwise this sends the user back
-         * to the login screen.
-         */
-        window.location.reload(false);
-    },
-
-    logout: function() {
-        cockpit.logout();
-    }
-};
-
-function PageDisconnected() {
-    this._init();
-}
-
-shell.dialogs.push(new PageDisconnected());
-
-var unique_id = 0;
-var origin = cockpit.transport.origin;
-var frame_peers_by_seed = { };
-var frame_peers_by_name = { };
-
-function register_child(child_window, host) {
-    if (!child_window.name) {
-        console.warn("invalid child window", child_window);
-        return;
-    }
-
-    unique_id += 1;
-    var seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
-    var peer = {
-        window: child_window,
-        channel_seed: seed,
-        default_host: host,
-        initialized: false
-    };
-    frame_peers_by_seed[seed] = peer;
-    frame_peers_by_name[child_window.name] = peer;
-}
-
-cockpit.transport.filter(function(message, channel, control) {
-
-    /* Only control messages with a channel are forwardable */
-    if (control) {
-        if (control.channel !== undefined) {
-            $.each(frame_peers_by_seed, function(seed, peer) {
-                if (peer.initialized)
-                    peer.window.postMessage(message, origin);
-            });
-        }
-        return true; /* still deliver locally */
-
-    /* Forward message to relevant frame */
-    } else if (channel) {
-        var pos = channel.indexOf('!');
-        if (pos !== -1) {
-            var seed = channel.substring(0, pos + 1);
-            var peer = frame_peers_by_seed[seed];
-            if (peer && peer.initialized) {
-                peer.window.postMessage(message, origin);
-                return false; /* Stop delivery */
-            }
-        }
-        /* Still deliver the message locally */
-        return true;
-    }
-
-});
-
-window.addEventListener("message", function(event) {
-    if (event.origin !== origin)
-        return;
-
-    var data = event.data;
-    if (typeof data !== "string")
-        return;
-
-    var frame = event.source;
-    var peer = frame_peers_by_name[frame.name];
-    if (!peer || peer.window != frame)
-        return;
-
-    /* Closing the transport */
-    if (data.length === 0) {
-        peer.initialized = false;
-        return;
-    }
-
-    /* A control message */
-    if (data[0] == '\n') {
-        var control = JSON.parse(data.substring(1));
-        if (control.command === "init") {
-            peer.initialized = true;
-            var reply = $.extend({ }, cockpit.transport.options,
-                { "default-host": peer.default_host, "channel-seed": peer.channel_seed }
-            );
-            frame.postMessage("\n" + JSON.stringify(reply), origin);
-
-        /* Only control messages with a channel are forwardable */
-        } else if (control.channel === undefined) {
-            return;
-        }
-    }
-
-    if (!peer.initialized) {
-        console.warn("child frame " + frame.name + " sending data without init");
-        return;
-    }
-
-    /* Everything else gets forwarded */
-    cockpit.transport.inject(data);
-}, false);
-
-/* This tells child frames we are a parent wants to accept messages */
-if (!window.options)
-    window.options = { };
-$.extend(window.options, { sink: true, protocol: "cockpit1" });
-
-cockpit.packages.all(true).
-    done(function(pkgs) {
-        var list = $.map(pkgs, function(pkg) { return pkg; });
-        list.sort(function(a, b) {
-            return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
-        });
-
-        var seen = { };
-        $.each(list, function(i, pkg) {
-            var tools = pkg.manifest.tools;
-            if (!tools)
-                return;
-            $.each(tools, function(ident, info) {
-                if (seen[ident])
-                    return;
-                seen[ident] = ident;
-                register_component([ ident ], pkg.name, info.path);
-                register_tool(ident, info.label);
-            });
-        });
-
-        maybe_init();
-    }).
-    fail(function(ex) {
-        maybe_init();
-
-        throw ex; /* should show an oops */
-    });
-
 /* Run when jQuery thinks page is loaded */
 $(function() {
-    register_component([ "playground" ], "playground", "test.html");
-    register_component([ "journal" ], "server", "log.html");
     loaded = true;
     maybe_init();
 });

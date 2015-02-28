@@ -23,7 +23,8 @@ require([
     "jquery",
     "latest/cockpit",
     'latest/po',
-], function($, cockpit, po) {
+    "manifests"
+], function($, cockpit, po, manifests) {
     cockpit.locale(po);
     var _ = cockpit.gettext;
 
@@ -101,25 +102,13 @@ require([
      * to produce this list. Perhaps we would include it somewhere in a
      * separate automatically generated file. Need to see.
      */
-    var names = {
-        "da": "Dansk",
-        "de": "Deutsch",
-        "en": "English"
-    };
-
-    cockpit.packages.lookup("shell")
-        .done(function(pkg) {
-            $.each(pkg.manifest.linguas, function(i, code) {
-                var name = names[code] || code;
-                var el = $("<option>").text(name).val(code);
-                if (code == cockpit.language)
-                    el.attr("selected", "true");
-                $("#display-language-list").append(el);
-            });
-        })
-        .fail(function(ex) {
-            console.warn("Couldn't load languages: " + ex);
-        });
+    var manifest = manifests["shell"] || { };
+    $.each(manifest.linguas, function(code, name) {
+        var el = $("<option>").text(name).val(code);
+        if (code == cockpit.language)
+            el.attr("selected", "true");
+        $("#display-language-list").append(el);
+    });
 
     $("#display-language-select-button").on("click", function(event) {
         var code_to_select = $("#display-language-list").val();

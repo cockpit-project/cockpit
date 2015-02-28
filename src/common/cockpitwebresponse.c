@@ -552,6 +552,7 @@ cockpit_web_response_get_state (CockpitWebResponse *self)
 
 enum {
     HEADER_CONTENT_TYPE = 1 << 0,
+    HEADER_CONTENT_ENCODING = 1 << 1,
 };
 
 static GString *
@@ -580,6 +581,8 @@ append_header (GString *string,
     }
   if (g_ascii_strcasecmp ("Content-Type", name) == 0)
     return HEADER_CONTENT_TYPE;
+  if (g_ascii_strcasecmp ("Content-Encoding", name) == 0)
+    return HEADER_CONTENT_ENCODING;
   else if (g_ascii_strcasecmp ("Content-Length", name) == 0)
     g_critical ("Don't set Content-Length manually. This is a programmer error.");
   else if (g_ascii_strcasecmp ("Connection", name) == 0)
@@ -672,16 +675,19 @@ finish_headers (CockpitWebResponse *self,
   if (status != 304)
     {
       if (length >= 0)
-        {
-          self->chunked = FALSE;
-          g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
-        }
-      else
+        g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
+
+      if (length < 0 || seen & HEADER_CONTENT_ENCODING)
         {
           self->chunked = TRUE;
           g_string_append_printf (string, "Transfer-Encoding: chunked\r\n");
         }
+      else
+        {
+          self->chunked = FALSE;
+        }
     }
+
   if (!self->keep_alive)
     g_string_append (string, "Connection: close\r\n");
   g_string_append (string, "\r\n");

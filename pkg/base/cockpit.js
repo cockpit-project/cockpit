@@ -787,92 +787,6 @@ function Channel(options) {
     };
 }
 
-/* ----------------------------------------------------------------------------------
- * Package Lookup
- */
-
-var host_packages = { };
-
-function Package(names, pkg) {
-    this.name = names[0] || null;
-    this.checksum = null;
-    this.manifest = pkg.manifest || { };
-    this.manifest.alias = [];
-
-    var i, length = names.length;
-    for (i = 1; i < length; i++) {
-        if (names[i].indexOf("$") === 0)
-            this.checksum = names[i];
-        else
-            this.manifest.alias.push(names[i]);
-    }
-}
-
-function package_debug() {
-    if (window.debugging == "all" || window.debugging == "package")
-        console.debug.apply(console, arguments);
-}
-
-function build_packages(packages) {
-    var result = { };
-    package_debug("packages: ", packages);
-    for (var i = 0; i < packages.length; i++) {
-        var pkg = packages[i];
-        var names = pkg.id || [ ];
-        pkg = new Package(names, packages[i]);
-        for (var j = 0; j < names.length; j++)
-            result[names[j]] = pkg;
-        package_debug("package: ", pkg.name, pkg);
-    }
-    return result;
-}
-
-function package_table(host, callback) {
-    var table = host_packages[host || default_host];
-    if (table) {
-        callback(table, null);
-        return;
-    }
-    var url;
-    if (!host)
-        url = "../manifests.json";
-    else
-        url = "../../@" + host + "/manifests.json";
-    var req = new window.XMLHttpRequest();
-    req.open("GET", url);
-    req.onreadystatechange = function() {
-        var data, problem;
-        if (this.readyState !== 4)
-            return;
-        if (req.status === 200 || req.status === 304) {
-            data = JSON.parse(req.responseText);
-            host_packages[host || default_host] = table = build_packages(data);
-            callback(table, null);
-        } else {
-            if (req.status === 404)
-                problem = "not-found";
-            else
-                problem = "internal-error";
-            package_debug("package listing failed: " + req.status + ": " + problem);
-            callback(null, problem);
-        }
-    };
-    req.send();
-}
-
-function package_info(name, callback) {
-    var parts = name.split('@');
-    name = parts[0];
-    var host = parts[1];
-
-    package_table(host, function(table, problem) {
-        if (table && name in table)
-            callback(table[name], null);
-        else
-            callback(null, problem || "not-found");
-    });
-}
-
 /* Resolve dots and double dots */
 function resolve_path_dots(parts) {
     var out = [ ];
@@ -1076,45 +990,6 @@ function full_scope(cockpit, $, po) {
         if ($(ev.target).hasClass('disabled'))
           ev.stopPropagation();
     }, true);
-
-    /* ----------------------------------------------------------------------------
-     * Packages
-     *
-     * Public: XXXXXXXXX
-     */
-
-    cockpit.packages = {
-        lookup: function(name) {
-            var dfd = $.Deferred();
-            package_info(name, function(pkg, problem) {
-                if (problem) {
-                    package_debug("lookup failed: " + problem);
-                    dfd.reject(new BasicError(problem));
-                } else {
-                    package_debug("lookup succeeded: " + pkg.name);
-                    dfd.resolve(pkg);
-                }
-            });
-            return dfd.promise();
-        },
-        all: function(expand) {
-            var dfd = $.Deferred();
-            package_table(null, function(packages, problem) {
-                if (problem) {
-                    package_debug("lookup failed: " + problem);
-                    dfd.reject(new BasicError(problem));
-                } else {
-                    var res = { };
-                    $.each(packages, function(name, pkg) {
-                        if (expand || pkg.name === name)
-                            res[name] = pkg;
-                    });
-                    dfd.resolve(res);
-                }
-            });
-            return dfd.promise();
-        }
-    };
 
     /* ------------------------------------------------------------------------
      * Cockpit location

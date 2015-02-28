@@ -41,15 +41,13 @@ struct _CockpitPackages {
   CockpitWebServer *web_server;
   GHashTable *listing;
   gchar *checksum;
-  JsonArray *json;
+  JsonObject *json;
 };
 
 struct _CockpitPackage {
-  int refs;
   gchar *name;
   gchar *directory;
   JsonObject *manifest;
-  JsonNode *alias;
   gboolean system;
 };
 
@@ -69,28 +67,15 @@ static gboolean   package_checksum_directory   (GChecksum *checksum,
                                                 const gchar *directory);
 
 static void
-cockpit_package_unref (gpointer data)
+cockpit_package_free (gpointer data)
 {
   CockpitPackage *package = data;
-  package->refs--;
-  if (package->refs == 0)
-    {
-      g_debug ("%s: freeing package", package->name);
-      g_free (package->name);
-      g_free (package->directory);
-      if (package->manifest)
-        json_object_unref (package->manifest);
-      if (package->alias)
-        json_node_free (package->alias);
-      g_free (package);
-    }
-}
-
-static CockpitPackage *
-cockpit_package_ref (CockpitPackage *package)
-{
-  package->refs++;
-  return package;
+  g_debug ("%s: freeing package", package->name);
+  g_free (package->name);
+  g_free (package->directory);
+  if (package->manifest)
+    json_object_unref (package->manifest);
+  g_free (package);
 }
 
 static CockpitPackage *
@@ -98,7 +83,6 @@ cockpit_package_new (const gchar *name)
 {
   CockpitPackage *package = g_new0 (CockpitPackage, 1);
   package->name = g_strdup (name);
-  package->refs = 1;
   return package;
 }
 
@@ -414,128 +398,35 @@ build_package_listing (GHashTable *listing,
 }
 
 static void
-add_alias_to_listing (GHashTable *listing,
-                      CockpitPackage *package,
-                      JsonNode *node)
-{
-  const gchar *value;
-
-  if (JSON_NODE_HOLDS_VALUE (node) && json_node_get_value_type (node) == G_TYPE_STRING)
-    {
-      value = json_node_get_string (node);
-      if (validate_package (value))
-        {
-          g_hash_table_replace (listing, (gchar *)value, cockpit_package_ref (package));
-          g_debug ("%s: package has alias: %s", package->name, value);
-        }
-      else
-        {
-          g_message ("invalid \"alias\" package name: \"%s\"", value);
-        }
-    }
-  else
-    {
-      g_message ("invalid \"alias\" value type: \"%s\"", json_node_type_name (node));
-    }
-}
-
-static gint
-compar_packages (gconstpointer v1,
-                 gconstpointer v2)
-{
-  return strcmp (((CockpitPackage *)v1)->name,
-                 ((CockpitPackage *)v2)->name);
-}
-
-static void
 build_packages (CockpitPackages *packages)
 {
-  JsonArray *root = NULL;
+  JsonObject *root = NULL;
   CockpitPackage *package;
   GChecksum *checksum;
-  GHashTable *ids;
-  JsonObject *object;
-  JsonArray *id;
   GList *names, *l;
-  GList *list;
   const gchar *name;
-  JsonNode *node;
-  JsonArray *array;
-  guint i, length;
 
   packages->listing = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                             NULL, cockpit_package_unref);
+                                             NULL, cockpit_package_free);
 
   checksum = g_checksum_new (G_CHECKSUM_SHA1);
   if (build_package_listing (packages->listing, checksum))
     packages->checksum = g_strdup (g_checksum_get_string (checksum));
   g_checksum_free (checksum);
 
-  /* Add aliases to the listing */
-  list = g_hash_table_get_values (packages->listing);
-  list = g_list_sort (list, compar_packages);
-  g_list_foreach (list, (GFunc)cockpit_package_ref, NULL);
-  for (l = list; l != NULL; l = g_list_next (l))
-    {
-      package = l->data;
-
-      node = json_object_get_member (package->manifest, "alias");
-      if (node)
-        {
-          /*
-           * Process and remove "alias" from the manifest, as it results in
-           * confusing and duplicated information for the front end.
-           */
-          package->alias = node = json_node_copy (node);
-          json_object_remove_member (package->manifest, "alias");
-
-          if (JSON_NODE_HOLDS_ARRAY (node))
-            {
-              array = json_node_get_array (node);
-              length = json_array_get_length (array);
-              for (i = 0; i < length; i++)
-                add_alias_to_listing (packages->listing, package, json_array_get_element (array, i));
-            }
-          else
-            {
-              add_alias_to_listing (packages->listing, package, node);
-            }
-        }
-    }
-  g_list_free_full (list, (GDestroyNotify)cockpit_package_unref);
-
   /* Build JSON packages block */
-  packages->json = root = json_array_new ();
-  ids = g_hash_table_new (g_direct_hash, g_direct_equal);
-  names = g_hash_table_get_keys (packages->listing);
-  names = g_list_sort (names, (GCompareFunc)strcmp);
+  packages->json = root = json_object_new ();
 
+  names = g_hash_table_get_keys (packages->listing);
   for (l = names; l != NULL; l = g_list_next (l))
     {
       name = l->data;
       package = g_hash_table_lookup (packages->listing, name);
-      id = g_hash_table_lookup (ids, package);
-      if (!id)
-        {
-          object = json_object_new ();
-          id = json_array_new();
-
-          /* The actual package name always comes first */
-          json_object_set_array_member (object, "id", id);
-          json_array_add_string_element (id, package->name);
-          g_hash_table_insert (ids, package, id);
-
-          json_object_set_object_member (object, "manifest", json_object_ref (package->manifest));
-          json_array_add_object_element (root, object);
-        }
-
-      /* Other ways to refer to the package */
-      if (!g_str_equal (name, package->name))
-        json_array_add_string_element (id, name);
+      if (package->manifest)
+        json_object_set_object_member (root, name, json_object_ref (package->manifest));
     }
 
   g_list_free (names);
-  g_hash_table_destroy (ids);
 }
 
 gchar *
@@ -601,21 +492,6 @@ handle_package_checksum (CockpitWebServer *server,
   return TRUE;
 }
 
-static GBytes *
-json_array_to_bytes (JsonArray *array)
-{
-  JsonNode *node;
-  gsize length;
-  gchar *ret;
-
-  node = json_node_new (JSON_NODE_ARRAY);
-  json_node_set_array (node, array);
-  ret = cockpit_json_write (node, &length);
-  json_node_free (node);
-
-  return g_bytes_new_take (ret, length);
-}
-
 static void
 add_cache_header (GHashTable *headers,
                   CockpitPackages *packages,
@@ -641,7 +517,7 @@ handle_package_manifests_js (CockpitWebServer *server,
   GBytes *suffix;
 
   prefix = g_bytes_new_static ("define(", 7);
-  content = json_array_to_bytes (packages->json);
+  content = cockpit_json_write_bytes (packages->json);
   suffix = g_bytes_new_static (");", 2);
 
   out_headers = cockpit_web_server_new_table ();
@@ -669,7 +545,7 @@ handle_package_manifests_json (CockpitWebServer *server,
   out_headers = cockpit_web_server_new_table ();
   add_cache_header (headers, packages, out_headers);
 
-  content = json_array_to_bytes (packages->json);
+  content = cockpit_json_write_bytes (packages->json);
 
   cockpit_web_response_content (response, out_headers, content, NULL);
 
@@ -979,7 +855,7 @@ cockpit_packages_free (CockpitPackages *packages)
   if (!packages)
     return;
   if (packages->json)
-    json_array_unref (packages->json);
+    json_object_unref (packages->json);
   g_free (packages->checksum);
   if (packages->listing)
     g_hash_table_unref (packages->listing);
@@ -995,9 +871,6 @@ cockpit_packages_dump (void)
   GHashTableIter iter;
   CockpitPackage *package;
   GList *names, *l;
-  const gchar *prefix;
-  JsonArray *array;
-  guint i;
 
   packages = g_new0 (CockpitPackages, 1);
   build_packages (packages);
@@ -1014,24 +887,6 @@ cockpit_packages_dump (void)
     {
       package = g_hash_table_lookup (by_name, l->data);
       g_print ("%s: %s\n", package->name, package->directory);
-
-      if (package->alias)
-        {
-          prefix = "    alias: ";
-          if (JSON_NODE_HOLDS_ARRAY (package->alias))
-            {
-              array = json_node_get_array (package->alias);
-              for (i = 0; i < json_array_get_length (array); i++)
-                {
-                  g_print ("%s%s\n", prefix, json_array_get_string_element (array, i));
-                  prefix = "           ";
-                }
-            }
-          else
-            {
-              g_print ("%s%s\n", prefix, json_node_get_string (package->alias));
-            }
-        }
     }
 
   if (packages->checksum)

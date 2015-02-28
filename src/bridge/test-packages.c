@@ -263,19 +263,18 @@ test_listing (TestCase *tc,
   message = mock_transport_pop_channel (tc->transport, "444");
   node = cockpit_json_parse (g_bytes_get_data (message, NULL), g_bytes_get_size (message), &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (json_node_get_array (node),
-                          "["
-                          " {"
-                          "  \"id\": [ \"another\", \"marmalade\" ],"
-                          "  \"manifest\" : { \"description\" : \"another\"}"
-                          " },{"
-                          "  \"id\": [\"second\",\"one\",\"two\"],"
-                          "  \"manifest\": { \"description\": \"second dummy description\"}"
-                          " },{"
-                          "  \"id\": [ \"test\" ],"
-                          "  \"manifest\" : { \"description\" : \"dummy\"}"
+  cockpit_assert_json_eq (json_node_get_object (node),
+                          "{"
+                          " \"another\": {"
+                          "  \"description\" : \"another\""
+                          " },"
+                          " \"second\": {"
+                          "  \"description\": \"second dummy description\""
+                          " },"
+                          " \"test\": {"
+                          "   \"description\" : \"dummy\""
                           " }"
-                          "]");
+                          "}");
   json_node_free (node);
 }
 
@@ -446,7 +445,7 @@ test_list_bad_name (TestCase *tc,
   data = combine_output (tc, &count);
   cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":"
                                      "{\"Content-Type\":\"application/json\"}}"
-                                 "[{\"id\":[\"ok\"],\"manifest\":{}}]", -1);
+                                 "{\"ok\":{}}", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }

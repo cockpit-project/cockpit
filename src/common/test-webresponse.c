@@ -317,6 +317,39 @@ test_content_type (TestCase *tc,
 }
 
 static void
+test_content_encoding (TestCase *tc,
+                       gconstpointer data)
+{
+  const gchar *resp;
+  GBytes *content;
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_READY);
+
+  cockpit_web_response_headers (tc->response, 200, "OK", 50,
+                                "Content-Encoding", "blah",
+                                NULL);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  content = g_bytes_new_static ("Cockpit is perfect for new sysadmins, ", 38);
+  cockpit_web_response_queue (tc->response, content);
+  g_bytes_unref (content);
+
+  cockpit_web_response_complete (tc->response);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_COMPLETE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Encoding: blah\r\n"
+                   "Content-Length: 50\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "26\r\nCockpit is perfect for new sysadmins, \r\n0\r\n\r\n");
+}
+
+static void
 test_stream (TestCase *tc,
              gconstpointer data)
 {
@@ -611,6 +644,8 @@ main (int argc,
               setup, test_file_breakout_non_existant, teardown);
   g_test_add ("/web-response/content-type", TestCase, &content_type_fixture,
               setup, test_content_type, teardown);
+  g_test_add ("/web-response/content-encoding", TestCase, NULL,
+              setup, test_content_encoding, teardown);
   g_test_add ("/web-response/stream", TestCase, NULL,
               setup, test_stream, teardown);
   g_test_add ("/web-response/chunked-transfer-encoding", TestCase, NULL,

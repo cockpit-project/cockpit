@@ -19,8 +19,8 @@
 
 define([
     "jquery",
-    "latest/cockpit",
-    "latest/po"
+    "base1/cockpit",
+    "base1/po"
 ], function($, cockpit, po) {
     "use strict";
 

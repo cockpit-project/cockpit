@@ -15,18 +15,18 @@
     <title>Loading cockpit.js</title>
     <para><code>cockpit.js</code> should be loaded via a script tag. In general jQuery should
       be loaded before <code>cockpit.js</code> as in the example below. If jQuery is not loaded
-      then only the <link linkend="latest-channels">raw channel API</link> will be defined.</para>
+      then only the <link linkend="cockpit-channels">raw channel API</link> will be defined.</para>
 
 <programlisting><![CDATA[
-  <script src="../latest/jquery.js">
-  <script src="../latest/cockpit.js">
+  <script src="../base1/jquery.js">
+  <script src="../base1/cockpit.js">
 ]]></programlisting>
   </refsection>
 
   <refsection>
     <title>User Login</title>
 
-    <refsection id="latest-logout">
+    <refsection id="cockpit-logout">
       <title>cockpit.logout()</title>
 <programlisting>
   cockpit.logout([reload])
@@ -35,7 +35,7 @@
         cause the page to be reloaded, so that the user can see the logged out state.</para>
     </refsection>
 
-    <refsection id="latest-user">
+    <refsection id="cockpit-user">
       <title>cockpit.user</title>
 <programlisting>
   cockpit.user["user"]
@@ -79,7 +79,7 @@
         cockpit server.</para>
     </refsection>
 
-    <refsection id="latest-info-changed">
+    <refsection id="cockpit-info-changed">
       <title>cockpit.user.onchanged</title>
 <programlisting>
   $(cockpit.user).on("changed", function() { ... })
@@ -89,7 +89,7 @@
 
   </refsection>
 
-  <refsection id="latest-location">
+  <refsection id="cockpit-location">
     <title>Page Location</title>
 
 <programlisting>
@@ -109,38 +109,38 @@
  /path/sub/page?option=value,option2
 </programlisting>
 
-    <para>The <link linkend="latest-location-path"><code>location.path</code></link> and
-      <link linkend="latest-location-options"><code>location.options</code></link> contain a parsed
+    <para>The <link linkend="cockpit-location-path"><code>location.path</code></link> and
+      <link linkend="cockpit-location-options"><code>location.options</code></link> contain a parsed
       form of the location. While the location cannot be modified in place, a new one can be
       created by assigning a string to <code>cockpit.location</code> or by calling the
-      <link linkend="latest-location-go"><code>location.go()</code></link> function.</para>
+      <link linkend="cockpit-location-go"><code>location.go()</code></link> function.</para>
 
     <para><code>cockpit.location</code> is designed similarly to <code>window.location</code>
       in that the location object is preplaced whenever the current page location changes. To be
       aware of when the page location changes listen for the
-      <link linkend="latest-location-changed"><code>cockpit.onlocationchanged</code></link>
+      <link linkend="cockpit-location-changed"><code>cockpit.onlocationchanged</code></link>
       event.</para>
 
     <para>Using the location object as a string will result in the
-      <link linkend="latest-location-href"><code>location.href</code></link>.</para>
+      <link linkend="cockpit-location-href"><code>location.href</code></link>.</para>
 
-    <refsection id="latest-location-href">
+    <refsection id="cockpit-location-href">
       <title>location.href</title>
       <para>The string representation of this page location, including any options.</para>
     </refsection>
 
-    <refsection id="latest-location-path">
+    <refsection id="cockpit-location-path">
       <title>location.path</title>
       <para>An array of path segments, parsed and decoded appropriately. An empty array denotes
         the root path.</para>
     </refsection>
 
-    <refsection id="latest-location-options">
+    <refsection id="cockpit-location-options">
       <title>location.options</title>
       <para>A javascript object containing the various options present in the location.</para>
     </refsection>
 
-    <refsection id="latest-location-go">
+    <refsection id="cockpit-location-go">
       <title>location.go()</title>
 <programlisting>
   location.go(path, [options])
@@ -161,17 +161,17 @@
         the meantime.</para>
     </refsection>
 
-    <refsection id="latest-location-replace">
+    <refsection id="cockpit-location-replace">
       <title>location.replace()</title>
 <programlisting>
   location.replace(path, [options])
 </programlisting>
-      <para>Similar to <link linkend="latest-location-go"><code>location.go()</code></link>
+      <para>Similar to <link linkend="cockpit-location-go"><code>location.go()</code></link>
         except the location change will not result in a navigation change in the browser's
         history.</para>
     </refsection>
 
-    <refsection id="latest-location-decode">
+    <refsection id="cockpit-location-decode">
       <title>location.decode()</title>
 <programlisting>
   path = location.decode(href, [options])
@@ -183,7 +183,7 @@
         <code>location.href</code>.</para>
     </refsection>
 
-    <refsection id="latest-location-encode">
+    <refsection id="cockpit-location-encode">
       <title>location.encode()</title>
 <programlisting>
   href = location.encode(path, [options])
@@ -193,22 +193,22 @@
         a relative path is passed, it will be resolved relative to <code>location.href</code>.</para>
     </refsection>
 
-    <refsection id="latest-location-changed">
+    <refsection id="cockpit-location-changed">
       <title>cockpit.onlocationchanged</title>
 <programlisting>
  $(cockpit).on("locationchanged", function() { ... })
 </programlisting>
       <para>An event emitted when over the <code>cockpit.location</code> changes. Typically a
         component reacts to this event by updating its interface to reflect the new
-        <link linkend="latest-location-path"><code>cockpit.location.path</code></link> and
-        <link linkend="latest-location-options"><code>cockpit.location.options</code></link>.</para>
+        <link linkend="cockpit-location-path"><code>cockpit.location.path</code></link> and
+        <link linkend="cockpit-location-options"><code>cockpit.location.options</code></link>.</para>
 
       <para>This event is not triggered immediately during a <code>location.go()</code> or
         similar call. It will be triggered asynchronously at a later time.</para>
     </refsection>
   </refsection>
 
-  <refsection id="latest-jump">
+  <refsection id="cockpit-jump">
     <title>Jumping between components</title>
 
 <programlisting>
@@ -220,7 +220,7 @@
       <code>cockpit.jump()</code> function. Stable component paths are documented. Don't assume
       you can navigate into paths that are not stable API.</para>
 
-    <refsection id="latest-jump-jump">
+    <refsection id="cockpit-jump-jump">
       <title>cockpit.jump()</title>
 <programlisting>
   cockpit.jump(path, [ host ])
@@ -235,13 +235,13 @@
 
   </refsection>
 
-  <refsection id="latest-spawn">
+  <refsection id="cockpit-spawn">
     <title>Spawning Processes</title>
 
     <para>This is the API for spawning a process and receiving its output, as well
       as exit codes.</para>
 
-    <refsection id="latest-spawn-spawn">
+    <refsection id="cockpit-spawn-spawn">
       <title>cockpit.spawn()</title>
 <programlisting>
  process = cockpit.spawn(args, [options])
@@ -304,7 +304,7 @@
 	  <listitem><para>Try to spawn the process as root instead of the logged in user. If the
             currently logged in user is not permitted to become root (eg: via <code>pkexec</code>)
 	    then the <code>client</code> will immediately be
-	    <link linkend="latest-dbus-onclose">closed</link> with a <code>"not-authorized"</code>
+	    <link linkend="cockpit-dbus-onclose">closed</link> with a <code>"not-authorized"</code>
             problem code.</para></listitem>
 	</varlistentry>
       </variablelist>
@@ -321,7 +321,7 @@
         The standard error is logged to the journal.</para>
     </refsection>
 
-    <refsection id="latest-spawn-done">
+    <refsection id="cockpit-spawn-done">
       <title>process.done()</title>
 <programlisting>
  process.done(function(data) { ... })
@@ -332,12 +332,12 @@
       <para>The <code>data</code> argument contains the standard output of the process.
         If it a string, unless the process was opened in binary mode, in which case the
         <code>data</code> is an array of bytes. If a
-        <code><link linkend="latest-spawn-stream">process.stream()</link></code>
+        <code><link linkend="cockpit-spawn-stream">process.stream()</link></code>
         handler is set up, then any standard output data consumed by the handler will not
         be included in the <code>data</code> argument.</para>
     </refsection>
 
-    <refsection id="latest-spawn-fail">
+    <refsection id="cockpit-spawn-fail">
       <title>process.fail()</title>
 <programlisting>
  process.fail(function(exception) { ... })
@@ -352,7 +352,7 @@
       <variablelist>
         <varlistentry>
           <term><code>problem</code></term>
-          <listitem><para>A <link linkend="latest-problems">problem code</link> string when
+          <listitem><para>A <link linkend="cockpit-problems">problem code</link> string when
             a problem occurred starting or communicating with the process. This is <code>null</code>
             if the process exited or was terminated.</para></listitem>
         </varlistentry>
@@ -369,7 +369,7 @@
       </variablelist>
     </refsection>
 
-    <refsection id="latest-spawn-always">
+    <refsection id="cockpit-spawn-always">
       <title>process.always()</title>
 <programlisting>
  process.always(function() { ... })
@@ -380,7 +380,7 @@
         fails, terminates, or exits with a failure.</para>
     </refsection>
 
-    <refsection id="latest-spawn-stream">
+    <refsection id="cockpit-spawn-stream">
       <title>process.stream()</title>
 <programlisting>
  process.stream(function(data) { ... })
@@ -394,11 +394,11 @@
         indicates the number of characters or bytes consumed from <code>data</code>. Any data
         not consumed will be included again the next time the handler is called.</para>
       <para>If a <code>process.stream()</code> handler is set up, then the
-        <code><link linkend="latest-spawn-done">process.done()</link></code> handlers will
+        <code><link linkend="cockpit-spawn-done">process.done()</link></code> handlers will
         only get any remaining data not consumed by the stream handler.</para>
     </refsection>
 
-    <refsection id="latest-spawn-input">
+    <refsection id="cockpit-spawn-input">
       <title>process.input()</title>
 <programlisting>
  process.input(data, [stream])
@@ -412,18 +412,18 @@
         is closed.</para>
     </refsection>
 
-    <refsection id="latest-spawn-close">
+    <refsection id="cockpit-spawn-close">
       <title>process.close()</title>
 <programlisting>
  process.close([problem])
 </programlisting>
       <para>Close the process. If <code>problem</code> is specified it should be a
-        standard <link linkend="latest-problems">problem code</link> string. In this case the
+        standard <link linkend="cockpit-problems">problem code</link> string. In this case the
         process will be terminated with a signal.</para>
     </refsection>
   </refsection>
 
-  <refsection id="latest-problems">
+  <refsection id="cockpit-problems">
     <title>Problem Codes</title>
     <para>Cockpit represents problems with standardized problem string codes.</para>
     <variablelist>
@@ -469,7 +469,7 @@
       </varlistentry>
     </variablelist>
 
-    <refsection id="latest-messages">
+    <refsection id="cockpit-messages">
       <title>cockpit.message()</title>
 <programlisting>
  message = cockpit.message(problem)
@@ -484,7 +484,7 @@
 
   </refsection>
 
-  <refsection id="latest-dbus">
+  <refsection id="cockpit-dbus">
     <title>DBus Access</title>
 
     <para>Cockpit allows access to DBus services via this API.</para>
@@ -563,7 +563,7 @@
       </varlistentry>
     </variablelist>
 
-    <refsection id="latest-dbus-dbus">
+    <refsection id="cockpit-dbus-dbus">
       <title>cockpit.dbus()</title>
 <programlisting>
  client = cockpit.dbus(name, [options])
@@ -596,7 +596,7 @@
             <ulink url="http://www.freedesktop.org/software/polkit">polkit</ulink> to authorize
             administrative users. If the currently logged in user is not
             permitted to become root (eg: via <code>pkexec</code>) then the <code>client</code> will
-            immediately be <link linkend="latest-dbus-onclose">closed</link> with a
+            immediately be <link linkend="cockpit-dbus-onclose">closed</link> with a
             <code>"not-authorized"</code> problem code.</para></listitem>
         </varlistentry>
         <varlistentry>
@@ -610,35 +610,35 @@
       </variablelist>
     </refsection>
 
-    <refsection id="latest-dbus-close">
+    <refsection id="cockpit-dbus-close">
       <title>client.close()</title>
 <programlisting>
  client.close([problem])
 </programlisting>
       <para>Close the DBus client. If <code>problem</code> is specified it should be a
-        <link linkend="latest-problems">problem code</link> string.</para>
+        <link linkend="cockpit-problems">problem code</link> string.</para>
     </refsection>
 
-    <refsection id="latest-dbus-onclose">
+    <refsection id="cockpit-dbus-onclose">
       <title>client.onclose</title>
 <programlisting>
  $(client).on("close", function(options) { ... })
 </programlisting>
       <para>An event triggered when the DBus client closes. This can happen either because
-        <link linkend="latest-dbus-close">client.close()</link> function was called,
+        <link linkend="cockpit-dbus-close">client.close()</link> function was called,
         or the DBus service went away, or some other problem or disconnection.</para>
       <para>The <code>options</code> will contain various close information, including a
         <code>"problem"</code> field which will be set if the channel was closed because
         of a problem.</para>
     </refsection>
 
-    <refsection id="latest-dbus-options">
+    <refsection id="cockpit-dbus-options">
       <title>client.options</title>
       <para>Set to the options used when creating the client. Will not change for the life of
         the client.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy">
+    <refsection id="cockpit-dbus-proxy">
       <title>client.proxy</title>
 <programlisting>
  proxy = client.proxy([interface, path])
@@ -653,17 +653,17 @@
 
       <para>If creating lots of proxies for a given <code>interface</code> it is more
         efficient to use the
-        <link linkend="latest-dbus-proxies"><code>client.proxies()</code></link>
+        <link linkend="cockpit-dbus-proxies"><code>client.proxies()</code></link>
         function.</para>
 
       <para>The proxy is loaded when the
-        <link linkend="latest-dbus-proxy-valid"><code>proxy.valid</code></link> field is
+        <link linkend="cockpit-dbus-proxy-valid"><code>proxy.valid</code></link> field is
         <code>true</code>, and it is set to <code>false</code> if the underlying
         <code>interface</code> and/or <code>path</code> don't or no longer exist, or
         the <code>client</code> has closed. You can wait for proxy to become valid
         by passing a callback to its
-        <link linkend="latest-dbus-proxy-wait"><code>proxy.wait()</code></link> function.
-        The <link linkend="latest-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+        <link linkend="cockpit-dbus-proxy-wait"><code>proxy.wait()</code></link> function.
+        The <link linkend="cockpit-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
         event will also fire when the proxy becomes valid or invalid. DBus properties and
         methods on the proxy are not defined until the proxy becomes valid.</para>
 
@@ -675,7 +675,7 @@
       <para>All DBus properties on the <code>interface</code> that start with an upper case
         letter (as is convention) will be automatically defined on this proxy, and will update
         their values as the DBus property values change. In addition the
-        <link linkend="latest-dbus-proxy-onchanged"><code>proxy.onchanged</code></link> event
+        <link linkend="cockpit-dbus-proxy-onchanged"><code>proxy.onchanged</code></link> event
         will fire every time the properties change.</para>
 
       <para>If you assign a value to a writable property on the proxy, the proxy will try to set
@@ -683,12 +683,12 @@
         property value will not update until the DBus service has notified the proxy of the
         change. If setting a property fails a warning will be logged. In order to have more
         reliable setting of properties, or track when they have been set, or if setting fails,
-        use the <link linkend="latest-dbus-call"><code>client.call()</code></link> directly.
+        use the <link linkend="cockpit-dbus-call"><code>client.call()</code></link> directly.
         It should be noted that DBus service implementations may also be inconsistent in
         their behavior when setting a property fails.</para>
 
       <para>You can access the raw property data using the
-        <link linkend="latest-dbus-proxy-data"><code>proxy.data</code></link> field, including
+        <link linkend="cockpit-dbus-proxy-data"><code>proxy.data</code></link> field, including
         data for properties that do not start with an upper case letter.</para>
 
 <programlisting>
@@ -709,7 +709,7 @@
         function directly.</para>
 
       <para>Methods that do not start with an upper case letter can be invoked by using
-        the usual <link linkend="latest-dbus-proxy-call"><code>proxy.call()</code></link> directly.</para>
+        the usual <link linkend="cockpit-dbus-proxy-call"><code>proxy.call()</code></link> directly.</para>
 
 <programlisting>
   $(proxy).on("Signal", function(event, arg1, arg2) {
@@ -723,51 +723,51 @@
         argument.</para>
 
       <para>Signals that do not start with an upper case letter can be subscribed to by
-        using <link linkend="latest-dbus-proxy-signal"><code>proxy.onsignal</code></link>
+        using <link linkend="cockpit-dbus-proxy-signal"><code>proxy.onsignal</code></link>
         directly.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-client">
+    <refsection id="cockpit-dbus-proxy-client">
       <title>proxy.client</title>
       <para>Set to the DBus client of the proxy. Will not change for the life of
         the proxy.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-path">
+    <refsection id="cockpit-dbus-proxy-path">
       <title>proxy.path</title>
       <para>Set to the DBus object path of the proxy. Will not change for the life of
         the proxy.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-iface">
+    <refsection id="cockpit-dbus-proxy-iface">
       <title>proxy.iface</title>
       <para>Set to the DBus interface name of the proxy. Will not change for the life
         of the proxy.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-valid">
+    <refsection id="cockpit-dbus-proxy-valid">
       <title>proxy.valid</title>
       <para>Set to <code>true</code> when the proxy's DBus interface is present at its
         DBus path, and all information for the proxy has loaded. Is set to <code>false</code>
         while loading, and after the proxy no longer refers a DBus interface and path.
         Also set to <code>false</code> if the <code>client</code> closes.</para>
-      <para>Use the by <link linkend="latest-dbus-proxy-wait"><code>proxy.wait()</code></link>
+      <para>Use the by <link linkend="cockpit-dbus-proxy-wait"><code>proxy.wait()</code></link>
         function to wait for a proxy to load. The
-        <link linkend="latest-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+        <link linkend="cockpit-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
         event will also be emitted when the proxy becomes valid or invalid. DBus properties and
         methods on the proxy are not defined until the proxy becomes valid.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-data">
+    <refsection id="cockpit-dbus-proxy-data">
       <title>proxy.data</title>
       <para>A plain javascript object containing all the raw property data that this
         proxy has loaded. This will be updated automatically as the proxy is notified
         of property changes from the DBus service. The
-        <link linkend="latest-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+        <link linkend="cockpit-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
         event will be emitted when it changes.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-call">
+    <refsection id="cockpit-dbus-proxy-call">
       <title>proxy.call()</title>
 <programlisting>
  invocation = proxy.call(method, args, [options])
@@ -775,7 +775,7 @@
       <para>Make a DBus method call on this proxy.</para>
 
       <para>For DBus methods that start with an upper case letter, is usually more convenient
-        <link linkend="latest-dbus-proxy">to call the method directly on the proxy</link>.
+        <link linkend="cockpit-dbus-proxy">to call the method directly on the proxy</link>.
         However if methods that do not follow the usual DBus convention,
         or specify additional options, or the caller cannot be sure that the method actually
         exists, you can use this method.</para>
@@ -785,15 +785,15 @@
 
       <para>The <code>method</code> should be a DBus method name, and the <code>args</code>
         should be an array of arguments to pass to the method. The <code>options</code>
-        are <link linkend="latest-dbus-call">described elsewhere</link>.</para>
+        are <link linkend="cockpit-dbus-call">described elsewhere</link>.</para>
 
       <para>The returned value is identical to the one returned from
-        <link linkend="latest-dbus-call">client.call()</link>. It is a
+        <link linkend="cockpit-dbus-call">client.call()</link>. It is a
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         that will complete sucessfully when the method returns, or fail if an error occurs.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-wait">
+    <refsection id="cockpit-dbus-proxy-wait">
       <title>proxy.wait()</title>
 <programlisting>
  proxy.wait(function() {
@@ -806,7 +806,7 @@
         loading resulting in a valid proxy.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-onchanged">
+    <refsection id="cockpit-dbus-proxy-onchanged">
       <title>proxy.onchanged</title>
 <programlisting>
  $(proxy).on("changed", function(data) {
@@ -826,7 +826,7 @@
 </programlisting>
     </refsection>
 
-    <refsection id="latest-dbus-proxy-signal">
+    <refsection id="cockpit-dbus-proxy-signal">
       <title>proxy.onsignal</title>
 <programlisting>
  $(proxy).on("signal", function(event, name, args) {
@@ -836,7 +836,7 @@
       <para>This event is emitted when the proxy's emits an event.</para>
 
       <para>For most events, that have names which start with an upper case letter, you can
-        just <link linkend="latest-dbus-proxy">connect to that event as a signal directly</link>.
+        just <link linkend="cockpit-dbus-proxy">connect to that event as a signal directly</link>.
         However if you wish to be notified when any signal is emitted, or for signals that do not
         follow the usual DBus convention, you can connect to this event.</para>
 
@@ -844,13 +844,13 @@
         of arguments that were emitted with the signal.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxies">
+    <refsection id="cockpit-dbus-proxies">
       <title>client.proxies</title>
 <programlisting>
   proxies = client.proxies([interface], [path_namespace])
 </programlisting>
 
-      <para>Create <link linkend="latest-dbus-proxy">proxy javascript objects</link> for
+      <para>Create <link linkend="cockpit-dbus-proxy">proxy javascript objects</link> for
         a DBus interfaces. The proxes will have properties, methods and signals from
         the DBus <code>interface</code>, and allow for natural interaction. If no
         <code>interface</code> is specified then the DBus bus name of the client is used.
@@ -875,8 +875,8 @@
 
       <para>Proxies will be automatically added and removed from the <code>proxies</code>
         object as they appear and disappear in the service. The
-        <link linkend="latest-dbus-proxies-onadded"><code>proxies.onadded</code></link>
-        and <link linkend="latest-dbus-proxies-onremoved"><code>proxies.onremoved</code></link>
+        <link linkend="cockpit-dbus-proxies-onadded"><code>proxies.onadded</code></link>
+        and <link linkend="cockpit-dbus-proxies-onremoved"><code>proxies.onremoved</code></link>
         events will be emitted. DBus services may not support notifications of paths
         disappearing.</para>
 
@@ -884,7 +884,7 @@
         set of proxies has been populated.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxies-wait">
+    <refsection id="cockpit-dbus-proxies-wait">
       <title>proxies.wait()</title>
 <programlisting>
  proxies.wait(function() {
@@ -896,23 +896,23 @@
         invoked immediately.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxies-client">
+    <refsection id="cockpit-dbus-proxies-client">
       <title>proxies.client</title>
       <para>Set to the DBus client of the proxies. Will not change.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxies-iface">
+    <refsection id="cockpit-dbus-proxies-iface">
       <title>proxies.iface</title>
       <para>Set to the DBus interface name of the proxies. Will not change.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxies-path_namespace">
+    <refsection id="cockpit-dbus-proxies-path_namespace">
       <title>proxies.path_namespace</title>
       <para>Set to the DBus path namespace used which the proxies must have as a DBus
         path prefix. Will not change.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxies-onadded">
+    <refsection id="cockpit-dbus-proxies-onadded">
       <title>proxies.onadded</title>
 <programlisting>
  $(proxies).on("added", function(event, proxy) {
@@ -923,7 +923,7 @@
         The proxy will already have loaded.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxies-onchanged">
+    <refsection id="cockpit-dbus-proxies-onchanged">
       <title>proxies.onchanged</title>
 <programlisting>
  $(proxies).on("changed", function(event, proxy) {
@@ -934,7 +934,7 @@
         changes its properties.</para>
     </refsection>
 
-    <refsection id="latest-dbus-proxies-onremoved">
+    <refsection id="cockpit-dbus-proxies-onremoved">
       <title>proxies.onremoved</title>
 <programlisting>
  $(proxies).on("removed", function(event, proxy) {
@@ -944,7 +944,7 @@
       <para>This event is emitted when a proxy is removed to the <code>proxies</code> object.</para>
     </refsection>
 
-    <refsection id="latest-dbus-call">
+    <refsection id="cockpit-dbus-call">
       <title>client.call()</title>
 <programlisting>
   invocation = client.call(path, interface, method, args, [options])
@@ -956,7 +956,7 @@
         the call on, <code>interface</code> is the DBus interface for the method and
         <code>method</code> is the name of the method to call. The <code>args</code> is an
         array of arguments to pass to the method, each of which must be appropriate for the
-        expected <link linkend="latest-dbus">DBus type</link> of that argument. The
+        expected <link linkend="cockpit-dbus">DBus type</link> of that argument. The
         <code>args</code> may be <code>null</code> if no arguments are to be sent.</para>
 
       <para>The returned value is a
@@ -981,7 +981,7 @@
       </variablelist>
     </refsection>
 
-    <refsection id="latest-dbus-done">
+    <refsection id="cockpit-dbus-done">
       <title>invocation.done()</title>
 <programlisting>
  invocation.done(function(args, options) { ... })
@@ -992,7 +992,7 @@
         successfully.</para>
       <para>The <code>args</code> argument is an array of return values from the DBus method.
         Each of them will be converted to an appropriate
-        <link linkend="latest-dbus">javascript type</link>.</para>
+        <link linkend="cockpit-dbus">javascript type</link>.</para>
       <para>The <code>options</code> argument may contain additional information about the
         reply. If the <code>type</code> option was specified when performing the method call,
         then the <code>options</code> in the reply here will also contain a <code>type</code>
@@ -1013,7 +1013,7 @@
 
     </refsection>
 
-    <refsection id="latest-dbus-fail">
+    <refsection id="cockpit-dbus-fail">
       <title>invocation.fail()</title>
 <programlisting>
  invocation.fail(function(exception) { ... })
@@ -1028,7 +1028,7 @@
       <variablelist>
         <varlistentry>
           <term><code>problem</code></term>
-          <listitem><para>A <link linkend="latest-problems">problem code</link> string when
+          <listitem><para>A <link linkend="cockpit-problems">problem code</link> string when
               a problem occurred starting or communicating with the DBus service. This is
               <code>null</code> in the cases where an actual DBus error was occurred.</para></listitem>
         </varlistentry>
@@ -1045,7 +1045,7 @@
       </variablelist>
     </refsection>
 
-    <refsection id="latest-dbus-always">
+    <refsection id="cockpit-dbus-always">
       <title>invocation.always()</title>
 <programlisting>
  invocation.always(function() { ... })
@@ -1056,7 +1056,7 @@
         or fails.</para>
     </refsection>
 
-    <refsection id="latest-dbus-subscribe">
+    <refsection id="cockpit-dbus-subscribe">
       <title>client.subscribe()</title>
 <programlisting>
  subscription = client.subscribe(match, function(path, interface, signal, args) { ... })
@@ -1103,7 +1103,7 @@
         or slightly different <code>match</code> arguments.</para>
     </refsection>
 
-    <refsection id="latest-dbus-remove">
+    <refsection id="cockpit-dbus-remove">
       <title>subscription.remove()</title>
 <programlisting>
  subscription.remove()
@@ -1112,7 +1112,7 @@
       <para>Unsubscribe from the DBus signal subscription.</para>
     </refsection>
 
-    <refsection id="latest-dbus-watch">
+    <refsection id="cockpit-dbus-watch">
       <title>client.watch</title>
 <programlisting>
  watch = client.watch(path)
@@ -1122,12 +1122,12 @@
         <code>path</code> DBus <code>path_namespace</code>. If <code>interface</code> is
         specified only properties on that DBus interface will be watched.</para>
 
-      <para>The <link linkend="latest-dbus-proxy"><code>client.proxy()</code></link> and
-          <link linkend="latest-dbus-proxies"><code>client.proxies()</code></link> functions and
+      <para>The <link linkend="cockpit-dbus-proxy"><code>client.proxy()</code></link> and
+          <link linkend="cockpit-dbus-proxies"><code>client.proxies()</code></link> functions and
         the objects they return are high level wrappers around <code>client.watch()</code>.</para>
 
       <para>The property and interface changes will be available in raw form on the
-        <link linkend="latest-dbus-onnotify"><code>client.onnotify</code></link> event.</para>
+        <link linkend="cockpit-dbus-onnotify"><code>client.onnotify</code></link> event.</para>
 
       <para>Property and interface changes that are caused by a method call or signal will
         show up before that method call reply is received, or signal event is triggered.
@@ -1168,15 +1168,15 @@
         <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
         that will complete sucessfully when the watch has populated its initial set of properties
         and interfaces, and these have been notified via
-        <link linkend="latest-dbus-onnotify"><code>client.onnotify</code></link>.</para>
+        <link linkend="cockpit-dbus-onnotify"><code>client.onnotify</code></link>.</para>
 
       <para>A watch can be removed by calling the
-        <link linkend="latest-dbus-watch-remove"><code>watch.remove()</code></link> method on
+        <link linkend="cockpit-dbus-watch-remove"><code>watch.remove()</code></link> method on
         the returned value. If identical watches are added more than once, then they must
         also be removed the same number of times before the removal takes effect.</para>
     </refsection>
 
-    <refsection id="latest-dbus-watch-done">
+    <refsection id="cockpit-dbus-watch-done">
       <title>watch.done()</title>
 <programlisting>
  watch.done(function() { ... })
@@ -1187,7 +1187,7 @@
         properties and interfaces.</para>
     </refsection>
 
-    <refsection id="latest-dbus-watch-fail">
+    <refsection id="cockpit-dbus-watch-fail">
       <title>watch.fail()</title>
 <programlisting>
  watch.fail(function() { ... })
@@ -1200,7 +1200,7 @@
         interfaces or properties.</para>
     </refsection>
 
-    <refsection id="latest-dbus-watch-always">
+    <refsection id="cockpit-dbus-watch-always">
       <title>watch.always()</title>
 <programlisting>
  watch.always(function() { ... })
@@ -1211,7 +1211,7 @@
         properties and interfaces or has failed to do so.</para>
     </refsection>
 
-    <refsection id="latest-dbus-watch-remove">
+    <refsection id="cockpit-dbus-watch-remove">
       <title>watch.remove()</title>
 <programlisting>
  watch.remove()
@@ -1221,16 +1221,16 @@
         also be removed the same number of times before the removal takes effect.</para>
     </refsection>
 
-    <refsection id="latest-dbus-onnotify">
+    <refsection id="cockpit-dbus-onnotify">
       <title>client.onnotify</title>
 <programlisting>
  $(client).on("notify", function(data) { ... })
 </programlisting>
       <para>An event triggered when
-        <link linkend="latest-dbus-watch">watched</link> properties or interfaces change.</para>
+        <link linkend="cockpit-dbus-watch">watched</link> properties or interfaces change.</para>
 
-      <para>The <link linkend="latest-dbus-proxy"><code>client.proxy()</code></link> and
-          <link linkend="latest-dbus-proxies"><code>client.proxies()</code></link> functions and
+      <para>The <link linkend="cockpit-dbus-proxy"><code>client.proxy()</code></link> and
+          <link linkend="cockpit-dbus-proxies"><code>client.proxies()</code></link> functions and
           the objects they return are high level wrappers around the <code>data</code> provided
           by this event.</para>
 
@@ -1255,7 +1255,7 @@
         interface has disappeared.</para>
     </refsection>
 
-    <refsection id="latest-dbus-variant">
+    <refsection id="cockpit-dbus-variant">
       <title>cockpit.variant()</title>
 <programlisting>
  variant = cockpit.variant(type, value)
@@ -1268,7 +1268,7 @@
       <para>This is a helper function for creating such a variant object.</para>
     </refsection>
 
-    <refsection id="latest-dbus-byte-array">
+    <refsection id="cockpit-dbus-byte-array">
       <title>cockpit.byte_array()</title>
 <programlisting>
  byte_array = cockpit.byte_array(value)
@@ -1279,7 +1279,7 @@
     </refsection>
   </refsection>
 
-  <refsection id="latest-http">
+  <refsection id="cockpit-http">
     <title>HTTP Access</title>
 
     <para>Cockpit allows access to local HTTP and REST services via this API.</para>
@@ -1288,7 +1288,7 @@
       and localhost ports on the server. Use your browser's <code>XmlHttpRequest</code> API for other
       more general HTTP access.</para>
 
-    <refsection id="latest-http-constructor">
+    <refsection id="cockpit-http-constructor">
       <title>cockpit.http()</title>
 <programlisting>
  http = cockpit.http(endpoint, [options])
@@ -1309,14 +1309,14 @@
           <term><code>"superuser"</code></term>
           <listitem><para>Try to open this channel as root. If the currently logged in user is not
 	    permitted to become root (eg: via <code>pkexec</code>) then the <code>channel</code> will
-            immediately be <link linkend="latest-channels-close-ev">closed</link> with a
+            immediately be <link linkend="cockpit-channels-close-ev">closed</link> with a
             <code>"not-authorized"</code> problem code.</para></listitem>
         </varlistentry>
       </variablelist>
 
     </refsection>
 
-    <refsection id="latest-http-get">
+    <refsection id="cockpit-http-get">
       <title>http.get()</title>
 <programlisting>
   request = http.get(path, [params, [headers]])
@@ -1330,7 +1330,7 @@
         that will complete if the request happens successfully, or fail if there's a problem.</para>
     </refsection>
 
-    <refsection id="latest-http-post">
+    <refsection id="cockpit-http-post">
       <title>http.post()</title>
 <programlisting>
   request = http.post(path, body, [headers])
@@ -1346,7 +1346,7 @@
         that will complete if the request happens successfully, or fail if there's a problem.</para>
     </refsection>
 
-    <refsection id="latest-http-request">
+    <refsection id="cockpit-http-request">
       <title>http.request()</title>
 <programlisting>
   request = http.request(options)
@@ -1357,7 +1357,7 @@
         <varlistentry>
           <term><code>"body"</code></term>
           <listitem><para>The HTTP request body. If you do not specify a body, then you must
-            call <link linkend="latest-http-input">request.input()</link> to complete the body
+            call <link linkend="cockpit-http-input">request.input()</link> to complete the body
             and allow the request to start.</para></listitem>
         </varlistentry>
         <varlistentry>
@@ -1383,7 +1383,7 @@
         that will complete if the request happens successfully, or fail if there's a problem.</para>
     </refsection>
 
-    <refsection id="latest-http-done">
+    <refsection id="cockpit-http-done">
       <title>request.done()</title>
 <programlisting>
  request.done(function(data) { ... })
@@ -1394,12 +1394,12 @@
       <para>The <code>data</code> argument contains the body result of the request.
         If it a string, unless the process was opened in binary mode, in which case the
         <code>data</code> is an array of bytes. If a
-        <code><link linkend="latest-http-stream">request.stream()</link></code>
+        <code><link linkend="cockpit-http-stream">request.stream()</link></code>
         handler is set up, then any standard output data consumed by the handler will not
         be included in the <code>data</code> argument.</para>
     </refsection>
 
-    <refsection id="latest-http-fail">
+    <refsection id="cockpit-http-fail">
       <title>request.fail()</title>
 <programlisting>
  request.fail(function(exception) { ... })
@@ -1414,7 +1414,7 @@
       <variablelist>
         <varlistentry>
           <term><code>problem</code></term>
-          <listitem><para>A <link linkend="latest-problems">problem code</link> string when
+          <listitem><para>A <link linkend="cockpit-problems">problem code</link> string when
             a problem occurred starting or communicating with the server. This is <code>null</code>
             if the process exited or was terminated.</para></listitem>
         </varlistentry>
@@ -1436,7 +1436,7 @@
       </variablelist>
     </refsection>
 
-    <refsection id="latest-http-always">
+    <refsection id="cockpit-http-always">
       <title>request.always()</title>
 <programlisting>
  request.always(function() { ... })
@@ -1447,7 +1447,7 @@
         fails, terminates, or exits with a failure.</para>
     </refsection>
 
-    <refsection id="latest-http-response">
+    <refsection id="cockpit-http-response">
       <title>request.response()</title>
 <programlisting>
  request.response(function(status, headers) { ... })
@@ -1458,7 +1458,7 @@
         response.</para>
     </refsection>
 
-    <refsection id="latest-http-stream">
+    <refsection id="cockpit-http-stream">
       <title>request.stream()</title>
 <programlisting>
  request.stream(function(data) { ... })
@@ -1471,33 +1471,33 @@
         indicates the number of characters or bytes consumed from <code>data</code>. Any data
         not consumed will be included again the next time the handler is called.</para>
       <para>If a <code>request.stream()</code> handler is set up, then the
-        <code><link linkend="latest-http-done">request.done()</link></code> handlers will
+        <code><link linkend="cockpit-http-done">request.done()</link></code> handlers will
         only get any remaining data not consumed by the stream handler.</para>
     </refsection>
 
-    <refsection id="latest-http-input">
+    <refsection id="cockpit-http-input">
       <title>request.input()</title>
 <programlisting>
  request.input(data, [stream])
 </programlisting>
       <para>This method writes <code>data</code> to the HTTP request body. It is only valid
         if no <code>"body"</code> has been specified in
-        <link linkend="latest-http-request">http.request()</link> options. If <code>stream</code>
+        <link linkend="cockpit-http-request">http.request()</link> options. If <code>stream</code>
         is <code>true</code> then this function can be called again to provide further data.</para>
     </refsection>
 
-    <refsection id="latest-http-close">
+    <refsection id="cockpit-http-close">
       <title>request.close()</title>
 <programlisting>
  request.close([problem])
 </programlisting>
       <para>Cancel the request. If <code>problem</code> is specified it should be a
-        standard <link linkend="latest-problems">problem code</link> string.</para>
+        standard <link linkend="cockpit-problems">problem code</link> string.</para>
     </refsection>
 
   </refsection>
 
-<refsection id="latest-permission">
+<refsection id="cockpit-permission">
     <title>Permission Lookup</title>
 
     <para>Cockpit provides a mechanism for checking if the current user satisfies a
@@ -1505,7 +1505,7 @@
       membership. This is meant for updating UI elements based on what actions the
       user can perform. It is <emphasis>not an access control mechanism</emphasis>.</para>
 
-    <refsection id="latest-permission-constructor">
+    <refsection id="cockpit-permission-constructor">
       <title>cockpit.permission()</title>
 <programlisting>
  permission = cockpit.permission([options])
@@ -1517,26 +1517,26 @@
         given permission.</para>
     </refsection>
 
-    <refsection id="latest-permission-allowed">
+    <refsection id="cockpit-permission-allowed">
       <title>permission.allowed</title>
 
       <para>A boolean value which indicates if the permission is allowed or not. This will
         be <code>null</code> if the permission is unknown, or there was an error checking
         the permission or the the permission data has not yet loaded. This property will update
         asynchronously and if you wish to be notified of changes connect to the
-        <link linkend="latest-permission-changed">permission.onchanged</link> event.</para>
+        <link linkend="cockpit-permission-changed">permission.onchanged</link> event.</para>
     </refsection>
 
-    <refsection id="latest-permission-changed">
+    <refsection id="cockpit-permission-changed">
       <title>permission.onchanged</title>
 <programlisting>
   $(permission).on("changed", function() { ... })
 </programlisting>
       <para>This event is fired when the permission changes. In particular the
-        <link linkend="latest-permission-allowed">permission.allowed</link> property.</para>
+        <link linkend="cockpit-permission-allowed">permission.allowed</link> property.</para>
     </refsection>
 
-    <refsection id="latest-permission-close">
+    <refsection id="cockpit-permission-close">
       <title>permission.close()</title>
 <programlisting>
   permission.close()
@@ -1546,20 +1546,20 @@
 
   </refsection>
 
-  <refsection id="latest-locale">
+  <refsection id="cockpit-locale">
     <title>Localization</title>
 
     <para>Cockpit provides a
       <ulink url="https://www.gnu.org/software/gettext/"><code>gettext()</code></ulink> like
       API for easy translation of strings.</para>
 
-    <refsection id="latest-locale-language">
+    <refsection id="cockpit-locale-language">
       <title>cockpit.language</title>
       <para>The current locale language code. This is set based on the
-        <link linkend="latest-locale-locale"><code>cockpit.locale()</code></link> data loaded.</para>
+        <link linkend="cockpit-locale-locale"><code>cockpit.locale()</code></link> data loaded.</para>
     </refsection>
 
-    <refsection id="latest-locale-locale">
+    <refsection id="cockpit-locale-locale">
       <title>cockpit.locale()</title>
 <programlisting>
  cockpit.locale(po)
@@ -1572,11 +1572,11 @@
         translations strings will be replaced with the new strings.</para>
 
       <para>Various methods such as
-        <link linkend="latest-locale-gettext"><code>cockpit.gettext()</code></link> make use
+        <link linkend="cockpit-locale-gettext"><code>cockpit.gettext()</code></link> make use
         of the loaded data.</para>
     </refsection>
 
-    <refsection id="latest-locale-gettext">
+    <refsection id="cockpit-locale-gettext">
       <title>cockpit.gettext()</title>
 <programlisting>
  translated = cockpit.gettext([context], string)
@@ -1595,7 +1595,7 @@
         will make your code work with the typical <code>_("string")</code> syntax.</para>
     </refsection>
 
-    <refsection id="latest-locale-noop">
+    <refsection id="cockpit-locale-noop">
       <title>cockpit.noop()</title>
 <programlisting>
   var N_ = cockpit.noop
@@ -1607,7 +1607,7 @@
         returns its last argument.</para>
     </refsection>
 
-    <refsection id="latest-locale-ngettext">
+    <refsection id="cockpit-locale-ngettext">
       <title>cockpit.ngettext()</title>
 <programlisting>
  translated = cockpit.ngettext([context], string1, stringN, number)
@@ -1622,7 +1622,7 @@
       <para>The <code>context</code> argument is an optional string used to qualify the string.</para>
     </refsection>
 
-    <refsection id="latest-locale-translate">
+    <refsection id="cockpit-locale-translate">
       <title>cockpit.translate()</title>
 <programlisting>
  cockpit.translate([sel])
@@ -1844,7 +1844,7 @@ handle = file.watch(callback, error_callback);
 
     <para>Various utility functions.</para>
 
-    <refsection id="latest-format">
+    <refsection id="cockpit-format">
       <title>cockpit.format()</title>
 <programlisting>
  string = cockpit.format(template, args)
@@ -1861,7 +1861,7 @@ handle = file.watch(callback, error_callback);
         and interpolated as as numeric fields in the <code>template</code>.</para>
     </refsection>
 
-    <refsection id="latest-format-bytes">
+    <refsection id="cockpit-format-bytes">
       <title>cockpit.format_bytes()</title>
 <programlisting>
  string = cockpit.format_bytes(number, [factor])
@@ -1897,7 +1897,7 @@ handle = file.watch(callback, error_callback);
     </refsection>
   </refsection>
 
-  <refsection id="latest-packages">
+  <refsection id="cockpit-packages">
     <title>Manifest Info</title>
 
     <para>You can load manifest info by loading the <code>./manifest.json</code> file in
@@ -1915,15 +1915,15 @@ handle = file.watch(callback, error_callback);
 
   </refsection>
 
-  <refsection id="latest-channels">
+  <refsection id="cockpit-channels">
     <title>Raw Channels</title>
 
     <para>At a low level Cockpit communicates with the system via messages passed
       through various channels. These are usually exposed via higher level APIs,
-      such as the <code><link linkend="latest-spawn">cockpit.spawn()</link></code> function.
+      such as the <code><link linkend="cockpit-spawn">cockpit.spawn()</link></code> function.
       It is rare to use raw channels directly.</para>
 
-    <refsection id="latest-channels-channel">
+    <refsection id="cockpit-channels-channel">
       <title>cockpit.channel()</title>
 <programlisting>
  channel = cockpit.channel(options)
@@ -1938,9 +1938,9 @@ handle = file.watch(callback, error_callback);
         <varlistentry>
           <term><code>"binary"</code></term>
           <listitem><para>Set to <code>true</code> to transfer binary payloads. Both messages
-            sent via <link linkend="latest-channels-send"><code>channel.send()</code></link>
+            sent via <link linkend="cockpit-channels-send"><code>channel.send()</code></link>
             and those received via
-            <link linkend="latest-channels-message"><code>channel.onmessage</code></link>
+            <link linkend="cockpit-channels-message"><code>channel.onmessage</code></link>
             should be arrays of bytes, either <code>Uint8Array</code> or <code>Array</code>
             depending on browser support.</para></listitem>
         </varlistentry>
@@ -1959,40 +1959,40 @@ handle = file.watch(callback, error_callback);
           <term><code>"superuser"</code></term>
           <listitem><para>Try to open this channel as root. If the currently logged in user is not
 	    permitted to become root (eg: via <code>pkexec</code>) then the <code>channel</code> will
-            immediately be <link linkend="latest-channels-close-ev">closed</link> with a
+            immediately be <link linkend="cockpit-channels-close-ev">closed</link> with a
             <code>"not-authorized"</code> problem code.</para></listitem>
         </varlistentry>
       </variablelist>
 
       <para>The channel object returned has the following fields and methods and
         events. You should call the
-        <code><link linkend="latest-channels-close">channel.close()</link></code>
+        <code><link linkend="cockpit-channels-close">channel.close()</link></code>
         method when done with the channel.</para>
 
       <para>A valid channel will always be returned and the is ready to
-        <code><link linkend="latest-channels-send">channel.send()</link></code>. The channel may
-        <link linkend="latest-channels-close-ev">close shortly afterword</link> due
+        <code><link linkend="cockpit-channels-send">channel.send()</link></code>. The channel may
+        <link linkend="cockpit-channels-close-ev">close shortly afterword</link> due
         to a failure.</para>
     </refsection>
 
-    <refsection id="latest-channels-binary">
+    <refsection id="cockpit-channels-binary">
       <title>channel.binary</title>
       <para>Will be <code>true</code> for an binary channel. Will be set to <code>false</code> if the
         channel is textual.</para>
     </refsection>
 
-    <refsection id="latest-channels-options">
+    <refsection id="cockpit-channels-options">
       <title>channel.options</title>
       <para>The options used to open this channel. This should not be changed.</para>
     </refsection>
 
-    <refsection id="latest-channels-valid">
+    <refsection id="cockpit-channels-valid">
       <title>channel.valid</title>
       <para>Will be <code>true</code> for an open channel. Will be set to <code>false</code> if the channel
         closes.</para>
     </refsection>
 
-    <refsection id="latest-channels-send">
+    <refsection id="cockpit-channels-send">
       <title>channel.send()</title>
 <programlisting>
  channel.send(data)
@@ -2003,7 +2003,7 @@ handle = file.watch(callback, error_callback);
         then the <code>data</code> will be converted to a string if not already a string.</para>
     </refsection>
 
-    <refsection id="latest-channels-control">
+    <refsection id="cockpit-channels-control">
       <title>channel.control()</title>
 <programlisting>
  channel.control(options)
@@ -2015,7 +2015,7 @@ handle = file.watch(callback, error_callback);
         options field. To indicate that no further messages will be sent through the channel.</para>
     </refsection>
 
-    <refsection id="latest-channels-close">
+    <refsection id="cockpit-channels-close">
       <title>channel.close()</title>
 <programlisting>
  channel.close([options])
@@ -2024,13 +2024,13 @@ handle = file.watch(callback, error_callback);
       <para>If <code>options</code> is present it can be a plain javascript object
         containing additional channel close options to send to the peer. If closing for
         because of a problem, set the <code>"problem"</code> field to a
-        <link linkend="latest-problems">problem code</link>. If <code>options</code>
+        <link linkend="cockpit-problems">problem code</link>. If <code>options</code>
         is not an object it will be treated as a <code>"problem"</code>.</para>
-      <para>The <link linkend="latest-channels-close-ev">close event</link> will fire.
+      <para>The <link linkend="cockpit-channels-close-ev">close event</link> will fire.
         A channel can also be closed by a peer or if the underlying transport closes.</para>
     </refsection>
 
-    <refsection id="latest-channels-message">
+    <refsection id="cockpit-channels-message">
       <title>channel.onmessage</title>
 <programlisting>
  $(channel).on("message", function(event, data) { ... })
@@ -2043,7 +2043,7 @@ handle = file.watch(callback, error_callback);
         the message depends on the payload type of the channel.</para>
     </refsection>
 
-    <refsection id="latest-channels-oncontrol">
+    <refsection id="cockpit-channels-oncontrol">
       <title>channel.oncontrol</title>
 <programlisting>
  $(channel).on("control", function(event, options) { ... })
@@ -2056,21 +2056,21 @@ handle = file.watch(callback, error_callback);
         channel.</para>
     </refsection>
 
-    <refsection id="latest-channels-close-ev">
+    <refsection id="cockpit-channels-close-ev">
       <title>channel.onclose</title>
 <programlisting>
  $(channel).on("close", function(options) { ... })
  channel.addEventListener("close", function(event, options) { ... })
 </programlisting>
       <para>An event triggered when the channel closes. This can happen either because
-        <link linkend="latest-channels-close">channel.close()</link> function was called,
+        <link linkend="cockpit-channels-close">channel.close()</link> function was called,
         or if the peer closed the channel, or the underlying transport closes.</para>
       <para>The <code>options</code> will contain various close information, including a
         <code>"problem"</code> field which will be set if the channel was closed because
         of a problem.</para>
     </refsection>
 
-    <refsection id="latest-transport-origin">
+    <refsection id="cockpit-transport-origin">
       <title>cockpit.transport.origin</title>
 <programlisting>
   cockpit.transport.origin
@@ -2080,7 +2080,7 @@ handle = file.watch(callback, error_callback);
         <code>window.location.origin</code> then this will be identical to that value.</para>
     </refsection>
 
-    <refsection id="latest-transport-options">
+    <refsection id="cockpit-transport-options">
       <title>cockpit.transport.options</title>
 <programlisting>
   cockpit.transport.options
@@ -2089,7 +2089,7 @@ handle = file.watch(callback, error_callback);
         will be empty until connection is properly established.</para>
     </refsection>
 
-    <refsection id="latest-transport-close">
+    <refsection id="cockpit-transport-close">
       <title>cockpit.transport.close()</title>
 <programlisting>
   cockpit.transport.close([problem])
@@ -2099,7 +2099,7 @@ handle = file.watch(callback, error_callback);
         it will default to <code>"disconnected"</code>.</para>
     </refsection>
 
-    <refsection id="latest-transport-filter">
+    <refsection id="cockpit-transport-filter">
       <title>cockpit.transport.filter()</title>
 <programlisting>
   cockpit.transport.filter(function(message, channel, control) { ... })
@@ -2118,7 +2118,7 @@ handle = file.watch(callback, error_callback);
 	JSON object of the control message.</para>
     </refsection>
 
-    <refsection id="latest-transport-inject">
+    <refsection id="cockpit-transport-inject">
       <title>cockpit.transport.inject()</title>
 <programlisting>
   cockpit.transport.inject(message)
@@ -2127,10 +2127,10 @@ handle = file.watch(callback, error_callback);
         should be a <code>string</code> or an array of bytes, and should be valid
         according to the Cockpit message protocol.</para>
       <para>This function is rarely used. In general you should only <code>inject()</code>
-        messages you got from a <code><link linkend="latest-transport-filter">filter()</link></code>.</para>
+        messages you got from a <code><link linkend="cockpit-transport-filter">filter()</link></code>.</para>
     </refsection>
 
-    <refsection id="latest-base64-encode">
+    <refsection id="cockpit-base64-encode">
       <title>cockpit.base64_encode()</title>
 <programlisting>
   string = cockpit.base64_encode(data)
@@ -2140,7 +2140,7 @@ handle = file.watch(callback, error_callback);
         or a <code>Uint8Array</code>. The return value is a string.</para>
     </refsection>
 
-    <refsection id="latest-base64-decode">
+    <refsection id="cockpit-base64-decode">
       <title>cockpit.base64_decode()</title>
 <programlisting>
   data = cockpit.base64_decode(string, [constructor])
@@ -2155,7 +2155,7 @@ handle = file.watch(callback, error_callback);
         does not contain bytes that would be invalid for a string.</para>
     </refsection>
 
-    <refsection id="latest-utf8-encoder">
+    <refsection id="cockpit-utf8-encoder">
       <title>cockpit.utf8_encoder()</title>
 <programlisting>
   encoder = cockpit.utf8_encoder([constructor])
@@ -2166,7 +2166,7 @@ handle = file.watch(callback, error_callback);
         alternate form. The default is to return an <code>Array</code>.</para>
     </refsection>
 
-    <refsection id="latest-utf8-encoder-encode">
+    <refsection id="cockpit-utf8-encoder-encode">
       <title>encoder.encode()</title>
 <programlisting>
   data = encoder.encode(string)
@@ -2174,10 +2174,10 @@ handle = file.watch(callback, error_callback);
       <para>Encode a <code>string</code> into a UTF8 sequence of bytes.</para>
       <para>The resulting <code>data</code> is an array of bytes, but it's type may be
         modified by passing an alternate <code>constructor</code> to
-        <link linkend="latest-utf8-encoder">cockpit.utf8_encoder()</link>.</para>
+        <link linkend="cockpit-utf8-encoder">cockpit.utf8_encoder()</link>.</para>
     </refsection>
 
-    <refsection id="latest-utf8-decoder">
+    <refsection id="cockpit-utf8-decoder">
       <title>cockpit.utf8_decoder()</title>
 <programlisting>
   decoder = cockpit.utf8_decoder([fatal])
@@ -2189,7 +2189,7 @@ handle = file.watch(callback, error_callback);
     </refsection>
   </refsection>
 
-    <refsection id="latest-utf8-decoder-decode">
+    <refsection id="cockpit-utf8-decoder-decode">
       <title>decoder.decode()</title>
 <programlisting>
   string = decoder.decode(data, [options])
@@ -2208,7 +2208,7 @@ handle = file.watch(callback, error_callback);
   <refsection>
     <title>Cockpit Version Info</title>
 
-    <refsection id="latest-info">
+    <refsection id="cockpit-info">
       <title>cockpit.info</title>
 <programlisting>
   cockpit.info["version"]

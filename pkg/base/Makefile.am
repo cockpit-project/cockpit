@@ -3,7 +3,7 @@ LINGUAS = de da
 po/po.en.js: pkg/base/po.js
 	$(AM_V_GEN) cp $^ $@
 
-basedir = $(pkgdatadir)/base
+basedir = $(pkgdatadir)/base1
 base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
@@ -22,14 +22,14 @@ base_DATA = \
 	$(base_GEN) \
 	$(NULL)
 
-baseimagesdir = $(pkgdatadir)/base/images
+baseimagesdir = $(pkgdatadir)/base1/images
 baseimages_DATA = \
 	pkg/base/images/play.png \
 	pkg/base/images/eject.png \
 	pkg/base/images/stop.png \
 	$(NULL)
 
-basefontsdir = $(pkgdatadir)/base/fonts
+basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
 	pkg/base/fonts/fontawesome.woff \
 	pkg/base/fonts/patternfly.woff \
@@ -54,6 +54,7 @@ base_TESTS = \
 	pkg/base/test-format.html \
 	pkg/base/test-file.html \
 	pkg/base/test-user.html \
+	pkg/base/test-time.html \
 	pkg/base/test-permissions.html \
 	$(NULL)
 

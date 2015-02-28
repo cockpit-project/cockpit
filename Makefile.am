@@ -142,8 +142,6 @@ clean-local:
 uninstall-local:: uninstall-doc-local
 	@true
 
-LATEST = latest/
-
 install-data-hook::
 	mkdir -p $(DESTDIR)$(localstatedir)/lib/cockpit
 	-chgrp wheel $(DESTDIR)$(localstatedir)/lib/cockpit
@@ -192,8 +190,8 @@ include pkg/docker/Makefile.am
 include pkg/kubernetes/Makefile.am
 include pkg/legacy/Makefile.am
 include pkg/playground/Makefile.am
-include pkg/server-systemd/Makefile.am
 include pkg/shell/Makefile.am
+include pkg/systemd/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am
 include src/websocket/Makefile-websocket.am

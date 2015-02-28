@@ -2617,7 +2617,7 @@ var self_module_id = null;
 
         /* Special jquery path, go figure */
         if (id == "jquery")
-            id = "base/jquery";
+            id = "base1/jquery";
 
         /* Overridden base, just be simple */
         if (window.mock && window.mock.loader_base)

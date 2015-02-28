@@ -18,7 +18,7 @@
  */
 define([
     "jquery",
-    "latest/cockpit"
+    "base1/cockpit"
 ], function($, cockpit) {
     "use strict";
 

@@ -19,8 +19,8 @@
 
 define([
     "jquery",
-    "latest/cockpit",
-    "latest/term"
+    "base1/cockpit",
+    "base1/term"
 ], function($, cockpit, Terminal) {
     "use strict";
 

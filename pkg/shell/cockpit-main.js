@@ -62,7 +62,7 @@ function maybe_init() {
 
 /* HACK: Until all of the shell is loaded via AMD */
 require([
-    "server/server",
+    "system/server",
     "docker/docker"
 ], function(server, docker) {
     modules.server = server;
@@ -77,7 +77,7 @@ function init() {
     content_show();
 }
 
-require(["latest/po"], function(po) {
+require(["base1/po"], function(po) {
     cockpit.locale(po);
 });
 

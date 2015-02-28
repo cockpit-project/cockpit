@@ -5,12 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../legacy/cockpit.css" type="text/css" rel="stylesheet">
-    <script src="../latest/cockpit.js"></script>
+    <script src="../base1/cockpit.js"></script>
 <script>
 require([
     "jquery",
-    "latest/cockpit",
-    "latest/mustache",
+    "base1/cockpit",
+    "base1/mustache",
     "kubernetes/kubernetes"
 ], function($, cockpit, Mustache, kubernetes) {
     var client = kubernetes.k8client();

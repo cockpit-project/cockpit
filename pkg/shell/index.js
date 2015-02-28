@@ -21,8 +21,8 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 
 require([
     "jquery",
-    "latest/cockpit",
-    'latest/po',
+    "base1/cockpit",
+    'base1/po',
     "manifests"
 ], function($, cockpit, po, manifests) {
     cockpit.locale(po);
@@ -829,7 +829,7 @@ require([
                     label: _("Containers"),
                 },
                 {
-                    path: "server/log",
+                    path: "system/log",
                     label: _("Journal"),
                 },
                 {

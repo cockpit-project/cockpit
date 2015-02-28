@@ -142,8 +142,8 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
 
         # Modify the terminals to be different on the two machines.
-        m1.execute("sed -i -e 's|</body>|magic-m1-token</body>|' /usr/share/cockpit/server-systemd/terminal.min.html")
-        m2.execute("sed -i -e 's|</body>|magic-m2-token</body>|' /usr/share/cockpit/server-systemd/terminal.min.html")
+        m1.execute("sed -i -e 's|</body>|magic-m1-token</body>|' /usr/share/cockpit/system/terminal.min.html")
+        m2.execute("sed -i -e 's|</body>|magic-m2-token</body>|' /usr/share/cockpit/system/terminal.min.html")
 
         self.login_and_go("dashboard", href="dashboard/list", host=None)
         inject_extras(b)
@@ -152,14 +152,14 @@ class TestMultiMachine(MachineCase):
 
         # TODO: These will need to change from server-systemd -> system
         b.leave_page()
-        b.go("/@%s/server-systemd/terminal" % m2.address)
-        b.enter_page("/server-systemd/terminal", host=m2.address)
+        b.go("/@%s/system/terminal" % m2.address)
+        b.enter_page("/system/terminal", host=m2.address)
         b.wait_present("body")
         b.wait_in_text("body", "magic-m2-token")
 
         b.leave_page()
-        b.go("/@localhost/server-systemd/terminal")
-        b.enter_page("/server-systemd/terminal")
+        b.go("/@localhost/system/terminal")
+        b.enter_page("/system/terminal")
         b.wait_present("body")
         b.wait_in_text("body", "magic-m1-token")
 

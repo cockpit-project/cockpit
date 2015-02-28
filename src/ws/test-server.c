@@ -286,16 +286,10 @@ on_handle_resource (CockpitWebServer *server,
                     CockpitWebResponse *response,
                     gpointer user_data)
 {
-  gchar *alloc = NULL;
-
   g_assert (g_str_has_prefix (path, "/pkg"));
-
-  if (g_str_has_prefix (path, "/pkg/latest"))
-    path = alloc = g_build_filename ("/pkg/base", path + 11, NULL);
 
   cockpit_web_response_file (response, path, FALSE,
                              cockpit_web_server_get_document_roots (server));
-  g_free (alloc);
 
   return TRUE;
 }

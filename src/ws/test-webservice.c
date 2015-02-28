@@ -1533,17 +1533,25 @@ test_resource_checksum (TestResourceCase *tc,
   g_object_unref (input);
 
   /* Start the connection up, and poke it a bit */
-  response = cockpit_web_response_new (io, "/cockpit/@localhost/not-found", NULL, NULL);
+  response = cockpit_web_response_new (io, "/cockpit/@localhost/checksum", NULL, NULL);
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
 
   g_object_unref (io);
+
+  /* Use this when the checksum changes, due to mock resource changes */
+#if 0
+  bytes = g_memory_output_stream_steal_as_bytes (G_MEMORY_OUTPUT_STREAM (output));
+  g_printerr ("%.*s\n", (gint)g_bytes_get_size (bytes), (gchar *)g_bytes_get_data (bytes, NULL));
+  g_bytes_unref (bytes);
+#endif
+
   g_object_unref (output);
   g_object_unref (response);
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3/test/sub/file.ext", NULL, NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/$71100b932eb766ef9043f855974ae8e3834173e2/test/sub/file.ext", NULL, NULL);
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -1555,7 +1563,7 @@ test_resource_checksum (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "ETag: \"$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3\"\r\n"
+                           "ETag: \"$71100b932eb766ef9043f855974ae8e3834173e2\"\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"
@@ -1611,7 +1619,7 @@ test_resource_redirect_checksum (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 307 Temporary Redirect\r\n"
                            "Content-Type: text/html\r\n"
-                           "Location: /cockpit/$3dccaa0e86f6cb47294825bc3fdf7435ff6b04c3/test/sub/file.ext\r\n"
+                           "Location: /cockpit/$71100b932eb766ef9043f855974ae8e3834173e2/test/sub/file.ext\r\n"
                            "Content-Length: 91\r\n"
                            "\r\n"
                            "<html><head><title>Temporary redirect</title></head><body>Access via checksum</body></html>",

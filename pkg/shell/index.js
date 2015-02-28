@@ -785,15 +785,11 @@ require([
         var requests = [ ];
 
         function build(list, pkgs) {
-            pkgs.sort(function(a, b) {
-                return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
-            });
-
             /* TODO: The manifest format should describe components more completely */
 
             var seen = { };
-            $.each(pkgs, function(i, pkg) {
-                var tools = pkg.manifest.tools;
+            $.each(pkgs, function(name, pkg) {
+                var tools = pkg.tools;
                 if (!tools)
                     return;
                 $.each(tools, function(ident, info) {
@@ -802,7 +798,7 @@ require([
                         file = ident;
                     file = file.replace(/\.html$/, "");
                     list.push({
-                        path: pkg.id[0] + "/" + file,
+                        path: name + "/" + file,
                         label: cockpit.gettext(info.label)
                     });
                 });
@@ -850,10 +846,14 @@ require([
                 }
             ]);
 
+            if (machine.address == "localhost") {
+                build(list, manifests);
+                callback(list);
+                return;
+            }
+
             var url;
-            if (machine.address == "localhost")
-                url = "../manifests.json";
-            else if (machine.checksum)
+            if (machine.checksum)
                 url = "../../$" + machine.checksum + "/manifests.json";
             else
                 url = "../../@" + machine.address + "/manifests.json";

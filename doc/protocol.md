@@ -486,10 +486,8 @@ are added automatically as appropriate, and others are stripped from
 the response, in particular 'Content-Length':
 
  * 'Accept-Charset'
- * 'Accept-Encoding'
  * 'Accept-Ranges'
  * 'Connection'
- * 'Content-Encoding'
  * 'Content-Length'
  * 'Content-MD5'
  * 'Content-Range'
@@ -498,6 +496,11 @@ the response, in particular 'Content-Length':
  * 'Trailer'
  * 'Transfer-Encoding'
  * 'Upgrade'
+
+The following are not accepted on non-binary channels:
+
+ * 'Accept-Encoding'
+ * 'Content-Encoding'
 
 Additional "open" command options are needed to open a channel of this
 payload type:

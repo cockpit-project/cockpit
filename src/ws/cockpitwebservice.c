@@ -2285,7 +2285,6 @@ resource_respond (CockpitWebService *self,
           g_ascii_strcasecmp (key, "User-Agent") == 0 ||
           g_ascii_strcasecmp (key, "Accept-Charset") == 0 ||
           g_ascii_strcasecmp (key, "Accept-Ranges") == 0 ||
-          g_ascii_strcasecmp (key, "Content-Encoding") == 0 ||
           g_ascii_strcasecmp (key, "Content-Length") == 0 ||
           g_ascii_strcasecmp (key, "Content-MD5") == 0 ||
           g_ascii_strcasecmp (key, "Content-Range") == 0 ||
@@ -2293,8 +2292,7 @@ resource_respond (CockpitWebService *self,
           g_ascii_strcasecmp (key, "TE") == 0 ||
           g_ascii_strcasecmp (key, "Trailer") == 0 ||
           g_ascii_strcasecmp (key, "Upgrade") == 0 ||
-          g_ascii_strcasecmp (key, "Transfer-Encoding") == 0 ||
-          g_ascii_strcasecmp (key, "Accept-Encoding") == 0)
+          g_ascii_strcasecmp (key, "Transfer-Encoding") == 0)
         continue;
 
       if (language && g_ascii_strcasecmp (key, "Accept-Language") == 0)

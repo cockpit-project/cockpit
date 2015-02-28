@@ -618,8 +618,6 @@ disallowed_header (const gchar *name,
                    gboolean binary)
 {
   static const gchar *bad_headers[] = {
-      "Accept-Encoding",
-      "Content-Encoding",
       "Content-Length",
       "Content-MD5",
       "TE",
@@ -630,6 +628,8 @@ disallowed_header (const gchar *name,
   };
 
   static const gchar *bad_text[] = {
+      "Accept-Encoding",
+      "Content-Encoding",
       "Accept-Charset",
       "Accept-Ranges",
       "Content-Range",
@@ -671,6 +671,7 @@ send_http_request (CockpitHttpStream *self)
   const gchar *problem = "protocol-error";
   JsonObject *options;
   gboolean had_host;
+  gboolean had_encoding;
   const gchar *method;
   const gchar *path;
   GString *string = NULL;
@@ -726,7 +727,7 @@ send_http_request (CockpitHttpStream *self)
   string = g_string_sized_new (128);
   g_string_printf (string, "%s %s HTTP/1.1\r\n", method, path);
 
-  had_host = FALSE;
+  had_encoding = had_host = FALSE;
 
   node = json_object_get_member (options, "headers");
   if (node)
@@ -770,13 +771,15 @@ send_http_request (CockpitHttpStream *self)
 
           if (g_ascii_strcasecmp (l->data, "Host") == 0)
             had_host = TRUE;
+          if (g_ascii_strcasecmp (l->data, "Accept-Encoding") == 0)
+            had_encoding = TRUE;
         }
     }
 
   if (!had_host)
     g_string_append_printf (string, "Host: %s\r\n", self->name);
-
-  g_string_append (string, "Accept-Encoding: \r\n");
+  if (!had_encoding)
+    g_string_append (string, "Accept-Encoding: identity\r\n");
 
   if (!self->binary)
     g_string_append (string, "Accept-Charset: UTF-8\r\n");

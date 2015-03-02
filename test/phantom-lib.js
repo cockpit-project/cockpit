@@ -7,6 +7,10 @@
 
 function ph_init ()
 {
+    localStorage.clear();
+    phantom_checkpoint = function() {
+        console.log ("-*-CHECKPOINT-*-");
+    }
 }
 
 function ph_select(sel)

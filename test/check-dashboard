@@ -73,7 +73,7 @@ class TestDashboard(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("dashboard")
+        self.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])
@@ -97,7 +97,7 @@ class TestDashboard(MachineCase):
         # Start second browser and check that it is in sync
         b2 = self.new_browser()
         b2.default_user = "root"
-        b2.login_and_go("dashboard")
+        b2.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b2)
         self.wait_dashboard_addresses (b2, [ m.address ])
 
@@ -130,34 +130,26 @@ class TestDashboard(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("server")
+        self.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b)
 
-        b.wait_present('#hosts a:first-child')
-        b.click('#hosts a:first-child button')
+        b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#dashboard_setup_address', "127.0.0.1")
         self.add_machine_finish(b)
 
-        b.wait_js_cond('$("#hosts > a").length == 3')
-        b.click('#hosts a:nth-child(2)')
-        b.wait_js_cond('cockpit.location.href == "/localhost/server"')
-        b.click('#topnav a[data-page-id=storage]')
-        b.wait_js_cond('cockpit.location.href == "/localhost/storage"')
-        b.wait_present('#storage_drives tr:first-child')
-        b.click('#storage_drives tr:first-child')
-        b.wait_js_cond('cockpit.location.href.startsWith("/localhost/storage-detail")')
-        last_href = b.eval_js('return cockpit.location.href;')
-        b.click('#hosts a:nth-child(3)')
-        b.wait_js_cond('cockpit.location.href == "/127.0.0.1/server"')
-        b.click('#hosts a:nth-child(2)')
-        b.wait_js_func('(function (expected) { return cockpit.location.href == expected })', last_href)
+        b.leave_page()
+        b.wait_js_cond('$("#machine-dropdown ul li").length == 2')
+        b.click('#machine-dropdown ul li:nth-child(1) a')
+        b.wait_js_cond('cockpit.location.href == "/@localhost"')
+        b.click('#machine-dropdown ul li:nth-child(2) a')
+        b.wait_js_cond('cockpit.location.href == "/@127.0.0.1"')
 
     def testEdit(self):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("dashboard")
+        self.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b)
         self.wait_dashboard_addresses (b, [ "localhost" ])
         old_color = b.eval_js('return shell.hosts["localhost"].color;')
@@ -209,7 +201,7 @@ class TestDashboard(MachineCase):
 
         # Sync them via Setup.
 
-        self.login_and_go("dashboard")
+        self.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b)
 
         self.wait_dashboard_addresses (b, [ "localhost" ])

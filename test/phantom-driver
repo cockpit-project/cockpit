@@ -95,6 +95,10 @@ function step ()
             else
                 sys.stdout.writeLine(JSON.stringify({error: "Can't switch to frame"}));
             step();
+        } else if (cmd.cmd == "switch_top") {
+            page.switchToMainFrame();
+	    sys.stdout.writeLine(JSON.stringify({result: true}));
+            step();
         } else if (cmd.cmd == "switch_parent") {
             if (page.switchToParentFrame())
                 sys.stdout.writeLine(JSON.stringify({result: true}));

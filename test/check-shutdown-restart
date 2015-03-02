@@ -28,7 +28,7 @@ class TestShutdownRestart(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("server")
+        self.login_and_go("server", href="/system/host")
 
         # Reboot
         b.click("#shutdown-group button.btn-danger")
@@ -36,7 +36,6 @@ class TestShutdownRestart(MachineCase):
         b.wait_in_text("#shutdown-action", 'Restart')
         b.click("a.opt span:contains('No Delay')")
         b.click("#shutdown-action")
-        b.wait_popdown("shutdown-dialog")
         m.wait_boot()
         self.start_cockpit()
         b.relogin("server")
@@ -50,7 +49,6 @@ class TestShutdownRestart(MachineCase):
         b.wait_in_text("#shutdown-action", 'Shutdown')
         b.click("a.opt span:contains('No Delay')")
         b.click("#shutdown-action")
-        b.wait_popdown("shutdown-dialog")
         m.wait_poweroff()
 
 test_main()

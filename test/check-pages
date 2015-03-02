@@ -40,13 +40,13 @@ WantedBy=default.target
         self.allow_restart_journal_messages()
 
         # login so that we have a cookie.
-        self.login_and_go("server")
+        self.login_and_go(None)
 
         # check that reloading a page with parameters works
-        b.go("service?s=test.service")
-        b.wait_page("service")
+        b.go("/@localhost/system/init?s=test.service")
+        b.enter_page("service")
         b.reload()
-        b.wait_page("service")
+        b.enter_page("service")
         b.wait_text("#service-name", "Test Service")
 
         # check that the login dance preserves parameters
@@ -55,11 +55,12 @@ WantedBy=default.target
         b.wait_text("#service-name", "Test Service")
 
         # Navigate inside an iframe
-        b.go("/local/playground")
-        b.wait_page("/local/playground")
+        b.switch_to_top()
+        b.go("/@localhost/playground/test")
+        b.enter_page("/playground/test")
         b.click("button:contains('Go down')")
         b.click("button:contains('Go down')")
-        b.switch_to_parent_frame()
-        b.wait_js_cond("cockpit.location.href == '/local/playground/0/1?length=1'")
+        b.switch_to_top()
+        b.wait_js_cond("cockpit.location.href == '/@localhost/playground/test/0/1?length=1'")
 
 test_main()

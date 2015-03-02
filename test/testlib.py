@@ -78,12 +78,12 @@ class Browser:
     def title(self):
         return self.phantom.do('return document.title');
 
-    def open(self, page=None, url=None, port=9090):
+    def open(self, page, href=None, url=None, port=9090, host="localhost"):
         """
         Load a page into the browser.
 
         Arguments:
-          page: The id of the Cockpit page to load, such as "dashboard".
+          href: The id of the Cockpit page to load, such as "dashboard".
           url: The full URL to load.
 
         Either PAGE or URL needs to be given.
@@ -91,10 +91,12 @@ class Browser:
         Raises:
           Error: When a timeout occurs waiting for the page to load.
         """
-        if page:
-            if not page.startswith("/"):
-                page = "/local/" + page;
-            url = "/#%s" % (page, )
+        if not href:
+            href = "/" + (page or "")
+        if host and "@" not in href:
+            href = "/@" + host + href
+        if not url:
+            url = "/#%s" % (href, )
         if url.startswith("/"):
             url = "http://%s:%d%s" % (self.address, port, url)
 
@@ -138,8 +140,8 @@ class Browser:
         self.phantom.switch_to_frame(name)
         self.init_after_load()
 
-    def switch_to_parent_frame(self):
-        self.phantom.switch_to_parent_frame()
+    def switch_to_top(self):
+        self.phantom.switch_to_top()
 
     def eval_js(self, code):
         return self.phantom.do(code)
@@ -147,9 +149,9 @@ class Browser:
     def call_js_func(self, func, *args):
         return self.phantom.do("return %s(%s);" % (func, ','.join(map(jsquote, args))))
 
-    def go(self, hash):
-        if not hash.startswith("/"):
-            hash = "/local/" + hash;
+    def go(self, hash, host="localhost"):
+        # if not hash.startswith("/@"):
+        #    hash = "/@" + host + hash
         self.call_js_func('ph_go', hash)
 
     def click(self, selector):
@@ -256,7 +258,7 @@ class Browser:
         """
         self.wait_not_visible('#' + id)
 
-    def wait_page(self, id):
+    def enter_page(self, id, host="localhost"):
         """Wait for a page to become current.
 
         Arguments:
@@ -265,16 +267,31 @@ class Browser:
                 attribute for legacy pages, or a string starting with
                 "/" for modern pages.
         """
-        self.wait_present('#content')
-        self.wait_visible('#content')
         if id.startswith("/"):
-            self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % id)
-            self.switch_to_frame(id)
+            if host:
+                frame = host + id
+            else:
+                frame = id[1:]
+        else:
+            if host:
+                frame = host + "/shell/shell"
+            else:
+                frame = "localhost/shell/shell"
+
+        self.switch_to_top()
+        self.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
+        self.wait_visible("iframe.container-frame[name='%s']" % frame)
+        self.switch_to_frame(frame)
+
+        if id.startswith("/"):
             self.wait_present("body")
             self.wait_visible("body")
         else:
             self.wait_visible('#' + id)
             self.wait_dbus_ready()
+
+    def leave_page(self):
+        self.switch_to_top()
 
     def wait_action_btn(self, sel, entry):
         self.wait_text(sel + ' button:first-child', entry);
@@ -287,19 +304,23 @@ class Browser:
         else:
             self.click(sel + ' button:first-child');
 
-    def login_and_go(self, page, user=None):
+    def login_and_go(self, page, href=None, user=None, host="localhost"):
         if user is None:
             user = self.default_user
-        self.open(page)
+        self.open(page, href=href, host=host)
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', "foobar")
         self.click('#login-button')
         self.expect_reload()
-        self.wait_page(page)
+        self.wait_present('#content')
+        self.wait_visible('#content')
+        if page:
+            self.enter_page(page, host=host)
 
     def logout(self):
-        self.click('a[onclick*="cockpit.logout"]')
+        self.switch_to_top()
+        self.click('#go-logout')
         self.expect_reload()
 
     def relogin(self, page, user=None):
@@ -311,7 +332,10 @@ class Browser:
         self.set_val("#login-password-input", "foobar")
         self.click('#login-button')
         self.expect_reload()
-        self.wait_page(page)
+        self.wait_present('#content')
+        self.wait_visible('#content')
+        if page:
+            self.enter_page(page)
 
     def snapshot(self, title, label=None):
         """Take a snapshot of the current screen and save it as a PNG.
@@ -362,9 +386,9 @@ class MachineCase(unittest.TestCase):
         """
         self.machine.execute("systemctl start cockpit-testing.socket")
 
-    def login_and_go(self, page, user=None):
+    def login_and_go(self, page, href=None, user=None, host="localhost"):
         self.start_cockpit()
-        self.browser.login_and_go(page, user)
+        self.browser.login_and_go(page, href=href, user=user, host=host)
 
     allowed_messages = [
         # This is a failed login, which happens every time
@@ -461,6 +485,7 @@ class Phantom:
             environ["LC_ALL"] = lang
         self.driver = subprocess.Popen([ "%s/test/phantom-driver" % topdir ], env=environ,
                                        stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+        self.frame = None
 
     def run(self, args):
         if arg_trace:
@@ -499,8 +524,8 @@ class Phantom:
     def switch_to_frame(self, name):
         return self.run({'cmd': 'switch', 'name': name})
 
-    def switch_to_parent_frame(self):
-        return self.run({'cmd': 'switch_parent'})
+    def switch_to_top(self):
+        return self.run({'cmd': 'switch_top'})
 
     def do(self, code):
         return self.run({'cmd': 'do', 'code': code})

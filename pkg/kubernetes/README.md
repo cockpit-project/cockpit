@@ -42,13 +42,13 @@ You should find a 'Kubernetes Master' item on the 'Tools' menu in Cockpit.
 
 Now put some objects into kubernetes:
 
-    $ cd /path/to/cockpit/pkg/kubernetes
-    $ kubectl create pod -f examples/redis-master.json
-    $ kubectl create service -f examples/redis-master-service.json
-    $ kubectl create service -f examples/redis-slave-service.json
-    $ kubectl create replicationController -f examples/redis-slave-controller.json
-    $ kubectl create service -f examples/frontend-service.json
-    $ kubectl create replicationController -f examples/frontend-controller.json
+    $ cd /path/to/cockpit/pkg/kubernetes/examples/guestbook_ns
+    $ kubectl create -f redis-master.json
+    $ kubectl create -f redis-master-service.json
+    $ kubectl create -f redis-slave-service.json
+    $ kubectl create -f redis-slave-controller.json
+    $ kubectl create -f frontend-service.json
+    $ kubectl create -f frontend-controller.json
 
 More information on these example objects, and what you can get running
 with them here: https://github.com/GoogleCloudPlatform/kubernetes/tree/master/examples/guestbook

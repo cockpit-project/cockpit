@@ -40,7 +40,7 @@ class TestDocker(MachineCase):
 
         m.execute("systemctl start docker")
 
-        self.login_and_go("containers")
+        self.login_and_go("containers", href="/docker/containers")
 
         # Import the container-probe image and wait for it to appear
         m.upload(["container-probe.tar.gz"], "/var/tmp/container-probe.tar.gz")
@@ -58,7 +58,7 @@ class TestDocker(MachineCase):
 
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE")')
-        b.wait_page("container-details")
+        b.enter_page("container-details")
         # The terminal uses NO-BREAK SPACE so we check for that here
         b.wait_in_text("#container-terminal", "Hello from container-probe.")
         b.wait_in_text("#container-details-state", "Exited")
@@ -66,7 +66,7 @@ class TestDocker(MachineCase):
         # Delete container
         b.click("#container-details-delete")
         self.confirm()
-        b.wait_page("containers")
+        b.enter_page("containers")
         b.wait_not_in_text("#containers-containers", "PROBE")
 
         # Run it without TTY
@@ -118,7 +118,7 @@ class TestDocker(MachineCase):
 
         # Check output of PROBE
         b.click('#containers-containers tr:contains("PROBE")')
-        b.wait_page("container-details")
+        b.enter_page("container-details")
         b.wait_in_text("#container-terminal", "Hello from container-probe.")
         b.call_js_func("ph_count_check", ".logs",  1)
         b.wait_in_text("#container-details-state", "Exited")
@@ -132,15 +132,15 @@ class TestDocker(MachineCase):
         # Delete container
         b.click("#container-details-delete")
         self.confirm()
-        b.wait_page("containers")
+        b.enter_page("containers")
         b.wait_not_in_text("#containers-containers", "PROBE")
 
         # Delete image
         b.click('#containers-images tr:contains("container-probe")')
-        b.wait_page("image-details")
+        b.enter_page("image-details")
         b.click("#image-details-delete")
         self.confirm()
-        b.wait_page("containers")
+        b.enter_page("containers")
 
     def testExpose(self):
         b = self.browser
@@ -149,7 +149,7 @@ class TestDocker(MachineCase):
 
         m.execute("systemctl start docker")
 
-        self.login_and_go("containers")
+        self.login_and_go("containers", href="/docker/containers")
 
         port = 3380;
 
@@ -182,7 +182,7 @@ CMD ["/bin/container-probe", "%d"]
 
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE2")')
-        b.wait_page("container-details")
+        b.enter_page("container-details")
         b.wait_in_text("#container-terminal", "Hello from container-probe.")
         b.wait_in_text("#container-details-ports", "0.0.0.0:%d -> %d/tcp" % (port, port))
 
@@ -198,7 +198,7 @@ CMD ["/bin/container-probe", "%d"]
         # Delete container
         b.click("#container-details-delete")
         self.confirm()
-        b.wait_page("containers")
+        b.enter_page("containers")
         b.wait_not_in_text("#containers-containers", "PROBE")
 
         nport = port + 1;
@@ -219,7 +219,7 @@ CMD ["/bin/container-probe", "%d"]
 
         # Check output of the probe
         b.click('#containers-containers tr:contains("PROBE2")')
-        b.wait_page("container-details")
+        b.enter_page("container-details")
         b.wait_in_text("#container-terminal", "Hello from container-probe.")
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (port, port))
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (nport, nport))
@@ -238,7 +238,7 @@ CMD ["/bin/container-probe", "%d"]
         # Delete container
         b.click("#container-details-delete")
         self.confirm()
-        b.wait_page("containers")
+        b.enter_page("containers")
         b.wait_not_in_text("#containers-containers", "PROBE")
 
     def testFailure(self):
@@ -251,7 +251,7 @@ CMD ["/bin/container-probe", "%d"]
         m.execute("usermod -G '' admin")
         self.allow_journal_messages("Can't write /var/lib/cockpit/machines: Failed to create file '/var/lib/cockpit/machines\\..*': Permission denied")
 
-        self.login_and_go("containers")
+        self.login_and_go("containers", href="/docker/containers")
 
         # We can not become root, so we can't access docker.
         b.wait_visible("#containers-failure")

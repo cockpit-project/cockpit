@@ -86,7 +86,7 @@ class TestMultiMachine(MachineCase):
             # https://bugs.freedesktop.org/show_bug.cgi?id=71092
             machine.execute("loginctl kill-user admin || systemctl kill user-1000.slice")
 
-        self.login_and_go("dashboard")
+        self.login_and_go("dashboard", href="dashboard/list", host=None)
         inject_extras(b)
         wait_dashboard_addresses (b, [ "localhost" ])
 
@@ -145,19 +145,21 @@ class TestMultiMachine(MachineCase):
         m1.execute("sed -i -e 's|</body>|magic-m1-token</body>|' /usr/share/cockpit/server-systemd/terminal.min.html")
         m2.execute("sed -i -e 's|</body>|magic-m2-token</body>|' /usr/share/cockpit/server-systemd/terminal.min.html")
 
-        self.login_and_go("dashboard")
+        self.login_and_go("dashboard", href="dashboard/list", host=None)
         inject_extras(b)
         add_machine(b, m2.address)
         wait_dashboard_addresses (b, [ "localhost", m2.address ])
 
-        b.go("/%s/terminal" % m2.address)
-        b.wait_page("/%s/terminal" % m2.address)
+        # TODO: These will need to change from server-systemd -> system
+        b.leave_page()
+        b.go("/@%s/server-systemd/terminal" % m2.address)
+        b.enter_page("/server-systemd/terminal", host=m2.address)
         b.wait_present("body")
         b.wait_in_text("body", "magic-m2-token")
 
-        b.switch_to_parent_frame()
-        b.go("/local/terminal")
-        b.wait_page("/local/terminal")
+        b.leave_page()
+        b.go("/@localhost/server-systemd/terminal")
+        b.enter_page("/server-systemd/terminal")
         b.wait_present("body")
         b.wait_in_text("body", "magic-m1-token")
 

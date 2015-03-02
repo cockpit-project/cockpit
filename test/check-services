@@ -65,7 +65,7 @@ Description=Test Template for %I
 ExecStart=/usr/bin/test-service %I
 """)
 
-        self.login_and_go("services")
+        self.login_and_go("services", href="/system/init")
 
         def svc_sel(service):
             return 'tr[data-unit="%s"]' % service
@@ -102,7 +102,7 @@ ExecStart=/usr/bin/test-service %I
         b.wait_text('#service-file-state', "disabled")
         b.wait_action_btn('#service-file-action-btn', "Enable")
 
-        b.go("services")
+        b.go("/services")
         b.click("#services-filter-services")
         b.wait_in_text("#services", "test-fail.service")
         b.click(svc_sel("test-fail.service"))
@@ -111,7 +111,7 @@ ExecStart=/usr/bin/test-service %I
         b.click_action_btn('#service-unit-action-btn')
         b.wait_text('#service-active-state', "failed")
 
-        b.go("services")
+        b.go("/services")
         b.click("#services-filter-services")
         b.wait_in_text("#services", "test-fail.service")
         wait_service_state("test-fail.service", "failed")

@@ -37,11 +37,11 @@ class TestRoles(MachineCase):
             b.click('#login-button')
 
         # login
-        b.open("server")
+        b.open("server", href="/system/host")
         b.wait_visible("#login")
         login("user", "foobar")
         b.expect_reload()
-        b.wait_page("server")
+        b.wait_present("#content")
         b.wait_text('#content-user-name', 'User')
 
         # HACK: Logging in as "user" will try to create a default
@@ -51,8 +51,8 @@ class TestRoles(MachineCase):
 
         # change its own name
         b.click('#content-user-name')
-        b.click('a[onclick*="shell.go_login_account"]')
-        b.wait_page("account")
+        b.click('#go-account')
+        b.enter_page("account")
         b.wait_text("#account-user-name", "user")
         b.wait_present("#account-real-name:not([disabled])")
         b.wait_present("#account-locked[disabled]")
@@ -65,7 +65,7 @@ class TestRoles(MachineCase):
 
         # Try to change admins name
         b.go("account?id=admin")
-        b.wait_page("account")
+        b.enter_page("account")
         b.wait_text("#account-user-name", "admin")
         b.wait_present("#account-real-name[disabled]")
         b.wait_present("#account-locked[disabled]")
@@ -77,7 +77,7 @@ class TestRoles(MachineCase):
 
         # Add role from the outside (and wait for it to stick)
         b.go("account?id=user")
-        b.wait_page("account")
+        b.enter_page("account")
         b.wait_text("#account-user-name", "user")
         b.wait_val("#account-real-name", "Userrrr")
 
@@ -85,8 +85,10 @@ class TestRoles(MachineCase):
         b.wait_text("#account-roles", "Server Administrator")
 
         b.relogin("account", "user")
+        b.wait_text("#account-user-name", "user")
 
         # Try to change admins name again
+        b.enter_page("account")
         b.go("account?id=admin")
         b.wait_text("#account-user-name", "admin")
         b.wait_present("#account-real-name:not([disabled])")
@@ -100,7 +102,7 @@ class TestRoles(MachineCase):
         b.set_val('#account-real-name', "Administratorrrr")
 
         b.go("account?id=admin")
-        b.wait_page("account")
+        b.enter_page("account")
         b.wait_val("#account-real-name", "Administratorrrr")
         self.allow_restart_journal_messages()
 
@@ -110,7 +112,7 @@ class TestRoles(MachineCase):
 
         m.execute("groupadd docker")
 
-        self.login_and_go("accounts")
+        self.login_and_go("accounts", href="/users/local")
         b.go("account?id=admin")
 
         b.click("#account-change-roles")

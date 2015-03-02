@@ -51,7 +51,7 @@ class TestNetworking(MachineCase):
         # the connection with nmcli so that NetworkManager settles
         # down.
 
-        self.login_and_go("networking")
+        self.login_and_go("networking", href="/network/interfaces")
         b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interface, wait for it to be recognized and activated by
@@ -66,7 +66,7 @@ class TestNetworking(MachineCase):
         b.wait_in_text("#networking-interfaces", iface)
         b.wait_in_text("#networking-interfaces tr:contains('%s')" % iface, "bps")
         b.click("#networking-interfaces tr:contains('%s')" % iface)
-        b.wait_page("network-interface")
+        b.enter_page("network-interface")
 
         # Configure a manual IP address
         #
@@ -102,7 +102,7 @@ class TestNetworking(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("networking")
+        self.login_and_go("networking", href="/network/interfaces")
         b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interfaces and wait for them to active
@@ -125,19 +125,19 @@ class TestNetworking(MachineCase):
 
         # Wait for the bond to be active
         b.click("#networking-interfaces td:first-child:contains('tbond')")
-        b.wait_page("network-interface")
+        b.enter_page("network-interface")
         b.wait_in_text("tr:contains('Status')", "10.111.111")
 
         # Delete the bond
         b.click("#network-interface button:contains('Delete')")
-        b.wait_page("networking")
+        b.enter_page("networking")
         b.wait_not_in_text("#networking-interfaces", "tbond")
 
     def testBridge(self):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("networking")
+        self.login_and_go("networking", href="/network/interfaces")
         b.wait_in_text("#networking-interfaces", m.address)
 
         # Add interfaces and wait for them to active.  The second
@@ -165,12 +165,12 @@ class TestNetworking(MachineCase):
 
         # Wait for the bridge to be active.
         b.click("#networking-interfaces td:first-child:contains('tbridge')")
-        b.wait_page("network-interface")
+        b.enter_page("network-interface")
         b.wait_in_text("tr:contains('Status')", "10.111.111")
 
         # Delete the bridge
         b.click("#network-interface button:contains('Delete')")
-        b.wait_page("networking")
+        b.enter_page("networking")
         b.wait_not_in_text("#networking-interfaces", "tbridge")
 
 test_main()

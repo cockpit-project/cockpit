@@ -28,7 +28,7 @@ class TestReauthorize(MachineCase):
         m = self.machine
         b = self.browser
 
-	self.login_and_go("/local/playground")
+	self.login_and_go("/playground/test")
 
 	b.click(".cockpit-internal-reauthorize .btn")
 	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
@@ -36,11 +36,11 @@ class TestReauthorize(MachineCase):
 	self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
 
 	# Deauthorize
-	b.switch_to_parent_frame()
-	b.click(".cockpit-deauthorize-item a")
-	b.wait_in_text(".cockpit-deauthorize-status", 'deauthorized')
+	b.leave_page()
+	b.click("#deauthorize-item")
+	b.wait_attr("#deauthorize-item", "disabled", "disabled")
 
-	b.switch_to_frame("/local/playground")
+	b.enter_page("/playground/test")
 
 	b.click(".cockpit-internal-reauthorize .btn")
 	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
@@ -51,7 +51,7 @@ class TestReauthorize(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/local/playground")
+        self.login_and_go("/playground/test")
 
         b.click(".super-channel .btn")
         b.wait_in_text(".super-channel span", 'result: ')
@@ -59,11 +59,11 @@ class TestReauthorize(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
         # Deauthorize
-        b.switch_to_parent_frame()
-        b.click(".cockpit-deauthorize-item a")
-        b.wait_in_text(".cockpit-deauthorize-status", 'deauthorized')
+        b.leave_page()
+        b.click("#deauthorize-item")
+        b.wait_attr("#deauthorize-item", "disabled", "disabled")
 
-        b.switch_to_frame("/local/playground")
+        b.enter_page("/playground/test")
 
         b.click(".super-channel .btn")
         b.wait_in_text(".super-channel span", 'result:')

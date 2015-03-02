@@ -59,7 +59,7 @@ class TestLogin(MachineCase):
         m.write("/etc/pam.d/cockpit", admins_only_pam)
 
         self.start_cockpit()
-        b.open("server")
+        b.open("system/host")
         b.wait_visible("#login")
 
         def login(user, password):
@@ -82,15 +82,16 @@ class TestLogin(MachineCase):
         # Login as admin
         login("admin", "foobar")
         b.expect_reload()
-        b.wait_page("server")
+        b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
         # reload, which should log us in with the cookie
         b.reload()
-        b.wait_page("server")
+        b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
-        b.click('a[onclick*="shell.go_login_account"]')
-        b.wait_page("account")
+
+        b.click('#go-account')
+        b.enter_page("account")
         b.wait_text ("#account-user-name", "admin")
 
         self.allow_journal_messages ("Returning error-response ... with reason .*",

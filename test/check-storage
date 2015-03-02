@@ -70,7 +70,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add a disk, partition it, format it, and finally remove it.
@@ -78,7 +78,7 @@ class TestStorage(MachineCase):
 
         b.wait_in_text("#storage_drives", "MYSERIAL")
         b.click('tr:contains("MYSERIAL")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
         b.wait_in_text('#storage_detail_partition_list', "Unrecognized Data")
         b.wait_not_in_text('#storage_detail_partition_list', "Partition")
 
@@ -99,13 +99,13 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
 
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
         b.click('#storage_drives tr:contains("MYDISK")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
 
         # Format it
         self.content_default_action(1, "Format")
@@ -160,7 +160,7 @@ class TestStorage(MachineCase):
         m.execute("umount /bar")
         b.wait_not_in_text("#storage_mounts", "/bar")
         b.click('#storage_mounts tr:contains("FILESYSTEM")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
         b.wait_text("#disk_detail_serial_number", "MYDISK")
 
         b.wait_in_text("#storage_detail_partition_list", "not mounted")
@@ -200,13 +200,13 @@ class TestStorage(MachineCase):
         # don't do that for now.  A workaround would be to reboot the
         # machine.
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
 
         # Add a disk
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
         b.click('tr:contains("MYDISK")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
 
         # Format it with a DOS partition table
         b.click("#drive_format")
@@ -263,13 +263,13 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
 
         # Add a disk and partition it
         self.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#storage_drives", "MYDISK")
         b.click('tr:contains("MYDISK")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
         b.click("#drive_format")
         b.wait_popup("storage_format_disk_dialog")
         b.set_val("#format-disk-type", "gpt")
@@ -381,7 +381,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add four disks and make a RAID out of three of them
@@ -412,7 +412,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_raids", "ARR")
 
         b.click('tr:contains("ARR")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
 
         # The array might resync, so let's give it some extra time
         with b.wait_timeout(20):
@@ -513,15 +513,15 @@ class TestStorage(MachineCase):
         # Delete the array.  We are back on the storage page.
         self.raid_action("Delete")
         self.confirm()
-	with b.wait_timeout(120):
-	        b.wait_page("storage")
+        with b.wait_timeout(120):
+	        b.enter_page("storage")
 	       	b.wait_not_in_text ("#storage_raids", "ARR")
 
     def testJobs(self):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # Add a slow disk and format it
@@ -529,7 +529,7 @@ class TestStorage(MachineCase):
         b.wait_in_text("#storage_drives", "SLOW")
 
         b.click('tr:contains("SLOW")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
 
         # Format it
         self.content_default_action(1, "Format")
@@ -552,7 +552,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         self.add_disk("50M", serial="DISK1")
@@ -566,7 +566,7 @@ class TestStorage(MachineCase):
         m.execute("vgcreate TEST1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
         b.wait_in_text("#storage_vgs", "TEST1")
         b.click('tr:contains("TEST1")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
         b.wait_in_text("#vg-physical-volumes", "DISK1")
         b.wait_in_text("#vg-physical-volumes", "DISK2")
 
@@ -729,14 +729,14 @@ class TestStorage(MachineCase):
         # remove volume group
         b.click_action_btn('#vg_action_btn', "Delete")
         self.confirm()
-        b.wait_page("storage")
+        b.enter_page("storage")
         check_eq(m.execute("grep /thin /etc/fstab || true"), "")
 
     def testResize(self):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
         self.add_disk("50M", serial="DISK1")
 
@@ -746,7 +746,7 @@ class TestStorage(MachineCase):
 
         b.wait_in_text("#storage_vgs", "TEST")
         b.click('tr:contains("TEST")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
         b.wait_in_text("#storage_detail_partition_list", "FSYS")
 
         self.content_action(1, "Mount")
@@ -778,7 +778,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         self.add_disk("50M", serial="DISK1")
@@ -795,7 +795,7 @@ class TestStorage(MachineCase):
         # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda should be 'in use'.
 
         b.click('tr:contains("DISK1")')
-        b.wait_page("storage-detail")
+        b.enter_page("storage-detail")
         b.wait_in_text("#storage_detail_content", "/mnt")
 
         self.content_action(2, "Format")
@@ -839,7 +839,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
 
         self.add_disk("50M", serial="DISK1")
         b.wait_in_text("#storage_drives", "DISK1")
@@ -869,14 +869,14 @@ class TestStorage(MachineCase):
         b.click('tr:contains("TEST")')
         b.click_action_btn('#vg_action_btn', "Delete")
         self.confirm()
-        b.wait_page("storage")
+        b.enter_page("storage")
         check_eq(m.execute("grep /mount /etc/fstab || true"), "")
 
     def testUnused(self):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         # The following block devices should not be offered for creating a
@@ -919,7 +919,7 @@ class TestStorage(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("storage")
+        self.login_and_go("storage", href="/storage/devices")
         b.wait_in_text("#storage_drives", "VirtIO")
 
         self.add_disk("50M", "DISK1")

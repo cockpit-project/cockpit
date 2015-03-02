@@ -25,7 +25,7 @@ class TestAccounts(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("accounts")
+        self.login_and_go("accounts", href="/users/local")
 
         # Add a user externally
         m.execute("useradd anton")
@@ -34,7 +34,7 @@ class TestAccounts(MachineCase):
 
         # Set a real name
         b.go("account?id=anton")
-        b.wait_page("account")
+        b.enter_page("account")
         b.set_val('#account-real-name', "Anton Arbitrary")
         b.wait_dbus_prop('com.redhat.Cockpit.Account', 'RealName', "Anton Arbitrary")
         check("Anton Arbitrary" in m.execute("grep anton /etc/passwd"))
@@ -44,7 +44,7 @@ class TestAccounts(MachineCase):
         b.wait_popup('account-confirm-delete-dialog')
         b.click('#account-confirm-delete-apply')
         b.wait_popdown('account-confirm-delete-dialog')
-        b.wait_page("accounts")
+        b.enter_page("accounts")
         b.wait_not_in_text('#accounts-list', "Anton Arbitrary")
 
         # Create a user from the UI
@@ -76,7 +76,7 @@ class TestAccounts(MachineCase):
 
         # Unlock it and make it an admin
         b.go("account?id=jussi")
-        b.wait_page("account")
+        b.enter_page("account")
         b.set_val('#accounts-create-locked', "no")
         b.click('#account-change-roles')
         b.wait_popup('account-change-roles-dialog')

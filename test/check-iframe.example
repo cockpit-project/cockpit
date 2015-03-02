@@ -28,12 +28,12 @@ print b.text("#test")
 
 b.switch_to_frame("test")
 print b.text("#test")
-b.switch_to_parent_frame()
+b.switch_to_top()
 
 print b.text("#test")
 
 b.switch_to_frame(0)
 print b.text("#test")
-b.switch_to_parent_frame()
+b.switch_to_top()
 
 print b.text("#test")

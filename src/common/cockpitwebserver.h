@@ -53,6 +53,9 @@ gchar *            cockpit_web_server_parse_cookie    (GHashTable *headers,
 gchar **           cockpit_web_server_parse_languages (GHashTable *headers,
                                                        const gchar *first);
 
+gboolean           cockpit_web_server_parse_encoding  (GHashTable *headers,
+                                                       const gchar *encoding);
+
 gchar **           cockpit_web_server_resolve_roots (const gchar *root,
                                                      ...) G_GNUC_NULL_TERMINATED;
 

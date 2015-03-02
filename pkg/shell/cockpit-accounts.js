@@ -584,14 +584,19 @@ PageAccountConfirmDelete.prototype = {
     },
 
     apply: function() {
-        PageAccountConfirmDelete.account.call ('Delete',
-                                               $('#account-confirm-delete-files').prop('checked'),
-                                               function (error) {
-                                                   if (error)
-                                                       shell.show_unexpected_error(error);
-                                               });
-        $('#account-confirm-delete-dialog').modal('hide');
-        cockpit.location = "accounts";
+        var prog = ["/usr/sbin/userdel"];
+
+        if ($('#account-confirm-delete-files').prop('checked'))
+            prog.push("-r");
+
+        prog.push(PageAccountConfirmDelete.account.UserName);
+
+        cockpit.spawn(prog, { "superuser": true })
+           .done(function () {
+              $('#account-confirm-delete-dialog').modal('hide');
+              cockpit.location = "accounts";
+           })
+           .fail(shell.show_unexpected_error);
     }
 };
 

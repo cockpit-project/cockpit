@@ -110,8 +110,14 @@ function install_host(){
     else
         if cat /etc/redhat-release | grep -sq "Red Hat"; then
             host_dependencies_rhel7
+            sudo systemctl start libvirtd
+            sudo systemctl enable libvirtd
+            sleep 10
         elif cat /etc/redhat-release | grep -sq "Fedora"; then
             host_dependencies_fedora
+            sudo systemctl start libvirtd
+            sudo systemctl enable libvirtd
+            sleep 10
         else
             echo "Now are supported only Fedora and Red Hat installation methods"
             exit 10

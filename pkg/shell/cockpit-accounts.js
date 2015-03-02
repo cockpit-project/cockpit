@@ -98,33 +98,6 @@ function canvas_data(canvas, x1, y1, x2, y2, width, height, format)
     return dest.toDataURL(format);
 }
 
-shell.show_change_avatar_dialog = function show_change_avatar_dialog(file_input, callback)
-{
-    var files, file, reader;
-    files = $(file_input)[0].files;
-    if (files.length != 1)
-        return;
-    file = files[0];
-    if (!file.type.match("image.*")) {
-        shell.show_error_dialog(_("Can't upload this file"), _("It's not an image."));
-        return;
-    }
-    reader = new window.FileReader();
-    reader.onerror = function () {
-        shell.show_error_dialog(_("Can't upload this file"), _("Can't read it."));
-    };
-    reader.onload = function () {
-        var canvas = $('#account-change-avatar-canvas')[0];
-        var overlay = $('#account-change-avatar-overlay')[0];
-        fill_canvas(canvas, overlay, reader.result, 256,
-                          function () {
-                              PageAccountChangeAvatar.callback = callback;
-                              $('#account-change-avatar-dialog').modal('show');
-                          });
-    };
-    reader.readAsDataURL(file);
-};
-
 // XXX - make private
 
 function on_account_changes(client, id, func) {
@@ -204,13 +177,6 @@ PageAccounts.prototype = {
 
         this.accounts.sort (function (a, b) { return a.RealName.localeCompare(b.RealName); } );
 
-        function set_avatar(acc, img) {
-            acc.call('GetIconDataURL',
-                     function (error, result) {
-                         if (result)
-                             img.attr('src', result);
-                     });
-        }
 
         list.empty();
         for (i = 0; i < this.accounts.length; i++) {
@@ -226,7 +192,6 @@ PageAccounts.prototype = {
                     $('<div/>', { 'class': "cockpit-account-real-name" }).text(acc.RealName),
                     $('<div/>', { 'class': "cockpit-account-user-name" }).text(acc.UserName));
             div.on('click', $.proxy(this, "go", acc.UserName));
-            set_avatar (acc, img);
             list.append(div);
         }
     },
@@ -368,8 +333,6 @@ PageAccount.prototype = {
     },
 
     setup: function() {
-        $('#account-pic').on('click', $.proxy (this, "trigger_change_avatar"));
-        $('#account-avatar-uploader').on('change', $.proxy (this, "change_avatar"));
         $('#account-real-name').on('change', $.proxy (this, "change_real_name"));
         $('#account-real-name').on('keydown', $.proxy (this, "real_name_edited"));
         $('#account-set-password').on('click', $.proxy (this, "set_password"));
@@ -403,14 +366,6 @@ PageAccount.prototype = {
             var manager = this.client.get ("/com/redhat/Cockpit/Accounts",
                                            "com.redhat.Cockpit.Accounts");
             this.sys_roles = manager.Roles || [ ];
-
-            this.account.call('GetIconDataURL',
-                              function (error, result) {
-                                  if (result)
-                                      $('#account-pic').attr('src', result);
-                              });
-            $('#account-pic').attr('src', "images/avatar-default-128.png");
-            $('#account-pic').toggleClass('accounts-privileged', !can_change);
             $('#account-real-name').attr('disabled', !can_change);
 
             if (!this.real_name_dirty)
@@ -435,7 +390,6 @@ PageAccount.prototype = {
             $('#account-roles').html(roles);
             $('#account .breadcrumb .active').text(this.account.RealName);
         } else {
-            $('#account-pic').attr('src', null);
             $('#account-real-name').val("");
             $('#account-user-name').text("");
             $('#account-last-login').text("");
@@ -444,26 +398,7 @@ PageAccount.prototype = {
             $('#account .breadcrumb .active').text("?");
         }
         update_accounts_privileged();
-    },
 
-    trigger_change_avatar: function() {
-        if (!this.check_role_for_self_mod ())
-            return;
-
-        if (window.File && window.FileReader)
-            $('#account-avatar-uploader').trigger('click');
-    },
-
-    change_avatar: function() {
-        var me = this;
-        shell.show_change_avatar_dialog('#account-avatar-uploader',
-                                        function (data) {
-                                            me.account.call('SetIconDataURL', data,
-                                                            function (error) {
-                                                                if (error)
-                                                                    shell.show_unexpected_error(error);
-                                                            });
-                                        });
     },
 
     real_name_edited: function() {
@@ -546,170 +481,6 @@ function PageAccount() {
 shell.pages.push(new PageAccount());
 
 var crop_handle_width = 20;
-
-PageAccountChangeAvatar.prototype = {
-    _init: function() {
-        this.id = "account-change-avatar-dialog";
-    },
-
-    show: function() {
-    },
-
-    setup: function() {
-        var self = this;
-
-        $('#account-change-avatar-cancel').on('click', $.proxy(this, "cancel"));
-        $('#account-change-avatar-apply').on('click', $.proxy(this, "apply"));
-
-        var $canvas = $('#account-change-avatar-overlay');
-        this.canvas = $canvas[0];
-        this.canvas2d = this.canvas.getContext("2d");
-
-        $canvas.on('mousedown', function (ev) {
-            var offset = $canvas.offset();
-            var xoff = ev.pageX - offset.left - self.crop_x;
-            var yoff = ev.pageY - offset.top - self.crop_y;
-
-            var orig_x = self.crop_x;
-            var orig_y = self.crop_y;
-            var orig_s = self.crop_s;
-
-            var proj_sign, dx_sign, dy_sign, ds_sign;
-
-            var h_w = crop_handle_width;
-
-            if (xoff > 0 && yoff > 0 && xoff < self.crop_s && yoff < self.crop_s) {
-                if (xoff < h_w && yoff < h_w) {
-                    // top left
-                    proj_sign = 1;
-                    dx_sign = 1;
-                    dy_sign = 1;
-                    ds_sign = -1;
-                } else if (xoff > self.crop_s - h_w && yoff < h_w) {
-                    // top right
-                    proj_sign = -1;
-                    dx_sign = 0;
-                    dy_sign = -1;
-                    ds_sign = 1;
-                } else if (xoff < h_w && yoff > self.crop_s - h_w) {
-                    // bottom left
-                    proj_sign = -1;
-                    dx_sign = 1;
-                    dy_sign = 0;
-                    ds_sign = -1;
-                } else if (xoff > self.crop_s - h_w && yoff > self.crop_s - h_w) {
-                    // bottom right
-                    proj_sign = 1;
-                    dx_sign = 0;
-                    dy_sign = 0;
-                    ds_sign = 1;
-                } else {
-                    // center
-                    proj_sign = 0;
-                }
-
-                $('body').on('mousemove', function (ev) {
-                    var x = ev.pageX - offset.left - xoff;
-                    var y = ev.pageY - offset.top - yoff;
-                    if (proj_sign === 0)
-                        self.set_crop (x, y, orig_s, true);
-                    else {
-                        var d = Math.floor((x - orig_x + proj_sign * (y - orig_y)) / 2);
-                        self.set_crop (orig_x + dx_sign*d, orig_y + dy_sign*d, orig_s + ds_sign*d, false);
-                    }
-                });
-                $('body').on('mouseup', function (ev) {
-                    $('body').off('mouseup');
-                    $('body').off('mousemove');
-                });
-            }
-        });
-    },
-
-    enter: function() {
-        var me = this;
-        var size = Math.min (this.canvas.width, this.canvas.height);
-        this.set_crop ((this.canvas.width - size) / 2, (this.canvas.height - size) / 2, size, true);
-    },
-
-    leave: function() {
-    },
-
-    set_crop: function (x, y, s, fix) {
-        function clamp (low, val, high)
-        {
-            if (val < low)
-                return low;
-            if (val > high)
-                return high;
-            return val;
-        }
-
-        x = Math.floor(x);
-        y = Math.floor(y);
-        s = Math.floor(s);
-
-        var min_s = 2 * crop_handle_width;
-
-        if (fix) {
-            // move it until it fits
-            s = clamp (min_s, s, Math.min (this.canvas.width, this.canvas.height));
-            x = clamp (0, x, this.canvas.width - s);
-            y = clamp (0, y, this.canvas.height - s);
-        } else if (x < 0 || y < 0 || x + s > this.canvas.width || y + s > this.canvas.height || s < min_s)
-            return;
-
-        this.crop_x = x;
-        this.crop_y = y;
-        this.crop_s = s;
-
-        this.draw_crop (x, y, x+s, y+s);
-    },
-
-    draw_crop: function(x1,y1,x2,y2) {
-        var ctxt;
-
-        function draw_box (x1, y1, x2, y2)
-        {
-            ctxt.strokeStyle = 'black';
-            ctxt.strokeRect(x1+0.5, y1+0.5, x2-x1-1, y2-y1-1);
-            ctxt.strokeStyle = 'white';
-            ctxt.strokeRect(x1+1.5, y1+1.5, x2-x1-3, y2-y1-3);
-        }
-
-        ctxt = this.canvas2d;
-        ctxt.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        ctxt.fillStyle = 'rgba(0,0,0,0.8)';
-        ctxt.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        ctxt.clearRect(x1, y1, x2 - x1, y2 - y1);
-
-        var h_w = crop_handle_width;
-        draw_box (x1, y1, x1+h_w, y1+h_w);
-        draw_box (x2-h_w, y1, x2, y1+h_w);
-        draw_box (x1, y2-h_w, x1+h_w, y2);
-        draw_box (x2-h_w, y2-h_w, x2, y2);
-        draw_box (x1, y1, x2, y2);
-    },
-
-    cancel: function() {
-        $('#account-change-avatar-dialog').modal('hide');
-    },
-
-    apply: function() {
-        var data = canvas_data($('#account-change-avatar-canvas')[0],
-                                     this.crop_x, this.crop_y,
-                                     this.crop_x+this.crop_s, this.crop_y+this.crop_s,
-                                     128, 128, "image/png");
-        $('#account-change-avatar-dialog').modal('hide');
-        PageAccountChangeAvatar.callback (data);
-    }
-};
-
-function PageAccountChangeAvatar() {
-    this._init();
-}
-
-shell.dialogs.push(new PageAccountChangeAvatar());
 
 PageAccountChangeRoles.prototype = {
     _init: function() {

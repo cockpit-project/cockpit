@@ -26,6 +26,9 @@ RCTM_USER="root"
 CTM_ARCH="x86_64"
 CTM_SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
+source $CTM_SCRCTM_IPTPATH/lib/host_setup.sh
+CTM_POOLNAME=$HS_POOLNAME
+
 CTM_PREQ="
 yum -y -q install tar bzip2 gzip unzip zip tar git yum-utils fontconfig pystache;
 yum -y -q install yum-plugin-copr;
@@ -51,13 +54,29 @@ hostname: `vm_get_hostname $CTM_NAME`
 ip address: `vm_get_ip $CTM_NAME`"
 
 }
+
+function virt-deploy-workaround(){
+    local CTM_PREFIX=$1
+    local CTM_DISTRO=$2
+    
+    python -c "import virtdeploy
+instance=virtdeploy.get_driver('libvirt').instance_create('$CTM_PREFIX', '$CTM_DISTRO', network='$CTM_POOLNAME', pool='$CTM_POOLNAME', password='$CTM_PASSWORD')
+print('name: {0}'.format(instance['name']))
+print('root password: {0}'.format(instance['password']))
+print('mac address: {0}'.format(instance['mac']))
+print('hostname: {0}'.format(instance['hostname']))
+print('ip address: {0}'.format(instance['ipaddress']))
+"
+}
+
 function virtinstall(){
-    CTM_PREFIX=$1
-    CTM_DISTRO=$2
-    CTM_NAME=$CTM_PREFIX-$CTM_DISTRO-$CTM_ARCH
-    CTM_TMPF=`mktemp`
+    local CTM_PREFIX=$1
+    local CTM_DISTRO=$2
+    local CTM_NAME=$CTM_PREFIX-$CTM_DISTRO-$CTM_ARCH
+    local CTM_TMPF=`mktemp`
     echo "virt-deploy create $CTM_PREFIX $CTM_DISTRO "
-    virt-deploy create $CTM_PREFIX $CTM_DISTRO 2>&1 | tee $CTM_TMPF
+#    virt-deploy create $CTM_PREFIX $CTM_DISTRO 2>&1 | tee $CTM_TMPF
+    virt-deploy-workaround $CTM_PREFIX $CTM_DISTRO 2>&1 | tee $CTM_TMPF
     sleep 2
     is_created $CTM_NAME &> /dev/null
     CTM_IP=`cat $CTM_TMPF | tail -5 | grep "ip address:" | sed -r 's/ip address: (.*)/\1/'`
@@ -86,7 +105,7 @@ function treeinstall(){
     CTM_MAC=`printf '52:54:00:%02X:%02X:%02X\n' $[RANDOM%256] $[RANDOM%256] $[RANDOM%256]`
     qemu-img create -f qcow2 $CTM_VMDIRS/$CTM_IMG 20G
     virt-install --connect=qemu:///system \
-            --network network:default,mac=$CTM_MAC \
+            --network network:$CTM_POOLNAME,mac=$CTM_MAC \
             --initrd-inject=$CTM_ADIR/$CTM_KSF \
             --extra-args="ks=file:/$CTM_KSF console=tty0 console=ttyS0,115200" \
             --name=$CTM_NAME \
@@ -106,10 +125,10 @@ function treeinstall(){
 }
 
 function vm_wait_online(){
-    CTM_MAC=$1
-    CTM_IP=""
-    for foo in `seq 60`;do
-        CTM_IP=`cat /var/lib/libvirt/dnsmasq/default.leases |grep "$CTM_MAC" |head -1 | cut -d ' ' -f 3`
+    local CTM_NAME=$1
+    local MAXIMUM_TIMEOUT=60
+    local CTM_IP=`vm_get_ip $CTM_NAME`
+    for foo in `seq $MAXIMUM_TIMEOUT`;do
         echo quit | telnet "$CTM_IP" 22 2>/dev/null | grep -q Connected && return 0
         echo -n . > /dev/stderr
         sleep 1
@@ -118,13 +137,12 @@ function vm_wait_online(){
 }
 
 function is_created(){
-    CTM_NAME=$1
+    local CTM_NAME=$1
     if virsh -c qemu:///system list | grep -q $CTM_NAME; then
         echo "domain $CTM_NAME already exist and running "
     elif virsh -c qemu:///system list --inactive| grep -q $CTM_NAME; then
         echo "domain $CTM_NAME already exist and stopped "
         virsh -c qemu:///system start $CTM_NAME
-        vm_wait_online `vm_get_mac $CTM_NAME`
     else 
         echo "domain $CTM_NAME does not exist"
         return 1
@@ -133,11 +151,13 @@ function is_created(){
 
 
 function setup_vm(){
-    CTM_HOST="$1"
-    CTM_PASSWD="$2"
-    CTM_IP=`vm_get_ip $CTM_HOST`
+    local CTM_HOST="$1"
+    local CTM_PASSWD="$2"
+    local CTM_IP=`vm_get_ip $CTM_HOST`
     echo "$CTM_HOST: $CTM_IP"
-    CTM_CTM_LOGIN=$RCTM_USER
+    local CTM_CTM_LOGIN=$RCTM_USER
+    vm_wait_online $CTM_HOST
+    sleep 2
     echo SSHPASS="$CTM_PASSWD" sshpass -e ssh-copy-id $CTM_SSHOPTS $CTM_CTM_LOGIN@$CTM_IP
     SSHPASS="$CTM_PASSWD" sshpass -e ssh-copy-id $CTM_SSHOPTS $CTM_CTM_LOGIN@$CTM_IP
     vm_ssh "$CTM_HOST" "$CTM_PREQ"
@@ -148,8 +168,7 @@ function vm_get_ip(){
     local CTM_NAME=$1
     local CTM_MAC=`vm_get_mac $CTM_NAME`
     is_created $CTM_NAME  &>/dev/null || return 1
-    
-    local CTM_IP=`cat /var/lib/libvirt/dnsmasq/default.leases |grep "$CTM_MAC" |head -1 | cut -d ' ' -f 3`
+    local CTM_IP=`virsh -c qemu:///system net-dumpxml $CTM_POOLNAME | grep "$CTM_MAC" |sed -r 's/.*ip=.([0-9.]*).*/\1/'`
     echo $CTM_IP
 }
 function vm_get_mac(){
@@ -161,7 +180,7 @@ function vm_get_mac(){
 function vm_get_hostname(){
     local CTM_NAME=$1
     local CTM_MAC=`vm_get_mac $CTM_NAME`
-    local CTM_HOSTCTM_NAME=`virsh -c qemu:///system net-dumpxml default | grep $CTM_MAC |sed -r "s/.*name='([^']*).*$/\1/"`
+    local CTM_HOSTCTM_NAME=`virsh -c qemu:///system net-dumpxml $CTM_POOLNAME | grep $CTM_MAC |sed -r "s/.*name='([^']*).*$/\1/"`
     echo $CTM_HOSTCTM_NAME
 }
 
@@ -171,6 +190,7 @@ function vm_get_pass(){
 
 function vm_ssh(){
     local CTM_HOST=$1
+    vm_wait_online $CTM_HOST
     shift
     echo ssh $CTM_SSHOPTS -l $RCTM_USER `vm_get_ip $CTM_HOST` $@
     ssh $CTM_SSHOPTS -l $RCTM_USER `vm_get_ip $CTM_HOST` $@

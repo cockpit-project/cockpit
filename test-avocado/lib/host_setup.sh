@@ -27,17 +27,9 @@
 unset command_not_found_handle
 HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip avocado virt-manager qemu-img"
 export HS_GRP="virtualization"
-HS_DEFAULTNET="/etc/libvirt/qemu/networks/default.xml"
 HS_CON="-c qemu:///system"
-
-function host_default_network_domain(){
-    if virsh $HS_CON net-dumpxml default |grep -q "domain name='cockpit.lan'"; then
-        echo "network already configured"       
-    else
-        sudo sed -i '/<name>default<\/name>/i <domain name="cockpit.lan" localOnly="yes"/>' $HS_DEFAULTNET
-        echo "network configured. Please REBOOT the machine, to take effect"
-    fi
-}
+export HS_POOLNAME="cockpit"
+export HS_POOLNAME_PATH=/var/lib/libvirt/images/$HS_POOLNAME
 
 function host_dependencies_fedora(){
     sudo yum -y yum-plugin-copr
@@ -53,26 +45,50 @@ function host_dependencies_rhel7(){
     sudo /bin/cp virt-deploy.repo avocado.repo /etc/yum.repos.d/
     sudo yum -y install $HS_BASE_PCKGS
 }
-
-function host_virtlibpolicy_solver(){
-    LHS_USER=$HS_USER
-    sudo systemctl restart libvirtd  
+function definepools(){
+    local HS_PNAME=$1
+    local HS_IPEXTENSION=123
+    sudo mkdir -p $HS_POOLNAME_PATH
     sudo virsh $HS_CON pool-define /dev/stdin <<EOF
 <pool type='dir'>
-  <name>default</name>
+  <name>$HS_PNAME</name>
   <target>
-    <path>/var/lib/libvirt/images</path>
+    <path>$HS_POOLNAME_PATH</path>
   </target>
 </pool>
 EOF
+    sudo virsh $HS_CON pool-start $HS_PNAME
+    sudo virsh $HS_CON pool-autostart $HS_PNAME
+    
+    sudo virsh $HS_CON net-define /dev/stdin <<EOF
+<network>
+  <name>$HS_PNAME</name>
+  <domain name='cockpit.lan' localOnly='yes'/>
+  <forward mode='nat'/>
+  <bridge name='$HS_PNAME' stp='on' delay='0'/>
+  <mac address='52:54:00:AB:AB:AB'/>
+    <dns>
+   </dns>
+  <ip address='192.168.$HS_IPEXTENSION.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.$HS_IPEXTENSION.2' end='192.168.$HS_IPEXTENSION.254'/>
+    </dhcp>
+  </ip>
+</network>
+EOF
+    sudo virsh $HS_CON net-start $HS_PNAME
+    sudo virsh $HS_CON net-autostart $HS_PNAME
+    echo "added network and storage pools"
+}
 
-    sudo virsh $HS_CON pool-start default
-    sudo virsh $HS_CON pool-autostart default
-
+function host_virtlibpolicy_solver(){
+    local LHS_USER=$HS_USER
+    definepools $HS_POOLNAME
     sudo groupadd $HS_GRP
     sudo usermod -a -G $HS_GRP $LHS_USER
-    sudo chgrp $HS_GRP  /var/lib/libvirt/images
-    sudo chmod g+rwx /var/lib/libvirt/images
+    sudo chgrp $HS_GRP $HS_POOLNAME_PATH
+    sudo chown $LHS_USER $HS_POOLNAME_PATH
+    sudo chmod g+rwx $HS_POOLNAME_PATH
     sudo tee /etc/polkit-1/localauthority/50-local.d/50-org.example-libvirt-remote-access.pkla <<< "[libvirt Management Access]
 Identity=unix-group:$HS_GRP
 Action=org.libvirt.unix.manage
@@ -80,6 +96,7 @@ ResultAny=yes
 ResultInactive=yes
 ResultActive=yes
 "
+    
 }
 
 
@@ -106,7 +123,6 @@ function install_host(){
     else
         host_virtlibpolicy_solver
     fi
-    host_default_network_domain
 }
 
 function check_host(){
@@ -115,7 +131,7 @@ function check_host(){
         echo "All packages alread installed"
         if groups $HS_USER | grep -qs $HS_GRP; then
             echo "Virtualization enabled for user"
-            if virsh $HS_CON net-dumpxml default |grep -q "domain name='cockpit.lan'"; then
+            if virsh $HS_CON net-dumpxml $HS_POOLNAME |grep -q "domain name='cockpit.lan'"; then
                 echo "Network domain configured for qemu"
                 return 0
             else

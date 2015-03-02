@@ -132,6 +132,38 @@ function off_account_changes(client, id) {
     $(client).off("." + id);
 }
 
+function change_password(user_name, old_pass, new_pass, success_call, failure_call) {
+    var expect_in;
+    var call;
+
+    if (cockpit.user["user"] == user_name) {
+        expect_in  = 'spawn passwd;' +
+            'expect "Changing password for user ' + user_name + '";' +
+            'expect "Changing password for ' + user_name + '";' +
+            'expect "(current) UNIX password: ";' +
+            'send "' + old_pass + '\\r";' +
+            'expect "New password: ";' +
+            'send "' + new_pass + '\\r";' +
+            'expect "Retype new password: ";' +
+            'send "' + new_pass + '\\r";' +
+            'expect "passwd: all authentication tokens updated successfully.";';
+        call = cockpit.spawn([ "/usr/bin/expect"], { "environ": ["LC_ALL=C"]});
+    } else {
+        expect_in = 'spawn passwd ' + user_name + ';' +
+            'expect "Changing password for user ' + user_name + '";' +
+            'expect "New password: ";' +
+            'send "' + new_pass + '\\r";' +
+            'expect "Retype new password: ";' +
+            'send "' + new_pass + '\\r";' +
+            'expect "passwd: all authentication tokens updated successfully.";';
+        call = cockpit.spawn([ "/usr/bin/expect"], {"superuser" : true, "environ": ["LC_ALL=C"]});
+    }
+
+    call.input(expect_in)
+        .fail(failure_call)
+        .done(success_call);
+}
+
 PageAccounts.prototype = {
     _init: function() {
         this.id = "accounts";
@@ -446,8 +478,7 @@ PageAccount.prototype = {
         if (!this.check_role_for_self_mod ())
             return;
 
-        PageAccountSetPassword.account = this.account;
-        PageAccountSetPassword.user_name = null;
+        PageAccountSetPassword.user_name = this.account.UserName;
         $('#account-set-password-dialog').modal('show');
     },
 
@@ -613,7 +644,13 @@ PageAccountSetPassword.prototype = {
     },
 
     show: function() {
-        $('#account-set-password-pw1').focus();
+        if (cockpit.user["user"] !== PageAccountSetPassword.user_name) {
+            $('#account-set-password-old').parents('tr').toggle(false);
+            $('#account-set-password-pw1').focus();
+        } else {
+            $('#account-set-password-old').parents('tr').toggle(true);
+            $('#account-set-password-old').focus();
+        }
     },
 
     setup: function() {
@@ -624,6 +661,7 @@ PageAccountSetPassword.prototype = {
     },
 
     enter: function() {
+        $('#account-set-password-old').val("");
         $('#account-set-password-pw1').val("");
         $('#account-set-password-pw2').val("");
         $('#account-set-password-message-password-mismatch').css("visibility", "hidden");
@@ -683,18 +721,11 @@ PageAccountSetPassword.prototype = {
     },
 
     apply: function() {
-        $('#account-set-password-dialog').modal('hide');
-        if (PageAccountSetPassword.account) {
-            PageAccountSetPassword.account.call ('SetPassword', $('#account-set-password-pw1').val(),
-                                                 function (error) {
-                                                     if (error)
-                                                         shell.show_unexpected_error(error);
-                                                 });
-        } else if (PageAccountSetPassword.user_name) {
-            cockpit.spawn([ "passwd", "--stdin", PageAccountSetPassword.user_name ]).
-                          write($('#account-set-password-pw1').val()).
-                          fail(shell.show_unexpected_error);
-        }
+        change_password(PageAccountSetPassword.user_name,
+                        $('#account-set-password-old').val(),
+                        $('#account-set-password-pw1').val(),
+                        function() { $('#account-set-password-dialog').modal('hide'); },
+                        function() { shell.show_unexpected_error(_("Failed to change password")); });
     }
 };
 
@@ -703,5 +734,10 @@ function PageAccountSetPassword() {
 }
 
 shell.dialogs.push(new PageAccountSetPassword());
+
+shell.change_password = function change_password() {
+    PageAccountSetPassword.user_name = cockpit.user["user"];
+    $('#account-set-password-dialog').modal('show');
+};
 
 })(jQuery, cockpit, shell);

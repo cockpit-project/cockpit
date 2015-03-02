@@ -330,18 +330,39 @@ PageAccountsCreate.prototype = {
     },
 
     create: function() {
-        $('#accounts-create-dialog').modal('hide');
-        var manager = PageAccountsCreate.client.get ("/com/redhat/Cockpit/Accounts",
-                                                     "com.redhat.Cockpit.Accounts");
-        manager.call("CreateAccount",
-                     $('#accounts-create-user-name').val(),
-                     $('#accounts-create-real-name').val(),
-                     $('#accounts-create-pw1').val(),
-                     $('#accounts-create-locked').prop('checked'),
-                     function (error) {
-                         if (error)
-                             shell.show_unexpected_error(error);
-                     });
+        var prog = ["/usr/sbin/useradd"];
+
+        function adjust_password() {
+            if ($('#accounts-create-pw1').val()) {
+                change_password($('#accounts-create-user-name').val(),
+                                "",
+                                $('#accounts-create-pw1').val(),
+                                function() {$('#accounts-create-dialog').modal('hide');},
+                                function() { shell.show_unexpected_error(_("Failed to change password")); });
+            } else {
+                $('#accounts-create-dialog').modal('hide');
+            }
+        }
+
+        if ($('#accounts-create-real-name').val()) {
+            prog.push('-c');
+            prog.push($('#accounts-create-user-name').val());
+        }
+
+        prog.push($('#accounts-create-real-name').val());
+
+        cockpit.spawn(prog, { "superuser": true })
+           .done(function () {
+               if ($('#accounts-create-locked').prop('checked')) {
+                   cockpit.spawn(["/usr/sbin/usermod",
+                                 $('#accounts-create-user-name').val(),
+                                 "--lock"], { "superuser": true})
+                          .done(adjust_password);
+               } else {
+                  adjust_password();
+               }
+           })
+           .fail(shell.show_unexpected_error);
     }
 };
 

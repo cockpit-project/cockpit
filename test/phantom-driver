@@ -73,14 +73,6 @@ function step ()
         function on_load_finished(status)
         {
             page.onLoadFinished = null;
-            if (status == "success") {
-                page.evaluate(function () {
-                    localStorage.clear();
-                    phantom_checkpoint = function() {
-                        console.log ("-*-CHECKPOINT-*-");
-                    }
-                });
-            }
             sys.stdout.writeLine(JSON.stringify({result: status}));
             step ();
         }

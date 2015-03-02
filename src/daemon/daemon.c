@@ -35,7 +35,6 @@
 #include "storagemanager.h"
 #include "realms.h"
 #include "services.h"
-#include "accounts.h"
 
 /**
  * SECTION:daemon
@@ -187,7 +186,6 @@ daemon_constructed (GObject *_object)
   CockpitMultiResourceMonitor *multi_monitor;
   CockpitRealms *realms;
   CockpitServices *services;
-  CockpitAccounts *accounts;
   CockpitStorageManager *storage_manager;
   CockpitObjectSkeleton *object = NULL;
 
@@ -315,19 +313,6 @@ daemon_constructed (GObject *_object)
   g_object_unref (object);
 
   g_debug ("exported services");
-
-  /* /com/redhat/Cockpit/Accounts */
-  accounts = accounts_new ();
-  if (accounts_is_valid (ACCOUNTS (accounts)))
-    {
-      object = cockpit_object_skeleton_new ("/com/redhat/Cockpit/Accounts");
-      cockpit_object_skeleton_set_accounts (object, accounts);
-      g_dbus_object_manager_server_export (daemon->object_manager, G_DBUS_OBJECT_SKELETON (object));
-      g_object_unref (object);
-
-      g_debug ("exported accounts");
-    }
-  g_object_unref (accounts);
 
   /* /com/redhat/Cockpit/Storage/Manager */
   storage_manager = storage_manager_new (daemon);

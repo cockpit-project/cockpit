@@ -2205,13 +2205,21 @@ resource_respond (CockpitWebService *self,
           goto out;
         }
 
-      g_hash_table_iter_init (&iter, self->sessions.by_transport);
-      while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
+      /* Always check localhost first */
+      session = g_hash_table_lookup (self->sessions.by_host, "localhost");
+      if (session && session->checksum && g_str_equal (session->checksum, where + 1))
+        host = session->host;
+
+      if (!host)
         {
-          if (session->checksum && g_str_equal (session->checksum, where + 1))
+          g_hash_table_iter_init (&iter, self->sessions.by_transport);
+          while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
             {
-              host = session->host;
-              break;
+              if (session->checksum && g_str_equal (session->checksum, where + 1))
+                {
+                  host = session->host;
+                  break;
+                }
             }
         }
 

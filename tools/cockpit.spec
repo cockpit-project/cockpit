@@ -4,7 +4,7 @@
 
 # Our SELinux policy gets built in tests and f21 and lower
 %if %{defined gitcommit}
-%define extra_flags CFLAGS='-O2 -Wall -Werror'
+%define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC'
 %define selinux 1
 %endif
 %if 0%{?fedora} > 0 && 0%{?fedora} <= 21

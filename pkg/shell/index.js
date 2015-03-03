@@ -178,12 +178,12 @@ require([
     var machines = new Machines();
     var frames = new Frames();
     var router = new Router();
-    var components = new Components();
+    var packages = new Packages();
 
     function maybe_ready() {
         if (ready)
             return;
-        if (!machines.loaded || !components.loaded)
+        if (!machines.loaded || !packages.loaded)
             return;
         ready = true;
         $("nav").show();
@@ -195,6 +195,7 @@ require([
         .on("ready", function(ev) {
             machines.loaded = true;
             $(cockpit).on("locationchanged", navigate);
+            build_navbar();
             navigate();
             maybe_ready();
         })
@@ -335,6 +336,18 @@ require([
 
     /* Navigation widgets */
 
+    function build_navbar() {
+        function links(comp) {
+            return $("<li class='dashboard-link'>")
+                .attr("data-component", comp.path)
+                .append($("<a>").attr("href", "#/" + comp.path).text(comp.label));
+        }
+
+        var components = packages.build(manifests);
+        var dashboard = components.dashboard.map(links);
+        $("#content-navbar").append(dashboard);
+    }
+
     function update_navbar(machine, component) {
         $("#machine-avatar").attr("src", machine ? encodeURI(machine.avatar) : "images/server-small.png");
         $("#machine-dropdown").toggleClass("active", !!machine);
@@ -366,7 +379,7 @@ require([
 
         if (!machine) {
             sidebar.hide();
-            components.loaded = true;
+            packages.loaded = true;
             maybe_ready();
             recalculate_layout();
             return;
@@ -374,22 +387,26 @@ require([
 
         /* TODO: We need to fix races here with quick navigation in succession */
 
-        components.lookup(machine, function(data) {
-            components.loaded = true;
-            var links = data.map(function(component) {
-                var href = "#";
-                if (machine.address != "localhost" || component.path) {
-                    href += "/@" + machine.address;
-                    if (component.path)
-                        href += "/" + component.path;
-                }
-                return $("<a>")
-                    .attr("href", encodeURI(href))
-                    .addClass("list-group-item")
-                    .toggleClass("active", current === component.path)
-                    .text(cockpit.gettext(component.label));
-            });
-            sidebar.empty().append(links);
+        function links(component) {
+            var href = "#";
+            if (machine.address != "localhost" || component.path) {
+                href += "/@" + machine.address;
+                if (component.path)
+                    href += "/" + component.path;
+            }
+            return $("<a>")
+                .attr("href", encodeURI(href))
+                .addClass("list-group-item")
+                .toggleClass("active", current === component.path)
+                .text(cockpit.gettext(component.label));
+        }
+
+        packages.lookup(machine, function(components) {
+            packages.loaded = true;
+            var menu = components.menu.map(links);
+            var tools = components.tools.map(links);
+            var divider = $("<li class='divider'>");
+            sidebar.empty().append(menu).append(divider).append(tools);
 
             maybe_ready();
             sidebar.show();
@@ -780,75 +797,53 @@ require([
         };
     }
 
-    function Components() {
+    function Packages() {
         var self = this;
         var requests = [ ];
 
-        function build(list, pkgs) {
-            /* TODO: The manifest format should describe components more completely */
+        function Components(manis) {
+            this.menu = [ ];
+            this.tools = [ ];
+            this.dashboard = [ ];
 
-            var seen = { };
-            $.each(pkgs, function(name, pkg) {
-                var tools = pkg.tools;
-                if (!tools)
-                    return;
-                $.each(tools, function(ident, info) {
-                    var file = info.path;
-                    if (!file)
-                        file = ident;
-                    file = file.replace(/\.html$/, "");
-                    list.push({
-                        path: name + "/" + file,
-                        label: cockpit.gettext(info.label)
+            function build(section, list) {
+                $.each(manis, function(name, manifest) {
+                    $.each(manifest[section] || { }, function(ident, info) {
+                        var path;
+                        if (info.path) {
+                            path = info.path.replace(/\.html$/, "");
+                            if (path.indexOf("/") === -1)
+                                path = name + "/" + path;
+                        } else {
+                            path = name + "/" + ident;
+                        }
+                        list.push({
+                            path: path,
+                            label: cockpit.gettext(info.label),
+                            order: info.order === undefined ? 1000 : info.order
+                        });
                     });
                 });
-            });
-        }
 
-        self.lookup = function lookup(machine, callback) {
-            if (machine.components) {
-                callback(machine.components);
-                return;
+                /* Everything gets sorted by order */
+                list.sort(function(a, b) { return a.order - b.order; });
             }
 
-            var list = [];
+            build("dashboard", this.dashboard);
+            build("menu", this.menu);
+            build("tools", this.tools);
+        }
 
-            /* TODO: We should remove the hard coded settings here */
+        self.build = function build(manis) {
+            return new Components(manis);
+        };
 
-            list.push.apply(list, [
-                {
-                    path: "system/host",
-                    label: _("System"),
-                },
-                {
-                    path: "system/init",
-                    label: _("Services"),
-                },
-                {
-                    path: "docker/containers",
-                    label: _("Containers"),
-                },
-                {
-                    path: "system/log",
-                    label: _("Journal"),
-                },
-                {
-                    path: "network/interfaces",
-                    label: _("Networking"),
-                },
-                {
-                    path: "storage/devices",
-                    label: _("Storage"),
-                },
-                {
-                    path: "users/local",
-                    label: _("Administrator Accounts"),
-                }
-            ]);
+        self.lookup = function lookup(machine, callback) {
+            if (!machine.components && machine.address == "localhost")
+                machine.components = self.build(manifests);
 
-            if (machine.address == "localhost") {
-                build(list, manifests);
-                callback(list);
+            if (machine.components) {
+                callback(machine.components);
                 return;
             }
 
@@ -859,19 +854,19 @@ require([
                 url = "../../@" + machine.address + "/manifests.json";
 
             var req = $.ajax({ url: url, dataType: "json", cache: true})
-                .done(function(pkgs) {
-                    build(list, pkgs);
+                .done(function(manis) {
+                    machine.components = self.build(manis);
                     var etag = req.getResponseHeader("ETag");
                     if (etag)
                         machine.checksum = etag;
                 })
-                .fail(function(pkgs) {
-                    console.warn("failed to load manifests from " + machine.address);
+                .fail(function(ex) {
+                    console.warn("failed to load manifests from " + machine.address + ": " + ex);
+                    machine.components = self.build({ });
                 })
                 .always(function() {
                     req.pending = false;
-                    machine.components = list;
-                    callback(list);
+                    callback(machine.components);
                 });
 
             req.pending = true;

@@ -676,10 +676,9 @@ function Channel(options) {
                 command[i] = options[i];
         }
 
-        if (command.host === undefined) {
-            var host = default_host;
-            if (host)
-                command.host = host;
+        if (!command.host) {
+            if (default_host)
+                command.host = default_host;
         }
 
         if (binary) {

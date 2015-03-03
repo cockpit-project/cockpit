@@ -29,7 +29,7 @@ HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip avocado vir
 export HS_GRP="virtualization"
 HS_CON="-c qemu:///system"
 export HS_POOLNAME="cockpit"
-export HS_POOLNAME_PATH=/var/lib/libvirt/images/$HS_POOLNAME
+export HS_POOLNAME_PATH=/home/$HS_POOLNAME
 
 function host_dependencies_fedora(){
     sudo yum -y yum-plugin-copr

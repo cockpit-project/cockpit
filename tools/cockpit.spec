@@ -185,6 +185,7 @@ install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %endif
 %ifnarch x86_64
 rm -rf %{buildroot}/%{_datadir}/%{name}/docker
+rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
 %endif
 
 %files
@@ -270,6 +271,17 @@ This package is not yet complete.
 
 %files docker
 %{_datadir}/%{name}/docker
+
+%package kubernetes
+Summary: Cockpit user interface for Kubernetes cluster
+Requires: kubernetes
+
+%description kubernetes
+The Cockpit components for visualizing and configuring a Kubernetes
+cluster. Installed on the Kubernetes master. This package is not yet complete.
+
+%files kubernetes
+%{_datadir}/%{name}/kubernetes
 
 %endif
 

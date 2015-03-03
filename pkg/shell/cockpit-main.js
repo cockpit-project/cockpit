@@ -63,12 +63,19 @@ function maybe_init() {
 /* HACK: Until all of the shell is loaded via AMD */
 require([
     "system/server",
-    "docker/docker"
-], function(server, docker) {
+    "manifests"
+], function(server, manifests) {
     modules.server = server;
-    modules.docker = docker;
-    modules.loaded = true;
-    maybe_init();
+    if (manifests["docker"]) {
+        require([ "docker/docker" ], function (docker) {
+            modules.docker = docker;
+            modules.loaded = true;
+            maybe_init();
+        });
+    } else {
+        modules.loaded = true;
+        maybe_init();
+    }
 });
 
 function init() {

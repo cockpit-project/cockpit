@@ -221,11 +221,11 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 ( cd /var/lib/pcp/pmns && ./Rebuild -du )
 
 %files shell
-%{_datadir}/%{name}/base
+%{_datadir}/%{name}/base1
 %{_datadir}/%{name}/legacy
 %{_datadir}/%{name}/shell
 %{_datadir}/%{name}/playground
-%{_datadir}/%{name}/server-systemd
+%{_datadir}/%{name}/system
 
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz

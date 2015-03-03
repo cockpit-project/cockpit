@@ -133,6 +133,7 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 	cd $(srcdir); for d in $(testassets_data); do $(INSTALL_DATA) -D $$d $(DESTDIR)$(testassetsdir)/$$d; done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
 	ln -sn $(libexecdir)/cockpit-bridge $(DESTDIR)$(testassetsdir)/cockpit-bridge
+	ln -sn base $(DESTDIR)$(testassetsdir)/pkg/base1
 
 clean-local:
 	find $(builddir) -name '*.gc??' -delete
@@ -165,24 +166,27 @@ uninstall-doc-local:
 upload-doc: guide/index.html
 	rsync -Hvax guide/./ files.cockpit-project.org:/srv/guide/$(LATEST)./
 
-dist-hook:
-	@true
-
-distcheck-hook:
+dist-doc-hook:
 	@true
 
 else
 
 uninstall-doc-local:
 	@true
-distcheck-hook:
-	@echo "*** doc must be enabled (ie: --enable-doc) in order to make distcheck"
-dist-hook:
-	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist"
+dist-doc-hook:
+	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
 upload-doc:
 	@echo "*** doc must be enabled (ie: --enable-doc) in order to make upload-doc"
 
 endif
+
+dist-hook: dist-doc-hook
+	ln -s systemd $(distdir)/pkg/system
+	ln -s base $(distdir)/pkg/base1
+
+distcheck-hook: dist-doc-hook
+	@true
+
 
 include lib/Makefile.am
 include pkg/base/Makefile.am

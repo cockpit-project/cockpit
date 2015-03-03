@@ -202,7 +202,7 @@ define([
                 if (!timeout) {
                     timeout = window.setTimeout(function() {
                         timeout = null;
-                        $(self).triggerHandler(type, self[type]);
+                        $(self).triggerHandler(type);
                     }, 100);
                 }
             }

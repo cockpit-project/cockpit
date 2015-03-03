@@ -85,12 +85,6 @@
 
     <variablelist>
       <varlistentry>
-        <term>alias</term>
-        <listitem><para>Additonal package name or names for this package. If a string, then just
-          one name, if an array then multiple names. These names are usually well-known names
-          that the package should provide resources for.</para></listitem>
-      </varlistentry>
-      <varlistentry>
         <term>tools</term>
         <listitem><para>An optional JSON object containing all the tools that this package
           provides. These will be added into the Cockpit user interface under the 'Tools' menu.
@@ -126,7 +120,6 @@
 <programlisting>
   {
     "version": 0,
-    "alias": ["other"],
     "tools": {
        "mytool": {
           "label": "My Tool",

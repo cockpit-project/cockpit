@@ -1,12 +1,11 @@
 
-kubernetes_FILES = \
+kubernetesdir = $(pkgdatadir)/kubernetes
+kubernetes_DATA = \
 	pkg/kubernetes/kubernetes.js \
 	pkg/kubernetes/kubernetes.min.js \
 	pkg/kubernetes/manifest.json \
 	pkg/kubernetes/tool.html \
 	$(NULL)
-
-noinst_DATA += $(kubernetes_FILES)
 
 kubernetes_TESTS = \
 	pkg/kubernetes/test-kubernetes.html \
@@ -19,6 +18,6 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
-	$(kubernetes_FILES) \
+	$(kubernetes_DATA) \
 	$(kubernetes_TESTS) \
 	$(NULL)

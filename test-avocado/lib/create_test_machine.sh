@@ -86,44 +86,6 @@ function virtinstall(){
     /bin/rm $CTM_TMPF
 }
 
-function treeinstall(){
-    CTM_PREFIX=$1
-    CTM_DISTRO=$2
-    if   [ "$CTM_DISTRO" = "fedora-21" ]; then
-        CTM_TREE="http://download.fedoraproject.org/pub/fedora/linux/releases/21/Server/$CTM_ARCH/os"
-    elif [ "$CTM_DISTRO" = "centos-7.0" ]; then
-        CTM_TREE="http://ftp.fi.muni.cz/pub/linux/centos/7.0.1406/os/$CTM_ARCH/"
-    else
-        usage
-    fi
-    CTM_KSF=base.ks
-    CTM_ADIR=$CTM_SCRCTM_IPTPATH/lib
-    CTM_VMDIRS=/var/lib/libvirt/images/
-    mkdir -p $CTM_VMDIRS
-    CTM_NAME=${CTM_PREFIX}-${CTM_DISTRO}-${CTM_ARCH}
-    CTM_IMG=$CTM_NAME.img
-    CTM_MAC=`printf '52:54:00:%02X:%02X:%02X\n' $[RANDOM%256] $[RANDOM%256] $[RANDOM%256]`
-    qemu-img create -f qcow2 $CTM_VMDIRS/$CTM_IMG 20G
-    virt-install --connect=qemu:///system \
-            --network network:$CTM_POOLNAME,mac=$CTM_MAC \
-            --initrd-inject=$CTM_ADIR/$CTM_KSF \
-            --extra-args="ks=file:/$CTM_KSF console=tty0 console=ttyS0,115200" \
-            --name=$CTM_NAME \
-            --disk $CTM_VMDIRS/$CTM_IMG \
-            --ram 1028 \
-            --vcpus 1 \
-            --check-cpu \
-            --accelerate \
-            --hvm \
-            --location $CTM_TREE \
-            --noreboot \
-            --nographics
-# 
-
-    is_created $CTM_NAME &>/dev/null
-    setup_vm $CTM_NAME $CTM_PASSWORD
-}
-
 function vm_wait_online(){
     local CTM_NAME=$1
     local MAXIMUM_TIMEOUT=60

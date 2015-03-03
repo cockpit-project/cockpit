@@ -152,32 +152,6 @@ function check_host(){
     return 1
 
 }
-# deprecated
-function avocado_pip_install(){
-    HS_AVOCADO_STRING="
-(
- yum -y install python-pip;
- pip install --upgrade avocado;
-);
-"
-echo $HS_AVOCADO_STRING
-}
-# deprecated
-function avocado_git_install(){
-    HS_AVOCADO_NEW="https://github.com/avocado-framework/avocado/archive/master.zip"
-    HS_AVOCADO="avocado-master"
-    HS_AVOCADO_SOURCE="
-(
- set -e;
- cd /tmp;
- curl -L $HS_AVOCADO_NEW > $HS_AVOCADO.zip;
- unzip -o $HS_AVOCADO.zip;
- cd $HS_AVOCADO;
- sudo ./setup.py install;
-);
-"
-echo $HS_AVOCADO_SOURCE
-}
 
 HS_USERS=$1
 for ONEHS_USER in $HS_USERS; do

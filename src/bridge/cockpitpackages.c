@@ -48,6 +48,7 @@ struct _CockpitPackage {
   gchar *name;
   gchar *directory;
   JsonObject *manifest;
+  GHashTable *paths;
 };
 
 /*
@@ -61,9 +62,10 @@ struct _CockpitPackage {
  * So we use the fastest, good ol' SHA1.
  */
 
-static gboolean   package_checksum_directory   (GChecksum *checksum,
-                                                const gchar *root,
-                                                const gchar *directory);
+static gboolean   package_walk_directory   (GChecksum *checksum,
+                                            GHashTable *paths,
+                                            const gchar *root,
+                                            const gchar *directory);
 
 static void
 cockpit_package_free (gpointer data)
@@ -116,9 +118,10 @@ validate_path (const gchar *name)
 }
 
 static gboolean
-package_checksum_file (GChecksum *checksum,
-                       const gchar *root,
-                       const gchar *filename)
+package_walk_file (GChecksum *checksum,
+                   GHashTable *paths,
+                   const gchar *root,
+                   const gchar *filename)
 {
   gchar *path = NULL;
   gchar *string = NULL;
@@ -136,7 +139,7 @@ package_checksum_file (GChecksum *checksum,
   path = g_build_filename (root, filename, NULL);
   if (g_file_test (path, G_FILE_TEST_IS_DIR))
     {
-      ret = package_checksum_directory (checksum, root, filename);
+      ret = package_walk_directory (checksum, paths, root, filename);
       goto out;
     }
 
@@ -148,19 +151,29 @@ package_checksum_file (GChecksum *checksum,
       goto out;
     }
 
-  bytes = g_mapped_file_get_bytes (mapped);
-  string = g_compute_checksum_for_bytes (G_CHECKSUM_SHA1, bytes);
-  g_bytes_unref (bytes);
+  if (checksum)
+    {
+      bytes = g_mapped_file_get_bytes (mapped);
+      string = g_compute_checksum_for_bytes (G_CHECKSUM_SHA1, bytes);
+      g_bytes_unref (bytes);
 
-  /*
-   * Place file name and hex checksum into checksum,
-   * include the null terminators so these values
-   * cannot be accidentally have a boundary discrepancy.
-   */
-  g_checksum_update (checksum, (const guchar *)filename,
-                     strlen (filename) + 1);
-  g_checksum_update (checksum, (const guchar *)string,
-                     strlen (string) + 1);
+      /*
+       * Place file name and hex checksum into checksum,
+       * include the null terminators so these values
+       * cannot be accidentally have a boundary discrepancy.
+       */
+      g_checksum_update (checksum, (const guchar *)filename,
+                         strlen (filename) + 1);
+      g_checksum_update (checksum, (const guchar *)string,
+                         strlen (string) + 1);
+    }
+
+  if (paths)
+    {
+      g_hash_table_add (paths, path);
+      path = NULL;
+    }
+
   ret = TRUE;
 
 out:
@@ -216,9 +229,10 @@ directory_filenames (const char *directory)
 }
 
 static gboolean
-package_checksum_directory (GChecksum *checksum,
-                            const gchar *root,
-                            const gchar *directory)
+package_walk_directory (GChecksum *checksum,
+                        GHashTable *paths,
+                        const gchar *root,
+                        const gchar *directory)
 {
   gboolean ret = FALSE;
   gchar *path = NULL;
@@ -238,7 +252,7 @@ package_checksum_directory (GChecksum *checksum,
         filename = g_build_filename (directory, names[i], NULL);
       else
         filename = g_strdup (names[i]);
-      ret = package_checksum_file (checksum, root, filename);
+      ret = package_walk_file (checksum, paths, root, filename);
       g_free (filename);
       if (!ret)
         goto out;
@@ -300,11 +314,13 @@ static CockpitPackage *
 maybe_add_package (GHashTable *listing,
                    const gchar *parent,
                    const gchar *name,
-                   GChecksum *checksum)
+                   GChecksum *checksum,
+                   gboolean system)
 {
   CockpitPackage *package = NULL;
   gchar *path = NULL;
   JsonObject *manifest = NULL;
+  GHashTable *paths = NULL;
 
   package = g_hash_table_lookup (listing, name);
   if (package)
@@ -319,9 +335,12 @@ maybe_add_package (GHashTable *listing,
   if (!manifest)
     goto out;
 
-  if (checksum)
+  if (system)
+    paths = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+  if (checksum || paths)
     {
-      if (!package_checksum_directory (checksum, path, NULL))
+      if (!package_walk_directory (checksum, paths, path, NULL))
         goto out;
     }
 
@@ -329,6 +348,8 @@ maybe_add_package (GHashTable *listing,
 
   package->directory = path;
   package->manifest = manifest;
+  if (paths)
+    package->paths = g_hash_table_ref (paths);
 
   g_hash_table_replace (listing, package->name, package);
   g_debug ("%s: added package at %s", package->name, package->directory);
@@ -340,6 +361,8 @@ out:
       if (manifest)
         json_object_unref (manifest);
     }
+  if (paths)
+    g_hash_table_unref (paths);
 
   return package;
 }
@@ -362,7 +385,7 @@ build_package_listing (GHashTable *listing,
       for (j = 0; packages[j] != NULL; j++)
         {
           /* If any user packages installed, no checksum */
-          if (maybe_add_package (listing, directory, packages[j], checksum))
+          if (maybe_add_package (listing, directory, packages[j], checksum, FALSE))
             checksum = NULL;
         }
       g_strfreev (packages);
@@ -382,7 +405,7 @@ build_package_listing (GHashTable *listing,
         {
           packages = directory_filenames (directory);
           for (j = 0; packages && packages[j] != NULL; j++)
-            maybe_add_package (listing, directory, packages[j], checksum);
+            maybe_add_package (listing, directory, packages[j], checksum, TRUE);
           g_strfreev (packages);
         }
       g_free (directory);
@@ -632,7 +655,7 @@ handle_packages (CockpitWebServer *server,
 
   add_cache_header (headers, packages, out_headers);
 
-  bytes = cockpit_web_response_negotiation (filename, NULL, &chosen, &error);
+  bytes = cockpit_web_response_negotiation (filename, package->paths, &chosen, &error);
   if (error)
     {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||

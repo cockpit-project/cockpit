@@ -169,7 +169,7 @@ make selinux
 # make check
 
 %install
-%make_install
+make install DESTDIR=%{buildroot} DBGDIR=/debug
 %if %{defined gitcommit}
 make install-test-assets DESTDIR=%{buildroot}
 mkdir -p %{buildroot}/%{_datadir}/polkit-1/rules.d

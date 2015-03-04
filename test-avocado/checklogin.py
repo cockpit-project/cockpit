@@ -83,6 +83,17 @@ class checklogin(test.Test):
         b.enter_page("account")
         b.wait_text ("#account-user-name", "admin")
 
+    def curl_auth(self, url, userpass):
+        header = "Authorization: Basic " + base64.b64encode(userpass)
+        return process.run("/usr/bin/curl -s -k -D - --header %s http://%s:9090%s " %  (header, "localhost", url), ignore_status=True)
+
+    def curl_auth_code(self, url, userpass):
+        lines = self.curl_auth(url, userpass).stdout.splitlines()
+        assert len(lines) > 0
+        tokens = lines[0].split(' ', 2)
+        assert len(tokens) == 3
+        self.log.debug(tokens)
+        return int(tokens[1])
 
     def Raw(self):
         time.sleep(0.5)

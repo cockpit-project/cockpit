@@ -36,8 +36,11 @@ import exceptions
 import re
 import json
 import unittest
-
-import testvm
+try:
+    import testvm
+except ImportError:
+    print "Unable to import testvm, probably new test struture?"
+    pass
 
 __all__ = (
     # Test definitions
@@ -58,7 +61,7 @@ __all__ = (
     'merge'
     )
 
-topdir = os.path.normpath(os.path.dirname(__file__) + "/..")
+topdir = os.path.normpath(os.path.dirname(__file__))
 
 # Command line options
 
@@ -122,10 +125,10 @@ class Browser:
 
     def init_after_load(self):
         # Prevent sizzle from registering with AMD loader, and also claiming the usual global name
-        with open("%s/lib/sizzle.v2.1.0.js" % topdir) as file:
+        with open("%s/sizzle.js" % topdir) as file:
             js = "var define = null; " + file.read()
             self.phantom.do(js)
-        self.phantom.inject("%s/test/phantom-lib.js" % topdir)
+        self.phantom.inject("%s/phantom-lib.js" % topdir)
         self.phantom.do("ph_init()")
 
     def reload(self):
@@ -483,7 +486,7 @@ class Phantom:
         environ = os.environ.copy()
         if lang:
             environ["LC_ALL"] = lang
-        self.driver = subprocess.Popen([ "%s/test/phantom-driver" % topdir ], env=environ,
+        self.driver = subprocess.Popen([ "%s/phantom-driver" % topdir ], env=environ,
                                        stdout=subprocess.PIPE, stdin=subprocess.PIPE)
         self.frame = None
 

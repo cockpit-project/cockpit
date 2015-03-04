@@ -87,7 +87,6 @@ EOF
 
 function host_virtlibpolicy_solver(){
     local LHS_USER=$HS_USER
-    definepools $HS_POOLNAME
     sudo groupadd $HS_GRP
     sudo usermod -a -G $HS_GRP $LHS_USER
     sudo chgrp $HS_GRP $HS_POOLNAME_PATH
@@ -127,7 +126,12 @@ function install_host(){
             exit 10
         fi
     fi
-
+    if virsh $HS_CON net-dumpxml $HS_POOLNAME |grep -q "domain name='cockpit.lan'"; then
+        echolog "Network pool already configured for qemu"
+    else
+        definepools $HS_POOLNAME
+        echolog "Network pool configured for qemu"
+    fi
     if groups $HS_USER | grep -s $HS_GRP; then
         echolog "Virtualization enabled for user"
     else

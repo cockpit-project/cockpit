@@ -253,11 +253,16 @@ cockpit_web_response_get_stream  (CockpitWebResponse *self)
   return self->io;
 }
 
+#if !GLIB_CHECK_VERSION(2,43,2)
+#define G_IO_ERROR_CONNECTION_CLOSED G_IO_ERROR_BROKEN_PIPE
+#endif
+
 static gboolean
 should_suppress_output_error (CockpitWebResponse *self,
                               GError *error)
 {
-  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
+  if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED) ||
+      g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BROKEN_PIPE))
     {
       g_debug ("%s: output error: %s", self->logname, error->message);
       return TRUE;

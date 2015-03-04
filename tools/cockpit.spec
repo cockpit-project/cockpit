@@ -174,6 +174,8 @@ make selinux
 make install-test-assets DESTDIR=%{buildroot}
 mkdir -p %{buildroot}/%{_datadir}/polkit-1/rules.d
 cp src/bridge/polkit-workarounds.rules %{buildroot}/%{_datadir}/polkit-1/rules.d
+%else
+rm -rf %{buildroot}/%{_datadir}/%{name}/playground
 %endif
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
@@ -225,7 +227,6 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
 %{_datadir}/%{name}/base1
 %{_datadir}/%{name}/legacy
 %{_datadir}/%{name}/shell
-%{_datadir}/%{name}/playground
 %{_datadir}/%{name}/system
 
 %files ws
@@ -296,6 +297,7 @@ This package contains programs and other files for testing Cockpit, and
 pulls in some necessary packages via dependencies.
 
 %files test-assets
+%{_datadir}/%{name}/playground
 %{_datadir}/cockpit-test-assets
 %{_datadir}/polkit-1/rules.d
 /usr/lib/systemd/system/cockpit-testing.service
@@ -340,6 +342,15 @@ fi
 %endif
 
 %changelog
+* Wed Mar 04 2015 Stef Walter <stefw@redhat.com> - 0.41-1
+- Update to 0.41 release
+
+* Thu Feb 26 2015 Stef Walter <stefw@redhat.com> - 0.40-1
+- Update to 0.40 release
+
+* Thu Feb 19 2015 Stef Walter <stefw@redhat.com> - 0.39-1
+- Update to 0.39 release
+
 * Wed Jan 28 2015 Stef Walter <stefw@redhat.com> - 0.38-1
 - Update to 0.38 release
 

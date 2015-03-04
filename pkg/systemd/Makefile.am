@@ -1,12 +1,16 @@
 systemddir = $(pkgdatadir)/system
 systemd_DATA = \
-	pkg/systemd/log.html \
 	pkg/systemd/log.min.html \
 	pkg/systemd/manifest.json \
-	pkg/systemd/server.js \
 	pkg/systemd/server.min.js \
-	pkg/systemd/terminal.html \
 	pkg/systemd/terminal.min.html \
+	$(NULL)
+
+systemddebugdir = $(systemddir)$(DBGDIR)
+systemddebug_DATA = \
+	pkg/systemd/log.html \
+	pkg/systemd/server.js \
+	pkg/systemd/terminal.html \
 	$(NULL)
 
 systemd_TESTS = \

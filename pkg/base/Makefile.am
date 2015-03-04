@@ -10,11 +10,8 @@ base_GEN = \
 base_DATA = \
 	pkg/base/patternfly.css \
 	pkg/base/cockpit.css \
-	pkg/base/cockpit.js \
 	pkg/base/cockpit.min.js \
-	pkg/base/jquery.js \
 	pkg/base/jquery.min.js \
-	pkg/base/mustache.js \
 	pkg/base/mustache.min.js \
 	pkg/base/require.js \
 	pkg/base/require.min.js \
@@ -22,6 +19,14 @@ base_DATA = \
 	pkg/base/manifest.json \
 	po/po.en.js \
 	$(base_GEN) \
+	$(NULL)
+
+basedebugdir = $(basedir)$(DBGDIR)
+basedebug_DATA = \
+	pkg/base/require.js \
+	pkg/base/mustache.js \
+	pkg/base/jquery.js \
+	pkg/base/cockpit.js \
 	$(NULL)
 
 baseimagesdir = $(pkgdatadir)/base1/images

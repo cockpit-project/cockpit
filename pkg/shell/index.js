@@ -555,8 +555,9 @@ require([
 
             var frame = list[component];
             if (frame) {
-                frame.setAttribute('src', frame.url + "#" + hash);
-
+                var src_attr = frame.url + "#" + hash;
+                if (frame.getAttribute('src') != src_attr)
+                    frame.setAttribute('src', src_attr);
             } else {
                 frame = document.createElement("iframe");
                 frame.setAttribute("class", "container-frame");

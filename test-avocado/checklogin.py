@@ -34,7 +34,7 @@ import os, sys
 topdir = "/usr/share/avocado/tests"
 sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+"/lib")
 sys.path.append(topdir+"/lib")
-from testlib import *
+from testlib import Browser
 from libjournal import *
 
 
@@ -48,9 +48,9 @@ class checklogin(test.Test):
     
     def Basic(self):
         b=Browser("localhost", "x")
-        b.open("server")
+        b.open("system/host")
         b.wait_visible("#login")
-        
+
         def login(user, password):
             b.set_val('#login-user-input', user)
             b.set_val('#login-password-input', password)
@@ -58,45 +58,31 @@ class checklogin(test.Test):
 
         # Try to login as a non-existing user
         login("nonexisting", "blahblah")
-        self.assertTrue(b.wait_text_not("#login-error-message", ""))
+        b.wait_text_not("#login-error-message", "")
 
         # Try to login as user with a wrong password
-        login("user", "gfedcba")
-        self.assertTrue(b.wait_text_not("#login-error-message", ""))
+        login(username, "gfedcba")
+        b.wait_text_not("#login-error-message", "")
 
         # Try to login as user with correct password
-        login ("user", "abcdefg")
-        self.assertTrue(b.wait_text("#login-error-message", "Permission denied"))
+        login (username, "abcdefg")
+        b.wait_text("#login-error-message", "Permission denied")
 
         # Login as admin
         login("admin", "foobar")
         b.expect_reload()
-        self.assertTrue(b.wait_text('#content-user-name', 'Administrator'))
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'Administrator')
 
         # reload, which should log us in with the cookie
         b.reload()
-        self.assertTrue(b.wait_text('#content-user-name', 'Administrator'))
-        b.click('a[onclick*="shell.go_login_account"]')
-        b.wait_page("account")
-        self.assertTrue(b.wait_text ("#account-user-name", "admin"))
-        
-        j=Journalctl()
-        j.allow_journal_messages ("Returning error-response ... with reason .*", "pam_unix\(cockpit:auth\): authentication failure; .*", "pam_unix\(cockpit:auth\): check pass; user unknown", "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
+        b.wait_present("#content")
+        b.wait_text('#content-user-name', 'Administrator')
 
-        j.allow_restart_journal_messages
-        j.check_journal_messages()
+        b.click('#go-account')
+        b.enter_page("account")
+        b.wait_text ("#account-user-name", "admin")
 
-    def curl_auth(self, url, userpass):
-        header = "Authorization: Basic " + base64.b64encode(userpass)
-        return process.run("/usr/bin/curl -s -k -D - --header %s http://%s:9090%s " %  (header, "localhost", url), ignore_status=True)
-
-    def curl_auth_code(self, url, userpass):
-        lines = self.curl_auth(url, userpass).stdout.splitlines()
-        assert len(lines) > 0
-        tokens = lines[0].split(' ', 2)
-        assert len(tokens) == 3
-        self.log.debug(tokens)
-        return int(tokens[1])
 
     def Raw(self):
         time.sleep(0.5)

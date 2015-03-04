@@ -29,13 +29,12 @@ ENV_VARIABLES=$COCKPIT_DIR/$BASE/lib/var.env
 rm -f $ENV_VARIABLES
 
 if check_host $LUSER; then
-    echo "Host already configured"
+    echolog "Host already configured"
 else
     if sudo $SCRIPT_DIR/lib/host_setup.sh $LUSER; then
-        echo "Host environemnt ready, please REBOOT you machine (to solve issue with default network changes)"
-        exit 0
+        echolog "Host environemnt ready"
     else
-        echo "Unable to create enviromnet, EXITTING"
+        echolog "Unable to create enviromnet, EXITTING"
         exit 1
     fi
 fi
@@ -45,6 +44,7 @@ if [ ! -e ~/.ssh/id_rsa ]; then
     ssh-keygen -q -f ~/.ssh/id_rsa -N "" </dev/null
 fi
 
+# first (GUEST) testing machine 
 PREFIX=checkmachine7
 DISTRO=fedora-21
 virt-create $PREFIX $DISTRO
@@ -54,6 +54,7 @@ PASSWD=`vm_get_pass $TMP_NAME`
 vm_ssh $TMP_NAME bash -s < $SCRIPT_DIR/lib/guest-cockpit.sh
 GUEST1=$TMP_NAME
 
+# IPA server machine 
 PREFIX=ipa
 DISTRO=fedora-21
 virt-create $PREFIX $DISTRO
@@ -64,26 +65,25 @@ GUEST_IPA=$TMP_NAME
 echo "IPADOMAIN='cockpit.lan'" >> $ENV_VARIABLES
 echo "IPADOMAINIP='`vm_get_ip $GUEST_IPA`'" >> $ENV_VARIABLES
 
-#avocado -v || sudo bash -c "`avocado_git_install`"
 LOCAL_VERSION=`avocado -v 2>&1 |grep Avo`
-#vm_ssh $GUEST1 avocado -v || vm_ssh $GUEST1 "`avocado_git_install`"
 REMOTE_VERSION=`vm_ssh $GUEST1 "avocado -v " 2>&1 | grep Avo`
 if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ]; then
-    echo "avocado versions are not same on LOCAL and REMOTE $LOCAL_VERSION != $REMOTE_VERSION (SHOULD BE)"
+    echolog "avocado versions are not same on LOCAL and REMOTE $LOCAL_VERSION != $REMOTE_VERSION (SHOULD BE)"
     exit 11
 fi
 
 # workaound for slow snapshost creation (delete all existing snaps)
 vm_delete_snaps $GUEST1
 
+# copy test to proper location (it is workaround for avocado)
 AVOCADO_TEST_DIR=/tmp/avocado-test
 mkdir -p $AVOCADO_TEST_DIR
-/bin/cp -r $COCKPIT_DIR/$BASE/* $AVOCADO_TEST_DIR
+/bin/cp -Lr $COCKPIT_DIR/$BASE/* $AVOCADO_TEST_DIR
 vm_ssh $GUEST1 mkdir -p /root/avocado/tests/$AVOCADO_TEST_DIR /root/cockpit
 ( cd $COCKPIT_DIR; tar cf - . | vm_ssh $GUEST1 tar xf - --directory /root/cockpit; )
-vm_ssh $GUEST1 cp -r /root/cockpit/$BASE/\* /root/avocado/tests$AVOCADO_TEST_DIR
+vm_ssh $GUEST1 cp -Lr /root/cockpit/$BASE/\* /root/avocado/tests$AVOCADO_TEST_DIR
 
 AVOCADO_PARAMS="--vm-domain $GUEST1 --vm-username root --vm-password $PASSWD --vm-hostname $IP"
-avocado run $AVOCADO_PARAMS --xunit out1.xml $AVOCADO_TEST_DIR/{sources.sh,inittest.sh,compiletest.sh}
-avocado run $AVOCADO_PARAMS --xunit out2.xml --vm-clean $AVOCADO_TEST_DIR/{compiletest.sh,checklogin.py,checkrealms.py}
-#avocado run $AVOCADO_PARAMS --xunit out3.xml --vm-clean $AVOCADO_TEST_DIR/{compiletest.sh,checkrealmskrb.py}
+avocado run $AVOCADO_PARAMS --xunit out1.xml $AVOCADO_TEST_DIR/{inittest.sh,compiletest.sh}
+avocado run $AVOCADO_PARAMS --xunit out2.xml --vm-clean $AVOCADO_TEST_DIR/checklogin.py
+avocado run $AVOCADO_PARAMS --xunit out3.xml --vm-clean $AVOCADO_TEST_DIR/checkrealms.py

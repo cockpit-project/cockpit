@@ -28,8 +28,12 @@ unset command_not_found_handle
 HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip avocado virt-manager qemu-img"
 export HS_GRP="virtualization"
 HS_CON="-c qemu:///system"
-export HS_POOLNAME="cockpit"
+export HS_POOLNAME="cockpitx"
 export HS_POOLNAME_PATH=/home/$HS_POOLNAME
+
+function echolog(){
+    echo "INFO: `date '+%Y%m%d-%H:%M:%S'`: $@"
+}
 
 function host_dependencies_fedora(){
     sudo yum -y yum-plugin-copr
@@ -78,7 +82,7 @@ EOF
 EOF
     sudo virsh $HS_CON net-start $HS_PNAME
     sudo virsh $HS_CON net-autostart $HS_PNAME
-    echo "added network and storage pools"
+    echolog "added network and storage pools"
 }
 
 function host_virtlibpolicy_solver(){
@@ -106,7 +110,7 @@ HS_METHOD=$2
 function install_host(){
     HS_USER=$1
     if rpm -q $HS_BASE_PCKGS >& /dev/null; then
-        echo "All packages alread installed"
+        echolog "All packages alread installed"
     else
         if cat /etc/redhat-release | grep -sq "Red Hat"; then
             host_dependencies_rhel7
@@ -119,13 +123,13 @@ function install_host(){
             sudo systemctl enable libvirtd
             sleep 10
         else
-            echo "Now are supported only Fedora and Red Hat installation methods"
+            echolog "Now are supported only Fedora and Red Hat installation methods"
             exit 10
         fi
     fi
 
     if groups $HS_USER | grep -s $HS_GRP; then
-        echo "Virtualization enabled for user"
+        echolog "Virtualization enabled for user"
     else
         host_virtlibpolicy_solver
     fi
@@ -134,20 +138,20 @@ function install_host(){
 function check_host(){
     HS_USER=$1
     if rpm -q $HS_BASE_PCKGS >& /dev/null; then
-        echo "All packages alread installed"
+        echolog "All packages alread installed"
         if groups $HS_USER | grep -qs $HS_GRP; then
-            echo "Virtualization enabled for user"
+            echolog "Virtualization enabled for user"
             if virsh $HS_CON net-dumpxml $HS_POOLNAME |grep -q "domain name='cockpit.lan'"; then
-                echo "Network domain configured for qemu"
+                echolog "Network domain configured for qemu"
                 return 0
             else
-                echo "Network domain for virt machines is NOT configured"
+                echolog "Network domain for virt machines is NOT configured"
             fi
         else
-            echo "Virtualization NOT properly setup"
+            echolog "Virtualization NOT properly setup"
         fi
     else
-        echo "Packages are NOT installed correctly"
+        echolog "Packages are NOT installed correctly"
     fi
     return 1
 

@@ -37,13 +37,6 @@ yum -y -q install avocado;
 echo $CTM_PASSWORD | passwd --stdin $RCTM_USER
 "
 
-function usage(){
-print "USAGE:
-create_test_machine.sh prefix_name distro
-"
-exit 2
-}
-
 function write_out(){
     CTM_NAME=$1
     echo "
@@ -74,7 +67,7 @@ function virtinstall(){
     local CTM_DISTRO=$2
     local CTM_NAME=$CTM_PREFIX-$CTM_DISTRO-$CTM_ARCH
     local CTM_TMPF=`mktemp`
-    echo "virt-deploy create $CTM_PREFIX $CTM_DISTRO "
+    echolog "virt-deploy create $CTM_PREFIX $CTM_DISTRO "
 #    virt-deploy create $CTM_PREFIX $CTM_DISTRO 2>&1 | tee $CTM_TMPF
     virt-deploy-workaround $CTM_PREFIX $CTM_DISTRO 2>&1 | tee $CTM_TMPF
     sleep 2
@@ -101,12 +94,12 @@ function vm_wait_online(){
 function is_created(){
     local CTM_NAME=$1
     if virsh -c qemu:///system list | grep -q $CTM_NAME; then
-        echo "domain $CTM_NAME already exist and running "
+        echolog "domain $CTM_NAME already exist and running "
     elif virsh -c qemu:///system list --inactive| grep -q $CTM_NAME; then
-        echo "domain $CTM_NAME already exist and stopped "
+        echolog "domain $CTM_NAME already exist and stopped "
         virsh -c qemu:///system start $CTM_NAME
     else 
-        echo "domain $CTM_NAME does not exist"
+        echolog "domain $CTM_NAME does not exist"
         return 1
     fi   
 }
@@ -116,11 +109,11 @@ function setup_vm(){
     local CTM_HOST="$1"
     local CTM_PASSWD="$2"
     local CTM_IP=`vm_get_ip $CTM_HOST`
-    echo "$CTM_HOST: $CTM_IP"
+    echolog "$CTM_HOST: $CTM_IP"
     local CTM_CTM_LOGIN=$RCTM_USER
     vm_wait_online $CTM_HOST
     sleep 2
-    echo SSHPASS="$CTM_PASSWD" sshpass -e ssh-copy-id $CTM_SSHOPTS $CTM_CTM_LOGIN@$CTM_IP
+    echolog SSHPASS="$CTM_PASSWD" sshpass -e ssh-copy-id $CTM_SSHOPTS $CTM_CTM_LOGIN@$CTM_IP
     SSHPASS="$CTM_PASSWD" sshpass -e ssh-copy-id $CTM_SSHOPTS $CTM_CTM_LOGIN@$CTM_IP
     vm_ssh "$CTM_HOST" "$CTM_PREQ"
 }
@@ -160,11 +153,11 @@ function vm_ssh(){
 
 
 function virt-create(){
-    CTM_PREFIX=$1
-    CTM_DISTRO=$2
-    CTM_NAME=${CTM_PREFIX}-${CTM_DISTRO}-${CTM_ARCH}
-    CTM_VMDIRS=/var/lib/libvirt/images/
-    CTM_LOG=$CTM_VMDIRS/$CTM_NAME.log
+    local CTM_PREFIX=$1
+    local CTM_DISTRO=$2
+    local CTM_NAME=${CTM_PREFIX}-${CTM_DISTRO}-${CTM_ARCH}
+    local CTM_VMDIRS=/var/lib/libvirt/images/
+    local CTM_LOG=$CTM_VMDIRS/$CTM_NAME.log
     is_created $CTM_NAME || virtinstall $CTM_PREFIX $CTM_DISTRO 
     write_out $CTM_NAME
     #is_created $CTM_NAME|| treeinstall $CTM_PREFIX $CTM_DISTRO
@@ -175,7 +168,7 @@ function vm_delete_snaps(){
     for foo in `virsh -c qemu:///system snapshot-list $CTM_NAME --name`; do
         virsh -c qemu:///system snapshot-delete $CTM_NAME $foo
     done
-    echo All snaps deleted for: $CTM_NAME
+    echolog All snaps deleted for: $CTM_NAME
 }
 function vm_get_name(){
     CTM_PREFIX=$1

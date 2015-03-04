@@ -27,7 +27,7 @@ topdir = "/usr/share/avocado/tests"
 libdir = str(os.path.dirname(os.path.abspath(__file__)))+"/lib"
 sys.path.append(libdir)
 sys.path.append(topdir+"/lib")
-from testlib import *
+from testlib import Browser
 from libjournal import *
 
 try:
@@ -69,7 +69,7 @@ class checkrealms(test.Test):
 
         default_user = "admin"
         b=Browser("localhost", "x")
-        b.login_and_go("server",user=default_user,password="foobar")
+        b.login_and_go("server", user=default_user, password="foobar", href="/system/host")
         
         
         def wait_number_domains(n):

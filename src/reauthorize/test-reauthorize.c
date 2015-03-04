@@ -236,7 +236,7 @@ static void
 test_user (void *data)
 {
   ChallengeFixture *fix = data;
-  char *user;
+  char *user = NULL;
 
   if (fix->ret != 0)
     expect_message = "invalid reauthorize challenge";
@@ -245,8 +245,8 @@ test_user (void *data)
   if (fix->ret == 0)
     {
       assert_str_eq (user, fix->expected);
-      free (user);
     }
+  free (user);
 }
 
 typedef struct {

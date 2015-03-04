@@ -394,19 +394,19 @@ require([
                 if (component.path)
                     href += "/" + component.path;
             }
-            return $("<a>")
-                .attr("href", encodeURI(href))
-                .addClass("list-group-item")
+            return $("<li>")
                 .toggleClass("active", current === component.path)
-                .text(cockpit.gettext(component.label));
+                .append($("<a>")
+                    .attr("href", encodeURI(href))
+                    .text(cockpit.gettext(component.label)));
         }
 
         packages.lookup(machine, function(components) {
             packages.loaded = true;
             var menu = components.menu.map(links);
+            $("#sidebar-menu").empty().append(menu);
             var tools = components.tools.map(links);
-            var divider = $("<li class='divider'>");
-            sidebar.empty().append(menu).append(divider).append(tools);
+            $("#sidebar-tools").empty().append(tools);
 
             maybe_ready();
             sidebar.show();

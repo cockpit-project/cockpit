@@ -321,8 +321,6 @@ class Browser:
             self.phantom.show(file="%s-%s-%s.png" % (program_name, label or self.label, title))
 
 
-some_failed = False
-
 def jsquote(str):
     return json.dumps(str)
 
@@ -333,14 +331,15 @@ class Phantom:
             environ["LC_ALL"] = lang
         self.driver = subprocess.Popen([ "%s/phantom-driver"  % topdir], env=environ,
                                        stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+        self.frame = None
 
     def run(self, args):
         if arg_trace:
-            log.debug("-> " + str(args))
+            print "->", repr(args)[:200]
         self.driver.stdin.write(json.dumps(args).replace("\n", " ")+ "\n")
         res = json.loads(self.driver.stdout.readline())
         if arg_trace:
-            log.debug("<- "+ str(res))
+            print "<-", res
         if 'error' in res:
             raise Error(res['error'])
         if 'timeout' in res:
@@ -371,8 +370,8 @@ class Phantom:
     def switch_to_frame(self, name):
         return self.run({'cmd': 'switch', 'name': name})
 
-    def switch_to_parent_frame(self):
-        return self.run({'cmd': 'switch_parent'})
+    def switch_to_top(self):
+        return self.run({'cmd': 'switch_top'})
 
     def do(self, code):
         return self.run({'cmd': 'do', 'code': code})
@@ -383,7 +382,7 @@ class Phantom:
     def show(self, file="page.png"):
         if not self.run({'cmd': 'show', 'file': file}):
             raise "failed"
-        log.info(  "Wrote %s" % file )
+        print "Wrote %s" % file
 
     def keys(self, type, keys):
         self.run({'cmd': 'keys', 'type': type, 'keys': keys })
@@ -396,14 +395,13 @@ class Phantom:
         self.driver.terminate()
         self.driver.wait()
 
-
 class Error(Exception):
     def __init__(self, msg):
         self.msg = msg
     def __str__(self):
         return self.msg
 
-def wait(func, msg=None, delay=0.2, tries=20):
+def wait(func, msg=None, delay=1, tries=60):
     """
     Wait for FUNC to return something truthy, and return that.
 

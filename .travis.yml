@@ -10,6 +10,7 @@ language: c
 compiler:
   - gcc
   - clang
+cache: apt
 before_install:
   - sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ trusty main universe"
   - sudo apt-get update -qq

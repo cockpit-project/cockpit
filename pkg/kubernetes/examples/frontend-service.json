@@ -3,7 +3,7 @@
     "apiVersion": "v1beta3",
 
     "metadata": {
-        "name": "frontend",
+        "name": "frontend-ruby",
         "namespace": "default",
         "labels": {
             "template": "ruby-helloworld-sample"
@@ -13,7 +13,7 @@
         "port": 5432,
         "protocol": "TCP",
         "selector": {
-            "name": "frontend"
+            "name": "frontend-ruby"
         },
         "containerPort": 8080,
         "sessionAffinity": "None"

@@ -31,9 +31,6 @@ CTM_POOLNAME=$HS_POOLNAME
 
 CTM_PREQ="
 yum -y -q install tar bzip2 gzip unzip zip tar git yum-utils fontconfig pystache;
-yum -y -q install yum-plugin-copr;
-yum -y -q copr enable lmr/Autotest;
-yum -y -q install avocado;
 echo $CTM_PASSWORD | passwd --stdin $RCTM_USER
 "
 

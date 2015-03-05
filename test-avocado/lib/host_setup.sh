@@ -45,7 +45,7 @@ function host_dependencies_fedora(){
 function host_dependencies_rhel7(){
     sudo yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
     curl https://copr.fedoraproject.org/coprs/fsimonce/virt-deploy/repo/epel-7/fsimonce-virt-deploy-epel-7.repo > virt-deploy.repo
-    curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/fedora-21/lmr-Autotest-fedora-21.repo | sed -r -e 's/\$releasever/21/' -e 's/\$basearch/x86_64/' -e 's/gpgcheck=1/gpgcheck=0/' > avocado.repo
+    curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/epel-7/lmr-Autotest-epel-7.repo > avocado.repo
     sudo /bin/cp virt-deploy.repo avocado.repo /etc/yum.repos.d/
     sudo yum -y install $HS_BASE_PCKGS
 }

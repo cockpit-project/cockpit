@@ -28,6 +28,12 @@ LUSER=`whoami`
 ENV_VARIABLES=$COCKPIT_DIR/$BASE/lib/var.env
 rm -f $ENV_VARIABLES
 
+
+if [ -z "$GUESTOS" ]; then
+    GUESTOS=fedora-21
+fi
+echolo ">>> $GUESTOS testing <<<"
+
 if check_host $LUSER; then
     echolog "Host already configured"
 else
@@ -46,7 +52,7 @@ fi
 
 # first (GUEST) testing machine 
 PREFIX=checkmachine7
-DISTRO=fedora-21
+DISTRO=$GUESTOS
 virt-create $PREFIX $DISTRO
 TMP_NAME=`vm_get_name $PREFIX $DISTRO`
 IP=`vm_get_ip $TMP_NAME`

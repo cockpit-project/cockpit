@@ -188,6 +188,8 @@ define([
         var api = cockpit.http(8080);
         var watches = [ ];
 
+        self.resourceVersion = null;
+
         /*
          * Here we create KubernetesWatch object, and a property
          * definition for each type of object and hook them together.
@@ -208,12 +210,15 @@ define([
             }
 
             function updated(item) {
-                var key = item.metadata ? item.metadata.uid : null;
-                if (!key) {
+                var meta = item.metadata;
+                if (!meta || !meta.uid) {
                     console.warn("kubernetes item without uid");
                     return;
                 }
-                items[key] = item;
+                if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
+                    self.resourceVersion = meta.resourceVersion;
+
+                items[item.metadata.uid] = item;
                 trigger();
             }
 

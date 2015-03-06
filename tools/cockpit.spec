@@ -81,6 +81,9 @@ Requires: %{name}-shell = %{version}-%{release}
 %ifarch x86_64
 Requires: %{name}-docker = %{version}-%{release}
 %endif
+%if 0%{?rhel}
+Requires: %{name}-subscriptions = %{version}-%{release}
+%endif
 %if %{defined selinux}
 Requires: %{name}-selinux-policy = %{version}-%{release}
 %endif
@@ -145,7 +148,6 @@ BuildArch: noarch
 This package contains the Cockpit user interface integration with local
 subscription management.
 
->>>>>>> c23d4d0... Subscriptions: disable dependency on subscription-manager
 %package ws
 Summary: Cockpit Web Service
 Requires: glib-networking
@@ -238,6 +240,9 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
 %{_datadir}/%{name}/legacy
 %{_datadir}/%{name}/shell
 %{_datadir}/%{name}/system
+
+%files subscriptions
+%{_datadir}/%{name}/subscriptions
 
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz

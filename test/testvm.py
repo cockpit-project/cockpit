@@ -408,10 +408,6 @@ class QemuMachine(Machine):
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
-        # HACK: Tweak the repos until the mirrors are in good enough shape
-        repo = "[fedora]\nbaseurl=http://dl.fedoraproject.org/pub/fedora/linux/development/$releasever/$basearch/os/\nenabled=1\ngpgcheck=0"
-        gf.write("/etc/yum.repos.d/fedora.repo", repo)
-
     def unpack_base(self, modify_func=None):
         assert not self._process
 

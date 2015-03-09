@@ -437,10 +437,9 @@ require([
     "jquery",
     "base1/cockpit",
     "kubernetes/client",
-    "kubernetes/mock-basic"
-], function($, cockpit, kubernetes, mock_basic) {
-
-
+    "kubernetes/mock-basic",
+    "kubernetes/mock-large"
+], function($, cockpit, kubernetes, mock_basic, mock_large) {
     var cockpit_http = cockpit.http;
     cockpit.http = function(endpoint) {
         /* Our mock kubernetes apiserver */
@@ -626,6 +625,105 @@ require([
 
         /* No error should be thrown on immediate close*/
         client.close();
+    });
+
+    QUnit.module("large", {
+        setup: function() {
+            kube_data = $.extend(true, { }, mock_basic, mock_large);
+        }
+    });
+
+    function has_unique_uids(items) {
+        var i, seen = { };
+        for (i = 0; i < items.length; i++) {
+            if (seen[items[i].metadata.uid])
+                return false;
+            seen[items[i].metadata.uid] = items[i];
+        }
+        return true;
+    }
+
+    asyncTest("select", function() {
+        var client = kubernetes.k8client();
+        $(client).on("pods", function(ev) {
+
+            /* Select everything odd, 500 pods */
+            var results = client.select({ "type": "odd" });
+            equal(results.length, 500, "correct amount");
+            ok(has_unique_uids(results), "unique objects");
+
+            /* The same ones selected even when a second (present) label */
+            results = client.select({ "type": "odd", "tag": "silly"  });
+            equal(results.length, 500, "with additional label");
+            ok(has_unique_uids(results), "unique objects with additional label");
+
+            /* Nothing selected when additional invalid field */
+            results = client.select({ "type": "odd", "tag": "billy"  });
+            equal(results.length, 0, "no objects");
+
+            /* Limit by kind */
+            var results = client.select({ "type": "odd" }, "Pod");
+            equal(results.length, 500, "by kind");
+            ok(has_unique_uids(results), "unique objects by kind");
+
+            /* Limit by invalid kind */
+            var results = client.select({ "type": "odd" }, "Ood");
+            equal(results.length, 0, "nothing for invalid kind");
+
+            /* Everything selected when no selector */
+            results = client.select(null);
+            equal(results.length, 1007, "all objects");
+
+            /* Everything selected when no selector */
+            results = client.select(null, "Pod");
+            equal(results.length, 1002, "all pods");
+
+            /* Nothing selected when empty selector */
+            results = client.select({ });
+            equal(results.length, 0, "no objects");
+
+            $(client).off("pods");
+            client.close();
+            start();
+        });
+    });
+
+    asyncTest("infer", function() {
+        var client = kubernetes.k8client();
+        $(client).on("pods", function(ev) {
+
+            /* Start simple, exactly the labels selector matches */
+            var results = client.infer({ "tag": "silly", "type": "odd" });
+            equal(results.length, 1, "selected replication controller");
+            equal(results[0].metadata.name, "oddcontroller", "got oddcontroller");
+
+            /* Now with extra labels, as you'd usually see it */
+            results = client.infer({ "tag": "silly", "type": "odd", "another": "value" });
+            equal(results.length, 1, "selected controller with extra labels");
+            equal(results[0].metadata.name, "oddcontroller", "got oddcontroller with extra labels");
+
+            /* Make two replication controllers match */
+            results = client.infer({ "tag": "silly", "type": "odd", "another": "value", "factor3": "yes" });
+            equal(results.length, 2, "two replication controllers");
+            equal(results[0].metadata.name, "oddcontroller", "got oddcontroller in set");
+            equal(results[1].metadata.name, "3controller", "got 3controller in set");
+
+            /* Everything inferred when no labels */
+            results = client.infer(null);
+            equal(results.length, 4, "all objects with selectors");
+
+            /* Everything inferred when no labels */
+            results = client.infer(null, "ReplicationController");
+            equal(results.length, 2, "all replication controllers with selectors");
+
+            /* Nothing inferred when empty label */
+            results = client.infer({ });
+            equal(results.length, 0, "no objects");
+
+            $(client).off("pods");
+            client.close();
+            start();
+        });
     });
 
     QUnit.start();

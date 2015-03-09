@@ -21,4 +21,5 @@ EXTRA_DIST += \
 	$(kubernetes_DATA) \
 	$(kubernetes_TESTS) \
 	pkg/kubernetes/mock-basic.js \
+	pkg/kubernetes/mock-large.js \
 	$(NULL)

@@ -457,8 +457,10 @@ require([
     };
 
     /* A fresh set of kube_data for each test */
-    QUnit.testStart(function() {
-        kube_data = $.extend(true, { }, mock_basic);
+    QUnit.module("basic", {
+        setup: function() {
+            kube_data = $.extend(true, { }, mock_basic);
+        }
     });
 
     asyncTest("list nodes", function() {

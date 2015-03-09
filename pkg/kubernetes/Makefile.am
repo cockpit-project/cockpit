@@ -20,4 +20,5 @@ CLEANFILES += \
 EXTRA_DIST += \
 	$(kubernetes_DATA) \
 	$(kubernetes_TESTS) \
+	pkg/kubernetes/mock-basic.js \
 	$(NULL)

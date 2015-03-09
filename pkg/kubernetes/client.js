@@ -38,6 +38,61 @@ define([
         console.warn(ex);
     }
 
+    function hash(str) {
+        var h, i, chr, len;
+        if (str.length === 0)
+            return 0;
+        for (h = 0, i = 0, len = str.length; i < len; i++) {
+            chr = str.charCodeAt(i);
+            h = ((h << 5) - h) + chr;
+            h |= 0; // Convert to 32bit integer
+        }
+        return Math.abs(h);
+    }
+
+    /**
+     * HashIndex
+     * @size: the number of slots for hashing into
+     *
+     * A probablisting hash index, where items are added with
+     * various keys, and probable matches are returned. Similar
+     * to bloom filters, false positives are possible, but never
+     * false negatives.
+     */
+    function HashIndex(size) {
+        var self = this;
+        var array = [];
+
+        self.add = function add(keys, value) {
+            var i, j, p, length = keys.length;
+            for (j = 0; j < length; j++) {
+                i = hash("" + keys[j]) % size;
+                p = array[i];
+                if (p === undefined)
+                    p = array[i] = [];
+                p.push(value);
+            }
+        };
+
+        self.select = function select(keys) {
+            var i, j, interim = [], length = keys.length;
+            for (j = 0; j < length; j++) {
+                i = hash("" + keys[j]) % size;
+                interim.push.apply(interim, array[i] || []);
+            }
+
+            /* Filter unique out */
+            var result = [];
+            interim.sort();
+            length = interim.length;
+            for (j = 0; j < length; j++) {
+                if (interim[j - 1] !== interim[j])
+                    result.push(interim[j]);
+            }
+            return result;
+        };
+    }
+
     /*
      * KubernetesWatch:
      * @api: a cockpit.http() object for the api server
@@ -182,11 +237,23 @@ define([
         };
     }
 
+    /**
+     * KubernetesClient
+     *
+     * Properties:
+     *  * objects: a dict of all the loaded kubernetes objects,
+     *             with the 'uid' as the key
+     *  * resourceVersion: latest resourceVersion seen
+     */
     function KubernetesClient() {
         var self = this;
 
         var api = cockpit.http(8080);
         var watches = [ ];
+        self.objects = { };
+
+        /* TODO: Derive this value from cluster size */
+        var index = new HashIndex(262139);
 
         self.resourceVersion = null;
 
@@ -219,15 +286,35 @@ define([
                 if (meta.resourceVersion && meta.resourceVersion > self.resourceVersion)
                     self.resourceVersion = meta.resourceVersion;
 
-                items[item.metadata.uid] = item;
+                items[meta.uid] = item;
+                self.objects[meta.uid] = item;
+
+                /* Add various bits to index, for quick lookup */
+                var i, keys, length;
+                if (meta.labels) {
+                    keys = [];
+                    for (i in meta.labels)
+                        keys.push(i + meta.labels[i]);
+                    index.add(keys, meta.uid);
+                }
+                var spec = item.spec;
+                if (spec && spec.selector) {
+                    keys = [];
+                    for (i in spec.selector)
+                        keys.push(i + spec.selector[i]);
+                    index.add(keys, meta.uid);
+                }
+
                 trigger();
             }
 
             function removed(item) {
                 var key;
                 if (!item) {
-                    for (key in items)
+                    for (key in items) {
                         delete items[key];
+                        delete self.objects[key];
+                    }
                 } else {
                     key = item.metadata ? item.metadata.uid : null;
                     if (!key) {
@@ -235,6 +322,7 @@ define([
                         return;
                     }
                     delete items[key];
+                    delete self.objects[key];
                 }
                 trigger();
             }
@@ -258,12 +346,102 @@ define([
             watches.push(wc);
         }
 
-        /* Define and bind various properties which are arrays of objects */
+        /*
+         * Define and bind various properties which are arrays of objects
+         *
+         * TODO: Decide whether we need these as exposed properties, or
+         * whether callers can just use the .select() method.
+         */
 
         bind("nodes");
         bind("pods");
         bind("services");
         bind("replicationcontrollers");
+
+        /**
+         * client.select()
+         * @selector: plain javascript object, JSON label selector
+         * @type: optional kind string (eg: 'Pod')
+         *
+         * Select objects that match the given labels.
+         *
+         * Returns: an array of objects
+         */
+        this.select = function select(selector, kind) {
+            var i, keys;
+            var possible, match, results = [];
+            if (selector) {
+                keys = [];
+                for (i in selector)
+                    keys.push(i + selector[i]);
+                possible = index.select(keys);
+            } else {
+                possible = Object.keys(self.objects);
+            }
+            var obj, uid, j, length = possible.length;
+            for (j = 0; j < length; j++) {
+                uid = possible[j];
+                obj = self.objects[uid];
+                if (!obj || !obj.metadata)
+                    continue;
+                if (selector && !obj.metadata.labels)
+                    continue;
+                if (kind && obj.kind !== kind)
+                    continue;
+                match = true;
+                for (i in selector) {
+                    if (obj.metadata.labels[i] !== selector[i]) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match)
+                    results.push(obj);
+            }
+            return results;
+        };
+
+        /**
+         * client.infer()
+         * @labels: plain javascript object, JSON labels
+         * @kind: optional kind string
+         *
+         * Infer which objects that have selectors would have
+         * matched the given labels.
+         */
+        this.infer = function infer(labels, kind) {
+            var i, keys;
+            var possible, match, results = [];
+            if (labels) {
+                keys = [];
+                for (i in labels)
+                    keys.push(i + labels[i]);
+                possible = index.select(keys);
+            } else {
+                possible = Object.keys(self.objects);
+            }
+            var obj, uid, j, length = possible.length;
+            for (j = 0; j < length; j++) {
+                uid = possible[j];
+                obj = self.objects[uid];
+                if (!obj || !obj.spec || !obj.spec.selector)
+                    continue;
+                if (kind && obj.kind !== kind)
+                    continue;
+                match = true;
+                if (labels) {
+                    for (i in obj.spec.selector) {
+                        if (labels[i] !== obj.spec.selector[i]) {
+                            match = false;
+                            break;
+                        }
+                    }
+                }
+                if (match)
+                    results.push(obj);
+            }
+            return results;
+        };
 
         this.delete_pod = function delete_pod(pod_name) {
             api.request({"method": "DELETE",

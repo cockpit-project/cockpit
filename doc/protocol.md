@@ -586,7 +586,7 @@ might have the following additional fields:
 
  * "message": A string in the current locale describing the error.
 
-Payload: fsdir1
+Payload: fslist1
 ---------------
 
 A channel of this type lists the files in a directory and will watch
@@ -644,10 +644,10 @@ fields:
  * "tag": The transaction tag for the returned file content.  The tag
    for a non-existing file is "-".
 
-It is not permitted to send data in an fsdir1 channel. This channel
-sends an "done" when all file data was sent.
+It is not permitted to send data in an fslist1 channel. This channel
+sends a "done" when all file data was sent.
 
-Payload: fswrite1
+Payload: fsreplace1
 -----------------
 
 Replace the content of a file.
@@ -662,7 +662,7 @@ The following options can be specified in the "open" control message:
    express that you expect the file to not exist, use "-" as the tag.
 
 You should write the new content to the channel as one or more
-messages.  To indicate the end of the content, send an "done" message.
+messages.  To indicate the end of the content, send a "done" message.
 
 If you don't send any content messages before sending "done", the file
 will be removed.  To create an empty file, send at least one content

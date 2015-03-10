@@ -22,10 +22,10 @@
 #include "cockpitdbusinternal.h"
 #include "cockpitdbusjson.h"
 #include "cockpitechochannel.h"
-#include "cockpitfsdir.h"
+#include "cockpitfslist.h"
 #include "cockpitfsread.h"
 #include "cockpitfswatch.h"
-#include "cockpitfswrite.h"
+#include "cockpitfsreplace.h"
 #include "cockpithttpstream.h"
 #include "cockpitinteracttransport.h"
 #include "cockpitnullchannel.h"
@@ -124,12 +124,12 @@ process_open (CockpitTransport *transport,
         channel_type = COCKPIT_TYPE_STREAM;
       else if (g_strcmp0 (payload, "fsread1") == 0)
         channel_type = COCKPIT_TYPE_FSREAD;
-      else if (g_strcmp0 (payload, "fswrite1") == 0)
-        channel_type = COCKPIT_TYPE_FSWRITE;
+      else if (g_strcmp0 (payload, "fsreplace1") == 0)
+        channel_type = COCKPIT_TYPE_FSREPLACE;
       else if (g_strcmp0 (payload, "fswatch1") == 0)
         channel_type = COCKPIT_TYPE_FSWATCH;
-      else if (g_strcmp0 (payload, "fsdir1") == 0)
-        channel_type = COCKPIT_TYPE_FSDIR;
+      else if (g_strcmp0 (payload, "fslist1") == 0)
+        channel_type = COCKPIT_TYPE_FSLIST;
       else if (g_strcmp0 (payload, "null") == 0)
         channel_type = COCKPIT_TYPE_NULL_CHANNEL;
       else if (g_strcmp0 (payload, "echo") == 0)

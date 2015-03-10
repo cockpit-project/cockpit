@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpitfsdir.h"
+#include "cockpitfslist.h"
 #include "cockpitfswatch.h"
 
 #include "common/cockpitjson.h"
@@ -32,14 +32,14 @@
 #include <string.h>
 
 /**
- * CockpitFsdir:
+ * CockpitFslist:
  *
  * A #CockpitChannel that lists and optionally watches a directory.
  *
- * The payload type for this channel is 'fsdir1'.
+ * The payload type for this channel is 'fslist1'.
  */
 
-#define COCKPIT_FSDIR(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_FSDIR, CockpitFsdir))
+#define COCKPIT_FSLIST(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_FSLIST, CockpitFslist))
 
 typedef struct {
   CockpitChannel parent;
@@ -47,24 +47,24 @@ typedef struct {
   GFileMonitor *monitor;
   guint sig_changed;
   GCancellable *cancellable;
-} CockpitFsdir;
+} CockpitFslist;
 
 typedef struct {
   CockpitChannelClass parent_class;
-} CockpitFsdirClass;
+} CockpitFslistClass;
 
-G_DEFINE_TYPE (CockpitFsdir, cockpit_fsdir, COCKPIT_TYPE_CHANNEL);
+G_DEFINE_TYPE (CockpitFslist, cockpit_fslist, COCKPIT_TYPE_CHANNEL);
 
 static void
-cockpit_fsdir_recv (CockpitChannel *channel,
+cockpit_fslist_recv (CockpitChannel *channel,
                     GBytes *message)
 {
-  g_warning ("received unexpected message in fsdir channel");
+  g_warning ("received unexpected message in fslist1 channel");
   cockpit_channel_close (channel, "protocol-error");
 }
 
 static void
-cockpit_fsdir_init (CockpitFsdir *self)
+cockpit_fslist_init (CockpitFslist *self)
 {
 }
 
@@ -95,8 +95,8 @@ on_files_listed (GObject *source_object,
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         {
-          CockpitFsdir *self = COCKPIT_FSDIR (user_data);
-          g_message ("%s: couldn't process files %s", COCKPIT_FSDIR(user_data)->path, error->message);
+          CockpitFslist *self = COCKPIT_FSLIST (user_data);
+          g_message ("%s: couldn't process files %s", COCKPIT_FSLIST(user_data)->path, error->message);
           options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
           json_object_set_string_member (options, "message", error->message);
           cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
@@ -105,7 +105,7 @@ on_files_listed (GObject *source_object,
       return;
     }
 
-  CockpitFsdir *self = COCKPIT_FSDIR (user_data);
+  CockpitFslist *self = COCKPIT_FSLIST (user_data);
 
   if (files == NULL)
     {
@@ -172,7 +172,7 @@ on_enumerator_ready (GObject *source_object,
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         {
-          CockpitFsdir *self = COCKPIT_FSDIR (user_data);
+          CockpitFslist *self = COCKPIT_FSLIST (user_data);
           g_message ("%s: couldn't list directory: %s", self->path, error->message);
           options = cockpit_channel_close_options (COCKPIT_CHANNEL (self));
           json_object_set_string_member (options, "message", error->message);
@@ -182,7 +182,7 @@ on_enumerator_ready (GObject *source_object,
       return;
     }
 
-  CockpitFsdir *self = COCKPIT_FSDIR (user_data);
+  CockpitFslist *self = COCKPIT_FSLIST (user_data);
 
   g_file_enumerator_next_files_async (enumerator,
                                       10,
@@ -199,37 +199,37 @@ on_changed (GFileMonitor      *monitor,
             GFileMonitorEvent  event_type,
             gpointer           user_data)
 {
-  CockpitFsdir *self = COCKPIT_FSDIR(user_data);
+  CockpitFslist *self = COCKPIT_FSLIST(user_data);
   cockpit_fswatch_emit_event (COCKPIT_CHANNEL(self), file, other_file, event_type);
 }
 
 static void
-cockpit_fsdir_prepare (CockpitChannel *channel)
+cockpit_fslist_prepare (CockpitChannel *channel)
 {
-  CockpitFsdir *self = COCKPIT_FSDIR (channel);
+  CockpitFslist *self = COCKPIT_FSLIST (channel);
   const gchar *problem = "protocol-error";
   JsonObject *options;
   GError *error = NULL;
   GFile *file = NULL;
   gboolean watch;
 
-  COCKPIT_CHANNEL_CLASS (cockpit_fsdir_parent_class)->prepare (channel);
+  COCKPIT_CHANNEL_CLASS (cockpit_fslist_parent_class)->prepare (channel);
 
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "path", NULL, &self->path))
     {
-      g_warning ("invalid \"path\" option for fsdir channel");
+      g_warning ("invalid \"path\" option for fslist1 channel");
       goto out;
     }
   if (self->path == NULL || *(self->path) == 0)
     {
-      g_warning ("missing \"path\" option for fsdir channel");
+      g_warning ("missing \"path\" option for fslist1 channel");
       goto out;
     }
 
   if (!cockpit_json_get_bool (options, "watch", TRUE, &watch))
     {
-      g_warning ("invalid \"watch\" option for fsdir channel");
+      g_warning ("invalid \"watch\" option for fslist1 channel");
       goto out;
     }
 
@@ -271,9 +271,9 @@ out:
 }
 
 static void
-cockpit_fsdir_dispose (GObject *object)
+cockpit_fslist_dispose (GObject *object)
 {
-  CockpitFsdir *self = COCKPIT_FSDIR (object);
+  CockpitFslist *self = COCKPIT_FSLIST (object);
 
   if (self->cancellable)
     g_cancellable_cancel (self->cancellable);
@@ -302,47 +302,47 @@ cockpit_fsdir_dispose (GObject *object)
         }
     }
 
-  G_OBJECT_CLASS (cockpit_fsdir_parent_class)->dispose (object);
+  G_OBJECT_CLASS (cockpit_fslist_parent_class)->dispose (object);
 }
 
 static void
-cockpit_fsdir_finalize (GObject *object)
+cockpit_fslist_finalize (GObject *object)
 {
-  CockpitFsdir *self = COCKPIT_FSDIR (object);
+  CockpitFslist *self = COCKPIT_FSLIST (object);
 
   g_clear_object (&self->cancellable);
   g_clear_object (&self->monitor);
 
-  G_OBJECT_CLASS (cockpit_fsdir_parent_class)->finalize (object);
+  G_OBJECT_CLASS (cockpit_fslist_parent_class)->finalize (object);
 }
 
 static void
-cockpit_fsdir_class_init (CockpitFsdirClass *klass)
+cockpit_fslist_class_init (CockpitFslistClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->dispose = cockpit_fsdir_dispose;
-  gobject_class->finalize = cockpit_fsdir_finalize;
+  gobject_class->dispose = cockpit_fslist_dispose;
+  gobject_class->finalize = cockpit_fslist_finalize;
 
-  channel_class->prepare = cockpit_fsdir_prepare;
-  channel_class->recv = cockpit_fsdir_recv;
+  channel_class->prepare = cockpit_fslist_prepare;
+  channel_class->recv = cockpit_fslist_recv;
 }
 
 /**
- * cockpit_fsdir_open:
+ * cockpit_fslist_open:
  * @transport: the transport to send/receive messages on
  * @channel_id: the channel id
  * @path: the path name of the file to read
  * @watch: boolean, watch the directoy as well?
  *
  * This function is mainly used by tests. The usual way
- * to get a #CockpitFsdir is via cockpit_channel_open()
+ * to get a #CockpitFslist is via cockpit_channel_open()
  *
  * Returns: (transfer full): the new channel
  */
 CockpitChannel *
-cockpit_fsdir_open (CockpitTransport *transport,
+cockpit_fslist_open (CockpitTransport *transport,
                     const gchar *channel_id,
                     const gchar *path,
                     const gboolean watch)
@@ -354,10 +354,10 @@ cockpit_fsdir_open (CockpitTransport *transport,
 
   options = json_object_new ();
   json_object_set_string_member (options, "path", path);
-  json_object_set_string_member (options, "payload", "fsdir1");
+  json_object_set_string_member (options, "payload", "fslist1");
   json_object_set_boolean_member (options, "watch", watch);
 
-  channel = g_object_new (COCKPIT_TYPE_FSDIR,
+  channel = g_object_new (COCKPIT_TYPE_FSLIST,
                           "transport", transport,
                           "id", channel_id,
                           "options", options,

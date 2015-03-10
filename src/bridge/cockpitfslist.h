@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_FSWRITE_H__
-#define COCKPIT_FSWRITE_H__
+#ifndef COCKPIT_FSLIST_H__
+#define COCKPIT_FSLIST_H__
 
 #include <gio/gio.h>
 
@@ -26,13 +26,13 @@
 
 G_BEGIN_DECLS
 
-#define COCKPIT_TYPE_FSWRITE         (cockpit_fswrite_get_type ())
+#define COCKPIT_TYPE_FSLIST         (cockpit_fslist_get_type ())
 
-GType              cockpit_fswrite_get_type     (void) G_GNUC_CONST;
+GType              cockpit_fslist_get_type     (void) G_GNUC_CONST;
 
-CockpitChannel *   cockpit_fswrite_open         (CockpitTransport *transport,
-                                                 const gchar *channel_id,
-                                                 const gchar *path,
-                                                 const gchar *tag);
+CockpitChannel *   cockpit_fslist_open         (CockpitTransport *transport,
+                                               const gchar *channel_id,
+                                               const gchar *path,
+                                               const gboolean watch);
 
-#endif /* COCKPIT_FSWRITE_H__ */
+#endif /* COCKPIT_FSLIST_H__ */

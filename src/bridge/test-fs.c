@@ -20,9 +20,9 @@
 #include "config.h"
 
 #include "cockpitfsread.h"
-#include "cockpitfswrite.h"
+#include "cockpitfsreplace.h"
 #include "cockpitfswatch.h"
-#include "cockpitfsdir.h"
+#include "cockpitfslist.h"
 #include "mock-transport.h"
 
 #include "common/cockpittest.h"
@@ -95,11 +95,11 @@ setup_fsread_channel (TestCase *tc,
 }
 
 static void
-setup_fswrite_channel (TestCase *tc,
+setup_fsreplace_channel (TestCase *tc,
                        const gchar *path,
                        const gchar *tag)
 {
-  tc->channel = cockpit_fswrite_open (COCKPIT_TRANSPORT (tc->transport), "1234", path, tag);
+  tc->channel = cockpit_fsreplace_open (COCKPIT_TRANSPORT (tc->transport), "1234", path, tag);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
   cockpit_channel_prepare (tc->channel);
@@ -116,11 +116,11 @@ setup_fswatch_channel (TestCase *tc,
 }
 
 static void
-setup_fsdir_channel (TestCase *tc,
+setup_fslist_channel (TestCase *tc,
                      const gchar *path,
                      const gboolean watch)
 {
-  tc->channel = cockpit_fsdir_open (COCKPIT_TRANSPORT (tc->transport), "1234", path, watch);
+  tc->channel = cockpit_fslist_open (COCKPIT_TRANSPORT (tc->transport), "1234", path, watch);
   tc->channel_closed = FALSE;
   g_signal_connect (tc->channel, "closed", G_CALLBACK (on_channel_close), tc);
 }
@@ -414,7 +414,7 @@ test_write_simple (TestCase *tc,
   gchar *tag;
   JsonObject *control;
 
-  setup_fswrite_channel (tc, tc->test_path, NULL);
+  setup_fsreplace_channel (tc, tc->test_path, NULL);
   send_string (tc, "Hello!");
   send_done (tc);
   close_channel (tc, NULL);
@@ -437,7 +437,7 @@ test_write_multiple (TestCase *tc,
   gchar *tag;
   JsonObject *control;
 
-  setup_fswrite_channel (tc, tc->test_path, NULL);
+  setup_fsreplace_channel (tc, tc->test_path, NULL);
   send_string (tc, "Hel");
   send_string (tc, "lo!");
   send_done (tc);
@@ -463,7 +463,7 @@ test_write_remove (TestCase *tc,
 
   set_contents (tc->test_path, "Goodbye!");
   tag = cockpit_get_file_tag (tc->test_path);
-  setup_fswrite_channel (tc, tc->test_path, tag);
+  setup_fsreplace_channel (tc, tc->test_path, tag);
   send_done (tc);
   close_channel (tc, NULL);
   g_free (tag);
@@ -485,7 +485,7 @@ test_write_remove_nonexistent (TestCase *tc,
 
   g_assert (g_file_test (tc->test_path, G_FILE_TEST_EXISTS) == FALSE);
 
-  setup_fswrite_channel (tc, tc->test_path, "-");
+  setup_fsreplace_channel (tc, tc->test_path, "-");
   send_done (tc);
   close_channel (tc, NULL);
 
@@ -507,7 +507,7 @@ test_write_empty (TestCase *tc,
 
   set_contents (tc->test_path, "Goodbye!");
   tag = cockpit_get_file_tag (tc->test_path);
-  setup_fswrite_channel (tc, tc->test_path, tag);
+  setup_fsreplace_channel (tc, tc->test_path, tag);
   send_string (tc, "");
   send_done (tc);
   close_channel (tc, NULL);
@@ -538,7 +538,7 @@ test_write_denied (TestCase *tc,
 
   g_assert (chmod (tc->test_dir, 0) >= 0);
 
-  setup_fswrite_channel (tc, tc->test_path, NULL);
+  setup_fsreplace_channel (tc, tc->test_path, NULL);
   send_string (tc, "Hello!");
   send_done (tc);
   wait_channel_closed (tc);
@@ -556,7 +556,7 @@ test_write_expect_non_existent (TestCase *tc,
   gchar *tag;
   JsonObject *control;
 
-  setup_fswrite_channel (tc, tc->test_path, "-");
+  setup_fsreplace_channel (tc, tc->test_path, "-");
   send_string (tc, "Hello!");
   send_done (tc);
   close_channel (tc, NULL);
@@ -580,7 +580,7 @@ test_write_expect_non_existent_fail (TestCase *tc,
 
   set_contents (tc->test_path, "Goodbye!");
 
-  setup_fswrite_channel (tc, tc->test_path, "-");
+  setup_fsreplace_channel (tc, tc->test_path, "-");
   send_string (tc, "Hello!");
   send_done (tc);
   close_channel (tc, NULL);
@@ -602,7 +602,7 @@ test_write_expect_tag (TestCase *tc,
 
   set_contents (tc->test_path, "Goodbye!");
   tag = cockpit_get_file_tag (tc->test_path);
-  setup_fswrite_channel (tc, tc->test_path, tag);
+  setup_fsreplace_channel (tc, tc->test_path, tag);
   send_string (tc, "Hello!");
   send_done (tc);
   close_channel (tc, NULL);
@@ -628,7 +628,7 @@ test_write_expect_tag_fail (TestCase *tc,
 
   set_contents (tc->test_path, "Goodbye!");
   tag = cockpit_get_file_tag (tc->test_path);
-  setup_fswrite_channel (tc, tc->test_path, tag);
+  setup_fsreplace_channel (tc, tc->test_path, tag);
   send_string (tc, "Hello!");
   set_contents (tc->test_path, "Tschüss!");
   send_done (tc);
@@ -734,7 +734,7 @@ test_dir_simple (TestCase *tc,
 
   set_contents (tc->test_path, "Hello!");
 
-  setup_fsdir_channel (tc, tc->test_dir, TRUE);
+  setup_fslist_channel (tc, tc->test_dir, TRUE);
 
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
@@ -764,7 +764,7 @@ test_dir_simple_no_watch (TestCase *tc,
 
   set_contents (tc->test_path, "Hello!");
 
-  setup_fsdir_channel (tc, tc->test_dir, FALSE);
+  setup_fslist_channel (tc, tc->test_dir, FALSE);
 
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present");
@@ -793,7 +793,7 @@ test_dir_early_close (TestCase *tc,
 
   set_contents (tc->test_path, "Hello!");
 
-  setup_fsdir_channel (tc, tc->test_dir, TRUE);
+  setup_fslist_channel (tc, tc->test_dir, TRUE);
   close_channel (tc, NULL);
 
   wait_channel_closed (tc);
@@ -808,7 +808,7 @@ test_dir_watch (TestCase *tc,
 {
   JsonObject *event, *control;
 
-  setup_fsdir_channel (tc, tc->test_dir, TRUE);
+  setup_fslist_channel (tc, tc->test_dir, TRUE);
 
   event = recv_json (tc);
   g_assert_cmpstr (json_object_get_string_member (event, "event"), ==, "present-done");
@@ -882,7 +882,7 @@ test_dir_list_fail (TestCase *tc,
                       gconstpointer unused)
 {
   JsonObject *control;
-  setup_fsdir_channel (tc, tc->test_path, FALSE);
+  setup_fslist_channel (tc, tc->test_path, FALSE);
 
   // Channel should close automatically
   wait_channel_closed (tc);
@@ -911,25 +911,25 @@ main (int argc,
   g_test_add ("/fsread/removed", TestCase, NULL,
               setup, test_read_removed, teardown);
 
-  g_test_add ("/fswrite/simple", TestCase, NULL,
+  g_test_add ("/fsreplace/simple", TestCase, NULL,
               setup, test_write_simple, teardown);
-  g_test_add ("/fswrite/multiple", TestCase, NULL,
+  g_test_add ("/fsreplace/multiple", TestCase, NULL,
               setup, test_write_multiple, teardown);
-  g_test_add ("/fswrite/remove", TestCase, NULL,
+  g_test_add ("/fsreplace/remove", TestCase, NULL,
               setup, test_write_remove, teardown);
-  g_test_add ("/fswrite/remove-nonexistent", TestCase, NULL,
+  g_test_add ("/fsreplace/remove-nonexistent", TestCase, NULL,
               setup, test_write_remove_nonexistent, teardown);
-  g_test_add ("/fswrite/empty", TestCase, NULL,
+  g_test_add ("/fsreplace/empty", TestCase, NULL,
               setup, test_write_empty, teardown);
-  g_test_add ("/fswrite/denied", TestCase, NULL,
+  g_test_add ("/fsreplace/denied", TestCase, NULL,
               setup, test_write_denied, teardown);
-  g_test_add ("/fswrite/expect-non-existent", TestCase, NULL,
+  g_test_add ("/fsreplace/expect-non-existent", TestCase, NULL,
               setup, test_write_expect_non_existent, teardown);
-  g_test_add ("/fswrite/expect-non-existent-fail", TestCase, NULL,
+  g_test_add ("/fsreplace/expect-non-existent-fail", TestCase, NULL,
               setup, test_write_expect_non_existent_fail, teardown);
-  g_test_add ("/fswrite/expect-tag", TestCase, NULL,
+  g_test_add ("/fsreplace/expect-tag", TestCase, NULL,
               setup, test_write_expect_tag, teardown);
-  g_test_add ("/fswrite/expect-tag-fail", TestCase, NULL,
+  g_test_add ("/fsreplace/expect-tag-fail", TestCase, NULL,
               setup, test_write_expect_tag_fail, teardown);
 
   g_test_add ("/fswatch/simple", TestCase, NULL,
@@ -939,15 +939,15 @@ main (int argc,
   g_test_add ("/fswatch/directory", TestCase, NULL,
               setup, test_watch_directory, teardown);
 
-  g_test_add ("/fsdir/simple", TestCase, NULL,
+  g_test_add ("/fslist/simple", TestCase, NULL,
               setup, test_dir_simple, teardown);
-  g_test_add ("/fsdir/simple_no_watch", TestCase, NULL,
+  g_test_add ("/fslist/simple_no_watch", TestCase, NULL,
               setup, test_dir_simple_no_watch, teardown);
-  g_test_add ("/fsdir/early-close", TestCase, NULL,
+  g_test_add ("/fslist/early-close", TestCase, NULL,
               setup, test_dir_early_close, teardown);
-  g_test_add ("/fsdir/watch", TestCase, NULL,
+  g_test_add ("/fslist/watch", TestCase, NULL,
               setup, test_dir_watch, teardown);
-  g_test_add ("/fsdir/list_fail", TestCase, NULL,
+  g_test_add ("/fslist/list_fail", TestCase, NULL,
               setup, test_dir_list_fail, teardown);
 
   return g_test_run ();

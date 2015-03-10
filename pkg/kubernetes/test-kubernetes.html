@@ -726,6 +726,21 @@ require([
         });
     });
 
+    asyncTest("hosting", function() {
+        var client = kubernetes.k8client();
+        $(client).on("pods", function(ev) {
+
+            /* Find out which pods this node is hosting */
+            var results = client.hosting("127.0.0.1");
+            equal(results.length, 1, "selected hosted pods");
+            equal(results[0].metadata.name, "wordpress", "got wordpress pod");
+
+            $(client).off("pods");
+            client.close();
+            start();
+        });
+    });
+
     QUnit.start();
 });
 </script>

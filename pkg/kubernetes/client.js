@@ -305,6 +305,11 @@ define([
                     index.add(keys, meta.uid);
                 }
 
+                /* Index the host for quick lookup */
+                var status = item.status;
+                if (status && status.host)
+                    index.add([ status.host ], meta.uid);
+
                 trigger();
             }
 
@@ -438,6 +443,28 @@ define([
                     }
                 }
                 if (match)
+                    results.push(obj);
+            }
+            return results;
+        };
+
+        /**
+         * client.hosting()
+         * @host: the node host name, required
+         *
+         * Find out which objects are being hosted at the given node. These
+         * have a obj.status.host property equal to the @host name passed into
+         * this function.
+         *
+         * Returns: an array of kubernetes objects
+         */
+        this.hosting = function hosting(host) {
+            var possible = index.select([ host ]);
+            var obj, j, length = possible.length;
+            var results = [];
+            for (j = 0; j < length; j++) {
+                obj = self.objects[possible[j]];
+                if (obj && obj.status && obj.status.host === host)
                     results.push(obj);
             }
             return results;

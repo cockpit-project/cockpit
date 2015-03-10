@@ -194,8 +194,9 @@ define([
          * Here we create KubernetesWatch object, and a property
          * definition for each type of object and hook them together.
          */
-        function bind(type, items) {
+        function bind(type) {
             var flat = null;
+            var items = { };
             var timeout;
 
             /* Always delay the update event a bit */
@@ -259,17 +260,10 @@ define([
 
         /* Define and bind various properties which are arrays of objects */
 
-        var nodes = { };
-        bind("nodes", nodes);
-
-        var pods =  { };
-        bind("pods", pods);
-
-        var services = { };
-        bind("services", services);
-
-        var replicationcontrollers = { };
-        bind("replicationcontrollers", replicationcontrollers);
+        bind("nodes");
+        bind("pods");
+        bind("services");
+        bind("replicationcontrollers");
 
         this.delete_pod = function delete_pod(pod_name) {
             api.request({"method": "DELETE",

@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_FSDIR_H__
-#define COCKPIT_FSDIR_H__
+#ifndef COCKPIT_FSREPLACE_H__
+#define COCKPIT_FSREPLACE_H__
 
 #include <gio/gio.h>
 
@@ -26,13 +26,13 @@
 
 G_BEGIN_DECLS
 
-#define COCKPIT_TYPE_FSDIR         (cockpit_fsdir_get_type ())
+#define COCKPIT_TYPE_FSREPLACE         (cockpit_fsreplace_get_type ())
 
-GType              cockpit_fsdir_get_type     (void) G_GNUC_CONST;
+GType              cockpit_fsreplace_get_type     (void) G_GNUC_CONST;
 
-CockpitChannel *   cockpit_fsdir_open         (CockpitTransport *transport,
-                                               const gchar *channel_id,
-                                               const gchar *path,
-                                               const gboolean watch);
+CockpitChannel *   cockpit_fsreplace_open         (CockpitTransport *transport,
+                                                 const gchar *channel_id,
+                                                 const gchar *path,
+                                                 const gchar *tag);
 
-#endif /* COCKPIT_FSDIR_H__ */
+#endif /* COCKPIT_FSREPLACE_H__ */

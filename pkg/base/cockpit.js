@@ -1868,7 +1868,7 @@ function full_scope(cockpit, $, po) {
                 replace_channel.close("abort");
 
             var opts = $.extend({ }, base_channel_options, {
-                payload: "fswrite1",
+                payload: "fsreplace1",
                 path: path,
                 tag: expected_tag
             });

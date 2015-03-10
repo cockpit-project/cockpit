@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "cockpitfswrite.h"
+#include "cockpitfsreplace.h"
 #include "cockpitfsread.h"
 
 #include "common/cockpitjson.h"
@@ -33,14 +33,14 @@
 #include <stdio.h>
 
 /**
- * CockpitFswrite:
+ * CockpitFsreplace:
  *
- * A #CockpitChannel that reads the content of a file.
+ * A #CockpitChannel that writes/replaces the content of a file.
  *
- * The payload type for this channel is 'fswrite1'.
+ * The payload type for this channel is 'fsreplace1'.
  */
 
-#define COCKPIT_FSWRITE(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_FSWRITE, CockpitFswrite))
+#define COCKPIT_FSREPLACE(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_FSREPLACE, CockpitFsreplace))
 
 typedef struct {
   CockpitChannel parent;
@@ -50,16 +50,16 @@ typedef struct {
   gboolean got_content;
   const gchar *expected_tag;
   guint sig_close;
-} CockpitFswrite;
+} CockpitFsreplace;
 
 typedef struct {
   CockpitChannelClass parent_class;
-} CockpitFswriteClass;
+} CockpitFsreplaceClass;
 
-G_DEFINE_TYPE (CockpitFswrite, cockpit_fswrite, COCKPIT_TYPE_CHANNEL);
+G_DEFINE_TYPE (CockpitFsreplace, cockpit_fsreplace, COCKPIT_TYPE_CHANNEL);
 
 static const gchar *
-prepare_for_close_with_errno (CockpitFswrite *self,
+prepare_for_close_with_errno (CockpitFsreplace *self,
                               const gchar *diagnostic,
                               int err)
 {
@@ -81,7 +81,7 @@ prepare_for_close_with_errno (CockpitFswrite *self,
 }
 
 static void
-close_with_errno (CockpitFswrite *self,
+close_with_errno (CockpitFsreplace *self,
                   const gchar *diagnostic,
                   int err)
 {
@@ -90,10 +90,10 @@ close_with_errno (CockpitFswrite *self,
 }
 
 static void
-cockpit_fswrite_recv (CockpitChannel *channel,
+cockpit_fsreplace_recv (CockpitChannel *channel,
                       GBytes *message)
 {
-  CockpitFswrite *self = COCKPIT_FSWRITE (channel);
+  CockpitFsreplace *self = COCKPIT_FSREPLACE (channel);
   gsize size;
   const char *data = g_bytes_get_data (message, &size);
 
@@ -143,9 +143,9 @@ xclose (int fd)
 }
 
 static void
-cockpit_fswrite_done (CockpitChannel *channel)
+cockpit_fsreplace_done (CockpitChannel *channel)
 {
-  CockpitFswrite *self = COCKPIT_FSWRITE (channel);
+  CockpitFsreplace *self = COCKPIT_FSREPLACE (channel);
   const gchar *problem = NULL;
   JsonObject *options;
 
@@ -189,10 +189,10 @@ cockpit_fswrite_done (CockpitChannel *channel)
 }
 
 static void
-cockpit_fswrite_close (CockpitChannel *channel,
+cockpit_fsreplace_close (CockpitChannel *channel,
                        const gchar *problem)
 {
-  CockpitFswrite *self = COCKPIT_FSWRITE (channel);
+  CockpitFsreplace *self = COCKPIT_FSREPLACE (channel);
 
   if (self->fd != -1)
     close (self->fd);
@@ -206,40 +206,40 @@ cockpit_fswrite_close (CockpitChannel *channel,
           g_message ("%s: couldn't remove temp file: %s", self->tmp_path, g_strerror (errno));
     }
 
-  COCKPIT_CHANNEL_CLASS (cockpit_fswrite_parent_class)->close (channel, problem);
+  COCKPIT_CHANNEL_CLASS (cockpit_fsreplace_parent_class)->close (channel, problem);
 }
 
 static void
-cockpit_fswrite_init (CockpitFswrite *self)
+cockpit_fsreplace_init (CockpitFsreplace *self)
 {
   self->fd = -1;
 }
 
 static void
-cockpit_fswrite_prepare (CockpitChannel *channel)
+cockpit_fsreplace_prepare (CockpitChannel *channel)
 {
-  CockpitFswrite *self = COCKPIT_FSWRITE (channel);
+  CockpitFsreplace *self = COCKPIT_FSREPLACE (channel);
   const gchar *problem = "protocol-error";
   JsonObject *options;
   gchar *actual_tag = NULL;
 
-  COCKPIT_CHANNEL_CLASS (cockpit_fswrite_parent_class)->prepare (channel);
+  COCKPIT_CHANNEL_CLASS (cockpit_fsreplace_parent_class)->prepare (channel);
 
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "path", NULL, &self->path))
     {
-      g_warning ("invalid \"path\" option for fswrite1 channel");
+      g_warning ("invalid \"path\" option for fsreplace1 channel");
       goto out;
     }
   else if (self->path == NULL || g_str_equal (self->path, ""))
     {
-      g_warning ("missing \"path\" option for fswrite1 channel");
+      g_warning ("missing \"path\" option for fsreplace1 channel");
       goto out;
     }
 
   if (!cockpit_json_get_string (options, "tag", NULL, &self->expected_tag))
     {
-      g_warning ("%s: invalid \"tag\" option for fswrite1 channel", self->path);
+      g_warning ("%s: invalid \"tag\" option for fsreplace1 channel", self->path);
       goto out;
     }
 
@@ -277,43 +277,43 @@ out:
 }
 
 static void
-cockpit_fswrite_finalize (GObject *object)
+cockpit_fsreplace_finalize (GObject *object)
 {
-  CockpitFswrite *self = COCKPIT_FSWRITE (object);
+  CockpitFsreplace *self = COCKPIT_FSREPLACE (object);
 
   g_free (self->tmp_path);
 
-  G_OBJECT_CLASS (cockpit_fswrite_parent_class)->finalize (object);
+  G_OBJECT_CLASS (cockpit_fsreplace_parent_class)->finalize (object);
 }
 
 static void
-cockpit_fswrite_class_init (CockpitFswriteClass *klass)
+cockpit_fsreplace_class_init (CockpitFsreplaceClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
-  gobject_class->finalize = cockpit_fswrite_finalize;
+  gobject_class->finalize = cockpit_fsreplace_finalize;
 
-  channel_class->prepare = cockpit_fswrite_prepare;
-  channel_class->recv = cockpit_fswrite_recv;
-  channel_class->done = cockpit_fswrite_done;
-  channel_class->close = cockpit_fswrite_close;
+  channel_class->prepare = cockpit_fsreplace_prepare;
+  channel_class->recv = cockpit_fsreplace_recv;
+  channel_class->done = cockpit_fsreplace_done;
+  channel_class->close = cockpit_fsreplace_close;
 }
 
 /**
- * cockpit_fswrite_open:
+ * cockpit_fsreplace_open:
  * @transport: the transport to send/receive messages on
  * @channel_id: the channel id
  * @path: the path name of the file to write
  * @tag: the expected tag, or NULL
  *
  * This function is mainly used by tests. The usual way
- * to get a #CockpitFswrite is via cockpit_channel_open()
+ * to get a #CockpitFsreplace is via cockpit_channel_open()
  *
  * Returns: (transfer full): the new channel
  */
 CockpitChannel *
-cockpit_fswrite_open (CockpitTransport *transport,
+cockpit_fsreplace_open (CockpitTransport *transport,
                       const gchar *channel_id,
                       const gchar *path,
                       const gchar *tag)
@@ -327,9 +327,9 @@ cockpit_fswrite_open (CockpitTransport *transport,
   json_object_set_string_member (options, "path", path);
   if (tag)
     json_object_set_string_member (options, "tag", tag);
-  json_object_set_string_member (options, "payload", "fswrite1");
+  json_object_set_string_member (options, "payload", "fsreplace1");
 
-  channel = g_object_new (COCKPIT_TYPE_FSWRITE,
+  channel = g_object_new (COCKPIT_TYPE_FSREPLACE,
                           "transport", transport,
                           "id", channel_id,
                           "options", options,

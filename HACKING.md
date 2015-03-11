@@ -27,7 +27,7 @@ In addition for testing the following dependencies are required:
     $ sudo yum install trickle nbd-server python-libguestfs qemu \
          mock qemu-kvm python curl libvirt-client libvirtd qemu-nbd \
          krb5-workstation krb5-server
-    $ npm install phantomjs
+    $ sudo npm install -g phantomjs
 
 ## Building and installing
 

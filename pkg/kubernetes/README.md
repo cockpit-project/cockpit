@@ -12,13 +12,9 @@ This sets up a single machine kubernetes master and minion:
 Now in order to support the v1beta3 API, we need to build kubernetes
 from source or use a version later than v0.10.0:
 
-    $ sudo yum install golang
-    $ git clone git://github.com/GoogleCloudPlatform/kubernetes.git
-    $ cd kubernetes
-    $ git checkout v0.10.0
-    $ make
-    $ DIST=_output/local/bin/linux/amd64/
-    $ sudo cp -v $DIST/kube* /usr/bin
+    $ sudo yum remove kubernetes
+    $ sudo yum install etcd docker
+    $ sudo yum install https://kojipkgs.fedoraproject.org//packages/kubernetes/0.12.0/0.4.gita4d871a.fc23/x86_64/kubernetes-0.12.0-0.4.gita4d871a.fc23.x86_64.rpm
 
 The v1beta3 API is not enabled by default. The kube-apiserver process needs to run
 with the --runtime_config=api/v1beta3 argument. Use the following command

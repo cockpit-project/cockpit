@@ -25,7 +25,7 @@ with the --runtime_config=api/v1beta3 argument. Use the following command
 to enable it:
 
     $ sudo sed -i 's|KUBE_API_ARGS="|KUBE_API_ARGS="--runtime_config=api/v1beta3|' /etc/kubernetes/apiserver
-    $ sudo sed -i 's|KUBE_API_ARGS="|KUBE_API_ARGS="--api_servers=127.0.0.1:8080|' /etc/kubernetes/kubelet
+    $ sudo sed -i 's|KUBELET_ARGS="|KUBELET_ARGS="--api_servers=127.0.0.1:8080|' /etc/kubernetes/kubelet
 
 Now start kubernetes:
 

@@ -16,6 +16,9 @@ if ! rpm -q $BASE_PCKGS >& /dev/null; then
         echolog "Setting up repositories for RHEL"
         curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/epel-7/lmr-Autotest-epel-7.repo > /etc/yum.repos.d/lmr-Autotest-epel-7.repo
         yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+    elif cat /etc/redhat-release | grep "CentOS"; then
+        curl https://copr.fedoraproject.org/coprs/lmr/Autotest/repo/epel-7/lmr-Autotest-epel-7.repo > /etc/yum.repos.d/lmr-Autotest-epel-7.repo
+        yum -y install https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
     elif cat /etc/redhat-release | grep -sq "Fedora"; then
         echolog "Setting up repositories for Fedora"
         yum -y -q install yum-plugin-copr

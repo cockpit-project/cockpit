@@ -1,7 +1,7 @@
 NULL =
 man_MANS =
 BUILT_SOURCES =
-EXTRA_DIST = README.md
+EXTRA_DIST = README.md branding
 CLEANFILES = *.js *.min.js *.ok */*.ok */*/*.ok *.html *.css
 bin_PROGRAMS =
 check_SCRIPTS =

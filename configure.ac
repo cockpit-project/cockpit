@@ -339,6 +339,17 @@ fi
 
 AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])
 
+# Branding
+
+AC_MSG_CHECKING([for branding directory])
+AC_ARG_WITH(branding,
+            AC_HELP_STRING([--with-branding=default],
+                           [Specify which branding to use])
+)
+BRAND=branding/${with_branding:-default}
+AC_MSG_RESULT($BRAND)
+AC_SUBST(BRAND)
+
 # Debug
 
 AC_MSG_CHECKING([for debug mode])
@@ -444,4 +455,5 @@ echo "
         Debug mode:                 ${debug_status}
         With coverage:              ${enable_coverage}
         With address sanitizer:     ${asan_status}
+	Branding directory:         ${BRAND}
 "

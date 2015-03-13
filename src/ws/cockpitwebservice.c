@@ -62,6 +62,8 @@ guint cockpit_ws_ping_interval = 5;
 
 gint cockpit_ws_session_timeout = 30;
 
+gint cockpit_ws_authz_timeout = 30;
+
 static JsonObject * build_json    (const gchar *name, ...) G_GNUC_NULL_TERMINATED;
 
 static GBytes *     build_control (const gchar *name, ...) G_GNUC_NULL_TERMINATED;
@@ -513,6 +515,51 @@ cockpit_sidebands_cleanup (CockpitSidebands *sidebands)
 }
 
 /* ----------------------------------------------------------------------------
+ * Authorization Info
+ */
+
+typedef struct {
+  CockpitTransport *transport;
+  gpointer lookup;
+  gchar *cookie;
+  gchar *response;
+  guint timeout;
+  gulong closed_sig;
+} CockpitAuthorization;
+
+static CockpitAuthorization *
+cockpit_authorization_new (CockpitTransport *transport,
+                           CockpitSession *session,
+                           const gchar *cookie)
+{
+  CockpitAuthorization *authz;
+
+  authz = g_new0 (CockpitAuthorization, 1);
+  authz->transport = g_object_ref (transport);
+  authz->lookup = session->transport;
+  authz->cookie = g_strdup (cookie);
+  authz->response = g_strdup ("login1");
+
+  return authz;
+}
+
+static void
+cockpit_authorization_free (gpointer data)
+{
+  CockpitAuthorization *authz;
+
+  if (authz->closed_sig && authz->transport)
+    g_signal_handler_disconnect (authz->transport, authz->closed_sig);
+  if (authz->transport)
+    g_object_unref (authz->transport);
+  g_free (authz->cookie);
+  g_free (authz->response);
+  if (authz->timeout)
+    g_source_remove (authz->timeout);
+  g_free (authz);
+}
+
+/* ----------------------------------------------------------------------------
  * Web Socket Routing
  */
 
@@ -523,6 +570,7 @@ struct _CockpitWebService {
   CockpitSockets sockets;
   CockpitSessions sessions;
   CockpitSidebands sidebands;
+  GHashTable *authorizations;
   gboolean closing;
   GBytes *control_prefix;
   guint ping_timeout;
@@ -598,6 +646,7 @@ cockpit_web_service_finalize (GObject *object)
   cockpit_creds_unref (self->creds);
   if (self->ping_timeout)
     g_source_remove (self->ping_timeout);
+  g_hash_table_destroy (self->authorizations);
 
   G_OBJECT_CLASS (cockpit_web_service_parent_class)->finalize (object);
 }
@@ -698,12 +747,54 @@ process_close (CockpitWebService *self,
   return TRUE;
 }
 
+static void
+on_authorization_done (CockpitTransport *transport,
+                       const gchar *problem,
+                       gpointer user_data)
+{
+  CockpitWebService *self = COCKPIT_WEB_SERVICE (user_data);
+  CockpitAuthorization *authz;
+  CockpitSession *session;
+  GBytes *payload;
+
+  authz = g_hash_table_lookup (self->authorizations, transport);
+  g_return_if_fail (authz != NULL);
+
+  g_source_remove (authz->timeout);
+  authz->timeout = 0;
+
+  session = cockpit_session_by_transport (&self->sessions, authz->lookup);
+
+  if (!session->sent_done)
+    {
+      payload = build_control ("command", "authorize",
+                               "cookie", authz->cookie,
+                               "response", authz->response,
+                               "problem", problem,
+                               NULL);
+      cockpit_transport_send (session->transport, NULL, payload);
+      g_bytes_unref (payload);
+    }
+
+  g_hash_table_remove (self->authorizations, transport);
+}
+
+static gboolean
+on_authorization_timeout (gpointer data)
+{
+  CockpitTransport *transport = COCKPIT_TRANSPORT (data);
+  g_message ("login for checking authorization timed out");
+  cockpit_transport_close (transport, "timeout");
+  return TRUE;
+}
+
 static gboolean
 process_authorize (CockpitWebService *self,
                    CockpitSession *session,
                    JsonObject *options)
 {
   const gchar *cookie = NULL;
+  CockpitTransport *transport;
   GBytes *payload;
   const gchar *host;
   char *user = NULL;
@@ -718,56 +809,50 @@ process_authorize (CockpitWebService *self,
 
   if (!cockpit_json_get_string (options, "challenge", NULL, &challenge) ||
       !cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
-      challenge == NULL ||
-      reauthorize_type (challenge, &type) < 0 ||
-      reauthorize_user (challenge, &user) < 0)
+      challenge == NULL)
     {
       g_warning ("%s: received invalid authorize command", host);
       goto out;
     }
 
-  if (!g_str_equal (cockpit_creds_get_user (session->creds), user))
+  if (!g_str_equal (challenge, "login1"))
     {
-      g_warning ("%s: received authorize command for wrong user: %s", host, user);
-    }
-  else if (g_str_equal (type, "crypt1"))
-    {
-      password = cockpit_creds_get_password (session->creds);
-      if (!password)
-        {
-          g_debug ("%s: received authorize crypt1 challenge, but no password to reauthenticate", host);
-        }
-      else
-        {
-          rc = reauthorize_crypt1 (challenge, password, &response);
-          if (rc < 0)
-            g_warning ("%s: failed to reauthorize crypt1 challenge", host);
-        }
+      g_message ("%s: received unsupported reauthorize challenge: %s", host, challenge);
+      goto out;
     }
 
-  /*
-   * TODO: So the missing piece is that something needs to unauthorize
-   * the user. This needs to be coordinated with the web service.
-   *
-   * For now we assume that since this is an admin tool, as long as the
-   * user has it open, he/she is authorized.
-   */
+  if (host == NULL || g_strcmp0 (host, "") == 0)
+    host = "localhost";
 
-  if (!session->sent_done)
+  if (g_str_equal (host, "localhost"))
     {
-      payload = build_control ("command", "authorize",
-                               "cookie", cookie,
-                               "response", response ? response : "",
-                               NULL);
-      cockpit_transport_send (session->transport, NULL, payload);
-      g_bytes_unref (payload);
+      transport = g_object_new (COCKPIT_TYPE_SESSION_TRANSPORT,
+                                "command", cockpit_ws_bridge_program,
+                                "xxxxx", xxxxargxxx,
+                                "creds", creds,
+                                NULL);
     }
+  else
+    {
+      transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
+                                "host", host,
+                                "port", cockpit_ws_specific_ssh_port,
+                                "command", cockpit_ws_bridge_program,
+                                "creds", creds,
+                                "known-hosts", cockpit_ws_known_hosts,
+                                "host-key", session->host_key,
+                                NULL);
+    }
+
+  authz = cockpit_authorization_new (transport, session, cookie);
+  authz->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_authorization_done), self);
+  authz->timeout = g_timeout_add_seconds (cockpit_ws_authz_timeout, on_authorization_timeout, transport);
+  g_hash_table_insert (self->authorizations, transport, session->transport);
+
+  g_object_unref (transport);
   ret = TRUE;
 
 out:
-  free (user);
-  free (type);
-  free (response);
   return ret;
 }
 
@@ -1509,6 +1594,9 @@ cockpit_web_service_init (CockpitWebService *self)
   cockpit_sockets_init (&self->sockets);
   cockpit_sidebands_init (&self->sidebands);
   self->ping_timeout = g_timeout_add_seconds (cockpit_ws_ping_interval, on_ping_time, self);
+
+  self->authorizations = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL,
+                                                cockpit_authorization_free);
 }
 
 static void

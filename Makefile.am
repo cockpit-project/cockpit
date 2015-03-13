@@ -18,7 +18,7 @@ TESTS =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-SUFFIXES = .js .min.js .css .html .min.html .1 .8 .5
+SUFFIXES = .js .min.js .min.js.gz .css .html .min.html .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -28,6 +28,9 @@ V_CHECK_0 = @echo "  CHECK   " $@;
 	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
+
+.min.js.min.js.gz:
+	$(AM_V_GEN) gzip -c $< > $@.tmp && mv $@.tmp $@
 
 .html.min.html:
 	@$(MKDIR_P) $(dir $@)

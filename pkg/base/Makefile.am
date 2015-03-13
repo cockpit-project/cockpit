@@ -10,11 +10,10 @@ base_GEN = \
 base_DATA = \
 	pkg/base/patternfly.css \
 	pkg/base/cockpit.css \
-	pkg/base/cockpit.min.js \
-	pkg/base/jquery.min.js \
-	pkg/base/mustache.min.js \
-	pkg/base/require.js \
-	pkg/base/require.min.js \
+	pkg/base/cockpit.min.js.gz \
+	pkg/base/jquery.min.js.gz \
+	pkg/base/mustache.min.js.gz \
+	pkg/base/require.min.js.gz \
 	pkg/base/term.js \
 	pkg/base/manifest.json \
 	po/po.en.js \

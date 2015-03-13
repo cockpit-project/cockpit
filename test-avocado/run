@@ -3,7 +3,7 @@
 
 # This file is part of Cockpit.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2015 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -18,16 +18,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-#set -x
-SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
-COCKPIT_DIR=$(cd $SCRIPT_DIR;cd ..; echo `pwd`)
-BASE=`basename $SCRIPT_DIR`
-source $SCRIPT_DIR/lib/host_setup.sh
-source $SCRIPT_DIR/lib/create_test_machine.sh
-LUSER=`whoami`
-ENV_VARIABLES=$COCKPIT_DIR/$BASE/lib/var.env
-rm -f $ENV_VARIABLES
+set -e
 
+cd "`dirname "$0"`"
+
+source ./lib/host_setup.sh
+source ./lib/create_test_machine.sh
+LUSER=`whoami`
+ENV_VARIABLES=./lib/var.env
+rm -f $ENV_VARIABLES
 
 if [ -z "$GUESTOS" ]; then
     GUESTOS=fedora-21
@@ -37,10 +36,10 @@ echolog ">>> $GUESTOS testing <<<"
 if check_host $LUSER; then
     echolog "Host already configured"
 else
-    if sudo $SCRIPT_DIR/lib/host_setup.sh $LUSER; then
-        echolog "Host environemnt ready"
+    if sudo ./lib/host_setup.sh $LUSER; then
+        echolog "Host environment ready"
     else
-        echolog "Unable to create enviromnet, EXITTING"
+        echolog "Unable to create environment, EXITING"
         exit 1
     fi
 fi
@@ -50,32 +49,41 @@ if [ ! -e ~/.ssh/id_rsa ]; then
     ssh-keygen -q -f ~/.ssh/id_rsa -N "" </dev/null
 fi
 
-# first (GUEST) testing machine
-PREFIX=checkmachine7
-DISTRO=$GUESTOS
-virt-create $PREFIX $DISTRO
-GUEST1=`vm_get_name $PREFIX $DISTRO`
-IP=`vm_get_ip $GUEST1`
-PASSWD=`vm_get_pass $GUEST1`
+# GUEST1 machine
+#
+vm_create checkmachine7 $GUESTOS
+GUEST1=`vm_get_name checkmachine7 $GUESTOS`
 
 if virsh -c qemu:///system snapshot-info $GUEST1 initialized >/dev/null; then
-    virsh -c qemu:///system snapshot-revert $GUEST1 initialized
-    virsh -c qemu:///system snapshot-delete $GUEST1 initialized
+    echolog "Reverting $GUEST1 to last 'initialized' state"
+    virsh -c qemu:///system snapshot-revert $GUEST1 initialized >/dev/null
+    virsh -c qemu:///system snapshot-delete $GUEST1 initialized >/dev/null
 fi
+echolog "Setting up $GUEST1"
+vm_ssh $GUEST1 date --set $(date -Ins) >/dev/null
 vm_ssh $GUEST1 bash -c "cat - >/tmp/cockpit.spec" <../tools/cockpit.spec
-vm_ssh $GUEST1 bash -s < $SCRIPT_DIR/lib/guest-cockpit.sh /tmp/cockpit.spec
-virsh -c qemu:///system snapshot-create-as $GUEST1 initialized
+vm_ssh $GUEST1 bash -s < ./lib/guest-cockpit.sh /tmp/cockpit.spec
+echolog "Saving $GUEST1 'initialized' state"
+virsh -c qemu:///system snapshot-create-as $GUEST1 initialized >/dev/null
 
-# IPA server machine
-PREFIX=ipa
-DISTRO=fedora-21
-virt-create $PREFIX $DISTRO
-TMP_NAME=`vm_get_name $PREFIX $DISTRO`
-vm_ssh $TMP_NAME bash -s < $SCRIPT_DIR/lib/guest-ipa.sh
-GUEST_IPA=$TMP_NAME
+# GUEST_IPA machine
+#
+IPA_DISTRO=fedora-21
+vm_create ipa $IPA_DISTRO
+GUEST_IPA=`vm_get_name ipa $IPA_DISTRO`
+
+echolog "Setting up $GUEST_IPA"
+vm_ssh $GUEST_IPA date --set $(date -Ins) >/dev/null
+vm_ssh $GUEST_IPA bash -s < ./lib/guest-ipa.sh
+
 # Write variables for IPA tests
 echo "IPADOMAIN='cockpit.lan'" >> $ENV_VARIABLES
 echo "IPADOMAINIP='`vm_get_ip $GUEST_IPA`'" >> $ENV_VARIABLES
+
+echolog "Tests will be run on these machines:"
+write_out $GUEST1
+write_out $GUEST_IPA
+echo
 
 LOCAL_VERSION=`avocado -v 2>&1 |grep Avo`
 REMOTE_VERSION=`vm_ssh $GUEST1 "avocado -v " 2>&1 | grep Avo`
@@ -89,7 +97,9 @@ fi
 ( cd $(git rev-parse --show-toplevel) && git archive HEAD --prefix cockpit/ ) \
   | vm_ssh $GUEST1 "rm -rf /root/cockpit && tar xfm - --directory /root/"
 
-AVOCADO_PARAMS="--vm-domain $GUEST1 --vm-username root --vm-password $PASSWD --vm-hostname $IP"
-AVOCADO_TESTS="compiletest.sh checklogin.py checkrealms.py"
+GUEST1_IP=`vm_get_ip $GUEST1`
+GUEST1_PASSWD=`vm_get_pass $GUEST1`
+AVOCADO_PARAMS="--vm-domain $GUEST1 --vm-username root --vm-password $GUEST1_PASSWD --vm-hostname $GUEST1_IP"
+AVOCADO_TESTS="compiletest.sh checklogin-basic.py checklogin-raw.py checkrealms-basic.py"
 
 avocado run $AVOCADO_PARAMS $AVOCADO_TESTS

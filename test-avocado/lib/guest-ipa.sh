@@ -1,13 +1,40 @@
 #! /bin/bash
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+set -o pipefail
+
+function echolog() {
+    echo "`date -u '+%Y%m%d-%H:%M:%S'` IPA GUEST: $@"
+}
 
 DOMAIN=`hostname -d`
 ALLPASSW="foobarfoo"
 
 KDOMAIN=`echo $DOMAIN | tr '[:lower:]' '[:upper:]'`
 
-if rpm -q freeipa-server; then
-    echo "IPA probably already installed and properly configured"
+if rpm -q freeipa-server >/dev/null; then
+    echolog "FreeIPA already configured"
 else
+    echolog "Installing and configuring FreeIPA"
+
     set -eufx
     yum  install -y freeipa-server bind bind-dyndb-ldap rng-tools bind-utils
 

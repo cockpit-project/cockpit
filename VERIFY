@@ -2,5 +2,5 @@
 
 set -e
 
-( cd test-avocado && ./setup.sh )
+./test-avocado/run
 ( cd test && ./testsuite-prepare "$@" && ./check-verify )

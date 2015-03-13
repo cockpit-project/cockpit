@@ -189,8 +189,8 @@ html {
 body {
   margin: 0;
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
-  font-size: 11px;
-  line-height: 1.81818181;
+  font-size: 12px;
+  line-height: 1.66666667;
   color: #333333;
   background-color: #ffffff;
 }
@@ -213,11 +213,9 @@ a:focus {
   color: #00618a;
   text-decoration: underline;
 }
-strong {
-  font-weight: bold;
-}
 img {
   border: 0;
+  vertical-align: middle;
 }
 button,
 input,
@@ -239,6 +237,7 @@ select {
 button {
   -webkit-appearance: button;
   cursor: pointer;
+  overflow: visible;
 }
 button::-moz-focus-inner,
 input::-moz-focus-inner {
@@ -252,81 +251,53 @@ input::-moz-focus-inner {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-a:focus {
-}
-img {
-  vertical-align: middle;
-}
 p {
-  margin: 0 0 9.5px;
+  margin: 0 0 10px;
 }
 .container {
   margin-right: auto;
   margin-left: auto;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 .container:before,
-.container:after {
+.container:after,
+.row:before,
+.row:after {
   content: " ";
   display: table;
 }
-.container:after {
-  clear: both;
-}
-.container:before,
-.container:after {
-  content: " ";
-  display: table;
-}
-.container:after {
+.container:after,
+.row:after {
   clear: both;
 }
 @media (min-width: 768px) {
   .container {
-    width: 750px;
+    width: 760px;
   }
 }
 @media (min-width: 992px) {
   .container {
-    width: 970px;
+    width: 980px;
   }
 }
 @media (min-width: 1200px) {
   .container {
-    width: 1170px;
+    width: 1180px;
   }
 }
 .row {
-  margin-left: -15px;
-  margin-right: -15px;
-}
-.row:before,
-.row:after {
-  content: " ";
-  display: table;
-}
-.row:after {
-  clear: both;
-}
-.row:before,
-.row:after {
-  content: " ";
-  display: table;
-}
-.row:after {
-  clear: both;
+  margin-left: -20px;
+  margin-right: -20px;
 }
 .col-sm-1, .col-sm-2, .col-md-2, .col-sm-3, .col-sm-5, .col-lg-5, .col-sm-6, .col-md-6, .col-sm-7, .col-lg-7, .col-sm-10, .col-md-10, .col-xs-12, .col-sm-12 {
   position: relative;
   min-height: 1px;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 .col-xs-12 {
   float: left;
-}
-.col-xs-12 {
   width: 100%;
 }
 @media (min-width: 768px) {
@@ -398,10 +369,9 @@ label {
   width: 100%;
   height: 26px;
   padding: 2px 6px;
-  font-size: 11px;
-  line-height: 1.81818181;
+  font-size: 12px;
+  line-height: 1.66666667;
   color: #333333;
-  vertical-align: middle;
   background-color: #ffffff;
   background-image: none;
   border: 1px solid #bababa;
@@ -419,24 +389,12 @@ label {
 }
 .form-control:-moz-placeholder {
   color: #999999;
+  font-style: italic;
 }
 .form-control::-moz-placeholder {
   color: #999999;
+  font-style: italic;
   opacity: 1;
-}
-.form-control:-ms-input-placeholder {
-  color: #999999;
-}
-.form-control::-webkit-input-placeholder {
-  color: #999999;
-}
-.form-control:-moz-placeholder {
-  color: #999999;
-  font-style: italic;
-}
-.form-control::-moz-placeholder {
-  color: #999999;
-  font-style: italic;
 }
 .form-control:-ms-input-placeholder {
   color: #999999;
@@ -461,13 +419,8 @@ label {
   padding-top: 3px;
 }
 .form-horizontal .form-group {
-  margin-left: -15px;
-  margin-right: -15px;
-}
-.form-horizontal .form-group:before,
-.form-horizontal .form-group:after {
-  content: " ";
-  display: table;
+  margin-left: -20px;
+  margin-right: -20px;
 }
 .form-horizontal .form-group:after {
   clear: both;
@@ -476,9 +429,6 @@ label {
 .form-horizontal .form-group:after {
   content: " ";
   display: table;
-}
-.form-horizontal .form-group:after {
-  clear: both;
 }
 @media (min-width: 768px) {
   .form-horizontal .control-label {
@@ -496,8 +446,8 @@ label {
   border: 1px solid transparent;
   white-space: nowrap;
   padding: 2px 6px;
-  font-size: 11px;
-  line-height: 1.81818181;
+  font-size: 12px;
+  line-height: 1.66666667;
   border-radius: 1px;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -538,7 +488,7 @@ label {
 }
 .btn-lg {
   padding: 6px 10px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.33;
   border-radius: 1px;
 }
@@ -659,7 +609,7 @@ label {
   margin-bottom: 2px;
 }
 .login-pf .container .form-horizontal .control-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
   text-align: left;
 }
@@ -669,6 +619,35 @@ label {
 }
 .login-pf .container .help-block {
   color: #fff;
+}
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+.spinner {
+  -webkit-animation: rotation .6s infinite linear;
+  animation: rotation .6s infinite linear;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.25);
+  border-left: 4px solid rgba(0, 0, 0, 0.25);
+  border-right: 4px solid rgba(0, 0, 0, 0.25);
+  border-radius: 100%;
+  border-top: 4px solid rgba(0, 0, 0, 0.75);
+  height: 24px;
+  margin: 0 auto;
+  position: relative;
+  width: 24px;
 }
 
         /* Login page specific overrides */
@@ -683,15 +662,11 @@ label {
         }
         .control-label {
             white-space: nowrap;
-            font-size: 12px;
+            font-size: 13px;
         }
-        .waiting {
-            background-color: transparent;
-            background-image: url(/static/images/waiting.gif);
-            background-repeat: no-repeat;
-            background-position: 6px 9px;
-            height: 28px;
-            width: 28px;
+        .spinner {
+            margin-top: 4px;
+            border-color: rgba(255, 255, 255, 0.75) rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.25)
         }
 
         /* Inline login screen */
@@ -741,7 +716,7 @@ label {
                 <span class="help-block" id="login-error-message"></span>
               </div>
               <div class="col-sm-1">
-                <div class="waiting col-xs-15" id="login-spinner" style="display: none">
+                <div class="spinner col-xs-15" id="login-spinner" hidden>
                 </div>
               </div>
               <div class="col-sm-3">

@@ -710,7 +710,7 @@
                   <th class="container-col-cpu">CPU</th>
                   <th class="container-col-memory-graph">Memory</th>
                   <th class="container-col-memory-text"></th>
-                  <th class="container-col-actions cell-buttons"></td></th>
+                  <th class="container-col-actions cell-buttons"></th>
                 </tr>
               </thead>
               <tbody>
@@ -1481,17 +1481,15 @@
             <h4 class="modal-title">Create Volume Group</h4>
           </div>
           <div class="modal-body">
+            <div class="alert alert-warning alert-dismissable" style="display: none;" id="disks-not-found">
+              <span class="pficon-layered" style="float: left; font-size: 200%;">
+                <span class="pficon pficon-warning-triangle"></span>
+                <span class="pficon pficon-warning-exclamation"></span>
+              </span>
+              <button type="button" class="close" aria-hidden="true">&times;</button>
+              <strong>Warning!</strong> <span class="alert-message"></span>
+            </div>
             <table class="cockpit-form-table">
-              <tr>
-                <div class="alert alert-warning alert-dismissable" style="display: none;" id="disks-not-found">
-                  <span class="pficon-layered" style="float: left; font-size: 200%;">
-                    <span class="pficon pficon-warning-triangle"></span>
-                    <span class="pficon pficon-warning-exclamation"></span>
-                  </span>
-                  <button type="button" class="close" aria-hidden="true">&times;</button>
-                  <strong>Warning!</strong> <span class="alert-message"></span>
-                </div>
-              </tr>
               <tr>
                 <td translatable="yes">Name</td>
                 <td id="creat-vg-name-cell">

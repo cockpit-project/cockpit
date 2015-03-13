@@ -161,6 +161,12 @@ cockpit_handler_resource (CockpitWebServer *server,
 {
   CockpitWebService *service;
 
+  if (g_str_has_prefix (path, "/cockpit/static/"))
+    {
+      cockpit_web_response_file (response, path + 16, TRUE, ws->static_roots);
+      return TRUE;
+    }
+
   service = cockpit_auth_check_cookie (ws->auth, headers);
   if (service)
     {
@@ -303,18 +309,6 @@ cockpit_handler_login (CockpitWebServer *server,
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
-
-gboolean
-cockpit_handler_static (CockpitWebServer *server,
-                        const gchar *path,
-                        GHashTable *headers,
-                        CockpitWebResponse *response,
-                        CockpitHandlerData *ws)
-{
-  /* Cache forever */
-  cockpit_web_response_file (response, path + 8, TRUE, ws->static_roots);
-  return TRUE;
-}
 
 gboolean
 cockpit_handler_root (CockpitWebServer *server,

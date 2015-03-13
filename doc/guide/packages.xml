@@ -155,20 +155,35 @@
   </section>
 
   <section id="package-minified">
-    <title>Minified Resources</title>
+    <title>Content Negotiation</title>
 
-    <para>If minified resources are provided, they should be provided along with the non-minified
-      file. This allows developers to debug package code when necessary.</para>
+    <para>In order to support language specific files, gzipped and/or minified data, the
+      files in a package are loaded using content negotiation logic.</para>
 
-    <para>Minified files should contain a <code>.min</code> suffix before their usual file
-      extension. They will automatically be used in place of the unminified file, when your
-      the package is installed. This applies for HTML, JS, CSS or other types of resources.</para>
+    <para>If a file does not exist at the expected path, Cockpit tries to insert
+      <code>.min</code> before its extension. It also tries adding a <code>.gz</code>
+      to both of those file names. If the file is still not found, and the request path has
+      more than one extension, the second to the last extension is popped off, and the above
+      process repeats.</para>
 
-    <para>For example if you have a javascript file called <code>test.js</code> its minified
-      version should be placed in a file called <code>test.min.js</code> in the same directory.</para>
+    <para>This means that for the file <code>test.de.js</code> in the package named
+      <code>mypackage</code> the following files would be tried in this order:</para>
 
-    <para>To force Cockpit to use non-minified resources, link the package into your home directory
-      as described in the section on <link linkend="package-layout">Package Layout</link>.</para>
+<programlisting>
+  mypackage/test.de.js
+  mypackage/test.de.min.js
+  mypackage/test.de.js.gz
+  mypackage/test.de.min.js.gz
+  mypackage/test.js
+  mypackage/test.min.js
+  mypackage/test.js.gz
+  mypackage/test.min.js.gz
+</programlisting>
+
+    <para>When packages are loaded from a system directory, Cockpit optimizes the file
+      system lookups above, by pre-listing the files. This is one of the reasons that
+      you should never change packages installed to a system directory while Cockpit
+      is running.</para>
   </section>
 
   <section id="package-api">

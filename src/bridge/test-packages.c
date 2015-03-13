@@ -189,7 +189,7 @@ test_simple (TestCase *tc,
 
   data = combine_output (tc, &count);
   cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{}}"
-                           "This is the minified file.ext Oh marmalaaade\n", -1);
+                           "These are the contents of file.ext\nOh marmalaaade\n", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }

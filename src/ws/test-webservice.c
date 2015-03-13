@@ -1359,6 +1359,7 @@ setup_resource (TestResourceCase *tc,
   g_object_unref (input);
 
   tc->headers = cockpit_web_server_new_table ();
+  g_hash_table_insert (tc->headers, g_strdup ("Accept-Encoding"), g_strdup ("gzip, identity"));
 }
 
 static void
@@ -1567,8 +1568,8 @@ test_resource_checksum (TestResourceCase *tc,
                            "Cache-Control: max-age=31556926, public\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"
-                           "2d\r\n"
-                           "This is the minified file.ext Oh marmalaaade\n"
+                           "32\r\n"
+                           "These are the contents of file.ext\nOh marmalaaade\n"
                            "\r\n"
                            "0\r\n\r\n", -1);
   g_bytes_unref (bytes);
@@ -1718,16 +1719,15 @@ test_resource_bad_checksum (TestResourceCase *tc,
 }
 
 static void
-test_resource_accept_language (TestResourceCase *tc,
+test_resource_language_suffix (TestResourceCase *tc,
                                gconstpointer data)
 {
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.de.html", NULL, NULL);
 
-  g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("pig;q=0.1,de;q=0.9"));
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -1739,7 +1739,6 @@ test_resource_accept_language (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Vary: Cookie, Accept-Language\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"
@@ -1757,18 +1756,16 @@ test_resource_accept_language (TestResourceCase *tc,
 }
 
 static void
-test_resource_override_language (TestResourceCase *tc,
+test_resource_language_fallback (TestResourceCase *tc,
                                  gconstpointer data)
 {
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
 
-  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.html", NULL, NULL);
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test.fi.html", NULL, NULL);
 
   /* Language cookie overrides */
-  g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de;q=0.9"));
-  g_hash_table_insert (tc->headers, g_strdup ("Cookie"), g_strdup ("cockpitlang=pig"));
   cockpit_web_service_resource (tc->service, tc->headers, response);
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -1780,19 +1777,51 @@ test_resource_override_language (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
-                           "Vary: Cookie, Accept-Language\r\n"
                            "Content-Type: text/html\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "\r\n"
-                           "60\r\n"
+                           "52\r\n"
                            "<html>\n"
                            "<head>\n"
-                           "<title>Inlay omehay irday</title>\n"
+                           "<title>In home dir</title>\n"
                            "</head>\n"
-                           "<body>Inlay omehay irday</body>\n"
+                           "<body>In home dir</body>\n"
                            "</html>\n"
                            "\r\n"
                            "0\r\n\r\n", -1);
+  g_bytes_unref (bytes);
+  g_object_unref (response);
+}
+
+static void
+test_resource_gzip_encoding (TestResourceCase *tc,
+                             gconstpointer data)
+{
+  CockpitWebResponse *response;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  response = cockpit_web_response_new (tc->io, "/cockpit/@localhost/another/test-file.txt", NULL, NULL);
+
+  cockpit_web_service_resource (tc->service, tc->headers, response);
+
+  while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
+  g_assert_no_error (error);
+
+  bytes = g_memory_output_stream_steal_as_bytes (tc->output);
+  cockpit_assert_bytes_eq (bytes,
+                           "HTTP/1.1 200 OK\r\n"
+                           "Content-Encoding: gzip\r\n"
+                           "Content-Type: text/plain\r\n"
+                           "Transfer-Encoding: chunked\r\n"
+                           "\r\n"
+                           "34\r\n"
+                           "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00sT(\xCEM\xCC\xC9Q(I-"
+                           ".QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00\x0D\x0A" "0\x0D\x0A\x0D\x0A",
+                           160);
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -1916,10 +1945,13 @@ main (int argc,
               setup_resource, test_resource_no_checksum, teardown_resource);
   g_test_add ("/web-service/resource/bad-checksum", TestResourceCase, NULL,
               setup_resource, test_resource_bad_checksum, teardown_resource);
-  g_test_add ("/web-service/resource/accept-language", TestResourceCase, NULL,
-              setup_resource, test_resource_accept_language, teardown_resource);
-  g_test_add ("/web-service/resource/override-language", TestResourceCase, NULL,
-              setup_resource, test_resource_override_language, teardown_resource);
+  g_test_add ("/web-service/resource/language-suffix", TestResourceCase, NULL,
+              setup_resource, test_resource_language_suffix, teardown_resource);
+  g_test_add ("/web-service/resource/language-fallback", TestResourceCase, NULL,
+              setup_resource, test_resource_language_fallback, teardown_resource);
+
+  g_test_add ("/web-service/resource/gzip-encoding", TestResourceCase, NULL,
+              setup_resource, test_resource_gzip_encoding, teardown_resource);
 
   return g_test_run ();
 }

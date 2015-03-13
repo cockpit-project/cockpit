@@ -2010,20 +2010,6 @@ object_to_headers (JsonObject *object,
       g_ascii_strcasecmp (header, "Connection") == 0)
     return;
 
-  /*
-   * Since we add the cockpitlang Cookie to the Accept-Language header, we need to
-   * add this back into the Vary header so the browser knows Cookies this resource.
-   */
-
-  if (g_ascii_strcasecmp (header, "Vary") == 0)
-    {
-      if (strstr (value, "Accept-Language"))
-        {
-          g_hash_table_insert (headers, g_strdup (header), g_strdup_printf ("Cookie, %s", value));
-          return;
-        }
-    }
-
   g_hash_table_insert (headers, g_strdup (header), g_strdup (value));
 }
 
@@ -2176,7 +2162,6 @@ resource_respond (CockpitWebService *self,
   gchar *quoted_etag = NULL;
   gchar *package = NULL;
   gchar *val = NULL;
-  gchar *language = NULL;
   gboolean ret = FALSE;
   GHashTableIter iter;
   GBytes *command;
@@ -2266,8 +2251,6 @@ resource_respond (CockpitWebService *self,
                        "binary", "raw",
                        NULL);
 
-  language = cockpit_web_server_parse_cookie (headers, "cockpitlang");
-
   heads = json_object_new ();
 
   g_hash_table_iter_init (&iter, headers);
@@ -2294,23 +2277,8 @@ resource_respond (CockpitWebService *self,
           g_ascii_strcasecmp (key, "Transfer-Encoding") == 0)
         continue;
 
-      if (language && g_ascii_strcasecmp (key, "Accept-Language") == 0)
-        {
-          val = g_strdup_printf ("%s; %s", language, (gchar *)value);
-          g_free (language);
-          language = NULL;
-          value = val;
-        }
-
       json_object_set_string_member (heads, key, value);
       g_free (val);
-    }
-
-  if (language)
-    {
-      json_object_set_string_member (heads, "Accept-Language", language);
-      g_free (language);
-      language = NULL;
     }
 
   if (where[0] != '$')
@@ -2340,7 +2308,6 @@ resource_respond (CockpitWebService *self,
 out:
   g_strfreev (parts);
   g_free (quoted_etag);
-  g_free (language);
   g_free (package);
   return ret;
 }

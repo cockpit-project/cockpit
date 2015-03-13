@@ -664,6 +664,7 @@ finish_headers (CockpitWebResponse *self,
     { ".png", "image/png" },
     { ".svg", "image/svg+xml" },
     { ".ttf", "application/octet-stream" }, /* unassigned */
+    { ".txt", "text/plain" },
     { ".woff", "application/font-woff" },
     { ".xml", "text/xml" },
   };

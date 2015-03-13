@@ -642,7 +642,7 @@ test_gunzip_large (void)
   GBytes *bytes;
   gchar *checksum;
 
-  file = g_mapped_file_new (SRCDIR "/src/common/mock-content/large.js.gz", FALSE, &error);
+  file = g_mapped_file_new (SRCDIR "/src/common/mock-content/large.min.js.gz", FALSE, &error);
   g_assert_no_error (error);
 
   compressed = g_mapped_file_get_bytes (file);
@@ -653,7 +653,7 @@ test_gunzip_large (void)
   g_bytes_unref (compressed);
 
   checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5, bytes);
-  g_assert_cmpstr (checksum, ==, "3177091fb9705dd978689ba11bf0609a");
+  g_assert_cmpstr (checksum, ==, "5ca7582261c421482436dfdf3af9bffe");
   g_free (checksum);
 
   g_bytes_unref (bytes);
@@ -674,6 +674,120 @@ test_gunzip_invalid (void)
   g_error_free (error);
 
   g_bytes_unref (compressed);
+}
+
+static void
+test_negotiation_first (void)
+{
+  gchar *chosen = NULL;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
+                                            NULL, &chosen, &error);
+
+  cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
+  g_assert_no_error (error);
+  g_bytes_unref (bytes);
+
+  g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/test-file.txt");
+  g_free (chosen);
+}
+
+static void
+test_negotiation_last (void)
+{
+  gchar *chosen = NULL;
+  GError *error = NULL;
+  gchar *checksum;
+  GBytes *bytes;
+
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/large.js",
+                                            NULL, &chosen, &error);
+
+  g_assert_no_error (error);
+  g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/large.min.js.gz");
+  g_free (chosen);
+
+  checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5, bytes);
+  g_assert_cmpstr (checksum, ==, "e5284b625b7665fc04e082827de3436c");
+  g_free (checksum);
+
+  g_bytes_unref (bytes);
+}
+
+static void
+test_negotiation_prune (void)
+{
+  gchar *chosen = NULL;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.extra.extension.txt",
+                                            NULL, &chosen, &error);
+
+  cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
+  g_assert_no_error (error);
+  g_bytes_unref (bytes);
+
+  g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/test-file.txt");
+  g_free (chosen);
+}
+
+static void
+test_negotiation_with_listing (void)
+{
+  GHashTable *existing;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  /* Lie and say that only the .gz file exists */
+  existing = g_hash_table_new (g_str_hash, g_str_equal);
+  g_hash_table_add (existing, SRCDIR "/src/common/mock-content/test-file.txt.gz");
+
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
+                                            existing, NULL, &error);
+
+  cockpit_assert_bytes_eq (bytes, "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00"
+                           "sT(\xCEM\xCC\xC9Q(I-.QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00", 52);
+  g_assert_no_error (error);
+  g_bytes_unref (bytes);
+
+  g_hash_table_unref (existing);
+}
+
+static void
+test_negotiation_notfound (void)
+{
+  gchar *chosen = NULL;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/non-existant",
+                                            NULL, &chosen, &error);
+
+  g_assert_no_error (error);
+  g_assert (bytes == NULL);
+
+  g_assert (chosen == NULL);
+}
+
+static void
+test_negotiation_failure (void)
+{
+  gchar *chosen = NULL;
+  GError *error = NULL;
+  GBytes *bytes;
+
+  bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/directory",
+                                            NULL, &chosen, &error);
+
+  g_assert (error != NULL);
+  g_error_free (error);
+
+  g_assert (bytes == NULL);
+
+  g_assert (chosen == NULL);
 }
 
 int
@@ -730,6 +844,13 @@ main (int argc,
   g_test_add_func ("/web-response/gunzip/small", test_gunzip_small);
   g_test_add_func ("/web-response/gunzip/large", test_gunzip_large);
   g_test_add_func ("/web-response/gunzip/invalid", test_gunzip_invalid);
+
+  g_test_add_func ("/web-response/negotiation/first", test_negotiation_first);
+  g_test_add_func ("/web-response/negotiation/last", test_negotiation_last);
+  g_test_add_func ("/web-response/negotiation/prune", test_negotiation_prune);
+  g_test_add_func ("/web-response/negotiation/with-listing", test_negotiation_with_listing);
+  g_test_add_func ("/web-response/negotiation/notfound", test_negotiation_notfound);
+  g_test_add_func ("/web-response/negotiation/failure", test_negotiation_failure);
 
   ret = g_test_run ();
 

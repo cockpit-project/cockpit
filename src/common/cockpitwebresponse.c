@@ -1200,3 +1200,152 @@ cockpit_web_response_gunzip (GBytes *bytes,
       return g_byte_array_free_to_bytes (out);
     }
 }
+
+static const gchar *
+find_extension (const gchar *path)
+{
+  const gchar *dot;
+  const gchar *slash;
+
+  dot = strrchr (path, '.');
+  slash = strrchr (path, '/');
+
+  /* Dots before the last slash don't count */
+  if (dot && slash && dot < slash)
+    dot = NULL;
+
+  /* Leading dots on the filename don't count */
+  if (dot && (dot == path || dot == slash + 1))
+    dot = NULL;
+
+  return dot;
+}
+
+static GBytes *
+load_file (const gchar *filename,
+           GError **error)
+{
+  GError *local_error = NULL;
+  GMappedFile *mapped;
+  GBytes *bytes;
+
+  mapped = g_mapped_file_new (filename, FALSE, &local_error);
+
+  if (g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
+      g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_ISDIR) ||
+      g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_NAMETOOLONG) ||
+      g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_LOOP) ||
+      g_error_matches (local_error, G_FILE_ERROR, G_FILE_ERROR_INVAL))
+    {
+      g_clear_error (&local_error);
+      return NULL;
+    }
+
+  /* A real error to stop on */
+  else if (local_error)
+    {
+      g_propagate_error (error, local_error);
+      return NULL;
+    }
+
+  bytes = g_mapped_file_get_bytes (mapped);
+  g_mapped_file_unref (mapped);
+
+  return bytes;
+}
+
+/**
+ * cockpit_web_response_negotiation:
+ * @path: likely filesystem path
+ * @existing: a table of existing files
+ * @chosen: out, a pointer to the suffix that was chosen
+ * @error: a failure
+ *
+ * Find a file to serve based on the suffixes. We prune off extra
+ * extensions while looking for a file that's present. We append
+ * .min and .gz when looking for files.
+ *
+ * The @existing may be NULL, if non-null it'll be used to check if
+ * files exist.
+ */
+GBytes *
+cockpit_web_response_negotiation (const gchar *path,
+                                  GHashTable *existing,
+                                  gchar **actual,
+                                  GError **error)
+{
+  gchar *base = NULL;
+  const gchar *ext;
+  gchar *dot;
+  gchar *name = NULL;
+  GBytes *bytes = NULL;
+  GError *local_error = NULL;
+  gint i;
+
+  ext = find_extension (path);
+  if (ext)
+    {
+      base = g_strndup (path, ext - path);
+    }
+  else
+    {
+      ext = "";
+      base = g_strdup (path);
+    }
+
+  while (!bytes)
+    {
+      for (i = 0; i < 4; i++)
+        {
+          g_free (name);
+          switch (i)
+            {
+            case 0:
+              name = g_strconcat (base, ext, NULL);
+              break;
+            case 1:
+              name = g_strconcat (base, ".min", ext, NULL);
+              break;
+            case 2:
+              name = g_strconcat (base, ext, ".gz", NULL);
+              break;
+            case 3:
+              name = g_strconcat (base, ".min", ext, ".gz", NULL);
+              break;
+            default:
+              g_assert_not_reached ();
+            }
+
+          if (existing)
+            {
+              if (!g_hash_table_lookup (existing, name))
+                continue;
+            }
+
+          bytes = load_file (name, &local_error);
+          if (bytes)
+            break;
+          if (local_error)
+            goto out;
+        }
+
+      /* Pop one level off the file name */
+      dot = (gchar *)find_extension (base);
+      if (!dot)
+        break;
+
+      dot[0] = '\0';
+    }
+
+out:
+  if (local_error)
+    g_propagate_error (error, local_error);
+  if (bytes && name && actual)
+    {
+      *actual = name;
+      name = NULL;
+    }
+  g_free (name);
+  g_free (base);
+  return bytes;
+}

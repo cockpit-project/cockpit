@@ -145,8 +145,6 @@ main (int argc,
 
   g_signal_connect (server, "handle-resource::/",
                     G_CALLBACK (cockpit_handler_resource), &data);
-  g_signal_connect (server, "handle-resource::/static/",
-                    G_CALLBACK (cockpit_handler_static), &data);
   g_signal_connect (server, "handle-resource::/cockpit/",
                     G_CALLBACK (cockpit_handler_resource), &data);
 

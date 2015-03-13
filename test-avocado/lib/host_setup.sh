@@ -3,7 +3,7 @@
 
 # This file is part of Cockpit.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2015 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -31,7 +31,7 @@ export HS_POOLNAME="cockpitx"
 export HS_POOLNAME_PATH=/home/$HS_POOLNAME
 
 function echolog(){
-    echo "INFO: `date '+%Y%m%d-%H:%M:%S'`: $@"
+    echo "`date -u '+%Y%m%d-%H:%M:%S'` HOST: $@"
 }
 
 function host_dependencies_fedora(){
@@ -108,7 +108,7 @@ HS_METHOD=$2
 function install_host(){
     HS_USER=$1
     if rpm -q $HS_BASE_PCKGS >& /dev/null; then
-        echolog "All packages alread installed"
+        echolog "All packages already installed"
     else
         if cat /etc/redhat-release | grep -sq "Red Hat"; then
             host_dependencies_rhel7

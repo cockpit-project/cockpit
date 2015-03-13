@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import os, re, subprocess
+import os, re, subprocess, shutil, imp
 
 from avocado import test
 from avocado.utils import process
@@ -26,13 +26,37 @@ from testlib import Browser
 __all__ = [ 'Test' ]
 
 class Test(test.Test):
+    def __init__(self, **args):
+        test.Test.__init__(self, **args)
+        self.cleanup_funcs = [ ]
+        self.environment = imp.load_source("", os.path.dirname(__file__) + "/lib/var.env")
+
+    def atcleanup(self, func):
+        self.cleanup_funcs.append(func)
+
+    def run_shell_command(self, cmd, cleanup_cmd):
+        self.atcleanup(lambda: process.run(cleanup_cmd, shell=True))
+        process.run(cmd, shell=True)
+
+    def replace_file(self, file, content):
+        def restore():
+            shutil.copyfile(file + ".cockpitsave", file)
+            os.remove(file + ".cockpitsave")
+        shutil.copyfile(file, file + ".cockpitsave")
+        self.atcleanup(restore)
+        with open(file, 'w') as f: f.write(content)
+
     def setup(self):
-        test.Test.setup(self)
         state = self.get_state()
         self.label = re.sub('.py$', '', os.path.basename(state['name']))
         self.browser = Browser("localhost", self.label)
         self.journal_start = re.sub('.*cursor: ', '',
                                     subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True))
+        process.run("systemctl start cockpit.socket", shell=True)
+
+    def action(self):
+        self.test()
+        self.check_journal_messages()
 
     def cleanup(self):
         state = self.get_state()
@@ -51,7 +75,9 @@ class Test(test.Test):
         if not state['job_logdir'].startswith("/tmp/"):
             process.run("cp -v *.png *.journal '%s'" %  state['job_logdir'], shell=True)
 
-        test.Test.cleanup(self)
+        for f in self.cleanup_funcs: f()
+
+        process.run("systemctl stop cockpit.socket cockpit.service", shell=True)
 
     allowed_messages = [
         # This is a failed login, which happens every time
@@ -85,7 +111,9 @@ class Test(test.Test):
         "(audit: )?type=1404 audit.*",
 
         # Hmm
-        "request timed out, closing"
+        "request timed out, closing",
+        "(audit: )?type=1400 .* name=\"machine-info\".*",
+        "pam_lastlog\\(cockpit:session\\): unable to open /var/log/lastlog: No such file or directory"
     ]
 
     def allow_journal_messages(self, *patterns):
@@ -116,7 +144,7 @@ class Test(test.Test):
         # itself in the returned messages.
 
         cmd = "journalctl 2>&1 -c'%s' -o cat -p %d %s" % (self.journal_start, log_level, matches)
-        out=process.run(cmd, shell=True, ignore_status=True)
+        out = process.run(cmd, shell=True, ignore_status=True)
         messages = out.stdout.splitlines()
         if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
             # No messages
@@ -126,7 +154,7 @@ class Test(test.Test):
 
     def audit_messages(self, type_pref):
         cmd = "journalctl -c'%s' -o cat SYSLOG_IDENTIFIER=kernel 2>&1 | grep 'type=%s.*audit' || true" % (self.journal_start, type_pref)
-        out=process.run(cmd, shell=True, ignore_status=True)
+        out = process.run(cmd, shell=True)
         messages = out.stdout.splitlines()
         if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
             messages = [ ]

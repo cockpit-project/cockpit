@@ -3,7 +3,7 @@
 
 # This file is part of Cockpit.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2015 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -18,15 +18,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-
-CTM_SCRCTM_IPT=`realpath -s $0`
-CTM_SCRCTM_IPTPATH=`dirname $CTM_SCRCTM_IPT`
 CTM_PASSWORD="testvm"
 RCTM_USER="root"
 CTM_ARCH="x86_64"
 CTM_SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
-source $CTM_SCRCTM_IPTPATH/lib/host_setup.sh
 CTM_POOLNAME=$HS_POOLNAME
 
 CTM_PREQ="
@@ -34,15 +30,9 @@ yum -y -q install tar bzip2 gzip unzip zip tar git yum-utils fontconfig pystache
 echo $CTM_PASSWORD | passwd --stdin $RCTM_USER
 "
 
-function write_out(){
+function write_out() {
     CTM_NAME=$1
-    echo "
-name: $CTM_NAME
-root password: $CTM_PASSWORD
-mac address: `vm_get_mac $CTM_NAME`
-hostname: `vm_get_hostname $CTM_NAME`
-ip address: `vm_get_ip $CTM_NAME`"
-
+    echolog "  $CTM_NAME / `vm_get_mac $CTM_NAME` / `vm_get_ip $CTM_NAME`"
 }
 
 function virt-deploy-workaround(){
@@ -91,12 +81,12 @@ function vm_wait_online(){
 function is_created(){
     local CTM_NAME=$1
     if virsh -c qemu:///system list | grep -q $CTM_NAME; then
-        echolog "domain $CTM_NAME already exist and running "
+        true;
     elif virsh -c qemu:///system list --inactive| grep -q $CTM_NAME; then
-        echolog "domain $CTM_NAME already exist and stopped "
+        echolog "Starting $CTM_NAME"
         virsh -c qemu:///system start $CTM_NAME
     else
-        echolog "domain $CTM_NAME does not exist"
+        echolog "$CTM_NAME does not exist"
         return 1
     fi
 }
@@ -144,21 +134,20 @@ function vm_ssh(){
     local CTM_HOST=$1
     vm_wait_online $CTM_HOST
     shift
-    ssh $CTM_SSHOPTS -l $RCTM_USER `vm_get_ip $CTM_HOST` $@ |& grep -v "Warning: Permanently added"
+    set -o pipefail
+    ssh $CTM_SSHOPTS -l $RCTM_USER `vm_get_ip $CTM_HOST` $@ |& (grep -v "Warning: Permanently added" || true)
+    set +o pipefail
 }
 
-
-function virt-create(){
+function vm_create(){
     local CTM_PREFIX=$1
     local CTM_DISTRO=$2
     local CTM_NAME=${CTM_PREFIX}-${CTM_DISTRO}-${CTM_ARCH}
     local CTM_VMDIRS=/var/lib/libvirt/images/
     local CTM_LOG=$CTM_VMDIRS/$CTM_NAME.log
     is_created $CTM_NAME || virtinstall $CTM_PREFIX $CTM_DISTRO
-    write_out $CTM_NAME
-    #is_created $CTM_NAME|| treeinstall $CTM_PREFIX $CTM_DISTRO
-
 }
+
 function vm_delete_snaps(){
     CTM_NAME=$1
     for foo in `virsh -c qemu:///system snapshot-list $CTM_NAME --name`; do
@@ -166,6 +155,7 @@ function vm_delete_snaps(){
     done
     echolog All snaps deleted for: $CTM_NAME
 }
+
 function vm_get_name(){
     CTM_PREFIX=$1
     CTM_DISTRO=$2

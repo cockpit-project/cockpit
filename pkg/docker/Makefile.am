@@ -1,12 +1,12 @@
 
 dockerdir = $(pkgdatadir)/docker
 docker_DATA = \
-	pkg/docker/docker.min.js \
+	pkg/docker/docker.min.js.gz \
 	pkg/docker/console.min.html \
 	pkg/docker/manifest.json \
 	$(NULL)
 
-dockerdebugdir = $(dockerdir)$(DBGDIR)
+dockerdebugdir = $(DBGDIR)$(dockerdir)
 dockerdebug_DATA = \
 	pkg/docker/docker.js \
 	pkg/docker/console.html \

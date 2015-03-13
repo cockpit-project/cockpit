@@ -29,22 +29,24 @@ shell.min.js: shell.js
 
 shelldir = $(pkgdatadir)/shell
 shell_DATA = \
-	shell.js \
-	shell.min.js \
-	pkg/shell/index.html \
+	shell.min.js.gz \
 	pkg/shell/index.min.html \
-	pkg/shell/index.js \
-	pkg/shell/index.min.js \
+	pkg/shell/index.min.js.gz \
 	pkg/shell/shell.css \
-	pkg/shell/shell.html \
 	pkg/shell/shell.min.html \
 	pkg/shell/manifest.json \
-	pkg/shell/bootstrap-datetimepicker.css \
 	pkg/shell/bootstrap-datetimepicker.min.css \
-	pkg/shell/bootstrap-datetimepicker.js \
-	pkg/shell/bootstrap-datetimepicker.min.js \
+	pkg/shell/bootstrap-datetimepicker.min.js.gz \
 	$(NULL)
-noinst_DATA += \
+
+shelldebugdir = $(DBGDIR)$(shelldir)
+shelldebug_DATA = \
+	shell.js \
+	pkg/shell/index.html \
+	pkg/shell/index.js \
+	pkg/shell/shell.html \
+	pkg/shell/bootstrap-datetimepicker.css \
+	pkg/shell/bootstrap-datetimepicker.js \
 	$(NULL)
 
 shelllangdir = $(pkgdatadir)/shell/lang

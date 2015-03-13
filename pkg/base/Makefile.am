@@ -20,7 +20,7 @@ base_DATA = \
 	$(base_GEN) \
 	$(NULL)
 
-basedebugdir = $(basedir)$(DBGDIR)
+basedebugdir = $(DBGDIR)$(basedir)
 basedebug_DATA = \
 	pkg/base/require.js \
 	pkg/base/mustache.js \
@@ -37,6 +37,13 @@ baseimages_DATA = \
 
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
+	pkg/base/fonts/fontawesome.woff.gz \
+	pkg/base/fonts/patternfly.woff.gz \
+	pkg/base/fonts/glyphicons.woff.gz \
+	$(NULL)
+
+basefontsdebugdir = $(DBGDIR)$(basefontsdir)
+basefontsdebug_DATA = \
 	pkg/base/fonts/fontawesome.woff \
 	pkg/base/fonts/patternfly.woff \
 	pkg/base/fonts/glyphicons.woff \

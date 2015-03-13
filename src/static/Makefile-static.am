@@ -4,8 +4,12 @@ if WITH_COCKPIT_WS
 staticdir = $(datadir)/cockpit/static
 static_DATA = \
 	src/static/login.html \
-	src/static/favicon.ico \
-	src/static/apple-touch-icon.png \
+	$(BRAND)/bg-login.jpg \
+	$(BRAND)/brand-large.png \
+	$(BRAND)/brand.png \
+	$(BRAND)/logo.png \
+	$(BRAND)/apple-touch-icon.png \
+	$(BRAND)/favicon.ico \
 	$(NULL)
 
 EXTRA_DIST += $(static_DATA)
@@ -29,40 +33,18 @@ staticfonts_DATA = \
 	lib/opensans/OpenSans-SemiboldItalic-webfont.woff \
 	$(NULL)
 
-staticimagesdir = $(staticcachedir)/images
-staticimages_DATA = \
-	src/static/images/logo.v0.svg \
-	src/static/images/logo.v0.png \
-	src/static/images/brand.v0.svg \
-	src/static/images/brand.v0.png \
-	src/static/images/brand-large.v0.png \
-	src/static/images/bg-login.x0.jpg \
-	$(NULL)
-
 static_CHECKSUMS = $(srcdir)/src/static/checksums.txt
 
 all-local:: $(static_CHECKSUMS)
 
-$(static_CHECKSUMS): $(staticcache_DATA) $(staticimages_DATA)
+$(static_CHECKSUMS): $(staticcache_DATA)
 	$(AM_V_GEN) $(VERIFY_CHECKSUMS) -d $(srcdir) -o src/static/checksums.txt \
-		$(staticcache_DATA) $(staticimages_DATA)
+		$(staticcache_DATA)
 
 EXTRA_DIST += \
 	$(staticcache_DATA) \
 	$(staticfonts_DATA) \
-	$(staticimages_DATA) \
 	src/static/checksums.txt \
 	$(NULL)
 
-INKSCAPE_RENDER = inkscape --without-gui --export-area-page
-
-render-images::
-	$(INKSCAPE_RENDER) --export-height=10 \
-		--export-png=$(srcdir)/src/static/images/brand.v0.png \
-		$(srcdir)/src/static/images/brand.v0.svg
-	$(INKSCAPE_RENDER) --export-height=18 \
-		--export-png=$(srcdir)/src/static/images/brand-large.v0.png \
-		$(srcdir)/src/static/images/brand.v0.svg
-	$(INKSCAPE_RENDER) --export-height=69 \
-		--export-png=$(srcdir)/src/static/images/logo.v0.png \
-		$(srcdir)/src/static/images/logo.v0.svg
+endif

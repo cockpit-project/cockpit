@@ -10,6 +10,7 @@ base_GEN = \
 base_DATA = \
 	pkg/base/patternfly.css \
 	pkg/base/cockpit.css \
+	$(BRAND)/branding.css \
 	pkg/base/cockpit.js \
 	pkg/base/cockpit.min.js \
 	pkg/base/jquery.js \

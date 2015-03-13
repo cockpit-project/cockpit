@@ -48,7 +48,6 @@ struct _CockpitPackage {
   gchar *name;
   gchar *directory;
   JsonObject *manifest;
-  gboolean system;
 };
 
 /*
@@ -350,7 +349,6 @@ build_package_listing (GHashTable *listing,
                        GChecksum *checksum)
 {
   const gchar *const *directories;
-  CockpitPackage *package;
   gchar *directory = NULL;
   gchar **packages;
   gint i, j;
@@ -384,11 +382,7 @@ build_package_listing (GHashTable *listing,
         {
           packages = directory_filenames (directory);
           for (j = 0; packages && packages[j] != NULL; j++)
-            {
-              package = maybe_add_package (listing, directory, packages[j], checksum);
-              if (package)
-                package->system = TRUE;
-            }
+            maybe_add_package (listing, directory, packages[j], checksum);
           g_strfreev (packages);
         }
       g_free (directory);
@@ -555,62 +549,6 @@ handle_package_manifests_json (CockpitWebServer *server,
   return TRUE;
 }
 
-static gchar *
-calculate_accept_path (const gchar *path,
-                       const gchar *accept)
-{
-  const gchar *dot;
-  const gchar *slash;
-
-  dot = strrchr (path, '.');
-  slash = strrchr (path, '/');
-
-  if (dot == NULL)
-    return NULL;
-  if (slash != NULL && dot < slash)
-    return NULL;
-
-  return g_strdup_printf ("%.*s.%s%s",
-                          (int)(dot - path), path, accept, dot);
-}
-
-static GMappedFile *
-open_file (CockpitWebResponse *response,
-           const gchar *filename,
-           gboolean *retry)
-{
-  GMappedFile *mapped = NULL;
-  GError *error = NULL;
-
-  g_assert (retry);
-  *retry = FALSE;
-
-  mapped = g_mapped_file_new (filename, FALSE, &error);
-  if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ISDIR) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NAMETOOLONG) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_LOOP) ||
-      g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL))
-    {
-      g_debug ("resource file was not found: %s", error->message);
-      *retry = TRUE;
-    }
-  else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
-           g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
-    {
-      g_message ("%s", error->message);
-      cockpit_web_response_error (response, 403, NULL, NULL);
-    }
-  else if (error)
-    {
-      g_message ("%s", error->message);
-      cockpit_web_response_error (response, 500, NULL, NULL);
-    }
-
-  g_clear_error (&error);
-  return mapped;
-}
-
 static GBytes *
 expand_callback (const gchar *variable,
                  gpointer user_data)
@@ -663,15 +601,12 @@ handle_packages (CockpitWebServer *server,
   gchar *name;
   const gchar *path;
   GHashTable *out_headers = NULL;
-  gchar **accept = NULL;
-  gchar *alternate;
-  GMappedFile *mapped = NULL;
-  gchar *string = NULL;
   GBytes *bytes = NULL;
-  gboolean retry;
   gboolean expand;
+  gboolean gzip;
+  GBytes *converted;
+  gchar *chosen = NULL;
   gchar *base = NULL;
-  guint i;
 
   name = cockpit_web_response_pop_path (response);
   if (name == NULL)
@@ -696,42 +631,61 @@ handle_packages (CockpitWebServer *server,
     }
 
   add_cache_header (headers, packages, out_headers);
-  accept = cockpit_web_server_parse_languages (headers, package->system ? "min" : NULL);
 
-  retry = TRUE;
-  for (i = 0; !mapped && retry && accept && accept[i] != NULL; i++)
+  bytes = cockpit_web_response_negotiation (filename, NULL, &chosen, &error);
+  if (error)
     {
-      alternate = calculate_accept_path (filename, accept[i]);
-      if (alternate)
+      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
+          g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM))
         {
-          mapped = open_file (response, alternate, &retry);
-          if (mapped)
-            {
-              if (!g_str_equal (accept[i], "min"))
-                g_hash_table_insert (out_headers, g_strdup ("Vary"), g_strdup ("Accept-Language"));
-            }
+          g_message ("%s", error->message);
+          cockpit_web_response_error (response, 403, NULL, NULL);
         }
-      g_free (alternate);
+      else if (error)
+        {
+          g_message ("%s", error->message);
+          cockpit_web_response_error (response, 500, NULL, NULL);
+        }
+      goto out;
+    }
+  else if (!bytes)
+    {
+      cockpit_web_response_error (response, 404, NULL, NULL);
+      goto out;
     }
 
-  if (!mapped)
+  /* We don't want gzipped files when expanding contents */
+  if (expand)
+    gzip = FALSE;
+  else
+    gzip = cockpit_web_server_parse_encoding (headers, "gzip");
+
+  if (g_str_has_suffix (chosen, ".gz"))
     {
-      if (retry)
-        mapped = open_file (response, filename, &retry);
-      if (!mapped)
+      if (gzip)
         {
-          if (retry)
-            cockpit_web_response_error (response, 404, NULL, NULL);
-          goto out;
+          g_hash_table_insert (out_headers, g_strdup ("Content-Encoding"), g_strdup ("gzip"));
+        }
+      else
+        {
+          converted = cockpit_web_response_gunzip (bytes, &error);
+          if (error)
+            {
+              g_message ("couldn't decompress: %s: %s", chosen, error->message);
+              cockpit_web_response_error (response, 500, NULL, NULL);
+              goto out;
+            }
+          g_bytes_unref (bytes);
+          bytes = converted;
         }
     }
 
   cockpit_web_response_headers_full (response, 200, "OK", -1, out_headers);
 
   /* Expand and queue the data */
-  bytes = g_mapped_file_get_bytes (mapped);
   if (expand)
     {
+      g_assert (!gzip);
       if (packages->checksum)
         base = g_strdup_printf ("$%s", packages->checksum);
       else
@@ -745,11 +699,8 @@ handle_packages (CockpitWebServer *server,
 out:
   if (out_headers)
     g_hash_table_unref (out_headers);
-  if (mapped)
-    g_mapped_file_unref (mapped);
   g_free (name);
-  g_strfreev (accept);
-  g_free (string);
+  g_free (chosen);
   g_clear_error (&error);
   g_free (filename);
   g_free (base);

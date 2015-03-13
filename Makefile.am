@@ -86,6 +86,7 @@ VALGRIND_SUPPRESSIONS = \
 	tools/travis.supp \
 	tools/pcp.supp \
 	tools/unknown.supp \
+	tools/zlib.supp \
 	$(NULL)
 
 valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)

@@ -92,6 +92,9 @@ void                  cockpit_web_response_file          (CockpitWebResponse *re
                                                           gboolean cache_forever,
                                                           const gchar **roots);
 
+GBytes *              cockpit_web_response_gunzip        (GBytes *bytes,
+                                                          GError **error);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_RESPONSE_H__ */

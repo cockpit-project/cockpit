@@ -1147,3 +1147,56 @@ cockpit_web_response_pop_path (CockpitWebResponse *self)
   else
     return NULL;
 }
+
+/**
+ * cockpit_web_response_gunzip:
+ * @bytes: the compressed bytes
+ * @error: place to put an error
+ *
+ * Perform gzip decompression on the @bytes.
+ *
+ * Returns: the uncompressed bytes, caller owns return value.
+ */
+GBytes *
+cockpit_web_response_gunzip (GBytes *bytes,
+                             GError **error)
+{
+  GConverter *converter;
+  GConverterResult result;
+  const guint8 *in;
+  gsize inl, outl, read, written;
+  GByteArray *out;
+
+  converter = G_CONVERTER (g_zlib_decompressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP));
+
+  in = g_bytes_get_data (bytes, &inl);
+  out = g_byte_array_new ();
+
+  do
+    {
+      outl = out->len;
+      g_byte_array_set_size (out, outl + inl);
+
+      result = g_converter_convert (converter, in, inl, out->data + outl, inl,
+                                    G_CONVERTER_INPUT_AT_END, &read, &written, error);
+      if (result == G_CONVERTER_ERROR)
+        break;
+
+      g_byte_array_set_size (out, outl + written);
+      in += read;
+      inl -= read;
+    }
+  while (result != G_CONVERTER_FINISHED);
+
+  g_object_unref (converter);
+
+  if (result != G_CONVERTER_FINISHED)
+    {
+      g_byte_array_unref (out);
+      return NULL;
+    }
+  else
+    {
+      return g_byte_array_free_to_bytes (out);
+    }
+}

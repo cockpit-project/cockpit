@@ -117,7 +117,6 @@ SED_SUBST = sed \
         $(NULL)
 
 GDBUS_CODEGEN = $(top_srcdir)/tools/gdbus-unbreak-codegen
-VERIFY_CHECKSUMS = $(top_srcdir)/tools/verify-checksums
 
 testassetsdir = $(datadir)/cockpit-test-assets
 testassets_programs =

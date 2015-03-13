@@ -12,14 +12,7 @@ static_DATA = \
 	$(BRAND)/favicon.ico \
 	$(NULL)
 
-EXTRA_DIST += $(static_DATA)
-
-endif
-
-staticcachedir = $(datadir)/cockpit/static
-staticcache_DATA = $(NULL)
-
-staticfontsdir = $(staticcachedir)/fonts
+staticfontsdir = $(staticdir)/fonts
 staticfonts_DATA = \
 	lib/opensans/OpenSans-Bold-webfont.woff \
 	lib/opensans/OpenSans-BoldItalic-webfont.woff \
@@ -33,18 +26,9 @@ staticfonts_DATA = \
 	lib/opensans/OpenSans-SemiboldItalic-webfont.woff \
 	$(NULL)
 
-static_CHECKSUMS = $(srcdir)/src/static/checksums.txt
-
-all-local:: $(static_CHECKSUMS)
-
-$(static_CHECKSUMS): $(staticcache_DATA)
-	$(AM_V_GEN) $(VERIFY_CHECKSUMS) -d $(srcdir) -o src/static/checksums.txt \
-		$(staticcache_DATA)
-
 EXTRA_DIST += \
-	$(staticcache_DATA) \
+	$(static_DATA) \
 	$(staticfonts_DATA) \
-	src/static/checksums.txt \
 	$(NULL)
 
 endif

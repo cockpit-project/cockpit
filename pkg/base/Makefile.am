@@ -8,7 +8,6 @@ base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
 base_DATA = \
-	pkg/base/patternfly.css \
 	pkg/base/cockpit.css \
 	pkg/base/cockpit.js \
 	pkg/base/cockpit.min.js \
@@ -84,12 +83,14 @@ update-lib::
 	    $(srcdir)/lib/jquery.$(VX).js \
 	    $(srcdir)/lib/bootstrap.$(VX).js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).js \
+	    $(srcdir)/lib/bootstrap-datepicker.$(VX).js \
 	    $(srcdir)/lib/jquery-flot.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.min.js \
 	    $(srcdir)/lib/jquery.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
+	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
 	    $(srcdir)/lib/attrchange.min.js
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/require.js \
@@ -98,9 +99,14 @@ update-lib::
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/require.min.js \
 	    $(srcdir)/lib/requirejs.$(VX).min.js \
 	    $(srcdir)/pkg/base/require-config.js
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/patternfly.css \
+	    $(srcdir)/lib/patternfly.$(VX).css \
+	    $(srcdir)/lib/bootstrap-datepicker.$(VX).css
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/patternfly.min.css \
+	    $(srcdir)/lib/patternfly.$(VX).min.css \
+	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.css
 	$(BASE_LN) ../../lib/mustache.$(VX).js mustache.js
 	$(BASE_LN) ../../lib/mustache.$(VX).min.js mustache.min.js
-	$(BASE_LN) ../../lib/patternfly.$(VX).css patternfly.css
 	$(BASE_LN) ../../lib/term.$(VX).js term.js
 	$(FONTS_LN) ../../../lib/fontawesome.$(VX).woff fontawesome.woff
 	$(FONTS_LN) ../../../lib/patternfly.$(VX).woff patternfly.woff

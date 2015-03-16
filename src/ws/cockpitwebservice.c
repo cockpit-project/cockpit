@@ -1378,7 +1378,7 @@ on_web_socket_open (WebSocketConnection *connection,
   json_object_set_string_member (object, "command", "init");
   json_object_set_int_member (object, "version", 0);
   json_object_set_string_member (object, "channel-seed", socket->id);
-  json_object_set_string_member (object, "default-host", "localhost");
+  json_object_set_string_member (object, "host", "localhost");
   if (web_socket_connection_get_flavor (connection) == WEB_SOCKET_FLAVOR_RFC6455)
     {
       capabilities = json_array_new ();

@@ -52,7 +52,7 @@ class Test(test.Test):
         self.browser = Browser("localhost", self.label)
         self.journal_start = re.sub('.*cursor: ', '',
                                     subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True))
-        process.run("systemctl start cockpit.socket", shell=True)
+        process.run("systemctl start cockpit-testing.socket", shell=True)
 
     def action(self):
         self.test()
@@ -77,7 +77,7 @@ class Test(test.Test):
 
         for f in self.cleanup_funcs: f()
 
-        process.run("systemctl stop cockpit.socket cockpit.service", shell=True)
+        process.run("systemctl stop cockpit-testing.socket cockpit-testing.service", shell=True)
 
     allowed_messages = [
         # This is a failed login, which happens every time

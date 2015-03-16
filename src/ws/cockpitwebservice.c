@@ -36,6 +36,7 @@
 #include "cockpitauth.h"
 #include "cockpitws.h"
 
+#include "cockpitsessiontransport.h"
 #include "cockpitsshtransport.h"
 
 #include "websocket/websocket.h"
@@ -87,6 +88,7 @@ typedef struct
   gulong recv_sig;
   gulong closed_sig;
   gchar *checksum;
+  gchar *host_key;
 } CockpitSession;
 
 typedef struct
@@ -116,6 +118,7 @@ cockpit_session_free (gpointer data)
   g_object_unref (session->transport);
   cockpit_creds_unref (session->creds);
   g_free (session->checksum);
+  g_free (session->host_key);
   g_free (session->host);
   g_free (session);
 }
@@ -793,17 +796,13 @@ process_authorize (CockpitWebService *self,
                    CockpitSession *session,
                    JsonObject *options)
 {
+  CockpitAuthorization *authz;
   const gchar *cookie = NULL;
   CockpitTransport *transport;
-  GBytes *payload;
   const gchar *host;
-  char *user = NULL;
-  char *type = NULL;
-  char *response = NULL;
   const gchar *challenge;
-  const gchar *password;
+  gchar *command;
   gboolean ret = FALSE;
-  int rc;
 
   host = session->host;
 
@@ -828,20 +827,22 @@ process_authorize (CockpitWebService *self,
     {
       transport = g_object_new (COCKPIT_TYPE_SESSION_TRANSPORT,
                                 "command", cockpit_ws_bridge_program,
-                                "xxxxx", xxxxargxxx,
-                                "creds", creds,
+                                "argument", "--poke",
+                                "creds", session->creds,
                                 NULL);
     }
   else
     {
+      command = g_strdup_printf ("%s --poke", cockpit_ws_bridge_program);
       transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
                                 "host", host,
                                 "port", cockpit_ws_specific_ssh_port,
-                                "command", cockpit_ws_bridge_program,
-                                "creds", creds,
+                                "command", command,
+                                "creds", session->creds,
                                 "known-hosts", cockpit_ws_known_hosts,
                                 "host-key", session->host_key,
                                 NULL);
+      g_free (command);
     }
 
   authz = cockpit_authorization_new (transport, session, cookie);
@@ -1144,6 +1145,7 @@ lookup_or_open_session_for_host (CockpitWebService *self,
       session->control_sig = g_signal_connect_after (transport, "control", G_CALLBACK (on_session_control), self);
       session->recv_sig = g_signal_connect_after (transport, "recv", G_CALLBACK (on_session_recv), self);
       session->closed_sig = g_signal_connect_after (transport, "closed", G_CALLBACK (on_session_closed), self);
+      session->host_key = g_strdup (host_key);
       g_object_unref (transport);
     }
 

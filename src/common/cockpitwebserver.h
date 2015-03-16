@@ -53,6 +53,12 @@ gchar *            cockpit_web_server_parse_cookie    (GHashTable *headers,
 gchar **           cockpit_web_server_parse_languages (GHashTable *headers,
                                                        const gchar *first);
 
+GBytes *           cockpit_web_server_parse_authorization (GHashTable *headers,
+                                                           gchar **type);
+
+const gchar *      cockpit_web_server_parse_basic         (GBytes *input,
+                                                           gchar **user);
+
 gchar **           cockpit_web_server_resolve_roots (const gchar *root,
                                                      ...) G_GNUC_NULL_TERMINATED;
 

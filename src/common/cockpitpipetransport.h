@@ -35,6 +35,16 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitPipeTransport        CockpitPipeTransport;
 typedef struct _CockpitPipeTransportClass   CockpitPipeTransportClass;
+typedef struct _CockpitPipeTransportPrivate CockpitPipeTransportPrivate;
+
+struct _CockpitPipeTransport {
+  CockpitTransport parent_instance;
+  CockpitPipeTransportPrivate *priv;
+};
+
+struct _CockpitPipeTransportClass {
+  CockpitTransportClass parent_class;
+};
 
 GType              cockpit_pipe_transport_get_type   (void) G_GNUC_CONST;
 

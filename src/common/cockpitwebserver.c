@@ -1250,4 +1250,91 @@ initable_iface_init (GInitableIface *iface)
   iface->init = cockpit_web_server_initable_init;
 }
 
-/* ---------------------------------------------------------------------------------------------------- */
+#if 0
+static const gchar *
+parse_basic_auth_password (GBytes *input,
+                           gchar **user)
+{
+  const gchar *password;
+  const gchar *data;
+
+  data = g_bytes_get_data (input, NULL);
+
+  /* password is null terminated, see below */
+  password = strchr (data, ':');
+  if (password != NULL)
+    {
+      if (user)
+        *user = g_strndup (data, password - data);
+      password++;
+    }
+
+  return password;
+}
+
+static void
+clear_free_authorization (gpointer data)
+{
+  cockpit_secclear (data, strlen (data));
+  g_free (data);
+}
+
+
+static inline gchar *
+str_skip (gchar *v,
+          gchar c)
+{
+  while (v[0] == c)
+    v++;
+  return v;
+}
+
+
+GBytes *
+cockpit_auth_parse_authorization (GHashTable *headers,
+                                  gchar **type)
+{
+  gchar *line;
+  gchar *next;
+  gchar *contents;
+  gsize length;
+  gpointer key;
+  gsize i;
+
+  /* Avoid copying as it can contain passwords */
+  if (!g_hash_table_lookup_extended (headers, "Authorization", &key, (gpointer *)&line))
+    return NULL;
+
+  g_hash_table_steal (headers, "Authorization");
+  g_free (key);
+
+  line = str_skip (line, ' ');
+  next = strchr (line, ' ');
+  if (!next)
+    {
+      g_free (line);
+      return NULL;
+    }
+
+  contents = str_skip (next, ' ');
+  if (g_base64_decode_inplace (contents, &length) == NULL)
+    {
+      g_free (line);
+      return NULL;
+    }
+
+  /* Null terminate for convenience, but null count not included in GBytes */
+  contents[length] = '\0';
+
+  if (type)
+    {
+      *type = g_strndup (line, next - line);
+      for (i = 0; (*type)[i] != '\0'; i++)
+        (*type)[i] = g_ascii_tolower ((*type)[i]);
+    }
+
+  /* Avoid copying by using the line directly */
+  return g_bytes_new_with_free_func (contents, length, clear_free_authorization, line);
+}
+
+#endif

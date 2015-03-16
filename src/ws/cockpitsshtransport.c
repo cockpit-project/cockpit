@@ -72,6 +72,7 @@ typedef struct {
   ssh_session session;
   CockpitCreds *creds;
   gchar *command;
+  gchar *argument;
   gchar *expect_key;
   gchar *knownhosts_file;
   gboolean ignore_key;
@@ -524,6 +525,7 @@ enum {
   PROP_PORT,
   PROP_CREDS,
   PROP_COMMAND,
+  PROP_ARGUMENT,
   PROP_HOST_KEY,
   PROP_HOST_FINGERPRINT,
   PROP_KNOWN_HOSTS,
@@ -817,7 +819,7 @@ close_immediately (CockpitSshTransport *self,
   if (!self->result_emitted)
     {
       self->result_emitted = TRUE;
-      g_signal_emit_by_name (self, "result", problem);
+      g_signal_emit_by_name (self, xxx"result", problem);
     }
 
   g_debug ("%s: closing io%s%s", self->logname,
@@ -1072,7 +1074,7 @@ cockpit_ssh_source_prepare (GSource *source,
       if (!self->result_emitted)
         {
           self->result_emitted = TRUE;
-          g_signal_emit_by_name (self, "result", self->data->problem);
+          g_signal_emit_by_name (self, xxxx"result", self->data->problem);
         }
 
       if (self->data->problem)
@@ -1300,6 +1302,8 @@ cockpit_ssh_transport_set_property (GObject *obj,
         string = "cockpit-bridge";
       self->data->command = g_strdup (string);
       break;
+    case PROP_ARGUMENT:
+      
     case PROP_HOST_KEY:
       self->data->expect_key = g_value_dup_string (value);
       break;
@@ -1458,7 +1462,7 @@ cockpit_ssh_transport_class_init (CockpitSshTransportClass *klass)
          g_param_spec_boxed ("creds", NULL, NULL, COCKPIT_TYPE_CREDS,
                              G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 
-  g_signal_new ("result", COCKPIT_TYPE_SSH_TRANSPORT, G_SIGNAL_RUN_FIRST, 0, NULL, NULL,
+  g_signal_new (xxx"result", COCKPIT_TYPE_SSH_TRANSPORT, G_SIGNAL_RUN_FIRST, 0, NULL, NULL,
                 g_cclosure_marshal_generic, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   g_object_class_override_property (object_class, PROP_NAME, "name");

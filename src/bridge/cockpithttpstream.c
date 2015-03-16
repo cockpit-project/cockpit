@@ -317,7 +317,7 @@ relay_headers (CockpitHttpStream *self,
 
   if (offset < 0)
     {
-      g_message ("%s: received response with bad HTTP status line", self->name);
+g_message ("%s: received response with bad HTTP status line: %s", self->name, g_base64_encode ((const guchar *)data, length));
       goto out;
     }
 

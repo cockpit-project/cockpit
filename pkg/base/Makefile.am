@@ -1,4 +1,4 @@
-LINGUAS = de da
+LINGUAS = de da pl
 
 po/po.en.js: pkg/base/po.js
 	$(AM_V_GEN) cp $^ $@

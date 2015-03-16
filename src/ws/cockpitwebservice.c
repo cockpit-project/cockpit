@@ -1086,10 +1086,10 @@ parse_binary_type (JsonObject *options,
 }
 
 static gboolean
-process_open (CockpitWebService *self,
-              CockpitSocket *socket,
-              const gchar *channel,
-              JsonObject *options)
+process_and_relay_open (CockpitWebService *self,
+                        CockpitSocket *socket,
+                        const gchar *channel,
+                        JsonObject *options)
 {
   WebSocketDataType data_type = WEB_SOCKET_DATA_TEXT;
   CockpitSession *session = NULL;
@@ -1098,6 +1098,7 @@ process_open (CockpitWebService *self,
   const gchar *password;
   const gchar *host;
   const gchar *host_key;
+  GBytes *payload;
   gboolean private;
 
   if (self->closing)
@@ -1161,6 +1162,19 @@ process_open (CockpitWebService *self,
   cockpit_session_add_channel (&self->sessions, session, channel);
   if (socket)
     cockpit_socket_add_channel (&self->sockets, socket, channel, data_type);
+
+  json_object_remove_member (options, "host");
+  json_object_remove_member (options, "user");
+  json_object_remove_member (options, "password");
+  json_object_remove_member (options, "host-key");
+
+  if (!session->sent_done)
+    {
+      payload = cockpit_json_write_bytes (options);
+      cockpit_transport_send (session->transport, NULL, payload);
+      g_bytes_unref (payload);
+    }
+
   return TRUE;
 }
 
@@ -1244,7 +1258,6 @@ dispatch_inbound_command (CockpitWebService *self,
   const gchar *channel;
   JsonObject *options = NULL;
   gboolean valid = FALSE;
-  gboolean broadcast = FALSE;
   CockpitSession *session = NULL;
   GHashTableIter iter;
 
@@ -1269,36 +1282,33 @@ dispatch_inbound_command (CockpitWebService *self,
 
   if (g_strcmp0 (command, "open") == 0)
     {
-      valid = process_open (self, socket, channel, options);
+      valid = process_and_relay_open (self, socket, channel, options);
     }
   else if (g_strcmp0 (command, "logout") == 0)
     {
       valid = process_logout (self, options);
-      broadcast = TRUE;
+      if (valid)
+        {
+          /* logout is broadcast to everyone */
+          g_hash_table_iter_init (&iter, self->sessions.by_transport);
+          while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
+            {
+              if (!session->sent_done)
+                cockpit_transport_send (session->transport, NULL, payload);
+            }
+        }
     }
   else if (g_strcmp0 (command, "close") == 0)
     {
       session = cockpit_session_by_channel (&self->sessions, channel);
       valid = process_close (self, socket, session, channel, options);
-    }
-
-  if (!valid)
-    goto out;
-
-  if (broadcast)
-    {
-      g_hash_table_iter_init (&iter, self->sessions.by_transport);
-      while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&session))
-        {
-          if (!session->sent_done)
-            cockpit_transport_send (session->transport, NULL, payload);
-        }
+      if (valid && session && !session->sent_done)
+        cockpit_transport_send (session->transport, NULL, payload);
     }
   else if (channel)
     {
-      if (!session)
-        session = cockpit_session_by_channel (&self->sessions, channel);
-
+      /* Relay anything with a channel by default */
+      session = cockpit_session_by_channel (&self->sessions, channel);
       if (session)
         {
           if (!session->sent_done)
@@ -1705,8 +1715,6 @@ on_sideband_open (WebSocketConnection *connection,
                   CockpitWebService *self)
 {
   CockpitSideband *sideband;
-  CockpitSession *session;
-  GBytes *payload;
 
   /*
    * We delayed sending the "open" message for the sideband channel
@@ -1717,20 +1725,10 @@ on_sideband_open (WebSocketConnection *connection,
   sideband = cockpit_sideband_by_connection (&self->sidebands, connection);
   g_return_if_fail (sideband != NULL);
 
-  if (!process_open (self, NULL, sideband->channel, sideband->options))
+  if (!process_and_relay_open (self, NULL, sideband->channel, sideband->options))
     {
       web_socket_connection_close (connection, WEB_SOCKET_CLOSE_SERVER_ERROR, "protocol-error");
       return;
-    }
-
-  session = cockpit_session_by_channel (&self->sessions, sideband->channel);
-  g_return_if_fail (sideband != NULL);
-
-  if (!session->sent_done)
-    {
-      payload = cockpit_json_write_bytes (sideband->options);
-      cockpit_transport_send (session->transport, NULL, payload);
-      g_bytes_unref (payload);
     }
 }
 

@@ -18,7 +18,7 @@ mkdir -p $BUILD
 cd $BUILD
 ../autogen.sh --prefix=/usr --enable-maintainer-mode --enable-debug
 make
-make install
+make install install-test-assets
 
 set +e
 /bin/cp -f ../src/bridge/$PACKAGE.pam.insecure /etc/pam.d/$PACKAGE

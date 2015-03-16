@@ -29,18 +29,24 @@ shell.min.js: shell.js
 
 shelldir = $(pkgdatadir)/shell
 shell_DATA = \
-	shell.js \
-	shell.min.js \
-	pkg/shell/index.html \
+	shell.min.js.gz \
 	pkg/shell/index.min.html \
-	pkg/shell/index.js \
-	pkg/shell/index.min.js \
+	pkg/shell/index.min.js.gz \
 	pkg/shell/shell.css \
-	pkg/shell/shell.html \
 	pkg/shell/shell.min.html \
 	pkg/shell/manifest.json \
 	$(NULL)
-noinst_DATA += \
+
+shelldebugdir = $(DBGDIR)$(shelldir)
+shelldebug_DATA = \
+	shell.js \
+	pkg/shell/index.html \
+	pkg/shell/index.js \
+	pkg/shell/shell.html \
+	$(NULL)
+
+shell_DIST = \
+	shell.min.js \
 	$(NULL)
 
 shelllangdir = $(pkgdatadir)/shell/lang
@@ -84,9 +90,10 @@ CLEANFILES += \
 	$(NULL)
 
 EXTRA_DIST += \
+	shell.min.js \
 	$(shell_js_PARTS) \
 	$(shell_DATA) \
+	$(shelldebug_DATA) \
 	$(shellimages_DATA) \
 	$(CHECK_HTML) \
-	pkg/shell/shell.html \
 	$(NULL)

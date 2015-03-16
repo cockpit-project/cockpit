@@ -245,6 +245,7 @@ cockpit_session_track (CockpitSessions *sessions,
   /* Always send an init message down the new transport */
   object = build_json ("command", "init", NULL);
   json_object_set_int_member (object, "version", 0);
+  json_object_set_string_member (object, "host", host);
   command = cockpit_json_write_bytes (object);
   json_object_unref (object);
 

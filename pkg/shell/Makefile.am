@@ -55,14 +55,6 @@ shelllang_DATA = \
 shellimagesdir = $(pkgdatadir)/shell/images
 shellimages_DATA = \
 	pkg/shell/images/bg-login.jpg \
-	pkg/shell/images/category-containers.png \
-	pkg/shell/images/category-journal.png \
-	pkg/shell/images/category-networking.png \
-	pkg/shell/images/category-services.png \
-	pkg/shell/images/category-shutdown.png \
-	pkg/shell/images/category-storage.png \
-	pkg/shell/images/category-system.png \
-	pkg/shell/images/category-users.png \
 	pkg/shell/images/avatar-default-48.png \
 	pkg/shell/images/avatar-default-128.png \
 	pkg/shell/images/server-large.png \

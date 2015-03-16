@@ -35,7 +35,7 @@ function echolog(){
 }
 
 function host_dependencies_fedora(){
-    sudo yum -y yum-plugin-copr
+    sudo yum -y install yum-plugin-copr
     sudo yum -y copr enable fsimonce/virt-deploy
     sudo yum -y copr enable lmr/Autotest
     sudo yum -y install $HS_BASE_PCKGS

@@ -335,20 +335,6 @@ typedef struct {
   gchar *auth_type;
 } SessionLoginData;
 
-static void
-session_login_data_free (gpointer data)
-{
-  SessionLoginData *sl = data;
-  if (sl->session_pipe)
-    g_object_unref (sl->session_pipe);
-  if (sl->auth_pipe)
-    g_object_unref (sl->auth_pipe);
-  if (sl->authorization)
-    g_bytes_unref (sl->authorization);
-  g_free (sl->auth_type);
-  g_free (sl->remote_peer);
-  g_free (sl);
-}
 
 static void
 on_session_login_done (CockpitPipe *pipe,
@@ -655,11 +641,11 @@ on_remote_login_done (CockpitSshTransport *transport,
 }
 
 static void
-cockpit_auth_remote_login_async (CockpitAuth *self,
-                                 GHashTable *headers,
-                                 const gchar *remote_peer,
-                                 GAsyncReadyCallback callback,
-                                 gpointer user_data)
+cockpit_auth_login_async (CockpitAuth *self,
+                          GHashTable *headers,
+                          const gchar *remote_peer,
+                          GAsyncReadyCallback callback,
+                          gpointer user_data)
 {
   GSimpleAsyncResult *task;
   CockpitCreds *creds = NULL;
@@ -670,7 +656,7 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
   gchar *user = NULL;
 
   task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                    cockpit_auth_remote_login_async);
+                                    cockpit_auth_login_async);
 
   input = cockpit_auth_parse_authorization (headers, &type);
 
@@ -691,13 +677,22 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
     {
       rl = g_new0 (RemoteLoginData, 1);
       rl->creds = creds;
-      rl->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                                    "host", "127.0.0.1",
-                                    "port", cockpit_ws_specific_ssh_port,
-                                    "command", cockpit_ws_bridge_program,
-                                    "creds", creds,
-                                    "ignore-key", TRUE,
-                                    NULL);
+      if (auth->login_loopback)
+        {
+          rl->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
+                                        "host", "127.0.0.1",
+                                        "port", cockpit_ws_specific_ssh_port,
+                                        "command", cockpit_ws_bridge_program,
+                                        "creds", creds,
+                                        "ignore-key", TRUE,
+                                        NULL);
+        }
+      else
+        {
+          rl->transport = g_object_new (COCKPIT_TYPE_SESSION_TRANSPORT,
+                                        "creds", creds,
+                                        NULL);
+        }
 
       g_simple_async_result_set_op_res_gpointer (task, rl, remote_login_data_free);
       g_signal_connect (rl->transport, "result", G_CALLBACK (on_remote_login_done), g_object_ref (task));
@@ -714,7 +709,7 @@ cockpit_auth_remote_login_async (CockpitAuth *self,
 }
 
 static CockpitCreds *
-cockpit_auth_remote_login_finish (CockpitAuth *self,
+cockpit_auth_login_finish (CockpitAuth *self,
                                   GAsyncResult *result,
                                   GHashTable *headers,
                                   CockpitTransport **transport,
@@ -772,8 +767,8 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
 
   gobject_class->finalize = cockpit_auth_finalize;
 
-  klass->login_async = cockpit_auth_choose_login_async;
-  klass->login_finish = cockpit_auth_choose_login_finish;
+  klass->login_async = cockpit_auth_login_async;
+  klass->login_finish = cockpit_auth_login_finish;
 
   sig__idling = g_signal_new ("idling", COCKPIT_TYPE_AUTH, G_SIGNAL_RUN_FIRST,
                               0, NULL, NULL, NULL, G_TYPE_NONE, 0);

@@ -52,6 +52,7 @@ BuildRequires: docbook-style-xsl
 BuildRequires: keyutils-libs-devel
 BuildRequires: dbus-devel
 BuildRequires: glib-networking
+BuildRequires: sed
 
 BuildRequires: glib2-devel >= 2.37.4
 BuildRequires: systemd
@@ -182,7 +183,7 @@ make selinux
 # make check
 
 %install
-%make_install
+make install DESTDIR=%{buildroot} DBGDIR=/debug
 %if %{defined gitcommit}
 make install-test-assets DESTDIR=%{buildroot}
 mkdir -p %{buildroot}/%{_datadir}/polkit-1/rules.d
@@ -198,10 +199,26 @@ install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/%{name}/
 install -d %{buildroot}%{_datadir}/selinux/targeted
 install -p -m 644 cockpit.pp %{buildroot}%{_datadir}/selinux/targeted/
 %endif
+
+# Build the package lists for resource packages
+find %{buildroot}%{_datadir}/%{name}/base1 %{buildroot}%{_datadir}/%{name}/legacy %{buildroot}%{_datadir}/%{name}/shell %{buildroot}%{_datadir}/%{name}/system -type f > shell.list
+find %{buildroot}%{_datadir}/%{name}/subscriptions -type f > subscriptions.list
 %ifnarch x86_64
 rm -rf %{buildroot}/%{_datadir}/%{name}/docker
 rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
+%else
+find %{buildroot}%{_datadir}/%{name}/docker -type f > docker.list
+find %{buildroot}%{_datadir}/%{name}/kubernetes -type f > kubernetes.list
 %endif
+sed -i "s|%{buildroot}||" *.list
+
+# Build the package lists for debug package
+find %{buildroot}/debug%{_datadir}/%{name} -type f > debug.list
+sed -i "s|%{buildroot}/debug||" debug.list
+
+# Move the debug files into place mixed in with the other files
+tar -C %{buildroot}/debug -cf - . | tar -C %{buildroot} -xf -
+rm -rf %{buildroot}/debug
 
 %files
 %{_docdir}/%{name}/AUTHORS
@@ -223,6 +240,8 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
 %{_libexecdir}/cockpitd
 
+%files debuginfo -f debug.list
+
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS
 %exclude %{_docdir}/%{name}/COPYING
@@ -236,14 +255,17 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
 # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
 ( cd /var/lib/pcp/pmns && ./Rebuild -du )
 
-%files shell
-%{_datadir}/%{name}/base1
-%{_datadir}/%{name}/legacy
-%{_datadir}/%{name}/shell
-%{_datadir}/%{name}/system
+%files shell -f shell.list
+%dir %{_datadir}/%{name}/base1
+%dir %{_datadir}/%{name}/base1/fonts
+%dir %{_datadir}/%{name}/base1/images
+%dir %{_datadir}/%{name}/legacy
+%dir %{_datadir}/%{name}/shell
+%dir %{_datadir}/%{name}/shell/images
+%dir %{_datadir}/%{name}/system
 
-%files subscriptions
-%{_datadir}/%{name}/subscriptions
+%files subscriptions -f subscriptions.list
+%dir %{_datadir}/%{name}/subscriptions
 
 %files ws
 %doc %{_mandir}/man5/cockpit.conf.5.gz
@@ -286,8 +308,8 @@ Requires: docker
 The Cockpit components for interacting with Docker and user interface.
 This package is not yet complete.
 
-%files docker
-%{_datadir}/%{name}/docker
+%files docker -f docker.list
+%dir %{_datadir}/%{name}/docker
 
 %package kubernetes
 Summary: Cockpit user interface for Kubernetes cluster
@@ -297,8 +319,8 @@ Requires: kubernetes
 The Cockpit components for visualizing and configuring a Kubernetes
 cluster. Installed on the Kubernetes master. This package is not yet complete.
 
-%files kubernetes
-%{_datadir}/%{name}/kubernetes
+%files kubernetes -f kubernetes.list
+%dir %{_datadir}/%{name}/kubernetes
 
 %endif
 

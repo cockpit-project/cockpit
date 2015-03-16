@@ -18,11 +18,15 @@ TESTS =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-SUFFIXES = .js .min.js .css .html .min.html .1 .8 .5
+SUFFIXES = .js .min.js .min.js.gz .css .html .min.html .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
 V_CHECK_0 = @echo "  CHECK   " $@;
+
+V_GZIP = $(V_GZIP_$(V))
+V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
+V_GZIP_0 = @echo "  GZIP    " $@;
 
 .js.min.js:
 	@$(MKDIR_P) $(dir $@)
@@ -33,6 +37,13 @@ V_CHECK_0 = @echo "  CHECK   " $@;
 	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/html-minifier --output $@ $<
+
+.min.js.min.js.gz:
+	@$(MKDIR_P) $(dir $@)
+	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
+.woff.woff.gz:
+	@$(MKDIR_P) $(dir $@)
+	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
 
 po/po.%.js: po/%.po
 	@$(MKDIR_P) $(dir $@)
@@ -138,6 +149,7 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 clean-local:
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
+	find $(builddir) -name '*.gz' -delete
 	rm -rf mock-archives
 
 uninstall-local:: uninstall-doc-local

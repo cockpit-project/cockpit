@@ -1,12 +1,16 @@
 
 kubernetesdir = $(pkgdatadir)/kubernetes
 kubernetes_DATA = \
-	pkg/kubernetes/angular.js \
-	pkg/kubernetes/angular.min.js \
-	pkg/kubernetes/client.js \
-	pkg/kubernetes/client.min.js \
+	pkg/kubernetes/angular.min.js.gz \
+	pkg/kubernetes/client.min.js.gz \
 	pkg/kubernetes/manifest.json \
 	pkg/kubernetes/tool.html \
+	$(NULL)
+
+kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
+kubernetesdebug_DATA = \
+	pkg/kubernetes/angular.js \
+	pkg/kubernetes/client.js \
 	$(NULL)
 
 kubernetes_TESTS = \
@@ -21,9 +25,11 @@ CLEANFILES += \
 
 EXTRA_DIST += \
 	$(kubernetes_DATA) \
+	$(kubernetesdebug_DATA) \
 	$(kubernetes_TESTS) \
 	pkg/kubernetes/mock-basic.js \
 	pkg/kubernetes/mock-large.js \
+	pkg/kubernetes/angular.min.js \
 	pkg/kubernetes/angular-config.js \
 	$(NULL)
 

@@ -1,8 +1,5 @@
 LINGUAS = de da
 
-po/po.en.js: pkg/base/po.js
-	$(AM_V_GEN) cp $^ $@
-
 basedir = $(pkgdatadir)/base1
 base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
@@ -10,19 +7,23 @@ base_GEN = \
 base_DATA = \
 	pkg/base/cockpit.css \
 	pkg/base/patternfly.css \
-	$(BRAND)/branding.css \
-	pkg/base/cockpit.js \
-	pkg/base/cockpit.min.js \
-	pkg/base/jquery.js \
-	pkg/base/jquery.min.js \
-	pkg/base/mustache.js \
-	pkg/base/mustache.min.js \
-	pkg/base/require.js \
-	pkg/base/require.min.js \
 	pkg/base/term.js \
 	pkg/base/manifest.json \
-	po/po.en.js \
+	pkg/base/po.js \
+	pkg/base/require.min.js.gz \
+	pkg/base/mustache.min.js.gz \
+	pkg/base/jquery.min.js.gz \
+	pkg/base/cockpit.min.js.gz \
+	$(BRAND)/branding.css \
 	$(base_GEN) \
+	$(NULL)
+
+basedebugdir = $(DBGDIR)$(basedir)
+basedebug_DATA = \
+	pkg/base/require.js \
+	pkg/base/mustache.js \
+	pkg/base/jquery.js \
+	pkg/base/cockpit.js \
 	$(NULL)
 
 baseimagesdir = $(pkgdatadir)/base1/images
@@ -34,6 +35,13 @@ baseimages_DATA = \
 
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
+	pkg/base/fonts/fontawesome.woff.gz \
+	pkg/base/fonts/patternfly.woff.gz \
+	pkg/base/fonts/glyphicons.woff.gz \
+	$(NULL)
+
+basefontsdebugdir = $(DBGDIR)$(basefontsdir)
+basefontsdebug_DATA = \
 	pkg/base/fonts/fontawesome.woff \
 	pkg/base/fonts/patternfly.woff \
 	pkg/base/fonts/glyphicons.woff \
@@ -64,16 +72,19 @@ TESTS += $(base_TESTS)
 
 CLEANFILES += \
 	pkg/base/cockpit.min.js \
-	po/po.en.js \
 	$(base_GEN) \
 	$(NULL)
 
 EXTRA_DIST += \
-	pkg/base/po.js \
+	pkg/base/jquery.min.js \
+	pkg/base/require.min.js \
+	pkg/base/mustache.min.js \
 	$(base_DATA) \
-	$(base_TESTS) \
+	$(basedebug_DATA) \
 	$(baseimages_DATA) \
 	$(basefonts_DATA) \
+	$(basefontsdebug_DATA) \
+	$(base_TESTS) \
 	$(NULL)
 
 BASE_LN = cd $(srcdir)/pkg/base; ln -sf

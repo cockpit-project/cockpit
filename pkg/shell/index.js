@@ -663,7 +663,7 @@ require([
                 if (control.command === "init") {
                     peer.initialized = true;
                     var reply = $.extend({ }, cockpit.transport.options,
-                        { "default-host": peer.default_host, "channel-seed": peer.channel_seed }
+                        { "host": peer.default_host, "channel-seed": peer.channel_seed }
                     );
                     frame.postMessage("\n" + JSON.stringify(reply), origin);
 

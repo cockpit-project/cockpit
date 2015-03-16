@@ -80,7 +80,7 @@ The following fields are defined:
  * "version": The version of the protocol. Currently zero, and unstable.
  * "capabilities": An array of capability strings
  * "channel-seed": A seed to be used when generating new channel ids.
- * "default-host": The default host to put in "open" messages.
+ * "host": The host being communicated with.
  * "problem": A problem occurred during init.
 
 If a problem occurs that requires shutdown of a transport, then the "problem"

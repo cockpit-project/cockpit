@@ -468,8 +468,8 @@ function Transport() {
             self.binary = binary_type_available;
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
-        if (options["default-host"])
-            default_host = options["default-host"];
+        if (options["host"])
+            default_host = options["host"];
         cockpit.transport.options = options;
 
         if (waiting_for_init) {

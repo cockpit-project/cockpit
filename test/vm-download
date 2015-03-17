@@ -35,7 +35,10 @@ case ${1:-} in
 	;;
 esac
 
-TEST_IMAGE=$flavor-$TEST_OS-$TEST_ARCH
+os=$(python -c "print eval(open('$flavor.conf', 'r').read())['os']" 2>/dev/null || true)
+os=${os:-$TEST_OS}
+
+TEST_IMAGE=$flavor-$os-$TEST_ARCH
 
 checksum_file=$TEST_IMAGE-checksum
 

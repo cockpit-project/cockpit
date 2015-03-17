@@ -562,4 +562,38 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
     return result;
 };
 
+shell.plot_simple_template = function simple() {
+    return {
+        colors: [ "#0099d3" ],
+        legend: { show: false },
+        series: { shadowSize: 0,
+            lines: {
+                lineWidth: 0.0,
+                fill: 1.0
+            }
+        },
+        xaxis: {
+            tickFormatter: function() { return ""; }
+        },
+        yaxis: {
+            tickFormatter: function() { return ""; },
+            ticks: 5,
+        },
+        /*
+         * The point radius influences the margin around the grid even if no points
+         * are plotted. We don't want any margin, so we set the radius to zero.
+         */
+        points: {
+            radius: 0
+        },
+        grid: {
+            borderWidth: 1,
+            aboveData: true,
+            color: "black",
+            borderColor: $.color.parse("black").scale('a', 0.22).toString(),
+            labelMargin: 0
+        }
+    };
+};
+
 })(jQuery, shell);

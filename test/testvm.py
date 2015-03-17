@@ -373,20 +373,7 @@ class QemuMachine(Machine):
         ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
         gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
 
-    def _setup_fedora_18(self, gf):
-        self._setup_fstab(gf)
-        self._setup_ssh_keys(gf)
-        self._setup_fedora_network(gf)
-
-        # Switch to ssh socket activated so no race on boot
-        sshd_socket = "[Unit]\nDescription=SSH Socket\n[Socket]\nListenStream=22\nAccept=yes\n"
-        gf.write("/etc/systemd/system/sockets.target.wants/sshd.socket", sshd_socket)
-        sshd_service = "[Unit]\nDescription=SSH Server\n[Service]\nExecStart=-/usr/sbin/sshd -i\nStandardInput=socket\n"
-        gf.write("/etc/systemd/system/sshd@.service", sshd_service)
-        # systemctl disable sshd.service
-        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
-
-    def _setup_fedora_20 (self, gf):
+    def _setup_fedora_21 (self, gf):
         self._setup_fstab(gf)
         self._setup_ssh_keys(gf)
         self._setup_fedora_network(gf)
@@ -397,7 +384,7 @@ class QemuMachine(Machine):
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
-    def _setup_fedora_21 (self, gf):
+    def _setup_fedora_22 (self, gf):
         self._setup_fstab(gf)
         self._setup_ssh_keys(gf)
         self._setup_fedora_network(gf)
@@ -483,12 +470,10 @@ class QemuMachine(Machine):
 
     def build(self, args):
         def modify(gf):
-            if self.os == "fedora-18" or self.os == "f18":
-                self._setup_fedora_18(gf)
-            elif self.os == "fedora-20" or self.os == "f20":
-                self._setup_fedora_20(gf)
-            elif self.os == "fedora-21" or self.os == "f21":
+            if self.os == "fedora-21":
                 self._setup_fedora_21(gf)
+            elif self.os == "fedora-22":
+                self._setup_fedora_22(gf)
             else:
                 raise Failure("Unsupported OS %s" % self.os)
 

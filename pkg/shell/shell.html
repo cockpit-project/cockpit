@@ -30,18 +30,25 @@
         <div class="row">
           <div class="col-md-12">
             <div id="dashboard-toolbar" class="pull-right" hidden>
-              <div class="btn-toolbar">
-                <div class="btn-group" id="dashboard-range-buttons">
-                  <button class="btn btn-default" data-seconds="604800">1 week</button>
-                  <button class="btn btn-default" data-seconds="86400">1 day</button>
-                  <button class="btn btn-default" data-seconds="21600">6 hours</button>
-                  <button class="btn btn-default" data-seconds="3600">1 hour</button>
-                  <button class="btn btn-default" data-seconds="300">5 minutes</button>
-                </div>
-                <div class="btn-group">
-                  <button class="btn btn-default" id="dashboard-scroll-left">&lt;</button>
-                  <button class="btn btn-default" id="dashboard-scroll-right">&gt;</button>
-                </div>
+              <div class="dropdown" style="display:inline-block">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                  <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  <li role="presentation"><a role="menuitem" tabindex="-1" data-action="goto-now">Go to now</a></li>
+                  <li role="presentation" class="divider"></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" data-range="300">5 minutes</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" data-range="3600">1 hour</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" data-range="21600">6 hours</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" data-range="86400">1 day</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" data-range="604800">1 week</a></li>
+                </ul>
+              </div>
+              <button class="btn btn-default glyphicon glyphicon-zoom-out" data-action="zoom-out"></button>
+              <div class="btn-group">
+                <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
+                <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
               </div>
             </div>
             <ul class="nav nav-tabs">
@@ -119,25 +126,61 @@
               <td id="shutdown-group">
               </td>
             </tr>
+            <tr>
+              <td translatable="yes">Store performance data</td>
+              <td id="server-pmlogger-onoff">
+              </td>
+            </tr>
           </table>
         </div>
         <div id="server-graph-columns" class="col-md-8 col-lg-9">
-          <div id="server-graph-column-1" class="col-md-12 col-lg-6">
-            <div style="color:black">CPU<span style="float:right" id="server_cpu_text"></span></div>
-            <div style="height:120px" id="server_cpu_graph" class="server-graph" onclick="cockpit.location.go('cpu_status');"></div>
-            <br/>
-            <div style="color:black">Memory<span style="float:right" id="server_memory_text"></span></div>
-            <div style="height:120px" id="server_memory_graph" class="server-graph" onclick="cockpit.location.go('memory_status');"></div>
-            <br/>
+          <div id="server-graph-toolbar" class="pull-right" hidden>
+            <div class="dropdown" style="display:inline-block">
+              <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span style="width:6em;text-align:left;padding-left:5px;display:inline-block"></span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a role="menuitem" tabindex="-1" data-action="goto-now">Go to now</a></li>
+                <li role="presentation" class="divider"></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" data-range="300">5 minutes</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" data-range="3600">1 hour</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" data-range="21600">6 hours</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" data-range="86400">1 day</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" data-range="604800">1 week</a></li>
+              </ul>
+            </div>
+            <button class="btn btn-default glyphicon glyphicon-zoom-out" data-action="zoom-out"></button>
+            <div class="btn-group">
+              <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
+              <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+            </div>
           </div>
-          <div id="server-graph-column-2" class="col-md-12 col-lg-6">
-            <div style="color:black">Disk I/O<span style="float:right" id="server_disk_io_text"></span></div>
-            <div style="height:120px" id="server_disk_io_graph" class="server-graph" onclick="cockpit.jump('/storage/devices');"></div>
-            <br/>
-            <div style="color:black">Network Traffic<span style="float:right" id="server_network_traffic_text"></span></div>
-            <div style="height:120px" id="server_network_traffic_graph" class="server-graph" onclick="cockpit.jump('/network/interfaces');"></div>
-            <br/>
+          <br/>
+          <br/>
+          <div style="color:black">
+            <a onclick="cockpit.location.go('cpu_status');">CPU</a>
+            <span style="float:right" id="server_cpu_text"></span>
           </div>
+          <div style="height:120px" id="server_cpu_graph" class="server-graph"></div>
+          <br/>
+          <div style="color:black">
+            <a onclick="cockpit.location.go('memory_status');">Memory</a>
+            <span style="float:right" id="server_memory_text"></span>
+          </div>
+          <div style="height:120px" id="server_memory_graph" class="server-graph"></div>
+          <br/>
+          <div style="color:black">
+            <a onclick="cockpit.jump('/network/interfaces');">Network Traffic</a>
+            <span style="float:right" id="server_network_traffic_text"></span>
+          </div>
+          <div style="height:120px" id="server_network_traffic_graph" class="server-graph"></div>
+          <br/>
+          <div style="color:black">
+            <a onclick="cockpit.jump('/storage/devices');">Disk I/O</a>
+            <span style="float:right" id="server_disk_io_text"></span>
+          </div>
+          <div style="height:120px" id="server_disk_io_graph" class="server-graph"></div>
         </div>
       </div>
 

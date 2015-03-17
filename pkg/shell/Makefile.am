@@ -65,6 +65,9 @@ shellimages_DATA = \
 	pkg/shell/images/switcher.png \
 	$(NULL)
 
+pmlogconfdir = /var/lib/pcp/config/pmlogconf/tools
+pmlogconf_DATA = pkg/shell/pmlogconf/cockpit
+
 # -----------------------------------------------------------------------------
 
 CHECK_HTML = \
@@ -93,6 +96,7 @@ EXTRA_DIST += \
 	$(shellimages_DATA) \
 	$(CHECK_HTML) \
 	pkg/shell/shell.html \
+	pkg/shell/pmlogconf/cockpit \
 	$(NULL)
 
 update-lib::

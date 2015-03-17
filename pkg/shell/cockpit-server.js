@@ -46,6 +46,75 @@ function update_realm_privileged() {
 $(shell.default_permission).on("changed", update_realm_privileged);
 $(shell.default_permission).on("changed", update_hostname_privileged);
 
+var common_plot_options = {
+    colors: [ "#0099d3" ],
+    legend: { show: false },
+    series: { shadowSize: 0,
+              lines: { lineWidth: 0.0,
+                       fill: 1.0
+                     }
+            },
+    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: shell.format_date_tick, minTickSize: [ 1, 'minute' ] },
+    // The point radius influences
+    // the margin around the grid
+    // even if no points are plotted.
+    // We don't want any margin, so
+    // we set the radius to zero.
+    points: { radius: 0 },
+    grid: { borderWidth: 1,
+            aboveData: true,
+            color: "black",
+            borderColor: $.color.parse("black").scale('a', 0.22).toString()
+          }
+};
+
+var resource_monitors = [
+    { selector: "#server_cpu_graph",
+      text_selector: "#server_cpu_text",
+      text_formatter: function (val) { return val.toFixed(0) + "%"; },
+      monitor: shell.cpu_monitor,
+      options: { yaxis: { tickColor: "#e1e6ed",
+                          tickFormatter: function(v) { return v + "%"; },
+                          labelWidth: 45
+                        } },
+      ymax_unit: 100
+    },
+    { selector: "#server_memory_graph",
+      text_selector: "#server_memory_text",
+      text_formatter: function (v) { return cockpit.format_bytes(v); },
+      monitor: shell.mem_monitor,
+      options: { yaxis: { ticks: shell.memory_ticks,
+                          tickColor: "#e1e6ed",
+                          tickFormatter:  function (v) { return cockpit.format_bytes(v); },
+                          labelWidth: 45
+                        }
+               },
+      ymax_unit: 100000000
+    },
+    { selector: "#server_network_traffic_graph",
+      text_selector: "#server_network_traffic_text",
+      text_formatter: function (v) { return cockpit.format_bits_per_sec(v*8); },
+      monitor: shell.net_monitor,
+      options: { yaxis: { tickColor: "#e1e6ed",
+                          tickFormatter:  function (v) { return cockpit.format_bits_per_sec(v*8); },
+                          labelWidth: 45
+                        }
+               },
+      ymax_min: 100000
+    },
+    { selector: "#server_disk_io_graph",
+      text_selector: "#server_disk_io_text",
+      text_formatter: function (v) { return cockpit.format_bytes_per_sec(v); },
+      monitor: shell.disk_monitor,
+      options: { yaxis: { tickColor: "#e1e6ed",
+                          tickFormatter:  function (v) { return cockpit.format_bytes_per_sec(v); },
+                          labelWidth: 45
+                        }
+               },
+      ymax_min: 100000
+    }
+];
+
 PageServer.prototype = {
     _init: function() {
         this.id = "server";
@@ -87,6 +156,8 @@ PageServer.prototype = {
                 $('#realms-op').modal('show');
             }
         });
+
+        self.plot_controls = shell.setup_plot_controls($('#server-graph-toolbar'));
     },
 
     enter: function() {
@@ -101,83 +172,57 @@ PageServer.prototype = {
 
         $('#server-avatar').attr('src', "images/server-large.png");
 
-        function network_setup_hook(plot) {
-            var axes = plot.getAxes();
-            if (axes.yaxis.datamax < 100000)
-                axes.yaxis.options.max = 100000;
-            else
-                axes.yaxis.options.max = null;
-            axes.yaxis.options.min = 0;
+        function make_plot(config) {
+
+            function setup_hook(flot) {
+                var axes = flot.getAxes();
+
+                if (config.ymax_unit) {
+                    if (axes.yaxis.datamax)
+                        axes.yaxis.options.max = Math.ceil(axes.yaxis.datamax / config.ymax_unit) * config.ymax_unit;
+                    else
+                        axes.yaxis.options.max = config.ymax_unit;
+                }
+
+                if (config.ymax_min) {
+                    if (axes.yaxis.datamax < config.ymax_min)
+                        axes.yaxis.options.max = config.ymax_min;
+                    else
+                        axes.yaxis.options.max = null;
+                }
+
+                axes.yaxis.options.min = 0;
+            }
+
+            function real_time_callback(val) {
+                $(config.text_selector).text(config.text_formatter(val));
+            }
+
+            var plot = shell.plot($(config.selector), 300);
+            var mon = config.monitor();
+            plot.set_options($.extend({ setup_hook: setup_hook },
+                                      common_plot_options,
+                                      config.options));
+            plot.add_monitor(mon, { real_time_callback: real_time_callback });
+
+            mon.has_archives()
+                .done(function (res) {
+                    if (res) {
+                        var options = plot.get_options();
+                        if (!options.selection) {
+                            options.selection = { mode: "x", color: "#d4edfa" };
+                            plot.set_options(options);
+                            plot.refresh();
+                        }
+                        $("#server-graph-toolbar").show();
+                    }
+                });
+
+            return plot;
         }
 
-        var monitor = self.client.get("/com/redhat/Cockpit/CpuMonitor",
-                                      "com.redhat.Cockpit.ResourceMonitor");
-        self.cpu_plot =
-            shell.setup_simple_plot("#server_cpu_graph",
-                                      "#server_cpu_text",
-                                      monitor,
-                                      { yaxis: { ticks: 5 } },
-                                      function(values) { // Combines the series into a single plot-value
-                                          return values[1] + values[2] + values[3];
-                                      },
-                                      function(values) { // Combines the series into a textual string
-                                          var total = values[1] + values[2] + values[3];
-                                          return total.toFixed(1) + "%";
-                                      });
-
-        monitor = self.client.get("/com/redhat/Cockpit/MemoryMonitor",
-                                  "com.redhat.Cockpit.ResourceMonitor");
-        self.memory_plot =
-            shell.setup_simple_plot("#server_memory_graph",
-                                      "#server_memory_text",
-                                      monitor,
-                                      { },
-                                      function(values) { // Combines the series into a single plot-value
-                                          return values[1] + values[2] + values[3];
-                                      },
-                                      function(values) { // Combines the series into a textual string
-                                          var total = values[1] + values[2] + values[3];
-                                          return cockpit.format_bytes(total);
-                                      });
-
-        monitor = self.client.get("/com/redhat/Cockpit/NetworkMonitor",
-                                  "com.redhat.Cockpit.ResourceMonitor");
-        self.network_traffic_plot =
-            shell.setup_simple_plot("#server_network_traffic_graph",
-                                      "#server_network_traffic_text",
-                                      monitor,
-                                      { setup_hook: network_setup_hook },
-                                      function(values) { // Combines the series into a single plot-value
-                                          return values[0] + values[1];
-                                      },
-                                      function(values) { // Combines the series into a textual string
-                                          var total = values[0] + values[1];
-                                          return cockpit.format_bits_per_sec(total * 8);
-                                      });
-
-        monitor = self.client.get("/com/redhat/Cockpit/DiskIOMonitor",
-                                  "com.redhat.Cockpit.ResourceMonitor");
-        self.disk_io_plot =
-            shell.setup_simple_plot("#server_disk_io_graph",
-                                      "#server_disk_io_text",
-                                      monitor,
-                                      { },
-                                      function(values) { // Combines the series into a single plot-value
-                                          return values[0] + values[1];
-                                      },
-                                      function(values) { // Combines the series into a textual string
-                                          var total = values[0] + values[1];
-                                          return cockpit.format_bytes_per_sec(total);
-                                      });
-
-
-        shell.util.machine_info(null).
-            done(function (info) {
-                // TODO - round memory to something nice and/or adjust
-                //        the ticks.
-                self.cpu_plot.set_yaxis_max(info.cpus*100);
-                self.memory_plot.set_yaxis_max(info.memory);
-            });
+        self.plots = resource_monitors.map(make_plot);
+        self.plot_controls.reset(self.plots);
 
         self.update_avatar ();
 
@@ -258,22 +303,90 @@ PageServer.prototype = {
         $(self.realms).on('notify:Joined.server',
                           $.proxy(self, "update_realms"));
         self.update_realms();
+
+        $(cockpit).on('resize.server', function () {
+            self.plots.forEach(function (p) { p.resize(); });
+        });
+
+        /* PCP logging
+         */
+
+        /* TODO: Talk to systemd directly.  This is a bit too
+         * cumbersome just for a single service so we cheat and use
+         * cockpitd which has all the hairy code.
+         */
+
+        var services = cockpit.dbus('com.redhat.Cockpit', { bus: 'session' }).
+            proxy('com.redhat.Cockpit.Services',
+                  '/com/redhat/Cockpit/Services');
+
+        function service_action_sequence(actions) {
+            function step(i) {
+                if (i < actions.length) {
+                    services.ServiceAction(actions[i][0], actions[i][1])
+                        .done(function () {
+                            step(i+1);
+                        })
+                        .fail(function () {
+                            console.warn(actions[i], "failed");
+                            refresh_pmlogger_state();
+                        });
+                }
+            }
+            step(0);
+        }
+
+        function change_pmlogger_state(val) {
+            if (val) {
+                service_action_sequence([ [ 'pmcd.service', 'enable' ],
+                                          [ 'pmcd.service', 'start' ],
+                                          [ 'pmlogger.service', 'enable' ],
+                                          [ 'pmlogger.service', 'restart' ]
+                                        ]);
+            } else {
+                service_action_sequence([ [ 'pmlogger.service', 'stop' ],
+                                          [ 'pmlogger.service', 'disable' ]
+                                        ]);
+            }
+        }
+
+        self.pmlogger_onoff = shell.OnOff(false,
+                                          change_pmlogger_state,
+                                          null,
+                                          null,
+                                          null);
+
+        $('#server-pmlogger-onoff').empty().append(self.pmlogger_onoff);
+
+        function update_pmlogger_state(state) {
+            self.pmlogger_onoff.set(state.startsWith("enabled"));
+        }
+
+        $(services).on("ServiceUpdate", function (event, state) {
+            if (state[0] == "pmlogger.service")
+                update_pmlogger_state(state[5]);
+        });
+
+        function refresh_pmlogger_state() {
+            services.wait(function () {
+                services.GetServiceInfo('pmlogger.service')
+                    .done(function (info) {
+                        update_pmlogger_state(info.UnitFileState.v);
+                    });
+            });
+        }
+
+        refresh_pmlogger_state();
     },
 
     show: function() {
-        this.cpu_plot.start();
-        this.memory_plot.start();
-        this.disk_io_plot.start();
-        this.network_traffic_plot.start();
+        this.plots.forEach(function (p) { p.resize(); });
     },
 
     leave: function() {
         var self = this;
 
-        self.cpu_plot.destroy();
-        self.memory_plot.destroy();
-        self.disk_io_plot.destroy();
-        self.network_traffic_plot.destroy();
+        self.plots.forEach(function (p) { p.destroy(); });
 
         $(self.manager).off('.server');
         self.manager = null;
@@ -282,6 +395,8 @@ PageServer.prototype = {
         $(self.client).off('.server');
         self.client.release();
         self.client = null;
+
+        $(cockpit).off('.server');
     },
 
     shutdown: function(action_type) {

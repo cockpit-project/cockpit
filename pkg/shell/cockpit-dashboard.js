@@ -26,32 +26,10 @@
 var shell = shell || { };
 (function($, cockpit, shell) {
 
-var month_names = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
-
-function format_date_tick(val, axis) {
-    function pad(n) {
-        var str = n.toFixed();
-        if(str.length == 1)
-            str = '0' + str;
-        return str;
-    }
-
-    var d = new Date(val);
-    var n = new Date();
-    var time = pad(d.getHours()) + ':' + pad(d.getMinutes());
-
-    if (d.getFullYear() == n.getFullYear() && d.getMonth() == n.getMonth() && d.getDate() == n.getDate()) {
-        return time;
-    } else {
-        var day = C_("month-name", month_names[d.getMonth()]) + ' ' + d.getDate().toFixed();
-        return day + ", " + time;
-    }
-}
-
 var common_plot_options = {
     legend: { show: false },
     series: { shadowSize: 0 },
-    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: format_date_tick, minTickSize: [ 1, 'minute' ] },
+    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: shell.format_date_tick, minTickSize: [ 1, 'minute' ] },
     // The point radius influences the margin around the grid even if
     // no points are plotted.  We don't want any margin, so we set the
     // radius to zero.
@@ -63,34 +41,16 @@ var common_plot_options = {
           }
 };
 
-function memory_ticks(opts) {
-    // Not more than 5 ticks, nicely rounded to powers of 2.
-    var size = Math.pow(2.0, Math.ceil(Math.log(opts.max/5)/Math.LN2));
-    var ticks = [ ];
-    for (var t = 0; t < opts.max; t += size)
-        ticks.push(t);
-    return ticks;
-}
-
 var resource_monitors = [
     { selector: "#dashboard-plot-0",
-      plot: { metrics: [ "kernel.all.cpu.nice",
-                         "kernel.all.cpu.user",
-                         "kernel.all.cpu.sys"
-                       ],
-              units: "millisec",
-              derive: "rate",
-              factor: 0.1  // millisec / sec -> percent
-            },
+      monitor: shell.cpu_monitor,
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter: function(v) { return v + "%"; }} },
       ymax_unit: 100
     },
     { selector: "#dashboard-plot-1",
-      plot: { metrics: [ "mem.util.used" ],
-              units: "byte"
-            },
-      options: { yaxis: { ticks: memory_ticks,
+      monitor: shell.mem_monitor,
+      options: { yaxis: { ticks: shell.memory_ticks,
                           tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bytes(v); }
                         }
@@ -98,11 +58,7 @@ var resource_monitors = [
       ymax_unit: 100000000
     },
     { selector: "#dashboard-plot-2",
-      plot: { metrics: [ "network.interface.total.bytes" ],
-              units: "byte",
-              'omit-instances': [ "lo" ],
-              derive: "rate"
-            },
+      monitor: shell.net_monitor,
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bits_per_sec(v*8); }
                         }
@@ -110,10 +66,7 @@ var resource_monitors = [
       ymax_min: 100000
     },
     { selector: "#dashboard-plot-3",
-      plot: { metrics: [ "disk.dev.total_bytes" ],
-              units: "byte",
-              derive: "rate"
-            },
+      monitor: shell.disk_monitor,
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bytes_per_sec(v); }
                         }
@@ -221,8 +174,6 @@ PageDashboard.prototype = {
         var self = this;
 
         var current_monitor = 0;
-        var plot_x_range = 5*60;
-        var plot_x_stop;
 
         $('#dashboard-add').click(function () {
             shell.host_setup();
@@ -249,54 +200,9 @@ PageDashboard.prototype = {
             plot_refresh();
         }
 
-        $('#dashboard-range-buttons button').click(function () {
-            set_plot_x_range(parseInt($(this).data('seconds'), 10));
-        });
-
-        $('#dashboard-scroll-left').click(function () {
-            scroll_plot_left();
-        });
-
-        $('#dashboard-scroll-right').click(function () {
-            scroll_plot_right();
-        });
-
-        function update_scroll_buttons() {
-            $('#dashboard-scroll-right').attr('disabled', plot_x_stop === undefined);
-        }
-
-        function set_plot_x_range(val) {
-            $('#dashboard-range-buttons button').removeClass("active");
-            $('#dashboard-range-buttons button[data-seconds=' + val + ']').addClass("active");
-            plot_x_range = val;
-            plot_x_stop = undefined;
-            plot_reset_soft();
-            update_scroll_buttons();
-        }
-
-        function scroll_plot_left() {
-            var step = plot_x_range / 10;
-            if (plot_x_stop === undefined)
-                plot_x_stop = (new Date()).getTime() / 1000;
-            plot_x_stop -= step;
-            plot_reset_soft();
-            update_scroll_buttons();
-        }
-
-        function scroll_plot_right() {
-            var step = plot_x_range / 10;
-            if (plot_x_stop !== undefined) {
-                plot_x_stop += step;
-                if (plot_x_stop >= (new Date()).getTime() / 1000 - 10)
-                    plot_x_stop = undefined;
-                plot_reset_soft();
-            }
-            update_scroll_buttons();
-        }
-
         plot_init();
         set_monitor(current_monitor);
-        set_plot_x_range(plot_x_range);
+        shell.setup_plot_controls($('#dashboard-toolbar'), self.plots);
 
         $("#dashboard-hosts")
             .on("click", "a.list-group-item", function() {
@@ -433,14 +339,27 @@ PageDashboard.prototype = {
             var series = [ ];
             var i = 0;
             resource_monitors.forEach(function (rm) {
-                if (self.plots[i]) {
-                    series.push(self.plots[i].add_metrics_sum_series($.extend({ host: addr},
-                                                                              rm.plot),
-                                                                     { color: shell_info.color,
-                                                                       lines: {
-                                                                           lineWidth: 2
-                                                                       }
-                                                                     }));
+                var plot = self.plots[i];
+                if (plot) {
+                    var mon = rm.monitor(addr);
+                    series.push(plot.add_monitor(mon,
+                                                 { color: shell_info.color,
+                                                   lines: {
+                                                       lineWidth: 2
+                                                   }
+                                                 }));
+                    mon.has_archives()
+                        .done(function (res) {
+                            if (res) {
+                                var options = plot.get_options();
+                                if (!options.selection) {
+                                    options.selection = { mode: "x", color: "#d4edfa" };
+                                    plot.set_options(options);
+                                    plot.refresh();
+                                }
+                                $("#dashboard-toolbar").show();
+                            }
+                        });
                 }
                 i += 1;
             });
@@ -480,28 +399,13 @@ PageDashboard.prototype = {
                 var options = $.extend({ setup_hook: setup_hook },
                                        common_plot_options,
                                        rm.options);
-                var plot = shell.plot($(rm.selector), plot_x_range, plot_x_stop);
+                var plot = shell.plot($(rm.selector));
                 plot.set_options(options);
                 self.plots.push(plot);
-
-                $(plot).on("changed", function() {
-                    if (plot.archives)
-                        $("#dashboard-toolbar").show();
-                });
             });
 
             series = {};
             update_series();
-        }
-
-        function plot_reset_soft() {
-            self.plots.forEach(function (p) {
-                p.stop_walking();
-                p.reset(plot_x_range, plot_x_stop);
-                p.refresh();
-                if (plot_x_stop === undefined)
-                    p.start_walking();
-            });
         }
 
         $(cockpit).on('resize.dashboard', function () {

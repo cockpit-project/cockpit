@@ -230,10 +230,12 @@ rm -rf %{buildroot}/%{_datadir}/%{name}/kubernetes
 
 %files pcp
 %{_libexecdir}/cockpit-pcp
+/var/lib/pcp/config/pmlogconf/tools/cockpit
 
 %post pcp
 # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1185749
 ( cd /var/lib/pcp/pmns && ./Rebuild -du )
+/usr/share/pcp/lib/pmlogger reload
 
 %files shell
 %{_datadir}/%{name}/base1

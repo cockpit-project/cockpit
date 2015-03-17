@@ -551,6 +551,9 @@ PageSystemInformationChangeSystime.prototype = {
         $("#systime-apply-button").on("click", $.proxy(this._on_apply_button, this));
         $('#change_systime').on('change', $.proxy(this, "update"));
         $('#systime-time-minutes').on('focusout', $.proxy(this, "update_minutes"));
+        $('#systime-time-minutes').on('change', $.proxy(this, "check_input"));
+        $('#systime-time-hours').on('change', $.proxy(this, "check_input"));
+        $('#systime-date-input').on('change', $.proxy(this, "check_input"));
     },
 
     enter: function() {
@@ -569,6 +572,8 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-time-hours').val(date.getHours());
         $('#change_systime').val(timedate.NTP ? 'ntp_time' : 'manual_time');
         $('#change_systime').selectpicker('refresh');
+        $('#systime-parse-error').css('visibility', 'hidden');
+        $('#systime-apply-button').prop('disabled', false);
 
         this.update();
         this.update_minutes();
@@ -604,31 +609,48 @@ PageSystemInformationChangeSystime.prototype = {
             }
         }
 
-        function check_input() {
-            if (! $('#systime-time-hours').val() ||
-                  $('#systime-time-hours').val() < 0 ||
-                  $('#systime-time-hours').val() > 23)
-               return false;
-
-            if (! $('#systime-time-minutes').val() ||
-                  $('#systime-time-minutes').val() < 0 ||
-                  $('#systime-time-minutes').val() > 59)
-               return false;
-
-            if (! $("#systime-date-input").val())
-               return false;
-
-            return true;
-        }
-
-        if ($('#change_systime').val() == 'manual_time' && ! check_input()) {
-            shell.show_unexpected_error(_("Wrong time given."));
+        if ($('#change_systime').val() == 'manual_time' && ! self.check_input())
             return;
-        }
 
         var call_ntp = timedate.SetNTP($('#change_systime').val() == 'ntp_time', true);
         call_ntp.fail(function (err) { shell.show_unexpected_error(err); });
         call_ntp.done(set_manual_time);
+    },
+
+    check_input: function() {
+        var time_error = false;
+        var date_error = false;
+
+        if (! $('#systime-time-hours').val()       ||
+              $('#systime-time-hours').val() < 0   ||
+              $('#systime-time-hours').val() > 23  ||
+            ! $('#systime-time-minutes').val()     ||
+              $('#systime-time-minutes').val() < 0 ||
+              $('#systime-time-minutes').val() > 59) {
+           time_error = true;
+        }
+
+        if (! Date.parse($("#systime-date-input").val()))
+            date_error = true;
+
+        if (time_error && date_error)
+           $('#systime-parse-error').text(_("Invalid date format and Invalid time format"));
+        else if (time_error)
+           $('#systime-parse-error').text(_("Invalid time format"));
+        else if (date_error)
+           $('#systime-parse-error').text(_("Invalid date format"));
+        else
+           $('#systime-parse-error').css('visibility', 'hidden');
+
+        if (time_error || date_error) {
+            $('#systime-parse-error').css('visibility', 'visible');
+            $('#systime-apply-button').prop('disabled', true);
+            return false;
+        } else {
+            $('#systime-parse-error').css('visibility', 'hidden');
+            $('#systime-apply-button').prop('disabled', false);
+            return true;
+        }
     },
 
     update: function() {

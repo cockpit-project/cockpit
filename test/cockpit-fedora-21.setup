@@ -1,5 +1,9 @@
 #! /bin/bash
 
+yes | yum update --enablerepo=updates-testing -y --skip-broken
+yum remove abrt
+echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
+
 # We install all dependencies of the cockpit packages since we want
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.

@@ -48,13 +48,24 @@ class Machine:
     def __init__(self, address=None, flavor=None, system=None, arch=None, verbose=False):
         self.verbose = verbose
         self.flavor = flavor or DEFAULT_FLAVOR
-        self.os = system or os.environ.get("TEST_OS") or DEFAULT_OS
+
+        conf_file = "%s.conf" % self.flavor
+        if os.path.exists(conf_file):
+            with open(conf_file, "r") as f:
+                self.conf = eval(f.read())
+        else:
+            self.conf = { }
+
+        self.os = system or self.getconf('os') or os.environ.get("TEST_OS") or DEFAULT_OS
         self.arch = arch or os.environ.get("TEST_ARCH") or DEFAULT_ARCH
         self.image = "%s-%s-%s" % (self.flavor, self.os, self.arch)
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.address = address
         self.mac = None
+
+    def getconf(self, key):
+        return key in self.conf and self.conf[key]
 
     def message(self, *args):
         """Prints args if in verbose mode"""
@@ -505,9 +516,9 @@ class QemuMachine(Machine):
             self._locks.append(fd)
             return True
 
-    def _choose_macaddr(self, conf):
-        if 'mac' in conf and conf['mac']:
-            macaddr = conf['mac']
+    def _choose_macaddr(self):
+        if 'mac' in self.conf and self.conf['mac']:
+            macaddr = self.conf['mac']
             if len(macaddr) == 2:
                 macaddr = self.macaddr_prefix + ":" + macaddr
             if self._lock_resource(macaddr):
@@ -554,20 +565,13 @@ class QemuMachine(Machine):
         if not self._lock_resource(self._image_root, exclusive=maintain):
             raise Failure("Already running this image: %s" % self.image)
 
-        conf_file = "%s.conf" % self.flavor
-        if os.path.exists(conf_file):
-            with open(conf_file, "r") as f:
-                conf = eval(f.read())
-        else:
-            conf = { }
-
         if maintain:
             snapshot = "off"
             selinux = "enforcing=0"
         else:
             snapshot = "on"
             selinux = ""
-        self.macaddr = self._choose_macaddr(conf)
+        self.macaddr = self._choose_macaddr()
         cmd = [
             self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),

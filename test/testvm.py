@@ -112,7 +112,7 @@ class Machine:
                 "TEST_FLAVOR": self.flavor,
                 "TEST_SETUP_ARGS": " ".join(args),
             }
-            self.execute(script=SETUP_SCRIPT, environment=env)
+            self.execute(script="/var/tmp/SETUP", environment=env)
         finally:
             self.stop()
 
@@ -492,7 +492,7 @@ class QemuMachine(Machine):
             else:
                 raise Failure("Unsupported OS %s" % self.os)
 
-        script = "%s.setup" % self.flavor
+        script = "%s-%s.setup" % (self.flavor, self.os)
         if not os.path.exists(script):
             raise Failure("Unsupported flavor %s: %s not found." % (self.flavor, script))
 
@@ -852,20 +852,6 @@ QEMU_ADDR_SCRIPT = """#!/bin/sh
 if [ "$2" = "up" ]; then
     /usr/sbin/ip addr show $1 | sed -En 's|.*\\binet ([^/ ]+).*|COCKPIT_ADDRESS=\\1|p' > /dev/console
 fi
-"""
-
-SETUP_SCRIPT = """#!/bin/sh
-set -euf
-
-yes | yum update --enablerepo=updates-testing -y --skip-broken
-yum remove abrt
-echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
-
-export TEST_FLAVOR
-export TEST_OS
-export TEST_ARCH
-
-/var/tmp/SETUP $TEST_SETUP_ARGS
 """
 
 INSTALL_SCRIPT = """#!/bin/sh

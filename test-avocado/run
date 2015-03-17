@@ -54,7 +54,7 @@ fi
 vm_create checkmachine7 $GUESTOS
 GUEST1=`vm_get_name checkmachine7 $GUESTOS`
 
-if virsh -c qemu:///system snapshot-info $GUEST1 initialized >/dev/null; then
+if virsh -c qemu:///system snapshot-info $GUEST1 initialized &>/dev/null; then
     echolog "Reverting $GUEST1 to last 'initialized' state"
     virsh -c qemu:///system snapshot-revert $GUEST1 initialized >/dev/null
     virsh -c qemu:///system snapshot-delete $GUEST1 initialized >/dev/null

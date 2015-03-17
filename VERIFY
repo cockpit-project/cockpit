@@ -2,4 +2,5 @@
 
 set -e
 
+( export TEST_OS=fedora-22; cd test && ./testsuite-prepare "$@" && ./check-verify )
 ( cd test && ./testsuite-prepare "$@" && ./check-verify )

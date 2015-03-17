@@ -385,12 +385,11 @@ PageAccountsCreate.prototype = {
         }
 
         if ($('#accounts-create-real-name').val()) {
-
             prog.push('-c');
-            prog.push($('#accounts-create-user-name').val());
+            prog.push($('#accounts-create-real-name').val());
         }
 
-        prog.push($('#accounts-create-real-name').val());
+        prog.push($('#accounts-create-user-name').val());
 
         cockpit.spawn(prog, { "superuser": true })
            .done(function () {

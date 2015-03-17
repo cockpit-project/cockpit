@@ -434,6 +434,9 @@ run_bridge (const gchar *interactive)
 
   if (interactive)
     {
+      /* Allow skipping the init message when interactive */
+      init_received = TRUE;
+
       transport = cockpit_interact_transport_new (0, outfd, interactive);
     }
   else

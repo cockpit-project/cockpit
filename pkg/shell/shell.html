@@ -105,6 +105,10 @@
               <td id="system_information_os_text"></td>
             </tr>
             <tr>
+              <td>System Time</td>
+              <td><button class="btn btn-default systime-privileged" id="system_information_systime_button"></button></td>
+            </tr>
+            <tr>
               <td>Host Name</td>
               <td><button class="btn btn-default hostname-privileged" id="system_information_hostname_button"></button></td>
             </tr>
@@ -1017,6 +1021,61 @@
               Cancel
             </button>
             <button class="btn btn-primary" id="sich-apply-button">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="modal" id="system_information_change_systime"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change System Time</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td>
+                  <div class="form-group row">
+                    <div class="col-md-12">
+                      <select class="form-control selectpicker" id="change_systime">
+                        <option value="manual_time">Manually set the time</option>
+                        <option value="ntp_time">Set time automatically using NTP</option>
+                      </select>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="form-group row nomargin">
+                      <div class="col-md-8 nopadding">
+                        <input type='text' class="form-control" id="systime-date-input"/>
+                      </div>
+                      <div class="col-md-4 row nomargin nopadding">
+                          <div class="col-md-offset-1 col-md-5 nopadding">
+                            <input type='number' class="form-control" min="0" max="23" id="systime-time-hours"/>
+                          </div>
+                          <div class="col-md-1 text-center nopadding">:</div>
+                          <div class="col-md-5 nopadding">
+                            <input type='number' class="form-control" min="0" max="59" id="systime-time-minutes"/>
+                          </div>
+                      </div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="systime-apply-button">
               Change
             </button>
           </div>

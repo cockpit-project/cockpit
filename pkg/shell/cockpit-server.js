@@ -19,6 +19,7 @@
 
 /* global jQuery   */
 /* global cockpit  */
+/* global moment   */
 /* global _        */
 /* global C_       */
 
@@ -75,6 +76,12 @@ PageServer.prototype = {
         $('#system_information_hostname_button').on('click', function () {
             PageSystemInformationChangeHostname.client = self.client;
             $('#system_information_change_hostname').modal('show');
+        });
+
+        $('#system_information_systime_button').on('click', function () {
+            PageSystemInformationChangeSystime.client = self.client;
+            PageSystemInformationChangeSystime.callback = $.proxy(self.get_time, self);
+            $('#system_information_change_systime').modal('show');
         });
 
         $('#system_information_realms_button').on('click', function () {
@@ -269,6 +276,8 @@ PageServer.prototype = {
         bindf("#system_information_hostname_button", self.manager, "StaticHostname", hostname_text);
         bindf("#system_information_hostname_button", self.manager, "PrettyHostname", hostname_text);
 
+        this.get_time();
+
         self.realms = self.client.get("/com/redhat/Cockpit/Realms", "com.redhat.Cockpit.Realms");
 
         $(self.realms).on('notify:Joined.server',
@@ -327,6 +336,35 @@ PageServer.prototype = {
                                                                        shell.show_unexpected_error(error);
                                                                });
                                            });
+    },
+
+    get_time: function() {
+        var self = this;
+
+        function systime_text() {
+            if (! self.timestamp_diff)
+                return;
+
+            var time = moment(self.timestamp_diff + (new Date()).valueOf()).tz(self.timedate.Timezone);
+            $('#system_information_systime_button').text(time.format('MMMM D LT'));
+        }
+
+        function systime_timestamp(data) {
+            self.timestamp_diff = data[0] - (new Date()).valueOf();
+            self.service = cockpit.dbus('org.freedesktop.timedate1');
+            self.timedate = self.service.proxy();
+
+            PageSystemInformationChangeSystime.timestamp_diff = self.timestamp_diff;
+            PageSystemInformationChangeSystime.timedate = self.timedate;
+            $(self.timedate).on("changed", systime_text);
+            window.setInterval(systime_text, 30000);
+        }
+
+        var client = cockpit.dbus(null, { "bus": "internal" });
+        client.call("/time", "cockpit.Time", "GetWallTime", [ ])
+              .done(systime_timestamp)
+              .fail(function(ex) { console.warn("couldn't get server time: " + ex); })
+              .always(function() { client.close(); });
     },
 
     update_realms: function() {
@@ -503,6 +541,115 @@ function PageSystemInformationChangeHostname() {
 
 shell.dialogs.push(new PageSystemInformationChangeHostname());
 
+PageSystemInformationChangeSystime.prototype = {
+    _init: function() {
+        this.id = "system_information_change_systime";
+        this.dirty = false;
+    },
+
+    setup: function() {
+        $("#systime-apply-button").on("click", $.proxy(this._on_apply_button, this));
+        $('#change_systime').on('change', $.proxy(this, "update"));
+        $('#systime-time-minutes').on('focusout', $.proxy(this, "update_minutes"));
+    },
+
+    enter: function() {
+        var timedate = PageSystemInformationChangeSystime.timedate;
+        var date = new Date();
+
+        if (this.dirty)
+            return;
+
+        date.setTime(date.getTime() + PageSystemInformationChangeSystime.timestamp_diff);
+
+        $('#systime-date-input').datepicker({autoclose: true,
+                                             todayHighlight: true});
+        $('#systime-date-input').val(date.toLocaleDateString());
+        $('#systime-time-minutes').val(date.getMinutes());
+        $('#systime-time-hours').val(date.getHours());
+        $('#change_systime').val(timedate.NTP ? 'ntp_time' : 'manual_time');
+        $('#change_systime').selectpicker('refresh');
+
+        this.update();
+        this.update_minutes();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+        this.dirty = false;
+    },
+
+    _on_apply_button: function(event) {
+        var self = this;
+        var timedate = PageSystemInformationChangeSystime.timedate;
+
+        function set_manual_time() {
+            if ($('#change_systime').val() == 'manual_time') {
+                var new_date = new Date($("#systime-date-input").val());
+
+                new_date.setHours($('#systime-time-hours').val());
+                new_date.setMinutes($('#systime-time-minutes').val());
+
+                var call = timedate.SetTime(new_date.getTime() * 1000, false, true);
+                call.fail(function (err) { shell.show_unexpected_error(err); });
+                call.done(function () {
+                              $("#system_information_change_systime").modal('hide');
+                              PageSystemInformationChangeSystime.callback();
+                          });
+            } else {
+                $("#system_information_change_systime").modal('hide');
+                PageSystemInformationChangeSystime.callback();
+            }
+        }
+
+        function check_input() {
+            if (! $('#systime-time-hours').val() ||
+                  $('#systime-time-hours').val() < 0 ||
+                  $('#systime-time-hours').val() > 23)
+               return false;
+
+            if (! $('#systime-time-minutes').val() ||
+                  $('#systime-time-minutes').val() < 0 ||
+                  $('#systime-time-minutes').val() > 59)
+               return false;
+
+            if (! $("#systime-date-input").val())
+               return false;
+
+            return true;
+        }
+
+        if ($('#change_systime').val() == 'manual_time' && ! check_input()) {
+            shell.show_unexpected_error(_("Wrong time given."));
+            return;
+        }
+
+        var call_ntp = timedate.SetNTP($('#change_systime').val() == 'ntp_time', true);
+        call_ntp.fail(function (err) { shell.show_unexpected_error(err); });
+        call_ntp.done(set_manual_time);
+    },
+
+    update: function() {
+        this.dirty = true;
+        $("#systime-date-input").prop('disabled', $('#change_systime').val() === 'ntp_time');
+        $("#systime-time-hours").prop('disabled', $('#change_systime').val() === 'ntp_time');
+        $("#systime-time-minutes").prop('disabled', $('#change_systime').val() === 'ntp_time');
+    },
+
+    update_minutes: function() {
+        var val = $('#systime-time-minutes').val();
+        if (val < 10)
+            $('#systime-time-minutes').val("0" + val);
+    }
+};
+
+function PageSystemInformationChangeSystime() {
+    this._init();
+}
+
+shell.dialogs.push(new PageSystemInformationChangeSystime());
 
 PageShutdownDialog.prototype = {
     _init: function() {

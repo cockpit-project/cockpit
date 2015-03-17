@@ -332,12 +332,17 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
                 }
 
                 var res = [ ];
+                var last = null;
                 for (var i = 0; i < msg.length; i++) {
-                    res[i] = [ timestamp, compute_sample(msg[i]) ];
+                    last = compute_sample(msg[i]);
+                    res[i] = [ timestamp, last ];
                     timestamp += options.interval;
                 }
 
                 callback (res);
+
+                if (last !== null)
+                    $(self).triggerHandler("value", [ last ]);
             }
 
             function handle_message(event, message) {

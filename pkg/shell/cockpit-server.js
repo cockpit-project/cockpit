@@ -305,11 +305,6 @@ PageServer.prototype = {
         $('#shutdown-dialog').modal('show');
     },
 
-    start_plots: function () {
-        var self = this;
-
-    },
-
     update_avatar: function () {
         this.manager.call('GetAvatarDataURL', function (error, result) {
             if (result)

@@ -678,18 +678,21 @@ class QemuMachine(Machine):
 
     def wait_boot(self):
         assert self._process
+        all_output = ""
         output = ""
         address = None
         ready_to_login = False
         p = self._process
+        now = time.time()
         while not (address and ready_to_login) and p.poll() is None:
             ret = select.select([p.stdout.fileno()], [], [], 10)
             for fd in ret[0]:
                 if fd == p.stdout.fileno():
                     data = os.read(fd, 1024)
                     if self.verbose:
-                        sys.stdout.write(data)
+                        sys.stdout.write(date)
                     output += data
+                    all_output += data
                     if "emergency mode" in output:
                         raise Failure("qemu vm failed to boot, stuck in emergency mode")
                     parsed_address = self._parse_cockpit_canary("COCKPIT_ADDRESS", output)
@@ -698,6 +701,9 @@ class QemuMachine(Machine):
                     if "login: " in output:
                         ready_to_login = True
                     (unused, sep, output) = output.rpartition("\n")
+            if time.time() - now > 600:
+                sys.stdout.write(all_output + "\n")
+                raise Failure("qemu vm boot timed out")
 
         if p.poll():
             raise Failure("qemu did not run successfully: %d" % (p.returncode, ))

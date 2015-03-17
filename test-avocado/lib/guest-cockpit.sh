@@ -67,4 +67,4 @@ rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
 rm -rf /var/log/audit/
 
 # HACK - https://github.com/avocado-framework/avocado/issues/486
-mv -f /bin/less /bin/less.disabled
+if [ -f /bin/less ]; then mv -f /bin/less /bin/less.disabled; fi

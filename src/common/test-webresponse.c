@@ -390,6 +390,50 @@ test_chunked_transfer_encoding (TestCase *tc,
 }
 
 static void
+test_chunked_zero_length (TestCase *tc,
+                          gconstpointer data)
+{
+  const gchar *resp;
+  GBytes *content;
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_READY);
+
+  cockpit_web_response_headers (tc->response, 200, "OK", -1, NULL);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  content = g_bytes_new_static ("Cockpit is perfect for new sysadmins, ", 38);
+  cockpit_web_response_queue (tc->response, content);
+  g_bytes_unref (content);
+
+  content = g_bytes_new_static ("", 0);
+  cockpit_web_response_queue (tc->response, content);
+  g_bytes_unref (content);
+
+  content = g_bytes_new_static ("inspecting journals and starting and stopping services.", 55);
+  cockpit_web_response_queue (tc->response, content);
+  g_bytes_unref (content);
+
+  content = g_bytes_new_static ("", 0);
+  cockpit_web_response_queue (tc->response, content);
+  g_bytes_unref (content);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+  cockpit_web_response_complete (tc->response);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_COMPLETE);
+
+  resp = output_as_string (tc);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
+
+  g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n"
+                   "26\r\nCockpit is perfect for new sysadmins, \r\n"
+                   "37\r\ninspecting journals and starting and stopping services.\r\n0\r\n\r\n");
+}
+
+static void
 on_response_done_not_resuable (CockpitWebResponse *response,
                                gboolean reusable,
                                gpointer user_data)
@@ -571,6 +615,8 @@ main (int argc,
               setup, test_stream, teardown);
   g_test_add ("/web-response/chunked-transfer-encoding", TestCase, NULL,
               setup, test_chunked_transfer_encoding, teardown);
+  g_test_add ("/web-response/chunked-zero-length", TestCase, NULL,
+              setup, test_chunked_zero_length, teardown);
   g_test_add ("/web-response/abort", TestCase, NULL,
               setup, test_abort, teardown);
   g_test_add ("/web-response/connection-close", TestCase, &fixture_connection_close,

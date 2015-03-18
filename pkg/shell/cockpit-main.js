@@ -259,15 +259,6 @@ function pick_unused_host_color() {
     return "gray";
 }
 
-function update_servers_privileged() {
-    shell.update_privileged_ui(
-        shell.default_permission, ".servers-privileged",
-        cockpit.format(
-            _("The user <b>$0</b> is not permitted to add servers"),
-            cockpit.user.name)
-    );
-}
-
 function hosts_init() {
 
     var host_info = shell.hosts;
@@ -441,10 +432,6 @@ function hosts_init() {
         $(host_proxies).on('added removed changed', update);
         update();
     });
-
-
-    $(shell.default_permission).on("changed", update_servers_privileged);
-    update_servers_privileged();
 }
 
 function update_global_nav() {

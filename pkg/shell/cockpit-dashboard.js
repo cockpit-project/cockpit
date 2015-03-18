@@ -226,6 +226,16 @@ function host_edit_dialog(addr) {
         });
 }
 
+function update_servers_privileged() {
+    shell.update_privileged_ui(
+        shell.default_permission, ".servers-privileged",
+        cockpit.format(
+            _("The user <b>$0</b> is not permitted to manage servers"),
+            cockpit.user.name)
+    );
+}
+$(shell.default_permission).on("changed", update_servers_privileged);
+
 PageDashboard.prototype = {
     _init: function() {
         this.id = "dashboard";
@@ -440,6 +450,7 @@ PageDashboard.prototype = {
                 });
 
                 target.html(text);
+                update_servers_privileged();
                 update_series();
             }
 
@@ -538,6 +549,7 @@ PageDashboard.prototype = {
     },
 
     show: function() {
+        update_servers_privileged();
         this.plots[0].resize();
         this.toggle_edit(false);
     },

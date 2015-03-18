@@ -100,6 +100,15 @@ fi
 GUEST1_IP=`vm_get_ip $GUEST1`
 GUEST1_PASSWD=`vm_get_pass $GUEST1`
 AVOCADO_PARAMS="--vm-domain $GUEST1 --vm-username root --vm-password $GUEST1_PASSWD --vm-hostname $GUEST1_IP"
-AVOCADO_TESTS="compiletest.sh checklogin-basic.py checklogin-raw.py checkrealms-basic.py"
-
+# If we aren't told to test something specific, test all
+if [ -z "$AVOCADO_TESTS" ]; then
+    AVOCADO_TESTS="compiletest.sh checklogin-basic.py checklogin-raw.py checkrealms-basic.py"
+else
+    COMPILE_TEST=compiletest.sh
+    # Make sure that we update and compile source, for that we need the compiletest
+    if [ "${AVOCADO_TESTS/$COMPILE_TEST}" = "$AVOCADO_TESTS" ] ; then
+    	echo "Adding required test $COMPILE_TEST"
+    	AVOCADO_TESTS="$COMPILE_TEST $AVOCADO_TESTS";
+    fi
+fi
 avocado run $AVOCADO_PARAMS $AVOCADO_TESTS

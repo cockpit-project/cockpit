@@ -42,16 +42,11 @@
  * framing looks ... including the MSB length prefix.
  */
 
-struct _CockpitPipeTransport {
-  CockpitTransport parent_instance;
+struct _CockpitPipeTransportPrivate {
   gchar *name;
   CockpitPipe *pipe;
   gulong read_sig;
   gulong close_sig;
-};
-
-struct _CockpitPipeTransportClass {
-  CockpitTransportClass parent_class;
 };
 
 enum {
@@ -65,7 +60,7 @@ G_DEFINE_TYPE (CockpitPipeTransport, cockpit_pipe_transport, COCKPIT_TYPE_TRANSP
 static void
 cockpit_pipe_transport_init (CockpitPipeTransport *self)
 {
-
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_PIPE_TRANSPORT, CockpitPipeTransportPrivate);
 }
 
 static void
@@ -97,20 +92,20 @@ on_pipe_read (CockpitPipe *pipe,
       if (i == input->len)
         {
           if (!end_of_data)
-            g_debug ("%s: want more data", self->name);
+            g_debug ("%s: want more data", self->priv->name);
           break;
         }
 
       if (data[i] != '\n')
         {
-          g_warning ("%s: incorrect protocol: received invalid length prefix", self->name);
+          g_warning ("%s: incorrect protocol: received invalid length prefix", self->priv->name);
           cockpit_pipe_close (pipe, "protocol-error");
           break;
         }
 
       if (input->len < i + 1 + size)
         {
-          g_debug ("%s: want more data 2", self->name);
+          g_debug ("%s: want more data 2", self->priv->name);
           break;
         }
 
@@ -118,7 +113,7 @@ on_pipe_read (CockpitPipe *pipe,
       payload = cockpit_transport_parse_frame (message, &channel);
       if (payload)
         {
-          g_debug ("%s: received a %d byte payload", self->name, (int)size);
+          g_debug ("%s: received a %d byte payload", self->priv->name, (int)size);
           cockpit_transport_emit_recv ((CockpitTransport *)self, channel, payload);
           g_bytes_unref (payload);
           g_free (channel);
@@ -131,7 +126,7 @@ on_pipe_read (CockpitPipe *pipe,
       /* Received a partial message */
       if (input->len > 0)
         {
-          g_warning ("%s: received truncated %d byte frame", self->name, input->len);
+          g_warning ("%s: received truncated %d byte frame", self->priv->name, input->len);
           cockpit_pipe_close (pipe, "internal-error");
         }
     }
@@ -166,18 +161,18 @@ on_pipe_close (CockpitPipe *pipe,
           else if (!g_spawn_check_exit_status (status, &error))
             {
               problem = "internal-error";
-              g_warning ("%s: bridge program failed: %s", self->name, error->message);
+              g_warning ("%s: bridge program failed: %s", self->priv->name, error->message);
               g_error_free (error);
             }
         }
       else if (g_str_equal (problem, "not-found"))
         {
-          g_message ("%s: failed to execute bridge: not found", self->name);
+          g_message ("%s: failed to execute bridge: not found", self->priv->name);
           problem = "no-cockpit";
         }
     }
 
-  g_debug ("%s: closed%s%s", self->name,
+  g_debug ("%s: closed%s%s", self->priv->name,
            problem ? ": " : "", problem ? problem : "");
 
   cockpit_transport_emit_closed (COCKPIT_TRANSPORT (self), problem);
@@ -190,10 +185,10 @@ cockpit_pipe_transport_constructed (GObject *object)
 
   G_OBJECT_CLASS (cockpit_pipe_transport_parent_class)->constructed (object);
 
-  g_return_if_fail (self->pipe != NULL);
-  g_object_get (self->pipe, "name", &self->name, NULL);
-  self->read_sig = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
-  self->close_sig = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
+  g_return_if_fail (self->priv->pipe != NULL);
+  g_object_get (self->priv->pipe, "name", &self->priv->name, NULL);
+  self->priv->read_sig = g_signal_connect (self->priv->pipe, "read", G_CALLBACK (on_pipe_read), self);
+  self->priv->close_sig = g_signal_connect (self->priv->pipe, "close", G_CALLBACK (on_pipe_close), self);
 }
 
 static void
@@ -207,7 +202,7 @@ cockpit_pipe_transport_get_property (GObject *object,
   switch (prop_id)
     {
     case PROP_NAME:
-      g_value_set_string (value, self->name);
+      g_value_set_string (value, self->priv->name);
       break;
     case PROP_PIPE:
       g_value_set_object (value, cockpit_pipe_transport_get_pipe (self));
@@ -229,7 +224,7 @@ cockpit_pipe_transport_set_property (GObject *object,
   switch (prop_id)
     {
     case PROP_PIPE:
-      self->pipe = g_value_dup_object (value);
+      self->priv->pipe = g_value_dup_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -242,11 +237,11 @@ cockpit_pipe_transport_finalize (GObject *object)
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (object);
 
-  g_signal_handler_disconnect (self->pipe, self->read_sig);
-  g_signal_handler_disconnect (self->pipe, self->close_sig);
+  g_signal_handler_disconnect (self->priv->pipe, self->priv->read_sig);
+  g_signal_handler_disconnect (self->priv->pipe, self->priv->close_sig);
 
-  g_free (self->name);
-  g_clear_object (&self->pipe);
+  g_free (self->priv->name);
+  g_clear_object (&self->priv->pipe);
 
   G_OBJECT_CLASS (cockpit_pipe_transport_parent_class)->finalize (object);
 }
@@ -270,11 +265,11 @@ cockpit_pipe_transport_send (CockpitTransport *transport,
                                 channel_id ? channel_id : "");
   prefix = g_bytes_new_take (prefix_str, strlen (prefix_str));
 
-  cockpit_pipe_write (self->pipe, prefix);
-  cockpit_pipe_write (self->pipe, payload);
+  cockpit_pipe_write (self->priv->pipe, prefix);
+  cockpit_pipe_write (self->priv->pipe, payload);
   g_bytes_unref (prefix);
 
-  g_debug ("%s: queued %" G_GSIZE_FORMAT " byte payload", self->name, payload_len);
+  g_debug ("%s: queued %" G_GSIZE_FORMAT " byte payload", self->priv->name, payload_len);
 }
 
 static void
@@ -282,7 +277,7 @@ cockpit_pipe_transport_close (CockpitTransport *transport,
                               const gchar *problem)
 {
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (transport);
-  cockpit_pipe_close (self->pipe, problem);
+  cockpit_pipe_close (self->priv->pipe, problem);
 }
 
 static void
@@ -305,6 +300,8 @@ cockpit_pipe_transport_class_init (CockpitPipeTransportClass *klass)
               g_param_spec_object ("pipe", NULL, NULL,
                                    COCKPIT_TYPE_PIPE,
                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  g_type_class_add_private (klass, sizeof (CockpitPipeTransportPrivate));
 }
 
 /**
@@ -353,5 +350,5 @@ CockpitPipe *
 cockpit_pipe_transport_get_pipe (CockpitPipeTransport *self)
 {
   g_return_val_if_fail (COCKPIT_IS_PIPE_TRANSPORT (self), NULL);
-  return self->pipe;
+  return self->priv->pipe;
 }

@@ -21,6 +21,7 @@
 
 #include "cockpitauth.h"
 
+#include "cockpitsessiontransport.h"
 #include "cockpitsshtransport.h"
 #include "cockpitws.h"
 
@@ -162,608 +163,103 @@ cockpit_auth_init (CockpitAuth *self)
                                              on_process_timeout, self);
 }
 
-static inline gchar *
-str_skip (gchar *v,
-          gchar c)
-{
-  while (v[0] == c)
-    v++;
-  return v;
-}
-
 static void
-clear_free_authorization (gpointer data)
+on_initable_done (GObject *source,
+                  GAsyncResult *result,
+                  gpointer user_data)
 {
-  cockpit_secclear (data, strlen (data));
-  g_free (data);
-}
-
-static const gchar *
-parse_basic_auth_password (GBytes *input,
-                           gchar **user)
-{
-  const gchar *password;
-  const gchar *data;
-
-  data = g_bytes_get_data (input, NULL);
-
-  /* password is null terminated, see below */
-  password = strchr (data, ':');
-  if (password != NULL)
-    {
-      if (user)
-        *user = g_strndup (data, password - data);
-      password++;
-    }
-
-  return password;
-}
-
-GBytes *
-cockpit_auth_parse_authorization (GHashTable *headers,
-                                  gchar **type)
-{
-  gchar *line;
-  gchar *next;
-  gchar *contents;
-  gsize length;
-  gpointer key;
-  gsize i;
-
-  /* Avoid copying as it can contain passwords */
-  if (!g_hash_table_lookup_extended (headers, "Authorization", &key, (gpointer *)&line))
-    return NULL;
-
-  g_hash_table_steal (headers, "Authorization");
-  g_free (key);
-
-  line = str_skip (line, ' ');
-  next = strchr (line, ' ');
-  if (!next)
-    {
-      g_free (line);
-      return NULL;
-    }
-
-  contents = str_skip (next, ' ');
-  if (g_base64_decode_inplace (contents, &length) == NULL)
-    {
-      g_free (line);
-      return NULL;
-    }
-
-  /* Null terminate for convenience, but null count not included in GBytes */
-  contents[length] = '\0';
-
-  if (type)
-    {
-      *type = g_strndup (line, next - line);
-      for (i = 0; (*type)[i] != '\0'; i++)
-        (*type)[i] = g_ascii_tolower ((*type)[i]);
-    }
-
-  /* Avoid copying by using the line directly */
-  return g_bytes_new_with_free_func (contents, length, clear_free_authorization, line);
-}
-
-/* ------------------------------------------------------------------------
- *  Login via cockpit-session
- */
-
-static void
-session_child_setup (gpointer data)
-{
-  gint auth_fd = GPOINTER_TO_INT (data);
-
-  if (cockpit_unix_fd_close_all (3, auth_fd) < 0)
-    {
-      g_printerr ("couldn't close file descriptors: %m");
-      _exit (127);
-    }
-
-  /* When running cockpit-session fd 3 is always auth */
-  if (dup2 (auth_fd, 3) < 0)
-    {
-      g_printerr ("couldn't dup file descriptor: %m");
-      _exit (127);
-    }
-
-  close (auth_fd);
-}
-
-static CockpitPipe *
-spawn_session_process (const gchar *type,
-                       GBytes *input,
-                       const gchar *remote_peer,
-                       CockpitPipe **auth_pipe)
-{
-  CockpitPipe *pipe;
-  int pwfds[2] = { -1, -1 };
+  GSimpleAsyncResult *task = G_SIMPLE_ASYNC_RESULT (user_data);
   GError *error = NULL;
-  GPid pid = 0;
-  gint in_fd = -1;
-  gint out_fd = -1;
+  GObject *object;
 
-  const gchar *argv[] = {
-      cockpit_ws_session_program,
-      type,
-      remote_peer ? remote_peer : "",
-      NULL,
-  };
+  object = g_async_initable_new_finish (G_ASYNC_INITABLE (source),
+                                        result, &error);
 
-  g_return_val_if_fail (input != NULL, NULL);
-
-  if (socketpair (PF_UNIX, SOCK_STREAM, 0, pwfds) < 0)
-    g_return_val_if_reached (NULL);
-
-  g_debug ("spawning %s", cockpit_ws_session_program);
-
-  if (!g_spawn_async_with_pipes (NULL, (gchar **)argv, NULL,
-                                 G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
-                                 session_child_setup, GINT_TO_POINTER (pwfds[1]),
-                                 &pid, &in_fd, &out_fd, NULL, &error))
-    {
-      g_warning ("failed to start %s: %s", cockpit_ws_session_program, error->message);
-      g_error_free (error);
-      return NULL;
-    }
+  if (object)
+    g_simple_async_result_set_op_res_gpointer (task, object, g_object_unref);
   else
-    {
-      pipe = g_object_new (COCKPIT_TYPE_PIPE,
-                           "name", "localhost",
-                           "pid", pid,
-                           "in-fd", out_fd,
-                           "out-fd", in_fd,
-                           NULL);
-
-      /* Child process end of pipe */
-      close (pwfds[1]);
-
-      *auth_pipe = cockpit_pipe_new ("auth-pipe", pwfds[0], pwfds[0]);
-      cockpit_pipe_write (*auth_pipe, input);
-      cockpit_pipe_close (*auth_pipe, NULL);
-    }
-
-  return pipe;
-}
-
-typedef struct {
-  CockpitPipe *session_pipe;
-  CockpitPipe *auth_pipe;
-  GBytes *authorization;
-  gchar *remote_peer;
-  gchar *auth_type;
-} SessionLoginData;
-
-static void
-session_login_data_free (gpointer data)
-{
-  SessionLoginData *sl = data;
-  if (sl->session_pipe)
-    g_object_unref (sl->session_pipe);
-  if (sl->auth_pipe)
-    g_object_unref (sl->auth_pipe);
-  if (sl->authorization)
-    g_bytes_unref (sl->authorization);
-  g_free (sl->auth_type);
-  g_free (sl->remote_peer);
-  g_free (sl);
+    g_simple_async_result_take_error (task, error);
 }
 
 static void
-on_session_login_done (CockpitPipe *pipe,
-                       const gchar *problem,
-                       gpointer user_data)
-{
-  GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT (user_data);
-
-  if (problem)
-    {
-      g_warning ("cockpit session failed during auth: %s", problem);
-      g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                       "Internal error in session process");
-    }
-
-  g_simple_async_result_complete (result);
-  g_object_unref (result);
-}
-
-static void
-build_gssapi_output_header (GHashTable *headers,
-                            JsonObject *results)
-{
-  gchar *encoded;
-  const gchar *output = NULL;
-  gpointer data;
-  gsize length;
-  gchar *value;
-
-  if (results)
-    {
-      if (!cockpit_json_get_string (results, "gssapi-output", NULL, &output))
-        {
-          g_warning ("received invalid gssapi-output field from cockpit-session");
-          return;
-        }
-    }
-
-  if (output)
-    {
-      data = cockpit_hex_decode (output, &length);
-      if (!data)
-        {
-          g_warning ("received invalid gssapi-output from cockpit-session");
-          return;
-        }
-      encoded = g_base64_encode (data, length);
-      value = g_strdup_printf ("Negotiate %s", encoded);
-
-      g_free (data);
-      g_free (encoded);
-    }
-  else
-    {
-      value = g_strdup ("Negotiate");
-    }
-
-  g_hash_table_replace (headers, g_strdup ("WWW-Authenticate"), value);
-  g_debug ("gssapi: WWW-Authenticate: %s", value);
-}
-
-static void
-cockpit_auth_session_login_async (CockpitAuth *self,
-                                  GHashTable *headers,
-                                  const gchar *remote_peer,
-                                  GAsyncReadyCallback callback,
-                                  gpointer user_data)
-{
-  GSimpleAsyncResult *result;
-  SessionLoginData *sl;
-  GBytes *input;
-  gchar *type = NULL;
-
-  result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                      cockpit_auth_session_login_async);
-
-  input = cockpit_auth_parse_authorization (headers, &type);
-
-  if (input)
-    {
-      sl = g_new0 (SessionLoginData, 1);
-      sl->remote_peer = g_strdup (remote_peer);
-      sl->auth_type = type;
-      sl->authorization = input;
-      g_simple_async_result_set_op_res_gpointer (result, sl, session_login_data_free);
-
-      sl->session_pipe = spawn_session_process (type, input, remote_peer, &sl->auth_pipe);
-
-      if (sl->session_pipe)
-        {
-          g_signal_connect (sl->auth_pipe, "close",
-                            G_CALLBACK (on_session_login_done), g_object_ref (result));
-        }
-      else
-        {
-          g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                           "Internal error starting session process");
-          g_simple_async_result_complete_in_idle (result);
-        }
-    }
-  else
-    {
-      g_free (type);
-      g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Authentication required");
-      g_simple_async_result_complete_in_idle (result);
-    }
-
-  g_object_unref (result);
-}
-
-static CockpitCreds *
-create_creds_for_authenticated (const char *user,
-                                SessionLoginData *sl,
-                                JsonObject *results)
-{
-  const gchar *fullname = NULL;
-  const gchar *password = NULL;
-  const gchar *gssapi_creds = NULL;
-
-  /*
-   * Dig the password out of the authorization header, rather than having
-   * cockpit-session pass it back and forth possibly leaking it.
-   */
-
-  if (g_str_equal (sl->auth_type, "basic"))
-    password = parse_basic_auth_password (sl->authorization, NULL);
-
-  if (!cockpit_json_get_string (results, "gssapi-creds", NULL, &gssapi_creds))
-    {
-      g_warning ("received bad gssapi-creds from cockpit-session");
-      gssapi_creds = NULL;
-    }
-
-  if (!cockpit_json_get_string (results, "full-name", NULL, &fullname))
-    {
-      g_warning ("received bad full-name from cockpit-session");
-      fullname = NULL;
-    }
-
-  /* TODO: Try to avoid copying password */
-  return cockpit_creds_new (user,
-                            COCKPIT_CRED_FULLNAME, fullname,
-                            COCKPIT_CRED_PASSWORD, password,
-                            COCKPIT_CRED_RHOST, sl->remote_peer,
-                            COCKPIT_CRED_GSSAPI, gssapi_creds,
-                            NULL);
-}
-
-static CockpitCreds *
-parse_auth_results (SessionLoginData *sl,
-                    GHashTable *headers,
-                    GError **error)
-{
-  CockpitCreds *creds = NULL;
-  GByteArray *buffer;
-  GError *json_error = NULL;
-  const gchar *pam_user;
-  JsonObject *results;
-  gint64 code = -1;
-
-  buffer = cockpit_pipe_get_buffer (sl->auth_pipe);
-  g_debug ("cockpit-session says: %.*s", (int)buffer->len, (const gchar *)buffer->data);
-
-  results = cockpit_json_parse_object ((const gchar *)buffer->data, buffer->len, &json_error);
-
-  if (g_error_matches (json_error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_INVALID_DATA))
-    {
-      g_message ("got non-utf8 user name from cockpit-session");
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "Login user name is not UTF8 encoded");
-      g_error_free (json_error);
-    }
-  else if (!results)
-    {
-      g_warning ("couldn't parse session auth output: %s",
-                 json_error ? json_error->message : NULL);
-      g_error_free (json_error);
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "Invalid data from session process: no results");
-    }
-  else if (!cockpit_json_get_int (results, "result-code", -1, &code) || code < 0)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                   "Invalid data from session process: bad PAM result");
-    }
-  else if (code == PAM_SUCCESS)
-    {
-      if (!cockpit_json_get_string (results, "user", NULL, &pam_user) || !pam_user)
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                       "Invalid data from session process: missing user");
-        }
-      else
-        {
-          g_debug ("user authenticated as %s", pam_user);
-          creds = create_creds_for_authenticated (pam_user, sl, results);
-        }
-    }
-  else if (code == PAM_AUTH_ERR || code == PAM_USER_UNKNOWN)
-    {
-      g_debug ("authentication failed: %d", (int)code);
-      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                   "Authentication failed");
-    }
-  else if (code == PAM_PERM_DENIED)
-    {
-      g_debug ("permission denied: %d", (int)code);
-      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_PERMISSION_DENIED,
-                   "Permission denied");
-    }
-  else
-    {
-      g_debug ("pam error: %d", (int)code);
-      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                   "%s", pam_strerror (NULL, code));
-    }
-
-  build_gssapi_output_header (headers, results);
-
-  if (results)
-    json_object_unref (results);
-  return creds;
-}
-
-static CockpitCreds *
-cockpit_auth_session_login_finish (CockpitAuth *self,
-                                   GAsyncResult *result,
-                                   GHashTable *headers,
-                                   CockpitTransport **transport,
-                                   GError **error)
-{
-  CockpitCreds *creds;
-  SessionLoginData *sl;
-
-  g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
-                        cockpit_auth_session_login_async), NULL);
-
-  if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
-    {
-      build_gssapi_output_header (headers, NULL);
-      return NULL;
-    }
-
-  sl = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
-
-  creds = parse_auth_results (sl, headers, error);
-  if (!creds)
-    return NULL;
-
-  if (transport)
-    *transport = cockpit_pipe_transport_new (sl->session_pipe);
-
-  return creds;
-}
-
-
-/* ------------------------------------------------------------------------
- * Remote login without cockpit-session by using ssh even locally
- */
-
-typedef struct {
-  CockpitCreds *creds;
-  CockpitTransport *transport;
-} RemoteLoginData;
-
-static void
-remote_login_data_free (gpointer data)
-{
-  RemoteLoginData *rl = data;
-  if (rl->creds)
-    cockpit_creds_unref (rl->creds);
-  if (rl->transport)
-    g_object_unref (rl->transport);
-  g_free (rl);
-}
-
-static void
-on_remote_login_done (CockpitSshTransport *transport,
-                      const gchar *problem,
-                      gpointer user_data)
-{
-  CockpitAuth *self = COCKPIT_AUTH (g_async_result_get_source_object (user_data));
-  GSimpleAsyncResult *task = user_data;
-
-  if (problem)
-    {
-      if (g_str_equal (problem, "not-authorized"))
-        {
-          g_simple_async_result_set_error (task, COCKPIT_ERROR,
-                                           COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                           "Authentication failed");
-        }
-      else
-        {
-          g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                           "Couldn't connect or authenticate: %s", problem);
-        }
-    }
-
-  g_simple_async_result_complete (task);
-  g_object_unref (self);
-  g_object_unref (task);
-}
-
-static void
-cockpit_auth_remote_login_async (CockpitAuth *self,
-                                 GHashTable *headers,
-                                 const gchar *remote_peer,
-                                 GAsyncReadyCallback callback,
-                                 gpointer user_data)
+cockpit_auth_real_login_async (CockpitAuth *self,
+                               GHashTable *headers,
+                               const gchar *remote_peer,
+                               GAsyncReadyCallback callback,
+                               gpointer user_data)
 {
   GSimpleAsyncResult *task;
-  CockpitCreds *creds = NULL;
-  RemoteLoginData *rl;
-  const gchar *password;
-  GBytes *input;
-  gchar *type = NULL;
-  gchar *user = NULL;
 
   task = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                    cockpit_auth_remote_login_async);
+                                    cockpit_auth_real_login_async);
 
-  input = cockpit_auth_parse_authorization (headers, &type);
-
-  if (type && input && g_str_equal (type, "basic"))
+  if (self->login_loopback)
     {
-      password = parse_basic_auth_password (input, &user);
-      if (password && user)
-        {
-          creds = cockpit_creds_new (user,
-                                     COCKPIT_CRED_PASSWORD, password,
-                                     COCKPIT_CRED_RHOST, remote_peer,
-                                     NULL);
-        }
-      g_free (user);
-    }
-
-  if (creds)
-    {
-      rl = g_new0 (RemoteLoginData, 1);
-      rl->creds = creds;
-      rl->transport = g_object_new (COCKPIT_TYPE_SSH_TRANSPORT,
-                                    "host", "127.0.0.1",
-                                    "port", cockpit_ws_specific_ssh_port,
-                                    "command", cockpit_ws_bridge_program,
-                                    "creds", creds,
-                                    "ignore-key", TRUE,
-                                    NULL);
-
-      g_simple_async_result_set_op_res_gpointer (task, rl, remote_login_data_free);
-      g_signal_connect (rl->transport, "result", G_CALLBACK (on_remote_login_done), g_object_ref (task));
+      g_async_initable_new_async (COCKPIT_TYPE_SSH_TRANSPORT, G_PRIORITY_DEFAULT, NULL,
+                                  on_initable_done, g_object_ref (task),
+                                  "host", "127.0.0.1",
+                                  "port", cockpit_ws_specific_ssh_port,
+                                  "command", cockpit_ws_bridge_program,
+                                  "headers", headers,
+                                  "remote", remote_peer,
+                                  "ignore-key", TRUE,
+                                  NULL);
     }
   else
     {
-      g_simple_async_result_set_error (task, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Basic authentication required");
-      g_simple_async_result_complete_in_idle (task);
+      g_async_initable_new_async (COCKPIT_TYPE_SESSION_TRANSPORT, G_PRIORITY_DEFAULT, NULL,
+                                  on_initable_done, g_object_ref (task),
+                                  "headers", headers,
+                                  "remote", remote_peer,
+                                  NULL);
     }
 
-  g_free (type);
   g_object_unref (task);
 }
 
 static CockpitCreds *
-cockpit_auth_remote_login_finish (CockpitAuth *self,
-                                  GAsyncResult *result,
-                                  GHashTable *headers,
-                                  CockpitTransport **transport,
-                                  GError **error)
+cockpit_auth_real_login_finish (CockpitAuth *self,
+                                GAsyncResult *result,
+                                GHashTable *headers,
+                                CockpitTransport **transport,
+                                GError **error)
 {
-  RemoteLoginData *rl;
+  CockpitTransport *trans;
+  CockpitCreds *creds = NULL;
+  GHashTable *heads = NULL;
+  const gchar *www_authenticate;
 
   g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
-                        cockpit_auth_remote_login_async), NULL);
+                        cockpit_auth_real_login_async), NULL);
+
+  trans = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+
+  if (trans)
+    {
+      g_object_get (trans, "headers", &heads, NULL);
+      if (heads)
+        {
+          www_authenticate = g_hash_table_lookup (heads, "WWW-Authenticate");
+          if (www_authenticate)
+            g_hash_table_insert (headers, "WWW-Authenticate", g_strdup (www_authenticate));
+        }
+    }
 
   if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
     return NULL;
 
-  rl = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+  if (trans)
+    {
+      g_object_get (transport, "creds", &creds, NULL);
+      if (transport)
+        *transport = g_object_ref (trans);
+      g_object_unref (trans);
+    }
 
-  if (transport)
-    *transport = g_object_ref (rl->transport);
-
-  return cockpit_creds_ref (rl->creds);
+  return creds;
 }
-
 
 /* ---------------------------------------------------------------------- */
-
-static void
-cockpit_auth_choose_login_async (CockpitAuth *self,
-                                 GHashTable *headers,
-                                 const gchar *remote_peer,
-                                 GAsyncReadyCallback callback,
-                                 gpointer user_data)
-{
-  if (self->login_loopback)
-    cockpit_auth_remote_login_async (self, headers, remote_peer, callback, user_data);
-  else
-    cockpit_auth_session_login_async (self, headers, remote_peer, callback, user_data);
-}
-
-static CockpitCreds *
-cockpit_auth_choose_login_finish (CockpitAuth *self,
-                                  GAsyncResult *result,
-                                  GHashTable *headers,
-                                  CockpitTransport **transport,
-                                  GError **error)
-{
-  if (self->login_loopback)
-    return cockpit_auth_remote_login_finish (self, result, headers, transport, error);
-  else
-    return cockpit_auth_session_login_finish (self, result, headers, transport, error);
-}
 
 static void
 cockpit_auth_class_init (CockpitAuthClass *klass)
@@ -772,8 +268,8 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
 
   gobject_class->finalize = cockpit_auth_finalize;
 
-  klass->login_async = cockpit_auth_choose_login_async;
-  klass->login_finish = cockpit_auth_choose_login_finish;
+  klass->login_async = cockpit_auth_real_login_async;
+  klass->login_finish = cockpit_auth_real_login_finish;
 
   sig__idling = g_signal_new ("idling", COCKPIT_TYPE_AUTH, G_SIGNAL_RUN_FIRST,
                               0, NULL, NULL, NULL, G_TYPE_NONE, 0);

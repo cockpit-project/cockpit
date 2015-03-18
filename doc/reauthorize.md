@@ -6,7 +6,7 @@ authenticated user is checked to see if they are valid/allowed in some context.
 
 cockpit-bridge runs as the authenticated user. Like many other programs, when
 it needs to perform a privileged action, it does this either via DBus + Polkit
-or sudo.
+or (possibly in the future) sudo.
 
 In this way Cockpit respects and integrates with the policy and access control
 configured on the system.
@@ -24,6 +24,7 @@ performing an action.
 **Goals:**
 
  * Allow use of kerberos (via GSSAPI) for reauthorization.
+ * Allow use of SSH public key auth for reauthorization.
  * Allow one machine to reauthorize a user logged in via a different machine.
  * Don't leak the user's password to a user owned process, especially across
    multiple machines.
@@ -37,7 +38,7 @@ performing an action.
  * Remember that Cockpit is an administrative tool and not a general
    purpose user session.
  * Users who just logged into Cockpit should start off authorized for
-   the priveleged actions/roles/commands which the policy dictates.
+   the privileged actions/roles/commands which the policy dictates.
  * The user can become deauthorized after a timeout or by choice, after
    which point they must enter their credentials again before they can
    perform priveleged actions again.
@@ -88,8 +89,8 @@ user.
 Cockpit Auth Refresher
 ----------------------
 
-The goal is for Cockpit to have two authentication modes. Password (via PAM)
-and Kerberos (via GSSAPI). The kerberos authentication is not yet implemented.
+The goal is for Cockpit to have multiple authentication modes. Password (via PAM),
+Kerberos (via GSSAPI) and SSH public key authentication.
 
 We suggest people implement other desired authentication mechanisms
 (such as certificate based auth) as part of their kerberos based domain.
@@ -125,7 +126,7 @@ The kernel keyring holds secrets in unpageable memory and allows processes to
 retrieve them based on various access rights.
 
 One nice feature is it's possible to have a subtree of processes have their
-own 'session' keyring. We use this feature in Cockpit.
+own 'session' keyring.
 
 See keyring(7)
 
@@ -134,26 +135,8 @@ Authorization Implementation
 ============================
 
 Given that the goal of both polkit and sudo is to check whether the user is
-present at the machine, we provide that reauthorization from cockpit-ws, and
-verify it in the pam_reauthorize.so PAM module.
-
-At a high level here's what happens. First during initial authentication
-of the user:
-
- * The pam_reauthorize.so module is present late in "auth" stack.
-   * If root is being authenticated then bail
-   * If ```geteuid() != 0``` then bail
-   * If a PAM authtok password is present:
-      * ```salt = "$6$" encode_alnum(read("/dev/urandom", 16))```
-      * ```secret = crypt(authtok, salt)```
-      * Save ```secret``` for session handler
- * The pam_reauthorize.so module is present late in "session" stack.
-   * If ```secret``` was saved by "auth" handler, place this in the
-     session kernel keyring, owned by root, and readable only
-     by root.
-
-Note that if GSSAPI was used to authenticate then nothing happens
-above. In fact the "auth" PAM stack is not called (eg: sshd).
+present at the machine, we request second authentication and login to prove
+that the user is still present, and credentials are known and valid.
 
 When cockpit-bridge starts it does:
 
@@ -161,30 +144,40 @@ When cockpit-bridge starts it does:
  * Like all other polkit agents, cockpit-bridge's polkit agent
    has a privileged helper: cockpit-polkit
 
+Late during PAM account phases of either the 'sshd' or
+'cockpit' PAM stacks:
+
+ * A kernel keyring is created for the user, searchable from
+   the user account, owned by root and writable only by root.
+   * If this keyring already exists, it's permissions cross checked.
+ * A token is placed in the keyring containing the current
+   CLOCK_MONOTONIC time.
+ * Because sshd allows multiple sessions to be started over a single
+   authenticated connection, we cannot solely rely on the 'account'
+   PAM stack to tell us when authentication has occured.
+   * We use the SSH_CONNECTION environment variable passed from sshd
+     to distinguish between a new connection, and one that has been
+     reused for a second session.
+   * The above only applies if PAM_SERVICE is 'sshd'
+   * The token above is only placed in the keyring if we determine
+     that this is a new connection.
+
 When Polkit needs to reauthorize the user, it connects to the
 cockpit-bridge polkit agent:
 
  * cockpit-bridge checks that polkit is trying to reauthorize
    the current user and bails if not.
- * Via its privileged helper, cockpit-bridge performs the following:
+ * Sends a request to cockpit-ws to perform another authentication
+   on this machine.
+   * cockpit-ws performs this using the same credentials and
+     mechanism that it initially logged into the machine.
+ * In the privileged helper:
    * If ```getuid() == 0``` then bail
    * If ```geteuid() != 0``` then bail
-   * If ```secret``` is present in session kernel keyring.
-     * Verify that ```secret``` in keyring is owned by root, and only readable
-       by root, otherwise: bail
-     * Parse ```salt``` out of ```secret```
-     * ```nonce = "$6$" encode_alnum(read("/dev/urandom", 16))```
-     * ```challenge = "crypt1:" encode_hex(user) ":" salt ":" nonce```
-   * If no ```secret``` is present in session kernel keyring
-     * ```challenge = "gssapi1:" encode_hex(user)```
-   * Send ```challenge``` to cockpit-ws
-   * Wait for ```response``` from cockpit-ws
-   * If ```startswith(response, "gssapi1:")``` then
-     * Pass response to ```gss_accept_sec_context()``` appropriately
-     * User has reauthorized if successful GSSAPI auth
-   * If ```startswith(response, "crypt1:")``` then:
-     * ```expected = "crypt1:" crypt(nonce, secret)```
-     * User has reauthorized if ```response``` is identical to ```expected```
+   * Make note of the current CLOCK_MONOTONIC time
+   * Wait for response from cockpit-ws that this has occured.
+ * Check the user keyring for a token placed with value that contains
+   a time later than the time noted above.
 
 When sudo wants to reauthorize the user, we place a pam module in
 its PAM stack so it does this reauthorization via a polkit action with
@@ -241,12 +234,10 @@ grabbing the X keyboard. This is not the case.
 When authenticated via kerberos we will reauthorize the user via GSSAPI, and as such
 will have the protection against snooping that GSSAPI affords.
 
-This scheme also does not try to prevent snooping of the authorization token, and
-thus has the same security characteristics of Polkit and sudo.
-
-Better: We do better than typical polkit and sudo password based reauthorization,
-as we do not let the user's plain text password actually transit any unprivileged
-process.
+Better: This scheme is immune to snooping. All authentication happens outside
+the unprivileged user session. Notably we do better than typical polkit and sudo
+password based reauthorization, as we do not let the user's plain text password
+actually transit any unprivileged process.
 
 Replay prevention
 -----------------
@@ -259,7 +250,7 @@ Better: this scheme prevents replay of a response once it is used. The nonce
 included in the response is random and must be identical to the one in the
 challenge.
 
-When authenticated via kerberos we will reauthorize the user via
+Better: When authenticated via kerberos we will reauthorize the user via
 GSSAPI, and as such will have similar replay prevention characteristics to GSSAPI.
 
 PAM usage
@@ -272,22 +263,16 @@ the user):
  * cockpit
  * sshd
 
-The PAM module is present to derive the secret from a password login.
-This allows us to not send the user's password through the user's
-session.
+The PAM module simply tracks successful authentications and account
+authorization in a way that it can be consumed to make reauthorization
+decisions about the user.
 
 Session Keyring
 ---------------
 
-We use the session kernel keyring. It is best practice to have pam_keyinit.so
-in the PAM stack in order to have a different session keyring per PAM session.
+We use the user kernel keyring.
 
-However even in the absence of a unique session kernel keyring, this
-reauthorization scheme is secure. However various components may step on each
-other's toes and cause reauthorization to fail (and fall back to other forms
-of reauthorization). This is a fail safe.
-
-We place the secret in the session kernel keyring. However this secret is
+We place the secret tokens in the user kernel keyring. However this secret is
 only writable and readable by root. Before using the secret from the session
 kernel keyring, we verify that it is owned by root, and nobody else has any
 permissions (including link permissions).
@@ -306,7 +291,7 @@ tasks would be pointless.
 Reprompting for passwords also doesn't work at all with single-sign-on, where
 the user has authenticated transparently and is using Cockpit based on the
 authorization (host-based and time-based) of the domain. In a single-sign-on
-solution we can neither assume that the user has a password to retype, is able
+solution we can neither assume that the user has a password to retype, or is able
 to reauthenticate.
 
 Cockpit will provide reauthorization via cockpit-ws based on the presence of
@@ -316,18 +301,3 @@ period of inactivity credentials timeout, and cannot be used to reauthorize.
 When kerberos is in use, Cockpit reauthorize the user via GSSAPI
 at each reauthorization. This prevents uses of tickets that have expired, and
 checks domain policy regularly.
-
-
-Use of crypt()
---------------
-
-We use crypt() as opposed to some other MACing function as it has a stable
-known portable API, correctly handles any FIPS requirements, and system
-policy.
-
-By prepending '$6$' (or something like it) to the salt, we get high strength
-hashing. This can be upgraded over time, as the hashing function is chosen
-by pam_cockpit_authorize.so, and respected by cockpit-ws.
-
-We also have algorithm mobility so that the PAM module can choose an
-appropriately strong algorithm, over time.

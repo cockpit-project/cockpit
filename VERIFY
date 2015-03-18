@@ -2,5 +2,4 @@
 
 set -e
 
-./test-avocado/run || true
 ( cd test && ./testsuite-prepare "$@" && ./check-verify )

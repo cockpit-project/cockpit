@@ -81,7 +81,8 @@ Requires: %{name}-shell = %{version}-%{release}
 %ifarch x86_64
 Requires: %{name}-docker = %{version}-%{release}
 %endif
-%if 0%{?rhel}
+# Only depend on subscriptions if we are on RHEL, not on CentOS
+%if 0%{?rhel} && 0%{?centos} == 0
 Requires: %{name}-subscriptions = %{version}-%{release}
 %endif
 %if %{defined selinux}

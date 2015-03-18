@@ -32,6 +32,12 @@ html, body {
     font-size: 14px;
 }
 
+/* HACK - Correct glypicon position.
+*/
+.btn.glyphicon {
+    top: 0px;
+}
+
 #dashboard-add {
     height: 28px;
     width: 28px;
@@ -105,8 +111,9 @@ html, body {
     white-space: nowrap;
 }
 
-#dashboard-plot {
+.dashboard-plot {
     margin-bottom: 10px;
+    cursor: ew-resize;
 }
 
 #host-edit-color-popover .color-cell {

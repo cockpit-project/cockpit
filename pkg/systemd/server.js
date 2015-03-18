@@ -261,7 +261,7 @@ define([
         }
 
         function render_day_header(day) {
-            return ['<div class="cockpit-loghead">', day, '</div>'].join("");
+            return ['<div class="panel-heading">', day, '</div>'].join("");
         }
 
         return {
@@ -311,7 +311,7 @@ define([
     /* Not public API */
     server.journalbox = function journalbox(start, match, day_box) {
         var end_box = $('<div class="journal-end">');
-        var box = $('<div class="journal-lines">');
+        var box = $('<div class="journal-lines panel panel-default">');
         var start_box = $('<div class="journal-start">');
 
         var outer = $("<div>").append(end_box, box, start_box);
@@ -405,7 +405,7 @@ define([
             if (renderitems_day_cache === null) {
                 renderitems_day_cache = [];
                 for (var d = box[0].firstChild; d; d = d.nextSibling) {
-                    if ($(d).hasClass('cockpit-loghead'))
+                    if ($(d).hasClass('panel-default'))
                         renderitems_day_cache.push([$(d).offset().top, $(d).text()]);
                 }
             }

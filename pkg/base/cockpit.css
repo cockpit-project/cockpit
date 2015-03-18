@@ -158,45 +158,17 @@ code, kbd, pre, samp {
     margin: 8px;
 }
 
-/* Journal logs */
-/* Logprio, keep?
-.cockpit-logprio-0,
-.cockpit-logprio-1,
-.cockpit-logprio-2
-{
-    color: red;
-    font-weight: bold;
-}
-
-.cockpit-logprio-3
-{
-    color: red;
-}
-
-.cockpit-logprio-4
-{
-    font-weight: bold;
-}
-
-.cockpit-logprio-7
-{
-    color: grey;
-}
-*/
-
-.cockpit-loghead {
-    background-color: #f5f5f5;
+.journal-lines .panel-heading {
     border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px transparent none;
-    padding: 10px;
+    border-bottom: 0;
+}
+
+.journal-lines .panel-heading:first-child {
+    border-top: 0;
 }
 
 .cockpit-logline {
     border-top: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
     border-bottom: 1px transparent none;
     padding: 10px;
 }
@@ -284,14 +256,16 @@ code, kbd, pre, samp {
     border-bottom: 1px #ddd solid;
 }
 
-.cockpit-log-panel .cockpit-loghead {
+.cockpit-log-panel .panel-body .panel-heading {
     border-left: 1px #ddd solid;
     border-right: 1px #ddd solid;
+    border-top: 1px #ddd solid;
     background-color: #f5f5f5;
     font-weight: bold;
     padding-top: 2px;
     padding-bottom: 2px;
     width: auto;
+    color: #333;
 }
 
 .cockpit-log-panel .cockpit-logline {
@@ -517,10 +491,6 @@ code, kbd, pre, samp {
 }
 
 /* Server stuff, not enough for own CSS yet */
-
-.journal-lines .cockpit-logline:last-child {
-    border-bottom: 1px solid #ddd;
-}
 
 .journal-lines .cockpit-logline:hover {
     cursor: pointer;

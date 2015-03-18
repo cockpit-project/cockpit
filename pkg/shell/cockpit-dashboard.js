@@ -74,9 +74,10 @@ function memory_ticks(opts) {
 
 var resource_monitors = [
     { selector: "#dashboard-plot-0",
-      plot: { metrics: [ "kernel.all.cpu.nice",
-                         "kernel.all.cpu.user",
-                         "kernel.all.cpu.sys"
+      plot: { source: "internal",
+              metrics: [ "cpu.basic.nice",
+                         "cpu.basic.user",
+                         "cpu.basic.system"
                        ],
               units: "millisec",
               derive: "rate",

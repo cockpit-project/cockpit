@@ -37,6 +37,9 @@ function yum_builddep() {
     yum-builddep -y "$@" | (grep -v -- "--> Already installed : \|Getting requirements for\|No uninstalled build requires" || true)
 }
 
+echolog "Updating OS"
+yum -y update
+
 echolog "Updating base packages"
 yum_install $BASE_PCKGS
 

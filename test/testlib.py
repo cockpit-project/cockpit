@@ -405,6 +405,9 @@ class MachineCase(unittest.TestCase):
         "GLib-GIO:ERROR:gdbusobjectmanagerserver\\.c:.*:g_dbus_object_manager_server_emit_interfaces_.*: assertion failed \\(error == NULL\\): The connection is closed \\(g-io-error-quark, 18\\)",
         "Error sending message: The connection is closed",
 
+        # Will go away with glib 2.43.2
+        ".*: couldn't write web output: Error sending data: Connection reset by peer",
+
         ## Bugs
 
         # https://bugs.freedesktop.org/show_bug.cgi?id=70540

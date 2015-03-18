@@ -84,7 +84,7 @@ function init() {
     content_show();
 }
 
-require(["base1/po"], function(po) {
+require(["translated!base1/po"], function(po) {
     cockpit.locale(po);
 });
 

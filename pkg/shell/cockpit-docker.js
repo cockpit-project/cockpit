@@ -283,6 +283,7 @@ function setup_for_failure(page, client) {
             msg = _("Not authorized to access Docker on this system");
         else
             msg = cockpit.format(_("Can't connect to Docker: $0"), ex.toString());
+        $("#containers-failure-waiting").hide();
         $("#containers-failure-message").text(msg);
 
         $("#containers-failure-start").toggle(show_start);
@@ -315,6 +316,9 @@ function setup_for_failure(page, client) {
     });
 
     $('#containers-failure-start').on('click.failure', function () {
+        $("#containers-failure-start").hide();
+        $("#containers-failure-message").text(_("Starting docker"));
+        $("#containers-failure-waiting").show();
         cockpit.spawn([ "systemctl", "start", "docker" ], { "superuser": true }).
             done(function () {
                 client.close();

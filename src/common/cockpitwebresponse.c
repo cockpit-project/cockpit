@@ -417,6 +417,7 @@ cockpit_web_response_queue (CockpitWebResponse *self,
 {
   gchar *data;
   GBytes *bytes;
+  gsize length;
 
   g_return_val_if_fail (block != NULL, FALSE);
   g_return_val_if_fail (self->complete == FALSE, FALSE);
@@ -427,7 +428,16 @@ cockpit_web_response_queue (CockpitWebResponse *self,
       return FALSE;
     }
 
-  g_debug ("%s: queued %d bytes", self->logname, (int)g_bytes_get_size (block));
+  length = g_bytes_get_size (block);
+  g_debug ("%s: queued %d bytes", self->logname, (int)length);
+
+  /*
+   * We cannot queue chunks of length zero. Besides being silly, this
+   * messes with chunked encoding. The 0 length block means end of
+   * response.
+   */
+  if (length == 0)
+    return TRUE;
 
   if (!self->chunked)
     {

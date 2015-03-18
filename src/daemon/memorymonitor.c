@@ -276,7 +276,7 @@ collect (MemoryMonitor *monitor)
 
   sample = &(monitor->samples[monitor->samples_next]);
 
-  /* see 'man proc' for the format of /proc/stat */
+  /* see 'man proc' for the format of /proc/meminfo */
 
   lines = g_strsplit (contents, "\n", -1);
   for (n = 0; lines != NULL && lines[n] != NULL; n++)

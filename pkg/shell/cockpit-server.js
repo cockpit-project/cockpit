@@ -620,6 +620,7 @@ PageSystemInformationChangeSystime.prototype = {
     check_input: function() {
         var time_error = false;
         var date_error = false;
+        var new_date;
 
         if (! $('#systime-time-hours').val()       ||
               $('#systime-time-hours').val() < 0   ||
@@ -630,7 +631,9 @@ PageSystemInformationChangeSystime.prototype = {
            time_error = true;
         }
 
-        if (! Date.parse($("#systime-date-input").val()))
+        new_date = new Date($("#systime-date-input").val());
+
+        if (isNaN(new_date.getTime()) || new_date.getTime() < 0)
             date_error = true;
 
         if (time_error && date_error)

@@ -108,8 +108,8 @@ PageServer.prototype = {
         /* CPU graph */
 
         var cpu_data = {
-            source: "internal",
-            metrics: [ "cpu.basic.nice", "cpu.basic.user", "cpu.basic.system" ],
+            direct: [ "kernel.all.cpu.nice", "kernel.all.cpu.user", "kernel.all.cpu.sys" ],
+            internal: [ "cpu.basic.nice", "cpu.basic.user", "cpu.basic.system" ],
             units: "millisec",
             derive: "rate",
             factor: 0.1  // millisec / sec -> percent
@@ -128,8 +128,8 @@ PageServer.prototype = {
         /* Memory graph */
 
         var memory_data = {
-            source: "internal",
-            metrics: [ "memory.used" ],
+            direct: [ "mem.util.used" ],
+            internal: [ "memory.used" ],
             units: "bytes"
         };
 
@@ -145,8 +145,8 @@ PageServer.prototype = {
         /* Network graph */
 
         var network_data = {
-            source: "internal",
-            metrics: [ "network.all.tx", "network.all.rx" ],
+            direct: [ "network.interface.total.bytes" ],
+            internal: [ "network.all.tx", "network.all.rx" ],
             units: "bytes",
             derive: "rate"
         };
@@ -171,8 +171,8 @@ PageServer.prototype = {
         /* Disk IO graph */
 
         var disk_data = {
-            source: "internal",
-            metrics: [ "block.device.read", "block.device.written" ],
+            direct: [ "disk.dev.total_bytes" ],
+            internal: [ "block.device.read", "block.device.written" ],
             units: "bytes",
             derive: "rate"
         };

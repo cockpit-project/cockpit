@@ -370,7 +370,15 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
             return channel;
         }
 
-        metrics = desc.metrics.map(function (n) { return { name: n, units: desc.units, derive: desc.derive }; });
+        function build_metric(n) {
+            return { name: n, units: desc.units, derive: desc.derive };
+        }
+
+        metrics = desc.direct.map(build_metric);
+        var fallback = null;
+
+        if (desc.internal)
+            fallback = desc.internal.map(build_metric);
 
         var chanopts = {
             payload: "metrics1",
@@ -481,22 +489,42 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         reset_series();
         add_series();
 
-        real_time_channel = channel_sampler($.extend({ source: desc.source || "direct",
-                                                       interval: real_time_samples_interval,
+        function process_samples(vals) {
+            real_time_samples_pos += 1;
+            if (real_time_samples_pos >= max_real_time_samples)
+                real_time_samples_pos = 0;
+            else
+                n_real_time_samples += 1;
+            real_time_samples[real_time_samples_pos] = vals[0][1];
+            real_time_samples_timestamp = vals[0][0];
+        }
 
-                                                     },
-                                                     chanopts),
-                                            function (vals) {
-                                                real_time_samples_pos += 1;
-                                                if (real_time_samples_pos >= max_real_time_samples)
-                                                    real_time_samples_pos = 0;
-                                                else
-                                                    n_real_time_samples += 1;
-                                                real_time_samples[real_time_samples_pos] = vals[0][1];
-                                                real_time_samples_timestamp = vals[0][0];
-                                            });
-        $(real_time_channel).on("close", function (event, message) {
+        function channel_closed(ev, options) {
             real_time_channel = null;
+            if (options.problem)
+                console.log("problem retrieving metrics data: " + options.problem);
+        }
+
+        real_time_channel = channel_sampler($.extend({ }, chanopts, {
+            source: "direct",
+            interval: real_time_samples_interval
+        }), process_samples);
+        $(real_time_channel).on("close", function (event, options) {
+
+            /* Go for the fallback internal metrics if these metrics are not supported */
+            if (options.problem == "not-supported" && fallback) {
+                chanopts.metrics = chanopts.fallback;
+                real_time_channel = channel_sampler($.extend({ }, chanopts, {
+                    source: "internal",
+                    interval: real_time_samples_interval,
+                    metrics: fallback
+                }), process_samples);
+                $(real_time_channel).on("close", channel_closed);
+
+            /* Otherwise it could be just a normal failure */
+            } else {
+                channel_closed(event, options);
+            }
         });
 
         function sample_real_time(t1, t2) {

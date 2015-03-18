@@ -476,7 +476,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         reset_series();
         add_series();
 
-        real_time_channel = channel_sampler($.extend({ source: "direct",
+        real_time_channel = channel_sampler($.extend({ source: desc.source || "direct",
                                                        interval: real_time_samples_interval,
 
                                                      },

@@ -74,22 +74,35 @@ function memory_ticks(opts) {
 
 var resource_monitors = [
     { selector: "#dashboard-plot-0",
-      plot: { metrics: [ "kernel.all.cpu.nice",
-                         "kernel.all.cpu.user",
-                         "kernel.all.cpu.sys"
-                       ],
-              units: "millisec",
-              derive: "rate",
-              factor: 0.1  // millisec / sec -> percent
-            },
+      plot: {
+          direct: [
+              "kernel.all.cpu.nice",
+              "kernel.all.cpu.user",
+              "kernel.all.cpu.sys"
+          ],
+          internal: [
+              "cpu.basic.nice",
+              "cpu.basic.user",
+              "cpu.basic.system"
+          ],
+          units: "millisec",
+          derive: "rate",
+          factor: 0.1  // millisec / sec -> percent
+      },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter: function(v) { return v + "%"; }} },
       ymax_unit: 100
     },
     { selector: "#dashboard-plot-1",
-      plot: { metrics: [ "mem.util.used" ],
-              units: "byte"
-            },
+      plot: {
+          direct: [
+              "mem.util.used"
+          ],
+          internal: [
+              "memory.used"
+          ],
+          units: "bytes",
+      },
       options: { yaxis: { ticks: memory_ticks,
                           tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bytes(v); }
@@ -98,11 +111,17 @@ var resource_monitors = [
       ymax_unit: 100000000
     },
     { selector: "#dashboard-plot-2",
-      plot: { metrics: [ "network.interface.total.bytes" ],
-              units: "byte",
-              'omit-instances': [ "lo" ],
-              derive: "rate"
-            },
+      plot: {
+          direct: [
+              "network.interface.total.bytes"
+          ],
+          internal: [
+              "network.all.rx"
+          ],
+          units: "bytes",
+          'omit-instances': [ "lo" ],
+          derive: "rate"
+      },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bits_per_sec(v*8); }
                         }
@@ -110,10 +129,17 @@ var resource_monitors = [
       ymax_min: 100000
     },
     { selector: "#dashboard-plot-3",
-      plot: { metrics: [ "disk.dev.total_bytes" ],
-              units: "byte",
-              derive: "rate"
-            },
+      plot: {
+          direct: [
+              "disk.dev.total_bytes"
+          ],
+          internal: [
+              "block.device.read",
+              "block.device.written"
+          ],
+          units: "bytes",
+          derive: "rate"
+      },
       options: { yaxis: { tickColor: "#e1e6ed",
                           tickFormatter:  function (v) { return cockpit.format_bytes_per_sec(v); }
                         }

@@ -30,7 +30,7 @@
 #include "cockpitinteracttransport.h"
 #include "cockpitnullchannel.h"
 #include "cockpitpackages.h"
-#include "cockpitpcpmetrics.h"
+#include "cockpitinternalmetrics.h"
 #include "cockpitpolkitagent.h"
 #include "cockpitportal.h"
 #include "cockpitstream.h"
@@ -134,10 +134,8 @@ process_open (CockpitTransport *transport,
         channel_type = COCKPIT_TYPE_NULL_CHANNEL;
       else if (g_strcmp0 (payload, "echo") == 0)
         channel_type = COCKPIT_TYPE_ECHO_CHANNEL;
-#if 0
       else if (g_strcmp0 (payload, "metrics1") == 0)
         channel_type = COCKPIT_TYPE_INTERNAL_METRICS;
-#endif
       else
         channel_type = COCKPIT_TYPE_CHANNEL;
 
@@ -436,6 +434,9 @@ run_bridge (const gchar *interactive)
 
   if (interactive)
     {
+      /* Allow skipping the init message when interactive */
+      init_received = TRUE;
+
       transport = cockpit_interact_transport_new (0, outfd, interactive);
     }
   else

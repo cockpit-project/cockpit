@@ -23,7 +23,8 @@
 /* global C_       */
 
 var shell = shell || { };
-(function($, cockpit, shell) {
+var modules = modules || { };
+(function($, cockpit, shell, modules) {
 
 function update_hostname_privileged() {
     shell.update_privileged_ui(
@@ -101,82 +102,97 @@ PageServer.prototype = {
 
         $('#server-avatar').attr('src', "images/server-large.png");
 
-        function network_setup_hook(plot) {
+        var monitor;
+        var series;
+
+        /* CPU graph */
+
+        var cpu_data = {
+            direct: [ "kernel.all.cpu.nice", "kernel.all.cpu.user", "kernel.all.cpu.sys" ],
+            internal: [ "cpu.basic.nice", "cpu.basic.user", "cpu.basic.system" ],
+            units: "millisec",
+            derive: "rate",
+            factor: 0.1  // millisec / sec -> percent
+        };
+
+        var cpu_options = shell.plot_simple_template();
+        $.extend(cpu_options.yaxis, { max: 100 });
+
+        self.cpu_plot = shell.plot($("#server_cpu_graph"), 300);
+        self.cpu_plot.set_options(cpu_options);
+        series = self.cpu_plot.add_metrics_sum_series(cpu_data, { });
+        $(series).on("value", function(ev, value) {
+            $("#server_cpu_text").text(value.toFixed(1) + "%");
+        });
+
+        /* Memory graph */
+
+        var memory_data = {
+            direct: [ "mem.util.used" ],
+            internal: [ "memory.used" ],
+            units: "bytes"
+        };
+
+        var memory_options = shell.plot_simple_template();
+
+        self.memory_plot = shell.plot($("#server_memory_graph"), 300);
+        self.memory_plot.set_options(memory_options);
+        series = self.memory_plot.add_metrics_sum_series(memory_data, { });
+        $(series).on("value", function(ev, value) {
+            $("#server_memory_text").text(cockpit.format_bytes(value));
+        });
+
+        /* Network graph */
+
+        var network_data = {
+            direct: [ "network.interface.total.bytes" ],
+            internal: [ "network.all.tx", "network.all.rx" ],
+            units: "bytes",
+            derive: "rate"
+        };
+
+        var network_options = shell.plot_simple_template();
+        network_options.setup_hook = function network_setup_hook(plot) {
             var axes = plot.getAxes();
             if (axes.yaxis.datamax < 100000)
                 axes.yaxis.options.max = 100000;
             else
                 axes.yaxis.options.max = null;
             axes.yaxis.options.min = 0;
-        }
+        };
 
-        var monitor = self.client.get("/com/redhat/Cockpit/CpuMonitor",
-                                      "com.redhat.Cockpit.ResourceMonitor");
-        self.cpu_plot =
-            shell.setup_simple_plot("#server_cpu_graph",
-                                      "#server_cpu_text",
-                                      monitor,
-                                      { yaxis: { ticks: 5 } },
-                                      function(values) { // Combines the series into a single plot-value
-                                          return values[1] + values[2] + values[3];
-                                      },
-                                      function(values) { // Combines the series into a textual string
-                                          var total = values[1] + values[2] + values[3];
-                                          return total.toFixed(1) + "%";
-                                      });
+        self.network_plot = shell.plot($("#server_network_traffic_graph"), 300);
+        self.network_plot.set_options(network_options);
+        series = self.network_plot.add_metrics_sum_series(network_data, { });
+        $(series).on("value", function(ev, value) {
+            $("#server_network_traffic_text").text(cockpit.format_bits_per_sec(value * 8));
+        });
 
-        monitor = self.client.get("/com/redhat/Cockpit/MemoryMonitor",
-                                  "com.redhat.Cockpit.ResourceMonitor");
-        self.memory_plot =
-            shell.setup_simple_plot("#server_memory_graph",
-                                      "#server_memory_text",
-                                      monitor,
-                                      { },
-                                      function(values) { // Combines the series into a single plot-value
-                                          return values[1] + values[2] + values[3];
-                                      },
-                                      function(values) { // Combines the series into a textual string
-                                          var total = values[1] + values[2] + values[3];
-                                          return cockpit.format_bytes(total);
-                                      });
+        /* Disk IO graph */
 
-        monitor = self.client.get("/com/redhat/Cockpit/NetworkMonitor",
-                                  "com.redhat.Cockpit.ResourceMonitor");
-        self.network_traffic_plot =
-            shell.setup_simple_plot("#server_network_traffic_graph",
-                                      "#server_network_traffic_text",
-                                      monitor,
-                                      { setup_hook: network_setup_hook },
-                                      function(values) { // Combines the series into a single plot-value
-                                          return values[0] + values[1];
-                                      },
-                                      function(values) { // Combines the series into a textual string
-                                          var total = values[0] + values[1];
-                                          return cockpit.format_bits_per_sec(total * 8);
-                                      });
+        var disk_data = {
+            direct: [ "disk.dev.total_bytes" ],
+            internal: [ "block.device.read", "block.device.written" ],
+            units: "bytes",
+            derive: "rate"
+        };
 
-        monitor = self.client.get("/com/redhat/Cockpit/DiskIOMonitor",
-                                  "com.redhat.Cockpit.ResourceMonitor");
-        self.disk_io_plot =
-            shell.setup_simple_plot("#server_disk_io_graph",
-                                      "#server_disk_io_text",
-                                      monitor,
-                                      { },
-                                      function(values) { // Combines the series into a single plot-value
-                                          return values[0] + values[1];
-                                      },
-                                      function(values) { // Combines the series into a textual string
-                                          var total = values[0] + values[1];
-                                          return cockpit.format_bytes_per_sec(total);
-                                      });
-
+        self.disk_plot = shell.plot($("#server_disk_io_graph"), 300);
+        self.disk_plot.set_options(shell.plot_simple_template());
+        series = self.disk_plot.add_metrics_sum_series(disk_data, { });
+        $(series).on("value", function(ev, value) {
+            $("#server_disk_io_text").text(cockpit.format_bytes_per_sec(value));
+        });
 
         shell.util.machine_info(null).
             done(function (info) {
+                cpu_options.yaxis.max = info.cpus * 100;
+                self.cpu_plot.set_options(cpu_options);
+
                 // TODO - round memory to something nice and/or adjust
                 //        the ticks.
-                self.cpu_plot.set_yaxis_max(info.cpus*100);
-                self.memory_plot.set_yaxis_max(info.memory);
+                memory_options.yaxis.max = info.memory;
+                self.memory_plot.set_options(memory_options);
             });
 
         self.update_avatar ();
@@ -261,10 +277,10 @@ PageServer.prototype = {
     },
 
     show: function() {
-        this.cpu_plot.start();
-        this.memory_plot.start();
-        this.disk_io_plot.start();
-        this.network_traffic_plot.start();
+        this.cpu_plot.start_walking();
+        this.memory_plot.start_walking();
+        this.disk_plot.start_walking();
+        this.network_plot.start_walking();
     },
 
     leave: function() {
@@ -272,8 +288,8 @@ PageServer.prototype = {
 
         self.cpu_plot.destroy();
         self.memory_plot.destroy();
-        self.disk_io_plot.destroy();
-        self.network_traffic_plot.destroy();
+        self.disk_plot.destroy();
+        self.network_plot.destroy();
 
         $(self.manager).off('.server');
         self.manager = null;
@@ -287,11 +303,6 @@ PageServer.prototype = {
     shutdown: function(action_type) {
         PageShutdownDialog.type = action_type;
         $('#shutdown-dialog').modal('show');
-    },
-
-    start_plots: function () {
-        var self = this;
-
     },
 
     update_avatar: function () {
@@ -594,4 +605,4 @@ function PageShutdownDialog() {
 
 shell.dialogs.push(new PageShutdownDialog());
 
-})(jQuery, cockpit, shell);
+})(jQuery, cockpit, shell, modules);

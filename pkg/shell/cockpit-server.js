@@ -594,8 +594,8 @@ PageSystemInformationChangeSystime.prototype = {
             if ($('#change_systime').val() == 'manual_time') {
                 var new_date = new Date($("#systime-date-input").val());
 
-                new_date.setHours($('#systime-time-hours').val());
-                new_date.setMinutes($('#systime-time-minutes').val());
+                new_date.setHours(parseInt($('#systime-time-hours').val()));
+                new_date.setMinutes(parseInt($('#systime-time-minutes').val()));
 
                 var call = timedate.SetTime(new_date.getTime() * 1000, false, true);
                 call.fail(function (err) { shell.show_unexpected_error(err); });
@@ -622,12 +622,12 @@ PageSystemInformationChangeSystime.prototype = {
         var date_error = false;
         var new_date;
 
-        if (! $('#systime-time-hours').val()       ||
-              $('#systime-time-hours').val() < 0   ||
-              $('#systime-time-hours').val() > 23  ||
-            ! $('#systime-time-minutes').val()     ||
-              $('#systime-time-minutes').val() < 0 ||
-              $('#systime-time-minutes').val() > 59) {
+        var hours = parseInt($('#systime-time-hours').val());
+        var minutes = parseInt($('#systime-time-minutes').val());
+
+
+        if (isNaN(hours) || hours < 0 || hours > 23  ||
+            isNaN(minutes) || minutes < 0 || minutes > 59) {
            time_error = true;
         }
 
@@ -664,7 +664,7 @@ PageSystemInformationChangeSystime.prototype = {
     },
 
     update_minutes: function() {
-        var val = $('#systime-time-minutes').val();
+        var val = parseInt($('#systime-time-minutes').val());
         if (val < 10)
             $('#systime-time-minutes').val("0" + val);
     }

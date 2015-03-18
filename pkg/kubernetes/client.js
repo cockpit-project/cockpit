@@ -19,13 +19,9 @@
 
 define([
     "jquery",
-    "base1/cockpit",
-    "translated!base1/po"
-], function($, cockpit, po) {
+    "base1/cockpit"
+], function($, cockpit) {
     "use strict";
-
-    cockpit.locale(po);
-    var _ = cockpit.gettext;
 
     var kubernetes = { };
 

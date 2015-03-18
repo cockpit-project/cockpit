@@ -22,7 +22,7 @@
 define([
     "jquery",
     "base1/cockpit",
-    "base1/po",
+    "translated!base1/po",
     "base1/mustache"
 ], function($, cockpit, po, Mustache) {
     "use strict";

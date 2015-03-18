@@ -22,7 +22,7 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 require([
     "jquery",
     "base1/cockpit",
-    'base1/po',
+    'translated!base1/po',
     "manifests"
 ], function($, cockpit, po, manifests) {
     cockpit.locale(po);
@@ -112,7 +112,7 @@ require([
 
     $("#display-language-select-button").on("click", function(event) {
         var code_to_select = $("#display-language-list").val();
-        document.cookie = "cockpitlang=" + code_to_select;
+        window.localStorage.setItem("cockpit.lang", code_to_select);
         window.location.reload(true);
         return false;
     });

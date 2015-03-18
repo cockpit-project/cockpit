@@ -108,10 +108,13 @@ update-lib::
 	    $(srcdir)/lib/attrchange.min.js
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/require.js \
 	    $(srcdir)/lib/requirejs.$(VX).js \
-	    $(srcdir)/pkg/base/require-config.js
+	    $(srcdir)/pkg/base/require-config.js \
+	    $(srcdir)/pkg/base/require-loaders.js
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/require.min.js \
 	    $(srcdir)/lib/requirejs.$(VX).min.js \
 	    $(srcdir)/pkg/base/require-config.js
+	    $(srcdir)/pkg/base/require-config.js \
+	    $(srcdir)/pkg/base/require-loaders.js
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/patternfly.css \
 	    $(srcdir)/lib/patternfly.$(VX).css \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).css

@@ -37,7 +37,7 @@ class TestJournal(MachineCase):
               lines.push($('.journal-end').text());
               $('.journal-lines').children().each(function (i, e) {
                 var $e = $(e);
-                if ($e.is('.cockpit-loghead'))
+                if ($e.is('.panel-heading'))
                   lines.push ($e.text());
                 else {
                   var c = $e.children();

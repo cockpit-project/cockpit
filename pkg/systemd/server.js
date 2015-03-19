@@ -405,7 +405,7 @@ define([
             if (renderitems_day_cache === null) {
                 renderitems_day_cache = [];
                 for (var d = box[0].firstChild; d; d = d.nextSibling) {
-                    if ($(d).hasClass('panel-default'))
+                    if ($(d).hasClass('panel-heading'))
                         renderitems_day_cache.push([$(d).offset().top, $(d).text()]);
                 }
             }

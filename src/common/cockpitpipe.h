@@ -28,6 +28,7 @@ typedef enum {
   COCKPIT_PIPE_FLAGS_NONE = 0,
   COCKPIT_PIPE_STDERR_TO_LOG = 1 << 0,
   COCKPIT_PIPE_STDERR_TO_STDOUT = 1 << 1,
+  COCKPIT_PIPE_STDERR_TO_NULL = 1 << 2,
 } CockpitPipeFlags;
 
 #define COCKPIT_TYPE_PIPE         (cockpit_pipe_get_type ())

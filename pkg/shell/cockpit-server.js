@@ -19,7 +19,6 @@
 
 /* global jQuery   */
 /* global cockpit  */
-/* global moment   */
 /* global _        */
 /* global C_       */
 
@@ -61,6 +60,8 @@ PageServer.prototype = {
         var self = this;
         update_realm_privileged();
         update_hostname_privileged();
+
+        self.timedate = cockpit.dbus('org.freedesktop.timedate1').proxy();
 
         $('#shutdown-group').append(
               shell.action_btn(
@@ -341,30 +342,56 @@ PageServer.prototype = {
     get_time: function() {
         var self = this;
 
+        var timestamp_diff = null;
+
         function systime_text() {
-            if (! self.timestamp_diff)
+            if (timestamp_diff === null)
                 return;
 
-            var time = moment(self.timestamp_diff + (new Date()).valueOf()).tz(self.timedate.Timezone);
-            $('#system_information_systime_button').text(time.format('MMMM D LT'));
+            var date = new Date(timestamp_diff + (new Date()).valueOf());
+            var string = date.toLocaleString();
+            var pos = string.lastIndexOf(':');
+            if (pos !== -1)
+                string = string.substring(0, pos);
+            $('#system_information_systime_button').text(string);
         }
 
-        function systime_timestamp(data) {
-            self.timestamp_diff = data[0] - (new Date()).valueOf();
-            self.service = cockpit.dbus('org.freedesktop.timedate1');
-            self.timedate = self.service.proxy();
+        function systime_timestamp(timems, offsetms) {
+            var now = new Date();
+            var td = (timems - now.valueOf());
+            var zd = (offsetms + (now.getTimezoneOffset() * 60000));
+            timestamp_diff = td - zd;
 
-            PageSystemInformationChangeSystime.timestamp_diff = self.timestamp_diff;
+            PageSystemInformationChangeSystime.timestamp_diff = timestamp_diff;
             PageSystemInformationChangeSystime.timedate = self.timedate;
             $(self.timedate).on("changed", systime_text);
-            window.setInterval(systime_text, 30000);
+
+            systime_text();
+            window.clearInterval(self.time_interval);
+            self.time_interval = window.setInterval(systime_text, 30000);
         }
 
-        var client = cockpit.dbus(null, { "bus": "internal" });
-        client.call("/time", "cockpit.Time", "GetWallTime", [ ])
-              .done(systime_timestamp)
-              .fail(function(ex) { console.warn("couldn't get server time: " + ex); })
-              .always(function() { client.close(); });
+        self.timedate.wait(function() {
+
+            if (this.valid && this.TimeUSec && this.LocalOffset !== undefined) {
+                systime_timestamp(this.TimeUSec / 1000, this.LocalOffset / 1000);
+            } else {
+
+                /*
+                 * Earlier versions of timedated did not have the TimeUSec
+                 * and/or LocalOffset functions.
+                 */
+                cockpit.spawn(["/usr/bin/date", "+%s:%:z"])
+                    .done(function(data) {
+                        var parts = data.trim().split(":").map(function(x) {
+                            return parseInt(x, 10);
+                        });
+                        if (parts[1] < 0)
+                            parts[2] = -(parts[2]);
+                        systime_timestamp(parts[0] * 1000, (parts[1] * 3600000) + parts[2] * 60000);
+                    });
+            }
+        });
     },
 
     update_realms: function() {

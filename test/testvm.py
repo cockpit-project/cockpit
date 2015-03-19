@@ -690,7 +690,7 @@ class QemuMachine(Machine):
                 if fd == p.stdout.fileno():
                     data = os.read(fd, 1024)
                     if self.verbose:
-                        sys.stdout.write(date)
+                        sys.stdout.write(data)
                     output += data
                     all_output += data
                     if "emergency mode" in output:

@@ -270,7 +270,8 @@
           <term><code>"err"</code></term>
           <listitem><para>Controls where the standard error is sent. By default it is logged
             to the journal. If set to <code>"out"</code> it is included in with the
-            output data.</para></listitem>
+            output data. If set to <code>"ignore"</code> then the error output is discarded.
+            When the <code>"pty"</code> field is set, this field has no effect.</para></listitem>
         </varlistentry>
         <varlistentry>
           <term><code>"host"</code></term>

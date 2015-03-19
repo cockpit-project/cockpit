@@ -906,7 +906,8 @@ cockpit_pipe_connect (const gchar *name,
 }
 
 static GSpawnFlags
-calculate_spawn_flags (const gchar **env)
+calculate_spawn_flags (const gchar **env,
+                       CockpitPipeFlags pflags)
 {
   GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
   gboolean path_flag = FALSE;
@@ -923,6 +924,9 @@ calculate_spawn_flags (const gchar **env)
 
   if (!path_flag)
     flags |= G_SPAWN_SEARCH_PATH;
+
+  if (pflags & COCKPIT_PIPE_STDERR_TO_NULL)
+    flags |= G_SPAWN_STDERR_TO_DEV_NULL;
 
   return flags;
 }
@@ -1033,7 +1037,7 @@ cockpit_pipe_spawn (const gchar **argv,
   GPid pid = 0;
 
   g_spawn_async_with_pipes (directory, (gchar **)argv, (gchar **)env,
-                            calculate_spawn_flags (env),
+                            calculate_spawn_flags (env, flags),
                             (flags & COCKPIT_PIPE_STDERR_TO_STDOUT) ? stderr_to_stdout : NULL, NULL,
                             &pid, &session_stdin, &session_stdout,
                             (flags & COCKPIT_PIPE_STDERR_TO_LOG) ? &session_stderr : NULL, &error);

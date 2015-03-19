@@ -353,8 +353,10 @@ cockpit_stream_prepare (CockpitChannel *channel)
         }
 
       flags = COCKPIT_PIPE_STDERR_TO_LOG;
-      if (error && g_str_equal (error, "out"))
+      if (g_strcmp0 (error, "out") == 0)
         flags = COCKPIT_PIPE_STDERR_TO_STDOUT;
+      else if (g_strcmp0 (error, "ignore") == 0)
+        flags = COCKPIT_PIPE_STDERR_TO_NULL;
 
       self->name = g_strdup (argv[0]);
       if (!cockpit_json_get_string (options, "directory", NULL, &dir))

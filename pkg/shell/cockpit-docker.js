@@ -272,7 +272,6 @@ function setup_for_failure(page, client) {
     function show_failure(ex) {
         var msg;
         var show_start = false;
-        console.warn(ex);
 
         if (typeof ex == "string")
             msg = ex;

@@ -47,9 +47,116 @@ function update_realm_privileged() {
 $(shell.default_permission).on("changed", update_realm_privileged);
 $(shell.default_permission).on("changed", update_hostname_privileged);
 
+function ServerTime() {
+    var self = this;
+
+    var client = cockpit.dbus('org.freedesktop.timedate1');
+    var timedate = client.proxy();
+
+    var time_offset = null;
+    var remote_offset = null;
+
+    self.timedate = timedate;
+
+    /*
+     * The time we return from here as its UTC time set to the
+     * server time. This is the only way to get predictable
+     * behavior and formatting of a Date() object in the absence of
+     * IntlDateFormat and  friends.
+     */
+    Object.defineProperty(self, 'now', {
+        enumerable: true,
+        get: function get() {
+            var offset = time_offset + remote_offset;
+            return new Date(offset + (new Date()).valueOf());
+        }
+    });
+
+    self.format = function format(and_time) {
+        var string = self.now.toISOString();
+        if (!and_time)
+            return string.split('T')[0];
+        var pos = string.lastIndexOf(':');
+        if (pos !== -1)
+            string = string.substring(0, pos);
+        return string.replace('T', ' ');
+    };
+
+    var interval = window.setInterval(function() {
+        $(self).triggerHandler("changed");
+    }, 30000);
+
+    function offsets(timems, offsetms) {
+        var now = new Date();
+        time_offset = (timems - now.valueOf());
+        remote_offset = offsetms;
+        $(self).triggerHandler("changed");
+    }
+
+    self.update = function update() {
+        if (timedate.valid && timedate.TimeUSec && timedate.LocalOffset !== undefined) {
+            offsets(timedate.TimeUSec / 1000, timedate.LocalOffset / 1000);
+            return;
+        }
+
+        /*
+         * Earlier versions of timedated did not have the TimeUSec
+         * and/or LocalOffset functions.
+         */
+        cockpit.spawn(["/usr/bin/date", "+%s:%:z"])
+            .done(function(data) {
+                var parts = data.trim().split(":").map(function(x) {
+                    return parseInt(x, 10);
+                });
+                if (parts[1] < 0)
+                    parts[2] = -(parts[2]);
+                offsets(parts[0] * 1000, (parts[1] * 3600000) + parts[2] * 60000);
+            });
+    };
+
+    self.change_time = function change_time(datestr, hourstr, minstr) {
+        var dfd = $.Deferred();
+
+        /*
+         * The browser is brain dead when it comes to dates. But even if
+         * it wasn't, or we loaded a library like moment.js, there is no
+         * way to make sense of this date without a round trip to the
+         * server ... the timezone is really server specific.
+         */
+        cockpit.spawn(["/usr/bin/date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
+            .fail(function(ex) {
+                dfd.reject(ex);
+            })
+            .done(function(data) {
+                var seconds = parseInt(data.trim(), 10);
+                timedate.SetTime(seconds * 1000 * 1000, false, true)
+                    .fail(function(ex) {
+                        dfd.reject(ex);
+                    })
+                    .done(function() {
+                        self.update();
+                        dfd.resolve();
+                    });
+            });
+
+        return dfd;
+    };
+
+    if (timedate.valid)
+        self.calculate();
+    $(timedate).on("changed", self.calculate);
+
+    self.close = function close() {
+        client.close();
+    };
+
+    self.update();
+}
+
 PageServer.prototype = {
     _init: function() {
         this.id = "server";
+        this.server_time = null;
     },
 
     getTitle: function() {
@@ -80,8 +187,7 @@ PageServer.prototype = {
         });
 
         $('#system_information_systime_button').on('click', function () {
-            PageSystemInformationChangeSystime.client = self.client;
-            PageSystemInformationChangeSystime.callback = $.proxy(self.get_time, self);
+            PageSystemInformationChangeSystime.server_time = self.server_time;
             $('#system_information_change_systime').modal('show');
         });
 
@@ -95,6 +201,11 @@ PageServer.prototype = {
                 shell.realms_op_set_parameters(self.realms, 'join', '', { });
                 $('#realms-op').modal('show');
             }
+        });
+
+        self.server_time = new ServerTime();
+        $(self.server_time).on("changed", function() {
+            $('#system_information_systime_button').text(self.server_time.format(true));
         });
     },
 
@@ -277,8 +388,6 @@ PageServer.prototype = {
         bindf("#system_information_hostname_button", self.manager, "StaticHostname", hostname_text);
         bindf("#system_information_hostname_button", self.manager, "PrettyHostname", hostname_text);
 
-        this.get_time();
-
         self.realms = self.client.get("/com/redhat/Cockpit/Realms", "com.redhat.Cockpit.Realms");
 
         $(self.realms).on('notify:Joined.server',
@@ -337,61 +446,6 @@ PageServer.prototype = {
                                                                        shell.show_unexpected_error(error);
                                                                });
                                            });
-    },
-
-    get_time: function() {
-        var self = this;
-
-        var timestamp_diff = null;
-
-        function systime_text() {
-            if (timestamp_diff === null)
-                return;
-
-            var date = new Date(timestamp_diff + (new Date()).valueOf());
-            var string = date.toLocaleString();
-            var pos = string.lastIndexOf(':');
-            if (pos !== -1)
-                string = string.substring(0, pos);
-            $('#system_information_systime_button').text(string);
-        }
-
-        function systime_timestamp(timems, offsetms) {
-            var now = new Date();
-            var td = (timems - now.valueOf());
-            var zd = (offsetms + (now.getTimezoneOffset() * 60000));
-            timestamp_diff = td - zd;
-
-            PageSystemInformationChangeSystime.timestamp_diff = timestamp_diff;
-            PageSystemInformationChangeSystime.timedate = self.timedate;
-            $(self.timedate).on("changed", systime_text);
-
-            systime_text();
-            window.clearInterval(self.time_interval);
-            self.time_interval = window.setInterval(systime_text, 30000);
-        }
-
-        self.timedate.wait(function() {
-
-            if (this.valid && this.TimeUSec && this.LocalOffset !== undefined) {
-                systime_timestamp(this.TimeUSec / 1000, this.LocalOffset / 1000);
-            } else {
-
-                /*
-                 * Earlier versions of timedated did not have the TimeUSec
-                 * and/or LocalOffset functions.
-                 */
-                cockpit.spawn(["/usr/bin/date", "+%s:%:z"])
-                    .done(function(data) {
-                        var parts = data.trim().split(":").map(function(x) {
-                            return parseInt(x, 10);
-                        });
-                        if (parts[1] < 0)
-                            parts[2] = -(parts[2]);
-                        systime_timestamp(parts[0] * 1000, (parts[1] * 3600000) + parts[2] * 60000);
-                    });
-            }
-        });
     },
 
     update_realms: function() {
@@ -571,7 +625,6 @@ shell.dialogs.push(new PageSystemInformationChangeHostname());
 PageSystemInformationChangeSystime.prototype = {
     _init: function() {
         this.id = "system_information_change_systime";
-        this.dirty = false;
     },
 
     setup: function() {
@@ -581,23 +634,20 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-time-minutes').on('change', $.proxy(this, "check_input"));
         $('#systime-time-hours').on('change', $.proxy(this, "check_input"));
         $('#systime-date-input').on('change', $.proxy(this, "check_input"));
+        $('#systime-date-input').datepicker({
+            autoclose: true,
+            todayHighlight: true,
+            format: 'yyyy-mm-dd'
+        });
     },
 
     enter: function() {
-        var timedate = PageSystemInformationChangeSystime.timedate;
-        var date = new Date();
+        var server_time = PageSystemInformationChangeSystime.server_time;
 
-        if (this.dirty)
-            return;
-
-        date.setTime(date.getTime() + PageSystemInformationChangeSystime.timestamp_diff);
-
-        $('#systime-date-input').datepicker({autoclose: true,
-                                             todayHighlight: true});
-        $('#systime-date-input').val(date.toLocaleDateString());
-        $('#systime-time-minutes').val(date.getMinutes());
-        $('#systime-time-hours').val(date.getHours());
-        $('#change_systime').val(timedate.NTP ? 'ntp_time' : 'manual_time');
+        $('#systime-date-input').val(server_time.format());
+        $('#systime-time-minutes').val(server_time.now.getUTCMinutes());
+        $('#systime-time-hours').val(server_time.now.getUTCHours());
+        $('#change_systime').val(server_time.timedate.NTP ? 'ntp_time' : 'manual_time');
         $('#change_systime').selectpicker('refresh');
         $('#systime-parse-error').css('visibility', 'hidden');
         $('#systime-apply-button').prop('disabled', false);
@@ -610,38 +660,36 @@ PageSystemInformationChangeSystime.prototype = {
     },
 
     leave: function() {
-        this.dirty = false;
     },
 
     _on_apply_button: function(event) {
-        var self = this;
-        var timedate = PageSystemInformationChangeSystime.timedate;
+        var server_time = PageSystemInformationChangeSystime.server_time;
 
-        function set_manual_time() {
-            if ($('#change_systime').val() == 'manual_time') {
-                var new_date = new Date($("#systime-date-input").val());
-
-                new_date.setHours(parseInt($('#systime-time-hours').val()));
-                new_date.setMinutes(parseInt($('#systime-time-minutes').val()));
-
-                var call = timedate.SetTime(new_date.getTime() * 1000, false, true);
-                call.fail(function (err) { shell.show_unexpected_error(err); });
-                call.done(function () {
-                              $("#system_information_change_systime").modal('hide');
-                              PageSystemInformationChangeSystime.callback();
-                          });
-            } else {
-                $("#system_information_change_systime").modal('hide');
-                PageSystemInformationChangeSystime.callback();
-            }
-        }
-
-        if ($('#change_systime').val() == 'manual_time' && ! self.check_input())
+        var manual_time = $('#change_systime').val() == 'manual_time';
+        if (manual_time && !this.check_input())
             return;
 
-        var call_ntp = timedate.SetNTP($('#change_systime').val() == 'ntp_time', true);
-        call_ntp.fail(function (err) { shell.show_unexpected_error(err); });
-        call_ntp.done(set_manual_time);
+        server_time.timedate.SetNTP($('#change_systime').val() == 'ntp_time', true)
+            .fail(function(err) {
+                shell.show_unexpected_error(err);
+                $("#system_information_change_systime").modal('hide');
+            })
+            .done(function() {
+                if (!manual_time) {
+                    $("#system_information_change_systime").modal('hide');
+                    return;
+                }
+
+                server_time.change_time($("#systime-date-input").val(),
+                                        $('#systime-time-hours').val(),
+                                        $('#systime-time-minutes').val())
+                    .fail(function(err) {
+                        shell.show_unexpected_error(err);
+                    })
+                    .always(function() {
+                        $("#system_information_change_systime").modal('hide');
+                    });
+            });
     },
 
     check_input: function() {
@@ -649,9 +697,8 @@ PageSystemInformationChangeSystime.prototype = {
         var date_error = false;
         var new_date;
 
-        var hours = parseInt($('#systime-time-hours').val());
-        var minutes = parseInt($('#systime-time-minutes').val());
-
+        var hours = parseInt($('#systime-time-hours').val(), 10);
+        var minutes = parseInt($('#systime-time-minutes').val(), 10);
 
         if (isNaN(hours) || hours < 0 || hours > 23  ||
             isNaN(minutes) || minutes < 0 || minutes > 59) {
@@ -664,7 +711,7 @@ PageSystemInformationChangeSystime.prototype = {
             date_error = true;
 
         if (time_error && date_error)
-           $('#systime-parse-error').text(_("Invalid date format and Invalid time format"));
+           $('#systime-parse-error').text(_("Invalid date format and invalid time format"));
         else if (time_error)
            $('#systime-parse-error').text(_("Invalid time format"));
         else if (date_error)
@@ -684,14 +731,14 @@ PageSystemInformationChangeSystime.prototype = {
     },
 
     update: function() {
-        this.dirty = true;
-        $("#systime-date-input").prop('disabled', $('#change_systime').val() === 'ntp_time');
-        $("#systime-time-hours").prop('disabled', $('#change_systime').val() === 'ntp_time');
-        $("#systime-time-minutes").prop('disabled', $('#change_systime').val() === 'ntp_time');
+        var ntp_time = $('#change_systime').val() === 'ntp_time';
+        $("#systime-date-input").prop('disabled', ntp_time);
+        $("#systime-time-hours").prop('disabled', ntp_time);
+        $("#systime-time-minutes").prop('disabled', ntp_time);
     },
 
     update_minutes: function() {
-        var val = parseInt($('#systime-time-minutes').val());
+        var val = parseInt($('#systime-time-minutes').val(), 10);
         if (val < 10)
             $('#systime-time-minutes').val("0" + val);
     }

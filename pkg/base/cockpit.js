@@ -1445,9 +1445,9 @@ function full_scope(cockpit, $, po) {
 
         /* If watching then do a proper watch, otherwise object is done */
         if (options.watch !== false)
-            client.watch(path).always(function() { waits.fire(); });
+            client.watch(path).always(function() { waits.fireWith(self); });
         else
-            waits.fire();
+            waits.fireWith(self);
     }
 
     function DBusProxies(client, cache, iface, path_namespace) {

@@ -9,6 +9,7 @@ base_GEN = \
 	$(NULL)
 base_DATA = \
 	pkg/base/cockpit.css \
+	pkg/base/patternfly.css \
 	$(BRAND)/branding.css \
 	pkg/base/cockpit.js \
 	pkg/base/cockpit.min.js \

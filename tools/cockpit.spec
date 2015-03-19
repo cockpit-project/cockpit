@@ -135,6 +135,7 @@ Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: NetworkManager
 Requires: grep
+Requires: /usr/bin/date
 Obsoletes: %{name}-assets
 BuildArch: noarch
 

@@ -691,7 +691,7 @@ class QemuMachine(Machine):
                         ready_to_login = True
                     (unused, sep, output) = output.rpartition("\n")
             if time.time() - now > 600:
-                sys.stdout.write(all_output + "\n")
+                sys.stdout.write("Boot log:\n" + all_output + "\n")
                 raise Failure("qemu vm boot timed out")
 
         if p.poll():

@@ -583,7 +583,9 @@ function dialog_enter(id) {
     if (dialog) {
         if (first_visit && dialog.setup)
             dialog.setup();
-        dialog.enter();
+        if (!dialog.entered)
+            dialog.enter();
+        dialog.entered = true;
     }
     visited_dialogs[id] = true;
     phantom_checkpoint ();
@@ -592,7 +594,9 @@ function dialog_enter(id) {
 function dialog_leave(id) {
     var dialog = dialog_from_id(id);
     if (dialog) {
-        dialog.leave();
+        if (dialog.entered)
+            dialog.leave();
+        dialog.entered = false;
     }
     phantom_checkpoint ();
 }

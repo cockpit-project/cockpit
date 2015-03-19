@@ -1898,6 +1898,9 @@ PageStorageDetail.prototype = {
             states = info[i][2];
             num_errors = info[i][3];
 
+            if (!block)
+                continue;
+
             state_html = "";
             for (j = 0; j < states.length; j++) {
                 if (j > 0)

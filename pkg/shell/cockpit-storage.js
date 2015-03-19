@@ -3218,9 +3218,10 @@ PageRenameGroup.prototype = {
                                    name,
                                    function (error) {
                                        $("#storage_rename_group_dialog").modal('hide');
-                                       cockpit.location = "storage";
                                        if (error)
                                            shell.show_unexpected_error(error);
+                                       else
+                                           cockpit.location.go("storage-detail", { type: "vg", id: name });
                                    });
     }
 

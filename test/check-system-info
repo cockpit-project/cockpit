@@ -34,7 +34,13 @@ class TestSystemInfo(MachineCase):
         m = self.machine
         b = self.browser
 
+        # /etc/os-release might be a symlink and file watching doesn't
+        # follow symlinks, so we remove it and then create a regular
+        # file.
+        #
+        m.execute("rm /etc/os-release")
         m.write("/etc/os-release", os_release)
+
         self.login_and_go("server", href="/system/host")
         b.wait_text('#system_information_os_text',
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")

@@ -28,6 +28,11 @@ LUSER=`whoami`
 ENV_VARIABLES=./lib/var.env
 rm -f $ENV_VARIABLES
 
+# setup enviromental variable to override these values (useful for testing on another environment)
+# GUEST_NUMBER , GUESTOS
+if [ -z "$GUEST_NUMBER" ]; then
+    GUEST_NUMBER="7"
+fi
 if [ -z "$GUESTOS" ]; then
     GUESTOS=fedora-21
 fi
@@ -62,8 +67,9 @@ fi
 
 # GUEST1 machine
 #
-vm_create checkmachine7 $GUESTOS
-GUEST1=`vm_get_name checkmachine7 $GUESTOS`
+GUESTNAME="checkmachine${GUEST_NUMBER}"
+vm_create $GUESTNAME $GUESTOS
+GUEST1=`vm_get_name $GUESTNAME $GUESTOS`
 
 if virsh -c qemu:///system snapshot-info $GUEST1 initialized >/dev/null; then
     echolog "Reverting $GUEST1 to last 'initialized' state"

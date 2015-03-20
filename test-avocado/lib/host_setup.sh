@@ -23,7 +23,7 @@ unset command_not_found_handle
 # TODO: Currently we have only one set of base packages, but we should
 # allow different sets for different OSes.
 #
-HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip avocado virt-manager qemu-img"
+HS_BASE_PCKGS="virt-deploy pystache sshpass telnet fabric python-pip avocado avocado-plugins-output-html virt-manager qemu-img"
 
 export HS_GRP="virtualization"
 HS_CON="-c qemu:///system"
@@ -32,6 +32,13 @@ export HS_POOLNAME_PATH=/home/$HS_POOLNAME
 
 function echolog(){
     echo "`date -u '+%Y%m%d-%H:%M:%S'` HOST: $@"
+}
+
+function host_dependencies_fedora22(){
+    sudo dnf -y yum-plugin-copr
+    sudo dnf -y copr enable fsimonce/virt-deploy
+    sudo dnf -y copr enable lmr/Autotest
+    sudo dnf -y install $HS_BASE_PCKGS
 }
 
 function host_dependencies_fedora(){
@@ -116,7 +123,11 @@ function install_host(){
             sudo systemctl enable libvirtd
             sleep 10
         elif cat /etc/redhat-release | grep -sq "Fedora"; then
-            host_dependencies_fedora
+            if rpm -q dnf; then
+                host_dependencies_fedora22
+            else
+                host_dependencies_fedora
+            fi
             sudo systemctl start libvirtd
             sudo systemctl enable libvirtd
             sleep 10

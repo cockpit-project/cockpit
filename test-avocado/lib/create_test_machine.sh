@@ -25,11 +25,18 @@ CTM_SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
 CTM_POOLNAME=$HS_POOLNAME
 
-CTM_PREQ="
+CTM_PREQ_YUM_A="
 yum -y -q install tar bzip2 gzip unzip zip tar git yum-utils fontconfig pystache;
 echo $CTM_PASSWORD | passwd --stdin $RCTM_USER
 "
-
+CTM_PREQ_DNF_A="
+dnf -y -q install tar bzip2 gzip unzip zip tar git fontconfig pystache;
+echo $CTM_PASSWORD | passwd --stdin $RCTM_USER
+"
+CTM_PREQ_APT_A="
+echo 'now DEBIAN guest not supported'
+echo $CTM_PASSWORD | passwd --stdin $RCTM_USER
+"
 function write_out() {
     CTM_NAME=$1
     echolog "  $CTM_NAME / `vm_get_mac $CTM_NAME` / `vm_get_ip $CTM_NAME`"
@@ -102,7 +109,13 @@ function setup_vm(){
     sleep 2
     echolog SSHPASS="$CTM_PASSWD" sshpass -e ssh-copy-id $CTM_SSHOPTS $CTM_CTM_LOGIN@$CTM_IP
     SSHPASS="$CTM_PASSWD" sshpass -e ssh-copy-id $CTM_SSHOPTS $CTM_CTM_LOGIN@$CTM_IP
-    vm_ssh "$CTM_HOST" "$CTM_PREQ"
+    if echo $CTM_HOST | grep -i "fedora.*22"; then
+        vm_ssh "$CTM_HOST" "$CTM_PREQ_DNF_A"
+    elif echo $CTM_HOST | grep -i "debian"; then
+        vm_ssh "$CTM_HOST" "$CTM_PREQ_APT_A"
+    else
+        vm_ssh "$CTM_HOST" "$CTM_PREQ_YUM_A"
+    fi
 }
 
 

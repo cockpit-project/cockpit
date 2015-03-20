@@ -30,7 +30,7 @@
 
     <div class="row" ng-view></div>
 
-  <script src="../base1/cockpit.js"></script>
+  <script src="../base1/require.js"></script>
 
   <script type="text/ng-template" id="dashboard.html">
     <div class="col-md-12 col-md-8">
@@ -101,11 +101,12 @@
 
   <script>
       require([
+          "base1/cockpit",
           "translated!base1/po",
           "kubernetes/angular",
           "kubernetes/app",
           "kubernetes/dashboard"
-      ], function(po, angular) {
+      ], function(cockpit, po, angular) {
           "use strict";
           cockpit.locale(po);
           cockpit.translate();

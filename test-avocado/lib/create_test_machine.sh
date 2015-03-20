@@ -26,6 +26,7 @@ CTM_SSHOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 CTM_POOLNAME=$HS_POOLNAME
 
 CTM_PREQ="
+dnf -y install yum 2> /dev/null;
 yum -y -q install tar bzip2 gzip unzip zip tar git yum-utils fontconfig pystache;
 echo $CTM_PASSWORD | passwd --stdin $RCTM_USER
 "

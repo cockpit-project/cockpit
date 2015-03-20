@@ -12,8 +12,15 @@ define([
         var service = { };
         var calculated = { };
 
+        /* compute current and expected number of containers and return these
+           values as a formatted string.
+        */
         function calculate() {
+            var x = 0;
+            var y = 0;
             if (version !== client.resourceVersion) {
+console.log("client=", client);
+                //client.metadata.name != "kubernetes") {
                 version = client.resourceVersion;
 
                 calculated.containers = "0";
@@ -21,8 +28,37 @@ define([
                 if (service.spec && service.spec.selector) {
                     var pods = client.select(service.spec.selector);
 
-                    /* TODO: This is wrong */
-                    calculated.containers = "" + pods.length;
+                    /* calculate "x of y" containers, where x is the current
+                       number and y is the expected number. If x==y then only
+                       show x. The calculation is based on the statuses of the
+                       containers within the pod.  Pod states: Pending,
+                       Running, Succeeded, Failed, and Unknown. 
+                    */
+                    angular.forEach(pods, function(pod) {
+ console.log("status=", pod.status.phase);
+                        switch (pod.status.phase) {
+                        case "Failed":
+                            y++;
+                            break;
+                        case "Pending":
+                            y++;
+                            break;
+                        case "Running":
+                            x++; y++;
+                            break;
+                        case "Succeeded": // don't increment either counter
+                            break;
+                        case "Unknown":
+                            y++;
+                            break;
+                        default: // assume Failed
+                            y++;
+ console.log("default: status=", pod.status.phase);
+                        }
+                    });
+                    calculated.containers = "" + x;
+                    if (x != y)
+                        calculated.containers += " of " + y;
                 }
             }
             return calculated;
@@ -50,6 +86,8 @@ define([
         var node = { };
 
         function calculate() {
+            var x = 0;
+            var y = 0;
             if (version !== client.resourceVersion) {
                 version = client.resourceVersion;
 

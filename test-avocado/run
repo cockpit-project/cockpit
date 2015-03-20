@@ -40,10 +40,10 @@ if echo "$GUESTOS" | egrep -qi "centos|fedora|redhat|rhel"; then
     METHOD="redhat"
 elif echo "$GUESTOS" | egrep -qi "debian"; then
     METHOD="debian"
-    echo "Not supported now"
+    echolog "Not supported now"
     exit 0
 else
-    echo "Not apropriate method for setup guests"
+    echolog "Not apropriate method for setup guests"
     exit 5
 fi
 

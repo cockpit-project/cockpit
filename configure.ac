@@ -60,7 +60,6 @@ GIO_REQUIREMENT="gio-unix-2.0 >= $GLIB_VERSION"
 SYSTEMD_REQUIREMENT="libsystemd-journal >= 187 libsystemd-daemon"
 JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 0.14.0"
 UDISKS_REQUIREMENT="udisks2 >= 2.0.91"
-ACCOUNTS_REQUIREMENT="accountsservice >= 0.6.35"
 POLKIT_REQUIREMENT="polkit-agent-1 >= 0.105"
 
 PKG_CHECK_MODULES(GIO, [$GIO_REQUIREMENT])

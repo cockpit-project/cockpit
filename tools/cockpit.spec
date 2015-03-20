@@ -38,7 +38,6 @@ BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(udisks2) >= 2.1.0
 BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
-BuildRequires: pkgconfig(accountsservice) >= 0.6.35
 BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
@@ -110,8 +109,8 @@ Requires: realmd
 Requires: storaged
 
 %description daemon
-Summary: Deprecated wrappers for various configuration APIs such as udisks2
-and accountsservice. Soon these will be accessed directly from the cockpit
+Summary: Deprecated wrappers for various configuration APIs such as udisks2.
+Soon these will be accessed directly from the cockpit
 user interface, and this package will disappear.
 
 %package doc
@@ -134,6 +133,9 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: NetworkManager
+Requires: pcp
+Requires: shadow-utils
+Requires: expect
 Requires: grep
 Requires: /usr/bin/date
 Obsoletes: %{name}-assets
@@ -381,6 +383,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar 06 2015 Fridolin Pokorny <fpokorny@redhat.com> - 0.41-2
+- Removed accountsservice dependency
+
 * Wed Mar 04 2015 Stef Walter <stefw@redhat.com> - 0.41-1
 - Update to 0.41 release
 

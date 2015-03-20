@@ -25,7 +25,7 @@ Version:        %{gitcommit}
 %else
 Version:        0.44
 %endif
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        A user interface for Linux servers
 
 License:        LGPLv2+
@@ -228,6 +228,12 @@ sed -i "s|%{buildroot}/debug||" debug.list
 tar -C %{buildroot}/debug -cf - . | tar -C %{buildroot} -xf -
 rm -rf %{buildroot}/debug
 
+# Redefine how debug info is built to slip in our extra debug files
+%define __debug_install_post   \
+   %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_include_minidebuginfo:-m} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} "%{_builddir}/%{?buildsubdir}" \
+   cat debug.list >> %{_builddir}/%{?buildsubdir}/debugfiles.list \
+%{nil}
+
 %files
 %{_docdir}/%{name}/AUTHORS
 %{_docdir}/%{name}/COPYING
@@ -247,8 +253,6 @@ rm -rf %{buildroot}/debug
 %doc %{_mandir}/man8/cockpitd.8.gz
 %{_datadir}/dbus-1/services/com.redhat.Cockpit.service
 %{_libexecdir}/cockpitd
-
-%files debuginfo -f debug.list
 
 %files doc
 %exclude %{_docdir}/%{name}/AUTHORS
@@ -388,6 +392,12 @@ fi
 %endif
 
 %changelog
+* Sat Mar 21 2015 Stef Walter <stefw@redhat.com> - 0.44-3
+- Add back debuginfo files to the right place
+
+* Fri Mar 20 2015 Stef Walter <stefw@redhat.com> - 0.44-2
+- Disable separate debuginfo for now: build failure
+
 * Fri Mar 20 2015 Stef Walter <stefw@redhat.com> - 0.44-1
 - Update to 0.44 release
 

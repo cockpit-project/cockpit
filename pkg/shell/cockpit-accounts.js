@@ -417,6 +417,7 @@ PageAccount.prototype = {
     _init: function() {
         this.id = "account";
         this.section_id = "accounts";
+        this.roles = [];
     },
 
     getTitle: function() {
@@ -465,10 +466,11 @@ PageAccount.prototype = {
         function parse_groups(content) {
             var i, j;
             self.groups = parse_group_content(content);
-            self.roles = [];
+            while (self.roles.length > 0)
+                self.roles.pop();
             for (i = 0, j = 0; i < self.groups.length; i++) {
                 if (self.groups[i]["name"] == "wheel" || self.groups[i]["name"] == "docker") {
-                   self.roles[j] = [];
+                   self.roles[j] = { };
                    self.roles[j]["name"] = self.groups[i]["name"];
                    self.roles[j]["desc"] = self.groups[i]["name"] == "wheel" ?
                                            "Server Administrator" :
@@ -478,6 +480,7 @@ PageAccount.prototype = {
                    j++;
                 }
             }
+            $(self).triggerHandler("roles");
             self.update();
         }
 
@@ -665,8 +668,7 @@ PageAccount.prototype = {
     },
 
     change_roles: function() {
-        PageAccountChangeRoles.roles = this.roles;
-        PageAccountChangeRoles.account = this.account;
+        PageAccountChangeRoles.page = this;
         $('#account-change-roles-dialog').modal('show');
     }
 
@@ -693,33 +695,37 @@ PageAccountChangeRoles.prototype = {
     },
 
     enter: function() {
-        var r, u;
-        var roles = $('#account-change-roles-roles');
+        function update() {
+            var r, u;
+            var roles = $('#account-change-roles-roles');
 
-        this.roles = [ ];
+            roles.empty();
 
-        roles.empty();
+            u = PageAccountChangeRoles.page.account;
 
-        u = PageAccountChangeRoles.account;
+            for (var i = 0; i < PageAccountChangeRoles.page.roles.length; i++) {
+                r = PageAccountChangeRoles.page.roles[i];
+                roles.append(
+                      $('<li>', { 'class': 'list-group-item' }).append(
+                          $('<div>', { 'class': 'checkbox',
+                                       'style': 'margin:0px'
+                                     }).append(
+                              $('<input/>', { type: "checkbox",
+                                              name: "account-role-checkbox-" + r["id"],
+                                              id: "account-role-checkbox-" + r["id"],
+                                              checked: r["member"]
+                                            }),
+                              $('<label/>', { "for": "account-role-checkbox-" + r["id"] }).text(
+                                  r["desc"]))));
+            }
+        }
 
-        for (var i = 0; i < PageAccountChangeRoles.roles.length; i++) {
-            r = PageAccountChangeRoles.roles[i];
-            roles.append(
-                  $('<li>', { 'class': 'list-group-item' }).append(
-                      $('<div>', { 'class': 'checkbox',
-                                   'style': 'margin:0px'
-                                 }).append(
-                          $('<input/>', { type: "checkbox",
-                                          name: "account-role-checkbox-" + r["id"],
-                                          id: "account-role-checkbox-" + r["id"],
-                                          checked: r["member"]
-                                        }),
-                          $('<label/>', { "for": "account-role-checkbox-" + r["id"] }).text(
-                              r["desc"]))));
-      }
+        $(PageAccountChangeRoles.page).on("roles", update);
+        update();
     },
 
     leave: function() {
+        $(PageAccountChangeRoles.page).off("roles");
     },
 
     apply: function() {
@@ -727,8 +733,8 @@ PageAccountChangeRoles.prototype = {
         var new_roles = [ ];
         var del_roles = [ ];
 
-        for (var i = 0; i < PageAccountChangeRoles.roles.length; i++) {
-            r = PageAccountChangeRoles.roles[i];
+        for (var i = 0; i < PageAccountChangeRoles.page.roles.length; i++) {
+            r = PageAccountChangeRoles.page.roles[i];
             if ($('#account-role-checkbox-' + r["id"]).prop('checked') && ! r["member"])
                 new_roles.push(r["id"]);
 
@@ -737,13 +743,13 @@ PageAccountChangeRoles.prototype = {
         }
 
         if (new_roles.length > 0) {
-            cockpit.spawn(["/usr/sbin/usermod", PageAccountChangeRoles.account["name"],
+            cockpit.spawn(["/usr/sbin/usermod", PageAccountChangeRoles.page.account["name"],
                            "-G", new_roles.toString(), "-a"], { "superuser": true })
                .fail(shell.show_unexpected_error);
         }
 
         for (var j = 0; j < del_roles.length; j++) {
-            cockpit.spawn(["/usr/bin/gpasswd", "-d", PageAccountChangeRoles.account["name"],
+            cockpit.spawn(["/usr/bin/gpasswd", "-d", PageAccountChangeRoles.page.account["name"],
                            del_roles[j]], { "superuser": true })
                    .fail(shell.show_unexpected_error);
         }

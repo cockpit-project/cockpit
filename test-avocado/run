@@ -31,6 +31,17 @@ rm -f $ENV_VARIABLES
 if [ -z "$GUESTOS" ]; then
     GUESTOS=fedora-21
 fi
+if echo "$GUESTOS" | egrep -qi "centos|fedora|redhat|rhel"; then
+    METHOD="redhat"
+elif echo "$GUESTOS" | egrep -qi "debian"; then
+    METHOD="debian"
+    echo "Not supported now"
+    exit 0
+else
+    echo "Not apropriate method for setup guests"
+    exit 5
+fi
+
 echolog ">>> $GUESTOS testing <<<"
 
 if check_host $LUSER; then
@@ -62,7 +73,7 @@ fi
 echolog "Setting up $GUEST1"
 vm_ssh $GUEST1 date --set $(date -Ins) >/dev/null
 vm_ssh $GUEST1 bash -c "cat - >/tmp/cockpit.spec" <../tools/cockpit.spec
-vm_ssh $GUEST1 bash -s < ./lib/guest-cockpit.sh /tmp/cockpit.spec
+vm_ssh $GUEST1 bash -s < ./lib/guest-cockpit-$METHOD.sh /tmp/cockpit.spec
 echolog "Saving $GUEST1 'initialized' state"
 virsh -c qemu:///system snapshot-create-as $GUEST1 initialized >/dev/null
 

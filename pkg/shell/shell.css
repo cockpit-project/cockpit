@@ -496,8 +496,36 @@ ul.available-interfaces-group {
 }
 
 /* server overview dashboard */
+#server .cockpit-info-table button {
+  max-width: 300px;
+}
+
 #server .cockpit-info-table td:first-child {
-    width: 50%;
+    max-width: 50%
+}
+
+#server .cockpit-info-table {
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    #server .cockpit-info-table {
+        table-layout: fixed;
+        width: 100%;
+        min-width: 220px;
+    }
+
+  /* server overview dashboard */
+  #server .cockpit-info-table-container td button {
+      max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  /* server overview dashboard */
+  #server .cockpit-info-table-container td button {
+      max-width: 200px;
+  }
 }
 
 #containers-search-image-dialog .modal-body {
@@ -819,6 +847,12 @@ ul.available-interfaces-group {
     border-left: 7px solid #BABABA;
 }
 
+#machine-dropdown .dropdown-menu li a {
+    max-width: 201px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 #machine-link {
     padding: 9px;
     padding-left: 15px;
@@ -829,7 +863,10 @@ ul.available-interfaces-group {
 
 #machine-link span {
     display: inline-block;
-    min-width: 130px;
+    width: 130px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .machine-avatar {

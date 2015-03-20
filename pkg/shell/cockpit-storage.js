@@ -3436,6 +3436,7 @@ PageVGDiskAdd.prototype = {
 
     setup: function() {
         $("#vg-disk-add-add").on('click', $.proxy(this, "add"));
+        $("#vg-disks-not-found .close").on('click', function() { $('#vg-disks-not-found').toggleClass('hide', true); });
     },
 
     enter: function() {
@@ -3447,6 +3448,11 @@ PageVGDiskAdd.prototype = {
 
         this.blocks = fill_free_devices_list(PageVGDiskAdd.volume_group._client,
                                              'vg-disk-add-drives', is_ours);
+        var show = this.blocks.length > 0;
+        var msg = show ? "" : _("No available disks");
+        $("#vg-disks-not-found span.alert-message").text(msg);
+        $("#vg-disks-not-found").toggleClass('hide', show);
+
         $('#vg-disk-add-drives input').on('change', $.proxy(this, "update"));
         this.update();
     },

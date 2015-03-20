@@ -2,6 +2,8 @@
 #  * gitcommit xxxx
 #  * selinux 1
 
+%define branding default
+
 # Our SELinux policy gets built in tests and f21 and lower
 %if %{defined gitcommit}
 %define extra_flags CFLAGS='-O2 -Wall -Werror -fPIC'
@@ -9,6 +11,9 @@
 %endif
 %if 0%{?fedora} > 0 && 0%{?fedora} <= 21
 %define selinux 1
+%endif
+%if 0%{?fedora} > 0 && 0%{?fedora} <= 22
+%define branding fedora
 %endif
 %if 0%{?rhel}
 %define selinux 1
@@ -82,7 +87,6 @@ Requires: %{name}-shell = %{version}-%{release}
 %ifarch x86_64
 Requires: %{name}-docker = %{version}-%{release}
 %endif
-# Only depend on subscriptions if we are on RHEL, not on CentOS
 %if 0%{?rhel} && 0%{?centos} == 0
 Requires: %{name}-subscriptions = %{version}-%{release}
 %endif
@@ -138,7 +142,8 @@ Requires: shadow-utils
 Requires: expect
 Requires: grep
 Requires: /usr/bin/date
-Obsoletes: %{name}-assets
+Provides: %{name}-assets
+Obsoletes: %{name}-assets < 0.32
 BuildArch: noarch
 
 %description shell
@@ -175,7 +180,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %if %{defined gitcommit}
 env NOCONFIGURE=1 ./autogen.sh
 %endif
-%configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws
+%configure --disable-static --disable-silent-rules --with-cockpit-user=cockpit-ws --with-branding=%{branding}
 make -j1 %{?extra_flags} all
 %if %{defined selinux}
 make selinux
@@ -383,6 +388,21 @@ fi
 %endif
 
 %changelog
+* Fri Mar 20 2015 Stef Walter <stefw@redhat.com> - 0.44-1
+- Update to 0.44 release
+
+* Thu Mar 19 2015 Stef Walter <stefw@redhat.com> - 0.43-2
+- Don't break EPEL or CentOS builds due to missing branding
+
+* Wed Mar 18 2015 Stef Walter <stefw@redhat.com> - 0.43-1
+- Update to 0.43 release
+
+* Tue Mar 17 2015 Stef Walter <stefw@redhat.com> - 0.42-2
+- Fix obseleting cockpit-assets
+
+* Sat Mar 14 2015 Stef Walter <stefw@redhat.com> - 0.42-1
+- Update to 0.42 release
+
 * Wed Mar 04 2015 Stef Walter <stefw@redhat.com> - 0.41-1
 - Update to 0.41 release
 

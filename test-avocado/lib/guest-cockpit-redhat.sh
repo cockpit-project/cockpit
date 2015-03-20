@@ -2,7 +2,6 @@
 
 spec=$1
 
-set -e
 set -o pipefail
 
 function echolog() {

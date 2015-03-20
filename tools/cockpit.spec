@@ -134,6 +134,9 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 Summary: Cockpit Shell user interface package
 Requires: %{name}-bridge = %{version}-%{release}
 Requires: NetworkManager
+Requires: pcp
+Requires: shadow-utils
+Requires: expect
 Requires: grep
 Requires: /usr/bin/date
 Obsoletes: %{name}-assets

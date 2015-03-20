@@ -644,12 +644,8 @@
         <center>
           <table>
             <tr>
-              <td>
-                <input data-role="none" type="file"
-                       id="account-avatar-uploader" style="display:none"/>
-                <img id="account-pic" width="128" height="128">
-              </td>
-              <td style="vertical-align:bottom"><input id="account-real-name" class="form-control"></td>
+              <td translatable="yes">Real Name</td>
+              <td style="vertical-align:bottom"><input id="account-real-name" class="form-control accounts-privileged"></td>
             </tr>
             <tr>
               <td translatable="yes">User Name</td>
@@ -1345,6 +1341,15 @@
           </div>
           <div class="modal-body">
             <table class="cockpit-form-table">
+              <tr>
+                <td translatable="yes">Old Password</td>
+                <td>
+                  <div class="check-passwords">
+                    <input class="form-control" type="password"
+                           id="account-set-password-old"/>
+                  </div>
+                </td>
+              </tr>
               <tr>
                 <td translatable="yes">New Password</td>
                 <td>

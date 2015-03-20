@@ -49,7 +49,7 @@ class TestRoles(MachineCase):
         # https://github.com/cockpit-project/cockpit/issues/1248
         self.allow_journal_messages("Can't write /var/lib/cockpit/machines: Failed to create file '/var/lib/cockpit/machines\\..*': Permission denied")
 
-        # change its own name
+        # Try to change its own name
         b.click('#content-user-name')
         b.click('#go-account')
         b.enter_page("account")
@@ -61,7 +61,7 @@ class TestRoles(MachineCase):
         b.wait_present("#account-logout.disabled")
         b.wait_present("#account-change-roles.disabled")
         b.wait_present("#account-change-roles.disabled")
-        b.set_val('#account-real-name', "Userrrr")
+        b.wait_present('#account-real-name.disabled')
 
         # Try to change admins name
         b.go("account?id=admin")
@@ -79,7 +79,6 @@ class TestRoles(MachineCase):
         b.go("account?id=user")
         b.enter_page("account")
         b.wait_text("#account-user-name", "user")
-        b.wait_val("#account-real-name", "Userrrr")
 
         m.execute("usermod -a -G wheel user")
         b.wait_text("#account-roles", "Server Administrator")

@@ -155,10 +155,6 @@ on_pipe_close (CockpitPipe *pipe,
           status = cockpit_pipe_exit_status (pipe);
           if (WIFSIGNALED (status) && WTERMSIG (status) == SIGTERM)
             problem = "terminated";
-          else if (WIFEXITED (status) && WEXITSTATUS (status) == 5)
-            problem = "not-authorized";  // wrong password
-          else if (WIFEXITED (status) && WEXITSTATUS (status) == 6)
-            problem = "unknown-hostkey";
           else if (WIFEXITED (status) && WEXITSTATUS (status) == 127)
             problem = "no-cockpit";      // cockpit-bridge not installed
           else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)

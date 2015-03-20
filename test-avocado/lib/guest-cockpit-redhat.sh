@@ -62,7 +62,7 @@ if rpm -q dnf; then
     dnf_builddep $spec
     echolog "run-time:"
     dnf_install $COCKPIT_DEPS $TEST_DEPS        
-else;
+else
     yum_install $BASE_PCKGS
     yum_builddep $spec
     echolog "run-time:"

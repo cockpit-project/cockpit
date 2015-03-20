@@ -434,9 +434,9 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append(p)
 
     def allow_restart_journal_messages(self):
-        self.allow_journal_messages("Error receiving data: Connection reset by peer",
+        self.allow_journal_messages(".*Connection reset by peer.*",
+                                    ".*Broken pipe.*",
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
-                                    "g_dbus_connection_real_closed: Remote peer vanished with error: Error sending message: Broken pipe \\(g-io-error-quark, 44\\). Exiting.",
                                     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1141137
                                     "localhost: bridge program failed: Child process killed by signal 9",
                                     "request timed out, closing")

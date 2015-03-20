@@ -48,13 +48,24 @@ class Machine:
     def __init__(self, address=None, flavor=None, system=None, arch=None, verbose=False):
         self.verbose = verbose
         self.flavor = flavor or DEFAULT_FLAVOR
-        self.os = system or os.environ.get("TEST_OS") or DEFAULT_OS
+
+        conf_file = "%s.conf" % self.flavor
+        if os.path.exists(conf_file):
+            with open(conf_file, "r") as f:
+                self.conf = eval(f.read())
+        else:
+            self.conf = { }
+
+        self.os = system or self.getconf('os') or os.environ.get("TEST_OS") or DEFAULT_OS
         self.arch = arch or os.environ.get("TEST_ARCH") or DEFAULT_ARCH
         self.image = "%s-%s-%s" % (self.flavor, self.os, self.arch)
         self.test_dir = os.path.abspath(os.path.dirname(__file__))
         self.test_data = os.environ.get("TEST_DATA") or self.test_dir
         self.address = address
         self.mac = None
+
+    def getconf(self, key):
+        return key in self.conf and self.conf[key]
 
     def message(self, *args):
         """Prints args if in verbose mode"""
@@ -112,7 +123,7 @@ class Machine:
                 "TEST_FLAVOR": self.flavor,
                 "TEST_SETUP_ARGS": " ".join(args),
             }
-            self.execute(script=SETUP_SCRIPT, environment=env)
+            self.execute(script="/var/tmp/SETUP", environment=env)
         finally:
             self.stop()
 
@@ -373,20 +384,7 @@ class QemuMachine(Machine):
         ifcfg_eth0 = 'BOOTPROTO="dhcp"\nDEVICE="eth0"\nONBOOT="yes"\n'
         gf.write("/etc/sysconfig/network-scripts/ifcfg-eth0", ifcfg_eth0)
 
-    def _setup_fedora_18(self, gf):
-        self._setup_fstab(gf)
-        self._setup_ssh_keys(gf)
-        self._setup_fedora_network(gf)
-
-        # Switch to ssh socket activated so no race on boot
-        sshd_socket = "[Unit]\nDescription=SSH Socket\n[Socket]\nListenStream=22\nAccept=yes\n"
-        gf.write("/etc/systemd/system/sockets.target.wants/sshd.socket", sshd_socket)
-        sshd_service = "[Unit]\nDescription=SSH Server\n[Service]\nExecStart=-/usr/sbin/sshd -i\nStandardInput=socket\n"
-        gf.write("/etc/systemd/system/sshd@.service", sshd_service)
-        # systemctl disable sshd.service
-        gf.rm_f("/etc/systemd/system/multi-user.target.wants/sshd.service")
-
-    def _setup_fedora_20 (self, gf):
+    def _setup_fedora_21 (self, gf):
         self._setup_fstab(gf)
         self._setup_ssh_keys(gf)
         self._setup_fedora_network(gf)
@@ -397,7 +395,7 @@ class QemuMachine(Machine):
         gf.mkdir_p("/etc/systemd/system/sockets.target.wants/")
         gf.ln_sf("/usr/lib/systemd/system/sshd.socket", "/etc/systemd/system/sockets.target.wants/")
 
-    def _setup_fedora_21 (self, gf):
+    def _setup_fedora_22 (self, gf):
         self._setup_fstab(gf)
         self._setup_ssh_keys(gf)
         self._setup_fedora_network(gf)
@@ -483,16 +481,14 @@ class QemuMachine(Machine):
 
     def build(self, args):
         def modify(gf):
-            if self.os == "fedora-18" or self.os == "f18":
-                self._setup_fedora_18(gf)
-            elif self.os == "fedora-20" or self.os == "f20":
-                self._setup_fedora_20(gf)
-            elif self.os == "fedora-21" or self.os == "f21":
+            if self.os == "fedora-21":
                 self._setup_fedora_21(gf)
+            elif self.os == "fedora-22":
+                self._setup_fedora_22(gf)
             else:
                 raise Failure("Unsupported OS %s" % self.os)
 
-        script = "%s.setup" % self.flavor
+        script = "%s-%s.setup" % (self.flavor, self.os)
         if not os.path.exists(script):
             raise Failure("Unsupported flavor %s: %s not found." % (self.flavor, script))
 
@@ -520,9 +516,9 @@ class QemuMachine(Machine):
             self._locks.append(fd)
             return True
 
-    def _choose_macaddr(self, conf):
-        if 'mac' in conf and conf['mac']:
-            macaddr = conf['mac']
+    def _choose_macaddr(self):
+        if 'mac' in self.conf and self.conf['mac']:
+            macaddr = self.conf['mac']
             if len(macaddr) == 2:
                 macaddr = self.macaddr_prefix + ":" + macaddr
             if self._lock_resource(macaddr):
@@ -569,20 +565,13 @@ class QemuMachine(Machine):
         if not self._lock_resource(self._image_root, exclusive=maintain):
             raise Failure("Already running this image: %s" % self.image)
 
-        conf_file = "%s.conf" % self.flavor
-        if os.path.exists(conf_file):
-            with open(conf_file, "r") as f:
-                conf = eval(f.read())
-        else:
-            conf = { }
-
         if maintain:
             snapshot = "off"
             selinux = "enforcing=0"
         else:
             snapshot = "on"
             selinux = ""
-        self.macaddr = self._choose_macaddr(conf)
+        self.macaddr = self._choose_macaddr()
         cmd = [
             self._locate_qemu_kvm(),
             "-m", str(MEMORY_MB),
@@ -702,7 +691,7 @@ class QemuMachine(Machine):
                         ready_to_login = True
                     (unused, sep, output) = output.rpartition("\n")
             if time.time() - now > 600:
-                sys.stdout.write(all_output + "\n")
+                sys.stdout.write("Boot log:\n" + all_output + "\n")
                 raise Failure("qemu vm boot timed out")
 
         if p.poll():
@@ -852,20 +841,6 @@ QEMU_ADDR_SCRIPT = """#!/bin/sh
 if [ "$2" = "up" ]; then
     /usr/sbin/ip addr show $1 | sed -En 's|.*\\binet ([^/ ]+).*|COCKPIT_ADDRESS=\\1|p' > /dev/console
 fi
-"""
-
-SETUP_SCRIPT = """#!/bin/sh
-set -euf
-
-yes | yum update --enablerepo=updates-testing -y --skip-broken
-yum remove abrt
-echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
-
-export TEST_FLAVOR
-export TEST_OS
-export TEST_ARCH
-
-/var/tmp/SETUP $TEST_SETUP_ARGS
 """
 
 INSTALL_SCRIPT = """#!/bin/sh

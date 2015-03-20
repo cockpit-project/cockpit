@@ -5,6 +5,10 @@ kubernetes_DATA = \
 	pkg/kubernetes/client.min.js.gz \
 	pkg/kubernetes/manifest.json \
 	pkg/kubernetes/tool.html \
+	pkg/kubernetes/cluster.html \
+	pkg/kubernetes/app.css \
+	pkg/kubernetes/app.js \
+	pkg/kubernetes/dashboard.js \
 	$(NULL)
 
 kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)

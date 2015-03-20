@@ -38,7 +38,7 @@ echo 'now DEBIAN guest not supported'
 echo $CTM_PASSWORD | passwd --stdin $RCTM_USER
 "
 function write_out() {
-    CTM_NAME=$1
+    local CTM_NAME=$1
     echolog "  $CTM_NAME / `vm_get_mac $CTM_NAME` / `vm_get_ip $CTM_NAME`"
 }
 

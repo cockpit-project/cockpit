@@ -658,7 +658,7 @@ test_fail_not_found (void)
 }
 
 static void
-test_fail_not_authorized (void)
+test_fail_access_denied (void)
 {
   CockpitTransport *transport;
   CockpitChannel *channel;
@@ -691,7 +691,7 @@ test_fail_not_authorized (void)
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "not-authorized");
+  g_assert_cmpstr (problem, ==, "access-denied");
   g_free (problem);
   g_free (unix_path);
   close (fd);
@@ -727,7 +727,7 @@ main (int argc,
   g_test_add_func ("/stream/spawn/pty", test_spawn_pty);
 
   g_test_add_func ("/test-stream/fail/not-found", test_fail_not_found);
-  g_test_add_func ("/test-stream/fail/not-authorized", test_fail_not_authorized);
+  g_test_add_func ("/test-stream/fail/access-denied", test_fail_access_denied);
 
   return g_test_run ();
 }

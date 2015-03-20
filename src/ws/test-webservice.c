@@ -850,7 +850,7 @@ test_specified_creds_fail (TestCase *test,
   WAIT_UNTIL (received != NULL);
 
   /* Should have gotten a failure message, about the credentials */
-  expect_control_message (received, "close", "4", "problem", "not-authorized", NULL);
+  expect_control_message (received, "close", "4", "problem", "authentication-failed", NULL);
   g_bytes_unref (received);
 
   close_client_and_stop_web_service (test, ws, service);

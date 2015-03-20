@@ -366,7 +366,7 @@ PageServer.prototype = {
                                                              fields.chassis_serial);
             })
             .fail(function(ex) {
-                if (ex.problem != "not-authorized")
+                if (ex.problem != "access-denied")
                     console.warn("couldn't read serial dmi info: " + ex);
             });
 

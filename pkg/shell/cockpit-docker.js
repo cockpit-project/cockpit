@@ -279,7 +279,7 @@ function setup_for_failure(page, client) {
         else if (ex.problem == "not-found") {
             msg = _("Docker is not installed or activated on the system");
             show_start = true;
-        } else if (ex.problem == "not-authorized")
+        } else if (ex.problem == "access-denied")
             msg = _("Not authorized to access Docker on this system");
         else
             msg = cockpit.format(_("Can't connect to Docker: $0"), ex.toString());

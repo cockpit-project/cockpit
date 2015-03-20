@@ -2217,7 +2217,9 @@ function full_scope(cockpit, $, po) {
             return _("Your session has been terminated.");
         else if (problem == "no-session")
             return _("Your session has expired. Please log in again.");
-        else if (problem == "not-authorized")
+        else if (problem == "access-denied")
+            return _("Not permitted to perform this action.");
+        else if (problem == "authentication-failed")
             return _("Login failed");
         else if (problem == "unknown-hostkey")
             return _("Untrusted host");

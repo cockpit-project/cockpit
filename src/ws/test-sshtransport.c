@@ -458,7 +458,7 @@ test_unsupported_auth (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   g_assert_cmpstr (result, ==, problem);
-  g_assert_cmpstr (problem, ==, "not-authorized");
+  g_assert_cmpstr (problem, ==, "authentication-failed");
   g_free (problem);
   g_free (result);
 }
@@ -478,7 +478,7 @@ test_auth_failed (TestCase *tc,
   while (problem == NULL)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_cmpstr (problem, ==, "not-authorized");
+  g_assert_cmpstr (problem, ==, "authentication-failed");
   g_free (problem);
 }
 

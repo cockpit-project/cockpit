@@ -68,7 +68,7 @@ prepare_for_close_with_errno (CockpitFsreplace *self,
   if (err == EPERM || err == EACCES)
     {
       g_debug ("%s: %s: %s", self->path, diagnostic, strerror (err));
-      return "not-authorized";
+      return "access-denied";
     }
   else
     {

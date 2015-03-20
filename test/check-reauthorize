@@ -45,7 +45,7 @@ class TestReauthorize(MachineCase):
 	b.click(".cockpit-internal-reauthorize .btn")
 	b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
 
-	self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: not-authorized')
+	self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
     def testSuper(self):
         m = self.machine
@@ -68,6 +68,6 @@ class TestReauthorize(MachineCase):
         b.click(".super-channel .btn")
         b.wait_in_text(".super-channel span", 'result:')
 
-        self.assertEqual(b.text(".super-channel span"), 'result: not-authorized')
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
 
 test_main()

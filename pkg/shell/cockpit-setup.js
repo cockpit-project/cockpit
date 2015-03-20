@@ -290,7 +290,7 @@ PageSetupServer.prototype = {
                     $('#dashboard_setup_action_fingerprint').text(client.error_details["host-fingerprint"]);
                     self.connect_server();
                     return;
-                } else if (client.error == "not-authorized") {
+                } else if (client.error == "authentication-failed") {
                     /* The given credentials didn't work.  Ask the
                      * user to try again.
                      */

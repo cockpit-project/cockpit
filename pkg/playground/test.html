@@ -61,7 +61,7 @@ require([
                  $(".cockpit-internal-reauthorize span").text("result: authorized");
              }).
              fail(function() {
-                 $(".cockpit-internal-reauthorize span").text("result: not-authorized");
+                 $(".cockpit-internal-reauthorize span").text("result: access-denied");
              });
          });
 

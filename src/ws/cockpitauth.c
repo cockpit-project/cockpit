@@ -636,7 +636,7 @@ on_remote_login_done (CockpitSshTransport *transport,
 
   if (problem)
     {
-      if (g_str_equal (problem, "not-authorized"))
+      if (g_str_equal (problem, "authentication-failed"))
         {
           g_simple_async_result_set_error (task, COCKPIT_ERROR,
                                            COCKPIT_ERROR_AUTHENTICATION_FAILED,

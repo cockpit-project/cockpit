@@ -301,7 +301,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
   int methods;
   int rc;
 
-  problem = "not-authorized";
+  problem = "authentication-failed";
 
   rc = ssh_userauth_none (data->session, NULL);
   if (rc == SSH_AUTH_ERROR)
@@ -409,7 +409,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
       g_message ("%s: server offered unsupported authentication methods: %s",
                  data->logname, description);
       g_free (description);
-      problem = "not-authorized";
+      problem = "authentication-failed";
     }
   else if (!password && gsscreds == GSS_C_NO_CREDENTIAL)
     {
@@ -417,7 +417,7 @@ cockpit_ssh_authenticate (CockpitSshData *data)
     }
   else
     {
-      problem = "not-authorized";
+      problem = "authentication-failed";
     }
 
 out:

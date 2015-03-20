@@ -275,7 +275,7 @@ define([
         function process_status_output(text, exit_details) {
             hide_progress_message();
 
-            if (exit_details.problem === 'not-authorized') {
+            if (exit_details.problem === 'access-denied') {
                 $('#subscription-manager-not-found').hide();
                 $('#subscription-manager-not-accessible').show();
                 return;

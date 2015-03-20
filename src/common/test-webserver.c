@@ -506,8 +506,8 @@ test_webserver_not_found (TestCase *tc,
 }
 
 static void
-test_webserver_not_authorized (TestCase *tc,
-                               gconstpointer user_data)
+test_webserver_access_denied (TestCase *tc,
+                              gconstpointer user_data)
 {
   gchar *resp;
   gsize length;
@@ -767,8 +767,8 @@ main (int argc,
               setup, test_webserver_host_header, teardown);
   g_test_add ("/web-server/not-found", TestCase, NULL,
               setup, test_webserver_not_found, teardown);
-  g_test_add ("/web-server/not-authorized", TestCase, NULL,
-              setup, test_webserver_not_authorized, teardown);
+  g_test_add ("/web-server/access-denied", TestCase, NULL,
+              setup, test_webserver_access_denied, teardown);
 
   g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert,
               setup, test_webserver_redirect_notls, teardown);

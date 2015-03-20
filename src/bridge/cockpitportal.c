@@ -180,7 +180,7 @@ on_other_closed (CockpitTransport *transport,
       if (WIFEXITED (status))
         {
            if (WEXITSTATUS (status) == 127 || WEXITSTATUS (status) == 126)
-             problem = "not-authorized";
+             problem = "access-denied";
         }
     }
 

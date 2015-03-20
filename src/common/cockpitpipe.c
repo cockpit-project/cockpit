@@ -320,7 +320,7 @@ set_problem_from_connect_errno (CockpitPipe *self,
   const gchar *problem = NULL;
 
   if (errn == EPERM || errn == EACCES)
-    problem = "not-authorized";
+    problem = "access-denied";
   else if (errn == ENOENT || errn == ECONNREFUSED)
     problem = "not-found";
 
@@ -1058,7 +1058,7 @@ cockpit_pipe_spawn (const gchar **argv,
         problem = "not-found";
       else if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_PERM) ||
                g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_ACCES))
-        problem = "not-authorized";
+        problem = "access-denied";
 
       if (problem)
         {

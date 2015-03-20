@@ -1062,7 +1062,7 @@ test_fail_not_found (void)
 }
 
 static void
-test_fail_not_authorized (void)
+test_fail_access_denied (void)
 {
   CockpitPipe *pipe;
   GSocketAddress *address;
@@ -1099,7 +1099,7 @@ test_fail_not_authorized (void)
 
   cockpit_assert_expected ();
 
-  g_assert_cmpstr (problem, ==, "not-authorized");
+  g_assert_cmpstr (problem, ==, "access-denied");
   g_free (unix_path);
   g_free (problem);
   g_object_unref (pipe);
@@ -1201,7 +1201,7 @@ main (int argc,
   g_test_add_func ("/pipe/problem-later", test_problem_later);
 
   g_test_add_func ("/test-stream/connect/not-found", test_fail_not_found);
-  g_test_add_func ("/test-stream/connect/not-authorized", test_fail_not_authorized);
+  g_test_add_func ("/test-stream/connect/access-denied", test_fail_access_denied);
 
   return g_test_run ();
 }

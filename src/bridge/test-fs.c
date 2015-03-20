@@ -316,7 +316,7 @@ test_read_denied (TestCase *tc,
   wait_channel_closed (tc);
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "not-authorized");
+  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "access-denied");
 }
 
 static void
@@ -544,7 +544,7 @@ test_write_denied (TestCase *tc,
   wait_channel_closed (tc);
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "not-authorized");
+  g_assert_cmpstr (json_object_get_string_member (control, "problem"), ==, "access-denied");
 
   g_assert (chmod (tc->test_dir, 0777) >= 0);
 }

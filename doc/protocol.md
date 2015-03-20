@@ -140,7 +140,7 @@ The channel id must be set.  An example of a close:
     {
         "command": "close",
         "channel" : "5x",
-        "problem": "not-authorized"
+        "problem": "access-denied"
     }
 
 Any protocol participant can send this message. The cockpit-bridge and cockpit-ws
@@ -926,7 +926,8 @@ doubt use "internal-error".
  * "internal-error"
  * "no-cockpit"
  * "no-session"
- * "not-authorized"
+ * "access-denied"
+ * "authentication-failed"
  * "not-found"
  * "terminated"
  * "timeout"

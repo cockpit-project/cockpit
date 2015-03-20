@@ -72,7 +72,7 @@ static const gchar *
 error_to_problem (GError *error)
 {
   if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-    return "not-authorized";
+    return "access-denied";
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
     return "not-found";
   else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY))

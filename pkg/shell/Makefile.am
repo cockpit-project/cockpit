@@ -35,6 +35,10 @@ shell_DATA = \
 	pkg/shell/shell.css \
 	pkg/shell/shell.min.html \
 	pkg/shell/manifest.json \
+	pkg/shell/bootstrap-datepicker3.css \
+	pkg/shell/bootstrap-datepicker3.min.css \
+	pkg/shell/bootstrap-datepicker.js \
+	pkg/shell/bootstrap-datepicker.min.js \
 	$(NULL)
 
 shelldebugdir = $(DBGDIR)$(shelldir)
@@ -97,3 +101,13 @@ EXTRA_DIST += \
 	$(shellimages_DATA) \
 	$(CHECK_HTML) \
 	$(NULL)
+
+update-lib::
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/shell/bootstrap-datepicker.js \
+	    $(srcdir)/lib/moment.$(VX).js \
+	    $(srcdir)/lib/moment-timezone-with-data.js \
+	    $(srcdir)/lib/bootstrap-datepicker.js
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/shell/bootstrap-datepicker.min.js \
+	    $(srcdir)/lib/moment.$(VX).min.js \
+	    $(srcdir)/lib/moment-timezone-with-data.min.js \
+	    $(srcdir)/lib/bootstrap-datepicker.min.js

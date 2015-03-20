@@ -5,7 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="shell.css" rel="stylesheet">
+    <link href="bootstrap-datepicker3.css" rel="stylesheet">
     <script src="../base1/jquery.js"></script>
+    <script src="bootstrap-datepicker.js"></script>
     <script src="../base1/mustache.js"></script>
     <script src="../base1/cockpit.js"></script>
 
@@ -111,6 +113,10 @@
               <td>
                 <button class="btn btn-default realm-privileged" id="system_information_realms_button"></button>
               </td>
+            </tr>
+            <tr>
+              <td>System Time</td>
+              <td><button class="btn btn-default systime-privileged" id="system_information_systime_button"></button></td>
             </tr>
             <tr>
               <td translatable="yes">Power Options</td>
@@ -1016,6 +1022,54 @@
               Cancel
             </button>
             <button class="btn btn-primary" id="sich-apply-button">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="modal" id="system_information_change_systime"
+         tabindex="-1" role="dialog"
+         data-backdrop="static">
+      <div class="modal-dialog cockpit-modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Change System Time</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group row">
+              <div class="col-md-12">
+                <select class="form-control selectpicker" id="change_systime">
+                  <option value="manual_time">Manually set the time</option>
+                  <option value="ntp_time">Set time automatically using NTP</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row nomargin">
+                <div class="col-md-7 nopadding">
+                  <input type='text' class="form-control" id="systime-date-input"/>
+                </div>
+                <div class="col-md-5 row nomargin nopadding">
+                    <div class="col-md-offset-1 col-md-5 nopadding">
+                      <input type='text' class="form-control" id="systime-time-hours"/>
+                    </div>
+                    <div class="col-md-1 text-center nopadding">:</div>
+                    <div class="col-md-5 nopadding">
+                      <input type='text' class="form-control" id="systime-time-minutes"/>
+                    </div>
+                </div>
+            </div>
+            <div class="has-error">
+              <span id="systime-parse-error" class="help-block"></span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" data-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="systime-apply-button">
               Change
             </button>
           </div>

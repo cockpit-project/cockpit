@@ -14,6 +14,7 @@ base_DATA = \
 	pkg/base1/mustache.min.js.gz \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
+	pkg/base1/bundle.min.js.gz \
 	$(BRAND)/branding.css \
 	$(base_GEN) \
 	$(NULL)
@@ -27,8 +28,22 @@ basedebug_DATA = \
 	pkg/base1/cockpit.js \
 	$(NULL)
 
+base_BUNDLE = \
+	pkg/base1/require.min.js \
+	pkg/base1/cockpit.min.js \
+	pkg/base1/jquery.min.js \
+	pkg/base1/mustache.min.js \
+	$(NULL)
+
+pkg/base1/bundle.min.js: $(base_BUNDLE)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 pkg/base1/term.min.js: pkg/base1/term.js
+	@$(MKDIR_P) $(dir $@)
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
+
+install-data-local::
+	$(MKDIR_P) $(DESTDIR)$(basedebugdir)
+	$(LN_S) -f require.js $(DESTDIR)$(basedebugdir)/bundle.js
 
 baseimagesdir = $(pkgdatadir)/base1/images
 baseimages_DATA = \
@@ -75,16 +90,19 @@ base_TESTS = \
 TESTS += $(base_TESTS)
 
 CLEANFILES += \
-	pkg/base1/cockpit.min.js \
+	pkg/base1/bundle.min.js \
 	pkg/base1/term.min.js \
+	$(base_BUNDLE) \
 	$(base_GEN) \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/base1/bundle.min.js \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \
 	pkg/base1/term.min.js \
+	$(base_BUNDLE) \
 	$(base_DATA) \
 	$(basedebug_DATA) \
 	$(baseimages_DATA) \

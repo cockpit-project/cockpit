@@ -221,7 +221,7 @@ find %{buildroot}%{_datadir}/%{name}/kubernetes -type f > kubernetes.list
 sed -i "s|%{buildroot}||" *.list
 
 # Build the package lists for debug package
-find %{buildroot}/debug%{_datadir}/%{name} -type f > debug.list
+find %{buildroot}/debug%{_datadir}/%{name} -type f -o -type l > debug.list
 sed -i "s|%{buildroot}/debug||" debug.list
 
 # Move the debug files into place mixed in with the other files

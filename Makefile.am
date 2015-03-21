@@ -144,7 +144,6 @@ install-test-assets: $(testassets_programs) $(testassets_data) $(testassets_syst
 	cd $(srcdir); for d in $(testassets_data); do $(INSTALL_DATA) -D $$d $(DESTDIR)$(testassetsdir)/$$d; done
 	for d in $(testassets_systemdunit_data); do $(INSTALL_DATA) $$d $(DESTDIR)$(systemdunitdir); done
 	ln -sn $(libexecdir)/cockpit-bridge $(DESTDIR)$(testassetsdir)/cockpit-bridge
-	ln -sn base $(DESTDIR)$(testassetsdir)/pkg/base1
 
 clean-local:
 	find $(builddir) -name '*.gc??' -delete
@@ -194,14 +193,13 @@ endif
 
 dist-hook: dist-doc-hook
 	ln -s systemd $(distdir)/pkg/system
-	ln -s base $(distdir)/pkg/base1
 
 distcheck-hook: dist-doc-hook
 	@true
 
 
 include lib/Makefile.am
-include pkg/base/Makefile.am
+include pkg/base1/Makefile.am
 include pkg/docker/Makefile.am
 include pkg/kubernetes/Makefile.am
 include pkg/legacy/Makefile.am

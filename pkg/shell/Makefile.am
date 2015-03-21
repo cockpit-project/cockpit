@@ -22,7 +22,7 @@ shell_js_PARTS = \
 
 shell.js: $(shell_js_PARTS)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $^
-	$(AM_V_GEN) cat $^ > $@.tmp && mv $@.tmp $@
+	$(AM_V_GEN) $(srcdir)/tools/jsbundle $@ $^
 
 shell.min.js: shell.js
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@

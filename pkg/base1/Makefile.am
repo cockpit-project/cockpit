@@ -92,32 +92,32 @@ FONTS_LN = cd $(srcdir)/pkg/base1/fonts; ln -sf
 VX = v*[0-9]
 
 update-lib::
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/jquery.js \
+	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.js \
 	    $(srcdir)/lib/jquery.$(VX).js \
 	    $(srcdir)/lib/bootstrap.$(VX).js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).js \
 	    $(srcdir)/lib/jquery-flot.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/jquery.min.js \
+	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/jquery.min.js \
 	    $(srcdir)/lib/jquery.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
 	    $(srcdir)/lib/attrchange.min.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/require.js \
+	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.js \
 	    $(srcdir)/lib/requirejs.$(VX).js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/require.min.js \
+	$(srcdir)/tools/jsbundle $(srcdir)/pkg/base1/require.min.js \
 	    $(srcdir)/lib/requirejs.$(VX).min.js \
 	    $(srcdir)/pkg/base1/require-config.js \
 	    $(srcdir)/pkg/base1/require-loaders.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/patternfly.css \
+	$(srcdir)/tools/cssbundle $(srcdir)/pkg/base1/patternfly.css \
 	    $(srcdir)/lib/patternfly.$(VX).css \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).css
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/patternfly.min.css \
+	$(srcdir)/tools/cssbundle $(srcdir)/pkg/base1/patternfly.min.css \
 	    $(srcdir)/lib/patternfly.$(VX).min.css \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.css
 	$(BASE_LN) ../../lib/mustache.$(VX).js mustache.js

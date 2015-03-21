@@ -38,11 +38,11 @@ EXTRA_DIST += \
 	$(NULL)
 
 update-lib::
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/kubernetes/angular.js \
+	$(srcdir)/tools/jsbundle $(srcdir)/pkg/kubernetes/angular.js \
 	    $(srcdir)/lib/angular.$(VX).js \
 	    $(srcdir)/lib/angular-route.$(VX).js \
 	    $(srcdir)/pkg/kubernetes/angular-config.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/kubernetes/angular.min.js \
+	$(srcdir)/tools/jsbundle $(srcdir)/pkg/kubernetes/angular.min.js \
 	    $(srcdir)/lib/angular.$(VX).min.js \
 	    $(srcdir)/lib/angular-route.$(VX).min.js \
 	    $(srcdir)/pkg/kubernetes/angular-config.js

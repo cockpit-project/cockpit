@@ -1,0 +1,117 @@
+#!/usr/bin/env node
+
+var fs, esprima;
+
+try {
+    fs = require('fs');
+    esprima = require('esprima');
+} catch(ex) {
+    fatal(ex.message, 127); /* missing looks for this */
+}
+
+function fatal(message, code) {
+    console.log((input || "jsbundle") + ": " + message);
+    process.exit(code || 1);
+}
+
+if (process.argv.length < 4) {
+    console.log("usage: jsbundle output file ...");
+    process.exit(2);
+}
+
+var result = "";
+var delim = "";
+var input;
+var output = process.argv[2];
+var files = process.argv.slice(3);
+step();
+
+function step() {
+    if (files.length === 0) {
+        fs.writeFile(output, result, function(err) {
+            if (err)
+                fatal(err.message);
+            process.exit(0);
+        });
+        return;
+    }
+
+    input = files.shift();
+    var parts = input.split("/");
+    var last = parts.length - 1;
+
+    var dir = parts[last - 1];
+    var file = parts[last];
+
+    var pos = file.indexOf(".");
+    if (pos !== -1)
+        module = file.substring(0, pos);
+    else
+        module = file;
+
+    var name = dir + "/" + module;
+
+    fs.readFile(input, { encoding: "utf-8" }, function(err, data) {
+        if (err)
+            fatal(err.message);
+        try {
+	    result += redefine(data, name);
+            result += "\n//# sourceURL=" + dir + "/" + file + "\n";
+	    step();
+        } catch(ex) {
+            fatal(ex.message);
+        }
+    });
+}
+
+function traverse(object, visitor) {
+    var key, child;
+    visitor.call(null, object);
+    for (key in object) {
+        if (object.hasOwnProperty(key)) {
+            child = object[key];
+            if (typeof child === 'object' && child !== null)
+                traverse(child, visitor);
+        }
+    }
+}
+
+function is_anonymous_define(node) {
+    if (node.type === 'CallExpression' &&
+        node.callee && node.callee.name == 'define' && node.arguments) {
+
+        /* define(['dependency'], function() { }) */
+        if (node.arguments.length > 1 &&
+            node.arguments[0].type == "ArrayExpression")
+            return true;
+
+        if (node.arguments.length == 1)
+            return true;
+    }
+
+    return false;
+}
+
+function redefine(data, name) {
+    var syntax = esprima.parse(data, { range: true });
+    var range;
+
+    traverse(syntax, function(node) {
+        if (is_anonymous_define(node)) {
+            if (range)
+                fatal("found two anonymous define functions");
+            range = node.arguments[0].range;
+        }
+    });
+
+    var output;
+    if (range) {
+        output = data.substring(0, range[0]);
+        output += "\"" + name + "\", ";
+        output += data.substring(range[0]);
+    } else {
+        output = data;
+    }
+
+    return output;
+}

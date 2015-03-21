@@ -7,10 +7,10 @@ base_GEN = \
 base_DATA = \
 	pkg/base1/cockpit.css \
 	pkg/base1/patternfly.css \
-	pkg/base1/term.js \
 	pkg/base1/manifest.json \
 	pkg/base1/po.js \
 	pkg/base1/require.min.js.gz \
+	pkg/base1/term.min.js.gz \
 	pkg/base1/mustache.min.js.gz \
 	pkg/base1/jquery.min.js.gz \
 	pkg/base1/cockpit.min.js.gz \
@@ -21,10 +21,14 @@ base_DATA = \
 basedebugdir = $(DBGDIR)$(basedir)
 basedebug_DATA = \
 	pkg/base1/require.js \
+	pkg/base1/term.js \
 	pkg/base1/mustache.js \
 	pkg/base1/jquery.js \
 	pkg/base1/cockpit.js \
 	$(NULL)
+
+pkg/base1/term.min.js: pkg/base1/term.js
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
 
 baseimagesdir = $(pkgdatadir)/base1/images
 baseimages_DATA = \
@@ -72,6 +76,7 @@ TESTS += $(base_TESTS)
 
 CLEANFILES += \
 	pkg/base1/cockpit.min.js \
+	pkg/base1/term.min.js \
 	$(base_GEN) \
 	$(NULL)
 
@@ -79,6 +84,7 @@ EXTRA_DIST += \
 	pkg/base1/jquery.min.js \
 	pkg/base1/require.min.js \
 	pkg/base1/mustache.min.js \
+	pkg/base1/term.min.js \
 	$(base_DATA) \
 	$(basedebug_DATA) \
 	$(baseimages_DATA) \

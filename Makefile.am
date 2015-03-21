@@ -167,7 +167,7 @@ include doc/man/Makefile-man.am
 
 nodist_noinst_DATA += guide/index.html
 
-install-data-local: guide/index.html
+install-doc-local: guide/index.html
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
 	$(INSTALL_DATA) `dirname $<`/* $(DESTDIR)$(htmldir)
 
@@ -182,6 +182,8 @@ dist-doc-hook:
 
 else
 
+install-doc-local:
+	@true
 uninstall-doc-local:
 	@true
 dist-doc-hook:
@@ -190,6 +192,9 @@ upload-doc:
 	@echo "*** doc must be enabled (ie: --enable-doc) in order to make upload-doc"
 
 endif
+
+install-data-local:: install-doc-local
+	@true
 
 dist-hook: dist-doc-hook
 	ln -s systemd $(distdir)/pkg/system

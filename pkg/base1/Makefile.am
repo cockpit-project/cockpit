@@ -5,80 +5,80 @@ base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
 base_DATA = \
-	pkg/base/cockpit.css \
-	pkg/base/patternfly.css \
-	pkg/base/term.js \
-	pkg/base/manifest.json \
-	pkg/base/po.js \
-	pkg/base/require.min.js.gz \
-	pkg/base/mustache.min.js.gz \
-	pkg/base/jquery.min.js.gz \
-	pkg/base/cockpit.min.js.gz \
+	pkg/base1/cockpit.css \
+	pkg/base1/patternfly.css \
+	pkg/base1/term.js \
+	pkg/base1/manifest.json \
+	pkg/base1/po.js \
+	pkg/base1/require.min.js.gz \
+	pkg/base1/mustache.min.js.gz \
+	pkg/base1/jquery.min.js.gz \
+	pkg/base1/cockpit.min.js.gz \
 	$(BRAND)/branding.css \
 	$(base_GEN) \
 	$(NULL)
 
 basedebugdir = $(DBGDIR)$(basedir)
 basedebug_DATA = \
-	pkg/base/require.js \
-	pkg/base/mustache.js \
-	pkg/base/jquery.js \
-	pkg/base/cockpit.js \
+	pkg/base1/require.js \
+	pkg/base1/mustache.js \
+	pkg/base1/jquery.js \
+	pkg/base1/cockpit.js \
 	$(NULL)
 
 baseimagesdir = $(pkgdatadir)/base1/images
 baseimages_DATA = \
-	pkg/base/images/play.png \
-	pkg/base/images/eject.png \
-	pkg/base/images/stop.png \
+	pkg/base1/images/play.png \
+	pkg/base1/images/eject.png \
+	pkg/base1/images/stop.png \
 	$(NULL)
 
 basefontsdir = $(pkgdatadir)/base1/fonts
 basefonts_DATA = \
-	pkg/base/fonts/fontawesome.woff.gz \
-	pkg/base/fonts/patternfly.woff.gz \
-	pkg/base/fonts/glyphicons.woff.gz \
+	pkg/base1/fonts/fontawesome.woff.gz \
+	pkg/base1/fonts/patternfly.woff.gz \
+	pkg/base1/fonts/glyphicons.woff.gz \
 	$(NULL)
 
 basefontsdebugdir = $(DBGDIR)$(basefontsdir)
 basefontsdebug_DATA = \
-	pkg/base/fonts/fontawesome.woff \
-	pkg/base/fonts/patternfly.woff \
-	pkg/base/fonts/glyphicons.woff \
+	pkg/base1/fonts/fontawesome.woff \
+	pkg/base1/fonts/patternfly.woff \
+	pkg/base1/fonts/glyphicons.woff \
 	$(NULL)
 
 base_TESTS = \
-	pkg/base/test-base64.html \
-	pkg/base/test-utf8.html \
-	pkg/base/test-chan.html \
-	pkg/base/test-echo.html \
-	pkg/base/test-async.html \
-	pkg/base/test-no-jquery.html \
-	pkg/base/test-spawn.html \
-	pkg/base/test-spawn-proc.html \
-	pkg/base/test-http.html \
-	pkg/base/test-dbus.html \
-	pkg/base/test-location.html \
-	pkg/base/test-framed.html \
-	pkg/base/test-locale.html \
-	pkg/base/test-format.html \
-	pkg/base/test-file.html \
-	pkg/base/test-user.html \
-	pkg/base/test-time.html \
-	pkg/base/test-permissions.html \
+	pkg/base1/test-base64.html \
+	pkg/base1/test-utf8.html \
+	pkg/base1/test-chan.html \
+	pkg/base1/test-echo.html \
+	pkg/base1/test-async.html \
+	pkg/base1/test-no-jquery.html \
+	pkg/base1/test-spawn.html \
+	pkg/base1/test-spawn-proc.html \
+	pkg/base1/test-http.html \
+	pkg/base1/test-dbus.html \
+	pkg/base1/test-location.html \
+	pkg/base1/test-framed.html \
+	pkg/base1/test-locale.html \
+	pkg/base1/test-format.html \
+	pkg/base1/test-file.html \
+	pkg/base1/test-user.html \
+	pkg/base1/test-time.html \
+	pkg/base1/test-permissions.html \
 	$(NULL)
 
 TESTS += $(base_TESTS)
 
 CLEANFILES += \
-	pkg/base/cockpit.min.js \
+	pkg/base1/cockpit.min.js \
 	$(base_GEN) \
 	$(NULL)
 
 EXTRA_DIST += \
-	pkg/base/jquery.min.js \
-	pkg/base/require.min.js \
-	pkg/base/mustache.min.js \
+	pkg/base1/jquery.min.js \
+	pkg/base1/require.min.js \
+	pkg/base1/mustache.min.js \
 	$(base_DATA) \
 	$(basedebug_DATA) \
 	$(baseimages_DATA) \
@@ -87,35 +87,34 @@ EXTRA_DIST += \
 	$(base_TESTS) \
 	$(NULL)
 
-BASE_LN = cd $(srcdir)/pkg/base; ln -sf
-FONTS_LN = cd $(srcdir)/pkg/base/fonts; ln -sf
+BASE_LN = cd $(srcdir)/pkg/base1; ln -sf
+FONTS_LN = cd $(srcdir)/pkg/base1/fonts; ln -sf
 VX = v*[0-9]
 
 update-lib::
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.js \
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/jquery.js \
 	    $(srcdir)/lib/jquery.$(VX).js \
 	    $(srcdir)/lib/bootstrap.$(VX).js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).js \
 	    $(srcdir)/lib/jquery-flot.$(VX).js \
 	    $(srcdir)/lib/attrchange.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/jquery.min.js \
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/jquery.min.js \
 	    $(srcdir)/lib/jquery.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-select.$(VX).min.js \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.js \
 	    $(srcdir)/lib/jquery-flot.$(VX).min.js \
 	    $(srcdir)/lib/attrchange.min.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/require.js \
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/require.js \
 	    $(srcdir)/lib/requirejs.$(VX).js \
-	    $(srcdir)/pkg/base/require-config.js \
-	    $(srcdir)/pkg/base/require-loaders.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/require.min.js \
+	    $(srcdir)/pkg/base1/require-config.js \
+	    $(srcdir)/pkg/base1/require-loaders.js
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/require.min.js \
 	    $(srcdir)/lib/requirejs.$(VX).min.js \
-	    $(srcdir)/pkg/base/require-config.js
-	    $(srcdir)/pkg/base/require-config.js \
-	    $(srcdir)/pkg/base/require-loaders.js
-	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/patternfly.css \
+	    $(srcdir)/pkg/base1/require-config.js \
+	    $(srcdir)/pkg/base1/require-loaders.js
+	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base1/patternfly.css \
 	    $(srcdir)/lib/patternfly.$(VX).css \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).css
 	$(srcdir)/tools/jsmerge -o $(srcdir)/pkg/base/patternfly.min.css \
@@ -129,9 +128,9 @@ update-lib::
 	$(FONTS_LN) ../../../lib/glyphicons-halflings.$(VX).woff glyphicons.woff
 
 # Never recreate these files
-pkg/base/jquery.min.js:
+pkg/base1/jquery.min.js:
 	@true
-pkg/base/mustache.min.js:
+pkg/base1/mustache.min.js:
 	@true
-pkg/base/require.min.js:
+pkg/base1/require.min.js:
 	@true

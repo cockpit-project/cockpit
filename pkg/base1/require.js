@@ -2082,6 +2082,7 @@ var requirejs, require, define;
     req(cfg);
 }(this));
 
+//# sourceURL=lib/requirejs.v2.1.16.js
 (function(require) {
     require.config({
         baseUrl: "../",
@@ -2092,6 +2093,7 @@ var requirejs, require, define;
 })(require);
 
 
+//# sourceURL=base1/require-config.js
 define('translated', function() {
     var module = { };
 
@@ -2108,3 +2110,5 @@ define('translated', function() {
 
     return module;
 });
+
+//# sourceURL=base1/require-loaders.js

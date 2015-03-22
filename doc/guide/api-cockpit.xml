@@ -1666,7 +1666,7 @@ promise
     .done(function (new_content, new_tag) { ... })
     .fail(function (error) { ... })
 
-file.watch(function (content, tag) { }, [ function (code, message) { } ])
+file.watch(function (content, tag, [error]) { })
 
 file.close()
 </programlisting>
@@ -1820,14 +1820,14 @@ cockpit.file("/path/to/file").modify(shout).
       <para>Calling <code>watch()</code> will start monitoring the file for
         external changes.
 <programlisting>
-handle = file.watch(callback, error_callback);
+handle = file.watch(callback);
 </programlisting>
         Whenever a change occurs, the <code>callback()</code> is called with
         the new content and tag of the file.  This might happen because of
         external changes, but also as part of calls to <code>read()</code>,
         <code>replace()</code>, and <code>modify()</code>.</para>
-      <para>When a read error occurs, the <code>error_callback</code> is called.
-        Write errors are not reported via the watch callbacks.</para>
+      <para>When a read error occurs, the <code>callback()</code> is called with
+        an error as a third argument. Write errors are not reported via the watch callback.</para>
       <para>Calling <code>watch()</code> will also automatically call
         <code>read()</code> to get the initial content of the file.</para>
       <para>Thus, you normally don't need to call <code>read()</code> at all when

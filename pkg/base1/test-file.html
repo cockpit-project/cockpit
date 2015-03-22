@@ -332,10 +332,10 @@ asyncTest("syntax watching", function() {
     expect(3);
 
     var file = cockpit.file(dir + "/foobar.json", { syntax: JSON });
-    var watch = file.watch(changed, error);
+    var watch = file.watch(changed);
 
     var n = 0;
-    function changed(content, tag) {
+    function changed(content, tag, err) {
         n += 1;
         if (n == 1) {
             equal(content, null, "initially non-existent");
@@ -343,13 +343,7 @@ asyncTest("syntax watching", function() {
         } else if (n == 2) {
             deepEqual(content, [ 1, 2, 3, 4], "correct new content");
             cockpit.spawn([ "bash", "-c", "echo 'hi-there-this-is-not-json'  > " + dir + "/foobar.json" ]);
-        } else
-            ok(false, "not reached");
-    }
-
-    function error(err) {
-        n += 1;
-        if (n == 3) {
+        } else if (n == 3) {
             ok(err instanceof SyntaxError, "got SyntaxError error");
             start ();
         } else
@@ -361,7 +355,7 @@ asyncTest("closing", function() {
     expect(2);
 
     var file = cockpit.file(dir + "/foobarbaz");
-    var watch = file.watch(changed, error);
+    var watch = file.watch(changed);
 
     var n = 0;
     function start_after_two() {
@@ -379,13 +373,13 @@ asyncTest("closing", function() {
             start_after_two();
         });
 
-    function changed(content, tag) {
-        ok(false, "not reached");
-    }
-
-    function error(err) {
-        equal(err.problem, "cancelled", "watch got cancelled");
-        start_after_two();
+    function changed(content, tag, err) {
+        if (err) {
+            equal(err.problem, "cancelled", "watch got cancelled");
+            start_after_two();
+        } else {
+            ok(false, "not reached");
+        }
     }
 
     file.close();

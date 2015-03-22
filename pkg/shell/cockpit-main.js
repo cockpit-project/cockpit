@@ -117,18 +117,6 @@ function content_init() {
         dialog_leave($(this).attr("id"));
     });
 
-    /* For legacy pages
-     */
-    $('#content-navbar a[data-page-id]').click(function () {
-        cockpit.location.go([ cockpit.location.path[0], $(this).attr('data-page-id') ]);
-    });
-
-    /* For statically registered components
-     */
-    $('#content-navbar a[data-task-id]').click(function () {
-        cockpit.location.go([ cockpit.location.path[0], $(this).attr('data-task-id') ]);
-    });
-
     $(cockpit).on('locationchanged', function () {
         if (current_visible_dialog)
             $('#' + current_visible_dialog).modal('hide');
@@ -187,36 +175,10 @@ function update_global_nav() {
     recalculate_layout();
 }
 
-/* A map from path prefixes such as [ "tools" "terminal" ] to
- * component description objects.  Such an object has the following
- * fields:
- *
- * - pkg
- * - entry
- *
- * The package to load and the file of that package to use as the
- * entry point.
- */
-var components = { };
-
-/* A map from host-plus-path-prefixes to page <iframe> objects.
- */
-var page_iframes = { };
-
 /* A map from id to the page object, for legacy pages that
  * have been visited already.
  */
 var visited_legacy_pages = { };
-
-function register_component(prefix, package_name, entry) {
-    var key = JSON.stringify(prefix);
-    components[key] = { pkg: package_name, entry: entry };
-}
-
-function register_tool(ident, label) {
-    var link = $("<a>").attr("data-task-id", ident).text(label);
-    $("<li>").append(link).appendTo("#tools-menu");
-}
 
 /* HACK: Mozilla will unescape 'location.hash' before returning
  * it, which is broken.

@@ -1825,7 +1825,7 @@ function full_scope(cockpit, $, po) {
 
                     if (message.problem) {
                         var error = new BasicError(message.problem, message.message);
-                        fire_watch_error_callbacks(error);
+                        fire_watch_callbacks(null, null, error);
                         dfd.reject(error);
                         return;
                     }
@@ -1837,13 +1837,13 @@ function full_scope(cockpit, $, po) {
                         try {
                             content = parse(join_data(content_parts, binary));
                         } catch (e) {
-                            fire_watch_error_callbacks(e);
+                            fire_watch_callbacks(null, null, e);
                             dfd.reject(e);
                             return;
                         }
                     }
 
-                    fire_watch_content_callbacks(content, message.tag);
+                    fire_watch_callbacks(content, message.tag);
                     dfd.resolve(content, message.tag);
                 });
             }
@@ -1886,7 +1886,7 @@ function full_scope(cockpit, $, po) {
                 if (message.problem) {
                     dfd.reject(new BasicError(message.problem, message.message));
                 } else {
-                    fire_watch_content_callbacks(new_content, message.tag);
+                    fire_watch_callbacks(new_content, message.tag);
                     dfd.resolve(message.tag);
                 }
             });
@@ -1936,8 +1936,7 @@ function full_scope(cockpit, $, po) {
             return dfd.promise();
         }
 
-        var watch_content_callbacks = $.Callbacks();
-        var watch_error_callbacks = $.Callbacks();
+        var watch_callbacks = $.Callbacks();
         var n_watch_callbacks = 0;
 
         var watch_channel = null;
@@ -1968,20 +1967,14 @@ function full_scope(cockpit, $, po) {
             }
         }
 
-        function fire_watch_content_callbacks(content, tag) {
-            watch_tag = tag;
-            watch_content_callbacks.fire(content, tag);
+        function fire_watch_callbacks(/* content, tag, error */) {
+            watch_tag = arguments[1] || null;
+            watch_callbacks.fireWith(self, arguments);
         }
 
-        function fire_watch_error_callbacks(error) {
-            watch_error_callbacks.fire(error);
-        }
-
-        function watch(callback, error) {
+        function watch(callback) {
             if (callback)
-                watch_content_callbacks.add(callback);
-            if (error)
-                watch_error_callbacks.add(error);
+                watch_callbacks.add(callback);
             n_watch_callbacks += 1;
             ensure_watch_channel();
 
@@ -1991,9 +1984,7 @@ function full_scope(cockpit, $, po) {
             return {
                 remove: function () {
                     if (callback)
-                        watch_content_callbacks.remove(callback);
-                    if (error)
-                        watch_error_callbacks.remove(error);
+                        watch_callbacks.remove(callback);
                     n_watch_callbacks -= 1;
                     ensure_watch_channel();
                 }

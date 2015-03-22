@@ -117,12 +117,14 @@ require([
         $('#file-error').text(error.toString());
     }
 
-    function changed(content, tag) {
+    function changed(content, tag, error) {
+        if (error)
+            return complain(error);
         $('#file-content').text(normalize_counter(content).counter);
         $('#file-error').empty();
     }
 
-    counter.watch(changed, complain);
+    counter.watch(changed);
 
     $('#modify-file').click(function () {
         counter

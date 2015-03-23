@@ -41,10 +41,6 @@ libcockpitd_a_SOURCES = \
 	src/daemon/utils.c \
 	src/daemon/manager.h \
 	src/daemon/manager.c \
-	src/daemon/machines.h \
-	src/daemon/machines.c \
-	src/daemon/machine.h \
-	src/daemon/machine.c \
 	src/daemon/cpumonitor.h \
 	src/daemon/cpumonitor.c \
 	src/daemon/memorymonitor.h \
@@ -134,16 +130,10 @@ CLEANFILES += \
 # TESTS
 
 DAEMON_CHECKS = \
-	test-cgroupmonitor \
-	test-machines
-
+	test-cgroupmonitor
 test_cgroupmonitor_SOURCES = src/daemon/test-cgroupmonitor.c
 test_cgroupmonitor_CFLAGS = $(libcockpitd_a_CFLAGS)
 test_cgroupmonitor_LDADD = $(cockpitd_LDADD)
-
-test_machines_SOURCES = src/daemon/test-machines.c
-test_machines_CFLAGS = $(libcockpitd_a_CFLAGS)
-test_machines_LDADD = $(cockpitd_LDADD)
 
 noinst_PROGRAMS += $(DAEMON_CHECKS)
 TESTS += $(DAEMON_CHECKS)

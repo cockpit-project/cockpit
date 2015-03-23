@@ -1,7 +1,8 @@
 define([
+    "jquery",
     "kubernetes/angular",
     "kubernetes/app"
-], function(angular) {
+], function($, angular) {
     'use strict';
 
     return angular.module('kubernetes.dashboard', ['ngRoute'])

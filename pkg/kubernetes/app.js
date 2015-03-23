@@ -1,7 +1,8 @@
 define([
+    "jquery",
     "kubernetes/angular",
     "kubernetes/client"
-], function(angular, kubernetes) {
+], function($, angular, kubernetes) {
     'use strict';
 
     function KubernetesService(client) {

@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+var maps = {
+    "systemd": "system"
+};
+
 var fs, esprima;
 
 try {
@@ -41,6 +45,8 @@ function step() {
     var last = parts.length - 1;
 
     var dir = parts[last - 1];
+    dir = maps[dir] || dir;
+
     var file = parts[last];
 
     var pos = file.indexOf(".");

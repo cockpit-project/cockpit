@@ -38,7 +38,7 @@
       <div id="service-list" class="panel panel-default">
         <div class="panel-heading">
           <span style="float: right;">
-            <button class="btn btn-primary">Deploy</button>
+            <button class="btn btn-primary" ng-click="toggleModal()" id="deploy-kubernetes" >Deploy</button>
           </span>
           <span translatable="yes">Kubernetes Services</span>
         </div>
@@ -98,6 +98,67 @@
         </table>
       </div>
     </div>
+
+
+    <deploy-app title="Deploy Application" visible="showModal">
+      <table class="cockpit-form-table">
+        <tr>
+          <td class="top">
+            <label class="control-label" for="deploy-app-manifest" translatable="yes">
+            Manifest
+            </label>
+          </td>
+          <td>
+            <input id="deploy-app-manifest-file" class="form-control" type="text">
+            <div id="deploy-app-manifest-empty" hidden>
+              <span class="help-block" translatable="yes">
+              Manifest cannot be empty.
+              </span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="top">
+            <label class="control-label" for="deploy-app-namespace" translatable="yes">
+            Namespace
+            </label>
+          </td>
+          <td>
+            <input id="deploy-app-namespace-text" class="form-control" type="text">
+            <div id="deploy-app-note" hidden>
+              <span class="help-block" translatable="yes">
+              App Cannot be deployed.
+              </span>
+              <span id="deploy-app-note-details"></span>
+            </div>
+            <div id="deploy-app-namespace-empty" hidden>
+              <span class="help-block" translatable="yes">
+              Namespace cannot be empty.
+              </span>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <div class="has-error" hidden>
+        <span id="deploy-app-general-error" class="help-block" translatable="yes">
+        Generic error.
+        </span>
+      </div>
+      <div class="modal-footer">
+        <div id="deploy-app-deploying" class="pull-left" hidden>
+          <div class="spinner spinner-sm pull-left"></div>
+          <span translatable="yes">Deploying App</span>
+        </div>
+        <div>
+          <button class="btn btn-default" translatable="yes" data-dismiss="modal">
+          Cancel
+          </button>
+          <button class="btn btn-primary" id="deploy-app-start" translatable="yes">
+          Deploy
+          </button>
+        </div>
+      </div>
+    </deploy-app>
   </script>
 
   <script>

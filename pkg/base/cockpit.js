@@ -932,6 +932,13 @@ function basic_scope(cockpit) {
         options: { },
         uri: calculate_url,
     };
+
+    Object.defineProperty(cockpit.transport, "host", {
+        enumerable: true,
+        get: function user_get() {
+            return default_host;
+        }
+    });
 }
 
 

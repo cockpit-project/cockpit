@@ -81,6 +81,23 @@ class Machine:
         """Overridden by machine classes to stop the machine"""
         self.message("Not shutting down already running machine")
 
+    def wait_ssh(self):
+        """Try to connect to self.address on port 22"""
+        tries_left = 5
+        while (tries_left > 0):
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            try:
+                sock.connect((self.address, 22))
+                return True
+            except:
+                pass
+            finally:
+                sock.close()
+            tries_left = tries_left - 1
+            time.sleep(1)
+        return False
+
     def wait_boot(self):
         """Wait for a machine to boot and execute hooks
 
@@ -698,6 +715,9 @@ class QemuMachine(Machine):
             raise Failure("qemu did not run successfully: %d" % (p.returncode, ))
 
         self.address = address
+        if not Machine.wait_ssh(self):
+            raise Failure("Unable to reach machine %s via ssh." % (address))
+
         Machine.wait_boot(self)
 
     def stop(self):

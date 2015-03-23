@@ -4,13 +4,15 @@ define([
 ], function($, cockpit) {
     var module = { };
 
-    function Machine(machines) {
+    function Machine(key, modify, machines) {
         var self = this;
-        var proxy = null;
         var hostnamed = null;
         var channel = null;
+        var json_label = null;
 
+        self.key = key;
         self.state = null;
+        self.problem = null;
 
         function change_state(value, problem) {
             self.state = value;
@@ -65,9 +67,7 @@ define([
         };
 
         function calculate_label() {
-            var label;
-            if (proxy)
-                label = proxy.Name || proxy.Address;
+            var label = json_label || self.address;
             if (hostnamed)
                 label = hostnamed.PrettyHostname || hostnamed.StaticHostname || label;
             if (!label || label == "localhost" || label == "localhost.localdomain")
@@ -78,35 +78,23 @@ define([
             return true;
         }
 
-        self.update = function update(prox) {
-            proxy = prox;
-            self.address = proxy.Address;
-            self.color = proxy.Color;
-            self.avatar = proxy.Avatar || "images/server-small.png";
-            self.visible = proxy.Tags.indexOf("dashboard") !== -1;
+        self.update = function update(item) {
+            self.address = item.address || key;
+            json_label = item.label;
+            self.color = item.color;
+            self.avatar = item.avatar || "images/server-small.png";
+            self.visible = item.visible;
             calculate_label();
         };
 
         self.change = function change(values) {
-            var res = [];
-            if (values.visible === true)
-                res.push(proxy.AddTag("dashboard"));
-            else if (values.visible === false)
-                res.push(proxy.RemoveTag("dashboard"));
-            if (values.avatar)
-                res.push(proxy.SetAvatar(values.avatar));
-            if (values.color)
-                res.push(proxy.SetColor(values.color));
-            if (values.label) {
-                res.push(proxy.SetName(values.label));
-                if (hostnamed && hostnamed.valid) {
-                    hostnamed.SetPrettyHostname(values.label, true)
-                        .fail(function(ex) {
-                            console.warn("couldn't set pretty host name: " + ex);
-                        });
-                }
+            if (values.label && hostnamed && hostnamed.valid) {
+                hostnamed.SetPrettyHostname(values.label, true)
+                    .fail(function(ex) {
+                        console.warn("couldn't set pretty host name: " + ex);
+                    });
             }
-            return $.when.apply($, res);
+            return modify(key, values);
         };
 
         self.close = function close() {
@@ -121,10 +109,17 @@ define([
         var map = { };
         var ready = false;
 
-        /* TODO: This should be migrated away from cockpitd */
+        var content = null;
+        var tag = null;
 
-        var client = cockpit.dbus("com.redhat.Cockpit", { bus: "session", track: true });
-        var proxies = client.proxies("com.redhat.Cockpit.Machine", "/com/redhat/Cockpit/Machines");
+        var defaults = "{ \"localhost\": { \"visible\": true } }";
+
+        var file = cockpit.file("/var/lib/cockpit/machines.json", { syntax: JSON });
+        file.watch(function(data, tag, ex) {
+            if (ex)
+                console.warn("couldn't load machines data: " + ex);
+            update(data, tag);
+        });
 
         function color_in_use(color) {
             var key, machine, norm = $.color.parse(color).toString();
@@ -156,47 +151,75 @@ define([
                 });
         }
 
-        proxies.wait(function() {
-            var key;
-            ready = true;
-            for (key in map)
-                ensure_machine_color(map[key]);
-            for (key in map)
-                $(self).triggerHandler("added", map[key]);
-        });
-
-        $(proxies).on('added changed', function(ev, proxy) {
-            var machine = map[proxy.Address];
-            if (!machine)
-                machine = new Machine(self);
-            machine.update(proxy);
-            map[proxy.Address] = machine;
+        function ensure(key, item) {
+            var machine = map[key];
+            var created = !machine;
             flat = null;
+            if (!machine)
+                machine = new Machine(key, modify, self);
+            machine.update(item);
+            map[key] = machine;
+
             if (ready) {
                 ensure_machine_color(machine);
-                $(self).triggerHandler(ev.type, machine);
+                $(self).triggerHandler(created ? "added" : "changed", machine);
             }
-        });
 
-        $(proxies).on('removed', function(ev, proxy) {
-            var machine = map[proxy.Address];
-            delete map[proxy.Address];
-            flat = null;
-            machine.close();
-            $(self).triggerHandler('removed', machine);
-        });
+            return machine;
+        }
 
-        proxies.wait(function() {
+        function update(data, new_tag) {
+            content = data || JSON.parse(defaults);
+            tag = new_tag;
             flat = null;
-            $(self).triggerHandler('ready');
-        });
+
+            var key;
+            var seen = { };
+            for (key in map)
+                seen[key] = key;
+
+            for (key in content) {
+                ensure(key, content[key]);
+                delete seen[key];
+            }
+
+            var machine;
+            for (key in seen) {
+                machine = map[key];
+                delete map[key];
+                machine.close();
+                $(self).triggerHandler("removed", machine);
+            }
+
+            if (!ready) {
+                ready = true;
+                for (key in map)
+                    ensure_machine_color(map[key]);
+                for (key in map)
+                    $(self).triggerHandler("added", map[key]);
+                $(self).triggerHandler('ready');
+            }
+        }
+
+        function modify(key, values) {
+            function mutate(data) {
+                var item = data[key];
+                if (!item)
+                    item = data[key] = { };
+                for (var i in values)
+                    item[i] = values[i];
+                return data;
+            }
+            return file.modify(mutate, content, tag);
+        }
 
         Object.defineProperty(self, "list", {
             enumerable: true,
             get: function get() {
+                var key;
                 if (!flat) {
                     flat = [];
-                    for (var key in map) {
+                    for (key in map) {
                         if (map[key].visible)
                             flat.push(map[key]);
                     }
@@ -221,25 +244,32 @@ define([
 
         self.add = function add(address, host_key) {
             var dfd = $.Deferred();
-            client.call("/com/redhat/Cockpit/Machines",
-                        "com.redhat.Cockpit.Machines",
-                        "Add", [address, host_key])
-                .done(function(out) {
-                    var path = out[0];
-                    var proxy = proxies[path];
-                    dfd.resolve(map[proxy.Address]);
+
+            var item = { address: address, visible: true };
+            var json = modify(address, item);
+
+            var known_hosts = cockpit.file("/var/lib/cockpit/known_hosts");
+            var append = known_hosts.modify(function(data) {
+                return data + "\n" + host_key;
+            });
+
+            append.always(function() {
+                known_hosts.close();
+            });
+
+            $.when(json, append)
+                .done(function() {
+                    dfd.resolve(ensure(address, item));
                 })
                 .fail(function(ex) {
                     dfd.reject(ex);
                 });
+
             return dfd.promise();
         };
 
         self.close = function close() {
-            if (proxies)
-                $(proxies).off();
-            if (client)
-                client.close();
+            file.close();
         };
     }
 

@@ -49,11 +49,6 @@ shell_DIST = \
 	shell.min.js \
 	$(NULL)
 
-shelllangdir = $(pkgdatadir)/shell/lang
-shelllang_DATA = \
-	$(translations_json) \
-	$(NULL)
-
 shellimagesdir = $(pkgdatadir)/shell/images
 shellimages_DATA = \
 	pkg/shell/images/avatar-default-48.png \
@@ -79,9 +74,6 @@ CHECK_HTML = \
 TESTS += $(CHECK_HTML)
 
 # ----------------------------------------------------------------------------------------------------
-
-lang/%.json : $(top_srcdir)/po/%.po
-	$(AM_V_GEN) mkdir -p lang && $(PO2JSON) -p $(top_srcdir)/po/$*.po > lang/$*.json
 
 CLEANFILES += \
 	shell.js \

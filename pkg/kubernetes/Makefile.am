@@ -1,21 +1,31 @@
 
 kubernetesdir = $(pkgdatadir)/kubernetes
 kubernetes_DATA = \
-	pkg/kubernetes/angular.min.js.gz \
-	pkg/kubernetes/client.min.js.gz \
+	pkg/kubernetes/kubernetes.min.js.gz \
 	pkg/kubernetes/manifest.json \
 	pkg/kubernetes/tool.html \
 	pkg/kubernetes/cluster.html \
 	pkg/kubernetes/app.css \
-	pkg/kubernetes/app.js \
-	pkg/kubernetes/dashboard.js \
 	$(NULL)
 
 kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
 kubernetesdebug_DATA = \
 	pkg/kubernetes/angular.js \
+	pkg/kubernetes/app.js \
 	pkg/kubernetes/client.js \
+	pkg/kubernetes/dashboard.js \
+	pkg/kubernetes/kubernetes.js \
 	$(NULL)
+
+kubernetes_BUNDLE = \
+	pkg/kubernetes/angular.min.js \
+	pkg/kubernetes/app.min.js \
+	pkg/kubernetes/client.min.js \
+	pkg/kubernetes/dashboard.min.js \
+	$(NULL)
+
+pkg/kubernetes/kubernetes.min.js: $(kubernetes_BUNDLE)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 kubernetes_TESTS = \
 	pkg/kubernetes/test-kubernetes.html \
@@ -24,10 +34,13 @@ kubernetes_TESTS = \
 TESTS += $(kubernetes_TESTS)
 
 CLEANFILES += \
-	pkg/kubernetes/client.min.js \
+	pkg/kubernetes/kubernetes.min.js \
+	$(kubernetes_BUNDLE) \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/kubernetes/kubernetes.min.js \
+	$(kubernetes_BUNDLE) \
 	$(kubernetes_DATA) \
 	$(kubernetesdebug_DATA) \
 	$(kubernetes_TESTS) \

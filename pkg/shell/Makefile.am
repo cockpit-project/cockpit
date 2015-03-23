@@ -22,7 +22,7 @@ shell_js_PARTS = \
 
 shell.js: $(shell_js_PARTS)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $^
-	$(AM_V_GEN) $(srcdir)/tools/jsbundle $@ $^
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 shell.min.js: shell.js
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
@@ -30,8 +30,8 @@ shell.min.js: shell.js
 shelldir = $(pkgdatadir)/shell
 shell_DATA = \
 	shell.min.js.gz \
+	pkg/shell/bundle.min.js.gz \
 	pkg/shell/index.min.html \
-	pkg/shell/index.min.js.gz \
 	pkg/shell/shell.css \
 	pkg/shell/shell.min.html \
 	pkg/shell/manifest.json \
@@ -40,14 +40,18 @@ shell_DATA = \
 shelldebugdir = $(DBGDIR)$(shelldir)
 shelldebug_DATA = \
 	shell.js \
+	pkg/shell/bundle.js \
 	pkg/shell/index.html \
 	pkg/shell/index.js \
 	pkg/shell/shell.html \
 	$(NULL)
 
-shell_DIST = \
-	shell.min.js \
+shell_BUNDLE = \
+	pkg/shell/index.min.js \
 	$(NULL)
+
+pkg/shell/bundle.min.js: $(shell_BUNDLE)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/jsbundle $@ $^
 
 shellimagesdir = $(pkgdatadir)/shell/images
 shellimages_DATA = \
@@ -78,13 +82,17 @@ TESTS += $(CHECK_HTML)
 CLEANFILES += \
 	shell.js \
 	shell.min.js \
+	pkg/shell/bundle.min.js \
 	pkg/shell/shell.min.html \
+	$(shell_BUNDLE) \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/shell/bundle.min.js \
 	shell.min.js \
 	$(shell_js_PARTS) \
 	$(shell_DATA) \
+	$(shell_BUNDLE) \
 	$(shelldebug_DATA) \
 	$(shellimages_DATA) \
 	$(CHECK_HTML) \

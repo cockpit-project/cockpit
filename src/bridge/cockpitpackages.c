@@ -644,7 +644,8 @@ handle_packages (CockpitWebServer *server,
       path = cockpit_web_response_get_path (response);
     }
 
-  expand = (path && g_str_has_suffix (path, ".html"));
+  expand = g_str_equal (name, "shell") &&
+           (g_str_equal (path, "index.html") || g_str_has_suffix (path, "/index.html"));
 
   out_headers = cockpit_web_server_new_table ();
 

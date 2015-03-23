@@ -33,7 +33,7 @@ shell_DATA = \
 	pkg/shell/bundle.min.js.gz \
 	pkg/shell/index.min.html \
 	pkg/shell/shell.min.css.gz \
-	pkg/shell/shell.min.html \
+	pkg/shell/shell.min.html.gz \
 	pkg/shell/manifest.json \
 	$(NULL)
 
@@ -84,13 +84,16 @@ CLEANFILES += \
 	shell.js \
 	shell.min.js \
 	pkg/shell/bundle.min.js \
+	pkg/shell/index.min.html \
 	pkg/shell/shell.min.html \
 	$(shell_BUNDLE) \
 	$(NULL)
 
 EXTRA_DIST += \
-	pkg/shell/bundle.min.js \
 	shell.min.js \
+	pkg/shell/bundle.min.js \
+	pkg/shell/index.min.html \
+	pkg/shell/shell.min.html \
 	$(shell_js_PARTS) \
 	$(shell_DATA) \
 	$(shell_BUNDLE) \

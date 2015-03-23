@@ -1,8 +1,8 @@
 
 dockerdir = $(pkgdatadir)/docker
 docker_DATA = \
+	pkg/docker/console.min.html.gz \
 	pkg/docker/docker.min.js.gz \
-	pkg/docker/console.min.html \
 	pkg/docker/manifest.json \
 	$(NULL)
 

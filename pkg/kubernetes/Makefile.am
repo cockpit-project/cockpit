@@ -2,10 +2,10 @@
 kubernetesdir = $(pkgdatadir)/kubernetes
 kubernetes_DATA = \
 	pkg/kubernetes/app.min.css.gz \
+	pkg/kubernetes/cluster.min.html.gz \
 	pkg/kubernetes/kubernetes.min.js.gz \
 	pkg/kubernetes/manifest.json \
-	pkg/kubernetes/tool.html \
-	pkg/kubernetes/cluster.html \
+	pkg/kubernetes/tool.min.html.gz \
 	$(NULL)
 
 kubernetesdebugdir = $(DBGDIR)$(kubernetesdir)
@@ -14,8 +14,10 @@ kubernetesdebug_DATA = \
 	pkg/kubernetes/app.css \
 	pkg/kubernetes/app.js \
 	pkg/kubernetes/client.js \
+	pkg/kubernetes/cluster.html \
 	pkg/kubernetes/dashboard.js \
 	pkg/kubernetes/kubernetes.js \
+	pkg/kubernetes/tool.html \
 	$(NULL)
 
 kubernetes_BUNDLE = \
@@ -36,12 +38,16 @@ TESTS += $(kubernetes_TESTS)
 
 CLEANFILES += \
 	pkg/kubernetes/app.min.css \
+	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
+	pkg/kubernetes/tool.min.html \
 	$(kubernetes_BUNDLE) \
 	$(NULL)
 
 EXTRA_DIST += \
+	pkg/kubernetes/cluster.min.html \
 	pkg/kubernetes/kubernetes.min.js \
+	pkg/kubernetes/tool.min.html \
 	$(kubernetes_BUNDLE) \
 	$(kubernetes_DATA) \
 	$(kubernetesdebug_DATA) \

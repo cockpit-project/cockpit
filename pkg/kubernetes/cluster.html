@@ -1,4 +1,22 @@
 <!DOCTYPE html>
+<!--
+This file is part of Cockpit.
+
+Copyright (C) 2015 Red Hat, Inc.
+
+Cockpit is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or
+(at your option) any later version.
+
+Cockpit is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+-->
 <html lang="en" class="no-js">
 <head>
   <meta charset="utf-8">
@@ -38,7 +56,7 @@
       <div id="service-list" class="panel panel-default">
         <div class="panel-heading">
           <span style="float: right;">
-            <button class="btn btn-primary">Deploy</button>
+            <button class="btn btn-primary" id="deploy-app" translatable="yes">Deploy</button>
           </span>
           <span translatable="yes">Kubernetes Services</span>
         </div>
@@ -98,20 +116,112 @@
         </table>
       </div>
     </div>
-  </script>
+    </script>
+
+    <script id="deploy-app-ns-template" type="x-template/mustache">
+      {{#namespaces}}
+        {{#metadata}}
+          <option translatable="yes" value="{{name}}">{{name}}</option>
+        {{/metadata}}
+      {{/namespaces}}
+      <option value="" selected="selected" translatable="yes">Custom Namespace</option>
+    </script>
+
+    <div class="modal" id="deploy-app-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" translatable="yes">Deploy Application</h4>
+          </div>
+          <div class="modal-body">
+            <table class="cockpit-form-table">
+              <tr>
+                <td class="top">
+                  <label class="control-label" for="deploy-app-manifest" translatable="yes">
+                  Manifest
+                  </label>
+                </td>
+                <input id="deploy-app-manifest-file" type="file">
+                <td>
+                  <button id="deploy-app-manifest-file-button" class="btn btn-default form-control" type="button">Select Manifest File...</button>
+                  <div class="deploy-dialog-file-aids" id="deploy-app-manifest-file-empty" hidden>
+                    <span class="help-block" translatable="yes">
+                    No metadata file was selected. Please select a Kubernetes metadata file.
+                    </span>
+                  </div>
+                  <div class="deploy-dialog-file-aids" id="deploy-app-manifest-file-note" hidden>
+                    <span id="deploy-app-manifest-file-note-details" class="deploy-dialog-file-aids help-block"></span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="top">
+                  <label class="control-label top" for="deploy-app-namespace" translatable="yes">
+                  Namespace
+                  </label>
+                </td>
+                <td>
+                  <div id="namespace_value">
+                    <select id="deploy-app-namespace-field" class="combobox form-control ">
+                    </select>
+                  </div>
+                    <div class="deploy-dialog-namespace-aids" id="deploy-app-namespace-field-custom-empty" hidden>
+                      <span class="help-block" translatable="yes">
+                      Namespace cannot be empty.
+                      </span>
+                    </div>
+                    <div class="deploy-dialog-namespace-aids" id="deploy-app-namespace-field-note" hidden>
+                    <span class="help-block" translatable="yes">
+                      Please provide a valid namespace.
+                    </span>
+                    <span id="deploy-app-namespace-field-note-details" class="deploy-dialog-namespace-aids help-block"></span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+              <div  id="deploy-app-general-error"  class="container-fluid alert alert-danger alert-dismissible deploy-dialog-aids " role="alert" hidden>
+                <span class="pficon-layered">
+                  <span class="pficon pficon-error-octagon"></span>
+                  <span class="pficon pficon-error-exclamation"></span>
+                </span>
+                <span id="deploy-app-general-error-msg" class="help-block"></span>
+              </div>
+          </div>
+          <div class="modal-footer deploy_buttons">
+            <div id="deploy-app-deploying" class="pull-left" hidden>
+              <div class="spinner spinner-sm pull-left"></div>
+              <span translatable="yes"></span>
+              <div>
+                <span id="deploy-app-deploying-details" class="help-block"></span>
+              </div>
+            </div>
+            <div>
+              <button class="btn btn-default" id="deploy-app-stop" translatable="yes" data-dismiss="modal">
+              Cancel
+              </button>
+              <button class="btn btn-primary" id="deploy-app-start" translatable="yes">
+              Deploy
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
   <script>
       require([
           "base1/cockpit",
           "translated!base1/po",
           "kubernetes/angular",
+          "kubernetes/deploy",
           "kubernetes/app",
           "kubernetes/dashboard"
-      ], function(cockpit, po, angular) {
+      ], function(cockpit, po, angular, deploy) {
           "use strict";
           cockpit.locale(po);
           cockpit.translate();
           angular.bootstrap(document, ["kubernetes"]);
+          deploy.init();
       });
   </script>
 </body>

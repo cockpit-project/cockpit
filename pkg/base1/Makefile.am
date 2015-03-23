@@ -5,8 +5,7 @@ base_GEN = \
 	$(addprefix po/po.,$(addsuffix .js,$(LINGUAS))) \
 	$(NULL)
 base_DATA = \
-	pkg/base1/cockpit.css \
-	pkg/base1/patternfly.css \
+	pkg/base1/cockpit.min.css.gz \
 	pkg/base1/manifest.json \
 	pkg/base1/po.js.gz \
 	pkg/base1/require.min.js.gz \
@@ -21,6 +20,8 @@ base_DATA = \
 
 basedebugdir = $(DBGDIR)$(basedir)
 basedebug_DATA = \
+	pkg/base1/cockpit.css \
+	pkg/base1/patternfly.css \
 	pkg/base1/po.js \
 	pkg/base1/require.js \
 	pkg/base1/term.js \
@@ -143,9 +144,6 @@ update-lib::
 	$(srcdir)/tools/cssbundle $(srcdir)/pkg/base1/patternfly.css \
 	    $(srcdir)/lib/patternfly.$(VX).css \
 	    $(srcdir)/lib/bootstrap-datepicker.$(VX).css
-	$(srcdir)/tools/cssbundle $(srcdir)/pkg/base1/patternfly.min.css \
-	    $(srcdir)/lib/patternfly.$(VX).min.css \
-	    $(srcdir)/lib/bootstrap-datepicker.$(VX).min.css
 	$(BASE_LN) ../../lib/mustache.$(VX).js mustache.js
 	$(BASE_LN) ../../lib/mustache.$(VX).min.js mustache.min.js
 	$(BASE_LN) ../../lib/term.$(VX).js term.js

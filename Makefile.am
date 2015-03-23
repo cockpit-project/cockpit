@@ -18,7 +18,7 @@ TESTS =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-SUFFIXES = .js .js.gz .min.js .min.js.gz .css .html .min.html .woff .woff.gz .1 .8 .5
+SUFFIXES = .css .min.css .min.css.gz .js .js.gz .min.js .min.js.gz .html .min.html .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -28,16 +28,21 @@ V_GZIP = $(V_GZIP_$(V))
 V_GZIP_ = $(V_GZIP_$(AM_DEFAULT_VERBOSITY))
 V_GZIP_0 = @echo "  GZIP    " $@;
 
+.css.min.css:
+	@$(MKDIR_P) $(dir $@)
+	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/r.js -o cssIn=$< optimizeCss=standard logLevel=3 out=$@
 .js.min.js:
 	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/uglifyjs $< --mangle > $@.tmp && mv $@.tmp $@
-
 .html.min.html:
 	@$(MKDIR_P) $(dir $@)
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/html-minifier --output $@ $<
 
+.min.css.min.css.gz:
+	@$(MKDIR_P) $(dir $@)
+	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
 .js.js.gz:
 	@$(MKDIR_P) $(dir $@)
 	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@

@@ -24,7 +24,9 @@
 /* global Mustache */
 
 var shell = shell || { };
-(function($, cockpit, shell) {
+var modules = modules || { };
+
+(function($, cockpit, shell, modules) {
 
 var month_names = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
 
@@ -151,26 +153,6 @@ var resource_monitors = [
 var avatar_editor;
 
 $(function () {
-    var rows = [ ];
-
-    function make_color_div(c) {
-        return $('<div class="color-cell">').
-            css('background-color', c);
-    }
-
-    for (var i = 0; i < shell.host_colors.length; i += 6) {
-        var part = shell.host_colors.slice(i, i+6);
-        rows.push(
-            $('<div>').
-                append(
-                    part.map(make_color_div)));
-    }
-
-    $('#host-edit-color-popover .popover-content').append(rows);
-    $('#host-edit-color-popover .popover-content .color-cell').click(function () {
-        $('#host-edit-color').css('background-color', $(this).css('background-color'));
-    });
-
     avatar_editor = shell.image_editor($('#host-edit-avatar'), 256, 256);
 
     $('#host-edit-color').parent().
@@ -192,20 +174,36 @@ $(function () {
         });
 });
 
-function host_edit_dialog(addr) {
-    var info = shell.hosts[addr];
+function show_problem_dialog(machine) {
+    $('#reconnect-dialog-summary').text(
+        cockpit.format(_("Couldn't establish connection to $0."), machine.display_name));
+    $('#reconnect-dialog-problem').text(cockpit.message(machine.problem));
+    $('#reconnect-dialog-reconnect').off('click');
+    $('#reconnect-dialog-reconnect').on('click', function () {
+        $('#reconnect-dialog').modal('hide');
+        machine.connect();
+    });
+    $('#reconnect-dialog').modal('show');
+}
+
+function host_edit_dialog(machine) {
+    if (!machine)
+        return;
 
     $('#host-edit-fail').text("").hide();
-    $('#host-edit-name').val(info.display_name);
-    $('#host-edit-name').prop('disabled', info.state == "failed");
-    $('#host-edit-color').css('background-color', info.color);
+    $('#host-edit-name').val(machine.label);
+    $('#host-edit-name').prop('disabled', machine.state == "failed");
+    $('#host-edit-color').css('background-color', machine.color);
     $('#host-edit-apply').off('click');
     $('#host-edit-apply').on('click', function () {
         $('#host-edit-dialog').modal('hide');
-        $.when(avatar_editor.changed? info.set_avatar(avatar_editor.get_data(128, 128, "image/png")) : null,
-               info.set_color($('#host-edit-color').css('background-color')),
-               info.state != "failed"? info.set_display_name($('#host-edit-name').val()) : null).
-            fail(shell.show_unexpected_error);
+        var values = {
+            avatar: avatar_editor.changed ? avatar_editor.get_data(128, 128, "image/png") : null,
+            color: $('#host-edit-color').css('background-color'),
+            label: $('#host-edit-name').val()
+        };
+        machine.change(values)
+            .fail(shell.show_unexpected_error);
     });
     $('#host-edit-avatar').off('click');
     $('#host-edit-avatar').on('click', function () {
@@ -220,7 +218,7 @@ function host_edit_dialog(addr) {
     $('#host-edit-dialog').modal('show');
 
     avatar_editor.stop_cropping();
-    avatar_editor.load_data(info.avatar || "images/server-large.png").
+    avatar_editor.load_data(machine.avatar || "images/server-large.png").
         fail(function () {
             $('#host-edit-fail').text("Can't load image").show();
         });
@@ -256,21 +254,46 @@ PageDashboard.prototype = {
     setup: function() {
         var self = this;
 
+        this.machines = modules.machines.instance();
+
+        function make_color_div(c) {
+            return $('<div class="color-cell">').
+                css('background-color', c);
+        }
+
+        var rows = [ ];
+
+        for (var i = 0; i < modules.machines.colors.length; i += 6) {
+            var part = modules.machines.colors.slice(i, i+6);
+            rows.push(
+                $('<div>').
+                    append(
+                        part.map(make_color_div)));
+        }
+
+        $('#host-edit-color-popover .popover-content').append(rows);
+        $('#host-edit-color-popover .popover-content .color-cell').click(function () {
+            $('#host-edit-color').css('background-color', $(this).css('background-color'));
+        });
+
         var current_monitor = 0;
         var plot_x_range = 5*60;
         var plot_x_stop;
 
         $('#dashboard-add').click(function () {
-            shell.host_setup();
+            shell.host_setup(self.machines);
         });
         $('#dashboard-enable-edit').click(function () {
             self.toggle_edit(!self.edit_enabled);
         });
 
         var renderer = host_renderer($("#dashboard-hosts .list-group"));
-        $(shell.hosts).on("added.dashboard", renderer);
-        $(shell.hosts).on("removed.dashboard", renderer);
-        $(shell.hosts).on("changed.dashboard", renderer);
+        $(self.machines).on("added.dashboard", function(ev, machine) {
+            machine.connect();
+            renderer();
+        });
+        $(self.machines).on("removed.dashboard", renderer);
+        $(self.machines).on("changed.dashboard", renderer);
 
         $('#dashboard .nav-tabs li').click(function () {
             set_monitor(parseInt($(this).data('monitor-id'), 10));
@@ -339,24 +362,26 @@ PageDashboard.prototype = {
                 if (self.edit_enabled)
                     return false;
                 var addr = $(this).attr("data-address");
-                var h = shell.hosts[addr];
-                if (h.state == "failed") {
-                    h.show_problem_dialog();
+                var machine = self.machines.lookup(addr);
+                if (machine.state == "failed") {
+                    show_problem_dialog(machine);
                     return false;
                 }
             })
             .on("click", "button.pficon-delete", function() {
                 var item = $(this).parent(".list-group-item");
                 self.toggle_edit(false);
-                var h = shell.hosts[item.attr("data-address")];
-                if (h)
-                    h.remove();
+                var machine = self.machines.lookup(item.attr("data-address"));
+                if (machine) {
+                    machine.change({ visible: false });
+                    machine.close();
+                }
                 return false;
             })
             .on("click", "button.pficon-edit", function() {
                 var item = $(this).parent(".list-group-item");
                 self.toggle_edit(false);
-                host_edit_dialog(item.attr("data-address"));
+                host_edit_dialog(self.machines.lookup(item.attr("data-address")));
                 return false;
             })
             .on("mouseenter", "a.list-group-item", function() {
@@ -379,8 +404,8 @@ PageDashboard.prototype = {
             $("#dashboard-hosts .list-group-item").each(function() {
                 var item = $(this);
                 var addr = item.attr("data-address");
-                var host = shell.hosts[addr];
-                if (!host || host.state == "failed")
+                var machine = self.machines.lookup(addr);
+                if (!machine || machine.state == "failed")
                     return;
                 delete seen[addr];
                 if (!series[addr]) {
@@ -392,9 +417,9 @@ PageDashboard.prototype = {
                         .on('hover', function(event, val) {
                             highlight(item, val);
                         });
-                    if (s.options.color != host.color) {
+                    if (s.options.color != machine.color) {
                         refresh = true;
-                        s.options.color = host.color;
+                        s.options.color = machine.color;
                     }
                 });
             });
@@ -436,16 +461,8 @@ PageDashboard.prototype = {
             }
 
             function render() {
-                var sorted_hosts = Object.keys(shell.hosts)
-                    .sort(function(a1, a2) {
-                        return shell.hosts[a1].compare(shell.hosts[a2]);
-                    }).
-                    map(function(a) {
-                        return shell.hosts[a];
-                    });
-
                 var text = Mustache.render(template, {
-                    machines: sorted_hosts,
+                    machines: self.machines.list,
                     render_avatar: render_avatar
                 });
 
@@ -462,9 +479,9 @@ PageDashboard.prototype = {
         }
 
         function plot_add(addr) {
-            var shell_info = shell.hosts[addr];
+            var machine = self.machines.lookup(addr);
 
-            if (shell_info.state == "failed")
+            if (!machine || machine.state == "failed")
                 return null;
 
             var series = [ ];
@@ -473,7 +490,7 @@ PageDashboard.prototype = {
                 if (self.plots[i]) {
                     series.push(self.plots[i].add_metrics_sum_series($.extend({ host: addr},
                                                                               rm.plot),
-                                                                     { color: shell_info.color,
+                                                                     { color: machine.color,
                                                                        lines: {
                                                                            lineWidth: 2
                                                                        }
@@ -572,4 +589,4 @@ function PageDashboard() {
 
 shell.pages.push(new PageDashboard());
 
-})(jQuery, cockpit, shell);
+})(jQuery, cockpit, shell, modules);

@@ -111,6 +111,7 @@ PageSetupServer.prototype = {
     enter: function() {
         var self = this;
 
+        self.machines = PageSetupServer.machines;
         self.client = null;
         self.address = null;
         self.options = { "host-key": "" };
@@ -168,12 +169,14 @@ PageSetupServer.prototype = {
     },
 
     update_discovered: function() {
+        var self = this;
+
         var filter = $('#dashboard_setup_address').val();
         var discovered = $('#dashboard_setup_address_discovered');
-        var machines = this.local_client.getInterfacesFrom("/com/redhat/Cockpit/Machines",
-                                                           "com.redhat.Cockpit.Machine");
 
         function render_address(address) {
+            if (!address.trim())
+                return null;
             if (!filter)
                 return $('<span/>').text(address);
             var index = address.indexOf(filter);
@@ -186,25 +189,30 @@ PageSetupServer.prototype = {
         }
 
         discovered.empty();
-        for (var i = 0; i < machines.length; i++) {
-            if (!shell.find_in_array(machines[i].Tags, "dashboard")) {
-                var rendered_address = render_address(machines[i].Address);
+
+        var rendered_address, item;
+        var address, machine, addresses = self.machines.addresses;
+        for (var i = 0; i < addresses.length; i++) {
+            address = addresses[i];
+            machine = self.machines.lookup(address);
+            if (!machine.visible) {
+                rendered_address = render_address(address);
                 if (rendered_address) {
-                    if (machines[i].Address.trim() !== "") {
-                        var item =
-                            $('<li>', { 'class': 'list-group-item',
-                                        'on': { 'click': $.proxy(this, 'discovered_clicked', machines[i])
+                    item =
+                        $('<li>', {
+                            'class': 'list-group-item',
+                            'on': {
+                                'click': $.proxy(this, 'discovered_clicked', address)
                                               }
-                                      }).html(rendered_address);
-                        discovered.append(item);
-                    }
+                        }).html(rendered_address);
+                    discovered.append(item);
                 }
             }
         }
     },
 
-    discovered_clicked: function(iface) {
-        $("#dashboard_setup_address").val(iface.Address);
+    discovered_clicked: function(address) {
+        $("#dashboard_setup_address").val(address);
         this.update_discovered();
         $("#dashboard_setup_address").focus();
     },
@@ -569,40 +577,27 @@ PageSetupServer.prototype = {
     },
 
     next_setup: function() {
-        var me = this;
+        var self = this;
 
         /* We can only add the machine to the list of known machines
          * here since doing so also stores its key as 'known good',
          * and we need the users permission for this.
-         *
-         * TODO: Add a method to set only the key and use it here.
          */
 
-        var machines = this.local_client.lookup("/com/redhat/Cockpit/Machines",
-                                                "com.redhat.Cockpit.Machines");
-        machines.call('Add', me.address, me.options["host-key"], function(error, path) {
-            if (error) {
-                me.highlight_error_message('#dashboard_setup_address_error', error.message);
-                me.show_tab('address');
-                return;
-            }
-
-            me.machine = me.local_client.lookup(path, "com.redhat.Cockpit.Machine");
-            if (!me.machine) {
-                me.highlight_error_message('#dashboard_setup_address_error',
-                                           _("New machine not found in list after adding."));
-                me.show_tab('address');
-                return;
-            }
-
-            me.run_tasks(function() {
-                me.machine.call('AddTag', "dashboard", function(error) {
-                    if (error)
-                        shell.show_unexpected_error(error);
-                    me.show_tab('close');
+        self.machines.add(self.address, self.options["host-key"])
+            .fail(function(ex) {
+                self.highlight_error_message('#dashboard_setup_address_error', ex.toString());
+                self.show_tab('address');
+            })
+            .done(function(machine) {
+                self.run_tasks(function() {
+                    machine.change({ visible: true })
+                        .fail(function(ex) {
+                            shell.show_unexpected_error(ex);
+                        });
+                    self.show_tab('close');
                 });
             });
-        });
     },
 
     next_close: function() {
@@ -616,5 +611,10 @@ function PageSetupServer() {
 }
 
 shell.dialogs.push(new PageSetupServer());
+
+shell.host_setup = function host_setup(machines) {
+    PageSetupServer.machines = machines;
+    $('#dashboard_setup_server_dialog').modal('show');
+};
 
 })(jQuery, cockpit, shell);

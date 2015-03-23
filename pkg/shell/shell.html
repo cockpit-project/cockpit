@@ -17,7 +17,7 @@
         define('base1/cockpit', function() { return window.cockpit; });
     </script>
     <script src="../system/bundle.js"></script>
-
+    <script src="bundle.js"></script>
     <script src="shell.js"></script>
   </head>
   <body>
@@ -80,7 +80,7 @@
             <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete"></button>
             <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
             <img class="host-avatar" src="{{render_avatar}}">
-            <span>{{display_name}}</span>
+            <span>{{label}}</span>
           </a>
         {{/machines}}
       </script>

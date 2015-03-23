@@ -25,7 +25,6 @@ class TestDashboard(MachineCase):
         b.eval_js("""
         dashboard_addresses = function () {
           var addresses = $('#dashboard-hosts .list-group-item').map(function(i,e) { return $(e).data("address"); }).get();
-          addresses.sort(function (a1, a2) { return shell.hosts[a1].compare(shell.hosts[a2]); });
           return addresses;
         }
         """)
@@ -152,7 +151,7 @@ class TestDashboard(MachineCase):
         self.login_and_go("dashboard", href="/dashboard/list", host=None)
         self.inject_extras(b)
         self.wait_dashboard_addresses (b, [ "localhost" ])
-        old_color = b.eval_js('return shell.hosts["localhost"].color;')
+        old_style = b.attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style")
 
         b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
         b.click('#dashboard-enable-edit')
@@ -171,7 +170,7 @@ class TestDashboard(MachineCase):
         b.wait_popdown('host-edit-dialog')
 
         b.wait_text('#dashboard-hosts a:first-child span', "Horst")
-        b.wait_js_cond('shell.hosts["localhost"].color != "%s";' % old_color)
+        b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
 
         self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
 

@@ -1,0 +1,54 @@
+<head>
+    <title>Time Zone</title>
+    <meta charset="utf-8">
+    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../base1/jquery.js"></script>
+    <script src="../base1/cockpit.js"></script>
+</head>
+<body>
+    <div class="container-fluid" style='max-width: 400px'>
+        <table class="cockpit-form-table">
+            <tr>
+                <td>Time Zone</td>
+                <td><span id="current"></span></td>
+            </tr>
+            <tr>
+                <td>New Zone</td>
+                <td><input class="form-control" id="new" value="UTC"></td>
+            </tr>
+            <tr>
+                <td><button class="btn btn-default btn-primary" id="change">Change</button></td>
+		<td><span id="failure"></span></td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        var input = $("#new");
+        var current = $("#current");
+        var failure = $("#failure");
+
+        $("#change").on("click", change_zone);
+
+        var service = cockpit.dbus('org.freedesktop.timedate1');
+        var timedate = service.proxy();
+        $(timedate).on("changed", display_zone);
+
+        function display_zone() {
+            current.text(timedate.Timezone);
+        }
+
+        function change_zone() {
+            var call = timedate.SetTimezone(input.val(), true);
+            call.fail(change_fail);
+            failure.empty();
+        }
+
+        function change_fail(err) {
+            failure.text(err.message);
+        }
+
+    </script>
+</body>
+</html>
+

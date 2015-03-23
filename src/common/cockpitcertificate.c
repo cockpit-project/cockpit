@@ -37,6 +37,12 @@ openssl_make_dummy_cert (const gchar *key_file,
   gchar *stderr_str = NULL;
   gchar *command_line = NULL;
 
+  /*
+   * HACK: We have to use "localhost" instead of "localhost.localdomain"
+   * in the line below or else firefox hangs.
+   *
+   * https://bugzilla.redhat.com/show_bug.cgi?id=1204670
+   */
   const gchar *argv[] = {
     "openssl",
     "req", "-x509",
@@ -47,7 +53,7 @@ openssl_make_dummy_cert (const gchar *key_file,
     "-nodes",
     "-out", out_file,
     "-outform", "PEM",
-    "-subj", "/CN=localhost.localdomain",
+    "-subj", "/CN=localhost",
     NULL
   };
 

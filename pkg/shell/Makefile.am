@@ -32,7 +32,7 @@ shell_DATA = \
 	shell.min.js.gz \
 	pkg/shell/bundle.min.js.gz \
 	pkg/shell/index.min.html \
-	pkg/shell/shell.css \
+	pkg/shell/shell.min.css.gz \
 	pkg/shell/shell.min.html \
 	pkg/shell/manifest.json \
 	$(NULL)
@@ -43,6 +43,7 @@ shelldebug_DATA = \
 	pkg/shell/bundle.js \
 	pkg/shell/index.html \
 	pkg/shell/index.js \
+	pkg/shell/shell.css \
 	pkg/shell/shell.html \
 	$(NULL)
 

@@ -22,9 +22,11 @@ var phantom_checkpoint = phantom_checkpoint || function () { };
 define([
     "jquery",
     "base1/cockpit",
+    "shell/machines",
     'translated!base1/po',
     "manifests"
-], function($, cockpit, po, manifests) {
+], function($, cockpit, machis, po, manifests) {
+
     cockpit.locale(po);
     var _ = cockpit.gettext;
 
@@ -175,7 +177,7 @@ define([
     var current_location;
     var current_address;
 
-    var machines = new Machines();
+    var machines = new machis.instance();
     var frames = new Frames();
     var router = new Router();
     var packages = new Packages();
@@ -200,6 +202,7 @@ define([
             maybe_ready();
         })
         .on("added changed", function(ev, machine) {
+            machine.connect();
             update_machines();
             if (machines.loaded)
                 navigate();
@@ -724,77 +727,6 @@ define([
 
             delete frame_peers_by_seed[peer.channel_seed];
             delete frame_peers_by_name[child.name];
-        };
-    }
-
-    function Machines() {
-        var self = this;
-        var flat = null;
-
-        /* TODO: This should be migrated away from cockpitd */
-
-        var client = cockpit.dbus("com.redhat.Cockpit", { bus: "session", track: true });
-        var proxies = client.proxies("com.redhat.Cockpit.Machine", "/com/redhat/Cockpit/Machines");
-
-        function hostname_label(name) {
-            if (!name || name == "localhost" || name == "localhost.localdomain")
-                return window.location.hostname;
-            return name;
-        }
-
-        var map = { };
-        $(proxies).on('added changed', function(ev, proxy) {
-            var machine = map[proxy.Address];
-            if (!machine)
-                machine = { };
-            machine.address = proxy.Address;
-            machine.label = hostname_label(proxy.Name || proxy.Address);
-            machine.color = proxy.Color;
-            machine.avatar = proxy.Avatar || "images/server-small.png";
-            machine.tags = proxy.Tags || [];
-            map[proxy.Address] = machine;
-            flat = null;
-            $(self).triggerHandler(ev.type, machine);
-        });
-
-        $(proxies).on('removed', function(ev, proxy) {
-            var machine = map[proxy.Address];
-            delete map[proxy.Address];
-            flat = null;
-            $(self).triggerHandler('removed', machine);
-        });
-
-        proxies.wait(function() {
-            flat = null;
-            $(self).triggerHandler('ready');
-        });
-
-        Object.defineProperty(self, "list", {
-            enumerable: true,
-            get: function get() {
-                if (!flat) {
-                    flat = [];
-                    for (var key in map) {
-                        if ($.inArray("dashboard", map[key].tags) !== -1)
-                            flat.push(map[key]);
-                    }
-                    flat.sort(function(m1, m2) {
-                        return m2.label.localeCompare(m2.label);
-                    });
-                }
-                return flat;
-            }
-        });
-
-        self.lookup = function lookup(address) {
-            return map[address || "localhost"] || null;
-        };
-
-        self.close = function close() {
-            if (proxies)
-                $(proxies).off();
-            if (client)
-                client.close();
         };
     }
 

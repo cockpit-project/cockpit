@@ -6,7 +6,7 @@ systemd_DATA = \
 	pkg/systemd/terminal.min.html \
 	$(NULL)
 
-systemddebugdir = $(systemddir)$(DBGDIR)
+systemddebugdir = $(DBGDIR)$(systemddir)
 systemddebug_DATA = \
 	pkg/systemd/log.html \
 	pkg/systemd/server.js \

@@ -8,7 +8,7 @@ base_DATA = \
 	pkg/base1/cockpit.css \
 	pkg/base1/patternfly.css \
 	pkg/base1/manifest.json \
-	pkg/base1/po.js \
+	pkg/base1/po.js.gz \
 	pkg/base1/require.min.js.gz \
 	pkg/base1/term.min.js.gz \
 	pkg/base1/mustache.min.js.gz \
@@ -16,16 +16,18 @@ base_DATA = \
 	pkg/base1/cockpit.min.js.gz \
 	pkg/base1/bundle.min.js.gz \
 	$(BRAND)/branding.css \
-	$(base_GEN) \
+	$(base_GEN:.js=.js.gz) \
 	$(NULL)
 
 basedebugdir = $(DBGDIR)$(basedir)
 basedebug_DATA = \
+	pkg/base1/po.js \
 	pkg/base1/require.js \
 	pkg/base1/term.js \
 	pkg/base1/mustache.js \
 	pkg/base1/jquery.js \
 	pkg/base1/cockpit.js \
+	$(base_GEN) \
 	$(NULL)
 
 base_BUNDLE = \

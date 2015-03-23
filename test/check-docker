@@ -23,9 +23,10 @@ import json
 
 class TestDocker(MachineCase):
     def confirm(self):
-        self.browser.wait_popup("confirmation-dialog")
-        self.browser.click("#confirmation-dialog-confirm")
-        self.browser.wait_popdown("confirmation-dialog")
+        b = self.browser
+        b.wait_popup("confirmation-dialog")
+        b.click("#confirmation-dialog-confirm")
+        b.wait_popdown("confirmation-dialog")
 
     def testBasic(self):
         b = self.browser
@@ -42,15 +43,22 @@ class TestDocker(MachineCase):
 
         self.login_and_go("containers", href="/docker/containers")
 
-        # Import the container-probe image and wait for it to appear
-        m.upload(["container-probe.tar.gz"], "/var/tmp/container-probe.tar.gz")
-        m.execute("docker import - test/container-probe </var/tmp/container-probe.tar.gz")
+        # Build the container-probe image and wait for it to appear
+        m.execute("mkdir /var/tmp/container-probe")
+        m.upload(["container-probe"], "/var/tmp/container-probe/container-probe")
+        m.execute("""echo -e '
+FROM busybox
+ADD container-probe /bin/
+CMD ["/bin/wrongcommand"]
+' > /var/tmp/container-probe/Dockerfile""")
+        m.execute("docker build -t test/container-probe /var/tmp/container-probe")
         b.wait_in_text("#containers-images", "container-probe")
 
         # Run it
         b.click('#containers-images tr:contains("container-probe") button.btn-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE")
+        check_eq(b.val("#containers-run-image-command"), "/bin/wrongcommand")
         b.set_val("#containers-run-image-command", "/bin/container-probe")
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")
@@ -153,9 +161,15 @@ class TestDocker(MachineCase):
 
         port = 3380;
 
-        # Import the container-probe image and wait for it to appear
-        m.upload(["container-probe.tar.gz"], "/var/tmp/container-probe.tar.gz")
-        m.execute("docker import - test/container-probe </var/tmp/container-probe.tar.gz")
+        # Build the container-probe image and wait for it to appear
+        m.execute("mkdir /var/tmp/container-probe")
+        m.upload(["container-probe"], "/var/tmp/container-probe/container-probe")
+        m.execute("""echo -e '
+FROM busybox
+ADD container-probe /bin/
+CMD ["/bin/wrongcommand"]
+' > /var/tmp/container-probe/Dockerfile""")
+        m.execute("docker build -t test/container-probe /var/tmp/container-probe")
         b.wait_in_text("#containers-images", "container-probe")
 
         # Create an updated image, expose a port
@@ -271,8 +285,8 @@ CMD ["/bin/container-probe", "%d"]
         b.wait_visible("#containers-containers")
 
 # HACK - Disable all docker tests.
-#        docker-io-1.5.0-19.git5d7adce.fc22.x86_64 does not detect
-#        when our container-probe exits.
+# docker-io-1.5.0-19.git5d7adce.fc22.x86_64 does not detect
+# when our container-probe exits.
 #
 # https://bugzilla.redhat.com/show_bug.cgi?id=1204620
 #

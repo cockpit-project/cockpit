@@ -88,7 +88,7 @@ require([
         return render;
     }
 
-    renderer = view_renderer();
+    var renderer = view_renderer();
     $(client).on("pods nodes", renderer);
     renderer();
 
@@ -103,7 +103,7 @@ require([
     }
 
     function lookup_rc(id) {
-        var pod, i, length = client.replicationcontrollers.length;
+        var rc, pod, i, length = client.replicationcontrollers.length;
         for (i = 0; i < length; i++) {
             rc = client.replicationcontrollers[i];
             if (id == rc.metadata.name)
@@ -263,7 +263,7 @@ require([
 
         /* jshint validthis:true */
         var context = { };
-        var text = Mustache.render(template, $.extend(context, rc));
+        var text = Mustache.render(template, $.extend(context, entity));
         $(this).find(".modal-body").html(text);
         $("#update-dialog-apply").off('click');
         $("#update-dialog-apply").on('click', function () {

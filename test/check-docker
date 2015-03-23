@@ -270,4 +270,10 @@ CMD ["/bin/container-probe", "%d"]
         b.click("#containers-failure-start")
         b.wait_visible("#containers-containers")
 
-test_main()
+# HACK - Disable all docker tests.
+#        docker-io-1.5.0-19.git5d7adce.fc22.x86_64 does not detect
+#        when our container-probe exits.
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=1204620
+#
+# test_main()

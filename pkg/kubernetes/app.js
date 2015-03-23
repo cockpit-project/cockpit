@@ -39,7 +39,7 @@ define([
             self.address = spec.portalIP + ":" + spec.port;
             self.namespace = meta.namespace;
             service = item;
-        }
+        };
     }
 
     function KubernetesNode(client) {
@@ -74,7 +74,7 @@ define([
             self.name = meta.name;
             self.address = status.hostIP;
             node = item;
-        }
+        };
     }
 
     function builder(type, client, Constructor) {

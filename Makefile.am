@@ -18,7 +18,7 @@ TESTS =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-SUFFIXES = .js .min.js .min.js.gz .css .html .min.html .woff .woff.gz .1 .8 .5
+SUFFIXES = .js .js.gz .min.js .min.js.gz .css .html .min.html .woff .woff.gz .1 .8 .5
 
 V_CHECK = $(V_CHECK_$(V))
 V_CHECK_ = $(V_CHECK_$(AM_DEFAULT_VERBOSITY))
@@ -38,6 +38,9 @@ V_GZIP_0 = @echo "  GZIP    " $@;
 	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint --extract=always $<
 	$(AM_V_GEN) $(srcdir)/tools/missing $(srcdir)/tools/html-minifier --output $@ $<
 
+.js.js.gz:
+	@$(MKDIR_P) $(dir $@)
+	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@
 .min.js.min.js.gz:
 	@$(MKDIR_P) $(dir $@)
 	$(V_GZIP) gzip -c $< > $@.tmp && mv $@.tmp $@

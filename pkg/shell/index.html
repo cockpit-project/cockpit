@@ -8,7 +8,7 @@
     <link href="../base1/cockpit.css" rel="stylesheet">
     <link href="shell.css" rel="stylesheet">
     <script src="../base1/bundle.js"></script>
-    <script src="index.js"></script>
+    <script src="bundle.js"></script>
   </head>
   <body style="overflow: hidden;">
     <nav id="topnav" class="navbar navbar-default navbar-pf" role="navigation" hidden>
@@ -169,5 +169,12 @@
     <div id="content">
     </div>
 
+    <script>
+        require([
+            "shell/index"
+        ], function(index) {
+            /* index starts automatically when required */
+        });
+    </script>
   </body>
 </html>

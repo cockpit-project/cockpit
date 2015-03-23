@@ -19,7 +19,7 @@
 
 var phantom_checkpoint = phantom_checkpoint || function () { };
 
-require([
+define([
     "jquery",
     "base1/cockpit",
     'translated!base1/po',

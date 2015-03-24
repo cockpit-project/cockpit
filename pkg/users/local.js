@@ -599,6 +599,9 @@ PageAccount.prototype = {
     },
 
     show: function() {
+        var self = this;
+        $("#account").toggle(!!self.account_id);
+        $("#account-failure").toggle(!self.account_id);
     },
 
     setup: function() {
@@ -730,8 +733,15 @@ PageAccount.prototype = {
 
         cockpit.spawn(["/usr/bin/lastlog", "-u", self.account_id],
                       { "environ": ["LC_ALL=C"] })
-           .done(function (data) { self.lastLogin = parse_last_login(data); self.update(); })
-           .fail(log_unexpected_error);
+           .done(function (data) {
+               self.lastLogin = parse_last_login(data);
+               self.update();
+           })
+           .fail(function() {
+               self.lastLogin = null;
+               self.account = null;
+               self.update();
+           });
     },
 
     get_locked: function() {
@@ -750,6 +760,11 @@ PageAccount.prototype = {
 
     get_logged: function() {
         var self = this;
+        if (!self.account_id) {
+            self.logged = false;
+            self.update();
+            return;
+        }
 
         function parse_logged(content) {
             self.logged = content.length > 0;
@@ -791,11 +806,15 @@ PageAccount.prototype = {
            this.authorized_keys.close();
            this.authorized_keys = null;
         }
+
+        $('#account-failure').hide();
     },
 
     update: function() {
 
         if (this.account) {
+            $('#account').show();
+            $('#account-failure').hide();
             var name = $("#account-real-name");
 
             var title_name = this.account["gecos"];
@@ -859,6 +878,8 @@ PageAccount.prototype = {
                             cockpit.user.id == this.account["uid"]);
 
         } else {
+            $('#account').hide();
+            $('#account-failure').show();
             $('#account-real-name').val("");
             $('#account-user-name').text("");
             $('#account-last-login').text("");

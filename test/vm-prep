@@ -36,6 +36,13 @@ prepare()
 		$VIRSH net-undefine cockpit
 	fi
 
+	# HACK: NetworkManager races with dnsmasq-dhcp on bridge
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1205081
+	cat > /etc/sysconfig/network-scripts/ifcfg-cockpit0 << EOF
+DEVICE=cockpit0
+NM_CONTROLLED=no
+EOF
+
 	xml=$(mktemp)
 cat > $xml << EOF
 <network>

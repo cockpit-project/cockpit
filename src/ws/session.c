@@ -54,7 +54,6 @@
 
 static struct passwd *pwd;
 const char *rhost;
-char line[UT_LINESIZE + 1];
 static pid_t child;
 static char **env;
 static int want_session = 1;
@@ -650,11 +649,14 @@ out:
 static void
 utmp_log (int login)
 {
+  char id[UT_LINESIZE + 1];
   struct utmp ut;
   struct timeval tv;
+  int pid;
 
-  int pid = getpid ();
-  const char *id = line + strlen (line) - sizeof(ut.ut_id);
+  pid = getpid ();
+
+  snprintf (id, UT_LINESIZE, "%d", pid);
 
   assert (pwd != NULL);
   utmpname (_PATH_UTMP);
@@ -664,8 +666,7 @@ utmp_log (int login)
 
   strncpy (ut.ut_id, id, sizeof (ut.ut_id));
   ut.ut_id[sizeof (ut.ut_id) - 1] = 0;
-  strncpy (ut.ut_line, line, sizeof (ut.ut_line));
-  ut.ut_line[sizeof (ut.ut_line) - 1] = 0;
+  ut.ut_line[0] = 0;
 
   if (login)
     {
@@ -920,9 +921,6 @@ main (int argc,
   signal (SIGTSTP, SIG_IGN);
   signal (SIGHUP, SIG_IGN);
   signal (SIGPIPE, SIG_IGN);
-
-  snprintf (line, UT_LINESIZE, "cockpit-%d", getpid ());
-  line[UT_LINESIZE] = '\0';
 
   if (strcmp (auth, "basic") == 0)
     pamh = perform_basic ();

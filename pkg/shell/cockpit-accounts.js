@@ -164,25 +164,31 @@ function change_password(user_name, old_pass, new_pass, success_call, failure_ca
     var expect_in;
     var call;
 
+    var percent = /%/g;
+    if (old_pass)
+        old_pass = encodeURIComponent(old_pass).replace(percent, "\\x");
+    if (new_pass)
+        new_pass = encodeURIComponent(new_pass).replace(percent, "\\x");
+
     if (cockpit.user["user"] == user_name) {
         expect_in  = 'spawn passwd;' +
             'expect "Changing password for user ' + user_name + '";' +
             'expect "Changing password for ' + user_name + '";' +
             'expect "(current) UNIX password: ";' +
-            'send "' + old_pass + '\\r";' +
+            'send -- "' + old_pass + '\\r";' +
             'expect "New password: ";' +
-            'send "' + new_pass + '\\r";' +
+            'send -- "' + new_pass + '\\r";' +
             'expect "Retype new password: ";' +
-            'send "' + new_pass + '\\r";' +
+            'send -- "' + new_pass + '\\r";' +
             'expect "passwd: all authentication tokens updated successfully.";';
         call = cockpit.spawn([ "/usr/bin/expect"], { "environ": ["LC_ALL=C"]});
     } else {
         expect_in = 'spawn passwd ' + user_name + ';' +
             'expect "Changing password for user ' + user_name + '";' +
             'expect "New password: ";' +
-            'send "' + new_pass + '\\r";' +
+            'send -- "' + new_pass + '\\r";' +
             'expect "Retype new password: ";' +
-            'send "' + new_pass + '\\r";' +
+            'send -- "' + new_pass + '\\r";' +
             'expect "passwd: all authentication tokens updated successfully.";';
         call = cockpit.spawn([ "/usr/bin/expect"], {"superuser" : true, "environ": ["LC_ALL=C"]});
     }

@@ -85,4 +85,26 @@ class TestAccounts(MachineCase):
         b.wait_popdown('account-change-roles-dialog')
         check("jussi" in m.execute("grep wheel /etc/group"))
 
+        # Change the password of this account
+        b.go("account?id=jussi")
+        b.enter_page("account")
+        b.set_val('#accounts-create-locked', "no")
+        b.click('#account-set-password')
+        b.wait_popup('account-set-password-dialog')
+        b.set_val("#account-set-password-pw1", 'ö5"')
+        b.set_val("#account-set-password-pw2", 'ö5"')
+        b.click('#account-set-password-apply')
+        b.wait_popdown('account-set-password-dialog')
+
+        # Logout and login with the new password
+        b.logout()
+        self.allow_restart_journal_messages()
+        b.open("system/host")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "jussi")
+        b.set_val("#login-password-input", 'ö5"')
+        b.click('#login-button')
+        b.expect_reload()
+        b.wait_present('#content')
+
 test_main()

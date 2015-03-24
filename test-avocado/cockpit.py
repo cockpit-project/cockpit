@@ -52,9 +52,9 @@ class Test(test.Test):
         self.browser = Browser("localhost", self.label)
         self.journal_start = re.sub('.*cursor: ', '',
                                     subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True))
-        process.run("systemctl start cockpit-testing.socket", shell=True)
 
     def action(self):
+        process.run("systemctl start cockpit-testing.socket", shell=True)
         self.test()
         self.check_journal_messages()
 

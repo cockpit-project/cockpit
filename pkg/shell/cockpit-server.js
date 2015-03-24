@@ -94,15 +94,6 @@ function ServerTime() {
     }
 
     self.update = function update() {
-        if (timedate.valid && timedate.TimeUSec && timedate.LocalOffset !== undefined) {
-            offsets(timedate.TimeUSec / 1000, timedate.LocalOffset / 1000);
-            return;
-        }
-
-        /*
-         * Earlier versions of timedated did not have the TimeUSec
-         * and/or LocalOffset functions.
-         */
         cockpit.spawn(["/usr/bin/date", "+%s:%:z"])
             .done(function(data) {
                 var parts = data.trim().split(":").map(function(x) {
@@ -141,10 +132,6 @@ function ServerTime() {
 
         return dfd;
     };
-
-    if (timedate.valid)
-        self.calculate();
-    $(timedate).on("changed", self.calculate);
 
     self.close = function close() {
         client.close();

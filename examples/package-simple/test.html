@@ -57,7 +57,7 @@ $ sudo systemctl restart cockpit</pre>
             $("#failure").empty();
 
             var cmd = [ "ping", $("#address").val() ];
-            proc = cockpit.spawn(cmd, { "error": "output" }).
+            proc = cockpit.spawn(cmd, { "err": "out" }).
                 stream(function(data) {
                     output.append(document.createTextNode(data));
                 }).

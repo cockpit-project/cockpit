@@ -512,7 +512,7 @@ shell.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         $(real_time_channel).on("close", function (event, options) {
 
             /* Go for the fallback internal metrics if these metrics are not supported */
-            if (options.problem == "not-supported" && fallback) {
+            if ((options.problem == "not-supported" || options.problem == "not-found") && fallback) {
                 real_time_channel = channel_sampler($.extend({ }, chanopts, {
                     source: "internal",
                     interval: real_time_samples_interval,

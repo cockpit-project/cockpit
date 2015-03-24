@@ -2084,6 +2084,16 @@ handle = file.watch(callback, error_callback);
         <code>window.location.origin</code> then this will be identical to that value.</para>
     </refsection>
 
+    <refsection id="cockpit-transport-host">
+      <title>cockpit.transport.host</title>
+<programlisting>
+  cockpit.transport.host
+</programlisting>
+      <para>The host that this transport is going to talk to by default. This is
+        read-only, you should not assign a value. If the value is null that means that the
+        transport has not been setup yet.</para>
+    </refsection>
+
     <refsection id="cockpit-transport-options">
       <title>cockpit.transport.options</title>
 <programlisting>

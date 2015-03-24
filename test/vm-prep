@@ -32,8 +32,8 @@ usage()
 prepare()
 {
 	if silent $VIRSH net-info cockpit; then
-		$VIRSH net-destroy cockpit
-		$VIRSH net-undefine cockpit
+		$VIRSH net-destroy cockpit || true
+		$VIRSH net-undefine cockpit || true
 	fi
 
 	xml=$(mktemp)
